@@ -119,3 +119,50 @@ func TestRuleCheckAbsentWithoutCodes(t *testing.T) {
 		t.Fatal("rule_check on a case without codes")
 	}
 }
+
+// A part that carries other suggested codes gets the robustness test: the
+// answer under each code, stored with the case and read back (D430).
+func TestRuleCheckRobustnessOverSuggestedCodes(t *testing.T) {
+	rules, err := tariffshift.Default()
+	if err != nil {
+		t.Fatal(err)
+	}
+	hs := newHarnessWith(t, "usmca_part102", func(d *Deps) {
+		d.USMCA, d.USMCAFastPath = usmcaEngine{conf: 0.97}, 0
+		d.RuleCheck = rules
+	})
+	body := ruleCheckProduct("7616.99")
+	var req map[string]any
+	_ = json.Unmarshal([]byte(body), &req)
+	comps := req["product"].(map[string]any)["components"].([]any)
+	comps[0].(map[string]any)["hts_alternatives"] = []string{"7604.29", "8473.30.11"}
+	b, _ := json.Marshal(req)
+	code, out := hs.do(t, "POST", "/v1/cases/predict", string(b))
+	if code != http.StatusCreated {
+		t.Fatalf("predict = %d %v", code, out)
+	}
+	rb, ok := out["rule_check"].(map[string]any)["robustness"].(map[string]any)
+	if !ok || rb["stable"] != false || rb["evaluated"] != float64(3) {
+		t.Fatalf("robustness %v", out["rule_check"])
+	}
+	if d, _ := rb["depends_on"].([]any); len(d) != 1 || d[0] != "aluminum fins" {
+		t.Fatalf("depends_on %v", rb["depends_on"])
+	}
+	// The plain check is unchanged: it reads the code the part carries.
+	if out["rule_check"].(map[string]any)["result"].(map[string]any)["origin"] != "Mexico" {
+		t.Fatalf("result %v", out["rule_check"])
+	}
+
+	// Without alternatives there is no robustness field.
+	code, out = hs.do(t, "POST", "/v1/cases/predict", ruleCheckProduct("7616.99"))
+	if code != http.StatusCreated || out["rule_check"].(map[string]any)["robustness"] != nil {
+		t.Fatalf("= %d %v", code, out["rule_check"])
+	}
+
+	// More than two alternatives is refused.
+	comps[0].(map[string]any)["hts_alternatives"] = []string{"7604.29", "7616.10", "7616.91"}
+	b, _ = json.Marshal(req)
+	if code, out = hs.do(t, "POST", "/v1/cases/predict", string(b)); code != http.StatusBadRequest {
+		t.Fatalf("= %d %v", code, out)
+	}
+}

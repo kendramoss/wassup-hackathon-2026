@@ -36,6 +36,14 @@ test("the page shows the recorded suggestions, the check before and after, and C
   assert.match(t, /With only the codes the ruling's text states Rule check \(19 CFR 102\.20\): add HTS codes for 1 part to run it\. \(flat coiled stainless steel\)/);
   assert.match(t, /Canada under the tariff-shift rules, from the codes given\./);
   assert.match(t, /The check agrees with CBP's ruling\./);
+  // Judge panel round 9, N2: the top code for the strip is for widths of
+  // 600 mm or more; the page says so, and that the answer is the same under
+  // the second code. The recorded suggestions are not edited.
+  assert.equal(ex.parts[0].suggestions[0].hts, "7219.33");
+  assert.equal(ex.robustness.stable, true);
+  assert.match(t, /Same answer for every suggested code: 2 combinations of the codes suggested for flat coiled stainless steel\./);
+  assert.match(t, /Our note, added after the run: the top suggestion, 7219\.33, is for stainless steel 600 mm wide or more\./);
+  assert.match(t, /7220\.20 \(under 600 mm\), is the likely code/);
   assert.match(t, /On most Part 102 rulings it still does not decide/);
   assert.match(m, /href="\/cases\/case_878d76540b91\/draft\?tour=1"/, "back to the tour");
   // Read only: nothing to press that writes, no form, no "Add codes" link.
@@ -46,4 +54,15 @@ test("the tour's last step points at the example", () => {
   const m = html(DemoTour, { id: "case_878d76540b91", tab: "draft" });
   assert.match(m, /href="\/examples\/rule-check\?tour=1&amp;from=case_878d76540b91"/);
   assert.match(text(m), /Next: per-part codes and the rule check \(recorded example\) →/);
+});
+
+// Judge panel round 9, N3 and N4: /method and /accuracy link the example, and
+// /method gives the held-out figure without the inputs that carried a code.
+test("/method and /accuracy link the example; /method gives both held-out figures", () => {
+  const src = (f) => readFileSync(new URL(`../src/components/op/screens/${f}`, import.meta.url), "utf8").replace(/\s+/g, " ");
+  const method = src("method-page.tsx");
+  assert.match(method, /href="\/examples\/rule-check"/);
+  assert.match(method, /7 of 29 \(6 agree\); 7 of 24 \(6 agree\) without the inputs that carried a code/);
+  assert.match(method, /8 of the 9 development decisions and 6 of the 7 held-out ones/);
+  assert.match(src("accuracy-page.tsx"), /href="\/examples\/rule-check"/);
 });

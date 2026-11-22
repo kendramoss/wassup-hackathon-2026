@@ -630,6 +630,13 @@ function HowBuilt() {
         Product facts in, a broker-ready plan out: every answer cites the rulings it read, nothing reads rulings dated after the case, and a daily spend cap keeps model costs
         bounded. The engine, router and verifier are measured above. The held-out rulings were never used to tune prompts or retrieval; the general engine&apos;s auto-accept bar is fitted on development rulings, while the textile, pharmaceutical and Part 102 bars came from their first held-out windows.
       </p>
+      <p className="read mt-3 max-w-[95ch] text-[13.5px] text-dim">
+        Beside the engine, a deterministic 19 CFR 102.20 tariff-shift check runs when the parts carry HTS codes, and the parts table can suggest those codes. It never
+        changes the answer or what is auto-accepted.{" "}
+        <Link href="/examples/rule-check" className="text-ok underline underline-offset-2">
+          Per-part codes and the rule check, a recorded example →
+        </Link>
+      </p>
       <p className="read mt-3 text-[13.5px]">
         <Link href="/method" className="text-ok underline underline-offset-2">
           How it&apos;s built and tested →

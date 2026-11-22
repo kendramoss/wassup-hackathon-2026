@@ -1990,6 +1990,12 @@ components:
         plant: { type: string, description: Plant ID when made at one of the product's own plants }
         group: { type: string, description: Operation group that produces it }
         hts: { type: string, pattern: "^[0-9]{4}(?:[. ]?[0-9]{2}){0,3}$", example: "7616.99", description: "Optional HTS heading or subheading of the part. Read only by the 19 CFR 102.20 rule check (rule_check, D363); not part of the facts." }
+        hts_alternatives:
+          type: array
+          maxItems: 2
+          items: { type: string, pattern: "^[0-9]{4}(?:[. ]?[0-9]{2}){0,3}$" }
+          example: ["7220.20"]
+          description: "When hts was accepted from a suggestion (POST /v1/products/parts-hts-suggest): the other codes suggested for the part. Read only by the rule check's robustness test (rule_check.robustness, D430); not part of the facts."
     RuleCheck:
       type: object
       description: "The deterministic 19 CFR 102.20 tariff-shift check (D360, D363), present only when the product gives an HTS code for the good and at least one part. Computed when the case is read; display only: it never changes the prediction, the triage or auto-accept. RULE_CHECK=off removes it."
@@ -2040,6 +2046,27 @@ components:
                   status: { type: string, enum: [shift, no_shift, needs_fact, missing_hts] }
                   alternative: { type: integer, description: "1-based alternative of the row the part satisfies" }
                   needs: { type: array, items: { type: string } }
+        robustness:
+          type: object
+          description: "Present when a part carries other suggested codes (components[].hts_alternatives): the check run on every combination of each part's codes (a deterministic sample past 81), and whether the answer is the same under all of them (D430). Display only."
+          required: [stable, combinations, evaluated, sampled, parts, outcomes, summary]
+          properties:
+            stable: { type: boolean, description: "Every combination gives the same status and, when decided, the same origin" }
+            combinations: { type: integer }
+            evaluated: { type: integer }
+            sampled: { type: boolean, description: "More than 81 combinations: the codes carried, every single-part change from them, then evenly spaced combinations" }
+            parts: { type: array, items: { type: string }, description: "Parts with more than one code" }
+            depends_on: { type: array, items: { type: string }, description: "Parts whose code alone changes the answer" }
+            outcomes:
+              type: array
+              items:
+                type: object
+                required: [status, count]
+                properties:
+                  status: { type: string, enum: [decided, undetermined, out_of_scope] }
+                  origin: { type: string }
+                  count: { type: integer }
+            summary: { type: string, example: "the same answer for every suggested code (2 combinations of the codes suggested for flat coiled stainless steel)" }
     Operation:
       type: object
       required: [name, plant]

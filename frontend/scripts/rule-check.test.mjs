@@ -125,3 +125,18 @@ test("no rule and no product code: still asks for the product's code", () => {
   const c = { id: "x", ...part102, product: product("", ["7616.99"]), rule_check: noCountry };
   assert.deepEqual(ruleCheckDisplay(c), { kind: "line", text: "add HTS codes for the product to run it.", addCodes: true });
 });
+
+// D430: the check re-run over the other codes suggested for each part.
+test("robustness: one line, calm when stable, flagged when a part's code matters", () => {
+  const stable = { ...decided, robustness: { stable: true, combinations: 2, evaluated: 2, sampled: false, parts: ["aluminum fins"], outcomes: [{ status: "decided", origin: "Mexico", count: 2 }], summary: "s" } };
+  let m = html(RuleCheckPanel, { c: { id: "x", rule_check: stable } });
+  assert.match(text(m), /Same answer for every suggested code: 2 combinations of the codes suggested for aluminum fins\./);
+  assert.match(m, /data-rule-check-robust="stable"/);
+  const sampled = { ...stable, robustness: { ...stable.robustness, combinations: 729, evaluated: 81, sampled: true } };
+  assert.match(text(html(RuleCheckPanel, { c: { id: "x", rule_check: sampled } })), /a sample of 81 of 729 combinations/);
+  const depends = { ...decided, robustness: { ...stable.robustness, stable: false, depends_on: ["aluminum fins"], outcomes: [] } };
+  m = html(RuleCheckPanel, { c: { id: "x", rule_check: depends } });
+  assert.match(text(m), /The answer depends on the code for aluminum fins\. Check that code with your broker first\./);
+  assert.match(m, /data-rule-check-robust="depends"/);
+  assert.doesNotMatch(text(html(RuleCheckPanel, { c: { id: "x", rule_check: decided } })), /suggested code/, "no alternatives, no line");
+});

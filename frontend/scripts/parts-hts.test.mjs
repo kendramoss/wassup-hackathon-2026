@@ -5,7 +5,7 @@ import { html, text } from "./render-support.mjs";
 // D380: per-part HTS suggestions are offered, never filled in by themselves.
 // acceptAll fills the top code only into parts without one, and only while the
 // row still holds the part the suggestion was made for.
-const { acceptAll, suggestionFor, PartSuggestionRow } = await import("../src/components/op/parts-hts.tsx");
+const { acceptAll, suggestionFor, withSuggested, PartSuggestionRow } = await import("../src/components/op/parts-hts.tsx");
 
 const motor = { hts: "8501.31", source: "rulings", reason: "A DC motor, as in N100001.", cited: ["N100001"], supporting_rulings: [{ id: "N100001", url: "https://rulings.cbp.gov/ruling/N100001" }] };
 const housing = { hts: "3926.90", source: "model", reason: "Plastic article.", cited: [], supporting_rulings: [] };
@@ -54,4 +54,20 @@ test("each code says where it comes from", () => {
   assert.match(t, /model's reading, no ruling found/);
   assert.match(out, /aria-pressed="true"/);
   assert.match(out, /N100001/);
+});
+
+// D430: an accepted code carries the part's other suggested codes, so the
+// rule check can say whether its answer is the same under each.
+test("an accepted code keeps the other suggested codes as alternatives", () => {
+  const strip = { hts: "7220.20", source: "model", reason: "Narrow strip.", cited: [], supporting_rulings: [] };
+  const wide = { hts: "7219.33", source: "rulings", reason: "Wide coil.", cited: [], supporting_rulings: [] };
+  const c = withSuggested({ name: "strip", made_in: "India" }, "7220.20", [wide, strip, motor]);
+  assert.equal(c.hts, "7220.20");
+  assert.deepEqual(c.hts_alternatives, ["7219.33", "8501.31"]);
+  assert.equal(withSuggested({ name: "strip", made_in: "India" }, "7219.33", [wide]).hts_alternatives, undefined, "only one code: none");
+  const r = acceptAll({ name: "x", plants: [], operations: [], components: [{ name: "motor", made_in: "China" }] }, {
+    ...sugg,
+    parts: new Map([[0, { name: "motor", candidates: [motor, housing] }]]),
+  });
+  assert.deepEqual(r.product.components[0].hts_alternatives, ["3926.90"]);
 });

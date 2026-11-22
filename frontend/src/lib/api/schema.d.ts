@@ -1251,6 +1251,13 @@ export interface components {
              * @example 7616.99
              */
             hts?: string;
+            /**
+             * @description When hts was accepted from a suggestion (POST /v1/products/parts-hts-suggest): the other codes suggested for the part. Read only by the rule check's robustness test (rule_check.robustness, D430); not part of the facts.
+             * @example [
+             *       "7220.20"
+             *     ]
+             */
+            hts_alternatives?: string[];
         };
         /** @description The deterministic 19 CFR 102.20 tariff-shift check (D360, D363), present only when the product gives an HTS code for the good and at least one part. Computed when the case is read; display only: it never changes the prediction, the triage or auto-accept. RULE_CHECK=off removes it. */
         RuleCheck: {
@@ -1305,6 +1312,27 @@ export interface components {
                     alternative?: number;
                     needs?: string[];
                 }[];
+            };
+            /** @description Present when a part carries other suggested codes (components[].hts_alternatives): the check run on every combination of each part's codes (a deterministic sample past 81), and whether the answer is the same under all of them (D430). Display only. */
+            robustness?: {
+                /** @description Every combination gives the same status and, when decided, the same origin */
+                stable: boolean;
+                combinations: number;
+                evaluated: number;
+                /** @description More than 81 combinations: the codes carried, every single-part change from them, then evenly spaced combinations */
+                sampled: boolean;
+                /** @description Parts with more than one code */
+                parts: string[];
+                /** @description Parts whose code alone changes the answer */
+                depends_on?: string[];
+                outcomes: {
+                    /** @enum {string} */
+                    status: "decided" | "undetermined" | "out_of_scope";
+                    origin?: string;
+                    count: number;
+                }[];
+                /** @example the same answer for every suggested code (2 combinations of the codes suggested for flat coiled stainless steel) */
+                summary: string;
             };
         };
         Operation: {

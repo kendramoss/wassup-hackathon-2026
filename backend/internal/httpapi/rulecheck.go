@@ -31,6 +31,10 @@ type RuleCheckView struct {
 	// a person's look. It does not change the triage route.
 	Review bool   `json:"review"`
 	Note   string `json:"note"`
+	// Robustness, when a part carries other suggested codes
+	// (components[].hts_alternatives), says whether the answer is the same
+	// under each combination of them (D430). Display only, like the rest.
+	Robustness *tariffshift.Robustness `json:"robustness,omitempty"`
 }
 
 const ruleCheckNote = "A deterministic check of the 19 CFR 102.20 tariff-shift rule from the HTS codes given. It does not change the answer above or what is auto-accepted. Not a ruling."
@@ -53,12 +57,15 @@ func (a *api) ruleCheck(c store.Case) *RuleCheckView {
 	}
 	country, from := productionCountry(*c.Product)
 	in := tariffshift.Input{GoodHTS: c.Product.HTS, Country: country}
+	var alts [][]string
 	for _, comp := range c.Product.Components {
 		in.Materials = append(in.Materials, tariffshift.Material{Name: comp.Name, HTS: comp.HTS, Origin: comp.MadeIn})
+		alts = append(alts, comp.HTSAlternatives)
 	}
 	v := &RuleCheckView{
 		Rules: "19 CFR 102.20", Applies: "informational", Country: country, CountryFrom: from,
 		Result: a.d.RuleCheck.Evaluate(in), ModelOrigin: c.Prediction.Origin, Note: ruleCheckNote,
+		Robustness: a.d.RuleCheck.Robust(in, alts),
 	}
 	if c.Router != nil && c.Router.Regime == router.RegimeUSMCA {
 		v.Applies = "part102"

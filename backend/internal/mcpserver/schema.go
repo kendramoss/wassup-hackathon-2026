@@ -92,6 +92,8 @@ func (t tools) product() *jsonschema.Schema {
 		"plant":   id(),
 		"group":   id(),
 		"hts":     pattern("Optional HTS heading or subheading of this part, e.g. 7616.99. With the product's hts, it turns on the 19 CFR 102.20 rule check (rule_check).", `^[0-9]{4}(?:[. ]?[0-9]{2}){0,3}$`, 14),
+		"hts_alternatives": array("When hts was accepted from suggest_part_hts: the other codes suggested for this part. The rule check then says whether its answer is the same under each (rule_check.robustness).",
+			pattern("", `^[0-9]{4}(?:[. ]?[0-9]{2}){0,3}$`, 14), 0, 2),
 	})
 	op := object("An assembly or processing step and the plant that does it.", []string{"name", "plant"}, map[string]*jsonschema.Schema{
 		"name":  name(),
