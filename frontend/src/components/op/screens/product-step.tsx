@@ -24,6 +24,8 @@ import { ActionSlotProvider } from "../action-bar";
 import { CaseTabs, Elapsed, ErrorBox, Footer, Main, Next } from "../chrome";
 import { MoneyDrawer, hasAnyMoney, hasMoney, moneySummary, productGroups } from "../money-drawer";
 import { opsErrorText } from "../operational-fields";
+import { MarketPicker } from "../market-picker";
+import type { MarketCode } from "@/lib/market";
 import { Combobox, countryOptions, type ComboOption } from "../combobox";
 import { HtsField } from "../hts-field";
 import { PartSuggestionRow, PartsHtsBar, suggestionFor, withSuggested, type PartsSuggestions } from "../parts-hts";
@@ -274,6 +276,10 @@ export function ProductStep() {
   const [importFailed, setImportFailed] = useState(false);
   const [name, setName] = useState("");
   const [date, setDate] = useState(today);
+  // The market (D680): sent only once the user picks one, so an untouched
+  // picker lets the server read the market from the text.
+  const [market, setMarket] = useState<MarketCode>("us");
+  const [marketPicked, setMarketPicked] = useState(false);
   const [family, setFamily] = useState("motorised_tools_small_appliances");
   const [facts, setFacts] = useState("");
   const [hts, setHts] = useState("");
@@ -463,6 +469,7 @@ export function ProductStep() {
     const body: PredictRequest = {
       ...predictBody({ date, tab, name, hts, family, facts, product, extra }),
       economics: hasAnyMoney(economics) ? economics : undefined,
+      jurisdiction: marketPicked ? market : undefined,
     };
     setStages([]);
     try {
@@ -522,7 +529,7 @@ export function ProductStep() {
               them: name it, describe it, check what that unlocks and go. An
               import still fills the name. */}
           <SectionHead n={1} title="The product" />
-          <div className="mt-3 grid gap-4 sm:grid-cols-[minmax(0,1.3fr)_minmax(0,1fr)_200px]">
+          <div className="mt-3 grid gap-4 sm:grid-cols-2 lg:grid-cols-[minmax(0,1.3fr)_minmax(0,1fr)_170px_200px]">
             <Field label={copy.product.name} help={askName && !name.trim() ? "Name the product as you would to CBP. It heads the ruling letter." : undefined}>
               {(id) => (
                 <input
@@ -569,6 +576,18 @@ export function ProductStep() {
             </Field>
             <Field label={copy.product.date} help={copy.product.dateHelp}>
               {(id) => <input id={id} data-field="date" type="date" className={cx(input, "tabular-nums")} value={date} onChange={(e) => setDate(e.target.value)} />}
+            </Field>
+            <Field label={copy.market.label}>
+              {(id) => (
+                <MarketPicker
+                  id={id}
+                  value={market}
+                  onChange={(m) => {
+                    setMarket(m);
+                    setMarketPicked(true);
+                  }}
+                />
+              )}
             </Field>
           </div>
 

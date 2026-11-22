@@ -66,7 +66,7 @@ test("bounded best-plan wording: searched moves, the entered costs, no unmodelle
   const everything = JSON.stringify([copy.review, copy.jurisdiction]);
   assert.doesNotMatch(everything, /optimal|cheapest|guarantee|certif(ied|ication) by|approved by CBP/i);
   assert.doesNotMatch(JSON.stringify(copy.review), /\bblock|reject|detect/i, "no claim that the engine blocks or detects non-U.S. queries");
-  // The one line that says "detect"/"block" is the accuracy-page line saying there is NO such check.
+  // The one line that may say "detect"/"block" is the accuracy-page line on the market check (D680).
   const scope = { ...copy.jurisdiction };
   delete scope.noDetector;
   assert.doesNotMatch(JSON.stringify(scope), /\bblock|reject|detect/i);
@@ -103,7 +103,7 @@ test("the Part 102 chip and card are named for what they are; internal regime id
   assert.match(src, /Card title="Part 102 marking origin"/);
 });
 
-test("the accuracy page lists what is not covered, with no detector claim and no invented Section 301 limit", async () => {
+test("the accuracy page lists what is not covered, says the market check misses some, and no invented Section 301 limit", async () => {
   const { readFile } = await import("node:fs/promises");
   const src = await readFile(new URL("../src/components/op/screens/accuracy-page.tsx", import.meta.url), "utf8");
   assert.match(src, /copy\.jurisdiction\.notCovered/);
@@ -111,6 +111,7 @@ test("the accuracy page lists what is not covered, with no detector claim and no
   const n = copy.jurisdiction.notCovered;
   for (const s of ["EU Binding Origin Information", "USMCA regional value content", "certificates of origin", "drawback", "antidumping and countervailing duty", "Section 232 duties are not included"]) assert.ok(n.includes(s), s);
   assert.doesNotMatch(n, /301/);
-  assert.match(copy.jurisdiction.noDetector, /no automatic check/);
+  assert.match(copy.jurisdiction.noDetector, /Pick the market/);
+  assert.match(copy.jurisdiction.noDetector, /misses some/, "the market check is not claimed to catch every non-U.S. question (D682)");
   assert.doesNotMatch(copy.jurisdiction.noDetector, /is blocked|are blocked|rejects/);
 });

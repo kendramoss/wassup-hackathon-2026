@@ -1,0 +1,4976 @@
+{
+  "detector": "market-detect-v2",
+  "exact_market": 0,
+  "git_revision": "52410a492696d2c57f794c142926eebe61a6d18e-dirty",
+  "kept_from_us_answer": 0,
+  "kept_without_router": 0,
+  "non_us_texts": 0,
+  "note": "kept_from_us_answer counts a hint, which reviews only when the router says unclear; kept_without_router counts only a non-U.S. market or a conflict",
+  "rows": [
+    {
+      "id": "H322922",
+      "want": "us",
+      "got": "us",
+      "source": "detected",
+      "cue": "HTSUS",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "H323218",
+      "want": "us",
+      "got": "us",
+      "source": "default",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "H325607",
+      "want": "us",
+      "got": "us",
+      "source": "detected",
+      "cue": "goods sent to United States",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "H331375",
+      "want": "us",
+      "got": "us",
+      "source": "detected",
+      "cue": "HTSUS",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "H333407",
+      "want": "us",
+      "got": "us",
+      "source": "detected",
+      "cue": "HTSUS",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "H333699",
+      "want": "us",
+      "got": "us",
+      "source": "detected",
+      "cue": "entry into United States",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "H334088",
+      "want": "us",
+      "got": "us",
+      "source": "default",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "H335912",
+      "want": "us",
+      "got": "us",
+      "source": "default",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "H339179",
+      "want": "us",
+      "got": "us",
+      "source": "detected",
+      "cue": "United States customs",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "H339851",
+      "want": "us",
+      "got": "us",
+      "source": "detected",
+      "cue": "HTSUS",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "H340588",
+      "want": "us",
+      "got": "us",
+      "source": "detected",
+      "cue": "HTSUS",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "H341021",
+      "want": "us",
+      "got": "us",
+      "source": "detected",
+      "cue": "HTSUS",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "H341208",
+      "want": "us",
+      "got": "us",
+      "source": "detected",
+      "cue": "entry into United States",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "H341684",
+      "want": "us",
+      "got": "us",
+      "source": "default",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "H341787",
+      "want": "us",
+      "got": "us",
+      "source": "detected",
+      "cue": "HTSUS",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "H342474",
+      "want": "us",
+      "got": "us",
+      "source": "detected",
+      "cue": "HTSUS",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "H342833",
+      "want": "us",
+      "got": "us",
+      "source": "default",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "H344538",
+      "want": "us",
+      "got": "us",
+      "source": "default",
+      "hint": "ca",
+      "kept_from_us_answer": true
+    },
+    {
+      "id": "H344638",
+      "want": "us",
+      "got": "us",
+      "source": "detected",
+      "cue": "goods sent to United States",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "H345343",
+      "want": "us",
+      "got": "us",
+      "source": "detected",
+      "cue": "HTSUS",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "H346536",
+      "want": "us",
+      "got": "us",
+      "source": "default",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "H346979",
+      "want": "us",
+      "got": "us",
+      "source": "detected",
+      "cue": "HTSUS",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "H347415",
+      "want": "us",
+      "got": "us",
+      "source": "detected",
+      "cue": "Section 301/232",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "H348154",
+      "want": "us",
+      "got": "us",
+      "source": "default",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "H349670",
+      "want": "us",
+      "got": "us",
+      "source": "detected",
+      "cue": "HTSUS",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "H350894",
+      "want": "us",
+      "got": "us",
+      "source": "default",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "H354210",
+      "want": "us",
+      "got": "us",
+      "source": "detected",
+      "cue": "HTSUS",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "N337260",
+      "want": "us",
+      "got": "us",
+      "source": "detected",
+      "cue": "Section 301/232",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "N337479",
+      "want": "us",
+      "got": "us",
+      "source": "detected",
+      "cue": "HTSUS",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "N337651",
+      "want": "us",
+      "got": "us",
+      "source": "detected",
+      "cue": "HTSUS",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "N337715",
+      "want": "us",
+      "got": "us",
+      "source": "detected",
+      "cue": "goods sent to United States",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "N337938",
+      "want": "us",
+      "got": "us",
+      "source": "detected",
+      "cue": "HTSUS",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "N338004",
+      "want": "us",
+      "got": "us",
+      "source": "default",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "N338219",
+      "want": "us",
+      "got": "us",
+      "source": "default",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "N338249",
+      "want": "us",
+      "got": "us",
+      "source": "detected",
+      "cue": "goods sent to United States",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "N338270",
+      "want": "us",
+      "got": "us",
+      "source": "default",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "N338502",
+      "want": "us",
+      "got": "us",
+      "source": "detected",
+      "cue": "goods sent to United States",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "N339353",
+      "want": "us",
+      "got": "us",
+      "source": "detected",
+      "cue": "goods sent to United States",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "N339851",
+      "want": "us",
+      "got": "us",
+      "source": "detected",
+      "cue": "HTSUS",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "N339969",
+      "want": "us",
+      "got": "us",
+      "source": "detected",
+      "cue": "HTSUS",
+      "hint": "ca",
+      "kept_from_us_answer": true
+    },
+    {
+      "id": "N340017",
+      "want": "us",
+      "got": "us",
+      "source": "detected",
+      "cue": "HTSUS",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "N340075",
+      "want": "us",
+      "got": "us",
+      "source": "detected",
+      "cue": "HTSUS",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "N341003",
+      "want": "us",
+      "got": "us",
+      "source": "detected",
+      "cue": "Section 301/232",
+      "hint": "ca",
+      "kept_from_us_answer": true
+    },
+    {
+      "id": "N341152",
+      "want": "us",
+      "got": "us",
+      "source": "default",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "N341165",
+      "want": "us",
+      "got": "us",
+      "source": "detected",
+      "cue": "HTSUS",
+      "hint": "ca",
+      "kept_from_us_answer": true
+    },
+    {
+      "id": "N342447",
+      "want": "us",
+      "got": "us",
+      "source": "detected",
+      "cue": "goods sent to United States",
+      "hint": "ca",
+      "kept_from_us_answer": true
+    },
+    {
+      "id": "N342477",
+      "want": "us",
+      "got": "us",
+      "source": "default",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "N342959",
+      "want": "us",
+      "got": "us",
+      "source": "detected",
+      "cue": "HTSUS",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "N343290",
+      "want": "us",
+      "got": "us",
+      "source": "detected",
+      "cue": "Section 301/232",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "N343418",
+      "want": "us",
+      "got": "us",
+      "source": "detected",
+      "cue": "Section 301/232",
+      "hint": "mx",
+      "kept_from_us_answer": true
+    },
+    {
+      "id": "N343690",
+      "want": "us",
+      "got": "us",
+      "source": "detected",
+      "cue": "Section 301/232",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "N343893",
+      "want": "us",
+      "got": "us",
+      "source": "detected",
+      "cue": "Section 301/232",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "N344002",
+      "want": "us",
+      "got": "us",
+      "source": "detected",
+      "cue": "HTSUS",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "N344091",
+      "want": "us",
+      "got": "us",
+      "source": "detected",
+      "cue": "United States customs",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "N345167",
+      "want": "us",
+      "got": "us",
+      "source": "default",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "N345246",
+      "want": "us",
+      "got": "us",
+      "source": "detected",
+      "cue": "Section 301/232",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "N347004",
+      "want": "us",
+      "got": "us",
+      "source": "detected",
+      "cue": "entry into United States",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "N347157",
+      "want": "us",
+      "got": "us",
+      "source": "detected",
+      "cue": "entry into United States",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "N347253",
+      "want": "us",
+      "got": "us",
+      "source": "detected",
+      "cue": "HTSUS",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "N347305",
+      "want": "us",
+      "got": "us",
+      "source": "detected",
+      "cue": "goods sent to United States",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "N348376",
+      "want": "us",
+      "got": "us",
+      "source": "detected",
+      "cue": "entry into United States",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "N348465",
+      "want": "us",
+      "got": "us",
+      "source": "detected",
+      "cue": "HTSUS",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "N349660",
+      "want": "us",
+      "got": "us",
+      "source": "detected",
+      "cue": "goods sent to United States",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "N349831",
+      "want": "us",
+      "got": "us",
+      "source": "detected",
+      "cue": "HTSUS",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "N349871",
+      "want": "us",
+      "got": "us",
+      "source": "default",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "N349899",
+      "want": "us",
+      "got": "us",
+      "source": "detected",
+      "cue": "goods sent to United States",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "N349949",
+      "want": "us",
+      "got": "us",
+      "source": "detected",
+      "cue": "goods sent to United States",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "N349950",
+      "want": "us",
+      "got": "us",
+      "source": "detected",
+      "cue": "goods sent to United States",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "N349953",
+      "want": "us",
+      "got": "us",
+      "source": "detected",
+      "cue": "goods sent to United States",
+      "hint": "other",
+      "kept_from_us_answer": true
+    },
+    {
+      "id": "N349972",
+      "want": "us",
+      "got": "us",
+      "source": "detected",
+      "cue": "Section 301/232",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "N349989",
+      "want": "us",
+      "got": "us",
+      "source": "detected",
+      "cue": "HTSUS",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "N349992",
+      "want": "us",
+      "got": "us",
+      "source": "default",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "N349996",
+      "want": "us",
+      "got": "us",
+      "source": "detected",
+      "cue": "goods sent to United States",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "N349998",
+      "want": "us",
+      "got": "us",
+      "source": "detected",
+      "cue": "goods sent to United States",
+      "hint": "other",
+      "kept_from_us_answer": true
+    },
+    {
+      "id": "N349999",
+      "want": "us",
+      "got": "us",
+      "source": "detected",
+      "cue": "goods sent to United States",
+      "hint": "other",
+      "kept_from_us_answer": true
+    },
+    {
+      "id": "N350011",
+      "want": "us",
+      "got": "us",
+      "source": "default",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "N350046",
+      "want": "us",
+      "got": "us",
+      "source": "detected",
+      "cue": "HTSUS",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "N350050",
+      "want": "us",
+      "got": "us",
+      "source": "default",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "N350055",
+      "want": "us",
+      "got": "us",
+      "source": "detected",
+      "cue": "goods sent to United States",
+      "hint": "other",
+      "kept_from_us_answer": true
+    },
+    {
+      "id": "N350058",
+      "want": "us",
+      "got": "us",
+      "source": "default",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "N350059",
+      "want": "us",
+      "got": "us",
+      "source": "default",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "N350085",
+      "want": "us",
+      "got": "us",
+      "source": "default",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "N350091",
+      "want": "us",
+      "got": "us",
+      "source": "default",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "N350112",
+      "want": "us",
+      "got": "us",
+      "source": "default",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "N350113",
+      "want": "us",
+      "got": "us",
+      "source": "detected",
+      "cue": "goods sent to United States",
+      "hint": "other",
+      "kept_from_us_answer": true
+    },
+    {
+      "id": "N350119",
+      "want": "us",
+      "got": "us",
+      "source": "detected",
+      "cue": "goods sent to United States",
+      "hint": "other",
+      "kept_from_us_answer": true
+    },
+    {
+      "id": "N350133",
+      "want": "us",
+      "got": "us",
+      "source": "detected",
+      "cue": "HTSUS",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "N350142",
+      "want": "us",
+      "got": "us",
+      "source": "default",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "N350152",
+      "want": "us",
+      "got": "us",
+      "source": "default",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "N350166",
+      "want": "us",
+      "got": "us",
+      "source": "detected",
+      "cue": "goods sent to United States",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "N350170",
+      "want": "us",
+      "got": "us",
+      "source": "detected",
+      "cue": "goods sent to United States",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "N350176",
+      "want": "us",
+      "got": "us",
+      "source": "detected",
+      "cue": "goods sent to United States",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "N350182",
+      "want": "us",
+      "got": "us",
+      "source": "detected",
+      "cue": "HTSUS",
+      "hint": "other",
+      "kept_from_us_answer": true
+    },
+    {
+      "id": "N350187",
+      "want": "us",
+      "got": "us",
+      "source": "default",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "N350200",
+      "want": "us",
+      "got": "us",
+      "source": "detected",
+      "cue": "goods sent to United States",
+      "hint": "other",
+      "kept_from_us_answer": true
+    },
+    {
+      "id": "N350223",
+      "want": "us",
+      "got": "us",
+      "source": "detected",
+      "cue": "goods sent to United States",
+      "hint": "other",
+      "kept_from_us_answer": true
+    },
+    {
+      "id": "N350225",
+      "want": "us",
+      "got": "us",
+      "source": "default",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "N350285",
+      "want": "us",
+      "got": "us",
+      "source": "default",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "N350304",
+      "want": "us",
+      "got": "us",
+      "source": "default",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "N350306",
+      "want": "us",
+      "got": "us",
+      "source": "default",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "N350310",
+      "want": "us",
+      "got": "us",
+      "source": "detected",
+      "cue": "entry into United States",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "N350320",
+      "want": "us",
+      "got": "us",
+      "source": "default",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "N350324",
+      "want": "us",
+      "got": "us",
+      "source": "default",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "N350342",
+      "want": "us",
+      "got": "us",
+      "source": "default",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "N350345",
+      "want": "us",
+      "got": "us",
+      "source": "default",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "N350346",
+      "want": "us",
+      "got": "us",
+      "source": "detected",
+      "cue": "Section 301/232",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "N350383",
+      "want": "us",
+      "got": "us",
+      "source": "detected",
+      "cue": "goods sent to United States",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "N350401",
+      "want": "us",
+      "got": "us",
+      "source": "detected",
+      "cue": "HTSUS",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "N350421",
+      "want": "us",
+      "got": "us",
+      "source": "detected",
+      "cue": "goods sent to United States",
+      "hint": "other",
+      "kept_from_us_answer": true
+    },
+    {
+      "id": "N350423",
+      "want": "us",
+      "got": "us",
+      "source": "detected",
+      "cue": "goods sent to United States",
+      "hint": "other",
+      "kept_from_us_answer": true
+    },
+    {
+      "id": "N350425",
+      "want": "us",
+      "got": "us",
+      "source": "detected",
+      "cue": "HTSUS",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "N350427",
+      "want": "us",
+      "got": "us",
+      "source": "detected",
+      "cue": "goods sent to United States",
+      "hint": "other",
+      "kept_from_us_answer": true
+    },
+    {
+      "id": "N350428",
+      "want": "us",
+      "got": "us",
+      "source": "detected",
+      "cue": "goods sent to United States",
+      "hint": "other",
+      "kept_from_us_answer": true
+    },
+    {
+      "id": "N350429",
+      "want": "us",
+      "got": "us",
+      "source": "detected",
+      "cue": "goods sent to United States",
+      "hint": "other",
+      "kept_from_us_answer": true
+    },
+    {
+      "id": "N350430",
+      "want": "us",
+      "got": "us",
+      "source": "detected",
+      "cue": "goods sent to United States",
+      "hint": "other",
+      "kept_from_us_answer": true
+    },
+    {
+      "id": "N350470",
+      "want": "us",
+      "got": "us",
+      "source": "detected",
+      "cue": "Section 301/232",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "N350471",
+      "want": "us",
+      "got": "us",
+      "source": "default",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "N350473",
+      "want": "us",
+      "got": "us",
+      "source": "detected",
+      "cue": "goods sent to United States",
+      "hint": "other",
+      "kept_from_us_answer": true
+    },
+    {
+      "id": "N350478",
+      "want": "us",
+      "got": "us",
+      "source": "detected",
+      "cue": "goods sent to United States",
+      "hint": "other",
+      "kept_from_us_answer": true
+    },
+    {
+      "id": "N350479",
+      "want": "us",
+      "got": "us",
+      "source": "detected",
+      "cue": "goods sent to United States",
+      "hint": "other",
+      "kept_from_us_answer": true
+    },
+    {
+      "id": "N350480",
+      "want": "us",
+      "got": "us",
+      "source": "default",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "N350492",
+      "want": "us",
+      "got": "us",
+      "source": "detected",
+      "cue": "goods sent to United States",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "N350500",
+      "want": "us",
+      "got": "us",
+      "source": "default",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "N350501",
+      "want": "us",
+      "got": "us",
+      "source": "detected",
+      "cue": "Section 301/232",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "N350506",
+      "want": "us",
+      "got": "us",
+      "source": "detected",
+      "cue": "Section 301/232",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "N350507",
+      "want": "us",
+      "got": "us",
+      "source": "detected",
+      "cue": "Section 301/232",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "N350513",
+      "want": "us",
+      "got": "us",
+      "source": "detected",
+      "cue": "Section 301/232",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "N350516",
+      "want": "us",
+      "got": "us",
+      "source": "detected",
+      "cue": "Section 301/232",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "N350517",
+      "want": "us",
+      "got": "us",
+      "source": "detected",
+      "cue": "goods sent to United States",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "N350528",
+      "want": "us",
+      "got": "us",
+      "source": "detected",
+      "cue": "Section 301/232",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "N350538",
+      "want": "us",
+      "got": "us",
+      "source": "detected",
+      "cue": "goods sent to United States",
+      "hint": "other",
+      "kept_from_us_answer": true
+    },
+    {
+      "id": "N350539",
+      "want": "us",
+      "got": "us",
+      "source": "detected",
+      "cue": "goods sent to United States",
+      "hint": "other",
+      "kept_from_us_answer": true
+    },
+    {
+      "id": "N350571",
+      "want": "us",
+      "got": "us",
+      "source": "detected",
+      "cue": "entry into United States",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "N350592",
+      "want": "us",
+      "got": "us",
+      "source": "detected",
+      "cue": "entry into United States",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "N350622",
+      "want": "us",
+      "got": "us",
+      "source": "default",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "N350623",
+      "want": "us",
+      "got": "us",
+      "source": "default",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "N350641",
+      "want": "us",
+      "got": "us",
+      "source": "detected",
+      "cue": "Section 301/232",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "N350643",
+      "want": "us",
+      "got": "us",
+      "source": "default",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "N350654",
+      "want": "us",
+      "got": "us",
+      "source": "default",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "N350672",
+      "want": "us",
+      "got": "us",
+      "source": "default",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "N350678",
+      "want": "us",
+      "got": "us",
+      "source": "default",
+      "hint": "other",
+      "kept_from_us_answer": true
+    },
+    {
+      "id": "N350680",
+      "want": "us",
+      "got": "us",
+      "source": "detected",
+      "cue": "goods sent to United States",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "N350708",
+      "want": "us",
+      "got": "us",
+      "source": "default",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "N350710",
+      "want": "us",
+      "got": "us",
+      "source": "default",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "N350711",
+      "want": "us",
+      "got": "us",
+      "source": "default",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "N350719",
+      "want": "us",
+      "got": "us",
+      "source": "default",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "N350720",
+      "want": "us",
+      "got": "us",
+      "source": "detected",
+      "cue": "Section 301/232",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "N350724",
+      "want": "us",
+      "got": "us",
+      "source": "default",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "N350727",
+      "want": "us",
+      "got": "us",
+      "source": "detected",
+      "cue": "goods sent to United States",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "N350750",
+      "want": "us",
+      "got": "us",
+      "source": "detected",
+      "cue": "goods sent to United States",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "N350766",
+      "want": "us",
+      "got": "us",
+      "source": "detected",
+      "cue": "Section 301/232",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "N350768",
+      "want": "us",
+      "got": "us",
+      "source": "default",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "N350769",
+      "want": "us",
+      "got": "us",
+      "source": "detected",
+      "cue": "goods sent to United States",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "N350784",
+      "want": "us",
+      "got": "us",
+      "source": "detected",
+      "cue": "Section 301/232",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "N350796",
+      "want": "us",
+      "got": "us",
+      "source": "detected",
+      "cue": "Section 301/232",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "N350799",
+      "want": "us",
+      "got": "us",
+      "source": "default",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "N350800",
+      "want": "us",
+      "got": "us",
+      "source": "default",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "N350803",
+      "want": "us",
+      "got": "us",
+      "source": "detected",
+      "cue": "Section 301/232",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "N350826",
+      "want": "us",
+      "got": "us",
+      "source": "default",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "N350838",
+      "want": "us",
+      "got": "us",
+      "source": "detected",
+      "cue": "goods sent to United States",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "N350848",
+      "want": "us",
+      "got": "us",
+      "source": "detected",
+      "cue": "goods sent to United States",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "N350849",
+      "want": "us",
+      "got": "us",
+      "source": "default",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "N350850",
+      "want": "us",
+      "got": "us",
+      "source": "detected",
+      "cue": "goods sent to United States",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "N350851",
+      "want": "us",
+      "got": "us",
+      "source": "detected",
+      "cue": "goods sent to United States",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "N350865",
+      "want": "us",
+      "got": "us",
+      "source": "default",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "N350866",
+      "want": "us",
+      "got": "us",
+      "source": "detected",
+      "cue": "goods sent to United States",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "N350867",
+      "want": "us",
+      "got": "us",
+      "source": "detected",
+      "cue": "goods sent to United States",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "N350868",
+      "want": "us",
+      "got": "us",
+      "source": "detected",
+      "cue": "goods sent to United States",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "N350869",
+      "want": "us",
+      "got": "us",
+      "source": "detected",
+      "cue": "goods sent to United States",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "N350883",
+      "want": "us",
+      "got": "us",
+      "source": "default",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "N350920",
+      "want": "us",
+      "got": "us",
+      "source": "detected",
+      "cue": "goods sent to United States",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "N350930",
+      "want": "us",
+      "got": "us",
+      "source": "detected",
+      "cue": "goods sent to United States",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "N350937",
+      "want": "us",
+      "got": "us",
+      "source": "default",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "N350938",
+      "want": "us",
+      "got": "us",
+      "source": "detected",
+      "cue": "entry into United States",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "N350953",
+      "want": "us",
+      "got": "us",
+      "source": "default",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "N350962",
+      "want": "us",
+      "got": "us",
+      "source": "default",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "N350963",
+      "want": "us",
+      "got": "us",
+      "source": "detected",
+      "cue": "goods sent to United States",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "N350965",
+      "want": "us",
+      "got": "us",
+      "source": "detected",
+      "cue": "Section 301/232",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "N350966",
+      "want": "us",
+      "got": "us",
+      "source": "detected",
+      "cue": "goods sent to United States",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "N350967",
+      "want": "us",
+      "got": "us",
+      "source": "default",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "N350985",
+      "want": "us",
+      "got": "us",
+      "source": "default",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "N351057",
+      "want": "us",
+      "got": "us",
+      "source": "detected",
+      "cue": "Section 301/232",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "N351063",
+      "want": "us",
+      "got": "us",
+      "source": "detected",
+      "cue": "goods sent to United States",
+      "hint": "other",
+      "kept_from_us_answer": true
+    },
+    {
+      "id": "N351064",
+      "want": "us",
+      "got": "us",
+      "source": "detected",
+      "cue": "Section 301/232",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "N351065",
+      "want": "us",
+      "got": "us",
+      "source": "detected",
+      "cue": "Section 301/232",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "N351066",
+      "want": "us",
+      "got": "us",
+      "source": "detected",
+      "cue": "Section 301/232",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "N351073",
+      "want": "us",
+      "got": "us",
+      "source": "default",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "N351081",
+      "want": "us",
+      "got": "us",
+      "source": "default",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "N351082",
+      "want": "us",
+      "got": "us",
+      "source": "default",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "N351097",
+      "want": "us",
+      "got": "us",
+      "source": "detected",
+      "cue": "goods sent to United States",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "N351106",
+      "want": "us",
+      "got": "us",
+      "source": "default",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "N351122",
+      "want": "us",
+      "got": "us",
+      "source": "detected",
+      "cue": "goods sent to United States",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "N351140",
+      "want": "us",
+      "got": "us",
+      "source": "default",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "N351143",
+      "want": "us",
+      "got": "us",
+      "source": "default",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "N351173",
+      "want": "us",
+      "got": "us",
+      "source": "detected",
+      "cue": "Section 301/232",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "N351174",
+      "want": "us",
+      "got": "us",
+      "source": "detected",
+      "cue": "HTSUS",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "N351177",
+      "want": "us",
+      "got": "us",
+      "source": "detected",
+      "cue": "Section 301/232",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "N351184",
+      "want": "us",
+      "got": "us",
+      "source": "default",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "N351185",
+      "want": "us",
+      "got": "us",
+      "source": "default",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "N351229",
+      "want": "us",
+      "got": "us",
+      "source": "detected",
+      "cue": "goods sent to United States",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "N351230",
+      "want": "us",
+      "got": "us",
+      "source": "detected",
+      "cue": "goods sent to United States",
+      "hint": "other",
+      "kept_from_us_answer": true
+    },
+    {
+      "id": "N351231",
+      "want": "us",
+      "got": "us",
+      "source": "detected",
+      "cue": "Section 301/232",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "N351233",
+      "want": "us",
+      "got": "us",
+      "source": "default",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "N351234",
+      "want": "us",
+      "got": "us",
+      "source": "detected",
+      "cue": "Section 301/232",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "N351251",
+      "want": "us",
+      "got": "us",
+      "source": "detected",
+      "cue": "Section 301/232",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "N351261",
+      "want": "us",
+      "got": "us",
+      "source": "detected",
+      "cue": "goods sent to United States",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "N351263",
+      "want": "us",
+      "got": "us",
+      "source": "default",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "N351266",
+      "want": "us",
+      "got": "us",
+      "source": "default",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "N351305",
+      "want": "us",
+      "got": "us",
+      "source": "default",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "N351307",
+      "want": "us",
+      "got": "us",
+      "source": "default",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "N351308",
+      "want": "us",
+      "got": "us",
+      "source": "default",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "N351330",
+      "want": "us",
+      "got": "us",
+      "source": "default",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "N351335",
+      "want": "us",
+      "got": "us",
+      "source": "detected",
+      "cue": "goods sent to United States",
+      "hint": "kr",
+      "kept_from_us_answer": true
+    },
+    {
+      "id": "N351338",
+      "want": "us",
+      "got": "us",
+      "source": "detected",
+      "cue": "goods sent to United States",
+      "hint": "other",
+      "kept_from_us_answer": true
+    },
+    {
+      "id": "N351341",
+      "want": "us",
+      "got": "us",
+      "source": "default",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "N351349",
+      "want": "us",
+      "got": "us",
+      "source": "default",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "N351352",
+      "want": "us",
+      "got": "us",
+      "source": "default",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "N351354",
+      "want": "us",
+      "got": "us",
+      "source": "detected",
+      "cue": "goods sent to United States",
+      "hint": "other",
+      "kept_from_us_answer": true
+    },
+    {
+      "id": "N351355",
+      "want": "us",
+      "got": "us",
+      "source": "detected",
+      "cue": "goods sent to United States",
+      "hint": "other",
+      "kept_from_us_answer": true
+    },
+    {
+      "id": "N351356",
+      "want": "us",
+      "got": "us",
+      "source": "detected",
+      "cue": "goods sent to United States",
+      "hint": "other",
+      "kept_from_us_answer": true
+    },
+    {
+      "id": "N351368",
+      "want": "us",
+      "got": "us",
+      "source": "detected",
+      "cue": "goods sent to United States",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "N351372",
+      "want": "us",
+      "got": "us",
+      "source": "detected",
+      "cue": "goods sent to United States",
+      "hint": "eu",
+      "kept_from_us_answer": true
+    },
+    {
+      "id": "N351393",
+      "want": "us",
+      "got": "us",
+      "source": "detected",
+      "cue": "goods sent to United States",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "N351402",
+      "want": "us",
+      "got": "us",
+      "source": "detected",
+      "cue": "goods sent to United States",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "N351425",
+      "want": "us",
+      "got": "us",
+      "source": "default",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "N351439",
+      "want": "us",
+      "got": "us",
+      "source": "default",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "N351444",
+      "want": "us",
+      "got": "us",
+      "source": "default",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "N351453",
+      "want": "us",
+      "got": "us",
+      "source": "detected",
+      "cue": "goods sent to United States",
+      "hint": "other",
+      "kept_from_us_answer": true
+    },
+    {
+      "id": "N351477",
+      "want": "us",
+      "got": "us",
+      "source": "default",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "N351484",
+      "want": "us",
+      "got": "us",
+      "source": "detected",
+      "cue": "Section 301/232",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "N351492",
+      "want": "us",
+      "got": "us",
+      "source": "detected",
+      "cue": "goods sent to United States",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "N351493",
+      "want": "us",
+      "got": "us",
+      "source": "detected",
+      "cue": "Section 301/232",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "N351503",
+      "want": "us",
+      "got": "us",
+      "source": "default",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "N351504",
+      "want": "us",
+      "got": "us",
+      "source": "default",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "N351505",
+      "want": "us",
+      "got": "us",
+      "source": "default",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "N351506",
+      "want": "us",
+      "got": "us",
+      "source": "default",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "N351508",
+      "want": "us",
+      "got": "us",
+      "source": "detected",
+      "cue": "goods sent to United States",
+      "hint": "other",
+      "kept_from_us_answer": true
+    },
+    {
+      "id": "N351528",
+      "want": "us",
+      "got": "us",
+      "source": "detected",
+      "cue": "goods sent to United States",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "N351538",
+      "want": "us",
+      "got": "us",
+      "source": "detected",
+      "cue": "Section 301/232",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "N351549",
+      "want": "us",
+      "got": "us",
+      "source": "default",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "N351552",
+      "want": "us",
+      "got": "us",
+      "source": "default",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "N351557",
+      "want": "us",
+      "got": "us",
+      "source": "detected",
+      "cue": "Section 301/232",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "N351558",
+      "want": "us",
+      "got": "us",
+      "source": "default",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "N351579",
+      "want": "us",
+      "got": "us",
+      "source": "default",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "N351580",
+      "want": "us",
+      "got": "us",
+      "source": "default",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "N351582",
+      "want": "us",
+      "got": "us",
+      "source": "default",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "N351597",
+      "want": "us",
+      "got": "us",
+      "source": "default",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "N351627",
+      "want": "us",
+      "got": "us",
+      "source": "detected",
+      "cue": "goods sent to United States",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "N351631",
+      "want": "us",
+      "got": "us",
+      "source": "detected",
+      "cue": "Section 301/232",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "N351636",
+      "want": "us",
+      "got": "us",
+      "source": "default",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "N351649",
+      "want": "us",
+      "got": "us",
+      "source": "detected",
+      "cue": "goods sent to United States",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "N351651",
+      "want": "us",
+      "got": "us",
+      "source": "detected",
+      "cue": "goods sent to United States",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "N351672",
+      "want": "us",
+      "got": "us",
+      "source": "detected",
+      "cue": "Section 301/232",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "N351683",
+      "want": "us",
+      "got": "us",
+      "source": "detected",
+      "cue": "Section 301/232",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "N351725",
+      "want": "us",
+      "got": "us",
+      "source": "default",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "N351763",
+      "want": "us",
+      "got": "us",
+      "source": "detected",
+      "cue": "goods sent to United States",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "N351767",
+      "want": "us",
+      "got": "us",
+      "source": "detected",
+      "cue": "goods sent to United States",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "N351782",
+      "want": "us",
+      "got": "us",
+      "source": "default",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "N351789",
+      "want": "us",
+      "got": "us",
+      "source": "detected",
+      "cue": "Section 301/232",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "N351807",
+      "want": "us",
+      "got": "us",
+      "source": "default",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "N351809",
+      "want": "us",
+      "got": "us",
+      "source": "default",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "N351832",
+      "want": "us",
+      "got": "us",
+      "source": "default",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "N351843",
+      "want": "us",
+      "got": "us",
+      "source": "detected",
+      "cue": "goods sent to United States",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "N351860",
+      "want": "us",
+      "got": "us",
+      "source": "default",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "N351861",
+      "want": "us",
+      "got": "us",
+      "source": "default",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "N351862",
+      "want": "us",
+      "got": "us",
+      "source": "default",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "N351865",
+      "want": "us",
+      "got": "us",
+      "source": "default",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "N351887",
+      "want": "us",
+      "got": "us",
+      "source": "default",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "N351888",
+      "want": "us",
+      "got": "us",
+      "source": "detected",
+      "cue": "goods sent to United States",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "N351895",
+      "want": "us",
+      "got": "us",
+      "source": "detected",
+      "cue": "HTSUS",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "N351901",
+      "want": "us",
+      "got": "us",
+      "source": "default",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "N351904",
+      "want": "us",
+      "got": "us",
+      "source": "detected",
+      "cue": "goods sent to United States",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "N351911",
+      "want": "us",
+      "got": "us",
+      "source": "default",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "N351913",
+      "want": "us",
+      "got": "us",
+      "source": "default",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "N351914",
+      "want": "us",
+      "got": "us",
+      "source": "default",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "N351920",
+      "want": "us",
+      "got": "us",
+      "source": "detected",
+      "cue": "goods sent to United States",
+      "hint": "ca",
+      "kept_from_us_answer": true
+    },
+    {
+      "id": "N351922",
+      "want": "us",
+      "got": "us",
+      "source": "default",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "N351958",
+      "want": "us",
+      "got": "us",
+      "source": "default",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "N351961",
+      "want": "us",
+      "got": "us",
+      "source": "detected",
+      "cue": "Section 301/232",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "N351962",
+      "want": "us",
+      "got": "us",
+      "source": "default",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "N351963",
+      "want": "us",
+      "got": "us",
+      "source": "default",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "N351996",
+      "want": "us",
+      "got": "us",
+      "source": "default",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "N352014",
+      "want": "us",
+      "got": "us",
+      "source": "default",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "N352059",
+      "want": "us",
+      "got": "us",
+      "source": "detected",
+      "cue": "HTSUS",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "N352061",
+      "want": "us",
+      "got": "us",
+      "source": "default",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "N352067",
+      "want": "us",
+      "got": "us",
+      "source": "default",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "N352073",
+      "want": "us",
+      "got": "us",
+      "source": "default",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "N352101",
+      "want": "us",
+      "got": "us",
+      "source": "default",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "N352111",
+      "want": "us",
+      "got": "us",
+      "source": "default",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "N352155",
+      "want": "us",
+      "got": "us",
+      "source": "detected",
+      "cue": "HTSUS",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "N352163",
+      "want": "us",
+      "got": "us",
+      "source": "detected",
+      "cue": "HTSUS",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "N352166",
+      "want": "us",
+      "got": "us",
+      "source": "default",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "N352167",
+      "want": "us",
+      "got": "us",
+      "source": "detected",
+      "cue": "Section 301/232",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "N352190",
+      "want": "us",
+      "got": "us",
+      "source": "detected",
+      "cue": "goods sent to United States",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "N352216",
+      "want": "us",
+      "got": "us",
+      "source": "detected",
+      "cue": "goods sent to United States",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "N352217",
+      "want": "us",
+      "got": "us",
+      "source": "default",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "N352223",
+      "want": "us",
+      "got": "us",
+      "source": "detected",
+      "cue": "goods sent to United States",
+      "hint": "other",
+      "kept_from_us_answer": true
+    },
+    {
+      "id": "N352230",
+      "want": "us",
+      "got": "us",
+      "source": "default",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "N352231",
+      "want": "us",
+      "got": "us",
+      "source": "default",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "N352242",
+      "want": "us",
+      "got": "us",
+      "source": "default",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "N352250",
+      "want": "us",
+      "got": "us",
+      "source": "default",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "N352251",
+      "want": "us",
+      "got": "us",
+      "source": "default",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "N352290",
+      "want": "us",
+      "got": "us",
+      "source": "default",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "N352300",
+      "want": "us",
+      "got": "us",
+      "source": "default",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "N352306",
+      "want": "us",
+      "got": "us",
+      "source": "default",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "N352331",
+      "want": "us",
+      "got": "us",
+      "source": "detected",
+      "cue": "HTSUS",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "N352332",
+      "want": "us",
+      "got": "us",
+      "source": "default",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "N352355",
+      "want": "us",
+      "got": "us",
+      "source": "default",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "N352382",
+      "want": "us",
+      "got": "us",
+      "source": "detected",
+      "cue": "goods sent to United States",
+      "hint": "other",
+      "kept_from_us_answer": true
+    },
+    {
+      "id": "N352389",
+      "want": "us",
+      "got": "us",
+      "source": "detected",
+      "cue": "goods sent to United States",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "N352404",
+      "want": "us",
+      "got": "us",
+      "source": "default",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "N352429",
+      "want": "us",
+      "got": "us",
+      "source": "default",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "N352477",
+      "want": "us",
+      "got": "us",
+      "source": "default",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "N352484",
+      "want": "us",
+      "got": "us",
+      "source": "detected",
+      "cue": "goods sent to United States",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "N352485",
+      "want": "us",
+      "got": "us",
+      "source": "default",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "N352495",
+      "want": "us",
+      "got": "us",
+      "source": "default",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "N352506",
+      "want": "us",
+      "got": "us",
+      "source": "default",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "N352527",
+      "want": "us",
+      "got": "us",
+      "source": "default",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "N352529",
+      "want": "us",
+      "got": "us",
+      "source": "detected",
+      "cue": "goods sent to United States",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "N352536",
+      "want": "us",
+      "got": "us",
+      "source": "default",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "N352538",
+      "want": "us",
+      "got": "us",
+      "source": "detected",
+      "cue": "goods sent to United States",
+      "hint": "kr",
+      "kept_from_us_answer": true
+    },
+    {
+      "id": "N352543",
+      "want": "us",
+      "got": "us",
+      "source": "default",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "N352555",
+      "want": "us",
+      "got": "us",
+      "source": "default",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "N352561",
+      "want": "us",
+      "got": "us",
+      "source": "default",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "N352562",
+      "want": "us",
+      "got": "us",
+      "source": "default",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "N352564",
+      "want": "us",
+      "got": "us",
+      "source": "default",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "N352583",
+      "want": "us",
+      "got": "us",
+      "source": "detected",
+      "cue": "HTSUS",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "N352591",
+      "want": "us",
+      "got": "us",
+      "source": "detected",
+      "cue": "entry into United States",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "N352594",
+      "want": "us",
+      "got": "us",
+      "source": "default",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "N352595",
+      "want": "us",
+      "got": "us",
+      "source": "default",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "N352602",
+      "want": "us",
+      "got": "us",
+      "source": "detected",
+      "cue": "goods sent to United States",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "N352635",
+      "want": "us",
+      "got": "us",
+      "source": "detected",
+      "cue": "goods sent to United States",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "N352638",
+      "want": "us",
+      "got": "us",
+      "source": "default",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "N352655",
+      "want": "us",
+      "got": "us",
+      "source": "default",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "N352670",
+      "want": "us",
+      "got": "us",
+      "source": "detected",
+      "cue": "entry into United States",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "N352710",
+      "want": "us",
+      "got": "us",
+      "source": "default",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "N352712",
+      "want": "us",
+      "got": "us",
+      "source": "default",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "N352713",
+      "want": "us",
+      "got": "us",
+      "source": "detected",
+      "cue": "goods sent to United States",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "N352717",
+      "want": "us",
+      "got": "us",
+      "source": "default",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "N352719",
+      "want": "us",
+      "got": "us",
+      "source": "detected",
+      "cue": "Section 301/232",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "N352729",
+      "want": "us",
+      "got": "us",
+      "source": "detected",
+      "cue": "goods sent to United States",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "N352733",
+      "want": "us",
+      "got": "us",
+      "source": "detected",
+      "cue": "goods sent to United States",
+      "hint": "other",
+      "kept_from_us_answer": true
+    },
+    {
+      "id": "N352734",
+      "want": "us",
+      "got": "us",
+      "source": "default",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "N352739",
+      "want": "us",
+      "got": "us",
+      "source": "default",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "N352741",
+      "want": "us",
+      "got": "us",
+      "source": "default",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "N352762",
+      "want": "us",
+      "got": "us",
+      "source": "default",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "N352763",
+      "want": "us",
+      "got": "us",
+      "source": "detected",
+      "cue": "Section 301/232",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "N352765",
+      "want": "us",
+      "got": "us",
+      "source": "default",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "N352766",
+      "want": "us",
+      "got": "us",
+      "source": "default",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "N352781",
+      "want": "us",
+      "got": "us",
+      "source": "default",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "N352802",
+      "want": "us",
+      "got": "us",
+      "source": "detected",
+      "cue": "goods sent to United States",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "N352804",
+      "want": "us",
+      "got": "us",
+      "source": "detected",
+      "cue": "goods sent to United States",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "N352805",
+      "want": "us",
+      "got": "us",
+      "source": "detected",
+      "cue": "goods sent to United States",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "N352807",
+      "want": "us",
+      "got": "us",
+      "source": "detected",
+      "cue": "goods sent to United States",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "N352810",
+      "want": "us",
+      "got": "us",
+      "source": "detected",
+      "cue": "HTSUS",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "N352815",
+      "want": "us",
+      "got": "us",
+      "source": "default",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "N352821",
+      "want": "us",
+      "got": "us",
+      "source": "detected",
+      "cue": "goods sent to United States",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "N352837",
+      "want": "us",
+      "got": "us",
+      "source": "default",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "N352841",
+      "want": "us",
+      "got": "us",
+      "source": "default",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "N352844",
+      "want": "us",
+      "got": "us",
+      "source": "default",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "N352871",
+      "want": "us",
+      "got": "us",
+      "source": "default",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "N352876",
+      "want": "us",
+      "got": "us",
+      "source": "detected",
+      "cue": "goods sent to United States",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "N352894",
+      "want": "us",
+      "got": "us",
+      "source": "default",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "N352938",
+      "want": "us",
+      "got": "us",
+      "source": "default",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "N352954",
+      "want": "us",
+      "got": "us",
+      "source": "default",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "N352956",
+      "want": "us",
+      "got": "us",
+      "source": "default",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "N352976",
+      "want": "us",
+      "got": "us",
+      "source": "detected",
+      "cue": "goods sent to United States",
+      "hint": "other",
+      "kept_from_us_answer": true
+    },
+    {
+      "id": "N352986",
+      "want": "us",
+      "got": "us",
+      "source": "detected",
+      "cue": "Section 301/232",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "N353013",
+      "want": "us",
+      "got": "us",
+      "source": "default",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "N353023",
+      "want": "us",
+      "got": "us",
+      "source": "default",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "N353045",
+      "want": "us",
+      "got": "us",
+      "source": "detected",
+      "cue": "Section 301/232",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "N353082",
+      "want": "us",
+      "got": "us",
+      "source": "detected",
+      "cue": "goods sent to United States",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "N353086",
+      "want": "us",
+      "got": "us",
+      "source": "default",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "N353089",
+      "want": "us",
+      "got": "us",
+      "source": "detected",
+      "cue": "goods sent to United States",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "N353105",
+      "want": "us",
+      "got": "us",
+      "source": "default",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "N353148",
+      "want": "us",
+      "got": "us",
+      "source": "default",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "N353152",
+      "want": "us",
+      "got": "us",
+      "source": "default",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "N353156",
+      "want": "us",
+      "got": "us",
+      "source": "default",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "N353195",
+      "want": "us",
+      "got": "us",
+      "source": "default",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "N353214",
+      "want": "us",
+      "got": "us",
+      "source": "default",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "N353216",
+      "want": "us",
+      "got": "us",
+      "source": "default",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "N353220",
+      "want": "us",
+      "got": "us",
+      "source": "default",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "N353225",
+      "want": "us",
+      "got": "us",
+      "source": "detected",
+      "cue": "HTSUS",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "N353232",
+      "want": "us",
+      "got": "us",
+      "source": "default",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "N353242",
+      "want": "us",
+      "got": "us",
+      "source": "detected",
+      "cue": "goods sent to United States",
+      "hint": "eu",
+      "kept_from_us_answer": true
+    },
+    {
+      "id": "N353243",
+      "want": "us",
+      "got": "us",
+      "source": "detected",
+      "cue": "goods sent to United States",
+      "hint": "other",
+      "kept_from_us_answer": true
+    },
+    {
+      "id": "N353245",
+      "want": "us",
+      "got": "us",
+      "source": "detected",
+      "cue": "goods sent to United States",
+      "hint": "other",
+      "kept_from_us_answer": true
+    },
+    {
+      "id": "N353246",
+      "want": "us",
+      "got": "us",
+      "source": "detected",
+      "cue": "goods sent to United States",
+      "hint": "other",
+      "kept_from_us_answer": true
+    },
+    {
+      "id": "N353251",
+      "want": "us",
+      "got": "us",
+      "source": "detected",
+      "cue": "entry into United States",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "N353259",
+      "want": "us",
+      "got": "us",
+      "source": "default",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "N353260",
+      "want": "us",
+      "got": "us",
+      "source": "default",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "N353285",
+      "want": "us",
+      "got": "us",
+      "source": "default",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "N353301",
+      "want": "us",
+      "got": "us",
+      "source": "default",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "N353302",
+      "want": "us",
+      "got": "us",
+      "source": "default",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "N353342",
+      "want": "us",
+      "got": "us",
+      "source": "detected",
+      "cue": "HTSUS",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "N353394",
+      "want": "us",
+      "got": "us",
+      "source": "default",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "N353399",
+      "want": "us",
+      "got": "us",
+      "source": "detected",
+      "cue": "goods sent to United States",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "N353418",
+      "want": "us",
+      "got": "us",
+      "source": "default",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "N353454",
+      "want": "us",
+      "got": "us",
+      "source": "default",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "N353476",
+      "want": "us",
+      "got": "us",
+      "source": "default",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "N353511",
+      "want": "us",
+      "got": "us",
+      "source": "detected",
+      "cue": "goods sent to United States",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "N353542",
+      "want": "us",
+      "got": "us",
+      "source": "detected",
+      "cue": "goods sent to United States",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "N353573",
+      "want": "us",
+      "got": "us",
+      "source": "detected",
+      "cue": "goods sent to United States",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "N353576",
+      "want": "us",
+      "got": "us",
+      "source": "default",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "N353581",
+      "want": "us",
+      "got": "us",
+      "source": "detected",
+      "cue": "HTSUS",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "N353593",
+      "want": "us",
+      "got": "us",
+      "source": "detected",
+      "cue": "goods sent to United States",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "N353597",
+      "want": "us",
+      "got": "us",
+      "source": "detected",
+      "cue": "goods sent to United States",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "N353604",
+      "want": "us",
+      "got": "us",
+      "source": "default",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "N353611",
+      "want": "us",
+      "got": "us",
+      "source": "default",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "N353643",
+      "want": "us",
+      "got": "us",
+      "source": "default",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "N353648",
+      "want": "us",
+      "got": "us",
+      "source": "default",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "N353655",
+      "want": "us",
+      "got": "us",
+      "source": "detected",
+      "cue": "goods sent to United States",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "N353657",
+      "want": "us",
+      "got": "us",
+      "source": "detected",
+      "cue": "goods sent to United States",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "N353658",
+      "want": "us",
+      "got": "us",
+      "source": "detected",
+      "cue": "goods sent to United States",
+      "hint": "other",
+      "kept_from_us_answer": true
+    },
+    {
+      "id": "N353664",
+      "want": "us",
+      "got": "us",
+      "source": "detected",
+      "cue": "goods sent to United States",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "N353665",
+      "want": "us",
+      "got": "us",
+      "source": "detected",
+      "cue": "Section 301/232",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "N353723",
+      "want": "us",
+      "got": "us",
+      "source": "default",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "N353724",
+      "want": "us",
+      "got": "us",
+      "source": "default",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "N353725",
+      "want": "us",
+      "got": "us",
+      "source": "default",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "N353747",
+      "want": "us",
+      "got": "us",
+      "source": "detected",
+      "cue": "goods sent to United States",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "N353787",
+      "want": "us",
+      "got": "us",
+      "source": "detected",
+      "cue": "goods sent to United States",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "N353822",
+      "want": "us",
+      "got": "us",
+      "source": "detected",
+      "cue": "goods sent to United States",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "N353830",
+      "want": "us",
+      "got": "us",
+      "source": "detected",
+      "cue": "goods sent to United States",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "N353851",
+      "want": "us",
+      "got": "us",
+      "source": "detected",
+      "cue": "goods sent to United States",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "N353879",
+      "want": "us",
+      "got": "us",
+      "source": "default",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "N353884",
+      "want": "us",
+      "got": "us",
+      "source": "detected",
+      "cue": "goods sent to United States",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "N353885",
+      "want": "us",
+      "got": "us",
+      "source": "detected",
+      "cue": "goods sent to United States",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "N353886",
+      "want": "us",
+      "got": "us",
+      "source": "default",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "N353911",
+      "want": "us",
+      "got": "us",
+      "source": "default",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "N353921",
+      "want": "us",
+      "got": "us",
+      "source": "detected",
+      "cue": "entry into United States",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "N353930",
+      "want": "us",
+      "got": "us",
+      "source": "detected",
+      "cue": "goods sent to United States",
+      "hint": "other",
+      "kept_from_us_answer": true
+    },
+    {
+      "id": "N353943",
+      "want": "us",
+      "got": "us",
+      "source": "detected",
+      "cue": "goods sent to United States",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "N353959",
+      "want": "us",
+      "got": "us",
+      "source": "detected",
+      "cue": "goods sent to United States",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "N353960",
+      "want": "us",
+      "got": "us",
+      "source": "default",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "N353972",
+      "want": "us",
+      "got": "us",
+      "source": "detected",
+      "cue": "goods sent to United States",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "N353976",
+      "want": "us",
+      "got": "us",
+      "source": "detected",
+      "cue": "goods sent to United States",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "N353979",
+      "want": "us",
+      "got": "us",
+      "source": "default",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "N353997",
+      "want": "us",
+      "got": "us",
+      "source": "detected",
+      "cue": "goods sent to United States",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "N354003",
+      "want": "us",
+      "got": "us",
+      "source": "detected",
+      "cue": "goods sent to United States",
+      "hint": "other",
+      "kept_from_us_answer": true
+    },
+    {
+      "id": "N354015",
+      "want": "us",
+      "got": "us",
+      "source": "default",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "N354016",
+      "want": "us",
+      "got": "us",
+      "source": "default",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "N354024",
+      "want": "us",
+      "got": "us",
+      "source": "detected",
+      "cue": "HTSUS",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "N354084",
+      "want": "us",
+      "got": "us",
+      "source": "detected",
+      "cue": "goods sent to United States",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "N354086",
+      "want": "us",
+      "got": "us",
+      "source": "default",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "N354105",
+      "want": "us",
+      "got": "us",
+      "source": "default",
+      "hint": "other",
+      "kept_from_us_answer": true
+    },
+    {
+      "id": "N354129",
+      "want": "us",
+      "got": "us",
+      "source": "default",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "N354135",
+      "want": "us",
+      "got": "us",
+      "source": "default",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "N354137",
+      "want": "us",
+      "got": "us",
+      "source": "default",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "N354139",
+      "want": "us",
+      "got": "us",
+      "source": "default",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "N354156",
+      "want": "us",
+      "got": "us",
+      "source": "default",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "N354162",
+      "want": "us",
+      "got": "us",
+      "source": "detected",
+      "cue": "Section 301/232",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "N354164",
+      "want": "us",
+      "got": "us",
+      "source": "default",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "N354167",
+      "want": "us",
+      "got": "us",
+      "source": "default",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "N354169",
+      "want": "us",
+      "got": "us",
+      "source": "default",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "N354172",
+      "want": "us",
+      "got": "us",
+      "source": "default",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "N354175",
+      "want": "us",
+      "got": "us",
+      "source": "detected",
+      "cue": "entry into United States",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "N354216",
+      "want": "us",
+      "got": "us",
+      "source": "detected",
+      "cue": "goods sent to United States",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "N354220",
+      "want": "us",
+      "got": "us",
+      "source": "default",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "N354255",
+      "want": "us",
+      "got": "us",
+      "source": "default",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "N354258",
+      "want": "us",
+      "got": "us",
+      "source": "default",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "N354279",
+      "want": "us",
+      "got": "us",
+      "source": "detected",
+      "cue": "HTSUS",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "N354283",
+      "want": "us",
+      "got": "us",
+      "source": "default",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "N354290",
+      "want": "us",
+      "got": "us",
+      "source": "detected",
+      "cue": "Section 301/232",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "N354291",
+      "want": "us",
+      "got": "us",
+      "source": "detected",
+      "cue": "CBP",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "N354292",
+      "want": "us",
+      "got": "us",
+      "source": "default",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "N354327",
+      "want": "us",
+      "got": "us",
+      "source": "default",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "N354369",
+      "want": "us",
+      "got": "us",
+      "source": "default",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "N354389",
+      "want": "us",
+      "got": "us",
+      "source": "detected",
+      "cue": "goods sent to United States",
+      "hint": "other",
+      "kept_from_us_answer": true
+    },
+    {
+      "id": "N354390",
+      "want": "us",
+      "got": "us",
+      "source": "detected",
+      "cue": "goods sent to United States",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "N354393",
+      "want": "us",
+      "got": "us",
+      "source": "default",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "N354397",
+      "want": "us",
+      "got": "us",
+      "source": "default",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "N354398",
+      "want": "us",
+      "got": "us",
+      "source": "detected",
+      "cue": "goods sent to United States",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "N354423",
+      "want": "us",
+      "got": "us",
+      "source": "detected",
+      "cue": "goods sent to United States",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "N354424",
+      "want": "us",
+      "got": "us",
+      "source": "detected",
+      "cue": "HTSUS",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "N354437",
+      "want": "us",
+      "got": "us",
+      "source": "default",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "N354448",
+      "want": "us",
+      "got": "us",
+      "source": "detected",
+      "cue": "goods sent to United States",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "N354457",
+      "want": "us",
+      "got": "us",
+      "source": "detected",
+      "cue": "goods sent to United States",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "N354460",
+      "want": "us",
+      "got": "us",
+      "source": "detected",
+      "cue": "goods sent to United States",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "N354462",
+      "want": "us",
+      "got": "us",
+      "source": "default",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "N354470",
+      "want": "us",
+      "got": "us",
+      "source": "default",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "N354477",
+      "want": "us",
+      "got": "us",
+      "source": "default",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "N354478",
+      "want": "us",
+      "got": "us",
+      "source": "default",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "N354480",
+      "want": "us",
+      "got": "us",
+      "source": "detected",
+      "cue": "goods sent to United States",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "N354481",
+      "want": "us",
+      "got": "us",
+      "source": "detected",
+      "cue": "goods sent to United States",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "N354482",
+      "want": "us",
+      "got": "us",
+      "source": "detected",
+      "cue": "entry into United States",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "N354486",
+      "want": "us",
+      "got": "us",
+      "source": "detected",
+      "cue": "goods sent to United States",
+      "hint": "other",
+      "kept_from_us_answer": true
+    },
+    {
+      "id": "N354493",
+      "want": "us",
+      "got": "us",
+      "source": "detected",
+      "cue": "goods sent to United States",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "N354494",
+      "want": "us",
+      "got": "us",
+      "source": "detected",
+      "cue": "HTSUS",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "N354559",
+      "want": "us",
+      "got": "us",
+      "source": "default",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "N354567",
+      "want": "us",
+      "got": "us",
+      "source": "default",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "N354624",
+      "want": "us",
+      "got": "us",
+      "source": "default",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "N354627",
+      "want": "us",
+      "got": "us",
+      "source": "default",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "N354638",
+      "want": "us",
+      "got": "us",
+      "source": "detected",
+      "cue": "Section 301/232",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "N354641",
+      "want": "us",
+      "got": "us",
+      "source": "default",
+      "hint": "ca",
+      "kept_from_us_answer": true
+    },
+    {
+      "id": "N354665",
+      "want": "us",
+      "got": "us",
+      "source": "default",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "N354692",
+      "want": "us",
+      "got": "us",
+      "source": "default",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "N354743",
+      "want": "us",
+      "got": "us",
+      "source": "detected",
+      "cue": "goods sent to United States",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "N354778",
+      "want": "us",
+      "got": "us",
+      "source": "detected",
+      "cue": "entry into United States",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "N354790",
+      "want": "us",
+      "got": "us",
+      "source": "default",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "N354791",
+      "want": "us",
+      "got": "us",
+      "source": "default",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "N354794",
+      "want": "us",
+      "got": "us",
+      "source": "default",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "N354812",
+      "want": "us",
+      "got": "us",
+      "source": "default",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "N354871",
+      "want": "us",
+      "got": "us",
+      "source": "detected",
+      "cue": "goods sent to United States",
+      "hint": "other",
+      "kept_from_us_answer": true
+    },
+    {
+      "id": "N354982",
+      "want": "us",
+      "got": "us",
+      "source": "default",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "N355009",
+      "want": "us",
+      "got": "us",
+      "source": "default",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "N355030",
+      "want": "us",
+      "got": "us",
+      "source": "detected",
+      "cue": "Section 301/232",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "N355031",
+      "want": "us",
+      "got": "us",
+      "source": "detected",
+      "cue": "Section 301/232",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "N355033",
+      "want": "us",
+      "got": "us",
+      "source": "default",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "N355045",
+      "want": "us",
+      "got": "us",
+      "source": "default",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "N355059",
+      "want": "us",
+      "got": "us",
+      "source": "default",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "N355060",
+      "want": "us",
+      "got": "us",
+      "source": "detected",
+      "cue": "goods sent to United States",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "N355061",
+      "want": "us",
+      "got": "us",
+      "source": "detected",
+      "cue": "goods sent to United States",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "N355065",
+      "want": "us",
+      "got": "us",
+      "source": "detected",
+      "cue": "Section 301/232",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "N355066",
+      "want": "us",
+      "got": "us",
+      "source": "default",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "N355067",
+      "want": "us",
+      "got": "us",
+      "source": "detected",
+      "cue": "HTSUS",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "N355069",
+      "want": "us",
+      "got": "us",
+      "source": "default",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "N355099",
+      "want": "us",
+      "got": "us",
+      "source": "default",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "N355108",
+      "want": "us",
+      "got": "us",
+      "source": "default",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "N355127",
+      "want": "us",
+      "got": "us",
+      "source": "detected",
+      "cue": "HTSUS",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "N355128",
+      "want": "us",
+      "got": "us",
+      "source": "detected",
+      "cue": "goods sent to United States",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "N355131",
+      "want": "us",
+      "got": "us",
+      "source": "default",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "N355132",
+      "want": "us",
+      "got": "us",
+      "source": "default",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "N355133",
+      "want": "us",
+      "got": "us",
+      "source": "default",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "N355135",
+      "want": "us",
+      "got": "us",
+      "source": "default",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "N355137",
+      "want": "us",
+      "got": "us",
+      "source": "default",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "N355143",
+      "want": "us",
+      "got": "us",
+      "source": "detected",
+      "cue": "goods sent to United States",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "N355147",
+      "want": "us",
+      "got": "us",
+      "source": "detected",
+      "cue": "goods sent to United States",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "N355148",
+      "want": "us",
+      "got": "us",
+      "source": "detected",
+      "cue": "HTSUS",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "N355150",
+      "want": "us",
+      "got": "us",
+      "source": "default",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "N355156",
+      "want": "us",
+      "got": "us",
+      "source": "default",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "N355166",
+      "want": "us",
+      "got": "us",
+      "source": "detected",
+      "cue": "goods sent to United States",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "N355167",
+      "want": "us",
+      "got": "us",
+      "source": "detected",
+      "cue": "goods sent to United States",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "N355168",
+      "want": "us",
+      "got": "us",
+      "source": "detected",
+      "cue": "goods sent to United States",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "N355173",
+      "want": "us",
+      "got": "us",
+      "source": "default",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "N355175",
+      "want": "us",
+      "got": "us",
+      "source": "default",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "N355190",
+      "want": "us",
+      "got": "us",
+      "source": "detected",
+      "cue": "HTSUS",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "N355237",
+      "want": "us",
+      "got": "us",
+      "source": "default",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "N355276",
+      "want": "us",
+      "got": "us",
+      "source": "default",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "N355289",
+      "want": "us",
+      "got": "us",
+      "source": "default",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "N355320",
+      "want": "us",
+      "got": "us",
+      "source": "detected",
+      "cue": "HTSUS",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "N355350",
+      "want": "us",
+      "got": "us",
+      "source": "detected",
+      "cue": "goods sent to United States",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "N355373",
+      "want": "us",
+      "got": "us",
+      "source": "default",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "N355396",
+      "want": "us",
+      "got": "us",
+      "source": "default",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "N355466",
+      "want": "us",
+      "got": "us",
+      "source": "default",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "N355470",
+      "want": "us",
+      "got": "us",
+      "source": "default",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "N355502",
+      "want": "us",
+      "got": "us",
+      "source": "default",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "N355523",
+      "want": "us",
+      "got": "us",
+      "source": "detected",
+      "cue": "goods sent to United States",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "N355544",
+      "want": "us",
+      "got": "us",
+      "source": "detected",
+      "cue": "goods sent to United States",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "N355546",
+      "want": "us",
+      "got": "us",
+      "source": "default",
+      "hint": "other",
+      "kept_from_us_answer": true
+    },
+    {
+      "id": "N355549",
+      "want": "us",
+      "got": "us",
+      "source": "default",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "N355567",
+      "want": "us",
+      "got": "us",
+      "source": "default",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "N355683",
+      "want": "us",
+      "got": "us",
+      "source": "default",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "N355694",
+      "want": "us",
+      "got": "us",
+      "source": "default",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "N355696",
+      "want": "us",
+      "got": "us",
+      "source": "default",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "N355707",
+      "want": "us",
+      "got": "us",
+      "source": "default",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "N355709",
+      "want": "us",
+      "got": "us",
+      "source": "detected",
+      "cue": "Section 301/232",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "N355710",
+      "want": "us",
+      "got": "us",
+      "source": "detected",
+      "cue": "Section 301/232",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "N355742",
+      "want": "us",
+      "got": "us",
+      "source": "default",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "N355760",
+      "want": "us",
+      "got": "us",
+      "source": "detected",
+      "cue": "goods sent to United States",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "N355777",
+      "want": "us",
+      "got": "us",
+      "source": "detected",
+      "cue": "Section 301/232",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "N355798",
+      "want": "us",
+      "got": "us",
+      "source": "detected",
+      "cue": "HTSUS",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "N355801",
+      "want": "us",
+      "got": "us",
+      "source": "detected",
+      "cue": "goods sent to United States",
+      "hint": "other",
+      "kept_from_us_answer": true
+    },
+    {
+      "id": "N355835",
+      "want": "us",
+      "got": "us",
+      "source": "default",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "N355841",
+      "want": "us",
+      "got": "us",
+      "source": "detected",
+      "cue": "goods sent to United States",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "N355842",
+      "want": "us",
+      "got": "us",
+      "source": "detected",
+      "cue": "goods sent to United States",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "N355843",
+      "want": "us",
+      "got": "us",
+      "source": "detected",
+      "cue": "goods sent to United States",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "N355854",
+      "want": "us",
+      "got": "us",
+      "source": "detected",
+      "cue": "HTSUS",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "N355860",
+      "want": "us",
+      "got": "us",
+      "source": "default",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "N355862",
+      "want": "us",
+      "got": "us",
+      "source": "detected",
+      "cue": "Section 301/232",
+      "hint": "other",
+      "kept_from_us_answer": true
+    },
+    {
+      "id": "N355864",
+      "want": "us",
+      "got": "us",
+      "source": "detected",
+      "cue": "Section 301/232",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "N355866",
+      "want": "us",
+      "got": "us",
+      "source": "detected",
+      "cue": "Section 301/232",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "N355894",
+      "want": "us",
+      "got": "us",
+      "source": "default",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "N355901",
+      "want": "us",
+      "got": "us",
+      "source": "default",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "N355902",
+      "want": "us",
+      "got": "us",
+      "source": "detected",
+      "cue": "goods sent to United States",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "N355903",
+      "want": "us",
+      "got": "us",
+      "source": "detected",
+      "cue": "goods sent to United States",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "N355913",
+      "want": "us",
+      "got": "us",
+      "source": "default",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "N355929",
+      "want": "us",
+      "got": "us",
+      "source": "detected",
+      "cue": "Section 301/232",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "N355930",
+      "want": "us",
+      "got": "us",
+      "source": "detected",
+      "cue": "goods sent to United States",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "N355934",
+      "want": "us",
+      "got": "us",
+      "source": "default",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "N355935",
+      "want": "us",
+      "got": "us",
+      "source": "detected",
+      "cue": "goods sent to United States",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "N355950",
+      "want": "us",
+      "got": "us",
+      "source": "detected",
+      "cue": "goods sent to United States",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "N355972",
+      "want": "us",
+      "got": "us",
+      "source": "detected",
+      "cue": "entry into United States",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "N355986",
+      "want": "us",
+      "got": "us",
+      "source": "default",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "N355989",
+      "want": "us",
+      "got": "us",
+      "source": "detected",
+      "cue": "Section 301/232",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "N356009",
+      "want": "us",
+      "got": "us",
+      "source": "default",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "N356014",
+      "want": "us",
+      "got": "us",
+      "source": "default",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "N356018",
+      "want": "us",
+      "got": "us",
+      "source": "detected",
+      "cue": "Section 301/232",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "N356030",
+      "want": "us",
+      "got": "us",
+      "source": "default",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "N356042",
+      "want": "us",
+      "got": "us",
+      "source": "default",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "N356053",
+      "want": "us",
+      "got": "us",
+      "source": "detected",
+      "cue": "goods sent to United States",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "N356074",
+      "want": "us",
+      "got": "us",
+      "source": "detected",
+      "cue": "goods sent to United States",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "N356144",
+      "want": "us",
+      "got": "us",
+      "source": "default",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "N356150",
+      "want": "us",
+      "got": "us",
+      "source": "default",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "N356155",
+      "want": "us",
+      "got": "us",
+      "source": "detected",
+      "cue": "goods sent to United States",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "N356156",
+      "want": "us",
+      "got": "us",
+      "source": "default",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "N356159",
+      "want": "us",
+      "got": "us",
+      "source": "default",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "N356189",
+      "want": "us",
+      "got": "us",
+      "source": "detected",
+      "cue": "goods sent to United States",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "N356206",
+      "want": "us",
+      "got": "us",
+      "source": "detected",
+      "cue": "goods sent to United States",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "N356208",
+      "want": "us",
+      "got": "us",
+      "source": "detected",
+      "cue": "goods sent to United States",
+      "hint": "other",
+      "kept_from_us_answer": true
+    },
+    {
+      "id": "N356225",
+      "want": "us",
+      "got": "us",
+      "source": "default",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "N356229",
+      "want": "us",
+      "got": "us",
+      "source": "detected",
+      "cue": "goods sent to United States",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "N356243",
+      "want": "us",
+      "got": "us",
+      "source": "detected",
+      "cue": "goods sent to United States",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "N356280",
+      "want": "us",
+      "got": "us",
+      "source": "detected",
+      "cue": "HTSUS",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "N356289",
+      "want": "us",
+      "got": "us",
+      "source": "default",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "N356306",
+      "want": "us",
+      "got": "us",
+      "source": "detected",
+      "cue": "goods sent to United States",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "N356327",
+      "want": "us",
+      "got": "us",
+      "source": "detected",
+      "cue": "goods sent to United States",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "N356328",
+      "want": "us",
+      "got": "us",
+      "source": "detected",
+      "cue": "goods sent to United States",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "N356338",
+      "want": "us",
+      "got": "us",
+      "source": "default",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "N356350",
+      "want": "us",
+      "got": "us",
+      "source": "detected",
+      "cue": "goods sent to United States",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "N356375",
+      "want": "us",
+      "got": "us",
+      "source": "detected",
+      "cue": "goods sent to United States",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "N356381",
+      "want": "us",
+      "got": "us",
+      "source": "detected",
+      "cue": "Section 301/232",
+      "hint": "other",
+      "kept_from_us_answer": true
+    },
+    {
+      "id": "N356391",
+      "want": "us",
+      "got": "us",
+      "source": "detected",
+      "cue": "goods sent to United States",
+      "hint": "other",
+      "kept_from_us_answer": true
+    },
+    {
+      "id": "N356395",
+      "want": "us",
+      "got": "us",
+      "source": "detected",
+      "cue": "goods sent to United States",
+      "hint": "other",
+      "kept_from_us_answer": true
+    },
+    {
+      "id": "N356398",
+      "want": "us",
+      "got": "us",
+      "source": "default",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "N356401",
+      "want": "us",
+      "got": "us",
+      "source": "detected",
+      "cue": "goods sent to United States",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "N356450",
+      "want": "us",
+      "got": "us",
+      "source": "detected",
+      "cue": "goods sent to United States",
+      "hint": "other",
+      "kept_from_us_answer": true
+    },
+    {
+      "id": "N356467",
+      "want": "us",
+      "got": "us",
+      "source": "default",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "N356481",
+      "want": "us",
+      "got": "us",
+      "source": "detected",
+      "cue": "goods sent to United States",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "N356520",
+      "want": "us",
+      "got": "us",
+      "source": "default",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "N356521",
+      "want": "us",
+      "got": "us",
+      "source": "default",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "N356522",
+      "want": "us",
+      "got": "us",
+      "source": "detected",
+      "cue": "Section 301/232",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "N356523",
+      "want": "us",
+      "got": "us",
+      "source": "detected",
+      "cue": "goods sent to United States",
+      "hint": "other",
+      "kept_from_us_answer": true
+    },
+    {
+      "id": "N356530",
+      "want": "us",
+      "got": "us",
+      "source": "detected",
+      "cue": "goods sent to United States",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "N356544",
+      "want": "us",
+      "got": "us",
+      "source": "default",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "N356592",
+      "want": "us",
+      "got": "us",
+      "source": "default",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "N356620",
+      "want": "us",
+      "got": "us",
+      "source": "detected",
+      "cue": "goods sent to United States",
+      "hint": "other",
+      "kept_from_us_answer": true
+    },
+    {
+      "id": "N356637",
+      "want": "us",
+      "got": "us",
+      "source": "detected",
+      "cue": "goods sent to United States",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "N356661",
+      "want": "us",
+      "got": "us",
+      "source": "detected",
+      "cue": "Section 301/232",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "N356663",
+      "want": "us",
+      "got": "us",
+      "source": "detected",
+      "cue": "goods sent to United States",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "N356670",
+      "want": "us",
+      "got": "us",
+      "source": "default",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "N356696",
+      "want": "us",
+      "got": "us",
+      "source": "detected",
+      "cue": "HTSUS",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "N356703",
+      "want": "us",
+      "got": "us",
+      "source": "detected",
+      "cue": "entry into United States",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "N356709",
+      "want": "us",
+      "got": "us",
+      "source": "default",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "N356741",
+      "want": "us",
+      "got": "us",
+      "source": "detected",
+      "cue": "goods sent to United States",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "N356742",
+      "want": "us",
+      "got": "us",
+      "source": "detected",
+      "cue": "goods sent to United States",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "N356761",
+      "want": "us",
+      "got": "us",
+      "source": "default",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "N356766",
+      "want": "us",
+      "got": "us",
+      "source": "detected",
+      "cue": "goods sent to United States",
+      "hint": "other",
+      "kept_from_us_answer": true
+    },
+    {
+      "id": "N356772",
+      "want": "us",
+      "got": "us",
+      "source": "default",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "N356865",
+      "want": "us",
+      "got": "us",
+      "source": "default",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "N356882",
+      "want": "us",
+      "got": "us",
+      "source": "detected",
+      "cue": "goods sent to United States",
+      "hint": "other",
+      "kept_from_us_answer": true
+    },
+    {
+      "id": "N356883",
+      "want": "us",
+      "got": "us",
+      "source": "detected",
+      "cue": "goods sent to United States",
+      "hint": "other",
+      "kept_from_us_answer": true
+    },
+    {
+      "id": "N356884",
+      "want": "us",
+      "got": "us",
+      "source": "detected",
+      "cue": "goods sent to United States",
+      "hint": "other",
+      "kept_from_us_answer": true
+    },
+    {
+      "id": "N356886",
+      "want": "us",
+      "got": "us",
+      "source": "detected",
+      "cue": "goods sent to United States",
+      "hint": "other",
+      "kept_from_us_answer": true
+    },
+    {
+      "id": "N356911",
+      "want": "us",
+      "got": "us",
+      "source": "detected",
+      "cue": "goods sent to United States",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "N356931",
+      "want": "us",
+      "got": "us",
+      "source": "detected",
+      "cue": "goods sent to United States",
+      "hint": "other",
+      "kept_from_us_answer": true
+    },
+    {
+      "id": "N356964",
+      "want": "us",
+      "got": "us",
+      "source": "detected",
+      "cue": "goods sent to United States",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "N357057",
+      "want": "us",
+      "got": "us",
+      "source": "detected",
+      "cue": "goods sent to United States",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "N357085",
+      "want": "us",
+      "got": "us",
+      "source": "detected",
+      "cue": "entry into United States",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "N357115",
+      "want": "us",
+      "got": "us",
+      "source": "detected",
+      "cue": "goods sent to United States",
+      "kept_from_us_answer": false
+    }
+  ],
+  "run": "market-detect-dev-d681-v2",
+  "texts": 649,
+  "time": "2026-11-22T19:56:37+08:00",
+  "us_texts": 649,
+  "us_texts_clean": 578
+}

@@ -11,6 +11,8 @@ import (
 	"strconv"
 	"strings"
 	"testing"
+
+	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/jurisdiction"
 )
 
 // Spec-vs-code checks for the published API and MCP docs (judge panel
@@ -198,5 +200,38 @@ func TestMCPDocListsLimitErrorCodes(t *testing.T) {
 	}
 	if strings.Contains(doc, "tens of seconds") {
 		t.Error(`MCP.md still says plan search takes "tens of seconds"; it often takes minutes`)
+	}
+}
+
+// The market codes in openapi.yaml, the MCP tool schemas and docs/MCP.md
+// are jurisdiction.Codes (D680).
+func TestJurisdictionCodesMatchTheDocs(t *testing.T) {
+	want := strings.Join(jurisdiction.Codes(), ", ")
+	spec := readDoc(t, "docs", "api", "openapi.yaml")
+	i := strings.Index(spec, "    JurisdictionCode:")
+	if i < 0 {
+		t.Fatal("openapi.yaml has no JurisdictionCode schema")
+	}
+	m := regexp.MustCompile(`enum: \[([^\]]+)\]`).FindStringSubmatch(spec[i:])
+	if m == nil || m[1] != want {
+		t.Errorf("openapi.yaml JurisdictionCode enum = %v, want [%s]", m, want)
+	}
+	for _, op := range []string{"PredictRequest:", "PlanRequest:", "operationId: compareTargets", "operationId: triageBatch"} {
+		j := strings.Index(spec, op)
+		if j < 0 || !strings.Contains(spec[j:j+min(len(spec)-j, 4000)], "jurisdiction") {
+			t.Errorf("openapi.yaml %s does not take jurisdiction", op)
+		}
+	}
+	doc := readDoc(t, "docs", "MCP.md")
+	quoted := make([]string, 0, len(jurisdiction.Codes()))
+	for _, c := range jurisdiction.Codes() {
+		quoted = append(quoted, "`"+c+"`")
+	}
+	if !strings.Contains(doc, strings.Join(quoted[:len(quoted)-1], ", ")+" or "+quoted[len(quoted)-1]) {
+		t.Errorf("MCP.md does not list the market codes %s", want)
+	}
+	src := readDoc(t, "backend", "internal", "mcpserver", "schema.go")
+	if !strings.Contains(src, `enum(desc, "`+strings.Join(jurisdiction.Codes(), `", "`)+`")`) {
+		t.Errorf("mcpserver market() enum is not %s", want)
 	}
 }

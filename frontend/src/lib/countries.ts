@@ -18,6 +18,8 @@ export const countryCodes: Record<string, string> = {
   Czechia: "cz",
   Denmark: "dk",
   "Dominican Republic": "do",
+  // A market, not a country: the EU flag for the market picker (D680).
+  "European Union": "eu",
   Egypt: "eg",
   "El Salvador": "sv",
   Finland: "fi",

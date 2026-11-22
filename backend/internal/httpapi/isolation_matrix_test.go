@@ -72,6 +72,7 @@ var routeTable = map[string]routeClass{
 	"GET /v1/duty-rates":                           noCaseData,
 	"POST /v1/rcep/check":                          noCaseData,
 	"GET /v1/demos":                                noCaseData,
+	"GET /v1/jurisdictions":                        noCaseData,
 	"GET /v1/demos/{id}":                           noCaseData,
 	"POST /v1/workspaces":                          noCaseData,
 	"GET /v1/workspaces/mine":                      noCaseData,

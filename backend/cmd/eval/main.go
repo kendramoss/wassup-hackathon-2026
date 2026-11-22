@@ -173,6 +173,8 @@ func main() {
 		err = p102MovesCmd(os.Args[2:])
 	case "adjudicate":
 		err = adjudicateCmd(os.Args[2:])
+	case "market":
+		err = marketCmd(os.Args[2:])
 	default:
 		err = fmt.Errorf("unknown command %q", os.Args[1])
 	}

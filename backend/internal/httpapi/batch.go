@@ -11,6 +11,7 @@ import (
 
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/bom"
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/domain"
+	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/jurisdiction"
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/planner"
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/store"
 )
@@ -26,14 +27,18 @@ type batchItem struct {
 	Name  string `json:"name"`
 	Facts string `json:"facts"`
 	Date  string `json:"date"` // YYYY-MM-DD; default today
+	// Jurisdiction is the market (D680); default: read from the facts, else us.
+	Jurisdiction string `json:"jurisdiction"`
 }
 
 // BatchRow is one product's triage outcome.
 type BatchRow struct {
-	Name       string   `json:"name"`
-	CaseID     string   `json:"case_id,omitempty"`
-	Origin     string   `json:"predicted_origin,omitempty"`
-	Confidence *float64 `json:"confidence,omitempty"`
+	Name   string `json:"name"`
+	CaseID string `json:"case_id,omitempty"`
+	// Jurisdiction is the case's market (D680).
+	Jurisdiction string   `json:"jurisdiction,omitempty"`
+	Origin       string   `json:"predicted_origin,omitempty"`
+	Confidence   *float64 `json:"confidence,omitempty"`
 	// CalibratedConfidence and Calibration are the map's probability and
 	// version when one applied (D160, #402). They travel with the row so the
 	// triage screen and CSV can show the same number the reason quotes.
@@ -94,7 +99,7 @@ func (a *api) batch(w http.ResponseWriter, r *http.Request) {
 				rows[i].Error = &msg
 				return
 			}
-			sc, err := a.createCase(r, predictRequest{Date: planner.Date{Time: d}, Facts: it.Facts, DisplayName: it.Name}, time.Now())
+			sc, err := a.createCase(r, predictRequest{Date: planner.Date{Time: d}, Facts: it.Facts, DisplayName: it.Name, Jurisdiction: strings.TrimSpace(it.Jurisdiction)}, time.Now())
 			if err != nil {
 				_, _, msg := a.errorFor(r, err)
 				rows[i].Error = &msg
@@ -105,6 +110,11 @@ func (a *api) batch(w http.ResponseWriter, r *http.Request) {
 			rows[i].CalibratedConfidence, rows[i].Calibration = sc.Prediction.CalibratedConfidence, sc.Prediction.Calibration
 			rows[i].Route, rows[i].Reason = string(sc.Triage.Route), sc.Triage.Reason
 			rows[i].OutOfScope = strings.HasPrefix(sc.Triage.Reason, "out of scope")
+			rows[i].Jurisdiction = jurisdiction.Of(sc.Jurisdiction).Code
+			if !a.markets().Supported(rows[i].Jurisdiction) {
+				// No engine ran (D680): no origin or confidence to show.
+				rows[i].Confidence, rows[i].OutOfScope = nil, true
+			}
 			if n := len(sc.History); n > 0 {
 				rows[i].CostUSD = sc.History[n-1].CostUSD
 			}
@@ -182,6 +192,8 @@ func batchRows(src io.Reader) ([]batchItem, error) {
 			col["facts"] = i
 		case "date", "case date":
 			col["date"] = i
+		case "jurisdiction", "market":
+			col["jurisdiction"] = i
 		}
 	}
 	fi, ok := col["facts"]
@@ -199,7 +211,7 @@ func batchRows(src io.Reader) ([]batchItem, error) {
 		if fi >= len(row) || strings.TrimSpace(row[fi]) == "" {
 			continue
 		}
-		items = append(items, batchItem{Name: cell(row, "name"), Facts: cell(row, "facts"), Date: cell(row, "date")})
+		items = append(items, batchItem{Name: cell(row, "name"), Facts: cell(row, "facts"), Date: cell(row, "date"), Jurisdiction: strings.ToLower(cell(row, "jurisdiction"))})
 	}
 	return items, nil
 }

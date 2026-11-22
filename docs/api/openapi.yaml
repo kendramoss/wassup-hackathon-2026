@@ -141,7 +141,7 @@ paths:
       operationId: triageBatch
       summary: Triage a portfolio (up to 20 products) in one call
       description: |
-        Each product is predicted from its facts, triaged and saved as an ordinary case (D47). One product's failure fills its row's error and does not fail the rest. Send JSON, or multipart/form-data with a "file" (CSV or .xlsx with a header row: name (or product, sku), facts (or description), optional date). Rate-limited as one heavy request per client that takes 20 from the global cap.
+        Each product is predicted from its facts, triaged and saved as an ordinary case (D47). One product's failure fills its row's error and does not fail the rest. Send JSON, or multipart/form-data with a "file" (CSV or .xlsx with a header row: name (or product, sku), facts (or description), optional date, optional jurisdiction). Rate-limited as one heavy request per client that takes 20 from the global cap.
       requestBody:
         required: true
         content:
@@ -160,6 +160,7 @@ paths:
                       name: { type: string }
                       facts: { type: string }
                       date: { type: string, format: date, description: Default today }
+                      jurisdiction: { description: "Optional market (D680); a sheet may have a jurisdiction (or market) column", allOf: [{ $ref: "#/components/schemas/JurisdictionCode" }] }
           multipart/form-data:
             schema: { type: object, required: [file], properties: { file: { type: string, format: binary } } }
       responses:
@@ -183,7 +184,8 @@ paths:
                           properties:
                             name: { type: string, description: The given name, or the first words of the facts }
                             case_id: { type: string }
-                            predicted_origin: { type: string }
+                            jurisdiction: { $ref: "#/components/schemas/JurisdictionCode" }
+                            predicted_origin: { type: string, description: "Absent when the market has no engine (D680)" }
                             confidence: { type: number, description: "The model's stated confidence; read calibrated_confidence first when present (D160, #402)" }
                             calibrated_confidence: { type: number, description: "Calibrated probability when a map applied to this prediction; the triage reason quotes this value" }
                             calibration: { type: string, description: "Calibration map version, e.g. cal-v2; absent when no map applied" }
@@ -1011,6 +1013,7 @@ paths:
               required: [targets]
               properties:
                 targets: { type: array, minItems: 2, maxItems: 4, items: { type: string }, example: [Thailand, Vietnam, Malaysia] }
+                jurisdiction: { description: "Optional; as in PlanRequest", allOf: [{ $ref: "#/components/schemas/JurisdictionCode" }] }
                 economics: { $ref: "#/components/schemas/Economics" }
       responses:
         "401": { $ref: "#/components/responses/Error" }
@@ -1023,6 +1026,7 @@ paths:
                 type: object
                 properties:
                   case_id: { type: string }
+                  jurisdiction: { $ref: "#/components/schemas/JurisdictionCode" }
                   targets: { type: array, items: { $ref: "#/components/schemas/TargetSummary" } }
         "400": { $ref: "#/components/responses/Error" }
         "404": { $ref: "#/components/responses/Error" }
@@ -1520,6 +1524,29 @@ paths:
                   note: { type: string }
         "400": { $ref: "#/components/responses/Error" }
         "429": { $ref: "#/components/responses/TooManyRequests" }
+  /v1/jurisdictions:
+    get:
+      operationId: listJurisdictions
+      summary: Markets a case can name, and which have an origin engine
+      description: Every market code with its name and whether it is supported (D680). Only us is supported today; a case for any other market gets no prediction and goes to review.
+      responses:
+        "429": { $ref: "#/components/responses/TooManyRequests" }
+        "200":
+          description: Market list
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  jurisdictions:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        code: { $ref: "#/components/schemas/JurisdictionCode" }
+                        name: { type: string }
+                        supported: { type: boolean }
+                  detector: { type: string, example: market-detect-v2, description: "Version of the deterministic market detector" }
   /v1/demos:
     get:
       operationId: listDemos
@@ -2317,6 +2344,23 @@ components:
           description: Optional money inputs, kept on the case for plan, scenarios and compare-targets calls that omit their own (also editable later with PUT /v1/cases/{id}/economics)
           allOf: [{ $ref: "#/components/schemas/Economics" }]
         display_name: { type: string, maxLength: 200, description: "Optional name for the case on Cases home (D48); batch rows pass their name here" }
+        jurisdiction:
+          description: 'Market the question is for (D680). Omitted: read from the text by a deterministic detector (an authority such as HMRC or CBSA, "imported into <place>", "<market> customs"), else us. Only us has an origin engine today; any other market is saved with no prediction and goes to review with "Origin rules for <market> aren''t supported yet".'
+          allOf: [{ $ref: "#/components/schemas/JurisdictionCode" }]
+    JurisdictionCode:
+      type: string
+      enum: [us, eu, uk, ca, jp, kr, au, mx, other]
+      description: "Market codes: us United States, eu European Union, uk United Kingdom, ca Canada, jp Japan, kr South Korea, au Australia, mx Mexico, other any other market"
+    JurisdictionDetail:
+      type: object
+      required: [code, name, source, supported]
+      properties:
+        code: { $ref: "#/components/schemas/JurisdictionCode" }
+        name: { type: string, example: United States }
+        source: { type: string, enum: [chosen, detected, default], description: "chosen: the caller named it; detected: a cue in the text; default: no cue (a case made before D680 also reads default)" }
+        cue: { type: string, description: 'What set a detected market, e.g. "HMRC" or "entry into Canada"' }
+        hint: { type: string, description: "A non-U.S. market the text suggests but that was not taken (a price, \"sold in\", or a cue contradicted by a U.S. one). On a case the router labels unclear it sends the case to review." }
+        supported: { type: boolean, description: "Whether the market has an origin engine. false: no prediction was made" }
     WhatIf:
       type: object
       description: One re-run of the origin engine on revised facts
@@ -2385,7 +2429,9 @@ components:
             product: { $ref: "#/components/schemas/Product" }
             family: { type: string }
             exclude_rulings: { type: array, items: { type: string }, description: "Rulings the engine and the plan search never read for this case (as given at prediction)" }
-            prediction: { $ref: "#/components/schemas/Prediction" }
+            jurisdiction: { $ref: "#/components/schemas/JurisdictionCode" }
+            jurisdiction_detail: { $ref: "#/components/schemas/JurisdictionDetail" }
+            prediction: { description: "Empty (origin_country \"\") when jurisdiction_detail.supported is false: no engine ran (D680)", allOf: [{ $ref: "#/components/schemas/Prediction" }] }
             triage: { $ref: "#/components/schemas/Triage" }
             router: { $ref: "#/components/schemas/RouterLabel" }
             plan: { $ref: "#/components/schemas/PlanResult" }
@@ -2690,6 +2736,7 @@ components:
       required: [target]
       properties:
         target: { type: string, example: Thailand }
+        jurisdiction: { description: "Optional. When given it must be the case's market, else 400. A case whose market has no engine, or a non-U.S. case, is refused with 400: plan search is a U.S. CBP search (D680).", allOf: [{ $ref: "#/components/schemas/JurisdictionCode" }] }
         economics: { $ref: "#/components/schemas/Economics" }
         actual_change:
           type: object
@@ -2871,6 +2918,7 @@ components:
         - type: object
           properties:
             case_id: { type: string }
+            jurisdiction: { $ref: "#/components/schemas/JurisdictionCode" }
             plan: { $ref: "#/components/schemas/PlanResult" }
     BrokerReviewDecision:
       type: object
