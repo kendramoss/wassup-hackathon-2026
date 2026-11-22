@@ -118,7 +118,7 @@ A change counts only for cases dated after the revoking ruling's date (D370). On
 
 | Committed rows | Rows | Showed a superseded precedent | Cited one |
 |---|---:|---:|---:|
-| All result rows with rulings (151 files) | 13,645 | 23 | 8 |
+| All result rows with rulings (152 files) | 14,114 | 23 | 8 |
 | Development engine runs (general) | | 1 (N355148, N331974 shown) | 0 |
 | First held-out split, engine (4 runs) | | 8 (N361172 and N364229, N331974 shown) | 3 |
 | Textile development runs | | 8 (N345891 shown) | 4 |
@@ -138,11 +138,11 @@ A saved case now says when CBP has revoked or modified a ruling it relies on (ci
 
 | Committed results | Count | Would show |
 |---|---:|---|
-| Result rows naming rulings | 13,586 | |
+| Result rows naming rulings | 14,055 | |
 | Relied-on ruling changed on or after the case date | 2 (4 before D490) | the "look again" alert |
 | Relied-on ruling changed before the case date | 7 (8 before D490) | the alert, marked as stored before the guard (7 of the 8 of section 2.5; the eighth also cites the revoker) |
 | Relied-on ruling with a proposed change only | 0 | a calm line |
-| Only a ruling read, not cited, changed | 66 (85 before D490; 2 are D650 checklist rows) | a calm line, no list badge |
+| Only a ruling read, not cited, changed | 68 (85 before D490; 4 are D650 checklist rows) | a calm line, no list badge |
 | Stored case documents (heat-gun demo seeds and one prediction) | 0 of 7 | |
 | Demo fixtures (current-setup and recorded supporting rulings) | 0 of 10 | |
 
