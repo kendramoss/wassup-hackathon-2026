@@ -1,11 +1,11 @@
 {
-  "_source": "Built from the facts of CBP ruling N350133 (2025-06-23, Part 102 dev split; picked: a dev Part 102 product with later CBP rulings on changed setups (N354024, N357851, N359668; same requester, each held Mexico)). CBP held Mexico. Components: the D362 full-text materials; part codes: the top D381 development suggestion (unverified, D382); the good's code: CBP's (8433.11.0050). Plants, groups and operations assigned by hand (eval/planner/build_part102_fixtures.py). Target China by the D171 rule (reverse probe); plant capabilities for China are an assumption. D501.",
+  "_source": "Built from the facts of CBP ruling N350133 (2025-06-23, Part 102 dev split; subject: \"The country of origin and eligibility of the United States-Mexico-Canada Agreement (USMCA) of a Walk-Behind Lawn Mower\"; picked: a dev Part 102 product with later CBP rulings on changed setups (N354024, N357851, N359668; same requester, each held Mexico)). CBP held Mexico. Components: the D362 full-text materials; part codes: the top D381 development suggestion (unverified, D382); the good's code: CBP's (8433.11.0050). Plants, groups and operations assigned by hand (eval/planner/build_part102_fixtures.py). Target China by the D171 rule (reverse probe); plant capabilities for China are an assumption. D501.",
   "case_id": "p102-n350133",
   "date": "2025-06-23",
   "family": "motorised_tools_small_appliances",
   "target": "China",
   "product": {
-    "name": "The country of origin and eligibility of the United States-Mexico-Canada Agreement (USMCA) of a Walk-Behind Lawn Mower",
+    "name": "Walk-behind lawn mower",
     "description": "The product of CBP ruling N350133, as its facts describe it.",
     "hts": "8433.11.0050",
     "plants": [

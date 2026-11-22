@@ -10,10 +10,11 @@ import (
 // alertsNow is the clock revocation alerts read "today" from (tests pin it).
 var alertsNow = func() time.Time { return time.Now().UTC() }
 
-// caseRulingAlerts are the read-time revocation alerts on a saved case.
+// caseRulingAlerts are the read-time revocation alerts on a saved case, each
+// labelled with whether the change bears on the case's answer (D531).
 func caseRulingAlerts(c store.Case, today time.Time) []domain.RulingAlert {
 	d, _ := time.Parse(time.DateOnly, c.Date) // an invalid date reads as zero: no change is "before the case"
-	return domain.RulingAlerts(d, today, c.RulingRefs())
+	return domain.WithRelevance(domain.RulingAlerts(d, today, c.RulingRefs()), c.Prediction.Origin)
 }
 
 // rulingAlertsField is the case's ruling_alerts field, or nil when no ruling
@@ -49,6 +50,19 @@ func alertCounts(c store.Case, today time.Time) *domain.AlertCounts {
 	return &n
 }
 
+// relevanceWord is the watch job's short form of an alert's relevance.
+func relevanceWord(a domain.RulingAlert) string {
+	switch a.Relevance {
+	case domain.RelevanceTouchesAnswer:
+		return " (bears on the answer)"
+	case domain.RelevanceNotAnswer:
+		return " (does not touch the answer directly)"
+	case domain.RelevanceHoldingUnchanged:
+		return " (origin held unchanged)"
+	}
+	return " (bearing on the answer not known)"
+}
+
 // watchAlert is one case's line in the watch job's ruling_alerts.
 type watchAlert struct {
 	domain.AlertCounts
@@ -74,7 +88,7 @@ func watchAlerts(cs []store.Case, today time.Time) map[string]watchAlert {
 		wa := watchAlert{AlertCounts: n}
 		for _, a := range as {
 			if a.Relied() && a.Status == domain.AlertFinal {
-				wa.Rulings = append(wa.Rulings, a.Ruling+" "+a.Note)
+				wa.Rulings = append(wa.Rulings, a.Ruling+" "+a.Note+relevanceWord(a))
 			}
 		}
 		out[c.ID] = wa

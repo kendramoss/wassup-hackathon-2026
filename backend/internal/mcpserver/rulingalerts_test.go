@@ -42,3 +42,20 @@ func TestGetCaseWithoutAlertsSaysNothing(t *testing.T) {
 		t.Errorf("%q", l)
 	}
 }
+
+// D531: the alert says whether the change bears on the answer.
+func TestRulingAlertLinesSayWhetherTheChangeBearsOnTheAnswer(t *testing.T) {
+	item := func(rel, note string) map[string]any {
+		return map[string]any{"ruling_alerts": map[string]any{"items": []any{map[string]any{
+			"ruling": "N344694", "roles": []any{"cited"}, "status": "final", "kind": "modified", "by": "H344999",
+			"in_effect": true, "note": "modified by H344999 on 2026-05-06", "relevance": rel, "relevance_note": note}}}}
+	}
+	not := rulingAlertLines(item("not_answer", "H344999 modified N344694, and the origin held moved from China to Taiwan. This case's answer was Vietnam, so the change does not touch the answer directly."))
+	if !strings.Contains(not, "does not touch the answer directly. Re-check still recommended.") {
+		t.Errorf("not_answer: %s", not)
+	}
+	touch := rulingAlertLines(item("touches_answer", "H344999 modified N344694, and the origin held moved from China to Taiwan. This case's answer was China, so the change bears on the answer."))
+	if !strings.Contains(touch, "bears on the answer. Re-check recommended.") || strings.Contains(touch, "still") {
+		t.Errorf("touches_answer: %s", touch)
+	}
+}

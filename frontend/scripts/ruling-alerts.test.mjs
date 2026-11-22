@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
-import { alertTone, badgeText, changeWords, roleWords } from "../src/lib/ruling-alerts.ts";
+import { alertTone, badgeText, changeWords, recheckWords, roleWords } from "../src/lib/ruling-alerts.ts";
 
 const fmt = (s) => s;
 const revoked = { ruling: "N345891", roles: ["cited", "plan_support"], status: "final", kind: "revoked", by: "H346161", date: "2025-05-05", in_effect: true, note: "revoked by H346161 on 2025-05-05" };
@@ -31,4 +31,13 @@ test("list badge", () => {
   assert.deepEqual(badgeText({ final: 0, proposed: 2 }), { text: "2 cited rulings: change proposed", attention: false });
   assert.equal(badgeText({ final: 0, proposed: 0 }), null);
   assert.equal(badgeText(null), null);
+});
+
+test("D531: the badge counts changes that bear on the answer, and the line says whether a re-check is still recommended", () => {
+  assert.deepEqual(badgeText({ final: 2, proposed: 0, touches_answer: 1 }), { text: "2 cited rulings revoked or modified, 1 bearing on the answer", attention: true });
+  assert.equal(recheckWords({ relevance: "not_answer" }), "Re-check still recommended.");
+  assert.equal(recheckWords({ relevance: "holding_unchanged" }), "Re-check still recommended.");
+  assert.equal(recheckWords({ relevance: "touches_answer" }), "Re-check recommended.");
+  assert.equal(recheckWords({ relevance: "unknown" }), "Re-check recommended.");
+  assert.equal(recheckWords({}), "Re-check recommended.");
 });

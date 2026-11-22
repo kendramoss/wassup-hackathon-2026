@@ -147,3 +147,51 @@ func TestAlertOnAnswerStoredBeforeTheGuard(t *testing.T) {
 		t.Errorf("unchanged ruling: %v", f)
 	}
 }
+
+// D531: the case read says whether the change bears on the answer. The
+// stored answer cites N344694 (China), modified by H344999 (Taiwan).
+func TestCaseAlertSaysWhetherTheChangeBearsOnTheAnswer(t *testing.T) {
+	pinToday(t, "2026-11-22")
+	for _, tc := range []struct{ origin, relevance string }{{"Vietnam", "not_answer"}, {"China", "touches_answer"}} {
+		var st store.Cases
+		hs := newHarnessWith(t, "substantial_transformation", func(d *Deps) { st = d.Cases })
+		_, c := hs.do(t, "POST", "/v1/cases/predict", heatGunBody(t))
+		id := c["id"].(string)
+		if _, err := st.Update(context.Background(), id, func(c *store.Case) error {
+			c.Date = "2025-12-22"
+			c.Prediction.Origin = tc.origin
+			c.Prediction.CitedRulings = []string{"N344694"}
+			c.Prediction.Precedents = []string{"N344694"}
+			c.Plan = nil
+			return nil
+		}); err != nil {
+			t.Fatal(err)
+		}
+		_, got := hs.do(t, "GET", "/v1/cases/"+id, "")
+		ra, _ := got["ruling_alerts"].(map[string]any)
+		items, _ := ra["items"].([]any)
+		if len(items) != 1 {
+			t.Fatalf("%s: items %v", tc.origin, ra)
+		}
+		a := items[0].(map[string]any)
+		if a["relevance"] != tc.relevance || a["held_before"] != "China" || a["held_after"] != "Taiwan" || a["answer"] != tc.origin {
+			t.Errorf("%s: %v", tc.origin, a)
+		}
+		_, list := hs.do(t, "GET", "/v1/cases", "")
+		found := false
+		for _, x := range list["cases"].([]any) {
+			row := x.(map[string]any)
+			if row["id"] != id {
+				continue
+			}
+			found = true
+			n, _ := row["ruling_alerts"].(map[string]any)
+			if (tc.relevance == "touches_answer") != (n["touches_answer"] == 1.0) {
+				t.Errorf("%s: list badge %v", tc.origin, n)
+			}
+		}
+		if !found {
+			t.Errorf("%s: case not in the list", tc.origin)
+		}
+	}
+}

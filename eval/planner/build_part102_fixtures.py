@@ -22,11 +22,17 @@ DEV = set(json.load(open(f'{REPO}/eval/splits/splits_usmca.json'))['dev'])
 
 def duty(c): return 0.425 if c == 'China' else (0.0 if c == 'United States' else 0.125)
 
-# Per pick: family, target, plants, the group and plant of each D362
+# Per pick: the product's name, written by hand from the ruling's facts
+# (the subject itself, "The country of origin of an electrical actuator",
+# read "a The country of origin of ..." in the rendered facts; D532; the
+# subject stays in _source). It starts with a consonant because the facts
+# read "is a <name>". Then family,
+# target, plants, the group and plant of each D362
 # material (by index; plant '' = bought in, group '' = never moves), the
 # operations, extra exclusions and hand notes.
 PICKS = {
     'N350133': dict(
+        name='Walk-behind lawn mower',
         family='motorised_tools_small_appliances', target='China',
         why='a dev Part 102 product with later CBP rulings on changed setups (N354024, N357851, N359668; same requester, each held Mexico)',
         plants=[('mx', 'Mexico plant', 'Mexico', ['housing_moulding', 'final_assembly']),
@@ -51,6 +57,7 @@ PICKS = {
              ('assemble the Mexican, Chinese and U.S. components into the finished mower by hand', 'mx', 'final_assembly')],
         exclude=['N354024', 'N357851', 'N359668']),
     'N348465': dict(
+        name='DC motor actuator',
         family='motors_pumps_compressors', target='Canada',
         why='CBP held China for a good assembled in Canada (the Chinese motor is in the good\'s own heading 8501), so a move can change what the rule gives',
         plants=[('cn', 'China suppliers', 'China', ['motor_stator_rotor', 'fluid_rotary_mechanism', 'housing_and_chassis', 'controls_and_valves']),
@@ -68,6 +75,7 @@ PICKS = {
              ('solder the electrical apparatus and secure the wires to the motor actuator', 'ca', 'final_assembly'),
              ('test, lubricate and package', 'ca', 'final_assembly')]),
     'N344002': dict(
+        name='Hermetic compressor (three models)',
         family='motors_pumps_compressors', target='China',
         why='the 102.20 check decides CBP\'s holding (Mexico) with CBP\'s codes (D362) and with the suggestions (D382); a reverse probe',
         plants=[('mx', 'Mexico plant', 'Mexico', ['motor_stator_rotor', 'final_assembly']),
@@ -126,9 +134,9 @@ for rid, pk in PICKS.items():
             if x['group'] == g: return x['plant']
     gc = {g: {where(g): 100000, tp['id']: 125000} for g in present if where(g) and where(g) != tp['id']}
     good = inp['input']['good_hts']
-    product = {'name': lab['subject'], 'description': f'The product of CBP ruling {rid}, as its facts describe it.', 'hts': good,
+    product = {'name': pk['name'], 'description': f'The product of CBP ruling {rid}, as its facts describe it.', 'hts': good,
                'plants': plants, 'components': comps, 'operations': ops}
-    req = {'_source': (f'Built from the facts of CBP ruling {rid} ({lab["date"]}, Part 102 dev split; picked: {pk["why"]}). CBP held {held}. '
+    req = {'_source': (f'Built from the facts of CBP ruling {rid} ({lab["date"]}, Part 102 dev split; subject: "{lab["subject"]}"; picked: {pk["why"]}). CBP held {held}. '
                        f'Components: the D362 full-text materials; part codes: the top D381 development suggestion (unverified, D382); the good\'s code: CBP\'s ({good}). '
                        f'Plants, groups and operations assigned by hand (eval/planner/build_part102_fixtures.py). Target {target} by the D171 rule'
                        + (' (reverse probe)' if held != 'China' else ' (where the good is finished)') + f'; plant capabilities for {target} are an assumption. D501.'),

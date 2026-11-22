@@ -15,9 +15,16 @@ export type RulingAlertItem = {
   bulletin?: string;
   url?: string;
   note: string;
+  // D531: whether the change bears on the case's answer, from the origins
+  // the changed and changing rulings hold (shipped labels) and the answer.
+  held_before?: string;
+  held_after?: string;
+  answer?: string;
+  relevance?: "touches_answer" | "not_answer" | "holding_unchanged" | "unknown";
+  relevance_note?: string;
 };
 
-export type RulingAlertCounts = { final: number; proposed: number; read_only?: number };
+export type RulingAlertCounts = { final: number; proposed: number; read_only?: number; touches_answer?: number };
 
 export type RulingAlerts = { counts: RulingAlertCounts; items: RulingAlertItem[]; rechecked_at?: string };
 
@@ -42,6 +49,12 @@ export function changeWords(a: RulingAlertItem, fmt: (iso: string) => string): s
   return `${verb} by ${a.by} ${when} ${fmt(a.date ?? "")}`;
 }
 
+// The closing words of a final change's line: a re-check is recommended
+// either way; "still" when the change does not move the answer's country.
+export function recheckWords(a: RulingAlertItem): string {
+  return a.relevance === "not_answer" || a.relevance === "holding_unchanged" ? "Re-check still recommended." : "Re-check recommended.";
+}
+
 // The case page's tone: attention when a relied-on ruling has a final
 // change; calm when there are only proposals or rulings read and not cited.
 export function alertTone(ra: RulingAlerts | null | undefined): "attention" | "calm" | null {
@@ -52,6 +65,9 @@ export function alertTone(ra: RulingAlerts | null | undefined): "attention" | "c
 // The cases-list badge, e.g. "1 cited ruling revoked or modified".
 export function badgeText(n: RulingAlertCounts | null | undefined): { text: string; attention: boolean } | null {
   if (!n || (!n.final && !n.proposed)) return null;
-  if (n.final) return { text: `${n.final} cited ruling${n.final === 1 ? "" : "s"} revoked or modified`, attention: true };
+  if (n.final) {
+    const base = `${n.final} cited ruling${n.final === 1 ? "" : "s"} revoked or modified`;
+    return { text: n.touches_answer ? `${base}, ${n.touches_answer} bearing on the answer` : base, attention: true };
+  }
   return { text: `${n.proposed} cited ruling${n.proposed === 1 ? "" : "s"}: change proposed`, attention: false };
 }

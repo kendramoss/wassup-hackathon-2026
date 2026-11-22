@@ -107,11 +107,16 @@
   }
  ],
  "map": "backend/internal/domain/supersession.json",
- "note": "Offline count (D480): committed demo cases and committed result rows that would show a revocation alert, by the API's rule (domain.RulingAlerts): a ruling the case or row relies on (cited, a plan's supporting ruling, CBP's holding on the current setup) has a final revocation or modification (final_after_case: dated on or after the case date; final_before_case: dated before it, which the guard of D320/D370 would refuse today; final_undated: the row has no date) or a pending proposal only (proposed). read_only_final: only a ruling read and not cited changed (a calm line, no badge). Rows are every JSON object in eval/results that names rulings, as eval/supersession/impact.py reads them, except stored case documents (an id case_..., a date and a prediction), which are counted once as cases. No model call; in effect is judged as of 2026-11-22.",
+ "note": "Offline count (D480): committed demo cases and committed result rows that would show a revocation alert, by the API's rule (domain.RulingAlerts): a ruling the case or row relies on (cited, a plan's supporting ruling, CBP's holding on the current setup) has a final revocation or modification (final_after_case: dated on or after the case date; final_before_case: dated before it, which the guard of D320/D370 would refuse today; final_undated: the row has no date) or a pending proposal only (proposed). read_only_final: only a ruling read and not cited changed (a calm line, no badge). relevance_final_relied counts the relied-on final changes by whether the change bears on the row's or case's answer (domain.WithRelevance, D531: touches_answer, not_answer, holding_unchanged, unknown). Rows are every JSON object in eval/results that names rulings, as eval/supersession/impact.py reads them, except stored case documents (an id case_..., a date and a prediction), which are counted once as cases. No model call; in effect is judged as of 2026-11-22.",
+ "relevance_final_relied": {
+  "holding_unchanged": 3,
+  "not_answer": 2,
+  "unknown": 4
+ },
  "row_examples": [
   {
    "alerts": [
-    "N344694 (cited, read): modified by H344999 on 2026-05-06"
+    "N344694 (cited, read): modified by H344999 on 2026-05-06 [not_answer]"
    ],
    "case_date": "2025-12-22",
    "category": "final_after_case",
@@ -120,7 +125,7 @@
   },
   {
    "alerts": [
-    "N344694 (cited, read): modified by H344999 on 2026-05-06"
+    "N344694 (cited, read): modified by H344999 on 2026-05-06 [not_answer]"
    ],
    "case_date": "2025-12-22",
    "category": "final_after_case",
@@ -129,7 +134,7 @@
   },
   {
    "alerts": [
-    "N331974 (cited, read): revoked by H325607 on 2025-08-29"
+    "N331974 (cited, read): revoked by H325607 on 2025-08-29 [unknown]"
    ],
    "case_date": "2026-05-18",
    "category": "final_before_case",
@@ -138,7 +143,7 @@
   },
   {
    "alerts": [
-    "N331974 (cited, read): revoked by H325607 on 2025-08-29"
+    "N331974 (cited, read): revoked by H325607 on 2025-08-29 [unknown]"
    ],
    "case_date": "2026-05-18",
    "category": "final_before_case",
@@ -147,7 +152,7 @@
   },
   {
    "alerts": [
-    "N331974 (cited, read): revoked by H325607 on 2025-08-29"
+    "N331974 (cited, read): revoked by H325607 on 2025-08-29 [unknown]"
    ],
    "case_date": "2026-05-18",
    "category": "final_before_case",
@@ -156,7 +161,7 @@
   },
   {
    "alerts": [
-    "N322364 (plan_support): modified by H323218 on 2025-12-16"
+    "N322364 (plan_support): modified by H323218 on 2025-12-16 [unknown]"
    ],
    "case_date": "2026-01-14",
    "category": "final_before_case",
@@ -165,7 +170,7 @@
   },
   {
    "alerts": [
-    "N345891 (cited, read): revoked by H346161 on 2025-05-05"
+    "N345891 (cited, read): revoked by H346161 on 2025-05-05 [holding_unchanged]"
    ],
    "case_date": "2025-10-07",
    "category": "final_before_case",
@@ -174,7 +179,7 @@
   },
   {
    "alerts": [
-    "N345891 (cited, read): revoked by H346161 on 2025-05-05"
+    "N345891 (cited, read): revoked by H346161 on 2025-05-05 [holding_unchanged]"
    ],
    "case_date": "2025-12-15",
    "category": "final_before_case",
@@ -183,7 +188,7 @@
   },
   {
    "alerts": [
-    "N345891 (cited, read): revoked by H346161 on 2025-05-05"
+    "N345891 (cited, read): revoked by H346161 on 2025-05-05 [holding_unchanged]"
    ],
    "case_date": "2025-12-15",
    "category": "final_before_case",

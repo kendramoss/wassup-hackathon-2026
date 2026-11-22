@@ -1,11 +1,11 @@
 {
-  "_source": "Built from the facts of CBP ruling N348465 (2025-06-05, Part 102 dev split; picked: CBP held China for a good assembled in Canada (the Chinese motor is in the good's own heading 8501), so a move can change what the rule gives). CBP held China. Components: the D362 full-text materials; part codes: the top D381 development suggestion (unverified, D382); the good's code: CBP's (8501). Plants, groups and operations assigned by hand (eval/planner/build_part102_fixtures.py). Target Canada by the D171 rule (where the good is finished); plant capabilities for Canada are an assumption. D501.",
+  "_source": "Built from the facts of CBP ruling N348465 (2025-06-05, Part 102 dev split; subject: \"The country of origin of an electrical actuator\"; picked: CBP held China for a good assembled in Canada (the Chinese motor is in the good's own heading 8501), so a move can change what the rule gives). CBP held China. Components: the D362 full-text materials; part codes: the top D381 development suggestion (unverified, D382); the good's code: CBP's (8501). Plants, groups and operations assigned by hand (eval/planner/build_part102_fixtures.py). Target Canada by the D171 rule (where the good is finished); plant capabilities for Canada are an assumption. D501.",
   "case_id": "p102-n348465",
   "date": "2025-06-05",
   "family": "motors_pumps_compressors",
   "target": "Canada",
   "product": {
-    "name": "The country of origin of an electrical actuator",
+    "name": "DC motor actuator",
     "description": "The product of CBP ruling N348465, as its facts describe it.",
     "hts": "8501",
     "plants": [

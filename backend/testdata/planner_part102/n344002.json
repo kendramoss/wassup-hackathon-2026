@@ -1,11 +1,11 @@
 {
-  "_source": "Built from the facts of CBP ruling N344002 (2024-12-06, Part 102 dev split; picked: the 102.20 check decides CBP's holding (Mexico) with CBP's codes (D362) and with the suggestions (D382); a reverse probe). CBP held Mexico. Components: the D362 full-text materials; part codes: the top D381 development suggestion (unverified, D382); the good's code: CBP's (8414.30). Plants, groups and operations assigned by hand (eval/planner/build_part102_fixtures.py). Target China by the D171 rule (reverse probe); plant capabilities for China are an assumption. D501.",
+  "_source": "Built from the facts of CBP ruling N344002 (2024-12-06, Part 102 dev split; subject: \"The country of origin of hermetic compressors\"; picked: the 102.20 check decides CBP's holding (Mexico) with CBP's codes (D362) and with the suggestions (D382); a reverse probe). CBP held Mexico. Components: the D362 full-text materials; part codes: the top D381 development suggestion (unverified, D382); the good's code: CBP's (8414.30). Plants, groups and operations assigned by hand (eval/planner/build_part102_fixtures.py). Target China by the D171 rule (reverse probe); plant capabilities for China are an assumption. D501.",
   "case_id": "p102-n344002",
   "date": "2024-12-06",
   "family": "motors_pumps_compressors",
   "target": "China",
   "product": {
-    "name": "The country of origin of hermetic compressors",
+    "name": "Hermetic compressor (three models)",
     "description": "The product of CBP ruling N344002, as its facts describe it.",
     "hts": "8414.30",
     "plants": [

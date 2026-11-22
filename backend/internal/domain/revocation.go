@@ -61,6 +61,16 @@ type RulingAlert struct {
 	URL      string `json:"url,omitempty"`
 	// Note is the change in words, e.g. "revoked by H325607 on 2025-08-29".
 	Note string `json:"note"`
+	// HeldBefore and HeldAfter are the origins the changed ruling held and
+	// the changing ruling holds, from the shipped labels ("" when not
+	// known); Answer is the case's predicted origin. Relevance is one of
+	// the Relevance* labels and RelevanceNote says it in words (D531). Set
+	// by WithRelevance.
+	HeldBefore    string `json:"held_before,omitempty"`
+	HeldAfter     string `json:"held_after,omitempty"`
+	Answer        string `json:"answer,omitempty"`
+	Relevance     string `json:"relevance,omitempty"`
+	RelevanceNote string `json:"relevance_note,omitempty"`
 }
 
 // Relied reports whether the ruling is more than read: cited, a plan's
@@ -152,6 +162,9 @@ type AlertCounts struct {
 	Proposed int `json:"proposed"`
 	// ReadOnly counts final changes to rulings the case read but did not cite.
 	ReadOnly int `json:"read_only,omitempty"`
+	// TouchesAnswer counts the final changes to relied-on rulings whose
+	// held origin moved to or from the case's answer (D531).
+	TouchesAnswer int `json:"touches_answer,omitempty"`
 }
 
 // CountAlerts counts alerts by status, relied-on rulings only, plus final
@@ -166,6 +179,9 @@ func CountAlerts(as []RulingAlert) AlertCounts {
 			}
 		case a.Status == AlertFinal:
 			n.Final++
+			if a.Relevance == RelevanceTouchesAnswer {
+				n.TouchesAnswer++
+			}
 		default:
 			n.Proposed++
 		}

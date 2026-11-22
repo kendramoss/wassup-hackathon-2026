@@ -467,6 +467,10 @@ export function MethodPage() {
             (<D id="D502" />).{" "}
             <Link href="/examples/plan-rule-check" className="text-ok underline underline-offset-2">
               See a recorded move check
+            </Link>{" "}
+            and{" "}
+            <Link href="/examples/part102-plan" className="text-ok underline underline-offset-2">
+              the recorded actuator search
             </Link>
             .
           </li>

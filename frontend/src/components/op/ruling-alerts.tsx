@@ -5,7 +5,7 @@ import { useState } from "react";
 import { api, type CaseResponse } from "@/lib/api/client";
 import { formatDate } from "@/lib/format";
 import { VIEWER_REASON, caseReadOnly } from "@/lib/roles";
-import { alertTone, changeWords, relied, roleWords, type RulingAlerts } from "@/lib/ruling-alerts";
+import { alertTone, changeWords, recheckWords, relied, roleWords, type RulingAlerts } from "@/lib/ruling-alerts";
 import { cx } from "./ui";
 
 function CbpLink({ id }: { id: string }) {
@@ -56,7 +56,8 @@ export function RulingAlertsBanner({ c, setCase, recorded }: { c: CaseResponse; 
             Ruling <CbpLink id={a.ruling} /> {roleWords(a.roles)} {changeWords(a, formatDate)}
             {a.bulletin ? ` (${a.bulletin})` : ""}.{" "}
             {a.before_case ? "That is before this case's date: this answer was saved before Unde stopped citing such rulings. " : ""}
-            <b className="font-medium">Re-check recommended.</b>
+            {a.relevance_note ? <span data-relevance={a.relevance}>{a.relevance_note} </span> : null}
+            <b className="font-medium">{recheckWords(a)}</b>
           </p>
         ))}
         {proposed.map((a) => (
