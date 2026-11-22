@@ -187,6 +187,7 @@ func run(args []string) error {
 	split := fl.String("split", "dev", "dev, final or pilot; final2 with -splits ../eval/splits/splits_final2.json; train or tune_check with -splits ../eval/splits/splits_tune.json")
 	limit := fl.Int("limit", 0, "only the first N cases (0 = all)")
 	workers := fl.Int("workers", 8, "concurrent model calls")
+	hedgeAfter := fl.Duration("hedge-after", 0, "send a call once more if it has not answered after this long and use the first answer (D611; 0 = off)")
 	useRouter := fl.Bool("router", false, "also run the router; its regime label drives the scope check")
 	cond := fl.String("cond", "prec", "prec (with precedents) or zero (facts only)")
 	retrievalMode := fl.String("retrieval", "bm25", "bm25, hybrid (BM25 candidates re-ranked by embeddings) or vector")
@@ -249,7 +250,11 @@ func run(args []string) error {
 	if err != nil {
 		return err
 	}
-	store, err := corpus.LoadDirs(labels, splitComma(*factsDir)...)
+	dirs, err := existingDirs(*factsDir)
+	if err != nil {
+		return err
+	}
+	store, err := corpus.LoadDirs(labels, dirs...)
 	if err != nil {
 		return err
 	}
@@ -267,7 +272,7 @@ func run(args []string) error {
 		if err != nil {
 			return err
 		}
-		if caseStore, err = corpus.LoadDirs(cl, splitComma(*factsDir)...); err != nil {
+		if caseStore, err = corpus.LoadDirs(cl, dirs...); err != nil {
 			return err
 		}
 	}
@@ -292,7 +297,7 @@ func run(args []string) error {
 		}
 		fmt.Fprintf(os.Stderr, "reasoning attached to %d of %d precedents\n", n, store.Len())
 	}
-	model, err := newModel(ctx, cfg, logger)
+	model, err := newHedgedModel(ctx, cfg, logger, *hedgeAfter)
 	if err != nil {
 		return err
 	}
@@ -522,7 +527,9 @@ func evaluate(ctx context.Context, eng *engine.Engine, rt *router.Router, cfg co
 			row.RouterRoute = "error: " + err.Error()
 		}
 	}
+	t0 := time.Now()
 	res, err := eng.Predict(ctx, domain.Case{ID: c.ID, Date: c.Date, Facts: c.Facts})
+	row.WallMS = time.Since(t0).Milliseconds()
 	row.GatewayCostUSD = tally.USD()
 	if err != nil {
 		row.Error, row.ErrorClass = err.Error(), errorClass(err)
@@ -556,6 +563,13 @@ func errorClass(err error) string {
 }
 
 func newModel(ctx context.Context, cfg config.Config, logger *slog.Logger) (llm.Model, error) {
+	return newHedgedModel(ctx, cfg, logger, 0)
+}
+
+// newHedgedModel is newModel with a hedged request after hedgeAfter (D611;
+// 0 = none): a call not answered by then is sent once more, inside the
+// retry policy, and the first answer is used.
+func newHedgedModel(ctx context.Context, cfg config.Config, logger *slog.Logger, hedgeAfter time.Duration) (llm.Model, error) {
 	var base llm.Model
 	switch cfg.LLMProvider {
 	case config.ProviderVertex:
@@ -574,6 +588,7 @@ func newModel(ctx context.Context, cfg config.Config, logger *slog.Logger) (llm.
 		return nil, fmt.Errorf("eval needs a real model provider, got %q", cfg.LLMProvider)
 	}
 	base = llm.WithPace(base, cfg.LLMCallGap, llm.NewGate(cfg.LLMMaxInFlight, cfg.LLMCoolDown))
+	base = llm.WithHedge(base, hedgeAfter)
 	return llm.WithLogging(llm.WithRetry(base, cfg.LLMMaxRetries, 2*time.Second), logger), nil
 }
 

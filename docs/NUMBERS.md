@@ -245,6 +245,25 @@ Through an OpenAI-compatible LiteLLM gateway to Gemini, one run per series. Scor
 | Safety flag S under Vd: decided development rows flagged | 0 of 57 | `summary-moves.json` (`safety_flags_s`) | Computed |
 | Cost of D600 to D602 | $5.2524 | `eval/results/RUNLOG.jsonl` (`p102moves-d600-*`, `usmca-*-d600`, `usmca-*-d601`) | Measured, gateway-reported |
 
+### Part 102 engine: auto-accept bar and latency (D610 to D614)
+
+From committed rows (`cd backend && go run ./cmd/tariffshift p102bar -check`, in `make reproduce`; `eval/tariffshift/p102bar/summary.json`), plus one development re-run through an OpenAI-compatible LiteLLM gateway to Gemini.
+
+| Number | Value | Source | Status |
+|---|---|---|---|
+| `usmca-v5` development rows at stated ≥ 0.95: accepted, right | 38 of 72, 36 right (94.7%, 95% CI 82.7–98.5); `usmca-v1` 38, 36 | `summary.json` (`d610_bar.dev_stated_curve`, `dev_usmca_v1_stated_curve`) | Computed, development |
+| `cal-p102-v1` map steps (development) | 0.45–0.90 → 0.4483 (29, 13 right); 0.92–0.98 → 0.9302 (43, 40 right); no bar | same (`map_cal_p102_v1`) | Computed. Not a candidate, not shipped |
+| Held out at stated ≥ 0.95, pooled 45: `usmca-v5` / `usmca-v1` | 17 accepted, 16 right (94.1%, 95% CI 73.0–99.0) / 22, 21 (95.5%) | same (`held_out_stated_table`) | Computed from committed held-out rows; bar unchanged |
+| Held out at stated ≥ 0.92, pooled: `usmca-v5` / `usmca-v1` | 19, 18 / 28, 26 | same | Computed, reported only |
+| Held-out ECE, `usmca-v5`, stated / map | 0.0916 / 0.2371 | same (`held_out_ece_stated`, `held_out_ece_map`) | Computed once |
+| Per-call latency median / 95th percentile, `usmca-v1` → `usmca-v5`: development 72 / window 1 / window 2 | 8.4 / 21.8 s → 7.9 / 18.3 s; 7.1 / 9.2 s → 7.7 / 27.8 s; 8.5 / 16.4 s → 7.4 / 17.5 s | same (`d611_latency.runs`) | Computed from committed rows |
+| Window 1's two slowest `usmca-v5` calls: latency, output tokens (run median) | 28.4 s, 200; 27.8 s, 274 (256) | same (`slowest`, `output_tokens_p50`) | Computed |
+| D611 re-run, arm A / arm B (hedge after 12 s): wall time median / 95th percentile | 13.1 / 51.4 s; 13.0 / 40.2 s | `summary.json` (`arm_a_no_hedge`, `arm_b_hedge_12s`); `eval/tariffshift/p102bar/runs/` | Measured, development, gateway |
+| D611 re-run, arm A / arm B: correct of 72; gateway-reported cost | 57, $0.5834 / 54, $0.7079 (hedges sent on 38 of 72; with cancelled hedges counted about $1.0815) | same | Measured, development, gateway |
+| Arm A latency against D600's run of the same prompt, per ruling (rank correlation) | −0.07 | same (`spearman_arm_a_vs_d600`) | Computed |
+| Window-2 Part 102 runs: rulings with facts in the precedent pool | 15 of 488 labelled (the facts path named a missing directory, D612) | `eval/data/labels_usmca*.jsonl`, `eval/data/facts_final2/` | Computed; window 2 not re-scored |
+| Cost of D611 | $1.6649 (A $0.5834, B $0.7079, cancelled hedges estimated $0.3736) | `eval/results/RUNLOG.jsonl` (`usmca-dev-*-d611-a`, `-d611-b`); `summary.json` | Measured, gateway-reported, plus estimate |
+
 ### Method page (/method): negative results, splits and leakage, already in the decision record
 
 These rows register, for the /method page, figures that are already committed in `docs/EVALUATION.md` and `docs/DECISIONS.md`. No new run produced them.

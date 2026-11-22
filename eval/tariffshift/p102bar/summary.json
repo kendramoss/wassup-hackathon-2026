@@ -1,0 +1,887 @@
+{
+  "note": "D610: a development-only auto-accept rule for usmca-v5 Part 102 answers, applied to the committed held-out rows only if it gains coverage on development. D611: the Part 102 latency tail from committed rows and a development re-run with and without a hedged request. Recompute: cd backend \u0026\u0026 go run ./cmd/tariffshift p102bar -check",
+  "d610_bar": {
+    "target_accuracy": 0.95,
+    "min_auto_accepted": 20,
+    "fitted_on": "eval/tariffshift/p102ck/runs/usmca-dev-gemini-4-argon-prec-usmca-v5-litellm-d600.jsonl",
+    "dev_n": 72,
+    "dev_correct": 53,
+    "dev_stated_curve": [
+      {
+        "bar": 0.98,
+        "n": 72,
+        "auto": 8,
+        "right": 8,
+        "accuracy": 1,
+        "ci95_low_pct": 67.6,
+        "ci95_high_pct": 100
+      },
+      {
+        "bar": 0.96,
+        "n": 72,
+        "auto": 10,
+        "right": 10,
+        "accuracy": 1,
+        "ci95_low_pct": 72.2,
+        "ci95_high_pct": 100
+      },
+      {
+        "bar": 0.95,
+        "n": 72,
+        "auto": 38,
+        "right": 36,
+        "accuracy": 0.9474,
+        "ci95_low_pct": 82.7,
+        "ci95_high_pct": 98.5
+      },
+      {
+        "bar": 0.92,
+        "n": 72,
+        "auto": 43,
+        "right": 40,
+        "accuracy": 0.9302,
+        "ci95_low_pct": 81.4,
+        "ci95_high_pct": 97.6
+      },
+      {
+        "bar": 0.9,
+        "n": 72,
+        "auto": 54,
+        "right": 45,
+        "accuracy": 0.8333,
+        "ci95_low_pct": 71.3,
+        "ci95_high_pct": 91
+      },
+      {
+        "bar": 0.85,
+        "n": 72,
+        "auto": 61,
+        "right": 48,
+        "accuracy": 0.7869,
+        "ci95_low_pct": 66.9,
+        "ci95_high_pct": 87.1
+      },
+      {
+        "bar": 0.78,
+        "n": 72,
+        "auto": 62,
+        "right": 48,
+        "accuracy": 0.7742,
+        "ci95_low_pct": 65.6,
+        "ci95_high_pct": 86
+      },
+      {
+        "bar": 0.75,
+        "n": 72,
+        "auto": 67,
+        "right": 50,
+        "accuracy": 0.7463,
+        "ci95_low_pct": 63.1,
+        "ci95_high_pct": 83.5
+      },
+      {
+        "bar": 0.65,
+        "n": 72,
+        "auto": 70,
+        "right": 51,
+        "accuracy": 0.7286,
+        "ci95_low_pct": 61.5,
+        "ci95_high_pct": 81.9
+      },
+      {
+        "bar": 0.55,
+        "n": 72,
+        "auto": 71,
+        "right": 52,
+        "accuracy": 0.7324,
+        "ci95_low_pct": 61.9,
+        "ci95_high_pct": 82.1
+      },
+      {
+        "bar": 0.45,
+        "n": 72,
+        "auto": 72,
+        "right": 53,
+        "accuracy": 0.7361,
+        "ci95_low_pct": 62.4,
+        "ci95_high_pct": 82.4
+      }
+    ],
+    "dev_stated_rule_bar": null,
+    "dev_usmca_v1_stated_curve": [
+      {
+        "bar": 0.99,
+        "n": 72,
+        "auto": 3,
+        "right": 3,
+        "accuracy": 1,
+        "ci95_low_pct": 43.9,
+        "ci95_high_pct": 100
+      },
+      {
+        "bar": 0.98,
+        "n": 72,
+        "auto": 12,
+        "right": 12,
+        "accuracy": 1,
+        "ci95_low_pct": 75.8,
+        "ci95_high_pct": 100
+      },
+      {
+        "bar": 0.96,
+        "n": 72,
+        "auto": 19,
+        "right": 19,
+        "accuracy": 1,
+        "ci95_low_pct": 83.2,
+        "ci95_high_pct": 100
+      },
+      {
+        "bar": 0.95,
+        "n": 72,
+        "auto": 38,
+        "right": 36,
+        "accuracy": 0.9474,
+        "ci95_low_pct": 82.7,
+        "ci95_high_pct": 98.5
+      },
+      {
+        "bar": 0.92,
+        "n": 72,
+        "auto": 50,
+        "right": 45,
+        "accuracy": 0.9,
+        "ci95_low_pct": 78.6,
+        "ci95_high_pct": 95.7
+      },
+      {
+        "bar": 0.9,
+        "n": 72,
+        "auto": 58,
+        "right": 46,
+        "accuracy": 0.7931,
+        "ci95_low_pct": 67.2,
+        "ci95_high_pct": 87.7
+      },
+      {
+        "bar": 0.88,
+        "n": 72,
+        "auto": 59,
+        "right": 46,
+        "accuracy": 0.7797,
+        "ci95_low_pct": 65.9,
+        "ci95_high_pct": 86.6
+      },
+      {
+        "bar": 0.85,
+        "n": 72,
+        "auto": 63,
+        "right": 49,
+        "accuracy": 0.7778,
+        "ci95_low_pct": 66.1,
+        "ci95_high_pct": 86.3
+      },
+      {
+        "bar": 0.78,
+        "n": 72,
+        "auto": 65,
+        "right": 50,
+        "accuracy": 0.7692,
+        "ci95_low_pct": 65.4,
+        "ci95_high_pct": 85.5
+      },
+      {
+        "bar": 0.75,
+        "n": 72,
+        "auto": 69,
+        "right": 52,
+        "accuracy": 0.7536,
+        "ci95_low_pct": 64,
+        "ci95_high_pct": 84
+      },
+      {
+        "bar": 0.72,
+        "n": 72,
+        "auto": 70,
+        "right": 52,
+        "accuracy": 0.7429,
+        "ci95_low_pct": 63,
+        "ci95_high_pct": 83.1
+      },
+      {
+        "bar": 0.65,
+        "n": 72,
+        "auto": 71,
+        "right": 52,
+        "accuracy": 0.7324,
+        "ci95_low_pct": 61.9,
+        "ci95_high_pct": 82.1
+      },
+      {
+        "bar": 0.5,
+        "n": 72,
+        "auto": 72,
+        "right": 53,
+        "accuracy": 0.7361,
+        "ci95_low_pct": 62.4,
+        "ci95_high_pct": 82.4
+      }
+    ],
+    "map_cal_p102_v1": [
+      {
+        "from": 0.45,
+        "to_incl": 0.9,
+        "n": 29,
+        "correct": 13,
+        "calibrated": 0.4483
+      },
+      {
+        "from": 0.92,
+        "to_incl": 0.98,
+        "n": 43,
+        "correct": 40,
+        "calibrated": 0.9302
+      }
+    ],
+    "dev_map_curve": [
+      {
+        "bar": 0.9302,
+        "n": 72,
+        "auto": 43,
+        "right": 40,
+        "accuracy": 0.9302,
+        "ci95_low_pct": 81.4,
+        "ci95_high_pct": 97.6
+      },
+      {
+        "bar": 0.4483,
+        "n": 72,
+        "auto": 72,
+        "right": 53,
+        "accuracy": 0.7361,
+        "ci95_low_pct": 62.4,
+        "ci95_high_pct": 82.4
+      }
+    ],
+    "dev_map_rule_bar": null,
+    "dev_at_stated_095": {
+      "bar": 0.95,
+      "n": 72,
+      "auto": 38,
+      "right": 36,
+      "accuracy": 0.9474,
+      "ci95_low_pct": 82.7,
+      "ci95_high_pct": 98.5
+    },
+    "candidate": false,
+    "held_out_applied": false,
+    "held_out_stated_table": [
+      {
+        "engine": "usmca-v1",
+        "bar": 0.9,
+        "window_1": {
+          "bar": 0.9,
+          "n": 32,
+          "auto": 23,
+          "right": 21,
+          "accuracy": 0.913,
+          "ci95_low_pct": 73.2,
+          "ci95_high_pct": 97.6
+        },
+        "window_2": {
+          "bar": 0.9,
+          "n": 13,
+          "auto": 9,
+          "right": 8,
+          "accuracy": 0.8889,
+          "ci95_low_pct": 56.5,
+          "ci95_high_pct": 98
+        },
+        "pooled": {
+          "bar": 0.9,
+          "n": 45,
+          "auto": 32,
+          "right": 29,
+          "accuracy": 0.9063,
+          "ci95_low_pct": 75.8,
+          "ci95_high_pct": 96.8
+        }
+      },
+      {
+        "engine": "usmca-v1",
+        "bar": 0.92,
+        "window_1": {
+          "bar": 0.92,
+          "n": 32,
+          "auto": 19,
+          "right": 18,
+          "accuracy": 0.9474,
+          "ci95_low_pct": 75.4,
+          "ci95_high_pct": 99.1
+        },
+        "window_2": {
+          "bar": 0.92,
+          "n": 13,
+          "auto": 9,
+          "right": 8,
+          "accuracy": 0.8889,
+          "ci95_low_pct": 56.5,
+          "ci95_high_pct": 98
+        },
+        "pooled": {
+          "bar": 0.92,
+          "n": 45,
+          "auto": 28,
+          "right": 26,
+          "accuracy": 0.9286,
+          "ci95_low_pct": 77.4,
+          "ci95_high_pct": 98
+        }
+      },
+      {
+        "engine": "usmca-v1",
+        "bar": 0.95,
+        "window_1": {
+          "bar": 0.95,
+          "n": 32,
+          "auto": 15,
+          "right": 15,
+          "accuracy": 1,
+          "ci95_low_pct": 79.6,
+          "ci95_high_pct": 100
+        },
+        "window_2": {
+          "bar": 0.95,
+          "n": 13,
+          "auto": 7,
+          "right": 6,
+          "accuracy": 0.8571,
+          "ci95_low_pct": 48.7,
+          "ci95_high_pct": 97.4
+        },
+        "pooled": {
+          "bar": 0.95,
+          "n": 45,
+          "auto": 22,
+          "right": 21,
+          "accuracy": 0.9545,
+          "ci95_low_pct": 78.2,
+          "ci95_high_pct": 99.2
+        }
+      },
+      {
+        "engine": "usmca-v1",
+        "bar": 0.96,
+        "window_1": {
+          "bar": 0.96,
+          "n": 32,
+          "auto": 9,
+          "right": 9,
+          "accuracy": 1,
+          "ci95_low_pct": 70.1,
+          "ci95_high_pct": 100
+        },
+        "window_2": {
+          "bar": 0.96,
+          "n": 13,
+          "auto": 3,
+          "right": 3,
+          "accuracy": 1,
+          "ci95_low_pct": 43.9,
+          "ci95_high_pct": 100
+        },
+        "pooled": {
+          "bar": 0.96,
+          "n": 45,
+          "auto": 12,
+          "right": 12,
+          "accuracy": 1,
+          "ci95_low_pct": 75.8,
+          "ci95_high_pct": 100
+        }
+      },
+      {
+        "engine": "usmca-v1",
+        "bar": 0.98,
+        "window_1": {
+          "bar": 0.98,
+          "n": 32,
+          "auto": 8,
+          "right": 8,
+          "accuracy": 1,
+          "ci95_low_pct": 67.6,
+          "ci95_high_pct": 100
+        },
+        "window_2": {
+          "bar": 0.98,
+          "n": 13,
+          "auto": 2,
+          "right": 2,
+          "accuracy": 1,
+          "ci95_low_pct": 34.2,
+          "ci95_high_pct": 100
+        },
+        "pooled": {
+          "bar": 0.98,
+          "n": 45,
+          "auto": 10,
+          "right": 10,
+          "accuracy": 1,
+          "ci95_low_pct": 72.2,
+          "ci95_high_pct": 100
+        }
+      },
+      {
+        "engine": "usmca-v5",
+        "bar": 0.9,
+        "window_1": {
+          "bar": 0.9,
+          "n": 32,
+          "auto": 23,
+          "right": 21,
+          "accuracy": 0.913,
+          "ci95_low_pct": 73.2,
+          "ci95_high_pct": 97.6
+        },
+        "window_2": {
+          "bar": 0.9,
+          "n": 13,
+          "auto": 9,
+          "right": 8,
+          "accuracy": 0.8889,
+          "ci95_low_pct": 56.5,
+          "ci95_high_pct": 98
+        },
+        "pooled": {
+          "bar": 0.9,
+          "n": 45,
+          "auto": 32,
+          "right": 29,
+          "accuracy": 0.9063,
+          "ci95_low_pct": 75.8,
+          "ci95_high_pct": 96.8
+        }
+      },
+      {
+        "engine": "usmca-v5",
+        "bar": 0.92,
+        "window_1": {
+          "bar": 0.92,
+          "n": 32,
+          "auto": 12,
+          "right": 12,
+          "accuracy": 1,
+          "ci95_low_pct": 75.8,
+          "ci95_high_pct": 100
+        },
+        "window_2": {
+          "bar": 0.92,
+          "n": 13,
+          "auto": 7,
+          "right": 6,
+          "accuracy": 0.8571,
+          "ci95_low_pct": 48.7,
+          "ci95_high_pct": 97.4
+        },
+        "pooled": {
+          "bar": 0.92,
+          "n": 45,
+          "auto": 19,
+          "right": 18,
+          "accuracy": 0.9474,
+          "ci95_low_pct": 75.4,
+          "ci95_high_pct": 99.1
+        }
+      },
+      {
+        "engine": "usmca-v5",
+        "bar": 0.95,
+        "window_1": {
+          "bar": 0.95,
+          "n": 32,
+          "auto": 11,
+          "right": 11,
+          "accuracy": 1,
+          "ci95_low_pct": 74.1,
+          "ci95_high_pct": 100
+        },
+        "window_2": {
+          "bar": 0.95,
+          "n": 13,
+          "auto": 6,
+          "right": 5,
+          "accuracy": 0.8333,
+          "ci95_low_pct": 43.6,
+          "ci95_high_pct": 97
+        },
+        "pooled": {
+          "bar": 0.95,
+          "n": 45,
+          "auto": 17,
+          "right": 16,
+          "accuracy": 0.9412,
+          "ci95_low_pct": 73,
+          "ci95_high_pct": 99
+        }
+      },
+      {
+        "engine": "usmca-v5",
+        "bar": 0.96,
+        "window_1": {
+          "bar": 0.96,
+          "n": 32,
+          "auto": 4,
+          "right": 4,
+          "accuracy": 1,
+          "ci95_low_pct": 51,
+          "ci95_high_pct": 100
+        },
+        "window_2": {
+          "bar": 0.96,
+          "n": 13,
+          "auto": 2,
+          "right": 2,
+          "accuracy": 1,
+          "ci95_low_pct": 34.2,
+          "ci95_high_pct": 100
+        },
+        "pooled": {
+          "bar": 0.96,
+          "n": 45,
+          "auto": 6,
+          "right": 6,
+          "accuracy": 1,
+          "ci95_low_pct": 61,
+          "ci95_high_pct": 100
+        }
+      },
+      {
+        "engine": "usmca-v5",
+        "bar": 0.98,
+        "window_1": {
+          "bar": 0.98,
+          "n": 32,
+          "auto": 4,
+          "right": 4,
+          "accuracy": 1,
+          "ci95_low_pct": 51,
+          "ci95_high_pct": 100
+        },
+        "window_2": {
+          "bar": 0.98,
+          "n": 13,
+          "auto": 2,
+          "right": 2,
+          "accuracy": 1,
+          "ci95_low_pct": 34.2,
+          "ci95_high_pct": 100
+        },
+        "pooled": {
+          "bar": 0.98,
+          "n": 45,
+          "auto": 6,
+          "right": 6,
+          "accuracy": 1,
+          "ci95_low_pct": 61,
+          "ci95_high_pct": 100
+        }
+      }
+    ],
+    "held_out_ece_stated": 0.0916,
+    "held_out_ece_map": 0.2371,
+    "held_out_n": 45,
+    "adopted": false,
+    "outcome": "no candidate: no step of the map (highest 0.9302) is at least 95% right on at least 20 development cases; the bar stays stated 0.95 (development 38 of 72 auto-accepted, 36 right)"
+  },
+  "d611_latency": {
+    "runs": [
+      {
+        "key": "dev_usmca_v1_d550",
+        "file": "eval/tariffshift/ground102/runs/usmca-dev-gemini-4-argon-prec-usmca-v1-litellm-d550.jsonl",
+        "n": 72,
+        "latency_p50_ms": 8434,
+        "latency_p95_ms": 21827,
+        "output_tokens_p50": 288,
+        "spearman_latency_output_tokens": 0.3615,
+        "slowest": [
+          {
+            "ruling": "N352810",
+            "latency_ms": 27307,
+            "output_tokens": 286,
+            "input_tokens": 3100
+          },
+          {
+            "ruling": "N354812",
+            "latency_ms": 26115,
+            "output_tokens": 280,
+            "input_tokens": 3091
+          },
+          {
+            "ruling": "N355835",
+            "latency_ms": 25547,
+            "output_tokens": 234,
+            "input_tokens": 3117
+          }
+        ],
+        "correct": 53,
+        "output_tokens": 21620,
+        "gateway_cost_usd": 0.6881,
+        "calls_at_least_12s": 12
+      },
+      {
+        "key": "dev_usmca_v5_d600",
+        "file": "eval/tariffshift/p102ck/runs/usmca-dev-gemini-4-argon-prec-usmca-v5-litellm-d600.jsonl",
+        "n": 72,
+        "latency_p50_ms": 7924,
+        "latency_p95_ms": 18268,
+        "output_tokens_p50": 247,
+        "spearman_latency_output_tokens": 0.4431,
+        "slowest": [
+          {
+            "ruling": "N354024",
+            "latency_ms": 22621,
+            "output_tokens": 259,
+            "input_tokens": 4137
+          },
+          {
+            "ruling": "H333699",
+            "latency_ms": 19558,
+            "output_tokens": 960,
+            "input_tokens": 4977
+          },
+          {
+            "ruling": "N344002",
+            "latency_ms": 18562,
+            "output_tokens": 262,
+            "input_tokens": 5681
+          }
+        ],
+        "correct": 53,
+        "output_tokens": 20010,
+        "gateway_cost_usd": 0.7304,
+        "calls_at_least_12s": 9
+      },
+      {
+        "key": "window1_usmca_v1",
+        "file": "eval/results/usmca-final-gemini-4-argon-prec-usmca-v1-litellm.jsonl",
+        "n": 32,
+        "latency_p50_ms": 7114,
+        "latency_p95_ms": 9230,
+        "output_tokens_p50": 293,
+        "spearman_latency_output_tokens": 0.5062,
+        "slowest": [
+          {
+            "ruling": "N357951",
+            "latency_ms": 10079,
+            "output_tokens": 350,
+            "input_tokens": 3207
+          },
+          {
+            "ruling": "N357927",
+            "latency_ms": 9230,
+            "output_tokens": 306,
+            "input_tokens": 2950
+          },
+          {
+            "ruling": "N359145",
+            "latency_ms": 8953,
+            "output_tokens": 328,
+            "input_tokens": 3157
+          }
+        ],
+        "correct": 25,
+        "output_tokens": 9417,
+        "calls_at_least_12s": 0
+      },
+      {
+        "key": "window1_usmca_v5",
+        "file": "eval/tariffshift/p102ck/runs/usmca-final-gemini-4-argon-prec-usmca-v5-litellm-d601.jsonl",
+        "n": 32,
+        "latency_p50_ms": 7733,
+        "latency_p95_ms": 27815,
+        "output_tokens_p50": 256,
+        "spearman_latency_output_tokens": 0.4443,
+        "slowest": [
+          {
+            "ruling": "N356876",
+            "latency_ms": 28416,
+            "output_tokens": 200,
+            "input_tokens": 3707
+          },
+          {
+            "ruling": "H356468",
+            "latency_ms": 27815,
+            "output_tokens": 274,
+            "input_tokens": 3801
+          },
+          {
+            "ruling": "N363600",
+            "latency_ms": 18796,
+            "output_tokens": 323,
+            "input_tokens": 4122
+          }
+        ],
+        "correct": 29,
+        "output_tokens": 8500,
+        "gateway_cost_usd": 0.3188,
+        "calls_at_least_12s": 4
+      },
+      {
+        "key": "window2_usmca_v1",
+        "file": "eval/results/usmca-final2-gemini-4-argon-prec-usmca-v1-litellm-router.jsonl",
+        "n": 13,
+        "latency_p50_ms": 8510,
+        "latency_p95_ms": 16421,
+        "output_tokens_p50": 284,
+        "spearman_latency_output_tokens": 0.3187,
+        "slowest": [
+          {
+            "ruling": "N366064",
+            "latency_ms": 16421,
+            "output_tokens": 319,
+            "input_tokens": 2251
+          },
+          {
+            "ruling": "N365856",
+            "latency_ms": 15546,
+            "output_tokens": 293,
+            "input_tokens": 3270
+          },
+          {
+            "ruling": "N365214",
+            "latency_ms": 14503,
+            "output_tokens": 277,
+            "input_tokens": 2115
+          }
+        ],
+        "correct": 11,
+        "output_tokens": 3706,
+        "gateway_cost_usd": 0.1111,
+        "calls_at_least_12s": 4
+      },
+      {
+        "key": "window2_usmca_v5",
+        "file": "eval/tariffshift/p102ck/runs/usmca-final2-gemini-4-argon-prec-usmca-v5-litellm-router-d601.jsonl",
+        "n": 13,
+        "latency_p50_ms": 7420,
+        "latency_p95_ms": 17505,
+        "output_tokens_p50": 238,
+        "spearman_latency_output_tokens": 0.3686,
+        "slowest": [
+          {
+            "ruling": "N366728",
+            "latency_ms": 17505,
+            "output_tokens": 235,
+            "input_tokens": 3207
+          },
+          {
+            "ruling": "N366014",
+            "latency_ms": 14948,
+            "output_tokens": 238,
+            "input_tokens": 3339
+          },
+          {
+            "ruling": "N366125",
+            "latency_ms": 11848,
+            "output_tokens": 259,
+            "input_tokens": 4079
+          }
+        ],
+        "correct": 11,
+        "output_tokens": 3478,
+        "gateway_cost_usd": 0.1548,
+        "calls_at_least_12s": 2
+      }
+    ],
+    "arm_a_no_hedge": {
+      "key": "arm_a_no_hedge",
+      "file": "eval/tariffshift/p102bar/runs/usmca-dev-gemini-4-argon-prec-usmca-v5-litellm-d611-a.jsonl",
+      "n": 72,
+      "latency_p50_ms": 12616,
+      "latency_p95_ms": 27509,
+      "output_tokens_p50": 244,
+      "spearman_latency_output_tokens": 0.153,
+      "slowest": [
+        {
+          "ruling": "H334088",
+          "latency_ms": 29509,
+          "output_tokens": 241,
+          "input_tokens": 3971
+        },
+        {
+          "ruling": "H333699",
+          "latency_ms": 29286,
+          "output_tokens": 960,
+          "input_tokens": 4977
+        },
+        {
+          "ruling": "N340075",
+          "latency_ms": 29092,
+          "output_tokens": 230,
+          "input_tokens": 3437
+        }
+      ],
+      "wall_p50_ms": 13055,
+      "wall_p95_ms": 51419,
+      "correct": 57,
+      "output_tokens": 19969,
+      "gateway_cost_usd": 0.5834,
+      "wall_over_latency_2s": 8,
+      "calls_at_least_12s": 39
+    },
+    "arm_b_hedge_12s": {
+      "key": "arm_b_hedge_12s",
+      "file": "eval/tariffshift/p102bar/runs/usmca-dev-gemini-4-argon-prec-usmca-v5-litellm-d611-b.jsonl",
+      "n": 72,
+      "latency_p50_ms": 12797,
+      "latency_p95_ms": 28154,
+      "output_tokens_p50": 244,
+      "spearman_latency_output_tokens": 0.175,
+      "slowest": [
+        {
+          "ruling": "N338004",
+          "latency_ms": 29826,
+          "output_tokens": 264,
+          "input_tokens": 3977
+        },
+        {
+          "ruling": "H334088",
+          "latency_ms": 29199,
+          "output_tokens": 241,
+          "input_tokens": 3971
+        },
+        {
+          "ruling": "N356375",
+          "latency_ms": 28538,
+          "output_tokens": 238,
+          "input_tokens": 3579
+        }
+      ],
+      "wall_p50_ms": 12969,
+      "wall_p95_ms": 40157,
+      "correct": 54,
+      "output_tokens": 19086,
+      "gateway_cost_usd": 0.7079,
+      "wall_over_latency_2s": 9,
+      "calls_at_least_12s": 37,
+      "hedges_sent": 38,
+      "unreported_hedge_cost_estimate_usd": 0.3736,
+      "gateway_cost_with_estimate_usd": 1.0815
+    },
+    "spearman_arm_a_vs_d600": -0.0716,
+    "arm_a_slowest_rank_in_d600": {
+      "H333699": 2,
+      "H334088": 48,
+      "N338219": 34,
+      "N340075": 66
+    },
+    "hedge_passed_on_reported_cost": true,
+    "hedge_passed_with_cancelled_hedges_counted": false,
+    "hedge_rule": [
+      "95th-percentile wall time 40157 ms against 51419 ms (at most 80%: true)",
+      "correct 54 against 57 (at least 54: true)",
+      "gateway-reported cost $0.7079 against $0.5834, 1.21 x (at most 1.3 x: true)",
+      "with the 38 cancelled hedges counted at the mean cost per call, $1.0815, 1.85 x (at most 1.3 x: false)"
+    ]
+  }
+}

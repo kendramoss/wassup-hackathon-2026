@@ -52,6 +52,11 @@ type g102Row struct {
 	// Latency and output tokens (read by p102ck-eval, D601).
 	LatencyMS int64 `json:"latency_ms"`
 	OutTok    int   `json:"output_tokens"`
+	// Stated confidence, input tokens and the whole call's wall time (read
+	// by p102bar, D610 and D611; wall_ms is on rows from D611 on).
+	Confidence float64 `json:"confidence"`
+	InTok      int     `json:"input_tokens"`
+	WallMS     int64   `json:"wall_ms"`
 }
 
 // G102Run is one run's score on the development set.
