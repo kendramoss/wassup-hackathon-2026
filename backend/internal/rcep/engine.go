@@ -501,6 +501,14 @@ var levelWord = map[int]string{2: "chapter", 4: "heading", 6: "subheading"}
 // it, the Art. 3.7 de minimis.
 func tariffShift(in Input, good string, mats []mat, a Alternative) (string, []string, []Issue, *DeMinimis) {
 	n := shiftDigits(a.Criterion)
+	// #671: Lookup can return a heading-level rule whose CTSH alternative
+	// needs six good digits even when the caller gave only four or five.
+	// Missing digits make the answer undetermined, never a slice panic.
+	if len(good) < n {
+		return Undetermined,
+			[]string{fmt.Sprintf("%s needs the good's %d-digit %s; give at least %d digits.", a.Criterion, n, levelWord[n], n)},
+			nil, nil
+	}
 	var fail, unknown []Issue
 	for _, m := range mats {
 		if m.originating {
