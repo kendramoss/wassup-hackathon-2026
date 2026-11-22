@@ -284,9 +284,10 @@ func TestPredictionRegime(t *testing.T) {
 		engine.TextileVersion + "+" + engine.RulesVersion:  router.RegimeTextile,
 		engine.TextileVersion2 + "+" + engine.RulesVersion: router.RegimeTextile,
 		engine.USMCAVersion: router.RegimeUSMCA, engine.USMCAVersion + "+" + engine.RulesVersion: router.RegimeUSMCA,
+		engine.USMCAVersion2: router.RegimeUSMCA, // D550
 		engine.PharmaVersion: router.RegimePharma, engine.PharmaVersion + "+" + engine.RulesVersion: router.RegimePharma,
 		// Not in the known namespace: never guessed as a regime or as general.
-		"textile-v3": "", "textile-v10": "", "textile-v1x": "", "usmca-v2": "", "pharma-v2": "", "custom": "",
+		"textile-v3": "", "textile-v10": "", "textile-v1x": "", "usmca-v3": "", "pharma-v2": "", "custom": "",
 		"engine-v10": "", "engine-v1x": "",
 	} {
 		var p domain.Prediction

@@ -1,0 +1,128 @@
+{
+ "note": "D550/D551: Part 102 engine usmca-v1 (B, re-run) and usmca-v2 (V, the 19 CFR 102.20 rows for the codes named in the facts quoted and applied as written), once each on the 72 development Part 102 rulings through an OpenAI-compatible LiteLLM gateway to Gemini; committed_v1 is the October usmca-v1 run. Rule contradictions: the engine's origin differs from the committed 102.20 check's on the rulings it decides (results-dev-full_text.jsonl, decided or decided if not de minimis). Recompute: cd backend \u0026\u0026 go run ./cmd/tariffshift ground102-eval -check",
+ "n": 72,
+ "rulings_with_quoted_rule": 29,
+ "rule_decided_rulings": [
+  "N337651",
+  "N341152",
+  "H339179",
+  "N344091",
+  "N344002",
+  "H341208",
+  "N351895",
+  "N352059",
+  "N352583",
+  "N353285"
+ ],
+ "runs": {
+  "B_v1_d550": {
+   "file": "eval/tariffshift/ground102/runs/usmca-dev-gemini-4-argon-prec-usmca-v1-litellm-d550.jsonl",
+   "n": 72,
+   "correct": 53,
+   "errors_left": 0,
+   "correct_with_quoted_rule": 24,
+   "correct_without_quoted_rule": 29,
+   "rule_contradictions": [
+    "N341152",
+    "N352059"
+   ],
+   "gateway_cost_usd": 0.6881,
+   "promo_cost_usd": 0.6905
+  },
+  "V_v2_d550": {
+   "file": "eval/tariffshift/ground102/runs/usmca-dev-gemini-4-argon-prec-usmca-v2-litellm-d550.jsonl",
+   "n": 72,
+   "correct": 50,
+   "errors_left": 0,
+   "correct_with_quoted_rule": 23,
+   "correct_without_quoted_rule": 27,
+   "rule_contradictions": [
+    "N341152",
+    "N352059"
+   ],
+   "gateway_cost_usd": 0.7114,
+   "promo_cost_usd": 0.7182
+  },
+  "committed_v1": {
+   "file": "eval/results/usmca-dev-gemini-4-argon-prec-usmca-v1-litellm.jsonl",
+   "n": 72,
+   "correct": 54,
+   "errors_left": 0,
+   "correct_with_quoted_rule": 23,
+   "correct_without_quoted_rule": 31,
+   "rule_contradictions": [
+    "N341152",
+    "N352059"
+   ],
+   "promo_cost_usd": 0.7158
+  }
+ },
+ "b_only_correct": 5,
+ "v_only_correct": 2,
+ "mcnemar_exact_p": 0.4531,
+ "cost_ratio_v_over_b": 1.0339,
+ "pass": {
+  "accuracy_not_lower": false,
+  "cost_at_most_1.5x": true,
+  "fewer_contradictions": false
+ },
+ "passed": false,
+ "changes": [
+  {
+   "ruling": "N337260",
+   "cbp": "Mexico",
+   "b_v1": "Mexico",
+   "v_v2": "China",
+   "rule_quoted": true
+  },
+  {
+   "ruling": "N338249",
+   "cbp": "Mexico",
+   "b_v1": "Mexico",
+   "v_v2": "South Korea",
+   "rule_quoted": false
+  },
+  {
+   "ruling": "N339851",
+   "cbp": "Canada",
+   "b_v1": "Canada",
+   "v_v2": "Indonesia",
+   "rule_quoted": true
+  },
+  {
+   "ruling": "N340017",
+   "cbp": "China",
+   "b_v1": "Mexico",
+   "v_v2": "China",
+   "rule_quoted": true
+  },
+  {
+   "ruling": "H335912",
+   "cbp": "Canada",
+   "b_v1": "Canada",
+   "v_v2": "United States",
+   "rule_quoted": false
+  },
+  {
+   "ruling": "N351636",
+   "cbp": "Mexico",
+   "b_v1": "Netherlands",
+   "v_v2": "Mexico",
+   "rule_quoted": false
+  },
+  {
+   "ruling": "N352763",
+   "cbp": "Mexico",
+   "b_v1": "China",
+   "v_v2": "Canada",
+   "rule_quoted": false
+  },
+  {
+   "ruling": "N355835",
+   "cbp": "Canada",
+   "b_v1": "Canada",
+   "v_v2": "China",
+   "rule_quoted": false
+  }
+ ]
+}

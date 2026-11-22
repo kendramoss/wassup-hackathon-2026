@@ -108,6 +108,7 @@ import (
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/planner"
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/retrieval"
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/router"
+	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/tariffshift"
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/triage"
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/verifier"
 )
@@ -203,6 +204,7 @@ func run(args []string) error {
 	factsDir := fl.String("facts", "../data/corpus/facts", "facts directory (go run ./cmd/corpus build); comma-separated to add ../eval/data/facts_final2")
 	resultsDir := fl.String("results", "../eval/results", "results directory")
 	textilePrompt := fl.String("textile-prompt", "v1", "v1 or v2 (textile-v2: filled made-up guidance; use with -reasoning, D53)")
+	usmcaPrompt := fl.String("usmca-prompt", "v1", "with -regime usmca: v1 (usmca-v1) or v2 (usmca-v2: the 102.20 rows for the codes named in the facts, applied as written; D550)")
 	regime := fl.String("regime", "st", "st (substantial transformation), textile (19 CFR 102.21, textile-v1, with -splits ../eval/splits/splits_textile.json; D51), usmca (19 CFR 102.11 / 102.20, usmca-v1, with -labels ../eval/data/labels_usmca.jsonl and -splits ../eval/splits/splits_usmca.json; D61) or pharma (active ingredient, pharma-v1, with -splits ../eval/splits/splits_pharma.json; D62)")
 	_ = fl.Parse(args)
 	if *regime != "st" && *regime != "textile" && *regime != "usmca" && *regime != "pharma" {
@@ -362,8 +364,12 @@ func run(args []string) error {
 		if *useRules || *useReasoning || *retrievalMode != "bm25" {
 			return errors.New("-regime usmca supports bm25 runs only")
 		}
-		eng = engine.New(model, retr, engine.Options{Model: cfg.EngineModel, K: cfg.PrecedentK, MaxOutputTokens: cfg.MaxOutputTokens,
-			Votes: *votes, VoteBelow: *voteBelow, System: engine.USMCASystem, Version: engine.USMCAVersion})
+		uopts, err := usmcaOptions(*usmcaPrompt)
+		if err != nil {
+			return err
+		}
+		uopts.Model, uopts.K, uopts.MaxOutputTokens, uopts.Votes, uopts.VoteBelow = cfg.EngineModel, cfg.PrecedentK, cfg.MaxOutputTokens, *votes, *voteBelow
+		eng = engine.New(model, retr, uopts)
 	}
 	if *regime == "pharma" {
 		if *useRules || *useReasoning || *retrievalMode != "bm25" {
@@ -389,7 +395,11 @@ func run(args []string) error {
 		}
 	}
 	if *regime == "usmca" {
-		name = fmt.Sprintf("usmca-%s-%s-%s-%s-%s", *split, cfg.EngineModel, *cond, engine.USMCAVersion, cfg.LLMProvider)
+		uv := engine.USMCAVersion
+		if *usmcaPrompt == "v2" {
+			uv = engine.USMCAVersion2
+		}
+		name = fmt.Sprintf("usmca-%s-%s-%s-%s-%s", *split, cfg.EngineModel, *cond, uv, cfg.LLMProvider)
 		if cfg.PrecedentK != 5 {
 			name += fmt.Sprintf("-k%d", cfg.PrecedentK)
 		}
@@ -664,6 +674,9 @@ func appendRunLog(dir, name, split string, cfg config.Config, s evalkit.Summary,
 	}
 	if strings.HasPrefix(name, "usmca-") {
 		prompt = engine.USMCAVersion
+		if strings.Contains(name, engine.USMCAVersion2) {
+			prompt = engine.USMCAVersion2
+		}
 	}
 	if strings.HasPrefix(name, "pharma-") {
 		prompt = engine.PharmaVersion
@@ -2534,4 +2547,20 @@ func caseStoreGet(s *corpus.Store, id string) (domain.Ruling, bool) {
 		return domain.Ruling{}, false
 	}
 	return s.Get(id)
+}
+
+// usmcaOptions is the Part 102 engine's prompt for version v ("v1" or "v2";
+// D550): v2 adds the quoted 102.20 rows for the codes named in each case.
+func usmcaOptions(v string) (engine.Options, error) {
+	switch v {
+	case "v1":
+		return engine.Options{System: engine.USMCASystem, Version: engine.USMCAVersion}, nil
+	case "v2":
+		rules, err := tariffshift.Default()
+		if err != nil {
+			return engine.Options{}, err
+		}
+		return engine.Options{System: engine.USMCASystem2, Version: engine.USMCAVersion2, RuleText: engine.Part102RuleText(rules)}, nil
+	}
+	return engine.Options{}, fmt.Errorf("-usmca-prompt must be v1 or v2, got %q", v)
 }

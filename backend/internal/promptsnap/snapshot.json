@@ -57,6 +57,14 @@
       "version": "usmca-v1",
       "sha256": "bbc80a7418e4d31d851075a364612db54c55155069d501c942d0d157e19b6051"
     },
+    "engine.usmca2": {
+      "version": "usmca-v2",
+      "sha256": "b7284c82400aab2cb345c76b11b6874f136fc9c2d410e33a0e5178f2dc40efb9"
+    },
+    "engine.usmca2.rule_text": {
+      "version": "usmca-v2",
+      "sha256": "a35ef7fbbbb79673ab03d1eb07231c3ef08a4fe22b2e33f5380077095bf4dcf4"
+    },
     "extract.media_request": {
       "version": "extract-image-v1",
       "sha256": "ef45b84630d50b19b25ea2515f78c7c70bab8170a1588f284b7660f5668c21ad"

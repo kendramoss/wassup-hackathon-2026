@@ -26,6 +26,7 @@ import (
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/nearmiss"
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/planner"
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/router"
+	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/tariffshift"
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/verifier"
 )
 
@@ -77,6 +78,10 @@ func Prompts() []Prompt {
 		// The Part 102 and pharmaceutical engines' prompts: case predictions,
 		// and since D540 every plan search on a Part 102 case.
 		{"engine.usmca", engine.USMCAVersion, engine.USMCASystem},
+		// usmca-v2 (D550): the prompt that applies the quoted 102.20 rows,
+		// and the quoted text for a fixture naming subheading 8414.30.
+		{"engine.usmca2", engine.USMCAVersion2, engine.USMCASystem2},
+		{"engine.usmca2.rule_text", engine.USMCAVersion2, usmcaRuleTextFixture()},
 		{"engine.pharma", engine.PharmaVersion, engine.PharmaSystem},
 		{"router.system", router.PromptVersion, withSchema(mustRouterSystem(router.PromptVersion), router.Schema)},
 		{"router.user", router.PromptVersion, router.RenderUser(fixtureFacts)},
@@ -290,4 +295,14 @@ func mustRouterSystem(version string) string {
 		s += "\n\n[deterministic check] " + r
 	}
 	return s
+}
+
+// usmcaRuleTextFixture is the 102.20 text usmca-v2 quotes for facts naming
+// subheading 8414.30 and 8414.90 parts (D550).
+func usmcaRuleTextFixture() string {
+	rules, err := tariffshift.Default()
+	if err != nil {
+		panic(err)
+	}
+	return engine.Part102RuleText(rules)(domain.Case{Facts: "You suggest the compressors are classified in subheading 8414.30, HTSUS. The stators are parts of subheading 8414.90."})
 }
