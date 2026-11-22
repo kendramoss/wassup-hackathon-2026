@@ -476,9 +476,9 @@ export const copy = {
     part177Help: "Part 177 is how to ask CBP for a ruling. It is not an origin rule.",
     compareScope: "Compared on U.S. origin only. Section 232 duties are not included.",
     // Accuracy page, "What we don't claim" (listed unsupported in docs/scope-and-jurisdiction.md section 6).
-    notCovered: "Not covered: EU Binding Origin Information; USMCA regional value content and preferential-origin claims (an RCEP rules check is built but not reviewed by a customs professional); certificates of origin; duty drawback; antidumping and countervailing duty questions. Section 232 duties are not included in cost figures.",
+    notCovered: "Outside scope: EU Binding Origin Information, USMCA regional value content and preferential claims, certificates of origin, duty drawback, and antidumping and countervailing duty. Section 232 duties are not included in cost figures.",
     // D680-D682: the market check reads the text, but misses about one in four.
-    noDetector: "U.S. origin only. Pick the market when you start a case; the text check misses some.",
+    noDetector: "Pick the market when you start a case. The text check misses some.",
   },
 
   // The market a case is for (D680).
