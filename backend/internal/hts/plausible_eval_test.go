@@ -19,7 +19,7 @@ import (
 var checkRuns = []struct{ Name, Rows, Gold string }{
 	{"dev", "suggest-dev-v1.jsonl", "gold-dev.jsonl"},
 	// Held out (D471): measured once, after the check was frozen at
-	// commit bda20b64.
+	// commit c3389456 (bda20b64 before rebasing).
 	{"final", "suggest-final.jsonl", "gold-final.jsonl"},
 }
 
