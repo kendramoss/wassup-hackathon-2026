@@ -1,0 +1,59 @@
+{
+ "run": "jp-synthetic-gemini-4-argon-jp-engine-v1-litellm",
+ "split": "synthetic",
+ "expected_cases": 8,
+ "cases": 8,
+ "errors": 8,
+ "model_calls": 8,
+ "qualifies": 0,
+ "does_not_qualify": 0,
+ "undetermined": 0,
+ "criterion_match": {
+  "k": 0,
+  "n": 0,
+  "p": 0,
+  "lo": 0,
+  "hi": 0
+ },
+ "criterion_in_cited_set": {
+  "k": 0,
+  "n": 0,
+  "p": 0,
+  "lo": 0,
+  "hi": 0
+ },
+ "stated_country_match": {
+  "k": 0,
+  "n": 0,
+  "p": 0,
+  "lo": 0,
+  "hi": 0
+ },
+ "stated_origin_match_including_eu": {
+  "k": 0,
+  "n": 0,
+  "p": 0,
+  "lo": 0,
+  "hi": 0
+ },
+ "positive_recall": {
+  "k": 0,
+  "n": 0,
+  "p": 0,
+  "lo": 0,
+  "hi": 0
+ },
+ "synthetic_refusals": {
+  "k": 0,
+  "n": 8,
+  "p": 0,
+  "lo": 0,
+  "hi": 0.3244
+ },
+ "criterion_match_by_agreement": {},
+ "cost_usd": 0,
+ "cost_per_case_usd": 0,
+ "cost_per_model_call_usd": 0,
+ "model_call_cases_latency_p50_ms": 441,
+ "model_call_cases_latency_p95_ms": 711
+}

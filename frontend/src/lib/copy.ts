@@ -599,7 +599,7 @@ export const copy = {
     needAgreement: "Choose a trade agreement",
     needTariffCode: "Enter a 4, 6 or 9 digit tariff code",
     facts: "Materials and production",
-    factsHelp: "Include each material's country and tariff code, plus where each production step happens.",
+    factsHelp: "List material countries, tariff codes and production locations.",
     factsExample: "Plywood is pressed in Vietnam from Malaysian veneer (4408.10). The veneer has proof of origin under RCEP.",
     check: "Check trade preference",
     checking: "Checking trade preference.",
