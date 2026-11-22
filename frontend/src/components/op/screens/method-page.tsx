@@ -484,7 +484,11 @@ export function MethodPage() {
             is flagged for a broker when the rule gives another country than the engine, and so is a move the rule says reaches the target while the engine predicts another
             country (<D id="D591" />). Since 22 Nov the Part 102
             engine is usmca-v5, which fills a short 102.11 checklist first. On the development plan rows it agrees with the rule on 56 of 57 decided rows, against 43
-            for usmca-v1 (<D id="D602" />). The plan searches above and the held-out plan set have not been re-run with it yet.
+            for usmca-v1 (<D id="D602" />). A second, pre-registered pass on the same held-out plan set, with usmca-v5 and 20 families, planned 8 of 18; the engine
+            agreed with the rule on 6 of 6 decided moves, five of them moves where the rule keeps the country CBP held, and the one shown plan is a move the rule says shifts
+            (<D id="D630" />, <D id="D631" />,{" "}
+            <Ext href={blob("docs/EVALUATION.md#152-addendum-a-second-pass-with-usmca-v5-and-20-families-22-nov-2026-d630-d631")}>EVALUATION.md §15.2</Ext>). The recorded
+            actuator search was re-run with usmca-v5 and agrees with the rule on 12 of 12 moves; the other two development searches were not re-run.
           </li>
           <li>
             <b className="font-medium text-ink">Shown, then drafted for a broker.</b> The shown move and its ruling go into the draft ruling request a licensed customs broker
