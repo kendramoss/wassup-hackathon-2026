@@ -33,6 +33,14 @@
       "version": "rules-v2",
       "sha256": "15e301dff32fd101c1fc8bc67e5006a8b0b382c9a816f6951ad21dcae3719cb4"
     },
+    "engine.st_checklist1": {
+      "version": "st-checklist-v1",
+      "sha256": "7bfe977579c4acdf436778153ebb3862081a1b9c0e9f0b6d0368beba0ab63f9b"
+    },
+    "engine.st_checklist2": {
+      "version": "st-checklist-v2",
+      "sha256": "41bdef97a76cf97a10e68d8a3f94835e1ae06a7aed1d58a23fa197c1f9becaa7"
+    },
     "engine.system": {
       "version": "engine-v1",
       "sha256": "00077c78acd442a9e7ea66377b36703d0bf2fd1ed5b0f467f537f5f0f67b1749"
