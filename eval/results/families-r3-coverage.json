@@ -337,5 +337,498 @@
     "confidence": 0.8
    }
   ]
+ },
+ "st_final": {
+  "set": "first held-out split (377)",
+  "rulings": 377,
+  "before_templates": 14,
+  "after_templates": 26,
+  "before": {
+   "with_template": 224,
+   "pct": 59.4,
+   "ci95": [
+    54.4,
+    64.3
+   ],
+   "failed_checks": 4
+  },
+  "after": {
+   "with_template": 298,
+   "pct": 79.0,
+   "ci95": [
+    74.7,
+    82.9
+   ],
+   "failed_checks": 4
+  },
+  "both_answered": 369,
+  "both_answered_before": 223,
+  "both_answered_after": 294,
+  "gained": 71,
+  "lost": 0,
+  "moved": 6,
+  "gained_by_family": {
+   "paper_tissue_products": 16,
+   "food_preparations": 14,
+   "metal_products": 12,
+   "machinery_parts": 8,
+   "plastic_articles": 6,
+   "offroad_vehicles_machinery": 5,
+   "semiconductor_devices": 3,
+   "golf_sporting_goods": 2,
+   "hvac_heating_units": 2,
+   "motors_pumps_compressors": 1,
+   "electrical_control_apparatus": 1,
+   "led_lights": 1
+  },
+  "new_family_matches": {
+   "paper_tissue_products": 16,
+   "offroad_vehicles_machinery": 5,
+   "semiconductor_devices": 3,
+   "golf_sporting_goods": 2,
+   "hvac_heating_units": 2
+  },
+  "moved_to_new_family": 0,
+  "lost_rulings": [],
+  "moved_rulings": [
+   {
+    "ruling": "N357106",
+    "before": "vehicle_parts",
+    "after": "machinery_parts"
+   },
+   {
+    "ruling": "N357198",
+    "before": "vehicle_parts",
+    "after": "machinery_parts"
+   },
+   {
+    "ruling": "N358367",
+    "before": "pcba_electronic_devices",
+    "after": "display_camera_modules"
+   },
+   {
+    "ruling": "N358905",
+    "before": "vehicle_parts",
+    "after": "machinery_parts"
+   },
+   {
+    "ruling": "N359879",
+    "before": "vehicle_parts",
+    "after": "machinery_parts"
+   },
+   {
+    "ruling": "N364186",
+    "before": "vehicle_parts",
+    "after": "machinery_parts"
+   }
+  ],
+  "gained_rulings": [
+   {
+    "ruling": "H351350",
+    "after": "food_preparations",
+    "confidence": 0.95
+   },
+   {
+    "ruling": "H352504",
+    "after": "paper_tissue_products",
+    "confidence": 0.95
+   },
+   {
+    "ruling": "N352351",
+    "after": "plastic_articles",
+    "confidence": 0.95
+   },
+   {
+    "ruling": "N356879",
+    "after": "food_preparations",
+    "confidence": 0.95
+   },
+   {
+    "ruling": "N356998",
+    "after": "offroad_vehicles_machinery",
+    "confidence": 0.98
+   },
+   {
+    "ruling": "N357122",
+    "after": "metal_products",
+    "confidence": 0.95
+   },
+   {
+    "ruling": "N357351",
+    "after": "plastic_articles",
+    "confidence": 0.75
+   },
+   {
+    "ruling": "N357580",
+    "after": "machinery_parts",
+    "confidence": 0.95
+   },
+   {
+    "ruling": "N357635",
+    "after": "paper_tissue_products",
+    "confidence": 0.95
+   },
+   {
+    "ruling": "N357746",
+    "after": "golf_sporting_goods",
+    "confidence": 0.98
+   },
+   {
+    "ruling": "N357791",
+    "after": "food_preparations",
+    "confidence": 0.95
+   },
+   {
+    "ruling": "N357961",
+    "after": "food_preparations",
+    "confidence": 0.98
+   },
+   {
+    "ruling": "N358069",
+    "after": "metal_products",
+    "confidence": 0.95
+   },
+   {
+    "ruling": "N358193",
+    "after": "machinery_parts",
+    "confidence": 0.9
+   },
+   {
+    "ruling": "N358210",
+    "after": "paper_tissue_products",
+    "confidence": 0.98
+   },
+   {
+    "ruling": "N358220",
+    "after": "paper_tissue_products",
+    "confidence": 0.99
+   },
+   {
+    "ruling": "N358224",
+    "after": "paper_tissue_products",
+    "confidence": 1
+   },
+   {
+    "ruling": "N358225",
+    "after": "paper_tissue_products",
+    "confidence": 0.98
+   },
+   {
+    "ruling": "N358355",
+    "after": "semiconductor_devices",
+    "confidence": 0.98
+   },
+   {
+    "ruling": "N358404",
+    "after": "paper_tissue_products",
+    "confidence": 0.98
+   },
+   {
+    "ruling": "N358405",
+    "after": "paper_tissue_products",
+    "confidence": 0.95
+   },
+   {
+    "ruling": "N358406",
+    "after": "paper_tissue_products",
+    "confidence": 0.95
+   },
+   {
+    "ruling": "N358407",
+    "after": "paper_tissue_products",
+    "confidence": 0.98
+   },
+   {
+    "ruling": "N358480",
+    "after": "food_preparations",
+    "confidence": 0.95
+   },
+   {
+    "ruling": "N358696",
+    "after": "plastic_articles",
+    "confidence": 0.8
+   },
+   {
+    "ruling": "N358924",
+    "after": "semiconductor_devices",
+    "confidence": 0.85
+   },
+   {
+    "ruling": "N359527",
+    "after": "machinery_parts",
+    "confidence": 0.95
+   },
+   {
+    "ruling": "N359602",
+    "after": "food_preparations",
+    "confidence": 0.95
+   },
+   {
+    "ruling": "N359614",
+    "after": "metal_products",
+    "confidence": 0.95
+   },
+   {
+    "ruling": "N359642",
+    "after": "paper_tissue_products",
+    "confidence": 0.98
+   },
+   {
+    "ruling": "N359734",
+    "after": "plastic_articles",
+    "confidence": 0.98
+   },
+   {
+    "ruling": "N359767",
+    "after": "food_preparations",
+    "confidence": 0.95
+   },
+   {
+    "ruling": "N359789",
+    "after": "paper_tissue_products",
+    "confidence": 0.98
+   },
+   {
+    "ruling": "N359887",
+    "after": "semiconductor_devices",
+    "confidence": 0.98
+   },
+   {
+    "ruling": "N360018",
+    "after": "metal_products",
+    "confidence": 0.95
+   },
+   {
+    "ruling": "N360198",
+    "after": "hvac_heating_units",
+    "confidence": 0.95
+   },
+   {
+    "ruling": "N360430",
+    "after": "motors_pumps_compressors",
+    "confidence": 0.8
+   },
+   {
+    "ruling": "N360441",
+    "after": "food_preparations",
+    "confidence": 0.98
+   },
+   {
+    "ruling": "N360503",
+    "after": "metal_products",
+    "confidence": 0.95
+   },
+   {
+    "ruling": "N360705",
+    "after": "offroad_vehicles_machinery",
+    "confidence": 0.88
+   },
+   {
+    "ruling": "N360770",
+    "after": "plastic_articles",
+    "confidence": 0.95
+   },
+   {
+    "ruling": "N360826",
+    "after": "paper_tissue_products",
+    "confidence": 0.95
+   },
+   {
+    "ruling": "N361263",
+    "after": "offroad_vehicles_machinery",
+    "confidence": 0.98
+   },
+   {
+    "ruling": "N361492",
+    "after": "plastic_articles",
+    "confidence": 0.95
+   },
+   {
+    "ruling": "N361523",
+    "after": "metal_products",
+    "confidence": 0.8
+   },
+   {
+    "ruling": "N361524",
+    "after": "food_preparations",
+    "confidence": 0.95
+   },
+   {
+    "ruling": "N361740",
+    "after": "food_preparations",
+    "confidence": 0.95
+   },
+   {
+    "ruling": "N361910",
+    "after": "machinery_parts",
+    "confidence": 0.85
+   },
+   {
+    "ruling": "N361923",
+    "after": "food_preparations",
+    "confidence": 0.85
+   },
+   {
+    "ruling": "N362022",
+    "after": "metal_products",
+    "confidence": 0.85
+   },
+   {
+    "ruling": "N362267",
+    "after": "golf_sporting_goods",
+    "confidence": 0.98
+   },
+   {
+    "ruling": "N362429",
+    "after": "paper_tissue_products",
+    "confidence": 0.95
+   },
+   {
+    "ruling": "N362488",
+    "after": "food_preparations",
+    "confidence": 0.95
+   },
+   {
+    "ruling": "N362605",
+    "after": "offroad_vehicles_machinery",
+    "confidence": 0.98
+   },
+   {
+    "ruling": "N362808",
+    "after": "electrical_control_apparatus",
+    "confidence": 0.85
+   },
+   {
+    "ruling": "N362852",
+    "after": "machinery_parts",
+    "confidence": 0.95
+   },
+   {
+    "ruling": "N363286",
+    "after": "machinery_parts",
+    "confidence": 0.85
+   },
+   {
+    "ruling": "N363516",
+    "after": "hvac_heating_units",
+    "confidence": 0.95
+   },
+   {
+    "ruling": "N363695",
+    "after": "metal_products",
+    "confidence": 0.85
+   },
+   {
+    "ruling": "N363754",
+    "after": "metal_products",
+    "confidence": 0.98
+   },
+   {
+    "ruling": "N363840",
+    "after": "food_preparations",
+    "confidence": 0.95
+   },
+   {
+    "ruling": "N363894",
+    "after": "offroad_vehicles_machinery",
+    "confidence": 0.95
+   },
+   {
+    "ruling": "N363985",
+    "after": "paper_tissue_products",
+    "confidence": 0.98
+   },
+   {
+    "ruling": "N363986",
+    "after": "paper_tissue_products",
+    "confidence": 0.98
+   },
+   {
+    "ruling": "N364385",
+    "after": "led_lights",
+    "confidence": 0.8
+   },
+   {
+    "ruling": "N364414",
+    "after": "metal_products",
+    "confidence": 0.85
+   },
+   {
+    "ruling": "N364570",
+    "after": "machinery_parts",
+    "confidence": 0.75
+   },
+   {
+    "ruling": "N364617",
+    "after": "food_preparations",
+    "confidence": 0.95
+   },
+   {
+    "ruling": "N364814",
+    "after": "metal_products",
+    "confidence": 0.9
+   },
+   {
+    "ruling": "N364862",
+    "after": "metal_products",
+    "confidence": 0.85
+   },
+   {
+    "ruling": "N364863",
+    "after": "machinery_parts",
+    "confidence": 0.8
+   }
+  ]
+ },
+ "p102_frozen": {
+  "set": "frozen held-out Part 102 set (18)",
+  "rulings": 18,
+  "before_templates": 20,
+  "after_templates": 26,
+  "before": {
+   "with_template": 8,
+   "pct": 44.4,
+   "ci95": [
+    24.6,
+    66.3
+   ],
+   "failed_checks": 1
+  },
+  "after": {
+   "with_template": 8,
+   "pct": 44.4,
+   "ci95": [
+    24.6,
+    66.3
+   ],
+   "failed_checks": 0
+  },
+  "both_answered": 17,
+  "both_answered_before": 8,
+  "both_answered_after": 7,
+  "gained": 0,
+  "lost": 1,
+  "moved": 1,
+  "gained_by_family": {},
+  "new_family_matches": {
+   "hvac_heating_units": 1
+  },
+  "moved_to_new_family": 1,
+  "lost_rulings": [
+   {
+    "ruling": "N363381",
+    "before": "machinery_parts",
+    "after_family": "none",
+    "after_confidence": 0.85
+   }
+  ],
+  "moved_rulings": [
+   {
+    "ruling": "N359690",
+    "before": "vehicle_parts",
+    "after": "hvac_heating_units"
+   }
+  ],
+  "gained_rulings": []
  }
 }

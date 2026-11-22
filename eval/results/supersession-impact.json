@@ -106,7 +106,7 @@
    "supported_verdicts_on_superseded": 0
   }
  },
- "files_with_rulings": 152,
+ "files_with_rulings": 158,
  "map_version": "supersession-v2",
  "note": "Offline count (D320, D370): committed result rows that showed or cited a CBP ruling revoked or modified before the row's case date (a change dated on the case date does not count). No model calls; nothing re-scored. The engine rows would now be predicted without those precedents; the effect on accuracy is not measured. Edges read from Customs Bulletin notices (D400) are dated by their effective date; bulletin_rulings_named counts rows that name such a ruling at any date.",
  "rows": [
@@ -492,8 +492,8 @@
   "rows_naming_bulletin_ruling_any_date": 6,
   "rows_showing_or_citing_bulletin_superseded": 0,
   "rows_showing_superseded": 23,
-  "rows_undated": 342,
-  "rows_with_rulings": 14114,
+  "rows_undated": 388,
+  "rows_with_rulings": 14160,
   "supported_verdicts_on_superseded": 1,
   "undated_rows_naming_any_superseded": 0
  },
@@ -509,7 +509,13 @@
   "eval/results/families-plan-speed-sensor-2024-litellm.json": 4,
   "eval/results/families-plan-usb-hub-2024-litellm.json": 4,
   "eval/results/families-plan-water-dispenser-2025-litellm.json": 8,
+  "eval/results/plan-gas-heater-2025-local-verifier-v2-d660-litellm.json": 13,
+  "eval/results/plan-golf-driver-heads-2025-local-verifier-v2-d660-litellm.json": 4,
+  "eval/results/plan-integrated-circuit-2023-local-verifier-v2-d660-litellm.json": 13,
   "eval/results/plan-lidar-s1-local-litellm.json": 6,
+  "eval/results/plan-paper-napkins-2024-local-verifier-v2-d660-litellm.json": 4,
+  "eval/results/plan-plush-dinosaur-2024-local-verifier-v2-d660-litellm.json": 4,
+  "eval/results/plan-roll-agv-2023-local-verifier-v2-d660-litellm.json": 8,
   "eval/results/plan-tublight-2025-near-miss-v1-litellm.json": 11,
   "eval/results/plan-tublight-2025-relaxed-search-litellm.json": 4,
   "eval/results/plan-tublight-2025-triples-follow-litellm.json": 13,

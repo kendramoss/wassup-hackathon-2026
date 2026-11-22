@@ -347,6 +347,10 @@ var stalePhrases = []struct {
 		why: "plans cover 20 product families since D580 (#634, D620)",
 	},
 	{
+		re:  regexp.MustCompile(`(?i)\b(20|twenty) product families\b|\b20 families with (a plan )?templates?\b|\b20 family templates\b|\b(the|has) 20 templates\b|\bpins the 20 families\b|\(20 families, listed`),
+		why: "plans cover 26 product families since D660",
+	},
+	{
 		re:     regexp.MustCompile(`14 of 29 held[ -]out`),
 		why:    "give the held-out figure without the five chapters picked with held-out data, 12 of 29, beside it (D560, #631, D620)",
 		unless: regexp.MustCompile(`12 of 29`),

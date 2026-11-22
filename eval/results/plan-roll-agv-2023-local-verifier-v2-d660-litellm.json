@@ -1,0 +1,522 @@
+{
+  "case_id": "roll-agv-2023",
+  "target": "South Korea",
+  "family": "offroad_vehicles_machinery",
+  "baseline": {
+    "move": [],
+    "description": "No change: keep the current setup",
+    "variant_facts": "The merchandise under consideration is a Automated guided vehicle for electrode rolls. A self-navigating vehicle with a lifting mechanism that raises a feeder assembly to load anode and cathode rolls in a battery plant. The Automated guided vehicle for electrode rolls is assembled in South Korea using components sourced from China and South Korea.\n\nThe lower frame assembly (chassis) with drive frame components and upper frame assembly with roller support and shear lifting mechanism are produced in China. The drive assembly, battery, casters and controllers are produced in South Korea. \n\nFinal assembly in South Korea: install the drive assembly, battery, controllers, cameras, sensors and wiring, join the frames, fit the cover, load software, calibrate and test.\n",
+    "prediction": {
+      "origin_country": "South Korea",
+      "key_factors": [
+        "Drive assembly, battery, controllers, and final integration/calibration"
+      ],
+      "decisive_step": "Final assembly, integration of Korean propulsion/control systems with Chinese frames, software loading, and calibration in South Korea",
+      "confidence": 0.82,
+      "reasoning": "While the structural lower and upper frames with lifting mechanisms are made in China (compare N334276), an Automated Guided Vehicle's essential character as a self-navigating vehicle is equally or more defined by its propulsion, power, and autonomous navigation systems. Because the drive assembly, battery, and controllers are produced in South Korea, and complex final integration, sensor installation, software loading, and calibration occur there, the components undergo a substantial transformation in South Korea.",
+      "cited_rulings": [
+        "N334276"
+      ],
+      "precedents": [
+        "H327997",
+        "N329847",
+        "N333646",
+        "N334276",
+        "N336263"
+      ],
+      "trace": {
+        "llm_provider": "litellm",
+        "model_id": "gemini-4-argon",
+        "requested_model": "gemini-4-argon",
+        "prompt_version": "engine-v1",
+        "input_tokens": 2669,
+        "output_tokens": 228,
+        "latency_ms": 7776
+      }
+    },
+    "duty_effect_per_year": 0,
+    "added_cost_per_year": 0,
+    "net_per_year": 0,
+    "shown": false
+  },
+  "current_origin": {
+    "country": "China",
+    "ruling": "N336445"
+  },
+  "plans": [
+    {
+      "move": [
+        {
+          "group": "chassis_frame_fab",
+          "to_plant": "kr"
+        },
+        {
+          "group": "working_structure_fab",
+          "to_plant": "kr"
+        }
+      ],
+      "description": "Move the chassis and frame and the working frames to South Korea",
+      "variant_facts": "The merchandise under consideration is a Automated guided vehicle for electrode rolls. A self-navigating vehicle with a lifting mechanism that raises a feeder assembly to load anode and cathode rolls in a battery plant. The Automated guided vehicle for electrode rolls is assembled in South Korea using components sourced from South Korea.\n\nThe lower frame assembly (chassis) with drive frame components, upper frame assembly with roller support and shear lifting mechanism and drive assembly, battery, casters and controllers are produced in South Korea. \n\nIn South Korea, the lower frame assembly (chassis) with drive frame components will be produced in-house: cut, weld and polish metal plates into the chassis and fit the drive frame components.\n\nIn South Korea, the upper frame assembly with roller support and shear lifting mechanism will be produced in-house: weld tubing, sheets and plates into the upper frame and mount the lifting and roller support mechanisms.\n\nFinal assembly in South Korea: install the drive assembly, battery, controllers, cameras, sensors and wiring, join the frames, fit the cover, load software, calibrate and test.\n",
+      "prediction": {
+        "origin_country": "South Korea",
+        "key_factors": [
+          "Lower and upper frame assemblies, drive assembly, and controllers"
+        ],
+        "decisive_step": "Fabrication of structural frames, subassemblies, and final assembly in South Korea",
+        "confidence": 1,
+        "reasoning": "All major components—including the lower chassis, upper frame with lifting mechanism, drive assembly, battery, and controllers—are sourced and fabricated from raw metal plates and tubing in South Korea. Furthermore, all subassembly and final assembly operations, including software loading and calibration, occur entirely in South Korea. Consistent with N334276 and N333646, where the fabrication of major structural subassemblies and final assembly confer origin, the vehicle is wholly produced and substantially transformed in South Korea.",
+        "cited_rulings": [
+          "N333646",
+          "N334276"
+        ],
+        "precedents": [
+          "H327997",
+          "N329847",
+          "N330771",
+          "N333646",
+          "N334276"
+        ],
+        "trace": {
+          "llm_provider": "litellm",
+          "model_id": "gemini-4-argon",
+          "requested_model": "gemini-4-argon",
+          "prompt_version": "engine-v1",
+          "input_tokens": 2767,
+          "output_tokens": 212,
+          "latency_ms": 7478
+        }
+      },
+      "verdict": {
+        "precedent_supported": true,
+        "supporting_ruling": "N334276",
+        "confidence": 0.96,
+        "reasoning": "In Variant A, CBP held origin was China because the lower frame assembly (chassis) and upper frame assembly with lifting mechanism were produced in China, while final assembly and the remaining components were in South Korea. In Variant B, the production of both the lower frame assembly (cutting, welding, polishing plates) and upper frame assembly (welding tubing, sheets, and plates) moves to South Korea, so all components and assembly are in South Korea. Consistent with N334276 (scissor lifts) and N333646 (hydraulic jacks), where fabricating and welding the chassis/frame and lifting subassemblies determines origin, origin changes to South Korea.",
+        "trail": [
+          {
+            "tool": "search",
+            "query": "vehicle chassis frame drive assembly battery controllers origin",
+            "rulings": [
+              "H330647",
+              "N334276",
+              "N333646",
+              "N329943",
+              "N333849",
+              "N335537",
+              "N329847",
+              "N331243"
+            ]
+          },
+          {
+            "tool": "search",
+            "query": "automated guided vehicle frame chassis origin China South Korea",
+            "rulings": [
+              "N330075",
+              "N333646",
+              "N332533",
+              "N332532",
+              "N332534",
+              "N333934",
+              "N332529",
+              "N332531"
+            ]
+          },
+          {
+            "tool": "search",
+            "query": "lifting vehicle chassis frame assembly origin China",
+            "rulings": [
+              "N333646",
+              "N334276",
+              "N332914",
+              "N333849",
+              "N330075",
+              "N335654",
+              "N329943",
+              "N332816"
+            ]
+          },
+          {
+            "tool": "search",
+            "query": "AGV forklift cart trolley frame chassis weld assembly origin",
+            "rulings": [
+              "N334276",
+              "N333646",
+              "N332914",
+              "N333849",
+              "N333554",
+              "N333677",
+              "N330844",
+              "H327997"
+            ]
+          },
+          {
+            "tool": "read",
+            "query": "N333646",
+            "rulings": [
+              "N333646"
+            ]
+          },
+          {
+            "tool": "read",
+            "query": "N334276",
+            "rulings": [
+              "N334276"
+            ]
+          }
+        ],
+        "trace": {
+          "llm_provider": "litellm",
+          "model_id": "gemini-4-argon",
+          "prompt_version": "verifier-v2+known-a",
+          "input_tokens": 8701,
+          "output_tokens": 366,
+          "latency_ms": 0
+        }
+      },
+      "duty_effect_per_year": 250000,
+      "added_cost_per_year": 55000,
+      "net_per_year": 195000,
+      "net_priced": true,
+      "shown": true,
+      "tier": "clear_margin",
+      "parts_moved": 2
+    }
+  ],
+  "rejected": [
+    {
+      "move": [],
+      "description": "No change: keep the current setup",
+      "variant_facts": "The merchandise under consideration is a Automated guided vehicle for electrode rolls. A self-navigating vehicle with a lifting mechanism that raises a feeder assembly to load anode and cathode rolls in a battery plant. The Automated guided vehicle for electrode rolls is assembled in South Korea using components sourced from China and South Korea.\n\nThe lower frame assembly (chassis) with drive frame components and upper frame assembly with roller support and shear lifting mechanism are produced in China. The drive assembly, battery, casters and controllers are produced in South Korea. \n\nFinal assembly in South Korea: install the drive assembly, battery, controllers, cameras, sensors and wiring, join the frames, fit the cover, load software, calibrate and test.\n",
+      "prediction": {
+        "origin_country": "South Korea",
+        "key_factors": [
+          "Drive assembly, battery, controllers, and final integration/calibration"
+        ],
+        "decisive_step": "Final assembly, integration of Korean propulsion/control systems with Chinese frames, software loading, and calibration in South Korea",
+        "confidence": 0.82,
+        "reasoning": "While the structural lower and upper frames with lifting mechanisms are made in China (compare N334276), an Automated Guided Vehicle's essential character as a self-navigating vehicle is equally or more defined by its propulsion, power, and autonomous navigation systems. Because the drive assembly, battery, and controllers are produced in South Korea, and complex final integration, sensor installation, software loading, and calibration occur there, the components undergo a substantial transformation in South Korea.",
+        "cited_rulings": [
+          "N334276"
+        ],
+        "precedents": [
+          "H327997",
+          "N329847",
+          "N333646",
+          "N334276",
+          "N336263"
+        ],
+        "trace": {
+          "llm_provider": "litellm",
+          "model_id": "gemini-4-argon",
+          "requested_model": "gemini-4-argon",
+          "prompt_version": "engine-v1",
+          "input_tokens": 2669,
+          "output_tokens": 228,
+          "latency_ms": 7776
+        }
+      },
+      "duty_effect_per_year": 0,
+      "added_cost_per_year": 0,
+      "net_per_year": 0,
+      "shown": false,
+      "rejection_reason": "current setup: CBP held China (N336445); engine predicts South Korea",
+      "rejection_kind": "current_setup"
+    },
+    {
+      "move": [
+        {
+          "group": "working_structure_fab",
+          "to_plant": "kr"
+        }
+      ],
+      "description": "Move the working frames to South Korea",
+      "variant_facts": "The merchandise under consideration is a Automated guided vehicle for electrode rolls. A self-navigating vehicle with a lifting mechanism that raises a feeder assembly to load anode and cathode rolls in a battery plant. The Automated guided vehicle for electrode rolls is assembled in South Korea using components sourced from China and South Korea.\n\nThe lower frame assembly (chassis) with drive frame components are produced in China. The upper frame assembly with roller support and shear lifting mechanism and drive assembly, battery, casters and controllers are produced in South Korea. \n\nIn South Korea, the upper frame assembly with roller support and shear lifting mechanism will be produced in-house: weld tubing, sheets and plates into the upper frame and mount the lifting and roller support mechanisms.\n\nFinal assembly in South Korea: install the drive assembly, battery, controllers, cameras, sensors and wiring, join the frames, fit the cover, load software, calibrate and test.\n",
+      "prediction": {
+        "origin_country": "South Korea",
+        "key_factors": [
+          "Upper frame with shear lifting mechanism, drive assembly, battery, and controllers"
+        ],
+        "decisive_step": "Fabrication of the upper frame and lifting subassembly, combined with final electro-mechanical assembly, software loading, and calibration in South Korea",
+        "confidence": 0.95,
+        "reasoning": "Similar to N333646 and N334276, origin is conferred where the majority of major structural and functional subassemblies are fabricated and integrated. While the lower chassis is from China, South Korea produces the complex upper frame, shear lifting mechanism, drive assembly, battery, and controllers. Welding the upper frame from raw metal and integrating the Chinese chassis with South Korean propulsion, lifting, and control systems, followed by software loading and calibration, substantially transforms the components into an AGV in South Korea.",
+        "cited_rulings": [
+          "N333646",
+          "N334276"
+        ],
+        "precedents": [
+          "H327997",
+          "N329847",
+          "N330771",
+          "N333646",
+          "N334276"
+        ],
+        "trace": {
+          "llm_provider": "litellm",
+          "model_id": "gemini-4-argon",
+          "requested_model": "gemini-4-argon",
+          "prompt_version": "engine-v1",
+          "input_tokens": 2734,
+          "output_tokens": 256,
+          "latency_ms": 8716
+        }
+      },
+      "verdict": {
+        "precedent_supported": true,
+        "supporting_ruling": "N334276",
+        "confidence": 0.9,
+        "reasoning": "In Variant A, both major structural subassemblies—the lower frame (chassis) and the upper frame with roller support and shear lifting mechanism—are produced in China, imparting the vehicle's essential character despite final assembly in South Korea with Korean drive, battery, and controller components. Consistent with N334276 (electrically propelled scissor lifts) and N333646 (hydraulic floor jacks), where origin follows the fabrication (cutting, forming, welding) of the primary structural and lifting subassemblies, moving the welding and fabrication of the upper frame and shear lifting mechanism to South Korea (alongside the Korean drive, battery, controllers, and final assembly) shifts origin to South Korea.",
+        "trail": [
+          {
+            "tool": "search",
+            "query": "automated guided vehicle frame chassis lifting China Korea",
+            "rulings": [
+              "N333646",
+              "N334276",
+              "N332914",
+              "N330075",
+              "H327997",
+              "N335654",
+              "N332816",
+              "H322161"
+            ]
+          },
+          {
+            "tool": "search",
+            "query": "forklift pallet jack lifting mechanism frame chassis origin China",
+            "rulings": [
+              "N333646",
+              "N334276",
+              "N332914",
+              "N335654",
+              "N332853",
+              "N335242",
+              "N334283",
+              "N333849"
+            ]
+          },
+          {
+            "tool": "search",
+            "query": "automated guided vehicle origin frame assembly",
+            "rulings": [
+              "H322161",
+              "N333646",
+              "N333849",
+              "N335654",
+              "N330075",
+              "N329943",
+              "H330647",
+              "N334104"
+            ]
+          },
+          {
+            "tool": "search",
+            "query": "\"chassis\" \"frame\" \"lifting\" OR \"scissor\" OR \"vehicle\" origin China",
+            "rulings": [
+              "N334276",
+              "N333646",
+              "N332914",
+              "N333179",
+              "N330057",
+              "N335654",
+              "N332816",
+              "N333849"
+            ]
+          },
+          {
+            "tool": "read",
+            "query": "N333646",
+            "rulings": [
+              "N333646"
+            ]
+          },
+          {
+            "tool": "read",
+            "query": "N334276",
+            "rulings": [
+              "N334276"
+            ]
+          }
+        ],
+        "trace": {
+          "llm_provider": "litellm",
+          "model_id": "gemini-4-argon",
+          "prompt_version": "verifier-v2+known-a",
+          "input_tokens": 8997,
+          "output_tokens": 1482,
+          "latency_ms": 0
+        }
+      },
+      "duty_effect_per_year": 250000,
+      "added_cost_per_year": 25000,
+      "net_per_year": 225000,
+      "net_priced": true,
+      "shown": false,
+      "rejection_reason": "precedent-supported but verifier confidence 0.90 is below 0.92",
+      "rejection_kind": "below_confidence_bar"
+    },
+    {
+      "move": [
+        {
+          "group": "chassis_frame_fab",
+          "to_plant": "kr"
+        }
+      ],
+      "description": "Move the chassis and frame to South Korea",
+      "variant_facts": "The merchandise under consideration is a Automated guided vehicle for electrode rolls. A self-navigating vehicle with a lifting mechanism that raises a feeder assembly to load anode and cathode rolls in a battery plant. The Automated guided vehicle for electrode rolls is assembled in South Korea using components sourced from South Korea and China.\n\nThe lower frame assembly (chassis) with drive frame components and drive assembly, battery, casters and controllers are produced in South Korea. The upper frame assembly with roller support and shear lifting mechanism are sourced from China. \n\nIn South Korea, the lower frame assembly (chassis) with drive frame components will be produced in-house: cut, weld and polish metal plates into the chassis and fit the drive frame components.\n\nFinal assembly in South Korea: install the drive assembly, battery, controllers, cameras, sensors and wiring, join the frames, fit the cover, load software, calibrate and test.\n",
+      "prediction": {
+        "origin_country": "South Korea",
+        "key_factors": [
+          "Lower frame assembly (chassis), drive assembly, controllers, and final integration"
+        ],
+        "decisive_step": "Fabrication of the lower chassis and final assembly with Korean drive, battery, and control systems in South Korea",
+        "confidence": 0.95,
+        "reasoning": "Similar to N333646 and N334276, where the origin of lifting equipment was determined by the fabrication of major structural subassemblies and complex final integration, the AGV's core functional and structural elements—the lower chassis (cut and welded from plates), drive assembly, battery, and controllers—are produced in South Korea. Combining the Chinese upper lifting frame with these dominant Korean assemblies, along with wiring, software loading, and calibration in South Korea, substantially transforms the components into a finished AGV of South Korean origin.",
+        "cited_rulings": [
+          "N333646",
+          "N334276"
+        ],
+        "precedents": [
+          "H327997",
+          "N329847",
+          "N333646",
+          "N334276",
+          "N336263"
+        ],
+        "trace": {
+          "llm_provider": "litellm",
+          "model_id": "gemini-4-argon",
+          "requested_model": "gemini-4-argon",
+          "prompt_version": "engine-v1",
+          "input_tokens": 2709,
+          "output_tokens": 252,
+          "latency_ms": 12343
+        }
+      },
+      "verdict": {
+        "precedent_supported": true,
+        "supporting_ruling": "N334276",
+        "confidence": 0.9,
+        "reasoning": "In Variant A, both the lower frame (chassis) and upper frame with lifting mechanism are made in China, so China imparts the structural essence. In Variant B, manufacturing of the lower frame assembly (chassis)—cutting, welding, and polishing metal plates and fitting drive frame components—moves to South Korea, where the drive assembly, battery, casters, controllers, and final assembly also occur. As held in N334276 (electric scissor lifts) and N333646 (hydraulic lifting jacks), fabricating the main structural chassis in the country of final assembly and key operational subassemblies shifts the country of origin to South Korea.",
+        "trail": [
+          {
+            "tool": "search",
+            "query": "lifting mechanism vehicle chassis frame origin Korea China",
+            "rulings": [
+              "N333646",
+              "N335654",
+              "N334276",
+              "N332914",
+              "N330075",
+              "H327997",
+              "N333410",
+              "N335671"
+            ]
+          },
+          {
+            "tool": "search",
+            "query": "automated guided vehicle origin frame chassis",
+            "rulings": [
+              "N333646",
+              "N334276",
+              "N335654",
+              "N332816",
+              "N332914",
+              "H322161",
+              "N333849",
+              "N334104"
+            ]
+          },
+          {
+            "tool": "search",
+            "query": "scissor lift pallet jack forklift chassis frame origin",
+            "rulings": [
+              "N333646",
+              "N334276",
+              "N332914",
+              "N333179",
+              "N332853",
+              "N330057",
+              "N333849",
+              "N326416"
+            ]
+          },
+          {
+            "tool": "search",
+            "query": "automated guided vehicle AGV origin",
+            "rulings": [
+              "H322161",
+              "N334104",
+              "N330075",
+              "H329175",
+              "H325936",
+              "N333453",
+              "N335573",
+              "N335537"
+            ]
+          },
+          {
+            "tool": "read",
+            "query": "N333646",
+            "rulings": [
+              "N333646"
+            ]
+          },
+          {
+            "tool": "read",
+            "query": "N334276",
+            "rulings": [
+              "N334276"
+            ]
+          }
+        ],
+        "trace": {
+          "llm_provider": "litellm",
+          "model_id": "gemini-4-argon",
+          "prompt_version": "verifier-v2+known-a",
+          "input_tokens": 13660,
+          "output_tokens": 416,
+          "latency_ms": 0
+        }
+      },
+      "duty_effect_per_year": 250000,
+      "added_cost_per_year": 30000,
+      "net_per_year": 220000,
+      "net_priced": true,
+      "shown": false,
+      "rejection_reason": "precedent-supported but verifier confidence 0.90 is below 0.92",
+      "rejection_kind": "below_confidence_bar"
+    }
+  ],
+  "stats": {
+    "moves_searched": 3,
+    "engine_calls": 4,
+    "verifier_runs": 3,
+    "verifier_cached": 0,
+    "verifier_model_calls": 10,
+    "verifier_tool_calls": 18,
+    "input_tokens": 42237,
+    "output_tokens": 3212,
+    "engine_input_tokens": 10879,
+    "engine_output_tokens": 948,
+    "verifier_input_tokens": 31358,
+    "verifier_output_tokens": 2264,
+    "wall_seconds": 53.121363875
+  },
+  "economics_illustrative": true,
+  "duty_rates_note": "Illustrative placeholder, not a sourced rate.",
+  "template_versions": {
+    "offroad_vehicles_machinery": "1"
+  },
+  "ranking": {
+    "rule": "tier_then_net",
+    "bar": 0.92,
+    "clear_from": 0.93
+  },
+  "llm_provider": "litellm",
+  "verifier_search": "local",
+  "cost_usd_promo": 0.116594,
+  "cost_usd_list": 0.233188,
+  "gateway_cost_usd": 0.11087880000000001,
+  "verifier_config": "prompt=v2 panel=off votes=1 near_miss=false follow=false bar=0.92",
+  "git_revision": "145a991365bbe6882297a787dcacd02d1b1bf966",
+  "time": "2026-11-22T18:00:38+08:00"
+}

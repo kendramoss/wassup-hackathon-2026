@@ -1,0 +1,249 @@
+{
+  "case_id": "paper-napkins-2024",
+  "target": "China",
+  "family": "paper_tissue_products",
+  "baseline": {
+    "move": [],
+    "description": "No change: keep the current setup",
+    "variant_facts": "The merchandise under consideration is a Paper napkins. Packages of tissue paper napkins in several sizes and folds, converted from parent rolls of 12-22 gsm tissue. The Paper napkins is assembled in China using components sourced from Indonesia.\n\nThe parent rolls of tissue paper are produced in Indonesia. \n\nFinal assembly in China: emboss, cut to size, fold and package the napkins.\n",
+    "prediction": {
+      "origin_country": "Indonesia",
+      "key_factors": [
+        "Parent rolls of tissue paper"
+      ],
+      "decisive_step": "Manufacturing of the jumbo parent rolls of tissue paper in Indonesia",
+      "confidence": 0.95,
+      "reasoning": "Consistent with CBP precedent N340077 and N333041, the essential character of paper napkins and sanitary tissue products is imparted by the jumbo parent rolls of tissue paper. The production of the parent rolls in Indonesia establishes the fundamental physical properties and absorbency of the paper. The subsequent converting operations in China—embossing, cutting to size, folding, and packaging—are minor finishing operations that do not result in a substantial transformation. Therefore, the country of origin is Indonesia.",
+      "cited_rulings": [
+        "N340077",
+        "N333041"
+      ],
+      "precedents": [
+        "N333041",
+        "N333961",
+        "N335200",
+        "N337356",
+        "N340077"
+      ],
+      "trace": {
+        "llm_provider": "litellm",
+        "model_id": "gemini-4-argon",
+        "requested_model": "gemini-4-argon",
+        "prompt_version": "engine-v1",
+        "input_tokens": 2420,
+        "output_tokens": 200,
+        "latency_ms": 10171
+      }
+    },
+    "duty_effect_per_year": 0,
+    "added_cost_per_year": 0,
+    "net_per_year": 0,
+    "shown": false
+  },
+  "current_origin": {
+    "country": "Indonesia",
+    "ruling": "N341898"
+  },
+  "plans": [
+    {
+      "move": [
+        {
+          "group": "parent_roll_production",
+          "to_plant": "cn"
+        }
+      ],
+      "description": "Move the parent rolls to China",
+      "variant_facts": "The merchandise under consideration is a Paper napkins. Packages of tissue paper napkins in several sizes and folds, converted from parent rolls of 12-22 gsm tissue. The Paper napkins is assembled in China using components sourced from China.\n\nThe parent rolls of tissue paper are produced in China. \n\nIn China, the parent rolls of tissue paper will be produced in-house: make the tissue paper and wind it into parent rolls.\n\nFinal assembly in China: emboss, cut to size, fold and package the napkins.\n",
+      "prediction": {
+        "origin_country": "China",
+        "key_factors": [
+          "Parent rolls of tissue paper"
+        ],
+        "decisive_step": "Production of the tissue paper parent rolls and conversion into napkins in China",
+        "confidence": 0.99,
+        "reasoning": "Consistent with CBP rulings N340077 and N333041, the essential character of tissue paper products (such as paper napkins) is imparted by the manufacturing of the jumbo/parent rolls of tissue paper, while subsequent converting operations (embossing, cutting to size, folding, and packaging) do not result in a substantial transformation. Here, both the production of the parent rolls and the final conversion into packaged napkins occur entirely in China, making China the country of origin.",
+        "cited_rulings": [
+          "N340077",
+          "N333041"
+        ],
+        "precedents": [
+          "N330132",
+          "N333041",
+          "N333961",
+          "N336445",
+          "N340077"
+        ],
+        "trace": {
+          "llm_provider": "litellm",
+          "model_id": "gemini-4-argon",
+          "requested_model": "gemini-4-argon",
+          "prompt_version": "engine-v1",
+          "input_tokens": 2477,
+          "output_tokens": 414,
+          "latency_ms": 10748
+        }
+      },
+      "verdict": {
+        "precedent_supported": true,
+        "supporting_ruling": "N340077",
+        "confidence": 0.98,
+        "reasoning": "In N340077 (and N333041), CBP considered paper napkins and tissue products converted in China (via embossing, cutting to size, folding, and packaging) from parent rolls of tissue paper manufactured in Indonesia. CBP held that the converting operations in China do not constitute a substantial transformation and that the country of origin is determined by where the parent rolls of tissue paper are milled/produced (Indonesia in Variant A). In Variant B, because the tissue paper is made and wound into parent rolls in China and also converted in China, the country of origin changes to China.",
+        "trail": [
+          {
+            "tool": "search",
+            "query": "paper napkins parent rolls tissue embossing cutting folding",
+            "rulings": [
+              "N340077",
+              "N339156",
+              "N333961",
+              "N334928",
+              "H335509",
+              "N330132",
+              "N341007",
+              "N333041"
+            ]
+          },
+          {
+            "tool": "search",
+            "query": "tissue paper parent rolls origin cutting folding",
+            "rulings": [
+              "N339156",
+              "N340077",
+              "N333961",
+              "N334928",
+              "N330132",
+              "N341007",
+              "N333041",
+              "N336815"
+            ]
+          },
+          {
+            "tool": "read",
+            "query": "N333041",
+            "rulings": [
+              "N333041"
+            ]
+          },
+          {
+            "tool": "read",
+            "query": "N340077",
+            "rulings": [
+              "N340077"
+            ]
+          },
+          {
+            "tool": "search",
+            "query": "napkins parent roll converting embossing folding country of origin China",
+            "rulings": [
+              "N340077",
+              "N336815",
+              "H335509",
+              "N334762",
+              "H326590",
+              "N337718",
+              "N336445",
+              "N333330"
+            ]
+          },
+          {
+            "tool": "read",
+            "query": "N333961",
+            "rulings": [
+              "N333961"
+            ]
+          }
+        ],
+        "trace": {
+          "llm_provider": "litellm",
+          "model_id": "gemini-4-argon",
+          "prompt_version": "verifier-v2+known-a",
+          "input_tokens": 12603,
+          "output_tokens": 355,
+          "latency_ms": 0
+        }
+      },
+      "duty_effect_per_year": -250000,
+      "added_cost_per_year": 30000,
+      "net_per_year": -280000,
+      "net_priced": true,
+      "shown": true,
+      "tier": "clear_margin",
+      "parts_moved": 1
+    }
+  ],
+  "rejected": [
+    {
+      "move": [],
+      "description": "No change: keep the current setup",
+      "variant_facts": "The merchandise under consideration is a Paper napkins. Packages of tissue paper napkins in several sizes and folds, converted from parent rolls of 12-22 gsm tissue. The Paper napkins is assembled in China using components sourced from Indonesia.\n\nThe parent rolls of tissue paper are produced in Indonesia. \n\nFinal assembly in China: emboss, cut to size, fold and package the napkins.\n",
+      "prediction": {
+        "origin_country": "Indonesia",
+        "key_factors": [
+          "Parent rolls of tissue paper"
+        ],
+        "decisive_step": "Manufacturing of the jumbo parent rolls of tissue paper in Indonesia",
+        "confidence": 0.95,
+        "reasoning": "Consistent with CBP precedent N340077 and N333041, the essential character of paper napkins and sanitary tissue products is imparted by the jumbo parent rolls of tissue paper. The production of the parent rolls in Indonesia establishes the fundamental physical properties and absorbency of the paper. The subsequent converting operations in China—embossing, cutting to size, folding, and packaging—are minor finishing operations that do not result in a substantial transformation. Therefore, the country of origin is Indonesia.",
+        "cited_rulings": [
+          "N340077",
+          "N333041"
+        ],
+        "precedents": [
+          "N333041",
+          "N333961",
+          "N335200",
+          "N337356",
+          "N340077"
+        ],
+        "trace": {
+          "llm_provider": "litellm",
+          "model_id": "gemini-4-argon",
+          "requested_model": "gemini-4-argon",
+          "prompt_version": "engine-v1",
+          "input_tokens": 2420,
+          "output_tokens": 200,
+          "latency_ms": 10171
+        }
+      },
+      "duty_effect_per_year": 0,
+      "added_cost_per_year": 0,
+      "net_per_year": 0,
+      "shown": false,
+      "rejection_reason": "current setup: CBP held Indonesia (N341898); engine predicts Indonesia",
+      "rejection_kind": "current_setup"
+    }
+  ],
+  "stats": {
+    "moves_searched": 1,
+    "engine_calls": 2,
+    "verifier_runs": 1,
+    "verifier_cached": 0,
+    "verifier_model_calls": 4,
+    "verifier_tool_calls": 6,
+    "input_tokens": 17500,
+    "output_tokens": 969,
+    "engine_input_tokens": 4897,
+    "engine_output_tokens": 614,
+    "verifier_input_tokens": 12603,
+    "verifier_output_tokens": 355,
+    "wall_seconds": 32.243506666
+  },
+  "economics_illustrative": true,
+  "duty_rates_note": "Illustrative placeholder, not a sourced rate.",
+  "template_versions": {
+    "paper_tissue_products": "1"
+  },
+  "ranking": {
+    "rule": "tier_then_net",
+    "bar": 0.92,
+    "clear_from": 0.93
+  },
+  "llm_provider": "litellm",
+  "verifier_search": "local",
+  "cost_usd_promo": 0.04469,
+  "cost_usd_list": 0.08938,
+  "gateway_cost_usd": 0.044689999999999994,
+  "verifier_config": "prompt=v2 panel=off votes=1 near_miss=false follow=false bar=0.92",
+  "git_revision": "145a991365bbe6882297a787dcacd02d1b1bf966",
+  "time": "2026-11-22T18:00:17+08:00"
+}
