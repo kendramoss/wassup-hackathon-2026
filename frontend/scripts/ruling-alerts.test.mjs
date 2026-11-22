@@ -34,7 +34,7 @@ test("list badge", () => {
 });
 
 test("D531: the badge counts changes that bear on the answer, and the line says whether a re-check is still recommended", () => {
-  assert.deepEqual(badgeText({ final: 2, proposed: 0, touches_answer: 1 }), { text: "2 cited rulings revoked or modified, 1 bearing on the answer", attention: true });
+  assert.deepEqual(badgeText({ final: 2, proposed: 0, touches_answer: 1 }), { text: "2 cited rulings revoked or modified, 1 bearing on the answer or a plan", attention: true });
   assert.equal(recheckWords({ relevance: "not_answer" }), "Re-check still recommended.");
   assert.equal(recheckWords({ relevance: "holding_unchanged" }), "Re-check still recommended.");
   assert.equal(recheckWords({ relevance: "touches_answer" }), "Re-check recommended.");

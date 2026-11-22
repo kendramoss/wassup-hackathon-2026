@@ -15,13 +15,16 @@ export type RulingAlertItem = {
   bulletin?: string;
   url?: string;
   note: string;
-  // D531: whether the change bears on the case's answer, from the origins
-  // the changed and changing rulings hold (shipped labels) and the answer.
+  // D531, D561: whether the change bears on what the case relies on the
+  // ruling for (the answer, a shown plan's target, the current setup's CBP
+  // holding; relevance_role names which), from the origins the changed and
+  // changing rulings hold (shipped labels).
   held_before?: string;
   held_after?: string;
   answer?: string;
   relevance?: "touches_answer" | "not_answer" | "holding_unchanged" | "unknown";
   relevance_note?: string;
+  relevance_role?: "cited" | "plan_support" | "current_setup" | "read";
 };
 
 export type RulingAlertCounts = { final: number; proposed: number; read_only?: number; touches_answer?: number };
@@ -62,12 +65,14 @@ export function alertTone(ra: RulingAlerts | null | undefined): "attention" | "c
   return ra.items.some((a) => relied(a) && a.status === "final") ? "attention" : "calm";
 }
 
-// The cases-list badge, e.g. "1 cited ruling revoked or modified".
+// The cases-list badge, e.g. "1 cited ruling revoked or modified". touches_answer
+// counts changes that bear on what the case relies on the ruling for: the
+// answer, a shown plan's target or the current setup's holding (D561).
 export function badgeText(n: RulingAlertCounts | null | undefined): { text: string; attention: boolean } | null {
   if (!n || (!n.final && !n.proposed)) return null;
   if (n.final) {
     const base = `${n.final} cited ruling${n.final === 1 ? "" : "s"} revoked or modified`;
-    return { text: n.touches_answer ? `${base}, ${n.touches_answer} bearing on the answer` : base, attention: true };
+    return { text: n.touches_answer ? `${base}, ${n.touches_answer} bearing on the answer or a plan` : base, attention: true };
   }
   return { text: `${n.proposed} cited ruling${n.proposed === 1 ? "" : "s"}: change proposed`, attention: false };
 }

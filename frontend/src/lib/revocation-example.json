@@ -47,7 +47,8 @@
     "held_after": "Taiwan",
     "answer": "Vietnam",
     "relevance": "not_answer",
-    "relevance_note": "H344999 modified N344694, and the origin held moved from China to Taiwan. This case's answer was Vietnam, so the change does not touch the answer directly."
+    "relevance_note": "H344999 modified N344694, and the origin held moved from China to Taiwan. This case's answer was Vietnam, so the change does not touch the answer directly.",
+    "relevance_role": "cited"
    }
   ]
  },
