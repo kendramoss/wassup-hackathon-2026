@@ -8,7 +8,7 @@ All `file:line` anchors are at commit `c0d3115` (the base of this change). The l
 
 | Question | Answer |
 |---|---|
-| Which jurisdiction? | United States only: the U.S. Customs and Border Protection (CBP) country-of-origin question for non-preferential purposes, under four regimes (section 2). One other jurisdiction is encoded as a rules check only: Canada's marking rules (SOR/94-23, D720-D725), with no accuracy figure. Since D680 every case names its market; a Canadian case gets that rules check from its product codes and always goes to review; a case for any other market gets no prediction and goes to review (section 3). |
+| Which jurisdiction? | United States (CBP) country-of-origin for non-preferential purposes, four regimes (section 2). Canada: marking rules check only (SOR/94-23, D720–D725), no accuracy figure; Canadian cases run that check from codes and go to review. Japan: not available yet in the product (corpus/engine work in progress; no live Japan origin checks). Other markets: no prediction; cases go to review (section 3). |
 | Which products does the planner cover? | 26 families with templates (section 4): three earlier ones, eleven added from CBP precedent (ten in D138, one in D212), six written from Part 102 marking rulings (D580) and six picked from rulings with no template in either regime (D660). |
 | EU Binding Origin Information (BOI) | Unsupported. Deferred (section 7). |
 | USMCA regional value content (RVC) and any preferential-origin qualification | Unsupported. Deferred (section 7). One exception is built: an RCEP rules check (`POST /v1/rcep/check`, D690), deterministic, separate from every origin answer, not reviewed by a qualified professional and not yet scored on rulings (D691). |
