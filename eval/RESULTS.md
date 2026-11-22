@@ -792,3 +792,15 @@ Total $0.97 promo / $1.95 list. The engine's view of the current setup disagreed
 - 57 moves: 25 decided (22 shift to the target, 3 give another country) in 14 of 23 searches; 32 undetermined (24 a fact the codes cannot give, 7 the de minimis value, 1 out of scope).
 - Decided moves with a precedent check: 21 of 23 agree; 2 flagged (N354220, precedent supports moving the machining to Vietnam, the rule gives China because the tool is finished there; both below the plan bar). Shown plans: 15 of 19 decided, all 15 shift. Engine: 20 of 25 agree. Current setup: 11 of 23 decided, 4 give CBP's held origin.
 - `tariffshift/plans/moves-dev.jsonl`, `tariffshift/plans/summary.json`; `cd backend && go run ./cmd/tariffshift plans-eval -check` (in `make reproduce`). No RUNLOG line: nothing ran against a model.
+
+## ADK agent evaluation, 12 products (gateway agent model, live MCP, 22 Nov; D450, D451)
+- The agent in `examples/adk-agent`, unchanged, on Gemini 3.8 Flash through the gateway, against `https://undelabs.dev/mcp` anonymously; products a01–a12 of `agent/products.jsonl` (development-split rulings only), one run each. Rules pre-registered in D450 (commit f84111df, authored 08:10:27 +08:00; the first run started about 08:10:48). A scripted plumbing run against a local fake server came first (no model, no cost) and is scored separately; it says nothing about the agent.
+
+| Run | Runs | Passed all | Order | Args | Origin stated | Cites a tool ruling | Invented rulings | Disclaimer | Agent cost | Wall time, median |
+|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|
+| live-gemini-3.8-flash-undelabs | 12 | 10 | 11 | 11 | 12 | 12 | 0 | 12 | $0.4722 | 313 s |
+| plumbing-scripted-fake | 14 | 0 | 14 | 0 | 14 | 0 | 0 | 14 | $0 | 0.1 s |
+
+- Misses: a06 (a predict call refused by input validation, then retried: no second case, but the rule counts calls) and a03 (a current-setup draft without `plan_index` after the plan search found no plan: allowed by the tool, not by the rule). Hand reading: a03's answer claims a move to Vietnam would work although the plan search supported none; a04 and a10 drafted twice (plan_index 1, then 0).
+- `predict_origin` agreed with CBP 12/12, which is not accuracy: each product's own ruling is in the precedent pool and was retrieved in all 12.
+- Rows: `agent/results/`. `python3 -I -B eval/agent/score.py . --check` recomputes `agent/summary.json` and `agent/SUMMARY.md` (in `make reproduce`). RUNLOG `adk-agent-eval-live`.

@@ -602,3 +602,38 @@ Source: `eval/results/repeatability-heldout-litellm.json`, built by `python3 -I 
 **What it shows.** The rule decides about four in ten moves here, and where it decides it mostly agrees with the precedent check. That is weaker evidence than it looks: 9 of the 22 shifts hold because the move puts every part in the target, the part codes are unverified suggestions, and these are substantial-transformation cases, where Part 102 is not the test. The two disagreements are real and useful: moving the machining of N354220's survival tool to Vietnam has precedent support, but the tool is still finished in China, so the rule gives China. On the current setups the rule gives CBP's held origin in only 4 of 11, which is the known difference between the tariff-shift and substantial-transformation tests.
 
 **Not done.** No Part 102 plan search with part codes exists to score, and no move here has a later CBP ruling on the changed setup, so agreement with CBP on a move is not measured (0). Source: `eval/tariffshift/plans/summary.json` and `moves-dev.jsonl`, recomputed by `cd backend && go run ./cmd/tariffshift plans-eval -check` (in `make reproduce`). Cost $0.
+
+## 12. Agent evaluation: the ADK agent on 12 products (22 Nov 2026, D450, D451)
+
+**What it is.** The Google ADK agent in [`examples/adk-agent`](../examples/adk-agent/) works one case through Unde's MCP server: extract the product, predict the origin, plan moves to a target country, draft a ruling request for a broker. Before this it had run once, on one product (D391, D422). This scores it on twelve.
+
+**How it was tested.** Rules written first, in D450 (committed before the scored run). The set, `eval/agent/products.jsonl`, has 14 products, each taken from a development-split CBP ruling (Jul–Dec 2025), never a held-out one; the scorer fails if one is held out. Each has a short description written by hand from the ruling's facts, a product family, a target country and CBP's held origin. Four descriptions name no plant in the target country, to test whether the agent adds one as its instruction says. Products a01–a12 were run live: the agent unchanged, Gemini 3.8 Flash through an OpenAI-compatible LiteLLM gateway to Gemini, against `https://undelabs.dev/mcp` anonymously, one run each, three at a time. Each run made one anonymous case and one plan search. Before that, a scripted stand-in for the model ran all 14 against a local server in fake mode, to test the harness and the scorer at no cost (`plumbing-scripted-fake`; it measures nothing about the agent). `examples/adk-agent/run_eval.py` runs one product and keeps the tool calls, their arguments (access key replaced), each result's text and the ruling numbers it contains, and the final answer. `eval/agent/score.py` scores the rows offline.
+
+| Check (D450) | Live run, 12 products |
+|---|---:|
+| Finished with an answer | 12/12 |
+| Tool order correct | 11/12 |
+| Arguments valid | 11/12 |
+| States the origin `predict_origin` returned | 12/12 |
+| Cites a ruling the tools returned | 12/12 |
+| Names a ruling no tool returned | 0/12 |
+| "Not a ruling" line, word for word | 12/12 |
+| Adds a target-country plant when none is named | 4/4 |
+| Passed every check | 10/12 |
+| Agent model cost, gateway-reported | $0.4722 in all, $0.0394 a run on average, $0.0472 at most |
+| Wall time a run | median 313 s, 113 to 396 s |
+
+**The two failures.** Both are the rules applied as written.
+- a06 (tool order): the first `predict_origin` call was refused by the tool's input check (an operation name over the length limit), so no case was made; the agent shortened it and called again. The rule counts calls, so a second call fails it. Its reason, a second case, did not happen.
+- a03 (arguments): the plan search found no supported plan to Vietnam, and the agent then drafted the request for the current setup, without `plan_index`. The tool allows that ("omit for the current setup"); the rule did not.
+
+**What else we saw, reading every answer.**
+- Every answer restated the predicted origin and its confidence as the tool gave them, including the one case the engine sent to review (a09, calibrated 60%) and the one with no calibrated value (a03).
+- No ruling number in an answer was missing from the tool results. The agent does describe rulings in its own words ("addressed identical facts", "CBP consistently holds"); those descriptions were not checked against the rulings.
+- a03: the plan search supported no move to Vietnam, yet the answer says moving the board assembly, firmware loading and final assembly to Vietnam would make Vietnam the origin, citing N355175. That is the agent's inference, not a tool result.
+- a04 and a10 drafted the request twice: first with `plan_index` 1, then 0. The tool's description does not say the index starts at 0, while the plan summary numbers plans from 1. a02's first plan call failed on the server's side at about 300 s and the retry with the same key answered in under a second (the D422 pattern).
+- The agent passes on what the tools say, errors included: a12's suggested part codes put the centre bar under heading 1704 (sugar confectionery) and the CV boots under 6401 (footwear). The answer labels them unverified but does not flag them.
+
+**Not an accuracy figure.** `predict_origin` agreed with CBP on all 12, but each product comes from a ruling that is in the precedent pool. The engine retrieved the product's own ruling in all 12 runs and the agent named it in all 12 answers. Engine accuracy is the held-out rows in §1–§6.
+
+**Not done.** One run per product, so nothing here says how often a run repeats. The agent's instruction was not changed after the run. Products a13 and a14 ran only in the plumbing run. The tools' own model calls ran on Unde's side and are not in the cost. Source: `eval/agent/summary.json` and `eval/agent/SUMMARY.md`, recomputed by `python3 -I -B eval/agent/score.py . --check` (in `make reproduce`) from `eval/agent/results/*.jsonl`.

@@ -1,0 +1,3 @@
+{
+ "note": "Plumbing only: a scripted stand-in for the model (no model, no cost) against a local server with LLM_PROVIDER=fake. It tests the harness and this scorer, not the agent. The fake server's extract returns an empty draft, so the script sends a committed fixture product (the heat gun) to predict_origin; the fake plan search shows no plans, and the script still calls export, which fails."
+}

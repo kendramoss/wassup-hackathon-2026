@@ -1,0 +1,1156 @@
+{
+ "rules": "docs/DECISIONS.md D450",
+ "products": 14,
+ "runs": {
+  "live-gemini-3.8-flash-undelabs": {
+   "note": "Scored run (D450): the agent from examples/adk-agent, unchanged, on Gemini 3.8 Flash through an OpenAI-compatible LiteLLM gateway to Gemini, against https://undelabs.dev/mcp anonymously, on products a01-a12, one run each, three at a time, 22 Nov 2026 08:10-08:35 +08:00. Each run made one anonymous case and one plan search; the tools' own model calls ran on Unde's side and are not in the cost.",
+   "file": "eval/agent/results/live-gemini-3.8-flash-undelabs.jsonl",
+   "aggregate": {
+    "runs": 12,
+    "completed": 12,
+    "order_ok": 11,
+    "args_ok": 11,
+    "origin_consistent": [
+     12,
+     12
+    ],
+    "cites_tool_ruling": 12,
+    "runs_with_invented_rulings": 0,
+    "disclaimer": 12,
+    "disclaimer_lenient": 12,
+    "target_plant_added": [
+     4,
+     4
+    ],
+    "pass_all": 10,
+    "gold_agree": [
+     12,
+     12
+    ],
+    "gold_source_in_precedents": 12,
+    "gold_source_in_answer": 12,
+    "wall_s": {
+     "median": 313.0,
+     "max": 395.5,
+     "min": 113.2
+    },
+    "cost_usd": {
+     "total": 0.4722,
+     "per_run_mean": 0.0394,
+     "per_run_max": 0.0472
+    }
+   },
+   "scored": [
+    {
+     "id": "a01",
+     "run": "live",
+     "model": "gemini-3.8-flash",
+     "mcp": "https://undelabs.dev/mcp",
+     "tools": [
+      "extract_product",
+      "predict_origin",
+      "suggest_part_hts",
+      "plan_production_moves",
+      "export_ruling_request_draft"
+     ],
+     "order_ok": true,
+     "order_issues": [],
+     "args_ok": true,
+     "arg_issues": [],
+     "target_plant_added": null,
+     "predicted": "Vietnam",
+     "origin_consistent": true,
+     "cites_tool_ruling": true,
+     "invented_rulings": [],
+     "disclaimer": true,
+     "disclaimer_lenient": true,
+     "completed": true,
+     "error": null,
+     "plans_shown": 1,
+     "tool_errors": [],
+     "wall_s": 365.3,
+     "cost_usd": 0.040838,
+     "model_calls": 6,
+     "gold": {
+      "cbp": "Vietnam",
+      "predicted": "Vietnam",
+      "agree": true,
+      "source_ruling_in_precedents": true,
+      "source_ruling_in_answer": true
+     },
+     "pass": true
+    },
+    {
+     "id": "a02",
+     "run": "live",
+     "model": "gemini-3.8-flash",
+     "mcp": "https://undelabs.dev/mcp",
+     "tools": [
+      "extract_product",
+      "predict_origin",
+      "suggest_part_hts",
+      "plan_production_moves",
+      "plan_production_moves",
+      "export_ruling_request_draft"
+     ],
+     "order_ok": true,
+     "order_issues": [],
+     "args_ok": true,
+     "arg_issues": [],
+     "target_plant_added": true,
+     "predicted": "Vietnam",
+     "origin_consistent": true,
+     "cites_tool_ruling": true,
+     "invented_rulings": [],
+     "disclaimer": true,
+     "disclaimer_lenient": true,
+     "completed": true,
+     "error": null,
+     "plans_shown": 4,
+     "tool_errors": [
+      "plan_production_moves"
+     ],
+     "wall_s": 395.5,
+     "cost_usd": 0.036109,
+     "model_calls": 7,
+     "gold": {
+      "cbp": "Vietnam",
+      "predicted": "Vietnam",
+      "agree": true,
+      "source_ruling_in_precedents": true,
+      "source_ruling_in_answer": true
+     },
+     "pass": true
+    },
+    {
+     "id": "a03",
+     "run": "live",
+     "model": "gemini-3.8-flash",
+     "mcp": "https://undelabs.dev/mcp",
+     "tools": [
+      "extract_product",
+      "predict_origin",
+      "suggest_part_hts",
+      "plan_production_moves",
+      "export_ruling_request_draft"
+     ],
+     "order_ok": true,
+     "order_issues": [],
+     "args_ok": false,
+     "arg_issues": [
+      "export without move_key or plan_index"
+     ],
+     "target_plant_added": null,
+     "predicted": "Cambodia",
+     "origin_consistent": true,
+     "cites_tool_ruling": true,
+     "invented_rulings": [],
+     "disclaimer": true,
+     "disclaimer_lenient": true,
+     "completed": true,
+     "error": null,
+     "plans_shown": 0,
+     "tool_errors": [],
+     "wall_s": 314.6,
+     "cost_usd": 0.047202,
+     "model_calls": 6,
+     "gold": {
+      "cbp": "Cambodia",
+      "predicted": "Cambodia",
+      "agree": true,
+      "source_ruling_in_precedents": true,
+      "source_ruling_in_answer": true
+     },
+     "pass": false
+    },
+    {
+     "id": "a04",
+     "run": "live",
+     "model": "gemini-3.8-flash",
+     "mcp": "https://undelabs.dev/mcp",
+     "tools": [
+      "extract_product",
+      "predict_origin",
+      "suggest_part_hts",
+      "plan_production_moves",
+      "export_ruling_request_draft",
+      "export_ruling_request_draft"
+     ],
+     "order_ok": true,
+     "order_issues": [],
+     "args_ok": true,
+     "arg_issues": [],
+     "target_plant_added": null,
+     "predicted": "Indonesia",
+     "origin_consistent": true,
+     "cites_tool_ruling": true,
+     "invented_rulings": [],
+     "disclaimer": true,
+     "disclaimer_lenient": true,
+     "completed": true,
+     "error": null,
+     "plans_shown": 2,
+     "tool_errors": [],
+     "wall_s": 371.2,
+     "cost_usd": 0.033671,
+     "model_calls": 7,
+     "gold": {
+      "cbp": "Indonesia",
+      "predicted": "Indonesia",
+      "agree": true,
+      "source_ruling_in_precedents": true,
+      "source_ruling_in_answer": true
+     },
+     "pass": true
+    },
+    {
+     "id": "a05",
+     "run": "live",
+     "model": "gemini-3.8-flash",
+     "mcp": "https://undelabs.dev/mcp",
+     "tools": [
+      "extract_product",
+      "predict_origin",
+      "suggest_part_hts",
+      "plan_production_moves",
+      "export_ruling_request_draft"
+     ],
+     "order_ok": true,
+     "order_issues": [],
+     "args_ok": true,
+     "arg_issues": [],
+     "target_plant_added": true,
+     "predicted": "Malaysia",
+     "origin_consistent": true,
+     "cites_tool_ruling": true,
+     "invented_rulings": [],
+     "disclaimer": true,
+     "disclaimer_lenient": true,
+     "completed": true,
+     "error": null,
+     "plans_shown": 2,
+     "tool_errors": [],
+     "wall_s": 351.9,
+     "cost_usd": 0.035645,
+     "model_calls": 6,
+     "gold": {
+      "cbp": "Malaysia",
+      "predicted": "Malaysia",
+      "agree": true,
+      "source_ruling_in_precedents": true,
+      "source_ruling_in_answer": true
+     },
+     "pass": true
+    },
+    {
+     "id": "a06",
+     "run": "live",
+     "model": "gemini-3.8-flash",
+     "mcp": "https://undelabs.dev/mcp",
+     "tools": [
+      "extract_product",
+      "predict_origin",
+      "predict_origin",
+      "suggest_part_hts",
+      "plan_production_moves",
+      "export_ruling_request_draft"
+     ],
+     "order_ok": false,
+     "order_issues": [
+      "predict_origin called more than once (a second case)"
+     ],
+     "args_ok": true,
+     "arg_issues": [],
+     "target_plant_added": null,
+     "predicted": "Vietnam",
+     "origin_consistent": true,
+     "cites_tool_ruling": true,
+     "invented_rulings": [],
+     "disclaimer": true,
+     "disclaimer_lenient": true,
+     "completed": true,
+     "error": null,
+     "plans_shown": 2,
+     "tool_errors": [
+      "predict_origin"
+     ],
+     "wall_s": 311.3,
+     "cost_usd": 0.044489,
+     "model_calls": 7,
+     "gold": {
+      "cbp": "Vietnam",
+      "predicted": "Vietnam",
+      "agree": true,
+      "source_ruling_in_precedents": true,
+      "source_ruling_in_answer": true
+     },
+     "pass": false
+    },
+    {
+     "id": "a07",
+     "run": "live",
+     "model": "gemini-3.8-flash",
+     "mcp": "https://undelabs.dev/mcp",
+     "tools": [
+      "extract_product",
+      "predict_origin",
+      "suggest_part_hts",
+      "plan_production_moves",
+      "export_ruling_request_draft"
+     ],
+     "order_ok": true,
+     "order_issues": [],
+     "args_ok": true,
+     "arg_issues": [],
+     "target_plant_added": null,
+     "predicted": "Vietnam",
+     "origin_consistent": true,
+     "cites_tool_ruling": true,
+     "invented_rulings": [],
+     "disclaimer": true,
+     "disclaimer_lenient": true,
+     "completed": true,
+     "error": null,
+     "plans_shown": 1,
+     "tool_errors": [],
+     "wall_s": 113.2,
+     "cost_usd": 0.043747,
+     "model_calls": 6,
+     "gold": {
+      "cbp": "Vietnam",
+      "predicted": "Vietnam",
+      "agree": true,
+      "source_ruling_in_precedents": true,
+      "source_ruling_in_answer": true
+     },
+     "pass": true
+    },
+    {
+     "id": "a08",
+     "run": "live",
+     "model": "gemini-3.8-flash",
+     "mcp": "https://undelabs.dev/mcp",
+     "tools": [
+      "extract_product",
+      "predict_origin",
+      "suggest_part_hts",
+      "plan_production_moves",
+      "export_ruling_request_draft"
+     ],
+     "order_ok": true,
+     "order_issues": [],
+     "args_ok": true,
+     "arg_issues": [],
+     "target_plant_added": null,
+     "predicted": "Vietnam",
+     "origin_consistent": true,
+     "cites_tool_ruling": true,
+     "invented_rulings": [],
+     "disclaimer": true,
+     "disclaimer_lenient": true,
+     "completed": true,
+     "error": null,
+     "plans_shown": 1,
+     "tool_errors": [],
+     "wall_s": 262.4,
+     "cost_usd": 0.037208,
+     "model_calls": 6,
+     "gold": {
+      "cbp": "Vietnam",
+      "predicted": "Vietnam",
+      "agree": true,
+      "source_ruling_in_precedents": true,
+      "source_ruling_in_answer": true
+     },
+     "pass": true
+    },
+    {
+     "id": "a09",
+     "run": "live",
+     "model": "gemini-3.8-flash",
+     "mcp": "https://undelabs.dev/mcp",
+     "tools": [
+      "extract_product",
+      "predict_origin",
+      "suggest_part_hts",
+      "plan_production_moves",
+      "export_ruling_request_draft"
+     ],
+     "order_ok": true,
+     "order_issues": [],
+     "args_ok": true,
+     "arg_issues": [],
+     "target_plant_added": null,
+     "predicted": "Thailand",
+     "origin_consistent": true,
+     "cites_tool_ruling": true,
+     "invented_rulings": [],
+     "disclaimer": true,
+     "disclaimer_lenient": true,
+     "completed": true,
+     "error": null,
+     "plans_shown": 2,
+     "tool_errors": [],
+     "wall_s": 371.5,
+     "cost_usd": 0.032729,
+     "model_calls": 6,
+     "gold": {
+      "cbp": "Thailand",
+      "predicted": "Thailand",
+      "agree": true,
+      "source_ruling_in_precedents": true,
+      "source_ruling_in_answer": true
+     },
+     "pass": true
+    },
+    {
+     "id": "a10",
+     "run": "live",
+     "model": "gemini-3.8-flash",
+     "mcp": "https://undelabs.dev/mcp",
+     "tools": [
+      "extract_product",
+      "predict_origin",
+      "suggest_part_hts",
+      "plan_production_moves",
+      "export_ruling_request_draft",
+      "export_ruling_request_draft"
+     ],
+     "order_ok": true,
+     "order_issues": [],
+     "args_ok": true,
+     "arg_issues": [],
+     "target_plant_added": true,
+     "predicted": "Vietnam",
+     "origin_consistent": true,
+     "cites_tool_ruling": true,
+     "invented_rulings": [],
+     "disclaimer": true,
+     "disclaimer_lenient": true,
+     "completed": true,
+     "error": null,
+     "plans_shown": 4,
+     "tool_errors": [],
+     "wall_s": 285.4,
+     "cost_usd": 0.046871,
+     "model_calls": 7,
+     "gold": {
+      "cbp": "Vietnam",
+      "predicted": "Vietnam",
+      "agree": true,
+      "source_ruling_in_precedents": true,
+      "source_ruling_in_answer": true
+     },
+     "pass": true
+    },
+    {
+     "id": "a11",
+     "run": "live",
+     "model": "gemini-3.8-flash",
+     "mcp": "https://undelabs.dev/mcp",
+     "tools": [
+      "extract_product",
+      "predict_origin",
+      "suggest_part_hts",
+      "plan_production_moves",
+      "export_ruling_request_draft"
+     ],
+     "order_ok": true,
+     "order_issues": [],
+     "args_ok": true,
+     "arg_issues": [],
+     "target_plant_added": null,
+     "predicted": "Vietnam",
+     "origin_consistent": true,
+     "cites_tool_ruling": true,
+     "invented_rulings": [],
+     "disclaimer": true,
+     "disclaimer_lenient": true,
+     "completed": true,
+     "error": null,
+     "plans_shown": 4,
+     "tool_errors": [],
+     "wall_s": 160.9,
+     "cost_usd": 0.039219,
+     "model_calls": 6,
+     "gold": {
+      "cbp": "Vietnam",
+      "predicted": "Vietnam",
+      "agree": true,
+      "source_ruling_in_precedents": true,
+      "source_ruling_in_answer": true
+     },
+     "pass": true
+    },
+    {
+     "id": "a12",
+     "run": "live",
+     "model": "gemini-3.8-flash",
+     "mcp": "https://undelabs.dev/mcp",
+     "tools": [
+      "extract_product",
+      "predict_origin",
+      "suggest_part_hts",
+      "plan_production_moves",
+      "export_ruling_request_draft"
+     ],
+     "order_ok": true,
+     "order_issues": [],
+     "args_ok": true,
+     "arg_issues": [],
+     "target_plant_added": true,
+     "predicted": "Vietnam",
+     "origin_consistent": true,
+     "cites_tool_ruling": true,
+     "invented_rulings": [],
+     "disclaimer": true,
+     "disclaimer_lenient": true,
+     "completed": true,
+     "error": null,
+     "plans_shown": 2,
+     "tool_errors": [],
+     "wall_s": 247.0,
+     "cost_usd": 0.034479,
+     "model_calls": 6,
+     "gold": {
+      "cbp": "Vietnam",
+      "predicted": "Vietnam",
+      "agree": true,
+      "source_ruling_in_precedents": true,
+      "source_ruling_in_answer": true
+     },
+     "pass": true
+    }
+   ]
+  },
+  "plumbing-scripted-fake": {
+   "note": "Plumbing only: a scripted stand-in for the model (no model, no cost) against a local server with LLM_PROVIDER=fake. It tests the harness and this scorer, not the agent. The fake server's extract returns an empty draft, so the script sends a committed fixture product (the heat gun) to predict_origin; the fake plan search shows no plans, and the script still calls export, which fails.",
+   "file": "eval/agent/results/plumbing-scripted-fake.jsonl",
+   "aggregate": {
+    "runs": 14,
+    "completed": 14,
+    "order_ok": 14,
+    "args_ok": 0,
+    "origin_consistent": [
+     14,
+     14
+    ],
+    "cites_tool_ruling": 0,
+    "runs_with_invented_rulings": 0,
+    "disclaimer": 14,
+    "disclaimer_lenient": 14,
+    "target_plant_added": [
+     0,
+     4
+    ],
+    "pass_all": 0,
+    "gold_agree": [
+     0,
+     14
+    ],
+    "gold_source_in_precedents": 14,
+    "gold_source_in_answer": 0,
+    "wall_s": {
+     "median": 0.1,
+     "max": 0.1,
+     "min": 0.1
+    },
+    "cost_usd": {
+     "total": 0.0,
+     "per_run_mean": 0.0,
+     "per_run_max": 0.0
+    }
+   },
+   "scored": [
+    {
+     "id": "a01",
+     "run": "plumbing-scripted-fake",
+     "model": "scripted",
+     "mcp": "local",
+     "tools": [
+      "extract_product",
+      "predict_origin",
+      "plan_production_moves",
+      "export_ruling_request_draft"
+     ],
+     "order_ok": true,
+     "order_issues": [],
+     "args_ok": false,
+     "arg_issues": [
+      "predict without the named family"
+     ],
+     "target_plant_added": null,
+     "predicted": "China",
+     "origin_consistent": true,
+     "cites_tool_ruling": false,
+     "invented_rulings": [],
+     "disclaimer": true,
+     "disclaimer_lenient": true,
+     "completed": true,
+     "error": null,
+     "plans_shown": 0,
+     "tool_errors": [
+      "export_ruling_request_draft"
+     ],
+     "wall_s": 0.1,
+     "cost_usd": 0.0,
+     "model_calls": 0,
+     "gold": {
+      "cbp": "Vietnam",
+      "predicted": "China",
+      "agree": false,
+      "source_ruling_in_precedents": true,
+      "source_ruling_in_answer": false
+     },
+     "pass": false
+    },
+    {
+     "id": "a02",
+     "run": "plumbing-scripted-fake",
+     "model": "scripted",
+     "mcp": "local",
+     "tools": [
+      "extract_product",
+      "predict_origin",
+      "plan_production_moves",
+      "export_ruling_request_draft"
+     ],
+     "order_ok": true,
+     "order_issues": [],
+     "args_ok": false,
+     "arg_issues": [
+      "predict without the named family"
+     ],
+     "target_plant_added": false,
+     "predicted": "China",
+     "origin_consistent": true,
+     "cites_tool_ruling": false,
+     "invented_rulings": [],
+     "disclaimer": true,
+     "disclaimer_lenient": true,
+     "completed": true,
+     "error": null,
+     "plans_shown": 0,
+     "tool_errors": [
+      "export_ruling_request_draft"
+     ],
+     "wall_s": 0.1,
+     "cost_usd": 0.0,
+     "model_calls": 0,
+     "gold": {
+      "cbp": "Vietnam",
+      "predicted": "China",
+      "agree": false,
+      "source_ruling_in_precedents": true,
+      "source_ruling_in_answer": false
+     },
+     "pass": false
+    },
+    {
+     "id": "a03",
+     "run": "plumbing-scripted-fake",
+     "model": "scripted",
+     "mcp": "local",
+     "tools": [
+      "extract_product",
+      "predict_origin",
+      "plan_production_moves",
+      "export_ruling_request_draft"
+     ],
+     "order_ok": true,
+     "order_issues": [],
+     "args_ok": false,
+     "arg_issues": [
+      "predict without the named family"
+     ],
+     "target_plant_added": null,
+     "predicted": "China",
+     "origin_consistent": true,
+     "cites_tool_ruling": false,
+     "invented_rulings": [],
+     "disclaimer": true,
+     "disclaimer_lenient": true,
+     "completed": true,
+     "error": null,
+     "plans_shown": 0,
+     "tool_errors": [
+      "export_ruling_request_draft"
+     ],
+     "wall_s": 0.1,
+     "cost_usd": 0.0,
+     "model_calls": 0,
+     "gold": {
+      "cbp": "Cambodia",
+      "predicted": "China",
+      "agree": false,
+      "source_ruling_in_precedents": true,
+      "source_ruling_in_answer": false
+     },
+     "pass": false
+    },
+    {
+     "id": "a04",
+     "run": "plumbing-scripted-fake",
+     "model": "scripted",
+     "mcp": "local",
+     "tools": [
+      "extract_product",
+      "predict_origin",
+      "plan_production_moves",
+      "export_ruling_request_draft"
+     ],
+     "order_ok": true,
+     "order_issues": [],
+     "args_ok": false,
+     "arg_issues": [
+      "predict without the named family"
+     ],
+     "target_plant_added": null,
+     "predicted": "China",
+     "origin_consistent": true,
+     "cites_tool_ruling": false,
+     "invented_rulings": [],
+     "disclaimer": true,
+     "disclaimer_lenient": true,
+     "completed": true,
+     "error": null,
+     "plans_shown": 0,
+     "tool_errors": [
+      "export_ruling_request_draft"
+     ],
+     "wall_s": 0.1,
+     "cost_usd": 0.0,
+     "model_calls": 0,
+     "gold": {
+      "cbp": "Indonesia",
+      "predicted": "China",
+      "agree": false,
+      "source_ruling_in_precedents": true,
+      "source_ruling_in_answer": false
+     },
+     "pass": false
+    },
+    {
+     "id": "a05",
+     "run": "plumbing-scripted-fake",
+     "model": "scripted",
+     "mcp": "local",
+     "tools": [
+      "extract_product",
+      "predict_origin",
+      "plan_production_moves",
+      "export_ruling_request_draft"
+     ],
+     "order_ok": true,
+     "order_issues": [],
+     "args_ok": false,
+     "arg_issues": [
+      "predict without the named family"
+     ],
+     "target_plant_added": false,
+     "predicted": "China",
+     "origin_consistent": true,
+     "cites_tool_ruling": false,
+     "invented_rulings": [],
+     "disclaimer": true,
+     "disclaimer_lenient": true,
+     "completed": true,
+     "error": null,
+     "plans_shown": 0,
+     "tool_errors": [
+      "export_ruling_request_draft"
+     ],
+     "wall_s": 0.1,
+     "cost_usd": 0.0,
+     "model_calls": 0,
+     "gold": {
+      "cbp": "Malaysia",
+      "predicted": "China",
+      "agree": false,
+      "source_ruling_in_precedents": true,
+      "source_ruling_in_answer": false
+     },
+     "pass": false
+    },
+    {
+     "id": "a06",
+     "run": "plumbing-scripted-fake",
+     "model": "scripted",
+     "mcp": "local",
+     "tools": [
+      "extract_product",
+      "predict_origin",
+      "plan_production_moves",
+      "export_ruling_request_draft"
+     ],
+     "order_ok": true,
+     "order_issues": [],
+     "args_ok": false,
+     "arg_issues": [
+      "predict without the named family"
+     ],
+     "target_plant_added": null,
+     "predicted": "China",
+     "origin_consistent": true,
+     "cites_tool_ruling": false,
+     "invented_rulings": [],
+     "disclaimer": true,
+     "disclaimer_lenient": true,
+     "completed": true,
+     "error": null,
+     "plans_shown": 0,
+     "tool_errors": [
+      "export_ruling_request_draft"
+     ],
+     "wall_s": 0.1,
+     "cost_usd": 0.0,
+     "model_calls": 0,
+     "gold": {
+      "cbp": "Vietnam",
+      "predicted": "China",
+      "agree": false,
+      "source_ruling_in_precedents": true,
+      "source_ruling_in_answer": false
+     },
+     "pass": false
+    },
+    {
+     "id": "a07",
+     "run": "plumbing-scripted-fake",
+     "model": "scripted",
+     "mcp": "local",
+     "tools": [
+      "extract_product",
+      "predict_origin",
+      "plan_production_moves",
+      "export_ruling_request_draft"
+     ],
+     "order_ok": true,
+     "order_issues": [],
+     "args_ok": false,
+     "arg_issues": [
+      "predict without the named family"
+     ],
+     "target_plant_added": null,
+     "predicted": "China",
+     "origin_consistent": true,
+     "cites_tool_ruling": false,
+     "invented_rulings": [],
+     "disclaimer": true,
+     "disclaimer_lenient": true,
+     "completed": true,
+     "error": null,
+     "plans_shown": 0,
+     "tool_errors": [
+      "export_ruling_request_draft"
+     ],
+     "wall_s": 0.1,
+     "cost_usd": 0.0,
+     "model_calls": 0,
+     "gold": {
+      "cbp": "Vietnam",
+      "predicted": "China",
+      "agree": false,
+      "source_ruling_in_precedents": true,
+      "source_ruling_in_answer": false
+     },
+     "pass": false
+    },
+    {
+     "id": "a08",
+     "run": "plumbing-scripted-fake",
+     "model": "scripted",
+     "mcp": "local",
+     "tools": [
+      "extract_product",
+      "predict_origin",
+      "plan_production_moves",
+      "export_ruling_request_draft"
+     ],
+     "order_ok": true,
+     "order_issues": [],
+     "args_ok": false,
+     "arg_issues": [
+      "predict without the named family"
+     ],
+     "target_plant_added": null,
+     "predicted": "China",
+     "origin_consistent": true,
+     "cites_tool_ruling": false,
+     "invented_rulings": [],
+     "disclaimer": true,
+     "disclaimer_lenient": true,
+     "completed": true,
+     "error": null,
+     "plans_shown": 0,
+     "tool_errors": [
+      "export_ruling_request_draft"
+     ],
+     "wall_s": 0.1,
+     "cost_usd": 0.0,
+     "model_calls": 0,
+     "gold": {
+      "cbp": "Vietnam",
+      "predicted": "China",
+      "agree": false,
+      "source_ruling_in_precedents": true,
+      "source_ruling_in_answer": false
+     },
+     "pass": false
+    },
+    {
+     "id": "a09",
+     "run": "plumbing-scripted-fake",
+     "model": "scripted",
+     "mcp": "local",
+     "tools": [
+      "extract_product",
+      "predict_origin",
+      "plan_production_moves",
+      "export_ruling_request_draft"
+     ],
+     "order_ok": true,
+     "order_issues": [],
+     "args_ok": false,
+     "arg_issues": [
+      "predict without the named family"
+     ],
+     "target_plant_added": null,
+     "predicted": "China",
+     "origin_consistent": true,
+     "cites_tool_ruling": false,
+     "invented_rulings": [],
+     "disclaimer": true,
+     "disclaimer_lenient": true,
+     "completed": true,
+     "error": null,
+     "plans_shown": 0,
+     "tool_errors": [
+      "export_ruling_request_draft"
+     ],
+     "wall_s": 0.1,
+     "cost_usd": 0.0,
+     "model_calls": 0,
+     "gold": {
+      "cbp": "Thailand",
+      "predicted": "China",
+      "agree": false,
+      "source_ruling_in_precedents": true,
+      "source_ruling_in_answer": false
+     },
+     "pass": false
+    },
+    {
+     "id": "a10",
+     "run": "plumbing-scripted-fake",
+     "model": "scripted",
+     "mcp": "local",
+     "tools": [
+      "extract_product",
+      "predict_origin",
+      "plan_production_moves",
+      "export_ruling_request_draft"
+     ],
+     "order_ok": true,
+     "order_issues": [],
+     "args_ok": false,
+     "arg_issues": [
+      "predict without the named family"
+     ],
+     "target_plant_added": false,
+     "predicted": "China",
+     "origin_consistent": true,
+     "cites_tool_ruling": false,
+     "invented_rulings": [],
+     "disclaimer": true,
+     "disclaimer_lenient": true,
+     "completed": true,
+     "error": null,
+     "plans_shown": 0,
+     "tool_errors": [
+      "export_ruling_request_draft"
+     ],
+     "wall_s": 0.1,
+     "cost_usd": 0.0,
+     "model_calls": 0,
+     "gold": {
+      "cbp": "Vietnam",
+      "predicted": "China",
+      "agree": false,
+      "source_ruling_in_precedents": true,
+      "source_ruling_in_answer": false
+     },
+     "pass": false
+    },
+    {
+     "id": "a11",
+     "run": "plumbing-scripted-fake",
+     "model": "scripted",
+     "mcp": "local",
+     "tools": [
+      "extract_product",
+      "predict_origin",
+      "plan_production_moves",
+      "export_ruling_request_draft"
+     ],
+     "order_ok": true,
+     "order_issues": [],
+     "args_ok": false,
+     "arg_issues": [
+      "predict without the named family"
+     ],
+     "target_plant_added": null,
+     "predicted": "China",
+     "origin_consistent": true,
+     "cites_tool_ruling": false,
+     "invented_rulings": [],
+     "disclaimer": true,
+     "disclaimer_lenient": true,
+     "completed": true,
+     "error": null,
+     "plans_shown": 0,
+     "tool_errors": [
+      "export_ruling_request_draft"
+     ],
+     "wall_s": 0.1,
+     "cost_usd": 0.0,
+     "model_calls": 0,
+     "gold": {
+      "cbp": "Vietnam",
+      "predicted": "China",
+      "agree": false,
+      "source_ruling_in_precedents": true,
+      "source_ruling_in_answer": false
+     },
+     "pass": false
+    },
+    {
+     "id": "a12",
+     "run": "plumbing-scripted-fake",
+     "model": "scripted",
+     "mcp": "local",
+     "tools": [
+      "extract_product",
+      "predict_origin",
+      "plan_production_moves",
+      "export_ruling_request_draft"
+     ],
+     "order_ok": true,
+     "order_issues": [],
+     "args_ok": false,
+     "arg_issues": [
+      "predict without the named family"
+     ],
+     "target_plant_added": false,
+     "predicted": "China",
+     "origin_consistent": true,
+     "cites_tool_ruling": false,
+     "invented_rulings": [],
+     "disclaimer": true,
+     "disclaimer_lenient": true,
+     "completed": true,
+     "error": null,
+     "plans_shown": 0,
+     "tool_errors": [
+      "export_ruling_request_draft"
+     ],
+     "wall_s": 0.1,
+     "cost_usd": 0.0,
+     "model_calls": 0,
+     "gold": {
+      "cbp": "Vietnam",
+      "predicted": "China",
+      "agree": false,
+      "source_ruling_in_precedents": true,
+      "source_ruling_in_answer": false
+     },
+     "pass": false
+    },
+    {
+     "id": "a13",
+     "run": "plumbing-scripted-fake",
+     "model": "scripted",
+     "mcp": "local",
+     "tools": [
+      "extract_product",
+      "predict_origin",
+      "plan_production_moves",
+      "export_ruling_request_draft"
+     ],
+     "order_ok": true,
+     "order_issues": [],
+     "args_ok": false,
+     "arg_issues": [
+      "predict without the named family"
+     ],
+     "target_plant_added": null,
+     "predicted": "China",
+     "origin_consistent": true,
+     "cites_tool_ruling": false,
+     "invented_rulings": [],
+     "disclaimer": true,
+     "disclaimer_lenient": true,
+     "completed": true,
+     "error": null,
+     "plans_shown": 0,
+     "tool_errors": [
+      "export_ruling_request_draft"
+     ],
+     "wall_s": 0.1,
+     "cost_usd": 0.0,
+     "model_calls": 0,
+     "gold": {
+      "cbp": "Thailand",
+      "predicted": "China",
+      "agree": false,
+      "source_ruling_in_precedents": true,
+      "source_ruling_in_answer": false
+     },
+     "pass": false
+    },
+    {
+     "id": "a14",
+     "run": "plumbing-scripted-fake",
+     "model": "scripted",
+     "mcp": "local",
+     "tools": [
+      "extract_product",
+      "predict_origin",
+      "plan_production_moves",
+      "export_ruling_request_draft"
+     ],
+     "order_ok": true,
+     "order_issues": [],
+     "args_ok": false,
+     "arg_issues": [
+      "predict without the named family"
+     ],
+     "target_plant_added": null,
+     "predicted": "China",
+     "origin_consistent": true,
+     "cites_tool_ruling": false,
+     "invented_rulings": [],
+     "disclaimer": true,
+     "disclaimer_lenient": true,
+     "completed": true,
+     "error": null,
+     "plans_shown": 0,
+     "tool_errors": [
+      "export_ruling_request_draft"
+     ],
+     "wall_s": 0.1,
+     "cost_usd": 0.0,
+     "model_calls": 0,
+     "gold": {
+      "cbp": "Vietnam",
+      "predicted": "China",
+      "agree": false,
+      "source_ruling_in_precedents": true,
+      "source_ruling_in_answer": false
+     },
+     "pass": false
+    }
+   ]
+  }
+ }
+}
