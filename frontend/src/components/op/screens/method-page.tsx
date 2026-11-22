@@ -443,7 +443,9 @@ export function MethodPage() {
             later revoked or modified is never cited for a case dated after the change, and the site marks it &quot;superseded by&quot; (<D id="D320" />, <D id="D370" />). The
             map holds 144 such changes to 143 rulings: 35 read from later rulings in the corpus and 109 from final notices in 28 fetched Customs Bulletins, each
             counted from its effective date (<D id="D400" />, <D id="D401" />). 78 changes CBP has only proposed are shown beside the ruling and never block it. Before
-            the guard 23 of 13,166 committed rows had shown a changed ruling and 8 had cited one; the bulletin changes add none.
+            the guard 23 of 13,166 committed rows had shown a changed ruling and 8 had cited one; the bulletin changes add none. When CBP changes a ruling a saved
+            case relies on after the case was decided, the case and the cases list say so and offer a re-check; the saved answer is never changed (<D id="D480" />).
+            In the committed results 4 rows rely on a ruling changed on or after their case date, and none on a change that is only proposed.
           </li>
           <li>
             <b className="font-medium text-ink">The tariff-shift rule beside it.</b> When the case is routed to the Part 102 rules, or every part has an HTS code, each move

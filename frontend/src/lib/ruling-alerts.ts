@@ -1,0 +1,57 @@
+// Revocation alerts (D480): CBP changed, or proposed to change, a ruling a
+// saved case relies on. The backend works them out at read time
+// (ruling_alerts on the case, a count on each cases-list row); this file only
+// words them. A saved answer is never changed by an alert.
+
+export type RulingAlertItem = {
+  ruling: string;
+  roles: string[];
+  status: "final" | "proposed";
+  kind: "revoked" | "modified";
+  by: string;
+  date?: string;
+  in_effect?: boolean;
+  before_case?: boolean;
+  bulletin?: string;
+  url?: string;
+  note: string;
+};
+
+export type RulingAlertCounts = { final: number; proposed: number; read_only?: number };
+
+export type RulingAlerts = { counts: RulingAlertCounts; items: RulingAlertItem[]; rechecked_at?: string };
+
+export const relied = (a: RulingAlertItem) => a.roles.some((r) => r !== "read");
+
+// The role words for a sentence: "cited by this answer", "supporting a plan".
+export function roleWords(roles: string[]): string {
+  const w: string[] = [];
+  if (roles.includes("cited")) w.push("cited by this answer");
+  if (roles.includes("plan_support")) w.push("supporting a plan");
+  if (roles.includes("current_setup")) w.push("given as CBP's holding on the current setup");
+  if (!w.length) w.push("read by this answer");
+  return w.length === 1 ? w[0] : `${w.slice(0, -1).join(", ")} and ${w[w.length - 1]}`;
+}
+
+// How the change reads after the ruling's number: "was revoked by H346161 on
+// 5 May 2025", "will be modified by H314991 effective 29 Nov 2026".
+export function changeWords(a: RulingAlertItem, fmt: (iso: string) => string): string {
+  if (a.status === "proposed") return `has a proposed change: CBP proposed to ${a.kind === "revoked" ? "revoke" : "modify"} it in ${a.by}`;
+  const when = a.note.includes(" effective ") ? "effective" : "on";
+  const verb = a.in_effect ? `was ${a.kind}` : `will be ${a.kind}`;
+  return `${verb} by ${a.by} ${when} ${fmt(a.date ?? "")}`;
+}
+
+// The case page's tone: attention when a relied-on ruling has a final
+// change; calm when there are only proposals or rulings read and not cited.
+export function alertTone(ra: RulingAlerts | null | undefined): "attention" | "calm" | null {
+  if (!ra?.items?.length) return null;
+  return ra.items.some((a) => relied(a) && a.status === "final") ? "attention" : "calm";
+}
+
+// The cases-list badge, e.g. "1 cited ruling revoked or modified".
+export function badgeText(n: RulingAlertCounts | null | undefined): { text: string; attention: boolean } | null {
+  if (!n || (!n.final && !n.proposed)) return null;
+  if (n.final) return { text: `${n.final} cited ruling${n.final === 1 ? "" : "s"} revoked or modified`, attention: true };
+  return { text: `${n.proposed} cited ruling${n.proposed === 1 ? "" : "s"}: change proposed`, attention: false };
+}

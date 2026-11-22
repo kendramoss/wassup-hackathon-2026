@@ -45,6 +45,7 @@ reproduce: ## recompute every published number from committed files: no model ca
 	cd $(GO_DIR) && go run ./cmd/claimscheck
 	cd $(GO_DIR) && go run ./cmd/eval summary -check
 	cd $(GO_DIR) && go run ./cmd/corpus supersession -check
+	cd $(GO_DIR) && go run ./cmd/corpus alerts -check
 	cd $(GO_DIR) && go run ./cmd/tariffshift eval -check
 	cd $(GO_DIR) && go run ./cmd/tariffshift parts-eval -check
 	cd $(GO_DIR) && go run ./cmd/tariffshift parts-example -check

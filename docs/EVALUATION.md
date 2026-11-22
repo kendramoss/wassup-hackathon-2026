@@ -132,6 +132,24 @@ A change counts only for cases dated after the revoking ruling's date (D370). On
 - 342 plan and demo rows carry no date; none of them names any superseded ruling.
 - **Customs Bulletin changes add none (D400, D401).** The map now also holds 109 final changes read only from 28 fetched Customs Bulletins, dated by their effective date. The recount with them is the same 23 showed and 8 cited. Only one of those rulings appears in any committed row: N326416 (general pool), shown in 6 textile development rows for a case dated 11 Dec 2025. H342508 modified it effective 18 Oct 2026, after that case, so it was still CBP's position and counts for none (`bulletin_rulings_named` in the same JSON). The 78 pending proposals are never a bar and no committed row names one. The bulletins are a sample, not every issue, so this is a floor for what the bulletin would add.
 
+### 2.6 Revocation alerts on committed results (D480, D481)
+
+A saved case now says when CBP has revoked or modified a ruling it relies on (cited by the prediction, a shown plan's supporting ruling, or the current setup's ruling), and when CBP has only proposed to (built, D480). `go run ./cmd/corpus alerts` applies the same rule to the committed results, offline, as of 22 Nov 2026 (`eval/supersession/alerts.json`). No model calls.
+
+| Committed results | Count | Would show |
+|---|---:|---|
+| Result rows naming rulings | 13,107 | |
+| Relied-on ruling changed on or after the case date | 4 | the "look again" alert |
+| Relied-on ruling changed before the case date | 8 | the alert, marked as stored before the guard (the 8 of section 2.5) |
+| Relied-on ruling with a proposed change only | 0 | a calm line |
+| Only a ruling read, not cited, changed | 85 | a calm line, no list badge |
+| Stored case documents (heat-gun demo seeds and one prediction) | 0 of 7 | |
+| Demo fixtures (current-setup and recorded supporting rulings) | 0 of 10 | |
+
+- **The 4 rows** are 2 development runs each of two cases. H325607 cites N331974, which H325607 itself revoked on its own date (D370 keeps it usable that day). N356467 (case date 22 Dec 2025) cites N344694, which H344999 modified on 6 May 2026.
+- **No proposals.** None of the 78 pending proposals touches a precedent-pool ruling (D401), so no committed answer relies on one.
+- **Reading.** On committed data the alert rarely fires. It is meant for saved cases as CBP keeps publishing changes, and it can only be as complete as the map: corpus letters and 28 fetched bulletins.
+
 ## 3. What we trade off
 
 ### 3.1 Accuracy against coverage: the confidence bar

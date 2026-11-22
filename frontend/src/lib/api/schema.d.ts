@@ -640,7 +640,10 @@ export interface paths {
         };
         get?: never;
         put?: never;
-        /** Re-check every analysed case (for a scheduler; admin token required) */
+        /**
+         * Re-check every analysed case (for a scheduler; admin token required)
+         * @description Re-runs every analysed case with today's precedents (model calls, within the spend caps) and lists the cases whose origin changed. It also lists revocation alerts (D480): cases whose cited, plan-supporting or current-setup rulings CBP has revoked, modified or proposed to change, read from the stored cases and the committed supersession map. With `alerts_only=true` it returns the alerts only and re-runs nothing (no model call). Stored answers are never changed.
+         */
         post: operations["runWatch"];
         delete?: never;
         options?: never;
@@ -1064,6 +1067,49 @@ export interface components {
             demo_id?: string;
             /** @description Present on list rows; whether the caller may change this case (#283). Computed by the server for each request with the same authorization the write routes use; hidden cases are never returned, and the value is never stored or taken from the client. Pinned demos are false for non-admin callers, but that means no persisted change only: Ask, scenarios and plan previews on a pinned demo stay read-only and allowed. The server still enforces every action (403 forbidden). */
             can_write?: boolean;
+            ruling_alerts?: components["schemas"]["RulingAlertCounts"];
+        };
+        /** @description Present only when CBP has changed (final) or proposed to change a ruling the case relies on: cited by the prediction, a shown plan's supporting ruling, or CBP's holding on the current setup (D480). */
+        RulingAlertCounts: {
+            /** @description Rulings with a final revocation or modification, in force or scheduled */
+            final: number;
+            /** @description Rulings with a pending proposal only (information) */
+            proposed: number;
+            /** @description On a case: final changes to rulings the prediction read but did not cite */
+            read_only?: number;
+        };
+        /** @description CBP's changes to the rulings a saved case relies on or read (D480), from backend/internal/domain/supersession.json (corpus letters and fetched Customs Bulletin notices). Present only when there is at least one. Information only: the stored answer is never changed. Re-check with POST /v1/cases/{id}/watch. */
+        RulingAlerts: {
+            counts: components["schemas"]["RulingAlertCounts"];
+            /**
+             * Format: date-time
+             * @description Present when the ruling watch re-ran the case on or after the latest final change in force to a ruling it relies on
+             */
+            rechecked_at?: string;
+            items: {
+                ruling: string;
+                roles: ("cited" | "plan_support" | "current_setup" | "read")[];
+                /** @enum {string} */
+                status: "final" | "proposed";
+                /** @enum {string} */
+                kind: "revoked" | "modified";
+                /** @description The revoking or modifying ruling (proposed: the proposed one) */
+                by: string;
+                /**
+                 * Format: date
+                 * @description The change's date: the letter's issue date, or a bulletin notice's effective date. Absent for a proposal.
+                 */
+                date?: string;
+                /** @description true when a final change's date is today or earlier; absent for a scheduled one */
+                in_effect?: boolean;
+                /** @description true when a final change is dated before the case date: the guard (D320, D370) would refuse to cite it today, so the answer was stored before the guard */
+                before_case?: boolean;
+                /** @description Customs Bulletin citation, when a notice published the change */
+                bulletin?: string;
+                url?: string;
+                /** @description The change in words, e.g. revoked by H346161 on 2025-05-05 */
+                note: string;
+            }[];
         };
         Error: {
             /** @enum {string} */
@@ -1519,6 +1565,7 @@ export interface components {
              */
             facts_source?: "parts_list" | "pasted";
             rule_check?: components["schemas"]["RuleCheck"];
+            ruling_alerts?: components["schemas"]["RulingAlerts"];
             /** @description latest economics given for the case, if any */
             economics?: components["schemas"]["Economics"];
             /**
@@ -3791,7 +3838,10 @@ export interface operations {
     };
     runWatch: {
         parameters: {
-            query?: never;
+            query?: {
+                /** @description List revocation alerts without re-running any case (checked is 0). */
+                alerts_only?: "true";
+            };
             header?: never;
             path?: never;
             cookie?: never;
@@ -3812,6 +3862,14 @@ export interface operations {
                             [key: string]: "precedent" | "regime" | "method" | "specialist_unavailable" | "unverified";
                         };
                         failed: string[];
+                        /** @description Case id -> revocation alert counts (D480), for analysed cases with at least one final or proposed change to a ruling they rely on. rulings lists the final ones in words. */
+                        ruling_alerts?: {
+                            [key: string]: {
+                                final?: number;
+                                proposed?: number;
+                                rulings?: string[];
+                            };
+                        };
                     };
                 };
             };

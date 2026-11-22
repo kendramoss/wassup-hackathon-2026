@@ -13,6 +13,7 @@ import { GroupingProvider } from "./grouping";
 import { planTemplateVersion } from "@/lib/families";
 import { AskDrawer } from "./ask-drawer";
 import { BrokerReviewStatus } from "./broker-reviews";
+import { RulingAlertsBanner } from "./ruling-alerts";
 import { CaseTabs, ErrorBox, Main, tabStep, type CaseTab } from "./chrome";
 import { DemoTour } from "./demo-tour";
 import { Spinner } from "./ui";
@@ -84,6 +85,7 @@ export function CaseShell({ tab, children }: { tab: CaseTab; children: (ctx: Cas
           )}
           <DemoTour id={id} tab={tab} />
           <BrokerReviewStatus id={id} c={data} />
+          <RulingAlertsBanner c={data} setCase={setData} />
           <GroupingProvider madeWith={planTemplateVersion(data)}>{children({ id, c: data, setCase: setData, reload, ask: () => setAsking(true) })}</GroupingProvider>
         </>
       )}
