@@ -22,7 +22,8 @@ function MethodGuardrails() {
             </dl>
             <p className="read mi-note">Same-day rulings are blocked. {kobalt.supporting.id} and {kobalt.backtestRuling.id} are later. The saved demo uses {kobalt.cutoff.label}.</p>
           </figure>
-          <a className="mi-link" href={blob("docs/EVALUATION.md")}>Test protocol <span aria-hidden="true">↗</span></a>
+          <p className="read mi-note">The Jan–Sep 2026 test set of 377 CBP rulings was frozen before scoring.</p>
+          <a className="mi-link" href={blob("docs/EVALUATION.md#2-how-the-validation-and-test-sets-are-built")}>Blind holdout protocol <span aria-hidden="true">↗</span></a>
         </article>
 
         <article id="plans" className="mi-card" data-tone="evidence">
