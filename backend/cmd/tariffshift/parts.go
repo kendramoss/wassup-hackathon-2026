@@ -616,8 +616,10 @@ type RobustClean struct {
 func cmdPartsEval(args []string) error {
 	fl := flag.NewFlagSet("parts-eval", flag.ExitOnError)
 	check := fl.Bool("check", false, "recompute and compare with the committed summary; write nothing")
+	without := fl.String("without", "", "chapters to leave out, comma-separated (D560: 15,21,40,71,95); needs -out")
+	outDir := fl.String("out", partsDir, "directory for summary.json")
 	_ = fl.Parse(args)
-	rules, err := tariffshift.Default()
+	rules, scopeNote, err := scopedRules(*without, *outDir)
 	if err != nil {
 		return err
 	}
@@ -809,10 +811,10 @@ func cmdPartsEval(args []string) error {
 		}
 	}
 	b, _ := json.MarshalIndent(map[string]any{
-		"note":  "Per-part HTS suggestions (D380), scored as pre-registered in D381. A suggestion matches when it equals CBP's stated code at the level CBP stated (up to 8 digits). Gold: hts.PartStatements on the full ruling text, matched to the part by name. Suggestions see only rulings dated before the scored ruling, never the ruling itself; no CROSS search and no USITC check (offline). input_codes and without_input_codes (post-freeze, #576, D413): products whose committed input still carried an HTS number after the v1 code stripper, and each cell without them. robustness (post-freeze, D430, no model calls): each decided ruling re-checked over every combination of each part's top-3 suggested codes (past 81 combinations, a deterministic sample of 81); stable means the same answer under all of them. Recompute: cd backend && go run ./cmd/tariffshift parts-eval -check",
+		"note":  "Per-part HTS suggestions (D380), scored as pre-registered in D381. A suggestion matches when it equals CBP's stated code at the level CBP stated (up to 8 digits). Gold: hts.PartStatements on the full ruling text, matched to the part by name. Suggestions see only rulings dated before the scored ruling, never the ruling itself; no CROSS search and no USITC check (offline). input_codes and without_input_codes (post-freeze, #576, D413): products whose committed input still carried an HTS number after the v1 code stripper, and each cell without them. robustness (post-freeze, D430, no model calls): each decided ruling re-checked over every combination of each part's top-3 suggested codes (past 81 combinations, a deterministic sample of 81); stable means the same answer under all of them." + scopeNote + " Recompute: cd backend && go run ./cmd/tariffshift parts-eval" + flagsOf(*without, *outDir) + " -check",
 		"cells": cells,
 	}, "", " ")
-	if err := writeOrCheck(filepath.Join(partsDir, "summary.json"), append(b, '\n'), *check); err != nil {
+	if err := writeOrCheck(filepath.Join(*outDir, "summary.json"), append(b, '\n'), *check); err != nil {
 		return err
 	}
 	for _, c := range cells {

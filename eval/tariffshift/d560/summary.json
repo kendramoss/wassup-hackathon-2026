@@ -1,0 +1,117 @@
+{
+ "cells": [
+  {
+   "split": "dev",
+   "source": "facts",
+   "n": 72,
+   "extracted": 70,
+   "out_of_scope": 2,
+   "decided": 0,
+   "agree_cbp": 0,
+   "disagree_model": 0,
+   "decided_if_not_de_minimis": 0,
+   "agree_cbp_if_not_de_minimis": 0,
+   "disagree_model_if_not_de_minimis": 0,
+   "undetermined_reasons": {
+    "a foreign material has no HTS code": 10,
+    "an origin or the country of production not given": 11,
+    "extraction failed": 2,
+    "no HTS code for the good": 47
+   }
+  },
+  {
+   "split": "dev",
+   "source": "full_text",
+   "n": 72,
+   "extracted": 70,
+   "out_of_scope": 22,
+   "decided": 6,
+   "agree_cbp": 6,
+   "agree_cbp_ci": [
+    61,
+    100
+   ],
+   "disagree_model": 2,
+   "decided_if_not_de_minimis": 8,
+   "agree_cbp_if_not_de_minimis": 8,
+   "disagree_model_if_not_de_minimis": 2,
+   "undetermined_reasons": {
+    "a foreign material has no HTS code": 27,
+    "a material needs a fact (condition or goods description)": 11,
+    "de minimis value not given": 2,
+    "extraction failed": 2,
+    "no HTS code for the good": 1,
+    "other: more than one rule covers 4416.00.3010": 1
+   },
+   "model_accuracy_on_decided": "4/6"
+  },
+  {
+   "split": "final",
+   "source": "facts",
+   "n": 32,
+   "extracted": 32,
+   "out_of_scope": 3,
+   "decided": 1,
+   "agree_cbp": 1,
+   "agree_cbp_ci": [
+    20.7,
+    100
+   ],
+   "disagree_model": 0,
+   "decided_if_not_de_minimis": 1,
+   "agree_cbp_if_not_de_minimis": 1,
+   "disagree_model_if_not_de_minimis": 0,
+   "undetermined_reasons": {
+    "a foreign material has no HTS code": 4,
+    "an origin or the country of production not given": 8,
+    "no HTS code for the good": 16
+   },
+   "model_accuracy_on_decided": "1/1"
+  },
+  {
+   "split": "final",
+   "source": "full_text",
+   "n": 32,
+   "extracted": 30,
+   "out_of_scope": 12,
+   "decided": 4,
+   "agree_cbp": 4,
+   "agree_cbp_ci": [
+    51,
+    100
+   ],
+   "disagree_model": 0,
+   "decided_if_not_de_minimis": 4,
+   "agree_cbp_if_not_de_minimis": 4,
+   "disagree_model_if_not_de_minimis": 0,
+   "undetermined_reasons": {
+    "a foreign material has no HTS code": 9,
+    "a material needs a fact (condition or goods description)": 3,
+    "extraction failed": 2,
+    "no HTS code for the good": 2
+   },
+   "model_accuracy_on_decided": "4/4"
+  },
+  {
+   "split": "final2",
+   "source": "facts",
+   "n": 13,
+   "extracted": 13,
+   "out_of_scope": 0,
+   "decided": 0,
+   "agree_cbp": 0,
+   "disagree_model": 0,
+   "decided_if_not_de_minimis": 0,
+   "agree_cbp_if_not_de_minimis": 0,
+   "disagree_model_if_not_de_minimis": 0,
+   "undetermined_reasons": {
+    "a foreign material has no HTS code": 2,
+    "a material needs a fact (condition or goods description)": 1,
+    "an origin or the country of production not given": 4,
+    "no HTS code for the good": 5,
+    "other: more than one rule covers 4421": 1
+   }
+  }
+ ],
+ "note": "19 CFR 102.20 rule check on the committed Part 102 rulings (D360, D361). source facts = the facts the engine reads; source full_text = the whole CROSS text with CBP's own classifications (an encoding check, not product evidence). D560 (#619): chapters 15, 21, 40, 71, 95 left out (picked in D460 from a pool that read held-out rulings); the rule table is otherwise the committed one; a good in a left-out chapter is out of scope. Recompute: cd backend \u0026\u0026 go run ./cmd/tariffshift eval -without 15,21,40,71,95 -out eval/tariffshift/d560 -check"
+}

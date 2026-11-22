@@ -10,6 +10,7 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
+	"slices"
 	"sort"
 	"strings"
 
@@ -81,8 +82,10 @@ type Cell struct {
 func cmdEval(args []string) error {
 	fl := flag.NewFlagSet("eval", flag.ExitOnError)
 	check := fl.Bool("check", false, "recompute and compare with the committed summary; write nothing")
+	without := fl.String("without", "", "chapters to leave out, comma-separated (D560: 15,21,40,71,95); needs -out")
+	outDir := fl.String("out", evalDir, "directory for results-*.jsonl and summary.json")
 	_ = fl.Parse(args)
-	rules, err := tariffshift.Default()
+	rules, note, err := scopedRules(*without, *outDir)
 	if err != nil {
 		return err
 	}
@@ -163,16 +166,16 @@ func cmdEval(args []string) error {
 			cell.ModelAccuracy = fmt.Sprintf("%d/%d", modelRight, cell.Decided)
 		}
 		cells = append(cells, cell)
-		resFile := filepath.Join(evalDir, fmt.Sprintf("results-%s-%s.jsonl", split, source))
+		resFile := filepath.Join(*outDir, fmt.Sprintf("results-%s-%s.jsonl", split, source))
 		if err := writeOrCheck(resFile, jsonl(out), *check); err != nil {
 			return err
 		}
 	}
 	b, _ := json.MarshalIndent(map[string]any{
-		"note":  "19 CFR 102.20 rule check on the committed Part 102 rulings (D360, D361). source facts = the facts the engine reads; source full_text = the whole CROSS text with CBP's own classifications (an encoding check, not product evidence). Recompute: cd backend && go run ./cmd/tariffshift eval -check",
+		"note":  "19 CFR 102.20 rule check on the committed Part 102 rulings (D360, D361). source facts = the facts the engine reads; source full_text = the whole CROSS text with CBP's own classifications (an encoding check, not product evidence)." + note + " Recompute: cd backend && go run ./cmd/tariffshift eval" + flagsOf(*without, *outDir) + " -check",
 		"cells": cells,
 	}, "", " ")
-	if err := writeOrCheck(filepath.Join(evalDir, "summary.json"), append(b, '\n'), *check); err != nil {
+	if err := writeOrCheck(filepath.Join(*outDir, "summary.json"), append(b, '\n'), *check); err != nil {
 		return err
 	}
 	for _, c := range cells {
@@ -348,4 +351,36 @@ func revision() string {
 		rev += "-dirty"
 	}
 	return rev
+}
+
+// scopedRules is the committed rule table, or with -without the table minus
+// those chapters (D560, #619: the chapters picked with held-out data left out,
+// so the held-out figures can be read without them). It refuses to write a
+// restricted run over the committed files.
+func scopedRules(without, out string) (*tariffshift.Rules, string, error) {
+	rules, err := tariffshift.Default()
+	if err != nil || without == "" {
+		return rules, "", err
+	}
+	if filepath.Clean(out) == filepath.Clean(evalDir) || filepath.Clean(out) == filepath.Clean(partsDir) {
+		return nil, "", fmt.Errorf("-without needs an -out other than the committed run's")
+	}
+	drop := strings.Split(without, ",")
+	var keep []string
+	for _, c := range rules.Table().Chapters {
+		if !slices.Contains(drop, c) {
+			keep = append(keep, c)
+		}
+	}
+	if len(keep)+len(drop) != len(rules.Table().Chapters) {
+		return nil, "", fmt.Errorf("-without %s: not all are encoded chapters", without)
+	}
+	return rules.Only(keep), fmt.Sprintf(" D560 (#619): chapters %s left out (picked in D460 from a pool that read held-out rulings); the rule table is otherwise the committed one; a good in a left-out chapter is out of scope.", strings.Join(drop, ", ")), nil
+}
+
+func flagsOf(without, out string) string {
+	if without == "" {
+		return ""
+	}
+	return " -without " + without + " -out " + strings.TrimPrefix(out, "../")
 }

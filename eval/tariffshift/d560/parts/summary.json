@@ -1,0 +1,491 @@
+{
+ "cells": [
+  {
+   "run": "dev-smoke",
+   "split": "dev",
+   "set": "usmca",
+   "products": 3,
+   "failed_calls": 1,
+   "parts": 13,
+   "parts_with_a_suggestion": 10,
+   "gold_parts": 1,
+   "gold_products": 1,
+   "top1": 1,
+   "top1_ci": [
+    20.7,
+    100
+   ],
+   "top3": 1,
+   "top3_ci": [
+    20.7,
+    100
+   ],
+   "top1_same_heading": 1,
+   "top1_from_rulings": 0,
+   "top1_from_rulings_right": 0,
+   "top1_from_model": 1,
+   "top1_from_model_right": 1,
+   "good_gold": 3,
+   "good_top1": 2,
+   "good_top3": 2,
+   "cost_usd": 0.0299,
+   "cost_per_product_usd": 0.01,
+   "input_tokens": 7780,
+   "output_tokens": 3555,
+   "rule_check": [
+    {
+     "input": "CBP's code for the good, CBP's stated part codes (D362 full text, for reference)",
+     "n": 3,
+     "out_of_scope": 0,
+     "decided": 0,
+     "agree_cbp": 0,
+     "undetermined_reasons": {
+      "a foreign material has no HTS code": 2,
+      "a material needs a fact (condition or goods description)": 1
+     }
+    },
+    {
+     "input": "CBP's code for the good, top suggestion for every part",
+     "n": 3,
+     "out_of_scope": 0,
+     "decided": 1,
+     "agree_cbp": 1,
+     "undetermined_reasons": {
+      "a foreign material has no HTS code": 1,
+      "de minimis value not given": 1
+     },
+     "decided_rulings": [
+      "N337260"
+     ],
+     "robustness": {
+      "decided": 1,
+      "stable": 0,
+      "stable_agree_cbp": 0,
+      "depends_rulings": [
+       "N337260: the answer depends on the code for aluminum fins, copper heat pipe, aluminum base (48 combinations)"
+      ],
+      "sampled": 0,
+      "max_combinations_evaluated": 48
+     }
+    },
+    {
+     "input": "top suggestion for the good and every part",
+     "n": 3,
+     "out_of_scope": 1,
+     "decided": 1,
+     "agree_cbp": 1,
+     "undetermined_reasons": {
+      "de minimis value not given": 1
+     },
+     "decided_rulings": [
+      "N337260"
+     ],
+     "robustness": {
+      "decided": 1,
+      "stable": 0,
+      "stable_agree_cbp": 0,
+      "depends_rulings": [
+       "N337260: the answer depends on the code for aluminum fins, copper heat pipe, aluminum base (48 combinations)"
+      ],
+      "sampled": 0,
+      "max_combinations_evaluated": 48
+     }
+    }
+   ]
+  },
+  {
+   "run": "dev-v1",
+   "split": "dev",
+   "set": "usmca",
+   "products": 69,
+   "failed_calls": 0,
+   "parts": 393,
+   "parts_with_a_suggestion": 389,
+   "gold_parts": 27,
+   "gold_products": 19,
+   "top1": 20,
+   "top1_ci": [
+    55.3,
+    86.8
+   ],
+   "top3": 22,
+   "top3_ci": [
+    63.3,
+    91.8
+   ],
+   "top1_same_heading": 22,
+   "top1_from_rulings": 9,
+   "top1_from_rulings_right": 7,
+   "top1_from_model": 18,
+   "top1_from_model_right": 13,
+   "good_gold": 68,
+   "good_top1": 36,
+   "good_top3": 42,
+   "cost_usd": 0.7138,
+   "cost_per_product_usd": 0.0103,
+   "input_tokens": 220671,
+   "output_tokens": 146503,
+   "rule_check": [
+    {
+     "input": "CBP's code for the good, CBP's stated part codes (D362 full text, for reference)",
+     "n": 69,
+     "out_of_scope": 21,
+     "decided": 6,
+     "agree_cbp": 6,
+     "undetermined_reasons": {
+      "a foreign material has no HTS code": 27,
+      "a material needs a fact (condition or goods description)": 11,
+      "de minimis value not given": 2,
+      "no HTS code for the good": 1,
+      "other: more than one rule covers 4416.00.3010": 1
+     },
+     "decided_rulings": [
+      "N341152",
+      "N344091",
+      "N344002",
+      "H341208",
+      "N352059",
+      "N353285"
+     ],
+     "without_input_codes": {
+      "n": 65,
+      "out_of_scope": 21,
+      "decided": 6,
+      "agree_cbp": 6
+     }
+    },
+    {
+     "input": "CBP's code for the good, top suggestion for every part",
+     "n": 69,
+     "out_of_scope": 21,
+     "decided": 12,
+     "agree_cbp": 12,
+     "undetermined_reasons": {
+      "a foreign material has no HTS code": 1,
+      "a material needs a fact (condition or goods description)": 19,
+      "de minimis value not given": 11,
+      "no HTS code for the good": 1,
+      "other: base plates do not shift and their origin is not given": 1,
+      "other: centrifugal fan do not shift and their origin is not given": 1,
+      "other: more than one rule covers 4416.00.3010": 1,
+      "other: post legs, post arms, bases, TSB (track supporting beam), drive beam (track), wings do not shift and their origin is not given": 1
+     },
+     "decided_rulings": [
+      "H333407",
+      "N338219",
+      "N341003",
+      "N341152",
+      "N344091",
+      "N343893",
+      "N344002",
+      "N350133",
+      "N352763",
+      "N352810",
+      "N354024",
+      "N353285"
+     ],
+     "without_input_codes": {
+      "n": 65,
+      "out_of_scope": 21,
+      "decided": 10,
+      "agree_cbp": 10
+     },
+     "robustness": {
+      "decided": 12,
+      "stable": 11,
+      "stable_agree_cbp": 11,
+      "depends_rulings": [
+       "N338219: the answer depends on the code for Cover Casting, Main Board Casting (16 combinations)"
+      ],
+      "sampled": 4,
+      "max_combinations_evaluated": 81,
+      "without_input_codes": {
+       "decided": 10,
+       "stable": 9,
+       "stable_agree_cbp": 9
+      }
+     }
+    },
+    {
+     "input": "top suggestion for the good and every part",
+     "n": 69,
+     "out_of_scope": 23,
+     "decided": 13,
+     "agree_cbp": 12,
+     "undetermined_reasons": {
+      "a material needs a fact (condition or goods description)": 20,
+      "de minimis value not given": 10,
+      "other: base plates do not shift and their origin is not given": 1,
+      "other: centrifugal fan do not shift and their origin is not given": 1,
+      "other: more than one rule covers 4416.00.00": 1
+     },
+     "decided_rulings": [
+      "H333407",
+      "N338219",
+      "N338502",
+      "N340017",
+      "N341003",
+      "N341152",
+      "N344091",
+      "N344002",
+      "N350133",
+      "N352763",
+      "N352810",
+      "N354024",
+      "N353285"
+     ],
+     "disagree_cbp_rulings": [
+      "N340017: Mexico"
+     ],
+     "without_input_codes": {
+      "n": 65,
+      "out_of_scope": 23,
+      "decided": 12,
+      "agree_cbp": 11
+     },
+     "robustness": {
+      "decided": 13,
+      "stable": 12,
+      "stable_agree_cbp": 11,
+      "depends_rulings": [
+       "N338219: the answer depends on the code for Cover Casting, Main Board Casting (16 combinations)"
+      ],
+      "sampled": 4,
+      "max_combinations_evaluated": 81,
+      "without_input_codes": {
+       "decided": 12,
+       "stable": 11,
+       "stable_agree_cbp": 10
+      }
+     }
+    }
+   ],
+   "input_codes": [
+    "N339851: 4421",
+    "N343893: 4016, 8484",
+    "N352810: 3914",
+    "H342474: 8540"
+   ],
+   "without_input_codes": {
+    "products": 65,
+    "gold_parts": 26,
+    "top1": 20,
+    "top3": 21,
+    "good_gold": 64,
+    "good_top1": 34,
+    "good_top3": 39
+   }
+  },
+  {
+   "run": "dev-v1",
+   "split": "dev",
+   "set": "family",
+   "products": 23,
+   "failed_calls": 0,
+   "parts": 200,
+   "parts_with_a_suggestion": 200,
+   "gold_parts": 2,
+   "gold_products": 1,
+   "top1": 2,
+   "top1_ci": [
+    34.2,
+    100
+   ],
+   "top3": 2,
+   "top3_ci": [
+    34.2,
+    100
+   ],
+   "top1_same_heading": 2,
+   "top1_from_rulings": 0,
+   "top1_from_rulings_right": 0,
+   "top1_from_model": 2,
+   "top1_from_model_right": 2,
+   "good_gold": 0,
+   "good_top1": 0,
+   "good_top3": 0,
+   "cost_usd": 0.3203,
+   "cost_per_product_usd": 0.0139,
+   "input_tokens": 102341,
+   "output_tokens": 64963
+  },
+  {
+   "run": "final",
+   "split": "final",
+   "set": "usmca",
+   "products": 29,
+   "failed_calls": 1,
+   "parts": 245,
+   "parts_with_a_suggestion": 225,
+   "gold_parts": 3,
+   "gold_products": 3,
+   "top1": 2,
+   "top1_ci": [
+    20.8,
+    93.9
+   ],
+   "top3": 2,
+   "top3_ci": [
+    20.8,
+    93.9
+   ],
+   "top1_same_heading": 2,
+   "top1_from_rulings": 1,
+   "top1_from_rulings_right": 1,
+   "top1_from_model": 2,
+   "top1_from_model_right": 1,
+   "good_gold": 27,
+   "good_top1": 14,
+   "good_top3": 15,
+   "cost_usd": 0.3577,
+   "cost_per_product_usd": 0.0123,
+   "input_tokens": 93031,
+   "output_tokens": 66138,
+   "rule_check": [
+    {
+     "input": "CBP's code for the good, CBP's stated part codes (D362 full text, for reference)",
+     "n": 29,
+     "out_of_scope": 11,
+     "decided": 4,
+     "agree_cbp": 4,
+     "undetermined_reasons": {
+      "a foreign material has no HTS code": 9,
+      "a material needs a fact (condition or goods description)": 3,
+      "no HTS code for the good": 2
+     },
+     "decided_rulings": [
+      "H355020",
+      "N360891",
+      "N362506",
+      "N364405"
+     ],
+     "without_input_codes": {
+      "n": 24,
+      "out_of_scope": 10,
+      "decided": 3,
+      "agree_cbp": 3
+     }
+    },
+    {
+     "input": "CBP's code for the good, top suggestion for every part",
+     "n": 29,
+     "out_of_scope": 11,
+     "decided": 12,
+     "agree_cbp": 11,
+     "undetermined_reasons": {
+      "a foreign material has no HTS code": 2,
+      "a material needs a fact (condition or goods description)": 2,
+      "no HTS code for the good": 2
+     },
+     "decided_rulings": [
+      "N357063",
+      "H355020",
+      "N357951",
+      "N359145",
+      "N358639",
+      "N359690",
+      "N360891",
+      "N362347",
+      "N362414",
+      "N364328",
+      "N364405",
+      "N364586"
+     ],
+     "disagree_cbp_rulings": [
+      "N358639: Mexico"
+     ],
+     "without_input_codes": {
+      "n": 24,
+      "out_of_scope": 10,
+      "decided": 9,
+      "agree_cbp": 8
+     },
+     "robustness": {
+      "decided": 12,
+      "stable": 11,
+      "stable_agree_cbp": 11,
+      "depends_rulings": [
+       "N358639: the answer depends on the code for steel pipes (12 combinations)"
+      ],
+      "sampled": 3,
+      "max_combinations_evaluated": 81,
+      "without_input_codes": {
+       "decided": 9,
+       "stable": 8,
+       "stable_agree_cbp": 8
+      }
+     }
+    },
+    {
+     "input": "top suggestion for the good and every part",
+     "n": 29,
+     "out_of_scope": 10,
+     "decided": 13,
+     "agree_cbp": 12,
+     "undetermined_reasons": {
+      "a foreign material has no HTS code": 2,
+      "a material needs a fact (condition or goods description)": 3,
+      "other: fork pockets, pivoting boom do not shift and their origin is not given": 1
+     },
+     "decided_rulings": [
+      "N357063",
+      "H355020",
+      "N357951",
+      "N359145",
+      "N358639",
+      "N359690",
+      "N360891",
+      "N362347",
+      "N362414",
+      "N363600",
+      "N364328",
+      "N364405",
+      "N364586"
+     ],
+     "disagree_cbp_rulings": [
+      "N358639: Mexico"
+     ],
+     "without_input_codes": {
+      "n": 24,
+      "out_of_scope": 9,
+      "decided": 9,
+      "agree_cbp": 8
+     },
+     "robustness": {
+      "decided": 13,
+      "stable": 11,
+      "stable_agree_cbp": 11,
+      "depends_rulings": [
+       "N358639: the answer depends on the code for steel pipes (12 combinations)",
+       "N364328: the answer depends on the code for plastic locking mechanisms, plastic end caps (24 combinations)"
+      ],
+      "sampled": 3,
+      "max_combinations_evaluated": 81,
+      "without_input_codes": {
+       "decided": 9,
+       "stable": 7,
+       "stable_agree_cbp": 7
+      }
+     }
+    }
+   ],
+   "input_codes": [
+    "N357063: 3914",
+    "H355020: 3914, 3914",
+    "H351116: 9802.00.40, 9802.00.80, 5405",
+    "N363600: 8419.34.0000",
+    "N364586: 3914"
+   ],
+   "without_input_codes": {
+    "products": 24,
+    "gold_parts": 3,
+    "top1": 2,
+    "top3": 2,
+    "good_gold": 23,
+    "good_top1": 12,
+    "good_top3": 12
+   }
+  }
+ ],
+ "note": "Per-part HTS suggestions (D380), scored as pre-registered in D381. A suggestion matches when it equals CBP's stated code at the level CBP stated (up to 8 digits). Gold: hts.PartStatements on the full ruling text, matched to the part by name. Suggestions see only rulings dated before the scored ruling, never the ruling itself; no CROSS search and no USITC check (offline). input_codes and without_input_codes (post-freeze, #576, D413): products whose committed input still carried an HTS number after the v1 code stripper, and each cell without them. robustness (post-freeze, D430, no model calls): each decided ruling re-checked over every combination of each part's top-3 suggested codes (past 81 combinations, a deterministic sample of 81); stable means the same answer under all of them. D560 (#619): chapters 15, 21, 40, 71, 95 left out (picked in D460 from a pool that read held-out rulings); the rule table is otherwise the committed one; a good in a left-out chapter is out of scope. Recompute: cd backend \u0026\u0026 go run ./cmd/tariffshift parts-eval -without 15,21,40,71,95 -out eval/tariffshift/d560/parts -check"
+}
