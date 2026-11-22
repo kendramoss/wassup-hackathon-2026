@@ -128,7 +128,19 @@ type LatRun struct {
 	Correct   int     `json:"correct"`
 	OutTok    int     `json:"output_tokens"`
 	Gateway   float64 `json:"gateway_cost_usd,omitempty"`
-	Hedged    int     `json:"hedges_sent,omitempty"`
+	// WallOver counts calls whose wall time exceeds the answering call's
+	// latency by more than 2 s: a retry after a timeout or, with a hedge,
+	// the hedge answering first.
+	WallOver int `json:"wall_over_latency_2s,omitempty"`
+	// Over12s counts answering calls of at least 12 s, the hedge delay.
+	Over12s int `json:"calls_at_least_12s"`
+	// With a hedge only: calls still unanswered at the delay (a hedge was
+	// sent), and those cancelled calls' cost if each was billed at the arm's
+	// mean reported cost per call (D611); the gateway reports no cost for a
+	// cancelled call.
+	Hedged         int     `json:"hedges_sent,omitempty"`
+	HedgeCostUSD   float64 `json:"unreported_hedge_cost_estimate_usd,omitempty"`
+	GatewayWithEst float64 `json:"gateway_cost_with_estimate_usd,omitempty"`
 }
 
 // LatCall is one slow call.
@@ -150,8 +162,11 @@ type P102BarLatency struct {
 	SpearmanAvsD600 *float64 `json:"spearman_arm_a_vs_d600,omitempty"`
 	// Where arm A's four slowest calls ranked in D600's run (1 = slowest).
 	ArmASlowestRankInD600 map[string]int `json:"arm_a_slowest_rank_in_d600,omitempty"`
-	Passed                *bool          `json:"hedge_passed,omitempty"`
-	Reasons               []string       `json:"hedge_rule,omitempty"`
+	// D611's rule, read two ways for the cost condition: on gateway-reported
+	// cost, and with the cancelled hedges counted.
+	PassedReported *bool    `json:"hedge_passed_on_reported_cost,omitempty"`
+	PassedWithEst  *bool    `json:"hedge_passed_with_cancelled_hedges_counted,omitempty"`
+	Reasons        []string `json:"hedge_rule,omitempty"`
 }
 
 // P102BarSummary is summary.json.
@@ -448,7 +463,7 @@ func ranks(x []float64) []float64 {
 	return r
 }
 
-func latRun(key, path string) (LatRun, []g102Row, error) {
+func latRun(key, path string, hedge bool) (LatRun, []g102Row, error) {
 	rows, err := lastRows(path)
 	if err != nil {
 		return LatRun{}, nil, err
@@ -465,15 +480,25 @@ func latRun(key, path string) (LatRun, []g102Row, error) {
 		}
 		if x.WallMS > 0 {
 			wall = append(wall, x.WallMS)
-			if x.WallMS >= p102barHedgeMS {
+			if hedge && x.WallMS >= p102barHedgeMS {
 				out.Hedged++
 			}
+			if x.WallMS-x.LatencyMS > 2000 {
+				out.WallOver++
+			}
+		}
+		if x.LatencyMS >= p102barHedgeMS {
+			out.Over12s++
 		}
 		if x.LatencyMS > 0 {
 			lat = append(lat, x.LatencyMS)
 			tok = append(tok, x.OutTok)
 			fl, ft = append(fl, float64(x.LatencyMS)), append(ft, float64(x.OutTok))
 		}
+	}
+	if out.Hedged > 0 && len(rows) > 0 {
+		out.HedgeCostUSD = round4(float64(out.Hedged) * out.Gateway / float64(len(rows)))
+		out.GatewayWithEst = round4(out.Gateway + out.HedgeCostUSD)
 	}
 	out.Gateway = round4(out.Gateway)
 	sort.Slice(lat, func(i, j int) bool { return lat[i] < lat[j] })
@@ -507,7 +532,7 @@ func p102barLatency() (P102BarLatency, error) {
 	}
 	var d600 []g102Row
 	for _, r := range runs {
-		x, rows, err := latRun(r.key, r.file)
+		x, rows, err := latRun(r.key, r.file, false)
 		if err != nil {
 			return l, err
 		}
@@ -516,8 +541,8 @@ func p102barLatency() (P102BarLatency, error) {
 		}
 		l.Runs = append(l.Runs, x)
 	}
-	a, rowsA, errA := latRun("arm_a_no_hedge", p102barArmA)
-	b, _, errB := latRun("arm_b_hedge_12s", p102barArmB)
+	a, rowsA, errA := latRun("arm_a_no_hedge", p102barArmA, false)
+	b, _, errB := latRun("arm_b_hedge_12s", p102barArmB, true)
 	if os.IsNotExist(errA) || os.IsNotExist(errB) {
 		return l, nil // not run yet
 	}
@@ -556,12 +581,14 @@ func p102barLatency() (P102BarLatency, error) {
 	p95 := float64(b.WallP95MS) <= 0.8*float64(a.WallP95MS)
 	acc := b.Correct >= a.Correct-3
 	cost := a.Gateway > 0 && b.Gateway <= 1.3*a.Gateway
+	costEst := a.Gateway > 0 && b.GatewayWithEst <= 1.3*a.Gateway
 	l.Reasons = []string{
 		fmt.Sprintf("95th-percentile wall time %d ms against %d ms (at most 80%%: %v)", b.WallP95MS, a.WallP95MS, p95),
 		fmt.Sprintf("correct %d against %d (at least %d: %v)", b.Correct, a.Correct, a.Correct-3, acc),
-		fmt.Sprintf("gateway cost $%.4f against $%.4f (at most 1.3 x: %v)", b.Gateway, a.Gateway, cost),
+		fmt.Sprintf("gateway-reported cost $%.4f against $%.4f, %.2f x (at most 1.3 x: %v)", b.Gateway, a.Gateway, b.Gateway/a.Gateway, cost),
+		fmt.Sprintf("with the %d cancelled hedges counted at the mean cost per call, $%.4f, %.2f x (at most 1.3 x: %v)", b.Hedged, b.GatewayWithEst, b.GatewayWithEst/a.Gateway, costEst),
 	}
-	passed := p95 && acc && cost
-	l.Passed = &passed
+	pr, pe := p95 && acc && cost, p95 && acc && costEst
+	l.PassedReported, l.PassedWithEst = &pr, &pe
 	return l, nil
 }

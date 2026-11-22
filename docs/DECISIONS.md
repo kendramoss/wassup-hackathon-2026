@@ -1189,7 +1189,7 @@ Anas approved the paid tuning job and a fallback engine. It is not in the 17 Oct
 - **Runs, each once, through an OpenAI-compatible LiteLLM gateway to Gemini, with the production engine of each regime and router-v2 on Gemini 3.8 Flash (`-router`), Gemini 4 Argon, BM25, K = 5:** textile-v2 with precedent reasoning (the production textile prompt; the first window's 71 were scored with textile-v1), pharma-v1, usmca-v1. Precedents: the first pool of each regime plus the new rulings, each usable only for cases dated after it. Commands (from `backend/`):
   - `eval run -regime textile -textile-prompt v2 -reasoning -router -split final2 -confirm-final -splits ../eval/splits/splits_textile_final2.json -labels ../eval/data/labels.jsonl,../eval/data/labels_final2.jsonl -facts ../data/corpus/facts,../eval/data/facts_final2`
   - `eval run -regime pharma -router -split final2 -confirm-final -splits ../eval/splits/splits_pharma_final2.json -labels ../eval/data/labels.jsonl,../eval/data/labels_final2.jsonl -facts ../data/corpus/facts,../eval/data/facts_final2`
-  - `eval run -regime usmca -router -split final2 -confirm-final -splits ../eval/splits/splits_usmca_final2.json -labels ../eval/data/labels_usmca.jsonl,../eval/data/labels_usmca_final2.jsonl -facts ../data/facts,../eval/data/facts_final2`
+  - `eval run -regime usmca -router -split final2 -confirm-final -splits ../eval/splits/splits_usmca_final2.json -labels ../eval/data/labels_usmca.jsonl,../eval/data/labels_usmca_final2.jsonl -facts ../data/facts,../eval/data/facts_final2` (D612: `../data/facts` does not exist from `backend/`, so this run had only the 15 window-2 rulings as precedents; the intended path is `../data/corpus/facts`, or the committed `data/facts`, and `eval run` now stops on a missing facts directory)
 - **Freeze:** the three splits, `eval/data/labels_usmca_final2.jsonl` and the builder are pinned in `eval/SHA256SUMS` and committed before any of the runs above. Nothing is tuned on these results.
 
 ## D211 — The post-cutoff regime splits, scored once: results (21 Nov, review follow-up)
@@ -2345,3 +2345,56 @@ Committed before the development re-run below.
 - **Reported:** per arm, `wall_ms` median and 95th percentile, `latency_ms` the same, correct of 72, output tokens, gateway cost, hedges sent (B rows with `wall_ms` at or above 12 s). Whether the slow rulings of A are slow in D600's run too (if the same rulings are slow, the cause is the input, not the gateway).
 - **Rule for proposing the hedge:** B's 95th-percentile wall time at least 20% below A's, B's correct count not below A's minus 3 (run-to-run noise, D551), and B's gateway cost at most 1.3 × A's. If it passes, the hedge is proposed with its tests for the owner to turn on; the server is not changed in this PR (production calls Vertex AI, not the gateway, so a gateway result does not carry over). If it fails, it is reported as negative and stays an eval option.
 - **Budget:** at most $2 gateway-reported for both arms (estimate: A about $0.73, as D600's Vd run; B about $0.73 plus the hedged calls, about $0.10). A cancelled hedge may be billed without its cost reaching us; such calls are counted at the arm's mean cost per call and added to the reported spend.
+
+## D612 — Window 2's Part 102 runs had almost no precedents; `eval run` now stops on a missing facts directory (22 Nov, follow-up to D602)
+- **Found (D602):** the committed window-2 Part 102 command (D210) and the `usmca-v5` run that repeated it pass `-facts ../data/facts,../eval/data/facts_final2`. From `backend/`, `../data/facts` does not exist, and the corpus loader skipped a missing directory in silence. Of the 488 labelled Part 102 rulings (473 in `labels_usmca.jsonl`, 15 in `labels_usmca_final2.jsonl`), only the 15 window-2 rulings had facts, so each window-2 case could use only earlier window-2 rulings as precedents (N365110 had none in the `usmca-v5` run). The textile and pharmaceutical window-2 commands name `../data/corpus/facts` and are not affected.
+- **Fix:** `eval run` checks every `-facts` directory and stops with an error naming a missing one (`existingDirs`, `TestExistingDirsRejectsAMissingFactsDirectory`). The corrected window-2 command uses `-facts ../data/corpus/facts,../eval/data/facts_final2` (a local corpus build), or the committed bundle `data/facts,../eval/data/facts_final2`, which has the facts of all 473 first-pool rulings (`TestWindow2FactsPathsExist`). D210's command carries a note.
+- **Not done:** window 2 is not re-scored, for `usmca-v1` or `usmca-v5`. Its published counts (11 of 13 each) stand as measured with the 15-ruling pool and say so; a future window-2 run with the full pool would be a new candidate comparison and would be logged as one.
+
+## D613 — The `usmca-v5` auto-accept bar: no development rule gains coverage; the bar stays stated 0.95 (22 Nov, results of D610)
+- **Run as pre-registered in D610** (pushed as b7cbefb9 before `p102bar` was written), from committed rows, no model calls: `cd backend && go run ./cmd/tariffshift p102bar -check` (in `make reproduce`), `eval/tariffshift/p102bar/summary.json`.
+- **Development, `usmca-v5`, 72 rulings, 53 right.** The map `cal-p102-v1` has two steps: stated 0.45 to 0.90 maps to 0.4483 (29 cases, 13 right) and stated 0.92 to 0.98 to 0.9302 (43 cases, 40 right). Pooling into blocks of 20 joins the 10 cases at 0.96 and 0.98 (all right) with the 33 at 0.92 and 0.95. No step is at least 95% right, so the map has no bar and is **not a candidate**. Nothing was applied to a held-out row as a candidate; the map is not shipped and Part 102 answers still show no calibrated value.
+- **Stated bars on development** (reported, not deciding):
+
+  | Stated bar | `usmca-v5`: accepted, right | `usmca-v1` (D550 re-run): accepted, right |
+  |---|---|---|
+  | 0.98 | 8, 8 | 12, 12 |
+  | 0.96 | 10, 10 | 19, 19 |
+  | 0.95 | 38, 36 (94.7%, 95% CI 82.7–98.5) | 38, 36 (94.7%) |
+  | 0.92 | 43, 40 (93.0%) | 50, 45 (90.0%) |
+  | 0.90 | 54, 45 (83.3%) | 58, 46 (79.3%) |
+
+  The same rule on stated values finds no bar either: 0.96 is 10 of 10 but under 20 cases, and 0.95 is just under 95% for both engines.
+- **Held out, the committed rows, before and after.** The rule's outcome is the unchanged stated 0.95, so before and after are the same: `usmca-v5` auto-accepts 11 of 32 on window 1 (11 right) and 6 of 13 on window 2 (5 right), 17 of 45 pooled, 16 right (94.1%, 95% CI 73.0–99.0); `usmca-v1` 22 of 45, 21 right (95.5%). The stated table on both windows (reported once, no decision taken from it):
+
+  | Stated bar | `usmca-v1` pooled: accepted, right | `usmca-v5` pooled: accepted, right |
+  |---|---|---|
+  | 0.96 | 12, 12 | 6, 6 |
+  | 0.95 | 22, 21 | 17, 16 |
+  | 0.92 | 28, 26 (92.9%) | 19, 18 (94.7%) |
+  | 0.90 | 32, 29 (90.6%) | 32, 29 (90.6%) |
+
+  Held-out calibration, computed once on the 45 `usmca-v5` rows, one bin per value: ECE 0.0916 for stated confidence and 0.2371 for the map (its low step puts the six held-out answers at 0.75, all right, at 0.45). The map would make the shown value worse.
+- **What this means.** Lowering the bar does not hold the 95% target on development (0.92 is 93.0%) and the held-out rows agree (0.92 is 94.7%). The fall in coverage under `usmca-v5` (17 of 45 against 22) is the cost of the engine change at the same bar; no bar picked from development recovers it at 95% precision. A finding outside D610's question, flagged for the owner and not acted on: on development neither engine reaches 95% at stated 0.95 (36 of 38 each), and `usmca-v5` is 16 of 17 held out at 0.95. Only 0.96 and above are error-free on development, on 10 cases for `usmca-v5`. The deployed bar (`USMCA_FAST_PATH`, set in the deployment, which this work does not touch) is unchanged.
+- **Not done:** no new held-out model call. The map and table are on one development run; run-to-run noise on the 72 is about 1 to 3 rulings (D551), and on the D611 re-run arm A `usmca-v5` was 57 of 72 with 36 auto-accepted at 0.95, 35 right, which shows how much a 38-case block moves between runs.
+
+## D614 — The Part 102 latency tail is the gateway, not the prompt; the hedged request helps only under load and is not proposed as a default (22 Nov, results of D611)
+- **Run as pre-registered in D611** (pushed as b7cbefb9; the tooling as e67c15a4, both before the first call). `p102bar` reads the committed rows and the two arms (`eval/tariffshift/p102bar/summary.json`, rows in `eval/tariffshift/p102bar/runs/`).
+- **From the committed rows, no calls.** Window 1's two slowest `usmca-v5` calls took 28.4 s and 27.8 s with 200 and 274 output tokens, below the run's median of 256; with 32 rows the 95th percentile is the second of them. Neither carries an error, and `latency_ms` is one attempt, so they are single slow responses, not retries and not long answers. Latency follows output tokens only weakly in every run (rank correlation 0.32 to 0.51). The slow tail is not new: `usmca-v1`'s development re-run had calls of 27.3, 26.1 and 25.5 s with ordinary output, and on the 72 development rulings `usmca-v5`'s 95th percentile (18.3 s) is below `usmca-v1`'s (21.8 s).
+
+  | Run | Median / 95th percentile per call, `usmca-v1` | Same, `usmca-v5` |
+  |---|---|---|
+  | 72 development rulings | 8.4 s / 21.8 s | 7.9 s / 18.3 s |
+  | Window 1 (32) | 7.1 s / 9.2 s | 7.7 s / 27.8 s |
+  | Window 2 (13) | 8.5 s / 16.4 s | 7.4 s / 17.5 s |
+
+- **The development re-run, two arms at once** (`usmca-dev-gemini-4-argon-prec-usmca-v5-litellm-d611-a` and `-d611-b`). The gateway was slower than in D600: the median call took 12.6 s against 7.9 s for the same prompt on the same rulings, and 8 of arm A's 72 calls hit the 30 s per-attempt timeout and were retried. Arm A's per-ruling latency does not follow D600's (rank correlation −0.07; its four slowest rulings ranked 2, 34, 48 and 66 of 72 there), so which call is slow depends on the moment, not the input.
+
+  | Arm | Wall time per case, median / 95th percentile | Answering call, median / 95th percentile | Correct of 72 | Output tokens | Gateway-reported cost |
+  |---|---|---|---:|---:|---:|
+  | A: no hedge | 13.1 s / 51.4 s | 12.6 s / 27.5 s | 57 | 19,969 | $0.5834 |
+  | B: hedge after 12 s | 13.0 s / 40.2 s | 12.8 s / 28.2 s | 54 | 19,086 | $0.7079 |
+
+- **D611's rule:** (1) B's 95th-percentile wall time is 22% below A's (40.2 s against 51.4 s; at least 20% needed): passes. (2) 54 against 57, within the 3 allowed: passes. (3) Cost: 1.21 × A on gateway-reported cost, which passes, but a hedge was sent on 38 of 72 calls (estimated from wall time) and the gateway reports no cost for the cancelled one; counted at the mean cost per call, as D611's spend clause counts them, B is about $1.0815, 1.85 × A, which fails. The cost condition should not have been in D611: under the owner's decision of 22 Nov cost is reported, not a pass condition. Disclosed rather than re-read after the result.
+- **Decision: not proposed as a default.** The gain shows only at the 95th percentile, under a gateway slow enough that about half the calls passed 12 s, and the hedge then doubles those calls; the median did not move, and B answered three fewer rulings right (within noise). With the gateway as it was in D600 (median 7.9 s) a 12 s hedge would fire on 9 of 72 calls. Production calls Vertex AI, not the gateway, and tries the primary model once before the fallback model (deployment settings, not changed here), so a gateway result does not carry over. `llm.WithHedge` and `eval run -hedge-after` stay as an evaluation option, off by default, with tests (`TestHedge*`); the server does not use them. Output limits are not a fix: the slow calls have ordinary output, and `usmca-v5`'s answers are already shorter than `usmca-v1`'s.
+- **Spend:** $1.6649 counted (A $0.5834, B $0.7079 reported, plus $0.3736 estimated for cancelled hedges), within the $2 set in D611.

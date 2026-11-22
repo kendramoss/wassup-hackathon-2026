@@ -625,7 +625,8 @@
         ],
         "correct": 53,
         "output_tokens": 21620,
-        "gateway_cost_usd": 0.6881
+        "gateway_cost_usd": 0.6881,
+        "calls_at_least_12s": 12
       },
       {
         "key": "dev_usmca_v5_d600",
@@ -657,7 +658,8 @@
         ],
         "correct": 53,
         "output_tokens": 20010,
-        "gateway_cost_usd": 0.7304
+        "gateway_cost_usd": 0.7304,
+        "calls_at_least_12s": 9
       },
       {
         "key": "window1_usmca_v1",
@@ -688,7 +690,8 @@
           }
         ],
         "correct": 25,
-        "output_tokens": 9417
+        "output_tokens": 9417,
+        "calls_at_least_12s": 0
       },
       {
         "key": "window1_usmca_v5",
@@ -720,7 +723,8 @@
         ],
         "correct": 29,
         "output_tokens": 8500,
-        "gateway_cost_usd": 0.3188
+        "gateway_cost_usd": 0.3188,
+        "calls_at_least_12s": 4
       },
       {
         "key": "window2_usmca_v1",
@@ -752,7 +756,8 @@
         ],
         "correct": 11,
         "output_tokens": 3706,
-        "gateway_cost_usd": 0.1111
+        "gateway_cost_usd": 0.1111,
+        "calls_at_least_12s": 4
       },
       {
         "key": "window2_usmca_v5",
@@ -784,8 +789,99 @@
         ],
         "correct": 11,
         "output_tokens": 3478,
-        "gateway_cost_usd": 0.1548
+        "gateway_cost_usd": 0.1548,
+        "calls_at_least_12s": 2
       }
+    ],
+    "arm_a_no_hedge": {
+      "key": "arm_a_no_hedge",
+      "file": "eval/tariffshift/p102bar/runs/usmca-dev-gemini-4-argon-prec-usmca-v5-litellm-d611-a.jsonl",
+      "n": 72,
+      "latency_p50_ms": 12616,
+      "latency_p95_ms": 27509,
+      "output_tokens_p50": 244,
+      "spearman_latency_output_tokens": 0.153,
+      "slowest": [
+        {
+          "ruling": "H334088",
+          "latency_ms": 29509,
+          "output_tokens": 241,
+          "input_tokens": 3971
+        },
+        {
+          "ruling": "H333699",
+          "latency_ms": 29286,
+          "output_tokens": 960,
+          "input_tokens": 4977
+        },
+        {
+          "ruling": "N340075",
+          "latency_ms": 29092,
+          "output_tokens": 230,
+          "input_tokens": 3437
+        }
+      ],
+      "wall_p50_ms": 13055,
+      "wall_p95_ms": 51419,
+      "correct": 57,
+      "output_tokens": 19969,
+      "gateway_cost_usd": 0.5834,
+      "wall_over_latency_2s": 8,
+      "calls_at_least_12s": 39
+    },
+    "arm_b_hedge_12s": {
+      "key": "arm_b_hedge_12s",
+      "file": "eval/tariffshift/p102bar/runs/usmca-dev-gemini-4-argon-prec-usmca-v5-litellm-d611-b.jsonl",
+      "n": 72,
+      "latency_p50_ms": 12797,
+      "latency_p95_ms": 28154,
+      "output_tokens_p50": 244,
+      "spearman_latency_output_tokens": 0.175,
+      "slowest": [
+        {
+          "ruling": "N338004",
+          "latency_ms": 29826,
+          "output_tokens": 264,
+          "input_tokens": 3977
+        },
+        {
+          "ruling": "H334088",
+          "latency_ms": 29199,
+          "output_tokens": 241,
+          "input_tokens": 3971
+        },
+        {
+          "ruling": "N356375",
+          "latency_ms": 28538,
+          "output_tokens": 238,
+          "input_tokens": 3579
+        }
+      ],
+      "wall_p50_ms": 12969,
+      "wall_p95_ms": 40157,
+      "correct": 54,
+      "output_tokens": 19086,
+      "gateway_cost_usd": 0.7079,
+      "wall_over_latency_2s": 9,
+      "calls_at_least_12s": 37,
+      "hedges_sent": 38,
+      "unreported_hedge_cost_estimate_usd": 0.3736,
+      "gateway_cost_with_estimate_usd": 1.0815
+    },
+    "spearman_arm_a_vs_d600": -0.0716,
+    "arm_a_slowest_rank_in_d600": {
+      "H333699": 2,
+      "H334088": 48,
+      "N338219": 34,
+      "N340075": 66
+    },
+    "hedge_passed_on_reported_cost": true,
+    "hedge_passed_with_cancelled_hedges_counted": false,
+    "hedge_rule": [
+      "95th-percentile wall time 40157 ms against 51419 ms (at most 80%: true)",
+      "correct 54 against 57 (at least 54: true)",
+      "gateway-reported cost $0.7079 against $0.5834, 1.21 x (at most 1.3 x: true)",
+      "with the 38 cancelled hedges counted at the mean cost per call, $1.0815, 1.85 x (at most 1.3 x: false)"
     ]
   }
 }
