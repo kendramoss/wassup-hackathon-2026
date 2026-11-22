@@ -1,0 +1,68 @@
+{
+  "family": "machinery_parts",
+  "version": "1",
+  "regime": "part102",
+  "union_default_operations": true,
+  "name": "Machinery parts and subassemblies",
+  "note": "Under Part 102 the origin of a machinery part such as a valve or runner usually follows the country that makes the main body or casting that gives it its essential character. Finish machining, balancing, painting and simple assembly of a few parts usually leave the origin there. Written for Part 102 marking cases from 9 CBP Part 102 rulings dated before 2024 and in no development or held-out split (D580); each group is the work that makes one input whose tariff heading the rule reads, or the step that turns the inputs into the good. Every cited ruling was checked against its facts, reasoning and holding. Costs are illustrative defaults; users edit them.",
+  "sources": [
+    "N303499",
+    "N306640",
+    "N308442"
+  ],
+  "groups": [
+    {
+      "id": "primary_body_casting",
+      "name": "Bodies, castings and precision-ground parts",
+      "operations": [
+        "cast, forge, weld, and rough-machine turbine runner subcomponents (subheading 8410.90)",
+        "manufacture valve subassembly bodies (subheading 8481.90)",
+        "cast or form speed reducer H-casings and bearing mounting bases and rings",
+        "perform final grinding and honing on forged rings to create precision bearing raceways (heading 8482)",
+        "anneal and thread raw steel tubing into specialized wireline drill rods"
+      ],
+      "movable": true,
+      "precedent": {
+        "confers_origin": [
+          "N306640",
+          "N308442"
+        ],
+        "note": "The country that made the valve subassembly body or the runner casting was the origin when the later work was minor (N306640, N308442)."
+      }
+    },
+    {
+      "id": "minor_machining_finish",
+      "name": "Finish machining and surface treatment",
+      "operations": [
+        "perform final machining, smoothing, hole drilling, and balancing on rough castings (subheading 8410.90)",
+        "inspect, clean, and paint manufactured machinery components"
+      ],
+      "movable": true,
+      "precedent": {
+        "not_enough": [
+          "N306640"
+        ],
+        "note": "Finish machining, balancing and painting the imported runner casting did not change its origin (N306640)."
+      }
+    },
+    {
+      "id": "final_assembly",
+      "name": "Final assembly",
+      "operations": [
+        "assemble cylinder components into finished air cylinders (subheading 8412.31)",
+        "process and assemble polypropylene holders and hook material into finished tool holders",
+        "fit together valve bodies, casings, shafts, bearings, balls, cages, and seals into finished valves, bearings, and reducer subassemblies (headings 8481, 8482)"
+      ],
+      "movable": false,
+      "precedent": {
+        "confers_origin": [
+          "N303499"
+        ],
+        "not_enough": [
+          "N308442"
+        ],
+        "note": "CBP held that assembly conferred origin when it satisfied the tariff shift for air cylinders (N303499), but not when operations involved simple assembly lacking complex processing (N308442)."
+      }
+    }
+  ]
+}

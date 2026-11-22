@@ -1,0 +1,74 @@
+{
+  "_source": "CBP ruling N286714 (2017): seven-layer blanks of five poplar plies with MDF outer plies, laminated in China and worked in Canada into a panel that is not surface covered; the 102.20 rule for heading 4412 was not met: CBP held China. The Canadian working is described here as profiling and finishing. In the D580 selection pool (Part 102, dated before 2024, in no development or held-out split) and excluded. Target by the D171 rule; plant capabilities at the target are an assumption.",
+  "case_id": "plywood-blank-2017",
+  "date": "2017-06-01",
+  "family": "wood_panels_flooring",
+  "target": "Canada",
+  "product": {
+    "name": "Poplar plywood panel with MDF overlays",
+    "description": "A seven-layer panel: five poplar plies at angles to each other between two thin MDF outer plies.",
+    "plants": [
+      {
+        "id": "cn",
+        "name": "China plywood mill",
+        "country": "China",
+        "capabilities": [
+          "veneer_core_prep",
+          "panel_lamination"
+        ]
+      },
+      {
+        "id": "ca",
+        "name": "Canada panel plant",
+        "country": "Canada",
+        "capabilities": [
+          "veneer_core_prep",
+          "panel_lamination",
+          "final_assembly"
+        ]
+      }
+    ],
+    "components": [
+      {
+        "name": "poplar plywood blank with MDF overlays",
+        "made_in": "China",
+        "plant": "cn",
+        "group": "panel_lamination"
+      }
+    ],
+    "operations": [
+      {
+        "name": "peel poplar veneers and glue and press five plies with MDF outer plies",
+        "plant": "cn",
+        "group": "panel_lamination"
+      },
+      {
+        "name": "work the blanks into finished panels",
+        "plant": "ca",
+        "group": "final_assembly"
+      }
+    ]
+  },
+  "economics": {
+    "illustrative": true,
+    "annual_import_value_usd": 1000000,
+    "duty_rates": {
+      "China": 0.08,
+      "Canada": 0.0
+    },
+    "duty_rates_note": "Illustrative placeholder, not a sourced rate.",
+    "group_costs": {
+      "panel_lamination": {
+        "cn": 150000,
+        "ca": 190000
+      }
+    }
+  },
+  "exclude_rulings": [
+    "N286714"
+  ],
+  "current_origin": {
+    "country": "China",
+    "ruling": "N286714"
+  }
+}

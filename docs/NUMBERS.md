@@ -198,6 +198,20 @@ The first held-out evaluation of the Part 102 plan pipeline: held-out Part 102 r
 | Backtests on a later CBP ruling | 0 (no later ruling names a frozen one) | `frozen.json` (`later_rulings`) | Measured |
 | Cost | $0.3016 in all: plan searches $0.2195 (7 to 35 s each), family check $0.0404, group call $0.0245, development group check $0.0172 | `eval/results/RUNLOG.jsonl` (`planner-part102-heldout-litellm`, `families-coverage-final-all-litellm-p102-heldout`, `part102-heldout-groups`, `part102-heldout-groups-dev`) | Measured, gateway-reported |
 
+### Part 102 plan templates (D580, D581)
+
+Six templates written from Part 102 marking rulings dated before 2024 and in no development or held-out split (the D560 pool), chosen by counting the pool rulings with no template. Coverage is scope, not accuracy: a match means a template exists.
+
+| Number | Value | Source | Status |
+|---|---|---|---|
+| Part 102 selection pool; covered with 14 families | 239 rulings; 83 (34.7%), 2 failed checks | `eval/families/part102-pool.json`; `eval/results/families-coverage-train-all-litellm-p102pool-f14.jsonl` | Measured, pool (selection data) |
+| Pool rulings with no template, by category | food and drink 53, metal products 13, plastic articles 11, wood articles 11, chemicals and pharmaceuticals 8, paper 7, machinery parts 7, electrical apparatus 7 | `eval/results/families102-selection.json` | Measured, pool. Model-labelled categories |
+| Citations checked; supported | 151 first pass, 81 supported; 23 re-checked after 3 merges, 6 supported; 78 citations of 56 rulings kept | `eval/results/families102-citation-checks.jsonl`; templates | Built |
+| Part 102 development (72) with a plan template | 49 (68.1%, 95% CI 56.6–77.7) with 20 families against 20 (27.8%, 18.8–39.0) with 14; on the 71 both answered 48 against 20 (28 gained, 0 lost) | `eval/results/families-coverage-dev-all-litellm-p102-f20.jsonl`, `…-p102-f14.jsonl` | Measured, development |
+| General development (469) with 20 families | 317 of 465 answered (68.2%) against 265 of 469 with 14; on the 456 both answered 309 against 264 (48 gained, 3 lost, 9 changed family) | `eval/results/families-coverage-dev-all-litellm-f20.jsonl`, `…-f14-cap2048.jsonl` | Measured, development. Regression check |
+| Frozen held-out Part 102 rulings with a plan template | 8 of 18 (44.4%, 95% CI 24.6–66.3) with 20 families against 6 of 18 with 14; 1 failed check counted as none; on the 17 both answered 8 against 5 | `eval/results/families-coverage-final-all-litellm-p102-heldout-f20.jsonl` | Measured, held out. Pre-registered in D580, run once |
+| Cost | $3.01: family checks $2.25, pool labels $0.28, drafts $0.22, citation checks $0.25, notes $0.01 | `eval/results/RUNLOG.jsonl`; `families102-*` files (`cost_usd`) | Measured, gateway-reported or token-priced at promo rates |
+
 ### Method page (/method): negative results, splits and leakage, already in the decision record
 
 These rows register, for the /method page, figures that are already committed in `docs/EVALUATION.md` and `docs/DECISIONS.md`. No new run produced them.

@@ -34,6 +34,13 @@ type Template struct {
 	// them for one product: it writes a neutral "made in" line instead
 	// (issue #392, D264). The three earlier templates leave this false.
 	UnionDefaultOperations bool `json:"union_default_operations,omitempty"`
+	// Regime is "part102" for the families written from 19 CFR Part 102
+	// marking rulings (D580): their groups follow the inputs whose tariff
+	// heading the 102.20 rule reads, and their citations are Part 102
+	// rulings from the D560 pool. Empty for the substantial-transformation
+	// families. Like Sources, it documents the template; the planner does
+	// not read it.
+	Regime string `json:"regime,omitempty"`
 }
 
 // TemplateGroup is an operation group with whether the planner may move it.

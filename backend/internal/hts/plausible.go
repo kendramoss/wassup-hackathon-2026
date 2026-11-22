@@ -17,9 +17,10 @@ import (
 // flags: a flagged code stays in the list, in its place, with a note asking
 // the user to check it. It never removes or reorders a suggestion.
 
-// farChapters are HTSUS chapters no part of a product in any of the planner
-// families (machinery, electrical goods, vehicles, instruments, furniture,
-// tools) is expected to fall in: food and farm goods, ores, fertilisers,
+// farChapters are HTSUS chapters no part of a product in the planner families
+// (machinery, electrical goods, vehicles, instruments, furniture, tools) is
+// expected to fall in, except the food chapters for the food preparations
+// family (D580, familyAllows): food and farm goods, ores, fertilisers,
 // explosives, furskins, clothing, footwear and headgear, precious metals and
 // jewellery, musical instruments, arms and works of art.
 var farChapters = map[int]string{
@@ -39,6 +40,8 @@ var farChapters = map[int]string{
 var familyAllows = map[string][]int{
 	"furniture":       {5, 14, 67},  // down filling, rattan, feathers
 	"medical_devices": {61, 62, 65}, // gowns, caps
+	// Food and drink preparations are made of food ingredients (D580).
+	"food_preparations": {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23},
 }
 
 // materialChapters are the chapters of a material a part's name may state.

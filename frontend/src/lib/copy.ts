@@ -468,8 +468,8 @@ export const copy = {
     },
     // "What you can do" (judge journey): every capability that is built and
     // running, each with a way in. Plain list, no numbers beyond NUMBERS.md
-    // rows (14 families, 11 MCP tools).
-    also: "Also built: a parts list read from a photo or scan, plan templates for 14 product families, and an MCP server for Gemini CLI, ADK agents and Claude.",
+    // rows (20 families, 11 MCP tools).
+    also: "Also built: a parts list read from a photo or scan, plan templates for 20 product families, and an MCP server for Gemini CLI, ADK agents and Claude.",
     alsoLink: "What you can do ↓",
     can: {
       title: "What you can do",
@@ -490,7 +490,7 @@ export const copy = {
         {
           key: "plan",
           what: "Plan a production move",
-          body: "For products in 14 families with a plan template, from heat guns and LiDAR to cables, chargers, pumps, hand tools and gas grills, it tries moving each group of work to another plant. An agent then checks each move against earlier rulings, for and against.",
+          body: "For products in 20 families with a plan template, from heat guns and LiDAR to cables, chargers, pumps, hand tools, gas grills and wood flooring, it tries moving each group of work to another plant. An agent then checks each move against earlier rulings, for and against.",
           link: "See the heat-gun plan →",
         },
         {
@@ -615,7 +615,7 @@ export const copy = {
     originScope: "U.S. origin only. Not for trade-agreement claims, certificates of origin or non-U.S. rules.",
     outOfScope: "This looks like a case this tool does not decide. A licensed customs broker should review it.",
     part102: "Marking origin under the Part 102 rules. This is not USMCA qualification or regional value content.",
-    planScope: "Plans use the general origin test, except on Part 102 cases: there the Part 102 engine predicts each move and the 19 CFR 102.20 rule check orders the shown plans within each tier. Plans do not apply textile or pharmaceutical rules. Only products in a family with a plan template (14 families, listed in the family picker) are planned.",
+    planScope: "Plans use the general origin test, except on Part 102 cases: there the Part 102 engine predicts each move and the 19 CFR 102.20 rule check orders the shown plans within each tier. Plans do not apply textile or pharmaceutical rules. Only products in a family with a plan template (20 families, listed in the family picker) are planned.",
     draftNote: "A draft ruling request for a broker to complete and file. It asks CBP a question; it is not a determination.",
     part177Label: "Ruling request letter (19 CFR Part 177)",
     part177Help: "Part 177 is how to ask CBP for a ruling. It is not an origin rule.",

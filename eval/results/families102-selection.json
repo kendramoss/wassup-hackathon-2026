@@ -1,0 +1,322 @@
+{
+ "rule": "(written after the pool counts were seen; pool data only): count the pool rulings the family check gives no template (answer \"none\", confidence below 0.6, or a failed check) by category. Leave out categories with a template already (their misses are check misses, not a missing family), chemicals_pharma and apparel_textiles (regimes with their own engines, as D138) and \"other\". Keep categories with at least 7 such rulings, by count, at most 6; ties go to the category with more assembled goods.",
+ "pool": 239,
+ "covered_f14": 83,
+ "failed_checks": 2,
+ "uncovered": 156,
+ "categories": [
+  {
+   "category": "food_agriculture",
+   "uncovered": 53,
+   "assembled": 1,
+   "left_out": null,
+   "family": "food_preparations"
+  },
+  {
+   "category": "metal_hardware_fittings",
+   "uncovered": 13,
+   "assembled": 6,
+   "left_out": null,
+   "family": "metal_products"
+  },
+  {
+   "category": "wood_articles",
+   "uncovered": 11,
+   "assembled": 9,
+   "left_out": null,
+   "family": "wood_panels_flooring"
+  },
+  {
+   "category": "plastic_articles",
+   "uncovered": 11,
+   "assembled": 3,
+   "left_out": null,
+   "family": "plastic_articles"
+  },
+  {
+   "category": "chemicals_pharma",
+   "uncovered": 8,
+   "assembled": 0,
+   "left_out": "own engine"
+  },
+  {
+   "category": "electrical_apparatus",
+   "uncovered": 7,
+   "assembled": 6,
+   "left_out": null,
+   "family": "electrical_control_apparatus"
+  },
+  {
+   "category": "machinery_parts",
+   "uncovered": 7,
+   "assembled": 6,
+   "left_out": null,
+   "family": "machinery_parts"
+  },
+  {
+   "category": "paper_printed",
+   "uncovered": 7,
+   "assembled": 0,
+   "left_out": null
+  },
+  {
+   "category": "vehicle_parts",
+   "uncovered": 5,
+   "assembled": 4,
+   "left_out": "has a template"
+  },
+  {
+   "category": "batteries",
+   "uncovered": 3,
+   "assembled": 3,
+   "left_out": null
+  },
+  {
+   "category": "jewelry_watches",
+   "uncovered": 3,
+   "assembled": 3,
+   "left_out": null
+  },
+  {
+   "category": "solar_pv",
+   "uncovered": 3,
+   "assembled": 3,
+   "left_out": null
+  },
+  {
+   "category": "glass_stone_ceramics",
+   "uncovered": 3,
+   "assembled": 2,
+   "left_out": null
+  },
+  {
+   "category": "rubber_articles",
+   "uncovered": 3,
+   "assembled": 2,
+   "left_out": null
+  },
+  {
+   "category": "apparel_textiles",
+   "uncovered": 2,
+   "assembled": 2,
+   "left_out": "own engine"
+  },
+  {
+   "category": "bicycles_scooters",
+   "uncovered": 2,
+   "assembled": 2,
+   "left_out": null
+  },
+  {
+   "category": "filters",
+   "uncovered": 2,
+   "assembled": 2,
+   "left_out": "has a template"
+  },
+  {
+   "category": "household_goods",
+   "uncovered": 2,
+   "assembled": 2,
+   "left_out": null
+  },
+  {
+   "category": "industrial_machinery",
+   "uncovered": 2,
+   "assembled": 2,
+   "left_out": null
+  },
+  {
+   "category": "other",
+   "uncovered": 2,
+   "assembled": 2,
+   "left_out": "other"
+  },
+  {
+   "category": "toys_sporting_goods",
+   "uncovered": 2,
+   "assembled": 1,
+   "left_out": null
+  },
+  {
+   "category": "instruments_meters",
+   "uncovered": 1,
+   "assembled": 1,
+   "left_out": null
+  },
+  {
+   "category": "metal_structures",
+   "uncovered": 1,
+   "assembled": 1,
+   "left_out": null
+  },
+  {
+   "category": "optical_cameras",
+   "uncovered": 1,
+   "assembled": 1,
+   "left_out": "has a template"
+  },
+  {
+   "category": "pcba_electronic_devices",
+   "uncovered": 1,
+   "assembled": 1,
+   "left_out": "has a template"
+  },
+  {
+   "category": "furniture",
+   "uncovered": 1,
+   "assembled": 0,
+   "left_out": "has a template"
+  }
+ ],
+ "not_picked_at_or_over_min": [
+  "paper_printed"
+ ],
+ "picked": [
+  {
+   "category": "food_agriculture",
+   "family": "food_preparations",
+   "uncovered": 53,
+   "members": [
+    "H256782",
+    "H256783",
+    "H256784",
+    "H260568",
+    "H262945",
+    "H264513",
+    "H270451",
+    "H290682",
+    "H308798",
+    "H312440",
+    "H313454",
+    "H313780",
+    "H315384",
+    "H315665",
+    "N260916",
+    "N266831",
+    "N290772",
+    "N291530",
+    "N295106",
+    "N304050",
+    "N304788",
+    "N305233",
+    "N305278",
+    "N305789",
+    "N306353",
+    "N306886",
+    "N310195",
+    "N317341",
+    "N319371",
+    "N320151",
+    "N320159",
+    "N321763",
+    "N322814",
+    "N322844",
+    "N322885",
+    "N322920",
+    "N323065",
+    "N324431",
+    "N324458",
+    "N324459",
+    "N324972",
+    "N325186",
+    "N325637",
+    "N325927",
+    "N326397",
+    "N326450",
+    "N328632",
+    "N328973",
+    "N330582",
+    "N330744",
+    "N332226",
+    "N334338",
+    "N336262"
+   ]
+  },
+  {
+   "category": "metal_hardware_fittings",
+   "family": "metal_products",
+   "uncovered": 13,
+   "members": [
+    "H263772",
+    "H314561",
+    "H314563",
+    "N262359",
+    "N285686",
+    "N293362",
+    "N296289",
+    "N309421",
+    "N316637",
+    "N316780",
+    "N325521",
+    "N326606",
+    "N334104"
+   ]
+  },
+  {
+   "category": "wood_articles",
+   "family": "wood_panels_flooring",
+   "uncovered": 11,
+   "members": [
+    "N275636",
+    "N277420",
+    "N284256",
+    "N285090",
+    "N286714",
+    "N287335",
+    "N295956",
+    "N328654",
+    "N329364",
+    "N333155",
+    "N335201"
+   ]
+  },
+  {
+   "category": "plastic_articles",
+   "family": "plastic_articles",
+   "uncovered": 11,
+   "members": [
+    "H285605",
+    "H290625",
+    "N273778",
+    "N306037",
+    "N308174",
+    "N308175",
+    "N330295",
+    "N331459",
+    "N331595",
+    "N334326",
+    "N335182"
+   ]
+  },
+  {
+   "category": "electrical_apparatus",
+   "family": "electrical_control_apparatus",
+   "uncovered": 7,
+   "members": [
+    "N301448",
+    "N302344",
+    "N303599",
+    "N303603",
+    "N303604",
+    "N303606",
+    "N330771"
+   ]
+  },
+  {
+   "category": "machinery_parts",
+   "family": "machinery_parts",
+   "uncovered": 7,
+   "members": [
+    "H312745",
+    "N285519",
+    "N303499",
+    "N306640",
+    "N307465",
+    "N308442",
+    "N317669",
+    "N318162",
+    "N334924"
+   ]
+  }
+ ]
+}

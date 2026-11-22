@@ -1,0 +1,104 @@
+{
+  "family": "metal_products",
+  "version": "1",
+  "regime": "part102",
+  "union_default_operations": true,
+  "name": "Metal semi-finished and fabricated products",
+  "note": "Under Part 102 the origin of a semi-finished or fabricated metal product usually follows the work that moves the metal into a new heading, such as extruding billets into profiles or welding drill pipe into drill string assemblies. Work that leaves the good in the same heading as its pipe, strip, foil or powder leaves the origin with the country that made that material. Written for Part 102 marking cases from 13 CBP Part 102 rulings dated before 2024 and in no development or held-out split (D580); each group is the work that makes one input whose tariff heading the rule reads, or the step that turns the inputs into the good. Every cited ruling was checked against its facts, reasoning and holding. Costs are illustrative defaults; users edit them.",
+  "sources": [
+    "H263772",
+    "H314561",
+    "H314563",
+    "N262359",
+    "N285686",
+    "N309421",
+    "N316637",
+    "N316780",
+    "N325521",
+    "N326606"
+  ],
+  "groups": [
+    {
+      "id": "powder_billet_cast",
+      "name": "Metal powder and billets",
+      "operations": [
+        "produce non-agglomerated tungsten carbide powder (subheading 2849.90)",
+        "produce nickel alloy powder (subheading 7504.00)",
+        "melt metal ingots and scrap and cast into aluminum alloy billets or logs"
+      ],
+      "movable": true,
+      "precedent": {
+        "confers_origin": [
+          "H314561",
+          "H314563"
+        ],
+        "note": "The tungsten carbide powder was the only material that did not make the required shift when blended with nickel alloy powder, so the country that made it was the origin (H314561, H314563)."
+      }
+    },
+    {
+      "id": "sheet_strip_foil_mill",
+      "name": "Sheet, strip and foil rolling",
+      "operations": [
+        "melt and roll copper scrap into wide copper alloy strip in coil form",
+        "roll aluminum into thin foil base of less than 0.2 mm thickness",
+        "cold roll stainless steel into flat-rolled sheets or rolls (heading 7219)"
+      ],
+      "movable": true,
+      "precedent": {
+        "confers_origin": [
+          "N316637",
+          "N316780"
+        ],
+        "note": "CBP determined that copper strip and aluminum foil imparted the essential character under 102.11(b)(1) when subsequent processing did not meet the tariff shift rule (N316637, N316780)."
+      }
+    },
+    {
+      "id": "pipe_tube_hose_mfg",
+      "name": "Pipes, hoses and fittings",
+      "operations": [
+        "manufacture seamless or welded steel pipes and drill pipes (headings 7304 through 7306)",
+        "manufacture flexible corrugated pipe covered with reinforced copper wire mesh",
+        "manufacture steel pipe reducers, flanges, elbows, couplings, caps, tees, and swage nipples (heading 7307)",
+        "manufacture threaded brass couplings",
+        "manufacture steel pin and box tool joints and valves"
+      ],
+      "movable": true,
+      "precedent": {
+        "confers_origin": [
+          "N262359"
+        ],
+        "note": "Welding fittings onto steel pipe made piping spools that did not change heading, so the pipe's country, which gave the essential character, was the origin (N262359)."
+      }
+    },
+    {
+      "id": "final_assembly",
+      "name": "Extrusion, stamping, welding and coating",
+      "operations": [
+        "extrude aluminum alloy billets into profiles for frames",
+        "punch and form stainless steel sheet and rolls into research discs or flexible tubing and chimney parts",
+        "weld tool joints onto drill pipes and heat treat to form drill string assemblies (subheading 8431.43)",
+        "weld fittings onto steel pipes to form prefabricated piping spools (headings 7304 through 7307) or attach brass couplings to braided hose",
+        "coat aluminum foil with polymeric layers or further process copper alloy strip coils",
+        "blend tungsten carbide and nickel alloy powders into thermal spray coating powder"
+      ],
+      "movable": false,
+      "precedent": {
+        "confers_origin": [
+          "N285686",
+          "N309421",
+          "N325521",
+          "N326606"
+        ],
+        "not_enough": [
+          "H263772",
+          "H314561",
+          "H314563",
+          "N262359",
+          "N316637",
+          "N316780"
+        ],
+        "note": "CBP ruled that punching steel sheet into discs (N285686), welding drill string assemblies of heading 8431 (N309421), and extruding billets into profiles (N325521, N326606) conferred origin, whereas welding pipe spools within headings 7301 through 7307 (H263772, N262359), blending metal powders (H314561, H314563), processing copper strip (N316637), and coating aluminum foil (N316780) did not meet the required tariff shifts."
+      }
+    }
+  ]
+}

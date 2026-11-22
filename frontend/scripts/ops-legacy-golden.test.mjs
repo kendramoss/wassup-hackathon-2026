@@ -24,6 +24,8 @@ import { html } from "./render-support.mjs";
 // tabindex, and a labelled tabpanel wrapper). Every other piece is unchanged.
 // D562 replaced the plan screen's scope line in place (planScope said plans
 // apply no Part 102 rules, false since D500 and D541); no markup changed.
+// D580 replaced the family count in that line in place (14 → 20 families); no
+// markup changed.
 globalThis.window = new EventTarget();
 globalThis.document = Object.assign(new EventTarget(), { body: { style: {} }, activeElement: null });
 stubNavigation({ id: "c1", search: "target=Thailand" });

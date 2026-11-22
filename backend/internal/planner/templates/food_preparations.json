@@ -1,0 +1,115 @@
+{
+  "family": "food_preparations",
+  "version": "1",
+  "regime": "part102",
+  "union_default_operations": true,
+  "name": "Food and beverage preparations",
+  "note": "Under Part 102 the origin of a food or drink preparation usually turns on whether each foreign ingredient (sugar, cocoa, dairy, tea, juice or nuts) makes the change in tariff classification that 102.20 requires, within the sugar and de minimis limits. When one ingredient does not shift, blending, roasting, diluting or packing leaves the origin with that ingredient's country under 102.11. Written for Part 102 marking cases from 45 CBP Part 102 rulings dated before 2024 and in no development or held-out split (D580); each group is the work that makes one input whose tariff heading the rule reads, or the step that turns the inputs into the good. Every cited ruling was checked against its facts, reasoning and holding. Costs are illustrative defaults; users edit them.",
+  "sources": [
+    "H256782",
+    "H256784",
+    "H260568",
+    "H264513",
+    "H312440",
+    "H313454",
+    "H313780",
+    "N305233",
+    "N317341",
+    "N320151",
+    "N320159",
+    "N321763",
+    "N322844",
+    "N323065",
+    "N324458",
+    "N324459",
+    "N325637",
+    "N326397"
+  ],
+  "groups": [
+    {
+      "id": "sugar_cocoa_dairy",
+      "name": "Sugar, cocoa and dairy ingredients",
+      "operations": [
+        "refine raw cane sugar into white or granulated sugar (heading 1701)",
+        "granulate, dilute with water, heat, and filter cane sugar into liquid sugar",
+        "process cocoa beans into cocoa liquor (subheading 1803.10) or cocoa powder (heading 1805)",
+        "produce whole or skim milk powder (heading 0402) and anhydrous milkfat (subheading 0405.60)"
+      ],
+      "movable": true,
+      "precedent": {
+        "confers_origin": [
+          "N322844",
+          "N325637"
+        ],
+        "note": "Where the sugar of heading 1701 was the material that did not shift, or the only one left after the cocoa powder was de minimis, its country was the origin (N322844, N325637)."
+      }
+    },
+    {
+      "id": "extracts_and_bases",
+      "name": "Tea, juice and spirit bases",
+      "operations": [
+        "produce black tea extract (subheading 2101.20) or bulk green and black teas",
+        "produce concentrated orange juice for manufacture (heading 2009) or coconut cream base",
+        "distill bulk vodka (subheading 2208.60), whiskey base (subheading 2208.30), or liqueur concentrate"
+      ],
+      "movable": true,
+      "precedent": {
+        "confers_origin": [
+          "H260568",
+          "H264513",
+          "H312440",
+          "N324458",
+          "N324459"
+        ],
+        "note": "CBP held that tea extracts of heading 2101, bulk teas, orange juice concentrate of heading 2009, and coconut cream base determine origin under 102.11(b) when they fail the tariff shift rule (H260568, H264513, H312440, N324458, N324459)."
+      }
+    },
+    {
+      "id": "nut_seed_seafood_prep",
+      "name": "Nuts, seeds, vegetables and seafood",
+      "operations": [
+        "shell or blanch raw nuts and whole hemp seeds (headings 1202, 1207, and 2008)",
+        "roast, slice, and individually quick freeze vegetables",
+        "pre-cook, peel, and freeze crawfish tail meat or harvest and freeze capelin roe (Chapter 3)"
+      ],
+      "movable": true,
+      "precedent": {
+        "confers_origin": [
+          "H256784",
+          "N305233"
+        ],
+        "note": "Where roasting, mixing or seasoning did not bring the required shift, the country of the nuts or the crawfish tail meat was the origin (H256784, N305233)."
+      }
+    },
+    {
+      "id": "final_assembly",
+      "name": "Blending, processing and packing",
+      "operations": [
+        "blend, homogenize, and pack dry powders, sugars, cocoa, dairy, flavors, and spices (headings 1806, 2103, and 2106)",
+        "mix spirits or concentrates with water, flavorings, and carbonation and seal into cans (subheading 2208.90)",
+        "roast and salt nuts, dehull or sterilize seeds, or sprout and dehydrate beans",
+        "assemble, thermally process, or portion prepared food ingredients and pouches into retail packages or bulk containers"
+      ],
+      "movable": false,
+      "precedent": {
+        "confers_origin": [
+          "H313780",
+          "N317341",
+          "N320151",
+          "N320159",
+          "N321763",
+          "N326397"
+        ],
+        "not_enough": [
+          "H256782",
+          "H256784",
+          "H312440",
+          "H313454",
+          "N305233",
+          "N323065"
+        ],
+        "note": "CBP held that final blending and packaging confers origin when all foreign ingredients satisfy the tariff shift and sugar dry-weight rules (H313780, N317341, N320151, N320159, N321763, N326397), but does not confer origin when merely roasting nuts, dehulling seeds, or blending non-shifting sugar, tea, or seafood inputs (H256782, H256784, H312440, H313454, N305233, N323065)."
+      }
+    }
+  ]
+}
