@@ -50,6 +50,8 @@ reproduce: ## recompute every published number from committed files: no model ca
 	cd $(GO_DIR) && go run ./cmd/corpus alerts-example -check
 	cd $(GO_DIR) && go run ./cmd/tariffshift eval -check
 	cd $(GO_DIR) && go run ./cmd/tariffshift parts-eval -check
+	cd $(GO_DIR) && go run ./cmd/tariffshift eval -without 15,21,40,71,95 -out ../eval/tariffshift/d560 -check
+	cd $(GO_DIR) && go run ./cmd/tariffshift parts-eval -without 15,21,40,71,95 -out ../eval/tariffshift/d560/parts -check
 	cd $(GO_DIR) && go run ./cmd/tariffshift parts-example -check
 	cd $(GO_DIR) && go run ./cmd/tariffshift plans-eval -check
 	cd $(GO_DIR) && go run ./cmd/tariffshift plans-example -check

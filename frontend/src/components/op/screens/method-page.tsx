@@ -399,7 +399,9 @@ export function MethodPage() {
           the check decides 16 of 69 development rulings (all 16 agree with CBP) and, held out, 14 of 29 (13 agree); 11 of 24 (10 agree) without the inputs that
           carried a code (<D id="D382" />, <D id="D413" />, <D id="D461" />). With only the codes CBP states it decides 8 and 4. The first seven chapters gave 9 and 7. Run again over every combination of each
           part&apos;s top three suggestions, 15 of the 16 development decisions and 13 of the 14 held-out ones give the same answer under every code; the held-out one
-          that disagrees with CBP is the one that turns on a part&apos;s code (<D id="D430" />). The codes are unverified: check them with a broker.{" "}
+          that disagrees with CBP is the one that turns on a part&apos;s code (<D id="D430" />). Five of the 17 chapters (15, 21, 40, 71, 95) were picked from a pool
+          that wrongly included held-out rulings. They stay encoded, since they are the regulation&apos;s own text, but without them the held-out figures are 12 of 29 (11 agree),
+          9 of 24 (8 agree) and 11 of 12; the full-text figure stays 4 of 32 (<D id="D560" />). The codes are unverified: check them with a broker.{" "}
           <Link href="/examples/rule-check" className="text-ok underline underline-offset-2">
             See a recorded example
           </Link>

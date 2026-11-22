@@ -1,6 +1,7 @@
 package tariffshift
 
 import (
+	"bytes"
 	"encoding/json"
 	"os"
 	"reflect"
@@ -139,23 +140,97 @@ func TestAddedChaptersExamples(t *testing.T) {
 	}
 }
 
-// The encoded chapters are D360's seven plus those chapter_counts.py picks
-// from development and earlier data (D460).
+// The encoded chapters are D360's seven, those chapter_counts.py picks from
+// development and earlier data (D460, D560), and the five D460 chapters kept
+// after #619 (picked from a pool that read held-out rulings; D560).
 func TestScopeMatchesChapterCounts(t *testing.T) {
 	b, err := os.ReadFile("../../../eval/tariffshift/chapter-counts.json")
 	if err != nil {
 		t.Fatal(err)
 	}
 	var c struct {
-		Before []string `json:"chapters_before"`
-		Added  []string `json:"chapters_added"`
+		Before  []string `json:"chapters_before"`
+		Added   []string `json:"chapters_added"`
+		Kept    []string `json:"chapters_kept_d460"`
+		Encoded []string `json:"chapters_encoded"`
 	}
 	if err := json.Unmarshal(b, &c); err != nil {
 		t.Fatal(err)
 	}
-	want := append(c.Before, c.Added...)
+	want := slices.Concat(c.Before, c.Added, c.Kept)
 	slices.Sort(want)
-	if !slices.Equal(want, ScopeChapters) {
-		t.Fatalf("ScopeChapters %v, chapter-counts.json gives %v", ScopeChapters, want)
+	if !slices.Equal(want, ScopeChapters) || !slices.Equal(c.Encoded, ScopeChapters) {
+		t.Fatalf("ScopeChapters %v, chapter-counts.json gives %v (encoded %v)", ScopeChapters, want, c.Encoded)
+	}
+	if !slices.Equal(c.Kept, []string{"15", "21", "40", "71", "95"}) {
+		t.Fatalf("chapters kept from D460: %v; D560 names 15, 21, 40, 71, 95", c.Kept)
+	}
+}
+
+// #619: the "earlier" pool behind the chapter pick holds no development or
+// held-out ruling (dev, final, final2) and nothing dated 2024 or later.
+func TestChapterPoolReadsNoHeldOut(t *testing.T) {
+	root := "../../../"
+	var counts struct {
+		Earlier struct {
+			N       int      `json:"n"`
+			Rulings []string `json:"rulings"`
+		} `json:"earlier"`
+	}
+	readJSON(t, root+"eval/tariffshift/chapter-counts.json", &counts)
+	var splits struct {
+		Dev   []string `json:"dev"`
+		Final []string `json:"final"`
+	}
+	readJSON(t, root+"eval/splits/splits_usmca.json", &splits)
+	var f2 struct {
+		Final2 []string `json:"final2"`
+	}
+	readJSON(t, root+"eval/splits/splits_usmca_final2.json", &f2)
+	held := map[string]string{}
+	for name, ids := range map[string][]string{"dev": splits.Dev, "final": splits.Final, "final2": f2.Final2} {
+		if len(ids) == 0 {
+			t.Fatalf("split %s is empty", name)
+		}
+		for _, id := range ids {
+			held[id] = name
+		}
+	}
+	lb, err := os.ReadFile(root + "eval/data/labels_usmca.jsonl")
+	if err != nil {
+		t.Fatal(err)
+	}
+	date := map[string]string{}
+	for _, line := range bytes.Split(lb, []byte("\n")) {
+		var l struct{ Ruling, Date string }
+		if len(bytes.TrimSpace(line)) == 0 {
+			continue
+		}
+		if err := json.Unmarshal(line, &l); err != nil {
+			t.Fatal(err)
+		}
+		date[l.Ruling] = l.Date
+	}
+	if counts.Earlier.N == 0 || len(counts.Earlier.Rulings) != counts.Earlier.N {
+		t.Fatalf("earlier pool: n %d, %d rulings listed", counts.Earlier.N, len(counts.Earlier.Rulings))
+	}
+	for _, id := range counts.Earlier.Rulings {
+		if s, ok := held[id]; ok {
+			t.Errorf("%s (split %s) is read as earlier", id, s)
+		}
+		if d := date[id]; d == "" || d >= "2024" {
+			t.Errorf("%s dated %q is read as earlier (want before 2024)", id, d)
+		}
+	}
+}
+
+func readJSON(t *testing.T, path string, v any) {
+	t.Helper()
+	b, err := os.ReadFile(path)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if err := json.Unmarshal(b, v); err != nil {
+		t.Fatalf("%s: %v", path, err)
 	}
 }

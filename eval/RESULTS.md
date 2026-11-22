@@ -819,6 +819,10 @@ Total $0.97 promo / $1.95 list. The engine's view of the current setup disagreed
 - No new disagreement with CBP; no ruling changed its answer. New: the check differs from the model on dev N341152 and N352059, agreeing with CBP on both.
 - `cd backend && go run ./cmd/tariffshift eval -check`, `parts-eval -check`, `plans-eval -check`; `python3 -I -B eval/tariffshift/chapter_counts.py . --check` (all in `make reproduce`). RUNLOG `tariffshift-chapters-*`, $0.
 
+### Correction, 22 Nov (D560, #619)
+- The D460 pick read every labelled Part 102 ruling as "earlier", including the 32 held-out `final` rulings and the 72 development rulings twice. Counted as documented (development plus 239 labelled rulings dated before 2024, none in dev, final or final2), the pick is 39, 44, 48, 76, 83. 15, 21, 40, 71 and 95 stay encoded (regulation text, nothing tuned).
+- Held-out figures without those five, computed once offline, $0: D362 full text final 4 (4) (out of scope 12, was 7), facts 1 / 0; D382 CBP's stated codes 4 (4), CBP's good code with top part suggestions 12 (11), top suggestion for everything 13 (12), without input codes 9 (8); D430 11 of 12 and 11 of 13. Lost: N357770, N361217 (both agreed). `eval/tariffshift/d560/`, in `make reproduce`. RUNLOG `tariffshift-chapters-heldout-d560`.
+
 ## ADK agent fix check, 5 products (local server, 22 Nov; D470, D472)
 - Not a score: a03, a04, a06, a10, a12 (dev products already seen) once each with the D470 agent and server changes, against a local server (engine, router and verifier on Gemini 3.8 Flash through the gateway). Pre-registered in D470. Two attempts, both kept: the first stopped early on the local server's per-client spend share and tests nothing (agent $0.0973); the second (agent $0.1751, server calls about $0.31) is read per issue in D472: a04 drafted once by `plan_id`; a03 and a06 found no plan and claimed no working move; a06 made one `predict_origin` call; a10 hit the local spend cap; a12 got no implausible code to flag. RUNLOG `adk-agent-fixcheck-d470-attempt1`, `adk-agent-fixcheck-d470`.
 

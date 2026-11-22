@@ -65,5 +65,7 @@ test("/method and /accuracy link the example; /method gives both held-out figure
   // D461: the figures with the 17 encoded chapters.
   assert.match(method, /14 of 29 \(13 agree\); 11 of 24 \(10 agree\) without the inputs that carried a code/);
   assert.match(method, /15 of the 16 development decisions and 13 of the 14 held-out ones/);
+  // D560 (#619): the held-out figures without the five chapters picked with held-out data.
+  assert.match(method, /without them the held-out figures are 12 of 29 \(11 agree\), 9 of 24 \(8 agree\) and 11 of 12; the full-text figure stays 4 of 32/);
   assert.match(src("accuracy-page.tsx"), /href="\/examples\/rule-check"/);
 });

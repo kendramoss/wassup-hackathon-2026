@@ -125,9 +125,11 @@ type TableSource struct {
 // ScopeChapters are the HTS chapters encoded. D360: Section XVI (84, 85)
 // and the chapters of the goods in the 14 planner families (73 grills and
 // stoves, 82 hand tools, 87 vehicle parts, 90 medical and optical devices,
-// 94 furniture and lamps). D460: the ten other chapters with at least four
-// goods among the development Part 102 rulings and the earlier labelled
-// pool (15 fats and oils, 21 food preparations, 39 plastics, 40 rubber, 44
-// wood, 48 paper, 71 jewellery, 76 aluminium, 83 miscellaneous base metal,
-// 95 toys, games and sports goods). Other chapters are out of scope.
+// 94 furniture and lamps). D560 (correcting D460): the other chapters with
+// at least four goods among the development Part 102 rulings and the
+// labelled rulings dated before 2024 (39 plastics, 44 wood, 48 paper, 76
+// aluminium, 83 miscellaneous base metal), plus five chapters D460 picked
+// from a pool that read held-out rulings, kept as regulation text (15 fats
+// and oils, 21 food preparations, 40 rubber, 71 jewellery, 95 toys, games
+// and sports goods). Other chapters are out of scope.
 var ScopeChapters = []string{"15", "21", "39", "40", "44", "48", "71", "73", "76", "82", "83", "84", "85", "87", "90", "94", "95"}

@@ -116,6 +116,27 @@ type Rules struct{ t Table }
 // New returns rules over a table.
 func New(t Table) *Rules { return &Rules{t: t} }
 
+// Only returns rules restricted to the given chapters: a good in any other
+// chapter is out of scope, as if the table had never encoded it. Used to
+// report figures without the chapters D560 says were picked with held-out
+// data (#619); the server always uses the whole table.
+func (r *Rules) Only(chapters []string) *Rules {
+	t := r.t
+	t.Chapters = nil
+	for _, c := range r.t.Chapters {
+		if slices.Contains(chapters, c) {
+			t.Chapters = append(t.Chapters, c)
+		}
+	}
+	t.Rules = nil
+	for _, rule := range r.t.Rules {
+		if len(rule.HTS) >= 2 && slices.Contains(t.Chapters, rule.HTS[:2]) {
+			t.Rules = append(t.Rules, rule)
+		}
+	}
+	return New(t)
+}
+
 // Table returns the loaded table.
 func (r *Rules) Table() Table { return r.t }
 
