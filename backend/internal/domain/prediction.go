@@ -53,14 +53,15 @@ type Prediction struct {
 	Precedents   []string `json:"precedents"`
 	// VoteAgreement, when the engine voted, is how many calls gave this
 	// origin, e.g. "4/5".
-	VoteAgreement string `json:"vote_agreement,omitempty"`
-	Trace         Trace  `json:"trace"`
+	VoteAgreement string       `json:"vote_agreement,omitempty"`
+	Trace         Trace        `json:"trace"`
+	Japan         *JapanResult `json:"japan_preference,omitempty"`
 }
 
 // Validate checks the model returned an origin and a confidence in [0, 1].
 func (p Prediction) Validate() error {
 	var errs problems
-	if p.Origin == "" {
+	if p.Origin == "" && (p.Japan == nil || p.Japan.Outcome == "qualifies") {
 		errs.add("origin_country is empty")
 	}
 	if p.Confidence < 0 || p.Confidence > 1 {
@@ -70,8 +71,12 @@ func (p Prediction) Validate() error {
 		errs.add("calibrated_confidence %v is outside [0, 1]", *c)
 	}
 	for _, id := range p.CitedRulings {
-		if !ValidRulingID(id) {
-			errs.add("cited ruling %q is not a CBP ruling number", id)
+		valid := ValidRulingID(id)
+		if p.Japan != nil {
+			valid = ValidJapanRulingID(id)
+		}
+		if !valid {
+			errs.add("cited ruling %q is not a valid ruling number for this market", id)
 		}
 	}
 	return errs.err()

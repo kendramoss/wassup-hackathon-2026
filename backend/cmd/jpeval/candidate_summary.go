@@ -1,0 +1,181 @@
+package main
+
+import (
+	"bytes"
+	"encoding/json"
+	"flag"
+	"fmt"
+	"os"
+	"path/filepath"
+	"strings"
+
+	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/domain"
+	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/evalkit"
+	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/jpengine"
+)
+
+type candidateMetrics struct {
+	Run               string          `json:"run"`
+	Split             string          `json:"split"`
+	Expected          int             `json:"expected_cases"`
+	Cases             int             `json:"cases"`
+	Errors            int             `json:"errors"`
+	ModelCalls        int             `json:"model_calls"`
+	Qualifies         int             `json:"qualifies"`
+	DoesNotQualify    int             `json:"does_not_qualify"`
+	Undetermined      int             `json:"undetermined"`
+	Criterion         Rate            `json:"criterion_match"`
+	CriterionAny      Rate            `json:"criterion_in_cited_set"`
+	NamedCountry      Rate            `json:"stated_country_match"`
+	NamedOrigin       Rate            `json:"stated_origin_match_including_eu"`
+	PublishedPositive Rate            `json:"positive_recall"`
+	SyntheticRefusals Rate            `json:"synthetic_refusals"`
+	ByAgreement       map[string]Rate `json:"criterion_match_by_agreement"`
+	CostUSD           float64         `json:"cost_usd"`
+	CostPerCase       float64         `json:"cost_per_case_usd"`
+	CostPerModelCall  float64         `json:"cost_per_model_call_usd"`
+	P50MS             int64           `json:"model_call_cases_latency_p50_ms"`
+	P95MS             int64           `json:"model_call_cases_latency_p95_ms"`
+	LabelsSHA256      string          `json:"labels_sha256,omitempty"`
+}
+
+func scoreCandidate(name, split string, rows []candidateRow, expected int, labelHash string) candidateMetrics {
+	s := candidateMetrics{Run: name, Split: split, Cases: len(rows), Expected: expected, LabelsSHA256: labelHash, ByAgreement: map[string]Rate{}}
+	var calls []int64
+	var criterion, cited, country, origin, positive, synthetic int
+	var nc, ncountry, no, np, ns int
+	agN, agK := map[string]int{}, map[string]int{}
+	for _, row := range rows {
+		s.CostUSD += row.CostUSD
+		if row.CalledModel {
+			s.ModelCalls++
+			calls = append(calls, row.LatencyMS)
+		}
+		outcome, decidedCriterion := "", ""
+		switch {
+		case row.Error != "" || row.Prediction.Japan == nil:
+			s.Errors++
+		default:
+			p := row.Prediction.Japan
+			outcome, decidedCriterion = p.Outcome, p.Criterion
+			switch outcome {
+			case jpengine.Qualifies:
+				s.Qualifies++
+			case jpengine.DoesNotQualify:
+				s.DoesNotQualify++
+			case jpengine.Undetermined:
+				s.Undetermined++
+			}
+		}
+		l := row.Label
+		if l.Criterion != "" {
+			nc++
+			agN[l.Agreement]++
+			if decidedCriterion == l.Criterion {
+				criterion++
+				agK[l.Agreement]++
+			}
+			for _, c := range l.Criteria {
+				if c == decidedCriterion {
+					cited++
+					break
+				}
+			}
+		}
+		if l.StatedOrigin != "" {
+			no++
+			isCountry := !strings.EqualFold(l.StatedOrigin, "EU")
+			if isCountry {
+				ncountry++
+			}
+			if outcome == jpengine.Qualifies && domain.NormalizeCountry(l.StatedOrigin) == domain.NormalizeCountry(row.Prediction.Origin) {
+				origin++
+				if isCountry {
+					country++
+				}
+			}
+		}
+		if l.Outcome == "positive" {
+			np++
+			if outcome == jpengine.Qualifies {
+				positive++
+			}
+		}
+		if split == "synthetic" && l.Outcome == "negative" {
+			ns++
+			if outcome == jpengine.DoesNotQualify {
+				synthetic++
+			}
+		}
+	}
+	s.Criterion, s.CriterionAny = rate(criterion, nc), rate(cited, nc)
+	s.NamedCountry, s.NamedOrigin = rate(country, ncountry), rate(origin, no)
+	s.PublishedPositive, s.SyntheticRefusals = rate(positive, np), rate(synthetic, ns)
+	for a, n := range agN {
+		s.ByAgreement[a] = rate(agK[a], n)
+	}
+	if len(rows) > 0 {
+		s.CostPerCase = round4(s.CostUSD / float64(len(rows)))
+	}
+	if s.ModelCalls > 0 {
+		s.CostPerModelCall = round4(s.CostUSD / float64(s.ModelCalls))
+	}
+	s.CostUSD = round4(s.CostUSD)
+	s.P50MS, s.P95MS = evalkit.Percentile(calls, 50), evalkit.Percentile(calls, 95)
+	return s
+}
+
+func candidateSummary(args []string) error {
+	fs := flag.NewFlagSet("candidate-summary", flag.ExitOnError)
+	split := fs.String("split", "dev_eval", "dev_eval, held_out, or synthetic")
+	tag := fs.String("tag", "", "tag for a development run")
+	check := fs.Bool("check", false, "fail if the committed metrics differ")
+	_ = fs.Parse(args)
+	name, err := candidateName(*split, *tag)
+	if err != nil {
+		return err
+	}
+	rows, err := readCandidateRows(candidateRowsPath(name))
+	if err != nil {
+		return err
+	}
+	items, _, labelHash, err := loadCandidate(*split)
+	if err != nil {
+		return err
+	}
+	rowsByID := map[string]int{}
+	for i, r := range rows {
+		rowsByID[r.ID] = i + 1
+	}
+	for _, item := range items {
+		if i := rowsByID[item.label.ID]; i > 0 {
+			rows[i-1].Label = item.label
+			delete(rowsByID, item.label.ID)
+		}
+	}
+	if len(rowsByID) > 0 {
+		return fmt.Errorf("run contains cases outside the %s split", *split)
+	}
+	return writeCandidateSummary(scoreCandidate(name, *split, rows, len(items), labelHash), *check)
+}
+
+func writeCandidateSummary(s candidateMetrics, check bool) error {
+	b, err := json.MarshalIndent(s, "", " ")
+	if err != nil {
+		return err
+	}
+	b = append(b, '\n')
+	path := filepath.Join(outDir, s.Run+"-metrics.json")
+	if check {
+		got, err := os.ReadFile(path)
+		if err != nil {
+			return err
+		}
+		if !bytes.Equal(got, b) {
+			return fmt.Errorf("metrics differ from candidate rows: %s", path)
+		}
+		fmt.Println("jp candidate metrics ok", s.Run)
+		return nil
+	}
+	return os.WriteFile(path, b, 0o644)
+}

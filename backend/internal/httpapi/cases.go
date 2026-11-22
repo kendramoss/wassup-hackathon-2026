@@ -364,7 +364,8 @@ type predictRequest struct {
 	DisplayName string `json:"display_name"`
 	// Jurisdiction is the market the question is for (D680): us, eu, uk,
 	// ca, jp, kr, au, mx or other. Omitted: read from the text, else us.
-	Jurisdiction string `json:"jurisdiction"`
+	Jurisdiction string             `json:"jurisdiction"`
+	Japan        *domain.JapanInput `json:"japan"`
 }
 
 func (a *api) predict(w http.ResponseWriter, r *http.Request) {
@@ -457,33 +458,45 @@ func (a *api) analyseAndSave(r *http.Request, sc store.Case, c domain.Case, star
 // newCase validates a predict request and builds the case to analyse.
 func (a *api) newCase(r *http.Request, in predictRequest) (store.Case, domain.Case, error) {
 	facts := strings.TrimSpace(in.Facts)
+	market, err := jurisdiction.Resolve(in.Jurisdiction, marketText(facts, in.Product))
+	if err != nil {
+		return store.Case{}, domain.Case{}, err
+	}
+	if in.Japan != nil {
+		if in.Jurisdiction == "" {
+			market = domain.Jurisdiction{Code: jurisdiction.JP, Source: jurisdiction.SourceChosen}
+		}
+		if market.Code != jurisdiction.JP {
+			return store.Case{}, domain.Case{}, fmt.Errorf("%w: japan is only for imports into Japan", domain.ErrInvalid)
+		}
+	}
 	if in.Product != nil {
 		if err := in.Product.Validate(); err != nil {
 			return store.Case{}, domain.Case{}, err
 		}
-		if facts == "" {
+		if facts == "" && market.Code != jurisdiction.JP {
 			tm, ok := a.d.Templates[in.Family]
 			if !ok {
 				return store.Case{}, domain.Case{}, fmt.Errorf("%w: family %q has no template; known: %s", domain.ErrInvalid, in.Family, a.families())
 			}
 			facts = planner.Render(*in.Product, tm)
+			if in.Jurisdiction == "" {
+				market = jurisdiction.Detect(marketText(facts, in.Product))
+			}
 		}
 	}
 	for _, id := range in.Exclude {
-		if !domain.ValidRulingID(id) {
-			return store.Case{}, domain.Case{}, fmt.Errorf("%w: exclude_rulings: %q is not a CBP ruling number", domain.ErrInvalid, id)
+		if domain.ValidRulingID(id) || (market.Code == jurisdiction.JP && domain.ValidJapanRulingID(id)) {
+			continue
 		}
+		return store.Case{}, domain.Case{}, fmt.Errorf("%w: exclude_rulings: %q is not a ruling number for this market", domain.ErrInvalid, id)
 	}
 	// Feed facts in the format the engine was benchmarked on: corpus facts
 	// files (and rendered products) end with one newline (D20).
 	if facts != "" && !strings.HasSuffix(facts, "\n") {
 		facts += "\n"
 	}
-	market, err := jurisdiction.Resolve(in.Jurisdiction, marketText(facts, in.Product))
-	if err != nil {
-		return store.Case{}, domain.Case{}, err
-	}
-	c := domain.Case{ID: newCaseID(), Date: in.Date.Time, Facts: facts, Product: in.Product, Exclude: in.Exclude, Jurisdiction: &market}
+	c := domain.Case{ID: newCaseID(), Date: in.Date.Time, Facts: facts, Product: in.Product, Exclude: in.Exclude, Jurisdiction: &market, Japan: in.Japan}
 	if err := c.Validate(); err != nil {
 		return store.Case{}, domain.Case{}, err
 	}
@@ -500,7 +513,7 @@ func (a *api) newCase(r *http.Request, in predictRequest) (store.Case, domain.Ca
 	}
 	now := time.Now().UTC()
 	sc := store.Case{ID: c.ID, Date: in.Date.Format(time.DateOnly), Facts: facts, Family: in.Family, Product: in.Product,
-		Exclude: in.Exclude, Jurisdiction: &market, CurrentOrigin: in.CurrentOrigin, CreatedAt: now, UpdatedAt: now, Economics: in.Economics, DisplayName: displayName,
+		Exclude: in.Exclude, Jurisdiction: &market, Japan: in.Japan, CurrentOrigin: in.CurrentOrigin, CreatedAt: now, UpdatedAt: now, Economics: in.Economics, DisplayName: displayName,
 	}
 	sc.Owner, sc.Workspace = a.principalOf(r).newCaseScope() // a signed-in user's (D68), else the credential owner
 	return sc, c, nil
@@ -723,6 +736,23 @@ func (a *api) caseFieldsBase(r *http.Request, c store.Case) map[string]any {
 		"can_write": a.canWrite(r, c),
 	}
 	a.marketFields(f, c)
+	if jurisdiction.Of(c.Jurisdiction).Code == jurisdiction.JP {
+		f["disclaimer"] = domain.JapanDisclaimer
+		f["precedents_detail"] = nil // Japan sources carry their official URLs in japan_preference.
+		trace := c.Prediction.Trace
+		f["llm_provider"] = trace.Provider
+		f["model_ids"] = map[string]string{}
+		f["prompt_versions"] = map[string]string{}
+		if trace.Identity() != "" {
+			f["model_ids"] = map[string]string{"engine": trace.Identity()}
+		}
+		if trace.PromptVersion != "" {
+			f["prompt_versions"] = map[string]string{"engine": trace.PromptVersion}
+		}
+		if c.Japan != nil {
+			f["japan"] = c.Japan
+		}
+	}
 	// What the case's own prediction read (D220), present only when known.
 	if src := a.factsSource(c); src != "" {
 		f["facts_source"] = src
@@ -784,7 +814,11 @@ func predictionEvent(kind string, c store.Case, start time.Time) store.Event {
 	if c.Clarify != nil {
 		u.trace(c.Clarify.Trace)
 	}
-	return u.on(store.Event{Kind: kind, Summary: fmt.Sprintf("origin %s, %s, %s", p.Origin, confidencePhrase(p), c.Triage.Route),
+	summary := fmt.Sprintf("origin %s, %s, %s", p.Origin, confidencePhrase(p), c.Triage.Route)
+	if p.Japan != nil {
+		summary = "Japan trade-agreement assessment, " + string(c.Triage.Route)
+	}
+	return u.on(store.Event{Kind: kind, Summary: summary,
 		Provider: p.Trace.Provider, Model: p.Trace.ModelID, Prompt: p.Trace.PromptVersion}, start)
 }
 

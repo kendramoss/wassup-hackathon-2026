@@ -11,7 +11,8 @@ const repoData = "../../../data/jp"
 
 // The committed snapshot keeps the D710 split rules: dev before 2026,
 // held-out from 2026, dev_eval inside dev, no ruling in both, and labels
-// for development rulings only.
+// confined to their frozen splits. D712 froze the phase-two protocol before
+// the held-out labels were generated.
 func TestCommittedSplitKeepsD710(t *testing.T) {
 	c, err := Load(repoData)
 	if err != nil {
@@ -52,8 +53,17 @@ func TestCommittedSplitKeepsD710(t *testing.T) {
 			t.Errorf("label for %s, which is not a development ruling", id)
 		}
 	}
-	if _, err := os.Stat(filepath.Join(repoData, "labels-heldout.jsonl")); err == nil {
-		t.Error("labels-heldout.jsonl exists before phase 2 (D710)")
+	heldOutLabels, err := LoadLabels(filepath.Join(repoData, "labels-heldout.jsonl"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(heldOutLabels) != len(sp.HeldOut) {
+		t.Errorf("held-out labels cover %d rulings, want %d", len(heldOutLabels), len(sp.HeldOut))
+	}
+	for _, id := range sp.HeldOut {
+		if _, ok := heldOutLabels[id]; !ok {
+			t.Errorf("held-out ruling %s has no label", id)
+		}
 	}
 	for _, r := range c.Rulings() {
 		if AgreementNames[r.Agreement] == "" {

@@ -20,6 +20,7 @@ import { ReviewNote } from "../review-note";
 import { RuleCheckPanel } from "../rule-check";
 import { RcepCheck } from "../rcep-check";
 import { CanadaCheck } from "../canada-check";
+import { JapanPreference } from "../japan-preference";
 import { Term } from "../term";
 import { regimeOf } from "@/lib/regime";
 import { marketOf } from "@/lib/market";
@@ -31,6 +32,8 @@ export function OriginStep() {
 }
 
 function Result(ctx: CaseCtx) {
+  const { c } = ctx;
+  if (c.jurisdiction === "jp" && (c.prediction?.japan_preference || c.jurisdiction_detail?.supported)) return <JapanPreference c={c} />;
   // A market with no origin engine (D680): no answer was made, so there is
   // no verdict to show, only what to do next.
   if (ctx.c.jurisdiction_detail?.supported === false) return <UnsupportedMarket c={ctx.c} />;
