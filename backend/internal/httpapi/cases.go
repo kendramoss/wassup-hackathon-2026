@@ -715,6 +715,11 @@ func (a *api) caseFieldsBase(r *http.Request, c store.Case) map[string]any {
 	if rc := a.ruleCheck(c); rc != nil {
 		f["rule_check"] = rc
 	}
+	// CBP changes to rulings the case relies on (D480), present only when
+	// there is one. Information only: the stored answer is unchanged.
+	if ra := rulingAlertsField(c, alertsNow()); ra != nil {
+		f["ruling_alerts"] = ra
+	}
 	return f
 }
 
@@ -878,6 +883,9 @@ type caseSummary struct {
 	// CanWrite is server-computed for this caller (access.go); nil only in a
 	// row built without a request, so absent means unknown and false means read-only.
 	CanWrite *bool `json:"can_write,omitempty"`
+	// RulingAlerts counts CBP's final and proposed changes to the rulings the
+	// case relies on (D480); absent when there are none.
+	RulingAlerts *domain.AlertCounts `json:"ruling_alerts,omitempty"`
 }
 
 // listCases lists the cases the caller may see: pinned demos first, then the
@@ -1007,7 +1015,8 @@ func (a *api) recentWithoutProbes(ctx context.Context, limit int) ([]store.Case,
 
 // summaryRow is a case's row on Cases home.
 func summaryRow(c store.Case) caseSummary {
-	row := caseSummary{ID: c.ID, Date: c.Date, Step: c.Step(), UpdatedAt: c.UpdatedAt.Format(time.RFC3339), Scenarios: len(c.Scenarios), Pinned: c.Pinned}
+	row := caseSummary{ID: c.ID, Date: c.Date, Step: c.Step(), UpdatedAt: c.UpdatedAt.Format(time.RFC3339), Scenarios: len(c.Scenarios), Pinned: c.Pinned,
+		RulingAlerts: alertCounts(c, alertsNow())}
 	if c.Watch != nil {
 		row.Watch = &c.Watch.Status
 		if c.Watch.Basis != "" {

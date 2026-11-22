@@ -546,7 +546,55 @@ func (t tools) getCase(ctx context.Context, hdr http.Header, in caseIn) (*mcp.Ca
 	if l := ruleCheckLine(out); l != "" {
 		b.WriteString("\n" + l)
 	}
+	if l := rulingAlertLines(out); l != "" {
+		b.WriteString("\n" + l)
+	}
 	return done(b.String(), out)
+}
+
+// rulingAlertLines words the case's revocation alerts (D480), or "" when
+// it has none. The saved answer is not changed by them.
+func rulingAlertLines(out map[string]any) string {
+	ra := obj(out["ruling_alerts"])
+	if len(ra) == 0 {
+		return ""
+	}
+	var lines []string
+	var final, readOnly int
+	for _, x := range list(ra["items"]) {
+		a := obj(x)
+		relied := false
+		for _, r := range list(a["roles"]) {
+			if r != "read" {
+				relied = true
+			}
+		}
+		switch {
+		case !relied:
+			if a["status"] == "final" {
+				readOnly++
+			}
+		case a["status"] == "final":
+			final++
+			l := fmt.Sprintf("Ruling %s relied on by this case was %s.", str0(a["ruling"], ""), str0(a["note"], "changed"))
+			if a["in_effect"] != true {
+				l = fmt.Sprintf("Ruling %s relied on by this case is scheduled to be %s.", str0(a["ruling"], ""), str0(a["note"], "changed"))
+			}
+			lines = append(lines, l+" Re-check recommended.")
+		default:
+			lines = append(lines, fmt.Sprintf("Ruling %s relied on by this case: %s; proposed, not final, so information only.", str0(a["ruling"], ""), str0(a["note"], "")))
+		}
+	}
+	if readOnly > 0 {
+		lines = append(lines, fmt.Sprintf("%d ruling(s) the prediction read but did not cite have changed since.", readOnly))
+	}
+	if final > 0 {
+		if ra["rechecked_at"] != nil {
+			lines = append(lines, fmt.Sprintf("The ruling watch re-checked this case on %v (see watch).", ra["rechecked_at"]))
+		}
+		lines = append(lines, "The saved answer is unchanged; a re-check runs the ruling watch with today's rulings (REST POST /v1/cases/{id}/watch).")
+	}
+	return "Changed rulings: " + strings.Join(lines, " ")
 }
 
 // ruleCheckLine summarises the 19 CFR 102.20 rule check (D363), or "" when
@@ -601,6 +649,9 @@ func (t tools) listCases(ctx context.Context, hdr http.Header, in listIn) (*mcp.
 			demo = " [demo]"
 		}
 		fmt.Fprintf(&b, "\n%v%s: %v. Origin %s, step %v.", c["id"], demo, c["display_name"], str0(c["predicted_origin"], "not analysed"), c["step"])
+		if n := obj(c["ruling_alerts"]); len(n) > 0 {
+			fmt.Fprintf(&b, " Changed rulings it relies on: %v final, %v proposed.", n["final"], n["proposed"])
+		}
 	}
 	return done(b.String(), out)
 }

@@ -1,0 +1,235 @@
+{
+ "as_of": "2026-11-22",
+ "case_documents": [
+  "eval/results/demo-seed-heatgun-predict-litellm.json case_354b8919d82e",
+  "eval/results/demo-seed-heatgun-predict-vertex-prod.json case_878d76540b91",
+  "eval/results/demo-seed-heatgun-predict-vertex.json case_1b48a0abe7dd",
+  "eval/results/demo-seed-heatgun-scenarios-litellm.json case_354b8919d82e",
+  "eval/results/demo-seed-heatgun-scenarios-vertex-prod.json case_878d76540b91",
+  "eval/results/demo-seed-heatgun-scenarios-vertex.json case_1b48a0abe7dd",
+  "eval/results/predict-heatgun-2022-litellm.json case_7ede47a32b34"
+ ],
+ "case_examples": [],
+ "cases": {
+  "cases": 7
+ },
+ "demo_fixtures": [
+  {
+   "alerts": [],
+   "category": "none",
+   "date": "2025-07-03",
+   "demo": "aluminum-wheel-2025",
+   "rulings_checked": [
+    "N349871",
+    "N346803"
+   ]
+  },
+  {
+   "alerts": [],
+   "category": "none",
+   "date": "2025-07-18",
+   "demo": "dryer-latch-assembled",
+   "rulings_checked": []
+  },
+  {
+   "alerts": [],
+   "category": "none",
+   "date": "2025-07-18",
+   "demo": "dryer-latch-moulded",
+   "rulings_checked": []
+  },
+  {
+   "alerts": [],
+   "category": "none",
+   "date": "2023-09-01",
+   "demo": "gas-grill-2023",
+   "rulings_checked": [
+    "N335085",
+    "N333420"
+   ]
+  },
+  {
+   "alerts": [],
+   "category": "none",
+   "date": "2026-01-14",
+   "demo": "heatgun-2022",
+   "rulings_checked": [
+    "N328954"
+   ]
+  },
+  {
+   "alerts": [],
+   "category": "none",
+   "date": "2026-03-03",
+   "demo": "lidar-s1",
+   "rulings_checked": [
+    "N359371 (scenario I)"
+   ]
+  },
+  {
+   "alerts": [],
+   "category": "none",
+   "date": "2023-07-05",
+   "demo": "pcr-analyzer-2023",
+   "rulings_checked": [
+    "N333453",
+    "N330296"
+   ]
+  },
+  {
+   "alerts": [],
+   "category": "none",
+   "date": "2025-09-03",
+   "demo": "power-bank-2025",
+   "rulings_checked": [
+    "N352355",
+    "N352014"
+   ]
+  },
+  {
+   "alerts": [],
+   "category": "none",
+   "date": "2025-07-09",
+   "demo": "speed-sensor-2025",
+   "rulings_checked": [
+    "N350727",
+    "N344809"
+   ]
+  },
+  {
+   "alerts": [],
+   "category": "none",
+   "date": "2025-07-09",
+   "demo": "tublight-2025",
+   "rulings_checked": [
+    "N350085"
+   ]
+  }
+ ],
+ "map": "backend/internal/domain/supersession.json",
+ "note": "Offline count (D480): committed demo cases and committed result rows that would show a revocation alert, by the API's rule (domain.RulingAlerts): a ruling the case or row relies on (cited, a plan's supporting ruling, CBP's holding on the current setup) has a final revocation or modification (final_after_case: dated on or after the case date; final_before_case: dated before it, which the guard of D320/D370 would refuse today; final_undated: the row has no date) or a pending proposal only (proposed). read_only_final: only a ruling read and not cited changed (a calm line, no badge). Rows are every JSON object in eval/results that names rulings, as eval/supersession/impact.py reads them, except stored case documents (an id case_..., a date and a prediction), which are counted once as cases. No model call; in effect is judged as of 2026-11-22.",
+ "row_examples": [
+  {
+   "alerts": [
+    "N331974 (cited, read): revoked by H325607 on 2025-08-29"
+   ],
+   "case_date": "2025-08-29",
+   "category": "final_after_case",
+   "file": "eval/results/dev-gemini-4-argon-prec-engine-v1-litellm-reasoning-v1.jsonl",
+   "row": "H325607"
+  },
+  {
+   "alerts": [
+    "N344694 (cited, read): modified by H344999 on 2026-05-06"
+   ],
+   "case_date": "2025-12-22",
+   "category": "final_after_case",
+   "file": "eval/results/dev-gemini-4-argon-prec-engine-v1-litellm-reasoning-v1.jsonl",
+   "row": "N356467"
+  },
+  {
+   "alerts": [
+    "N331974 (cited, read): revoked by H325607 on 2025-08-29"
+   ],
+   "case_date": "2025-08-29",
+   "category": "final_after_case",
+   "file": "eval/results/dev-gemini-4-carbon-prec-engine-v1-litellm.jsonl",
+   "row": "H325607"
+  },
+  {
+   "alerts": [
+    "N344694 (cited, read): modified by H344999 on 2026-05-06"
+   ],
+   "case_date": "2025-12-22",
+   "category": "final_after_case",
+   "file": "eval/results/dev-gemini-4-carbon-prec-engine-v1-litellm.jsonl",
+   "row": "N356467"
+  },
+  {
+   "alerts": [
+    "N331974 (cited, read): revoked by H325607 on 2025-08-29"
+   ],
+   "case_date": "2026-05-18",
+   "category": "final_before_case",
+   "file": "eval/results/final-gemini-4-argon-prec-engine-v1-litellm-repeat1.jsonl",
+   "row": "N361172"
+  },
+  {
+   "alerts": [
+    "N331974 (cited, read): revoked by H325607 on 2025-08-29"
+   ],
+   "case_date": "2026-05-18",
+   "category": "final_before_case",
+   "file": "eval/results/final-gemini-4-argon-prec-engine-v1-litellm-repeat2.jsonl",
+   "row": "N361172"
+  },
+  {
+   "alerts": [
+    "N331974 (cited, read): revoked by H325607 on 2025-08-29"
+   ],
+   "case_date": "2026-05-18",
+   "category": "final_before_case",
+   "file": "eval/results/final-gemini-4-argon-prec-engine-v1-litellm.jsonl",
+   "row": "N361172"
+  },
+  {
+   "alerts": [
+    "N322364 (plan_support): modified by H323218 on 2025-12-16"
+   ],
+   "case_date": "2026-01-14",
+   "category": "final_before_case",
+   "file": "eval/results/plan-heatgun-2022-verifier-v2-litellm.json",
+   "row": ""
+  },
+  {
+   "alerts": [
+    "N345891 (cited, read): revoked by H346161 on 2025-05-05"
+   ],
+   "case_date": "2025-10-07",
+   "category": "final_before_case",
+   "file": "eval/results/textile-dev-gemini-4-argon-prec-textile-v1-litellm-k8.jsonl",
+   "row": "N354003"
+  },
+  {
+   "alerts": [
+    "N345891 (cited, read): revoked by H346161 on 2025-05-05"
+   ],
+   "case_date": "2025-12-15",
+   "category": "final_before_case",
+   "file": "eval/results/textile-dev-gemini-4-argon-prec-textile-v1-litellm-reasoning-v1.jsonl",
+   "row": "N356391"
+  },
+  {
+   "alerts": [
+    "N345891 (cited, read): revoked by H346161 on 2025-05-05"
+   ],
+   "case_date": "2025-12-15",
+   "category": "final_before_case",
+   "file": "eval/results/textile-dev-gemini-4-argon-prec-textile-v2-litellm-reasoning-v1.jsonl",
+   "row": "N356391"
+  },
+  {
+   "alerts": [
+    "N345891 (cited, read): revoked by H346161 on 2025-05-05"
+   ],
+   "case_date": "2025-12-15",
+   "category": "final_before_case",
+   "file": "eval/results/textile-dev-gemini-4-argon-prec-textile-v2-vertex-reasoning-v1.jsonl",
+   "row": "N356391"
+  }
+ ],
+ "rows": {
+  "final_after_case": 4,
+  "final_before_case": 8,
+  "read_only_final": 85,
+  "rows_undated": 342,
+  "rows_with_rulings": 13107
+ },
+ "rulings_final_relied": {
+  "N322364": 1,
+  "N331974": 5,
+  "N344694": 2,
+  "N345891": 4
+ },
+ "rulings_proposed_relied": {}
+}

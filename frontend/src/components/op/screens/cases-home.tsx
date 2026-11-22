@@ -1,6 +1,7 @@
 "use client";
 
 import { watchView } from "@/lib/watch-state";
+import { badgeText } from "@/lib/ruling-alerts";
 import Link from "next/link";
 import { useEffect, useRef, useState, type KeyboardEvent as ReactKeyboardEvent } from "react";
 import { api, type CaseResponse, type CaseSummary, type DemoList } from "@/lib/api/client";
@@ -270,6 +271,7 @@ export function DemoCard({ c, demo }: { c: CaseSummary; demo?: NonNullable<DemoL
         <b className="font-medium leading-snug">{c.display_name}</b>
         <Chip className="shrink-0">Demo</Chip>
       </span>
+      <AlertBadge n={c.ruling_alerts} />
       <span className="text-[26px] leading-none tracking-[-0.05em]">
         <Country name={c.predicted_origin} size={18} />
       </span>
@@ -394,6 +396,7 @@ export function YourCases({ cases, onChange }: { cases: CaseSummary[]; onChange:
                     </Link>
                   )}
                   <span className="text-xs text-dim">Case date {formatDate(c.date)}</span>
+                  <AlertBadge n={c.ruling_alerts} />
                   {rowError?.id === c.id && (
                     <span role="alert" className="block text-xs text-fail">
                       {(rowError.error as Error).message}
@@ -534,6 +537,13 @@ function RowMenu({ c, onRename, onDelete }: { c: CaseSummary; onRename: () => vo
       )}
     </div>
   );
+}
+
+// CBP changed a ruling the case relies on (D480): one line under the name.
+function AlertBadge({ n }: { n?: { final: number; proposed: number } | null }) {
+  const b = badgeText(n);
+  if (!b) return null;
+  return <span className={cx("block text-xs", b.attention ? "font-medium text-ask" : "text-dim")}>{b.text}</span>;
 }
 
 // The list row's watch reading; the same rule as the case page (watch-state).

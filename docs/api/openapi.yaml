@@ -1236,7 +1236,11 @@ paths:
     post:
       operationId: runWatch
       summary: Re-check every analysed case (for a scheduler; admin token required)
+      description: |
+        Re-runs every analysed case with today's precedents (model calls, within the spend caps) and lists the cases whose origin changed. It also lists revocation alerts (D480): cases whose cited, plan-supporting or current-setup rulings CBP has revoked, modified or proposed to change, read from the stored cases and the committed supersession map. With `alerts_only=true` it returns the alerts only and re-runs nothing (no model call). Stored answers are never changed.
       security: [{ AdminToken: [] }]
+      parameters:
+        - { name: alerts_only, in: query, required: false, schema: { type: string, enum: ["true"] }, description: "List revocation alerts without re-running any case (checked is 0)." }
       responses:
         "403": { $ref: "#/components/responses/Error" }
         "200":
@@ -1251,6 +1255,15 @@ paths:
                   changed: { type: array, items: { type: string } }
                   changed_basis: { type: object, description: "Case id -> Watch.basis for each changed case; only basis precedent is a ruling change. Every changed case carries a basis in this run, so a case missing here is not a ruling change", additionalProperties: { type: string, enum: [precedent, regime, method, specialist_unavailable, unverified] } }
                   failed: { type: array, items: { type: string } }
+                  ruling_alerts:
+                    type: object
+                    description: "Case id -> revocation alert counts (D480), for analysed cases with at least one final or proposed change to a ruling they rely on. rulings lists the final ones in words."
+                    additionalProperties:
+                      type: object
+                      properties:
+                        final: { type: integer }
+                        proposed: { type: integer }
+                        rulings: { type: array, items: { type: string } }
   /v1/rulings:
     get:
       operationId: searchRulings
@@ -1843,6 +1856,39 @@ components:
         pinned: { type: boolean, description: A seeded demo case; listed first }
         demo_id: { type: string, description: "Present on pinned rows seeded from a demo fixture; the demo's id (#412)" }
         can_write: { type: boolean, description: "Present on list rows; whether the caller may change this case (#283). Computed by the server for each request with the same authorization the write routes use; hidden cases are never returned, and the value is never stored or taken from the client. Pinned demos are false for non-admin callers, but that means no persisted change only: Ask, scenarios and plan previews on a pinned demo stay read-only and allowed. The server still enforces every action (403 forbidden)." }
+        ruling_alerts: { $ref: "#/components/schemas/RulingAlertCounts" }
+    RulingAlertCounts:
+      type: object
+      description: "Present only when CBP has changed (final) or proposed to change a ruling the case relies on: cited by the prediction, a shown plan's supporting ruling, or CBP's holding on the current setup (D480)."
+      required: [final, proposed]
+      properties:
+        final: { type: integer, description: "Rulings with a final revocation or modification, in force or scheduled" }
+        proposed: { type: integer, description: "Rulings with a pending proposal only (information)" }
+        read_only: { type: integer, description: "On a case: final changes to rulings the prediction read but did not cite" }
+    RulingAlerts:
+      type: object
+      description: "CBP's changes to the rulings a saved case relies on or read (D480), from backend/internal/domain/supersession.json (corpus letters and fetched Customs Bulletin notices). Present only when there is at least one. Information only: the stored answer is never changed. Re-check with POST /v1/cases/{id}/watch."
+      required: [counts, items]
+      properties:
+        counts: { $ref: "#/components/schemas/RulingAlertCounts" }
+        rechecked_at: { type: string, format: date-time, description: "Present when the ruling watch re-ran the case on or after the latest final change in force to a ruling it relies on" }
+        items:
+          type: array
+          items:
+            type: object
+            required: [ruling, roles, status, kind, by, note]
+            properties:
+              ruling: { type: string }
+              roles: { type: array, items: { type: string, enum: [cited, plan_support, current_setup, read] } }
+              status: { type: string, enum: [final, proposed] }
+              kind: { type: string, enum: [revoked, modified] }
+              by: { type: string, description: "The revoking or modifying ruling (proposed: the proposed one)" }
+              date: { type: string, format: date, description: "The change's date: the letter's issue date, or a bulletin notice's effective date. Absent for a proposal." }
+              in_effect: { type: boolean, description: "true when a final change's date is today or earlier; absent for a scheduled one" }
+              before_case: { type: boolean, description: "true when a final change is dated before the case date: the guard (D320, D370) would refuse to cite it today, so the answer was stored before the guard" }
+              bulletin: { type: string, description: "Customs Bulletin citation, when a notice published the change" }
+              url: { type: string }
+              note: { type: string, description: "The change in words, e.g. revoked by H346161 on 2025-05-05" }
     Error:
       type: object
       required: [code, message]
@@ -2225,6 +2271,7 @@ components:
                       target: { type: string }
             facts_source: { type: string, enum: [parts_list, pasted], description: "What the case's own prediction read (D220): parts_list when its facts are the structured product rendered with the family template, as scenarios and plan moves are; pasted when they are text the user gave, such as CBP's own facts. The two can give different answers for the same setup. Absent without a product." }
             rule_check: { $ref: "#/components/schemas/RuleCheck" }
+            ruling_alerts: { $ref: "#/components/schemas/RulingAlerts" }
             economics: { description: "latest economics given for the case, if any", allOf: [{ $ref: "#/components/schemas/Economics" }] }
             plan_economics_stale: { type: boolean, enum: [true], description: "Present, and true, only when the stored plan was priced from economics that have since changed: do not present its money as current; a missing flag means not stale" }
             targets_economics_stale: { type: boolean, enum: [true], description: "Present, and true, only when a stored target comparison was priced from economics that have since changed; a missing flag means not stale" }

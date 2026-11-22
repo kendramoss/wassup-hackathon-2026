@@ -242,6 +242,14 @@ func (a *api) watchAll(w http.ResponseWriter, r *http.Request) {
 		a.fail(w, r, err)
 		return
 	}
+	// Revocation alerts (D480) are read from the stored cases and the
+	// committed supersession map: no model call. alerts_only=true returns
+	// them without re-running any case.
+	alerts := watchAlerts(cs, alertsNow())
+	if r.URL.Query().Get("alerts_only") == "true" {
+		writeJSON(w, http.StatusOK, map[string]any{"checked": 0, "changed": []string{}, "changed_basis": map[string]string{}, "failed": []string{}, "ruling_alerts": alerts})
+		return
+	}
 	var mu sync.Mutex
 	var wg sync.WaitGroup
 	sem := make(chan struct{}, 3)
@@ -272,7 +280,7 @@ func (a *api) watchAll(w http.ResponseWriter, r *http.Request) {
 		}(c)
 	}
 	wg.Wait()
-	writeJSON(w, http.StatusOK, map[string]any{"checked": checked, "changed": changed, "changed_basis": basis, "failed": failed})
+	writeJSON(w, http.StatusOK, map[string]any{"checked": checked, "changed": changed, "changed_basis": basis, "failed": failed, "ruling_alerts": alerts})
 }
 
 // recheck predicts the case again with every precedent dated before today
