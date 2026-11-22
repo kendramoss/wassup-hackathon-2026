@@ -21,6 +21,10 @@
       "version": "clarify-v2",
       "sha256": "bd787206712e6e88b7fe04301dae27756247f6e0aa9cb3b2432b5854d4cc1aad"
     },
+    "engine.pharma": {
+      "version": "pharma-v1",
+      "sha256": "789fbd201eb85b42d25a1dcc6739ba541f197e089940d24ec883eba41a377726"
+    },
     "engine.rules": {
       "version": "rules-v1",
       "sha256": "6198f8b5e04c0db28df1e39a6f0d51cbaf6f22de6f3288a89a4d8e4a74161311"
@@ -48,6 +52,10 @@
     "engine.user_reasoning": {
       "version": "engine-v1+reasoning-v1",
       "sha256": "02724b55eb3856638f8d372cfb6f37ca2cf6c445710110f837714191812f0e42"
+    },
+    "engine.usmca": {
+      "version": "usmca-v1",
+      "sha256": "bbc80a7418e4d31d851075a364612db54c55155069d501c942d0d157e19b6051"
     },
     "extract.media_request": {
       "version": "extract-image-v1",

@@ -944,7 +944,12 @@ func planCmd(args []string) error {
 	factsDir := fl.String("facts", "../data/corpus/facts", "facts directory")
 	rawDir := fl.String("raw", "../data/corpus/raw", "raw CROSS JSON directory")
 	resultsDir := fl.String("results", "../eval/results", "results directory")
+	regime := fl.String("regime", "", "the case's router regime: usmca_part102 predicts every move with the Part 102 engine, as the server does on a Part 102 case (D540); empty: the general engine")
+	usmcaLabels := fl.String("usmca-labels", "../eval/data/labels_usmca.jsonl", "the Part 102 engine's precedent pool (with -regime usmca_part102)")
 	_ = fl.Parse(args)
+	if *regime != "" && *regime != router.RegimeUSMCA {
+		return fmt.Errorf("-regime must be empty or %s", router.RegimeUSMCA)
+	}
 
 	cfg, err := loadConfig()
 	if err != nil {
@@ -961,6 +966,7 @@ func planCmd(args []string) error {
 	if err != nil {
 		return err
 	}
+	req.Regime = *regime
 	labels, err := corpus.LoadLabels(*labelsPath)
 	if err != nil {
 		return err
@@ -968,6 +974,9 @@ func planCmd(args []string) error {
 	store, err := corpus.Load(labels, *factsDir)
 	if err != nil {
 		return err
+	}
+	if store.Len() == 0 { // an empty pool leaves the engine and the precedent check with no rulings (D541)
+		return fmt.Errorf("plan: no precedent facts in %s (run: go run ./cmd/corpus fetch && go run ./cmd/corpus build)", *factsDir)
 	}
 	eng := engine.New(model, retrieval.NewBM25(store.Rulings(), engine.PrecedentText),
 		engine.Options{Model: cfg.EngineModel, K: cfg.PrecedentK, MaxOutputTokens: cfg.MaxOutputTokens})
@@ -1001,6 +1010,23 @@ func planCmd(args []string) error {
 		if cfg.FollowAdvice {
 			planOpts.FollowAdvice, planOpts.Mapper = true, nearmiss.NewMapper(model, cfg.VerifierModel) // D85
 		}
+	}
+	if *regime == router.RegimeUSMCA {
+		// The Part 102 engine as the server builds it (cmd/server: USMCA_ENGINE=on).
+		ulabels, err := corpus.LoadLabels(*usmcaLabels)
+		if err != nil {
+			return err
+		}
+		upool, err := corpus.Load(ulabels, *factsDir)
+		if err != nil {
+			return err
+		}
+		if upool.Len() == 0 {
+			return fmt.Errorf("plan: no ruling in %s has facts in %s", *usmcaLabels, *factsDir)
+		}
+		usmca := engine.New(model, retrieval.NewBM25(upool.Rulings(), engine.PrecedentText), engine.Options{Model: cfg.EngineModel, K: cfg.PrecedentK,
+			MaxOutputTokens: cfg.MaxOutputTokens, System: engine.USMCASystem, Version: engine.USMCAVersion})
+		planOpts.Engines = map[string]planner.Predictor{router.RegimeUSMCA: usmca}
 	}
 	pl := planner.New(tmpls, eng, ver, planOpts)
 	var tally llm.CostTally // the gateway's own per-call cost; zero on Vertex AI

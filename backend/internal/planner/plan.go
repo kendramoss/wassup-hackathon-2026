@@ -53,6 +53,12 @@ type Options struct {
 	// (D340, D341). 0 means DefaultClearMargin.
 	ClearMargin float64
 
+	// Engines are the regime engines a search uses instead of the general
+	// engine when Request.Regime names one (D540): the Part 102 engine for
+	// cases routed to usmca_part102. A regime with no entry, or a request
+	// with no regime, uses the general engine. One search uses one engine.
+	Engines map[string]Predictor
+
 	// Panel and MaxInFlight tell Estimate how the server's checker and model
 	// gate are set up (VERIFIER_PANEL, LLM_MAX_IN_FLIGHT; D83, D79, D87).
 	// Plan does not read them.
@@ -132,6 +138,16 @@ func New(templates map[string]Template, e Predictor, v Checker, opts Options) *P
 		opts.ClearMargin = DefaultClearMargin
 	}
 	return &Planner{templates: templates, engine: e, verifier: v, opts: opts}
+}
+
+// engineFor is the engine that predicts every move of a search on req: the
+// engine of req's regime when the planner has one (D540), else the general
+// engine.
+func (p *Planner) engineFor(req Request) Predictor {
+	if e, ok := p.opts.Engines[req.Regime]; ok && e != nil && req.Regime != "" {
+		return e
+	}
+	return p.engine
 }
 
 // Result is a full plan search.
@@ -294,7 +310,7 @@ func (p *Planner) PlanWithProgress(ctx context.Context, req Request, progress fu
 	go func() {
 		defer wg.Done()
 		defer close(baseReady)
-		r, err := p.engine.Predict(ctx, p.caseFor(req, "baseline", baseFacts))
+		r, err := p.engineFor(req).Predict(ctx, p.caseFor(req, "baseline", baseFacts))
 		if err != nil {
 			baseErr = fmt.Errorf("planner: baseline: %w", err)
 			return
@@ -411,7 +427,7 @@ func (p *Planner) check(ctx context.Context, req Request, tm Template, m domain.
 	addEngine func(llm.Usage), addVerifier func(verifier.Result)) (domain.Plan, error) {
 	variant := Apply(req.Product, m)
 	facts := Render(variant, tm, groupsOf(m)...)
-	r, err := p.engine.Predict(ctx, p.caseFor(req, m.Key(), facts))
+	r, err := p.engineFor(req).Predict(ctx, p.caseFor(req, m.Key(), facts))
 	if err != nil {
 		// A provider outage on one move leaves that move unchecked and the
 		// rest of the search intact (D88). It is not cached, so a later

@@ -1,0 +1,125 @@
+{
+  "note": "The D540 re-run of the three D501 searches with the Part 102 engine predicting each move (seen development products, one run each through an OpenAI-compatible LiteLLM gateway to Gemini; not new evidence of accuracy). Scored as D501. Part codes are unverified suggestions (D382). Recompute: cd backend \u0026\u0026 go run ./cmd/tariffshift plans102-eval -series d540 -check",
+  "searches": [
+    {
+      "ruling": "N344002",
+      "family": "motors_pumps_compressors",
+      "target": "China",
+      "cbp_origin": "Mexico",
+      "moves_searched": 1,
+      "shown": 0,
+      "current_setup": {
+        "status": "other_country",
+        "origin": "Mexico",
+        "label": "102.20 gives Mexico",
+        "agrees_with_cbp": true
+      },
+      "moves_by_status": {
+        "other_country": 1
+      },
+      "moves_rule_shifts": null,
+      "shown_moves_rule_shifts": null,
+      "precedent_supports_rule_other_country": [
+        "motor_stator_rotor@cn"
+      ],
+      "shown_order_planner": null,
+      "shown_order_d500": null,
+      "moves_decided": 1,
+      "decided_engine_agrees_with_rule": 0,
+      "moves_rule_leans_no_shift": 0,
+      "lean_engine_agrees_with_rule": 0,
+      "engine_prompt": "usmca-v1",
+      "current_setup_engine_origin": "Mexico",
+      "moves_precedent_checked": 1,
+      "gateway_cost_usd": 0.0465,
+      "wall_seconds": 30.274968709
+    },
+    {
+      "ruling": "N348465",
+      "family": "motors_pumps_compressors",
+      "target": "Canada",
+      "cbp_origin": "China",
+      "moves_searched": 12,
+      "shown": 2,
+      "current_setup": {
+        "status": "undetermined",
+        "label": "Does not shift under 102.20 (DC motor fails) unless de minimis",
+        "agrees_with_cbp": false
+      },
+      "moves_by_status": {
+        "shifts": 6,
+        "undetermined": 6
+      },
+      "moves_rule_shifts": [
+        "motor_stator_rotor@ca+fluid_rotary_mechanism@ca+housing_and_chassis@ca",
+        "motor_stator_rotor@ca+fluid_rotary_mechanism@ca+controls_and_valves@ca",
+        "motor_stator_rotor@ca",
+        "motor_stator_rotor@ca+fluid_rotary_mechanism@ca",
+        "motor_stator_rotor@ca+housing_and_chassis@ca",
+        "motor_stator_rotor@ca+controls_and_valves@ca"
+      ],
+      "shown_moves_rule_shifts": [
+        "motor_stator_rotor@ca+fluid_rotary_mechanism@ca+housing_and_chassis@ca",
+        "motor_stator_rotor@ca+fluid_rotary_mechanism@ca+controls_and_valves@ca"
+      ],
+      "precedent_supports_rule_other_country": null,
+      "shown_order_planner": [
+        "motor_stator_rotor@ca+fluid_rotary_mechanism@ca+housing_and_chassis@ca",
+        "motor_stator_rotor@ca+fluid_rotary_mechanism@ca+controls_and_valves@ca"
+      ],
+      "shown_order_d500": [
+        "motor_stator_rotor@ca+fluid_rotary_mechanism@ca+housing_and_chassis@ca",
+        "motor_stator_rotor@ca+fluid_rotary_mechanism@ca+controls_and_valves@ca"
+      ],
+      "moves_decided": 6,
+      "decided_engine_agrees_with_rule": 6,
+      "moves_rule_leans_no_shift": 6,
+      "lean_engine_agrees_with_rule": 6,
+      "engine_prompt": "usmca-v1",
+      "current_setup_engine_origin": "China",
+      "moves_precedent_checked": 6,
+      "gateway_cost_usd": 0.277,
+      "wall_seconds": 37.487164791
+    },
+    {
+      "ruling": "N350133",
+      "family": "motorised_tools_small_appliances",
+      "target": "China",
+      "cbp_origin": "Mexico",
+      "moves_searched": 1,
+      "shown": 0,
+      "current_setup": {
+        "status": "other_country",
+        "origin": "Mexico",
+        "label": "102.20 gives Mexico",
+        "agrees_with_cbp": true
+      },
+      "moves_by_status": {
+        "other_country": 1
+      },
+      "moves_rule_shifts": null,
+      "shown_moves_rule_shifts": null,
+      "precedent_supports_rule_other_country": null,
+      "shown_order_planner": null,
+      "shown_order_d500": null,
+      "moves_decided": 1,
+      "decided_engine_agrees_with_rule": 1,
+      "moves_rule_leans_no_shift": 0,
+      "lean_engine_agrees_with_rule": 0,
+      "engine_prompt": "usmca-v1",
+      "current_setup_engine_origin": "Mexico",
+      "moves_precedent_checked": 0,
+      "gateway_cost_usd": 0.018,
+      "wall_seconds": 8.937686167,
+      "later_ruling": {
+        "ruling": "N354024",
+        "cbp_origin": "Mexico",
+        "status": "decided",
+        "origin": "Mexico",
+        "agrees_with_cbp": true,
+        "note": "The rule on the later ruling's own setup, not on a plan move: no later ruling is a move the planner makes from the picked ruling (D501)."
+      }
+    }
+  ],
+  "gateway_cost_usd": 0.3416
+}

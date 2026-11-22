@@ -31,6 +31,11 @@ type Request struct {
 	// ActualChange, when known (backtests), is what the manufacturer really
 	// did; the result compares it with the best plan.
 	ActualChange *ActualChange `json:"actual_change,omitempty"`
+	// Regime is the origin regime the case is routed to (the router's
+	// label). When the planner has an engine for it (Options.Engines), that
+	// engine predicts the current setup and every move (D540); otherwise
+	// the general engine does. Empty: the general engine.
+	Regime string `json:"regime,omitempty"`
 }
 
 // KnownOrigin is CBP's holding for the current setup.

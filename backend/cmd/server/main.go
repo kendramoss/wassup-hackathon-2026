@@ -504,6 +504,10 @@ func newDeps(cfg config.Config, model, engineModel llm.Model, cases store.Cases,
 	}
 	planOpts := planner.Options{PlanConfidence: cfg.PlanConfidence, Concurrency: cfg.PlannerConcurrency, MaxMoves: cfg.PlanMaxMoves,
 		Panel: cfg.VerifierPanel == "on", MaxInFlight: cfg.LLMMaxInFlight}
+	if usmca != nil {
+		// Plan searches on Part 102 cases predict with the Part 102 engine (D540).
+		planOpts.Engines = map[string]planner.Predictor{router.RegimeUSMCA: usmca}
+	}
 	if cfg.NearMissAdvice {
 		// Advice on the closest moves just under the plan bar (D81), cached
 		// beside the verdicts (keys are prefixed, so no clash).

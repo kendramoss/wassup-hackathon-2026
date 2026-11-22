@@ -38,10 +38,10 @@ type Input struct {
 	Regime string
 	// Part102 says the router sent the case to the Part 102 marking rules
 	// (router.RegimeUSMCA). When Regime names no specialist (the prediction
-	// came from the general engine, as every plan search's does), the draft
-	// still asks the Part 102 marking question, with a note that the
-	// position is not a Part 102 determination (D520). A specialist Regime
-	// wins over it.
+	// came from the general engine: a plan searched before D540, or a Part
+	// 102 engine that was off or failed), the draft still asks the Part 102
+	// marking question, with a note that the position is not a Part 102
+	// determination (D520). A specialist Regime wins over it.
 	Part102 bool
 	// Textile is the older flag for the textile regime. It applies only when
 	// Regime is empty; Regime always wins. See EffectiveRegime.
