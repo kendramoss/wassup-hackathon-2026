@@ -159,6 +159,42 @@ type Plan struct {
 	// SmallestSupported marks the shown plan that moves the fewest parts when
 	// two or more are shown (D340): a label, not a sort key.
 	SmallestSupported bool `json:"smallest_supported,omitempty"`
+	// RuleCheck is the 19 CFR 102.20 rule check of the product as it would
+	// be after this move (D441). It is computed when the plan is read and
+	// never stored; it does not change Shown, the verdict or the ranking.
+	// Absent when the product does not give the codes the check needs.
+	RuleCheck *PlanRuleCheck `json:"rule_check,omitempty"`
+}
+
+// PlanRuleCheck is the 102.20 rule check of one move (D441).
+type PlanRuleCheck struct {
+	// Applies is "part102" when the case was routed to the Part 102 rules,
+	// else "informational" (decided under substantial transformation).
+	Applies string `json:"applies"`
+	// Country is where the good would be finished after the move.
+	Country string `json:"country"`
+	// Status: "shifts" (the rule gives the target), "no_shift" (it gives
+	// another country because a foreign part fails the change), "other_country"
+	// (it gives another country although no part fails: the good is still
+	// finished there) or "undetermined".
+	Status string `json:"status"`
+	// Label is the status in a few words, for a chip or a list line.
+	Label  string `json:"label"`
+	Origin string `json:"origin,omitempty"`
+	Basis  string `json:"basis,omitempty"`
+	Rule   string `json:"rule,omitempty"`
+	Reason string `json:"reason"`
+	// Why classifies an undetermined answer (see planrule).
+	Why string `json:"why,omitempty"`
+	// Failing names the foreign parts that do not make the change.
+	Failing []string `json:"failing,omitempty"`
+	// AgreesWithPrecedent is set when the rule decided and the move has a
+	// precedent check.
+	AgreesWithPrecedent *bool `json:"agrees_with_precedent,omitempty"`
+	// Review is true when the two disagree in a way worth a broker's look;
+	// ReviewNote says how. It does not change the plan.
+	Review     bool   `json:"review"`
+	ReviewNote string `json:"review_note,omitempty"`
 }
 
 // PlanTier is a shown plan's ranking tier (D341).

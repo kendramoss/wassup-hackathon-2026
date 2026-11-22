@@ -1,0 +1,29 @@
+{
+  "note": "19 CFR 102.20 rule check on each move of the committed plan searches, counted as pre-registered in D440 (results D442). Codes: the 23 per-family fixtures (D171, development and train rulings) with the top suggestion for the good and every part from the D381 development run; no committed plan product gives every code. Every search here is decided under substantial transformation, so the check is informational and agreement is not accuracy. Recompute: cd backend \u0026\u0026 go run ./cmd/tariffshift plans-eval -check",
+  "committed_plan_products": 43,
+  "committed_with_all_codes": 0,
+  "part102_plan_searches": 0,
+  "moves_with_a_later_ruling_and_codes": 0,
+  "searches": 23,
+  "searches_with_a_decided_move": 14,
+  "moves": 57,
+  "moves_by_status": {
+    "other_country": 3,
+    "shifts": 22,
+    "undetermined": 32
+  },
+  "undetermined_by_reason": {
+    "de_minimis": 7,
+    "needs_fact": 24,
+    "out_of_scope": 1
+  },
+  "moves_decided": 25,
+  "decided_with_precedent_check": 23,
+  "agree_with_precedent": 21,
+  "precedent_supports_rule_other_country": 2,
+  "rule_shifts_precedent_not_supported": 0,
+  "decided_agree_with_engine": 20,
+  "baseline_decided": 11,
+  "baseline_agree_with_cbp": 4,
+  "baseline_agree_with_engine": 3
+}

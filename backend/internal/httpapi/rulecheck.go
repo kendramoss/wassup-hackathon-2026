@@ -4,6 +4,7 @@ import (
 	"strings"
 
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/domain"
+	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/planrule"
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/router"
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/store"
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/tariffshift"
@@ -84,23 +85,8 @@ func (a *api) ruleCheck(c store.Case) *RuleCheckView {
 
 // productionCountry is where the good is produced: the plant of the
 // final-assembly group, else the plant of the last operation, else the only
-// plant. "" when none of those is known.
+// plant. "" when none of those is known. The plan search's per-move check
+// uses the same rule (D441).
 func productionCountry(p domain.Product) (string, string) {
-	for i := len(p.Operations) - 1; i >= 0; i-- {
-		o := p.Operations[i]
-		if o.Group == "final_assembly" {
-			if pl, ok := p.PlantByID(o.Plant); ok && pl.Country != "" {
-				return pl.Country, "final assembly plant"
-			}
-		}
-	}
-	if n := len(p.Operations); n > 0 {
-		if pl, ok := p.PlantByID(p.Operations[n-1].Plant); ok && pl.Country != "" {
-			return pl.Country, "plant of the last operation"
-		}
-	}
-	if len(p.Plants) == 1 && p.Plants[0].Country != "" {
-		return p.Plants[0].Country, "the only plant"
-	}
-	return "", "not known: add a plant and its operations"
+	return planrule.ProductionCountry(p)
 }
