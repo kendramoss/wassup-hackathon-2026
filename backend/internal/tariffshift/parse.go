@@ -70,8 +70,9 @@ var (
 	reChangeTo  = regexp.MustCompile(`^a change to ((?:headings?|subheadings?) [\d.]+(?: through [\d.]+)?) from (.+)$`)
 	reWithinSA  = regexp.MustCompile(`^a change within that group resulting from (?:a )?simple assembly$`)
 	// reExceptSeg splits an exception list into its "from ..." segments.
-	reExceptSeg = regexp.MustCompile(`,? (?:or|and) from |, from `)
-	reLevelWord = regexp.MustCompile(`\b(?:chapters?|subheadings?|headings?)\b`)
+	reExceptSeg  = regexp.MustCompile(`,? (?:or|and) from |, from `)
+	reMaterialOf = regexp.MustCompile(`of headings \d{4} to \d{4} of heading`)
+	reLevelWord  = regexp.MustCompile(`\b(?:chapters?|subheadings?|headings?)\b`)
 )
 
 // ParseAlternative turns one sentence into an Alternative. It never errors:
@@ -119,6 +120,12 @@ func ParseAlternative(text string) Alternative {
 	if loc := reProviso.FindStringIndex(rest); loc != nil {
 		a.NotSimpleAssembly = true
 		rest = rest[:loc[0]]
+	}
+	// Any other proviso turns on a share by weight or content the codes
+	// cannot show ("provided that the good contains less than 65 percent by
+	// dry weight of sugar", D460).
+	if strings.Contains(rest, "provided that") {
+		return fail("a proviso on content the codes cannot show")
 	}
 	// A trailing "except when resulting from a simple assembly" (or "...
 	// pursuant to GRI 2(a)") limits the whole alternative when a comma sets
@@ -289,7 +296,10 @@ func parseExcept(c string, to Range) ([]Exception, string) {
 		if i == len(segs)-1 {
 			segCond = cond
 		}
-		rs, described, err := parseList(seg)
+		// "articles ... of other materials of headings 3901 to 3914 of
+		// heading 9619" quotes the HTSUS text of goods of heading 9619; the
+		// inner headings describe their material, not a source (D460).
+		rs, described, err := parseList(reMaterialOf.ReplaceAllString(seg, "of heading"))
 		if err != nil || len(rs) == 0 {
 			return nil, fmt.Sprintf("exception list not read: %q", seg)
 		}
@@ -299,7 +309,7 @@ func parseExcept(c string, to Range) ([]Exception, string) {
 }
 
 var (
-	reListTok = regexp.MustCompile(`\d{4}\.\d{2}\.\d{2}|\d{4}\.\d{2}|\d{1,4}|[A-Za-z][A-Za-z()'’“”-]*`)
+	reListTok = regexp.MustCompile(`\d{4}\.\d{2}\.\d{2,4}|\d{4}\.\d{2}|\d{1,4}|[A-Za-z][A-Za-z()'’“”-]*`)
 	fillers   = map[string]bool{"or": true, "and": true, "from": true, "of": true, "the": true}
 )
 
