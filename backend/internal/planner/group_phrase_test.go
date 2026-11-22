@@ -182,3 +182,79 @@ func TestDescribeNamesOneLeftoverAndJoinsOnce(t *testing.T) {
 		}
 	}
 }
+
+// #648: an item is a process only when its last word is a listed process
+// noun. A suffix test read "insulating bases" as work, so "Move the
+// enclosures and insulating bases" named a base a junction box did not have.
+func TestIsProcessReadsTheLastWordOnly(t *testing.T) {
+	for _, c := range []struct {
+		item string
+		want bool
+	}{
+		{"firebox forming", true},
+		{"surface treatment", true},
+		{"Film extrusion", true},
+		{"panel lamination", true},
+		{"kit packing", true},
+		{"Head finishing", true},
+		{"Finish machining", true},
+		{"Display cell fabrication", true},
+		{"Wire conductor making", true},
+		{"Optical fiber drawing", true},
+		{"Housing moulding", true},
+		{"masterbatch compounding", true},
+		{"insulating bases", false},
+		{"Cooking surface", false},
+		{"Cable insulation", false},
+		{"wood flooring", false},
+		{"bindings", false},
+		{"tubing", false},
+		{"Heating element", false},
+		{"Forged or stamped working part", false},
+		{"outdoor cooking appliances", false},
+		{"cutting tools", false},
+		{"filtration systems", false},
+		{"working frames", false},
+		{"club assembly", false},
+		{"dairy ingredients", false},
+		{"spirit bases", false},
+		{"precision-ground parts", false},
+		{"Motor stator", false},
+		{"Control boards", false},
+		{"", false},
+	} {
+		if got := isProcess(c.item); got != c.want {
+			t.Errorf("isProcess(%q) = %v, want %v", c.item, got, c.want)
+		}
+	}
+}
+
+// #648: plan titles drop an item the product lacks even when a word in it
+// ends in "-ing" or "-tion", and keep every part the product has.
+func TestDescribeDropsAbsentItemsWithIngWords(t *testing.T) {
+	tms, err := LoadTemplates()
+	if err != nil {
+		t.Fatal(err)
+	}
+	plants := []domain.Plant{{ID: "cn", Country: "China"}, {ID: "ro", Country: "Romania"}}
+	for _, c := range []struct {
+		family, group string
+		parts         []string
+		want          string
+	}{
+		{"electrical_control_apparatus", "enclosures_insulators", []string{"Junction box enclosure"}, "Move the enclosures to Romania"},
+		{"electrical_control_apparatus", "enclosures_insulators", []string{"Junction box enclosure", "Insulating base"}, "Move the enclosures and insulating bases to Romania"},
+		{"golf_sporting_goods", "boot_and_binding_parts", []string{"Ski boot shell"}, "Move the ski boot shells to Romania"},
+		{"golf_sporting_goods", "boot_and_binding_parts", []string{"Ski boot shell", "Binding"}, "Move the ski boot shells and bindings to Romania"},
+		{"hvac_heating_units", "valves_regulators_tubes", []string{"Gas valve"}, "Move the gas valves to Romania"},
+		{"hvac_heating_units", "valves_regulators_tubes", []string{"Gas valve", "Copper tubing"}, "Move the gas valves and tubing to Romania"},
+	} {
+		p := domain.Product{Plants: plants}
+		for _, n := range c.parts {
+			p.Components = append(p.Components, domain.Component{Name: n, MadeIn: "China", Plant: "cn", Group: c.group})
+		}
+		if got := Describe(p, tms[c.family], domain.Move{{Group: c.group, ToPlant: "ro"}}); got != c.want {
+			t.Errorf("%s %v: %q, want %q", c.family, c.parts, got, c.want)
+		}
+	}
+}
