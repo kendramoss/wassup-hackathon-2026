@@ -34,6 +34,11 @@ func TestDetect(t *testing.T) {
 		{"sold in is a hint", "Speakers assembled in Vietnam and sold in Germany.", US, EU, SourceDefault, false},
 		{"CAD drawings are not a price", "Engineering and CAD drawings are made in Canada; assembly is in Mexico.", US, "", SourceDefault, false},
 		{"export-side customs", "Documents: invoice and Malaysian customs declaration.", US, "", SourceDefault, false},
+		{"customs in a port city", "Bikes cleared through customs in Gdansk. Frames welded in Taiwan.", EU, "", SourceDetected, false},
+		{"brings into", "Our firm brings garden hoses made in Vietnam into Canada each spring.", CA, "", SourceDetected, false},
+		{"member-state agency", "Will the Zoll accept Turkey as the origin of these towels?", EU, "", SourceDetected, false},
+		{"stop: for <verb>ing", "Peppers are imported to South Korea for drying and grinding.", US, "", SourceDefault, false},
+		{"stop: also in", "Carbon is imported into Korea from China. Also in Korea, the filters are pressed.", US, "", SourceDefault, false},
 		{"other market", "Sofas imported into India from Vietnam. Which origin?", Other, "", SourceDetected, false},
 	} {
 		t.Run(tc.name, func(t *testing.T) {

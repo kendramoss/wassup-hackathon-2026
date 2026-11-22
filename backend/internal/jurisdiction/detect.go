@@ -11,7 +11,7 @@ import (
 
 // DetectorVersion names the cue lists below; a change to them needs a bump
 // and a re-run of the D680 checks.
-const DetectorVersion = "market-detect-v1"
+const DetectorVersion = "market-detect-v2"
 
 // places maps a place a question can name as its destination to its market.
 // Lower case; matched on word boundaries.
@@ -22,18 +22,21 @@ var places = map[string][]string{
 		"austria", "sweden", "denmark", "finland", "ireland", "portugal", "greece", "hungary", "romania", "bulgaria", "croatia",
 		"slovakia", "slovenia", "lithuania", "latvia", "estonia", "luxembourg", "malta", "cyprus",
 		"paris", "berlin", "hamburg", "munich", "frankfurt", "rotterdam", "amsterdam", "antwerp", "brussels", "madrid", "barcelona",
-		"milan", "rome", "warsaw", "vienna", "dublin", "lisbon", "stockholm", "copenhagen", "prague", "athens", "budapest"},
+		"milan", "rome", "warsaw", "vienna", "dublin", "lisbon", "stockholm", "copenhagen", "prague", "athens", "budapest",
+		"valencia", "genoa", "le havre", "marseille", "gdansk", "piraeus", "lyon", "turin", "naples", "bremen", "cologne", "düsseldorf"},
 	UK: {"the united kingdom", "united kingdom", "the uk", "uk", "great britain", "britain", "england", "scotland", "wales", "northern ireland",
-		"london", "birmingham", "manchester", "felixstowe", "southampton", "glasgow", "edinburgh", "liverpool", "leeds"},
-	CA: {"canada", "toronto", "vancouver", "montreal", "calgary", "ottawa", "edmonton", "winnipeg"},
-	JP: {"japan", "tokyo", "osaka", "yokohama", "nagoya", "kobe"},
+		"london", "birmingham", "manchester", "felixstowe", "southampton", "glasgow", "edinburgh", "liverpool", "leeds", "dover", "bristol"},
+	CA: {"canada", "toronto", "vancouver", "montreal", "calgary", "ottawa", "edmonton", "winnipeg", "halifax", "prince rupert"},
+	JP: {"japan", "tokyo", "osaka", "yokohama", "nagoya", "kobe", "kyoto", "fukuoka"},
 	KR: {"south korea", "korea", "the republic of korea", "republic of korea", "seoul", "busan", "incheon"},
-	AU: {"australia", "sydney", "melbourne", "brisbane", "perth", "adelaide"},
-	MX: {"mexico", "méxico", "mexico city", "ciudad de méxico", "guadalajara", "monterrey", "tijuana"},
+	AU: {"australia", "sydney", "melbourne", "brisbane", "perth", "adelaide", "fremantle"},
+	MX: {"mexico", "méxico", "mexico city", "ciudad de méxico", "guadalajara", "monterrey", "tijuana", "manzanillo", "veracruz", "nuevo laredo", "lázaro cárdenas"},
 	Other: {"china", "india", "brazil", "singapore", "saudi arabia", "the united arab emirates", "united arab emirates", "the uae", "uae",
 		"switzerland", "norway", "turkey", "türkiye", "israel", "south africa", "new zealand", "indonesia", "malaysia", "thailand",
 		"vietnam", "the philippines", "philippines", "taiwan", "hong kong", "chile", "colombia", "peru", "argentina", "egypt",
-		"nigeria", "kenya", "pakistan", "bangladesh", "russia", "ukraine", "qatar", "kuwait", "dubai", "mumbai", "shanghai", "são paulo", "sao paulo"},
+		"nigeria", "kenya", "pakistan", "bangladesh", "russia", "ukraine", "qatar", "kuwait", "dubai", "mumbai", "shanghai", "são paulo", "sao paulo",
+		"durban", "johannesburg", "cape town", "santos", "jebel ali", "riyadh", "jeddah", "chennai", "delhi", "jakarta", "bangkok",
+		"ho chi minh city", "hanoi", "manila", "kuala lumpur", "istanbul", "tel aviv", "auckland", "zurich", "oslo"},
 }
 
 // adjectives maps a market adjective ("German customs") to its market.
@@ -59,14 +62,15 @@ var authorities = []struct {
 	{US, `(?-i:\bHTSUS?\b)|harmonized tariff schedule of the united states`, "HTSUS"},
 	{US, `\bsection (?:301|232)\b`, "Section 301/232"},
 	{EU, `binding origin information|(?-i:\bBOIs?\b)`, "BOI"},
-	{EU, `union customs code|(?-i:\bTARIC\b)|combined nomenclature|free circulation`, "EU customs law"},
+	{EU, `union customs code|(?-i:\bTARIC\b)|combined nomenclature|free circulation|common customs tariff|(?:european |eu )?single market|\beu[- ]\w+ customs union`, "EU customs law"},
+	{EU, `agencia tributaria|agenzia delle dogane|\bdouanes?\b|(?-i:\bZoll(?:amt)?\b)`, "an EU customs agency"},
 	{UK, `(?-i:\bHMRC\b)|hm revenue|uk global tariff`, "HMRC"},
 	{CA, `(?-i:\bCBSA\b)|canada border services|(?-i:\bCARM\b)`, "CBSA"},
 	{JP, `japan customs`, "Japan Customs"},
 	{KR, `korea customs service|(?-i:\bKCS\b)`, "Korea Customs Service"},
 	{AU, `australian border force|(?-i:\bABF\b)`, "Australian Border Force"},
-	{MX, `(?-i:\bSAT\b)|(?-i:\bANAM\b)|servicio de administración tributaria|importaci[oó]n (?:a|en) m[eé]xico|aduanas? de m[eé]xico`, "Mexican customs"},
-	{Other, `(?-i:\bCBIC\b)|receita federal|singapore customs|(?-i:\bZATCA\b)|(?-i:\bGACC\b)`, "a non-U.S. customs authority"},
+	{MX, `(?-i:\bSAT\b)|(?-i:\bANAM\b)|servicio de administración tributaria|importaci[oó]n (?:a|en) m[eé]xico|aduanas? de m[eé]xico|ley aduanera`, "Mexican customs"},
+	{Other, `(?-i:\bCBIC\b)|receita federal|singapore customs|(?-i:\bZATCA\b)|(?-i:\bGACC\b)|south african revenue service`, "a non-U.S. customs authority"},
 }
 
 // currencies are weak cues: a price alone does not say where goods enter.
@@ -91,8 +95,10 @@ func code(c string) string {
 // say they go or sell there, which a CBP ruling also says of a stop on the
 // way. Either is dropped when the place is a processing stop (stop).
 const (
-	entryVerb = `(?:import(?:ed|ing|s)?|importation|entry|entered|entering|release[sd]?(?: for free circulation)?)\s+(?:\w+\s+){0,2}?(?:into|to|in)\s+`
-	sendVerb  = `(?:ship(?:ped|ping|s)?|shipment|export(?:ed|ing|s)?|sell(?:ing|s)?|sold|sale|distribut(?:e|ed|ing))\s+(?:\w+\s+){0,3}?(?:into|to|in)\s+`
+	entryVerb = `(?:(?:import(?:ed|ing|s)?|importation|entry|entered|release[sd]?(?: for free circulation)?)\s+(?:\w+\s+){0,2}?(?:into|to|in)\s+` +
+		`|(?:bring(?:s|ing)?|brought)\s+(?:\S+\s+){0,6}?into\s+|enter(?:s|ing)?\s+(?:into\s+)?|landing\s+(?:\w+\s+){0,3}?in\s+` +
+		`|arriv(?:e|es|ed|ing)\s+(?:\w+\s+){0,2}?(?:in|at)\s+|customs\s+(?:port\s+)?(?:in|at|of)\s+|port\s+of\s+)`
+	sendVerb = `(?:ship(?:ped|ping|s)?|shipment|export(?:ed|ing|s)?|sell(?:ing|s)?|sold|sale|distribut(?:e|ed|ing))\s+(?:\w+\s+){0,3}?(?:into|to|in)\s+`
 	// "for UK customs", "Japanese customs rules", "Korean import".
 	customsNoun = `\s+(?:customs|import|imports|border|authorities|authority|tariff)\b`
 )
@@ -296,7 +302,7 @@ func (c cueRE) find(text string) [][]int {
 // stopAfter matches the words after "imported into <place>" that make the
 // place a processing stop: "for further processing", "where they are
 // assembled", "to be assembled".
-var stopAfter = regexp.MustCompile(`(?i)^[^.;]{0,40}?\b(?:where|for (?:further |final )?(?:processing|assembly|inspection|manufactur\w*|finishing|testing|packaging)|to be \w+ed|to make|to produce|and (?:then )?(?:assembled|processed|made|tested|cut|woven|packed)|by (?:inserting|installing|assembling))\b`)
+var stopAfter = regexp.MustCompile(`(?i)^[^.;]{0,40}?\b(?:where|for (?:further |final )?(?:\w+ing|processing|assembly|inspection|manufactur\w*)|in \w+ (?:\w+ )?form|to be \w+ed|to make|to produce|and (?:then )?(?:assembled|processed|made|tested|cut|woven|packed)|by (?:inserting|installing|assembling))\b`)
 
 // stopBefore matches "Once imported into", "After importation into",
 // "initially imported into": a step in a production history.
@@ -315,6 +321,6 @@ func stop(text string, start, end int, place string) bool {
 		return true
 	}
 	q := regexp.QuoteMeta(strings.TrimPrefix(strings.ToLower(place), "the "))
-	re := regexp.MustCompile(`(?i)\b` + processVerb + `\s+(?:\w+\s+){0,3}?in\s+(?:the\s+)?` + q + `\b|(?:^|[.;]\s*)in\s+(?:the\s+)?` + q + `\s*,`)
+	re := regexp.MustCompile(`(?i)\b` + processVerb + `\s+(?:\w+\s+){0,3}?in\s+(?:the\s+)?` + q + `\b|(?:^|[.;]\s*)(?:also\s+)?in\s+(?:the\s+)?` + q + `\s*,`)
 	return re.MatchString(text)
 }
