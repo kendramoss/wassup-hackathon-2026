@@ -228,8 +228,9 @@ Every change below was tried on dev, paired against the plain engine, and **not 
 | Adjudicator, symmetric: the same call whenever the facts name China and confidence is under 0.95 (D164) | 90.9% vs 91.1% | 9 / 10 | 1.0 | $0.0100 vs $0.0079 |
 | Adjudicator, symmetric, keeping only its moves away from China (computed, chosen after seeing the two above; D164) | 92.0% vs 91.1% | 7 / 3 | 0.34 | $0.0100 vs $0.0079 |
 | Component checklist the engine fills before answering, st-checklist-v1 (n = 463, 22 Nov, D650, D651) | 91.1% vs 91.8% | 5 / 8 | 0.58 | $0.0109 vs $0.0079 |
+| The same checklist plus the closest precedent on each side (component country held, assembling country held), st-checklist-v2 (D652, D653) | 91.4% vs 91.8% | 5 / 7 | 0.77 | $0.0119 vs $0.0079 |
 
-Source: `eval/RESULTS.md`, D22, D27, D28, D157, D164, D651. The adjudicator rows are paired against the Vertex AI dev rows they were applied to. The checklist (D650) gained one China-held ruling and lost four net elsewhere; its second variant was not run (budget rule) and no held-out split was scored.
+Source: `eval/RESULTS.md`, D22, D27, D28, D157, D164, D651, D653. The adjudicator rows are paired against the Vertex AI dev rows they were applied to. Neither checklist variant (D650) gained on China-held rulings beyond one case, and neither passed; no held-out split was scored.
 
 **The choice.** Keep plain BM25 and one call. No change moved accuracy by more than half a point, and none was significant. The added parts cost money or latency for no measured gain. The held-out split was therefore not re-scored for any of them.
 

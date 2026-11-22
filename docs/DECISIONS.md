@@ -2524,3 +2524,18 @@ Committed and pushed before the Vb run, after D651 was written.
 - **Decision (coordinator, relaying the owner's standing instruction that cost is not a gate, 22 Nov):** the budget for D650 and its follow-ups rises from $15 to $25 gateway-reported. Nothing else in D650 changes: the variants, the metrics, the baseline, the pass rule, the tie-break, the held-out plan and the adoption rule stay as written, and Va's result (D651) stands.
 - **Budget check under the new cap, as D650 words it:** spent $5.1544; Vb's development run about $5.7; held-out reserve about $6.3 (460 cases at Vb's format-check cost, $0.0136, plus the router on final2). About $17.2, within $25. Vb is run once: `go run ./cmd/eval run -split dev -st-prompt ck2 -tag d650`.
 - **Disclosed:** Va's development result was known when this amendment was made. It does not change what Vb is or how it is judged; if Vb passes, it is the only passing variant and goes to the held-out splits under D650.
+
+## D653 — Vb did not pass on development either; no held-out split scored (22 Nov, results of D650 as amended by D652)
+- **Run:** once, as D650 and D652 say (D652 pushed as 597fa49b at 17:27 +08:00, before the call; hash before any later rebase), `go run ./cmd/eval run -split dev -st-prompt ck2 -tag d650`. One call (N355066) timed out at the gateway after four attempts and was re-run once by resume, as D650 allows; it answered. No call is left failed.
+- **Result, development set (463 after the D23 adjustments)** (`eval/results/st-checklist-metrics.json`):
+
+  | Run | Accuracy (95% CI) | China-held (78) | Not China-held (385) | Fixed / broke vs engine-v1, exact McNemar p | Fast path (stated ≥ 0.92, in scope) | Output tokens | Cost / case | p50 / p95 |
+  |---|---|---:|---:|---|---|---:|---|---|
+  | engine-v1, gateway (D190 run 1) | 91.8% (88.9–94.0) | 66 | 359 | | 375 at 95.7% | 226 | $0.0079 | 6.8 s / 10.8 s |
+  | Va: st-checklist-v1 (D651) | 91.1% (88.2–93.4) | 67 | 355 | 5 / 8, p = 0.58 | 359 at 96.9% | 420 | $0.0109 (1.38 ×) | 9.5 s / 15.4 s |
+  | Vb: st-checklist-v2 | 91.4% (88.4–93.6) | 66 | 357 | 5 / 7, p = 0.77 | 367 at 96.2% | 457 | $0.0119 (1.51 ×) | 10.2 s / 20.4 s |
+
+- **Against the D650 rule:** (1) 423 is below 425; (2) net −2, not +5; (3) China-held 66, not more than 66 (1 fixed, 1 broke); (4) the other 385 lost 2 net, within the 2 allowed. **Vb does not pass.** Against the other engine-v1 runs it is level or one ahead (6 / 5, 7 / 6, 9 / 8; p = 1.0 each). ECE 0.052 against 0.045, Brier 0.072 against 0.069.
+- **Reading (development rows only):** as with Va, every changed answer had stated confidence 0.95 or less, and the changes go both ways. Vb fixed one China-held ruling (N350768) and broke one (N353747, to Taiwan); three of its seven broken rulings are moves to China that CBP held elsewhere. Naming the closest precedent on each side did not help the engine tell which side a case is on.
+- **Decision:** neither variant passed, so the 377-ruling split and final2 were not scored. Production, the code defaults and the calibration map are unchanged; both prompts stay eval only.
+- **Spend:** Vb $5.5262 gateway-reported (with the resume). D650 to D653 in all: $10.6806, within D652's $25.
