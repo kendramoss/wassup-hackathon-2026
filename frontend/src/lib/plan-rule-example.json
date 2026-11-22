@@ -1,0 +1,205 @@
+{
+ "note": "Recorded example, rebuilt from committed files by `cd backend \u0026\u0026 go run ./cmd/tariffshift plans-example -check`. Plan search: the committed development run (precedent checks as recorded; no new model call). Codes: the top suggestion for the good and each part from the committed D381 development run, unverified. Rule check: the deterministic 19 CFR 102.20 layer on the product after each move, as the plan API adds it (D441), informational because the case is decided under substantial transformation.",
+ "ruling": "N354220",
+ "date": "2025-10-15",
+ "split": "dev",
+ "run": "eval/results/planner-families-n354220-litellm.json",
+ "suggestions": "eval/tariffshift/parts/suggest-dev-v1.jsonl",
+ "product": "14-in-1 outdoor and wilderness survival tool",
+ "family": "hand_tools",
+ "target": "Vietnam",
+ "good_hts": "8211.93.00",
+ "cbp_origin": "China",
+ "plants": [
+  {
+   "id": "vn",
+   "name": "Vietnam Plant",
+   "country": "Vietnam",
+   "capabilities": [
+    "primary_metal_forming",
+    "machining_and_treatment",
+    "handles_and_hardware"
+   ]
+  },
+  {
+   "id": "cn",
+   "name": "China Plant",
+   "country": "China",
+   "capabilities": [
+    "machining_and_treatment",
+    "handles_and_hardware",
+    "final_assembly"
+   ]
+  }
+ ],
+ "parts": [
+  {
+   "name": "SUS420 stainless steel card blank",
+   "made_in": "Vietnam",
+   "plant": "vn",
+   "group": "primary_metal_forming",
+   "hts": "7326.90",
+   "code_source": "suggested"
+  },
+  {
+   "name": "Polyester rope",
+   "made_in": "China",
+   "plant": "cn",
+   "group": "handles_and_hardware",
+   "hts": "5607.50",
+   "code_source": "suggested"
+  }
+ ],
+ "operations": [
+  {
+   "name": "Stamping stainless steel plate into final size and shape of multi-tool card blank",
+   "plant": "vn",
+   "group": "primary_metal_forming"
+  },
+  {
+   "name": "Barrel finishing",
+   "plant": "cn",
+   "group": "machining_and_treatment"
+  },
+  {
+   "name": "Sharpening",
+   "plant": "cn",
+   "group": "machining_and_treatment"
+  },
+  {
+   "name": "Black oxide finishing",
+   "plant": "cn",
+   "group": "machining_and_treatment"
+  },
+  {
+   "name": "Laser etching of logo and measurements",
+   "plant": "cn",
+   "group": "machining_and_treatment"
+  },
+  {
+   "name": "Assembling stainless steel card together with polyester cord",
+   "plant": "cn",
+   "group": "final_assembly"
+  }
+ ],
+ "baseline": {
+  "move": null,
+  "description": "No change: keep the current setup",
+  "shown": false,
+  "engine_origin": "Vietnam",
+  "rule_check": {
+   "applies": "informational",
+   "country": "China",
+   "status": "other_country",
+   "label": "102.20 gives China",
+   "origin": "China",
+   "basis": "19 CFR 102.11(a)(3); 19 CFR 102.20(n), 8208-8215",
+   "rule": "19 CFR 102.20(n), 8208-8215",
+   "reason": "each foreign material undergoes the change in tariff classification the rule requires, in China",
+   "review": false
+  }
+ },
+ "moves": [
+  {
+   "move": [
+    {
+     "group": "machining_and_treatment",
+     "to_plant": "vn"
+    }
+   ],
+   "description": "Make Machining, heat treatment and finishing in Vietnam",
+   "shown": false,
+   "rejection_kind": "below_confidence_bar",
+   "rejection_reason": "precedent-supported but verifier confidence 0.85 is below 0.92",
+   "verdict": {
+    "precedent_supported": true,
+    "supporting_ruling": "N334762",
+    "confidence": 0.85,
+    "reasoning": "In Variant A, CBP held origin was China because only an unmachined stainless steel card blank was produced in Vietnam before being sent to China. In Variant B, all machining, heat treatment, sharpening, black oxide finishing, and laser etching of the stainless steel card are performed in Vietnam, leaving only simple assembly of the finished card with a polyester rope in China. Under N334762 and N350962, the formed and machined stainless steel tool body imparts the essential character of a multi-tool, and simple assembly with a cord in China does not substantially transform the Vietnamese tool."
+   },
+   "engine_origin": "Vietnam",
+   "rule_check": {
+    "applies": "informational",
+    "country": "China",
+    "status": "other_country",
+    "label": "102.20 gives China: finished there",
+    "origin": "China",
+    "basis": "19 CFR 102.11(a)(3); 19 CFR 102.20(n), 8208-8215",
+    "rule": "19 CFR 102.20(n), 8208-8215",
+    "reason": "each foreign material undergoes the change in tariff classification the rule requires, in China",
+    "agrees_with_precedent": false,
+    "review": true,
+    "review_note": "An earlier ruling supports this move, but the 102.20 rule gives China: worth a broker's look."
+   }
+  },
+  {
+   "move": [
+    {
+     "group": "machining_and_treatment",
+     "to_plant": "vn"
+    },
+    {
+     "group": "handles_and_hardware",
+     "to_plant": "vn"
+    }
+   ],
+   "description": "Make Machining, heat treatment and finishing and Handles and hardware in Vietnam",
+   "shown": false,
+   "rejection_kind": "below_confidence_bar",
+   "rejection_reason": "precedent-supported but verifier confidence 0.75 is below 0.92",
+   "verdict": {
+    "precedent_supported": true,
+    "supporting_ruling": "N351687",
+    "counter_ruling": "N352429",
+    "confidence": 0.75,
+    "reasoning": "In Variant A, only the unmachined stainless steel card blank was made in Vietnam, while the rope and remaining processing occurred in China. In Variant B, ALL components (the SUS420 stainless steel card and the polyester rope) are produced in Vietnam, where the steel card also undergoes machining, heat treatment, sharpening, black oxide finishing, and laser etching. Only minimal final assembly (attaching the finished card and polyester cord together) remains in China. Under National Hand Tool Corp. and general CBP substantial transformation doctrine (cited in N351687 and N352429), merely attaching a cord in China does not substantially transform completely fabricated Vietnamese components."
+   },
+   "engine_origin": "Vietnam",
+   "rule_check": {
+    "applies": "informational",
+    "country": "China",
+    "status": "other_country",
+    "label": "102.20 gives China: finished there",
+    "origin": "China",
+    "basis": "19 CFR 102.11(a)(3); 19 CFR 102.20(n), 8208-8215",
+    "rule": "19 CFR 102.20(n), 8208-8215",
+    "reason": "each foreign material undergoes the change in tariff classification the rule requires, in China",
+    "agrees_with_precedent": false,
+    "review": true,
+    "review_note": "An earlier ruling supports this move, but the 102.20 rule gives China: worth a broker's look."
+   }
+  },
+  {
+   "move": [
+    {
+     "group": "handles_and_hardware",
+     "to_plant": "vn"
+    }
+   ],
+   "description": "Make Handles and hardware in Vietnam",
+   "shown": false,
+   "rejection_kind": "no_supporting_precedent",
+   "rejection_reason": "no earlier ruling found where CBP held this kind of change decisive",
+   "verdict": {
+    "precedent_supported": false,
+    "counter_ruling": "N334762",
+    "confidence": 0.85,
+    "reasoning": "In Variant A, CBP held origin is China (N354220) despite the SUS420 stainless steel card blank being produced in Vietnam, implying that the finishing/machining of the blank in China (or the Chinese processing) conferred origin. In Variant B, the only change is shifting the production of the auxiliary polyester rope/handle element from China to Vietnam, while the card blank and final assembly remain split the same way. Under N334762 and N350962, shifting secondary handle/grip components does not alter the country of origin of a multi-tool, which is governed by where the steel working tool receives its essential character."
+   },
+   "engine_origin": "Vietnam",
+   "rule_check": {
+    "applies": "informational",
+    "country": "China",
+    "status": "other_country",
+    "label": "102.20 gives China: finished there",
+    "origin": "China",
+    "basis": "19 CFR 102.11(a)(3); 19 CFR 102.20(n), 8208-8215",
+    "rule": "19 CFR 102.20(n), 8208-8215",
+    "reason": "each foreign material undergoes the change in tariff classification the rule requires, in China",
+    "agrees_with_precedent": true,
+    "review": false
+   }
+  }
+ ],
+ "flagged": 2
+}

@@ -6,13 +6,11 @@
 // neither. The data is one development ruling from the committed D382 run,
 // rebuilt with the real rule check by `go run ./cmd/tariffshift
 // parts-example -check` (in make reproduce). No request is made.
-import Link from "next/link";
-import { Suspense } from "react";
-import { useSearchParams } from "next/navigation";
 import type { CaseResponse, PartHtsCandidate } from "@/lib/api/client";
 import { copy } from "@/lib/copy";
 import ex from "@/lib/rule-check-example.json";
 import { Main } from "../chrome";
+import { ExampleTour } from "../example-tour";
 import { RuleCheckPanel, headline } from "../rule-check";
 import { Chip, Country, RulingLink } from "../ui";
 
@@ -42,9 +40,7 @@ export function RuleCheckExample() {
         <p className="eyebrow">{E.eyebrow}</p>
         <h1 className="mt-1 text-[28px] tracking-[-0.05em]">{E.title}</h1>
         <p className="duo mt-2 max-w-[72ch] text-[13.5px]">{E.lede}</p>
-        <Suspense fallback={null}>
-          <TourBack />
-        </Suspense>
+        <ExampleTour at="/examples/rule-check" />
       </div>
 
       <section aria-labelledby="ex-product" className={sheet}>
@@ -127,21 +123,6 @@ export function RuleCheckExample() {
         · <code className="[overflow-wrap:anywhere]">cd backend && go run ./cmd/tariffshift parts-example -check</code>
       </p>
     </Main>
-  );
-}
-
-// Opened from the tour: a link back to the case it came from. The search
-// params are read only here, so the rest of the page prerenders.
-function TourBack() {
-  const q = useSearchParams();
-  const from = q.get("tour") === "1" ? (q.get("from") ?? "") : "";
-  if (!/^[A-Za-z0-9_-]{1,64}$/.test(from)) return null;
-  return (
-    <p className="duo mt-2 text-[13.5px]">
-      <Link href={`/cases/${from}/draft?tour=1`} className="text-ok underline underline-offset-2">
-        {E.tourBack}
-      </Link>
-    </p>
   );
 }
 

@@ -504,6 +504,18 @@ export const copy = {
           link: "See the draft →",
         },
         {
+          key: "rules",
+          what: "Check a move against the tariff-shift rule",
+          body: "Beside the precedent check, a deterministic check of the 19 CFR 102.20 rules runs on each move when the parts have HTS codes. A move an earlier ruling supports but the rule does not is flagged for a broker. Shown on a recorded example.",
+          link: "See a recorded move check →",
+        },
+        {
+          key: "alerts",
+          what: "See when CBP changes a ruling your case relies on",
+          body: "A saved case shows a box when CBP later revokes or modifies a ruling its answer cited, and offers a re-check. The saved answer is never changed. Shown on a recorded example.",
+          link: "See a recorded alert →",
+        },
+        {
           key: "mcp",
           what: "Use it from Gemini CLI, ADK agents or Claude",
           body: "The same tools over MCP (Model Context Protocol), the open protocol agents use to call other services. In Gemini CLI, one line adds it:",
@@ -541,6 +553,15 @@ export const copy = {
     stepOf: (n: number) => `Tour step ${n} of 3`,
     outside: "Outside the tour",
     example: "Per-part codes and the rule check (recorded example)",
+    // Judge panel round 10, item 2: the tour's last step also lists the
+    // other recorded examples, and each example links the next.
+    more: "More recorded examples:",
+    examples: [
+      { href: "/examples/rule-check", label: "Per-part codes and the rule check" },
+      { href: "/examples/plan-rule-check", label: "A plan move the rule does not support" },
+      { href: "/examples/revocation-alert", label: "A revoked-ruling alert" },
+    ] as const,
+    nextExample: (label: string) => `Next recorded example: ${label[0].toLowerCase()}${label.slice(1)} →`,
   },
 
   signIn: {
@@ -665,6 +686,63 @@ export const copy = {
     honest: "One ruling, picked to show the check deciding. On most Part 102 rulings it still does not decide: the product is outside the encoded chapters, or a part needs a fact the codes cannot show. The method page has the counts.",
     source: "Rebuilt from committed files, no model call:",
     tourBack: "Back to the heat-gun tour",
+  },
+
+  // /examples/plan-rule-check: a recorded plan search with the 19 CFR 102.20
+  // check on each move (D441, D442; judge panel round 10, item 2a). The demo
+  // case has no part codes, so its plan shows no move check.
+  planRuleExample: {
+    title: "A plan move the tariff-shift rule does not support",
+    eyebrow: "Recorded example",
+    lede: "The heat-gun demo has no part codes, so its plan shows no rule check on its moves. This page shows one committed development plan search where an earlier ruling supports a move but the 19 CFR 102.20 rule gives another country, and the move is flagged for a broker. It is recorded: nothing here calls a model or saves anything.",
+    product: "The product and the current setup",
+    target: "Target country",
+    cbpHeld: "CBP held",
+    codes: "Codes the rule check used",
+    codesNote: "The top suggestion for the good and each part from the committed development suggestion run. They are unverified, the good's code included.",
+    plants: "Plants",
+    moves: "Each move, with both checks",
+    movesNote: "The precedent check is an agent's reading of earlier CBP rulings, recorded in the plan search. The rule check is code, run on the product as it would be after the move. It never changes which moves are shown or their order.",
+    current: "Current setup",
+    precedent: "Precedent check",
+    rule: "Rule check (19 CFR 102.20)",
+    supportedBy: "An earlier ruling supports it",
+    at: (conf: string) => `check confidence ${conf}.`,
+    notSupported: (conf: string) => `No earlier ruling supports it, check confidence ${conf}.`,
+    belowBar: "Below the 0.92 bar, so not a shown plan.",
+    noSupport: "Not a shown plan.",
+    shown: "A shown plan.",
+    engine: (c: string) => `Origin model after the move: ${c}.`,
+    why: "Why the two disagree",
+    whyBody: "Every move here leaves the final assembly in the China plant. Under 102.20 the good is a product of the country where it is finished when each foreign part makes the required tariff change there, so the rule gives China. The precedent check read earlier rulings where the steel tool body decides origin, and supports moving its machining to Vietnam. A broker should look at that disagreement before anyone moves work.",
+    honest: "One search, picked because it is the only committed one where the two checks disagree (2 of 23 decided moves with a precedent check, D442). These cases are decided under substantial transformation, so 102.20 is shown for comparison here, not as the test. Neither flagged move cleared the 0.92 bar. No Part 102 plan search with codes has been scored yet.",
+    source: "Rebuilt from committed files, no model call:",
+  },
+
+  // /examples/revocation-alert: a recorded revocation alert (D480, D481,
+  // D490; judge panel round 10, item 2b). No demo case shows one.
+  revocationExample: {
+    title: "A ruling the answer cited was later changed",
+    eyebrow: "Recorded example",
+    lede: "No demo case relies on a ruling CBP later changed, so none of them shows this box. This page shows one committed development answer whose cited ruling CBP modified after the case date, and the box a saved case would show for it. It is recorded: nothing here calls a model, saves or re-checks anything.",
+    answer: "The saved answer",
+    caseDate: "Case date",
+    predicted: "Predicted origin",
+    cited: "Rulings it cited",
+    box: "The box on the case",
+    boxNote: (asOf: string) => `As a saved case would show it, worked out by the same rule as the API from the committed revocation map, as of ${asOf}.`,
+    change: "What CBP changed",
+    holding: "Origin held:",
+    published: "Published in",
+    listBadge: "On the cases list, under the case name:",
+    recheck: "What a re-check does",
+    recheckBody: [
+      "Re-check now runs the case's ruling watch: the same engine predicts the origin again, now with every earlier ruling dated before today instead of before the case date. A ruling CBP revoked or modified by today is not cited.",
+      "The saved answer is never changed. The ruling watch on the origin step shows whether the new answer is the same or changed, and the box then says when the case was re-checked.",
+      "It is subject to the same rate limit and spend caps as any prediction. A pinned demo cannot be re-checked.",
+    ],
+    honest: "One answer, picked because it is the only committed one that shows the box for a change after its case date (2 development runs of N356467, D490). The map knows the corpus letters and 28 fetched Customs Bulletins, so an alert can be missing. Nobody is notified by email or push; the box shows when the case is opened.",
+    source: "Rebuilt from committed files, no model call:",
   },
 
   // Per-part HTS suggestions (D380): offered, never filled in by themselves.
