@@ -1,0 +1,244 @@
+{
+  "case_id": "p102h-n359145",
+  "target": "Thailand",
+  "family": "furniture",
+  "baseline": {
+    "move": [],
+    "description": "No change: keep the current setup",
+    "variant_facts": "The merchandise under consideration is a wooden furniture.. The product of CBP ruling N359145, as its facts describe it. The wooden furniture. is assembled in Canada using components sourced from Thailand and Canada.\n\nThe slab of unfinished wood and wooden root are produced in Thailand. The steel plates and assembly hardware (fasteners) are produced in Canada. \n\nFinal assembly in Canada: assemble the parts into the finished good.\n",
+    "prediction": {
+      "origin_country": "Canada",
+      "key_factors": [
+        "(a)(3) tariff shift to subheading 9403.60"
+      ],
+      "decisive_step": "Processing and assembly of the unfinished wood slab and wooden root with Canadian steel plates and fasteners into finished wooden furniture in Canada",
+      "confidence": 0.9,
+      "reasoning": "Wooden furniture is classified in subheading 9403.60, HTSUS. Under 19 CFR 102.11(a)(3) and 102.20(r), the rule for subheadings 9403.10-9403.89 requires a change from any other subheading (or from 9403.91-9403.99 except by simple assembly). The Thai unfinished wood slab and wooden root are raw/rough wood materials classifiable in Chapter 44. In Canada, they are processed and assembled with Canadian steel plates and fasteners into finished furniture of 9403.60, satisfying the tariff shift (similar to N357951).",
+      "cited_rulings": [
+        "N357951"
+      ],
+      "precedents": [
+        "N317251",
+        "N339851",
+        "N350133",
+        "N354024",
+        "N357951"
+      ],
+      "trace": {
+        "llm_provider": "litellm",
+        "model_id": "gemini-4-argon",
+        "requested_model": "gemini-4-argon",
+        "prompt_version": "usmca-v1",
+        "input_tokens": 2947,
+        "output_tokens": 313,
+        "latency_ms": 6536
+      }
+    },
+    "duty_effect_per_year": 0,
+    "added_cost_per_year": 0,
+    "net_per_year": 0,
+    "shown": false
+  },
+  "current_origin": {
+    "country": "Canada",
+    "ruling": "N359145"
+  },
+  "plans": [],
+  "rejected": [
+    {
+      "move": [],
+      "description": "No change: keep the current setup",
+      "variant_facts": "The merchandise under consideration is a wooden furniture.. The product of CBP ruling N359145, as its facts describe it. The wooden furniture. is assembled in Canada using components sourced from Thailand and Canada.\n\nThe slab of unfinished wood and wooden root are produced in Thailand. The steel plates and assembly hardware (fasteners) are produced in Canada. \n\nFinal assembly in Canada: assemble the parts into the finished good.\n",
+      "prediction": {
+        "origin_country": "Canada",
+        "key_factors": [
+          "(a)(3) tariff shift to subheading 9403.60"
+        ],
+        "decisive_step": "Processing and assembly of the unfinished wood slab and wooden root with Canadian steel plates and fasteners into finished wooden furniture in Canada",
+        "confidence": 0.9,
+        "reasoning": "Wooden furniture is classified in subheading 9403.60, HTSUS. Under 19 CFR 102.11(a)(3) and 102.20(r), the rule for subheadings 9403.10-9403.89 requires a change from any other subheading (or from 9403.91-9403.99 except by simple assembly). The Thai unfinished wood slab and wooden root are raw/rough wood materials classifiable in Chapter 44. In Canada, they are processed and assembled with Canadian steel plates and fasteners into finished furniture of 9403.60, satisfying the tariff shift (similar to N357951).",
+        "cited_rulings": [
+          "N357951"
+        ],
+        "precedents": [
+          "N317251",
+          "N339851",
+          "N350133",
+          "N354024",
+          "N357951"
+        ],
+        "trace": {
+          "llm_provider": "litellm",
+          "model_id": "gemini-4-argon",
+          "requested_model": "gemini-4-argon",
+          "prompt_version": "usmca-v1",
+          "input_tokens": 2947,
+          "output_tokens": 313,
+          "latency_ms": 6536
+        }
+      },
+      "duty_effect_per_year": 0,
+      "added_cost_per_year": 0,
+      "net_per_year": 0,
+      "shown": false,
+      "rejection_reason": "current setup: CBP held Canada (N359145); engine predicts Canada",
+      "rejection_kind": "current_setup"
+    },
+    {
+      "move": [
+        {
+          "group": "frame_metal_fabrication",
+          "to_plant": "thailand"
+        }
+      ],
+      "description": "Move the wooden root and the steel plates to Thailand",
+      "variant_facts": "The merchandise under consideration is a wooden furniture.. The product of CBP ruling N359145, as its facts describe it. The wooden furniture. is assembled in Canada using components sourced from Thailand and Canada.\n\nThe slab of unfinished wood, wooden root and steel plates are produced in Thailand. The assembly hardware (fasteners) are produced in Canada. \n\nIn Thailand, the wooden root and steel plates will be produced in-house: make the steel plates; make the wooden root.\n\nFinal assembly in Canada: assemble the parts into the finished good.\n",
+      "prediction": {
+        "origin_country": "Thailand",
+        "key_factors": [
+          "(b) essential character of the wooden slab and root"
+        ],
+        "decisive_step": "Production of the wooden slab and wooden root in Thailand",
+        "confidence": 0.85,
+        "reasoning": "Wooden furniture falls under heading 9403. Under 19 CFR 102.20, the tariff shift rule for 9403.10-9403.89 requires a change from any other subheading, except from subheading 9403.90 (parts) or simply assembling disassembled parts (19 CFR 102.17). Because the Thai wooden slab and root are dedicated furniture parts (9403.91) or an unassembled article (GRI 2(a)), they fail the tariff shift in Canada under 102.11(a)(3). Under 102.11(b), the Thai wooden components impart the essential character, making Thailand the country of origin.",
+        "cited_rulings": [],
+        "precedents": [
+          "N317251",
+          "N334104",
+          "N339969",
+          "N350133",
+          "N354024"
+        ],
+        "trace": {
+          "llm_provider": "litellm",
+          "model_id": "gemini-4-argon",
+          "requested_model": "gemini-4-argon",
+          "prompt_version": "usmca-v1",
+          "input_tokens": 2928,
+          "output_tokens": 262,
+          "latency_ms": 7839
+        }
+      },
+      "verdict": {
+        "precedent_supported": false,
+        "counter_ruling": "N357951",
+        "confidence": 0.75,
+        "reasoning": "In Variant A, CBP held that the wooden furniture's origin is Canada despite the primary wooden components (unfinished wood slab and wooden root) being produced in Thailand, because the processing and assembly in Canada substantially transformed the components into finished furniture (analogous to N357951, where imported wood and hardware were processed and assembled into furniture in Canada). Moving the production of the steel plates from Canada to Thailand in Variant B does not alter the substantial transformation that occurs in Canada on the unfinished wooden slab and components, nor do furniture rulings treat minor mounting plates as origin-determinative.",
+        "trail": [
+          {
+            "tool": "search",
+            "query": "wooden furniture slab wood root Canada Thailand",
+            "rulings": [
+              "N355785",
+              "N334531",
+              "N357951",
+              "H343750",
+              "N354280",
+              "N353013",
+              "H338482",
+              "N356645"
+            ]
+          },
+          {
+            "tool": "search",
+            "query": "wooden table slab wood base Canada assembly origin",
+            "rulings": [
+              "N334531",
+              "H338728",
+              "N339685",
+              "H338482",
+              "N357951",
+              "N352721",
+              "H343750",
+              "N355785"
+            ]
+          },
+          {
+            "tool": "search",
+            "query": "furniture unfinished wood slab steel plate assembly origin",
+            "rulings": [
+              "N342353",
+              "N351331",
+              "N330880",
+              "N350641",
+              "N354003",
+              "N334531",
+              "H305371",
+              "N354279"
+            ]
+          },
+          {
+            "tool": "read",
+            "query": "N339685",
+            "rulings": [
+              "N339685"
+            ]
+          },
+          {
+            "tool": "read",
+            "query": "N334531",
+            "rulings": [
+              "N334531"
+            ]
+          },
+          {
+            "tool": "read",
+            "query": "N357951",
+            "rulings": [
+              "N357951"
+            ]
+          }
+        ],
+        "trace": {
+          "llm_provider": "litellm",
+          "model_id": "gemini-4-argon",
+          "prompt_version": "verifier-v2+known-a",
+          "input_tokens": 15291,
+          "output_tokens": 427,
+          "latency_ms": 0
+        }
+      },
+      "duty_effect_per_year": 0,
+      "added_cost_per_year": 25000,
+      "net_per_year": -25000,
+      "net_priced": true,
+      "shown": false,
+      "rejection_reason": "no earlier ruling found where CBP held this kind of change decisive",
+      "rejection_kind": "no_supporting_precedent"
+    }
+  ],
+  "stats": {
+    "moves_searched": 1,
+    "engine_calls": 2,
+    "verifier_runs": 1,
+    "verifier_cached": 0,
+    "verifier_model_calls": 4,
+    "verifier_tool_calls": 6,
+    "input_tokens": 21166,
+    "output_tokens": 1002,
+    "engine_input_tokens": 5875,
+    "engine_output_tokens": 575,
+    "verifier_input_tokens": 15291,
+    "verifier_output_tokens": 427,
+    "wall_seconds": 30.089116541
+  },
+  "economics_illustrative": true,
+  "duty_rates_note": "Illustrative placeholder, not a sourced rate.",
+  "template_versions": {
+    "furniture": "1"
+  },
+  "ranking": {
+    "rule": "tier_then_net",
+    "bar": 0.92,
+    "clear_from": 0.93
+  },
+  "llm_provider": "litellm",
+  "verifier_search": "local",
+  "cost_usd_promo": 0.052352,
+  "cost_usd_list": 0.104704,
+  "gateway_cost_usd": 0.0452859,
+  "verifier_config": "prompt=v2 panel=off votes=1 near_miss=false follow=false bar=0.92",
+  "llm_no_cache": true,
+  "git_revision": "4a5d6a9da5896d1101c02bdd33df07986c07274d",
+  "time": "2026-11-22T13:14:44+08:00"
+}

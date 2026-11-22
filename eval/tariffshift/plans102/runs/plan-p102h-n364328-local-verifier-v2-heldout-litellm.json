@@ -1,0 +1,118 @@
+{
+  "case_id": "p102h-n364328",
+  "target": "China",
+  "family": "furniture",
+  "baseline": {
+    "move": [],
+    "description": "No change: keep the current setup",
+    "variant_facts": "The merchandise under consideration is a safety gate. The product of CBP ruling N364328, as its facts describe it. The safety gate is assembled in Mexico using components sourced from China.\n\nThe circular and square steel tubes, plastic locking mechanisms, plastic end caps and zinc-coated steel screws are produced in China. \n\nFinal assembly in Mexico: assemble the parts into the finished good.\n",
+    "prediction": {
+      "origin_country": "Mexico",
+      "key_factors": [
+        "(a)(3) tariff shift to heading 7323"
+      ],
+      "decisive_step": "Assembly of the steel tubes, plastic locking mechanisms, end caps, and screws into the finished safety gate in Mexico",
+      "confidence": 0.78,
+      "reasoning": "A household steel safety gate is classified in heading 7323, HTSUS. The 19 CFR 102.20 rule for heading 7323 requires a change to heading 7323 from any other heading. The Chinese components—circular and square steel tubes (heading 7306), plastic locking mechanisms and end caps (Chapter 39), and zinc-coated steel screws (heading 7318)—are all classified outside heading 7323. Because all foreign materials undergo the required tariff shift upon assembly in Mexico, origin is Mexico under 19 CFR 102.11(a)(3).",
+      "cited_rulings": [],
+      "precedents": [
+        "H314566",
+        "N309421",
+        "N326725",
+        "N334104",
+        "N354024"
+      ],
+      "trace": {
+        "llm_provider": "litellm",
+        "model_id": "gemini-4-argon",
+        "requested_model": "gemini-4-argon",
+        "prompt_version": "usmca-v1",
+        "input_tokens": 3088,
+        "output_tokens": 301,
+        "latency_ms": 7012
+      }
+    },
+    "duty_effect_per_year": 0,
+    "added_cost_per_year": 0,
+    "net_per_year": 0,
+    "shown": false
+  },
+  "current_origin": {
+    "country": "Mexico",
+    "ruling": "N364328"
+  },
+  "plans": [],
+  "rejected": [
+    {
+      "move": [],
+      "description": "No change: keep the current setup",
+      "variant_facts": "The merchandise under consideration is a safety gate. The product of CBP ruling N364328, as its facts describe it. The safety gate is assembled in Mexico using components sourced from China.\n\nThe circular and square steel tubes, plastic locking mechanisms, plastic end caps and zinc-coated steel screws are produced in China. \n\nFinal assembly in Mexico: assemble the parts into the finished good.\n",
+      "prediction": {
+        "origin_country": "Mexico",
+        "key_factors": [
+          "(a)(3) tariff shift to heading 7323"
+        ],
+        "decisive_step": "Assembly of the steel tubes, plastic locking mechanisms, end caps, and screws into the finished safety gate in Mexico",
+        "confidence": 0.78,
+        "reasoning": "A household steel safety gate is classified in heading 7323, HTSUS. The 19 CFR 102.20 rule for heading 7323 requires a change to heading 7323 from any other heading. The Chinese components—circular and square steel tubes (heading 7306), plastic locking mechanisms and end caps (Chapter 39), and zinc-coated steel screws (heading 7318)—are all classified outside heading 7323. Because all foreign materials undergo the required tariff shift upon assembly in Mexico, origin is Mexico under 19 CFR 102.11(a)(3).",
+        "cited_rulings": [],
+        "precedents": [
+          "H314566",
+          "N309421",
+          "N326725",
+          "N334104",
+          "N354024"
+        ],
+        "trace": {
+          "llm_provider": "litellm",
+          "model_id": "gemini-4-argon",
+          "requested_model": "gemini-4-argon",
+          "prompt_version": "usmca-v1",
+          "input_tokens": 3088,
+          "output_tokens": 301,
+          "latency_ms": 7012
+        }
+      },
+      "duty_effect_per_year": 0,
+      "added_cost_per_year": 0,
+      "net_per_year": 0,
+      "shown": false,
+      "rejection_reason": "current setup: CBP held Mexico (N364328); engine predicts Mexico",
+      "rejection_kind": "current_setup"
+    }
+  ],
+  "stats": {
+    "moves_searched": 0,
+    "engine_calls": 1,
+    "verifier_runs": 0,
+    "verifier_cached": 0,
+    "verifier_model_calls": 0,
+    "verifier_tool_calls": 0,
+    "input_tokens": 3088,
+    "output_tokens": 301,
+    "engine_input_tokens": 3088,
+    "engine_output_tokens": 301,
+    "verifier_input_tokens": 0,
+    "verifier_output_tokens": 0,
+    "wall_seconds": 7.013899042
+  },
+  "economics_illustrative": true,
+  "duty_rates_note": "Illustrative placeholder, not a sourced rate.",
+  "template_versions": {
+    "furniture": "1"
+  },
+  "ranking": {
+    "rule": "tier_then_net",
+    "bar": 0.92,
+    "clear_from": 0.93
+  },
+  "llm_provider": "litellm",
+  "verifier_search": "local",
+  "cost_usd_promo": 0.009186,
+  "cost_usd_list": 0.018372,
+  "gateway_cost_usd": 0.009186,
+  "verifier_config": "prompt=v2 panel=off votes=1 near_miss=false follow=false bar=0.92",
+  "llm_no_cache": true,
+  "git_revision": "4a5d6a9da5896d1101c02bdd33df07986c07274d",
+  "time": "2026-11-22T13:15:38+08:00"
+}

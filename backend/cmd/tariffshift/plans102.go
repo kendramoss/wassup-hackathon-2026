@@ -2,12 +2,16 @@ package main
 
 // The scored Part 102 plan searches of D501, read offline (no model calls):
 //
-//	go run ./cmd/tariffshift plans102-eval [-series d501|d540] [-check]   (both in make reproduce)
+//	go run ./cmd/tariffshift plans102-eval [-series d501|d540|heldout] [-check]   (all in make reproduce)
 //
 // Each fixture (testdata/planner_part102, development rulings) has one
 // plan search per series through the gateway
 // (eval/tariffshift/plans102/runs/plan-p102-*-<series>-*.json): d501 with the
-// general engine (D501), d540 with the Part 102 engine (D540).
+// general engine (D501), d540 with the Part 102 engine (D540). heldout is
+// the first held-out evaluation (D570): the rulings frozen in
+// eval/tariffshift/plans102/heldout/frozen.json, fixtures in
+// testdata/planner_part102_heldout built by fixed rules, the Part 102
+// engine on every move.
 // The 19 CFR 102.20 check runs on every move as on a Part 102 case (D441),
 // and the shown plans are put in the D500 order.
 
@@ -21,6 +25,7 @@ import (
 	"strings"
 
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/domain"
+	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/evalkit"
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/hts"
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/planner"
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/planrule"
@@ -31,11 +36,16 @@ const (
 	plans102Dir      = evalDir + "/plans102"
 	plans102Fixtures = "testdata/planner_part102"
 	plans102Runs     = plans102Dir + "/runs/plan-p102-%s-local-verifier-*%s-litellm.json"
+	// The held-out series (D570).
+	plans102HeldoutFixtures = "testdata/planner_part102_heldout"
+	plans102HeldoutRuns     = plans102Dir + "/runs/plan-p102h-%s-local-verifier-*%s-litellm.json"
+	plans102Frozen          = plans102Dir + "/heldout/frozen.json"
+	plans102FamilyCheck     = "../eval/results/families-coverage-final-all-litellm-p102-heldout.jsonl"
 )
 
 // plans102Series are the scored series and their output names: d501 keeps
 // the file names D502 published.
-var plans102Series = map[string]string{"d501": "", "d540": "-d540"}
+var plans102Series = map[string]string{"d501": "", "d540": "-d540", "heldout": "-heldout"}
 
 // plans102Later is the later CBP ruling on a changed setup of a picked
 // product (D501): the rule is checked on its setup, not on a plan move.
@@ -85,6 +95,60 @@ type Search102 struct {
 	GatewayUSD     float64 `json:"gateway_cost_usd"`
 	WallSeconds    float64 `json:"wall_seconds"`
 	Later          *Later  `json:"later_ruling,omitempty"`
+	// Held-out series only (D570): each shown plan's rule status in the
+	// D500 order, materials left out for having no country, whether the
+	// engine's current-setup origin is CBP's holding, and whether the
+	// suggester's input carried a code (D413).
+	ShownStatus   []string `json:"shown_rule_status,omitempty"`
+	PartsLeftOut  *int     `json:"parts_left_out,omitempty"`
+	EngineCurrent *bool    `json:"current_setup_engine_agrees_with_cbp,omitempty"`
+	LeakedInput   bool     `json:"suggester_input_carried_a_code,omitempty"`
+}
+
+// FrozenRow is one ruling of the frozen held-out set and what became of it.
+type FrozenRow struct {
+	Ruling     string  `json:"ruling"`
+	CBP        string  `json:"cbp_origin"`
+	Target     string  `json:"target"`
+	Family     string  `json:"family"`
+	Confidence float64 `json:"family_confidence"`
+	Outcome    string  `json:"outcome"`
+}
+
+// Rate is k of n with its exact 95% Wilson interval (n >= 5 only).
+type Rate struct {
+	K  int       `json:"k"`
+	N  int       `json:"n"`
+	CI []float64 `json:"ci95,omitempty"`
+}
+
+func rate(k, n int) Rate {
+	r := Rate{K: k, N: n}
+	if n >= 5 {
+		_, lo, hi := evalkit.Wilson(k, n)
+		r.CI = []float64{round4(lo), round4(hi)}
+	}
+	return r
+}
+
+// Pooled102 are the pooled held-out figures pre-registered in D570.
+type Pooled102 struct {
+	Frozen               int  `json:"frozen"`
+	Template             Rate `json:"template_found"`
+	Planned              Rate `json:"planned_end_to_end"`
+	SearchesWithMoves    int  `json:"searches_with_a_move"`
+	Moves                int  `json:"moves"`
+	Decided              int  `json:"moves_decided"`
+	EngineAgreesDecided  Rate `json:"decided_moves_engine_agrees_with_rule"`
+	EngineAgreesLean     Rate `json:"lean_moves_engine_agrees_with_rule"`
+	Shown                int  `json:"shown_plans"`
+	ShownShift           Rate `json:"shown_plans_rule_shifts"`
+	Flagged              int  `json:"moves_flagged"`
+	CurrentRuleDecided   Rate `json:"current_setup_rule_decided"`
+	CurrentRuleAgrees    Rate `json:"current_setup_rule_decided_agrees_with_cbp"`
+	CurrentEngineAgrees  Rate `json:"current_setup_engine_agrees_with_cbp"`
+	Backtests            int  `json:"backtests"`
+	WithoutLeakedPlanned int  `json:"planned_without_leaked_inputs"`
 }
 
 // Later is the rule check on a later ruling's setup (CBP's good code, top
@@ -103,22 +167,29 @@ type Summary102 struct {
 	Note       string      `json:"note"`
 	Searches   []Search102 `json:"searches"`
 	GatewayUSD float64     `json:"gateway_cost_usd"`
+	Frozen     []FrozenRow `json:"frozen_set,omitempty"`
+	Pooled     *Pooled102  `json:"pooled,omitempty"`
 }
 
 func cmdPlans102Eval(args []string) error {
 	fl := flag.NewFlagSet("plans102-eval", flag.ExitOnError)
 	check := fl.Bool("check", false, "recompute and fail if the committed files differ")
-	series := fl.String("series", "d501", "run series: d501 (general engine) or d540 (Part 102 engine)")
+	series := fl.String("series", "d501", "run series: d501 (general engine), d540 (Part 102 engine) or heldout (D570)")
 	_ = fl.Parse(args)
 	suffix, ok := plans102Series[*series]
 	if !ok {
-		return fmt.Errorf("-series must be d501 or d540")
+		return fmt.Errorf("-series must be d501, d540 or heldout")
+	}
+	heldout := *series == "heldout"
+	fixtures, runsPattern, movesName := plans102Fixtures, plans102Runs, "/moves-dev"
+	if heldout {
+		fixtures, runsPattern, movesName = plans102HeldoutFixtures, plans102HeldoutRuns, "/moves"
 	}
 	rules, err := tariffshift.Default()
 	if err != nil {
 		return err
 	}
-	files, err := filepath.Glob(plans102Fixtures + "/*.json")
+	files, err := filepath.Glob(fixtures + "/*.json")
 	if err != nil {
 		return err
 	}
@@ -127,7 +198,20 @@ func cmdPlans102Eval(args []string) error {
 	if *series == "d540" {
 		note = "The D540 re-run of the three D501 searches with the Part 102 engine predicting each move (seen development products, one run each through an OpenAI-compatible LiteLLM gateway to Gemini; not new evidence of accuracy). Scored as D501. Part codes are unverified suggestions (D382). Recompute: cd backend && go run ./cmd/tariffshift plans102-eval -series d540 -check"
 	}
+	if heldout {
+		note = "The first held-out evaluation of the Part 102 plan pipeline (D570): held-out Part 102 rulings frozen by a fixed rule before any run (heldout/frozen.json), the production family check, fixtures built by fixed rules, one plan search each with the Part 102 engine predicting every move, through an OpenAI-compatible LiteLLM gateway to Gemini. Each move carries the 19 CFR 102.20 check as on a Part 102 case (D441); shown plans are put in the D500 order. Part codes are unverified held-out suggestions (D382). Recompute: cd backend && go run ./cmd/tariffshift plans102-eval -series heldout -check"
+	}
 	sum := Summary102{Note: note}
+	frozenMats := map[string]int{}
+	leaked := map[string]bool{"H351116": true, "N357063": true} // D413: the two frozen rulings whose suggester input carried a code
+	if heldout {
+		fr, err := heldoutFrozen()
+		if err != nil {
+			return err
+		}
+		sum.Frozen = fr.rows
+		frozenMats = fr.withCountry
+	}
 	var rows []MoveRow
 	for _, f := range files {
 		id := strings.TrimSuffix(filepath.Base(f), ".json")
@@ -145,7 +229,7 @@ func cmdPlans102Eval(args []string) error {
 		_ = json.Unmarshal(b, &fam)
 		s := Search102{Ruling: fx.CurrentOrigin.Ruling, Family: fam.Family, Target: domain.NormalizeCountry(fx.Target),
 			CBP: domain.NormalizeCountry(fx.CurrentOrigin.Country), ByStatus: map[string]int{}}
-		runs, _ := filepath.Glob(fmt.Sprintf(plans102Runs, id, *series))
+		runs, _ := filepath.Glob(fmt.Sprintf(runsPattern, id, *series))
 		if len(runs) != 1 {
 			s.Failed = true // no result file (the search failed or did not run)
 			sum.Searches = append(sum.Searches, s)
@@ -179,6 +263,18 @@ func cmdPlans102Eval(args []string) error {
 		bc := ann.Baseline.RuleCheck
 		s.Baseline.Status, s.Baseline.Origin, s.Baseline.Label = bc.Status, bc.Origin, bc.Label
 		s.Baseline.Agrees = decided(bc.Status) && domain.NormalizeCountry(bc.Origin) == s.CBP
+		if heldout {
+			left := frozenMats[s.Ruling] - len(fx.Product.Components)
+			agrees := s.BaselineEngine == s.CBP
+			s.PartsLeftOut, s.EngineCurrent, s.LeakedInput = &left, &agrees, leaked[s.Ruling]
+			for _, pl := range ann.Plans {
+				st := "undetermined"
+				if pl.RuleCheck != nil {
+					st = pl.RuleCheck.Status
+				}
+				s.ShownStatus = append(s.ShownStatus, st)
+			}
+		}
 		base := moveRow(id, s.Target, *fx.Product, ann.Baseline, bc)
 		base.Kind, base.Move, base.CBP = "baseline", "", s.CBP
 		rows = append(rows, base)
@@ -223,13 +319,16 @@ func cmdPlans102Eval(args []string) error {
 		sum.Searches = append(sum.Searches, s)
 	}
 	sum.GatewayUSD = round4(sum.GatewayUSD)
+	if heldout {
+		sum.Pooled = pool102(sum)
+	}
 	sb, _ := json.MarshalIndent(sum, "", "  ")
 	if !*check {
 		if err := os.MkdirAll(plans102Dir, 0o755); err != nil {
 			return err
 		}
 	}
-	if err := writeOrCheckPlans(plans102Dir+"/moves-dev"+suffix+".jsonl", jsonlOf(rows), *check); err != nil {
+	if err := writeOrCheckPlans(plans102Dir+movesName+suffix+".jsonl", jsonlOf(rows), *check); err != nil {
 		return err
 	}
 	if err := writeOrCheckPlans(plans102Dir+"/summary"+suffix+".json", append(sb, '\n'), *check); err != nil {
@@ -290,4 +389,127 @@ func laterCheck(rules *tariffshift.Rules, ruling string) (*Later, error) {
 		return l, nil
 	}
 	return nil, fmt.Errorf("no D381 suggestion row for %s", ruling)
+}
+
+type frozenSet struct {
+	rows        []FrozenRow
+	withCountry map[string]int // materials in the extraction, per frozen ruling
+}
+
+// heldoutFrozen reads the frozen set (D570) and the family check run on it:
+// a ruling whose answer is "none" or below the bar has no plan template.
+func heldoutFrozen() (frozenSet, error) {
+	var fz struct {
+		Final   []string `json:"final"`
+		Rulings []struct {
+			Ruling string `json:"ruling"`
+			CBP    string `json:"cbp_origin"`
+			Target string `json:"target"`
+			Mats   int    `json:"materials"`
+		} `json:"rulings"`
+	}
+	b, err := os.ReadFile(plans102Frozen)
+	if err != nil {
+		return frozenSet{}, err
+	}
+	if err := json.Unmarshal(b, &fz); err != nil {
+		return frozenSet{}, err
+	}
+	type famRow struct {
+		Ruling     string  `json:"ruling"`
+		Family     string  `json:"family"`
+		Confidence float64 `json:"confidence"`
+		Covered    bool    `json:"covered"`
+		Error      string  `json:"error"`
+	}
+	fams, err := readJSONL[famRow](plans102FamilyCheck)
+	if err != nil {
+		return frozenSet{}, err
+	}
+	fam := map[string]famRow{}
+	for _, f := range fams {
+		fam[f.Ruling] = f
+	}
+	out := frozenSet{withCountry: map[string]int{}}
+	in := map[string]bool{}
+	for _, id := range fz.Final {
+		in[id] = true
+	}
+	for _, r := range fz.Rulings {
+		if !in[r.Ruling] {
+			continue
+		}
+		out.withCountry[r.Ruling] = r.Mats
+		f, ok := fam[r.Ruling]
+		row := FrozenRow{Ruling: r.Ruling, CBP: r.CBP, Target: r.Target, Family: f.Family, Confidence: f.Confidence}
+		switch {
+		case !ok || f.Error != "":
+			row.Outcome = "family check failed"
+		case !f.Covered:
+			row.Outcome = "no plan template"
+		default:
+			row.Outcome = "fixture built"
+		}
+		out.rows = append(out.rows, row)
+	}
+	if len(out.rows) != len(fz.Final) {
+		return frozenSet{}, fmt.Errorf("frozen.json: %d rulings listed, %d described", len(fz.Final), len(out.rows))
+	}
+	return out, nil
+}
+
+// pool102 is the pooled D570 summary.
+func pool102(sum Summary102) *Pooled102 {
+	p := &Pooled102{Frozen: len(sum.Frozen)}
+	tmpl := 0
+	for _, f := range sum.Frozen {
+		if f.Outcome == "fixture built" {
+			tmpl++
+		}
+	}
+	planned, agree, lean, leanAgree, shownShift, curDecided, curAgree, curEngine, ran, plannedClean := 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+	for _, s := range sum.Searches {
+		if s.Failed {
+			continue
+		}
+		ran++
+		planned++
+		if !s.LeakedInput {
+			plannedClean++
+		}
+		if s.Moves > 0 {
+			p.SearchesWithMoves++
+		}
+		p.Moves += s.Moves
+		p.Decided += s.Decided
+		agree += s.EngineAgree
+		lean += s.Lean
+		leanAgree += s.LeanEngineAgree
+		p.Shown += s.Shown
+		for _, st := range s.ShownStatus {
+			if st == planrule.Shifts {
+				shownShift++
+			}
+		}
+		p.Flagged += len(s.Flagged)
+		if decided(s.Baseline.Status) {
+			curDecided++
+			if s.Baseline.Agrees {
+				curAgree++
+			}
+		}
+		if s.EngineCurrent != nil && *s.EngineCurrent {
+			curEngine++
+		}
+	}
+	p.Template = rate(tmpl, p.Frozen)
+	p.Planned = rate(planned, p.Frozen)
+	p.EngineAgreesDecided = rate(agree, p.Decided)
+	p.EngineAgreesLean = rate(leanAgree, lean)
+	p.ShownShift = rate(shownShift, p.Shown)
+	p.CurrentRuleDecided = rate(curDecided, ran)
+	p.CurrentRuleAgrees = rate(curAgree, curDecided)
+	p.CurrentEngineAgrees = rate(curEngine, ran)
+	p.WithoutLeakedPlanned = plannedClean
+	return p
 }

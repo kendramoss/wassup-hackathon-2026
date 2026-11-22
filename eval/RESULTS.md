@@ -856,3 +856,21 @@ Total $0.97 promo / $1.95 list. The engine's view of the current setup disagreed
 - Did not pass (accuracy lower, contradictions not fewer). Not adopted; held out not scored; `usmca-v1` stays in production.
 - One B case failed on a gateway outage and was re-run once by the harness's resume (RUNLOG has both B lines: 52 with 1 error, then 53 with none).
 - `tariffshift/ground102/runs/usmca-dev-gemini-4-argon-prec-usmca-v{1,2}-litellm-d550.jsonl` (kept out of `results/` so the committed-row counts of the supersession and alert checks stay as published); `tariffshift/ground102/summary-d551.json`; `cd backend && go run ./cmd/tariffshift ground102-eval -check` (in `make reproduce`). Total $1.3995.
+
+## Held-out Part 102 plan set, first evaluation (gateway, 22 Nov; D570, D571)
+
+### Frozen in D570 (commit 574fd5ca, pushed 13:10 +08:00, before any held-out call; a rebase may change the hash)
+- The rule, applied by `python3 -I eval/planner/part102_heldout.py freeze` with no model calls, to the 45 held-out Part 102 rulings (window 1, 32; window 2, 13): a committed extraction with CBP's good code and the production country, at least two materials with a country, the committed held-out D381 suggestion row for the part codes, and a target by the D171 rule counted mechanically. 18 frozen, all window 1. `tariffshift/plans102/heldout/frozen.json` (rule, time, per-ruling outcome, input checksums; `freeze --check` in `make reproduce`).
+- Steps, once each: the production family check on the 18 (`results/families-coverage-final-all-litellm-p102-heldout.jsonl`, RUNLOG `families-coverage-final-all-litellm-p102-heldout`, $0.0404): 6 with a template; the group call on those 6 (`heldout/groups.jsonl`, RUNLOG `part102-heldout-groups`, $0.0245; checked first on the 3 D501 development products, `groups-dev.jsonl`, $0.0172); fixtures by fixed rules (`backend/testdata/planner_part102_heldout/`, `build --check` in `make reproduce`); one plan search each with the Part 102 engine (RUNLOG `planner-part102-heldout-litellm`, $0.2195). Two fixture-build deviations before any search, in D571: names from the subject rule, and materials with no country left out.
+
+| Ruling (CBP → target) | Moves | Shown (rule) | Rule: shifts / another country | Engine agrees with rule | Current setup: rule / engine (CBP) | Parts left out | Gateway cost, wall |
+|---|---:|---|---|---:|---|---:|---|
+| N357951 (Canada → United States) | 1 | 0 | 0 / 1 | 1/1 | Canada / Canada (Canada) | 1 of 8 | $0.0178, 10 s |
+| N358639 (South Korea → Mexico) | 3 | 1 (shifts) | 3 / 0 | 2/3 | Mexico / Mexico (South Korea) | 0 of 3 | $0.0955, 35 s |
+| N359145 (Canada → Thailand) | 1 | 0 | 0 / 1 | 0/1 | Canada / Canada (Canada) | 3 of 7 | $0.0453, 30 s |
+| N359690 (Canada → China) | 0 | 0 | – | – | Canada / Canada (Canada) | 14 of 19 | $0.0092, 9 s |
+| N362414 (Canada → China) | 1 | 0 | 0 / 1 | 0/1 | Canada / Canada (Canada) | 10 of 22 | $0.0425, 32 s |
+| N364328 (Mexico → China) | 0 | 0 | – | – | Mexico / Mexico (Mexico) | 0 of 4 | $0.0092, 7 s |
+
+- Planned end to end: 6 of 18 (33%, 95% CI 16–56%); the other 12 have no plan template. No search failed or was re-run. Engine agrees with the rule on 3 of 6 decided moves (19–81%). Shown plans 1, the rule says it shifts. Flagged 0. Current setup: rule decides 6 of 6, agrees with CBP 5 (44–97%); engine agrees 5 of 6. Backtests 0. D500 changed no order.
+- `tariffshift/plans102/runs/plan-p102h-*-local-verifier-v2-heldout-litellm.json`; `tariffshift/plans102/summary-heldout.json`, `moves-heldout.jsonl`; `cd backend && go run ./cmd/tariffshift plans102-eval -series heldout -check` (in `make reproduce`). Total $0.3016.

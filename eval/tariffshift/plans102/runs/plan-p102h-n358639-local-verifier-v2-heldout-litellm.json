@@ -1,0 +1,416 @@
+{
+  "case_id": "p102h-n358639",
+  "target": "Mexico",
+  "family": "vehicle_parts",
+  "baseline": {
+    "move": [],
+    "description": "No change: keep the current setup",
+    "variant_facts": "The merchandise under consideration is a pipe assembly.. The product of CBP ruling N358639, as its facts describe it. The pipe assembly. is assembled in Mexico using components sourced from South Korea.\n\nThe steel pipes, flange and brackets are produced in South Korea. \n\nFinal assembly in Mexico: assemble the parts into the finished good.\n",
+    "prediction": {
+      "origin_country": "Mexico",
+      "key_factors": [
+        "(a)(3) tariff shift under 102.20"
+      ],
+      "decisive_step": "Assembly of the South Korean steel pipes, flange, and brackets into the finished pipe assembly in Mexico",
+      "confidence": 0.78,
+      "reasoning": "Following the analytical framework of N309421 and N344091, the South Korean components—steel pipes (heading 7304/7306), flanges (7307), and brackets (7326/8302)—are assembled in Mexico into a finished machine/appliance or vehicle pipe assembly (typically classified in Chapters 84–87). Under 19 CFR 102.11(a)(3) and 102.20, all foreign components undergo the required change in tariff classification from Chapter 73 to the finished assembly's heading in Mexico, conferring Mexican origin.",
+      "cited_rulings": [
+        "N309421",
+        "N344091"
+      ],
+      "precedents": [
+        "N309421",
+        "N343418",
+        "N344091",
+        "N350133",
+        "N354024"
+      ],
+      "trace": {
+        "llm_provider": "litellm",
+        "model_id": "gemini-4-argon",
+        "requested_model": "gemini-4-argon",
+        "prompt_version": "usmca-v1",
+        "input_tokens": 2878,
+        "output_tokens": 290,
+        "latency_ms": 8710
+      }
+    },
+    "duty_effect_per_year": 0,
+    "added_cost_per_year": 0,
+    "net_per_year": 0,
+    "shown": false
+  },
+  "current_origin": {
+    "country": "South Korea",
+    "ruling": "N358639"
+  },
+  "plans": [
+    {
+      "move": [
+        {
+          "group": "precision_machined_parts",
+          "to_plant": "mexico"
+        }
+      ],
+      "description": "Move the steel pipes and the flange to Mexico",
+      "variant_facts": "The merchandise under consideration is a pipe assembly.. The product of CBP ruling N358639, as its facts describe it. The pipe assembly. is assembled in Mexico using components sourced from Mexico and South Korea.\n\nThe steel pipes and flange are produced in Mexico. The brackets are sourced from South Korea. \n\nIn Mexico, the steel pipes and flange will be produced in-house: make the steel pipes, flange.\n\nFinal assembly in Mexico: assemble the parts into the finished good.\n",
+      "prediction": {
+        "origin_country": "Mexico",
+        "key_factors": [
+          "(a)(3) tariff shift or (b) essential character of the Mexican steel pipes and flange"
+        ],
+        "decisive_step": "Manufacturing the steel pipes and flange and assembling the pipe assembly in Mexico",
+        "confidence": 0.95,
+        "reasoning": "Under 19 CFR 102.11(a)(1) and (a)(2), the pipe assembly is not wholly obtained or produced exclusively from domestic materials due to the South Korean brackets. Under 102.11(a)(3), the South Korean brackets undergo the required tariff shift under 102.20 when assembled with the Mexican-produced steel pipes and flange into the finished pipe assembly in Mexico. Even if the tariff shift rule failed, under 102.11(b) the Mexican steel pipes and flange impart the essential character. Thus, the country of origin is Mexico.",
+        "cited_rulings": [],
+        "precedents": [
+          "N309421",
+          "N343418",
+          "N344091",
+          "N350133",
+          "N354024"
+        ],
+        "trace": {
+          "llm_provider": "litellm",
+          "model_id": "gemini-4-argon",
+          "requested_model": "gemini-4-argon",
+          "prompt_version": "usmca-v1",
+          "input_tokens": 2908,
+          "output_tokens": 239,
+          "latency_ms": 7840
+        }
+      },
+      "verdict": {
+        "precedent_supported": true,
+        "supporting_ruling": "N353124",
+        "confidence": 0.96,
+        "reasoning": "In N353124, CBP determined the country of origin of a steel pipe assembly with welded brackets across multiple scenarios. CBP held that origin is conferred in the country where the steel pipe is produced, and that subsequent joining to foreign brackets and assembly does not constitute a substantial transformation. When the pipe was produced in China and brackets/assembly in Mexico, origin was China; when the pipe was produced in Mexico and assembled in Mexico with foreign brackets, origin was Mexico. Moving production of the steel pipes and flange from South Korea to Mexico shifts origin from South Korea to Mexico.",
+        "trail": [
+          {
+            "tool": "search",
+            "query": "pipe assembly flange bracket welding assembly origin",
+            "rulings": [
+              "N356398",
+              "N343418",
+              "N346435",
+              "N352741",
+              "N352739",
+              "N356998",
+              "N356544",
+              "N349019"
+            ]
+          },
+          {
+            "tool": "search",
+            "query": "pipe assembly steel pipe flange bracket Mexico Korea origin",
+            "rulings": [
+              "N343418",
+              "N357198",
+              "N332258",
+              "N332515",
+              "N356398",
+              "N334228",
+              "N356156",
+              "N345836"
+            ]
+          },
+          {
+            "tool": "search",
+            "query": "steel pipe assembly tube assembly flange bracket origin",
+            "rulings": [
+              "N343418",
+              "N346435",
+              "N356398",
+              "N353124",
+              "N331974",
+              "N332515",
+              "N334296",
+              "N345836"
+            ]
+          },
+          {
+            "tool": "read",
+            "query": "N343418",
+            "rulings": [
+              "N343418"
+            ]
+          },
+          {
+            "tool": "read",
+            "query": "N353124",
+            "rulings": [
+              "N353124"
+            ]
+          },
+          {
+            "tool": "read",
+            "query": "N345836",
+            "rulings": [
+              "N345836"
+            ]
+          }
+        ],
+        "trace": {
+          "llm_provider": "litellm",
+          "model_id": "gemini-4-argon",
+          "prompt_version": "verifier-v2+known-a",
+          "input_tokens": 11730,
+          "output_tokens": 349,
+          "latency_ms": 0
+        }
+      },
+      "duty_effect_per_year": 0,
+      "added_cost_per_year": 25000,
+      "net_per_year": -25000,
+      "net_priced": true,
+      "shown": true,
+      "tier": "clear_margin",
+      "parts_moved": 2
+    }
+  ],
+  "rejected": [
+    {
+      "move": [],
+      "description": "No change: keep the current setup",
+      "variant_facts": "The merchandise under consideration is a pipe assembly.. The product of CBP ruling N358639, as its facts describe it. The pipe assembly. is assembled in Mexico using components sourced from South Korea.\n\nThe steel pipes, flange and brackets are produced in South Korea. \n\nFinal assembly in Mexico: assemble the parts into the finished good.\n",
+      "prediction": {
+        "origin_country": "Mexico",
+        "key_factors": [
+          "(a)(3) tariff shift under 102.20"
+        ],
+        "decisive_step": "Assembly of the South Korean steel pipes, flange, and brackets into the finished pipe assembly in Mexico",
+        "confidence": 0.78,
+        "reasoning": "Following the analytical framework of N309421 and N344091, the South Korean components—steel pipes (heading 7304/7306), flanges (7307), and brackets (7326/8302)—are assembled in Mexico into a finished machine/appliance or vehicle pipe assembly (typically classified in Chapters 84–87). Under 19 CFR 102.11(a)(3) and 102.20, all foreign components undergo the required change in tariff classification from Chapter 73 to the finished assembly's heading in Mexico, conferring Mexican origin.",
+        "cited_rulings": [
+          "N309421",
+          "N344091"
+        ],
+        "precedents": [
+          "N309421",
+          "N343418",
+          "N344091",
+          "N350133",
+          "N354024"
+        ],
+        "trace": {
+          "llm_provider": "litellm",
+          "model_id": "gemini-4-argon",
+          "requested_model": "gemini-4-argon",
+          "prompt_version": "usmca-v1",
+          "input_tokens": 2878,
+          "output_tokens": 290,
+          "latency_ms": 8710
+        }
+      },
+      "duty_effect_per_year": 0,
+      "added_cost_per_year": 0,
+      "net_per_year": 0,
+      "shown": false,
+      "rejection_reason": "current setup: CBP held South Korea (N358639); engine predicts Mexico",
+      "rejection_kind": "current_setup"
+    },
+    {
+      "move": [
+        {
+          "group": "precision_machined_parts",
+          "to_plant": "mexico"
+        },
+        {
+          "group": "housings_and_structures",
+          "to_plant": "mexico"
+        }
+      ],
+      "description": "Move the steel pipes and the flange and the brackets to Mexico",
+      "variant_facts": "The merchandise under consideration is a pipe assembly.. The product of CBP ruling N358639, as its facts describe it. The pipe assembly. is assembled in Mexico using components sourced from Mexico.\n\nThe steel pipes, flange and brackets are produced in Mexico. \n\nIn Mexico, the steel pipes and flange will be produced in-house: make the steel pipes, flange.\n\nIn Mexico, the brackets will be produced in-house: make the brackets.\n\nFinal assembly in Mexico: assemble the parts into the finished good.\n",
+      "prediction": {
+        "origin_country": "Mexico",
+        "key_factors": [
+          "(a)(2) produced exclusively from domestic materials"
+        ],
+        "decisive_step": "Production of components and final assembly in Mexico exclusively from Mexican materials",
+        "confidence": 0.98,
+        "reasoning": "Under 19 CFR 102.11(a)(1) and (a)(2), the country of origin is the country where the good is wholly obtained or produced, or produced exclusively from domestic materials. Here, all components (steel pipes, flange, and brackets) are produced in Mexico and assembled into the finished pipe assembly in Mexico without any foreign materials mentioned. Therefore, the country of origin is Mexico under 19 CFR 102.11(a)(2) (or 102.11(a)(1)).",
+        "cited_rulings": [],
+        "precedents": [
+          "H315296",
+          "N309421",
+          "N343418",
+          "N350133",
+          "N354024"
+        ],
+        "trace": {
+          "llm_provider": "litellm",
+          "model_id": "gemini-4-argon",
+          "requested_model": "gemini-4-argon",
+          "prompt_version": "usmca-v1",
+          "input_tokens": 3011,
+          "output_tokens": 240,
+          "latency_ms": 7840
+        }
+      },
+      "verdict": {
+        "precedent_supported": true,
+        "supporting_ruling": "N345836",
+        "confidence": 0.9,
+        "reasoning": "In Variant A, the steel pipes, flange, and brackets are manufactured in South Korea and merely assembled in Mexico, so origin remains South Korea where the essential pipe and fitting components are produced (consistent with pipe assembly rulings such as N345836 where the pipes impart the essential character). In Variant B, the production of all components—the steel pipes, flange, and brackets—moves to Mexico alongside final assembly. Because the entire manufacturing of the constituent steel pipes, flange, brackets, and the finished assembly now occurs in Mexico, the country of origin changes to Mexico.",
+        "trail": [
+          {
+            "tool": "search",
+            "query": "pipe assembly steel pipes flange brackets Mexico South Korea",
+            "rulings": [
+              "N343418",
+              "N334228",
+              "N345836",
+              "N352739",
+              "N332515",
+              "N332258",
+              "N352741",
+              "N351860"
+            ]
+          },
+          {
+            "tool": "search",
+            "query": "pipe assembly flange bracket origin assembly Mexico",
+            "rulings": [
+              "N343418",
+              "N356398",
+              "N346435",
+              "N335508",
+              "N357927",
+              "N350470",
+              "H342978",
+              "N339814"
+            ]
+          },
+          {
+            "tool": "search",
+            "query": "steel pipe tube assembly welding brazing flange bracket origin",
+            "rulings": [
+              "N343418",
+              "N351901",
+              "N351860",
+              "N356398",
+              "N356544",
+              "N346435",
+              "N356661",
+              "N351631"
+            ]
+          },
+          {
+            "tool": "read",
+            "query": "N345836",
+            "rulings": [
+              "N345836"
+            ]
+          },
+          {
+            "tool": "read",
+            "query": "N343418",
+            "rulings": [
+              "N343418"
+            ]
+          },
+          {
+            "tool": "read",
+            "query": "N339814",
+            "rulings": [
+              "N339814"
+            ]
+          }
+        ],
+        "trace": {
+          "llm_provider": "litellm",
+          "model_id": "gemini-4-argon",
+          "prompt_version": "verifier-v2+known-a",
+          "input_tokens": 13292,
+          "output_tokens": 777,
+          "latency_ms": 0
+        }
+      },
+      "duty_effect_per_year": 0,
+      "added_cost_per_year": 50000,
+      "net_per_year": -50000,
+      "net_priced": true,
+      "shown": false,
+      "rejection_reason": "precedent-supported but verifier confidence 0.90 is below 0.92",
+      "rejection_kind": "below_confidence_bar"
+    },
+    {
+      "move": [
+        {
+          "group": "housings_and_structures",
+          "to_plant": "mexico"
+        }
+      ],
+      "description": "Move the brackets to Mexico",
+      "variant_facts": "The merchandise under consideration is a pipe assembly.. The product of CBP ruling N358639, as its facts describe it. The pipe assembly. is assembled in Mexico using components sourced from South Korea and Mexico.\n\nThe steel pipes and flange are produced in South Korea. The brackets are produced in Mexico. \n\nIn Mexico, the brackets will be produced in-house: make the brackets.\n\nFinal assembly in Mexico: assemble the parts into the finished good.\n",
+      "prediction": {
+        "origin_country": "South Korea",
+        "key_factors": [
+          "(b) essential character of the steel pipes"
+        ],
+        "decisive_step": "Manufacturing of the steel pipes in South Korea",
+        "confidence": 0.72,
+        "reasoning": "The pipe assembly is not wholly obtained (102.11(a)(1)) or made exclusively from domestic materials (102.11(a)(2)). As a steel pipe assembly classified in headings 7304-7306, the 19 CFR 102.20 rule requires a change from any other heading except 7304-7306. Because the South Korean steel pipes are already classified in 7304-7306, they fail the tariff shift under 102.11(a)(3). Under 102.11(b) and 102.18(b), the non-shifting South Korean steel pipes impart the essential character of the pipe assembly, conferring South Korean origin.",
+        "cited_rulings": [],
+        "precedents": [
+          "N309421",
+          "N343418",
+          "N344091",
+          "N350133",
+          "N354024"
+        ],
+        "trace": {
+          "llm_provider": "litellm",
+          "model_id": "gemini-4-argon",
+          "requested_model": "gemini-4-argon",
+          "prompt_version": "usmca-v1",
+          "input_tokens": 2902,
+          "output_tokens": 306,
+          "latency_ms": 9484
+        }
+      },
+      "duty_effect_per_year": 0,
+      "added_cost_per_year": 25000,
+      "net_per_year": -25000,
+      "net_priced": true,
+      "shown": false,
+      "rejection_reason": "engine predicts origin South Korea, not Mexico",
+      "rejection_kind": "engine_other_origin"
+    }
+  ],
+  "stats": {
+    "moves_searched": 3,
+    "engine_calls": 4,
+    "verifier_runs": 2,
+    "verifier_cached": 0,
+    "verifier_model_calls": 8,
+    "verifier_tool_calls": 12,
+    "input_tokens": 36721,
+    "output_tokens": 2201,
+    "engine_input_tokens": 11699,
+    "engine_output_tokens": 1075,
+    "verifier_input_tokens": 25022,
+    "verifier_output_tokens": 1126,
+    "wall_seconds": 35.048128708
+  },
+  "economics_illustrative": true,
+  "duty_rates_note": "Illustrative placeholder, not a sourced rate.",
+  "template_versions": {
+    "vehicle_parts": "1"
+  },
+  "ranking": {
+    "rule": "tier_then_net",
+    "bar": 0.92,
+    "clear_from": 0.93
+  },
+  "llm_provider": "litellm",
+  "verifier_search": "local",
+  "cost_usd_promo": 0.095452,
+  "cost_usd_list": 0.190904,
+  "gateway_cost_usd": 0.095452,
+  "verifier_config": "prompt=v2 panel=off votes=1 near_miss=false follow=false bar=0.92",
+  "llm_no_cache": true,
+  "git_revision": "4a5d6a9da5896d1101c02bdd33df07986c07274d",
+  "time": "2026-11-22T13:14:13+08:00"
+}
