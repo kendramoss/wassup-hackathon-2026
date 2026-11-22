@@ -95,15 +95,17 @@ Computed by `python3 -I -B eval/planner/plan_rank.py .` (`--check` in `make repr
 | Second held-out split: calibrated ECE over three runs | 0.037, 0.040, 0.066 | same | Measured, small n |
 | Cost of the four repeat runs | $7.47 gateway-reported, with resumes | same (`gateway_cost_usd`) | Measured |
 
-### Rule check, 19 CFR 102.20 (D360-D362)
+### Rule check, 19 CFR 102.20 (D360-D362, D460, D461)
 
 Recomputed by `cd backend && go run ./cmd/tariffshift eval -check` (in `make reproduce`) from the committed extractions; no model calls at scoring.
 
 | Number | Value | Source | Status |
 |---|---|---|---|
-| Rule rows encoded | 360 rows of 19 CFR 102.20 in chapters 73, 82, 84, 85, 87, 90, 94; 332 of 515 alternatives encoded, 183 written by goods description and never decided by code | `backend/internal/tariffshift/rules.json` (eCFR, 18 Nov 2026) | Built; a test re-parses the committed text. Unchanged by the D412 parser fix (12 alternatives re-encoded, none newly encoded) |
-| Coverage from the facts the engine reads | 0 of 117 Part 102 rulings decided (dev 0/72, prompt v1; final 0/32; final2 0/13); 68 of 117 give no code for the good | `eval/tariffshift/summary.json` | Measured; the honest headline for the product. Say "decides none" |
-| Coverage from the full ruling text (CBP's own codes) | dev 2 of 72, final 2 of 32 decided; all 4 agree with CBP (2 of 2 per split, 34.2-100%) and with the model | same | Encoding check, not product accuracy. Always with n; never as an accuracy figure. Same before and after the D412 parser fix |
+| Rule rows encoded | 446 rows of 19 CFR 102.20 in chapters 15, 21, 39, 40, 44, 48, 71, 73, 76, 82, 83, 84, 85, 87, 90, 94, 95; 408 of 633 alternatives encoded, 225 written by goods description or with a content proviso and never decided by code | `backend/internal/tariffshift/rules.json` (eCFR, 18 Nov 2026) | Built; a test re-parses the committed text. Before D460: 360 rows in 7 chapters, 332 of 515 (unchanged by the D412 fix) |
+| Rows and alternatives added by D460 | 86 rows, 76 of 118 alternatives encoded: 15: 6 of 7, 21: 10 of 16, 39: 3 of 7, 40: 13 of 14, 44: 2 of 10, 48: 11 of 20, 71: 12 of 13, 76: 4 of 4, 83: 9 of 9, 95: 6 of 18 | same | Built |
+| Goods' chapters behind the D460 choice | 195 development and earlier Part 102 goods with a code, 95 in the 7 chapters; added: every other chapter with at least 4 (44: 12, 39: 11, 48: 10, 83: 5, 95: 5, 15, 21, 40, 71, 76: 4 each) | `eval/tariffshift/chapter-counts.json` (`python3 -I -B eval/tariffshift/chapter_counts.py . --check`) | Measured; no held-out rows read |
+| Coverage from the facts the engine reads | 1 of 117 Part 102 rulings decided (dev 0/72, prompt v1; final 1/32, H355020, every material Canadian, agrees; final2 0/13); 68 of 117 give no code for the good | `eval/tariffshift/summary.json` | Measured; the honest headline for the product. Say "decides almost none". 7 chapters (D362): 0 of 117 |
+| Coverage from the full ruling text (CBP's own codes) | dev 8 of 72 (8 agree with CBP, 67.6-100%), final 4 of 32 (4 agree, 51.0-100%); differs from the model on 2 dev rulings, agreeing with CBP on both (N341152, N352059) | same | Encoding check, not product accuracy. Always with n; never as an accuracy figure. 7 chapters (D362): dev 2 of 72, final 2 of 32, all agree; same before and after the D412 fix |
 | Extraction cost | $2.58 gateway-reported, seven runs | `eval/results/RUNLOG.jsonl` (`tariffshift-extract-*`) | Measured |
 
 ### Per-part HTS suggestions (D380-D382)
@@ -117,10 +119,10 @@ Recomputed by `cd backend && go run ./cmd/tariffshift parts-eval -check` (in `ma
 | Parts with a suggestion | dev 389 of 393 (Part 102), 200 of 200 (families); final 225 of 245 | `eval/tariffshift/parts/summary.json` | Measured |
 | Top suggestion matches CBP's stated part code | dev 20 of 27 (55.3-86.8%), top 3: 22 of 27; families 2 of 2; final (held out) 2 of 3 (20.8-93.9%) | same | Measured, small n; always with n. Post hoc, 4 dev gold codes look wrong; without them 19 of 23 |
 | Good's code, top suggestion matches CBP's | dev 36 of 68, final 14 of 27 | same | Measured |
-| Rule check decided with suggested part codes (CBP's good code) | dev 9 of 69 (9 agree with CBP), final 7 of 29 (6 agree); with CBP's stated codes only: 2 and 2 | same | Measured. Not product accuracy; most rulings stay out of scope. Give per split, never pooled (D413) |
+| Rule check decided with suggested part codes (CBP's good code) | dev 16 of 69 (16 agree with CBP), final 14 of 29 (13 agree; N358639 differs); with CBP's stated codes only: 8 and 4. Suggested good code too: dev 17 (16 agree), final 15 (14 agree) | same | Measured. Not product accuracy. Give per split, never pooled (D413). 7 chapters (D382): dev 9 (9), final 7 (6); stated codes 2 and 2; suggested good 10 (9) and 8 (7) |
 | Inputs that carried an HTS number past the v1 stripper (#576) | final 5 of 29 (N363600 with the importer's full code), dev 4 of 69 | `eval/tariffshift/parts/summary.json` (`input_codes`) | Measured, post-freeze correction (D413) |
-| Held-out figures without those inputs | every code suggested: 7 of 24 decided, 6 agree (8 of 29, 7 agree as run); CBP's good code: 7 of 24, 6 agree; good top-1 / top-3: 12 / 12 of 23 (14 / 15 of 27 as run) | same (`without_input_codes`) | Measured, post-freeze correction (D413); not re-run |
-| Rule-check decisions that hold under every suggested part code (D430) | CBP's good code and top part suggestions: dev 8 of 9 decided (8 agree with CBP), final 6 of 7 (6 agree; the one disagreeing, N358639, depends on a part's code). Suggested good code: dev 9 of 10 (8 agree), final 6 of 8 (6 agree). Without the inputs that carried a code: dev 7 of 8, final 6 of 7 and 5 of 7 | `eval/tariffshift/parts/summary.json` (`robustness`) | Measured offline, no model calls, committed suggestions; added after the freeze. Each part's top-3 codes; past 81 combinations a deterministic sample of 81 (4 dev, 3 final decided rulings) |
+| Held-out figures without those inputs | every code suggested: 11 of 24 decided, 10 agree; CBP's good code: 11 of 24, 10 agree; good top-1 / top-3: 12 / 12 of 23 (14 / 15 of 27 as run) | same (`without_input_codes`) | Measured, post-freeze correction (D413); not re-run. 7 chapters: 7 of 24, 6 agree, both rows |
+| Rule-check decisions that hold under every suggested part code (D430) | CBP's good code and top part suggestions: dev 15 of 16 decided (15 agree with CBP), final 13 of 14 (13 agree; the one disagreeing, N358639, depends on a part's code). Suggested good code: dev 16 of 17 (15 agree), final 13 of 15 (13 agree). Without the inputs that carried a code: dev 13 of 14 and 15 of 16, final 10 of 11 and 9 of 11. 7 chapters: dev 8 of 9, final 6 of 7; suggested good 9 of 10 and 6 of 8 | `eval/tariffshift/parts/summary.json` (`robustness`) | Measured offline, no model calls, committed suggestions; added after the freeze. Each part's top-3 codes; past 81 combinations a deterministic sample of 81 (4 dev, 3 final decided rulings) |
 | Cost per product | $0.0103 (dev Part 102), $0.0139 (families), $0.0123 (final); $1.42 for all runs | same; `eval/results/RUNLOG.jsonl` (`parts-hts-*`) | Measured, gateway-reported |
 
 ### The rule check on each plan move (D440-D442)
@@ -130,7 +132,7 @@ Recomputed by `cd backend && go run ./cmd/tariffshift plans-eval -check` (in `ma
 | Number | Value | Source | Status |
 |---|---|---|---|
 | Committed plan products with every code as committed; Part 102 plan searches | 0 of 43; 0 | `eval/tariffshift/plans/summary.json` | Measured. The reason the count below uses suggested codes |
-| Per-family plan moves decided (development suggestions) | 25 of 57 moves (22 shift to the target, 3 give another country), in 14 of 23 searches | same | Measured, development and train fixtures. Informational: every search is decided under substantial transformation. 9 of the 22 shifts are moves that put every part in the target |
+| Per-family plan moves decided (development suggestions) | 25 of 57 moves (22 shift to the target, 3 give another country), in 14 of 23 searches | same | Measured, development and train fixtures. Informational: every search is decided under substantial transformation. 9 of the 22 shifts are moves that put every part in the target. Unchanged with the 17 chapters of D460 |
 | Agreement with the precedent check | 21 of 23 decided moves with a check; 2 flagged (precedent supports, rule gives China, N354220, both below the bar); shown plans 15 of 19 decided, all 15 shift | same; `eval/tariffshift/plans/moves-dev.jsonl` | Measured. Not accuracy: Part 102 is not the test for these cases |
 | Current setup | 11 of 23 decided; 4 give CBP's held origin | same | Measured. The difference between the two tests, not an error rate |
 | Moves compared with a later CBP ruling | 0 | same | No committed move has both codes and a later ruling |

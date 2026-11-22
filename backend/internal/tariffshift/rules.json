@@ -7,15 +7,1996 @@
   "note": "Verbatim rule text from the eCFR (public domain) for the chapters in scope; alternatives parsed by tariffshift.ParseRule. An alternative with encoded=false is never decided by code."
  },
  "chapters": [
+  "15",
+  "21",
+  "39",
+  "40",
+  "44",
+  "48",
+  "71",
   "73",
+  "76",
   "82",
+  "83",
   "84",
   "85",
   "87",
   "90",
-  "94"
+  "94",
+  "95"
  ],
  "rules": [
+  {
+   "id": "19 CFR 102.20(c), 1501-1516",
+   "paragraph": "c",
+   "section": "Section III: Chapter 15",
+   "hts": "1501-1516",
+   "applies": {
+    "lo": "1501",
+    "hi": "1516"
+   },
+   "text": "A change to heading 1501 through 1516 from any other chapter.",
+   "alternatives": [
+    {
+     "text": "A change to heading 1501 through 1516 from any other chapter",
+     "encoded": true,
+     "to": [
+      {
+       "lo": "1501",
+       "hi": "1516"
+      }
+     ],
+     "from": 2
+    }
+   ]
+  },
+  {
+   "id": "19 CFR 102.20(c), 1517.10",
+   "paragraph": "c",
+   "section": "Section III: Chapter 15",
+   "hts": "1517.10",
+   "applies": {
+    "lo": "151710",
+    "hi": "151710"
+   },
+   "text": "A change to subheading 1517.10 from any other heading.",
+   "alternatives": [
+    {
+     "text": "A change to subheading 1517.10 from any other heading",
+     "encoded": true,
+     "to": [
+      {
+       "lo": "151710",
+       "hi": "151710"
+      }
+     ],
+     "from": 4
+    }
+   ]
+  },
+  {
+   "id": "19 CFR 102.20(c), 1517.90",
+   "paragraph": "c",
+   "section": "Section III: Chapter 15",
+   "hts": "1517.90",
+   "applies": {
+    "lo": "151790",
+    "hi": "151790"
+   },
+   "text": "A change to subheading 1517.90 from any other chapter, except from heading 3823; or\nA change to subheading 1517.90 from any other heading, provided that no single oil ingredient of foreign origin constitutes more than 60 percent by weight of the good.",
+   "alternatives": [
+    {
+     "text": "A change to subheading 1517.90 from any other chapter, except from heading 3823",
+     "encoded": true,
+     "to": [
+      {
+       "lo": "151790",
+       "hi": "151790"
+      }
+     ],
+     "from": 2,
+     "except": [
+      {
+       "from": [
+        {
+         "lo": "3823",
+         "hi": "3823"
+        }
+       ],
+       "text": "heading 3823"
+      }
+     ]
+    },
+    {
+     "text": "A change to subheading 1517.90 from any other heading, provided that no single oil ingredient of foreign origin constitutes more than 60 percent by weight of the good",
+     "encoded": false,
+     "reason": "a proviso on content the codes cannot show"
+    }
+   ]
+  },
+  {
+   "id": "19 CFR 102.20(c), 1518",
+   "paragraph": "c",
+   "section": "Section III: Chapter 15",
+   "hts": "1518",
+   "applies": {
+    "lo": "1518",
+    "hi": "1518"
+   },
+   "text": "A change to heading 1518 from any other heading.",
+   "alternatives": [
+    {
+     "text": "A change to heading 1518 from any other heading",
+     "encoded": true,
+     "to": [
+      {
+       "lo": "1518",
+       "hi": "1518"
+      }
+     ],
+     "from": 4
+    }
+   ]
+  },
+  {
+   "id": "19 CFR 102.20(c), 1520",
+   "paragraph": "c",
+   "section": "Section III: Chapter 15",
+   "hts": "1520",
+   "applies": {
+    "lo": "1520",
+    "hi": "1520"
+   },
+   "text": "A change to heading 1520 from any other heading, except from subheading 2905.45 and heading 3823.",
+   "alternatives": [
+    {
+     "text": "A change to heading 1520 from any other heading, except from subheading 2905.45 and heading 3823",
+     "encoded": true,
+     "to": [
+      {
+       "lo": "1520",
+       "hi": "1520"
+      }
+     ],
+     "from": 4,
+     "except": [
+      {
+       "from": [
+        {
+         "lo": "290545",
+         "hi": "290545"
+        },
+        {
+         "lo": "3823",
+         "hi": "3823"
+        }
+       ],
+       "text": "subheading 2905.45 and heading 3823"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": "19 CFR 102.20(c), 1521-1522",
+   "paragraph": "c",
+   "section": "Section III: Chapter 15",
+   "hts": "1521-1522",
+   "applies": {
+    "lo": "1521",
+    "hi": "1522"
+   },
+   "text": "A change to heading 1521 through 1522 from any other chapter, except from heading 3823.",
+   "alternatives": [
+    {
+     "text": "A change to heading 1521 through 1522 from any other chapter, except from heading 3823",
+     "encoded": true,
+     "to": [
+      {
+       "lo": "1521",
+       "hi": "1522"
+      }
+     ],
+     "from": 2,
+     "except": [
+      {
+       "from": [
+        {
+         "lo": "3823",
+         "hi": "3823"
+        }
+       ],
+       "text": "heading 3823"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": "19 CFR 102.20(d), 2101",
+   "paragraph": "d",
+   "section": "Section IV: Chapters 16 through 24",
+   "hts": "2101",
+   "applies": {
+    "lo": "2101",
+    "hi": "2101"
+   },
+   "text": "A change to heading 2101 from any other heading.",
+   "alternatives": [
+    {
+     "text": "A change to heading 2101 from any other heading",
+     "encoded": true,
+     "to": [
+      {
+       "lo": "2101",
+       "hi": "2101"
+      }
+     ],
+     "from": 4
+    }
+   ]
+  },
+  {
+   "id": "19 CFR 102.20(d), 2102",
+   "paragraph": "d",
+   "section": "Section IV: Chapters 16 through 24",
+   "hts": "2102",
+   "applies": {
+    "lo": "2102",
+    "hi": "2102"
+   },
+   "text": "A change to heading 2102 from any other heading.",
+   "alternatives": [
+    {
+     "text": "A change to heading 2102 from any other heading",
+     "encoded": true,
+     "to": [
+      {
+       "lo": "2102",
+       "hi": "2102"
+      }
+     ],
+     "from": 4
+    }
+   ]
+  },
+  {
+   "id": "19 CFR 102.20(d), 2103.10",
+   "paragraph": "d",
+   "section": "Section IV: Chapters 16 through 24",
+   "hts": "2103.10",
+   "applies": {
+    "lo": "210310",
+    "hi": "210310"
+   },
+   "text": "A change to subheading 2103.10 from any other heading.",
+   "alternatives": [
+    {
+     "text": "A change to subheading 2103.10 from any other heading",
+     "encoded": true,
+     "to": [
+      {
+       "lo": "210310",
+       "hi": "210310"
+      }
+     ],
+     "from": 4
+    }
+   ]
+  },
+  {
+   "id": "19 CFR 102.20(d), 2103.20",
+   "paragraph": "d",
+   "section": "Section IV: Chapters 16 through 24",
+   "hts": "2103.20",
+   "applies": {
+    "lo": "210320",
+    "hi": "210320"
+   },
+   "text": "A change to subheading 2103.20 from any other heading.",
+   "alternatives": [
+    {
+     "text": "A change to subheading 2103.20 from any other heading",
+     "encoded": true,
+     "to": [
+      {
+       "lo": "210320",
+       "hi": "210320"
+      }
+     ],
+     "from": 4
+    }
+   ]
+  },
+  {
+   "id": "19 CFR 102.20(d), 2103.30",
+   "paragraph": "d",
+   "section": "Section IV: Chapters 16 through 24",
+   "hts": "2103.30",
+   "applies": {
+    "lo": "210330",
+    "hi": "210330"
+   },
+   "text": "A change to subheading 2103.30 from any other subheading; or\nA change to prepared mustard of subheading 2103.30 from mustard flour or meal.",
+   "alternatives": [
+    {
+     "text": "A change to subheading 2103.30 from any other subheading",
+     "encoded": true,
+     "to": [
+      {
+       "lo": "210330",
+       "hi": "210330"
+      }
+     ],
+     "from": 6
+    },
+    {
+     "text": "A change to prepared mustard of subheading 2103.30 from mustard flour or meal",
+     "encoded": false,
+     "reason": "applies to goods by description, not by code",
+     "to": [
+      {
+       "lo": "210330",
+       "hi": "210330"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": "19 CFR 102.20(d), 2103.90",
+   "paragraph": "d",
+   "section": "Section IV: Chapters 16 through 24",
+   "hts": "2103.90",
+   "applies": {
+    "lo": "210390",
+    "hi": "210390"
+   },
+   "text": "A change to subheading 2103.90 from any other subheading.",
+   "alternatives": [
+    {
+     "text": "A change to subheading 2103.90 from any other subheading",
+     "encoded": true,
+     "to": [
+      {
+       "lo": "210390",
+       "hi": "210390"
+      }
+     ],
+     "from": 6
+    }
+   ]
+  },
+  {
+   "id": "19 CFR 102.20(d), 2104.10",
+   "paragraph": "d",
+   "section": "Section IV: Chapters 16 through 24",
+   "hts": "2104.10",
+   "applies": {
+    "lo": "210410",
+    "hi": "210410"
+   },
+   "text": "A change to subheading 2104.10 from any other subheading.",
+   "alternatives": [
+    {
+     "text": "A change to subheading 2104.10 from any other subheading",
+     "encoded": true,
+     "to": [
+      {
+       "lo": "210410",
+       "hi": "210410"
+      }
+     ],
+     "from": 6
+    }
+   ]
+  },
+  {
+   "id": "19 CFR 102.20(d), 2104.20",
+   "paragraph": "d",
+   "section": "Section IV: Chapters 16 through 24",
+   "hts": "2104.20",
+   "applies": {
+    "lo": "210420",
+    "hi": "210420"
+   },
+   "text": "A change to subheading 2104.20 from any other subheading.",
+   "alternatives": [
+    {
+     "text": "A change to subheading 2104.20 from any other subheading",
+     "encoded": true,
+     "to": [
+      {
+       "lo": "210420",
+       "hi": "210420"
+      }
+     ],
+     "from": 6
+    }
+   ]
+  },
+  {
+   "id": "19 CFR 102.20(d), 2105",
+   "paragraph": "d",
+   "section": "Section IV: Chapters 16 through 24",
+   "hts": "2105",
+   "applies": {
+    "lo": "2105",
+    "hi": "2105"
+   },
+   "text": "A change to heading 2105 from any other heading.",
+   "alternatives": [
+    {
+     "text": "A change to heading 2105 from any other heading",
+     "encoded": true,
+     "to": [
+      {
+       "lo": "2105",
+       "hi": "2105"
+      }
+     ],
+     "from": 4
+    }
+   ]
+  },
+  {
+   "id": "19 CFR 102.20(d), 2106.10",
+   "paragraph": "d",
+   "section": "Section IV: Chapters 16 through 24",
+   "hts": "2106.10",
+   "applies": {
+    "lo": "210610",
+    "hi": "210610"
+   },
+   "text": "A change to subheading 2106.10 from any other subheading.",
+   "alternatives": [
+    {
+     "text": "A change to subheading 2106.10 from any other subheading",
+     "encoded": true,
+     "to": [
+      {
+       "lo": "210610",
+       "hi": "210610"
+      }
+     ],
+     "from": 6
+    }
+   ]
+  },
+  {
+   "id": "19 CFR 102.20(d), 2106.90",
+   "paragraph": "d",
+   "section": "Section IV: Chapters 16 through 24",
+   "hts": "2106.90",
+   "applies": {
+    "lo": "210690",
+    "hi": "210690"
+   },
+   "text": "A change to a good of subheading 2106.90, other than to compound alcoholic preparations, from any other subheading, except from Chapter 4, Chapter 17, heading 2009, subheading 2404.91, subheading 3006.93, subheading 1602.90, subheading 1901.90, subheading 2202.91 or subheading 2202.99; or\nA change to subheading 2106.90 from Chapter 4 or subheading 1901.90, provided that the good contains no more than 50 percent by weight of milk solids; or\nA change to subheading 2106.90 from Chapter 17, provided that the good contains less than 65 percent by dry weight of sugar; or\nA change to subheading 2106.90 from heading 2009, subheading 2202.91 or subheading 2202.99, provided that a single juice ingredient of foreign origin, or juice ingredients from a single foreign country, constitute in single strength form no more than 60 percent by volume of the good; or\nA change to compound alcoholic preparations of subheading 2106.90 from any other subheading, except from subheading 2208.20 through 2208.50.",
+   "alternatives": [
+    {
+     "text": "A change to a good of subheading 2106.90, other than to compound alcoholic preparations, from any other subheading, except from Chapter 4, Chapter 17, heading 2009, subheading 2404.91, subheading 3006.93, subheading 1602.90, subheading 1901.90, subheading 2202.91 or subheading 2202.99",
+     "encoded": false,
+     "reason": "applies to goods by description, not by code"
+    },
+    {
+     "text": "A change to subheading 2106.90 from Chapter 4 or subheading 1901.90, provided that the good contains no more than 50 percent by weight of milk solids",
+     "encoded": false,
+     "reason": "a proviso on content the codes cannot show"
+    },
+    {
+     "text": "A change to subheading 2106.90 from Chapter 17, provided that the good contains less than 65 percent by dry weight of sugar",
+     "encoded": false,
+     "reason": "a proviso on content the codes cannot show"
+    },
+    {
+     "text": "A change to subheading 2106.90 from heading 2009, subheading 2202.91 or subheading 2202.99, provided that a single juice ingredient of foreign origin, or juice ingredients from a single foreign country, constitute in single strength form no more than 60 percent by volume of the good",
+     "encoded": false,
+     "reason": "a proviso on content the codes cannot show"
+    },
+    {
+     "text": "A change to compound alcoholic preparations of subheading 2106.90 from any other subheading, except from subheading 2208.20 through 2208.50",
+     "encoded": false,
+     "reason": "applies to goods by description, not by code",
+     "to": [
+      {
+       "lo": "210690",
+       "hi": "210690"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": "19 CFR 102.20(g), 3901-3915",
+   "paragraph": "g",
+   "section": "Section VII: Chapters 39 through 40",
+   "hts": "3901-3915",
+   "applies": {
+    "lo": "3901",
+    "hi": "3915"
+   },
+   "text": "A change to heading 3901 through 3915 from any other heading, including another heading within that group, except a change to 3907 from other polyethers of subheading 3002.12 through 3002.15, subheading 3822.11 through 3822.12 or subheading 3822.19, provided that the domestic polymer content is no less than 40 percent by weight of the total polymer content.",
+   "alternatives": [
+    {
+     "text": "A change to heading 3901 through 3915 from any other heading, including another heading within that group, except a change to 3907 from other polyethers of subheading 3002.12 through 3002.15, subheading 3822.11 through 3822.12 or subheading 3822.19, provided that the domestic polymer content is no less than 40 percent by weight of the total polymer content",
+     "encoded": false,
+     "reason": "a proviso on content the codes cannot show"
+    }
+   ]
+  },
+  {
+   "id": "19 CFR 102.20(g), 3916.10-3918.90",
+   "paragraph": "g",
+   "section": "Section VII: Chapters 39 through 40",
+   "hts": "3916.10-3918.90",
+   "applies": {
+    "lo": "391610",
+    "hi": "391890"
+   },
+   "text": "A change to subheading 3916.10 through 3918.90 from any other subheading, including another subheading within that group.",
+   "alternatives": [
+    {
+     "text": "A change to subheading 3916.10 through 3918.90 from any other subheading, including another subheading within that group",
+     "encoded": true,
+     "to": [
+      {
+       "lo": "391610",
+       "hi": "391890"
+      }
+     ],
+     "from": 6,
+     "group": "including"
+    }
+   ]
+  },
+  {
+   "id": "19 CFR 102.20(g), 3919.10-3919.90",
+   "paragraph": "g",
+   "section": "Section VII: Chapters 39 through 40",
+   "hts": "3919.10-3919.90",
+   "applies": {
+    "lo": "391910",
+    "hi": "391990"
+   },
+   "text": "A change to subheading 3919.10 through 3919.90 from any other subheading outside that group.",
+   "alternatives": [
+    {
+     "text": "A change to subheading 3919.10 through 3919.90 from any other subheading outside that group",
+     "encoded": true,
+     "to": [
+      {
+       "lo": "391910",
+       "hi": "391990"
+      }
+     ],
+     "from": 6,
+     "group": "outside"
+    }
+   ]
+  },
+  {
+   "id": "19 CFR 102.20(g), 3920.10-3921.90",
+   "paragraph": "g",
+   "section": "Section VII: Chapters 39 through 40",
+   "hts": "3920.10-3921.90",
+   "applies": {
+    "lo": "392010",
+    "hi": "392190"
+   },
+   "text": "A change to other plates, sheets, film, foil or strip, of plastics, non-cellular and not reinforced, laminated, supported or similarly combined with other materials of cellulose or its chemical derivatives, of vulcanized fiber, of subheading 3920.79 from any other good of subheading 3920.79 or from any other subheading; or\nA change to any other good of subheading 3920.79 from plates, sheets, film, foil or strip, of plastics, non-cellular and not reinforced, laminated, supported or similarly combined with other materials of cellulose or its chemical derivatives, of vulcanized fiber, of subheading 3920.79 or from any other subheading; or\nA change to any other good of subheading 3920.10 through 3921.90 from any other subheading, including another subheading within that group.",
+   "alternatives": [
+    {
+     "text": "A change to other plates, sheets, film, foil or strip, of plastics, non-cellular and not reinforced, laminated, supported or similarly combined with other materials of cellulose or its chemical derivatives, of vulcanized fiber, of subheading 3920.79 from any other good of subheading 3920.79 or from any other subheading",
+     "encoded": false,
+     "reason": "applies to goods by description, not by code",
+     "to": [
+      {
+       "lo": "392079",
+       "hi": "392079"
+      }
+     ]
+    },
+    {
+     "text": "A change to any other good of subheading 3920.79 from plates, sheets, film, foil or strip, of plastics, non-cellular and not reinforced, laminated, supported or similarly combined with other materials of cellulose or its chemical derivatives, of vulcanized fiber, of subheading 3920.79 or from any other subheading",
+     "encoded": false,
+     "reason": "applies to goods by description, not by code",
+     "to": [
+      {
+       "lo": "392079",
+       "hi": "392079"
+      }
+     ]
+    },
+    {
+     "text": "A change to any other good of subheading 3920.10 through 3921.90 from any other subheading, including another subheading within that group",
+     "encoded": false,
+     "reason": "applies to goods by description, not by code",
+     "to": [
+      {
+       "lo": "392010",
+       "hi": "392190"
+      }
+     ]
+    }
+   ],
+   "notes": [
+    "Chapter 39 Note: The country of origin of goods classified in subheadings 3921.12.15, 3921.13.15, and 3921.90.2550 shall be determined under the provisions of § 102.21."
+   ],
+   "textile": [
+    {
+     "lo": "39211215",
+     "hi": "39211215"
+    },
+    {
+     "lo": "39211315",
+     "hi": "39211315"
+    },
+    {
+     "lo": "3921902550",
+     "hi": "3921902550"
+    }
+   ]
+  },
+  {
+   "id": "19 CFR 102.20(g), 3922-3926",
+   "paragraph": "g",
+   "section": "Section VII: Chapters 39 through 40",
+   "hts": "3922-3926",
+   "applies": {
+    "lo": "3922",
+    "hi": "3926"
+   },
+   "text": "A change to heading 3922 through 3926 from any other subheading, including another heading within that group, except for a change to heading 3926 from articles of apparel and clothing accessories, other articles of plastics, or articles of other materials of headings 3901 to 3914 of heading 9619.",
+   "alternatives": [
+    {
+     "text": "A change to heading 3922 through 3926 from any other subheading, including another heading within that group, except for a change to heading 3926 from articles of apparel and clothing accessories, other articles of plastics, or articles of other materials of headings 3901 to 3914 of heading 9619",
+     "encoded": true,
+     "to": [
+      {
+       "lo": "3922",
+       "hi": "3926"
+      }
+     ],
+     "from": 6,
+     "group": "including",
+     "except": [
+      {
+       "to": [
+        {
+         "lo": "3926",
+         "hi": "3926"
+        }
+       ],
+       "from": [
+        {
+         "lo": "9619",
+         "hi": "9619"
+        }
+       ],
+       "described": true,
+       "text": "articles of apparel and clothing accessories, other articles of plastics, or articles of other materials of headings 3901 to 3914 of heading 9619"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": "19 CFR 102.20(g), 4001.10-4001.22",
+   "paragraph": "g",
+   "section": "Section VII: Chapters 39 through 40",
+   "hts": "4001.10-4001.22",
+   "applies": {
+    "lo": "400110",
+    "hi": "400122"
+   },
+   "text": "A change to subheading 4001.10 through 4001.22 from any other subheading, including another subheading within that group.",
+   "alternatives": [
+    {
+     "text": "A change to subheading 4001.10 through 4001.22 from any other subheading, including another subheading within that group",
+     "encoded": true,
+     "to": [
+      {
+       "lo": "400110",
+       "hi": "400122"
+      }
+     ],
+     "from": 6,
+     "group": "including"
+    }
+   ]
+  },
+  {
+   "id": "19 CFR 102.20(g), 4001.29",
+   "paragraph": "g",
+   "section": "Section VII: Chapters 39 through 40",
+   "hts": "4001.29",
+   "applies": {
+    "lo": "400129",
+    "hi": "400129"
+   },
+   "text": "A change to subheading 4001.29 from any other subheading, except from subheading 4001.21 or 4001.22.",
+   "alternatives": [
+    {
+     "text": "A change to subheading 4001.29 from any other subheading, except from subheading 4001.21 or 4001.22",
+     "encoded": true,
+     "to": [
+      {
+       "lo": "400129",
+       "hi": "400129"
+      }
+     ],
+     "from": 6,
+     "except": [
+      {
+       "from": [
+        {
+         "lo": "400121",
+         "hi": "400121"
+        },
+        {
+         "lo": "400122",
+         "hi": "400122"
+        }
+       ],
+       "text": "subheading 4001.21 or 4001.22"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": "19 CFR 102.20(g), 4001.30",
+   "paragraph": "g",
+   "section": "Section VII: Chapters 39 through 40",
+   "hts": "4001.30",
+   "applies": {
+    "lo": "400130",
+    "hi": "400130"
+   },
+   "text": "A change to subheading 4001.30 from any other subheading.",
+   "alternatives": [
+    {
+     "text": "A change to subheading 4001.30 from any other subheading",
+     "encoded": true,
+     "to": [
+      {
+       "lo": "400130",
+       "hi": "400130"
+      }
+     ],
+     "from": 6
+    }
+   ]
+  },
+  {
+   "id": "19 CFR 102.20(g), 4002.11-4002.70",
+   "paragraph": "g",
+   "section": "Section VII: Chapters 39 through 40",
+   "hts": "4002.11-4002.70",
+   "applies": {
+    "lo": "400211",
+    "hi": "400270"
+   },
+   "text": "A change to subheading 4002.11 through 4002.70 from any other subheading, including another subheading within that group.",
+   "alternatives": [
+    {
+     "text": "A change to subheading 4002.11 through 4002.70 from any other subheading, including another subheading within that group",
+     "encoded": true,
+     "to": [
+      {
+       "lo": "400211",
+       "hi": "400270"
+      }
+     ],
+     "from": 6,
+     "group": "including"
+    }
+   ]
+  },
+  {
+   "id": "19 CFR 102.20(g), 4002.80-4002.99",
+   "paragraph": "g",
+   "section": "Section VII: Chapters 39 through 40",
+   "hts": "4002.80-4002.99",
+   "applies": {
+    "lo": "400280",
+    "hi": "400299"
+   },
+   "text": "A change to subheading 4002.80 through 4002.99 from any other subheading, including another subheading within that group, provided that the domestic rubber content is no less than 40 percent by weight of the total rubber content.",
+   "alternatives": [
+    {
+     "text": "A change to subheading 4002.80 through 4002.99 from any other subheading, including another subheading within that group, provided that the domestic rubber content is no less than 40 percent by weight of the total rubber content",
+     "encoded": false,
+     "reason": "a proviso on content the codes cannot show"
+    }
+   ]
+  },
+  {
+   "id": "19 CFR 102.20(g), 4003-4004",
+   "paragraph": "g",
+   "section": "Section VII: Chapters 39 through 40",
+   "hts": "4003-4004",
+   "applies": {
+    "lo": "4003",
+    "hi": "4004"
+   },
+   "text": "A change to heading 4003 through 4004 from any other heading, including another heading within that group.",
+   "alternatives": [
+    {
+     "text": "A change to heading 4003 through 4004 from any other heading, including another heading within that group",
+     "encoded": true,
+     "to": [
+      {
+       "lo": "4003",
+       "hi": "4004"
+      }
+     ],
+     "from": 4,
+     "group": "including"
+    }
+   ]
+  },
+  {
+   "id": "19 CFR 102.20(g), 4005",
+   "paragraph": "g",
+   "section": "Section VII: Chapters 39 through 40",
+   "hts": "4005",
+   "applies": {
+    "lo": "4005",
+    "hi": "4005"
+   },
+   "text": "A change to heading 4005 from any other heading, except from heading 4001 or 4002.",
+   "alternatives": [
+    {
+     "text": "A change to heading 4005 from any other heading, except from heading 4001 or 4002",
+     "encoded": true,
+     "to": [
+      {
+       "lo": "4005",
+       "hi": "4005"
+      }
+     ],
+     "from": 4,
+     "except": [
+      {
+       "from": [
+        {
+         "lo": "4001",
+         "hi": "4001"
+        },
+        {
+         "lo": "4002",
+         "hi": "4002"
+        }
+       ],
+       "text": "heading 4001 or 4002"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": "19 CFR 102.20(g), 4006-4010",
+   "paragraph": "g",
+   "section": "Section VII: Chapters 39 through 40",
+   "hts": "4006-4010",
+   "applies": {
+    "lo": "4006",
+    "hi": "4010"
+   },
+   "text": "A change to heading 4006 through 4010 from any other heading, including another heading within that group.",
+   "alternatives": [
+    {
+     "text": "A change to heading 4006 through 4010 from any other heading, including another heading within that group",
+     "encoded": true,
+     "to": [
+      {
+       "lo": "4006",
+       "hi": "4010"
+      }
+     ],
+     "from": 4,
+     "group": "including"
+    }
+   ]
+  },
+  {
+   "id": "19 CFR 102.20(g), 4011.10-4012.90",
+   "paragraph": "g",
+   "section": "Section VII: Chapters 39 through 40",
+   "hts": "4011.10-4012.90",
+   "applies": {
+    "lo": "401110",
+    "hi": "401290"
+   },
+   "text": "A change to subheading 4011.10 through 4012.90 from any other subheading, including another subheading within that group.",
+   "alternatives": [
+    {
+     "text": "A change to subheading 4011.10 through 4012.90 from any other subheading, including another subheading within that group",
+     "encoded": true,
+     "to": [
+      {
+       "lo": "401110",
+       "hi": "401290"
+      }
+     ],
+     "from": 6,
+     "group": "including"
+    }
+   ]
+  },
+  {
+   "id": "19 CFR 102.20(g), 4013",
+   "paragraph": "g",
+   "section": "Section VII: Chapters 39 through 40",
+   "hts": "4013",
+   "applies": {
+    "lo": "4013",
+    "hi": "4013"
+   },
+   "text": "A change to heading 4013 from any other heading.",
+   "alternatives": [
+    {
+     "text": "A change to heading 4013 from any other heading",
+     "encoded": true,
+     "to": [
+      {
+       "lo": "4013",
+       "hi": "4013"
+      }
+     ],
+     "from": 4
+    }
+   ]
+  },
+  {
+   "id": "19 CFR 102.20(g), 4014.10-4014.90",
+   "paragraph": "g",
+   "section": "Section VII: Chapters 39 through 40",
+   "hts": "4014.10-4014.90",
+   "applies": {
+    "lo": "401410",
+    "hi": "401490"
+   },
+   "text": "A change to subheading 4014.10 through 4014.90 from any other subheading, including another subheading within that group.",
+   "alternatives": [
+    {
+     "text": "A change to subheading 4014.10 through 4014.90 from any other subheading, including another subheading within that group",
+     "encoded": true,
+     "to": [
+      {
+       "lo": "401410",
+       "hi": "401490"
+      }
+     ],
+     "from": 6,
+     "group": "including"
+    }
+   ]
+  },
+  {
+   "id": "19 CFR 102.20(g), 4015",
+   "paragraph": "g",
+   "section": "Section VII: Chapters 39 through 40",
+   "hts": "4015",
+   "applies": {
+    "lo": "4015",
+    "hi": "4015"
+   },
+   "text": "A change to heading 4015 from any other heading.",
+   "alternatives": [
+    {
+     "text": "A change to heading 4015 from any other heading",
+     "encoded": true,
+     "to": [
+      {
+       "lo": "4015",
+       "hi": "4015"
+      }
+     ],
+     "from": 4
+    }
+   ]
+  },
+  {
+   "id": "19 CFR 102.20(g), 4016.10-4016.99",
+   "paragraph": "g",
+   "section": "Section VII: Chapters 39 through 40",
+   "hts": "4016.10-4016.99",
+   "applies": {
+    "lo": "401610",
+    "hi": "401699"
+   },
+   "text": "A change to subheading 4016.10 through 4016.99 from any other subheading, including another subheading within that group.",
+   "alternatives": [
+    {
+     "text": "A change to subheading 4016.10 through 4016.99 from any other subheading, including another subheading within that group",
+     "encoded": true,
+     "to": [
+      {
+       "lo": "401610",
+       "hi": "401699"
+      }
+     ],
+     "from": 6,
+     "group": "including"
+    }
+   ]
+  },
+  {
+   "id": "19 CFR 102.20(g), 4017",
+   "paragraph": "g",
+   "section": "Section VII: Chapters 39 through 40",
+   "hts": "4017",
+   "applies": {
+    "lo": "4017",
+    "hi": "4017"
+   },
+   "text": "A change to heading 4017 from any other heading.",
+   "alternatives": [
+    {
+     "text": "A change to heading 4017 from any other heading",
+     "encoded": true,
+     "to": [
+      {
+       "lo": "4017",
+       "hi": "4017"
+      }
+     ],
+     "from": 4
+    }
+   ]
+  },
+  {
+   "id": "19 CFR 102.20(i), 4401-4411",
+   "paragraph": "i",
+   "section": "Section IX: Chapters 44 through 46",
+   "hts": "4401-4411",
+   "applies": {
+    "lo": "4401",
+    "hi": "4411"
+   },
+   "text": "A change to heading 4401 through 4411 from any other heading, including another heading within that group; or\nA change to strips continuously shaped along the ends and also continuously shaped along the edges or faces of heading 4409 from strips continuously shaped only along the edges or faces of heading 4409.",
+   "alternatives": [
+    {
+     "text": "A change to heading 4401 through 4411 from any other heading, including another heading within that group",
+     "encoded": true,
+     "to": [
+      {
+       "lo": "4401",
+       "hi": "4411"
+      }
+     ],
+     "from": 4,
+     "group": "including"
+    },
+    {
+     "text": "A change to strips continuously shaped along the ends and also continuously shaped along the edges or faces of heading 4409 from strips continuously shaped only along the edges or faces of heading 4409",
+     "encoded": false,
+     "reason": "applies to goods by description, not by code",
+     "to": [
+      {
+       "lo": "4409",
+       "hi": "4409"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": "19 CFR 102.20(i), 4412",
+   "paragraph": "i",
+   "section": "Section IX: Chapters 44 through 46",
+   "hts": "4412",
+   "applies": {
+    "lo": "4412",
+    "hi": "4412"
+   },
+   "text": "A change to heading 4412 from any other heading, except from plywood of subheading 4418.73 through 4418.79; or\nA change to surface-covered plywood of heading 4412 from any other plywood that is not surface covered or is surface-covered only with a clear or transparent material which does not obscure the grain, texture, or markings of the face ply.",
+   "alternatives": [
+    {
+     "text": "A change to heading 4412 from any other heading, except from plywood of subheading 4418.73 through 4418.79",
+     "encoded": true,
+     "to": [
+      {
+       "lo": "4412",
+       "hi": "4412"
+      }
+     ],
+     "from": 4,
+     "except": [
+      {
+       "from": [
+        {
+         "lo": "441873",
+         "hi": "441879"
+        }
+       ],
+       "described": true,
+       "text": "plywood of subheading 4418.73 through 4418.79"
+      }
+     ]
+    },
+    {
+     "text": "A change to surface-covered plywood of heading 4412 from any other plywood that is not surface covered or is surface-covered only with a clear or transparent material which does not obscure the grain, texture, or markings of the face ply",
+     "encoded": false,
+     "reason": "applies to goods by description, not by code",
+     "to": [
+      {
+       "lo": "4412",
+       "hi": "4412"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": "19 CFR 102.20(i), 4413-4421",
+   "paragraph": "i",
+   "section": "Section IX: Chapters 44 through 46",
+   "hts": "4413-4421",
+   "applies": {
+    "lo": "4413",
+    "hi": "4421"
+   },
+   "text": "A change to plywood of subheading 4418.71 through 4418.79 from any other good of heading 4418 or from any other heading, except from heading 4412; or\nA change to any other good of subheading 4418.71 through 4418.79 from plywood of subheading 4418.71 through 4418.79 or from any other heading; or\nA change to any other good of heading 4413 through 4421 from any other heading, including another heading within that group.",
+   "alternatives": [
+    {
+     "text": "A change to plywood of subheading 4418.71 through 4418.79 from any other good of heading 4418 or from any other heading, except from heading 4412",
+     "encoded": false,
+     "reason": "applies to goods by description, not by code",
+     "to": [
+      {
+       "lo": "441871",
+       "hi": "441879"
+      }
+     ]
+    },
+    {
+     "text": "A change to any other good of subheading 4418.71 through 4418.79 from plywood of subheading 4418.71 through 4418.79 or from any other heading",
+     "encoded": false,
+     "reason": "applies to goods by description, not by code",
+     "to": [
+      {
+       "lo": "441871",
+       "hi": "441879"
+      }
+     ]
+    },
+    {
+     "text": "A change to any other good of heading 4413 through 4421 from any other heading, including another heading within that group",
+     "encoded": false,
+     "reason": "applies to goods by description, not by code",
+     "to": [
+      {
+       "lo": "4413",
+       "hi": "4421"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": "19 CFR 102.20(i), 4441-4421",
+   "paragraph": "i",
+   "section": "Section IX: Chapters 44 through 46",
+   "hts": "4441-4421",
+   "applies": {
+    "lo": "4413",
+    "hi": "4421"
+   },
+   "text": "A change to plywood of subheading 4418.73 through 4418.79 from any other good of heading 4418 or from any other heading, except from heading 4412; or\nA change to any other good of subheading 4418.73 through 4418.79 from plywood of subheading 4418.73 through 4418.79 or from any other heading; or\nA change to any other good of heading 4413 through 4421 from any other heading, including another heading within that group.",
+   "alternatives": [
+    {
+     "text": "A change to plywood of subheading 4418.73 through 4418.79 from any other good of heading 4418 or from any other heading, except from heading 4412",
+     "encoded": false,
+     "reason": "applies to goods by description, not by code",
+     "to": [
+      {
+       "lo": "441873",
+       "hi": "441879"
+      }
+     ]
+    },
+    {
+     "text": "A change to any other good of subheading 4418.73 through 4418.79 from plywood of subheading 4418.73 through 4418.79 or from any other heading",
+     "encoded": false,
+     "reason": "applies to goods by description, not by code",
+     "to": [
+      {
+       "lo": "441873",
+       "hi": "441879"
+      }
+     ]
+    },
+    {
+     "text": "A change to any other good of heading 4413 through 4421 from any other heading, including another heading within that group",
+     "encoded": false,
+     "reason": "applies to goods by description, not by code",
+     "to": [
+      {
+       "lo": "4413",
+       "hi": "4421"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": "19 CFR 102.20(j), 4801-4807",
+   "paragraph": "j",
+   "section": "Section X: Chapters 47 through 49",
+   "hts": "4801-4807",
+   "applies": {
+    "lo": "4801",
+    "hi": "4807"
+   },
+   "text": "A change to heading 4801 through 4807 from any other heading, including another heading within that group.",
+   "alternatives": [
+    {
+     "text": "A change to heading 4801 through 4807 from any other heading, including another heading within that group",
+     "encoded": true,
+     "to": [
+      {
+       "lo": "4801",
+       "hi": "4807"
+      }
+     ],
+     "from": 4,
+     "group": "including"
+    }
+   ]
+  },
+  {
+   "id": "19 CFR 102.20(j), 4808.10",
+   "paragraph": "j",
+   "section": "Section X: Chapters 47 through 49",
+   "hts": "4808.10",
+   "applies": {
+    "lo": "480810",
+    "hi": "480810"
+   },
+   "text": "A change to subheading 4808.10 from any other heading.",
+   "alternatives": [
+    {
+     "text": "A change to subheading 4808.10 from any other heading",
+     "encoded": true,
+     "to": [
+      {
+       "lo": "480810",
+       "hi": "480810"
+      }
+     ],
+     "from": 4
+    }
+   ]
+  },
+  {
+   "id": "19 CFR 102.20(j), 4808.40",
+   "paragraph": "j",
+   "section": "Section X: Chapters 47 through 49",
+   "hts": "4808.40",
+   "applies": {
+    "lo": "480840",
+    "hi": "480840"
+   },
+   "text": "A change to subheading 4808.40 from any other heading, except from heading 4804.",
+   "alternatives": [
+    {
+     "text": "A change to subheading 4808.40 from any other heading, except from heading 4804",
+     "encoded": true,
+     "to": [
+      {
+       "lo": "480840",
+       "hi": "480840"
+      }
+     ],
+     "from": 4,
+     "except": [
+      {
+       "from": [
+        {
+         "lo": "4804",
+         "hi": "4804"
+        }
+       ],
+       "text": "heading 4804"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": "19 CFR 102.20(j), 4808.90",
+   "paragraph": "j",
+   "section": "Section X: Chapters 47 through 49",
+   "hts": "4808.90",
+   "applies": {
+    "lo": "480890",
+    "hi": "480890"
+   },
+   "text": "A change to subheading 4808.90 from any other chapter.",
+   "alternatives": [
+    {
+     "text": "A change to subheading 4808.90 from any other chapter",
+     "encoded": true,
+     "to": [
+      {
+       "lo": "480890",
+       "hi": "480890"
+      }
+     ],
+     "from": 2
+    }
+   ]
+  },
+  {
+   "id": "19 CFR 102.20(j), 4809",
+   "paragraph": "j",
+   "section": "Section X: Chapters 47 through 49",
+   "hts": "4809",
+   "applies": {
+    "lo": "4809",
+    "hi": "4809"
+   },
+   "text": "A change to heading 4809 from any other heading.",
+   "alternatives": [
+    {
+     "text": "A change to heading 4809 from any other heading",
+     "encoded": true,
+     "to": [
+      {
+       "lo": "4809",
+       "hi": "4809"
+      }
+     ],
+     "from": 4
+    }
+   ]
+  },
+  {
+   "id": "19 CFR 102.20(j), 4810",
+   "paragraph": "j",
+   "section": "Section X: Chapters 47 through 49",
+   "hts": "4810",
+   "applies": {
+    "lo": "4810",
+    "hi": "4810"
+   },
+   "text": "A change to heading 4810 from any other heading.",
+   "alternatives": [
+    {
+     "text": "A change to heading 4810 from any other heading",
+     "encoded": true,
+     "to": [
+      {
+       "lo": "4810",
+       "hi": "4810"
+      }
+     ],
+     "from": 4
+    }
+   ]
+  },
+  {
+   "id": "19 CFR 102.20(j), 4811",
+   "paragraph": "j",
+   "section": "Section X: Chapters 47 through 49",
+   "hts": "4811",
+   "applies": {
+    "lo": "4811",
+    "hi": "4811"
+   },
+   "text": "A change to paper or paperboard in strips or rolls of a width not exceeding 15 cm of heading 4811 from strips or rolls of a width exceeding 15 cm of heading 4811 or any other heading, except from heading 4817 through 4823;\nA change to paper or paperboard in rectangular (including square) sheets with the larger dimension not exceeding 36 cm or the other dimension not exceeding 15 cm in the unfolded state of heading 4811 from strips or rolls of a width exceeding 15 cm of heading 4811, paper or paperboard in rectangular (including square) sheets with the larger dimension exceeding 36 cm and the other dimension exceeding 15 cm in the unfolded state of heading 4811 or any other heading, except from heading 4817 through 4823; or\nA change to any other good of heading 4811 from any other chapter.",
+   "alternatives": [
+    {
+     "text": "A change to paper or paperboard in strips or rolls of a width not exceeding 15 cm of heading 4811 from strips or rolls of a width exceeding 15 cm of heading 4811 or any other heading, except from heading 4817 through 4823",
+     "encoded": false,
+     "reason": "applies to goods by description, not by code",
+     "to": [
+      {
+       "lo": "4811",
+       "hi": "4811"
+      }
+     ]
+    },
+    {
+     "text": "A change to paper or paperboard in rectangular (including square) sheets with the larger dimension not exceeding 36 cm or the other dimension not exceeding 15 cm in the unfolded state of heading 4811 from strips or rolls of a width exceeding 15 cm of heading 4811, paper or paperboard in rectangular (including square) sheets with the larger dimension exceeding 36 cm and the other dimension exceeding 15 cm in the unfolded state of heading 4811 or any other heading, except from heading 4817 through 4823",
+     "encoded": false,
+     "reason": "applies to goods by description, not by code",
+     "to": [
+      {
+       "lo": "4811",
+       "hi": "4811"
+      }
+     ]
+    },
+    {
+     "text": "A change to any other good of heading 4811 from any other chapter",
+     "encoded": false,
+     "reason": "applies to goods by description, not by code",
+     "to": [
+      {
+       "lo": "4811",
+       "hi": "4811"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": "19 CFR 102.20(j), 4812-4814",
+   "paragraph": "j",
+   "section": "Section X: Chapters 47 through 49",
+   "hts": "4812-4814",
+   "applies": {
+    "lo": "4812",
+    "hi": "4814"
+   },
+   "text": "A change to heading 4812 through 4814 from any other heading, including another heading within that group.",
+   "alternatives": [
+    {
+     "text": "A change to heading 4812 through 4814 from any other heading, including another heading within that group",
+     "encoded": true,
+     "to": [
+      {
+       "lo": "4812",
+       "hi": "4814"
+      }
+     ],
+     "from": 4,
+     "group": "including"
+    }
+   ]
+  },
+  {
+   "id": "19 CFR 102.20(j), 4816",
+   "paragraph": "j",
+   "section": "Section X: Chapters 47 through 49",
+   "hts": "4816",
+   "applies": {
+    "lo": "4816",
+    "hi": "4816"
+   },
+   "text": "A change to heading 4816 from any other heading, except from heading 4809.",
+   "alternatives": [
+    {
+     "text": "A change to heading 4816 from any other heading, except from heading 4809",
+     "encoded": true,
+     "to": [
+      {
+       "lo": "4816",
+       "hi": "4816"
+      }
+     ],
+     "from": 4,
+     "except": [
+      {
+       "from": [
+        {
+         "lo": "4809",
+         "hi": "4809"
+        }
+       ],
+       "text": "heading 4809"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": "19 CFR 102.20(j), 4817-4822",
+   "paragraph": "j",
+   "section": "Section X: Chapters 47 through 49",
+   "hts": "4817-4822",
+   "applies": {
+    "lo": "4817",
+    "hi": "4822"
+   },
+   "text": "A change to heading 4817 through 4822 from any other heading, including another heading within that group, except for a change to heading 4818 from sanitary towels and tampons, napkin and napkin liners for babies, and similar sanitary articles, of paper pulp, paper, cellulose wadding, or webs of cellulose fibers, of heading 9619.",
+   "alternatives": [
+    {
+     "text": "A change to heading 4817 through 4822 from any other heading, including another heading within that group, except for a change to heading 4818 from sanitary towels and tampons, napkin and napkin liners for babies, and similar sanitary articles, of paper pulp, paper, cellulose wadding, or webs of cellulose fibers, of heading 9619",
+     "encoded": true,
+     "to": [
+      {
+       "lo": "4817",
+       "hi": "4822"
+      }
+     ],
+     "from": 4,
+     "group": "including",
+     "except": [
+      {
+       "to": [
+        {
+         "lo": "4818",
+         "hi": "4818"
+        }
+       ],
+       "from": [
+        {
+         "lo": "9619",
+         "hi": "9619"
+        }
+       ],
+       "described": true,
+       "text": "sanitary towels and tampons, napkin and napkin liners for babies, and similar sanitary articles, of paper pulp, paper, cellulose wadding, or webs of cellulose fibers, of heading 9619"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": "19 CFR 102.20(j), 4823.20-4823.40",
+   "paragraph": "j",
+   "section": "Section X: Chapters 47 through 49",
+   "hts": "4823.20-4823.40",
+   "applies": {
+    "lo": "482320",
+    "hi": "482340"
+   },
+   "text": "A change to subheading 4823.20 through 4823.40 from any other chapter.",
+   "alternatives": [
+    {
+     "text": "A change to subheading 4823.20 through 4823.40 from any other chapter",
+     "encoded": true,
+     "to": [
+      {
+       "lo": "482320",
+       "hi": "482340"
+      }
+     ],
+     "from": 2
+    }
+   ]
+  },
+  {
+   "id": "19 CFR 102.20(j), 4823.61-4823.70",
+   "paragraph": "j",
+   "section": "Section X: Chapters 47 through 49",
+   "hts": "4823.61-4823.70",
+   "applies": {
+    "lo": "482361",
+    "hi": "482370"
+   },
+   "text": "A change to subheading 4823.61 through 4823.69 from any subheading outside that group; or\nA change to any other good of subheading 4823.61 through 4823.70 from any other subheading, including another subheading within that group.",
+   "alternatives": [
+    {
+     "text": "A change to subheading 4823.61 through 4823.69 from any subheading outside that group",
+     "encoded": true,
+     "to": [
+      {
+       "lo": "482361",
+       "hi": "482369"
+      }
+     ],
+     "from": 6,
+     "group": "outside"
+    },
+    {
+     "text": "A change to any other good of subheading 4823.61 through 4823.70 from any other subheading, including another subheading within that group",
+     "encoded": false,
+     "reason": "applies to goods by description, not by code",
+     "to": [
+      {
+       "lo": "482361",
+       "hi": "482370"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": "19 CFR 102.20(j), 4823.90",
+   "paragraph": "j",
+   "section": "Section X: Chapters 47 through 49",
+   "hts": "4823.90",
+   "applies": {
+    "lo": "482390",
+    "hi": "482390"
+   },
+   "text": "A change to floor coverings on a base of paper or of paperboard, whether or not cut to size, from any other good of subheading 4823.90 or from any other subheading; or\nA change to self-adhesive paper, in strips or rolls, from any other good of subheading 4823.90 or from any other subheading; or\nA change to other gummed or adhesive paper, in strips or rolls, from any other good of subheading 4823.90 or from any other subheading; or\nA change to cards not punched and for punchcard machines from any other chapter; or\nA change to any other good of subheading 4823.90 from floor covering on base paper or of paperboard, self-adhesive paper, other gummed or adhesive paper, or from cards not punched and for punchcard machines of subheading 4823.90, or from any other subheading.",
+   "alternatives": [
+    {
+     "text": "A change to floor coverings on a base of paper or of paperboard, whether or not cut to size, from any other good of subheading 4823.90 or from any other subheading",
+     "encoded": false,
+     "reason": "applies to goods by description, not by code"
+    },
+    {
+     "text": "A change to self-adhesive paper, in strips or rolls, from any other good of subheading 4823.90 or from any other subheading",
+     "encoded": false,
+     "reason": "applies to goods by description, not by code"
+    },
+    {
+     "text": "A change to other gummed or adhesive paper, in strips or rolls, from any other good of subheading 4823.90 or from any other subheading",
+     "encoded": false,
+     "reason": "applies to goods by description, not by code"
+    },
+    {
+     "text": "A change to cards not punched and for punchcard machines from any other chapter",
+     "encoded": false,
+     "reason": "applies to goods by description, not by code"
+    },
+    {
+     "text": "A change to any other good of subheading 4823.90 from floor covering on base paper or of paperboard, self-adhesive paper, other gummed or adhesive paper, or from cards not punched and for punchcard machines of subheading 4823.90, or from any other subheading",
+     "encoded": false,
+     "reason": "applies to goods by description, not by code",
+     "to": [
+      {
+       "lo": "482390",
+       "hi": "482390"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": "19 CFR 102.20(m), 7101",
+   "paragraph": "m",
+   "section": "Section XIV: Chapter 71",
+   "hts": "7101",
+   "applies": {
+    "lo": "7101",
+    "hi": "7101"
+   },
+   "text": "A change to heading 7101 from any other heading, except from heading 0307.",
+   "alternatives": [
+    {
+     "text": "A change to heading 7101 from any other heading, except from heading 0307",
+     "encoded": true,
+     "to": [
+      {
+       "lo": "7101",
+       "hi": "7101"
+      }
+     ],
+     "from": 4,
+     "except": [
+      {
+       "from": [
+        {
+         "lo": "0307",
+         "hi": "0307"
+        }
+       ],
+       "text": "heading 0307"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": "19 CFR 102.20(m), 7102-7103",
+   "paragraph": "m",
+   "section": "Section XIV: Chapter 71",
+   "hts": "7102-7103",
+   "applies": {
+    "lo": "7102",
+    "hi": "7103"
+   },
+   "text": "A change to heading 7102 through 7103 from any other chapter.",
+   "alternatives": [
+    {
+     "text": "A change to heading 7102 through 7103 from any other chapter",
+     "encoded": true,
+     "to": [
+      {
+       "lo": "7102",
+       "hi": "7103"
+      }
+     ],
+     "from": 2
+    }
+   ]
+  },
+  {
+   "id": "19 CFR 102.20(m), 7104-7105",
+   "paragraph": "m",
+   "section": "Section XIV: Chapter 71",
+   "hts": "7104-7105",
+   "applies": {
+    "lo": "7104",
+    "hi": "7105"
+   },
+   "text": "A change to heading 7104 through 7105 from any other heading, including another heading within that group.",
+   "alternatives": [
+    {
+     "text": "A change to heading 7104 through 7105 from any other heading, including another heading within that group",
+     "encoded": true,
+     "to": [
+      {
+       "lo": "7104",
+       "hi": "7105"
+      }
+     ],
+     "from": 4,
+     "group": "including"
+    }
+   ]
+  },
+  {
+   "id": "19 CFR 102.20(m), 7106",
+   "paragraph": "m",
+   "section": "Section XIV: Chapter 71",
+   "hts": "7106",
+   "applies": {
+    "lo": "7106",
+    "hi": "7106"
+   },
+   "text": "A change to heading 7106 from any other chapter.",
+   "alternatives": [
+    {
+     "text": "A change to heading 7106 from any other chapter",
+     "encoded": true,
+     "to": [
+      {
+       "lo": "7106",
+       "hi": "7106"
+      }
+     ],
+     "from": 2
+    }
+   ]
+  },
+  {
+   "id": "19 CFR 102.20(m), 7107",
+   "paragraph": "m",
+   "section": "Section XIV: Chapter 71",
+   "hts": "7107",
+   "applies": {
+    "lo": "7107",
+    "hi": "7107"
+   },
+   "text": "A change to heading 7107 from any other chapter, except from Chapter 72 through 76 or Chapter 78 through 83.",
+   "alternatives": [
+    {
+     "text": "A change to heading 7107 from any other chapter, except from Chapter 72 through 76 or Chapter 78 through 83",
+     "encoded": true,
+     "to": [
+      {
+       "lo": "7107",
+       "hi": "7107"
+      }
+     ],
+     "from": 2,
+     "except": [
+      {
+       "from": [
+        {
+         "lo": "72",
+         "hi": "76"
+        },
+        {
+         "lo": "78",
+         "hi": "83"
+        }
+       ],
+       "text": "Chapter 72 through 76 or Chapter 78 through 83"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": "19 CFR 102.20(m), 7108",
+   "paragraph": "m",
+   "section": "Section XIV: Chapter 71",
+   "hts": "7108",
+   "applies": {
+    "lo": "7108",
+    "hi": "7108"
+   },
+   "text": "A change to heading 7108 from any other chapter.",
+   "alternatives": [
+    {
+     "text": "A change to heading 7108 from any other chapter",
+     "encoded": true,
+     "to": [
+      {
+       "lo": "7108",
+       "hi": "7108"
+      }
+     ],
+     "from": 2
+    }
+   ]
+  },
+  {
+   "id": "19 CFR 102.20(m), 7109",
+   "paragraph": "m",
+   "section": "Section XIV: Chapter 71",
+   "hts": "7109",
+   "applies": {
+    "lo": "7109",
+    "hi": "7109"
+   },
+   "text": "A change to heading 7109 from any other chapter, except from Chapter 72 through 76 or Chapter 78 through 83.",
+   "alternatives": [
+    {
+     "text": "A change to heading 7109 from any other chapter, except from Chapter 72 through 76 or Chapter 78 through 83",
+     "encoded": true,
+     "to": [
+      {
+       "lo": "7109",
+       "hi": "7109"
+      }
+     ],
+     "from": 2,
+     "except": [
+      {
+       "from": [
+        {
+         "lo": "72",
+         "hi": "76"
+        },
+        {
+         "lo": "78",
+         "hi": "83"
+        }
+       ],
+       "text": "Chapter 72 through 76 or Chapter 78 through 83"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": "19 CFR 102.20(m), 7110",
+   "paragraph": "m",
+   "section": "Section XIV: Chapter 71",
+   "hts": "7110",
+   "applies": {
+    "lo": "7110",
+    "hi": "7110"
+   },
+   "text": "A change to heading 7110 from any other chapter.",
+   "alternatives": [
+    {
+     "text": "A change to heading 7110 from any other chapter",
+     "encoded": true,
+     "to": [
+      {
+       "lo": "7110",
+       "hi": "7110"
+      }
+     ],
+     "from": 2
+    }
+   ]
+  },
+  {
+   "id": "19 CFR 102.20(m), 7111",
+   "paragraph": "m",
+   "section": "Section XIV: Chapter 71",
+   "hts": "7111",
+   "applies": {
+    "lo": "7111",
+    "hi": "7111"
+   },
+   "text": "A change to heading 7111 from any other chapter, except from Chapter 72 through 76 or Chapter 78 through 83.",
+   "alternatives": [
+    {
+     "text": "A change to heading 7111 from any other chapter, except from Chapter 72 through 76 or Chapter 78 through 83",
+     "encoded": true,
+     "to": [
+      {
+       "lo": "7111",
+       "hi": "7111"
+      }
+     ],
+     "from": 2,
+     "except": [
+      {
+       "from": [
+        {
+         "lo": "72",
+         "hi": "76"
+        },
+        {
+         "lo": "78",
+         "hi": "83"
+        }
+       ],
+       "text": "Chapter 72 through 76 or Chapter 78 through 83"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": "19 CFR 102.20(m), 7112",
+   "paragraph": "m",
+   "section": "Section XIV: Chapter 71",
+   "hts": "7112",
+   "applies": {
+    "lo": "7112",
+    "hi": "7112"
+   },
+   "text": "A change to heading 7112 from any other heading.",
+   "alternatives": [
+    {
+     "text": "A change to heading 7112 from any other heading",
+     "encoded": true,
+     "to": [
+      {
+       "lo": "7112",
+       "hi": "7112"
+      }
+     ],
+     "from": 4
+    }
+   ]
+  },
+  {
+   "id": "19 CFR 102.20(m), 7113.11-7115.90",
+   "paragraph": "m",
+   "section": "Section XIV: Chapter 71",
+   "hts": "7113.11-7115.90",
+   "applies": {
+    "lo": "711311",
+    "hi": "711590"
+   },
+   "text": "A change to subheading 7113.11 through 7115.90 from any other subheading, including another subheading within that group.",
+   "alternatives": [
+    {
+     "text": "A change to subheading 7113.11 through 7115.90 from any other subheading, including another subheading within that group",
+     "encoded": true,
+     "to": [
+      {
+       "lo": "711311",
+       "hi": "711590"
+      }
+     ],
+     "from": 6,
+     "group": "including"
+    }
+   ]
+  },
+  {
+   "id": "19 CFR 102.20(m), 7116",
+   "paragraph": "m",
+   "section": "Section XIV: Chapter 71",
+   "hts": "7116",
+   "applies": {
+    "lo": "7116",
+    "hi": "7116"
+   },
+   "text": "A change to heading 7116 from any other heading, except that pearls strung but without the addition of clasps or other ornamental features of precious metals or stones, shall have the origin of the pearls.",
+   "alternatives": [
+    {
+     "text": "A change to heading 7116 from any other heading, except that pearls strung but without the addition of clasps or other ornamental features of precious metals or stones, shall have the origin of the pearls",
+     "encoded": false,
+     "reason": "exception not read: \"that pearls strung but without the addition of clasps or other ornamental features of precious metals or stones, shall have the origin of the pearls\""
+    }
+   ]
+  },
+  {
+   "id": "19 CFR 102.20(m), 7117-7118",
+   "paragraph": "m",
+   "section": "Section XIV: Chapter 71",
+   "hts": "7117-7118",
+   "applies": {
+    "lo": "7117",
+    "hi": "7118"
+   },
+   "text": "A change to heading 7117 through 7118 from any other heading, including another heading within that group.",
+   "alternatives": [
+    {
+     "text": "A change to heading 7117 through 7118 from any other heading, including another heading within that group",
+     "encoded": true,
+     "to": [
+      {
+       "lo": "7117",
+       "hi": "7118"
+      }
+     ],
+     "from": 4,
+     "group": "including"
+    }
+   ]
+  },
   {
    "id": "19 CFR 102.20(n), 7301-7307",
    "paragraph": "n",
@@ -503,6 +2484,116 @@
    ]
   },
   {
+   "id": "19 CFR 102.20(n), 7601-7604",
+   "paragraph": "n",
+   "section": "Section XV: Chapters 72 through 83",
+   "hts": "7601-7604",
+   "applies": {
+    "lo": "7601",
+    "hi": "7604"
+   },
+   "text": "A change to heading 7601 through 7604 from any other heading, including another heading within that group.",
+   "alternatives": [
+    {
+     "text": "A change to heading 7601 through 7604 from any other heading, including another heading within that group",
+     "encoded": true,
+     "to": [
+      {
+       "lo": "7601",
+       "hi": "7604"
+      }
+     ],
+     "from": 4,
+     "group": "including"
+    }
+   ]
+  },
+  {
+   "id": "19 CFR 102.20(n), 7605",
+   "paragraph": "n",
+   "section": "Section XV: Chapters 72 through 83",
+   "hts": "7605",
+   "applies": {
+    "lo": "7605",
+    "hi": "7605"
+   },
+   "text": "A change to heading 7605 from any other heading, except from heading 7604.",
+   "alternatives": [
+    {
+     "text": "A change to heading 7605 from any other heading, except from heading 7604",
+     "encoded": true,
+     "to": [
+      {
+       "lo": "7605",
+       "hi": "7605"
+      }
+     ],
+     "from": 4,
+     "except": [
+      {
+       "from": [
+        {
+         "lo": "7604",
+         "hi": "7604"
+        }
+       ],
+       "text": "heading 7604"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": "19 CFR 102.20(n), 7606-7615",
+   "paragraph": "n",
+   "section": "Section XV: Chapters 72 through 83",
+   "hts": "7606-7615",
+   "applies": {
+    "lo": "7606",
+    "hi": "7615"
+   },
+   "text": "A change to heading 7606 through 7615 from any other heading, including another heading within that group.",
+   "alternatives": [
+    {
+     "text": "A change to heading 7606 through 7615 from any other heading, including another heading within that group",
+     "encoded": true,
+     "to": [
+      {
+       "lo": "7606",
+       "hi": "7615"
+      }
+     ],
+     "from": 4,
+     "group": "including"
+    }
+   ]
+  },
+  {
+   "id": "19 CFR 102.20(n), 7616.10-7616.99",
+   "paragraph": "n",
+   "section": "Section XV: Chapters 72 through 83",
+   "hts": "7616.10-7616.99",
+   "applies": {
+    "lo": "761610",
+    "hi": "761699"
+   },
+   "text": "A change to subheading 7616.10 through 7616.99 from any other subheading, including another subheading within that group.",
+   "alternatives": [
+    {
+     "text": "A change to subheading 7616.10 through 7616.99 from any other subheading, including another subheading within that group",
+     "encoded": true,
+     "to": [
+      {
+       "lo": "761610",
+       "hi": "761699"
+      }
+     ],
+     "from": 6,
+     "group": "including"
+    }
+   ]
+  },
+  {
    "id": "19 CFR 102.20(n), 8201.10-8202.40",
    "paragraph": "n",
    "section": "Section XV: Chapters 72 through 83",
@@ -632,6 +2723,242 @@
       }
      ],
      "from": 4,
+     "group": "including"
+    }
+   ]
+  },
+  {
+   "id": "19 CFR 102.20(n), 8301.10-8301.50",
+   "paragraph": "n",
+   "section": "Section XV: Chapters 72 through 83",
+   "hts": "8301.10-8301.50",
+   "applies": {
+    "lo": "830110",
+    "hi": "830150"
+   },
+   "text": "A change to subheading 8301.10 through 8301.50 from any other subheading, including another subheading within that group, except from subheading 8301.60 when that change is pursuant to General Rule of Interpretation 2(a).",
+   "alternatives": [
+    {
+     "text": "A change to subheading 8301.10 through 8301.50 from any other subheading, including another subheading within that group, except from subheading 8301.60 when that change is pursuant to General Rule of Interpretation 2(a)",
+     "encoded": true,
+     "to": [
+      {
+       "lo": "830110",
+       "hi": "830150"
+      }
+     ],
+     "from": 6,
+     "group": "including",
+     "except": [
+      {
+       "from": [
+        {
+         "lo": "830160",
+         "hi": "830160"
+        }
+       ],
+       "condition": "gri_2a",
+       "text": "subheading 8301.60"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": "19 CFR 102.20(n), 8301.60-8301.70",
+   "paragraph": "n",
+   "section": "Section XV: Chapters 72 through 83",
+   "hts": "8301.60-8301.70",
+   "applies": {
+    "lo": "830160",
+    "hi": "830170"
+   },
+   "text": "A change to subheading 8301.60 through 8301.70 from any other chapter.",
+   "alternatives": [
+    {
+     "text": "A change to subheading 8301.60 through 8301.70 from any other chapter",
+     "encoded": true,
+     "to": [
+      {
+       "lo": "830160",
+       "hi": "830170"
+      }
+     ],
+     "from": 2
+    }
+   ]
+  },
+  {
+   "id": "19 CFR 102.20(n), 8302.10-8302.60",
+   "paragraph": "n",
+   "section": "Section XV: Chapters 72 through 83",
+   "hts": "8302.10-8302.60",
+   "applies": {
+    "lo": "830210",
+    "hi": "830260"
+   },
+   "text": "A change to subheading 8302.10 through 8302.60 from any other subheading, including another subheading within that group.",
+   "alternatives": [
+    {
+     "text": "A change to subheading 8302.10 through 8302.60 from any other subheading, including another subheading within that group",
+     "encoded": true,
+     "to": [
+      {
+       "lo": "830210",
+       "hi": "830260"
+      }
+     ],
+     "from": 6,
+     "group": "including"
+    }
+   ]
+  },
+  {
+   "id": "19 CFR 102.20(n), 8303-8304",
+   "paragraph": "n",
+   "section": "Section XV: Chapters 72 through 83",
+   "hts": "8303-8304",
+   "applies": {
+    "lo": "8303",
+    "hi": "8304"
+   },
+   "text": "A change to heading 8303 through 8304 from any other heading, including another heading within that group.",
+   "alternatives": [
+    {
+     "text": "A change to heading 8303 through 8304 from any other heading, including another heading within that group",
+     "encoded": true,
+     "to": [
+      {
+       "lo": "8303",
+       "hi": "8304"
+      }
+     ],
+     "from": 4,
+     "group": "including"
+    }
+   ]
+  },
+  {
+   "id": "19 CFR 102.20(n), 8305.10-8305.90",
+   "paragraph": "n",
+   "section": "Section XV: Chapters 72 through 83",
+   "hts": "8305.10-8305.90",
+   "applies": {
+    "lo": "830510",
+    "hi": "830590"
+   },
+   "text": "A change to subheading 8305.10 through 8305.90 from any other subheading, including another subheading within that group.",
+   "alternatives": [
+    {
+     "text": "A change to subheading 8305.10 through 8305.90 from any other subheading, including another subheading within that group",
+     "encoded": true,
+     "to": [
+      {
+       "lo": "830510",
+       "hi": "830590"
+      }
+     ],
+     "from": 6,
+     "group": "including"
+    }
+   ]
+  },
+  {
+   "id": "19 CFR 102.20(n), 8306-8307",
+   "paragraph": "n",
+   "section": "Section XV: Chapters 72 through 83",
+   "hts": "8306-8307",
+   "applies": {
+    "lo": "8306",
+    "hi": "8307"
+   },
+   "text": "A change to heading 8306 through 8307 from any other heading, including another heading within that group.",
+   "alternatives": [
+    {
+     "text": "A change to heading 8306 through 8307 from any other heading, including another heading within that group",
+     "encoded": true,
+     "to": [
+      {
+       "lo": "8306",
+       "hi": "8307"
+      }
+     ],
+     "from": 4,
+     "group": "including"
+    }
+   ]
+  },
+  {
+   "id": "19 CFR 102.20(n), 8308.10-8308.90",
+   "paragraph": "n",
+   "section": "Section XV: Chapters 72 through 83",
+   "hts": "8308.10-8308.90",
+   "applies": {
+    "lo": "830810",
+    "hi": "830890"
+   },
+   "text": "A change to subheading 8308.10 through 8308.90 from any other subheading, including another subheading within that group.",
+   "alternatives": [
+    {
+     "text": "A change to subheading 8308.10 through 8308.90 from any other subheading, including another subheading within that group",
+     "encoded": true,
+     "to": [
+      {
+       "lo": "830810",
+       "hi": "830890"
+      }
+     ],
+     "from": 6,
+     "group": "including"
+    }
+   ]
+  },
+  {
+   "id": "19 CFR 102.20(n), 8309-8310",
+   "paragraph": "n",
+   "section": "Section XV: Chapters 72 through 83",
+   "hts": "8309-8310",
+   "applies": {
+    "lo": "8309",
+    "hi": "8310"
+   },
+   "text": "A change to heading 8309 through 8310 from any other heading, including another heading within that group.",
+   "alternatives": [
+    {
+     "text": "A change to heading 8309 through 8310 from any other heading, including another heading within that group",
+     "encoded": true,
+     "to": [
+      {
+       "lo": "8309",
+       "hi": "8310"
+      }
+     ],
+     "from": 4,
+     "group": "including"
+    }
+   ]
+  },
+  {
+   "id": "19 CFR 102.20(n), 8311.10-8311.90",
+   "paragraph": "n",
+   "section": "Section XV: Chapters 72 through 83",
+   "hts": "8311.10-8311.90",
+   "applies": {
+    "lo": "831110",
+    "hi": "831190"
+   },
+   "text": "A change to subheading 8311.10 through 8311.90 from any other subheading, including another subheading within that group.",
+   "alternatives": [
+    {
+     "text": "A change to subheading 8311.10 through 8311.90 from any other subheading, including another subheading within that group",
+     "encoded": true,
+     "to": [
+      {
+       "lo": "831110",
+       "hi": "831190"
+      }
+     ],
+     "from": 6,
      "group": "including"
     }
    ]
@@ -12130,6 +14457,268 @@
       {
        "lo": "9406",
        "hi": "9406"
+      }
+     ],
+     "from": 4
+    }
+   ]
+  },
+  {
+   "id": "19 CFR 102.20(s), 9503",
+   "paragraph": "s",
+   "section": "Section XX: Chapters 94 through 96",
+   "hts": "9503",
+   "applies": {
+    "lo": "9503",
+    "hi": "9503"
+   },
+   "text": "A change to wheeled toys designed to be ridden by children or to dolls' carriages or dolls' strollers, parts or accessories thereof from any other chapter, except from heading 8714 when that change is pursuant to General Rule of Interpretation 2(a); or\nA change to dolls, whether or not dressed, from any other subheading or from any other good of heading 9503, except from skins for stuffed dolls of heading 9503; or\nA change to parts or accessories of dolls representing only human beings from any other heading or from any other good of heading 9503, except from toys representing animals or non-human creatures of heading 9503; or\nA change to electric trains, including tracks, signals and other accessories or parts thereof from any other good of heading 9503 or from any other subheading; or\nA change to reduced-size (“scale”) model assembly kits, (excluding electric trains) or to parts or accessories thereof, from any other good of heading 9503 or from any other subheading; or\nA change to other construction sets and constructional toys or to parts or accessories thereof from any other good of heading 9503 or from any other subheading; or\nA change to toys representing animals or non-human creatures or to parts or accessories thereof from wheeled toys designed to be ridden by children, dolls' carriages, or dolls representing only human beings of heading 9503 or from any other heading; or\nA change to toys representing animals or non-human creatures from parts or accessories of toys representing animals or non-human creatures of heading 9503; or\nA change to parts or accessories of toys representing animals or non-human creatures from wheeled toys designed to be ridden by children, dolls' carriages, or dolls' strollers of heading 9503 or from any other heading, except from heading 6111 or 6209; or\nA change to toy musical instruments and apparatus from any other good of heading 9503 or from any other subheading; or\nA change to puzzles from any other good of heading 9503 or from any other subheading; or\nA change to other toys, put up in sets or outfits, or to other toys and models, incorporating a motor, or to other toys from any other chapter.",
+   "alternatives": [
+    {
+     "text": "A change to wheeled toys designed to be ridden by children or to dolls' carriages or dolls' strollers, parts or accessories thereof from any other chapter, except from heading 8714 when that change is pursuant to General Rule of Interpretation 2(a)",
+     "encoded": false,
+     "reason": "applies to goods by description, not by code"
+    },
+    {
+     "text": "A change to dolls, whether or not dressed, from any other subheading or from any other good of heading 9503, except from skins for stuffed dolls of heading 9503",
+     "encoded": false,
+     "reason": "applies to goods by description, not by code"
+    },
+    {
+     "text": "A change to parts or accessories of dolls representing only human beings from any other heading or from any other good of heading 9503, except from toys representing animals or non-human creatures of heading 9503",
+     "encoded": false,
+     "reason": "applies to goods by description, not by code"
+    },
+    {
+     "text": "A change to electric trains, including tracks, signals and other accessories or parts thereof from any other good of heading 9503 or from any other subheading",
+     "encoded": false,
+     "reason": "applies to goods by description, not by code"
+    },
+    {
+     "text": "A change to reduced-size (“scale”) model assembly kits, (excluding electric trains) or to parts or accessories thereof, from any other good of heading 9503 or from any other subheading",
+     "encoded": false,
+     "reason": "applies to goods by description, not by code"
+    },
+    {
+     "text": "A change to other construction sets and constructional toys or to parts or accessories thereof from any other good of heading 9503 or from any other subheading",
+     "encoded": false,
+     "reason": "applies to goods by description, not by code"
+    },
+    {
+     "text": "A change to toys representing animals or non-human creatures or to parts or accessories thereof from wheeled toys designed to be ridden by children, dolls' carriages, or dolls representing only human beings of heading 9503 or from any other heading",
+     "encoded": false,
+     "reason": "applies to goods by description, not by code"
+    },
+    {
+     "text": "A change to toys representing animals or non-human creatures from parts or accessories of toys representing animals or non-human creatures of heading 9503",
+     "encoded": false,
+     "reason": "applies to goods by description, not by code"
+    },
+    {
+     "text": "A change to parts or accessories of toys representing animals or non-human creatures from wheeled toys designed to be ridden by children, dolls' carriages, or dolls' strollers of heading 9503 or from any other heading, except from heading 6111 or 6209",
+     "encoded": false,
+     "reason": "applies to goods by description, not by code"
+    },
+    {
+     "text": "A change to toy musical instruments and apparatus from any other good of heading 9503 or from any other subheading",
+     "encoded": false,
+     "reason": "applies to goods by description, not by code"
+    },
+    {
+     "text": "A change to puzzles from any other good of heading 9503 or from any other subheading",
+     "encoded": false,
+     "reason": "applies to goods by description, not by code"
+    },
+    {
+     "text": "A change to other toys, put up in sets or outfits, or to other toys and models, incorporating a motor, or to other toys from any other chapter",
+     "encoded": false,
+     "reason": "applies to goods by description, not by code"
+    }
+   ]
+  },
+  {
+   "id": "19 CFR 102.20(s), 9504.20-9506.29",
+   "paragraph": "s",
+   "section": "Section XX: Chapters 94 through 96",
+   "hts": "9504.20-9506.29",
+   "applies": {
+    "lo": "950420",
+    "hi": "950629"
+   },
+   "text": "A change to subheading 9504.20 through 9506.29 from any other subheading, including another subheading within that group.",
+   "alternatives": [
+    {
+     "text": "A change to subheading 9504.20 through 9506.29 from any other subheading, including another subheading within that group",
+     "encoded": true,
+     "to": [
+      {
+       "lo": "950420",
+       "hi": "950629"
+      }
+     ],
+     "from": 6,
+     "group": "including"
+    }
+   ]
+  },
+  {
+   "id": "19 CFR 102.20(s), 9506.31",
+   "paragraph": "s",
+   "section": "Section XX: Chapters 94 through 96",
+   "hts": "9506.31",
+   "applies": {
+    "lo": "950631",
+    "hi": "950631"
+   },
+   "text": "A change to subheading 9506.31 from any other subheading, except from subheading 9506.39.",
+   "alternatives": [
+    {
+     "text": "A change to subheading 9506.31 from any other subheading, except from subheading 9506.39",
+     "encoded": true,
+     "to": [
+      {
+       "lo": "950631",
+       "hi": "950631"
+      }
+     ],
+     "from": 6,
+     "except": [
+      {
+       "from": [
+        {
+         "lo": "950639",
+         "hi": "950639"
+        }
+       ],
+       "text": "subheading 9506.39"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": "19 CFR 102.20(s), 9506.32-9506.99",
+   "paragraph": "s",
+   "section": "Section XX: Chapters 94 through 96",
+   "hts": "9506.32-9506.99",
+   "applies": {
+    "lo": "950632",
+    "hi": "950699"
+   },
+   "text": "A change to subheading 9506.32 through 9506.99 from any other subheading, including another subheading within that group.",
+   "alternatives": [
+    {
+     "text": "A change to subheading 9506.32 through 9506.99 from any other subheading, including another subheading within that group",
+     "encoded": true,
+     "to": [
+      {
+       "lo": "950632",
+       "hi": "950699"
+      }
+     ],
+     "from": 6,
+     "group": "including"
+    }
+   ]
+  },
+  {
+   "id": "19 CFR 102.20(s), 9507.10-9507.30",
+   "paragraph": "s",
+   "section": "Section XX: Chapters 94 through 96",
+   "hts": "9507.10-9507.30",
+   "applies": {
+    "lo": "950710",
+    "hi": "950730"
+   },
+   "text": "A change to subheading 9507.10 through 9507.30 from any other chapter.",
+   "alternatives": [
+    {
+     "text": "A change to subheading 9507.10 through 9507.30 from any other chapter",
+     "encoded": true,
+     "to": [
+      {
+       "lo": "950710",
+       "hi": "950730"
+      }
+     ],
+     "from": 2
+    }
+   ]
+  },
+  {
+   "id": "19 CFR 102.20(s), 9507.90",
+   "paragraph": "s",
+   "section": "Section XX: Chapters 94 through 96",
+   "hts": "9507.90",
+   "applies": {
+    "lo": "950790",
+    "hi": "950790"
+   },
+   "text": "A change to subheading 9507.90 from any other subheading, except from heading 5004 through 5006, 5404, 5406, or 5603, or from subheading 5402.11 through 5402.49.",
+   "alternatives": [
+    {
+     "text": "A change to subheading 9507.90 from any other subheading, except from heading 5004 through 5006, 5404, 5406, or 5603, or from subheading 5402.11 through 5402.49",
+     "encoded": true,
+     "to": [
+      {
+       "lo": "950790",
+       "hi": "950790"
+      }
+     ],
+     "from": 6,
+     "except": [
+      {
+       "from": [
+        {
+         "lo": "5004",
+         "hi": "5006"
+        },
+        {
+         "lo": "5404",
+         "hi": "5404"
+        },
+        {
+         "lo": "5406",
+         "hi": "5406"
+        },
+        {
+         "lo": "5603",
+         "hi": "5603"
+        }
+       ],
+       "text": "heading 5004 through 5006, 5404, 5406, or 5603"
+      },
+      {
+       "from": [
+        {
+         "lo": "540211",
+         "hi": "540249"
+        }
+       ],
+       "text": "subheading 5402.11 through 5402.49"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": "19 CFR 102.20(s), 9508",
+   "paragraph": "s",
+   "section": "Section XX: Chapters 94 through 96",
+   "hts": "9508",
+   "applies": {
+    "lo": "9508",
+    "hi": "9508"
+   },
+   "text": "A change to heading 9508 from any other heading.",
+   "alternatives": [
+    {
+     "text": "A change to heading 9508 from any other heading",
+     "encoded": true,
+     "to": [
+      {
+       "lo": "9508",
+       "hi": "9508"
       }
      ],
      "from": 4

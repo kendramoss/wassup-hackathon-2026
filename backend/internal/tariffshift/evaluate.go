@@ -172,6 +172,12 @@ func (r *Rules) Evaluate(in Input) Result {
 		}
 		return Result{Status: status, Reason: why}
 	}
+	switch anyContains(rule.Textile, Digits(in.GoodHTS)) {
+	case yes:
+		return Result{Status: OutOfScope, Reason: fmt.Sprintf("a chapter note sends %s to 19 CFR 102.21 (textile rules), which are not encoded", format(Digits(in.GoodHTS)))}
+	case maybe:
+		return Result{Status: Undetermined, Reason: fmt.Sprintf("a chapter note sends some codes under %s to 19 CFR 102.21 (%s); give the full code", format(Digits(in.GoodHTS)), rangesString(rule.Textile))}
+	}
 	res := Result{Rule: ref(rule)}
 	if len(in.Materials) == 0 {
 		res.Status, res.Reason = Undetermined, "no materials given; the tariff-shift rule tests each foreign material"
@@ -321,6 +327,14 @@ func (r *Rules) Evaluate(in Input) Result {
 	res.Reason = names(res.Materials, fail) + " do not shift, so 102.11(a) does not decide; " + bReason
 	res.Assumes = bAssumes
 	return res
+}
+
+func rangesString(rs []Range) string {
+	out := make([]string, len(rs))
+	for i, r := range rs {
+		out[i] = r.String()
+	}
+	return strings.Join(out, ", ")
 }
 
 func ref(r Rule) *RuleRef {

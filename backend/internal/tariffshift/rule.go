@@ -101,6 +101,9 @@ type Rule struct {
 	// FallbackNote: a note replaces 102.11(b)-(d) when a material fails the
 	// shift, so the evaluator does not apply 102.11(b) to this rule.
 	FallbackNote bool `json:"fallback_note,omitempty"`
+	// Textile lists the codes a chapter note sends to 102.21 (the textile
+	// rules, not encoded): a good in one is out of scope.
+	Textile []Range `json:"textile,omitempty"`
 }
 
 // Table is the committed rule data (rules.json).
@@ -119,8 +122,12 @@ type TableSource struct {
 	Note      string `json:"note"`
 }
 
-// ScopeChapters are the HTS chapters encoded: Section XVI (84, 85) and the
-// chapters of the goods in the 14 planner families (73 grills and stoves,
-// 82 hand tools, 87 vehicle parts, 90 medical and optical devices, 94
-// furniture and lamps). Other chapters are out of scope.
-var ScopeChapters = []string{"73", "82", "84", "85", "87", "90", "94"}
+// ScopeChapters are the HTS chapters encoded. D360: Section XVI (84, 85)
+// and the chapters of the goods in the 14 planner families (73 grills and
+// stoves, 82 hand tools, 87 vehicle parts, 90 medical and optical devices,
+// 94 furniture and lamps). D460: the ten other chapters with at least four
+// goods among the development Part 102 rulings and the earlier labelled
+// pool (15 fats and oils, 21 food preparations, 39 plastics, 40 rubber, 44
+// wood, 48 paper, 71 jewellery, 76 aluminium, 83 miscellaneous base metal,
+// 95 toys, games and sports goods). Other chapters are out of scope.
+var ScopeChapters = []string{"15", "21", "39", "40", "44", "48", "71", "73", "76", "82", "83", "84", "85", "87", "90", "94", "95"}

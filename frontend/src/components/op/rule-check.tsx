@@ -21,9 +21,16 @@ export function headline(rc: RuleCheck): { text: string; tone?: "ask" } {
     if (rc.review) return { text: R.differs(rc.model_origin ?? ""), tone: "ask" };
     return { text: R.decided };
   }
-  if (r.status === "out_of_scope") return { text: R.outOfScope };
+  if (r.status === "out_of_scope") return { text: outOfScopeText(r.reason) };
   if (r.if_not_de_minimis?.origin) return { text: R.deMinimis(rc.country, r.if_not_de_minimis.origin) };
   return { text: R.undetermined };
+}
+
+// outOfScopeText lists the encoded chapters, or names the textile rules when
+// a chapter note sends the code there (D460).
+export function outOfScopeText(reason: string): string {
+  const R = copy.ruleCheck;
+  return /102\.21/.test(reason) ? R.outOfScopeTextile : R.outOfScope(R.chapters);
 }
 
 // The API's reason is a clause; the panel shows it as a sentence.
@@ -64,7 +71,7 @@ export function ruleCheckDisplay(c: CaseResponse): RuleCheckDisplay {
     return { kind: "line", text: R.addCodes(missing, noGood), addCodes: true };
   }
   if (rc.result.status === "decided") return { kind: "panel", rc };
-  if (rc.result.status === "out_of_scope") return { kind: "line", text: R.outOfScope, addCodes: false };
+  if (rc.result.status === "out_of_scope") return { kind: "line", text: outOfScopeText(rc.result.reason), addCodes: false };
   const missing = (rc.result.materials ?? []).filter((m) => m.status === "missing_hts").length;
   // No rule picked although the product has a code: the check stopped for
   // another reason, so the line names that reason (#552). The country of

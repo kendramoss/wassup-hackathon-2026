@@ -62,7 +62,8 @@ test("/method and /accuracy link the example; /method gives both held-out figure
   const src = (f) => readFileSync(new URL(`../src/components/op/screens/${f}`, import.meta.url), "utf8").replace(/\s+/g, " ");
   const method = src("method-page.tsx");
   assert.match(method, /href="\/examples\/rule-check"/);
-  assert.match(method, /7 of 29 \(6 agree\); 7 of 24 \(6 agree\) without the inputs that carried a code/);
-  assert.match(method, /8 of the 9 development decisions and 6 of the 7 held-out ones/);
+  // D461: the figures with the 17 encoded chapters.
+  assert.match(method, /14 of 29 \(13 agree\); 11 of 24 \(10 agree\) without the inputs that carried a code/);
+  assert.match(method, /15 of the 16 development decisions and 13 of the 14 held-out ones/);
   assert.match(src("accuracy-page.tsx"), /href="\/examples\/rule-check"/);
 });

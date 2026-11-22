@@ -113,7 +113,7 @@ func TestUndeterminedAndScope(t *testing.T) {
 		status string
 		reason string
 	}{
-		"out of scope": {Input{GoodHTS: "3926.90", Country: "Mexico", Materials: []Material{{Name: "resin", HTS: "3901.10", Origin: "China"}}}, OutOfScope, "not in the encoded chapters"},
+		"out of scope": {Input{GoodHTS: "6402.99", Country: "Mexico", Materials: []Material{{Name: "rubber sole", HTS: "4016.99", Origin: "China"}}}, OutOfScope, "not in the encoded chapters"},
 		"no code":      {Input{Country: "Mexico", Materials: []Material{{Name: "x", HTS: "7616", Origin: "China"}}}, Undetermined, "missing"},
 		"short code":   {Input{GoodHTS: "8504", Country: "Mexico", Materials: []Material{{Name: "x", HTS: "7616", Origin: "China"}}}, Undetermined, "too short"},
 		"no materials": {Input{GoodHTS: "8501.10", Country: "Mexico"}, Undetermined, "no materials"},

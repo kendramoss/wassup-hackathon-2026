@@ -55,7 +55,7 @@ func TestTableShape(t *testing.T) {
 	}
 	perChapter := map[string]int{}
 	for i, r := range tab.Rules {
-		got, err := ParseRange(r.HTS)
+		got, err := ParseRange(columnRange(r.HTS))
 		if err != nil || got != r.Applies {
 			t.Fatalf("rule %s: applies %v, parsed %v (%v)", r.HTS, r.Applies, got, err)
 		}
@@ -67,15 +67,20 @@ func TestTableShape(t *testing.T) {
 		if r.ID != wantID {
 			t.Fatalf("id %q, want %q", r.ID, wantID)
 		}
-		// Rows do not overlap.
+		// Rows do not overlap, except the two the eCFR prints for headings
+		// 4413-4421 (columnErrata).
 		for _, o := range tab.Rules[i+1:] {
+			if r.HTS == "4413-4421" && o.HTS == "4441-4421" {
+				continue
+			}
 			if o.Applies.Level() == r.Applies.Level() && o.Applies.Lo <= r.Applies.Hi && r.Applies.Lo <= o.Applies.Hi {
 				t.Fatalf("rules %s and %s overlap", r.HTS, o.HTS)
 			}
 		}
 	}
 	// Row counts read off the eCFR table by hand (as of 18 Nov 2026).
-	for ch, want := range map[string]int{"82": 5, "94": 10} {
+	for ch, want := range map[string]int{"82": 5, "94": 10,
+		"15": 6, "21": 11, "39": 5, "40": 14, "44": 4, "48": 13, "71": 13, "76": 4, "83": 9, "95": 7} {
 		if perChapter[ch] != want {
 			t.Errorf("chapter %s: %d rules, want %d", ch, perChapter[ch], want)
 		}

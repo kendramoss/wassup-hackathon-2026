@@ -5,7 +5,7 @@
    "source": "facts",
    "n": 72,
    "extracted": 70,
-   "out_of_scope": 5,
+   "out_of_scope": 2,
    "decided": 0,
    "agree_cbp": 0,
    "disagree_model": 0,
@@ -13,7 +13,7 @@
    "agree_cbp_if_not_de_minimis": 0,
    "disagree_model_if_not_de_minimis": 0,
    "undetermined_reasons": {
-    "a foreign material has no HTS code": 7,
+    "a foreign material has no HTS code": 10,
     "an origin or the country of production not given": 11,
     "extraction failed": 2,
     "no HTS code for the good": 47
@@ -24,32 +24,81 @@
    "source": "full_text",
    "n": 72,
    "extracted": 70,
-   "out_of_scope": 39,
-   "decided": 2,
-   "agree_cbp": 2,
+   "out_of_scope": 15,
+   "decided": 8,
+   "agree_cbp": 8,
    "agree_cbp_ci": [
-    34.2,
+    67.6,
     100
    ],
-   "disagree_model": 0,
-   "decided_if_not_de_minimis": 3,
-   "agree_cbp_if_not_de_minimis": 3,
-   "disagree_model_if_not_de_minimis": 0,
+   "disagree_model": 2,
+   "decided_if_not_de_minimis": 10,
+   "agree_cbp_if_not_de_minimis": 10,
+   "disagree_model_if_not_de_minimis": 2,
    "undetermined_reasons": {
-    "a foreign material has no HTS code": 16,
-    "a material needs a fact (condition or goods description)": 11,
-    "de minimis value not given": 1,
+    "a foreign material has no HTS code": 31,
+    "a material needs a fact (condition or goods description)": 12,
+    "de minimis value not given": 2,
     "extraction failed": 2,
-    "no HTS code for the good": 1
+    "no HTS code for the good": 1,
+    "other: more than one rule covers 4416.00.3010": 1
    },
-   "model_accuracy_on_decided": "2/2"
+   "model_accuracy_on_decided": "6/8"
   },
   {
    "split": "final",
    "source": "facts",
    "n": 32,
    "extracted": 32,
-   "out_of_scope": 6,
+   "out_of_scope": 2,
+   "decided": 1,
+   "agree_cbp": 1,
+   "agree_cbp_ci": [
+    20.7,
+    100
+   ],
+   "disagree_model": 0,
+   "decided_if_not_de_minimis": 1,
+   "agree_cbp_if_not_de_minimis": 1,
+   "disagree_model_if_not_de_minimis": 0,
+   "undetermined_reasons": {
+    "a foreign material has no HTS code": 5,
+    "an origin or the country of production not given": 8,
+    "no HTS code for the good": 16
+   },
+   "model_accuracy_on_decided": "1/1"
+  },
+  {
+   "split": "final",
+   "source": "full_text",
+   "n": 32,
+   "extracted": 30,
+   "out_of_scope": 7,
+   "decided": 4,
+   "agree_cbp": 4,
+   "agree_cbp_ci": [
+    51,
+    100
+   ],
+   "disagree_model": 0,
+   "decided_if_not_de_minimis": 4,
+   "agree_cbp_if_not_de_minimis": 4,
+   "disagree_model_if_not_de_minimis": 0,
+   "undetermined_reasons": {
+    "a foreign material has no HTS code": 13,
+    "a material needs a fact (condition or goods description)": 3,
+    "extraction failed": 2,
+    "no HTS code for the good": 2,
+    "no materials": 1
+   },
+   "model_accuracy_on_decided": "4/4"
+  },
+  {
+   "split": "final2",
+   "source": "facts",
+   "n": 13,
+   "extracted": 13,
+   "out_of_scope": 0,
    "decided": 0,
    "agree_cbp": 0,
    "disagree_model": 0,
@@ -58,50 +107,10 @@
    "disagree_model_if_not_de_minimis": 0,
    "undetermined_reasons": {
     "a foreign material has no HTS code": 2,
-    "an origin or the country of production not given": 8,
-    "no HTS code for the good": 16
-   }
-  },
-  {
-   "split": "final",
-   "source": "full_text",
-   "n": 32,
-   "extracted": 30,
-   "out_of_scope": 17,
-   "decided": 2,
-   "agree_cbp": 2,
-   "agree_cbp_ci": [
-    34.2,
-    100
-   ],
-   "disagree_model": 0,
-   "decided_if_not_de_minimis": 2,
-   "agree_cbp_if_not_de_minimis": 2,
-   "disagree_model_if_not_de_minimis": 0,
-   "undetermined_reasons": {
-    "a foreign material has no HTS code": 7,
-    "a material needs a fact (condition or goods description)": 2,
-    "extraction failed": 2,
-    "no HTS code for the good": 2
-   },
-   "model_accuracy_on_decided": "2/2"
-  },
-  {
-   "split": "final2",
-   "source": "facts",
-   "n": 13,
-   "extracted": 13,
-   "out_of_scope": 3,
-   "decided": 0,
-   "agree_cbp": 0,
-   "disagree_model": 0,
-   "decided_if_not_de_minimis": 0,
-   "agree_cbp_if_not_de_minimis": 0,
-   "disagree_model_if_not_de_minimis": 0,
-   "undetermined_reasons": {
-    "a foreign material has no HTS code": 1,
+    "a material needs a fact (condition or goods description)": 1,
     "an origin or the country of production not given": 4,
-    "no HTS code for the good": 5
+    "no HTS code for the good": 5,
+    "other: more than one rule covers 4421": 1
    }
   }
  ],

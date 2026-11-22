@@ -603,7 +603,12 @@ export const copy = {
     differs: (m: string) => `under the tariff-shift rules, from the codes given. The model said ${m || "something else"}: worth a broker's look.`,
     deMinimis: (country: string, o: string) => `open on value: ${country || "the country of production"} if the parts that do not shift are worth no more than 7% of the good, otherwise ${o}.`,
     undetermined: "not decided from the codes given; it needs a fact the codes cannot show.",
-    outOfScope: "not encoded for this product's chapter yet.",
+    // The chapters in backend/internal/tariffshift/rules.json (D360, D460);
+    // scripts/rule-check.test.mjs checks the two lists match.
+    chapters: ["15", "21", "39", "40", "44", "48", "71", "73", "76", "82", "83", "84", "85", "87", "90", "94", "95"],
+    outOfScope: (chapters: string[]) =>
+      `not encoded for this product's chapter. Encoded: chapters ${chapters.slice(0, -1).join(", ")} and ${chapters[chapters.length - 1]}.`,
+    outOfScopeTextile: "not encoded: a chapter note sends this code to the textile rules (19 CFR 102.21).",
     addCodes: (n: number, good: boolean) =>
       `add HTS codes for ${good ? "the product" : ""}${good && n ? " and " : ""}${n ? `${n} part${n === 1 ? "" : "s"}` : ""} to run it.`,
     addCodesLink: "Add codes",

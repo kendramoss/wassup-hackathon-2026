@@ -554,6 +554,8 @@ Source: `eval/results/repeatability-heldout-litellm.json`, built by `python3 -I 
 
 **Not done.** The full text of the 13 final2 rulings was not run (raw texts not available locally). Chapters outside the seven, textile rules (102.21), 102.11(c) and (d), and USMCA qualification are not encoded. Source: `eval/tariffshift/summary.json`, recomputed by `cd backend && go run ./cmd/tariffshift eval -check` (in `make reproduce`). Extraction cost $2.58 gateway-reported.
 
+**Ten more chapters (D460, D461).** The figures above are for the seven chapters as first encoded. With ten more chapters the full text decides 8 of 72 development and 4 of 32 held-out rulings, all as CBP held, and the facts 1 of 117; see §13.
+
 **Parser fix after the freeze (D412, #550, #551).** Two encoding errors were fixed after these runs: a trailing limitation on 8481.10–8481.80 and 8716.10–8716.80 now limits only the source it follows, and exception lists split at "or from" without a comma (9002, 9030.89, 9030.90, 8485). Both offline evaluations were re-run on the committed extractions before and after the fix; the numbers above and in §10 are unchanged, because no committed ruling has a good in those rows.
 
 ## 10. HTS codes suggested for each part, and the rule check they unlock (22 Nov 2026, D380-D382)
@@ -579,6 +581,8 @@ Source: `eval/results/repeatability-heldout-litellm.json`, built by `python3 -I 
 **Correction after the freeze (D413, #576).** The code stripper let HTS numbers into 5 held-out and 4 dev inputs; one, held-out N363600, kept the importer's full code, and the model proposed it for the good. Without those products the held-out row "top suggestion for the good and every part" is 7 of 24 decided, 6 agree (8 of 29, 7 agree, as run); the row with CBP's good code is unchanged (7 of 24, 6 agree); the held-out good's top-1 / top-3 is 12 / 12 of 23 (14 / 15 of 27 as run). The stripper is fixed and `parts/summary.json` lists the affected products and the counts without them. The held-out run was not re-run.
 
 **Robustness over the suggested codes (D430, after the freeze, no model calls).** Each decision above was re-checked over every combination of each part's top-3 suggested codes (past 81 combinations, a deterministic sample of 81). With CBP's code for the good, 8 of the 9 development decisions and 6 of the 7 held-out ones give the same answer under every code, and every one of those 14 agrees with CBP. The held-out decision that disagrees with CBP, N358639, is the one that depends on a part's code (the steel pipes); in development N338219 depends on its castings' codes and still agrees as run. With the suggested code for the good: development 9 of 10 (8 agree), held-out 6 of 8 (6 agree). "Same answer" does not mean right: all three codes can be wrong the same way. This is a new figure on the held-out rows, computed from the committed suggestions only; nothing was re-run or tuned. Source: `robustness` in `eval/tariffshift/parts/summary.json`.
+
+**Ten more chapters (D460, D461).** The rule-check rows above are for the seven chapters as first encoded. With ten more chapters, CBP's good code and the suggested part codes decide 16 of 69 development rulings (16 agree) and 14 of 29 held-out ones (13 agree); see §13.
 
 **Not done.** The live CROSS search for the good and the USITC check of model codes, which production adds, were not part of the evaluation. final2 has no full text locally, so it has no gold. Source: `eval/tariffshift/parts/summary.json`, recomputed by `cd backend && go run ./cmd/tariffshift parts-eval -check` (in `make reproduce`). Cost $1.42 gateway-reported.
 
@@ -637,3 +641,24 @@ Source: `eval/results/repeatability-heldout-litellm.json`, built by `python3 -I 
 **Not an accuracy figure.** `predict_origin` agreed with CBP on all 12, but each product comes from a ruling that is in the precedent pool. The engine retrieved the product's own ruling in all 12 runs and the agent named it in all 12 answers. Engine accuracy is the held-out rows in §1–§6.
 
 **Not done.** One run per product, so nothing here says how often a run repeats. The agent's instruction was not changed after the run. Products a13 and a14 ran only in the plumbing run. The tools' own model calls ran on Unde's side and are not in the cost. Source: `eval/agent/summary.json` and `eval/agent/SUMMARY.md`, recomputed by `python3 -I -B eval/agent/score.py . --check` (in `make reproduce`) from `eval/agent/results/*.jsonl`.
+
+## 13. Ten more chapters in the rule check (22 Nov 2026, D460, D461)
+
+**What changed (built).** The rule check of §9 encoded chapters 73, 82, 84, 85, 87, 90 and 94. It now also encodes 15 (fats and oils), 21 (food preparations), 39 (plastics), 40 (rubber), 44 (wood), 48 (paper), 71 (jewellery), 76 (aluminium), 83 (miscellaneous base metal) and 95 (toys, games and sports goods). They were picked before any re-run, from development and earlier data only: every chapter outside the seven with at least 4 goods among the 69 development rulings with CBP's code and the 126 earlier labelled Part 102 rulings whose facts give a code (`eval/tariffshift/chapter-counts.json`). The text is the same eCFR edition; the seven earlier chapters come out unchanged. 446 rows, 408 of 633 alternatives encoded (was 360 rows, 332 of 515). The 42 new alternatives not encoded describe goods in words or set a content proviso: all of toys of 9503, most paper of 4811 and 4823.90, plastic sheet of 3920-3921, and wood of 4413-4421, where the eCFR prints two rows and the check will not pick one.
+
+**How it was tested.** Pre-registered in D460. Unit tests check row counts per chapter, hand-checked encodings and 25 worked examples in the new chapters (`chapters_test.go`). Then the same offline evaluations as §9, §10 and §11, on the committed extractions and suggestions, no model calls: development first, then the code was frozen and the held-out rows were computed once.
+
+| Evaluation | Run | 7 chapters | 17 chapters |
+|---|---|---:|---:|
+| §9, facts: decided of n | dev / final / final2 | 0 of 72 / 0 of 32 / 0 of 13 | 0 / 1 (agrees) / 0 |
+| §9, full ruling text: decided (agree with CBP) | dev, n = 72 | 2 (2) | 8 (8) |
+| §9, full ruling text: decided (agree with CBP) | final (held out), n = 32 | 2 (2) | 4 (4) |
+| §10, CBP's good code, top part suggestions | dev, n = 69 | 9 (9) | 16 (16) |
+| §10, CBP's good code, top part suggestions | final (held out), n = 29 | 7 (6) | 14 (13) |
+| §10, top suggestion for the good and every part | dev / final | 10 (9) / 8 (7) | 17 (16) / 15 (14) |
+| §10, same answer under every suggested code (CBP's good code) | dev / final | 8 of 9 / 6 of 7 | 15 of 16 / 13 of 14 |
+| §11, plan moves decided | 57 moves | 25 | 25 |
+
+**What it shows.** Where part codes are given, coverage about doubles and agreement with CBP holds. No ruling changed its answer, and there is no new disagreement with CBP: the held-out one is still N358639 (chapter 87), which depends on a part's code. On the development full text the check now disagrees with the model on 2 rulings, both times agreeing with CBP (N341152, a pouch with a spout; N352059, self-copy paper). The facts still give almost no codes: the one held-out decision from them needs no tariff shift, because every material is from Canada. Plan moves do not change, because the families' goods were already in the seven chapters. Cells are small (n of 4 to 16 decided) and the suggested codes are unverified, so this widens a cross-check; it is not a measured accuracy.
+
+**Not done.** Chapters with fewer than 4 goods in the data (for example 38, 70, 72, 96), textile rules (102.21), 102.11(c) and (d), and the described sentences are not encoded. Sources: `eval/tariffshift/summary.json`, `eval/tariffshift/parts/summary.json`, `eval/tariffshift/plans/summary.json`, `eval/tariffshift/chapter-counts.json`, recomputed by `make reproduce`. Cost $0.

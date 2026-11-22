@@ -804,3 +804,17 @@ Total $0.97 promo / $1.95 list. The engine's view of the current setup disagreed
 - Misses: a06 (a predict call refused by input validation, then retried: no second case, but the rule counts calls) and a03 (a current-setup draft without `plan_index` after the plan search found no plan: allowed by the tool, not by the rule). Hand reading: a03's answer claims a move to Vietnam would work although the plan search supported none; a04 and a10 drafted twice (plan_index 1, then 0).
 - `predict_origin` agreed with CBP 12/12, which is not accuracy: each product's own ruling is in the precedent pool and was retrieved in all 12.
 - Rows: `agent/results/`. `python3 -I -B eval/agent/score.py . --check` recomputes `agent/summary.json` and `agent/SUMMARY.md` (in `make reproduce`). RUNLOG `adk-agent-eval-live`.
+
+## Ten more chapters in the 19 CFR 102.20 rule check (no model calls, 22 Nov; D460, D461)
+
+### Pre-registered in D460 (with the code, commit a105546a; chapter counts adbf8a2f), before any evaluation was re-run
+- Chapters picked from development and earlier data only (`tariffshift/chapter-counts.json`): every chapter outside the first seven with at least 4 goods among 195 coded goods. Added 15, 21, 39, 40, 44, 48, 71, 76, 83, 95. 446 rows, 408 of 633 alternatives encoded (was 360, 332 of 515).
+- Development computed first, in a copy of the tree without the held-out files: no encoding error, nothing changed. Frozen at adbf8a2f (branch `improve/p9-chapters-freeze`); every split then computed once.
+
+### Results, 7 chapters before, 17 after
+- D362 (committed extractions): facts dev 0 / 0, final 0 / 1 (H355020, 102.11(a)(2), agrees), final2 0 / 0 decided; full text dev 2 (2) / 8 (8), final 2 (2) / 4 (4).
+- D382 (committed suggestions): CBP's stated codes dev 2 / 8, final 2 / 4; CBP's good code with top part suggestions dev 9 (9) / 16 (16), final 7 (6) / 14 (13); top suggestion for everything dev 10 (9) / 17 (16), final 8 (7) / 15 (14).
+- D430 robustness, same answer under every suggested code: CBP's good code dev 8 of 9 / 15 of 16, final 6 of 7 / 13 of 14; suggested good dev 9 of 10 / 16 of 17, final 6 of 8 / 13 of 15. Depends on a part's code: N338219, N358639, N364328, as before.
+- D442 plan moves: unchanged (25 of 57 decided).
+- No new disagreement with CBP; no ruling changed its answer. New: the check differs from the model on dev N341152 and N352059, agreeing with CBP on both.
+- `cd backend && go run ./cmd/tariffshift eval -check`, `parts-eval -check`, `plans-eval -check`; `python3 -I -B eval/tariffshift/chapter_counts.py . --check` (all in `make reproduce`). RUNLOG `tariffshift-chapters-*`, $0.

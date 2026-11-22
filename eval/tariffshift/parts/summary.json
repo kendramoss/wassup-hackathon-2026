@@ -36,22 +36,23 @@
     {
      "input": "CBP's code for the good, CBP's stated part codes (D362 full text, for reference)",
      "n": 3,
-     "out_of_scope": 1,
+     "out_of_scope": 0,
      "decided": 0,
      "agree_cbp": 0,
      "undetermined_reasons": {
-      "a foreign material has no HTS code": 1,
+      "a foreign material has no HTS code": 2,
       "a material needs a fact (condition or goods description)": 1
      }
     },
     {
      "input": "CBP's code for the good, top suggestion for every part",
      "n": 3,
-     "out_of_scope": 1,
+     "out_of_scope": 0,
      "decided": 1,
      "agree_cbp": 1,
      "undetermined_reasons": {
-      "a foreign material has no HTS code": 1
+      "a foreign material has no HTS code": 1,
+      "de minimis value not given": 1
      },
      "decided_rulings": [
       "N337260"
@@ -70,10 +71,12 @@
     {
      "input": "top suggestion for the good and every part",
      "n": 3,
-     "out_of_scope": 2,
+     "out_of_scope": 1,
      "decided": 1,
      "agree_cbp": 1,
-     "undetermined_reasons": {},
+     "undetermined_reasons": {
+      "de minimis value not given": 1
+     },
      "decided_rulings": [
       "N337260"
      ],
@@ -126,82 +129,101 @@
     {
      "input": "CBP's code for the good, CBP's stated part codes (D362 full text, for reference)",
      "n": 69,
-     "out_of_scope": 38,
-     "decided": 2,
-     "agree_cbp": 2,
+     "out_of_scope": 14,
+     "decided": 8,
+     "agree_cbp": 8,
      "undetermined_reasons": {
-      "a foreign material has no HTS code": 16,
-      "a material needs a fact (condition or goods description)": 11,
-      "de minimis value not given": 1,
-      "no HTS code for the good": 1
+      "a foreign material has no HTS code": 31,
+      "a material needs a fact (condition or goods description)": 12,
+      "de minimis value not given": 2,
+      "no HTS code for the good": 1,
+      "other: more than one rule covers 4416.00.3010": 1
      },
      "decided_rulings": [
+      "N341152",
       "N344091",
-      "N344002"
+      "N344002",
+      "H341208",
+      "N351895",
+      "N352059",
+      "N352583",
+      "N353285"
      ],
      "without_input_codes": {
       "n": 65,
-      "out_of_scope": 36,
-      "decided": 2,
-      "agree_cbp": 2
+      "out_of_scope": 14,
+      "decided": 8,
+      "agree_cbp": 8
      }
     },
     {
      "input": "CBP's code for the good, top suggestion for every part",
      "n": 69,
-     "out_of_scope": 38,
-     "decided": 9,
-     "agree_cbp": 9,
+     "out_of_scope": 14,
+     "decided": 16,
+     "agree_cbp": 16,
      "undetermined_reasons": {
       "a foreign material has no HTS code": 1,
-      "a material needs a fact (condition or goods description)": 14,
-      "de minimis value not given": 5,
+      "a material needs a fact (condition or goods description)": 21,
+      "de minimis value not given": 12,
       "no HTS code for the good": 1,
-      "other: centrifugal fan do not shift and their origin is not given": 1
+      "other: base plates do not shift and their origin is not given": 1,
+      "other: centrifugal fan do not shift and their origin is not given": 1,
+      "other: more than one rule covers 4416.00.3010": 1,
+      "other: post legs, post arms, bases, TSB (track supporting beam), drive beam (track), wings do not shift and their origin is not given": 1
      },
      "decided_rulings": [
       "H333407",
       "N338219",
       "N341003",
+      "N341152",
       "N344091",
       "N343893",
       "N344002",
       "N350133",
+      "N351895",
       "N352763",
-      "N354024"
+      "N352583",
+      "N352810",
+      "N352871",
+      "N354024",
+      "N353285",
+      "N355127"
      ],
      "without_input_codes": {
       "n": 65,
-      "out_of_scope": 36,
-      "decided": 8,
-      "agree_cbp": 8
+      "out_of_scope": 14,
+      "decided": 14,
+      "agree_cbp": 14
      },
      "robustness": {
-      "decided": 9,
-      "stable": 8,
-      "stable_agree_cbp": 8,
+      "decided": 16,
+      "stable": 15,
+      "stable_agree_cbp": 15,
       "depends_rulings": [
        "N338219: the answer depends on the code for Cover Casting, Main Board Casting (16 combinations)"
       ],
       "sampled": 4,
       "max_combinations_evaluated": 81,
       "without_input_codes": {
-       "decided": 8,
-       "stable": 7,
-       "stable_agree_cbp": 7
+       "decided": 14,
+       "stable": 13,
+       "stable_agree_cbp": 13
       }
      }
     },
     {
      "input": "top suggestion for the good and every part",
      "n": 69,
-     "out_of_scope": 38,
-     "decided": 10,
-     "agree_cbp": 9,
+     "out_of_scope": 15,
+     "decided": 17,
+     "agree_cbp": 16,
      "undetermined_reasons": {
-      "a material needs a fact (condition or goods description)": 15,
-      "de minimis value not given": 5,
-      "other: centrifugal fan do not shift and their origin is not given": 1
+      "a material needs a fact (condition or goods description)": 23,
+      "de minimis value not given": 11,
+      "other: base plates do not shift and their origin is not given": 1,
+      "other: centrifugal fan do not shift and their origin is not given": 1,
+      "other: more than one rule covers 4416.00.00": 1
      },
      "decided_rulings": [
       "H333407",
@@ -209,34 +231,41 @@
       "N338502",
       "N340017",
       "N341003",
+      "N341152",
       "N344091",
       "N344002",
       "N350133",
+      "N351895",
       "N352763",
-      "N354024"
+      "N352583",
+      "N352810",
+      "N352871",
+      "N354024",
+      "N353285",
+      "N355127"
      ],
      "disagree_cbp_rulings": [
       "N340017: Mexico"
      ],
      "without_input_codes": {
       "n": 65,
-      "out_of_scope": 36,
-      "decided": 10,
-      "agree_cbp": 9
+      "out_of_scope": 15,
+      "decided": 16,
+      "agree_cbp": 15
      },
      "robustness": {
-      "decided": 10,
-      "stable": 9,
-      "stable_agree_cbp": 8,
+      "decided": 17,
+      "stable": 16,
+      "stable_agree_cbp": 15,
       "depends_rulings": [
        "N338219: the answer depends on the code for Cover Casting, Main Board Casting (16 combinations)"
       ],
       "sampled": 4,
       "max_combinations_evaluated": 81,
       "without_input_codes": {
-       "decided": 10,
-       "stable": 9,
-       "stable_agree_cbp": 8
+       "decided": 16,
+       "stable": 15,
+       "stable_agree_cbp": 14
       }
      }
     }
@@ -326,104 +355,122 @@
     {
      "input": "CBP's code for the good, CBP's stated part codes (D362 full text, for reference)",
      "n": 29,
-     "out_of_scope": 16,
-     "decided": 2,
-     "agree_cbp": 2,
+     "out_of_scope": 7,
+     "decided": 4,
+     "agree_cbp": 4,
      "undetermined_reasons": {
-      "a foreign material has no HTS code": 7,
-      "a material needs a fact (condition or goods description)": 2,
+      "a foreign material has no HTS code": 13,
+      "a material needs a fact (condition or goods description)": 3,
       "no HTS code for the good": 2
      },
      "decided_rulings": [
+      "H355020",
       "N360891",
-      "N362506"
+      "N362506",
+      "N364405"
      ],
      "without_input_codes": {
       "n": 24,
-      "out_of_scope": 12,
-      "decided": 2,
-      "agree_cbp": 2
+      "out_of_scope": 7,
+      "decided": 3,
+      "agree_cbp": 3
      }
     },
     {
      "input": "CBP's code for the good, top suggestion for every part",
      "n": 29,
-     "out_of_scope": 16,
-     "decided": 7,
-     "agree_cbp": 6,
+     "out_of_scope": 7,
+     "decided": 14,
+     "agree_cbp": 13,
      "undetermined_reasons": {
       "a foreign material has no HTS code": 2,
       "a material needs a fact (condition or goods description)": 2,
+      "de minimis value not given": 2,
       "no HTS code for the good": 2
      },
      "decided_rulings": [
+      "N357063",
+      "H355020",
+      "N357770",
       "N357951",
       "N359145",
       "N358639",
       "N359690",
       "N360891",
+      "N361217",
+      "N362347",
       "N362414",
-      "N364328"
+      "N364328",
+      "N364405",
+      "N364586"
      ],
      "disagree_cbp_rulings": [
       "N358639: Mexico"
      ],
      "without_input_codes": {
       "n": 24,
-      "out_of_scope": 12,
-      "decided": 7,
-      "agree_cbp": 6
+      "out_of_scope": 7,
+      "decided": 11,
+      "agree_cbp": 10
      },
      "robustness": {
-      "decided": 7,
-      "stable": 6,
-      "stable_agree_cbp": 6,
+      "decided": 14,
+      "stable": 13,
+      "stable_agree_cbp": 13,
       "depends_rulings": [
        "N358639: the answer depends on the code for steel pipes (12 combinations)"
       ],
       "sampled": 3,
       "max_combinations_evaluated": 81,
       "without_input_codes": {
-       "decided": 7,
-       "stable": 6,
-       "stable_agree_cbp": 6
+       "decided": 11,
+       "stable": 10,
+       "stable_agree_cbp": 10
       }
      }
     },
     {
      "input": "top suggestion for the good and every part",
      "n": 29,
-     "out_of_scope": 15,
-     "decided": 8,
-     "agree_cbp": 7,
+     "out_of_scope": 6,
+     "decided": 15,
+     "agree_cbp": 14,
      "undetermined_reasons": {
       "a foreign material has no HTS code": 2,
       "a material needs a fact (condition or goods description)": 3,
+      "de minimis value not given": 2,
       "other: fork pockets, pivoting boom do not shift and their origin is not given": 1
      },
      "decided_rulings": [
+      "N357063",
+      "H355020",
+      "N357770",
       "N357951",
       "N359145",
       "N358639",
       "N359690",
       "N360891",
+      "N361217",
+      "N362347",
       "N362414",
       "N363600",
-      "N364328"
+      "N364328",
+      "N364405",
+      "N364586"
      ],
      "disagree_cbp_rulings": [
       "N358639: Mexico"
      ],
      "without_input_codes": {
       "n": 24,
-      "out_of_scope": 11,
-      "decided": 7,
-      "agree_cbp": 6
+      "out_of_scope": 6,
+      "decided": 11,
+      "agree_cbp": 10
      },
      "robustness": {
-      "decided": 8,
-      "stable": 6,
-      "stable_agree_cbp": 6,
+      "decided": 15,
+      "stable": 13,
+      "stable_agree_cbp": 13,
       "depends_rulings": [
        "N358639: the answer depends on the code for steel pipes (12 combinations)",
        "N364328: the answer depends on the code for plastic locking mechanisms, plastic end caps (24 combinations)"
@@ -431,9 +478,9 @@
       "sampled": 3,
       "max_combinations_evaluated": 81,
       "without_input_codes": {
-       "decided": 7,
-       "stable": 5,
-       "stable_agree_cbp": 5
+       "decided": 11,
+       "stable": 9,
+       "stable_agree_cbp": 9
       }
      }
     }
