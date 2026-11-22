@@ -230,6 +230,23 @@ function CreatedLink({ link, expires }: { link: string; expires: string }) {
 function ReviewRow({ r, open, canRevoke, onRevoke }: { r: ReviewSummary; open: boolean; canRevoke: boolean; onRevoke: () => Promise<void> }) {
   const [confirming, setConfirming] = useState(false);
   const [busy, setBusy] = useState(false);
+  // #606: focus the safe action on open, keep Tab local, and return focus to
+  // the Revoke link trigger when the confirmation is cancelled.
+  const revokeActionRef = useRef<HTMLButtonElement>(null);
+  const keepRef = useRef<HTMLButtonElement>(null);
+  const restoreFocusRef = useRef(false);
+  useEffect(() => {
+    if (confirming) {
+      restoreFocusRef.current = true;
+      keepRef.current?.focus();
+    } else if (restoreFocusRef.current && typeof document !== "undefined") {
+      restoreFocusRef.current = false;
+      [...document.querySelectorAll<HTMLButtonElement>("button[data-revoke-trigger]")]
+        .find((button) => button.dataset.revokeTrigger === r.id)
+        ?.focus();
+    }
+  }, [confirming, r.id]);
+  const cancelConfirm = () => setConfirming(false);
   const status = effectiveStatus(r);
   const s = statusLabel(status);
   const live = isActive(r);
@@ -263,9 +280,34 @@ function ReviewRow({ r, open, canRevoke, onRevoke }: { r: ReviewSummary; open: b
       {live && canRevoke && (
         <div className="mt-2">
           {confirming ? (
-            <div role="group" aria-label="Confirm revoking this link" className="flex flex-wrap items-center gap-2 border border-dashed border-ask-line px-3 py-2">
+            <div
+              role="group"
+              aria-label="Confirm revoking this link"
+              className="flex flex-wrap items-center gap-2 border border-dashed border-ask-line px-3 py-2"
+              onKeyDown={(e) => {
+                if (e.key === "Escape") {
+                  e.preventDefault();
+                  e.nativeEvent.stopImmediatePropagation();
+                  cancelConfirm();
+                  return;
+                }
+                if (e.key !== "Tab" || !revokeActionRef.current || !keepRef.current) return;
+                const first = revokeActionRef.current;
+                const last = keepRef.current;
+                if (e.shiftKey && document.activeElement === first) {
+                  e.preventDefault();
+                  e.nativeEvent.stopImmediatePropagation();
+                  last.focus();
+                } else if (!e.shiftKey && document.activeElement === last) {
+                  e.preventDefault();
+                  e.nativeEvent.stopImmediatePropagation();
+                  first.focus();
+                }
+              }}
+            >
               <span className="text-[12.5px]">Revoke this link? The broker can no longer open it.</span>
               <Button
+                ref={revokeActionRef}
                 variant="ghost"
                 className="min-h-8 px-3 py-1 text-[12.5px]"
                 disabled={busy}
@@ -273,17 +315,23 @@ function ReviewRow({ r, open, canRevoke, onRevoke }: { r: ReviewSummary; open: b
                   setBusy(true);
                   await onRevoke();
                   setBusy(false);
+                  restoreFocusRef.current = false;
                   setConfirming(false);
                 }}
               >
                 {busy ? "Revoking…" : "Revoke"}
               </Button>
-              <Button variant="ghost" className="min-h-8 px-3 py-1 text-[12.5px]" disabled={busy} onClick={() => setConfirming(false)}>
+              <Button ref={keepRef} variant="ghost" className="min-h-8 px-3 py-1 text-[12.5px]" disabled={busy} onClick={cancelConfirm}>
                 Keep it
               </Button>
             </div>
           ) : (
-            <Button variant="ghost" className="min-h-8 px-3 py-1 text-[12.5px]" onClick={() => setConfirming(true)}>
+            <Button
+              variant="ghost"
+              className="min-h-8 px-3 py-1 text-[12.5px]"
+              data-revoke-trigger={r.id}
+              onClick={() => setConfirming(true)}
+            >
               Revoke link
             </Button>
           )}
