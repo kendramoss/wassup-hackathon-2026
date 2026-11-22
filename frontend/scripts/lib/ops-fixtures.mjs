@@ -89,7 +89,7 @@ export const product = {
 };
 
 export const caseJson = (extra = {}) => ({
-  id: "c1", facts: "f", step: "plan", date: "2026-01-01", display_name: "Heat gun",
+  id: "c1", facts: "f", step: "plan", date: "2026-01-01", display_name: "Heat gun", family: "motorised_tools_small_appliances",
   prediction: { origin_country: "China", confidence: 0.97 }, triage: { route: "auto", reason: "confidence 0.97 >= 0.92 and in scope" },
   product, economics: { illustrative: true, annual_import_value_usd: 2000000, duty_rates: { China: 0.417, Thailand: 0.167 } }, ...extra,
 });

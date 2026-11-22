@@ -191,7 +191,7 @@ test("plan run 409: the existing conflict message and a re-run, no automatic ret
   const app = await mount(PlanStep, caseJson({ plan: undefined }), (u, m) => (m === "POST" && u.endsWith("/plan") ? json({ code: "conflict", message: "the case changed while this ran; run it again" }, 409) : null));
   await app.btn("Search moves to").props.onClick();
   await app.flush();
-  assert.match(flatText(app), /the case changed while this ran/);
+  assert.match(flatText(app), /the case changed while this ran/i);
   assert.equal(app.calls.filter((x) => x.m === "POST" && x.u.endsWith("/plan")).length, 1);
   assert.ok(app.btn("Try again"), "offers a re-run");
 });
@@ -239,7 +239,7 @@ test("compare 409 is the existing conflict pattern", async () => {
   const app = await mount(CompareView, caseJson({ targets: { ranked: ranked(move()) } }), (u, m) => (m === "POST" && u.endsWith("/compare-targets") ? json({ code: "conflict", message: "the case changed while this ran" }, 409) : null));
   await app.btn("Compare again").props.onClick();
   await app.flush();
-  assert.match(flatText(app), /the case changed while this ran/);
+  assert.match(flatText(app), /the case changed while this ran/i);
   assert.ok(app.btn("Try again"));
 });
 

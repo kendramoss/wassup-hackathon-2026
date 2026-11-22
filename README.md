@@ -53,7 +53,7 @@ What one such decision looks like in numbers (time, cost and duty, each sourced 
 ## Why it matters
 
 - **Duty:** for our demo heat gun, China vs Thailand origin is about a **25-point** difference in duty. Unde uses live U.S. rates, including Section 301 duties, for every HTS line.
-- **Time:** CBP estimates **20 hours** of preparation per ruling request, and recent origin rulings took a median of **21 days**. Unde gives a first, non-binding answer: one origin prediction takes 4.6 s (median; 5.7 s for 95%), and origin, plan and draft together take about a minute (estimated, not measured). The binding answer still comes from CBP.
+- **Time:** CBP estimates **20 hours** of preparation per ruling request, and recent origin rulings took a median of **21 days**. Unde gives a first, non-binding answer: one origin prediction takes 4.6 s (median; 5.7 s for 95%), and a full plan search took 33 s on the recorded heat-gun run (a median of 49 s, slowest 101 s, across six live checks on other products, one run each). The binding answer still comes from CBP.
 - **Risk:** moving production and still getting China origin is the costly mistake. Every plan is checked against past rulings, including ones where a similar change did *not* work.
 
 ## Other features

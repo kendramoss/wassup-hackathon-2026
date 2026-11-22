@@ -44,7 +44,7 @@ export const copy = {
       // A pinned demo read from CBP's text alone has no parts list to plan.
       originOnly: "Origin only: CBP's text, no parts list to plan",
       selection:
-        "The four newest demos were picked by family, not by result: the first per-family check for vehicle parts, PCBA devices, power supplies and medical devices. Across all 23 per-family checks the engine disagreed with CBP's holding on 7.",
+        "The four newest demos were picked by family, not by result: the first per-family check for vehicle parts, PCBA devices, power supplies and medical devices. Across all 29 per-family checks, D171's 23 and D661's six live checks, the engine disagreed with CBP's holding on the current setup in 8.",
     },
     columns: ["Product", "Likely origin", "Status", "Ruling watch", "Scenarios", "Where you left off"],
     notAnalysed: "Not analysed yet",
@@ -419,9 +419,9 @@ export const copy = {
           label: "Preparing the question",
           before: "20 hours",
           beforeNote: "per ruling request, CBP's estimate (all ruling subjects)",
-          after: "about a minute",
-          afterNote: "estimated, not measured: origin, plan and draft for this case",
-          ratio: 1 / 1200,
+          after: "33 s",
+          afterNote: "measured: the recorded heat-gun plan search, current origin and every move; median 49 s (slowest 101 s) across six live plan checks on other products",
+          ratio: 33 / (20 * 3600),
         },
         {
           label: "Waiting for an answer",
