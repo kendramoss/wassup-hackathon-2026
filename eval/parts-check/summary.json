@@ -38,9 +38,67 @@
     "wrong_not_flagged": 13,
     "gold_part_top1_flagged": 0
    }
+  },
+  "final": {
+   "usmca": {
+    "products": 29,
+    "parts": 245,
+    "candidates": 424,
+    "flagged": 5,
+    "flagged_far_from_family": 0,
+    "flagged_far_from_product_chapter": 5,
+    "flagged_material": 0,
+    "parts_with_every_code_flagged": 3,
+    "gold_parts": 3,
+    "gold_part_candidates": 4,
+    "gold_part_candidates_wrong": 2,
+    "gold_part_candidates_flagged": 0,
+    "flagged_and_wrong": 0,
+    "flagged_but_right": 0,
+    "wrong_not_flagged": 2,
+    "gold_part_top1_flagged": 0
+   }
   }
  },
- "flagged": {},
+ "flagged": {
+  "final": [
+   {
+    "ruling": "N359001",
+    "set": "usmca",
+    "part": "nuts",
+    "hts": "1704.90.10",
+    "note": "Chapter 17 (sugars and sugar confectionery) is far from the product's chapter 84; check this code."
+   },
+   {
+    "ruling": "N359001",
+    "set": "usmca",
+    "part": "nuts",
+    "hts": "1704.90.10",
+    "note": "Chapter 17 (sugars and sugar confectionery) is far from the product's chapter 84; check this code."
+   },
+   {
+    "ruling": "N359001",
+    "set": "usmca",
+    "part": "nuts",
+    "hts": "2008.11.60",
+    "note": "Chapter 20 (vegetable and fruit preparations) is far from the product's chapter 84; check this code."
+   },
+   {
+    "ruling": "N359001",
+    "set": "usmca",
+    "part": "nuts",
+    "hts": "2008.11.60",
+    "note": "Chapter 20 (vegetable and fruit preparations) is far from the product's chapter 84; check this code."
+   },
+   {
+    "ruling": "N359001",
+    "set": "usmca",
+    "part": "temperature transmitters",
+    "hts": "2106.90",
+    "note": "Chapter 21 (miscellaneous food preparations) is far from the product's chapter 84; check this code."
+   }
+  ]
+ },
  "families": {
   "H304679": "led_lights",
   "H339955": "water_filters",
