@@ -22,7 +22,12 @@ const reflowPath = `/cases/${reflowId}/scenarios`;
 const draftPath = `/cases/${reflowId}/draft`;
 const newCasePath = "/cases/new";
 const paths = args.filter((a) => a.startsWith("/"));
-if (paths.length === 0) paths.push("/", "/cases", "/accuracy", "/triage", newCasePath, draftPath, "/examples/rule-check");
+if (paths.length === 0) {
+  paths.push("/", "/cases", "/accuracy", "/triage", newCasePath, draftPath, "/examples/rule-check");
+  // #596: the judge-tour entry to that example has a query string; checking
+  // it by default also covers the file-safe screenshot slug on Windows.
+  paths.push("/examples/rule-check?tour=1&from=case_878d76540b91");
+}
 const out = ".ui-check";
 
 const viewports = { desktop: { width: 1280, height: 860 }, mobile: { width: 390, height: 844 }, narrow: { width: 320, height: 720 } };
@@ -77,7 +82,9 @@ for (const scheme of ["light", "dark"]) {
       await page.goto(base + path, { waitUntil: "networkidle" });
       // Hide the Next.js dev-mode badge so it doesn't show up in screenshots.
       await page.addStyleTag({ content: "nextjs-portal { display: none !important; }" });
-      const name = path === "/" ? "home" : path.slice(1).replace(/\//g, "-");
+      // #596: query-string paths contain ?/&/=, which are invalid in Windows
+      // filenames. Keep a readable slug made only of file-safe characters.
+      const name = (path === "/" ? "home" : path.slice(1)).replace(/[^A-Za-z0-9_-]+/g, "-").replace(/^-+|-+$/g, "") || "page";
       await page.screenshot({ path: `${out}/${name}-${vp}-${scheme}.png`, fullPage: true });
 
       const overflow = await page.evaluate(() => document.documentElement.scrollWidth > window.innerWidth);
