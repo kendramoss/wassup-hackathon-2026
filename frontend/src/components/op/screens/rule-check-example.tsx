@@ -52,14 +52,14 @@ export function RuleCheckExample() {
           {E.product}
         </h2>
         <p className="read text-[17px]">{ex.product}</p>
-        <dl className="duo mt-2 grid grid-cols-[max-content_minmax(0,1fr)] gap-x-4 gap-y-1 text-[13px]">
+        <dl className="duo mt-2 grid grid-cols-1 gap-x-4 gap-y-1 text-[13px] sm:grid-cols-[max-content_minmax(0,1fr)]">
           <dt className="text-dim">{E.madeIn}</dt>
           <dd>
             <Country name={ex.country} />
           </dd>
           <dt className="text-dim">{E.goodCode}</dt>
           <dd>
-            <span className="tabular-nums">{ex.good_hts}</span>{" "}
+            <span className="tabular-nums [overflow-wrap:anywhere]">{ex.good_hts}</span>{" "}
             <span className="text-dim">
               ({E.fromRuling} <RulingLink id={ex.ruling} />, {ex.date})
             </span>
