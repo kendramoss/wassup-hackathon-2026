@@ -2,6 +2,7 @@
  "compare_targets": {
   "case_id": "\u003cid\u003e",
   "disclaimer": "Not a ruling. Confirm with a licensed customs broker or a CBP binding ruling.",
+  "jurisdiction": "us",
   "llm_provider": "fake",
   "model_ids": {
    "engine": "gemini-4-argon",
@@ -168,6 +169,14 @@
    }
   ],
   "id": "\u003cid\u003e",
+  "jurisdiction": "us",
+  "jurisdiction_detail": {
+   "code": "us",
+   "follow_ups": true,
+   "name": "United States",
+   "source": "default",
+   "supported": true
+  },
   "llm_provider": "fake",
   "model_ids": {
    "engine": "gemini-4-argon",
@@ -1413,6 +1422,7 @@
  "plan_json": {
   "case_id": "\u003cid\u003e",
   "disclaimer": "Not a ruling. Confirm with a licensed customs broker or a CBP binding ruling.",
+  "jurisdiction": "us",
   "llm_provider": "fake",
   "model_ids": {
    "engine": "gemini-4-argon",
@@ -2219,6 +2229,7 @@
   "done": {
    "case_id": "\u003cid\u003e",
    "disclaimer": "Not a ruling. Confirm with a licensed customs broker or a CBP binding ruling.",
+   "jurisdiction": "us",
    "llm_provider": "fake",
    "model_ids": {
     "engine": "gemini-4-argon",
@@ -4112,6 +4123,14 @@
    }
   ],
   "id": "\u003cid\u003e",
+  "jurisdiction": "us",
+  "jurisdiction_detail": {
+   "code": "us",
+   "follow_ups": true,
+   "name": "United States",
+   "source": "default",
+   "supported": true
+  },
   "llm_provider": "fake",
   "model_ids": {
    "engine": "gemini-4-argon",

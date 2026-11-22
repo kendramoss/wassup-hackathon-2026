@@ -162,33 +162,38 @@ export const TIMELINE: Step[] = [
 // table, "Fine-tuning split"). Dates are ISO; n is the rulings in the band.
 export type Band = { key: string; label: string; from: string; to: string; n: string; note: string; tone: "pool" | "train" | "dev" | "test" };
 export const AXIS = { from: "2023-01-01", to: "2026-12-31" };
+// Copy sweep 3 (#676): plain labels ("unseen test set" for held-out); the
+// router's own split is said in the chart's Details fold (ROUTER_DEV).
 export const BANDS: Band[] = [
-  { key: "pool", label: "Precedent pool", from: "2023-01-10", to: "2026-09-25", n: "2,790 rulings", note: "every labelled ruling; a case may only read ones dated before it", tone: "pool" },
-  { key: "tune", label: "Fine-tuning split", from: "2023-01-10", to: "2025-06-30", n: "632 + 67", note: "train and check; used only by the dropped fine-tuning experiment", tone: "train" },
-  { key: "dev", label: "Development", from: "2025-07-01", to: "2025-12-31", n: "469 (463 scored)", note: "prompts, thresholds and calibration chosen here; the router has its own 729-ruling dev split (Jan 2024 – Dec 2025)", tone: "dev" },
-  { key: "final", label: "Held-out 1", from: "2026-01-02", to: "2026-09-25", n: "377", note: "frozen 14 Oct 2026, official run on Vertex AI", tone: "test" },
-  { key: "final2", label: "Held-out 2", from: "2026-09-28", to: "2026-11-13", n: "83", note: "frozen 21 Nov 2026, published after everything above", tone: "test" },
+  { key: "pool", label: "Precedent pool", from: "2023-01-10", to: "2026-09-25", n: "2,790 rulings", note: "every labelled ruling", tone: "pool" },
+  { key: "tune", label: "Fine-tuning split", from: "2023-01-10", to: "2025-06-30", n: "632 + 67", note: "used only by the dropped fine-tuning test", tone: "train" },
+  { key: "dev", label: "Development", from: "2025-07-01", to: "2025-12-31", n: "469 (463 scored)", note: "settings chosen here", tone: "dev" },
+  { key: "final", label: "Unseen test set", from: "2026-01-02", to: "2026-09-25", n: "377", note: "frozen 14 Oct 2026", tone: "test" },
+  { key: "final2", label: "Newer rulings, unseen", from: "2026-09-28", to: "2026-11-13", n: "83", note: "frozen 21 Nov 2026", tone: "test" },
 ];
+export const ROUTER_DEV = "Prompts, thresholds and calibration were chosen on the development split; the router has its own 729-ruling dev split (Jan 2024 – Dec 2025).";
 
 // What was tried and dropped, development set, 463 rulings after the D23
 // adjustments (docs/NUMBERS.md: model sweep, method-page rows, adjudicator).
 // vs: what the row is paired against; p is the exact McNemar test.
 // runs: separate runs of the same arm; v is then their mean and the chart draws
 // each run as a dot over their range instead of one run's interval.
-export type Arm = { label: string; v: number; lo?: number; hi?: number; runs?: number[]; vs?: string; note: string; ref?: boolean; refs: string[] };
+// note: the short plain line beside the bar; more: said only in the Details fold.
+export type Arm = { label: string; v: number; lo?: number; hi?: number; runs?: number[]; vs?: string; note: string; more?: string; ref?: boolean; refs: string[] };
 export const ARMS: { group: string; rows: Arm[] }[] = [
   {
     group: "In use",
     rows: [
-      { label: "Gemini 4 Argon, Vertex AI", v: 0.911, lo: 0.882, hi: 0.934, note: "the production engine", ref: true, refs: ["D39"] },
+      { label: "Gemini 4 Argon, Vertex AI", v: 0.911, lo: 0.882, hi: 0.934, note: "in use", more: "the production engine; the official run", ref: true, refs: ["D39"] },
       // docs/NUMBERS.md "Development accuracy over three runs": 91.8, 91.1,
       // 91.1, mean 91.3. The paired test is on the first run (D151).
       {
-        label: "Gemini 4 Argon, gateway",
+        label: "Gemini 4 Argon, repeat runs",
         v: 0.913,
         runs: [0.918, 0.911, 0.911],
         vs: "fixed 8, broke 5, p = 0.58 (first run, 91.8%)",
-        note: "mean of 3 runs; same model by another path",
+        note: "same model, other route",
+        more: "mean of 3 runs; the same model through an OpenAI-compatible gateway",
         ref: true,
         refs: ["D151", "D190"],
       },
@@ -197,24 +202,24 @@ export const ARMS: { group: string; rows: Arm[] }[] = [
   {
     group: "Other models",
     rows: [
-      { label: "Gemini 3.5 Flash, fine-tuned", v: 0.879, lo: 0.846, hi: 0.906, vs: "fixed 15, broke 30, p = 0.036", note: "significantly worse; dropped", refs: ["D73"] },
+      { label: "Gemini 3.5 Flash, fine-tuned", v: 0.879, lo: 0.846, hi: 0.906, vs: "fixed 15, broke 30, p = 0.036", note: "worse; dropped", more: "significantly worse", refs: ["D73"] },
       { label: "Gemini 3.5 Flash", v: 0.905, lo: 0.875, hi: 0.928, vs: "fixed 16, broke 19, p = 0.736", note: "no gain", refs: ["D44"] },
-      { label: "Gemini 3.8 Flash", v: 0.901, lo: 0.87, hi: 0.925, vs: "fixed 13, broke 18, p = 0.473", note: "kept only as the fallback", refs: ["D73"] },
-      { label: "Gemini 4 Carbon", v: 0.881, lo: 0.849, hi: 0.908, vs: "fixed 6, broke 20, p = 0.009", note: "gateway run; 27 failed calls, counted wrong", refs: ["D153"] },
-      { label: "Gemini 3.1 Pro preview", v: 0.873, lo: 0.839, hi: 0.9, vs: "fixed 12, broke 30, p = 0.008", note: "gateway run; 10 failed calls, counted wrong", refs: ["D153"] },
-      { label: "Majority of three models", v: 0.916, lo: 0.887, hi: 0.938, vs: "fixed 8, broke 6, p = 0.79", note: "gateway runs; five times the cost", refs: ["D153"] },
+      { label: "Gemini 3.8 Flash", v: 0.901, lo: 0.87, hi: 0.925, vs: "fixed 13, broke 18, p = 0.473", note: "kept as the fallback", refs: ["D73"] },
+      { label: "Gemini 4 Carbon", v: 0.881, lo: 0.849, hi: 0.908, vs: "fixed 6, broke 20, p = 0.009", note: "worse", more: "gateway run; 27 failed calls, counted wrong", refs: ["D153"] },
+      { label: "Gemini 3.1 Pro preview", v: 0.873, lo: 0.839, hi: 0.9, vs: "fixed 12, broke 30, p = 0.008", note: "worse", more: "gateway run; 10 failed calls, counted wrong", refs: ["D153"] },
+      { label: "Majority of three models", v: 0.916, lo: 0.887, hi: 0.938, vs: "fixed 8, broke 6, p = 0.79", note: "no clear gain, 5× the cost", more: "gateway runs; five times the cost", refs: ["D153"] },
     ],
   },
   {
     group: "Changes around the engine",
     rows: [
-      { label: "rules-v2 prompt", v: 0.909, lo: 0.88, hi: 0.932, vs: "fixed 9, broke 13, p = 0.52 (vs the first gateway run)", note: "not adopted", refs: ["D157"] },
+      { label: "Written rule for the biggest error group", v: 0.909, lo: 0.88, hi: 0.932, vs: "fixed 9, broke 13, p = 0.52 (vs the first gateway run)", note: "not adopted", more: "rules-v2 prompt", refs: ["D157"] },
       { label: "Adjudicator, narrow", v: 0.901, vs: "fixed 2, broke 7, p = 0.18", note: "failed its rule", refs: ["D164"] },
       { label: "Adjudicator, symmetric", v: 0.909, vs: "fixed 9, broke 10, p = 1.0", note: "failed its rule", refs: ["D164"] },
-      { label: "Adjudicator, moves away from China only", v: 0.92, vs: "fixed 7, broke 3, p = 0.34", note: "picked after seeing the two above, so not a fair test; failed its rule", refs: ["D164"] },
+      { label: "Adjudicator, moves away from China only", v: 0.92, vs: "fixed 7, broke 3, p = 0.34", note: "not a fair test; failed its rule", more: "picked after seeing the two above", refs: ["D164"] },
       // docs/NUMBERS.md "Component checklist for the general engine" (D650 to D653).
-      { label: "Component checklist (st-checklist-v1)", v: 0.911, lo: 0.882, hi: 0.934, vs: "fixed 5, broke 8, p = 0.58 (vs the first gateway run)", note: "failed its rule; not adopted", refs: ["D650", "D651"] },
-      { label: "Checklist plus closest precedents (st-checklist-v2)", v: 0.914, lo: 0.884, hi: 0.936, vs: "fixed 5, broke 7, p = 0.77 (vs the first gateway run)", note: "failed its rule; not adopted", refs: ["D650", "D652", "D653"] },
+      { label: "Component checklist", v: 0.911, lo: 0.882, hi: 0.934, vs: "fixed 5, broke 8, p = 0.58 (vs the first gateway run)", note: "failed its rule", more: "st-checklist-v1; not adopted", refs: ["D650", "D651"] },
+      { label: "Checklist plus closest precedents", v: 0.914, lo: 0.884, hi: 0.936, vs: "fixed 5, broke 7, p = 0.77 (vs the first gateway run)", note: "failed its rule", more: "st-checklist-v2; not adopted", refs: ["D650", "D652", "D653"] },
     ],
   },
 ];
@@ -234,7 +239,7 @@ export const LEAK = { slots: 1885, heldOutSlots: 414, cases: 377, casesTouched: 
 export type PlanBar = { label: string; k: number; n: number; lo: number; hi: number; lowerIsBetter?: boolean };
 export const PLAN_POST: { title: string; note: string; rows: PlanBar[] }[] = [
   {
-    title: "CBP's starting origin given (how the plan search runs)",
+    title: "Starting origin given (how the search runs)",
     note: "18 pairs",
     rows: [
       { label: "moves shown that were real changes", k: 9, n: 9, lo: 70.1, hi: 100 },
@@ -244,12 +249,24 @@ export const PLAN_POST: { title: string; note: string; rows: PlanBar[] }[] = [
   },
   {
     title: "Starting origin not given",
-    note: "same pairs; one control run failed",
+    note: "same pairs",
     rows: [
       { label: "moves shown that were real changes", k: 5, n: 6, lo: 43.7, hi: 97.0 },
       { label: "real changes found at the bar", k: 5, n: 12, lo: 19.3, hi: 68.1 },
     ],
   },
+];
+// Backtest of the heat-gun plan against CBP's N357771 change (docs/NUMBERS.md,
+// "Backtest of the plan shown, heat gun"): parts the change switched, and parts
+// the plan also moves that the change kept in China.
+export const BACKTEST = { switched: 6, moved: 6, extra: 3 };
+// Rule check, development rulings (docs/NUMBERS.md: "Development Part 102
+// rulings the 102.20 check decides", "Rule check decided with suggested part
+// codes", "Coverage from the full ruling text").
+export const RULE_DEV = [
+  { label: "from the facts the engine reads", k: 0, n: 72 },
+  { label: "with suggested part codes", k: 16, n: 69, agree: 16 },
+  { label: "from the full ruling text", k: 8, n: 72, agree: 8 },
 ];
 export const PLAN_FAMILIES = { k: 15, n: 23, lo: 44.9, hi: 81.2, supports: 9, partial: 4, not: 2 };
 // docs/NUMBERS.md: "Full plan, heat gun" (proxy run) and "Per-family plan checks".

@@ -12,7 +12,7 @@ import ex from "@/lib/rule-check-example.json";
 import { Main } from "../chrome";
 import { ExampleTour } from "../example-tour";
 import { RuleCheckPanel, headline } from "../rule-check";
-import { Chip, Country, RulingLink } from "../ui";
+import { Chip, Country, Fold, RulingLink } from "../ui";
 
 type RuleCheck = NonNullable<CaseResponse["rule_check"]>;
 
@@ -78,9 +78,12 @@ export function RuleCheckExample() {
               <p className="duo text-[12.5px] text-dim">{"stated_hts" in p && p.stated_hts ? E.stated(p.stated_hts) : E.noneStated}</p>
               <Suggestions cands={p.suggestions as PartHtsCandidate[]} />
               {"note" in p && p.note ? (
-                <p data-example-note className="duo mt-2 max-w-[72ch] border-l-2 border-ask-line pl-2.5 text-[12.5px] text-body">
+                <details data-example-note className="group mt-2 max-w-[72ch] border-l-2 border-ask-line pl-2.5 text-[12.5px] text-body">
+                  <summary className="cursor-pointer list-none [&::-webkit-details-marker]:hidden">
+                    <span className="text-ask">△ {E.ourNoteShort}</span> <span className="text-ok group-open:hidden">More</span>
+                  </summary>
                   <span className="text-ask">{E.ourNote}:</span> {p.note.replace(/^Our note, added after the run: /, "")}
-                </p>
+                </details>
               ) : null}
             </li>
           ))}
@@ -112,16 +115,21 @@ export function RuleCheckExample() {
           <Country name={ex.cbp_origin} /> <span className="text-dim">·</span> <RulingLink id={ex.ruling} />
         </p>
         <p className="duo mt-1.5 text-[13px] text-body">{ex.agrees ? E.agrees : E.differs}</p>
-        <p className="duo mt-1.5 max-w-[72ch] text-[13px] text-dim">{E.honest}</p>
       </section>
 
-      <p className="duo text-[12.5px] text-dim">
-        {E.source}{" "}
-        <a href={`${repo}/blob/main/${ex.run}`} className="text-ok underline underline-offset-2">
-          {ex.run}
-        </a>{" "}
-        · <code className="[overflow-wrap:anywhere]">cd backend && go run ./cmd/tariffshift parts-example -check</code>
-      </p>
+      <div>
+        <Fold title={E.details}>
+          <p className="duo max-w-[72ch] text-[13px] text-dim">{E.detailsBody}</p>
+          <p className="duo mt-1.5 max-w-[72ch] text-[13px] text-dim">{E.honest}</p>
+          <p className="duo mt-1.5 text-[12.5px] text-dim">
+            {E.source}{" "}
+            <a href={`${repo}/blob/main/${ex.run}`} className="text-ok underline underline-offset-2">
+              {ex.run}
+            </a>{" "}
+            · <code className="[overflow-wrap:anywhere]">cd backend && go run ./cmd/tariffshift parts-example -check</code>
+          </p>
+        </Fold>
+      </div>
     </Main>
   );
 }
@@ -131,13 +139,31 @@ export function RuleCheckExample() {
 function Suggestions({ cands }: { cands: PartHtsCandidate[] }) {
   if (!cands.length) return <p className="text-[12.5px] text-dim">{P.none}</p>;
   return (
-    <ol className="mt-1.5 flex flex-col gap-1.5">
+    <>
+    <ol className="mt-1.5 flex flex-wrap gap-x-4 gap-y-1.5">
       {cands.map((c, i) => {
         const rulings = c.source === "rulings";
         return (
           <li key={c.hts} className="flex flex-wrap items-baseline gap-x-2.5 gap-y-1 text-[12.5px]">
             <span className={i === 0 ? "min-w-16 border border-ok bg-ok-wash px-2 text-ok tabular-nums" : "min-w-16 border border-line bg-white px-2 tabular-nums"}>{c.hts}</span>
             <Chip tone={rulings ? "ok" : "ask"}>{rulings ? P.fromRulings : P.fromModel}</Chip>
+          </li>
+        );
+      })}
+    </ol>
+    <details className="group mt-1 text-[12.5px]">
+      <summary className="inline-flex min-h-6 cursor-pointer list-none items-center gap-1.5 text-ok [&::-webkit-details-marker]:hidden">
+        <span aria-hidden="true" className="inline-block w-3 text-dim transition-transform group-open:rotate-90">
+          ▸
+        </span>
+        {E.why}
+      </summary>
+      <ul className="flex flex-col gap-1">
+      {cands.map((c) => {
+        const rulings = c.source === "rulings";
+        return (
+          <li key={c.hts} className="flex flex-wrap items-baseline gap-x-2.5 gap-y-1">
+            <span className="tabular-nums text-dim">{c.hts}</span>
             <span className="duo min-w-0 basis-60 flex-1 text-body">
               {c.reason}
               {rulings && c.supporting_rulings?.length ? (
@@ -157,6 +183,8 @@ function Suggestions({ cands }: { cands: PartHtsCandidate[] }) {
           </li>
         );
       })}
-    </ol>
+      </ul>
+    </details>
+    </>
   );
 }

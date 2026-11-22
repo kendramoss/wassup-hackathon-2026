@@ -1,0 +1,246 @@
+{
+  "detector": "market-detect-v1",
+  "exact_market": 16,
+  "git_revision": "400f07582167843554eb66677349025a72ccbf8e",
+  "kept_from_us_answer": 20,
+  "kept_without_router": 16,
+  "non_us_texts": 30,
+  "note": "kept_from_us_answer counts a hint, which reviews only when the router says unclear; kept_without_router counts only a non-U.S. market or a conflict",
+  "rows": [
+    {
+      "id": "m-eu-01",
+      "want": "eu",
+      "got": "eu",
+      "source": "detected",
+      "cue": "European Union customs",
+      "kept_from_us_answer": true
+    },
+    {
+      "id": "m-eu-02",
+      "want": "eu",
+      "got": "eu",
+      "source": "detected",
+      "cue": "European Union customs",
+      "kept_from_us_answer": true
+    },
+    {
+      "id": "m-eu-03",
+      "want": "eu",
+      "got": "us",
+      "source": "default",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "m-eu-04",
+      "want": "eu",
+      "got": "us",
+      "source": "default",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "m-eu-05",
+      "want": "eu",
+      "got": "us",
+      "source": "default",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "m-eu-06",
+      "want": "eu",
+      "got": "us",
+      "source": "default",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "m-uk-01",
+      "want": "uk",
+      "got": "uk",
+      "source": "detected",
+      "cue": "HMRC",
+      "kept_from_us_answer": true
+    },
+    {
+      "id": "m-uk-02",
+      "want": "uk",
+      "got": "us",
+      "source": "default",
+      "hint": "uk",
+      "kept_from_us_answer": true
+    },
+    {
+      "id": "m-uk-03",
+      "want": "uk",
+      "got": "us",
+      "source": "default",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "m-uk-04",
+      "want": "uk",
+      "got": "us",
+      "source": "default",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "m-ca-01",
+      "want": "ca",
+      "got": "ca",
+      "source": "detected",
+      "cue": "CBSA",
+      "kept_from_us_answer": true
+    },
+    {
+      "id": "m-ca-02",
+      "want": "ca",
+      "got": "ca",
+      "source": "detected",
+      "cue": "Canada customs",
+      "kept_from_us_answer": true
+    },
+    {
+      "id": "m-ca-03",
+      "want": "ca",
+      "got": "ca",
+      "source": "detected",
+      "cue": "Canada customs",
+      "kept_from_us_answer": true
+    },
+    {
+      "id": "m-ca-04",
+      "want": "ca",
+      "got": "us",
+      "source": "default",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "m-jp-01",
+      "want": "jp",
+      "got": "jp",
+      "source": "detected",
+      "cue": "Japan customs",
+      "kept_from_us_answer": true
+    },
+    {
+      "id": "m-jp-02",
+      "want": "jp",
+      "got": "us",
+      "source": "default",
+      "hint": "jp",
+      "kept_from_us_answer": true
+    },
+    {
+      "id": "m-jp-03",
+      "want": "jp",
+      "got": "jp",
+      "source": "detected",
+      "cue": "Japan customs",
+      "kept_from_us_answer": true
+    },
+    {
+      "id": "m-kr-01",
+      "want": "kr",
+      "got": "kr",
+      "source": "detected",
+      "cue": "South Korea customs",
+      "kept_from_us_answer": true
+    },
+    {
+      "id": "m-kr-02",
+      "want": "kr",
+      "got": "us",
+      "source": "default",
+      "hint": "kr",
+      "kept_from_us_answer": true
+    },
+    {
+      "id": "m-kr-03",
+      "want": "kr",
+      "got": "us",
+      "source": "default",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "m-au-01",
+      "want": "au",
+      "got": "au",
+      "source": "detected",
+      "cue": "Australia customs",
+      "kept_from_us_answer": true
+    },
+    {
+      "id": "m-au-02",
+      "want": "au",
+      "got": "au",
+      "source": "detected",
+      "cue": "Australia customs",
+      "kept_from_us_answer": true
+    },
+    {
+      "id": "m-au-03",
+      "want": "au",
+      "got": "au",
+      "source": "detected",
+      "cue": "Australia customs",
+      "kept_from_us_answer": true
+    },
+    {
+      "id": "m-mx-01",
+      "want": "mx",
+      "got": "mx",
+      "source": "detected",
+      "cue": "Mexico customs",
+      "kept_from_us_answer": true
+    },
+    {
+      "id": "m-mx-02",
+      "want": "mx",
+      "got": "us",
+      "source": "default",
+      "hint": "mx",
+      "kept_from_us_answer": true
+    },
+    {
+      "id": "m-mx-03",
+      "want": "mx",
+      "got": "us",
+      "source": "default",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "m-other-01",
+      "want": "other",
+      "got": "other",
+      "source": "detected",
+      "cue": "Other market customs",
+      "kept_from_us_answer": true
+    },
+    {
+      "id": "m-other-02",
+      "want": "other",
+      "got": "other",
+      "source": "detected",
+      "cue": "a non-U.S. customs authority",
+      "kept_from_us_answer": true
+    },
+    {
+      "id": "m-other-03",
+      "want": "other",
+      "got": "other",
+      "source": "detected",
+      "cue": "Other market customs",
+      "kept_from_us_answer": true
+    },
+    {
+      "id": "m-other-04",
+      "want": "other",
+      "got": "us",
+      "source": "default",
+      "kept_from_us_answer": false
+    }
+  ],
+  "run": "market-detect-probes-probes-model-d680",
+  "texts": 30,
+  "time": "2026-11-22T19:52:21+08:00",
+  "us_texts": 0,
+  "us_texts_clean": 0
+}

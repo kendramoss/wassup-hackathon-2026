@@ -56,6 +56,24 @@ in the United States (17 U.S.C. § 105). Source: <https://rulings.cbp.gov>.
 Raw ruling texts are fetched, not redistributed. The labels, splits and facts
 files derived from them are in this repository; see [docs/DATASHEET.md](docs/DATASHEET.md).
 
+The RCEP rule table (`backend/internal/rcep/data/psr_hs2022.json`) is parsed
+from the RCEP Agreement's Annex 3A product-specific rules in HS 2022, as
+published by the RCEP Secretariat (<https://rcepsec.org/rules-of-origin/>)
+and cross-checked against the Australian Border Force copy. It is the text of
+a public international agreement; neither PDF states a reuse licence. The
+PDFs are not redistributed; their URLs, retrieval date and SHA-256 are in
+`eval/rcep/source.json`.
+
+Canada's marking rules (`backend/internal/tariffshift/rules_ca.json`) are the
+Schedule III rows of the Determination of Country of Origin for the Purpose of
+Marking Goods (CUSMA Countries) Regulations, SOR/94-23, from the Justice Laws
+website (<https://laws-lois.justice.gc.ca/eng/XML/SOR-94-23.xml>, retrieved 22
+Nov 2026). Reproduced under the Reproduction of Federal Law Order (SI/97-5):
+anyone may reproduce federal enactments without charge or permission, if the
+copy is accurate and not presented as the official version. This copy is not
+the official version. Headings are written 8473 for 84.73; two slips are
+corrected (D720).
+
 ## Go dependencies
 
 Backend dependencies are declared in `backend/go.mod` and fetched through the

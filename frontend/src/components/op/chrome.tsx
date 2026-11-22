@@ -100,11 +100,19 @@ const tabs: { key: CaseTab; label: string; step: number; path: string; optional?
   { key: "product", label: "Product", step: 1, path: "product" },
   { key: "origin", label: "Origin", step: 2, path: "origin" },
   { key: "plan", label: "Plan", step: 3, path: "plan" },
-  { key: "draft", label: "Draft for broker", step: 4, path: "draft" },
-  { key: "scenarios", label: "Try scenarios", step: 2, path: "scenarios", optional: true },
+  { key: "draft", label: "Draft", step: 4, path: "draft" },
+  { key: "scenarios", label: "Scenarios", step: 2, path: "scenarios", optional: true },
 ];
 
 export const tabStep: Record<CaseTab, number> = { product: 1, origin: 2, scenarios: 2, plan: 3, draft: 4 };
+
+// The tabs a case shows. Plan, Draft and Scenarios are U.S. steps (CBP
+// searches, letters, re-runs), so a case whose market has no follow-ups
+// (jurisdiction_detail.follow_ups, #678) hides them; the one being viewed
+// stays so a direct link still has its tab.
+export function caseTabs(followUps: boolean, current: CaseTab) {
+  return tabs.filter((t) => followUps || t.key === "product" || t.key === "origin" || t.key === current);
+}
 
 // Case tabs: every case action one click away, each a separate quiet button
 // (bordered, never filled) so "+ New case" stays the loudest control. A tick
@@ -115,12 +123,15 @@ export function CaseTabs({
   reached,
   title,
   onAsk,
+  followUps = true,
 }: {
   caseId?: string;
   current: CaseTab;
   reached: number;
   title: ReactNode;
   onAsk?: () => void;
+  // false: the case's market has no plan or draft (#678).
+  followUps?: boolean;
 }) {
   // One sticky row, read left to right: the steps, then the case menu and
   // Ask, then the step's main button (17 Oct).
@@ -131,7 +142,7 @@ export function CaseTabs({
         sideways, where "4 Draft for broker" was cut off (judge panel round 5). */}
     <nav aria-label="Case" className="w-full sm:w-auto">
       <ul className="flex flex-wrap items-center gap-1.5 whitespace-nowrap">
-        {tabs.map((t) => {
+        {caseTabs(followUps, current).map((t) => {
           const on = t.key === current;
           const open = Boolean(caseId) && (t.step <= Math.max(reached, 2) || t.key === "plan" || t.key === "draft");
           const done = Boolean(caseId) && !on && t.step < 4 && t.step <= reached && t.key !== "scenarios";
@@ -168,6 +179,7 @@ export function CaseTabs({
             </li>
           );
         })}
+        {!followUps && <li className="px-1 text-dim">{copy.market.followUpsUSOnly}</li>}
       </ul>
     </nav>
       {/* A new case has nothing to switch from yet (#94, #97). */}
@@ -179,8 +191,7 @@ export function CaseTabs({
       <div className="ml-auto flex flex-wrap items-center gap-3">
         {onAsk && (
           <button type="button" onClick={onAsk} aria-label="Ask about this case" className="inline-flex min-h-8 items-center rounded-[2px] border border-line bg-sheet px-3 py-1 text-dim hover:border-edge hover:text-ink">
-            <span className="sm:hidden">Ask</span>
-            <span className="hidden sm:inline">Ask about this case</span>
+            Ask
           </button>
         )}
         <ActionSlot />
@@ -434,7 +445,7 @@ export function DemoNote({ title, message }: { title?: string | null; message?: 
   }, [title]);
   return (
     <div role="status" className="flex flex-wrap items-center gap-x-3 gap-y-1 border border-dashed border-guide bg-sheet px-4 py-3 text-[13px]">
-      <span className="duo">{message ?? "This is a pinned demo: you can explore it, but changes here aren't saved."}</span>
+      <span className="duo">{message ?? "Pinned demo: changes here aren't saved."}</span>
       <Link href={demoId ? `/cases/new?demo=${encodeURIComponent(demoId)}` : "/cases/new"} className="text-ok underline underline-offset-2">
         Start a new case from this demo →
       </Link>

@@ -138,7 +138,7 @@ function Compare({ id, c, setCase }: CaseCtx) {
           ) : (
             <div>
               <p className="eyebrow">Step 3 of 4 · {copy.plan.compare}</p>
-              <h1 className="duo mt-1 text-[26px] font-normal leading-tight tracking-[-0.05em]">One plan search per country, in parallel, ranked.</h1>
+              <h1 className="duo mt-1 text-[26px] font-normal leading-tight tracking-[-0.05em]">Plans per country, ranked.</h1>
               {ranked && <p className="duo mt-2 text-sm text-ask">No country found a precedent-supported move.</p>}
             </div>
           )}
@@ -146,7 +146,7 @@ function Compare({ id, c, setCase }: CaseCtx) {
       </section>
       <Main className="flex flex-col gap-7">
         <fieldset>
-          <legend className="text-[11px] uppercase tracking-[0.08em] text-dimension">Countries to compare · 2–4, from your plants</legend>
+          <legend className="text-[11px] uppercase tracking-[0.08em] text-dimension">Countries to compare · 2–4</legend>
           <div className="mt-2.5 flex flex-wrap gap-2.5">
             {options.map((o) => {
               const on = picked.includes(o);
@@ -175,8 +175,8 @@ function Compare({ id, c, setCase }: CaseCtx) {
               title={c.display_name}
               message={
                 ranked
-                  ? "This is a pinned demo: its recorded comparison is shown. To compare other countries and draft from them, start a new case from it."
-                  : "This is a pinned demo: comparisons run here aren't saved. Start a new case from it to compare countries and draft from the result."
+                  ? "Pinned demo: its recorded comparison is shown. Start a new case to compare others."
+                  : "Pinned demo: comparisons here are not saved."
               }
             />
             {!ranked && <RecordedCompare c={c} />}
@@ -340,9 +340,8 @@ function RecordedCompare({ c }: { c: CaseResponse }) {
   if (!href) return null;
   return (
     <p className="duo text-[13.5px]">
-      A comparison of this product is recorded in another demo.{" "}
       <Link href={href} className="text-ok underline underline-offset-2">
-        See the recorded comparison →
+        See a recorded comparison →
       </Link>
     </p>
   );

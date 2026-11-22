@@ -3,6 +3,7 @@
 import { watchView } from "@/lib/watch-state";
 import { conflictLean } from "@/lib/conflict";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { api, type CaseResponse, type Scenario } from "@/lib/api/client";
 import { asToday, readsDiffer } from "@/lib/plan-check";
@@ -17,15 +18,102 @@ import { Button, ButtonLink, Chip, Country, Dimension, Flag, Fold, Panel, Ruling
 import { planTarget } from "../plan-target";
 import { ReviewNote } from "../review-note";
 import { RuleCheckPanel } from "../rule-check";
+import { RcepCheck } from "../rcep-check";
+import { CanadaCheck } from "../canada-check";
 import { Term } from "../term";
 import { regimeOf } from "@/lib/regime";
+import { marketOf } from "@/lib/market";
+import { MarketTag } from "../market-picker";
 import { blankAnswers, buildAnswerPayload, reconcileAnswers, type AnswerState } from "@/lib/answer-state";
 
 export function OriginStep() {
   return <CaseShell tab="origin">{(ctx) => <Result {...ctx} />}</CaseShell>;
 }
 
-function Result({ id, c, setCase }: CaseCtx) {
+function Result(ctx: CaseCtx) {
+  // A market with no origin engine (D680): no answer was made, so there is
+  // no verdict to show, only what to do next.
+  if (ctx.c.jurisdiction_detail?.supported === false) return <UnsupportedMarket c={ctx.c} />;
+  // Canada is a rules-only market (D725): the marking-rule check, no model answer.
+  if (ctx.c.jurisdiction === "ca") return <CanadaMarket c={ctx.c} />;
+  return <Answer {...ctx} />;
+}
+
+function CanadaMarket({ c }: { c: CaseResponse }) {
+  const m = marketOf(c.jurisdiction);
+  return (
+    <>
+      <section aria-label="Market" className="border-b border-dashed border-guide">
+        <div className="column mx-auto max-w-[1240px] px-4 pb-8 pt-10 sm:px-10">
+          <StepEyebrow tab="origin">{copy.market.label}</StepEyebrow>
+          <h1 className="mt-1 flex items-center gap-4 text-[44px] font-normal leading-none tracking-[-0.05em] sm:text-[64px]">
+            {m.flag ? <Flag country={m.flag} size={44} /> : null}
+            {m.name}
+          </h1>
+        </div>
+      </section>
+      <Main>
+        <CanadaCheck c={c} auto />
+      </Main>
+    </>
+  );
+}
+
+function UnsupportedMarket({ c }: { c: CaseResponse }) {
+  const router = useRouter();
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState<unknown>(null);
+  const m = marketOf(c.jurisdiction);
+  const d = c.jurisdiction_detail;
+  // The same question, asked as U.S. entry: a new case with the market chosen.
+  const asUS = async () => {
+    setBusy(true);
+    setError(null);
+    try {
+      const n = await api.predict({
+        date: c.date ?? "",
+        facts: c.facts,
+        product: c.product,
+        family: c.family || undefined,
+        display_name: c.display_name || undefined,
+        jurisdiction: "us",
+      });
+      router.push(`/cases/${encodeURIComponent(n.id!)}/origin`);
+    } catch (e) {
+      setError(e);
+      setBusy(false);
+    }
+  };
+  return (
+    <>
+      <section aria-label="Market" className="border-b border-dashed border-guide">
+        <div className="column mx-auto max-w-[1240px] px-4 pb-8 pt-10 sm:px-10">
+          <StepEyebrow tab="origin">{copy.market.label}</StepEyebrow>
+          <h1 className="mt-1 flex items-center gap-4 text-[44px] font-normal leading-none tracking-[-0.05em] sm:text-[64px]">
+            {m.flag ? <Flag country={m.flag} size={44} /> : null}
+            {m.name}
+          </h1>
+          <p className="read mt-5 max-w-[60ch] text-[17px]">{copy.market.unsupported(m.phrase)}</p>
+          <p className="duo mt-1.5 max-w-[60ch] text-sm text-dim">
+            {copy.market.unsupportedNext}
+            {d?.source === "detected" && d.cue ? ` Read from your text: “${d.cue}”.` : ""}
+          </p>
+          {error ? <ErrorBox error={error} onRetry={asUS} /> : null}
+        </div>
+      </section>
+      <Footer>
+        <Next>{copy.market.unsupportedNext}</Next>
+        <div className="ml-auto">
+          <Button onClick={asUS} disabled={busy}>
+            {busy ? "Starting…" : copy.market.startUS}
+          </Button>
+        </div>
+      </Footer>
+    </>
+  );
+}
+
+function Answer({ id, c, setCase }: CaseCtx) {
   const [history, setHistory] = useState(false);
   const p = c.prediction ?? {};
   const target = planTarget(c);
@@ -61,7 +149,7 @@ function Result({ id, c, setCase }: CaseCtx) {
           {p.reasoning || p.key_factors?.length ? (
             <section aria-label="Why" className="border-l-2 border-ink pl-4">
               <h2 className="eyebrow mb-1.5">{route === "auto" ? copy.result.whyAuto(originConf(p)) : "Why"}</h2>
-              {p.reasoning ? <p className="read max-w-[75ch] text-[15px] leading-relaxed">{p.reasoning}</p> : null}
+              {p.reasoning ? <Reasoning text={p.reasoning} /> : null}
               {p.key_factors?.length ? (
                 <p className="duo mt-3 max-w-[75ch] text-sm">
                   <span className="eyebrow mr-2">{copy.result.keyFactors}</span>
@@ -79,6 +167,7 @@ function Result({ id, c, setCase }: CaseCtx) {
             </p>
           ) : null}
           <RuleCheckPanel c={c} />
+          <CanadaCheck c={c} />
           {c.clarify?.conflict ? <Conflict c={c} /> : null}
           {qs ? <Questions c={c} setCase={setCase} /> : null}
           {route === "needs_review" && !qs && !regime ? <ReviewPanel c={c} /> : null}
@@ -102,6 +191,7 @@ function Result({ id, c, setCase }: CaseCtx) {
                 </ul>
               </Fold>
             ) : null}
+            <RcepCheck c={c} />
             {!watchBoxed ? (
               <Fold title="Ruling watch" meta={demoWatch ? "not available on this demo" : c.watch ? (wk === "recheck" ? wv.label.toLowerCase() : `${wk === "unchanged" ? "unchanged" : "checked"}, ${formatDate(c.watch.checked_at)}`) : "not re-checked"}>
                 {demoWatch ? <DemoWatchNote c={c} /> : <WatchLine c={c} setCase={setCase} />}
@@ -165,6 +255,21 @@ function Result({ id, c, setCase }: CaseCtx) {
   );
 }
 
+// The model's reasoning: the first two sentences, the rest on request.
+function Reasoning({ text }: { text: string }) {
+  const cuts = [...text.matchAll(/[.!?]\s+(?=[A-Z])/g)];
+  const cut = cuts.length > 2 ? (cuts[1].index ?? 0) + 1 : -1;
+  if (cut < 0) return <p className="read max-w-[75ch] text-[15px] leading-relaxed">{text}</p>;
+  return (
+    <details className="group read max-w-[75ch] text-[15px] leading-relaxed">
+      <summary className="cursor-pointer list-none [&::-webkit-details-marker]:hidden">
+        {text.slice(0, cut)} <span className="text-[13px] text-ok group-open:hidden">Read more</span>
+      </summary>
+      {text.slice(cut).trim()}
+    </details>
+  );
+}
+
 export function VerdictBand({ c }: { c: CaseResponse }) {
   const p = c.prediction ?? {};
   const regime = regimeOf(c);
@@ -199,7 +304,7 @@ export function VerdictBand({ c }: { c: CaseResponse }) {
                         , <RulingLink id={cur.ruling} />
                       </>
                     )}{" "}
-                    · {cur.country === p.origin_country ? "✓ same as this prediction" : "△ differs from this prediction"}
+                    · {cur.country === p.origin_country ? "✓ same" : "△ differs"}
                   </dd>
                 </>
               )}
@@ -211,6 +316,9 @@ export function VerdictBand({ c }: { c: CaseResponse }) {
           <span className="flex flex-wrap items-center gap-1.5">
             <StatusChip route={route} explain />
             {regime && <Chip>{regime.label}</Chip>}
+            <Chip>
+              <MarketTag code={c.jurisdiction} />
+            </Chip>
           </span>
           <OriginRuler p={p} />
         </div>
@@ -341,7 +449,7 @@ function Conflict({ c }: { c: CaseResponse }) {
     <Panel tone="ask" aria-label={copy.result.conflict}>
       <h2 className="text-base font-medium tracking-[-0.02em] text-ask">{copy.result.conflict}</h2>
       <div className="mt-3 grid gap-4 sm:grid-cols-2">
-        {halves.map(({ side, id, holding }) => {
+        {halves.map(({ side, id }) => {
           const r = id ? detail.get(id) : undefined;
           const lean = conflictLean(k.leans === side, r?.origin, predicted);
           const follows = lean === "follows";
@@ -359,17 +467,30 @@ function Conflict({ c }: { c: CaseResponse }) {
                   </>
                 )}
               </p>
-              <p className="duo mt-2">{holding}</p>
             </div>
           );
         })}
       </div>
-      {k.deciding_difference && (
-        <p className="duo mt-3 text-[13px]">
-          <span className="text-dim">What CBP relied on: </span>
-          {k.deciding_difference}
-        </p>
-      )}
+      <details className="group mt-3 text-[13px]">
+        <summary className="inline-flex min-h-6 cursor-pointer list-none items-center gap-1.5 text-ok [&::-webkit-details-marker]:hidden">
+          <span aria-hidden="true" className="inline-block w-3 text-dim transition-transform group-open:rotate-90">
+            ▸
+          </span>
+          Why they differ
+        </summary>
+        {halves.map(({ side, id, holding }) => (
+          <p key={side} className="duo mt-2">
+            {id ? <span className="text-dim">{id}: </span> : null}
+            {holding}
+          </p>
+        ))}
+        {k.deciding_difference && (
+          <p className="duo mt-2">
+            <span className="text-dim">What CBP relied on: </span>
+            {k.deciding_difference}
+          </p>
+        )}
+      </details>
     </Panel>
   );
 }
@@ -440,12 +561,17 @@ function Questions({ c, setCase }: { c: CaseResponse; setCase: (c: CaseResponse)
           {copy.result.questions} <span className="text-[13px] font-normal text-dim">· {copy.result.questionsNote}</span>
         </h2>
         <ol className="duo mt-3 flex list-decimal flex-col gap-2 pl-5 text-sm">
-          {qs.map((q) => (
+          {visible.map((q) => (
             <li key={q}>{q}</li>
           ))}
         </ol>
+        {qs.length > 1 && (
+          <button type="button" className="mt-2 inline-flex min-h-6 items-center text-[13px] text-ok hover:underline" aria-expanded={more} onClick={() => setMore((m) => !m)}>
+            {more ? "Show one question" : `${qs.length - 1} more ${qs.length - 1 === 1 ? "question" : "questions"}`}
+          </button>
+        )}
         <div className="mt-4">
-          <DemoNote title={c.display_name} message="This is a pinned demo, so its answers stay as they are." />
+          <DemoNote title={c.display_name} message="Pinned demo: answers stay as they are." />
         </div>
       </Panel>
     );

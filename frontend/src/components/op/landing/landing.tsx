@@ -152,7 +152,7 @@ export function Landing() {
         </ButtonLink>
       </div>
       <p className="also read">
-        {L.also} <a href="#can">{L.alsoLink}</a>
+        <a href="#can">{L.alsoLink}</a>
       </p>
     </>
   );
@@ -316,20 +316,20 @@ export function Landing() {
                       </div>
                       <div className="bd">
                         <div className="real">
-                          <p className="duo">Make the motor-fan assembly, the PCBA and the switch, cord and minor parts in Thailand</p>
+                          <p className="duo">Make the motor-fan, PCBA, switch and cord in Thailand</p>
                           <p className="gap">
-                            <span className="chip">Recorded 18 Oct plan · check 0.96, above the 0.92 bar</span>
+                            <span className="chip">✓ Backed by an earlier ruling</span>
                           </p>
                           <p className="small">
-                            For <RulingLink id="N345938" /> · against: none found
-                          </p>
-                          <p className="small">
-                            Recorded 18 Oct production run (DEMO.md §6); the pinned case shows 0.96.
+                            For <RulingLink id="N345938" /> · against: none
                           </p>
                           <p className="duo small">
-                            Backtest: all 6 parts CBP&apos;s 2026 change (<RulingLink id="N357771" />) switched moved; the plan also moves switch,
-                            wires and fasteners it kept in China (D84).
+                            ✓ Moves all 6 parts CBP&apos;s 2026 change (<RulingLink id="N357771" />) moved, plus 3 it kept.
                           </p>
+                          <details className="small">
+                            <summary>Details</summary>
+                            Recorded 18 Oct production run (DEMO.md §6): check 0.96, above the 0.92 bar; the pinned case shows 0.96 (18 Oct).
+                          </details>
                         </div>
                       </div>
                       <div className="ft">Planner + verifier agent</div>
@@ -467,7 +467,6 @@ export function Landing() {
                       </span>
                       <span className="dimn">{L.planCheck.meta}</span>
                     </div>
-                    <p className="pclead read">{L.planCheck.lead}</p>
                     <ul className="pcrows">
                       {L.planCheck.rows.map((r) => (
                         <li key={r.label} className="pc">
@@ -487,8 +486,13 @@ export function Landing() {
                         </li>
                       ))}
                     </ul>
+                    <details className="pcfoot dimn">
+                      <summary>{L.planCheck.details}</summary>
+                      <p className="read">{L.planCheck.lead}</p>
+                      <p className="read">{L.planCheck.foot}</p>
+                    </details>
                     <p className="pcfoot dimn">
-                      {L.planCheck.foot} <Link href="/accuracy#plan-checks">{L.planCheck.link}</Link>
+                      <Link href="/accuracy#plan-checks">{L.planCheck.link}</Link>
                     </p>
                   </div>
                   <div className="testfoot">
@@ -514,9 +518,13 @@ export function Landing() {
           <dl>
             {C.items.map((it) => (
               <div key={it.key} className="canrow">
-                <dt className="read">{it.what}</dt>
+                <dt className="read">
+                  <Explained text={it.what} terms={["tariffRule", "marking"]} />
+                </dt>
                 <dd>
-                  <p className="read">{it.body}</p>
+                  <p className="read">
+                    <Explained text={it.body} terms={["tariffRule"]} />
+                  </p>
                   {"code" in it && it.code ? (
                     <pre className="cancode">
                       <code>{it.code}</code>
@@ -630,7 +638,6 @@ export function Landing() {
                     ))}
                     <div className="dimn">{S.minBar}</div>
                   </div>
-                  <p className="read">{S.oldWayRisk}</p>
                 </div>
               </li>
               <li className="beat">

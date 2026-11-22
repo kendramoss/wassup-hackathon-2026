@@ -218,9 +218,11 @@ export function TierChip({ plan, result }: { plan: Plan; result?: Ranked | null 
   if (!t) return null;
   const T = copy.plan.tier;
   return t === "clear_margin" ? (
-    <Chip tone="ok" className="whitespace-normal">
-      {T.clear} · {T.clearWhy(clearFrom(result).toFixed(2))}
-    </Chip>
+    <span title={T.clearWhy(clearFrom(result).toFixed(2))}>
+      <Chip tone="ok" className="whitespace-normal">
+        {T.clear}
+      </Chip>
+    </span>
   ) : (
     <Chip tone="ask" className="whitespace-normal">
       {T.atBar} · {T.atBarWhy}

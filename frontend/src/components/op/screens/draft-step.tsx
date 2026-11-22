@@ -134,9 +134,6 @@ function Draft({ id, c, setCase }: CaseCtx) {
           <div>
             <p className="eyebrow">{stepNo} · Draft for broker</p>
             <h1 className="mt-1 text-xl tracking-[-0.04em]">Ruling request</h1>
-            <p className="duo mt-1 text-sm text-dim">
-              A draft binding-ruling request under 19 C.F.R. Part 177 {defaulted ? "for the shown plan" : move ? "for the chosen move" : "for the current setup"}. Your broker or counsel confirms and expands it before anything is sent to CBP.
-            </p>
             {/* The shown plan is the default letter; today's setup is the
                 second choice, and the other way round when asked for. */}
             {defaulted && shownPlan ? (
@@ -178,7 +175,7 @@ function Draft({ id, c, setCase }: CaseCtx) {
                   </label>
                 ))}
               </div>
-              <p className="duo mt-2 text-xs text-dim">{copy.jurisdiction.part177Help}</p>
+              {format === "cfr177" && <p className="duo mt-2 text-xs text-dim">{copy.jurisdiction.part177Help}</p>}
               {format === "cfr177" && (
                 <p className="duo mt-2 text-xs text-dim">Laid out on 19 C.F.R. § 177.2. Each highlighted [FILL IN] is something the case doesn&apos;t know: complete or delete it before filing.</p>
               )}
@@ -211,7 +208,7 @@ function Draft({ id, c, setCase }: CaseCtx) {
                   </div>
                 ))}
               </form>
-              <p className="mt-3 text-xs text-dim">Fills the bracketed placeholders in the letter. Nothing here is sent anywhere.</p>
+              <p className="mt-3 text-xs text-dim">Fills the letter&apos;s blanks. Nothing is sent.</p>
             </Panel>
           )}
           {/* A pinned demo can't make review links, so it shows the page the
@@ -260,7 +257,7 @@ function Draft({ id, c, setCase }: CaseCtx) {
         </div>
       </Main>
       <Footer>
-        <Next>{readOnly ? "You can preview this letter. Printing or downloading records the export, which needs editor access." : "Fill in the requester, then print or download the letter and send it to your customs broker."}</Next>
+        <Next>{readOnly ? "You can preview this letter. Printing or downloading records the export, which needs editor access." : "Fill in the requester, then print or download the letter."}</Next>
         <div className="ml-auto flex flex-wrap gap-2.5">
           <Button variant="ghost" onClick={download} disabled={!draft || readOnly} title={readOnly ? VIEWER_REASON : undefined}>
             Download Markdown

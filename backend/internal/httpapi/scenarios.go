@@ -40,6 +40,10 @@ func (a *api) scenarios(w http.ResponseWriter, r *http.Request) {
 		a.fail(w, r, err)
 		return
 	}
+	if err := a.requireMarket(sc, ""); err != nil {
+		a.fail(w, r, err)
+		return
+	}
 	var in scenariosRequest
 	if err := decode(w, r, &in); err != nil {
 		a.fail(w, r, err)
@@ -80,7 +84,7 @@ func (a *api) scenarios(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 		out[i] = store.Scenario{Label: label, Facts: facts, Product: s.Product}
-		cases[i] = domain.Case{ID: sc.ID, Date: date, Facts: facts, Product: s.Product, Exclude: sc.Exclude}
+		cases[i] = domain.Case{ID: sc.ID, Date: date, Facts: facts, Product: s.Product, Exclude: sc.Exclude, Jurisdiction: caseMarket(sc)}
 		if err := cases[i].Validate(); err != nil {
 			a.fail(w, r, fmt.Errorf("scenario %q: %w", label, err))
 			return
@@ -193,6 +197,10 @@ func (a *api) watch(w http.ResponseWriter, r *http.Request) {
 		a.fail(w, r, err)
 		return
 	}
+	if err := a.requireMarket(sc, ""); err != nil {
+		a.fail(w, r, err)
+		return
+	}
 	if sc.Prediction.Origin == "" {
 		a.fail(w, r, fmt.Errorf("%w: case %s has not been analysed", domain.ErrInvalid, sc.ID))
 		return
@@ -291,10 +299,13 @@ func (a *api) recheck(ctx context.Context, sc *store.Case, save bool) error {
 	if err != nil {
 		return fmt.Errorf("case %s has no valid date: %w", sc.ID, err)
 	}
+	if err := a.requireMarket(*sc, ""); err != nil {
+		return err // the watch re-checks against newer CBP rulings: U.S. cases only
+	}
 	start := time.Now()
 	now := start.UTC()
 	fp := inputFingerprint(*sc) // what this check is worked out from (D97)
-	c := domain.Case{ID: sc.ID, Date: now, Facts: sc.Facts, Product: sc.Product, Exclude: sc.Exclude}
+	c := domain.Case{ID: sc.ID, Date: now, Facts: sc.Facts, Product: sc.Product, Exclude: sc.Exclude, Jurisdiction: caseMarket(*sc)}
 	// The stored label is pinned: the watch answers the question on the
 	// regime the case was analysed under, never a fresh routing (router
 	// drift). One legacy control stays unpinned: no stored label, no router

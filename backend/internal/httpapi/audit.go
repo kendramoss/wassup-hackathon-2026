@@ -95,7 +95,10 @@ var auditTable = map[string]auditRoute{
 	"POST /mcp":                                    {auditNone, ""}, // each tool call is its own audited /v1 request
 	"GET /v1/eval/summary":                         {auditNone, ""},
 	"GET /v1/duty-rates":                           {auditNone, ""},
+	"POST /v1/rcep/check":                          {auditNone, ""},
+	"POST /v1/rules/canada-marking":                {auditNone, ""},
 	"GET /v1/demos":                                {auditNone, ""},
+	"GET /v1/jurisdictions":                        {auditNone, ""},
 	"GET /v1/demos/{id}":                           {auditNone, ""},
 	"POST /v1/workspaces":                          {auditTwoPhase, audit.WorkspaceCreate},
 	"GET /v1/workspaces/mine":                      {auditNone, ""},

@@ -110,6 +110,18 @@ Recomputed by `cd backend && go run ./cmd/tariffshift eval -check` (in `make rep
 | Coverage from the full ruling text (CBP's own codes) | dev 8 of 72 (8 agree with CBP, 67.6-100%), final 4 of 32 (4 agree, 51.0-100%); differs from the model on 2 dev rulings, agreeing with CBP on both (N341152, N352059) | same | Encoding check, not product accuracy. Always with n; never as an accuracy figure. 7 chapters (D362): dev 2 of 72, final 2 of 32, all agree; same before and after the D412 fix. Without the five chapters kept from D460 (D560): final still 4 of 32 |
 | Extraction cost | $2.58 gateway-reported, seven runs | `eval/results/RUNLOG.jsonl` (`tariffshift-extract-*`) | Measured |
 
+### Canada marking rules, SOR/94-23 (D720-D725)
+
+Recomputed by `cd backend && go test ./internal/tariffshift -run 'RulesCAJSON|Parity'` (in `make reproduce`); no model calls. A rules check only: no accuracy figure exists (D725).
+
+| Number | Value | Source | Status |
+|---|---|---|---|
+| Rule rows and alternatives parsed | 572 rows (569 code rows, whole-chapter rows for 61 and 62, a note-only row for 63.09); 548 of 596 alternatives encoded (91.9%); 544 rows fully, 4 partly, 24 not; 40 written by goods description and 8 with a content or process proviso, never decided by code | `backend/internal/tariffshift/rules_ca.json` (Justice Laws XML, retrieved 22 Nov 2026), `TestRulesCAJSONMatchesParser` | Built; a test re-parses the committed text |
+| Alternatives allowing a change within the good's own subheading or heading (s. 12(2)) | 102 (88 encoded) | same | Built; a difference from 19 CFR 102.20 (D722) |
+| Rows whose note can set origin by a process (D723) | 57 | same | Built |
+| Parity with the U.S. check on identical rows | 116 rows with the same text; same answer on 2,094 of 2,094 inputs (1,029 decided by the U.S. rules) | `TestParityOnIdenticalRows` | Built, synthetic inputs; not an accuracy figure |
+| Published Canadian rulings to test against | about 11 origin and 3 marking rulings, none negative (CBSA list archived 2 Jul 2025) | day-0 check for #663, D725 | Too few for an accuracy figure; none shown |
+
 ### Per-part HTS suggestions (D380-D382)
 
 Recomputed by `cd backend && go run ./cmd/tariffshift parts-eval -check` (in `make reproduce`) from the committed rows; no model calls at scoring.
@@ -475,4 +487,24 @@ A composite contract manufacturer, labelled on the page "Illustrative example â€
 
 The other figures in the story are existing rows: 20 hours, 21 days (n = 247), US$3,600, 3,628 ruling responses (market and time), p50 4.6 s and $0.0078 (evaluation), N345938 (plan shown).
 
+
+## RCEP calculator (D690)
+
+| Number | Value | Source | Status |
+|---|---|---|---|
+| Annex 3A rows parsed (HS 2022) | 2,452 rows, 96 chapters; 2,189 with a rule, of which 2,181 read by the parser and 8 hand-encoded; 263 rows carry no rule of their own; 0 unreadable | `coverage` in `backend/internal/rcep/data/psr_hs2022.json` (`eval/rcep/parse_psr.py build`); pinned by `TestTableCoverage` | Measured, no model. Parse coverage, not accuracy |
+| Cross-check against a second official copy | 0 code or rule differences in 2,452 rows; 1 description difference (text extraction) | `eval/rcep/parse_psr.py diff` on the RCEP Secretariat and Australian Border Force PDFs; files and hashes in `eval/rcep/source.json` | Measured once, 22 Nov 2026 |
+| Worked examples reproduced | 13 subtests from the ABF RCEP guide (as at 18 Dec 2024), e.g. build-up 45 %, build-down 50 %, spice mix 38.9 % and 44.4 %, de minimis 5 % by value and 4 % by weight | `TestABFWorkedExamples` in `backend/internal/rcep/engine_test.go` | Tests, not an evaluation. The figures are the guide's illustrations |
+| RCEP accuracy on rulings | none yet | pre-registered in D691 (Japan Customs RCEP rulings) | Not measured. Do not show any accuracy for the RCEP check |
+
 Rules: small-n numbers carry CIs; development-only numbers say "development set"; never "approved", "verified", "guaranteed", "cheapest" or "proof that it qualifies". Do not describe a percentage-point gap between subsets as proof of calibration.
+
+## Market on every case: the deterministic market detector (no model call; 22 Nov; D680, D681, D682)
+
+| Number | Value | Source | Status |
+|---|---|---|---|
+| Markets a case can name | 9 codes (us, eu, uk, ca, jp, kr, au, mx, other); 1 supported (us) | `backend/internal/jurisdiction/jurisdiction.go` (`Markets`, `Default`); `GET /v1/jurisdictions` | Built |
+| U.S. rulings the detector reads as non-U.S. (`market-detect-v2`) | 0 of 649 development rulings of every regime (tuned on); 0 of 377 held-out rulings (run once). v1 flagged 3 of the 377 | `eval/results/market-detect-dev-d681-v2.json`, `market-detect-final-d681-v2.json`, `market-detect-final-d680.json` | Measured, deterministic. Weak hints: 71 development and 6 held-out, none on a ruling router-v4 labelled `unclear`, so none changes route |
+| Non-U.S. questions read correctly, model-written probe set 2 (unseen) | v2: 22 of 30 exact market, 26 of 30 kept from a U.S. auto-answer; v1: 19 and 23. No text got a wrong non-U.S. market | `eval/results/market-detect-probes-probes-model-2-d681-v{1,2}.json`; probes `eval/jurisdiction/probes-model-2.jsonl` | Measured once each. Synthetic, illustrative questions written by gemini-3.8-flash, not customer text. Say "about three in four", never "detects non-U.S. questions" |
+| Not independent: hand set and model set 1 | hand set 30 of 30 exact, 10 of 10 U.S. controls clean (v1 and v2; same author as the detector); model set 1 v1 16 of 30, v2 25 of 30 (read to write v2) | `eval/results/market-detect-probes-probes-{hand,model}-d68*.json` | Measured; do not quote as accuracy |
+| Probe set cost | $0.0821 for both model-written sets (gateway-reported) | D680, D681 | Measured |

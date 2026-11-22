@@ -28,6 +28,8 @@ export type MoveRef = S["MoveRef"];
 export type EvalSummary = S["EvalSummary"];
 export type Ruling = S["Ruling"];
 export type ApiErrorBody = S["Error"];
+// Canada's marking-rule check (D720): POST /v1/rules/canada-marking.
+export type CanadaMarking = paths["/v1/rules/canada-marking"]["post"]["responses"]["200"]["content"]["application/json"];
 export type Scenario = NonNullable<CaseResponse["scenarios"]>[number];
 export type Watch = NonNullable<CaseResponse["watch"]>;
 
@@ -38,6 +40,7 @@ type Json<P extends keyof paths, M extends "get" | "post", Code extends number =
   : never;
 
 export type DemoList = Json<"/v1/demos", "get">;
+export type JurisdictionList = Json<"/v1/jurisdictions", "get">;
 export type Demo = Json<"/v1/demos/{id}", "get">;
 export type ImportResponse = Json<"/v1/products/import", "post">;
 export type ExportResponse = Json<"/v1/cases/{id}/export", "post">;
@@ -54,6 +57,8 @@ export type HtsCandidate = NonNullable<HtsSuggestResponse["candidates"]>[number]
 export type PartsHtsSuggestResponse = Json<"/v1/products/parts-hts-suggest", "post">;
 export type PartHtsCandidate = components["schemas"]["PartHtsCandidate"];
 export type MoneyPrefillResponse = Json<"/v1/products/money-prefill", "post">;
+export type RcepCheckResponse = Json<"/v1/rcep/check", "post">;
+export type RcepCheckRequest = NonNullable<paths["/v1/rcep/check"]["post"]["requestBody"]>["content"]["application/json"];
 export type FamilyCheckResponse = Json<"/v1/products/family-check", "post">;
 export type CostEstimateResponse = Json<"/v1/products/cost-estimate", "post">;
 export type BomVersionResponse = Json<"/v1/cases/{id}/bom-version", "post">;
@@ -326,6 +331,7 @@ export const api = {
     post<AskResponse>(`/cases/${enc(id)}/ask`, body, signal),
   resetChat: (id: string) => post<AskResponse>(`/cases/${enc(id)}/ask`, { reset: true }),
   demos: () => call<DemoList>("/demos"),
+  jurisdictions: () => call<JurisdictionList>("/jurisdictions"),
   demo: (id: string) => call<Demo>(`/demos/${enc(id)}`),
   ruling: (id: string) => call<Ruling>(`/rulings/${enc(id)}`),
   evalSummary: () => call<EvalSummary>("/eval/summary"),
@@ -348,12 +354,16 @@ export const api = {
   deleteCase: (id: string) => call<void>(`/cases/${enc(id)}`, { method: "DELETE" }),
   putEconomics: (id: string, economics: Economics) => post<EconomicsResponse>(`/cases/${enc(id)}/economics`, economicsOnWire(economics), undefined, "PUT"),
   htsSuggest: (body: { facts: string } | { product: Product }, signal?: AbortSignal) => post<HtsSuggestResponse>("/products/hts-suggest", body, signal),
+  // Canada's marking rules from the product's codes (D720); no model call.
+  canadaMarking: (body: { product: Product }, signal?: AbortSignal) => post<CanadaMarking>("/rules/canada-marking", body, signal),
   // Codes for each part (D380): suggestions only, nothing is stored.
   partsHtsSuggest: (body: { product: Product }, signal?: AbortSignal) => post<PartsHtsSuggestResponse>("/products/parts-hts-suggest", body, signal),
   // The lookups price duty and group costs only: the operating-cost block is
   // not sent to them (a draft of it may not validate yet) and is never invented.
   moneyPrefill: (body: { product: Product; economics?: Economics }, signal?: AbortSignal) => post<MoneyPrefillResponse>("/products/money-prefill", noOps(body), signal),
   familyCheck: (body: { text: string; product?: Product }, signal?: AbortSignal) => post<FamilyCheckResponse>("/products/family-check", body, signal),
+  // RCEP preference (D690): rules only, no model call, nothing stored.
+  rcepCheck: (body: RcepCheckRequest, signal?: AbortSignal) => post<RcepCheckResponse>("/rcep/check", body, signal),
   costEstimate: (body: { product: Product; economics?: Economics }, signal?: AbortSignal) => post<CostEstimateResponse>("/products/cost-estimate", noOps(body), signal),
   bomVersion: (id: string, file: File, apply = false) => {
     const form = new FormData();

@@ -15,7 +15,7 @@ info:
     `prompt_version`, `llm_provider` and the `disclaimer`; cost-estimate and family-check
     carry `prompt_version` and `llm_provider`; ruling search and money-prefill carry only the
     `disclaimer`; extract and extract-media return the draft with its `trace`; import and the
-    rest (case list, ruling fetch, rename, demos, duty rates, economics, eval summary,
+    rest (case list, ruling fetch, rename, demos, duty rates, RCEP check, economics, eval summary,
     review links, workspaces, keys, audit) carry none of them; the broker's `GET /v1/review`
     carries the `disclaimer` only. Errors use `{code, message, details}`.
 
@@ -36,7 +36,7 @@ info:
     Rate limits (D45, D137): every `/v1` route has a rate class, keyed per client (the
     frontend forwards the browser's address as `X-Client-IP`; an API key has its own
     buckets). Cheap routes with no model call (case reads, rename, delete, economics,
-    export, demos, rulings, duty rates, eval summary, workspaces) 120 a minute; light model
+    export, demos, rulings, duty rates, RCEP check, Canada marking check, eval summary, workspaces) 120 a minute; light model
     routes (predict, answers, ask, extract, extract-media, import, money-prefill, hts-suggest,
     parts-hts-suggest, cost-estimate, family-check, scenarios, watch, bom-version) 20 a minute,
     and plan estimate and the audit reads take from the same bucket without a model call; heavy
@@ -77,7 +77,7 @@ info:
 
     Audit trail (#284): a tenant-scoped, append-only audit stream that is separate from the case history. It is off unless an operator configures it: `AUDIT` defaults to `auto`, which turns it on only when `AUDIT_ACTOR_KEY` is set, and `on` without a key fails at startup. When it is off, no event is recorded, the two `/v1/audit*` routes are not registered (404) and sensitive writes are not gated; nothing here says any deployment has it enabled. When it is on, the sensitive writes (case delete, workspace invite, join, role change, member removal or leave, API-key issue and disable) write an intent record first; if that record cannot be written the request is 503 `audit_unavailable` and nothing changes. Other writes proceed even if their intent cannot be recorded. If the completion record cannot be written after a change was made, the change is not rolled back and the response keeps its true status, with the header `X-Audit-Incomplete: completion-not-recorded`; the header can appear on any audited non-streaming route, on a success or an error response (every mutating route, a recording or preview export of a non-pinned case, the audit reads and the API-key list), and not only on the fail-closed operations that can answer 503; a Server-Sent-Events response has already committed its 200 before the work runs, so that header cannot be sent there, and the stream path writes its completion record before the final `done` or `error` event instead. In both cases the trail holds an intent with no completion, which `GET /v1/audit/verify` can report as an unresolved intent only on its final call, as of the verified snapshot, and not as an exact count when its own `complete` is false. Allowed ordinary case reads are not audited: the trail records writes, recording exports, previews of non-pinned cases, authorization denials and audit reads, so it is not a complete record of who read confidential data. Audit writes and the case, workspace or key writes are separate stores and are not atomic with each other. Event times are the server clock in microseconds and never go backwards within a tenant. The hash chain is tamper evidence by the application only: it is not immutable or WORM storage, does not protect against someone with write access to the datastore, and this is audit-readiness support, not SOC 2 certification.
 
-    Strict auth (#283, `STRICT_AUTH=on`, default off, same values as `CASE_OWNERSHIP`; any other value fails startup): private case operations (creating, listing and every route on a non-pinned case) require a verified identity, meaning a validated user token, an API key or the admin token. An `X-Visitor-ID` alone is not authentication and gets 401 `unauthenticated`, identical for missing, hidden and unknown cases. Pinned demos, `/v1/demos*`, `/v1/rulings`, `/v1/eval/summary`, `/v1/duty-rates`, `/health` and the stateless `/v1/products/*` helpers stay open. With it off nothing changes.
+    Strict auth (#283, `STRICT_AUTH=on`, default off, same values as `CASE_OWNERSHIP`; any other value fails startup): private case operations (creating, listing and every route on a non-pinned case) require a verified identity, meaning a validated user token, an API key or the admin token. An `X-Visitor-ID` alone is not authentication and gets 401 `unauthenticated`, identical for missing, hidden and unknown cases. Pinned demos, `/v1/demos*`, `/v1/rulings`, `/v1/eval/summary`, `/v1/duty-rates`, `/v1/rcep/check`, `/health` and the stateless `/v1/products/*` helpers stay open. With it off nothing changes.
 
     API keys (D69, `API_KEYS=on`, off by default): brokers may call the API with `X-API-Key: op_...` (securityScheme `ApiKey`). Every `/v1` request with a key is checked (unknown or disabled: 401 `unauthorized`) and counted against the key's daily quota (spent: 429 `quota_exceeded`, `Retry-After` at the next UTC day). A key has its own rate-limit buckets, sees the pinned demos and its own cases only, and its cases are hidden from everyone else but the admin, whatever `CASE_OWNERSHIP` says. The admin issues, lists and disables keys under `/v1/admin/api-keys`.
 
@@ -141,7 +141,7 @@ paths:
       operationId: triageBatch
       summary: Triage a portfolio (up to 20 products) in one call
       description: |
-        Each product is predicted from its facts, triaged and saved as an ordinary case (D47). One product's failure fills its row's error and does not fail the rest. Send JSON, or multipart/form-data with a "file" (CSV or .xlsx with a header row: name (or product, sku), facts (or description), optional date). Rate-limited as one heavy request per client that takes 20 from the global cap.
+        Each product is predicted from its facts, triaged and saved as an ordinary case (D47). One product's failure fills its row's error and does not fail the rest. Send JSON, or multipart/form-data with a "file" (CSV or .xlsx with a header row: name (or product, sku), facts (or description), optional date, optional jurisdiction). Rate-limited as one heavy request per client that takes 20 from the global cap.
       requestBody:
         required: true
         content:
@@ -160,6 +160,7 @@ paths:
                       name: { type: string }
                       facts: { type: string }
                       date: { type: string, format: date, description: Default today }
+                      jurisdiction: { description: "Optional market (D680); a sheet may have a jurisdiction (or market) column", allOf: [{ $ref: "#/components/schemas/JurisdictionCode" }] }
           multipart/form-data:
             schema: { type: object, required: [file], properties: { file: { type: string, format: binary } } }
       responses:
@@ -183,7 +184,8 @@ paths:
                           properties:
                             name: { type: string, description: The given name, or the first words of the facts }
                             case_id: { type: string }
-                            predicted_origin: { type: string }
+                            jurisdiction: { $ref: "#/components/schemas/JurisdictionCode" }
+                            predicted_origin: { type: string, description: "Absent when the market has no engine (D680)" }
                             confidence: { type: number, description: "The model's stated confidence; read calibrated_confidence first when present (D160, #402)" }
                             calibrated_confidence: { type: number, description: "Calibrated probability when a map applied to this prediction; the triage reason quotes this value" }
                             calibration: { type: string, description: "Calibration map version, e.g. cal-v2; absent when no map applied" }
@@ -1011,6 +1013,7 @@ paths:
               required: [targets]
               properties:
                 targets: { type: array, minItems: 2, maxItems: 4, items: { type: string }, example: [Thailand, Vietnam, Malaysia] }
+                jurisdiction: { description: "Optional; as in PlanRequest", allOf: [{ $ref: "#/components/schemas/JurisdictionCode" }] }
                 economics: { $ref: "#/components/schemas/Economics" }
       responses:
         "401": { $ref: "#/components/responses/Error" }
@@ -1023,6 +1026,7 @@ paths:
                 type: object
                 properties:
                   case_id: { type: string }
+                  jurisdiction: { $ref: "#/components/schemas/JurisdictionCode" }
                   targets: { type: array, items: { $ref: "#/components/schemas/TargetSummary" } }
         "400": { $ref: "#/components/responses/Error" }
         "404": { $ref: "#/components/responses/Error" }
@@ -1399,6 +1403,207 @@ paths:
                   lines: { type: array, items: { type: object } }
                   live_mfn: { $ref: "#/components/schemas/LiveMFN" }
         "404": { $ref: "#/components/responses/Error" }
+        "429": { $ref: "#/components/responses/TooManyRequests" }
+  /v1/rcep/check:
+    post:
+      operationId: checkRcepPreference
+      summary: RCEP preferential origin check from a bill of materials (deterministic, no model call)
+      description: >-
+        Does a good made in an RCEP Party qualify as RCEP originating, so it can claim the RCEP preferential tariff
+        when imported into another Party? Deterministic code over the official Annex 3A product-specific rules
+        (HS 2022 transposition, parsed from the RCEP Secretariat PDF and cross-checked against the Australian Border
+        Force copy; `backend/internal/rcep`, D690). Implements Art. 3.2 (wholly obtained, only originating
+        materials, or the Annex 3A rule), Art. 3.4 cumulation (a material counts as originating only when declared
+        originating and from a Party), Art. 3.5 RVC by both formulas (materials of undetermined origin count as
+        non-originating), Art. 3.6 minimal operations and Art. 3.7 de minimis (10 % of FOB value; also 10 % of weight
+        for chapters 50 to 63). Not covered: packaging (3.8), accessories (3.9), indirect and fungible materials
+        (3.10, 3.11), direct consignment (3.15) and proof-of-origin procedures. Missing facts make the answer
+        `undetermined`, never `no`. This is preferential origin only: it is separate from the marking and
+        non-preferential origin every case answer gives, and every response says so (`regime: rcep_preferential`).
+        Nothing is stored. Not a ruling and not a certificate of origin. Cheap class (120 a minute); a malformed body
+        is 400 `invalid_input`.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: false
+              required: [hs, produced_in]
+              properties:
+                hs: { type: string, example: "0910.91", description: "The good's HS code, 4 to 10 digits; the rule is looked up at 6 digits (HS 2022)" }
+                produced_in: { type: string, example: Malaysia, description: "Where the good is produced: country name or ISO alpha-2 code. A non-Party is `no`." }
+                fob: { type: number, exclusiveMinimum: 0, description: "FOB value of the good; needed for RVC and the value de minimis" }
+                weight: { type: number, exclusiveMinimum: 0, description: "Weight of the good; used for the chapters 50-63 de minimis" }
+                wholly_obtained: { type: boolean, description: "The producer states the good is wholly obtained in the Party (Art. 3.3)" }
+                operations:
+                  type: array
+                  maxItems: 50
+                  items: { type: string }
+                  description: "What is done to the non-originating materials. If every entry is an Art. 3.6 key (preserving, packaging, simple_processes, marking, dilution, disassembly, slaughtering, simple_painting_polishing, simple_peeling, simple_mixing), the good does not qualify. Any other word (e.g. assembly) counts as real production."
+                chemical_reaction: { type: boolean, description: "A chemical reaction took place in a Party (Annex 3A CR rule). Unset: not stated." }
+                variant: { type: string, description: "For the eight rows whose rule depends on the product (e.g. 0304.39 carp vs other fish), the branch id from `rule.variants`. Unset: decided only if every branch agrees." }
+                active_ingredient_originating_pct: { type: number, minimum: 0, maximum: 100, description: "Heading 38.08 only: share by weight of the active ingredients that is originating" }
+                costs:
+                  type: object
+                  additionalProperties: false
+                  description: "Build-up (direct) formula terms, Art. 3.5.1(b); same currency as fob"
+                  properties:
+                    labour: { type: number, minimum: 0 }
+                    overhead: { type: number, minimum: 0 }
+                    profit: { type: number, minimum: 0 }
+                    other: { type: number, minimum: 0 }
+                materials:
+                  type: array
+                  maxItems: 200
+                  items:
+                    type: object
+                    additionalProperties: false
+                    properties:
+                      name: { type: string }
+                      hs: { type: string, description: "The material's HS code, 2 to 10 digits; the rule needs 2, 4 or 6" }
+                      value: { type: number, minimum: 0, description: "CIF at import, or the earliest price paid in the Party (Art. 3.5.3)" }
+                      weight: { type: number, minimum: 0 }
+                      country: { type: string, description: "Where the material originates" }
+                      status: { type: string, enum: [originating, non_originating, unknown], default: unknown, description: "originating: the supplier's declaration or proof of origin says it is RCEP originating" }
+      responses:
+        "200":
+          description: The answer, with the rule used and plain-English reasons
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  outcome: { type: string, enum: ["yes", "no", undetermined] }
+                  basis: { type: string, enum: [WO, PE, PSR], description: "Art. 3.2 limb of a yes" }
+                  applied: { type: string, example: RVC40, description: "The alternative that decided a yes, e.g. CTH, RVC40, CC except from chapter 10" }
+                  rule:
+                    type: object
+                    properties:
+                      code: { type: string, example: "0910.91" }
+                      level: { type: string, enum: [chapter, heading, subheading] }
+                      description: { type: string }
+                      text: { type: string, example: "CC or RVC40" }
+                      version: { type: string, example: rcep-psr-hs2022-r2022-08-20 }
+                      variants: { type: array, items: { type: object } }
+                  rvc:
+                    type: object
+                    properties:
+                      threshold: { type: integer, example: 40 }
+                      build_down: { type: number, description: "(FOB - VNM) / FOB x 100" }
+                      build_up: { type: number, description: "(VOM + labour + overhead + profit + other) / FOB x 100" }
+                      vnm: { type: number }
+                      vom: { type: number }
+                  de_minimis:
+                    type: object
+                    properties:
+                      used: { type: boolean }
+                      value_share: { type: number, description: "per cent of FOB" }
+                      weight_share: { type: number, description: "per cent of the good's weight" }
+                  accumulation: { type: boolean, description: "Originating materials from another Party were counted (Art. 3.4)" }
+                  failing:
+                    type: array
+                    description: "Materials that fail (or cannot be tested against) the tariff-shift rule; empty on a yes"
+                    items:
+                      type: object
+                      properties:
+                        index: { type: integer }
+                        name: { type: string }
+                        hs: { type: string }
+                        reason: { type: string }
+                  alternatives:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        rule: { type: string }
+                        outcome: { type: string, enum: ["yes", "no", undetermined] }
+                        reasons: { type: array, items: { type: string } }
+                  reasons: { type: array, items: { type: string } }
+                  regime: { type: string, enum: [rcep_preferential] }
+                  note: { type: string }
+        "400": { $ref: "#/components/responses/Error" }
+        "429": { $ref: "#/components/responses/TooManyRequests" }
+  /v1/jurisdictions:
+    get:
+      operationId: listJurisdictions
+      summary: Markets a case can name, and which have an origin engine
+      description: Every market code with its name, whether it is supported (D680) and whether it has the steps after the origin answer. us is supported with every step; ca is supported as a rules check only (D725). A case for any other market gets no prediction and goes to review.
+      responses:
+        "429": { $ref: "#/components/responses/TooManyRequests" }
+        "200":
+          description: Market list
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  jurisdictions:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        code: { $ref: "#/components/schemas/JurisdictionCode" }
+                        name: { type: string }
+                        supported: { type: boolean }
+                        follow_ups: { type: boolean, description: "Whether the market's cases have plan search, comparison, scenarios, Ask, the draft and broker review (us only)" }
+                  detector: { type: string, example: market-detect-v2, description: "Version of the deterministic market detector" }
+  /v1/rules/canada-marking:
+    post:
+      operationId: checkCanadaMarking
+      summary: Canada marking-origin rules check (SOR/94-23), from HTS codes; no model call (D720-D725)
+      description: >-
+        Applies Canada's Determination of Country of Origin for the Purpose of Marking Goods (CUSMA Countries)
+        Regulations (SOR/94-23): the Schedule III tariff-shift row for the good, then ss. 4, 5, 9 and 11. Same output
+        shape as a case's `rule_check.result`. A rules check only: Canada publishes too few origin rulings to test it,
+        so there is no accuracy figure, and every answer carries `label` saying so. Send either `product` (read like the
+        case's rule check: its HTS code, parts' codes and `made_in`, and the production country from its plants) or
+        `good_hts`, `country` and `materials`. Headings in Canada's text are written 84.73; send codes as usual
+        (8473.30). Nothing is stored. Served when RULE_CHECK is on (the default).
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: false
+              properties:
+                product: { $ref: "#/components/schemas/Product" }
+                good_hts: { type: string, example: "6301.30" }
+                country: { type: string, description: "Where the good is produced", example: "Mexico" }
+                materials:
+                  type: array
+                  maxItems: 50
+                  items:
+                    type: object
+                    properties:
+                      name: { type: string }
+                      hts: { type: string }
+                      origin: { type: string }
+                      not_in: { type: string }
+                      value_share: { type: number, minimum: 0, maximum: 1 }
+                      weight_share: { type: number, minimum: 0, maximum: 1, description: "For de minimis by weight in chapters 50 to 63 (s. 11(1)(a))" }
+                simple_assembly: { type: boolean }
+                gri_2a: { type: boolean }
+                bending_to_shape: { type: boolean }
+      responses:
+        "200":
+          description: The check
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [jurisdiction, rules, table_version, label, country, result, note]
+                properties:
+                  jurisdiction: { type: string, enum: [ca] }
+                  rules: { type: string, enum: ["SOR/94-23 Schedule III"] }
+                  table_version: { type: string, example: "ca-sor-94-23-v1" }
+                  label: { type: string, example: "Rules check only — no accuracy figure yet (no published rulings to test against)" }
+                  country: { type: string }
+                  country_from: { type: string }
+                  note: { type: string }
+                  result: { $ref: "#/components/schemas/RuleCheck/properties/result" }
+        "400": { $ref: "#/components/responses/Error" }
         "429": { $ref: "#/components/responses/TooManyRequests" }
   /v1/demos:
     get:
@@ -2197,6 +2402,24 @@ components:
           description: Optional money inputs, kept on the case for plan, scenarios and compare-targets calls that omit their own (also editable later with PUT /v1/cases/{id}/economics)
           allOf: [{ $ref: "#/components/schemas/Economics" }]
         display_name: { type: string, maxLength: 200, description: "Optional name for the case on Cases home (D48); batch rows pass their name here" }
+        jurisdiction:
+          description: 'Market the question is for (D680). Omitted: read from the text by a deterministic detector (an authority such as HMRC or CBSA, "imported into <place>", "<market> customs"), else us. Only us has an origin engine today; any other market is saved with no prediction and goes to review with "Origin rules for <market> aren''t supported yet".'
+          allOf: [{ $ref: "#/components/schemas/JurisdictionCode" }]
+    JurisdictionCode:
+      type: string
+      enum: [us, eu, uk, ca, jp, kr, au, mx, other]
+      description: "Market codes: us United States, eu European Union, uk United Kingdom, ca Canada, jp Japan, kr South Korea, au Australia, mx Mexico, other any other market"
+    JurisdictionDetail:
+      type: object
+      required: [code, name, source, supported, follow_ups]
+      properties:
+        code: { $ref: "#/components/schemas/JurisdictionCode" }
+        name: { type: string, example: United States }
+        source: { type: string, enum: [chosen, detected, default], description: "chosen: the caller named it; detected: a cue in the text; default: no cue (a case made before D680 also reads default)" }
+        cue: { type: string, description: 'What set a detected market, e.g. "HMRC" or "entry into Canada"' }
+        hint: { type: string, description: "A non-U.S. market the text suggests but that was not taken (a price, \"sold in\", or a cue contradicted by a U.S. one). On a case the router labels unclear it sends the case to review." }
+        supported: { type: boolean, description: "Whether the market has an origin engine. false: no prediction was made" }
+        follow_ups: { type: boolean, description: "Whether the case has plan search, comparison, scenarios, Ask, the draft and broker review. Only us has them; on any other market those calls return 400 (#678)" }
     WhatIf:
       type: object
       description: One re-run of the origin engine on revised facts
@@ -2265,7 +2488,9 @@ components:
             product: { $ref: "#/components/schemas/Product" }
             family: { type: string }
             exclude_rulings: { type: array, items: { type: string }, description: "Rulings the engine and the plan search never read for this case (as given at prediction)" }
-            prediction: { $ref: "#/components/schemas/Prediction" }
+            jurisdiction: { $ref: "#/components/schemas/JurisdictionCode" }
+            jurisdiction_detail: { $ref: "#/components/schemas/JurisdictionDetail" }
+            prediction: { description: "Empty (origin_country \"\") when jurisdiction_detail.supported is false: no engine ran (D680)", allOf: [{ $ref: "#/components/schemas/Prediction" }] }
             triage: { $ref: "#/components/schemas/Triage" }
             router: { $ref: "#/components/schemas/RouterLabel" }
             plan: { $ref: "#/components/schemas/PlanResult" }
@@ -2570,6 +2795,7 @@ components:
       required: [target]
       properties:
         target: { type: string, example: Thailand }
+        jurisdiction: { description: "Optional. When given it must be the case's market, else 400. A case whose market has no engine, or a non-U.S. case, is refused with 400: plan search is a U.S. CBP search (D680).", allOf: [{ $ref: "#/components/schemas/JurisdictionCode" }] }
         economics: { $ref: "#/components/schemas/Economics" }
         actual_change:
           type: object
@@ -2751,6 +2977,7 @@ components:
         - type: object
           properties:
             case_id: { type: string }
+            jurisdiction: { $ref: "#/components/schemas/JurisdictionCode" }
             plan: { $ref: "#/components/schemas/PlanResult" }
     BrokerReviewDecision:
       type: object

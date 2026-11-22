@@ -18,7 +18,7 @@ import { BandNet, OpsDetail, OpsScope, StaleMoneyBanner } from "../ops-result";
 import { isCostRejection, netText } from "../ops-view";
 import { PrefillBar } from "../money-prefill";
 import { PlanRuleChip, PlanRuleNote, planRuleCaption } from "../plan-rule";
-import { EconomicsEditor, MoveIncludes, PlantDiagram, TierChip, agreementWords, andList, backtestView, checkWords, moveKey, movePhrase, partsMoved, rejectionLabels, smallestSupported, type ActualChangeExtras, type BacktestView } from "../plan-bits";
+import { EconomicsEditor, MoveIncludes, PlantDiagram, TierChip, agreementWords, andList, backtestView, moveKey, movePhrase, movedParts, partsMoved, rejectionLabels, smallestSupported, type ActualChangeExtras, type BacktestView } from "../plan-bits";
 import { families, planTemplateVersion } from "@/lib/families";
 import { planTarget } from "../plan-target";
 import { ReviewNote } from "../review-note";
@@ -736,18 +736,28 @@ function PlanBand({
     <Band
       left={
         <>
-          {below ? 0 : shown} of {total} moves cleared the <Term explain={copy.terms.bar.text}>{BAR} precedent-check bar</Term>
+          {below ? 0 : shown} of {total} moves backed by an earlier ruling (<Term explain={copy.terms.bar.text}>bar {BAR}</Term>)
           {demoted ? ` (${demoted} more cleared it but not your operating inputs)` : null}
         </>
       }
-      right={below ? "closest first: by precedent check" : "precedent-checked"}>
+      right={below ? "closest first" : undefined}>
       <div>
         <p className={cx("eyebrow", below && "text-ask")}>{stepNo} · {below ? copy.plan.none : copy.plan.best}</p>
         <h1 className="duo mt-1 text-[26px] font-normal leading-tight tracking-[-0.05em] sm:text-[32px]">
           {below ? "Closest: move " : "Move "}
           <Explained text={sentence(plan)} terms={["pcba"]} /> to <To country={target} />
         </h1>
-        <MoveIncludes product={product} plan={plan} className="mt-2 max-w-[80ch]" />
+        {movedParts(product, plan).some((g) => g.items.length > 0) ? (
+          <details className="group mt-2 max-w-[80ch] text-xs">
+            <summary className="inline-flex min-h-6 cursor-pointer list-none items-center gap-1.5 text-ok [&::-webkit-details-marker]:hidden">
+              <span aria-hidden="true" className="inline-block w-3 text-dim transition-transform group-open:rotate-90">
+                ▸
+              </span>
+              {copy.plan.partsThatMove}
+            </summary>
+            <MoveIncludes product={product} plan={plan} />
+          </details>
+        ) : null}
         <div className="mt-4 flex flex-wrap gap-2">
           {below ? <Chip tone="ask">△ Below the bar · {conf(v)}</Chip> : <Chip tone="ok">{copy.plan.supported}</Chip>}
           {!below && <TierChip plan={plan} result={result} />}
@@ -769,7 +779,7 @@ function PlanBand({
         <p className="eyebrow">
           <Term explain={copy.terms.check.text}>Precedent check</Term>
         </p>
-        <Ruler value={v} caption={[`check ${conf(v)}`, agreementWords(plan.verdict?.agreement), checkWords(v)].filter(Boolean).join(" · ")} />
+        <Ruler value={v} caption={[`check ${conf(v)}`, agreementWords(plan.verdict?.agreement)].filter(Boolean).join(" · ")} />
         {!below && backtest ? (
           // The backtest beside the check (judge panel round 4): what the
           // manufacturer really changed, from CBP's later ruling. Round 5
@@ -916,7 +926,7 @@ function WhySupported({ plan, asOf }: { plan: Plan; asOf?: string | null }) {
       <dl className="grid grid-cols-[auto_minmax(0,1fr)] gap-x-3 gap-y-1">
         <dt className="text-dim">Check</dt>
         <dd>
-          {[conf(v.confidence), agreementWords(v.agreement), checkWords(v.confidence)].filter(Boolean).join(" · ")}
+          {[conf(v.confidence), agreementWords(v.agreement)].filter(Boolean).join(" · ")}
         </dd>
         <dt className="text-dim">Supports</dt>
         <dd>{v.supporting_ruling ? <RulingLink id={v.supporting_ruling} asOf={asOf} support /> : "none found"}</dd>
@@ -950,9 +960,12 @@ function MoneyDrawer({ onClose, children }: { onClose: () => void; children: Rea
 // four lines and fold the rest behind "Read the full check".
 function Reasoning({ text }: { text: string }) {
   const [open, setOpen] = useState(false);
+  // The first two sentences while folded (copy sweep 1: fewer words on screen).
+  const cuts = [...text.matchAll(/[.!?]\s+(?=[A-Z])/g)];
+  const lead = cuts.length > 1 ? text.slice(0, (cuts[1].index ?? 0) + 1) : text;
   return (
     <div className="mt-3">
-      <p className={cx("read text-[14px] leading-relaxed text-body", !open && "line-clamp-4")}>{text}</p>
+      <p className="read text-[14px] leading-relaxed text-body">{open || text.length <= 280 ? text : lead}</p>
       {text.length > 280 && (
         <button type="button" className="mt-1.5 text-[13px] text-ok hover:underline" aria-expanded={open} onClick={() => setOpen((o) => !o)}>
           {open ? "Show less" : "Read the full check →"}
@@ -1012,7 +1025,6 @@ function AllMoves({ result, onDraft, stale, product, asOf }: { result: PlanResul
                 <tr key={key || "baseline"} className={cx("border-b border-line last:border-0 max-sm:grid max-sm:grid-cols-[1fr_auto] max-sm:items-center max-sm:gap-x-3 max-sm:gap-y-2 max-sm:px-3.5 max-sm:py-3", grey && "text-dim")}>
                   <td className="duo px-3.5 py-2.5 text-ink max-sm:col-span-2 max-sm:p-0">
                     {p.description}
-                    <MoveIncludes product={product} plan={p} className="mt-0.5" />
                     <span className="mt-0.5 block text-xs text-dim">
                       {p.shown ? (
                         <>
@@ -1025,12 +1037,13 @@ function AllMoves({ result, onDraft, stale, product, asOf }: { result: PlanResul
                         </>
                       ) : p.rejection_kind === "below_confidence_bar" ? (
                         <>
-                          {copy.plan.belowBarRow(conf(p.verdict?.confidence))}
                           {p.verdict?.supporting_ruling ? (
                             <>
-                              {" "}· supported by <RulingLink id={p.verdict.supporting_ruling} asOf={asOf} support />
+                              Closest support <RulingLink id={p.verdict.supporting_ruling} asOf={asOf} support />
                             </>
-                          ) : null}
+                          ) : (
+                            copy.plan.belowBarRow(conf(p.verdict?.confidence))
+                          )}
                         </>
                       ) : isCostRejection(p) ? (
                         <>
@@ -1188,8 +1201,8 @@ function backtestShort(v: BacktestView): string {
 // The band's sentence: what the comparison is, and that it is not blind.
 function backtestWords(v: BacktestView, target: string, from: string): string {
   const of = v.missed.length === 0 ? `all ${parts(v.changed.length)}` : `${v.moved.length} of the ${parts(v.changed.length)}`;
-  const kept = v.alsoKept.length ? ` It also moves the ${andList(v.alsoKept)}, which that change kept in ${from}.` : "";
-  return `moves ${of} the manufacturer's real change switched from ${from} to ${target}${v.ruling ? ` (CBP's later ruling ${v.ruling})` : ""}.${kept} Not a blind test.`;
+  const kept = v.alsoKept.length ? `, and ${v.alsoKept.length} it kept in ${from}` : "";
+  return `moves ${of} the maker really moved to ${target}${v.ruling ? ` (${v.ruling})` : ""}${kept}. Not a blind test.`;
 }
 
 // With no plan over the bar the backend compares CBP's change with nothing,
@@ -1224,11 +1237,11 @@ function BacktestPanel({
         </p>
       ) : null}
       <p className="duo text-[13px]">
-        What is compared: the parts whose origin the manufacturer&apos;s real change switched from {from} to {target}
-        {v.ruling ? <> (CBP&apos;s later ruling <RulingLink id={v.ruling} />)</> : null}, against the parts this plan moves. The real change switched {parts(v.changed.length)}.{" "}
+        Parts the maker really moved from {from} to {target}
+        {v.ruling ? <> (CBP&apos;s later ruling <RulingLink id={v.ruling} />)</> : null}: {parts(v.changed.length)}.{" "}
         {closest ? (
           <>
-            No plan cleared the bar; the closest move ({movePhrase(closest)}) moves {v.moved.length} of them.
+            The closest move ({movePhrase(closest)}) moves {v.moved.length} of them.
           </>
         ) : v.missed.length === 0 ? (
           <>This plan moves {v.changed.length === 1 ? "that part" : `all ${v.changed.length}`}.</>
@@ -1247,9 +1260,8 @@ function BacktestPanel({
       {v.alsoKept.length ? (
         <>
           <p className="duo text-[13px]">
-            The plan also moves {v.alsoKept.length === 1 ? "a part" : `${v.alsoKept.length} parts`} that CBP&apos;s real change kept in {from}: the {andList(v.alsoKept)}. A smaller
-            move may have been enough. The search moves parts in template groups, and {v.alsoKept.length === 1 ? "this one sits" : "these sit"} in a group with parts that did switch
-            {v.keptGroups.length ? <> ({andList(v.keptGroups.map((g) => (/^[A-Z][a-z]/.test(g) ? g[0].toLowerCase() + g.slice(1) : g)))})</> : null}.
+            It also moves {v.alsoKept.length === 1 ? "a part" : `${v.alsoKept.length} parts`} the maker kept in {from}: the {andList(v.alsoKept)}. A smaller move may have been enough
+            {v.keptGroups.length ? <> (they share a group: {andList(v.keptGroups.map((g) => (/^[A-Z][a-z]/.test(g) ? g[0].toLowerCase() + g.slice(1) : g)))})</> : null}.
           </p>
           <div className="flex flex-wrap gap-1.5" aria-label={`Parts the real change kept in ${from} that this plan moves`}>
             {v.alsoKept.map((a) => (
@@ -1262,15 +1274,15 @@ function BacktestPanel({
       ) : null}
       {v.already.length ? (
         <p className="text-xs text-dim">
-          Not counted: the {andList(v.already)}, which the later ruling lists as made in {target} but which were already made there before the change.
+          Not counted: the {andList(v.already)}, already made in {target} before the change.
         </p>
       ) : null}
       <p className="duo border-l-2 border-ask-line pl-3 text-xs text-body">
-        Not a blind test. Three-group moves were added to the search after the team saw CBP&apos;s 2026 heat-gun change (
-        <a href={decisionHref("D84")} target="_blank" rel="noreferrer" className="font-mono text-ok underline underline-offset-2">
-          D84
+        Not a blind test: three-group moves were added after the 2026 change was public (
+        <a href={decisionHref("D84")} target="_blank" rel="noreferrer" className="text-ok underline underline-offset-2">
+          why
         </a>
-        ). The date cutoff still holds: the precedent check reads only rulings dated before the case.
+        ). The check still reads only rulings from before the case date.
       </p>
       {source ? <p className="text-xs text-dim">Source: {source}</p> : null}
       {next ? (

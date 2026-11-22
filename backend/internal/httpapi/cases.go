@@ -9,6 +9,7 @@ import (
 	"errors"
 	"fmt"
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/calibrate"
+	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/jurisdiction"
 	"io"
 	"log/slog"
 	"math"
@@ -113,9 +114,12 @@ type Deps struct {
 	Rulings        RulingSource
 	Cases          store.Cases
 	Templates      map[string]planner.Template
-	Summary        func() (evalsummary.Summary, error)
-	Demos          []demos.Demo
-	FastPathConf   float64
+	// Jurisdictions are the markets with an origin authority (D680); nil
+	// is the United States only.
+	Jurisdictions *jurisdiction.Registry
+	Summary       func() (evalsummary.Summary, error)
+	Demos         []demos.Demo
+	FastPathConf  float64
 	// FallbackFastPath is the auto-accept bar for a prediction whose
 	// trace.model_id is not EngineModel. 0 always reviews (D56).
 	FallbackFastPath float64
@@ -172,6 +176,10 @@ type Deps struct {
 	// RuleCheck, when set, adds the 19 CFR 102.20 rule check to a case
 	// that gives HTS codes (D363). Display only: nothing reads it back.
 	RuleCheck *tariffshift.Rules
+	// CanadaMarking, when set, serves POST /v1/rules/canada-marking: the
+	// SOR/94-23 marking-rule check for goods imported into Canada (D720).
+	// A rules check only, never stored and never read by the engine.
+	CanadaMarking *tariffshift.Rules
 	// Pharma, when set, predicts cases the router labels pharma_api with the
 	// pharmaceutical prompt (origin follows the active ingredient) instead of
 	// leaving them out of scope (D62). PharmaFastPath is its auto-accept bar;
@@ -354,6 +362,9 @@ type predictRequest struct {
 	Economics *planner.Economics `json:"economics"`
 	// DisplayName optionally names the case on Cases home (as PATCH does).
 	DisplayName string `json:"display_name"`
+	// Jurisdiction is the market the question is for (D680): us, eu, uk,
+	// ca, jp, kr, au, mx or other. Omitted: read from the text, else us.
+	Jurisdiction string `json:"jurisdiction"`
 }
 
 func (a *api) predict(w http.ResponseWriter, r *http.Request) {
@@ -468,7 +479,11 @@ func (a *api) newCase(r *http.Request, in predictRequest) (store.Case, domain.Ca
 	if facts != "" && !strings.HasSuffix(facts, "\n") {
 		facts += "\n"
 	}
-	c := domain.Case{ID: newCaseID(), Date: in.Date.Time, Facts: facts, Product: in.Product, Exclude: in.Exclude}
+	market, err := jurisdiction.Resolve(in.Jurisdiction, marketText(facts, in.Product))
+	if err != nil {
+		return store.Case{}, domain.Case{}, err
+	}
+	c := domain.Case{ID: newCaseID(), Date: in.Date.Time, Facts: facts, Product: in.Product, Exclude: in.Exclude, Jurisdiction: &market}
 	if err := c.Validate(); err != nil {
 		return store.Case{}, domain.Case{}, err
 	}
@@ -485,7 +500,7 @@ func (a *api) newCase(r *http.Request, in predictRequest) (store.Case, domain.Ca
 	}
 	now := time.Now().UTC()
 	sc := store.Case{ID: c.ID, Date: in.Date.Format(time.DateOnly), Facts: facts, Family: in.Family, Product: in.Product,
-		Exclude: in.Exclude, CurrentOrigin: in.CurrentOrigin, CreatedAt: now, UpdatedAt: now, Economics: in.Economics, DisplayName: displayName,
+		Exclude: in.Exclude, Jurisdiction: &market, CurrentOrigin: in.CurrentOrigin, CreatedAt: now, UpdatedAt: now, Economics: in.Economics, DisplayName: displayName,
 	}
 	sc.Owner, sc.Workspace = a.principalOf(r).newCaseScope() // a signed-in user's (D68), else the credential owner
 	return sc, c, nil
@@ -599,7 +614,7 @@ func (a *api) answers(w http.ResponseWriter, r *http.Request) {
 	sc.Answers = append(sc.Answers, in.Answers...)
 	facts, _ := clarify.AppendAnswers(sc.OriginalFacts, toClarify(sc.Answers))
 	date, _ := time.Parse(time.DateOnly, sc.Date)
-	c := domain.Case{ID: sc.ID, Date: date, Facts: facts, Product: sc.Product, Exclude: sc.Exclude}
+	c := domain.Case{ID: sc.ID, Date: date, Facts: facts, Product: sc.Product, Exclude: sc.Exclude, Jurisdiction: caseMarket(sc)}
 	if err := c.Validate(); err != nil {
 		a.fail(w, r, err)
 		return
@@ -707,6 +722,7 @@ func (a *api) caseFieldsBase(r *http.Request, c store.Case) map[string]any {
 		"targets": targetsField(cal.Targets), "pinned": c.Pinned, "economics_priced": a.economicsPriced(c), "display_name": summaryRow(c).DisplayName,
 		"can_write": a.canWrite(r, c),
 	}
+	a.marketFields(f, c)
 	// What the case's own prediction read (D220), present only when known.
 	if src := a.factsSource(c); src != "" {
 		f["facts_source"] = src
@@ -1064,7 +1080,9 @@ func (a *api) getCase(w http.ResponseWriter, r *http.Request) {
 }
 
 type planRequest struct {
-	Target       string                `json:"target"`
+	Target string `json:"target"`
+	// Jurisdiction, when given, must be the case's market (D680).
+	Jurisdiction string                `json:"jurisdiction"`
 	Economics    planner.Economics     `json:"economics"`
 	ActualChange *planner.ActualChange `json:"actual_change"`
 }
@@ -1153,7 +1171,7 @@ func (a *api) planSearch(ctx context.Context, c store.Case, req planner.Request,
 			return nil, err
 		}
 	}
-	return map[string]any{"case_id": c.ID, "plan": a.ruleChecked(c, res)}, nil // the check is added, never stored (D441)
+	return map[string]any{"case_id": c.ID, "jurisdiction": jurisdiction.Of(c.Jurisdiction).Code, "plan": a.ruleChecked(c, res)}, nil // the check is added, never stored (D441)
 }
 
 // planRequestFor builds the planner request for a case and a plan body.
@@ -1161,6 +1179,9 @@ func (a *api) planSearch(ctx context.Context, c store.Case, req planner.Request,
 // raw is the hash of the money the request is priced from, taken before the
 // tariff table or live lookup fills any rate (see rawBasis).
 func (a *api) planRequestFor(r *http.Request, c store.Case, in planRequest, fetch bool) (req planner.Request, st moneyStamp, err error) {
+	if err := a.requireMarket(c, in.Jurisdiction); err != nil {
+		return planner.Request{}, moneyStamp{}, err
+	}
 	if c.Product == nil || c.Family == "" {
 		return planner.Request{}, moneyStamp{}, fmt.Errorf("%w: plan search needs a case created from a structured product with a family", domain.ErrInvalid)
 	}
@@ -1406,6 +1427,7 @@ func (a *api) planStream(w http.ResponseWriter, r *http.Request, c store.Case, r
 	}
 	out := a.meta()
 	out["case_id"], out["plan"] = c.ID, a.ruleChecked(c, res) // added, never stored (D441)
+	out["jurisdiction"] = jurisdiction.Of(c.Jurisdiction).Code
 	send("done", out)
 }
 
@@ -1437,6 +1459,10 @@ const (
 func (a *api) export(w http.ResponseWriter, r *http.Request) {
 	c, err := a.loadCase(r)
 	if err != nil {
+		a.fail(w, r, err)
+		return
+	}
+	if err := a.requireMarket(c, ""); err != nil {
 		a.fail(w, r, err)
 		return
 	}

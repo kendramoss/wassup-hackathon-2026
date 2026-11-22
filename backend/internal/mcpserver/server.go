@@ -50,6 +50,9 @@ type Options struct {
 	// PartsHTS reports that POST /v1/products/parts-hts-suggest is served;
 	// without it suggest_part_hts is not listed.
 	PartsHTS bool
+	// CanadaMarking reports that POST /v1/rules/canada-marking is served;
+	// without it check_canada_marking is not listed.
+	CanadaMarking bool
 	// Version is reported in the MCP initialize result.
 	Version string
 	// ClientAddress resolves the outer request's connection address and
@@ -87,11 +90,15 @@ func NewServer(o Options) *mcp.Server {
 	s := mcp.NewServer(&mcp.Implementation{Name: "unde", Title: "Unde Labs", Version: v}, &mcp.ServerOptions{Instructions: instructions})
 	t := tools{api: o.API, families: o.Families}
 	t.register(s, o.RulingSearch)
+	t.registerRCEP(s)
 	if o.MediaExtract {
 		t.registerMedia(s)
 	}
 	if o.PartsHTS {
 		t.registerPartsHTS(s)
+	}
+	if o.CanadaMarking {
+		t.registerCanada(s)
 	}
 	t.registerResources(s)
 	t.registerPrompts(s)

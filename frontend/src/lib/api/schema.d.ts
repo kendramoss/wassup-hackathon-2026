@@ -59,7 +59,7 @@ export interface paths {
         put?: never;
         /**
          * Triage a portfolio (up to 20 products) in one call
-         * @description Each product is predicted from its facts, triaged and saved as an ordinary case (D47). One product's failure fills its row's error and does not fail the rest. Send JSON, or multipart/form-data with a "file" (CSV or .xlsx with a header row: name (or product, sku), facts (or description), optional date). Rate-limited as one heavy request per client that takes 20 from the global cap.
+         * @description Each product is predicted from its facts, triaged and saved as an ordinary case (D47). One product's failure fills its row's error and does not fail the rest. Send JSON, or multipart/form-data with a "file" (CSV or .xlsx with a header row: name (or product, sku), facts (or description), optional date, optional jurisdiction). Rate-limited as one heavy request per client that takes 20 from the global cap.
          */
         post: operations["triageBatch"];
         delete?: never;
@@ -702,6 +702,66 @@ export interface paths {
         get: operations["getDutyRates"];
         put?: never;
         post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/rcep/check": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * RCEP preferential origin check from a bill of materials (deterministic, no model call)
+         * @description Does a good made in an RCEP Party qualify as RCEP originating, so it can claim the RCEP preferential tariff when imported into another Party? Deterministic code over the official Annex 3A product-specific rules (HS 2022 transposition, parsed from the RCEP Secretariat PDF and cross-checked against the Australian Border Force copy; `backend/internal/rcep`, D690). Implements Art. 3.2 (wholly obtained, only originating materials, or the Annex 3A rule), Art. 3.4 cumulation (a material counts as originating only when declared originating and from a Party), Art. 3.5 RVC by both formulas (materials of undetermined origin count as non-originating), Art. 3.6 minimal operations and Art. 3.7 de minimis (10 % of FOB value; also 10 % of weight for chapters 50 to 63). Not covered: packaging (3.8), accessories (3.9), indirect and fungible materials (3.10, 3.11), direct consignment (3.15) and proof-of-origin procedures. Missing facts make the answer `undetermined`, never `no`. This is preferential origin only: it is separate from the marking and non-preferential origin every case answer gives, and every response says so (`regime: rcep_preferential`). Nothing is stored. Not a ruling and not a certificate of origin. Cheap class (120 a minute); a malformed body is 400 `invalid_input`.
+         */
+        post: operations["checkRcepPreference"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/jurisdictions": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Markets a case can name, and which have an origin engine
+         * @description Every market code with its name, whether it is supported (D680) and whether it has the steps after the origin answer. us is supported with every step; ca is supported as a rules check only (D725). A case for any other market gets no prediction and goes to review.
+         */
+        get: operations["listJurisdictions"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/rules/canada-marking": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Canada marking-origin rules check (SOR/94-23), from HTS codes; no model call (D720-D725)
+         * @description Applies Canada's Determination of Country of Origin for the Purpose of Marking Goods (CUSMA Countries) Regulations (SOR/94-23): the Schedule III tariff-shift row for the good, then ss. 4, 5, 9 and 11. Same output shape as a case's `rule_check.result`. A rules check only: Canada publishes too few origin rulings to test it, so there is no accuracy figure, and every answer carries `label` saying so. Send either `product` (read like the case's rule check: its HTS code, parts' codes and `made_in`, and the production country from its plants) or `good_hts`, `country` and `materials`. Headings in Canada's text are written 84.73; send codes as usual (8473.30). Nothing is stored. Served when RULE_CHECK is on (the default).
+         */
+        post: operations["checkCanadaMarking"];
         delete?: never;
         options?: never;
         head?: never;
@@ -1448,6 +1508,31 @@ export interface components {
             economics?: components["schemas"]["Economics"];
             /** @description Optional name for the case on Cases home (D48); batch rows pass their name here */
             display_name?: string;
+            /** @description Market the question is for (D680). Omitted: read from the text by a deterministic detector (an authority such as HMRC or CBSA, "imported into <place>", "<market> customs"), else us. Only us has an origin engine today; any other market is saved with no prediction and goes to review with "Origin rules for <market> aren't supported yet". */
+            jurisdiction?: components["schemas"]["JurisdictionCode"];
+        };
+        /**
+         * @description Market codes: us United States, eu European Union, uk United Kingdom, ca Canada, jp Japan, kr South Korea, au Australia, mx Mexico, other any other market
+         * @enum {string}
+         */
+        JurisdictionCode: "us" | "eu" | "uk" | "ca" | "jp" | "kr" | "au" | "mx" | "other";
+        JurisdictionDetail: {
+            code: components["schemas"]["JurisdictionCode"];
+            /** @example United States */
+            name: string;
+            /**
+             * @description chosen: the caller named it; detected: a cue in the text; default: no cue (a case made before D680 also reads default)
+             * @enum {string}
+             */
+            source: "chosen" | "detected" | "default";
+            /** @description What set a detected market, e.g. "HMRC" or "entry into Canada" */
+            cue?: string;
+            /** @description A non-U.S. market the text suggests but that was not taken (a price, "sold in", or a cue contradicted by a U.S. one). On a case the router labels unclear it sends the case to review. */
+            hint?: string;
+            /** @description Whether the market has an origin engine. false: no prediction was made */
+            supported: boolean;
+            /** @description Whether the case has plan search, comparison, scenarios, Ask, the draft and broker review. Only us has them; on any other market those calls return 400 (#678) */
+            follow_ups: boolean;
         };
         /** @description One re-run of the origin engine on revised facts */
         WhatIf: {
@@ -1533,6 +1618,9 @@ export interface components {
             family?: string;
             /** @description Rulings the engine and the plan search never read for this case (as given at prediction) */
             exclude_rulings?: string[];
+            jurisdiction?: components["schemas"]["JurisdictionCode"];
+            jurisdiction_detail?: components["schemas"]["JurisdictionDetail"];
+            /** @description Empty (origin_country "") when jurisdiction_detail.supported is false: no engine ran (D680) */
             prediction?: components["schemas"]["Prediction"];
             triage?: components["schemas"]["Triage"];
             router?: components["schemas"]["RouterLabel"];
@@ -1907,6 +1995,8 @@ export interface components {
         PlanRequest: {
             /** @example Thailand */
             target: string;
+            /** @description Optional. When given it must be the case's market, else 400. A case whose market has no engine, or a non-U.S. case, is refused with 400: plan search is a U.S. CBP search (D680). */
+            jurisdiction?: components["schemas"]["JurisdictionCode"];
             economics?: components["schemas"]["Economics"];
             /** @description For backtests, the real change and CBP's ruling on it; the result compares it with the best plan. */
             actual_change?: {
@@ -2108,6 +2198,7 @@ export interface components {
         };
         PlanResponse: components["schemas"]["Meta"] & {
             case_id?: string;
+            jurisdiction?: components["schemas"]["JurisdictionCode"];
             plan?: components["schemas"]["PlanResult"];
         };
         BrokerReviewDecision: {
@@ -2565,6 +2656,8 @@ export interface operations {
                          * @description Default today
                          */
                         date?: string;
+                        /** @description Optional market (D680); a sheet may have a jurisdiction (or market) column */
+                        jurisdiction?: components["schemas"]["JurisdictionCode"];
                     }[];
                 };
                 "multipart/form-data": {
@@ -2585,6 +2678,8 @@ export interface operations {
                             /** @description The given name */
                             name: string;
                             case_id?: string;
+                            jurisdiction?: components["schemas"]["JurisdictionCode"];
+                            /** @description Absent when the market has no engine (D680) */
                             predicted_origin?: string;
                             /** @description The model's stated confidence; read calibrated_confidence first when present (D160, #402) */
                             confidence?: number;
@@ -3573,6 +3668,8 @@ export interface operations {
                      *     ]
                      */
                     targets: string[];
+                    /** @description Optional; as in PlanRequest */
+                    jurisdiction?: components["schemas"]["JurisdictionCode"];
                     economics?: components["schemas"]["Economics"];
                 };
             };
@@ -3586,6 +3683,7 @@ export interface operations {
                 content: {
                     "application/json": {
                         case_id?: string;
+                        jurisdiction?: components["schemas"]["JurisdictionCode"];
                         targets?: components["schemas"]["TargetSummary"][];
                     };
                 };
@@ -4032,6 +4130,235 @@ export interface operations {
                 };
             };
             404: components["responses"]["Error"];
+            429: components["responses"]["TooManyRequests"];
+        };
+    };
+    checkRcepPreference: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": {
+                    /**
+                     * @description The good's HS code, 4 to 10 digits; the rule is looked up at 6 digits (HS 2022)
+                     * @example 0910.91
+                     */
+                    hs: string;
+                    /**
+                     * @description Where the good is produced: country name or ISO alpha-2 code. A non-Party is `no`.
+                     * @example Malaysia
+                     */
+                    produced_in: string;
+                    /** @description FOB value of the good; needed for RVC and the value de minimis */
+                    fob?: number;
+                    /** @description Weight of the good; used for the chapters 50-63 de minimis */
+                    weight?: number;
+                    /** @description The producer states the good is wholly obtained in the Party (Art. 3.3) */
+                    wholly_obtained?: boolean;
+                    /** @description What is done to the non-originating materials. If every entry is an Art. 3.6 key (preserving, packaging, simple_processes, marking, dilution, disassembly, slaughtering, simple_painting_polishing, simple_peeling, simple_mixing), the good does not qualify. Any other word (e.g. assembly) counts as real production. */
+                    operations?: string[];
+                    /** @description A chemical reaction took place in a Party (Annex 3A CR rule). Unset: not stated. */
+                    chemical_reaction?: boolean;
+                    /** @description For the eight rows whose rule depends on the product (e.g. 0304.39 carp vs other fish), the branch id from `rule.variants`. Unset: decided only if every branch agrees. */
+                    variant?: string;
+                    /** @description Heading 38.08 only: share by weight of the active ingredients that is originating */
+                    active_ingredient_originating_pct?: number;
+                    /** @description Build-up (direct) formula terms, Art. 3.5.1(b); same currency as fob */
+                    costs?: {
+                        labour?: number;
+                        overhead?: number;
+                        profit?: number;
+                        other?: number;
+                    };
+                    materials?: {
+                        name?: string;
+                        /** @description The material's HS code, 2 to 10 digits; the rule needs 2, 4 or 6 */
+                        hs?: string;
+                        /** @description CIF at import, or the earliest price paid in the Party (Art. 3.5.3) */
+                        value?: number;
+                        weight?: number;
+                        /** @description Where the material originates */
+                        country?: string;
+                        /**
+                         * @description originating: the supplier's declaration or proof of origin says it is RCEP originating
+                         * @default unknown
+                         * @enum {string}
+                         */
+                        status?: "originating" | "non_originating" | "unknown";
+                    }[];
+                };
+            };
+        };
+        responses: {
+            /** @description The answer, with the rule used and plain-English reasons */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        /** @enum {string} */
+                        outcome?: "yes" | "no" | "undetermined";
+                        /**
+                         * @description Art. 3.2 limb of a yes
+                         * @enum {string}
+                         */
+                        basis?: "WO" | "PE" | "PSR";
+                        /**
+                         * @description The alternative that decided a yes, e.g. CTH, RVC40, CC except from chapter 10
+                         * @example RVC40
+                         */
+                        applied?: string;
+                        rule?: {
+                            /** @example 0910.91 */
+                            code?: string;
+                            /** @enum {string} */
+                            level?: "chapter" | "heading" | "subheading";
+                            description?: string;
+                            /** @example CC or RVC40 */
+                            text?: string;
+                            /** @example rcep-psr-hs2022-r2022-08-20 */
+                            version?: string;
+                            variants?: Record<string, never>[];
+                        };
+                        rvc?: {
+                            /** @example 40 */
+                            threshold?: number;
+                            /** @description (FOB - VNM) / FOB x 100 */
+                            build_down?: number;
+                            /** @description (VOM + labour + overhead + profit + other) / FOB x 100 */
+                            build_up?: number;
+                            vnm?: number;
+                            vom?: number;
+                        };
+                        de_minimis?: {
+                            used?: boolean;
+                            /** @description per cent of FOB */
+                            value_share?: number;
+                            /** @description per cent of the good's weight */
+                            weight_share?: number;
+                        };
+                        /** @description Originating materials from another Party were counted (Art. 3.4) */
+                        accumulation?: boolean;
+                        /** @description Materials that fail (or cannot be tested against) the tariff-shift rule; empty on a yes */
+                        failing?: {
+                            index?: number;
+                            name?: string;
+                            hs?: string;
+                            reason?: string;
+                        }[];
+                        alternatives?: {
+                            rule?: string;
+                            /** @enum {string} */
+                            outcome?: "yes" | "no" | "undetermined";
+                            reasons?: string[];
+                        }[];
+                        reasons?: string[];
+                        /** @enum {string} */
+                        regime?: "rcep_preferential";
+                        note?: string;
+                    };
+                };
+            };
+            400: components["responses"]["Error"];
+            429: components["responses"]["TooManyRequests"];
+        };
+    };
+    listJurisdictions: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Market list */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        jurisdictions?: {
+                            code?: components["schemas"]["JurisdictionCode"];
+                            name?: string;
+                            supported?: boolean;
+                            /** @description Whether the market's cases have plan search, comparison, scenarios, Ask, the draft and broker review (us only) */
+                            follow_ups?: boolean;
+                        }[];
+                        /**
+                         * @description Version of the deterministic market detector
+                         * @example market-detect-v2
+                         */
+                        detector?: string;
+                    };
+                };
+            };
+            429: components["responses"]["TooManyRequests"];
+        };
+    };
+    checkCanadaMarking: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": {
+                    product?: components["schemas"]["Product"];
+                    /** @example 6301.30 */
+                    good_hts?: string;
+                    /**
+                     * @description Where the good is produced
+                     * @example Mexico
+                     */
+                    country?: string;
+                    materials?: {
+                        name?: string;
+                        hts?: string;
+                        origin?: string;
+                        not_in?: string;
+                        value_share?: number;
+                        /** @description For de minimis by weight in chapters 50 to 63 (s. 11(1)(a)) */
+                        weight_share?: number;
+                    }[];
+                    simple_assembly?: boolean;
+                    gri_2a?: boolean;
+                    bending_to_shape?: boolean;
+                };
+            };
+        };
+        responses: {
+            /** @description The check */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        /** @enum {string} */
+                        jurisdiction: "ca";
+                        /** @enum {string} */
+                        rules: "SOR/94-23 Schedule III";
+                        /** @example ca-sor-94-23-v1 */
+                        table_version: string;
+                        /** @example Rules check only — no accuracy figure yet (no published rulings to test against) */
+                        label: string;
+                        country: string;
+                        country_from?: string;
+                        note: string;
+                        result: components["schemas"]["RuleCheck"]["result"];
+                    };
+                };
+            };
+            400: components["responses"]["Error"];
             429: components["responses"]["TooManyRequests"];
         };
     };

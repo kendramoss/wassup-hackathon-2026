@@ -208,6 +208,10 @@ func (a *api) createReview(w http.ResponseWriter, r *http.Request) {
 		a.fail(w, r, err)
 		return
 	}
+	if err := a.requireMarket(c, ""); err != nil {
+		a.fail(w, r, err)
+		return
+	}
 	if c.Pinned { // a public demo is not shared out, even by the admin token
 		writeError(w, http.StatusForbidden, "forbidden", "this is a pinned demo case; start a new case to send a draft for review", nil)
 		return

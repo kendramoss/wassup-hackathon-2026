@@ -99,7 +99,7 @@ func (a *api) bomVersion(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	facts := planner.Render(p, tm) // ends with one newline, as predict feeds the engine (D20)
-	c := domain.Case{ID: sc.ID, Date: date, Facts: facts, Product: &p, Exclude: sc.Exclude}
+	c := domain.Case{ID: sc.ID, Date: date, Facts: facts, Product: &p, Exclude: sc.Exclude, Jurisdiction: caseMarket(sc)}
 	if err := c.Validate(); err != nil {
 		a.fail(w, r, err)
 		return
@@ -119,7 +119,7 @@ func (a *api) bomVersion(w http.ResponseWriter, r *http.Request) {
 	// rendered old with rendered new.
 	var base *domain.Case
 	if oldFacts := planner.Render(*sc.Product, tm); strings.TrimSpace(oldFacts) != strings.TrimSpace(sc.Facts) {
-		base = &domain.Case{ID: sc.ID, Date: date, Facts: oldFacts, Product: sc.Product, Exclude: sc.Exclude}
+		base = &domain.Case{ID: sc.ID, Date: date, Facts: oldFacts, Product: sc.Product, Exclude: sc.Exclude, Jurisdiction: caseMarket(sc)}
 	}
 	// The comparison is predicted like a scenario (router, engine, triage);
 	// an applied version gets the full analysis, clarify included, as predict.

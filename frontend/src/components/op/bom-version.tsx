@@ -5,7 +5,7 @@ import { ApiError, api, type BomVersionResponse, type CaseResponse } from "@/lib
 import { VIEWER_REASON, caseReadOnly } from "@/lib/roles";
 import { originConf, originConfCaption } from "@/lib/format";
 import { ErrorBox } from "./chrome";
-import { Button, Country, Panel, PanelHead, Spinner } from "./ui";
+import { Button, Country, Fold, Spinner } from "./ui";
 
 const kinds: Record<string, string> = {
   component_added: "Part added",
@@ -70,12 +70,9 @@ export function BomVersion({ id, c, reload }: { id: string; c: CaseResponse; rel
 
   const changes = res?.changes ?? [];
   return (
-    <Panel>
-      <PanelHead>Upload a new version</PanelHead>
-      <p className="duo max-w-[80ch] text-[13px] text-dim">
-        A newer bill of materials (CSV or Excel, the same layout as an import) is compared with this product: parts added or removed, made in another country or at another plant.
-        If anything changed, the new version is predicted too. Nothing changes on the case until you apply it.
-      </p>
+    <div>
+    <Fold title="Upload a new version" meta="CSV or Excel" open={Boolean(res || busy || error)}>
+      <p className="duo max-w-[80ch] text-[13px] text-dim">Nothing changes until you apply it.</p>
       <div className="mt-3 flex flex-wrap items-center gap-2.5">
         <label htmlFor={fileId} className="sr-only">
           New bill of materials
@@ -151,6 +148,7 @@ export function BomVersion({ id, c, reload }: { id: string; c: CaseResponse; rel
             ))}
         </div>
       )}
-    </Panel>
+    </Fold>
+    </div>
   );
 }

@@ -107,7 +107,12 @@ func NewHandler(logger *slog.Logger, info Info, deps ...Deps) http.Handler {
 		}
 		mux.HandleFunc("GET /v1/eval/summary", a.cheap(a.evalSummary))
 		mux.HandleFunc("GET /v1/duty-rates", a.cheap(a.dutyRates))
+		mux.HandleFunc("POST /v1/rcep/check", a.cheap(a.rcepCheck)) // RCEP preferential origin, no model
+		if d.CanadaMarking != nil {
+			mux.HandleFunc("POST /v1/rules/canada-marking", a.cheap(a.canadaMarking))
+		}
 		mux.HandleFunc("GET /v1/demos", a.cheap(a.listDemos))
+		mux.HandleFunc("GET /v1/jurisdictions", a.cheap(a.listJurisdictions))
 		mux.HandleFunc("GET /v1/demos/{id}", a.cheap(a.getDemo))
 		if d.Teams {
 			mux.HandleFunc("POST /v1/workspaces", a.cheap(a.createWorkspace))

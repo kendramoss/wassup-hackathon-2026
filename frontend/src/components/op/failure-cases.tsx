@@ -9,7 +9,7 @@
 import { useState } from "react";
 import data from "@/lib/failure-cases.json";
 import { copy } from "@/lib/copy";
-import { Chip, RulingLink, ScrollX, cx } from "./ui";
+import { Chip, Fold, RulingLink, ScrollX, cx } from "./ui";
 
 const T = copy.trust;
 const repo = copy.landing.repo;
@@ -26,7 +26,7 @@ python3 -I eval/charts/build_accuracy.py . --check       # model sweep, second t
 
 export function Reproduce() {
   return (
-    <section id="reproduce" aria-labelledby="repro-h" className="mt-6 border border-edge bg-sheet px-5 py-4 shadow-[4px_4px_0_var(--shadow)]">
+    <section id="reproduce" aria-labelledby="repro-h" className="mt-8 border border-edge bg-sheet px-5 py-4 shadow-[4px_4px_0_var(--shadow)]">
       <div className="flex flex-wrap items-baseline gap-3">
         <h2 id="repro-h" className="eyebrow">
           {T.reproTitle}
@@ -36,13 +36,18 @@ export function Reproduce() {
         </a>
       </div>
       <p className="read mt-2 max-w-[80ch] text-[13.5px] text-body">{T.reproLead}</p>
-      <ScrollX label={T.reproCommandsLabel}>
-        <pre className="mt-3 border border-line bg-white px-4 py-3 font-mono text-[12px] leading-relaxed">
-          <code>{commands}</code>
-        </pre>
-      </ScrollX>
-      <p className="read mt-2 text-[12.5px] text-dim">
-        {T.reproNote} Also in the repository: the{" "}
+      <div className="mt-3">
+        <Fold title="Commands">
+          <ScrollX label={T.reproCommandsLabel}>
+            <pre className="border border-line bg-white px-4 py-3 font-mono text-[12px] leading-relaxed">
+              <code>{commands}</code>
+            </pre>
+          </ScrollX>
+          <p className="read mt-2 text-[12.5px] text-dim">{T.reproNote}</p>
+        </Fold>
+      </div>
+      <p className="read mt-3 text-[12.5px] text-dim">
+        Also in the repository: the{" "}
         <a href={`${repo}/blob/main/docs/MODEL-CARD.md`} target="_blank" rel="noreferrer" className="text-ok underline underline-offset-2">
           model card
         </a>{" "}
@@ -63,12 +68,14 @@ export function KnownFailures() {
   const autoMisses = data.misses.filter((m) => m.auto_accepted);
   const rows = all ? data.misses : autoMisses;
   return (
-    <section id="misses" aria-labelledby="miss-h" className="mt-6 border border-edge bg-sheet px-5 py-4 shadow-[4px_4px_0_var(--shadow)]">
+    <section id="misses" aria-labelledby="miss-h" className="mt-8 border border-edge bg-sheet px-5 py-4 shadow-[4px_4px_0_var(--shadow)]">
       <div className="flex flex-wrap items-center gap-3">
         <h2 id="miss-h" className="eyebrow">
           {T.failTitle}
         </h2>
-        <Chip tone="ok">official · Vertex AI</Chip>
+        <span title="The run of record: Gemini on Vertex AI.">
+          <Chip tone="ok">official run</Chip>
+        </span>
         <span className="ml-auto text-[11px] text-dim">
           {data.misses.length} of {data.n} wrong · {autoMisses.length} auto-accepted
         </span>
@@ -94,8 +101,8 @@ export function KnownFailures() {
                   </span>
                   <span className="col-span-2 whitespace-nowrap tabular-nums sm:col-span-1 sm:text-right">
                     <b className="font-medium">{pct(v)}</b>{" "}
-                    <span className="text-dim">
-                      {o.correct}/{o.n} ({(o.ci_low * 100).toFixed(1)}–{(o.ci_high * 100).toFixed(1)})
+                    <span className="text-dim" title={`95% interval ${(o.ci_low * 100).toFixed(1)}–${(o.ci_high * 100).toFixed(1)}`}>
+                      {o.correct}/{o.n}
                     </span>
                   </span>
                 </div>
@@ -110,13 +117,15 @@ export function KnownFailures() {
               <li key={t}>{t}</li>
             ))}
           </ul>
-          <h3 className="eyebrow mt-5">{T.patternsTitle}</h3>
-          <p className="mt-1 text-[11.5px] text-dim">{T.patternsNote}</p>
-          <ul className="read mt-2 flex list-disc flex-col gap-1.5 pl-5 text-[13.5px]">
-            {T.patterns.map((t) => (
-              <li key={t}>{t}</li>
-            ))}
-          </ul>
+          <div className="mt-5">
+            <Fold title={T.patternsTitle} meta={T.patternsNote}>
+              <ul className="read flex list-disc flex-col gap-1.5 pl-5 text-[13.5px]">
+                {T.patterns.map((t) => (
+                  <li key={t}>{t}</li>
+                ))}
+              </ul>
+            </Fold>
+          </div>
         </div>
       </div>
 
@@ -153,7 +162,11 @@ export function KnownFailures() {
       <button type="button" onClick={() => setAll(!all)} className="mt-3 min-h-8 text-[12.5px] text-ok hover:underline" aria-expanded={all}>
         {all ? T.showAuto : T.showAll(data.misses.length)}
       </button>
-      <p className="duo mt-2 text-[11.5px] text-dim">{T.source}</p>
+      <div className="mt-2">
+        <Fold title="Details">
+          <p className="duo text-[11.5px] text-dim">{T.source}</p>
+        </Fold>
+      </div>
     </section>
   );
 }

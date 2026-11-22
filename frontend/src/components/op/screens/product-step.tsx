@@ -24,6 +24,8 @@ import { ActionSlotProvider } from "../action-bar";
 import { CaseTabs, Elapsed, ErrorBox, Footer, Main, Next } from "../chrome";
 import { MoneyDrawer, hasAnyMoney, hasMoney, moneySummary, productGroups } from "../money-drawer";
 import { opsErrorText } from "../operational-fields";
+import { MarketPicker } from "../market-picker";
+import type { MarketCode } from "@/lib/market";
 import { Combobox, countryOptions, type ComboOption } from "../combobox";
 import { HtsField } from "../hts-field";
 import { PartSuggestionRow, PartsHtsBar, suggestionFor, withSuggested, type PartsSuggestions } from "../parts-hts";
@@ -274,6 +276,10 @@ export function ProductStep() {
   const [importFailed, setImportFailed] = useState(false);
   const [name, setName] = useState("");
   const [date, setDate] = useState(today);
+  // The market (D680): sent only once the user picks one, so an untouched
+  // picker lets the server read the market from the text.
+  const [market, setMarket] = useState<MarketCode>("us");
+  const [marketPicked, setMarketPicked] = useState(false);
   const [family, setFamily] = useState("motorised_tools_small_appliances");
   const [facts, setFacts] = useState("");
   const [hts, setHts] = useState("");
@@ -463,6 +469,7 @@ export function ProductStep() {
     const body: PredictRequest = {
       ...predictBody({ date, tab, name, hts, family, facts, product, extra }),
       economics: hasAnyMoney(economics) ? economics : undefined,
+      jurisdiction: marketPicked ? market : undefined,
     };
     setStages([]);
     try {
@@ -521,8 +528,8 @@ export function ProductStep() {
           {/* Three numbered sections, top to bottom in the order people fill
               them: name it, describe it, check what that unlocks and go. An
               import still fills the name. */}
-          <SectionHead n={1} title="The product" hint="Its name heads the ruling letter; the date limits which rulings are read." />
-          <div className="mt-3 grid gap-4 sm:grid-cols-[minmax(0,1.3fr)_minmax(0,1fr)_200px]">
+          <SectionHead n={1} title="The product" />
+          <div className="mt-3 grid gap-4 sm:grid-cols-2 lg:grid-cols-[minmax(0,1.3fr)_minmax(0,1fr)_170px_200px]">
             <Field label={copy.product.name} help={askName && !name.trim() ? "Name the product as you would to CBP. It heads the ruling letter." : undefined}>
               {(id) => (
                 <input
@@ -570,9 +577,21 @@ export function ProductStep() {
             <Field label={copy.product.date} help={copy.product.dateHelp}>
               {(id) => <input id={id} data-field="date" type="date" className={cx(input, "tabular-nums")} value={date} onChange={(e) => setDate(e.target.value)} />}
             </Field>
+            <Field label={copy.market.label}>
+              {(id) => (
+                <MarketPicker
+                  id={id}
+                  value={market}
+                  onChange={(m) => {
+                    setMarket(m);
+                    setMarketPicked(true);
+                  }}
+                />
+              )}
+            </Field>
           </div>
 
-          <SectionHead n={2} title="Describe it" hint="Pick one way. Parts and plants unlock the plan search." />
+          <SectionHead n={2} title="Describe it" hint="Parts and plants unlock the plan search." />
           {/* ARIA tabs (#99): one Tab stop, arrow keys move between tabs. */}
           <div role="tablist" aria-label="How to describe the product" className="mt-3 inline-flex flex-wrap border border-edge bg-sheet">
             {tabOrder.map((t) => (
@@ -819,13 +838,13 @@ export function ProductStep() {
               onNeedSource={showMissing}
               help={
                 tab === "paste"
-                  ? "Fills sourced duty rates for the plan once the case has parts and plants. The origin engine doesn't read it."
-                  : "Fills sourced duty rates for the plan search. The origin engine doesn't read it."
+                  ? "Sets duty rates for the plan, once the case has parts and plants. Optional."
+                  : "Sets duty rates for the plan. Optional."
               }
             />
           </div>
 
-          <SectionHead n={3} title="Check and go" hint="What your input unlocks so far." />
+          <SectionHead n={3} title="Check and go" />
           <ul aria-label="What this input unlocks" className="mt-3 grid border border-edge bg-sheet shadow-[4px_4px_0_var(--shadow)] sm:grid-cols-3">
             {tiers.map((t, i) => (
               <li key={t.key} className={cx("flex gap-3 px-4 py-3.5", i > 0 && "border-t border-dashed border-guide sm:border-l sm:border-t-0")}>
@@ -1737,7 +1756,6 @@ function BomImport({
             </span>
           ))}
           <span className="block">
-            {copy.product.bomSamplesLoad}{" "}
             <a className="text-dim underline underline-offset-2" href="/samples/heatgun-bom.csv" download>
               {copy.product.bomSamplesDownload}
             </a>
@@ -1748,10 +1766,15 @@ function BomImport({
           {copy.product.bomTemplate}
         </a>
       </div>
-      <section aria-labelledby={`${inputId}-cols`}>
-        <h3 id={`${inputId}-cols`} className="mb-2 text-[11px] font-medium uppercase tracking-[.06em] text-dim">
-          {copy.product.bomColumnsTitle}
-        </h3>
+      <details aria-labelledby={`${inputId}-cols`} className="group">
+        <summary className="mb-2 flex min-h-6 cursor-pointer list-none items-center gap-2 [&::-webkit-details-marker]:hidden">
+          <span aria-hidden="true" className="inline-block w-3 text-dim transition-transform group-open:rotate-90">
+            ▸
+          </span>
+          <h3 id={`${inputId}-cols`} className="text-[11px] font-medium uppercase tracking-[.06em] text-dim">
+            {copy.product.bomColumnsTitle}
+          </h3>
+        </summary>
         {/* A table from sm up; stacked rows on phones, where four columns would be too narrow. */}
         <table className="w-full border-collapse border border-line bg-sheet text-left text-[13px] max-sm:block">
           <thead className="max-sm:sr-only">
@@ -1781,7 +1804,7 @@ function BomImport({
           </tbody>
         </table>
         <p className="duo mt-2 text-xs text-dim">{copy.product.bomColumnsNote}</p>
-      </section>
+      </details>
       {imported && p && (
         <Panel>
           <PanelHead right="Ready for the plan search">Imported</PanelHead>

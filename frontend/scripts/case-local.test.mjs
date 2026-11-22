@@ -38,7 +38,7 @@ const { facts_source: _drop, ...beforeField } = flagship;
 
 test("the live flagship shape says two inputs, two answers", () => {
   assert.equal(flagship.facts_source, "pasted");
-  assert.match(readsDiffer(flagship, asToday(flagship.scenarios)), /^Two inputs, two answers: .* says China; .* say Thailand\./);
+  assert.match(readsDiffer(flagship, asToday(flagship.scenarios)), /^Two inputs, two answers: .* says China; .* says Thailand\./);
 });
 
 test("an old-format copy of a demo never replaces the server's case", () => {

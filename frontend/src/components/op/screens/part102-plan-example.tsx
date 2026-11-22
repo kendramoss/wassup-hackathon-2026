@@ -22,7 +22,7 @@ import ex from "@/lib/part102-plan-example.json";
 import { Main } from "../chrome";
 import { ExampleTour } from "../example-tour";
 import { PlanRuleChip, PlanRuleNote } from "../plan-rule";
-import { Country, RulingLink, cx } from "../ui";
+import { Country, Fold, RulingLink, cx } from "../ui";
 
 const E = copy.part102Example;
 const repo = copy.landing.repo;
@@ -79,17 +79,11 @@ export function Part102PlanExample() {
           <dd>
             <Country name={ex.target} />
           </dd>
-          <dt className="text-dim">{E.order}</dt>
-          <dd>{E.orderBody}</dd>
-          <dt className="text-dim">{E.run}</dt>
-          <dd>{E.runBody(ex.engine_agrees_with_rule, ex.moves, ex.engine_agrees_with_rule_d541, ex.engine_agrees_with_rule_d501)}</dd>
         </dl>
       </section>
 
-      <section aria-labelledby="p102-codes" className={sheet}>
-        <h2 id="p102-codes" className="eyebrow mb-1">
-          {E.codes}
-        </h2>
+      <div>
+      <Fold title={E.codes} meta={`${ex.parts.length + 1}`}>
         <p className="duo text-[13px] text-body">{E.codesNote}</p>
         <p className="mt-1 text-xs text-ask">{copy.partsHts.unverified}</p>
         <ul className="duo mt-3 flex flex-col gap-2 text-[13px]">
@@ -105,7 +99,8 @@ export function Part102PlanExample() {
             </li>
           ))}
         </ul>
-      </section>
+      </Fold>
+      </div>
 
       <section aria-labelledby="p102-moves" className="flex flex-col gap-3">
         <article className={cx(sheet, "flex flex-col gap-1.5")} data-move="baseline">
@@ -124,20 +119,21 @@ export function Part102PlanExample() {
         ))}
 
         <div className="mt-2">
-          <h2 className="eyebrow">{E.motorHead(motorMoves.length)}</h2>
-          <p className="duo mt-1 max-w-[72ch] text-[13px] text-body">{E.motorNote}</p>
+          <Fold title={E.motorHead(motorMoves.length)} meta={E.motorNote}>
+            <div className="flex flex-col gap-3">
+              {motorMoves.map((m) => (
+                <MoveCard key={m.key} m={m} />
+              ))}
+            </div>
+          </Fold>
+          <Fold title={E.otherHead(otherMoves.length)} meta={E.otherNote}>
+            <div className="flex flex-col gap-3">
+              {otherMoves.map((m) => (
+                <MoveCard key={m.key} m={m} />
+              ))}
+            </div>
+          </Fold>
         </div>
-        {motorMoves.map((m) => (
-          <MoveCard key={m.key} m={m} />
-        ))}
-
-        <div className="mt-2">
-          <h2 className="eyebrow">{E.otherHead(otherMoves.length)}</h2>
-          <p className="duo mt-1 max-w-[72ch] text-[13px] text-body">{E.otherNote}</p>
-        </div>
-        {otherMoves.map((m) => (
-          <MoveCard key={m.key} m={m} />
-        ))}
       </section>
 
       <section aria-labelledby="p102-draft" className={cx(sheet, "flex flex-col gap-3")}>
@@ -156,12 +152,18 @@ export function Part102PlanExample() {
         ))}
       </section>
 
-      <section className={sheet}>
-        <p className="duo max-w-[72ch] text-[13px] text-body">{E.honest}</p>
-        <p className="duo mt-1.5 max-w-[72ch] text-[13px] text-dim">{E.nameNote}</p>
-      </section>
+      <div>
+      <Fold title={E.details}>
+      <dl className="duo grid grid-cols-1 gap-x-4 gap-y-1 text-[13px] sm:grid-cols-[max-content_minmax(0,1fr)]">
+        <dt className="text-dim">{E.order}</dt>
+        <dd>{E.orderBody}</dd>
+        <dt className="text-dim">{E.run}</dt>
+        <dd>{E.runBody(ex.engine_agrees_with_rule, ex.moves, ex.engine_agrees_with_rule_d541, ex.engine_agrees_with_rule_d501)}</dd>
+      </dl>
+      <p className="duo mt-1.5 max-w-[72ch] text-[13px] text-body">{E.honest}</p>
+      <p className="duo mt-1.5 max-w-[72ch] text-[13px] text-dim">{E.nameNote}</p>
 
-      <p className="duo max-w-[72ch] text-[12.5px] text-dim" data-recorded-note>
+      <p className="duo mt-1.5 max-w-[72ch] text-[12.5px] text-dim" data-recorded-note>
         {ex.note.split("`").map((seg, i) =>
           i % 2 ? (
             <code key={i} className="[overflow-wrap:anywhere]">
@@ -173,7 +175,7 @@ export function Part102PlanExample() {
         )}
       </p>
 
-      <p className="duo text-[12.5px] text-dim">
+      <p className="duo mt-1.5 text-[12.5px] text-dim">
         {E.source}{" "}
         <a href={`${repo}/blob/main/${ex.run}`} className="text-ok underline underline-offset-2 [overflow-wrap:anywhere]">
           {ex.run}
@@ -192,6 +194,8 @@ export function Part102PlanExample() {
         </a>{" "}
         · <code className="[overflow-wrap:anywhere]">cd backend && go run ./cmd/tariffshift plans102-example -check</code>
       </p>
+      </Fold>
+      </div>
     </Main>
   );
 }
@@ -209,7 +213,6 @@ function MoveCard({ m }: { m: Move }) {
       className={cx("flex flex-col gap-1.5 border bg-sheet px-5 py-4 shadow-[4px_4px_0_var(--shadow)]", flagged ? "border-ask-line" : m.shown ? "border-ok" : "border-edge")}
     >
       <h3 className="text-[14px] text-ink">{m.description}</h3>
-      <p className="duo text-[12.5px] text-dim">{E.parts(m.parts_moved.join(", "))}</p>
       {isSmallest(m) ? <p className="duo text-[13px] text-ink">{E.smallest}</p> : null}
       <Row label={E.precedent}>
         <span className="duo text-[13px] text-body">
@@ -232,10 +235,20 @@ function MoveCard({ m }: { m: Move }) {
           <PlanRuleNote plan={asPlan(m)} />
         </span>
       </Row>
-      <p className="duo text-[12.5px] text-dim">
-        {E.engine(m.engine_origin ?? "")} {E.engineV1(m.engine_origin_d541 ?? "")} {E.engineBefore(m.engine_origin_d501 ?? "")}{" "}
-        {engineDisagrees ? <span className="text-ask">{E.engineDisagrees}</span> : corrected ? <span className="text-ink">{E.engineCorrected}</span> : null}
-      </p>
+      {engineDisagrees ? <p className="duo text-[12.5px] text-ask">{E.engineDisagrees}</p> : null}
+      <details className="group text-[12.5px] text-dim">
+        <summary className="inline-flex min-h-6 cursor-pointer list-none items-center gap-1.5 [&::-webkit-details-marker]:hidden">
+          <span aria-hidden="true" className="inline-block w-3 transition-transform group-open:rotate-90">
+            ▸
+          </span>
+          {E.afterMove} <Country name={m.engine_origin} />
+        </summary>
+        <p className="duo mt-1">{E.parts(m.parts_moved.join(", "))}</p>
+        <p className="duo mt-1">
+          {E.engine(m.engine_origin ?? "")} {E.engineV1(m.engine_origin_d541 ?? "")} {E.engineBefore(m.engine_origin_d501 ?? "")}{" "}
+          {corrected ? <span className="text-ink">{E.engineCorrected}</span> : null}
+        </p>
+      </details>
     </article>
   );
 }

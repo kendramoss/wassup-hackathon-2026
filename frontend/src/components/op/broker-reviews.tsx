@@ -36,7 +36,7 @@ export function when(iso: string | null | undefined): string {
 // can_write: false (a viewer) is too. The server still decides (403).
 function writeBlock(c: CaseResponse): string | null {
   if (c.can_write === true) return null;
-  if (c.pinned) return "This is a pinned demo, so review links can't be made or revoked here. Start a new case from it to send one.";
+  if (c.pinned) return "Pinned demo: no review links here.";
   if (c.can_write === false) return "Your role in this workspace is viewer, so you can see review links but not make or revoke them.";
   return null;
 }
@@ -123,7 +123,7 @@ export function BrokerReviews({ id, c, setCase, selection, draftLabel, ready }: 
         <PanelHead>Broker review</PanelHead>
       </div>
       <p className="duo text-[13px] text-body">
-        Send {draftLabel} to your customs broker as a read-only page. They can approve it, ask for changes or ask you to file it. They don&apos;t need an account.
+        Send your broker {draftLabel} as a read-only page to approve or comment on. No account needed.
       </p>
       <p className="duo mt-2 text-xs text-dim">{FROZEN_NOTE}</p>
 

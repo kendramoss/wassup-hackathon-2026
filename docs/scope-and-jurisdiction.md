@@ -8,10 +8,10 @@ All `file:line` anchors are at commit `c0d3115` (the base of this change). The l
 
 | Question | Answer |
 |---|---|
-| Which jurisdiction? | United States only: the U.S. Customs and Border Protection (CBP) country-of-origin question for non-preferential purposes, under four regimes (section 2). No other jurisdiction is encoded. |
+| Which jurisdiction? | United States only: the U.S. Customs and Border Protection (CBP) country-of-origin question for non-preferential purposes, under four regimes (section 2). One other jurisdiction is encoded as a rules check only: Canada's marking rules (SOR/94-23, D720-D725), with no accuracy figure. Since D680 every case names its market; a Canadian case gets that rules check from its product codes and always goes to review; a case for any other market gets no prediction and goes to review (section 3). |
 | Which products does the planner cover? | 26 families with templates (section 4): three earlier ones, eleven added from CBP precedent (ten in D138, one in D212), six written from Part 102 marking rulings (D580) and six picked from rulings with no template in either regime (D660). |
 | EU Binding Origin Information (BOI) | Unsupported. Deferred (section 7). |
-| USMCA regional value content (RVC) and any preferential-origin qualification | Unsupported. Deferred (section 7). |
+| USMCA regional value content (RVC) and any preferential-origin qualification | Unsupported. Deferred (section 7). One exception is built: an RCEP rules check (`POST /v1/rcep/check`, D690), deterministic, separate from every origin answer, not reviewed by a qualified professional and not yet scored on rulings (D691). |
 | Does "Part 102" in this repo mean USMCA qualification? | No. It means the Part 102 marking-origin rules (section 5). |
 | Does the Part 177 export decide origin? | No. It lays out a ruling request letter (section 5). |
 | What happens to a case outside the configured regimes? | Some paths fail closed to expert review, and some do not (section 3). The gaps are listed there. |
@@ -53,12 +53,24 @@ The decision is made in `backend/internal/httpapi/dispatch.go`: `dispatch` (line
 | Re-check of a stored case that has no stored label | `needs_review`, reason "scope unavailable: the case has no stored scope label". | `dispatch.go:47`, `dispatch.go:268-270` | `TestLabelMissingNeverAutoAccepts` |
 | Answer came from the fallback model | `needs_review` unless `FALLBACK_FAST_PATH` is positive and met. | `dispatch.go:287-289`, `triage.go:140-149` | `TestFallbackAlwaysReviewsUnlessFastPathSet` (`triage_test.go:82`), `TestFallbackPredictionNeedsReview` (`httpapi/cases_test.go:256`) |
 | Router labels `substantial_transformation` | In scope. The general engine answers and can be auto-accepted at confidence 0.92 or more. | `router.go:104-109`, `dispatch.go:293` | `TestScope` |
-| Router labels `unclear` | **Treated as in scope**, like `substantial_transformation`. It is not sent to review because of the label. | `router.go:104-109` | `TestScope` (asserts `unclear` is in scope) |
+| Router labels `unclear` | **Treated as in scope**, like `substantial_transformation`, unless the text hints at a non-U.S. market (D680, below): then `needs_review`. | `router.go`, `decide` in `dispatch.go` | `TestScope`, `TestMarketConflictAndHint` |
+
+Since D680 the market is decided before any of the rows above (`dispatch` and `decide` in `dispatch.go`, `internal/jurisdiction`):
+
+| Situation | Result | Test |
+|---|---|---|
+| The caller chose a market (`jurisdiction` on predict, batch, MCP) | That market; the text is not read for one. | `TestChosenMarketWins` |
+| No choice; the text names a non-U.S. authority, law, entry into a non-U.S. place or "<market> customs" | That market (`source: detected`, with the cue). | `TestDetect`, `TestUnsupportedMarketNeverGetsAUSAnswer` |
+| The market has no registered engine (every market but `us` today) | No router or engine call and no prediction; `needs_review`, reason "Origin rules for <market> aren't supported yet". Plan, compare, scenarios, export, ask, watch and broker review are refused with the same reason. | `TestUnsupportedMarketNeverGetsAUSAnswer` (with router `unclear` and general), `TestFollowUpsNeedASupportedMarket`, `TestBatchRowsCarryTheMarket` |
+| A non-U.S. market registered with its own engine | That engine answers; `needs_review` unless its own bar (0 by default) is met. Follow-ups stay U.S.-only. | `TestRegisteredMarketUsesItsEngine`, `TestRegistry` |
+| No choice; U.S. and non-U.S. authority cues together | U.S. dispatch, but `needs_review` ("The text names more than one market"). | `TestMarketConflictAndHint` |
+| No choice; only a weak non-U.S. cue (a price, "sold in") | U.S. dispatch; `needs_review` only when the router says `unclear`. | `TestMarketConflictAndHint` |
+| No cue | United States, as before D680. | `TestNoCueIsUS` |
 
 Gaps to state plainly:
 
 - Fail closed does not cover everything. A case the router calls `substantial_transformation` or `unclear` is handled by the general engine and, with enough confidence, auto-accepted, whether or not the facts are really a U.S. non-preferential origin question.
-- There is no jurisdiction detector. Nothing in the code checks that the question is about U.S. entry. A question about an EU or other non-U.S. requirement is not recognised as outside scope; it would be routed by the same labels, most likely to the general engine. The engine prompts say they are for U.S. CBP (`prompt.go:20`, `usmca.go:12`), which constrains the framing but is not a gate.
+- The market detector is a net, not a gate (D680-D682). On model-written non-U.S. questions it read 22 of 30 right and sent 4 more to review only if the router says `unclear`; the other 4 were read as U.S. and are answered as U.S. cases. It flagged none of 1,026 U.S. rulings. A caller who names the market is never second-guessed. The engine prompts still say they are for U.S. CBP (`prompt.go:20`, `usmca.go:12`).
 - A router configured on the server is always built (`cmd/server/main.go:502`). The "no router" state exists only in tests (`TestDispatchScopeStates`, case "no router"): there the scope label is absent and the case counts as in scope.
 - Deployed values are not known (section 8). Whether a specialist engine is on in the live service decides whether a textile, Part 102 or pharmaceutical case is answered by its own engine or goes to the general engine for review.
 
@@ -144,7 +156,7 @@ Three items in this repo's own wording that this review could not settle and sho
 
 None of the following is implemented. A result from this system must not be used for them:
 
-- Preferential duty claims under USMCA or any trade agreement, and any preferential-origin or "originating good" qualification.
+- Preferential duty claims under USMCA or any trade agreement, and any preferential-origin or "originating good" qualification. The RCEP rules check (D690) is a calculator over the facts the user gives; it is not a claim, a ruling or a certificate, and has not been reviewed by a qualified professional.
 - Regional value content, net cost, transaction value, tolerances or other RVC calculation.
 - Certificates of origin, USMCA certification of origin, or any origin declaration for a trade agreement.
 - Non-U.S. jurisdictions and their origin rules, including EU Binding Origin Information and EU, UK or other non-preferential and preferential origin regimes.
@@ -167,7 +179,7 @@ Before any coverage claim for either scope, all of the following must exist as s
 | Deterministic rule encoding | Encoded EU origin rules and BOI decision structure in code or data, versioned, not left to a prompt. The current engines have none for any regime (section 2). | Encoded product-specific rules, RVC methods and thresholds as testable code, versioned. Not started. |
 | Separate evaluation set and protocol | A held-out set of EU decisions with its own labels, split and scoring protocol, separate from the U.S. sets, frozen before scoring. | A held-out set of preferential-origin cases and RVC calculations with its own protocol, separate from the marking sets (the existing Part 102 set is marking only). |
 | Review by a qualified professional | Review of rules, data use and output wording by a qualified EU customs or trade-law professional. Not done. | Review by a qualified U.S./USMCA customs or trade-law professional. Not done. |
-| Product and copy changes | Jurisdiction selection, results wording that cannot be read as U.S. output, and removal of the unsupported-use-case copy for this scope only after the above. | Preference/certificate wording, separation from marking origin on every result and export, and removal of the unsupported copy only after the above. |
+| Product and copy changes | Jurisdiction selection and results wording that cannot be read as U.S. output: built (D680; a market picker, a `jurisdiction` field, no answer for a market without an engine). Removal of the unsupported-use-case copy for this scope only after the above. | Preference/certificate wording, separation from marking origin on every result and export, and removal of the unsupported copy only after the above. |
 
 The two scopes are independent: finishing one gives no claim for the other. Until both are met for a scope, the product copy in section 6 stays. The product wording for what the tool is for is in the `jurisdiction.*` keys of `frontend/src/lib/copy.ts`; this document does not change the product.
 
@@ -176,7 +188,7 @@ The two scopes are independent: finishing one gives no claim for the other. Unti
 - Deployed values. As of 20 November 2026, `.github/workflows/deploy.yml:72` sets `TEXTILE_ENGINE=on`, `TEXTILE_FAST_PATH=0.95`, `TEXTILE_PROMPT=v2`, `PHARMA_ENGINE=on`, `PHARMA_FAST_PATH=0.85`, `USMCA_ENGINE=on`, `USMCA_FAST_PATH=0.95`, `EXPORT_CFR177=on` on deploy. That file is intended configuration, not proof of the live service, and the live service was not inspected: **LIVE UNVERIFIED**. The code defaults in section 2 differ from that intent (all engines off, fast paths 0). This review did not check that each deployed bar is backed by a recorded held-out run; `eval/RESULTS.md` records the held-out run for `textile-v2` as not run.
 - Which office accepts an origin ruling request, and the RVC "sliding-scale" wording (section 5).
 - Anything in CBP rulings retrieval (access was denied earlier and not retried).
-- Behaviour on non-U.S. text: no test submits non-U.S. facts to the router or engines.
+- Behaviour on non-U.S. text: the tests above submit non-U.S. facts and check that no engine runs; the detector was measured on synthetic questions only (D682), not on real non-U.S. requests.
 - Model output. Router labels, engine answers and the `unclear` outcome depend on a language model; the tests above use fakes.
 - Revocations outside the corpus. Precedent checks skip rulings that a revocation or modification letter in the corpus names (D320, `backend/internal/domain/supersession.json`), but CBP revocations published only in the Customs Bulletin, or by letters that are not in the corpus, are not detected. A cited ruling can still have been revoked; check it on rulings.cbp.gov before relying on it.
 
