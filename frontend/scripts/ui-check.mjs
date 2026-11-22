@@ -408,6 +408,76 @@ for (const scheme of ["light", "dark"]) {
   await ctx.close();
 }
 
+// #604: the workspace Remove/Leave alertdialog must take focus, dismiss on
+// Escape, and return focus to the trigger that opened it.
+{
+  const ctx = await browser.newContext({ viewport: viewports.desktop });
+  const page = await ctx.newPage();
+  page.on("console", (m) => m.type() === "error" && problems.push({ page: "/cases (workspace confirm)", console: m.text() }));
+  page.on("pageerror", (e) => problems.push({ page: "/cases (workspace confirm)", console: String(e) }));
+  await page.route("**/api/session", (route) =>
+    route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify({ email: "ui-check@example.com" }) }),
+  );
+  await page.route("**/api/v1/workspaces/mine", (route) =>
+    route.fulfill({
+      status: 200,
+      contentType: "application/json",
+      body: JSON.stringify({
+        email: "ui-check@example.com",
+        workspace: {
+          id: "ws_ui_check",
+          name: "Probe Team",
+          members: ["ui-check@example.com", "amy@acme.com"],
+          invited: [],
+          created_by: "ui-check@example.com",
+          created_at: "2026-01-01T00:00:00Z",
+          admin: true,
+          role: "admin",
+          member_roles: { "ui-check@example.com": "admin", "amy@acme.com": "editor" },
+        },
+        invites: [],
+      }),
+    }),
+  );
+  await page.route("**/api/v1/cases", (route) =>
+    route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify({ cases: [] }) }),
+  );
+  await page.route("**/api/v1/demos", (route) =>
+    route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify({ demos: [] }) }),
+  );
+  await page.goto(base + "/cases", { waitUntil: "networkidle" });
+  await page.getByRole("heading", { name: "Team workspace" }).waitFor();
+
+  const checkConfirm = async (triggerName, expectedTrigger) => {
+    const trigger = page.getByRole("button", { name: triggerName, exact: true }).first();
+    await trigger.focus();
+    await page.keyboard.press("Enter");
+    const opened = await page.evaluate(() => {
+      const el = document.activeElement;
+      const alert = document.querySelector('[role="alertdialog"]');
+      return {
+        focused: el === document.body ? "BODY" : (el?.textContent ?? "").trim().slice(0, 40),
+        inside: Boolean(alert?.contains(el)),
+        alert: Boolean(alert),
+      };
+    });
+    await page.keyboard.press("Escape");
+    const escaped = await page.evaluate(() => ({
+      focused: (document.activeElement?.textContent ?? "").trim().slice(0, 40),
+      alert: Boolean(document.querySelector('[role="alertdialog"]')),
+    }));
+    if (opened.focused !== "Cancel" || !opened.inside || !opened.alert || escaped.focused !== expectedTrigger || escaped.alert) {
+      problems.push({ page: "/cases (workspace confirm)", focus: `${triggerName} confirmation did not take focus or Escape-dismiss`, opened, escaped, triggerName });
+    }
+    // Keep the next probe independent if this one failed before the fix.
+    if (await page.locator('[role="alertdialog"]').count()) await page.getByRole("button", { name: "Cancel", exact: true }).click();
+  };
+
+  await checkConfirm("Remove", "Remove");
+  await checkConfirm("Leave workspace", "Leave workspace");
+  await ctx.close();
+}
+
 // #557: the money drawer's cost tabs must follow the ARIA tabs pattern (one
 // Tab stop, arrows move between tabs, named tabpanel). Stub an extract result
 // with plants/groups so the drawer's cost section renders.
