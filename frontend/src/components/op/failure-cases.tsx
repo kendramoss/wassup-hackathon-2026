@@ -6,7 +6,6 @@
 // from the official held-out run, so the page needs no new endpoint and the
 // file is checked for staleness by `--check`. Measured findings get bars with
 // their numbers; our reading of the misses is plain text.
-import { useState } from "react";
 import data from "@/lib/failure-cases.json";
 import { copy } from "@/lib/copy";
 import { Chip, Fold, RulingLink, ScrollX, cx } from "./ui";
@@ -63,12 +62,11 @@ export function Reproduce() {
 
 const subject = (s: string) => s.replace(/^RE:\s*/i, "");
 
-export function KnownFailures() {
-  const [all, setAll] = useState(false);
+export function KnownFailures({ all, onAllChange }: { all: boolean; onAllChange: (all: boolean) => void }) {
   const autoMisses = data.misses.filter((m) => m.auto_accepted);
   const rows = all ? data.misses : autoMisses;
   return (
-    <section id="misses" aria-labelledby="miss-h" className="mt-8 border border-edge bg-sheet px-5 py-4 shadow-[4px_4px_0_var(--shadow)]">
+    <section aria-labelledby="miss-h" className="mt-8 border border-edge bg-sheet px-5 py-4 shadow-[4px_4px_0_var(--shadow)]">
       <div className="flex flex-wrap items-center gap-3">
         <h2 id="miss-h" className="eyebrow">
           {T.failTitle}
@@ -81,6 +79,40 @@ export function KnownFailures() {
         </span>
       </div>
       <p className="read mt-2 max-w-[80ch] text-[14px] text-body">{T.failLead(data.misses.length, autoMisses.length, data.n)}</p>
+
+      <ScrollX label={T.failTableLabel}>
+        <table className="mt-5 w-full min-w-[760px] border-collapse text-[12.5px]">
+          <thead>
+            <tr>
+              {T.columns.map((h) => (
+                <th key={h} scope="col" className="border-b border-line py-2 pr-3 text-left text-[11px] font-medium uppercase tracking-[0.08em] text-dim">
+                  {h}
+                </th>
+              ))}
+            </tr>
+          </thead>
+          <tbody>
+            {rows.map((m) => (
+              <tr key={m.ruling} className="border-b border-dashed border-line align-top">
+                <td className="py-2 pr-3">
+                  <RulingLink id={m.ruling} />
+                </td>
+                <td className="whitespace-nowrap py-2 pr-3 tabular-nums text-dim">{m.date}</td>
+                <td className="duo py-2 pr-3">{subject(m.subject)}</td>
+                <td className="whitespace-nowrap py-2 pr-3">{m.cbp_held}</td>
+                <td className="whitespace-nowrap py-2 pr-3">{m.predicted}</td>
+                <td className="whitespace-nowrap py-2 pr-3 tabular-nums">
+                  {m.calibrated.toFixed(2)} <span className="text-dim">({m.confidence.toFixed(2)})</span>
+                </td>
+                <td className="py-2">{m.auto_accepted ? <Chip tone="fail">{T.auto}</Chip> : <Chip>{T.review}</Chip>}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </ScrollX>
+      <button type="button" onClick={() => onAllChange(!all)} className="mt-3 min-h-8 text-[12.5px] text-ok hover:underline" aria-expanded={all}>
+        {all ? T.showAuto : T.showAll(data.misses.length)}
+      </button>
 
       <div className="mt-5 grid gap-6 lg:grid-cols-2">
         <div>
@@ -129,39 +161,6 @@ export function KnownFailures() {
         </div>
       </div>
 
-      <ScrollX label={T.failTableLabel}>
-        <table className="mt-5 w-full min-w-[760px] border-collapse text-[12.5px]">
-          <thead>
-            <tr>
-              {T.columns.map((h) => (
-                <th key={h} scope="col" className="border-b border-line py-2 pr-3 text-left text-[11px] font-medium uppercase tracking-[0.08em] text-dim">
-                  {h}
-                </th>
-              ))}
-            </tr>
-          </thead>
-          <tbody>
-            {rows.map((m) => (
-              <tr key={m.ruling} className="border-b border-dashed border-line align-top">
-                <td className="py-2 pr-3">
-                  <RulingLink id={m.ruling} />
-                </td>
-                <td className="whitespace-nowrap py-2 pr-3 tabular-nums text-dim">{m.date}</td>
-                <td className="duo py-2 pr-3">{subject(m.subject)}</td>
-                <td className="whitespace-nowrap py-2 pr-3">{m.cbp_held}</td>
-                <td className="whitespace-nowrap py-2 pr-3">{m.predicted}</td>
-                <td className="whitespace-nowrap py-2 pr-3 tabular-nums">
-                  {m.calibrated.toFixed(2)} <span className="text-dim">({m.confidence.toFixed(2)})</span>
-                </td>
-                <td className="py-2">{m.auto_accepted ? <Chip tone="fail">{T.auto}</Chip> : <Chip>{T.review}</Chip>}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </ScrollX>
-      <button type="button" onClick={() => setAll(!all)} className="mt-3 min-h-8 text-[12.5px] text-ok hover:underline" aria-expanded={all}>
-        {all ? T.showAuto : T.showAll(data.misses.length)}
-      </button>
       <div className="mt-2">
         <Fold title="Details">
           <p className="duo text-[11.5px] text-dim">{T.source}</p>

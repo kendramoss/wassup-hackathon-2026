@@ -76,7 +76,7 @@ test("window-2 Part 102 figures carry the 15-ruling precedent pool note (D612)",
   }
   const page = read("frontend/src/components/op/screens/accuracy-page.tsx").replace(/\s+/g, " ");
   assert.match(page, /\{later\(us2\)\} \{us2 \? " The later window's Part 102 runs had only the 15 window-2 rulings as precedents, not the full pool \(D612\)\." : ""\}/);
-  assert.match(page, /with usmca-v5 and 20 families, 8 of 18 and 6 of 6; five of the six are moves where the rule keeps the country CBP held\./);
+  assert.match(page, /with usmca-v5 and 20 families found 8 of 18 templates and 6 of 6 agreements\. Five of those six moves keep the country CBP held\./);
 });
 
 test("/method: usmca-v5 has no clean held-out check (D602, D612)", async () => {
