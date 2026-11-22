@@ -62,6 +62,10 @@ reproduce: ## recompute every published number from committed files: no model ca
 	python3 -I -B eval/planner/part102_heldout.py build . --check
 	cd $(GO_DIR) && go run ./cmd/tariffshift plans102-example -check
 	cd $(GO_DIR) && go run ./cmd/tariffshift ground102-eval -check
+	cd $(GO_DIR) && go run ./cmd/tariffshift p102err-single -check
+	cd $(GO_DIR) && go run ./cmd/tariffshift p102err-moves -check
+	python3 -I -B eval/planner/part102_dev.py select . --check
+	python3 -I -B eval/planner/part102_dev.py build . --check
 	python3 -I -B eval/tariffshift/chapter_counts.py . --check
 	python3 -I -B eval/families/pool102.py . --check
 	python3 -I -B eval/families/select102.py . --check

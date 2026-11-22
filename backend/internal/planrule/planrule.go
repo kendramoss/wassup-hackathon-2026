@@ -127,7 +127,36 @@ func Check(rules *tariffshift.Rules, p domain.Product, pl domain.Plan, target, a
 			out.ReviewNote = fmt.Sprintf("The 102.20 rule gives %s, but no earlier ruling supports this move: worth a broker's look.", out.Origin)
 		}
 	}
+	if applies == AppliesPart102 && !out.Review {
+		engineReview(out, pl, target)
+	}
 	return out
+}
+
+// engineReview flags, on a Part 102 case, where the rule decides and the
+// engine's predicted origin says otherwise and no precedent check covers
+// it (D590, safety change S): the current setup when the rule gives another
+// country than the engine, and a move the rule says reaches the target
+// while the engine predicts another country, which the search therefore
+// never sent to the precedent check. It changes no answer, ranking or what
+// is shown. Moves the engine sends to the target are covered by the
+// precedent check's own note above.
+func engineReview(out *domain.PlanRuleCheck, pl domain.Plan, target string) {
+	pred := domain.NormalizeCountry(pl.Prediction.Origin)
+	if pred == "" || (out.Status != Shifts && out.Status != NoShift && out.Status != OtherCountry) {
+		return
+	}
+	if len(pl.Move) == 0 {
+		if !sameCountry(pred, out.Origin) {
+			out.Review = true
+			out.ReviewNote = fmt.Sprintf("The engine predicts %s for the current setup, but the 102.20 rule gives %s: worth a broker's look.", pred, out.Origin)
+		}
+		return
+	}
+	if out.Status == Shifts && !sameCountry(pred, target) {
+		out.Review = true
+		out.ReviewNote = fmt.Sprintf("The 102.20 rule says this move reaches %s, but the engine predicts %s, so the move was not checked against precedent: worth a broker's look.", out.Origin, pred)
+	}
 }
 
 // Classify maps a rule-check result to a move status for target, with the
