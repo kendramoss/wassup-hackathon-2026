@@ -1,10 +1,11 @@
 "use client";
 
 // A recorded, read-only example of a Part 102 plan search (judge panel round
-// 11, item 3; round 12, item 4): the D541 search for N348465, an actuator
-// finished in Canada from Chinese parts, in which the Part 102 engine
-// predicted each move (D540), with the general engine's prediction from the
-// D501 run of the same search beside it. Each move carries the 19 CFR 102.20
+// 11, item 3; round 12, item 4; round 13, item 3): the D630 search for
+// N348465, an actuator finished in Canada from Chinese parts, in which the
+// production Part 102 engine (usmca-v5) predicted each move, with the
+// predictions of usmca-v1 (D541) and the general engine (D501) for the same
+// move beside it. Each move carries the 19 CFR 102.20
 // check as on a Part 102 case (D441), the shown plans are in the D500 order,
 // and the broker draft's Part 102 question, tariff-shift paragraph and
 // regime note come from the export package (D502, D520). Rebuilt by `go run
@@ -36,6 +37,7 @@ type Move = {
   rejection_kind?: string;
   verdict?: { precedent_supported: boolean; supporting_ruling?: string; confidence: number };
   engine_origin?: string;
+  engine_origin_d541?: string;
   engine_origin_d501?: string;
   rule_check?: { status: string; review?: boolean };
 };
@@ -78,7 +80,7 @@ export function Part102PlanExample() {
           <dt className="text-dim">{E.order}</dt>
           <dd>{E.orderBody}</dd>
           <dt className="text-dim">{E.run}</dt>
-          <dd>{E.runBody(ex.engine_agrees_with_rule, ex.moves, ex.engine_agrees_with_rule_d501)}</dd>
+          <dd>{E.runBody(ex.engine_agrees_with_rule, ex.moves, ex.engine_agrees_with_rule_d541, ex.engine_agrees_with_rule_d501)}</dd>
         </dl>
       </section>
 
@@ -163,6 +165,10 @@ export function Part102PlanExample() {
           {ex.run}
         </a>{" "}
         ·{" "}
+        <a href={`${repo}/blob/main/${ex.run_d541}`} className="text-ok underline underline-offset-2 [overflow-wrap:anywhere]">
+          {ex.run_d541}
+        </a>{" "}
+        ·{" "}
         <a href={`${repo}/blob/main/${ex.run_d501}`} className="text-ok underline underline-offset-2 [overflow-wrap:anywhere]">
           {ex.run_d501}
         </a>{" "}
@@ -213,7 +219,7 @@ function MoveCard({ m }: { m: Move }) {
         </span>
       </Row>
       <p className="duo text-[12.5px] text-dim">
-        {E.engine(m.engine_origin ?? "")} {E.engineBefore(m.engine_origin_d501 ?? "")}{" "}
+        {E.engine(m.engine_origin ?? "")} {E.engineV1(m.engine_origin_d541 ?? "")} {E.engineBefore(m.engine_origin_d501 ?? "")}{" "}
         {engineDisagrees ? <span className="text-ask">{E.engineDisagrees}</span> : corrected ? <span className="text-ink">{E.engineCorrected}</span> : null}
       </p>
     </article>

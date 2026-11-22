@@ -917,3 +917,23 @@ Six templates written from the 239 pre-2024 Part 102 rulings in no development o
 - Worse or not better: B answered 3 fewer right (within noise); the cost condition fails when cancelled hedges are counted; the map's held-out ECE is worse than stated confidence's; neither engine reaches 95% at stated 0.95 on development.
 - Window-2 Part 102 runs had 15 of 488 rulings with facts in the precedent pool (D612); not re-scored.
 - `tariffshift/p102bar/` (`summary.json`, `runs/`); `cd backend && go run ./cmd/tariffshift p102bar -check` (in `make reproduce`). Total $1.6649.
+
+## Held-out Part 102 plan set, second pass with `usmca-v5` and 20 families (gateway, 22 Nov; D630, D631)
+- Pre-registered in D630 (commit 59f94639, pushed 16:11 +08:00 before the group calls; group rows and fixtures 667537a4, pushed 16:12 before the first plan search; hashes before the rebase onto main). The second scoring of the D570 set; the first and only of this configuration on it. Local corpus linked and checked first: facts for all 473 labelled Part 102 and all 2,790 general labelled rulings.
+- Steps, once each: templates from the committed D581 check (8 of 18, not re-run); group calls by the D570 rule on the 4 rulings whose family is new or changed (`heldout/groups-f20.jsonl`, RUNLOG `part102-heldout-groups-f20`, $0.0126); the other 4 keep D571's fixtures byte for byte (`build2 --check` fails otherwise); fixtures in `backend/testdata/planner_part102_heldout2/`; one plan search each, `usmca-v5` with the product's codes in the facts, verifier-v2, bar 0.92, `LITELLM_NO_CACHE=1` (RUNLOG `planner-part102-heldout2-litellm`, $0.1757). No call failed or was re-run.
+
+| Ruling (CBP → target) | Family | Moves | Shown (rule) | Rule on the moves | Engine agrees with rule | Current setup: rule / engine (CBP) | Gateway cost, wall |
+|---|---|---:|---|---|---:|---|---|
+| N357951 (Canada → United States) | furniture | 1 | 0 | another country | 1/1 | Canada / Canada (Canada) | $0.0199, 10 s |
+| N358639 (South Korea → Mexico) | metal products | 1 | 1 (shifts) | shifts | 1/1 | Mexico / Mexico (South Korea) | $0.0410, 40 s |
+| N359145 (Canada → Thailand) | furniture | 1 | 0 | another country | 1/1 | Canada / Canada (Canada) | $0.0199, 15 s |
+| N359690 (Canada → China) | vehicle parts | 0 | 0 | – | – | Canada / Canada (Canada) | $0.0098, 10 s |
+| N360891 (Canada → China) | plastic articles | 1 | 0 | another country | 1/1 | Canada / Canada (Canada) | $0.0200, 16 s |
+| N362347 (Canada → Paraguay) | wood panels and flooring | 1 | 0 | another country | 1/1 | Canada / Canada (Canada) | $0.0197, 8 s |
+| N362414 (Canada → China) | vehicle parts | 1 | 0 | another country | 1/1 | Canada / Canada (Canada) | $0.0263, 16 s |
+| N363381 (Canada → Vietnam) | machinery parts | 1 | 0 | undetermined (chapter 96) | – | undetermined / United States (Canada) | $0.0190, 8 s |
+
+- Planned 8 of 18 (D571: 6). Engine agrees with the rule on 6 of 6 decided moves (61–100%; D571 3 of 6); on the four shared fixtures 3 of 3 (D571 1 of 3). 5 of the 6 decided moves keep CBP's holding. Shown 1, the rule says it shifts. Flagged 0; rows marked for review 0 (D571, scored by the same code, 1). Current setup: rule decides 7 of 8 and gives CBP's holding on 6; engine 6 of 8. Backtests 0. Search wall median 12.5 s, 95th percentile 40.2 s (D571 20.0 s, 35.0 s).
+- Worse: the engine misses one more current setup than in D571 (N363381, United States against CBP's Canada). N358639 is not like for like (one move with the metal-products template, three with vehicle parts).
+- Actuator page re-record (development, not held out): `plan-p102-n348465-local-verifier-v2-d630-litellm.json` (RUNLOG `planner-part102-d630-actuator-litellm`, $0.2923, 47 s): `usmca-v5` agrees with the rule on 12 of 12 moves (D541 `usmca-v1` 12, D501 general 9), 2 shown, both shift.
+- `tariffshift/plans102/runs/plan-p102h-*-local-verifier-v2-heldout2-litellm.json`; `tariffshift/plans102/summary-heldout2.json`, `moves-heldout2.jsonl`; `cd backend && go run ./cmd/tariffshift plans102-eval -series heldout2 -check` and `plans102-example -check` (in `make reproduce`). Total $0.4806.

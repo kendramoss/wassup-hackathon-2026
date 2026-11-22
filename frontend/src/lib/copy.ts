@@ -732,13 +732,14 @@ export const copy = {
     source: "Rebuilt from committed files, no model call:",
   },
 
-  // /examples/part102-plan: the scored D501 plan search for N348465, with
-  // the 102.20 check on each move, the D500 order and the broker draft's
-  // Part 102 paragraphs (judge panel round 11, item 3).
+  // /examples/part102-plan: the D630 plan search for N348465 with the
+  // production Part 102 engine (usmca-v5), with the 102.20 check on each
+  // move, the D500 order and the broker draft's Part 102 paragraphs (judge
+  // panel round 11, item 3; round 13, item 3).
   part102Example: {
     title: "A Part 102 plan search, ranked by the tariff-shift rule",
     eyebrow: "Recorded example",
-    lede: "On a case routed to the Part 102 rules, 19 CFR 102.20 is the marking test, not a comparison. This page shows one of the three scored Part 102 plan searches: an actuator finished in Canada from Chinese parts, which CBP held to be Chinese. The Part 102 engine predicts the origin after each move, each move carries the rule check, the shown plans are ranked by it, and the broker draft asks the Part 102 question. It is recorded: nothing here calls a model or saves anything.",
+    lede: "On a case routed to the Part 102 rules, 19 CFR 102.20 is the marking test, not a comparison. This page shows one development Part 102 plan search, run with the production Part 102 engine (usmca-v5): an actuator finished in Canada from Chinese parts, which CBP held to be Chinese. The Part 102 engine predicts the origin after each move, each move carries the rule check, the shown plans are ranked by it, and the broker draft asks the Part 102 question. It is recorded: nothing here calls a model or saves anything.",
     product: "The product and the current setup",
     cbpSubject: "CBP's subject",
     cbpHeld: "CBP held",
@@ -746,8 +747,8 @@ export const copy = {
     order: "Order of shown plans",
     orderBody: "Tier first, then the rule check (moves it says shift, then undetermined, then another country), then net per year (D500).",
     run: "This run",
-    runBody: (agrees: number, moves: number, before: number) =>
-      `The Part 102 engine predicted each move (D541). On ${agrees} of ${moves} moves it agrees with the rule: Canada where the rule says the move shifts, China where it does not or only the de minimis value is open. In the earlier run of the same search, the general engine agreed on ${before} of ${moves} (D502).`,
+    runBody: (agrees: number, moves: number, v1: number, before: number) =>
+      `The production Part 102 engine, usmca-v5, predicted each move (D630, run on 22 Nov). On ${agrees} of ${moves} moves it agrees with the rule: Canada where the rule says the move shifts, China where it does not or only the de minimis value is open. In earlier runs of the same search, usmca-v1 agreed on ${v1} of ${moves} (D541) and the general engine on ${before} (D502).`,
     codes: "Codes the rule check used",
     codesNote: "The top suggestion for each part from the committed development suggestion run, unverified. The good's code is CBP's. The DC motor is in the good's own heading, 8501, so it never makes the tariff change unless it moves.",
     current: "Current setup",
@@ -767,8 +768,9 @@ export const copy = {
     belowBar: "Below the 0.92 bar, so not a shown plan.",
     noSupport: "Not a shown plan.",
     shown: "A shown plan.",
-    engine: (c: string) => `Origin after the move, Part 102 engine: ${c}.`,
-    engineBefore: (c: string) => `General engine in the earlier run (D502): ${c}.`,
+    engine: (c: string) => `Origin after the move, Part 102 engine (usmca-v5): ${c}.`,
+    engineV1: (c: string) => `usmca-v1 in the earlier run (D541): ${c}.`,
+    engineBefore: (c: string) => `General engine in the earliest run (D502): ${c}.`,
     engineCorrected: "The general engine predicted Canada here, though the rule says the move does not shift; the Part 102 engine does not.",
     engineDisagrees: "The Part 102 engine and the rule disagree on this move.",
     parts: (names: string) => `Moves: ${names}.`,
@@ -777,8 +779,8 @@ export const copy = {
     question: "The question asked",
     paragraph: "The tariff-shift paragraph",
     reviewer: "Note beside the letter",
-    honest: "One development ruling, one plan search with the Part 102 engine, run once (D540, D541), beside the earlier run of the same search with the general engine (D501, D502). The part codes are unverified suggestions and the plants are assumed. The precedent check varies from run to run on the same facts: the motor alone scored 0.85 here and 0.82 before. On the three Part 102 searches the Part 102 engine of this run (usmca-v1) agrees with the rule on 13 of 14 moves (the general engine on 9); it still gets one move wrong, on the compressors, where it applied an exception the rule does not have (D541). On the held-out plan set it agreed with the rule on 3 of 6 decided moves (D571). Since 22 Nov the Part 102 engine in use is usmca-v5 (D602); this search has not been re-run with it. This shows the mechanism on a seen ruling, not an accuracy figure.",
-    nameNote: "The product's name was cleaned after both runs (D532). The recorded runs' own facts still use CBP's subject as the name, so they are not shown here.",
+    honest: "One development ruling, one plan search with the production Part 102 engine (usmca-v5), run once (D630), beside the earlier runs of the same search with usmca-v1 (D540, D541) and the general engine (D501, D502). The part codes are unverified suggestions and the plants are assumed. The precedent check varies from run to run on the same facts: the motor alone scored 0.85 here and with usmca-v1, 0.82 with the general engine, and the two shown plans are not the same two as in the usmca-v1 run. On the three development searches usmca-v1 agreed with the rule on 13 of 14 moves (D541); the other two were not re-run with usmca-v5, so its one miss, on the compressors, is not re-measured. On the held-out Part 102 plan set, usmca-v5 agrees with the rule on 6 of 6 decided moves, against 3 of 6 for usmca-v1 (D631); five of the six are moves where the rule keeps the country CBP held. This shows the mechanism on a seen ruling, not an accuracy figure.",
+    nameNote: "The product's name was cleaned in D532, after the two earlier runs and before this one. The earlier runs' own facts still use CBP's subject as the name, so they are not shown here.",
     source: "Rebuilt from committed files, no model call:",
   },
 
