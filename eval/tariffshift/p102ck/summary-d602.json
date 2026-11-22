@@ -1,0 +1,180 @@
+{
+  "note": "D600/D601: the Part 102 engine with a compact 102.11 checklist (usmca-v4, Vc) or the failing materials only (usmca-v5, Vd) on the 72 development Part 102 rulings against D550's usmca-v1 re-run, and on the held-out windows only for a variant that passed on development, through an OpenAI-compatible LiteLLM gateway to Gemini. Recompute: cd backend \u0026\u0026 go run ./cmd/tariffshift p102ck-eval -check",
+  "runs": [
+    {
+      "key": "dev_b_v1_d550",
+      "name": "B: usmca-v1, D550 re-run (reference)",
+      "file": "eval/tariffshift/ground102/runs/usmca-dev-gemini-4-argon-prec-usmca-v1-litellm-d550.jsonl",
+      "held_out": false,
+      "run": true,
+      "n": 72,
+      "correct": 53,
+      "gateway_cost_usd": 0.6881,
+      "promo_cost_usd": 0.6905,
+      "latency_p50_ms": 8434,
+      "latency_p95_ms": 21827,
+      "output_tokens": 21620
+    },
+    {
+      "key": "dev_vb_v3",
+      "name": "Vb: usmca-v3 checklist (D590), run under D601",
+      "file": "eval/tariffshift/p102ck/runs/usmca-dev-gemini-4-argon-prec-usmca-v3-litellm-d601.jsonl",
+      "held_out": false,
+      "run": true,
+      "n": 72,
+      "correct": 54,
+      "gateway_cost_usd": 1.0753,
+      "promo_cost_usd": 1.0828,
+      "compared_with": "dev_b_v1_d550",
+      "won": [
+        "N338004",
+        "N338270",
+        "N338502",
+        "N341152",
+        "N351636"
+      ],
+      "lost": [
+        "H341021",
+        "H341787",
+        "N337260",
+        "N339851"
+      ],
+      "mcnemar_p": 1,
+      "gateway_cost_ratio": 1.5627,
+      "latency_p50_ms": 13197,
+      "latency_p95_ms": 25716,
+      "output_tokens": 51690
+    },
+    {
+      "key": "dev_vc_v4",
+      "name": "Vc: usmca-v4 compact checklist",
+      "file": "eval/tariffshift/p102ck/runs/usmca-dev-gemini-4-argon-prec-usmca-v4-litellm-d600.jsonl",
+      "held_out": false,
+      "run": true,
+      "n": 72,
+      "correct": 56,
+      "gateway_cost_usd": 0.8243,
+      "promo_cost_usd": 0.8342,
+      "compared_with": "dev_b_v1_d550",
+      "won": [
+        "N338270",
+        "N341152",
+        "N347305",
+        "N351636"
+      ],
+      "lost": [
+        "H335912"
+      ],
+      "mcnemar_p": 0.375,
+      "gateway_cost_ratio": 1.1979,
+      "latency_p50_ms": 9262,
+      "latency_p95_ms": 17331,
+      "output_tokens": 27043
+    },
+    {
+      "key": "dev_vd_v5",
+      "name": "Vd: usmca-v5 failing-materials checklist",
+      "file": "eval/tariffshift/p102ck/runs/usmca-dev-gemini-4-argon-prec-usmca-v5-litellm-d600.jsonl",
+      "held_out": false,
+      "run": true,
+      "n": 72,
+      "correct": 53,
+      "gateway_cost_usd": 0.7304,
+      "promo_cost_usd": 0.7447,
+      "compared_with": "dev_b_v1_d550",
+      "won": [
+        "N340017",
+        "N347305",
+        "N351636"
+      ],
+      "lost": [
+        "H335912",
+        "H341021",
+        "N339851"
+      ],
+      "mcnemar_p": 1,
+      "gateway_cost_ratio": 1.0615,
+      "latency_p50_ms": 7924,
+      "latency_p95_ms": 18268,
+      "output_tokens": 20010
+    },
+    {
+      "key": "final_v1",
+      "name": "usmca-v1, committed window 1 run (October)",
+      "file": "eval/results/usmca-final-gemini-4-argon-prec-usmca-v1-litellm.jsonl",
+      "held_out": true,
+      "run": true,
+      "n": 32,
+      "correct": 25,
+      "promo_cost_usd": 0.3072,
+      "latency_p50_ms": 7114,
+      "latency_p95_ms": 9230,
+      "output_tokens": 9417
+    },
+    {
+      "key": "final2_v1",
+      "name": "usmca-v1, committed window 2 run (November, router)",
+      "file": "eval/results/usmca-final2-gemini-4-argon-prec-usmca-v1-litellm-router.jsonl",
+      "held_out": true,
+      "run": true,
+      "n": 13,
+      "correct": 11,
+      "gateway_cost_usd": 0.1111,
+      "promo_cost_usd": 0.108,
+      "latency_p50_ms": 8510,
+      "latency_p95_ms": 16421,
+      "output_tokens": 3706
+    },
+    {
+      "key": "final_vb_v3",
+      "name": "Vb: usmca-v3, window 1",
+      "file": "eval/tariffshift/p102ck/runs/usmca-final-gemini-4-argon-prec-usmca-v3-litellm-d601.jsonl",
+      "held_out": true,
+      "run": false,
+      "compared_with": "final_v1"
+    },
+    {
+      "key": "final2_vb_v3",
+      "name": "Vb: usmca-v3, window 2 (router)",
+      "file": "eval/tariffshift/p102ck/runs/usmca-final2-gemini-4-argon-prec-usmca-v3-litellm-router-d601.jsonl",
+      "held_out": true,
+      "run": false,
+      "compared_with": "final2_v1"
+    },
+    {
+      "key": "final_vc_v4",
+      "name": "Vc: usmca-v4, window 1",
+      "file": "eval/tariffshift/p102ck/runs/usmca-final-gemini-4-argon-prec-usmca-v4-litellm-d601.jsonl",
+      "held_out": true,
+      "run": false,
+      "compared_with": "final_v1"
+    },
+    {
+      "key": "final2_vc_v4",
+      "name": "Vc: usmca-v4, window 2 (router)",
+      "file": "eval/tariffshift/p102ck/runs/usmca-final2-gemini-4-argon-prec-usmca-v4-litellm-router-d601.jsonl",
+      "held_out": true,
+      "run": false,
+      "compared_with": "final2_v1"
+    },
+    {
+      "key": "final_vd_v5",
+      "name": "Vd: usmca-v5, window 1",
+      "file": "eval/tariffshift/p102ck/runs/usmca-final-gemini-4-argon-prec-usmca-v5-litellm-d601.jsonl",
+      "held_out": true,
+      "run": false,
+      "compared_with": "final_v1"
+    },
+    {
+      "key": "final2_vd_v5",
+      "name": "Vd: usmca-v5, window 2 (router)",
+      "file": "eval/tariffshift/p102ck/runs/usmca-final2-gemini-4-argon-prec-usmca-v5-litellm-router-d601.jsonl",
+      "held_out": true,
+      "run": false,
+      "compared_with": "final2_v1"
+    }
+  ],
+  "held_out_pooled_correct": {
+    "usmca-v1": 36
+  }
+}
