@@ -381,6 +381,21 @@ Built by `go run ./cmd/corpus supersession` (from `backend/`; `-check` verifies)
 | Revocation alerts by relevance to the answer (D531; per role since D561, recount unchanged) | of the 9 relied-on final changes in committed rows (2 after the case date, 7 before): 2 do not touch the answer (N344694, China to Taiwan; the answer was Vietnam), 3 keep the same held origin (N345891 and H346161, both Taiwan by the labels), 4 not known (the one plan-support change, N322364 in the heat-gun plan, among them: its held origin is not in the labels); 0 touch the answer | `eval/supersession/alerts.json` (`relevance_final_relied`, `row_examples`) from `go run ./cmd/corpus alerts` | Measured offline as of 22 Nov 2026; no model call. Held origins from the shipped labels |
 | Held origins known for rulings in the revocation map (D531) | 37 of 308 rulings (changed or changing) have a label; 30 give one origin. H325607 is left unknown: its label was read from its account of N331974 | `backend/internal/domain/ruling_holdings.json` from `go run ./cmd/corpus holdings` | Measured. Most changed rulings are classification letters with no origin label |
 
+## Japan Customs advance rulings on origin (D710, D711; eval only, not in the product)
+
+Built by `eval/jp/*.py` and `go run ./cmd/jpeval` (from `backend/`); `make reproduce` checks the split, labels, translation check, index stats and baseline metrics. Development figures only: no held-out ruling has been scored.
+
+| Number | Value | Source | Status |
+|---|---|---|---|
+| Rulings in the snapshot (22 Nov 2026) | 3,606 (the search's own count); by year 2022 1, 2023 264, 2024 1,274, 2025 1,434, 2026 633; 65 tariff chapters, chapters 84, 85, 87 and 90 together 4 | `data/jp/snapshot.json`, `eval/jp/index-stats.json` | Measured. A rolling window: the site keeps about three years |
+| Rulings by agreement | Japan-EU EPA 1,305; CPTPP 670; AJCEP 633; RCEP 402; Japan-US 234; GSP 168; 12 others 194 (non-preferential 6) | `eval/jp/index-stats.json` (`by_agreement`) | Measured |
+| Split (D710) | development 2,973 (before 2026), held-out 633 (from 2026), `dev_eval` 400 | `data/jp/splits.json` | Frozen before any label was read |
+| Published negative answers | 0 of 2,973 development rulings | `data/jp/labels-dev.jsonl` (`outcome`) | Measured. So no real-ruling figure can test a refusal |
+| Translation spend | $6.98 for 3,606 rulings (gemini-3.8-flash, gateway-reported) plus a $0.05 pilot | `data/jp/translations-en.jsonl` (`cost_usd`) | Measured |
+| Translation check, development | tariff numbers kept 2,973 of 2,973; quoted rule codes 2,969 of 2,973; named origin 1,155 of 1,155 | `eval/jp/translation-check.json` | Measured, mechanical. Not a review by a Japanese customs specialist |
+| Japan baseline, criterion match, development (`dev_eval`, D711) | **370 of 400 = 92.5% (89.5–94.7)**; majority (always CC) 36.0%; 368 (92.0%) with the labels before D711's two disclosed pattern changes | `eval/jp/baseline-dev-metrics.json`; rows `eval/jp/runs/jp-dev_eval-gemini-4-argon-jp-baseline-v1-litellm-d711.jsonl` | Measured once, gateway; must say **"development set"**. All answers are positive, so it measures the criterion, not refusals |
+| Japan baseline cost and latency | $0.0073 a case ($2.93 for 400); p50 6.7 s, p95 11.1 s | same file | Measured, gateway |
+
 ## Planner product scope (D138)
 
 | Number | Value | Source | Status |

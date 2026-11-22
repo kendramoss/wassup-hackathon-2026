@@ -1,0 +1,190 @@
+{
+ "run": "jp-dev_eval-gemini-4-argon-jp-baseline-v1-litellm-d711",
+ "split": "dev_eval",
+ "cases": 400,
+ "errors": 0,
+ "criterion_match": {
+  "k": 370,
+  "n": 400,
+  "p": 0.925,
+  "lo": 0.895,
+  "hi": 0.947
+ },
+ "criterion_in_cited_set": {
+  "k": 370,
+  "n": 400,
+  "p": 0.925,
+  "lo": 0.895,
+  "hi": 0.947
+ },
+ "criterion_match_errors_as_wrong": {
+  "k": 370,
+  "n": 400,
+  "p": 0.925,
+  "lo": 0.895,
+  "hi": 0.947
+ },
+ "says_originating": {
+  "k": 396,
+  "n": 400,
+  "p": 0.99,
+  "lo": 0.9746,
+  "hi": 0.9961
+ },
+ "stated_origin_match": {
+  "k": 110,
+  "n": 111,
+  "p": 0.991,
+  "lo": 0.9507,
+  "hi": 0.9984
+ },
+ "criterion_match_by_agreement": {
+  "AJCEP": {
+   "k": 55,
+   "n": 56,
+   "p": 0.9821,
+   "lo": 0.9055,
+   "hi": 0.9968
+  },
+  "CPTPP": {
+   "k": 82,
+   "n": 85,
+   "p": 0.9647,
+   "lo": 0.9013,
+   "hi": 0.9879
+  },
+  "GSP": {
+   "k": 7,
+   "n": 7,
+   "p": 1,
+   "lo": 0.6457,
+   "hi": 1
+  },
+  "JP-Australia EPA": {
+   "k": 1,
+   "n": 1,
+   "p": 1,
+   "lo": 0.2065,
+   "hi": 1
+  },
+  "JP-EU EPA": {
+   "k": 162,
+   "n": 181,
+   "p": 0.895,
+   "lo": 0.8419,
+   "hi": 0.9318
+  },
+  "JP-India CEPA": {
+   "k": 4,
+   "n": 4,
+   "p": 1,
+   "lo": 0.5101,
+   "hi": 1
+  },
+  "JP-Indonesia EPA": {
+   "k": 3,
+   "n": 4,
+   "p": 0.75,
+   "lo": 0.3006,
+   "hi": 0.9544
+  },
+  "JP-Malaysia EPA": {
+   "k": 1,
+   "n": 1,
+   "p": 1,
+   "lo": 0.2065,
+   "hi": 1
+  },
+  "JP-Mexico EPA": {
+   "k": 1,
+   "n": 1,
+   "p": 1,
+   "lo": 0.2065,
+   "hi": 1
+  },
+  "JP-Philippines EPA": {
+   "k": 1,
+   "n": 1,
+   "p": 1,
+   "lo": 0.2065,
+   "hi": 1
+  },
+  "JP-Thailand EPA": {
+   "k": 2,
+   "n": 3,
+   "p": 0.6667,
+   "lo": 0.2077,
+   "hi": 0.9385
+  },
+  "JP-UK CEPA": {
+   "k": 1,
+   "n": 1,
+   "p": 1,
+   "lo": 0.2065,
+   "hi": 1
+  },
+  "JP-US TA": {
+   "k": 21,
+   "n": 22,
+   "p": 0.9545,
+   "lo": 0.782,
+   "hi": 0.9919
+  },
+  "JP-Vietnam EPA": {
+   "k": 1,
+   "n": 1,
+   "p": 1,
+   "lo": 0.2065,
+   "hi": 1
+  },
+  "Non-preferential": {
+   "k": 1,
+   "n": 1,
+   "p": 1,
+   "lo": 0.2065,
+   "hi": 1
+  },
+  "RCEP": {
+   "k": 27,
+   "n": 31,
+   "p": 0.871,
+   "lo": 0.7115,
+   "hi": 0.9487
+  }
+ },
+ "confusion_gold_to_pred": {
+  "CC-\u003eCC": 139,
+  "CC-\u003eCTH": 2,
+  "CC-\u003eCTSH": 1,
+  "CC-\u003eNONE": 2,
+  "CTH-\u003eCC": 4,
+  "CTH-\u003eCTH": 150,
+  "CTH-\u003eCTSH": 1,
+  "CTH-\u003eNONE": 2,
+  "CTSH-\u003eCC": 1,
+  "CTSH-\u003eCTH": 2,
+  "CTSH-\u003eCTSH": 46,
+  "PE-\u003ePE": 1,
+  "RVC-\u003eCTH": 1,
+  "SP-\u003eCC": 10,
+  "SP-\u003ePE": 1,
+  "SP-\u003eSP": 25,
+  "SP-\u003eWO": 1,
+  "WO-\u003ePE": 2,
+  "WO-\u003eWO": 9
+ },
+ "majority_baseline": {
+  "k": 144,
+  "n": 400,
+  "p": 0.36,
+  "lo": 0.3145,
+  "hi": 0.4082
+ },
+ "majority_label": "CC",
+ "cost_usd": 2.9294,
+ "cost_per_case_usd": 0.0073,
+ "latency_p50_ms": 6690,
+ "latency_p95_ms": 11135,
+ "labels_dev_sha256": "0ff297ebbc9a44208e34c21f3a87161bd48958b0f0132bb13dd33c9757e7558a",
+ "note": "Development set only (D711). All published answers are positive, so this measures the criterion Japan Customs cited, not whether the engine can refuse a good."
+}

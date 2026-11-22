@@ -24,6 +24,13 @@ listed here.
 
 - Package: `pdfjs-dist` (Apache-2.0), <https://github.com/mozilla/pdf.js>
 
+### Japan Customs advance rulings on origin (data)
+
+- Files: `data/jp/` (parsed rulings, English machine translations, splits, labels)
+- Source: Japan Customs website, 事前教示回答事例（原産地関係）, <https://www.customs.go.jp/searchao/jaosv001.jsp>, retrieved 22 Nov 2026
+- Licence: **Public Data License 1.0 (PDL1.0)**, compatible with CC BY 4.0; edited by Unde Labs (parsed, translated, labelled). Attribution and the edit notice: `data/jp/LICENSE-SOURCE.md`; licence text: `data/jp/LICENSE-PDL1.0.ja.txt`
+- Not used in the deployed service yet (eval data only)
+
 ## Bundled libraries (npm)
 
 The frontend declares these dependencies in `frontend/package.json`; they are

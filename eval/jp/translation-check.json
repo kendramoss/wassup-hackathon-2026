@@ -1,0 +1,41 @@
+{
+ "rulings": 2973,
+ "numbers_kept": 2973,
+ "codes_kept": 2969,
+ "origin_kept": 1155,
+ "origin_named": 1155,
+ "failures": [
+  {
+   "id": "1250357",
+   "numbers_missing": [],
+   "codes_lost": [
+    "CTH"
+   ],
+   "origin_kept": true
+  },
+  {
+   "id": "1250890",
+   "numbers_missing": [],
+   "codes_lost": [
+    "CTH"
+   ],
+   "origin_kept": true
+  },
+  {
+   "id": "1251007",
+   "numbers_missing": [],
+   "codes_lost": [
+    "CTH"
+   ],
+   "origin_kept": true
+  },
+  {
+   "id": "1251168",
+   "numbers_missing": [],
+   "codes_lost": [
+    "CTH"
+   ],
+   "origin_kept": true
+  }
+ ]
+}
