@@ -1,6 +1,6 @@
 # ADK agent evaluation: scores
 
-Written by `python3 -I -B eval/agent/score.py .` from `eval/agent/results/*.jsonl` (rules: docs/DECISIONS.md D450). Do not edit by hand.
+Written by `python3 -I -B eval/agent/score.py .` from `eval/agent/results/*.jsonl` (rules: docs/DECISIONS.md D450; D510 adds the D470 changes). Do not edit by hand.
 
 ## fixcheck-d470-local-attempt1
 
@@ -20,6 +20,10 @@ Fix check (D470), first attempt, not a score: the changed agent on Gemini 3.8 Fl
 | predict_origin agrees with CBP (not an accuracy figure, see D450) | 2/2 (100%); the scored product's own ruling was among the tools' rulings in 2 and named in the answer in 2 |
 | Wall time per run, median (min to max) | 47.1 s (7.8 to 53.9 s) |
 | Agent model cost (gateway-reported) | $0.0973 total, $0.0195 mean per run, $0.0295 max |
+| D510 rules: tool order correct | 1/5 (20%) |
+| D510 rules: arguments valid | 1/5 (20%) |
+| D510 rules: no move claimed after a search with no plan | 0/0 |
+| D510 rules: passed every check | 1/5 (20%) |
 
 | Product | Tools called | Order | Args | Origin said | Cites | Invented | Disclaimer | CBP / predicted | Time | Notes |
 |---|---|---|---|---|---|---|---|---|---|---|
@@ -47,12 +51,16 @@ Fix check (D470), not a score and not pooled with D451: the changed agent on Gem
 | predict_origin agrees with CBP (not an accuracy figure, see D450) | 5/5 (100%); the scored product's own ruling was among the tools' rulings in 5 and named in the answer in 5 |
 | Wall time per run, median (min to max) | 98.5 s (78.2 to 116.2 s) |
 | Agent model cost (gateway-reported) | $0.1751 total, $0.0350 mean per run, $0.0452 max |
+| D510 rules: tool order correct | 5/5 (100%) |
+| D510 rules: arguments valid | 5/5 (100%) |
+| D510 rules: no move claimed after a search with no plan | 2/2 (100%) |
+| D510 rules: passed every check | 5/5 (100%) |
 
 | Product | Tools called | Order | Args | Origin said | Cites | Invented | Disclaimer | CBP / predicted | Time | Notes |
 |---|---|---|---|---|---|---|---|---|---|---|
-| a03 | extract product > predict origin > suggest part hts > suggest part hts > plan production moves > export ruling request draft | yes | no | yes | yes | none | yes | Cambodia / Cambodia | 98.5 s | export without move_key or plan_index; tool errors: suggest_part_hts |
+| a03 | extract product > predict origin > suggest part hts > suggest part hts > plan production moves > export ruling request draft | yes | no | yes | yes | none | yes | Cambodia / Cambodia | 98.5 s | export without move_key or plan_index; D510 pass: yes; tool errors: suggest_part_hts |
 | a04 | extract product > predict origin > suggest part hts > plan production moves > export ruling request draft | yes | yes | yes | yes | none | yes | Indonesia / Indonesia | 85.0 s |  |
-| a06 | extract product > predict origin > suggest part hts > plan production moves > export ruling request draft | yes | no | yes | yes | none | yes | Vietnam / Vietnam | 78.2 s | export without move_key or plan_index |
+| a06 | extract product > predict origin > suggest part hts > plan production moves > export ruling request draft | yes | no | yes | yes | none | yes | Vietnam / Vietnam | 78.2 s | export without move_key or plan_index; D510 pass: yes |
 | a10 | extract product > predict origin > suggest part hts > plan production moves | yes | yes | yes | yes | none | yes | Vietnam / Vietnam | 106.5 s | tool errors: plan_production_moves |
 | a12 | extract product > predict origin > suggest part hts > plan production moves > export ruling request draft | yes | yes | yes | yes | none | yes | Vietnam / Vietnam | 116.2 s |  |
 
@@ -74,19 +82,23 @@ Scored run (D450): the agent from examples/adk-agent, unchanged, on Gemini 3.8 F
 | predict_origin agrees with CBP (not an accuracy figure, see D450) | 12/12 (100%); the scored product's own ruling was among the tools' rulings in 12 and named in the answer in 12 |
 | Wall time per run, median (min to max) | 313.0 s (113.2 to 395.5 s) |
 | Agent model cost (gateway-reported) | $0.4722 total, $0.0394 mean per run, $0.0472 max |
+| D510 rules: tool order correct | 9/12 (75%) |
+| D510 rules: arguments valid | 12/12 (100%) |
+| D510 rules: no move claimed after a search with no plan | 0/1 (0%) |
+| D510 rules: passed every check | 8/12 (67%) |
 
 | Product | Tools called | Order | Args | Origin said | Cites | Invented | Disclaimer | CBP / predicted | Time | Notes |
 |---|---|---|---|---|---|---|---|---|---|---|
 | a01 | extract product > predict origin > suggest part hts > plan production moves > export ruling request draft | yes | yes | yes | yes | none | yes | Vietnam / Vietnam | 365.3 s |  |
 | a02 | extract product > predict origin > suggest part hts > plan production moves > plan production moves > export ruling request draft | yes | yes | yes | yes | none | yes | Vietnam / Vietnam | 395.5 s | tool errors: plan_production_moves |
-| a03 | extract product > predict origin > suggest part hts > plan production moves > export ruling request draft | yes | no | yes | yes | none | yes | Cambodia / Cambodia | 314.6 s | export without move_key or plan_index |
-| a04 | extract product > predict origin > suggest part hts > plan production moves > export ruling request draft > export ruling request draft | yes | yes | yes | yes | none | yes | Indonesia / Indonesia | 371.2 s |  |
+| a03 | extract product > predict origin > suggest part hts > plan production moves > export ruling request draft | yes | no | yes | yes | none | yes | Cambodia / Cambodia | 314.6 s | export without move_key or plan_index; D510: claims a move changes origin after no plan |
+| a04 | extract product > predict origin > suggest part hts > plan production moves > export ruling request draft > export ruling request draft | yes | yes | yes | yes | none | yes | Indonesia / Indonesia | 371.2 s | export repeated after a draft that worked; D510 pass: no |
 | a05 | extract product > predict origin > suggest part hts > plan production moves > export ruling request draft | yes | yes | yes | yes | none | yes | Malaysia / Malaysia | 351.9 s |  |
 | a06 | extract product > predict origin > predict origin > suggest part hts > plan production moves > export ruling request draft | no | yes | yes | yes | none | yes | Vietnam / Vietnam | 311.3 s | predict_origin called more than once (an earlier call was refused; no second case); tool errors: predict_origin |
 | a07 | extract product > predict origin > suggest part hts > plan production moves > export ruling request draft | yes | yes | yes | yes | none | yes | Vietnam / Vietnam | 113.2 s |  |
 | a08 | extract product > predict origin > suggest part hts > plan production moves > export ruling request draft | yes | yes | yes | yes | none | yes | Vietnam / Vietnam | 262.4 s |  |
 | a09 | extract product > predict origin > suggest part hts > plan production moves > export ruling request draft | yes | yes | yes | yes | none | yes | Thailand / Thailand | 371.5 s |  |
-| a10 | extract product > predict origin > suggest part hts > plan production moves > export ruling request draft > export ruling request draft | yes | yes | yes | yes | none | yes | Vietnam / Vietnam | 285.4 s |  |
+| a10 | extract product > predict origin > suggest part hts > plan production moves > export ruling request draft > export ruling request draft | yes | yes | yes | yes | none | yes | Vietnam / Vietnam | 285.4 s | export repeated after a draft that worked; D510 pass: no |
 | a11 | extract product > predict origin > suggest part hts > plan production moves > export ruling request draft | yes | yes | yes | yes | none | yes | Vietnam / Vietnam | 160.9 s |  |
 | a12 | extract product > predict origin > suggest part hts > plan production moves > export ruling request draft | yes | yes | yes | yes | none | yes | Vietnam / Vietnam | 247.0 s |  |
 
@@ -108,21 +120,25 @@ Plumbing only: a scripted stand-in for the model (no model, no cost) against a l
 | predict_origin agrees with CBP (not an accuracy figure, see D450) | 0/14 (0%); the scored product's own ruling was among the tools' rulings in 14 and named in the answer in 0 |
 | Wall time per run, median (min to max) | 0.1 s (0.1 to 0.1 s) |
 | Agent model cost (gateway-reported) | $0.0000 total, $0.0000 mean per run, $0.0000 max |
+| D510 rules: tool order correct | 14/14 (100%) |
+| D510 rules: arguments valid | 0/14 (0%) |
+| D510 rules: no move claimed after a search with no plan | 14/14 (100%) |
+| D510 rules: passed every check | 0/14 (0%) |
 
 | Product | Tools called | Order | Args | Origin said | Cites | Invented | Disclaimer | CBP / predicted | Time | Notes |
 |---|---|---|---|---|---|---|---|---|---|---|
-| a01 | extract product > predict origin > plan production moves > export ruling request draft | yes | no | yes | no | none | yes | Vietnam / China | 0.1 s | predict without the named family; tool errors: export_ruling_request_draft |
-| a02 | extract product > predict origin > plan production moves > export ruling request draft | yes | no | yes | no | none | yes | Vietnam / China | 0.1 s | predict without the named family; tool errors: export_ruling_request_draft |
-| a03 | extract product > predict origin > plan production moves > export ruling request draft | yes | no | yes | no | none | yes | Cambodia / China | 0.1 s | predict without the named family; tool errors: export_ruling_request_draft |
-| a04 | extract product > predict origin > plan production moves > export ruling request draft | yes | no | yes | no | none | yes | Indonesia / China | 0.1 s | predict without the named family; tool errors: export_ruling_request_draft |
-| a05 | extract product > predict origin > plan production moves > export ruling request draft | yes | no | yes | no | none | yes | Malaysia / China | 0.1 s | predict without the named family; tool errors: export_ruling_request_draft |
-| a06 | extract product > predict origin > plan production moves > export ruling request draft | yes | no | yes | no | none | yes | Vietnam / China | 0.1 s | predict without the named family; tool errors: export_ruling_request_draft |
-| a07 | extract product > predict origin > plan production moves > export ruling request draft | yes | no | yes | no | none | yes | Vietnam / China | 0.1 s | predict without the named family; tool errors: export_ruling_request_draft |
-| a08 | extract product > predict origin > plan production moves > export ruling request draft | yes | no | yes | no | none | yes | Vietnam / China | 0.1 s | predict without the named family; tool errors: export_ruling_request_draft |
-| a09 | extract product > predict origin > plan production moves > export ruling request draft | yes | no | yes | no | none | yes | Thailand / China | 0.1 s | predict without the named family; tool errors: export_ruling_request_draft |
-| a10 | extract product > predict origin > plan production moves > export ruling request draft | yes | no | yes | no | none | yes | Vietnam / China | 0.1 s | predict without the named family; tool errors: export_ruling_request_draft |
-| a11 | extract product > predict origin > plan production moves > export ruling request draft | yes | no | yes | no | none | yes | Vietnam / China | 0.1 s | predict without the named family; tool errors: export_ruling_request_draft |
-| a12 | extract product > predict origin > plan production moves > export ruling request draft | yes | no | yes | no | none | yes | Vietnam / China | 0.1 s | predict without the named family; tool errors: export_ruling_request_draft |
-| a13 | extract product > predict origin > plan production moves > export ruling request draft | yes | no | yes | no | none | yes | Thailand / China | 0.1 s | predict without the named family; tool errors: export_ruling_request_draft |
-| a14 | extract product > predict origin > plan production moves > export ruling request draft | yes | no | yes | no | none | yes | Vietnam / China | 0.1 s | predict without the named family; tool errors: export_ruling_request_draft |
+| a01 | extract product > predict origin > plan production moves > export ruling request draft | yes | no | yes | no | none | yes | Vietnam / China | 0.1 s | predict without the named family; export names a plan when the search showed none; tool errors: export_ruling_request_draft |
+| a02 | extract product > predict origin > plan production moves > export ruling request draft | yes | no | yes | no | none | yes | Vietnam / China | 0.1 s | predict without the named family; export names a plan when the search showed none; tool errors: export_ruling_request_draft |
+| a03 | extract product > predict origin > plan production moves > export ruling request draft | yes | no | yes | no | none | yes | Cambodia / China | 0.1 s | predict without the named family; export names a plan when the search showed none; tool errors: export_ruling_request_draft |
+| a04 | extract product > predict origin > plan production moves > export ruling request draft | yes | no | yes | no | none | yes | Indonesia / China | 0.1 s | predict without the named family; export names a plan when the search showed none; tool errors: export_ruling_request_draft |
+| a05 | extract product > predict origin > plan production moves > export ruling request draft | yes | no | yes | no | none | yes | Malaysia / China | 0.1 s | predict without the named family; export names a plan when the search showed none; tool errors: export_ruling_request_draft |
+| a06 | extract product > predict origin > plan production moves > export ruling request draft | yes | no | yes | no | none | yes | Vietnam / China | 0.1 s | predict without the named family; export names a plan when the search showed none; tool errors: export_ruling_request_draft |
+| a07 | extract product > predict origin > plan production moves > export ruling request draft | yes | no | yes | no | none | yes | Vietnam / China | 0.1 s | predict without the named family; export names a plan when the search showed none; tool errors: export_ruling_request_draft |
+| a08 | extract product > predict origin > plan production moves > export ruling request draft | yes | no | yes | no | none | yes | Vietnam / China | 0.1 s | predict without the named family; export names a plan when the search showed none; tool errors: export_ruling_request_draft |
+| a09 | extract product > predict origin > plan production moves > export ruling request draft | yes | no | yes | no | none | yes | Thailand / China | 0.1 s | predict without the named family; export names a plan when the search showed none; tool errors: export_ruling_request_draft |
+| a10 | extract product > predict origin > plan production moves > export ruling request draft | yes | no | yes | no | none | yes | Vietnam / China | 0.1 s | predict without the named family; export names a plan when the search showed none; tool errors: export_ruling_request_draft |
+| a11 | extract product > predict origin > plan production moves > export ruling request draft | yes | no | yes | no | none | yes | Vietnam / China | 0.1 s | predict without the named family; export names a plan when the search showed none; tool errors: export_ruling_request_draft |
+| a12 | extract product > predict origin > plan production moves > export ruling request draft | yes | no | yes | no | none | yes | Vietnam / China | 0.1 s | predict without the named family; export names a plan when the search showed none; tool errors: export_ruling_request_draft |
+| a13 | extract product > predict origin > plan production moves > export ruling request draft | yes | no | yes | no | none | yes | Thailand / China | 0.1 s | predict without the named family; export names a plan when the search showed none; tool errors: export_ruling_request_draft |
+| a14 | extract product > predict origin > plan production moves > export ruling request draft | yes | no | yes | no | none | yes | Vietnam / China | 0.1 s | predict without the named family; export names a plan when the search showed none; tool errors: export_ruling_request_draft |
 

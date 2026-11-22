@@ -99,6 +99,9 @@ def plan_fields(sc):
     return {
         "plans": len(plans),
         "plan_origins": [(p.get("prediction") or {}).get("origin_country") for p in plans],
+        # The shown plans' plan_id (D470), so the scorer can check the one the
+        # export names (D510). Absent in rows written before D510.
+        "plan_ids": [p.get("plan_id") for p in plans],
         "rejected": len(plan.get("rejected") or []),
     }
 

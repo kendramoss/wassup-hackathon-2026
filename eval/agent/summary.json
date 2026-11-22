@@ -1,5 +1,5 @@
 {
- "rules": "docs/DECISIONS.md D450",
+ "rules": "docs/DECISIONS.md D450; D510",
  "products": 14,
  "runs": {
   "fixcheck-d470-local-attempt1": {
@@ -23,6 +23,16 @@
      2
     ],
     "pass_all": 1,
+    "d510": {
+     "order_ok": 1,
+     "args_ok": 1,
+     "no_plan_honest": [
+      0,
+      0
+     ],
+     "runs_with_plans_shown": 0,
+     "pass_all": 1
+    },
     "gold_agree": [
      2,
      2
@@ -73,7 +83,19 @@
      "cost_usd": 0.019743,
      "model_calls": 3,
      "gold": null,
-     "pass": false
+     "pass": false,
+     "v2": {
+      "order_ok": false,
+      "order_issues": [
+       "missing plan_production_moves"
+      ],
+      "args_ok": false,
+      "arg_issues": [],
+      "no_plan_claims": null,
+      "pass": false,
+      "plan_ids": [],
+      "export_plan_ids": []
+     }
     },
     {
      "id": "a04",
@@ -113,7 +135,17 @@
       "source_ruling_in_precedents": true,
       "source_ruling_in_answer": true
      },
-     "pass": true
+     "pass": true,
+     "v2": {
+      "order_ok": true,
+      "order_issues": [],
+      "args_ok": true,
+      "arg_issues": [],
+      "no_plan_claims": null,
+      "pass": true,
+      "plan_ids": [],
+      "export_plan_ids": []
+     }
     },
     {
      "id": "a06",
@@ -154,7 +186,19 @@
       "source_ruling_in_precedents": true,
       "source_ruling_in_answer": true
      },
-     "pass": false
+     "pass": false,
+     "v2": {
+      "order_ok": false,
+      "order_issues": [
+       "missing plan_production_moves"
+      ],
+      "args_ok": false,
+      "arg_issues": [],
+      "no_plan_claims": null,
+      "pass": false,
+      "plan_ids": [],
+      "export_plan_ids": []
+     }
     },
     {
      "id": "a10",
@@ -188,7 +232,20 @@
      "cost_usd": 0.012146,
      "model_calls": 2,
      "gold": null,
-     "pass": false
+     "pass": false,
+     "v2": {
+      "order_ok": false,
+      "order_issues": [
+       "missing predict_origin",
+       "missing plan_production_moves"
+      ],
+      "args_ok": false,
+      "arg_issues": [],
+      "no_plan_claims": null,
+      "pass": false,
+      "plan_ids": [],
+      "export_plan_ids": []
+     }
     },
     {
      "id": "a12",
@@ -222,7 +279,20 @@
      "cost_usd": 0.009929,
      "model_calls": 2,
      "gold": null,
-     "pass": false
+     "pass": false,
+     "v2": {
+      "order_ok": false,
+      "order_issues": [
+       "missing predict_origin",
+       "missing plan_production_moves"
+      ],
+      "args_ok": false,
+      "arg_issues": [],
+      "no_plan_claims": null,
+      "pass": false,
+      "plan_ids": [],
+      "export_plan_ids": []
+     }
     }
    ]
   },
@@ -247,6 +317,16 @@
      2
     ],
     "pass_all": 3,
+    "d510": {
+     "order_ok": 5,
+     "args_ok": 5,
+     "no_plan_honest": [
+      2,
+      2
+     ],
+     "runs_with_plans_shown": 2,
+     "pass_all": 5
+    },
     "gold_agree": [
      5,
      5
@@ -307,7 +387,19 @@
       "source_ruling_in_precedents": true,
       "source_ruling_in_answer": true
      },
-     "pass": false
+     "pass": false,
+     "v2": {
+      "order_ok": true,
+      "order_issues": [],
+      "args_ok": true,
+      "arg_issues": [],
+      "no_plan_claims": [],
+      "pass": true,
+      "plan_ids": [],
+      "export_plan_ids": [
+       null
+      ]
+     }
     },
     {
      "id": "a04",
@@ -346,7 +438,19 @@
       "source_ruling_in_precedents": true,
       "source_ruling_in_answer": true
      },
-     "pass": true
+     "pass": true,
+     "v2": {
+      "order_ok": true,
+      "order_issues": [],
+      "args_ok": true,
+      "arg_issues": [],
+      "no_plan_claims": null,
+      "pass": true,
+      "plan_ids": [],
+      "export_plan_ids": [
+       "pcba_manufacturing@plant"
+      ]
+     }
     },
     {
      "id": "a06",
@@ -387,7 +491,19 @@
       "source_ruling_in_precedents": true,
       "source_ruling_in_answer": true
      },
-     "pass": false
+     "pass": false,
+     "v2": {
+      "order_ok": true,
+      "order_issues": [],
+      "args_ok": true,
+      "arg_issues": [],
+      "no_plan_claims": [],
+      "pass": true,
+      "plan_ids": [],
+      "export_plan_ids": [
+       null
+      ]
+     }
     },
     {
      "id": "a10",
@@ -427,7 +543,17 @@
       "source_ruling_in_precedents": true,
       "source_ruling_in_answer": true
      },
-     "pass": true
+     "pass": true,
+     "v2": {
+      "order_ok": true,
+      "order_issues": [],
+      "args_ok": true,
+      "arg_issues": [],
+      "no_plan_claims": null,
+      "pass": true,
+      "plan_ids": [],
+      "export_plan_ids": []
+     }
     },
     {
      "id": "a12",
@@ -466,7 +592,19 @@
       "source_ruling_in_precedents": true,
       "source_ruling_in_answer": true
      },
-     "pass": true
+     "pass": true,
+     "v2": {
+      "order_ok": true,
+      "order_issues": [],
+      "args_ok": true,
+      "arg_issues": [],
+      "no_plan_claims": null,
+      "pass": true,
+      "plan_ids": [],
+      "export_plan_ids": [
+       "precision_machined_parts@target_plant"
+      ]
+     }
     }
    ]
   },
@@ -491,6 +629,16 @@
      4
     ],
     "pass_all": 10,
+    "d510": {
+     "order_ok": 9,
+     "args_ok": 12,
+     "no_plan_honest": [
+      0,
+      1
+     ],
+     "runs_with_plans_shown": 11,
+     "pass_all": 8
+    },
     "gold_agree": [
      12,
      12
@@ -546,7 +694,19 @@
       "source_ruling_in_precedents": true,
       "source_ruling_in_answer": true
      },
-     "pass": true
+     "pass": true,
+     "v2": {
+      "order_ok": true,
+      "order_issues": [],
+      "args_ok": true,
+      "arg_issues": [],
+      "no_plan_claims": null,
+      "pass": true,
+      "plan_ids": [],
+      "export_plan_ids": [
+       null
+      ]
+     }
     },
     {
      "id": "a02",
@@ -588,7 +748,19 @@
       "source_ruling_in_precedents": true,
       "source_ruling_in_answer": true
      },
-     "pass": true
+     "pass": true,
+     "v2": {
+      "order_ok": true,
+      "order_issues": [],
+      "args_ok": true,
+      "arg_issues": [],
+      "no_plan_claims": null,
+      "pass": true,
+      "plan_ids": [],
+      "export_plan_ids": [
+       null
+      ]
+     }
     },
     {
      "id": "a03",
@@ -629,7 +801,21 @@
       "source_ruling_in_precedents": true,
       "source_ruling_in_answer": true
      },
-     "pass": false
+     "pass": false,
+     "v2": {
+      "order_ok": true,
+      "order_issues": [],
+      "args_ok": true,
+      "arg_issues": [],
+      "no_plan_claims": [
+       "* According to CBP precedent **N355175**, shifting the core SMT board assembly, firmware loading, and complete system assembly and testing to the Vietnam facility is the critical operational threshold to establish Vietnam as the country of origin."
+      ],
+      "pass": false,
+      "plan_ids": [],
+      "export_plan_ids": [
+       null
+      ]
+     }
     },
     {
      "id": "a04",
@@ -669,7 +855,22 @@
       "source_ruling_in_precedents": true,
       "source_ruling_in_answer": true
      },
-     "pass": true
+     "pass": true,
+     "v2": {
+      "order_ok": false,
+      "order_issues": [
+       "export repeated after a draft that worked"
+      ],
+      "args_ok": true,
+      "arg_issues": [],
+      "no_plan_claims": null,
+      "pass": false,
+      "plan_ids": [],
+      "export_plan_ids": [
+       null,
+       null
+      ]
+     }
     },
     {
      "id": "a05",
@@ -708,7 +909,19 @@
       "source_ruling_in_precedents": true,
       "source_ruling_in_answer": true
      },
-     "pass": true
+     "pass": true,
+     "v2": {
+      "order_ok": true,
+      "order_issues": [],
+      "args_ok": true,
+      "arg_issues": [],
+      "no_plan_claims": null,
+      "pass": true,
+      "plan_ids": [],
+      "export_plan_ids": [
+       null
+      ]
+     }
     },
     {
      "id": "a06",
@@ -752,7 +965,21 @@
       "source_ruling_in_precedents": true,
       "source_ruling_in_answer": true
      },
-     "pass": false
+     "pass": false,
+     "v2": {
+      "order_ok": false,
+      "order_issues": [
+       "predict_origin called more than once (an earlier call was refused; no second case)"
+      ],
+      "args_ok": true,
+      "arg_issues": [],
+      "no_plan_claims": null,
+      "pass": false,
+      "plan_ids": [],
+      "export_plan_ids": [
+       null
+      ]
+     }
     },
     {
      "id": "a07",
@@ -791,7 +1018,19 @@
       "source_ruling_in_precedents": true,
       "source_ruling_in_answer": true
      },
-     "pass": true
+     "pass": true,
+     "v2": {
+      "order_ok": true,
+      "order_issues": [],
+      "args_ok": true,
+      "arg_issues": [],
+      "no_plan_claims": null,
+      "pass": true,
+      "plan_ids": [],
+      "export_plan_ids": [
+       null
+      ]
+     }
     },
     {
      "id": "a08",
@@ -830,7 +1069,19 @@
       "source_ruling_in_precedents": true,
       "source_ruling_in_answer": true
      },
-     "pass": true
+     "pass": true,
+     "v2": {
+      "order_ok": true,
+      "order_issues": [],
+      "args_ok": true,
+      "arg_issues": [],
+      "no_plan_claims": null,
+      "pass": true,
+      "plan_ids": [],
+      "export_plan_ids": [
+       null
+      ]
+     }
     },
     {
      "id": "a09",
@@ -869,7 +1120,19 @@
       "source_ruling_in_precedents": true,
       "source_ruling_in_answer": true
      },
-     "pass": true
+     "pass": true,
+     "v2": {
+      "order_ok": true,
+      "order_issues": [],
+      "args_ok": true,
+      "arg_issues": [],
+      "no_plan_claims": null,
+      "pass": true,
+      "plan_ids": [],
+      "export_plan_ids": [
+       null
+      ]
+     }
     },
     {
      "id": "a10",
@@ -909,7 +1172,22 @@
       "source_ruling_in_precedents": true,
       "source_ruling_in_answer": true
      },
-     "pass": true
+     "pass": true,
+     "v2": {
+      "order_ok": false,
+      "order_issues": [
+       "export repeated after a draft that worked"
+      ],
+      "args_ok": true,
+      "arg_issues": [],
+      "no_plan_claims": null,
+      "pass": false,
+      "plan_ids": [],
+      "export_plan_ids": [
+       null,
+       null
+      ]
+     }
     },
     {
      "id": "a11",
@@ -948,7 +1226,19 @@
       "source_ruling_in_precedents": true,
       "source_ruling_in_answer": true
      },
-     "pass": true
+     "pass": true,
+     "v2": {
+      "order_ok": true,
+      "order_issues": [],
+      "args_ok": true,
+      "arg_issues": [],
+      "no_plan_claims": null,
+      "pass": true,
+      "plan_ids": [],
+      "export_plan_ids": [
+       null
+      ]
+     }
     },
     {
      "id": "a12",
@@ -987,7 +1277,19 @@
       "source_ruling_in_precedents": true,
       "source_ruling_in_answer": true
      },
-     "pass": true
+     "pass": true,
+     "v2": {
+      "order_ok": true,
+      "order_issues": [],
+      "args_ok": true,
+      "arg_issues": [],
+      "no_plan_claims": null,
+      "pass": true,
+      "plan_ids": [],
+      "export_plan_ids": [
+       null
+      ]
+     }
     }
    ]
   },
@@ -1012,6 +1314,16 @@
      4
     ],
     "pass_all": 0,
+    "d510": {
+     "order_ok": 14,
+     "args_ok": 0,
+     "no_plan_honest": [
+      14,
+      14
+     ],
+     "runs_with_plans_shown": 0,
+     "pass_all": 0
+    },
     "gold_agree": [
      0,
      14
@@ -1070,7 +1382,22 @@
       "source_ruling_in_precedents": true,
       "source_ruling_in_answer": false
      },
-     "pass": false
+     "pass": false,
+     "v2": {
+      "order_ok": true,
+      "order_issues": [],
+      "args_ok": false,
+      "arg_issues": [
+       "export names a plan when the search showed none",
+       "predict without the named family"
+      ],
+      "no_plan_claims": [],
+      "pass": false,
+      "plan_ids": [],
+      "export_plan_ids": [
+       null
+      ]
+     }
     },
     {
      "id": "a02",
@@ -1112,7 +1439,22 @@
       "source_ruling_in_precedents": true,
       "source_ruling_in_answer": false
      },
-     "pass": false
+     "pass": false,
+     "v2": {
+      "order_ok": true,
+      "order_issues": [],
+      "args_ok": false,
+      "arg_issues": [
+       "export names a plan when the search showed none",
+       "predict without the named family"
+      ],
+      "no_plan_claims": [],
+      "pass": false,
+      "plan_ids": [],
+      "export_plan_ids": [
+       null
+      ]
+     }
     },
     {
      "id": "a03",
@@ -1154,7 +1496,22 @@
       "source_ruling_in_precedents": true,
       "source_ruling_in_answer": false
      },
-     "pass": false
+     "pass": false,
+     "v2": {
+      "order_ok": true,
+      "order_issues": [],
+      "args_ok": false,
+      "arg_issues": [
+       "export names a plan when the search showed none",
+       "predict without the named family"
+      ],
+      "no_plan_claims": [],
+      "pass": false,
+      "plan_ids": [],
+      "export_plan_ids": [
+       null
+      ]
+     }
     },
     {
      "id": "a04",
@@ -1196,7 +1553,22 @@
       "source_ruling_in_precedents": true,
       "source_ruling_in_answer": false
      },
-     "pass": false
+     "pass": false,
+     "v2": {
+      "order_ok": true,
+      "order_issues": [],
+      "args_ok": false,
+      "arg_issues": [
+       "export names a plan when the search showed none",
+       "predict without the named family"
+      ],
+      "no_plan_claims": [],
+      "pass": false,
+      "plan_ids": [],
+      "export_plan_ids": [
+       null
+      ]
+     }
     },
     {
      "id": "a05",
@@ -1238,7 +1610,22 @@
       "source_ruling_in_precedents": true,
       "source_ruling_in_answer": false
      },
-     "pass": false
+     "pass": false,
+     "v2": {
+      "order_ok": true,
+      "order_issues": [],
+      "args_ok": false,
+      "arg_issues": [
+       "export names a plan when the search showed none",
+       "predict without the named family"
+      ],
+      "no_plan_claims": [],
+      "pass": false,
+      "plan_ids": [],
+      "export_plan_ids": [
+       null
+      ]
+     }
     },
     {
      "id": "a06",
@@ -1280,7 +1667,22 @@
       "source_ruling_in_precedents": true,
       "source_ruling_in_answer": false
      },
-     "pass": false
+     "pass": false,
+     "v2": {
+      "order_ok": true,
+      "order_issues": [],
+      "args_ok": false,
+      "arg_issues": [
+       "export names a plan when the search showed none",
+       "predict without the named family"
+      ],
+      "no_plan_claims": [],
+      "pass": false,
+      "plan_ids": [],
+      "export_plan_ids": [
+       null
+      ]
+     }
     },
     {
      "id": "a07",
@@ -1322,7 +1724,22 @@
       "source_ruling_in_precedents": true,
       "source_ruling_in_answer": false
      },
-     "pass": false
+     "pass": false,
+     "v2": {
+      "order_ok": true,
+      "order_issues": [],
+      "args_ok": false,
+      "arg_issues": [
+       "export names a plan when the search showed none",
+       "predict without the named family"
+      ],
+      "no_plan_claims": [],
+      "pass": false,
+      "plan_ids": [],
+      "export_plan_ids": [
+       null
+      ]
+     }
     },
     {
      "id": "a08",
@@ -1364,7 +1781,22 @@
       "source_ruling_in_precedents": true,
       "source_ruling_in_answer": false
      },
-     "pass": false
+     "pass": false,
+     "v2": {
+      "order_ok": true,
+      "order_issues": [],
+      "args_ok": false,
+      "arg_issues": [
+       "export names a plan when the search showed none",
+       "predict without the named family"
+      ],
+      "no_plan_claims": [],
+      "pass": false,
+      "plan_ids": [],
+      "export_plan_ids": [
+       null
+      ]
+     }
     },
     {
      "id": "a09",
@@ -1406,7 +1838,22 @@
       "source_ruling_in_precedents": true,
       "source_ruling_in_answer": false
      },
-     "pass": false
+     "pass": false,
+     "v2": {
+      "order_ok": true,
+      "order_issues": [],
+      "args_ok": false,
+      "arg_issues": [
+       "export names a plan when the search showed none",
+       "predict without the named family"
+      ],
+      "no_plan_claims": [],
+      "pass": false,
+      "plan_ids": [],
+      "export_plan_ids": [
+       null
+      ]
+     }
     },
     {
      "id": "a10",
@@ -1448,7 +1895,22 @@
       "source_ruling_in_precedents": true,
       "source_ruling_in_answer": false
      },
-     "pass": false
+     "pass": false,
+     "v2": {
+      "order_ok": true,
+      "order_issues": [],
+      "args_ok": false,
+      "arg_issues": [
+       "export names a plan when the search showed none",
+       "predict without the named family"
+      ],
+      "no_plan_claims": [],
+      "pass": false,
+      "plan_ids": [],
+      "export_plan_ids": [
+       null
+      ]
+     }
     },
     {
      "id": "a11",
@@ -1490,7 +1952,22 @@
       "source_ruling_in_precedents": true,
       "source_ruling_in_answer": false
      },
-     "pass": false
+     "pass": false,
+     "v2": {
+      "order_ok": true,
+      "order_issues": [],
+      "args_ok": false,
+      "arg_issues": [
+       "export names a plan when the search showed none",
+       "predict without the named family"
+      ],
+      "no_plan_claims": [],
+      "pass": false,
+      "plan_ids": [],
+      "export_plan_ids": [
+       null
+      ]
+     }
     },
     {
      "id": "a12",
@@ -1532,7 +2009,22 @@
       "source_ruling_in_precedents": true,
       "source_ruling_in_answer": false
      },
-     "pass": false
+     "pass": false,
+     "v2": {
+      "order_ok": true,
+      "order_issues": [],
+      "args_ok": false,
+      "arg_issues": [
+       "export names a plan when the search showed none",
+       "predict without the named family"
+      ],
+      "no_plan_claims": [],
+      "pass": false,
+      "plan_ids": [],
+      "export_plan_ids": [
+       null
+      ]
+     }
     },
     {
      "id": "a13",
@@ -1574,7 +2066,22 @@
       "source_ruling_in_precedents": true,
       "source_ruling_in_answer": false
      },
-     "pass": false
+     "pass": false,
+     "v2": {
+      "order_ok": true,
+      "order_issues": [],
+      "args_ok": false,
+      "arg_issues": [
+       "export names a plan when the search showed none",
+       "predict without the named family"
+      ],
+      "no_plan_claims": [],
+      "pass": false,
+      "plan_ids": [],
+      "export_plan_ids": [
+       null
+      ]
+     }
     },
     {
      "id": "a14",
@@ -1616,7 +2123,22 @@
       "source_ruling_in_precedents": true,
       "source_ruling_in_answer": false
      },
-     "pass": false
+     "pass": false,
+     "v2": {
+      "order_ok": true,
+      "order_issues": [],
+      "args_ok": false,
+      "arg_issues": [
+       "export names a plan when the search showed none",
+       "predict without the named family"
+      ],
+      "no_plan_claims": [],
+      "pass": false,
+      "plan_ids": [],
+      "export_plan_ids": [
+       null
+      ]
+     }
     }
    ]
   }

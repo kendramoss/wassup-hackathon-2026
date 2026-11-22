@@ -1,8 +1,10 @@
-"""Scores the ADK agent evaluation runs (D450). No model calls, no network.
+"""Scores the ADK agent evaluation runs (D450, D510). No model calls, no network.
 
 Reads eval/agent/products.jsonl and every eval/agent/results/*.jsonl, scores
-each run with the rules pre-registered in docs/DECISIONS.md D450, and writes
-eval/agent/summary.json and eval/agent/SUMMARY.md.
+each run with the rules pre-registered in docs/DECISIONS.md D450, and again
+with D510's rules (D450 plus the D470 changes), and writes
+eval/agent/summary.json and eval/agent/SUMMARY.md. Runs whose meta file names
+a series (v2) are also compared run against run, product by product.
 
     python3 -I -B eval/agent/score.py .          # write
     python3 -I -B eval/agent/score.py . --check  # verify (make reproduce)
@@ -28,6 +30,15 @@ ORDER = ["extract_product", "predict_origin", "plan_production_moves", "export_r
 DISCLAIMER = "Not a ruling — confirm with a licensed customs broker."
 RULING = re.compile(r"\b(?:[HN]\d{6}|NY [A-Z]?\d{5,6}|HQ \d{6})\b")
 ORIGIN_SENTENCE = re.compile(r"(predict|likely|expected|would)\w*[^.\n]{0,60}?\borigin\b|\borigin\b[^.\n]{0,20}\b(is|would be|will be|:)", re.I)
+# D510 rule 7: with no plan shown, a sentence of the answer (outside code
+# blocks) claims a move changes origin when it names the target country in one
+# of these shapes and has no negation.
+CLAIM = [
+    r"\b(make|makes|making|establish|establishes|establishing|become|becomes|confer|confers|conferring|shift|shifts|shifting|change|changes|changing|render|renders)\b[^.\n]{0,80}\b{T}\b[^.\n]{0,40}\borigin\b",
+    r"\b{T}\b[^.\n]{0,40}\b(would|will|could|can)\s+(then\s+)?(become|be)\s+(the\s+)?(new\s+)?(country\s+of\s+)?origin\b",
+    r"\borigin\b[^.\n]{0,40}\b(would|will|could|can)\s+(then\s+)?(become|be|change\s+to|shift\s+to|move\s+to)\s+{T}\b",
+]
+NEGATION = re.compile(r"\b(no|not|cannot|can't|won't|none|nothing|neither|nor|unsupported|stands)\b", re.I)
 ALIASES = {"Vietnam": ["Viet Nam"], "South Korea": ["Korea"], "United States": ["U.S.A.", "USA", "United States of America"],
            "China": ["PRC", "People's Republic of China"], "Taiwan": [], "Thailand": ["Thai"], "Malaysia": [], "Cambodia": [],
            "Indonesia": [], "Mexico": [], "India": [], "Japan": [], "Germany": []}
@@ -164,6 +175,36 @@ def score_run(row, prod):
     disclaimer_lenient = re.sub(r"\s*[-–—]+\s*", " - ", DISCLAIMER) in re.sub(r"\s*[-–—]+\s*", " - ", final)
 
     passed = bool(final) and not row.get("error") and order_ok and args_ok and origin_ok is True and cites and not invented and disclaimer
+
+    # D510: D450 plus the D470 changes.
+    v2_order = list(issues)
+    exports = [c for c in calls if c["tool"] == "export_ruling_request_draft"]
+    for a, b in zip(exports, exports[1:]):
+        if not err(a):
+            v2_order.append("export repeated after a draft that worked")
+            break
+    v2_args = [i for i in arg_issues if i != "export without move_key or plan_index"]
+    ids = [i for c in plans_ok for i in ((c.get("fields") or {}).get("plan_ids") or []) if i]
+    for c in exports:
+        a = c["args"]
+        sel = [k for k in ("plan_id", "plan_index", "move_key") if a.get(k) is not None]
+        if shown == 0 and sel:
+            v2_args.append("export names a plan when the search showed none")
+        elif shown > 0 and not sel:
+            v2_args.append("export without plan_id, plan_index or move_key after a search that showed a plan")
+        if shown > 0 and a.get("plan_id") is not None and ids and a["plan_id"] not in ids:
+            v2_args.append("export plan_id is not one the search returned")
+        if shown > 0 and isinstance(a.get("plan_index"), int) and not 0 <= a["plan_index"] < shown:
+            v2_args.append("export plan_index out of range")
+    v2_args_ok = not v2_args and any(c["tool"] == "plan_production_moves" for c in calls)
+    no_plan_claims = None
+    if plans_ok and shown == 0:
+        prose = re.sub(r"```.*?(```|$)", " ", final, flags=re.S)
+        pats = [re.compile(p.replace("{T}", "(?:" + "|".join(re.escape(n) for n in names(tgt)) + ")"), re.I) for p in CLAIM]
+        no_plan_claims = [m.strip() for m in re.split(r"(?<=[.!?\n])", prose)
+                          if any(p.search(m) for p in pats) and not NEGATION.search(m)]
+    passed_v2 = (bool(final) and not row.get("error") and not v2_order and v2_args_ok and origin_ok is True and cites
+                 and not invented and disclaimer and not no_plan_claims)
     gold = None
     if origin:
         gold = {"cbp": prod["cbp_origin"], "predicted": origin, "agree": origin.lower() == prod["cbp_origin"].lower(),
@@ -178,6 +219,9 @@ def score_run(row, prod):
         "plans_shown": shown, "tool_errors": [c["tool"] for c in calls if err(c)],
         "wall_s": row["wall_s"], "cost_usd": row.get("cost_usd", 0.0), "model_calls": row.get("model_calls", 0),
         "gold": gold, "pass": passed,
+        "v2": {"order_ok": not v2_order, "order_issues": v2_order, "args_ok": v2_args_ok, "arg_issues": sorted(set(v2_args)),
+               "no_plan_claims": no_plan_claims, "pass": passed_v2,
+               "plan_ids": ids, "export_plan_ids": [c["args"].get("plan_id") for c in exports]},
     }
 
 
@@ -205,6 +249,13 @@ def aggregate(scored):
         "disclaimer_lenient": c(lambda s: s["disclaimer_lenient"]),
         "target_plant_added": [sum(1 for s in plant_n if s["target_plant_added"]), len(plant_n)],
         "pass_all": c(lambda s: s["pass"]),
+        "d510": {
+            "order_ok": c(lambda s: s["v2"]["order_ok"]),
+            "args_ok": c(lambda s: s["v2"]["args_ok"]),
+            "no_plan_honest": [c(lambda s: s["v2"]["no_plan_claims"] == []), c(lambda s: s["v2"]["no_plan_claims"] is not None)],
+            "runs_with_plans_shown": c(lambda s: s["plans_shown"] > 0),
+            "pass_all": c(lambda s: s["v2"]["pass"]),
+        },
         "gold_agree": [sum(1 for s in gold_n if s["gold"]["agree"]), len(gold_n)],
         "gold_source_in_precedents": sum(1 for s in gold_n if s["gold"]["source_ruling_in_precedents"]),
         "gold_source_in_answer": sum(1 for s in gold_n if s["gold"]["source_ruling_in_answer"]),
@@ -216,7 +267,7 @@ def aggregate(scored):
 
 def render_md(summary):
     out = ["# ADK agent evaluation: scores", "",
-           "Written by `python3 -I -B eval/agent/score.py .` from `eval/agent/results/*.jsonl` (rules: docs/DECISIONS.md D450). Do not edit by hand.", ""]
+           "Written by `python3 -I -B eval/agent/score.py .` from `eval/agent/results/*.jsonl` (rules: docs/DECISIONS.md D450; D510 adds the D470 changes). Do not edit by hand.", ""]
     for label, block in summary["runs"].items():
         a = block["aggregate"]
         out += [f"## {label}", "", f"{block['note']}", "",
@@ -233,16 +284,101 @@ def render_md(summary):
                 f"| predict_origin agrees with CBP (not an accuracy figure, see D450) | {pct(*a['gold_agree'])}; the scored product's own ruling was among the tools' rulings in {a['gold_source_in_precedents']} and named in the answer in {a['gold_source_in_answer']} |",
                 f"| Wall time per run, median (min to max) | {a['wall_s']['median']} s ({a['wall_s']['min']} to {a['wall_s']['max']} s) |" if a["wall_s"] else "| Wall time | none |",
                 f"| Agent model cost (gateway-reported) | ${a['cost_usd']['total']:.4f} total, ${a['cost_usd']['per_run_mean']:.4f} mean per run, ${a['cost_usd']['per_run_max']:.4f} max |",
+                f"| D510 rules: tool order correct | {pct(a['d510']['order_ok'], a['runs'])} |",
+                f"| D510 rules: arguments valid | {pct(a['d510']['args_ok'], a['runs'])} |",
+                f"| D510 rules: no move claimed after a search with no plan | {pct(*a['d510']['no_plan_honest'])} |",
+                f"| D510 rules: passed every check | {pct(a['d510']['pass_all'], a['runs'])} |",
                 "", "| Product | Tools called | Order | Args | Origin said | Cites | Invented | Disclaimer | CBP / predicted | Time | Notes |",
                 "|---|---|---|---|---|---|---|---|---|---|---|"]
         for s in block["scored"]:
             yn = lambda v: "n/a" if v is None else ("yes" if v else "no")
             g = s["gold"]
             gold = f"{g['cbp']} / {g['predicted']}" if g else f"/ {s['predicted'] or 'none'}"
-            notes = "; ".join(s["order_issues"] + s["arg_issues"] + ([f"tool errors: {', '.join(s['tool_errors'])}"] if s["tool_errors"] else []) + ([s["error"]] if s["error"] else []))
+            v2 = s["v2"]
+            extra = [i for i in v2["order_issues"] + v2["arg_issues"] if i not in s["order_issues"] + s["arg_issues"]]
+            extra += ["D510: claims a move changes origin after no plan"] if v2["no_plan_claims"] else []
+            extra += [] if v2["pass"] == s["pass"] else [f"D510 pass: {yn(v2['pass'])}"]
+            notes = "; ".join(s["order_issues"] + s["arg_issues"] + extra + ([f"tool errors: {', '.join(s['tool_errors'])}"] if s["tool_errors"] else []) + ([s["error"]] if s["error"] else []))
             out.append(f"| {s['id']} | {' > '.join(t.replace('_', ' ') for t in s['tools'])} | {yn(s['order_ok'])} | {yn(s['args_ok'])} | {yn(s['origin_consistent'])} | {yn(s['cites_tool_ruling'])} | {', '.join(s['invented_rulings']) or 'none'} | {yn(s['disclaimer'])} | {gold} | {s['wall_s']} s | {notes or ''} |")
         out.append("")
+    for name, ser in (summary.get("series") or {}).items():
+        out += render_series(name, ser)
     return "\n".join(out)
+
+
+def series(runs, metas):
+    """Groups runs whose meta names a series (D510) and compares them."""
+    out = {}
+    for label, meta in metas.items():
+        if meta.get("series"):
+            out.setdefault(meta["series"], {"runs": [], "baseline": meta.get("baseline")})["runs"].append((meta.get("rep", 0), label))
+    res = {}
+    for name, g in out.items():
+        labels = [l for _, l in sorted(g["runs"])]
+        by = [{s["id"]: s for s in runs[l]["scored"]} for l in labels]
+        ids = sorted(set.intersection(*[set(b) for b in by])) if by else []
+        base = {s["id"]: s for s in runs[g["baseline"]]["scored"]} if g["baseline"] in runs else {}
+        same = lambda f: sum(1 for i in ids if len({json.dumps(f(b[i])) for b in by}) == 1)
+        rows = []
+        for i in ids:
+            rows.append({"id": i,
+                         "v1_d450": base[i]["pass"] if i in base else None, "v1_d510": base[i]["v2"]["pass"] if i in base else None,
+                         "runs_d510": [b[i]["v2"]["pass"] for b in by],
+                         "predicted": [b[i]["predicted"] for b in by], "plans_shown": [b[i]["plans_shown"] for b in by],
+                         "export_plan_ids": [b[i]["v2"]["export_plan_ids"] for b in by],
+                         "issues": [b[i]["v2"]["order_issues"] + b[i]["v2"]["arg_issues"] + (["claims a move after no plan"] if b[i]["v2"]["no_plan_claims"] else []) + ([f"tool errors: {', '.join(b[i]['tool_errors'])}"] if b[i]["tool_errors"] else []) + ([b[i]["error"]] if b[i]["error"] else []) for b in by]})
+        pooled = [b[i] for b in by for i in ids]
+        res[name] = {
+            "runs": labels, "baseline": g["baseline"], "products": len(ids),
+            "pass_d510_per_run": [sum(1 for i in ids if b[i]["v2"]["pass"]) for b in by],
+            "pass_d450_per_run": [sum(1 for i in ids if b[i]["pass"]) for b in by],
+            "pass_d510_pooled": [sum(1 for s in pooled if s["v2"]["pass"]), len(pooled)],
+            "agree": {
+                "pass_d510": same(lambda s: s["v2"]["pass"]),
+                "both_pass_d510": sum(1 for i in ids if all(b[i]["v2"]["pass"] for b in by)),
+                "both_fail_d510": sum(1 for i in ids if not any(b[i]["v2"]["pass"] for b in by)),
+                "predicted_origin": same(lambda s: s["predicted"]),
+                "plan_found": same(lambda s: s["plans_shown"] > 0),
+                "plans_shown_count": same(lambda s: s["plans_shown"]),
+                "export_plan_id": same(lambda s: s["v2"]["export_plan_ids"]),
+                "required_tool_order": same(lambda s: [t for t in s["tools"] if t in ORDER]),
+                "full_tool_sequence": same(lambda s: s["tools"]),
+            },
+            "baseline_d450": sum(1 for s in base.values() if s["pass"]) if base else None,
+            "baseline_d510": sum(1 for s in base.values() if s["v2"]["pass"]) if base else None,
+            "rows": rows,
+        }
+    return res
+
+
+def render_series(name, g):
+    yn = lambda v: "n/a" if v is None else ("pass" if v else "fail")
+    n, k = g["products"], len(g["runs"])
+    ag = g["agree"]
+    out = [f"## Series {name}: {k} runs per product, compared (D510)", "",
+           f"Runs: {', '.join(g['runs'])}. Baseline: {g['baseline']} (one run per product). Pass is under D510 rules unless the row says D450.", "",
+           "| Measure | Result |", "|---|---|",
+           f"| Baseline passed every check, D450 rules as published | {pct(g['baseline_d450'], n)} |",
+           f"| Baseline passed every check, rescored under D510 rules | {pct(g['baseline_d510'], n)} |"]
+    for j, (lab, p, p4) in enumerate(zip(g["runs"], g["pass_d510_per_run"], g["pass_d450_per_run"]), 1):
+        out.append(f"| Run {j} ({lab}) passed every check | {pct(p, n)} (D450 rules: {p4}/{n}) |")
+    out += [f"| All runs pooled | {pct(*g['pass_d510_pooled'])} |",
+            f"| Same pass or fail in every run | {pct(ag['pass_d510'], n)} ({ag['both_pass_d510']} pass in all, {ag['both_fail_d510']} fail in all) |",
+            f"| Same predicted origin in every run | {pct(ag['predicted_origin'], n)} |",
+            f"| Same plan found or not found in every run | {pct(ag['plan_found'], n)} |",
+            f"| Same number of plans shown in every run | {pct(ag['plans_shown_count'], n)} |",
+            f"| Same plan drafted (export plan_id) in every run | {pct(ag['export_plan_id'], n)} |",
+            f"| Same order of the four required tools in every run | {pct(ag['required_tool_order'], n)} |",
+            f"| Same full tool sequence in every run | {pct(ag['full_tool_sequence'], n)} |",
+            "", "| Product | v1 (D450) | v1 (D510) | " + " | ".join(f"Run {j}" for j in range(1, k + 1)) + " | Predicted | Plans shown | Drafted plan_id | Issues |",
+            "|---|---|---|" + "---|" * k + "---|---|---|---|"]
+    for r in g["rows"]:
+        iss = " / ".join(f"run {j}: {'; '.join(x)}" for j, x in enumerate(r["issues"], 1) if x)
+        pid = " / ".join(", ".join(str(x) for x in e) or "current setup" for e in r["export_plan_ids"])
+        out.append(f"| {r['id']} | {yn(r['v1_d450'])} | {yn(r['v1_d510'])} | " + " | ".join(yn(x) for x in r["runs_d510"])
+                   + f" | {' / '.join(str(x) for x in r['predicted'])} | {' / '.join(str(x) for x in r['plans_shown'])} | {pid} | {iss} |")
+    out.append("")
+    return out
 
 
 def main():
@@ -250,15 +386,19 @@ def main():
     problems = check_set(products.values())
     if problems:
         sys.exit("eval set problems:\n" + "\n".join(problems))
-    runs = {}
+    runs, metas = {}, {}
     for path in sorted(glob.glob(R("eval/agent/results/*.jsonl"))):
         label = os.path.basename(path)[:-len(".jsonl")]
         scored = [score_run(r, products[r["id"]]) for r in jl(path)]
         scored.sort(key=lambda s: s["id"])
         meta = path[:-len(".jsonl")] + ".meta.json"
-        note = json.load(open(meta))["note"] if os.path.exists(meta) else ""
+        metas[label] = json.load(open(meta)) if os.path.exists(meta) else {}
+        note = metas[label].get("note", "")
         runs[label] = {"note": note, "file": os.path.relpath(path, REPO), "aggregate": aggregate(scored), "scored": scored}
-    summary = {"rules": "docs/DECISIONS.md D450", "products": len(products), "runs": runs}
+    summary = {"rules": "docs/DECISIONS.md D450; D510", "products": len(products), "runs": runs}
+    ser = series(runs, metas)
+    if ser:
+        summary["series"] = ser
     js = json.dumps(summary, indent=1, ensure_ascii=False) + "\n"
     md = render_md(summary) + "\n"
     if CHECK:
