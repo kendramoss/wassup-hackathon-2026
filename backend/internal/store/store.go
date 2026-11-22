@@ -37,6 +37,7 @@ type Case struct {
 	// Jurisdiction is the market the question is asked for (D680); nil for
 	// a case made before it, read as the United States.
 	Jurisdiction  *domain.Jurisdiction `json:"jurisdiction,omitempty"`
+	Japan         *domain.JapanInput   `json:"japan,omitempty"`
 	CurrentOrigin *planner.KnownOrigin `json:"current_origin,omitempty"`
 	Prediction    domain.Prediction    `json:"prediction"`
 	Triage        domain.Triage        `json:"triage"`
@@ -253,7 +254,7 @@ func (c Case) Step() string {
 		return "export"
 	case c.Plan != nil:
 		return "plan"
-	case c.Prediction.Origin != "":
+	case c.Prediction.Origin != "" || c.Prediction.Japan != nil:
 		return "origin"
 	}
 	return "product"

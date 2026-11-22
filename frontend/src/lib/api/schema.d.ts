@@ -59,7 +59,7 @@ export interface paths {
         put?: never;
         /**
          * Triage a portfolio (up to 20 products) in one call
-         * @description Each product is predicted from its facts, triaged and saved as an ordinary case (D47). One product's failure fills its row's error and does not fail the rest. Send JSON, or multipart/form-data with a "file" (CSV or .xlsx with a header row: name (or product, sku), facts (or description), optional date, optional jurisdiction). Rate-limited as one heavy request per client that takes 20 from the global cap.
+         * @description Each product is predicted from its facts, triaged and saved as an ordinary case (D47). Japan trade-agreement input is available in JSON rows. One product's failure fills its row's error and does not fail the rest. Send JSON, or multipart/form-data with a "file" (CSV or .xlsx with a header row: name (or product, sku), facts (or description), optional date, optional jurisdiction). Rate-limited as one heavy request per client that takes 20 from the global cap.
          */
         post: operations["triageBatch"];
         delete?: never;
@@ -737,7 +737,7 @@ export interface paths {
         };
         /**
          * Markets a case can name, and which have an origin engine
-         * @description Every market code with its name, whether it is supported (D680) and whether it has the steps after the origin answer. us is supported with every step; ca is supported as a rules check only (D725). A case for any other market gets no prediction and goes to review.
+         * @description Every market and its availability on this deployment. The United States supports follow-up steps. Canada offers a marking rules check. Japan offers a preliminary trade-agreement assessment where the separate gateway is configured. Unsupported markets return no prediction and go to review.
          */
         get: operations["listJurisdictions"];
         put?: never;
@@ -1486,11 +1486,11 @@ export interface components {
              */
             hts?: string;
         };
-        /** @description Either `facts` (pasted text, max 12,000 characters) or a structured `product` (+ `family`) is required. When both are given, the engine reads `facts` and the product is kept for plan search (the heat-gun demo does this). */
+        /** @description Either `facts` (pasted text, max 12,000 characters) or a structured `product` is required. U.S. cases without facts need a planner family. Japan cases can give the agreement and finished-good tariff code in `japan`. */
         PredictRequest: {
             /**
              * Format: date
-             * @description Case date; only CBP rulings dated strictly before it are used
+             * @description Case date; only rulings dated strictly before it are used
              */
             date: string;
             facts?: string;
@@ -1508,8 +1508,39 @@ export interface components {
             economics?: components["schemas"]["Economics"];
             /** @description Optional name for the case on Cases home (D48); batch rows pass their name here */
             display_name?: string;
-            /** @description Market the question is for (D680). Omitted: read from the text by a deterministic detector (an authority such as HMRC or CBSA, "imported into <place>", "<market> customs"), else us. Only us has an origin engine today; any other market is saved with no prediction and goes to review with "Origin rules for <market> aren't supported yet". */
+            /** @description Market the question is for. If omitted, a Japan input selects Japan. Otherwise the server reads it from the facts or defaults to the United States. See GET /v1/jurisdictions for current availability. */
             jurisdiction?: components["schemas"]["JurisdictionCode"];
+            japan?: components["schemas"]["JapanInput"];
+        };
+        /** @description Trade-agreement inputs for imports into Japan. A configured Japan assessment goes to review if the agreement, tariff code or applicable rule is missing. */
+        JapanInput: {
+            /**
+             * @description Agreement name or corpus code, such as RCEP, CPTPP, JP-EU EPA or AJCEP
+             * @example RCEP
+             */
+            agreement: string;
+            /**
+             * @description Finished-good tariff classification for Japan. Include the full Japanese code where the agreement rule requires it.
+             * @example 4412.31
+             */
+            hs: string;
+        };
+        JapanSource: {
+            citation: string;
+            /** Format: uri */
+            url: string;
+        };
+        /** @description Preliminary Japan preferential-origin assessment. Every result requires specialist review. Published evaluation rulings only cover goods that qualified. Not a ruling. */
+        JapanResult: {
+            agreement: string;
+            hs: string;
+            /** @enum {string} */
+            outcome: "qualifies" | "does_not_qualify" | "undetermined";
+            criterion?: string;
+            deciding_rule?: string;
+            review_reason?: string;
+            sources?: components["schemas"]["JapanSource"][];
+            precedent_sources?: components["schemas"]["JapanSource"][];
         };
         /**
          * @description Market codes: us United States, eu European Union, uk United Kingdom, ca Canada, jp Japan, kr South Korea, au Australia, mx Mexico, other any other market
@@ -1572,7 +1603,9 @@ export interface components {
             steps?: components["schemas"]["ChatStep"][];
         };
         Prediction: {
+            /** @description For Japan, the predicted preferential origin when the goods qualify and a country is known. */
             origin_country?: string;
+            japan_preference?: components["schemas"]["JapanResult"];
             key_factors?: string[];
             decisive_step?: string;
             /** @description The model's own stated confidence. Overconfident on average (stated 94.7% against 90.2% right on the 377 held-out rulings); use calibrated_confidence when present. */
@@ -1620,6 +1653,7 @@ export interface components {
             exclude_rulings?: string[];
             jurisdiction?: components["schemas"]["JurisdictionCode"];
             jurisdiction_detail?: components["schemas"]["JurisdictionDetail"];
+            japan?: components["schemas"]["JapanInput"];
             /** @description Empty (origin_country "") when jurisdiction_detail.supported is false: no engine ran (D680) */
             prediction?: components["schemas"]["Prediction"];
             triage?: components["schemas"]["Triage"];
@@ -2658,6 +2692,7 @@ export interface operations {
                         date?: string;
                         /** @description Optional market (D680); a sheet may have a jurisdiction (or market) column */
                         jurisdiction?: components["schemas"]["JurisdictionCode"];
+                        japan?: components["schemas"]["JapanInput"];
                     }[];
                 };
                 "multipart/form-data": {
@@ -2679,6 +2714,7 @@ export interface operations {
                             name: string;
                             case_id?: string;
                             jurisdiction?: components["schemas"]["JurisdictionCode"];
+                            japan_preference?: components["schemas"]["JapanResult"];
                             /** @description Absent when the market has no engine (D680) */
                             predicted_origin?: string;
                             /** @description The model's stated confidence; read calibrated_confidence first when present (D160, #402) */
