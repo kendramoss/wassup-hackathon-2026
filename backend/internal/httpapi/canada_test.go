@@ -108,7 +108,7 @@ func TestCanadaRegisteredRulesOnly(t *testing.T) {
 	if r := out["triage"].(map[string]any)["route"]; r != "needs_review" {
 		t.Errorf("route %v", r)
 	}
-	if detail(t, out)["supported"] != true {
+	if d := detail(t, out); d["supported"] != true || d["follow_ups"] != false {
 		t.Errorf("detail %v", out["jurisdiction_detail"])
 	}
 	code, out = hs.do(t, "POST", "/v1/cases/predict", marketBody("A compressor housing machined in Mexico from a Chinese casting, shipped to Canada.", "ca"))

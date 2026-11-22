@@ -51,9 +51,10 @@ func (a *api) requireMarket(c store.Case, asked string) error {
 	if !a.markets().Supported(code) {
 		return fmt.Errorf("%w: %s", domain.ErrInvalid, jurisdiction.UnsupportedReason(code))
 	}
-	if code != jurisdiction.US {
+	if !a.markets().FollowUps(code) {
 		// A registered non-U.S. authority has an origin engine only; plan
-		// search, the CBP letter and broker review are U.S. features.
+		// search, the CBP letter and broker review are U.S. features. The
+		// API reports the same flag as jurisdiction_detail.follow_ups.
 		return fmt.Errorf("%w: this step is for U.S. cases; %s cases get an origin answer only", domain.ErrInvalid, jurisdiction.Name(code))
 	}
 	return nil

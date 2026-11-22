@@ -1528,7 +1528,7 @@ paths:
     get:
       operationId: listJurisdictions
       summary: Markets a case can name, and which have an origin engine
-      description: Every market code with its name and whether it is supported (D680). Only us is supported today; a case for any other market gets no prediction and goes to review.
+      description: Every market code with its name, whether it is supported (D680) and whether it has the steps after the origin answer. us is supported with every step; ca is supported as a rules check only (D725). A case for any other market gets no prediction and goes to review.
       responses:
         "429": { $ref: "#/components/responses/TooManyRequests" }
         "200":
@@ -1546,6 +1546,7 @@ paths:
                         code: { $ref: "#/components/schemas/JurisdictionCode" }
                         name: { type: string }
                         supported: { type: boolean }
+                        follow_ups: { type: boolean, description: "Whether the market's cases have plan search, comparison, scenarios, Ask, the draft and broker review (us only)" }
                   detector: { type: string, example: market-detect-v2, description: "Version of the deterministic market detector" }
   /v1/rules/canada-marking:
     post:
@@ -2410,7 +2411,7 @@ components:
       description: "Market codes: us United States, eu European Union, uk United Kingdom, ca Canada, jp Japan, kr South Korea, au Australia, mx Mexico, other any other market"
     JurisdictionDetail:
       type: object
-      required: [code, name, source, supported]
+      required: [code, name, source, supported, follow_ups]
       properties:
         code: { $ref: "#/components/schemas/JurisdictionCode" }
         name: { type: string, example: United States }
@@ -2418,6 +2419,7 @@ components:
         cue: { type: string, description: 'What set a detected market, e.g. "HMRC" or "entry into Canada"' }
         hint: { type: string, description: "A non-U.S. market the text suggests but that was not taken (a price, \"sold in\", or a cue contradicted by a U.S. one). On a case the router labels unclear it sends the case to review." }
         supported: { type: boolean, description: "Whether the market has an origin engine. false: no prediction was made" }
+        follow_ups: { type: boolean, description: "Whether the case has plan search, comparison, scenarios, Ask, the draft and broker review. Only us has them; on any other market those calls return 400 (#678)" }
     WhatIf:
       type: object
       description: One re-run of the origin engine on revised facts

@@ -24,3 +24,11 @@ export function marketOf(code: string | null | undefined) {
 }
 
 export const defaultSupported: MarketCode[] = ["us"];
+
+// Whether a case has the steps after the origin answer (Plan, Draft): the
+// API's jurisdiction_detail.follow_ups, true for U.S. cases only (#678). A
+// case read before the field existed falls back to whether it is supported.
+export function hasFollowUps(c: { jurisdiction_detail?: { supported?: boolean; follow_ups?: boolean } }) {
+  const d = c.jurisdiction_detail;
+  return d?.follow_ups ?? d?.supported !== false;
+}
