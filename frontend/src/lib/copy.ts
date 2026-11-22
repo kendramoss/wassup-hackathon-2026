@@ -574,7 +574,7 @@ export const copy = {
     part177Help: "Part 177 is how to ask CBP for a ruling. It is not an origin rule.",
     compareScope: "Compared on U.S. origin only. Section 232 duties are not included.",
     // Accuracy page, "What we don't claim" (listed unsupported in docs/scope-and-jurisdiction.md section 6).
-    notCovered: "Not covered: EU Binding Origin Information; USMCA regional value content and preferential-origin claims (an RCEP rules check is built but not reviewed by a customs professional); certificates of origin; duty drawback; antidumping and countervailing duty questions. Section 232 duties are not included in cost figures.",
+    notCovered: "Not covered: EU binding rulings, USMCA origin/value claims, certificates of origin, duty drawback, or anti-dumping/countervailing duties. Section 232 duties are not in costs. RCEP checks are included but not reviewed by customs experts.",
     // D680-D682: the market check reads the text, but misses about one in four.
     noDetector: "U.S. origin only. Pick the market when you start a case; the text check misses some.",
   },
@@ -624,29 +624,29 @@ export const copy = {
     robustTogether: "The answer depends on which suggested codes are chosen together. Check the part codes with your broker first.",
   },
 
-  // RCEP preference check (D690). A different question from the origin
-  // answer, so the copy says so once and stays short (rule 16).
+  // RCEP preference check (D690).
   rcep: {
     title: "RCEP tariff",
-    meta: "separate from origin",
-    lead: "Can it get the RCEP tariff between RCEP countries? A rules check, not yet reviewed by a customs professional. Tick parts your supplier declares RCEP origin.",
-    needCode: "Add the product's HS code to check.",
+    meta: "Between RCEP countries",
+    lead: "Can this get an RCEP tariff between RCEP countries? Not reviewed by customs experts. Tick parts your supplier says are RCEP-origin.",
+    needCode: "Add the product HS code to check.",
     madeIn: "Made in",
-    price: "Price (FOB)",
+    price: "Price (F.O.B.)",
     part: "Part",
     declared: "RCEP origin",
-    declaredFor: (n: string) => `${n}: supplier declares RCEP origin`,
+    declaredFor: (n: string) => `${n}: supplier says RCEP origin`,
     value: "Value",
-    valueFor: (n: string) => `${n}: value`,
+    valueFor: (n: string) => `${n} value`,
     noCode: "no code",
-    check: "Check",
-    checking: "Checking",
-    yes: "Qualifies",
-    no: "Does not qualify",
-    unsure: "Not sure yet",
-    failing: "Parts that block it",
+    check: "Check RCEP",
+    checking: "Checking…",
+    yes: "May qualify",
+    no: "Doesn’t qualify",
+    unsure: "Need more info",
+    failing: "Parts that didn’t pass",
     details: "Details",
-    failed: "The check failed. Try again.",
+    failed: "Couldn’t check. Try again.",
+    note: "Based on published RCEP rules (change in HS code plus 40% regional value). Not legal advice; confirm your broker.",
   },
 
   // Canada's marking rules (SOR/94-23, D720): a rules check only. Few words
