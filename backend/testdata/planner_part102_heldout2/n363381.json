@@ -1,0 +1,122 @@
+{
+  "_source": "Built mechanically from the facts of CBP ruling N363381 (2026-08-17, held-out Part 102 window final; subject: \"RE: The tariff classification, country of origin, marking, and eligibility for preferential treatment under the United States-Mexico-Canada Trade Agreement (“USMCA”) of a forklift dust mop attachment\"). Frozen by the D570 rule before any run. CBP held Canada. Components: the D362 materials; part codes: the top D381 held-out suggestion (unverified, D382); the good's code: CBP's (9603.90.8050). Family and name: the family check (machinery_parts, 0.8); name from the subject (D381 rule). Materials with no country left out (8: thread, fork pockets, cross tubes, pivoting boom, neodymium magnet, mounting pins, fasteners, securing chain). Groups: one model call with the production extractor's group rule (groups-f20.jsonl, D630). Plants one per country; operations one per group and plant plus final assembly in Canada. Target Vietnam by the D171 rule counted mechanically; plant capabilities for Vietnam are an assumption. Economics illustrative. D570 set, second pass D630.",
+  "case_id": "p102h-n363381",
+  "date": "2026-08-17",
+  "family": "machinery_parts",
+  "target": "Vietnam",
+  "product": {
+    "name": "(“USMCA”) of a forklift dust mop attachment",
+    "description": "The product of CBP ruling N363381, as its facts describe it.",
+    "hts": "9603.90.8050",
+    "plants": [
+      {
+        "id": "canada",
+        "name": "Canada plant",
+        "country": "Canada",
+        "capabilities": [
+          "minor_machining_finish",
+          "final_assembly"
+        ]
+      },
+      {
+        "id": "united_states",
+        "name": "United States suppliers",
+        "country": "United States",
+        "capabilities": []
+      },
+      {
+        "id": "vietnam",
+        "name": "Vietnam suppliers",
+        "country": "Vietnam",
+        "capabilities": [
+          "minor_machining_finish"
+        ]
+      }
+    ],
+    "components": [
+      {
+        "name": "dust mop",
+        "made_in": "United States",
+        "plant": "united_states",
+        "hts": "9603.90",
+        "hts_alternatives": [
+          "6307.10"
+        ]
+      },
+      {
+        "name": "cotton yarn",
+        "made_in": "Vietnam",
+        "plant": "vietnam",
+        "hts": "5205.12",
+        "hts_alternatives": [
+          "5206.12"
+        ]
+      },
+      {
+        "name": "synthetic backing material",
+        "made_in": "Vietnam",
+        "plant": "vietnam",
+        "hts": "5407.72",
+        "hts_alternatives": [
+          "6006.32",
+          "5603.14"
+        ]
+      },
+      {
+        "name": "mop frame",
+        "made_in": "Canada",
+        "plant": "canada",
+        "group": "minor_machining_finish",
+        "hts": "9603.90",
+        "hts_alternatives": [
+          "7326.90"
+        ]
+      },
+      {
+        "name": "hitch system",
+        "made_in": "Canada",
+        "plant": "canada",
+        "group": "minor_machining_finish",
+        "hts": "8431.20",
+        "hts_alternatives": [
+          "7326.90"
+        ]
+      }
+    ],
+    "operations": [
+      {
+        "name": "make the mop frame, hitch system",
+        "plant": "canada",
+        "group": "minor_machining_finish"
+      },
+      {
+        "name": "assemble the parts into the finished good",
+        "plant": "canada",
+        "group": "final_assembly"
+      }
+    ]
+  },
+  "economics": {
+    "illustrative": true,
+    "annual_import_value_usd": 1000000,
+    "duty_rates": {
+      "Canada": 0.125,
+      "United States": 0.0,
+      "Vietnam": 0.125
+    },
+    "duty_rates_note": "Illustrative placeholder, not a sourced rate.",
+    "group_costs": {
+      "minor_machining_finish": {
+        "canada": 100000,
+        "vietnam": 125000
+      }
+    }
+  },
+  "exclude_rulings": [
+    "N363381"
+  ],
+  "current_origin": {
+    "country": "Canada",
+    "ruling": "N363381"
+  }
+}

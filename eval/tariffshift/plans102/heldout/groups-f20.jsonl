@@ -1,0 +1,4 @@
+{"ruling": "N358639", "family": "metal_products", "groups": ["pipe_tube_hose_mfg", "pipe_tube_hose_mfg", "pipe_tube_hose_mfg"], "missing": [], "model": "gemini-4-argon", "cost_usd": 0.002746, "seconds": 4.5}
+{"ruling": "N360891", "family": "plastic_articles", "groups": ["film_sheet_cutting", ""], "missing": [], "model": "gemini-4-argon", "cost_usd": 0.002422, "seconds": 3.6}
+{"ruling": "N362347", "family": "wood_panels_flooring", "groups": ["veneer_core_prep", "veneer_core_prep", "veneer_core_prep", ""], "missing": [], "model": "gemini-4-argon", "cost_usd": 0.002854, "seconds": 4.0}
+{"ruling": "N363381", "family": "machinery_parts", "groups": ["", "", "", "", "minor_machining_finish", "minor_machining_finish", "minor_machining_finish", "minor_machining_finish", "minor_machining_finish", "", "", "", ""], "missing": [], "model": "gemini-4-argon", "cost_usd": 0.004582, "seconds": 22.8}
