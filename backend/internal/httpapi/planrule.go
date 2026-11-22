@@ -18,6 +18,14 @@ func part102Case(c store.Case) bool {
 	return c.Router != nil && c.Router.Regime == router.RegimeUSMCA
 }
 
+// planRuleApplies is where the per-move check applies on c.
+func planRuleApplies(c store.Case) string {
+	if part102Case(c) {
+		return planrule.AppliesPart102
+	}
+	return planrule.AppliesInformational
+}
+
 // planRuleOn says whether plans of c carry the per-move check.
 func (a *api) planRuleOn(c store.Case) bool {
 	return a.d.RuleCheck != nil && planrule.Eligible(c.Product, part102Case(c))
@@ -74,11 +82,7 @@ func (a *api) ruleCheckedPlan(c store.Case, target string, p *domain.Plan) *doma
 	if !a.planRuleOn(c) {
 		return &cp
 	}
-	applies := planrule.AppliesInformational
-	if part102Case(c) {
-		applies = planrule.AppliesPart102
-	}
-	cp.RuleCheck = planrule.Check(a.d.RuleCheck, *c.Product, cp, domain.NormalizeCountry(target), applies)
+	cp.RuleCheck = planrule.Check(a.d.RuleCheck, *c.Product, cp, domain.NormalizeCountry(target), planRuleApplies(c))
 	return &cp
 }
 
@@ -98,8 +102,46 @@ func (a *api) withPlanRuleChecks(c store.Case) store.Case {
 				t.Results[k] = a.ruleChecked(c, r)
 			}
 		}
-		t.Ranked = withTargetPlanIDs(c.Targets.Ranked)
+		t.Ranked = a.rankedTargets(c, c.Targets)
 		c.Targets = &t
 	}
 	return c
+}
+
+// rankedTargets is a country comparison's ranking as a read shows it, on
+// copies: each best plan with its plan_id and, when the case carries it,
+// its 102.20 check (D441). On a Part 102 case each country's best plan is
+// the first shown plan in the D500 order, and the countries are ranked
+// again by tier, then that plan's rule class (D500). The stored ranking is
+// not written.
+func (a *api) rankedTargets(c store.Case, t *store.TargetComparison) []store.TargetSummary {
+	if t == nil || t.Ranked == nil {
+		return nil
+	}
+	out := append([]store.TargetSummary(nil), t.Ranked...)
+	if a.planRuleOn(c) {
+		for i, s := range out {
+			if res, ok := t.Results[s.Target]; ok && part102Case(c) {
+				ns := summarise(s.Target, a.ruleChecked(c, res))
+				ns.Rank = s.Rank
+				out[i] = ns
+				continue
+			}
+			out[i].Best = a.ruleCheckedPlan(c, s.Target, s.Best)
+		}
+		if part102Case(c) {
+			rankTargets(out)
+		}
+	}
+	return withTargetPlanIDs(out)
+}
+
+// targetRuleClass is a country's best plan's D500 rule class on a Part 102
+// case, and the neutral class otherwise, so a substantial-transformation
+// comparison keeps its order.
+func targetRuleClass(s store.TargetSummary) int {
+	if s.Best == nil || s.Best.RuleCheck == nil || s.Best.RuleCheck.Applies != planrule.AppliesPart102 {
+		return planrule.ClassPrecedent
+	}
+	return planrule.Class(*s.Best)
 }

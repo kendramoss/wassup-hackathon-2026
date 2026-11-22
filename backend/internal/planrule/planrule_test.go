@@ -183,3 +183,79 @@ func TestShortNeedsCoverTariffshift(t *testing.T) {
 		}
 	}
 }
+
+// D500: on a Part 102 case, within each tier, moves the rule says shift
+// rank first, then precedent only, then moves the rule gives to another
+// country; the planner's order holds within a class.
+func TestRankPart102TierThenRuleThenOrder(t *testing.T) {
+	pl := func(name string, tier domain.PlanTier, status string) domain.Plan {
+		p := domain.Plan{Description: name, Tier: tier, Shown: true, Verdict: supported(true)}
+		if status != "" {
+			p.RuleCheck = &domain.PlanRuleCheck{Status: status}
+		}
+		return p
+	}
+	clear, bar := domain.TierClearMargin, domain.TierAtBar
+	res := planner.Result{Ranking: &planner.Ranking{Rule: planner.RankingRule, Bar: 0.92, ClearFrom: 0.93},
+		Plans: []domain.Plan{
+			pl("c-other", clear, OtherCountry), pl("c-undet", clear, Undetermined), pl("c-shift", clear, Shifts),
+			pl("c-none", clear, ""), pl("c-noshift", clear, NoShift), pl("c-shift2", clear, Shifts),
+			pl("b-shift", bar, Shifts), pl("b-other", bar, OtherCountry), pl("b-undet", bar, Undetermined),
+		}}
+	out := Rank(res)
+	var got []string
+	for _, p := range out.Plans {
+		got = append(got, p.Description)
+	}
+	want := "c-shift,c-shift2,c-undet,c-none,c-other,c-noshift,b-shift,b-undet,b-other"
+	if strings.Join(got, ",") != want {
+		t.Fatalf("order %v, want %s", got, want)
+	}
+	if out.Ranking.Rule != RankingRule || res.Ranking.Rule != planner.RankingRule {
+		t.Fatalf("ranking %+v (input %+v)", out.Ranking, res.Ranking)
+	}
+	if res.Plans[0].Description != "c-other" {
+		t.Fatal("the input was reordered")
+	}
+	for _, p := range out.Plans {
+		if !p.Shown || p.Verdict == nil || !p.Verdict.PrecedentSupported {
+			t.Fatal("a verdict or shown flag changed")
+		}
+	}
+}
+
+// A search stored before D341 has no tiers: it keeps its net order.
+func TestRankLeavesAnUnrankedSearch(t *testing.T) {
+	res := planner.Result{Plans: []domain.Plan{
+		{Description: "a", RuleCheck: &domain.PlanRuleCheck{Status: OtherCountry}},
+		{Description: "b", RuleCheck: &domain.PlanRuleCheck{Status: Shifts}}}}
+	if out := Rank(res); out.Plans[0].Description != "a" || out.Ranking != nil {
+		t.Fatalf("%+v", out.Plans)
+	}
+}
+
+// Annotate ranks by D500 only on a Part 102 case: the same search on a
+// substantial-transformation case keeps the planner's order.
+func TestAnnotateRanksOnlyPart102(t *testing.T) {
+	r := rules(t)
+	p := supply()
+	res := planner.Result{Target: "Vietnam", Ranking: &planner.Ranking{Rule: planner.RankingRule},
+		Plans: []domain.Plan{
+			{Description: "pcba", Move: move("pcba"), Verdict: supported(true), Shown: true, Tier: domain.TierClearMargin, NetYear: 200},
+			{Description: "assembly", Move: move("final_assembly"), Verdict: supported(true), Shown: true, Tier: domain.TierClearMargin, NetYear: 100},
+		}}
+	st := Annotate(r, p, res, false)
+	if st.Plans[0].Description != "pcba" || st.Ranking.Rule != planner.RankingRule {
+		t.Fatalf("informational: %s first, rule %s", st.Plans[0].Description, st.Ranking.Rule)
+	}
+	pt := Annotate(r, p, res, true)
+	if pt.Plans[0].Description != "assembly" || pt.Plans[0].RuleCheck.Status != Shifts || pt.Plans[1].RuleCheck.Status != OtherCountry || !pt.Plans[1].RuleCheck.Review {
+		t.Fatalf("part 102: %s first; %+v", pt.Plans[0].Description, pt.Plans[1].RuleCheck)
+	}
+	if pt.Ranking.Rule != RankingRule {
+		t.Fatalf("rule %s", pt.Ranking.Rule)
+	}
+	if res.Plans[0].Description != "pcba" || res.Plans[0].RuleCheck != nil {
+		t.Fatal("the input was written to")
+	}
+}

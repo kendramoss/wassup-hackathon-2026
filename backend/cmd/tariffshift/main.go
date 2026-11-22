@@ -28,6 +28,7 @@ import (
 func main() {
 	if len(os.Args) < 2 {
 		fmt.Fprintln(os.Stderr, "usage: tariffshift rules|extract|eval|parts-gold|parts-suggest|parts-eval|parts-example|plans-eval|plans-example [flags]")
+		fmt.Fprintln(os.Stderr, "usage: tariffshift rules|extract|eval|parts-gold|parts-suggest|parts-eval|parts-example|plans-eval|plans102-eval [flags]")
 		os.Exit(2)
 	}
 	var err error
@@ -50,6 +51,8 @@ func main() {
 		err = cmdPlansEval(os.Args[2:])
 	case "plans-example":
 		err = cmdPlansExample(os.Args[2:])
+	case "plans102-eval":
+		err = cmdPlans102Eval(os.Args[2:])
 	default:
 		err = fmt.Errorf("unknown command %q", os.Args[1])
 	}

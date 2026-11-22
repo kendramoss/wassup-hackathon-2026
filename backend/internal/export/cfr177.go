@@ -124,7 +124,11 @@ func CFR177(in Input) string {
 	if len(in.Prediction.KeyFactors) > 0 {
 		fmt.Fprintf(&b, ", based on these key factors: %s", listPhrase(in.Prediction.KeyFactors))
 	}
-	b.WriteString(". [FILL IN: the legal basis, with counsel].\n\nEarlier CBP rulings relied on (19 C.F.R. § 177.2(b)(6)):\n\n")
+	b.WriteString(". [FILL IN: the legal basis, with counsel].\n\n")
+	if l := TariffShiftLine(in.RuleCheck, FillIn+": confirm each component's code, or delete this paragraph]"); l != "" {
+		b.WriteString(l + "\n\n")
+	}
+	b.WriteString("Earlier CBP rulings relied on (19 C.F.R. § 177.2(b)(6)):\n\n")
 	b.WriteString(strings.Join(citations(in), "\n") + "\n\n")
 
 	b.WriteString("## 8. Prior or current consideration\n\n")

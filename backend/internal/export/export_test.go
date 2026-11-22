@@ -204,3 +204,31 @@ func TestRulingName(t *testing.T) {
 		t.Errorf("draft does not name the ruling:\n%s", md)
 	}
 }
+
+// The tariff-shift paragraph is only there when the case carries the check,
+// and a disagreement with precedent adds a note beside the letter.
+func TestTariffShiftLineAndNote(t *testing.T) {
+	in := Input{ProductName: "x", Facts: "y", Requested: "Mexico"}
+	if strings.Contains(Markdown(in), "102.20") || strings.Contains(CFR177(in), "Tariff-shift check") {
+		t.Fatal("a check without a rule check")
+	}
+	in.RuleCheck = &domain.PlanRuleCheck{Applies: "part102", Status: "no_shift", Country: "Mexico", Origin: "China", Failing: []string{"blade"},
+		Basis: "19 CFR 102.11(b)(1)", Review: true, ReviewNote: "An earlier ruling supports this move, but the 102.20 rule gives China: worth a broker's look."}
+	md := Markdown(in)
+	for _, want := range []string{"Tariff-shift check (19 C.F.R. § 102.20): applied to the component codes in the bill of materials, with the good finished in Mexico, the rule gives China (19 C.F.R. § 102.11(b)(1)).", "do not make the required tariff change: blade.", "[CONFIRM WITH COUNSEL]"} {
+		if !strings.Contains(md, want) {
+			t.Errorf("markdown lacks %q:\n%s", want, md)
+		}
+	}
+	if l := CFR177(in); !strings.Contains(l, "[FILL IN: confirm each component's code, or delete this paragraph]") {
+		t.Errorf("cfr177 placeholder:\n%s", l)
+	}
+	notes := strings.Join(Notes(in, false), "\n")
+	if !strings.Contains(notes, "Tariff-shift check: An earlier ruling supports this move") {
+		t.Errorf("notes %s", notes)
+	}
+	in.RuleCheck = &domain.PlanRuleCheck{Applies: "informational", Status: "undetermined", Why: "de_minimis", Country: "Vietnam", Failing: []string{"motor"}}
+	if l := TariffShiftLine(in.RuleCheck, "[X]"); !strings.Contains(l, "for reference only") || !strings.Contains(l, "102.13, de minimis") {
+		t.Errorf("line %s", l)
+	}
+}

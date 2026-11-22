@@ -824,3 +824,17 @@ Total $0.97 promo / $1.95 list. The engine's view of the current setup disagreed
 
 ## Per-part HTS plausibility check (offline, 22 Nov; D471, D472)
 - Deterministic flag on the committed D381/D382 suggestion rows, no model calls: dev 0 of 1,060 codes marked (after changes made on dev; the first version marked 7, all plausible on reading); held-out `final`, measured once, 5 of 424, all in N359001 and all wrong for a machine on reading, none on a part with a gold code. `parts-check/summary.json`, recomputed by `go test ./internal/hts`.
+
+## Part 102 plan searches with codes, 3 development rulings (gateway, 22 Nov; D501, D502)
+
+### Pre-registered in D501 (commit 8371a90c, kept as branch `improve/p10-part102-prereg`; fixtures 1496f7fe, branch `improve/p10-part102-fixtures`; the merged history has new hashes) before any run
+- Development rulings only (`splits_usmca.json` `dev`); no held-out file read. One `eval plan` each, production configuration (verifier-v2, gemini-4-argon, bar 0.92, one vote, local corpus search), `LITELLM_NO_CACHE=1`. Every run is kept; none failed.
+
+| Ruling (target) | Moves | Shown | Rule: shifts / another country / undetermined | Precedent supports, rule gives another country | Current setup: rule (CBP) | Gateway cost, wall |
+|---|---:|---:|---|---:|---|---|
+| N348465 actuator (Canada) | 12 | 1 | 6 / 0 / 6 | 0 | undetermined, motor does not shift (China) | $0.3542, 79 s |
+| N344002 compressors (China) | 1 | 0 | 0 / 1 / 0 | 1 | Mexico (Mexico) | $0.0433, 28 s |
+| N350133 lawn mower (China) | 1 | 0 | 0 / 1 / 0 | 1 | Mexico (Mexico) | $0.0358, 26 s |
+
+- The actuator's shown plan (motor, gearbox and controls, 0.94) is one of the 6 moves the rule says shift; the other 5 are below the bar, including the motor alone (0.82, counter-ruling N342620). The D500 order changed nothing: no search showed two plans. Later ruling N354024: the rule on its setup gives Mexico, as CBP held (a later product, not a plan move).
+- `tariffshift/plans102/runs/plan-p102-*-local-verifier-v2-d501-litellm.json` (kept out of `results/` so the committed-row counts of the supersession and alert checks stay as published); `tariffshift/plans102/summary.json`, `moves-dev.jsonl`; `cd backend && go run ./cmd/tariffshift plans102-eval -check` (in `make reproduce`). RUNLOG `planner-part102-d501-litellm`, $0.4333.

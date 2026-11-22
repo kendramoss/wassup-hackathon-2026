@@ -99,3 +99,10 @@ test("the plan section's per-move rule-check figures are in docs/NUMBERS.md", ()
   assert.match(page, /decides 25 of 57 moves and agrees with the\s+precedent check on 21 of 23/);
   assert.ok(numbers.includes("25 of 57 moves") && numbers.includes("21 of 23 decided moves"));
 });
+
+// D500, D502: the plan section's Part 102 search figures are registered.
+test("the plan section's Part 102 plan-search figures are in docs/NUMBERS.md", () => {
+  assert.match(page, /the rule picked the 6 actuator moves/);
+  assert.match(page, /it flagged 2 moves to China/);
+  assert.ok(numbers.includes("6 of 12 (every move with the motor)") && numbers.includes("| Moves precedent supports while the rule gives another country | 2 "));
+});

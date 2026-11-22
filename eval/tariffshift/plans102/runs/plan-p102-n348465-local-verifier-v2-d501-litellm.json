@@ -1,0 +1,1466 @@
+{
+  "case_id": "p102-n348465",
+  "target": "Canada",
+  "family": "motors_pumps_compressors",
+  "baseline": {
+    "move": [],
+    "description": "No change: keep the current setup",
+    "variant_facts": "The merchandise under consideration is a The country of origin of an electrical actuator. The product of CBP ruling N348465, as its facts describe it. The The country of origin of an electrical actuator is assembled in Canada using components sourced from China.\n\nThe DC motor, gearbox assembly, screw drive, housings, sensor printed circuit board assembly (PCBA) and electrical apparatus are produced in China. \n\nFinal assembly in Canada: fasten the motor to the gearbox, insert the components and fasten with screws; solder the electrical apparatus and secure the wires to the motor actuator; test, lubricate and package.\n",
+    "prediction": {
+      "origin_country": "China",
+      "key_factors": [
+        "DC motor, gearbox assembly, screw drive, and sensor PCBA"
+      ],
+      "decisive_step": "Manufacturing of the core functional components (DC motor, gearbox assembly, screw drive, and sensor PCBA) in China",
+      "confidence": 0.96,
+      "reasoning": "Consistent with CBP precedent N346961, the country of origin of an electromechanical device is determined by where its major functional components are produced. Here, all core functional components—the DC motor, gearbox assembly, screw drive, and sensor PCBA—are manufactured in China, imparting the essential character of the electrical actuator. The operations in Canada (fastening with screws, simple soldering of wires, lubricating, and testing) constitute minor final assembly and do not result in a substantial transformation.",
+      "cited_rulings": [
+        "N346961"
+      ],
+      "precedents": [
+        "H354721",
+        "N330296",
+        "N340187",
+        "N342124",
+        "N346961"
+      ],
+      "trace": {
+        "llm_provider": "litellm",
+        "model_id": "gemini-4-argon",
+        "requested_model": "gemini-4-argon",
+        "prompt_version": "engine-v1",
+        "input_tokens": 2507,
+        "output_tokens": 210,
+        "latency_ms": 7050
+      }
+    },
+    "duty_effect_per_year": 0,
+    "added_cost_per_year": 0,
+    "net_per_year": 0,
+    "shown": false
+  },
+  "current_origin": {
+    "country": "China",
+    "ruling": "N348465"
+  },
+  "plans": [
+    {
+      "move": [
+        {
+          "group": "motor_stator_rotor",
+          "to_plant": "ca"
+        },
+        {
+          "group": "fluid_rotary_mechanism",
+          "to_plant": "ca"
+        },
+        {
+          "group": "controls_and_valves",
+          "to_plant": "ca"
+        }
+      ],
+      "description": "Move the motor stator, the gearbox assembly and the screw drive and the control boards and 1 other part to Canada",
+      "variant_facts": "The merchandise under consideration is a The country of origin of an electrical actuator. The product of CBP ruling N348465, as its facts describe it. The The country of origin of an electrical actuator is assembled in Canada using components sourced from Canada and China.\n\nThe DC motor, gearbox assembly, screw drive, sensor printed circuit board assembly (PCBA) and electrical apparatus are produced in Canada. The housings are sourced from China. \n\nIn Canada, the DC motor will be produced in-house: make the 12 VDC brushed motor.\n\nIn Canada, the gearbox assembly and screw drive will be produced in-house: make the gearbox assembly and screw drive.\n\nIn Canada, the sensor printed circuit board assembly (PCBA) and electrical apparatus will be produced in-house: make the sensor PCBA and electrical apparatus.\n\nFinal assembly in Canada: fasten the motor to the gearbox, insert the components and fasten with screws; solder the electrical apparatus and secure the wires to the motor actuator; test, lubricate and package.\n",
+      "prediction": {
+        "origin_country": "Canada",
+        "key_factors": [
+          "DC motor, gearbox assembly, screw drive, and sensor PCBA"
+        ],
+        "decisive_step": "Manufacturing of core electro-mechanical components (motor, gearbox, PCBA) and final assembly in Canada",
+        "confidence": 0.99,
+        "reasoning": "Consistent with N346961, the core functional components that impart the essential character of the electrical actuator—specifically the DC motor, gearbox assembly, screw drive, and sensor PCBA—are all manufactured in-house in Canada. Furthermore, final assembly, soldering, and testing occur in Canada. The Chinese-origin housings are minor components that undergo a substantial transformation when integrated with the Canadian-made electro-mechanical and electronic subassemblies in Canada.",
+        "cited_rulings": [
+          "N346961"
+        ],
+        "precedents": [
+          "H354721",
+          "N330296",
+          "N340187",
+          "N342124",
+          "N346961"
+        ],
+        "trace": {
+          "llm_provider": "litellm",
+          "model_id": "gemini-4-argon",
+          "requested_model": "gemini-4-argon",
+          "prompt_version": "engine-v1",
+          "input_tokens": 2595,
+          "output_tokens": 209,
+          "latency_ms": 11768
+        }
+      },
+      "verdict": {
+        "precedent_supported": true,
+        "supporting_ruling": "N346961",
+        "confidence": 0.94,
+        "reasoning": "In Variant A, all major functional components (DC motor, gearbox assembly, screw drive, housings, sensor PCBA, and electrical apparatus) are produced in China, and final assembly in Canada does not substantially transform them. In Variant B, production of the DC motor, gearbox assembly, screw drive, sensor PCBA, and electrical apparatus moves to Canada, leaving only the housings sourced from China. Under CBP precedent (e.g., N346961 and N346297), the motor, gearbox/drive mechanism, and PCBA are the primary functional components that impart the essential character of electromechanical drive devices, making Canada the country of origin.",
+        "trail": [
+          {
+            "tool": "search",
+            "query": "\"electric actuator\" country of origin China",
+            "rulings": [
+              "H322161",
+              "N342620",
+              "N339944",
+              "N343372",
+              "N348532",
+              "N346867",
+              "H339849",
+              "N347396"
+            ]
+          },
+          {
+            "tool": "search",
+            "query": "linear actuator motor screw drive PCBA country of origin",
+            "rulings": [
+              "H322161",
+              "N342620",
+              "N337718",
+              "N348721",
+              "N346961",
+              "N344318",
+              "N336445",
+              "N335422"
+            ]
+          },
+          {
+            "tool": "search",
+            "query": "\"actuator\" motor gearbox PCBA origin",
+            "rulings": [
+              "N346961",
+              "H322161",
+              "N346297",
+              "N342131",
+              "N342620",
+              "N346923",
+              "N345938",
+              "N339944"
+            ]
+          },
+          {
+            "tool": "search",
+            "query": "electrical actuator country of origin motor gearbox housing",
+            "rulings": [
+              "H322161",
+              "N346961",
+              "N346923",
+              "N346297",
+              "N336263",
+              "N342620",
+              "N342131",
+              "N339944"
+            ]
+          },
+          {
+            "tool": "read",
+            "query": "N346297",
+            "rulings": [
+              "N346297"
+            ]
+          },
+          {
+            "tool": "read",
+            "query": "N346961",
+            "rulings": [
+              "N346961"
+            ]
+          }
+        ],
+        "trace": {
+          "llm_provider": "litellm",
+          "model_id": "gemini-4-argon",
+          "prompt_version": "verifier-v2+known-a",
+          "input_tokens": 9220,
+          "output_tokens": 414,
+          "latency_ms": 0
+        }
+      },
+      "duty_effect_per_year": 300000,
+      "added_cost_per_year": 75000,
+      "net_per_year": 225000,
+      "net_priced": true,
+      "shown": true,
+      "tier": "clear_margin",
+      "parts_moved": 5
+    }
+  ],
+  "rejected": [
+    {
+      "move": [],
+      "description": "No change: keep the current setup",
+      "variant_facts": "The merchandise under consideration is a The country of origin of an electrical actuator. The product of CBP ruling N348465, as its facts describe it. The The country of origin of an electrical actuator is assembled in Canada using components sourced from China.\n\nThe DC motor, gearbox assembly, screw drive, housings, sensor printed circuit board assembly (PCBA) and electrical apparatus are produced in China. \n\nFinal assembly in Canada: fasten the motor to the gearbox, insert the components and fasten with screws; solder the electrical apparatus and secure the wires to the motor actuator; test, lubricate and package.\n",
+      "prediction": {
+        "origin_country": "China",
+        "key_factors": [
+          "DC motor, gearbox assembly, screw drive, and sensor PCBA"
+        ],
+        "decisive_step": "Manufacturing of the core functional components (DC motor, gearbox assembly, screw drive, and sensor PCBA) in China",
+        "confidence": 0.96,
+        "reasoning": "Consistent with CBP precedent N346961, the country of origin of an electromechanical device is determined by where its major functional components are produced. Here, all core functional components—the DC motor, gearbox assembly, screw drive, and sensor PCBA—are manufactured in China, imparting the essential character of the electrical actuator. The operations in Canada (fastening with screws, simple soldering of wires, lubricating, and testing) constitute minor final assembly and do not result in a substantial transformation.",
+        "cited_rulings": [
+          "N346961"
+        ],
+        "precedents": [
+          "H354721",
+          "N330296",
+          "N340187",
+          "N342124",
+          "N346961"
+        ],
+        "trace": {
+          "llm_provider": "litellm",
+          "model_id": "gemini-4-argon",
+          "requested_model": "gemini-4-argon",
+          "prompt_version": "engine-v1",
+          "input_tokens": 2507,
+          "output_tokens": 210,
+          "latency_ms": 7050
+        }
+      },
+      "duty_effect_per_year": 0,
+      "added_cost_per_year": 0,
+      "net_per_year": 0,
+      "shown": false,
+      "rejection_reason": "current setup: CBP held China (N348465); engine predicts China",
+      "rejection_kind": "current_setup"
+    },
+    {
+      "move": [
+        {
+          "group": "motor_stator_rotor",
+          "to_plant": "ca"
+        }
+      ],
+      "description": "Move the motor stator to Canada",
+      "variant_facts": "The merchandise under consideration is a The country of origin of an electrical actuator. The product of CBP ruling N348465, as its facts describe it. The The country of origin of an electrical actuator is assembled in Canada using components sourced from Canada and China.\n\nThe DC motor are produced in Canada. The gearbox assembly, screw drive, housings, sensor printed circuit board assembly (PCBA) and electrical apparatus are sourced from China. \n\nIn Canada, the DC motor will be produced in-house: make the 12 VDC brushed motor.\n\nFinal assembly in Canada: fasten the motor to the gearbox, insert the components and fasten with screws; solder the electrical apparatus and secure the wires to the motor actuator; test, lubricate and package.\n",
+      "prediction": {
+        "origin_country": "Canada",
+        "key_factors": [
+          "DC motor"
+        ],
+        "decisive_step": "Manufacturing of the DC motor and final assembly of the electrical actuator in Canada",
+        "confidence": 0.92,
+        "reasoning": "Consistent with CBP precedent on electromechanical devices (e.g., N346961 and H354721), the electric motor imparts the essential character to a motorized actuator by generating the necessary rotational force. Because the 12 VDC brushed motor is completely manufactured in Canada, and the Chinese components (gearbox, screw drive, PCBA, housing) are subsequently assembled and integrated with the motor via soldering and fastening in Canada, the components undergo a substantial transformation in Canada.",
+        "cited_rulings": [
+          "N346961",
+          "H354721"
+        ],
+        "precedents": [
+          "H354721",
+          "N330296",
+          "N340187",
+          "N342124",
+          "N346961"
+        ],
+        "trace": {
+          "llm_provider": "litellm",
+          "model_id": "gemini-4-argon",
+          "requested_model": "gemini-4-argon",
+          "prompt_version": "engine-v1",
+          "input_tokens": 2537,
+          "output_tokens": 216,
+          "latency_ms": 7061
+        }
+      },
+      "verdict": {
+        "precedent_supported": true,
+        "supporting_ruling": "N346297",
+        "counter_ruling": "N342620",
+        "confidence": 0.82,
+        "reasoning": "In Variant A, all major components (DC motor, gearbox, screw drive, housing, PCBA) are made in China and undergo simple final assembly in Canada, resulting in Chinese origin (analogous to N342620). In Variant B, the 12 VDC brushed motor—which imparts the essential character of an electrical actuator (classified as an electric motor under heading 8501, per N342620)—is manufactured in-house in Canada and combined there with the Chinese gearbox and other components. As in N346297 (where producing the core electric motor subassembly in the country of final assembly with a Chinese gearbox conferred origin), origin shifts to Canada.",
+        "trail": [
+          {
+            "tool": "search",
+            "query": "actuator DC motor gearbox PCBA assembly origin China",
+            "rulings": [
+              "N346961",
+              "H322161",
+              "N346297",
+              "N342620",
+              "N346923",
+              "N342131",
+              "N345938",
+              "N346867"
+            ]
+          },
+          {
+            "tool": "search",
+            "query": "\"electrical actuator\" OR \"linear actuator\" DC motor gearbox screw drive",
+            "rulings": [
+              "N346961",
+              "H322161",
+              "N337718",
+              "N336263",
+              "N342620",
+              "N343416",
+              "N346297",
+              "N336445"
+            ]
+          },
+          {
+            "tool": "search",
+            "query": "\"actuator\" \"motor\" country of origin China",
+            "rulings": [
+              "H322161",
+              "N339944",
+              "N342620",
+              "N348532",
+              "N346169",
+              "N346867",
+              "N343372",
+              "N344048"
+            ]
+          },
+          {
+            "tool": "read",
+            "query": "N342620",
+            "rulings": [
+              "N342620"
+            ]
+          },
+          {
+            "tool": "search",
+            "query": "\"DC motor\" gearbox stator rotor origin \"8501\"",
+            "rulings": [
+              "N346961",
+              "H354721",
+              "N344002",
+              "N333849",
+              "N344081",
+              "N346297",
+              "N342131",
+              "H326072"
+            ]
+          },
+          {
+            "tool": "read",
+            "query": "N346297",
+            "rulings": [
+              "N346297"
+            ]
+          }
+        ],
+        "trace": {
+          "llm_provider": "litellm",
+          "model_id": "gemini-4-argon",
+          "prompt_version": "verifier-v2+known-a",
+          "input_tokens": 17465,
+          "output_tokens": 1262,
+          "latency_ms": 0
+        }
+      },
+      "duty_effect_per_year": 300000,
+      "added_cost_per_year": 25000,
+      "net_per_year": 275000,
+      "net_priced": true,
+      "shown": false,
+      "rejection_reason": "precedent-supported but verifier confidence 0.82 is below 0.92",
+      "rejection_kind": "below_confidence_bar"
+    },
+    {
+      "move": [
+        {
+          "group": "motor_stator_rotor",
+          "to_plant": "ca"
+        },
+        {
+          "group": "fluid_rotary_mechanism",
+          "to_plant": "ca"
+        }
+      ],
+      "description": "Move the motor stator and the gearbox assembly and the screw drive to Canada",
+      "variant_facts": "The merchandise under consideration is a The country of origin of an electrical actuator. The product of CBP ruling N348465, as its facts describe it. The The country of origin of an electrical actuator is assembled in Canada using components sourced from Canada and China.\n\nThe DC motor, gearbox assembly and screw drive are produced in Canada. The housings, sensor printed circuit board assembly (PCBA) and electrical apparatus are sourced from China. \n\nIn Canada, the DC motor will be produced in-house: make the 12 VDC brushed motor.\n\nIn Canada, the gearbox assembly and screw drive will be produced in-house: make the gearbox assembly and screw drive.\n\nFinal assembly in Canada: fasten the motor to the gearbox, insert the components and fasten with screws; solder the electrical apparatus and secure the wires to the motor actuator; test, lubricate and package.\n",
+      "prediction": {
+        "origin_country": "Canada",
+        "key_factors": [
+          "DC motor, gearbox assembly, and screw drive"
+        ],
+        "decisive_step": "Manufacturing of the DC motor, gearbox assembly, and screw drive, and final assembly in Canada",
+        "confidence": 0.98,
+        "reasoning": "Consistent with CBP precedent for electromechanical devices (e.g., N346961, H354721), the essential character of an electrical actuator is imparted by its core functional mechanical/electrical drive components—specifically the DC motor, gearbox assembly, and screw drive. Because these core components are manufactured in-house in Canada and subsequently integrated with Chinese-origin housings, sensor PCBA, and electrical apparatus during final assembly and testing in Canada, the components undergo a substantial transformation in Canada.",
+        "cited_rulings": [
+          "N346961",
+          "H354721"
+        ],
+        "precedents": [
+          "H354721",
+          "N330296",
+          "N340187",
+          "N342124",
+          "N346961"
+        ],
+        "trace": {
+          "llm_provider": "litellm",
+          "model_id": "gemini-4-argon",
+          "requested_model": "gemini-4-argon",
+          "prompt_version": "engine-v1",
+          "input_tokens": 2562,
+          "output_tokens": 206,
+          "latency_ms": 7178
+        }
+      },
+      "verdict": {
+        "precedent_supported": true,
+        "supporting_ruling": "N346297",
+        "confidence": 0.9,
+        "reasoning": "In Variant A, all core subassemblies of the electrical actuator (DC motor, gearbox assembly, screw drive, housings, sensor PCBA) are made in China and undergo simple final assembly in Canada, resulting in Chinese origin. In Variant B, the manufacturing of all primary mechanical and electro-mechanical drive subassemblies—specifically the 12 VDC brushed motor, gearbox assembly, and screw drive—moves to Canada, where final assembly also occurs. Consistent with N346297 (where manufacturing the electric motor and drive subassemblies in the assembly country conferred origin despite foreign components), producing the motor, gearbox, and screw drive in Canada substantially transforms the remaining Chinese parts.",
+        "trail": [
+          {
+            "tool": "search",
+            "query": "\"electrical actuator\" OR \"linear actuator\" motor gearbox origin",
+            "rulings": [
+              "H322161",
+              "N346961",
+              "N342620",
+              "N346297",
+              "N342131",
+              "N346923",
+              "N333849",
+              "N337718"
+            ]
+          },
+          {
+            "tool": "search",
+            "query": "\"actuator\" motor gearbox screw drive origin",
+            "rulings": [
+              "N346961",
+              "H322161",
+              "N336263",
+              "N346297",
+              "N348721",
+              "N342131",
+              "N335422",
+              "N346923"
+            ]
+          },
+          {
+            "tool": "search",
+            "query": "actuator \"DC motor\" gearbox PCBA origin",
+            "rulings": [
+              "N346961",
+              "H322161",
+              "N346297",
+              "N342131",
+              "N342620",
+              "N346923",
+              "N345938",
+              "N339944"
+            ]
+          },
+          {
+            "tool": "search",
+            "query": "actuator motor origin Canada Mexico Vietnam Thailand",
+            "rulings": [
+              "H322161",
+              "N339944",
+              "N339292",
+              "N342620",
+              "N347272",
+              "N347271",
+              "N347270",
+              "N345167"
+            ]
+          },
+          {
+            "tool": "read",
+            "query": "N346297",
+            "rulings": [
+              "N346297"
+            ]
+          },
+          {
+            "tool": "read",
+            "query": "N342620",
+            "rulings": [
+              "N342620"
+            ]
+          }
+        ],
+        "trace": {
+          "llm_provider": "litellm",
+          "model_id": "gemini-4-argon",
+          "prompt_version": "verifier-v2+known-a",
+          "input_tokens": 13717,
+          "output_tokens": 422,
+          "latency_ms": 0
+        }
+      },
+      "duty_effect_per_year": 300000,
+      "added_cost_per_year": 50000,
+      "net_per_year": 250000,
+      "net_priced": true,
+      "shown": false,
+      "rejection_reason": "precedent-supported but verifier confidence 0.90 is below 0.92",
+      "rejection_kind": "below_confidence_bar"
+    },
+    {
+      "move": [
+        {
+          "group": "motor_stator_rotor",
+          "to_plant": "ca"
+        },
+        {
+          "group": "housing_and_chassis",
+          "to_plant": "ca"
+        }
+      ],
+      "description": "Move the motor stator and the housing and machined block to Canada",
+      "variant_facts": "The merchandise under consideration is a The country of origin of an electrical actuator. The product of CBP ruling N348465, as its facts describe it. The The country of origin of an electrical actuator is assembled in Canada using components sourced from Canada and China.\n\nThe DC motor and housings are produced in Canada. The gearbox assembly, screw drive, sensor printed circuit board assembly (PCBA) and electrical apparatus are sourced from China. \n\nIn Canada, the DC motor will be produced in-house: make the 12 VDC brushed motor.\n\nIn Canada, the housings will be produced in-house: make the housings.\n\nFinal assembly in Canada: fasten the motor to the gearbox, insert the components and fasten with screws; solder the electrical apparatus and secure the wires to the motor actuator; test, lubricate and package.\n",
+      "prediction": {
+        "origin_country": "Canada",
+        "key_factors": [
+          "DC motor"
+        ],
+        "decisive_step": "Manufacturing of the DC motor and housings, and final assembly of the actuator in Canada",
+        "confidence": 0.95,
+        "reasoning": "In electrical actuators and motorized tools, CBP consistently holds that the motor (rotor/stator) imparts the essential character because it generates the primary mechanical force (similar to N346961 and H354721). Here, the 12 VDC brushed motor and the housings are manufactured from raw materials/components in-house in Canada. Combining the Canadian-made motor and housings with Chinese-origin gearbox, screw drive, and sensor PCBA in Canada substantially transforms the parts into a complete actuator of Canadian origin.",
+        "cited_rulings": [
+          "N346961",
+          "H354721"
+        ],
+        "precedents": [
+          "H354721",
+          "N330296",
+          "N340187",
+          "N342124",
+          "N346961"
+        ],
+        "trace": {
+          "llm_provider": "litellm",
+          "model_id": "gemini-4-argon",
+          "requested_model": "gemini-4-argon",
+          "prompt_version": "engine-v1",
+          "input_tokens": 2554,
+          "output_tokens": 212,
+          "latency_ms": 6962
+        }
+      },
+      "verdict": {
+        "precedent_supported": true,
+        "supporting_ruling": "N346297",
+        "confidence": 0.9,
+        "reasoning": "Electrical actuators are classified as electric motors under heading 8501 (see N342620), meaning the DC motor imparts the essential character. In Variant A, the DC motor, gearbox, screw drive, housings, and PCBA are all made in China, and simple final assembly in Canada does not substantially transform them. In Variant B, manufacturing the core 12 VDC motor and housings in-house in Canada, combined with final assembly there, shifts the origin to Canada. This directly parallels N346297 (electric winch), where producing the core electric motor assembly and housing/drum in the assembly country alongside a Chinese gearbox conferred origin.",
+        "trail": [
+          {
+            "tool": "search",
+            "query": "linear actuator motor gearbox assembly China",
+            "rulings": [
+              "N346961",
+              "H322161",
+              "N346297",
+              "N342620",
+              "N346923",
+              "N342131",
+              "N346867",
+              "N339944"
+            ]
+          },
+          {
+            "tool": "search",
+            "query": "actuator DC motor gearbox PCBA origin",
+            "rulings": [
+              "N346961",
+              "H322161",
+              "N346297",
+              "N342131",
+              "N342620",
+              "N346923",
+              "N345938",
+              "N339944"
+            ]
+          },
+          {
+            "tool": "search",
+            "query": "electric actuator motor housing assembly origin",
+            "rulings": [
+              "H322161",
+              "N342620",
+              "N343372",
+              "H340062",
+              "N339944",
+              "N329943",
+              "N346169",
+              "N346297"
+            ]
+          },
+          {
+            "tool": "search",
+            "query": "actuator DC motor Canada China",
+            "rulings": [
+              "H322161",
+              "N339944",
+              "N342620",
+              "N339292",
+              "N333514",
+              "N330075",
+              "N348532",
+              "N346169"
+            ]
+          },
+          {
+            "tool": "read",
+            "query": "N346297",
+            "rulings": [
+              "N346297"
+            ]
+          },
+          {
+            "tool": "read",
+            "query": "N342620",
+            "rulings": [
+              "N342620"
+            ]
+          }
+        ],
+        "trace": {
+          "llm_provider": "litellm",
+          "model_id": "gemini-4-argon",
+          "prompt_version": "verifier-v2+known-a",
+          "input_tokens": 13702,
+          "output_tokens": 437,
+          "latency_ms": 0
+        }
+      },
+      "duty_effect_per_year": 300000,
+      "added_cost_per_year": 50000,
+      "net_per_year": 250000,
+      "net_priced": true,
+      "shown": false,
+      "rejection_reason": "precedent-supported but verifier confidence 0.90 is below 0.92",
+      "rejection_kind": "below_confidence_bar"
+    },
+    {
+      "move": [
+        {
+          "group": "motor_stator_rotor",
+          "to_plant": "ca"
+        },
+        {
+          "group": "controls_and_valves",
+          "to_plant": "ca"
+        }
+      ],
+      "description": "Move the motor stator and the control boards and 1 other part to Canada",
+      "variant_facts": "The merchandise under consideration is a The country of origin of an electrical actuator. The product of CBP ruling N348465, as its facts describe it. The The country of origin of an electrical actuator is assembled in Canada using components sourced from Canada and China.\n\nThe DC motor, sensor printed circuit board assembly (PCBA) and electrical apparatus are produced in Canada. The gearbox assembly, screw drive and housings are sourced from China. \n\nIn Canada, the DC motor will be produced in-house: make the 12 VDC brushed motor.\n\nIn Canada, the sensor printed circuit board assembly (PCBA) and electrical apparatus will be produced in-house: make the sensor PCBA and electrical apparatus.\n\nFinal assembly in Canada: fasten the motor to the gearbox, insert the components and fasten with screws; solder the electrical apparatus and secure the wires to the motor actuator; test, lubricate and package.\n",
+      "prediction": {
+        "origin_country": "Canada",
+        "key_factors": [
+          "DC motor and sensor PCBA"
+        ],
+        "decisive_step": "Manufacturing the DC motor, sensor PCBA, and electrical apparatus, followed by final assembly in Canada",
+        "confidence": 0.95,
+        "reasoning": "Consistent with CBP precedent for electromechanical tools and devices (e.g., N346961), the motor and control electronics (PCBA) impart the essential character of an electrical actuator. Here, the 12 VDC brushed motor, sensor PCBA, and electrical apparatus are all manufactured in-house in Canada. Combining these critical Canadian-made functional components with the Chinese-origin gearbox, screw drive, and housings during final assembly in Canada substantially transforms the parts into a new article of commerce of Canadian origin.",
+        "cited_rulings": [
+          "N346961"
+        ],
+        "precedents": [
+          "H354721",
+          "N330296",
+          "N340187",
+          "N342124",
+          "N346961"
+        ],
+        "trace": {
+          "llm_provider": "litellm",
+          "model_id": "gemini-4-argon",
+          "requested_model": "gemini-4-argon",
+          "prompt_version": "engine-v1",
+          "input_tokens": 2570,
+          "output_tokens": 203,
+          "latency_ms": 5958
+        }
+      },
+      "verdict": {
+        "precedent_supported": true,
+        "supporting_ruling": "N346297",
+        "confidence": 0.9,
+        "reasoning": "Under CBP classification and origin precedent for motorized drive mechanisms (such as electric actuators classified under heading 8501 in N342620, and electric winches in N346297), the electric motor and control electronics/PCBA impart the essential character of the electromechanical unit. In N346297, even where final assembly was not particularly complex and the gearbox subassembly was sourced from China, CBP held that the country of origin was the country of assembly (Thailand) because the core electric motor subassembly was produced entirely there. Similarly, manufacturing the DC motor, sensor PCBA, and electrical apparatus in Canada shifts origin to Canada.",
+        "trail": [
+          {
+            "tool": "search",
+            "query": "\"electric actuator\" OR \"electrical actuator\" country of origin",
+            "rulings": [
+              "N342620",
+              "H322161",
+              "H339849",
+              "N339944",
+              "N343372",
+              "N348532",
+              "N337769",
+              "N344206"
+            ]
+          },
+          {
+            "tool": "search",
+            "query": "\"actuator\" motor gearbox PCBA origin",
+            "rulings": [
+              "N346961",
+              "H322161",
+              "N346297",
+              "N342131",
+              "N342620",
+              "N346923",
+              "N345938",
+              "N339944"
+            ]
+          },
+          {
+            "tool": "search",
+            "query": "linear actuator DC motor gearbox screw drive origin",
+            "rulings": [
+              "N346961",
+              "H322161",
+              "N336263",
+              "N346297",
+              "N337718",
+              "N348721",
+              "N342131",
+              "N342620"
+            ]
+          },
+          {
+            "tool": "read",
+            "query": "N346297",
+            "rulings": [
+              "N346297"
+            ]
+          },
+          {
+            "tool": "read",
+            "query": "N342620",
+            "rulings": [
+              "N342620"
+            ]
+          },
+          {
+            "tool": "read",
+            "query": "N336263",
+            "rulings": [
+              "N336263"
+            ]
+          }
+        ],
+        "trace": {
+          "llm_provider": "litellm",
+          "model_id": "gemini-4-argon",
+          "prompt_version": "verifier-v2+known-a",
+          "input_tokens": 15603,
+          "output_tokens": 457,
+          "latency_ms": 0
+        }
+      },
+      "duty_effect_per_year": 300000,
+      "added_cost_per_year": 50000,
+      "net_per_year": 250000,
+      "net_priced": true,
+      "shown": false,
+      "rejection_reason": "precedent-supported but verifier confidence 0.90 is below 0.92",
+      "rejection_kind": "below_confidence_bar"
+    },
+    {
+      "move": [
+        {
+          "group": "fluid_rotary_mechanism",
+          "to_plant": "ca"
+        },
+        {
+          "group": "controls_and_valves",
+          "to_plant": "ca"
+        }
+      ],
+      "description": "Move the gearbox assembly and the screw drive and the control boards and 1 other part to Canada",
+      "variant_facts": "The merchandise under consideration is a The country of origin of an electrical actuator. The product of CBP ruling N348465, as its facts describe it. The The country of origin of an electrical actuator is assembled in Canada using components sourced from China and Canada.\n\nThe DC motor and housings are produced in China. The gearbox assembly, screw drive, sensor printed circuit board assembly (PCBA) and electrical apparatus are produced in Canada. \n\nIn Canada, the gearbox assembly and screw drive will be produced in-house: make the gearbox assembly and screw drive.\n\nIn Canada, the sensor printed circuit board assembly (PCBA) and electrical apparatus will be produced in-house: make the sensor PCBA and electrical apparatus.\n\nFinal assembly in Canada: fasten the motor to the gearbox, insert the components and fasten with screws; solder the electrical apparatus and secure the wires to the motor actuator; test, lubricate and package.\n",
+      "prediction": {
+        "origin_country": "Canada",
+        "key_factors": [
+          "The gearbox assembly, screw drive, and sensor PCBA, combined with the final assembly creating the functional actuator"
+        ],
+        "decisive_step": "Manufacturing the gearbox assembly, screw drive, and sensor PCBA, and assembling them with the Chinese DC motor and housing in Canada",
+        "confidence": 0.95,
+        "reasoning": "In Canada, critical functional components—the gearbox assembly, screw drive, sensor PCBA, and electrical apparatus—are manufactured from the ground up and integrated with a Chinese-origin DC motor and housing. Consistent with CBP precedent (e.g., N346961 and N342124), manufacturing key mechanical drive and electronic control subassemblies (PCBA, gearbox) and performing final integration and testing substantially transforms the imported motor and housing into a new and different article of commerce with a distinct name, character, and use.",
+        "cited_rulings": [
+          "N346961",
+          "N342124"
+        ],
+        "precedents": [
+          "H354721",
+          "N330296",
+          "N340187",
+          "N342124",
+          "N346961"
+        ],
+        "trace": {
+          "llm_provider": "litellm",
+          "model_id": "gemini-4-argon",
+          "requested_model": "gemini-4-argon",
+          "prompt_version": "engine-v1",
+          "input_tokens": 2572,
+          "output_tokens": 240,
+          "latency_ms": 6768
+        }
+      },
+      "verdict": {
+        "precedent_supported": true,
+        "supporting_ruling": "N346297",
+        "counter_ruling": "N348721",
+        "confidence": 0.85,
+        "reasoning": "In Variant A, all major subassemblies (DC motor, gearbox, screw drive, housings, sensor PCBA, electrical apparatus) are made in China and undergo simple assembly in Canada, analogous to N348721 and N342620 where origin remained China. In Variant B, four of the six primary subassemblies—the gearbox assembly, screw drive, sensor PCBA, and electrical apparatus—are manufactured in-house in Canada and combined there with the Chinese DC motor and housings. As in N346297 (where manufacturing core subassemblies locally alongside final assembly conferred origin despite a Chinese subassembly), the totality of Canadian subassembly production and assembly substantially transforms the Chinese components into a Canadian actuator.",
+        "trail": [
+          {
+            "tool": "search",
+            "query": "\"actuator\" DC motor gearbox screw drive PCBA country of origin",
+            "rulings": [
+              "N346961",
+              "H322161",
+              "N336263",
+              "N346297",
+              "N348721",
+              "N342131",
+              "N342620",
+              "N346923"
+            ]
+          },
+          {
+            "tool": "search",
+            "query": "\"linear actuator\" OR \"electrical actuator\" OR \"electric actuator\" motor gearbox origin",
+            "rulings": [
+              "N342620",
+              "H322161",
+              "N346297",
+              "N346961",
+              "N340058",
+              "N342131",
+              "N337718",
+              "N346923"
+            ]
+          },
+          {
+            "tool": "search",
+            "query": "actuator motor gearbox Canada China origin",
+            "rulings": [
+              "N346961",
+              "H322161",
+              "N346297",
+              "N339944",
+              "N342131",
+              "N346923",
+              "N342620",
+              "N339292"
+            ]
+          },
+          {
+            "tool": "read",
+            "query": "N348721",
+            "rulings": [
+              "N348721"
+            ]
+          },
+          {
+            "tool": "read",
+            "query": "N342620",
+            "rulings": [
+              "N342620"
+            ]
+          },
+          {
+            "tool": "read",
+            "query": "N346297",
+            "rulings": [
+              "N346297"
+            ]
+          }
+        ],
+        "trace": {
+          "llm_provider": "litellm",
+          "model_id": "gemini-4-argon",
+          "prompt_version": "verifier-v2+known-a",
+          "input_tokens": 13526,
+          "output_tokens": 426,
+          "latency_ms": 0
+        }
+      },
+      "duty_effect_per_year": 300000,
+      "added_cost_per_year": 50000,
+      "net_per_year": 250000,
+      "net_priced": true,
+      "shown": false,
+      "rejection_reason": "precedent-supported but verifier confidence 0.85 is below 0.92",
+      "rejection_kind": "below_confidence_bar"
+    },
+    {
+      "move": [
+        {
+          "group": "motor_stator_rotor",
+          "to_plant": "ca"
+        },
+        {
+          "group": "fluid_rotary_mechanism",
+          "to_plant": "ca"
+        },
+        {
+          "group": "housing_and_chassis",
+          "to_plant": "ca"
+        }
+      ],
+      "description": "Move the motor stator, the gearbox assembly and the screw drive and the housing and machined block to Canada",
+      "variant_facts": "The merchandise under consideration is a The country of origin of an electrical actuator. The product of CBP ruling N348465, as its facts describe it. The The country of origin of an electrical actuator is assembled in Canada using components sourced from Canada and China.\n\nThe DC motor, gearbox assembly, screw drive and housings are produced in Canada. The sensor printed circuit board assembly (PCBA) and electrical apparatus are sourced from China. \n\nIn Canada, the DC motor will be produced in-house: make the 12 VDC brushed motor.\n\nIn Canada, the gearbox assembly and screw drive will be produced in-house: make the gearbox assembly and screw drive.\n\nIn Canada, the housings will be produced in-house: make the housings.\n\nFinal assembly in Canada: fasten the motor to the gearbox, insert the components and fasten with screws; solder the electrical apparatus and secure the wires to the motor actuator; test, lubricate and package.\n",
+      "prediction": {
+        "origin_country": "Canada",
+        "key_factors": [
+          "DC motor, gearbox assembly, and screw drive"
+        ],
+        "decisive_step": "Manufacturing of the DC motor, gearbox assembly, and screw drive, along with final assembly in Canada",
+        "confidence": 0.98,
+        "reasoning": "Consistent with N346961, the essential character of an electromechanical tool or actuator is imparted by its primary mechanical/drive components (the motor, gearbox assembly, and screw drive). Because the DC motor, gearbox assembly, screw drive, and housings are all manufactured in-house in Canada, and final assembly combining these with the Chinese sensor PCBA and electrical apparatus also occurs in Canada, the components undergo a substantial transformation in Canada, making it the country of origin.",
+        "cited_rulings": [
+          "N346961"
+        ],
+        "precedents": [
+          "H354721",
+          "N330296",
+          "N340187",
+          "N342124",
+          "N346961"
+        ],
+        "trace": {
+          "llm_provider": "litellm",
+          "model_id": "gemini-4-argon",
+          "requested_model": "gemini-4-argon",
+          "prompt_version": "engine-v1",
+          "input_tokens": 2579,
+          "output_tokens": 219,
+          "latency_ms": 6989
+        }
+      },
+      "verdict": {
+        "precedent_supported": true,
+        "supporting_ruling": "N346297",
+        "counter_ruling": "N348721",
+        "confidence": 0.9,
+        "reasoning": "In Variant A, all major subassemblies (DC motor, gearbox, screw drive, housings, sensor PCBA) are made in China and merely assembled in Canada, leaving origin in China (analogous to N348721, where simple assembly of Chinese drive/screw components in a third country did not change origin). In Variant B, the core electromechanical and mechanical subassemblies (12 VDC brushed motor, gearbox assembly, screw drive, and housings) are manufactured in-house in Canada, and only the sensor PCBA and electrical apparatus come from China. As in N346297 (electric winch where producing the motor and core mechanical subassemblies in the assembly country conferred origin), origin changes to Canada.",
+        "trail": [
+          {
+            "tool": "search",
+            "query": "electrical actuator motor gearbox housing PCBA origin",
+            "rulings": [
+              "H322161",
+              "N346961",
+              "N342620",
+              "N346923",
+              "N346297",
+              "N336263",
+              "N344081",
+              "N342131"
+            ]
+          },
+          {
+            "tool": "search",
+            "query": "actuator DC motor gearbox screw drive PCBA country of origin",
+            "rulings": [
+              "N346961",
+              "H322161",
+              "N336263",
+              "N346297",
+              "N348721",
+              "N342131",
+              "N342620",
+              "N346923"
+            ]
+          },
+          {
+            "tool": "search",
+            "query": "linear actuator motor gearbox assembly country of origin China",
+            "rulings": [
+              "N346961",
+              "H322161",
+              "N346297",
+              "N342620",
+              "N346923",
+              "N342131",
+              "N339944",
+              "N346867"
+            ]
+          },
+          {
+            "tool": "search",
+            "query": "actuator motor gearbox Canada China origin",
+            "rulings": [
+              "N346961",
+              "H322161",
+              "N346297",
+              "N339944",
+              "N342131",
+              "N346923",
+              "N342620",
+              "N339292"
+            ]
+          },
+          {
+            "tool": "read",
+            "query": "N346297",
+            "rulings": [
+              "N346297"
+            ]
+          },
+          {
+            "tool": "read",
+            "query": "N348721",
+            "rulings": [
+              "N348721"
+            ]
+          }
+        ],
+        "trace": {
+          "llm_provider": "litellm",
+          "model_id": "gemini-4-argon",
+          "prompt_version": "verifier-v2+known-a",
+          "input_tokens": 13033,
+          "output_tokens": 440,
+          "latency_ms": 0
+        }
+      },
+      "duty_effect_per_year": 300000,
+      "added_cost_per_year": 75000,
+      "net_per_year": 225000,
+      "net_priced": true,
+      "shown": false,
+      "rejection_reason": "precedent-supported but verifier confidence 0.90 is below 0.92",
+      "rejection_kind": "below_confidence_bar"
+    },
+    {
+      "move": [
+        {
+          "group": "fluid_rotary_mechanism",
+          "to_plant": "ca"
+        }
+      ],
+      "description": "Move the gearbox assembly and the screw drive to Canada",
+      "variant_facts": "The merchandise under consideration is a The country of origin of an electrical actuator. The product of CBP ruling N348465, as its facts describe it. The The country of origin of an electrical actuator is assembled in Canada using components sourced from China and Canada.\n\nThe DC motor, housings, sensor printed circuit board assembly (PCBA) and electrical apparatus are produced in China. The gearbox assembly and screw drive are produced in Canada. \n\nIn Canada, the gearbox assembly and screw drive will be produced in-house: make the gearbox assembly and screw drive.\n\nFinal assembly in Canada: fasten the motor to the gearbox, insert the components and fasten with screws; solder the electrical apparatus and secure the wires to the motor actuator; test, lubricate and package.\n",
+      "prediction": {
+        "origin_country": "Canada",
+        "key_factors": [
+          "The gearbox assembly, screw drive, and final assembly transforming rotary motion into linear actuator movement"
+        ],
+        "decisive_step": "Manufacturing the gearbox assembly and screw drive in Canada and integrating them with the Chinese DC motor and PCBA",
+        "confidence": 0.78,
+        "reasoning": "An electrical actuator converts rotary motion of a motor into linear motion via a gearbox and screw drive. In Canada, the critical mechanical transmission components (gearbox assembly and screw drive) are manufactured from scratch and assembled with the Chinese DC motor, sensor PCBA, and housing. Producing these key mechanical subassemblies and performing final integration in Canada substantially transforms the discrete components into a new article with a distinct name, character, and use.",
+        "cited_rulings": [],
+        "precedents": [
+          "H354721",
+          "N330296",
+          "N340187",
+          "N342124",
+          "N346961"
+        ],
+        "trace": {
+          "llm_provider": "litellm",
+          "model_id": "gemini-4-argon",
+          "requested_model": "gemini-4-argon",
+          "prompt_version": "engine-v1",
+          "input_tokens": 2539,
+          "output_tokens": 212,
+          "latency_ms": 6953
+        }
+      },
+      "verdict": {
+        "precedent_supported": false,
+        "counter_ruling": "N346297",
+        "confidence": 0.75,
+        "reasoning": "Electrical actuators are generally classified as electric motors under heading 8501 (see N342620), where the DC motor imparts the essential character. In N346297 (electric winch), CBP noted final assembly of a motor and gearbox was not complex, and origin followed where the electric motor assembly (and drum) was produced, rather than the gearbox. Here, although Variant B shifts production of the gearbox assembly and screw drive to Canada, the core DC motor, housings, sensor PCBA, and electrical apparatus remain produced in China, and final assembly in Canada remains simple fastening and soldering. Thus, origin remains China.",
+        "trail": [
+          {
+            "tool": "search",
+            "query": "electrical actuator motor gearbox assembly screw drive PCBA",
+            "rulings": [
+              "N346961",
+              "H322161",
+              "N336263",
+              "N343416",
+              "N346297",
+              "N342620",
+              "N340047",
+              "N337718"
+            ]
+          },
+          {
+            "tool": "search",
+            "query": "actuator DC motor gearbox China assembly",
+            "rulings": [
+              "N346961",
+              "H322161",
+              "N346297",
+              "N346923",
+              "N342131",
+              "N342620",
+              "N346867",
+              "N339944"
+            ]
+          },
+          {
+            "tool": "search",
+            "query": "actuator Canada China motor gearbox",
+            "rulings": [
+              "N346961",
+              "H322161",
+              "N346297",
+              "N339944",
+              "N342131",
+              "N346923",
+              "N342620",
+              "N339292"
+            ]
+          },
+          {
+            "tool": "search",
+            "query": "linear actuator motor screw gearbox origin",
+            "rulings": [
+              "N346961",
+              "H322161",
+              "N346297",
+              "N342131",
+              "N342620",
+              "N346923",
+              "N348905",
+              "H339849"
+            ]
+          },
+          {
+            "tool": "read",
+            "query": "N346297",
+            "rulings": [
+              "N346297"
+            ]
+          },
+          {
+            "tool": "read",
+            "query": "N342620",
+            "rulings": [
+              "N342620"
+            ]
+          }
+        ],
+        "trace": {
+          "llm_provider": "litellm",
+          "model_id": "gemini-4-argon",
+          "prompt_version": "verifier-v2+known-a",
+          "input_tokens": 13271,
+          "output_tokens": 409,
+          "latency_ms": 0
+        }
+      },
+      "duty_effect_per_year": 300000,
+      "added_cost_per_year": 25000,
+      "net_per_year": 275000,
+      "net_priced": true,
+      "shown": false,
+      "rejection_reason": "no earlier ruling found where CBP held this kind of change decisive",
+      "rejection_kind": "no_supporting_precedent"
+    },
+    {
+      "move": [
+        {
+          "group": "fluid_rotary_mechanism",
+          "to_plant": "ca"
+        },
+        {
+          "group": "housing_and_chassis",
+          "to_plant": "ca"
+        }
+      ],
+      "description": "Move the gearbox assembly and the screw drive and the housing and machined block to Canada",
+      "variant_facts": "The merchandise under consideration is a The country of origin of an electrical actuator. The product of CBP ruling N348465, as its facts describe it. The The country of origin of an electrical actuator is assembled in Canada using components sourced from China and Canada.\n\nThe DC motor, sensor printed circuit board assembly (PCBA) and electrical apparatus are produced in China. The gearbox assembly, screw drive and housings are produced in Canada. \n\nIn Canada, the gearbox assembly and screw drive will be produced in-house: make the gearbox assembly and screw drive.\n\nIn Canada, the housings will be produced in-house: make the housings.\n\nFinal assembly in Canada: fasten the motor to the gearbox, insert the components and fasten with screws; solder the electrical apparatus and secure the wires to the motor actuator; test, lubricate and package.\n",
+      "prediction": {
+        "origin_country": "Canada",
+        "key_factors": [
+          "The gearbox assembly, screw drive, and final assembly transforming rotary motion into linear actuation"
+        ],
+        "decisive_step": "Production of the gearbox assembly, screw drive, and housings, combined with final assembly and soldering in Canada",
+        "confidence": 0.85,
+        "reasoning": "An electrical actuator's function is converting electrical energy and rotary motion into controlled linear force. While the DC motor and PCBA are made in China, the core mechanical drivetrain—the gearbox assembly and screw drive—as well as the housings are completely manufactured in Canada. Combining the Chinese motor and electronics with the Canadian-made gearbox and screw drive via soldering, fastening, and testing in Canada substantially transforms the components into a new article with a distinct character and use.",
+        "cited_rulings": [],
+        "precedents": [
+          "H354721",
+          "N330296",
+          "N340187",
+          "N342124",
+          "N346961"
+        ],
+        "trace": {
+          "llm_provider": "litellm",
+          "model_id": "gemini-4-argon",
+          "requested_model": "gemini-4-argon",
+          "prompt_version": "engine-v1",
+          "input_tokens": 2556,
+          "output_tokens": 209,
+          "latency_ms": 11564
+        }
+      },
+      "verdict": {
+        "precedent_supported": false,
+        "counter_ruling": "N346297",
+        "confidence": 0.75,
+        "reasoning": "An electrical actuator is classified as an electric motor under heading 8501 (see N342620), and CBP consistently treats the electric motor and its control electronics (PCBA) as imparting the essential character of motorized actuator assemblies (cf. N346297, where origin followed the electric motor assembly rather than the gearbox). In Variant B, the DC motor, sensor PCBA, and electrical apparatus remain produced in China, while only the mechanical gearbox assembly, screw drive, and housings move to Canada alongside simple final assembly (fastening, soldering wires, testing). The Chinese DC motor is not substantially transformed, so origin remains China.",
+        "trail": [
+          {
+            "tool": "search",
+            "query": "electrical actuator linear actuator motor gearbox origin",
+            "rulings": [
+              "H322161",
+              "N346961",
+              "N342620",
+              "N346297",
+              "N342131",
+              "N346923",
+              "N333849",
+              "N337718"
+            ]
+          },
+          {
+            "tool": "search",
+            "query": "actuator DC motor gearbox screw drive PCBA origin",
+            "rulings": [
+              "N346961",
+              "H322161",
+              "N336263",
+              "N346297",
+              "N348721",
+              "N342131",
+              "N342620",
+              "N335422"
+            ]
+          },
+          {
+            "tool": "search",
+            "query": "linear actuator motor origin China",
+            "rulings": [
+              "H322161",
+              "N342620",
+              "N339944",
+              "N348532",
+              "N346169",
+              "N346867",
+              "N337718",
+              "N343372"
+            ]
+          },
+          {
+            "tool": "read",
+            "query": "N346297",
+            "rulings": [
+              "N346297"
+            ]
+          },
+          {
+            "tool": "read",
+            "query": "N342620",
+            "rulings": [
+              "N342620"
+            ]
+          },
+          {
+            "tool": "search",
+            "query": "country of origin electric actuator",
+            "rulings": [
+              "H322161",
+              "N342620",
+              "N339944",
+              "N343372",
+              "N348532",
+              "N346867",
+              "H339849",
+              "H319727"
+            ]
+          }
+        ],
+        "trace": {
+          "llm_provider": "litellm",
+          "model_id": "gemini-4-argon",
+          "prompt_version": "verifier-v2+known-a",
+          "input_tokens": 13272,
+          "output_tokens": 659,
+          "latency_ms": 0
+        }
+      },
+      "duty_effect_per_year": 300000,
+      "added_cost_per_year": 50000,
+      "net_per_year": 250000,
+      "net_priced": true,
+      "shown": false,
+      "rejection_reason": "no earlier ruling found where CBP held this kind of change decisive",
+      "rejection_kind": "no_supporting_precedent"
+    },
+    {
+      "move": [
+        {
+          "group": "housing_and_chassis",
+          "to_plant": "ca"
+        }
+      ],
+      "description": "Move the housing and machined block to Canada",
+      "variant_facts": "The merchandise under consideration is a The country of origin of an electrical actuator. The product of CBP ruling N348465, as its facts describe it. The The country of origin of an electrical actuator is assembled in Canada using components sourced from China and Canada.\n\nThe DC motor, gearbox assembly, screw drive, sensor printed circuit board assembly (PCBA) and electrical apparatus are produced in China. The housings are produced in Canada. \n\nIn Canada, the housings will be produced in-house: make the housings.\n\nFinal assembly in Canada: fasten the motor to the gearbox, insert the components and fasten with screws; solder the electrical apparatus and secure the wires to the motor actuator; test, lubricate and package.\n",
+      "prediction": {
+        "origin_country": "China",
+        "key_factors": [
+          "DC motor, gearbox assembly, screw drive, and sensor PCBA"
+        ],
+        "decisive_step": "Manufacturing of the core functional components (DC motor, gearbox assembly, screw drive, and sensor PCBA) in China",
+        "confidence": 0.95,
+        "reasoning": "The core functional components that impart the essential character of the electrical actuator—the DC motor, gearbox assembly, screw drive, and sensor PCBA—are all produced in China (similar to how the motor, gearbox, and PCBA imparted origin in N346961). The operations in Canada (producing the housings and performing final assembly by fastening, soldering wires, testing, and lubricating) constitute simple assembly and do not substantially transform the Chinese-origin functional components.",
+        "cited_rulings": [
+          "N346961"
+        ],
+        "precedents": [
+          "H354721",
+          "N330296",
+          "N340187",
+          "N342124",
+          "N346961"
+        ],
+        "trace": {
+          "llm_provider": "litellm",
+          "model_id": "gemini-4-argon",
+          "requested_model": "gemini-4-argon",
+          "prompt_version": "engine-v1",
+          "input_tokens": 2531,
+          "output_tokens": 207,
+          "latency_ms": 6392
+        }
+      },
+      "duty_effect_per_year": 0,
+      "added_cost_per_year": 25000,
+      "net_per_year": -25000,
+      "net_priced": true,
+      "shown": false,
+      "rejection_reason": "engine predicts origin China, not Canada",
+      "rejection_kind": "engine_other_origin"
+    },
+    {
+      "move": [
+        {
+          "group": "controls_and_valves",
+          "to_plant": "ca"
+        }
+      ],
+      "description": "Move the control boards and 1 other part to Canada",
+      "variant_facts": "The merchandise under consideration is a The country of origin of an electrical actuator. The product of CBP ruling N348465, as its facts describe it. The The country of origin of an electrical actuator is assembled in Canada using components sourced from China and Canada.\n\nThe DC motor, gearbox assembly, screw drive and housings are produced in China. The sensor printed circuit board assembly (PCBA) and electrical apparatus are produced in Canada. \n\nIn Canada, the sensor printed circuit board assembly (PCBA) and electrical apparatus will be produced in-house: make the sensor PCBA and electrical apparatus.\n\nFinal assembly in Canada: fasten the motor to the gearbox, insert the components and fasten with screws; solder the electrical apparatus and secure the wires to the motor actuator; test, lubricate and package.\n",
+      "prediction": {
+        "origin_country": "China",
+        "key_factors": [
+          "DC motor, gearbox assembly, and screw drive"
+        ],
+        "decisive_step": "Manufacturing of the DC motor, gearbox assembly, and screw drive in China",
+        "confidence": 0.85,
+        "reasoning": "In an electrical actuator, the DC motor, gearbox assembly, and screw drive impart the essential character by converting electrical energy into mechanical motion (similar to N346961 where the motor and gearbox imparted the essential character). Although the sensor PCBA and electrical apparatus are made in Canada, the Canadian final assembly (fastening with screws, soldering wires, testing, and lubricating) is relatively simple and does not substantially transform the Chinese-origin core electro-mechanical drive components.",
+        "cited_rulings": [
+          "N346961"
+        ],
+        "precedents": [
+          "H354721",
+          "N330296",
+          "N340187",
+          "N342124",
+          "N346961"
+        ],
+        "trace": {
+          "llm_provider": "litellm",
+          "model_id": "gemini-4-argon",
+          "requested_model": "gemini-4-argon",
+          "prompt_version": "engine-v1",
+          "input_tokens": 2547,
+          "output_tokens": 194,
+          "latency_ms": 7156
+        }
+      },
+      "duty_effect_per_year": 0,
+      "added_cost_per_year": 25000,
+      "net_per_year": -25000,
+      "net_priced": true,
+      "shown": false,
+      "rejection_reason": "engine predicts origin China, not Canada",
+      "rejection_kind": "engine_other_origin"
+    },
+    {
+      "move": [
+        {
+          "group": "housing_and_chassis",
+          "to_plant": "ca"
+        },
+        {
+          "group": "controls_and_valves",
+          "to_plant": "ca"
+        }
+      ],
+      "description": "Move the housing and machined block and the control boards and 1 other part to Canada",
+      "variant_facts": "The merchandise under consideration is a The country of origin of an electrical actuator. The product of CBP ruling N348465, as its facts describe it. The The country of origin of an electrical actuator is assembled in Canada using components sourced from China and Canada.\n\nThe DC motor, gearbox assembly and screw drive are produced in China. The housings, sensor printed circuit board assembly (PCBA) and electrical apparatus are produced in Canada. \n\nIn Canada, the housings will be produced in-house: make the housings.\n\nIn Canada, the sensor printed circuit board assembly (PCBA) and electrical apparatus will be produced in-house: make the sensor PCBA and electrical apparatus.\n\nFinal assembly in Canada: fasten the motor to the gearbox, insert the components and fasten with screws; solder the electrical apparatus and secure the wires to the motor actuator; test, lubricate and package.\n",
+      "prediction": {
+        "origin_country": "China",
+        "key_factors": [
+          "DC motor, gearbox assembly, and screw drive"
+        ],
+        "decisive_step": "Manufacturing of the DC motor, gearbox assembly, and screw drive in China",
+        "confidence": 0.78,
+        "reasoning": "The essential character of an electromechanical actuator is imparted by its core mechanical drive components—the DC motor, gearbox assembly, and screw drive—which generate the mechanical motion and are all produced in China (consistent with N346961, where the motor and gearbox drive origin). Although the housing and sensor PCBA are produced in Canada, the final assembly in Canada (fastening with screws, soldering wires, testing) is simple assembly that does not substantially transform the Chinese motor and drive components.",
+        "cited_rulings": [
+          "N346961"
+        ],
+        "precedents": [
+          "H354721",
+          "N330296",
+          "N340187",
+          "N342124",
+          "N346961"
+        ],
+        "trace": {
+          "llm_provider": "litellm",
+          "model_id": "gemini-4-argon",
+          "requested_model": "gemini-4-argon",
+          "prompt_version": "engine-v1",
+          "input_tokens": 2564,
+          "output_tokens": 193,
+          "latency_ms": 5617
+        }
+      },
+      "duty_effect_per_year": 0,
+      "added_cost_per_year": 50000,
+      "net_per_year": -50000,
+      "net_priced": true,
+      "shown": false,
+      "rejection_reason": "engine predicts origin China, not Canada",
+      "rejection_kind": "engine_other_origin"
+    }
+  ],
+  "stats": {
+    "moves_searched": 12,
+    "engine_calls": 13,
+    "verifier_runs": 9,
+    "verifier_cached": 0,
+    "verifier_model_calls": 36,
+    "verifier_tool_calls": 54,
+    "input_tokens": 156022,
+    "output_tokens": 7656,
+    "engine_input_tokens": 33213,
+    "engine_output_tokens": 2730,
+    "verifier_input_tokens": 122809,
+    "verifier_output_tokens": 4926,
+    "wall_seconds": 79.492961292
+  },
+  "economics_illustrative": true,
+  "duty_rates_note": "Illustrative placeholder, not a sourced rate.",
+  "template_versions": {
+    "motors_pumps_compressors": "1"
+  },
+  "ranking": {
+    "rule": "tier_then_net",
+    "bar": 0.92,
+    "clear_from": 0.93
+  },
+  "llm_provider": "litellm",
+  "verifier_search": "local",
+  "cost_usd_promo": 0.38860399999999995,
+  "cost_usd_list": 0.7772079999999999,
+  "gateway_cost_usd": 0.35424819999999985,
+  "verifier_config": "prompt=v2 panel=off votes=1 near_miss=false follow=false bar=0.92",
+  "llm_no_cache": true,
+  "git_revision": "1496f7fe5b23fcc04b576badd6cb0715d70adbf1-dirty",
+  "time": "2026-11-22T10:08:48+08:00"
+}

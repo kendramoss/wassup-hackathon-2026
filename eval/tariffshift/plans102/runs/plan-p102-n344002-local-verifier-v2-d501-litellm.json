@@ -1,0 +1,249 @@
+{
+  "case_id": "p102-n344002",
+  "target": "China",
+  "family": "motors_pumps_compressors",
+  "baseline": {
+    "move": [],
+    "description": "No change: keep the current setup",
+    "variant_facts": "The merchandise under consideration is a The country of origin of hermetic compressors. The product of CBP ruling N344002, as its facts describe it. The The country of origin of hermetic compressors is assembled in Mexico using components sourced from Mexico, China, India and United States.\n\nThe stator and rotor are produced in Mexico. The steel lamination sheet, copper wires, polyester film slot insulation, wire harness, heat shrink tubes, housing, crankcase, crankshaft, piston, piston pin, connecting rod, internal discharge tube, oil pump, valve components, cover, screws, washers, wire, gaskets, ball bearings, internal springs and muffler are sourced from China. The aluminum ingot are sourced from India. The assembly oil are sourced from United States. \n\nFinal assembly in Mexico: assemble the motor, cylinder and valves into the bottom housing; weld the shell; charge and test.\n",
+    "prediction": {
+      "origin_country": "Mexico",
+      "key_factors": [
+        "The electric motor (stator and rotor) and complex final assembly into a hermetic compressor"
+      ],
+      "decisive_step": "Manufacturing the stator and rotor from raw materials and assembling and welding the complete compressor in Mexico",
+      "confidence": 0.9,
+      "reasoning": "In Mexico, raw materials (Chinese steel lamination sheets, copper wire, and Indian aluminum ingots) are substantially transformed to manufacture the rotor and stator, which form the core electric motor. Combining the Mexican-origin motor with Chinese mechanical components (crankcase, piston, housing, valves) through complex assembly and shell welding in Mexico creates a new and different article of commerce with a distinct name, character, and use. Therefore, the country of origin is Mexico.",
+      "cited_rulings": [],
+      "precedents": [
+        "H329104",
+        "H339179",
+        "N330771",
+        "N339174",
+        "N343893"
+      ],
+      "trace": {
+        "llm_provider": "litellm",
+        "model_id": "gemini-4-argon",
+        "requested_model": "gemini-4-argon",
+        "prompt_version": "engine-v1",
+        "input_tokens": 2660,
+        "output_tokens": 220,
+        "latency_ms": 8788
+      }
+    },
+    "duty_effect_per_year": 0,
+    "added_cost_per_year": 0,
+    "net_per_year": 0,
+    "shown": false
+  },
+  "current_origin": {
+    "country": "Mexico",
+    "ruling": "N344002"
+  },
+  "plans": [],
+  "rejected": [
+    {
+      "move": [],
+      "description": "No change: keep the current setup",
+      "variant_facts": "The merchandise under consideration is a The country of origin of hermetic compressors. The product of CBP ruling N344002, as its facts describe it. The The country of origin of hermetic compressors is assembled in Mexico using components sourced from Mexico, China, India and United States.\n\nThe stator and rotor are produced in Mexico. The steel lamination sheet, copper wires, polyester film slot insulation, wire harness, heat shrink tubes, housing, crankcase, crankshaft, piston, piston pin, connecting rod, internal discharge tube, oil pump, valve components, cover, screws, washers, wire, gaskets, ball bearings, internal springs and muffler are sourced from China. The aluminum ingot are sourced from India. The assembly oil are sourced from United States. \n\nFinal assembly in Mexico: assemble the motor, cylinder and valves into the bottom housing; weld the shell; charge and test.\n",
+      "prediction": {
+        "origin_country": "Mexico",
+        "key_factors": [
+          "The electric motor (stator and rotor) and complex final assembly into a hermetic compressor"
+        ],
+        "decisive_step": "Manufacturing the stator and rotor from raw materials and assembling and welding the complete compressor in Mexico",
+        "confidence": 0.9,
+        "reasoning": "In Mexico, raw materials (Chinese steel lamination sheets, copper wire, and Indian aluminum ingots) are substantially transformed to manufacture the rotor and stator, which form the core electric motor. Combining the Mexican-origin motor with Chinese mechanical components (crankcase, piston, housing, valves) through complex assembly and shell welding in Mexico creates a new and different article of commerce with a distinct name, character, and use. Therefore, the country of origin is Mexico.",
+        "cited_rulings": [],
+        "precedents": [
+          "H329104",
+          "H339179",
+          "N330771",
+          "N339174",
+          "N343893"
+        ],
+        "trace": {
+          "llm_provider": "litellm",
+          "model_id": "gemini-4-argon",
+          "requested_model": "gemini-4-argon",
+          "prompt_version": "engine-v1",
+          "input_tokens": 2660,
+          "output_tokens": 220,
+          "latency_ms": 8788
+        }
+      },
+      "duty_effect_per_year": 0,
+      "added_cost_per_year": 0,
+      "net_per_year": 0,
+      "shown": false,
+      "rejection_reason": "current setup: CBP held Mexico (N344002); engine predicts Mexico",
+      "rejection_kind": "current_setup"
+    },
+    {
+      "move": [
+        {
+          "group": "motor_stator_rotor",
+          "to_plant": "cn"
+        }
+      ],
+      "description": "Move the motor stator and rotor to China",
+      "variant_facts": "The merchandise under consideration is a The country of origin of hermetic compressors. The product of CBP ruling N344002, as its facts describe it. The The country of origin of hermetic compressors is assembled in Mexico using components sourced from China and United States.\n\nThe stator, rotor, steel lamination sheet, copper wires, polyester film slot insulation, wire harness, heat shrink tubes, aluminum ingot, housing, crankcase, crankshaft, piston, piston pin, connecting rod, internal discharge tube, oil pump, valve components, cover, screws, washers, wire, gaskets, ball bearings, internal springs and muffler are produced in China. The assembly oil are sourced from United States. \n\nIn China, the stator, rotor, steel lamination sheet, copper wires, polyester film slot insulation, wire harness, heat shrink tubes, aluminum ingot and wire will be produced in-house: stamp, stack and wind the stator; cast the rotor in aluminium.\n\nFinal assembly in Mexico: assemble the motor, cylinder and valves into the bottom housing; weld the shell; charge and test.\n",
+      "prediction": {
+        "origin_country": "China",
+        "key_factors": [
+          "Compressor pump mechanism and electric motor components (stator, rotor, crankcase, crankshaft, piston, valves)"
+        ],
+        "decisive_step": "Manufacturing of the core mechanical and electrical components, including stamping/winding the stator and casting the rotor in China",
+        "confidence": 0.95,
+        "reasoning": "Virtually all critical components that impart the essential character of the hermetic compressor—including the stator, rotor, crankcase, crankshaft, piston, valves, and housing—are manufactured in China. As seen in N333514, where final assembly of Chinese pump components in a second country did not confer origin, the operations in Mexico (assembling the motor, cylinder, and valves into the housing, welding the shell, and testing) constitute mere assembly of pre-existing Chinese parts without substantial transformation.",
+        "cited_rulings": [
+          "N333514"
+        ],
+        "precedents": [
+          "H329104",
+          "H329582",
+          "H339179",
+          "N330771",
+          "N333514"
+        ],
+        "trace": {
+          "llm_provider": "litellm",
+          "model_id": "gemini-4-argon",
+          "requested_model": "gemini-4-argon",
+          "prompt_version": "engine-v1",
+          "input_tokens": 2824,
+          "output_tokens": 220,
+          "latency_ms": 7842
+        }
+      },
+      "verdict": {
+        "precedent_supported": true,
+        "supporting_ruling": "H326072",
+        "confidence": 0.85,
+        "reasoning": "In Variant A, the motor's stator and rotor are manufactured in Mexico (via stamping, stacking, winding, and aluminum casting) and assembled with Chinese mechanical components (housing, crankcase, crankshaft, piston, valves), conferring Mexican origin. In Variant B, the production of the stator and rotor moves entirely to China, leaving only the final assembly of pre-manufactured Chinese components (motor, cylinder, valves, housing), welding, charging, and testing in Mexico. Under CBP precedent (see H326072 on hermetic refrigerator compressors and Energizer Battery), mere final assembly of all major pre-formed compressor components without local subassembly manufacture does not constitute a substantial transformation, shifting origin to China.",
+        "trail": [
+          {
+            "tool": "search",
+            "query": "compressor stator rotor country of origin",
+            "rulings": [
+              "H326072",
+              "N333849",
+              "N337565",
+              "N338794",
+              "N336333",
+              "H325936",
+              "N340242",
+              "H335387"
+            ]
+          },
+          {
+            "tool": "search",
+            "query": "electric motor stator rotor assembly Mexico China",
+            "rulings": [
+              "N333849",
+              "H322161",
+              "H340062",
+              "H326072",
+              "H333319",
+              "N337565",
+              "N338219",
+              "N330075"
+            ]
+          },
+          {
+            "tool": "search",
+            "query": "compressor assembly housing piston crankshaft stator rotor",
+            "rulings": [
+              "H326072",
+              "N333849",
+              "N343950",
+              "N330513",
+              "N337565",
+              "N339166",
+              "N339944",
+              "N338794"
+            ]
+          },
+          {
+            "tool": "search",
+            "query": "hermetic compressor stator rotor assembly Mexico China",
+            "rulings": [
+              "H326072",
+              "N333849",
+              "N337565",
+              "N336333",
+              "N338794",
+              "H325936",
+              "H335387",
+              "N338219"
+            ]
+          },
+          {
+            "tool": "read",
+            "query": "H333319",
+            "rulings": [
+              "H333319"
+            ]
+          },
+          {
+            "tool": "read",
+            "query": "H326072",
+            "rulings": [
+              "H326072"
+            ]
+          }
+        ],
+        "trace": {
+          "llm_provider": "litellm",
+          "model_id": "gemini-4-argon",
+          "prompt_version": "verifier-v2+known-a",
+          "input_tokens": 14869,
+          "output_tokens": 429,
+          "latency_ms": 0
+        }
+      },
+      "duty_effect_per_year": -300000,
+      "added_cost_per_year": 25000,
+      "net_per_year": -325000,
+      "net_priced": true,
+      "shown": false,
+      "rejection_reason": "precedent-supported but verifier confidence 0.85 is below 0.92",
+      "rejection_kind": "below_confidence_bar"
+    }
+  ],
+  "stats": {
+    "moves_searched": 1,
+    "engine_calls": 2,
+    "verifier_runs": 1,
+    "verifier_cached": 0,
+    "verifier_model_calls": 4,
+    "verifier_tool_calls": 6,
+    "input_tokens": 20353,
+    "output_tokens": 869,
+    "engine_input_tokens": 5484,
+    "engine_output_tokens": 440,
+    "verifier_input_tokens": 14869,
+    "verifier_output_tokens": 429,
+    "wall_seconds": 28.010785
+  },
+  "economics_illustrative": true,
+  "duty_rates_note": "Illustrative placeholder, not a sourced rate.",
+  "template_versions": {
+    "motors_pumps_compressors": "1"
+  },
+  "ranking": {
+    "rule": "tier_then_net",
+    "bar": 0.92,
+    "clear_from": 0.93
+  },
+  "llm_provider": "litellm",
+  "verifier_search": "local",
+  "cost_usd_promo": 0.049396,
+  "cost_usd_list": 0.098792,
+  "gateway_cost_usd": 0.0433426,
+  "verifier_config": "prompt=v2 panel=off votes=1 near_miss=false follow=false bar=0.92",
+  "llm_no_cache": true,
+  "git_revision": "1496f7fe5b23fcc04b576badd6cb0715d70adbf1-dirty",
+  "time": "2026-11-22T10:07:00+08:00"
+}

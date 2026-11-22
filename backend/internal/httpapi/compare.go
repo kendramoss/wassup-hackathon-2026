@@ -127,7 +127,7 @@ func (a *api) compareTargets(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 	}
-	a.respond(w, http.StatusOK, map[string]any{"case_id": c.ID, "targets": withTargetPlanIDs(cmp.Ranked)})
+	a.respond(w, http.StatusOK, map[string]any{"case_id": c.ID, "targets": a.rankedTargets(c, cmp)})
 }
 
 // Target statuses, best first.
@@ -173,6 +173,12 @@ func rankTargets(ts []store.TargetSummary) {
 		if a.Status == TargetPlan {
 			if ca, cb := a.Best.Tier == domain.TierClearMargin, b.Best.Tier == domain.TierClearMargin; ca != cb {
 				return ca
+			}
+			// On a Part 102 case, a best plan the 102.20 rule supports
+			// beats one it leaves open, which beats one it gives to another
+			// country (D500). Without a Part 102 check every class is equal.
+			if ra, rb := targetRuleClass(a), targetRuleClass(b); ra != rb {
+				return ra < rb
 			}
 		}
 		// Below the bar, a stronger precedent check beats more money.

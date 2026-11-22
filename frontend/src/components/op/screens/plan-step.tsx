@@ -925,7 +925,7 @@ function AllMoves({ result, onDraft, stale, product, asOf }: { result: PlanResul
   return (
     <section className="min-w-0">
       <h2 className="eyebrow mb-2.5">
-        Moves searched · {moves} · {result.plans?.length ? (storedOrder ? "best net first" : copy.plan.tier.order) : "closest first by precedent check"}
+        Moves searched · {moves} · {result.plans?.length ? (storedOrder ? "best net first" : result.ranking?.rule === "tier_then_rule_then_net" ? copy.plan.tier.orderRule : copy.plan.tier.order) : "closest first by precedent check"}
       </h2>
       {storedOrder ? <p className="duo mb-2 text-xs text-dim">{copy.plan.tier.stored}</p> : null}
       {planRuleCaption(result) ? <p className="duo mb-2 max-w-[80ch] text-xs text-dim">{planRuleCaption(result)}</p> : null}

@@ -12,6 +12,7 @@ import { DemoNote, Elapsed, ErrorBox, Footer, Main, Next } from "../chrome";
 import { BandNet, OpsDetail, OpsScope, StaleMoneyBanner } from "../ops-result";
 import { netText } from "../ops-view";
 import { TierChip, moveKey, movePhrase } from "../plan-bits";
+import { PlanRuleChip, PlanRuleNote } from "../plan-rule";
 import { ReviewNote } from "../review-note";
 import { Button, ButtonLink, Chip, Country, Dimension, Flag, Fold, MiniRuler, Ruler, cx } from "../ui";
 
@@ -77,6 +78,9 @@ function Compare({ id, c, setCase }: CaseCtx) {
   };
 
   const top = ranked?.[0];
+  // The 102.20 check on each country's best move (D441, D500).
+  const ruleChecked = ranked?.some((t) => t.best?.rule_check);
+  const part102 = ranked?.some((t) => t.best?.rule_check?.applies === "part102");
   const anyPlan = ranked?.some((t) => t.status === "plan");
   const shownPlanConf = c.plan?.plans?.[0]?.verdict?.confidence;
 
@@ -194,6 +198,7 @@ function Compare({ id, c, setCase }: CaseCtx) {
             <table className="w-full min-w-[820px] border-collapse border border-edge bg-sheet text-[13px] shadow-[4px_4px_0_var(--shadow)]">
               <caption className="pb-2.5 text-left text-[11px] uppercase tracking-[0.08em] text-dimension">
                 Ranked · plan (clear margin first, then at the bar), then below the bar, then no supported plan, then no capable plant
+                {part102 ? `; ${copy.planRule.compareCaption}` : ""}
               </caption>
               <thead>
                 <tr>
@@ -230,6 +235,12 @@ function Compare({ id, c, setCase }: CaseCtx) {
                             {t.best ? `Reaches ${t.best.prediction?.origin_country} · origin ${originShort(t.best.prediction)} · ` : ""}
                             {t.moves_searched} moves searched
                           </span>
+                          {t.best?.rule_check?.label ? (
+                            <span className="mt-1.5 block">
+                              <PlanRuleChip plan={t.best} explain />
+                              <PlanRuleNote plan={t.best} className="mt-1" />
+                            </span>
+                          ) : null}
                         </td>
                         <td className="px-3.5 py-3.5">
                           {t.best ? (
@@ -279,6 +290,7 @@ function Compare({ id, c, setCase }: CaseCtx) {
             <p className="duo max-w-[90ch] text-[13px] text-dim">
               Countries with a shown plan rank by their best plan, the same way plans rank on the Plan step: a clear-margin plan (check 0.93 or more, no counter-ruling) ranks above one at the bar, then by net per year. Moves only go to plants your product lists; a country with no capable plant ranks last rather than being invented. Money is illustrative — editable on the Plan step. Precedent checks vary between runs.
             </p>
+            {ruleChecked ? <p className="duo mt-2 max-w-[90ch] text-[13px] text-dim">{copy.planRule.compareHow}</p> : null}
           </Fold>
         </div>
       </Main>

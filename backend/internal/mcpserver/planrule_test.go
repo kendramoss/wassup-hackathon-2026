@@ -20,3 +20,14 @@ func TestPlanLineNamesTheRuleCheck(t *testing.T) {
 		t.Error("no rule_check, no words")
 	}
 }
+
+// On a Part 102 case the plan and comparison texts say the rule check
+// orders shown plans (D500); otherwise that it is for information.
+func TestPlanRuleNote(t *testing.T) {
+	if n := planRuleNote(true); !strings.Contains(n, "moves it says shift first") || !strings.Contains(n, "never changes which plans are shown") {
+		t.Error(n)
+	}
+	if n := planRuleNote(false); !strings.Contains(n, "display only") || !strings.Contains(n, "for information") {
+		t.Error(n)
+	}
+}

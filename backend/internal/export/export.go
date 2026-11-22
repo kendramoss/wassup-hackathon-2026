@@ -43,6 +43,10 @@ type Input struct {
 	// CBP's holding), so a citation names the ruling instead of a bare number
 	// (D220). A ruling missing here is cited by number alone.
 	Rulings map[string]RulingRef
+	// RuleCheck is the 19 CFR 102.20 tariff-shift check of the setup the
+	// draft asks about (the chosen plan's move, or the current setup), when
+	// the case carries it (D441). The draft states it in one paragraph.
+	RuleCheck *domain.PlanRuleCheck
 }
 
 // RulingRef is what the draft says about one earlier ruling.
@@ -136,6 +140,9 @@ func Markdown(in Input) string {
 		fmt.Fprintf(&b, ", based on these key factors: %s", listPhrase(in.Prediction.KeyFactors))
 	}
 	b.WriteString(". [REQUESTER TO CONFIRM AND EXPAND WITH COUNSEL.]\n\n")
+	if l := TariffShiftLine(in.RuleCheck, "[CONFIRM WITH COUNSEL]"); l != "" {
+		b.WriteString(l + "\n\n")
+	}
 	b.WriteString("## Earlier CBP rulings considered\n\n")
 	b.WriteString(strings.Join(citations(in), "\n") + "\n\n")
 	b.WriteString("## Attachments\n\n- Bill of materials with country of origin of each component\n- Process flow and photographs of each manufacturing step\n- [OTHER SUPPORTING DOCUMENTS]\n\n")
@@ -222,6 +229,9 @@ func Notes(in Input, cfr177 bool) []string {
 	}
 	if n := in.regimeText().note; n != "" {
 		notes = append(notes, n)
+	}
+	if rc := in.RuleCheck; rc != nil && rc.Review && rc.ReviewNote != "" {
+		notes = append(notes, "Tariff-shift check: "+rc.ReviewNote)
 	}
 	if in.BelowBar != nil {
 		notes = append(notes, fmt.Sprintf("Below the confidence bar: Unde's precedent check rated this change %.2f, under its %.2f bar. Treat the cited support as weaker and confirm with counsel.", in.BelowBar.Confidence, in.BelowBar.Bar))

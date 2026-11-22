@@ -138,6 +138,20 @@ Recomputed by `cd backend && go run ./cmd/tariffshift plans-eval -check` (in `ma
 | Current setup | 11 of 23 decided; 4 give CBP's held origin | same | Measured. The difference between the two tests, not an error rate |
 | Moves compared with a later CBP ruling | 0 | same | No committed move has both codes and a later ruling |
 
+### Scored Part 102 plan searches (D501, D502)
+
+Three development rulings, one plan search each through an OpenAI-compatible LiteLLM gateway to Gemini (no cache), scored offline by `cd backend && go run ./cmd/tariffshift plans102-eval -check` (in `make reproduce`). Part codes are unverified suggestions; plant capabilities and money are illustrative.
+
+| Number | Value | Source | Status |
+|---|---|---|---|
+| Part 102 plan searches with codes | 3 (N348465 to Canada, N344002 and N350133 to China) | `eval/tariffshift/plans102/summary.json` | Measured, development. Picked to exercise the rule (D501), not a sample |
+| Actuator (N348465) moves the rule says shift; shown | 6 of 12 (every move with the motor); 1 shown, and the rule says it shifts | same; `eval/tariffshift/plans102/moves-dev.jsonl` | Measured. Precedent supports all 6; 5 are below the bar, including the motor alone at 0.82 |
+| Moves precedent supports while the rule gives another country | 2 (the compressor and lawn-mower moves to China, both below the bar) | same | Measured. Flagged; neither shown, so the D500 order had nothing to act on |
+| D500 order changes on these searches | 0 | same | Measured. No search showed more than one plan |
+| Current setup: rule gives CBP's holding | 2 of 3 (the actuator is undetermined: the motor does not shift unless de minimis) | same | Measured |
+| Later ruling, rule on its setup (N354024) | Mexico, as CBP held | same | Measured. A later product, not a plan move: no plan backtest (0) |
+| Cost | $0.4333 for the 3 searches (actuator $0.3542, 79 s) | same; `eval/results/RUNLOG.jsonl` (`planner-part102-d501-litellm`) | Measured, gateway-reported |
+
 ### Method page (/method): negative results, splits and leakage, already in the decision record
 
 These rows register, for the /method page, figures that are already committed in `docs/EVALUATION.md` and `docs/DECISIONS.md`. No new run produced them.

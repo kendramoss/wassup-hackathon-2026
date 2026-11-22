@@ -44,3 +44,12 @@ test("the caption says when the check is for comparison only", () => {
   assert.match(planRuleCaption({ baseline: { rule_check: shifts }, plans: [], rejected: [] }), /for comparison: this case is decided under substantial transformation/);
   assert.doesNotMatch(planRuleCaption({ plans: [{ rule_check: { ...shifts, applies: "part102" } }] }), /for comparison/);
 });
+
+// D500: on a Part 102 case the caption says the check orders shown plans
+// within each tier; the comparison copy says the same.
+test("the Part 102 caption names the D500 order", async () => {
+  const { copy } = await import("../src/lib/copy.ts");
+  assert.match(planRuleCaption({ plans: [{ rule_check: { ...shifts, applies: "part102" } }] }), /within each tier the moves the rule supports come first/);
+  assert.equal(copy.plan.tier.orderRule, "clear margin first, then the 102.20 check, then net");
+  assert.match(copy.planRule.compareHow, /ranks last, flagged for a broker/);
+});
