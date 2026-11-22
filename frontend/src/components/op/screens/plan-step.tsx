@@ -25,7 +25,7 @@ import { ReviewNote } from "../review-note";
 import { backtestState, type DemoChangeLookup } from "../plan-bits";
 import { regimeOf } from "@/lib/regime";
 import { pricedEconomics } from "@/lib/live-mfn";
-import { Button, ButtonLink, Chip, Country, Dimension, Drawer, Flag, Fold, MiniRuler, Panel, PanelHead, RulingLink, Ruler, cx } from "../ui";
+import { Button, ButtonLink, Chip, Country, Dimension, Drawer, Flag, Fold, MiniRuler, Panel, PanelHead, RulingLink, Ruler, ScrollX, cx } from "../ui";
 
 export function PlanStep() {
   return <CaseShell tab="plan">{(ctx) => <PlanScreen {...ctx} />}</CaseShell>;
@@ -809,7 +809,7 @@ function outcome(p: Plan | undefined) {
 
 function LiveTable({ rows, baseline, lit }: { rows: Row[]; baseline: Plan | null; lit: string | null }) {
   return (
-    <div className="relative overflow-x-auto">
+    <ScrollX label="Moves checked so far">
       <table className="w-full min-w-[640px] border-collapse border border-edge bg-sheet text-[13px] shadow-[4px_4px_0_var(--shadow)]">
         <thead>
           <tr>
@@ -840,7 +840,7 @@ function LiveTable({ rows, baseline, lit }: { rows: Row[]; baseline: Plan | null
           ))}
         </tbody>
       </table>
-    </div>
+    </ScrollX>
   );
 }
 
