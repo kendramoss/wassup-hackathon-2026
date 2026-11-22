@@ -2631,3 +2631,18 @@ Run as D680 says (D680 pushed as c000fafd at 19:44 +08:00; detector frozen and p
 - **Probe set 2, frozen now.** `eval/jurisdiction/probes-model-2.jsonl` (sha256 `f6b52590…2df8`), 30 non-U.S. questions in the D680 mix from the same prompt plus a "set 2: different products, countries and wording" line (the gateway returned set 1 unchanged without it); $0.0398 gateway-reported; saved without being read.
 - **Checks, each run once.** v1 and v2 on probe set 2; v2 on the held-out split; v2 on development (must stay 0 flagged; it may be adjusted on development only), hand set and model set 1 (shown, not independent: set 1 was read to write v2).
 - **Adoption rule.** Production uses v2 if: development 0 flagged, held-out flagged at most 3 (v1), and on probe set 2 v2's exact count is above v1's. Otherwise v1 stays. Expectation: v2 at least 22 of 30 exact on set 2, v1 about 16.
+
+## D682 — market-detect-v2 adopted: 22 of 30 on the unseen probe set against 19 for v1; held-out 0 of 377 flagged (22 Nov, results of D681)
+Run once each as D681 says (D681 pushed as 52410a49 at 19:55 +08:00; v1 scored on set 2 at that revision; v2 frozen and pushed as 5398fa07 at 19:56, before its runs). No model calls.
+
+| Set | v1 | v2 |
+|---|---|---|
+| Development rulings, all regimes (649 U.S.), flagged | 0 | 0 (71 weak hints, as v1) |
+| First held-out split (377 U.S.), flagged | 3 (D681) | **0** (6 weak hints; none labelled `unclear` by router-v4) |
+| **Model probe set 2 (30 non-U.S., unseen by both)**: exact / kept from a U.S. auto-answer | 19 / 23 | **22 / 26** |
+| Model probe set 1 (read to write v2, not independent) | 16 / 20 | 25 / 28 |
+| Hand set (same author, not independent): exact / U.S. controls clean | 30 / 10 of 10 | 30 / 10 of 10 |
+
+- **Adoption.** All three D681 conditions hold (development 0, held-out 0 ≤ 3, set 2 22 > 19). Production uses `market-detect-v2`. It met the stated expectation of 22 exactly.
+- **What it still misses (set 2, read after scoring).** Every miss falls to the United States, and no text was given a wrong non-U.S. market. Four carry a weak hint (a price in JPY, KRW or Canadian dollars; "for sale to Paris hospitals"), so they go to review only if the router says `unclear`. Not read: "importing diagnostic ultrasound probes into France" (three words between verb and "into"; the cue allows two), "Our Osaka distribution network is importing", "ships … to our distribution center in Mexico City", and law names not on the list (Customs Tariff Law, Commerce (Trade Descriptions) Act, "SARS"). About one non-U.S. question in four is still read as U.S. when the caller does not choose the market. Reading: the explicit market choice is the reliable path, so the try-it form and the API take it; the detector is the net under it.
+- **Spend.** Probe sets $0.0421 and $0.0398, gateway-reported. Detector runs cost nothing.

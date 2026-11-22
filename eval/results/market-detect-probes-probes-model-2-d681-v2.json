@@ -1,0 +1,252 @@
+{
+  "detector": "market-detect-v2",
+  "exact_market": 22,
+  "git_revision": "5398fa07afc389a8703154f4c8a014b8b233b9f9",
+  "kept_from_us_answer": 26,
+  "kept_without_router": 22,
+  "non_us_texts": 30,
+  "note": "kept_from_us_answer counts a hint, which reviews only when the router says unclear; kept_without_router counts only a non-U.S. market or a conflict",
+  "rows": [
+    {
+      "id": "m2-eu-01",
+      "want": "eu",
+      "got": "eu",
+      "source": "detected",
+      "cue": "European Union customs",
+      "kept_from_us_answer": true
+    },
+    {
+      "id": "m2-eu-02",
+      "want": "eu",
+      "got": "eu",
+      "source": "detected",
+      "cue": "entry into European Union",
+      "kept_from_us_answer": true
+    },
+    {
+      "id": "m2-eu-03",
+      "want": "eu",
+      "got": "us",
+      "source": "default",
+      "hint": "eu",
+      "kept_from_us_answer": true
+    },
+    {
+      "id": "m2-eu-04",
+      "want": "eu",
+      "got": "eu",
+      "source": "detected",
+      "cue": "EU customs law",
+      "kept_from_us_answer": true
+    },
+    {
+      "id": "m2-eu-05",
+      "want": "eu",
+      "got": "eu",
+      "source": "detected",
+      "cue": "European Union customs",
+      "kept_from_us_answer": true
+    },
+    {
+      "id": "m2-eu-06",
+      "want": "eu",
+      "got": "eu",
+      "source": "detected",
+      "cue": "European Union customs",
+      "kept_from_us_answer": true
+    },
+    {
+      "id": "m2-uk-01",
+      "want": "uk",
+      "got": "uk",
+      "source": "detected",
+      "cue": "HMRC",
+      "kept_from_us_answer": true
+    },
+    {
+      "id": "m2-uk-02",
+      "want": "uk",
+      "got": "uk",
+      "source": "detected",
+      "cue": "HMRC",
+      "kept_from_us_answer": true
+    },
+    {
+      "id": "m2-uk-03",
+      "want": "uk",
+      "got": "uk",
+      "source": "detected",
+      "cue": "entry into United Kingdom",
+      "kept_from_us_answer": true
+    },
+    {
+      "id": "m2-uk-04",
+      "want": "uk",
+      "got": "uk",
+      "source": "detected",
+      "cue": "HMRC",
+      "kept_from_us_answer": true
+    },
+    {
+      "id": "m2-ca-01",
+      "want": "ca",
+      "got": "ca",
+      "source": "detected",
+      "cue": "CBSA",
+      "kept_from_us_answer": true
+    },
+    {
+      "id": "m2-ca-02",
+      "want": "ca",
+      "got": "us",
+      "source": "default",
+      "hint": "ca",
+      "kept_from_us_answer": true
+    },
+    {
+      "id": "m2-ca-03",
+      "want": "ca",
+      "got": "ca",
+      "source": "detected",
+      "cue": "Canada customs",
+      "kept_from_us_answer": true
+    },
+    {
+      "id": "m2-ca-04",
+      "want": "ca",
+      "got": "ca",
+      "source": "detected",
+      "cue": "CBSA",
+      "kept_from_us_answer": true
+    },
+    {
+      "id": "m2-jp-01",
+      "want": "jp",
+      "got": "jp",
+      "source": "detected",
+      "cue": "Japan customs",
+      "kept_from_us_answer": true
+    },
+    {
+      "id": "m2-jp-02",
+      "want": "jp",
+      "got": "us",
+      "source": "default",
+      "hint": "jp",
+      "kept_from_us_answer": true
+    },
+    {
+      "id": "m2-jp-03",
+      "want": "jp",
+      "got": "us",
+      "source": "default",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "m2-kr-01",
+      "want": "kr",
+      "got": "kr",
+      "source": "detected",
+      "cue": "South Korea customs",
+      "kept_from_us_answer": true
+    },
+    {
+      "id": "m2-kr-02",
+      "want": "kr",
+      "got": "us",
+      "source": "default",
+      "hint": "kr",
+      "kept_from_us_answer": true
+    },
+    {
+      "id": "m2-kr-03",
+      "want": "kr",
+      "got": "kr",
+      "source": "detected",
+      "cue": "South Korea customs",
+      "kept_from_us_answer": true
+    },
+    {
+      "id": "m2-au-01",
+      "want": "au",
+      "got": "au",
+      "source": "detected",
+      "cue": "Australia customs",
+      "kept_from_us_answer": true
+    },
+    {
+      "id": "m2-au-02",
+      "want": "au",
+      "got": "us",
+      "source": "default",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "m2-au-03",
+      "want": "au",
+      "got": "au",
+      "source": "detected",
+      "cue": "Australia customs",
+      "kept_from_us_answer": true
+    },
+    {
+      "id": "m2-mx-01",
+      "want": "mx",
+      "got": "mx",
+      "source": "detected",
+      "cue": "Mexico customs",
+      "kept_from_us_answer": true
+    },
+    {
+      "id": "m2-mx-02",
+      "want": "mx",
+      "got": "us",
+      "source": "default",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "m2-mx-03",
+      "want": "mx",
+      "got": "mx",
+      "source": "detected",
+      "cue": "entry into Mexico",
+      "kept_from_us_answer": true
+    },
+    {
+      "id": "m2-other-01",
+      "want": "other",
+      "got": "other",
+      "source": "detected",
+      "cue": "a non-U.S. customs authority",
+      "kept_from_us_answer": true
+    },
+    {
+      "id": "m2-other-02",
+      "want": "other",
+      "got": "other",
+      "source": "detected",
+      "cue": "Other market customs",
+      "kept_from_us_answer": true
+    },
+    {
+      "id": "m2-other-03",
+      "want": "other",
+      "got": "us",
+      "source": "default",
+      "kept_from_us_answer": false
+    },
+    {
+      "id": "m2-other-04",
+      "want": "other",
+      "got": "other",
+      "source": "detected",
+      "cue": "Other market customs",
+      "kept_from_us_answer": true
+    }
+  ],
+  "run": "market-detect-probes-probes-model-2-d681-v2",
+  "texts": 30,
+  "time": "2026-11-22T19:56:44+08:00",
+  "us_texts": 0,
+  "us_texts_clean": 0
+}
