@@ -404,6 +404,35 @@ for (const scheme of ["light", "dark"]) {
     route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify({ parts: [], good: null, max_parts: 20 }) }),
   );
   await page.goto(base + newCasePath, { waitUntil: "networkidle" });
+  // #589: a closed combobox has no listbox in the DOM, so it must not point
+  // aria-controls at a missing id. Check every collapsed field on this page.
+  const danglingControls = await page.evaluate(() =>
+    [...document.querySelectorAll('input[role="combobox"][aria-expanded="false"][aria-controls]')]
+      .map((el) => {
+        const controls = el.getAttribute("aria-controls");
+        return { label: el.getAttribute("aria-label") ?? el.id, controls, exists: !!document.getElementById(controls) };
+      })
+      .filter((x) => !x.exists),
+  );
+  if (danglingControls.length) {
+    problems.push({ page: "/cases/new (combobox)", focus: "closed combobox points at a missing listbox", fields: danglingControls });
+  }
+  // The relationship must appear once the popup is really in the DOM.
+  await page.locator('input[role="combobox"]').first().focus();
+  await page.waitForFunction(() => {
+    const el = document.activeElement;
+    const id = el?.getAttribute("aria-controls");
+    return !!id && document.getElementById(id)?.getAttribute("role") === "listbox";
+  });
+  const openControls = await page.evaluate(() => {
+    const el = document.activeElement;
+    const id = el?.getAttribute("aria-controls");
+    return { expanded: el?.getAttribute("aria-expanded"), listbox: document.getElementById(id)?.getAttribute("role") ?? null };
+  });
+  if (openControls.expanded !== "true" || openControls.listbox !== "listbox") {
+    problems.push({ page: "/cases/new (combobox)", focus: "open combobox does not reference its listbox", openControls });
+  }
+  await page.keyboard.press("Escape");
   await page.getByRole("tab", { name: "Paste a description" }).click();
   await page.locator("textarea").first().fill("Each heat gun is assembled in Thailand using components sourced from China and Thailand, with a fan and a board and a housing.");
   await page.getByRole("button", { name: "Turn into parts and plants" }).click();

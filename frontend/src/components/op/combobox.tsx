@@ -124,7 +124,9 @@ export function Combobox({
         role="combobox"
         aria-label={ariaLabel}
         aria-expanded={open}
-        aria-controls={listId}
+        // #589: the popup is mounted only while open; do not advertise an
+        // id that is not in the document when the list is collapsed.
+        aria-controls={open ? listId : undefined}
         aria-autocomplete="list"
         aria-invalid={invalid || undefined}
         aria-activedescendant={open && items[active] ? `${listId}-${active}` : undefined}
