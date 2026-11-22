@@ -102,6 +102,13 @@ export function AccuracyPage() {
   // windows, scored after usmca-v1, as a candidate picked on development.
   const usV5 = get("usmca_v5_final_accuracy");
   const usV52 = get("usmca_v5_final2_accuracy");
+  // D620: usmca-v5's own share and accuracy at stated 0.95 (D613), so the
+  // card does not give usmca-v1's 47% as the current auto-accept share.
+  const usV5Auto = get("usmca_v5_final_conf95_accuracy");
+  const usV5Cov = get("usmca_v5_final_conf95_coverage");
+  const usV52Auto = get("usmca_v5_final2_conf95_accuracy");
+  const usV52Cov = get("usmca_v5_final2_conf95_coverage");
+  const count = (it?: Item) => Math.round((it?.value ?? 0) * (it?.n ?? 0));
   const allReg = get("all_regimes_heldout_accuracy");
   const later = (it?: Item) => (it ? ` On ${it.n} later rulings (28 Sep to 13 Nov 2026, scored once): ${pct(it.value)} (${ci(it)}).` : "");
   // D233: the router (router-v4) on the held-out windows, and the routed
@@ -479,10 +486,14 @@ export function AccuracyPage() {
                 )}
                 {usAcc && (
                   <Card title="Part 102 marking origin" big={pct(usAcc.value)}>
-                    on {usAcc.n} held-out 2026 Part 102 marking rulings ({ci(usAcc)}). {pct(usAuto?.value)} right at confidence 0.95 or above, on {pct(usCov?.value, 0)} of them.
+                    on {usAcc.n} held-out 2026 Part 102 marking rulings ({ci(usAcc)}), scored first, with the earlier engine (usmca-v1). That engine was {pct(usAuto?.value)} right at
+                    confidence 0.95 or above, on {pct(usCov?.value, 0)} of them.
                     {later(us2)}
                     {usV5 && usV52
-                      ? ` Since 22 Nov the Part 102 engine fills a short 102.11 checklist first (usmca-v5, picked on development rulings). On the same rulings, scored after the earlier engine: ${pct(usV5.value)} of ${usV5.n} and ${pct(usV52.value)} of ${usV52.n}.`
+                      ? ` Since 22 Nov the engine in use is usmca-v5, which fills a short 102.11 checklist first; it was picked on development rulings. On the same rulings, scored after: ${count(usV5)} of ${usV5.n} and ${count(usV52)} of ${usV52.n}, ${count(usV5) + count(usV52)} of ${(usV5.n ?? 0) + (usV52.n ?? 0)} against ${count(usAcc) + count(us2)} for usmca-v1. That is a candidate comparison, not a fresh test (p = 0.22).`
+                      : ""}
+                    {usV5Auto && usV5Cov && usV52Auto && usV52Cov
+                      ? ` It auto-accepts fewer answers: confidence 0.95 or above on ${usV5Auto.n} of ${usV5Cov.n} (${pct(usV5Cov.value, 0)}), ${count(usV5Auto)} right; over both windows ${(usV5Auto.n ?? 0) + (usV52Auto.n ?? 0)} of ${(usV5Cov.n ?? 0) + (usV52Cov.n ?? 0)}, ${count(usV5Auto) + count(usV52Auto)} right.`
                       : ""}
                   </Card>
                 )}

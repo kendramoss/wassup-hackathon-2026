@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-11-22T07:26:24Z",
+  "generated_at": "2026-11-22T08:08:45Z",
   "status": "official: held-out engine and fast path are Gemini 4 Argon on Vertex AI (engine-v1, BM25, K=5). Development-split engine numbers are the development set on Vertex AI. Verifier figures and the heat-gun plan's cost and time are proxy development runs; the heat-gun plan the landing shows (check 0.96) is the recorded 18 Oct production run (docs/DEMO.md, section 6).",
   "items": [
     {
@@ -1058,11 +1058,51 @@
       "source": "eval/tariffshift/p102ck/runs/usmca-final-gemini-4-argon-prec-usmca-v5-litellm-d601.jsonl"
     },
     {
+      "key": "usmca_v5_final_conf95_accuracy",
+      "label": "Part 102 marking-origin rules, held-out (2026), usmca-v5 (production since D602), scored after usmca-v1: accuracy when confidence ≥ 0.95",
+      "value": 1,
+      "ci_low": 0.7412,
+      "ci_high": 1,
+      "n": 11,
+      "split": "final",
+      "development_only": false,
+      "source": "eval/tariffshift/p102ck/runs/usmca-final-gemini-4-argon-prec-usmca-v5-litellm-d601.jsonl"
+    },
+    {
+      "key": "usmca_v5_final_conf95_coverage",
+      "label": "Part 102 marking-origin rules, held-out (2026), usmca-v5 (production since D602), scored after usmca-v1: share with confidence ≥ 0.95",
+      "value": 0.3438,
+      "n": 32,
+      "split": "final",
+      "development_only": false,
+      "source": "eval/tariffshift/p102ck/runs/usmca-final-gemini-4-argon-prec-usmca-v5-litellm-d601.jsonl"
+    },
+    {
       "key": "usmca_v5_final2_accuracy",
       "label": "Part 102 marking-origin rules, post-cutoff held-out (Sep–Nov 2026), usmca-v5 (production since D602), scored after usmca-v1",
       "value": 0.8462,
       "ci_low": 0.5776,
       "ci_high": 0.9567,
+      "n": 13,
+      "split": "final2",
+      "development_only": false,
+      "source": "eval/tariffshift/p102ck/runs/usmca-final2-gemini-4-argon-prec-usmca-v5-litellm-router-d601.jsonl"
+    },
+    {
+      "key": "usmca_v5_final2_conf95_accuracy",
+      "label": "Part 102 marking-origin rules, post-cutoff held-out (Sep–Nov 2026), usmca-v5 (production since D602), scored after usmca-v1: accuracy when confidence ≥ 0.95",
+      "value": 0.8333,
+      "ci_low": 0.4365,
+      "ci_high": 0.9699,
+      "n": 6,
+      "split": "final2",
+      "development_only": false,
+      "source": "eval/tariffshift/p102ck/runs/usmca-final2-gemini-4-argon-prec-usmca-v5-litellm-router-d601.jsonl"
+    },
+    {
+      "key": "usmca_v5_final2_conf95_coverage",
+      "label": "Part 102 marking-origin rules, post-cutoff held-out (Sep–Nov 2026), usmca-v5 (production since D602), scored after usmca-v1: share with confidence ≥ 0.95",
+      "value": 0.4615,
       "n": 13,
       "split": "final2",
       "development_only": false,

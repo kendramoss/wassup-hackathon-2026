@@ -2425,8 +2425,14 @@ func regimeSummaryItems(dir string) ([]evalsummary.Item, error) {
 			return nil, err
 		}
 		s := evalkit.Summarize(rows)
-		items = append(items, evalsummary.Item{Key: r.key, Label: r.label, Value: r4(s.Acc), CILow: r4(s.Lo), CIHigh: r4(s.Hi), N: s.N, Split: r.split,
-			Source: "eval/tariffshift/p102ck/runs/" + r.file})
+		src := "eval/tariffshift/p102ck/runs/" + r.file
+		items = append(items, evalsummary.Item{Key: r.key, Label: r.label, Value: r4(s.Acc), CILow: r4(s.Lo), CIHigh: r4(s.Hi), N: s.N, Split: r.split, Source: src})
+		// D620: the production engine's own auto-accept share and accuracy at
+		// stated confidence 0.95, so /accuracy does not quote usmca-v1's as current.
+		prefix := strings.TrimSuffix(r.key, "_accuracy")
+		p, lo, hi := evalkit.Wilson(s.AtLeast95.K, s.AtLeast95.N)
+		items = append(items, evalsummary.Item{Key: prefix + "_conf95_accuracy", Label: r.label + ": accuracy when confidence ≥ 0.95", Value: r4(p), CILow: r4(lo), CIHigh: r4(hi), N: s.AtLeast95.N, Split: r.split, Source: src})
+		items = append(items, evalsummary.Item{Key: prefix + "_conf95_coverage", Label: r.label + ": share with confidence ≥ 0.95", Value: r4(float64(s.AtLeast95.N) / float64(s.N)), N: s.N, Split: r.split, Source: src})
 	}
 	// The router on the same post-cutoff rulings: pharmaceutical and Part 102
 	// cases it kept away from the substantial-transformation engine (D211).
