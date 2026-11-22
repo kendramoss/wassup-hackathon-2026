@@ -109,6 +109,7 @@ export function PartsHtsBar({
       const res = await api.partsHtsSuggest({
         product: {
           name: name.trim() || product.name,
+          family: product.family || undefined, // the plausibility check reads it (D471)
           description: product.description,
           hts: goodHts.trim() || undefined,
           plants: [],

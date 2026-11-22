@@ -1,0 +1,3 @@
+{
+ "note": "Fix check (D470), not a score and not pooled with D451: the changed agent on Gemini 3.8 Flash through an OpenAI-compatible LiteLLM gateway to Gemini against a local server built from this branch (engine, router and verifier on Gemini 3.8 Flash through the same gateway; local server spend cap 0.30 USD), products a03, a04, a06, a10, a12 once each, 22 Nov 2026 about 09:02-09:05 +08:00. a10's plan search hit that cap, so a10 tests nothing; see D472 for the per-issue reading."
+}

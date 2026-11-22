@@ -818,3 +818,9 @@ Total $0.97 promo / $1.95 list. The engine's view of the current setup disagreed
 - D442 plan moves: unchanged (25 of 57 decided).
 - No new disagreement with CBP; no ruling changed its answer. New: the check differs from the model on dev N341152 and N352059, agreeing with CBP on both.
 - `cd backend && go run ./cmd/tariffshift eval -check`, `parts-eval -check`, `plans-eval -check`; `python3 -I -B eval/tariffshift/chapter_counts.py . --check` (all in `make reproduce`). RUNLOG `tariffshift-chapters-*`, $0.
+
+## ADK agent fix check, 5 products (local server, 22 Nov; D470, D472)
+- Not a score: a03, a04, a06, a10, a12 (dev products already seen) once each with the D470 agent and server changes, against a local server (engine, router and verifier on Gemini 3.8 Flash through the gateway). Pre-registered in D470. Two attempts, both kept: the first stopped early on the local server's per-client spend share and tests nothing (agent $0.0973); the second (agent $0.1751, server calls about $0.31) is read per issue in D472: a04 drafted once by `plan_id`; a03 and a06 found no plan and claimed no working move; a06 made one `predict_origin` call; a10 hit the local spend cap; a12 got no implausible code to flag. RUNLOG `adk-agent-fixcheck-d470-attempt1`, `adk-agent-fixcheck-d470`.
+
+## Per-part HTS plausibility check (offline, 22 Nov; D471, D472)
+- Deterministic flag on the committed D381/D382 suggestion rows, no model calls: dev 0 of 1,060 codes marked (after changes made on dev; the first version marked 7, all plausible on reading); held-out `final`, measured once, 5 of 424, all in N359001 and all wrong for a machine on reading, none on a part with a gold code. `parts-check/summary.json`, recomputed by `go test ./internal/hts`.
