@@ -11,6 +11,7 @@ import (
 	"strings"
 	"sync"
 	"testing"
+	"time"
 
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/corpus"
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/domain"
@@ -18,13 +19,19 @@ import (
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/llm"
 )
 
-// The families written from CBP precedent (D138, D212), with the three earlier
-// templates. Pinning the set makes adding or dropping a family a visible
-// change.
+// The families written from CBP precedent (D138, D212), the three earlier
+// templates and the six written from Part 102 rulings (D580). Pinning the set
+// makes adding or dropping a family a visible change.
 var allFamilies = []string{
-	"cables_harnesses", "display_camera_modules", "furniture", "gas_grills_cooking", "hand_tools",
-	"led_lights", "lidar_modules", "medical_devices", "motorised_tools_small_appliances",
-	"motors_pumps_compressors", "pcba_electronic_devices", "power_supplies_chargers", "vehicle_parts", "water_filters",
+	"cables_harnesses", "display_camera_modules", "electrical_control_apparatus", "food_preparations", "furniture",
+	"gas_grills_cooking", "hand_tools", "led_lights", "lidar_modules", "machinery_parts", "medical_devices",
+	"metal_products", "motorised_tools_small_appliances", "motors_pumps_compressors", "pcba_electronic_devices",
+	"plastic_articles", "power_supplies_chargers", "vehicle_parts", "water_filters", "wood_panels_flooring",
+}
+
+// part102Families are written from Part 102 rulings (D580).
+var part102Families = []string{
+	"electrical_control_apparatus", "food_preparations", "machinery_parts", "metal_products", "plastic_articles", "wood_panels_flooring",
 }
 
 func TestTemplateSetIsPinned(t *testing.T) {
@@ -44,37 +51,43 @@ func TestTemplateSetIsPinned(t *testing.T) {
 
 var rulingID = regexp.MustCompile(`\b[HN]\d{6}\b`)
 
-// Every ruling a template cites is a real substantial-transformation ruling
-// in the bundled corpus, outside the dev and held-out splits (the families
-// were chosen and written from the rest), and is listed in the template's
-// sources. Each movable group cites at least one ruling.
+// Every ruling a template cites is a real ruling in the bundled corpus of the
+// template's regime, outside every development and held-out split (the
+// families were chosen and written from the rest), not revoked or modified by
+// a later ruling or a Customs Bulletin notice (the supersession map, D320,
+// D400), and is listed in the template's sources. Each movable group cites at
+// least one ruling. Substantial-transformation families cite
+// substantial-transformation rulings; Part 102 families (D580) cite Part 102
+// rulings from the D560 pool only: dated before 2024 and in no Part 102
+// development or held-out split (#619).
 func TestTemplateCitationsAreRealRulings(t *testing.T) {
-	labels, err := corpus.LoadLabels("../../data/labels.jsonl")
-	if err != nil {
-		t.Fatal(err)
-	}
-	byID := map[string]corpus.Label{}
-	for _, l := range labels {
-		byID[l.Ruling] = l
-	}
-	b, err := os.ReadFile("../../../eval/splits/splits_final.json")
-	if err != nil {
-		t.Fatal(err)
-	}
-	var splits struct{ Dev, Final, Pilot []string }
-	if err := json.Unmarshal(b, &splits); err != nil {
-		t.Fatal(err)
-	}
-	evalIDs := map[string]bool{}
-	for _, id := range slices.Concat(splits.Dev, splits.Final, splits.Pilot) {
-		evalIDs[id] = true
+	byID := loadLabels(t, "../../data/labels.jsonl")
+	by102 := loadLabels(t, "../../data/labels_usmca.jsonl")
+	// Substantial-transformation development and held-out rulings, and the
+	// Part 102 ones. A substantial-transformation family may cite a ruling
+	// that is also in the Part 102 development set (H333699, a printer ruling
+	// that mentions Part 102 marking): it was chosen from the
+	// substantial-transformation pool (D138). A Part 102 family may cite
+	// neither.
+	evalIDs := splitIDs(t, "splits_final.json", "splits_final2.json")
+	eval102 := splitIDs(t, "splits_usmca.json", "splits_usmca_final2.json")
+	if len(evalIDs) < 900 || len(eval102) < 110 {
+		t.Fatalf("only %d and %d development and held-out rulings read; a split file changed shape", len(evalIDs), len(eval102))
 	}
 	tmpls, err := LoadTemplates()
 	if err != nil {
 		t.Fatal(err)
 	}
+	var got102 []string
 	cited := 0
 	for fam, tm := range tmpls {
+		switch tm.Regime {
+		case "":
+		case "part102":
+			got102 = append(got102, fam)
+		default:
+			t.Errorf("%s: regime %q", fam, tm.Regime)
+		}
 		if len(tm.Sources) == 0 {
 			// The three earlier templates have no sources list. The groups
 			// that cite precedent (motorised tools, D330) are held to the same
@@ -89,13 +102,22 @@ func TestTemplateCitationsAreRealRulings(t *testing.T) {
 		}
 		check := func(where, id string) {
 			l, ok := byID[id]
+			regime, file := "substantial_transformation", "data/labels.jsonl"
+			if tm.Regime == "part102" {
+				l, ok = by102[id]
+				regime, file = "part102_tariff_shift", "data/labels_usmca.jsonl"
+			}
 			switch {
 			case !ok:
-				t.Errorf("%s %s: %s is not in data/labels.jsonl", fam, where, id)
-			case l.Regime != "substantial_transformation":
+				t.Errorf("%s %s: %s is not in %s", fam, where, id, file)
+			case l.Regime != regime:
 				t.Errorf("%s %s: %s is a %s ruling", fam, where, id, l.Regime)
-			case evalIDs[id]:
-				t.Errorf("%s %s: %s is in the dev or held-out split", fam, where, id)
+			case evalIDs[id] || tm.Regime == "part102" && eval102[id]:
+				t.Errorf("%s %s: %s is in a development or held-out split", fam, where, id)
+			case tm.Regime == "part102" && l.Date >= "2024":
+				t.Errorf("%s %s: %s is dated %s, after the D560 pool", fam, where, id, l.Date)
+			case superseded(id):
+				t.Errorf("%s %s: %s is revoked or modified (supersession map)", fam, where, id)
 			case !sources[id]:
 				t.Errorf("%s %s: %s is not in sources", fam, where, id)
 			}
@@ -134,6 +156,52 @@ func TestTemplateCitationsAreRealRulings(t *testing.T) {
 	if cited == 0 {
 		t.Fatal("no template cites a ruling")
 	}
+	sort.Strings(got102)
+	if !slices.Equal(got102, part102Families) {
+		t.Errorf("Part 102 families = %v, want %v", got102, part102Families)
+	}
+}
+
+// splitIDs reads the dev, final, final2 and pilot lists of split files in
+// eval/splits.
+func splitIDs(t *testing.T, files ...string) map[string]bool {
+	t.Helper()
+	out := map[string]bool{}
+	for _, f := range files {
+		b, err := os.ReadFile("../../../eval/splits/" + f)
+		if err != nil {
+			t.Fatal(err)
+		}
+		var splits struct{ Dev, Final, Final2, Pilot []string }
+		if err := json.Unmarshal(b, &splits); err != nil {
+			t.Fatal(err)
+		}
+		for _, id := range slices.Concat(splits.Dev, splits.Final, splits.Final2, splits.Pilot) {
+			out[id] = true
+		}
+	}
+	return out
+}
+
+func loadLabels(t *testing.T, path string) map[string]corpus.Label {
+	t.Helper()
+	labels, err := corpus.LoadLabels(path)
+	if err != nil {
+		t.Fatal(err)
+	}
+	out := map[string]corpus.Label{}
+	for _, l := range labels {
+		out[l.Ruling] = l
+	}
+	return out
+}
+
+// superseded reports whether a later ruling or a final Customs Bulletin
+// notice in the committed map revokes or modifies id as of today. A template
+// documents precedent for any case date, so any supersession counts.
+func superseded(id string) bool {
+	_, ok := domain.SupersededAsOf(id, time.Now())
+	return ok
 }
 
 func checkLegacyPrecedent(t *testing.T, fam string, tm Template, byID map[string]corpus.Label, evalIDs map[string]bool) {
@@ -152,6 +220,8 @@ func checkLegacyPrecedent(t *testing.T, fam string, tm Template, byID map[string
 				t.Errorf("%s/%s: %s is a %s ruling", fam, g.ID, id, l.Regime)
 			case evalIDs[id]:
 				t.Errorf("%s/%s: %s is in the dev or held-out split", fam, g.ID, id)
+			case superseded(id):
+				t.Errorf("%s/%s: %s is revoked or modified (supersession map)", fam, g.ID, id)
 			case id == "N328954" || id == "N357771":
 				t.Errorf("%s/%s: %s is one of the heat gun's own rulings", fam, g.ID, id)
 			}

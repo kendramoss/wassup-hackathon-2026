@@ -1,0 +1,81 @@
+{
+  "_source": "CBP ruling N308174 (2 Jan 2020): polypropylene dividers cut, scored and pre-folded in China, then folded, heat-sealed, punched and packed in Mexico: CBP held China. In the D580 selection pool (Part 102, dated before 2024, in no development or held-out split) and excluded. Target by the D171 rule; plant capabilities at the target are an assumption.",
+  "case_id": "plastic-dividers-2020",
+  "date": "2020-01-02",
+  "family": "plastic_articles",
+  "target": "Mexico",
+  "product": {
+    "name": "Insertable plastic dividers, set of five",
+    "description": "Tabbed polypropylene dividers with pockets, packed in sets of five for notebooks and binders.",
+    "plants": [
+      {
+        "id": "cn",
+        "name": "China sheet converter",
+        "country": "China",
+        "capabilities": [
+          "film_sheet_cutting"
+        ]
+      },
+      {
+        "id": "mx",
+        "name": "Mexico finishing plant",
+        "country": "Mexico",
+        "capabilities": [
+          "resin_compounding",
+          "film_sheet_cutting",
+          "component_moulding",
+          "final_assembly"
+        ]
+      }
+    ],
+    "components": [
+      {
+        "name": "pre-cut and scored polypropylene divider sheets",
+        "made_in": "China",
+        "plant": "cn",
+        "group": "film_sheet_cutting"
+      },
+      {
+        "name": "paper insert and polypropylene bag",
+        "made_in": "Mexico",
+        "plant": "mx",
+        "group": "final_assembly"
+      }
+    ],
+    "operations": [
+      {
+        "name": "cut the plastic sheets to size, score the fold line and pre-cut the tabs",
+        "plant": "cn",
+        "group": "film_sheet_cutting"
+      },
+      {
+        "name": "fold, heat-seal, punch three holes and pack sets of five",
+        "plant": "mx",
+        "group": "final_assembly"
+      }
+    ]
+  },
+  "economics": {
+    "illustrative": true,
+    "annual_import_value_usd": 1000000,
+    "duty_rates": {
+      "China": 0.25,
+      "Mexico": 0.0
+    },
+    "duty_rates_note": "Illustrative placeholder, not a sourced rate.",
+    "group_costs": {
+      "film_sheet_cutting": {
+        "cn": 60000,
+        "mx": 75000
+      }
+    }
+  },
+  "exclude_rulings": [
+    "N308174",
+    "N308175"
+  ],
+  "current_origin": {
+    "country": "China",
+    "ruling": "N308174"
+  }
+}

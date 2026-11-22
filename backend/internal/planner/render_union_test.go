@@ -106,6 +106,9 @@ func TestUnionDefaultFlagPinned(t *testing.T) {
 		"gas_grills_cooking": true, "hand_tools": true, "medical_devices": true,
 		"motors_pumps_compressors": true, "pcba_electronic_devices": true,
 		"power_supplies_chargers": true, "vehicle_parts": true, "water_filters": true,
+		// The Part 102 families (D580) are written from many rulings too.
+		"electrical_control_apparatus": true, "food_preparations": true, "machinery_parts": true,
+		"metal_products": true, "plastic_articles": true, "wood_panels_flooring": true,
 	}
 	for _, family := range allFamilies {
 		got := tmpls[family].UnionDefaultOperations

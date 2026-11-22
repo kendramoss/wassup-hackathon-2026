@@ -1,0 +1,239 @@
+{"category": "paper_printed", "assembled": false, "product": "filler paper and notebooks", "ruling": "H072375", "hts": "4802.55.1000", "cost_usd": 0.00125775}
+{"category": "food_agriculture", "assembled": false, "product": "macadamia nuts", "ruling": "H256782", "hts": "2008.19.9010", "cost_usd": 0.00114375}
+{"category": "food_agriculture", "assembled": false, "product": "macadamia nuts", "ruling": "H256783", "hts": "2008.19.9010", "cost_usd": 0.00113325}
+{"category": "food_agriculture", "assembled": false, "product": "mixed nuts", "ruling": "H256784", "hts": "2008.19.85", "cost_usd": 0.00124125}
+{"category": "food_agriculture", "assembled": false, "product": "coconut whipped cream", "ruling": "H260568", "hts": "2106.90.9980", "cost_usd": 0.001221}
+{"category": "food_agriculture", "assembled": false, "product": "sprouted mung beans", "ruling": "H262945", "hts": "0713", "cost_usd": 0.00119175}
+{"category": "paper_printed", "assembled": false, "product": "facial tissues", "ruling": "H263571", "hts": "4803.00", "cost_usd": 0.0011595}
+{"category": "pcba_electronic_devices", "assembled": true, "product": "RFID transponder", "ruling": "H263735", "hts": "8523.52", "cost_usd": 0.001197}
+{"category": "metal_hardware_fittings", "assembled": true, "product": "steel piping spools", "ruling": "H263772", "hts": null, "cost_usd": 0.00111}
+{"category": "food_agriculture", "assembled": false, "product": "frozen concentrated orange juice", "ruling": "H264513", "hts": "2009.11.00", "cost_usd": 0.0013275000000000001}
+{"category": "furniture", "assembled": true, "product": "stuffed mattress cover", "ruling": "H265611", "hts": "9404", "cost_usd": 0.0011805}
+{"category": "solar_pv", "assembled": true, "product": "solar panels", "ruling": "H266527", "hts": "8541.40.6020", "cost_usd": 0.001134}
+{"category": "pcba_electronic_devices", "assembled": true, "product": "data storage system", "ruling": "H269185", "hts": "8471.70", "cost_usd": 0.00117825}
+{"category": "food_agriculture", "assembled": false, "product": "frozen mixed vegetables", "ruling": "H270451", "hts": "2004.90.8580", "cost_usd": 0.00115575}
+{"category": "chemicals_pharma", "assembled": false, "product": "refined ahiflower oil", "ruling": "H278984", "hts": "1515.90.8090", "cost_usd": 0.0013552500000000001}
+{"category": "plastic_articles", "assembled": false, "product": "buried splice kit", "ruling": "H285605", "hts": "9801.00.10", "cost_usd": 0.00119325}
+{"category": "medical_devices", "assembled": false, "product": "surgical knives", "ruling": "H288252", "hts": "9018.90.8000", "cost_usd": 0.0011459999999999999}
+{"category": "plastic_articles", "assembled": false, "product": "PET film", "ruling": "H290625", "hts": "3920.62.0090", "cost_usd": 0.00122775}
+{"category": "food_agriculture", "assembled": false, "product": "prepared beef entrees", "ruling": "H290682", "hts": "1602.50.90", "cost_usd": 0.0012045}
+{"category": "electric_motors_pumps_compressors", "assembled": true, "product": "electric motor", "ruling": "H300226", "hts": "8501.10.40", "cost_usd": 0.001083}
+{"category": "electric_motors_pumps_compressors", "assembled": true, "product": "electric motor", "ruling": "H301619", "hts": "8503", "cost_usd": 0.001083}
+{"category": "bicycles_scooters", "assembled": true, "product": "electric bicycle", "ruling": "H302204", "hts": "8711.60", "cost_usd": 0.001176}
+{"category": "electric_motors_pumps_compressors", "assembled": true, "product": "actuator assembly", "ruling": "H303140", "hts": "8501.10.40", "cost_usd": 0.001152}
+{"category": "instruments_meters", "assembled": true, "product": "electromagnetic flowmeter", "ruling": "H303986", "hts": "9026.10.2040", "cost_usd": 0.0011872500000000002}
+{"category": "pcba_electronic_devices", "assembled": true, "product": "printers", "ruling": "H304677", "hts": "8443.31", "cost_usd": 0.0011565}
+{"category": "instruments_meters", "assembled": true, "product": "status monitoring transponders", "ruling": "H306349", "hts": "9030.40.00", "cost_usd": 0.0012165000000000001}
+{"category": "pcba_electronic_devices", "assembled": true, "product": "USB flash drives", "ruling": "H308234", "hts": "8523.51", "cost_usd": 0.0011685}
+{"category": "food_agriculture", "assembled": true, "product": "lollipops", "ruling": "H308798", "hts": "1704.90.3550", "cost_usd": 0.001206}
+{"category": "furniture", "assembled": true, "product": "mattress", "ruling": "H312171", "hts": "9404.21.00", "cost_usd": 0.0011347500000000001}
+{"category": "electric_motors_pumps_compressors", "assembled": true, "product": "stator assembly", "ruling": "H312437", "hts": "8503", "cost_usd": 0.00122325}
+{"category": "food_agriculture", "assembled": false, "product": "instant chai tea", "ruling": "H312440", "hts": "2101.20.54", "cost_usd": 0.00132}
+{"category": "machinery_parts", "assembled": true, "product": "lower bearing assembly", "ruling": "H312745", "hts": "8474.90", "cost_usd": 0.0012255}
+{"category": "other", "assembled": true, "product": "bowed wall repair kit", "ruling": "H312877", "hts": "6815.10", "cost_usd": 0.00117375}
+{"category": "vehicle_parts", "assembled": true, "product": "catalytic converter assemblies", "ruling": "H312891", "hts": "8421.39", "cost_usd": 0.0012075}
+{"category": "food_agriculture", "assembled": false, "product": "powdered drink mixes", "ruling": "H313454", "hts": "2106", "cost_usd": 0.0014805}
+{"category": "toys_sporting_goods", "assembled": true, "product": "golf club drivers", "ruling": "H313495", "hts": "9506.31.00", "cost_usd": 0.0012795}
+{"category": "pcba_electronic_devices", "assembled": true, "product": "solid-state drive", "ruling": "H313595", "hts": "8471.70.1000", "cost_usd": 0.00122325}
+{"category": "food_agriculture", "assembled": false, "product": "chocolate blend", "ruling": "H313780", "hts": "1806", "cost_usd": 0.00111525}
+{"category": "metal_hardware_fittings", "assembled": false, "product": "metal powder", "ruling": "H314561", "hts": "3824.30.00", "cost_usd": 0.00110025}
+{"category": "metal_hardware_fittings", "assembled": false, "product": "metal powder", "ruling": "H314563", "hts": "3824.30.00", "cost_usd": 0.0010987500000000001}
+{"category": "vehicle_parts", "assembled": true, "product": "wiper blade", "ruling": "H314566", "hts": "8512.90", "cost_usd": 0.0012225}
+{"category": "vehicle_parts", "assembled": true, "product": "rear seat frame", "ruling": "H314637", "hts": "9401.90.10", "cost_usd": 0.0011925}
+{"category": "electric_motors_pumps_compressors", "assembled": true, "product": "motor assembly", "ruling": "H314638", "hts": "8501.10.60", "cost_usd": 0.00116625}
+{"category": "chemicals_pharma", "assembled": false, "product": "finish gel for nails", "ruling": "H314981", "hts": "3506.10.50", "cost_usd": 0.0011482500000000002}
+{"category": "electric_motors_pumps_compressors", "assembled": true, "product": "centrifugal water cooling pump", "ruling": "H315287", "hts": "8413.70.20", "cost_usd": 0.0012217500000000002}
+{"category": "vehicle_parts", "assembled": true, "product": "automotive headrests", "ruling": "H315295", "hts": "9401.90.10", "cost_usd": 0.00119475}
+{"category": "vehicle_parts", "assembled": true, "product": "automotive seat back frame", "ruling": "H315296", "hts": "9401.90.10", "cost_usd": 0.0011910000000000002}
+{"category": "vehicle_parts", "assembled": true, "product": "manual cushion frame", "ruling": "H315297", "hts": "9401.90.10", "cost_usd": 0.00115575}
+{"category": "vehicle_parts", "assembled": true, "product": "automotive armrest", "ruling": "H315298", "hts": "9401.90.10", "cost_usd": 0.0011505}
+{"category": "vehicle_parts", "assembled": true, "product": "power seat cushion frame", "ruling": "H315299", "hts": "9401.90.10", "cost_usd": 0.00115425}
+{"category": "food_agriculture", "assembled": false, "product": "frozen meal kit", "ruling": "H315384", "hts": "1902", "cost_usd": 0.00120675}
+{"category": "food_agriculture", "assembled": false, "product": "frozen meal kit", "ruling": "H315665", "hts": "2103", "cost_usd": 0.00117525}
+{"category": "rubber_articles", "assembled": true, "product": "hydraulic hose assemblies", "ruling": "H316570", "hts": "8412.90.90", "cost_usd": 0.00116475}
+{"category": "electric_motors_pumps_compressors", "assembled": true, "product": "fan blower assembly", "ruling": "H318255", "hts": null, "cost_usd": 0.0012044999999999998}
+{"category": "vehicle_parts", "assembled": true, "product": "railcar cushion units", "ruling": "H322364", "hts": "8607.30.10", "cost_usd": 0.001182}
+{"category": "vehicle_parts", "assembled": true, "product": "air brake hose", "ruling": "H322367", "hts": "8607.21", "cost_usd": 0.00116025}
+{"category": "rubber_articles", "assembled": true, "product": "pneumatic tires", "ruling": "H329175", "hts": "4011", "cost_usd": 0.0011925}
+{"category": "glass_stone_ceramics", "assembled": true, "product": "insulating glass panel units", "ruling": "N260108", "hts": "7008", "cost_usd": 0.00112575}
+{"category": "food_agriculture", "assembled": false, "product": "frozen vegetable mixture", "ruling": "N260916", "hts": null, "cost_usd": 0.0012105}
+{"category": "jewelry_watches", "assembled": true, "product": "ear piercing cartridge", "ruling": "N261965", "hts": "7117.19", "cost_usd": 0.00120075}
+{"category": "metal_hardware_fittings", "assembled": true, "product": "seamless pipe assembly", "ruling": "N262359", "hts": "8716", "cost_usd": 0.00119025}
+{"category": "jewelry_watches", "assembled": true, "product": "earring stud", "ruling": "N263473", "hts": "7018", "cost_usd": 0.00117975}
+{"category": "food_agriculture", "assembled": false, "product": "dietary supplement capsules", "ruling": "N266831", "hts": null, "cost_usd": 0.0011707500000000001}
+{"category": "optical_cameras", "assembled": true, "product": "television-type cameras", "ruling": "N268647", "hts": "8525.80", "cost_usd": 0.0011595}
+{"category": "paper_printed", "assembled": false, "product": "printable paper sheets", "ruling": "N269409", "hts": "4810", "cost_usd": 0.00124425}
+{"category": "paper_printed", "assembled": false, "product": "lottery tickets", "ruling": "N271676", "hts": "4911", "cost_usd": 0.001002}
+{"category": "optical_cameras", "assembled": true, "product": "television-type cameras", "ruling": "N272075", "hts": "8525.80", "cost_usd": 0.00121275}
+{"category": "optical_cameras", "assembled": true, "product": "television-type cameras", "ruling": "N272658", "hts": "8525.80", "cost_usd": 0.00123375}
+{"category": "plastic_articles", "assembled": false, "product": "shower system kit", "ruling": "N273778", "hts": "5603", "cost_usd": 0.00115575}
+{"category": "batteries", "assembled": true, "product": "battery packs", "ruling": "N274227", "hts": "8507.50.0000", "cost_usd": 0.001098}
+{"category": "wood_articles", "assembled": true, "product": "wood flooring panels", "ruling": "N275636", "hts": "4412", "cost_usd": 0.0012495}
+{"category": "wood_articles", "assembled": true, "product": "wood flooring panels", "ruling": "N277420", "hts": "4418", "cost_usd": 0.00120075}
+{"category": "chemicals_pharma", "assembled": false, "product": "diagnostic reagents", "ruling": "N279258", "hts": null, "cost_usd": 0.001038}
+{"category": "apparel_textiles", "assembled": true, "product": "comforter", "ruling": "N279885", "hts": "6307.90.8985", "cost_usd": 0.0011985000000000001}
+{"category": "chemicals_pharma", "assembled": false, "product": "softgel capsules", "ruling": "N281018", "hts": null, "cost_usd": 0.00105975}
+{"category": "optical_cameras", "assembled": true, "product": "television-type cameras", "ruling": "N282052", "hts": "8525.80", "cost_usd": 0.0011790000000000001}
+{"category": "wood_articles", "assembled": true, "product": "multilayer wood flooring panels", "ruling": "N284256", "hts": "4412.32.0620", "cost_usd": 0.00122025}
+{"category": "wood_articles", "assembled": true, "product": "multilayer wood flooring panels", "ruling": "N285090", "hts": "4418", "cost_usd": 0.001227}
+{"category": "machinery_parts", "assembled": true, "product": "tool holder", "ruling": "N285519", "hts": "3926.90", "cost_usd": 0.0011819999999999999}
+{"category": "metal_hardware_fittings", "assembled": false, "product": "stainless steel discs", "ruling": "N285686", "hts": "7219", "cost_usd": 0.00116625}
+{"category": "wood_articles", "assembled": true, "product": "plywood blanks", "ruling": "N286714", "hts": "4412.31.51", "cost_usd": 0.001164}
+{"category": "wood_articles", "assembled": true, "product": "multilayer wood flooring panels", "ruling": "N287335", "hts": "4412", "cost_usd": 0.0011707500000000001}
+{"category": "instruments_meters", "assembled": true, "product": "optical time domain reflectometer", "ruling": "N287417", "hts": "9027.50.4060", "cost_usd": 0.0012135000000000002}
+{"category": "apparel_textiles", "assembled": true, "product": "decorative pillows", "ruling": "N287930", "hts": "9404.90.1000", "cost_usd": 0.0010215}
+{"category": "hand_tools_cutlery", "assembled": true, "product": "diamond saw blades", "ruling": "N288632", "hts": "6804", "cost_usd": 0.00119775}
+{"category": "jewelry_watches", "assembled": true, "product": "bracelet", "ruling": "N289287", "hts": "7108.13", "cost_usd": 0.0011557499999999999}
+{"category": "paper_printed", "assembled": false, "product": "paper muffin cups", "ruling": "N289995", "hts": "4823.69.0020", "cost_usd": 0.0011819999999999999}
+{"category": "medical_devices", "assembled": true, "product": "blood filter", "ruling": "N290038", "hts": "8421.29", "cost_usd": 0.0011925}
+{"category": "food_agriculture", "assembled": false, "product": "spice mix products", "ruling": "N290772", "hts": "2103.90.7800", "cost_usd": 0.00122025}
+{"category": "instruments_meters", "assembled": true, "product": "vehicle measuring system", "ruling": "N291247", "hts": null, "cost_usd": 0.00117675}
+{"category": "food_agriculture", "assembled": false, "product": "confectionery coating", "ruling": "N291530", "hts": null, "cost_usd": 0.0011565}
+{"category": "rubber_articles", "assembled": false, "product": "agricultural tire", "ruling": "N291624", "hts": null, "cost_usd": 0.0011849999999999999}
+{"category": "metal_hardware_fittings", "assembled": true, "product": "braided hose with couplings", "ruling": "N293362", "hts": "8307.10.3000", "cost_usd": 0.00121125}
+{"category": "food_agriculture", "assembled": false, "product": "frozen lobster tails", "ruling": "N295106", "hts": null, "cost_usd": 0.0010575}
+{"category": "bicycles_scooters", "assembled": true, "product": "bicycle", "ruling": "N295820", "hts": "8712", "cost_usd": 0.001176}
+{"category": "wood_articles", "assembled": true, "product": "wood flooring panels", "ruling": "N295956", "hts": "3506", "cost_usd": 0.00123375}
+{"category": "metal_hardware_fittings", "assembled": true, "product": "braided hose with couplings", "ruling": "N296289", "hts": "8307.10.3000", "cost_usd": 0.0012300000000000002}
+{"category": "instruments_meters", "assembled": true, "product": "fiber optic test modules", "ruling": "N298197", "hts": "9027.90.6400", "cost_usd": 0.0012435}
+{"category": "instruments_meters", "assembled": true, "product": "fiber optic test sets", "ruling": "N298546", "hts": null, "cost_usd": 0.001206}
+{"category": "electric_motors_pumps_compressors", "assembled": true, "product": "electric motor", "ruling": "N299096", "hts": "8503.00", "cost_usd": 0.00106875}
+{"category": "glass_stone_ceramics", "assembled": false, "product": "glass bottles", "ruling": "N301322", "hts": "7010.90.5019", "cost_usd": 0.0012037500000000002}
+{"category": "pcba_electronic_devices", "assembled": true, "product": "home appliance controller", "ruling": "N301392", "hts": "8537", "cost_usd": 0.00112125}
+{"category": "electric_motors_pumps_compressors", "assembled": true, "product": "wound stator assembly", "ruling": "N301440", "hts": null, "cost_usd": 0.0011595}
+{"category": "electrical_apparatus", "assembled": true, "product": "bus bar assembly", "ruling": "N301448", "hts": "8537", "cost_usd": 0.001203}
+{"category": "pcba_electronic_devices", "assembled": true, "product": "cable modems", "ruling": "N301484", "hts": "8517.70", "cost_usd": 0.00122325}
+{"category": "vehicle_parts", "assembled": true, "product": "constant velocity joint assembly", "ruling": "N301716", "hts": "8708.99", "cost_usd": 0.0010905}
+{"category": "electric_motors_pumps_compressors", "assembled": true, "product": "electric motor", "ruling": "N301975", "hts": "8501", "cost_usd": 0.001221}
+{"category": "furniture", "assembled": true, "product": "computer server cabinet", "ruling": "N302029", "hts": "9403", "cost_usd": 0.0010470000000000002}
+{"category": "electrical_apparatus", "assembled": false, "product": "transformer toroids", "ruling": "N302344", "hts": "7225.11", "cost_usd": 0.001185}
+{"category": "pcba_electronic_devices", "assembled": true, "product": "radio main unit", "ruling": "N302778", "hts": "8517.62.0020", "cost_usd": 0.0012652499999999999}
+{"category": "furniture", "assembled": true, "product": "computer server cabinet", "ruling": "N303338", "hts": null, "cost_usd": 0.00108825}
+{"category": "machinery_parts", "assembled": true, "product": "air cylinders", "ruling": "N303499", "hts": "8412.31", "cost_usd": 0.001044}
+{"category": "electrical_apparatus", "assembled": true, "product": "pushbutton stations", "ruling": "N303599", "hts": "8536.50", "cost_usd": 0.00099975}
+{"category": "electrical_apparatus", "assembled": true, "product": "electrical junction boxes", "ruling": "N303603", "hts": "8537", "cost_usd": 0.00116175}
+{"category": "electrical_apparatus", "assembled": true, "product": "electrical junction box", "ruling": "N303604", "hts": "8537", "cost_usd": 0.0010665}
+{"category": "electrical_apparatus", "assembled": true, "product": "input output control panel", "ruling": "N303606", "hts": "8537.10", "cost_usd": 0.0011385000000000002}
+{"category": "solar_pv", "assembled": true, "product": "photovoltaic roof tile", "ruling": "N303846", "hts": "8541.40.6020", "cost_usd": 0.00119475}
+{"category": "furniture", "assembled": false, "product": "drawer boxes", "ruling": "N304029", "hts": null, "cost_usd": 0.00109725}
+{"category": "food_agriculture", "assembled": false, "product": "frozen smelt", "ruling": "N304050", "hts": null, "cost_usd": 0.0011392499999999999}
+{"category": "food_agriculture", "assembled": false, "product": "olive oil cooking spray", "ruling": "N304788", "hts": null, "cost_usd": 0.0010972500000000001}
+{"category": "vehicle_parts", "assembled": true, "product": "rear engine mount", "ruling": "N304882", "hts": "8302.30.3060", "cost_usd": 0.001224}
+{"category": "pcba_electronic_devices", "assembled": true, "product": "motor controllers", "ruling": "N305104", "hts": "8504.40.4000", "cost_usd": 0.0012232500000000002}
+{"category": "food_agriculture", "assembled": false, "product": "seafood salad", "ruling": "N305233", "hts": "1605.40", "cost_usd": 0.00114825}
+{"category": "food_agriculture", "assembled": false, "product": "cappuccino toppings", "ruling": "N305278", "hts": "2106.90.8000", "cost_usd": 0.00110175}
+{"category": "pcba_electronic_devices", "assembled": true, "product": "point of sale terminal", "ruling": "N305500", "hts": null, "cost_usd": 0.001119}
+{"category": "food_agriculture", "assembled": false, "product": "instant chai tea sticks", "ruling": "N305789", "hts": "2101.20.5800", "cost_usd": 0.0012645}
+{"category": "vehicle_parts", "assembled": true, "product": "bicycle rack", "ruling": "N306015", "hts": "8708.29", "cost_usd": 0.00118125}
+{"category": "plastic_articles", "assembled": true, "product": "cellphone grip and stand", "ruling": "N306037", "hts": "3926.90.99", "cost_usd": 0.001116}
+{"category": "batteries", "assembled": true, "product": "battery packs", "ruling": "N306161", "hts": "8507.60.0020", "cost_usd": 0.0011362499999999999}
+{"category": "food_agriculture", "assembled": false, "product": "cooking spray", "ruling": "N306353", "hts": null, "cost_usd": 0.0010695}
+{"category": "machinery_parts", "assembled": true, "product": "runner assembly", "ruling": "N306640", "hts": "8410.90.0000", "cost_usd": 0.0010530000000000001}
+{"category": "paper_printed", "assembled": false, "product": "thermal paper", "ruling": "N306776", "hts": "4811", "cost_usd": 0.0011099999999999999}
+{"category": "optical_cameras", "assembled": true, "product": "dome network cameras", "ruling": "N306881", "hts": "8525.80.30", "cost_usd": 0.0010935}
+{"category": "food_agriculture", "assembled": false, "product": "instant chai tea sticks", "ruling": "N306886", "hts": "2101.20.5800", "cost_usd": 0.0012180000000000001}
+{"category": "machinery_parts", "assembled": true, "product": "ball valve", "ruling": "N307465", "hts": "8481.80.1085", "cost_usd": 0.0011985}
+{"category": "vehicle_parts", "assembled": false, "product": "brake rotors", "ruling": "N307523", "hts": "8708.30", "cost_usd": 0.00104925}
+{"category": "hand_tools_cutlery", "assembled": true, "product": "torque wrench", "ruling": "N307529", "hts": "8466", "cost_usd": 0.00103725}
+{"category": "cables_harnesses_connectors", "assembled": true, "product": "vehicle cable assembly", "ruling": "N307932", "hts": "8544.30.0000", "cost_usd": 0.00122175}
+{"category": "power_supplies_chargers", "assembled": true, "product": "battery charger", "ruling": "N307953", "hts": null, "cost_usd": 0.00116475}
+{"category": "plastic_articles", "assembled": false, "product": "plastic dividers", "ruling": "N308174", "hts": "3926", "cost_usd": 0.001176}
+{"category": "plastic_articles", "assembled": true, "product": "plastic dividers", "ruling": "N308175", "hts": "3926", "cost_usd": 0.0011834999999999999}
+{"category": "machinery_parts", "assembled": true, "product": "ball valve", "ruling": "N308442", "hts": "8481.80.1085", "cost_usd": 0.001239}
+{"category": "other", "assembled": true, "product": "emergency roadside kit", "ruling": "N308750", "hts": "8536.90", "cost_usd": 0.00107175}
+{"category": "metal_hardware_fittings", "assembled": true, "product": "drill string assemblies", "ruling": "N309421", "hts": "8431.43", "cost_usd": 0.00120225}
+{"category": "electric_motors_pumps_compressors", "assembled": true, "product": "fan blower assembly", "ruling": "N309707", "hts": "8414.59.6560", "cost_usd": 0.00105225}
+{"category": "cables_harnesses_connectors", "assembled": true, "product": "patient cable", "ruling": "N309711", "hts": "8544.42.2000", "cost_usd": 0.0011400000000000002}
+{"category": "vehicle_parts", "assembled": false, "product": "coated ceramic substrate", "ruling": "N310001", "hts": "8421.39.4000", "cost_usd": 0.0011565}
+{"category": "food_agriculture", "assembled": false, "product": "espresso martini cans", "ruling": "N310195", "hts": null, "cost_usd": 0.001152}
+{"category": "metal_structures", "assembled": true, "product": "garage door", "ruling": "N310357", "hts": "9801.00.10", "cost_usd": 0.0011985}
+{"category": "cables_harnesses_connectors", "assembled": true, "product": "coaxial cable assembly", "ruling": "N310624", "hts": "8544.20.0000", "cost_usd": 0.001227}
+{"category": "optical_cameras", "assembled": true, "product": "projection screens", "ruling": "N310942", "hts": "9010", "cost_usd": 0.0012097499999999999}
+{"category": "instruments_meters", "assembled": true, "product": "retail scale", "ruling": "N311705", "hts": "8423.81.0030", "cost_usd": 0.00118425}
+{"category": "electric_motors_pumps_compressors", "assembled": true, "product": "electric motor", "ruling": "N316151", "hts": "8501.10.2000", "cost_usd": 0.0011819999999999999}
+{"category": "metal_hardware_fittings", "assembled": false, "product": "copper alloy strip", "ruling": "N316637", "hts": "7409", "cost_usd": 0.00120225}
+{"category": "metal_hardware_fittings", "assembled": false, "product": "lidding stock", "ruling": "N316780", "hts": "7607.11.6090", "cost_usd": 0.0011917499999999999}
+{"category": "furniture", "assembled": false, "product": "bundled upholstery kit", "ruling": "N317251", "hts": "9401.90", "cost_usd": 0.00118125}
+{"category": "food_agriculture", "assembled": false, "product": "drink mix", "ruling": "N317341", "hts": "1806.90.5900", "cost_usd": 0.0012135}
+{"category": "electric_motors_pumps_compressors", "assembled": true, "product": "brushless dc motor", "ruling": "N317575", "hts": "8501.31.4000", "cost_usd": 0.00122325}
+{"category": "machinery_parts", "assembled": true, "product": "speed reducer subassembly", "ruling": "N317669", "hts": "8483.90.5090", "cost_usd": 0.0011790000000000001}
+{"category": "filters", "assembled": true, "product": "fiberglass filter bag", "ruling": "N317710", "hts": "7019", "cost_usd": 0.0011535}
+{"category": "electric_motors_pumps_compressors", "assembled": true, "product": "dc electric motor", "ruling": "N318006", "hts": "8501", "cost_usd": 0.00122025}
+{"category": "machinery_parts", "assembled": true, "product": "transmission ball bearings", "ruling": "N318162", "hts": "8482.10.5052", "cost_usd": 0.0011865}
+{"category": "chemicals_pharma", "assembled": false, "product": "polyacrylamide friction reducer", "ruling": "N318582", "hts": "3403.99", "cost_usd": 0.0013095000000000001}
+{"category": "furniture", "assembled": true, "product": "collapsible playpen", "ruling": "N318738", "hts": "9403.89.6003", "cost_usd": 0.0011362499999999999}
+{"category": "electric_motors_pumps_compressors", "assembled": true, "product": "electric motor", "ruling": "N318896", "hts": "8501.31.4000", "cost_usd": 0.001182}
+{"category": "solar_pv", "assembled": true, "product": "photovoltaic generator", "ruling": "N318944", "hts": "8501.31.8010", "cost_usd": 0.00116175}
+{"category": "electric_motors_pumps_compressors", "assembled": true, "product": "rotor assembly", "ruling": "N319106", "hts": "8503.00.6500", "cost_usd": 0.0011872500000000002}
+{"category": "food_agriculture", "assembled": false, "product": "hemp seeds", "ruling": "N319371", "hts": "1207", "cost_usd": 0.0012255}
+{"category": "vehicle_parts", "assembled": true, "product": "automotive seat frame", "ruling": "N319373", "hts": "9401.90.1085", "cost_usd": 0.0011625000000000001}
+{"category": "electric_motors_pumps_compressors", "assembled": true, "product": "electric motors", "ruling": "N319464", "hts": "8501", "cost_usd": 0.00123525}
+{"category": "furniture", "assembled": true, "product": "pocket coil mattress core", "ruling": "N320075", "hts": "9404.29.9087", "cost_usd": 0.0011895}
+{"category": "food_agriculture", "assembled": false, "product": "hot chocolate drink mix", "ruling": "N320151", "hts": "1806.90.5900", "cost_usd": 0.0012014999999999999}
+{"category": "food_agriculture", "assembled": false, "product": "beverage mix", "ruling": "N320159", "hts": "2106.90.9500", "cost_usd": 0.00117525}
+{"category": "food_agriculture", "assembled": false, "product": "vodka soda beverage", "ruling": "N321763", "hts": null, "cost_usd": 0.0011955000000000002}
+{"category": "toys_sporting_goods", "assembled": false, "product": "trading cards", "ruling": "N322120", "hts": "9504.40", "cost_usd": 0.0012090000000000002}
+{"category": "food_agriculture", "assembled": false, "product": "substrate with seeds", "ruling": "N322814", "hts": "1209.30.0090", "cost_usd": 0.001131}
+{"category": "food_agriculture", "assembled": false, "product": "sweetened cocoa blend", "ruling": "N322844", "hts": "1806.10.5500", "cost_usd": 0.001095}
+{"category": "food_agriculture", "assembled": false, "product": "canned whiskey beverage", "ruling": "N322885", "hts": "2208.30", "cost_usd": 0.00119925}
+{"category": "food_agriculture", "assembled": false, "product": "milkfat cocoa blend", "ruling": "N322920", "hts": "1806.20.8300", "cost_usd": 0.0011295}
+{"category": "vehicle_parts", "assembled": true, "product": "lined brake shoe", "ruling": "N322988", "hts": "8708.30", "cost_usd": 0.0010597500000000001}
+{"category": "food_agriculture", "assembled": false, "product": "sugar vanillin blend", "ruling": "N323065", "hts": "1701.91", "cost_usd": 0.00114375}
+{"category": "filters", "assembled": true, "product": "waste filtration system", "ruling": "N323116", "hts": "8421.21.0000", "cost_usd": 0.00113325}
+{"category": "batteries", "assembled": true, "product": "vanadium flow battery", "ruling": "N324063", "hts": "8507.80", "cost_usd": 0.00101175}
+{"category": "vehicle_parts", "assembled": true, "product": "lined brake shoe", "ruling": "N324136", "hts": "8708.30", "cost_usd": 0.0011055}
+{"category": "food_agriculture", "assembled": false, "product": "sugar and vanillin blend", "ruling": "N324431", "hts": "1701.91", "cost_usd": 0.00110175}
+{"category": "food_agriculture", "assembled": false, "product": "green tea products", "ruling": "N324458", "hts": "0902.10.9050", "cost_usd": 0.0010995}
+{"category": "food_agriculture", "assembled": false, "product": "black tea products", "ruling": "N324459", "hts": "0902.30.0090", "cost_usd": 0.0010792500000000001}
+{"category": "vehicle_parts", "assembled": true, "product": "center information display module", "ruling": "N324628", "hts": "8543.70.9860", "cost_usd": 0.0011925}
+{"category": "food_agriculture", "assembled": false, "product": "liquid sugar", "ruling": "N324972", "hts": "1701", "cost_usd": 0.0011655}
+{"category": "food_agriculture", "assembled": false, "product": "vegan cheese", "ruling": "N325186", "hts": "2106.90.9998", "cost_usd": 0.001167}
+{"category": "vehicle_parts", "assembled": true, "product": "hvac control unit", "ruling": "N325337", "hts": "8537.10", "cost_usd": 0.00114825}
+{"category": "metal_hardware_fittings", "assembled": false, "product": "aluminum extrusions", "ruling": "N325521", "hts": "7604", "cost_usd": 0.0012405}
+{"category": "led_lights", "assembled": true, "product": "led bulb assembly", "ruling": "N325557", "hts": "8539.51.0000", "cost_usd": 0.00114675}
+{"category": "food_agriculture", "assembled": false, "product": "fermentation starters", "ruling": "N325637", "hts": "1701", "cost_usd": 0.0012315}
+{"category": "food_agriculture", "assembled": false, "product": "hemp hearts", "ruling": "N325927", "hts": "1207.99", "cost_usd": 0.00103875}
+{"category": "power_supplies_chargers", "assembled": true, "product": "remote driver cabinet", "ruling": "N325943", "hts": "8504.40.9540", "cost_usd": 0.00124725}
+{"category": "chemicals_pharma", "assembled": false, "product": "oral solution", "ruling": "N326148", "hts": null, "cost_usd": 0.001098}
+{"category": "food_agriculture", "assembled": false, "product": "hydration drink mixes", "ruling": "N326397", "hts": "2106.90.9700", "cost_usd": 0.001206}
+{"category": "vehicle_parts", "assembled": false, "product": "absorber crashbox", "ruling": "N326445", "hts": "8708.10.6050", "cost_usd": 0.001194}
+{"category": "food_agriculture", "assembled": false, "product": "bacon wrapped scallop medallions", "ruling": "N326450", "hts": "1605.52", "cost_usd": 0.0011272500000000002}
+{"category": "metal_hardware_fittings", "assembled": false, "product": "aluminum extrusions", "ruling": "N326606", "hts": "7604", "cost_usd": 0.0012165}
+{"category": "industrial_machinery", "assembled": true, "product": "walk-behind lawn mower", "ruling": "N326702", "hts": "8433.10", "cost_usd": 0.0011182499999999999}
+{"category": "hand_tools_cutlery", "assembled": true, "product": "bar clamp", "ruling": "N326725", "hts": "8205.70.0090", "cost_usd": 0.0012262500000000001}
+{"category": "instruments_meters", "assembled": true, "product": "water softener control unit", "ruling": "N328536", "hts": "9032.89", "cost_usd": 0.0011527500000000001}
+{"category": "food_agriculture", "assembled": false, "product": "ghee butter", "ruling": "N328632", "hts": "0405.90", "cost_usd": 0.0011085}
+{"category": "wood_articles", "assembled": false, "product": "plywood panels", "ruling": "N328654", "hts": "4412", "cost_usd": 0.001203}
+{"category": "glass_stone_ceramics", "assembled": true, "product": "insulating glass unit", "ruling": "N328711", "hts": "7008.00", "cost_usd": 0.0012360000000000001}
+{"category": "food_agriculture", "assembled": false, "product": "cocoa syrups", "ruling": "N328973", "hts": "1806.20", "cost_usd": 0.00118425}
+{"category": "batteries", "assembled": true, "product": "battery pack", "ruling": "N329305", "hts": "8507.60", "cost_usd": 0.0010455}
+{"category": "wood_articles", "assembled": true, "product": "truck bed flooring panels", "ruling": "N329364", "hts": "4421", "cost_usd": 0.0011250000000000001}
+{"category": "plastic_articles", "assembled": false, "product": "drinkware lid", "ruling": "N330295", "hts": "3923", "cost_usd": 0.00103125}
+{"category": "food_agriculture", "assembled": false, "product": "potting mix", "ruling": "N330582", "hts": "1401", "cost_usd": 0.00111525}
+{"category": "food_agriculture", "assembled": false, "product": "sugar and cocoa blend", "ruling": "N330744", "hts": "1806.10.5500", "cost_usd": 0.001155}
+{"category": "electrical_apparatus", "assembled": true, "product": "busbar assembly", "ruling": "N330771", "hts": "8537.10", "cost_usd": 0.0011595}
+{"category": "industrial_machinery", "assembled": true, "product": "gas-powered pressure washer", "ruling": "N330844", "hts": "8424.30", "cost_usd": 0.0012075}
+{"category": "plastic_articles", "assembled": true, "product": "artificial trees", "ruling": "N331459", "hts": "6702", "cost_usd": 0.00122475}
+{"category": "plastic_articles", "assembled": false, "product": "metallized PET film", "ruling": "N331595", "hts": "3920.62.0050", "cost_usd": 0.00106425}
+{"category": "household_goods", "assembled": true, "product": "artificial trees", "ruling": "N332062", "hts": "6702", "cost_usd": 0.0011745}
+{"category": "food_agriculture", "assembled": false, "product": "electrolyte drink mix", "ruling": "N332226", "hts": "2106.90.9700", "cost_usd": 0.0011925}
+{"category": "vehicle_parts", "assembled": true, "product": "seat recliner assembly", "ruling": "N332384", "hts": "9401.99", "cost_usd": 0.001134}
+{"category": "chemicals_pharma", "assembled": false, "product": "cat deterrent", "ruling": "N332913", "hts": "3808.99.9501", "cost_usd": 0.001059}
+{"category": "wood_articles", "assembled": false, "product": "wood baseboard molding", "ruling": "N333155", "hts": "4409.10.5000", "cost_usd": 0.0012075}
+{"category": "instruments_meters", "assembled": true, "product": "pressure sensor", "ruling": "N333677", "hts": "9026.20", "cost_usd": 0.0011715}
+{"category": "instruments_meters", "assembled": true, "product": "smart thermostat", "ruling": "N333850", "hts": "9032.10", "cost_usd": 0.00118425}
+{"category": "paper_printed", "assembled": false, "product": "thermal paper rolls", "ruling": "N333961", "hts": "4811.90.9030", "cost_usd": 0.001233}
+{"category": "metal_hardware_fittings", "assembled": true, "product": "chimney flex liner kit", "ruling": "N334104", "hts": "7219.32", "cost_usd": 0.001242}
+{"category": "plastic_articles", "assembled": false, "product": "masterbatch", "ruling": "N334326", "hts": "3206.19", "cost_usd": 0.0011947499999999998}
+{"category": "food_agriculture", "assembled": false, "product": "bioactive fiber powder", "ruling": "N334338", "hts": "1901.91.9095", "cost_usd": 0.0010755}
+{"category": "machinery_parts", "assembled": false, "product": "wireline drill rods", "ruling": "N334924", "hts": "7304", "cost_usd": 0.00124425}
+{"category": "plastic_articles", "assembled": false, "product": "masterbatch", "ruling": "N335182", "hts": "3206.19", "cost_usd": 0.0012112499999999999}
+{"category": "wood_articles", "assembled": true, "product": "multilayer wood flooring", "ruling": "N335201", "hts": "4412", "cost_usd": 0.001203}
+{"category": "vehicle_parts", "assembled": true, "product": "seat track assembly", "ruling": "N335274", "hts": "9401.99", "cost_usd": 0.00115875}
+{"category": "vehicle_parts", "assembled": true, "product": "seat lock mechanism", "ruling": "N335654", "hts": "9401", "cost_usd": 0.00119175}
+{"category": "pcba_electronic_devices", "assembled": true, "product": "animal monitoring tag", "ruling": "N335815", "hts": "9031.80", "cost_usd": 0.00115725}
+{"category": "household_goods", "assembled": true, "product": "cleaning tools", "ruling": "N335964", "hts": "9603.90.8020", "cost_usd": 0.00122025}
+{"category": "chemicals_pharma", "assembled": false, "product": "algae oil softgel capsules", "ruling": "N336121", "hts": "1515.60.0500", "cost_usd": 0.00119475}
+{"category": "vehicle_parts", "assembled": true, "product": "load floor trunk", "ruling": "N336183", "hts": "8708.29.5160", "cost_usd": 0.00108}
+{"category": "food_agriculture", "assembled": false, "product": "pasteurized crabmeat", "ruling": "N336262", "hts": "1605.10.2090", "cost_usd": 0.00116025}
+{"category": "vehicle_parts", "assembled": true, "product": "brake caliper", "ruling": "N336333", "hts": "8708.30", "cost_usd": 0.0011782499999999998}

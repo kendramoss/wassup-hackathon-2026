@@ -1,0 +1,84 @@
+{
+  "family": "wood_panels_flooring",
+  "version": "1",
+  "regime": "part102",
+  "union_default_operations": true,
+  "name": "Plywood, wood flooring and panels",
+  "note": "Under Part 102 the origin of plywood and wood flooring usually follows the country that laminates veneers or cores into a panel of heading 4412, or the country that works a panel into an article of heading 4418 or 4421. Profiling, sanding or coating a panel that stays in its heading leaves the origin with the country that made the panel or the lumber. Written for Part 102 marking cases from 11 CBP Part 102 rulings dated before 2024 and in no development or held-out split (D580); each group is the work that makes one input whose tariff heading the rule reads, or the step that turns the inputs into the good. Every cited ruling was checked against its facts, reasoning and holding. Costs are illustrative defaults; users edit them.",
+  "sources": [
+    "N275636",
+    "N284256",
+    "N286714",
+    "N287335",
+    "N295956",
+    "N328654",
+    "N329364",
+    "N333155",
+    "N335201"
+  ],
+  "groups": [
+    {
+      "id": "veneer_core_prep",
+      "name": "Veneers, cores and lumber",
+      "operations": [
+        "cut or peel wood veneers not exceeding 6 mm in thickness for face, back and inner plies",
+        "produce high density fiberboard (HDF), medium density fiberboard (MDF) or lumber block cores",
+        "edge-glue or finger-joint solid wood lumber or shape wood strips (heading 4409)"
+      ],
+      "movable": true,
+      "precedent": {
+        "confers_origin": [
+          "N329364"
+        ],
+        "not_enough": [
+          "N333155"
+        ],
+        "note": "Edge-glued lumber decided origin when shaping it did not bring the required shift (N329364); foreign lumber shaped into baseboard moulding in Canada did make Canada the origin (N333155)."
+      }
+    },
+    {
+      "id": "panel_lamination",
+      "name": "Plywood and panel lamination",
+      "operations": [
+        "glue and press multiple wood veneers with grains running at angles to successive layers to form unfinished plywood (heading 4412)",
+        "laminate wood face and back veneers onto high density fiberboard (HDF) or lumber core substrates (heading 4412)",
+        "overlay poplar plywood plies with outer layers of medium density fiberboard (MDF) (heading 4412)"
+      ],
+      "movable": true,
+      "precedent": {
+        "confers_origin": [
+          "N286714",
+          "N287335",
+          "N295956"
+        ],
+        "not_enough": [
+          "N328654"
+        ],
+        "note": "CBP determined that laminating plies into heading 4412 panels conferred origin (N286714, N287335, N295956), but did not confer origin when subsequent processing resulted in a qualifying tariff shift (N328654)."
+      }
+    },
+    {
+      "id": "final_assembly",
+      "name": "Profiling and surface finishing",
+      "operations": [
+        "continuously shape edges and ends with tongue-and-groove, shiplap, or interlocking click profiles",
+        "sand and surface-cover panels with stain and clear UV-cured polyurethane, acrylate polymer, or aluminum oxide coatings (heading 4412)",
+        "paint, emboss with wood grain, print, or apply edgebanding to convert panels or shaped wood into builders' joinery or other wood articles (headings 4418 and 4421)"
+      ],
+      "movable": false,
+      "precedent": {
+        "confers_origin": [
+          "N275636",
+          "N284256",
+          "N328654",
+          "N335201"
+        ],
+        "not_enough": [
+          "N287335",
+          "N329364"
+        ],
+        "note": "CBP determined that surface-covering plywood or working panels into headings 4418 or 4421 conferred origin (N275636, N284256, N328654, N335201), but stripping surface-covered blanks or profiling edge-glued lumber failed to satisfy the tariff shift rule (N287335, N329364)."
+      }
+    }
+  ]
+}

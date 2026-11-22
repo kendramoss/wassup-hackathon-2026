@@ -10,7 +10,6 @@
     "H337371",
     "H354721",
     "N330075",
-    "N331974",
     "N333330",
     "N334204",
     "N337565",
@@ -87,15 +86,14 @@
       "movable": true,
       "precedent": {
         "confers_origin": [
-          "H335139",
-          "N331974"
+          "H335139"
         ],
         "not_enough": [
           "H322161",
           "N333330",
           "N337565"
         ],
-        "note": "Substantial metalforming of raw profiles or manufacturing core components can confer origin (H335139, N331974), but supplying secondary housings, cast bells, or control PCBAs paired with an imported core does not confer origin (H322161, N333330, N337565)."
+        "note": "Substantial metalforming of raw profiles or manufacturing core components can confer origin (H335139), but supplying secondary housings, cast bells, or control PCBAs paired with an imported core does not confer origin (H322161, N333330, N337565)."
       }
     },
     {

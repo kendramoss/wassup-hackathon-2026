@@ -1,0 +1,85 @@
+{
+  "_source": "CBP ruling N322844 (9 Dec 2021): a dry blend of 99% refined cane sugar grown and refined in Mexico and 1% cocoa powder made in the United States, blended and packed in Mexico: CBP held Mexico (the cocoa powder is de minimis). In the D580 selection pool (Part 102, dated before 2024, in no development or held-out split) and excluded. Target by the D171 rule; plant capabilities at the target are an assumption.",
+  "case_id": "cocoa-blend-2021",
+  "date": "2021-12-09",
+  "family": "food_preparations",
+  "target": "United States",
+  "product": {
+    "name": "Sweetened cocoa blend (SCB 199)",
+    "description": "A dry blend of refined cane sugar and cocoa powder, shipped in bulk for making chocolate and confectionery.",
+    "plants": [
+      {
+        "id": "mx",
+        "name": "Mexico sugar mill and blending plant",
+        "country": "Mexico",
+        "capabilities": [
+          "sugar_cocoa_dairy",
+          "final_assembly"
+        ]
+      },
+      {
+        "id": "us",
+        "name": "United States cocoa plant",
+        "country": "United States",
+        "capabilities": [
+          "sugar_cocoa_dairy",
+          "extracts_and_bases",
+          "nut_seed_seafood_prep"
+        ]
+      }
+    ],
+    "components": [
+      {
+        "name": "refined cane sugar",
+        "made_in": "Mexico",
+        "plant": "mx",
+        "group": "sugar_cocoa_dairy"
+      },
+      {
+        "name": "cocoa powder",
+        "made_in": "United States",
+        "plant": "us",
+        "group": "sugar_cocoa_dairy"
+      }
+    ],
+    "operations": [
+      {
+        "name": "grow and refine the cane sugar",
+        "plant": "mx",
+        "group": "sugar_cocoa_dairy"
+      },
+      {
+        "name": "make the cocoa powder from imported cocoa beans",
+        "plant": "us",
+        "group": "sugar_cocoa_dairy"
+      },
+      {
+        "name": "blend the sugar and cocoa powder and pack in railcars or supersacks",
+        "plant": "mx",
+        "group": "final_assembly"
+      }
+    ]
+  },
+  "economics": {
+    "illustrative": true,
+    "annual_import_value_usd": 1000000,
+    "duty_rates": {
+      "Mexico": 0.0,
+      "United States": 0.0
+    },
+    "duty_rates_note": "Illustrative placeholder, not a sourced rate.",
+    "group_costs": {
+      "sugar_cocoa_dairy": {
+        "mx": 80000,
+        "us": 100000
+      }
+    }
+  },
+  "exclude_rulings": [
+    "N322844"
+  ],
+  "current_origin": {
+    "country": "Mexico",
+    "ruling": "N322844"
+  }
+}

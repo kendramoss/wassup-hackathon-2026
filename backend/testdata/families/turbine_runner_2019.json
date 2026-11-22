@@ -1,0 +1,78 @@
+{
+  "_source": "CBP ruling N306640 (28 Oct 2019), first scenario: the band, crown, cone and blades of a Francis turbine runner cast, welded and rough machined in China, then final machined, balanced and inspected in Canada: CBP held China. In the D580 selection pool (Part 102, dated before 2024, in no development or held-out split) and excluded. Target by the D171 rule; plant capabilities at the target are an assumption.",
+  "case_id": "turbine-runner-2019",
+  "date": "2019-10-28",
+  "family": "machinery_parts",
+  "target": "Canada",
+  "product": {
+    "name": "Francis hydro-turbine runner assembly",
+    "description": "The rotating part of a Francis water turbine: band, crown, cone and blades welded into one runner.",
+    "plants": [
+      {
+        "id": "cn",
+        "name": "China foundry",
+        "country": "China",
+        "capabilities": [
+          "primary_body_casting"
+        ]
+      },
+      {
+        "id": "ca",
+        "name": "Canada machining plant",
+        "country": "Canada",
+        "capabilities": [
+          "primary_body_casting",
+          "minor_machining_finish",
+          "final_assembly"
+        ]
+      }
+    ],
+    "components": [
+      {
+        "name": "rough machined runner castings (band, crown, cone and blades)",
+        "made_in": "China",
+        "plant": "cn",
+        "group": "primary_body_casting"
+      }
+    ],
+    "operations": [
+      {
+        "name": "cast, weld and rough machine the runner",
+        "plant": "cn",
+        "group": "primary_body_casting"
+      },
+      {
+        "name": "final machine and balance the runner",
+        "plant": "ca",
+        "group": "minor_machining_finish"
+      },
+      {
+        "name": "inspect and pack",
+        "plant": "ca",
+        "group": "final_assembly"
+      }
+    ]
+  },
+  "economics": {
+    "illustrative": true,
+    "annual_import_value_usd": 1000000,
+    "duty_rates": {
+      "China": 0.25,
+      "Canada": 0.0
+    },
+    "duty_rates_note": "Illustrative placeholder, not a sourced rate.",
+    "group_costs": {
+      "primary_body_casting": {
+        "cn": 300000,
+        "ca": 380000
+      }
+    }
+  },
+  "exclude_rulings": [
+    "N306640"
+  ],
+  "current_origin": {
+    "country": "China",
+    "ruling": "N306640"
+  }
+}

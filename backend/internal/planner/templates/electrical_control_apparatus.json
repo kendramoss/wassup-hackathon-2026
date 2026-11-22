@@ -1,0 +1,85 @@
+{
+  "family": "electrical_control_apparatus",
+  "version": "1",
+  "regime": "part102",
+  "union_default_operations": true,
+  "name": "Electrical control panels and busbars",
+  "note": "Under Part 102 the origin of a control panel, junction box or busbar assembly of heading 8537 usually follows the country that assembles switches, conductors, terminal blocks and enclosures from other headings into it. Mounting a single switch in an enclosure, so the good stays in heading 8536, leaves the origin with the switch's country. Written for Part 102 marking cases from 7 CBP Part 102 rulings dated before 2024 and in no development or held-out split (D580); each group is the work that makes one input whose tariff heading the rule reads, or the step that turns the inputs into the good. Every cited ruling was checked against its facts, reasoning and holding. Costs are illustrative defaults; users edit them.",
+  "sources": [
+    "N301448",
+    "N302344",
+    "N303599",
+    "N303603",
+    "N303604",
+    "N330771"
+  ],
+  "groups": [
+    {
+      "id": "conductors_connectors",
+      "name": "Conductors, switches and terminal blocks",
+      "operations": [
+        "stamp, punch, form, deburr, mill and nickel-plate aluminum or copper conductors (heading 8536)",
+        "produce pushbutton switches, circuit breakers, terminal blocks, cross connectors and multi-pin or flexible electrical connectors (heading 8536)"
+      ],
+      "movable": true,
+      "precedent": {
+        "confers_origin": [
+          "N303599",
+          "N330771"
+        ],
+        "note": "The French switches decided origin when one was only mounted in an enclosure (N303599); busbar conductors stamped and plated in Mexico from Mexican sheet were part of why Mexico was the origin (N330771)."
+      }
+    },
+    {
+      "id": "enclosures_insulators",
+      "name": "Enclosures and insulating bases",
+      "operations": [
+        "fabricate stainless steel, carbon steel or NEMA electrical enclosures (subheading 7326.90)",
+        "produce nylon-plastic insulating bases, adhesive strips and cut-to-shape PET insulating film sheets"
+      ],
+      "movable": true,
+      "precedent": {
+        "not_enough": [
+          "N303599"
+        ],
+        "note": "Mounting a foreign switch in a Canadian enclosure did not make Canada the origin (N303599)."
+      }
+    },
+    {
+      "id": "control_modules",
+      "name": "Control modules and power supplies",
+      "operations": [
+        "manufacture relayed output modules, input modules and communication modules for programmable controllers (heading 8537)",
+        "manufacture electrical power supplies and slit and wind silicon electrical steel (subheading 7225.11) into transformer toroids (subheading 8504.90)"
+      ],
+      "movable": true,
+      "precedent": {
+        "confers_origin": [
+          "N302344"
+        ],
+        "note": "Slitting and winding electrical steel into transformer toroids in Mexico made Mexico the origin (N302344)."
+      }
+    },
+    {
+      "id": "final_assembly",
+      "name": "Panel, box and busbar assembly",
+      "operations": [
+        "align and affix conductors, adhesive strips, PET insulating sheets and connectors onto insulating bases with fasteners and welding to form busbar assemblies (subheading 8537.10)",
+        "populate enclosures with terminal blocks, busbars, circuit breakers, switches, cross connectors and controller modules to form junction boxes and control panels (subheading 8537.10 or 8536.50)"
+      ],
+      "movable": false,
+      "precedent": {
+        "confers_origin": [
+          "N301448",
+          "N303603",
+          "N303604",
+          "N330771"
+        ],
+        "not_enough": [
+          "N303599"
+        ],
+        "note": "CBP determined that assembling multiple electrical components into busbars, junction boxes, and control panels conferred origin through a tariff shift (N301448, N303603, N303604, N330771), while simple assembly of a single switch into an enclosure did not (N303599)."
+      }
+    }
+  ]
+}

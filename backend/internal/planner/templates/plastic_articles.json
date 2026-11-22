@@ -1,0 +1,95 @@
+{
+  "family": "plastic_articles",
+  "version": "1",
+  "regime": "part102",
+  "union_default_operations": true,
+  "name": "Plastic film, compounds and moulded articles",
+  "note": "Under Part 102 the origin of a plastic article usually follows the country that compounds the resin, extrudes the film or sheet, or moulds the part, where that work makes the required shift. Folding, heat sealing, coating pre-cut sheets or packing parts into sets leaves the origin with the country of those parts. Written for Part 102 marking cases from 11 CBP Part 102 rulings dated before 2024 and in no development or held-out split (D580); each group is the work that makes one input whose tariff heading the rule reads, or the step that turns the inputs into the good. Every cited ruling was checked against its facts, reasoning and holding. Costs are illustrative defaults; users edit them.",
+  "sources": [
+    "H285605",
+    "N273778",
+    "N306037",
+    "N308174",
+    "N308175",
+    "N330295",
+    "N331459",
+    "N331595",
+    "N334326",
+    "N335182"
+  ],
+  "groups": [
+    {
+      "id": "resin_compounding",
+      "name": "Resin and masterbatch compounding",
+      "operations": [
+        "mix and compound pigments, additives, and carrier resins into pelletized colorant masterbatches (subheading 3206.19)",
+        "process, heat, and dry polymer chips and chemical inputs into primary plastic resins (heading 3902) or thermoplastic tie and top coats"
+      ],
+      "movable": true,
+      "precedent": {
+        "confers_origin": [
+          "N334326",
+          "N335182"
+        ],
+        "note": "CBP held that compounding raw materials into masterbatch pellets conferred origin (N334326, N335182)."
+      }
+    },
+    {
+      "id": "film_sheet_cutting",
+      "name": "Film extrusion and sheet cutting",
+      "operations": [
+        "extrude and metallize polyethylene terephthalate (PET) film or form polypropylene plastic foil and waterproofing membranes",
+        "cut plastic sheets to specific dimensions, score along kiss-cut fold lines, and pre-cut divider bodies and tabs (heading 3926)"
+      ],
+      "movable": true,
+      "precedent": {
+        "confers_origin": [
+          "N308174",
+          "N308175",
+          "N331595"
+        ],
+        "note": "CBP held that producing the metallized PET film (N331595) and the pre-cut and scored divider sheets (N308174, N308175) conferred origin."
+      }
+    },
+    {
+      "id": "component_moulding",
+      "name": "Moulded plastic parts",
+      "operations": [
+        "mould primary polypropylene resin (heading 3902) into finished drinkware lids (heading 3923)",
+        "mould and fabricate plastic collapsible grips, shower curbs and bases, isolated plastic covers, and artificial tree components (heading 6702)"
+      ],
+      "movable": true,
+      "precedent": {
+        "confers_origin": [
+          "H285605",
+          "N273778",
+          "N306037",
+          "N330295",
+          "N331459"
+        ],
+        "note": "CBP found that moulding polypropylene resin into lids of heading 3923 satisfied the tariff shift in N330295, and that moulded plastic trees, grips, covers, and shower bases imparted origin under 102.11 in N331459, N306037, H285605, and N273778."
+      }
+    },
+    {
+      "id": "final_assembly",
+      "name": "Sealing, coating and kit packing",
+      "operations": [
+        "fold pre-scored plastic divider sheets, heat-seal side edges and pockets, and punch binder holes (heading 3926)",
+        "apply polyethylene backing and anti-corrosive lacquer coating to metallized PET film",
+        "set artificial plastic trees into ceramic pots with artificial dirt and moss, or package plastic components with ancillary items into retail kits"
+      ],
+      "movable": false,
+      "precedent": {
+        "not_enough": [
+          "N273778",
+          "N306037",
+          "N308174",
+          "N308175",
+          "N331459",
+          "N331595"
+        ],
+        "note": "CBP held that folding, heat-sealing, and hole-punching unfinished dividers in N308174 and N308175, backing and coating film in N331595, potting plastic trees in N331459, and packaging sets in N306037 and N273778 did not satisfy a tariff shift or confer origin."
+      }
+    }
+  ]
+}

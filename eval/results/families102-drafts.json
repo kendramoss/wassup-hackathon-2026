@@ -1,0 +1,782 @@
+{
+ "note": "D580: gemini-4-argon drafts of the six Part 102 templates from their selection-pool rulings (eval/families/draft102.py), before the citation check; merges and dropped citations are in families102-citation-checks.jsonl and DECISIONS D580.",
+ "drafts": {
+  "food_preparations": {
+   "note": "Under 19 CFR Part 102, the country of origin of food and beverage preparations usually depends on whether refined sugar (Chapter 17), dairy and milkfat bases (Chapter 4), cocoa inputs (headings 1803 and 1805), or tea and juice concentrates (headings 2009 and 2101) satisfy the tariff-shift and sugar dry-weight limits of section 102.20. When a blend contains 65 percent or more by dry weight of sugar or incorporates a primary ingredient that fails to shift, simple mixing, roasting, diluting, or packaging does not confer origin and the non-shifting material determines origin under section 102.11(b).",
+   "groups": [
+    {
+     "id": "sugar_refining",
+     "name": "Cane sugar refining and granulation",
+     "operations": [
+      "refine raw cane sugar into white or granulated sugar (heading 1701)",
+      "granulate, dilute with water, heat, and filter cane sugar into liquid sugar"
+     ],
+     "movable": true,
+     "precedent": {
+      "confers_origin": [
+       "H313454",
+       "N322844",
+       "N323065",
+       "N324431",
+       "N324972",
+       "N325637"
+      ],
+      "not_enough": [
+       "H313780",
+       "N317341",
+       "N320159",
+       "N326397"
+      ],
+      "note": "CBP held that sugar of heading 1701 determines origin under 102.11(b) when the finished preparation fails the 65 percent dry-weight limit or remains in Chapter 17 (H313454, N323065, N324431, N324972, N325637), whereas refining raw sugar in the blending country without a tariff shift does not confer origin (N323065, N324431)."
+     }
+    },
+    {
+     "id": "cocoa_dairy_inputs",
+     "name": "Cocoa and dairy ingredient production",
+     "operations": [
+      "process cocoa beans into cocoa liquor (subheading 1803.10) or cocoa powder (heading 1805)",
+      "produce whole or skim milk powder (heading 0402) and anhydrous milkfat (subheading 0405.60)"
+     ],
+     "movable": true,
+     "precedent": {
+      "confers_origin": [],
+      "not_enough": [
+       "H313780",
+       "N317341",
+       "N320151",
+       "N322844",
+       "N322920"
+      ],
+      "note": "CBP found that cocoa powder of heading 1805, cocoa liquor of heading 1803, and dairy inputs of headings 0402 and 0405 undergo the required tariff shift into subheadings 1806.20 and 1806.90 (H313780, N317341, N320151, N322920) or fall within de minimis limits (N322844)."
+     }
+    },
+    {
+     "id": "extracts_and_bases",
+     "name": "Tea, juice, and spirit base extraction",
+     "operations": [
+      "produce black tea extract (subheading 2101.20) or bulk green and black teas",
+      "produce concentrated orange juice for manufacture (heading 2009) or coconut cream base",
+      "distill bulk vodka (subheading 2208.60), whiskey base (subheading 2208.30), or liqueur concentrate"
+     ],
+     "movable": true,
+     "precedent": {
+      "confers_origin": [
+       "H260568",
+       "H264513",
+       "H312440",
+       "N324458",
+       "N324459"
+      ],
+      "not_enough": [
+       "N310195",
+       "N321763",
+       "N322885"
+      ],
+      "note": "CBP held that tea extracts of heading 2101, bulk teas, orange juice concentrate of heading 2009, and coconut cream base determine origin under 102.11(b) when they fail the tariff shift rule (H260568, H264513, H312440, N324458, N324459), whereas bulk spirits of subheadings 2208.30 and 2208.60 shift when blended into ready-to-drink beverages of subheading 2208.90 (N321763, N322885)."
+     }
+    },
+    {
+     "id": "nut_seed_seafood_prep",
+     "name": "Nut, seed, vegetable, and seafood preparation",
+     "operations": [
+      "shell or blanch raw nuts and whole hemp seeds (headings 1202, 1207, and 2008)",
+      "roast, slice, and individually quick freeze vegetables",
+      "pre-cook, peel, and freeze crawfish tail meat or harvest and freeze capelin roe (Chapter 3)"
+     ],
+     "movable": true,
+     "precedent": {
+      "confers_origin": [
+       "H256782",
+       "H256783",
+       "H256784",
+       "N305233",
+       "N319371",
+       "N325927"
+      ],
+      "not_enough": [
+       "H262945",
+       "N260916"
+      ],
+      "note": "CBP held that raw nuts, whole hemp seeds of subheading 1207.99, and pre-cooked crawfish tail meat retain their origin under 102.11(b) or (c) when downstream roasting, dehulling, or seasoning fails the tariff shift rule (H256782, H256783, H256784, N305233, N319371, N325927), whereas frozen vegetables shift when mixed with olive oil and seasoning (N260916)."
+     }
+    },
+    {
+     "id": "final_assembly",
+     "name": "Blending, processing, and packaging",
+     "operations": [
+      "blend, homogenize, and pack dry powders, sugars, cocoa, dairy, flavors, and spices (headings 1806, 2103, and 2106)",
+      "mix spirits or concentrates with water, flavorings, and carbonation and seal into cans (subheading 2208.90)",
+      "roast and salt nuts, dehull or sterilize seeds, or sprout and dehydrate beans",
+      "assemble, thermally process, or portion prepared food ingredients and pouches into retail packages or bulk containers"
+     ],
+     "movable": false,
+     "precedent": {
+      "confers_origin": [
+       "H313780",
+       "N317341",
+       "N320151",
+       "N320159",
+       "N321763",
+       "N326397"
+      ],
+      "not_enough": [
+       "H256782",
+       "H256784",
+       "H312440",
+       "H313454",
+       "N305233",
+       "N323065"
+      ],
+      "note": "CBP held that final blending and packaging confers origin when all foreign ingredients satisfy the tariff shift and sugar dry-weight rules (H313780, N317341, N320151, N320159, N321763, N326397), but does not confer origin when merely roasting nuts, dehulling seeds, or blending non-shifting sugar, tea, or seafood inputs (H256782, H256784, H312440, H313454, N305233, N323065)."
+     }
+    }
+   ],
+   "_input_rulings": [
+    "H256782",
+    "H256783",
+    "H256784",
+    "H260568",
+    "H262945",
+    "H264513",
+    "H270451",
+    "H290682",
+    "H308798",
+    "H312440",
+    "H313454",
+    "H313780",
+    "H315384",
+    "H315665",
+    "N260916",
+    "N266831",
+    "N290772",
+    "N291530",
+    "N295106",
+    "N304050",
+    "N304788",
+    "N305233",
+    "N305278",
+    "N305789",
+    "N306353",
+    "N306886",
+    "N310195",
+    "N317341",
+    "N319371",
+    "N320151",
+    "N320159",
+    "N321763",
+    "N322814",
+    "N322844",
+    "N322885",
+    "N322920",
+    "N323065",
+    "N324431",
+    "N324458",
+    "N324459",
+    "N324972",
+    "N325186",
+    "N325637",
+    "N325927",
+    "N326397"
+   ],
+   "_cost_usd": 0.078792,
+   "_usage": {
+    "completion_tokens": 2142,
+    "prompt_tokens": 28686,
+    "total_tokens": 30828,
+    "completion_tokens_details": {
+     "text_tokens": 2142
+    },
+    "prompt_tokens_details": {
+     "text_tokens": 28686
+    }
+   },
+   "_model": "gemini-4-argon"
+  },
+  "metal_products": {
+   "note": "Under Part 102, the country of origin of semi-finished and fabricated metal products is usually determined by the base metal input\u2014such as steel pipe, flat-rolled strip, aluminum foil, or carbide powder\u2014when downstream processing fails to achieve the required tariff shift and that single material imparts the essential character. Conversely, origin changes to the country of final processing when operations transform raw billets, sheets, or pipes into a new tariff classification, such as extruding aluminum profiles, punching steel sheets into specialized articles, or welding pipes and tool joints into machinery parts.",
+   "groups": [
+    {
+     "id": "powder_billet_cast",
+     "name": "Metal powder and billet production",
+     "operations": [
+      "produce non-agglomerated tungsten carbide powder (subheading 2849.90)",
+      "produce nickel alloy powder (subheading 7504.00)",
+      "melt metal ingots and scrap and cast into aluminum alloy billets or logs"
+     ],
+     "movable": true,
+     "precedent": {
+      "confers_origin": [
+       "H314561",
+       "H314563"
+      ],
+      "not_enough": [
+       "N325521",
+       "N326606"
+      ],
+      "note": "CBP held that tungsten carbide powder imparted the essential character when blended into a metal powder mixture without a tariff shift (H314561, H314563), whereas cast aluminum alloy billets were substantially transformed when extruded into profiles in another country (N325521, N326606)."
+     }
+    },
+    {
+     "id": "sheet_strip_foil_mill",
+     "name": "Flat-rolled sheet, strip, and foil milling",
+     "operations": [
+      "melt and roll copper scrap into wide copper alloy strip in coil form",
+      "roll aluminum into thin foil base of less than 0.2 mm thickness",
+      "cold roll stainless steel into flat-rolled sheets or rolls (heading 7219)"
+     ],
+     "movable": true,
+     "precedent": {
+      "confers_origin": [
+       "N316637",
+       "N316780"
+      ],
+      "not_enough": [
+       "N285686",
+       "N334104"
+      ],
+      "note": "CBP found that copper strip and aluminum foil imparted the essential character under 102.11(b)(1) when further processing did not satisfy the tariff shift rule (N316637, N316780), but stainless steel sheets and rolls did not confer origin when punched into lab discs or formed into chimney liner kits (N285686, N334104)."
+     }
+    },
+    {
+     "id": "pipe_tube_hose_mfg",
+     "name": "Steel pipe and flexible hose manufacturing",
+     "operations": [
+      "manufacture seamless or welded steel pipes and drill pipes (headings 7304 through 7306)",
+      "manufacture flexible corrugated pipe covered with reinforced copper wire mesh"
+     ],
+     "movable": true,
+     "precedent": {
+      "confers_origin": [
+       "H263772",
+       "N262359"
+      ],
+      "not_enough": [
+       "N293362",
+       "N296289",
+       "N309421"
+      ],
+      "note": "CBP determined that steel pipes of headings 7304 through 7306 did not undergo a tariff shift when fabricated into piping spools and therefore imparted essential character (H263772, N262359), whereas drill pipes shifted to heading 8431 when welded into drill string assemblies (N309421) and braided hose was overridden under 102.19 (N293362, N296289)."
+     }
+    },
+    {
+     "id": "fittings_joints_valves",
+     "name": "Pipe fittings, couplings, tool joints, and valves",
+     "operations": [
+      "manufacture steel pipe reducers, flanges, elbows, couplings, caps, tees, and swage nipples (heading 7307)",
+      "manufacture threaded brass couplings",
+      "manufacture steel pin and box tool joints and valves"
+     ],
+     "movable": true,
+     "precedent": {
+      "confers_origin": [
+       "N262359"
+      ],
+      "not_enough": [
+       "H263772",
+       "N293362",
+       "N296289",
+       "N309421"
+      ],
+      "note": "CBP noted that valves impart the essential character to a pipe assembly imported with valves attached (N262359), while fittings, brass couplings, and tool joints did not confer origin when assembled with pipes or hoses (H263772, N293362, N296289, N309421)."
+     }
+    },
+    {
+     "id": "final_assembly",
+     "name": "Extrusion, stamping, coating, and assembly",
+     "operations": [
+      "extrude aluminum alloy billets into profiles for frames",
+      "punch and form stainless steel sheet and rolls into research discs or flexible tubing and chimney parts",
+      "weld tool joints onto drill pipes and heat treat to form drill string assemblies (subheading 8431.43)",
+      "weld fittings onto steel pipes to form prefabricated piping spools (headings 7304 through 7307) or attach brass couplings to braided hose",
+      "coat aluminum foil with polymeric layers or further process copper alloy strip coils",
+      "blend tungsten carbide and nickel alloy powders into thermal spray coating powder"
+     ],
+     "movable": false,
+     "precedent": {
+      "confers_origin": [
+       "N285686",
+       "N293362",
+       "N296289",
+       "N309421",
+       "N325521",
+       "N326606"
+      ],
+      "not_enough": [
+       "H263772",
+       "H314561",
+       "H314563",
+       "N262359",
+       "N316637",
+       "N316780"
+      ],
+      "note": "CBP held that punching steel sheet into discs (N285686), welding drill string assemblies of heading 8431 (N309421), extruding billets into profiles (N325521, N326606), and assembling braided hose under 102.19 (N293362, N296289) conferred origin, whereas welding pipe spools within headings 7301 through 7307 (H263772, N262359), blending metal powders (H314561, H314563), processing copper strip (N316637), and coating aluminum foil (N316780) did not satisfy the required tariff shifts."
+     }
+    }
+   ],
+   "_input_rulings": [
+    "H263772",
+    "H314561",
+    "H314563",
+    "N262359",
+    "N285686",
+    "N293362",
+    "N296289",
+    "N309421",
+    "N316637",
+    "N316780",
+    "N325521",
+    "N326606",
+    "N334104"
+   ],
+   "_cost_usd": 0.035368,
+   "_usage": {
+    "completion_tokens": 1792,
+    "prompt_tokens": 8724,
+    "total_tokens": 10516,
+    "completion_tokens_details": {
+     "text_tokens": 1792
+    },
+    "prompt_tokens_details": {
+     "text_tokens": 8724
+    }
+   },
+   "_model": "gemini-4-argon"
+  },
+  "wood_panels_flooring": {
+   "note": "Under Part 102, the country of origin of plywood, engineered wood flooring, and wood panels is generally determined by where veneers or cores are laminated into a panel of heading 4412, or where an unfinished panel undergoes a qualifying tariff shift such as surface-covering true plywood or further working into articles of heading 4418 or 4421. Mere profiling, sanding, or coating of non-plywood veneered panels or edge-glued lumber within the same tariff heading does not meet the tariff shift rule, leaving origin with the country that produced the underlying wood panel or substrate.",
+   "groups": [
+    {
+     "id": "veneer_core_prep",
+     "name": "Veneer, core and lumber preparation",
+     "operations": [
+      "cut or peel wood veneers not exceeding 6 mm in thickness for face, back and inner plies",
+      "produce high density fiberboard (HDF), medium density fiberboard (MDF) or lumber block cores",
+      "edge-glue or finger-joint solid wood lumber or shape wood strips (heading 4409)"
+     ],
+     "movable": true,
+     "precedent": {
+      "confers_origin": [
+       "N329364"
+      ],
+      "not_enough": [
+       "N295956",
+       "N333155"
+      ],
+      "note": "CBP held that edge-glued red oak lumber from China imparted essential character when downstream shaping did not satisfy the tariff shift rule in N329364, whereas veneers and shaped wood from other headings shifted origin when laminated into panels or worked into moldings in N295956 and N333155."
+     }
+    },
+    {
+     "id": "panel_lamination",
+     "name": "Plywood and veneered panel lamination",
+     "operations": [
+      "glue and press multiple wood veneers with grains running at angles to successive layers to form unfinished plywood (heading 4412)",
+      "laminate wood face and back veneers onto high density fiberboard (HDF) or lumber core substrates (heading 4412)",
+      "overlay poplar plywood plies with outer layers of medium density fiberboard (MDF) (heading 4412)"
+     ],
+     "movable": true,
+     "precedent": {
+      "confers_origin": [
+       "N286714",
+       "N287335",
+       "N295956"
+      ],
+      "not_enough": [
+       "N284256",
+       "N285090",
+       "N328654",
+       "N335201"
+      ],
+      "note": "CBP held that laminating plies into heading 4412 panels conferred origin in N295956 and remained the origin when downstream work failed the tariff shift rule in N286714 and N287335, but did not control origin when unfinished panels underwent a qualifying shift in N284256, N285090, N328654, and N335201."
+     }
+    },
+    {
+     "id": "final_assembly",
+     "name": "Profiling, edge-working and surface finishing",
+     "operations": [
+      "continuously shape edges and ends with tongue-and-groove, shiplap, or interlocking click profiles",
+      "sand and surface-cover panels with stain and clear UV-cured polyurethane, acrylate polymer, or aluminum oxide coatings (heading 4412)",
+      "paint, emboss with wood grain, print, or apply edgebanding to convert panels or shaped wood into builders' joinery or other wood articles (headings 4418 and 4421)"
+     ],
+     "movable": false,
+     "precedent": {
+      "confers_origin": [
+       "N275636",
+       "N277420",
+       "N284256",
+       "N285090",
+       "N328654",
+       "N335201"
+      ],
+      "not_enough": [
+       "N286714",
+       "N287335",
+       "N329364"
+      ],
+      "note": "CBP held that surface-covering plywood or working panels into headings 4418 or 4421 conferred origin in N275636, N277420, N284256, N285090, N328654, and N335201, whereas coating non-plywood HDF-core panels, stripping surface-covered blanks, or profiling edge-glued lumber did not meet the tariff shift rule in N286714, N287335, and N329364."
+     }
+    }
+   ],
+   "_input_rulings": [
+    "N275636",
+    "N277420",
+    "N284256",
+    "N285090",
+    "N286714",
+    "N287335",
+    "N295956",
+    "N328654",
+    "N329364",
+    "N333155",
+    "N335201"
+   ],
+   "_cost_usd": 0.026932,
+   "_usage": {
+    "completion_tokens": 1198,
+    "prompt_tokens": 7476,
+    "total_tokens": 8674,
+    "completion_tokens_details": {
+     "text_tokens": 1198
+    },
+    "prompt_tokens_details": {
+     "text_tokens": 7476
+    }
+   },
+   "_model": "gemini-4-argon"
+  },
+  "plastic_articles": {
+   "note": "Under Part 102, origin for plastic film, sheet, compounds, and moulded articles usually depends on where primary resins and chemical inputs are compounded into masterbatches or extruded and moulded into films, sheets, and shaped components, or which manufactured plastic components impart the essential character under the hierarchy. Subsequent finishing such as folding, heat-sealing pre-cut sheets, applying backing coatings, or packaging components into retail sets generally fails the tariff shift rules and does not change origin.",
+   "groups": [
+    {
+     "id": "resin_compounding",
+     "name": "Resin and masterbatch compounding",
+     "operations": [
+      "mix and compound pigments, additives, and carrier resins into pelletized colorant masterbatches (subheading 3206.19)",
+      "process, heat, and dry polymer chips and chemical inputs into primary plastic resins (heading 3902) or thermoplastic tie and top coats"
+     ],
+     "movable": true,
+     "precedent": {
+      "confers_origin": [
+       "H290625",
+       "N334326",
+       "N335182"
+      ],
+      "not_enough": [
+       "N330295"
+      ],
+      "note": "CBP held that compounding raw materials into masterbatch pellets in N334326 and N335182 or thermoplastic coats in H290625 conferred origin, whereas supplying polypropylene resin of heading 3902 did not control origin once moulded into lids in N330295."
+     }
+    },
+    {
+     "id": "film_sheet_cutting",
+     "name": "Film extrusion and sheet pre-cutting",
+     "operations": [
+      "extrude and metallize polyethylene terephthalate (PET) film or form polypropylene plastic foil and waterproofing membranes",
+      "cut plastic sheets to specific dimensions, score along kiss-cut fold lines, and pre-cut divider bodies and tabs (heading 3926)"
+     ],
+     "movable": true,
+     "precedent": {
+      "confers_origin": [
+       "N308174",
+       "N308175",
+       "N331595",
+       "H285605",
+       "N273778"
+      ],
+      "not_enough": [],
+      "note": "CBP held that the country producing the metallized PET film in N331595, the pre-cut and scored divider sheets in N308174 and N308175, and the heat-shrinkable sleeve and waterproofing membrane in H285605 and N273778 conferred origin."
+     }
+    },
+    {
+     "id": "component_moulding",
+     "name": "Plastic article and component moulding",
+     "operations": [
+      "mould primary polypropylene resin (heading 3902) into finished drinkware lids (heading 3923)",
+      "mould and fabricate plastic collapsible grips, shower curbs and bases, isolated plastic covers, and artificial tree components (heading 6702)"
+     ],
+     "movable": true,
+     "precedent": {
+      "confers_origin": [
+       "N330295",
+       "N331459",
+       "N306037",
+       "H285605",
+       "N273778"
+      ],
+      "not_enough": [],
+      "note": "CBP found that moulding polypropylene resin into lids of heading 3923 satisfied the tariff shift in N330295, and that moulded plastic trees, grips, covers, and shower bases imparted origin under 102.11 in N331459, N306037, H285605, and N273778."
+     }
+    },
+    {
+     "id": "final_assembly",
+     "name": "Sealing, coating, and kit packaging",
+     "operations": [
+      "fold pre-scored plastic divider sheets, heat-seal side edges and pockets, and punch binder holes (heading 3926)",
+      "apply polyethylene backing and anti-corrosive lacquer coating to metallized PET film",
+      "set artificial plastic trees into ceramic pots with artificial dirt and moss, or package plastic components with ancillary items into retail kits"
+     ],
+     "movable": false,
+     "precedent": {
+      "confers_origin": [],
+      "not_enough": [
+       "N308174",
+       "N308175",
+       "N331595",
+       "N331459",
+       "N306037",
+       "N273778"
+      ],
+      "note": "CBP held that folding, heat-sealing, and hole-punching unfinished dividers in N308174 and N308175, backing and coating film in N331595, potting plastic trees in N331459, and packaging sets in N306037 and N273778 did not satisfy a tariff shift or confer origin."
+     }
+    }
+   ],
+   "_input_rulings": [
+    "H285605",
+    "H290625",
+    "N273778",
+    "N306037",
+    "N308174",
+    "N308175",
+    "N330295",
+    "N331459",
+    "N331595",
+    "N334326",
+    "N335182"
+   ],
+   "_cost_usd": 0.027762000000000002,
+   "_usage": {
+    "completion_tokens": 1262,
+    "prompt_tokens": 7571,
+    "total_tokens": 8833,
+    "completion_tokens_details": {
+     "text_tokens": 1262
+    },
+    "prompt_tokens_details": {
+     "text_tokens": 7571
+    }
+   },
+   "_model": "gemini-4-argon"
+  },
+  "electrical_control_apparatus": {
+   "note": "Under Part 102, origin for electrical control panels, junction boxes, and busbar assemblies of heading 8537 is usually decided by the final assembly of switching and connecting apparatus of heading 8536 with enclosures and insulating bases from other headings. However, simply mounting a single switch into an enclosure so that the finished good remains in heading 8536 does not satisfy the tariff shift, leaving origin with the switch.",
+   "groups": [
+    {
+     "id": "conductors_connectors",
+     "name": "Conductors, switches and terminal blocks",
+     "operations": [
+      "stamp, punch, form, deburr, mill and nickel-plate aluminum or copper conductors (heading 8536)",
+      "produce pushbutton switches, circuit breakers, terminal blocks, cross connectors and multi-pin or flexible electrical connectors (heading 8536)"
+     ],
+     "movable": true,
+     "precedent": {
+      "confers_origin": [
+       "N303599",
+       "N330771"
+      ],
+      "not_enough": [
+       "N301448",
+       "N303603",
+       "N303604",
+       "N303606"
+      ],
+      "note": "CBP held that foreign switches of subheading 8536.50 determined origin when simply mounted into an enclosure in N303599, whereas foreign conductors, connectors, and terminal blocks of heading 8536 shifted to heading 8537 during assembly in N301448, N303603, N303604, and N330771."
+     }
+    },
+    {
+     "id": "enclosures_insulators",
+     "name": "Enclosures and insulating bases",
+     "operations": [
+      "fabricate stainless steel, carbon steel or NEMA electrical enclosures (subheading 7326.90)",
+      "produce nylon-plastic insulating bases, adhesive strips and cut-to-shape PET insulating film sheets"
+     ],
+     "movable": true,
+     "precedent": {
+      "confers_origin": [],
+      "not_enough": [
+       "N301448",
+       "N303599",
+       "N303603",
+       "N303604",
+       "N330771"
+      ],
+      "note": "CBP found that foreign enclosures of subheading 7326.90 and foreign insulating bases and films either satisfied the tariff shift into heading 8537 upon assembly in N301448, N303603, N303604, and N330771, or did not impart essential character in N303599."
+     }
+    },
+    {
+     "id": "control_modules",
+     "name": "Control modules and power supplies",
+     "operations": [
+      "manufacture relayed output modules, input modules and communication modules for programmable controllers (heading 8537)",
+      "manufacture electrical power supplies and slit and wind silicon electrical steel (subheading 7225.11) into transformer toroids (subheading 8504.90)"
+     ],
+     "movable": true,
+     "precedent": {
+      "confers_origin": [
+       "N302344"
+      ],
+      "not_enough": [
+       "N303606"
+      ],
+      "note": "CBP held that slitting and winding steel of subheading 7225.11 into toroids of subheading 8504.90 conferred origin in N302344, while foreign input/output modules and power supplies assembled into a complex panel did not determine origin over the country of last production under 102.11(d)(3) in N303606."
+     }
+    },
+    {
+     "id": "final_assembly",
+     "name": "Panel, box and busbar assembly",
+     "operations": [
+      "align and affix conductors, adhesive strips, PET insulating sheets and connectors onto insulating bases with fasteners and welding to form busbar assemblies (subheading 8537.10)",
+      "populate enclosures with terminal blocks, busbars, circuit breakers, switches, cross connectors and controller modules to form junction boxes and control panels (subheading 8537.10 or 8536.50)"
+     ],
+     "movable": false,
+     "precedent": {
+      "confers_origin": [
+       "N301448",
+       "N303603",
+       "N303604",
+       "N303606",
+       "N330771"
+      ],
+      "not_enough": [
+       "N303599"
+      ],
+      "note": "CBP held that assembling multiple electrical components into busbars, junction boxes, and control panels of heading 8537 conferred origin via tariff shift in N301448, N303603, N303604, and N330771 or as the last country of production under 102.11(d)(3) in N303606, whereas simple assembly of a single switch into an enclosure in N303599 did not."
+     }
+    }
+   ],
+   "_input_rulings": [
+    "N301448",
+    "N302344",
+    "N303599",
+    "N303603",
+    "N303604",
+    "N303606",
+    "N330771"
+   ],
+   "_cost_usd": 0.023928,
+   "_usage": {
+    "completion_tokens": 1317,
+    "prompt_tokens": 5379,
+    "total_tokens": 6696,
+    "completion_tokens_details": {
+     "text_tokens": 1317
+    },
+    "prompt_tokens_details": {
+     "text_tokens": 5379
+    }
+   },
+   "_model": "gemini-4-argon"
+  },
+  "machinery_parts": {
+   "note": "Under Part 102 and related origin rules for machinery parts, valves, and bearings, origin is usually decided by the country that manufactures the primary housing, valve body, casting, or precision-ground raceway that imparts the essential character or satisfies the tariff-shift rule. Simple assembly of five or fewer parts and minor finishing operations like smoothing, drilling, balancing, cleaning, or painting generally do not confer origin.",
+   "groups": [
+    {
+     "id": "primary_body_casting",
+     "name": "Primary body and housing manufacture",
+     "operations": [
+      "cast, forge, weld, and rough-machine turbine runner subcomponents (subheading 8410.90)",
+      "manufacture valve subassembly bodies (subheading 8481.90)",
+      "cast or form speed reducer H-casings and bearing mounting bases and rings"
+     ],
+     "movable": true,
+     "precedent": {
+      "confers_origin": [
+       "H312745",
+       "N306640",
+       "N307465",
+       "N308442",
+       "N317669"
+      ],
+      "not_enough": [
+       "N285519",
+       "N318162",
+       "N334924"
+      ],
+      "note": "CBP held that the country producing the main valve body, runner casting, H-casing, or core bearing components imparted the essential character or remained the origin when downstream work was minor (H312745, N306640, N307465, N308442, N317669), unless downstream processing transformed rough blanks or tubes into specialized parts (N285519, N318162, N334924)."
+     }
+    },
+    {
+     "id": "precision_machining",
+     "name": "Precision grinding, threading, and heat treatment",
+     "operations": [
+      "perform final grinding and honing on forged rings to create precision bearing raceways (heading 8482)",
+      "anneal and thread raw steel tubing into specialized wireline drill rods"
+     ],
+     "movable": true,
+     "precedent": {
+      "confers_origin": [
+       "N318162",
+       "N334924"
+      ],
+      "not_enough": [],
+      "note": "CBP found that final grinding and honing of forged rings into precision bearing races (N318162) and annealing and threading raw tubes into drill rods (N334924) conferred origin."
+     }
+    },
+    {
+     "id": "minor_machining_finish",
+     "name": "Finish machining, balancing, and surface treatment",
+     "operations": [
+      "perform final machining, smoothing, hole drilling, and balancing on rough castings (subheading 8410.90)",
+      "inspect, clean, and paint manufactured machinery components"
+     ],
+     "movable": true,
+     "precedent": {
+      "confers_origin": [],
+      "not_enough": [
+       "H312745",
+       "N306640",
+       "N317669"
+      ],
+      "note": "CBP determined that finish machining, balancing, smoothing, drilling holes, cleaning, and painting did not satisfy tariff-shift rules or substantially transform the imported castings and components (H312745, N306640, N317669)."
+     }
+    },
+    {
+     "id": "final_assembly",
+     "name": "Final assembly and component integration",
+     "operations": [
+      "assemble cylinder components into finished air cylinders (subheading 8412.31)",
+      "process and assemble polypropylene holders and hook material into finished tool holders",
+      "fit together valve bodies, casings, shafts, bearings, balls, cages, and seals into finished valves, bearings, and reducer subassemblies (headings 8481, 8482)"
+     ],
+     "movable": false,
+     "precedent": {
+      "confers_origin": [
+       "N285519",
+       "N303499"
+      ],
+      "not_enough": [
+       "H312745",
+       "N307465",
+       "N308442",
+       "N317669",
+       "N318162"
+      ],
+      "note": "CBP held that assembly conferred origin when it satisfied the tariff shift for air cylinders (N303499) or went beyond simple assembly for tool holders (N285519), but not when it was a simple assembly of five or fewer parts or lacked complex processing (H312745, N307465, N308442, N317669, N318162)."
+     }
+    }
+   ],
+   "_input_rulings": [
+    "H312745",
+    "N285519",
+    "N303499",
+    "N306640",
+    "N307465",
+    "N308442",
+    "N317669",
+    "N318162",
+    "N334924"
+   ],
+   "_cost_usd": 0.025278000000000002,
+   "_usage": {
+    "completion_tokens": 1223,
+    "prompt_tokens": 6524,
+    "total_tokens": 7747,
+    "completion_tokens_details": {
+     "text_tokens": 1223
+    },
+    "prompt_tokens_details": {
+     "text_tokens": 6524
+    }
+   },
+   "_model": "gemini-4-argon"
+  }
+ }
+}

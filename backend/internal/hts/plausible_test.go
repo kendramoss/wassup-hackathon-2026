@@ -62,6 +62,11 @@ func TestPlausibilityNote(t *testing.T) {
 		{"furniture", 94, "down filling", "0505.10", ""},
 		{"vehicle_parts", 87, "grease", "2710.19", ""},
 		{"hand_tools", 82, "blade", "6401.10", "Chapter 64 (footwear)"},
+		// Food ingredients are plausible for the food family (D580), not
+		// for a far good of another family.
+		{"food_preparations", 18, "refined cane sugar", "1701.99", ""},
+		{"food_preparations", 21, "black tea", "0902.30", ""},
+		{"food_preparations", 18, "jewellery", "7113.19", "Chapter 71"},
 		// No family: food chapters are flagged only for a manufactured good.
 		{"", 84, "seal", "1704.90", "far from the product's chapter 84"},
 		{"", 22, "neutral grain alcohol", "2207", ""},
