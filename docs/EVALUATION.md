@@ -118,7 +118,7 @@ A change counts only for cases dated after the revoking ruling's date (D370). On
 
 | Committed rows | Rows | Showed a superseded precedent | Cited one |
 |---|---:|---:|---:|
-| All result rows with rulings (148 files) | 13,166 | 23 | 8 |
+| All result rows with rulings (151 files) | 13,645 | 23 | 8 |
 | Development engine runs (general) | | 1 (N355148, N331974 shown) | 0 |
 | First held-out split, engine (4 runs) | | 8 (N361172 and N364229, N331974 shown) | 3 |
 | Textile development runs | | 8 (N345891 shown) | 4 |
@@ -138,11 +138,11 @@ A saved case now says when CBP has revoked or modified a ruling it relies on (ci
 
 | Committed results | Count | Would show |
 |---|---:|---|
-| Result rows naming rulings | 13,107 | |
+| Result rows naming rulings | 13,586 | |
 | Relied-on ruling changed on or after the case date | 2 (4 before D490) | the "look again" alert |
 | Relied-on ruling changed before the case date | 7 (8 before D490) | the alert, marked as stored before the guard (7 of the 8 of section 2.5; the eighth also cites the revoker) |
 | Relied-on ruling with a proposed change only | 0 | a calm line |
-| Only a ruling read, not cited, changed | 64 (85 before D490) | a calm line, no list badge |
+| Only a ruling read, not cited, changed | 66 (85 before D490; 2 are D650 checklist rows) | a calm line, no list badge |
 | Stored case documents (heat-gun demo seeds and one prediction) | 0 of 7 | |
 | Demo fixtures (current-setup and recorded supporting rulings) | 0 of 10 | |
 
@@ -227,8 +227,9 @@ Every change below was tried on dev, paired against the plain engine, and **not 
 | Adjudicator, narrow: a second call with contrastive China precedents when the engine named another country under 0.96 (n = 463, D163, D164) | 90.1% vs 91.1% | 2 / 7 | 0.18 | $0.0098 vs $0.0079 |
 | Adjudicator, symmetric: the same call whenever the facts name China and confidence is under 0.95 (D164) | 90.9% vs 91.1% | 9 / 10 | 1.0 | $0.0100 vs $0.0079 |
 | Adjudicator, symmetric, keeping only its moves away from China (computed, chosen after seeing the two above; D164) | 92.0% vs 91.1% | 7 / 3 | 0.34 | $0.0100 vs $0.0079 |
+| Component checklist the engine fills before answering, st-checklist-v1 (n = 463, 22 Nov, D650, D651) | 91.1% vs 91.8% | 5 / 8 | 0.58 | $0.0109 vs $0.0079 |
 
-Source: `eval/RESULTS.md`, D22, D27, D28, D157, D164. The adjudicator rows are paired against the Vertex AI dev rows they were applied to.
+Source: `eval/RESULTS.md`, D22, D27, D28, D157, D164, D651. The adjudicator rows are paired against the Vertex AI dev rows they were applied to. The checklist (D650) gained one China-held ruling and lost four net elsewhere; its second variant was not run (budget rule) and no held-out split was scored.
 
 **The choice.** Keep plain BM25 and one call. No change moved accuracy by more than half a point, and none was significant. The added parts cost money or latency for no measured gain. The held-out split was therefore not re-scored for any of them.
 
