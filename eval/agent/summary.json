@@ -1,5 +1,5 @@
 {
- "rules": "docs/DECISIONS.md D450",
+ "rules": "docs/DECISIONS.md D450; D510",
  "products": 14,
  "runs": {
   "fixcheck-d470-local-attempt1": {
@@ -23,6 +23,16 @@
      2
     ],
     "pass_all": 1,
+    "d510": {
+     "order_ok": 1,
+     "args_ok": 1,
+     "no_plan_honest": [
+      0,
+      0
+     ],
+     "runs_with_plans_shown": 0,
+     "pass_all": 1
+    },
     "gold_agree": [
      2,
      2
@@ -73,7 +83,19 @@
      "cost_usd": 0.019743,
      "model_calls": 3,
      "gold": null,
-     "pass": false
+     "pass": false,
+     "v2": {
+      "order_ok": false,
+      "order_issues": [
+       "missing plan_production_moves"
+      ],
+      "args_ok": false,
+      "arg_issues": [],
+      "no_plan_claims": null,
+      "pass": false,
+      "plan_ids": [],
+      "export_plan_ids": []
+     }
     },
     {
      "id": "a04",
@@ -113,7 +135,17 @@
       "source_ruling_in_precedents": true,
       "source_ruling_in_answer": true
      },
-     "pass": true
+     "pass": true,
+     "v2": {
+      "order_ok": true,
+      "order_issues": [],
+      "args_ok": true,
+      "arg_issues": [],
+      "no_plan_claims": null,
+      "pass": true,
+      "plan_ids": [],
+      "export_plan_ids": []
+     }
     },
     {
      "id": "a06",
@@ -154,7 +186,19 @@
       "source_ruling_in_precedents": true,
       "source_ruling_in_answer": true
      },
-     "pass": false
+     "pass": false,
+     "v2": {
+      "order_ok": false,
+      "order_issues": [
+       "missing plan_production_moves"
+      ],
+      "args_ok": false,
+      "arg_issues": [],
+      "no_plan_claims": null,
+      "pass": false,
+      "plan_ids": [],
+      "export_plan_ids": []
+     }
     },
     {
      "id": "a10",
@@ -188,7 +232,20 @@
      "cost_usd": 0.012146,
      "model_calls": 2,
      "gold": null,
-     "pass": false
+     "pass": false,
+     "v2": {
+      "order_ok": false,
+      "order_issues": [
+       "missing predict_origin",
+       "missing plan_production_moves"
+      ],
+      "args_ok": false,
+      "arg_issues": [],
+      "no_plan_claims": null,
+      "pass": false,
+      "plan_ids": [],
+      "export_plan_ids": []
+     }
     },
     {
      "id": "a12",
@@ -222,7 +279,20 @@
      "cost_usd": 0.009929,
      "model_calls": 2,
      "gold": null,
-     "pass": false
+     "pass": false,
+     "v2": {
+      "order_ok": false,
+      "order_issues": [
+       "missing predict_origin",
+       "missing plan_production_moves"
+      ],
+      "args_ok": false,
+      "arg_issues": [],
+      "no_plan_claims": null,
+      "pass": false,
+      "plan_ids": [],
+      "export_plan_ids": []
+     }
     }
    ]
   },
@@ -247,6 +317,16 @@
      2
     ],
     "pass_all": 3,
+    "d510": {
+     "order_ok": 5,
+     "args_ok": 5,
+     "no_plan_honest": [
+      2,
+      2
+     ],
+     "runs_with_plans_shown": 2,
+     "pass_all": 5
+    },
     "gold_agree": [
      5,
      5
@@ -307,7 +387,19 @@
       "source_ruling_in_precedents": true,
       "source_ruling_in_answer": true
      },
-     "pass": false
+     "pass": false,
+     "v2": {
+      "order_ok": true,
+      "order_issues": [],
+      "args_ok": true,
+      "arg_issues": [],
+      "no_plan_claims": [],
+      "pass": true,
+      "plan_ids": [],
+      "export_plan_ids": [
+       null
+      ]
+     }
     },
     {
      "id": "a04",
@@ -346,7 +438,19 @@
       "source_ruling_in_precedents": true,
       "source_ruling_in_answer": true
      },
-     "pass": true
+     "pass": true,
+     "v2": {
+      "order_ok": true,
+      "order_issues": [],
+      "args_ok": true,
+      "arg_issues": [],
+      "no_plan_claims": null,
+      "pass": true,
+      "plan_ids": [],
+      "export_plan_ids": [
+       "pcba_manufacturing@plant"
+      ]
+     }
     },
     {
      "id": "a06",
@@ -387,7 +491,19 @@
       "source_ruling_in_precedents": true,
       "source_ruling_in_answer": true
      },
-     "pass": false
+     "pass": false,
+     "v2": {
+      "order_ok": true,
+      "order_issues": [],
+      "args_ok": true,
+      "arg_issues": [],
+      "no_plan_claims": [],
+      "pass": true,
+      "plan_ids": [],
+      "export_plan_ids": [
+       null
+      ]
+     }
     },
     {
      "id": "a10",
@@ -427,7 +543,17 @@
       "source_ruling_in_precedents": true,
       "source_ruling_in_answer": true
      },
-     "pass": true
+     "pass": true,
+     "v2": {
+      "order_ok": true,
+      "order_issues": [],
+      "args_ok": true,
+      "arg_issues": [],
+      "no_plan_claims": null,
+      "pass": true,
+      "plan_ids": [],
+      "export_plan_ids": []
+     }
     },
     {
      "id": "a12",
@@ -466,7 +592,19 @@
       "source_ruling_in_precedents": true,
       "source_ruling_in_answer": true
      },
-     "pass": true
+     "pass": true,
+     "v2": {
+      "order_ok": true,
+      "order_issues": [],
+      "args_ok": true,
+      "arg_issues": [],
+      "no_plan_claims": null,
+      "pass": true,
+      "plan_ids": [],
+      "export_plan_ids": [
+       "precision_machined_parts@target_plant"
+      ]
+     }
     }
    ]
   },
@@ -491,6 +629,16 @@
      4
     ],
     "pass_all": 10,
+    "d510": {
+     "order_ok": 9,
+     "args_ok": 12,
+     "no_plan_honest": [
+      0,
+      1
+     ],
+     "runs_with_plans_shown": 11,
+     "pass_all": 8
+    },
     "gold_agree": [
      12,
      12
@@ -546,7 +694,19 @@
       "source_ruling_in_precedents": true,
       "source_ruling_in_answer": true
      },
-     "pass": true
+     "pass": true,
+     "v2": {
+      "order_ok": true,
+      "order_issues": [],
+      "args_ok": true,
+      "arg_issues": [],
+      "no_plan_claims": null,
+      "pass": true,
+      "plan_ids": [],
+      "export_plan_ids": [
+       null
+      ]
+     }
     },
     {
      "id": "a02",
@@ -588,7 +748,19 @@
       "source_ruling_in_precedents": true,
       "source_ruling_in_answer": true
      },
-     "pass": true
+     "pass": true,
+     "v2": {
+      "order_ok": true,
+      "order_issues": [],
+      "args_ok": true,
+      "arg_issues": [],
+      "no_plan_claims": null,
+      "pass": true,
+      "plan_ids": [],
+      "export_plan_ids": [
+       null
+      ]
+     }
     },
     {
      "id": "a03",
@@ -629,7 +801,21 @@
       "source_ruling_in_precedents": true,
       "source_ruling_in_answer": true
      },
-     "pass": false
+     "pass": false,
+     "v2": {
+      "order_ok": true,
+      "order_issues": [],
+      "args_ok": true,
+      "arg_issues": [],
+      "no_plan_claims": [
+       "* According to CBP precedent **N355175**, shifting the core SMT board assembly, firmware loading, and complete system assembly and testing to the Vietnam facility is the critical operational threshold to establish Vietnam as the country of origin."
+      ],
+      "pass": false,
+      "plan_ids": [],
+      "export_plan_ids": [
+       null
+      ]
+     }
     },
     {
      "id": "a04",
@@ -669,7 +855,22 @@
       "source_ruling_in_precedents": true,
       "source_ruling_in_answer": true
      },
-     "pass": true
+     "pass": true,
+     "v2": {
+      "order_ok": false,
+      "order_issues": [
+       "export repeated after a draft that worked"
+      ],
+      "args_ok": true,
+      "arg_issues": [],
+      "no_plan_claims": null,
+      "pass": false,
+      "plan_ids": [],
+      "export_plan_ids": [
+       null,
+       null
+      ]
+     }
     },
     {
      "id": "a05",
@@ -708,7 +909,19 @@
       "source_ruling_in_precedents": true,
       "source_ruling_in_answer": true
      },
-     "pass": true
+     "pass": true,
+     "v2": {
+      "order_ok": true,
+      "order_issues": [],
+      "args_ok": true,
+      "arg_issues": [],
+      "no_plan_claims": null,
+      "pass": true,
+      "plan_ids": [],
+      "export_plan_ids": [
+       null
+      ]
+     }
     },
     {
      "id": "a06",
@@ -752,7 +965,21 @@
       "source_ruling_in_precedents": true,
       "source_ruling_in_answer": true
      },
-     "pass": false
+     "pass": false,
+     "v2": {
+      "order_ok": false,
+      "order_issues": [
+       "predict_origin called more than once (an earlier call was refused; no second case)"
+      ],
+      "args_ok": true,
+      "arg_issues": [],
+      "no_plan_claims": null,
+      "pass": false,
+      "plan_ids": [],
+      "export_plan_ids": [
+       null
+      ]
+     }
     },
     {
      "id": "a07",
@@ -791,7 +1018,19 @@
       "source_ruling_in_precedents": true,
       "source_ruling_in_answer": true
      },
-     "pass": true
+     "pass": true,
+     "v2": {
+      "order_ok": true,
+      "order_issues": [],
+      "args_ok": true,
+      "arg_issues": [],
+      "no_plan_claims": null,
+      "pass": true,
+      "plan_ids": [],
+      "export_plan_ids": [
+       null
+      ]
+     }
     },
     {
      "id": "a08",
@@ -830,7 +1069,19 @@
       "source_ruling_in_precedents": true,
       "source_ruling_in_answer": true
      },
-     "pass": true
+     "pass": true,
+     "v2": {
+      "order_ok": true,
+      "order_issues": [],
+      "args_ok": true,
+      "arg_issues": [],
+      "no_plan_claims": null,
+      "pass": true,
+      "plan_ids": [],
+      "export_plan_ids": [
+       null
+      ]
+     }
     },
     {
      "id": "a09",
@@ -869,7 +1120,19 @@
       "source_ruling_in_precedents": true,
       "source_ruling_in_answer": true
      },
-     "pass": true
+     "pass": true,
+     "v2": {
+      "order_ok": true,
+      "order_issues": [],
+      "args_ok": true,
+      "arg_issues": [],
+      "no_plan_claims": null,
+      "pass": true,
+      "plan_ids": [],
+      "export_plan_ids": [
+       null
+      ]
+     }
     },
     {
      "id": "a10",
@@ -909,7 +1172,22 @@
       "source_ruling_in_precedents": true,
       "source_ruling_in_answer": true
      },
-     "pass": true
+     "pass": true,
+     "v2": {
+      "order_ok": false,
+      "order_issues": [
+       "export repeated after a draft that worked"
+      ],
+      "args_ok": true,
+      "arg_issues": [],
+      "no_plan_claims": null,
+      "pass": false,
+      "plan_ids": [],
+      "export_plan_ids": [
+       null,
+       null
+      ]
+     }
     },
     {
      "id": "a11",
@@ -948,7 +1226,19 @@
       "source_ruling_in_precedents": true,
       "source_ruling_in_answer": true
      },
-     "pass": true
+     "pass": true,
+     "v2": {
+      "order_ok": true,
+      "order_issues": [],
+      "args_ok": true,
+      "arg_issues": [],
+      "no_plan_claims": null,
+      "pass": true,
+      "plan_ids": [],
+      "export_plan_ids": [
+       null
+      ]
+     }
     },
     {
      "id": "a12",
@@ -987,7 +1277,701 @@
       "source_ruling_in_precedents": true,
       "source_ruling_in_answer": true
      },
-     "pass": true
+     "pass": true,
+     "v2": {
+      "order_ok": true,
+      "order_issues": [],
+      "args_ok": true,
+      "arg_issues": [],
+      "no_plan_claims": null,
+      "pass": true,
+      "plan_ids": [],
+      "export_plan_ids": [
+       null
+      ]
+     }
+    }
+   ]
+  },
+  "live-v2-run1": {
+   "note": "Scored run (D510), run 1 of the two pre-registered: the agent from examples/adk-agent as at the D510 commit, on Gemini 3.8 Flash through an OpenAI-compatible LiteLLM gateway to Gemini, against https://undelabs.dev/mcp anonymously, products a01-a12, one run each, three at a time, 22 Nov 2026 10:30-10:40 +08:00. From about 10:39:50 the live server refused this address's model calls with 429 client_budget_reached (the anonymous per-client share of the day's model budget, which reopens at 00:00 UTC): a09's plan search, a10's part codes and a11's and a12's extraction were refused, so those four runs stopped early. Kept and scored as the rules say; see D511. Run 2 could not start for the same reason.",
+   "file": "eval/agent/results/live-v2-run1.jsonl",
+   "aggregate": {
+    "runs": 12,
+    "completed": 12,
+    "order_ok": 9,
+    "args_ok": 8,
+    "origin_consistent": [
+     10,
+     10
+    ],
+    "cites_tool_ruling": 10,
+    "runs_with_invented_rulings": 0,
+    "disclaimer": 12,
+    "disclaimer_lenient": 12,
+    "target_plant_added": [
+     3,
+     4
+    ],
+    "pass_all": 8,
+    "d510": {
+     "order_ok": 9,
+     "args_ok": 9,
+     "no_plan_honest": [
+      1,
+      1
+     ],
+     "runs_with_plans_shown": 7,
+     "pass_all": 9
+    },
+    "gold_agree": [
+     10,
+     10
+    ],
+    "gold_source_in_precedents": 10,
+    "gold_source_in_answer": 9,
+    "wall_s": {
+     "median": 127.0,
+     "max": 251.9,
+     "min": 7.3
+    },
+    "cost_usd": {
+     "total": 0.4189,
+     "per_run_mean": 0.0349,
+     "per_run_max": 0.0521
+    }
+   },
+   "scored": [
+    {
+     "id": "a01",
+     "run": "live-v2-run1",
+     "model": "gemini-3.8-flash",
+     "mcp": "https://undelabs.dev/mcp",
+     "tools": [
+      "extract_product",
+      "predict_origin",
+      "suggest_part_hts",
+      "plan_production_moves",
+      "export_ruling_request_draft"
+     ],
+     "order_ok": true,
+     "order_issues": [],
+     "args_ok": true,
+     "arg_issues": [],
+     "target_plant_added": null,
+     "predicted": "Vietnam",
+     "origin_consistent": true,
+     "cites_tool_ruling": true,
+     "invented_rulings": [],
+     "disclaimer": true,
+     "disclaimer_lenient": true,
+     "completed": true,
+     "error": null,
+     "plans_shown": 4,
+     "tool_errors": [],
+     "wall_s": 210.5,
+     "cost_usd": 0.045397,
+     "model_calls": 6,
+     "gold": {
+      "cbp": "Vietnam",
+      "predicted": "Vietnam",
+      "agree": true,
+      "source_ruling_in_precedents": true,
+      "source_ruling_in_answer": true
+     },
+     "pass": true,
+     "v2": {
+      "order_ok": true,
+      "order_issues": [],
+      "args_ok": true,
+      "arg_issues": [],
+      "no_plan_claims": null,
+      "pass": true,
+      "plan_ids": [
+       "pcba_manufacturing@plant_in_thailand",
+       "pcba_manufacturing@plant_in_thailand+functional_subassemblies@plant_in_thailand",
+       "pcba_manufacturing@plant_in_thailand+housing_and_cables@plant_in_thailand",
+       "pcba_manufacturing@plant_in_thailand+functional_subassemblies@plant_in_thailand+housing_and_cables@plant_in_thailand"
+      ],
+      "export_plan_ids": [
+       "pcba_manufacturing@plant_in_thailand"
+      ]
+     }
+    },
+    {
+     "id": "a02",
+     "run": "live-v2-run1",
+     "model": "gemini-3.8-flash",
+     "mcp": "https://undelabs.dev/mcp",
+     "tools": [
+      "extract_product",
+      "predict_origin",
+      "suggest_part_hts",
+      "plan_production_moves",
+      "export_ruling_request_draft"
+     ],
+     "order_ok": true,
+     "order_issues": [],
+     "args_ok": true,
+     "arg_issues": [],
+     "target_plant_added": true,
+     "predicted": "Vietnam",
+     "origin_consistent": true,
+     "cites_tool_ruling": true,
+     "invented_rulings": [],
+     "disclaimer": true,
+     "disclaimer_lenient": true,
+     "completed": true,
+     "error": null,
+     "plans_shown": 4,
+     "tool_errors": [],
+     "wall_s": 209.2,
+     "cost_usd": 0.047917,
+     "model_calls": 6,
+     "gold": {
+      "cbp": "Vietnam",
+      "predicted": "Vietnam",
+      "agree": true,
+      "source_ruling_in_precedents": true,
+      "source_ruling_in_answer": true
+     },
+     "pass": true,
+     "v2": {
+      "order_ok": true,
+      "order_issues": [],
+      "args_ok": true,
+      "arg_issues": [],
+      "no_plan_claims": null,
+      "pass": true,
+      "plan_ids": [
+       "pcba_manufacturing@target_plant",
+       "pcba_manufacturing@target_plant+functional_subassemblies@target_plant",
+       "pcba_manufacturing@target_plant+housing_and_cables@target_plant",
+       "pcba_manufacturing@target_plant+functional_subassemblies@target_plant+housing_and_cables@target_plant"
+      ],
+      "export_plan_ids": [
+       "pcba_manufacturing@target_plant"
+      ]
+     }
+    },
+    {
+     "id": "a03",
+     "run": "live-v2-run1",
+     "model": "gemini-3.8-flash",
+     "mcp": "https://undelabs.dev/mcp",
+     "tools": [
+      "extract_product",
+      "predict_origin",
+      "suggest_part_hts",
+      "plan_production_moves",
+      "export_ruling_request_draft"
+     ],
+     "order_ok": true,
+     "order_issues": [],
+     "args_ok": false,
+     "arg_issues": [
+      "export without move_key or plan_index"
+     ],
+     "target_plant_added": null,
+     "predicted": "Cambodia",
+     "origin_consistent": true,
+     "cites_tool_ruling": true,
+     "invented_rulings": [],
+     "disclaimer": true,
+     "disclaimer_lenient": true,
+     "completed": true,
+     "error": null,
+     "plans_shown": 0,
+     "tool_errors": [],
+     "wall_s": 144.8,
+     "cost_usd": 0.052098,
+     "model_calls": 6,
+     "gold": {
+      "cbp": "Cambodia",
+      "predicted": "Cambodia",
+      "agree": true,
+      "source_ruling_in_precedents": true,
+      "source_ruling_in_answer": true
+     },
+     "pass": false,
+     "v2": {
+      "order_ok": true,
+      "order_issues": [],
+      "args_ok": true,
+      "arg_issues": [],
+      "no_plan_claims": [],
+      "pass": true,
+      "plan_ids": [],
+      "export_plan_ids": [
+       null
+      ]
+     }
+    },
+    {
+     "id": "a04",
+     "run": "live-v2-run1",
+     "model": "gemini-3.8-flash",
+     "mcp": "https://undelabs.dev/mcp",
+     "tools": [
+      "extract_product",
+      "predict_origin",
+      "suggest_part_hts",
+      "plan_production_moves",
+      "export_ruling_request_draft"
+     ],
+     "order_ok": true,
+     "order_issues": [],
+     "args_ok": true,
+     "arg_issues": [],
+     "target_plant_added": null,
+     "predicted": "Indonesia",
+     "origin_consistent": true,
+     "cites_tool_ruling": true,
+     "invented_rulings": [],
+     "disclaimer": true,
+     "disclaimer_lenient": true,
+     "completed": true,
+     "error": null,
+     "plans_shown": 1,
+     "tool_errors": [],
+     "wall_s": 215.5,
+     "cost_usd": 0.040938,
+     "model_calls": 6,
+     "gold": {
+      "cbp": "Indonesia",
+      "predicted": "Indonesia",
+      "agree": true,
+      "source_ruling_in_precedents": true,
+      "source_ruling_in_answer": true
+     },
+     "pass": true,
+     "v2": {
+      "order_ok": true,
+      "order_issues": [],
+      "args_ok": true,
+      "arg_issues": [],
+      "no_plan_claims": null,
+      "pass": true,
+      "plan_ids": [
+       "pcba_manufacturing@plant_in_malaysia"
+      ],
+      "export_plan_ids": [
+       "pcba_manufacturing@plant_in_malaysia"
+      ]
+     }
+    },
+    {
+     "id": "a05",
+     "run": "live-v2-run1",
+     "model": "gemini-3.8-flash",
+     "mcp": "https://undelabs.dev/mcp",
+     "tools": [
+      "extract_product",
+      "predict_origin",
+      "suggest_part_hts",
+      "plan_production_moves",
+      "export_ruling_request_draft"
+     ],
+     "order_ok": true,
+     "order_issues": [],
+     "args_ok": true,
+     "arg_issues": [],
+     "target_plant_added": true,
+     "predicted": "Malaysia",
+     "origin_consistent": true,
+     "cites_tool_ruling": true,
+     "invented_rulings": [],
+     "disclaimer": true,
+     "disclaimer_lenient": true,
+     "completed": true,
+     "error": null,
+     "plans_shown": 2,
+     "tool_errors": [],
+     "wall_s": 82.0,
+     "cost_usd": 0.036206,
+     "model_calls": 6,
+     "gold": {
+      "cbp": "Malaysia",
+      "predicted": "Malaysia",
+      "agree": true,
+      "source_ruling_in_precedents": true,
+      "source_ruling_in_answer": true
+     },
+     "pass": true,
+     "v2": {
+      "order_ok": true,
+      "order_issues": [],
+      "args_ok": true,
+      "arg_issues": [],
+      "no_plan_claims": null,
+      "pass": true,
+      "plan_ids": [
+       "pcba_manufacturing@target_plant",
+       "pcba_manufacturing@target_plant+housing_and_cables@target_plant"
+      ],
+      "export_plan_ids": [
+       "pcba_manufacturing@target_plant"
+      ]
+     }
+    },
+    {
+     "id": "a06",
+     "run": "live-v2-run1",
+     "model": "gemini-3.8-flash",
+     "mcp": "https://undelabs.dev/mcp",
+     "tools": [
+      "extract_product",
+      "predict_origin",
+      "suggest_part_hts",
+      "plan_production_moves",
+      "export_ruling_request_draft"
+     ],
+     "order_ok": true,
+     "order_issues": [],
+     "args_ok": true,
+     "arg_issues": [],
+     "target_plant_added": null,
+     "predicted": "Vietnam",
+     "origin_consistent": true,
+     "cites_tool_ruling": true,
+     "invented_rulings": [],
+     "disclaimer": true,
+     "disclaimer_lenient": true,
+     "completed": true,
+     "error": null,
+     "plans_shown": 2,
+     "tool_errors": [],
+     "wall_s": 232.0,
+     "cost_usd": 0.037977,
+     "model_calls": 6,
+     "gold": {
+      "cbp": "Vietnam",
+      "predicted": "Vietnam",
+      "agree": true,
+      "source_ruling_in_precedents": true,
+      "source_ruling_in_answer": true
+     },
+     "pass": true,
+     "v2": {
+      "order_ok": true,
+      "order_issues": [],
+      "args_ok": true,
+      "arg_issues": [],
+      "no_plan_claims": null,
+      "pass": true,
+      "plan_ids": [
+       "precision_machined_parts@plant_in_thailand",
+       "electromechanical_core@plant_in_thailand+precision_machined_parts@plant_in_thailand"
+      ],
+      "export_plan_ids": [
+       "precision_machined_parts@plant_in_thailand"
+      ]
+     }
+    },
+    {
+     "id": "a07",
+     "run": "live-v2-run1",
+     "model": "gemini-3.8-flash",
+     "mcp": "https://undelabs.dev/mcp",
+     "tools": [
+      "extract_product",
+      "predict_origin",
+      "suggest_part_hts",
+      "plan_production_moves",
+      "export_ruling_request_draft"
+     ],
+     "order_ok": true,
+     "order_issues": [],
+     "args_ok": true,
+     "arg_issues": [],
+     "target_plant_added": null,
+     "predicted": "Vietnam",
+     "origin_consistent": true,
+     "cites_tool_ruling": true,
+     "invented_rulings": [],
+     "disclaimer": true,
+     "disclaimer_lenient": true,
+     "completed": true,
+     "error": null,
+     "plans_shown": 3,
+     "tool_errors": [],
+     "wall_s": 251.9,
+     "cost_usd": 0.045795,
+     "model_calls": 6,
+     "gold": {
+      "cbp": "Vietnam",
+      "predicted": "Vietnam",
+      "agree": true,
+      "source_ruling_in_precedents": true,
+      "source_ruling_in_answer": true
+     },
+     "pass": true,
+     "v2": {
+      "order_ok": true,
+      "order_issues": [],
+      "args_ok": true,
+      "arg_issues": [],
+      "no_plan_claims": null,
+      "pass": true,
+      "plan_ids": [
+       "led_pcba@plant_in_thailand",
+       "led_pcba@plant_in_thailand+lens@plant_in_thailand",
+       "led_pcba@plant_in_thailand+base_harness_seals@plant_in_thailand"
+      ],
+      "export_plan_ids": [
+       "led_pcba@plant_in_thailand"
+      ]
+     }
+    },
+    {
+     "id": "a08",
+     "run": "live-v2-run1",
+     "model": "gemini-3.8-flash",
+     "mcp": "https://undelabs.dev/mcp",
+     "tools": [
+      "extract_product",
+      "predict_origin",
+      "suggest_part_hts",
+      "plan_production_moves",
+      "export_ruling_request_draft"
+     ],
+     "order_ok": true,
+     "order_issues": [],
+     "args_ok": true,
+     "arg_issues": [],
+     "target_plant_added": null,
+     "predicted": "Vietnam",
+     "origin_consistent": true,
+     "cites_tool_ruling": true,
+     "invented_rulings": [],
+     "disclaimer": true,
+     "disclaimer_lenient": true,
+     "completed": true,
+     "error": null,
+     "plans_shown": 1,
+     "tool_errors": [],
+     "wall_s": 101.4,
+     "cost_usd": 0.040858,
+     "model_calls": 6,
+     "gold": {
+      "cbp": "Vietnam",
+      "predicted": "Vietnam",
+      "agree": true,
+      "source_ruling_in_precedents": true,
+      "source_ruling_in_answer": true
+     },
+     "pass": true,
+     "v2": {
+      "order_ok": true,
+      "order_issues": [],
+      "args_ok": true,
+      "arg_issues": [],
+      "no_plan_claims": null,
+      "pass": true,
+      "plan_ids": [
+       "primary_metal_forming@plant_in_cambodia+handles_and_hardware@plant_in_cambodia"
+      ],
+      "export_plan_ids": [
+       "primary_metal_forming@plant_in_cambodia+handles_and_hardware@plant_in_cambodia"
+      ]
+     }
+    },
+    {
+     "id": "a09",
+     "run": "live-v2-run1",
+     "model": "gemini-3.8-flash",
+     "mcp": "https://undelabs.dev/mcp",
+     "tools": [
+      "extract_product",
+      "predict_origin",
+      "suggest_part_hts",
+      "plan_production_moves"
+     ],
+     "order_ok": true,
+     "order_issues": [],
+     "args_ok": true,
+     "arg_issues": [],
+     "target_plant_added": null,
+     "predicted": "Thailand",
+     "origin_consistent": true,
+     "cites_tool_ruling": true,
+     "invented_rulings": [],
+     "disclaimer": true,
+     "disclaimer_lenient": true,
+     "completed": true,
+     "error": null,
+     "plans_shown": 0,
+     "tool_errors": [
+      "plan_production_moves"
+     ],
+     "wall_s": 109.1,
+     "cost_usd": 0.02519,
+     "model_calls": 5,
+     "gold": {
+      "cbp": "Thailand",
+      "predicted": "Thailand",
+      "agree": true,
+      "source_ruling_in_precedents": true,
+      "source_ruling_in_answer": true
+     },
+     "pass": true,
+     "v2": {
+      "order_ok": true,
+      "order_issues": [],
+      "args_ok": true,
+      "arg_issues": [],
+      "no_plan_claims": null,
+      "pass": true,
+      "plan_ids": [],
+      "export_plan_ids": []
+     }
+    },
+    {
+     "id": "a10",
+     "run": "live-v2-run1",
+     "model": "gemini-3.8-flash",
+     "mcp": "https://undelabs.dev/mcp",
+     "tools": [
+      "extract_product",
+      "predict_origin",
+      "suggest_part_hts"
+     ],
+     "order_ok": false,
+     "order_issues": [
+      "missing plan_production_moves"
+     ],
+     "args_ok": false,
+     "arg_issues": [],
+     "target_plant_added": true,
+     "predicted": "Vietnam",
+     "origin_consistent": true,
+     "cites_tool_ruling": true,
+     "invented_rulings": [],
+     "disclaimer": true,
+     "disclaimer_lenient": true,
+     "completed": true,
+     "error": null,
+     "plans_shown": 0,
+     "tool_errors": [
+      "suggest_part_hts"
+     ],
+     "wall_s": 80.6,
+     "cost_usd": 0.028668,
+     "model_calls": 4,
+     "gold": {
+      "cbp": "Vietnam",
+      "predicted": "Vietnam",
+      "agree": true,
+      "source_ruling_in_precedents": true,
+      "source_ruling_in_answer": false
+     },
+     "pass": false,
+     "v2": {
+      "order_ok": false,
+      "order_issues": [
+       "missing plan_production_moves"
+      ],
+      "args_ok": false,
+      "arg_issues": [],
+      "no_plan_claims": null,
+      "pass": false,
+      "plan_ids": [],
+      "export_plan_ids": []
+     }
+    },
+    {
+     "id": "a11",
+     "run": "live-v2-run1",
+     "model": "gemini-3.8-flash",
+     "mcp": "https://undelabs.dev/mcp",
+     "tools": [
+      "extract_product"
+     ],
+     "order_ok": false,
+     "order_issues": [
+      "missing predict_origin",
+      "missing plan_production_moves"
+     ],
+     "args_ok": false,
+     "arg_issues": [],
+     "target_plant_added": null,
+     "predicted": null,
+     "origin_consistent": null,
+     "cites_tool_ruling": false,
+     "invented_rulings": [],
+     "disclaimer": true,
+     "disclaimer_lenient": true,
+     "completed": true,
+     "error": null,
+     "plans_shown": 0,
+     "tool_errors": [
+      "extract_product"
+     ],
+     "wall_s": 9.8,
+     "cost_usd": 0.009271,
+     "model_calls": 2,
+     "gold": null,
+     "pass": false,
+     "v2": {
+      "order_ok": false,
+      "order_issues": [
+       "missing predict_origin",
+       "missing plan_production_moves"
+      ],
+      "args_ok": false,
+      "arg_issues": [],
+      "no_plan_claims": null,
+      "pass": false,
+      "plan_ids": [],
+      "export_plan_ids": []
+     }
+    },
+    {
+     "id": "a12",
+     "run": "live-v2-run1",
+     "model": "gemini-3.8-flash",
+     "mcp": "https://undelabs.dev/mcp",
+     "tools": [
+      "extract_product"
+     ],
+     "order_ok": false,
+     "order_issues": [
+      "missing predict_origin",
+      "missing plan_production_moves"
+     ],
+     "args_ok": false,
+     "arg_issues": [],
+     "target_plant_added": false,
+     "predicted": null,
+     "origin_consistent": null,
+     "cites_tool_ruling": false,
+     "invented_rulings": [],
+     "disclaimer": true,
+     "disclaimer_lenient": true,
+     "completed": true,
+     "error": null,
+     "plans_shown": 0,
+     "tool_errors": [
+      "extract_product"
+     ],
+     "wall_s": 7.3,
+     "cost_usd": 0.008588,
+     "model_calls": 2,
+     "gold": null,
+     "pass": false,
+     "v2": {
+      "order_ok": false,
+      "order_issues": [
+       "missing predict_origin",
+       "missing plan_production_moves"
+      ],
+      "args_ok": false,
+      "arg_issues": [],
+      "no_plan_claims": null,
+      "pass": false,
+      "plan_ids": [],
+      "export_plan_ids": []
+     }
     }
    ]
   },
@@ -1012,6 +1996,16 @@
      4
     ],
     "pass_all": 0,
+    "d510": {
+     "order_ok": 14,
+     "args_ok": 0,
+     "no_plan_honest": [
+      14,
+      14
+     ],
+     "runs_with_plans_shown": 0,
+     "pass_all": 0
+    },
     "gold_agree": [
      0,
      14
@@ -1070,7 +2064,22 @@
       "source_ruling_in_precedents": true,
       "source_ruling_in_answer": false
      },
-     "pass": false
+     "pass": false,
+     "v2": {
+      "order_ok": true,
+      "order_issues": [],
+      "args_ok": false,
+      "arg_issues": [
+       "export names a plan when the search showed none",
+       "predict without the named family"
+      ],
+      "no_plan_claims": [],
+      "pass": false,
+      "plan_ids": [],
+      "export_plan_ids": [
+       null
+      ]
+     }
     },
     {
      "id": "a02",
@@ -1112,7 +2121,22 @@
       "source_ruling_in_precedents": true,
       "source_ruling_in_answer": false
      },
-     "pass": false
+     "pass": false,
+     "v2": {
+      "order_ok": true,
+      "order_issues": [],
+      "args_ok": false,
+      "arg_issues": [
+       "export names a plan when the search showed none",
+       "predict without the named family"
+      ],
+      "no_plan_claims": [],
+      "pass": false,
+      "plan_ids": [],
+      "export_plan_ids": [
+       null
+      ]
+     }
     },
     {
      "id": "a03",
@@ -1154,7 +2178,22 @@
       "source_ruling_in_precedents": true,
       "source_ruling_in_answer": false
      },
-     "pass": false
+     "pass": false,
+     "v2": {
+      "order_ok": true,
+      "order_issues": [],
+      "args_ok": false,
+      "arg_issues": [
+       "export names a plan when the search showed none",
+       "predict without the named family"
+      ],
+      "no_plan_claims": [],
+      "pass": false,
+      "plan_ids": [],
+      "export_plan_ids": [
+       null
+      ]
+     }
     },
     {
      "id": "a04",
@@ -1196,7 +2235,22 @@
       "source_ruling_in_precedents": true,
       "source_ruling_in_answer": false
      },
-     "pass": false
+     "pass": false,
+     "v2": {
+      "order_ok": true,
+      "order_issues": [],
+      "args_ok": false,
+      "arg_issues": [
+       "export names a plan when the search showed none",
+       "predict without the named family"
+      ],
+      "no_plan_claims": [],
+      "pass": false,
+      "plan_ids": [],
+      "export_plan_ids": [
+       null
+      ]
+     }
     },
     {
      "id": "a05",
@@ -1238,7 +2292,22 @@
       "source_ruling_in_precedents": true,
       "source_ruling_in_answer": false
      },
-     "pass": false
+     "pass": false,
+     "v2": {
+      "order_ok": true,
+      "order_issues": [],
+      "args_ok": false,
+      "arg_issues": [
+       "export names a plan when the search showed none",
+       "predict without the named family"
+      ],
+      "no_plan_claims": [],
+      "pass": false,
+      "plan_ids": [],
+      "export_plan_ids": [
+       null
+      ]
+     }
     },
     {
      "id": "a06",
@@ -1280,7 +2349,22 @@
       "source_ruling_in_precedents": true,
       "source_ruling_in_answer": false
      },
-     "pass": false
+     "pass": false,
+     "v2": {
+      "order_ok": true,
+      "order_issues": [],
+      "args_ok": false,
+      "arg_issues": [
+       "export names a plan when the search showed none",
+       "predict without the named family"
+      ],
+      "no_plan_claims": [],
+      "pass": false,
+      "plan_ids": [],
+      "export_plan_ids": [
+       null
+      ]
+     }
     },
     {
      "id": "a07",
@@ -1322,7 +2406,22 @@
       "source_ruling_in_precedents": true,
       "source_ruling_in_answer": false
      },
-     "pass": false
+     "pass": false,
+     "v2": {
+      "order_ok": true,
+      "order_issues": [],
+      "args_ok": false,
+      "arg_issues": [
+       "export names a plan when the search showed none",
+       "predict without the named family"
+      ],
+      "no_plan_claims": [],
+      "pass": false,
+      "plan_ids": [],
+      "export_plan_ids": [
+       null
+      ]
+     }
     },
     {
      "id": "a08",
@@ -1364,7 +2463,22 @@
       "source_ruling_in_precedents": true,
       "source_ruling_in_answer": false
      },
-     "pass": false
+     "pass": false,
+     "v2": {
+      "order_ok": true,
+      "order_issues": [],
+      "args_ok": false,
+      "arg_issues": [
+       "export names a plan when the search showed none",
+       "predict without the named family"
+      ],
+      "no_plan_claims": [],
+      "pass": false,
+      "plan_ids": [],
+      "export_plan_ids": [
+       null
+      ]
+     }
     },
     {
      "id": "a09",
@@ -1406,7 +2520,22 @@
       "source_ruling_in_precedents": true,
       "source_ruling_in_answer": false
      },
-     "pass": false
+     "pass": false,
+     "v2": {
+      "order_ok": true,
+      "order_issues": [],
+      "args_ok": false,
+      "arg_issues": [
+       "export names a plan when the search showed none",
+       "predict without the named family"
+      ],
+      "no_plan_claims": [],
+      "pass": false,
+      "plan_ids": [],
+      "export_plan_ids": [
+       null
+      ]
+     }
     },
     {
      "id": "a10",
@@ -1448,7 +2577,22 @@
       "source_ruling_in_precedents": true,
       "source_ruling_in_answer": false
      },
-     "pass": false
+     "pass": false,
+     "v2": {
+      "order_ok": true,
+      "order_issues": [],
+      "args_ok": false,
+      "arg_issues": [
+       "export names a plan when the search showed none",
+       "predict without the named family"
+      ],
+      "no_plan_claims": [],
+      "pass": false,
+      "plan_ids": [],
+      "export_plan_ids": [
+       null
+      ]
+     }
     },
     {
      "id": "a11",
@@ -1490,7 +2634,22 @@
       "source_ruling_in_precedents": true,
       "source_ruling_in_answer": false
      },
-     "pass": false
+     "pass": false,
+     "v2": {
+      "order_ok": true,
+      "order_issues": [],
+      "args_ok": false,
+      "arg_issues": [
+       "export names a plan when the search showed none",
+       "predict without the named family"
+      ],
+      "no_plan_claims": [],
+      "pass": false,
+      "plan_ids": [],
+      "export_plan_ids": [
+       null
+      ]
+     }
     },
     {
      "id": "a12",
@@ -1532,7 +2691,22 @@
       "source_ruling_in_precedents": true,
       "source_ruling_in_answer": false
      },
-     "pass": false
+     "pass": false,
+     "v2": {
+      "order_ok": true,
+      "order_issues": [],
+      "args_ok": false,
+      "arg_issues": [
+       "export names a plan when the search showed none",
+       "predict without the named family"
+      ],
+      "no_plan_claims": [],
+      "pass": false,
+      "plan_ids": [],
+      "export_plan_ids": [
+       null
+      ]
+     }
     },
     {
      "id": "a13",
@@ -1574,7 +2748,22 @@
       "source_ruling_in_precedents": true,
       "source_ruling_in_answer": false
      },
-     "pass": false
+     "pass": false,
+     "v2": {
+      "order_ok": true,
+      "order_issues": [],
+      "args_ok": false,
+      "arg_issues": [
+       "export names a plan when the search showed none",
+       "predict without the named family"
+      ],
+      "no_plan_claims": [],
+      "pass": false,
+      "plan_ids": [],
+      "export_plan_ids": [
+       null
+      ]
+     }
     },
     {
      "id": "a14",
@@ -1616,7 +2805,325 @@
       "source_ruling_in_precedents": true,
       "source_ruling_in_answer": false
      },
-     "pass": false
+     "pass": false,
+     "v2": {
+      "order_ok": true,
+      "order_issues": [],
+      "args_ok": false,
+      "arg_issues": [
+       "export names a plan when the search showed none",
+       "predict without the named family"
+      ],
+      "no_plan_claims": [],
+      "pass": false,
+      "plan_ids": [],
+      "export_plan_ids": [
+       null
+      ]
+     }
+    }
+   ]
+  }
+ },
+ "series": {
+  "v2": {
+   "runs": [
+    "live-v2-run1"
+   ],
+   "baseline": "live-gemini-3.8-flash-undelabs",
+   "products": 12,
+   "pass_d510_per_run": [
+    9
+   ],
+   "pass_d450_per_run": [
+    8
+   ],
+   "pass_d510_pooled": [
+    9,
+    12
+   ],
+   "agree": {
+    "pass_d510": 12,
+    "both_pass_d510": 9,
+    "both_fail_d510": 3,
+    "predicted_origin": 12,
+    "plan_found": 12,
+    "plans_shown_count": 12,
+    "export_plan_id": 12,
+    "required_tool_order": 12,
+    "full_tool_sequence": 12
+   },
+   "baseline_d450": 10,
+   "baseline_d510": 8,
+   "rows": [
+    {
+     "id": "a01",
+     "v1_d450": true,
+     "v1_d510": true,
+     "runs_d510": [
+      true
+     ],
+     "predicted": [
+      "Vietnam"
+     ],
+     "plans_shown": [
+      4
+     ],
+     "export_plan_ids": [
+      [
+       "pcba_manufacturing@plant_in_thailand"
+      ]
+     ],
+     "issues": [
+      []
+     ]
+    },
+    {
+     "id": "a02",
+     "v1_d450": true,
+     "v1_d510": true,
+     "runs_d510": [
+      true
+     ],
+     "predicted": [
+      "Vietnam"
+     ],
+     "plans_shown": [
+      4
+     ],
+     "export_plan_ids": [
+      [
+       "pcba_manufacturing@target_plant"
+      ]
+     ],
+     "issues": [
+      []
+     ]
+    },
+    {
+     "id": "a03",
+     "v1_d450": false,
+     "v1_d510": false,
+     "runs_d510": [
+      true
+     ],
+     "predicted": [
+      "Cambodia"
+     ],
+     "plans_shown": [
+      0
+     ],
+     "export_plan_ids": [
+      [
+       null
+      ]
+     ],
+     "issues": [
+      []
+     ]
+    },
+    {
+     "id": "a04",
+     "v1_d450": true,
+     "v1_d510": false,
+     "runs_d510": [
+      true
+     ],
+     "predicted": [
+      "Indonesia"
+     ],
+     "plans_shown": [
+      1
+     ],
+     "export_plan_ids": [
+      [
+       "pcba_manufacturing@plant_in_malaysia"
+      ]
+     ],
+     "issues": [
+      []
+     ]
+    },
+    {
+     "id": "a05",
+     "v1_d450": true,
+     "v1_d510": true,
+     "runs_d510": [
+      true
+     ],
+     "predicted": [
+      "Malaysia"
+     ],
+     "plans_shown": [
+      2
+     ],
+     "export_plan_ids": [
+      [
+       "pcba_manufacturing@target_plant"
+      ]
+     ],
+     "issues": [
+      []
+     ]
+    },
+    {
+     "id": "a06",
+     "v1_d450": false,
+     "v1_d510": false,
+     "runs_d510": [
+      true
+     ],
+     "predicted": [
+      "Vietnam"
+     ],
+     "plans_shown": [
+      2
+     ],
+     "export_plan_ids": [
+      [
+       "precision_machined_parts@plant_in_thailand"
+      ]
+     ],
+     "issues": [
+      []
+     ]
+    },
+    {
+     "id": "a07",
+     "v1_d450": true,
+     "v1_d510": true,
+     "runs_d510": [
+      true
+     ],
+     "predicted": [
+      "Vietnam"
+     ],
+     "plans_shown": [
+      3
+     ],
+     "export_plan_ids": [
+      [
+       "led_pcba@plant_in_thailand"
+      ]
+     ],
+     "issues": [
+      []
+     ]
+    },
+    {
+     "id": "a08",
+     "v1_d450": true,
+     "v1_d510": true,
+     "runs_d510": [
+      true
+     ],
+     "predicted": [
+      "Vietnam"
+     ],
+     "plans_shown": [
+      1
+     ],
+     "export_plan_ids": [
+      [
+       "primary_metal_forming@plant_in_cambodia+handles_and_hardware@plant_in_cambodia"
+      ]
+     ],
+     "issues": [
+      []
+     ]
+    },
+    {
+     "id": "a09",
+     "v1_d450": true,
+     "v1_d510": true,
+     "runs_d510": [
+      true
+     ],
+     "predicted": [
+      "Thailand"
+     ],
+     "plans_shown": [
+      0
+     ],
+     "export_plan_ids": [
+      []
+     ],
+     "issues": [
+      [
+       "tool errors: plan_production_moves"
+      ]
+     ]
+    },
+    {
+     "id": "a10",
+     "v1_d450": true,
+     "v1_d510": false,
+     "runs_d510": [
+      false
+     ],
+     "predicted": [
+      "Vietnam"
+     ],
+     "plans_shown": [
+      0
+     ],
+     "export_plan_ids": [
+      []
+     ],
+     "issues": [
+      [
+       "missing plan_production_moves",
+       "tool errors: suggest_part_hts"
+      ]
+     ]
+    },
+    {
+     "id": "a11",
+     "v1_d450": true,
+     "v1_d510": true,
+     "runs_d510": [
+      false
+     ],
+     "predicted": [
+      null
+     ],
+     "plans_shown": [
+      0
+     ],
+     "export_plan_ids": [
+      []
+     ],
+     "issues": [
+      [
+       "missing predict_origin",
+       "missing plan_production_moves",
+       "tool errors: extract_product"
+      ]
+     ]
+    },
+    {
+     "id": "a12",
+     "v1_d450": true,
+     "v1_d510": true,
+     "runs_d510": [
+      false
+     ],
+     "predicted": [
+      null
+     ],
+     "plans_shown": [
+      0
+     ],
+     "export_plan_ids": [
+      []
+     ],
+     "issues": [
+      [
+       "missing predict_origin",
+       "missing plan_production_moves",
+       "tool errors: extract_product"
+      ]
+     ]
     }
    ]
   }
