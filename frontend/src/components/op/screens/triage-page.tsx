@@ -98,7 +98,7 @@ export function TriagePage() {
       ) : (
         <>
           <p className="duo mt-1 max-w-[70ch] text-dim">
-            Up to {MAX} products at once. Each gets a likely origin and goes to auto-accept, more facts or review, and is saved as a case you can open.
+            Up to {MAX} products at once. Each becomes a case with its likely origin.
           </p>
 
           {file && (
@@ -196,7 +196,13 @@ export function TriagePage() {
             </a>
           </div>
 
-          <h2 className="eyebrow mb-2 mt-6">Data requirements</h2>
+          <details className="group mt-6">
+          <summary className="mb-2 flex min-h-6 cursor-pointer list-none items-center gap-2 [&::-webkit-details-marker]:hidden">
+            <span aria-hidden="true" className="inline-block w-3 text-dim transition-transform group-open:rotate-90">
+              ▸
+            </span>
+            <h2 className="eyebrow">Column format</h2>
+          </summary>
           <table className="w-full max-w-[760px] border-collapse border border-line bg-sheet text-left text-[13px]">
             <thead>
               <tr className="border-b border-line bg-wash text-[11px] uppercase tracking-[.06em] text-dim">
@@ -225,6 +231,7 @@ export function TriagePage() {
               ))}
             </tbody>
           </table>
+          </details>
         </>
       )}
     </Main>

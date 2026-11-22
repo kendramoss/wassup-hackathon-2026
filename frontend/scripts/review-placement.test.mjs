@@ -193,7 +193,7 @@ test("compare: the note and the U.S.-origin / Section 232 line show under the ta
 test("compare: a pinned demo's recorded ranking is framed too, and keeps its demo note", async () => {
   const app = await screen(CompareView, caseJson({ pinned: true, targets: { ranked } }));
   assert.equal(notes(app).length, 1);
-  assert.match(all(app), /pinned demo: its recorded comparison is shown/);
+  assert.match(all(app), /Pinned demo: its recorded comparison is shown/);
 });
 
 // ---- scenarios --------------------------------------------------------------

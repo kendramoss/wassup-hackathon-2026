@@ -21,7 +21,7 @@ export function CaseProduct() {
             <div>
               <p className="eyebrow">Step 1 of 4 · Product</p>
               <h1 className="mt-1 text-xl tracking-[-0.04em]">{c.product?.name || "Pasted description"}</h1>
-              {c.product?.description && <p className="duo mt-1 max-w-[80ch] text-sm text-dim">{c.product.description}</p>}
+              {c.product?.description && <Description text={c.product.description} />}
             </div>
             {c.product?.components?.length ? (
               <Panel>
@@ -35,7 +35,6 @@ export function CaseProduct() {
               </Fold>
             </div>
             <p className="text-[13px] text-dim">
-              A case isn&apos;t edited in place.{" "}
               <Link href={`/cases/new?from=${encodeURIComponent(id)}`} className="text-ok underline underline-offset-2">
                 {c.product?.plants?.length ? "Start a new case from this one" : "Add parts and plants on a new case"}
               </Link>
@@ -50,6 +49,20 @@ export function CaseProduct() {
         </>
       )}
     </CaseShell>
+  );
+}
+
+// The product's own description, first sentence shown; the rest on request.
+function Description({ text }: { text: string }) {
+  const cut = text.search(/\.\s/);
+  if (cut < 0 || cut > text.length - 3) return <p className="duo mt-1 max-w-[80ch] text-sm text-dim">{text}</p>;
+  return (
+    <details className="group duo mt-1 max-w-[80ch] text-sm text-dim">
+      <summary className="cursor-pointer list-none [&::-webkit-details-marker]:hidden">
+        {text.slice(0, cut + 1)} <span className="text-ok group-open:hidden">More</span>
+      </summary>
+      {text.slice(cut + 2)}
+    </details>
   );
 }
 

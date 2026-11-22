@@ -71,7 +71,7 @@ test("a pinned demo card has no nested interactive elements", () => {
 test("a live-run card says it will search plans, not that a plan is included", () => {
   const m = html(LoadDemoCard, { d: demo });
   assert.doesNotMatch(m, /Plan included/);
-  assert.match(m, /Runs a plan search too/);
+  assert.match(m, /Runs live, with a plan search/);
 });
 
 test("a pinned demo card says what CBP held from its demo entry", () => {

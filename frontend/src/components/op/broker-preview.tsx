@@ -94,7 +94,6 @@ export function BrokerPreview({ c, draft, plan, label }: { c: CaseResponse; draf
       <Button ref={opener} variant="ghost" disabled={!draft} onClick={() => setOpen(true)}>
         Preview what your broker sees
       </Button>
-      <p className="duo text-xs text-dim">The review page for this draft, as a preview: no link, nothing sent, no decision recorded.</p>
       {open && draft && (
         <div ref={panel} role="dialog" aria-modal="true" aria-label="Preview of the broker review page" className="fixed inset-0 z-50 overflow-y-auto bg-paper">
           <div className="sticky top-0 z-10 flex min-h-14 flex-wrap items-center gap-x-4 gap-y-1 border-b border-line bg-paper px-4 py-2 sm:px-10">

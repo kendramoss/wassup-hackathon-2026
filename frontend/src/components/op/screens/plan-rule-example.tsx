@@ -15,7 +15,7 @@ import ex from "@/lib/plan-rule-example.json";
 import { Main } from "../chrome";
 import { ExampleTour } from "../example-tour";
 import { PlanRuleChip, PlanRuleNote } from "../plan-rule";
-import { Country, RulingLink, cx } from "../ui";
+import { Country, Fold, RulingLink, cx } from "../ui";
 
 const E = copy.planRuleExample;
 const repo = copy.landing.repo;
@@ -65,10 +65,8 @@ export function PlanRuleExample() {
         </dl>
       </section>
 
-      <section aria-labelledby="px-codes" className={sheet}>
-        <h2 id="px-codes" className="eyebrow mb-1">
-          {E.codes}
-        </h2>
+      <div>
+      <Fold title={E.codes} meta={`${ex.parts.length + 1}`}>
         <p className="duo text-[13px] text-body">{E.codesNote}</p>
         <p className="mt-1 text-xs text-ask">{copy.partsHts.unverified}</p>
         <ul className="duo mt-3 flex flex-col gap-2 text-[13px]">
@@ -84,7 +82,8 @@ export function PlanRuleExample() {
             </li>
           ))}
         </ul>
-      </section>
+      </Fold>
+      </div>
 
       <section aria-labelledby="px-moves" className="flex flex-col gap-3">
         <div>
@@ -112,20 +111,25 @@ export function PlanRuleExample() {
           {E.why}
         </h2>
         <p className="duo max-w-[72ch] text-[13.5px] text-body">{E.whyBody}</p>
-        <p className="duo mt-1.5 max-w-[72ch] text-[13px] text-dim">{E.honest}</p>
       </section>
 
-      <p className="duo text-[12.5px] text-dim">
-        {E.source}{" "}
-        <a href={`${repo}/blob/main/${ex.run}`} className="text-ok underline underline-offset-2 [overflow-wrap:anywhere]">
-          {ex.run}
-        </a>{" "}
-        ·{" "}
-        <a href={`${repo}/blob/main/${ex.suggestions}`} className="text-ok underline underline-offset-2 [overflow-wrap:anywhere]">
-          {ex.suggestions}
-        </a>{" "}
-        · <code className="[overflow-wrap:anywhere]">cd backend && go run ./cmd/tariffshift plans-example -check</code>
-      </p>
+      <div>
+        <Fold title={E.details}>
+          <p className="duo max-w-[72ch] text-[13px] text-dim">{E.detailsBody}</p>
+          <p className="duo mt-1.5 max-w-[72ch] text-[13px] text-dim">{E.honest}</p>
+          <p className="duo mt-1.5 text-[12.5px] text-dim">
+            {E.source}{" "}
+            <a href={`${repo}/blob/main/${ex.run}`} className="text-ok underline underline-offset-2 [overflow-wrap:anywhere]">
+              {ex.run}
+            </a>{" "}
+            ·{" "}
+            <a href={`${repo}/blob/main/${ex.suggestions}`} className="text-ok underline underline-offset-2 [overflow-wrap:anywhere]">
+              {ex.suggestions}
+            </a>{" "}
+            · <code className="[overflow-wrap:anywhere]">cd backend && go run ./cmd/tariffshift plans-example -check</code>
+          </p>
+        </Fold>
+      </div>
     </Main>
   );
 }

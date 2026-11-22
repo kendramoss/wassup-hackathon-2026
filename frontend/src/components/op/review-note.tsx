@@ -12,29 +12,35 @@ import { regimeOf } from "@/lib/regime";
 // for any plan, whatever fields the result carries.
 export type ReviewPlace = "origin" | "plan" | "compare" | "scenarios" | "draft";
 
-function lines(place: ReviewPlace, c: CaseResponse | undefined, best: boolean): string[] {
+// The first list is always visible; the second (how a best result is
+// bounded) folds under "Scope and limits" (copy sweep 1: short visible copy).
+function lines(place: ReviewPlace, c: CaseResponse | undefined, best: boolean): [string[], string[]] {
   const R = copy.review;
   const J = copy.jurisdiction;
   switch (place) {
     case "origin":
       return [
-        R.origin,
-        J.originScope,
-        ...(/^out of scope/i.test(c?.triage?.reason ?? "") ? [J.outOfScope] : []),
-        ...(regimeOf(c)?.key === "usmca" ? [J.part102] : []),
+        [
+          R.origin,
+          J.originScope,
+          ...(/^out of scope/i.test(c?.triage?.reason ?? "") ? [J.outOfScope] : []),
+          ...(regimeOf(c)?.key === "usmca" ? [J.part102] : []),
+        ],
+        [],
       ];
     case "plan":
-      return [R.plan, ...(best ? [R.bestBounded] : []), J.planScope];
+      return [[R.plan], [...(best ? [R.bestBounded] : []), J.planScope]];
     case "compare":
-      return [R.compare, R.compareBounded, J.compareScope];
+      return [[R.compare], [R.compareBounded, J.compareScope]];
     case "scenarios":
-      return [R.scenarios, R.scenariosBounded, J.compareScope];
+      return [[R.scenarios], [R.scenariosBounded, J.compareScope]];
     case "draft":
-      return [J.draftNote];
+      return [[J.draftNote], []];
   }
 }
 
 export function ReviewNote({ place, c, best = false }: { place: ReviewPlace; c?: CaseResponse; best?: boolean }) {
+  const [main, more] = lines(place, c, best);
   return (
     <div
       role="note"
@@ -42,9 +48,24 @@ export function ReviewNote({ place, c, best = false }: { place: ReviewPlace; c?:
       data-review-note={place}
       className={`no-print duo flex flex-col gap-1.5 border border-line bg-sheet px-4 py-2.5 text-[12.5px] text-dim ${place === "draft" ? "mx-auto mb-4 w-full max-w-[760px]" : place === "origin" ? "mt-5 max-w-[80ch]" : "max-w-[80ch]"}`}
     >
-      {lines(place, c, best).map((l) => (
+      {main.map((l) => (
         <p key={l}>{l}</p>
       ))}
+      {more.length > 0 && (
+        <details className="group">
+          <summary className="inline-flex min-h-6 cursor-pointer list-none items-center gap-1.5 text-ok [&::-webkit-details-marker]:hidden">
+            <span aria-hidden="true" className="inline-block w-3 text-dim transition-transform group-open:rotate-90">
+              ▸
+            </span>
+            {copy.review.more}
+          </summary>
+          {more.map((l) => (
+            <p key={l} className="mt-1">
+              {l}
+            </p>
+          ))}
+        </details>
+      )}
     </div>
   );
 }

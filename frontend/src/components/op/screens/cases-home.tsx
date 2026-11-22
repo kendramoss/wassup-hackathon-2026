@@ -7,10 +7,10 @@ import { useEffect, useRef, useState, type KeyboardEvent as ReactKeyboardEvent }
 import { api, type CaseResponse, type CaseSummary, type DemoList } from "@/lib/api/client";
 import { VIEWER_REASON, caseReadOnly } from "@/lib/roles";
 import { copy } from "@/lib/copy";
-import { BAR, conf, formatDate, originConf, originConfCaption, stepIndex, stepNames } from "@/lib/format";
+import { conf, formatDate, originConf, originConfCaption, stepIndex, stepNames } from "@/lib/format";
 import { currentOrigin } from "../case-shell";
 import { netText } from "../ops-view";
-import { backtestMatch, checkWords, movePhrase, type ActualChangeExtras } from "../plan-bits";
+import { backtestMatch, movePhrase, type ActualChangeExtras } from "../plan-bits";
 import { ErrorBox, Main } from "../chrome";
 import { Button, ButtonLink, Chip, Country, ScrollX, Spinner, StatusChip, cx } from "../ui";
 import { WorkspacePanel } from "../workspace-panel";
@@ -55,7 +55,7 @@ export function CasesHome() {
       <div className="flex flex-wrap items-end gap-3">
         <div>
           <h1 className="text-[28px] tracking-[-0.05em]">{copy.cases.title}</h1>
-          <p className="duo mt-1 text-dim">Predict the origin CBP would likely assign, then plan a move that earlier rulings support.</p>
+          <p className="duo mt-1 text-dim">Open a demo, or start your own.</p>
         </div>
         <div className="ml-auto flex flex-wrap gap-2">
           <ButtonLink href="/triage" variant="ghost">
@@ -97,7 +97,11 @@ export function CasesHome() {
           {unseeded.length > 0 && (
             <div className="mt-6">
               <h3 className="eyebrow mb-1">{copy.cases.moreDemos}</h3>
-              <p className="read mb-3 max-w-[90ch] text-[12.5px] text-dim">{copy.cases.moreDemosNote} {copy.cases.recorded.selection}</p>
+              <p className="read max-w-[90ch] text-[12.5px] text-dim">{copy.cases.moreDemosNote}</p>
+              <details className="mb-3 text-[12.5px] text-dim">
+                <summary className="inline-flex min-h-6 cursor-pointer items-center text-ok">{copy.cases.howPicked}</summary>
+                <p className="read max-w-[90ch]">{copy.cases.recorded.selection}</p>
+              </details>
               <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
                 {unseeded.map((d) => (
                   <LoadDemoCard key={d.id} d={d} />
@@ -185,9 +189,8 @@ export function LoadDemoCard({ d }: { d: NonNullable<DemoList["demos"]>[number] 
       <span className="mt-auto flex flex-wrap items-center justify-between gap-2 border-t border-line pt-2 text-xs">
         <span className="text-ok">Load demo →</span>
         <Chip tone="ask" className="whitespace-normal">
-          {copy.cases.recorded.unseeded}
+          {d.has_plan ? copy.cases.recorded.planRuns : copy.cases.recorded.unseeded}
         </Chip>
-        {d.has_plan && <Chip>{copy.cases.recorded.planRuns}</Chip>}
       </span>
     </article>
   );
@@ -199,14 +202,20 @@ export function LoadDemoCard({ d }: { d: NonNullable<DemoList["demos"]>[number] 
 function RecordedRun({ r }: { r: NonNullable<NonNullable<DemoList["demos"]>[number]["recorded"]> }) {
   const T = copy.cases.recorded;
   return (
-    <span className="flex flex-col gap-1 border-t border-line pt-2 text-xs" title={`${r.run}. ${r.file}`}>
-      <span className="eyebrow">{T.label}</span>
+    <details className="relative z-10 border-t border-line pt-2 text-xs" title={`${r.run}. ${r.file}`}>
+      <summary className="flex min-h-6 cursor-pointer list-none items-center gap-2 [&::-webkit-details-marker]:hidden">
+        <span aria-hidden="true" className="text-dim">
+          ▸
+        </span>
+        <span className="eyebrow">{T.label}</span>
+        <Chip tone={r.agrees_with_cbp ? "ok" : "fail"}>{r.agrees_with_cbp ? T.agrees : T.disagrees}</Chip>
+      </summary>
+      <span className="mt-1 flex flex-col gap-1">
       <span className="flex flex-wrap items-center gap-x-2 gap-y-1">
         <span>
           {T.engine} <Country name={r.engine_origin} />
         </span>
         <span className="text-dim">{originConfCaption(originConf({ confidence: r.stated_confidence, calibrated_confidence: r.calibrated_confidence }))}</span>
-        <Chip tone={r.agrees_with_cbp ? "ok" : "fail"}>{r.agrees_with_cbp ? T.agrees : T.disagrees}</Chip>
       </span>
       {r.best_plan ? (
         <span className="text-dim">
@@ -226,7 +235,8 @@ function RecordedRun({ r }: { r: NonNullable<NonNullable<DemoList["demos"]>[numb
           {T.recordLink}
         </a>
       )}
-    </span>
+      </span>
+    </details>
   );
 }
 
@@ -275,31 +285,28 @@ export function DemoCard({ c, demo }: { c: CaseSummary; demo?: NonNullable<DemoL
       <span className="text-[26px] leading-none tracking-[-0.05em]">
         <Country name={c.predicted_origin} size={18} />
       </span>
-      <span className="flex flex-wrap items-center gap-2">
+      <span className="flex flex-wrap items-center gap-2" title={originConfCaption(originConf(c))}>
         <StatusChip route={c.triage_route} />
-        <span className="text-xs text-dim">{originConfCaption(originConf(c))}</span>
       </span>
       {cur?.country && (
         <span className="text-xs text-dim">
           CBP held <Country name={cur.country} />
           {cur.ruling ? `, ${cur.ruling}` : ""}
-          {differs ? ". Unde's prediction differs; the plan starts from CBP's holding." : ""}
+          {differs ? " · Unde differs; plans start from CBP's answer" : ""}
         </span>
       )}
       {/* What the prediction read (D220): the same setup can give two answers
           from CBP's text and from the parts list. */}
       {full?.facts_source && (
         <span className="text-xs text-dim">
-          {full.facts_source === "pasted"
-            ? "Unde read CBP's own text for this setup; scenarios and plans read its parts list."
-            : "Unde read the structured parts list, not CBP's text. From CBP's text the same setup can get another answer."}
+          {full.facts_source === "pasted" ? "Read from CBP's text; plans read the parts list." : "Read from the parts list, not CBP's text."}
         </span>
       )}
       {c.date && <span className="text-xs text-dim">{copy.cases.demoDate(formatDate(c.date))}</span>}
       <span className="duo mt-auto border-t border-line pt-2 text-xs">
         {best ? (
           <>
-            <span className="text-ok">Plan:</span> move {movePhrase(best)} to {full?.plan?.target} · check {conf(best.verdict?.confidence)} ({checkWords(best.verdict?.confidence)}) ·{" "}
+            <span className="text-ok">✓ Plan:</span> move {movePhrase(best)} to {full?.plan?.target} ·{" "}
             {full?.plan_economics_stale ? (
               copy.stale.title.toLowerCase()
             ) : (
@@ -309,12 +316,12 @@ export function DemoCard({ c, demo }: { c: CaseSummary; demo?: NonNullable<DemoL
                 {best.operations ? " · modelled terms only" : ""}
               </>
             )}
-            {match.matches ? <> · matches CBP&apos;s real change{match.ruling ? ` (${match.ruling})` : ""}</> : null}
+            {match.matches ? <> · matches CBP&apos;s real change</> : null}
           </>
         ) : full?.plan ? (
-          <span className="text-ask">No plan cleared the {BAR} precedent-check bar</span>
+          <span className="text-ask">No backed plan found</span>
         ) : compared > 0 ? (
-          <span className="text-ok">Country comparison recorded: {compared} countries</span>
+          <span className="text-ok">{compared} countries compared</span>
         ) : full && !full.product ? (
           <span className="text-dim">{copy.cases.recorded.originOnly}</span>
         ) : (
