@@ -479,3 +479,30 @@ func TestEveryShortCTSHRuleIsSafe(t *testing.T) {
 	}
 	t.Logf("checked %d heading/chapter CTSH rules", checked)
 }
+
+// #672: finite inputs whose ratios or sums overflow must produce a client
+// error, not a result that JSON cannot encode (which the route turns into 500).
+func TestComputedNonFiniteIsBadInput(t *testing.T) {
+	for _, tc := range []struct {
+		name string
+		in   Input
+	}{
+		{"tiny fob", Input{HS: "8471.30", ProducedIn: "Japan", FOB: f(1e-300), Materials: []Material{
+			nonOrig("chip", "8471.30", 1e10),
+		}}},
+		{"materials sum overflows", Input{HS: "8471.30", ProducedIn: "Japan", FOB: f(1e308), Materials: []Material{
+			nonOrig("a", "8471.30", 1e308), nonOrig("b", "8471.30", 1e308),
+		}}},
+		{"costs sum overflows", Input{HS: "8471.30", ProducedIn: "Japan", FOB: f(100),
+			Costs:     &Costs{Labour: 1e308, Overhead: 1e308, Profit: 1e308, Other: 1e308},
+			Materials: []Material{nonOrig("chip", "8471.50", 10)},
+		}},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			res, err := Check(tc.in)
+			if !errors.Is(err, ErrInput) {
+				t.Fatalf("want ErrInput, got err=%v result=%+v", err, res)
+			}
+		})
+	}
+}

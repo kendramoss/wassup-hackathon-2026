@@ -326,14 +326,71 @@ func (t *Table) Check(in Input) (Result, error) {
 		case in.Variant != "":
 			return Result{}, bad("variant %q is not one of %s", in.Variant, variantIDs(r.Variants))
 		default:
-			return t.eachVariant(in, mats, res, r), nil
+			variantRes := t.eachVariant(in, mats, res, r)
+			if err := finiteResult(variantRes); err != nil {
+				return Result{}, err
+			}
+			return variantRes, nil
 		}
 	}
 	t.applyAlternatives(in, good, mats, alts, &res)
+	if err := finiteResult(res); err != nil {
+		return Result{}, err
+	}
 	if len(in.Operations) == 0 && res.Outcome == Yes {
 		say("This assumes the work done is more than the minimal operations of Art. 3.6.")
 	}
 	return res, nil
+}
+
+// finiteResult rejects a result whose computed shares are not finite. The
+// inputs can each be finite and in range while their quotient or sum overflows
+// (#672); encoding such a result fails and the route would answer 500. Naming
+// the share in the error keeps the answer an actionable invalid_input (400).
+func finiteResult(res Result) error {
+	share := func(name string, v float64) error {
+		if math.IsInf(v, 0) || math.IsNaN(v) {
+			return bad("computed %s share is not finite; reduce the values", name)
+		}
+		return nil
+	}
+	ptr := func(name string, p *float64) error {
+		if p == nil {
+			return nil
+		}
+		return share(name, *p)
+	}
+	if rvc := res.RVC; rvc != nil {
+		for _, c := range []struct {
+			name string
+			p    *float64
+		}{
+			{"build-down", rvc.BuildDown}, {"build-up", rvc.BuildUp},
+		} {
+			if err := ptr(c.name, c.p); err != nil {
+				return err
+			}
+		}
+		for _, c := range []struct {
+			name string
+			v    float64
+		}{
+			{"VNM", rvc.VNM}, {"VOM", rvc.VOM},
+		} {
+			if err := share(c.name, c.v); err != nil {
+				return err
+			}
+		}
+	}
+	if dm := res.DeMinimis; dm != nil {
+		if err := ptr("de minimis value", dm.ValueShare); err != nil {
+			return err
+		}
+		if err := ptr("de minimis weight", dm.WeightShare); err != nil {
+			return err
+		}
+	}
+	return nil
 }
 
 // eachVariant decides a rule that depends on the product when the caller
