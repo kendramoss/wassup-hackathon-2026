@@ -715,3 +715,30 @@ func TestStaleRound15PhrasesFail(t *testing.T) {
 		t.Fatalf("current wording should pass, got %v", r.Failures)
 	}
 }
+
+// #658: README links eval/RESULTS.md as the results page, so the D670 guard
+// has to read it too. D631's "Worse" bullet read N363381 as a new miss though
+// D571 did not plan it and D601 had already scored it wrong.
+func TestStaleN363381ReadingFails(t *testing.T) {
+	stale := "- Worse: the engine misses one more current setup than in D571 (N363381, United States against CBP's Canada).\n"
+	for _, path := range []string{"docs/notes.md", "eval/RESULTS.md"} {
+		t.Run(path, func(t *testing.T) {
+			f := newFixture(t)
+			if path == "eval/RESULTS.md" {
+				f.edit(t, path, func(s string) string { return s + stale })
+			} else {
+				write(t, f.root, path, stale)
+			}
+			r := Check(f.root, f.doc)
+			if !hasFailure(r, "stale phrase") {
+				t.Fatalf("%s: want a stale-phrase failure, got %v", path, r.Failures)
+			}
+		})
+	}
+	f := newFixture(t)
+	current := "- N363381 is not a new miss: D571 did not plan it and D601 had already scored it wrong.\n"
+	f.edit(t, "eval/RESULTS.md", func(s string) string { return s + current })
+	if r := Check(f.root, f.doc); hasFailure(r, "stale phrase") {
+		t.Fatalf("current wording should pass, got %v", r.Failures)
+	}
+}
