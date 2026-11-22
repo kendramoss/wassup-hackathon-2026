@@ -135,10 +135,10 @@ test("/method has no sentence that starts with a lowercase word", async () => {
   assert.doesNotMatch(t, /accuracy \(D442\)\. On three|move check\. accuracy/);
 });
 
-// Judge panel round 11, item 3; round 12, item 4: the D541 actuator search
-// (N348465), with the Part 102 engine predicting each move and the D501
-// general-engine prediction beside it, rebuilt by plans102-example in make
-// reproduce.
+// Judge panel round 11, item 3; round 12, item 4; round 13, item 3: the D630
+// actuator search (N348465), with the production Part 102 engine (usmca-v5)
+// predicting each move and the D541 (usmca-v1) and D501 (general engine)
+// predictions beside it, rebuilt by plans102-example in make reproduce.
 const p102 = json("part102-plan-example.json");
 
 test("the Part 102 example is N348465's development search: every motor move shifts to Canada, no other move does", () => {
@@ -157,13 +157,17 @@ test("the Part 102 example is N348465's development search: every motor move shi
   assert.equal(alone.verdict.confidence, 0.85);
   assert.equal(alone.shown, false);
   assert.doesNotMatch(p102.product, /country of origin/i, "the fixture names the product (D532)");
-  // D541: the run is the Part 102 engine's; it agrees with the rule on every move, the D501 general engine on 9.
-  assert.match(p102.run, /-d540-litellm\.json$/);
+  // D631: the run is the production Part 102 engine's (usmca-v5, D630); it agrees with the rule on every move,
+  // as usmca-v1 did in D541; the D501 general engine on 9.
+  assert.match(p102.run, /-d630-litellm\.json$/);
+  assert.match(p102.run_d541, /-d540-litellm\.json$/);
   assert.match(p102.run_d501, /-d501-litellm\.json$/);
-  assert.equal(p102.engine, "usmca-v1");
+  assert.equal(p102.engine, "usmca-v5");
   assert.equal(p102.moves, 12);
   assert.equal(p102.engine_agrees_with_rule, 12);
+  assert.equal(p102.engine_agrees_with_rule_d541, 12);
   assert.equal(p102.engine_agrees_with_rule_d501, 9);
+  for (const m of all) assert.equal(m.engine_origin_d541 === "Canada", m.moves_motor, m.key);
   for (const m of all) assert.equal(m.engine_origin === "Canada", m.moves_motor, m.key);
   assert.equal(all.filter((m) => !m.moves_motor && m.engine_origin_d501 === "Canada").length, 3);
 });
@@ -185,12 +189,15 @@ test("the Part 102 page shows the moves, the shown plan, the draft's Part 102 qu
   assert.equal((t.match(/The general engine predicted Canada here, though the rule says the move does not shift; the Part 102 engine does not\./g) ?? []).length, 3);
   assert.doesNotMatch(t, /The Part 102 engine and the rule disagree/);
   assert.match(t, /On 12 of 12 moves it agrees with the rule/);
-  assert.match(t, /the general engine agreed on 9 of 12 \(D502\)/);
+  assert.match(t, /usmca-v1 agreed on 12 of 12 \(D541\) and the general engine on 9 \(D502\)/);
+  // Round 13, item 3: the page names the run and engine of each prediction.
+  assert.match(t, /The production Part 102 engine, usmca-v5, predicted each move \(D630/);
+  assert.match(t, /Part 102 engine \(usmca-v5\): Canada\. usmca-v1 in the earlier run \(D541\): Canada\./);
   // Round 12, N6: the order key is not shown raw; round 12, N5: the note beside the letter is the Part 102 engine's.
   assert.doesNotMatch(t, /tier_then_rule_then_net/);
   assert.match(t, /Asked under the Part 102 rules \(19 C\.F\.R\. § 102\.11\) for marking because the prediction behind the requester's position was made under that regime/);
   assert.doesNotMatch(t, /made by Unde's general engine/);
-  assert.match(t, /cleaned after both runs \(D532\)/);
+  assert.match(t, /cleaned in D532, after the two earlier runs/);
   assert.doesNotMatch(t, /a The country of origin|of the country of origin of/i);
   assert.doesNotMatch(m, /<form|<button|cases\/new/);
 });

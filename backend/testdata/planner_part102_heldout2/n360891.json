@@ -1,0 +1,91 @@
+{
+  "_source": "Built mechanically from the facts of CBP ruling N360891 (2026-05-13, held-out Part 102 window final; subject: \"The tariff classification, country of origin, and eligibility of the United States-Mexico-Canada Agreement (USMCA) of an insulating panel\"). Frozen by the D570 rule before any run. CBP held Canada. Components: the D362 materials; part codes: the top D381 held-out suggestion (unverified, D382); the good's code: CBP's (8708.29.5160). Family and name: the family check (plastic_articles, 0.88); name from the subject (D381 rule). Materials with no country left out (0: none). Groups: one model call with the production extractor's group rule (groups-f20.jsonl, D630). Plants one per country; operations one per group and plant plus final assembly in Canada. Target China by the D171 rule counted mechanically; plant capabilities for China are an assumption. Economics illustrative. D570 set, second pass D630.",
+  "case_id": "p102h-n360891",
+  "date": "2026-05-13",
+  "family": "plastic_articles",
+  "target": "China",
+  "product": {
+    "name": "insulating panel",
+    "description": "The product of CBP ruling N360891, as its facts describe it.",
+    "hts": "8708.29.5160",
+    "plants": [
+      {
+        "id": "canada",
+        "name": "Canada plant",
+        "country": "Canada",
+        "capabilities": [
+          "final_assembly"
+        ]
+      },
+      {
+        "id": "china",
+        "name": "China suppliers",
+        "country": "China",
+        "capabilities": [
+          "film_sheet_cutting"
+        ]
+      },
+      {
+        "id": "united_states",
+        "name": "United States suppliers",
+        "country": "United States",
+        "capabilities": [
+          "film_sheet_cutting"
+        ]
+      }
+    ],
+    "components": [
+      {
+        "name": "Plaskolite Tuffac polycarbonate sheet",
+        "made_in": "United States",
+        "plant": "united_states",
+        "group": "film_sheet_cutting",
+        "hts": "3920.61.00"
+      },
+      {
+        "name": "double-sided adhesive nano tape",
+        "made_in": "China",
+        "plant": "china",
+        "hts": "3919.10.20",
+        "hts_alternatives": [
+          "3919.90.50"
+        ]
+      }
+    ],
+    "operations": [
+      {
+        "name": "make the Plaskolite Tuffac polycarbonate sheet",
+        "plant": "united_states",
+        "group": "film_sheet_cutting"
+      },
+      {
+        "name": "assemble the parts into the finished good",
+        "plant": "canada",
+        "group": "final_assembly"
+      }
+    ]
+  },
+  "economics": {
+    "illustrative": true,
+    "annual_import_value_usd": 1000000,
+    "duty_rates": {
+      "Canada": 0.125,
+      "China": 0.425,
+      "United States": 0.0
+    },
+    "duty_rates_note": "Illustrative placeholder, not a sourced rate.",
+    "group_costs": {
+      "film_sheet_cutting": {
+        "united_states": 100000,
+        "china": 125000
+      }
+    }
+  },
+  "exclude_rulings": [
+    "N360891"
+  ],
+  "current_origin": {
+    "country": "Canada",
+    "ruling": "N360891"
+  }
+}

@@ -39,7 +39,9 @@ test("/method labels the plan agreement figures usmca-v1's and names D591 and D6
   assert.match(t, /usmca-v1 agreed with the rule on 3 of 6 moves/);
   assert.match(t, /D591/);
   assert.match(t, /Since 22 Nov the Part 102 engine is usmca-v5, which fills a short 102\.11 checklist first\. On the development plan rows it agrees with the rule on 56 of 57 decided rows, against 43 for usmca-v1/);
-  assert.match(t, /have not been re-run with it yet/);
+  // D631: the held-out plan set was re-run with usmca-v5; the line reports it.
+  assert.doesNotMatch(t, /have not been re-run with it yet/);
+  assert.match(t, /with usmca-v5 and 20 families, planned 8 of 18; the engine agreed with the rule on 6 of 6 decided moves/);
 });
 
 test("README, DEMO and the Part 102 example note carry the same labels (#631, #634)", () => {
@@ -50,8 +52,11 @@ test("README, DEMO and the Part 102 example note carry the same labels (#631, #6
   assert.match(readme, /17 of 45 \(16 right\) against 22 \(D602, D613\)/);
   assert.doesNotMatch(read("docs/DEMO.md"), /\b14 product families/);
   const copy = read("frontend/src/lib/copy.ts");
-  assert.match(copy, /the Part 102 engine of this run \(usmca-v1\) agrees with the rule on 13 of 14 moves/);
-  assert.match(copy, /Since 22 Nov the Part 102 engine in use is usmca-v5 \(D602\)/);
+  // D631: the example is now a usmca-v5 run; usmca-v1's figures stay labelled as usmca-v1's.
+  assert.match(copy, /On the three development searches usmca-v1 agreed with the rule on 13 of 14 moves \(D541\)/);
+  assert.match(copy, /one plan search with the production Part 102 engine \(usmca-v5\), run once \(D630\)/);
+  assert.match(readme, /usmca-v5` and 20 families planned 8 of 18, and the engine agreed with the rule on 6 of 6 decided moves/);
+  assert.doesNotMatch(readme, /have not been re-run with `usmca-v5`/);
 });
 
 test("the new figures are in docs/NUMBERS.md", () => {

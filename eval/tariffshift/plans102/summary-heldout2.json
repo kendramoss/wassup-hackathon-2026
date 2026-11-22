@@ -1,0 +1,550 @@
+{
+  "note": "The second, pre-registered pass on the D570 held-out Part 102 plan set (D630): the same 18 frozen rulings, the second scoring of this set. Templates from the 20-family check committed in D581 (not re-run); D571's group rows and fixtures where the family is unchanged, otherwise one group call and a fixture by the same fixed rules; one plan search each with the production Part 102 engine (usmca-v5, the product's codes in the facts, D602) predicting every move, through an OpenAI-compatible LiteLLM gateway to Gemini. Scored as D571. Part codes are unverified held-out suggestions (D382). Recompute: cd backend \u0026\u0026 go run ./cmd/tariffshift plans102-eval -series heldout2 -check",
+  "searches": [
+    {
+      "ruling": "N357951",
+      "family": "furniture",
+      "target": "United States",
+      "cbp_origin": "Canada",
+      "moves_searched": 1,
+      "shown": 0,
+      "current_setup": {
+        "status": "other_country",
+        "origin": "Canada",
+        "label": "102.20 gives Canada",
+        "agrees_with_cbp": true
+      },
+      "moves_by_status": {
+        "other_country": 1
+      },
+      "moves_rule_shifts": null,
+      "shown_moves_rule_shifts": null,
+      "precedent_supports_rule_other_country": null,
+      "shown_order_planner": null,
+      "shown_order_d500": null,
+      "moves_decided": 1,
+      "decided_engine_agrees_with_rule": 1,
+      "moves_rule_leans_no_shift": 0,
+      "lean_engine_agrees_with_rule": 0,
+      "engine_prompt": "usmca-v5",
+      "current_setup_engine_origin": "Canada",
+      "moves_precedent_checked": 0,
+      "gateway_cost_usd": 0.0199,
+      "wall_seconds": 9.598975208,
+      "parts_left_out": 1,
+      "current_setup_engine_agrees_with_cbp": true,
+      "rows_flagged_for_review": 0,
+      "fixture_same_as_d571": true
+    },
+    {
+      "ruling": "N358639",
+      "family": "metal_products",
+      "target": "Mexico",
+      "cbp_origin": "South Korea",
+      "moves_searched": 1,
+      "shown": 1,
+      "current_setup": {
+        "status": "shifts",
+        "origin": "Mexico",
+        "label": "102.20 gives Mexico",
+        "agrees_with_cbp": false
+      },
+      "moves_by_status": {
+        "shifts": 1
+      },
+      "moves_rule_shifts": [
+        "pipe_tube_hose_mfg@mexico"
+      ],
+      "shown_moves_rule_shifts": [
+        "pipe_tube_hose_mfg@mexico"
+      ],
+      "precedent_supports_rule_other_country": null,
+      "shown_order_planner": [
+        "pipe_tube_hose_mfg@mexico"
+      ],
+      "shown_order_d500": [
+        "pipe_tube_hose_mfg@mexico"
+      ],
+      "moves_decided": 1,
+      "decided_engine_agrees_with_rule": 1,
+      "moves_rule_leans_no_shift": 0,
+      "lean_engine_agrees_with_rule": 0,
+      "engine_prompt": "usmca-v5",
+      "current_setup_engine_origin": "Mexico",
+      "moves_precedent_checked": 1,
+      "gateway_cost_usd": 0.041,
+      "wall_seconds": 40.230238542,
+      "shown_rule_status": [
+        "shifts"
+      ],
+      "parts_left_out": 0,
+      "current_setup_engine_agrees_with_cbp": false,
+      "rows_flagged_for_review": 0,
+      "fixture_same_as_d571": false
+    },
+    {
+      "ruling": "N359145",
+      "family": "furniture",
+      "target": "Thailand",
+      "cbp_origin": "Canada",
+      "moves_searched": 1,
+      "shown": 0,
+      "current_setup": {
+        "status": "other_country",
+        "origin": "Canada",
+        "label": "102.20 gives Canada",
+        "agrees_with_cbp": true
+      },
+      "moves_by_status": {
+        "other_country": 1
+      },
+      "moves_rule_shifts": null,
+      "shown_moves_rule_shifts": null,
+      "precedent_supports_rule_other_country": null,
+      "shown_order_planner": null,
+      "shown_order_d500": null,
+      "moves_decided": 1,
+      "decided_engine_agrees_with_rule": 1,
+      "moves_rule_leans_no_shift": 0,
+      "lean_engine_agrees_with_rule": 0,
+      "engine_prompt": "usmca-v5",
+      "current_setup_engine_origin": "Canada",
+      "moves_precedent_checked": 0,
+      "gateway_cost_usd": 0.0199,
+      "wall_seconds": 14.933250625,
+      "parts_left_out": 3,
+      "current_setup_engine_agrees_with_cbp": true,
+      "rows_flagged_for_review": 0,
+      "fixture_same_as_d571": true
+    },
+    {
+      "ruling": "N359690",
+      "family": "vehicle_parts",
+      "target": "China",
+      "cbp_origin": "Canada",
+      "moves_searched": 0,
+      "shown": 0,
+      "current_setup": {
+        "status": "other_country",
+        "origin": "Canada",
+        "label": "102.20 gives Canada",
+        "agrees_with_cbp": true
+      },
+      "moves_by_status": {},
+      "moves_rule_shifts": null,
+      "shown_moves_rule_shifts": null,
+      "precedent_supports_rule_other_country": null,
+      "shown_order_planner": null,
+      "shown_order_d500": null,
+      "moves_decided": 0,
+      "decided_engine_agrees_with_rule": 0,
+      "moves_rule_leans_no_shift": 0,
+      "lean_engine_agrees_with_rule": 0,
+      "engine_prompt": "usmca-v5",
+      "current_setup_engine_origin": "Canada",
+      "moves_precedent_checked": 0,
+      "gateway_cost_usd": 0.0098,
+      "wall_seconds": 10.128826959,
+      "parts_left_out": 14,
+      "current_setup_engine_agrees_with_cbp": true,
+      "rows_flagged_for_review": 0,
+      "fixture_same_as_d571": true
+    },
+    {
+      "ruling": "N360891",
+      "family": "plastic_articles",
+      "target": "China",
+      "cbp_origin": "Canada",
+      "moves_searched": 1,
+      "shown": 0,
+      "current_setup": {
+        "status": "other_country",
+        "origin": "Canada",
+        "label": "102.20 gives Canada",
+        "agrees_with_cbp": true
+      },
+      "moves_by_status": {
+        "other_country": 1
+      },
+      "moves_rule_shifts": null,
+      "shown_moves_rule_shifts": null,
+      "precedent_supports_rule_other_country": null,
+      "shown_order_planner": null,
+      "shown_order_d500": null,
+      "moves_decided": 1,
+      "decided_engine_agrees_with_rule": 1,
+      "moves_rule_leans_no_shift": 0,
+      "lean_engine_agrees_with_rule": 0,
+      "engine_prompt": "usmca-v5",
+      "current_setup_engine_origin": "Canada",
+      "moves_precedent_checked": 0,
+      "gateway_cost_usd": 0.02,
+      "wall_seconds": 16.468448792,
+      "parts_left_out": 0,
+      "current_setup_engine_agrees_with_cbp": true,
+      "rows_flagged_for_review": 0,
+      "fixture_same_as_d571": false
+    },
+    {
+      "ruling": "N362347",
+      "family": "wood_panels_flooring",
+      "target": "Paraguay",
+      "cbp_origin": "Canada",
+      "moves_searched": 1,
+      "shown": 0,
+      "current_setup": {
+        "status": "other_country",
+        "origin": "Canada",
+        "label": "102.20 gives Canada",
+        "agrees_with_cbp": true
+      },
+      "moves_by_status": {
+        "other_country": 1
+      },
+      "moves_rule_shifts": null,
+      "shown_moves_rule_shifts": null,
+      "precedent_supports_rule_other_country": null,
+      "shown_order_planner": null,
+      "shown_order_d500": null,
+      "moves_decided": 1,
+      "decided_engine_agrees_with_rule": 1,
+      "moves_rule_leans_no_shift": 0,
+      "lean_engine_agrees_with_rule": 0,
+      "engine_prompt": "usmca-v5",
+      "current_setup_engine_origin": "Canada",
+      "moves_precedent_checked": 0,
+      "gateway_cost_usd": 0.0197,
+      "wall_seconds": 8.486567875,
+      "parts_left_out": 1,
+      "current_setup_engine_agrees_with_cbp": true,
+      "rows_flagged_for_review": 0,
+      "fixture_same_as_d571": false
+    },
+    {
+      "ruling": "N362414",
+      "family": "vehicle_parts",
+      "target": "China",
+      "cbp_origin": "Canada",
+      "moves_searched": 1,
+      "shown": 0,
+      "current_setup": {
+        "status": "other_country",
+        "origin": "Canada",
+        "label": "102.20 gives Canada",
+        "agrees_with_cbp": true
+      },
+      "moves_by_status": {
+        "other_country": 1
+      },
+      "moves_rule_shifts": null,
+      "shown_moves_rule_shifts": null,
+      "precedent_supports_rule_other_country": null,
+      "shown_order_planner": null,
+      "shown_order_d500": null,
+      "moves_decided": 1,
+      "decided_engine_agrees_with_rule": 1,
+      "moves_rule_leans_no_shift": 0,
+      "lean_engine_agrees_with_rule": 0,
+      "engine_prompt": "usmca-v5",
+      "current_setup_engine_origin": "Canada",
+      "moves_precedent_checked": 0,
+      "gateway_cost_usd": 0.0263,
+      "wall_seconds": 16.191603792,
+      "parts_left_out": 10,
+      "current_setup_engine_agrees_with_cbp": true,
+      "rows_flagged_for_review": 0,
+      "fixture_same_as_d571": true
+    },
+    {
+      "ruling": "N363381",
+      "family": "machinery_parts",
+      "target": "Vietnam",
+      "cbp_origin": "Canada",
+      "moves_searched": 1,
+      "shown": 0,
+      "current_setup": {
+        "status": "undetermined",
+        "label": "102.20 undetermined (chapter 96 not encoded)",
+        "agrees_with_cbp": false
+      },
+      "moves_by_status": {
+        "undetermined": 1
+      },
+      "moves_rule_shifts": null,
+      "shown_moves_rule_shifts": null,
+      "precedent_supports_rule_other_country": null,
+      "shown_order_planner": null,
+      "shown_order_d500": null,
+      "moves_decided": 0,
+      "decided_engine_agrees_with_rule": 0,
+      "moves_rule_leans_no_shift": 0,
+      "lean_engine_agrees_with_rule": 0,
+      "engine_prompt": "usmca-v5",
+      "current_setup_engine_origin": "United States",
+      "moves_precedent_checked": 0,
+      "gateway_cost_usd": 0.019,
+      "wall_seconds": 7.939158959,
+      "parts_left_out": 8,
+      "current_setup_engine_agrees_with_cbp": false,
+      "rows_flagged_for_review": 0,
+      "fixture_same_as_d571": false
+    }
+  ],
+  "gateway_cost_usd": 0.1757,
+  "frozen_set": [
+    {
+      "ruling": "N357063",
+      "cbp_origin": "Canada",
+      "target": "United States",
+      "family": "none",
+      "family_confidence": 0.85,
+      "outcome": "no plan template"
+    },
+    {
+      "ruling": "N357927",
+      "cbp_origin": "Canada",
+      "target": "China",
+      "family": "none",
+      "family_confidence": 0.85,
+      "outcome": "no plan template"
+    },
+    {
+      "ruling": "N357951",
+      "cbp_origin": "Canada",
+      "target": "United States",
+      "family": "furniture",
+      "family_confidence": 0.98,
+      "outcome": "fixture built"
+    },
+    {
+      "ruling": "N359145",
+      "cbp_origin": "Canada",
+      "target": "Thailand",
+      "family": "furniture",
+      "family_confidence": 0.98,
+      "outcome": "fixture built"
+    },
+    {
+      "ruling": "N359001",
+      "cbp_origin": "Canada",
+      "target": "United States",
+      "family": "none",
+      "family_confidence": 0.9,
+      "outcome": "no plan template"
+    },
+    {
+      "ruling": "N358639",
+      "cbp_origin": "South Korea",
+      "target": "Mexico",
+      "family": "metal_products",
+      "family_confidence": 0.88,
+      "outcome": "fixture built"
+    },
+    {
+      "ruling": "N359569",
+      "cbp_origin": "Canada",
+      "target": "United States",
+      "family": "none",
+      "family_confidence": 0.95,
+      "outcome": "no plan template"
+    },
+    {
+      "ruling": "N359933",
+      "cbp_origin": "Canada",
+      "target": "United States",
+      "family": "none",
+      "family_confidence": 0.99,
+      "outcome": "no plan template"
+    },
+    {
+      "ruling": "N359690",
+      "cbp_origin": "Canada",
+      "target": "China",
+      "family": "vehicle_parts",
+      "family_confidence": 0.85,
+      "outcome": "fixture built"
+    },
+    {
+      "ruling": "H351116",
+      "cbp_origin": "United States",
+      "target": "Mexico",
+      "family": "none",
+      "family_confidence": 0.95,
+      "outcome": "no plan template"
+    },
+    {
+      "ruling": "N360891",
+      "cbp_origin": "Canada",
+      "target": "China",
+      "family": "plastic_articles",
+      "family_confidence": 0.88,
+      "outcome": "fixture built"
+    },
+    {
+      "ruling": "N361490",
+      "cbp_origin": "Canada",
+      "target": "United States",
+      "family": "none",
+      "family_confidence": 0.95,
+      "outcome": "no plan template"
+    },
+    {
+      "ruling": "N362347",
+      "cbp_origin": "Canada",
+      "target": "Paraguay",
+      "family": "wood_panels_flooring",
+      "family_confidence": 0.98,
+      "outcome": "fixture built"
+    },
+    {
+      "ruling": "N362414",
+      "cbp_origin": "Canada",
+      "target": "China",
+      "family": "vehicle_parts",
+      "family_confidence": 0.85,
+      "outcome": "fixture built"
+    },
+    {
+      "ruling": "N362599",
+      "cbp_origin": "Mexico",
+      "target": "China",
+      "family": "none",
+      "family_confidence": 0.95,
+      "outcome": "no plan template"
+    },
+    {
+      "ruling": "N363381",
+      "cbp_origin": "Canada",
+      "target": "Vietnam",
+      "family": "machinery_parts",
+      "family_confidence": 0.8,
+      "outcome": "fixture built"
+    },
+    {
+      "ruling": "N364328",
+      "cbp_origin": "Mexico",
+      "target": "China",
+      "family": "",
+      "family_confidence": 0,
+      "outcome": "family check failed"
+    },
+    {
+      "ruling": "N364405",
+      "cbp_origin": "Mexico",
+      "target": "Vietnam",
+      "family": "none",
+      "family_confidence": 0.9,
+      "outcome": "no plan template"
+    }
+  ],
+  "pooled": {
+    "frozen": 18,
+    "template_found": {
+      "k": 8,
+      "n": 18,
+      "ci95": [
+        0.2456,
+        0.6628
+      ]
+    },
+    "planned_end_to_end": {
+      "k": 8,
+      "n": 18,
+      "ci95": [
+        0.2456,
+        0.6628
+      ]
+    },
+    "searches_with_a_move": 7,
+    "moves": 7,
+    "moves_decided": 6,
+    "decided_moves_engine_agrees_with_rule": {
+      "k": 6,
+      "n": 6,
+      "ci95": [
+        0.6097,
+        1
+      ]
+    },
+    "lean_moves_engine_agrees_with_rule": {
+      "k": 0,
+      "n": 0
+    },
+    "shown_plans": 1,
+    "shown_plans_rule_shifts": {
+      "k": 1,
+      "n": 1
+    },
+    "moves_flagged": 0,
+    "current_setup_rule_decided": {
+      "k": 7,
+      "n": 8,
+      "ci95": [
+        0.5291,
+        0.9776
+      ]
+    },
+    "current_setup_rule_decided_agrees_with_cbp": {
+      "k": 6,
+      "n": 7,
+      "ci95": [
+        0.4869,
+        0.9743
+      ]
+    },
+    "current_setup_engine_agrees_with_cbp": {
+      "k": 6,
+      "n": 8,
+      "ci95": [
+        0.4093,
+        0.9285
+      ]
+    },
+    "backtests": 0,
+    "planned_without_leaked_inputs": 8,
+    "rows_flagged_for_review": 0
+  },
+  "pooled_same_fixture_as_d571": {
+    "frozen": 0,
+    "template_found": {
+      "k": 0,
+      "n": 0
+    },
+    "planned_end_to_end": {
+      "k": 0,
+      "n": 0
+    },
+    "searches_with_a_move": 3,
+    "moves": 3,
+    "moves_decided": 3,
+    "decided_moves_engine_agrees_with_rule": {
+      "k": 3,
+      "n": 3
+    },
+    "lean_moves_engine_agrees_with_rule": {
+      "k": 0,
+      "n": 0
+    },
+    "shown_plans": 0,
+    "shown_plans_rule_shifts": {
+      "k": 0,
+      "n": 0
+    },
+    "moves_flagged": 0,
+    "current_setup_rule_decided": {
+      "k": 4,
+      "n": 4
+    },
+    "current_setup_rule_decided_agrees_with_cbp": {
+      "k": 4,
+      "n": 4
+    },
+    "current_setup_engine_agrees_with_cbp": {
+      "k": 4,
+      "n": 4
+    },
+    "backtests": 0,
+    "planned_without_leaked_inputs": 4,
+    "rows_flagged_for_review": 0
+  }
+}

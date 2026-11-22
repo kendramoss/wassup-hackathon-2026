@@ -166,7 +166,7 @@ The same three searches run again with the Part 102 engine predicting each move,
 | Actuator plans shown | 2, both moves the rule says shift (D502: 1) | same | Measured. The precedent check varies run to run |
 | Moves precedent supports while the rule gives another country | 1, the compressors (D502: 2) | same | Measured. The Part 102 engine still predicts China there |
 | Cost | $0.3416 for the 3 searches (actuator $0.2770, 37 s); $0.1724 more for an invalid first attempt with no local corpus, not scored | same; `eval/results/RUNLOG.jsonl` (`planner-part102-d540-litellm`, `planner-part102-d540-nocorpus-litellm`) | Measured, gateway-reported |
-| Recorded actuator page: Part 102 engine agrees with the rule (D563) | 12 of 12 moves (6 the rule decides, 6 open only on de minimis); the general engine in the D501 run of the same search: 9 of 12. 2 shown plans, both moves the rule says shift | `frontend/src/lib/part102-plan-example.json` (`engine_agrees_with_rule`, `engine_agrees_with_rule_d501`) from `go run ./cmd/tariffshift plans102-example -check` | Measured, from the committed D541 and D501 runs; one seen development product, not an accuracy figure |
+| Recorded actuator page: Part 102 engine agrees with the rule (D563, re-recorded in D631) | `usmca-v5` (D630 run): 12 of 12 moves (6 the rule decides, 6 open only on de minimis); `usmca-v1` in the D541 run: 12 of 12; the general engine in the D501 run: 9 of 12. 2 shown plans, both moves the rule says shift (not the same two as in the D541 run). Search $0.2923, 47 s | `frontend/src/lib/part102-plan-example.json` (`engine_agrees_with_rule`, `engine_agrees_with_rule_d541`, `engine_agrees_with_rule_d501`) from `go run ./cmd/tariffshift plans102-example -check`; `eval/tariffshift/plans102/runs/plan-p102-n348465-local-verifier-v2-d630-litellm.json` | Measured, from the committed D630, D541 and D501 runs; one seen development product, not an accuracy figure |
 
 ### Part 102 engine with the 102.20 rule text quoted (D550, D551)
 
@@ -197,6 +197,23 @@ The first held-out evaluation of the Part 102 plan pipeline: held-out Part 102 r
 | Current setup: rule gives CBP's holding; engine gives CBP's holding | 5 of 6 decided (95% CI 44–97%); 5 of 6 (44–97%). N358639 is the miss for both | same | Measured, held out |
 | Backtests on a later CBP ruling | 0 (no later ruling names a frozen one) | `frozen.json` (`later_rulings`) | Measured |
 | Cost | $0.3016 in all: plan searches $0.2195 (7 to 35 s each), family check $0.0404, group call $0.0245, development group check $0.0172 | `eval/results/RUNLOG.jsonl` (`planner-part102-heldout-litellm`, `families-coverage-final-all-litellm-p102-heldout`, `part102-heldout-groups`, `part102-heldout-groups-dev`) | Measured, gateway-reported |
+
+### Held-out Part 102 plan set, second pass with `usmca-v5` and 20 families (D630, D631)
+
+The same 18 frozen rulings, scored a second time: pre-registered in D630 before any held-out call, the 20-family check of D581, D571's fixtures where the family is unchanged, and one plan search each with the production Part 102 engine (`usmca-v5`, the product's codes in the facts). Scored by `cd backend && go run ./cmd/tariffshift plans102-eval -series heldout2 -check`; fixtures by `python3 -I eval/planner/part102_heldout.py build2 . --check` (both in `make reproduce`). The D571 figures above stand as the first scoring.
+
+| Number | Value | Source | Status |
+|---|---|---|---|
+| Frozen rulings planned end to end | 8 of 18 (44%, 95% CI 25–66%; D571: 6 of 18) | `eval/tariffshift/plans102/summary-heldout2.json` | Measured, held out, second scoring of the set |
+| Fixtures reused from D571; built new | 4 (N357951, N359145, N359690, N362414, byte for byte); 4 (N358639 now metal products, N360891, N362347, N363381) | `backend/testdata/planner_part102_heldout2/`; `eval/tariffshift/plans102/heldout/groups-f20.jsonl` | Built by the D570 rules |
+| Plan searches run; failed | 8; 0 (none re-run) | `summary-heldout2.json` | Measured, held out |
+| Moves; decided by the 102.20 rule | 7 in 7 searches; 6 (1 shifts, 5 another country; 1 undetermined, chapter 96 not encoded) | same; `moves-heldout2.jsonl` | Measured, held out |
+| Part 102 engine agrees with the rule, decided moves | 6 of 6 (95% CI 61–100%; D571 `usmca-v1`: 3 of 6, 19–81%). On the four fixtures reused from D571: 3 of 3 (D571: 1 of 3) | same (`pooled`, `pooled_same_fixture_as_d571`) | Measured, held out. Moves in a search are not independent; 5 of the 6 are moves where the rule keeps CBP's holding |
+| Shown plans; the rule says they shift | 1; 1 (N358639, pipes, flange and brackets to Mexico, precedent check 0.95, N353124) | same | Measured, held out |
+| Moves precedent supports while the rule gives another country; rows marked for review | 0; 0 (D571's run, scored by the same code: 0; 1) | same; `moves-heldout.jsonl` (`review`) | Measured, held out |
+| Current setup: rule decides; gives CBP's holding; engine gives CBP's holding | 7 of 8; 6 of 7 (95% CI 49–97%); 6 of 8 (41–93%). Misses: N358639 (both), N363381 (engine United States, CBP Canada) | `summary-heldout2.json` | Measured, held out |
+| Search wall time, median / 95th percentile | 12.5 s / 40.2 s (D571: 20.0 s / 35.0 s) | same (`wall_seconds`) | Measured, gateway |
+| Cost | $0.1883: plan searches $0.1757 ($0.022 a search; D571 $0.037), group calls $0.0126 | `eval/results/RUNLOG.jsonl` (`planner-part102-heldout2-litellm`, `part102-heldout-groups-f20`) | Measured, gateway-reported |
 
 ### Part 102 plan templates (D580, D581)
 
