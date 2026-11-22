@@ -10,6 +10,7 @@
 //	go run ./cmd/tariffshift plans-example -check       # the site's recorded plan move check (plans_example.go)
 //	go run ./cmd/tariffshift ground102-eval -check      # usmca-v1 against usmca-v2 on the dev Part 102 rulings (D550; ground102.go)
 //	go run ./cmd/tariffshift p102ck-eval -check         # the D600 compact checklists on the dev Part 102 rulings and, if they pass, held out (p102ck.go)
+//	go run ./cmd/tariffshift p102bar -check             # the usmca-v5 auto-accept bar rule (D610) and the Part 102 latency tail (D611) from committed rows (p102bar.go)
 //
 // The eCFR XML is the full text of 19 CFR Part 102 from
 // https://www.ecfr.gov/api/versioner/v1/full/<date>/title-19.xml?part=102
@@ -30,7 +31,7 @@ import (
 func main() {
 	if len(os.Args) < 2 {
 		fmt.Fprintln(os.Stderr, "usage: tariffshift rules|extract|eval|parts-gold|parts-suggest|parts-eval|parts-example|plans-eval|plans-example [flags]")
-		fmt.Fprintln(os.Stderr, "usage: tariffshift rules|extract|eval|parts-gold|parts-suggest|parts-eval|parts-example|plans-eval|plans102-eval|ground102-eval|p102err-single|p102err-moves|p102ck-eval [flags]")
+		fmt.Fprintln(os.Stderr, "usage: tariffshift rules|extract|eval|parts-gold|parts-suggest|parts-eval|parts-example|plans-eval|plans102-eval|ground102-eval|p102err-single|p102err-moves|p102ck-eval|p102bar [flags]")
 		os.Exit(2)
 	}
 	var err error
@@ -65,6 +66,8 @@ func main() {
 		err = cmdGround102Eval(os.Args[2:])
 	case "p102ck-eval":
 		err = cmdP102ckEval(os.Args[2:])
+	case "p102bar":
+		err = cmdP102Bar(os.Args[2:])
 	default:
 		err = fmt.Errorf("unknown command %q", os.Args[1])
 	}

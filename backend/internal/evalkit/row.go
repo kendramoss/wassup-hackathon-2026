@@ -30,8 +30,12 @@ type Row struct {
 	InputTokens   int      `json:"input_tokens"`
 	OutputTokens  int      `json:"output_tokens"`
 	LatencyMS     int64    `json:"latency_ms"`
-	CostUSD       float64  `json:"cost_usd"`
-	CostUSDList   float64  `json:"cost_usd_list"`
+	// WallMS is the time of the whole engine call, retries and hedged
+	// requests included (D611); LatencyMS is the answering attempt only.
+	// Zero on rows written before D611.
+	WallMS      int64   `json:"wall_ms,omitempty"`
+	CostUSD     float64 `json:"cost_usd"`
+	CostUSDList float64 `json:"cost_usd_list"`
 	// GatewayCostUSD is the cost the LiteLLM gateway reported for this case's
 	// calls (D151); zero on Vertex runs, which price tokens instead.
 	GatewayCostUSD float64 `json:"cost_usd_gateway,omitempty"`

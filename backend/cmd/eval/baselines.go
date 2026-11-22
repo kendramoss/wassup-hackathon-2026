@@ -153,3 +153,25 @@ func splitComma(s string) []string {
 	}
 	return out
 }
+
+// existingDirs splits a comma-separated -facts value and fails if a listed
+// directory does not exist. Before D612 a missing directory was skipped in
+// silence: window 2's committed Part 102 runs named ../data/facts, which
+// does not exist from backend/, so the first window's rulings had no facts
+// and none of them was a precedent (D602).
+func existingDirs(s string) ([]string, error) {
+	dirs := splitComma(s)
+	if len(dirs) == 0 {
+		return nil, fmt.Errorf("-facts: no directory given")
+	}
+	for _, d := range dirs {
+		fi, err := os.Stat(d)
+		if err != nil {
+			return nil, fmt.Errorf("-facts: %s: %w (from backend/, the committed facts are data/facts and a local corpus build is ../data/corpus/facts)", d, err)
+		}
+		if !fi.IsDir() {
+			return nil, fmt.Errorf("-facts: %s is not a directory", d)
+		}
+	}
+	return dirs, nil
+}
