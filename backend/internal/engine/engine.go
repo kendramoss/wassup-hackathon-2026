@@ -34,6 +34,10 @@ type Options struct {
 	// its version, for another origin regime (TextileSystem, D51).
 	System  string
 	Version string
+	// RuleText, when set, adds text for the case after the facts: the
+	// quoted 102.20 rows for the Part 102 engine (Part102RuleText, D550).
+	// The cache key includes it.
+	RuleText func(domain.Case) string
 }
 
 // Engine predicts origin from facts plus dated precedents.
@@ -184,6 +188,22 @@ func (e *Engine) system() string {
 	return sys + "\n\n" + e.opts.Rules
 }
 
+// ruleText is the case's added rule text ("" without Options.RuleText).
+func (e *Engine) ruleText(c domain.Case) string {
+	if e.opts.RuleText == nil {
+		return ""
+	}
+	return e.opts.RuleText(c)
+}
+
+// withRuleText puts the rule text after the user message.
+func withRuleText(user, rule string) string {
+	if rule == "" {
+		return user
+	}
+	return user + "\n\n" + rule
+}
+
 func (e *Engine) promptVersion() string {
 	v := PromptVersion
 	if e.opts.Version != "" {
@@ -203,7 +223,7 @@ func (e *Engine) ask(ctx context.Context, c domain.Case, precedents []domain.Rul
 	resp, err := e.model.Generate(ctx, llm.Request{
 		Model:           e.opts.Model,
 		System:          e.system(),
-		Messages:        []llm.Message{{Role: llm.RoleUser, Content: renderUser(c.Facts, precedents, e.opts.PrecedentReasoning)}},
+		Messages:        []llm.Message{{Role: llm.RoleUser, Content: withRuleText(renderUser(c.Facts, precedents, e.opts.PrecedentReasoning), e.ruleText(c))}},
 		JSONSchema:      Schema,
 		SchemaName:      "origin_prediction",
 		MaxOutputTokens: e.opts.MaxOutputTokens,
