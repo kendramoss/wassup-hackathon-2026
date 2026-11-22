@@ -112,7 +112,7 @@ test("/method and the landing link both examples", () => {
   assert.match(method, /href="\/examples\/plan-rule-check"/);
   assert.match(method, /href="\/examples\/revocation-alert"/);
   assert.match(method, /href="\/examples\/part102-plan"/);
-  const landing = src("landing/landing.tsx");
+  const landing = src("landing/judge-workflow.tsx");
   assert.match(landing, /"\/examples\/plan-rule-check"/);
   assert.match(landing, /"\/examples\/revocation-alert"/);
   // Judge panel round 12, N9: the landing links the Part 102 plan too.

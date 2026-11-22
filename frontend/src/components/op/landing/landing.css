@@ -46,7 +46,6 @@
 }
 
 .lp .lp-hero-jump,
-.lp .lp-workflow-sample a:not(.lp-ruling-pill),
 .lp .lpfoot a {
   color: var(--ok);
   text-decoration: underline;
@@ -75,18 +74,21 @@
   letter-spacing: -.055em;
 }
 
-.lp .lp-case-board {
-  display: grid;
-  grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr);
+.lp .lp-case-panel {
   overflow: hidden;
   border: 1px solid var(--edge);
   border-radius: 2px;
   background: var(--sheet);
 }
 
+.lp .lp-case-board {
+  display: grid;
+  grid-template-columns: minmax(0, 1.33fr) minmax(0, 1fr);
+}
+
 .lp .lp-case-visual {
   position: relative;
-  min-height: clamp(320px, 30vw, 400px);
+  min-height: clamp(320px, 29vw, 385px);
   overflow: hidden;
   background: var(--wash);
 }
@@ -152,15 +154,18 @@
   display: flex;
   flex-direction: column;
   gap: 20px;
-  padding: clamp(14px, 2.4vw, 30px);
+  justify-content: center;
+  padding: clamp(16px, 3.2vw, 40px);
 }
 
 .lp .lp-case-steps {
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 6px;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 1px;
   margin: 0;
   padding: 0;
+  border-bottom: 1px solid var(--edge);
+  background: var(--edge);
   list-style: none;
 }
 
@@ -169,10 +174,11 @@
   align-items: center;
   gap: 8px;
   width: 100%;
-  min-height: 46px;
-  padding: 7px 8px;
-  border: 1px solid var(--edge);
-  border-radius: 2px;
+  min-height: 50px;
+  padding: 7px clamp(8px, 1.6vw, 20px);
+  border: 0;
+  border-bottom: 2px solid transparent;
+  background: var(--sheet);
   color: var(--ink);
   text-align: left;
   line-height: 1.3;
@@ -180,23 +186,24 @@
 }
 
 .lp .lp-case-steps button[aria-pressed="true"] {
-  border-color: var(--ink);
+  border-bottom-color: var(--ink);
   background: var(--wash);
   font-weight: 600;
 }
 
 .lp .lp-case-steps button:hover { background: var(--paper); }
-.lp .lp-case-steps button:focus-visible { outline: 2px solid var(--ink); outline-offset: 2px; }
+.lp .lp-case-steps button:focus-visible { outline: 2px solid var(--ink); outline-offset: -4px; }
 .lp .lp-step-number { color: var(--dim); font-size: 11px; }
 
-.lp :is(.lp-case-caption, .lp-workflow) h3 {
+.lp .lp-case-caption h3 {
   margin-bottom: 6px;
   font-weight: 600;
-  font-size: clamp(17px, 2vw, 23px);
-  letter-spacing: -.035em;
+  font-size: clamp(27px, 3.9vw, 48px);
+  letter-spacing: -.064em;
+  line-height: 1.08;
 }
 
-.lp :is(.lp-case-caption, .lp-workflow) p {
+.lp .lp-case-caption p {
   max-width: 52ch;
   color: var(--body);
   font-size: 14px;
@@ -207,8 +214,8 @@
   display: flex;
   flex-wrap: wrap;
   gap: 10px 14px;
-  margin-top: auto;
-  padding-top: 14px;
+  margin-top: 0;
+  padding-top: 16px;
   border-top: 1px dashed var(--guide);
 }
 
@@ -243,36 +250,25 @@
   background: var(--lp-review-wash);
 }
 
-.lp .lp-workflow {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  align-items: start;
-  gap: 14px 24px;
-}
-
-.lp .lp-workflow-sample {
-  display: grid;
-  gap: 8px;
-  padding: 12px 14px;
-  border: 1px solid var(--edge);
+.lp .lp-case-caption .lp-case-tag {
+  display: table;
+  margin-bottom: 9px;
+  padding: 3px 7px;
+  border: 1px solid currentColor;
   border-radius: 2px;
-  background: var(--paper);
-  color: var(--body);
-  font-size: 13px;
-  line-height: 1.5;
+  font-size: 11px;
+  line-height: 1.4;
 }
 
-.lp .lp-workflow-sample div {
-  display: flex;
-  justify-content: space-between;
-  flex-wrap: wrap;
-  gap: 4px 16px;
+.lp .lp-case-tag[data-tone="verified"] {
+  color: var(--lp-verified);
+  background: var(--lp-verified-wash);
 }
 
-.lp .lp-workflow-sample :is(dd, b) { color: var(--ink); font-weight: 600; }
-.lp .lp-workflow-sample summary { cursor: pointer; color: var(--ink); }
-.lp .lp-workflow-sample details > p { margin-block: 7px; }
-.lp .lp-workflow-sample details li + li { margin-top: 4px; }
+.lp .lp-case-tag[data-tone="review"] {
+  color: var(--lp-review);
+  background: var(--lp-review-wash);
+}
 
 .lp .lpfoot {
   display: flex;
@@ -289,8 +285,8 @@
 .lp .lpfoot nav { display: flex; flex-wrap: wrap; gap: 6px 14px; }
 
 @media (max-width: 760px) {
-  .lp .lp-case-board,
-  .lp .lp-workflow { grid-template-columns: minmax(0, 1fr); }
+  .lp .lp-case-board { grid-template-columns: minmax(0, 1fr); }
+  .lp .lp-case-steps { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 
   .lp .lp-case-visual { min-height: clamp(240px, 70vw, 360px); }
   .lp .lp-case-story { gap: 13px; }

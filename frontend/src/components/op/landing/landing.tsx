@@ -6,7 +6,8 @@ import { api } from "@/lib/api/client";
 import { copy } from "@/lib/copy";
 import { ButtonLink, RulingLink } from "../ui";
 import { JudgeImpact, JudgeProof } from "./judge-proof";
-import { JudgePersonas, JudgeTabs } from "./judge-tabs";
+import { JudgePersonas } from "./judge-tabs";
+import { JudgeWorkflow } from "./judge-workflow";
 import { startHeatGun } from "./motion";
 import "./landing.css";
 
@@ -52,10 +53,10 @@ function useDemoLinks(): DemoLinks {
 }
 
 const heatGunPhases = [
-  { label: "2022 setup", text: "Final assembly in Thailand. Key parts came from China, where CBP held the heat gun originated." },
-  { label: "Parts", text: "Inspect where the housing, heater, motor, circuit board and electrical parts were made." },
-  { label: "Proposed move", text: "Make the motor, circuit board, switch and cord in Thailand. An earlier ruling supports the move." },
-  { label: "2026 ruling", text: "The manufacturer made six more parts in Thailand and kept the switch, wires and fasteners in China. CBP held Thailand." },
+  { label: "2022 setup", headline: "China origin", status: "CBP ruling", tone: "verified", text: "Assembled in Thailand with key parts from China." },
+  { label: "Parts", headline: "Where the parts began", status: "", tone: "", text: "Thailand made the housing and heater. China made the motor, circuit board and electrical parts." },
+  { label: "Proposed move", headline: "Make the key parts in Thailand", status: "Needs broker review", tone: "review", text: "Move the motor-fan assembly, circuit board, switch and cord. An earlier ruling supports the proposal." },
+  { label: "2026 ruling", headline: "Thailand origin", status: "CBP ruling", tone: "verified", text: "The manufacturer moved six parts to Thailand. The switch, wires and fasteners stayed in China." },
 ] as const;
 
 function VerificationPill({ id, label }: { id: string; label: string }) {
@@ -80,114 +81,43 @@ function HeatGunCase() {
         <span className="lp-figure-label">Fig. 1</span>
         <h2 id="heat-gun-title">Kobalt heat-gun case study</h2>
       </div>
-      <div className="lp-case-board">
-        <div className="lp-case-visual" ref={visual} data-phase={phase} aria-hidden="true">
-          <canvas />
-          <svg />
-          <div data-labels />
-          <span className="lp-visual-note">Schematic from published ruling facts</span>
-        </div>
-        <div className="lp-case-story">
-          <ol className="lp-case-steps" aria-label="Heat-gun case steps">
-            {heatGunPhases.map((step, index) => (
-              <li key={step.label}>
-                <button type="button" aria-pressed={phase === index} onClick={() => setPhase(index)}>
-                  <span className="lp-step-number">{index + 1}</span>
-                  {step.label}
-                </button>
-              </li>
-            ))}
-          </ol>
-          <div className="lp-case-caption" aria-live="polite" aria-atomic="true">
-            <h3>{heatGunPhases[phase].label}</h3>
-            <p>{heatGunPhases[phase].text}</p>
+      <div className="lp-case-panel">
+        <ol className="lp-case-steps" aria-label="Heat-gun case steps">
+          {heatGunPhases.map((step, index) => (
+            <li key={step.label}>
+              <button type="button" aria-pressed={phase === index} aria-controls="heat-gun-caption" onClick={() => setPhase(index)}>
+                <span className="lp-step-number">{index + 1}</span>
+                {step.label}
+              </button>
+            </li>
+          ))}
+        </ol>
+        <div className="lp-case-board">
+          <div className="lp-case-visual" ref={visual} data-phase={phase} aria-hidden="true">
+            <canvas />
+            <svg />
+            <div data-labels />
+            <span className="lp-visual-note">Schematic from published ruling facts</span>
           </div>
-          <div className="lp-ruling-references" role="group" aria-label="Verify the CBP rulings">
-            <VerificationPill id="N328954" label="2022 origin" />
-            <VerificationPill id="N345938" label="Plan precedent" />
-            <VerificationPill id="N357771" label="2026 origin" />
+          <div className="lp-case-story">
+            <div className="lp-case-caption" id="heat-gun-caption" aria-live="polite" aria-atomic="true">
+              {heatGunPhases[phase].status && (
+                <p className="lp-case-tag" data-tone={heatGunPhases[phase].tone}>{heatGunPhases[phase].status}</p>
+              )}
+              <h3>{heatGunPhases[phase].headline}</h3>
+              <p>{heatGunPhases[phase].text}</p>
+            </div>
+            <div className="lp-ruling-references" role="group" aria-label="Verify the CBP rulings">
+              <VerificationPill id="N328954" label="2022 origin" />
+              <VerificationPill id="N345938" label="Plan precedent" />
+              <VerificationPill id="N357771" label="2026 origin" />
+            </div>
           </div>
         </div>
       </div>
     </section>
   );
 }
-
-const workflow = [
-  {
-    label: "Product",
-    subtitle: "Gemini 3.8 Flash",
-    content: (
-      <div className="lp-workflow">
-        <div>
-          <h3>Start with your parts list</h3>
-          <p>Enter the parts and where they’re made. Gemini routes the case to the applicable origin rules.</p>
-        </div>
-        <dl className="lp-workflow-sample">
-          <div><dt>Final assembly</dt><dd>Thailand</dd></div>
-          <div><dt>Motor and circuit board</dt><dd>China</dd></div>
-        </dl>
-      </div>
-    ),
-  },
-  {
-    label: "Origin",
-    subtitle: "Gemini 4 Argon",
-    content: (
-      <div className="lp-workflow">
-        <div>
-          <h3>Find the likely origin</h3>
-          <p>Gemini reads earlier rulings and shows what drove its estimate.</p>
-        </div>
-        <div className="lp-workflow-sample">
-          <span className="lp-review-tag">Needs more facts</span>
-          <p><b>Likely China</b> · CBP held China in <RulingLink id="N328954" className="lp-ruling-pill" /></p>
-          <Link href="/examples/revocation-alert">See a ruling-change alert →</Link>
-        </div>
-      </div>
-    ),
-  },
-  {
-    label: "Plan",
-    subtitle: "Planner + Verifier",
-    content: (
-      <div className="lp-workflow">
-        <div>
-          <h3>Test a production move</h3>
-          <p>The planner proposes moves. The verifier looks for rulings that support or challenge them.</p>
-        </div>
-        <div className="lp-workflow-sample">
-          <p><b>Move component production to Thailand.</b></p>
-          <p>Not a blind test: some moves were added after the change was public.</p>
-          <details>
-            <summary>Recorded plan and examples</summary>
-            <p>Recorded 18 Oct production run: check 0.96, above 0.92. The pinned case shows 0.96. The plan moved all parts that CBP’s later ruling describes, plus others the manufacturer kept in China.</p>
-            <ul>
-              <li><Link href="/examples/plan-rule-check">See a tariff-shift check →</Link></li>
-              <li><Link href="/examples/part102-plan">See a Part 102 plan →</Link></li>
-            </ul>
-          </details>
-        </div>
-      </div>
-    ),
-  },
-  {
-    label: "Draft",
-    subtitle: "Ruling request template",
-    content: (
-      <div className="lp-workflow">
-        <div>
-          <h3>Draft for a customs broker</h3>
-          <p>Unde fills a ruling-request template with the case facts and supporting citations.</p>
-        </div>
-        <div className="lp-workflow-sample">
-          <span className="lp-review-tag">Broker review</span>
-          <blockquote>Request for a binding ruling on the country of origin of a heat gun…</blockquote>
-        </div>
-      </div>
-    ),
-  },
-];
 
 export function Landing() {
   const links = useDemoLinks();
@@ -207,13 +137,7 @@ export function Landing() {
         </section>
 
         <HeatGunCase />
-        <section className="lp-section" id="how-it-works" aria-labelledby="f2h">
-          <div className="lp-section-head">
-            <span className="lp-figure-label">Fig. 2</span>
-            <h2 id="f2h">How it works</h2>
-          </div>
-          <JudgeTabs label="How it works" items={workflow} />
-        </section>
+        <JudgeWorkflow />
         <JudgeProof />
         <JudgeImpact />
         <JudgePersonas demoHref={links.demo} compareHref={links.compare} />

@@ -1,0 +1,246 @@
+.lp .judgeWorkflow .judgeTab {
+  gap: 6px;
+}
+
+.lp .judgeWorkflow :is(.judgeTabModel, .judgePanelModel) {
+  width: fit-content;
+  max-width: 100%;
+  border: 1px solid var(--line);
+  border-radius: 2px;
+  background: var(--sheet);
+  padding: 3px 7px;
+  font-size: 10px;
+  line-height: 1.35;
+}
+
+.lp .judgeWorkflow .judgePanelModel {
+  margin-bottom: 12px;
+}
+
+.lp .workflowSplit {
+  display: grid;
+  grid-template-columns: minmax(0, 0.64fr) minmax(0, 1fr);
+  gap: clamp(16px, 4vw, 52px);
+  align-items: start;
+}
+
+.lp .workflowLead {
+  padding-block: 8px;
+}
+
+.lp .workflowLead h3 {
+  color: var(--ink);
+  font-size: clamp(19px, 2.55vw, 32px);
+  font-weight: 600;
+  letter-spacing: -.045em;
+  line-height: 1.12;
+}
+
+.lp .workflowLead p {
+  max-width: 36ch;
+  margin-top: 8px;
+  color: var(--body);
+  font-size: 14px;
+  line-height: 1.55;
+}
+
+.lp .workflowLead a {
+  width: fit-content;
+  display: block;
+  margin-top: 9px;
+  color: var(--ok);
+  font-size: 13px;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.lp .workflowArtifact {
+  min-width: 0;
+  border: 1px solid var(--edge);
+  border-radius: 2px;
+  background: var(--paper);
+  color: var(--ink);
+}
+
+.lp .workflowFile,
+.lp .workflowArtifactFoot {
+  padding: 10px 12px;
+  font-size: 11px;
+}
+
+.lp .workflowFile {
+  border-bottom: 1px solid var(--edge);
+  font-weight: 600;
+}
+
+.lp .workflowArtifactFoot {
+  border-top: 1px solid var(--line);
+  color: var(--dim);
+}
+
+.lp .workflowFileTable {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 12px;
+}
+
+.lp .workflowFileTable :is(th, td) {
+  padding: 6px clamp(5px, 1.35vw, 12px);
+  text-align: left;
+  vertical-align: middle;
+}
+
+.lp .workflowFileTable thead {
+  background: var(--wash);
+  color: var(--dim);
+}
+
+.lp .workflowFileTable tbody tr + tr {
+  border-top: 1px solid var(--line);
+}
+
+.lp .workflowFileTable tbody th {
+  font-weight: 500;
+}
+
+.lp .workflowFileTable tbody td:first-child {
+  color: var(--dim);
+  white-space: nowrap;
+}
+
+.lp .workflowCountry {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.lp .workflowOrigin {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+  padding: 12px;
+}
+
+.lp .workflowOriginValue {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: clamp(24px, 4vw, 42px);
+  font-weight: 600;
+  letter-spacing: -.06em;
+}
+
+.lp .workflowEvidence > div {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 5px 12px;
+  border-top: 1px solid var(--line);
+  padding: 6px 12px;
+  font-size: 12px;
+}
+
+.lp .workflowEvidence dd {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.lp .workflowRoute {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+  gap: 8px;
+  align-items: center;
+  padding: 10px 12px 0;
+}
+
+.lp .workflowPlant {
+  display: grid;
+  gap: 4px;
+  border: 1px solid var(--edge);
+  border-radius: 2px;
+  padding: 7px 8px;
+}
+
+.lp .workflowPlant:last-child {
+  border-color: var(--ok);
+  background: var(--ok-wash);
+}
+
+.lp .workflowPlant > span {
+  color: var(--dim);
+  font-size: 10px;
+}
+
+.lp .workflowPlant strong {
+  font-size: clamp(13px, 1.65vw, 21px);
+  font-weight: 600;
+}
+
+.lp .workflowMoveParts {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+  padding: 7px 12px;
+  list-style: none;
+}
+
+.lp .workflowMoveParts li {
+  border: 1px solid var(--line);
+  border-radius: 2px;
+  padding: 2px 5px;
+  font-size: 11px;
+}
+
+.lp .workflowPlanSource {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 5px 12px;
+  padding: 0 12px 7px;
+  font-size: 11px;
+}
+
+.lp .workflowCaution {
+  background: var(--lp-review-wash);
+  color: var(--lp-review);
+}
+
+.lp .workflowDraft .workflowFile {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: center;
+  gap: 6px;
+}
+
+.lp .workflowDocument {
+  display: grid;
+  gap: 8px;
+  margin: 10px 12px 12px;
+  padding: 10px 12px;
+  border: 1px solid var(--line);
+  background: var(--sheet);
+  box-shadow: 2px 2px 0 var(--shadow);
+  font-size: 12px;
+  line-height: 1.55;
+}
+
+.lp .workflowSignature {
+  margin-top: 4px;
+  color: var(--dim);
+}
+
+@media (max-width: 680px) {
+  .lp .workflowSplit {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 12px;
+  }
+
+  .lp .workflowLead { padding-block: 0; }
+
+  .lp .workflowFileTable { font-size: 11px; }
+}
