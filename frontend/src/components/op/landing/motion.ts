@@ -1,435 +1,71 @@
-// Scroll-driven motion for the landing page. One animation loop drives the
-// three figures; each only does work while it is near the viewport, and
-// with prefers-reduced-motion every figure shows its state without tweening.
-import { copy } from "@/lib/copy";
-import { ARRIVE, FREE_SECTIONS, SCREENS, arrivalFor, clamp01, nextDestination, paneAt, ramp, stepAt } from "./timeline";
-import { inControl, isSpaceKey, keyDirection, wheelDirection } from "./input";
-import { advanceScroll, newScrollState, startScroll } from "./arrival";
-import { createHeatGun, type Country } from "./heat-gun";
+import { createHeatGun, type Country, type HeatGun } from "./heat-gun";
 
-const L = copy.landing;
-const ease = (t: number) => t * t * (3 - 2 * t);
-const lerp = (a: number, b: number, t: number) => a + (b - a) * t;
-const SVGNS = "http://www.w3.org/2000/svg";
-const ruling = (id: string) => {
-  const a = document.createElement("a");
-  a.href = `https://rulings.cbp.gov/ruling/${encodeURIComponent(id)}`;
-  a.target = "_blank";
-  a.rel = "noreferrer";
-  a.textContent = id;
-  return a;
-};
+const phases = [
+  { exploded: 0, moved: 0 },
+  { exploded: 1, moved: 0 },
+  { exploded: 1, moved: 1 },
+  { exploded: 0, moved: 1 },
+] as const;
 
-export function startLanding(root: HTMLElement, { flag }: { flag: (c: Country) => string }) {
-  // A reload opens the story from the hero. The browser otherwise restores
-  // the scroll position it was on, dropping the visitor mid-way through the
-  // pinned stage with no way to see the heat gun from the start.
-  if ("scrollRestoration" in history) history.scrollRestoration = "manual";
-  scrollTo({ top: 0, behavior: "instant" });
-  const $ = <T extends Element = HTMLElement>(k: string) => root.querySelector<T>(`[data-k="${k}"]`)!;
-  const $$ = <T extends Element = HTMLElement>(k: string) => [...root.querySelectorAll<T>(`[data-k="${k}"]`)];
-  const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
-  const wide = () => innerWidth > 900;
-  // Pinned areas sit under the sticky AppBar, whose height wraps on phones.
-  const bar = document.querySelector("header");
-  const barH = () => bar?.offsetHeight ?? 0;
-  const setBar = () => bar && root.style.setProperty("--bar", `${bar.offsetHeight}px`);
-  setBar();
-  const barRo = new ResizeObserver(setBar);
-  if (bar) barRo.observe(bar);
-
-  // ---- the stage -------------------------------------------------------------
-  // Wide screens pin one stage and move its three panes sideways as the page
-  // scrolls down (D93). Each wheel gesture steps to one settled stop; the page
-  // position, in screens past the stage's top, drives the figures below.
-  // Phones stack the panes and each figure keeps its own scroll progress.
-  const hz = $("hz"), hzpin = $("hzpin"), track = $("track"), scroller = $("scroller");
-  const panes = [...track.children] as HTMLElement[];
-  // Screens of scroll: fig.1 plays over 0–4, slides to fig.2 over 4–5.5,
-  // fig.2 fills over 5.3–7.5, slides to fig.3 over 7.5–9, fig.3 settles
-  // over 8.9–10.5 and holds on the way into the cases until 11. The stops
-  // (in timeline.ts) land on phase 1 and on finished figures.
-  const horizontal = () => wide();
-  // The pin sticks once the stage's top reaches the AppBar, so progress
-  // counts from there.
-  const travel = () => Math.max(1, hz.offsetHeight - hzpin.clientHeight);
-  const at = () => clamp01((barH() - hz.getBoundingClientRect().top) / travel()) * SCREENS;
-  const seg = (a: number, b: number) => clamp01((at() - a) / (b - a));
-  // Panes moved so far: eased while scrolling, a cut with reduced motion.
-  const slid = () => {
-    const P = at();
-    return reduce ? (P >= 4.75 ? 1 : 0) + (P >= 8.25 ? 1 : 0) : paneAt(P);
-  };
-  // A programmatic jump is "seeking" for the heat gun: its phase follows the
-  // scroll exactly, so a step lands on a settled state. fig.2 and fig.3 instead
-  // replay their own animation over time once their stop is reached.
-  let scrollState = newScrollState(scrollY);
-  // The pin fills the screen below the AppBar. Nudge the target so the
-  // pane's main element sits in the middle of that stage, not against an edge.
-  const centerFix = (paneIndex: number) => {
-    if (!horizontal() || hz.getBoundingClientRect().top > barH() + 2) return 0;
-    const main = panes[paneIndex]?.querySelector<HTMLElement>(".sheet, .stage, .test");
-    if (!main) return 0;
-    const r = main.getBoundingClientRect();
-    return r.top + r.height / 2 - (barH() + (innerHeight - barH()) / 2);
-  };
-  const goTo = (progress: number, smooth: boolean) => {
-    // On phones the panes stack, so a phase stop maps onto fig.1's own sticky
-    // scroller rather than the wide stage's single 11-screen timeline.
-    const r = horizontal() ? null : scroller.getBoundingClientRect();
-    const top = r
-      ? scrollY + r.top + clamp01(progress / 4) * Math.max(1, r.height - innerHeight)
-      : hz.getBoundingClientRect().top + scrollY - barH() + (progress / SCREENS) * travel() + centerFix(Math.round(paneAt(progress)));
-    const now = performance.now();
-    scrollState = startScroll(scrollState, scrollY, top, now + 2500, arrivalFor(progress), now);
-    scrollTo({ top, behavior: smooth && !reduce ? "smooth" : "instant" });
-  };
-
-  // ---- the free-scrolling sections below the stage --------------------------
-  // Past fig.3 the guided journey hands over to the page's own content (#409):
-  // one step from the last figure lands on .can's top, and from there wheel and
-  // keys are native so the section can be read at the visitor's own pace. Only
-  // crossing back above .can re-enters the guided path (fig.3 replays). Phones
-  // never enter the guided path (horizontal() is false), so they are untouched.
-  const sectionTop = (index: number): number | null => {
-    const el = root.querySelector<HTMLElement>(FREE_SECTIONS[index].selector);
-    if (!el) return null;
-    const margin = parseFloat(getComputedStyle(el).scrollMarginTop) || barH();
-    return Math.max(0, el.getBoundingClientRect().top + scrollY - margin);
-  };
-  const goToSection = (index: number, smooth: boolean): boolean => {
-    const top = sectionTop(index);
-    if (top === null) return false;
-    const now = performance.now();
-    scrollState = startScroll(scrollState, scrollY, top, now + 2500, null, now);
-    scrollTo({ top, behavior: smooth && !reduce ? "smooth" : "instant" });
-    return true;
-  };
-  const scrollToEdge = (bottom: boolean): boolean => {
-    const top = bottom ? document.documentElement.scrollHeight : 0;
-    if (Math.abs(scrollY - top) < 2) return false;
-    const now = performance.now();
-    scrollState = startScroll(scrollState, scrollY, top, now + 2500, null, now);
-    scrollTo({ top, behavior: reduce ? "instant" : "smooth" });
-    return true;
-  };
-  // Set by the animation loop once the visitor is in the free region, so the
-  // wheel/key handlers can step aside. A smooth scroll into .can does not set
-  // it until the page actually arrives there.
-  let free = false;
-
-  // One input step advances one stop — the four heat-gun phases, then fig.2
-  // and fig.3. From the hero the first down step goes straight to the heat gun;
-  // one more down enters the free-scrolling content at .can, one more up from
-  // the heat gun returns to the page top.
-  const step = (dir: number) => {
-    const dest = nextDestination(at(), dir > 0 ? 1 : -1);
-    if (dest.kind === "stop") {
-      goTo(dest.progress, true);
-      return true;
-    }
-    if (dest.kind === "section" || dest.kind === "bottom") {
-      if (dest.kind === "section") return goToSection(dest.index, true);
-      return scrollToEdge(true);
-    }
-    return scrollToEdge(false);
-  };
-  let lastWheel = 0;
-  const onWheel = (e: WheelEvent) => {
-    // #409: below the stage the page scrolls natively; do not preventDefault.
-    if (!horizontal() || free) return;
-    const dir = wheelDirection(e);
-    if (!dir) return;
-    const now = performance.now();
-    // A trackpad flick emits a burst of events; count it as one gesture.
-    const burst = now - lastWheel < 220;
-    lastWheel = now;
-    if (burst) { e.preventDefault(); return; }
-    if (step(dir)) e.preventDefault();
-  };
-  window.addEventListener("wheel", onWheel, { passive: false });
-  let lastKey = 0;
-  const onKey = (e: KeyboardEvent) => {
-    // #409: below the stage arrow/space are native page scrolling too.
-    if (!horizontal() || free) return;
-    const t = e.target as HTMLElement | null;
-    if (t && (t.isContentEditable || ["INPUT", "TEXTAREA", "SELECT"].includes(t.tagName))) return;
-    // A focused button (or equivalent control) owns Space: leave keydown
-    // untouched so the browser activates it instead of stepping the story.
-    if (isSpaceKey(e) && inControl(t)) return;
-    const dir = keyDirection(e);
-    if (!dir) return;
-    const now = performance.now();
-    if (now - lastKey < 220) { e.preventDefault(); return; } // key repeat
-    lastKey = now;
-    if (step(dir)) e.preventDefault();
-  };
-  window.addEventListener("keydown", onKey);
-  // Tabbing into a pane that is off to the side brings it into view; the pin
-  // clips sideways, so the browser would otherwise scroll it on its own.
-  const onFocus = (e: FocusEvent) => {
-    if (!horizontal()) return;
-    hzpin.scrollLeft = 0;
-    const i = panes.findIndex((p) => p.contains(e.target as Node));
-    if (i >= 0 && Math.round(slid()) !== i) goTo(ARRIVE[i], false);
-  };
-  track.addEventListener("focusin", onFocus);
-
-  // ---- fig.1 ----------------------------------------------------------------
-  const gunSheet = $("gunsheet");
-  let gun: ReturnType<typeof createHeatGun> | null = null;
+// Only the on-screen schematic renders frames. The page scrolls natively and
+// the case narrative works even if WebGL is unavailable.
+export function startHeatGun(host: HTMLElement, flag: (country: Country) => string) {
+  const canvas = host.querySelector("canvas")!;
+  const motion = matchMedia("(prefers-reduced-motion: reduce)");
+  let gun: HeatGun;
   try {
-    gun = createHeatGun({ canvas: $<HTMLCanvasElement>("canvas"), labels: $("labels"), leaders: $<SVGSVGElement>("leaders"), flag, reduce });
-  } catch {
-    gunSheet.classList.add("nogl"); // no WebGL: the story text and stamp still work
-  }
-  const stamp = $("stamp"), plannote = $("plannote"), tbstate = $("tbstate");
-  const caps = $$("cap");
-  let after: boolean | null = null;
-  function setStamp(a: boolean) {
-    if (after === a) return;
-    after = a;
-    const c: Country = a ? "Thailand" : "China";
-    const eyebrow = document.createElement("div");
-    eyebrow.className = "eyebrow";
-    eyebrow.textContent = `${a ? "2026" : "2022"} · CBP held`;
-    const held = document.createElement("div");
-    held.className = "held";
-    const img = document.createElement("img");
-    img.className = "flag";
-    img.alt = "";
-    img.src = flag(c);
-    held.append(img, c);
-    const rul = document.createElement("div");
-    rul.className = "rul";
-    rul.append("Ruling ", ruling(a ? "N357771" : "N328954"), ` · ${a ? "29 Jan 2026" : "15 Nov 2022"}`);
-    stamp.replaceChildren(eyebrow, held, rul);
-    stamp.classList.toggle("after", a);
-    if (!reduce) {
-      stamp.classList.remove("flip");
-      void stamp.offsetWidth;
-      stamp.classList.add("flip");
-    }
-  }
-  setStamp(false);
-  const fig1Progress = () => {
-    if (horizontal()) return seg(0, 4);
-    const r = scroller.getBoundingClientRect();
-    return clamp01(-r.top / Math.max(1, r.height - innerHeight));
-  };
-
-  // ---- fig.2 ----------------------------------------------------------------
-  const f2 = $("f2"), stage = $("stage"), now = $("now");
-  const sheets = $$("mini");
-  const pathsvg = $<SVGSVGElement>("pathsvg"), wire = $<SVGPathElement>("wire");
-  const wires = [null, ...L.wires].map((t) => {
-    const arrow = document.createElementNS(SVGNS, "polygon");
-    arrow.setAttribute("fill", "var(--ok)");
-    pathsvg.appendChild(arrow);
-    let label: SVGTextElement | null = null;
-    if (t) {
-      label = document.createElementNS(SVGNS, "text");
-      label.textContent = t;
-      label.setAttribute("text-anchor", "middle");
-      pathsvg.appendChild(label);
-    }
-    return { arrow, label };
-  });
-  const fig2Progress = () => {
-    if (horizontal()) return seg(5.3, 7.5);
-    const r = f2.getBoundingClientRect();
-    return clamp01(-r.top / Math.max(1, r.height - innerHeight));
-  };
-  function layoutF2(p: number) {
-    if (!wide()) {
-      // Phones stack all four sheets, so the per-sheet "now" below does not
-      // apply. Keep the summary caption instead of leaving it empty (#507).
-      sheets.forEach((s) => s.classList.add("on"));
-      now.textContent = L.fig2NowStatic;
+    const context = canvas.getContext("webgl2", { antialias: true, alpha: true });
+    if (!context) {
+      host.dataset.ready = "false";
       return;
     }
-    const W = stage.clientWidth, H = stage.clientHeight;
-    // Four 250 px sheets need 1048 px with 16 px between them; narrower, they
-    // scale down together so they never overlap (18 Oct). half is half a
-    // sheet's drawn width, for the wire's ends and arrows.
-    const k = Math.min(1, (W - 48) / 1000);
-    const half = 125 * k;
-    const gap = Math.min(330, (W - 2 * half) / 3);
-    // One flat row. The wire draws left to right; each sheet rises into
-    // place just before the wire reaches it, then fills in.
-    const d = ramp(p, 0.08, 0.86);
-    const cx = (i: number) => W / 2 + (i - 1.5) * gap, cy = H / 2;
-    const x0 = cx(0) - half - 70;
-    const x1 = cx(3) + half + 70;
-    const head = lerp(x0, x1, d);
-    sheets.forEach((s, i) => {
-      const rise = reduce ? 1 : ease(clamp01((head - (cx(i) - half - gap * 0.55)) / (gap * 0.45)));
-      s.style.transform = `translate(${(i - 1.5) * gap}px, ${lerp(12, 0, rise)}px) scale(${k})`;
+    gun = createHeatGun({
+      canvas,
+      context,
+      labels: host.querySelector("[data-labels]")!,
+      leaders: host.querySelector("svg")!,
+      flag,
+      reduce: motion.matches,
     });
-    wire.setAttribute("d", `M${x0},${cy} H${x1}`);
-    const len = x1 - x0;
-    wire.style.strokeDasharray = `${len}`;
-    wire.style.strokeDashoffset = String(len * (1 - d));
-    wires.forEach((w, i) => {
-      const ax = cx(i) - half - 2;
-      w.arrow.setAttribute("points", `${ax},${cy} ${ax - 9},${cy - 5} ${ax - 9},${cy + 5}`);
-      w.arrow.style.opacity = head > ax ? "1" : "0";
-      if (w.label) {
-        w.label.setAttribute("x", String((cx(i - 1) + half + ax) / 2));
-        w.label.setAttribute("y", String(cy - 10));
-        w.label.style.opacity = head > ax ? "1" : "0";
-      }
-    });
-    // The wire starts at the Product sheet, so it is filled from the start.
-    const reached = sheets.map((_, i) => i === 0 || head > cx(i) - half);
-    const at = reached.lastIndexOf(true);
-    sheets.forEach((s, i) => {
-      s.classList.toggle("on", reached[i]);
-      s.classList.toggle("cur", i === at);
-    });
-    now.textContent = L.fig2Now[Math.max(0, reached.lastIndexOf(true))];
+  } catch {
+    host.dataset.ready = "false";
+    return;
   }
-  // ---- fig.3 ----------------------------------------------------------------
-  const f3 = $("f3"), endcta = $("endcta"), ruler = $<SVGSVGElement>("ruler"), mv = $("mv"), field = $("field");
-  const X = (v: number) => 20 + v * 6;
-  function drawRuler(t: number) {
-    const axis = ramp(t, 0, 0.35);
-    let s = `<line x1="20" y1="120" x2="${20 + 600 * axis}" y2="120" class="axis"/>`;
-    for (let v = 0; v <= 100; v += 10) if (X(v) <= 20 + 600 * axis) s += `<line x1="${X(v)}" y1="${v % 50 ? 116 : 112}" x2="${X(v)}" y2="${v % 50 ? 124 : 128}" class="tick"/>`;
-    s += `<text x="20" y="144" text-anchor="middle">0</text><text x="${X(50)}" y="144" text-anchor="middle">50</text><text x="${X(100)}" y="144" text-anchor="middle">100%</text>`;
-    const b = ramp(t, 0.25, 0.5);
-    // The best simple rule, recomputed from the committed facts with no model
-    // (eval/results/baselines-final.json, D155). The research baselines that
-    // cannot be reproduced here (final assembly 40.6%) are not drawn.
-    s += `<g opacity="${b}"><line x1="${X(63.4)}" y1="120" x2="${X(63.4)}" y2="160" class="base"/><text x="${X(63.4) - 6}" y="172" text-anchor="end">best simple rule 63.4%</text><text x="${X(63.4) - 6}" y="185" text-anchor="end" class="sm">first country named, recomputed</text></g>`;
-    const v1 = lerp(0, 90.2, ramp(t, 0.35, 0.85)), v2 = lerp(0, 96.0, ramp(t, 0.5, 0.95));
-    s += `<line x1="${X(v1)}" y1="40" x2="${X(v1)}" y2="120" class="mark"/><polygon points="${X(v1)},114 ${X(v1) - 5},106 ${X(v1) + 5},106" class="arrow"/>`;
-    s += `<g opacity="${ramp(t, 0.8, 1)}"><path d="M${X(86.8)} 84 H${X(92.8)} M${X(86.8)} 78 V90 M${X(92.8)} 78 V90" class="bracket"/><text x="${X(90.2) - 8}" y="36" text-anchor="end" class="ink">origin accuracy 90.2%</text><text x="${X(90.2) - 8}" y="50" text-anchor="end" class="dim">86.8–92.8</text>`;
-    s += `<line x1="${X(v2)}" y1="58" x2="${X(v2)}" y2="120" class="mark dash" opacity="${ramp(t, 0.5, 0.6)}"/>`;
-    s += `<g opacity="${ramp(t, 0.9, 1)}"><path d="M${X(93.1)} 104 H${X(97.7)} M${X(93.1)} 98 V110 M${X(97.7)} 98 V110" class="bracket"/><text x="${X(96) + 6}" y="70" class="ink">96.0%</text><text x="${X(96) + 6}" y="83" class="dim">auto-accepted</text><text x="${X(96) + 6}" y="95" class="dim">93.1–97.7</text></g></g>`;
-    ruler.innerHTML = s;
-    mv.textContent = `${v1.toFixed(1)}%`;
+  host.dataset.ready = "true";
+  let id = 0;
+  let visible = true;
+  let last = performance.now();
+  let exploded = 0;
+  let moved = 0;
+
+  function frame(now: number) {
+    const dt = Math.min((now - last) / 1000, 0.05);
+    const step = phases[Number(host.dataset.phase)] ?? phases[0];
+    const rate = motion.matches ? 1 : 1 - Math.exp(-10 * dt);
+    exploded += (step.exploded - exploded) * rate;
+    moved += (step.moved - moved) * rate;
+    gun.frame(exploded, moved, dt, now / 1000);
+    last = now;
+    id = visible ? requestAnimationFrame(frame) : 0;
   }
-  // 377 squares: start scattered, settle into a grid sorted by outcome.
-  // Counts from DESIGN.md (worked out from the official held-out rates).
-  const kinds = ([["a", 288], ["b", 12], ["c", 52], ["d", 25]] as const).flatMap(([k, n]) => Array<string>(n).fill(k));
-  let seed = 7;
-  const rnd = () => (seed = (seed * 16807) % 2147483647) / 2147483647;
-  const squares = kinds.map((k, i) => {
-    const e = document.createElement("i");
-    e.className = k;
-    field.appendChild(e);
-    return { e, i, sx: rnd(), sy: rnd(), sr: (rnd() - 0.5) * 140, delay: rnd() * 0.35 };
+
+  const resize = new ResizeObserver(() => gun.resize());
+  resize.observe(host);
+  const view = new IntersectionObserver(([entry]) => {
+    visible = entry.isIntersecting;
+    if (visible && !id) {
+      last = performance.now();
+      id = requestAnimationFrame(frame);
+    }
   });
-  function drawField(t: number) {
-    const W = field.clientWidth, H = field.clientHeight;
-    const cols = 29, cell = Math.min((W - 2) / cols, 12.5), size = cell - 3;
-    for (const s of squares) {
-      const gx = (s.i % cols) * cell, gy = Math.floor(s.i / cols) * cell;
-      const k = ease(clamp01((t - s.delay) / 0.6));
-      s.e.style.width = s.e.style.height = `${size}px`;
-      s.e.style.transform = `translate(${lerp(s.sx * (W - size), gx, k)}px, ${lerp(s.sy * (H - size), gy, k)}px) rotate(${lerp(s.sr, 0, k)}deg)`;
-    }
-  }
-  const fig3Progress = () => {
-    if (horizontal()) return seg(8.9, 10.5);
-    const r = f3.getBoundingClientRect();
-    return clamp01((innerHeight - r.top) / (innerHeight * 0.85));
-  };
-
-  // ---- one loop ---------------------------------------------------------------
-  const near = (el: Element) => {
-    const r = el.getBoundingClientRect();
-    return r.bottom > -innerHeight * 0.5 && r.top < innerHeight * 1.5;
-  };
-  let raf = 0, last = performance.now(), shown1 = 0, shown2 = 0, t3 = -1;
-  const start = last;
-  const ro = new ResizeObserver(() => gun?.resize());
-  ro.observe(gunSheet);
-  function frame(now_: number) {
-    const dt = Math.min(0.05, (now_ - last) / 1000);
-    last = now_;
-    const advanced = advanceScroll(scrollState, scrollY, now_);
-    scrollState = advanced.state;
-    const { seeking, interrupted } = advanced;
-    const arrival = scrollState.arrival;
-
-    // #409: the guided path ends at .can. Once the visitor is in the free
-    // region, wheel/keys pass through natively (see onWheel/onKey) and the
-    // sections below are read at their own pace. Scrolling back above .can
-    // re-enters the guided path and replays fig.3.
-    if (horizontal()) {
-      const firstTop = sectionTop(0);
-      if (firstTop !== null) {
-        if (free) {
-          if (scrollY < firstTop - 4) {
-            free = false;
-            goTo(ARRIVE[2], true);
-          }
-        } else if (scrollY >= firstTop - 4) {
-          free = true;
-        }
-      }
-    }
-
-    const s = horizontal() ? slid() : 0;
-    if (horizontal()) {
-      track.style.transform = `translateX(${-s * hzpin.clientWidth}px)`;
-    } else track.style.transform = "";
-    if (near(gunSheet) && s < 1) {
-      const p = fig1Progress();
-      shown1 = reduce || seeking ? p : shown1 + (p - shown1) * (1 - Math.exp(-dt * 7));
-      const ex = ramp(shown1, 0.12, 0.36) - ramp(shown1, 0.8, 0.95);
-      const mvv = ramp(shown1, 0.46, 0.7);
-      const cbpv = ramp(shown1, 0.74, 0.82); // anything else CBP's 2026 change moved (none drawn now), while still exploded (reassembly starts at 0.8)
-      const step = stepAt(shown1);
-      caps.forEach((c, i) => (c.hidden = i !== step));
-      tbstate.textContent = L.sheetStates[step];
-      setStamp(shown1 > 0.76);
-      plannote.classList.toggle("on", shown1 > 0.5 && shown1 < 0.97);
-      gun?.frame(ex, mvv, dt, (now_ - start) / 1000, cbpv);
-    }
-    if (near(f2) && (!horizontal() || (s > 0.2 && s < 1.8))) {
-      // On arrival, replay the four sheets one by one on a slow clock instead
-      // of snapping to the end of their scroll-driven animation.
-      const a2 = arrival !== null && arrival.pane === 2 && now_ - arrival.start < arrival.duration ? arrival : null;
-      const p = a2 ? ease(clamp01((now_ - a2.start) / a2.duration)) : fig2Progress();
-      shown2 = reduce || a2 !== null || interrupted ? p : shown2 + (p - shown2) * 0.15;
-      layoutF2(reduce ? 1 : shown2);
-    }
-    if (near(f3) && (!horizontal() || s > 1.2)) {
-      // Same for fig.3: an eased, unhurried settle into the centred grid.
-      const a3 = arrival !== null && arrival.pane === 3 && now_ - arrival.start < arrival.duration ? arrival : null;
-      const t = reduce ? 1 : a3 ? ease(clamp01((now_ - a3.start) / a3.duration)) : fig3Progress();
-      if (Math.abs(t - t3) > 0.001) {
-        t3 = t;
-        drawRuler(t);
-        drawField(t);
-        endcta.classList.toggle("on", t > 0.97);
-      }
-    }
-    raf = requestAnimationFrame(frame);
-  }
-  // Lay every figure out once, so each is in its start state (or its end
-  // state with reduced motion) before any scrolling.
-  layoutF2(reduce ? 1 : 0);
-  drawRuler(reduce ? 1 : 0);
-  drawField(reduce ? 1 : 0);
-  endcta.classList.toggle("on", reduce);
-  raf = requestAnimationFrame(frame);
+  view.observe(host);
+  id = requestAnimationFrame(frame);
 
   return () => {
-    cancelAnimationFrame(raf);
-    ro.disconnect();
-    barRo.disconnect();
-    track.removeEventListener("focusin", onFocus);
-    window.removeEventListener("wheel", onWheel);
-    window.removeEventListener("keydown", onKey);
-    gun?.dispose();
-    field.replaceChildren();
-    wires.forEach((w) => {
-      w.arrow.remove();
-      w.label?.remove();
-    });
+    cancelAnimationFrame(id);
+    resize.disconnect();
+    view.disconnect();
+    gun.dispose();
+    delete host.dataset.ready;
   };
 }

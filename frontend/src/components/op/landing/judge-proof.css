@@ -1,0 +1,258 @@
+/* Landing-only semantic tokens: evidence in teal, provisional results in amber. */
+.lp {
+  --lp-verified: #075d53;
+  --lp-verified-wash: #e6f4f0;
+  --lp-review: #6b4312;
+  --lp-review-wash: #f8eddb;
+}
+
+.lp .judge-section {
+  margin: clamp(44px, 7vw, 94px) auto;
+  padding-inline: var(--gutter);
+  width: 100%;
+  max-width: 1320px;
+  color: var(--ink);
+}
+
+.lp .judge-heading {
+  display: grid;
+  gap: 4px;
+  margin-bottom: 20px;
+}
+
+.lp .judge-figure {
+  color: var(--dim);
+  font-size: 12px;
+}
+
+.lp .judge-heading h2 {
+  font-size: clamp(25px, 3vw, 42px);
+  font-weight: 600;
+  line-height: 1.12;
+  letter-spacing: -.055em;
+}
+
+.lp .judge-kpis,
+.lp .judge-impact-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 14px;
+}
+
+.lp .judge-impact-grid {
+  grid-template-columns: minmax(0, 1.12fr) minmax(0, 1fr);
+}
+
+.lp .judge-card {
+  min-width: 0;
+  border: 1px solid var(--edge);
+  border-radius: 2px;
+  background: var(--sheet);
+  padding: clamp(15px, 2vw, 27px);
+}
+
+.lp .judge-kpi {
+  border-top: 3px solid var(--lp-verified);
+}
+
+.lp .judge-card h3 {
+  margin-block: 7px 4px;
+  font-weight: 600;
+  font-size: clamp(15px, 1.5vw, 20px);
+  letter-spacing: -.035em;
+}
+
+.lp .judge-card > p:not(.judge-number, .judge-badge) {
+  font-size: 13px;
+  color: var(--dim);
+}
+
+.lp .judge-number {
+  font-size: clamp(42px, 6vw, 80px);
+  font-weight: 600;
+  line-height: 1;
+  letter-spacing: -.085em;
+  font-variant-numeric: tabular-nums;
+}
+
+.lp .judge-kpi .judge-number,
+.lp .judge-measured {
+  color: var(--lp-verified);
+}
+
+.lp .judge-badges {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  margin-block: 14px;
+}
+
+.lp .judge-badge {
+  display: inline-flex;
+  align-items: center;
+  border: 1px solid var(--edge);
+  border-radius: 2px;
+  background: var(--sheet);
+  color: var(--ink);
+  padding: 4px 8px;
+  font-size: 12px;
+  line-height: 1.4;
+}
+
+.lp a.judge-badge {
+  min-height: 36px;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.lp a.judge-badge:hover {
+  background: var(--wash);
+}
+
+.lp .judge-review {
+  border-color: var(--lp-review);
+  color: var(--lp-review);
+  background: var(--lp-review-wash);
+}
+
+.lp .judge-kpi .judge-review {
+  margin-top: 8px;
+}
+
+.lp .judge-details {
+  border-block: 1px solid var(--line);
+  font-size: 13px;
+}
+
+.lp .judge-details summary {
+  padding-block: 10px;
+  font-weight: 500;
+}
+
+.lp .judge-details-body {
+  display: grid;
+  gap: 8px;
+  max-width: 86ch;
+  padding-bottom: 12px;
+  color: var(--body);
+  line-height: 1.55;
+}
+
+.lp .judge-details-body a {
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.lp .judge-benchmarks {
+  table-layout: fixed;
+  border-collapse: collapse;
+  width: 100%;
+  margin-top: 16px;
+}
+
+.lp .judge-benchmarks th,
+.lp .judge-benchmarks td {
+  padding: 8px 5px;
+  border-bottom: 1px solid var(--line);
+  text-align: left;
+  vertical-align: top;
+  overflow-wrap: anywhere;
+}
+
+.lp .judge-benchmarks thead th,
+.lp .judge-benchmarks tbody th {
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.lp .judge-benchmarks tr > :first-child {
+  width: 24%;
+  padding-left: 0;
+}
+
+.lp .judge-benchmarks td b {
+  display: block;
+  margin-bottom: 2px;
+  font-size: clamp(16px, 2.25vw, 30px);
+  font-weight: 600;
+  letter-spacing: -.06em;
+  line-height: 1.08;
+}
+
+.lp .judge-benchmarks td span {
+  display: block;
+  font-size: 11px;
+  color: var(--dim);
+}
+
+.lp .judge-impact .judge-details {
+  border: 0;
+  margin-top: 4px;
+}
+
+.lp .judge-simulation {
+  border-color: var(--lp-review);
+}
+
+.lp .judge-equation {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+  margin-block: 18px;
+}
+
+.lp .judge-equation > div {
+  display: flex;
+  flex-direction: column-reverse;
+  justify-content: start;
+  gap: 3px;
+}
+
+.lp .judge-equation dt {
+  font-size: 11px;
+  color: var(--dim);
+}
+
+.lp .judge-equation dd {
+  font-size: clamp(17px, 2vw, 27px);
+  font-weight: 600;
+  letter-spacing: -.06em;
+  white-space: nowrap;
+}
+
+.lp .judge-operator {
+  color: var(--lp-review);
+}
+
+.lp .judge-total {
+  padding: 13px;
+  border-top: 1px solid var(--lp-review);
+  background: var(--lp-review-wash);
+  color: var(--lp-review);
+}
+
+.lp .judge-total .judge-number span {
+  font-size: .4em;
+  letter-spacing: -.05em;
+}
+
+.lp .judge-total p + p {
+  margin-top: 5px;
+  font-weight: 600;
+}
+
+.lp .judge-impact-note {
+  margin-top: 10px;
+}
+
+@media (max-width: 720px) {
+  .lp .judge-kpis,
+  .lp .judge-impact-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .lp .judge-badges {
+    gap: 6px;
+  }
+}

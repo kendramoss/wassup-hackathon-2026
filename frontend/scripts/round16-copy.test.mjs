@@ -16,9 +16,9 @@ test("the recorded Part 102 page renders its note, which carries the D640 caveat
 });
 
 test("the landing's preparation time is measured, with its sources in NUMBERS", () => {
-  const copy = read("../src/lib/copy.ts");
-  assert.doesNotMatch(copy, /estimated, not measured/);
-  assert.match(copy, /after: "33 s"/);
+  const impact = read("../src/components/op/landing/judge-proof.tsx");
+  assert.doesNotMatch(impact, /estimated, not measured/);
+  assert.match(impact, /after: "33 s",\s+afterNote: "Recorded heat-gun plan search"/);
   const heat = JSON.parse(read("../../eval/results/plan-heatgun-2022-local-litellm.json"));
   assert.equal(Math.round(heat.stats.wall_seconds), 33);
   const live = JSON.parse(read("../../eval/results/families-r3-live-checks.json"));
