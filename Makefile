@@ -81,6 +81,7 @@ reproduce: ## recompute every published number from committed files: no model ca
 	python3 -I -B eval/charts/build_repeatability_heldout.py . --check
 	python3 -I -B eval/planner/summarize.py . --check
 	python3 -I -B eval/charts/build_adjudicator.py . --check
+	python3 -I -B eval/charts/build_st_checklist.py . --check
 	python3 -I -B eval/planner/summarize_addendum.py . --check
 	python3 -I -B eval/planner/summarize_repeats.py . --check
 	python3 -I -B eval/planner/plan_bar.py . --check

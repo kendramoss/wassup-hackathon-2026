@@ -1,5 +1,7 @@
 package evalkit
 
+import "encoding/json"
+
 // Row is one engine prediction on one labelled ruling, written as JSONL to
 // eval/results/. Fields are kept stable so runs stay comparable.
 type Row struct {
@@ -46,6 +48,9 @@ type Row struct {
 	ErrorClass string `json:"error_class,omitempty"`
 	// Retries counts whole-case re-runs after a provider outage (eval slice,
 	// D261); RetriedError is the error of the first try.
-	Retries      int    `json:"retries,omitempty"`
-	RetriedError string `json:"retried_error,omitempty"`
+	// Answer is the model's whole JSON answer when the engine uses its own
+	// answer schema (the checklist prompts, D600 and D650); nil otherwise.
+	Answer       json.RawMessage `json:"answer,omitempty"`
+	Retries      int             `json:"retries,omitempty"`
+	RetriedError string          `json:"retried_error,omitempty"`
 }

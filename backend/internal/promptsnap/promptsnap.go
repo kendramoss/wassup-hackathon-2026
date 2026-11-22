@@ -73,6 +73,10 @@ func Prompts() []Prompt {
 		{"engine.user_reasoning", engine.PromptVersion + "+" + engine.ReasoningVersion, engine.RenderUserWithReasoning(fixtureFacts, prec)},
 		{"engine.rules", engine.RulesVersion, engine.Rules},
 		{"engine.rules2", engine.RulesVersion2, engine.Rules2},
+		// The D650 component checklists (eval run -st-prompt ck1|ck2), with
+		// their answer schemas.
+		{"engine.st_checklist1", engine.STChecklistVersion1, withSchema(engine.STChecklistSystem1, engine.STChecklistSchema1)},
+		{"engine.st_checklist2", engine.STChecklistVersion2, withSchema(engine.STChecklistSystem2, engine.STChecklistSchema2)},
 		{"engine.textile", engine.TextileVersion, engine.TextileSystem},
 		{"engine.textile2", engine.TextileVersion2, engine.TextileSystem2},
 		// The Part 102 and pharmaceutical engines' prompts: case predictions,
