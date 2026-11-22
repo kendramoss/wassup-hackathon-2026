@@ -259,3 +259,41 @@ func TestAnnotateRanksOnlyPart102(t *testing.T) {
 		t.Fatal("the input was written to")
 	}
 }
+
+// D590 safety change S: on a Part 102 case the check also flags where the
+// rule decides against the engine and no precedent check covers it.
+func TestEngineDisagreementIsFlaggedOnPart102Only(t *testing.T) {
+	r := rules(t)
+	pred := func(o string) domain.Prediction { return domain.Prediction{Origin: o} }
+	for _, tt := range []struct {
+		name    string
+		pl      domain.Plan
+		applies string
+		review  bool
+		note    string
+	}{
+		{name: "rule shifts, engine predicts another country: flagged", pl: domain.Plan{Move: move("final_assembly"), Prediction: pred("China")},
+			applies: AppliesPart102, review: true, note: "The 102.20 rule says this move reaches Vietnam, but the engine predicts China"},
+		{name: "rule shifts, engine agrees: no flag", pl: domain.Plan{Move: move("final_assembly"), Prediction: pred("Vietnam")}, applies: AppliesPart102},
+		{name: "rule gives China, engine predicts the target: left to the precedent check", pl: domain.Plan{Move: move("pcba"), Prediction: pred("Vietnam")}, applies: AppliesPart102},
+		{name: "current setup: rule and engine differ", pl: domain.Plan{Prediction: pred("Vietnam")}, applies: AppliesPart102, review: true,
+			note: "The engine predicts Vietnam for the current setup, but the 102.20 rule gives China"},
+		{name: "current setup: they agree", pl: domain.Plan{Prediction: pred("China")}, applies: AppliesPart102},
+		{name: "no prediction (a failed move): no flag", pl: domain.Plan{Move: move("final_assembly")}, applies: AppliesPart102},
+		{name: "substantial transformation: never", pl: domain.Plan{Move: move("final_assembly"), Prediction: pred("China")}, applies: AppliesInformational},
+	} {
+		t.Run(tt.name, func(t *testing.T) {
+			c := Check(r, supply(), tt.pl, "Vietnam", tt.applies)
+			if c.Review != tt.review || !strings.HasPrefix(c.ReviewNote, tt.note) {
+				t.Fatalf("review %v %q, want %v %q", c.Review, c.ReviewNote, tt.review, tt.note)
+			}
+		})
+	}
+}
+
+func TestEngineFlagKeepsThePrecedentNote(t *testing.T) {
+	c := Check(rules(t), supply(), domain.Plan{Move: move("pcba"), Verdict: supported(true), Prediction: domain.Prediction{Origin: "Vietnam"}}, "Vietnam", AppliesPart102)
+	if !c.Review || !strings.HasPrefix(c.ReviewNote, "An earlier ruling supports this move") {
+		t.Fatalf("%+v", c)
+	}
+}

@@ -169,6 +169,8 @@ func main() {
 		err = familyCovCmd(os.Args[2:])
 	case "baselines":
 		err = baselinesCmd(os.Args[2:])
+	case "p102moves":
+		err = p102MovesCmd(os.Args[2:])
 	case "adjudicate":
 		err = adjudicateCmd(os.Args[2:])
 	default:
@@ -204,7 +206,7 @@ func run(args []string) error {
 	factsDir := fl.String("facts", "../data/corpus/facts", "facts directory (go run ./cmd/corpus build); comma-separated to add ../eval/data/facts_final2")
 	resultsDir := fl.String("results", "../eval/results", "results directory")
 	textilePrompt := fl.String("textile-prompt", "v1", "v1 or v2 (textile-v2: filled made-up guidance; use with -reasoning, D53)")
-	usmcaPrompt := fl.String("usmca-prompt", "v1", "with -regime usmca: v1 (usmca-v1) or v2 (usmca-v2: the 102.20 rows for the codes named in the facts, applied as written; D550)")
+	usmcaPrompt := fl.String("usmca-prompt", "v1", "with -regime usmca: v1 (usmca-v1) , v2 (usmca-v2: the 102.20 rows for the codes named in the facts, applied as written; D550) or v3 (usmca-v3: the D590 102.11 checklist)")
 	regime := fl.String("regime", "st", "st (substantial transformation), textile (19 CFR 102.21, textile-v1, with -splits ../eval/splits/splits_textile.json; D51), usmca (19 CFR 102.11 / 102.20, usmca-v1, with -labels ../eval/data/labels_usmca.jsonl and -splits ../eval/splits/splits_usmca.json; D61) or pharma (active ingredient, pharma-v1, with -splits ../eval/splits/splits_pharma.json; D62)")
 	_ = fl.Parse(args)
 	if *regime != "st" && *regime != "textile" && *regime != "usmca" && *regime != "pharma" {
@@ -2561,6 +2563,8 @@ func usmcaOptions(v string) (engine.Options, error) {
 			return engine.Options{}, err
 		}
 		return engine.Options{System: engine.USMCASystem2, Version: engine.USMCAVersion2, RuleText: engine.Part102RuleText(rules)}, nil
+	case "v3":
+		return engine.Options{System: engine.USMCASystem3, Version: engine.USMCAVersion3, Schema: engine.ChecklistSchema}, nil
 	}
-	return engine.Options{}, fmt.Errorf("-usmca-prompt must be v1 or v2, got %q", v)
+	return engine.Options{}, fmt.Errorf("-usmca-prompt must be v1, v2 or v3, got %q", v)
 }

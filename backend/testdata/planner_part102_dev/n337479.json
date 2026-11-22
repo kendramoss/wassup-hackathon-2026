@@ -1,0 +1,133 @@
+{
+  "_source": "Built mechanically from the facts of CBP ruling N337479 (2024-02-08, development Part 102 split; subject: \"The classification and country of origin of a wall mounted wine rack kit with vinyl skin\"). D570 rules on development data for the D590 error analysis. CBP held India. Components: the D362 materials; part codes: the top D381 development suggestion (unverified, D382); the good's code: CBP's (8302.50.0000). Family: the family check (furniture, 0.85); name from the subject (D381 rule). Materials with no country left out (1: small hardware pieces). Groups: one model call with the production extractor's group rule (groups-dev-set.jsonl). Plants one per country; operations one per group and plant plus final assembly in Canada. Target Canada by the D171 rule counted mechanically; plant capabilities for Canada are an assumption. Economics illustrative. D590.",
+  "case_id": "p102d-n337479",
+  "date": "2024-02-08",
+  "family": "furniture",
+  "target": "Canada",
+  "product": {
+    "name": "wall mounted wine rack kit with vinyl skin",
+    "description": "The product of CBP ruling N337479, as its facts describe it.",
+    "hts": "8302.50.0000",
+    "plants": [
+      {
+        "id": "canada",
+        "name": "Canada plant",
+        "country": "Canada",
+        "capabilities": [
+          "tabletop_fabrication",
+          "frame_metal_fabrication",
+          "final_assembly"
+        ]
+      },
+      {
+        "id": "india",
+        "name": "India suppliers",
+        "country": "India",
+        "capabilities": [
+          "tabletop_fabrication",
+          "frame_metal_fabrication"
+        ]
+      },
+      {
+        "id": "south_korea",
+        "name": "South Korea suppliers",
+        "country": "South Korea",
+        "capabilities": [
+          "tabletop_fabrication"
+        ]
+      }
+    ],
+    "components": [
+      {
+        "name": "MDF panel",
+        "made_in": "India",
+        "plant": "india",
+        "group": "tabletop_fabrication",
+        "hts": "4411.12",
+        "hts_alternatives": [
+          "4411.14",
+          "4421.99"
+        ]
+      },
+      {
+        "name": "acrylic panel",
+        "made_in": "India",
+        "plant": "india",
+        "group": "tabletop_fabrication",
+        "hts": "3926.90",
+        "hts_alternatives": [
+          "3920.51"
+        ]
+      },
+      {
+        "name": "aluminum pegs",
+        "made_in": "India",
+        "plant": "india",
+        "group": "frame_metal_fabrication",
+        "hts": "8302.50.00",
+        "hts_alternatives": [
+          "7616.99"
+        ]
+      },
+      {
+        "name": "vinyl skin",
+        "made_in": "South Korea",
+        "plant": "south_korea",
+        "group": "tabletop_fabrication",
+        "hts": "3919.90",
+        "hts_alternatives": [
+          "3921.90"
+        ]
+      }
+    ],
+    "operations": [
+      {
+        "name": "make the MDF panel, acrylic panel",
+        "plant": "india",
+        "group": "tabletop_fabrication"
+      },
+      {
+        "name": "make the vinyl skin",
+        "plant": "south_korea",
+        "group": "tabletop_fabrication"
+      },
+      {
+        "name": "make the aluminum pegs",
+        "plant": "india",
+        "group": "frame_metal_fabrication"
+      },
+      {
+        "name": "assemble the parts into the finished good",
+        "plant": "canada",
+        "group": "final_assembly"
+      }
+    ]
+  },
+  "economics": {
+    "illustrative": true,
+    "annual_import_value_usd": 1000000,
+    "duty_rates": {
+      "Canada": 0.125,
+      "India": 0.125,
+      "South Korea": 0.125
+    },
+    "duty_rates_note": "Illustrative placeholder, not a sourced rate.",
+    "group_costs": {
+      "tabletop_fabrication": {
+        "india": 100000,
+        "canada": 125000
+      },
+      "frame_metal_fabrication": {
+        "india": 100000,
+        "canada": 125000
+      }
+    }
+  },
+  "exclude_rulings": [
+    "N337479"
+  ],
+  "current_origin": {
+    "country": "India",
+    "ruling": "N337479"
+  }
+}

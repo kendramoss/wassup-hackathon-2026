@@ -1,0 +1,259 @@
+{
+ "decision": "D590",
+ "note": "Hand-assigned categories of the development disagreements between the Part 102 engine and the 19 CFR 102.20 check, written before any D590 variant was run. One primary category per row: classification (the engine's classification of the good or a material differs from the codes the rule reads; plan facts do not state them), assembly (the engine treats assembling or simple assembly as a reason a material fails, citing 102.17, which does not list it, under a row that does not name it), invented_exception (the engine adds an exception the row does not have), rule_input (the rule's own input, a suggested code, is the likely error; the engine gives CBP's answer or a defensible reading). cites_assembly_or_102_17: the engine's reasoning on that row also calls the work simple or minor assembly or non-qualifying under 102.17.",
+ "plan_rows_b": [
+  {
+   "row": "family/n335263/baseline/",
+   "category": "assembly",
+   "note": "the LED module is said to fail because the work in China is simple assembly under 102.17; 102.17 does not list assembly, and the 9405 row does not name it",
+   "cites_assembly_or_102_17": true,
+   "engine": "Hong Kong",
+   "rule": "other_country"
+  },
+  {
+   "row": "family/n350383/baseline/",
+   "category": "invented_exception",
+   "note": "the engine says the 8504.10-8504.50 row bars 8504.90 parts; the row allows any subheading outside the group",
+   "cites_assembly_or_102_17": true,
+   "engine": "Indonesia",
+   "rule": "shifts"
+  },
+  {
+   "row": "family/n350727/baseline/",
+   "category": "assembly",
+   "note": "the engine says attaching a harness and housing to a PCBA is simple assembly that fails the shift under 102.17",
+   "cites_assembly_or_102_17": true,
+   "engine": "China",
+   "rule": "shifts"
+  },
+  {
+   "row": "family/n350727/move/housing_and_cables@th",
+   "category": "assembly",
+   "note": "the engine says attaching a harness and housing to a PCBA is simple assembly that fails the shift under 102.17",
+   "cites_assembly_or_102_17": true,
+   "engine": "China",
+   "rule": "shifts"
+  },
+  {
+   "row": "family/n350769/baseline/",
+   "category": "classification",
+   "note": "the engine reads the good as possibly 8544.42, so the harness would not shift; the product gives 8537.10.91 (and it also calls the work simple assembly under 102.17)",
+   "cites_assembly_or_102_17": true,
+   "engine": "China",
+   "rule": "shifts"
+  },
+  {
+   "row": "family/n354175/baseline/",
+   "category": "classification",
+   "note": "the engine reads the Taiwanese semi-panel as already in the good's heading; the product gives the good 8531.20 and the panel another code",
+   "cites_assembly_or_102_17": false,
+   "engine": "Taiwan",
+   "rule": "shifts"
+  },
+  {
+   "row": "family/n354220/baseline/",
+   "category": "classification",
+   "note": "the engine reads the Vietnamese steel card as the finished tool (8205); the product gives it 7326.90, which shifts",
+   "cites_assembly_or_102_17": true,
+   "engine": "Vietnam",
+   "rule": "other_country"
+  },
+  {
+   "row": "family/n354220/move/handles_and_hardware@vn",
+   "category": "classification",
+   "note": "the engine reads the Vietnamese steel card as the finished tool (8205); the product gives it 7326.90, which shifts",
+   "cites_assembly_or_102_17": false,
+   "engine": "Vietnam",
+   "rule": "other_country"
+  },
+  {
+   "row": "family/n354220/move/machining_and_treatment@vn",
+   "category": "classification",
+   "note": "the engine reads the Vietnamese steel card as the finished tool (8205); the product gives it 7326.90, which shifts",
+   "cites_assembly_or_102_17": true,
+   "engine": "Vietnam",
+   "rule": "other_country"
+  },
+  {
+   "row": "family/n354220/move/machining_and_treatment@vn+handles_and_hardware@vn",
+   "category": "classification",
+   "note": "the engine reads the Vietnamese steel card as the finished tool (8205); the product gives it 7326.90, which shifts",
+   "cites_assembly_or_102_17": true,
+   "engine": "Vietnam",
+   "rule": "other_country"
+  },
+  {
+   "row": "part102-dev/n338219/baseline/",
+   "category": "classification",
+   "note": "the engine reads the castings as already in the good's parts subheading; the product gives 7616.99, which shifts (it also calls the work simple assembly under 102.17)",
+   "cites_assembly_or_102_17": true,
+   "engine": "South Korea",
+   "rule": "other_country"
+  },
+  {
+   "row": "part102-dev/n338219/move/housings_and_structures@south_korea",
+   "category": "classification",
+   "note": "the engine reads the castings as already in the good's parts subheading; the product gives 7616.99, which shifts (it also calls the work simple assembly under 102.17)",
+   "cites_assembly_or_102_17": true,
+   "engine": "South Korea",
+   "rule": "other_country"
+  },
+  {
+   "row": "part102-dev/n343893/baseline/",
+   "category": "classification",
+   "note": "the engine reads the good as a bearing (8482); the product gives 8708.99, so the bearing cone shifts (it also calls the work simple assembly under 102.17)",
+   "cites_assembly_or_102_17": true,
+   "engine": "India",
+   "rule": "other_country"
+  },
+  {
+   "row": "part102-dev/n343893/move/housings_and_structures@india",
+   "category": "classification",
+   "note": "the engine reads the good as a bearing (8482); the product gives 8708.99, so the bearing cone shifts (it also calls the work simple assembly under 102.17)",
+   "cites_assembly_or_102_17": true,
+   "engine": "India",
+   "rule": "other_country"
+  },
+  {
+   "row": "family/n349871/baseline/",
+   "category": "rule_input",
+   "note": "the suggested code for the forged blank is the good's own 8708.70, so the rule finds it fails; the engine reads the blank as chapter 76",
+   "cites_assembly_or_102_17": false,
+   "engine": "Thailand",
+   "rule": "leans China"
+  },
+  {
+   "row": "family/n351922/move/housing_moulding@th",
+   "category": "classification",
+   "note": "the engine reads the good as 8479.89, so every part shifts; the product gives 8421.39, so the drying filter fails unless de minimis",
+   "cites_assembly_or_102_17": false,
+   "engine": "Thailand",
+   "rule": "leans China"
+  },
+  {
+   "row": "family/n351922/move/pcba@th",
+   "category": "classification",
+   "note": "the engine reads the good as 8479.89, so every part shifts; the product gives 8421.39, so the drying filter fails unless de minimis",
+   "cites_assembly_or_102_17": false,
+   "engine": "Thailand",
+   "rule": "leans China"
+  },
+  {
+   "row": "family/n351922/move/pcba@th+housing_moulding@th",
+   "category": "classification",
+   "note": "the engine reads the good as 8479.89, so every part shifts; the product gives 8421.39, so the drying filter fails unless de minimis",
+   "cites_assembly_or_102_17": false,
+   "engine": "Thailand",
+   "rule": "leans China"
+  },
+  {
+   "row": "part102-dev/n337479/baseline/",
+   "category": "classification",
+   "note": "the engine reads the kit as furniture (9403); the product gives 8302.50, from which the aluminum pegs do not shift",
+   "cites_assembly_or_102_17": false,
+   "engine": "Canada",
+   "rule": "leans India"
+  },
+  {
+   "row": "part102-dev/n337479/move/tabletop_fabrication@canada",
+   "category": "classification",
+   "note": "the engine reads the kit as furniture (9403); the product gives 8302.50, from which the aluminum pegs do not shift",
+   "cites_assembly_or_102_17": false,
+   "engine": "Canada",
+   "rule": "leans India"
+  }
+ ],
+ "plan_counts": {
+  "assembly": 3,
+  "invented_exception": 1,
+  "classification": 15,
+  "rule_input": 1
+ },
+ "plan_rows_citing_assembly": 12,
+ "single_setups": [
+  {
+   "ruling": "N337260",
+   "category": "rule_input",
+   "note": "the suggested part codes make the fins and heat pipe fail; CBP and the engine give Mexico",
+   "in_runs": [
+    "usmca-v1 (October)",
+    "usmca-v1 (D550 B)"
+   ]
+  },
+  {
+   "ruling": "N337479",
+   "category": "classification",
+   "note": "the engine reads the kit as 9403 (or 7615) under GRI 2(a); CBP's code is 8302.50, from which the aluminum pegs do not shift",
+   "in_runs": [
+    "usmca-v1 (October)",
+    "usmca-v1 (D550 B)",
+    "usmca-v2 (D550 V)"
+   ]
+  },
+  {
+   "ruling": "N338219",
+   "category": "classification",
+   "note": "the engine reads the castings as in the good's own provision (and calls the work simple assembly under 102.17); with the suggested codes they shift",
+   "in_runs": [
+    "usmca-v1 (October)",
+    "usmca-v1 (D550 B)",
+    "usmca-v2 (D550 V)"
+   ]
+  },
+  {
+   "ruling": "N338502",
+   "category": "classification",
+   "note": "the engine classifies the good by the drip lines' essential character (3917), so the U.S. lines fail; with the suggested good code every material shifts and CBP held Mexico",
+   "in_runs": [
+    "usmca-v1 (October)",
+    "usmca-v1 (D550 B)",
+    "usmca-v2 (D550 V)"
+   ]
+  },
+  {
+   "ruling": "N340017",
+   "category": "rule_input",
+   "note": "the suggested good code (8483.30-8483.60 row) lets the rings shift; CBP held China, as the October engine did",
+   "in_runs": [
+    "usmca-v1 (October)",
+    "usmca-v2 (D550 V)"
+   ]
+  },
+  {
+   "ruling": "N341152",
+   "category": "invented_exception",
+   "note": "the engine reads the 3923 row as barring film of 3920 or 3921 (one run) or reads the spout as 3923; the row allows any other heading",
+   "in_runs": [
+    "usmca-v1 (October)",
+    "usmca-v1 (D550 B)",
+    "usmca-v2 (D550 V)"
+   ]
+  },
+  {
+   "ruling": "N352059",
+   "category": "classification",
+   "note": "the engine reads the German carbonless paper as 4809, failing the shift to the good; with CBP's codes it shifts",
+   "in_runs": [
+    "usmca-v1 (October)",
+    "usmca-v1 (D550 B)",
+    "usmca-v2 (D550 V)"
+   ]
+  },
+  {
+   "ruling": "N352763",
+   "category": "assembly",
+   "note": "the engine says Chinese LED modules merely assembled with drivers and tubes fail the shift; with the suggested codes every material shifts",
+   "in_runs": [
+    "usmca-v1 (October)",
+    "usmca-v1 (D550 B)",
+    "usmca-v2 (D550 V)"
+   ]
+  }
+ ],
+ "single_counts": {
+  "rule_input": 2,
+  "classification": 4,
+  "invented_exception": 1,
+  "assembly": 1
+ }
+}

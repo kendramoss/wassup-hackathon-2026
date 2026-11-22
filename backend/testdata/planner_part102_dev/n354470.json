@@ -1,0 +1,113 @@
+{
+  "_source": "Built mechanically from the facts of CBP ruling N354470 (2025-10-24, development Part 102 split; subject: \"The country of origin of a receiver drier unit\"). D570 rules on development data for the D590 error analysis. CBP held China. Components: the D362 materials; part codes: the top D381 development suggestion (unverified, D382); the good's code: CBP's (8421.29). Family: the family check (vehicle_parts, 0.85); name from the subject (D381 rule). Materials with no country left out (0: none). Groups: one model call with the production extractor's group rule (groups-dev-set.jsonl). Plants one per country; operations one per group and plant plus final assembly in Canada. Target Canada by the D171 rule counted mechanically; plant capabilities for Canada are an assumption. Economics illustrative. D590.",
+  "case_id": "p102d-n354470",
+  "date": "2025-10-24",
+  "family": "vehicle_parts",
+  "target": "Canada",
+  "product": {
+    "name": "receiver drier unit",
+    "description": "The product of CBP ruling N354470, as its facts describe it.",
+    "hts": "8421.29",
+    "plants": [
+      {
+        "id": "canada",
+        "name": "Canada plant",
+        "country": "Canada",
+        "capabilities": [
+          "electromechanical_core",
+          "housings_and_structures",
+          "final_assembly"
+        ]
+      },
+      {
+        "id": "china",
+        "name": "China suppliers",
+        "country": "China",
+        "capabilities": [
+          "electromechanical_core",
+          "housings_and_structures"
+        ]
+      },
+      {
+        "id": "united_states",
+        "name": "United States suppliers",
+        "country": "United States",
+        "capabilities": [
+          "housings_and_structures"
+        ]
+      }
+    ],
+    "components": [
+      {
+        "name": "receiver dryer",
+        "made_in": "China",
+        "plant": "china",
+        "group": "housings_and_structures",
+        "hts": "8421.29.00"
+      },
+      {
+        "name": "pressure switch",
+        "made_in": "China",
+        "plant": "china",
+        "group": "electromechanical_core",
+        "hts": "8536.50"
+      },
+      {
+        "name": "harness",
+        "made_in": "United States",
+        "plant": "united_states",
+        "group": "housings_and_structures",
+        "hts": "8544.42"
+      }
+    ],
+    "operations": [
+      {
+        "name": "make the pressure switch",
+        "plant": "china",
+        "group": "electromechanical_core"
+      },
+      {
+        "name": "make the receiver dryer",
+        "plant": "china",
+        "group": "housings_and_structures"
+      },
+      {
+        "name": "make the harness",
+        "plant": "united_states",
+        "group": "housings_and_structures"
+      },
+      {
+        "name": "assemble the parts into the finished good",
+        "plant": "canada",
+        "group": "final_assembly"
+      }
+    ]
+  },
+  "economics": {
+    "illustrative": true,
+    "annual_import_value_usd": 1000000,
+    "duty_rates": {
+      "Canada": 0.125,
+      "China": 0.425,
+      "United States": 0.0
+    },
+    "duty_rates_note": "Illustrative placeholder, not a sourced rate.",
+    "group_costs": {
+      "electromechanical_core": {
+        "china": 100000,
+        "canada": 125000
+      },
+      "housings_and_structures": {
+        "china": 100000,
+        "canada": 125000
+      }
+    }
+  },
+  "exclude_rulings": [
+    "N354470"
+  ],
+  "current_origin": {
+    "country": "China",
+    "ruling": "N354470"
+  }
+}

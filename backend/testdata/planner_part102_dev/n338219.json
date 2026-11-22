@@ -1,0 +1,118 @@
+{
+  "_source": "Built mechanically from the facts of CBP ruling N338219 (2024-03-08, development Part 102 split; subject: \"The tariff classification and country of origin of an adapter plate assembly\"). D570 rules on development data for the D590 error analysis. CBP held Mexico. Components: the D362 materials; part codes: the top D381 development suggestion (unverified, D382); the good's code: CBP's (8708.99.8180). Family: the family check (vehicle_parts, 0.9); name from the subject (D381 rule). Materials with no country left out (1: M4 Screws). Groups: one model call with the production extractor's group rule (groups-dev-set.jsonl). Plants one per country; operations one per group and plant plus final assembly in Mexico. Target South Korea by the D171 rule counted mechanically; plant capabilities for South Korea are an assumption. Economics illustrative. D590.",
+  "case_id": "p102d-n338219",
+  "date": "2024-03-08",
+  "family": "vehicle_parts",
+  "target": "South Korea",
+  "product": {
+    "name": "adapter plate assembly",
+    "description": "The product of CBP ruling N338219, as its facts describe it.",
+    "hts": "8708.99.8180",
+    "plants": [
+      {
+        "id": "mexico",
+        "name": "Mexico plant",
+        "country": "Mexico",
+        "capabilities": [
+          "housings_and_structures",
+          "final_assembly"
+        ]
+      },
+      {
+        "id": "china",
+        "name": "China suppliers",
+        "country": "China",
+        "capabilities": []
+      },
+      {
+        "id": "south_korea",
+        "name": "South Korea suppliers",
+        "country": "South Korea",
+        "capabilities": [
+          "housings_and_structures"
+        ]
+      }
+    ],
+    "components": [
+      {
+        "name": "Cover Casting",
+        "made_in": "South Korea",
+        "plant": "south_korea",
+        "group": "housings_and_structures",
+        "hts": "7616.99",
+        "hts_alternatives": [
+          "8708.99"
+        ]
+      },
+      {
+        "name": "Main Board Casting",
+        "made_in": "South Korea",
+        "plant": "south_korea",
+        "group": "housings_and_structures",
+        "hts": "7616.99",
+        "hts_alternatives": [
+          "8708.99"
+        ]
+      },
+      {
+        "name": "Edge Bond Gasket",
+        "made_in": "Mexico",
+        "plant": "mexico",
+        "group": "housings_and_structures",
+        "hts": "7616.99",
+        "hts_alternatives": [
+          "8484.90"
+        ]
+      },
+      {
+        "name": "dowel pins",
+        "made_in": "China",
+        "plant": "china",
+        "hts": "7318.29",
+        "hts_alternatives": [
+          "7318.24"
+        ]
+      }
+    ],
+    "operations": [
+      {
+        "name": "make the Edge Bond Gasket",
+        "plant": "mexico",
+        "group": "housings_and_structures"
+      },
+      {
+        "name": "make the Cover Casting, Main Board Casting",
+        "plant": "south_korea",
+        "group": "housings_and_structures"
+      },
+      {
+        "name": "assemble the parts into the finished good",
+        "plant": "mexico",
+        "group": "final_assembly"
+      }
+    ]
+  },
+  "economics": {
+    "illustrative": true,
+    "annual_import_value_usd": 1000000,
+    "duty_rates": {
+      "China": 0.425,
+      "Mexico": 0.125,
+      "South Korea": 0.125
+    },
+    "duty_rates_note": "Illustrative placeholder, not a sourced rate.",
+    "group_costs": {
+      "housings_and_structures": {
+        "mexico": 100000,
+        "south_korea": 125000
+      }
+    }
+  },
+  "exclude_rulings": [
+    "N338219"
+  ],
+  "current_origin": {
+    "country": "Mexico",
+    "ruling": "N338219"
+  }
+}

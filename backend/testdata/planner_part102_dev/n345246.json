@@ -1,0 +1,195 @@
+{
+  "_source": "Built mechanically from the facts of CBP ruling N345246 (2025-01-31, development Part 102 split; subject: \"The tariff classification, United States-Mexico-Canada Trade Agreement (USMCA), country of origin, and Section 301 trade remedy of a swivel seat.\"). D570 rules on development data for the D590 error analysis. CBP held China. Components: the D362 materials; part codes: the top D381 development suggestion (unverified, D382); the good's code: CBP's (9401.39.0010). Family: the family check (furniture, 0.98); name from the subject (D381 rule). Materials with no country left out (0: none). Groups: one model call with the production extractor's group rule (groups-dev-set.jsonl). Plants one per country; operations one per group and plant plus final assembly in Mexico. Target Mexico by the D171 rule counted mechanically; plant capabilities for Mexico are an assumption. Economics illustrative. D590.",
+  "case_id": "p102d-n345246",
+  "date": "2025-01-31",
+  "family": "furniture",
+  "target": "Mexico",
+  "product": {
+    "name": "Section 301 trade remedy of a swivel seat.",
+    "description": "The product of CBP ruling N345246, as its facts describe it.",
+    "hts": "9401.39.0010",
+    "plants": [
+      {
+        "id": "mexico",
+        "name": "Mexico plant",
+        "country": "Mexico",
+        "capabilities": [
+          "frame_metal_fabrication",
+          "foam_textile_production",
+          "electronics_mechanisms",
+          "final_assembly"
+        ]
+      },
+      {
+        "id": "china",
+        "name": "China suppliers",
+        "country": "China",
+        "capabilities": [
+          "frame_metal_fabrication",
+          "foam_textile_production",
+          "electronics_mechanisms"
+        ]
+      }
+    ],
+    "components": [
+      {
+        "name": "textile mesh fabric",
+        "made_in": "China",
+        "plant": "china",
+        "group": "foam_textile_production",
+        "hts": "6006.33.00",
+        "hts_alternatives": [
+          "5903"
+        ]
+      },
+      {
+        "name": "plastic foam",
+        "made_in": "China",
+        "plant": "china",
+        "group": "foam_textile_production",
+        "hts": "3921",
+        "hts_alternatives": [
+          "3921.13.00"
+        ]
+      },
+      {
+        "name": "plastic armrests",
+        "made_in": "China",
+        "plant": "china",
+        "group": "frame_metal_fabrication",
+        "hts": "9401.99",
+        "hts_alternatives": [
+          "3926.90"
+        ]
+      },
+      {
+        "name": "plastic casters",
+        "made_in": "China",
+        "plant": "china",
+        "hts": "8302.20.00",
+        "hts_alternatives": [
+          "3926.90",
+          "9401.99"
+        ]
+      },
+      {
+        "name": "metal seat foundation plate",
+        "made_in": "China",
+        "plant": "china",
+        "group": "frame_metal_fabrication",
+        "hts": "9401.90.10",
+        "hts_alternatives": [
+          "9401.99"
+        ]
+      },
+      {
+        "name": "metal gaslift",
+        "made_in": "China",
+        "plant": "china",
+        "group": "electronics_mechanisms",
+        "hts": "8412.31.00",
+        "hts_alternatives": [
+          "9401.99"
+        ]
+      },
+      {
+        "name": "metal bolts",
+        "made_in": "China",
+        "plant": "china",
+        "hts": "7318.15"
+      },
+      {
+        "name": "metal assembly hardware",
+        "made_in": "China",
+        "plant": "china",
+        "hts": "7318.15",
+        "hts_alternatives": [
+          "8302.42"
+        ]
+      },
+      {
+        "name": "plastic backrest frame",
+        "made_in": "Mexico",
+        "plant": "mexico",
+        "group": "frame_metal_fabrication",
+        "hts": "9401.99",
+        "hts_alternatives": [
+          "9401.90.10"
+        ]
+      },
+      {
+        "name": "plastic seat foundation frame",
+        "made_in": "Mexico",
+        "plant": "mexico",
+        "group": "frame_metal_fabrication",
+        "hts": "9401.99",
+        "hts_alternatives": [
+          "9401.90.10"
+        ]
+      },
+      {
+        "name": "plastic swivel base",
+        "made_in": "Mexico",
+        "plant": "mexico",
+        "group": "frame_metal_fabrication",
+        "hts": "9401.99",
+        "hts_alternatives": [
+          "3926.90"
+        ]
+      }
+    ],
+    "operations": [
+      {
+        "name": "make the plastic backrest frame, plastic seat foundation frame, plastic swivel base",
+        "plant": "mexico",
+        "group": "frame_metal_fabrication"
+      },
+      {
+        "name": "make the plastic armrests, metal seat foundation plate",
+        "plant": "china",
+        "group": "frame_metal_fabrication"
+      },
+      {
+        "name": "make the textile mesh fabric, plastic foam",
+        "plant": "china",
+        "group": "foam_textile_production"
+      },
+      {
+        "name": "make the metal gaslift",
+        "plant": "china",
+        "group": "electronics_mechanisms"
+      },
+      {
+        "name": "assemble the parts into the finished good",
+        "plant": "mexico",
+        "group": "final_assembly"
+      }
+    ]
+  },
+  "economics": {
+    "illustrative": true,
+    "annual_import_value_usd": 1000000,
+    "duty_rates": {
+      "China": 0.425,
+      "Mexico": 0.125
+    },
+    "duty_rates_note": "Illustrative placeholder, not a sourced rate.",
+    "group_costs": {
+      "foam_textile_production": {
+        "china": 100000,
+        "mexico": 125000
+      },
+      "electronics_mechanisms": {
+        "china": 100000,
+        "mexico": 125000
+      }
+    }
+  },
+  "exclude_rulings": [
+    "N345246"
+  ],
+  "current_origin": {
+    "country": "China",
+    "ruling": "N345246"
+  }
+}

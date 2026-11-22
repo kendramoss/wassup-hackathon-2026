@@ -786,3 +786,34 @@ The two decisions that go are N357770 (playing cards, chapter 95) and N361217 (o
 **Coverage (scope, not accuracy), the production family check.** Part 102 development: 49 of 72 (68.1%, 95% CI 56.6–77.7) with 20 families against 20 (27.8%) with 14. Frozen held-out set, pre-registered in D580 and run once: **8 of 18 (44.4%, 24.6–66.3) against 6 of 18**. Three were gained (wood flooring, an insulating panel, a forklift dust mop attachment, the last a stretch), the pipe assembly moved from vehicle parts to metal products, and the safety gate, covered before, failed its check and counts as none. Fewer than the 10 to 12 expected. Waxes, an emulsion, rubber hoses, luggage, fishing tackle, a seal and others still have no template.
 
 **Not done.** The held-out plan searches were not re-run, so the three newly covered rulings have not been planned and §15's plan results stand. One run per set. The general held-out set (377) was not re-scored with 20 families; on general development, 309 of 456 now match against 264. Sources: `eval/results/families-coverage-*-p102*.jsonl`, `families102-selection.json`, `families102-citation-checks.jsonl`; cost $3.01 for D580 and D581.
+
+## 16. Why the Part 102 engine and the 102.20 rule disagree, and two fixes tried (22 Nov 2026, D590, D591)
+
+**The question.** On the held-out Part 102 plan moves the Part 102 engine agreed with the 102.20 check on 3 of 6 decided moves (§15), against 13 of 14 on the three development products. Quoting the rule text did not help (§14). This section finds why on development data only, then tests two fixes. The held-out runs' details were not read for this; only the published count was.
+
+**Error analysis, development only.** Two sources. (1) Single setups, with no model calls: the check on the 72 development Part 102 rulings with three committed inputs (CBP's codes from the full ruling text, then CBP's good code with the top suggested part codes, then suggested codes for everything), against the committed rows of the engine. It decides 20 and leans on 8 (the answer if de minimis does not apply). The engine agrees on 14 to 15 of the 20 and 6 to 7 of the 8, depending on the run. (2) Plan setups, one run of the production engine alone (no precedent check) on the current setup and every move the check decides or leans on, with the facts a plan search renders: the three D501 products, 13 development fixtures built by the fixed D570 rules (`eval/planner/part102_dev.py`), and the 23 family fixtures with suggested codes (§11). The engine agrees on 43 of 57 decided rows and 17 of 23 leans, and on the 16 current setups of the Part 102 fixtures it names CBP's holding on 8.
+
+Each disagreement was given one category by hand before any fix ran (`eval/tariffshift/p102err/categories-dev.json`):
+
+| Category | Plan rows (20) | Single setups (8) | What the engine did |
+|---|---:|---:|---|
+| Classification | 15 | 4 | Its own reading of the good's or a part's tariff code differs from the codes the check reads. The facts a plan search renders state no code at all, so it has to guess them. |
+| Assembly | 3 | 1 | It says assembling or simple assembly makes a part fail the shift, citing 19 CFR 102.17. 102.17 does not list assembly, and the rows involved do not name simple assembly. |
+| Invented exception | 1 | 1 | It reads an exception into a row that the row does not have. |
+| Rule input | 1 | 2 | A suggested code fed to the check is the likely error; the engine's answer is CBP's or defensible. |
+
+12 of the 20 plan rows also cite simple assembly or 102.17 as a reason, after the classification step. De minimis was not a cause of its own.
+
+**The fixes, pre-registered in D590 before either ran.** Va: the facts a plan search renders state the codes the product gives (the good's and each part's), labelled as the product's own and not verified; the prompt is unchanged. Vb: the same facts and a new prompt, `usmca-v3`, that has the engine fill a structured 102.11 checklist (the good's code, the rule, every material's origin, code and shift, de minimis, the rule that decides) before the origin, with four instructions from the categories. Each had to raise agreement on the 57 decided rows by at least 6 net with an exact McNemar p of at most 0.05, keep the 23 leans and the 16 current setups against CBP at least as good as B, and cost at most 1.5 times as much.
+
+| Series | Decided rows agree (57) | Leans agree (23) | Current setups name CBP's holding (16) | Won / lost against B, exact McNemar p | Cost against B |
+|---|---:|---:|---:|---|---:|
+| B: production engine, plan facts as rendered | 43 | 17 | 8 | | 1.00 ($0.8661) |
+| Va: the product's codes in the facts | 46 | 23 | 11 | 4 / 1, p = 0.375 | 1.03 |
+| Vb: codes and the 102.11 checklist (`usmca-v3`) | 54 | 21 | 9 | 11 / 0, p = 0.001 | 1.78 |
+
+**What it shows. Neither fix passed (D591).** Va helps where the code was the whole problem: the current setups (7 to 11 of 15 decided) and every lean. It loses one move, where the engine read an exception from heading 8503 into the 8501 row once it saw the housings' code. Its net gain of 3 is under the bar of 6. Vb gains 11 and loses none (p = 0.001), keeps the leans and CBP's holding no worse, but its answers are about three times as long and it costs 1.78 times as much, over the bar of 1.5. Because it had already failed on cost, its accuracy run on the 72 development rulings was not made. So no held-out file was scored, and the production Part 102 engine and plan facts are unchanged. Both variants stay in the code for evaluation. A cheaper checklist is a candidate for a new pre-registration (planned).
+
+**A safety change that does not touch accuracy.** On a Part 102 case the plan's rule check now also flags for a broker's look the current setup when the check decides another country than the engine, and a move the check says reaches the target while the engine predicts another country (such a move never reaches the precedent check, so nothing else would show it). It changes no answer, ranking or shown plan. On the development rows it flags 9 of 57 decided rows, within the D590 limit of one in three, so it ships. It is a display change, not an accuracy gain.
+
+**Not done.** One run per variant. The plan rows are not independent. Agreement with the rule is not accuracy: the check reads unverified suggested codes. Source: `eval/tariffshift/p102err/` (`summary-single.json`, `summary-moves.json`, `categories-dev.json`, the run rows in `runs/`), recomputed by `cd backend && go run ./cmd/tariffshift p102err-single -check` and `p102err-moves -check` (both in `make reproduce`). Cost $3.4375, gateway-reported.

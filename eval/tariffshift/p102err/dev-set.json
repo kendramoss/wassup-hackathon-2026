@@ -1,0 +1,783 @@
+{
+ "decision": "D590",
+ "rule": "The D570 steps (1) to (4) on the development Part 102 rulings with the development inputs; the D501 three left out.",
+ "counts": {
+  "dev": 72,
+  "kept": 46,
+  "out": {
+   "fewer than two materials with a country": 20,
+   "no good code or no production country in the extraction": 3,
+   "a D501 ruling (hand-built fixture in testdata/planner_part102)": 3
+  }
+ },
+ "dev": [
+  "N337260",
+  "N337479",
+  "N337715",
+  "N337938",
+  "N338270",
+  "N338004",
+  "N338219",
+  "N338502",
+  "H334088",
+  "N339969",
+  "N340017",
+  "N340075",
+  "N341003",
+  "N341152",
+  "N341165",
+  "N342477",
+  "N342959",
+  "N343290",
+  "N344091",
+  "N343893",
+  "H322922",
+  "N345167",
+  "N345246",
+  "N347157",
+  "N347253",
+  "N347305",
+  "H341787",
+  "H341208",
+  "N349989",
+  "N349660",
+  "H345343",
+  "H335912",
+  "N351308",
+  "N351636",
+  "N352250",
+  "N352059",
+  "N352844",
+  "N352871",
+  "N354024",
+  "N353285",
+  "H342474",
+  "N354641",
+  "N354812",
+  "N354470",
+  "N356375",
+  "N356696"
+ ],
+ "rulings": [
+  {
+   "ruling": "H333407",
+   "date": "2024-01-25",
+   "cbp_origin": "Canada",
+   "good_hts": "8421.29.00",
+   "produced_in": "Canada",
+   "materials": 3,
+   "materials_with_country": 0,
+   "out": "fewer than two materials with a country"
+  },
+  {
+   "ruling": "N337260",
+   "date": "2024-01-26",
+   "cbp_origin": "Mexico",
+   "good_hts": "8473.30.5100",
+   "produced_in": "Mexico",
+   "materials": 5,
+   "materials_with_country": 5,
+   "target": "China"
+  },
+  {
+   "ruling": "N337479",
+   "date": "2024-02-08",
+   "cbp_origin": "India",
+   "good_hts": "8302.50.0000",
+   "produced_in": "Canada",
+   "materials": 5,
+   "materials_with_country": 4,
+   "target": "Canada"
+  },
+  {
+   "ruling": "N337651",
+   "date": "2024-02-08",
+   "cbp_origin": "China",
+   "good_hts": "7606.12.3091",
+   "produced_in": "Canada",
+   "materials": 1,
+   "materials_with_country": 1,
+   "out": "fewer than two materials with a country"
+  },
+  {
+   "ruling": "N337715",
+   "date": "2024-02-20",
+   "cbp_origin": "Canada",
+   "good_hts": "2208.50",
+   "produced_in": "Canada",
+   "materials": 5,
+   "materials_with_country": 2,
+   "target": "Netherlands"
+  },
+  {
+   "ruling": "N337938",
+   "date": "2024-02-27",
+   "cbp_origin": "Canada",
+   "good_hts": "2106.90.9997",
+   "produced_in": "Canada",
+   "materials": 6,
+   "materials_with_country": 6,
+   "target": "Brazil"
+  },
+  {
+   "ruling": "N338270",
+   "date": "2024-02-29",
+   "cbp_origin": "Mexico",
+   "good_hts": "8541.43.0010",
+   "produced_in": "Mexico",
+   "materials": 9,
+   "materials_with_country": 9,
+   "target": "China"
+  },
+  {
+   "ruling": "N338004",
+   "date": "2024-03-06",
+   "cbp_origin": "Canada",
+   "good_hts": "1904.10.0080",
+   "produced_in": "Canada",
+   "materials": 16,
+   "materials_with_country": 16,
+   "target": "United States"
+  },
+  {
+   "ruling": "N338249",
+   "date": "2024-03-07",
+   "cbp_origin": "Mexico",
+   "good_hts": "8708.94",
+   "produced_in": "Mexico",
+   "materials": 2,
+   "materials_with_country": 1,
+   "out": "fewer than two materials with a country"
+  },
+  {
+   "ruling": "N338219",
+   "date": "2024-03-08",
+   "cbp_origin": "Mexico",
+   "good_hts": "8708.99.8180",
+   "produced_in": "Mexico",
+   "materials": 5,
+   "materials_with_country": 4,
+   "target": "South Korea"
+  },
+  {
+   "ruling": "N338502",
+   "date": "2024-03-19",
+   "cbp_origin": "Mexico",
+   "good_hts": "3917.32.0020",
+   "produced_in": "Mexico",
+   "materials": 3,
+   "materials_with_country": 3,
+   "target": "Chile"
+  },
+  {
+   "ruling": "H334088",
+   "date": "2024-03-29",
+   "cbp_origin": "Canada",
+   "good_hts": "3824.99.4900",
+   "produced_in": "Canada",
+   "materials": 5,
+   "materials_with_country": 5,
+   "target": "United States"
+  },
+  {
+   "ruling": "N339353",
+   "date": "2024-05-08",
+   "cbp_origin": "Canada",
+   "good_hts": "1605.52",
+   "produced_in": "Canada",
+   "materials": 2,
+   "materials_with_country": 1,
+   "out": "fewer than two materials with a country"
+  },
+  {
+   "ruling": "N339969",
+   "date": "2024-05-23",
+   "cbp_origin": "Canada",
+   "good_hts": "7610.90.0080",
+   "produced_in": "Canada",
+   "materials": 14,
+   "materials_with_country": 2,
+   "target": "Turkey"
+  },
+  {
+   "ruling": "N339851",
+   "date": "2024-05-24",
+   "cbp_origin": "Canada",
+   "good_hts": "4412.31",
+   "produced_in": "Canada",
+   "materials": 3,
+   "materials_with_country": 1,
+   "out": "fewer than two materials with a country"
+  },
+  {
+   "ruling": "N340017",
+   "date": "2024-06-04",
+   "cbp_origin": "China",
+   "good_hts": "8483.90.5090",
+   "produced_in": "Mexico",
+   "materials": 5,
+   "materials_with_country": 5,
+   "target": "Mexico"
+  },
+  {
+   "ruling": "H333699",
+   "date": "2024-06-06",
+   "cbp_origin": "Mexico",
+   "good_hts": "",
+   "produced_in": "",
+   "materials": 0,
+   "materials_with_country": 0,
+   "out": "no good code or no production country in the extraction"
+  },
+  {
+   "ruling": "N340075",
+   "date": "2024-06-06",
+   "cbp_origin": "India",
+   "good_hts": "8302.50.0000",
+   "produced_in": "Canada",
+   "materials": 5,
+   "materials_with_country": 5,
+   "target": "Canada"
+  },
+  {
+   "ruling": "N341003",
+   "date": "2024-07-15",
+   "cbp_origin": "Canada",
+   "good_hts": "7326.90.8688",
+   "produced_in": "Canada",
+   "materials": 2,
+   "materials_with_country": 2,
+   "target": "China"
+  },
+  {
+   "ruling": "N341152",
+   "date": "2024-07-19",
+   "cbp_origin": "Mexico",
+   "good_hts": "3923.21.0095",
+   "produced_in": "Mexico",
+   "materials": 2,
+   "materials_with_country": 2,
+   "target": "China"
+  },
+  {
+   "ruling": "N341165",
+   "date": "2024-08-01",
+   "cbp_origin": "Canada",
+   "good_hts": "3206.11.0000",
+   "produced_in": "Canada",
+   "materials": 4,
+   "materials_with_country": 2,
+   "target": "China"
+  },
+  {
+   "ruling": "N342447",
+   "date": "2024-09-20",
+   "cbp_origin": "Canada",
+   "good_hts": "7610.90.0080",
+   "produced_in": "Canada",
+   "materials": 3,
+   "materials_with_country": 1,
+   "out": "fewer than two materials with a country"
+  },
+  {
+   "ruling": "H339179",
+   "date": "2024-09-25",
+   "cbp_origin": "China",
+   "good_hts": "8409.91",
+   "produced_in": "Mexico",
+   "materials": 1,
+   "materials_with_country": 1,
+   "out": "fewer than two materials with a country"
+  },
+  {
+   "ruling": "N342477",
+   "date": "2024-10-01",
+   "cbp_origin": "Canada",
+   "good_hts": "4811.41.2100",
+   "produced_in": "Canada",
+   "materials": 4,
+   "materials_with_country": 4,
+   "target": "China"
+  },
+  {
+   "ruling": "N342959",
+   "date": "2024-10-25",
+   "cbp_origin": "Germany",
+   "good_hts": "8471.70.9000",
+   "produced_in": "Mexico",
+   "materials": 8,
+   "materials_with_country": 3,
+   "target": "China"
+  },
+  {
+   "ruling": "N343290",
+   "date": "2024-11-04",
+   "cbp_origin": "Mexico",
+   "good_hts": "8708.22",
+   "produced_in": "Mexico",
+   "materials": 11,
+   "materials_with_country": 7,
+   "target": "United States"
+  },
+  {
+   "ruling": "N343418",
+   "date": "2024-11-15",
+   "cbp_origin": "Mexico",
+   "good_hts": "7307",
+   "produced_in": "Mexico",
+   "materials": 1,
+   "materials_with_country": 1,
+   "out": "fewer than two materials with a country"
+  },
+  {
+   "ruling": "H341021",
+   "date": "2024-11-19",
+   "cbp_origin": "China",
+   "good_hts": "8712.00.15",
+   "produced_in": "Canada",
+   "materials": 5,
+   "materials_with_country": 1,
+   "out": "fewer than two materials with a country"
+  },
+  {
+   "ruling": "H340588",
+   "date": "2024-11-20",
+   "cbp_origin": "Australia",
+   "good_hts": "7504.00.00",
+   "produced_in": "Canada",
+   "materials": 1,
+   "materials_with_country": 1,
+   "out": "fewer than two materials with a country"
+  },
+  {
+   "ruling": "N343690",
+   "date": "2024-11-25",
+   "cbp_origin": "Brazil",
+   "good_hts": "7216.91.0090",
+   "produced_in": "Mexico",
+   "materials": 1,
+   "materials_with_country": 1,
+   "out": "fewer than two materials with a country"
+  },
+  {
+   "ruling": "N344091",
+   "date": "2024-12-03",
+   "cbp_origin": "Mexico",
+   "good_hts": "8507.90.8000",
+   "produced_in": "Mexico",
+   "materials": 3,
+   "materials_with_country": 3,
+   "target": "South Korea"
+  },
+  {
+   "ruling": "N343893",
+   "date": "2024-12-04",
+   "cbp_origin": "Mexico",
+   "good_hts": "8708.99.8180",
+   "produced_in": "Mexico",
+   "materials": 2,
+   "materials_with_country": 2,
+   "target": "India"
+  },
+  {
+   "ruling": "N344002",
+   "date": "2024-12-06",
+   "cbp_origin": "Mexico",
+   "good_hts": "8414.30",
+   "produced_in": "Mexico",
+   "materials": 26,
+   "materials_with_country": 26,
+   "out": "a D501 ruling (hand-built fixture in testdata/planner_part102)"
+  },
+  {
+   "ruling": "H322922",
+   "date": "2025-01-28",
+   "cbp_origin": "Japan",
+   "good_hts": "3902.30.00",
+   "produced_in": "China",
+   "materials": 5,
+   "materials_with_country": 5,
+   "target": "China"
+  },
+  {
+   "ruling": "N345167",
+   "date": "2025-01-31",
+   "cbp_origin": "Canada",
+   "good_hts": "1905.90.1049",
+   "produced_in": "Canada",
+   "materials": 20,
+   "materials_with_country": 20,
+   "target": "United States"
+  },
+  {
+   "ruling": "N345246",
+   "date": "2025-01-31",
+   "cbp_origin": "China",
+   "good_hts": "9401.39.0010",
+   "produced_in": "Mexico",
+   "materials": 11,
+   "materials_with_country": 11,
+   "target": "Mexico"
+  },
+  {
+   "ruling": "N347004",
+   "date": "2025-04-01",
+   "cbp_origin": "Canada",
+   "good_hts": "0511.99.4040",
+   "produced_in": "Canada",
+   "materials": 0,
+   "materials_with_country": 0,
+   "out": "fewer than two materials with a country"
+  },
+  {
+   "ruling": "N347157",
+   "date": "2025-04-16",
+   "cbp_origin": "United States",
+   "good_hts": "0406.90.4200",
+   "produced_in": "Canada",
+   "materials": 8,
+   "materials_with_country": 2,
+   "target": "Canada"
+  },
+  {
+   "ruling": "N347253",
+   "date": "2025-04-28",
+   "cbp_origin": "Canada",
+   "good_hts": "8714.92.10",
+   "produced_in": "Canada",
+   "materials": 3,
+   "materials_with_country": 2,
+   "target": "United States"
+  },
+  {
+   "ruling": "N347305",
+   "date": "2025-04-30",
+   "cbp_origin": "Canada",
+   "good_hts": "6815",
+   "produced_in": "Canada",
+   "materials": 3,
+   "materials_with_country": 3,
+   "target": "United States"
+  },
+  {
+   "ruling": "H341787",
+   "date": "2025-05-13",
+   "cbp_origin": "Canada",
+   "good_hts": "3824.99.49",
+   "produced_in": "Canada",
+   "materials": 4,
+   "materials_with_country": 4,
+   "target": "China"
+  },
+  {
+   "ruling": "N348465",
+   "date": "2025-06-05",
+   "cbp_origin": "China",
+   "good_hts": "8501",
+   "produced_in": "Canada",
+   "materials": 6,
+   "materials_with_country": 5,
+   "out": "a D501 ruling (hand-built fixture in testdata/planner_part102)"
+  },
+  {
+   "ruling": "N350133",
+   "date": "2025-06-23",
+   "cbp_origin": "Mexico",
+   "good_hts": "8433.11.0050",
+   "produced_in": "Mexico",
+   "materials": 23,
+   "materials_with_country": 23,
+   "out": "a D501 ruling (hand-built fixture in testdata/planner_part102)"
+  },
+  {
+   "ruling": "H341208",
+   "date": "2025-06-25",
+   "cbp_origin": "Canada",
+   "good_hts": "3926.90.99",
+   "produced_in": "Canada",
+   "materials": 5,
+   "materials_with_country": 5,
+   "target": "China"
+  },
+  {
+   "ruling": "N349989",
+   "date": "2025-07-01",
+   "cbp_origin": "Mexico",
+   "good_hts": "8544.49",
+   "produced_in": "Mexico",
+   "materials": 3,
+   "materials_with_country": 3,
+   "target": "China"
+  },
+  {
+   "ruling": "N349660",
+   "date": "2025-07-02",
+   "cbp_origin": "Mexico",
+   "good_hts": "8708.94",
+   "produced_in": "Mexico",
+   "materials": 6,
+   "materials_with_country": 6,
+   "target": "United States"
+  },
+  {
+   "ruling": "H341684",
+   "date": "2025-07-10",
+   "cbp_origin": "Mexico",
+   "good_hts": "8707.90.50",
+   "produced_in": "Mexico",
+   "materials": 9,
+   "materials_with_country": 0,
+   "out": "fewer than two materials with a country"
+  },
+  {
+   "ruling": "H345343",
+   "date": "2025-07-21",
+   "cbp_origin": "United States",
+   "good_hts": "9401.79.00",
+   "produced_in": "Mexico",
+   "materials": 6,
+   "materials_with_country": 6,
+   "target": "China"
+  },
+  {
+   "ruling": "H335912",
+   "date": "2025-07-30",
+   "cbp_origin": "Canada",
+   "good_hts": "2005.20.00",
+   "produced_in": "Canada",
+   "materials": 3,
+   "materials_with_country": 3,
+   "target": "United States"
+  },
+  {
+   "ruling": "N351308",
+   "date": "2025-07-31",
+   "cbp_origin": "Mexico",
+   "good_hts": "8708.30",
+   "produced_in": "Mexico",
+   "materials": 2,
+   "materials_with_country": 2,
+   "target": "United States"
+  },
+  {
+   "ruling": "N351636",
+   "date": "2025-08-22",
+   "cbp_origin": "Mexico",
+   "good_hts": "1806.10.4500",
+   "produced_in": "Mexico",
+   "materials": 3,
+   "materials_with_country": 3,
+   "target": "Netherlands"
+  },
+  {
+   "ruling": "N351725",
+   "date": "2025-08-26",
+   "cbp_origin": "Canada",
+   "good_hts": "3921.11.0000",
+   "produced_in": "Canada",
+   "materials": 4,
+   "materials_with_country": 1,
+   "out": "fewer than two materials with a country"
+  },
+  {
+   "ruling": "N352250",
+   "date": "2025-08-28",
+   "cbp_origin": "China",
+   "good_hts": "3920.62.0050",
+   "produced_in": "Canada",
+   "materials": 4,
+   "materials_with_country": 2,
+   "target": "Canada"
+  },
+  {
+   "ruling": "N351895",
+   "date": "2025-08-29",
+   "cbp_origin": "Canada",
+   "good_hts": "1515.90.8190",
+   "produced_in": "Canada",
+   "materials": 1,
+   "materials_with_country": 1,
+   "out": "fewer than two materials with a country"
+  },
+  {
+   "ruling": "N352059",
+   "date": "2025-08-29",
+   "cbp_origin": "Mexico",
+   "good_hts": "4816.20.0000",
+   "produced_in": "Mexico",
+   "materials": 2,
+   "materials_with_country": 2,
+   "target": "Germany"
+  },
+  {
+   "ruling": "N352763",
+   "date": "2025-09-05",
+   "cbp_origin": "Mexico",
+   "good_hts": "8539.52.0051",
+   "produced_in": "Mexico",
+   "materials": 11,
+   "materials_with_country": 1,
+   "out": "fewer than two materials with a country"
+  },
+  {
+   "ruling": "N352583",
+   "date": "2025-09-08",
+   "cbp_origin": "Canada",
+   "good_hts": "1515.90.2100",
+   "produced_in": "Canada",
+   "materials": 1,
+   "materials_with_country": 1,
+   "out": "fewer than two materials with a country"
+  },
+  {
+   "ruling": "N352810",
+   "date": "2025-09-19",
+   "cbp_origin": "Canada",
+   "good_hts": "3926.90.9989",
+   "produced_in": "Canada",
+   "materials": 1,
+   "materials_with_country": 0,
+   "out": "fewer than two materials with a country"
+  },
+  {
+   "ruling": "N352844",
+   "date": "2025-09-24",
+   "cbp_origin": "Mexico",
+   "good_hts": "1302.32.0020",
+   "produced_in": "Mexico",
+   "materials": 2,
+   "materials_with_country": 2,
+   "target": "China"
+  },
+  {
+   "ruling": "N352871",
+   "date": "2025-09-24",
+   "cbp_origin": "Mexico",
+   "good_hts": "7113.19.5091",
+   "produced_in": "Mexico",
+   "materials": 4,
+   "materials_with_country": 3,
+   "target": "United States"
+  },
+  {
+   "ruling": "N354024",
+   "date": "2025-10-02",
+   "cbp_origin": "Mexico",
+   "good_hts": "8433.11.0050",
+   "produced_in": "Mexico",
+   "materials": 18,
+   "materials_with_country": 18,
+   "target": "China"
+  },
+  {
+   "ruling": "N353285",
+   "date": "2025-10-03",
+   "cbp_origin": "Mexico",
+   "good_hts": "3926",
+   "produced_in": "Mexico",
+   "materials": 5,
+   "materials_with_country": 5,
+   "target": "India"
+  },
+  {
+   "ruling": "H349670",
+   "date": "2025-10-15",
+   "cbp_origin": "United States",
+   "good_hts": "",
+   "produced_in": "",
+   "materials": 0,
+   "materials_with_country": 0,
+   "out": "no good code or no production country in the extraction"
+  },
+  {
+   "ruling": "H342474",
+   "date": "2025-10-21",
+   "cbp_origin": "China",
+   "good_hts": "8528.59",
+   "produced_in": "Mexico",
+   "materials": 9,
+   "materials_with_country": 2,
+   "target": "Mexico"
+  },
+  {
+   "ruling": "N354641",
+   "date": "2025-10-21",
+   "cbp_origin": "Taiwan",
+   "good_hts": "4010.12.5500",
+   "produced_in": "Canada",
+   "materials": 4,
+   "materials_with_country": 4,
+   "target": "China"
+  },
+  {
+   "ruling": "N354812",
+   "date": "2025-10-22",
+   "cbp_origin": "Mexico",
+   "good_hts": "4416.00.3010",
+   "produced_in": "Mexico",
+   "materials": 4,
+   "materials_with_country": 2,
+   "target": "United States"
+  },
+  {
+   "ruling": "N354470",
+   "date": "2025-10-24",
+   "cbp_origin": "China",
+   "good_hts": "8421.29",
+   "produced_in": "Canada",
+   "materials": 3,
+   "materials_with_country": 3,
+   "target": "Canada"
+  },
+  {
+   "ruling": "N355127",
+   "date": "2025-11-19",
+   "cbp_origin": "Mexico",
+   "good_hts": "7112.91.0100",
+   "produced_in": "Mexico",
+   "materials": 2,
+   "materials_with_country": 1,
+   "out": "fewer than two materials with a country"
+  },
+  {
+   "ruling": "N355835",
+   "date": "2025-11-24",
+   "cbp_origin": "Canada",
+   "good_hts": "",
+   "produced_in": "Canada",
+   "materials": 6,
+   "materials_with_country": 5,
+   "out": "no good code or no production country in the extraction"
+  },
+  {
+   "ruling": "N356280",
+   "date": "2025-12-15",
+   "cbp_origin": "Mexico",
+   "good_hts": "8414.59.6560",
+   "produced_in": "Mexico",
+   "materials": 4,
+   "materials_with_country": 0,
+   "out": "fewer than two materials with a country"
+  },
+  {
+   "ruling": "N356375",
+   "date": "2025-12-17",
+   "cbp_origin": "China",
+   "good_hts": "9503.00.0090",
+   "produced_in": "Mexico",
+   "materials": 7,
+   "materials_with_country": 7,
+   "target": "Mexico"
+  },
+  {
+   "ruling": "N356696",
+   "date": "2025-12-31",
+   "cbp_origin": "Mexico",
+   "good_hts": "9018.90.7580",
+   "produced_in": "Mexico",
+   "materials": 13,
+   "materials_with_country": 11,
+   "target": "United States"
+  }
+ ]
+}

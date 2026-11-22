@@ -116,3 +116,16 @@ func TestRenderFinalAssemblyAbsentOperationsLabelled(t *testing.T) {
 		t.Errorf("template final-assembly operations not labelled as an assumption:\n%s", para)
 	}
 }
+
+func TestClassificationNoteStatesTheProductsCodes(t *testing.T) {
+	p := domain.Product{Name: "speed sensor", HTS: "8543.70.98", Components: []domain.Component{
+		{Name: "PCBA", MadeIn: "China", HTS: "8543.90"}, {Name: "screws", MadeIn: "Thailand"}, {Name: "housing", MadeIn: "Thailand", HTS: " 3926.90 "}}}
+	got := ClassificationNote(p)
+	want := "\nTariff classifications given with the product (HTSUS; the product's own codes, not verified by CBP): the speed sensor (the finished good), 8543.70.98; the PCBA (made in China), 8543.90; the housing (made in Thailand), 3926.90.\n"
+	if got != want {
+		t.Fatalf("got %q\nwant %q", got, want)
+	}
+	if ClassificationNote(domain.Product{Name: "x", Components: []domain.Component{{Name: "a", MadeIn: "China"}}}) != "" {
+		t.Fatal("no code, no note")
+	}
+}
