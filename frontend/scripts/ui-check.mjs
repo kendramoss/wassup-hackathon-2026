@@ -591,7 +591,7 @@ const delayed = async (route, body) => {
 // Re-announcing the whole tbody on each cell change buries the one new fact;
 // a small status must announce just the completed move.
 {
-  const ctx = await browser.newContext({ viewport: viewports.desktop });
+  const ctx = await browser.newContext({ viewport: viewports.narrow });
   const page = await ctx.newPage();
   page.on("console", (m) => m.type() === "error" && problems.push({ page: "/cases/[id]/plan (live table)", console: m.text() }));
   page.on("pageerror", (e) => problems.push({ page: "/cases/[id]/plan (live table)", console: String(e) }));
@@ -652,6 +652,17 @@ const delayed = async (route, body) => {
   await page.goto(base + `/cases/${reflowId}/plan?target=Thailand`, { waitUntil: "networkidle" });
   await page.getByRole("button", { name: /Search moves to/i }).first().click();
   await page.locator("tbody").first().waitFor();
+  // #600: at 320 px the live table is 640 px wide. Its scroller must be a
+  // named, focusable region or a keyboard user cannot reach the right columns.
+  const scroller = await page.evaluate(() => {
+    const wrap = [...document.querySelectorAll("div.overflow-x-auto")].find((d) => d.querySelector("table"));
+    return wrap
+      ? { role: wrap.getAttribute("role"), label: wrap.getAttribute("aria-label"), tabIndex: wrap.tabIndex, scrollWidth: wrap.scrollWidth, clientWidth: wrap.clientWidth }
+      : null;
+  });
+  if (!scroller || scroller.role !== "region" || !scroller.label || scroller.tabIndex !== 0 || scroller.scrollWidth <= scroller.clientWidth) {
+    problems.push({ page: "/cases/[id]/plan (live table)", focus: "horizontal scroller is not keyboard reachable", scroller });
+  }
   // Wait for the stream to reach the second move; before the fix this is where
   // the old tbody live region replays every row instead of one short status.
   await page.waitForFunction(() => (document.querySelector("tbody")?.textContent ?? "").includes("$8k"), null, { timeout: 8000 });
