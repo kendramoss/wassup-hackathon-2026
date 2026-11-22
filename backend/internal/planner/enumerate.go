@@ -132,11 +132,11 @@ func DescribeAt(p domain.Product, t Template, m domain.Move, madeWith string) st
 	if len(m) == 0 {
 		return "No change: keep the current setup"
 	}
-	names := make([]string, 0, len(m))
+	items := make([][]string, 0, len(m))
 	country := ""
 	sameCountry := true
 	for i, gm := range m {
-		names = append(names, groupPhrase(p, t, gm.Group, madeWith))
+		items = append(items, groupItems(p, t, gm.Group, madeWith))
 		pl, _ := p.PlantByID(gm.ToPlant)
 		if i > 0 && pl.Country != country {
 			sameCountry = false
@@ -144,12 +144,19 @@ func DescribeAt(p domain.Product, t Template, m domain.Move, madeWith string) st
 		country = pl.Country
 	}
 	if sameCountry {
-		return "Move " + joinAnd(names) + " to " + country
+		// One list for every group, joined once: "the motor stator, the
+		// control boards and the wiring harness", not "the motor stator and
+		// the control boards and ..." (D641).
+		var all []string
+		for _, it := range items {
+			all = append(all, it...)
+		}
+		return "Move " + joinAnd(all) + " to " + country
 	}
 	parts := make([]string, len(m))
 	for i, gm := range m {
 		pl, _ := p.PlantByID(gm.ToPlant)
-		parts[i] = names[i] + " to " + pl.Country
+		parts[i] = joinAnd(items[i]) + " to " + pl.Country
 	}
 	return "Move " + joinAnd(parts)
 }
@@ -161,13 +168,20 @@ func DescribeAt(p domain.Product, t Template, m domain.Move, madeWith string) st
 // conversion or charging module" read "the two cylindrical lithium-ion
 // battery cells", not a module the product does not have.
 func groupPhrase(p domain.Product, t Template, id, madeWith string) string {
+	return joinAnd(groupItems(p, t, id, madeWith))
+}
+
+// groupItems is groupPhrase as a list, so Describe can join the items of
+// several groups once (D641). A template name that fits stays one item.
+func groupItems(p domain.Product, t Template, id, madeWith string) []string {
 	name := GroupNameAt(p, t, id, madeWith)
 	comps := groupComponents(p, id)
 	if len(comps) == 0 {
-		return "the " + lowerWord(name)
+		return []string{"the " + lowerWord(name)}
 	}
 	if describesAny(name, comps) {
-		return "the " + lowerWord(fittingItems(name, comps))
+		kept, rest := fittingItems(name, comps)
+		return append([]string{"the " + lowerWord(kept)}, rest...)
 	}
 	parts := make([]string, 0, 3)
 	for i, c := range comps {
@@ -177,26 +191,27 @@ func groupPhrase(p domain.Product, t Template, id, madeWith string) string {
 		}
 		parts = append(parts, "the "+lowerWord(c))
 	}
-	return joinAnd(parts)
+	return parts
 }
 
 // fittingItems drops from a listed group name ("PCBA and sensors", "Base,
 // harness and seals") each one-word item that names none of the parts filed
 // under the group, so a PCR instrument with a main board, a monitor and no
 // sensor reads "the PCBA and 4 other parts", not "the PCBA and sensors"
-// (judge panel round 4, D290). An item of more than one word is dropped the
+// (judge panel round 4, D290). It returns the shorter name and, as rest,
+// the plan-sentence items for the parts that name does not cover. An item of more than one word is dropped the
 // same way unless it is a process ("firebox forming" stays), so a merged
 // Part 102 group name such as "Sugar, cocoa and dairy ingredients" reads "the
 // sugar and cocoa" for a blend with no dairy (#633, D622). A name with a
 // parenthesis is left whole. If dropping would leave nothing that fits, the
-// name is kept as it is.
-func fittingItems(name string, parts []string) string {
+// name is kept as it is and rest is nil.
+func fittingItems(name string, parts []string) (kept string, rest []string) {
 	if strings.ContainsAny(name, "()") {
-		return name
+		return name, nil
 	}
 	items := strings.Split(strings.ReplaceAll(name, " and ", ", "), ", ")
 	if len(items) < 2 {
-		return name
+		return name, nil
 	}
 	keep := make([]string, 0, len(items))
 	for _, it := range items {
@@ -207,25 +222,28 @@ func fittingItems(name string, parts []string) string {
 		keep = append(keep, it)
 	}
 	if len(keep) == len(items) || len(keep) == 0 {
-		return name
+		return name, nil
 	}
 	if !describesAny(joinAnd(keep), parts) {
-		return name
+		return name, nil
 	}
-	// Parts the shorter name does not cover are counted, so the sentence
-	// still says everything that moves: "the PCBA and 4 other parts".
-	other := 0
+	// Parts the shorter name does not cover follow it, so the sentence
+	// still says everything that moves: one such part by its name ("the
+	// PCBA and the temperature control module", D641), more as a count
+	// ("the PCBA and 4 other parts").
+	var other []string
 	for _, c := range parts {
 		if !describesAny(joinAnd(keep), []string{c}) {
-			other++
+			other = append(other, c)
 		}
 	}
-	if other == 1 {
-		keep = append(keep, "1 other part")
-	} else if other > 1 {
-		keep = append(keep, fmt.Sprintf("%d other parts", other))
+	switch len(other) {
+	case 0:
+		return joinAnd(keep), nil
+	case 1:
+		return joinAnd(keep), []string{"the " + lowerWord(other[0])}
 	}
-	return joinAnd(keep)
+	return joinAnd(keep), []string{fmt.Sprintf("%d other parts", len(other))}
 }
 
 // isProcess reports whether a listed item names work rather than a thing:

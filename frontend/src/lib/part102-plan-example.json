@@ -1,5 +1,5 @@
 {
- "note": "Recorded example, rebuilt from committed files by `cd backend \u0026\u0026 go run ./cmd/tariffshift plans102-example -check`. Plan search: the D630 development run, as committed, in which the production Part 102 engine (usmca-v5, the product's codes in the facts, D602) predicted each move; precedent checks and predictions as recorded, no new model call. Beside each move, the predictions for the same move in the D541 run (usmca-v1) and the D501 run (the general engine). Codes: the top D381 development suggestion for each part, unverified; the good's code is CBP's. Rule check and order: the 19 CFR 102.20 layer on the product after each move, as on a Part 102 case (D441), and the D500 order. Draft: the export package's Part 102 letter for the first shown plan, under the regime of that plan's prediction as the API reads it (D502, D520). The product's name is the fixture's since D532, after the D501 and D541 runs; their recorded facts still use the ruling subject as the name and are not shown.",
+ "note": "Recorded example, rebuilt from committed files by `cd backend \u0026\u0026 go run ./cmd/tariffshift plans102-example -check`. Plan search: the D630 development run, as committed, in which the production Part 102 engine (usmca-v5, the product's codes in the facts, D602) predicted each move; precedent checks and predictions as recorded, no new model call; plan sentences rebuilt from the recorded moves with the current wording (D641). Beside each move, the predictions for the same move in the D541 run (usmca-v1) and the D501 run (the general engine). Codes: the top D381 development suggestion for each part, unverified; the good's code is CBP's. Rule check and order: the 19 CFR 102.20 layer on the product after each move, as on a Part 102 case (D441), and the D500 order. Draft: the export package's Part 102 letter for the first shown plan, under the regime of that plan's prediction as the API reads it (D502, D520). The product's name is the fixture's since D532, after the D501 and D541 runs; their recorded facts still use the ruling subject as the name and are not shown.",
  "ruling": "N348465",
  "subject": "The country of origin of an electrical actuator",
  "date": "2025-06-05",
@@ -91,7 +91,7 @@
  "shown": [
   {
    "key": "motor_stator_rotor@ca+controls_and_valves@ca",
-   "description": "Move the motor stator and the control boards and 1 other part to Canada",
+   "description": "Move the motor stator, the control boards and the electrical apparatus to Canada",
    "parts_moved": [
     "DC motor",
     "sensor printed circuit board assembly (PCBA)",
@@ -123,7 +123,7 @@
   },
   {
    "key": "motor_stator_rotor@ca+fluid_rotary_mechanism@ca+controls_and_valves@ca",
-   "description": "Move the motor stator, the gearbox assembly and the screw drive and the control boards and 1 other part to Canada",
+   "description": "Move the motor stator, the gearbox assembly, the screw drive, the control boards and the electrical apparatus to Canada",
    "parts_moved": [
     "DC motor",
     "gearbox assembly",
@@ -190,7 +190,7 @@
   },
   {
    "key": "motor_stator_rotor@ca+fluid_rotary_mechanism@ca",
-   "description": "Move the motor stator and the gearbox assembly and the screw drive to Canada",
+   "description": "Move the motor stator, the gearbox assembly and the screw drive to Canada",
    "parts_moved": [
     "DC motor",
     "gearbox assembly",
@@ -223,7 +223,7 @@
   },
   {
    "key": "motor_stator_rotor@ca+housing_and_chassis@ca",
-   "description": "Move the motor stator and the housing and machined block to Canada",
+   "description": "Move the motor stator and the housing to Canada",
    "parts_moved": [
     "DC motor",
     "housings"
@@ -255,7 +255,7 @@
   },
   {
    "key": "motor_stator_rotor@ca+fluid_rotary_mechanism@ca+housing_and_chassis@ca",
-   "description": "Move the motor stator, the gearbox assembly and the screw drive and the housing and machined block to Canada",
+   "description": "Move the motor stator, the gearbox assembly, the screw drive and the housing to Canada",
    "parts_moved": [
     "DC motor",
     "gearbox assembly",
@@ -317,7 +317,7 @@
   },
   {
    "key": "housing_and_chassis@ca",
-   "description": "Move the housing and machined block to Canada",
+   "description": "Move the housing to Canada",
    "parts_moved": [
     "housings"
    ],
@@ -343,7 +343,7 @@
   },
   {
    "key": "controls_and_valves@ca",
-   "description": "Move the control boards and 1 other part to Canada",
+   "description": "Move the control boards and the electrical apparatus to Canada",
    "parts_moved": [
     "sensor printed circuit board assembly (PCBA)",
     "electrical apparatus"
@@ -370,7 +370,7 @@
   },
   {
    "key": "fluid_rotary_mechanism@ca+housing_and_chassis@ca",
-   "description": "Move the gearbox assembly and the screw drive and the housing and machined block to Canada",
+   "description": "Move the gearbox assembly, the screw drive and the housing to Canada",
    "parts_moved": [
     "gearbox assembly",
     "screw drive",
@@ -398,7 +398,7 @@
   },
   {
    "key": "fluid_rotary_mechanism@ca+controls_and_valves@ca",
-   "description": "Move the gearbox assembly and the screw drive and the control boards and 1 other part to Canada",
+   "description": "Move the gearbox assembly, the screw drive, the control boards and the electrical apparatus to Canada",
    "parts_moved": [
     "gearbox assembly",
     "screw drive",
@@ -427,7 +427,7 @@
   },
   {
    "key": "housing_and_chassis@ca+controls_and_valves@ca",
-   "description": "Move the housing and machined block and the control boards and 1 other part to Canada",
+   "description": "Move the housing, the control boards and the electrical apparatus to Canada",
    "parts_moved": [
     "housings",
     "sensor printed circuit board assembly (PCBA)",
@@ -461,7 +461,7 @@
  "engine_agrees_with_rule_d541": 12,
  "engine_agrees_with_rule_d501": 9,
  "draft": {
-  "plan": "Move the motor stator and the control boards and 1 other part to Canada",
+  "plan": "Move the motor stator, the control boards and the electrical apparatus to Canada",
   "question": "What is the country of origin of DC motor actuator, produced as described above, under the Part 102 rules of origin (the general rules of 19 C.F.R. § 102.11, applied in order, with the tariff shifts of § 102.20), for purposes of country of origin marking (19 C.F.R. § 102.0)?\n\nThis request concerns the origin of the merchandise for marking under the Part 102 rules only. It does not ask CBP to decide the country of origin for Section 301 duties, which is a separate question, and the requester does not contend that marking origin settles it.",
   "tariff_shift": "Tariff-shift check (19 C.F.R. § 102.20): applied to the component codes in the bill of materials, with the good finished in Canada, the rule gives Canada (19 C.F.R. § 102.11(a)(3); 19 C.F.R. § 102.20(o), 8501). [CONFIRM WITH COUNSEL]",
   "notes": [

@@ -145,14 +145,19 @@ func New(templates map[string]Template, e Predictor, v Checker, opts Options) *P
 	return &Planner{templates: templates, engine: e, verifier: v, opts: opts}
 }
 
-// render is the facts the engine reads for product v: Render, and the
-// product's codes when req's regime states them (Options.CodesInFacts).
-func (p *Planner) render(req Request, v domain.Product, tm Template, groups ...string) string {
-	facts := Render(v, tm, groups...)
+// render is the facts for product v, rendered once for each reader (D640).
+// plain is Render: the facts the precedent check, near-miss advice and the
+// broker draft read (VariantFacts). engine is the facts the engine reads:
+// plain, and the product's codes when req's regime states them
+// (Options.CodesInFacts, D602). D600 to D602 measured the codes paragraph
+// on the engine only, so no other reader gets it.
+func (p *Planner) render(req Request, v domain.Product, tm Template, groups ...string) (engine, plain string) {
+	plain = Render(v, tm, groups...)
+	engine = plain
 	if req.Regime != "" && p.opts.CodesInFacts[req.Regime] {
-		facts += ClassificationNote(v)
+		engine += ClassificationNote(v)
 	}
-	return facts
+	return engine, plain
 }
 
 // engineFor is the engine that predicts every move of a search on req: the
@@ -316,7 +321,7 @@ func (p *Planner) PlanWithProgress(ctx context.Context, req Request, progress fu
 	}
 	// The baseline runs alongside the moves: they need its facts now and its
 	// origin only for economics, which each move waits for when it finishes.
-	baseFacts := p.render(req, req.Product, tm)
+	baseEngineFacts, baseFacts := p.render(req, req.Product, tm)
 	var baseErr error
 	baseOrigin := ""
 	baseReady := make(chan struct{})
@@ -325,7 +330,7 @@ func (p *Planner) PlanWithProgress(ctx context.Context, req Request, progress fu
 	go func() {
 		defer wg.Done()
 		defer close(baseReady)
-		r, err := p.engineFor(req).Predict(ctx, p.caseFor(req, "baseline", baseFacts))
+		r, err := p.engineFor(req).Predict(ctx, p.caseFor(req, "baseline", baseEngineFacts))
 		if err != nil {
 			baseErr = fmt.Errorf("planner: baseline: %w", err)
 			return
@@ -441,8 +446,8 @@ func (p *Planner) PlanWithProgress(ctx context.Context, req Request, progress fu
 func (p *Planner) check(ctx context.Context, req Request, tm Template, m domain.Move, desc, baseFacts, target, knownA, knownRuling string,
 	addEngine func(llm.Usage), addVerifier func(verifier.Result)) (domain.Plan, error) {
 	variant := Apply(req.Product, m)
-	facts := p.render(req, variant, tm, groupsOf(m)...)
-	r, err := p.engineFor(req).Predict(ctx, p.caseFor(req, m.Key(), facts))
+	engineFacts, facts := p.render(req, variant, tm, groupsOf(m)...)
+	r, err := p.engineFor(req).Predict(ctx, p.caseFor(req, m.Key(), engineFacts))
 	if err != nil {
 		// A provider outage on one move leaves that move unchecked and the
 		// rest of the search intact (D88). It is not cached, so a later
