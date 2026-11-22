@@ -193,7 +193,7 @@ func TestMCPDocListsLimitErrorCodes(t *testing.T) {
 		t.Fatal("MCP.md has no Limits section")
 	}
 	limits := doc[i:]
-	for _, code := range []string{"rate_limited", "too_many_in_flight", "quota_exceeded", "client_budget_reached", "budget_reached"} {
+	for _, code := range []string{"rate_limited", "too_many_in_flight", "quota_exceeded", "client_budget_reached", "auth_rate_limited", "budget_reached"} {
 		if !strings.Contains(limits, "`"+code+"`") {
 			t.Errorf("MCP.md Limits does not name `%s`", code)
 		}
@@ -233,5 +233,93 @@ func TestJurisdictionCodesMatchTheDocs(t *testing.T) {
 	src := readDoc(t, "backend", "internal", "mcpserver", "schema.go")
 	if !strings.Contains(src, `enum(desc, "`+strings.Join(jurisdiction.Codes(), `", "`)+`")`) {
 		t.Errorf("mcpserver market() enum is not %s", want)
+	}
+}
+
+// Every code the API writes must be in the published Error.code enum. The
+// 429 response already names several codes its own schema rejected (#674).
+// a.fail passes a variable to writeError, so collect the literals it can
+// return from errorFor too.
+func TestErrorCodeEnumListsEveryWrittenCode(t *testing.T) {
+	spec := readDoc(t, "docs", "api", "openapi.yaml")
+	i := strings.Index(spec, "    Error:\n      type: object")
+	if i < 0 {
+		t.Fatal("openapi.yaml has no components.schemas.Error")
+	}
+	m := regexp.MustCompile(`(?m)^\s+enum: \[([^\]]+)\]`).FindStringSubmatch(spec[i:])
+	if m == nil {
+		t.Fatal("Error.code has no enum")
+	}
+	enum := map[string]bool{}
+	for _, c := range strings.Split(m[1], ",") {
+		enum[strings.TrimSpace(strings.Trim(c, `"`))] = true
+	}
+
+	files, err := filepath.Glob("*.go")
+	if err != nil {
+		t.Fatal(err)
+	}
+	written := map[string]bool{}
+	fset := token.NewFileSet()
+	for _, path := range files {
+		if strings.HasSuffix(path, "_test.go") {
+			continue
+		}
+		f, err := parser.ParseFile(fset, path, nil, 0)
+		if err != nil {
+			t.Fatal(err)
+		}
+		ast.Inspect(f, func(n ast.Node) bool {
+			call, ok := n.(*ast.CallExpr)
+			if !ok || len(call.Args) < 3 {
+				return true
+			}
+			name := ""
+			switch fun := call.Fun.(type) {
+			case *ast.Ident:
+				name = fun.Name
+			case *ast.SelectorExpr:
+				name = fun.Sel.Name
+			}
+			if name == "writeError" {
+				if lit, ok := call.Args[2].(*ast.BasicLit); ok && lit.Kind == token.STRING {
+					if code, err := strconv.Unquote(lit.Value); err == nil {
+						written[code] = true
+					}
+				}
+			}
+			return true
+		})
+		for _, decl := range f.Decls {
+			fn, ok := decl.(*ast.FuncDecl)
+			if !ok || fn.Name.Name != "errorFor" {
+				continue
+			}
+			ast.Inspect(fn, func(n ast.Node) bool {
+				ret, ok := n.(*ast.ReturnStmt)
+				if !ok || len(ret.Results) < 2 {
+					return true
+				}
+				if lit, ok := ret.Results[1].(*ast.BasicLit); ok && lit.Kind == token.STRING {
+					if code, err := strconv.Unquote(lit.Value); err == nil {
+						written[code] = true
+					}
+				}
+				return true
+			})
+		}
+	}
+	if len(written) < 15 {
+		t.Fatalf("only found %d written codes; the parser is broken", len(written))
+	}
+	var missing []string
+	for code := range written {
+		if !enum[code] {
+			missing = append(missing, code)
+		}
+	}
+	sort.Strings(missing)
+	if len(missing) > 0 {
+		t.Errorf("openapi.yaml Error.code is missing codes the API writes: %s", strings.Join(missing, ", "))
 	}
 }
