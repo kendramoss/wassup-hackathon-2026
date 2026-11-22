@@ -65,7 +65,7 @@ test("every figure on the page is in docs/NUMBERS.md", () => {
 // #480 / D266: the router cue is a protocol shortfall, not a clean example.
 // Every surface that publishes the post-cutoff router figures must say so.
 test("the evaluation source and accuracy page qualify the router's development split and cue", () => {
-  assert.match(page, /blob\("docs\/EVALUATION.md"\)/);
+  assert.match(page, /id="clean"[\s\S]*?377 CBP rulings was frozen before scoring[\s\S]*?blob\("docs\/EVALUATION\.md#2-how-the-validation-and-test-sets-are-built"\)/);
   assert.match(read("docs/EVALUATION.md"), /trade programs/);
   assert.match(read("frontend/src/lib/method.ts"), /729-ruling dev split/);
   const accuracy = read("frontend/src/components/op/screens/accuracy-page.tsx");
