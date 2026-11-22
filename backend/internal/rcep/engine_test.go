@@ -410,3 +410,72 @@ func TestResultsExplainThemselves(t *testing.T) {
 		}
 	}
 }
+
+// #671: a valid 4- or 5-digit good under a heading whose rule uses CTSH must
+// not slice the good to six digits. Missing digits make the answer
+// undetermined, not a panic or a guess.
+func TestShortGoodCTSHIsUndetermined(t *testing.T) {
+	for _, tc := range []struct {
+		name, hs, country, material string
+	}{
+		{"heading 28.11, four digits", "2811", "Japan", "2804.10"},
+		{"heading 38.08, five digits", "38081", "Vietnam", "2903.11"},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			r := check(t, Input{HS: tc.hs, ProducedIn: tc.country, Materials: []Material{nonOrig("part", tc.material, 10)}})
+			if r.Outcome != Undetermined {
+				t.Fatalf("got %s, want undetermined: %+v", r.Outcome, r)
+			}
+			if reasons := strings.Join(r.Reasons, " "); !strings.Contains(reasons, "6-digit subheading") {
+				t.Errorf("reasons do not name the missing digits: %s", reasons)
+			}
+		})
+	}
+	// Six digits under the same heading still take the ordinary CTSH path.
+	r := check(t, Input{HS: "2811.19", ProducedIn: "Japan", Materials: []Material{nonOrig("part", "2804.10", 10)}})
+	if r.Outcome != Yes || r.Applied != "CTSH" {
+		t.Fatalf("six-digit good: got %s %s: %+v", r.Outcome, r.Applied, r)
+	}
+}
+
+// Every heading- or chapter-level CTSH rule must survive a 4-digit good.
+func TestEveryShortCTSHRuleIsSafe(t *testing.T) {
+	tbl := Default()
+	seen, checked := map[string]bool{}, 0
+	for _, r := range tbl.Rules {
+		if r.Level != "heading" && r.Level != "chapter" || seen[r.Code] {
+			continue
+		}
+		seen[r.Code] = true
+		alts := append([]Alternative(nil), r.Alternatives...)
+		for _, v := range r.Variants {
+			alts = append(alts, v.Alternatives...)
+		}
+		ctsh := false
+		for _, a := range alts {
+			if a.Criterion == "CTSH" {
+				ctsh = true
+			}
+		}
+		if !ctsh {
+			continue
+		}
+		good := digits(r.Code)
+		if len(good) == 2 {
+			good += "00"
+		}
+		if len(good) != 4 {
+			t.Fatalf("%s: unexpected rule code %q", r.Code, r.Code)
+		}
+		checked++
+		mats := []mat{{Material: Material{HS: "1234.56", Status: StatusNonOriginating}, idx: 0}}
+		out, reasons, _, _ := tariffShift(Input{}, good, mats, Alternative{Criterion: "CTSH"})
+		if out != Undetermined || len(reasons) == 0 {
+			t.Errorf("%s (%s): got %s %v", r.Code, good, out, reasons)
+		}
+	}
+	if checked == 0 {
+		t.Fatal("no heading- or chapter-level CTSH rules found")
+	}
+	t.Logf("checked %d heading/chapter CTSH rules", checked)
+}
