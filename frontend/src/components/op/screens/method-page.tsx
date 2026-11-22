@@ -594,7 +594,7 @@ export function MethodPage() {
           </p>
           <p>
             We did try fine-tuning once. On 16 and 17 Oct we tuned Gemini 3.5 Flash on CBP&apos;s own reasoning from rulings older than the development split. It was worse on the
-            development set, so we dropped it, deleted the endpoints, and never scored it on held-out rulings (<D id="D73" />; chart in question 6). When Argon is unavailable a base
+            development set, so we dropped it, deleted the endpoints, and never scored it on held-out rulings (<D id="D73" />). When Argon is unavailable a base
             Gemini 3.8 Flash answers instead, and its answers always go to review.
           </p>
         </Details>
@@ -851,7 +851,7 @@ export function MethodPage() {
             </li>
             <li>
               Each candidate is scored once per held-out split. The frozen production engine has more than one run on the first split: a research run, a proxy run, the official
-              Vertex AI run and two repeats (question 7). None led to a change.
+              Vertex AI run and two repeats. None led to a change.
             </li>
             <li>
               Earlier held-out rulings can be precedents for later ones. The filter is by date, not by split, as it is on this site. A May 2026 case can read a February 2026 holding.
@@ -904,7 +904,7 @@ export function MethodPage() {
         </p>
         <Details>
           <p>
-            Two rows of the chart in question 6, the Gemini 3.5 Flash runs from October, are not recomputed by these steps; their rows are committed in{" "}
+            Two Gemini 3.5 Flash runs in the experiment chart use recorded results in{" "}
             <span className="font-mono text-[12px]">eval/results/</span> and described in <D id="D44" /> and <D id="D73" />.
           </p>
         </Details>
