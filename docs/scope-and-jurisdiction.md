@@ -24,7 +24,7 @@ The router labels each case with one regime (`backend/internal/router/router.go:
 |---|---|---|---|---|---|---|
 | `substantial_transformation` (and `unclear`) | Substantial transformation, CBP practice for non-preferential purposes (marking, Section 301) | general engine (`engine-v1`) | always on | `FAST_PATH_CONFIDENCE`, 0.92 (`config.go:18`) | `data/labels.jsonl` | `internal/engine/prompt.go:20`, `cmd/server/main.go:256` |
 | `textile_102_21` | 19 CFR 102.21 | `textile-v1`, or `textile-v2` when `TEXTILE_PROMPT=v2` | `TEXTILE_ENGINE`, off (`config.go:364`); `TEXTILE_PROMPT` default `v1` (`config.go:322`) | `TEXTILE_FAST_PATH`, 0 = review every case (`config.go:321`) | `data/textile_rulings.json` (id list into the main pool) | `internal/engine/textile.go:6`, `cmd/server/main.go:276` |
-| `usmca_part102` | 19 CFR 102.11 with the 102.20 tariff shifts, for marking | `usmca-v1` | `USMCA_ENGINE`, off (`config.go:371`) | `USMCA_FAST_PATH`, 0 (`config.go:325`) | `data/labels_usmca.jsonl` (473 rows) | `internal/engine/usmca.go:6`, `cmd/server/main.go:302` |
+| `usmca_part102` | 19 CFR 102.11 with the 102.20 tariff shifts, for marking | `usmca-v5` (since D602; `usmca-v1` before) | `USMCA_ENGINE`, off (`config.go:371`) | `USMCA_FAST_PATH`, 0 (`config.go:325`) | `data/labels_usmca.jsonl` (473 rows) | `internal/engine/usmca.go:6`, `cmd/server/main.go:302` |
 | `pharma_api` | Substantial transformation, applied with attention to where the active pharmaceutical ingredient is made | `pharma-v1` | `PHARMA_ENGINE`, off (`config.go:378`) | `PHARMA_FAST_PATH`, 0 (`config.go:327`) | `data/pharma_rulings.json` (id list) via `PHARMA_RULINGS` (`config.go:326`) | `internal/engine/pharma.go:4`, `cmd/server/main.go:322` |
 
 Related flags that affect what a user sees:

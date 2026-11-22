@@ -2,6 +2,7 @@ package planner
 
 import (
 	"context"
+	"strings"
 	"testing"
 
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/blob"
@@ -77,7 +78,7 @@ func TestEstimatePeeksTheRegimeEngine(t *testing.T) {
 	part102 := engine.NewCache(engine.New(uf, nil, engine.Options{Model: "m", System: engine.USMCASystem, Version: engine.USMCAVersion}), dir)
 	tmpls, _ := LoadTemplates()
 	p := New(tmpls, general, verifier.NewCacheIn(&fakeVerifier{supported: true, confidence: 0.97}, dir, "m"),
-		Options{PlanConfidence: 0.92, Engines: map[string]Predictor{"usmca_part102": part102}})
+		Options{PlanConfidence: 0.92, Engines: map[string]Predictor{"usmca_part102": part102}, CodesInFacts: map[string]bool{"usmca_part102": true}})
 	req.Regime = "usmca_part102"
 	if _, err := p.Plan(context.Background(), req); err != nil {
 		t.Fatal(err)
@@ -95,5 +96,37 @@ func TestEstimatePeeksTheRegimeEngine(t *testing.T) {
 	req.Regime = "" // the general engine's cache is empty: a different prompt version
 	if e, err = p.Estimate(context.Background(), req); err != nil || e.EngineCached != 0 {
 		t.Errorf("general search after a Part 102 one: %d cached, %v", e.EngineCached, err)
+	}
+}
+
+// D602: a search on a regime in CodesInFacts states the product's own codes
+// in the facts of the current setup and of every move, with the move's
+// countries; other searches do not, and the estimate reads the same facts.
+func TestCodesInFactsOnPart102SearchesOnly(t *testing.T) {
+	req, _ := fixture(t, "heatgun_2022.json")
+	req.Product.HTS = "8516.79"
+	req.Product.Components[0].HTS = "8501.10"
+	tmpls, _ := LoadTemplates()
+	general, part102 := &fakeEngine{}, &fakeEngine{}
+	p := New(tmpls, general, &fakeVerifier{supported: true, confidence: 0.97}, Options{PlanConfidence: 0.95,
+		Engines: map[string]Predictor{"usmca_part102": part102}, CodesInFacts: map[string]bool{"usmca_part102": true}})
+	req.Regime = "usmca_part102"
+	if _, err := p.Plan(context.Background(), req); err != nil {
+		t.Fatal(err)
+	}
+	const note = "Tariff classifications given with the product"
+	for _, c := range part102.cases {
+		if !strings.Contains(c.Facts, note) || !strings.Contains(c.Facts, "8516.79") {
+			t.Fatalf("%s: facts without the product's codes", c.ID)
+		}
+	}
+	req.Regime = ""
+	if _, err := p.Plan(context.Background(), req); err != nil {
+		t.Fatal(err)
+	}
+	for _, c := range general.cases {
+		if strings.Contains(c.Facts, note) {
+			t.Fatalf("%s: a general search states the codes", c.ID)
+		}
 	}
 }

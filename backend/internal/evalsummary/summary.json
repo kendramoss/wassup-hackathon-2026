@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-11-21T21:58:00Z",
+  "generated_at": "2026-11-22T07:26:24Z",
   "status": "official: held-out engine and fast path are Gemini 4 Argon on Vertex AI (engine-v1, BM25, K=5). Development-split engine numbers are the development set on Vertex AI. Verifier figures and the heat-gun plan's cost and time are proxy development runs; the heat-gun plan the landing shows (check 0.96) is the recorded 18 Oct production run (docs/DEMO.md, section 6).",
   "items": [
     {
@@ -1045,6 +1045,28 @@
       "split": "final2",
       "development_only": false,
       "source": "eval/results/usmca-final2-gemini-4-argon-prec-usmca-v1-litellm-router.jsonl"
+    },
+    {
+      "key": "usmca_v5_final_accuracy",
+      "label": "Part 102 marking-origin rules, held-out (2026), usmca-v5 (production since D602), scored after usmca-v1",
+      "value": 0.9063,
+      "ci_low": 0.7578,
+      "ci_high": 0.9676,
+      "n": 32,
+      "split": "final",
+      "development_only": false,
+      "source": "eval/tariffshift/p102ck/runs/usmca-final-gemini-4-argon-prec-usmca-v5-litellm-d601.jsonl"
+    },
+    {
+      "key": "usmca_v5_final2_accuracy",
+      "label": "Part 102 marking-origin rules, post-cutoff held-out (Sep–Nov 2026), usmca-v5 (production since D602), scored after usmca-v1",
+      "value": 0.8462,
+      "ci_low": 0.5776,
+      "ci_high": 0.9567,
+      "n": 13,
+      "split": "final2",
+      "development_only": false,
+      "source": "eval/tariffshift/p102ck/runs/usmca-final2-gemini-4-argon-prec-usmca-v5-litellm-router-d601.jsonl"
     },
     {
       "key": "router_final2_out_of_scope_recall",

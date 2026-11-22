@@ -2289,3 +2289,37 @@ Committed at about 15:15 +08:00, before any scoring of the 72-ruling runs below 
   5. **Held out:** only the winner, each window once, frozen: window 1 (`final`, 32) and window 2 (`final2`, 13, `-router`), `go run ./cmd/eval run -regime usmca -split final|final2 -usmca-prompt <v> -confirm-final -tag d601` (window 2 with `-splits ../eval/splits/splits_usmca_final2.json -router`), against the committed `usmca-v1` runs (25 of 32 and 11 of 13, 36 of 45). Both windows were scored before with `usmca-v1`; this is a candidate comparison and is disclosed as one. The D570 held-out plan set is not touched. **Adopted** as the production Part 102 engine (code default: new prompt version, prompt snapshot, log policy; a plan search on a Part 102 case renders the product's codes into the facts, as every variant was tested) if its pooled count is not lower than 36 of 45. Otherwise `usmca-v1` stays and the result is reported as negative.
   6. **Budget** for D600 and D601 together: at most $8 gateway-reported. Spent before this entry: $3.7035 (Vc plan rows $1.1878, Vd plan rows $0.9610, Vc 72 rulings $0.8243, Vd 72 rulings $0.7304).
 - Results in D602.
+
+## D602 — A short 102.11 checklist (usmca-v5) is the production Part 102 engine (22 Nov)
+- **Run as pre-registered in D600 and amended in D601** (D600 pushed as dde198a3 at 14:52 +08:00 before the first variant call; D601 pushed as a186db2f at 15:12, before the 72-ruling runs were scored and before the Vb run; the development scores and the choice of Vd pushed as 85ddcbb7 at 15:19, before the first held-out call at 15:20; hashes before the rebase onto main). Each run once, gemini-4-argon, BM25 K = 5, through an OpenAI-compatible LiteLLM gateway to Gemini, `LITELLM_NO_CACHE=1`. No engine call is left failed in any run.
+- **Development plan rows** (97 calls each, `p102err-moves`, `eval/tariffshift/p102err/summary-moves.json`):
+
+  | Series | Decided rows agree (57) | Leans (23) | CBP's holding on current setups (16) | Won / lost vs B, exact McNemar p | Output tokens | Gateway cost (ratio to B) |
+  |---|---:|---:|---:|---|---:|---:|
+  | B: usmca-v1, plan facts as rendered | 43 | 17 | 8 | | 28,462 | $0.8661 |
+  | Vb: usmca-v3 checklist and codes (D590) | 54 | 21 | 9 | 11 / 0, p = 0.001 | 84,147 | $1.5408 (1.78) |
+  | Vc: usmca-v4 compact checklist and codes | 54 | 22 | 10 | 11 / 0, p = 0.001 | 45,681 | $1.1878 (1.37) |
+  | Vd: usmca-v5 failing materials only and codes | 56 | 23 | 9 | 13 / 0, p = 0.0002 | 25,157 | $0.9610 (1.11) |
+
+- **The 72 development Part 102 rulings** (`p102ck-eval`, `eval/tariffshift/p102ck/summary-d602.json`; rows in `eval/tariffshift/p102ck/runs/`):
+
+  | Run | Correct of 72 | Won / lost vs B, exact McNemar p | Latency per call, median / 95th percentile | Output tokens | Gateway cost (ratio to B) |
+  |---|---:|---|---:|---:|---:|
+  | B: usmca-v1, D550 re-run | 53 | | 8.4 s / 21.8 s | 21,620 | $0.6881 |
+  | Vb: usmca-v3 | 54 | 5 / 4, p = 1 | 13.2 s / 25.7 s | 51,690 | $1.0753 (1.56) |
+  | Vc: usmca-v4 | 56 | 4 / 1, p = 0.375 | 9.3 s / 17.3 s | 27,043 | $0.8243 (1.20) |
+  | Vd: usmca-v5 | 53 | 3 / 3, p = 1 | 7.9 s / 18.3 s | 20,010 | $0.7304 (1.06) |
+
+- **All three pass the development rule as amended in D601** ((1) at least 6 net with p below 0.05; (2) leans at least 17; (3) CBP's holding on at least 8 of 16 and at least 53 of 72). Under D600's original rule, with the 1.5 × cost condition, Vc and Vd pass and Vb does not. **Vd is selected** by D601's order: the most decided agreements (56, against 54 and 54). Vc has the higher count on the 72 rulings (56 against 53), but the order puts plan-row agreement first, as fixed before the runs were scored. Vd keeps B's count on the 72 (3 won, 3 lost). Its one remaining plan-row disagreement is the multi-tool machining move, where the engine reads the steel card as the finished tool against the product's suggested 7326.90 (a likely rule-input case, D591).
+- **Held out, Vd only, each window once** (`eval run -regime usmca -usmca-prompt v5 -confirm-final -tag d601`; window 2 with the committed run's command, `-router`, `splits_usmca_final2.json`, the window-2 labels and `-facts ../data/facts,../eval/data/facts_final2`):
+
+  | Window | usmca-v1 (committed, scored first) | Vd: usmca-v5 (scored second) | Won / lost, exact McNemar p | Right at confidence ≥ 0.95 | Latency median / 95th percentile, v1 → v5 |
+  |---|---:|---:|---|---|---|
+  | 1 (`final`, 2026) | 25 of 32 | 29 of 32 | 5 / 1, p = 0.22 | v1 15 of 15; v5 11 of 11 | 7.1 s / 9.2 s → 7.7 s / 27.8 s |
+  | 2 (`final2`, Sep–Nov 2026) | 11 of 13 | 11 of 13 | 0 / 0 | v1 6 of 7; v5 5 of 6 | 8.5 s / 16.4 s → 7.4 s / 17.5 s |
+  | Pooled | 36 of 45 | 40 of 45 | 5 / 1 | v1 21 of 22; v5 16 of 17 | |
+
+  The pooled count is not lower than 36, so **Vd is adopted**. Both windows had been scored once before with `usmca-v1`; this is the first and only scoring of `usmca-v5` on them, and it is a candidate comparison, not a fresh held-out set. The gain is not significant on its own (p = 0.22 on window 1). Fewer answers reach confidence 0.95 (17 of 45 against 22), so the auto-accept bar (`USMCA_FAST_PATH`, 0.95, not changed) sends more Part 102 cases to review. Window 2's committed run, and so this one, had only window-2 rulings as precedents: its command names `../data/facts`, which does not exist from `backend/`, so the first pool's facts were not loaded. The command was kept as committed so the two runs differ only in the prompt.
+- **What ships (code only, no deploy change):** the Part 102 engine uses `engine.USMCAProduction()` (`usmca-v5`, `engine.USMCASystem5`, `engine.FailingChecklistSchema`) in the server and in `eval plan`; a plan search on a Part 102 case renders the product's own codes into the facts the engine reads (`planner.Options.CodesInFacts`, `planner.ClassificationNote`; the estimate reads the same facts). The prompt snapshot has `engine.usmca5`; the log policy and `httpapi.PredictionRegime` know `usmca-v5`; stored `usmca-v1` predictions keep their regime. `usmca-v1` to `usmca-v4` stay selectable for evaluation. Test: `TestCodesInFactsOnPart102SearchesOnly`, `TestCompactChecklistsKeepTheStandardAnswer`. Safety flag S stays: under Vd it flags 0 of the 57 decided development rows (9 under B). The /accuracy Part 102 card keeps the first-scored `usmca-v1` figure and adds the `usmca-v5` result on the same rulings, labelled as scored after.
+- **Not done.** One run per variant; the plan rows are not independent. The plan searches themselves (with the precedent check) were not re-run with `usmca-v5`, and the D570 held-out plan set was not touched. Latency was not recorded on the plan rows of D590 and D600 (recorded from now on). The production deployment uses Vertex AI, not the gateway these figures come from.
+- **Spend:** $5.2524 gateway-reported for D600 to D602 (Vc plan rows $1.1878, Vd plan rows $0.9610, Vc 72 rulings $0.8243, Vd 72 rulings $0.7304, Vb 72 rulings $1.0753, Vd held out $0.4736), within the $8 set in D601.

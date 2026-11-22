@@ -817,3 +817,20 @@ Each disagreement was given one category by hand before any fix ran (`eval/tarif
 **A safety change that does not touch accuracy.** On a Part 102 case the plan's rule check now also flags for a broker's look the current setup when the check decides another country than the engine, and a move the check says reaches the target while the engine predicts another country (such a move never reaches the precedent check, so nothing else would show it). It changes no answer, ranking or shown plan. On the development rows it flags 9 of 57 decided rows, within the D590 limit of one in three, so it ships. It is a display change, not an accuracy gain.
 
 **Not done.** One run per variant. The plan rows are not independent. Agreement with the rule is not accuracy: the check reads unverified suggested codes. Source: `eval/tariffshift/p102err/` (`summary-single.json`, `summary-moves.json`, `categories-dev.json`, the run rows in `runs/`), recomputed by `cd backend && go run ./cmd/tariffshift p102err-single -check` and `p102err-moves -check` (both in `make reproduce`). Cost $3.4375, gateway-reported.
+
+### 16.1 A short checklist that passes, and the production Part 102 engine since 22 Nov (D600, D601, D602)
+
+**The question.** Vb's checklist fixed most disagreements but its answers were three times as long. Can a shorter checklist keep the gain? Pre-registered in D600 before any run: two variants, both with the product's codes in the plan facts and Vb's instructions written tersely, and answers made of fixed short fields with word limits instead of free text. Vc (`usmca-v4`) lists each foreign material as code, origin and whether it shifts. Vd (`usmca-v5`) names only the foreign materials that fail. Then the project owner decided that cost no longer gates Part 102 engine variants; cost and latency are reported instead (D601, recorded before the 72-ruling runs were scored). Vb re-entered for the 72-ruling check it had skipped.
+
+| Series | Decided plan rows agree (57) | Leans (23) | CBP's holding on current setups (16) | Correct on 72 development rulings | Median latency, 72 rulings | Cost against B (plan rows / 72 rulings) |
+|---|---:|---:|---:|---:|---:|---:|
+| B: production until 22 Nov (`usmca-v1`) | 43 | 17 | 8 | 53 | 8.4 s | 1.00 / 1.00 |
+| Vb: `usmca-v3` checklist | 54 | 21 | 9 | 54 | 13.2 s | 1.78 / 1.56 |
+| Vc: `usmca-v4` compact checklist | 54 | 22 | 10 | 56 | 9.3 s | 1.37 / 1.20 |
+| Vd: `usmca-v5` failing materials only | 56 | 23 | 9 | 53 | 7.9 s | 1.11 / 1.06 |
+
+**What it shows.** All three pass the development rule as amended (at least 6 rows net with p below 0.05; no loss on the leans, on CBP's holding or on the 72 rulings). Vd, the shortest answer, agrees with the rule most often (13 rows won, none lost, p = 0.0002) and was selected by the order fixed in D601. Its answers are shorter than B's (25,157 output tokens against 28,462 on the plan rows). On the 72 development rulings it ties B (3 won, 3 lost); Vc does better there (56), but the order puts plan-row agreement first.
+
+**Held out, once.** Vd on the two single-setup Part 102 windows: 29 of 32 and 11 of 13, 40 of 45 pooled, against `usmca-v1`'s 25, 11 and 36 (5 won, 1 lost; p = 0.22 on window 1). Both windows had been scored before with `usmca-v1`, so this is a candidate comparison, not a fresh test. Fewer answers reach confidence 0.95 (17 of 45 against 22, 16 and 21 of them right), so more Part 102 cases go to review under the unchanged 0.95 bar. Window 2's runs used only window-2 rulings as precedents (the committed command's first facts path does not exist); the new run kept that command so only the prompt differs.
+
+**What changed.** Since D602 the Part 102 engine is `usmca-v5`, and a plan search on a Part 102 case states the product's own codes in the facts the engine reads. The D570 held-out plan set was not touched, and the plan searches were not re-run with the new engine. Source: `eval/tariffshift/p102err/summary-moves.json` and `eval/tariffshift/p102ck/summary-d602.json`, recomputed by `cd backend && go run ./cmd/tariffshift p102err-moves -check` and `p102ck-eval -check` (both in `make reproduce`).

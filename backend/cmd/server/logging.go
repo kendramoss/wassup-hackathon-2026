@@ -83,7 +83,7 @@ func startupValues(cfg config.Config) map[string][]string {
 		"cool_down":          {cfg.LLMCoolDown.String()},
 		"location":           {cfg.FallbackEngineLocation},
 		"facts_dir":          {cfg.FactsDir},
-		"prompt":             {engine.TextileVersion, engine.TextileVersion2, engine.USMCAVersion, engine.USMCAVersion2, engine.PharmaVersion, nearmiss.PromptVersion, engine.PromptVersion},
+		"prompt":             {engine.TextileVersion, engine.TextileVersion2, engine.USMCAVersion, engine.USMCAVersion2, engine.USMCAVersion5, engine.PharmaVersion, nearmiss.PromptVersion, engine.PromptVersion},
 		"map_prompt":         {nearmiss.MapPromptVersion},
 		"source":             {duty.DefaultHTSBaseURL, "cross"},
 		"collection":         {store.RateLimitCollection},

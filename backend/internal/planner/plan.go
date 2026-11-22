@@ -59,6 +59,11 @@ type Options struct {
 	// with no regime, uses the general engine. One search uses one engine.
 	Engines map[string]Predictor
 
+	// CodesInFacts are the regimes whose plan searches state the product's
+	// own tariff codes in the facts the engine reads (ClassificationNote):
+	// the Part 102 engine applies the 102.20 shifts to them (D602).
+	CodesInFacts map[string]bool
+
 	// Panel and MaxInFlight tell Estimate how the server's checker and model
 	// gate are set up (VERIFIER_PANEL, LLM_MAX_IN_FLIGHT; D83, D79, D87).
 	// Plan does not read them.
@@ -138,6 +143,16 @@ func New(templates map[string]Template, e Predictor, v Checker, opts Options) *P
 		opts.ClearMargin = DefaultClearMargin
 	}
 	return &Planner{templates: templates, engine: e, verifier: v, opts: opts}
+}
+
+// render is the facts the engine reads for product v: Render, and the
+// product's codes when req's regime states them (Options.CodesInFacts).
+func (p *Planner) render(req Request, v domain.Product, tm Template, groups ...string) string {
+	facts := Render(v, tm, groups...)
+	if req.Regime != "" && p.opts.CodesInFacts[req.Regime] {
+		facts += ClassificationNote(v)
+	}
+	return facts
 }
 
 // engineFor is the engine that predicts every move of a search on req: the
@@ -301,7 +316,7 @@ func (p *Planner) PlanWithProgress(ctx context.Context, req Request, progress fu
 	}
 	// The baseline runs alongside the moves: they need its facts now and its
 	// origin only for economics, which each move waits for when it finishes.
-	baseFacts := Render(req.Product, tm)
+	baseFacts := p.render(req, req.Product, tm)
 	var baseErr error
 	baseOrigin := ""
 	baseReady := make(chan struct{})
@@ -426,7 +441,7 @@ func (p *Planner) PlanWithProgress(ctx context.Context, req Request, progress fu
 func (p *Planner) check(ctx context.Context, req Request, tm Template, m domain.Move, desc, baseFacts, target, knownA, knownRuling string,
 	addEngine func(llm.Usage), addVerifier func(verifier.Result)) (domain.Plan, error) {
 	variant := Apply(req.Product, m)
-	facts := Render(variant, tm, groupsOf(m)...)
+	facts := p.render(req, variant, tm, groupsOf(m)...)
 	r, err := p.engineFor(req).Predict(ctx, p.caseFor(req, m.Key(), facts))
 	if err != nil {
 		// A provider outage on one move leaves that move unchecked and the

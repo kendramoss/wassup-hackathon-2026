@@ -1039,9 +1039,11 @@ func planCmd(args []string) error {
 		if upool.Len() == 0 {
 			return fmt.Errorf("plan: no ruling in %s has facts in %s", *usmcaLabels, *factsDir)
 		}
-		usmca := engine.New(model, retrieval.NewBM25(upool.Rulings(), engine.PrecedentText), engine.Options{Model: cfg.EngineModel, K: cfg.PrecedentK,
-			MaxOutputTokens: cfg.MaxOutputTokens, System: engine.USMCASystem, Version: engine.USMCAVersion})
+		uopts := engine.USMCAProduction()
+		uopts.Model, uopts.K, uopts.MaxOutputTokens = cfg.EngineModel, cfg.PrecedentK, cfg.MaxOutputTokens
+		usmca := engine.New(model, retrieval.NewBM25(upool.Rulings(), engine.PrecedentText), uopts)
 		planOpts.Engines = map[string]planner.Predictor{router.RegimeUSMCA: usmca}
+		planOpts.CodesInFacts = map[string]bool{router.RegimeUSMCA: true}
 	}
 	pl := planner.New(tmpls, eng, ver, planOpts)
 	var tally llm.CostTally // the gateway's own per-call cost; zero on Vertex AI
@@ -2390,6 +2392,26 @@ func regimeSummaryItems(dir string) ([]evalsummary.Item, error) {
 		}
 		s := evalkit.Summarize(rows)
 		items = append(items, evalsummary.Item{Key: r.key, Label: r.label, Value: r4(s.Acc), CILow: r4(s.Lo), CIHigh: r4(s.Hi), N: s.N, Split: "final2", Source: "eval/results/" + r.file})
+	}
+	// D602: the production Part 102 engine since 22 Nov (usmca-v5) on the
+	// same two windows, scored once each as a candidate (both windows had
+	// been scored before with usmca-v1, above).
+	for _, r := range []struct{ file, key, label, split string }{
+		{"usmca-final-gemini-4-argon-prec-usmca-v5-litellm-d601.jsonl", "usmca_v5_final_accuracy", "Part 102 marking-origin rules, held-out (2026), usmca-v5 (production since D602), scored after usmca-v1", "final"},
+		{"usmca-final2-gemini-4-argon-prec-usmca-v5-litellm-router-d601.jsonl", "usmca_v5_final2_accuracy", "Part 102 marking-origin rules, post-cutoff held-out (Sep–Nov 2026), usmca-v5 (production since D602), scored after usmca-v1", "final2"},
+	} {
+		path := filepath.Join(dir, "..", "tariffshift", "p102ck", "runs", r.file)
+		if _, err := os.Stat(path); err != nil {
+			fmt.Fprintf(os.Stderr, "summary: skip %s: %v\n", r.file, err)
+			continue
+		}
+		rows, err := readRows(path, nil)
+		if err != nil {
+			return nil, err
+		}
+		s := evalkit.Summarize(rows)
+		items = append(items, evalsummary.Item{Key: r.key, Label: r.label, Value: r4(s.Acc), CILow: r4(s.Lo), CIHigh: r4(s.Hi), N: s.N, Split: r.split,
+			Source: "eval/tariffshift/p102ck/runs/" + r.file})
 	}
 	// The router on the same post-cutoff rulings: pharmaceutical and Part 102
 	// cases it kept away from the substantial-transformation engine (D211).

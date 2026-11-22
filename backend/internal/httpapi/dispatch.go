@@ -85,7 +85,7 @@ func (d Dispatch) Regime() string {
 // specialist-labelled case.
 //
 // Known namespace: the base versions engine.PromptVersion (general),
-// TextileVersion and TextileVersion2 (textile), USMCAVersion and USMCAVersion2, PharmaVersion,
+// TextileVersion and TextileVersion2 (textile), USMCAVersion, USMCAVersion2 and USMCAVersion5 (production since D602), PharmaVersion,
 // each optionally followed by "+<suffix>" (rules, precedent reasoning). A new
 // prompt version must be added here; it is never guessed from a prefix.
 func PredictionRegime(p domain.Prediction) string {
@@ -95,7 +95,7 @@ func PredictionRegime(p domain.Prediction) string {
 		return RegimeGeneral
 	case engine.TextileVersion, engine.TextileVersion2:
 		return router.RegimeTextile
-	case engine.USMCAVersion, engine.USMCAVersion2:
+	case engine.USMCAVersion, engine.USMCAVersion2, engine.USMCAVersion5:
 		return router.RegimeUSMCA
 	case engine.PharmaVersion:
 		return router.RegimePharma
