@@ -377,6 +377,33 @@ for (const scheme of ["light", "dark"]) {
     await page.keyboard.press("Escape");
     const restored = await page.evaluate(() => document.activeElement?.getAttribute("aria-label"));
     if (!/^Actions for/.test(restored ?? "")) problems.push({ page: "/cases (row menu)", focus: "Escape did not restore focus to trigger", restored });
+    // #605: choosing Delete from the keyboard must leave focus on the safe
+    // action in the replacement confirmation row, not on <body>.
+    await trigger.focus();
+    await page.keyboard.press("Enter");
+    await page.keyboard.press("End");
+    await page.keyboard.press("Enter");
+    const confirmFocus = await page.evaluate(() => {
+      const el = document.activeElement;
+      return {
+        tag: el?.tagName ?? null,
+        focused: el === document.body ? "BODY" : (el?.textContent ?? "").trim().slice(0, 40),
+        hasCancel: [...document.querySelectorAll("button")].some((b) => b.textContent?.trim() === "Cancel"),
+      };
+    });
+    await page.keyboard.press("Escape");
+    const afterEscape = await page.evaluate(() => ({
+      label: document.activeElement?.getAttribute("aria-label") ?? null,
+      stillConfirming: (document.body.textContent ?? "").includes("Delete “Row menu probe”?"),
+    }));
+    if (
+      confirmFocus.focused !== "Cancel" ||
+      !confirmFocus.hasCancel ||
+      afterEscape.label !== "Actions for Row menu probe" ||
+      afterEscape.stillConfirming
+    ) {
+      problems.push({ page: "/cases (row menu)", focus: "Delete confirmation did not take focus or cancel on Escape", confirmFocus, afterEscape });
+    }
   }
   await ctx.close();
 }

@@ -329,6 +329,17 @@ export function YourCases({ cases, onChange }: { cases: CaseSummary[]; onChange:
   const [renaming, setRenaming] = useState<string | null>(null);
   const [confirming, setConfirming] = useState<string | null>(null);
   const [rowError, setRowError] = useState<{ id: string; error: unknown } | null>(null);
+  // #605: the ⋯ trigger unmounts with the row it replaces, so remember which
+  // one to focus again when the confirmation is cancelled.
+  const restoreFocusRef = useRef<string | null>(null);
+  useEffect(() => {
+    if (confirming || !restoreFocusRef.current) return;
+    const label = `Actions for ${restoreFocusRef.current}`;
+    restoreFocusRef.current = null;
+    [...document.querySelectorAll<HTMLButtonElement>('button[aria-label^="Actions for "]')]
+      .find((button) => button.getAttribute("aria-label") === label)
+      ?.focus();
+  }, [confirming]);
 
   const rename = async (id: string, name: string) => {
     const old = cases.find((c) => c.id === id)?.display_name;
@@ -369,7 +380,16 @@ export function YourCases({ cases, onChange }: { cases: CaseSummary[]; onChange:
             const n = stepIndex[c.step] ?? 1;
             if (confirming === c.id)
               return (
-                <tr key={c.id} className="border-b border-line bg-fail-wash">
+                <tr
+                  key={c.id}
+                  className="border-b border-line bg-fail-wash"
+                  onKeyDown={(e) => {
+                    if (e.key === "Escape") {
+                      e.preventDefault();
+                      setConfirming(null);
+                    }
+                  }}
+                >
                   <td colSpan={7} className="px-3.5 py-3">
                     <span className="duo text-fail">
                       Delete &ldquo;{c.display_name}&rdquo;? Its prediction, plans and drafts are removed.
@@ -378,7 +398,7 @@ export function YourCases({ cases, onChange }: { cases: CaseSummary[]; onChange:
                       <Button className="min-h-8 border-fail bg-fail px-3 py-1 text-[12.5px] text-white shadow-none" onClick={() => remove(c.id)}>
                         Delete case
                       </Button>
-                      <Button variant="ghost" className="min-h-8 px-3 py-1 text-[12.5px]" onClick={() => setConfirming(null)}>
+                      <Button variant="ghost" autoFocus className="min-h-8 px-3 py-1 text-[12.5px]" onClick={() => setConfirming(null)}>
                         Cancel
                       </Button>
                     </span>
@@ -417,7 +437,14 @@ export function YourCases({ cases, onChange }: { cases: CaseSummary[]; onChange:
                   Step {n} of 4 · {stepNames[n - 1]}
                 </td>
                 <td className="px-2 py-3 text-right">
-                  <RowMenu c={c} onRename={() => setRenaming(c.id)} onDelete={() => setConfirming(c.id)} />
+                  <RowMenu
+                    c={c}
+                    onRename={() => setRenaming(c.id)}
+                    onDelete={() => {
+                      restoreFocusRef.current = c.display_name;
+                      setConfirming(c.id);
+                    }}
+                  />
                 </td>
               </tr>
             );
