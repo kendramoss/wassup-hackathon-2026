@@ -688,3 +688,30 @@ func TestStaleRound14PhrasesFail(t *testing.T) {
 		t.Fatalf("current wording should pass, got %v", r.Failures)
 	}
 }
+
+// Judge panel round 15 (#649, D670): the D631 plan pass called the first
+// held-out evidence for usmca-v5, though its rulings are window-1 rulings
+// the engine was scored on in D601 before its adoption.
+func TestStaleRound15PhrasesFail(t *testing.T) {
+	for name, line := range map[string]string{
+		"d631 reading":  "This is the first held-out evidence that the D602 change carries over to plan searches.",
+		"carries over":  "Evidence that the D602 change carries over to plan searches.",
+		"beside engine": "The second pass with `usmca-v5` gives held-out evidence for plan searches.",
+		"engine after":  "Held-out evidence for plan searches now covers usmca-v5.",
+	} {
+		t.Run(name, func(t *testing.T) {
+			f := newFixture(t)
+			write(t, f.root, "docs/notes.md", line+"\n")
+			if r := Check(f.root, f.doc); !hasFailure(r, "stale phrase") {
+				t.Fatalf("want a stale-phrase failure, got %v", r.Failures)
+			}
+		})
+	}
+	f := newFixture(t)
+	write(t, f.root, "docs/notes.md", "The second pass with `usmca-v5` is a candidate comparison, not new held-out evidence (D670).\n"+
+		"It is not held-out evidence for usmca-v5: its rulings were scored in D601.\n"+
+		"The router cue is not clean held-out evidence for router-v4.\n")
+	if r := Check(f.root, f.doc); hasFailure(r, "stale phrase") {
+		t.Fatalf("current wording should pass, got %v", r.Failures)
+	}
+}
