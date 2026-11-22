@@ -64,13 +64,17 @@ type RulingAlert struct {
 	// HeldBefore and HeldAfter are the origins the changed ruling held and
 	// the changing ruling holds, from the shipped labels ("" when not
 	// known); Answer is the case's predicted origin. Relevance is one of
-	// the Relevance* labels and RelevanceNote says it in words (D531). Set
-	// by WithRelevance.
+	// the Relevance* labels and RelevanceNote says it in words (D531);
+	// RelevanceRole is the role it was judged for: a cited ruling against
+	// the answer, a plan's support against the plan's target, the current
+	// setup's ruling against CBP's holding there (D561). Set by
+	// WithRelevanceBy.
 	HeldBefore    string `json:"held_before,omitempty"`
 	HeldAfter     string `json:"held_after,omitempty"`
 	Answer        string `json:"answer,omitempty"`
 	Relevance     string `json:"relevance,omitempty"`
 	RelevanceNote string `json:"relevance_note,omitempty"`
+	RelevanceRole string `json:"relevance_role,omitempty"`
 }
 
 // Relied reports whether the ruling is more than read: cited, a plan's
@@ -163,7 +167,9 @@ type AlertCounts struct {
 	// ReadOnly counts final changes to rulings the case read but did not cite.
 	ReadOnly int `json:"read_only,omitempty"`
 	// TouchesAnswer counts the final changes to relied-on rulings whose
-	// held origin moved to or from the case's answer (D531).
+	// held origin moved to or from what the case relies on them for: the
+	// answer, a shown plan's target or the current setup's holding (D531,
+	// D561).
 	TouchesAnswer int `json:"touches_answer,omitempty"`
 }
 

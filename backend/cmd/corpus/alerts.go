@@ -70,7 +70,11 @@ func revocationAlerts(args []string) error {
 		}
 		jsonl := strings.HasSuffix(path, ".jsonl")
 		for _, d := range docs {
+			target := "" // the plan search's target, for its plans' supporting rulings (D561)
 			alertWalk(d, func(m map[string]any) bool {
+				if _, ok := m["plans"].([]any); ok && str(m["target"]) != "" {
+					target = str(m["target"])
+				}
 				if isCaseDoc(m) {
 					b, _ := json.Marshal(m)
 					var c store.Case
@@ -78,7 +82,7 @@ func revocationAlerts(args []string) error {
 						return false
 					}
 					cd, _ := time.Parse(time.DateOnly, c.Date)
-					as := domain.WithRelevance(domain.RulingAlerts(cd, asOf, c.RulingRefs()), c.Prediction.Origin)
+					as := domain.WithRelevanceBy(domain.RulingAlerts(cd, asOf, c.RulingRefs()), c.RelevanceBasis())
 					tallyRelevance(as, relevanceFinal)
 					cat := alertCategory(as, true)
 					caseTotals["cases"]++
@@ -126,7 +130,14 @@ func revocationAlerts(args []string) error {
 				if answer == "" {
 					answer = str(m["predicted_origin"])
 				}
-				as := domain.WithRelevance(domain.RulingAlerts(cd, asOf, refs), answer)
+				basis := domain.RelevanceBasis{Predicted: answer}
+				if len(support) > 0 && target != "" {
+					basis.PlanTargets = map[string][]string{}
+					for _, id := range support {
+						basis.PlanTargets[id] = append(basis.PlanTargets[id], target)
+					}
+				}
+				as := domain.WithRelevanceBy(domain.RulingAlerts(cd, asOf, refs), basis)
 				tallyRelevance(as, relevanceFinal)
 				cat := alertCategory(as, date != "")
 				rowTotals["rows_with_rulings"]++
@@ -166,7 +177,7 @@ func revocationAlerts(args []string) error {
 		return rowHits[i]["file"].(string)+"\x00"+rowHits[i]["row"].(string) < rowHits[j]["file"].(string)+"\x00"+rowHits[j]["row"].(string)
 	})
 	doc := map[string]any{
-		"note": "Offline count (D480): committed demo cases and committed result rows that would show a revocation alert, by the API's rule (domain.RulingAlerts): a ruling the case or row relies on (cited, a plan's supporting ruling, CBP's holding on the current setup) has a final revocation or modification (final_after_case: dated on or after the case date; final_before_case: dated before it, which the guard of D320/D370 would refuse today; final_undated: the row has no date) or a pending proposal only (proposed). read_only_final: only a ruling read and not cited changed (a calm line, no badge). relevance_final_relied counts the relied-on final changes by whether the change bears on the row's or case's answer (domain.WithRelevance, D531: touches_answer, not_answer, holding_unchanged, unknown). " +
+		"note": "Offline count (D480): committed demo cases and committed result rows that would show a revocation alert, by the API's rule (domain.RulingAlerts): a ruling the case or row relies on (cited, a plan's supporting ruling, CBP's holding on the current setup) has a final revocation or modification (final_after_case: dated on or after the case date; final_before_case: dated before it, which the guard of D320/D370 would refuse today; final_undated: the row has no date) or a pending proposal only (proposed). read_only_final: only a ruling read and not cited changed (a calm line, no badge). relevance_final_relied counts the relied-on final changes by whether the change bears on what the row or case relies on the ruling for (domain.WithRelevanceBy, D531, D561: a cited ruling against the predicted origin, a plan's supporting ruling against the plan search's target, the current setup's ruling against CBP's holding there; touches_answer, not_answer, holding_unchanged, unknown). " +
 			"Rows are every JSON object in eval/results that names rulings, as eval/supersession/impact.py reads them, except stored case documents (an id case_..., a date and a prediction), which are counted once as cases. No model call; in effect is judged as of " + alertsAsOf + ".",
 		"as_of":                   alertsAsOf,
 		"map":                     "backend/internal/domain/supersession.json",

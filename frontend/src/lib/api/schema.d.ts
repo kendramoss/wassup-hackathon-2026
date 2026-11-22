@@ -1084,7 +1084,7 @@ export interface components {
             proposed: number;
             /** @description On a case: final changes to rulings the prediction read but did not cite */
             read_only?: number;
-            /** @description Final changes to relied-on rulings whose held origin moved to or from the case's answer (D531); absent when none */
+            /** @description Final changes to relied-on rulings whose held origin moved to or from what the case relies on the ruling for: the answer for a cited ruling, a shown plan's target for its supporting ruling, CBP's holding on the current setup for that ruling (D531, D561); absent when none */
             touches_answer?: number;
         };
         /** @description CBP's changes to the rulings a saved case relies on or read (D480), from backend/internal/domain/supersession.json (corpus letters and fetched Customs Bulletin notices). Present only when there is at least one. Information only: the stored answer is never changed. Re-check with POST /v1/cases/{id}/watch. */
@@ -1125,12 +1125,17 @@ export interface components {
                 /** @description The case's predicted origin the change is compared with (D531) */
                 answer?: string;
                 /**
-                 * @description Whether the change bears on the answer (D531): touches_answer, the held origin moved to or from the answer's country; not_answer, it moved between two other countries; holding_unchanged, the same origin before and after; unknown, an origin or the answer is not known. Information only; a re-check is recommended either way.
+                 * @description Whether the change bears on what the case relies on the ruling for (D531, D561), judged per role: a cited ruling against the predicted origin, a plan's supporting ruling against the plan's target, the current setup's ruling against CBP's holding there; with several roles the most relevant label is kept and relevance_role names the role. touches_answer, the held origin moved to or from that country; not_answer, it moved between two other countries; holding_unchanged, the same origin before and after; unknown, an origin or that country is not known. Information only; a re-check is recommended either way.
                  * @enum {string}
                  */
                 relevance?: "touches_answer" | "not_answer" | "holding_unchanged" | "unknown";
                 /** @description The relevance in one or two sentences, as the site and MCP show it */
                 relevance_note?: string;
+                /**
+                 * @description The role the relevance was judged for (D561)
+                 * @enum {string}
+                 */
+                relevance_role?: "cited" | "plan_support" | "current_setup" | "read";
             }[];
         };
         Error: {

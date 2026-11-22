@@ -690,7 +690,7 @@ func (t tools) listCases(ctx context.Context, hdr http.Header, in listIn) (*mcp.
 		if n := obj(c["ruling_alerts"]); len(n) > 0 {
 			fmt.Fprintf(&b, " Changed rulings it relies on: %v final, %v proposed.", n["final"], n["proposed"])
 			if t, ok := n["touches_answer"]; ok {
-				fmt.Fprintf(&b, " %v bear on the answer.", t)
+				fmt.Fprintf(&b, " %v bear on the answer, a shown plan or the current setup.", t)
 			}
 		}
 	}

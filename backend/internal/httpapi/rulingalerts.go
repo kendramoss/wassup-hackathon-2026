@@ -11,10 +11,12 @@ import (
 var alertsNow = func() time.Time { return time.Now().UTC() }
 
 // caseRulingAlerts are the read-time revocation alerts on a saved case, each
-// labelled with whether the change bears on the case's answer (D531).
+// labelled with whether the change bears on what the case relies on the
+// ruling for: the answer, a shown plan's target or the current setup's CBP
+// holding (D531, D561).
 func caseRulingAlerts(c store.Case, today time.Time) []domain.RulingAlert {
 	d, _ := time.Parse(time.DateOnly, c.Date) // an invalid date reads as zero: no change is "before the case"
-	return domain.WithRelevance(domain.RulingAlerts(d, today, c.RulingRefs()), c.Prediction.Origin)
+	return domain.WithRelevanceBy(domain.RulingAlerts(d, today, c.RulingRefs()), c.RelevanceBasis())
 }
 
 // rulingAlertsField is the case's ruling_alerts field, or nil when no ruling
@@ -50,17 +52,25 @@ func alertCounts(c store.Case, today time.Time) *domain.AlertCounts {
 	return &n
 }
 
-// relevanceWord is the watch job's short form of an alert's relevance.
+// relevanceWord is the watch job's short form of an alert's relevance,
+// naming what the ruling was judged for (D561).
 func relevanceWord(a domain.RulingAlert) string {
+	what := "the answer"
+	switch a.RelevanceRole {
+	case domain.RolePlanSupport:
+		what = "a shown plan"
+	case domain.RoleCurrentSetup:
+		what = "the current setup"
+	}
 	switch a.Relevance {
 	case domain.RelevanceTouchesAnswer:
-		return " (bears on the answer)"
+		return " (bears on " + what + ")"
 	case domain.RelevanceNotAnswer:
-		return " (does not touch the answer directly)"
+		return " (does not touch " + what + " directly)"
 	case domain.RelevanceHoldingUnchanged:
 		return " (origin held unchanged)"
 	}
-	return " (bearing on the answer not known)"
+	return " (bearing on " + what + " not known)"
 }
 
 // watchAlert is one case's line in the watch job's ruling_alerts.

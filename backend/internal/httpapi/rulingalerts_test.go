@@ -3,6 +3,7 @@ package httpapi
 import (
 	"context"
 	"net/http"
+	"strings"
 	"testing"
 	"time"
 
@@ -193,5 +194,71 @@ func TestCaseAlertSaysWhetherTheChangeBearsOnTheAnswer(t *testing.T) {
 		if !found {
 			t.Errorf("%s: case not in the list", tc.origin)
 		}
+	}
+}
+
+// #626 (D561): a plan's supporting ruling is judged against the plan's
+// target, and the current setup's CBP ruling against CBP's holding there,
+// not against the predicted origin. N344694 held China; H344999 moved it to
+// Taiwan; the engine predicts Vietnam.
+func TestAlertRelevanceIsJudgedForTheRoleTheRulingPlays(t *testing.T) {
+	pinToday(t, "2026-11-22")
+	for _, tc := range []struct {
+		name, role, relevance, phrase, watch string
+		edit                                 func(c *store.Case)
+	}{
+		{"plan to China rests on it", domain.RolePlanSupport, "touches_answer", "The plan to China rests on it, so the change bears on the plan", "(bears on a shown plan)", func(c *store.Case) {
+			c.Plan = &planner.Result{Target: "China", Plans: []domain.Plan{{Description: "move to China", Shown: true,
+				Prediction: domain.Prediction{Origin: "China"},
+				Verdict:    &domain.Verdict{PrecedentSupported: true, SupportingRuling: "N344694", Confidence: 0.95}}}}
+		}},
+		{"plan to Mexico rests on it", domain.RolePlanSupport, "not_answer", "The plan to Mexico rests on it, so the change does not touch the plan directly", "(does not touch a shown plan directly)", func(c *store.Case) {
+			c.Plan = &planner.Result{Target: "Mexico", Plans: []domain.Plan{{Description: "move to Mexico", Shown: true,
+				Prediction: domain.Prediction{Origin: "Mexico"},
+				Verdict:    &domain.Verdict{PrecedentSupported: true, SupportingRuling: "N344694", Confidence: 0.95}}}}
+		}},
+		{"CBP held China on the current setup", domain.RoleCurrentSetup, "touches_answer", "It is CBP's holding on the current setup (China), so the change bears on the current setup", "(bears on the current setup)", func(c *store.Case) {
+			c.Plan = nil
+			c.CurrentOrigin = &planner.KnownOrigin{Country: "China", Ruling: "N344694"}
+		}},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			var st store.Cases
+			hs := newHarnessWith(t, "substantial_transformation", func(d *Deps) { st = d.Cases })
+			_, c := hs.do(t, "POST", "/v1/cases/predict", heatGunBody(t))
+			id := c["id"].(string)
+			if _, err := st.Update(context.Background(), id, func(c *store.Case) error {
+				c.Date = "2025-12-22"
+				c.Prediction.Origin = "Vietnam"
+				c.Prediction.CitedRulings, c.Prediction.Precedents, c.CurrentOrigin = nil, nil, nil
+				tc.edit(c)
+				return nil
+			}); err != nil {
+				t.Fatal(err)
+			}
+			_, got := hs.do(t, "GET", "/v1/cases/"+id, "")
+			ra, _ := got["ruling_alerts"].(map[string]any)
+			items, _ := ra["items"].([]any)
+			if len(items) != 1 {
+				t.Fatalf("items %v", ra)
+			}
+			a := items[0].(map[string]any)
+			note, _ := a["relevance_note"].(string)
+			if a["relevance"] != tc.relevance || a["relevance_role"] != tc.role || a["answer"] != "Vietnam" || !strings.Contains(note, tc.phrase) {
+				t.Errorf("alert %v", a)
+			}
+			counts, _ := ra["counts"].(map[string]any)
+			if (tc.relevance == "touches_answer") != (counts["touches_answer"] == 1.0) {
+				t.Errorf("counts %v", counts)
+			}
+			cs, err := st.List(context.Background())
+			if err != nil {
+				t.Fatal(err)
+			}
+			w := watchAlerts(cs, alertsNow())
+			if len(w[id].Rulings) != 1 || !strings.HasSuffix(w[id].Rulings[0], tc.watch) {
+				t.Errorf("watch %v", w[id])
+			}
+		})
 	}
 }
