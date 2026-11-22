@@ -206,9 +206,10 @@ export function CaseTabs({
 
 // "Step 2 of 4 · Origin" above a screen's heading; the scenario sandbox
 // says it is optional instead.
-export function StepEyebrow({ tab, children }: { tab: CaseTab; children?: ReactNode }) {
+export function StepEyebrow({ tab, children, followUps = true }: { tab: CaseTab; children?: ReactNode; followUps?: boolean }) {
   const t = tabs.find((x) => x.key === tab)!;
-  const label = useStepLabel(tab, t.optional ? "Optional" : `Step ${t.step} of 4`);
+  const total = followUps ? 4 : 2;
+  const label = useStepLabel(tab, t.optional ? "Optional" : `Step ${t.step} of ${total}`);
   return (
     <p className="eyebrow">
       {label} · {children ?? t.label}
