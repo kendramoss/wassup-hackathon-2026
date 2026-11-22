@@ -161,18 +161,14 @@ func DescribeAt(p domain.Product, t Template, m domain.Move, madeWith string) st
 	return "Move " + joinAnd(parts)
 }
 
-// groupPhrase names a moved group in a plan sentence: "the " and the
+// groupItems names a moved group in a plan sentence: "the " and the
 // template's group name, unless that name describes none of this product's
 // parts in the group. Then it names the parts, as Render does in the facts
 // (D270): a power bank's battery cells filed under the template's "Power
 // conversion or charging module" read "the two cylindrical lithium-ion
 // battery cells", not a module the product does not have.
-func groupPhrase(p domain.Product, t Template, id, madeWith string) string {
-	return joinAnd(groupItems(p, t, id, madeWith))
-}
-
-// groupItems is groupPhrase as a list, so Describe can join the items of
-// several groups once (D641). A template name that fits stays one item.
+// It returns a list so Describe can join the items of several groups once
+// (D641). A template name that fits stays one item.
 func groupItems(p domain.Product, t Template, id, madeWith string) []string {
 	name := GroupNameAt(p, t, id, madeWith)
 	comps := groupComponents(p, id)
