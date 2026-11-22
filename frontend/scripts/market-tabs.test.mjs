@@ -5,7 +5,7 @@ import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";
 import { html, text } from "./render-support.mjs";
 
-const { CaseTabs, caseTabs } = await import("../src/components/op/chrome.tsx");
+const { CaseTabs, StepEyebrow, caseTabs } = await import("../src/components/op/chrome.tsx");
 const { hasFollowUps } = await import("../src/lib/market.ts");
 const { copy } = await import("../src/lib/copy.ts");
 
@@ -36,6 +36,14 @@ test("a Canada or EU case hides them and says so in few words", () => {
     assert.ok(t.includes(copy.market.followUpsUSOnly), c.jurisdiction);
   }
   assert.ok(copy.market.followUpsUSOnly.split(" ").length <= 7, "rule 16: few words");
+});
+
+test("saved case step labels agree with the market's available steps", () => {
+  for (const [c, total] of [[caCase, 2], [usCase, 4]]) {
+    const followUps = hasFollowUps(c);
+    assert.equal(text(html(StepEyebrow, { tab: "product", followUps })), `Step 1 of ${total} · Product`);
+    assert.equal(text(html(StepEyebrow, { tab: "origin", followUps })), `Step 2 of ${total} · Origin`);
+  }
 });
 
 test("the tab being viewed stays, so a direct link still has its tab", () => {
