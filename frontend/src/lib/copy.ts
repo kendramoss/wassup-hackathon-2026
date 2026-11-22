@@ -621,7 +621,7 @@ export const copy = {
     part177Help: "Part 177 is how to ask CBP for a ruling. It is not an origin rule.",
     compareScope: "Compared on U.S. origin only. Section 232 duties are not included.",
     // Accuracy page, "What we don't claim" (listed unsupported in docs/scope-and-jurisdiction.md section 6).
-    notCovered: "Not covered: EU Binding Origin Information; USMCA regional value content and preferential-origin claims; certificates of origin; duty drawback; antidumping and countervailing duty questions. Section 232 duties are not included in cost figures.",
+    notCovered: "Not covered: EU Binding Origin Information; USMCA regional value content and preferential-origin claims (an RCEP rules check is built but not reviewed by a customs professional); certificates of origin; duty drawback; antidumping and countervailing duty questions. Section 232 duties are not included in cost figures.",
     noDetector: "Unde is for U.S. origin questions. It has no automatic check that detects or blocks a question about another country's rules, so do not use it for one.",
   },
 
@@ -657,6 +657,31 @@ export const copy = {
       `Same answer for every suggested code: ${sampled ? `a sample of ${n} of ${total} combinations` : `${n} combination${n === 1 ? "" : "s"}`} of the codes suggested for ${parts}.`,
     robustDepends: (parts: string) => `The answer depends on the code for ${parts}. Check that code with your broker first.`,
     robustTogether: "The answer depends on which suggested codes are chosen together. Check the part codes with your broker first.",
+  },
+
+  // RCEP preference check (D690). A different question from the origin
+  // answer, so the copy says so once and stays short (rule 16).
+  rcep: {
+    title: "RCEP tariff",
+    meta: "separate from origin",
+    lead: "Can it get the RCEP tariff between RCEP countries? A rules check, not yet reviewed by a customs professional. Tick parts your supplier declares RCEP origin.",
+    needCode: "Add the product's HS code to check.",
+    madeIn: "Made in",
+    price: "Price (FOB)",
+    part: "Part",
+    declared: "RCEP origin",
+    declaredFor: (n: string) => `${n}: supplier declares RCEP origin`,
+    value: "Value",
+    valueFor: (n: string) => `${n}: value`,
+    noCode: "no code",
+    check: "Check",
+    checking: "Checking",
+    yes: "Qualifies",
+    no: "Does not qualify",
+    unsure: "Not sure yet",
+    failing: "Parts that block it",
+    details: "Details",
+    failed: "The check failed. Try again.",
   },
 
   // The 102.20 rule check on each plan move (D441): a chip on the plan card

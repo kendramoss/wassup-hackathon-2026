@@ -87,6 +87,7 @@ func NewServer(o Options) *mcp.Server {
 	s := mcp.NewServer(&mcp.Implementation{Name: "unde", Title: "Unde Labs", Version: v}, &mcp.ServerOptions{Instructions: instructions})
 	t := tools{api: o.API, families: o.Families}
 	t.register(s, o.RulingSearch)
+	t.registerRCEP(s)
 	if o.MediaExtract {
 		t.registerMedia(s)
 	}
