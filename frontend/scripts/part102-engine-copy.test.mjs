@@ -66,3 +66,24 @@ test("the new figures are in docs/NUMBERS.md", () => {
   assert.ok(numbers.includes("40 of 45 (usmca-v1 25 / 11 / 36)"));
   assert.ok(numbers.includes("17 accepted, 16 right"));
 });
+
+// Judge panel round 14 (#643, D642): window 2's Part 102 figures carry D612's
+// precedent-pool note; /method no longer calls window 2 usmca-v5's clean
+// check; the held-out plan figure on /accuracy carries the base-rate caveat.
+test("window-2 Part 102 figures carry the 15-ruling precedent pool note (D612)", () => {
+  for (const k of ["usmca_final2_accuracy", "usmca_v5_final2_accuracy", "usmca_v5_final2_conf95_accuracy", "usmca_v5_final2_conf95_coverage"]) {
+    assert.match(item(k).label, /15 window-2 rulings only,? \(?D612/, k);
+  }
+  const page = read("frontend/src/components/op/screens/accuracy-page.tsx").replace(/\s+/g, " ");
+  assert.match(page, /\{later\(us2\)\} \{us2 \? " The later window's Part 102 runs had only the 15 window-2 rulings as precedents, not the full pool \(D612\)\." : ""\}/);
+  assert.match(page, /with usmca-v5 and 20 families, 8 of 18 and 6 of 6; five of the six are moves where the rule keeps the country CBP held\./);
+});
+
+test("/method: usmca-v5 has no clean held-out check (D602, D612)", async () => {
+  const { MethodPage } = await import("../src/components/op/screens/method-page.tsx");
+  const t = text(html(MethodPage, {}));
+  assert.doesNotMatch(t, /T[h]eir clean check is the second window/); // spelled so claimscheck does not flag the test
+  assert.match(t, /For the textile and pharmaceutical engines the clean check is the second window, scored once with nothing changed/);
+  assert.match(t, /The Part 102 engine in use, usmca-v5, has no clean held-out check: it was picked on development rulings and then scored once on both windows, which usmca-v1 had already been scored on, so that is a candidate comparison/);
+  assert.match(t, /only the 15 window-2 rulings as precedents/);
+});

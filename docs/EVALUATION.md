@@ -369,7 +369,7 @@ The same 163 labelled rulings hold 30 that the textile, pharmaceutical and Part 
 | Substantial transformation | 340/377 = 90.2% (86.8–92.8), Vertex AI | 77/83 = 92.8% (85.1–96.6), gateway |
 | Textile (102.21 rule) | 61/71 = 85.9% (76.0–92.2), Vertex AI, textile-v1 | 15/17 = 88.2% (65.7–96.7), gateway, textile-v2 |
 | Pharmaceutical | 50/56 = 89.3% (78.5–95.0), proxy | 4/6 = 66.7% (30.0–90.3), gateway; too few to read |
-| Part 102 marking origin | 25/32 = 78.1% (61.2–89.0), proxy | 11/13 = 84.6% (57.8–95.7), gateway |
+| Part 102 marking origin | 25/32 = 78.1% (61.2–89.0), proxy | 11/13 = 84.6% (57.8–95.7), gateway; precedents from the 15 window-2 rulings only (D612) |
 | **All four, each ruling once** | 451/509 = 88.6% (85.6–91.1) | 96/107 = 89.7% (82.5–94.2) |
 
 **All regimes, all held-out windows, each ruling once: 547/616 = 88.8% (86.1–91.1).** Adding the splits as they are gives 583/655 = 89.0% (86.4–91.2).
@@ -852,7 +852,7 @@ Each disagreement was given one category by hand before any fix ran (`eval/tarif
 
 **What it shows.** All three pass the development rule as amended (at least 6 rows net with p below 0.05; no loss on the leans, on CBP's holding or on the 72 rulings). Vd, the shortest answer, agrees with the rule most often (13 rows won, none lost, p = 0.0002) and was selected by the order fixed in D601. Its answers are shorter than B's (25,157 output tokens against 28,462 on the plan rows). On the 72 development rulings it ties B (3 won, 3 lost); Vc does better there (56), but the order puts plan-row agreement first.
 
-**Held out, once.** Vd on the two single-setup Part 102 windows: 29 of 32 and 11 of 13, 40 of 45 pooled, against `usmca-v1`'s 25, 11 and 36 (5 won, 1 lost; p = 0.22 on window 1). Both windows had been scored before with `usmca-v1`, so this is a candidate comparison, not a fresh test. Fewer answers reach confidence 0.95 (17 of 45 against 22, 16 and 21 of them right), so more Part 102 cases go to review under the unchanged 0.95 bar. Window 2's runs used only window-2 rulings as precedents (the committed command's first facts path does not exist); the new run kept that command so only the prompt differs.
+**Held out, once.** Vd on the two single-setup Part 102 windows: 29 of 32 and 11 of 13 (window 2 with only the 15 window-2 rulings as precedents, D612), 40 of 45 pooled, against `usmca-v1`'s 25, 11 and 36 (5 won, 1 lost; p = 0.22 on window 1). Both windows had been scored before with `usmca-v1`, so this is a candidate comparison, not a fresh test. Fewer answers reach confidence 0.95 (17 of 45 against 22, 16 and 21 of them right), so more Part 102 cases go to review under the unchanged 0.95 bar. Window 2's runs used only window-2 rulings as precedents (the committed command's first facts path does not exist); the new run kept that command so only the prompt differs.
 
 **What changed.** Since D602 the Part 102 engine is `usmca-v5`, and a plan search on a Part 102 case states the product's own codes in the facts the engine reads. The D570 held-out plan set was not touched by D602; it was re-run with `usmca-v5` afterwards, in a separate pre-registered pass (§15.2, D630, D631: the engine agrees with the rule on 6 of 6 decided moves, against 3 of 6). The recorded actuator page now shows a `usmca-v5` run (D631). Source: `eval/tariffshift/p102err/summary-moves.json` and `eval/tariffshift/p102ck/summary-d602.json`, recomputed by `cd backend && go run ./cmd/tariffshift p102err-moves -check` and `p102ck-eval -check` (both in `make reproduce`).
 

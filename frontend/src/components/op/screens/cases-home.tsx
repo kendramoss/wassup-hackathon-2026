@@ -330,14 +330,15 @@ export function YourCases({ cases, onChange }: { cases: CaseSummary[]; onChange:
   const [confirming, setConfirming] = useState<string | null>(null);
   const [rowError, setRowError] = useState<{ id: string; error: unknown } | null>(null);
   // #605: the ⋯ trigger unmounts with the row it replaces, so remember which
-  // one to focus again when the confirmation is cancelled.
+  // one to focus again when the confirmation is cancelled. #622: by case id,
+  // since two cases can share a display name.
   const restoreFocusRef = useRef<string | null>(null);
   useEffect(() => {
     if (confirming || !restoreFocusRef.current) return;
-    const label = `Actions for ${restoreFocusRef.current}`;
+    const id = restoreFocusRef.current;
     restoreFocusRef.current = null;
-    [...document.querySelectorAll<HTMLButtonElement>('button[aria-label^="Actions for "]')]
-      .find((button) => button.getAttribute("aria-label") === label)
+    [...document.querySelectorAll<HTMLButtonElement>("button[data-row-menu-trigger]")]
+      .find((button) => button.dataset.rowMenuTrigger === id)
       ?.focus();
   }, [confirming]);
 
@@ -445,7 +446,7 @@ export function YourCases({ cases, onChange }: { cases: CaseSummary[]; onChange:
                     c={c}
                     onRename={() => setRenaming(c.id)}
                     onDelete={() => {
-                      restoreFocusRef.current = c.display_name;
+                      restoreFocusRef.current = c.id;
                       setConfirming(c.id);
                     }}
                   />
@@ -538,6 +539,7 @@ function RowMenu({ c, onRename, onDelete }: { c: CaseSummary; onRename: () => vo
       <button
         type="button"
         aria-label={`Actions for ${c.display_name}`}
+        data-row-menu-trigger={c.id}
         aria-expanded={open}
         className="px-2 py-1 text-base text-dim hover:text-ink"
         onKeyDown={(e) => {

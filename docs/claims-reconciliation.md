@@ -167,8 +167,8 @@ Source files are listed in the checksum manifest (section 9). "Held-out" is the 
 | `regimes.w2.textile.correct` | 15 | of those, correct |
 | `regimes.w2.pharma.n` | 6 | window 2, pharmaceutical split (pharma-v1, gateway, D210); under 10 |
 | `regimes.w2.pharma.correct` | 4 | of those, correct |
-| `regimes.w2.part102.n` | 13 | window 2, Part 102 split (usmca-v1, gateway, D210) |
-| `regimes.w2.part102.correct` | 11 | of those, correct |
+| `regimes.w2.part102.n` | 13 | window 2, Part 102 split (usmca-v1, gateway, D210); only the 15 window-2 rulings as precedents (D612) |
+| `regimes.w2.part102.correct` | 11 | of those, correct; measured with the 15-ruling precedent pool (D612) |
 | `regimes.w2.overlap` | 12 | window 2 rulings in both the textile and the Part 102 split |
 | `regimes.w2.sum.correct` | 107 | window 2, the four splits added |
 | `regimes.w2.sum.n` | 119 | window 2, rulings counted per split |
@@ -368,7 +368,7 @@ Format: `file:line#symbol` (the line is a hint; `claimscheck` fails on a missing
 
 ## 6. Legal and product scope
 
-- Part 102 marking support is not USMCA regional value content. The Part 102 engine applies the general marking rules and tariff shifts of 19 CFR 102.11 and 102.20 to Canada- and Mexico-related goods (`backend/internal/engine/usmca.go:12#USMCASystem`, version `usmca-v1`); textile goods use 102.21. The word "USMCA" in file names refers to that marking use. No regional-value-content or preferential-origin qualification is implemented (a search of the Go code, the frontend and the documents finds none; the term appears only in the subjects of corpus rulings). Drafts keep Section 301 distinct from marking origin (`backend/internal/export/regime.go:24#section301Separate`, `backend/internal/export/regime_test.go#TestPart102DoesNotSettleSection301`).
+- Part 102 marking support is not USMCA regional value content. The Part 102 engine applies the general marking rules and tariff shifts of 19 CFR 102.11 and 102.20 to Canada- and Mexico-related goods (`backend/internal/engine/usmca_compact.go#USMCAProduction`, `USMCASystem5`, version `usmca-v5` since D602; `usmca-v1`, `backend/internal/engine/usmca.go:12#USMCASystem`, before); textile goods use 102.21. The word "USMCA" in file names refers to that marking use. No regional-value-content or preferential-origin qualification is implemented (a search of the Go code, the frontend and the documents finds none; the term appears only in the subjects of corpus rulings). Drafts keep Section 301 distinct from marking origin (`backend/internal/export/regime.go:24#section301Separate`, `backend/internal/export/regime_test.go#TestPart102DoesNotSettleSection301`).
 - Part 177 is a ruling-request procedure, not an origin rule. `backend/internal/export/cfr177.go:18#CFR177` drafts a request under 19 CFR 177.1 and 177.2 (`backend/internal/export/export_test.go#TestCFR177Contents`). The audit line "19 CFR Part 102 / Part 177" mislabels it; origin rules are 102.11 and 102.21 and the substantial-transformation standard cited at 134.1(b), with the textile and pharmaceutical engines.
 - EU Binding Origin Information (and any other non-US origin source) is unsupported: the corpus is U.S. CBP rulings only. The audits already say so; this is the same limit stated again.
 - The full U.S. scope, the configured regimes, the unsupported use cases and the EU BOI and USMCA RVC deferral are in [docs/scope-and-jurisdiction.md](scope-and-jurisdiction.md). It states no benchmark numbers.

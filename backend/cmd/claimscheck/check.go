@@ -362,6 +362,19 @@ var stalePhrases = []struct {
 		why:    "the 100% at confidence 0.95 on 46.9% of Part 102 rulings is usmca-v1's; usmca-v5 auto-accepts 11 of 32 (D613, D620)",
 		unless: regexp.MustCompile(`usmca-v1`),
 	},
+	{
+		re:  regexp.MustCompile("(?i)version `?usmca-v1`?[^;.]{0,20}\\)"),
+		why: "the production Part 102 engine is usmca-v5 (engine.USMCAProduction) since D602; name usmca-v1 only as the engine before it (#643, D642)",
+	},
+	{
+		re:  regexp.MustCompile(`(?i)\btheir clean check\b|part 102[^.]{0,200}\bclean check is\b`),
+		why: "usmca-v5 has no clean held-out check: both windows were scored first with usmca-v1 (D602), and window 2 had a 15-ruling precedent pool (D612) (#643, D642)",
+	},
+	{
+		re:     regexp.MustCompile(`(?i)part 102 marking 11/13|11/13 = 84\.6%|usmca-v[0-9][^|]{0,120}\b11 of 13\b|\b11 of 13\b[^|]{0,60}\busmca-v[0-9]`),
+		why:    "window 2's Part 102 counts were measured with only the 15 window-2 rulings as precedents; say so beside them (D612, #643, D642)",
+		unless: regexp.MustCompile(`D612|15 window-2 rulings`),
+	},
 }
 
 // staleRoots are the public texts checkStalePhrases reads: the README, the
