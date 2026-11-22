@@ -34,7 +34,9 @@ export const tools = [
   ["suggest_part_hts", "tariff", "light", "Product + parts", "Candidate tariff codes"],
   ["check_rcep_preference", "tariff", "basic", "Codes, values + origins", "RCEP eligibility"],
   ["check_canada_marking", "tariff", "basic", "Good + parts codes", "Canadian marking rules check"],
-] satisfies Tool[];
+] as const satisfies readonly Tool[];
+
+export type ToolName = (typeof tools)[number][0];
 
 export function filterTools(query: string, group: ToolGroup | "") {
   const terms = query.toLowerCase().trim().split(/\s+/).filter(Boolean);
