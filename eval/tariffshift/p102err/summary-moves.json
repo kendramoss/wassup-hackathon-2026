@@ -264,6 +264,76 @@
           "family/n350727/move/housing_and_cables@th"
         ]
       }
+    },
+    {
+      "key": "vc",
+      "name": "Vc: usmca-v4 compact checklist, the product's codes added to the facts (D600)",
+      "run": false,
+      "calls": 0,
+      "errors": 0,
+      "decided": {
+        "k": 0,
+        "n": 0
+      },
+      "decided_moves": {
+        "k": 0,
+        "n": 0
+      },
+      "decided_current_setups": {
+        "k": 0,
+        "n": 0
+      },
+      "lean": {
+        "k": 0,
+        "n": 0
+      },
+      "decided_by_set": {},
+      "part102_current_setup_engine_agrees_with_cbp": {
+        "k": 0,
+        "n": 0
+      },
+      "gateway_cost_usd": 0,
+      "output_tokens": 0,
+      "input_tokens": 0,
+      "safety_flags_s": {
+        "k": 0,
+        "n": 0
+      }
+    },
+    {
+      "key": "vd",
+      "name": "Vd: usmca-v5 failing-materials checklist, the product's codes added to the facts (D600)",
+      "run": false,
+      "calls": 0,
+      "errors": 0,
+      "decided": {
+        "k": 0,
+        "n": 0
+      },
+      "decided_moves": {
+        "k": 0,
+        "n": 0
+      },
+      "decided_current_setups": {
+        "k": 0,
+        "n": 0
+      },
+      "lean": {
+        "k": 0,
+        "n": 0
+      },
+      "decided_by_set": {},
+      "part102_current_setup_engine_agrees_with_cbp": {
+        "k": 0,
+        "n": 0
+      },
+      "gateway_cost_usd": 0,
+      "output_tokens": 0,
+      "input_tokens": 0,
+      "safety_flags_s": {
+        "k": 0,
+        "n": 0
+      }
     }
   ]
 }

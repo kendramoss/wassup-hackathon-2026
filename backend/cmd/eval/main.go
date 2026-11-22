@@ -206,7 +206,7 @@ func run(args []string) error {
 	factsDir := fl.String("facts", "../data/corpus/facts", "facts directory (go run ./cmd/corpus build); comma-separated to add ../eval/data/facts_final2")
 	resultsDir := fl.String("results", "../eval/results", "results directory")
 	textilePrompt := fl.String("textile-prompt", "v1", "v1 or v2 (textile-v2: filled made-up guidance; use with -reasoning, D53)")
-	usmcaPrompt := fl.String("usmca-prompt", "v1", "with -regime usmca: v1 (usmca-v1) , v2 (usmca-v2: the 102.20 rows for the codes named in the facts, applied as written; D550) or v3 (usmca-v3: the D590 102.11 checklist)")
+	usmcaPrompt := fl.String("usmca-prompt", "v1", "with -regime usmca: v1 (usmca-v1), v2 (usmca-v2: the 102.20 rows for the codes named in the facts, applied as written; D550), v3 (usmca-v3: the D590 102.11 checklist), v4 (usmca-v4: the D600 compact checklist) or v5 (usmca-v5: the D600 failing-materials checklist)")
 	regime := fl.String("regime", "st", "st (substantial transformation), textile (19 CFR 102.21, textile-v1, with -splits ../eval/splits/splits_textile.json; D51), usmca (19 CFR 102.11 / 102.20, usmca-v1, with -labels ../eval/data/labels_usmca.jsonl and -splits ../eval/splits/splits_usmca.json; D61) or pharma (active ingredient, pharma-v1, with -splits ../eval/splits/splits_pharma.json; D62)")
 	_ = fl.Parse(args)
 	if *regime != "st" && *regime != "textile" && *regime != "usmca" && *regime != "pharma" {
@@ -397,10 +397,8 @@ func run(args []string) error {
 		}
 	}
 	if *regime == "usmca" {
-		uv := engine.USMCAVersion
-		if *usmcaPrompt == "v2" {
-			uv = engine.USMCAVersion2
-		}
+		uopts, _ := usmcaOptions(*usmcaPrompt)
+		uv := uopts.Version
 		name = fmt.Sprintf("usmca-%s-%s-%s-%s-%s", *split, cfg.EngineModel, *cond, uv, cfg.LLMProvider)
 		if cfg.PrecedentK != 5 {
 			name += fmt.Sprintf("-k%d", cfg.PrecedentK)
@@ -676,8 +674,10 @@ func appendRunLog(dir, name, split string, cfg config.Config, s evalkit.Summary,
 	}
 	if strings.HasPrefix(name, "usmca-") {
 		prompt = engine.USMCAVersion
-		if strings.Contains(name, engine.USMCAVersion2) {
-			prompt = engine.USMCAVersion2
+		for _, v := range []string{engine.USMCAVersion2, engine.USMCAVersion3, engine.USMCAVersion4, engine.USMCAVersion5} {
+			if strings.Contains(name, v) {
+				prompt = v
+			}
 		}
 	}
 	if strings.HasPrefix(name, "pharma-") {
@@ -2565,6 +2565,10 @@ func usmcaOptions(v string) (engine.Options, error) {
 		return engine.Options{System: engine.USMCASystem2, Version: engine.USMCAVersion2, RuleText: engine.Part102RuleText(rules)}, nil
 	case "v3":
 		return engine.Options{System: engine.USMCASystem3, Version: engine.USMCAVersion3, Schema: engine.ChecklistSchema}, nil
+	case "v4":
+		return engine.Options{System: engine.USMCASystem4, Version: engine.USMCAVersion4, Schema: engine.CompactChecklistSchema}, nil
+	case "v5":
+		return engine.Options{System: engine.USMCASystem5, Version: engine.USMCAVersion5, Schema: engine.FailingChecklistSchema}, nil
 	}
-	return engine.Options{}, fmt.Errorf("-usmca-prompt must be v1, v2 or v3, got %q", v)
+	return engine.Options{}, fmt.Errorf("-usmca-prompt must be v1, v2, v3, v4 or v5, got %q", v)
 }

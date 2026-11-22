@@ -87,7 +87,7 @@ type P102MoveRow struct {
 func p102MovesCmd(args []string) error {
 	fl := flag.NewFlagSet("p102moves", flag.ExitOnError)
 	tag := fl.String("tag", "", "run tag (required), e.g. d590-b")
-	prompt := fl.String("usmca-prompt", "v1", "Part 102 engine prompt: v1 (production) or v3 (D590 checklist)")
+	prompt := fl.String("usmca-prompt", "v1", "Part 102 engine prompt: v1 (production), v3 (D590 checklist), v4 or v5 (D600 compact checklists)")
 	codesInFacts := fl.Bool("codes-in-facts", false, "render the good's and each part's code into the facts (D590 variant)")
 	sets := fl.String("sets", "part102-d501,part102-dev,family", "fixture sets")
 	dryRun := fl.Bool("dry-run", false, "count the calls and write nothing")
@@ -339,8 +339,12 @@ func p102Options(prompt string, cfg config.Config) (engine.Options, error) {
 	case "v1":
 	case "v3":
 		o.System, o.Version, o.Schema = engine.USMCASystem3, engine.USMCAVersion3, engine.ChecklistSchema
+	case "v4":
+		o.System, o.Version, o.Schema = engine.USMCASystem4, engine.USMCAVersion4, engine.CompactChecklistSchema
+	case "v5":
+		o.System, o.Version, o.Schema = engine.USMCASystem5, engine.USMCAVersion5, engine.FailingChecklistSchema
 	default:
-		return o, fmt.Errorf("-usmca-prompt must be v1 or v3")
+		return o, fmt.Errorf("-usmca-prompt must be v1, v3, v4 or v5")
 	}
 	return o, nil
 }
