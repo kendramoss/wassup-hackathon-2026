@@ -1,0 +1,147 @@
+{
+ "note": "For semiconductor devices and display modules, CBP consistently holds that front-end wafer fabrication or thin-film transistor array formation confers country of origin because it imparts the functional electrical circuitry and essential character of the device. Subsequent back-end processing, such as wafer dicing, die attachment, wire bonding, molding, packaging, and final testing, does not result in a substantial transformation.",
+ "groups": [
+  {
+   "id": "bare_wafer_production",
+   "name": "Bare substrate wafer production",
+   "operations": [
+    "Grow single crystal silicon or silicon carbide ingots in a high-temperature environment",
+    "Slice the crystal ingot into bare wafer substrates using a multi-wire cutting saw",
+    "Perform double-sided grinding and chemical-mechanical polishing of the bare wafer"
+   ],
+   "movable": true,
+   "precedent": {
+    "confers_origin": [
+     "H338127",
+     "N333934",
+     "N337307",
+     "N344105",
+     "N345881"
+    ],
+    "not_enough": [
+     "N334417"
+    ],
+    "note": "CBP found in N334417 that producing a bare untreated silicon carbide wafer substrate in China was not enough to confer origin when epitaxial growth occurred in Japan, though bare wafer production combined with front-end fabrication confers origin in H338127, N333934, N337307, N344105, and N345881."
+   }
+  },
+  {
+   "id": "epitaxial_growth",
+   "name": "Epitaxial film growth",
+   "operations": [
+    "Process bare wafers through chemical vapor deposition equipment to grow a precise epitaxial film layer",
+    "Control dopant concentration and epitaxial film thickness to establish electrical resistance and breakdown voltage attributes"
+   ],
+   "movable": true,
+   "precedent": {
+    "confers_origin": [
+     "N333934",
+     "N334417",
+     "N337307",
+     "N344105"
+    ],
+    "not_enough": [],
+    "note": "CBP held in N334417 that growing the epitaxial silicon carbide layer on an imported bare wafer substantially transforms it into an epitaxial wafer, and cited epitaxial deposition as a key front-end step in N333934, N337307, and N344105."
+   }
+  },
+  {
+   "id": "wafer_die_fabrication",
+   "name": "Front-end wafer and TFT array fabrication",
+   "operations": [
+    "Perform oxide, nitride, and metal thin-film deposition on the wafer surface",
+    "Execute photolithography, photoresist exposure, developing, etching, and ion implantation to form circuitry",
+    "Build thin-film transistor array structures, color filters, and liquid crystal cell sheets on glass substrates via chemical vapor deposition"
+   ],
+   "movable": true,
+   "precedent": {
+    "confers_origin": [
+     "N333934",
+     "N337307",
+     "N343494",
+     "N344105",
+     "N345881",
+     "N347292"
+    ],
+    "not_enough": [],
+    "note": "CBP consistently rules that front-end wafer fabrication\u2014where integrated circuitry, diodes, or transistor elements are formed on the wafer\u2014imparts the essential operational character and confers origin, as seen in N333934, N337307, N343494, N344105, N345881, and N347292."
+   }
+  },
+  {
+   "id": "wafer_probing_dicing",
+   "name": "Wafer probing, thinning, and dicing",
+   "operations": [
+    "Conduct electrical wafer sorting and on-wafer chip probing to test die functionality",
+    "Thin the wafer via back grinding and grow copper pillar bumps on the wafer surface",
+    "Mount the wafer on tape and saw or cut it into individual semiconductor dies or display cells"
+   ],
+   "movable": true,
+   "precedent": {
+    "confers_origin": [],
+    "not_enough": [
+     "N333934",
+     "N335873",
+     "N337307",
+     "N343494",
+     "N343835",
+     "N347292"
+    ],
+    "note": "CBP held that final front-end electrical testing in a second country (N343494) or back-end wafer bumping, back-grinding, and sawing into individual dies or cells (N333934, N335873, N337307, N343835, N347292) does not substantially transform the fabricated wafer."
+   }
+  },
+  {
+   "id": "final_assembly",
+   "name": "Back-end die packaging, module assembly, and testing",
+   "operations": [
+    "Attach individual dies to substrates or lead frames and connect contacts via wire bonding or flip-chip bonding",
+    "Encapsulate and mold the package, plate leads, and perform trim, form, and laser marking",
+    "Affix driver integrated circuits, polarizers, flexible printed circuits, backlights, and frames to cut display cells",
+    "Perform final electrical characteristics inspection, visual inspection, and outgoing quality testing"
+   ],
+   "movable": false,
+   "precedent": {
+    "confers_origin": [],
+    "not_enough": [
+     "N333934",
+     "N337307",
+     "N343494",
+     "N344105",
+     "N345881",
+     "N347890"
+    ],
+    "note": "Across all rulings, including N333934, N337307, N343494, N344105, N345881, and N347890, CBP held that back-end packaging, wire bonding, molding, module assembly, and testing do not substantially transform the functional semiconductor die or display cell."
+   }
+  }
+ ],
+ "_category": "semiconductors",
+ "_family": "semiconductor_devices",
+ "_name": "Semiconductor devices (integrated circuits, transistors, diodes, RF modules)",
+ "_regime": "",
+ "_input_rulings": [
+  "H338127",
+  "N333934",
+  "N334417",
+  "N335873",
+  "N337307",
+  "N343494",
+  "N343835",
+  "N344105",
+  "N345881",
+  "N345963",
+  "N345991",
+  "N346922",
+  "N347292",
+  "N347890"
+ ],
+ "_cost_usd": 0.02916,
+ "_usage": {
+  "completion_tokens": 1574,
+  "prompt_tokens": 6710,
+  "total_tokens": 8284,
+  "completion_tokens_details": {
+   "text_tokens": 1574
+  },
+  "prompt_tokens_details": {
+   "text_tokens": 6710
+  }
+ },
+ "_model": "gemini-4-argon"
+}

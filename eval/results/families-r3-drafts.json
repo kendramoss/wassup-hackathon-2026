@@ -1,0 +1,825 @@
+{
+ "paper_tissue_products": {
+  "note": "For basic sanitary, tissue, and wrapping papers, CBP consistently holds that the production of the bulk parent rolls confers origin, while subsequent unwinding, embossing, printing, cutting to size, folding, and re-rolling are minor converting operations that do not substantially transform the paper. Conversely, for structured or shaped articles like file folders, gift bags, rigid boxes, labels, and molded tableware, die-cutting, molding, pleating, and forming the paper into a distinct new article confer origin.",
+  "groups": [
+   {
+    "id": "parent_roll_production",
+    "name": "Base paper and parent roll manufacturing",
+    "operations": [
+     "Process wood pulp into single or multi-ply paper, tissue, or paperboard sheet",
+     "Finish and wind base paper into bulk parent or jumbo rolls"
+    ],
+    "movable": true,
+    "precedent": {
+     "confers_origin": [
+      "N339156",
+      "N341898",
+      "N344612",
+      "N344620",
+      "N344621",
+      "N345915"
+     ],
+     "not_enough": [
+      "N335200",
+      "N345972",
+      "N347645",
+      "N347648",
+      "N348208",
+      "N348329"
+     ],
+     "note": "CBP held that manufacturing the parent roll confers origin when downstream work is limited to tissue or wrap converting (N339156, N341898, N344612), but not when the roll is later die-cut, pleated, or molded into a distinct article (N335200, N347648, N348208)."
+    }
+   },
+   {
+    "id": "surface_printing_decor",
+    "name": "Surface printing, laminating, and foil decoration",
+    "operations": [
+     "Print colors, patterns, or logos onto paper stock or overlay sheets",
+     "Apply foil stamping, glitter decoration, or protective lamination to paper"
+    ],
+    "movable": true,
+    "precedent": {
+     "confers_origin": [],
+     "not_enough": [
+      "N333537",
+      "N334032",
+      "N339156",
+      "N347806",
+      "N347987",
+      "N347988"
+     ],
+     "note": "Printing, foil stamping, and laminating paper stock did not confer origin on wrapping paper or tissue (N339156, N347987, N347988), nor did pre-printing paper sheets that were sent to another country to be formed into bags or boxes (N333537, N334032)."
+    }
+   },
+   {
+    "id": "hardware_and_accessories",
+    "name": "Hardware, fasteners, and accessory parts",
+    "operations": [
+     "Produce metal folder fasteners, hanging rods, and hooks",
+     "Produce plastic clips, clear plastic tabs, handles, decorative pompoms, and cardboard cores"
+    ],
+    "movable": true,
+    "precedent": {
+     "confers_origin": [],
+     "not_enough": [
+      "N333537",
+      "N334032",
+      "N345915",
+      "N347187",
+      "N347189",
+      "N347645"
+     ],
+     "note": "Supplying metal fasteners, hanging rods, handles, decorative pompoms, or cardboard tubes from another country did not confer origin on the finished paper products (N333537, N334032, N345915, N347187, N347189, N347645)."
+    }
+   },
+   {
+    "id": "die_cut_mold_shape",
+    "name": "Die-cutting, molding, and structural forming",
+    "operations": [
+     "Die-cut paper or paperboard into folder, box, label, or circular blanks",
+     "Mold paper blanks into three-dimensional plates or pleated cups with rolled rims",
+     "Continuous-pleat and heat-press paper rolls into accordion window shade bodies",
+     "Apply die-cut adhesive labels to printed release liner sheets or microperforate cardstock"
+    ],
+    "movable": true,
+    "precedent": {
+     "confers_origin": [
+      "N333537",
+      "N334032",
+      "N335200",
+      "N345972",
+      "N347648",
+      "N348208"
+     ],
+     "not_enough": [],
+     "note": "CBP held that die-cutting, molding, or pleating flat paper or paperboard into structured shapes such as gift bags, boxes, shades, labels, folders, or cups substantially transforms the paper (N333537, N334032, N335200, N345972, N347648, N348208)."
+    }
+   },
+   {
+    "id": "final_assembly",
+    "name": "Roll converting, folding, hardware insertion, and packaging",
+    "operations": [
+     "Unwind, emboss, perforate, slit to width, cut to length, and fold or rewind tissue and paper rolls onto cores",
+     "Fold and glue cut paperboard blanks into finished bags, boxes, or folders",
+     "Attach handles, metal fasteners, hanging rods, adhesive strips, or decorative trim",
+     "Perform quality control and package into retail units"
+    ],
+    "movable": false,
+    "precedent": {
+     "confers_origin": [
+      "N333537",
+      "N334032",
+      "N347187",
+      "N347189",
+      "N347645",
+      "N347648"
+     ],
+     "not_enough": [
+      "N341898",
+      "N344612",
+      "N344620",
+      "N344621",
+      "N345915",
+      "N347059"
+     ],
+     "note": "Simple converting of parent rolls by embossing, cutting to length and width, folding, and rewinding was not enough to confer origin (N341898, N344612, N344620, N344621, N345915, N347059), whereas folding, gluing, and assembling die-cut blanks into bags, boxes, and folders in the same plant as the cutting conferred origin (N333537, N334032, N347645, N347648)."
+    }
+   }
+  ],
+  "_category": "paper_tissue",
+  "_family": "paper_tissue_products",
+  "_name": "Paper, tissue and paperboard products (napkins, towels, tissue, folders, wrapping paper)",
+  "_regime": "",
+  "_input_rulings": [
+   "N333537",
+   "N334032",
+   "N335200",
+   "N335974",
+   "N339156",
+   "N341898",
+   "N343481",
+   "N344611",
+   "N344612",
+   "N344617",
+   "N344619",
+   "N344620",
+   "N344621",
+   "N344916",
+   "N344918",
+   "N345205",
+   "N345206",
+   "N345383",
+   "N345384",
+   "N345385",
+   "N345386",
+   "N345915",
+   "N345972",
+   "N346902",
+   "N346903",
+   "N346904",
+   "N346906",
+   "N347059",
+   "N347187",
+   "N347189",
+   "N347645",
+   "N347648",
+   "N347719",
+   "N347720",
+   "N347806",
+   "N347986",
+   "N347987",
+   "N347988",
+   "N348208",
+   "N348226",
+   "N348227",
+   "N348228",
+   "N348229",
+   "N348329",
+   "N348694"
+  ],
+  "_cost_usd": 0.04639,
+  "_usage": {
+   "completion_tokens": 1761,
+   "prompt_tokens": 14390,
+   "total_tokens": 16151,
+   "completion_tokens_details": {
+    "text_tokens": 1761
+   },
+   "prompt_tokens_details": {
+    "text_tokens": 14390
+   }
+  },
+  "_model": "gemini-4-argon"
+ },
+ "offroad_vehicles_machinery": {
+  "note": "For off-road vehicles and mobile machinery, CBP generally treats the fabrication and welding of the primary structural frames, chassis, and heavy working structures (such as booms, arms, lifting platforms, and drums) from raw metal as origin-conferring, or recognizes complex vehicle assembly when paired with the local fabrication of major structural subassemblies. Conversely, CBP treats bolting, fastening, and wiring imported drive motors, engines, electronics, and pre-fabricated frames together as simple assembly that does not confer origin.",
+  "groups": [
+   {
+    "id": "chassis_frame_fab",
+    "name": "Chassis and lower structural frame fabrication",
+    "operations": [
+     "Saw, laser cut, stamp, punch, drill, and bend metal tubes, plates, and profiles",
+     "Align and weld structural metal elements in fixtures to form the chassis or lower frame weldment",
+     "Shot blast, polish, pre-treat, powder coat, and paint the structural frame"
+    ],
+    "movable": true,
+    "precedent": {
+     "confers_origin": [
+      "N334276",
+      "N336445",
+      "N337356",
+      "N344843",
+      "N348598",
+      "N349019"
+     ],
+     "not_enough": [
+      "N343416"
+     ],
+     "note": "CBP consistently places decisive weight on where the foundational chassis or frame is cut, shaped, and welded from metal stock (N334276, N336445, N344843, N349019), though an imported base plate chassis alone did not control when extensive subassembly and upper structure integration occurred in the assembly country (N343416)."
+    }
+   },
+   {
+    "id": "working_structure_fab",
+    "name": "Upper frame and working mechanism fabrication",
+    "operations": [
+     "Cut, machine, press, and bend steel tubing and plates for lifting arms, booms, drums, or handling frames",
+     "Weld structural elements to form the upper frame, scissor arm, excavator boom, roller drum, or ROPS",
+     "Assemble mechanical lifting mechanisms, rollers, platforms, and material trays onto the upper structure"
+    ],
+    "movable": true,
+    "precedent": {
+     "confers_origin": [
+      "N334276",
+      "N336445",
+      "N337356",
+      "N337718",
+      "N340482",
+      "N342125"
+     ],
+     "not_enough": [
+      "N334276",
+      "N337718"
+     ],
+     "note": "Producing the major upper structural and working subassemblies (such as platforms, booms, handling frames, and drums) confers origin when combined with chassis production or final integration (N334276, N337356, N337718, N340482), whereas sourcing only a single structural arm or shear lifting mechanism from a country is not enough (N334276, N337718)."
+    }
+   },
+   {
+    "id": "powertrain_electronics",
+    "name": "Powertrain, drive, and control subassemblies",
+    "operations": [
+     "Produce or pre-assemble engines, drive motors, reducers, axles, and hydraulic systems",
+     "Assemble battery packs from cells and prepare controllers, sensors, and communication modules",
+     "Pre-assemble steering gears, radiators, fuel tanks, and handlebar or brake pedal subassemblies"
+    ],
+    "movable": true,
+    "precedent": {
+     "confers_origin": [
+      "N348937"
+     ],
+     "not_enough": [
+      "N336445",
+      "N340047",
+      "N344843",
+      "N349019"
+     ],
+     "note": "Sourcing or pre-assembling motors, battery packs, sensors, and handlebar or mechanical subassemblies does not confer origin when the main structural frame is fabricated elsewhere (N336445, N344843, N349019), unless part of a comprehensive multi-hundred-part vehicle assembly and programming operation (N348937)."
+    }
+   },
+   {
+    "id": "final_assembly",
+    "name": "Final vehicle assembly, wiring, and testing",
+    "operations": [
+     "Bolt and fasten drive motors, engines, axles, suspensions, wheels, and casters to the chassis",
+     "Mount controllers, batteries, sensors, cameras, and operator cab or seat components",
+     "Join upper working structures or lifting assemblies to the lower chassis frame",
+     "Route and connect power, communication, and hydraulic lines, program ECUs, and inspect the vehicle"
+    ],
+    "movable": false,
+    "precedent": {
+     "confers_origin": [
+      "N337356",
+      "N337718",
+      "N340047",
+      "N341251",
+      "N343416",
+      "N348937"
+     ],
+     "not_enough": [
+      "N336445",
+      "N344843",
+      "N349019"
+     ],
+     "note": "Final assembly confers origin when the assembly country also fabricates key structural frames or integrates complex drive and handling subassemblies (N337356, N337718, N340047, N348937), but bolting and wiring components onto pre-fabricated frames imported from another country is not enough (N336445, N344843, N349019)."
+    }
+   }
+  ],
+  "_category": "offroad_machines",
+  "_family": "offroad_vehicles_machinery",
+  "_name": "Off-road vehicles and mobile machinery (utility vehicles, ATVs, automated guided vehicles, excavators, graders, rollers, telehandlers, scissor lifts)",
+  "_regime": "",
+  "_input_rulings": [
+   "N334276",
+   "N336445",
+   "N337356",
+   "N337718",
+   "N340047",
+   "N340482",
+   "N341251",
+   "N342125",
+   "N343416",
+   "N344843",
+   "N348598",
+   "N348937",
+   "N349019"
+  ],
+  "_cost_usd": 0.026956,
+  "_usage": {
+   "completion_tokens": 1447,
+   "prompt_tokens": 6243,
+   "total_tokens": 7690,
+   "completion_tokens_details": {
+    "text_tokens": 1447
+   },
+   "prompt_tokens_details": {
+    "text_tokens": 6243
+   }
+  },
+  "_model": "gemini-4-argon"
+ },
+ "semiconductor_devices": {
+  "note": "For semiconductor devices, CBP consistently holds that the country of origin is where front-end wafer fabrication (such as epitaxial deposition, photolithography, etching, and ion implantation) takes place, because those steps impart the essential electrical character and functionality of the die. Subsequent back-end operations\u2014such as wafer thinning, dicing into individual die, wire bonding or flip-chip mounting, molding, encapsulation, and final testing\u2014are treated as non-origin-conferring packaging and finishing.",
+  "groups": [
+   {
+    "id": "bare_wafer_production",
+    "name": "Bare wafer substrate production",
+    "operations": [
+     "Grow monocrystalline silicon or silicon carbide ingots or boules from seed crystal and raw powder",
+     "Slice the crystal ingot into bare wafer substrates using a multi-wire diamond saw",
+     "Grind and polish the wafer surfaces to control thickness variation, bow, and warp"
+    ],
+    "movable": true,
+    "precedent": {
+     "confers_origin": [
+      "H338127",
+      "N333934",
+      "N337307",
+      "N344105",
+      "N345881"
+     ],
+     "not_enough": [
+      "N334417"
+     ],
+     "note": "Producing the bare substrate wafer alone does not control origin if epitaxial growth occurs elsewhere (N334417), though it supports origin when combined with front-end fabrication in the same country (H338127, N333934, N337307, N344105, N345881)."
+    }
+   },
+   {
+    "id": "epitaxial_deposition",
+    "name": "Epitaxial film growth",
+    "operations": [
+     "Deposit a precisely doped epitaxial semiconductor film layer onto the bare wafer substrate",
+     "Control epitaxial film thickness, dopant concentration, and dislocation density for electrical performance"
+    ],
+    "movable": true,
+    "precedent": {
+     "confers_origin": [
+      "N333934",
+      "N334417",
+      "N337307",
+      "N344105"
+     ],
+     "not_enough": [],
+     "note": "CBP held that growing the epitaxial layer on an imported bare wafer substantially transforms the substrate because it provides the essential electrical attributes needed for semiconductor devices (N334417), and cited it as part of origin-conferring front-end processing (N333934, N337307, N344105)."
+    }
+   },
+   {
+    "id": "front_end_wafer_fab",
+    "name": "Front-end wafer fabrication",
+    "operations": [
+     "Deposit oxide, nitride, and metal thin films onto the wafer",
+     "Apply photoresist, expose circuit patterns via photolithography, and develop",
+     "Perform etching and ion implantation to form diodes, transistors, and internal wiring",
+     "Deposit protective films and perform on-wafer chip probing and electrical inspection"
+    ],
+    "movable": true,
+    "precedent": {
+     "confers_origin": [
+      "N333934",
+      "N337307",
+      "N343494",
+      "N344105",
+      "N345881",
+      "N347292"
+     ],
+     "not_enough": [
+      "N343494"
+     ],
+     "note": "CBP consistently holds that front-end wafer fabrication creates the functional die and determines the country of origin (N333934, N337307, N343494, N344105, N345881, N347292), whereas performing only the final front-end electrical test in another country does not shift origin (N343494)."
+    }
+   },
+   {
+    "id": "wafer_bumping_dicing",
+    "name": "Wafer thinning, bumping, and dicing",
+    "operations": [
+     "Grow copper pillar bumps on the front side of the wafer",
+     "Back-grind the wafer to reduce thickness",
+     "Mount the wafer on tape and saw or dice it into individual semiconductor die"
+    ],
+    "movable": true,
+    "precedent": {
+     "confers_origin": [],
+     "not_enough": [
+      "N333934",
+      "N337307",
+      "N345881",
+      "N347292"
+     ],
+     "note": "CBP found that bumping, back-grinding, mounting, and sawing fabricated wafers into individual die do not substantially transform the completed integrated circuit or diode die (N333934, N337307, N345881, N347292)."
+    }
+   },
+   {
+    "id": "final_assembly",
+    "name": "Back-end die packaging and final testing",
+    "operations": [
+     "Attach or flip-chip bond individual semiconductor die onto a package substrate or lead frame",
+     "Wire-bond die contacts to external leads or pins",
+     "Encapsulate and mold the assembly in plastic housing and cure",
+     "Plate, trim, form, and cut-bend external leads",
+     "Perform final electrical characteristics testing, laser marking, visual inspection, and packing"
+    ],
+    "movable": false,
+    "precedent": {
+     "confers_origin": [],
+     "not_enough": [
+      "N333934",
+      "N337307",
+      "N343494",
+      "N344105",
+      "N345881",
+      "N347890"
+     ],
+     "note": "In every ruling where fabricated wafers or die were sent abroad for back-end die attach, wire bonding, molding, lead forming, and final testing, CBP held that these packaging steps did not confer origin (N333934, N337307, N343494, N344105, N345881, N347890)."
+    }
+   }
+  ],
+  "_category": "semiconductors",
+  "_family": "semiconductor_devices",
+  "_name": "Semiconductor devices (integrated circuits, transistors, diodes, RF modules)",
+  "_regime": "",
+  "_input_rulings": [
+   "H338127",
+   "N333934",
+   "N334417",
+   "N337307",
+   "N343494",
+   "N344105",
+   "N345881",
+   "N346922",
+   "N347292",
+   "N347890"
+  ],
+  "_cost_usd": 0.02563,
+  "_usage": {
+   "completion_tokens": 1556,
+   "prompt_tokens": 5035,
+   "total_tokens": 6591,
+   "completion_tokens_details": {
+    "text_tokens": 1556
+   },
+   "prompt_tokens_details": {
+    "text_tokens": 5035
+   }
+  },
+  "_model": "gemini-4-argon"
+ },
+ "golf_sporting_goods": {
+  "note": "For golf clubs and sporting goods, CBP typically determines that origin is conferred by the primary forming operations that establish the article's shape and functional character, such as forging, casting, or metal injection molding of club heads, cover molding of golf balls, and manufacturing the main structural shells and release mechanisms of bindings. Conversely, downstream cosmetic finishing of pre-formed metal heads\u2014such as polishing, plating, painting, and laser engraving\u2014or adding secondary textile liners, bags, and grips does not constitute a substantial transformation.",
+  "groups": [
+   {
+    "id": "primary_head_forming",
+    "name": "Club head and ball forming",
+    "operations": [
+     "Cut, heat, hammer, and compress carbon steel billets into rough golf club head shapes via forging",
+     "Mix metallic powder with binder, injection mold, de-bind, and sinter golf putter heads in a vacuum furnace",
+     "Melt and cast titanium or stainless steel into wax-molded hard-shell clusters and deshell into individual club heads",
+     "Mix, cut, apply heat and pressure, and buff raw material into an uncoated golf ball core",
+     "Perform cover extrusion and injection molding over the raw golf ball core",
+     "Apply base coating and markings to create a finished functional golf ball"
+    ],
+    "movable": true,
+    "precedent": {
+     "confers_origin": [
+      "H332922",
+      "N340536",
+      "N346303"
+     ],
+     "not_enough": [],
+     "note": "CBP held that forging in H332922, metal injection molding and sintering in N340536, and investment casting in N346303 establish the final shape and character of golf club heads and confer origin."
+    }
+   },
+   {
+    "id": "boot_and_binding_parts",
+    "name": "Boot shell and binding mechanism production",
+    "operations": [
+     "Injection mold hard-shell boots from rubber or plastics and assemble with aluminum buckles",
+     "Manufacture the automatic release mechanism for the ski binding",
+     "Injection mold the binding base plate, front and rear outsole, and toe bar"
+    ],
+    "movable": true,
+    "precedent": {
+     "confers_origin": [
+      "N334283"
+     ],
+     "not_enough": [
+      "N334283"
+     ],
+     "note": "In N334283, CBP held that manufacturing the hard-shell boot and automatic release mechanism in France conferred origin to the water ski boot and binding set, even though the base plate, outsoles, and toe bar were molded in China."
+    }
+   },
+   {
+    "id": "textiles_and_grips",
+    "name": "Grips, liners, and textile accessories",
+    "operations": [
+     "Mold thermoplastic resin grips for golf clubs",
+     "Construct polyester textile golf bags and club headcovers",
+     "Cut and stitch foam and fabric into removable boot liners"
+    ],
+    "movable": true,
+    "precedent": {
+     "confers_origin": [],
+     "not_enough": [
+      "N334283",
+      "N334756"
+     ],
+     "note": "CBP determined that producing stitched foam and fabric boot liners in N334283 or thermoplastic grips and polyester bags and headcovers in N334756 did not confer origin to the finished sporting goods."
+    }
+   },
+   {
+    "id": "final_assembly",
+    "name": "Head finishing and final club assembly",
+    "operations": [
+     "Polish, plate, paint, and laser engrave forged, cast, or sintered golf club heads and drill stem holes",
+     "Assemble golf club heads with shafts and mold thermoplastic grips onto the clubs",
+     "Insert boot liners and package clubs, headcovers, bags, or bindings into retail sets"
+    ],
+    "movable": false,
+    "precedent": {
+     "confers_origin": [
+      "N334756"
+     ],
+     "not_enough": [
+      "H332922",
+      "N340536",
+      "N346303"
+     ],
+     "note": "CBP held that assembling complete golf clubs from components conferred origin in N334756, whereas cosmetic finishing, drilling, plating, painting, and engraving of pre-formed club heads in H332922, N340536, and N346303 did not."
+    }
+   }
+  ],
+  "_category": "golf_sporting",
+  "_family": "golf_sporting_goods",
+  "_name": "Golf clubs and sporting goods (club heads, clubs, balls, ski bindings)",
+  "_regime": "",
+  "_input_rulings": [
+   "H332922",
+   "N334283",
+   "N334756",
+   "N340536",
+   "N346303",
+   "N348301"
+  ],
+  "_cost_usd": 0.019628,
+  "_usage": {
+   "completion_tokens": 1259,
+   "prompt_tokens": 3519,
+   "total_tokens": 4778,
+   "completion_tokens_details": {
+    "text_tokens": 1259
+   },
+   "prompt_tokens_details": {
+    "text_tokens": 3519
+   }
+  },
+  "_model": "gemini-4-argon",
+  "_merged": {
+   "donor": "ball_core_and_cover",
+   "into": "primary_head_forming"
+  }
+ },
+ "toys_build_kits": {
+  "note": "For plush toys, CBP finds that cutting fabric to shape and sewing the body shell confers origin, whereas stuffing, closing seams, or fitting fabric over a pre-made mechanical frame is treated as simple assembly. For unassembled electronic and mechanical build kits, packaging components together does not substantially transform them, so the kit retains the multiple origins of its key functional components like microcontrollers, motors, and structural parts.",
+  "groups": [
+   {
+    "id": "plush_shell_cut_sew",
+    "name": "Plush fabric cutting and shell sewing",
+    "operations": [
+     "Cut knit pile and faux fur fabrics from rolls to pattern shapes",
+     "Embroider facial features and decorative details onto cut fabric pieces",
+     "Sew cut fabric pieces together to form the unstuffed plush toy body shell"
+    ],
+    "movable": true,
+    "precedent": {
+     "confers_origin": [
+      "N343777",
+      "N347170",
+      "N348808"
+     ],
+     "not_enough": [],
+     "note": "CBP consistently holds that cutting the fabric to shape and sewing or embroidering the body panels determines the country of origin of a plush toy (N343777, N347170, N348808)."
+    }
+   },
+   {
+    "id": "core_electronics_motors",
+    "name": "Electronics, motors and kit parts",
+    "operations": [
+     "Manufacture and program microcontrollers for coding and robotic build kits",
+     "Manufacture DC motors, geared motors, servo motors, and stepper motors",
+     "Assemble internal mechanical animation frameworks",
+     "Cut and shape plywood boards, triggers, guide rails, and linkage arms",
+     "Fabricate and etch acrylic pieces, color wheels, and injection-molded chassis parts",
+     "Produce breadboards, sensors, LED strips, battery packs, wiring, and fasteners"
+    ],
+    "movable": true,
+    "precedent": {
+     "confers_origin": [
+      "H350263",
+      "N348808",
+      "N350221",
+      "N350222",
+      "N350296",
+      "N350297"
+     ],
+     "not_enough": [],
+     "note": "In unassembled build kits and animated toys, the country of manufacture of the microcontroller, DC motor, or mechanical framework confers origin to that component or the toy (H350263, N348808, N350221, N350222, N350296, N350297)."
+    }
+   },
+   {
+    "id": "final_assembly",
+    "name": "Stuffing, closing, and kit retail packaging",
+    "operations": [
+     "Fill pre-sewn or cut plush shells with polyester fiber stuffing and plastic pellet bags",
+     "Sew plush shells closed, assemble around mechanical frames, and attach seam bindings and labels",
+     "Collate and package unassembled build kit components into retail boxes"
+    ],
+    "movable": false,
+    "precedent": {
+     "confers_origin": [],
+     "not_enough": [
+      "H350263",
+      "N343777",
+      "N348808",
+      "N350221",
+      "N350296",
+      "N350297"
+     ],
+     "note": "Stuffing and sewing closed pre-cut plush pieces or packaging unassembled kit components together into a retail box does not result in a substantial transformation (H350263, N343777, N348808, N350221, N350296, N350297)."
+    }
+   }
+  ],
+  "_category": "toys_kits",
+  "_family": "toys_build_kits",
+  "_name": "Toys and build kits (plush toys, electronic build kits)",
+  "_regime": "",
+  "_input_rulings": [
+   "H350263",
+   "N339090",
+   "N343777",
+   "N347170",
+   "N348808",
+   "N350221",
+   "N350222",
+   "N350296",
+   "N350297",
+   "N350298",
+   "N350299",
+   "N350300",
+   "N350301"
+  ],
+  "_cost_usd": 0.024944,
+  "_usage": {
+   "completion_tokens": 1179,
+   "prompt_tokens": 6577,
+   "total_tokens": 7756,
+   "completion_tokens_details": {
+    "text_tokens": 1179
+   },
+   "prompt_tokens_details": {
+    "text_tokens": 6577
+   }
+  },
+  "_model": "gemini-4-argon",
+  "_merged": {
+   "donor": "kit_structural_parts",
+   "into": "core_electronics_motors"
+  }
+ },
+ "hvac_heating_units": {
+  "note": "For heating and cooling units, CBP confers origin where the primary functional components (such as the compressor, evaporator, condenser, burner assembly, and core subassemblies) are manufactured, or where sheet metal fabrication of the chassis is combined with complex multi-stage subassembly production. Conversely, CBP treats assembling pre-manufactured heating or cooling subassemblies, valves, and panels by tightening, wiring, and testing as simple assembly that does not confer origin.",
+  "groups": [
+   {
+    "id": "compressor_unit",
+    "name": "Compressor subassembly",
+    "operations": [
+     "Cast the compressor housing from aluminum or iron material",
+     "Fabricate and machine the crankshaft, cylinder head, and piston",
+     "Construct rotor and stator subassembly, piston and cylinder subassembly, and motor-driven subassembly",
+     "Apply lubrication and seals to complete the compressor"
+    ],
+    "movable": true,
+    "precedent": {
+     "confers_origin": [
+      "N348913"
+     ],
+     "not_enough": [
+      "N348913"
+     ],
+     "note": "In N348913, manufacturing the compressor in India contributed to Indian origin in Scenario 1, whereas manufacturing the compressor in China in Scenarios 2 and 3 did not overcome the origin of the majority of the other cooling components from India."
+    }
+   },
+   {
+    "id": "heating_cooling_core",
+    "name": "Burner, heat exchanger and cooling components",
+    "operations": [
+     "Manufacture burner assembly, oxygen depletion sensor assemblies, and ignitor module",
+     "Produce primary and secondary heat exchangers, evaporator, and condenser",
+     "Manufacture main control board, motors, centrifugal and exhaust fans, thermostats, sensors, and switches"
+    ],
+    "movable": true,
+    "precedent": {
+     "confers_origin": [
+      "N345976",
+      "N348913"
+     ],
+     "not_enough": [
+      "N347270",
+      "N347271",
+      "N347272"
+     ],
+     "note": "CBP held that origin followed the majority of the cooling components in N348913 and the burner, ODS, and ignitor assemblies in N345976, whereas sourcing heat exchangers, control boards, motors, and burners from China and Mexico did not prevent Thailand from conferring origin through chassis fabrication and subassembly manufacturing in N347270, N347271, and N347272."
+    }
+   },
+   {
+    "id": "chassis_metal_parts",
+    "name": "Chassis panels and structural metal parts",
+    "operations": [
+     "Stamp, cut, punch holes, and bend steel into top, bottom, left, right, front, and back chassis panels",
+     "Fabricate mounting brackets, fixed plates, base seal plates, support plates, and air shields",
+     "Weld and powder coat or paint the structural sheet metal components"
+    ],
+    "movable": true,
+    "precedent": {
+     "confers_origin": [
+      "N345976",
+      "N347270",
+      "N347271",
+      "N347272"
+     ],
+     "not_enough": [],
+     "note": "Producing the chassis panels and internal mounting plates from raw steel by stamping, bending, welding, and powder coating in Thailand supported Thai origin in N347270, N347271, and N347272, and pre-fabricated panels and brackets from China contributed to Chinese origin in N345976."
+    }
+   },
+   {
+    "id": "valves_regulators_tubes",
+    "name": "Gas valves, regulators and tubing",
+    "operations": [
+     "Manufacture gas selector valves, thermostatic gas valves, and LP/NG pressure regulators",
+     "Cut, bend, punch, and paint tubing and minor fittings"
+    ],
+    "movable": true,
+    "precedent": {
+     "confers_origin": [],
+     "not_enough": [
+      "N345976"
+     ],
+     "note": "In N345976, manufacturing the gas selector valve and LP/NG regulators in Vietnam and performing cutting, hole punching, painting, and bending was not enough to confer Vietnamese origin when the burner, panels, and other core components were imported from China."
+    }
+   },
+   {
+    "id": "final_assembly",
+    "name": "Subassembly integration and final assembly",
+    "operations": [
+     "Build key internal subassemblies and mount components onto the chassis and installation boards",
+     "Enclose compressor, evaporator, condenser, or heat exchangers and burner within the housing panels and shroud",
+     "Connect wiring, thermocouples, valves, and sensors, tighten fasteners, and test the finished unit"
+    ],
+    "movable": false,
+    "precedent": {
+     "confers_origin": [
+      "N347270",
+      "N347271",
+      "N347272",
+      "N348913"
+     ],
+     "not_enough": [
+      "N345976",
+      "N348913"
+     ],
+     "note": "Final assembly conferred origin when combined with local sheet metal fabrication and key subassembly manufacturing in N347270, N347271, and N347272 (or local cooling components in N348913 Scenario 3), but final assembly alone did not confer origin in N345976 or in Scenarios 1 and 2 of N348913."
+    }
+   }
+  ],
+  "_category": "hvac_heating",
+  "_family": "hvac_heating_units",
+  "_name": "Heat pumps, furnaces, gas heaters and air conditioners",
+  "_regime": "",
+  "_input_rulings": [
+   "N345976",
+   "N347270",
+   "N347271",
+   "N347272",
+   "N348913"
+  ],
+  "_cost_usd": 0.019868,
+  "_usage": {
+   "completion_tokens": 1394,
+   "prompt_tokens": 2964,
+   "total_tokens": 4358,
+   "completion_tokens_details": {
+    "text_tokens": 1394
+   },
+   "prompt_tokens_details": {
+    "text_tokens": 2964
+   }
+  },
+  "_model": "gemini-4-argon"
+ }
+}

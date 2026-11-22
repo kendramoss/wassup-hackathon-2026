@@ -1,0 +1,440 @@
+{"category": "paper_printed", "assembled": false, "product": "filler paper and notebooks", "ruling": "H072375", "hts": "4802.55.1000", "cost_usd": 0.0012239999999999998}
+{"category": "paper_printed", "assembled": false, "product": "facial tissues", "ruling": "H263571", "hts": "4803.00", "cost_usd": 0.0011595}
+{"category": "apparel_textiles", "assembled": true, "product": "mattress covers", "ruling": "H265611", "hts": "9404", "cost_usd": 0.001143}
+{"category": "solar_pv", "assembled": true, "product": "solar panels", "ruling": "H266527", "hts": "8541.40.6020", "cost_usd": 0.001134}
+{"category": "solar_pv", "assembled": true, "product": "photovoltaic modules", "ruling": "H296919", "hts": "8501.71.00", "cost_usd": 0.00118575}
+{"category": "bicycles_scooters", "assembled": true, "product": "electric bicycle", "ruling": "H302204", "hts": "8711.60", "cost_usd": 0.001191}
+{"category": "other", "assembled": true, "product": "wall repair kit", "ruling": "H312877", "hts": "6815.10", "cost_usd": 0.0011175000000000002}
+{"category": "toys_sporting_goods", "assembled": true, "product": "golf club drivers", "ruling": "H313495", "hts": "9506.31.00", "cost_usd": 0.0012795}
+{"category": "chemicals_pharma", "assembled": false, "product": "finish gel for nails", "ruling": "H314981", "hts": "3506.10.50", "cost_usd": 0.0011482500000000002}
+{"category": "vehicle_parts", "assembled": true, "product": "automotive armrest", "ruling": "H315298", "hts": "9401.90.10", "cost_usd": 0.00118425}
+{"category": "machinery_parts", "assembled": true, "product": "cab cover assemblies", "ruling": "H327665", "hts": "8518.21.00", "cost_usd": 0.00120225}
+{"category": "chemicals_pharma", "assembled": false, "product": "polymer absorbent", "ruling": "H327732", "hts": null, "cost_usd": 0.0012075}
+{"category": "solar_pv", "assembled": true, "product": "solar panels", "ruling": "H328752", "hts": "8541.40", "cost_usd": 0.0012225}
+{"category": "rubber_articles", "assembled": true, "product": "pneumatic tires", "ruling": "H329175", "hts": "4011", "cost_usd": 0.0011925}
+{"category": "electrical_apparatus", "assembled": false, "product": "superconducting tape", "ruling": "H331104", "hts": null, "cost_usd": 0.00117675}
+{"category": "wood_articles", "assembled": true, "product": "prefabricated house kit", "ruling": "H331375", "hts": "9406.10.0000", "cost_usd": 0.00111225}
+{"category": "chemicals_pharma", "assembled": false, "product": "chabazite zeolites", "ruling": "H332516", "hts": null, "cost_usd": 0.00122025}
+{"category": "toys_sporting_goods", "assembled": false, "product": "golf club heads", "ruling": "H332922", "hts": "9506.39.0060", "cost_usd": 0.00122775}
+{"category": "filters", "assembled": true, "product": "sand control filter", "ruling": "H333407", "hts": "8421.29.00", "cost_usd": 0.0011902500000000001}
+{"category": "chemicals_pharma", "assembled": false, "product": "drilling polymer gel", "ruling": "H334088", "hts": "3824.99.4900", "cost_usd": 0.00125175}
+{"category": "solar_pv", "assembled": false, "product": "monocrystalline silicon ingot", "ruling": "H336366", "hts": "2804.61.00", "cost_usd": 0.0012202500000000002}
+{"category": "pcba_electronic_devices", "assembled": false, "product": "Schottky diode", "ruling": "H338127", "hts": null, "cost_usd": 0.00118425}
+{"category": "bicycles_scooters", "assembled": true, "product": "bicycle", "ruling": "H341021", "hts": "8714", "cost_usd": 0.001071}
+{"category": "chemicals_pharma", "assembled": false, "product": "drilling fluid viscosifier", "ruling": "H341787", "hts": "3824.99.49", "cost_usd": 0.00128925}
+{"category": "led_lights", "assembled": true, "product": "accent touch lamp", "ruling": "H342414", "hts": "9405.29.60", "cost_usd": 0.0011819999999999999}
+{"category": "led_lights", "assembled": true, "product": "accent lamps", "ruling": "H342702", "hts": "9405.29.801", "cost_usd": 0.001173}
+{"category": "other", "assembled": false, "product": "software", "ruling": "H342822", "hts": null, "cost_usd": 0.0012}
+{"category": "wood_articles", "assembled": true, "product": "outdoor barrel sauna", "ruling": "H343750", "hts": "9406.10.10", "cost_usd": 0.00113925}
+{"category": "led_lights", "assembled": true, "product": "packaged led components", "ruling": "H345671", "hts": null, "cost_usd": 0.00119475}
+{"category": "chemicals_pharma", "assembled": false, "product": "synthetic gasoline blendstock", "ruling": "H346979", "hts": null, "cost_usd": 0.00115875}
+{"category": "metal_hardware_fittings", "assembled": true, "product": "latch assemblies", "ruling": "H347415", "hts": "8302.49.60", "cost_usd": 0.001221}
+{"category": "jewelry_watches", "assembled": true, "product": "gold necklace medallions", "ruling": "H348567", "hts": null, "cost_usd": 0.0010425}
+{"category": "paper_printed", "assembled": true, "product": "code in box game", "ruling": "H349670", "hts": "4901.10.00", "cost_usd": 0.0011722500000000001}
+{"category": "toys_sporting_goods", "assembled": true, "product": "toy disc launcher kit", "ruling": "H350263", "hts": null, "cost_usd": 0.0011505}
+{"category": "other", "assembled": false, "product": "bovine crust leather", "ruling": "H354210", "hts": null, "cost_usd": 0.001155}
+{"category": "glass_stone_ceramics", "assembled": true, "product": "insulating glass panel units", "ruling": "N260108", "hts": "7008", "cost_usd": 0.0011745000000000002}
+{"category": "jewelry_watches", "assembled": true, "product": "piercing earring cartridge", "ruling": "N261965", "hts": "7117.19", "cost_usd": 0.0012045}
+{"category": "jewelry_watches", "assembled": true, "product": "earring stud", "ruling": "N263473", "hts": "7018", "cost_usd": 0.00117975}
+{"category": "paper_printed", "assembled": false, "product": "printable paper sheets", "ruling": "N269409", "hts": "4810", "cost_usd": 0.00124425}
+{"category": "paper_printed", "assembled": false, "product": "lottery tickets", "ruling": "N271676", "hts": "4911", "cost_usd": 0.00103575}
+{"category": "batteries", "assembled": true, "product": "battery packs", "ruling": "N274227", "hts": "8507.50.0000", "cost_usd": 0.0010642499999999999}
+{"category": "chemicals_pharma", "assembled": false, "product": "diagnostic reagent", "ruling": "N279258", "hts": null, "cost_usd": 0.0010530000000000001}
+{"category": "apparel_textiles", "assembled": true, "product": "comforter", "ruling": "N279885", "hts": "6307.90.8985", "cost_usd": 0.0011985000000000001}
+{"category": "furniture", "assembled": true, "product": "decorative pillows", "ruling": "N287930", "hts": "9404.90.1000", "cost_usd": 0.0010065}
+{"category": "jewelry_watches", "assembled": true, "product": "bracelet", "ruling": "N289287", "hts": "7108.13", "cost_usd": 0.0011557499999999999}
+{"category": "paper_printed", "assembled": false, "product": "paper muffin cups", "ruling": "N289995", "hts": "4823.69.0020", "cost_usd": 0.0011819999999999999}
+{"category": "rubber_articles", "assembled": false, "product": "agricultural tire", "ruling": "N291624", "hts": null, "cost_usd": 0.00115125}
+{"category": "bicycles_scooters", "assembled": true, "product": "bicycle", "ruling": "N295820", "hts": "8712", "cost_usd": 0.00114225}
+{"category": "glass_stone_ceramics", "assembled": false, "product": "glass bottles", "ruling": "N301322", "hts": "7010.90.5019", "cost_usd": 0.0012037500000000002}
+{"category": "electrical_apparatus", "assembled": false, "product": "transformer toroids", "ruling": "N302344", "hts": "7225.11", "cost_usd": 0.001185}
+{"category": "solar_pv", "assembled": true, "product": "photovoltaic roof tile", "ruling": "N303846", "hts": "8541.40.6020", "cost_usd": 0.00119475}
+{"category": "paper_printed", "assembled": false, "product": "thermal paper", "ruling": "N306776", "hts": "4811", "cost_usd": 0.00107625}
+{"category": "cables_harnesses_connectors", "assembled": true, "product": "emergency roadside kit", "ruling": "N308750", "hts": "8536.90", "cost_usd": 0.00110175}
+{"category": "vehicle_parts", "assembled": false, "product": "coated ceramic substrate", "ruling": "N310001", "hts": "8421.39.4000", "cost_usd": 0.00119025}
+{"category": "metal_structures", "assembled": true, "product": "garage door", "ruling": "N310357", "hts": "9801.00.10", "cost_usd": 0.0011985}
+{"category": "optical_cameras", "assembled": true, "product": "projection screens", "ruling": "N310942", "hts": "9010", "cost_usd": 0.0012097499999999999}
+{"category": "filters", "assembled": true, "product": "fiberglass filter bag", "ruling": "N317710", "hts": "7019", "cost_usd": 0.0011385}
+{"category": "chemicals_pharma", "assembled": false, "product": "polyacrylamide friction reducers", "ruling": "N318582", "hts": "3403.99", "cost_usd": 0.00131325}
+{"category": "solar_pv", "assembled": true, "product": "photovoltaic generator", "ruling": "N318944", "hts": "8501.31.8010", "cost_usd": 0.0011955000000000002}
+{"category": "toys_sporting_goods", "assembled": false, "product": "trading cards", "ruling": "N322120", "hts": "9504.40", "cost_usd": 0.0012090000000000002}
+{"category": "food_agriculture", "assembled": false, "product": "substrate with seeds", "ruling": "N322814", "hts": "1209.30.0090", "cost_usd": 0.001131}
+{"category": "filters", "assembled": true, "product": "waste filtration system", "ruling": "N323116", "hts": "8421.21.0000", "cost_usd": 0.001167}
+{"category": "batteries", "assembled": true, "product": "vanadium flow battery", "ruling": "N324063", "hts": "8507.80", "cost_usd": 0.00102675}
+{"category": "chemicals_pharma", "assembled": false, "product": "oral solution", "ruling": "N326148", "hts": null, "cost_usd": 0.00104925}
+{"category": "industrial_machinery", "assembled": true, "product": "lawn mower", "ruling": "N326702", "hts": "8433.10", "cost_usd": 0.001107}
+{"category": "glass_stone_ceramics", "assembled": true, "product": "insulating glass unit", "ruling": "N328711", "hts": "7008.00", "cost_usd": 0.0012360000000000001}
+{"category": "batteries", "assembled": true, "product": "battery pack", "ruling": "N329305", "hts": "8507.60", "cost_usd": 0.0010455}
+{"category": "household_goods", "assembled": true, "product": "glass water bottle", "ruling": "N330046", "hts": null, "cost_usd": 0.0012}
+{"category": "chemicals_pharma", "assembled": false, "product": "Mesotrione herbicide", "ruling": "N330321", "hts": null, "cost_usd": 0.0010642499999999999}
+{"category": "chemicals_pharma", "assembled": false, "product": "potting mix", "ruling": "N330582", "hts": "1401", "cost_usd": 0.0010852499999999998}
+{"category": "industrial_machinery", "assembled": true, "product": "gas-powered pressure washer", "ruling": "N330844", "hts": "8424.30", "cost_usd": 0.0012075}
+{"category": "plastic_articles", "assembled": true, "product": "artificial trees", "ruling": "N331459", "hts": "6702", "cost_usd": 0.00122475}
+{"category": "other", "assembled": true, "product": "artificial trees", "ruling": "N332062", "hts": "6702", "cost_usd": 0.00120075}
+{"category": "chemicals_pharma", "assembled": false, "product": "glyphosate monoisopropylamine salt concentrate", "ruling": "N332501", "hts": null, "cost_usd": 0.00116475}
+{"category": "chemicals_pharma", "assembled": false, "product": "cosmetic products", "ruling": "N332526", "hts": null, "cost_usd": 0.0011872500000000002}
+{"category": "chemicals_pharma", "assembled": false, "product": "cosmetics", "ruling": "N332529", "hts": null, "cost_usd": 0.00113625}
+{"category": "chemicals_pharma", "assembled": false, "product": "eyebrow gel and mascara", "ruling": "N332531", "hts": null, "cost_usd": 0.0011527500000000001}
+{"category": "chemicals_pharma", "assembled": false, "product": "lipliner-lipstick", "ruling": "N332532", "hts": null, "cost_usd": 0.001188}
+{"category": "chemicals_pharma", "assembled": false, "product": "duo eyeliner", "ruling": "N332533", "hts": null, "cost_usd": 0.001173}
+{"category": "chemicals_pharma", "assembled": false, "product": "brow pen", "ruling": "N332534", "hts": null, "cost_usd": 0.0011819999999999999}
+{"category": "chemicals_pharma", "assembled": false, "product": "pigment powder", "ruling": "N332620", "hts": null, "cost_usd": 0.00110625}
+{"category": "chemicals_pharma", "assembled": false, "product": "cat deterrent", "ruling": "N332913", "hts": "3808.99.9501", "cost_usd": 0.00110775}
+{"category": "hand_tools_cutlery", "assembled": true, "product": "knives and carvings", "ruling": "N333023", "hts": null, "cost_usd": 0.00119325}
+{"category": "household_goods", "assembled": true, "product": "pencils", "ruling": "N333392", "hts": null, "cost_usd": 0.00125325}
+{"category": "paper_printed", "assembled": true, "product": "paper gift bags", "ruling": "N333537", "hts": null, "cost_usd": 0.0012045}
+{"category": "electrical_apparatus", "assembled": true, "product": "cartridge atomizer", "ruling": "N333598", "hts": null, "cost_usd": 0.00119475}
+{"category": "instruments_meters", "assembled": true, "product": "pressure sensor", "ruling": "N333677", "hts": "9026.20", "cost_usd": 0.0011715}
+{"category": "industrial_machinery", "assembled": true, "product": "wind turbine nacelle", "ruling": "N333849", "hts": null, "cost_usd": 0.0011842500000000002}
+{"category": "chemicals_pharma", "assembled": false, "product": "glue stick", "ruling": "N333916", "hts": null, "cost_usd": 0.00114225}
+{"category": "pcba_electronic_devices", "assembled": true, "product": "integrated circuits", "ruling": "N333934", "hts": null, "cost_usd": 0.0011527500000000001}
+{"category": "paper_printed", "assembled": false, "product": "thermal paper rolls", "ruling": "N333961", "hts": "4811.90.9030", "cost_usd": 0.001233}
+{"category": "paper_printed", "assembled": true, "product": "gift box", "ruling": "N334032", "hts": null, "cost_usd": 0.00118275}
+{"category": "chemicals_pharma", "assembled": false, "product": "soothing powder lotion", "ruling": "N334264", "hts": null, "cost_usd": 0.0010627500000000001}
+{"category": "industrial_machinery", "assembled": true, "product": "scissor lifts", "ruling": "N334276", "hts": null, "cost_usd": 0.0011745}
+{"category": "toys_sporting_goods", "assembled": true, "product": "water ski boot binding", "ruling": "N334283", "hts": null, "cost_usd": 0.00114825}
+{"category": "other", "assembled": false, "product": "epitaxial wafer", "ruling": "N334417", "hts": null, "cost_usd": 0.0011610000000000001}
+{"category": "toys_sporting_goods", "assembled": true, "product": "golf club set", "ruling": "N334756", "hts": null, "cost_usd": 0.00116025}
+{"category": "paper_printed", "assembled": false, "product": "paper window shades", "ruling": "N335200", "hts": "4823.90.8600", "cost_usd": 0.00115125}
+{"category": "furniture", "assembled": true, "product": "venetian blinds", "ruling": "N335242", "hts": null, "cost_usd": 0.00116025}
+{"category": "motorised_tools_small_appliances", "assembled": true, "product": "electric cooking range", "ruling": "N335508", "hts": null, "cost_usd": 0.001233}
+{"category": "chemicals_pharma", "assembled": false, "product": "herbicide", "ruling": "N335685", "hts": null, "cost_usd": 0.001137}
+{"category": "chemicals_pharma", "assembled": false, "product": "imazamox herbicide", "ruling": "N335686", "hts": null, "cost_usd": 0.0011145}
+{"category": "industrial_machinery", "assembled": true, "product": "ingot grower", "ruling": "N335835", "hts": "8486.10.0000", "cost_usd": 0.0011324999999999998}
+{"category": "household_goods", "assembled": true, "product": "cleaning tools", "ruling": "N335964", "hts": "9603.90.8020", "cost_usd": 0.00122025}
+{"category": "vehicles_trailers", "assembled": true, "product": "automated guided vehicle", "ruling": "N336445", "hts": null, "cost_usd": 0.00112275}
+{"category": "chemicals_pharma", "assembled": false, "product": "herbicide", "ruling": "N336454", "hts": null, "cost_usd": 0.0011715}
+{"category": "glass_stone_ceramics", "assembled": true, "product": "glass screen protectors", "ruling": "N336478", "hts": "7005", "cost_usd": 0.0011970000000000001}
+{"category": "glass_stone_ceramics", "assembled": true, "product": "stone mosaics", "ruling": "N336648", "hts": null, "cost_usd": 0.001206}
+{"category": "chemicals_pharma", "assembled": false, "product": "pigment", "ruling": "N336823", "hts": "3204.17", "cost_usd": 0.00120375}
+{"category": "chemicals_pharma", "assembled": true, "product": "glue stick", "ruling": "N337180", "hts": null, "cost_usd": 0.00112125}
+{"category": "machinery_parts", "assembled": true, "product": "thermal modules", "ruling": "N337260", "hts": "8473.30.5100", "cost_usd": 0.00120375}
+{"category": "chemicals_pharma", "assembled": false, "product": "sodium sulfite tablets", "ruling": "N337269", "hts": null, "cost_usd": 0.0011445000000000001}
+{"category": "pcba_electronic_devices", "assembled": true, "product": "silicon carbide mosfet", "ruling": "N337307", "hts": null, "cost_usd": 0.00122925}
+{"category": "industrial_machinery", "assembled": true, "product": "hydraulic excavator", "ruling": "N337356", "hts": null, "cost_usd": 0.00117}
+{"category": "vehicles_trailers", "assembled": true, "product": "automated guided vehicle", "ruling": "N337718", "hts": null, "cost_usd": 0.0011385000000000002}
+{"category": "solar_pv", "assembled": true, "product": "solar panels", "ruling": "N338270", "hts": "8541.43", "cost_usd": 0.001116}
+{"category": "chemicals_pharma", "assembled": false, "product": "polyurethane prepolymer", "ruling": "N338752", "hts": null, "cost_usd": 0.0012007500000000002}
+{"category": "pcba_electronic_devices", "assembled": true, "product": "ultrasonic transducer", "ruling": "N338793", "hts": null, "cost_usd": 0.0011175}
+{"category": "vehicles_trailers", "assembled": true, "product": "garden cart", "ruling": "N338794", "hts": null, "cost_usd": 0.0010845}
+{"category": "electrical_apparatus", "assembled": true, "product": "electric range", "ruling": "N338935", "hts": null, "cost_usd": 0.0011805}
+{"category": "paper_printed", "assembled": false, "product": "printed gift-wrapping paper", "ruling": "N339156", "hts": null, "cost_usd": 0.0011250000000000001}
+{"category": "pcba_electronic_devices", "assembled": true, "product": "LED pre-laminated inlay", "ruling": "N339699", "hts": null, "cost_usd": 0.0011925}
+{"category": "electrical_apparatus", "assembled": true, "product": "cartridge atomizers", "ruling": "N339798", "hts": null, "cost_usd": 0.001188}
+{"category": "glass_stone_ceramics", "assembled": true, "product": "framed mirror", "ruling": "N339907", "hts": "7009.92.50", "cost_usd": 0.0011715}
+{"category": "metal_structures", "assembled": true, "product": "freestanding retractable canopy", "ruling": "N339969", "hts": "7308", "cost_usd": 0.0012067500000000001}
+{"category": "industrial_machinery", "assembled": true, "product": "automated guided vehicle", "ruling": "N340047", "hts": null, "cost_usd": 0.0011872500000000002}
+{"category": "chemicals_pharma", "assembled": false, "product": "tire sealant", "ruling": "N340242", "hts": null, "cost_usd": 0.00120225}
+{"category": "industrial_machinery", "assembled": true, "product": "road roller", "ruling": "N340482", "hts": null, "cost_usd": 0.00117375}
+{"category": "toys_sporting_goods", "assembled": false, "product": "putter heads", "ruling": "N340536", "hts": null, "cost_usd": 0.001302}
+{"category": "instruments_meters", "assembled": true, "product": "metal detector conveyor system", "ruling": "N340920", "hts": "8531.80.9051", "cost_usd": 0.0011205000000000002}
+{"category": "chemicals_pharma", "assembled": false, "product": "titanium dioxide pigment", "ruling": "N341165", "hts": "3206.11", "cost_usd": 0.0011835}
+{"category": "electrical_apparatus", "assembled": true, "product": "heating element", "ruling": "N341204", "hts": null, "cost_usd": 0.001179}
+{"category": "vehicles_trailers", "assembled": true, "product": "automated guided vehicle", "ruling": "N341251", "hts": null, "cost_usd": 0.0011265000000000001}
+{"category": "vehicle_parts", "assembled": true, "product": "steering wheel cover", "ruling": "N341518", "hts": null, "cost_usd": 0.001131}
+{"category": "chemicals_pharma", "assembled": false, "product": "cathode material", "ruling": "N341585", "hts": null, "cost_usd": 0.00107475}
+{"category": "instruments_meters", "assembled": true, "product": "heat sensor", "ruling": "N341875", "hts": null, "cost_usd": 0.00116475}
+{"category": "paper_printed", "assembled": false, "product": "paper napkins", "ruling": "N341898", "hts": null, "cost_usd": 0.00104775}
+{"category": "household_goods", "assembled": true, "product": "dental floss", "ruling": "N342074", "hts": null, "cost_usd": 0.00118875}
+{"category": "industrial_machinery", "assembled": true, "product": "motor grader", "ruling": "N342125", "hts": null, "cost_usd": 0.001179}
+{"category": "solar_pv", "assembled": true, "product": "solar panels", "ruling": "N342274", "hts": "8541.43", "cost_usd": 0.00115575}
+{"category": "chemicals_pharma", "assembled": false, "product": "concrete admixture", "ruling": "N342276", "hts": "3824.40.5000", "cost_usd": 0.00127875}
+{"category": "optical_cameras", "assembled": false, "product": "riflescope lens", "ruling": "N342427", "hts": null, "cost_usd": 0.0011070000000000001}
+{"category": "paper_printed", "assembled": false, "product": "adhesive labelstock", "ruling": "N342477", "hts": "4802", "cost_usd": 0.0011497500000000002}
+{"category": "machinery_parts", "assembled": true, "product": "faucet", "ruling": "N342480", "hts": null, "cost_usd": 0.00119775}
+{"category": "batteries", "assembled": true, "product": "vanadium flow battery", "ruling": "N342506", "hts": null, "cost_usd": 0.0011715}
+{"category": "chemicals_pharma", "assembled": false, "product": "cathode material", "ruling": "N342514", "hts": null, "cost_usd": 0.0011070000000000001}
+{"category": "chemicals_pharma", "assembled": false, "product": "body spray mists", "ruling": "N342740", "hts": null, "cost_usd": 0.0010904999999999999}
+{"category": "household_goods", "assembled": true, "product": "car air freshener diffuser", "ruling": "N342889", "hts": null, "cost_usd": 0.00119775}
+{"category": "vehicle_parts", "assembled": true, "product": "automotive windshield", "ruling": "N343290", "hts": "8708.22", "cost_usd": 0.0011685}
+{"category": "industrial_machinery", "assembled": true, "product": "automated guided vehicle", "ruling": "N343416", "hts": null, "cost_usd": 0.0011519999999999998}
+{"category": "paper_printed", "assembled": false, "product": "paper napkins", "ruling": "N343481", "hts": null, "cost_usd": 0.001098}
+{"category": "pcba_electronic_devices", "assembled": true, "product": "power transistor", "ruling": "N343494", "hts": null, "cost_usd": 0.0011745000000000002}
+{"category": "apparel_textiles", "assembled": true, "product": "ratchet tie-downs", "ruling": "N343501", "hts": null, "cost_usd": 0.0012465}
+{"category": "toys_sporting_goods", "assembled": true, "product": "plush dinosaur toy", "ruling": "N343777", "hts": null, "cost_usd": 0.00117525}
+{"category": "led_lights", "assembled": true, "product": "encapsulated LED package", "ruling": "N343880", "hts": null, "cost_usd": 0.001203}
+{"category": "pcba_electronic_devices", "assembled": true, "product": "transistors", "ruling": "N344105", "hts": null, "cost_usd": 0.0011377499999999999}
+{"category": "bicycles_scooters", "assembled": true, "product": "ckd bicycles", "ruling": "N344425", "hts": "8712.00.15", "cost_usd": 0.00101775}
+{"category": "optical_cameras", "assembled": true, "product": "smart camera", "ruling": "N344595", "hts": null, "cost_usd": 0.0011767499999999998}
+{"category": "paper_printed", "assembled": false, "product": "paper napkins", "ruling": "N344611", "hts": null, "cost_usd": 0.00114525}
+{"category": "paper_printed", "assembled": false, "product": "toilet paper", "ruling": "N344612", "hts": null, "cost_usd": 0.00109725}
+{"category": "paper_printed", "assembled": false, "product": "paper napkins", "ruling": "N344617", "hts": null, "cost_usd": 0.0011595}
+{"category": "paper_printed", "assembled": false, "product": "toilet paper", "ruling": "N344619", "hts": null, "cost_usd": 0.00110775}
+{"category": "paper_printed", "assembled": false, "product": "paper towels", "ruling": "N344620", "hts": null, "cost_usd": 0.00113175}
+{"category": "paper_printed", "assembled": false, "product": "facial tissues", "ruling": "N344621", "hts": null, "cost_usd": 0.0010515}
+{"category": "bicycles_scooters", "assembled": true, "product": "e-scooter", "ruling": "N344694", "hts": "8711.60.0090", "cost_usd": 0.00121875}
+{"category": "apparel_textiles", "assembled": true, "product": "furskin rug", "ruling": "N344773", "hts": "4102", "cost_usd": 0.0012112499999999999}
+{"category": "vehicles_trailers", "assembled": true, "product": "electric all-terrain vehicle", "ruling": "N344843", "hts": null, "cost_usd": 0.001194}
+{"category": "plastic_articles", "assembled": false, "product": "polyurethane prepolymer", "ruling": "N344847", "hts": null, "cost_usd": 0.0011955}
+{"category": "paper_printed", "assembled": false, "product": "paper napkins", "ruling": "N344916", "hts": null, "cost_usd": 0.0011385}
+{"category": "paper_printed", "assembled": false, "product": "paper hand towels", "ruling": "N344918", "hts": null, "cost_usd": 0.00104625}
+{"category": "chemicals_pharma", "assembled": false, "product": "essential oil blend", "ruling": "N344934", "hts": "3304.99.5000", "cost_usd": 0.0011865}
+{"category": "bicycles_scooters", "assembled": true, "product": "belt-driven bicycles", "ruling": "N345038", "hts": null, "cost_usd": 0.001065}
+{"category": "led_lights", "assembled": true, "product": "flush mount ceiling light", "ruling": "N345085", "hts": null, "cost_usd": 0.0011655}
+{"category": "paper_printed", "assembled": false, "product": "dental bibs", "ruling": "N345195", "hts": null, "cost_usd": 0.00123075}
+{"category": "paper_printed", "assembled": false, "product": "paper napkins", "ruling": "N345205", "hts": null, "cost_usd": 0.00107325}
+{"category": "paper_printed", "assembled": false, "product": "toilet tissue", "ruling": "N345206", "hts": null, "cost_usd": 0.00103875}
+{"category": "vehicles_trailers", "assembled": true, "product": "yacht", "ruling": "N345287", "hts": null, "cost_usd": 0.0011985}
+{"category": "paper_printed", "assembled": false, "product": "paper napkins", "ruling": "N345383", "hts": null, "cost_usd": 0.00110925}
+{"category": "paper_printed", "assembled": false, "product": "toilet tissue", "ruling": "N345384", "hts": null, "cost_usd": 0.0011025}
+{"category": "paper_printed", "assembled": false, "product": "paper hand towels", "ruling": "N345385", "hts": null, "cost_usd": 0.0010635}
+{"category": "paper_printed", "assembled": false, "product": "facial tissues", "ruling": "N345386", "hts": null, "cost_usd": 0.001089}
+{"category": "chemicals_pharma", "assembled": false, "product": "silicon wafers", "ruling": "N345524", "hts": null, "cost_usd": 0.0011887500000000001}
+{"category": "pcba_electronic_devices", "assembled": true, "product": "integrated circuit", "ruling": "N345881", "hts": null, "cost_usd": 0.0011550000000000002}
+{"category": "paper_printed", "assembled": false, "product": "exam table paper", "ruling": "N345915", "hts": null, "cost_usd": 0.00107175}
+{"category": "household_goods", "assembled": true, "product": "ballpoint pens", "ruling": "N345964", "hts": null, "cost_usd": 0.00114825}
+{"category": "paper_printed", "assembled": false, "product": "labels and perforated sheets", "ruling": "N345972", "hts": null, "cost_usd": 0.00121425}
+{"category": "industrial_machinery", "assembled": true, "product": "gas heaters", "ruling": "N345976", "hts": null, "cost_usd": 0.00116175}
+{"category": "household_goods", "assembled": true, "product": "vent free gas logs", "ruling": "N346005", "hts": null, "cost_usd": 0.0011925000000000002}
+{"category": "jewelry_watches", "assembled": true, "product": "gold gemstone ring", "ruling": "N346162", "hts": null, "cost_usd": 0.000999}
+{"category": "glass_stone_ceramics", "assembled": false, "product": "glass screen protector", "ruling": "N346272", "hts": "7005", "cost_usd": 0.0011639999999999999}
+{"category": "toys_sporting_goods", "assembled": false, "product": "golf club heads", "ruling": "N346303", "hts": null, "cost_usd": 0.001197}
+{"category": "metal_hardware_fittings", "assembled": true, "product": "gate latches", "ruling": "N346575", "hts": null, "cost_usd": 0.00122025}
+{"category": "vehicle_parts", "assembled": true, "product": "steering wheel cover", "ruling": "N346802", "hts": null, "cost_usd": 0.001173}
+{"category": "industrial_machinery", "assembled": true, "product": "industrial robot assembly", "ruling": "N346867", "hts": null, "cost_usd": 0.0011745}
+{"category": "paper_printed", "assembled": false, "product": "paper towels", "ruling": "N346902", "hts": null, "cost_usd": 0.0011145}
+{"category": "paper_printed", "assembled": false, "product": "paper napkins", "ruling": "N346903", "hts": null, "cost_usd": 0.0011265}
+{"category": "paper_printed", "assembled": false, "product": "facial tissue", "ruling": "N346904", "hts": null, "cost_usd": 0.0011129999999999998}
+{"category": "paper_printed", "assembled": false, "product": "toilet tissue", "ruling": "N346906", "hts": null, "cost_usd": 0.00111075}
+{"category": "pcba_electronic_devices", "assembled": true, "product": "RF front-end modules", "ruling": "N346922", "hts": null, "cost_usd": 0.0011955000000000002}
+{"category": "food_agriculture", "assembled": false, "product": "horse semen", "ruling": "N347004", "hts": "0511.99.4040", "cost_usd": 0.001062}
+{"category": "jewelry_watches", "assembled": true, "product": "gold gemstone ring", "ruling": "N347011", "hts": null, "cost_usd": 0.00114975}
+{"category": "paper_printed", "assembled": false, "product": "paper medical drapes", "ruling": "N347059", "hts": null, "cost_usd": 0.00111825}
+{"category": "chemicals_pharma", "assembled": false, "product": "dicamba dga herbicide", "ruling": "N347136", "hts": null, "cost_usd": 0.00113325}
+{"category": "chemicals_pharma", "assembled": false, "product": "herbicide", "ruling": "N347137", "hts": null, "cost_usd": 0.0011595}
+{"category": "toys_sporting_goods", "assembled": true, "product": "plush toy", "ruling": "N347170", "hts": null, "cost_usd": 0.0010905}
+{"category": "batteries", "assembled": true, "product": "lithium-ion pouch cell", "ruling": "N347172", "hts": null, "cost_usd": 0.0011887500000000001}
+{"category": "household_goods", "assembled": true, "product": "pencils", "ruling": "N347184", "hts": null, "cost_usd": 0.001068}
+{"category": "paper_printed", "assembled": true, "product": "file folders", "ruling": "N347187", "hts": null, "cost_usd": 0.00114225}
+{"category": "paper_printed", "assembled": true, "product": "hanging file folder", "ruling": "N347189", "hts": null, "cost_usd": 0.001077}
+{"category": "batteries", "assembled": true, "product": "lithium-ion battery pack", "ruling": "N347193", "hts": null, "cost_usd": 0.00114375}
+{"category": "chemicals_pharma", "assembled": false, "product": "bar soap", "ruling": "N347233", "hts": null, "cost_usd": 0.001074}
+{"category": "bicycles_scooters", "assembled": false, "product": "bicycle rims", "ruling": "N347253", "hts": "8714.92.10", "cost_usd": 0.0012045}
+{"category": "industrial_machinery", "assembled": true, "product": "hydraulic floor jacks", "ruling": "N347256", "hts": null, "cost_usd": 0.0011519999999999998}
+{"category": "industrial_machinery", "assembled": true, "product": "gas furnaces", "ruling": "N347270", "hts": null, "cost_usd": 0.00120225}
+{"category": "industrial_machinery", "assembled": true, "product": "gas furnaces", "ruling": "N347271", "hts": null, "cost_usd": 0.00120225}
+{"category": "industrial_machinery", "assembled": true, "product": "gas furnace", "ruling": "N347272", "hts": null, "cost_usd": 0.00114075}
+{"category": "electrical_apparatus", "assembled": true, "product": "diodes", "ruling": "N347292", "hts": null, "cost_usd": 0.0012082500000000001}
+{"category": "household_goods", "assembled": false, "product": "cat litter", "ruling": "N347305", "hts": "6815", "cost_usd": 0.00106725}
+{"category": "cables_harnesses_connectors", "assembled": true, "product": "electrical couplers", "ruling": "N347638", "hts": null, "cost_usd": 0.00119175}
+{"category": "paper_printed", "assembled": true, "product": "hanging file folder", "ruling": "N347645", "hts": null, "cost_usd": 0.00116625}
+{"category": "paper_printed", "assembled": true, "product": "folders", "ruling": "N347648", "hts": null, "cost_usd": 0.00112725}
+{"category": "paper_printed", "assembled": false, "product": "toilet tissue", "ruling": "N347719", "hts": null, "cost_usd": 0.0011025}
+{"category": "paper_printed", "assembled": false, "product": "facial tissue", "ruling": "N347720", "hts": null, "cost_usd": 0.001119}
+{"category": "paper_printed", "assembled": true, "product": "greeting card", "ruling": "N347806", "hts": null, "cost_usd": 0.0011805}
+{"category": "chemicals_pharma", "assembled": false, "product": "anode active material", "ruling": "N347808", "hts": null, "cost_usd": 0.00113775}
+{"category": "machinery_parts", "assembled": true, "product": "faucets", "ruling": "N347840", "hts": null, "cost_usd": 0.0011647500000000002}
+{"category": "pcba_electronic_devices", "assembled": true, "product": "integrated circuit", "ruling": "N347890", "hts": null, "cost_usd": 0.0012135000000000002}
+{"category": "paper_printed", "assembled": false, "product": "hand towels", "ruling": "N347986", "hts": null, "cost_usd": 0.0010965}
+{"category": "paper_printed", "assembled": false, "product": "paper napkins", "ruling": "N347987", "hts": null, "cost_usd": 0.0011294999999999999}
+{"category": "paper_printed", "assembled": false, "product": "toilet tissue", "ruling": "N347988", "hts": null, "cost_usd": 0.00111375}
+{"category": "household_goods", "assembled": true, "product": "bulletin boards", "ruling": "N348193", "hts": null, "cost_usd": 0.0011805000000000001}
+{"category": "footwear", "assembled": true, "product": "sneakers", "ruling": "N348196", "hts": null, "cost_usd": 0.00107025}
+{"category": "paper_printed", "assembled": false, "product": "paper souffle cups", "ruling": "N348208", "hts": "4823.69.0020", "cost_usd": 0.00109575}
+{"category": "metal_structures", "assembled": true, "product": "jack stand", "ruling": "N348221", "hts": null, "cost_usd": 0.00118275}
+{"category": "paper_printed", "assembled": false, "product": "facial tissue", "ruling": "N348226", "hts": null, "cost_usd": 0.0011032499999999998}
+{"category": "paper_printed", "assembled": false, "product": "paper towels", "ruling": "N348227", "hts": null, "cost_usd": 0.0012255}
+{"category": "paper_printed", "assembled": false, "product": "paper napkins", "ruling": "N348228", "hts": null, "cost_usd": 0.0010995}
+{"category": "paper_printed", "assembled": false, "product": "toilet tissue", "ruling": "N348229", "hts": null, "cost_usd": 0.001101}
+{"category": "household_goods", "assembled": true, "product": "pencils", "ruling": "N348264", "hts": null, "cost_usd": 0.0010755}
+{"category": "toys_sporting_goods", "assembled": true, "product": "golf balls", "ruling": "N348301", "hts": null, "cost_usd": 0.00115125}
+{"category": "paper_printed", "assembled": false, "product": "paper plates", "ruling": "N348329", "hts": null, "cost_usd": 0.0010425}
+{"category": "chemicals_pharma", "assembled": false, "product": "magnesium aluminate spinels", "ruling": "N348376", "hts": null, "cost_usd": 0.0011707500000000001}
+{"category": "household_goods", "assembled": true, "product": "cosmetic brush", "ruling": "N348403", "hts": null, "cost_usd": 0.001194}
+{"category": "household_goods", "assembled": true, "product": "cosmetic brush", "ruling": "N348411", "hts": null, "cost_usd": 0.00119625}
+{"category": "metal_hardware_fittings", "assembled": true, "product": "ratchet tie down straps", "ruling": "N348592", "hts": null, "cost_usd": 0.0012045}
+{"category": "vehicles_trailers", "assembled": true, "product": "Utility Terrain Vehicles", "ruling": "N348598", "hts": null, "cost_usd": 0.0011849999999999999}
+{"category": "paper_printed", "assembled": false, "product": "toilet tissue", "ruling": "N348694", "hts": null, "cost_usd": 0.0011099999999999999}
+{"category": "paper_printed", "assembled": false, "product": "facial tissue", "ruling": "N348696", "hts": null, "cost_usd": 0.0011017499999999999}
+{"category": "paper_printed", "assembled": false, "product": "paper exam gowns", "ruling": "N348805", "hts": null, "cost_usd": 0.00112125}
+{"category": "toys_sporting_goods", "assembled": true, "product": "plush toys", "ruling": "N348808", "hts": null, "cost_usd": 0.00118425}
+{"category": "paper_printed", "assembled": false, "product": "paper towels", "ruling": "N348872", "hts": null, "cost_usd": 0.0010837499999999999}
+{"category": "paper_printed", "assembled": false, "product": "toilet seat covers", "ruling": "N348873", "hts": null, "cost_usd": 0.00111225}
+{"category": "paper_printed", "assembled": false, "product": "exam table paper", "ruling": "N348875", "hts": null, "cost_usd": 0.00110775}
+{"category": "industrial_machinery", "assembled": true, "product": "heat pump units", "ruling": "N348913", "hts": null, "cost_usd": 0.00114375}
+{"category": "vehicles_trailers", "assembled": true, "product": "off-road vehicle", "ruling": "N348937", "hts": null, "cost_usd": 0.0012015}
+{"category": "household_goods", "assembled": true, "product": "sponge paint applicator", "ruling": "N348947", "hts": null, "cost_usd": 0.00114825}
+{"category": "vehicles_trailers", "assembled": true, "product": "mini dirt bike", "ruling": "N349019", "hts": null, "cost_usd": 0.0012277500000000001}
+{"category": "led_lights", "assembled": true, "product": "salt touch lamps", "ruling": "N349092", "hts": null, "cost_usd": 0.0011805}
+{"category": "industrial_machinery", "assembled": true, "product": "injection molding machine", "ruling": "N349312", "hts": null, "cost_usd": 0.00119475}
+{"category": "machinery_parts", "assembled": true, "product": "oven latch assembly", "ruling": "N349360", "hts": null, "cost_usd": 0.001191}
+{"category": "machinery_parts", "assembled": true, "product": "front mount latch", "ruling": "N349389", "hts": null, "cost_usd": 0.00116025}
+{"category": "paper_printed", "assembled": false, "product": "dispenser napkins", "ruling": "N349533", "hts": null, "cost_usd": 0.00112125}
+{"category": "paper_printed", "assembled": false, "product": "paper towels", "ruling": "N349534", "hts": null, "cost_usd": 0.0011294999999999999}
+{"category": "paper_printed", "assembled": false, "product": "toilet tissue", "ruling": "N349536", "hts": null, "cost_usd": 0.0011145}
+{"category": "household_goods", "assembled": true, "product": "oral care swabs", "ruling": "N349793", "hts": null, "cost_usd": 0.0011362499999999999}
+{"category": "other", "assembled": true, "product": "human hair extensions", "ruling": "N349850", "hts": null, "cost_usd": 0.00112275}
+{"category": "toys_sporting_goods", "assembled": true, "product": "bicycle helmet", "ruling": "N349972", "hts": null, "cost_usd": 0.00119625}
+{"category": "vehicles_trailers", "assembled": true, "product": "aircraft", "ruling": "N350011", "hts": null, "cost_usd": 0.0011587499999999998}
+{"category": "chemicals_pharma", "assembled": false, "product": "body spray mist", "ruling": "N350030", "hts": null, "cost_usd": 0.001101}
+{"category": "led_lights", "assembled": true, "product": "oven lamps", "ruling": "N350050", "hts": null, "cost_usd": 0.0012075}
+{"category": "machinery_parts", "assembled": true, "product": "oven latch assembly", "ruling": "N350059", "hts": null, "cost_usd": 0.00109425}
+{"category": "household_goods", "assembled": true, "product": "aluminum pen", "ruling": "N350091", "hts": null, "cost_usd": 0.001068}
+{"category": "household_goods", "assembled": true, "product": "pens", "ruling": "N350095", "hts": null, "cost_usd": 0.00107625}
+{"category": "plastic_articles", "assembled": false, "product": "vinyl record", "ruling": "N350112", "hts": null, "cost_usd": 0.0011407499999999998}
+{"category": "toys_sporting_goods", "assembled": true, "product": "golf club heads", "ruling": "N350113", "hts": null, "cost_usd": 0.001176}
+{"category": "industrial_machinery", "assembled": true, "product": "lawn mower", "ruling": "N350133", "hts": "8433.11.0050", "cost_usd": 0.0012}
+{"category": "electrical_apparatus", "assembled": true, "product": "EV fuse", "ruling": "N350176", "hts": null, "cost_usd": 0.00111}
+{"category": "toys_sporting_goods", "assembled": true, "product": "drawing machine kit", "ruling": "N350221", "hts": null, "cost_usd": 0.00118425}
+{"category": "toys_sporting_goods", "assembled": true, "product": "animator build kit", "ruling": "N350222", "hts": null, "cost_usd": 0.0012015}
+{"category": "machinery_parts", "assembled": true, "product": "mode shift actuator", "ruling": "N350285", "hts": null, "cost_usd": 0.0012052500000000002}
+{"category": "toys_sporting_goods", "assembled": true, "product": "robot kit", "ruling": "N350297", "hts": null, "cost_usd": 0.00119025}
+{"category": "toys_sporting_goods", "assembled": true, "product": "infrared turret hack pack", "ruling": "N350298", "hts": null, "cost_usd": 0.0012000000000000001}
+{"category": "toys_sporting_goods", "assembled": true, "product": "sand garden kit", "ruling": "N350299", "hts": null, "cost_usd": 0.001194}
+{"category": "toys_sporting_goods", "assembled": true, "product": "label maker kit", "ruling": "N350301", "hts": null, "cost_usd": 0.0012389999999999999}
+{"category": "bicycles_scooters", "assembled": true, "product": "e-bike", "ruling": "N350306", "hts": null, "cost_usd": 0.001173}
+{"category": "chemicals_pharma", "assembled": false, "product": "facial cleanser", "ruling": "N350334", "hts": null, "cost_usd": 0.00114225}
+{"category": "paper_printed", "assembled": false, "product": "food wrapping paper", "ruling": "N350339", "hts": null, "cost_usd": 0.001107}
+{"category": "household_goods", "assembled": true, "product": "aluminum mop poles", "ruling": "N350342", "hts": null, "cost_usd": 0.0011055}
+{"category": "paper_printed", "assembled": false, "product": "food wrapping paper", "ruling": "N350388", "hts": null, "cost_usd": 0.00114525}
+{"category": "motorised_tools_small_appliances", "assembled": true, "product": "microwave hood combination", "ruling": "N350470", "hts": null, "cost_usd": 0.0011925}
+{"category": "household_goods", "assembled": true, "product": "venetian blinds", "ruling": "N350480", "hts": null, "cost_usd": 0.001167}
+{"category": "paper_printed", "assembled": false, "product": "paper napkins", "ruling": "N350501", "hts": null, "cost_usd": 0.00112425}
+{"category": "paper_printed", "assembled": false, "product": "paper towels", "ruling": "N350506", "hts": null, "cost_usd": 0.0011145}
+{"category": "paper_printed", "assembled": false, "product": "toilet tissue", "ruling": "N350507", "hts": null, "cost_usd": 0.0010995}
+{"category": "paper_printed", "assembled": false, "product": "paper napkins", "ruling": "N350513", "hts": null, "cost_usd": 0.001125}
+{"category": "paper_printed", "assembled": false, "product": "toilet seat covers", "ruling": "N350516", "hts": null, "cost_usd": 0.001086}
+{"category": "chemicals_pharma", "assembled": false, "product": "liquid hand soap", "ruling": "N350520", "hts": null, "cost_usd": 0.0011459999999999999}
+{"category": "chemicals_pharma", "assembled": false, "product": "scented body wash", "ruling": "N350522", "hts": null, "cost_usd": 0.0011872500000000002}
+{"category": "bicycles_scooters", "assembled": true, "product": "mountain bicycle", "ruling": "N350528", "hts": null, "cost_usd": 0.00110625}
+{"category": "chemicals_pharma", "assembled": false, "product": "pet wipes", "ruling": "N350571", "hts": null, "cost_usd": 0.00109275}
+{"category": "optical_cameras", "assembled": true, "product": "carrier plate assembly", "ruling": "N350680", "hts": null, "cost_usd": 0.00111075}
+{"category": "pcba_electronic_devices", "assembled": true, "product": "integrated circuit", "ruling": "N350711", "hts": null, "cost_usd": 0.0011745000000000002}
+{"category": "paper_printed", "assembled": false, "product": "napkins", "ruling": "N350784", "hts": null, "cost_usd": 0.001125}
+{"category": "optical_cameras", "assembled": false, "product": "optical window", "ruling": "N350838", "hts": null, "cost_usd": 0.0011055}
+{"category": "household_goods", "assembled": true, "product": "absorbent puppy pads", "ruling": "N350849", "hts": null, "cost_usd": 0.001113}
+{"category": "filters", "assembled": true, "product": "diesel fuel filter", "ruling": "N350865", "hts": null, "cost_usd": 0.0011745}
+{"category": "electrical_apparatus", "assembled": true, "product": "vaporizer heating subassembly", "ruling": "N350867", "hts": null, "cost_usd": 0.00113475}
+{"category": "filters", "assembled": true, "product": "cartridge filter", "ruling": "N350920", "hts": null, "cost_usd": 0.00116475}
+{"category": "batteries", "assembled": true, "product": "battery cell", "ruling": "N350953", "hts": null, "cost_usd": 0.00115125}
+{"category": "other", "assembled": true, "product": "rifle stocks", "ruling": "N350985", "hts": null, "cost_usd": 0.0011805000000000001}
+{"category": "bicycles_scooters", "assembled": true, "product": "e-bike", "ruling": "N351057", "hts": null, "cost_usd": 0.00115725}
+{"category": "paper_printed", "assembled": false, "product": "facial tissue", "ruling": "N351064", "hts": null, "cost_usd": 0.00111075}
+{"category": "paper_printed", "assembled": false, "product": "toilet tissue", "ruling": "N351065", "hts": null, "cost_usd": 0.0011129999999999998}
+{"category": "paper_printed", "assembled": false, "product": "pocket tissue", "ruling": "N351066", "hts": null, "cost_usd": 0.001098}
+{"category": "led_lights", "assembled": true, "product": "oven lights", "ruling": "N351073", "hts": null, "cost_usd": 0.0012239999999999998}
+{"category": "filters", "assembled": true, "product": "automotive air filter", "ruling": "N351081", "hts": null, "cost_usd": 0.001155}
+{"category": "filters", "assembled": true, "product": "automotive air conditioning filter", "ruling": "N351082", "hts": null, "cost_usd": 0.001143}
+{"category": "electrical_apparatus", "assembled": true, "product": "door switch", "ruling": "N351097", "hts": null, "cost_usd": 0.0010935}
+{"category": "metal_structures", "assembled": true, "product": "automotive jack stands", "ruling": "N351174", "hts": "7326", "cost_usd": 0.001224}
+{"category": "vehicles_trailers", "assembled": true, "product": "utility task vehicle", "ruling": "N351251", "hts": null, "cost_usd": 0.0012067500000000001}
+{"category": "batteries", "assembled": true, "product": "battery cell", "ruling": "N351263", "hts": null, "cost_usd": 0.00118125}
+{"category": "chemicals_pharma", "assembled": false, "product": "face serum oil", "ruling": "N351306", "hts": null, "cost_usd": 0.0011415000000000002}
+{"category": "filters", "assembled": true, "product": "water and blood filters", "ruling": "N351307", "hts": null, "cost_usd": 0.001155}
+{"category": "glass_stone_ceramics", "assembled": false, "product": "quartz surface slabs", "ruling": "N351330", "hts": null, "cost_usd": 0.0011279999999999999}
+{"category": "metal_hardware_fittings", "assembled": true, "product": "entry door lock", "ruling": "N351368", "hts": "8302", "cost_usd": 0.00106875}
+{"category": "chemicals_pharma", "assembled": false, "product": "poured candles", "ruling": "N351477", "hts": null, "cost_usd": 0.0011790000000000001}
+{"category": "machinery_parts", "assembled": true, "product": "thermal print head", "ruling": "N351484", "hts": null, "cost_usd": 0.001182}
+{"category": "chemicals_pharma", "assembled": false, "product": "lip balm", "ruling": "N351523", "hts": null, "cost_usd": 0.00113925}
+{"category": "chemicals_pharma", "assembled": false, "product": "body butter", "ruling": "N351524", "hts": null, "cost_usd": 0.00116625}
+{"category": "household_goods", "assembled": false, "product": "baby wipes", "ruling": "N351552", "hts": null, "cost_usd": 0.00099525}
+{"category": "industrial_machinery", "assembled": true, "product": "hydraulic bottle jack", "ruling": "N351580", "hts": null, "cost_usd": 0.0011415000000000002}
+{"category": "household_goods", "assembled": true, "product": "dryer vent cleaning kit", "ruling": "N351582", "hts": "9603", "cost_usd": 0.001206}
+{"category": "toys_sporting_goods", "assembled": true, "product": "motorcycle helmets", "ruling": "N351672", "hts": null, "cost_usd": 0.00114825}
+{"category": "metal_hardware_fittings", "assembled": true, "product": "ratchet tie downs", "ruling": "N351767", "hts": null, "cost_usd": 0.001206}
+{"category": "filters", "assembled": true, "product": "automotive air filters", "ruling": "N351807", "hts": null, "cost_usd": 0.001137}
+{"category": "filters", "assembled": true, "product": "cabin air filters", "ruling": "N351809", "hts": null, "cost_usd": 0.0011677500000000002}
+{"category": "industrial_machinery", "assembled": true, "product": "heat pump", "ruling": "N351860", "hts": null, "cost_usd": 0.001185}
+{"category": "instruments_meters", "assembled": true, "product": "pressure sensors", "ruling": "N351865", "hts": null, "cost_usd": 0.00112425}
+{"category": "industrial_machinery", "assembled": true, "product": "heat pump", "ruling": "N351901", "hts": null, "cost_usd": 0.00113625}
+{"category": "chemicals_pharma", "assembled": false, "product": "cationic guar gum", "ruling": "N351979", "hts": null, "cost_usd": 0.0011580000000000002}
+{"category": "paper_printed", "assembled": false, "product": "self-copy paper", "ruling": "N352059", "hts": "4811", "cost_usd": 0.00120225}
+{"category": "industrial_machinery", "assembled": true, "product": "telehandler", "ruling": "N352101", "hts": null, "cost_usd": 0.00119325}
+{"category": "household_goods", "assembled": true, "product": "tiara headband", "ruling": "N352163", "hts": "9503", "cost_usd": 0.001215}
+{"category": "household_goods", "assembled": false, "product": "flushable wet wipes", "ruling": "N352216", "hts": null, "cost_usd": 0.00117975}
+{"category": "chemicals_pharma", "assembled": false, "product": "naphthenic acid", "ruling": "N352217", "hts": null, "cost_usd": 0.0011362499999999999}
+{"category": "chemicals_pharma", "assembled": false, "product": "nail polish collection", "ruling": "N352314", "hts": null, "cost_usd": 0.00114375}
+{"category": "industrial_machinery", "assembled": true, "product": "outdoor HVAC unit", "ruling": "N352477", "hts": null, "cost_usd": 0.00117}
+{"category": "filters", "assembled": true, "product": "automotive air conditioning filters", "ruling": "N352485", "hts": null, "cost_usd": 0.00116775}
+{"category": "machinery_parts", "assembled": true, "product": "faucet", "ruling": "N352495", "hts": null, "cost_usd": 0.001101}
+{"category": "pcba_electronic_devices", "assembled": false, "product": "integrated circuit", "ruling": "N352561", "hts": null, "cost_usd": 0.0011955000000000002}
+{"category": "filters", "assembled": true, "product": "automotive air filters", "ruling": "N352562", "hts": null, "cost_usd": 0.00116775}
+{"category": "filters", "assembled": true, "product": "automotive air filters", "ruling": "N352564", "hts": null, "cost_usd": 0.00113325}
+{"category": "apparel_textiles", "assembled": true, "product": "ratchet tie downs", "ruling": "N352594", "hts": null, "cost_usd": 0.00119775}
+{"category": "filters", "assembled": true, "product": "automotive air filters", "ruling": "N352595", "hts": null, "cost_usd": 0.0011684999999999998}
+{"category": "jewelry_watches", "assembled": true, "product": "earrings", "ruling": "N352635", "hts": "7117.19.9000", "cost_usd": 0.00113475}
+{"category": "filters", "assembled": true, "product": "filter cartridges", "ruling": "N352638", "hts": null, "cost_usd": 0.00114075}
+{"category": "household_goods", "assembled": false, "product": "sponge sheets", "ruling": "N352713", "hts": null, "cost_usd": 0.0011459999999999999}
+{"category": "filters", "assembled": true, "product": "automotive air filter", "ruling": "N352717", "hts": null, "cost_usd": 0.001173}
+{"category": "motorised_tools_small_appliances", "assembled": true, "product": "water dispenser", "ruling": "N352734", "hts": null, "cost_usd": 0.0011242499999999998}
+{"category": "industrial_machinery", "assembled": true, "product": "rooftop air conditioning units", "ruling": "N352739", "hts": null, "cost_usd": 0.001206}
+{"category": "industrial_machinery", "assembled": true, "product": "rooftop air conditioning units", "ruling": "N352741", "hts": null, "cost_usd": 0.0012082500000000001}
+{"category": "filters", "assembled": true, "product": "automotive air filters", "ruling": "N352765", "hts": null, "cost_usd": 0.0011625}
+{"category": "filters", "assembled": true, "product": "automotive air filter", "ruling": "N352766", "hts": null, "cost_usd": 0.0013080000000000001}
+{"category": "chemicals_pharma", "assembled": false, "product": "lip cosmetics", "ruling": "N352802", "hts": null, "cost_usd": 0.001074}
+{"category": "chemicals_pharma", "assembled": false, "product": "liquid cosmetics", "ruling": "N352804", "hts": null, "cost_usd": 0.0010935}
+{"category": "chemicals_pharma", "assembled": false, "product": "cosmetics", "ruling": "N352805", "hts": null, "cost_usd": 0.001116}
+{"category": "chemicals_pharma", "assembled": false, "product": "tone-up primer", "ruling": "N352807", "hts": null, "cost_usd": 0.00110625}
+{"category": "plastic_articles", "assembled": false, "product": "remote control case", "ruling": "N352810", "hts": "3926", "cost_usd": 0.00116625}
+{"category": "pcba_electronic_devices", "assembled": false, "product": "microcontroller integrated circuit chip", "ruling": "N352821", "hts": null, "cost_usd": 0.00119325}
+{"category": "machinery_parts", "assembled": true, "product": "faucet", "ruling": "N352837", "hts": null, "cost_usd": 0.0010995}
+{"category": "jewelry_watches", "assembled": true, "product": "stretch bracelet", "ruling": "N352871", "hts": "7113", "cost_usd": 0.00106875}
+{"category": "filters", "assembled": true, "product": "automotive air filters", "ruling": "N352954", "hts": null, "cost_usd": 0.00116925}
+{"category": "filters", "assembled": true, "product": "automotive air filters", "ruling": "N352956", "hts": null, "cost_usd": 0.00113775}
+{"category": "rubber_articles", "assembled": false, "product": "rubber transmission belts", "ruling": "N353013", "hts": null, "cost_usd": 0.00117525}
+{"category": "bicycles_scooters", "assembled": true, "product": "electric bicycle", "ruling": "N353045", "hts": null, "cost_usd": 0.0011055000000000001}
+{"category": "filters", "assembled": true, "product": "cabin air filter", "ruling": "N353148", "hts": null, "cost_usd": 0.0011610000000000001}
+{"category": "household_goods", "assembled": true, "product": "tabletop fountain", "ruling": "N353152", "hts": null, "cost_usd": 0.00108825}
+{"category": "filters", "assembled": true, "product": "automotive oil filter", "ruling": "N353220", "hts": "8421.23.0000", "cost_usd": 0.00116325}
+{"category": "chemicals_pharma", "assembled": false, "product": "soap", "ruling": "N353232", "hts": null, "cost_usd": 0.0011489999999999998}
+{"category": "vehicle_parts", "assembled": true, "product": "steering wheel cover", "ruling": "N353251", "hts": null, "cost_usd": 0.00116025}
+{"category": "toys_sporting_goods", "assembled": true, "product": "fishing fly rod", "ruling": "N353399", "hts": "9507.10.0040", "cost_usd": 0.001095}
+{"category": "toys_sporting_goods", "assembled": true, "product": "fishing rods", "ruling": "N353511", "hts": null, "cost_usd": 0.0011025000000000002}
+{"category": "machinery_parts", "assembled": true, "product": "faucet", "ruling": "N353576", "hts": null, "cost_usd": 0.00117225}
+{"category": "chemicals_pharma", "assembled": false, "product": "borax decahydrate", "ruling": "N353581", "hts": null, "cost_usd": 0.00123075}
+{"category": "jewelry_watches", "assembled": true, "product": "metal tiara headband", "ruling": "N353597", "hts": null, "cost_usd": 0.0010815}
+{"category": "chemicals_pharma", "assembled": false, "product": "ketoconazole shampoo", "ruling": "N353648", "hts": null, "cost_usd": 0.001149}
+{"category": "filters", "assembled": true, "product": "automotive air filters", "ruling": "N353723", "hts": null, "cost_usd": 0.00116775}
+{"category": "filters", "assembled": true, "product": "automotive air filter", "ruling": "N353724", "hts": null, "cost_usd": 0.0011684999999999998}
+{"category": "filters", "assembled": true, "product": "automotive air conditioning filters", "ruling": "N353725", "hts": null, "cost_usd": 0.00116925}
+{"category": "household_goods", "assembled": true, "product": "handheld showerhead", "ruling": "N353879", "hts": null, "cost_usd": 0.0011175}
+{"category": "toys_sporting_goods", "assembled": true, "product": "toy light-up wand", "ruling": "N353884", "hts": null, "cost_usd": 0.001146}
+{"category": "rubber_articles", "assembled": false, "product": "nitrile rubber gloves", "ruling": "N353943", "hts": null, "cost_usd": 0.0012075000000000002}
+{"category": "filters", "assembled": true, "product": "automotive air filters", "ruling": "N354015", "hts": null, "cost_usd": 0.00118425}
+{"category": "industrial_machinery", "assembled": true, "product": "walk-behind lawn mower", "ruling": "N354024", "hts": "8433.11.0050", "cost_usd": 0.0012105}
+{"category": "household_goods", "assembled": true, "product": "showerheads", "ruling": "N354105", "hts": null, "cost_usd": 0.0011925}
+{"category": "vehicles_trailers", "assembled": true, "product": "utility terrain vehicle", "ruling": "N354162", "hts": null, "cost_usd": 0.00117825}
+{"category": "other", "assembled": true, "product": "hair extension", "ruling": "N354167", "hts": null, "cost_usd": 0.0011902500000000001}
+{"category": "household_goods", "assembled": true, "product": "hair extension", "ruling": "N354172", "hts": null, "cost_usd": 0.00113925}
+{"category": "pcba_electronic_devices", "assembled": false, "product": "integrated circuits", "ruling": "N354283", "hts": null, "cost_usd": 0.0012082500000000001}
+{"category": "chemicals_pharma", "assembled": false, "product": "hydrofluoric acid", "ruling": "N354291", "hts": null, "cost_usd": 0.00123525}
+{"category": "industrial_machinery", "assembled": true, "product": "heat pump", "ruling": "N354369", "hts": null, "cost_usd": 0.001149}
+{"category": "paper_printed", "assembled": false, "product": "paper plates", "ruling": "N354397", "hts": null, "cost_usd": 0.0010364999999999999}
+{"category": "metal_hardware_fittings", "assembled": true, "product": "keychains", "ruling": "N354424", "hts": "7907.00.6000", "cost_usd": 0.00116325}
+{"category": "rubber_articles", "assembled": false, "product": "nitrile rubber gloves", "ruling": "N354627", "hts": null, "cost_usd": 0.0011707500000000001}
+{"category": "rubber_articles", "assembled": true, "product": "conveyor belts", "ruling": "N354641", "hts": "4010.12.5500", "cost_usd": 0.00113775}
+{"category": "pcba_electronic_devices", "assembled": true, "product": "passive headphones", "ruling": "N354692", "hts": null, "cost_usd": 0.0011580000000000002}
+{"category": "industrial_machinery", "assembled": true, "product": "hydraulic floor jacks", "ruling": "N354790", "hts": null, "cost_usd": 0.001194}
+{"category": "industrial_machinery", "assembled": true, "product": "hydraulic floor jacks", "ruling": "N354791", "hts": null, "cost_usd": 0.00118275}
+{"category": "wood_articles", "assembled": true, "product": "oak wood barrels", "ruling": "N354812", "hts": null, "cost_usd": 0.001092}
+{"category": "rubber_articles", "assembled": false, "product": "nitrile rubber gloves", "ruling": "N355033", "hts": null, "cost_usd": 0.001167}
+{"category": "filters", "assembled": true, "product": "automotive air filters", "ruling": "N355066", "hts": null, "cost_usd": 0.001173}
+{"category": "metal_hardware_fittings", "assembled": false, "product": "gold waste and scrap", "ruling": "N355127", "hts": "9801.00.1030", "cost_usd": 0.001212}
+{"category": "industrial_machinery", "assembled": true, "product": "hydraulic bottle jacks", "ruling": "N355131", "hts": null, "cost_usd": 0.001212}
+{"category": "industrial_machinery", "assembled": true, "product": "hydraulic trolley jacks", "ruling": "N355132", "hts": null, "cost_usd": 0.0011865}
+{"category": "industrial_machinery", "assembled": true, "product": "hydraulic bottle jacks", "ruling": "N355133", "hts": null, "cost_usd": 0.0011835}
+{"category": "industrial_machinery", "assembled": true, "product": "laser marking machine", "ruling": "N355137", "hts": "8456.11.1010", "cost_usd": 0.00119925}
+{"category": "food_agriculture", "assembled": false, "product": "blended tobacco strips", "ruling": "N355156", "hts": null, "cost_usd": 0.0011235000000000001}
+{"category": "chemicals_pharma", "assembled": false, "product": "lipliner and lipstick", "ruling": "N355166", "hts": null, "cost_usd": 0.0011385}
+{"category": "chemicals_pharma", "assembled": false, "product": "cosmetics", "ruling": "N355167", "hts": null, "cost_usd": 0.001143}
+{"category": "chemicals_pharma", "assembled": false, "product": "cosmetic sticks", "ruling": "N355168", "hts": null, "cost_usd": 0.0011212499999999999}
+{"category": "solar_pv", "assembled": false, "product": "textured silicon wafers", "ruling": "N355523", "hts": null, "cost_usd": 0.00117525}
+{"category": "pcba_electronic_devices", "assembled": false, "product": "Si MOSFET", "ruling": "N355546", "hts": null, "cost_usd": 0.0012007500000000002}
+{"category": "pcba_electronic_devices", "assembled": true, "product": "wired earbuds", "ruling": "N355549", "hts": null, "cost_usd": 0.00119325}
+{"category": "apparel_textiles", "assembled": true, "product": "ratchet tie downs", "ruling": "N355742", "hts": null, "cost_usd": 0.00112875}
+{"category": "footwear", "assembled": true, "product": "knit shoe kit", "ruling": "N355798", "hts": "6406.20.0000", "cost_usd": 0.00117075}
+{"category": "toys_sporting_goods", "assembled": false, "product": "hockey skate inserts", "ruling": "N355835", "hts": null, "cost_usd": 0.001011}
+{"category": "toys_sporting_goods", "assembled": true, "product": "climbing skins", "ruling": "N355854", "hts": "9506.11.6000", "cost_usd": 0.00119625}
+{"category": "filters", "assembled": true, "product": "automotive air filters", "ruling": "N355894", "hts": null, "cost_usd": 0.00118425}
+{"category": "apparel_textiles", "assembled": true, "product": "ratchet tie-down straps", "ruling": "N355901", "hts": null, "cost_usd": 0.00118125}
+{"category": "chemicals_pharma", "assembled": false, "product": "converted oil", "ruling": "N355972", "hts": null, "cost_usd": 0.00112875}
+{"category": "industrial_machinery", "assembled": true, "product": "wheel dolly", "ruling": "N356009", "hts": null, "cost_usd": 0.0012015}
+{"category": "industrial_machinery", "assembled": true, "product": "hose reel system", "ruling": "N356042", "hts": null, "cost_usd": 0.00117375}
+{"category": "medical_devices", "assembled": true, "product": "patient return electrode", "ruling": "N356150", "hts": null, "cost_usd": 0.00117975}
+{"category": "electrical_apparatus", "assembled": true, "product": "oil immersed transformer", "ruling": "N356306", "hts": null, "cost_usd": 0.0011707500000000001}
+{"category": "bicycles_scooters", "assembled": true, "product": "electric scooter", "ruling": "N356467", "hts": null, "cost_usd": 0.0011970000000000001}
+{"category": "filters", "assembled": true, "product": "air filter", "ruling": "N356520", "hts": null, "cost_usd": 0.001152}
+{"category": "metal_hardware_fittings", "assembled": true, "product": "doorknob latch set", "ruling": "N356663", "hts": null, "cost_usd": 0.0011527500000000001}
+{"category": "chemicals_pharma", "assembled": false, "product": "refined aluminum hydroxide", "ruling": "N356703", "hts": null, "cost_usd": 0.001203}
+{"category": "industrial_machinery", "assembled": true, "product": "telehandler", "ruling": "N356761", "hts": null, "cost_usd": 0.00114825}
+{"category": "footwear", "assembled": true, "product": "mule style shoe", "ruling": "N356865", "hts": null, "cost_usd": 0.00112275}

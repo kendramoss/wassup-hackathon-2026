@@ -73,6 +73,10 @@ reproduce: ## recompute every published number from committed files: no model ca
 	python3 -I -B eval/tariffshift/chapter_counts.py . --check
 	python3 -I -B eval/families/pool102.py . --check
 	python3 -I -B eval/families/select102.py . --check
+	python3 -I -B eval/families/pool_r3.py . --check
+	python3 -I -B eval/families/select_r3.py . --check
+	python3 -I -B eval/families/coverage_r3.py . --check
+	python3 -I -B eval/families/live_r3.py . --check
 	python3 -I -B eval/supersession/impact.py . --check
 	python3 -I -B eval/charts/build_evaluation.py . --check
 	python3 -I -B eval/charts/build_trust_data.py . --check

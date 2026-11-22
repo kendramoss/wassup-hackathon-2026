@@ -1,0 +1,104 @@
+{
+  "_source": "CBP ruling N345976 (11 Mar 2025): two vent-free gas heater models assembled in Vietnam from a Chinese front panel assembly, burner assembly, oxygen depletion sensor assemblies, ignitor module, thermostatic gas valve, tubes and back panel, with a gas selector valve and regulators made in Vietnam: CBP held China. In the D660 selection pool (substantial transformation, dated before 2026, in no development, held-out or tune-check split) and excluded. Target by the D171 rule; plant capabilities at the target are an assumption.",
+  "case_id": "gas-heater-2025",
+  "date": "2025-03-11",
+  "family": "hvac_heating_units",
+  "target": "Vietnam",
+  "product": {
+    "name": "Vent-free gas heater",
+    "description": "A wall-mounted infrared or blue-flame gas heater for propane or natural gas with an oxygen depletion sensor.",
+    "plants": [
+      {
+        "id": "cn",
+        "name": "China component supplier",
+        "country": "China",
+        "capabilities": [
+          "heating_cooling_core",
+          "chassis_metal_parts",
+          "valves_regulators_tubes"
+        ]
+      },
+      {
+        "id": "vn",
+        "name": "Vietnam assembly plant",
+        "country": "Vietnam",
+        "capabilities": [
+          "compressor_unit",
+          "heating_cooling_core",
+          "chassis_metal_parts",
+          "valves_regulators_tubes",
+          "final_assembly"
+        ]
+      }
+    ],
+    "components": [
+      {
+        "name": "burner assembly",
+        "made_in": "China",
+        "plant": "cn",
+        "group": "heating_cooling_core"
+      },
+      {
+        "name": "oxygen depletion sensor assemblies and ignitor module",
+        "made_in": "China",
+        "plant": "cn",
+        "group": "heating_cooling_core"
+      },
+      {
+        "name": "front and back panel assemblies and wall bracket",
+        "made_in": "China",
+        "plant": "cn",
+        "group": "chassis_metal_parts"
+      },
+      {
+        "name": "thermostatic gas valve and aluminium tubes",
+        "made_in": "China",
+        "plant": "cn",
+        "group": "valves_regulators_tubes"
+      },
+      {
+        "name": "gas selector valve and regulators",
+        "made_in": "Vietnam",
+        "plant": "vn",
+        "group": "valves_regulators_tubes"
+      }
+    ],
+    "operations": [
+      {
+        "name": "cut, punch, bend and paint, then assemble, tighten and test the heater",
+        "plant": "vn",
+        "group": "final_assembly"
+      }
+    ]
+  },
+  "economics": {
+    "illustrative": true,
+    "annual_import_value_usd": 1000000,
+    "duty_rates": {
+      "China": 0.25,
+      "Vietnam": 0.0
+    },
+    "duty_rates_note": "Illustrative placeholder, not a sourced rate.",
+    "group_costs": {
+      "heating_cooling_core": {
+        "cn": 150000,
+        "vn": 180000
+      },
+      "chassis_metal_parts": {
+        "cn": 60000,
+        "vn": 70000
+      },
+      "valves_regulators_tubes": {
+        "cn": 40000,
+        "vn": 45000
+      }
+    }
+  },
+  "exclude_rulings": [
+    "N345976"
+  ],
+  "current_origin": {
+    "country": "China",
+    "ruling": "N345976"
+  }
+}

@@ -1,0 +1,830 @@
+{
+  "case_id": "integrated-circuit-2023",
+  "target": "China",
+  "family": "semiconductor_devices",
+  "baseline": {
+    "move": [],
+    "description": "No change: keep the current setup",
+    "variant_facts": "The merchandise under consideration is a Integrated circuits (flip-chip). Three similar integrated circuit models; each 12-inch wafer holds 4,761 die with the complete circuit. The Integrated circuits (flip-chip) is assembled in China using components sourced from South Korea.\n\nThe monocrystalline silicon wafer and fabricated integrated circuit wafer are produced in South Korea. \n\nFinal assembly in China: flip-chip the die to the substrate and pack.\n",
+    "prediction": {
+      "origin_country": "South Korea",
+      "key_factors": [
+        "Fabricated integrated circuit wafer/die"
+      ],
+      "decisive_step": "Wafer fabrication of the integrated circuit in South Korea",
+      "confidence": 0.98,
+      "reasoning": "Consistent with CBP precedent for semiconductors (e.g., N333677), the essential character and functional identity of an integrated circuit are imparted during front-end wafer fabrication, where the electronic circuitry is created on the die. In this case, the wafer and complete integrated circuit die are fabricated in South Korea. The back-end operations in China—attaching the flip-chip die to the substrate and packaging—constitute mere assembly and finishing that do not substantially transform the South Korean die.",
+      "cited_rulings": [
+        "N333677"
+      ],
+      "precedents": [
+        "H304677",
+        "N329847",
+        "N332529",
+        "N333410",
+        "N333677"
+      ],
+      "trace": {
+        "llm_provider": "litellm",
+        "model_id": "gemini-4-argon",
+        "requested_model": "gemini-4-argon",
+        "prompt_version": "engine-v1",
+        "input_tokens": 2551,
+        "output_tokens": 200,
+        "latency_ms": 6894
+      }
+    },
+    "duty_effect_per_year": 0,
+    "added_cost_per_year": 0,
+    "net_per_year": 0,
+    "shown": false
+  },
+  "current_origin": {
+    "country": "South Korea",
+    "ruling": "N333934"
+  },
+  "plans": [
+    {
+      "move": [
+        {
+          "group": "bare_wafer_production",
+          "to_plant": "cn"
+        },
+        {
+          "group": "front_end_wafer_fab",
+          "to_plant": "cn"
+        }
+      ],
+      "description": "Move the bare wafers and the front-end wafer fabrication to China",
+      "variant_facts": "The merchandise under consideration is a Integrated circuits (flip-chip). Three similar integrated circuit models; each 12-inch wafer holds 4,761 die with the complete circuit. The Integrated circuits (flip-chip) is assembled in China using components sourced from China.\n\nThe monocrystalline silicon wafer and fabricated integrated circuit wafer are produced in China. \n\nIn China, the monocrystalline silicon wafer will be produced in-house: make the monocrystalline silicon wafer.\n\nIn China, the fabricated integrated circuit wafer will be produced in-house: thin-film deposition, photolithography, etching and ion implantation.\n\nFinal assembly in China: flip-chip the die to the substrate and pack.\n",
+      "prediction": {
+        "origin_country": "China",
+        "key_factors": [
+          "Fabricated integrated circuit die"
+        ],
+        "decisive_step": "Wafer fabrication (thin-film deposition, photolithography, etching, and ion implantation) in China",
+        "confidence": 1,
+        "reasoning": "All components are sourced in China and all manufacturing stages—producing the monocrystalline silicon wafer, front-end wafer fabrication (deposition, photolithography, etching, ion implantation), and back-end flip-chip assembly and packaging—occur in China. Moreover, consistent with CBP precedent (e.g., N333677), the essential character of a semiconductor device is imparted during wafer fabrication where the functional circuitry of the die is created. Therefore, the country of origin is China.",
+        "cited_rulings": [
+          "N333677"
+        ],
+        "precedents": [
+          "H304677",
+          "N329847",
+          "N330771",
+          "N331908",
+          "N333677"
+        ],
+        "trace": {
+          "llm_provider": "litellm",
+          "model_id": "gemini-4-argon",
+          "requested_model": "gemini-4-argon",
+          "prompt_version": "engine-v1",
+          "input_tokens": 2610,
+          "output_tokens": 234,
+          "latency_ms": 10240
+        }
+      },
+      "verdict": {
+        "precedent_supported": true,
+        "supporting_ruling": "N333677",
+        "confidence": 0.95,
+        "reasoning": "In N333677 (and Variant A's ruling N333934), CBP held that the country where the silicon wafer/die is fabricated (etched and processed with its functional circuit) imparts the essential character of a packaged semiconductor device, while subsequent die packaging, bonding, and assembly onto a substrate do not constitute a substantial transformation. In Variant A, wafer production and circuit fabrication occur in South Korea, making the origin South Korea. In Variant B, wafer production, circuit fabrication (thin-film deposition, photolithography, etching, ion implantation), and final flip-chip assembly all occur in China, shifting the country of origin to China.",
+        "trail": [
+          {
+            "tool": "search",
+            "query": "semiconductor wafer fabrication photolithography etching origin",
+            "rulings": [
+              "N333677",
+              "N330175",
+              "N332750",
+              "N331014",
+              "N332853",
+              "N333594",
+              "N330391",
+              "N332258"
+            ]
+          },
+          {
+            "tool": "search",
+            "query": "integrated circuit wafer die flip-chip assembly origin",
+            "rulings": [
+              "N333677",
+              "H304677",
+              "N332276",
+              "N331908",
+              "N331906",
+              "N331902",
+              "N331901",
+              "N331904"
+            ]
+          },
+          {
+            "tool": "search",
+            "query": "\"integrated circuit\" OR \"semiconductor\" OR \"wafer\" OR \"die\"",
+            "rulings": [
+              "N333677",
+              "N332276",
+              "N331908",
+              "N331906",
+              "N331902",
+              "N331901",
+              "N331904",
+              "N331903"
+            ]
+          },
+          {
+            "tool": "read",
+            "query": "N333677",
+            "rulings": [
+              "N333677"
+            ]
+          },
+          {
+            "tool": "search",
+            "query": "silicon wafer die circuit substrate origin",
+            "rulings": [
+              "N333677",
+              "N330880",
+              "N333853",
+              "N333537",
+              "N332226",
+              "N332750",
+              "N330513",
+              "N332276"
+            ]
+          },
+          {
+            "tool": "search",
+            "query": "transistor diode microprocessor memory chip wafer origin",
+            "rulings": [
+              "H323941",
+              "N333677",
+              "N332332",
+              "H327997",
+              "H304677",
+              "N333453",
+              "N330175",
+              "N332750"
+            ]
+          }
+        ],
+        "trace": {
+          "llm_provider": "litellm",
+          "model_id": "gemini-4-argon",
+          "prompt_version": "verifier-v2+known-a",
+          "input_tokens": 14452,
+          "output_tokens": 409,
+          "latency_ms": 0
+        }
+      },
+      "duty_effect_per_year": -250000,
+      "added_cost_per_year": 20000,
+      "net_per_year": -270000,
+      "net_priced": true,
+      "shown": true,
+      "tier": "clear_margin",
+      "parts_moved": 2
+    },
+    {
+      "move": [
+        {
+          "group": "epitaxial_deposition",
+          "to_plant": "cn"
+        },
+        {
+          "group": "front_end_wafer_fab",
+          "to_plant": "cn"
+        }
+      ],
+      "description": "Move the epitaxial layer and the front-end wafer fabrication to China",
+      "variant_facts": "The merchandise under consideration is a Integrated circuits (flip-chip). Three similar integrated circuit models; each 12-inch wafer holds 4,761 die with the complete circuit. The Integrated circuits (flip-chip) is assembled in China using components sourced from South Korea and China.\n\nThe monocrystalline silicon wafer are produced in South Korea. The fabricated integrated circuit wafer are produced in China. \n\nIn China, the epitaxial layer will be produced in-house: deposit the epitaxial layer.\n\nIn China, the fabricated integrated circuit wafer will be produced in-house: thin-film deposition, photolithography, etching and ion implantation.\n\nFinal assembly in China: flip-chip the die to the substrate and pack.\n",
+      "prediction": {
+        "origin_country": "China",
+        "key_factors": [
+          "Fabricated integrated circuit die"
+        ],
+        "decisive_step": "Wafer fabrication (epitaxial growth, photolithography, etching, ion implantation) in China",
+        "confidence": 0.99,
+        "reasoning": "For integrated circuits, CBP consistently holds that substantial transformation occurs during front-end wafer fabrication (photolithography, etching, ion implantation), which creates the functional electronic circuitry and imparts the essential character of the IC (analogous to N333677). Here, bare monocrystalline silicon wafers from South Korea undergo epitaxial layer deposition, wafer fabrication, and final flip-chip packaging in China. Because the raw wafers are transformed into functional IC dies in China, the country of origin is China.",
+        "cited_rulings": [
+          "N333677"
+        ],
+        "precedents": [
+          "H304677",
+          "N329847",
+          "N330771",
+          "N333410",
+          "N333677"
+        ],
+        "trace": {
+          "llm_provider": "litellm",
+          "model_id": "gemini-4-argon",
+          "requested_model": "gemini-4-argon",
+          "prompt_version": "engine-v1",
+          "input_tokens": 2652,
+          "output_tokens": 205,
+          "latency_ms": 7839
+        }
+      },
+      "verdict": {
+        "precedent_supported": true,
+        "supporting_ruling": "N333677",
+        "confidence": 0.94,
+        "reasoning": "Under CBP precedent (e.g., N333677), the country of origin of a semiconductor device or integrated circuit is conferred by wafer fabrication (front-end processing such as epitaxial deposition, thin-film deposition, photolithography, etching, and ion implantation), which creates the functional circuit die and imparts the essential character. Back-end assembly and packaging (dicing, flip-chip mounting, packaging) do not substantially transform the fabricated die. In Variant A, wafer fabrication occurs in South Korea (origin South Korea). In Variant B, wafer fabrication moves to China (using a bare silicon wafer from South Korea), shifting the country of origin to China.",
+        "trail": [
+          {
+            "tool": "search",
+            "query": "integrated circuit wafer die flip-chip origin",
+            "rulings": [
+              "N333677",
+              "H304677",
+              "N332276",
+              "N331908",
+              "N331906",
+              "N331902",
+              "N331901",
+              "N331904"
+            ]
+          },
+          {
+            "tool": "search",
+            "query": "monocrystalline silicon wafer photolithography etching origin",
+            "rulings": [
+              "N333677",
+              "N332226",
+              "N330175",
+              "N332750",
+              "N331014",
+              "N332853",
+              "N333594",
+              "N330391"
+            ]
+          },
+          {
+            "tool": "search",
+            "query": "semiconductor wafer fabrication integrated circuit origin",
+            "rulings": [
+              "N333677",
+              "N332276",
+              "N331908",
+              "N331906",
+              "N331902",
+              "N331901",
+              "N331904",
+              "N331903"
+            ]
+          },
+          {
+            "tool": "search",
+            "query": "\"integrated circuit\" OR \"semiconductor\" OR \"wafer\" OR \"die\"",
+            "rulings": [
+              "N333677",
+              "N332276",
+              "N331908",
+              "N331906",
+              "N331902",
+              "N331901",
+              "N331904",
+              "N331903"
+            ]
+          },
+          {
+            "tool": "search",
+            "query": "\"front-end\" OR \"diffusion\" OR \"epitaxial\" OR \"wafer\"",
+            "rulings": [
+              "N333677",
+              "N331243",
+              "N331974",
+              "N331934",
+              "N331935",
+              "N331904",
+              "N331651",
+              "N333420"
+            ]
+          },
+          {
+            "tool": "read",
+            "query": "N333677",
+            "rulings": [
+              "N333677"
+            ]
+          }
+        ],
+        "trace": {
+          "llm_provider": "litellm",
+          "model_id": "gemini-4-argon",
+          "prompt_version": "verifier-v2+known-a",
+          "input_tokens": 7341,
+          "output_tokens": 386,
+          "latency_ms": 0
+        }
+      },
+      "duty_effect_per_year": -250000,
+      "added_cost_per_year": 25000,
+      "net_per_year": -275000,
+      "net_priced": true,
+      "shown": true,
+      "tier": "clear_margin",
+      "parts_moved": 1,
+      "smallest_supported": true
+    },
+    {
+      "move": [
+        {
+          "group": "bare_wafer_production",
+          "to_plant": "cn"
+        },
+        {
+          "group": "epitaxial_deposition",
+          "to_plant": "cn"
+        },
+        {
+          "group": "front_end_wafer_fab",
+          "to_plant": "cn"
+        }
+      ],
+      "description": "Move the bare wafers, the epitaxial layer and the front-end wafer fabrication to China",
+      "variant_facts": "The merchandise under consideration is a Integrated circuits (flip-chip). Three similar integrated circuit models; each 12-inch wafer holds 4,761 die with the complete circuit. The Integrated circuits (flip-chip) is assembled in China using components sourced from China.\n\nThe monocrystalline silicon wafer and fabricated integrated circuit wafer are produced in China. \n\nIn China, the monocrystalline silicon wafer will be produced in-house: make the monocrystalline silicon wafer.\n\nIn China, the epitaxial layer will be produced in-house: deposit the epitaxial layer.\n\nIn China, the fabricated integrated circuit wafer will be produced in-house: thin-film deposition, photolithography, etching and ion implantation.\n\nFinal assembly in China: flip-chip the die to the substrate and pack.\n",
+      "prediction": {
+        "origin_country": "China",
+        "key_factors": [
+          "Fabricated integrated circuit die"
+        ],
+        "decisive_step": "Wafer fabrication (photolithography, etching, ion implantation) and final assembly in China",
+        "confidence": 1,
+        "reasoning": "All components and manufacturing steps, including producing the monocrystalline silicon wafer, epitaxial deposition, front-end wafer fabrication (photolithography, etching, ion implantation), and final flip-chip packaging, occur entirely in China. In accordance with CBP precedent on semiconductor devices (such as N333677), the essential character of an integrated circuit is imparted during front-end wafer fabrication where the functional circuitry is created on the die. Because both wafer fabrication and packaging occur in China, the country of origin is unambiguously China.",
+        "cited_rulings": [
+          "N333677"
+        ],
+        "precedents": [
+          "H304677",
+          "N329847",
+          "N330771",
+          "N331908",
+          "N333677"
+        ],
+        "trace": {
+          "llm_provider": "litellm",
+          "model_id": "gemini-4-argon",
+          "requested_model": "gemini-4-argon",
+          "prompt_version": "engine-v1",
+          "input_tokens": 2629,
+          "output_tokens": 233,
+          "latency_ms": 7757
+        }
+      },
+      "verdict": {
+        "precedent_supported": true,
+        "supporting_ruling": "N333677",
+        "confidence": 0.95,
+        "reasoning": "In N333677 (and Variant A's ruling N333934), CBP held that the country where the semiconductor wafer/die is fabricated (etched, processed, photolithography) imparts the essential character of the finished device, while downstream dicing, bonding/flip-chipping to a substrate, and packaging in China do not constitute a substantial transformation. In Variant A, the monocrystalline silicon wafer and fabricated IC wafer are produced in South Korea, making the origin South Korea. In Variant B, wafer production, epitaxial deposition, and IC wafer fabrication all move to China, making the product wholly produced and assembled in China, changing the origin to China.",
+        "trail": [
+          {
+            "tool": "search",
+            "query": "fabricated integrated circuit wafer photolithography etching origin",
+            "rulings": [
+              "N333677",
+              "N332276",
+              "N331908",
+              "N331906",
+              "N331902",
+              "N331901",
+              "N331904",
+              "N331903"
+            ]
+          },
+          {
+            "tool": "search",
+            "query": "integrated circuit wafer die flip-chip assembly origin",
+            "rulings": [
+              "N333677",
+              "H304677",
+              "N332276",
+              "N331908",
+              "N331906",
+              "N331902",
+              "N331901",
+              "N331904"
+            ]
+          },
+          {
+            "tool": "search",
+            "query": "silicon wafer integrated circuit die packaging origin",
+            "rulings": [
+              "N333677",
+              "N331908",
+              "N331906",
+              "N331902",
+              "N331901",
+              "N331904",
+              "N331903",
+              "N332358"
+            ]
+          },
+          {
+            "tool": "read",
+            "query": "N333677",
+            "rulings": [
+              "N333677"
+            ]
+          },
+          {
+            "tool": "search",
+            "query": "monocrystalline silicon wafer epitaxial photolithography",
+            "rulings": [
+              "N333677",
+              "N332226",
+              "N333956",
+              "N333889",
+              "N333860",
+              "N333853",
+              "N333798",
+              "N333775"
+            ]
+          },
+          {
+            "tool": "search",
+            "query": "integrated circuit semiconductor wafer fabrication origin",
+            "rulings": [
+              "N333677",
+              "N332276",
+              "N331908",
+              "N331906",
+              "N331902",
+              "N331901",
+              "N331904",
+              "N331903"
+            ]
+          }
+        ],
+        "trace": {
+          "llm_provider": "litellm",
+          "model_id": "gemini-4-argon",
+          "prompt_version": "verifier-v2+known-a",
+          "input_tokens": 14364,
+          "output_tokens": 401,
+          "latency_ms": 0
+        }
+      },
+      "duty_effect_per_year": -250000,
+      "added_cost_per_year": 25000,
+      "net_per_year": -275000,
+      "net_priced": true,
+      "shown": true,
+      "tier": "clear_margin",
+      "parts_moved": 2
+    },
+    {
+      "move": [
+        {
+          "group": "front_end_wafer_fab",
+          "to_plant": "cn"
+        }
+      ],
+      "description": "Move the front-end wafer fabrication to China",
+      "variant_facts": "The merchandise under consideration is a Integrated circuits (flip-chip). Three similar integrated circuit models; each 12-inch wafer holds 4,761 die with the complete circuit. The Integrated circuits (flip-chip) is assembled in China using components sourced from South Korea and China.\n\nThe monocrystalline silicon wafer are produced in South Korea. The fabricated integrated circuit wafer are produced in China. \n\nIn China, the fabricated integrated circuit wafer will be produced in-house: thin-film deposition, photolithography, etching and ion implantation.\n\nFinal assembly in China: flip-chip the die to the substrate and pack.\n",
+      "prediction": {
+        "origin_country": "China",
+        "key_factors": [
+          "The fabricated integrated circuit die (wafer fabrication)"
+        ],
+        "decisive_step": "Wafer fabrication (thin-film deposition, photolithography, etching, and ion implantation) in China",
+        "confidence": 0.99,
+        "reasoning": "Under CBP precedent (similar to N333677), the essential character of a semiconductor or integrated circuit is imparted during front-end wafer fabrication, where the functional circuitry is created on the raw wafer. Here, raw monocrystalline silicon wafers from South Korea undergo thin-film deposition, photolithography, etching, and ion implantation in China to create the integrated circuit dies, followed by flip-chip assembly and packaging in China. This front-end fabrication substantially transforms the blank wafer into a new article of commerce of Chinese origin.",
+        "cited_rulings": [
+          "N333677"
+        ],
+        "precedents": [
+          "H304677",
+          "N329847",
+          "N330771",
+          "N333410",
+          "N333677"
+        ],
+        "trace": {
+          "llm_provider": "litellm",
+          "model_id": "gemini-4-argon",
+          "requested_model": "gemini-4-argon",
+          "prompt_version": "engine-v1",
+          "input_tokens": 2633,
+          "output_tokens": 241,
+          "latency_ms": 7335
+        }
+      },
+      "verdict": {
+        "precedent_supported": true,
+        "supporting_ruling": "N333677",
+        "confidence": 0.92,
+        "reasoning": "In N333677, CBP held that the country of origin of a packaged silicon sensor die was where the silicon wafer underwent wafer fabrication (etching, processing, and creating the functional die), rather than where the wafer was diced and packaged/assembled. In Variant A, wafer fabrication occurs in South Korea and only flip-chip packaging occurs in China, making South Korea the origin. In Variant B, wafer fabrication (thin-film deposition, photolithography, etching, and ion implantation) moves to China, using raw monocrystalline silicon wafers from South Korea. Because wafer fabrication creates the functional integrated circuit die and imparts essential character, origin shifts to China.",
+        "trail": [
+          {
+            "tool": "search",
+            "query": "silicon wafer photolithography etching ion implantation integrated circuit origin",
+            "rulings": [
+              "N333677",
+              "N332276",
+              "N329847",
+              "N331908",
+              "N331906",
+              "N331902",
+              "N331901",
+              "N331904"
+            ]
+          },
+          {
+            "tool": "search",
+            "query": "integrated circuit wafer die flip-chip assembly origin",
+            "rulings": [
+              "N333677",
+              "H304677",
+              "N332276",
+              "N331908",
+              "N331906",
+              "N331902",
+              "N331901",
+              "N331904"
+            ]
+          },
+          {
+            "tool": "search",
+            "query": "integrated circuit semiconductor wafer fabrication packaging origin",
+            "rulings": [
+              "N333677",
+              "N331908",
+              "N331906",
+              "N331902",
+              "N331901",
+              "N331904",
+              "N331903",
+              "N332358"
+            ]
+          },
+          {
+            "tool": "read",
+            "query": "N333677",
+            "rulings": [
+              "N333677"
+            ]
+          },
+          {
+            "tool": "search",
+            "query": "monocrystalline silicon wafer photolithography",
+            "rulings": [
+              "N333677",
+              "N332226",
+              "N333956",
+              "N333889",
+              "N333860",
+              "N333853",
+              "N333798",
+              "N333775"
+            ]
+          },
+          {
+            "tool": "search",
+            "query": "\"integrated circuit\" OR \"semiconductor\" OR \"wafer\" OR \"microchip\"",
+            "rulings": [
+              "N333677",
+              "N332276",
+              "N331908",
+              "N331906",
+              "N331902",
+              "N331901",
+              "N331904",
+              "N331903"
+            ]
+          }
+        ],
+        "trace": {
+          "llm_provider": "litellm",
+          "model_id": "gemini-4-argon",
+          "prompt_version": "verifier-v2+known-a",
+          "input_tokens": 10359,
+          "output_tokens": 381,
+          "latency_ms": 0
+        }
+      },
+      "duty_effect_per_year": -250000,
+      "added_cost_per_year": 20000,
+      "net_per_year": -270000,
+      "net_priced": true,
+      "shown": true,
+      "tier": "at_bar",
+      "parts_moved": 1
+    }
+  ],
+  "rejected": [
+    {
+      "move": [],
+      "description": "No change: keep the current setup",
+      "variant_facts": "The merchandise under consideration is a Integrated circuits (flip-chip). Three similar integrated circuit models; each 12-inch wafer holds 4,761 die with the complete circuit. The Integrated circuits (flip-chip) is assembled in China using components sourced from South Korea.\n\nThe monocrystalline silicon wafer and fabricated integrated circuit wafer are produced in South Korea. \n\nFinal assembly in China: flip-chip the die to the substrate and pack.\n",
+      "prediction": {
+        "origin_country": "South Korea",
+        "key_factors": [
+          "Fabricated integrated circuit wafer/die"
+        ],
+        "decisive_step": "Wafer fabrication of the integrated circuit in South Korea",
+        "confidence": 0.98,
+        "reasoning": "Consistent with CBP precedent for semiconductors (e.g., N333677), the essential character and functional identity of an integrated circuit are imparted during front-end wafer fabrication, where the electronic circuitry is created on the die. In this case, the wafer and complete integrated circuit die are fabricated in South Korea. The back-end operations in China—attaching the flip-chip die to the substrate and packaging—constitute mere assembly and finishing that do not substantially transform the South Korean die.",
+        "cited_rulings": [
+          "N333677"
+        ],
+        "precedents": [
+          "H304677",
+          "N329847",
+          "N332529",
+          "N333410",
+          "N333677"
+        ],
+        "trace": {
+          "llm_provider": "litellm",
+          "model_id": "gemini-4-argon",
+          "requested_model": "gemini-4-argon",
+          "prompt_version": "engine-v1",
+          "input_tokens": 2551,
+          "output_tokens": 200,
+          "latency_ms": 6894
+        }
+      },
+      "duty_effect_per_year": 0,
+      "added_cost_per_year": 0,
+      "net_per_year": 0,
+      "shown": false,
+      "rejection_reason": "current setup: CBP held South Korea (N333934); engine predicts South Korea",
+      "rejection_kind": "current_setup"
+    },
+    {
+      "move": [
+        {
+          "group": "bare_wafer_production",
+          "to_plant": "cn"
+        }
+      ],
+      "description": "Move the bare wafers to China",
+      "variant_facts": "The merchandise under consideration is a Integrated circuits (flip-chip). Three similar integrated circuit models; each 12-inch wafer holds 4,761 die with the complete circuit. The Integrated circuits (flip-chip) is assembled in China using components sourced from China and South Korea.\n\nThe monocrystalline silicon wafer are produced in China. The fabricated integrated circuit wafer are sourced from South Korea. \n\nIn China, the monocrystalline silicon wafer will be produced in-house: make the monocrystalline silicon wafer.\n\nFinal assembly in China: flip-chip the die to the substrate and pack.\n",
+      "prediction": {
+        "origin_country": "South Korea",
+        "key_factors": [
+          "Fabricated integrated circuit die/wafer"
+        ],
+        "decisive_step": "Front-end wafer fabrication (creating the complete integrated circuit on the wafer) in South Korea",
+        "confidence": 0.95,
+        "reasoning": "Consistent with CBP precedent (e.g., N333677), the essential character of a semiconductor device or integrated circuit is imparted by the front-end wafer fabrication process, which creates the functional electronic circuitry on the die. Although the raw monocrystalline silicon wafer is grown in China and back-end flip-chip assembly and packaging occur in China, the substantial transformation into an integrated circuit takes place in South Korea where the complete circuit is fabricated onto the wafer.",
+        "cited_rulings": [
+          "N333677"
+        ],
+        "precedents": [
+          "H304677",
+          "N329847",
+          "N332529",
+          "N333410",
+          "N333677"
+        ],
+        "trace": {
+          "llm_provider": "litellm",
+          "model_id": "gemini-4-argon",
+          "requested_model": "gemini-4-argon",
+          "prompt_version": "engine-v1",
+          "input_tokens": 2581,
+          "output_tokens": 222,
+          "latency_ms": 10078
+        }
+      },
+      "duty_effect_per_year": 0,
+      "added_cost_per_year": 0,
+      "net_per_year": 0,
+      "net_priced": true,
+      "shown": false,
+      "rejection_reason": "engine predicts origin South Korea, not China",
+      "rejection_kind": "engine_other_origin"
+    },
+    {
+      "move": [
+        {
+          "group": "epitaxial_deposition",
+          "to_plant": "cn"
+        }
+      ],
+      "description": "Move the epitaxial layer to China",
+      "variant_facts": "The merchandise under consideration is a Integrated circuits (flip-chip). Three similar integrated circuit models; each 12-inch wafer holds 4,761 die with the complete circuit. The Integrated circuits (flip-chip) is assembled in China using components sourced from South Korea.\n\nThe monocrystalline silicon wafer and fabricated integrated circuit wafer are produced in South Korea. \n\nIn China, the epitaxial layer will be produced in-house: deposit the epitaxial layer.\n\nFinal assembly in China: flip-chip the die to the substrate and pack.\n",
+      "prediction": {
+        "origin_country": "South Korea",
+        "key_factors": [
+          "Fabricated integrated circuit wafer"
+        ],
+        "decisive_step": "Wafer fabrication (creating the complete integrated circuit on the die) in South Korea",
+        "confidence": 0.95,
+        "reasoning": "Under CBP precedent (see N333677), the country of origin of an integrated circuit or semiconductor device is conferred by front-end wafer fabrication, where the functional circuitry is created on the silicon die. Here, the fabricated IC wafer containing the complete circuit is produced in South Korea, imparting the essential character. Back-end dicing, flip-chip mounting to a substrate, and packaging in China do not substantially transform the semiconductor die into a new article of commerce.",
+        "cited_rulings": [
+          "N333677"
+        ],
+        "precedents": [
+          "H304677",
+          "N329847",
+          "N332529",
+          "N333410",
+          "N333677"
+        ],
+        "trace": {
+          "llm_provider": "litellm",
+          "model_id": "gemini-4-argon",
+          "requested_model": "gemini-4-argon",
+          "prompt_version": "engine-v1",
+          "input_tokens": 2570,
+          "output_tokens": 199,
+          "latency_ms": 6084
+        }
+      },
+      "duty_effect_per_year": 0,
+      "added_cost_per_year": 5000,
+      "net_per_year": -5000,
+      "net_priced": true,
+      "shown": false,
+      "rejection_reason": "engine predicts origin South Korea, not China",
+      "rejection_kind": "engine_other_origin"
+    },
+    {
+      "move": [
+        {
+          "group": "bare_wafer_production",
+          "to_plant": "cn"
+        },
+        {
+          "group": "epitaxial_deposition",
+          "to_plant": "cn"
+        }
+      ],
+      "description": "Move the bare wafers and the epitaxial layer to China",
+      "variant_facts": "The merchandise under consideration is a Integrated circuits (flip-chip). Three similar integrated circuit models; each 12-inch wafer holds 4,761 die with the complete circuit. The Integrated circuits (flip-chip) is assembled in China using components sourced from China and South Korea.\n\nThe monocrystalline silicon wafer are produced in China. The fabricated integrated circuit wafer are sourced from South Korea. \n\nIn China, the monocrystalline silicon wafer will be produced in-house: make the monocrystalline silicon wafer.\n\nIn China, the epitaxial layer will be produced in-house: deposit the epitaxial layer.\n\nFinal assembly in China: flip-chip the die to the substrate and pack.\n",
+      "prediction": {
+        "origin_country": "South Korea",
+        "key_factors": [
+          "Fabricated integrated circuit die on the wafer"
+        ],
+        "decisive_step": "Wafer fabrication (creating the integrated circuit on the wafer) in South Korea",
+        "confidence": 0.95,
+        "reasoning": "Consistent with CBP precedent for semiconductors (e.g., N333677), the essential character of an integrated circuit is imparted by the functional circuit die. Although the raw monocrystalline silicon wafer and epitaxial layer are produced in China, the wafer is substantially transformed in South Korea where front-end fabrication creates the 4,761 complete integrated circuit dies. Subsequent back-end dicing, flip-chip mounting to a substrate, and packaging in China are mere finishing and assembly operations that do not alter the die's fundamental character.",
+        "cited_rulings": [
+          "N333677"
+        ],
+        "precedents": [
+          "H304677",
+          "N329847",
+          "N332529",
+          "N333410",
+          "N333677"
+        ],
+        "trace": {
+          "llm_provider": "litellm",
+          "model_id": "gemini-4-argon",
+          "requested_model": "gemini-4-argon",
+          "prompt_version": "engine-v1",
+          "input_tokens": 2600,
+          "output_tokens": 214,
+          "latency_ms": 7299
+        }
+      },
+      "duty_effect_per_year": 0,
+      "added_cost_per_year": 5000,
+      "net_per_year": -5000,
+      "net_priced": true,
+      "shown": false,
+      "rejection_reason": "engine predicts origin South Korea, not China",
+      "rejection_kind": "engine_other_origin"
+    }
+  ],
+  "stats": {
+    "moves_searched": 7,
+    "engine_calls": 8,
+    "verifier_runs": 4,
+    "verifier_cached": 0,
+    "verifier_model_calls": 17,
+    "verifier_tool_calls": 24,
+    "input_tokens": 67342,
+    "output_tokens": 3325,
+    "engine_input_tokens": 20826,
+    "engine_output_tokens": 1748,
+    "verifier_input_tokens": 46516,
+    "verifier_output_tokens": 1577,
+    "wall_seconds": 63.873510583
+  },
+  "economics_illustrative": true,
+  "duty_rates_note": "Illustrative placeholder, not a sourced rate.",
+  "template_versions": {
+    "semiconductor_devices": "1"
+  },
+  "ranking": {
+    "rule": "tier_then_net",
+    "bar": 0.92,
+    "clear_from": 0.93
+  },
+  "llm_provider": "litellm",
+  "verifier_search": "local",
+  "cost_usd_promo": 0.167934,
+  "cost_usd_list": 0.335868,
+  "gateway_cost_usd": 0.15913319999999997,
+  "verifier_config": "prompt=v2 panel=off votes=1 near_miss=false follow=false bar=0.92",
+  "git_revision": "145a991365bbe6882297a787dcacd02d1b1bf966",
+  "time": "2026-11-22T18:00:49+08:00"
+}

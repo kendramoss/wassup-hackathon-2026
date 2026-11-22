@@ -1,0 +1,81 @@
+{
+  "family": "toys_build_kits",
+  "version": "1",
+  "union_default_operations": true,
+  "name": "Toys and build kits",
+  "note": "For plush toys, CBP finds that cutting fabric to shape and sewing the body shell confers origin, whereas stuffing, closing seams, or fitting fabric over a pre-made mechanical frame is treated as simple assembly. For unassembled electronic and mechanical build kits, packaging components together does not substantially transform them, so the kit retains the multiple origins of its key functional components like microcontrollers, motors, and structural parts. Written from 13 CBP substantial-transformation rulings outside every development and held-out split (D660); every cited ruling was checked against its facts and holding. Costs are illustrative defaults; users edit them.",
+  "sources": [
+    "H350263",
+    "N343777",
+    "N347170",
+    "N348808",
+    "N350221",
+    "N350222",
+    "N350296",
+    "N350297"
+  ],
+  "groups": [
+    {
+      "id": "plush_shell_cut_sew",
+      "name": "Plush cutting and sewing",
+      "operations": [
+        "Cut knit pile and faux fur fabrics from rolls to pattern shapes",
+        "Embroider facial features and decorative details onto cut fabric pieces",
+        "Sew cut fabric pieces together to form the unstuffed plush toy body shell"
+      ],
+      "movable": true,
+      "precedent": {
+        "confers_origin": [
+          "N343777",
+          "N347170"
+        ],
+        "not_enough": [],
+        "note": "CBP holds that cutting the fabric to shape and sewing or embroidering the body panels determines the country of origin of a plush toy (N343777, N347170)."
+      }
+    },
+    {
+      "id": "core_electronics_motors",
+      "name": "Motors, electronics and kit parts",
+      "operations": [
+        "Manufacture and program microcontrollers for coding and robotic build kits",
+        "Manufacture DC motors, geared motors, servo motors, and stepper motors",
+        "Assemble internal mechanical animation frameworks",
+        "Cut and shape plywood boards, triggers, guide rails, and linkage arms",
+        "Fabricate and etch acrylic pieces, color wheels, and injection-molded chassis parts",
+        "Produce breadboards, sensors, LED strips, battery packs, wiring, and fasteners"
+      ],
+      "movable": true,
+      "precedent": {
+        "confers_origin": [
+          "H350263",
+          "N348808",
+          "N350221",
+          "N350222",
+          "N350296",
+          "N350297"
+        ],
+        "not_enough": [],
+        "note": "In unassembled build kits and animated toys, the country of manufacture of the microcontroller, DC motor, or mechanical framework confers origin to that component or the toy (H350263, N348808, N350221, N350222, N350296, N350297)."
+      }
+    },
+    {
+      "id": "final_assembly",
+      "name": "Stuffing, closing and kit packing",
+      "operations": [
+        "Fill pre-sewn or cut plush shells with polyester fiber stuffing and plastic pellet bags",
+        "Sew plush shells closed, assemble around mechanical frames, and attach seam bindings and labels",
+        "Collate and package unassembled build kit components into retail boxes"
+      ],
+      "movable": false,
+      "precedent": {
+        "confers_origin": [],
+        "not_enough": [
+          "H350263",
+          "N343777",
+          "N348808"
+        ],
+        "note": "Stuffing and sewing closed pre-cut plush pieces or packaging unassembled kit components together into a retail box does not result in a substantial transformation (H350263, N343777, N348808)."
+      }
+    }
+  ]
+}

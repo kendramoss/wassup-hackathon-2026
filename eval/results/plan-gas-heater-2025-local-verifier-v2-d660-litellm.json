@@ -1,0 +1,767 @@
+{
+  "case_id": "gas-heater-2025",
+  "target": "Vietnam",
+  "family": "hvac_heating_units",
+  "baseline": {
+    "move": [],
+    "description": "No change: keep the current setup",
+    "variant_facts": "The merchandise under consideration is a Vent-free gas heater. A wall-mounted infrared or blue-flame gas heater for propane or natural gas with an oxygen depletion sensor. The Vent-free gas heater is assembled in Vietnam using components sourced from China and Vietnam.\n\nThe burner assembly, oxygen depletion sensor assemblies and ignitor module, front and back panel assemblies and wall bracket and thermostatic gas valve and aluminium tubes are produced in China. The gas selector valve and regulators are produced in Vietnam. \n\nFinal assembly in Vietnam: cut, punch, bend and paint, then assemble, tighten and test the heater.\n",
+    "prediction": {
+      "origin_country": "China",
+      "key_factors": [
+        "Chinese-origin burner assembly, oxygen depletion sensor assemblies, ignitor module, thermostatic gas valve, and front/back panel assemblies"
+      ],
+      "decisive_step": "Manufacturing of the core heating, safety, control, and housing subassemblies in China",
+      "confidence": 0.92,
+      "reasoning": "Following N346005, the essential character of a vent-free gas heating appliance is imparted by its core heating, control, and structural components. Here, the burner assembly, ODS assemblies, ignitor module, thermostatic valve, and front/back panel assemblies are all made in China, whereas Vietnam only supplies the selector valve and regulators. The processing in Vietnam (cutting, bending, painting minor parts, and final assembly/testing) is not complex enough to substantially transform the pre-manufactured Chinese subassemblies.",
+      "cited_rulings": [
+        "N346005"
+      ],
+      "precedents": [
+        "N335163",
+        "N338935",
+        "N340198",
+        "N344475",
+        "N346005"
+      ],
+      "trace": {
+        "llm_provider": "litellm",
+        "model_id": "gemini-4-argon",
+        "requested_model": "gemini-4-argon",
+        "prompt_version": "engine-v1",
+        "input_tokens": 2646,
+        "output_tokens": 241,
+        "latency_ms": 7938
+      }
+    },
+    "duty_effect_per_year": 0,
+    "added_cost_per_year": 0,
+    "net_per_year": 0,
+    "shown": false
+  },
+  "current_origin": {
+    "country": "China",
+    "ruling": "N345976"
+  },
+  "plans": [
+    {
+      "move": [
+        {
+          "group": "heating_cooling_core",
+          "to_plant": "vn"
+        }
+      ],
+      "description": "Move the burners and the oxygen depletion sensor assemblies and ignitor module to Vietnam",
+      "variant_facts": "The merchandise under consideration is a Vent-free gas heater. A wall-mounted infrared or blue-flame gas heater for propane or natural gas with an oxygen depletion sensor. The Vent-free gas heater is assembled in Vietnam using components sourced from Vietnam and China.\n\nThe burner assembly, oxygen depletion sensor assemblies and ignitor module and gas selector valve and regulators are produced in Vietnam. The front and back panel assemblies and wall bracket and thermostatic gas valve and aluminium tubes are sourced from China. \n\nIn Vietnam, the burner assembly and oxygen depletion sensor assemblies and ignitor module will be produced in-house (assumed from the product-family template; no operations were supplied for this group).\n\nFinal assembly in Vietnam: cut, punch, bend and paint, then assemble, tighten and test the heater.\n",
+      "prediction": {
+        "origin_country": "Vietnam",
+        "key_factors": [
+          "The burner assembly, oxygen depletion sensor (ODS) assemblies, ignitor module, gas selector valve, and regulators"
+        ],
+        "decisive_step": "In-house production of the core heating and safety assemblies (burner, ODS, ignitor, valves, regulators) alongside metal fabrication and final assembly in Vietnam",
+        "confidence": 0.92,
+        "reasoning": "Unlike in N346005 (where the burner, ODS pilots, and ignitor module originated in China, conferring Chinese origin), here the core functional heating and safety components—the burner assembly, ODS assemblies, ignitor module, selector valve, and regulators—are produced in Vietnam. Combined with Vietnamese metal fabrication (cutting, punching, bending, painting) and final assembly, the Chinese panels, bracket, thermostatic valve, and tubes undergo a substantial transformation in Vietnam, where the essential character of the gas heater is imparted.",
+        "cited_rulings": [
+          "N346005"
+        ],
+        "precedents": [
+          "N335163",
+          "N338935",
+          "N340198",
+          "N344475",
+          "N346005"
+        ],
+        "trace": {
+          "llm_provider": "litellm",
+          "model_id": "gemini-4-argon",
+          "requested_model": "gemini-4-argon",
+          "prompt_version": "engine-v1",
+          "input_tokens": 2685,
+          "output_tokens": 245,
+          "latency_ms": 7937
+        }
+      },
+      "verdict": {
+        "precedent_supported": true,
+        "supporting_ruling": "N346005",
+        "confidence": 0.94,
+        "reasoning": "In N346005 (involving nearly identical vent-free gas heating appliances assembled in Vietnam from Chinese and Vietnamese components), CBP explicitly held that the country of origin was China because the components imparting the essential character—specifically the burner assembly and ignitor module—originated in China, while Vietnamese processing was mainly simple assembly. In Variant B, production of the burner assembly, oxygen depletion sensor assemblies, and ignitor module moves to Vietnam, joining the Vietnamese-made gas selector valve, regulators, and metalworking/final assembly. Because all character-imparting heating and ignition components are now produced in Vietnam, the origin changes to Vietnam.",
+        "trail": [
+          {
+            "tool": "search",
+            "query": "gas heater burner assembly Vietnam China origin",
+            "rulings": [
+              "N341188",
+              "N346005",
+              "N339984",
+              "N335086",
+              "N335085",
+              "N339983",
+              "N340198",
+              "N344477"
+            ]
+          },
+          {
+            "tool": "search",
+            "query": "vent-free heater oxygen depletion sensor origin",
+            "rulings": [
+              "N346005",
+              "N337999",
+              "N341338",
+              "N336168",
+              "N341875",
+              "N338945",
+              "N338985",
+              "N340345"
+            ]
+          },
+          {
+            "tool": "search",
+            "query": "gas appliance burner assembly essential character origin",
+            "rulings": [
+              "N339983",
+              "N335085",
+              "N339984",
+              "N346005",
+              "N335086",
+              "N341188",
+              "N335170",
+              "H327732"
+            ]
+          },
+          {
+            "tool": "read",
+            "query": "N346005",
+            "rulings": [
+              "N346005"
+            ]
+          },
+          {
+            "tool": "read",
+            "query": "N344477",
+            "rulings": [
+              "N344477"
+            ]
+          },
+          {
+            "tool": "read",
+            "query": "N341188",
+            "rulings": [
+              "N341188"
+            ]
+          }
+        ],
+        "trace": {
+          "llm_provider": "litellm",
+          "model_id": "gemini-4-argon",
+          "prompt_version": "verifier-v2+known-a",
+          "input_tokens": 9188,
+          "output_tokens": 357,
+          "latency_ms": 0
+        }
+      },
+      "duty_effect_per_year": 250000,
+      "added_cost_per_year": 30000,
+      "net_per_year": 220000,
+      "net_priced": true,
+      "shown": true,
+      "tier": "clear_margin",
+      "parts_moved": 2,
+      "smallest_supported": true
+    },
+    {
+      "move": [
+        {
+          "group": "heating_cooling_core",
+          "to_plant": "vn"
+        },
+        {
+          "group": "valves_regulators_tubes",
+          "to_plant": "vn"
+        }
+      ],
+      "description": "Move the burners, the oxygen depletion sensor assemblies and ignitor module and the gas valves to Vietnam",
+      "variant_facts": "The merchandise under consideration is a Vent-free gas heater. A wall-mounted infrared or blue-flame gas heater for propane or natural gas with an oxygen depletion sensor. The Vent-free gas heater is assembled in Vietnam using components sourced from Vietnam and China.\n\nThe burner assembly, oxygen depletion sensor assemblies and ignitor module, thermostatic gas valve and aluminium tubes and gas selector valve and regulators are produced in Vietnam. The front and back panel assemblies and wall bracket are sourced from China. \n\nIn Vietnam, the burner assembly and oxygen depletion sensor assemblies and ignitor module will be produced in-house (assumed from the product-family template; no operations were supplied for this group).\n\nIn Vietnam, the thermostatic gas valve and aluminium tubes and gas selector valve and regulators will be produced in-house (assumed from the product-family template; no operations were supplied for this group).\n\nFinal assembly in Vietnam: cut, punch, bend and paint, then assemble, tighten and test the heater.\n",
+      "prediction": {
+        "origin_country": "Vietnam",
+        "key_factors": [
+          "The burner assembly, ODS assemblies, ignitor module, thermostatic gas valve, selector valve, and regulators"
+        ],
+        "decisive_step": "In-house production of the core heating and gas-control subassemblies combined with metal fabrication and final assembly in Vietnam",
+        "confidence": 0.95,
+        "reasoning": "Unlike in N346005 where the core heating components (burner, ODS pilots, ignitor module, thermostat valve) were of Chinese origin, here all critical functional gas-heating and control subassemblies (burner assembly, ODS assemblies, ignitor, thermostatic valve, selector valve, regulators) are produced in Vietnam. Combined with metal forming (cutting, punching, bending, painting) and final assembly in Vietnam, the Chinese front/back panels and brackets undergo a substantial transformation, and Vietnam imparts the essential character of the gas heater.",
+        "cited_rulings": [
+          "N346005"
+        ],
+        "precedents": [
+          "N335163",
+          "N338935",
+          "N340198",
+          "N344475",
+          "N346005"
+        ],
+        "trace": {
+          "llm_provider": "litellm",
+          "model_id": "gemini-4-argon",
+          "requested_model": "gemini-4-argon",
+          "prompt_version": "engine-v1",
+          "input_tokens": 2726,
+          "output_tokens": 251,
+          "latency_ms": 8748
+        }
+      },
+      "verdict": {
+        "precedent_supported": true,
+        "supporting_ruling": "N346005",
+        "confidence": 0.94,
+        "reasoning": "In N346005, CBP ruled on nearly identical vent-free gas heating appliances (made by GHP Group) assembled in Vietnam from Chinese and Vietnamese components. CBP held the origin was China because the majority of components, specifically the character-imparting components including the ignitor, burner assembly, oxygen depletion sensor (ODS) pilots, and thermostat valve, originated in China. In Variant B, production of the burner assembly, ODS assemblies, ignitor module, thermostatic gas valve, and aluminum tubes moves to Vietnam, leaving only panels and brackets from China. Because all character-imparting heating and control components are now produced in Vietnam, the origin changes to Vietnam.",
+        "trail": [
+          {
+            "tool": "search",
+            "query": "heater burner assembly valve regulator assembly origin",
+            "rulings": [
+              "N341188",
+              "N346005",
+              "N339983",
+              "N335085",
+              "N344930",
+              "N340198",
+              "N338935",
+              "N339984"
+            ]
+          },
+          {
+            "tool": "search",
+            "query": "gas heater burner assembly Vietnam China origin",
+            "rulings": [
+              "N341188",
+              "N346005",
+              "N339984",
+              "N335086",
+              "N335085",
+              "N339983",
+              "N340198",
+              "N344477"
+            ]
+          },
+          {
+            "tool": "search",
+            "query": "vent-free gas heater oxygen depletion sensor origin",
+            "rulings": [
+              "N346005",
+              "N335170",
+              "N337999",
+              "N341338",
+              "N336168",
+              "H328382",
+              "N341875",
+              "N333853"
+            ]
+          },
+          {
+            "tool": "read",
+            "query": "N346005",
+            "rulings": [
+              "N346005"
+            ]
+          },
+          {
+            "tool": "read",
+            "query": "N341188",
+            "rulings": [
+              "N341188"
+            ]
+          },
+          {
+            "tool": "read",
+            "query": "N340198",
+            "rulings": [
+              "N340198"
+            ]
+          }
+        ],
+        "trace": {
+          "llm_provider": "litellm",
+          "model_id": "gemini-4-argon",
+          "prompt_version": "verifier-v2+known-a",
+          "input_tokens": 9286,
+          "output_tokens": 366,
+          "latency_ms": 0
+        }
+      },
+      "duty_effect_per_year": 250000,
+      "added_cost_per_year": 35000,
+      "net_per_year": 215000,
+      "net_priced": true,
+      "shown": true,
+      "tier": "clear_margin",
+      "parts_moved": 3
+    },
+    {
+      "move": [
+        {
+          "group": "heating_cooling_core",
+          "to_plant": "vn"
+        },
+        {
+          "group": "chassis_metal_parts",
+          "to_plant": "vn"
+        }
+      ],
+      "description": "Move the burners, the oxygen depletion sensor assemblies and ignitor module and the chassis panels and brackets to Vietnam",
+      "variant_facts": "The merchandise under consideration is a Vent-free gas heater. A wall-mounted infrared or blue-flame gas heater for propane or natural gas with an oxygen depletion sensor. The Vent-free gas heater is assembled in Vietnam using components sourced from Vietnam and China.\n\nThe burner assembly, oxygen depletion sensor assemblies and ignitor module, front and back panel assemblies and wall bracket and gas selector valve and regulators are produced in Vietnam. The thermostatic gas valve and aluminium tubes are sourced from China. \n\nIn Vietnam, the burner assembly and oxygen depletion sensor assemblies and ignitor module will be produced in-house (assumed from the product-family template; no operations were supplied for this group).\n\nIn Vietnam, the front and back panel assemblies and wall bracket will be produced in-house (assumed from the product-family template; no operations were supplied for this group).\n\nFinal assembly in Vietnam: cut, punch, bend and paint, then assemble, tighten and test the heater.\n",
+      "prediction": {
+        "origin_country": "Vietnam",
+        "key_factors": [
+          "Burner assembly, oxygen depletion sensor (ODS) assemblies, ignitor module, and main panel housing"
+        ],
+        "decisive_step": "Manufacturing of the core heating/ignition components and metal panels, along with final assembly in Vietnam",
+        "confidence": 0.95,
+        "reasoning": "Unlike in N346005 (where the burner, ODS pilots, and ignitor module were Chinese, conferring Chinese origin), here the critical heating and safety components—the burner assembly, ODS assemblies, ignitor module, selector valve, regulators, and main panels—are all manufactured in Vietnam. Only the thermostatic gas valve and aluminum tubes are from China. The production of the essential heating components and structural housing, combined with final assembly in Vietnam, substantially transforms the parts into a Vietnamese-origin gas heater.",
+        "cited_rulings": [
+          "N346005"
+        ],
+        "precedents": [
+          "N335163",
+          "N338935",
+          "N340198",
+          "N344475",
+          "N346005"
+        ],
+        "trace": {
+          "llm_provider": "litellm",
+          "model_id": "gemini-4-argon",
+          "requested_model": "gemini-4-argon",
+          "prompt_version": "engine-v1",
+          "input_tokens": 2721,
+          "output_tokens": 245,
+          "latency_ms": 7789
+        }
+      },
+      "verdict": {
+        "precedent_supported": true,
+        "supporting_ruling": "N346005",
+        "confidence": 0.94,
+        "reasoning": "In N346005 (vent-free gas logs and stoves with identical component lists and assembly operations), CBP held that origin was China because the majority of components and those imparting character—specifically the ignitor, burner assembly, and ODS pilots—originated in China, while Vietnam only produced regulators, selector valves, and performed final assembly. In Variant B, the burner assembly, oxygen depletion sensor assemblies, ignitor module, and front/back panel assemblies are all produced in Vietnam, leaving only the thermostatic gas valve and aluminum tubes from China. Consistent with N346005, N340198, and N335163, producing the core heating/burner and housing assemblies in Vietnam confers Vietnam origin.",
+        "trail": [
+          {
+            "tool": "search",
+            "query": "gas heater burner assembly Vietnam China origin",
+            "rulings": [
+              "N341188",
+              "N346005",
+              "N339984",
+              "N335086",
+              "N335085",
+              "N339983",
+              "N340198",
+              "N344477"
+            ]
+          },
+          {
+            "tool": "search",
+            "query": "heater burner oxygen depletion sensor assembly origin",
+            "rulings": [
+              "N346005",
+              "N336168",
+              "N341875",
+              "N337999",
+              "N341338",
+              "N339984",
+              "N335086",
+              "N335163"
+            ]
+          },
+          {
+            "tool": "read",
+            "query": "N346005",
+            "rulings": [
+              "N346005"
+            ]
+          },
+          {
+            "tool": "read",
+            "query": "N335163",
+            "rulings": [
+              "N335163"
+            ]
+          },
+          {
+            "tool": "read",
+            "query": "N344477",
+            "rulings": [
+              "N344477"
+            ]
+          },
+          {
+            "tool": "read",
+            "query": "N340198",
+            "rulings": [
+              "N340198"
+            ]
+          }
+        ],
+        "trace": {
+          "llm_provider": "litellm",
+          "model_id": "gemini-4-argon",
+          "prompt_version": "verifier-v2+known-a",
+          "input_tokens": 14826,
+          "output_tokens": 410,
+          "latency_ms": 0
+        }
+      },
+      "duty_effect_per_year": 250000,
+      "added_cost_per_year": 40000,
+      "net_per_year": 210000,
+      "net_priced": true,
+      "shown": true,
+      "tier": "clear_margin",
+      "parts_moved": 3
+    },
+    {
+      "move": [
+        {
+          "group": "heating_cooling_core",
+          "to_plant": "vn"
+        },
+        {
+          "group": "chassis_metal_parts",
+          "to_plant": "vn"
+        },
+        {
+          "group": "valves_regulators_tubes",
+          "to_plant": "vn"
+        }
+      ],
+      "description": "Move the burners, the oxygen depletion sensor assemblies and ignitor module, the chassis panels and brackets and the gas valves to Vietnam",
+      "variant_facts": "The merchandise under consideration is a Vent-free gas heater. A wall-mounted infrared or blue-flame gas heater for propane or natural gas with an oxygen depletion sensor. The Vent-free gas heater is assembled in Vietnam using components sourced from Vietnam.\n\nThe burner assembly, oxygen depletion sensor assemblies and ignitor module, front and back panel assemblies and wall bracket, thermostatic gas valve and aluminium tubes and gas selector valve and regulators are produced in Vietnam. \n\nIn Vietnam, the burner assembly and oxygen depletion sensor assemblies and ignitor module will be produced in-house (assumed from the product-family template; no operations were supplied for this group).\n\nIn Vietnam, the front and back panel assemblies and wall bracket will be produced in-house (assumed from the product-family template; no operations were supplied for this group).\n\nIn Vietnam, the thermostatic gas valve and aluminium tubes and gas selector valve and regulators will be produced in-house (assumed from the product-family template; no operations were supplied for this group).\n\nFinal assembly in Vietnam: cut, punch, bend and paint, then assemble, tighten and test the heater.\n",
+      "prediction": {
+        "origin_country": "Vietnam",
+        "key_factors": [
+          "The burner assembly, gas valves, regulators, and housing panels manufactured in Vietnam"
+        ],
+        "decisive_step": "Fabrication of all major functional and structural subassemblies (burner, valves, panels) and final assembly in Vietnam",
+        "confidence": 0.99,
+        "reasoning": "Unlike N346005 (where key heating and control components were Chinese and simple assembly occurred in Vietnam), here all major functional and structural components—including the burner assembly, oxygen depletion sensor, ignitor module, thermostatic/selector valves, regulators, and metal panels—are produced in Vietnam. Furthermore, metal forming (cutting, punching, bending, painting) and final assembly and testing occur in Vietnam. Because the heater is wholly or substantially produced and assembled in Vietnam, the country of origin is Vietnam.",
+        "cited_rulings": [
+          "N346005"
+        ],
+        "precedents": [
+          "N335163",
+          "N338935",
+          "N340198",
+          "N344475",
+          "N346005"
+        ],
+        "trace": {
+          "llm_provider": "litellm",
+          "model_id": "gemini-4-argon",
+          "requested_model": "gemini-4-argon",
+          "prompt_version": "engine-v1",
+          "input_tokens": 2755,
+          "output_tokens": 247,
+          "latency_ms": 8086
+        }
+      },
+      "verdict": {
+        "precedent_supported": true,
+        "supporting_ruling": "N346005",
+        "confidence": 0.96,
+        "reasoning": "In N346005, CBP ruled on nearly identical vent-free gas heating appliances assembled in Vietnam from Chinese and Vietnamese parts, holding that origin was China because the majority of components—specifically the character-imparting burner assembly, ignitor module, ODS pilots, and thermostat valve—originated in China, while Vietnamese assembly was simple. Similarly, in N335163, CBP held that space heaters originated in Vietnam where the heating elements and housing panels were produced in Vietnam. In Variant B, production of all listed components (including the burner assembly, ODS assemblies, ignitor module, panels, and valves) moves to Vietnam, rendering the heater of Vietnamese origin.",
+        "trail": [
+          {
+            "tool": "search",
+            "query": "gas heater burner assembly Vietnam China",
+            "rulings": [
+              "N341188",
+              "N346005",
+              "N339984",
+              "N335086",
+              "N335085",
+              "N339983",
+              "N340198",
+              "N344477"
+            ]
+          },
+          {
+            "tool": "search",
+            "query": "heater burner assembly oxygen depletion sensor",
+            "rulings": [
+              "N346005",
+              "N336168",
+              "N341875",
+              "N337999",
+              "N341338",
+              "N339984",
+              "N335086",
+              "N335163"
+            ]
+          },
+          {
+            "tool": "search",
+            "query": "patio heater gas burner assembly origin",
+            "rulings": [
+              "N339984",
+              "N346005",
+              "N335086",
+              "N341188",
+              "N339983",
+              "N335085",
+              "N344477",
+              "N344661"
+            ]
+          },
+          {
+            "tool": "read",
+            "query": "N346005",
+            "rulings": [
+              "N346005"
+            ]
+          },
+          {
+            "tool": "read",
+            "query": "N335163",
+            "rulings": [
+              "N335163"
+            ]
+          },
+          {
+            "tool": "read",
+            "query": "N344477",
+            "rulings": [
+              "N344477"
+            ]
+          }
+        ],
+        "trace": {
+          "llm_provider": "litellm",
+          "model_id": "gemini-4-argon",
+          "prompt_version": "verifier-v2+known-a",
+          "input_tokens": 9133,
+          "output_tokens": 363,
+          "latency_ms": 0
+        }
+      },
+      "duty_effect_per_year": 250000,
+      "added_cost_per_year": 45000,
+      "net_per_year": 205000,
+      "net_priced": true,
+      "shown": true,
+      "tier": "clear_margin",
+      "parts_moved": 4
+    }
+  ],
+  "rejected": [
+    {
+      "move": [],
+      "description": "No change: keep the current setup",
+      "variant_facts": "The merchandise under consideration is a Vent-free gas heater. A wall-mounted infrared or blue-flame gas heater for propane or natural gas with an oxygen depletion sensor. The Vent-free gas heater is assembled in Vietnam using components sourced from China and Vietnam.\n\nThe burner assembly, oxygen depletion sensor assemblies and ignitor module, front and back panel assemblies and wall bracket and thermostatic gas valve and aluminium tubes are produced in China. The gas selector valve and regulators are produced in Vietnam. \n\nFinal assembly in Vietnam: cut, punch, bend and paint, then assemble, tighten and test the heater.\n",
+      "prediction": {
+        "origin_country": "China",
+        "key_factors": [
+          "Chinese-origin burner assembly, oxygen depletion sensor assemblies, ignitor module, thermostatic gas valve, and front/back panel assemblies"
+        ],
+        "decisive_step": "Manufacturing of the core heating, safety, control, and housing subassemblies in China",
+        "confidence": 0.92,
+        "reasoning": "Following N346005, the essential character of a vent-free gas heating appliance is imparted by its core heating, control, and structural components. Here, the burner assembly, ODS assemblies, ignitor module, thermostatic valve, and front/back panel assemblies are all made in China, whereas Vietnam only supplies the selector valve and regulators. The processing in Vietnam (cutting, bending, painting minor parts, and final assembly/testing) is not complex enough to substantially transform the pre-manufactured Chinese subassemblies.",
+        "cited_rulings": [
+          "N346005"
+        ],
+        "precedents": [
+          "N335163",
+          "N338935",
+          "N340198",
+          "N344475",
+          "N346005"
+        ],
+        "trace": {
+          "llm_provider": "litellm",
+          "model_id": "gemini-4-argon",
+          "requested_model": "gemini-4-argon",
+          "prompt_version": "engine-v1",
+          "input_tokens": 2646,
+          "output_tokens": 241,
+          "latency_ms": 7938
+        }
+      },
+      "duty_effect_per_year": 0,
+      "added_cost_per_year": 0,
+      "net_per_year": 0,
+      "shown": false,
+      "rejection_reason": "current setup: CBP held China (N345976); engine predicts China",
+      "rejection_kind": "current_setup"
+    },
+    {
+      "move": [
+        {
+          "group": "chassis_metal_parts",
+          "to_plant": "vn"
+        }
+      ],
+      "description": "Move the chassis panels and brackets to Vietnam",
+      "variant_facts": "The merchandise under consideration is a Vent-free gas heater. A wall-mounted infrared or blue-flame gas heater for propane or natural gas with an oxygen depletion sensor. The Vent-free gas heater is assembled in Vietnam using components sourced from China and Vietnam.\n\nThe burner assembly, oxygen depletion sensor assemblies and ignitor module and thermostatic gas valve and aluminium tubes are produced in China. The front and back panel assemblies and wall bracket and gas selector valve and regulators are produced in Vietnam. \n\nIn Vietnam, the front and back panel assemblies and wall bracket will be produced in-house (assumed from the product-family template; no operations were supplied for this group).\n\nFinal assembly in Vietnam: cut, punch, bend and paint, then assemble, tighten and test the heater.\n",
+      "prediction": {
+        "origin_country": "China",
+        "key_factors": [
+          "The burner assembly, oxygen depletion sensor (ODS) assemblies, ignitor module, and thermostatic gas valve"
+        ],
+        "decisive_step": "Manufacturing of the core heating, ignition, and safety control components in China",
+        "confidence": 0.9,
+        "reasoning": "Following NY N346005, the essential character of a vent-free gas heating appliance is imparted by its core functional heating and control components—specifically the burner assembly, ODS assemblies, ignitor module, and thermostatic gas valve—all of which are made in China. Although Vietnam produces the structural panels, brackets, regulators, and selector valve, and performs final assembly, the Chinese components have a predetermined end-use and do not undergo a substantial transformation during simple assembly in Vietnam.",
+        "cited_rulings": [
+          "N346005"
+        ],
+        "precedents": [
+          "N335163",
+          "N338935",
+          "N340198",
+          "N344475",
+          "N346005"
+        ],
+        "trace": {
+          "llm_provider": "litellm",
+          "model_id": "gemini-4-argon",
+          "requested_model": "gemini-4-argon",
+          "prompt_version": "engine-v1",
+          "input_tokens": 2682,
+          "output_tokens": 220,
+          "latency_ms": 13209
+        }
+      },
+      "duty_effect_per_year": 0,
+      "added_cost_per_year": 10000,
+      "net_per_year": -10000,
+      "net_priced": true,
+      "shown": false,
+      "rejection_reason": "engine predicts origin China, not Vietnam",
+      "rejection_kind": "engine_other_origin"
+    },
+    {
+      "move": [
+        {
+          "group": "valves_regulators_tubes",
+          "to_plant": "vn"
+        }
+      ],
+      "description": "Move the gas valves to Vietnam",
+      "variant_facts": "The merchandise under consideration is a Vent-free gas heater. A wall-mounted infrared or blue-flame gas heater for propane or natural gas with an oxygen depletion sensor. The Vent-free gas heater is assembled in Vietnam using components sourced from China and Vietnam.\n\nThe burner assembly, oxygen depletion sensor assemblies and ignitor module and front and back panel assemblies and wall bracket are produced in China. The thermostatic gas valve and aluminium tubes and gas selector valve and regulators are produced in Vietnam. \n\nIn Vietnam, the thermostatic gas valve and aluminium tubes and gas selector valve and regulators will be produced in-house (assumed from the product-family template; no operations were supplied for this group).\n\nFinal assembly in Vietnam: cut, punch, bend and paint, then assemble, tighten and test the heater.\n",
+      "prediction": {
+        "origin_country": "China",
+        "key_factors": [
+          "Burner assembly, oxygen depletion sensor (ODS) assemblies, ignitor module, and main panel assemblies"
+        ],
+        "decisive_step": "Production of the core heating and structural components (burner assembly, ODS, ignitor, panels) in China",
+        "confidence": 0.9,
+        "reasoning": "Following precedent N346005, the essential character of the vent-free gas heater is imparted by the core heating and structural components—specifically the burner assembly, oxygen depletion sensor (ODS) assemblies, ignitor module, and front/back panel assemblies—all produced in China. While Vietnam manufactures the valves, regulators, and tubes, the final assembly in Vietnam (fastening, tightening, and testing) is not sufficiently complex to substantially transform the pre-manufactured Chinese heating and structural components into a new article of commerce.",
+        "cited_rulings": [
+          "N346005"
+        ],
+        "precedents": [
+          "N335163",
+          "N338935",
+          "N340198",
+          "N344475",
+          "N346005"
+        ],
+        "trace": {
+          "llm_provider": "litellm",
+          "model_id": "gemini-4-argon",
+          "requested_model": "gemini-4-argon",
+          "prompt_version": "engine-v1",
+          "input_tokens": 2687,
+          "output_tokens": 234,
+          "latency_ms": 7710
+        }
+      },
+      "duty_effect_per_year": 0,
+      "added_cost_per_year": 5000,
+      "net_per_year": -5000,
+      "net_priced": true,
+      "shown": false,
+      "rejection_reason": "engine predicts origin China, not Vietnam",
+      "rejection_kind": "engine_other_origin"
+    },
+    {
+      "move": [
+        {
+          "group": "chassis_metal_parts",
+          "to_plant": "vn"
+        },
+        {
+          "group": "valves_regulators_tubes",
+          "to_plant": "vn"
+        }
+      ],
+      "description": "Move the chassis panels and brackets and the gas valves to Vietnam",
+      "variant_facts": "The merchandise under consideration is a Vent-free gas heater. A wall-mounted infrared or blue-flame gas heater for propane or natural gas with an oxygen depletion sensor. The Vent-free gas heater is assembled in Vietnam using components sourced from China and Vietnam.\n\nThe burner assembly and oxygen depletion sensor assemblies and ignitor module are produced in China. The front and back panel assemblies and wall bracket, thermostatic gas valve and aluminium tubes and gas selector valve and regulators are produced in Vietnam. \n\nIn Vietnam, the front and back panel assemblies and wall bracket will be produced in-house (assumed from the product-family template; no operations were supplied for this group).\n\nIn Vietnam, the thermostatic gas valve and aluminium tubes and gas selector valve and regulators will be produced in-house (assumed from the product-family template; no operations were supplied for this group).\n\nFinal assembly in Vietnam: cut, punch, bend and paint, then assemble, tighten and test the heater.\n",
+      "prediction": {
+        "origin_country": "China",
+        "key_factors": [
+          "Burner assembly, oxygen depletion sensor (ODS) assemblies, and ignitor module"
+        ],
+        "decisive_step": "Manufacturing of the core heating and ignition components (burner, ODS, ignitor) in China",
+        "confidence": 0.78,
+        "reasoning": "Following N346005, the essential character of a vent-free gas heating appliance is imparted by its core functional heating components, specifically the burner assembly, oxygen depletion sensor (ODS), and ignitor module, all of which are produced in China. Although Vietnam produces structural panels, valves, and regulators via cutting, punching, and bending, the final assembly of these parts with the pre-manufactured Chinese heating core does not substantially transform the Chinese components into a new article of commerce.",
+        "cited_rulings": [
+          "N346005"
+        ],
+        "precedents": [
+          "N335163",
+          "N338935",
+          "N340198",
+          "N344475",
+          "N346005"
+        ],
+        "trace": {
+          "llm_provider": "litellm",
+          "model_id": "gemini-4-argon",
+          "requested_model": "gemini-4-argon",
+          "prompt_version": "engine-v1",
+          "input_tokens": 2723,
+          "output_tokens": 206,
+          "latency_ms": 9130
+        }
+      },
+      "duty_effect_per_year": 0,
+      "added_cost_per_year": 15000,
+      "net_per_year": -15000,
+      "net_priced": true,
+      "shown": false,
+      "rejection_reason": "engine predicts origin China, not Vietnam",
+      "rejection_kind": "engine_other_origin"
+    }
+  ],
+  "stats": {
+    "moves_searched": 7,
+    "engine_calls": 8,
+    "verifier_runs": 4,
+    "verifier_cached": 0,
+    "verifier_model_calls": 13,
+    "verifier_tool_calls": 24,
+    "input_tokens": 64058,
+    "output_tokens": 3385,
+    "engine_input_tokens": 21625,
+    "engine_output_tokens": 1889,
+    "verifier_input_tokens": 42433,
+    "verifier_output_tokens": 1496,
+    "wall_seconds": 45.217151459
+  },
+  "economics_illustrative": true,
+  "duty_rates_note": "Illustrative placeholder, not a sourced rate.",
+  "template_versions": {
+    "hvac_heating_units": "1"
+  },
+  "ranking": {
+    "rule": "tier_then_net",
+    "bar": 0.92,
+    "clear_from": 0.93
+  },
+  "llm_provider": "litellm",
+  "verifier_search": "local",
+  "cost_usd_promo": 0.161966,
+  "cost_usd_list": 0.323932,
+  "gateway_cost_usd": 0.16196599999999997,
+  "verifier_config": "prompt=v2 panel=off votes=1 near_miss=false follow=false bar=0.92",
+  "git_revision": "145a991365bbe6882297a787dcacd02d1b1bf966",
+  "time": "2026-11-22T18:00:30+08:00"
+}

@@ -1,0 +1,94 @@
+{
+  "family": "golf_sporting_goods",
+  "version": "1",
+  "union_default_operations": true,
+  "name": "Golf clubs and sporting goods",
+  "note": "For golf clubs and sporting goods, CBP typically determines that origin is conferred by the primary forming operations that establish the article's shape and functional character, such as forging, casting, or metal injection molding of club heads, cover molding of golf balls, and manufacturing the main structural shells and release mechanisms of bindings. Conversely, downstream cosmetic finishing of pre-formed metal heads—such as polishing, plating, painting, and laser engraving—or adding secondary textile liners, bags, and grips does not constitute a substantial transformation. Written from 6 CBP substantial-transformation rulings outside every development and held-out split (D660); every cited ruling was checked against its facts and holding. Costs are illustrative defaults; users edit them.",
+  "sources": [
+    "H332922",
+    "N334283",
+    "N334756",
+    "N340536",
+    "N346303"
+  ],
+  "groups": [
+    {
+      "id": "primary_head_forming",
+      "name": "Club heads and balls",
+      "operations": [
+        "Cut, heat, hammer, and compress carbon steel billets into rough golf club head shapes via forging",
+        "Mix metallic powder with binder, injection mold, de-bind, and sinter golf putter heads in a vacuum furnace",
+        "Melt and cast titanium or stainless steel into wax-molded hard-shell clusters and deshell into individual club heads",
+        "Mix, cut, apply heat and pressure, and buff raw material into an uncoated golf ball core",
+        "Perform cover extrusion and injection molding over the raw golf ball core",
+        "Apply base coating and markings to create a finished functional golf ball"
+      ],
+      "movable": true,
+      "precedent": {
+        "confers_origin": [
+          "H332922",
+          "N340536",
+          "N346303"
+        ],
+        "not_enough": [],
+        "note": "CBP held that forging in H332922, metal injection molding and sintering in N340536, and investment casting in N346303 establish the final shape and character of golf club heads and confer origin."
+      }
+    },
+    {
+      "id": "boot_and_binding_parts",
+      "name": "Ski boot shells and bindings",
+      "operations": [
+        "Injection mold hard-shell boots from rubber or plastics and assemble with aluminum buckles",
+        "Manufacture the automatic release mechanism for the ski binding",
+        "Injection mold the binding base plate, front and rear outsole, and toe bar"
+      ],
+      "movable": true,
+      "precedent": {
+        "confers_origin": [
+          "N334283"
+        ],
+        "not_enough": [],
+        "note": "CBP held France the origin of a water ski boot and binding set because the hard-shell boot and the binding's release mechanism were made there (N334283)."
+      }
+    },
+    {
+      "id": "textiles_and_grips",
+      "name": "Grips, liners and bags",
+      "operations": [
+        "Mold thermoplastic resin grips for golf clubs",
+        "Construct polyester textile golf bags and club headcovers",
+        "Cut and stitch foam and fabric into removable boot liners"
+      ],
+      "movable": true,
+      "precedent": {
+        "confers_origin": [],
+        "not_enough": [
+          "N334283",
+          "N334756"
+        ],
+        "note": "CBP determined that producing stitched foam and fabric boot liners in N334283 or thermoplastic grips and polyester bags and headcovers in N334756 did not confer origin to the finished sporting goods."
+      }
+    },
+    {
+      "id": "final_assembly",
+      "name": "Head finishing and club assembly",
+      "operations": [
+        "Polish, plate, paint, and laser engrave forged, cast, or sintered golf club heads and drill stem holes",
+        "Assemble golf club heads with shafts and mold thermoplastic grips onto the clubs",
+        "Insert boot liners and package clubs, headcovers, bags, or bindings into retail sets"
+      ],
+      "movable": false,
+      "precedent": {
+        "confers_origin": [
+          "N334756"
+        ],
+        "not_enough": [
+          "H332922",
+          "N340536",
+          "N346303"
+        ],
+        "note": "CBP held that assembling complete golf clubs from components conferred origin in N334756, whereas cosmetic finishing, drilling, plating, painting, and engraving of pre-formed club heads in H332922, N340536, and N346303 did not."
+      }
+    }
+  ]
+}

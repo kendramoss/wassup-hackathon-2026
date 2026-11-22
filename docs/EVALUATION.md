@@ -118,7 +118,7 @@ A change counts only for cases dated after the revoking ruling's date (D370). On
 
 | Committed rows | Rows | Showed a superseded precedent | Cited one |
 |---|---:|---:|---:|
-| All result rows with rulings (152 files) | 14,114 | 23 | 8 |
+| All result rows with rulings (158 files) | 14,160 | 23 | 8 |
 | Development engine runs (general) | | 1 (N355148, N331974 shown) | 0 |
 | First held-out split, engine (4 runs) | | 8 (N361172 and N364229, N331974 shown) | 3 |
 | Textile development runs | | 8 (N345891 shown) | 4 |
@@ -138,7 +138,7 @@ A saved case now says when CBP has revoked or modified a ruling it relies on (ci
 
 | Committed results | Count | Would show |
 |---|---:|---|
-| Result rows naming rulings | 14,055 | |
+| Result rows naming rulings | 14,101 | |
 | Relied-on ruling changed on or after the case date | 2 (4 before D490) | the "look again" alert |
 | Relied-on ruling changed before the case date | 7 (8 before D490) | the alert, marked as stored before the guard (7 of the 8 of section 2.5; the eighth also cites the revoker) |
 | Relied-on ruling with a proposed change only | 0 | a calm line |
@@ -870,3 +870,37 @@ The map would also make the shown confidence worse (held-out ECE 0.2371 against 
 **Follow-up: latency (D611, D614).** Window 1's 95th percentile under `usmca-v5` (27.8 s) is its second-slowest of 32 calls. Both slow calls had ordinary output (200 and 274 tokens, median 256) and no retry, and `usmca-v5` is not slower on the 72 development rulings (95th percentile 18.3 s against `usmca-v1`'s 21.8 s). A development re-run of `usmca-v5` (gateway slower that day, median 12.6 s against 7.9 s) shows the slow calls do not repeat by ruling (rank correlation −0.07 with the earlier run), so the tail comes from the gateway and provider, not the prompt. A hedged request (send the call again after 12 s, keep the first answer) cut the 95th-percentile wall time from 51.4 s to 40.2 s with the median unchanged and 54 against 57 right, but it fired on 38 of 72 calls. It stays an evaluation option, off by default; production calls Vertex AI, not the gateway. Spend $1.6649.
 
 **Follow-up: window 2's precedents (D612).** The committed window-2 command named a facts directory that does not exist from `backend/`, so window-2 cases had only the 15 window-2 rulings as precedents, not the 473 earlier ones. `eval run` now stops on a missing facts directory, and the corrected command is in D612. Window 2 was not re-scored.
+
+## 17. A third round of plan templates (22 Nov 2026, D660, D661)
+
+**Why.** A plan needs a template. With 20 families, the production family check found one for 67.6% of general development rulings and 68.1% of Part 102 development rulings; the rest get an origin and no plan.
+
+**How the families were chosen.** Only development and pool rulings were read: general development (469), a new substantial-transformation pool (rulings dated before 2026 and in no development, held-out, pilot or tune-check list of any regime; 661 with one held origin), Part 102 development (72) and D580's Part 102 pool (239). The family check with 20 templates ran on both pools. Of the 1,436 rulings, 440 had no template. A cheap model labelled each with a product noun and category; the good's code was read from the full text where CBP states it. A first count by category, written before the counts were seen, kept five categories, two of them unrelated goods under one label. The pick used a second rule, written after that count: group by product type (a fixed pattern over the product noun and subject), keep types with at least 10 rulings with no template and at least 5 pool rulings in one regime, at most 8. That kept six, all substantial transformation by majority of their pool rulings.
+
+| Product type | No template | Pool rulings | Picked |
+|---|---:|---:|---|
+| Paper and tissue products | 73 | 55 | yes |
+| Car air, oil and cabin filters | 23 | 0 | no |
+| Off-road vehicles and mobile machinery | 20 | 13 | yes |
+| Semiconductor devices | 16 | 10 | yes |
+| Bicycles, e-bikes and scooters | 13 | 4 | no |
+| Golf clubs and sporting goods | 13 | 6 | yes |
+| Toys and build kits | 12 | 13 | yes |
+| Heat pumps, furnaces and heaters | 11 | 5 | yes |
+
+**How they were written.** The D138 method: one draft per family from its pool rulings, every citation checked against the ruling's facts and holding, unsupported citations dropped, two groups with none merged and checked again, and the holdings of every citation in a movable group read by the agent. 123 citations of 59 rulings. A test bars every development, held-out, pilot and tune-check ruling of every regime, rulings dated 2026 or later, and revoked or modified rulings.
+
+**Coverage (scope, not accuracy), the production family check; failed checks count as none.**
+
+| Set | Before | With 26 families | On rulings both runs answered |
+|---|---|---|---|
+| General development (469) | 317 (67.6%), 20 families | **349 (74.4%, 70.3–78.2)** | 313 → 348; 37 gained, 2 lost, 3 moved |
+| Part 102 development (72) | 49 (68.1%), 20 families | **50 (69.4%, 58.0–78.9)** | 49 → 50; 3 gained, 2 lost |
+| First held-out split (377), read once | 224 (59.4%), 14 families | **298 (79.0%, 74.7–82.9)** | 223 → 294; 71 gained, 0 lost, 6 moved |
+| Frozen held-out Part 102 set (18), read once | 8 (44.4%), 20 families | **8 (44.4%, 24.6–66.3)** | 8 → 7; 1 lost, 1 moved |
+
+The development rulings were counted to pick the families, so their gain is not an independent test. The held-out read was pre-registered in D660 and run once per set; there is no 20-family run of the 377, so its rise includes D580's six (41 of the 71 gains) as well as these six (28). On the frozen Part 102 set the new families added nothing: its uncovered goods (waxes, an emulsion, hoses, luggage, fishing tackle, a seal and others) are still outside every family.
+
+**Live plan checks, one per family (development).** On fixtures built from a cited pool ruling, 5 of 6 searches show a precedent-supported plan and 1 goes to a broker (`eval/results/families-r3-live-checks.json`). Four are reverse probes, where CBP did not hold China. The plush toy found the move CBP itself held Vietnam on, but the check scored it 0.90, below the 0.92 bar. On the AGV, CBP's later case moved one frame; that move scored 0.90 too, so the plan shown moves both. $0.57 for six searches, median 49 s.
+
+**Not done.** No held-out plan search was run. Car filters and bicycles were counted but have too few pool rulings to write from. The rulings with no template that fit no type (229, 67 of them chemicals and pharmaceuticals) are not addressed. Sources: `eval/results/families-r3-*.json*`, `families-coverage-*-f26.jsonl`; cost $6.78 for D660 and D661.

@@ -1,0 +1,97 @@
+{
+  "_source": "CBP ruling N336445 (5 Dec 2023): an automated guided vehicle for battery electrode rolls; the lower frame (chassis) and upper frame with its shear lifting mechanism are cut, welded and assembled in China, then completed in South Korea with the drive assembly, battery, controllers, sensors, cover and software: CBP held China. N337718 (2024), the same vehicle with a Korean handling frame and roll tray, held South Korea; it is in the pool too and excluded. Where the drive parts are made is not stated; the fixture files them under the Korean plant. In the D660 selection pool (substantial transformation, dated before 2026, in no development, held-out or tune-check split) and excluded. Target by the D171 rule; plant capabilities at the target are an assumption.",
+  "case_id": "roll-agv-2023",
+  "date": "2023-12-05",
+  "family": "offroad_vehicles_machinery",
+  "target": "South Korea",
+  "product": {
+    "name": "Automated guided vehicle for electrode rolls",
+    "description": "A self-navigating vehicle with a lifting mechanism that raises a feeder assembly to load anode and cathode rolls in a battery plant.",
+    "plants": [
+      {
+        "id": "cn",
+        "name": "China frame fabricator",
+        "country": "China",
+        "capabilities": [
+          "chassis_frame_fab",
+          "working_structure_fab"
+        ]
+      },
+      {
+        "id": "kr",
+        "name": "South Korea assembly plant",
+        "country": "South Korea",
+        "capabilities": [
+          "chassis_frame_fab",
+          "working_structure_fab",
+          "powertrain_electronics",
+          "final_assembly"
+        ]
+      }
+    ],
+    "components": [
+      {
+        "name": "lower frame assembly (chassis) with drive frame components",
+        "made_in": "China",
+        "plant": "cn",
+        "group": "chassis_frame_fab"
+      },
+      {
+        "name": "upper frame assembly with roller support and shear lifting mechanism",
+        "made_in": "China",
+        "plant": "cn",
+        "group": "working_structure_fab"
+      },
+      {
+        "name": "drive assembly, battery, casters and controllers",
+        "made_in": "South Korea",
+        "plant": "kr",
+        "group": "powertrain_electronics"
+      }
+    ],
+    "operations": [
+      {
+        "name": "cut, weld and polish metal plates into the chassis and fit the drive frame components",
+        "plant": "cn",
+        "group": "chassis_frame_fab"
+      },
+      {
+        "name": "weld tubing, sheets and plates into the upper frame and mount the lifting and roller support mechanisms",
+        "plant": "cn",
+        "group": "working_structure_fab"
+      },
+      {
+        "name": "install the drive assembly, battery, controllers, cameras, sensors and wiring, join the frames, fit the cover, load software, calibrate and test",
+        "plant": "kr",
+        "group": "final_assembly"
+      }
+    ]
+  },
+  "economics": {
+    "illustrative": true,
+    "annual_import_value_usd": 1000000,
+    "duty_rates": {
+      "China": 0.25,
+      "South Korea": 0.0
+    },
+    "duty_rates_note": "Illustrative placeholder, not a sourced rate.",
+    "group_costs": {
+      "chassis_frame_fab": {
+        "cn": 120000,
+        "kr": 150000
+      },
+      "working_structure_fab": {
+        "cn": 90000,
+        "kr": 115000
+      }
+    }
+  },
+  "exclude_rulings": [
+    "N336445",
+    "N337718"
+  ],
+  "current_origin": {
+    "country": "China",
+    "ruling": "N336445"
+  }
+}

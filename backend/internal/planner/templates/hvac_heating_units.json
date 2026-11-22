@@ -1,0 +1,113 @@
+{
+  "family": "hvac_heating_units",
+  "version": "1",
+  "union_default_operations": true,
+  "name": "Heat pumps, furnaces and heaters",
+  "note": "For heating and cooling units, CBP confers origin where the primary functional components (such as the compressor, evaporator, condenser, burner assembly, and core subassemblies) are manufactured, or where sheet metal fabrication of the chassis is combined with complex multi-stage subassembly production. Conversely, CBP treats assembling pre-manufactured heating or cooling subassemblies, valves, and panels by tightening, wiring, and testing as simple assembly that does not confer origin. Written from 5 CBP substantial-transformation rulings outside every development and held-out split (D660); every cited ruling was checked against its facts and holding. Costs are illustrative defaults; users edit them.",
+  "sources": [
+    "N345976",
+    "N347270",
+    "N347271",
+    "N347272",
+    "N348913"
+  ],
+  "groups": [
+    {
+      "id": "compressor_unit",
+      "name": "Compressor",
+      "operations": [
+        "Cast the compressor housing from aluminum or iron material",
+        "Fabricate and machine the crankshaft, cylinder head, and piston",
+        "Construct rotor and stator subassembly, piston and cylinder subassembly, and motor-driven subassembly",
+        "Apply lubrication and seals to complete the compressor"
+      ],
+      "movable": true,
+      "precedent": {
+        "confers_origin": [
+          "N348913"
+        ],
+        "not_enough": [
+          "N348913"
+        ],
+        "note": "In N348913, manufacturing the compressor in India contributed to Indian origin in Scenario 1, whereas manufacturing the compressor in China in Scenarios 2 and 3 did not overcome the origin of the majority of the other cooling components from India."
+      }
+    },
+    {
+      "id": "heating_cooling_core",
+      "name": "Burners, heat exchangers and coils",
+      "operations": [
+        "Manufacture burner assembly, oxygen depletion sensor assemblies, and ignitor module",
+        "Produce primary and secondary heat exchangers, evaporator, and condenser",
+        "Manufacture main control board, motors, centrifugal and exhaust fans, thermostats, sensors, and switches"
+      ],
+      "movable": true,
+      "precedent": {
+        "confers_origin": [
+          "N345976",
+          "N348913"
+        ],
+        "not_enough": [
+          "N347271"
+        ],
+        "note": "Origin followed the country that made most of the cooling components (N348913) and the burner, oxygen depletion sensor and ignitor assemblies (N345976); heat exchangers, control boards and burners made in China did not make China the origin of furnaces whose chassis was made and assembled in Thailand (N347271)."
+      }
+    },
+    {
+      "id": "chassis_metal_parts",
+      "name": "Chassis panels and brackets",
+      "operations": [
+        "Stamp, cut, punch holes, and bend steel into top, bottom, left, right, front, and back chassis panels",
+        "Fabricate mounting brackets, fixed plates, base seal plates, support plates, and air shields",
+        "Weld and powder coat or paint the structural sheet metal components"
+      ],
+      "movable": true,
+      "precedent": {
+        "confers_origin": [
+          "N347270",
+          "N347271",
+          "N347272"
+        ],
+        "not_enough": [],
+        "note": "Producing the chassis panels and internal mounting plates from raw steel by stamping, bending, welding, and powder coating in Thailand supported Thai origin (N347270, N347271, N347272)."
+      }
+    },
+    {
+      "id": "valves_regulators_tubes",
+      "name": "Gas valves and tubing",
+      "operations": [
+        "Manufacture gas selector valves, thermostatic gas valves, and LP/NG pressure regulators",
+        "Cut, bend, punch, and paint tubing and minor fittings"
+      ],
+      "movable": true,
+      "precedent": {
+        "confers_origin": [],
+        "not_enough": [
+          "N345976"
+        ],
+        "note": "In N345976, manufacturing the gas selector valve and LP/NG regulators in Vietnam and performing cutting, hole punching, painting, and bending was not enough to confer Vietnamese origin when the burner, panels, and other core components were imported from China."
+      }
+    },
+    {
+      "id": "final_assembly",
+      "name": "Final assembly",
+      "operations": [
+        "Build key internal subassemblies and mount components onto the chassis and installation boards",
+        "Enclose compressor, evaporator, condenser, or heat exchangers and burner within the housing panels and shroud",
+        "Connect wiring, thermocouples, valves, and sensors, tighten fasteners, and test the finished unit"
+      ],
+      "movable": false,
+      "precedent": {
+        "confers_origin": [
+          "N347270",
+          "N347271",
+          "N347272"
+        ],
+        "not_enough": [
+          "N345976",
+          "N348913"
+        ],
+        "note": "Final assembly conferred origin when combined with local sheet metal fabrication and key subassembly manufacturing (N347270, N347271, N347272), but final assembly alone did not confer origin (N345976)."
+      }
+    }
+  ]
+}

@@ -1,0 +1,250 @@
+{
+  "case_id": "plush-dinosaur-2024",
+  "target": "Vietnam",
+  "family": "toys_build_kits",
+  "baseline": {
+    "move": [],
+    "description": "No change: keep the current setup",
+    "variant_facts": "The merchandise under consideration is a Plush dinosaur toy. A 22-inch plush dinosaur with a polyester knit body and a faux fur dorsal fin, filled with fibre and a bag of plastic pellets. The Plush dinosaur toy is assembled in Vietnam using components sourced from China and Vietnam.\n\nThe sewn and embroidered plush body shell and dorsal fin are produced in China. The polyester fibre fill and pellet bag are produced in Vietnam. \n\nFinal assembly in Vietnam: stuff the shell, sew it closed and finish with seam binding and labels.\n",
+    "prediction": {
+      "origin_country": "China",
+      "key_factors": [
+        "The sewn and embroidered plush dinosaur body shell"
+      ],
+      "decisive_step": "Cutting, sewing, and embroidering the fabric in China to create the plush dinosaur body shell",
+      "confidence": 0.98,
+      "reasoning": "The sewn and embroidered plush body shell produced in China imparts the essential character, form, and identity of the plush dinosaur toy. The operations performed in Vietnam—stuffing the pre-sewn shell with fiber fill and pellets, sewing the opening closed, and attaching labels—constitute simple assembly and finishing operations that do not result in a substantial transformation of the Chinese-origin shell (consistent with the principle in N343157 regarding stuffing pre-sewn shells).",
+      "cited_rulings": [
+        "N343157"
+      ],
+      "precedents": [
+        "N337644",
+        "N338784",
+        "N339406",
+        "N342448",
+        "N343157"
+      ],
+      "trace": {
+        "llm_provider": "litellm",
+        "model_id": "gemini-4-argon",
+        "requested_model": "gemini-4-argon",
+        "prompt_version": "engine-v1",
+        "input_tokens": 2386,
+        "output_tokens": 213,
+        "latency_ms": 8348
+      }
+    },
+    "duty_effect_per_year": 0,
+    "added_cost_per_year": 0,
+    "net_per_year": 0,
+    "shown": false
+  },
+  "current_origin": {
+    "country": "China",
+    "ruling": "N343777"
+  },
+  "plans": [],
+  "rejected": [
+    {
+      "move": [],
+      "description": "No change: keep the current setup",
+      "variant_facts": "The merchandise under consideration is a Plush dinosaur toy. A 22-inch plush dinosaur with a polyester knit body and a faux fur dorsal fin, filled with fibre and a bag of plastic pellets. The Plush dinosaur toy is assembled in Vietnam using components sourced from China and Vietnam.\n\nThe sewn and embroidered plush body shell and dorsal fin are produced in China. The polyester fibre fill and pellet bag are produced in Vietnam. \n\nFinal assembly in Vietnam: stuff the shell, sew it closed and finish with seam binding and labels.\n",
+      "prediction": {
+        "origin_country": "China",
+        "key_factors": [
+          "The sewn and embroidered plush dinosaur body shell"
+        ],
+        "decisive_step": "Cutting, sewing, and embroidering the fabric in China to create the plush dinosaur body shell",
+        "confidence": 0.98,
+        "reasoning": "The sewn and embroidered plush body shell produced in China imparts the essential character, form, and identity of the plush dinosaur toy. The operations performed in Vietnam—stuffing the pre-sewn shell with fiber fill and pellets, sewing the opening closed, and attaching labels—constitute simple assembly and finishing operations that do not result in a substantial transformation of the Chinese-origin shell (consistent with the principle in N343157 regarding stuffing pre-sewn shells).",
+        "cited_rulings": [
+          "N343157"
+        ],
+        "precedents": [
+          "N337644",
+          "N338784",
+          "N339406",
+          "N342448",
+          "N343157"
+        ],
+        "trace": {
+          "llm_provider": "litellm",
+          "model_id": "gemini-4-argon",
+          "requested_model": "gemini-4-argon",
+          "prompt_version": "engine-v1",
+          "input_tokens": 2386,
+          "output_tokens": 213,
+          "latency_ms": 8348
+        }
+      },
+      "duty_effect_per_year": 0,
+      "added_cost_per_year": 0,
+      "net_per_year": 0,
+      "shown": false,
+      "rejection_reason": "current setup: CBP held China (N343777); engine predicts China",
+      "rejection_kind": "current_setup"
+    },
+    {
+      "move": [
+        {
+          "group": "plush_shell_cut_sew",
+          "to_plant": "vn"
+        }
+      ],
+      "description": "Move the plush cutting to Vietnam",
+      "variant_facts": "The merchandise under consideration is a Plush dinosaur toy. A 22-inch plush dinosaur with a polyester knit body and a faux fur dorsal fin, filled with fibre and a bag of plastic pellets. The Plush dinosaur toy is assembled in Vietnam using components sourced from Vietnam.\n\nThe sewn and embroidered plush body shell and dorsal fin and polyester fibre fill and pellet bag are produced in Vietnam. \n\nIn Vietnam, the sewn and embroidered plush body shell and dorsal fin will be produced in-house: cut the knit and faux fur fabrics to shape, sew and embroider the body shell.\n\nFinal assembly in Vietnam: stuff the shell, sew it closed and finish with seam binding and labels.\n",
+      "prediction": {
+        "origin_country": "Vietnam",
+        "key_factors": [
+          "Sewn and embroidered plush dinosaur body shell"
+        ],
+        "decisive_step": "Cutting, sewing, embroidering, and stuffing the plush toy shell in Vietnam",
+        "confidence": 1,
+        "reasoning": "All components (knit fabric, faux fur, fiberfill, pellet bag) are sourced in Vietnam, and all manufacturing operations—including cutting the fabrics to shape, sewing and embroidering the body shell, stuffing, and closing—occur in Vietnam. Because the product is wholly produced and substantially transformed from fabrics and raw materials into a finished plush toy in Vietnam, the country of origin is Vietnam.",
+        "cited_rulings": [],
+        "precedents": [
+          "N338784",
+          "N339406",
+          "N342448",
+          "N343157",
+          "N343291"
+        ],
+        "trace": {
+          "llm_provider": "litellm",
+          "model_id": "gemini-4-argon",
+          "requested_model": "gemini-4-argon",
+          "prompt_version": "engine-v1",
+          "input_tokens": 2562,
+          "output_tokens": 187,
+          "latency_ms": 7284
+        }
+      },
+      "verdict": {
+        "precedent_supported": true,
+        "supporting_ruling": "N342448",
+        "confidence": 0.9,
+        "reasoning": "In Variant A, the sewn and embroidered plush body shell and dorsal fin are produced in China, while only stuffing and closing occur in Vietnam; because the outer shell imparts the essential character of a stuffed article (and merely stuffing a pre-sewn shell does not substantially transform it, cf. N342448), origin is China. In Variant B, all components (including cutting, sewing, and embroidering the plush body shell, dorsal fin, fibre fill, and pellet bag) and final assembly are performed entirely in Vietnam, shifting the country of origin to Vietnam.",
+        "trail": [
+          {
+            "tool": "search",
+            "query": "plush animal toy cut sew shell origin",
+            "rulings": [
+              "N343712",
+              "N333316",
+              "N339406",
+              "N342889",
+              "N343157",
+              "N335809",
+              "H331939",
+              "H324660"
+            ]
+          },
+          {
+            "tool": "search",
+            "query": "plush toy shell stuff China Vietnam origin",
+            "rulings": [
+              "N336815",
+              "N333316",
+              "N339406",
+              "N335573",
+              "N343157",
+              "N330296",
+              "N342861",
+              "N342448"
+            ]
+          },
+          {
+            "tool": "search",
+            "query": "stuffed toy country of origin",
+            "rulings": [
+              "N343157",
+              "N333574",
+              "N337009",
+              "N333594",
+              "N339353",
+              "N330321",
+              "N337715",
+              "N337734"
+            ]
+          },
+          {
+            "tool": "search",
+            "query": "9503 country of origin",
+            "rulings": [
+              "N333594",
+              "N339353",
+              "N330321",
+              "N337715",
+              "N337734",
+              "N331014",
+              "N334669",
+              "N337134"
+            ]
+          },
+          {
+            "tool": "read",
+            "query": "N342448",
+            "rulings": [
+              "N342448"
+            ]
+          },
+          {
+            "tool": "read",
+            "query": "N333574",
+            "rulings": [
+              "N333574"
+            ]
+          }
+        ],
+        "trace": {
+          "llm_provider": "litellm",
+          "model_id": "gemini-4-argon",
+          "prompt_version": "verifier-v2+known-a",
+          "input_tokens": 16581,
+          "output_tokens": 398,
+          "latency_ms": 0
+        }
+      },
+      "duty_effect_per_year": 250000,
+      "added_cost_per_year": 10000,
+      "net_per_year": 240000,
+      "net_priced": true,
+      "shown": false,
+      "rejection_reason": "precedent-supported but verifier confidence 0.90 is below 0.92",
+      "rejection_kind": "below_confidence_bar"
+    }
+  ],
+  "stats": {
+    "moves_searched": 1,
+    "engine_calls": 2,
+    "verifier_runs": 1,
+    "verifier_cached": 0,
+    "verifier_model_calls": 5,
+    "verifier_tool_calls": 6,
+    "input_tokens": 21529,
+    "output_tokens": 798,
+    "engine_input_tokens": 4948,
+    "engine_output_tokens": 400,
+    "verifier_input_tokens": 16581,
+    "verifier_output_tokens": 398,
+    "wall_seconds": 101.378709167
+  },
+  "economics_illustrative": true,
+  "duty_rates_note": "Illustrative placeholder, not a sourced rate.",
+  "template_versions": {
+    "toys_build_kits": "1"
+  },
+  "ranking": {
+    "rule": "tier_then_net",
+    "bar": 0.92,
+    "clear_from": 0.93
+  },
+  "llm_provider": "litellm",
+  "verifier_search": "local",
+  "cost_usd_promo": 0.051038,
+  "cost_usd_list": 0.102076,
+  "gateway_cost_usd": 0.044995999999999994,
+  "verifier_config": "prompt=v2 panel=off votes=1 near_miss=false follow=false bar=0.92",
+  "git_revision": "145a991365bbe6882297a787dcacd02d1b1bf966",
+  "time": "2026-11-22T18:01:26+08:00"
+}

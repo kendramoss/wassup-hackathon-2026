@@ -9,7 +9,7 @@ All `file:line` anchors are at commit `c0d3115` (the base of this change). The l
 | Question | Answer |
 |---|---|
 | Which jurisdiction? | United States only: the U.S. Customs and Border Protection (CBP) country-of-origin question for non-preferential purposes, under four regimes (section 2). No other jurisdiction is encoded. |
-| Which products does the planner cover? | 20 families with templates (section 4): three earlier ones, eleven added from CBP precedent (ten in D138, one in D212) and six written from Part 102 marking rulings (D580). |
+| Which products does the planner cover? | 26 families with templates (section 4): three earlier ones, eleven added from CBP precedent (ten in D138, one in D212), six written from Part 102 marking rulings (D580) and six picked from rulings with no template in either regime (D660). |
 | EU Binding Origin Information (BOI) | Unsupported. Deferred (section 7). |
 | USMCA regional value content (RVC) and any preferential-origin qualification | Unsupported. Deferred (section 7). |
 | Does "Part 102" in this repo mean USMCA qualification? | No. It means the Part 102 marking-origin rules (section 5). |
@@ -64,7 +64,7 @@ Gaps to state plainly:
 
 ## 4. Planner coverage
 
-The relocation planner has 20 templates, loaded by `planner.LoadTemplates` (`backend/internal/planner/template.go`, embedded `templates/*.json`). Eleven were chosen and written from CBP substantial-transformation precedent (D138, D212), and six from Part 102 marking rulings dated before 2024 (D580, `"regime": "part102"`); each of their groups cites the rulings where its work conferred origin or was not enough. In the six, each movable group makes one input whose tariff heading the 102.20 rule reads.
+The relocation planner has 26 templates, loaded by `planner.LoadTemplates` (`backend/internal/planner/template.go`, embedded `templates/*.json`). Eleven were chosen and written from CBP substantial-transformation precedent (D138, D212), and six from Part 102 marking rulings dated before 2024 (D580, `"regime": "part102"`); each of their groups cites the rulings where its work conferred origin or was not enough. In the six, each movable group makes one input whose tariff heading the 102.20 rule reads. Six more were written from substantial-transformation rulings dated before 2026 and in no development, held-out or tune-check split (D660), after counting the development and pool rulings of both regimes that had no template.
 
 | Family key | Name in the template | File |
 |---|---|---|
@@ -88,14 +88,20 @@ The relocation planner has 20 templates, loaded by `planner.LoadTemplates` (`bac
 | `plastic_articles` | Plastic film, compounds and moulded articles (Part 102) | `backend/internal/planner/templates/plastic_articles.json` |
 | `electrical_control_apparatus` | Electrical control panels and busbars (Part 102) | `backend/internal/planner/templates/electrical_control_apparatus.json` |
 | `machinery_parts` | Machinery parts and subassemblies (Part 102) | `backend/internal/planner/templates/machinery_parts.json` |
+| `paper_tissue_products` | Paper, tissue and paperboard products (D660) | `backend/internal/planner/templates/paper_tissue_products.json` |
+| `offroad_vehicles_machinery` | Off-road vehicles and mobile machinery (D660) | `backend/internal/planner/templates/offroad_vehicles_machinery.json` |
+| `semiconductor_devices` | Semiconductor devices (D660) | `backend/internal/planner/templates/semiconductor_devices.json` |
+| `golf_sporting_goods` | Golf clubs and sporting goods (D660) | `backend/internal/planner/templates/golf_sporting_goods.json` |
+| `toys_build_kits` | Toys and build kits (D660) | `backend/internal/planner/templates/toys_build_kits.json` |
+| `hvac_heating_units` | Heat pumps, furnaces and heaters (D660) | `backend/internal/planner/templates/hvac_heating_units.json` |
 
-On the 2026 held-out rulings the product's family check matched 59.4% to one of the first 14 families (57.0% with the first 13, 4.2% with the first three; D138, D212, `eval/RESULTS.md`); the six Part 102 families were not scored on that set. With all 20, it matched 68.1% of the Part 102 development rulings (27.8% with 14) and 8 of the 18 frozen held-out Part 102 rulings (6 with 14; D580, D581).
+On the 2026 held-out rulings the product's family check matched 79.0% (298 of 377) to one of the 26 families, read once (D661), against 59.4% with the first 14 (57.0% with the first 13, 4.2% with the first three; D138, D212, `eval/RESULTS.md`); no 20-family run of that set exists. With 20, it matched 68.1% of the Part 102 development rulings (27.8% with 14) and 8 of the 18 frozen held-out Part 102 rulings (6 with 14; D580, D581); with 26, 69.4% and 8 of 18 (D660, D661).
 
 Other product families are not planned. A request for a family with no template is refused: `family %q has no template` (`internal/httpapi/cases.go:386`, `products.go:81`, `products.go:160`), and the family checker answers `none` rather than inventing one (`internal/familycheck/familycheck.go:1`). Origin prediction does not need a template; only plan search does.
 
 Plan and country-comparison searches use the general engine, with a precedent check, except on a case routed to Part 102. `planner.New(tmpls, predictor, ...)` receives the general (possibly cached) engine and, in `planner.Options.Engines`, the Part 102 engine when `USMCA_ENGINE=on` (`cmd/server/main.go`); the plan, estimate and compare routes ask for `usmca_part102` on a Part 102 case (`planRegime` in `httpapi/planrule.go`), and the planner then predicts the current setup and every move with that engine (`engineFor` in `planner/plan.go`; D540, D541). A plan for a textile or pharmaceutical product is still not computed under that regime's rules, and the export draft says so (`exportRegimeProvisionalNote` in `httpapi/cases.go`: "Plan searches use the general engine except on Part 102 cases"). A plan on a Part 102 case carries the Part 102 engine's trace, so its draft is asked under the Part 102 rules with that engine's note. A Part 102 plan searched before D540, or with the Part 102 engine off or failed, still asks the Part 102 marking question with a note that the position is the general engine's, not a Part 102 determination (`export/regime.go`, `part102RoutedNote`; D520). The precedent check reads substantial-transformation rulings on every case. Scenario re-runs are different: they dispatch with the case's pinned router label, so a specialist engine can answer them (`httpapi/scenarios.go:280-287`).
 
-`TestTemplateSetIsPinned` (`planner/families_test.go`) pins the 20 families, and `TestTemplateCitationsAreRealRulings` checks every cited ruling against the bundled corpus.
+`TestTemplateSetIsPinned` (`planner/families_test.go`) pins the 26 families, and `TestTemplateCitationsAreRealRulings` checks every cited ruling against the bundled corpus.
 
 ## 5. Legal references and what each is
 
@@ -146,7 +152,7 @@ None of the following is implemented. A result from this system must not be used
 - Antidumping and countervailing duty (AD/CVD) circumvention or scope determinations. No such code exists.
 - Section 232 and Section 301 origin determinations. Section 301 is only touched as a separate question that the Part 102 draft keeps apart (`export/regime.go:37`); the live duty note states Section 232 duties are not included (`internal/duty/live.go:371`).
 - Tariff classification. HTS suggestions are separate and are suggestions (`config.go:215`).
-- Plan search for any product family outside the 20 templates (section 4).
+- Plan search for any product family outside the 26 templates (section 4).
 - Any final or binding determination. CBP rulings bind for the transaction and requester they describe (19 CFR 177.9 per `docs/claims-reconciliation.md` section 6; not re-fetched here).
 
 ## 7. Deferral record

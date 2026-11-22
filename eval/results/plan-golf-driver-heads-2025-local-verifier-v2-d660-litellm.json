@@ -1,0 +1,249 @@
+{
+  "case_id": "golf-driver-heads-2025",
+  "target": "China",
+  "family": "golf_sporting_goods",
+  "baseline": {
+    "move": [],
+    "description": "No change: keep the current setup",
+    "variant_facts": "The merchandise under consideration is a Golf club driver, fairway and hybrid heads. Investment-cast titanium driver heads and stainless-steel fairway and hybrid heads, cosmetically finished. The Golf club driver, fairway and hybrid heads is assembled in China using components sourced from Vietnam.\n\nThe cast titanium or stainless-steel golf head are produced in Vietnam. \n\nFinal assembly in China: weld or bond the face, crown and sole, machine the hosel, paint or PVD-coat and apply decals.\n",
+    "prediction": {
+      "origin_country": "Vietnam",
+      "key_factors": [
+        "Investment-cast titanium or stainless-steel golf club head components"
+      ],
+      "decisive_step": "Investment casting of the titanium and stainless-steel golf club head components in Vietnam",
+      "confidence": 0.9,
+      "reasoning": "Consistent with H332922 and N340536, the essential character of a golf club head is imparted where the raw metal is cast or forged into the recognizable shape and form of the club head components. The investment casting in Vietnam determines the physical specifications and use of the driver, fairway, and hybrid heads. Subsequent operations in China—welding/bonding the pre-formed pieces, machining the hosel, painting/PVD coating, and applying decals—constitute assembly and cosmetic finishing that do not result in a substantial transformation.",
+      "cited_rulings": [
+        "N340536",
+        "H332922"
+      ],
+      "precedents": [
+        "H332922",
+        "N334756",
+        "N334762",
+        "N340536",
+        "N344661"
+      ],
+      "trace": {
+        "llm_provider": "litellm",
+        "model_id": "gemini-4-argon",
+        "requested_model": "gemini-4-argon",
+        "prompt_version": "engine-v1",
+        "input_tokens": 2684,
+        "output_tokens": 214,
+        "latency_ms": 6895
+      }
+    },
+    "duty_effect_per_year": 0,
+    "added_cost_per_year": 0,
+    "net_per_year": 0,
+    "shown": false
+  },
+  "current_origin": {
+    "country": "Vietnam",
+    "ruling": "N346303"
+  },
+  "plans": [
+    {
+      "move": [
+        {
+          "group": "primary_head_forming",
+          "to_plant": "cn"
+        }
+      ],
+      "description": "Move the club heads to China",
+      "variant_facts": "The merchandise under consideration is a Golf club driver, fairway and hybrid heads. Investment-cast titanium driver heads and stainless-steel fairway and hybrid heads, cosmetically finished. The Golf club driver, fairway and hybrid heads is assembled in China using components sourced from China.\n\nThe cast titanium or stainless-steel golf head are produced in China. \n\nIn China, the cast titanium or stainless-steel golf head will be produced in-house: cast the heads in wax-mould shells, deshell, sandblast and polish to final shape.\n\nFinal assembly in China: weld or bond the face, crown and sole, machine the hosel, paint or PVD-coat and apply decals.\n",
+      "prediction": {
+        "origin_country": "China",
+        "key_factors": [
+          "The investment-cast titanium and stainless-steel golf club head bodies"
+        ],
+        "decisive_step": "Investment casting, welding/bonding, machining, and finishing of the golf club heads in China",
+        "confidence": 1,
+        "reasoning": "All components are sourced in China, and the entire manufacturing process—including investment casting in wax-mould shells, welding/bonding the face, crown, and sole, machining the hosel, and cosmetic finishing—takes place in China. Consistent with H332922 and N340536, the country where the golf club heads are cast/forged into their rough and final shapes confers the essential character and origin. Because the heads are wholly produced in China, the country of origin is China.",
+        "cited_rulings": [
+          "N340536",
+          "H332922"
+        ],
+        "precedents": [
+          "H329582",
+          "H332922",
+          "N334756",
+          "N340536",
+          "N344661"
+        ],
+        "trace": {
+          "llm_provider": "litellm",
+          "model_id": "gemini-4-argon",
+          "requested_model": "gemini-4-argon",
+          "prompt_version": "engine-v1",
+          "input_tokens": 2685,
+          "output_tokens": 230,
+          "latency_ms": 11241
+        }
+      },
+      "verdict": {
+        "precedent_supported": true,
+        "supporting_ruling": "N340536",
+        "confidence": 0.97,
+        "reasoning": "In N340536 and H332922, CBP held that the country of origin of golf club heads is the country where the heads are cast/molded or forged into shape, as subsequent operations in China—including machining, face bonding, polishing, PVD coating, and painting—are finishing operations that do not result in a substantial transformation. In Variant A, the heads are cast in Vietnam and finished in China, making the origin Vietnam. In Variant B, the casting of the heads moves to China, where finishing also occurs. Because the origin-conferring casting operation moves from Vietnam to China, the origin changes to China.",
+        "trail": [
+          {
+            "tool": "search",
+            "query": "golf club heads investment cast Vietnam China origin",
+            "rulings": [
+              "N334756",
+              "N340536",
+              "H332922",
+              "H329582",
+              "N344188",
+              "N341162",
+              "N344520",
+              "N332747"
+            ]
+          },
+          {
+            "tool": "search",
+            "query": "golf club head cast titanium stainless steel origin",
+            "rulings": [
+              "N334756",
+              "H332922",
+              "N340536",
+              "N343645",
+              "N343773",
+              "N332593",
+              "N332592",
+              "N332591"
+            ]
+          },
+          {
+            "tool": "read",
+            "query": "N340536",
+            "rulings": [
+              "N340536"
+            ]
+          },
+          {
+            "tool": "read",
+            "query": "H332922",
+            "rulings": [
+              "H332922"
+            ]
+          },
+          {
+            "tool": "search",
+            "query": "golf club head finishing machining welding substantial transformation",
+            "rulings": [
+              "N340536",
+              "H332922",
+              "N334756",
+              "H342414",
+              "N337356",
+              "H339179",
+              "H337102",
+              "H332745"
+            ]
+          },
+          {
+            "tool": "read",
+            "query": "N334756",
+            "rulings": [
+              "N334756"
+            ]
+          }
+        ],
+        "trace": {
+          "llm_provider": "litellm",
+          "model_id": "gemini-4-argon",
+          "prompt_version": "verifier-v2+known-a",
+          "input_tokens": 13890,
+          "output_tokens": 621,
+          "latency_ms": 0
+        }
+      },
+      "duty_effect_per_year": -250000,
+      "added_cost_per_year": -10000,
+      "net_per_year": -240000,
+      "net_priced": true,
+      "shown": true,
+      "tier": "clear_margin",
+      "parts_moved": 1
+    }
+  ],
+  "rejected": [
+    {
+      "move": [],
+      "description": "No change: keep the current setup",
+      "variant_facts": "The merchandise under consideration is a Golf club driver, fairway and hybrid heads. Investment-cast titanium driver heads and stainless-steel fairway and hybrid heads, cosmetically finished. The Golf club driver, fairway and hybrid heads is assembled in China using components sourced from Vietnam.\n\nThe cast titanium or stainless-steel golf head are produced in Vietnam. \n\nFinal assembly in China: weld or bond the face, crown and sole, machine the hosel, paint or PVD-coat and apply decals.\n",
+      "prediction": {
+        "origin_country": "Vietnam",
+        "key_factors": [
+          "Investment-cast titanium or stainless-steel golf club head components"
+        ],
+        "decisive_step": "Investment casting of the titanium and stainless-steel golf club head components in Vietnam",
+        "confidence": 0.9,
+        "reasoning": "Consistent with H332922 and N340536, the essential character of a golf club head is imparted where the raw metal is cast or forged into the recognizable shape and form of the club head components. The investment casting in Vietnam determines the physical specifications and use of the driver, fairway, and hybrid heads. Subsequent operations in China—welding/bonding the pre-formed pieces, machining the hosel, painting/PVD coating, and applying decals—constitute assembly and cosmetic finishing that do not result in a substantial transformation.",
+        "cited_rulings": [
+          "N340536",
+          "H332922"
+        ],
+        "precedents": [
+          "H332922",
+          "N334756",
+          "N334762",
+          "N340536",
+          "N344661"
+        ],
+        "trace": {
+          "llm_provider": "litellm",
+          "model_id": "gemini-4-argon",
+          "requested_model": "gemini-4-argon",
+          "prompt_version": "engine-v1",
+          "input_tokens": 2684,
+          "output_tokens": 214,
+          "latency_ms": 6895
+        }
+      },
+      "duty_effect_per_year": 0,
+      "added_cost_per_year": 0,
+      "net_per_year": 0,
+      "shown": false,
+      "rejection_reason": "current setup: CBP held Vietnam (N346303); engine predicts Vietnam",
+      "rejection_kind": "current_setup"
+    }
+  ],
+  "stats": {
+    "moves_searched": 1,
+    "engine_calls": 2,
+    "verifier_runs": 1,
+    "verifier_cached": 0,
+    "verifier_model_calls": 4,
+    "verifier_tool_calls": 6,
+    "input_tokens": 19259,
+    "output_tokens": 1065,
+    "engine_input_tokens": 5369,
+    "engine_output_tokens": 444,
+    "verifier_input_tokens": 13890,
+    "verifier_output_tokens": 621,
+    "wall_seconds": 32.614900417
+  },
+  "economics_illustrative": true,
+  "duty_rates_note": "Illustrative placeholder, not a sourced rate.",
+  "template_versions": {
+    "golf_sporting_goods": "1"
+  },
+  "ranking": {
+    "rule": "tier_then_net",
+    "bar": 0.92,
+    "clear_from": 0.93
+  },
+  "llm_provider": "litellm",
+  "verifier_search": "local",
+  "cost_usd_promo": 0.049168,
+  "cost_usd_list": 0.098336,
+  "gateway_cost_usd": 0.049168,
+  "verifier_config": "prompt=v2 panel=off votes=1 near_miss=false follow=false bar=0.92",
+  "git_revision": "145a991365bbe6882297a787dcacd02d1b1bf966",
+  "time": "2026-11-22T18:00:17+08:00"
+}

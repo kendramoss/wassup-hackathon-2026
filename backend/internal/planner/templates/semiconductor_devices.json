@@ -1,0 +1,127 @@
+{
+  "family": "semiconductor_devices",
+  "version": "1",
+  "union_default_operations": true,
+  "name": "Semiconductor devices",
+  "note": "For semiconductor devices, CBP consistently holds that the country of origin is where front-end wafer fabrication (such as epitaxial deposition, photolithography, etching, and ion implantation) takes place, because those steps impart the essential electrical character and functionality of the die. Subsequent back-end operations—such as wafer thinning, dicing into individual die, wire bonding or flip-chip mounting, molding, encapsulation, and final testing—are treated as non-origin-conferring packaging and finishing. Written from 10 CBP substantial-transformation rulings outside every development and held-out split (D660); every cited ruling was checked against its facts and holding. Costs are illustrative defaults; users edit them.",
+  "sources": [
+    "H338127",
+    "N333934",
+    "N334417",
+    "N337307",
+    "N343494",
+    "N344105",
+    "N345881",
+    "N347292",
+    "N347890"
+  ],
+  "groups": [
+    {
+      "id": "bare_wafer_production",
+      "name": "Bare wafers",
+      "operations": [
+        "Grow monocrystalline silicon or silicon carbide ingots or boules from seed crystal and raw powder",
+        "Slice the crystal ingot into bare wafer substrates using a multi-wire diamond saw",
+        "Grind and polish the wafer surfaces to control thickness variation, bow, and warp"
+      ],
+      "movable": true,
+      "precedent": {
+        "confers_origin": [
+          "H338127",
+          "N333934",
+          "N337307",
+          "N344105",
+          "N345881"
+        ],
+        "not_enough": [
+          "N334417"
+        ],
+        "note": "Producing the bare substrate wafer alone does not control origin if epitaxial growth occurs elsewhere (N334417), though it supports origin when combined with front-end fabrication in the same country (H338127, N333934, N337307, N344105, N345881)."
+      }
+    },
+    {
+      "id": "epitaxial_deposition",
+      "name": "Epitaxial layer",
+      "operations": [
+        "Deposit a precisely doped epitaxial semiconductor film layer onto the bare wafer substrate",
+        "Control epitaxial film thickness, dopant concentration, and dislocation density for electrical performance"
+      ],
+      "movable": true,
+      "precedent": {
+        "confers_origin": [
+          "N333934",
+          "N334417",
+          "N337307",
+          "N344105"
+        ],
+        "not_enough": [],
+        "note": "CBP held that growing the epitaxial layer on an imported bare wafer substantially transforms the substrate because it provides the essential electrical attributes needed for semiconductor devices (N334417), and cited it as part of origin-conferring front-end processing (N333934, N337307, N344105)."
+      }
+    },
+    {
+      "id": "front_end_wafer_fab",
+      "name": "Front-end wafer fabrication",
+      "operations": [
+        "Deposit oxide, nitride, and metal thin films onto the wafer",
+        "Apply photoresist, expose circuit patterns via photolithography, and develop",
+        "Perform etching and ion implantation to form diodes, transistors, and internal wiring",
+        "Deposit protective films and perform on-wafer chip probing and electrical inspection"
+      ],
+      "movable": true,
+      "precedent": {
+        "confers_origin": [
+          "N333934",
+          "N337307",
+          "N343494",
+          "N344105",
+          "N345881",
+          "N347292"
+        ],
+        "not_enough": [],
+        "note": "CBP consistently holds that front-end wafer fabrication creates the functional die and determines the country of origin (N333934, N337307, N344105, N345881, N347292)."
+      }
+    },
+    {
+      "id": "wafer_bumping_dicing",
+      "name": "Thinning, bumping and dicing",
+      "operations": [
+        "Grow copper pillar bumps on the front side of the wafer",
+        "Back-grind the wafer to reduce thickness",
+        "Mount the wafer on tape and saw or dice it into individual semiconductor die"
+      ],
+      "movable": true,
+      "precedent": {
+        "confers_origin": [],
+        "not_enough": [
+          "N333934",
+          "N337307"
+        ],
+        "note": "CBP determined that bumping, back-grinding, mounting, and sawing fabricated wafers into individual die do not substantially transform the completed integrated circuit or diode die (N333934, N337307)."
+      }
+    },
+    {
+      "id": "final_assembly",
+      "name": "Packaging and final test",
+      "operations": [
+        "Attach or flip-chip bond individual semiconductor die onto a package substrate or lead frame",
+        "Wire-bond die contacts to external leads or pins",
+        "Encapsulate and mold the assembly in plastic housing and cure",
+        "Plate, trim, form, and cut-bend external leads",
+        "Perform final electrical characteristics testing, laser marking, visual inspection, and packing"
+      ],
+      "movable": false,
+      "precedent": {
+        "confers_origin": [],
+        "not_enough": [
+          "N333934",
+          "N337307",
+          "N343494",
+          "N344105",
+          "N345881",
+          "N347890"
+        ],
+        "note": "In every ruling where fabricated wafers or die were sent abroad for back-end die attach, wire bonding, molding, lead forming, and final testing, CBP held that these packaging steps did not confer origin (N333934, N337307, N343494, N344105, N345881, N347890)."
+      }
+    }
+  ]
+}
