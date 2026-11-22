@@ -45,7 +45,7 @@ export const copy = {
       // A pinned demo read from CBP's text alone has no parts list to plan.
       originOnly: "Origin only: no parts list to plan",
       selection:
-        "The four newest demos were picked by family, not by result: the first per-family check for vehicle parts, PCBA devices, power supplies and medical devices. Across all 29 per-family checks, D171's 23 and D661's six live checks, the engine disagreed with CBP's holding on the current setup in 8.",
+        "The ten family demos were picked by family, not by result: the first per-family check for vehicle parts, PCBA devices, power supplies, medical devices, paper and tissue products, off-road vehicles and machinery, semiconductor devices, golf and sporting goods, toys and build kits and heat pumps and heaters. Across all 29 per-family checks, D171's 23 and D661's six live checks, the engine disagreed with CBP's holding on the current setup in 8.",
     },
     columns: ["Product", "Likely origin", "Status", "Ruling watch", "Scenarios", "Where you left off"],
     notAnalysed: "Not analysed yet",

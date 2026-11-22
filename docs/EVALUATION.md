@@ -144,7 +144,7 @@ A saved case now says when CBP has revoked or modified a ruling it relies on (ci
 | Relied-on ruling with a proposed change only | 0 | a calm line |
 | Only a ruling read, not cited, changed | 68 (85 before D490; 4 are D650 checklist rows) | a calm line, no list badge |
 | Stored case documents (heat-gun demo seeds and one prediction) | 0 of 7 | |
-| Demo fixtures (current-setup and recorded supporting rulings) | 0 of 10 | |
+| Demo fixtures (current-setup and recorded supporting rulings) | 0 of 16 | |
 
 - **The 2 rows** are 2 development runs of one case: N356467 (case date 22 Dec 2025) cites N344694, which H344999 modified on 6 May 2026. The first count (D481) also had 2 runs of H325607 citing N331974, which H325607 itself revoked on its own date. The case was the revoking ruling, so since D490 no alert is raised: a change made by the case itself, or by a ruling it relies on, is not an alert.
 - **No proposals.** None of the 78 pending proposals touches a precedent-pool ruling (D401), so no committed answer relies on one.

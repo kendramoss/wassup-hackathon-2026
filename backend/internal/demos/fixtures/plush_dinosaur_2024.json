@@ -1,0 +1,96 @@
+{
+  "id": "plush-dinosaur-2024",
+  "order": 15,
+  "title": "Plush dinosaur, shell sewn in China, stuffed in Vietnam",
+  "description": "Fabric is cut, sewn and embroidered into the body shell in China, then stuffed and finished in Vietnam. CBP held China (N343777, scenario 1): the cutting and sewing decide.",
+  "source": "CBP ruling N343777 (27 Nov 2024), rulings.cbp.gov",
+  "cbp_held": "China (N343777, scenario 1)",
+  "notes": "One of the six families added in D660 (toys and build kits). Built from scenario 1 of CBP's ruling into a development fixture; plant capabilities, duty rates, import value and group costs are illustrative placeholders, not sourced. The ruling itself is excluded from precedent search. Picked by family, not by result. Recorded development run (eval/results/plan-plush-dinosaur-2024-local-verifier-v2-d660-litellm.json): the engine agreed with CBP on China at 0.98 stated, but no move cleared the 0.92 precedent bar; this card is an honest send-to-broker result, not a failed search. The closest below-bar move, cutting and sewing in Vietnam, checked 0.90 on N342448. Backtest: CBP held Vietnam in scenario 2 of the same ruling when the cutting and sewing moved there, so the bar kept a real change off the screen. A run on this site is a new run and may differ.",
+  "predict": {
+    "date": "2024-11-27",
+    "product": {
+      "name": "Plush dinosaur toy",
+      "description": "A 22-inch plush dinosaur with a polyester knit body and a faux fur dorsal fin, filled with fibre and a bag of plastic pellets.",
+      "plants": [
+        {
+          "id": "cn",
+          "name": "China sewing plant",
+          "country": "China",
+          "capabilities": [
+            "plush_shell_cut_sew"
+          ]
+        },
+        {
+          "id": "vn",
+          "name": "Vietnam finishing plant",
+          "country": "Vietnam",
+          "capabilities": [
+            "plush_shell_cut_sew",
+            "core_electronics_motors",
+            "final_assembly"
+          ]
+        }
+      ],
+      "components": [
+        {
+          "name": "sewn and embroidered plush body shell and dorsal fin",
+          "made_in": "China",
+          "plant": "cn",
+          "group": "plush_shell_cut_sew"
+        },
+        {
+          "name": "polyester fibre fill and pellet bag",
+          "made_in": "Vietnam",
+          "plant": "vn",
+          "group": "final_assembly"
+        }
+      ],
+      "operations": [
+        {
+          "name": "cut the knit and faux fur fabrics to shape, sew and embroider the body shell",
+          "plant": "cn",
+          "group": "plush_shell_cut_sew"
+        },
+        {
+          "name": "stuff the shell, sew it closed and finish with seam binding and labels",
+          "plant": "vn",
+          "group": "final_assembly"
+        }
+      ]
+    },
+    "family": "toys_build_kits",
+    "exclude_rulings": [
+      "N343777"
+    ],
+    "current_origin": {
+      "country": "China",
+      "ruling": "N343777"
+    }
+  },
+  "plan": {
+    "target": "Vietnam",
+    "economics": {
+      "illustrative": true,
+      "annual_import_value_usd": 1000000,
+      "duty_rates": {
+        "China": 0.25,
+        "Vietnam": 0.0
+      },
+      "duty_rates_note": "Illustrative placeholder, not a sourced rate.",
+      "group_costs": {
+        "plush_shell_cut_sew": {
+          "cn": 80000,
+          "vn": 90000
+        }
+      }
+    }
+  },
+  "recorded": {
+    "run": "Development run, 22 Nov 2026, one run each, engine-v1 and verifier-v2 on gemini-4-argon through an OpenAI-compatible LiteLLM gateway to Gemini, local corpus search, plan bar 0.92",
+    "file": "eval/results/plan-plush-dinosaur-2024-local-verifier-v2-d660-litellm.json",
+    "engine_origin": "China",
+    "stated_confidence": 0.98,
+    "cbp_origin": "China",
+    "agrees_with_cbp": true
+  }
+}

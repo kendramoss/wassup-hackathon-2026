@@ -17,8 +17,8 @@ func TestDemosAreValidRequests(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if len(ds) != 10 {
-		t.Fatalf("demos = %d, want 10", len(ds))
+	if len(ds) != 16 {
+		t.Fatalf("demos = %d, want 16", len(ds))
 	}
 	for _, d := range ds {
 		var p struct {
@@ -133,10 +133,11 @@ func TestRecordedRunsMatchResultFiles(t *testing.T) {
 			}
 		}
 	}
-	// Four new-family demos plus the gas grill; the selection rule (D191)
-	// kept the one where the engine disagreed with CBP.
-	if n != 5 || disagree != 1 {
-		t.Errorf("recorded runs = %d (disagree %d), want 5 (1)", n, disagree)
+	// Five original new-family demos plus the six D660 families; the
+	// selection rule (D191) kept the two where the engine disagreed with CBP
+	// (aluminum wheel and the roll AGV).
+	if n != 11 || disagree != 2 {
+		t.Errorf("recorded runs = %d (disagree %d), want 11 (2)", n, disagree)
 	}
 }
 
@@ -166,5 +167,38 @@ func TestRecordedPlanWords(t *testing.T) {
 		if d.ID == "aluminum-wheel-2025" && !strings.Contains(strings.Join(r.BestPlanIncludes, "; "), "Forged circular aluminum blank") {
 			t.Errorf("wheel plan does not name the forging: %v", r.BestPlanIncludes)
 		}
+	}
+}
+
+// D660 added six families and #558 asks for one demo for each. The toy card
+// is deliberately a send-to-broker result: no move cleared the 0.92 bar.
+func TestD660Demos(t *testing.T) {
+	ds, err := Load()
+	if err != nil {
+		t.Fatal(err)
+	}
+	want := []struct{ id, family string }{
+		{"paper-napkins-2024", "paper_tissue_products"},
+		{"roll-agv-2023", "offroad_vehicles_machinery"},
+		{"integrated-circuit-2023", "semiconductor_devices"},
+		{"golf-driver-heads-2025", "golf_sporting_goods"},
+		{"plush-dinosaur-2024", "toys_build_kits"},
+		{"gas-heater-2025", "hvac_heating_units"},
+	}
+	for i, w := range want {
+		d := ds[10+i]
+		if d.ID != w.id || d.Order != 11+i || d.Recorded == nil {
+			t.Fatalf("demo %d = %s (order %d), want %s (order %d)", i, d.ID, d.Order, w.id, 11+i)
+		}
+		var p struct {
+			Family string `json:"family"`
+		}
+		if err := json.Unmarshal(d.Predict, &p); err != nil || p.Family != w.family {
+			t.Errorf("%s: family %q (%v), want %q", d.ID, p.Family, err, w.family)
+		}
+	}
+	toy := ds[14]
+	if toy.Recorded.BestPlan != "" || toy.Recorded.PlanCheck != 0 || toy.Recorded.PlanRuling != "" {
+		t.Errorf("plush dinosaur should have no shown plan: %+v", toy.Recorded)
 	}
 }

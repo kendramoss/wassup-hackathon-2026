@@ -51,6 +51,26 @@
   {
    "alerts": [],
    "category": "none",
+   "date": "2025-03-11",
+   "demo": "gas-heater-2025",
+   "rulings_checked": [
+    "N345976",
+    "N346005"
+   ]
+  },
+  {
+   "alerts": [],
+   "category": "none",
+   "date": "2025-03-10",
+   "demo": "golf-driver-heads-2025",
+   "rulings_checked": [
+    "N346303",
+    "N340536"
+   ]
+  },
+  {
+   "alerts": [],
+   "category": "none",
    "date": "2026-01-14",
    "demo": "heatgun-2022",
    "rulings_checked": [
@@ -60,10 +80,30 @@
   {
    "alerts": [],
    "category": "none",
+   "date": "2023-07-28",
+   "demo": "integrated-circuit-2023",
+   "rulings_checked": [
+    "N333934",
+    "N333677"
+   ]
+  },
+  {
+   "alerts": [],
+   "category": "none",
    "date": "2026-03-03",
    "demo": "lidar-s1",
    "rulings_checked": [
     "N359371 (scenario I)"
+   ]
+  },
+  {
+   "alerts": [],
+   "category": "none",
+   "date": "2024-08-22",
+   "demo": "paper-napkins-2024",
+   "rulings_checked": [
+    "N341898",
+    "N340077"
    ]
   },
   {
@@ -79,11 +119,30 @@
   {
    "alerts": [],
    "category": "none",
+   "date": "2024-11-27",
+   "demo": "plush-dinosaur-2024",
+   "rulings_checked": [
+    "N343777"
+   ]
+  },
+  {
+   "alerts": [],
+   "category": "none",
    "date": "2025-09-03",
    "demo": "power-bank-2025",
    "rulings_checked": [
     "N352355",
     "N352014"
+   ]
+  },
+  {
+   "alerts": [],
+   "category": "none",
+   "date": "2023-12-05",
+   "demo": "roll-agv-2023",
+   "rulings_checked": [
+    "N336445",
+    "N334276"
    ]
   },
   {

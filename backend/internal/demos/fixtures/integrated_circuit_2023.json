@@ -1,0 +1,136 @@
+{
+  "id": "integrated-circuit-2023",
+  "order": 13,
+  "title": "Integrated circuits, wafers fabricated in South Korea, packed in China",
+  "description": "Twelve-inch wafers are made and given their complete circuit in South Korea, then bumped, diced and flip-chip packed in China. CBP held South Korea (N333934): front-end fabrication decides.",
+  "source": "CBP ruling N333934 (28 Jul 2023), rulings.cbp.gov",
+  "cbp_held": "South Korea (N333934)",
+  "notes": "One of the six families added in D660 (semiconductor devices). Built from CBP's facts into a development fixture; plant capabilities, duty rates, import value and group costs are illustrative placeholders, not sourced. The ruling itself is excluded from precedent search. Picked by family, not by result. Recorded development run (eval/results/plan-integrated-circuit-2023-local-verifier-v2-d660-litellm.json): the engine agreed with CBP on South Korea at 0.98 stated. The shown plan moves the bare wafers and front-end fabrication to China, check 0.95 on N333677; that ruling held the United States for a pressure sensor whose die was made there. It supports front-end fabrication deciding, but it is a sensor, not an integrated circuit: partial. A run on this site is a new run and may differ.",
+  "predict": {
+    "date": "2023-07-28",
+    "product": {
+      "name": "Integrated circuits (flip-chip)",
+      "description": "Three similar integrated circuit models; each 12-inch wafer holds 4,761 die with the complete circuit.",
+      "plants": [
+        {
+          "id": "kr",
+          "name": "South Korea wafer fab",
+          "country": "South Korea",
+          "capabilities": [
+            "bare_wafer_production",
+            "epitaxial_deposition",
+            "front_end_wafer_fab"
+          ]
+        },
+        {
+          "id": "cn",
+          "name": "China assembly and test plant",
+          "country": "China",
+          "capabilities": [
+            "bare_wafer_production",
+            "epitaxial_deposition",
+            "front_end_wafer_fab",
+            "wafer_bumping_dicing",
+            "final_assembly"
+          ]
+        }
+      ],
+      "components": [
+        {
+          "name": "monocrystalline silicon wafer",
+          "made_in": "South Korea",
+          "plant": "kr",
+          "group": "bare_wafer_production"
+        },
+        {
+          "name": "fabricated integrated circuit wafer",
+          "made_in": "South Korea",
+          "plant": "kr",
+          "group": "front_end_wafer_fab"
+        }
+      ],
+      "operations": [
+        {
+          "name": "make the monocrystalline silicon wafer",
+          "plant": "kr",
+          "group": "bare_wafer_production"
+        },
+        {
+          "name": "deposit the epitaxial layer",
+          "plant": "kr",
+          "group": "epitaxial_deposition"
+        },
+        {
+          "name": "thin-film deposition, photolithography, etching and ion implantation",
+          "plant": "kr",
+          "group": "front_end_wafer_fab"
+        },
+        {
+          "name": "grow copper pillar bumps, back-grind and cut the wafer into die",
+          "plant": "cn",
+          "group": "wafer_bumping_dicing"
+        },
+        {
+          "name": "flip-chip the die to the substrate and pack",
+          "plant": "cn",
+          "group": "final_assembly"
+        }
+      ]
+    },
+    "family": "semiconductor_devices",
+    "exclude_rulings": [
+      "N333934"
+    ],
+    "current_origin": {
+      "country": "South Korea",
+      "ruling": "N333934"
+    }
+  },
+  "plan": {
+    "target": "China",
+    "economics": {
+      "illustrative": true,
+      "annual_import_value_usd": 1000000,
+      "duty_rates": {
+        "South Korea": 0.0,
+        "China": 0.25
+      },
+      "duty_rates_note": "Illustrative placeholder, not a sourced rate.",
+      "group_costs": {
+        "front_end_wafer_fab": {
+          "kr": 400000,
+          "cn": 420000
+        },
+        "epitaxial_deposition": {
+          "kr": 60000,
+          "cn": 65000
+        },
+        "bare_wafer_production": {
+          "kr": 50000,
+          "cn": 50000
+        }
+      }
+    }
+  },
+  "recorded": {
+    "run": "Development run, 22 Nov 2026, one run each, engine-v1 and verifier-v2 on gemini-4-argon through an OpenAI-compatible LiteLLM gateway to Gemini, local corpus search, plan bar 0.92",
+    "file": "eval/results/plan-integrated-circuit-2023-local-verifier-v2-d660-litellm.json",
+    "engine_origin": "South Korea",
+    "stated_confidence": 0.98,
+    "cbp_origin": "South Korea",
+    "agrees_with_cbp": true,
+    "best_plan": "Move the bare wafers and the front-end wafer fabrication to China",
+    "best_plan_move": [
+      {
+        "group": "bare_wafer_production",
+        "to_plant": "cn"
+      },
+      {
+        "group": "front_end_wafer_fab",
+        "to_plant": "cn"
+      }
+    ],
+    "plan_check": 0.95,
+    "plan_ruling": "N333677"
+  }
+}
