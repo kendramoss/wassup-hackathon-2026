@@ -18,7 +18,7 @@ const live = [];
 afterEach(() => live.splice(0).forEach((a) => a.unmount()));
 
 const caseJson = (extra = {}) => ({
-  id: "c1", facts: "f", step: "origin", date: "2026-01-01", display_name: "Widget",
+  id: "c1", facts: "f", step: "origin", date: "2026-01-01", display_name: "Widget", family: "pcba_electronic_devices",
   prediction: { origin_country: "China", confidence: 0.8 },
   triage: { route: "auto" },
   product: {

@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useStepLabel } from "./demo-tour";
 import { createContext, useCallback, useContext, useEffect, useRef, useState, type ReactNode } from "react";
-import { api, ApiError, type CaseSummary } from "@/lib/api/client";
+import { api, ApiError, errorText, isDailyLimit, type CaseSummary } from "@/lib/api/client";
 import { copy } from "@/lib/copy";
 import { stepIndex } from "@/lib/format";
 import { ACTIONS_ON_TOP, ActionSlot, Portal, useActionSlot, useNextSlot } from "./action-bar";
@@ -442,7 +442,41 @@ export function DemoNote({ title, message }: { title?: string | null; message?: 
   );
 }
 
-export function ErrorBox({ error, onRetry, demoTitle }: { error: unknown; onRetry?: () => void; demoTitle?: string | null }) {
+const sentence = (m: string) => (/[.!?]$/.test(m) ? m : m + ".");
+
+// This client's share of the day's model budget, or an API key's daily quota
+// (429 until 00:00 UTC, D137): not a rate limit, so no countdown of many
+// hours. The backend's own message says what still works.
+function DailyLimitNote({ e }: { e: ApiError }) {
+  const key = e.code === "quota_exceeded";
+  return (
+    <div role="status" className="border border-dashed border-guide bg-sheet px-4 py-3 text-[13px]">
+      <p className="duo font-medium text-ink">{key ? "Today's request quota for this API key is used up." : "Today's model budget for this network is used up."}</p>
+      {e.message ? <p className="duo mt-1">{sentence(errorText(e.message))}</p> : null}
+      <p className="duo mt-1 text-dim">It resets after 00:00 UTC. Saved cases and demo cases still open.</p>
+      <Link href="/cases" className="mt-1 inline-block text-ok underline underline-offset-2">
+        Open a demo case →
+      </Link>
+    </div>
+  );
+}
+
+// A long call cut by the hosting's request timeout (a non-JSON 504): the run
+// may still finish on the server and be saved, so point at Saved cases.
+function TimeoutNote({ message }: { message: string }) {
+  return (
+    <div role="status" className="border border-dashed border-guide bg-sheet px-4 py-3 text-[13px]">
+      <p className="duo">{message}</p>
+      <Link href="/cases" className="mt-1 inline-block text-ok underline underline-offset-2">
+        Open Saved cases →
+      </Link>
+    </div>
+  );
+}
+
+// lead names the action that failed when a screen has more than one (step 1's
+// "Turn into parts and plants" beside Find origin).
+export function ErrorBox({ error, onRetry, demoTitle, lead }: { error: unknown; onRetry?: () => void; demoTitle?: string | null; lead?: string }) {
   const e = error instanceof ApiError ? error : null;
   // 403 "forbidden": an edit to a pinned demo (D57), or a workspace viewer's
   // write (#283). The server's wording tells them apart; a role refusal is not
@@ -459,12 +493,14 @@ export function ErrorBox({ error, onRetry, demoTitle }: { error: unknown; onRetr
       </div>
     );
   if (e && isForbidden(e)) return <DemoNote title={demoTitle} message={e.message ? e.message[0].toUpperCase() + e.message.slice(1) + "." : undefined} />;
+  if (e && isDailyLimit(e)) return <DailyLimitNote e={e} />;
+  if (e?.code === "timeout") return <TimeoutNote message={e.message} />;
   if (e?.code === "rate_limited") return <RateLimitNote key={String(e.retryAfter)} seconds={Math.ceil(e.retryAfter ?? 30)} onRetry={onRetry} />;
   // 503 "budget_reached" (D59): a calm note, not an error; the demo cases still work.
   if (e?.code === "budget_reached")
     return (
       <div role="status" className="border border-dashed border-guide bg-sheet px-4 py-3 text-[13px]">
-        <p className="duo">{e.message ? e.message[0].toUpperCase() + e.message.slice(1) + "." : "Today's demo budget for model calls is used up."}</p>
+        <p className="duo">{e.message ? sentence(errorText(e.message)) : "Today's demo budget for model calls is used up."}</p>
         <Link href="/cases" className="mt-1 inline-block text-ok underline underline-offset-2">
           Open a demo case →
         </Link>
@@ -475,11 +511,13 @@ export function ErrorBox({ error, onRetry, demoTitle }: { error: unknown; onRetr
   // it). SignInRequired tells which and never retries on its own.
   if (isSigninRequired(e)) return <SignInRequired onRetry={onRetry} />;
   const outOfScope = e?.code === "out_of_scope";
-  const message = e?.message ?? (error instanceof Error ? error.message : "Something went wrong.");
+  const prefix = outOfScope ? "Out of scope: " : e?.code?.startsWith("model") ? "The model didn't answer: " : "";
+  const message = errorText(e?.message ?? (error instanceof Error ? error.message : "Something went wrong."), !prefix);
   return (
     <div role="alert" className={cx("rounded-[2px] border px-4 py-3 text-sm", outOfScope ? "border-ask-line bg-ask-wash text-ask" : "border-fail bg-fail-wash text-fail")}>
       <p className="duo">
-        {outOfScope ? "Out of scope: " : e?.code?.startsWith("model") ? "The model didn't answer: " : ""}
+        {lead ? `${lead} ` : null}
+        {prefix}
         {message}
       </p>
       {onRetry && (e?.retryable ?? true) && (
