@@ -33,7 +33,7 @@ func TestCommittedAlertCount(t *testing.T) {
 			t.Errorf("rows %s = %d, docs/NUMBERS.md says %d", k, d.Rows[k], v)
 		}
 	}
-	if d.Rows["proposed"] != 0 || d.Rows["final_undated"] != 0 || d.Cases["cases"] != 7 || len(d.Cases) != 1 || len(d.Demos) != 10 {
+	if d.Rows["proposed"] != 0 || d.Rows["final_undated"] != 0 || d.Cases["cases"] != 7 || len(d.Cases) != 1 || len(d.Demos) != 16 {
 		t.Errorf("rows %v cases %v demos %d", d.Rows, d.Cases, len(d.Demos))
 	}
 	for _, x := range d.Demos {
