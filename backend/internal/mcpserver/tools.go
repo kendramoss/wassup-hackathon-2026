@@ -431,6 +431,12 @@ func (t tools) plan(ctx context.Context, hdr http.Header, in planIn) (*mcp.CallT
 	if len(plans) == 0 && len(rejected) > 0 {
 		fmt.Fprintf(&b, "\nClosest rejected: %s", planLine(obj(rejected[0])))
 	}
+	if rc := obj(obj(pl["baseline"])["rule_check"]); len(rc) > 0 {
+		b.WriteString("\nThe 19 CFR 102.20 rule check on each move (rule_check) is display only: it never changes which plans are shown or their order.")
+		if rc["applies"] == "informational" {
+			b.WriteString(" This case is decided under substantial transformation, so it is for information.")
+		}
+	}
 	return done(b.String(), out)
 }
 
@@ -755,10 +761,28 @@ func planLine(p map[string]any) string {
 	if p["net_priced"] == true {
 		fmt.Fprintf(&b, "; modelled net %v USD a year", p["net_per_year"])
 	}
+	if l := planRuleWords(p); l != "" {
+		b.WriteString("; " + l)
+	}
 	if r := str0(p["rejection_reason"], ""); r != "" {
 		fmt.Fprintf(&b, "; not shown: %s", r)
 	}
 	return b.String()
+}
+
+// planRuleWords is a move's 19 CFR 102.20 rule check (D441) in a clause, or
+// "" when the plan has none.
+func planRuleWords(p map[string]any) string {
+	rc := obj(p["rule_check"])
+	l := str0(rc["label"], "")
+	if l == "" {
+		return ""
+	}
+	out := "102.20 rule check: " + l
+	if rc["review"] == true {
+		out += " (it differs from the precedent check: worth a broker's look)"
+	}
+	return out
 }
 
 func casePath(id, rest string) string { return "/v1/cases/" + url.PathEscape(id) + rest }

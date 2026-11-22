@@ -1928,6 +1928,41 @@ export interface components {
             parts_moved?: number;
             /** @description True on the shown plan that moves the fewest parts when two or more are shown (D340). A label, not a sort key. */
             smallest_supported?: boolean;
+            rule_check?: components["schemas"]["PlanRuleCheck"];
+        };
+        /**
+         * @description The 19 CFR 102.20 rule check of the product as it would be after this move (D441): the moved parts take the
+         *     target plant's country, and the good is produced where its final-assembly group would be. Present on every plan
+         *     (and the baseline) of a Part 102 case, and of a substantial-transformation case only when the good and every part
+         *     have an HTS code. Added when the plan is returned or read, never stored; display only: it never changes the
+         *     verdict, which plans are shown, or their order. RULE_CHECK=off removes it.
+         */
+        PlanRuleCheck: {
+            /** @enum {string} */
+            applies: "part102" | "informational";
+            /** @description Where the good would be produced after the move; empty when not known */
+            country: string;
+            /**
+             * @description shifts: the rule gives the target. no_shift: it gives another country because a foreign part fails the change. other_country: it gives another country although no part fails (the good is still finished there). undetermined: see why.
+             * @enum {string}
+             */
+            status: "shifts" | "no_shift" | "other_country" | "undetermined";
+            /** @description The status in a few words, e.g. "Shifts under 102.20 (8543.70)" or "Undetermined (no code for 2 parts)" */
+            label: string;
+            origin?: string;
+            basis?: string;
+            /** @example 19 CFR 102.20(o), 8543.70 */
+            rule?: string;
+            reason: string;
+            /** @enum {string} */
+            why?: "out_of_scope" | "good_code" | "no_country" | "missing_code" | "needs_fact" | "de_minimis" | "essential" | "chapter_note" | "no_origin" | "no_materials" | "other";
+            /** @description Foreign parts that do not make the change */
+            failing?: string[];
+            /** @description Present when the rule decided and the move has a precedent check */
+            agrees_with_precedent?: boolean;
+            /** @description True when an earlier ruling supports the move but the rule gives another country, or (Part 102 cases) the rule gives the target but no ruling supports the move. Worth a broker's look; changes nothing */
+            review: boolean;
+            review_note?: string;
         };
         Range: {
             min?: number;

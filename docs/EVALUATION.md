@@ -581,3 +581,24 @@ Source: `eval/results/repeatability-heldout-litellm.json`, built by `python3 -I 
 **Robustness over the suggested codes (D430, after the freeze, no model calls).** Each decision above was re-checked over every combination of each part's top-3 suggested codes (past 81 combinations, a deterministic sample of 81). With CBP's code for the good, 8 of the 9 development decisions and 6 of the 7 held-out ones give the same answer under every code, and every one of those 14 agrees with CBP. The held-out decision that disagrees with CBP, N358639, is the one that depends on a part's code (the steel pipes); in development N338219 depends on its castings' codes and still agrees as run. With the suggested code for the good: development 9 of 10 (8 agree), held-out 6 of 8 (6 agree). "Same answer" does not mean right: all three codes can be wrong the same way. This is a new figure on the held-out rows, computed from the committed suggestions only; nothing was re-run or tuned. Source: `robustness` in `eval/tariffshift/parts/summary.json`.
 
 **Not done.** The live CROSS search for the good and the USITC check of model codes, which production adds, were not part of the evaluation. final2 has no full text locally, so it has no gold. Source: `eval/tariffshift/parts/summary.json`, recomputed by `cd backend && go run ./cmd/tariffshift parts-eval -check` (in `make reproduce`). Cost $1.42 gateway-reported.
+
+## 11. The rule check on each plan move (22 Nov 2026, D440-D442)
+
+**What it is (built).** The planner's moves are checked against precedent (§7). Each move now also gets the 19 CFR 102.20 rule check of the product as it would be after the move: the moved parts take the target's country, and the good is produced where its final assembly would be. It says "shifts", "does not shift", "gives another country" or "undetermined" with the reason, and flags a move an earlier ruling supports but the rule does not. It is display only: it never changes the verdict, which plans are shown or their order (D441).
+
+**How it was tested.** Pre-registered in D440, offline, no model calls. No committed plan product gives every part's code, and no committed plan search is Part 102-routed, so the only searches it can run on are the 23 per-family searches of §7.2 with codes filled in from the development suggestion run of §10 (top suggestion for the good and every part). All 23 are decided under substantial transformation, so the check is informational there.
+
+| Count (23 searches, 57 moves) | Value |
+|---|---:|
+| Moves decided | 25 (22 shift to the target, 3 give another country) |
+| Searches with a decided move | 14 of 23 |
+| Undetermined: a fact the codes cannot give / de minimis value / out of scope | 24 / 7 / 1 |
+| Decided moves with a precedent check that agree with it | 21 of 23 |
+| Precedent supports, rule gives another country (flagged) | 2, both below the plan bar |
+| Shown plans decided; rule gives the target | 15 of 19; 15 |
+| Decided moves that agree with the engine | 20 of 25 |
+| Current setup decided; gives CBP's held origin | 11 of 23; 4 |
+
+**What it shows.** The rule decides about four in ten moves here, and where it decides it mostly agrees with the precedent check. That is weaker evidence than it looks: 9 of the 22 shifts hold because the move puts every part in the target, the part codes are unverified suggestions, and these are substantial-transformation cases, where Part 102 is not the test. The two disagreements are real and useful: moving the machining of N354220's survival tool to Vietnam has precedent support, but the tool is still finished in China, so the rule gives China. On the current setups the rule gives CBP's held origin in only 4 of 11, which is the known difference between the tariff-shift and substantial-transformation tests.
+
+**Not done.** No Part 102 plan search with part codes exists to score, and no move here has a later CBP ruling on the changed setup, so agreement with CBP on a move is not measured (0). Source: `eval/tariffshift/plans/summary.json` and `moves-dev.jsonl`, recomputed by `cd backend && go run ./cmd/tariffshift plans-eval -check` (in `make reproduce`). Cost $0.

@@ -93,3 +93,9 @@ test("the 21 Nov steps are labelled as post-review hardening, with exact dates",
   assert.match(POST_REVIEW, /external expert review \(21 Nov 2026\)/);
   assert.doesNotMatch(page, /Since 21 Nov every experiment/);
 });
+
+// D441, D442: the plan section's rule-check figures are registered.
+test("the plan section's per-move rule-check figures are in docs/NUMBERS.md", () => {
+  assert.match(page, /decides 25 of 57 moves and agrees with the\s+precedent check on 21 of 23/);
+  assert.ok(numbers.includes("25 of 57 moves") && numbers.includes("21 of 23 decided moves"));
+});

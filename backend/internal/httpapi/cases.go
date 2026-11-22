@@ -695,7 +695,7 @@ func (a *api) caseFieldsBase(r *http.Request, c store.Case) map[string]any {
 	// Everything derived (fingerprints, staleness, scenario basis) reads the
 	// case as stored; only the predictions shown carry the read-time
 	// calibrated value (D180).
-	cal := a.redescribed(a.withCalibration(c))
+	cal := a.withPlanRuleChecks(a.redescribed(a.withCalibration(c)))
 	f := map[string]any{
 		"id": c.ID, "date": c.Date, "facts": c.Facts, "product": c.Product, "family": c.Family,
 		"exclude_rulings": c.Exclude, "current_origin": c.CurrentOrigin, "prediction": cal.Prediction,
@@ -1143,7 +1143,7 @@ func (a *api) planSearch(ctx context.Context, c store.Case, req planner.Request,
 			return nil, err
 		}
 	}
-	return map[string]any{"case_id": c.ID, "plan": res}, nil
+	return map[string]any{"case_id": c.ID, "plan": a.ruleChecked(c, res)}, nil // the check is added, never stored (D441)
 }
 
 // planRequestFor builds the planner request for a case and a plan body.
@@ -1361,11 +1361,11 @@ func (a *api) planStream(w http.ResponseWriter, r *http.Request, c store.Case, r
 		case planner.EventStarted:
 			send("start", map[string]any{"target": e.Target, "moves": e.Moves, "total": e.Total})
 		case planner.EventBaseline:
-			send("baseline", map[string]any{"plan": a.calibratedPlan(e.Plan)})
+			send("baseline", map[string]any{"plan": a.ruleCheckedPlan(c, req.Target, a.calibratedPlan(e.Plan))})
 		case planner.EventMoveStarted:
 			send("move_started", map[string]any{"key": e.Move, "done": e.Done, "total": e.Total})
 		case planner.EventMoveDone:
-			send("move_done", map[string]any{"key": e.Move, "plan": a.calibratedPlan(e.Plan), "done": e.Done, "total": e.Total})
+			send("move_done", map[string]any{"key": e.Move, "plan": a.ruleCheckedPlan(c, req.Target, a.calibratedPlan(e.Plan)), "done": e.Done, "total": e.Total})
 		}
 	})
 	if err == nil {
@@ -1395,7 +1395,7 @@ func (a *api) planStream(w http.ResponseWriter, r *http.Request, c store.Case, r
 		return
 	}
 	out := a.meta()
-	out["case_id"], out["plan"] = c.ID, res
+	out["case_id"], out["plan"] = c.ID, a.ruleChecked(c, res) // added, never stored (D441)
 	send("done", out)
 }
 

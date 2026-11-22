@@ -17,6 +17,7 @@ import { OPS_UNREADABLE, OperationalFields, opsErrorText, useOpsValidity } from 
 import { BandNet, OpsDetail, OpsScope, StaleMoneyBanner } from "../ops-result";
 import { isCostRejection, netText } from "../ops-view";
 import { PrefillBar } from "../money-prefill";
+import { PlanRuleChip, PlanRuleNote, planRuleCaption } from "../plan-rule";
 import { EconomicsEditor, MoveIncludes, PlantDiagram, TierChip, agreementWords, andList, backtestView, checkWords, moveKey, movePhrase, partsMoved, rejectionLabels, smallestSupported, type ActualChangeExtras, type BacktestView } from "../plan-bits";
 import { planTemplateVersion } from "@/lib/families";
 import { planTarget } from "../plan-target";
@@ -692,7 +693,9 @@ function PlanBand({
           <Chip>
             Reaches <Country name={plan.prediction?.origin_country} /> · origin {originShort(plan.prediction)}
           </Chip>
+          <PlanRuleChip plan={plan} explain />
         </div>
+        <PlanRuleNote plan={plan} className="mt-2 max-w-[80ch]" />
         {!below && small && small !== plan ? (
           <p className="duo mt-2 max-w-[80ch] text-xs text-dim">{copy.plan.tier.smallestLine(movePhrase(small, product?.family), partsMoved(small, product))}</p>
         ) : null}
@@ -925,6 +928,7 @@ function AllMoves({ result, onDraft, stale, product, asOf }: { result: PlanResul
         Moves searched · {moves} · {result.plans?.length ? (storedOrder ? "best net first" : copy.plan.tier.order) : "closest first by precedent check"}
       </h2>
       {storedOrder ? <p className="duo mb-2 text-xs text-dim">{copy.plan.tier.stored}</p> : null}
+      {planRuleCaption(result) ? <p className="duo mb-2 max-w-[80ch] text-xs text-dim">{planRuleCaption(result)}</p> : null}
       {/* A table from sm up; on phones each move is a card, so the precedent
           check and net per year stay in view (#96). */}
       <div className="relative overflow-x-auto">
@@ -975,12 +979,14 @@ function AllMoves({ result, onDraft, stale, product, asOf }: { result: PlanResul
                       )}
                     </span>
                     {p.operations && !stale && <OpsDetail ops={p.operations} objective={result.objective} className="mt-1.5" />}
-                    {p.shown ? (
+                    {p.shown || p.rule_check ? (
                       <span className="mt-1 flex flex-wrap gap-1.5">
-                        <TierChip plan={p} result={result} />
-                        {small === p ? <Chip>{copy.plan.tier.smallest}</Chip> : null}
+                        {p.shown ? <TierChip plan={p} result={result} /> : null}
+                        {p.shown && small === p ? <Chip>{copy.plan.tier.smallest}</Chip> : null}
+                        <PlanRuleChip plan={p} />
                       </span>
                     ) : null}
+                    <PlanRuleNote plan={p} className="mt-0.5" />
                     {p.from_advice && <span className="mt-0.5 block text-xs text-ask">{copy.plan.advice.tried}</span>}
                     {p.near_miss && <NearMiss nm={p.near_miss} fallbackRuling={p.verdict?.supporting_ruling} />}
                     <CheckTrail trail={p.verdict?.trail} />
