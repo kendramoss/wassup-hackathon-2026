@@ -1,0 +1,101 @@
+{
+  "id": "paper-napkins-2024",
+  "order": 11,
+  "title": "Paper napkins, parent rolls made in Indonesia, converted in China",
+  "description": "Tissue parent rolls are made in Indonesia, then embossed, cut, folded and packaged in China. CBP held Indonesia (N341898): the parent roll decides.",
+  "source": "CBP ruling N341898 (22 Aug 2024), rulings.cbp.gov",
+  "cbp_held": "Indonesia (N341898)",
+  "notes": "One of the six families added in D660 (paper, tissue and paperboard products). Built from the ruling's facts into a development fixture: the target plant's capabilities, duty rates, import value and group costs are illustrative placeholders, not sourced. The ruling itself is excluded from precedent search. Picked by family, not by result. Recorded development run (eval/results/plan-paper-napkins-2024-local-verifier-v2-d660-litellm.json): the engine agreed with CBP on Indonesia at 0.95 stated; the plan to move parent-roll production to China was shown at 0.98 on N340077. N340077 held Indonesia for napkins converted from Indonesian parent rolls, so it supports the parent roll deciding; it is a different ruling from the one excluded here. A run on this site is a new run and may differ.",
+  "predict": {
+    "date": "2024-08-22",
+    "product": {
+      "name": "Paper napkins",
+      "description": "Packages of tissue paper napkins in several sizes and folds, converted from parent rolls of 12-22 gsm tissue.",
+      "plants": [
+        {
+          "id": "id",
+          "name": "Indonesia tissue mill",
+          "country": "Indonesia",
+          "capabilities": [
+            "parent_roll_production"
+          ]
+        },
+        {
+          "id": "cn",
+          "name": "China converting plant",
+          "country": "China",
+          "capabilities": [
+            "parent_roll_production",
+            "surface_printing_decor",
+            "hardware_and_accessories",
+            "die_cut_mold_shape",
+            "final_assembly"
+          ]
+        }
+      ],
+      "components": [
+        {
+          "name": "parent rolls of tissue paper",
+          "made_in": "Indonesia",
+          "plant": "id",
+          "group": "parent_roll_production"
+        }
+      ],
+      "operations": [
+        {
+          "name": "make the tissue paper and wind it into parent rolls",
+          "plant": "id",
+          "group": "parent_roll_production"
+        },
+        {
+          "name": "emboss, cut to size, fold and package the napkins",
+          "plant": "cn",
+          "group": "final_assembly"
+        }
+      ]
+    },
+    "family": "paper_tissue_products",
+    "exclude_rulings": [
+      "N341898"
+    ],
+    "current_origin": {
+      "country": "Indonesia",
+      "ruling": "N341898"
+    }
+  },
+  "plan": {
+    "target": "China",
+    "economics": {
+      "illustrative": true,
+      "annual_import_value_usd": 1000000,
+      "duty_rates": {
+        "Indonesia": 0.0,
+        "China": 0.25
+      },
+      "duty_rates_note": "Illustrative placeholder, not a sourced rate.",
+      "group_costs": {
+        "parent_roll_production": {
+          "id": 200000,
+          "cn": 230000
+        }
+      }
+    }
+  },
+  "recorded": {
+    "run": "Development run, 22 Nov 2026, one run each, engine-v1 and verifier-v2 on gemini-4-argon through an OpenAI-compatible LiteLLM gateway to Gemini, local corpus search, plan bar 0.92",
+    "file": "eval/results/plan-paper-napkins-2024-local-verifier-v2-d660-litellm.json",
+    "engine_origin": "Indonesia",
+    "stated_confidence": 0.95,
+    "cbp_origin": "Indonesia",
+    "agrees_with_cbp": true,
+    "best_plan": "Move the parent rolls to China",
+    "best_plan_move": [
+      {
+        "group": "parent_roll_production",
+        "to_plant": "cn"
+      }
+    ],
+    "plan_check": 0.98,
+    "plan_ruling": "N340077"
+  }
+}

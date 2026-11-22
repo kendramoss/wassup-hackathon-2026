@@ -1,0 +1,130 @@
+{
+  "id": "gas-heater-2025",
+  "order": 16,
+  "title": "Vent-free gas heater, Chinese burner and sensors, assembled in Vietnam",
+  "description": "A wall-mounted gas heater is assembled in Vietnam from Chinese burner, sensor, panel and valve parts; the selector valve and regulators are Vietnamese. CBP held China (N345976): the burner and sensor assemblies decide.",
+  "source": "CBP ruling N345976 (11 Mar 2025), rulings.cbp.gov",
+  "cbp_held": "China (N345976)",
+  "notes": "One of the six families added in D660 (heat pumps, furnaces and heaters). Built from CBP's facts into a development fixture; plant capabilities, duty rates, import value and group costs are illustrative placeholders, not sourced. The ruling itself is excluded from precedent search. Picked by family, not by result. Recorded development run (eval/results/plan-gas-heater-2025-local-verifier-v2-d660-litellm.json): the engine agreed with CBP on China at 0.92 stated. The shown plan moves the burners and the oxygen depletion sensor assemblies and ignitor module to Vietnam, check 0.94 on N346005; that ruling covered vent-free gas logs and a stove with a Chinese burner and log set assembled in Vietnam, so it supports the burner and sensor assemblies deciding. A run on this site is a new run and may differ.",
+  "predict": {
+    "date": "2025-03-11",
+    "product": {
+      "name": "Vent-free gas heater",
+      "description": "A wall-mounted infrared or blue-flame gas heater for propane or natural gas with an oxygen depletion sensor.",
+      "plants": [
+        {
+          "id": "cn",
+          "name": "China component supplier",
+          "country": "China",
+          "capabilities": [
+            "heating_cooling_core",
+            "chassis_metal_parts",
+            "valves_regulators_tubes"
+          ]
+        },
+        {
+          "id": "vn",
+          "name": "Vietnam assembly plant",
+          "country": "Vietnam",
+          "capabilities": [
+            "compressor_unit",
+            "heating_cooling_core",
+            "chassis_metal_parts",
+            "valves_regulators_tubes",
+            "final_assembly"
+          ]
+        }
+      ],
+      "components": [
+        {
+          "name": "burner assembly",
+          "made_in": "China",
+          "plant": "cn",
+          "group": "heating_cooling_core"
+        },
+        {
+          "name": "oxygen depletion sensor assemblies and ignitor module",
+          "made_in": "China",
+          "plant": "cn",
+          "group": "heating_cooling_core"
+        },
+        {
+          "name": "front and back panel assemblies and wall bracket",
+          "made_in": "China",
+          "plant": "cn",
+          "group": "chassis_metal_parts"
+        },
+        {
+          "name": "thermostatic gas valve and aluminium tubes",
+          "made_in": "China",
+          "plant": "cn",
+          "group": "valves_regulators_tubes"
+        },
+        {
+          "name": "gas selector valve and regulators",
+          "made_in": "Vietnam",
+          "plant": "vn",
+          "group": "valves_regulators_tubes"
+        }
+      ],
+      "operations": [
+        {
+          "name": "cut, punch, bend and paint, then assemble, tighten and test the heater",
+          "plant": "vn",
+          "group": "final_assembly"
+        }
+      ]
+    },
+    "family": "hvac_heating_units",
+    "exclude_rulings": [
+      "N345976"
+    ],
+    "current_origin": {
+      "country": "China",
+      "ruling": "N345976"
+    }
+  },
+  "plan": {
+    "target": "Vietnam",
+    "economics": {
+      "illustrative": true,
+      "annual_import_value_usd": 1000000,
+      "duty_rates": {
+        "China": 0.25,
+        "Vietnam": 0.0
+      },
+      "duty_rates_note": "Illustrative placeholder, not a sourced rate.",
+      "group_costs": {
+        "heating_cooling_core": {
+          "cn": 150000,
+          "vn": 180000
+        },
+        "chassis_metal_parts": {
+          "cn": 60000,
+          "vn": 70000
+        },
+        "valves_regulators_tubes": {
+          "cn": 40000,
+          "vn": 45000
+        }
+      }
+    }
+  },
+  "recorded": {
+    "run": "Development run, 22 Nov 2026, one run each, engine-v1 and verifier-v2 on gemini-4-argon through an OpenAI-compatible LiteLLM gateway to Gemini, local corpus search, plan bar 0.92",
+    "file": "eval/results/plan-gas-heater-2025-local-verifier-v2-d660-litellm.json",
+    "engine_origin": "China",
+    "stated_confidence": 0.92,
+    "cbp_origin": "China",
+    "agrees_with_cbp": true,
+    "best_plan": "Move the burners and the oxygen depletion sensor assemblies and ignitor module to Vietnam",
+    "best_plan_move": [
+      {
+        "group": "heating_cooling_core",
+        "to_plant": "vn"
+      }
+    ],
+    "plan_check": 0.94,
+    "plan_ruling": "N346005"
+  }
+}

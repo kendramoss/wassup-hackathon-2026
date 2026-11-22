@@ -1,0 +1,100 @@
+{
+  "id": "golf-driver-heads-2025",
+  "order": 14,
+  "title": "Golf club heads, cast in Vietnam, finished in China",
+  "description": "Titanium and stainless-steel heads are cast and shaped in Vietnam, then welded, machined and coated in China. CBP held Vietnam (N346303): the casting decides.",
+  "source": "CBP ruling N346303 (10 Mar 2025), rulings.cbp.gov",
+  "cbp_held": "Vietnam (N346303)",
+  "notes": "One of the six families added in D660 (golf clubs and sporting goods). Built from CBP's facts into a development fixture; plant capabilities, duty rates, import value and group costs are illustrative placeholders, not sourced. The ruling itself is excluded from precedent search. Picked by family, not by result. Recorded development run (eval/results/plan-golf-driver-heads-2025-local-verifier-v2-d660-litellm.json): the engine agreed with CBP on Vietnam at 0.90 stated. The shown plan moves the club heads to China, check 0.97 on N340536; that ruling held Vietnam for putter heads formed there and finished in China, so it supports the forming country deciding. A run on this site is a new run and may differ.",
+  "predict": {
+    "date": "2025-03-10",
+    "product": {
+      "name": "Golf club driver, fairway and hybrid heads",
+      "description": "Investment-cast titanium driver heads and stainless-steel fairway and hybrid heads, cosmetically finished.",
+      "plants": [
+        {
+          "id": "vn",
+          "name": "Vietnam foundry",
+          "country": "Vietnam",
+          "capabilities": [
+            "primary_head_forming"
+          ]
+        },
+        {
+          "id": "cn",
+          "name": "China finishing plant",
+          "country": "China",
+          "capabilities": [
+            "primary_head_forming",
+            "boot_and_binding_parts",
+            "textiles_and_grips",
+            "final_assembly"
+          ]
+        }
+      ],
+      "components": [
+        {
+          "name": "cast titanium or stainless-steel golf head",
+          "made_in": "Vietnam",
+          "plant": "vn",
+          "group": "primary_head_forming"
+        }
+      ],
+      "operations": [
+        {
+          "name": "cast the heads in wax-mould shells, deshell, sandblast and polish to final shape",
+          "plant": "vn",
+          "group": "primary_head_forming"
+        },
+        {
+          "name": "weld or bond the face, crown and sole, machine the hosel, paint or PVD-coat and apply decals",
+          "plant": "cn",
+          "group": "final_assembly"
+        }
+      ]
+    },
+    "family": "golf_sporting_goods",
+    "exclude_rulings": [
+      "N346303"
+    ],
+    "current_origin": {
+      "country": "Vietnam",
+      "ruling": "N346303"
+    }
+  },
+  "plan": {
+    "target": "China",
+    "economics": {
+      "illustrative": true,
+      "annual_import_value_usd": 1000000,
+      "duty_rates": {
+        "Vietnam": 0.0,
+        "China": 0.25
+      },
+      "duty_rates_note": "Illustrative placeholder, not a sourced rate.",
+      "group_costs": {
+        "primary_head_forming": {
+          "vn": 180000,
+          "cn": 170000
+        }
+      }
+    }
+  },
+  "recorded": {
+    "run": "Development run, 22 Nov 2026, one run each, engine-v1 and verifier-v2 on gemini-4-argon through an OpenAI-compatible LiteLLM gateway to Gemini, local corpus search, plan bar 0.92",
+    "file": "eval/results/plan-golf-driver-heads-2025-local-verifier-v2-d660-litellm.json",
+    "engine_origin": "Vietnam",
+    "stated_confidence": 0.9,
+    "cbp_origin": "Vietnam",
+    "agrees_with_cbp": true,
+    "best_plan": "Move the club heads to China",
+    "best_plan_move": [
+      {
+        "group": "primary_head_forming",
+        "to_plant": "cn"
+      }
+    ],
+    "plan_check": 0.97,
+    "plan_ruling": "N340536"
+  }
+}

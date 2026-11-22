@@ -438,8 +438,8 @@ Built by `eval/jp/*.py` and `go run ./cmd/jpeval` (from `backend/`); `make repro
 
 ### New-family demos (D191)
 
-| New-family demos with a recorded run | 5 (gas grill and four picked by family: vehicle parts, PCBA devices, power supplies, medical devices) | `backend/internal/demos/fixtures/*.json` (`recorded`), checked against the result files by `TestRecordedRunsMatchResultFiles` | Built. Development runs through the gateway, one each; not runs on this site |
-| Recorded runs that disagree with CBP | 1 of 5 (aluminum wheel N349871: engine Thailand, stated 0.85, calibrated 0.60; CBP held China) | `eval/results/planner-families-n349871-litellm.json` | Measured, one run. Show beside CBP's holding |
+| New-family demos with a recorded run | 11 (gas grill and four D138 families, plus one each for the six D660 families: paper/tissue, off-road vehicles, semiconductors, golf/sporting goods, toys/build kits, heating) | `backend/internal/demos/fixtures/*.json` (`recorded`), checked against the result files by `TestRecordedRunsMatchResultFiles` | Built. Development runs through the gateway, one each; not runs on this site until seeded |
+| Recorded runs that disagree with CBP | 2 of 11 (aluminum wheel N349871: engine Thailand, stated 0.85, calibrated 0.60; roll AGV N336445: engine South Korea, stated 0.82; CBP held China in both) | `eval/results/planner-families-n349871-litellm.json`; `eval/results/families-r3-live-checks.json` | Measured, one run each. Show beside CBP's holding |
 | Engine disagreed with CBP on the starting setup, per-family checks | 8 of 29: 7 of 23 (D171) and 1 of 6 in the D661 live checks (the roll AGV: South Korea, CBP China); 5 of 8 in the D138 live checks | `eval/results/planner-families-summary.json` (`engine_current` vs `cbp_held`); `eval/results/families-r3-live-checks.json` (`engine_current_origin` vs `cbp_current_origin`); `eval/results/families-live-checks.json` | Measured, development checks, one run each |
 
 ## Claude connector (MCP; built, see `docs/MCP.md`)

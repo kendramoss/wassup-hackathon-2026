@@ -50,6 +50,24 @@ await mkdir(out, { recursive: true });
 const browser = await launch();
 const problems = [];
 
+// #558: the /cases fold names every demo picked by family. Check the copy
+// source because the fold is only shown while unpinned cards exist; once all
+// demos are pinned, the same stale sentence would still ship.
+const casesCopy = await readFile(new URL("../src/lib/copy.ts", import.meta.url), "utf8");
+if (!casesCopy.includes("ten family demos were picked by family")) {
+  problems.push({ page: "/cases", copy: "selection copy says four family demos, not ten" });
+}
+for (const family of [
+  "paper and tissue products",
+  "off-road vehicles and machinery",
+  "semiconductor devices",
+  "golf and sporting goods",
+  "toys and build kits",
+  "heat pumps and heaters",
+]) {
+  if (!casesCopy.includes(family)) problems.push({ page: "/cases", copy: `selection copy omits ${family}` });
+}
+
 for (const scheme of ["light", "dark"]) {
   for (const [vp, viewport] of Object.entries(viewports)) {
     const ctx = await browser.newContext({ viewport, colorScheme: scheme });

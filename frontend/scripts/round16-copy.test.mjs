@@ -28,6 +28,25 @@ test("the landing's preparation time is measured, with its sources in NUMBERS", 
   assert.match(numbers, /\| First answer \| 33 s \(median 49 s, slowest 101 s/);
 });
 
+test("/cases names every family demo picked by family", () => {
+  const copy = read("../src/lib/copy.ts");
+  assert.match(copy, /ten family demos were picked by family/, "copy names all ten");
+  for (const family of [
+    "vehicle parts",
+    "PCBA devices",
+    "power supplies",
+    "medical devices",
+    "paper and tissue products",
+    "off-road vehicles and machinery",
+    "semiconductor devices",
+    "golf and sporting goods",
+    "toys and build kits",
+    "heat pumps and heaters",
+  ]) {
+    assert.ok(copy.includes(family), `copy names ${family}`);
+  }
+});
+
 test("/cases counts every per-family check, D171's and D661's", () => {
   const d171 = JSON.parse(read("../../eval/results/planner-families-summary.json")).runs;
   const d661 = JSON.parse(read("../../eval/results/families-r3-live-checks.json")).runs;
