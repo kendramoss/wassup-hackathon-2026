@@ -585,6 +585,32 @@ type RuleCheckCell struct {
 	Rulings    []string       `json:"decided_rulings,omitempty"`
 	Disagree   []string       `json:"disagree_cbp_rulings,omitempty"`
 	Clean      *RuleClean     `json:"without_input_codes,omitempty"`
+	// Robustness (D430, post-freeze, offline): for the variants that use
+	// suggested part codes, the decided rulings re-checked over every
+	// combination of each part's top-3 suggestions.
+	Robustness *RobustCounts `json:"robustness,omitempty"`
+}
+
+// RobustCounts says how many decided rulings keep their answer under every
+// combination of each part's suggested codes (D430).
+type RobustCounts struct {
+	Decided int `json:"decided"`
+	// Stable: the same answer under every combination.
+	Stable      int `json:"stable"`
+	StableAgree int `json:"stable_agree_cbp"`
+	// Depends: the answer changes with some part's code.
+	Depends      []string     `json:"depends_rulings,omitempty"`
+	Sampled      int          `json:"sampled"`
+	MaxEvaluated int          `json:"max_combinations_evaluated"`
+	Clean        *RobustClean `json:"without_input_codes,omitempty"`
+	cleanCounts  RobustClean  `json:"-"`
+}
+
+// RobustClean is RobustCounts without the products in InputCodes.
+type RobustClean struct {
+	Decided     int `json:"decided"`
+	Stable      int `json:"stable"`
+	StableAgree int `json:"stable_agree_cbp"`
 }
 
 func cmdPartsEval(args []string) error {
@@ -747,6 +773,9 @@ func cmdPartsEval(args []string) error {
 				for vi, v := range variants {
 					before := rc[vi]
 					scoreRule(&rc[vi], rules, v, s.Ruling, labels[s.Ruling].Origin)
+					if vi > 0 {
+						robustRule(&rc[vi], rules, v, others(in.Input, top), s.Ruling, labels[s.Ruling].Origin, leaked)
+					}
 					if !leaked {
 						rcl[vi].N++
 						rcl[vi].OutOfScope += rc[vi].OutOfScope - before.OutOfScope
@@ -770,6 +799,9 @@ func cmdPartsEval(args []string) error {
 				c.Clean = cl
 				for i := range rc {
 					rc[i].Clean = &rcl[i]
+					if rb := rc[i].Robustness; rb != nil {
+						rb.Clean = &rb.cleanCounts
+					}
 				}
 			}
 			c.RuleCheck = rc
@@ -777,7 +809,7 @@ func cmdPartsEval(args []string) error {
 		}
 	}
 	b, _ := json.MarshalIndent(map[string]any{
-		"note":  "Per-part HTS suggestions (D380), scored as pre-registered in D381. A suggestion matches when it equals CBP's stated code at the level CBP stated (up to 8 digits). Gold: hts.PartStatements on the full ruling text, matched to the part by name. Suggestions see only rulings dated before the scored ruling, never the ruling itself; no CROSS search and no USITC check (offline). input_codes and without_input_codes (post-freeze, #576, D413): products whose committed input still carried an HTS number after the v1 code stripper, and each cell without them. Recompute: cd backend && go run ./cmd/tariffshift parts-eval -check",
+		"note":  "Per-part HTS suggestions (D380), scored as pre-registered in D381. A suggestion matches when it equals CBP's stated code at the level CBP stated (up to 8 digits). Gold: hts.PartStatements on the full ruling text, matched to the part by name. Suggestions see only rulings dated before the scored ruling, never the ruling itself; no CROSS search and no USITC check (offline). input_codes and without_input_codes (post-freeze, #576, D413): products whose committed input still carried an HTS number after the v1 code stripper, and each cell without them. robustness (post-freeze, D430, no model calls): each decided ruling re-checked over every combination of each part's top-3 suggested codes (past 81 combinations, a deterministic sample of 81); stable means the same answer under all of them. Recompute: cd backend && go run ./cmd/tariffshift parts-eval -check",
 		"cells": cells,
 	}, "", " ")
 	if err := writeOrCheck(filepath.Join(partsDir, "summary.json"), append(b, '\n'), *check); err != nil {
@@ -795,6 +827,12 @@ func cmdPartsEval(args []string) error {
 			fmt.Printf("    rule check [%s]: n=%d out_of_scope=%d decided=%d agree_cbp=%d %v\n", r.Input, r.N, r.OutOfScope, r.Decided, r.AgreeCBP, r.Reasons)
 			if r.Clean != nil {
 				fmt.Printf("      without input codes: n=%d out_of_scope=%d decided=%d agree_cbp=%d\n", r.Clean.N, r.Clean.OutOfScope, r.Clean.Decided, r.Clean.AgreeCBP)
+			}
+			if rb := r.Robustness; rb != nil {
+				fmt.Printf("      over the top-3 suggestions (D430): decided=%d stable=%d stable_agree_cbp=%d depends=%v sampled=%d\n", rb.Decided, rb.Stable, rb.StableAgree, rb.Depends, rb.Sampled)
+				if rb.Clean != nil {
+					fmt.Printf("        without input codes: decided=%d stable=%d stable_agree_cbp=%d\n", rb.Clean.Decided, rb.Clean.Stable, rb.Clean.StableAgree)
+				}
 			}
 		}
 	}
@@ -825,6 +863,58 @@ func withParts(in tariffshift.Input, good string, top map[int][]hts.PartCandidat
 		out.Materials[i] = m
 	}
 	return out
+}
+
+// others is, for each material, the codes suggested after the top one.
+func others(in tariffshift.Input, top map[int][]hts.PartCandidate) [][]string {
+	out := make([][]string, len(in.Materials))
+	for i := range in.Materials {
+		for _, c := range top[i] {
+			out[i] = append(out[i], c.HTS)
+		}
+		if len(out[i]) > 0 {
+			out[i] = out[i][1:]
+		}
+	}
+	return out
+}
+
+// robustRule re-checks a decided ruling over every combination of its
+// parts' suggested codes (D430).
+func robustRule(c *RuleCheckCell, rules *tariffshift.Rules, in tariffshift.Input, alts [][]string, ruling string, gold *string, leaked bool) {
+	if c.Robustness == nil {
+		c.Robustness = &RobustCounts{}
+	}
+	rc := c.Robustness
+	if rules.Evaluate(in).Status != tariffshift.Decided {
+		return
+	}
+	rc.Decided++
+	if !leaked {
+		rc.cleanCounts.Decided++
+	}
+	rb := rules.Robust(in, alts)
+	if rb != nil {
+		rc.MaxEvaluated = max(rc.MaxEvaluated, rb.Evaluated)
+		if rb.Sampled {
+			rc.Sampled++
+		}
+	}
+	if rb != nil && !rb.Stable {
+		rc.Depends = append(rc.Depends, ruling+": "+rb.Summary)
+		return
+	}
+	rc.Stable++
+	agree := gold != nil && *same(rules.Evaluate(in).Origin, *gold)
+	if agree {
+		rc.StableAgree++
+	}
+	if !leaked {
+		rc.cleanCounts.Stable++
+		if agree {
+			rc.cleanCounts.StableAgree++
+		}
+	}
 }
 
 func scoreRule(c *RuleCheckCell, rules *tariffshift.Rules, in tariffshift.Input, ruling string, gold *string) {

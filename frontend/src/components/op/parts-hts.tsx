@@ -37,15 +37,24 @@ export function suggestionFor(s: PartsSuggestions | null, i: number, c: Componen
   return hit && hit.name === c.name.trim() ? hit.candidates : null;
 }
 
+// withSuggested puts an accepted code on a part, with the part's other
+// suggested codes as hts_alternatives: the rule check then says whether its
+// answer is the same under each (D430).
+export function withSuggested(c: Component, code: string, cands: PartHtsCandidate[]): Component {
+  const others = cands.map((x) => x.hts ?? "").filter((h) => h && h !== code).slice(0, 2);
+  return { ...c, hts: code, hts_alternatives: others.length ? others : undefined };
+}
+
 // acceptAll fills the top suggestion into every part that has none yet;
 // codes the user typed are kept.
 export function acceptAll(product: Product, s: PartsSuggestions): { product: Product; filled: number } {
   let filled = 0;
   const components = product.components.map((c, i) => {
-    const top = suggestionFor(s, i, c)?.[0];
+    const cands = suggestionFor(s, i, c);
+    const top = cands?.[0];
     if (!top?.hts || c.hts?.trim()) return c;
     filled++;
-    return { ...c, hts: top.hts };
+    return withSuggested(c, top.hts, cands ?? []);
   });
   return { product: { ...product, components }, filled };
 }

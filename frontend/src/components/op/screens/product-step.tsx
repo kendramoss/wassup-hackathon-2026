@@ -26,7 +26,7 @@ import { MoneyDrawer, hasAnyMoney, hasMoney, moneySummary, productGroups } from 
 import { opsErrorText } from "../operational-fields";
 import { Combobox, countryOptions, type ComboOption } from "../combobox";
 import { HtsField } from "../hts-field";
-import { PartSuggestionRow, PartsHtsBar, suggestionFor, type PartsSuggestions } from "../parts-hts";
+import { PartSuggestionRow, PartsHtsBar, suggestionFor, withSuggested, type PartsSuggestions } from "../parts-hts";
 import { PrefillNote, mergeDutyPrefill, prefillMoney, type Filled } from "../money-prefill";
 import { groupName } from "../plan-bits";
 import { PdfTableError, pdfToBomCsv } from "@/lib/pdf-bom";
@@ -1261,7 +1261,8 @@ export function PartsEditor({
                         </td>
                         <td className="py-1 pr-2">
                           {/* Only the 19 CFR 102.20 rule check reads a part's
-                              code (D363); it is not part of the facts. */}
+                              code (D363); it is not part of the facts. A typed
+                              code drops the other suggested codes (D430). */}
                           <input
                             id={`field-part-hts-${i}`}
                             aria-label={`HTS code of ${c.name || "this part"} (optional)`}
@@ -1269,7 +1270,7 @@ export function PartsEditor({
                             inputMode="decimal"
                             className={cx(cell, "w-[7.5rem]")}
                             value={c.hts ?? ""}
-                            onChange={(e) => setComps(product.components.map((x, j) => (j === i ? { ...x, hts: e.target.value.trim() ? e.target.value : undefined } : x)))}
+                            onChange={(e) => setComps(product.components.map((x, j) => (j === i ? { ...x, hts: e.target.value.trim() ? e.target.value : undefined, hts_alternatives: undefined } : x)))}
                           />
                         </td>
                         <td className="py-1 pr-2">
@@ -1292,7 +1293,7 @@ export function PartsEditor({
                           cands={cands}
                           value={c.hts ?? ""}
                           label={c.name}
-                          onUse={(code) => setComps(product.components.map((x, j) => (j === i ? { ...x, hts: code } : x)))}
+                          onUse={(code) => setComps(product.components.map((x, j) => (j === i ? withSuggested(x, code, cands) : x)))}
                         />
                       )}
                     </Fragment>

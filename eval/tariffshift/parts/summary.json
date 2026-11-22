@@ -55,7 +55,17 @@
      },
      "decided_rulings": [
       "N337260"
-     ]
+     ],
+     "robustness": {
+      "decided": 1,
+      "stable": 0,
+      "stable_agree_cbp": 0,
+      "depends_rulings": [
+       "N337260: the answer depends on the code for aluminum fins, copper heat pipe, aluminum base (48 combinations)"
+      ],
+      "sampled": 0,
+      "max_combinations_evaluated": 48
+     }
     },
     {
      "input": "top suggestion for the good and every part",
@@ -66,7 +76,17 @@
      "undetermined_reasons": {},
      "decided_rulings": [
       "N337260"
-     ]
+     ],
+     "robustness": {
+      "decided": 1,
+      "stable": 0,
+      "stable_agree_cbp": 0,
+      "depends_rulings": [
+       "N337260: the answer depends on the code for aluminum fins, copper heat pipe, aluminum base (48 combinations)"
+      ],
+      "sampled": 0,
+      "max_combinations_evaluated": 48
+     }
     }
    ]
   },
@@ -155,6 +175,21 @@
       "out_of_scope": 36,
       "decided": 8,
       "agree_cbp": 8
+     },
+     "robustness": {
+      "decided": 9,
+      "stable": 8,
+      "stable_agree_cbp": 8,
+      "depends_rulings": [
+       "N338219: the answer depends on the code for Cover Casting, Main Board Casting (16 combinations)"
+      ],
+      "sampled": 4,
+      "max_combinations_evaluated": 81,
+      "without_input_codes": {
+       "decided": 8,
+       "stable": 7,
+       "stable_agree_cbp": 7
+      }
      }
     },
     {
@@ -188,6 +223,21 @@
       "out_of_scope": 36,
       "decided": 10,
       "agree_cbp": 9
+     },
+     "robustness": {
+      "decided": 10,
+      "stable": 9,
+      "stable_agree_cbp": 8,
+      "depends_rulings": [
+       "N338219: the answer depends on the code for Cover Casting, Main Board Casting (16 combinations)"
+      ],
+      "sampled": 4,
+      "max_combinations_evaluated": 81,
+      "without_input_codes": {
+       "decided": 10,
+       "stable": 9,
+       "stable_agree_cbp": 8
+      }
      }
     }
    ],
@@ -323,6 +373,21 @@
       "out_of_scope": 12,
       "decided": 7,
       "agree_cbp": 6
+     },
+     "robustness": {
+      "decided": 7,
+      "stable": 6,
+      "stable_agree_cbp": 6,
+      "depends_rulings": [
+       "N358639: the answer depends on the code for steel pipes (12 combinations)"
+      ],
+      "sampled": 3,
+      "max_combinations_evaluated": 81,
+      "without_input_codes": {
+       "decided": 7,
+       "stable": 6,
+       "stable_agree_cbp": 6
+      }
      }
     },
     {
@@ -354,6 +419,22 @@
       "out_of_scope": 11,
       "decided": 7,
       "agree_cbp": 6
+     },
+     "robustness": {
+      "decided": 8,
+      "stable": 6,
+      "stable_agree_cbp": 6,
+      "depends_rulings": [
+       "N358639: the answer depends on the code for steel pipes (12 combinations)",
+       "N364328: the answer depends on the code for plastic locking mechanisms, plastic end caps (24 combinations)"
+      ],
+      "sampled": 3,
+      "max_combinations_evaluated": 81,
+      "without_input_codes": {
+       "decided": 7,
+       "stable": 5,
+       "stable_agree_cbp": 5
+      }
      }
     }
    ],
@@ -375,5 +456,5 @@
    }
   }
  ],
- "note": "Per-part HTS suggestions (D380), scored as pre-registered in D381. A suggestion matches when it equals CBP's stated code at the level CBP stated (up to 8 digits). Gold: hts.PartStatements on the full ruling text, matched to the part by name. Suggestions see only rulings dated before the scored ruling, never the ruling itself; no CROSS search and no USITC check (offline). input_codes and without_input_codes (post-freeze, #576, D413): products whose committed input still carried an HTS number after the v1 code stripper, and each cell without them. Recompute: cd backend \u0026\u0026 go run ./cmd/tariffshift parts-eval -check"
+ "note": "Per-part HTS suggestions (D380), scored as pre-registered in D381. A suggestion matches when it equals CBP's stated code at the level CBP stated (up to 8 digits). Gold: hts.PartStatements on the full ruling text, matched to the part by name. Suggestions see only rulings dated before the scored ruling, never the ruling itself; no CROSS search and no USITC check (offline). input_codes and without_input_codes (post-freeze, #576, D413): products whose committed input still carried an HTS number after the v1 code stripper, and each cell without them. robustness (post-freeze, D430, no model calls): each decided ruling re-checked over every combination of each part's top-3 suggested codes (past 81 combinations, a deterministic sample of 81); stable means the same answer under all of them. Recompute: cd backend \u0026\u0026 go run ./cmd/tariffshift parts-eval -check"
 }

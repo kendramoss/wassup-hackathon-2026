@@ -617,6 +617,11 @@ export const copy = {
     domestic: "same country",
     ruleText: "The rule, as published",
     encoded: (e: number, n: number) => `${e} of ${n} sentences of this rule are encoded; the others name goods in words and are left to a person.`,
+    // D430: the check re-run over the other codes suggested for each part.
+    robustStable: (n: number, total: number, sampled: boolean, parts: string) =>
+      `Same answer for every suggested code: ${sampled ? `a sample of ${n} of ${total} combinations` : `${n} combination${n === 1 ? "" : "s"}`} of the codes suggested for ${parts}.`,
+    robustDepends: (parts: string) => `The answer depends on the code for ${parts}. Check that code with your broker first.`,
+    robustTogether: "The answer depends on which suggested codes are chosen together. Check the part codes with your broker first.",
   },
 
   // /examples/rule-check: a recorded, read-only example of the per-part codes
@@ -631,7 +636,7 @@ export const copy = {
     goodCode: "CBP's code for the product",
     fromRuling: "from the ruling",
     parts: "Suggested code for each part",
-    partsNote: "The first code is the one the check uses. Each is labelled with its source.",
+    partsNote: "The first code is the one the check uses; the check is also run with every other code suggested. Each is labelled with its source.",
     stated: (code: string) => `The ruling's text states ${code}.`,
     noneStated: "The ruling's text states no code for this part.",
     before: "With only the codes the ruling's text states",
@@ -639,6 +644,8 @@ export const copy = {
     cbp: "What CBP held",
     agrees: "The check agrees with CBP's ruling.",
     differs: "The check does not agree with CBP's ruling.",
+    ourNote: "Our note, added after the run",
+    robust: "Under every suggested code",
     honest: "One ruling, picked to show the check deciding. On most Part 102 rulings it still does not decide: the product is outside the encoded chapters, or a part needs a fact the codes cannot show. The method page has the counts.",
     source: "Rebuilt from committed files, no model call:",
     tourBack: "Back to the heat-gun tour",

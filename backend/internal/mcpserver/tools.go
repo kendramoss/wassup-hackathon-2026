@@ -568,6 +568,9 @@ func ruleCheckLine(out map[string]any) string {
 	default:
 		fmt.Fprintf(&b, "undetermined: %s.", str0(res["reason"], ""))
 	}
+	if rb := obj(rc["robustness"]); len(rb) > 0 {
+		fmt.Fprintf(&b, " Over the other suggested part codes: %s.", str0(rb["summary"], ""))
+	}
 	b.WriteString(" Display only; it does not change the prediction or triage.")
 	return b.String()
 }

@@ -31,24 +31,35 @@ type examplePart struct {
 	Origin      string              `json:"origin"`
 	StatedHTS   string              `json:"stated_hts,omitempty"` // the code CBP's text states for it, if any
 	Suggestions []hts.PartCandidate `json:"suggestions"`
+	// Note is our reading of the recorded suggestions, added after the run
+	// (judge panel round 9, N2); the suggestions themselves are as recorded.
+	Note string `json:"note,omitempty"`
+}
+
+// exampleNotes are our notes on the recorded suggestions, by part name.
+var exampleNotes = map[string]string{
+	"flat coiled stainless steel": "Our note, added after the run: the top suggestion, 7219.33, is for stainless steel 600 mm wide or more. The ruling's facts say the coils are 3 to 12 inches wide (about 76 to 305 mm), so the second suggestion, 7220.20 (under 600 mm), is the likely code. The rule check gives the same answer under either.",
 }
 
 type exampleFile struct {
-	Note      string             `json:"note"`
-	Ruling    string             `json:"ruling"`
-	Date      string             `json:"date"`
-	Split     string             `json:"split"`
-	Run       string             `json:"run"`
-	Model     string             `json:"model"`
-	Prompt    string             `json:"prompt"`
-	Product   string             `json:"product"`
-	GoodHTS   string             `json:"good_hts"`
-	Country   string             `json:"country"`
-	Parts     []examplePart      `json:"parts"`
-	Before    tariffshift.Result `json:"before"`
-	After     tariffshift.Result `json:"after"`
-	CBPOrigin string             `json:"cbp_origin"`
-	Agrees    bool               `json:"agrees"`
+	Note    string             `json:"note"`
+	Ruling  string             `json:"ruling"`
+	Date    string             `json:"date"`
+	Split   string             `json:"split"`
+	Run     string             `json:"run"`
+	Model   string             `json:"model"`
+	Prompt  string             `json:"prompt"`
+	Product string             `json:"product"`
+	GoodHTS string             `json:"good_hts"`
+	Country string             `json:"country"`
+	Parts   []examplePart      `json:"parts"`
+	Before  tariffshift.Result `json:"before"`
+	After   tariffshift.Result `json:"after"`
+	// Robustness is the check over every combination of each part's
+	// suggested codes (D430).
+	Robustness *tariffshift.Robustness `json:"robustness"`
+	CBPOrigin  string                  `json:"cbp_origin"`
+	Agrees     bool                    `json:"agrees"`
 }
 
 func cmdPartsExample(args []string) error {
@@ -95,15 +106,19 @@ func cmdPartsExample(args []string) error {
 		top[p.Index] = p.Candidates
 	}
 	ex := exampleFile{
-		Note:   "Recorded example, rebuilt from committed files by `cd backend && go run ./cmd/tariffshift parts-example -check`. Suggestions: the committed D382 development run (no new model call). Rule check: the deterministic 19 CFR 102.20 layer on CBP's code for the good and the top suggestion for each part.",
+		Note:   "Recorded example, rebuilt from committed files by `cd backend && go run ./cmd/tariffshift parts-example -check`. Suggestions: the committed D382 development run (no new model call). Rule check: the deterministic 19 CFR 102.20 layer on CBP's code for the good and the top suggestion for each part; robustness: the same check on every combination of each part's suggested codes (D430). Part notes are ours, added after the run; the suggestions are as recorded.",
 		Ruling: exampleRuling, Date: lab.Date, Split: row.Split, Run: "eval/tariffshift/parts/" + exampleRun,
 		Model: row.Model, Prompt: row.Prompt, Product: productName(lab.Subject),
 		GoodHTS: in.Input.GoodHTS, Country: in.Input.Country, CBPOrigin: *lab.Origin,
 		Before: rules.Evaluate(in.Input),
 		After:  rules.Evaluate(withParts(in.Input, in.Input.GoodHTS, top)),
 	}
+	ex.Robustness = rules.Robust(withParts(in.Input, in.Input.GoodHTS, top), others(in.Input, top))
 	for i, m := range in.Input.Materials {
-		ex.Parts = append(ex.Parts, examplePart{Name: m.Name, Origin: m.Origin, StatedHTS: m.HTS, Suggestions: top[i]})
+		ex.Parts = append(ex.Parts, examplePart{Name: m.Name, Origin: m.Origin, StatedHTS: m.HTS, Suggestions: top[i], Note: exampleNotes[m.Name]})
+	}
+	if ex.Robustness == nil || !ex.Robustness.Stable {
+		return fmt.Errorf("%s: the page says the answer is the same under every suggested code; robustness %+v", exampleRuling, ex.Robustness)
 	}
 	ex.Agrees = ex.After.Status == tariffshift.Decided && *same(ex.After.Origin, ex.CBPOrigin)
 	if ex.Before.Status == tariffshift.Decided || !ex.Agrees {

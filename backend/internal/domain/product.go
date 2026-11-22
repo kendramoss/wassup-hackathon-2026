@@ -45,7 +45,16 @@ type Component struct {
 	// optional. Only the 19 CFR 102.20 rule check reads it (D363); it is not
 	// part of the facts the engine reads.
 	HTS string `json:"hts,omitempty"`
+	// HTSAlternatives are the other codes suggested for the part when HTS
+	// was accepted from a suggestion (D380), at most MaxHTSAlternatives.
+	// Only the rule check reads them, to say whether its answer is the same
+	// under each suggested code (D430); not part of the facts.
+	HTSAlternatives []string `json:"hts_alternatives,omitempty"`
 }
+
+// MaxHTSAlternatives caps a part's other suggested codes: the suggester
+// gives at most three codes, one of which the part carries.
+const MaxHTSAlternatives = 2
 
 // Operation is a processing step performed at one of the product's plants.
 type Operation struct {
@@ -113,6 +122,14 @@ func (p Product) Validate() error {
 		}
 		if h := strings.TrimSpace(c.HTS); h != "" && !componentHTS.MatchString(h) {
 			errs.add("components[%d]: hts %q is not an HTS heading or subheading", i, c.HTS)
+		}
+		if len(c.HTSAlternatives) > MaxHTSAlternatives {
+			errs.add("components[%d]: at most %d hts_alternatives", i, MaxHTSAlternatives)
+		}
+		for _, a := range c.HTSAlternatives {
+			if !componentHTS.MatchString(strings.TrimSpace(a)) {
+				errs.add("components[%d]: hts_alternatives %q is not an HTS heading or subheading", i, a)
+			}
 		}
 	}
 	for i, o := range p.Operations {

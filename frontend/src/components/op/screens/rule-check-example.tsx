@@ -24,8 +24,8 @@ const repo = copy.landing.repo;
 
 // The recorded result, in the shape the case API sends, so the panel is the
 // same one a case shows.
-function asCase(result: RuleCheck["result"]): CaseResponse {
-  const rc: RuleCheck = { rules: "19 CFR 102.20", applies: "part102", country: ex.country, country_from: "final assembly plant", review: false, note: "", result };
+function asCase(result: RuleCheck["result"], robustness?: RuleCheck["robustness"]): CaseResponse {
+  const rc: RuleCheck = { rules: "19 CFR 102.20", applies: "part102", country: ex.country, country_from: "final assembly plant", review: false, note: "", result, robustness };
   return { id: "", rule_check: rc } as CaseResponse;
 }
 
@@ -81,6 +81,11 @@ export function RuleCheckExample() {
               </p>
               <p className="duo text-[12.5px] text-dim">{"stated_hts" in p && p.stated_hts ? E.stated(p.stated_hts) : E.noneStated}</p>
               <Suggestions cands={p.suggestions as PartHtsCandidate[]} />
+              {"note" in p && p.note ? (
+                <p data-example-note className="duo mt-2 max-w-[72ch] border-l-2 border-ask-line pl-2.5 text-[12.5px] text-body">
+                  <span className="text-ask">{E.ourNote}:</span> {p.note.replace(/^Our note, added after the run: /, "")}
+                </p>
+              ) : null}
             </li>
           ))}
         </ul>
@@ -100,7 +105,7 @@ export function RuleCheckExample() {
         <h2 id="ex-after" className="eyebrow">
           {E.after}
         </h2>
-        <RuleCheckPanel c={asCase(after)} />
+        <RuleCheckPanel c={asCase(after, ex.robustness as RuleCheck["robustness"])} />
       </section>
 
       <section aria-labelledby="ex-cbp" className={sheet}>

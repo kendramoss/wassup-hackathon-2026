@@ -19,6 +19,14 @@ func TestRuleCheckLine(t *testing.T) {
 		}
 	}
 	got = ruleCheckLine(map[string]any{"rule_check": map[string]any{
+		"applies":    "part102",
+		"result":     map[string]any{"status": "decided", "origin": "Canada", "basis": "19 CFR 102.11(a)(3)"},
+		"robustness": map[string]any{"stable": true, "summary": "the same answer for every suggested code (2 combinations of the codes suggested for strip)"},
+	}})
+	if !strings.Contains(got, "Over the other suggested part codes: the same answer for every suggested code (2 combinations") {
+		t.Errorf("%q", got)
+	}
+	got = ruleCheckLine(map[string]any{"rule_check": map[string]any{
 		"applies": "informational",
 		"result":  map[string]any{"status": "undetermined", "reason": "no materials given"},
 	}})

@@ -80,6 +80,17 @@ export function ruleCheckDisplay(c: CaseResponse): RuleCheckDisplay {
   return { kind: "line", text: headline(rc).text, addCodes: false };
 }
 
+// robustLine is the D430 sentence: whether the decided answer is the same
+// under every code suggested for the parts, or which part's code it turns on.
+export function robustLine(rc: RuleCheck): { text: string; tone?: "ask" } | null {
+  const R = copy.ruleCheck;
+  const rb = rc.robustness;
+  if (!rb) return null;
+  if (rb.stable) return { text: R.robustStable(rb.evaluated, rb.combinations, rb.sampled, rb.parts.join(", ")) };
+  if (rb.depends_on?.length) return { text: R.robustDepends(rb.depends_on.join(", ")), tone: "ask" };
+  return { text: R.robustTogether, tone: "ask" };
+}
+
 // Where each line's link lands on the product step (it focuses the field).
 const jumpTo = {
   parts: { field: "field-part-hts-0", label: copy.ruleCheck.addCodesLink },
@@ -109,6 +120,7 @@ export function RuleCheckPanel({ c }: { c: CaseResponse }) {
   const rc = d.rc;
   const r = rc.result;
   const h = headline(rc);
+  const rob = robustLine(rc);
   return (
     <section
       aria-label={R.title}
@@ -125,6 +137,11 @@ export function RuleCheckPanel({ c }: { c: CaseResponse }) {
         {h.text}
       </p>
       <p className="duo mt-1.5 text-[13px] text-body">{sentence(r.reason)}</p>
+      {rob ? (
+        <p data-rule-check-robust={rc.robustness?.stable ? "stable" : "depends"} className={cx("duo mt-1 text-[13px]", rob.tone === "ask" ? "text-ask" : "text-body")}>
+          {rob.text}
+        </p>
+      ) : null}
       {r.basis ? <p className="duo mt-1 text-[12.5px] text-dim">{r.basis}</p> : null}
       <p className="duo mt-1 text-[12.5px] text-dim">
         {rc.applies === "informational" ? `${R.informational} ` : ""}

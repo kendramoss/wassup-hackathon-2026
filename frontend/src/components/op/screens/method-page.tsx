@@ -1,4 +1,5 @@
 import type { ReactNode } from "react";
+import Link from "next/link";
 import { Main } from "../chrome";
 import { Reproduce } from "../failure-cases";
 import { Stability } from "../method-stability";
@@ -395,9 +396,14 @@ export function MethodPage() {
           ruling text it decides 4 of 104, each as CBP held (<D id="D362" />). Since parts rarely come with codes, the parts table now suggests up to three per part,
           each marked as from an earlier CBP ruling on a similar part or as the model&apos;s own reading, and fills one in only when you accept it (<D id="D380" />). Where
           CBP states a part&apos;s code, the top suggestion matched it for 20 of 27 development parts. With CBP&apos;s code for the good and the suggested part codes,
-          the check decides 9 of 69 development rulings (all 9 agree with CBP) and 7 of 29 held-out rulings (6 agree), against 2 and 2 with only the codes CBP
-          states (<D id="D382" />). One held-out input kept a code it should not have; the correction is in <D id="D413" />. The codes are unverified: check them
-          with a broker.
+          the check decides 9 of 69 development rulings (all 9 agree with CBP) and, held out, 7 of 29 (6 agree); 7 of 24 (6 agree) without the inputs that
+          carried a code (<D id="D382" />, <D id="D413" />). With only the codes CBP states it decides 2 and 2. Run again over every combination of each
+          part&apos;s top three suggestions, 8 of the 9 development decisions and 6 of the 7 held-out ones give the same answer under every code; the held-out one
+          that disagrees with CBP is the one that turns on a part&apos;s code (<D id="D430" />). The codes are unverified: check them with a broker.{" "}
+          <Link href="/examples/rule-check" className="text-ok underline underline-offset-2">
+            See a recorded example
+          </Link>
+          .
         </p>
         <p>
           We did try fine-tuning once. On 16 and 17 Oct we tuned Gemini 3.5 Flash on CBP&apos;s own reasoning from rulings older than the development split. It was worse on the
