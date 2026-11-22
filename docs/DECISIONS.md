@@ -2352,7 +2352,7 @@ Committed before the development re-run below.
 - **Not done:** window 2 is not re-scored, for `usmca-v1` or `usmca-v5`. Its published counts (11 of 13 each) stand as measured with the 15-ruling pool and say so; a future window-2 run with the full pool would be a new candidate comparison and would be logged as one.
 
 ## D613 — The `usmca-v5` auto-accept bar: no development rule gains coverage; the bar stays stated 0.95 (22 Nov, results of D610)
-- **Run as pre-registered in D610** (pushed as b7cbefb9 before `p102bar` was written), from committed rows, no model calls: `cd backend && go run ./cmd/tariffshift p102bar -check` (in `make reproduce`), `eval/tariffshift/p102bar/summary.json`.
+- **Run as pre-registered in D610** (pushed as b7cbefb9 before `p102bar` was written; fe0d0f22 after the rebase onto main), from committed rows, no model calls: `cd backend && go run ./cmd/tariffshift p102bar -check` (in `make reproduce`), `eval/tariffshift/p102bar/summary.json`.
 - **Development, `usmca-v5`, 72 rulings, 53 right.** The map `cal-p102-v1` has two steps: stated 0.45 to 0.90 maps to 0.4483 (29 cases, 13 right) and stated 0.92 to 0.98 to 0.9302 (43 cases, 40 right). Pooling into blocks of 20 joins the 10 cases at 0.96 and 0.98 (all right) with the 33 at 0.92 and 0.95. No step is at least 95% right, so the map has no bar and is **not a candidate**. Nothing was applied to a held-out row as a candidate; the map is not shipped and Part 102 answers still show no calibrated value.
 - **Stated bars on development** (reported, not deciding):
 
@@ -2379,7 +2379,7 @@ Committed before the development re-run below.
 - **Not done:** no new held-out model call. The map and table are on one development run; run-to-run noise on the 72 is about 1 to 3 rulings (D551), and on the D611 re-run arm A `usmca-v5` was 57 of 72 with 36 auto-accepted at 0.95, 35 right, which shows how much a 38-case block moves between runs.
 
 ## D614 — The Part 102 latency tail is the gateway, not the prompt; the hedged request helps only under load and is not proposed as a default (22 Nov, results of D611)
-- **Run as pre-registered in D611** (pushed as b7cbefb9; the tooling as e67c15a4, both before the first call). `p102bar` reads the committed rows and the two arms (`eval/tariffshift/p102bar/summary.json`, rows in `eval/tariffshift/p102bar/runs/`).
+- **Run as pre-registered in D611** (pushed as b7cbefb9; the tooling as e67c15a4, both before the first call; fe0d0f22 and 25c1ba93 after the rebase onto main, and the re-run rows record e67c15a4). `p102bar` reads the committed rows and the two arms (`eval/tariffshift/p102bar/summary.json`, rows in `eval/tariffshift/p102bar/runs/`).
 - **From the committed rows, no calls.** Window 1's two slowest `usmca-v5` calls took 28.4 s and 27.8 s with 200 and 274 output tokens, below the run's median of 256; with 32 rows the 95th percentile is the second of them. Neither carries an error, and `latency_ms` is one attempt, so they are single slow responses, not retries and not long answers. Latency follows output tokens only weakly in every run (rank correlation 0.32 to 0.51). The slow tail is not new: `usmca-v1`'s development re-run had calls of 27.3, 26.1 and 25.5 s with ordinary output, and on the 72 development rulings `usmca-v5`'s 95th percentile (18.3 s) is below `usmca-v1`'s (21.8 s).
 
   | Run | Median / 95th percentile per call, `usmca-v1` | Same, `usmca-v5` |
