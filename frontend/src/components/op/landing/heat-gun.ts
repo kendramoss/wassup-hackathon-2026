@@ -57,14 +57,12 @@ const clamp01 = (v: number) => Math.min(1, Math.max(0, v));
 
 export function createHeatGun({
   canvas,
-  context,
   labels,
   leaders,
   flag,
   reduce,
 }: {
   canvas: HTMLCanvasElement;
-  context: WebGL2RenderingContext;
   labels: HTMLElement;
   leaders: SVGSVGElement;
   flag: (c: Country) => string;
@@ -81,7 +79,7 @@ export function createHeatGun({
     dimension: new THREE.Color(token("--dimension")),
   };
 
-  const renderer = new THREE.WebGLRenderer({ canvas, context, antialias: true, alpha: true });
+  const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true });
   renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
   const scene = new THREE.Scene();
   const camera = new THREE.PerspectiveCamera(26, 1, 0.1, 100);

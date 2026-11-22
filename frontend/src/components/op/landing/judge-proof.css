@@ -32,14 +32,9 @@
   letter-spacing: -.055em;
 }
 
-.lp .judge-kpis,
 .lp .judge-impact-grid {
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 14px;
-}
-
-.lp .judge-impact-grid {
   grid-template-columns: minmax(0, 1fr) minmax(0, 1.1fr);
 }
 
@@ -51,10 +46,6 @@
   padding: clamp(15px, 2vw, 27px);
 }
 
-.lp .judge-kpi {
-  border-top: 3px solid var(--lp-verified);
-}
-
 .lp .judge-card h3 {
   margin-block: 7px 4px;
   font-weight: 600;
@@ -62,31 +53,13 @@
   letter-spacing: -.035em;
 }
 
-.lp .judge-card > p:not(.judge-number, .judge-badge) {
+.lp .judge-card > p:not(.judge-badge) {
   font-size: 13px;
   color: var(--dim);
 }
 
-.lp .judge-number {
-  font-size: clamp(42px, 6vw, 80px);
-  font-weight: 600;
-  line-height: 1;
-  letter-spacing: -.085em;
-  font-variant-numeric: tabular-nums;
-}
-
-.lp .judge-kpi .judge-number,
-.lp .judge-kpi p > b,
 .lp .judge-measured {
   color: var(--lp-verified);
-}
-
-.lp .judge-badges {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 8px;
-  margin-block: 14px;
 }
 
 .lp .judge-badge {
@@ -101,24 +74,10 @@
   line-height: 1.4;
 }
 
-.lp a.judge-badge {
-  min-height: 36px;
-  text-decoration: underline;
-  text-underline-offset: 3px;
-}
-
-.lp a.judge-badge:hover {
-  background: var(--wash);
-}
-
 .lp .judge-review {
   border-color: var(--lp-review);
   color: var(--lp-review);
   background: var(--lp-review-wash);
-}
-
-.lp .judge-kpi .judge-review {
-  margin-top: 8px;
 }
 
 .lp .judge-benchmarks {
@@ -219,6 +178,19 @@
   border-top: 1px dashed var(--lp-review);
 }
 
+.lp .judge-waterfall-connector::after {
+  position: absolute;
+  top: -3px;
+  right: 2px;
+  width: 5px;
+  height: 5px;
+  border-top: 1px solid var(--lp-review);
+  border-right: 1px solid var(--lp-review);
+  transform: rotate(45deg);
+  content: "";
+}
+
+.lp .judge-waterfall-step,
 .lp .judge-waterfall-amount,
 .lp .judge-waterfall-label {
   display: block;
@@ -226,8 +198,14 @@
   text-align: center;
 }
 
-.lp .judge-waterfall-amount {
+.lp .judge-waterfall-step {
   margin-top: 8px;
+  color: var(--lp-review);
+  font-size: 11px;
+  font-weight: 600;
+}
+
+.lp .judge-waterfall-amount {
   color: var(--ink);
   font-size: clamp(14px, 1.9vw, 24px);
   font-variant-numeric: tabular-nums;
@@ -245,6 +223,7 @@
   font-size: 11px;
   line-height: 1.4;
   color: var(--dim);
+  overflow-wrap: anywhere;
 }
 
 .lp .judge-waterfall-net .judge-waterfall-amount,
@@ -262,12 +241,7 @@
 }
 
 @media (max-width: 720px) {
-  .lp .judge-kpis,
   .lp .judge-impact-grid {
     grid-template-columns: minmax(0, 1fr);
-  }
-
-  .lp .judge-badges {
-    gap: 6px;
   }
 }
