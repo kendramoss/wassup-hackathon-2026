@@ -633,3 +633,32 @@ func TestRouterFigures(t *testing.T) {
 		t.Fatal("a missing routed prediction passed")
 	}
 }
+
+// Judge panel round 14 (#643, D642): the Part 102 engine named as usmca-v1,
+// window 2 called its clean check, and window-2 Part 102 counts without the
+// D612 precedent-pool note.
+func TestStaleRound14PhrasesFail(t *testing.T) {
+	for name, line := range map[string]string{
+		"reconciliation":  "The Part 102 engine applies 102.11 (`backend/internal/engine/usmca.go:12#USMCASystem`, version `usmca-v1`); textile goods use 102.21.",
+		"method":          "The textile, pharmaceutical and Part 102 engines had their bars set from their first held-out windows. Their clean check",
+		"method one line": "For the Part 102 engine the clean check is the second window.",
+		"numbers":         "Part 102 marking 11/13 = 84.6% (57.8–95.7), usmca-v1.",
+		"model card":      "held out, scored once after `usmca-v1`, 29 of 32 and 11 of 13 against 25 and 11.",
+	} {
+		t.Run(name, func(t *testing.T) {
+			f := newFixture(t)
+			write(t, f.root, "docs/notes.md", line+"\n")
+			if r := Check(f.root, f.doc); !hasFailure(r, "stale phrase") {
+				t.Fatalf("want a stale-phrase failure, got %v", r.Failures)
+			}
+		})
+	}
+	f := newFixture(t)
+	write(t, f.root, "docs/notes.md", "The Part 102 engine (version `usmca-v5` since D602; `usmca-v1` before).\n"+
+		"For the textile and pharmaceutical engines the clean check is the second window. The Part 102 engine in use has no clean held-out check.\n"+
+		"Part 102 marking 11/13 = 84.6% (57.8–95.7), usmca-v1, with only the 15 window-2 rulings as precedents (D612).\n"+
+		"Suggested good: 11 of 13.\n")
+	if r := Check(f.root, f.doc); hasFailure(r, "stale phrase") {
+		t.Fatalf("current wording should pass, got %v", r.Failures)
+	}
+}

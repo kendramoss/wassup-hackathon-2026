@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-11-22T08:08:45Z",
+  "generated_at": "2026-11-22T09:07:29Z",
   "status": "official: held-out engine and fast path are Gemini 4 Argon on Vertex AI (engine-v1, BM25, K=5). Development-split engine numbers are the development set on Vertex AI. Verifier figures and the heat-gun plan's cost and time are proxy development runs; the heat-gun plan the landing shows (check 0.96) is the recorded 18 Oct production run (docs/DEMO.md, section 6).",
   "items": [
     {
@@ -1037,7 +1037,7 @@
     },
     {
       "key": "usmca_final2_accuracy",
-      "label": "Part 102 marking-origin rules, post-cutoff held-out (Sep–Nov 2026, usmca-v1, gateway) accuracy",
+      "label": "Part 102 marking-origin rules, post-cutoff held-out (Sep–Nov 2026, usmca-v1, gateway; precedents from the 15 window-2 rulings only, D612) accuracy",
       "value": 0.8462,
       "ci_low": 0.5776,
       "ci_high": 0.9567,
@@ -1079,7 +1079,7 @@
     },
     {
       "key": "usmca_v5_final2_accuracy",
-      "label": "Part 102 marking-origin rules, post-cutoff held-out (Sep–Nov 2026), usmca-v5 (production since D602), scored after usmca-v1",
+      "label": "Part 102 marking-origin rules, post-cutoff held-out (Sep–Nov 2026), usmca-v5 (production since D602), scored after usmca-v1; precedents from the 15 window-2 rulings only (D612)",
       "value": 0.8462,
       "ci_low": 0.5776,
       "ci_high": 0.9567,
@@ -1090,7 +1090,7 @@
     },
     {
       "key": "usmca_v5_final2_conf95_accuracy",
-      "label": "Part 102 marking-origin rules, post-cutoff held-out (Sep–Nov 2026), usmca-v5 (production since D602), scored after usmca-v1: accuracy when confidence ≥ 0.95",
+      "label": "Part 102 marking-origin rules, post-cutoff held-out (Sep–Nov 2026), usmca-v5 (production since D602), scored after usmca-v1; precedents from the 15 window-2 rulings only (D612): accuracy when confidence ≥ 0.95",
       "value": 0.8333,
       "ci_low": 0.4365,
       "ci_high": 0.9699,
@@ -1101,7 +1101,7 @@
     },
     {
       "key": "usmca_v5_final2_conf95_coverage",
-      "label": "Part 102 marking-origin rules, post-cutoff held-out (Sep–Nov 2026), usmca-v5 (production since D602), scored after usmca-v1: share with confidence ≥ 0.95",
+      "label": "Part 102 marking-origin rules, post-cutoff held-out (Sep–Nov 2026), usmca-v5 (production since D602), scored after usmca-v1; precedents from the 15 window-2 rulings only (D612): share with confidence ≥ 0.95",
       "value": 0.4615,
       "n": 13,
       "split": "final2",

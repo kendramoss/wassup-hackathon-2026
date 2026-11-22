@@ -573,8 +573,11 @@ export function MethodPage() {
             <D id="D161" />).
           </li>
           <li>
-            The textile, pharmaceutical and Part 102 engines had their bars set from their first held-out windows (<D id="D51" />, <D id="D61" />, <D id="D62" />). Their clean check
-            is the second window, scored once with nothing changed (<D id="D210" />, <D id="D211" />).
+            The textile, pharmaceutical and Part 102 engines had their bars set from their first held-out windows (<D id="D51" />, <D id="D61" />, <D id="D62" />). For the
+            textile and pharmaceutical engines the clean check is the second window, scored once with nothing changed (<D id="D210" />, <D id="D211" />). The Part 102
+            engine in use, usmca-v5, has no clean held-out check: it was picked on development rulings and then scored once on both windows, which usmca-v1 had already
+            been scored on, so that is a candidate comparison (<D id="D602" />). Window 2&apos;s Part 102 runs also had only the 15 window-2 rulings as precedents (
+            <D id="D612" />).
           </li>
           <li>
             Part of the plan check&apos;s prompt was written after seeing failures on the 2026 flip pairs (<D id="D74" />), so those pairs are not a clean test for it. The

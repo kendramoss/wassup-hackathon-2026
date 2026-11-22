@@ -2394,7 +2394,7 @@ func regimeSummaryItems(dir string) ([]evalsummary.Item, error) {
 	for _, r := range []struct{ file, key, label string }{
 		{"textile-final2-gemini-4-argon-prec-textile-v2-litellm-reasoning-v1-router.jsonl", "textile_final2_accuracy", "Textile rules, post-cutoff held-out (Sep–Nov 2026, textile-v2, gateway) accuracy"},
 		{"pharma-final2-gemini-4-argon-prec-pharma-v1-litellm-router.jsonl", "pharma_final2_accuracy", "Pharmaceutical rules, post-cutoff held-out (Sep–Nov 2026, pharma-v1, gateway) accuracy; under 10 rulings"},
-		{"usmca-final2-gemini-4-argon-prec-usmca-v1-litellm-router.jsonl", "usmca_final2_accuracy", "Part 102 marking-origin rules, post-cutoff held-out (Sep–Nov 2026, usmca-v1, gateway) accuracy"},
+		{"usmca-final2-gemini-4-argon-prec-usmca-v1-litellm-router.jsonl", "usmca_final2_accuracy", "Part 102 marking-origin rules, post-cutoff held-out (Sep–Nov 2026, usmca-v1, gateway; precedents from the 15 window-2 rulings only, D612) accuracy"},
 	} {
 		path := filepath.Join(dir, r.file)
 		if _, err := os.Stat(path); err != nil {
@@ -2413,7 +2413,7 @@ func regimeSummaryItems(dir string) ([]evalsummary.Item, error) {
 	// been scored before with usmca-v1, above).
 	for _, r := range []struct{ file, key, label, split string }{
 		{"usmca-final-gemini-4-argon-prec-usmca-v5-litellm-d601.jsonl", "usmca_v5_final_accuracy", "Part 102 marking-origin rules, held-out (2026), usmca-v5 (production since D602), scored after usmca-v1", "final"},
-		{"usmca-final2-gemini-4-argon-prec-usmca-v5-litellm-router-d601.jsonl", "usmca_v5_final2_accuracy", "Part 102 marking-origin rules, post-cutoff held-out (Sep–Nov 2026), usmca-v5 (production since D602), scored after usmca-v1", "final2"},
+		{"usmca-final2-gemini-4-argon-prec-usmca-v5-litellm-router-d601.jsonl", "usmca_v5_final2_accuracy", "Part 102 marking-origin rules, post-cutoff held-out (Sep–Nov 2026), usmca-v5 (production since D602), scored after usmca-v1; precedents from the 15 window-2 rulings only (D612)", "final2"},
 	} {
 		path := filepath.Join(dir, "..", "tariffshift", "p102ck", "runs", r.file)
 		if _, err := os.Stat(path); err != nil {

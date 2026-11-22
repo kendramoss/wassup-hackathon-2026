@@ -489,6 +489,7 @@ export function AccuracyPage() {
                     on {usAcc.n} held-out 2026 Part 102 marking rulings ({ci(usAcc)}), scored first, with the earlier engine (usmca-v1). That engine was {pct(usAuto?.value)} right at
                     confidence 0.95 or above, on {pct(usCov?.value, 0)} of them.
                     {later(us2)}
+                    {us2 ? " The later window's Part 102 runs had only the 15 window-2 rulings as precedents, not the full pool (D612)." : ""}
                     {usV5 && usV52
                       ? ` Since 22 Nov the engine in use is usmca-v5, which fills a short 102.11 checklist first; it was picked on development rulings. On the same rulings, scored after: ${count(usV5)} of ${usV5.n} and ${count(usV52)} of ${usV52.n}, ${count(usV5) + count(usV52)} of ${(usV5.n ?? 0) + (usV52.n ?? 0)} against ${count(usAcc) + count(us2)} for usmca-v1. That is a candidate comparison, not a fresh test (p = 0.22).`
                       : ""}
@@ -652,7 +653,7 @@ function HowBuilt() {
         Beside the engine, a deterministic 19 CFR 102.20 tariff-shift check runs when the parts carry HTS codes, and the parts table can suggest those codes. It never
         changes the answer or what is auto-accepted. Plan searches on Part 102 cases were scored twice on a held-out set frozen before the first run.
         With usmca-v1 and 14 families, 6 of 18 rulings had a plan template and usmca-v1 agreed with the 102.20 rule on 3 of 6 decided moves; with usmca-v5 and 20
-        families, 8 of 18 and 6 of 6. Each time the one plan shown is a move the rule says shifts. Too few to read as an accuracy figure.{" "}
+        families, 8 of 18 and 6 of 6; five of the six are moves where the rule keeps the country CBP held. Each time the one plan shown is a move the rule says shifts. Too few to read as an accuracy figure.{" "}
         <Link href="/examples/rule-check" className="text-ok underline underline-offset-2">
           Per-part codes and the rule check, a recorded example →
         </Link>

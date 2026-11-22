@@ -93,6 +93,7 @@ export const DECISIONS: Record<string, string> = {
   D631: "d631--held-out-part-102-plan-set-second-pass-usmca-v5-agrees-with-the-rule-on-6-of-6-decided-moves-against-3-of-6-22-nov-results-of-d630",
   D591: "d591--the-d590-fixes-neither-passed-not-adopted-the-safety-flag-ships-22-nov",
   D602: "d602--a-short-10211-checklist-usmca-v5-is-the-production-part-102-engine-22-nov",
+  D612: "d612--window-2s-part-102-runs-had-almost-no-precedents-eval-run-now-stops-on-a-missing-facts-directory-22-nov-follow-up-to-d602",
   D502: "d502--part-102-aware-plans-finished-the-check-in-the-draft-and-the-comparison-the-d500-order-and-the-three-d501-searches-22-nov-judge-panel-round-10-item-4",
 };
 

@@ -327,7 +327,9 @@ for (const scheme of ["light", "dark"]) {
 
 // #553: the ⋯ row menu must follow the ARIA menu-button keyboard pattern:
 // keyboard open focuses the first item, arrows move between items, Escape
-// restores focus to the trigger. Stub one writable case so a row exists.
+// restores focus to the trigger. Stub two writable cases with the same
+// display name (#622): the delete confirmation must give focus back to the
+// row it was opened from, keyed by case id.
 {
   const ctx = await browser.newContext({ viewport: viewports.desktop });
   const page = await ctx.newPage();
@@ -349,7 +351,7 @@ for (const scheme of ["light", "dark"]) {
     can_write: true,
   };
   await page.route("**/api/v1/cases", (route) =>
-    route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify({ cases: [summary] }) }),
+    route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify({ cases: [summary, { ...summary, id: "case_ui_check0000002" }] }) }),
   );
   await page.route("**/api/v1/demos", (route) =>
     route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify({ demos: [] }) }),
@@ -378,8 +380,11 @@ for (const scheme of ["light", "dark"]) {
     const restored = await page.evaluate(() => document.activeElement?.getAttribute("aria-label"));
     if (!/^Actions for/.test(restored ?? "")) problems.push({ page: "/cases (row menu)", focus: "Escape did not restore focus to trigger", restored });
     // #605: choosing Delete from the keyboard must leave focus on the safe
-    // action in the replacement confirmation row, not on <body>.
-    await trigger.focus();
+    // action in the replacement confirmation row, not on <body>. #622: from
+    // the second of two rows with the same name, focus returns to that row.
+    const second = page.locator('button[data-row-menu-trigger="case_ui_check0000002"]');
+    const focusedRow = () => page.evaluate(() => document.activeElement?.getAttribute("data-row-menu-trigger") ?? null);
+    await second.focus();
     await page.keyboard.press("Enter");
     await page.keyboard.press("End");
     await page.keyboard.press("Enter");
@@ -394,16 +399,26 @@ for (const scheme of ["light", "dark"]) {
     await page.keyboard.press("Escape");
     const afterEscape = await page.evaluate(() => ({
       label: document.activeElement?.getAttribute("aria-label") ?? null,
+      row: document.activeElement?.getAttribute("data-row-menu-trigger") ?? null,
       stillConfirming: (document.body.textContent ?? "").includes("Delete “Row menu probe”?"),
     }));
     if (
       confirmFocus.focused !== "Cancel" ||
       !confirmFocus.hasCancel ||
       afterEscape.label !== "Actions for Row menu probe" ||
+      afterEscape.row !== "case_ui_check0000002" ||
       afterEscape.stillConfirming
     ) {
-      problems.push({ page: "/cases (row menu)", focus: "Delete confirmation did not take focus or cancel on Escape", confirmFocus, afterEscape });
+      problems.push({ page: "/cases (row menu)", focus: "Delete confirmation did not take focus or cancel on Escape to its own row", confirmFocus, afterEscape });
     }
+    // The Cancel button goes through the same restore.
+    await second.focus();
+    await page.keyboard.press("Enter");
+    await page.keyboard.press("End");
+    await page.keyboard.press("Enter");
+    await page.getByRole("button", { name: "Cancel" }).click();
+    const afterCancel = await focusedRow();
+    if (afterCancel !== "case_ui_check0000002") problems.push({ page: "/cases (row menu)", focus: "Cancel did not restore focus to its own row", afterCancel });
   }
   await ctx.close();
 }
