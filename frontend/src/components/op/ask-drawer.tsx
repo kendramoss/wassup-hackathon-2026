@@ -69,12 +69,28 @@ export function AskDrawer({ c, onClose, onChat }: { c: CaseResponse; onClose: ()
   const [announced, setAnnounced] = useState("");
   const input = useRef<HTMLInputElement>(null);
   const log = useRef<HTMLDivElement>(null);
+  // #602: confirming replaces the focused trigger. Move focus to the safe
+  // action, and remember to return to the trigger when the user cancels.
+  const keepRef = useRef<HTMLButtonElement>(null);
+  const restoreClearFocus = useRef(false);
   // Asking saves the turn: a viewer's case is read-only (the server's can_write).
   const readOnly = caseReadOnly(c);
 
   useEffect(() => {
     input.current?.focus();
   }, []);
+
+  useEffect(() => {
+    if (confirming) {
+      restoreClearFocus.current = true;
+      keepRef.current?.focus();
+    } else if (restoreClearFocus.current) {
+      restoreClearFocus.current = false;
+      [...document.querySelectorAll<HTMLButtonElement>("button")]
+        .find((button) => button.textContent?.trim() === "Clear conversation")
+        ?.focus();
+    }
+  }, [confirming]);
 
   // Bring the newest question to the top of the log, so a short answer
   // isn't scrolled out of view under empty space (#87).
@@ -121,6 +137,7 @@ export function AskDrawer({ c, onClose, onChat }: { c: CaseResponse; onClose: ()
   };
 
   const reset = async () => {
+    restoreClearFocus.current = false;
     setConfirming(false);
     try {
       await api.resetChat(id);
@@ -146,7 +163,17 @@ export function AskDrawer({ c, onClose, onChat }: { c: CaseResponse; onClose: ()
           <b className="font-medium text-ink">◆ {copy.result.ask}</b>
           {/* Clearing is final, so it asks first, and waits for a pending answer (#116). */}
           {turns.length > 0 && !pending && !c.pinned && !readOnly && (
-            <span className="ml-auto flex items-center gap-3 text-xs normal-case tracking-normal">
+            <span
+              className="ml-auto flex items-center gap-3 text-xs normal-case tracking-normal"
+              onKeyDown={(e) => {
+                if (!confirming || e.key !== "Escape") return;
+                e.preventDefault();
+                // Only dismiss the confirmation; the Drawer's document-level
+                // Escape handler would otherwise close the whole drawer (#602).
+                e.nativeEvent.stopImmediatePropagation();
+                setConfirming(false);
+              }}
+            >
               {confirming ? (
                 <>
                   <span className="text-dim">
@@ -155,7 +182,7 @@ export function AskDrawer({ c, onClose, onChat }: { c: CaseResponse; onClose: ()
                   <button type="button" className="text-fail hover:underline" onClick={reset}>
                     Clear
                   </button>
-                  <button type="button" className="text-dim hover:underline" onClick={() => setConfirming(false)}>
+                  <button ref={keepRef} type="button" className="text-dim hover:underline" onClick={() => setConfirming(false)}>
                     Keep
                   </button>
                 </>

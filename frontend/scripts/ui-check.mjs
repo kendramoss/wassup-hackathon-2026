@@ -639,6 +639,62 @@ const delayed = async (route, body) => {
   await ctx.close();
 }
 
+// #602: the Ask clear-conversation confirmation must take focus and cancel on
+// Escape without closing the drawer. Stub one saved turn on a writable case.
+{
+  const ctx = await browser.newContext({ viewport: viewports.desktop });
+  const page = await ctx.newPage();
+  page.on("console", (m) => m.type() === "error" && problems.push({ page: "ask (clear)", console: m.text() }));
+  page.on("pageerror", (e) => problems.push({ page: "ask (clear)", console: String(e) }));
+  await page.route(`**/api/v1/cases/${reflowId}`, (route) =>
+    route.fulfill({
+      status: 200,
+      contentType: "application/json",
+      body: JSON.stringify({
+        ...reflowFixture,
+        pinned: false,
+        can_write: true,
+        chat: [{ question: "Why China?", answer: "Because.", cited_rulings: [], at: "2026-01-01T00:00:00Z" }],
+      }),
+    }),
+  );
+  await page.route(`**/api/v1/cases/${reflowId}/ask`, (route) =>
+    route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify({ reply: { answer: "ok" }, chat: [] }) }),
+  );
+  await page.route(`**/api/v1/cases/${reflowId}/plan/estimate`, (route) =>
+    route.fulfill({ status: 200, contentType: "application/json", body: "{}" }),
+  );
+  await page.goto(base + `/cases/${reflowId}`, { waitUntil: "networkidle" });
+  await page.getByRole("button", { name: /Ask about this case/i }).first().click();
+  const drawer = page.getByRole("dialog", { name: "Ask about this case" });
+  await drawer.waitFor();
+  await page.getByRole("button", { name: "Clear conversation" }).focus();
+  await page.keyboard.press("Enter");
+  const opened = await page.evaluate(() => {
+    const el = document.activeElement;
+    const d = document.querySelector('[role="dialog"]');
+    return {
+      tag: el?.tagName ?? null,
+      focused: el === document.body ? "BODY" : (el?.textContent ?? "").trim().slice(0, 40),
+      inside: Boolean(d?.contains(el)),
+      dialog: Boolean(d),
+    };
+  });
+  await page.keyboard.press("Escape");
+  const afterEscape = await page.evaluate(() => {
+    const el = document.activeElement;
+    return {
+      focused: (el?.textContent ?? "").trim().slice(0, 40),
+      dialog: Boolean(document.querySelector('[role="dialog"]')),
+      clearPresent: [...document.querySelectorAll("button")].some((b) => b.textContent?.trim() === "Clear conversation"),
+    };
+  });
+  if (opened.focused !== "Keep" || !opened.inside || !opened.dialog || afterEscape.focused !== "Clear conversation" || !afterEscape.dialog || !afterEscape.clearPresent) {
+    problems.push({ page: "ask (clear)", focus: "clear confirmation lost focus or Escape closed the drawer", opened, afterEscape });
+  }
+  await ctx.close();
+}
+
 // #564: a 429 rate limit ticks a countdown inside role=status. The seconds
 // must be hidden from assistive tech, with a stable phrase in their place,
 // or the status is announced again on every tick (#548 pattern).
