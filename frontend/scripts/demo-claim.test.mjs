@@ -10,7 +10,7 @@ import { test } from "node:test";
 const read = (relative) =>
   readFileSync(fileURLToPath(new URL(relative, import.meta.url)), "utf8");
 
-const landing = read("../src/components/op/landing/landing.tsx");
+const workflow = read("../src/components/op/landing/judge-workflow.tsx");
 const demoDoc = read("../../docs/DEMO.md");
 const seed = JSON.parse(read("../../eval/results/demo-seed-vertex-prod.json"));
 const heatgun = seed.find((row) => row.demo === "heatgun-2022");
@@ -22,14 +22,14 @@ test("the pinned production seed is below the bar", () => {
 });
 
 test("every landing 0.96 plan copy is labelled as a recorded 18 Oct run", () => {
-  const lines = landing.split(/\r?\n/).filter((line) => line.includes("0.96"));
+  const lines = workflow.split(/\r?\n/).filter((line) => line.includes("0.96"));
   assert.ok(lines.length > 0, "the landing should still carry the recorded plan");
   for (const line of lines) assert.match(line, /18 Oct/i);
   // D270: the pinned case's plan search was re-run on 18 Oct and is the run
   // in DEMO.md section 6 (its history: "7 moves searched, 1 shown"), so the
   // landing says the pinned case shows the same plan, no longer that it may not.
-  assert.doesNotMatch(landing, /may (?:instead )?show no plan above the bar/i);
-  assert.match(landing, /pinned case shows 0\.96/);
+  assert.doesNotMatch(workflow, /may (?:instead )?show no plan above the bar/i);
+  assert.match(workflow, /pinned case shows 0\.96/);
   assert.match(demoDoc, /## 6\. Heat gun: the plan that clears the bar \(production, 18 Oct\)/);
   assert.match(demoDoc, /pinned case \(`case_878d76540b91`, updated 18 Oct\) shows the same plan at 0\.96/);
 });
