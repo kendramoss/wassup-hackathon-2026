@@ -586,6 +586,8 @@ export const copy = {
     unsupported: (name: string) => `Origin rules for ${name} aren't supported yet.`,
     unsupportedNext: "No answer yet. Entering the U.S.? Start a U.S. case.",
     startUS: "Start a U.S. case →",
+    // In the case tabs, where Plan and Draft would be, on a non-U.S. case (#678).
+    followUpsUSOnly: "Plans and drafts: U.S. only for now",
   },
 
   // The 19 CFR 102.20 rule check (D363), shown only when the parts list gives

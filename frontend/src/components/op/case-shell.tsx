@@ -1,6 +1,7 @@
 "use client";
 
 import { MarketTag } from "./market-picker";
+import { hasFollowUps } from "@/lib/market";
 import { useParams } from "next/navigation";
 import { useState, type ReactNode } from "react";
 import Link from "next/link";
@@ -58,7 +59,7 @@ export function CaseShell({ tab, children }: { tab: CaseTab; children: (ctx: Cas
   );
   return (
     <ActionSlotProvider>
-      <CaseTabs caseId={gone ? undefined : id} current={tab} reached={Math.max(reached, step)} title={title} onAsk={data?.prediction?.origin_country ? () => setAsking(true) : undefined} />
+      <CaseTabs caseId={gone ? undefined : id} current={tab} reached={Math.max(reached, step)} title={title} onAsk={data?.prediction?.origin_country && hasFollowUps(data) ? () => setAsking(true) : undefined} followUps={data ? hasFollowUps(data) : true} />
       {gone ? (
         // A deleted case or a mistyped link: say so and offer the way back (#88).
         <Main className="flex flex-col gap-3">

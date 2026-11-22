@@ -86,7 +86,7 @@ func TestNoCueIsUS(t *testing.T) {
 	hs := newHarness(t, RegimeGeneral)
 	_, out := hs.do(t, "POST", "/v1/cases/predict", dispatchBody)
 	d := detail(t, out)
-	if out["jurisdiction"] != "us" || d["source"] != "default" || d["supported"] != true {
+	if out["jurisdiction"] != "us" || d["source"] != "default" || d["supported"] != true || d["follow_ups"] != true {
 		t.Errorf("jurisdiction = %v %v", out["jurisdiction"], d)
 	}
 	if out["triage"].(map[string]any)["route"] != "auto" {
@@ -231,7 +231,7 @@ func TestListJurisdictions(t *testing.T) {
 	}
 	for _, m := range list {
 		mm := m.(map[string]any)
-		if (mm["code"] == "us") != (mm["supported"] == true) {
+		if (mm["code"] == "us") != (mm["supported"] == true) || (mm["code"] == "us") != (mm["follow_ups"] == true) {
 			t.Errorf("market %v", mm)
 		}
 	}

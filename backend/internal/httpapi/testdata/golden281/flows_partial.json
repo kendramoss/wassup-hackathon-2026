@@ -189,6 +189,7 @@
   "jurisdiction": "us",
   "jurisdiction_detail": {
    "code": "us",
+   "follow_ups": true,
    "name": "United States",
    "source": "default",
    "supported": true
@@ -4167,6 +4168,7 @@
   "jurisdiction": "us",
   "jurisdiction_detail": {
    "code": "us",
+   "follow_ups": true,
    "name": "United States",
    "source": "default",
    "supported": true

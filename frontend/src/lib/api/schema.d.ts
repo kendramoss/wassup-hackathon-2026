@@ -737,7 +737,7 @@ export interface paths {
         };
         /**
          * Markets a case can name, and which have an origin engine
-         * @description Every market code with its name and whether it is supported (D680). Only us is supported today; a case for any other market gets no prediction and goes to review.
+         * @description Every market code with its name, whether it is supported (D680) and whether it has the steps after the origin answer. us is supported with every step; ca is supported as a rules check only (D725). A case for any other market gets no prediction and goes to review.
          */
         get: operations["listJurisdictions"];
         put?: never;
@@ -1531,6 +1531,8 @@ export interface components {
             hint?: string;
             /** @description Whether the market has an origin engine. false: no prediction was made */
             supported: boolean;
+            /** @description Whether the case has plan search, comparison, scenarios, Ask, the draft and broker review. Only us has them; on any other market those calls return 400 (#678) */
+            follow_ups: boolean;
         };
         /** @description One re-run of the origin engine on revised facts */
         WhatIf: {
@@ -4286,6 +4288,8 @@ export interface operations {
                             code?: components["schemas"]["JurisdictionCode"];
                             name?: string;
                             supported?: boolean;
+                            /** @description Whether the market's cases have plan search, comparison, scenarios, Ask, the draft and broker review (us only) */
+                            follow_ups?: boolean;
                         }[];
                         /**
                          * @description Version of the deterministic market detector

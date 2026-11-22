@@ -188,6 +188,12 @@ func (r *Registry) Authority(code string) (Authority, bool) {
 // Supported reports whether the market has a registered authority.
 func (r *Registry) Supported(code string) bool { _, ok := r.Authority(code); return ok }
 
+// FollowUps reports whether the market has the steps after the origin
+// answer: plan search, comparison, scenarios, Ask, the ruling-request draft
+// and broker review. They are CBP searches, re-runs and letters, so only the United States has
+// them; a registered non-U.S. market gets an origin answer only.
+func (r *Registry) FollowUps(code string) bool { return code == US && r.Supported(code) }
+
 // SupportedCodes lists the registered markets, in Markets order.
 func (r *Registry) SupportedCodes() []string {
 	var out []string
@@ -228,19 +234,21 @@ type Detail struct {
 	Cue       string `json:"cue,omitempty"`
 	Hint      string `json:"hint,omitempty"`
 	Supported bool   `json:"supported"`
+	// FollowUps: the case has plan, compare, scenarios, Ask, draft and broker review.
+	FollowUps bool `json:"follow_ups"`
 }
 
 // DetailOf describes j for the API.
 func (r *Registry) DetailOf(j *domain.Jurisdiction) Detail {
 	v := Of(j)
-	return Detail{Code: v.Code, Name: Name(v.Code), Source: v.Source, Cue: v.Cue, Hint: v.Hint, Supported: r.Supported(v.Code)}
+	return Detail{Code: v.Code, Name: Name(v.Code), Source: v.Source, Cue: v.Cue, Hint: v.Hint, Supported: r.Supported(v.Code), FollowUps: r.FollowUps(v.Code)}
 }
 
-// List is every market with whether it is supported, for GET /v1/jurisdictions.
+// List is every market with whether it is supported and has follow-ups, for GET /v1/jurisdictions.
 func (r *Registry) List() []map[string]any {
 	out := make([]map[string]any, 0, len(Markets))
 	for _, m := range Markets {
-		out = append(out, map[string]any{"code": m.Code, "name": m.Name, "supported": r.Supported(m.Code)})
+		out = append(out, map[string]any{"code": m.Code, "name": m.Name, "supported": r.Supported(m.Code), "follow_ups": r.FollowUps(m.Code)})
 	}
 	return out
 }

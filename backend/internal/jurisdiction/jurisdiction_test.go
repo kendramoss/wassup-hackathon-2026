@@ -102,7 +102,20 @@ func TestRegistry(t *testing.T) {
 	if got := UnsupportedReason(EU); got != "Origin rules for the European Union aren't supported yet" {
 		t.Fatalf("reason = %q", got)
 	}
-	if d := r.DetailOf(&domain.Jurisdiction{Code: KR, Source: SourceChosen}); d.Name != "South Korea" || d.Supported {
+	if d := r.DetailOf(&domain.Jurisdiction{Code: KR, Source: SourceChosen}); d.Name != "South Korea" || d.Supported || d.FollowUps {
 		t.Fatalf("detail = %+v", d)
+	}
+	// Only the United States has plan, compare, draft and broker review: a
+	// registered non-U.S. market is supported but has no follow-ups (#678).
+	if d := r.DetailOf(nil); !d.Supported || !d.FollowUps {
+		t.Fatalf("U.S. detail = %+v", d)
+	}
+	if d := r.DetailOf(&domain.Jurisdiction{Code: EU, Source: SourceChosen}); !d.Supported || d.FollowUps {
+		t.Fatalf("registered EU detail = %+v", d)
+	}
+	for _, m := range r.List() {
+		if want := m["code"] == US; m["follow_ups"] != want {
+			t.Fatalf("list %v: follow_ups want %v", m, want)
+		}
 	}
 }
