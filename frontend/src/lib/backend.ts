@@ -35,7 +35,7 @@ const ROUTE_WORDS = new Set([
   "v1", "api", "cases", "predict", "batch", "products", "import", "extract", "money-prefill", "hts-suggest", "parts-hts-suggest", "cost-estimate",
   "family-check", "bom-version", "scenarios", "compare-targets", "ask", "economics", "pin", "watch", "run", "plan", "estimate",
   "export", "answers", "rulings", "eval", "summary", "duty-rates", "demos", "workspaces", "mine", "members", "join", "role",
-  "admin", "api-keys", "audit", "verify", "health", "mcp", "review", "reviews", "decision", "rcep", "check",
+  "admin", "api-keys", "audit", "verify", "health", "mcp", "review", "reviews", "decision", "rcep", "check", "jurisdictions",
 ]);
 const ERROR_CODES = new Set([
   "budget_reached", "conflict", "forbidden", "internal", "invalid_input", "not_found", "quota_exceeded", "rate_limited",

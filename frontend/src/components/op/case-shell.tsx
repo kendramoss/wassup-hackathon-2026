@@ -1,5 +1,6 @@
 "use client";
 
+import { MarketTag } from "./market-picker";
 import { useParams } from "next/navigation";
 import { useState, type ReactNode } from "react";
 import Link from "next/link";
@@ -45,7 +46,10 @@ export function CaseShell({ tab, children }: { tab: CaseTab; children: (ctx: Cas
   const reached = data ? (stepIndex[data.step ?? "origin"] ?? 2) : step;
   const title = data ? (
     <>
-      {caseTitle(data)} <span className="text-dim">· {formatDate(data.date)}</span>
+      {caseTitle(data)} <span className="text-dim">· {formatDate(data.date)}</span>{" "}
+      <span className="text-dim">
+        · <MarketTag code={data.jurisdiction} />
+      </span>
     </>
   ) : gone ? (
     "Case not found"

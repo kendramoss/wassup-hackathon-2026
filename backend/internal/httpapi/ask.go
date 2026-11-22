@@ -77,6 +77,10 @@ func (a *api) ask(w http.ResponseWriter, r *http.Request) {
 		a.fail(w, r, err)
 		return
 	}
+	if err := a.requireMarket(c, ""); err != nil {
+		a.fail(w, r, err)
+		return
+	}
 	var in askRequest
 	if err := decode(w, r, &in); err != nil {
 		a.fail(w, r, err)

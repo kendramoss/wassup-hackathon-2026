@@ -61,6 +61,12 @@ const (
 
 func country(desc string) *jsonschema.Schema { return pattern(desc, countryPattern, 60) }
 
+// market is a jurisdiction code (D680); the list is jurisdiction.Codes,
+// repeated so the package stays free of the API's internals.
+func market(desc string) *jsonschema.Schema {
+	return enum(desc, "us", "eu", "uk", "ca", "jp", "kr", "au", "mx", "other")
+}
+
 func caseID() *jsonschema.Schema {
 	return pattern("The case id predict_origin returned (case_...), or a demo case id from list_cases.", caseIDPattern, 64)
 }

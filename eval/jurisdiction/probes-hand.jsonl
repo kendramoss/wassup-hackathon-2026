@@ -1,0 +1,40 @@
+{"id":"h01","want":"eu","text":"We want a Binding Origin Information (BOI) decision for a cordless drill. Motor from China, gearbox from Vietnam, final assembly and testing in Poland. Goods are sold across the EU."}
+{"id":"h02","want":"eu","text":"LED panel lights: driver boards made in China, aluminium frames made in Turkey, assembled in Czechia. What non-preferential origin would apply under the Union Customs Code when we import into Germany?"}
+{"id":"h03","want":"eu","text":"Our coffee machines are assembled in Switzerland from Chinese heating elements and Italian pumps. They are imported into France and sold in euros. Which country of origin should the declaration show?"}
+{"id":"h04","want":"eu","text":"Bicycle frames welded in Taiwan, painted and fitted with Japanese gears in Portugal. We need to know the origin for EU anti-dumping duty purposes on entry into the European Union."}
+{"id":"h05","want":"eu","text":"Request to the Dutch customs authority: steel fasteners cold-headed in India from Chinese wire rod, heat treated in the Netherlands. Origin for import into the EU customs territory?"}
+{"id":"h06","want":"eu","text":"Wireless earbuds with Korean chips, assembled in Vietnam, released for free circulation in Spain. Price EUR 49. What origin would EU customs accept?"}
+{"id":"h07","want":"uk","text":"We import power banks into the United Kingdom. Cells from China, case moulded in Malaysia, assembled in Thailand. Can we get an HMRC advance origin ruling, and what origin would it give?"}
+{"id":"h08","want":"uk","text":"Gin is distilled in Scotland from French grain spirit, then bottled in England. For UK customs and the UK Global Tariff, what is the origin of the bottled gin?"}
+{"id":"h09","want":"uk","text":"Office chairs assembled in Poland from Chinese mechanisms and Italian fabric, shipped to our warehouse in Birmingham. Priced in GBP. Origin for import into Great Britain?"}
+{"id":"h10","want":"uk","text":"HMRC asked us to confirm the non-preferential origin of solar inverters: PCBs from China, final assembly and firmware loading in Vietnam. Import into the UK."}
+{"id":"h11","want":"ca","text":"Snowboard boots: uppers stitched in China, soles from Vietnam, assembled in Mexico. We import them into Canada. What origin would the CBSA assign for marking?"}
+{"id":"h12","want":"ca","text":"Canada Border Services Agency advance ruling request: maple syrup blended in Quebec from U.S. and Canadian syrup, then bottled. What is the country of origin?"}
+{"id":"h13","want":"ca","text":"Hockey sticks: carbon fibre shafts made in China, blades moulded in Mexico, glued and finished in the United States, then exported to Toronto for sale in CAD. Origin for Canadian customs?"}
+{"id":"h14","want":"ca","text":"We file entries through CARM for kitchen faucets assembled in Taiwan from Chinese castings. Importing into Canada. Which country of origin applies?"}
+{"id":"h15","want":"jp","text":"Japan Customs advance ruling: green tea grown in China, blended and packed in Shizuoka. What country of origin for import into Japan?"}
+{"id":"h16","want":"jp","text":"Drone kits with Chinese motors and Taiwanese flight controllers, assembled in the Philippines, imported into Japan and priced in yen. What origin would the Japanese authorities give?"}
+{"id":"h17","want":"jp","text":"We sell ceramic knives in Tokyo. Blanks are pressed in China and sharpened in Vietnam. Origin under Japanese customs rules?"}
+{"id":"h18","want":"kr","text":"Korea Customs Service ruling request: smartphone cases moulded in China, printed and packed in Vietnam, imported into South Korea. Country of origin?"}
+{"id":"h19","want":"kr","text":"Kimchi fridges with Chinese compressors, assembled in Thailand, imported into Korea and sold in won. What origin does KCS apply?"}
+{"id":"h20","want":"kr","text":"Cosmetic creams compounded in France, filled into tubes in Malaysia, shipped to Seoul for retail. Origin for Korean import?"}
+{"id":"h21","want":"au","text":"Australian Border Force: barbecues with Chinese burners and Thai steel bodies, assembled in Malaysia, imported into Australia. What origin?"}
+{"id":"h22","want":"au","text":"We import surfboards into Australia. Foam blanks from the United States, shaped and glassed in Indonesia. Priced in AUD. Country of origin for Australian customs?"}
+{"id":"h23","want":"au","text":"Wine bottled in New Zealand from Australian grapes, shipped back to Sydney for sale. What is the origin on entry into Australia?"}
+{"id":"h24","want":"mx","text":"Importación a México: motores eléctricos con bobinas de China, ensamblados en Vietnam. ¿Cuál es el país de origen ante el SAT?"}
+{"id":"h25","want":"mx","text":"Auto parts machined in Germany, coated in Brazil, imported into Mexico for assembly. What origin would Mexican customs (ANAM) assign?"}
+{"id":"h26","want":"mx","text":"We sell sneakers in Mexico City. Uppers from Vietnam, soles from China, assembled in Guatemala. Origin for entry into Mexico, priced in MXN?"}
+{"id":"h27","want":"other","text":"Mobile phones assembled in Vietnam from Korean displays and Chinese batteries, imported into India. What origin would Indian customs (CBIC) assign?"}
+{"id":"h28","want":"other","text":"Tyres made in Thailand from Indonesian rubber, imported into Brazil. Country of origin for Receita Federal?"}
+{"id":"h29","want":"other","text":"Air conditioners assembled in Malaysia from Japanese compressors, imported into Singapore. Origin for Singapore Customs certificate?"}
+{"id":"h30","want":"other","text":"Solar panels laminated in Turkey from Chinese cells, imported into Saudi Arabia. What origin will ZATCA accept?"}
+{"id":"c01","want":"us","control":true,"text":"Cordless drill: motor from China, gearbox from Vietnam, final assembly and testing in Poland. Imported into the United States. What origin would CBP assign?"}
+{"id":"c02","want":"us","control":true,"text":"LED panel lights: driver boards made in China, aluminium frames from Turkey, assembled in Czechia. Country of origin for marking under 19 CFR 134."}
+{"id":"c03","want":"us","control":true,"text":"Snowboard boots with uppers stitched in China and soles from Vietnam, assembled in Mexico, then imported into the U.S. Is the good of Mexico for USMCA marking?"}
+{"id":"c04","want":"us","control":true,"text":"Office chairs assembled in Poland from Chinese mechanisms and Italian fabric. Do the chairs avoid Section 301 duties?"}
+{"id":"c05","want":"us","control":true,"text":"Power banks: cells from China, case moulded in Malaysia, assembled in Thailand. What is the country of origin?"}
+{"id":"c06","want":"us","control":true,"text":"Coffee machines assembled in Switzerland from Chinese heating elements and Italian pumps, sold through our German subsidiary and our Chicago distributor. Heading 8516. Origin?"}
+{"id":"c07","want":"us","control":true,"text":"Hockey sticks: shafts made in China, blades moulded in Canada, glued and finished in Mexico. Imported into the United States by a Canadian company."}
+{"id":"c08","want":"us","control":true,"text":"Green tea grown in China, blended and packed in Japan. What origin would U.S. Customs give the packed tea?"}
+{"id":"c09","want":"us","control":true,"text":"Steel fasteners cold-headed in India from Chinese wire rod, heat treated in the Netherlands. The importer is a European company. HTSUS 7318.15."}
+{"id":"c10","want":"us","control":true,"text":"Wine made in Australia, bottled in New Zealand and exported to the United States. Origin for marking?"}

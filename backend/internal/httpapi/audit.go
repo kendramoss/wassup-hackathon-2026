@@ -97,6 +97,7 @@ var auditTable = map[string]auditRoute{
 	"GET /v1/duty-rates":                           {auditNone, ""},
 	"POST /v1/rcep/check":                          {auditNone, ""},
 	"GET /v1/demos":                                {auditNone, ""},
+	"GET /v1/jurisdictions":                        {auditNone, ""},
 	"GET /v1/demos/{id}":                           {auditNone, ""},
 	"POST /v1/workspaces":                          {auditTwoPhase, audit.WorkspaceCreate},
 	"GET /v1/workspaces/mine":                      {auditNone, ""},

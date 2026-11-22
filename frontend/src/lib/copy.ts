@@ -575,7 +575,17 @@ export const copy = {
     compareScope: "Compared on U.S. origin only. Section 232 duties are not included.",
     // Accuracy page, "What we don't claim" (listed unsupported in docs/scope-and-jurisdiction.md section 6).
     notCovered: "Not covered: EU Binding Origin Information; USMCA regional value content and preferential-origin claims (an RCEP rules check is built but not reviewed by a customs professional); certificates of origin; duty drawback; antidumping and countervailing duty questions. Section 232 duties are not included in cost figures.",
-    noDetector: "Unde is for U.S. origin questions. It has no automatic check that detects or blocks a question about another country's rules, so do not use it for one.",
+    // D680-D682: the market check reads the text, but misses about one in four.
+    noDetector: "U.S. origin only. Pick the market when you start a case; the text check misses some.",
+  },
+
+  // The market a case is for (D680).
+  market: {
+    label: "Market",
+    soon: "soon",
+    unsupported: (name: string) => `Origin rules for ${name} aren't supported yet.`,
+    unsupportedNext: "No answer yet. Entering the U.S.? Start a U.S. case.",
+    startUS: "Start a U.S. case →",
   },
 
   // The 19 CFR 102.20 rule check (D363), shown only when the parts list gives

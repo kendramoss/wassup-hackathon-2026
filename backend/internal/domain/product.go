@@ -155,6 +155,36 @@ type Case struct {
 	// Exclude lists rulings about this very case (e.g. its own earlier
 	// ruling); they are never used as precedent.
 	Exclude []string `json:"exclude_rulings,omitempty"`
+	// Jurisdiction is the market whose entry the question is about (D680).
+	// Nil reads as the United States, the only market before D680.
+	Jurisdiction *Jurisdiction `json:"jurisdiction,omitempty"`
+}
+
+// Jurisdiction is the market a case's origin question is asked for, and how
+// it was set (D680). Package jurisdiction holds the markets, the detector and
+// the registry of supported markets.
+type Jurisdiction struct {
+	// Code is the market: us, eu, uk, ca, jp, kr, au, mx or other.
+	Code string `json:"code"`
+	// Source is "chosen" (the caller named it), "detected" (a cue in the
+	// text) or "default" (no cue: the United States).
+	Source string `json:"source"`
+	// Cue is the text that set a detected market, e.g. "HMRC".
+	Cue string `json:"cue,omitempty"`
+	// Hint is a non-U.S. market the text suggests but that was not taken:
+	// a weak cue (a currency, "sold in"), or one contradicted by a U.S. cue.
+	Hint string `json:"hint,omitempty"`
+	// Conflict is set when the text names a non-U.S. market and U.S. entry
+	// with equal weight; the case is then always reviewed.
+	Conflict bool `json:"conflict,omitempty"`
+}
+
+// MarketCode is the case's market code; a nil jurisdiction is "us".
+func (j *Jurisdiction) MarketCode() string {
+	if j == nil || j.Code == "" {
+		return "us"
+	}
+	return j.Code
 }
 
 // MaxFactsRunes caps free-text facts so one request can't send an unbounded

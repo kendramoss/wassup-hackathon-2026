@@ -471,3 +471,13 @@ The other figures in the story are existing rows: 20 hours, 21 days (n = 247), U
 | RCEP accuracy on rulings | none yet | pre-registered in D691 (Japan Customs RCEP rulings) | Not measured. Do not show any accuracy for the RCEP check |
 
 Rules: small-n numbers carry CIs; development-only numbers say "development set"; never "approved", "verified", "guaranteed", "cheapest" or "proof that it qualifies". Do not describe a percentage-point gap between subsets as proof of calibration.
+
+## Market on every case: the deterministic market detector (no model call; 22 Nov; D680, D681, D682)
+
+| Number | Value | Source | Status |
+|---|---|---|---|
+| Markets a case can name | 9 codes (us, eu, uk, ca, jp, kr, au, mx, other); 1 supported (us) | `backend/internal/jurisdiction/jurisdiction.go` (`Markets`, `Default`); `GET /v1/jurisdictions` | Built |
+| U.S. rulings the detector reads as non-U.S. (`market-detect-v2`) | 0 of 649 development rulings of every regime (tuned on); 0 of 377 held-out rulings (run once). v1 flagged 3 of the 377 | `eval/results/market-detect-dev-d681-v2.json`, `market-detect-final-d681-v2.json`, `market-detect-final-d680.json` | Measured, deterministic. Weak hints: 71 development and 6 held-out, none on a ruling router-v4 labelled `unclear`, so none changes route |
+| Non-U.S. questions read correctly, model-written probe set 2 (unseen) | v2: 22 of 30 exact market, 26 of 30 kept from a U.S. auto-answer; v1: 19 and 23. No text got a wrong non-U.S. market | `eval/results/market-detect-probes-probes-model-2-d681-v{1,2}.json`; probes `eval/jurisdiction/probes-model-2.jsonl` | Measured once each. Synthetic, illustrative questions written by gemini-3.8-flash, not customer text. Say "about three in four", never "detects non-U.S. questions" |
+| Not independent: hand set and model set 1 | hand set 30 of 30 exact, 10 of 10 U.S. controls clean (v1 and v2; same author as the detector); model set 1 v1 16 of 30, v2 25 of 30 (read to write v2) | `eval/results/market-detect-probes-probes-{hand,model}-d68*.json` | Measured; do not quote as accuracy |
+| Probe set cost | $0.0821 for both model-written sets (gateway-reported) | D680, D681 | Measured |

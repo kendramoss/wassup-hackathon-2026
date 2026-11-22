@@ -953,3 +953,9 @@ Six templates written from the 239 pre-2024 Part 102 rulings in no development o
 - Held out, pre-registered in D660 (pushed as 145a9913 before the calls), run once each: the 377, 298 (79.0%, 74.7–82.9) against 224 with 14, template coverage (scope, not accuracy); the rise mixes D580's and D660's families (41 of the 71 gains from D580's six, 28 from this round's); the frozen Part 102 set, 8 of 18 as with 20. `results/families-coverage-final-all-litellm-{f26,p102-heldout-f26}.jsonl`; comparisons `results/families-r3-coverage.json`.
 - Live plan checks, one per family on pool-ruling fixtures: 5 of 6 precedent-supported, 1 to a broker. `results/families-r3-live-checks.json`, `results/plan-*-d660-litellm.json`.
 - Cost $6.78 (family checks $5.34, labels, drafts, checks and notes $0.87, live checks $0.57).
+
+## Market detector: which market a case is for (no model call, 22 Nov; D680-D682)
+- Deterministic cues only (`backend/internal/jurisdiction/detect.go`): an authority or law (HMRC, CBSA, BOI, Ley Aduanera), entry into a place ("imported into Canada", "customs in Antwerp"), "<market> customs"; a price or "sold in" is a weak hint. Pre-registered in D680, results in D681 and D682; `cd backend && go run ./cmd/eval market -set <dev|final|probes>`.
+- U.S. rulings read as non-U.S.: development (649, all regimes, tuned on) 0; first held-out split (377) v1 3 (processing stops in South Korea), v2 0.
+- Synthetic non-U.S. questions (illustrative, not customer text): model-written set 2, unseen by both versions, v1 19 of 30 exact, v2 22 of 30 (adopted, D682); every miss falls back to U.S., none got a wrong non-U.S. market. Hand set (same author) 30 of 30 and 10 of 10 U.S. controls clean; model set 1 v1 16, v2 25 (read to write v2).
+- Rows: `results/market-detect-*-d680.json`, `results/market-detect-*-d681-v*.json`; RUNLOG rows `market-detect-*`. Cost of the two model-written probe sets $0.0821.
