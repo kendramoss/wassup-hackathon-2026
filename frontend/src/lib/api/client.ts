@@ -104,7 +104,7 @@ export class ApiError extends Error {
   constructor(
     message: string,
     public status: number,
-    public code: ApiErrorBody["code"] | "network" | "rate_limited" | "budget_reached",
+    public code: ApiErrorBody["code"] | "network" | "rate_limited" | "budget_reached" | "client_budget_reached" | "too_many_in_flight" | "timeout",
     public retryable: boolean,
     // Seconds to wait before retrying (429 rate_limited), from Retry-After.
     public retryAfter?: number,
@@ -218,15 +218,31 @@ async function toError(res: Response, method = "GET"): Promise<ApiError> {
   return err;
 }
 
+// 429 codes that last until the next UTC day (D137): this client's share of
+// the day's model budget, or an API key's daily quota. They are not short
+// rate limits, so they get a calm note, not a countdown of many hours.
+const dailyLimitCodes = new Set(["client_budget_reached", "quota_exceeded"]);
+export const isDailyLimit = (e: unknown): boolean => e instanceof ApiError && dailyLimitCodes.has(e.code);
+
+// A long JSON call (compare, triage) cut by the hosting's request timeout: the
+// answer is a non-JSON 504, but the run may still finish and be saved.
+export const TIMEOUT_MESSAGE = "This is taking longer than the page can wait. The run may still finish: check Saved cases.";
+
 async function readError(res: Response): Promise<ApiError> {
   let body: Partial<Omit<ApiErrorBody, "code">> & { code?: string; error?: string; details?: { retry_after_s?: number } } = {};
   try {
     body = await res.json();
   } catch {}
+  if (res.status === 429 && body.code && dailyLimitCodes.has(body.code)) {
+    const after = Number(res.headers.get("Retry-After")) || body.details?.retry_after_s;
+    return new ApiError(body.message ?? "Today's model budget for this network is used up.", 429, body.code as "client_budget_reached" | "quota_exceeded", false, after);
+  }
+  // Short limits (rate_limited, too_many_in_flight, an empty body): a countdown.
   if (res.status === 429 || body.code === "rate_limited") {
     const after = Number(res.headers.get("Retry-After")) || body.details?.retry_after_s || 30;
     return new ApiError(body.message ?? "Too many requests.", 429, "rate_limited", true, after);
   }
+  if ((res.status === 504 || res.status === 408) && !body.code) return new ApiError(TIMEOUT_MESSAGE, res.status, "timeout", false);
   // 503 "budget_reached" (D59): the day's model budget is spent; not retryable today.
   if (body.code === "budget_reached") {
     return new ApiError(body.message ?? "Today's demo budget for model calls is used up.", res.status, "budget_reached", false, body.details?.retry_after_s);
@@ -234,6 +250,24 @@ async function readError(res: Response): Promise<ApiError> {
   const code = (body.code ?? (res.status >= 500 ? "internal" : "invalid_input")) as ApiErrorBody["code"];
   const message = body.message ?? body.error ?? `The API returned ${res.status}.`;
   return new ApiError(message, res.status, code, retryableCodes.has(code));
+}
+
+// errorText is a backend message as a person reads it: Go-style prefixes
+// ("bom: ", "planner: ", "invalid input: ") are dropped, a bare "internal
+// error" says what to do, and the first letter is capitalised unless the
+// text follows a lead-in such as "The model didn't answer: ".
+export function errorText(message: string | undefined | null, capitalise = true): string {
+  let m = (message ?? "").trim();
+  // A field-coded validation message ("economics: operations.horizon_required:
+  // ...") is shown whole: the code names the field, and the form puts the
+  // plain part beside it.
+  if (/^[a-z_]+: [a-z_]+\.[a-z_]+/.test(m)) return m;
+  for (let prev = ""; prev !== m; ) {
+    prev = m;
+    m = m.replace(/^(?:invalid input|[a-z][a-z0-9_]*): /, "");
+  }
+  if (!m || m === "internal error") return "Something went wrong on our side. Try again in a moment.";
+  return capitalise ? m[0].toUpperCase() + m.slice(1) : m;
 }
 
 async function call<T>(path: string, init?: RequestInit): Promise<T> {
