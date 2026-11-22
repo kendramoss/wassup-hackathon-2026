@@ -7,6 +7,7 @@ import (
 	"os"
 	"path/filepath"
 	"regexp"
+	"slices"
 	"strconv"
 	"strings"
 )
@@ -311,29 +312,55 @@ func checkWording(doc, docName string, r *Report) {
 // wherever they appear in public text, so a merge cannot bring one back.
 // docs/DECISIONS.md is exempt: it is a dated log, and an entry stays as
 // written when a later entry supersedes it.
+//
+// unless, when set, exempts a line that also matches it (a figure stated
+// beside the label or the later figure that makes it true). skip names files
+// that keep the phrase as a dated record.
 var stalePhrases = []struct {
-	re  *regexp.Regexp
-	why string
+	re     *regexp.Regexp
+	why    string
+	unless *regexp.Regexp
+	skip   []string
 }{
 	{
-		regexp.MustCompile(`(?i)\bno (scored )?part 102 plan searche?s?\b|part 102 plan searche?s?[^.]{0,40}\b(scored|to score) yet`),
-		"three Part 102 plan searches were scored in D502",
+		re:  regexp.MustCompile(`(?i)\bno (scored )?part 102 plan searche?s?\b|part 102 plan searche?s?[^.]{0,40}\b(scored|to score) yet`),
+		why: "three Part 102 plan searches were scored in D502",
 	},
 	{
-		regexp.MustCompile(`(?i)\bdo(es)? not apply [^.]{0,30}\bpart 102\b`),
-		"plans on Part 102 cases use the Part 102 engine and the 102.20 order (D500, D541, D562)",
+		re:  regexp.MustCompile(`(?i)\bdo(es)? not apply [^.]{0,30}\bpart 102\b`),
+		why: "plans on Part 102 cases use the Part 102 engine and the 102.20 order (D500, D541, D562)",
 	},
 	{
-		regexp.MustCompile(`(?i)plan move[^.]{0,20}\(built, display only\)`),
-		"the per-move check orders shown plans on Part 102 cases (D500, D562)",
+		re:  regexp.MustCompile(`(?i)plan move[^.]{0,20}\(built, display only\)`),
+		why: "the per-move check orders shown plans on Part 102 cases (D500, D562)",
 	},
 	{
-		regexp.MustCompile(`(?i)general engine, in this run`),
-		"/examples/part102-plan shows the Part 102 engine's run since D562",
+		re:  regexp.MustCompile(`(?i)general engine, in this run`),
+		why: "/examples/part102-plan shows the Part 102 engine's run since D562",
 	},
 	{
-		regexp.MustCompile(`(?i)stricter checks passed 9 of 12`),
-		"lead with the 8 of 8 runs the budget did not touch (D511, D562)",
+		re:  regexp.MustCompile(`(?i)stricter checks passed 9 of 12`),
+		why: "lead with the 8 of 8 runs the budget did not touch (D511, D562)",
+	},
+	{
+		re:  regexp.MustCompile(`(?i)\b(14|fourteen) product families\b|\bon the (14|fourteen) families\b`),
+		why: "plans cover 20 product families since D580 (#634, D620)",
+	},
+	{
+		re:     regexp.MustCompile(`14 of 29 held[ -]out`),
+		why:    "give the held-out figure without the five chapters picked with held-out data, 12 of 29, beside it (D560, #631, D620)",
+		unless: regexp.MustCompile(`12 of 29`),
+	},
+	{
+		re:     regexp.MustCompile(`(?i)agrees? with the (102\.20 )?rule on 13 of (the )?14|agreed with the (102\.20 )?rule on 3 of 6`),
+		why:    "these are usmca-v1's figures; the production Part 102 engine is usmca-v5 since D602, so name usmca-v1 on the line (D620)",
+		unless: regexp.MustCompile(`usmca-v1`),
+		skip:   []string{"docs/EVALUATION.md"},
+	},
+	{
+		re:     regexp.MustCompile(`100%[^%]{0,60}\b(46\.9|47)%`),
+		why:    "the 100% at confidence 0.95 on 46.9% of Part 102 rulings is usmca-v1's; usmca-v5 auto-accepts 11 of 32 (D613, D620)",
+		unless: regexp.MustCompile(`usmca-v1`),
 	},
 }
 
@@ -368,6 +395,9 @@ func checkStalePhrases(root string, r *Report) {
 			}
 			for i, line := range strings.Split(string(b), "\n") {
 				for _, sp := range stalePhrases {
+					if slices.Contains(sp.skip, rel) || (sp.unless != nil && sp.unless.MatchString(line)) {
+						continue
+					}
 					if m := sp.re.FindString(line); m != "" {
 						r.fail("%s:%d: wording: stale phrase %q (%s)", rel, i+1, m, sp.why)
 						bad++

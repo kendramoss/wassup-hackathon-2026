@@ -242,6 +242,7 @@ Through an OpenAI-compatible LiteLLM gateway to Gemini, one run per series. Scor
 | Median per-call latency on the 72: B / Vb / Vc / Vd | 8.4 s / 13.2 s / 9.3 s / 7.9 s | same (`latency_p50_ms`) | Measured, development |
 | Vd held out, window 1 / window 2 / pooled | 29 of 32 / 11 of 13 / 40 of 45 (usmca-v1 25 / 11 / 36) | same; `eval/tariffshift/p102ck/runs/usmca-final*-usmca-v5-*-d601.jsonl` | Measured, held out, scored once; windows scored before with usmca-v1 (candidate comparison) |
 | Held-out answers at confidence ≥ 0.95, right: usmca-v5 / usmca-v1 | 16 of 17 / 21 of 22 | same run rows (`confidence`, `correct`) | Computed from committed rows |
+| `usmca-v5` held out at stated confidence ≥ 0.95, by window: accepted, right | window 1: 11 of 32 (34.4%), 11 right; window 2: 6 of 13 (46.2%), 5 right (`usmca-v1` window 1: 15 of 32, 46.9%, 15 right) | `eval/tariffshift/p102ck/runs/usmca-final*-usmca-v5-*-d601.jsonl` (`confidence`, `correct`); served as `usmca_v5_final_conf95_accuracy`, `usmca_v5_final_conf95_coverage`, `usmca_v5_final2_conf95_*` (D620) | Computed from committed held-out rows; the /accuracy Part 102 card gives these as the current engine's, and `usmca-v1`'s 46.9% as the earlier engine's |
 | Safety flag S under Vd: decided development rows flagged | 0 of 57 | `summary-moves.json` (`safety_flags_s`) | Computed |
 | Cost of D600 to D602 | $5.2524 | `eval/results/RUNLOG.jsonl` (`p102moves-d600-*`, `usmca-*-d600`, `usmca-*-d601`) | Measured, gateway-reported |
 

@@ -467,7 +467,7 @@ export function MethodPage() {
             precedent check on 21 of 23; the 2 it flags are below the bar. Those cases are decided under substantial transformation, so this is a comparison, not
             accuracy (<D id="D442" />). On three scored Part 102 plan searches on development rulings (<D id="D501" />), the rule picked the 6 actuator moves that bring
             the motor to Canada, CBP&apos;s own reason for holding China, and the one shown plan is among them; it flagged 2 moves to China that precedent leaned to
-            (<D id="D502" />). Re-run with the Part 102 engine predicting each move, its prediction agrees with the rule on 13 of the 14 moves in those searches (the general engine on 9);
+            (<D id="D502" />). Re-run with the Part 102 engine then in use (usmca-v1) predicting each move, its prediction agrees with the rule on 13 of the 14 moves in those searches (the general engine on 9);
             one error is left, on the compressors, where the engine applied an exception the rule does not have (<D id="D541" />). Quoting the 102.20 rule text to the Part
             102 engine was then tested on development against a rule written before the run. It did not pass (50 of 72 correct against 53), so it was not adopted and no
             held-out ruling was read (<D id="D550" />, <D id="D551" />).{" "}
@@ -479,8 +479,12 @@ export function MethodPage() {
               the recorded actuator search
             </Link>
             . On a held-out set frozen before any run (<D id="D570" />), 6 of 18 held-out Part 102 rulings had a plan template; there the one shown plan is a move
-            the rule says shifts, and the Part 102 engine agreed with the rule on 3 of 6 moves (<D id="D571" />,{" "}
-            <Ext href={blob("docs/EVALUATION.md#15-a-held-out-part-102-plan-set-22-nov-2026-d570-d571")}>EVALUATION.md §15</Ext>).
+            the rule says shifts, and usmca-v1 agreed with the rule on 3 of 6 moves (<D id="D571" />,{" "}
+            <Ext href={blob("docs/EVALUATION.md#15-a-held-out-part-102-plan-set-22-nov-2026-d570-d571")}>EVALUATION.md §15</Ext>). Since then, on a Part 102 case, the current setup
+            is flagged for a broker when the rule gives another country than the engine, and so is a move the rule says reaches the target while the engine predicts another
+            country (<D id="D591" />). Since 22 Nov the Part 102
+            engine is usmca-v5, which fills a short 102.11 checklist first. On the development plan rows it agrees with the rule on 56 of 57 decided rows, against 43
+            for usmca-v1 (<D id="D602" />). The plan searches above and the held-out plan set have not been re-run with it yet.
           </li>
           <li>
             <b className="font-medium text-ink">Shown, then drafted for a broker.</b> The shown move and its ruling go into the draft ruling request a licensed customs broker

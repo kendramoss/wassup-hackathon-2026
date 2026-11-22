@@ -340,6 +340,38 @@ func TestStaleRound12PhrasesFail(t *testing.T) {
 	}
 }
 
+// Judge panel round 13 (D620, #631, #634): the family count, the held-out
+// rule-check figure without the D560 chapters, and usmca-v1's figures quoted
+// as the current Part 102 engine's.
+func TestStaleRound13PhrasesFail(t *testing.T) {
+	for name, line := range map[string]string{
+		"families":     "the newer capabilities (photo import, 14 product families, the Claude connector)",
+		"families on":  "Plan quality on the 14 families is checked on development rulings.",
+		"d560":         "the rule check decides 16 of 69 development rulings and 14 of 29 held out (13 agree).",
+		"v1 agreement": "its prediction agrees with the rule on 13 of 14 moves (the general engine on 9).",
+		"v1 held out":  "the Part 102 engine agreed with the rule on 3 of 6 moves (D571).",
+		"v1 auto":      "Part 102: 78.1%; 100% right at confidence 0.95 or above, on 47% of them.",
+	} {
+		t.Run(name, func(t *testing.T) {
+			f := newFixture(t)
+			write(t, f.root, "README.md", line+"\n")
+			if r := Check(f.root, f.doc); !hasFailure(r, "stale phrase") {
+				t.Fatalf("want a stale-phrase failure, got %v", r.Failures)
+			}
+		})
+	}
+	f := newFixture(t)
+	write(t, f.root, "README.md", "Plans cover 20 product families; with the first 14 families 59.4% matched. "+
+		"14 of 29 held out (13 agree); 12 of 29 without the five chapters (D560).\n"+
+		"The engine then in use (`usmca-v1`) agrees with the rule on 13 of 14 moves; usmca-v1 agreed with the rule on 3 of 6.\n"+
+		"usmca-v1: 100% at confidence 0.95, on 46.9% of cases.\n")
+	// EVALUATION.md keeps its dated sections as written.
+	write(t, f.root, "docs/EVALUATION.md", "The Part 102 engine agreed with the rule on 3 of 6 decided moves.\n")
+	if r := Check(f.root, f.doc); hasFailure(r, "stale phrase") {
+		t.Fatalf("current wording should pass, got %v", r.Failures)
+	}
+}
+
 func TestBaselineSourceAppearingFailsCheck(t *testing.T) {
 	// If the research baseline file is ever committed, the "unverifiable"
 	// finding is stale and the doc must be revisited.

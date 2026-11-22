@@ -4,7 +4,7 @@ Video: 3:00. Judges first. Every number on screen must trace to `docs/NUMBERS.md
 
 ## Video timeline (3:00)
 
-There is no deck, so the video carries every judging line. The official weights are Technical Merit & Gen AI 40%, Problem Alignment & Impact 25%, Innovation & Creativity 25%, and UX & Solution Design 10%. The main story is the production heat-gun case in section 3; the newer capabilities (photo import, 14 product families, the Claude connector) follow it, and the video closes on trust: the misses, and how to recompute the headline counts.
+There is no deck, so the video carries every judging line. The official weights are Technical Merit & Gen AI 40%, Problem Alignment & Impact 25%, Innovation & Creativity 25%, and UX & Solution Design 10%. The main story is the production heat-gun case in section 3; the newer capabilities (photo import, 20 product families, the Claude connector) follow it, and the video closes on trust: the misses, and how to recompute the headline counts.
 
 The story follows one decision through the five roles on the landing page ("Who uses it, and who benefits"). They are roles Unde is designed around, not customers: it has none yet.
 
