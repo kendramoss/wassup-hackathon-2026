@@ -59,7 +59,7 @@ export interface paths {
         put?: never;
         /**
          * Triage a portfolio (up to 20 products) in one call
-         * @description Each product is predicted from its facts, triaged and saved as an ordinary case (D47). One product's failure fills its row's error and does not fail the rest. Send JSON, or multipart/form-data with a "file" (CSV or .xlsx with a header row: name (or product, sku), facts (or description), optional date). Rate-limited as one heavy request per client that takes 20 from the global cap.
+         * @description Each product is predicted from its facts, triaged and saved as an ordinary case (D47). One product's failure fills its row's error and does not fail the rest. Send JSON, or multipart/form-data with a "file" (CSV or .xlsx with a header row: name (or product, sku), facts (or description), optional date, optional jurisdiction). Rate-limited as one heavy request per client that takes 20 from the global cap.
          */
         post: operations["triageBatch"];
         delete?: never;
@@ -722,6 +722,26 @@ export interface paths {
          * @description Does a good made in an RCEP Party qualify as RCEP originating, so it can claim the RCEP preferential tariff when imported into another Party? Deterministic code over the official Annex 3A product-specific rules (HS 2022 transposition, parsed from the RCEP Secretariat PDF and cross-checked against the Australian Border Force copy; `backend/internal/rcep`, D690). Implements Art. 3.2 (wholly obtained, only originating materials, or the Annex 3A rule), Art. 3.4 cumulation (a material counts as originating only when declared originating and from a Party), Art. 3.5 RVC by both formulas (materials of undetermined origin count as non-originating), Art. 3.6 minimal operations and Art. 3.7 de minimis (10 % of FOB value; also 10 % of weight for chapters 50 to 63). Not covered: packaging (3.8), accessories (3.9), indirect and fungible materials (3.10, 3.11), direct consignment (3.15) and proof-of-origin procedures. Missing facts make the answer `undetermined`, never `no`. This is preferential origin only: it is separate from the marking and non-preferential origin every case answer gives, and every response says so (`regime: rcep_preferential`). Nothing is stored. Not a ruling and not a certificate of origin. Cheap class (120 a minute); a malformed body is 400 `invalid_input`.
          */
         post: operations["checkRcepPreference"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/jurisdictions": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Markets a case can name, and which have an origin engine
+         * @description Every market code with its name and whether it is supported (D680). Only us is supported today; a case for any other market gets no prediction and goes to review.
+         */
+        get: operations["listJurisdictions"];
+        put?: never;
+        post?: never;
         delete?: never;
         options?: never;
         head?: never;
@@ -1468,6 +1488,29 @@ export interface components {
             economics?: components["schemas"]["Economics"];
             /** @description Optional name for the case on Cases home (D48); batch rows pass their name here */
             display_name?: string;
+            /** @description Market the question is for (D680). Omitted: read from the text by a deterministic detector (an authority such as HMRC or CBSA, "imported into <place>", "<market> customs"), else us. Only us has an origin engine today; any other market is saved with no prediction and goes to review with "Origin rules for <market> aren't supported yet". */
+            jurisdiction?: components["schemas"]["JurisdictionCode"];
+        };
+        /**
+         * @description Market codes: us United States, eu European Union, uk United Kingdom, ca Canada, jp Japan, kr South Korea, au Australia, mx Mexico, other any other market
+         * @enum {string}
+         */
+        JurisdictionCode: "us" | "eu" | "uk" | "ca" | "jp" | "kr" | "au" | "mx" | "other";
+        JurisdictionDetail: {
+            code: components["schemas"]["JurisdictionCode"];
+            /** @example United States */
+            name: string;
+            /**
+             * @description chosen: the caller named it; detected: a cue in the text; default: no cue (a case made before D680 also reads default)
+             * @enum {string}
+             */
+            source: "chosen" | "detected" | "default";
+            /** @description What set a detected market, e.g. "HMRC" or "entry into Canada" */
+            cue?: string;
+            /** @description A non-U.S. market the text suggests but that was not taken (a price, "sold in", or a cue contradicted by a U.S. one). On a case the router labels unclear it sends the case to review. */
+            hint?: string;
+            /** @description Whether the market has an origin engine. false: no prediction was made */
+            supported: boolean;
         };
         /** @description One re-run of the origin engine on revised facts */
         WhatIf: {
@@ -1553,6 +1596,9 @@ export interface components {
             family?: string;
             /** @description Rulings the engine and the plan search never read for this case (as given at prediction) */
             exclude_rulings?: string[];
+            jurisdiction?: components["schemas"]["JurisdictionCode"];
+            jurisdiction_detail?: components["schemas"]["JurisdictionDetail"];
+            /** @description Empty (origin_country "") when jurisdiction_detail.supported is false: no engine ran (D680) */
             prediction?: components["schemas"]["Prediction"];
             triage?: components["schemas"]["Triage"];
             router?: components["schemas"]["RouterLabel"];
@@ -1927,6 +1973,8 @@ export interface components {
         PlanRequest: {
             /** @example Thailand */
             target: string;
+            /** @description Optional. When given it must be the case's market, else 400. A case whose market has no engine, or a non-U.S. case, is refused with 400: plan search is a U.S. CBP search (D680). */
+            jurisdiction?: components["schemas"]["JurisdictionCode"];
             economics?: components["schemas"]["Economics"];
             /** @description For backtests, the real change and CBP's ruling on it; the result compares it with the best plan. */
             actual_change?: {
@@ -2128,6 +2176,7 @@ export interface components {
         };
         PlanResponse: components["schemas"]["Meta"] & {
             case_id?: string;
+            jurisdiction?: components["schemas"]["JurisdictionCode"];
             plan?: components["schemas"]["PlanResult"];
         };
         BrokerReviewDecision: {
@@ -2585,6 +2634,8 @@ export interface operations {
                          * @description Default today
                          */
                         date?: string;
+                        /** @description Optional market (D680); a sheet may have a jurisdiction (or market) column */
+                        jurisdiction?: components["schemas"]["JurisdictionCode"];
                     }[];
                 };
                 "multipart/form-data": {
@@ -2605,6 +2656,8 @@ export interface operations {
                             /** @description The given name */
                             name: string;
                             case_id?: string;
+                            jurisdiction?: components["schemas"]["JurisdictionCode"];
+                            /** @description Absent when the market has no engine (D680) */
                             predicted_origin?: string;
                             /** @description The model's stated confidence; read calibrated_confidence first when present (D160, #402) */
                             confidence?: number;
@@ -3593,6 +3646,8 @@ export interface operations {
                      *     ]
                      */
                     targets: string[];
+                    /** @description Optional; as in PlanRequest */
+                    jurisdiction?: components["schemas"]["JurisdictionCode"];
                     economics?: components["schemas"]["Economics"];
                 };
             };
@@ -3606,6 +3661,7 @@ export interface operations {
                 content: {
                     "application/json": {
                         case_id?: string;
+                        jurisdiction?: components["schemas"]["JurisdictionCode"];
                         targets?: components["schemas"]["TargetSummary"][];
                     };
                 };
@@ -4187,6 +4243,38 @@ export interface operations {
                 };
             };
             400: components["responses"]["Error"];
+            429: components["responses"]["TooManyRequests"];
+        };
+    };
+    listJurisdictions: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Market list */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        jurisdictions?: {
+                            code?: components["schemas"]["JurisdictionCode"];
+                            name?: string;
+                            supported?: boolean;
+                        }[];
+                        /**
+                         * @description Version of the deterministic market detector
+                         * @example market-detect-v2
+                         */
+                        detector?: string;
+                    };
+                };
+            };
             429: components["responses"]["TooManyRequests"];
         };
     };

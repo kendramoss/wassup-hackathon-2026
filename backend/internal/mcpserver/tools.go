@@ -56,7 +56,8 @@ func (t tools) register(s *mcp.Server, search bool) {
 		Name: "predict_origin",
 		Description: `Predict the country of origin U.S. Customs (CBP) would likely assign to a product (substantial-transformation test), citing earlier CBP rulings. Creates a case and returns its case_id.
 Use it when the user asks "what origin would CBP give this product" or before searching production moves.
-Input: facts (plain-language description of parts, where each is made and where it is assembled) and/or a structured product (extract_product drafts one); family helps plan search. 
+Input: facts (plain-language description of parts, where each is made and where it is assembled) and/or a structured product (extract_product drafts one); family helps plan search. Optional jurisdiction: the market the goods enter (default: read from the facts, else us). Only U.S. entry has an origin engine; for another market no origin is returned and the case goes to review.
+
 Returns: predicted origin, confidence (0-1; calibrated_confidence is the calibrated probability when one applies, else only the model's stated value), decisive step, cited CBP rulings, triage route (auto, needs_review, needs_info) and the case_id. Without an API key it also returns a case_access_key to pass to later calls on the case.
 Not a ruling: confirm with a licensed customs broker. REST: POST /v1/cases/predict (operationId predictCase).`,
 		InputSchema: &jsonschema.Schema{

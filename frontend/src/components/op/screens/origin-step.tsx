@@ -3,6 +3,7 @@
 import { watchView } from "@/lib/watch-state";
 import { conflictLean } from "@/lib/conflict";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { api, type CaseResponse, type Scenario } from "@/lib/api/client";
 import { asToday, readsDiffer } from "@/lib/plan-check";
@@ -20,13 +21,76 @@ import { RuleCheckPanel } from "../rule-check";
 import { RcepCheck } from "../rcep-check";
 import { Term } from "../term";
 import { regimeOf } from "@/lib/regime";
+import { marketOf } from "@/lib/market";
+import { MarketTag } from "../market-picker";
 import { blankAnswers, buildAnswerPayload, reconcileAnswers, type AnswerState } from "@/lib/answer-state";
 
 export function OriginStep() {
   return <CaseShell tab="origin">{(ctx) => <Result {...ctx} />}</CaseShell>;
 }
 
-function Result({ id, c, setCase }: CaseCtx) {
+function Result(ctx: CaseCtx) {
+  // A market with no origin engine (D680): no answer was made, so there is
+  // no verdict to show, only what to do next.
+  if (ctx.c.jurisdiction_detail?.supported === false) return <UnsupportedMarket c={ctx.c} />;
+  return <Answer {...ctx} />;
+}
+
+function UnsupportedMarket({ c }: { c: CaseResponse }) {
+  const router = useRouter();
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState<unknown>(null);
+  const m = marketOf(c.jurisdiction);
+  const d = c.jurisdiction_detail;
+  // The same question, asked as U.S. entry: a new case with the market chosen.
+  const asUS = async () => {
+    setBusy(true);
+    setError(null);
+    try {
+      const n = await api.predict({
+        date: c.date ?? "",
+        facts: c.facts,
+        product: c.product,
+        family: c.family || undefined,
+        display_name: c.display_name || undefined,
+        jurisdiction: "us",
+      });
+      router.push(`/cases/${encodeURIComponent(n.id!)}/origin`);
+    } catch (e) {
+      setError(e);
+      setBusy(false);
+    }
+  };
+  return (
+    <>
+      <section aria-label="Market" className="border-b border-dashed border-guide">
+        <div className="column mx-auto max-w-[1240px] px-4 pb-8 pt-10 sm:px-10">
+          <StepEyebrow tab="origin">{copy.market.label}</StepEyebrow>
+          <h1 className="mt-1 flex items-center gap-4 text-[44px] font-normal leading-none tracking-[-0.05em] sm:text-[64px]">
+            {m.flag ? <Flag country={m.flag} size={44} /> : null}
+            {m.name}
+          </h1>
+          <p className="read mt-5 max-w-[60ch] text-[17px]">{copy.market.unsupported(m.phrase)}</p>
+          <p className="duo mt-1.5 max-w-[60ch] text-sm text-dim">
+            {copy.market.unsupportedNext}
+            {d?.source === "detected" && d.cue ? ` Read from your text: “${d.cue}”.` : ""}
+          </p>
+          {error ? <ErrorBox error={error} onRetry={asUS} /> : null}
+        </div>
+      </section>
+      <Footer>
+        <Next>{copy.market.unsupportedNext}</Next>
+        <div className="ml-auto">
+          <Button onClick={asUS} disabled={busy}>
+            {busy ? "Starting…" : copy.market.startUS}
+          </Button>
+        </div>
+      </Footer>
+    </>
+  );
+}
+
+function Answer({ id, c, setCase }: CaseCtx) {
   const [history, setHistory] = useState(false);
   const p = c.prediction ?? {};
   const target = planTarget(c);
@@ -228,6 +292,9 @@ export function VerdictBand({ c }: { c: CaseResponse }) {
           <span className="flex flex-wrap items-center gap-1.5">
             <StatusChip route={route} explain />
             {regime && <Chip>{regime.label}</Chip>}
+            <Chip>
+              <MarketTag code={c.jurisdiction} />
+            </Chip>
           </span>
           <OriginRuler p={p} />
         </div>

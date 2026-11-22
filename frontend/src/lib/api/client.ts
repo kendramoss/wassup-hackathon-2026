@@ -38,6 +38,7 @@ type Json<P extends keyof paths, M extends "get" | "post", Code extends number =
   : never;
 
 export type DemoList = Json<"/v1/demos", "get">;
+export type JurisdictionList = Json<"/v1/jurisdictions", "get">;
 export type Demo = Json<"/v1/demos/{id}", "get">;
 export type ImportResponse = Json<"/v1/products/import", "post">;
 export type ExportResponse = Json<"/v1/cases/{id}/export", "post">;
@@ -328,6 +329,7 @@ export const api = {
     post<AskResponse>(`/cases/${enc(id)}/ask`, body, signal),
   resetChat: (id: string) => post<AskResponse>(`/cases/${enc(id)}/ask`, { reset: true }),
   demos: () => call<DemoList>("/demos"),
+  jurisdictions: () => call<JurisdictionList>("/jurisdictions"),
   demo: (id: string) => call<Demo>(`/demos/${enc(id)}`),
   ruling: (id: string) => call<Ruling>(`/rulings/${enc(id)}`),
   evalSummary: () => call<EvalSummary>("/eval/summary"),
