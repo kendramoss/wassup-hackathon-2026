@@ -166,6 +166,19 @@ The same three searches run again with the Part 102 engine predicting each move,
 | Moves precedent supports while the rule gives another country | 1, the compressors (D502: 2) | same | Measured. The Part 102 engine still predicts China there |
 | Cost | $0.3416 for the 3 searches (actuator $0.2770, 37 s); $0.1724 more for an invalid first attempt with no local corpus, not scored | same; `eval/results/RUNLOG.jsonl` (`planner-part102-d540-litellm`, `planner-part102-d540-nocorpus-litellm`) | Measured, gateway-reported |
 
+### Part 102 engine with the 102.20 rule text quoted (D550, D551)
+
+Development only, one run each through an OpenAI-compatible LiteLLM gateway to Gemini, scored by `cd backend && go run ./cmd/tariffshift ground102-eval -check` (in `make reproduce`). Did not pass the D550 rule; not adopted; held out not scored.
+
+| Number | Value | Source | Status |
+|---|---|---|---|
+| Development Part 102 rulings with a quoted 102.20 row | 29 of 72 | `eval/tariffshift/ground102/summary-d551.json` | Computed, no model |
+| Correct, usmca-v1 re-run (B) | 53 of 72 | same; `eval/tariffshift/ground102/runs/usmca-dev-gemini-4-argon-prec-usmca-v1-litellm-d550.jsonl` | Measured, development |
+| Correct, usmca-v2 (V) | 50 of 72 | same; `runs/usmca-dev-gemini-4-argon-prec-usmca-v2-litellm-d550.jsonl` | Measured, development. Negative result |
+| Discordant rulings, exact McNemar | B only 5, V only 2, p = 0.45 | same | Measured |
+| Contradicts the 102.20 check, of the 10 it decides | B 2, V 2 (N341152, N352059) | same; `eval/tariffshift/results-dev-full_text.jsonl` | Measured |
+| Cost | B $0.6881, V $0.7114 (1.03 ×); $1.3995 in all | same; `eval/results/RUNLOG.jsonl` (`usmca-dev-gemini-4-argon-prec-usmca-v{1,2}-litellm-d550`) | Measured, gateway-reported |
+
 ### Method page (/method): negative results, splits and leakage, already in the decision record
 
 These rows register, for the /method page, figures that are already committed in `docs/EVALUATION.md` and `docs/DECISIONS.md`. No new run produced them.

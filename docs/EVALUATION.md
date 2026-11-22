@@ -725,3 +725,19 @@ Agreement with the 102.20 rule went from 9 of 14 moves to 13 of 14. On the actua
 **What it shows.** Where part codes are given, coverage about doubles and agreement with CBP holds. No ruling changed its answer, and there is no new disagreement with CBP: the held-out one is still N358639 (chapter 87), which depends on a part's code. On the development full text the check now disagrees with the model on 2 rulings, both times agreeing with CBP (N341152, a pouch with a spout; N352059, self-copy paper). The facts still give almost no codes: the one held-out decision from them needs no tariff shift, because every material is from Canada. Plan moves do not change, because the families' goods were already in the seven chapters. Cells are small (n of 4 to 16 decided) and the suggested codes are unverified, so this widens a cross-check; it is not a measured accuracy.
 
 **Not done.** Chapters with fewer than 4 goods in the data (for example 38, 70, 72, 96), textile rules (102.21), 102.11(c) and (d), and the described sentences are not encoded. Sources: `eval/tariffshift/summary.json`, `eval/tariffshift/parts/summary.json`, `eval/tariffshift/plans/summary.json`, `eval/tariffshift/chapter-counts.json`, recomputed by `make reproduce`. Cost $0.
+
+## 14. Quoting the 102.20 rule text to the Part 102 engine: a negative result (22 Nov 2026, D550, D551)
+
+**What was tried.** In the §11.1 re-run the Part 102 engine applied an exception to the compressors' move that the 102.20 text does not have. Variant `usmca-v2` finds the tariff codes a case names (the product's own code, then the codes written in the facts), quotes the matching 102.20 rows verbatim from the committed table after the facts, and tells the engine to apply them as written, with no exception the text does not contain. It adds no model call. 29 of the 72 development Part 102 rulings name a code with a row. A second variant, with the deterministic rule check as an input, was not run: from the facts the check decides none of the 72, so it could not be measured.
+
+**How it was tested.** Pre-registered in D550 before any run: `usmca-v1` re-run (B) and `usmca-v2` (V) once each on the 72 development rulings, same configuration as the committed run. V passes only if its correct count is not lower than B's, it contradicts the 102.20 check on fewer of the 10 development rulings the check decides, and it costs at most 1.5 × B. Held-out rulings are scored once, and only if V passes.
+
+| Run | Correct of 72 | With a quoted row (29) | Without (43) | Contradicts the rule check (of 10) | Cost |
+|---|---:|---:|---:|---:|---:|
+| usmca-v1, committed (October) | 54 | 23 | 31 | 2 | $0.7158 (promo) |
+| B: usmca-v1, re-run | 53 | 24 | 29 | 2 | $0.6881 |
+| V: usmca-v2 | 50 | 23 | 27 | 2 | $0.7114 |
+
+**What it shows.** V did not pass: 3 fewer correct (5 rulings only B got right, 2 only V; exact McNemar p = 0.45) and the same 2 contradictions. On one ruling with a quoted row (N337260) the engine misread an exception that is in the text. The other changes are low-confidence answers that also move between the two `usmca-v1` runs. `usmca-v1` stays the production Part 102 engine, no held-out file was scored, and the compressors' plan move is still wrong. `usmca-v2` stays in the code for evaluation only.
+
+**Not done.** One run per variant. The development rulings test the case prediction, not a plan move, and most name no code. Source: `eval/tariffshift/ground102/summary-d551.json`, recomputed by `cd backend && go run ./cmd/tariffshift ground102-eval -check` (in `make reproduce`); rows in `eval/tariffshift/ground102/runs/`. Cost $1.3995, gateway-reported.
