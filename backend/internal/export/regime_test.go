@@ -180,3 +180,68 @@ func TestTextileBoolCompatibility(t *testing.T) {
 		}
 	}
 }
+
+// A case routed to Part 102 whose prediction is the general engine's (every
+// plan search) asks the Part 102 marking question in both formats, with the
+// tariff-shift check as a Part 102 paragraph, and a note that the position
+// is not a Part 102 determination (D520).
+func TestPart102RoutedGeneralAsksThePart102Question(t *testing.T) {
+	in := regimeInput("")
+	in.Part102 = true
+	in.RuleCheck = &domain.PlanRuleCheck{Applies: "part102", Country: "Mexico", Status: "shifts", Origin: "Mexico", Basis: "19 CFR 102.11(a)(3)"}
+	md, cfr := Markdown(in), CFR177(in)
+	for format, got := range map[string]string{"markdown": md, "cfr177": cfr} {
+		for _, w := range []string{
+			"under the Part 102 rules of origin (the general rules of 19 C.F.R. § 102.11, applied in order, with the tariff shifts of § 102.20)",
+			"for purposes of country of origin marking (19 C.F.R. § 102.0)?",
+			"It does not ask CBP to decide the country of origin for Section 301 duties",
+			"product of Mexico, for marking under the Part 102 rules",
+			"Tariff-shift check (19 C.F.R. § 102.20): applied to the component codes in the bill of materials, with the good finished in Mexico, the rule gives Mexico (19 C.F.R. § 102.11(a)(3)).",
+		} {
+			if !strings.Contains(got, w) {
+				t.Errorf("%s routed Part 102 draft missing %q:\n%s", format, w, got)
+			}
+		}
+		for _, a := range []string{"substantial transformation", "substantial-transformation", "134.1(b)", "Section 301 duties?", "for reference only"} {
+			if strings.Contains(got, a) {
+				t.Errorf("%s routed Part 102 draft has %q", format, a)
+			}
+		}
+	}
+	// The letter is the Part 102 letter; only the note differs.
+	spec := in
+	spec.Part102, spec.Regime = false, router.RegimeUSMCA
+	if md != Markdown(spec) || cfr != CFR177(spec) {
+		t.Error("routed Part 102 letter differs from the Part 102 engine's letter")
+	}
+	notes := strings.Join(Notes(in, true), "\n")
+	for _, w := range []string{"routed to the Part 102 marking rules", "made by Unde's general engine", "is not a Part 102 determination", "not validated legal advice"} {
+		if !strings.Contains(notes, w) {
+			t.Errorf("notes missing %q: %s", w, notes)
+		}
+	}
+	if strings.Contains(notes, "because the prediction behind the requester's position was made under that regime") {
+		t.Error("routed note claims the Part 102 engine made the prediction")
+	}
+}
+
+// Part102 changes nothing when a specialist made the prediction or the case
+// is not routed there: textile and pharma keep their wording, and a
+// substantial-transformation case keeps the substantial-transformation
+// question.
+func TestPart102FlagOnlyForGeneralPredictions(t *testing.T) {
+	for _, r := range []string{router.RegimeTextile, router.RegimePharma, router.RegimeUSMCA} {
+		in := regimeInput(r)
+		with := in
+		with.Part102 = true
+		if Markdown(in) != Markdown(with) || CFR177(in) != CFR177(with) || strings.Join(Notes(in, true), "|") != strings.Join(Notes(with, true), "|") {
+			t.Errorf("Part102 changed the %s draft", r)
+		}
+	}
+	st := regimeInput("")
+	for format, got := range map[string]string{"markdown": Markdown(st), "cfr177": CFR177(st)} {
+		if !strings.Contains(got, "substantial") || strings.Contains(got, "Part 102") || strings.Contains(got, "102.0") {
+			t.Errorf("%s substantial-transformation draft changed:\n%s", format, got)
+		}
+	}
+}
