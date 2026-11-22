@@ -874,3 +874,19 @@ Total $0.97 promo / $1.95 list. The engine's view of the current setup disagreed
 
 - Planned end to end: 6 of 18 (33%, 95% CI 16–56%); the other 12 have no plan template. No search failed or was re-run. Engine agrees with the rule on 3 of 6 decided moves (19–81%). Shown plans 1, the rule says it shifts. Flagged 0. Current setup: rule decides 6 of 6, agrees with CBP 5 (44–97%); engine agrees 5 of 6. Backtests 0. D500 changed no order.
 - `tariffshift/plans102/runs/plan-p102h-*-local-verifier-v2-heldout-litellm.json`; `tariffshift/plans102/summary-heldout.json`, `moves-heldout.jsonl`; `cd backend && go run ./cmd/tariffshift plans102-eval -series heldout -check` (in `make reproduce`). Total $0.3016.
+
+## Part 102 plan templates: development and held-out family coverage (gateway, 22 Nov; D580, D581)
+
+Six templates written from the 239 pre-2024 Part 102 rulings in no development or held-out split (the D560 pool): food preparations, metal products, wood panels and flooring, plastic articles, electrical control apparatus, machinery parts. Family check `family-check-v1`, gemini-3.8-flash, bar 0.6, through an OpenAI-compatible LiteLLM gateway to Gemini. Every run once.
+
+| Run | Set | Families | Covered | Failed checks | Cost | RUNLOG |
+|---|---|---:|---|---:|---:|---|
+| Selection | Part 102 pool (239) | 14 | 83 (34.7%) | 2 | $0.5254 | `families-coverage-train-all-litellm-p102pool-f14` |
+| Before | Part 102 development (72) | 14 | 20 (27.8%) | 1 | $0.1590 | `families-coverage-dev-all-litellm-p102-f14` |
+| After | Part 102 development (72) | 20 | 49 (68.1%, 56.6–77.7) | 0 | $0.1894 | `families-coverage-dev-all-litellm-p102-f20` |
+| Regression | General development (469) | 20 | 317 (68.2% of 465) | 4 | $1.3055 | `families-coverage-dev-all-litellm-f20` |
+| Held out, pre-registered (D580) | Frozen Part 102 set (18, D570) | 20 | 8 (44.4%, 24.6–66.3) | 1 | $0.0732 | `families-coverage-final-all-litellm-p102-heldout-f20` |
+
+- Like for like on rulings both runs answered: Part 102 development 20 → 48 of 71 (28 gained, 0 lost); general development 264 → 309 of 456 (48 gained, 3 lost, 9 changed family); frozen held-out 5 → 8 of 17 (gained wood flooring, an insulating panel and a forklift dust mop attachment, the last a stretch; the pipe assembly moved from vehicle parts to metal products; the safety gate's check failed).
+- Worse: one held-out ruling covered in D571 (N364328, furniture) failed its check this time and counts as no template; 3 general development rulings went from a template to "none".
+- The held-out plan searches were not re-run; D571's plan results stand. Files: `results/families-coverage-*-p102*.jsonl`, `results/families-coverage-dev-all-litellm-f20.jsonl`, `results/families102-*`.

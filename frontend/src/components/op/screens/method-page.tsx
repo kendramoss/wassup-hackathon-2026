@@ -429,7 +429,7 @@ export function MethodPage() {
         </p>
         <ol className="flex list-decimal flex-col gap-2 pl-5">
           <li>
-            <b className="font-medium text-ink">Groups of work, from a template.</b> Each of 14 product families has a template, written from CBP rulings, that files the
+            <b className="font-medium text-ink">Groups of work, from a template.</b> Each of 20 product families has a template, written from CBP rulings, that files the
             product&apos;s parts and steps into groups of work, such as the motor-fan assembly or the PCBA (<D id="D138" />). Final assembly does not move.
           </li>
           <li>
