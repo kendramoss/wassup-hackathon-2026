@@ -478,6 +478,64 @@ for (const scheme of ["light", "dark"]) {
   await ctx.close();
 }
 
+// #606: the broker Revoke link confirmation must take focus, keep Tab local,
+// and Escape back to the Revoke link trigger without revoking anything.
+{
+  const ctx = await browser.newContext({ viewport: viewports.desktop });
+  const page = await ctx.newPage();
+  page.on("console", (m) => m.type() === "error" && problems.push({ page: "/cases/[id]/draft (revoke)", console: m.text() }));
+  page.on("pageerror", (e) => problems.push({ page: "/cases/[id]/draft (revoke)", console: String(e) }));
+  const review = {
+    id: "rev_ui_check",
+    status: "pending",
+    subject: "setup",
+    draft_label: "Probe draft",
+    format: "markdown",
+    created_at: "2026-01-01T00:00:00Z",
+    expires_at: "2099-01-01T00:00:00Z",
+    decisions: [],
+  };
+  await page.route(`**/api/v1/cases/${reflowId}`, (route) =>
+    route.fulfill({
+      status: 200,
+      contentType: "application/json",
+      body: JSON.stringify({ ...reflowFixture, pinned: false, can_write: true, broker_reviews: [review] }),
+    }),
+  );
+  await page.route(`**/api/v1/cases/${reflowId}/reviews`, (route) =>
+    route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify({ case_id: reflowId, reviews: [review] }) }),
+  );
+  await page.route(`**/api/v1/cases/${reflowId}/plan/estimate`, (route) =>
+    route.fulfill({ status: 200, contentType: "application/json", body: "{}" }),
+  );
+  await page.route(`**/api/v1/cases/${reflowId}/export`, (route) =>
+    route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify({ content: "# Draft", notes: [], format: "markdown" }) }),
+  );
+  await page.goto(base + draftPath, { waitUntil: "networkidle" });
+  await page.getByRole("button", { name: "Revoke link" }).first().focus();
+  await page.keyboard.press("Enter");
+  const opened = await page.evaluate(() => {
+    const el = document.activeElement;
+    const group = document.querySelector('[role="group"][aria-label="Confirm revoking this link"]');
+    return {
+      focused: el === document.body ? "BODY" : (el?.textContent ?? "").trim().slice(0, 40),
+      inside: Boolean(group?.contains(el)),
+      group: Boolean(group),
+    };
+  });
+  await page.keyboard.press("Tab");
+  const wrapped = await page.evaluate(() => (document.activeElement?.textContent ?? "").trim().slice(0, 40));
+  await page.keyboard.press("Escape");
+  const afterEscape = await page.evaluate(() => ({
+    focused: (document.activeElement?.textContent ?? "").trim().slice(0, 40),
+    group: Boolean(document.querySelector('[role="group"][aria-label="Confirm revoking this link"]')),
+  }));
+  if (opened.focused !== "Keep it" || !opened.inside || !opened.group || wrapped !== "Revoke" || afterEscape.focused !== "Revoke link" || afterEscape.group) {
+    problems.push({ page: "/cases/[id]/draft (revoke)", focus: "revoke confirmation did not take focus / trap Tab / Escape-dismiss", opened, wrapped, afterEscape });
+  }
+  await ctx.close();
+}
+
 // #557: the money drawer's cost tabs must follow the ARIA tabs pattern (one
 // Tab stop, arrows move between tabs, named tabpanel). Stub an extract result
 // with plants/groups so the drawer's cost section renders.
