@@ -56,7 +56,11 @@ var (
 	wantGeneral = regimeWant{has: []string{"substantial"}, not: []string{"102.21", "102.11", "Part 102 rules", "active pharmaceutical ingredient"}}
 	wantTextile = regimeWant{has: []string{"19 C.F.R. § 102.21"}, not: []string{"134.1(b)", "substantial transformation", "substantial-transformation", "102.11"}, note: "Asked under 19 C.F.R. § 102.21"}
 	wantUSMCA   = regimeWant{has: []string{"19 C.F.R. § 102.11", "§ 102.20", "does not ask CBP to decide the country of origin for Section 301"}, not: []string{"134.1(b)", "substantial transformation", "substantial-transformation", "102.21", "preference"}, note: "Asked under the Part 102 rules"}
-	wantPharma  = regimeWant{has: []string{"active pharmaceutical ingredient (API)"}, not: []string{"102.21", "102.11", "Part 102"}, note: "Pharmaceutical (active ingredient) regime"}
+	// A Part 102 case whose prediction is the general engine's: asked under
+	// Part 102 for marking, the position flagged as not a Part 102
+	// determination (D520).
+	wantPart102Routed = regimeWant{has: []string{"19 C.F.R. § 102.11", "§ 102.20", "19 C.F.R. § 102.0", "does not ask CBP to decide the country of origin for Section 301"}, not: []string{"134.1(b)", "substantial transformation", "substantial-transformation", "102.21", "Section 301 duties?"}, note: "routed to the Part 102 marking rules"}
+	wantPharma        = regimeWant{has: []string{"active pharmaceutical ingredient (API)"}, not: []string{"102.21", "102.11", "Part 102"}, note: "Pharmaceutical (active ingredient) regime"}
 )
 
 // The handler's letter follows the regime that produced the stored
@@ -80,7 +84,8 @@ func TestExportRegimeMatrixThroughHandler(t *testing.T) {
 		{"pharma", router.RegimePharma, traceEngine{version: engine.PharmaVersion, origin: "India"}, wantPharma, nil, []string{"looks like a", "not recorded"}, ""},
 		// Specialist labelled, specialist failed, general answered: general draft, flagged.
 		{"textile failed, provisional general", router.RegimeTextile, traceEngine{err: errors.New("down")}, wantGeneral, []string{"looks like a textile (19 CFR 102.21) case", "makes no textile (19 CFR 102.21) determination"}, nil, ""},
-		{"usmca failed, provisional general", router.RegimeUSMCA, traceEngine{err: errors.New("down")}, wantGeneral, []string{"looks like a Part 102 marking (19 CFR 102.11) case", "makes no Part 102 marking (19 CFR 102.11) determination"}, nil, ""},
+		// Part 102 failed: still asked under Part 102, as the case is routed there (D520).
+		{"usmca failed, provisional general", router.RegimeUSMCA, traceEngine{err: errors.New("down")}, wantPart102Routed, []string{"made by Unde's general engine", "is not a Part 102 determination", "treat it as provisional"}, []string{"looks like a", "asks the general substantial-transformation question"}, ""},
 		{"pharma failed, provisional general", router.RegimePharma, traceEngine{err: errors.New("down")}, wantGeneral, []string{"looks like a pharmaceutical (active ingredient) case"}, nil, ""},
 		// Unknown traces never confirm a specialist or general, whatever the router said.
 		{"unknown version under a textile label", router.RegimeTextile, traceEngine{version: "mystery-v9", origin: "Vietnam"}, wantGeneral, []string{"not recorded"}, []string{"looks like a"}, ""},
@@ -247,7 +252,19 @@ func TestExportPlanDraftInSpecialistCase(t *testing.T) {
 				if !strings.Contains(letter, "product of Thailand") || !strings.Contains(letter, "variant facts") && format == "cfr177" {
 					t.Errorf("%s letter is not the plan's position:\n%s", format, letter)
 				}
-				if strings.Contains(letter, "102.21") || strings.Contains(letter, "Part 102 rules") || strings.Contains(letter, "active pharmaceutical ingredient") {
+				if regime == router.RegimeUSMCA {
+					// A plan on a Part 102 case asks the Part 102 marking
+					// question; the note says the position is the general
+					// engine's (D520).
+					for _, w := range []string{"under the Part 102 rules of origin", "§ 102.20", "for purposes of country of origin marking (19 C.F.R. § 102.0)?"} {
+						if !strings.Contains(letter, w) {
+							t.Errorf("%s Part 102 plan letter missing %q", format, w)
+						}
+					}
+					if strings.Contains(letter, "substantial transformation") || strings.Contains(letter, "substantial-transformation") || strings.Contains(letter, "Section 301 duties?") {
+						t.Errorf("%s Part 102 plan letter asks the substantial-transformation question:\n%s", format, letter)
+					}
+				} else if strings.Contains(letter, "102.21") || strings.Contains(letter, "Part 102 rules") || strings.Contains(letter, "active pharmaceutical ingredient") {
 					t.Errorf("%s plan letter claims a specialist framework", format)
 				}
 				for _, w := range []string{"Legal framework not confirmed", "made by Unde's general engine", "A plan search always uses the general engine", "must select the appropriate framework"} {

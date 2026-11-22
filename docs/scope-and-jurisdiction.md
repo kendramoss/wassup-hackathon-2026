@@ -87,7 +87,7 @@ On the 2026 held-out rulings the product's family check matched 59.4% to one of 
 
 Other product families are not planned. A request for a family with no template is refused: `family %q has no template` (`internal/httpapi/cases.go:386`, `products.go:81`, `products.go:160`), and the family checker answers `none` rather than inventing one (`internal/familycheck/familycheck.go:1`). Origin prediction does not need a template; only plan search does.
 
-Plan and country-comparison searches use the general engine only, with a precedent check. `planner.New(tmpls, predictor, ...)` receives the general (possibly cached) engine (`cmd/server/main.go:508`, `main.go:394`) and the planner calls it (`planner/plan.go:253`, `plan.go:376`); the compare call is `Planner.Plan` (`httpapi/compare.go:77`). So a plan for a textile, Part 102 or pharmaceutical product is not computed under that regime's rules. The export draft says so (`cases.go:1364`, `exportRegimeProvisionalNote`: "A plan search always uses the general engine"). Scenario re-runs are different: they dispatch with the case's pinned router label, so a specialist engine can answer them (`httpapi/scenarios.go:280-287`).
+Plan and country-comparison searches use the general engine only, with a precedent check. `planner.New(tmpls, predictor, ...)` receives the general (possibly cached) engine (`cmd/server/main.go:508`, `main.go:394`) and the planner calls it (`planner/plan.go:253`, `plan.go:376`); the compare call is `Planner.Plan` (`httpapi/compare.go:77`). So a plan for a textile, Part 102 or pharmaceutical product is not computed under that regime's rules. The export draft says so (`exportRegimeProvisionalNote` in `httpapi/cases.go`: "A plan search always uses the general engine"). On a case routed to Part 102 the draft still asks the Part 102 marking question, as the case is routed there, and its note says the position is the general engine's, not a Part 102 determination (`export/regime.go:35`, `part102RoutedNote`; D520). Scenario re-runs are different: they dispatch with the case's pinned router label, so a specialist engine can answer them (`httpapi/scenarios.go:280-287`).
 
 `TestTemplateSetIsPinned` (`planner/families_test.go`) pins the 14 families, and `TestTemplateCitationsAreRealRulings` checks every cited ruling against the bundled corpus.
 
@@ -105,9 +105,9 @@ Checked against the Code of Federal Regulations (eCFR) text of 19 CFR as publish
 
 Consequences for this repo:
 
-1. **Part 102 here is marking origin, not USMCA qualification and not RVC.** The `usmca_part102` engine answers "which country is the country of origin for marking" under 102.11 and 102.20. It does not decide whether a good is an originating good for a preferential duty claim, does not compute regional value content, and does not apply USMCA Chapter 4. The export letter for this regime says it is for marking and does not ask CBP about Section 301 (`export/regime.go:24`, `regime.go:42-51`; test `TestPart102DoesNotSettleSection301`, `regime_test.go:70`).
+1. **Part 102 here is marking origin, not USMCA qualification and not RVC.** The `usmca_part102` engine answers "which country is the country of origin for marking" under 102.11 and 102.20. It does not decide whether a good is an originating good for a preferential duty claim, does not compute regional value content, and does not apply USMCA Chapter 4. The export letter for this regime says it is for marking and does not ask CBP about Section 301 (`export/regime.go:37`, `regime.go:55-64`; test `TestPart102DoesNotSettleSection301`, `regime_test.go:70`).
 2. **The Part 177 export is a request letter, not a determination.** It marks unknown facts `[FILL IN: ...]` (`cfr177.go:12`), and its regime text says the requester is asking CBP, not stating the answer. It is a draft for a broker or counsel to complete and file.
-3. **The textile rule is broader than marking** (102.21(a)). The export draft for the textile regime asks the question "for purposes of marking and Section 301 duties" (`regime.go:34-41`), which is the repo's wording and not the full reach of 102.21.
+3. **The textile rule is broader than marking** (102.21(a)). The export draft for the textile regime asks the question "for purposes of marking and Section 301 duties" (`regime.go:47-54`), which is the repo's wording and not the full reach of 102.21.
 
 ### Audit wording that is wrong or not supported
 
@@ -138,7 +138,7 @@ None of the following is implemented. A result from this system must not be used
 - Non-U.S. jurisdictions and their origin rules, including EU Binding Origin Information and EU, UK or other non-preferential and preferential origin regimes.
 - Duty drawback.
 - Antidumping and countervailing duty (AD/CVD) circumvention or scope determinations. No such code exists.
-- Section 232 and Section 301 origin determinations. Section 301 is only touched as a separate question that the Part 102 draft keeps apart (`export/regime.go:24`); the live duty note states Section 232 duties are not included (`internal/duty/live.go:371`).
+- Section 232 and Section 301 origin determinations. Section 301 is only touched as a separate question that the Part 102 draft keeps apart (`export/regime.go:37`); the live duty note states Section 232 duties are not included (`internal/duty/live.go:371`).
 - Tariff classification. HTS suggestions are separate and are suggestions (`config.go:215`).
 - Plan search for any product family outside the 14 templates (section 4).
 - Any final or binding determination. CBP rulings bind for the transaction and requester they describe (19 CFR 177.9 per `docs/claims-reconciliation.md` section 6; not re-fetched here).

@@ -95,6 +95,18 @@ func goldenInputs() map[string]Input {
 			Supporting: "N347421",
 			RuleCheck:  &domain.PlanRuleCheck{Applies: "informational", Country: "Thailand", Status: "undetermined", Why: "missing_code", Label: "102.20 undetermined (no code for 2 parts)"},
 		},
+		// The actuator plan on its Part 102 case (D501), as a plan search
+		// drafts it: the general engine's prediction, the case routed to Part
+		// 102, the product named by the ruling subject (D520).
+		"part102_routed_plan": {
+			ProductName: "The country of origin of an electrical actuator", Part102: true,
+			Facts:     "The DC motor, gearbox and controls are made in Canada. The screw drive and housings are made in China. Final assembly in Canada.",
+			Requested: "Canada", PlanSummary: "Move the motor, gearbox and controls to Canada", CurrentRuled: "China (CBP ruling N348465, 5 June 2025)",
+			Prediction: domain.Prediction{KeyFactors: []string{"Motor made in Canada"}},
+			Supporting: "N346961",
+			RuleCheck: &domain.PlanRuleCheck{Applies: "part102", Country: "Canada", Status: "shifts", Origin: "Canada",
+				Basis: "19 CFR 102.11(a)(3); 19 CFR 102.20(p), 8501", Label: "Shifts under 102.20 (8501)"},
+		},
 		"pharma": {
 			ProductName: "ibuprofen tablets", Regime: router.RegimePharma,
 			Facts:     "Ibuprofen API is made in India; tableting and bottling take place in the United States.",

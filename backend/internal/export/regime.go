@@ -21,6 +21,19 @@ type regimeText struct {
 	note string
 }
 
+// part102Rule names the Part 102 hierarchy as 19 CFR 102.11 sets it out:
+// paragraph (a), whose (a)(3) is the tariff shift of § 102.20, then (b) to
+// (d), each only where the one before cannot decide (D520).
+const part102Rule = "the Part 102 rules of origin (the general rules of 19 C.F.R. § 102.11, applied in order, with the tariff shifts of § 102.20)"
+
+// part102Marking is the purpose: § 102.0 makes §§ 102.1 to 102.18 and
+// 102.20 the marking rules for goods imported under the USMCA.
+const part102Marking = "for purposes of country of origin marking (19 C.F.R. § 102.0)"
+
+// part102RoutedNote sits beside a draft asked under Part 102 whose position
+// came from the general engine.
+const part102RoutedNote = "Legal framework not confirmed: this case is routed to the Part 102 marking rules (19 CFR 102.11), so this draft asks the Part 102 marking question, but the prediction behind the requester's position was made by Unde's general engine, which reads earlier rulings under substantial transformation, not by the Part 102 engine. (A plan search always uses the general engine; the Part 102 engine may also have been unavailable.) The requester's position is not a Part 102 determination: treat it as provisional and check it against the tariff-shift paragraph and the rules. Marking origin does not settle the separate Section 301 question; this draft does not ask it. The broker or counsel must select the appropriate framework before filing. This is a draft aid, not validated legal advice."
+
 const section301Separate = "This request concerns the origin of the merchandise for marking under the Part 102 rules only. It does not ask CBP to decide the country of origin for Section 301 duties, which is a separate question, and the requester does not contend that marking origin settles it."
 
 var (
@@ -40,15 +53,25 @@ var (
 		note:        "Asked under 19 C.F.R. § 102.21 (textile and apparel rules) because the prediction behind the requester's position was made under that regime. Confirm that regime applies to this article.",
 	}
 	regimeUSMCA = regimeText{
-		mdPurpose:    "for purposes of marking, determined under the Part 102 rules of origin (19 C.F.R. § 102.11, with the tariff shifts of § 102.20)",
-		mdQuestion:   "under the Part 102 rules of origin, 19 C.F.R. § 102.11 with the tariff shifts of § 102.20, for purposes of marking",
-		rule:         "the Part 102 rules of origin (19 C.F.R. § 102.11, with the tariff shifts of § 102.20)",
+		mdPurpose:    "for purposes of marking, determined under " + part102Rule,
+		mdQuestion:   "under " + part102Rule + ", " + part102Marking,
+		rule:         part102Rule,
 		cfrPurpose:   "",
-		cfrQuestion:  "for purposes of country of origin marking",
+		cfrQuestion:  part102Marking,
 		positionTail: ", for marking under the Part 102 rules",
 		separate:     section301Separate,
 		note:         "Asked under the Part 102 rules (19 C.F.R. § 102.11) for marking because the prediction behind the requester's position was made under that regime. Marking origin does not settle the separate Section 301 question; this draft does not ask it. Confirm that regime applies.",
 	}
+	// regimePart102Routed is a case the router sent to the Part 102 marking
+	// rules whose prediction came from the general engine (every plan search,
+	// or a Part 102 engine that did not answer). The question and framing
+	// are the Part 102 ones, as the case is routed there; the note says the
+	// position is the general engine's, not a Part 102 determination (D520).
+	regimePart102Routed = func() regimeText {
+		r := regimeUSMCA
+		r.note = part102RoutedNote
+		return r
+	}()
 	regimePharma = regimeText{
 		mdPurpose:   "for purposes of marking and the application of trade remedies, including Section 301 duties",
 		mdQuestion:  "under the substantial-transformation test, as applied to a pharmaceutical product with attention to the country where its active pharmaceutical ingredient (API) is made",
@@ -79,12 +102,14 @@ func (in Input) EffectiveRegime() string {
 }
 
 func (in Input) regimeText() regimeText {
-	switch in.EffectiveRegime() {
-	case router.RegimeTextile:
+	switch r := in.EffectiveRegime(); {
+	case r == "" && in.Part102:
+		return regimePart102Routed
+	case r == router.RegimeTextile:
 		return regimeTextile
-	case router.RegimeUSMCA:
+	case r == router.RegimeUSMCA:
 		return regimeUSMCA
-	case router.RegimePharma:
+	case r == router.RegimePharma:
 		return regimePharma
 	}
 	return regimeGeneral

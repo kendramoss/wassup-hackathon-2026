@@ -1628,6 +1628,10 @@ func (a *api) buildDraft(r *http.Request, c store.Case, in exportRequest) (draft
 	// leaves pointing at an engine that did not answer.
 	regimeNote := ""
 	ex.Regime, regimeNote = exportRegime(c, ex.Prediction)
+	// A case routed to Part 102 asks the Part 102 marking question even when
+	// the general engine made the prediction (every plan search); the export
+	// package's note says the position is not a Part 102 determination (D520).
+	ex.Part102 = ex.Regime == "" && regimeNote == "" && part102Case(c)
 	content := export.Markdown(ex)
 	if format == formatCFR177 {
 		content = export.CFR177(ex)
@@ -1672,6 +1676,9 @@ func exportRegime(c store.Case, p domain.Prediction) (regime, note string) {
 	case r == "":
 		return "", exportRegimeUnknownNote
 	case r == RegimeGeneral:
+		if part102Case(c) {
+			return "", "" // asked under Part 102; export.Input.Part102 notes it (D520)
+		}
 		if c.Router != nil && isSpecialist(c.Router.Regime) {
 			return "", fmt.Sprintf(exportRegimeProvisionalNote, exportRegimeLabel(c.Router.Regime), exportRegimeLabel(c.Router.Regime), exportRegimeLabel(c.Router.Regime))
 		}

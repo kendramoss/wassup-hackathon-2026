@@ -36,6 +36,13 @@ type Input struct {
 	// not merely the router's label: a draft must not claim a specialist
 	// determination when only a general result exists.
 	Regime string
+	// Part102 says the router sent the case to the Part 102 marking rules
+	// (router.RegimeUSMCA). When Regime names no specialist (the prediction
+	// came from the general engine, as every plan search's does), the draft
+	// still asks the Part 102 marking question, with a note that the
+	// position is not a Part 102 determination (D520). A specialist Regime
+	// wins over it.
+	Part102 bool
 	// Textile is the older flag for the textile regime. It applies only when
 	// Regime is empty; Regime always wins. See EffectiveRegime.
 	Textile bool
@@ -96,6 +103,72 @@ func shortSubject(s string) string {
 	return s
 }
 
+// subjectName is the product as the draft names it after "the country of
+// origin of" and in its headings: the product name with any ruling-subject
+// opening removed, or "the subject merchandise" when there is none (D520).
+func (in Input) subjectName() string {
+	if name := DraftName(in.ProductName); name != "" {
+		return name
+	}
+	return "the subject merchandise"
+}
+
+// DraftName is a product name as the letter writes it. A case built from a
+// CBP ruling can carry the ruling's subject line as its product name ("The
+// country of origin of an electrical actuator"); the letter already says
+// "the country of origin of", so that opening is removed, case-insensitive,
+// keeping the article that follows ("an electrical actuator"). A subject that
+// asks more than origin ("The country of origin and eligibility of the
+// United States-Mexico-Canada Agreement (USMCA) of a Walk-Behind Lawn
+// Mower") is cut after its last " of a " or " of an ". Any other name is
+// returned as given, trimmed (D520).
+func DraftName(name string) string {
+	name = strings.TrimSpace(name)
+	l := strings.ToLower(name)
+	rest := strings.TrimPrefix(l, "the ")
+	if !strings.HasPrefix(rest, "country of origin") {
+		return name
+	}
+	off := len(l) - len(rest) // where "country of origin" starts
+	if p := "country of origin of "; strings.HasPrefix(rest, p) {
+		if out := strings.TrimSpace(name[off+len(p):]); out != "" {
+			return out
+		}
+		return name
+	}
+	if !strings.HasPrefix(rest, "country of origin and ") {
+		return name
+	}
+	at := -1
+	for _, p := range []string{" of a ", " of an "} {
+		at = max(at, strings.LastIndex(l, p))
+	}
+	if at < 0 {
+		return name
+	}
+	return strings.TrimSpace(name[at+len(" of "):])
+}
+
+// modelName is the "Name and model" entry of the 177.2 letter: the draft
+// name, and for a name taken from a ruling subject without its leading "a"
+// or "an", capitalised ("Electrical actuator"), as a label reads. A name
+// given as a product name is kept as given ("The North Face jacket").
+func modelName(product string) string {
+	name := DraftName(product)
+	if name == strings.TrimSpace(product) {
+		return name
+	}
+	l := strings.ToLower(name)
+	for _, a := range []string{"a ", "an "} {
+		if strings.HasPrefix(l, a) && len(name) > len(a) {
+			name = strings.TrimSpace(name[len(a):])
+			break
+		}
+	}
+	r, size := utf8.DecodeRuneInString(name)
+	return string(unicode.ToUpper(r)) + name[size:]
+}
+
 // BelowBar is the precedent check's confidence and the bar it missed.
 type BelowBar struct {
 	Confidence float64
@@ -106,10 +179,7 @@ type BelowBar struct {
 func Markdown(in Input) string {
 	var b strings.Builder
 	b.WriteString("U.S. Customs and Border Protection  \nNational Commodity Specialist Division  \nNew York, NY\n\n")
-	name := in.ProductName
-	if name == "" {
-		name = "the subject merchandise"
-	}
+	name := in.subjectName()
 	fmt.Fprintf(&b, "**RE: Request for a binding country of origin ruling — %s**\n\n", name)
 	b.WriteString("Dear Sir or Madam:\n\n")
 	rt := in.regimeText()

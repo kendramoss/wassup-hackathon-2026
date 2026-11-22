@@ -17,10 +17,7 @@ const FillIn = "[FILL IN"
 // fills what the case knows and marks the rest [FILL IN: ...] (D66).
 func CFR177(in Input) string {
 	var b strings.Builder
-	name := in.ProductName
-	if name == "" {
-		name = "the subject merchandise"
-	}
+	name := in.subjectName()
 	rt := in.regimeText()
 
 	b.WriteString("[FILL IN: date]\n\n")
@@ -65,8 +62,8 @@ func CFR177(in Input) string {
 	b.WriteString(" [FILL IN: expected date of the first shipment].\n\n")
 
 	b.WriteString("## 4. The merchandise\n\n")
-	if in.ProductName != "" {
-		fmt.Fprintf(&b, "- Name and model: %s.\n", in.ProductName)
+	if n := modelName(in.ProductName); n != "" {
+		fmt.Fprintf(&b, "- Name and model: %s.\n", n)
 	} else {
 		b.WriteString("- Name and model: [FILL IN: commercial name and model number].\n")
 	}
