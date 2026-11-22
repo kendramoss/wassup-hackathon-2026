@@ -388,11 +388,17 @@ var stalePhrases = []struct {
 		why:    "usmca-v5 has no clean held-out check: its held-out scores and the D631 plan pass are candidate comparisons (D602, #649, D670)",
 		unless: regexp.MustCompile(`(?i)\bnot (clean |new )?held-out evidence\b|candidate comparison`),
 	},
+	{
+		re:     regexp.MustCompile(`(?i)\bmisses? one more current setup\b|\bN363381\b[^.]{0,120}\bnew miss\b`),
+		why:    "D631's 'Worse' reading of N363381 is superseded: D571 did not plan it and D601 already scored it wrong (#658, D670)",
+		unless: regexp.MustCompile(`(?i)\bnot a new miss\b|\balready scored it wrong\b|\bnot planned\b`),
+	},
 }
 
 // staleRoots are the public texts checkStalePhrases reads: the README, the
-// docs, the site, the MCP server and the backend's user-facing strings.
-var staleRoots = []string{"README.md", "docs", "frontend/src", "frontend/scripts", "mcp", "backend/internal", "examples"}
+// docs, the linked results page, the site, the MCP server and the backend's
+// user-facing strings.
+var staleRoots = []string{"README.md", "docs", "eval/RESULTS.md", "frontend/src", "frontend/scripts", "mcp", "backend/internal", "examples"}
 
 // checkStalePhrases fails on any stalePhrases match in staleRoots.
 func checkStalePhrases(root string, r *Report) {

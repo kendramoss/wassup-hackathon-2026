@@ -93,7 +93,7 @@ The post-cutoff splits of the textile, pharmaceutical and Part 102 engines were 
 | Substantial transformation, engine-v1 | 340/377 = 90.2% (86.8–92.8) | Vertex AI | 77/83 = 92.8% (85.1–96.6) | gateway |
 | Textile (19 CFR 102.21 rule) | 61/71 = 85.9% (76.0–92.2), textile-v1 | Vertex AI | 15/17 = 88.2% (65.7–96.7), textile-v2 (in production) | gateway |
 | Pharmaceutical, pharma-v1 | 50/56 = 89.3% (78.5–95.0) | proxy | 4/6 = 66.7% (30.0–90.3) | gateway |
-| Part 102 marking origin, usmca-v1 | 25/32 = 78.1% (61.2–89.0) | proxy | 11/13 = 84.6% (57.8–95.7) | gateway |
+| Part 102 marking origin, usmca-v1 | 25/32 = 78.1% (61.2–89.0) | proxy | 11/13 = 84.6% (57.8–95.7), with only the 15 window-2 rulings as precedents (D612) | gateway |
 | Splits added (as the 536 was) | 476/536 = 88.8% (85.9–91.2) | mixed | 107/119 = 89.9% (83.2–94.1) | gateway |
 | **Each ruling once** | 451/509 = 88.6% (85.6–91.1) | mixed | 96/107 = 89.7% (82.5–94.2) | gateway |
 
@@ -935,7 +935,7 @@ Six templates written from the 239 pre-2024 Part 102 rulings in no development o
 | N363381 (Canada → Vietnam) | machinery parts | 1 | 0 | undetermined (chapter 96) | – | undetermined / United States (Canada) | $0.0190, 8 s |
 
 - Planned 8 of 18 (D571: 6). Engine agrees with the rule on 6 of 6 decided moves (61–100%; D571 3 of 6); on the four shared fixtures 3 of 3 (D571 1 of 3). 5 of the 6 decided moves keep CBP's holding. Shown 1, the rule says it shifts. Flagged 0; rows marked for review 0 (D571, scored by the same code, 1). Current setup: rule decides 7 of 8 and gives CBP's holding on 6; engine 6 of 8. Backtests 0. Search wall median 12.5 s, 95th percentile 40.2 s (D571 20.0 s, 35.0 s).
-- Worse: the engine misses one more current setup than in D571 (N363381, United States against CBP's Canada). N358639 is not like for like (one move with the metal-products template, three with vehicle parts).
+- Not a new miss against D571: D571 did not plan N363381 (no template then), and D601 had already scored it wrong (the engine gives the United States where CBP held Canada). The 6 of 8 current-setup result is D601's, ruling for ruling (D670). N358639 is not like for like (one move with the metal-products template, three with vehicle parts).
 - Actuator page re-record (development, not held out): `plan-p102-n348465-local-verifier-v2-d630-litellm.json` (RUNLOG `planner-part102-d630-actuator-litellm`, $0.2923, 47 s): `usmca-v5` agrees with the rule on 12 of 12 moves (D541 `usmca-v1` 12, D501 general 9), 2 shown, both shift.
 - `tariffshift/plans102/runs/plan-p102h-*-local-verifier-v2-heldout2-litellm.json`; `tariffshift/plans102/summary-heldout2.json`, `moves-heldout2.jsonl`; `cd backend && go run ./cmd/tariffshift plans102-eval -series heldout2 -check` and `plans102-example -check` (in `make reproduce`). Total $0.4806.
 
