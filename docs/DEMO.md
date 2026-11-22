@@ -110,7 +110,7 @@ Checked against production (https://undelabs.dev, also `frontend-88903435351.us-
 11. **Accuracy.** Say these numbers:
    - **90.2%** on 377 held-out CBP rulings (Vertex, official), against 63.4% for the best simple rule we recomputed (first country named; D155). On 83 newer rulings (Sep–Nov 2026, gateway, scored once): 92.8%. If asked about the gateway: it agrees with Vertex AI on the development set (p = 0.58, D151).
    - The fast path auto-accepts 79.6% of cases at 96.0%.
-   - The "Precedent check" section: **in the historical D86 proxy pool, 182 shown verdicts reached the 0.92 bar and none was wrong** (proxy runs over 54 development pairs and 21 pairs from 2026; 17 pairs counted once). Then say: later post-cutoff gateway scoring was right 9 of 9 with the starting origin and 5 of 6 without it. These are not guarantees.
+   - The "Precedent check on older pairs" section: read its headline, **182 checks passed, across all runs. None was on a pair where CBP kept the origin.** The proxy-pool wording ("in the historical D86 proxy pool…", 54 development pairs and 21 pairs from 2026, 17 pairs counted once) is in that section's Details fold; open it if a judge asks. Then point at "Plan checks on newer rulings": 9 of 9 moves shown were real changes with the starting origin given (5 of 6 without it, shown on /method). These are not guarantees.
    - The "Known failure cases" section: every held-out miss, by ruling. Scroll to it; showing the misses is part of the claim.
 
 **Before recording:**
