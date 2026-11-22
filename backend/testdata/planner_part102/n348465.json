@@ -1,0 +1,168 @@
+{
+  "_source": "Built from the facts of CBP ruling N348465 (2025-06-05, Part 102 dev split; picked: CBP held China for a good assembled in Canada (the Chinese motor is in the good's own heading 8501), so a move can change what the rule gives). CBP held China. Components: the D362 full-text materials; part codes: the top D381 development suggestion (unverified, D382); the good's code: CBP's (8501). Plants, groups and operations assigned by hand (eval/planner/build_part102_fixtures.py). Target Canada by the D171 rule (where the good is finished); plant capabilities for Canada are an assumption. D501.",
+  "case_id": "p102-n348465",
+  "date": "2025-06-05",
+  "family": "motors_pumps_compressors",
+  "target": "Canada",
+  "product": {
+    "name": "The country of origin of an electrical actuator",
+    "description": "The product of CBP ruling N348465, as its facts describe it.",
+    "hts": "8501",
+    "plants": [
+      {
+        "id": "cn",
+        "name": "China suppliers",
+        "country": "China",
+        "capabilities": [
+          "motor_stator_rotor",
+          "fluid_rotary_mechanism",
+          "housing_and_chassis",
+          "controls_and_valves"
+        ]
+      },
+      {
+        "id": "ca",
+        "name": "Canada plant",
+        "country": "Canada",
+        "capabilities": [
+          "motor_stator_rotor",
+          "fluid_rotary_mechanism",
+          "housing_and_chassis",
+          "controls_and_valves",
+          "final_assembly"
+        ]
+      }
+    ],
+    "components": [
+      {
+        "name": "DC motor",
+        "made_in": "China",
+        "plant": "cn",
+        "group": "motor_stator_rotor",
+        "hts": "8501",
+        "hts_alternatives": [
+          "8501.10.60",
+          "8501.31.40"
+        ]
+      },
+      {
+        "name": "gearbox assembly",
+        "made_in": "China",
+        "plant": "cn",
+        "group": "fluid_rotary_mechanism",
+        "hts": "8483.40",
+        "hts_alternatives": [
+          "8503.00"
+        ]
+      },
+      {
+        "name": "screw drive",
+        "made_in": "China",
+        "plant": "cn",
+        "group": "fluid_rotary_mechanism",
+        "hts": "8483.40",
+        "hts_alternatives": [
+          "8503.00"
+        ]
+      },
+      {
+        "name": "housings",
+        "made_in": "China",
+        "plant": "cn",
+        "group": "housing_and_chassis",
+        "hts": "8503.00"
+      },
+      {
+        "name": "sensor printed circuit board assembly (PCBA)",
+        "made_in": "China",
+        "plant": "cn",
+        "group": "controls_and_valves",
+        "hts": "8503.00",
+        "hts_alternatives": [
+          "9031.90"
+        ]
+      },
+      {
+        "name": "electrical apparatus",
+        "made_in": "China",
+        "plant": "cn",
+        "group": "controls_and_valves",
+        "hts": "8536",
+        "hts_alternatives": [
+          "8536.50"
+        ]
+      }
+    ],
+    "operations": [
+      {
+        "name": "make the 12 VDC brushed motor",
+        "plant": "cn",
+        "group": "motor_stator_rotor"
+      },
+      {
+        "name": "make the gearbox assembly and screw drive",
+        "plant": "cn",
+        "group": "fluid_rotary_mechanism"
+      },
+      {
+        "name": "make the housings",
+        "plant": "cn",
+        "group": "housing_and_chassis"
+      },
+      {
+        "name": "make the sensor PCBA and electrical apparatus",
+        "plant": "cn",
+        "group": "controls_and_valves"
+      },
+      {
+        "name": "fasten the motor to the gearbox, insert the components and fasten with screws",
+        "plant": "ca",
+        "group": "final_assembly"
+      },
+      {
+        "name": "solder the electrical apparatus and secure the wires to the motor actuator",
+        "plant": "ca",
+        "group": "final_assembly"
+      },
+      {
+        "name": "test, lubricate and package",
+        "plant": "ca",
+        "group": "final_assembly"
+      }
+    ]
+  },
+  "economics": {
+    "illustrative": true,
+    "annual_import_value_usd": 1000000,
+    "duty_rates": {
+      "Canada": 0.125,
+      "China": 0.425
+    },
+    "duty_rates_note": "Illustrative placeholder, not a sourced rate.",
+    "group_costs": {
+      "motor_stator_rotor": {
+        "cn": 100000,
+        "ca": 125000
+      },
+      "fluid_rotary_mechanism": {
+        "cn": 100000,
+        "ca": 125000
+      },
+      "housing_and_chassis": {
+        "cn": 100000,
+        "ca": 125000
+      },
+      "controls_and_valves": {
+        "cn": 100000,
+        "ca": 125000
+      }
+    }
+  },
+  "exclude_rulings": [
+    "N348465"
+  ],
+  "current_origin": {
+    "country": "China",
+    "ruling": "N348465"
+  }
+}
