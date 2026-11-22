@@ -184,10 +184,12 @@ func groupPhrase(p domain.Product, t Template, id, madeWith string) string {
 // harness and seals") each one-word item that names none of the parts filed
 // under the group, so a PCR instrument with a main board, a monitor and no
 // sensor reads "the PCBA and 4 other parts", not "the PCBA and sensors"
-// (judge panel round 4, D290). Items
-// of more than one word ("firebox forming") are processes or compound names
-// and stay; a name with a parenthesis is left whole. If dropping would leave
-// nothing that fits, the name is kept as it is.
+// (judge panel round 4, D290). An item of more than one word is dropped the
+// same way unless it is a process ("firebox forming" stays), so a merged
+// Part 102 group name such as "Sugar, cocoa and dairy ingredients" reads "the
+// sugar and cocoa" for a blend with no dairy (#633, D622). A name with a
+// parenthesis is left whole. If dropping would leave nothing that fits, the
+// name is kept as it is.
 func fittingItems(name string, parts []string) string {
 	if strings.ContainsAny(name, "()") {
 		return name
@@ -199,7 +201,7 @@ func fittingItems(name string, parts []string) string {
 	keep := make([]string, 0, len(items))
 	for _, it := range items {
 		it = strings.TrimSpace(it)
-		if len(strings.Fields(it)) == 1 && len(nameWords(it)) > 0 && !describesAny(it, parts) {
+		if (len(strings.Fields(it)) == 1 || !isProcess(it)) && len(nameWords(it)) > 0 && !describesAny(it, parts) {
 			continue
 		}
 		keep = append(keep, it)
@@ -224,6 +226,18 @@ func fittingItems(name string, parts []string) string {
 		keep = append(keep, fmt.Sprintf("%d other parts", other))
 	}
 	return joinAnd(keep)
+}
+
+// isProcess reports whether a listed item names work rather than a thing:
+// one of its words is a process noun such as "forming", "machining",
+// "lamination", "extrusion" or "treatment".
+func isProcess(item string) bool {
+	for _, w := range strings.FieldsFunc(strings.ToLower(item), func(r rune) bool { return !unicode.IsLetter(r) }) {
+		if len(w) > 4 && (strings.HasSuffix(w, "ing") || strings.HasSuffix(w, "tion")) || w == "treatment" || w == "extrusion" {
+			return true
+		}
+	}
+	return false
 }
 
 // Words too general to show that a group name fits a part.

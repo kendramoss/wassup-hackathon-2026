@@ -1,6 +1,9 @@
 package planner
 
 import (
+	"encoding/json"
+	"os"
+	"path/filepath"
 	"reflect"
 	"testing"
 
@@ -78,5 +81,51 @@ func TestMovedItemsListsPartsBeforeSteps(t *testing.T) {
 	want := []string{"lids", "weld the gas train"}
 	if !reflect.DeepEqual(got, want) {
 		t.Errorf("got %v, want %v", got, want)
+	}
+}
+
+// #633 (D622): the Part 102 templates of D580 have merged group names
+// ("Sugar, cocoa and dairy ingredients"). A plan sentence names only what
+// the product's parts in the group are; a multi-word item that names no part
+// is dropped unless it is a process.
+func TestGroupPhraseDropsMergedItemsThePartsDoNotHave(t *testing.T) {
+	tms, err := LoadTemplates()
+	if err != nil {
+		t.Fatal(err)
+	}
+	for _, c := range []struct{ fixture, group, plant, want string }{
+		{"cocoa_blend_2021", "sugar_cocoa_dairy", "us", "Move the sugar and cocoa to United States"},
+		{"turbine_runner_2019", "primary_body_casting", "ca", "Move the castings to Canada"},
+	} {
+		b, err := os.ReadFile(filepath.Join("..", "..", "testdata", "families", c.fixture+".json"))
+		if err != nil {
+			t.Fatal(err)
+		}
+		var fx struct {
+			Family  string         `json:"family"`
+			Product domain.Product `json:"product"`
+		}
+		if err := json.Unmarshal(b, &fx); err != nil {
+			t.Fatal(err)
+		}
+		if got := Describe(fx.Product, tms[fx.Family], domain.Move{{Group: c.group, ToPlant: c.plant}}); got != c.want {
+			t.Errorf("%s: %q, want %q", c.fixture, got, c.want)
+		}
+	}
+	// A tea-only product in "Tea, juice and spirit bases".
+	p := domain.Product{Plants: []domain.Plant{{ID: "cn", Country: "China"}, {ID: "ca", Country: "Canada"}},
+		Components: []domain.Component{{Name: "Green tea extract", MadeIn: "China", Plant: "cn", Group: "extracts_and_bases"}}}
+	if got := Describe(p, tms["food_preparations"], domain.Move{{Group: "extracts_and_bases", ToPlant: "ca"}}); got != "Move the tea to Canada" {
+		t.Errorf("tea only: %q", got)
+	}
+	for _, it := range []string{"firebox forming", "surface treatment", "Film extrusion", "panel lamination", "kit packing"} {
+		if !isProcess(it) {
+			t.Errorf("%q should read as a process", it)
+		}
+	}
+	for _, it := range []string{"dairy ingredients", "spirit bases", "precision-ground parts", "Motor stator", "Control boards"} {
+		if isProcess(it) {
+			t.Errorf("%q should not read as a process", it)
+		}
 	}
 }

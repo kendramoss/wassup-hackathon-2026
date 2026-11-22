@@ -877,8 +877,20 @@ func planRuleWords(p map[string]any) string {
 		return ""
 	}
 	out := "102.20 rule check: " + l
-	if rc["review"] == true {
+	if rc["review"] != true {
+		return out
+	}
+	// The flag has two sources (D441, D591): the rule disagrees with the
+	// precedent check, or, on a Part 102 case, with the engine on a row no
+	// precedent check ran on. review_note says which; without one, only a
+	// row the precedent check saw can be called a precedent disagreement.
+	switch note := strings.TrimSuffix(strings.TrimSpace(str0(rc["review_note"], "")), "."); {
+	case note != "":
+		out += " (" + strings.ToLower(note[:1]) + note[1:] + ")"
+	case len(obj(p["verdict"])) > 0:
 		out += " (it differs from the precedent check: worth a broker's look)"
+	default:
+		out += " (worth a broker's look)"
 	}
 	return out
 }
