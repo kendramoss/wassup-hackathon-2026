@@ -20,12 +20,13 @@ func (a *api) mcp(root *http.Handler, version string) http.HandlerFunc {
 	}
 	slices.Sort(families)
 	h := mcpserver.New(mcpserver.Options{
-		API:          http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) { (*root).ServeHTTP(w, r) }),
-		Families:     families,
-		RulingSearch: a.d.RulingSearch != nil,
-		MediaExtract: a.d.MediaExtractor != nil,
-		PartsHTS:     a.d.PartsHTS != nil,
-		Version:      version,
+		API:           http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) { (*root).ServeHTTP(w, r) }),
+		Families:      families,
+		RulingSearch:  a.d.RulingSearch != nil,
+		MediaExtract:  a.d.MediaExtractor != nil,
+		PartsHTS:      a.d.PartsHTS != nil,
+		CanadaMarking: a.d.CanadaMarking != nil,
+		Version:       version,
 		// The MCP guard resolves the address with the same trusted-proxy
 		// rule as clientKey, so a direct caller's header cannot pick the
 		// bucket of its tool calls (#479).

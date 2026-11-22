@@ -176,6 +176,10 @@ type Deps struct {
 	// RuleCheck, when set, adds the 19 CFR 102.20 rule check to a case
 	// that gives HTS codes (D363). Display only: nothing reads it back.
 	RuleCheck *tariffshift.Rules
+	// CanadaMarking, when set, serves POST /v1/rules/canada-marking: the
+	// SOR/94-23 marking-rule check for goods imported into Canada (D720).
+	// A rules check only, never stored and never read by the engine.
+	CanadaMarking *tariffshift.Rules
 	// Pharma, when set, predicts cases the router labels pharma_api with the
 	// pharmaceutical prompt (origin follows the active ingredient) instead of
 	// leaving them out of scope (D62). PharmaFastPath is its auto-accept bar;

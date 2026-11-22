@@ -57,6 +57,16 @@ a public international agreement; neither PDF states a reuse licence. The
 PDFs are not redistributed; their URLs, retrieval date and SHA-256 are in
 `eval/rcep/source.json`.
 
+Canada's marking rules (`backend/internal/tariffshift/rules_ca.json`) are the
+Schedule III rows of the Determination of Country of Origin for the Purpose of
+Marking Goods (CUSMA Countries) Regulations, SOR/94-23, from the Justice Laws
+website (<https://laws-lois.justice.gc.ca/eng/XML/SOR-94-23.xml>, retrieved 22
+Nov 2026). Reproduced under the Reproduction of Federal Law Order (SI/97-5):
+anyone may reproduce federal enactments without charge or permission, if the
+copy is accurate and not presented as the official version. This copy is not
+the official version. Headings are written 8473 for 84.73; two slips are
+corrected (D720).
+
 ## Go dependencies
 
 Backend dependencies are declared in `backend/go.mod` and fetched through the

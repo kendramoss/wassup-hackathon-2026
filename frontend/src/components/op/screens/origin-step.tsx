@@ -19,6 +19,7 @@ import { planTarget } from "../plan-target";
 import { ReviewNote } from "../review-note";
 import { RuleCheckPanel } from "../rule-check";
 import { RcepCheck } from "../rcep-check";
+import { CanadaCheck } from "../canada-check";
 import { Term } from "../term";
 import { regimeOf } from "@/lib/regime";
 import { marketOf } from "@/lib/market";
@@ -33,7 +34,29 @@ function Result(ctx: CaseCtx) {
   // A market with no origin engine (D680): no answer was made, so there is
   // no verdict to show, only what to do next.
   if (ctx.c.jurisdiction_detail?.supported === false) return <UnsupportedMarket c={ctx.c} />;
+  // Canada is a rules-only market (D725): the marking-rule check, no model answer.
+  if (ctx.c.jurisdiction === "ca") return <CanadaMarket c={ctx.c} />;
   return <Answer {...ctx} />;
+}
+
+function CanadaMarket({ c }: { c: CaseResponse }) {
+  const m = marketOf(c.jurisdiction);
+  return (
+    <>
+      <section aria-label="Market" className="border-b border-dashed border-guide">
+        <div className="column mx-auto max-w-[1240px] px-4 pb-8 pt-10 sm:px-10">
+          <StepEyebrow tab="origin">{copy.market.label}</StepEyebrow>
+          <h1 className="mt-1 flex items-center gap-4 text-[44px] font-normal leading-none tracking-[-0.05em] sm:text-[64px]">
+            {m.flag ? <Flag country={m.flag} size={44} /> : null}
+            {m.name}
+          </h1>
+        </div>
+      </section>
+      <Main>
+        <CanadaCheck c={c} auto />
+      </Main>
+    </>
+  );
 }
 
 function UnsupportedMarket({ c }: { c: CaseResponse }) {
@@ -144,6 +167,7 @@ function Answer({ id, c, setCase }: CaseCtx) {
             </p>
           ) : null}
           <RuleCheckPanel c={c} />
+          <CanadaCheck c={c} />
           {c.clarify?.conflict ? <Conflict c={c} /> : null}
           {qs ? <Questions c={c} setCase={setCase} /> : null}
           {route === "needs_review" && !qs && !regime ? <ReviewPanel c={c} /> : null}
