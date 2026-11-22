@@ -1,0 +1,24 @@
+{
+ "version": "rcep-psr-hs2022-r2022-08-20",
+ "title": "RCEP Annex 3A Product-Specific Rules, transposed to HS 2022 (adopted by the RCEP Joint Committee 30 June 2022, editorial revision 20 August 2022, in force from 1 January 2023)",
+ "primary": {
+  "publisher": "RCEP Secretariat",
+  "url": "https://rcepsec.org/wp-content/uploads/2024/07/RCEP-PSR-in-HS-2022-adopted-by-RJC-30June2022-corrected20Aug2022.pdf",
+  "also_at": "https://rcepsec.org/wp-content/uploads/2026/06/R01-RCEP-PSR-in-HS-2022-1-Jan-2023.pdf",
+  "index_page": "https://rcepsec.org/rules-of-origin/",
+  "retrieved": "2026-11-22",
+  "pages": 140,
+  "sha256": "e474dd17238c1c3fb126d9762d10de849ffd8c061a3f42fa596f3833a3536fd6",
+  "note": "Both URLs served byte-identical files on the retrieval date."
+ },
+ "cross_check": {
+  "publisher": "Australian Border Force",
+  "url": "https://www.abf.gov.au/free-trade-agreements/files/rcep-chapter-3-annex-3a-HS2022.pdf",
+  "retrieved": "2026-11-22",
+  "pages": 140,
+  "sha256": "0a244b142f36a19e08f6fdf6ec840490d672c3fa40edeeb0505186fa02f67d3f",
+  "result": "2,452 rows after merging page breaks in both copies; 0 code or rule differences; 1 description difference (a text-extraction space in 2921.51)."
+ },
+ "licence": "The rules are the text of a public international agreement. Neither PDF states a reuse licence. We commit the parsed rule table with attribution and do not redistribute the PDFs. Licence terms of the two sites were not verified.",
+ "parser": "eval/rcep/parse_psr.py (pdfplumber 0.11.10)"
+}

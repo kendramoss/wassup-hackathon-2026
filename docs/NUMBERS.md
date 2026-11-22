@@ -460,4 +460,14 @@ A composite contract manufacturer, labelled on the page "Illustrative example â€
 
 The other figures in the story are existing rows: 20 hours, 21 days (n = 247), US$3,600, 3,628 ruling responses (market and time), p50 4.6 s and $0.0078 (evaluation), N345938 (plan shown).
 
+
+## RCEP calculator (D690)
+
+| Number | Value | Source | Status |
+|---|---|---|---|
+| Annex 3A rows parsed (HS 2022) | 2,452 rows, 96 chapters; 2,189 with a rule, of which 2,181 read by the parser and 8 hand-encoded; 263 rows carry no rule of their own; 0 unreadable | `coverage` in `backend/internal/rcep/data/psr_hs2022.json` (`eval/rcep/parse_psr.py build`); pinned by `TestTableCoverage` | Measured, no model. Parse coverage, not accuracy |
+| Cross-check against a second official copy | 0 code or rule differences in 2,452 rows; 1 description difference (text extraction) | `eval/rcep/parse_psr.py diff` on the RCEP Secretariat and Australian Border Force PDFs; files and hashes in `eval/rcep/source.json` | Measured once, 22 Nov 2026 |
+| Worked examples reproduced | 13 subtests from the ABF RCEP guide (as at 18 Dec 2024), e.g. build-up 45 %, build-down 50 %, spice mix 38.9 % and 44.4 %, de minimis 5 % by value and 4 % by weight | `TestABFWorkedExamples` in `backend/internal/rcep/engine_test.go` | Tests, not an evaluation. The figures are the guide's illustrations |
+| RCEP accuracy on rulings | none yet | pre-registered in D691 (Japan Customs RCEP rulings) | Not measured. Do not show any accuracy for the RCEP check |
+
 Rules: small-n numbers carry CIs; development-only numbers say "development set"; never "approved", "verified", "guaranteed", "cheapest" or "proof that it qualifies". Do not describe a percentage-point gap between subsets as proof of calibration.

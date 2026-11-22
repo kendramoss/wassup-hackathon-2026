@@ -15,7 +15,7 @@ info:
     `prompt_version`, `llm_provider` and the `disclaimer`; cost-estimate and family-check
     carry `prompt_version` and `llm_provider`; ruling search and money-prefill carry only the
     `disclaimer`; extract and extract-media return the draft with its `trace`; import and the
-    rest (case list, ruling fetch, rename, demos, duty rates, economics, eval summary,
+    rest (case list, ruling fetch, rename, demos, duty rates, RCEP check, economics, eval summary,
     review links, workspaces, keys, audit) carry none of them; the broker's `GET /v1/review`
     carries the `disclaimer` only. Errors use `{code, message, details}`.
 
@@ -36,7 +36,7 @@ info:
     Rate limits (D45, D137): every `/v1` route has a rate class, keyed per client (the
     frontend forwards the browser's address as `X-Client-IP`; an API key has its own
     buckets). Cheap routes with no model call (case reads, rename, delete, economics,
-    export, demos, rulings, duty rates, eval summary, workspaces) 120 a minute; light model
+    export, demos, rulings, duty rates, RCEP check, eval summary, workspaces) 120 a minute; light model
     routes (predict, answers, ask, extract, extract-media, import, money-prefill, hts-suggest,
     parts-hts-suggest, cost-estimate, family-check, scenarios, watch, bom-version) 20 a minute,
     and plan estimate and the audit reads take from the same bucket without a model call; heavy
@@ -77,7 +77,7 @@ info:
 
     Audit trail (#284): a tenant-scoped, append-only audit stream that is separate from the case history. It is off unless an operator configures it: `AUDIT` defaults to `auto`, which turns it on only when `AUDIT_ACTOR_KEY` is set, and `on` without a key fails at startup. When it is off, no event is recorded, the two `/v1/audit*` routes are not registered (404) and sensitive writes are not gated; nothing here says any deployment has it enabled. When it is on, the sensitive writes (case delete, workspace invite, join, role change, member removal or leave, API-key issue and disable) write an intent record first; if that record cannot be written the request is 503 `audit_unavailable` and nothing changes. Other writes proceed even if their intent cannot be recorded. If the completion record cannot be written after a change was made, the change is not rolled back and the response keeps its true status, with the header `X-Audit-Incomplete: completion-not-recorded`; the header can appear on any audited non-streaming route, on a success or an error response (every mutating route, a recording or preview export of a non-pinned case, the audit reads and the API-key list), and not only on the fail-closed operations that can answer 503; a Server-Sent-Events response has already committed its 200 before the work runs, so that header cannot be sent there, and the stream path writes its completion record before the final `done` or `error` event instead. In both cases the trail holds an intent with no completion, which `GET /v1/audit/verify` can report as an unresolved intent only on its final call, as of the verified snapshot, and not as an exact count when its own `complete` is false. Allowed ordinary case reads are not audited: the trail records writes, recording exports, previews of non-pinned cases, authorization denials and audit reads, so it is not a complete record of who read confidential data. Audit writes and the case, workspace or key writes are separate stores and are not atomic with each other. Event times are the server clock in microseconds and never go backwards within a tenant. The hash chain is tamper evidence by the application only: it is not immutable or WORM storage, does not protect against someone with write access to the datastore, and this is audit-readiness support, not SOC 2 certification.
 
-    Strict auth (#283, `STRICT_AUTH=on`, default off, same values as `CASE_OWNERSHIP`; any other value fails startup): private case operations (creating, listing and every route on a non-pinned case) require a verified identity, meaning a validated user token, an API key or the admin token. An `X-Visitor-ID` alone is not authentication and gets 401 `unauthenticated`, identical for missing, hidden and unknown cases. Pinned demos, `/v1/demos*`, `/v1/rulings`, `/v1/eval/summary`, `/v1/duty-rates`, `/health` and the stateless `/v1/products/*` helpers stay open. With it off nothing changes.
+    Strict auth (#283, `STRICT_AUTH=on`, default off, same values as `CASE_OWNERSHIP`; any other value fails startup): private case operations (creating, listing and every route on a non-pinned case) require a verified identity, meaning a validated user token, an API key or the admin token. An `X-Visitor-ID` alone is not authentication and gets 401 `unauthenticated`, identical for missing, hidden and unknown cases. Pinned demos, `/v1/demos*`, `/v1/rulings`, `/v1/eval/summary`, `/v1/duty-rates`, `/v1/rcep/check`, `/health` and the stateless `/v1/products/*` helpers stay open. With it off nothing changes.
 
     API keys (D69, `API_KEYS=on`, off by default): brokers may call the API with `X-API-Key: op_...` (securityScheme `ApiKey`). Every `/v1` request with a key is checked (unknown or disabled: 401 `unauthorized`) and counted against the key's daily quota (spent: 429 `quota_exceeded`, `Retry-After` at the next UTC day). A key has its own rate-limit buckets, sees the pinned demos and its own cases only, and its cases are hidden from everyone else but the admin, whatever `CASE_OWNERSHIP` says. The admin issues, lists and disables keys under `/v1/admin/api-keys`.
 
@@ -1399,6 +1399,126 @@ paths:
                   lines: { type: array, items: { type: object } }
                   live_mfn: { $ref: "#/components/schemas/LiveMFN" }
         "404": { $ref: "#/components/responses/Error" }
+        "429": { $ref: "#/components/responses/TooManyRequests" }
+  /v1/rcep/check:
+    post:
+      operationId: checkRcepPreference
+      summary: RCEP preferential origin check from a bill of materials (deterministic, no model call)
+      description: >-
+        Does a good made in an RCEP Party qualify as RCEP originating, so it can claim the RCEP preferential tariff
+        when imported into another Party? Deterministic code over the official Annex 3A product-specific rules
+        (HS 2022 transposition, parsed from the RCEP Secretariat PDF and cross-checked against the Australian Border
+        Force copy; `backend/internal/rcep`, D690). Implements Art. 3.2 (wholly obtained, only originating
+        materials, or the Annex 3A rule), Art. 3.4 cumulation (a material counts as originating only when declared
+        originating and from a Party), Art. 3.5 RVC by both formulas (materials of undetermined origin count as
+        non-originating), Art. 3.6 minimal operations and Art. 3.7 de minimis (10 % of FOB value; also 10 % of weight
+        for chapters 50 to 63). Not covered: packaging (3.8), accessories (3.9), indirect and fungible materials
+        (3.10, 3.11), direct consignment (3.15) and proof-of-origin procedures. Missing facts make the answer
+        `undetermined`, never `no`. This is preferential origin only: it is separate from the marking and
+        non-preferential origin every case answer gives, and every response says so (`regime: rcep_preferential`).
+        Nothing is stored. Not a ruling and not a certificate of origin. Cheap class (120 a minute); a malformed body
+        is 400 `invalid_input`.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: false
+              required: [hs, produced_in]
+              properties:
+                hs: { type: string, example: "0910.91", description: "The good's HS code, 4 to 10 digits; the rule is looked up at 6 digits (HS 2022)" }
+                produced_in: { type: string, example: Malaysia, description: "Where the good is produced: country name or ISO alpha-2 code. A non-Party is `no`." }
+                fob: { type: number, exclusiveMinimum: 0, description: "FOB value of the good; needed for RVC and the value de minimis" }
+                weight: { type: number, exclusiveMinimum: 0, description: "Weight of the good; used for the chapters 50-63 de minimis" }
+                wholly_obtained: { type: boolean, description: "The producer states the good is wholly obtained in the Party (Art. 3.3)" }
+                operations:
+                  type: array
+                  maxItems: 50
+                  items: { type: string }
+                  description: "What is done to the non-originating materials. If every entry is an Art. 3.6 key (preserving, packaging, simple_processes, marking, dilution, disassembly, slaughtering, simple_painting_polishing, simple_peeling, simple_mixing), the good does not qualify. Any other word (e.g. assembly) counts as real production."
+                chemical_reaction: { type: boolean, description: "A chemical reaction took place in a Party (Annex 3A CR rule). Unset: not stated." }
+                variant: { type: string, description: "For the eight rows whose rule depends on the product (e.g. 0304.39 carp vs other fish), the branch id from `rule.variants`. Unset: decided only if every branch agrees." }
+                active_ingredient_originating_pct: { type: number, minimum: 0, maximum: 100, description: "Heading 38.08 only: share by weight of the active ingredients that is originating" }
+                costs:
+                  type: object
+                  additionalProperties: false
+                  description: "Build-up (direct) formula terms, Art. 3.5.1(b); same currency as fob"
+                  properties:
+                    labour: { type: number, minimum: 0 }
+                    overhead: { type: number, minimum: 0 }
+                    profit: { type: number, minimum: 0 }
+                    other: { type: number, minimum: 0 }
+                materials:
+                  type: array
+                  maxItems: 200
+                  items:
+                    type: object
+                    additionalProperties: false
+                    properties:
+                      name: { type: string }
+                      hs: { type: string, description: "The material's HS code, 2 to 10 digits; the rule needs 2, 4 or 6" }
+                      value: { type: number, minimum: 0, description: "CIF at import, or the earliest price paid in the Party (Art. 3.5.3)" }
+                      weight: { type: number, minimum: 0 }
+                      country: { type: string, description: "Where the material originates" }
+                      status: { type: string, enum: [originating, non_originating, unknown], default: unknown, description: "originating: the supplier's declaration or proof of origin says it is RCEP originating" }
+      responses:
+        "200":
+          description: The answer, with the rule used and plain-English reasons
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  outcome: { type: string, enum: ["yes", "no", undetermined] }
+                  basis: { type: string, enum: [WO, PE, PSR], description: "Art. 3.2 limb of a yes" }
+                  applied: { type: string, example: RVC40, description: "The alternative that decided a yes, e.g. CTH, RVC40, CC except from chapter 10" }
+                  rule:
+                    type: object
+                    properties:
+                      code: { type: string, example: "0910.91" }
+                      level: { type: string, enum: [chapter, heading, subheading] }
+                      description: { type: string }
+                      text: { type: string, example: "CC or RVC40" }
+                      version: { type: string, example: rcep-psr-hs2022-r2022-08-20 }
+                      variants: { type: array, items: { type: object } }
+                  rvc:
+                    type: object
+                    properties:
+                      threshold: { type: integer, example: 40 }
+                      build_down: { type: number, description: "(FOB - VNM) / FOB x 100" }
+                      build_up: { type: number, description: "(VOM + labour + overhead + profit + other) / FOB x 100" }
+                      vnm: { type: number }
+                      vom: { type: number }
+                  de_minimis:
+                    type: object
+                    properties:
+                      used: { type: boolean }
+                      value_share: { type: number, description: "per cent of FOB" }
+                      weight_share: { type: number, description: "per cent of the good's weight" }
+                  accumulation: { type: boolean, description: "Originating materials from another Party were counted (Art. 3.4)" }
+                  failing:
+                    type: array
+                    description: "Materials that fail (or cannot be tested against) the tariff-shift rule; empty on a yes"
+                    items:
+                      type: object
+                      properties:
+                        index: { type: integer }
+                        name: { type: string }
+                        hs: { type: string }
+                        reason: { type: string }
+                  alternatives:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        rule: { type: string }
+                        outcome: { type: string, enum: ["yes", "no", undetermined] }
+                        reasons: { type: array, items: { type: string } }
+                  reasons: { type: array, items: { type: string } }
+                  regime: { type: string, enum: [rcep_preferential] }
+                  note: { type: string }
+        "400": { $ref: "#/components/responses/Error" }
         "429": { $ref: "#/components/responses/TooManyRequests" }
   /v1/demos:
     get:
