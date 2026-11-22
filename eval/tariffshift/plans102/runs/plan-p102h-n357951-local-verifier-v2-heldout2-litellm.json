@@ -1,0 +1,161 @@
+{
+  "case_id": "p102h-n357951",
+  "target": "United States",
+  "family": "furniture",
+  "baseline": {
+    "move": [],
+    "description": "No change: keep the current setup",
+    "variant_facts": "The merchandise under consideration is a wooden furniture.. The product of CBP ruling N357951, as its facts describe it. The wooden furniture. is assembled in Canada using components sourced from United States, Germany, China and Canada.\n\nThe black walnut hardwood, textile backing and glue are produced in United States. The metal threaded inserts and screws are sourced from Germany. The magnets are sourced from China. The white oak hardwood are produced in Canada. \n\nFinal assembly in Canada: assemble the parts into the finished good.\n\nTariff classifications given with the product (HTSUS; the product's own codes, not verified by CBP): the wooden furniture. (the finished good), 9403.60.8093; the black walnut hardwood (made in United States), 4407.99; the textile backing (made in United States), 5907.00; the glue (made in United States), 3506.91; the metal threaded inserts (made in Germany), 7318.16; the screws (made in Germany), 7318.12; the magnets (made in China), 8505.11; the white oak hardwood (made in Canada), 4407.91.\n",
+    "prediction": {
+      "origin_country": "Canada",
+      "key_factors": [
+        "(a)(3) tariff shift to 9403.60"
+      ],
+      "decisive_step": "Final assembly and production of the wooden furniture in Canada",
+      "confidence": 0.99,
+      "reasoning": "The finished wooden furniture is classified in subheading 9403.60. Under 19 CFR 102.20(r), the rule for 9403.10-9403.89 requires a change from any other subheading. All foreign materials (4407.99, 5907.00, 3506.91, 7318.16, 7318.12, 8505.11) meet this tariff shift in Canada.",
+      "cited_rulings": [],
+      "precedents": [
+        "H345343",
+        "H349670",
+        "N261965",
+        "N317251",
+        "N354024"
+      ],
+      "trace": {
+        "llm_provider": "litellm",
+        "model_id": "gemini-4-argon",
+        "requested_model": "gemini-4-argon",
+        "prompt_version": "usmca-v5",
+        "input_tokens": 3616,
+        "output_tokens": 280,
+        "latency_ms": 9320
+      }
+    },
+    "duty_effect_per_year": 0,
+    "added_cost_per_year": 0,
+    "net_per_year": 0,
+    "shown": false
+  },
+  "current_origin": {
+    "country": "Canada",
+    "ruling": "N357951"
+  },
+  "plans": [],
+  "rejected": [
+    {
+      "move": [],
+      "description": "No change: keep the current setup",
+      "variant_facts": "The merchandise under consideration is a wooden furniture.. The product of CBP ruling N357951, as its facts describe it. The wooden furniture. is assembled in Canada using components sourced from United States, Germany, China and Canada.\n\nThe black walnut hardwood, textile backing and glue are produced in United States. The metal threaded inserts and screws are sourced from Germany. The magnets are sourced from China. The white oak hardwood are produced in Canada. \n\nFinal assembly in Canada: assemble the parts into the finished good.\n\nTariff classifications given with the product (HTSUS; the product's own codes, not verified by CBP): the wooden furniture. (the finished good), 9403.60.8093; the black walnut hardwood (made in United States), 4407.99; the textile backing (made in United States), 5907.00; the glue (made in United States), 3506.91; the metal threaded inserts (made in Germany), 7318.16; the screws (made in Germany), 7318.12; the magnets (made in China), 8505.11; the white oak hardwood (made in Canada), 4407.91.\n",
+      "prediction": {
+        "origin_country": "Canada",
+        "key_factors": [
+          "(a)(3) tariff shift to 9403.60"
+        ],
+        "decisive_step": "Final assembly and production of the wooden furniture in Canada",
+        "confidence": 0.99,
+        "reasoning": "The finished wooden furniture is classified in subheading 9403.60. Under 19 CFR 102.20(r), the rule for 9403.10-9403.89 requires a change from any other subheading. All foreign materials (4407.99, 5907.00, 3506.91, 7318.16, 7318.12, 8505.11) meet this tariff shift in Canada.",
+        "cited_rulings": [],
+        "precedents": [
+          "H345343",
+          "H349670",
+          "N261965",
+          "N317251",
+          "N354024"
+        ],
+        "trace": {
+          "llm_provider": "litellm",
+          "model_id": "gemini-4-argon",
+          "requested_model": "gemini-4-argon",
+          "prompt_version": "usmca-v5",
+          "input_tokens": 3616,
+          "output_tokens": 280,
+          "latency_ms": 9320
+        }
+      },
+      "duty_effect_per_year": 0,
+      "added_cost_per_year": 0,
+      "net_per_year": 0,
+      "shown": false,
+      "rejection_reason": "current setup: CBP held Canada (N357951); engine predicts Canada",
+      "rejection_kind": "current_setup"
+    },
+    {
+      "move": [
+        {
+          "group": "frame_metal_fabrication",
+          "to_plant": "united_states"
+        }
+      ],
+      "description": "Move the black walnut hardwood and the white oak hardwood to United States",
+      "variant_facts": "The merchandise under consideration is a wooden furniture.. The product of CBP ruling N357951, as its facts describe it. The wooden furniture. is assembled in Canada using components sourced from United States, Germany and China.\n\nThe black walnut hardwood, textile backing, glue and white oak hardwood are produced in United States. The metal threaded inserts and screws are sourced from Germany. The magnets are sourced from China. \n\nIn United States, the black walnut hardwood and white oak hardwood will be produced in-house: make the white oak hardwood; make the black walnut hardwood.\n\nFinal assembly in Canada: assemble the parts into the finished good.\n\nTariff classifications given with the product (HTSUS; the product's own codes, not verified by CBP): the wooden furniture. (the finished good), 9403.60.8093; the black walnut hardwood (made in United States), 4407.99; the textile backing (made in United States), 5907.00; the glue (made in United States), 3506.91; the metal threaded inserts (made in Germany), 7318.16; the screws (made in Germany), 7318.12; the magnets (made in China), 8505.11; the white oak hardwood (made in United States), 4407.91.\n",
+      "prediction": {
+        "origin_country": "Canada",
+        "key_factors": [
+          "(a)(3) tariff shift to subheading 9403.60"
+        ],
+        "decisive_step": "Final manufacture and assembly of the raw materials into wooden furniture in Canada",
+        "confidence": 0.95,
+        "reasoning": "The finished wooden furniture is classified in 9403.60.8093. Under 19 CFR 102.20, subheading 9403.60 requires a shift from any other subheading, with exceptions for simple assembly of parts of 9403.91/9403.99. All foreign materials are classified outside 9403 and shift in Canada.",
+        "cited_rulings": [],
+        "precedents": [
+          "H349670",
+          "N261965",
+          "N317251",
+          "N339969",
+          "N354024"
+        ],
+        "trace": {
+          "llm_provider": "litellm",
+          "model_id": "gemini-4-argon",
+          "requested_model": "gemini-4-argon",
+          "prompt_version": "usmca-v5",
+          "input_tokens": 3590,
+          "output_tokens": 273,
+          "latency_ms": 9597
+        }
+      },
+      "duty_effect_per_year": 0,
+      "added_cost_per_year": 25000,
+      "net_per_year": -25000,
+      "net_priced": true,
+      "shown": false,
+      "rejection_reason": "engine predicts origin Canada, not United States",
+      "rejection_kind": "engine_other_origin"
+    }
+  ],
+  "stats": {
+    "moves_searched": 1,
+    "engine_calls": 2,
+    "verifier_runs": 0,
+    "verifier_cached": 0,
+    "verifier_model_calls": 0,
+    "verifier_tool_calls": 0,
+    "input_tokens": 7206,
+    "output_tokens": 553,
+    "engine_input_tokens": 7206,
+    "engine_output_tokens": 553,
+    "verifier_input_tokens": 0,
+    "verifier_output_tokens": 0,
+    "wall_seconds": 9.598975208
+  },
+  "economics_illustrative": true,
+  "duty_rates_note": "Illustrative placeholder, not a sourced rate.",
+  "template_versions": {
+    "furniture": "1"
+  },
+  "ranking": {
+    "rule": "tier_then_net",
+    "bar": 0.92,
+    "clear_from": 0.93
+  },
+  "llm_provider": "litellm",
+  "verifier_search": "local",
+  "cost_usd_promo": 0.019942,
+  "cost_usd_list": 0.039884,
+  "gateway_cost_usd": 0.019942,
+  "verifier_config": "prompt=v2 panel=off votes=1 near_miss=false follow=false bar=0.92",
+  "llm_no_cache": true,
+  "git_revision": "667537a4a3923fa4e37327823a414aea5e429939",
+  "time": "2026-11-22T16:12:52+08:00"
+}

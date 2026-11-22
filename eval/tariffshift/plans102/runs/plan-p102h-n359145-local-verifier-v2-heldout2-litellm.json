@@ -1,0 +1,161 @@
+{
+  "case_id": "p102h-n359145",
+  "target": "Thailand",
+  "family": "furniture",
+  "baseline": {
+    "move": [],
+    "description": "No change: keep the current setup",
+    "variant_facts": "The merchandise under consideration is a wooden furniture.. The product of CBP ruling N359145, as its facts describe it. The wooden furniture. is assembled in Canada using components sourced from Thailand and Canada.\n\nThe slab of unfinished wood and wooden root are produced in Thailand. The steel plates and assembly hardware (fasteners) are produced in Canada. \n\nFinal assembly in Canada: assemble the parts into the finished good.\n\nTariff classifications given with the product (HTSUS; the product's own codes, not verified by CBP): the wooden furniture. (the finished good), 9403.60.8040; the slab of unfinished wood (made in Thailand), 4407.99; the wooden root (made in Thailand), 4403.99; the steel plates (made in Canada), 8302.42; the assembly hardware (fasteners) (made in Canada), 7318.15.\n",
+    "prediction": {
+      "origin_country": "Canada",
+      "key_factors": [
+        "(a)(3) tariff shift to subheading 9403.60"
+      ],
+      "decisive_step": "Assembly and processing of raw wood into finished furniture in Canada",
+      "confidence": 0.95,
+      "reasoning": "The finished wooden furniture is classified in subheading 9403.60. Under 19 CFR 102.20, subheading 9403.60 requires a change from any other subheading, with certain Chapter 94 exceptions. The Thai wood components (4407.99 and 4403.99) undergo the required shift in Canada.",
+      "cited_rulings": [],
+      "precedents": [
+        "H349670",
+        "N317251",
+        "N339851",
+        "N339969",
+        "N354024"
+      ],
+      "trace": {
+        "llm_provider": "litellm",
+        "model_id": "gemini-4-argon",
+        "requested_model": "gemini-4-argon",
+        "prompt_version": "usmca-v5",
+        "input_tokens": 3603,
+        "output_tokens": 247,
+        "latency_ms": 10190
+      }
+    },
+    "duty_effect_per_year": 0,
+    "added_cost_per_year": 0,
+    "net_per_year": 0,
+    "shown": false
+  },
+  "current_origin": {
+    "country": "Canada",
+    "ruling": "N359145"
+  },
+  "plans": [],
+  "rejected": [
+    {
+      "move": [],
+      "description": "No change: keep the current setup",
+      "variant_facts": "The merchandise under consideration is a wooden furniture.. The product of CBP ruling N359145, as its facts describe it. The wooden furniture. is assembled in Canada using components sourced from Thailand and Canada.\n\nThe slab of unfinished wood and wooden root are produced in Thailand. The steel plates and assembly hardware (fasteners) are produced in Canada. \n\nFinal assembly in Canada: assemble the parts into the finished good.\n\nTariff classifications given with the product (HTSUS; the product's own codes, not verified by CBP): the wooden furniture. (the finished good), 9403.60.8040; the slab of unfinished wood (made in Thailand), 4407.99; the wooden root (made in Thailand), 4403.99; the steel plates (made in Canada), 8302.42; the assembly hardware (fasteners) (made in Canada), 7318.15.\n",
+      "prediction": {
+        "origin_country": "Canada",
+        "key_factors": [
+          "(a)(3) tariff shift to subheading 9403.60"
+        ],
+        "decisive_step": "Assembly and processing of raw wood into finished furniture in Canada",
+        "confidence": 0.95,
+        "reasoning": "The finished wooden furniture is classified in subheading 9403.60. Under 19 CFR 102.20, subheading 9403.60 requires a change from any other subheading, with certain Chapter 94 exceptions. The Thai wood components (4407.99 and 4403.99) undergo the required shift in Canada.",
+        "cited_rulings": [],
+        "precedents": [
+          "H349670",
+          "N317251",
+          "N339851",
+          "N339969",
+          "N354024"
+        ],
+        "trace": {
+          "llm_provider": "litellm",
+          "model_id": "gemini-4-argon",
+          "requested_model": "gemini-4-argon",
+          "prompt_version": "usmca-v5",
+          "input_tokens": 3603,
+          "output_tokens": 247,
+          "latency_ms": 10190
+        }
+      },
+      "duty_effect_per_year": 0,
+      "added_cost_per_year": 0,
+      "net_per_year": 0,
+      "shown": false,
+      "rejection_reason": "current setup: CBP held Canada (N359145); engine predicts Canada",
+      "rejection_kind": "current_setup"
+    },
+    {
+      "move": [
+        {
+          "group": "frame_metal_fabrication",
+          "to_plant": "thailand"
+        }
+      ],
+      "description": "Move the wooden root and the steel plates to Thailand",
+      "variant_facts": "The merchandise under consideration is a wooden furniture.. The product of CBP ruling N359145, as its facts describe it. The wooden furniture. is assembled in Canada using components sourced from Thailand and Canada.\n\nThe slab of unfinished wood, wooden root and steel plates are produced in Thailand. The assembly hardware (fasteners) are produced in Canada. \n\nIn Thailand, the wooden root and steel plates will be produced in-house: make the steel plates; make the wooden root.\n\nFinal assembly in Canada: assemble the parts into the finished good.\n\nTariff classifications given with the product (HTSUS; the product's own codes, not verified by CBP): the wooden furniture. (the finished good), 9403.60.8040; the slab of unfinished wood (made in Thailand), 4407.99; the wooden root (made in Thailand), 4403.99; the steel plates (made in Thailand), 8302.42; the assembly hardware (fasteners) (made in Canada), 7318.15.\n",
+      "prediction": {
+        "origin_country": "Canada",
+        "key_factors": [
+          "(a)(3) tariff shift to subheading 9403.60"
+        ],
+        "decisive_step": "Assembling the Thai wood and steel components into finished furniture in Canada",
+        "confidence": 0.95,
+        "reasoning": "Under 19 CFR 102.20(r), subheading 9403.60 requires a shift from any other subheading except from 9403.10-9403.89 or 9403.91-9403.99 (under certain conditions). The Thai materials (4407.99, 4403.99, 8302.42) all shift to 9403.60 in Canada, conferring Canadian origin under 102.11(a)(3).",
+        "cited_rulings": [],
+        "precedents": [
+          "N317251",
+          "N334104",
+          "N339851",
+          "N339969",
+          "N354024"
+        ],
+        "trace": {
+          "llm_provider": "litellm",
+          "model_id": "gemini-4-argon",
+          "requested_model": "gemini-4-argon",
+          "prompt_version": "usmca-v5",
+          "input_tokens": 3615,
+          "output_tokens": 295,
+          "latency_ms": 14932
+        }
+      },
+      "duty_effect_per_year": 0,
+      "added_cost_per_year": 25000,
+      "net_per_year": -25000,
+      "net_priced": true,
+      "shown": false,
+      "rejection_reason": "engine predicts origin Canada, not Thailand",
+      "rejection_kind": "engine_other_origin"
+    }
+  ],
+  "stats": {
+    "moves_searched": 1,
+    "engine_calls": 2,
+    "verifier_runs": 0,
+    "verifier_cached": 0,
+    "verifier_model_calls": 0,
+    "verifier_tool_calls": 0,
+    "input_tokens": 7218,
+    "output_tokens": 542,
+    "engine_input_tokens": 7218,
+    "engine_output_tokens": 542,
+    "verifier_input_tokens": 0,
+    "verifier_output_tokens": 0,
+    "wall_seconds": 14.933250625
+  },
+  "economics_illustrative": true,
+  "duty_rates_note": "Illustrative placeholder, not a sourced rate.",
+  "template_versions": {
+    "furniture": "1"
+  },
+  "ranking": {
+    "rule": "tier_then_net",
+    "bar": 0.92,
+    "clear_from": 0.93
+  },
+  "llm_provider": "litellm",
+  "verifier_search": "local",
+  "cost_usd_promo": 0.019856,
+  "cost_usd_list": 0.039712,
+  "gateway_cost_usd": 0.019856,
+  "verifier_config": "prompt=v2 panel=off votes=1 near_miss=false follow=false bar=0.92",
+  "llm_no_cache": true,
+  "git_revision": "667537a4a3923fa4e37327823a414aea5e429939",
+  "time": "2026-11-22T16:13:53+08:00"
+}

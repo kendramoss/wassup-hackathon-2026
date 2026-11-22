@@ -1,0 +1,118 @@
+{
+  "case_id": "p102h-n359690",
+  "target": "China",
+  "family": "vehicle_parts",
+  "baseline": {
+    "move": [],
+    "description": "No change: keep the current setup",
+    "variant_facts": "The merchandise under consideration is a Product of ruling N359690. The product of CBP ruling N359690, as its facts describe it. The Product of ruling N359690 is assembled in Canada using components sourced from China and United States.\n\nThe suction and liquid tubes, evaporator coil, compressor assembly and condenser shroud assembly are produced in China. The microcontroller board are sourced from United States. \n\nFinal assembly in Canada: assemble the parts into the finished good.\n\nTariff classifications given with the product (HTSUS; the product's own codes, not verified by CBP): the Product of ruling N359690 (the finished good), 8415.20.0000; the suction and liquid tubes (made in China), 8415.90.80; the evaporator coil (made in China), 8415.90.80; the compressor assembly (made in China), 8414.30; the condenser shroud assembly (made in China), 8415.90.80; the microcontroller board (made in United States), 8537.10.\n",
+    "prediction": {
+      "origin_country": "Canada",
+      "key_factors": [
+        "(a)(3) tariff shift to subheading 8415.20"
+      ],
+      "decisive_step": "Assembly of the foreign components into the finished air conditioning unit in Canada",
+      "confidence": 0.9,
+      "reasoning": "The 19 CFR 102.20 rule for 8415.10-8415.83 requires a shift from any other subheading, including 8415.90, except from more than one major assembly. Assuming the parts do not exceed the major assembly limit, all foreign materials shift in Canada under 102.11(a)(3).",
+      "cited_rulings": [],
+      "precedents": [
+        "H314566",
+        "H349670",
+        "N324628",
+        "N344002",
+        "N356280"
+      ],
+      "trace": {
+        "llm_provider": "litellm",
+        "model_id": "gemini-4-argon",
+        "requested_model": "gemini-4-argon",
+        "prompt_version": "usmca-v5",
+        "input_tokens": 3677,
+        "output_tokens": 247,
+        "latency_ms": 10127
+      }
+    },
+    "duty_effect_per_year": 0,
+    "added_cost_per_year": 0,
+    "net_per_year": 0,
+    "shown": false
+  },
+  "current_origin": {
+    "country": "Canada",
+    "ruling": "N359690"
+  },
+  "plans": [],
+  "rejected": [
+    {
+      "move": [],
+      "description": "No change: keep the current setup",
+      "variant_facts": "The merchandise under consideration is a Product of ruling N359690. The product of CBP ruling N359690, as its facts describe it. The Product of ruling N359690 is assembled in Canada using components sourced from China and United States.\n\nThe suction and liquid tubes, evaporator coil, compressor assembly and condenser shroud assembly are produced in China. The microcontroller board are sourced from United States. \n\nFinal assembly in Canada: assemble the parts into the finished good.\n\nTariff classifications given with the product (HTSUS; the product's own codes, not verified by CBP): the Product of ruling N359690 (the finished good), 8415.20.0000; the suction and liquid tubes (made in China), 8415.90.80; the evaporator coil (made in China), 8415.90.80; the compressor assembly (made in China), 8414.30; the condenser shroud assembly (made in China), 8415.90.80; the microcontroller board (made in United States), 8537.10.\n",
+      "prediction": {
+        "origin_country": "Canada",
+        "key_factors": [
+          "(a)(3) tariff shift to subheading 8415.20"
+        ],
+        "decisive_step": "Assembly of the foreign components into the finished air conditioning unit in Canada",
+        "confidence": 0.9,
+        "reasoning": "The 19 CFR 102.20 rule for 8415.10-8415.83 requires a shift from any other subheading, including 8415.90, except from more than one major assembly. Assuming the parts do not exceed the major assembly limit, all foreign materials shift in Canada under 102.11(a)(3).",
+        "cited_rulings": [],
+        "precedents": [
+          "H314566",
+          "H349670",
+          "N324628",
+          "N344002",
+          "N356280"
+        ],
+        "trace": {
+          "llm_provider": "litellm",
+          "model_id": "gemini-4-argon",
+          "requested_model": "gemini-4-argon",
+          "prompt_version": "usmca-v5",
+          "input_tokens": 3677,
+          "output_tokens": 247,
+          "latency_ms": 10127
+        }
+      },
+      "duty_effect_per_year": 0,
+      "added_cost_per_year": 0,
+      "net_per_year": 0,
+      "shown": false,
+      "rejection_reason": "current setup: CBP held Canada (N359690); engine predicts Canada",
+      "rejection_kind": "current_setup"
+    }
+  ],
+  "stats": {
+    "moves_searched": 0,
+    "engine_calls": 1,
+    "verifier_runs": 0,
+    "verifier_cached": 0,
+    "verifier_model_calls": 0,
+    "verifier_tool_calls": 0,
+    "input_tokens": 3677,
+    "output_tokens": 247,
+    "engine_input_tokens": 3677,
+    "engine_output_tokens": 247,
+    "verifier_input_tokens": 0,
+    "verifier_output_tokens": 0,
+    "wall_seconds": 10.128826959
+  },
+  "economics_illustrative": true,
+  "duty_rates_note": "Illustrative placeholder, not a sourced rate.",
+  "template_versions": {
+    "vehicle_parts": "1"
+  },
+  "ranking": {
+    "rule": "tier_then_net",
+    "bar": 0.92,
+    "clear_from": 0.93
+  },
+  "llm_provider": "litellm",
+  "verifier_search": "local",
+  "cost_usd_promo": 0.009824,
+  "cost_usd_list": 0.019648,
+  "gateway_cost_usd": 0.009824,
+  "verifier_config": "prompt=v2 panel=off votes=1 near_miss=false follow=false bar=0.92",
+  "llm_no_cache": true,
+  "git_revision": "667537a4a3923fa4e37327823a414aea5e429939",
+  "time": "2026-11-22T16:14:05+08:00"
+}
