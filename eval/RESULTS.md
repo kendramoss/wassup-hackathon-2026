@@ -787,7 +787,7 @@ Total $0.97 promo / $1.95 list. The engine's view of the current setup disagreed
 
 ## 19 CFR 102.20 rule check on each committed plan move (no model calls, 22 Nov; D440, D441, D442)
 
-### Pre-registered in D440 (commit 726d0239) before the per-move check existed in code
+### Pre-registered in D440 (commit 726d0239, kept as branch `improve/p9-plans102-prereg`; the merged history has new hashes) before the per-move check existed in code
 - Data: the 23 per-family plan searches (D171, development and train rulings), with the top suggestion for the good and every part from the D381 development run (`tariffshift/parts/suggest-dev-v1.jsonl`, set family). No held-out file is read. No committed plan product gives every code as committed (0 of 43), no plan search is Part 102-routed, and no move has a later CBP ruling with codes, so every check is informational and nothing is compared with CBP on a changed setup.
 - 57 moves: 25 decided (22 shift to the target, 3 give another country) in 14 of 23 searches; 32 undetermined (24 a fact the codes cannot give, 7 the de minimis value, 1 out of scope).
 - Decided moves with a precedent check: 21 of 23 agree; 2 flagged (N354220, precedent supports moving the machining to Vietnam, the rule gives China because the tool is finished there; both below the plan bar). Shown plans: 15 of 19 decided, all 15 shift. Engine: 20 of 25 agree. Current setup: 11 of 23 decided, 4 give CBP's held origin.
