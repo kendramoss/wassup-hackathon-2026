@@ -96,7 +96,7 @@ for (const [name, extra, gated] of STATES) {
 
   test(`answers re-run [${name}]`, async () => {
     const app = await screen(origin, { case: { ...extra, clarify: { questions: ["Where is it assembled?"] } } });
-    if (extra.pinned) return assert.match(app.all().map((e) => textOf(e.props?.children)).join(" "), /pinned demo, so its answers stay/, "pinned keeps its existing note");
+    if (extra.pinned) return assert.match(app.all().map((e) => textOf(e.props?.children)).join(" "), /Pinned demo: answers stay as they are/, "pinned keeps its existing note");
     const b = app.btn("re-run");
     assert.ok(b);
     assert.equal(REASON.test(b.props.title ?? ""), gated);

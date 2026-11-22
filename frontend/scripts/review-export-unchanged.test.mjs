@@ -212,7 +212,10 @@ test("the Part 177 picker uses the reviewed label and help text", async () => {
   const app = await mount();
   const page = textOf(app.find((e) => e.type === "fieldset")[0].props.children);
   assert.ok(page.includes("Ruling request letter (19 CFR Part 177)"), page);
-  assert.ok(page.includes("Part 177 is how to ask CBP for a ruling. It is not an origin rule."));
+  // Copy sweep 1: the help shows once the Part 177 letter is the chosen format.
+  const { readFileSync } = await import("node:fs");
+  const src = readFileSync(new URL("../src/components/op/screens/draft-step.tsx", import.meta.url), "utf8");
+  assert.match(src, /format === "cfr177" && <p[^>]*>\{copy\.jurisdiction\.part177Help\}<\/p>/);
   assert.ok(!page.includes("Binding ruling request (19 CFR 177)"), "the old label is gone");
 });
 

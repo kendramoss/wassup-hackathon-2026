@@ -6,7 +6,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { api, opLock, saveEconomics, type CaseResponse, type Economics, type Scenario } from "@/lib/api/client";
 import { VIEWER_REASON, caseReadOnly, writeGate } from "@/lib/roles";
 import { copy } from "@/lib/copy";
-import { BAR, conf, money, originConf, originConfCaption, pct } from "@/lib/format";
+import { money, originConf, originConfCaption, pct } from "@/lib/format";
 import { CaseShell, currentOrigin, type CaseCtx } from "../case-shell";
 import { ErrorBox, Footer, Main, Next } from "../chrome";
 import { MFN_ONLY, liveMfnFetched, liveMfnOrigins, pricedEconomics } from "@/lib/live-mfn";
@@ -116,11 +116,10 @@ export function Scenarios({ id, c, setCase }: CaseCtx) {
       <Main className="flex flex-col gap-8">
         <div className="flex flex-wrap items-end gap-3">
           <div>
-            <p className="eyebrow">Optional · Try scenarios</p>
+            <p className="eyebrow">Optional</p>
             <h1 className="mt-1 text-xl tracking-[-0.04em]">Scenarios side by side</h1>
             <p className="duo mt-1 max-w-[80ch] text-sm text-dim">
-              Try your own changes and see the likely origin of each, side by side. The case&apos;s answer doesn&apos;t change. You don&apos;t need this step:
-              Plan searches the moves for you and checks each against earlier rulings.
+              Try your own moves. The case&apos;s answer doesn&apos;t change.
             </p>
           </div>
           {!editing && (
@@ -167,7 +166,7 @@ export function Scenarios({ id, c, setCase }: CaseCtx) {
         )}
 
         {!editing && sc.length > 0 && <Cards sc={sc} c={c} />}
-        {!editing && sc.length > 0 && sc.some((s) => originConf(s.prediction).calibrated) && <p className="duo -mt-4 text-xs text-dim">{copy.calSteps}</p>}
+
         {!editing && sc.length > 0 && <ReviewNote place="scenarios" />}
         {!editing && product && sc.some((s) => s.product && (s.comparison?.moved?.length ?? 0) > 0) && (
           <div>
@@ -235,7 +234,7 @@ function MoneyStrip({ c, onEdit, locked }: { c: CaseResponse; onEdit?: () => voi
           {c.economics ? "Edit inputs" : "+ Add money inputs"}
         </button>
       ) : (
-        <span className="ml-auto text-xs text-dim">demo inputs · start a new case to change them</span>
+        <span className="ml-auto text-xs text-dim" title="Start a new case to change them">demo inputs</span>
       )}
     </div>
   );
@@ -320,13 +319,13 @@ function PlanLine({ c }: { c: CaseResponse }) {
     <p className="duo border border-line bg-sheet px-4 py-3 text-[13px]">
       {best ? (
         <>
-          <span className="text-ok">The plan search recommends:</span> {best.description} · precedent check {conf(best.verdict?.confidence)} · {netText(best)}
+          <span className="text-ok">The plan search recommends:</span> {best.description} · {netText(best)}
           {best.operations ? "" : "/yr"}.{" "}
         </>
       ) : (
-        <>No move cleared the {BAR} precedent-check bar in the plan search. </>
+        <>The plan search found no backed move. </>
       )}
-      <span className="text-dim">The cards below are the engine&apos;s origin answer for each what-if. A move becomes a plan only when its precedent check reaches {BAR}.</span>{" "}
+
       <Link href={href} className="text-ok underline underline-offset-2">
         Open Plan →
       </Link>
@@ -404,7 +403,7 @@ function Cards({ sc, c }: { sc: Scenario[]; c: CaseResponse }) {
                   bar={o.bar}
                   label={`${o.bar.toFixed(2)} auto-accept`}
                   width={220}
-                  caption={o.calibrated ? <Term explain={copy.terms.calibrated.text}>{originConfCaption(o)}</Term> : originConfCaption(o)}
+                  caption={o.calibrated ? <Term explain={copy.terms.calibrated.text}>{originConfCaption({ ...o, calibrated: false })}</Term> : originConfCaption(o)}
                 />
               );
             })()}

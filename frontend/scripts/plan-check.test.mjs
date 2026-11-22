@@ -67,8 +67,8 @@ test("a below-bar move reads as Plan reads it", () => {
   const w = planCheckWords(motorCheck);
   assert.equal(w.supported, false);
   assert.equal(w.chip, "△ Below the bar");
-  assert.equal(w.line, "Not precedent-supported (0.90 < 0.92)");
-  assert.match(planCheckWords(bothCheck).line, /^Not precedent-supported: no earlier ruling/);
+  assert.equal(w.line, "0.90 < 0.92");
+  assert.match(planCheckWords(bothCheck).line, /^No earlier ruling/);
   assert.equal(planCheckWords({ ...motorCheck, shown: true, confidence: 0.96 }).supported, true);
 });
 
@@ -82,14 +82,14 @@ test("no 'highest net' for a move the plan search did not show", () => {
 });
 
 test("the engine's own answer is labelled as the engine's", () => {
-  assert.equal(engineLabel(scenarios[1]), "Engine: Thailand, calibrated 0.99");
+  assert.equal(engineLabel(scenarios[1]), "Engine: Thailand, 0.99");
 });
 
 test("two inputs, two answers, said where both appear", () => {
   const t = readsDiffer(caseJson, asToday(scenarios));
-  assert.match(t, /Origin step reads the text pasted into the case \(CBP's own facts\) and says China/);
-  assert.match(t, /structured parts list for the same setup and say Thailand/);
-  assert.match(t, /Both are under the auto-accept bar/);
+  assert.match(t, /CBP's own text says China/);
+  assert.match(t, /the parts list says Thailand/);
+  assert.match(t, /Both are unsure/);
   assert.equal(readsDiffer({ ...caseJson, facts_source: "parts_list" }, scenarios[0]), null);
 });
 
@@ -97,10 +97,10 @@ test("scenarios: the heat-gun cards agree with Plan", async () => {
   const text = all(await screen(ScenariosView, caseJson));
   assert.doesNotMatch(text, /Auto-accepted/);
   assert.doesNotMatch(text, /highest net/);
-  assert.match(text, /Not precedent-supported \(0\.90 < 0\.92\)/);
+  assert.match(text, /Below the bar\s*0\.90 < 0\.92/);
   assert.match(text, /The plan search recommends:/);
   assert.match(text, /Move the motor-fan assembly, the PCBA \(SMT\) and the switch, cord and minor parts to Thailand/);
-  assert.match(text, /Engine: Thailand, calibrated 0\.99/);
+  assert.match(text, /Engine: Thailand, 0\.99/);
   assert.match(text, /Two inputs, two answers/);
 });
 

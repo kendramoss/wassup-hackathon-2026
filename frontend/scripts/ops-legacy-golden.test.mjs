@@ -26,6 +26,11 @@ import { html } from "./render-support.mjs";
 // apply no Part 102 rules, false since D500 and D541); no markup changed.
 // D580 replaced the family count in that line in place (14 → 20 families); no
 // markup changed. D660 did the same (20 → 26 families).
+// Copy sweep 1 re-captured plan, compare and scenarios once, on purpose: copy
+// is shorter, and the review note's bounded and scope lines moved under a
+// "Scope and limits" disclosure (same words), the step tabs say "Draft" and
+// "Scenarios", and the Ask button says "Ask" (its accessible name is
+// unchanged). No money or ops markup changed.
 globalThis.window = new EventTarget();
 globalThis.document = Object.assign(new EventTarget(), { body: { style: {} }, activeElement: null });
 stubNavigation({ id: "c1", search: "target=Thailand" });

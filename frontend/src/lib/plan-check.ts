@@ -30,15 +30,15 @@ export type CheckWords = { chip: string; tone: "ok" | "ask" | undefined; line: s
 export function planCheckWords(pc: PlanCheck): CheckWords {
   const c = pc.confidence;
   if (pc.shown) {
-    return { chip: "Plan", tone: "ok", supported: true, line: `Precedent-supported: check ${conf(c)}, at or above the ${conf(pc.bar)} precedent-check bar` };
+    return { chip: "Plan", tone: "ok", supported: true, line: `Backed by an earlier ruling (check ${conf(c)})` };
   }
   const kind = pc.rejection_kind ?? "";
   if (kind === "below_confidence_bar") {
-    return { chip: `△ ${outcomeLabels[kind]}`, tone: "ask", supported: false, line: `Not precedent-supported (${conf(c)} < ${conf(pc.bar)})` };
+    return { chip: `△ ${outcomeLabels[kind]}`, tone: "ask", supported: false, line: `${conf(c)} < ${conf(pc.bar)}` };
   }
   const label = outcomeLabels[kind] ?? (kind || "Not shown");
   const reason = pc.rejection_reason?.trim();
-  return { chip: label, tone: undefined, supported: false, line: `Not precedent-supported${reason ? `: ${reason}` : ""}` };
+  return { chip: label, tone: undefined, supported: false, line: reason ? reason[0].toUpperCase() + reason.slice(1) : "Not backed" };
 }
 
 // The scenario's own route is the engine's origin answer, not a plan
@@ -46,7 +46,7 @@ export function planCheckWords(pc: PlanCheck): CheckWords {
 export function engineLabel(s: Scenario): string {
   const p = s.prediction ?? {};
   const o = originConf(p);
-  return `Engine: ${p.origin_country ?? "—"}, ${o.calibrated ? "calibrated " : ""}${conf(o.value)}`;
+  return `Engine: ${p.origin_country ?? "—"}, ${conf(o.value)}`;
 }
 
 // Which scenario earns the "highest net" chip. A move the plan search tried
@@ -76,9 +76,7 @@ export function readsDiffer(
   if (!a || !b || a.toLowerCase() === b.toLowerCase()) return null;
   const oa = originConf(c.prediction), ob = originConf(s.prediction);
   const unsure = (oa.value ?? 0) < oa.bar && (ob.value ?? 0) < ob.bar;
-  return `Two inputs, two answers: the Origin step reads the text pasted into the case (CBP's own facts) and says ${a}; scenarios and plan moves read the structured parts list for the same setup and say ${b}.${
-    unsure ? " Both are under the auto-accept bar, so the model is unsure about this setup either way." : ""
-  }`;
+  return `Two inputs, two answers: CBP's own text says ${a}; the parts list says ${b}.${unsure ? " Both are unsure." : ""}`;
 }
 
 // The case's "As today" what-if: a structured scenario that moves nothing.

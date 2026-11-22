@@ -61,7 +61,7 @@ function Result({ id, c, setCase }: CaseCtx) {
           {p.reasoning || p.key_factors?.length ? (
             <section aria-label="Why" className="border-l-2 border-ink pl-4">
               <h2 className="eyebrow mb-1.5">{route === "auto" ? copy.result.whyAuto(originConf(p)) : "Why"}</h2>
-              {p.reasoning ? <p className="read max-w-[75ch] text-[15px] leading-relaxed">{p.reasoning}</p> : null}
+              {p.reasoning ? <Reasoning text={p.reasoning} /> : null}
               {p.key_factors?.length ? (
                 <p className="duo mt-3 max-w-[75ch] text-sm">
                   <span className="eyebrow mr-2">{copy.result.keyFactors}</span>
@@ -165,6 +165,21 @@ function Result({ id, c, setCase }: CaseCtx) {
   );
 }
 
+// The model's reasoning: the first two sentences, the rest on request.
+function Reasoning({ text }: { text: string }) {
+  const cuts = [...text.matchAll(/[.!?]\s+(?=[A-Z])/g)];
+  const cut = cuts.length > 2 ? (cuts[1].index ?? 0) + 1 : -1;
+  if (cut < 0) return <p className="read max-w-[75ch] text-[15px] leading-relaxed">{text}</p>;
+  return (
+    <details className="group read max-w-[75ch] text-[15px] leading-relaxed">
+      <summary className="cursor-pointer list-none [&::-webkit-details-marker]:hidden">
+        {text.slice(0, cut)} <span className="text-[13px] text-ok group-open:hidden">Read more</span>
+      </summary>
+      {text.slice(cut).trim()}
+    </details>
+  );
+}
+
 export function VerdictBand({ c }: { c: CaseResponse }) {
   const p = c.prediction ?? {};
   const regime = regimeOf(c);
@@ -199,7 +214,7 @@ export function VerdictBand({ c }: { c: CaseResponse }) {
                         , <RulingLink id={cur.ruling} />
                       </>
                     )}{" "}
-                    · {cur.country === p.origin_country ? "✓ same as this prediction" : "△ differs from this prediction"}
+                    · {cur.country === p.origin_country ? "✓ same" : "△ differs"}
                   </dd>
                 </>
               )}
@@ -341,7 +356,7 @@ function Conflict({ c }: { c: CaseResponse }) {
     <Panel tone="ask" aria-label={copy.result.conflict}>
       <h2 className="text-base font-medium tracking-[-0.02em] text-ask">{copy.result.conflict}</h2>
       <div className="mt-3 grid gap-4 sm:grid-cols-2">
-        {halves.map(({ side, id, holding }) => {
+        {halves.map(({ side, id }) => {
           const r = id ? detail.get(id) : undefined;
           const lean = conflictLean(k.leans === side, r?.origin, predicted);
           const follows = lean === "follows";
@@ -359,17 +374,30 @@ function Conflict({ c }: { c: CaseResponse }) {
                   </>
                 )}
               </p>
-              <p className="duo mt-2">{holding}</p>
             </div>
           );
         })}
       </div>
-      {k.deciding_difference && (
-        <p className="duo mt-3 text-[13px]">
-          <span className="text-dim">What CBP relied on: </span>
-          {k.deciding_difference}
-        </p>
-      )}
+      <details className="group mt-3 text-[13px]">
+        <summary className="inline-flex min-h-6 cursor-pointer list-none items-center gap-1.5 text-ok [&::-webkit-details-marker]:hidden">
+          <span aria-hidden="true" className="inline-block w-3 text-dim transition-transform group-open:rotate-90">
+            ▸
+          </span>
+          Why they differ
+        </summary>
+        {halves.map(({ side, id, holding }) => (
+          <p key={side} className="duo mt-2">
+            {id ? <span className="text-dim">{id}: </span> : null}
+            {holding}
+          </p>
+        ))}
+        {k.deciding_difference && (
+          <p className="duo mt-2">
+            <span className="text-dim">What CBP relied on: </span>
+            {k.deciding_difference}
+          </p>
+        )}
+      </details>
     </Panel>
   );
 }
@@ -440,12 +468,17 @@ function Questions({ c, setCase }: { c: CaseResponse; setCase: (c: CaseResponse)
           {copy.result.questions} <span className="text-[13px] font-normal text-dim">· {copy.result.questionsNote}</span>
         </h2>
         <ol className="duo mt-3 flex list-decimal flex-col gap-2 pl-5 text-sm">
-          {qs.map((q) => (
+          {visible.map((q) => (
             <li key={q}>{q}</li>
           ))}
         </ol>
+        {qs.length > 1 && (
+          <button type="button" className="mt-2 inline-flex min-h-6 items-center text-[13px] text-ok hover:underline" aria-expanded={more} onClick={() => setMore((m) => !m)}>
+            {more ? "Show one question" : `${qs.length - 1} more ${qs.length - 1 === 1 ? "question" : "questions"}`}
+          </button>
+        )}
         <div className="mt-4">
-          <DemoNote title={c.display_name} message="This is a pinned demo, so its answers stay as they are." />
+          <DemoNote title={c.display_name} message="Pinned demo: answers stay as they are." />
         </div>
       </Panel>
     );
