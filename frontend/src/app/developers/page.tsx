@@ -178,7 +178,7 @@ export default function Page() {
             </p>
             <p className="duo max-w-[72ch] text-[13px] text-dim">
               Then scored on 12 products from earlier CBP rulings, one run each, with the checks written first: 10 of 12 passed every check, and no answer named a
-              ruling the tools had not returned. One miss retried a call the tool had refused; the other drafted the current setup when no plan was found.{" "}
+              ruling the tools had not returned. One miss retried a call the tool had refused; the other drafted the current setup when no plan was found. After fixes, a second evaluation with stricter checks passed 9 of 12; the 8 runs the live server&apos;s anonymous budget did not cut short all passed, and repeatability is not measured yet.{" "}
               <a href={adkEval} target="_blank" rel="noreferrer" className="text-ok underline underline-offset-2">
                 The agent evaluation
               </a>

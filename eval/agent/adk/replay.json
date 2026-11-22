@@ -1,0 +1,47 @@
+{
+ "metric": "tool_trajectory_avg_score",
+ "criterion": {
+  "threshold": 1.0,
+  "include_intermediate_responses_in_final": false,
+  "match_type": "IN_ORDER",
+  "ignore_args": true
+ },
+ "runs": {
+  "live-gemini-3.8-flash-undelabs": {
+   "scores": {
+    "a01": 1.0,
+    "a02": 1.0,
+    "a03": 1.0,
+    "a04": 1.0,
+    "a05": 1.0,
+    "a06": 1.0,
+    "a07": 1.0,
+    "a08": 1.0,
+    "a09": 1.0,
+    "a10": 1.0,
+    "a11": 1.0,
+    "a12": 1.0
+   },
+   "passed": 12,
+   "cases": 12
+  },
+  "live-v2-run1": {
+   "scores": {
+    "a01": 1.0,
+    "a02": 1.0,
+    "a03": 1.0,
+    "a04": 1.0,
+    "a05": 1.0,
+    "a06": 1.0,
+    "a07": 1.0,
+    "a08": 1.0,
+    "a09": 0.0,
+    "a10": 0.0,
+    "a11": 0.0,
+    "a12": 0.0
+   },
+   "passed": 8,
+   "cases": 12
+  }
+ }
+}

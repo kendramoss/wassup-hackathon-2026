@@ -1,6 +1,6 @@
 # Unde as tools for a Google ADK agent
 
-Status: built. Run end to end against `https://undelabs.dev/mcp` on 22 Nov 2026 ([transcript](../../docs/mcp-transcripts/adk-full-flow.md)), then scored on 12 products, once each: 10 of 12 passed every check (see [Evaluation](#evaluation)).
+Status: built. Run end to end against `https://undelabs.dev/mcp` on 22 Nov 2026 ([transcript](../../docs/mcp-transcripts/adk-full-flow.md)), then scored on 12 products, once each: 10 of 12 passed every check; after fixes, 9 of 12 under stricter checks (see [Evaluation](#evaluation)).
 
 A [Google Agent Development Kit (ADK)](https://adk.dev) agent that works one U.S. country-of-origin case through Unde's MCP server. It reads a product description, then calls:
 
@@ -85,11 +85,26 @@ Built and run once per product on 22 Nov 2026 (D450, D451; [EVALUATION.md §12](
 
 On 12 products against `undelabs.dev`, Gemini 3.8 Flash through the gateway: 10 of 12 passed every check, no answer named a ruling the tools had not returned, $0.0394 of agent model cost a run on average, median 313 s a run. The two misses and what reading the answers found are in that section.
 
+After the D470 fixes (plan_id, the no-plan line, one draft), a second evaluation with stricter checks written first (D510) ran against the live server: 9 of 12 passed. The 8 runs the server's anonymous per-client budget did not cut short all passed; a09 to a12 were cut by it (429), and the second run per product, for repeatability, has not run yet (D511).
+
 Plumbing, with no model and no cost: start a local server in fake mode (`LLM_PROVIDER=fake make run`), then
 
 ```bash
 UNDE_MCP_URL=http://localhost:8080/mcp ./.venv/bin/python run_eval.py --id a01 --scripted --out /tmp/plumbing.jsonl
 ```
+
+ADK's own evaluator can run the same 12 cases (D510). The eval set and config are written by `eval/agent/score.py`. `adk eval` needs ADK's eval extras, which also move `litellm` to the version they pin:
+
+```bash
+./.venv/bin/pip install "google-adk[eval]==2.14.1"
+# from the repository root, with the model variables above set
+examples/adk-agent/.venv/bin/adk eval examples/adk-agent/unde_agent \
+  eval/agent/adk/unde_agent.evalset.json \
+  --config_file_path eval/agent/adk/test_config.json \
+  --eval_storage_uri file:///tmp/unde-adk-eval --print_detailed_results
+```
+
+It scores `tool_trajectory_avg_score`: the four required tools in order, other tools allowed between, arguments not compared (case ids and keys change every run), two runs per case. Each case makes one anonymous case on the server and may run one plan search, so 24 in all. We have loaded it in `adk eval` but not run it live (D511). `eval/agent/adk/replay_trajectory.py` applies the same metric to the recorded rows offline, with no model.
 
 A scored run uses the gateway variables above and `--out ../../eval/agent/results/<run>.jsonl`; then `python3 -I -B eval/agent/score.py .` from the repository root. Each run makes one case and one plan search.
 

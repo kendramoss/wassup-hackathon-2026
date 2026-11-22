@@ -24,6 +24,10 @@ REPO = sys.argv[1]
 CHECK = "--check" in sys.argv
 R = lambda p: os.path.join(REPO, p)
 OUT_JSON, OUT_MD = "eval/agent/summary.json", "eval/agent/SUMMARY.md"
+# ADK's own evaluation format (D510): the same live cases, expected tool
+# trajectory only, for `adk eval` (google-adk 2.14.1). Written from
+# products.jsonl like the summary, and checked the same way.
+OUT_EVALSET, OUT_EVALCFG = "eval/agent/adk/unde_agent.evalset.json", "eval/agent/adk/test_config.json"
 
 OFFERED = {"extract_product", "predict_origin", "plan_production_moves", "export_ruling_request_draft", "suggest_part_hts", "get_ruling"}
 ORDER = ["extract_product", "predict_origin", "plan_production_moves", "export_ruling_request_draft"]
@@ -60,8 +64,16 @@ def countries_in(text):
     return {c for c in ALIASES if mentions(text, c)}
 
 
+def norm_one(m):
+    # "NY N340438" is how CBP writes a New York ruling; it is N340438, not
+    # NN340438 (found in D510's run 1, a06; D511).
+    m = re.sub(r"^(?:NY |HQ )(?=[A-Z])", "", m)
+    m = m.replace("NY ", "N").replace("HQ ", "H")
+    return re.sub(r"^([HN])\1(?=\d)", r"\1", m)
+
+
 def norm_rulings(text):
-    return {m.replace("NY ", "N").replace("HQ ", "H") for m in RULING.findall(text)}
+    return {norm_one(m) for m in RULING.findall(text)}
 
 
 def check_set(products):
@@ -167,7 +179,7 @@ def score_run(row, prod):
     if origin:
         sent = next((m for m in re.split(r"(?<=[.\n])", final) if ORIGIN_SENTENCE.search(m) and countries_in(m)), None)
         origin_ok = mentions(sent, origin) if sent else mentions(final, origin)
-    tool_rulings = set().union(*[set(c.get("rulings") or []) for c in calls]) if calls else set()
+    tool_rulings = {norm_one(x) for c in calls for x in (c.get("rulings") or [])}
     said = norm_rulings(final)
     cites = bool(said & tool_rulings)
     invented = sorted(said - tool_rulings)
@@ -355,30 +367,68 @@ def render_series(name, g):
     yn = lambda v: "n/a" if v is None else ("pass" if v else "fail")
     n, k = g["products"], len(g["runs"])
     ag = g["agree"]
-    out = [f"## Series {name}: {k} runs per product, compared (D510)", "",
+    out = [f"## Series {name}: {k} run{'s' if k != 1 else ''} per product so far, compared with the baseline (D510)", "",
            f"Runs: {', '.join(g['runs'])}. Baseline: {g['baseline']} (one run per product). Pass is under D510 rules unless the row says D450.", "",
            "| Measure | Result |", "|---|---|",
            f"| Baseline passed every check, D450 rules as published | {pct(g['baseline_d450'], n)} |",
            f"| Baseline passed every check, rescored under D510 rules | {pct(g['baseline_d510'], n)} |"]
     for j, (lab, p, p4) in enumerate(zip(g["runs"], g["pass_d510_per_run"], g["pass_d450_per_run"]), 1):
         out.append(f"| Run {j} ({lab}) passed every check | {pct(p, n)} (D450 rules: {p4}/{n}) |")
-    out += [f"| All runs pooled | {pct(*g['pass_d510_pooled'])} |",
+    if k < 2:
+        out += ["| Repeatability (same product, run against run) | not measured: D510 asks for two runs per product and this series has one |"]
+    out += [f"| All runs pooled | {pct(*g['pass_d510_pooled'])} |"] if k > 1 else []
+    out += [] if k < 2 else [
             f"| Same pass or fail in every run | {pct(ag['pass_d510'], n)} ({ag['both_pass_d510']} pass in all, {ag['both_fail_d510']} fail in all) |",
             f"| Same predicted origin in every run | {pct(ag['predicted_origin'], n)} |",
             f"| Same plan found or not found in every run | {pct(ag['plan_found'], n)} |",
             f"| Same number of plans shown in every run | {pct(ag['plans_shown_count'], n)} |",
             f"| Same plan drafted (export plan_id) in every run | {pct(ag['export_plan_id'], n)} |",
             f"| Same order of the four required tools in every run | {pct(ag['required_tool_order'], n)} |",
-            f"| Same full tool sequence in every run | {pct(ag['full_tool_sequence'], n)} |",
-            "", "| Product | v1 (D450) | v1 (D510) | " + " | ".join(f"Run {j}" for j in range(1, k + 1)) + " | Predicted | Plans shown | Drafted plan_id | Issues |",
+            f"| Same full tool sequence in every run | {pct(ag['full_tool_sequence'], n)} |"]
+    out += ["", "| Product | v1 (D450) | v1 (D510) | " + " | ".join(f"v2 run {j}" for j in range(1, k + 1)) + " | Predicted | Plans shown | Drafted plan_id | Issues |",
             "|---|---|---|" + "---|" * k + "---|---|---|---|"]
     for r in g["rows"]:
         iss = " / ".join(f"run {j}: {'; '.join(x)}" for j, x in enumerate(r["issues"], 1) if x)
-        pid = " / ".join(", ".join(str(x) for x in e) or "current setup" for e in r["export_plan_ids"])
+        pid = " / ".join(", ".join("current setup" if x is None else x for x in e) or "no draft" for e in r["export_plan_ids"])
         out.append(f"| {r['id']} | {yn(r['v1_d450'])} | {yn(r['v1_d510'])} | " + " | ".join(yn(x) for x in r["runs_d510"])
-                   + f" | {' / '.join(str(x) for x in r['predicted'])} | {' / '.join(str(x) for x in r['plans_shown'])} | {pid} | {iss} |")
+                   + f" | {' / '.join(x or 'none' for x in r['predicted'])} | {' / '.join(str(x) for x in r['plans_shown'])} | {pid} | {iss} |")
     out.append("")
     return out
+
+
+def adk_evalset(products):
+    """The live products as an ADK EvalSet: one user turn, the expected tools.
+
+    Arguments are not compared (ignore_args): case_id, the access key and the
+    idempotency key change every run. The args written here are the ones fixed
+    by the prompt, for a reader. IN_ORDER lets suggest_part_hts, get_ruling and
+    a retried plan call sit between the four required tools.
+    """
+    cases = []
+    for p in products:
+        if not p.get("live"):
+            continue
+        uses = [{"name": "extract_product", "args": {"family": p["family"]}},
+                {"name": "predict_origin", "args": {"family": p["family"]}},
+                {"name": "plan_production_moves", "args": {"target_country": p["target"]}},
+                {"name": "export_ruling_request_draft", "args": {}}]
+        cases.append({
+            "eval_id": f"{p['id']}_{p['ruling'].lower()}",
+            "conversation": [{
+                "invocation_id": f"{p['id']}-1",
+                "user_content": {"role": "user", "parts": [{"text": p["prompt"]}]},
+                "intermediate_data": {"tool_uses": uses, "tool_responses": [], "intermediate_responses": []},
+            }],
+            "session_input": {"app_name": "unde_agent", "user_id": "eval", "state": {}},
+        })
+    evalset = {"eval_set_id": "unde_agent_live_dev", "name": "Unde ADK agent, live development products (D450, D510)",
+               "description": "Products a01-a12 of eval/agent/products.jsonl (development-split CBP rulings). Expected tool trajectory: "
+                              "extract_product, predict_origin, plan_production_moves, export_ruling_request_draft, in order, other tools allowed between. "
+                              "Each case makes one anonymous case on the MCP server it calls and may run one plan search. Written by eval/agent/score.py.",
+               "eval_cases": cases}
+    config = {"criteria": {"tool_trajectory_avg_score": {"threshold": 1.0, "match_type": "IN_ORDER", "ignore_args": True}},
+              "multi_run_config": {"num_runs": 2}, "parallelism": 3}
+    return evalset, config
 
 
 def main():
@@ -401,14 +451,18 @@ def main():
         summary["series"] = ser
     js = json.dumps(summary, indent=1, ensure_ascii=False) + "\n"
     md = render_md(summary) + "\n"
+    es, cfg = adk_evalset(products.values())
+    outs = ((OUT_JSON, js), (OUT_MD, md), (OUT_EVALSET, json.dumps(es, indent=1, ensure_ascii=False) + "\n"),
+            (OUT_EVALCFG, json.dumps(cfg, indent=1) + "\n"))
     if CHECK:
-        bad = [p for p, s in ((OUT_JSON, js), (OUT_MD, md)) if not os.path.exists(R(p)) or open(R(p)).read() != s]
+        bad = [p for p, s in outs if not os.path.exists(R(p)) or open(R(p)).read() != s]
         if bad:
             sys.exit(f"{', '.join(bad)} differ from a fresh computation; re-run without --check")
         print(f"agent eval: {len(runs)} run(s) over {len(products)} products match {OUT_JSON}")
         return
-    open(R(OUT_JSON), "w").write(js)
-    open(R(OUT_MD), "w").write(md)
+    os.makedirs(os.path.dirname(R(OUT_EVALSET)), exist_ok=True)
+    for p, text in outs:
+        open(R(p), "w").write(text)
     print(md)
 
 

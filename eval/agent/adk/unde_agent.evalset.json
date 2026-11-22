@@ -1,0 +1,595 @@
+{
+ "eval_set_id": "unde_agent_live_dev",
+ "name": "Unde ADK agent, live development products (D450, D510)",
+ "description": "Products a01-a12 of eval/agent/products.jsonl (development-split CBP rulings). Expected tool trajectory: extract_product, predict_origin, plan_production_moves, export_ruling_request_draft, in order, other tools allowed between. Each case makes one anonymous case on the MCP server it calls and may run one plan search. Written by eval/agent/score.py.",
+ "eval_cases": [
+  {
+   "eval_id": "a01_n349899",
+   "conversation": [
+    {
+     "invocation_id": "a01-1",
+     "user_content": {
+      "role": "user",
+      "parts": [
+       {
+        "text": "Product: a 16-inch gaming laptop. Parts: motherboard PCBA assembled in Vietnam by SMT from chips, memory and passives of various origins; OLED panel, keyboard, webcam, fan, lithium battery, wireless antenna and housing made in China. The PCBA is tested in Vietnam and shipped to China, where it is put on the bottom cover with the other parts, and the laptop is tested, labelled and packed. We also run a plant in Thailand that can do PCBA assembly and final assembly. Family: pcba_electronic_devices. Target country for production moves: Thailand. Predict the U.S. origin, plan the moves to make Thailand the origin, and draft the broker request."
+       }
+      ]
+     },
+     "intermediate_data": {
+      "tool_uses": [
+       {
+        "name": "extract_product",
+        "args": {
+         "family": "pcba_electronic_devices"
+        }
+       },
+       {
+        "name": "predict_origin",
+        "args": {
+         "family": "pcba_electronic_devices"
+        }
+       },
+       {
+        "name": "plan_production_moves",
+        "args": {
+         "target_country": "Thailand"
+        }
+       },
+       {
+        "name": "export_ruling_request_draft",
+        "args": {}
+       }
+      ],
+      "tool_responses": [],
+      "intermediate_responses": []
+     }
+    }
+   ],
+   "session_input": {
+    "app_name": "unde_agent",
+    "user_id": "eval",
+    "state": {}
+   }
+  },
+  {
+   "eval_id": "a02_n349992",
+   "conversation": [
+    {
+     "invocation_id": "a02-1",
+     "user_content": {
+      "role": "user",
+      "parts": [
+       {
+        "text": "Product: a 27-inch LCD computer monitor. Parts: interface board (with a Taiwanese scaler unit mounted on it), joystick board, USB board, driver board and power board, all made by SMT and DIP in Vietnam; LCD panel, housing, stand and other parts made in China. The boards are shipped to China, where the monitor is assembled (plugging, snapping, pressing the parts together) and tested. Family: pcba_electronic_devices. Target country for production moves: Malaysia. Predict the U.S. origin, plan the moves to make Malaysia the origin, and draft the broker request."
+       }
+      ]
+     },
+     "intermediate_data": {
+      "tool_uses": [
+       {
+        "name": "extract_product",
+        "args": {
+         "family": "pcba_electronic_devices"
+        }
+       },
+       {
+        "name": "predict_origin",
+        "args": {
+         "family": "pcba_electronic_devices"
+        }
+       },
+       {
+        "name": "plan_production_moves",
+        "args": {
+         "target_country": "Malaysia"
+        }
+       },
+       {
+        "name": "export_ruling_request_draft",
+        "args": {}
+       }
+      ],
+      "tool_responses": [],
+      "intermediate_responses": []
+     }
+    }
+   ],
+   "session_input": {
+    "app_name": "unde_agent",
+    "user_id": "eval",
+    "state": {}
+   }
+  },
+  {
+   "eval_id": "a03_n350225",
+   "conversation": [
+    {
+     "invocation_id": "a03-1",
+     "user_content": {
+      "role": "user",
+      "parts": [
+       {
+        "text": "Product: an arm-type automatic digital blood pressure monitor. Parts: main PCB, MCU chip, pressure transducer, air pump, mechanical valve, LCD and buttons PCB made in China; upper and lower covers, solenoid valve, keys, arm cuff and tubing made in Cambodia. In Cambodia the main PCB is populated by SMT, firmware is compiled and loaded onto the MCU, the pressure sensor and LCD are attached, and the pneumatic parts, covers and cuff are assembled and tested. We also run a plant in Vietnam that can do SMT, firmware loading and final assembly. Family: medical_devices. Target country for production moves: Vietnam. Predict the U.S. origin, plan the moves to make Vietnam the origin, and draft the broker request."
+       }
+      ]
+     },
+     "intermediate_data": {
+      "tool_uses": [
+       {
+        "name": "extract_product",
+        "args": {
+         "family": "medical_devices"
+        }
+       },
+       {
+        "name": "predict_origin",
+        "args": {
+         "family": "medical_devices"
+        }
+       },
+       {
+        "name": "plan_production_moves",
+        "args": {
+         "target_country": "Vietnam"
+        }
+       },
+       {
+        "name": "export_ruling_request_draft",
+        "args": {}
+       }
+      ],
+      "tool_responses": [],
+      "intermediate_responses": []
+     }
+    }
+   ],
+   "session_input": {
+    "app_name": "unde_agent",
+    "user_id": "eval",
+    "state": {}
+   }
+  },
+  {
+   "eval_id": "a04_n350383",
+   "conversation": [
+    {
+     "invocation_id": "a04-1",
+     "user_content": {
+      "role": "user",
+      "parts": [
+       {
+        "text": "Product: an industrial battery charger for pallet jacks, scissor lifts and golf carts. Parts: a PCBA made in Indonesia by through-hole and SMT soldering of ICs, transistors, capacitors and resistors onto a bare board, then tested; a cast enclosure, lid and connectors made in China. The PCBA goes to China, where it is glued into the enclosure, the connectors and lid are fitted, and the charger is tested and packed. We also run a plant in Malaysia that can make the PCBA and do final assembly. Family: power_supplies_chargers. Target country for production moves: Malaysia. Predict the U.S. origin, plan the moves to make Malaysia the origin, and draft the broker request."
+       }
+      ]
+     },
+     "intermediate_data": {
+      "tool_uses": [
+       {
+        "name": "extract_product",
+        "args": {
+         "family": "power_supplies_chargers"
+        }
+       },
+       {
+        "name": "predict_origin",
+        "args": {
+         "family": "power_supplies_chargers"
+        }
+       },
+       {
+        "name": "plan_production_moves",
+        "args": {
+         "target_country": "Malaysia"
+        }
+       },
+       {
+        "name": "export_ruling_request_draft",
+        "args": {}
+       }
+      ],
+      "tool_responses": [],
+      "intermediate_responses": []
+     }
+    }
+   ],
+   "session_input": {
+    "app_name": "unde_agent",
+    "user_id": "eval",
+    "state": {}
+   }
+  },
+  {
+   "eval_id": "a05_n350500",
+   "conversation": [
+    {
+     "invocation_id": "a05-1",
+     "user_content": {
+      "role": "user",
+      "parts": [
+       {
+        "text": "Product: a satellite TV receiver with a DVR tuner. Parts: motherboard PCBA and Wi-Fi board made in Malaysia by SMT and through-hole processes; power board, button board, chassis, rubber feet and other parts made in China. In China the boards are assembled with the other parts into the chassis, screwed together and inspected. Family: pcba_electronic_devices. Target country for production moves: Vietnam. Predict the U.S. origin, plan the moves to make Vietnam the origin, and draft the broker request."
+       }
+      ]
+     },
+     "intermediate_data": {
+      "tool_uses": [
+       {
+        "name": "extract_product",
+        "args": {
+         "family": "pcba_electronic_devices"
+        }
+       },
+       {
+        "name": "predict_origin",
+        "args": {
+         "family": "pcba_electronic_devices"
+        }
+       },
+       {
+        "name": "plan_production_moves",
+        "args": {
+         "target_country": "Vietnam"
+        }
+       },
+       {
+        "name": "export_ruling_request_draft",
+        "args": {}
+       }
+      ],
+      "tool_responses": [],
+      "intermediate_responses": []
+     }
+    }
+   ],
+   "session_input": {
+    "app_name": "unde_agent",
+    "user_id": "eval",
+    "state": {}
+   }
+  },
+  {
+   "eval_id": "a06_n350622",
+   "conversation": [
+    {
+     "invocation_id": "a06-1",
+     "user_content": {
+      "role": "user",
+      "parts": [
+       {
+        "text": "Product: a 2nd-generation wheel hub bearing assembly for passenger cars. Parts: rough-cut inner ring, steel balls and magnetic ring from China; grease from Japan; outer ring with flange and seal rings made in Vietnam. In Vietnam the rings are ground, turned, demagnetised and heat treated to form the raceways, the flange holes are drilled and tapped, and the rings are press-fit with the balls, cage, seals, grease and magnetic ring. We also run a plant in Thailand that can do ring grinding, heat treatment and bearing assembly. Family: vehicle_parts. Target country for production moves: Thailand. Predict the U.S. origin, plan the moves to make Thailand the origin, and draft the broker request."
+       }
+      ]
+     },
+     "intermediate_data": {
+      "tool_uses": [
+       {
+        "name": "extract_product",
+        "args": {
+         "family": "vehicle_parts"
+        }
+       },
+       {
+        "name": "predict_origin",
+        "args": {
+         "family": "vehicle_parts"
+        }
+       },
+       {
+        "name": "plan_production_moves",
+        "args": {
+         "target_country": "Thailand"
+        }
+       },
+       {
+        "name": "export_ruling_request_draft",
+        "args": {}
+       }
+      ],
+      "tool_responses": [],
+      "intermediate_responses": []
+     }
+    }
+   ],
+   "session_input": {
+    "app_name": "unde_agent",
+    "user_id": "eval",
+    "state": {}
+   }
+  },
+  {
+   "eval_id": "a07_n350710",
+   "conversation": [
+    {
+     "invocation_id": "a07-1",
+     "user_content": {
+      "role": "user",
+      "parts": [
+       {
+        "text": "Product: a 300-lumen LED flashlight with a steel tube body. Parts: 27 components, including a circuit board, LED, resistors, capacitor, MOS tube and dimming chip, a plastic lens, reflector, lamp holder, aluminium housing with battery holder and tail switch, all made in China. In Vietnam the LED chip is mounted and the PCBA is made by SMT, then both are assembled with the other parts into the finished flashlight. We also run a plant in Thailand that can do SMT, LED mounting and final assembly. Family: led_lights. Target country for production moves: Thailand. Predict the U.S. origin, plan the moves to make Thailand the origin, and draft the broker request."
+       }
+      ]
+     },
+     "intermediate_data": {
+      "tool_uses": [
+       {
+        "name": "extract_product",
+        "args": {
+         "family": "led_lights"
+        }
+       },
+       {
+        "name": "predict_origin",
+        "args": {
+         "family": "led_lights"
+        }
+       },
+       {
+        "name": "plan_production_moves",
+        "args": {
+         "target_country": "Thailand"
+        }
+       },
+       {
+        "name": "export_ruling_request_draft",
+        "args": {}
+       }
+      ],
+      "tool_responses": [],
+      "intermediate_responses": []
+     }
+    }
+   ],
+   "session_input": {
+    "app_name": "unde_agent",
+    "user_id": "eval",
+    "state": {}
+   }
+  },
+  {
+   "eval_id": "a08_n350719",
+   "conversation": [
+    {
+     "invocation_id": "a08-1",
+     "user_content": {
+      "role": "user",
+      "parts": [
+       {
+        "text": "Product: a retractable utility knife with an aluminium handle. Parts: handle halves die-cast in Vietnam from aluminium blocks; trapezoidal blades punched from steel strip, heat treated and sharpened in Vietnam; blade holder, switch and PVC grip made in China. In China the handle halves are polished, powder coated and assembled with the blades and the small parts. We also run a plant in Cambodia that can do die-casting, blade making and final assembly. Family: hand_tools. Target country for production moves: Cambodia. Predict the U.S. origin, plan the moves to make Cambodia the origin, and draft the broker request."
+       }
+      ]
+     },
+     "intermediate_data": {
+      "tool_uses": [
+       {
+        "name": "extract_product",
+        "args": {
+         "family": "hand_tools"
+        }
+       },
+       {
+        "name": "predict_origin",
+        "args": {
+         "family": "hand_tools"
+        }
+       },
+       {
+        "name": "plan_production_moves",
+        "args": {
+         "target_country": "Cambodia"
+        }
+       },
+       {
+        "name": "export_ruling_request_draft",
+        "args": {}
+       }
+      ],
+      "tool_responses": [],
+      "intermediate_responses": []
+     }
+    }
+   ],
+   "session_input": {
+    "app_name": "unde_agent",
+    "user_id": "eval",
+    "state": {}
+   }
+  },
+  {
+   "eval_id": "a09_h342833",
+   "conversation": [
+    {
+     "invocation_id": "a09-1",
+     "user_content": {
+      "role": "user",
+      "parts": [
+       {
+        "text": "Product: an electronically commutated (ECM) motor, 1/3 to 1 HP, for household central air conditioners. Parts: rotor subassembly (core punched from silicon steel, shaft, magnets, bearings) made in Thailand; stator subassembly bought finished from China; aluminium bracket made in Thailand; other small parts from China and Japan. In Thailand the rotor is made, the motor is assembled, magnetised, tested and packed. We also run a plant in Vietnam that can make rotors and stators and do final assembly. Family: motors_pumps_compressors. Target country for production moves: Vietnam. Predict the U.S. origin, plan the moves to make Vietnam the origin, and draft the broker request."
+       }
+      ]
+     },
+     "intermediate_data": {
+      "tool_uses": [
+       {
+        "name": "extract_product",
+        "args": {
+         "family": "motors_pumps_compressors"
+        }
+       },
+       {
+        "name": "predict_origin",
+        "args": {
+         "family": "motors_pumps_compressors"
+        }
+       },
+       {
+        "name": "plan_production_moves",
+        "args": {
+         "target_country": "Vietnam"
+        }
+       },
+       {
+        "name": "export_ruling_request_draft",
+        "args": {}
+       }
+      ],
+      "tool_responses": [],
+      "intermediate_responses": []
+     }
+    }
+   ],
+   "session_input": {
+    "app_name": "unde_agent",
+    "user_id": "eval",
+    "state": {}
+   }
+  },
+  {
+   "eval_id": "a10_n350654",
+   "conversation": [
+    {
+     "invocation_id": "a10-1",
+     "user_content": {
+      "role": "user",
+      "parts": [
+       {
+        "text": "Product: a wireless gaming controller for Xbox. Parts: a PCBA made in Vietnam by SMT from chips, transistors, resistors and capacitors of various origins; plastic casing, brackets, buttons, direction pad and thumbsticks made in China. The PCBA goes to China, where it is placed in the casing with the other parts, screwed together, tested and packed. Family: pcba_electronic_devices. Target country for production moves: Indonesia. Predict the U.S. origin, plan the moves to make Indonesia the origin, and draft the broker request."
+       }
+      ]
+     },
+     "intermediate_data": {
+      "tool_uses": [
+       {
+        "name": "extract_product",
+        "args": {
+         "family": "pcba_electronic_devices"
+        }
+       },
+       {
+        "name": "predict_origin",
+        "args": {
+         "family": "pcba_electronic_devices"
+        }
+       },
+       {
+        "name": "plan_production_moves",
+        "args": {
+         "target_country": "Indonesia"
+        }
+       },
+       {
+        "name": "export_ruling_request_draft",
+        "args": {}
+       }
+      ],
+      "tool_responses": [],
+      "intermediate_responses": []
+     }
+    }
+   ],
+   "session_input": {
+    "app_name": "unde_agent",
+    "user_id": "eval",
+    "state": {}
+   }
+  },
+  {
+   "eval_id": "a11_n350166",
+   "conversation": [
+    {
+     "invocation_id": "a11-1",
+     "user_content": {
+      "role": "user",
+      "parts": [
+       {
+        "text": "Product: a handheld digital multimeter. Parts: a PCBA made in Vietnam (SMT placement and soldering, bare dies bonded under epoxy, through-hole parts hand-soldered, software loaded and tested); plastic housing, LCD display, selector knob and connectors made in China. In China the PCBA is installed in the housing with the other parts, silk printed and packed. We also run a plant in Thailand that can do SMT, programming and final assembly. Family: pcba_electronic_devices. Target country for production moves: Thailand. Predict the U.S. origin, plan the moves to make Thailand the origin, and draft the broker request."
+       }
+      ]
+     },
+     "intermediate_data": {
+      "tool_uses": [
+       {
+        "name": "extract_product",
+        "args": {
+         "family": "pcba_electronic_devices"
+        }
+       },
+       {
+        "name": "predict_origin",
+        "args": {
+         "family": "pcba_electronic_devices"
+        }
+       },
+       {
+        "name": "plan_production_moves",
+        "args": {
+         "target_country": "Thailand"
+        }
+       },
+       {
+        "name": "export_ruling_request_draft",
+        "args": {}
+       }
+      ],
+      "tool_responses": [],
+      "intermediate_responses": []
+     }
+    }
+   ],
+   "session_input": {
+    "app_name": "unde_agent",
+    "user_id": "eval",
+    "state": {}
+   }
+  },
+  {
+   "eval_id": "a12_n350623",
+   "conversation": [
+    {
+     "invocation_id": "a12-1",
+     "user_content": {
+      "role": "user",
+      "parts": [
+       {
+        "text": "Product: a constant velocity (CV) axle for passenger cars. Parts: tripod, outboard CV joint assembly, lubricant and CV boots made in Vietnam; inner ball joint housing, centre bar, clamps and circlips made in China. In Vietnam the ball cage and inner race are hard turned and milled, the housing and inner ring are ground, the ball tracks are ground, and the axle is assembled. Family: vehicle_parts. Target country for production moves: Mexico. Predict the U.S. origin, plan the moves to make Mexico the origin, and draft the broker request."
+       }
+      ]
+     },
+     "intermediate_data": {
+      "tool_uses": [
+       {
+        "name": "extract_product",
+        "args": {
+         "family": "vehicle_parts"
+        }
+       },
+       {
+        "name": "predict_origin",
+        "args": {
+         "family": "vehicle_parts"
+        }
+       },
+       {
+        "name": "plan_production_moves",
+        "args": {
+         "target_country": "Mexico"
+        }
+       },
+       {
+        "name": "export_ruling_request_draft",
+        "args": {}
+       }
+      ],
+      "tool_responses": [],
+      "intermediate_responses": []
+     }
+    }
+   ],
+   "session_input": {
+    "app_name": "unde_agent",
+    "user_id": "eval",
+    "state": {}
+   }
+  }
+ ]
+}
