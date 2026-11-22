@@ -1,27 +1,18 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { api, type EvalSummary } from "@/lib/api/client";
 import { copy } from "@/lib/copy";
+import failureData from "@/lib/failure-cases.json";
 import { ErrorBox, Main } from "../chrome";
-import { Chip, Fold, ScrollX, Spinner, cx } from "../ui";
+import { ButtonLink, Chip, Fold, ScrollX, cx } from "../ui";
 import { VerifierCalibration } from "../verifier-calibration";
 import { KnownFailures, Reproduce } from "../failure-cases";
 import { sourceLabel } from "@/lib/source-label";
 
-// "How accurate is it?" (DESIGN.md, locked 16 Oct, frame p-accuracy.html):
-// every held-out ruling as a square beside the three headline cards, then
-// rules of thumb, cost and time, what we don't claim, and every number.
-// All figures come from GET /v1/eval/summary except the two marked below,
-// which docs/NUMBERS.md records and the endpoint doesn't carry.
-//
-// Copy sweep 2 (#669, rule 16): the page is written for a first-time visitor.
-// "Held-out" reads "unseen test set", calibrated confidence reads "confidence
-// shown", engine ids read as plain names. Intervals, calibration error, run
-// ids and the gateway/proxy detail sit in Details folds; every honesty label
-// stays visible in a shorter form.
-
+// The first test window is frozen. Render its committed results and the
+// recorded plan check immediately. The API supplies the additional analyses.
 type Item = NonNullable<EvalSummary["items"]>[number];
 
 const LIST_PRICE = 0.0157; // docs/NUMBERS.md: list price per prediction
@@ -80,10 +71,10 @@ function Head({ id, title, tags, meta }: { id?: string; title: string; tags?: Re
   );
 }
 
-function Details({ children }: { children: React.ReactNode }) {
+function Details({ title = "Details", children }: { title?: string; children: React.ReactNode }) {
   return (
     <div className="mt-3">
-      <Fold title="Details">
+      <Fold title={title}>
         <div className="read flex max-w-[90ch] flex-col gap-2 text-[12.5px] leading-snug text-dim">{children}</div>
       </Fold>
     </div>
@@ -127,10 +118,138 @@ function Bars({ rows }: { rows: { label: string; it?: Item; ours?: boolean; note
   );
 }
 
+const { n, correct, auto_accepted: auto, bar, calibrated_bar: calibratedBar, misses } = failureData;
+const autoWrong = misses.filter((row) => row.auto_accepted).length;
+const autoRight = auto - autoWrong;
+const review = n - auto;
+const reviewRight = correct - autoRight;
+const reviewWrong = review - reviewRight;
+// D155: first country mentioned, scored on the same 377 rulings.
+const FIRST_COUNTRY_BASELINE = 0.634;
+
+// These counts are for each of the three same-pair runs with the starting
+// origin given (D354). The figures are pinned against the served summary.
+const planOutcomes = [
+  { label: "Plan precision", correct: 9, total: 9, interval: "70.1–100%" },
+  { label: "Real shifts found", correct: 9, total: 12, interval: "46.8–91.1%" },
+  { label: "False positives on unchanged goods", correct: 0, total: 6, interval: "0–39.0%" },
+];
+
+const outcomeGroups = [
+  { key: "auto-right", label: "Auto-accepted, right", count: autoRight, tone: "border-ok bg-ok" },
+  { key: "auto-wrong", label: "Auto-accepted, wrong", count: autoWrong, tone: "border-fail bg-fail" },
+  { key: "review-right", label: "Human review, right", count: reviewRight, tone: "border-ask-line bg-wash" },
+  { key: "review-wrong", label: "Human review, wrong", count: reviewWrong, tone: "border-dashed border-fail bg-fail-wash" },
+];
+
+function Kpi({ title, value, lead, children }: { title: string; value: string; lead?: boolean; children: React.ReactNode }) {
+  return (
+    <div className={cx(
+      "flex min-w-0 flex-col rounded-[2px] border p-4 sm:p-5",
+      lead ? "border-ink bg-ink text-paper" : "border-edge bg-sheet text-ink",
+    )}>
+      <dt className="text-sm font-medium leading-snug">{title}</dt>
+      <dd className="mt-3 text-[clamp(2.55rem,6.2vw,4.5rem)] font-bold leading-none tracking-[-0.075em] tabular-nums">{value}</dd>
+      <dd className={cx("duo mt-3 text-sm leading-relaxed", lead ? "text-paper" : "text-dim")}>{children}</dd>
+    </div>
+  );
+}
+
+function OutcomeMatrix() {
+  return (
+    <section aria-labelledby="acc-outcomes" className="mt-5 rounded-[2px] border border-edge bg-sheet px-4 py-5 sm:px-6">
+      <Head id="acc-outcomes" title="Where every ruling landed" meta="one tile per CBP ruling" />
+      <div className="mt-4 grid items-start gap-5 md:grid-cols-[minmax(0,1.55fr)_minmax(0,1fr)]">
+        <div
+          className="grid grid-cols-[repeat(29,minmax(0,1fr))] gap-[2px] sm:gap-[3px]"
+          role="img"
+          aria-label={`${n} rulings. ${outcomeGroups.map(({ label, count }) => `${label}: ${count}`).join("; ")}.`}
+        >
+          {outcomeGroups.flatMap(({ key, count, tone }) =>
+            Array.from({ length: count }, (_, i) => (
+              <span key={`${key}-${i}`} data-outcome={key} className={cx("h-2.5 rounded-[1px] border sm:h-3", tone)} aria-hidden="true" />
+            )),
+          )}
+        </div>
+        <ul className="grid gap-1.5" aria-label="Outcome counts">
+          {outcomeGroups.map(({ key, label, count, tone }) => (
+            <li key={key} className="grid grid-cols-[12px_1fr_auto] items-center gap-2 border-b border-dashed border-line py-1.5 text-xs sm:text-sm">
+              <span className={cx("size-3 rounded-[1px] border", tone)} aria-hidden="true" />
+              <span>{label}</span>
+              <strong className="tabular-nums">{count}</strong>
+            </li>
+          ))}
+        </ul>
+      </div>
+      <Details title="Test set and confidence intervals">
+        <p>
+          The 95% Wilson intervals are 86.8–92.8% overall and 93.1–97.7% for auto-accepted cases. They describe sampling uncertainty in the official Gemini on Vertex AI run. Repeat runs are measured separately.
+        </p>
+        <p>
+          The displayed confidence bar of {calibratedBar.toFixed(2)} selects the same in-scope cases as the stated bar of {bar.toFixed(2)}. The original threshold selection also considered these rulings. The current displayed threshold comes from development rulings.
+        </p>
+        <p>
+          The case verdict stayed out of the evidence for each prediction. Earlier dated rulings could be retrieved. Gemini’s pretraining exposure is unknown. The first-country baseline used the same cases. The earlier LiteLLM proxy run scored {pct(PROXY.from)} against {pct(PROXY.to)} on Vertex AI (McNemar p = {PROXY.p}).
+        </p>
+      </Details>
+    </section>
+  );
+}
+
+type VerifierEvidence = EvalSummary["verifier_calibration"];
+
+function PlanEvidence({ calibration }: { calibration?: VerifierEvidence }) {
+  return (
+    <section id="plan-checks" aria-labelledby="acc-plan" className="mt-9 scroll-mt-20 rounded-[2px] border border-edge bg-sheet px-4 py-5 sm:px-6">
+      <h2 id="acc-plan" className="text-xl font-semibold tracking-tight">Production-move plan evaluation</h2>
+      <p className="duo mt-1 text-sm text-dim">18 before-and-after CBP pairs across 3 runs. CBP&apos;s starting origin was supplied.</p>
+      <ul className="mt-5 grid gap-4">
+        {planOutcomes.map(({ label, correct, total }) => (
+          <li key={label} className="grid grid-cols-[minmax(0,1fr)_auto] items-baseline gap-x-3 gap-y-1.5 text-sm">
+            <span>{label}</span>
+            <strong className="text-right tabular-nums">{correct}/{total} <span className="font-normal text-dim">({pct(correct / total, 0)})</span></strong>
+            <span className="col-span-2 h-2.5 overflow-hidden rounded-[2px] bg-wash" aria-hidden="true">
+              <span className="block h-full bg-ok" style={{ width: pct(correct / total, 4) }} />
+            </span>
+          </li>
+        ))}
+      </ul>
+      <p className="duo mt-4 text-sm text-dim">Without the starting origin, 5 of 12 real shifts were found in each run.</p>
+      <Details title="Strict Multi-Run & Interval Details">
+        <p>
+          95% intervals per run: {planOutcomes.map(({ label, interval }) => `${label} ${interval}`).join(" · ")}.
+          The same 18 pairs were measured three times through the LiteLLM gateway. All 27 shown checks were right across the three runs (95% interval 87.5–100%). Repeats reused the same pairs.
+        </p>
+        <p>
+          Strict count: 17/59 real changes passed in every run on the earlier development and 2026 pairs. That count includes checks with and without CBP&apos;s starting origin. Parts of the earlier 2026 test informed the prompt.
+        </p>
+        <p>
+          The plan runs used Gemini through an OpenAI-compatible gateway. The official 377-ruling origin figures used Vertex AI. This evaluates the precedent check on selected moves. Full plan search, ranking and economics were outside the test.
+        </p>
+        {calibration?.splits?.length ? <VerifierCalibration c={calibration} /> : null}
+      </Details>
+    </section>
+  );
+}
+
 export function AccuracyPage() {
   const [data, setData] = useState<EvalSummary | null>(null);
   const [error, setError] = useState<unknown>(null);
   const [all, setAll] = useState(false);
+  const [allMisses, setAllMisses] = useState(true);
+  const failures = useRef<HTMLDetailsElement>(null);
+  const openFailures = () => {
+    setAllMisses(true);
+    if (failures.current) failures.current.open = true;
+  };
+  useEffect(() => {
+    const revealLinkedFailures = () => {
+      if (window.location.hash === "#misses" && failures.current) failures.current.open = true;
+    };
+    revealLinkedFailures();
+    window.addEventListener("hashchange", revealLinkedFailures);
+    return () => window.removeEventListener("hashchange", revealLinkedFailures);
+  }, []);
   const load = () => {
     setError(null);
     api.evalSummary().then(setData, setError);
@@ -142,8 +261,6 @@ export function AccuracyPage() {
   const items = data?.items ?? [];
   const get = (k: string) => items.find((i) => i.key === k);
   const acc = get("final_accuracy");
-  const fpAcc = get("final_fastpath_accuracy");
-  const fpCov = get("final_fastpath_coverage");
   const cost = get("final_cost_per_case_usd");
   const p50 = get("final_latency_p50_s");
   const p95 = get("final_latency_p95_s");
@@ -207,7 +324,6 @@ export function AccuracyPage() {
   // after the corpus cut-off (the 15 D170 pairs plus the 3-pair addendum),
   // each frozen before scoring and run 3 times with the same figures (D354),
   // CBP's starting origin given.
-  const postPrec = get("planner_post_combined_known-a_precision_at_bar");
   const postRec = get("planner_post_combined_known-a_recall_at_bar");
   // The precedent check's stricter recall (D86 pool): real-change pairs shown
   // in every run, so the plan-check card can say why it differs (round 5).
@@ -215,8 +331,6 @@ export function AccuracyPage() {
   const calPairs = calSplits.reduce((n, x) => n + (x.pair_level.real_change_pairs ?? 0), 0);
   const calEvery = calSplits.reduce((n, x) => n + (x.pair_level.shown_every_run ?? 0), 0);
   const postCtl = get("planner_post_combined_known-a_controls_shown");
-  const postPairs = (postRec?.n ?? 0) + (postCtl?.n ?? 0);
-  const postCtlShown = Math.round((postCtl?.value ?? 0) * (postCtl?.n ?? 0));
   // D190: three development runs of the same engine, no cache.
   const reps = [1, 2, 3].map((i) => get(`repeat_dev_accuracy_run${i}`)).filter((x): x is Item => Boolean(x));
   const repMean = get("repeat_dev_accuracy_mean");
@@ -230,29 +344,8 @@ export function AccuracyPage() {
     flips: get(`repeat_${sp}_answer_flips`),
   }));
   const heldRepOK = heldRep.every((h) => h.off && h.r1 && h.r2 && h.flips);
-  const postShown = postPrec?.n ?? 0;
-  const postRight = Math.round((postPrec?.value ?? 0) * postShown);
   const postReal = postRec?.n ?? 0;
-  const postFound = Math.round((postRec?.value ?? 0) * postReal);
-  // The precedent-check section's pair-level line (verifier-calibration.tsx).
   const pairEvery = calPairs ? `${Math.round((calEvery / calPairs) * 100)}%` : "—";
-
-  // The squares, worked out from the rates (DESIGN.md: 288 / 12 / 52 / 25).
-  const n = acc?.n ?? 377;
-  const right = Math.round((acc?.value ?? 0) * n);
-  const auto = fpAcc?.n ?? Math.round((fpCov?.value ?? 0) * n);
-  const autoRight = Math.round((fpAcc?.value ?? 0) * auto);
-  const autoWrong = auto - autoRight;
-  const review = n - auto;
-  const reviewRight = right - autoRight;
-  const reviewWrong = review - reviewRight;
-  const squares = [
-    ...Array(autoRight).fill("ar"),
-    ...Array(autoWrong).fill("aw"),
-    ...Array(reviewRight).fill("rr"),
-    ...Array(reviewWrong).fill("rw"),
-  ] as ("ar" | "aw" | "rr" | "rw")[];
-  const sq = { ar: "bg-ok", aw: "border border-ink bg-white", rr: "bg-ok/25", rw: "border border-dashed border-dim bg-white" };
 
   const baselines = [
     { label: "Unde", it: acc, ours: true },
@@ -294,84 +387,40 @@ export function AccuracyPage() {
 
   return (
     <Main>
-      <h1 className="text-[34px] tracking-[-0.05em]">How accurate is it?</h1>
-      <p className="read mt-2 max-w-[68ch] text-[15px] text-dim">
-        We tested Unde on {n} real CBP rulings it had never seen, from January to September 2026, and compared its answer with CBP&apos;s.{" "}
-        <a href="#misses" className="text-ok underline underline-offset-2">
-          Every miss is listed
-        </a>
-        .
-      </p>
-      {error ? (
-        <div className="mt-6">
-          <ErrorBox error={error} onRetry={load} />
-        </div>
-      ) : null}
-      {!data && !error && (
-        <div className="mt-6">
-          <Spinner label="Loading the numbers…" />
-        </div>
-      )}
+      <header>
+        <h1 className="text-[clamp(2.25rem,5vw,3.75rem)] font-semibold leading-tight tracking-[-0.06em]">How accurate is it?</h1>
+        <p className="read mt-2 max-w-[65ch] text-base text-dim">U.S. origin predictions compared with real CBP rulings, January–September 2026.</p>
+      </header>
+      <dl className="mt-6 grid gap-3 md:grid-cols-3">
+        <Kpi title="Overall accuracy" value={pct(correct / n)} lead>
+          {correct} / {n} right on the unseen test set. {pct(FIRST_COUNTRY_BASELINE)} for the first-country baseline.
+        </Kpi>
+        <Kpi title="Auto-accepted accuracy" value={pct(autoRight / auto)}>
+          {autoRight} / {auto} right at ≥ {bar.toFixed(2)} stated confidence and in scope.
+        </Kpi>
+        <Kpi title="Human escalation rate" value={pct(review / n)}>
+          {review} sent to review. The model had {reviewRight} right and {reviewWrong} wrong.
+        </Kpi>
+      </dl>
 
-      {acc && (
-        <>
-          <div className="mt-8 grid gap-5 lg:grid-cols-[minmax(0,1fr)_300px]">
-            <section className="border border-edge bg-sheet px-5 py-4 shadow-[4px_4px_0_var(--shadow)]">
-              <Head title="Unseen test set" tags={<Official />} meta="one square = one CBP ruling" />
-              <div
-                className="mt-4 grid gap-[3px]"
-                style={{ gridTemplateColumns: "repeat(29, minmax(0, 1fr))" }}
-                role="img"
-                aria-label={`${n} rulings: ${autoRight} auto-accepted and right, ${autoWrong} auto-accepted and wrong, ${reviewRight} sent to review and right, ${reviewWrong} sent to review and wrong.`}
-              >
-                {squares.map((k, i) => (
-                  <i key={i} className={cx("aspect-square", sq[k])} />
-                ))}
-              </div>
-              <ul className="mt-4 grid gap-x-6 gap-y-2 text-xs text-body sm:grid-cols-2">
-                {(
-                  [
-                    ["ar", `auto-accepted, right · ${autoRight}`],
-                    ["aw", `auto-accepted, wrong · ${autoWrong}`],
-                    ["rr", `sent to review, right · ${reviewRight}`],
-                    ["rw", `sent to review, wrong · ${reviewWrong}`],
-                  ] as const
-                ).map(([k, l]) => (
-                  <li key={k} className="flex items-center gap-2">
-                    <i className={cx("inline-block size-2.5", sq[k])} aria-hidden="true" />
-                    {l}
-                  </li>
-                ))}
-              </ul>
-            </section>
-            <div className="flex flex-col gap-5 max-lg:order-first">
-              <Card title="Overall" big={pct(acc.value)}>
-                {right} of {n} right.
-              </Card>
-              <Card title="When it's sure" big={pct(fpAcc?.value)}>
-                right, on {pct(fpCov?.value, 0)} of cases. These are auto-accepted.
-              </Card>
-              <Card title="Sent to review" big={String(review)}>
-                cases, {pct(reviewRight / Math.max(review, 1), 0)} right. A person checks them.
-              </Card>
-            </div>
-          </div>
-          <Details>
-            <p>
-              95% intervals: overall {ci(acc)}; when sure {ci(fpAcc)}. They resample these same scored rows with a fixed seed, so they describe sampling error
-              conditional on one run, not model-run variance, label error, calibration fitting or split construction. Repeat runs are measured separately (Run it again,
-              below).
-            </p>
-            <p>
-              &ldquo;Sure&rdquo; means a calibrated confidence of 0.90 or more, the auto-accept bar on every Result screen. It takes the same cases as a stated confidence of
-              0.92. Sent to review: {reviewRight} of {review} right, against {pct(fpAcc?.value, 0)} when it&apos;s sure.
-            </p>
-            <p>
-              None of these rulings was used to tune it. As in real use, it could read earlier 2026 rulings as precedent, never the case&apos;s own ruling or a later one.
-              Gemini on Vertex AI. Against the earlier LiteLLM proxy run: no difference ({pct(PROXY.from)} → {pct(PROXY.to)}, McNemar p = {PROXY.p}).
-            </p>
-          </Details>
+      <OutcomeMatrix />
+      <PlanEvidence calibration={data?.verifier_calibration} />
 
+      <section className="mt-8" aria-labelledby="acc-limits">
+        <h2 id="acc-limits" className="eyebrow">Test limits</h2>
+        <ul className="read mt-2 flex max-w-[92ch] list-disc flex-col gap-1.5 pl-5 text-sm text-dim">
+          <li>{copy.jurisdiction.notCovered}</li>
+          <li>{copy.jurisdiction.noDetector}</li>
+          <li>Not a ruling. A licensed broker confirms before anything is filed.</li>
+        </ul>
+      </section>
+
+      <div className="mt-6">
+        <Fold title="More evaluation results and sources">
+          {error ? <ErrorBox error={error} onRetry={load} /> : null}
+          {!data && !error ? <div className="mt-3 h-12 border border-line bg-wash" aria-busy="true" aria-label="Additional results" /> : null}
+          {acc && (
+            <>
           <section className="mt-8" aria-labelledby="acc-thumb">
             <Head id="acc-thumb" title="Against simple rules of thumb" meta={<>same {n} rulings · * reported, not reproducible here</>} />
             <Bars rows={baselines} />
@@ -432,41 +481,6 @@ export function AccuracyPage() {
               </Details>
             </section>
           )}
-
-          {postPrec && postRec && (
-            <section id="plan-checks" className="mt-8 scroll-mt-20" aria-labelledby="acc-plan">
-              <Head id="acc-plan" title="Plan checks on newer rulings" tags={<Side />} meta={`${postPairs} pairs · small · same in 3 runs`} />
-              <div className="mt-3 grid gap-5 md:grid-cols-2">
-                <Card title="Moves shown that were real changes" big={`${postRight} of ${postShown}`}>
-                  {postCtl ? `${postCtlShown} of ${postCtl.n} pairs where CBP kept the origin were shown.` : null}
-                </Card>
-                <Card title="Real changes found" big={pct(postRec.value, 0)}>
-                  {postFound} of {postReal}. The rest go to a broker.
-                </Card>
-              </div>
-              <p className="read mt-3 max-w-[80ch] text-[13px] text-dim">A ruling CBP later revoked or modified is never cited as support.</p>
-              <Details>
-                <p>
-                  Each pair is a CBP flip pair with a ruling from Sep–Nov 2026, frozen before scoring. Moves shown are those at the 0.92 precedent-check bar ({ci0(postPrec)}). The
-                  15 pairs of the first set plus 3 added later (D192); three runs gave the same moves (D354). With so few pairs the interval is wide.
-                </p>
-                <p>
-                  Real changes found: {postFound} of {postReal} pairs where CBP&apos;s later ruling changed the origin cleared the bar ({ci0(postRec)}), the same in each of 3 runs,
-                  with CBP&apos;s starting origin given. The rest go to a broker as below the bar or without a supporting ruling.
-                  {calPairs
-                    ? ` The precedent check below says about ${pct(calEvery / calPairs, 0)} instead (${calEvery} of ${calPairs}): that counts earlier pairs (the development pairs and the first 2026 pairs), and only those that cleared the bar in every one of several runs, with and without the starting origin.`
-                    : ""}
-                </p>
-                <p>
-                  Revoked rulings: every ruling link on the site says &quot;superseded by&quot; when one is known (D320, D370). The map holds 144 such changes to 143 rulings, 109 of
-                  them from final notices in 28 fetched Customs Bulletins (D400). Before the guard, 23 of 13,166 committed rows had shown one and 8 had cited one; the
-                  bulletin changes add none, and the effect on accuracy has not been measured.
-                </p>
-              </Details>
-            </section>
-          )}
-
-          {data?.verifier_calibration?.splits?.length ? <VerifierCalibration c={data.verifier_calibration} /> : null}
 
           {reps.length === 3 && repMean && (
             <section className="mt-8" aria-labelledby="acc-repeat">
@@ -598,6 +612,13 @@ export function AccuracyPage() {
                       : ""}
                   </p>
                 )}
+                {usV5 && (
+                  <p>
+                    In the Part 102 plan candidate comparison, 6 of 18 rulings had a plan template with usmca-v1, which agreed with the rule on 3 of 6 decided moves.
+                    The pass with usmca-v5 and 20 families found 8 of 18 templates and 6 of 6 agreements. Five of those six moves keep the country CBP held. Each pass showed one move that the rule says shifts origin. The second pass is a candidate comparison on cases this engine had already been scored on.{" "}
+                    <Link href="/examples/rule-check" className="text-ok underline underline-offset-2">See the recorded rule check →</Link>
+                  </p>
+                )}
                 {allReg && (
                   <p>
                     All rule sets: {pct(allReg.value)} on {allReg.n} unseen rulings from January to November 2026 ({ci(allReg)}), all four rule sets, each ruling counted once. Runs
@@ -628,8 +649,6 @@ export function AccuracyPage() {
             </section>
           )}
 
-          <KnownFailures />
-
           <section className="mt-8 border border-edge bg-sheet px-5 py-4 shadow-[4px_4px_0_var(--shadow)]">
             <h2 className="eyebrow">What we don&apos;t claim</h2>
             <ul className="read mt-3 flex list-disc flex-col gap-2 pl-5 text-[14px]">
@@ -639,9 +658,6 @@ export function AccuracyPage() {
                 </li>
               )}
               {movePrec && <li>Plan move checks are measured on few pairs, and partly not a clean test. They are not a measure of plan quality.</li>}
-              <li>{copy.jurisdiction.notCovered}</li>
-              <li>{copy.jurisdiction.noDetector}</li>
-              <li>Not a ruling. A licensed broker confirms before anything is filed.</li>
             </ul>
             <Details>
               {change && (
@@ -710,74 +726,22 @@ export function AccuracyPage() {
               </p>
             </Fold>
           </section>
-        </>
-      )}
-      <HowBuilt />
-    </Main>
-  );
-}
-
-// How the pieces fit, for anyone judging the Gen AI (#153). Model names and
-// settings are the backend defaults (internal/config); the Ask agent is ADK.
-const stages: { n: number; name: string; model: string; does: string }[] = [
-  { n: 1, name: "Router", model: "Gemini 3.8 Flash", does: "Sends each question to the right origin rules, or to a person." },
-  { n: 2, name: "Origin engine", model: "Gemini 4 Argon", does: "Reads the 5 most similar earlier CBP rulings and predicts the origin, with reasons." },
-  { n: 3, name: "Triage", model: "0.90 bar", does: "Auto-accepts sure answers. The rest go to review, with questions." },
-  { n: 4, name: "Planner", model: "search", does: "Tries moving operations between your plants and re-runs the engine." },
-  { n: 5, name: "Verifier agent", model: "Gemini 4 Argon", does: "Looks for earlier rulings for and against each move. Only supported moves are shown." },
-  { n: 6, name: "Ask agent", model: "Gemini · ADK", does: "Answers questions about the case and runs what-ifs." },
-];
-
-function HowBuilt() {
-  return (
-    <section id="how-its-built" aria-labelledby="how-h" className="mt-10 border border-edge bg-sheet px-5 py-5 shadow-[4px_4px_0_var(--shadow)]">
-      <div className="flex flex-wrap items-baseline justify-between gap-2">
-        <h2 id="how-h" className="eyebrow">
-          How it&apos;s built
-        </h2>
-        <span className="text-[11.5px] text-dim">Gemini on Vertex AI · Cloud Run</span>
+            </>
+          )}
+        </Fold>
       </div>
-      <ol className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-        {stages.map((s) => (
-          <li key={s.n} className="relative border border-line bg-white px-4 py-3">
-            <p className="flex items-center gap-2 text-[13px] font-medium text-ink">
-              <span aria-hidden="true" className="inline-grid size-5 place-items-center rounded-full border border-ink text-[11px]">
-                {s.n}
-              </span>
-              {s.name}
-              <span className="ml-auto text-[11px] font-normal text-ok">{s.model}</span>
-            </p>
-            <p className="read mt-1.5 text-[13.5px] text-body">{s.does}</p>
-          </li>
-        ))}
-      </ol>
-      <p className="read mt-4 max-w-[95ch] text-[13.5px] text-dim">Every answer cites the rulings it read. Nothing reads rulings dated after the case.</p>
-      <Details>
-        <p>
-          Go backend and Next.js frontend, both on Cloud Run. The router sends textile, pharmaceutical and Part 102 marking rulings to their own rules; other questions
-          outside substantial transformation go to a person. The engine finds similar rulings with BM25 over the public rulings. Triage maps the model&apos;s confidence to
-          a calibrated one, fitted on the development set. A daily spend cap keeps model costs bounded.
-        </p>
-        <p>
-          The engine, router and verifier are measured above. The unseen rulings were never used to tune prompts or retrieval; the general engine&apos;s auto-accept bar is
-          fitted on development rulings, while the textile, pharmaceutical and Part 102 bars came from their first unseen windows.
-        </p>
-        <p>
-          Beside the engine, a deterministic 19 CFR 102.20 tariff-shift check runs when the parts carry HTS codes, and the parts table can suggest those codes. It never
-          changes the answer or what is auto-accepted. Plan searches on Part 102 cases were scored twice on a held-out set frozen before the first run.
-          With usmca-v1 and 14 families, 6 of 18 rulings had a plan template and usmca-v1 agreed with the 102.20 rule on 3 of 6 decided moves; with usmca-v5 and 20
-          families, 8 of 18 and 6 of 6; five of the six are moves where the rule keeps the country CBP held. Each time the one plan shown is a move the rule says shifts. The second pass
-          is a candidate comparison, not new held-out evidence: its 8 rulings are from the window usmca-v5 was scored on before it was adopted. Too few to read as an accuracy figure.{" "}
-          <Link href="/examples/rule-check" className="text-ok underline underline-offset-2">
-            Per-part codes and the rule check, a recorded example →
-          </Link>
-        </p>
-      </Details>
-      <p className="read mt-3 text-[13.5px]">
-        <Link href="/method" className="text-ok underline underline-offset-2">
-          How it&apos;s built and tested →
-        </Link>
-      </p>
-    </section>
+
+      <nav aria-label="Explore the evidence" className="mt-8 flex flex-wrap gap-3 border-t border-line pt-5">
+        <ButtonLink href="#misses" onClick={openFailures}>Inspect all {misses.length} known failures →</ButtonLink>
+        <ButtonLink href="/method" variant="ghost">See system architecture →</ButtonLink>
+      </nav>
+      <details ref={failures} id="misses" className="group mt-4 scroll-mt-20 border-b border-line">
+        <summary className="flex min-h-11 list-none items-center gap-2 text-sm text-ink hover:text-ok [&::-webkit-details-marker]:hidden">
+          <span aria-hidden="true" className="inline-block w-3 text-dim group-open:rotate-90">▸</span>
+          Failure table and patterns
+        </summary>
+        <KnownFailures all={allMisses} onAllChange={setAllMisses} />
+      </details>
+    </Main>
   );
 }
