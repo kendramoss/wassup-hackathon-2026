@@ -624,6 +624,17 @@ export const copy = {
     robustTogether: "The answer depends on which suggested codes are chosen together. Check the part codes with your broker first.",
   },
 
+  // The 102.20 rule check on each plan move (D441): a chip on the plan card
+  // and each row of the moves table. Display only.
+  planRule: {
+    explain:
+      "The 19 CFR 102.20 tariff-shift check of the product as it would be after this move, from the HTS codes on the parts list. It never changes the precedent check, which plans are shown or their order. Not a ruling.",
+    caption: (part102: boolean) =>
+      part102
+        ? "Each move also shows the 19 CFR 102.20 rule check of the product after the move. Display only: it does not change which plans are shown or their order."
+        : "Each move also shows the 19 CFR 102.20 rule check, for comparison: this case is decided under substantial transformation. Display only: it does not change which plans are shown or their order.",
+  },
+
   // /examples/rule-check: a recorded, read-only example of the per-part codes
   // and the rule check (judge panel round 8, N11). The pinned demo case has no
   // part codes, so its own pages show neither.

@@ -211,16 +211,16 @@ func label(c *domain.PlanRuleCheck, res tariffshift.Result, baseline bool) strin
 		}
 		return fmt.Sprintf("Shifts under 102.20 (%s)", ruleHTS)
 	case NoShift:
-		return fmt.Sprintf("Does not shift (%s %s)", shortList(c.Failing), fails(len(c.Failing)))
+		return fmt.Sprintf("Does not shift under 102.20 (%s %s)", shortList(c.Failing), fails(len(c.Failing)))
 	case OtherCountry:
 		return fmt.Sprintf("102.20 gives %s: finished there", c.Origin)
 	}
 	if c.Why == WhyDeMinimis && len(c.Failing) > 0 {
 		// The parts fail the shift; only their value (102.13) could still
 		// let the good reach the country where it is finished.
-		return fmt.Sprintf("Does not shift (%s %s) unless de minimis", shortList(c.Failing), fails(len(c.Failing)))
+		return fmt.Sprintf("Does not shift under 102.20 (%s %s) unless de minimis", shortList(c.Failing), fails(len(c.Failing)))
 	}
-	return "Undetermined (" + whyWords(c, res) + ")"
+	return "102.20 undetermined (" + whyWords(c, res) + ")"
 }
 
 func fails(n int) string {

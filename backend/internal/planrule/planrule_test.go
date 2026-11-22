@@ -93,7 +93,7 @@ func TestMoveStatuses(t *testing.T) {
 		{name: "rule shifts, precedent not supported: a Part 102 case flags it", p: supply(), m: move("final_assembly"), v: supported(false),
 			applies: AppliesPart102, status: Shifts, agrees: ptr(false), review: true},
 		{name: "a part inside the group fails; its value decides (de minimis)", p: supply(domain.Component{Name: "transformer", MadeIn: "China", Plant: "cn", Group: "magnetics", HTS: "8504.31"}),
-			m: move("final_assembly"), v: supported(true), applies: AppliesInformational, status: Undetermined, why: WhyDeMinimis, label: "Does not shift (transformer fails) unless"},
+			m: move("final_assembly"), v: supported(true), applies: AppliesInformational, status: Undetermined, why: WhyDeMinimis, label: "Does not shift under 102.20 (transformer fails) unless"},
 		{name: "engine missed: no verdict, no agreement", p: supply(), m: move("pcba"), applies: AppliesInformational, status: OtherCountry},
 	} {
 		t.Run(tt.name, func(t *testing.T) {
@@ -119,13 +119,13 @@ func TestUndeterminedReasons(t *testing.T) {
 	p := supply()
 	p.Components[1].HTS = ""
 	c := Check(r, p, domain.Plan{Move: move("final_assembly")}, "Vietnam", AppliesPart102)
-	if c.Status != Undetermined || c.Why != WhyMissingCode || c.Label != "Undetermined (no code for 1 part)" {
+	if c.Status != Undetermined || c.Why != WhyMissingCode || c.Label != "102.20 undetermined (no code for 1 part)" {
 		t.Fatalf("%+v", c)
 	}
 	p = supply()
 	p.HTS = "6307.90.98"
 	c = Check(r, p, domain.Plan{Move: move("final_assembly")}, "Vietnam", AppliesInformational)
-	if c.Status != Undetermined || c.Why != WhyOutOfScope || c.Label != "Undetermined (chapter 63 not encoded)" {
+	if c.Status != Undetermined || c.Why != WhyOutOfScope || c.Label != "102.20 undetermined (chapter 63 not encoded)" {
 		t.Fatalf("%+v", c)
 	}
 	p = supply()

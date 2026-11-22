@@ -244,8 +244,15 @@ func cmdPlansEval(args []string) error {
 }
 
 func writeOrCheckPlans(path string, b []byte, check bool) error {
-	if err := writeOrCheck(path, b, check); err != nil {
-		return fmt.Errorf("%w (go run ./cmd/tariffshift plans-eval)", err)
+	if !check {
+		return os.WriteFile(path, b, 0o644)
+	}
+	old, err := os.ReadFile(path)
+	if err != nil {
+		return err
+	}
+	if string(old) != string(b) {
+		return fmt.Errorf("%s is stale: run go run ./cmd/tariffshift plans-eval", path)
 	}
 	return nil
 }
