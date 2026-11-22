@@ -13,9 +13,9 @@
   "extraction_final2_facts": "56b33ceb96168d6048679c443d12badc64f972c804d383b54ac326455c720103",
   "suggestions_final": "a5add4224ea8539f1d9450e6ee4afccf0808eb2cd362b39ede670b3ce665f725",
   "labels": "dc7e82fe63a2b4de2c77984169577387dd8816d73f66b6b43575d5b74f159b85",
-  "labels_final2": "817e49c12709acff23bec25e9c90831e064feaf6c0ce556ec3675bb1906dd62f",
-  "protocol": "74e63680a5d06453b8be69c00536a24dc9da29426d3cf8b6c7e0a3b3625c2dd2"
+  "labels_final2": "817e49c12709acff23bec25e9c90831e064feaf6c0ce556ec3675bb1906dd62f"
  },
+ "protocol_sha256_at_freeze": "74e63680a5d06453b8be69c00536a24dc9da29426d3cf8b6c7e0a3b3625c2dd2",
  "counts": {
   "final": 32,
   "final2": 13,
