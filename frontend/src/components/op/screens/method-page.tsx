@@ -4,7 +4,7 @@ import { Main } from "../chrome";
 import { Reproduce } from "../failure-cases";
 import { Stability } from "../method-stability";
 import { Chip, Fold } from "../ui";
-import { copy } from "@/lib/copy";
+import { MethodArchitecture } from "../method-architecture";
 import {
   ARMS,
   AXIS,
@@ -46,7 +46,7 @@ const QUESTIONS = [
   { id: "data", q: "What data does it see?" },
   { id: "choices", q: "How were the settings chosen?" },
   { id: "clean", q: "How is the test set kept clean?" },
-  { id: "negative", q: "What didn't work?" },
+  { id: "negative", q: "What we tried and what failed" },
   { id: "stable", q: "How stable is it from run to run?" },
   { id: "check", q: "How can I check it myself?" },
 ];
@@ -115,14 +115,11 @@ function Details({ title = "Details", children }: { title?: string; children: Re
   );
 }
 
-function Section({ id, n, lead, children }: { id: string; n: number; lead: ReactNode; children: ReactNode }) {
+function Section({ id, lead, children }: { id: string; lead: ReactNode; children: ReactNode }) {
   const q = QUESTIONS.find((x) => x.id === id)!;
   return (
     <section id={id} aria-labelledby={`${id}-h`} className="mt-12 scroll-mt-6 border-t border-line pt-6">
-      <h2 id={`${id}-h`} className="flex items-baseline gap-3 text-[22px] leading-tight tracking-[-0.04em]">
-        <span aria-hidden="true" className="font-mono text-[12px] text-dim">
-          {n}
-        </span>
+      <h2 id={`${id}-h`} className="text-[22px] font-medium leading-tight tracking-[-0.04em]">
         {q.q}
       </h2>
       <p className="mt-2 max-w-[72ch] text-[15px] font-medium text-ink">{lead}</p>
@@ -486,52 +483,91 @@ function Backtest() {
 
 const exampleLink = "text-ok underline underline-offset-2";
 
+function MethodGuardrails() {
+  return (
+    <section aria-labelledby="guardrails-heading" className="mt-11">
+      <h2 id="guardrails-heading" className="text-[24px] font-medium leading-tight tracking-[-0.04em] sm:text-[28px]">Guardrails</h2>
+      <div className="mt-3 grid gap-3 md:grid-cols-3">
+        <article className="min-w-0 rounded-[2px] border border-edge bg-sheet p-4 sm:p-5">
+          <h3 className="text-[15px] font-semibold text-ink">Temporal date lock</h3>
+          <p className="read mt-2 text-[13px] leading-snug text-body">Retrieval excludes rulings dated on or after the case date. Gemini’s exposure to public rulings during pretraining is unknown.</p>
+          <a href="#clean" className="mt-2 inline-flex min-h-11 items-center text-[12px] text-ok underline underline-offset-4">Read the test boundaries <span aria-hidden="true" className="ml-1">→</span></a>
+        </article>
+        <article className="min-w-0 rounded-[2px] border border-edge bg-sheet p-4 sm:p-5">
+          <h3 className="text-[15px] font-semibold text-ink">Tariff shifts in Go</h3>
+          <p className="read mt-2 text-[13px] leading-snug text-body">Go code checks encoded 19 CFR 102.20 rules against tariff codes. Missing facts or rule coverage can leave the result undetermined.</p>
+          <Link href="/examples/rule-check" className="mt-2 inline-flex min-h-11 items-center text-[12px] text-ok underline underline-offset-4">See a recorded check <span aria-hidden="true" className="ml-1">→</span></Link>
+        </article>
+        <article className="min-w-0 rounded-[2px] border border-edge bg-sheet p-4 sm:p-5">
+          <h3 className="text-[15px] font-semibold text-ink">Spend cap and citations</h3>
+          <p className="read mt-2 text-[13px] leading-snug text-body">New analyses pause when the daily model budget runs out. Citations must come from the rulings retrieved for the case.</p>
+          <Ext href={blob("docs/api/SECURITY.md")} className="mt-2 inline-flex min-h-11 items-center text-[12px] underline-offset-4">Read the API limits <span aria-hidden="true" className="ml-1">→</span></Ext>
+        </article>
+      </div>
+    </section>
+  );
+}
+
+function Experiments() {
+  return (
+    <Section id="negative" lead="Early trials found two gaps: unreliable tariff rules and missing counterexamples.">
+      <Details title="Tariff shifts from model memory">
+        <p>On a compressor move, the model invented an exception to a tariff-shift rule. Supplying the rule text inside the prompt did worse on development cases, so that version was dropped.</p>
+        <p>The separate Go check now evaluates encoded rules directly and flags disagreements for review. <Ext href={decisionHref("D551")}>Rule-text trial</Ext> · <Ext href={decisionHref("D591")}>Review flag</Ext></p>
+      </Details>
+      <Details title="One-sided precedent search">
+        <p>The early verifier could find a supporting ruling and miss a closer counterexample. The revised verifier must look for both and tie its confidence to the ruling it read.</p>
+        <p>The team developed this check after reading early misses. <Ext href={decisionHref("D74")}>Verifier decision</Ext></p>
+      </Details>
+      <Details title="Fine-tuning, model swaps and voting">
+        <p>Fine-tuned Flash scored worse on development cases. Model swaps, voting and prompt variants also failed their adoption rules.</p>
+        <Negatives />
+      </Details>
+      <p>Model and prompt variants stayed on development rulings. None of these was scored on the unseen test set.</p>
+    </Section>
+  );
+}
+
 export function MethodPage() {
   return (
     <Main>
-      <p className="eyebrow">Method</p>
-      <h1 className="mt-1 text-[34px] leading-tight tracking-[-0.05em]">How it&apos;s built and tested</h1>
-      <div className="read mt-3 flex max-w-[72ch] flex-col gap-3 text-[15px] text-body">
-        <p>Unde is not a trained model. Gemini reads a product&apos;s facts beside the most similar earlier CBP rulings, and gives the origin CBP would likely assign.</p>
-        <p className="border-l-2 border-ok pl-3">
-          <b className="font-medium text-ink">{copy.novel.lead}</b> {copy.novel.text} <a href="#plans" className="text-ok underline underline-offset-2">How →</a>
+      <header className="border-b border-line pb-6 pt-1 sm:pb-8 sm:pt-3">
+        <p className="eyebrow">Method</p>
+        <h1 className="mt-3 max-w-[25ch] text-[clamp(2rem,5.3vw,4.25rem)] font-semibold leading-[1.06] tracking-[-0.06em]">
+          Temporal RAG + multi-agent verification
+        </h1>
+        <p className="read mt-4 max-w-[70ch] text-[15px] leading-snug text-body sm:text-[17px]">
+          Unde is not a trained model. It predicts U.S. origin with earlier customs rulings and checks proposed production moves against precedent.
         </p>
-      </div>
-
-      <nav aria-label="On this page" className="mt-6 max-w-[72ch]">
-        <ol className="flex flex-col border-t border-line text-[13.5px]">
-          {QUESTIONS.map((q, i) => (
-            <li key={q.id} className="border-b border-line">
-              <a href={`#${q.id}`} className="flex min-h-10 items-center gap-3 py-1.5 text-ink hover:text-ok">
-                <span className="w-5 shrink-0 font-mono text-[11px] text-dim">{i + 1}</span>
-                {q.q}
-              </a>
-            </li>
+        <ul aria-label="Technology stack" className="mt-5 flex flex-wrap gap-2">
+          {["Gemini on Vertex AI", "Go on Cloud Run", "Next.js", "ADK for Go"].map((tool) => (
+            <li key={tool} className="rounded-[2px] border border-edge bg-sheet px-2.5 py-1.5 text-[12px] font-medium leading-tight text-ink">{tool}</li>
           ))}
-        </ol>
+        </ul>
+      </header>
+
+      <MethodArchitecture />
+      <MethodGuardrails />
+      <Experiments />
+
+      <nav aria-label="More on the method" className="mt-12 flex flex-wrap gap-x-6 gap-y-1 border-y border-line py-1 text-[13px]">
+        <a href="#choices" className="inline-flex min-h-11 items-center text-ok underline underline-offset-4">Test protocol</a>
+        <a href="#stable" className="inline-flex min-h-11 items-center text-ok underline underline-offset-4">Repeat runs</a>
+        <a href="#check" className="inline-flex min-h-11 items-center text-ok underline underline-offset-4">Reproduce it</a>
+        <Link href="/accuracy" className="inline-flex min-h-11 items-center text-ok underline underline-offset-4">Accuracy and failures</Link>
       </nav>
 
-      <Section id="model" n={1} lead="No model is trained. Gemini 4 Argon answers, reading the five most similar earlier rulings.">
-        <Points
-          items={[
-            "A router picks which set of origin rules applies.",
-            "A rule check of the tariff-shift rules runs beside the model. It never changes the answer.",
-            "Fine-tuning was tried once. It was worse, so it was dropped.",
-          ]}
-        />
-        <RuleCoverage />
-        <p className="text-[13.5px] text-dim">
-          Recorded examples:{" "}
-          <Link href="/examples/rule-check" className={exampleLink}>
-            rule check
-          </Link>
-          ,{" "}
-          <Link href="/examples/plan-rule-check" className={exampleLink}>
-            rule check on a plan move
-          </Link>
-          . More: <Ext href={blob("docs/MODEL-CARD.md")}>model card</Ext>, <Ext href={blob("docs/PROMPTS.md")}>prompts</Ext>,{" "}
-          <Ext href={blob("docs/ARCHITECTURE.md")}>architecture</Ext>.
-        </p>
+      <Section id="model" lead="No model is trained. Gemini 4 Argon answers, reading the five most similar earlier rulings.">
+        <p>A tariff-shift check runs beside the prediction. It never changes the answer. Fine-tuning was tried once. It was worse, so it was dropped.</p>
+        <Details title="Rule-check results and recorded examples">
+          <RuleCoverage />
+          <p>
+            <Link href="/examples/rule-check" className={exampleLink}>Rule check</Link>,{" "}
+            <Link href="/examples/plan-rule-check" className={exampleLink}>move check</Link>,{" "}
+            <Ext href={blob("docs/MODEL-CARD.md")}>model card</Ext> and{" "}
+            <Ext href={blob("docs/PROMPTS.md")}>prompts</Ext>.
+          </p>
+        </Details>
         <Details>
           <p>
             <b className="font-medium text-ink">No model is trained or fine-tuned for the product.</b> The origin engine is Gemini 4 Argon on Vertex AI, called with a fixed prompt
@@ -564,42 +600,8 @@ export function MethodPage() {
         </Details>
       </Section>
 
-      <Section id="plans" n={2} lead="It finds production moves that change the origin, and shows one only when an earlier CBP ruling backs it.">
-        <ol className="grid max-w-[72ch] gap-x-6 gap-y-2.5 sm:grid-cols-2">
-          {[
-            ["Group the work", "A template per product family sorts parts and steps into groups of work."],
-            ["Try moves", "Move one, two or three groups to a plant the product already lists."],
-            ["Predict the new origin", "The origin engine reads the changed facts."],
-            ["Check against rulings", "An agent looks for a ruling for the move and one against. A move shows only at a check of 0.92 or more."],
-            ["Rule check beside it", "On Part 102 cases the tariff-shift rule checks each move too."],
-            ["Draft for a broker", "A licensed broker checks and files the request. Only CBP's ruling binds."],
-          ].map(([t, s], i) => (
-            <li key={t} className="flex gap-3">
-              <span aria-hidden="true" className="mt-0.5 flex size-5 shrink-0 items-center justify-center border border-edge font-mono text-[11px] text-dim">
-                {i + 1}
-              </span>
-              <span>
-                <b className="font-medium text-ink">{t}.</b> {s}
-              </span>
-            </li>
-          ))}
-        </ol>
-        <p>A ruling CBP later revoked or changed is never cited.</p>
-        <p className="text-[13.5px] text-dim">
-          Recorded examples:{" "}
-          <Link href="/examples/part102-plan" className={exampleLink}>
-            Part 102 plan search
-          </Link>
-          ,{" "}
-          <Link href="/examples/plan-rule-check" className={exampleLink}>
-            move check
-          </Link>
-          ,{" "}
-          <Link href="/examples/revocation-alert" className={exampleLink}>
-            revocation alert
-          </Link>
-          .
-        </p>
+      <Section id="plans" lead="It finds production moves that change the origin, and shows one only when an earlier CBP ruling backs it.">
+        <p>{"Only CBP's ruling binds."}</p>
         <Details title="Details: each step">
           <ol className="flex list-decimal flex-col gap-2 pl-5">
             <li>
@@ -665,10 +667,15 @@ export function MethodPage() {
             site shows its own estimate; a repeat search uses the stored checks and costs nothing.
           </p>
         </Details>
-        <PlanChecks />
-        <Backtest />
-        <p>Not a blind test: the search was changed after the team saw this change. The plan may move more than needed.</p>
-        <Details>
+        <p>Heat-gun example. Not a blind test: the search was changed after the team saw this change. The plan may move more than needed.</p>
+        <Details title="Plan benchmarks and recorded examples">
+          <PlanChecks />
+          <Backtest />
+          <p>
+            <Link href="/examples/part102-plan" className={exampleLink}>Part 102 plan search</Link>,{" "}
+            <Link href="/examples/plan-rule-check" className={exampleLink}>move check</Link> and{" "}
+            <Link href="/examples/revocation-alert" className={exampleLink}>revocation alert</Link>.
+          </p>
           <p>
             <b className="font-medium text-ink">Also measured.</b> The heat gun&apos;s shown plan was backtested against what the manufacturer really did: CBP&apos;s later ruling
             N357771 records the change. The comparison is between the parts whose origin that change switched from China to Thailand and the parts the plan moves. The change
@@ -715,13 +722,13 @@ export function MethodPage() {
         </Details>
       </Section>
 
-      <Section id="data" n={3} lead="Public CBP rulings, and the facts you type. A case only sees rulings dated before it.">
-        <Windows />
-        <Details>
+      <Section id="data" lead="Public CBP rulings, and the facts you type. A case only sees rulings dated before it.">
+        <Details title="Data windows and source facts">
+          <Windows />
           <p>
-            The rulings come from CBP&apos;s public CROSS database (rulings.cbp.gov). Nothing else is in the corpus. The engine reads only the facts section of each earlier
-            ruling, cut where the legal analysis starts, with sentences that state the origin conclusion removed. The label for testing is CBP&apos;s stated holding: extracted by a
-            rule from the holding sentence, set by hand where the rule failed, and spot-checked. No customs expert reviewed the labels.
+            The rulings come from CBP&apos;s public CROSS database. Retrieval ranks earlier facts, with origin conclusions removed. The engine sees those facts and each earlier
+            ruling&apos;s holding. The test case gives the engine its facts alone. The scoring label is that case&apos;s stated holding, extracted by rule, filled in by hand where the
+            rule failed, and spot-checked. No customs expert reviewed the labels.
           </p>
           <p>The date filter holds in testing and on this site. {ROUTER_DEV}</p>
           <p>
@@ -730,7 +737,7 @@ export function MethodPage() {
         </Details>
       </Section>
 
-      <Section id="choices" n={4} lead="On development rulings, with each pass rule written down before the run.">
+      <Section id="choices" lead="On development rulings, with each pass rule written down before the run.">
         <p>Since an outside expert review on 21 Nov 2026, every experiment reports its result, worse ones too.</p>
         <p className="font-medium text-ink">Where we fell short:</p>
         <Points
@@ -806,7 +813,7 @@ export function MethodPage() {
         </Details>
       </Section>
 
-      <Section id="clean" n={5} lead="Split by date, frozen before scoring, and each candidate scored once.">
+      <Section id="clean" lead="Split by date, frozen before scoring, and each candidate scored once.">
         <Points
           items={[
             "The two unseen test sets are pinned by checksum.",
@@ -823,8 +830,8 @@ export function MethodPage() {
             "Gemini may have seen some rulings in training. The newer test set is our best answer.",
           ]}
         />
-        <Leak />
-        <Details>
+        <Details title="Leakage measures and frozen test sets">
+          <Leak />
           <ul className="flex list-disc flex-col gap-2 pl-5">
             <li>
               The first held-out split (January to September 2026) was frozen in this repository on 14 Oct 2026. The research prototype before it had already scored the same rulings
@@ -858,25 +865,10 @@ export function MethodPage() {
         </Details>
       </Section>
 
-      <Section id="negative" n={6} lead="Most things. Nothing we tried beat the engine in use by enough to adopt it.">
-        <p>None of these was scored on the unseen test set. The ones that looked better are shown too.</p>
-        <Negatives />
-        <Details>
-          <p>
-            Newer and larger Gemini models, a fine-tuned Flash, a majority vote, a written rule for the biggest error group, a second-stage adjudicator, a component checklist and
-            one router prompt (router-v3) were each tried on the development set against the engine in use. None beat it by enough to pass its rule, so none was scored on held-out
-            rulings.
-          </p>
-          <p>
-            Earlier changes to retrieval and prompts (embeddings, re-ranking, voting, CBP&apos;s reasoning shown with each precedent) are in{" "}
-            <Ext href={blob("docs/EVALUATION.md#34-retrieval-and-prompt-complexity-against-gain")}>EVALUATION.md §3.4</Ext> (<D id="D22" />). None moved accuracy by more than half a point.
-          </p>
-        </Details>
-      </Section>
-
-      <Section id="stable" n={7} lead="Run it again and the answer rarely changes.">
-        <Stability />
-        <Details>
+      <Section id="stable" lead="Run it again and the answer rarely changes.">
+        <p>Two repeats per test set is a small sample.</p>
+        <Details title="Repeat-run results">
+          <Stability />
           <p>
             The same frozen engine was run again with every call fresh: three times on the development set, and twice more on each held-out split. The published held-out figures
             stay the official single runs; the repeats sit beside them.
@@ -884,7 +876,7 @@ export function MethodPage() {
         </Details>
       </Section>
 
-      <Section id="check" n={8} lead="Rerun the checks from committed files. No model calls, no credentials.">
+      <Section id="check" lead="Rerun the checks from committed files. No model calls, no credentials.">
         <p>Each step fails if a headline number has drifted from its source rows.</p>
         <div className="max-w-[960px]">
           <Reproduce />

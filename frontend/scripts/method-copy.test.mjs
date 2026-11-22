@@ -63,7 +63,7 @@ test("the visible page uses plain names, not internal ids", () => {
 });
 
 test("each question opens with a short plain lead", () => {
-  const leads = [...page.matchAll(/<Section id="\w+" n=\{\d\} lead="([^"]+)">/g)].map((m) => m[1]);
+  const leads = [...page.matchAll(/<Section id="\w+" lead="([^"]+)">/g)].map((m) => m[1]);
   assert.equal(leads.length, 8);
   for (const l of leads) assert.ok(l.split(" ").length <= 20, `lead over 20 words: ${l}`);
 });
