@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useId, useState } from "react";
+import { useEffect, useId, useRef, useState } from "react";
 import { ApiError, type Economics, type Plant, type Product } from "@/lib/api/client";
 import { copy } from "@/lib/copy";
 import {
@@ -223,6 +223,24 @@ export function OperationalFields({
   };
   const [open, setOpen] = useState(false);
   const [confirmOff, setConfirmOff] = useState(false);
+  // #603: focus the safe action when the confirmation opens, and keep Tab
+  // inside it until the visitor chooses.
+  const switchRef = useRef<HTMLInputElement>(null);
+  const discardRef = useRef<HTMLButtonElement>(null);
+  const keepOffRef = useRef<HTMLButtonElement>(null);
+  useEffect(() => {
+    if (confirmOff) keepOffRef.current?.focus();
+  }, [confirmOff]);
+  const cancelOff = () => {
+    setConfirmOff(false);
+    switchRef.current?.focus();
+  };
+  const discardOff = () => {
+    setConfirmOff(false);
+    setOpen(false);
+    discard();
+    switchRef.current?.focus();
+  };
   const ops = value.operations;
   const on = open || ops !== undefined;
   const groups = opsGroups(product);
@@ -262,6 +280,7 @@ export function OperationalFields({
       </h3>
       <label className="flex items-center gap-2 text-[13px]">
         <input
+          ref={switchRef}
           type="checkbox"
           role="switch"
           checked={on}
@@ -278,19 +297,38 @@ export function OperationalFields({
         {copy.ops.switchLabel}
       </label>
       {confirmOff && (
-        <div role="alertdialog" aria-label="Discard operating-cost inputs" className="mt-2 flex flex-wrap items-center gap-3 border border-ask-line bg-ask-wash px-3 py-2 text-[12.5px]">
+        <div
+          role="alertdialog"
+          aria-label="Discard operating-cost inputs"
+          className="mt-2 flex flex-wrap items-center gap-3 border border-ask-line bg-ask-wash px-3 py-2 text-[12.5px]"
+          onKeyDown={(e) => {
+            if (e.key === "Escape") {
+              e.preventDefault();
+              // The Drawer's document-level Escape must not close the whole
+              // editor while this confirmation is open (#603).
+              e.nativeEvent.stopImmediatePropagation();
+              cancelOff();
+              return;
+            }
+            if (e.key !== "Tab" || !discardRef.current || !keepOffRef.current) return;
+            const first = discardRef.current;
+            const last = keepOffRef.current;
+            if (e.shiftKey && document.activeElement === first) {
+              e.preventDefault();
+              e.nativeEvent.stopImmediatePropagation();
+              last.focus();
+            } else if (!e.shiftKey && document.activeElement === last) {
+              e.preventDefault();
+              e.nativeEvent.stopImmediatePropagation();
+              first.focus();
+            }
+          }}
+        >
           <span className="min-w-0 flex-1">{copy.ops.confirmOff}</span>
-          <Button
-            variant="ghost"
-            onClick={() => {
-              setConfirmOff(false);
-              setOpen(false);
-              discard();
-            }}
-          >
+          <Button ref={discardRef} variant="ghost" onClick={discardOff}>
             {copy.ops.discard}
           </Button>
-          <Button variant="ghost" onClick={() => setConfirmOff(false)}>
+          <Button ref={keepOffRef} variant="ghost" onClick={cancelOff}>
             {copy.ops.keep}
           </Button>
         </div>

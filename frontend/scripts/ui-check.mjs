@@ -560,6 +560,67 @@ for (const scheme of ["light", "dark"]) {
   await ctx.close();
 }
 
+// #603: turning operating costs off with entries is destructive, so the
+// alertdialog must take focus, trap Tab, and cancel (not close the parent
+// Money drawer) on Escape.
+{
+  const ctx = await browser.newContext({ viewport: viewports.desktop });
+  const page = await ctx.newPage();
+  page.on("console", (m) => m.type() === "error" && problems.push({ page: "/cases/new (ops discard)", console: m.text() }));
+  page.on("pageerror", (e) => problems.push({ page: "/cases/new (ops discard)", console: String(e) }));
+  const product = {
+    name: "Probe gun",
+    plants: [{ id: "p1", name: "TH plant", country: "TH" }],
+    components: [{ name: "Fan", made_in: "TH", plant: "p1", group: "motor_fan_assembly" }],
+  };
+  await page.route("**/api/v1/products/extract", (route) =>
+    route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify({ product, warnings: [] }) }),
+  );
+  await page.route("**/api/v1/duty-rates", (route) => route.fulfill({ status: 200, contentType: "application/json", body: "{}" }));
+  await page.route("**/api/v1/products/hts-suggest", (route) => route.fulfill({ status: 200, contentType: "application/json", body: "{}" }));
+  await page.route("**/api/v1/products/parts-hts-suggest", (route) =>
+    route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify({ parts: [], good: null, max_parts: 20 }) }),
+  );
+  await page.goto(base + newCasePath, { waitUntil: "networkidle" });
+  await page.getByRole("tab", { name: "Paste a description" }).click();
+  await page.locator("textarea").first().fill("Each heat gun is assembled in Thailand with a fan and a housing.");
+  await page.getByRole("button", { name: "Turn into parts and plants" }).click();
+  await page.getByRole("button", { name: /money inputs/i }).first().click();
+  await page.getByRole("dialog", { name: "Money inputs" }).waitFor();
+  const sw = page.getByRole("switch", { name: "Include operating costs when ranking moves" });
+  await sw.focus();
+  await page.keyboard.press("Space");
+  await page.getByLabel("Horizon (years)").fill("3");
+  await sw.focus();
+  await page.keyboard.press("Space");
+  const opened = await page.evaluate(() => {
+    const el = document.activeElement;
+    const alert = document.querySelector('[role="alertdialog"]');
+    return {
+      tag: el?.tagName ?? null,
+      focused: el === document.body ? "BODY" : (el?.textContent ?? "").trim().slice(0, 40),
+      inside: Boolean(alert?.contains(el)),
+      alert: Boolean(alert),
+      drawer: Boolean(document.querySelector('[role="dialog"]')),
+    };
+  });
+  await page.keyboard.press("Tab");
+  const wrapped = await page.evaluate(() => (document.activeElement?.textContent ?? "").trim().slice(0, 40));
+  await page.keyboard.press("Escape");
+  const afterEscape = await page.evaluate(() => {
+    const el = document.activeElement;
+    return {
+      role: el?.getAttribute("role") ?? null,
+      alert: Boolean(document.querySelector('[role="alertdialog"]')),
+      drawer: Boolean(document.querySelector('[role="dialog"]')),
+    };
+  });
+  if (opened.focused !== "Keep them" || !opened.inside || !opened.alert || !opened.drawer || wrapped !== "Discard inputs" || afterEscape.role !== "switch" || afterEscape.alert || !afterEscape.drawer) {
+    problems.push({ page: "/cases/new (ops discard)", focus: "discard alertdialog did not take focus / trap Tab / cancel on Escape", opened, wrapped, afterEscape });
+  }
+  await ctx.close();
+}
+
 // #548: the elapsed counter in a pending live region must not be announced
 // once a second. Enter both states with a delayed stub, let the counter tick,
 // and fail if the changing text is exposed to assistive tech.
