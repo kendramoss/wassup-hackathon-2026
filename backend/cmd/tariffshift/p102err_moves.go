@@ -32,6 +32,8 @@ var p102errSeries = []struct {
 	{"b", "B: usmca-v1, facts as plan searches render them (production)", []string{"moves-d590-b-d501fam.jsonl", "moves-d590-b-dev.jsonl"}},
 	{"va", "Va: usmca-v1, the product's codes added to the facts", []string{"moves-d590-va.jsonl"}},
 	{"vb", "Vb: usmca-v3 checklist, the product's codes added to the facts", []string{"moves-d590-vb.jsonl"}},
+	{"vc", "Vc: usmca-v4 compact checklist, the product's codes added to the facts (D600)", []string{"moves-d600-vc.jsonl"}},
+	{"vd", "Vd: usmca-v5 failing-materials checklist, the product's codes added to the facts (D600)", []string{"moves-d600-vd.jsonl"}},
 }
 
 type p102Row struct {

@@ -108,7 +108,7 @@ func (p *Planner) Estimate(ctx context.Context, req Request) (Estimate, error) {
 	if k := req.CurrentOrigin; k != nil && k.Country != "" {
 		knownA, knownRuling = domain.NormalizeCountry(k.Country), k.Ruling
 	}
-	baseFacts := Render(req.Product, tm)
+	baseFacts := p.render(req, req.Product, tm)
 	peek := func(key, facts string) (engine.Result, bool, error) {
 		if pp == nil {
 			return engine.Result{}, false, nil
@@ -123,7 +123,7 @@ func (p *Planner) Estimate(ctx context.Context, req Request) (Estimate, error) {
 	unknown := 0   // moves with no stored prediction
 	adviceMax := 0 // moves that may still need near-miss advice
 	for _, m := range moves {
-		facts := Render(Apply(req.Product, m), tm, groupsOf(m)...)
+		facts := p.render(req, Apply(req.Product, m), tm, groupsOf(m)...)
 		r, predicted, err := peek(m.Key(), facts)
 		if err != nil {
 			return Estimate{}, err

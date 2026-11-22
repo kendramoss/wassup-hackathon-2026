@@ -230,6 +230,21 @@ Development only, through an OpenAI-compatible LiteLLM gateway to Gemini, one ru
 | Safety flag S: decided development rows it flags under B | 9 of 57 | `summary-moves.json` (`safety_flags_s`) | Computed. Ships; changes no answer |
 | Cost of this item | $3.4375 (family check $0.0908, group call $0.0457, B $0.8661, Va $0.8941, Vb $1.5408) | `eval/results/RUNLOG.jsonl` (`families-coverage-dev-all-litellm-p102-dev`, `part102-dev-groups-d590`, `p102moves-d590-*`) | Measured, gateway-reported |
 
+### Part 102 engine: a short 102.11 checklist, production since 22 Nov (D600, D601, D602)
+
+Through an OpenAI-compatible LiteLLM gateway to Gemini, one run per series. Scored by `cd backend && go run ./cmd/tariffshift p102err-moves -check` and `p102ck-eval -check` (in `make reproduce`). Cost and latency are reported, not gating (owner decision, D601).
+
+| Number | Value | Source | Status |
+|---|---|---|---|
+| Vc (`usmca-v4` compact checklist, codes in plan facts): decided plan rows / leans / CBP's holding on current setups | 54 of 57 / 22 of 23 / 10 of 16; won 11, lost 0, p = 0.001; cost 1.37 × B; 45,681 output tokens | `eval/tariffshift/p102err/summary-moves.json`; `runs/moves-d600-vc.jsonl` | Measured, development |
+| Vd (`usmca-v5` failing materials only, codes in plan facts) | 56 of 57 / 23 of 23 / 9 of 16; won 13, lost 0, p = 0.0002; cost 1.11 × B; 25,157 output tokens | same; `runs/moves-d600-vd.jsonl` | Measured, development. Selected (D602) |
+| Correct on the 72 development Part 102 rulings: B / Vb / Vc / Vd | 53 / 54 / 56 / 53 | `eval/tariffshift/p102ck/summary-d602.json` | Measured, development |
+| Median per-call latency on the 72: B / Vb / Vc / Vd | 8.4 s / 13.2 s / 9.3 s / 7.9 s | same (`latency_p50_ms`) | Measured, development |
+| Vd held out, window 1 / window 2 / pooled | 29 of 32 / 11 of 13 / 40 of 45 (usmca-v1 25 / 11 / 36) | same; `eval/tariffshift/p102ck/runs/usmca-final*-usmca-v5-*-d601.jsonl` | Measured, held out, scored once; windows scored before with usmca-v1 (candidate comparison) |
+| Held-out answers at confidence ≥ 0.95, right: usmca-v5 / usmca-v1 | 16 of 17 / 21 of 22 | same run rows (`confidence`, `correct`) | Computed from committed rows |
+| Safety flag S under Vd: decided development rows flagged | 0 of 57 | `summary-moves.json` (`safety_flags_s`) | Computed |
+| Cost of D600 to D602 | $5.2524 | `eval/results/RUNLOG.jsonl` (`p102moves-d600-*`, `usmca-*-d600`, `usmca-*-d601`) | Measured, gateway-reported |
+
 ### Method page (/method): negative results, splits and leakage, already in the decision record
 
 These rows register, for the /method page, figures that are already committed in `docs/EVALUATION.md` and `docs/DECISIONS.md`. No new run produced them.

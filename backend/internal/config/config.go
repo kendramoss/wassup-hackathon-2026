@@ -255,7 +255,7 @@ type Config struct {
 	RuleCheck bool
 	// USMCAEngine (on|off, default off) predicts cases the router labels
 	// usmca_part102 under the Part 102 rules (19 CFR 102.11 / 102.20,
-	// usmca-v1) with precedents from USMCALabels (a copy of
+	// usmca-v5 since D602) with precedents from USMCALabels (a copy of
 	// eval/data/labels_usmca.jsonl; facts in FactsDir). USMCAFastPath is its
 	// auto-accept bar; 0 (default) sends every USMCA case to review (D61).
 	USMCAEngine   bool

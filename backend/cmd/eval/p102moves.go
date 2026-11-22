@@ -81,13 +81,16 @@ type P102MoveRow struct {
 	InTok      int             `json:"input_tokens,omitempty"`
 	OutTok     int             `json:"output_tokens,omitempty"`
 	GatewayUSD float64         `json:"gateway_cost_usd,omitempty"`
-	Error      string          `json:"error,omitempty"`
+	// LatencyMS is the wall time of the engine call that answered (D601;
+	// not recorded in the D590 and D600 runs).
+	LatencyMS int64  `json:"latency_ms,omitempty"`
+	Error     string `json:"error,omitempty"`
 }
 
 func p102MovesCmd(args []string) error {
 	fl := flag.NewFlagSet("p102moves", flag.ExitOnError)
 	tag := fl.String("tag", "", "run tag (required), e.g. d590-b")
-	prompt := fl.String("usmca-prompt", "v1", "Part 102 engine prompt: v1 (production) or v3 (D590 checklist)")
+	prompt := fl.String("usmca-prompt", "v1", "Part 102 engine prompt: v1 (production), v3 (D590 checklist), v4 or v5 (D600 compact checklists)")
 	codesInFacts := fl.Bool("codes-in-facts", false, "render the good's and each part's code into the facts (D590 variant)")
 	sets := fl.String("sets", "part102-d501,part102-dev,family", "fixture sets")
 	dryRun := fl.Bool("dry-run", false, "count the calls and write nothing")
@@ -227,7 +230,10 @@ func p102MovesCmd(args []string) error {
 			var res engine.Result
 			var err error
 			for try := 0; try < 2; try++ { // one re-run on an error
-				if res, err = eng.Predict(llm.ContextWithCostTally(ctx, &tally), c); err == nil {
+				t0 := time.Now()
+				res, err = eng.Predict(llm.ContextWithCostTally(ctx, &tally), c)
+				rows[i].LatencyMS = time.Since(t0).Milliseconds()
+				if err == nil {
 					break
 				}
 			}
@@ -339,8 +345,12 @@ func p102Options(prompt string, cfg config.Config) (engine.Options, error) {
 	case "v1":
 	case "v3":
 		o.System, o.Version, o.Schema = engine.USMCASystem3, engine.USMCAVersion3, engine.ChecklistSchema
+	case "v4":
+		o.System, o.Version, o.Schema = engine.USMCASystem4, engine.USMCAVersion4, engine.CompactChecklistSchema
+	case "v5":
+		o.System, o.Version, o.Schema = engine.USMCASystem5, engine.USMCAVersion5, engine.FailingChecklistSchema
 	default:
-		return o, fmt.Errorf("-usmca-prompt must be v1 or v3")
+		return o, fmt.Errorf("-usmca-prompt must be v1, v3, v4 or v5")
 	}
 	return o, nil
 }

@@ -98,6 +98,10 @@ export function AccuracyPage() {
   const tex2 = get("textile_final2_accuracy");
   const ph2 = get("pharma_final2_accuracy");
   const us2 = get("usmca_final2_accuracy");
+  // D602: the Part 102 engine since 22 Nov (usmca-v5) on the same two
+  // windows, scored after usmca-v1, as a candidate picked on development.
+  const usV5 = get("usmca_v5_final_accuracy");
+  const usV52 = get("usmca_v5_final2_accuracy");
   const allReg = get("all_regimes_heldout_accuracy");
   const later = (it?: Item) => (it ? ` On ${it.n} later rulings (28 Sep to 13 Nov 2026, scored once): ${pct(it.value)} (${ci(it)}).` : "");
   // D233: the router (router-v4) on the held-out windows, and the routed
@@ -477,6 +481,9 @@ export function AccuracyPage() {
                   <Card title="Part 102 marking origin" big={pct(usAcc.value)}>
                     on {usAcc.n} held-out 2026 Part 102 marking rulings ({ci(usAcc)}). {pct(usAuto?.value)} right at confidence 0.95 or above, on {pct(usCov?.value, 0)} of them.
                     {later(us2)}
+                    {usV5 && usV52
+                      ? ` Since 22 Nov the Part 102 engine fills a short 102.11 checklist first (usmca-v5, picked on development rulings). On the same rulings, scored after the earlier engine: ${pct(usV5.value)} of ${usV5.n} and ${pct(usV52.value)} of ${usV52.n}.`
+                      : ""}
                   </Card>
                 )}
                 {allReg && (

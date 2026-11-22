@@ -41,7 +41,8 @@ type Options struct {
 	RuleText func(domain.Case) string
 	// Schema, when set, replaces the answer schema; it must keep the
 	// standard fields (origin_country ... reasoning), and the whole answer
-	// is kept in Result.Answer (eval experiments, D590).
+	// is kept in Result.Answer (D590; the production Part 102 engine since
+	// D602).
 	Schema map[string]any
 }
 
@@ -70,7 +71,7 @@ type Result struct {
 	// VoteCounts is how many calls gave each origin (nil without voting).
 	VoteCounts map[string]int
 	// Answer is the model's whole JSON answer when Options.Schema is set
-	// (eval only; nil otherwise).
+	// (nil otherwise).
 	Answer json.RawMessage
 }
 

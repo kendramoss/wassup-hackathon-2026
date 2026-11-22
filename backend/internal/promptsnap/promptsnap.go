@@ -82,6 +82,9 @@ func Prompts() []Prompt {
 		// and the quoted text for a fixture naming subheading 8414.30.
 		{"engine.usmca2", engine.USMCAVersion2, engine.USMCASystem2},
 		{"engine.usmca2.rule_text", engine.USMCAVersion2, usmcaRuleTextFixture()},
+		// usmca-v5 (D602): the production Part 102 prompt, a short 102.11
+		// checklist, with its answer schema.
+		{"engine.usmca5", engine.USMCAVersion5, withSchema(engine.USMCASystem5, engine.FailingChecklistSchema)},
 		{"engine.pharma", engine.PharmaVersion, engine.PharmaSystem},
 		{"router.system", router.PromptVersion, withSchema(mustRouterSystem(router.PromptVersion), router.Schema)},
 		{"router.user", router.PromptVersion, router.RenderUser(fixtureFacts)},

@@ -404,12 +404,14 @@ func newDeps(cfg config.Config, model, engineModel llm.Model, cases store.Cases,
 		if upool.Len() == 0 {
 			return httpapi.Deps{}, fmt.Errorf("USMCA engine: no ruling in %s has facts in %s", cfg.USMCALabels, cfg.FactsDir)
 		}
-		usmcaEng = engine.New(engineModel, evidenceBM25(upool.Rulings()), engine.Options{Model: cfg.EngineModel, K: cfg.PrecedentK,
-			MaxOutputTokens: cfg.MaxOutputTokens, System: engine.USMCASystem, Version: engine.USMCAVersion})
+		// The production Part 102 prompt: usmca-v5, a short 102.11 checklist (D602).
+		uopts := engine.USMCAProduction()
+		uopts.Model, uopts.K, uopts.MaxOutputTokens = cfg.EngineModel, cfg.PrecedentK, cfg.MaxOutputTokens
+		usmcaEng = engine.New(engineModel, evidenceBM25(upool.Rulings()), uopts)
 		// Most USMCA precedents (2015-2022) are not in labels.jsonl; the API
 		// looks them up here too so their details are not lost.
 		precedents = httpapi.PrecedentStores{pool, upool}
-		logger.Info("USMCA engine on", "precedents", upool.Len(), "prompt", engine.USMCAVersion, "fast_path", cfg.USMCAFastPath)
+		logger.Info("USMCA engine on", "precedents", upool.Len(), "prompt", uopts.Version, "fast_path", cfg.USMCAFastPath)
 	}
 	var pharmaEng *engine.Engine
 	if cfg.PharmaEngine {
@@ -505,8 +507,10 @@ func newDeps(cfg config.Config, model, engineModel llm.Model, cases store.Cases,
 	planOpts := planner.Options{PlanConfidence: cfg.PlanConfidence, Concurrency: cfg.PlannerConcurrency, MaxMoves: cfg.PlanMaxMoves,
 		Panel: cfg.VerifierPanel == "on", MaxInFlight: cfg.LLMMaxInFlight}
 	if usmca != nil {
-		// Plan searches on Part 102 cases predict with the Part 102 engine (D540).
+		// Plan searches on Part 102 cases predict with the Part 102 engine
+		// (D540), from facts that state the product's codes (D602).
 		planOpts.Engines = map[string]planner.Predictor{router.RegimeUSMCA: usmca}
+		planOpts.CodesInFacts = map[string]bool{router.RegimeUSMCA: true}
 	}
 	if cfg.NearMissAdvice {
 		// Advice on the closest moves just under the plan bar (D81), cached

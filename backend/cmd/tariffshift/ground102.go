@@ -49,6 +49,9 @@ type g102Row struct {
 	Error   string  `json:"error"`
 	Gateway float64 `json:"cost_usd_gateway"`
 	Promo   float64 `json:"cost_usd"`
+	// Latency and output tokens (read by p102ck-eval, D601).
+	LatencyMS int64 `json:"latency_ms"`
+	OutTok    int   `json:"output_tokens"`
 }
 
 // G102Run is one run's score on the development set.

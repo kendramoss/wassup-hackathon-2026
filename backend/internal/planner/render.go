@@ -209,8 +209,8 @@ func opsClause(ops []string, note string) string {
 // product order, labelled as the product's own and unverified. It is "" when
 // the product gives no code. The Part 102 engine applies the 102.20 tariff
 // shifts to these codes; Render alone does not state them, so the engine
-// had to guess every classification (D590). Eval only (-codes-in-facts)
-// until D590's pass rule adopts it.
+// had to guess every classification (D590). Plan searches on a Part 102
+// case add it since D602 (Options.CodesInFacts).
 func ClassificationNote(p domain.Product) string {
 	var parts []string
 	if c := strings.TrimSpace(p.HTS); c != "" {

@@ -206,7 +206,7 @@ func run(args []string) error {
 	factsDir := fl.String("facts", "../data/corpus/facts", "facts directory (go run ./cmd/corpus build); comma-separated to add ../eval/data/facts_final2")
 	resultsDir := fl.String("results", "../eval/results", "results directory")
 	textilePrompt := fl.String("textile-prompt", "v1", "v1 or v2 (textile-v2: filled made-up guidance; use with -reasoning, D53)")
-	usmcaPrompt := fl.String("usmca-prompt", "v1", "with -regime usmca: v1 (usmca-v1) , v2 (usmca-v2: the 102.20 rows for the codes named in the facts, applied as written; D550) or v3 (usmca-v3: the D590 102.11 checklist)")
+	usmcaPrompt := fl.String("usmca-prompt", "v1", "with -regime usmca: v1 (usmca-v1), v2 (usmca-v2: the 102.20 rows for the codes named in the facts, applied as written; D550), v3 (usmca-v3: the D590 102.11 checklist), v4 (usmca-v4: the D600 compact checklist) or v5 (usmca-v5: the D600 failing-materials checklist)")
 	regime := fl.String("regime", "st", "st (substantial transformation), textile (19 CFR 102.21, textile-v1, with -splits ../eval/splits/splits_textile.json; D51), usmca (19 CFR 102.11 / 102.20, usmca-v1, with -labels ../eval/data/labels_usmca.jsonl and -splits ../eval/splits/splits_usmca.json; D61) or pharma (active ingredient, pharma-v1, with -splits ../eval/splits/splits_pharma.json; D62)")
 	_ = fl.Parse(args)
 	if *regime != "st" && *regime != "textile" && *regime != "usmca" && *regime != "pharma" {
@@ -397,10 +397,8 @@ func run(args []string) error {
 		}
 	}
 	if *regime == "usmca" {
-		uv := engine.USMCAVersion
-		if *usmcaPrompt == "v2" {
-			uv = engine.USMCAVersion2
-		}
+		uopts, _ := usmcaOptions(*usmcaPrompt)
+		uv := uopts.Version
 		name = fmt.Sprintf("usmca-%s-%s-%s-%s-%s", *split, cfg.EngineModel, *cond, uv, cfg.LLMProvider)
 		if cfg.PrecedentK != 5 {
 			name += fmt.Sprintf("-k%d", cfg.PrecedentK)
@@ -676,8 +674,10 @@ func appendRunLog(dir, name, split string, cfg config.Config, s evalkit.Summary,
 	}
 	if strings.HasPrefix(name, "usmca-") {
 		prompt = engine.USMCAVersion
-		if strings.Contains(name, engine.USMCAVersion2) {
-			prompt = engine.USMCAVersion2
+		for _, v := range []string{engine.USMCAVersion2, engine.USMCAVersion3, engine.USMCAVersion4, engine.USMCAVersion5} {
+			if strings.Contains(name, v) {
+				prompt = v
+			}
 		}
 	}
 	if strings.HasPrefix(name, "pharma-") {
@@ -1039,9 +1039,11 @@ func planCmd(args []string) error {
 		if upool.Len() == 0 {
 			return fmt.Errorf("plan: no ruling in %s has facts in %s", *usmcaLabels, *factsDir)
 		}
-		usmca := engine.New(model, retrieval.NewBM25(upool.Rulings(), engine.PrecedentText), engine.Options{Model: cfg.EngineModel, K: cfg.PrecedentK,
-			MaxOutputTokens: cfg.MaxOutputTokens, System: engine.USMCASystem, Version: engine.USMCAVersion})
+		uopts := engine.USMCAProduction()
+		uopts.Model, uopts.K, uopts.MaxOutputTokens = cfg.EngineModel, cfg.PrecedentK, cfg.MaxOutputTokens
+		usmca := engine.New(model, retrieval.NewBM25(upool.Rulings(), engine.PrecedentText), uopts)
 		planOpts.Engines = map[string]planner.Predictor{router.RegimeUSMCA: usmca}
+		planOpts.CodesInFacts = map[string]bool{router.RegimeUSMCA: true}
 	}
 	pl := planner.New(tmpls, eng, ver, planOpts)
 	var tally llm.CostTally // the gateway's own per-call cost; zero on Vertex AI
@@ -2391,6 +2393,26 @@ func regimeSummaryItems(dir string) ([]evalsummary.Item, error) {
 		s := evalkit.Summarize(rows)
 		items = append(items, evalsummary.Item{Key: r.key, Label: r.label, Value: r4(s.Acc), CILow: r4(s.Lo), CIHigh: r4(s.Hi), N: s.N, Split: "final2", Source: "eval/results/" + r.file})
 	}
+	// D602: the production Part 102 engine since 22 Nov (usmca-v5) on the
+	// same two windows, scored once each as a candidate (both windows had
+	// been scored before with usmca-v1, above).
+	for _, r := range []struct{ file, key, label, split string }{
+		{"usmca-final-gemini-4-argon-prec-usmca-v5-litellm-d601.jsonl", "usmca_v5_final_accuracy", "Part 102 marking-origin rules, held-out (2026), usmca-v5 (production since D602), scored after usmca-v1", "final"},
+		{"usmca-final2-gemini-4-argon-prec-usmca-v5-litellm-router-d601.jsonl", "usmca_v5_final2_accuracy", "Part 102 marking-origin rules, post-cutoff held-out (Sep–Nov 2026), usmca-v5 (production since D602), scored after usmca-v1", "final2"},
+	} {
+		path := filepath.Join(dir, "..", "tariffshift", "p102ck", "runs", r.file)
+		if _, err := os.Stat(path); err != nil {
+			fmt.Fprintf(os.Stderr, "summary: skip %s: %v\n", r.file, err)
+			continue
+		}
+		rows, err := readRows(path, nil)
+		if err != nil {
+			return nil, err
+		}
+		s := evalkit.Summarize(rows)
+		items = append(items, evalsummary.Item{Key: r.key, Label: r.label, Value: r4(s.Acc), CILow: r4(s.Lo), CIHigh: r4(s.Hi), N: s.N, Split: r.split,
+			Source: "eval/tariffshift/p102ck/runs/" + r.file})
+	}
 	// The router on the same post-cutoff rulings: pharmaceutical and Part 102
 	// cases it kept away from the substantial-transformation engine (D211).
 	var kept, seen int
@@ -2565,6 +2587,10 @@ func usmcaOptions(v string) (engine.Options, error) {
 		return engine.Options{System: engine.USMCASystem2, Version: engine.USMCAVersion2, RuleText: engine.Part102RuleText(rules)}, nil
 	case "v3":
 		return engine.Options{System: engine.USMCASystem3, Version: engine.USMCAVersion3, Schema: engine.ChecklistSchema}, nil
+	case "v4":
+		return engine.Options{System: engine.USMCASystem4, Version: engine.USMCAVersion4, Schema: engine.CompactChecklistSchema}, nil
+	case "v5":
+		return engine.Options{System: engine.USMCASystem5, Version: engine.USMCAVersion5, Schema: engine.FailingChecklistSchema}, nil
 	}
-	return engine.Options{}, fmt.Errorf("-usmca-prompt must be v1, v2 or v3, got %q", v)
+	return engine.Options{}, fmt.Errorf("-usmca-prompt must be v1, v2, v3, v4 or v5, got %q", v)
 }
