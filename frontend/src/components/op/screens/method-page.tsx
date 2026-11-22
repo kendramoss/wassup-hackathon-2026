@@ -437,8 +437,9 @@ export function MethodPage() {
             three-group moves were added (<D id="D84" />).
           </li>
           <li>
-            <b className="font-medium text-ink">The engine predicts the new origin.</b> The same origin engine reads the changed facts with the most similar earlier rulings. A
-            move whose predicted origin is not the target country goes no further.
+            <b className="font-medium text-ink">The engine predicts the new origin.</b> The origin engine reads the changed facts with the most similar earlier rulings. On a
+            case routed to the Part 102 rules that is the Part 102 engine, for the current setup and every move, so the plans and the rule check below reason under one
+            test; every other case uses the general engine (<D id="D540" />, <D id="D541" />). A move whose predicted origin is not the target country goes no further.
           </li>
           <li>
             <b className="font-medium text-ink">A verifier checks it against earlier rulings.</b> An ADK agent on Gemini searches CBP rulings dated before the case for one that
@@ -466,7 +467,10 @@ export function MethodPage() {
             precedent check on 21 of 23; the 2 it flags are below the bar. Those cases are decided under substantial transformation, so this is a comparison, not
             accuracy (<D id="D442" />). On three scored Part 102 plan searches on development rulings (<D id="D501" />), the rule picked the 6 actuator moves that bring
             the motor to Canada, CBP&apos;s own reason for holding China, and the one shown plan is among them; it flagged 2 moves to China that precedent leaned to
-            (<D id="D502" />).{" "}
+            (<D id="D502" />). Re-run with the Part 102 engine predicting each move, its prediction agrees with the rule on 13 of the 14 moves in those searches (the general engine on 9);
+            one error is left, on the compressors, where the engine applied an exception the rule does not have (<D id="D541" />). Quoting the 102.20 rule text to the Part
+            102 engine was then tested on development against a rule written before the run. It did not pass (50 of 72 correct against 53), so it was not adopted and no
+            held-out ruling was read (<D id="D550" />, <D id="D551" />).{" "}
             <Link href="/examples/plan-rule-check" className="text-ok underline underline-offset-2">
               See a recorded move check
             </Link>{" "}

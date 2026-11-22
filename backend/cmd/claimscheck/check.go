@@ -319,6 +319,22 @@ var stalePhrases = []struct {
 		regexp.MustCompile(`(?i)\bno (scored )?part 102 plan searche?s?\b|part 102 plan searche?s?[^.]{0,40}\b(scored|to score) yet`),
 		"three Part 102 plan searches were scored in D502",
 	},
+	{
+		regexp.MustCompile(`(?i)\bdo(es)? not apply [^.]{0,30}\bpart 102\b`),
+		"plans on Part 102 cases use the Part 102 engine and the 102.20 order (D500, D541, D562)",
+	},
+	{
+		regexp.MustCompile(`(?i)plan move[^.]{0,20}\(built, display only\)`),
+		"the per-move check orders shown plans on Part 102 cases (D500, D562)",
+	},
+	{
+		regexp.MustCompile(`(?i)general engine, in this run`),
+		"/examples/part102-plan shows the Part 102 engine's run since D562",
+	},
+	{
+		regexp.MustCompile(`(?i)stricter checks passed 9 of 12`),
+		"lead with the 8 of 8 runs the budget did not touch (D511, D562)",
+	},
 }
 
 // staleRoots are the public texts checkStalePhrases reads: the README, the

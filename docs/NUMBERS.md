@@ -152,7 +152,7 @@ Three development rulings, one plan search each through an OpenAI-compatible Lit
 | Current setup: rule gives CBP's holding | 2 of 3 (the actuator is undetermined: the motor does not shift unless de minimis) | same | Measured |
 | Later ruling, rule on its setup (N354024) | Mexico, as CBP held | same | Measured. A later product, not a plan move: no plan backtest (0) |
 | Cost | $0.4333 for the 3 searches (actuator $0.3542, 79 s) | same; `eval/results/RUNLOG.jsonl` (`planner-part102-d501-litellm`) | Measured, gateway-reported |
-| Engine predicts the target on actuator moves the rule says do not shift | 3 (gearbox and controls 0.85; gearbox 0.75; gearbox and housings 0.75) | `frontend/src/lib/part102-plan-example.json` from `go run ./cmd/tariffshift plans102-example -check` (D532) | Measured, from the same run. The recorded page shows each |
+| Engine predicts the target on actuator moves the rule says do not shift | 3 (gearbox and controls 0.85; gearbox 0.75; gearbox and housings 0.75) | `eval/tariffshift/plans102/moves-dev.jsonl`; on the recorded page as `engine_origin_d501` in `frontend/src/lib/part102-plan-example.json` (`go run ./cmd/tariffshift plans102-example -check`; D532, D563) | Measured, from the same run. The recorded page shows each |
 
 ### Part 102 plan searches with the Part 102 engine (D540, D541)
 
@@ -166,6 +166,7 @@ The same three searches run again with the Part 102 engine predicting each move,
 | Actuator plans shown | 2, both moves the rule says shift (D502: 1) | same | Measured. The precedent check varies run to run |
 | Moves precedent supports while the rule gives another country | 1, the compressors (D502: 2) | same | Measured. The Part 102 engine still predicts China there |
 | Cost | $0.3416 for the 3 searches (actuator $0.2770, 37 s); $0.1724 more for an invalid first attempt with no local corpus, not scored | same; `eval/results/RUNLOG.jsonl` (`planner-part102-d540-litellm`, `planner-part102-d540-nocorpus-litellm`) | Measured, gateway-reported |
+| Recorded actuator page: Part 102 engine agrees with the rule (D563) | 12 of 12 moves (6 the rule decides, 6 open only on de minimis); the general engine in the D501 run of the same search: 9 of 12. 2 shown plans, both moves the rule says shift | `frontend/src/lib/part102-plan-example.json` (`engine_agrees_with_rule`, `engine_agrees_with_rule_d501`) from `go run ./cmd/tariffshift plans102-example -check` | Measured, from the committed D541 and D501 runs; one seen development product, not an accuracy figure |
 
 ### Part 102 engine with the 102.20 rule text quoted (D550, D551)
 

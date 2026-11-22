@@ -68,7 +68,7 @@ const tools: [string, string][] = [
   ["predict_origin", "Predict the origin from facts or a structured product. Starts a case."],
   ["extract_product", "Turn a description into a structured product to check."],
   ["extract_product_from_media", "Read a photo or scan of a bill of materials into a draft product."],
-  ["plan_production_moves", "Search production moves for a case and check each against earlier rulings. Each plan has a plan_id."],
+  ["plan_production_moves", "Search production moves for a case and check each against earlier rulings. Each plan has a plan_id. On a Part 102 case the Part 102 engine predicts each move and the 19 CFR 102.20 check orders the shown plans."],
   ["compare_target_countries", "Run one plan search per country (2 to 4) and rank them."],
   ["search_rulings", "Search the CBP rulings Unde reads."],
   ["get_ruling", "Fetch one CBP ruling."],
@@ -178,7 +178,7 @@ export default function Page() {
             </p>
             <p className="duo max-w-[72ch] text-[13px] text-dim">
               Then scored on 12 products from earlier CBP rulings, one run each, with the checks written first: 10 of 12 passed every check, and no answer named a
-              ruling the tools had not returned. One miss retried a call the tool had refused; the other drafted the current setup when no plan was found. After fixes, a second evaluation with stricter checks passed 9 of 12; the 8 runs the live server&apos;s anonymous budget did not cut short all passed, and repeatability is not measured yet.{" "}
+              ruling the tools had not returned. One miss retried a call the tool had refused; the other drafted the current setup when no plan was found. After fixes, a second evaluation with stricter checks passed all 8 runs the live server&apos;s anonymous budget did not touch; the budget cut the other 4 short, and 9 of 12 pass as scored. Repeatability is not measured yet.{" "}
               <a href={adkEval} target="_blank" rel="noreferrer" className="text-ok underline underline-offset-2">
                 The agent evaluation
               </a>

@@ -1,10 +1,12 @@
 {
- "note": "Recorded example, rebuilt from committed files by `cd backend \u0026\u0026 go run ./cmd/tariffshift plans102-example -check`. Plan search: the D501 development run, as committed (precedent checks and the general engine's predictions as recorded; no new model call). Codes: the top D381 development suggestion for each part, unverified; the good's code is CBP's. Rule check and order: the 19 CFR 102.20 layer on the product after each move, as on a Part 102 case (D441), and the D500 order. Draft: the export package's Part 102 letter for the shown plan (D502, D520). The product's name is the fixture's since D532; the recorded run's own facts still use the ruling subject as the name and are not shown.",
+ "note": "Recorded example, rebuilt from committed files by `cd backend \u0026\u0026 go run ./cmd/tariffshift plans102-example -check`. Plan search: the D541 development run, as committed, in which the Part 102 engine (usmca-v1) predicted each move (D540); precedent checks and predictions as recorded, no new model call. Beside each move, the general engine's prediction for the same move in the D501 run. Codes: the top D381 development suggestion for each part, unverified; the good's code is CBP's. Rule check and order: the 19 CFR 102.20 layer on the product after each move, as on a Part 102 case (D441), and the D500 order. Draft: the export package's Part 102 letter for the first shown plan, under the regime of that plan's prediction as the API reads it (D502, D520). The product's name is the fixture's since D532; the recorded runs' own facts still use the ruling subject as the name and are not shown.",
  "ruling": "N348465",
  "subject": "The country of origin of an electrical actuator",
  "date": "2025-06-05",
  "split": "dev",
- "run": "eval/tariffshift/plans102/runs/plan-p102-n348465-local-verifier-v2-d501-litellm.json",
+ "run": "eval/tariffshift/plans102/runs/plan-p102-n348465-local-verifier-v2-d540-litellm.json",
+ "run_d501": "eval/tariffshift/plans102/runs/plan-p102-n348465-local-verifier-v2-d501-litellm.json",
+ "engine": "usmca-v1",
  "fixture": "backend/testdata/planner_part102/n348465.json",
  "product": "DC motor actuator",
  "family": "motors_pumps_compressors",
@@ -69,6 +71,7 @@
   "moves_motor": false,
   "shown": false,
   "engine_origin": "China",
+  "engine_origin_d501": "China",
   "rule_check": {
    "applies": "part102",
    "country": "Canada",
@@ -85,6 +88,38 @@
  },
  "shown": [
   {
+   "key": "motor_stator_rotor@ca+fluid_rotary_mechanism@ca+housing_and_chassis@ca",
+   "description": "Move the motor stator, the gearbox assembly and the screw drive and the housing and machined block to Canada",
+   "parts_moved": [
+    "DC motor",
+    "gearbox assembly",
+    "screw drive",
+    "housings"
+   ],
+   "moves_motor": true,
+   "shown": true,
+   "verdict": {
+    "precedent_supported": true,
+    "supporting_ruling": "N346297",
+    "confidence": 0.92,
+    "reasoning": "In Variant A, all major components of the electrical actuator (DC motor, gearbox assembly, screw drive, housings, sensor PCBA, and electrical apparatus) are made in China and undergo simple assembly in Canada, leaving origin in China. In Variant B, the core mechanical and electro-mechanical subassemblies—the DC motor, gearbox assembly, screw drive, and housings—are manufactured in-house in Canada, with only the sensor PCBA and electrical apparatus sourced from China. As in N346297 (where an electric winch's origin was Thailand because the electric motor and drum assemblies were produced there and assembled there), producing the motor, gearbox, screw drive, and housings in Canada confers Canadian origin."
+   },
+   "engine_origin": "Canada",
+   "engine_origin_d501": "Canada",
+   "rule_check": {
+    "applies": "part102",
+    "country": "Canada",
+    "status": "shifts",
+    "label": "Shifts under 102.20 (8501)",
+    "origin": "Canada",
+    "basis": "19 CFR 102.11(a)(3); 19 CFR 102.20(o), 8501",
+    "rule": "19 CFR 102.20(o), 8501",
+    "reason": "each foreign material undergoes the change in tariff classification the rule requires, in Canada",
+    "agrees_with_precedent": true,
+    "review": false
+   }
+  },
+  {
    "key": "motor_stator_rotor@ca+fluid_rotary_mechanism@ca+controls_and_valves@ca",
    "description": "Move the motor stator, the gearbox assembly and the screw drive and the control boards and 1 other part to Canada",
    "parts_moved": [
@@ -98,11 +133,13 @@
    "shown": true,
    "verdict": {
     "precedent_supported": true,
-    "supporting_ruling": "N346961",
-    "confidence": 0.94,
-    "reasoning": "In Variant A, all major functional components (DC motor, gearbox assembly, screw drive, housings, sensor PCBA, and electrical apparatus) are produced in China, and final assembly in Canada does not substantially transform them. In Variant B, production of the DC motor, gearbox assembly, screw drive, sensor PCBA, and electrical apparatus moves to Canada, leaving only the housings sourced from China. Under CBP precedent (e.g., N346961 and N346297), the motor, gearbox/drive mechanism, and PCBA are the primary functional components that impart the essential character of electromechanical drive devices, making Canada the country of origin."
+    "supporting_ruling": "N346297",
+    "counter_ruling": "N342620",
+    "confidence": 0.92,
+    "reasoning": "In Variant A, all major subassemblies (DC motor, gearbox, screw drive, PCBA, electrical apparatus, and housings) are made in China and merely assembled in Canada, conferring Chinese origin. In Variant B, the production of the DC motor, gearbox assembly, screw drive, sensor PCBA, and electrical apparatus moves to Canada, leaving only the housings sourced from China. Following N346297 (where an electromechanical winch's origin was determined by the country producing the core electric motor and drive subassemblies even when final assembly was not complex), manufacturing all core functional subassemblies in Canada confers Canadian origin."
    },
    "engine_origin": "Canada",
+   "engine_origin_d501": "Canada",
    "rule_check": {
     "applies": "part102",
     "country": "Canada",
@@ -130,11 +167,11 @@
    "verdict": {
     "precedent_supported": true,
     "supporting_ruling": "N346297",
-    "counter_ruling": "N342620",
-    "confidence": 0.82,
-    "reasoning": "In Variant A, all major components (DC motor, gearbox, screw drive, housing, PCBA) are made in China and undergo simple final assembly in Canada, resulting in Chinese origin (analogous to N342620). In Variant B, the 12 VDC brushed motor—which imparts the essential character of an electrical actuator (classified as an electric motor under heading 8501, per N342620)—is manufactured in-house in Canada and combined there with the Chinese gearbox and other components. As in N346297 (where producing the core electric motor subassembly in the country of final assembly with a Chinese gearbox conferred origin), origin shifts to Canada."
+    "confidence": 0.85,
+    "reasoning": "Electrical actuators consisting of an electric motor combined with a gearbox and screw drive are classified as electric motors under heading 8501 (see N342620), where the electric motor imparts the essential character. As seen in N346297 (electric winch with a Chinese gearbox assembled with a domestically produced electric motor), when the final assembly is not complex, origin follows the core electric motor subassembly rather than the imported gearbox. Because the 12 VDC brushed motor in Variant B is manufactured in-house in Canada and assembled there with the Chinese gearbox, screw drive, and PCBA, the country of origin shifts to Canada."
    },
    "engine_origin": "Canada",
+   "engine_origin_d501": "Canada",
    "rule_check": {
     "applies": "part102",
     "country": "Canada",
@@ -162,10 +199,12 @@
    "verdict": {
     "precedent_supported": true,
     "supporting_ruling": "N346297",
+    "counter_ruling": "N348721",
     "confidence": 0.9,
-    "reasoning": "In Variant A, all core subassemblies of the electrical actuator (DC motor, gearbox assembly, screw drive, housings, sensor PCBA) are made in China and undergo simple final assembly in Canada, resulting in Chinese origin. In Variant B, the manufacturing of all primary mechanical and electro-mechanical drive subassemblies—specifically the 12 VDC brushed motor, gearbox assembly, and screw drive—moves to Canada, where final assembly also occurs. Consistent with N346297 (where manufacturing the electric motor and drive subassemblies in the assembly country conferred origin despite foreign components), producing the motor, gearbox, and screw drive in Canada substantially transforms the remaining Chinese parts."
+    "reasoning": "In Variant A, all core components (DC motor, gearbox assembly, screw drive, housings, sensor PCBA, and electrical apparatus) are made in China, and simple final assembly in Canada does not substantially transform them (similar to N348721). In Variant B, the core mechanical and electro-mechanical drive subassemblies—the DC motor, gearbox assembly, and screw drive—are manufactured in-house in Canada and assembled there with Chinese housings and electrical components. As in N346297 (where manufacturing the electric motor and drum subassemblies in the assembly country conferred origin despite simpler final assembly), producing the motor, gearbox, and screw drive in Canada confers Canadian origin."
    },
    "engine_origin": "Canada",
+   "engine_origin_d501": "Canada",
    "rule_check": {
     "applies": "part102",
     "country": "Canada",
@@ -192,10 +231,11 @@
    "verdict": {
     "precedent_supported": true,
     "supporting_ruling": "N346297",
-    "confidence": 0.9,
-    "reasoning": "Electrical actuators are classified as electric motors under heading 8501 (see N342620), meaning the DC motor imparts the essential character. In Variant A, the DC motor, gearbox, screw drive, housings, and PCBA are all made in China, and simple final assembly in Canada does not substantially transform them. In Variant B, manufacturing the core 12 VDC motor and housings in-house in Canada, combined with final assembly there, shifts the origin to Canada. This directly parallels N346297 (electric winch), where producing the core electric motor assembly and housing/drum in the assembly country alongside a Chinese gearbox conferred origin."
+    "confidence": 0.85,
+    "reasoning": "In Variant A, all major components of the electrical actuator (DC motor, gearbox assembly, screw drive, housings, sensor PCBA) are made in China and undergo simple assembly in Canada, conferring Chinese origin. In Variant B, the DC motor (which imparts the essential driving character to an electrical actuator) and the housings are completely manufactured in-house in Canada and assembled there with the Chinese gearbox, screw drive, and PCBA. Under N346297 (electric winch where final assembly is not complex, so origin follows the locally manufactured electric motor and structural housing/drum over a Chinese gearbox), Variant B's origin shifts to Canada."
    },
    "engine_origin": "Canada",
+   "engine_origin_d501": "Canada",
    "rule_check": {
     "applies": "part102",
     "country": "Canada",
@@ -224,76 +264,10 @@
     "precedent_supported": true,
     "supporting_ruling": "N346297",
     "confidence": 0.9,
-    "reasoning": "Under CBP classification and origin precedent for motorized drive mechanisms (such as electric actuators classified under heading 8501 in N342620, and electric winches in N346297), the electric motor and control electronics/PCBA impart the essential character of the electromechanical unit. In N346297, even where final assembly was not particularly complex and the gearbox subassembly was sourced from China, CBP held that the country of origin was the country of assembly (Thailand) because the core electric motor subassembly was produced entirely there. Similarly, manufacturing the DC motor, sensor PCBA, and electrical apparatus in Canada shifts origin to Canada."
+    "reasoning": "In Variant A, all major subassemblies (DC motor, gearbox, screw drive, PCBA, electrical apparatus, housings) are made in China and undergo simple assembly in Canada, leaving origin in China. In Variant B, the DC motor, sensor PCBA, and electrical apparatus are manufactured in-house in Canada and combined there with the Chinese gearbox, screw drive, and housings. Analogous to N346297 (where manufacturing the electric motor subassembly in the assembly country and combining it with a Chinese gearbox conferred origin of the assembly country) and N346961 (identifying motor and PCBA as primary functional components), producing the motor and electronics in Canada shifts origin to Canada."
    },
    "engine_origin": "Canada",
-   "rule_check": {
-    "applies": "part102",
-    "country": "Canada",
-    "status": "shifts",
-    "label": "Shifts under 102.20 (8501)",
-    "origin": "Canada",
-    "basis": "19 CFR 102.11(a)(3); 19 CFR 102.20(o), 8501",
-    "rule": "19 CFR 102.20(o), 8501",
-    "reason": "each foreign material undergoes the change in tariff classification the rule requires, in Canada",
-    "agrees_with_precedent": true,
-    "review": false
-   }
-  },
-  {
-   "key": "fluid_rotary_mechanism@ca+controls_and_valves@ca",
-   "description": "Move the gearbox assembly and the screw drive and the control boards and 1 other part to Canada",
-   "parts_moved": [
-    "gearbox assembly",
-    "screw drive",
-    "sensor printed circuit board assembly (PCBA)",
-    "electrical apparatus"
-   ],
-   "moves_motor": false,
-   "shown": false,
-   "rejection_kind": "below_confidence_bar",
-   "verdict": {
-    "precedent_supported": true,
-    "supporting_ruling": "N346297",
-    "counter_ruling": "N348721",
-    "confidence": 0.85,
-    "reasoning": "In Variant A, all major subassemblies (DC motor, gearbox, screw drive, housings, sensor PCBA, electrical apparatus) are made in China and undergo simple assembly in Canada, analogous to N348721 and N342620 where origin remained China. In Variant B, four of the six primary subassemblies—the gearbox assembly, screw drive, sensor PCBA, and electrical apparatus—are manufactured in-house in Canada and combined there with the Chinese DC motor and housings. As in N346297 (where manufacturing core subassemblies locally alongside final assembly conferred origin despite a Chinese subassembly), the totality of Canadian subassembly production and assembly substantially transforms the Chinese components into a Canadian actuator."
-   },
-   "engine_origin": "Canada",
-   "rule_check": {
-    "applies": "part102",
-    "country": "Canada",
-    "status": "undetermined",
-    "label": "Does not shift under 102.20 (DC motor fails) unless de minimis",
-    "rule": "19 CFR 102.20(o), 8501",
-    "reason": "DC motor do not shift; if they are worth no more than 7% of the good, the origin is Canada (102.13); their value is not given",
-    "why": "de_minimis",
-    "failing": [
-     "DC motor"
-    ],
-    "review": false
-   }
-  },
-  {
-   "key": "motor_stator_rotor@ca+fluid_rotary_mechanism@ca+housing_and_chassis@ca",
-   "description": "Move the motor stator, the gearbox assembly and the screw drive and the housing and machined block to Canada",
-   "parts_moved": [
-    "DC motor",
-    "gearbox assembly",
-    "screw drive",
-    "housings"
-   ],
-   "moves_motor": true,
-   "shown": false,
-   "rejection_kind": "below_confidence_bar",
-   "verdict": {
-    "precedent_supported": true,
-    "supporting_ruling": "N346297",
-    "counter_ruling": "N348721",
-    "confidence": 0.9,
-    "reasoning": "In Variant A, all major subassemblies (DC motor, gearbox, screw drive, housings, sensor PCBA) are made in China and merely assembled in Canada, leaving origin in China (analogous to N348721, where simple assembly of Chinese drive/screw components in a third country did not change origin). In Variant B, the core electromechanical and mechanical subassemblies (12 VDC brushed motor, gearbox assembly, screw drive, and housings) are manufactured in-house in Canada, and only the sensor PCBA and electrical apparatus come from China. As in N346297 (electric winch where producing the motor and core mechanical subassemblies in the assembly country conferred origin), origin changes to Canada."
-   },
-   "engine_origin": "Canada",
+   "engine_origin_d501": "Canada",
    "rule_check": {
     "applies": "part102",
     "country": "Canada",
@@ -316,46 +290,9 @@
    ],
    "moves_motor": false,
    "shown": false,
-   "rejection_kind": "no_supporting_precedent",
-   "verdict": {
-    "precedent_supported": false,
-    "counter_ruling": "N346297",
-    "confidence": 0.75,
-    "reasoning": "Electrical actuators are generally classified as electric motors under heading 8501 (see N342620), where the DC motor imparts the essential character. In N346297 (electric winch), CBP noted final assembly of a motor and gearbox was not complex, and origin followed where the electric motor assembly (and drum) was produced, rather than the gearbox. Here, although Variant B shifts production of the gearbox assembly and screw drive to Canada, the core DC motor, housings, sensor PCBA, and electrical apparatus remain produced in China, and final assembly in Canada remains simple fastening and soldering. Thus, origin remains China."
-   },
-   "engine_origin": "Canada",
-   "rule_check": {
-    "applies": "part102",
-    "country": "Canada",
-    "status": "undetermined",
-    "label": "Does not shift under 102.20 (DC motor fails) unless de minimis",
-    "rule": "19 CFR 102.20(o), 8501",
-    "reason": "DC motor do not shift; if they are worth no more than 7% of the good, the origin is Canada (102.13); their value is not given",
-    "why": "de_minimis",
-    "failing": [
-     "DC motor"
-    ],
-    "review": false
-   }
-  },
-  {
-   "key": "fluid_rotary_mechanism@ca+housing_and_chassis@ca",
-   "description": "Move the gearbox assembly and the screw drive and the housing and machined block to Canada",
-   "parts_moved": [
-    "gearbox assembly",
-    "screw drive",
-    "housings"
-   ],
-   "moves_motor": false,
-   "shown": false,
-   "rejection_kind": "no_supporting_precedent",
-   "verdict": {
-    "precedent_supported": false,
-    "counter_ruling": "N346297",
-    "confidence": 0.75,
-    "reasoning": "An electrical actuator is classified as an electric motor under heading 8501 (see N342620), and CBP consistently treats the electric motor and its control electronics (PCBA) as imparting the essential character of motorized actuator assemblies (cf. N346297, where origin followed the electric motor assembly rather than the gearbox). In Variant B, the DC motor, sensor PCBA, and electrical apparatus remain produced in China, while only the mechanical gearbox assembly, screw drive, and housings move to Canada alongside simple final assembly (fastening, soldering wires, testing). The Chinese DC motor is not substantially transformed, so origin remains China."
-   },
-   "engine_origin": "Canada",
+   "rejection_kind": "engine_other_origin",
+   "engine_origin": "China",
+   "engine_origin_d501": "Canada",
    "rule_check": {
     "applies": "part102",
     "country": "Canada",
@@ -380,6 +317,7 @@
    "shown": false,
    "rejection_kind": "engine_other_origin",
    "engine_origin": "China",
+   "engine_origin_d501": "China",
    "rule_check": {
     "applies": "part102",
     "country": "Canada",
@@ -405,6 +343,62 @@
    "shown": false,
    "rejection_kind": "engine_other_origin",
    "engine_origin": "China",
+   "engine_origin_d501": "China",
+   "rule_check": {
+    "applies": "part102",
+    "country": "Canada",
+    "status": "undetermined",
+    "label": "Does not shift under 102.20 (DC motor fails) unless de minimis",
+    "rule": "19 CFR 102.20(o), 8501",
+    "reason": "DC motor do not shift; if they are worth no more than 7% of the good, the origin is Canada (102.13); their value is not given",
+    "why": "de_minimis",
+    "failing": [
+     "DC motor"
+    ],
+    "review": false
+   }
+  },
+  {
+   "key": "fluid_rotary_mechanism@ca+housing_and_chassis@ca",
+   "description": "Move the gearbox assembly and the screw drive and the housing and machined block to Canada",
+   "parts_moved": [
+    "gearbox assembly",
+    "screw drive",
+    "housings"
+   ],
+   "moves_motor": false,
+   "shown": false,
+   "rejection_kind": "engine_other_origin",
+   "engine_origin": "China",
+   "engine_origin_d501": "Canada",
+   "rule_check": {
+    "applies": "part102",
+    "country": "Canada",
+    "status": "undetermined",
+    "label": "Does not shift under 102.20 (DC motor fails) unless de minimis",
+    "rule": "19 CFR 102.20(o), 8501",
+    "reason": "DC motor do not shift; if they are worth no more than 7% of the good, the origin is Canada (102.13); their value is not given",
+    "why": "de_minimis",
+    "failing": [
+     "DC motor"
+    ],
+    "review": false
+   }
+  },
+  {
+   "key": "fluid_rotary_mechanism@ca+controls_and_valves@ca",
+   "description": "Move the gearbox assembly and the screw drive and the control boards and 1 other part to Canada",
+   "parts_moved": [
+    "gearbox assembly",
+    "screw drive",
+    "sensor printed circuit board assembly (PCBA)",
+    "electrical apparatus"
+   ],
+   "moves_motor": false,
+   "shown": false,
+   "rejection_kind": "engine_other_origin",
+   "engine_origin": "China",
+   "engine_origin_d501": "Canada",
    "rule_check": {
     "applies": "part102",
     "country": "Canada",
@@ -431,6 +425,7 @@
    "shown": false,
    "rejection_kind": "engine_other_origin",
    "engine_origin": "China",
+   "engine_origin_d501": "China",
    "rule_check": {
     "applies": "part102",
     "country": "Canada",
@@ -448,15 +443,18 @@
  ],
  "rule_shifts": 6,
  "motor_moves": 6,
+ "moves": 12,
+ "engine_agrees_with_rule": 12,
+ "engine_agrees_with_rule_d501": 9,
  "draft": {
-  "plan": "Move the motor stator, the gearbox assembly and the screw drive and the control boards and 1 other part to Canada",
+  "plan": "Move the motor stator, the gearbox assembly and the screw drive and the housing and machined block to Canada",
   "question": "What is the country of origin of DC motor actuator, produced as described above, under the Part 102 rules of origin (the general rules of 19 C.F.R. § 102.11, applied in order, with the tariff shifts of § 102.20), for purposes of country of origin marking (19 C.F.R. § 102.0)?\n\nThis request concerns the origin of the merchandise for marking under the Part 102 rules only. It does not ask CBP to decide the country of origin for Section 301 duties, which is a separate question, and the requester does not contend that marking origin settles it.",
   "tariff_shift": "Tariff-shift check (19 C.F.R. § 102.20): applied to the component codes in the bill of materials, with the good finished in Canada, the rule gives Canada (19 C.F.R. § 102.11(a)(3); 19 C.F.R. § 102.20(o), 8501). [CONFIRM WITH COUNSEL]",
   "notes": [
-   "Legal framework not confirmed: this case is routed to the Part 102 marking rules (19 CFR 102.11), so this draft asks the Part 102 marking question, but the prediction behind the requester's position was made by Unde's general engine, which reads earlier rulings under substantial transformation, not by the Part 102 engine. (A plan search on a Part 102 case predicts with the Part 102 engine when it is on, so this is a plan searched before that change, or the Part 102 engine was off or unavailable.) The requester's position is not a Part 102 determination: treat it as provisional and check it against the tariff-shift paragraph and the rules. Marking origin does not settle the separate Section 301 question; this draft does not ask it. The broker or counsel must select the appropriate framework before filing. This is a draft aid, not validated legal advice."
+   "Asked under the Part 102 rules (19 C.F.R. § 102.11) for marking because the prediction behind the requester's position was made under that regime. Marking origin does not settle the separate Section 301 question; this draft does not ask it. Confirm that regime applies."
   ]
  },
- "gateway_cost_usd": 0.3542,
+ "gateway_cost_usd": 0.277,
  "plants": [
   {
    "id": "cn",
