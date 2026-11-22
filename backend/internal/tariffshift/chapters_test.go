@@ -1,6 +1,8 @@
 package tariffshift
 
 import (
+	"encoding/json"
+	"os"
 	"reflect"
 	"slices"
 	"strings"
@@ -134,5 +136,26 @@ func TestAddedChaptersExamples(t *testing.T) {
 		if c.matWant != nil && !slices.Equal(got, c.matWant) {
 			t.Errorf("%s: materials %v, want %v", c.name, got, c.matWant)
 		}
+	}
+}
+
+// The encoded chapters are D360's seven plus those chapter_counts.py picks
+// from development and earlier data (D460).
+func TestScopeMatchesChapterCounts(t *testing.T) {
+	b, err := os.ReadFile("../../../eval/tariffshift/chapter-counts.json")
+	if err != nil {
+		t.Fatal(err)
+	}
+	var c struct {
+		Before []string `json:"chapters_before"`
+		Added  []string `json:"chapters_added"`
+	}
+	if err := json.Unmarshal(b, &c); err != nil {
+		t.Fatal(err)
+	}
+	want := append(c.Before, c.Added...)
+	slices.Sort(want)
+	if !slices.Equal(want, ScopeChapters) {
+		t.Fatalf("ScopeChapters %v, chapter-counts.json gives %v", ScopeChapters, want)
 	}
 }
