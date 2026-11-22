@@ -1,0 +1,305 @@
+{
+  "_source": "Built from the facts of CBP ruling N344002 (2024-12-06, Part 102 dev split; picked: the 102.20 check decides CBP's holding (Mexico) with CBP's codes (D362) and with the suggestions (D382); a reverse probe). CBP held Mexico. Components: the D362 full-text materials; part codes: the top D381 development suggestion (unverified, D382); the good's code: CBP's (8414.30). Plants, groups and operations assigned by hand (eval/planner/build_part102_fixtures.py). Target China by the D171 rule (reverse probe); plant capabilities for China are an assumption. D501.",
+  "case_id": "p102-n344002",
+  "date": "2024-12-06",
+  "family": "motors_pumps_compressors",
+  "target": "China",
+  "product": {
+    "name": "The country of origin of hermetic compressors",
+    "description": "The product of CBP ruling N344002, as its facts describe it.",
+    "hts": "8414.30",
+    "plants": [
+      {
+        "id": "mx",
+        "name": "Mexico plant",
+        "country": "Mexico",
+        "capabilities": [
+          "motor_stator_rotor",
+          "final_assembly"
+        ]
+      },
+      {
+        "id": "cn",
+        "name": "China suppliers",
+        "country": "China",
+        "capabilities": [
+          "motor_stator_rotor",
+          "fluid_rotary_mechanism",
+          "housing_and_chassis",
+          "controls_and_valves"
+        ]
+      }
+    ],
+    "components": [
+      {
+        "name": "stator",
+        "made_in": "Mexico",
+        "plant": "mx",
+        "group": "motor_stator_rotor",
+        "hts": "8503.00"
+      },
+      {
+        "name": "rotor",
+        "made_in": "Mexico",
+        "plant": "mx",
+        "group": "motor_stator_rotor",
+        "hts": "8503.00.65",
+        "hts_alternatives": [
+          "8503"
+        ]
+      },
+      {
+        "name": "steel lamination sheet",
+        "made_in": "China",
+        "plant": "cn",
+        "group": "motor_stator_rotor",
+        "hts": "8503.00",
+        "hts_alternatives": [
+          "7225.19"
+        ]
+      },
+      {
+        "name": "copper wires",
+        "made_in": "China",
+        "plant": "cn",
+        "group": "motor_stator_rotor",
+        "hts": "8544.11",
+        "hts_alternatives": [
+          "7408.19"
+        ]
+      },
+      {
+        "name": "polyester film slot insulation",
+        "made_in": "China",
+        "plant": "cn",
+        "group": "motor_stator_rotor",
+        "hts": "3920.62.00",
+        "hts_alternatives": [
+          "3920"
+        ]
+      },
+      {
+        "name": "wire harness",
+        "made_in": "China",
+        "plant": "cn",
+        "group": "motor_stator_rotor",
+        "hts": "8544.42"
+      },
+      {
+        "name": "heat shrink tubes",
+        "made_in": "China",
+        "plant": "cn",
+        "group": "motor_stator_rotor",
+        "hts": "3917.32"
+      },
+      {
+        "name": "aluminum ingot",
+        "made_in": "India",
+        "group": "motor_stator_rotor",
+        "hts": "7601.20"
+      },
+      {
+        "name": "housing",
+        "made_in": "China",
+        "plant": "cn",
+        "group": "housing_and_chassis",
+        "hts": "8414.90",
+        "hts_alternatives": [
+          "8503.00"
+        ]
+      },
+      {
+        "name": "crankcase",
+        "made_in": "China",
+        "plant": "cn",
+        "group": "housing_and_chassis",
+        "hts": "8414.90"
+      },
+      {
+        "name": "crankshaft",
+        "made_in": "China",
+        "plant": "cn",
+        "group": "fluid_rotary_mechanism",
+        "hts": "8483.10"
+      },
+      {
+        "name": "piston",
+        "made_in": "China",
+        "plant": "cn",
+        "group": "fluid_rotary_mechanism",
+        "hts": "8414.90"
+      },
+      {
+        "name": "piston pin",
+        "made_in": "China",
+        "plant": "cn",
+        "group": "fluid_rotary_mechanism",
+        "hts": "8414.90",
+        "hts_alternatives": [
+          "7318.29"
+        ]
+      },
+      {
+        "name": "connecting rod",
+        "made_in": "China",
+        "plant": "cn",
+        "group": "fluid_rotary_mechanism",
+        "hts": "8414.90",
+        "hts_alternatives": [
+          "8483.10"
+        ]
+      },
+      {
+        "name": "internal discharge tube",
+        "made_in": "China",
+        "plant": "cn",
+        "group": "housing_and_chassis",
+        "hts": "8414.90"
+      },
+      {
+        "name": "oil pump",
+        "made_in": "China",
+        "plant": "cn",
+        "group": "fluid_rotary_mechanism",
+        "hts": "8413.60",
+        "hts_alternatives": [
+          "8414.90"
+        ]
+      },
+      {
+        "name": "valve components",
+        "made_in": "China",
+        "plant": "cn",
+        "group": "controls_and_valves",
+        "hts": "8481.90",
+        "hts_alternatives": [
+          "8414.90"
+        ]
+      },
+      {
+        "name": "cover",
+        "made_in": "China",
+        "plant": "cn",
+        "group": "housing_and_chassis",
+        "hts": "8414.90"
+      },
+      {
+        "name": "screws",
+        "made_in": "China",
+        "plant": "cn",
+        "group": "housing_and_chassis",
+        "hts": "7318"
+      },
+      {
+        "name": "washers",
+        "made_in": "China",
+        "plant": "cn",
+        "group": "housing_and_chassis",
+        "hts": "7318.21",
+        "hts_alternatives": [
+          "7318.22",
+          "3926.90.45"
+        ]
+      },
+      {
+        "name": "wire",
+        "made_in": "China",
+        "plant": "cn",
+        "group": "motor_stator_rotor",
+        "hts": "8544.42"
+      },
+      {
+        "name": "gaskets",
+        "made_in": "China",
+        "plant": "cn",
+        "group": "housing_and_chassis",
+        "hts": "8484.90",
+        "hts_alternatives": [
+          "4016.93"
+        ]
+      },
+      {
+        "name": "ball bearings",
+        "made_in": "China",
+        "plant": "cn",
+        "group": "fluid_rotary_mechanism",
+        "hts": "8482.10.50",
+        "hts_alternatives": [
+          "8482"
+        ]
+      },
+      {
+        "name": "internal springs",
+        "made_in": "China",
+        "plant": "cn",
+        "group": "fluid_rotary_mechanism",
+        "hts": "7320.20"
+      },
+      {
+        "name": "muffler",
+        "made_in": "China",
+        "plant": "cn",
+        "group": "housing_and_chassis",
+        "hts": "8414.90"
+      },
+      {
+        "name": "assembly oil",
+        "made_in": "United States",
+        "group": "fluid_rotary_mechanism",
+        "hts": "2710.19",
+        "hts_alternatives": [
+          "3403.19"
+        ]
+      }
+    ],
+    "operations": [
+      {
+        "name": "stamp, stack and wind the stator; cast the rotor in aluminium",
+        "plant": "mx",
+        "group": "motor_stator_rotor"
+      },
+      {
+        "name": "make the crankshaft, piston, connecting rod, oil pump and bearings",
+        "plant": "cn",
+        "group": "fluid_rotary_mechanism"
+      },
+      {
+        "name": "make the housing, crankcase, cover, muffler and discharge tube",
+        "plant": "cn",
+        "group": "housing_and_chassis"
+      },
+      {
+        "name": "make the valve components",
+        "plant": "cn",
+        "group": "controls_and_valves"
+      },
+      {
+        "name": "assemble the motor, cylinder and valves into the bottom housing; weld the shell; charge and test",
+        "plant": "mx",
+        "group": "final_assembly"
+      }
+    ]
+  },
+  "economics": {
+    "illustrative": true,
+    "annual_import_value_usd": 1000000,
+    "duty_rates": {
+      "China": 0.425,
+      "Mexico": 0.125
+    },
+    "duty_rates_note": "Illustrative placeholder, not a sourced rate.",
+    "group_costs": {
+      "motor_stator_rotor": {
+        "mx": 100000,
+        "cn": 125000
+      }
+    }
+  },
+  "exclude_rulings": [
+    "N344002"
+  ],
+  "current_origin": {
+    "country": "Mexico",
+    "ruling": "N344002"
+  }
+}

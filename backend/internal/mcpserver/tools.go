@@ -444,12 +444,19 @@ func (t tools) plan(ctx context.Context, hdr http.Header, in planIn) (*mcp.CallT
 		b.WriteString("\nTo draft for the current setup, call export_ruling_request_draft without plan_id, plan_index or move_key.")
 	}
 	if rc := obj(obj(pl["baseline"])["rule_check"]); len(rc) > 0 {
-		b.WriteString("\nThe 19 CFR 102.20 rule check on each move (rule_check) is display only: it never changes which plans are shown or their order.")
-		if rc["applies"] == "informational" {
-			b.WriteString(" This case is decided under substantial transformation, so it is for information.")
-		}
+		b.WriteString("\n" + planRuleNote(rc["applies"] == "part102"))
 	}
 	return done(b.String(), out)
+}
+
+// planRuleNote says what the per-move 19 CFR 102.20 check does to a plan
+// list: on a Part 102 case it orders shown plans within each tier (D500);
+// otherwise it is for information only (D441).
+func planRuleNote(part102 bool) string {
+	if part102 {
+		return "This case is decided under Part 102, so within each tier shown plans rank by the 19 CFR 102.20 rule check (rule_check): moves it says shift first, then moves it cannot decide, then moves it gives to another country (flagged for a broker). It never changes which plans are shown or their verdicts."
+	}
+	return "The 19 CFR 102.20 rule check on each move (rule_check) is display only: it never changes which plans are shown or their order. This case is decided under substantial transformation, so it is for information."
 }
 
 // NoPlanLine is what plan_production_moves says when it shows no plan
@@ -470,6 +477,12 @@ func (t tools) compare(ctx context.Context, hdr http.Header, in compareIn) (*mcp
 		fmt.Fprintf(&b, "\n%v. %v: %v", ts["rank"], ts["target"], ts["status"])
 		if best := obj(ts["best"]); len(best) > 0 {
 			fmt.Fprintf(&b, ". Best: plan_id %s: %s", str0(best["plan_id"], "?"), planLine(best))
+		}
+	}
+	for _, x := range list(out["targets"]) {
+		if rc := obj(obj(obj(x)["best"])["rule_check"]); len(rc) > 0 {
+			b.WriteString("\n" + planRuleNote(rc["applies"] == "part102"))
+			break
 		}
 	}
 	return done(b.String(), out)

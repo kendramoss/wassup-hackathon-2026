@@ -606,7 +606,7 @@ Source: `eval/results/repeatability-heldout-litellm.json`, built by `python3 -I 
 
 ## 11. The rule check on each plan move (22 Nov 2026, D440-D442)
 
-**What it is (built).** The planner's moves are checked against precedent (§7). Each move now also gets the 19 CFR 102.20 rule check of the product as it would be after the move: the moved parts take the target's country, and the good is produced where its final assembly would be. It says "shifts", "does not shift", "gives another country" or "undetermined" with the reason, and flags a move an earlier ruling supports but the rule does not. It is display only: it never changes the verdict, which plans are shown or their order (D441).
+**What it is (built).** The planner's moves are checked against precedent (§7). Each move now also gets the 19 CFR 102.20 rule check of the product as it would be after the move: the moved parts take the target's country, and the good is produced where its final assembly would be. It says "shifts", "does not shift", "gives another country" or "undetermined" with the reason, and flags a move an earlier ruling supports but the rule does not. It never changes the verdict, the tier or which plans are shown (D441). On a case routed to Part 102, where 102.20 is the marking rule, it orders the shown plans within each tier: moves the rule says shift first, then moves it cannot decide, then moves it gives to another country, flagged (D500). On a substantial-transformation case it is display only. The broker draft states it for the drafted setup in one paragraph, and the country comparison shows it on each country's best move (D502).
 
 **How it was tested.** Pre-registered in D440, offline, no model calls. No committed plan product gives every part's code, and no committed plan search is Part 102-routed, so the only searches it can run on are the 23 per-family searches of §7.2 with codes filled in from the development suggestion run of §10 (top suggestion for the good and every part). All 23 are decided under substantial transformation, so the check is informational there.
 
@@ -623,7 +623,21 @@ Source: `eval/results/repeatability-heldout-litellm.json`, built by `python3 -I 
 
 **What it shows.** The rule decides about four in ten moves here, and where it decides it mostly agrees with the precedent check. That is weaker evidence than it looks: 9 of the 22 shifts hold because the move puts every part in the target, the part codes are unverified suggestions, and these are substantial-transformation cases, where Part 102 is not the test. The two disagreements are real and useful: moving the machining of N354220's survival tool to Vietnam has precedent support, but the tool is still finished in China, so the rule gives China. On the current setups the rule gives CBP's held origin in only 4 of 11, which is the known difference between the tariff-shift and substantial-transformation tests.
 
-**Not done.** No Part 102 plan search with part codes exists to score, and no move here has a later CBP ruling on the changed setup, so agreement with CBP on a move is not measured (0). Source: `eval/tariffshift/plans/summary.json` and `moves-dev.jsonl`, recomputed by `cd backend && go run ./cmd/tariffshift plans-eval -check` (in `make reproduce`). Cost $0.
+Source: `eval/tariffshift/plans/summary.json` and `moves-dev.jsonl`, recomputed by `cd backend && go run ./cmd/tariffshift plans-eval -check` (in `make reproduce`). Cost $0.
+
+### 11.1 Three scored Part 102 plan searches (D501, D502)
+
+**How it was tested.** Pre-registered in D501 before any run: three development Part 102 rulings, one per question. The actuator (N348465) is the one dev ruling found where the good is finished in Canada or Mexico, CBP held another country, and a planner template names the product, so a move can change the rule's answer. The lawn mower (N350133) is the one product with later CBP rulings. The compressors (N344002) are decided by the rule with CBP's codes. Parts and countries come from the rulings' committed extractions, part codes from the development suggestion run (unverified), plants and groups by hand. One plan search each through the gateway, production configuration, no cache; scored offline.
+
+| Ruling (target) | Moves | Shown | Rule: shifts / another country / undetermined | Precedent supports, rule gives another country | Current setup: rule (CBP) | Cost |
+|---|---:|---:|---|---:|---|---:|
+| N348465 actuator (Canada) | 12 | 1 | 6 / 0 / 6 | 0 | undetermined, the motor does not shift (China) | $0.3542 |
+| N344002 compressors (China, reverse probe) | 1 | 0 | 0 / 1 / 0 | 1, below the bar | Mexico (Mexico) | $0.0433 |
+| N350133 lawn mower (China, reverse probe) | 1 | 0 | 0 / 1 / 0 | 1, below the bar | Mexico (Mexico) | $0.0358 |
+
+**What it shows.** On the actuator, the rule says every move that includes the motor shifts to Canada and every move without it does not, which is CBP's reason for holding China. The search found those moves; precedent supports all 6 but only one clears the bar, and that is the shown plan. The rule also names the smallest move, the motor alone, which precedent checked at 0.82. On the two reverse probes final assembly stays in Mexico, so the rule gives Mexico, while precedent below the bar and the general engine both lean to China: both moves are flagged. No search showed two plans, so the D500 order changed nothing here. The rule on the lawn mower's later ruling (N354024) gives Mexico, as CBP held, but that is a later product, not a plan move.
+
+**Not done.** No Part 102 move has a later CBP ruling on the changed setup, so there is no plan backtest (0). Three searches, one run each, on products chosen to exercise the rule: a demonstration of the mechanism on real rulings, not an accuracy figure. Source: `eval/tariffshift/plans102/summary.json` and `moves-dev.jsonl`, recomputed by `cd backend && go run ./cmd/tariffshift plans102-eval -check` (in `make reproduce`); runs `eval/tariffshift/plans102/runs/plan-p102-*-d501-litellm.json`. Cost $0.4333, gateway-reported.
 
 ## 12. Agent evaluation: the ADK agent on 12 products (22 Nov 2026, D450, D451)
 

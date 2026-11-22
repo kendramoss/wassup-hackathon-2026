@@ -228,6 +228,8 @@ export const copy = {
       smallest: "Smallest supported move",
       smallestLine: (phrase: string, n: number) => `Smallest supported move: ${phrase} (${n} ${n === 1 ? "part" : "parts"}).`,
       order: "clear margin first, then net",
+      // D500: a Part 102 case read with the rule check.
+      orderRule: "clear margin first, then the 102.20 check, then net",
       stored: "Stored before plans were ranked by tier (D341): this list is ranked by net alone. Search again to re-rank.",
     },
   },
@@ -654,11 +656,15 @@ export const copy = {
   // and each row of the moves table. Display only.
   planRule: {
     explain:
-      "The 19 CFR 102.20 tariff-shift check of the product as it would be after this move, from the HTS codes on the parts list. It never changes the precedent check, which plans are shown or their order. Not a ruling.",
+      "The 19 CFR 102.20 tariff-shift check of the product as it would be after this move, from the HTS codes on the parts list. It never changes the precedent check or which plans are shown. On a Part 102 case it orders the shown plans within each tier; otherwise it is display only. Not a ruling.",
     caption: (part102: boolean) =>
       part102
-        ? "Each move also shows the 19 CFR 102.20 rule check of the product after the move. Display only: it does not change which plans are shown or their order."
+        ? "Each move also shows the 19 CFR 102.20 rule check of the product after the move. This case is decided under Part 102, so within each tier the moves the rule supports come first and the moves it gives to another country come last, flagged. It does not change which plans are shown."
         : "Each move also shows the 19 CFR 102.20 rule check, for comparison: this case is decided under substantial transformation. Display only: it does not change which plans are shown or their order.",
+    // Country comparison (D500): the best move's check, and how it ranks.
+    compareCaption: "on a Part 102 case, a best move the 102.20 rule supports ranks first within its tier",
+    compareHow:
+      "On a Part 102 case each country's best move is also checked against the 19 CFR 102.20 tariff-shift rule: within a tier, a move the rule supports ranks above one it cannot decide, and one it gives to another country ranks last, flagged for a broker. On a substantial-transformation case the check is shown for comparison only.",
   },
 
   // /examples/rule-check: a recorded, read-only example of the per-part codes

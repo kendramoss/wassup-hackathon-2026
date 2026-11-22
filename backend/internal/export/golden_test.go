@@ -68,6 +68,33 @@ func goldenInputs() map[string]Input {
 			Facts:     "Steel brackets are stamped in Mexico from coil made in China.",
 			Requested: "Mexico", Prediction: domain.Prediction{KeyFactors: []string{"Tariff shift met in Mexico"}, CitedRulings: []string{"N340187"}},
 		},
+		// A Part 102 plan whose move the 102.20 rule says shifts (D441, D500).
+		"usmca_rule_shifts": {
+			ProductName: "12 VDC electric actuator", Regime: router.RegimeUSMCA,
+			Facts:     "The DC motor is made in Canada. The gearbox, screw drive and housings are made in China. Final assembly in Canada.",
+			Requested: "Canada", PlanSummary: "Move the motor stator and rotor to Canada", CurrentRuled: "China (CBP ruling N348465, 5 June 2025)",
+			Prediction: domain.Prediction{KeyFactors: []string{"Motor made in Canada"}},
+			Supporting: "N340187",
+			RuleCheck: &domain.PlanRuleCheck{Applies: "part102", Country: "Canada", Status: "shifts", Origin: "Canada",
+				Basis: "19 CFR 102.11(a)(3); 19 CFR 102.20(p), 8501", Label: "Shifts under 102.20 (8501)"},
+		},
+		// Precedent supports the move, the rule gives another country: the
+		// letter says so and a note sits beside it.
+		"usmca_rule_review": {
+			ProductName: "hermetic compressor", Regime: router.RegimeUSMCA,
+			Facts:     "The stator and rotor are made in China. Final assembly in Mexico.",
+			Requested: "China", PlanSummary: "Move the motor stator and rotor to China", CurrentRuled: "Mexico (CBP ruling N344002, 6 December 2024)",
+			Supporting: "N340187",
+			RuleCheck: &domain.PlanRuleCheck{Applies: "part102", Country: "Mexico", Status: "other_country", Origin: "Mexico",
+				Basis: "19 CFR 102.11(a)(3); 19 CFR 102.20(p), 8414.30", Label: "102.20 gives Mexico: finished there", Review: true,
+				ReviewNote: "An earlier ruling supports this move, but the 102.20 rule gives Mexico: worth a broker's look."},
+		},
+		// Undetermined, on a substantial-transformation case: for reference.
+		"plan_rule_undetermined": {
+			ProductName: "heat gun", Facts: "PCBA made in Thailand.", Requested: "Thailand", PlanSummary: "Move the PCBA to Thailand",
+			Supporting: "N347421",
+			RuleCheck:  &domain.PlanRuleCheck{Applies: "informational", Country: "Thailand", Status: "undetermined", Why: "missing_code", Label: "102.20 undetermined (no code for 2 parts)"},
+		},
 		"pharma": {
 			ProductName: "ibuprofen tablets", Regime: router.RegimePharma,
 			Facts:     "Ibuprofen API is made in India; tableting and bottling take place in the United States.",

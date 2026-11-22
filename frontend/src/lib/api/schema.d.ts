@@ -1994,8 +1994,10 @@ export interface components {
          * @description The 19 CFR 102.20 rule check of the product as it would be after this move (D441): the moved parts take the
          *     target plant's country, and the good is produced where its final-assembly group would be. Present on every plan
          *     (and the baseline) of a Part 102 case, and of a substantial-transformation case only when the good and every part
-         *     have an HTS code. Added when the plan is returned or read, never stored; display only: it never changes the
-         *     verdict, which plans are shown, or their order. RULE_CHECK=off removes it.
+         *     have an HTS code. Added when the plan is returned or read, never stored. It never changes the verdict, the tier
+         *     or which plans are shown. On a Part 102 case it orders shown plans within each tier (D500): status shifts
+         *     first, then undetermined, then no_shift or other_country; on a substantial-transformation case it is display
+         *     only. RULE_CHECK=off removes it (and the D500 order).
          */
         PlanRuleCheck: {
             /** @enum {string} */
@@ -2059,7 +2061,7 @@ export interface components {
                 ruling?: string;
             };
             baseline?: components["schemas"]["Plan"];
-            /** @description Precedent-supported, verifier confidence >= 0.92 (PLAN_CONFIDENCE). Ranked by tier (clear margin first, then at the bar; D341), then net a year, best first */
+            /** @description Precedent-supported, verifier confidence >= 0.92 (PLAN_CONFIDENCE). Ranked by tier (clear margin first, then at the bar; D341), then net a year, best first. On a Part 102 case, within each tier, by rule_check first (D500: shifts, then undetermined, then another country) */
             plans?: components["schemas"]["Plan"][];
             /** @description Greyed rows, closest first: current setup, below_confidence_bar, no_supporting_precedent, engine_other_origin */
             rejected?: components["schemas"]["Plan"][];
@@ -2071,10 +2073,10 @@ export interface components {
             objective?: components["schemas"]["PlanObjective"];
             /** @description Operations mode only: SHA-256 of the canonical raw money inputs this result was priced from (before table or live rates are filled in). A later edit of a cost, rate, constraint or the annual value changes it; note and sources do not. */
             economics_basis?: string;
-            /** @description How shown plans were ordered (D341). Absent on results stored before it, which were ranked by net alone. */
+            /** @description How shown plans were ordered (D341; on a Part 102 case read with the rule check, D500). Absent on results stored before D341, which were ranked by net alone. */
             ranking?: {
                 /** @enum {string} */
-                rule?: "tier_then_net";
+                rule?: "tier_then_net" | "tier_then_rule_then_net";
                 /** @example 0.92 */
                 bar?: number;
                 /**
@@ -2296,7 +2298,7 @@ export interface components {
             target?: string;
             /** @enum {string} */
             status?: "plan" | "below_bar" | "no_plan" | "no_plant";
-            /** @description best shown plan, or the closest below-bar plan; null otherwise */
+            /** @description best shown plan, or the closest below-bar plan; null otherwise. Carries rule_check (the 19 CFR 102.20 check of its move, D441) when the case does. On a Part 102 case the best plan is the first in the D500 order, and countries with a shown plan rank by its tier, then its rule_check (shifts first) */
             best?: components["schemas"]["Plan"];
             shown_count?: number;
             /** @description Includes the move followed from advice, if any */

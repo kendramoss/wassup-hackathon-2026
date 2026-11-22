@@ -1,0 +1,295 @@
+{
+  "_source": "Built from the facts of CBP ruling N350133 (2025-06-23, Part 102 dev split; picked: a dev Part 102 product with later CBP rulings on changed setups (N354024, N357851, N359668; same requester, each held Mexico)). CBP held Mexico. Components: the D362 full-text materials; part codes: the top D381 development suggestion (unverified, D382); the good's code: CBP's (8433.11.0050). Plants, groups and operations assigned by hand (eval/planner/build_part102_fixtures.py). Target China by the D171 rule (reverse probe); plant capabilities for China are an assumption. D501.",
+  "case_id": "p102-n350133",
+  "date": "2025-06-23",
+  "family": "motorised_tools_small_appliances",
+  "target": "China",
+  "product": {
+    "name": "The country of origin and eligibility of the United States-Mexico-Canada Agreement (USMCA) of a Walk-Behind Lawn Mower",
+    "description": "The product of CBP ruling N350133, as its facts describe it.",
+    "hts": "8433.11.0050",
+    "plants": [
+      {
+        "id": "mx",
+        "name": "Mexico plant",
+        "country": "Mexico",
+        "capabilities": [
+          "housing_moulding",
+          "final_assembly"
+        ]
+      },
+      {
+        "id": "cn",
+        "name": "China suppliers",
+        "country": "China",
+        "capabilities": [
+          "motor_fan_assembly",
+          "housing_moulding",
+          "switch_cord_minor_parts",
+          "cord_knobs_covers"
+        ]
+      }
+    ],
+    "components": [
+      {
+        "name": "steel",
+        "made_in": "Mexico",
+        "plant": "mx",
+        "group": "housing_moulding",
+        "hts": "7216",
+        "hts_alternatives": [
+          "7208"
+        ]
+      },
+      {
+        "name": "plastic",
+        "made_in": "China",
+        "plant": "mx",
+        "group": "housing_moulding",
+        "hts": "3902",
+        "hts_alternatives": [
+          "3901"
+        ]
+      },
+      {
+        "name": "lawn mower blades",
+        "made_in": "China",
+        "plant": "cn",
+        "group": "motor_fan_assembly",
+        "hts": "8208.40"
+      },
+      {
+        "name": "knife block",
+        "made_in": "China",
+        "plant": "cn",
+        "group": "motor_fan_assembly",
+        "hts": "8433.90"
+      },
+      {
+        "name": "front and rear axle assemblies",
+        "made_in": "China",
+        "plant": "cn",
+        "group": "motor_fan_assembly",
+        "hts": "8433.90"
+      },
+      {
+        "name": "rear fender",
+        "made_in": "China",
+        "plant": "cn",
+        "group": "cord_knobs_covers",
+        "hts": "8433.90"
+      },
+      {
+        "name": "flame-out cable assembly",
+        "made_in": "China",
+        "plant": "cn",
+        "group": "switch_cord_minor_parts",
+        "hts": "8433.90",
+        "hts_alternatives": [
+          "8544.42"
+        ]
+      },
+      {
+        "name": "plates",
+        "made_in": "China",
+        "plant": "cn",
+        "group": "switch_cord_minor_parts",
+        "hts": "8433.90",
+        "hts_alternatives": [
+          "7326.90"
+        ]
+      },
+      {
+        "name": "rods",
+        "made_in": "China",
+        "plant": "cn",
+        "group": "switch_cord_minor_parts",
+        "hts": "8433.90",
+        "hts_alternatives": [
+          "7326.90"
+        ]
+      },
+      {
+        "name": "handle cover",
+        "made_in": "China",
+        "plant": "cn",
+        "group": "cord_knobs_covers",
+        "hts": "8433.90",
+        "hts_alternatives": [
+          "3926.90"
+        ]
+      },
+      {
+        "name": "knob",
+        "made_in": "China",
+        "plant": "cn",
+        "group": "cord_knobs_covers",
+        "hts": "3926.90",
+        "hts_alternatives": [
+          "8433.90"
+        ]
+      },
+      {
+        "name": "hanging hook",
+        "made_in": "China",
+        "plant": "cn",
+        "group": "switch_cord_minor_parts",
+        "hts": "8302.50",
+        "hts_alternatives": [
+          "7326.90"
+        ]
+      },
+      {
+        "name": "brackets",
+        "made_in": "China",
+        "plant": "cn",
+        "group": "switch_cord_minor_parts",
+        "hts": "8302.49",
+        "hts_alternatives": [
+          "8433.90"
+        ]
+      },
+      {
+        "name": "blocks",
+        "made_in": "China",
+        "plant": "cn",
+        "group": "switch_cord_minor_parts",
+        "hts": "8433.90",
+        "hts_alternatives": [
+          "3926.90"
+        ]
+      },
+      {
+        "name": "nuts",
+        "made_in": "China",
+        "plant": "cn",
+        "group": "switch_cord_minor_parts",
+        "hts": "7318.16"
+      },
+      {
+        "name": "bolts",
+        "made_in": "China",
+        "plant": "cn",
+        "group": "switch_cord_minor_parts",
+        "hts": "7318.15"
+      },
+      {
+        "name": "screws",
+        "made_in": "China",
+        "plant": "cn",
+        "group": "switch_cord_minor_parts",
+        "hts": "7318",
+        "hts_alternatives": [
+          "7318.15"
+        ]
+      },
+      {
+        "name": "washers",
+        "made_in": "China",
+        "plant": "cn",
+        "group": "switch_cord_minor_parts",
+        "hts": "7318.22",
+        "hts_alternatives": [
+          "3926.90.45"
+        ]
+      },
+      {
+        "name": "clamps",
+        "made_in": "China",
+        "plant": "cn",
+        "group": "switch_cord_minor_parts",
+        "hts": "7326.90.86"
+      },
+      {
+        "name": "bushings",
+        "made_in": "China",
+        "plant": "cn",
+        "group": "switch_cord_minor_parts",
+        "hts": "8483.30",
+        "hts_alternatives": [
+          "8433.90"
+        ]
+      },
+      {
+        "name": "springs",
+        "made_in": "China",
+        "plant": "cn",
+        "group": "switch_cord_minor_parts",
+        "hts": "7320.20"
+      },
+      {
+        "name": "gaskets",
+        "made_in": "China",
+        "plant": "cn",
+        "group": "switch_cord_minor_parts",
+        "hts": "8484.90",
+        "hts_alternatives": [
+          "4016.93"
+        ]
+      },
+      {
+        "name": "gasoline-powered engine",
+        "made_in": "United States",
+        "group": "motor_fan_assembly",
+        "hts": "8407.90"
+      }
+    ],
+    "operations": [
+      {
+        "name": "stamp the mower deck, handrails and flame-lever from Mexican steel; spray coat; cut and bend the handrail tubes",
+        "plant": "mx",
+        "group": "housing_moulding"
+      },
+      {
+        "name": "injection-mould the wheel assemblies and side discharge guard from Chinese plastic",
+        "plant": "mx",
+        "group": "housing_moulding"
+      },
+      {
+        "name": "make the blades, knife block and axle assemblies",
+        "plant": "cn",
+        "group": "motor_fan_assembly"
+      },
+      {
+        "name": "make the cable, brackets, fasteners and small parts",
+        "plant": "cn",
+        "group": "switch_cord_minor_parts"
+      },
+      {
+        "name": "mould the rear fender, handle cover and knob",
+        "plant": "cn",
+        "group": "cord_knobs_covers"
+      },
+      {
+        "name": "assemble the Mexican, Chinese and U.S. components into the finished mower by hand",
+        "plant": "mx",
+        "group": "final_assembly"
+      }
+    ]
+  },
+  "economics": {
+    "illustrative": true,
+    "annual_import_value_usd": 1000000,
+    "duty_rates": {
+      "China": 0.425,
+      "Mexico": 0.125
+    },
+    "duty_rates_note": "Illustrative placeholder, not a sourced rate.",
+    "group_costs": {
+      "housing_moulding": {
+        "mx": 100000,
+        "cn": 125000
+      }
+    }
+  },
+  "exclude_rulings": [
+    "N350133",
+    "N354024",
+    "N357851",
+    "N359668"
+  ],
+  "current_origin": {
+    "country": "Mexico",
+    "ruling": "N350133"
+  }
+}

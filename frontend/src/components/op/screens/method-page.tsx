@@ -458,14 +458,17 @@ export function MethodPage() {
           <li>
             <b className="font-medium text-ink">The tariff-shift rule beside it.</b> When the case is routed to the Part 102 rules, or every part has an HTS code, each move
             also gets the 19 CFR 102.20 rule check of the product after the move, made where its final assembly would be (<D id="D441" />). It says whether the move shifts
-            under 102.20, does not, or is undetermined, and why. It never changes which moves are shown or their order. A move an earlier ruling supports but the rule does
-            not is flagged for a broker. On the 23 per-family searches, with part codes from the development suggestion run, it decides 25 of 57 moves and agrees with the
+            under 102.20, does not, or is undetermined, and why. It never changes which moves are shown; on a Part 102 case it ranks, within each tier, the moves it supports
+            first and those it gives to another country last (<D id="D500" />). A move an earlier ruling supports but the rule does not is flagged for a broker, in the
+            draft too. On the 23 per-family searches, with part codes from the development suggestion run, it decides 25 of 57 moves and agrees with the
             precedent check on 21 of 23; the 2 it flags are below the bar. Those cases are decided under substantial transformation, so this is a comparison, not
             accuracy, and there is no Part 102 plan search with codes to score yet (<D id="D442" />).{" "}
             <Link href="/examples/plan-rule-check" className="text-ok underline underline-offset-2">
               See a recorded move check
             </Link>
             .
+            accuracy (<D id="D442" />). On three scored Part 102 plan searches on development rulings, the rule picked the 6 actuator moves that bring the motor to Canada,
+            CBP&apos;s own reason for holding China, and the one shown plan is among them; it flagged 2 moves to China that precedent leaned to (<D id="D502" />).
           </li>
           <li>
             <b className="font-medium text-ink">Shown, then drafted for a broker.</b> The shown move and its ruling go into the draft ruling request a licensed customs broker

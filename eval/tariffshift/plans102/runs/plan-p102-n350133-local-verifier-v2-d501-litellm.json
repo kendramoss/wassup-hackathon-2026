@@ -1,0 +1,263 @@
+{
+  "case_id": "p102-n350133",
+  "target": "China",
+  "family": "motorised_tools_small_appliances",
+  "baseline": {
+    "move": [],
+    "description": "No change: keep the current setup",
+    "variant_facts": "The merchandise under consideration is a The country of origin and eligibility of the United States-Mexico-Canada Agreement (USMCA) of a Walk-Behind Lawn Mower. The product of CBP ruling N350133, as its facts describe it. The The country of origin and eligibility of the United States-Mexico-Canada Agreement (USMCA) of a Walk-Behind Lawn Mower is assembled in Mexico using components sourced from Mexico, China and United States.\n\nThe steel are produced in Mexico. The plastic, lawn mower blades, knife block, front and rear axle assemblies, rear fender, flame-out cable assembly, plates, rods, handle cover, knob, hanging hook, brackets, blocks, nuts, bolts, screws, washers, clamps, bushings, springs and gaskets are sourced from China. The gasoline-powered engine are sourced from United States. \n\nFinal assembly in Mexico: assemble the Mexican, Chinese and U.S. components into the finished mower by hand.\n",
+    "prediction": {
+      "origin_country": "Mexico",
+      "key_factors": [
+        "Steel deck/frame fabrication and final integration with the engine and blades"
+      ],
+      "decisive_step": "Fabrication of steel structural components (deck/handle) and final assembly of all components into the lawn mower in Mexico",
+      "confidence": 0.85,
+      "reasoning": "Consistent with CBP precedent for wheeled machinery (N349019, N342125), fabricating the primary structural steel components (deck/frame) from raw steel in Mexico, combined with assembling the U.S. gasoline engine and Chinese blades/axles into a finished walk-behind lawn mower, constitutes a substantial transformation. No single imported component (neither the U.S. engine nor the Chinese blade/axle parts) alone imparts the essential character of the complete mower; rather, the fabrication and integration in Mexico creates a new article of commerce.",
+      "cited_rulings": [
+        "N349019",
+        "N342125"
+      ],
+      "precedents": [
+        "N342125",
+        "N348083",
+        "N348514",
+        "N348764",
+        "N349019"
+      ],
+      "trace": {
+        "llm_provider": "litellm",
+        "model_id": "gemini-4-argon",
+        "requested_model": "gemini-4-argon",
+        "prompt_version": "engine-v1",
+        "input_tokens": 2634,
+        "output_tokens": 260,
+        "latency_ms": 7597
+      }
+    },
+    "duty_effect_per_year": 0,
+    "added_cost_per_year": 0,
+    "net_per_year": 0,
+    "shown": false
+  },
+  "current_origin": {
+    "country": "Mexico",
+    "ruling": "N350133"
+  },
+  "plans": [],
+  "rejected": [
+    {
+      "move": [],
+      "description": "No change: keep the current setup",
+      "variant_facts": "The merchandise under consideration is a The country of origin and eligibility of the United States-Mexico-Canada Agreement (USMCA) of a Walk-Behind Lawn Mower. The product of CBP ruling N350133, as its facts describe it. The The country of origin and eligibility of the United States-Mexico-Canada Agreement (USMCA) of a Walk-Behind Lawn Mower is assembled in Mexico using components sourced from Mexico, China and United States.\n\nThe steel are produced in Mexico. The plastic, lawn mower blades, knife block, front and rear axle assemblies, rear fender, flame-out cable assembly, plates, rods, handle cover, knob, hanging hook, brackets, blocks, nuts, bolts, screws, washers, clamps, bushings, springs and gaskets are sourced from China. The gasoline-powered engine are sourced from United States. \n\nFinal assembly in Mexico: assemble the Mexican, Chinese and U.S. components into the finished mower by hand.\n",
+      "prediction": {
+        "origin_country": "Mexico",
+        "key_factors": [
+          "Steel deck/frame fabrication and final integration with the engine and blades"
+        ],
+        "decisive_step": "Fabrication of steel structural components (deck/handle) and final assembly of all components into the lawn mower in Mexico",
+        "confidence": 0.85,
+        "reasoning": "Consistent with CBP precedent for wheeled machinery (N349019, N342125), fabricating the primary structural steel components (deck/frame) from raw steel in Mexico, combined with assembling the U.S. gasoline engine and Chinese blades/axles into a finished walk-behind lawn mower, constitutes a substantial transformation. No single imported component (neither the U.S. engine nor the Chinese blade/axle parts) alone imparts the essential character of the complete mower; rather, the fabrication and integration in Mexico creates a new article of commerce.",
+        "cited_rulings": [
+          "N349019",
+          "N342125"
+        ],
+        "precedents": [
+          "N342125",
+          "N348083",
+          "N348514",
+          "N348764",
+          "N349019"
+        ],
+        "trace": {
+          "llm_provider": "litellm",
+          "model_id": "gemini-4-argon",
+          "requested_model": "gemini-4-argon",
+          "prompt_version": "engine-v1",
+          "input_tokens": 2634,
+          "output_tokens": 260,
+          "latency_ms": 7597
+        }
+      },
+      "duty_effect_per_year": 0,
+      "added_cost_per_year": 0,
+      "net_per_year": 0,
+      "shown": false,
+      "rejection_reason": "current setup: CBP held Mexico (N350133); engine predicts Mexico",
+      "rejection_kind": "current_setup"
+    },
+    {
+      "move": [
+        {
+          "group": "housing_moulding",
+          "to_plant": "cn"
+        }
+      ],
+      "description": "Move the steel and the plastic to China",
+      "variant_facts": "The merchandise under consideration is a The country of origin and eligibility of the United States-Mexico-Canada Agreement (USMCA) of a Walk-Behind Lawn Mower. The product of CBP ruling N350133, as its facts describe it. The The country of origin and eligibility of the United States-Mexico-Canada Agreement (USMCA) of a Walk-Behind Lawn Mower is assembled in Mexico using components sourced from China and United States.\n\nThe steel, plastic, lawn mower blades, knife block, front and rear axle assemblies, rear fender, flame-out cable assembly, plates, rods, handle cover, knob, hanging hook, brackets, blocks, nuts, bolts, screws, washers, clamps, bushings, springs and gaskets are produced in China. The gasoline-powered engine are sourced from United States. \n\nIn China, the steel and plastic will be produced in-house: stamp the mower deck, handrails and flame-lever from Mexican steel; spray coat; cut and bend the handrail tubes; injection-mould the wheel assemblies and side discharge guard from Chinese plastic.\n\nFinal assembly in Mexico: assemble the Mexican, Chinese and U.S. components into the finished mower by hand.\n",
+      "prediction": {
+        "origin_country": "China",
+        "key_factors": [
+          "Stamped mower deck, blades, axles, wheels, and chassis components"
+        ],
+        "decisive_step": "Fabrication, stamping, and molding of the mower deck, blades, and structural subassemblies in China",
+        "confidence": 0.85,
+        "reasoning": "Similar to N349019 and N348764, the country where the primary structural chassis/frame and working components are fabricated imparts the essential character. In China, the mower deck, handrails, wheels, blades, and axle assemblies are stamped, molded, and produced. The final hand-assembly in Mexico—bolting the U.S. engine and Chinese components onto the pre-fabricated Chinese deck—is a simple assembly operation that does not substantially transform the Chinese components into a new article.",
+        "cited_rulings": [
+          "N349019",
+          "N348764"
+        ],
+        "precedents": [
+          "H327665",
+          "N348083",
+          "N348447",
+          "N348764",
+          "N349019"
+        ],
+        "trace": {
+          "llm_provider": "litellm",
+          "model_id": "gemini-4-argon",
+          "requested_model": "gemini-4-argon",
+          "prompt_version": "engine-v1",
+          "input_tokens": 2698,
+          "output_tokens": 239,
+          "latency_ms": 8346
+        }
+      },
+      "verdict": {
+        "precedent_supported": true,
+        "supporting_ruling": "N349255",
+        "confidence": 0.75,
+        "reasoning": "In Variant A, origin was Mexico because the mower deck, handrails, flame-lever, wheel assemblies, and side discharge guard were manufactured in Mexico (stamping, coating, bending, injection-molding) and assembled with a U.S. engine and Chinese parts. In Variant B, all of this in-house metal stamping, tube bending, and plastic injection-molding of the deck, handrails, and wheels moves to China, leaving only simple hand assembly in Mexico. As seen in N349255, where the bulk of components and key structural/mechanical sub-assemblies are manufactured in China, simple assembly elsewhere does not substantially transform the Chinese components, shifting origin to China.",
+        "trail": [
+          {
+            "tool": "search",
+            "query": "lawn mower deck engine assembly origin",
+            "rulings": [
+              "N347135",
+              "N329943",
+              "N349893",
+              "N346250",
+              "N349255",
+              "N329837",
+              "N348514",
+              "N348937"
+            ]
+          },
+          {
+            "tool": "search",
+            "query": "mower deck stamp injection mould Mexico China",
+            "rulings": [
+              "N347135",
+              "N349311",
+              "N349312",
+              "N342447",
+              "N348763",
+              "N330505",
+              "N339969",
+              "N349389"
+            ]
+          },
+          {
+            "tool": "search",
+            "query": "walk behind lawn mower origin",
+            "rulings": [
+              "N329837",
+              "N332591",
+              "N332593",
+              "N332595",
+              "N332592",
+              "N340654",
+              "N330175",
+              "N332750"
+            ]
+          },
+          {
+            "tool": "search",
+            "query": "\"lawn mower\" OR \"lawnmower\"",
+            "rulings": [
+              "N329837",
+              "N332591",
+              "N332593",
+              "N332595",
+              "N332592",
+              "N350028",
+              "N350001",
+              "N349948"
+            ]
+          },
+          {
+            "tool": "search",
+            "query": "\"8433\" country of origin Mexico China",
+            "rulings": [
+              "N341152",
+              "N332007",
+              "H335139",
+              "N329947",
+              "N344910",
+              "N345397",
+              "H304677",
+              "N330058"
+            ]
+          },
+          {
+            "tool": "read",
+            "query": "N349255",
+            "rulings": [
+              "N349255"
+            ]
+          }
+        ],
+        "trace": {
+          "llm_provider": "litellm",
+          "model_id": "gemini-4-argon",
+          "prompt_version": "verifier-v2+known-a",
+          "input_tokens": 8214,
+          "output_tokens": 367,
+          "latency_ms": 0
+        }
+      },
+      "duty_effect_per_year": -300000,
+      "added_cost_per_year": 25000,
+      "net_per_year": -325000,
+      "net_priced": true,
+      "shown": false,
+      "rejection_reason": "precedent-supported but verifier confidence 0.75 is below 0.92",
+      "rejection_kind": "below_confidence_bar"
+    }
+  ],
+  "stats": {
+    "moves_searched": 1,
+    "engine_calls": 2,
+    "verifier_runs": 1,
+    "verifier_cached": 0,
+    "verifier_model_calls": 3,
+    "verifier_tool_calls": 6,
+    "input_tokens": 13546,
+    "output_tokens": 866,
+    "engine_input_tokens": 5332,
+    "engine_output_tokens": 499,
+    "verifier_input_tokens": 8214,
+    "verifier_output_tokens": 367,
+    "wall_seconds": 26.226507167
+  },
+  "economics_illustrative": true,
+  "duty_rates_note": "Illustrative placeholder, not a sourced rate.",
+  "template_versions": {
+    "motorised_tools_small_appliances": "2"
+  },
+  "ranking": {
+    "rule": "tier_then_net",
+    "bar": 0.92,
+    "clear_from": 0.93
+  },
+  "llm_provider": "litellm",
+  "verifier_search": "local",
+  "cost_usd_promo": 0.035752000000000006,
+  "cost_usd_list": 0.07150400000000001,
+  "gateway_cost_usd": 0.035752,
+  "verifier_config": "prompt=v2 panel=off votes=1 near_miss=false follow=false bar=0.92",
+  "llm_no_cache": true,
+  "git_revision": "1496f7fe5b23fcc04b576badd6cb0715d70adbf1-dirty",
+  "time": "2026-11-22T10:07:27+08:00"
+}

@@ -34,6 +34,7 @@ import (
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/llm"
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/logsafe"
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/planner"
+	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/planrule"
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/ratelimit"
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/router"
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/spend"
@@ -1546,18 +1547,27 @@ func (a *api) buildDraft(r *http.Request, c store.Case, in exportRequest) (draft
 	}
 	var chosen *domain.Plan
 	var chosenRes *planner.Result // the plan search chosen came from
+	// Plans are read as a read shows them: with the 102.20 check on each
+	// move and, on a Part 102 case, in the D500 order, so plan_index counts
+	// the order the caller saw (D441, D500).
+	var latest *planner.Result
+	if c.Plan != nil {
+		r := a.ruleChecked(c, *c.Plan)
+		latest = &r
+	}
 	switch {
 	case in.PlanIndex != nil:
-		if c.Plan == nil || *in.PlanIndex < 0 || *in.PlanIndex >= len(c.Plan.Plans) {
+		if latest == nil || *in.PlanIndex < 0 || *in.PlanIndex >= len(latest.Plans) {
 			return draftResult{}, fmt.Errorf("%w: plan_index %d: run a plan search first and pick a shown plan (plan_index starts at 0: 0 is the first shown plan)", domain.ErrInvalid, *in.PlanIndex)
 		}
-		chosen, chosenRes = &c.Plan.Plans[*in.PlanIndex], c.Plan
+		chosen, chosenRes = &latest.Plans[*in.PlanIndex], latest
 	case in.MoveKey != "":
-		src := c.Plan
+		src := latest
 		if in.Target != "" {
 			src = nil
 			if c.Targets != nil {
 				if res, ok := c.Targets.Results[domain.NormalizeCountry(in.Target)]; ok {
+					res = a.ruleChecked(c, res)
 					src = &res
 				}
 			}
@@ -1588,12 +1598,17 @@ func (a *api) buildDraft(r *http.Request, c store.Case, in exportRequest) (draft
 			moved := planner.Apply(*c.Product, p.Move)
 			ex.Product = &moved
 		}
+		ex.RuleCheck = p.RuleCheck
 		if p.Verdict != nil {
 			ex.Supporting, ex.Counter = p.Verdict.SupportingRuling, p.Verdict.CounterRuling
 			if p.RejectionKind == domain.RejectBelowConfidence {
 				ex.BelowBar = &export.BelowBar{Confidence: p.Verdict.Confidence, Bar: a.d.PlanConfidence}
 			}
 		}
+	}
+	if chosen == nil && a.planRuleOn(c) {
+		// The current setup: the same check with no move (D441).
+		ex.RuleCheck = planrule.Check(a.d.RuleCheck, *c.Product, domain.Plan{}, "", planRuleApplies(c))
 	}
 	// Name each cited ruling by date, subject and holding (D220).
 	ids := append(append([]string{ex.Supporting, ex.Counter}, ex.Prediction.CitedRulings...), ex.Prediction.Precedents...)

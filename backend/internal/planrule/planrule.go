@@ -1,13 +1,16 @@
 // Package planrule runs the 19 CFR 102.20 rule check (internal/tariffshift)
 // on each move of a plan search: the product as it would be after the move,
-// finished where its final-assembly group would be (D441). It is display
-// only. It never changes a plan's verdict, whether it is shown, or its rank;
-// when the rule and the precedent check disagree it flags the move for a
-// person's look.
+// finished where its final-assembly group would be (D441). It never changes
+// a plan's verdict, tier or whether it is shown; when the rule and the
+// precedent check disagree it flags the move for a person's look. On a Part
+// 102 case it also orders the shown plans within each tier (D500): moves the
+// rule says shift first, then precedent only, then moves the rule gives to
+// another country. On a substantial-transformation case it is display only.
 package planrule
 
 import (
 	"fmt"
+	"sort"
 	"strings"
 
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/domain"
@@ -299,7 +302,8 @@ func whyWords(c *domain.PlanRuleCheck, res tariffshift.Result) string {
 
 // Annotate returns res with each plan's rule check filled in, for a product
 // that is Eligible. The plans are copies: res's own slices are not written.
-// The current setup (baseline) gets one too.
+// The current setup (baseline) gets one too. On a Part 102 case the shown
+// plans are then put in the D500 order (Rank).
 func Annotate(rules *tariffshift.Rules, p domain.Product, res planner.Result, part102 bool) planner.Result {
 	applies := AppliesInformational
 	if part102 {
@@ -321,5 +325,69 @@ func Annotate(rules *tariffshift.Rules, p domain.Product, res planner.Result, pa
 	}
 	res.Baseline = one(res.Baseline)
 	res.Plans, res.Rejected = all(res.Plans), all(res.Rejected)
+	if part102 {
+		res = Rank(res)
+	}
+	return res
+}
+
+// RankingRule names the D500 order of a Part 102 case's shown plans: tier
+// (D341), then the move's rule check, then the planner's order.
+const RankingRule = "tier_then_rule_then_net"
+
+// Rule classes of a shown plan for the D500 order, best first.
+const (
+	ClassShifts       = 0 // precedent and the 102.20 rule both support the move
+	ClassPrecedent    = 1 // precedent only: the rule cannot decide (or no check)
+	ClassRuleDisagree = 2 // precedent supports, the rule gives another country
+)
+
+// Class is a plan's D500 rule class. A plan without a check counts as
+// precedent only.
+func Class(pl domain.Plan) int {
+	if pl.RuleCheck == nil {
+		return ClassPrecedent
+	}
+	switch pl.RuleCheck.Status {
+	case Shifts:
+		return ClassShifts
+	case NoShift, OtherCountry:
+		return ClassRuleDisagree
+	}
+	return ClassPrecedent
+}
+
+// Rank is res with its shown plans in the D500 order (D441's checks must be
+// on them): tier, then rule class, then the order they came in, which is the
+// planner's (net, or priced then net in operations mode). The smallest
+// supported move is worked out again on the new order. A search stored
+// before D341 (no ranking) is left as it is. Verdicts, tiers,
+// what is shown and the rejected moves are not touched. res's own slice is
+// not written; the caller decides that the case is Part 102.
+func Rank(res planner.Result) planner.Result {
+	// A search stored before D341 has no tiers and keeps its net order.
+	if len(res.Plans) == 0 || res.Ranking == nil {
+		return res
+	}
+	plans := append([]domain.Plan(nil), res.Plans...)
+	sort.SliceStable(plans, func(i, j int) bool {
+		a, b := plans[i], plans[j]
+		if a.Tier != b.Tier {
+			return a.Tier == domain.TierClearMargin
+		}
+		return Class(a) < Class(b)
+	})
+	for i := range plans {
+		plans[i].SmallestSupported = false
+	}
+	if i := planner.SmallestSupported(plans); i >= 0 {
+		plans[i].SmallestSupported = true
+	}
+	res.Plans = plans
+	if res.Ranking != nil {
+		r := *res.Ranking
+		r.Rule = RankingRule
+		res.Ranking = &r
+	}
 	return res
 }
