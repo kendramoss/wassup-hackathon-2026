@@ -79,7 +79,7 @@ func BuildRules(xml []byte, chapters []string) ([]Rule, error) {
 			cur = &Rule{}
 			continue
 		}
-		r, err := ParseRange(hts)
+		r, err := ParseRange(columnRange(hts))
 		if err != nil {
 			return nil, err
 		}
@@ -106,6 +106,24 @@ func BuildRules(xml []byte, chapters []string) ([]Rule, error) {
 }
 
 type note struct{ para, text string }
+
+// columnErrata are HTS columns the eCFR prints with an error that the row's
+// own text settles. Rule.HTS and the ID keep the column as published; only
+// the range the row applies to is read from here.
+//
+// "4441-4421" (lo above hi) follows the row "4413-4421" and repeats its
+// text with subheading 4418.73 for 4418.71; each of its sentences changes
+// to heading 4413 through 4421 (or a subheading of it). It is read as
+// 4413-4421, so two rows cover those headings and Lookup leaves a good
+// there undetermined ("more than one rule covers") rather than pick one.
+var columnErrata = map[string]string{"4441-4421": "4413-4421"}
+
+func columnRange(hts string) string {
+	if r, ok := columnErrata[hts]; ok {
+		return r
+	}
+	return hts
+}
 
 var reChapterNote = regexp.MustCompile(`^Chapter (\d+) Note:`)
 
@@ -140,6 +158,12 @@ func inSection(section string, chapters []string) bool {
 // that fail their tariff shift (the chapter 94 bedding note).
 var reFallbackNote = regexp.MustCompile(`^Chapter \d+ Note: For a good classifiable in subheadings (\d{4}\.\d{2}) through (\d{4}\.\d{2}) which does not meet the appropriate tariff shift rule`)
 
+// reTextileNote sends goods of listed subheadings to 102.21 (the textile
+// rules), which this package does not encode ("Chapter 39 Note: The country
+// of origin of goods classified in subheadings 3921.12.15, 3921.13.15, and
+// 3921.90.2550 shall be determined under the provisions of § 102.21.").
+var reTextileNote = regexp.MustCompile(`^Chapter \d+ Note: The country of origin of goods classified in subheadings? (.+?),? (?:shall|will) be determined under the provisions of § 102\.21\.$`)
+
 var reBarNote = regexp.MustCompile(`^Note: Any change to heading (\d{4}) from (.+?) shall not be considered to satisfy a required change in tariff classification\.?$`)
 
 // applyNotes attaches every in-scope note to the rules of its paragraph. A
@@ -162,6 +186,26 @@ func applyNotes(rules []Rule, notes []note) error {
 					r.FallbackNote = true
 					hit = true
 				}
+			}
+			if !hit {
+				return fmt.Errorf("tariffshift: note matches no rule: %q", n.text)
+			}
+			continue
+		}
+		if t := reTextileNote.FindStringSubmatch(n.text); t != nil {
+			codes, described, err := parseList("subheading " + t[1])
+			if err != nil || described || len(codes) == 0 {
+				return fmt.Errorf("tariffshift: note list not read: %q", t[1])
+			}
+			hit := false
+			for i := range rules {
+				r := &rules[i]
+				if r.Paragraph != n.para || !overlaps(r.Applies, codes) {
+					continue
+				}
+				hit = true
+				r.Notes = append(r.Notes, n.text)
+				r.Textile = append(r.Textile, codes...)
 			}
 			if !hit {
 				return fmt.Errorf("tariffshift: note matches no rule: %q", n.text)
@@ -199,6 +243,16 @@ func applyNotes(rules []Rule, notes []note) error {
 	return nil
 }
 
+// overlaps says whether any code in cs falls in r.
+func overlaps(r Range, cs []Range) bool {
+	for _, c := range cs {
+		if r.contains(c.Lo) != no || r.contains(c.Hi) != no {
+			return true
+		}
+	}
+	return false
+}
+
 // ParseRule splits a rule's verbatim text and parses each alternative.
 func ParseRule(text string) []Alternative {
 	var out []Alternative
@@ -228,7 +282,7 @@ func Reparse(tab Table) (Table, error) {
 	out.Rules = make([]Rule, len(tab.Rules))
 	for i, r := range tab.Rules {
 		out.Rules[i] = r
-		out.Rules[i].Notes, out.Rules[i].FallbackNote = nil, false
+		out.Rules[i].Notes, out.Rules[i].FallbackNote, out.Rules[i].Textile = nil, false, nil
 		out.Rules[i].Alternatives = ParseRule(r.Text)
 	}
 	if err := applyNotes(out.Rules, notes); err != nil {

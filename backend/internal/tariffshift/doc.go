@@ -1,6 +1,6 @@
 // Package tariffshift is a deterministic check of the 19 CFR Part 102
 // marking-origin rules for non-textile goods: the tariff-shift rows of
-// 102.20 for chapters 73, 82, 84, 85, 87, 90 and 94, applied through
+// 102.20 for the chapters in ScopeChapters (D360, D460), applied through
 // 102.11(a), 102.13 and 102.11(b) with 102.18(b)(1) (D360).
 //
 // It does not classify goods: it needs the HTS code of the good and of each
