@@ -20,13 +20,23 @@ import (
 )
 
 // The families written from CBP precedent (D138, D212), the three earlier
-// templates and the six written from Part 102 rulings (D580). Pinning the set
+// templates, the six written from Part 102 rulings (D580) and the six of the
+// third round (D660). Pinning the set
 // makes adding or dropping a family a visible change.
 var allFamilies = []string{
 	"cables_harnesses", "display_camera_modules", "electrical_control_apparatus", "food_preparations", "furniture",
-	"gas_grills_cooking", "hand_tools", "led_lights", "lidar_modules", "machinery_parts", "medical_devices",
-	"metal_products", "motorised_tools_small_appliances", "motors_pumps_compressors", "pcba_electronic_devices",
-	"plastic_articles", "power_supplies_chargers", "vehicle_parts", "water_filters", "wood_panels_flooring",
+	"gas_grills_cooking", "golf_sporting_goods", "hand_tools", "hvac_heating_units", "led_lights", "lidar_modules",
+	"machinery_parts", "medical_devices", "metal_products", "motorised_tools_small_appliances",
+	"motors_pumps_compressors", "offroad_vehicles_machinery", "paper_tissue_products", "pcba_electronic_devices",
+	"plastic_articles", "power_supplies_chargers", "semiconductor_devices", "toys_build_kits", "vehicle_parts",
+	"water_filters", "wood_panels_flooring",
+}
+
+// round3Families are the third round (D660), chosen by counting development
+// and pool rulings with no template across both regimes.
+var round3Families = []string{
+	"golf_sporting_goods", "hvac_heating_units", "offroad_vehicles_machinery", "paper_tissue_products",
+	"semiconductor_devices", "toys_build_kits",
 }
 
 // part102Families are written from Part 102 rulings (D580).
@@ -70,6 +80,12 @@ func TestTemplateCitationsAreRealRulings(t *testing.T) {
 	// substantial-transformation pool (D138). A Part 102 family may cite
 	// neither.
 	evalIDs := splitIDs(t, "splits_final.json", "splits_final2.json")
+	// Every development, held-out, pilot and tune-check list of every regime
+	// (D660): the third-round families are held to all of them, and are
+	// written from rulings dated before 2026, the first held-out window.
+	allEval := splitIDs(t, "splits_final.json", "splits_final2.json", "splits_tune.json", "splits_usmca.json",
+		"splits_usmca_final2.json", "splits_textile.json", "splits_textile_final2.json", "splits_pharma.json",
+		"splits_pharma_final2.json", "splits_router.json")
 	eval102 := splitIDs(t, "splits_usmca.json", "splits_usmca_final2.json")
 	if len(evalIDs) < 900 || len(eval102) < 110 {
 		t.Fatalf("only %d and %d development and held-out rulings read; a split file changed shape", len(evalIDs), len(eval102))
@@ -116,6 +132,8 @@ func TestTemplateCitationsAreRealRulings(t *testing.T) {
 				t.Errorf("%s %s: %s is in a development or held-out split", fam, where, id)
 			case tm.Regime == "part102" && l.Date >= "2024":
 				t.Errorf("%s %s: %s is dated %s, after the D560 pool", fam, where, id, l.Date)
+			case slices.Contains(round3Families, fam) && (allEval[id] || l.Date >= "2026"):
+				t.Errorf("%s %s: %s is in a development, held-out or tune-check split, or dated 2026 or later (D660)", fam, where, id)
 			case superseded(id):
 				t.Errorf("%s %s: %s is revoked or modified (supersession map)", fam, where, id)
 			case !sources[id]:
@@ -172,11 +190,14 @@ func splitIDs(t *testing.T, files ...string) map[string]bool {
 		if err != nil {
 			t.Fatal(err)
 		}
-		var splits struct{ Dev, Final, Final2, Pilot []string }
+		var splits struct {
+			Dev, Final, Final2, Pilot []string
+			TuneCheck                 []string `json:"tune_check"`
+		}
 		if err := json.Unmarshal(b, &splits); err != nil {
 			t.Fatal(err)
 		}
-		for _, id := range slices.Concat(splits.Dev, splits.Final, splits.Final2, splits.Pilot) {
+		for _, id := range slices.Concat(splits.Dev, splits.Final, splits.Final2, splits.Pilot, splits.TuneCheck) {
 			out[id] = true
 		}
 	}

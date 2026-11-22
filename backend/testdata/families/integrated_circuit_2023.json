@@ -1,0 +1,106 @@
+{
+  "_source": "CBP ruling N333934 (28 Jul 2023): integrated circuits whose wafers are made, given an epitaxial layer and fabricated in South Korea, then bumped, back-ground, diced, flip-chip mounted and packed in China: CBP held South Korea. A reverse probe: the target is China. In the D660 selection pool (substantial transformation, dated before 2026, in no development, held-out or tune-check split) and excluded. Target by the D171 rule; plant capabilities at the target are an assumption.",
+  "case_id": "integrated-circuit-2023",
+  "date": "2023-07-28",
+  "family": "semiconductor_devices",
+  "target": "China",
+  "product": {
+    "name": "Integrated circuits (flip-chip)",
+    "description": "Three similar integrated circuit models; each 12-inch wafer holds 4,761 die with the complete circuit.",
+    "plants": [
+      {
+        "id": "kr",
+        "name": "South Korea wafer fab",
+        "country": "South Korea",
+        "capabilities": [
+          "bare_wafer_production",
+          "epitaxial_deposition",
+          "front_end_wafer_fab"
+        ]
+      },
+      {
+        "id": "cn",
+        "name": "China assembly and test plant",
+        "country": "China",
+        "capabilities": [
+          "bare_wafer_production",
+          "epitaxial_deposition",
+          "front_end_wafer_fab",
+          "wafer_bumping_dicing",
+          "final_assembly"
+        ]
+      }
+    ],
+    "components": [
+      {
+        "name": "monocrystalline silicon wafer",
+        "made_in": "South Korea",
+        "plant": "kr",
+        "group": "bare_wafer_production"
+      },
+      {
+        "name": "fabricated integrated circuit wafer",
+        "made_in": "South Korea",
+        "plant": "kr",
+        "group": "front_end_wafer_fab"
+      }
+    ],
+    "operations": [
+      {
+        "name": "make the monocrystalline silicon wafer",
+        "plant": "kr",
+        "group": "bare_wafer_production"
+      },
+      {
+        "name": "deposit the epitaxial layer",
+        "plant": "kr",
+        "group": "epitaxial_deposition"
+      },
+      {
+        "name": "thin-film deposition, photolithography, etching and ion implantation",
+        "plant": "kr",
+        "group": "front_end_wafer_fab"
+      },
+      {
+        "name": "grow copper pillar bumps, back-grind and cut the wafer into die",
+        "plant": "cn",
+        "group": "wafer_bumping_dicing"
+      },
+      {
+        "name": "flip-chip the die to the substrate and pack",
+        "plant": "cn",
+        "group": "final_assembly"
+      }
+    ]
+  },
+  "economics": {
+    "illustrative": true,
+    "annual_import_value_usd": 1000000,
+    "duty_rates": {
+      "South Korea": 0.0,
+      "China": 0.25
+    },
+    "duty_rates_note": "Illustrative placeholder, not a sourced rate.",
+    "group_costs": {
+      "front_end_wafer_fab": {
+        "kr": 400000,
+        "cn": 420000
+      },
+      "epitaxial_deposition": {
+        "kr": 60000,
+        "cn": 65000
+      },
+      "bare_wafer_production": {
+        "kr": 50000,
+        "cn": 50000
+      }
+    }
+  },
+  "exclude_rulings": [
+    "N333934"
+  ],
+  "current_origin": {
+    "country": "South Korea",
+    "ruling": "N333934"
+  }
+}

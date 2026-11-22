@@ -1,0 +1,151 @@
+{
+  "family": "paper_tissue_products",
+  "version": "1",
+  "union_default_operations": true,
+  "name": "Paper, tissue and paperboard products",
+  "note": "For basic sanitary, tissue, and wrapping papers, CBP consistently holds that the production of the bulk parent rolls confers origin, while subsequent unwinding, embossing, printing, cutting to size, folding, and re-rolling are minor converting operations that do not substantially transform the paper. Conversely, for structured or shaped articles like file folders, gift bags, rigid boxes, labels, and molded tableware, die-cutting, molding, pleating, and forming the paper into a distinct new article confer origin. Written from 45 CBP substantial-transformation rulings outside every development and held-out split (D660); every cited ruling was checked against its facts and holding. Costs are illustrative defaults; users edit them.",
+  "sources": [
+    "N333537",
+    "N334032",
+    "N335200",
+    "N339156",
+    "N341898",
+    "N344612",
+    "N344620",
+    "N344621",
+    "N345915",
+    "N345972",
+    "N347059",
+    "N347187",
+    "N347189",
+    "N347645",
+    "N347648",
+    "N347806",
+    "N347987",
+    "N347988",
+    "N348208",
+    "N348329"
+  ],
+  "groups": [
+    {
+      "id": "parent_roll_production",
+      "name": "Parent rolls",
+      "operations": [
+        "Process wood pulp into single or multi-ply paper, tissue, or paperboard sheet",
+        "Finish and wind base paper into bulk parent or jumbo rolls"
+      ],
+      "movable": true,
+      "precedent": {
+        "confers_origin": [
+          "N339156",
+          "N341898",
+          "N344612",
+          "N344620",
+          "N344621",
+          "N345915"
+        ],
+        "not_enough": [
+          "N335200",
+          "N345972",
+          "N347645",
+          "N347648",
+          "N348208",
+          "N348329"
+        ],
+        "note": "CBP held that manufacturing the parent roll confers origin when downstream work is limited to tissue or wrap converting (N339156, N341898, N344612), but not when the roll is later die-cut, pleated, or molded into a distinct article (N335200, N347648, N348208)."
+      }
+    },
+    {
+      "id": "surface_printing_decor",
+      "name": "Printing and decoration",
+      "operations": [
+        "Print colors, patterns, or logos onto paper stock or overlay sheets",
+        "Apply foil stamping, glitter decoration, or protective lamination to paper"
+      ],
+      "movable": true,
+      "precedent": {
+        "confers_origin": [],
+        "not_enough": [
+          "N333537",
+          "N334032",
+          "N339156",
+          "N347806",
+          "N347987",
+          "N347988"
+        ],
+        "note": "Printing, foil stamping, and laminating paper stock did not confer origin on wrapping paper or tissue (N339156, N347987, N347988), nor did pre-printing paper sheets that were sent to another country to be formed into bags or boxes (N333537, N334032)."
+      }
+    },
+    {
+      "id": "hardware_and_accessories",
+      "name": "Fasteners and accessories",
+      "operations": [
+        "Produce metal folder fasteners, hanging rods, and hooks",
+        "Produce plastic clips, clear plastic tabs, handles, decorative pompoms, and cardboard cores"
+      ],
+      "movable": true,
+      "precedent": {
+        "confers_origin": [],
+        "not_enough": [
+          "N345915",
+          "N347187",
+          "N347189"
+        ],
+        "note": "Supplying decorative pompoms, hanging rods, or handles from another country did not confer origin on the finished paper products (N345915, N347187, N347189)."
+      }
+    },
+    {
+      "id": "die_cut_mold_shape",
+      "name": "Die-cutting and moulding",
+      "operations": [
+        "Die-cut paper or paperboard into folder, box, label, or circular blanks",
+        "Mold paper blanks into three-dimensional plates or pleated cups with rolled rims",
+        "Continuous-pleat and heat-press paper rolls into accordion window shade bodies",
+        "Apply die-cut adhesive labels to printed release liner sheets or microperforate cardstock"
+      ],
+      "movable": true,
+      "precedent": {
+        "confers_origin": [
+          "N333537",
+          "N334032",
+          "N335200",
+          "N345972",
+          "N347648",
+          "N348208"
+        ],
+        "not_enough": [],
+        "note": "CBP held that die-cutting, molding, or pleating flat paper or paperboard into structured shapes such as gift bags, boxes, shades, labels, folders, or cups substantially transforms the paper (N333537, N334032, N335200, N345972, N347648, N348208)."
+      }
+    },
+    {
+      "id": "final_assembly",
+      "name": "Converting, folding and packing",
+      "operations": [
+        "Unwind, emboss, perforate, slit to width, cut to length, and fold or rewind tissue and paper rolls onto cores",
+        "Fold and glue cut paperboard blanks into finished bags, boxes, or folders",
+        "Attach handles, metal fasteners, hanging rods, adhesive strips, or decorative trim",
+        "Perform quality control and package into retail units"
+      ],
+      "movable": false,
+      "precedent": {
+        "confers_origin": [
+          "N333537",
+          "N334032",
+          "N347187",
+          "N347189",
+          "N347645",
+          "N347648"
+        ],
+        "not_enough": [
+          "N341898",
+          "N344612",
+          "N344620",
+          "N344621",
+          "N345915",
+          "N347059"
+        ],
+        "note": "Simple converting of parent rolls by embossing, cutting to length and width, folding, and rewinding was not enough to confer origin (N341898, N344612, N344620, N344621, N345915, N347059), whereas folding, gluing, and assembling die-cut blanks into bags, boxes, and folders in the same plant as the cutting conferred origin (N333537, N334032, N347645, N347648)."
+      }
+    }
+  ]
+}

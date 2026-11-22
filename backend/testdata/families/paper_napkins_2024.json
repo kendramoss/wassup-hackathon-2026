@@ -1,0 +1,75 @@
+{
+  "_source": "CBP ruling N341898 (22 Aug 2024): parent rolls of tissue paper made in Indonesia, embossed, cut to size, folded and packaged in China: CBP held Indonesia. A reverse probe: the target is China. In the D660 selection pool (substantial transformation, dated before 2026, in no development, held-out or tune-check split) and excluded. Target by the D171 rule; plant capabilities at the target are an assumption.",
+  "case_id": "paper-napkins-2024",
+  "date": "2024-08-22",
+  "family": "paper_tissue_products",
+  "target": "China",
+  "product": {
+    "name": "Paper napkins",
+    "description": "Packages of tissue paper napkins in several sizes and folds, converted from parent rolls of 12-22 gsm tissue.",
+    "plants": [
+      {
+        "id": "id",
+        "name": "Indonesia tissue mill",
+        "country": "Indonesia",
+        "capabilities": [
+          "parent_roll_production"
+        ]
+      },
+      {
+        "id": "cn",
+        "name": "China converting plant",
+        "country": "China",
+        "capabilities": [
+          "parent_roll_production",
+          "surface_printing_decor",
+          "hardware_and_accessories",
+          "die_cut_mold_shape",
+          "final_assembly"
+        ]
+      }
+    ],
+    "components": [
+      {
+        "name": "parent rolls of tissue paper",
+        "made_in": "Indonesia",
+        "plant": "id",
+        "group": "parent_roll_production"
+      }
+    ],
+    "operations": [
+      {
+        "name": "make the tissue paper and wind it into parent rolls",
+        "plant": "id",
+        "group": "parent_roll_production"
+      },
+      {
+        "name": "emboss, cut to size, fold and package the napkins",
+        "plant": "cn",
+        "group": "final_assembly"
+      }
+    ]
+  },
+  "economics": {
+    "illustrative": true,
+    "annual_import_value_usd": 1000000,
+    "duty_rates": {
+      "Indonesia": 0.0,
+      "China": 0.25
+    },
+    "duty_rates_note": "Illustrative placeholder, not a sourced rate.",
+    "group_costs": {
+      "parent_roll_production": {
+        "id": 200000,
+        "cn": 230000
+      }
+    }
+  },
+  "exclude_rulings": [
+    "N341898"
+  ],
+  "current_origin": {
+    "country": "Indonesia",
+    "ruling": "N341898"
+  }
+}

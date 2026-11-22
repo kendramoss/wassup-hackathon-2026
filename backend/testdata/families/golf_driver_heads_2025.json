@@ -1,0 +1,74 @@
+{
+  "_source": "CBP ruling N346303 (10 Mar 2025): titanium and stainless-steel golf club heads cast, sandblasted and polished in Vietnam, then welded or bonded, hosel-machined, painted or PVD-coated and decaled in China: CBP held Vietnam. A reverse probe: the target is China. In the D660 selection pool (substantial transformation, dated before 2026, in no development, held-out or tune-check split) and excluded. Target by the D171 rule; plant capabilities at the target are an assumption.",
+  "case_id": "golf-driver-heads-2025",
+  "date": "2025-03-10",
+  "family": "golf_sporting_goods",
+  "target": "China",
+  "product": {
+    "name": "Golf club driver, fairway and hybrid heads",
+    "description": "Investment-cast titanium driver heads and stainless-steel fairway and hybrid heads, cosmetically finished.",
+    "plants": [
+      {
+        "id": "vn",
+        "name": "Vietnam foundry",
+        "country": "Vietnam",
+        "capabilities": [
+          "primary_head_forming"
+        ]
+      },
+      {
+        "id": "cn",
+        "name": "China finishing plant",
+        "country": "China",
+        "capabilities": [
+          "primary_head_forming",
+          "boot_and_binding_parts",
+          "textiles_and_grips",
+          "final_assembly"
+        ]
+      }
+    ],
+    "components": [
+      {
+        "name": "cast titanium or stainless-steel golf head",
+        "made_in": "Vietnam",
+        "plant": "vn",
+        "group": "primary_head_forming"
+      }
+    ],
+    "operations": [
+      {
+        "name": "cast the heads in wax-mould shells, deshell, sandblast and polish to final shape",
+        "plant": "vn",
+        "group": "primary_head_forming"
+      },
+      {
+        "name": "weld or bond the face, crown and sole, machine the hosel, paint or PVD-coat and apply decals",
+        "plant": "cn",
+        "group": "final_assembly"
+      }
+    ]
+  },
+  "economics": {
+    "illustrative": true,
+    "annual_import_value_usd": 1000000,
+    "duty_rates": {
+      "Vietnam": 0.0,
+      "China": 0.25
+    },
+    "duty_rates_note": "Illustrative placeholder, not a sourced rate.",
+    "group_costs": {
+      "primary_head_forming": {
+        "vn": 180000,
+        "cn": 170000
+      }
+    }
+  },
+  "exclude_rulings": [
+    "N346303"
+  ],
+  "current_origin": {
+    "country": "Vietnam",
+    "ruling": "N346303"
+  }
+}

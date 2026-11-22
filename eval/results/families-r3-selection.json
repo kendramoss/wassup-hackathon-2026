@@ -1,0 +1,2920 @@
+{
+ "rule": "in two steps. Step 1 was written before the counts were seen: a ruling in two sets is counted once, and has a template if any of its checks found one (family not \"none\" at confidence 0.6 or more); count the rulings with no template by category (eval/families/label102.py's list), leaving out categories a template already covers, chemicals_pharma and apparel_textiles (regimes with their own engines, as D138 and D580) and \"other\"; keep categories with at least 10 rulings with no template, at least 6 of them in a pool, at most 8. Step 1 kept 5 categories, two of them unrelated goods under one label (household goods; toys and sporting goods), and missed product types labelled under a category that has a template (integrated circuits and transistors under PCBA devices). Step 2, written after step 1's counts and nouns were seen and used for the pick: group by product type, a fixed pattern over each ruling's product noun and subject (TYPES below; the first pattern that matches; chemicals_pharma and apparel_textiles are never typed). Keep types with at least 10 selection rulings with no template and at least 5 pool rulings of the type, with or without a template, in the regime most of its pool rulings were decided under (ties to substantial transformation): a template is written from, and cites, one regime's pool only, and development rulings are never cited. By count, at most 8, ties to the type with more pool rulings.",
+ "sets": {
+  "st_dev": {
+   "checked": 469,
+   "with_template": 317,
+   "failed_checks": 4
+  },
+  "st_pool": {
+   "checked": 661,
+   "with_template": 446,
+   "failed_checks": 8
+  },
+  "p102_dev": {
+   "checked": 72,
+   "with_template": 49,
+   "failed_checks": 0
+  },
+  "p102_pool": {
+   "checked": 239,
+   "with_template": 189,
+   "failed_checks": 2
+  }
+ },
+ "selection_rulings": 1436,
+ "with_template": 996,
+ "no_template": 440,
+ "step1_categories": [
+  {
+   "category": "paper_printed",
+   "no_template": 75,
+   "in_pool": 62,
+   "by_set": {
+    "st_dev": 10,
+    "st_pool": 55,
+    "p102_dev": 3,
+    "p102_pool": 7
+   },
+   "assembled": 8,
+   "top_headings": [
+    [
+     "none",
+     63
+    ],
+    [
+     "4823",
+     3
+    ],
+    [
+     "4811",
+     3
+    ],
+    [
+     "4802",
+     2
+    ],
+    [
+     "4803",
+     1
+    ],
+    [
+     "4901",
+     1
+    ]
+   ],
+   "top_nouns": [
+    [
+     "paper napkins",
+     12
+    ],
+    [
+     "toilet tissue",
+     10
+    ],
+    [
+     "paper towels",
+     6
+    ],
+    [
+     "facial tissue",
+     5
+    ],
+    [
+     "facial tissues",
+     3
+    ],
+    [
+     "toilet paper",
+     2
+    ],
+    [
+     "paper hand towels",
+     2
+    ],
+    [
+     "exam table paper",
+     2
+    ]
+   ],
+   "left_out": null
+  },
+  {
+   "category": "chemicals_pharma",
+   "no_template": 67,
+   "in_pool": 46,
+   "by_set": {
+    "st_dev": 18,
+    "st_pool": 40,
+    "p102_dev": 3,
+    "p102_pool": 6
+   },
+   "assembled": 1,
+   "top_headings": [
+    [
+     "none",
+     57
+    ],
+    [
+     "3824",
+     3
+    ],
+    [
+     "3506",
+     1
+    ],
+    [
+     "3403",
+     1
+    ],
+    [
+     "1401",
+     1
+    ],
+    [
+     "3808",
+     1
+    ]
+   ],
+   "top_nouns": [
+    [
+     "cosmetics",
+     3
+    ],
+    [
+     "herbicide",
+     3
+    ],
+    [
+     "glue stick",
+     2
+    ],
+    [
+     "cathode material",
+     2
+    ],
+    [
+     "finish gel for nails",
+     1
+    ],
+    [
+     "polymer absorbent",
+     1
+    ],
+    [
+     "chabazite zeolites",
+     1
+    ],
+    [
+     "drilling polymer gel",
+     1
+    ]
+   ],
+   "left_out": "own engine"
+  },
+  {
+   "category": "industrial_machinery",
+   "no_template": 37,
+   "in_pool": 18,
+   "by_set": {
+    "st_dev": 17,
+    "st_pool": 16,
+    "p102_dev": 2,
+    "p102_pool": 2
+   },
+   "assembled": 37,
+   "top_headings": [
+    [
+     "none",
+     31
+    ],
+    [
+     "8433",
+     3
+    ],
+    [
+     "8424",
+     1
+    ],
+    [
+     "8486",
+     1
+    ],
+    [
+     "8456",
+     1
+    ]
+   ],
+   "top_nouns": [
+    [
+     "hydraulic floor jacks",
+     3
+    ],
+    [
+     "heat pump",
+     3
+    ],
+    [
+     "lawn mower",
+     2
+    ],
+    [
+     "automated guided vehicle",
+     2
+    ],
+    [
+     "gas furnaces",
+     2
+    ],
+    [
+     "telehandler",
+     2
+    ],
+    [
+     "rooftop air conditioning units",
+     2
+    ],
+    [
+     "hydraulic bottle jacks",
+     2
+    ]
+   ],
+   "left_out": null
+  },
+  {
+   "category": "household_goods",
+   "no_template": 29,
+   "in_pool": 15,
+   "by_set": {
+    "st_dev": 13,
+    "st_pool": 14,
+    "p102_dev": 1,
+    "p102_pool": 1
+   },
+   "assembled": 25,
+   "top_headings": [
+    [
+     "none",
+     25
+    ],
+    [
+     "9603",
+     2
+    ],
+    [
+     "6815",
+     1
+    ],
+    [
+     "9503",
+     1
+    ]
+   ],
+   "top_nouns": [
+    [
+     "pencils",
+     3
+    ],
+    [
+     "cosmetic brush",
+     2
+    ],
+    [
+     "glass water bottle",
+     1
+    ],
+    [
+     "cleaning tools",
+     1
+    ],
+    [
+     "dental floss",
+     1
+    ],
+    [
+     "car air freshener diffuser",
+     1
+    ],
+    [
+     "ballpoint pens",
+     1
+    ],
+    [
+     "vent free gas logs",
+     1
+    ]
+   ],
+   "left_out": null
+  },
+  {
+   "category": "filters",
+   "no_template": 29,
+   "in_pool": 2,
+   "by_set": {
+    "st_dev": 26,
+    "st_pool": 0,
+    "p102_dev": 1,
+    "p102_pool": 2
+   },
+   "assembled": 29,
+   "top_headings": [
+    [
+     "none",
+     25
+    ],
+    [
+     "8421",
+     3
+    ],
+    [
+     "7019",
+     1
+    ]
+   ],
+   "top_nouns": [
+    [
+     "automotive air filters",
+     11
+    ],
+    [
+     "automotive air filter",
+     4
+    ],
+    [
+     "automotive air conditioning filters",
+     2
+    ],
+    [
+     "sand control filter",
+     1
+    ],
+    [
+     "fiberglass filter bag",
+     1
+    ],
+    [
+     "waste filtration system",
+     1
+    ],
+    [
+     "diesel fuel filter",
+     1
+    ],
+    [
+     "cartridge filter",
+     1
+    ]
+   ],
+   "left_out": "has a template"
+  },
+  {
+   "category": "toys_sporting_goods",
+   "no_template": 26,
+   "in_pool": 18,
+   "by_set": {
+    "st_dev": 7,
+    "st_pool": 16,
+    "p102_dev": 1,
+    "p102_pool": 2
+   },
+   "assembled": 21,
+   "top_headings": [
+    [
+     "none",
+     21
+    ],
+    [
+     "9506",
+     3
+    ],
+    [
+     "9504",
+     1
+    ],
+    [
+     "9507",
+     1
+    ]
+   ],
+   "top_nouns": [
+    [
+     "golf club heads",
+     3
+    ],
+    [
+     "golf club drivers",
+     1
+    ],
+    [
+     "toy disc launcher kit",
+     1
+    ],
+    [
+     "trading cards",
+     1
+    ],
+    [
+     "water ski boot binding",
+     1
+    ],
+    [
+     "golf club set",
+     1
+    ],
+    [
+     "putter heads",
+     1
+    ],
+    [
+     "plush dinosaur toy",
+     1
+    ]
+   ],
+   "left_out": null
+  },
+  {
+   "category": "pcba_electronic_devices",
+   "no_template": 17,
+   "in_pool": 10,
+   "by_set": {
+    "st_dev": 7,
+    "st_pool": 10,
+    "p102_dev": 0,
+    "p102_pool": 0
+   },
+   "assembled": 12,
+   "top_headings": [
+    [
+     "none",
+     17
+    ]
+   ],
+   "top_nouns": [
+    [
+     "integrated circuit",
+     4
+    ],
+    [
+     "integrated circuits",
+     2
+    ],
+    [
+     "schottky diode",
+     1
+    ],
+    [
+     "silicon carbide mosfet",
+     1
+    ],
+    [
+     "ultrasonic transducer",
+     1
+    ],
+    [
+     "led pre-laminated inlay",
+     1
+    ],
+    [
+     "power transistor",
+     1
+    ],
+    [
+     "transistors",
+     1
+    ]
+   ],
+   "left_out": "has a template"
+  },
+  {
+   "category": "vehicles_trailers",
+   "no_template": 12,
+   "in_pool": 9,
+   "by_set": {
+    "st_dev": 3,
+    "st_pool": 9,
+    "p102_dev": 0,
+    "p102_pool": 0
+   },
+   "assembled": 12,
+   "top_headings": [
+    [
+     "none",
+     12
+    ]
+   ],
+   "top_nouns": [
+    [
+     "automated guided vehicle",
+     3
+    ],
+    [
+     "garden cart",
+     1
+    ],
+    [
+     "electric all-terrain vehicle",
+     1
+    ],
+    [
+     "yacht",
+     1
+    ],
+    [
+     "utility terrain vehicles",
+     1
+    ],
+    [
+     "off-road vehicle",
+     1
+    ],
+    [
+     "mini dirt bike",
+     1
+    ],
+    [
+     "aircraft",
+     1
+    ]
+   ],
+   "left_out": null
+  },
+  {
+   "category": "bicycles_scooters",
+   "no_template": 12,
+   "in_pool": 5,
+   "by_set": {
+    "st_dev": 5,
+    "st_pool": 3,
+    "p102_dev": 2,
+    "p102_pool": 2
+   },
+   "assembled": 11,
+   "top_headings": [
+    [
+     "none",
+     6
+    ],
+    [
+     "8711",
+     2
+    ],
+    [
+     "8714",
+     2
+    ],
+    [
+     "8712",
+     2
+    ]
+   ],
+   "top_nouns": [
+    [
+     "electric bicycle",
+     2
+    ],
+    [
+     "bicycle",
+     2
+    ],
+    [
+     "e-bike",
+     2
+    ],
+    [
+     "ckd bicycles",
+     1
+    ],
+    [
+     "e-scooter",
+     1
+    ],
+    [
+     "belt-driven bicycles",
+     1
+    ],
+    [
+     "bicycle rims",
+     1
+    ],
+    [
+     "mountain bicycle",
+     1
+    ]
+   ],
+   "left_out": null
+  },
+  {
+   "category": "machinery_parts",
+   "no_template": 12,
+   "in_pool": 5,
+   "by_set": {
+    "st_dev": 6,
+    "st_pool": 5,
+    "p102_dev": 1,
+    "p102_pool": 0
+   },
+   "assembled": 12,
+   "top_headings": [
+    [
+     "none",
+     10
+    ],
+    [
+     "8518",
+     1
+    ],
+    [
+     "8473",
+     1
+    ]
+   ],
+   "top_nouns": [
+    [
+     "faucet",
+     4
+    ],
+    [
+     "oven latch assembly",
+     2
+    ],
+    [
+     "cab cover assemblies",
+     1
+    ],
+    [
+     "thermal modules",
+     1
+    ],
+    [
+     "faucets",
+     1
+    ],
+    [
+     "front mount latch",
+     1
+    ],
+    [
+     "mode shift actuator",
+     1
+    ],
+    [
+     "thermal print head",
+     1
+    ]
+   ],
+   "left_out": "has a template"
+  },
+  {
+   "category": "electrical_apparatus",
+   "no_template": 11,
+   "in_pool": 7,
+   "by_set": {
+    "st_dev": 4,
+    "st_pool": 6,
+    "p102_dev": 0,
+    "p102_pool": 1
+   },
+   "assembled": 9,
+   "top_headings": [
+    [
+     "none",
+     10
+    ],
+    [
+     "7225",
+     1
+    ]
+   ],
+   "top_nouns": [
+    [
+     "superconducting tape",
+     1
+    ],
+    [
+     "transformer toroids",
+     1
+    ],
+    [
+     "cartridge atomizer",
+     1
+    ],
+    [
+     "electric range",
+     1
+    ],
+    [
+     "cartridge atomizers",
+     1
+    ],
+    [
+     "heating element",
+     1
+    ],
+    [
+     "diodes",
+     1
+    ],
+    [
+     "ev fuse",
+     1
+    ]
+   ],
+   "left_out": "has a template"
+  },
+  {
+   "category": "solar_pv",
+   "no_template": 9,
+   "in_pool": 7,
+   "by_set": {
+    "st_dev": 1,
+    "st_pool": 4,
+    "p102_dev": 1,
+    "p102_pool": 3
+   },
+   "assembled": 7,
+   "top_headings": [
+    [
+     "8541",
+     5
+    ],
+    [
+     "8501",
+     2
+    ],
+    [
+     "2804",
+     1
+    ],
+    [
+     "none",
+     1
+    ]
+   ],
+   "top_nouns": [
+    [
+     "solar panels",
+     4
+    ],
+    [
+     "photovoltaic modules",
+     1
+    ],
+    [
+     "monocrystalline silicon ingot",
+     1
+    ],
+    [
+     "photovoltaic roof tile",
+     1
+    ],
+    [
+     "photovoltaic generator",
+     1
+    ],
+    [
+     "textured silicon wafers",
+     1
+    ]
+   ],
+   "left_out": null
+  },
+  {
+   "category": "jewelry_watches",
+   "no_template": 9,
+   "in_pool": 6,
+   "by_set": {
+    "st_dev": 2,
+    "st_pool": 3,
+    "p102_dev": 1,
+    "p102_pool": 3
+   },
+   "assembled": 9,
+   "top_headings": [
+    [
+     "none",
+     4
+    ],
+    [
+     "7117",
+     2
+    ],
+    [
+     "7018",
+     1
+    ],
+    [
+     "7108",
+     1
+    ],
+    [
+     "7113",
+     1
+    ]
+   ],
+   "top_nouns": [
+    [
+     "gold gemstone ring",
+     2
+    ],
+    [
+     "gold necklace medallions",
+     1
+    ],
+    [
+     "piercing earring cartridge",
+     1
+    ],
+    [
+     "earring stud",
+     1
+    ],
+    [
+     "bracelet",
+     1
+    ],
+    [
+     "earrings",
+     1
+    ],
+    [
+     "stretch bracelet",
+     1
+    ],
+    [
+     "metal tiara headband",
+     1
+    ]
+   ],
+   "left_out": null
+  },
+  {
+   "category": "glass_stone_ceramics",
+   "no_template": 8,
+   "in_pool": 7,
+   "by_set": {
+    "st_dev": 1,
+    "st_pool": 4,
+    "p102_dev": 0,
+    "p102_pool": 3
+   },
+   "assembled": 5,
+   "top_headings": [
+    [
+     "7008",
+     2
+    ],
+    [
+     "7005",
+     2
+    ],
+    [
+     "none",
+     2
+    ],
+    [
+     "7010",
+     1
+    ],
+    [
+     "7009",
+     1
+    ]
+   ],
+   "top_nouns": [
+    [
+     "insulating glass panel units",
+     1
+    ],
+    [
+     "glass bottles",
+     1
+    ],
+    [
+     "insulating glass unit",
+     1
+    ],
+    [
+     "glass screen protectors",
+     1
+    ],
+    [
+     "stone mosaics",
+     1
+    ],
+    [
+     "framed mirror",
+     1
+    ],
+    [
+     "glass screen protector",
+     1
+    ],
+    [
+     "quartz surface slabs",
+     1
+    ]
+   ],
+   "left_out": null
+  },
+  {
+   "category": "batteries",
+   "no_template": 8,
+   "in_pool": 6,
+   "by_set": {
+    "st_dev": 2,
+    "st_pool": 3,
+    "p102_dev": 0,
+    "p102_pool": 3
+   },
+   "assembled": 8,
+   "top_headings": [
+    [
+     "none",
+     5
+    ],
+    [
+     "8507",
+     3
+    ]
+   ],
+   "top_nouns": [
+    [
+     "vanadium flow battery",
+     2
+    ],
+    [
+     "battery cell",
+     2
+    ],
+    [
+     "battery packs",
+     1
+    ],
+    [
+     "battery pack",
+     1
+    ],
+    [
+     "lithium-ion pouch cell",
+     1
+    ],
+    [
+     "lithium-ion battery pack",
+     1
+    ]
+   ],
+   "left_out": null
+  },
+  {
+   "category": "led_lights",
+   "no_template": 8,
+   "in_pool": 6,
+   "by_set": {
+    "st_dev": 2,
+    "st_pool": 6,
+    "p102_dev": 0,
+    "p102_pool": 0
+   },
+   "assembled": 8,
+   "top_headings": [
+    [
+     "none",
+     6
+    ],
+    [
+     "9405",
+     2
+    ]
+   ],
+   "top_nouns": [
+    [
+     "accent touch lamp",
+     1
+    ],
+    [
+     "accent lamps",
+     1
+    ],
+    [
+     "packaged led components",
+     1
+    ],
+    [
+     "encapsulated led package",
+     1
+    ],
+    [
+     "flush mount ceiling light",
+     1
+    ],
+    [
+     "salt touch lamps",
+     1
+    ],
+    [
+     "oven lamps",
+     1
+    ],
+    [
+     "oven lights",
+     1
+    ]
+   ],
+   "left_out": "has a template"
+  },
+  {
+   "category": "other",
+   "no_template": 8,
+   "in_pool": 5,
+   "by_set": {
+    "st_dev": 3,
+    "st_pool": 3,
+    "p102_dev": 0,
+    "p102_pool": 2
+   },
+   "assembled": 5,
+   "top_headings": [
+    [
+     "none",
+     6
+    ],
+    [
+     "6815",
+     1
+    ],
+    [
+     "6702",
+     1
+    ]
+   ],
+   "top_nouns": [
+    [
+     "wall repair kit",
+     1
+    ],
+    [
+     "software",
+     1
+    ],
+    [
+     "bovine crust leather",
+     1
+    ],
+    [
+     "artificial trees",
+     1
+    ],
+    [
+     "epitaxial wafer",
+     1
+    ],
+    [
+     "human hair extensions",
+     1
+    ],
+    [
+     "rifle stocks",
+     1
+    ],
+    [
+     "hair extension",
+     1
+    ]
+   ],
+   "left_out": "other"
+  },
+  {
+   "category": "metal_hardware_fittings",
+   "no_template": 8,
+   "in_pool": 2,
+   "by_set": {
+    "st_dev": 5,
+    "st_pool": 2,
+    "p102_dev": 1,
+    "p102_pool": 0
+   },
+   "assembled": 7,
+   "top_headings": [
+    [
+     "none",
+     4
+    ],
+    [
+     "8302",
+     2
+    ],
+    [
+     "7907",
+     1
+    ],
+    [
+     "9801",
+     1
+    ]
+   ],
+   "top_nouns": [
+    [
+     "latch assemblies",
+     1
+    ],
+    [
+     "gate latches",
+     1
+    ],
+    [
+     "ratchet tie down straps",
+     1
+    ],
+    [
+     "entry door lock",
+     1
+    ],
+    [
+     "ratchet tie downs",
+     1
+    ],
+    [
+     "keychains",
+     1
+    ],
+    [
+     "gold waste and scrap",
+     1
+    ],
+    [
+     "doorknob latch set",
+     1
+    ]
+   ],
+   "left_out": "has a template"
+  },
+  {
+   "category": "apparel_textiles",
+   "no_template": 7,
+   "in_pool": 4,
+   "by_set": {
+    "st_dev": 3,
+    "st_pool": 2,
+    "p102_dev": 0,
+    "p102_pool": 2
+   },
+   "assembled": 7,
+   "top_headings": [
+    [
+     "none",
+     4
+    ],
+    [
+     "9404",
+     1
+    ],
+    [
+     "6307",
+     1
+    ],
+    [
+     "4102",
+     1
+    ]
+   ],
+   "top_nouns": [
+    [
+     "ratchet tie downs",
+     2
+    ],
+    [
+     "mattress covers",
+     1
+    ],
+    [
+     "comforter",
+     1
+    ],
+    [
+     "ratchet tie-downs",
+     1
+    ],
+    [
+     "furskin rug",
+     1
+    ],
+    [
+     "ratchet tie-down straps",
+     1
+    ]
+   ],
+   "left_out": "own engine"
+  },
+  {
+   "category": "rubber_articles",
+   "no_template": 7,
+   "in_pool": 2,
+   "by_set": {
+    "st_dev": 4,
+    "st_pool": 0,
+    "p102_dev": 1,
+    "p102_pool": 2
+   },
+   "assembled": 2,
+   "top_headings": [
+    [
+     "none",
+     5
+    ],
+    [
+     "4011",
+     1
+    ],
+    [
+     "4010",
+     1
+    ]
+   ],
+   "top_nouns": [
+    [
+     "nitrile rubber gloves",
+     3
+    ],
+    [
+     "pneumatic tires",
+     1
+    ],
+    [
+     "agricultural tire",
+     1
+    ],
+    [
+     "rubber transmission belts",
+     1
+    ],
+    [
+     "conveyor belts",
+     1
+    ]
+   ],
+   "left_out": null
+  },
+  {
+   "category": "vehicle_parts",
+   "no_template": 6,
+   "in_pool": 4,
+   "by_set": {
+    "st_dev": 1,
+    "st_pool": 2,
+    "p102_dev": 1,
+    "p102_pool": 2
+   },
+   "assembled": 5,
+   "top_headings": [
+    [
+     "none",
+     3
+    ],
+    [
+     "9401",
+     1
+    ],
+    [
+     "8421",
+     1
+    ],
+    [
+     "8708",
+     1
+    ]
+   ],
+   "top_nouns": [
+    [
+     "steering wheel cover",
+     3
+    ],
+    [
+     "automotive armrest",
+     1
+    ],
+    [
+     "coated ceramic substrate",
+     1
+    ],
+    [
+     "automotive windshield",
+     1
+    ]
+   ],
+   "left_out": "has a template"
+  },
+  {
+   "category": "optical_cameras",
+   "no_template": 5,
+   "in_pool": 3,
+   "by_set": {
+    "st_dev": 2,
+    "st_pool": 2,
+    "p102_dev": 0,
+    "p102_pool": 1
+   },
+   "assembled": 3,
+   "top_headings": [
+    [
+     "none",
+     4
+    ],
+    [
+     "9010",
+     1
+    ]
+   ],
+   "top_nouns": [
+    [
+     "projection screens",
+     1
+    ],
+    [
+     "riflescope lens",
+     1
+    ],
+    [
+     "smart camera",
+     1
+    ],
+    [
+     "carrier plate assembly",
+     1
+    ],
+    [
+     "optical window",
+     1
+    ]
+   ],
+   "left_out": "has a template"
+  },
+  {
+   "category": "instruments_meters",
+   "no_template": 4,
+   "in_pool": 3,
+   "by_set": {
+    "st_dev": 1,
+    "st_pool": 2,
+    "p102_dev": 0,
+    "p102_pool": 1
+   },
+   "assembled": 4,
+   "top_headings": [
+    [
+     "none",
+     2
+    ],
+    [
+     "9026",
+     1
+    ],
+    [
+     "8531",
+     1
+    ]
+   ],
+   "top_nouns": [
+    [
+     "pressure sensor",
+     1
+    ],
+    [
+     "metal detector conveyor system",
+     1
+    ],
+    [
+     "heat sensor",
+     1
+    ],
+    [
+     "pressure sensors",
+     1
+    ]
+   ],
+   "left_out": null
+  },
+  {
+   "category": "metal_structures",
+   "no_template": 4,
+   "in_pool": 2,
+   "by_set": {
+    "st_dev": 1,
+    "st_pool": 1,
+    "p102_dev": 1,
+    "p102_pool": 1
+   },
+   "assembled": 4,
+   "top_headings": [
+    [
+     "9801",
+     1
+    ],
+    [
+     "7308",
+     1
+    ],
+    [
+     "none",
+     1
+    ],
+    [
+     "7326",
+     1
+    ]
+   ],
+   "top_nouns": [
+    [
+     "garage door",
+     1
+    ],
+    [
+     "freestanding retractable canopy",
+     1
+    ],
+    [
+     "jack stand",
+     1
+    ],
+    [
+     "automotive jack stands",
+     1
+    ]
+   ],
+   "left_out": null
+  },
+  {
+   "category": "plastic_articles",
+   "no_template": 4,
+   "in_pool": 2,
+   "by_set": {
+    "st_dev": 1,
+    "st_pool": 1,
+    "p102_dev": 1,
+    "p102_pool": 1
+   },
+   "assembled": 1,
+   "top_headings": [
+    [
+     "none",
+     2
+    ],
+    [
+     "6702",
+     1
+    ],
+    [
+     "3926",
+     1
+    ]
+   ],
+   "top_nouns": [
+    [
+     "artificial trees",
+     1
+    ],
+    [
+     "polyurethane prepolymer",
+     1
+    ],
+    [
+     "vinyl record",
+     1
+    ],
+    [
+     "remote control case",
+     1
+    ]
+   ],
+   "left_out": "has a template"
+  },
+  {
+   "category": "food_agriculture",
+   "no_template": 3,
+   "in_pool": 1,
+   "by_set": {
+    "st_dev": 1,
+    "st_pool": 0,
+    "p102_dev": 1,
+    "p102_pool": 1
+   },
+   "assembled": 0,
+   "top_headings": [
+    [
+     "1209",
+     1
+    ],
+    [
+     "0511",
+     1
+    ],
+    [
+     "none",
+     1
+    ]
+   ],
+   "top_nouns": [
+    [
+     "substrate with seeds",
+     1
+    ],
+    [
+     "horse semen",
+     1
+    ],
+    [
+     "blended tobacco strips",
+     1
+    ]
+   ],
+   "left_out": "has a template"
+  },
+  {
+   "category": "footwear",
+   "no_template": 3,
+   "in_pool": 1,
+   "by_set": {
+    "st_dev": 2,
+    "st_pool": 1,
+    "p102_dev": 0,
+    "p102_pool": 0
+   },
+   "assembled": 3,
+   "top_headings": [
+    [
+     "none",
+     2
+    ],
+    [
+     "6406",
+     1
+    ]
+   ],
+   "top_nouns": [
+    [
+     "sneakers",
+     1
+    ],
+    [
+     "knit shoe kit",
+     1
+    ],
+    [
+     "mule style shoe",
+     1
+    ]
+   ],
+   "left_out": null
+  },
+  {
+   "category": "motorised_tools_small_appliances",
+   "no_template": 3,
+   "in_pool": 1,
+   "by_set": {
+    "st_dev": 2,
+    "st_pool": 1,
+    "p102_dev": 0,
+    "p102_pool": 0
+   },
+   "assembled": 3,
+   "top_headings": [
+    [
+     "none",
+     3
+    ]
+   ],
+   "top_nouns": [
+    [
+     "electric cooking range",
+     1
+    ],
+    [
+     "microwave hood combination",
+     1
+    ],
+    [
+     "water dispenser",
+     1
+    ]
+   ],
+   "left_out": "has a template"
+  },
+  {
+   "category": "wood_articles",
+   "no_template": 3,
+   "in_pool": 1,
+   "by_set": {
+    "st_dev": 1,
+    "st_pool": 1,
+    "p102_dev": 1,
+    "p102_pool": 0
+   },
+   "assembled": 3,
+   "top_headings": [
+    [
+     "9406",
+     2
+    ],
+    [
+     "none",
+     1
+    ]
+   ],
+   "top_nouns": [
+    [
+     "prefabricated house kit",
+     1
+    ],
+    [
+     "outdoor barrel sauna",
+     1
+    ],
+    [
+     "oak wood barrels",
+     1
+    ]
+   ],
+   "left_out": "has a template"
+  },
+  {
+   "category": "cables_harnesses_connectors",
+   "no_template": 2,
+   "in_pool": 2,
+   "by_set": {
+    "st_dev": 0,
+    "st_pool": 1,
+    "p102_dev": 0,
+    "p102_pool": 1
+   },
+   "assembled": 2,
+   "top_headings": [
+    [
+     "8536",
+     1
+    ],
+    [
+     "none",
+     1
+    ]
+   ],
+   "top_nouns": [
+    [
+     "emergency roadside kit",
+     1
+    ],
+    [
+     "electrical couplers",
+     1
+    ]
+   ],
+   "left_out": "has a template"
+  },
+  {
+   "category": "furniture",
+   "no_template": 2,
+   "in_pool": 2,
+   "by_set": {
+    "st_dev": 0,
+    "st_pool": 1,
+    "p102_dev": 0,
+    "p102_pool": 1
+   },
+   "assembled": 2,
+   "top_headings": [
+    [
+     "9404",
+     1
+    ],
+    [
+     "none",
+     1
+    ]
+   ],
+   "top_nouns": [
+    [
+     "decorative pillows",
+     1
+    ],
+    [
+     "venetian blinds",
+     1
+    ]
+   ],
+   "left_out": "has a template"
+  },
+  {
+   "category": "hand_tools_cutlery",
+   "no_template": 1,
+   "in_pool": 1,
+   "by_set": {
+    "st_dev": 0,
+    "st_pool": 1,
+    "p102_dev": 0,
+    "p102_pool": 0
+   },
+   "assembled": 1,
+   "top_headings": [
+    [
+     "none",
+     1
+    ]
+   ],
+   "top_nouns": [
+    [
+     "knives and carvings",
+     1
+    ]
+   ],
+   "left_out": "has a template"
+  },
+  {
+   "category": "medical_devices",
+   "no_template": 1,
+   "in_pool": 0,
+   "by_set": {
+    "st_dev": 1,
+    "st_pool": 0,
+    "p102_dev": 0,
+    "p102_pool": 0
+   },
+   "assembled": 1,
+   "top_headings": [
+    [
+     "none",
+     1
+    ]
+   ],
+   "top_nouns": [
+    [
+     "patient return electrode",
+     1
+    ]
+   ],
+   "left_out": "has a template"
+  }
+ ],
+ "step1_kept": [
+  "paper_printed",
+  "industrial_machinery",
+  "household_goods",
+  "toys_sporting_goods",
+  "vehicles_trailers"
+ ],
+ "types": [
+  {
+   "regime": "substantial_transformation",
+   "pool_in_regime": 55,
+   "type": "paper_tissue",
+   "no_template": 73,
+   "no_template_in_pool": 61,
+   "by_set": {
+    "st_dev": 10,
+    "st_pool": 54,
+    "p102_dev": 2,
+    "p102_pool": 7
+   },
+   "pool_rulings": 62,
+   "pool_with_template": 1,
+   "categories": [
+    [
+     "paper_printed",
+     73
+    ]
+   ],
+   "nouns": [
+    [
+     "paper napkins",
+     12
+    ],
+    [
+     "toilet tissue",
+     10
+    ],
+    [
+     "paper towels",
+     6
+    ],
+    [
+     "facial tissue",
+     5
+    ],
+    [
+     "facial tissues",
+     3
+    ],
+    [
+     "toilet paper",
+     2
+    ],
+    [
+     "paper hand towels",
+     2
+    ],
+    [
+     "exam table paper",
+     2
+    ],
+    [
+     "hanging file folder",
+     2
+    ],
+    [
+     "paper plates",
+     2
+    ]
+   ]
+  },
+  {
+   "regime": "substantial_transformation",
+   "pool_in_regime": 0,
+   "type": "automotive_filters",
+   "no_template": 23,
+   "no_template_in_pool": 0,
+   "by_set": {
+    "st_dev": 23,
+    "st_pool": 0,
+    "p102_dev": 0,
+    "p102_pool": 0
+   },
+   "pool_rulings": 0,
+   "pool_with_template": 0,
+   "categories": [
+    [
+     "filters",
+     23
+    ]
+   ],
+   "nouns": [
+    [
+     "automotive air filters",
+     11
+    ],
+    [
+     "automotive air filter",
+     4
+    ],
+    [
+     "automotive air conditioning filters",
+     2
+    ],
+    [
+     "diesel fuel filter",
+     1
+    ],
+    [
+     "automotive air conditioning filter",
+     1
+    ],
+    [
+     "cabin air filters",
+     1
+    ],
+    [
+     "cabin air filter",
+     1
+    ],
+    [
+     "automotive oil filter",
+     1
+    ],
+    [
+     "air filter",
+     1
+    ]
+   ]
+  },
+  {
+   "regime": "substantial_transformation",
+   "pool_in_regime": 13,
+   "type": "offroad_machines",
+   "no_template": 20,
+   "no_template_in_pool": 14,
+   "by_set": {
+    "st_dev": 4,
+    "st_pool": 13,
+    "p102_dev": 2,
+    "p102_pool": 1
+   },
+   "pool_rulings": 14,
+   "pool_with_template": 0,
+   "categories": [
+    [
+     "industrial_machinery",
+     11
+    ],
+    [
+     "vehicles_trailers",
+     9
+    ]
+   ],
+   "nouns": [
+    [
+     "automated guided vehicle",
+     5
+    ],
+    [
+     "lawn mower",
+     2
+    ],
+    [
+     "telehandler",
+     2
+    ],
+    [
+     "scissor lifts",
+     1
+    ],
+    [
+     "hydraulic excavator",
+     1
+    ],
+    [
+     "road roller",
+     1
+    ],
+    [
+     "motor grader",
+     1
+    ],
+    [
+     "electric all-terrain vehicle",
+     1
+    ],
+    [
+     "utility terrain vehicles",
+     1
+    ],
+    [
+     "off-road vehicle",
+     1
+    ]
+   ]
+  },
+  {
+   "regime": "substantial_transformation",
+   "pool_in_regime": 10,
+   "type": "semiconductors",
+   "no_template": 16,
+   "no_template_in_pool": 10,
+   "by_set": {
+    "st_dev": 6,
+    "st_pool": 10,
+    "p102_dev": 0,
+    "p102_pool": 0
+   },
+   "pool_rulings": 10,
+   "pool_with_template": 0,
+   "categories": [
+    [
+     "pcba_electronic_devices",
+     13
+    ],
+    [
+     "other",
+     1
+    ],
+    [
+     "electrical_apparatus",
+     1
+    ],
+    [
+     "solar_pv",
+     1
+    ]
+   ],
+   "nouns": [
+    [
+     "integrated circuit",
+     4
+    ],
+    [
+     "integrated circuits",
+     2
+    ],
+    [
+     "schottky diode",
+     1
+    ],
+    [
+     "epitaxial wafer",
+     1
+    ],
+    [
+     "silicon carbide mosfet",
+     1
+    ],
+    [
+     "power transistor",
+     1
+    ],
+    [
+     "transistors",
+     1
+    ],
+    [
+     "rf front-end modules",
+     1
+    ],
+    [
+     "diodes",
+     1
+    ],
+    [
+     "microcontroller integrated circuit chip",
+     1
+    ]
+   ]
+  },
+  {
+   "regime": "substantial_transformation",
+   "pool_in_regime": 4,
+   "type": "bicycles",
+   "no_template": 13,
+   "no_template_in_pool": 5,
+   "by_set": {
+    "st_dev": 6,
+    "st_pool": 3,
+    "p102_dev": 2,
+    "p102_pool": 2
+   },
+   "pool_rulings": 7,
+   "pool_with_template": 2,
+   "categories": [
+    [
+     "bicycles_scooters",
+     12
+    ],
+    [
+     "toys_sporting_goods",
+     1
+    ]
+   ],
+   "nouns": [
+    [
+     "electric bicycle",
+     2
+    ],
+    [
+     "bicycle",
+     2
+    ],
+    [
+     "e-bike",
+     2
+    ],
+    [
+     "ckd bicycles",
+     1
+    ],
+    [
+     "e-scooter",
+     1
+    ],
+    [
+     "belt-driven bicycles",
+     1
+    ],
+    [
+     "bicycle rims",
+     1
+    ],
+    [
+     "bicycle helmet",
+     1
+    ],
+    [
+     "mountain bicycle",
+     1
+    ],
+    [
+     "electric scooter",
+     1
+    ]
+   ]
+  },
+  {
+   "regime": "substantial_transformation",
+   "pool_in_regime": 6,
+   "type": "golf_sporting",
+   "no_template": 13,
+   "no_template_in_pool": 7,
+   "by_set": {
+    "st_dev": 5,
+    "st_pool": 6,
+    "p102_dev": 1,
+    "p102_pool": 1
+   },
+   "pool_rulings": 7,
+   "pool_with_template": 0,
+   "categories": [
+    [
+     "toys_sporting_goods",
+     13
+    ]
+   ],
+   "nouns": [
+    [
+     "golf club heads",
+     3
+    ],
+    [
+     "golf club drivers",
+     1
+    ],
+    [
+     "water ski boot binding",
+     1
+    ],
+    [
+     "golf club set",
+     1
+    ],
+    [
+     "putter heads",
+     1
+    ],
+    [
+     "golf balls",
+     1
+    ],
+    [
+     "motorcycle helmets",
+     1
+    ],
+    [
+     "fishing fly rod",
+     1
+    ],
+    [
+     "fishing rods",
+     1
+    ],
+    [
+     "hockey skate inserts",
+     1
+    ]
+   ]
+  },
+  {
+   "regime": "substantial_transformation",
+   "pool_in_regime": 13,
+   "type": "toys_kits",
+   "no_template": 12,
+   "no_template_in_pool": 10,
+   "by_set": {
+    "st_dev": 2,
+    "st_pool": 10,
+    "p102_dev": 0,
+    "p102_pool": 0
+   },
+   "pool_rulings": 13,
+   "pool_with_template": 3,
+   "categories": [
+    [
+     "toys_sporting_goods",
+     11
+    ],
+    [
+     "industrial_machinery",
+     1
+    ]
+   ],
+   "nouns": [
+    [
+     "toy disc launcher kit",
+     1
+    ],
+    [
+     "plush dinosaur toy",
+     1
+    ],
+    [
+     "plush toy",
+     1
+    ],
+    [
+     "plush toys",
+     1
+    ],
+    [
+     "drawing machine kit",
+     1
+    ],
+    [
+     "animator build kit",
+     1
+    ],
+    [
+     "robot kit",
+     1
+    ],
+    [
+     "infrared turret hack pack",
+     1
+    ],
+    [
+     "sand garden kit",
+     1
+    ],
+    [
+     "label maker kit",
+     1
+    ]
+   ]
+  },
+  {
+   "regime": "substantial_transformation",
+   "pool_in_regime": 5,
+   "type": "hvac_heating",
+   "no_template": 11,
+   "no_template_in_pool": 5,
+   "by_set": {
+    "st_dev": 6,
+    "st_pool": 5,
+    "p102_dev": 0,
+    "p102_pool": 0
+   },
+   "pool_rulings": 6,
+   "pool_with_template": 1,
+   "categories": [
+    [
+     "industrial_machinery",
+     11
+    ]
+   ],
+   "nouns": [
+    [
+     "heat pump",
+     3
+    ],
+    [
+     "gas furnaces",
+     2
+    ],
+    [
+     "rooftop air conditioning units",
+     2
+    ],
+    [
+     "gas heaters",
+     1
+    ],
+    [
+     "gas furnace",
+     1
+    ],
+    [
+     "heat pump units",
+     1
+    ],
+    [
+     "outdoor hvac unit",
+     1
+    ]
+   ]
+  },
+  {
+   "regime": "substantial_transformation",
+   "pool_in_regime": 5,
+   "type": "lifting_jacks",
+   "no_template": 9,
+   "no_template_in_pool": 2,
+   "by_set": {
+    "st_dev": 7,
+    "st_pool": 2,
+    "p102_dev": 0,
+    "p102_pool": 0
+   },
+   "pool_rulings": 5,
+   "pool_with_template": 3,
+   "categories": [
+    [
+     "industrial_machinery",
+     7
+    ],
+    [
+     "metal_structures",
+     2
+    ]
+   ],
+   "nouns": [
+    [
+     "hydraulic floor jacks",
+     3
+    ],
+    [
+     "hydraulic bottle jacks",
+     2
+    ],
+    [
+     "jack stand",
+     1
+    ],
+    [
+     "automotive jack stands",
+     1
+    ],
+    [
+     "hydraulic bottle jack",
+     1
+    ],
+    [
+     "hydraulic trolley jacks",
+     1
+    ]
+   ]
+  },
+  {
+   "regime": "substantial_transformation",
+   "pool_in_regime": 6,
+   "type": "batteries",
+   "no_template": 8,
+   "no_template_in_pool": 6,
+   "by_set": {
+    "st_dev": 2,
+    "st_pool": 3,
+    "p102_dev": 0,
+    "p102_pool": 3
+   },
+   "pool_rulings": 11,
+   "pool_with_template": 5,
+   "categories": [
+    [
+     "batteries",
+     8
+    ]
+   ],
+   "nouns": [
+    [
+     "vanadium flow battery",
+     2
+    ],
+    [
+     "battery cell",
+     2
+    ],
+    [
+     "battery packs",
+     1
+    ],
+    [
+     "battery pack",
+     1
+    ],
+    [
+     "lithium-ion pouch cell",
+     1
+    ],
+    [
+     "lithium-ion battery pack",
+     1
+    ]
+   ]
+  },
+  {
+   "regime": "substantial_transformation",
+   "pool_in_regime": 6,
+   "type": "solar",
+   "no_template": 7,
+   "no_template_in_pool": 6,
+   "by_set": {
+    "st_dev": 0,
+    "st_pool": 3,
+    "p102_dev": 1,
+    "p102_pool": 3
+   },
+   "pool_rulings": 9,
+   "pool_with_template": 3,
+   "categories": [
+    [
+     "solar_pv",
+     7
+    ]
+   ],
+   "nouns": [
+    [
+     "solar panels",
+     4
+    ],
+    [
+     "photovoltaic modules",
+     1
+    ],
+    [
+     "photovoltaic roof tile",
+     1
+    ],
+    [
+     "photovoltaic generator",
+     1
+    ]
+   ]
+  },
+  {
+   "regime": "substantial_transformation",
+   "pool_in_regime": 5,
+   "type": "writing_instruments",
+   "no_template": 6,
+   "no_template_in_pool": 5,
+   "by_set": {
+    "st_dev": 1,
+    "st_pool": 5,
+    "p102_dev": 0,
+    "p102_pool": 0
+   },
+   "pool_rulings": 5,
+   "pool_with_template": 0,
+   "categories": [
+    [
+     "household_goods",
+     6
+    ]
+   ],
+   "nouns": [
+    [
+     "pencils",
+     3
+    ],
+    [
+     "ballpoint pens",
+     1
+    ],
+    [
+     "aluminum pen",
+     1
+    ],
+    [
+     "pens",
+     1
+    ]
+   ]
+  },
+  {
+   "regime": "substantial_transformation",
+   "pool_in_regime": 8,
+   "type": "display_modules",
+   "no_template": 0,
+   "no_template_in_pool": 0,
+   "by_set": {
+    "st_dev": 0,
+    "st_pool": 0,
+    "p102_dev": 0,
+    "p102_pool": 0
+   },
+   "pool_rulings": 9,
+   "pool_with_template": 9,
+   "categories": [],
+   "nouns": []
+  }
+ ],
+ "untyped_no_template": 229,
+ "untyped_by_category": [
+  [
+   "chemicals_pharma",
+   67
+  ],
+  [
+   "household_goods",
+   23
+  ],
+  [
+   "machinery_parts",
+   12
+  ],
+  [
+   "electrical_apparatus",
+   10
+  ],
+  [
+   "jewelry_watches",
+   9
+  ],
+  [
+   "led_lights",
+   8
+  ],
+  [
+   "metal_hardware_fittings",
+   8
+  ],
+  [
+   "glass_stone_ceramics",
+   8
+  ],
+  [
+   "apparel_textiles",
+   7
+  ],
+  [
+   "other",
+   7
+  ],
+  [
+   "rubber_articles",
+   7
+  ],
+  [
+   "industrial_machinery",
+   7
+  ],
+  [
+   "vehicle_parts",
+   6
+  ],
+  [
+   "filters",
+   6
+  ],
+  [
+   "optical_cameras",
+   5
+  ],
+  [
+   "plastic_articles",
+   4
+  ],
+  [
+   "instruments_meters",
+   4
+  ],
+  [
+   "pcba_electronic_devices",
+   4
+  ],
+  [
+   "wood_articles",
+   3
+  ],
+  [
+   "food_agriculture",
+   3
+  ],
+  [
+   "motorised_tools_small_appliances",
+   3
+  ],
+  [
+   "vehicles_trailers",
+   3
+  ],
+  [
+   "footwear",
+   3
+  ],
+  [
+   "paper_printed",
+   2
+  ],
+  [
+   "furniture",
+   2
+  ],
+  [
+   "cables_harnesses_connectors",
+   2
+  ],
+  [
+   "metal_structures",
+   2
+  ],
+  [
+   "solar_pv",
+   1
+  ],
+  [
+   "toys_sporting_goods",
+   1
+  ],
+  [
+   "hand_tools_cutlery",
+   1
+  ],
+  [
+   "medical_devices",
+   1
+  ]
+ ],
+ "not_picked_at_or_over_min": [],
+ "picked": [
+  {
+   "type": "paper_tissue",
+   "no_template": 73,
+   "regime": "substantial_transformation",
+   "pool_members": [
+    "N333537",
+    "N334032",
+    "N335200",
+    "N335974",
+    "N339156",
+    "N341898",
+    "N343481",
+    "N344611",
+    "N344612",
+    "N344617",
+    "N344619",
+    "N344620",
+    "N344621",
+    "N344916",
+    "N344918",
+    "N345205",
+    "N345206",
+    "N345383",
+    "N345384",
+    "N345385",
+    "N345386",
+    "N345915",
+    "N345972",
+    "N346902",
+    "N346903",
+    "N346904",
+    "N346906",
+    "N347059",
+    "N347187",
+    "N347189",
+    "N347645",
+    "N347648",
+    "N347719",
+    "N347720",
+    "N347806",
+    "N347986",
+    "N347987",
+    "N347988",
+    "N348208",
+    "N348226",
+    "N348227",
+    "N348228",
+    "N348229",
+    "N348329",
+    "N348694",
+    "N348696",
+    "N348805",
+    "N348872",
+    "N348873",
+    "N348875",
+    "N349533",
+    "N349534",
+    "N349536",
+    "N350339",
+    "N350388"
+   ],
+   "other_regime_pool_members": [
+    "H072375",
+    "H263571",
+    "N269409",
+    "N271676",
+    "N289995",
+    "N306776",
+    "N333961"
+   ],
+   "no_template_members": [
+    "H072375",
+    "H263571",
+    "N269409",
+    "N271676",
+    "N289995",
+    "N306776",
+    "N333537",
+    "N333961",
+    "N334032",
+    "N335200",
+    "N339156",
+    "N341898",
+    "N342477",
+    "N343481",
+    "N344611",
+    "N344612",
+    "N344617",
+    "N344619",
+    "N344620",
+    "N344621",
+    "N344916",
+    "N344918",
+    "N345205",
+    "N345206",
+    "N345383",
+    "N345384",
+    "N345385",
+    "N345386",
+    "N345915",
+    "N345972",
+    "N346902",
+    "N346903",
+    "N346904",
+    "N346906",
+    "N347059",
+    "N347187",
+    "N347189",
+    "N347645",
+    "N347648",
+    "N347719",
+    "N347720",
+    "N347806",
+    "N347986",
+    "N347987",
+    "N347988",
+    "N348208",
+    "N348226",
+    "N348227",
+    "N348228",
+    "N348229",
+    "N348329",
+    "N348694",
+    "N348696",
+    "N348805",
+    "N348872",
+    "N348873",
+    "N348875",
+    "N349533",
+    "N349534",
+    "N349536",
+    "N350339",
+    "N350388",
+    "N350501",
+    "N350506",
+    "N350507",
+    "N350513",
+    "N350516",
+    "N350784",
+    "N351064",
+    "N351065",
+    "N351066",
+    "N352059",
+    "N354397"
+   ]
+  },
+  {
+   "type": "offroad_machines",
+   "no_template": 20,
+   "regime": "substantial_transformation",
+   "pool_members": [
+    "N334276",
+    "N336445",
+    "N337356",
+    "N337718",
+    "N340047",
+    "N340482",
+    "N341251",
+    "N342125",
+    "N343416",
+    "N344843",
+    "N348598",
+    "N348937",
+    "N349019"
+   ],
+   "other_regime_pool_members": [
+    "N326702"
+   ],
+   "no_template_members": [
+    "N326702",
+    "N334276",
+    "N336445",
+    "N337356",
+    "N337718",
+    "N340047",
+    "N340482",
+    "N341251",
+    "N342125",
+    "N343416",
+    "N344843",
+    "N348598",
+    "N348937",
+    "N349019",
+    "N350133",
+    "N351251",
+    "N352101",
+    "N354024",
+    "N354162",
+    "N356761"
+   ]
+  },
+  {
+   "type": "semiconductors",
+   "no_template": 16,
+   "regime": "substantial_transformation",
+   "pool_members": [
+    "H338127",
+    "N333934",
+    "N334417",
+    "N337307",
+    "N343494",
+    "N344105",
+    "N345881",
+    "N346922",
+    "N347292",
+    "N347890"
+   ],
+   "other_regime_pool_members": [],
+   "no_template_members": [
+    "H338127",
+    "N333934",
+    "N334417",
+    "N337307",
+    "N343494",
+    "N344105",
+    "N345881",
+    "N346922",
+    "N347292",
+    "N347890",
+    "N350711",
+    "N352561",
+    "N352821",
+    "N354283",
+    "N355523",
+    "N355546"
+   ]
+  },
+  {
+   "type": "golf_sporting",
+   "no_template": 13,
+   "regime": "substantial_transformation",
+   "pool_members": [
+    "H332922",
+    "N334283",
+    "N334756",
+    "N340536",
+    "N346303",
+    "N348301"
+   ],
+   "other_regime_pool_members": [
+    "H313495"
+   ],
+   "no_template_members": [
+    "H313495",
+    "H332922",
+    "N334283",
+    "N334756",
+    "N340536",
+    "N346303",
+    "N348301",
+    "N350113",
+    "N351672",
+    "N353399",
+    "N353511",
+    "N355835",
+    "N355854"
+   ]
+  },
+  {
+   "type": "toys_kits",
+   "no_template": 12,
+   "regime": "substantial_transformation",
+   "pool_members": [
+    "H350263",
+    "N339090",
+    "N343777",
+    "N347170",
+    "N348808",
+    "N350221",
+    "N350222",
+    "N350296",
+    "N350297",
+    "N350298",
+    "N350299",
+    "N350300",
+    "N350301"
+   ],
+   "other_regime_pool_members": [],
+   "no_template_members": [
+    "H350263",
+    "N343777",
+    "N347170",
+    "N348808",
+    "N350221",
+    "N350222",
+    "N350297",
+    "N350298",
+    "N350299",
+    "N350301",
+    "N353884",
+    "N356009"
+   ]
+  },
+  {
+   "type": "hvac_heating",
+   "no_template": 11,
+   "regime": "substantial_transformation",
+   "pool_members": [
+    "N345976",
+    "N347270",
+    "N347271",
+    "N347272",
+    "N348913"
+   ],
+   "other_regime_pool_members": [
+    "N325337"
+   ],
+   "no_template_members": [
+    "N345976",
+    "N347270",
+    "N347271",
+    "N347272",
+    "N348913",
+    "N351860",
+    "N351901",
+    "N352477",
+    "N352739",
+    "N352741",
+    "N354369"
+   ]
+  }
+ ]
+}

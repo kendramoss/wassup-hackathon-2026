@@ -1,0 +1,116 @@
+{
+  "family": "offroad_vehicles_machinery",
+  "version": "1",
+  "union_default_operations": true,
+  "name": "Off-road vehicles and mobile machinery",
+  "note": "For off-road vehicles and mobile machinery, CBP generally treats the fabrication and welding of the primary structural frames, chassis, and heavy working structures (such as booms, arms, lifting platforms, and drums) from raw metal as origin-conferring, or recognizes complex vehicle assembly when paired with the local fabrication of major structural subassemblies. Conversely, CBP treats bolting, fastening, and wiring imported drive motors, engines, electronics, and pre-fabricated frames together as simple assembly that does not confer origin. Written from 13 CBP substantial-transformation rulings outside every development and held-out split (D660); every cited ruling was checked against its facts and holding. Costs are illustrative defaults; users edit them.",
+  "sources": [
+    "N334276",
+    "N336445",
+    "N337356",
+    "N337718",
+    "N340047",
+    "N340482",
+    "N341251",
+    "N343416",
+    "N344843",
+    "N348598",
+    "N348937",
+    "N349019"
+  ],
+  "groups": [
+    {
+      "id": "chassis_frame_fab",
+      "name": "Chassis and frame",
+      "operations": [
+        "Saw, laser cut, stamp, punch, drill, and bend metal tubes, plates, and profiles",
+        "Align and weld structural metal elements in fixtures to form the chassis or lower frame weldment",
+        "Shot blast, polish, pre-treat, powder coat, and paint the structural frame"
+      ],
+      "movable": true,
+      "precedent": {
+        "confers_origin": [
+          "N334276",
+          "N336445",
+          "N337356",
+          "N344843",
+          "N348598",
+          "N349019"
+        ],
+        "not_enough": [],
+        "note": "CBP consistently places decisive weight on where the foundational chassis or frame is cut, shaped, and welded from metal stock (N334276, N336445, N344843, N349019)."
+      }
+    },
+    {
+      "id": "working_structure_fab",
+      "name": "Booms, arms and working frames",
+      "operations": [
+        "Cut, machine, press, and bend steel tubing and plates for lifting arms, booms, drums, or handling frames",
+        "Weld structural elements to form the upper frame, scissor arm, excavator boom, roller drum, or ROPS",
+        "Assemble mechanical lifting mechanisms, rollers, platforms, and material trays onto the upper structure"
+      ],
+      "movable": true,
+      "precedent": {
+        "confers_origin": [
+          "N334276",
+          "N336445",
+          "N337356",
+          "N337718",
+          "N340482"
+        ],
+        "not_enough": [
+          "N334276"
+        ],
+        "note": "Producing major upper structural and working subassemblies confers origin when combined with chassis production or final integration (N334276, N337356, N340482), whereas sourcing only a single structural arm from a country is insufficient (N334276)."
+      }
+    },
+    {
+      "id": "powertrain_electronics",
+      "name": "Powertrain and controls",
+      "operations": [
+        "Produce or pre-assemble engines, drive motors, reducers, axles, and hydraulic systems",
+        "Assemble battery packs from cells and prepare controllers, sensors, and communication modules",
+        "Pre-assemble steering gears, radiators, fuel tanks, and handlebar or brake pedal subassemblies"
+      ],
+      "movable": true,
+      "precedent": {
+        "confers_origin": [
+          "N348937"
+        ],
+        "not_enough": [
+          "N336445",
+          "N344843",
+          "N349019"
+        ],
+        "note": "Pre-assembling subassemblies does not confer origin when the structural frame is fabricated elsewhere (N336445, N344843, N349019), unless accompanied by comprehensive multi-part vehicle assembly and programming (N348937)."
+      }
+    },
+    {
+      "id": "final_assembly",
+      "name": "Final assembly",
+      "operations": [
+        "Bolt and fasten drive motors, engines, axles, suspensions, wheels, and casters to the chassis",
+        "Mount controllers, batteries, sensors, cameras, and operator cab or seat components",
+        "Join upper working structures or lifting assemblies to the lower chassis frame",
+        "Route and connect power, communication, and hydraulic lines, program ECUs, and inspect the vehicle"
+      ],
+      "movable": false,
+      "precedent": {
+        "confers_origin": [
+          "N337356",
+          "N337718",
+          "N340047",
+          "N341251",
+          "N343416",
+          "N348937"
+        ],
+        "not_enough": [
+          "N336445",
+          "N344843",
+          "N349019"
+        ],
+        "note": "Final assembly confers origin when the assembly country also fabricates key structural frames or integrates complex drive and handling subassemblies (N337356, N337718, N340047, N348937), but bolting and wiring components onto pre-fabricated frames imported from another country is not enough (N336445, N344843, N349019)."
+      }
+    }
+  ]
+}
