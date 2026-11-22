@@ -748,6 +748,26 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/v1/rules/canada-marking": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Canada marking-origin rules check (SOR/94-23), from HTS codes; no model call (D720-D725)
+         * @description Applies Canada's Determination of Country of Origin for the Purpose of Marking Goods (CUSMA Countries) Regulations (SOR/94-23): the Schedule III tariff-shift row for the good, then ss. 4, 5, 9 and 11. Same output shape as a case's `rule_check.result`. A rules check only: Canada publishes too few origin rulings to test it, so there is no accuracy figure, and every answer carries `label` saying so. Send either `product` (read like the case's rule check: its HTS code, parts' codes and `made_in`, and the production country from its plants) or `good_hts`, `country` and `materials`. Headings in Canada's text are written 84.73; send codes as usual (8473.30). Nothing is stored. Served when RULE_CHECK is on (the default).
+         */
+        post: operations["checkCanadaMarking"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/v1/demos": {
         parameters: {
             query?: never;
@@ -4275,6 +4295,66 @@ export interface operations {
                     };
                 };
             };
+            429: components["responses"]["TooManyRequests"];
+        };
+    };
+    checkCanadaMarking: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": {
+                    product?: components["schemas"]["Product"];
+                    /** @example 6301.30 */
+                    good_hts?: string;
+                    /**
+                     * @description Where the good is produced
+                     * @example Mexico
+                     */
+                    country?: string;
+                    materials?: {
+                        name?: string;
+                        hts?: string;
+                        origin?: string;
+                        not_in?: string;
+                        value_share?: number;
+                        /** @description For de minimis by weight in chapters 50 to 63 (s. 11(1)(a)) */
+                        weight_share?: number;
+                    }[];
+                    simple_assembly?: boolean;
+                    gri_2a?: boolean;
+                    bending_to_shape?: boolean;
+                };
+            };
+        };
+        responses: {
+            /** @description The check */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        /** @enum {string} */
+                        jurisdiction: "ca";
+                        /** @enum {string} */
+                        rules: "SOR/94-23 Schedule III";
+                        /** @example ca-sor-94-23-v1 */
+                        table_version: string;
+                        /** @example Rules check only — no accuracy figure yet (no published rulings to test against) */
+                        label: string;
+                        country: string;
+                        country_from?: string;
+                        note: string;
+                        result: components["schemas"]["RuleCheck"]["result"];
+                    };
+                };
+            };
+            400: components["responses"]["Error"];
             429: components["responses"]["TooManyRequests"];
         };
     };

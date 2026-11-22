@@ -647,6 +647,20 @@ export const copy = {
     failed: "The check failed. Try again.",
   },
 
+  // Canada's marking rules (SOR/94-23, D720): a rules check only. Few words
+  // (rule 16); the label stays visible with every answer (D725).
+  canadaCheck: {
+    title: "Canada marking rules",
+    run: "Check Canada rules",
+    running: "Checking…",
+    label: "Rules check only — no accuracy figure yet (no published rulings to test against)",
+    decided: "under Canada's marking rules, from the codes given.",
+    undetermined: "Not decided from the codes given.",
+    outOfScope: "No Canadian rule for this code.",
+    addCodes: "add HS codes for the product and a part to run it.",
+    details: "Details",
+  },
+
   // The 102.20 rule check on each plan move (D441): a chip on the plan card
   // and each row of the moves table. Display only.
   planRule: {

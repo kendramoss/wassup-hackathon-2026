@@ -23,6 +23,10 @@ type Material struct {
 	// ValueShare is the material's value as a fraction of the good's value
 	// (0 to 1), for the 102.13 de minimis rule. Optional.
 	ValueShare *float64 `json:"value_share,omitempty"`
+	// WeightShare is the material's weight as a fraction of the good's
+	// weight, for de minimis by weight (SOR/94-23 s. 11(1)(a), chapters 50
+	// to 63). Optional; the U.S. rules here never read it.
+	WeightShare *float64 `json:"weight_share,omitempty"`
 }
 
 // Input is one question: a good of GoodHTS produced in Country from
@@ -110,11 +114,18 @@ type Conditional struct {
 	Condition string `json:"condition"`
 }
 
-// Rules holds the loaded table.
-type Rules struct{ t Table }
+// Rules holds the loaded table and the general rules it is applied through.
+type Rules struct {
+	t Table
+	g GeneralRules
+}
 
-// New returns rules over a table.
-func New(t Table) *Rules { return &Rules{t: t} }
+// New returns rules over a table, applied through the general rules its
+// Regime names.
+func New(t Table) *Rules { return &Rules{t: t, g: generalFor(t.Regime)} }
+
+// General returns the general rules the table is applied through.
+func (r *Rules) General() GeneralRules { return r.g }
 
 // Only returns rules restricted to the given chapters: a good in any other
 // chapter is out of scope, as if the table had never encoded it. Used to
@@ -173,14 +184,23 @@ func (r *Rules) Lookup(hts string) (Rule, string, bool) {
 	case partial:
 		return Rule{}, fmt.Sprintf("%s is too short to pick one rule; give the 6-digit subheading", format(g)), false
 	}
-	return Rule{}, fmt.Sprintf("no 102.20 rule found for %s", format(g)), false
+	return Rule{}, fmt.Sprintf("no %s rule found for %s", r.g.Table, format(g)), false
 }
 
-// deMinimisExcluded are the chapters 102.13(b) takes out of de minimis.
-var deMinimisExcluded = []string{"01", "02", "03", "04", "07", "08", "11", "12", "15", "17", "20"}
-
-// Evaluate applies 102.11(a) to (b) with the 102.20 rule for the good.
+// Evaluate applies the general rules with the table's rule for the good:
+// 102.11(a) to (b) for 19 CFR Part 102, or ss. 4, 5, 9 and 11 of SOR/94-23
+// (D722). The second set adds its assumptions and s. 9 after the shared
+// steps.
 func (r *Rules) Evaluate(in Input) Result {
+	res := r.evaluate(in)
+	if r.g.ID == US.ID {
+		return res
+	}
+	return r.canadaAfter(in, res)
+}
+
+func (r *Rules) evaluate(in Input) Result {
+	g0 := r.g
 	country := domain.NormalizeCountry(in.Country)
 	if country == "" {
 		return Result{Status: Undetermined, Reason: "the country where the good is produced is not given"}
@@ -219,7 +239,7 @@ func (r *Rules) Evaluate(in Input) Result {
 	}
 	if foreign == 0 {
 		res.Status, res.Origin = Decided, country
-		res.Basis = "19 CFR 102.11(a)(2)"
+		res.Basis = g0.Domestic
 		res.Reason = fmt.Sprintf("every material is from %s, so the good is produced exclusively from domestic materials", country)
 		return res
 	}
@@ -239,10 +259,10 @@ func (r *Rules) Evaluate(in Input) Result {
 			open = append(open, i)
 		}
 	}
-	a3 := []string{"the work in " + country + " is more than the operations 102.17 says do not count (for example simple packing, dilution or disassembly)"}
+	a3 := []string{fmt.Sprintf(g0.NonQualifying, country)}
 	if len(fail) == 0 && len(open) == 0 {
 		res.Status, res.Origin = Decided, country
-		res.Basis = "19 CFR 102.11(a)(3); " + rule.ID
+		res.Basis = g0.Shift + rule.ID
 		res.Reason = fmt.Sprintf("each foreign material undergoes the change in tariff classification the rule requires, in %s", country)
 		res.Assumes = a3
 		return res
@@ -259,10 +279,16 @@ func (r *Rules) Evaluate(in Input) Result {
 	}
 
 	// Some foreign materials fail the shift. 102.13: they are disregarded
-	// if worth no more than 7% of the good (10% in chapter 22).
+	// if worth no more than 7% of the good (10% in chapter 22). SOR/94-23
+	// s. 11 also tests chapters 50 to 63 by weight (D722).
 	chapter := g[:2]
 	deMinimisOpen := false
-	if !slices.Contains(deMinimisExcluded, chapter) {
+	byWeight := slices.Contains(g0.ByWeight, chapter)
+	worth, measure := "worth", "value"
+	if byWeight {
+		worth, measure = "weigh", "weight"
+	}
+	if !slices.Contains(g0.DeMinimisExcluded, chapter) {
 		limit := 0.07
 		if chapter == "22" {
 			limit = 0.10
@@ -270,6 +296,9 @@ func (r *Rules) Evaluate(in Input) Result {
 		sum, known := 0.0, true
 		for _, i := range fail {
 			v := in.Materials[i].ValueShare
+			if byWeight {
+				v = in.Materials[i].WeightShare
+			}
 			if v == nil {
 				known = false
 				break
@@ -279,8 +308,8 @@ func (r *Rules) Evaluate(in Input) Result {
 		switch {
 		case known && sum <= limit:
 			res.Status, res.Origin = Decided, country
-			res.Basis = "19 CFR 102.13(a); 19 CFR 102.11(a)(3); " + rule.ID
-			res.Reason = fmt.Sprintf("the materials that do not shift (%s) are %.1f%% of the good's value, within the %.0f%% de minimis limit", names(res.Materials, fail), sum*100, limit*100)
+			res.Basis = g0.DeMinimis + rule.ID
+			res.Reason = fmt.Sprintf("the materials that do not shift (%s) are %.1f%% of the good's %s, within the %.0f%% de minimis limit", names(res.Materials, fail), sum*100, measure, limit*100)
 			res.Assumes = a3
 			return res
 		case !known:
@@ -310,11 +339,11 @@ func (r *Rules) Evaluate(in Input) Result {
 	bReason := ""
 	switch {
 	case len(unknown) > 0:
-		bReason = "the materials that may impart the essential character (102.18(b)(1)) are not all known: " + names(res.Materials, unknown) + " cannot be placed"
+		bReason = "the materials that may impart the essential character (" + g0.EssentialRef + ") are not all known: " + names(res.Materials, unknown) + " cannot be placed"
 	case len(cand) == 1:
 		m := res.Materials[cand[0]]
-		b = &Conditional{Origin: m.Origin, Basis: "19 CFR 102.11(b)(1); 19 CFR 102.18(b)(1)(iii); " + rule.ID}
-		bReason = fmt.Sprintf("%s is the only material classified where the rule allows no change, so it imparts the essential character (102.18(b)(1)(iii))", m.Name)
+		b = &Conditional{Origin: m.Origin, Basis: g0.EssentialOne + rule.ID}
+		bReason = fmt.Sprintf("%s is the only material classified where the rule allows no change, so it imparts the essential character (%s)", m.Name, g0.EssentialOneRef)
 	default:
 		origins := map[string]bool{}
 		for _, i := range cand {
@@ -322,18 +351,18 @@ func (r *Rules) Evaluate(in Input) Result {
 		}
 		if len(origins) == 1 {
 			o := res.Materials[cand[0]].Origin
-			b = &Conditional{Origin: o, Basis: "19 CFR 102.11(b)(1); 19 CFR 102.18(b)(1); " + rule.ID}
+			b = &Conditional{Origin: o, Basis: g0.EssentialAll + rule.ID}
 			bReason = fmt.Sprintf("every material that can impart the essential character (%s) is from %s", names(res.Materials, cand), o)
 		} else {
-			bReason = "the essential character (102.11(b)) must be judged between " + names(res.Materials, cand) + ", which come from different countries"
+			bReason = "the essential character (" + g0.EssentialPick + ") must be judged between " + names(res.Materials, cand) + ", which come from different countries"
 		}
 	}
-	bAssumes := []string{"the good is not a set or mixture (102.11(b) does not apply to sets)"}
+	bAssumes := []string{g0.NotSet}
 	if deMinimisOpen {
 		res.Status = Undetermined
-		res.Reason = fmt.Sprintf("%s do not shift; if they are worth no more than 7%% of the good, the origin is %s (102.13); their value is not given", names(res.Materials, fail), country)
+		res.Reason = fmt.Sprintf("%s do not shift; if they are %s no more than 7%% of the good, the origin is %s (%s); their %s is not given", names(res.Materials, fail), worth, country, g0.DeMinimisRef, measure)
 		if b != nil {
-			b.Condition = "if the materials that do not shift are worth more than 7% of the good: " + bReason
+			b.Condition = "if the materials that do not shift are " + worth + " more than 7% of the good: " + bReason
 			res.IfNotDeMinimis = b
 		} else {
 			res.Reason += "; otherwise " + bReason
@@ -341,11 +370,11 @@ func (r *Rules) Evaluate(in Input) Result {
 		return res
 	}
 	if b == nil {
-		res.Status, res.Reason = Undetermined, names(res.Materials, fail)+" do not shift, so 102.11(a) does not decide; "+bReason
+		res.Status, res.Reason = Undetermined, names(res.Materials, fail)+" do not shift, so "+g0.TestA+" does not decide; "+bReason
 		return res
 	}
 	res.Status, res.Origin, res.Basis = Decided, b.Origin, b.Basis
-	res.Reason = names(res.Materials, fail) + " do not shift, so 102.11(a) does not decide; " + bReason
+	res.Reason = names(res.Materials, fail) + " do not shift, so " + g0.TestA + " does not decide; " + bReason
 	res.Assumes = bAssumes
 	return res
 }
@@ -453,6 +482,9 @@ func alternative(a Alternative, g string, m mcode, in Input, needs map[string]bo
 	}
 	for _, s := range a.Also {
 		c := m.in(s.From)
+		if s.SameAsGood > 0 {
+			c = m.differ(g, s.SameAsGood).not()
+		}
 		if s.Described {
 			c = and(c, describe(needs))
 		}

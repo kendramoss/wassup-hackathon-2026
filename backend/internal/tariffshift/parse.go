@@ -68,6 +68,7 @@ var (
 	reGRICond   = regexp.MustCompile(` when that change is pursuant to General Rule of Interpretation 2\(a\)$`)
 	reNotSACond = regexp.MustCompile(`,? except when resulting from (?:a )?simple assembly$`)
 	reChangeTo  = regexp.MustCompile(`^a change to ((?:headings?|subheadings?) [\d.]+(?: through [\d.]+)?) from (.+)$`)
+	reSameGood  = regexp.MustCompile(`^any other good of that (subheading|heading) or (any other .+)$`)
 	reWithinSA  = regexp.MustCompile(`^a change within that group resulting from (?:a )?simple assembly$`)
 	// reExceptSeg splits an exception list into its "from ..." segments.
 	reExceptSeg  = regexp.MustCompile(`,? (?:or|and) from |, from `)
@@ -95,6 +96,10 @@ func ParseAlternative(text string) Alternative {
 	if strings.Contains(to, "other than a change to") || strings.Contains(rest, "other than a change to") {
 		return fail("carve-out by goods description")
 	}
+	// Canada writes "a change to a good of any of subheadings 0306.21
+	// through 0306.27": any good of those codes, the same as the bare codes
+	// (D722). The U.S. rows never use the form.
+	to = strings.TrimPrefix(strings.TrimPrefix(to, "a good of any of "), "a good of ")
 	m := reTo.FindStringSubmatch(to)
 	if m == nil {
 		// Keep the codes the description names ("printer units of ADP
@@ -157,6 +162,13 @@ func ParseAlternative(text string) Alternative {
 		head, excepts = rest[:loc[0]], rest[loc[0]:]
 	}
 
+	// Canada's "from any other good of that subheading or any other
+	// heading" (SOR/94-23 s. 12(2)): a material of the good's own
+	// subheading (or heading) counts as a change too (D722).
+	if sm := reSameGood.FindStringSubmatch(head); sm != nil {
+		a.Also = append(a.Also, Source{SameAsGood: levelDigits(sm[1]), Text: "any other good of that " + sm[1]})
+		head = sm[2]
+	}
 	// Sources: "any other heading" and/or listed codes joined by "or from".
 	parts := splitSources(head)
 	for _, p := range parts {

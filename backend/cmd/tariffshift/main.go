@@ -2,6 +2,7 @@
 //
 //	go run ./cmd/tariffshift rules -ecfr part102.xml   # rebuild internal/tariffshift/rules.json
 //	go run ./cmd/tariffshift rules -reparse            # re-parse its committed text after a parser change
+//	go run ./cmd/tariffshift rules-ca -xml SOR-94-23.xml -retrieved 2026-11-22   # rebuild internal/tariffshift/rules_ca.json (Canada, D720; rules_ca.go)
 //	go run ./cmd/tariffshift extract -split dev -source facts   # read rule inputs with a model (gateway; D361)
 //	go run ./cmd/tariffshift eval -check                # recompute the offline evaluation (no model calls)
 //	go run ./cmd/tariffshift parts-gold|parts-suggest|parts-eval   # per-part HTS suggestions (D380, D381; parts.go)
@@ -30,14 +31,16 @@ import (
 
 func main() {
 	if len(os.Args) < 2 {
-		fmt.Fprintln(os.Stderr, "usage: tariffshift rules|extract|eval|parts-gold|parts-suggest|parts-eval|parts-example|plans-eval|plans-example [flags]")
-		fmt.Fprintln(os.Stderr, "usage: tariffshift rules|extract|eval|parts-gold|parts-suggest|parts-eval|parts-example|plans-eval|plans102-eval|ground102-eval|p102err-single|p102err-moves|p102ck-eval|p102bar [flags]")
+		fmt.Fprintln(os.Stderr, "usage: tariffshift rules|rules-ca|extract|eval|parts-gold|parts-suggest|parts-eval|parts-example|plans-eval|plans-example [flags]")
+		fmt.Fprintln(os.Stderr, "usage: tariffshift rules|rules-ca|extract|eval|parts-gold|parts-suggest|parts-eval|parts-example|plans-eval|plans102-eval|ground102-eval|p102err-single|p102err-moves|p102ck-eval|p102bar [flags]")
 		os.Exit(2)
 	}
 	var err error
 	switch os.Args[1] {
 	case "rules":
 		err = cmdRules(os.Args[2:])
+	case "rules-ca":
+		err = cmdRulesCA(os.Args[2:])
 	case "extract":
 		err = cmdExtract(os.Args[2:])
 	case "eval":
@@ -138,6 +141,6 @@ func writeRules(out string, t tariffshift.Table) error {
 			}
 		}
 	}
-	fmt.Printf("%d rules in chapters %s; %d of %d alternatives encoded\n", len(t.Rules), strings.Join(tariffshift.ScopeChapters, ","), enc, alts)
+	fmt.Printf("%d rules in chapters %s; %d of %d alternatives encoded\n", len(t.Rules), strings.Join(t.Chapters, ","), enc, alts)
 	return nil
 }
