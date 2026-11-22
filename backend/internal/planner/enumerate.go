@@ -243,15 +243,29 @@ func fittingItems(name string, parts []string) (kept string, rest []string) {
 }
 
 // isProcess reports whether a listed item names work rather than a thing:
-// one of its words is a process noun such as "forming", "machining",
-// "lamination", "extrusion" or "treatment".
+// its last word is a process noun such as "forming", "machining",
+// "lamination", "extrusion" or "treatment". Only the last word counts, and
+// only words on the list: a suffix test read "insulating bases", "cooking
+// surface", "cable insulation" and "wood flooring" as work, so a plan title
+// kept them for a product that has none (#648).
 func isProcess(item string) bool {
-	for _, w := range strings.FieldsFunc(strings.ToLower(item), func(r rune) bool { return !unicode.IsLetter(r) }) {
-		if len(w) > 4 && (strings.HasSuffix(w, "ing") || strings.HasSuffix(w, "tion")) || w == "treatment" || w == "extrusion" {
-			return true
-		}
-	}
-	return false
+	words := strings.FieldsFunc(strings.ToLower(item), func(r rune) bool { return !unicode.IsLetter(r) })
+	return len(words) > 0 && processNouns[words[len(words)-1]]
+}
+
+// Process nouns that end a template item naming a manufacturing step
+// ("Film extrusion", "Head finishing", "Wire conductor making"). Words that
+// also name a thing ("assembly", "casting", "coating", "packaging") are left
+// out, so "club assembly" or "busbar assembly" read as parts.
+var processNouns = map[string]bool{
+	"blending": true, "compounding": true, "converting": true, "cutting": true,
+	"drawing": true, "extrusion": true, "fabrication": true, "finishing": true,
+	"forging": true, "forming": true, "grinding": true, "knitting": true,
+	"lamination": true, "machining": true, "making": true, "mixing": true,
+	"molding": true, "moulding": true, "packing": true, "plating": true,
+	"polishing": true, "rolling": true, "sewing": true, "spinning": true,
+	"stamping": true, "testing": true, "treatment": true, "weaving": true,
+	"welding": true, "winding": true,
 }
 
 // Words too general to show that a group name fits a part.
