@@ -268,71 +268,160 @@
     {
       "key": "vc",
       "name": "Vc: usmca-v4 compact checklist, the product's codes added to the facts (D600)",
-      "run": false,
-      "calls": 0,
+      "run": true,
+      "calls": 97,
       "errors": 0,
       "decided": {
-        "k": 0,
-        "n": 0
+        "k": 54,
+        "n": 57,
+        "disagree": [
+          "family/n350383/baseline/: engine Indonesia, rule shifts China",
+          "family/n354220/move/machining_and_treatment@vn: engine Vietnam, rule other_country China",
+          "family/n354220/move/machining_and_treatment@vn+handles_and_hardware@vn: engine Vietnam, rule other_country China"
+        ]
       },
       "decided_moves": {
-        "k": 0,
-        "n": 0
+        "k": 40,
+        "n": 42
       },
       "decided_current_setups": {
-        "k": 0,
-        "n": 0
+        "k": 14,
+        "n": 15
       },
       "lean": {
-        "k": 0,
-        "n": 0
+        "k": 22,
+        "n": 23,
+        "disagree": [
+          "family/n352429/move/handles_and_hardware@tw: engine China, rule leans Taiwan"
+        ]
       },
-      "decided_by_set": {},
+      "decided_by_set": {
+        "family": {
+          "k": 33,
+          "n": 36
+        },
+        "part102-d501": {
+          "k": 10,
+          "n": 10
+        },
+        "part102-dev": {
+          "k": 11,
+          "n": 11
+        }
+      },
       "part102_current_setup_engine_agrees_with_cbp": {
-        "k": 0,
-        "n": 0
+        "k": 10,
+        "n": 16,
+        "disagree": [
+          "part102-dev/h342474/baseline/: engine Mexico, CBP China",
+          "part102-dev/h345343/baseline/: engine Mexico, CBP United States",
+          "part102-dev/n342959/baseline/: engine China, CBP Germany",
+          "part102-dev/n345246/baseline/: engine Mexico, CBP China",
+          "part102-dev/n349660/baseline/: engine United States, CBP Mexico",
+          "part102-dev/n351308/baseline/: engine United States, CBP Mexico"
+        ]
       },
-      "gateway_cost_usd": 0,
-      "output_tokens": 0,
-      "input_tokens": 0,
+      "gateway_cost_usd": 1.1878,
+      "output_tokens": 45681,
+      "input_tokens": 373705,
+      "won_vs_b": [
+        "family/n335263/baseline/",
+        "family/n350727/baseline/",
+        "family/n350727/move/housing_and_cables@th",
+        "family/n350769/baseline/",
+        "family/n354175/baseline/",
+        "family/n354220/baseline/",
+        "family/n354220/move/handles_and_hardware@vn",
+        "part102-dev/n338219/baseline/",
+        "part102-dev/n338219/move/housings_and_structures@south_korea",
+        "part102-dev/n343893/baseline/",
+        "part102-dev/n343893/move/housings_and_structures@india"
+      ],
+      "mcnemar_p_vs_b": 0.001,
+      "cost_ratio_vs_b": 1.3714,
       "safety_flags_s": {
-        "k": 0,
-        "n": 0
+        "k": 1,
+        "n": 57,
+        "disagree": [
+          "family/n350383/baseline/"
+        ]
       }
     },
     {
       "key": "vd",
       "name": "Vd: usmca-v5 failing-materials checklist, the product's codes added to the facts (D600)",
-      "run": false,
-      "calls": 0,
+      "run": true,
+      "calls": 97,
       "errors": 0,
       "decided": {
-        "k": 0,
-        "n": 0
+        "k": 56,
+        "n": 57,
+        "disagree": [
+          "family/n354220/move/machining_and_treatment@vn: engine Vietnam, rule other_country China"
+        ]
       },
       "decided_moves": {
-        "k": 0,
-        "n": 0
+        "k": 41,
+        "n": 42
       },
       "decided_current_setups": {
-        "k": 0,
-        "n": 0
+        "k": 15,
+        "n": 15
       },
       "lean": {
-        "k": 0,
-        "n": 0
+        "k": 23,
+        "n": 23
       },
-      "decided_by_set": {},
+      "decided_by_set": {
+        "family": {
+          "k": 35,
+          "n": 36
+        },
+        "part102-d501": {
+          "k": 10,
+          "n": 10
+        },
+        "part102-dev": {
+          "k": 11,
+          "n": 11
+        }
+      },
       "part102_current_setup_engine_agrees_with_cbp": {
-        "k": 0,
-        "n": 0
+        "k": 9,
+        "n": 16,
+        "disagree": [
+          "part102-dev/h342474/baseline/: engine Mexico, CBP China",
+          "part102-dev/h345343/baseline/: engine Mexico, CBP United States",
+          "part102-dev/n342959/baseline/: engine China, CBP Germany",
+          "part102-dev/n345246/baseline/: engine Mexico, CBP China",
+          "part102-dev/n349660/baseline/: engine United States, CBP Mexico",
+          "part102-dev/n351308/baseline/: engine United States, CBP Mexico",
+          "part102-dev/n356696/baseline/: engine United States, CBP Mexico"
+        ]
       },
-      "gateway_cost_usd": 0,
-      "output_tokens": 0,
-      "input_tokens": 0,
+      "gateway_cost_usd": 0.961,
+      "output_tokens": 25157,
+      "input_tokens": 360804,
+      "won_vs_b": [
+        "family/n335263/baseline/",
+        "family/n350383/baseline/",
+        "family/n350727/baseline/",
+        "family/n350727/move/housing_and_cables@th",
+        "family/n350769/baseline/",
+        "family/n354175/baseline/",
+        "family/n354220/baseline/",
+        "family/n354220/move/handles_and_hardware@vn",
+        "family/n354220/move/machining_and_treatment@vn+handles_and_hardware@vn",
+        "part102-dev/n338219/baseline/",
+        "part102-dev/n338219/move/housings_and_structures@south_korea",
+        "part102-dev/n343893/baseline/",
+        "part102-dev/n343893/move/housings_and_structures@india"
+      ],
+      "mcnemar_p_vs_b": 0.0002,
+      "cost_ratio_vs_b": 1.1095,
       "safety_flags_s": {
         "k": 0,
-        "n": 0
+        "n": 57
       }
     }
   ]

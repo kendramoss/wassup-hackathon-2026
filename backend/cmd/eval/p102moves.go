@@ -81,7 +81,10 @@ type P102MoveRow struct {
 	InTok      int             `json:"input_tokens,omitempty"`
 	OutTok     int             `json:"output_tokens,omitempty"`
 	GatewayUSD float64         `json:"gateway_cost_usd,omitempty"`
-	Error      string          `json:"error,omitempty"`
+	// LatencyMS is the wall time of the engine call that answered (D601;
+	// not recorded in the D590 and D600 runs).
+	LatencyMS int64  `json:"latency_ms,omitempty"`
+	Error     string `json:"error,omitempty"`
 }
 
 func p102MovesCmd(args []string) error {
@@ -227,7 +230,10 @@ func p102MovesCmd(args []string) error {
 			var res engine.Result
 			var err error
 			for try := 0; try < 2; try++ { // one re-run on an error
-				if res, err = eng.Predict(llm.ContextWithCostTally(ctx, &tally), c); err == nil {
+				t0 := time.Now()
+				res, err = eng.Predict(llm.ContextWithCostTally(ctx, &tally), c)
+				rows[i].LatencyMS = time.Since(t0).Milliseconds()
+				if err == nil {
 					break
 				}
 			}

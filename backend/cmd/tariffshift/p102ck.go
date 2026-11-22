@@ -4,11 +4,12 @@ package main
 //
 //	go run ./cmd/tariffshift p102ck-eval [-check]   (in make reproduce)
 //
-// The compact-checklist variants of the Part 102 engine (usmca-v4, Vc;
-// usmca-v5, Vd) on the 72 development Part 102 rulings, against D550's
-// usmca-v1 re-run (B, 53 of 72, $0.6881), and, only for a variant that
-// passed D600's development rule, on the two held-out windows (final 32,
-// final2 13 with the router) against the committed usmca-v1 runs. A file
+// The checklist variants of the Part 102 engine (usmca-v3, Vb, D590;
+// usmca-v4, Vc, and usmca-v5, Vd, D600) on the 72 development Part 102
+// rulings, against D550's usmca-v1 re-run (B, 53 of 72, $0.6881), and, only
+// for the variant selected on development under D601, on the two held-out
+// windows (final 32, final2 13 with the router) against the committed
+// usmca-v1 runs. A file
 // that is not there is reported as not run. A ruling whose engine call
 // failed counts as wrong.
 
@@ -16,13 +17,14 @@ import (
 	"encoding/json"
 	"flag"
 	"fmt"
+	"math"
 	"os"
 	"sort"
 )
 
 const (
 	p102ckDir = evalDir + "/p102ck"
-	p102ckOut = p102ckDir + "/summary-d601.json"
+	p102ckOut = p102ckDir + "/summary-d602.json"
 )
 
 // p102ckRun is one scored run; Ref is the key of the run it is compared
@@ -34,14 +36,27 @@ type p102ckRun struct {
 
 var p102ckRuns = []p102ckRun{
 	{"dev_b_v1_d550", "B: usmca-v1, D550 re-run (reference)", evalDir + "/ground102/runs/usmca-dev-gemini-4-argon-prec-usmca-v1-litellm-d550.jsonl", "", false},
+	{"dev_vb_v3", "Vb: usmca-v3 checklist (D590), run under D601", p102ckDir + "/runs/usmca-dev-gemini-4-argon-prec-usmca-v3-litellm-d601.jsonl", "dev_b_v1_d550", false},
 	{"dev_vc_v4", "Vc: usmca-v4 compact checklist", p102ckDir + "/runs/usmca-dev-gemini-4-argon-prec-usmca-v4-litellm-d600.jsonl", "dev_b_v1_d550", false},
 	{"dev_vd_v5", "Vd: usmca-v5 failing-materials checklist", p102ckDir + "/runs/usmca-dev-gemini-4-argon-prec-usmca-v5-litellm-d600.jsonl", "dev_b_v1_d550", false},
 	{"final_v1", "usmca-v1, committed window 1 run (October)", "../eval/results/usmca-final-gemini-4-argon-prec-usmca-v1-litellm.jsonl", "", true},
 	{"final2_v1", "usmca-v1, committed window 2 run (November, router)", "../eval/results/usmca-final2-gemini-4-argon-prec-usmca-v1-litellm-router.jsonl", "", true},
-	{"final_vc_v4", "Vc: usmca-v4, window 1", p102ckDir + "/runs/usmca-final-gemini-4-argon-prec-usmca-v4-litellm-d600.jsonl", "final_v1", true},
-	{"final2_vc_v4", "Vc: usmca-v4, window 2 (router)", p102ckDir + "/runs/usmca-final2-gemini-4-argon-prec-usmca-v4-litellm-router-d600.jsonl", "final2_v1", true},
-	{"final_vd_v5", "Vd: usmca-v5, window 1", p102ckDir + "/runs/usmca-final-gemini-4-argon-prec-usmca-v5-litellm-d600.jsonl", "final_v1", true},
-	{"final2_vd_v5", "Vd: usmca-v5, window 2 (router)", p102ckDir + "/runs/usmca-final2-gemini-4-argon-prec-usmca-v5-litellm-router-d600.jsonl", "final2_v1", true},
+}
+
+// p102ckHeldOut are the held-out files of each candidate (D601: only the
+// one selected on development is run, once).
+var p102ckHeldOut = []struct{ Key, Name, Version string }{
+	{"vb_v3", "Vb: usmca-v3", "usmca-v3"},
+	{"vc_v4", "Vc: usmca-v4", "usmca-v4"},
+	{"vd_v5", "Vd: usmca-v5", "usmca-v5"},
+}
+
+func init() {
+	for _, h := range p102ckHeldOut {
+		p102ckRuns = append(p102ckRuns,
+			p102ckRun{"final_" + h.Key, h.Name + ", window 1", p102ckDir + "/runs/usmca-final-gemini-4-argon-prec-" + h.Version + "-litellm-d601.jsonl", "final_v1", true},
+			p102ckRun{"final2_" + h.Key, h.Name + ", window 2 (router)", p102ckDir + "/runs/usmca-final2-gemini-4-argon-prec-" + h.Version + "-litellm-router-d601.jsonl", "final2_v1", true})
+	}
 }
 
 // P102ckRun is one run's score.
@@ -61,6 +76,11 @@ type P102ckRun struct {
 	Lost       []string `json:"lost,omitempty"`
 	McNemarP   *float64 `json:"mcnemar_p,omitempty"`
 	CostRatio  *float64 `json:"gateway_cost_ratio,omitempty"`
+	// Per-call latency of the answering call, median and 95th percentile
+	// (reported, not a pass condition; D601).
+	LatencyP50MS int64 `json:"latency_p50_ms,omitempty"`
+	LatencyP95MS int64 `json:"latency_p95_ms,omitempty"`
+	OutTokens    int   `json:"output_tokens,omitempty"`
 }
 
 // P102ckSummary is summary-d601.json.
@@ -99,7 +119,12 @@ func cmdP102ckEval(args []string) error {
 			gw += x.Gateway
 			promo += x.Promo
 		}
+		var lat []int64
 		for _, x := range by {
+			if x.LatencyMS > 0 {
+				lat = append(lat, x.LatencyMS)
+			}
+			out.OutTokens += x.OutTok
 			out.N++
 			if x.Error != "" {
 				out.Errors++
@@ -108,6 +133,10 @@ func cmdP102ckEval(args []string) error {
 			}
 		}
 		out.GatewayUSD, out.PromoUSD = round4(gw), round4(promo)
+		if len(lat) > 0 {
+			sort.Slice(lat, func(i, j int) bool { return lat[i] < lat[j] })
+			out.LatencyP50MS, out.LatencyP95MS = pctl(lat, 0.50), pctl(lat, 0.95)
+		}
 		rows[r.Key] = by
 		if ref, ok := rows[r.Ref]; ok {
 			var refUSD float64
@@ -140,9 +169,11 @@ func cmdP102ckEval(args []string) error {
 		scored[r.Key] = out
 		sum.Runs = append(sum.Runs, out)
 	}
-	for _, v := range []struct{ key, w1, w2 string }{
-		{"usmca-v1", "final_v1", "final2_v1"}, {"vc_v4", "final_vc_v4", "final2_vc_v4"}, {"vd_v5", "final_vd_v5", "final2_vd_v5"},
-	} {
+	pooled := []struct{ key, w1, w2 string }{{"usmca-v1", "final_v1", "final2_v1"}}
+	for _, h := range p102ckHeldOut {
+		pooled = append(pooled, struct{ key, w1, w2 string }{h.Key, "final_" + h.Key, "final2_" + h.Key})
+	}
+	for _, v := range pooled {
 		a, ok1 := scored[v.w1]
 		b, ok2 := scored[v.w2]
 		if ok1 && ok2 {
@@ -172,4 +203,10 @@ func trimDots(path string) string {
 		path = path[3:]
 	}
 	return path
+}
+
+// pctl is the nearest-rank percentile of sorted xs.
+func pctl(xs []int64, q float64) int64 {
+	i := int(math.Ceil(q*float64(len(xs)))) - 1
+	return xs[max(0, min(i, len(xs)-1))]
 }
