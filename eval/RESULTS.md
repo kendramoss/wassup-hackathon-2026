@@ -977,3 +977,23 @@ The complete development run used the same candidate with six workers. **243 of 
 **Synthetic preflight.** The first command stopped during local fixture validation before allocating an output file or sending a request. D714 corrects the fixture dates before any synthetic inference.
 
 **Separate synthetic negatives.** The corrected fixtures launched once under D714. All eight returned HTTP 403, with $0 reported and no eligibility responses. Rejected requests took 0.441 s at p50 and 0.711 s at p95. The data is in `jp/runs/jp-synthetic-gemini-4-argon-jp-engine-v1-litellm.jsonl` and `jp/jp-synthetic-gemini-4-argon-jp-engine-v1-litellm-metrics.json`. Both batches establish a gateway availability failure. The development, unseen test and fictional rows stay separate.
+
+## RCEP calculator on Japan Customs rulings (D691, D716, D717)
+
+The frozen D710 split contains 304 development rulings and 98 held-out rulings with agreement code RCEP. All 402 published rulings qualified. The figures measure positive recall from the published facts. They give no estimate of refusal performance on real rulings. The inputs omit supplier declarations and values wherever those are absent from the published material entries. A tariff shift can return yes with a warning that the work must exceed minimal operations.
+
+Each share below has its Wilson 95% interval in parentheses. The runs used the Annex 3A HS 2022 table and no model calls. [Development rows](rcep/japan-dev.jsonl) · [Held-out rows](rcep/japan-heldout.jsonl) · [Full interval registry](rcep/japan-summary.json)
+
+| Published positives | Yes | Undetermined | No | Input error | Criterion agrees where both decide |
+|---|---:|---:|---:|---:|---:|
+| Development | 162/304, 53.3% (47.7–58.8) | 142/304, 46.7% (41.2–52.3) | 0/304 (0–1.2) | 0/304 (0–1.2) | 161/162, 99.4% (96.6–99.9) |
+| Held out | 71/98, 72.4% (62.9–80.3) | 27/98, 27.6% (19.7–37.1) | 0/98 (0–3.8) | 0/98 (0–3.8) | 71/71, 100% (94.9–100) |
+| Pooled, descriptive | 233/402, 58.0% (53.1–62.7) | 169/402, 42.0% (37.3–46.9) | 0/402 (0–0.9) | 0/402 (0–0.9) | 232/233, 99.6% (97.6–99.9) |
+
+Among rulings with a cited tariff-shift criterion and material codes at its required precision, the development check returned yes for 161 of 213, 75.6% (69.4–80.9). The held-out check returned yes for 71 of 72, 98.6% (92.5–99.8). The other cases in those subsets were undetermined. The deciding criterion agreed in 161 of 161 development cases (97.7–100) and 71 of 71 held-out cases (94.9–100). Both splits met D691's point-estimate targets on this subset. No case had a primary RVC label. Missing FOB values blocked some RVC alternatives.
+
+Exact row agreement is unmeasured because the rulings refer to Annex 3A without identifying a unique table row. Where the reasoning named a tariff scope and the engine returned a row, their code prefixes agreed in 293 of 293 development cases (98.7–100) and 95 of 95 held-out cases (96.1–100). This is a consistency check at the stated tariff precision.
+
+### Separate synthetic tariff-shift stress test
+
+For each tariff-shift yes, the first material counted as non-originating was assigned the finished good's four-digit heading. This also leaves a subheading shift without the precision needed to decide. In development, 162 of 162 changed from yes to undetermined (97.7–100). In held out, 71 of 71 changed from yes to undetermined (94.9–100). No synthetic case returned an explicit no, yes or input error. These mutations test how the check softens a positive when classification evidence changes.
