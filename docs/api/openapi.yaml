@@ -141,7 +141,7 @@ paths:
       operationId: triageBatch
       summary: Triage a portfolio (up to 20 products) in one call
       description: |
-        Each product is predicted from its facts, triaged and saved as an ordinary case (D47). One product's failure fills its row's error and does not fail the rest. Send JSON, or multipart/form-data with a "file" (CSV or .xlsx with a header row: name (or product, sku), facts (or description), optional date, optional jurisdiction). Rate-limited as one heavy request per client that takes 20 from the global cap.
+        Each product is predicted from its facts, triaged and saved as an ordinary case (D47). Japan trade-agreement input is available in JSON rows. One product's failure fills its row's error and does not fail the rest. Send JSON, or multipart/form-data with a "file" (CSV or .xlsx with a header row: name (or product, sku), facts (or description), optional date, optional jurisdiction). Rate-limited as one heavy request per client that takes 20 from the global cap.
       requestBody:
         required: true
         content:
@@ -161,6 +161,7 @@ paths:
                       facts: { type: string }
                       date: { type: string, format: date, description: Default today }
                       jurisdiction: { description: "Optional market (D680); a sheet may have a jurisdiction (or market) column", allOf: [{ $ref: "#/components/schemas/JurisdictionCode" }] }
+                      japan: { $ref: "#/components/schemas/JapanInput" }
           multipart/form-data:
             schema: { type: object, required: [file], properties: { file: { type: string, format: binary } } }
       responses:
@@ -185,6 +186,7 @@ paths:
                             name: { type: string, description: The given name, or the first words of the facts }
                             case_id: { type: string }
                             jurisdiction: { $ref: "#/components/schemas/JurisdictionCode" }
+                            japan_preference: { $ref: "#/components/schemas/JapanResult" }
                             predicted_origin: { type: string, description: "Absent when the market has no engine (D680)" }
                             confidence: { type: number, description: "The model's stated confidence; read calibrated_confidence first when present (D160, #402)" }
                             calibrated_confidence: { type: number, description: "Calibrated probability when a map applied to this prediction; the triage reason quotes this value" }
@@ -1528,7 +1530,7 @@ paths:
     get:
       operationId: listJurisdictions
       summary: Markets a case can name, and which have an origin engine
-      description: Every market code with its name, whether it is supported (D680) and whether it has the steps after the origin answer. us is supported with every step; ca is supported as a rules check only (D725). A case for any other market gets no prediction and goes to review.
+      description: Every market and its availability on this deployment. The United States supports follow-up steps. Canada offers a marking rules check. Japan offers a preliminary trade-agreement assessment where the separate gateway is configured. Unsupported markets return no prediction and go to review.
       responses:
         "429": { $ref: "#/components/responses/TooManyRequests" }
         "200":
@@ -2384,10 +2386,10 @@ components:
         hts: { type: string, example: "8419.89.95", description: "Optional tariff subheading; fills duty rates from the sourced table (GET /v1/duty-rates, D52). Not part of the facts." }
     PredictRequest:
       type: object
-      description: Either `facts` (pasted text, max 12,000 characters) or a structured `product` (+ `family`) is required. When both are given, the engine reads `facts` and the product is kept for plan search (the heat-gun demo does this).
+      description: Either `facts` (pasted text, max 12,000 characters) or a structured `product` is required. U.S. cases without facts need a planner family. Japan cases can give the agreement and finished-good tariff code in `japan`.
       required: [date]
       properties:
-        date: { type: string, format: date, description: Case date; only CBP rulings dated strictly before it are used }
+        date: { type: string, format: date, description: Case date; only rulings dated strictly before it are used }
         facts: { type: string, maxLength: 12000 }
         product: { $ref: "#/components/schemas/Product" }
         family: { type: string, example: motorised_tools_small_appliances }
@@ -2403,8 +2405,35 @@ components:
           allOf: [{ $ref: "#/components/schemas/Economics" }]
         display_name: { type: string, maxLength: 200, description: "Optional name for the case on Cases home (D48); batch rows pass their name here" }
         jurisdiction:
-          description: 'Market the question is for (D680). Omitted: read from the text by a deterministic detector (an authority such as HMRC or CBSA, "imported into <place>", "<market> customs"), else us. Only us has an origin engine today; any other market is saved with no prediction and goes to review with "Origin rules for <market> aren''t supported yet".'
+          description: Market the question is for. If omitted, a Japan input selects Japan. Otherwise the server reads it from the facts or defaults to the United States. See GET /v1/jurisdictions for current availability.
           allOf: [{ $ref: "#/components/schemas/JurisdictionCode" }]
+        japan: { $ref: "#/components/schemas/JapanInput" }
+    JapanInput:
+      type: object
+      description: Trade-agreement inputs for imports into Japan. A configured Japan assessment goes to review if the agreement, tariff code or applicable rule is missing.
+      required: [agreement, hs]
+      properties:
+        agreement: { type: string, example: RCEP, description: "Agreement name or corpus code, such as RCEP, CPTPP, JP-EU EPA or AJCEP" }
+        hs: { type: string, example: "4412.31", description: "Finished-good tariff classification for Japan. Include the full Japanese code where the agreement rule requires it." }
+    JapanSource:
+      type: object
+      required: [citation, url]
+      properties:
+        citation: { type: string }
+        url: { type: string, format: uri }
+    JapanResult:
+      type: object
+      description: Preliminary Japan preferential-origin assessment. Every result requires specialist review. Published evaluation rulings only cover goods that qualified. Not a ruling.
+      required: [agreement, hs, outcome]
+      properties:
+        agreement: { type: string }
+        hs: { type: string }
+        outcome: { type: string, enum: [qualifies, does_not_qualify, undetermined] }
+        criterion: { type: string }
+        deciding_rule: { type: string }
+        review_reason: { type: string }
+        sources: { type: array, items: { $ref: "#/components/schemas/JapanSource" } }
+        precedent_sources: { type: array, items: { $ref: "#/components/schemas/JapanSource" } }
     JurisdictionCode:
       type: string
       enum: [us, eu, uk, ca, jp, kr, au, mx, other]
@@ -2453,7 +2482,8 @@ components:
     Prediction:
       type: object
       properties:
-        origin_country: { type: string }
+        origin_country: { type: string, description: "For Japan, the predicted preferential origin when the goods qualify and a country is known." }
+        japan_preference: { $ref: "#/components/schemas/JapanResult" }
         key_factors: { type: array, items: { type: string } }
         decisive_step: { type: string }
         confidence: { type: number, minimum: 0, maximum: 1, description: "The model's own stated confidence. Overconfident on average (stated 94.7% against 90.2% right on the 377 held-out rulings); use calibrated_confidence when present." }
@@ -2490,6 +2520,7 @@ components:
             exclude_rulings: { type: array, items: { type: string }, description: "Rulings the engine and the plan search never read for this case (as given at prediction)" }
             jurisdiction: { $ref: "#/components/schemas/JurisdictionCode" }
             jurisdiction_detail: { $ref: "#/components/schemas/JurisdictionDetail" }
+            japan: { $ref: "#/components/schemas/JapanInput" }
             prediction: { description: "Empty (origin_country \"\") when jurisdiction_detail.supported is false: no engine ran (D680)", allOf: [{ $ref: "#/components/schemas/Prediction" }] }
             triage: { $ref: "#/components/schemas/Triage" }
             router: { $ref: "#/components/schemas/RouterLabel" }

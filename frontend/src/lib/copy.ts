@@ -590,6 +590,33 @@ export const copy = {
     followUpsUSOnly: "Plans and drafts: U.S. only for now",
   },
 
+  japan: {
+    scope: "Trade preference in Japan",
+    agreement: "Trade agreement",
+    chooseAgreement: "Choose an agreement",
+    tariffCode: "Product tariff code in Japan",
+    tariffCodeFor: (edition: string) => `Product tariff code (HS ${edition})`,
+    needAgreement: "Choose a trade agreement",
+    needTariffCode: "Enter a 4, 6 or 9 digit tariff code",
+    facts: "Materials and production",
+    factsHelp: "Include each material's country and tariff code, plus where each production step happens.",
+    factsExample: "Plywood is pressed in Vietnam from Malaysian veneer (4408.10). The veneer has proof of origin under RCEP.",
+    check: "Check trade preference",
+    checking: "Checking trade preference.",
+    noResult: "Add the agreement and tariff code to check eligibility.",
+    qualifies: "Likely qualifies",
+    doesNotQualify: "Likely doesn’t qualify",
+    undetermined: "Needs more evidence",
+    review: "Not a ruling. Confirm with a Japanese customs specialist.",
+    simulated: "Simulated result",
+    approvalsOnly: "The published rulings used for testing all approved preferential treatment.",
+    origin: "Likely origin",
+    details: "Details",
+    rule: "Product rule",
+    precedents: "Earlier Japan Customs rulings",
+    edit: "Edit inputs",
+  },
+
   // The 19 CFR 102.20 rule check (D363), shown only when the parts list gives
   // HTS codes. It never restates the model's answer as the rule's.
   ruleCheck: {

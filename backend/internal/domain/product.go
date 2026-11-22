@@ -158,6 +158,7 @@ type Case struct {
 	// Jurisdiction is the market whose entry the question is about (D680).
 	// Nil reads as the United States, the only market before D680.
 	Jurisdiction *Jurisdiction `json:"jurisdiction,omitempty"`
+	Japan        *JapanInput   `json:"japan,omitempty"`
 }
 
 // Jurisdiction is the market a case's origin question is asked for, and how

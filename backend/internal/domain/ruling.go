@@ -12,6 +12,11 @@ var rulingIDPattern = regexp.MustCompile(`^[NH][0-9]{6}$`)
 // ValidRulingID reports whether id looks like a CBP ruling number.
 func ValidRulingID(id string) bool { return rulingIDPattern.MatchString(id) }
 
+var japanRulingIDPattern = regexp.MustCompile(`^JP[0-9]{7}$`)
+
+// ValidJapanRulingID reports whether id names a Japan Customs corpus entry.
+func ValidJapanRulingID(id string) bool { return japanRulingIDPattern.MatchString(id) }
+
 // RulingURL is the public page for a ruling on rulings.cbp.gov.
 func RulingURL(id string) string { return "https://rulings.cbp.gov/ruling/" + id }
 
