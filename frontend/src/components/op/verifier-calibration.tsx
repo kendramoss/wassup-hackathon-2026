@@ -1,6 +1,6 @@
 import type { EvalSummary } from "@/lib/api/client";
 import { decisionHref } from "@/lib/method";
-import { Chip, ScrollX } from "./ui";
+import { Chip, Fold, ScrollX } from "./ui";
 
 type Calibration = NonNullable<EvalSummary["verifier_calibration"]>;
 type Split = Calibration["splits"][number];
@@ -19,35 +19,47 @@ export function VerifierCalibration({ c }: { c: Calibration }) {
   const pairs = c.splits.reduce((s, x) => s + (x.pair_level.real_change_pairs ?? 0), 0);
   const every = c.splits.reduce((s, x) => s + (x.pair_level.shown_every_run ?? 0), 0);
   const bar = c.bar.toFixed(2);
+  const caveat = c.splits.some((s) => s.caveat);
   return (
-    <section className="mt-6 border border-edge bg-sheet px-5 py-4 shadow-[4px_4px_0_var(--shadow)]" aria-labelledby="check-h">
+    <section className="mt-8 border border-edge bg-sheet px-5 py-4 shadow-[4px_4px_0_var(--shadow)]" aria-labelledby="check-h">
       <div className="flex flex-wrap items-center gap-3">
         <h2 id="check-h" className="eyebrow">
-          Precedent check
+          Precedent check on older pairs
         </h2>
-        <span className="ml-auto text-[11px] text-dim">{c.prompt} · moves that change origin, scored against CBP</span>
+        <span title="Same Gemini model through an OpenAI-compatible gateway, not Vertex AI.">
+          <Chip>not the official run</Chip>
+        </span>
+        <span className="ml-auto text-[11px] text-dim">moves that change origin, checked against CBP</span>
       </div>
       <p className="mt-3 text-[22px] leading-snug tracking-[-0.04em]">
-        In the historical D86 proxy pool, {shown} shown verdicts cleared the {bar} bar; {wrong === 0 ? "none was on a pair where CBP kept the origin" : `${wrong} ${wrong === 1 ? "was" : "were"} on a pair where CBP kept the origin`}.
+        {shown} checks passed, across all runs. {wrong === 0 ? "None was" : `${wrong} ${wrong === 1 ? "was" : "were"}`} on a pair where CBP kept the origin.
       </p>
       <p className="duo mt-2 max-w-[80ch] text-[13px] text-body">
-        {/* D301, docs/NUMBERS.md "Plan bar re-examined on committed rows" and
-            "Precedent check, D170 + addendum (18 pairs)". Judge panel round 5. */}
-        Counted the stricter way, where a check is right only if it also names CBP&apos;s later country (<a href={decisionHref("D301")} target="_blank" rel="noreferrer" className="font-mono text-ok underline underline-offset-2">D301</a>), later gateway
-        scoring was not perfect: on the development pairs, 3 of 287 supported verdicts were wrong, all below {bar}; on the 2026 pairs, 21 of the 23 shown at {bar} were right
-        (the two misses name the wrong later country on one pair); on the 18 pairs published after the test set, 9 of 9 shown were right.
+        Cautious, not thorough: about {pct(pairs ? every / pairs : undefined)} of real changes pass in every run. The rest go to a broker, so a missing plan doesn&apos;t mean
+        no move works.{caveat ? " The 2026 pairs are not a clean test." : ""}
       </p>
-      <p className="duo mt-2 max-w-[80ch] text-[13px] text-body">
-        It&apos;s cautious, not thorough: a real change cleared the bar in every run for {every} of {pairs} real-change pairs (about {pct(pairs ? every / pairs : undefined)}; development
-        and 2026 pairs, runs with and without CBP&apos;s starting origin). The rest show as below the bar, for a broker to look at, so a missing plan doesn&apos;t mean no move
-        works. This is not the same measure as the 75% under Plan checks above, which is 9 of 12 later pairs found in each of 3 runs with the starting origin given.
-      </p>
-      <div className="mt-4 flex flex-col gap-6">
-        {c.splits.map((s) => (
-          <SplitTable key={s.split} s={s} bar={c.bar} />
-        ))}
+      <div className="mt-3">
+        <Fold title="Details">
+          <div className="flex flex-col gap-3">
+            <p className="duo max-w-[80ch] text-[12.5px] text-dim">
+              {/* D301, docs/NUMBERS.md "Plan bar re-examined on committed rows" and
+                  "Precedent check, D170 + addendum (18 pairs)". Judge panel round 5. */}
+              In the historical D86 proxy pool, {shown} shown verdicts ({c.prompt}) cleared the {bar} bar. Counted the stricter way, where a check is right only if it also
+              names CBP&apos;s later country (<a href={decisionHref("D301")} target="_blank" rel="noreferrer" className="font-mono text-ok underline underline-offset-2">D301</a>), later gateway
+              scoring was not perfect: on the development pairs, 3 of 287 supported verdicts were wrong, all below {bar}; on the 2026 pairs, 21 of the 23 shown at {bar} were
+              right (the two misses name the wrong later country on one pair); on the 18 pairs published after the test set, 9 of 9 shown were right.
+            </p>
+            <p className="duo max-w-[80ch] text-[12.5px] text-dim">
+              A real change cleared the bar in every run for {every} of {pairs} real-change pairs (development and 2026 pairs, runs with and without CBP&apos;s starting
+              origin). This is not the same measure as the 75% under Plan checks above, which is 9 of 12 later pairs found in each of 3 runs with the starting origin given.
+            </p>
+            {c.splits.map((s) => (
+              <SplitTable key={s.split} s={s} bar={c.bar} />
+            ))}
+            <p className="duo text-xs text-dim">{c.note} Counts in the bands add up every run of the same pairs, so their n is larger than the number of pairs.</p>
+          </div>
+        </Fold>
       </div>
-      <p className="duo mt-4 text-xs text-dim">{c.note} Counts in the bands add up every run of the same pairs, so their n is larger than the number of pairs.</p>
     </section>
   );
 }

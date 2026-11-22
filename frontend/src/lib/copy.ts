@@ -978,30 +978,30 @@ export const copy = {
   // eval/charts/build_trust_data.py from the committed held-out run.
   trust: {
     reproTitle: "Reproduce these numbers",
-    reproLead: "Headline evaluation counts are recomputed from committed result rows. No model calls, no account, a few minutes on a laptop. Other figures are labelled reported or illustrative.",
+    reproLead: "Headline counts are recomputed from committed files. No model calls, no account, a few minutes on a laptop. Other figures say reported or illustrative.",
     reproNote: "Each check fails loudly if a number has drifted from its source file.",
     // ScrollX regions need their own names: reusing the parent section's name
     // creates duplicate landmarks and fails axe's landmark-unique rule (#508).
     reproCommandsLabel: "Reproduction commands (scrollable)",
     failTitle: "Known failure cases",
-    failTableLabel: "Held-out misses table (scrollable)",
+    failTableLabel: "Misses table (scrollable)",
     failLead: (miss: number, auto: number, n: number) =>
-      `All ${miss} held-out rulings it got wrong, out of ${n}, not a selection. The ${auto} it auto-accepted come first: nobody checks those, so they are the costly ones. Each links to CBP's ruling.`,
+      `All ${miss} of ${n}, not a selection. The ${auto} auto-accepted ones come first: nobody checks those, so they cost the most.`,
     byOriginTitle: "Accuracy by the origin CBP held",
-    byOriginNote: "same held-out run · 95% interval · origins with at least 19 rulings",
+    byOriginNote: "origins with 19 or more rulings",
     chinaTitle: "Which way the misses go",
     china: (c: { missed_china: number; missed_china_auto: number; said_china: number; said_china_auto: number; neither: number }) => [
       `CBP held China, Unde said another country: ${c.missed_china} (${c.missed_china_auto} auto-accepted). This is the costly direction for a move out of China.`,
       `Unde said China, CBP held another country: ${c.said_china} (${c.said_china_auto} auto-accepted).`,
       `Neither was China: ${c.neither}.`,
     ],
-    columns: ["Ruling", "Date", "Product (CBP's subject line)", "CBP held", "Unde said", "Calibrated (stated)", "Route"],
+    columns: ["Ruling", "Date", "Product", "CBP held", "Unde said", "Confidence (model said)", "Route"],
     auto: "auto-accepted",
     review: "sent to review",
     showAll: (n: number) => `Show all ${n} misses`,
     showAuto: "Show only the auto-accepted misses",
     patternsTitle: "What the misses have in common",
-    patternsNote: "Our reading of the rulings above. A description, not a measurement.",
+    patternsNote: "Our reading, not a measurement.",
     patterns: [
       "Machining or assembly in the last country, where CBP held the imported core part decides. Two near-identical wheel-hub rulings were both missed at 0.95.",
       "Simple processing of one material credited as a transformation: wax melted and cast into a crayon, worked abalone shells.",
@@ -1010,6 +1010,6 @@ export const copy = {
       "Kits, where CBP rules item by item and the label follows one item.",
     ],
     source:
-      "Source: the official held-out run, every row. Confidence is the calibrated value the product shows (auto-accept at 0.90), with the model's stated value in brackets (0.92 on that scale). Rebuilt by eval/charts/build_trust_data.py.",
+      "Source: the official run on the unseen test set, every row. Confidence is the calibrated value the product shows (auto-accept at 0.90), with the model's stated value in brackets (0.92 on that scale). Bars show 95% intervals. Rebuilt by eval/charts/build_trust_data.py.",
   },
 };
