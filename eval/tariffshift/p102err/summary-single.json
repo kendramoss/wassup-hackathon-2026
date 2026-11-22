@@ -1,0 +1,64 @@
+{
+  "note": "D590 development error analysis, single setups: the 19 CFR 102.20 rule check on the 72 development Part 102 rulings with three committed inputs (CBP's codes as the full text states them, D362; CBP's good code with the top D381 development suggestion for every part, D382; the top suggestion for the good and every part, D382), first deciding input as the reference, else a de minimis lean; against the committed development rows of the Part 102 engine. The rule inputs come from CBP's full ruling text and suggested codes, which the engine does not see, so this measures how far the engine reasons to the answer the rule gives, not the rule's accuracy. No model calls, no held-out file. Recompute: cd backend \u0026\u0026 go run ./cmd/tariffshift p102err-single -check",
+  "n": 72,
+  "rulings_by_reference": {
+    "decided": 20,
+    "lean": 8,
+    "none": 44
+  },
+  "reference_agrees_with_cbp": 26,
+  "runs": [
+    {
+      "run": "usmca-v1 (October)",
+      "rule_decided": 20,
+      "engine_agrees_decided": 14,
+      "rule_lean": 8,
+      "engine_agrees_lean": 6,
+      "engine_correct_of_72": 54,
+      "disagreements": [
+        "N337260: engine Mexico, rule leans China (CBP Mexico)",
+        "N337479: engine Canada, rule leans India (CBP India)",
+        "N338219: engine South Korea, rule Mexico (CBP Mexico)",
+        "N338502: engine United States, rule Mexico (CBP Mexico)",
+        "N340017: engine China, rule Mexico (CBP China)",
+        "N341152: engine China, rule Mexico (CBP Mexico)",
+        "N352059: engine Germany, rule Mexico (CBP Mexico)",
+        "N352763: engine China, rule Mexico (CBP Mexico)"
+      ]
+    },
+    {
+      "run": "usmca-v1 (D550 B)",
+      "rule_decided": 20,
+      "engine_agrees_decided": 15,
+      "rule_lean": 8,
+      "engine_agrees_lean": 6,
+      "engine_correct_of_72": 53,
+      "disagreements": [
+        "N337260: engine Mexico, rule leans China (CBP Mexico)",
+        "N337479: engine Canada, rule leans India (CBP India)",
+        "N338219: engine South Korea, rule Mexico (CBP Mexico)",
+        "N338502: engine United States, rule Mexico (CBP Mexico)",
+        "N341152: engine China, rule Mexico (CBP Mexico)",
+        "N352059: engine Germany, rule Mexico (CBP Mexico)",
+        "N352763: engine China, rule Mexico (CBP Mexico)"
+      ]
+    },
+    {
+      "run": "usmca-v2 (D550 V)",
+      "rule_decided": 20,
+      "engine_agrees_decided": 14,
+      "rule_lean": 8,
+      "engine_agrees_lean": 7,
+      "engine_correct_of_72": 50,
+      "disagreements": [
+        "N337479: engine Canada, rule leans India (CBP India)",
+        "N338219: engine South Korea, rule Mexico (CBP Mexico)",
+        "N338502: engine United States, rule Mexico (CBP Mexico)",
+        "N340017: engine China, rule Mexico (CBP China)",
+        "N341152: engine China, rule Mexico (CBP Mexico)",
+        "N352059: engine Germany, rule Mexico (CBP Mexico)",
+        "N352763: engine Canada, rule Mexico (CBP Mexico)"
+      ]
+    }
+  ]
+}

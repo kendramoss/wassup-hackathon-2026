@@ -56,6 +56,10 @@ func main() {
 		err = cmdPlans102Example(os.Args[2:])
 	case "plans102-eval":
 		err = cmdPlans102Eval(os.Args[2:])
+	case "p102err-moves":
+		err = cmdP102ErrMoves(os.Args[2:])
+	case "p102err-single":
+		err = cmdP102ErrSingle(os.Args[2:])
 	case "ground102-eval":
 		err = cmdGround102Eval(os.Args[2:])
 	default:

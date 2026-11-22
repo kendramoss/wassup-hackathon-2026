@@ -1,0 +1,125 @@
+{
+  "_source": "Built mechanically from the facts of CBP ruling N349989 (2025-07-01, development Part 102 split; subject: \"The country of origin of LAN cables\"). D570 rules on development data for the D590 error analysis. CBP held Mexico. Components: the D362 materials; part codes: the top D381 development suggestion (unverified, D382); the good's code: CBP's (8544.49). Family: the family check (cables_harnesses, 0.98); name from the subject (D381 rule). Materials with no country left out (0: none). Groups: one model call with the production extractor's group rule (groups-dev-set.jsonl). Plants one per country; operations one per group and plant plus final assembly in Mexico. Target China by the D171 rule counted mechanically; plant capabilities for China are an assumption. Economics illustrative. D590.",
+  "case_id": "p102d-n349989",
+  "date": "2025-07-01",
+  "family": "cables_harnesses",
+  "target": "China",
+  "product": {
+    "name": "LAN cables",
+    "description": "The product of CBP ruling N349989, as its facts describe it.",
+    "hts": "8544.49",
+    "plants": [
+      {
+        "id": "mexico",
+        "name": "Mexico plant",
+        "country": "Mexico",
+        "capabilities": [
+          "final_assembly"
+        ]
+      },
+      {
+        "id": "china",
+        "name": "China suppliers",
+        "country": "China",
+        "capabilities": [
+          "conductor_core_making",
+          "cable_insulation_jacket"
+        ]
+      },
+      {
+        "id": "japan",
+        "name": "Japan suppliers",
+        "country": "Japan",
+        "capabilities": [
+          "cable_insulation_jacket"
+        ]
+      },
+      {
+        "id": "taiwan",
+        "name": "Taiwan suppliers",
+        "country": "Taiwan",
+        "capabilities": [
+          "conductor_core_making"
+        ]
+      }
+    ],
+    "components": [
+      {
+        "name": "copper wire",
+        "made_in": "Taiwan",
+        "plant": "taiwan",
+        "group": "conductor_core_making",
+        "hts": "7408.19",
+        "hts_alternatives": [
+          "7408.11"
+        ]
+      },
+      {
+        "name": "insulation",
+        "made_in": "Japan",
+        "plant": "japan",
+        "group": "cable_insulation_jacket",
+        "hts": "3904.22",
+        "hts_alternatives": [
+          "3901.20"
+        ]
+      },
+      {
+        "name": "insulation material",
+        "made_in": "China",
+        "plant": "china",
+        "group": "cable_insulation_jacket",
+        "hts": "3904.22",
+        "hts_alternatives": [
+          "3901.20"
+        ]
+      }
+    ],
+    "operations": [
+      {
+        "name": "make the copper wire",
+        "plant": "taiwan",
+        "group": "conductor_core_making"
+      },
+      {
+        "name": "make the insulation material",
+        "plant": "china",
+        "group": "cable_insulation_jacket"
+      },
+      {
+        "name": "make the insulation",
+        "plant": "japan",
+        "group": "cable_insulation_jacket"
+      },
+      {
+        "name": "assemble the parts into the finished good",
+        "plant": "mexico",
+        "group": "final_assembly"
+      }
+    ]
+  },
+  "economics": {
+    "illustrative": true,
+    "annual_import_value_usd": 1000000,
+    "duty_rates": {
+      "China": 0.425,
+      "Japan": 0.125,
+      "Mexico": 0.125,
+      "Taiwan": 0.125
+    },
+    "duty_rates_note": "Illustrative placeholder, not a sourced rate.",
+    "group_costs": {
+      "conductor_core_making": {
+        "taiwan": 100000,
+        "china": 125000
+      }
+    }
+  },
+  "exclude_rulings": [
+    "N349989"
+  ],
+  "current_origin": {
+    "country": "Mexico",
+    "ruling": "N349989"
+  }
+}

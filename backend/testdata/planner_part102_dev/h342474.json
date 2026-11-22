@@ -1,0 +1,98 @@
+{
+  "_source": "Built mechanically from the facts of CBP ruling H342474 (2025-10-21, development Part 102 split; subject: \"Country of Origin; USMCA; Marking; Verona Crystal LED Display Cabinet\"). D570 rules on development data for the D590 error analysis. CBP held China. Components: the D362 materials; part codes: the top D381 development suggestion (unverified, D382); the good's code: CBP's (8528.59). Family: the family check (pcba_electronic_devices, 0.85); name from the subject (D381 rule). Materials with no country left out (7: HUB and Interconnect Printed Circuit Board Assemblies (PCBAs), Receiving Card (“RC”), Power Supply Unit, connectors, harnesses, bolts, washers). Groups: one model call with the production extractor's group rule (groups-dev-set.jsonl). Plants one per country; operations one per group and plant plus final assembly in Mexico. Target Mexico by the D171 rule counted mechanically; plant capabilities for Mexico are an assumption. Economics illustrative. D590.",
+  "case_id": "p102d-h342474",
+  "date": "2025-10-21",
+  "family": "pcba_electronic_devices",
+  "target": "Mexico",
+  "product": {
+    "name": "Verona Crystal LED Display Cabinet",
+    "description": "The product of CBP ruling H342474, as its facts describe it.",
+    "hts": "8528.59",
+    "plants": [
+      {
+        "id": "mexico",
+        "name": "Mexico plant",
+        "country": "Mexico",
+        "capabilities": [
+          "functional_subassemblies",
+          "housing_and_cables",
+          "final_assembly"
+        ]
+      },
+      {
+        "id": "china",
+        "name": "China suppliers",
+        "country": "China",
+        "capabilities": [
+          "functional_subassemblies",
+          "housing_and_cables"
+        ]
+      }
+    ],
+    "components": [
+      {
+        "name": "Light Emitting Diode (“LED”) Modules (on the LED module block)",
+        "made_in": "China",
+        "plant": "china",
+        "group": "functional_subassemblies",
+        "hts": "8529.90",
+        "hts_alternatives": [
+          "8524.91"
+        ]
+      },
+      {
+        "name": "Metal Mechanical Frame",
+        "made_in": "China",
+        "plant": "china",
+        "group": "housing_and_cables",
+        "hts": "8529.90",
+        "hts_alternatives": [
+          "7326.90"
+        ]
+      }
+    ],
+    "operations": [
+      {
+        "name": "make the Light Emitting Diode (“LED”) Modules (on the LED module block)",
+        "plant": "china",
+        "group": "functional_subassemblies"
+      },
+      {
+        "name": "make the Metal Mechanical Frame",
+        "plant": "china",
+        "group": "housing_and_cables"
+      },
+      {
+        "name": "assemble the parts into the finished good",
+        "plant": "mexico",
+        "group": "final_assembly"
+      }
+    ]
+  },
+  "economics": {
+    "illustrative": true,
+    "annual_import_value_usd": 1000000,
+    "duty_rates": {
+      "China": 0.425,
+      "Mexico": 0.125
+    },
+    "duty_rates_note": "Illustrative placeholder, not a sourced rate.",
+    "group_costs": {
+      "functional_subassemblies": {
+        "china": 100000,
+        "mexico": 125000
+      },
+      "housing_and_cables": {
+        "china": 100000,
+        "mexico": 125000
+      }
+    }
+  },
+  "exclude_rulings": [
+    "H342474"
+  ],
+  "current_origin": {
+    "country": "China",
+    "ruling": "H342474"
+  }
+}

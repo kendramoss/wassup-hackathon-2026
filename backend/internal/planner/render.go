@@ -203,3 +203,26 @@ func opsClause(ops []string, note string) string {
 	}
 	return ": " + joinOps(ops) + note
 }
+
+// ClassificationNote is a paragraph that states the tariff codes the
+// product gives: the finished good's and each component's that has one, in
+// product order, labelled as the product's own and unverified. It is "" when
+// the product gives no code. The Part 102 engine applies the 102.20 tariff
+// shifts to these codes; Render alone does not state them, so the engine
+// had to guess every classification (D590). Eval only (-codes-in-facts)
+// until D590's pass rule adopts it.
+func ClassificationNote(p domain.Product) string {
+	var parts []string
+	if c := strings.TrimSpace(p.HTS); c != "" {
+		parts = append(parts, fmt.Sprintf("the %s (the finished good), %s", p.Name, c))
+	}
+	for _, c := range p.Components {
+		if code := strings.TrimSpace(c.HTS); code != "" {
+			parts = append(parts, fmt.Sprintf("the %s (made in %s), %s", c.Name, c.MadeIn, code))
+		}
+	}
+	if len(parts) == 0 {
+		return ""
+	}
+	return "\nTariff classifications given with the product (HTSUS; the product's own codes, not verified by CBP): " + strings.Join(parts, "; ") + ".\n"
+}

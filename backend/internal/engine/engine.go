@@ -2,6 +2,7 @@ package engine
 
 import (
 	"context"
+	"encoding/json"
 	"errors"
 	"fmt"
 	"regexp"
@@ -38,6 +39,10 @@ type Options struct {
 	// quoted 102.20 rows for the Part 102 engine (Part102RuleText, D550).
 	// The cache key includes it.
 	RuleText func(domain.Case) string
+	// Schema, when set, replaces the answer schema; it must keep the
+	// standard fields (origin_country ... reasoning), and the whole answer
+	// is kept in Result.Answer (eval experiments, D590).
+	Schema map[string]any
 }
 
 // Engine predicts origin from facts plus dated precedents.
@@ -64,6 +69,9 @@ type Result struct {
 	Votes int
 	// VoteCounts is how many calls gave each origin (nil without voting).
 	VoteCounts map[string]int
+	// Answer is the model's whole JSON answer when Options.Schema is set
+	// (eval only; nil otherwise).
+	Answer json.RawMessage
 }
 
 // ErrNoFacts means the case has no facts text to analyse.
@@ -204,6 +212,14 @@ func withRuleText(user, rule string) string {
 	return user + "\n\n" + rule
 }
 
+// schema is the answer schema: Options.Schema, else Schema.
+func (e *Engine) schema() map[string]any {
+	if e.opts.Schema != nil {
+		return e.opts.Schema
+	}
+	return Schema
+}
+
 func (e *Engine) promptVersion() string {
 	v := PromptVersion
 	if e.opts.Version != "" {
@@ -224,7 +240,7 @@ func (e *Engine) ask(ctx context.Context, c domain.Case, precedents []domain.Rul
 		Model:           e.opts.Model,
 		System:          e.system(),
 		Messages:        []llm.Message{{Role: llm.RoleUser, Content: withRuleText(renderUser(c.Facts, precedents, e.opts.PrecedentReasoning), e.ruleText(c))}},
-		JSONSchema:      Schema,
+		JSONSchema:      e.schema(),
 		SchemaName:      "origin_prediction",
 		MaxOutputTokens: e.opts.MaxOutputTokens,
 	})
@@ -268,6 +284,12 @@ func (e *Engine) ask(ctx context.Context, c domain.Case, precedents []domain.Rul
 		return Result{}, fmt.Errorf("engine: predict %s: %w: %v", c.ID, llm.ErrBadResponse, err)
 	}
 	r := Result{Prediction: pred, Usage: resp.Usage, Votes: 1}
+	if e.opts.Schema != nil {
+		var raw json.RawMessage
+		if resp.DecodeJSON(&raw) == nil {
+			r.Answer = raw
+		}
+	}
 	if a.Flip != nil {
 		r.Flip = *a.Flip
 	}

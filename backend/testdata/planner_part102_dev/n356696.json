@@ -1,0 +1,229 @@
+{
+  "_source": "Built mechanically from the facts of CBP ruling N356696 (2025-12-31, development Part 102 split; subject: \"The tariff classification, country of origin, and United States-Mexico-Canada Trade Agreement (USMCA) eligibility of a conventional radio frequency probe\"). D570 rules on development data for the D590 error analysis. CBP held Mexico. Components: the D362 materials; part codes: the top D381 development suggestion (unverified, D382); the good's code: CBP's (9018.90.7580). Family: the family check (medical_devices, 0.95); name from the subject (D381 rule). Materials with no country left out (2: plastic resin, heat shrinks). Groups: one model call with the production extractor's group rule (groups-dev-set.jsonl). Plants one per country; operations one per group and plant plus final assembly in Mexico. Target United States by the D171 rule counted mechanically; plant capabilities for United States are an assumption. Economics illustrative. D590.",
+  "case_id": "p102d-n356696",
+  "date": "2025-12-31",
+  "family": "medical_devices",
+  "target": "United States",
+  "product": {
+    "name": "conventional radio frequency probe",
+    "description": "The product of CBP ruling N356696, as its facts describe it.",
+    "hts": "9018.90.7580",
+    "plants": [
+      {
+        "id": "mexico",
+        "name": "Mexico plant",
+        "country": "Mexico",
+        "capabilities": [
+          "hubs_clamps_housings",
+          "final_assembly"
+        ]
+      },
+      {
+        "id": "hungary",
+        "name": "Hungary suppliers",
+        "country": "Hungary",
+        "capabilities": [
+          "hubs_clamps_housings"
+        ]
+      },
+      {
+        "id": "united_states",
+        "name": "United States suppliers",
+        "country": "United States",
+        "capabilities": [
+          "metal_cannula_forging",
+          "pcba_and_sensors",
+          "hubs_clamps_housings"
+        ]
+      },
+      {
+        "id": "united_states_or_china",
+        "name": "United States or China suppliers",
+        "country": "United States or China",
+        "capabilities": [
+          "hubs_clamps_housings"
+        ]
+      },
+      {
+        "id": "united_states_or_south_korea",
+        "name": "United States or South Korea suppliers",
+        "country": "United States or South Korea",
+        "capabilities": [
+          "metal_cannula_forging"
+        ]
+      }
+    ],
+    "components": [
+      {
+        "name": "hypo-tubes",
+        "made_in": "United States or South Korea",
+        "plant": "united_states_or_south_korea",
+        "group": "metal_cannula_forging",
+        "hts": "7304.41",
+        "hts_alternatives": [
+          "7306.40"
+        ]
+      },
+      {
+        "name": "silver solder ribbon",
+        "made_in": "United States",
+        "plant": "united_states",
+        "hts": "7106.92",
+        "hts_alternatives": [
+          "8311.30"
+        ]
+      },
+      {
+        "name": "constantan wire",
+        "made_in": "United States",
+        "plant": "united_states",
+        "group": "pcba_and_sensors",
+        "hts": "7408.22",
+        "hts_alternatives": [
+          "8544.42",
+          "8544.49.90"
+        ]
+      },
+      {
+        "name": "Radel handle",
+        "made_in": "Mexico",
+        "plant": "mexico",
+        "group": "hubs_clamps_housings",
+        "hts": "9018.90",
+        "hts_alternatives": [
+          "3926.90"
+        ]
+      },
+      {
+        "name": "epoxy adhesive",
+        "made_in": "United States",
+        "plant": "united_states",
+        "hts": "3506",
+        "hts_alternatives": [
+          "3506.91"
+        ]
+      },
+      {
+        "name": "plastic protective sheath",
+        "made_in": "United States",
+        "plant": "united_states",
+        "group": "hubs_clamps_housings",
+        "hts": "3926.90.45",
+        "hts_alternatives": [
+          "3917.32"
+        ]
+      },
+      {
+        "name": "three-conductor cable",
+        "made_in": "United States or China",
+        "plant": "united_states_or_china",
+        "group": "hubs_clamps_housings",
+        "hts": "8544.42",
+        "hts_alternatives": [
+          "8544.49"
+        ]
+      },
+      {
+        "name": "four-pin connector",
+        "made_in": "Hungary",
+        "plant": "hungary",
+        "group": "hubs_clamps_housings",
+        "hts": "8536",
+        "hts_alternatives": [
+          "8536.69"
+        ]
+      },
+      {
+        "name": "rosin core solder",
+        "made_in": "United States",
+        "plant": "united_states",
+        "hts": "8311.30",
+        "hts_alternatives": [
+          "8311.90"
+        ]
+      },
+      {
+        "name": "solder flux",
+        "made_in": "United States",
+        "plant": "united_states",
+        "hts": "3810.10"
+      },
+      {
+        "name": "Radel cap",
+        "made_in": "United States",
+        "plant": "united_states",
+        "group": "hubs_clamps_housings",
+        "hts": "9018.90",
+        "hts_alternatives": [
+          "3926.90"
+        ]
+      }
+    ],
+    "operations": [
+      {
+        "name": "make the hypo-tubes",
+        "plant": "united_states_or_south_korea",
+        "group": "metal_cannula_forging"
+      },
+      {
+        "name": "make the constantan wire",
+        "plant": "united_states",
+        "group": "pcba_and_sensors"
+      },
+      {
+        "name": "make the Radel handle",
+        "plant": "mexico",
+        "group": "hubs_clamps_housings"
+      },
+      {
+        "name": "make the four-pin connector",
+        "plant": "hungary",
+        "group": "hubs_clamps_housings"
+      },
+      {
+        "name": "make the plastic protective sheath, Radel cap",
+        "plant": "united_states",
+        "group": "hubs_clamps_housings"
+      },
+      {
+        "name": "make the three-conductor cable",
+        "plant": "united_states_or_china",
+        "group": "hubs_clamps_housings"
+      },
+      {
+        "name": "assemble the parts into the finished good",
+        "plant": "mexico",
+        "group": "final_assembly"
+      }
+    ]
+  },
+  "economics": {
+    "illustrative": true,
+    "annual_import_value_usd": 1000000,
+    "duty_rates": {
+      "Hungary": 0.125,
+      "Mexico": 0.125,
+      "United States": 0.0,
+      "United States or China": 0.125,
+      "United States or South Korea": 0.125
+    },
+    "duty_rates_note": "Illustrative placeholder, not a sourced rate.",
+    "group_costs": {
+      "metal_cannula_forging": {
+        "united_states_or_south_korea": 100000,
+        "united_states": 125000
+      },
+      "hubs_clamps_housings": {
+        "mexico": 100000,
+        "united_states": 125000
+      }
+    }
+  },
+  "exclude_rulings": [
+    "N356696"
+  ],
+  "current_origin": {
+    "country": "Mexico",
+    "ruling": "N356696"
+  }
+}

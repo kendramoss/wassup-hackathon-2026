@@ -1,0 +1,98 @@
+{
+  "_source": "Built mechanically from the facts of CBP ruling N343893 (2024-12-04, development Part 102 split; subject: \"The tariff classification and country of origin of an oil seal and tapered roller bearing cone assembly\"). D570 rules on development data for the D590 error analysis. CBP held Mexico. Components: the D362 materials; part codes: the top D381 development suggestion (unverified, D382); the good's code: CBP's (8708.99.8180). Family: the family check (vehicle_parts, 0.88); name from the subject (D381 rule). Materials with no country left out (0: none). Groups: one model call with the production extractor's group rule (groups-dev-set.jsonl). Plants one per country; operations one per group and plant plus final assembly in Mexico. Target India by the D171 rule counted mechanically; plant capabilities for India are an assumption. Economics illustrative. D590.",
+  "case_id": "p102d-n343893",
+  "date": "2024-12-04",
+  "family": "vehicle_parts",
+  "target": "India",
+  "product": {
+    "name": "oil seal and tapered roller bearing cone assembly",
+    "description": "The product of CBP ruling N343893, as its facts describe it.",
+    "hts": "8708.99.8180",
+    "plants": [
+      {
+        "id": "mexico",
+        "name": "Mexico plant",
+        "country": "Mexico",
+        "capabilities": [
+          "final_assembly"
+        ]
+      },
+      {
+        "id": "india",
+        "name": "India suppliers",
+        "country": "India",
+        "capabilities": [
+          "precision_machined_parts",
+          "housings_and_structures"
+        ]
+      },
+      {
+        "id": "taiwan",
+        "name": "Taiwan suppliers",
+        "country": "Taiwan",
+        "capabilities": [
+          "housings_and_structures"
+        ]
+      }
+    ],
+    "components": [
+      {
+        "name": "oil seal",
+        "made_in": "Taiwan",
+        "plant": "taiwan",
+        "group": "housings_and_structures",
+        "hts": "4016.93"
+      },
+      {
+        "name": "bearing cone",
+        "made_in": "India",
+        "plant": "india",
+        "group": "precision_machined_parts",
+        "hts": "8482.20.00",
+        "hts_alternatives": [
+          "8482.99"
+        ]
+      }
+    ],
+    "operations": [
+      {
+        "name": "make the bearing cone",
+        "plant": "india",
+        "group": "precision_machined_parts"
+      },
+      {
+        "name": "make the oil seal",
+        "plant": "taiwan",
+        "group": "housings_and_structures"
+      },
+      {
+        "name": "assemble the parts into the finished good",
+        "plant": "mexico",
+        "group": "final_assembly"
+      }
+    ]
+  },
+  "economics": {
+    "illustrative": true,
+    "annual_import_value_usd": 1000000,
+    "duty_rates": {
+      "India": 0.125,
+      "Mexico": 0.125,
+      "Taiwan": 0.125
+    },
+    "duty_rates_note": "Illustrative placeholder, not a sourced rate.",
+    "group_costs": {
+      "housings_and_structures": {
+        "taiwan": 100000,
+        "india": 125000
+      }
+    }
+  },
+  "exclude_rulings": [
+    "N343893"
+  ],
+  "current_origin": {
+    "country": "Mexico",
+    "ruling": "N343893"
+  }
+}

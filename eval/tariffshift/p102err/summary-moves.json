@@ -1,0 +1,145 @@
+{
+  "note": "D590: the Part 102 engine alone on the current setup and each move of the development plan fixtures (D501 three, the D590 development set, the D171 family fixtures with the top D381 suggestions) that the 19 CFR 102.20 check decides or leans on, one run per series through an OpenAI-compatible LiteLLM gateway to Gemini. Agreement with the rule is not accuracy: the rule reads unverified suggested part codes (D382). Recompute: cd backend \u0026\u0026 go run ./cmd/tariffshift p102err-moves -check",
+  "series": [
+    {
+      "key": "b",
+      "name": "B: usmca-v1, facts as plan searches render them (production)",
+      "run": true,
+      "calls": 97,
+      "errors": 0,
+      "decided": {
+        "k": 43,
+        "n": 57,
+        "disagree": [
+          "family/n335263/baseline/: engine Hong Kong, rule other_country China",
+          "family/n350383/baseline/: engine Indonesia, rule shifts China",
+          "family/n350727/baseline/: engine China, rule shifts Thailand",
+          "family/n350727/move/housing_and_cables@th: engine China, rule shifts Thailand",
+          "family/n350769/baseline/: engine China, rule shifts Thailand",
+          "family/n354175/baseline/: engine Taiwan, rule shifts China",
+          "family/n354220/baseline/: engine Vietnam, rule other_country China",
+          "family/n354220/move/handles_and_hardware@vn: engine Vietnam, rule other_country China",
+          "family/n354220/move/machining_and_treatment@vn: engine Vietnam, rule other_country China",
+          "family/n354220/move/machining_and_treatment@vn+handles_and_hardware@vn: engine Vietnam, rule other_country China",
+          "part102-dev/n338219/baseline/: engine South Korea, rule other_country Mexico",
+          "part102-dev/n338219/move/housings_and_structures@south_korea: engine South Korea, rule other_country Mexico",
+          "part102-dev/n343893/baseline/: engine India, rule other_country Mexico",
+          "part102-dev/n343893/move/housings_and_structures@india: engine India, rule other_country Mexico"
+        ]
+      },
+      "decided_moves": {
+        "k": 36,
+        "n": 42
+      },
+      "decided_current_setups": {
+        "k": 7,
+        "n": 15
+      },
+      "lean": {
+        "k": 17,
+        "n": 23,
+        "disagree": [
+          "family/n349871/baseline/: engine Thailand, rule leans China",
+          "family/n351922/move/housing_moulding@th: engine Thailand, rule leans China",
+          "family/n351922/move/pcba@th: engine Thailand, rule leans China",
+          "family/n351922/move/pcba@th+housing_moulding@th: engine Thailand, rule leans China",
+          "part102-dev/n337479/baseline/: engine Canada, rule leans India",
+          "part102-dev/n337479/move/tabletop_fabrication@canada: engine Canada, rule leans India"
+        ]
+      },
+      "decided_by_set": {
+        "family": {
+          "k": 26,
+          "n": 36
+        },
+        "part102-d501": {
+          "k": 10,
+          "n": 10
+        },
+        "part102-dev": {
+          "k": 7,
+          "n": 11
+        }
+      },
+      "part102_current_setup_engine_agrees_with_cbp": {
+        "k": 8,
+        "n": 16,
+        "disagree": [
+          "part102-dev/h345343/baseline/: engine Mexico, CBP United States",
+          "part102-dev/n337479/baseline/: engine Canada, CBP India",
+          "part102-dev/n338219/baseline/: engine South Korea, CBP Mexico",
+          "part102-dev/n342959/baseline/: engine China, CBP Germany",
+          "part102-dev/n343893/baseline/: engine India, CBP Mexico",
+          "part102-dev/n345246/baseline/: engine Mexico, CBP China",
+          "part102-dev/n349660/baseline/: engine United States, CBP Mexico",
+          "part102-dev/n351308/baseline/: engine United States, CBP Mexico"
+        ]
+      },
+      "gateway_cost_usd": 0.8661,
+      "output_tokens": 28462,
+      "input_tokens": 291443
+    },
+    {
+      "key": "va",
+      "name": "Va: usmca-v1, the product's codes added to the facts",
+      "run": false,
+      "calls": 0,
+      "errors": 0,
+      "decided": {
+        "k": 0,
+        "n": 0
+      },
+      "decided_moves": {
+        "k": 0,
+        "n": 0
+      },
+      "decided_current_setups": {
+        "k": 0,
+        "n": 0
+      },
+      "lean": {
+        "k": 0,
+        "n": 0
+      },
+      "decided_by_set": {},
+      "part102_current_setup_engine_agrees_with_cbp": {
+        "k": 0,
+        "n": 0
+      },
+      "gateway_cost_usd": 0,
+      "output_tokens": 0,
+      "input_tokens": 0
+    },
+    {
+      "key": "vb",
+      "name": "Vb: usmca-v3 checklist, the product's codes added to the facts",
+      "run": false,
+      "calls": 0,
+      "errors": 0,
+      "decided": {
+        "k": 0,
+        "n": 0
+      },
+      "decided_moves": {
+        "k": 0,
+        "n": 0
+      },
+      "decided_current_setups": {
+        "k": 0,
+        "n": 0
+      },
+      "lean": {
+        "k": 0,
+        "n": 0
+      },
+      "decided_by_set": {},
+      "part102_current_setup_engine_agrees_with_cbp": {
+        "k": 0,
+        "n": 0
+      },
+      "gateway_cost_usd": 0,
+      "output_tokens": 0,
+      "input_tokens": 0
+    }
+  ]
+}

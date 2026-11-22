@@ -1,0 +1,105 @@
+{
+  "_source": "Built mechanically from the facts of CBP ruling N342959 (2024-10-25, development Part 102 split; subject: \"The tariff classification, country of origin marking, status under the United States-Mexico-Canada Trade Agreement (USMCA), and applicability of Section 301 Trade Remedies of a Server Rack\"). D570 rules on development data for the D590 error analysis. CBP held Germany. Components: the D362 materials; part codes: the top D381 development suggestion (unverified, D382); the good's code: CBP's (8471.70.9000). Family: the family check (pcba_electronic_devices, 0.85); name from the subject (D381 rule). Materials with no country left out (5: magazines, cartridges, robotic mechanism, cables, brackets). Groups: one model call with the production extractor's group rule (groups-dev-set.jsonl). Plants one per country; operations one per group and plant plus final assembly in Mexico. Target China by the D171 rule counted mechanically; plant capabilities for China are an assumption. Economics illustrative. D590.",
+  "case_id": "p102d-n342959",
+  "date": "2024-10-25",
+  "family": "pcba_electronic_devices",
+  "target": "China",
+  "product": {
+    "name": "applicability of Section 301 Trade Remedies of a Server Rack",
+    "description": "The product of CBP ruling N342959, as its facts describe it.",
+    "hts": "8471.70.9000",
+    "plants": [
+      {
+        "id": "mexico",
+        "name": "Mexico plant",
+        "country": "Mexico",
+        "capabilities": [
+          "final_assembly"
+        ]
+      },
+      {
+        "id": "china",
+        "name": "China suppliers",
+        "country": "China",
+        "capabilities": [
+          "functional_subassemblies",
+          "housing_and_cables"
+        ]
+      },
+      {
+        "id": "germany",
+        "name": "Germany suppliers",
+        "country": "Germany",
+        "capabilities": [
+          "housing_and_cables"
+        ]
+      }
+    ],
+    "components": [
+      {
+        "name": "individual drive units",
+        "made_in": "China",
+        "plant": "china",
+        "group": "functional_subassemblies",
+        "hts": "8471.70"
+      },
+      {
+        "name": "unpopulated Module frames",
+        "made_in": "Germany",
+        "plant": "germany",
+        "group": "housing_and_cables",
+        "hts": "8473.30"
+      },
+      {
+        "name": "metal cabinet",
+        "made_in": "China",
+        "plant": "china",
+        "group": "housing_and_cables",
+        "hts": "9403.20",
+        "hts_alternatives": [
+          "8473.30"
+        ]
+      }
+    ],
+    "operations": [
+      {
+        "name": "make the individual drive units",
+        "plant": "china",
+        "group": "functional_subassemblies"
+      },
+      {
+        "name": "make the metal cabinet",
+        "plant": "china",
+        "group": "housing_and_cables"
+      },
+      {
+        "name": "make the unpopulated Module frames",
+        "plant": "germany",
+        "group": "housing_and_cables"
+      },
+      {
+        "name": "assemble the parts into the finished good",
+        "plant": "mexico",
+        "group": "final_assembly"
+      }
+    ]
+  },
+  "economics": {
+    "illustrative": true,
+    "annual_import_value_usd": 1000000,
+    "duty_rates": {
+      "China": 0.425,
+      "Germany": 0.125,
+      "Mexico": 0.125
+    },
+    "duty_rates_note": "Illustrative placeholder, not a sourced rate.",
+    "group_costs": {}
+  },
+  "exclude_rulings": [
+    "N342959"
+  ],
+  "current_origin": {
+    "country": "Germany",
+    "ruling": "N342959"
+  }
+}
