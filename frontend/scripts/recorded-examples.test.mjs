@@ -46,7 +46,7 @@ test("the plan example page shows both checks on each move, the amber flag, and 
   assert.equal((m.match(/data-move="flagged"/g) ?? []).length, 2);
   assert.match(m, /data-plan-rule="other_country"/);
   assert.match(m, /border-ask-line bg-ask-wash/, "the flagged chip is amber");
-  assert.match(t, /No Part 102 plan search with codes has been scored yet\./);
+  assert.match(t, /Part 102 plan searches, where 102\.20 is the test, are scored apart: three on development rulings \(D502\)\./);
   assert.doesNotMatch(m, /<form|<button|cases\/new/);
 });
 
@@ -107,4 +107,18 @@ test("/method and the landing link both examples", () => {
   const landing = src("landing/landing.tsx");
   assert.match(landing, /"\/examples\/plan-rule-check"/);
   assert.match(landing, /"\/examples\/revocation-alert"/);
+});
+
+// Judge panel round 11, N1: a merge left "See a recorded move check.
+// accuracy (D442)." on /method. No sentence on the page may start with a
+// lowercase word after a full stop.
+test("/method has no sentence that starts with a lowercase word", async () => {
+  const { MethodPage } = await import("../src/components/op/screens/method-page.tsx");
+  const t = text(html(MethodPage, {}));
+  // Identifiers and commands may start lowercase: router-v4, git clone.
+  const allowed = new Set(["router", "git"]);
+  const broken = [...t.matchAll(/[a-z)]\. ([a-z][a-z]+)\b/g)].filter((m) => !allowed.has(m[1])).map((m) => t.slice(Math.max(0, m.index - 40), m.index + 30));
+  assert.deepEqual(broken, []);
+  assert.match(t, /On three scored Part 102 plan searches on development rulings/);
+  assert.doesNotMatch(t, /accuracy \(D442\)\. On three|move check\. accuracy/);
 });

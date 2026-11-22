@@ -572,7 +572,7 @@ Source: `eval/results/repeatability-heldout-litellm.json`, built by `python3 -I 
 
 **Not done.** The full text of the 13 final2 rulings was not run (raw texts not available locally). Chapters outside the seven, textile rules (102.21), 102.11(c) and (d), and USMCA qualification are not encoded. Source: `eval/tariffshift/summary.json`, recomputed by `cd backend && go run ./cmd/tariffshift eval -check` (in `make reproduce`). Extraction cost $2.58 gateway-reported.
 
-**Ten more chapters (D460, D461).** The figures above are for the seven chapters as first encoded. With ten more chapters the full text decides 8 of 72 development and 4 of 32 held-out rulings, all as CBP held, and the facts 1 of 117; see §13.
+**Ten more chapters (D460, D461).** The figures above are for the seven chapters as first encoded. With ten more chapters the full text decides 8 of 72 development and 4 of 32 held-out rulings, all as CBP held, and the facts 0 of 72 development and 1 of 45 held-out (1 of 32 and 0 of 13 per held-out split); see §13.
 
 **Parser fix after the freeze (D412, #550, #551).** Two encoding errors were fixed after these runs: a trailing limitation on 8481.10–8481.80 and 8716.10–8716.80 now limits only the source it follows, and exception lists split at "or from" without a comma (9002, 9030.89, 9030.90, 8485). Both offline evaluations were re-run on the committed extractions before and after the fix; the numbers above and in §10 are unchanged, because no committed ruling has a good in those rows.
 

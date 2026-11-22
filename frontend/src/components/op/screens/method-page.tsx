@@ -462,13 +462,13 @@ export function MethodPage() {
             first and those it gives to another country last (<D id="D500" />). A move an earlier ruling supports but the rule does not is flagged for a broker, in the
             draft too. On the 23 per-family searches, with part codes from the development suggestion run, it decides 25 of 57 moves and agrees with the
             precedent check on 21 of 23; the 2 it flags are below the bar. Those cases are decided under substantial transformation, so this is a comparison, not
-            accuracy, and there is no Part 102 plan search with codes to score yet (<D id="D442" />).{" "}
+            accuracy (<D id="D442" />). On three scored Part 102 plan searches on development rulings (<D id="D501" />), the rule picked the 6 actuator moves that bring
+            the motor to Canada, CBP&apos;s own reason for holding China, and the one shown plan is among them; it flagged 2 moves to China that precedent leaned to
+            (<D id="D502" />).{" "}
             <Link href="/examples/plan-rule-check" className="text-ok underline underline-offset-2">
               See a recorded move check
             </Link>
             .
-            accuracy (<D id="D442" />). On three scored Part 102 plan searches on development rulings, the rule picked the 6 actuator moves that bring the motor to Canada,
-            CBP&apos;s own reason for holding China, and the one shown plan is among them; it flagged 2 moves to China that precedent leaned to (<D id="D502" />).
           </li>
           <li>
             <b className="font-medium text-ink">Shown, then drafted for a broker.</b> The shown move and its ruling go into the draft ruling request a licensed customs broker
