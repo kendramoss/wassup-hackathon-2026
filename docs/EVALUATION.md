@@ -139,14 +139,14 @@ A saved case now says when CBP has revoked or modified a ruling it relies on (ci
 | Committed results | Count | Would show |
 |---|---:|---|
 | Result rows naming rulings | 13,107 | |
-| Relied-on ruling changed on or after the case date | 4 | the "look again" alert |
-| Relied-on ruling changed before the case date | 8 | the alert, marked as stored before the guard (the 8 of section 2.5) |
+| Relied-on ruling changed on or after the case date | 2 (4 before D490) | the "look again" alert |
+| Relied-on ruling changed before the case date | 7 (8 before D490) | the alert, marked as stored before the guard (7 of the 8 of section 2.5; the eighth also cites the revoker) |
 | Relied-on ruling with a proposed change only | 0 | a calm line |
-| Only a ruling read, not cited, changed | 85 | a calm line, no list badge |
+| Only a ruling read, not cited, changed | 64 (85 before D490) | a calm line, no list badge |
 | Stored case documents (heat-gun demo seeds and one prediction) | 0 of 7 | |
 | Demo fixtures (current-setup and recorded supporting rulings) | 0 of 10 | |
 
-- **The 4 rows** are 2 development runs each of two cases. H325607 cites N331974, which H325607 itself revoked on its own date (D370 keeps it usable that day). N356467 (case date 22 Dec 2025) cites N344694, which H344999 modified on 6 May 2026.
+- **The 2 rows** are 2 development runs of one case: N356467 (case date 22 Dec 2025) cites N344694, which H344999 modified on 6 May 2026. The first count (D481) also had 2 runs of H325607 citing N331974, which H325607 itself revoked on its own date. The case was the revoking ruling, so since D490 no alert is raised: a change made by the case itself, or by a ruling it relies on, is not an alert.
 - **No proposals.** None of the 78 pending proposals touches a precedent-pool ruling (D401), so no committed answer relies on one.
 - **Reading.** On committed data the alert rarely fires. It is meant for saved cases as CBP keeps publishing changes, and it can only be as complete as the map: corpus letters and 28 fetched bulletins.
 
@@ -646,7 +646,7 @@ Source: `eval/results/repeatability-heldout-litellm.json`, built by `python3 -I 
 | Wall time a run | median 313 s, 113 to 396 s |
 
 **The two failures.** Both are the rules applied as written.
-- a06 (tool order): the first `predict_origin` call was refused by the tool's input check (an operation name over the length limit), so no case was made; the agent shortened it and called again. The rule counts calls, so a second call fails it. Its reason, a second case, did not happen.
+- a06 (tool order): the first `predict_origin` call was refused by the tool's input check (an operation name over the length limit), so no case was made; the agent shortened it and called again. The rule counts calls, so a second call fails it. Its reason, a second case, did not happen; since D490 the scorer's label says so ("an earlier call was refused; no second case"). The score is unchanged.
 - a03 (arguments): the plan search found no supported plan to Vietnam, and the agent then drafted the request for the current setup, without `plan_index`. The tool allows that ("omit for the current setup"); the rule did not.
 
 **What else we saw, reading every answer.**

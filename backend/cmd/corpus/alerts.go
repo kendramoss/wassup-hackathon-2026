@@ -105,6 +105,11 @@ func revocationAlerts(args []string) error {
 					date = heatgunBound
 				}
 				var refs []domain.RulingRef
+				if self := str(m["ruling"]); self != "" {
+					// The row scores the engine against this CBP ruling: a
+					// change it made is its own act, not an alert (D490).
+					refs = append(refs, domain.RulingRef{ID: self, Role: domain.RoleSelf})
+				}
 				for _, id := range cited {
 					refs = append(refs, domain.RulingRef{ID: id, Role: domain.RoleCited})
 				}

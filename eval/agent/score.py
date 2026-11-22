@@ -98,7 +98,11 @@ def score_run(row, prod):
         if c["tool"] not in OFFERED:
             issues.append(f"forbidden tool {c['tool']}")
     if seq.count("predict_origin") > 1:
-        issues.append("predict_origin called more than once (a second case)")
+        # The rule counts calls. Only a call that succeeded makes a case: a06
+        # in D451 was refused once by input validation, then called again
+        # (judge panel round 10, N3), so the label says which it was.
+        made = sum(1 for c in calls if c["tool"] == "predict_origin" and not err(c))
+        issues.append("predict_origin called more than once (" + ("a second case" if made > 1 else "an earlier call was refused; no second case") + ")")
     if "suggest_part_hts" in seq and ("extract_product" not in first or seq.index("suggest_part_hts") < first["extract_product"]):
         issues.append("suggest_part_hts before extract_product")
     plan_calls = [c for c in calls if c["tool"] == "plan_production_moves"]

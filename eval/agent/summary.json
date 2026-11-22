@@ -725,7 +725,7 @@
      ],
      "order_ok": false,
      "order_issues": [
-      "predict_origin called more than once (a second case)"
+      "predict_origin called more than once (an earlier call was refused; no second case)"
      ],
      "args_ok": true,
      "arg_issues": [],

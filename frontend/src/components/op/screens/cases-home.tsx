@@ -363,10 +363,14 @@ export function YourCases({ cases, onChange }: { cases: CaseSummary[]; onChange:
     }
   };
 
+  // Below 640 px each row stacks (judge panel round 10, N7): the header row
+  // is hidden, every cell gives its column name, and nothing scrolls
+  // sideways. From 640 px up it is the table it was.
+  const col = copy.cases.columns;
   return (
     <ScrollX label="Your cases">
-      <table className="w-full min-w-[760px] border-collapse border border-edge bg-sheet text-[13px] shadow-[4px_4px_0_var(--shadow)]">
-        <thead>
+      <table data-stacks-below="sm" className="w-full border-collapse border border-edge bg-sheet text-[13px] shadow-[4px_4px_0_var(--shadow)] max-sm:block sm:min-w-[760px]">
+        <thead className="max-sm:hidden">
           <tr>
             {[...copy.cases.columns, ""].map((h, i) => (
               <th key={i} scope="col" className="border-b border-line bg-paper px-3.5 py-2.5 text-left text-[11px] font-medium uppercase tracking-[0.08em] text-dim">
@@ -375,14 +379,14 @@ export function YourCases({ cases, onChange }: { cases: CaseSummary[]; onChange:
             ))}
           </tr>
         </thead>
-        <tbody>
+        <tbody className="max-sm:block">
           {cases.map((c) => {
             const n = stepIndex[c.step] ?? 1;
             if (confirming === c.id)
               return (
                 <tr
                   key={c.id}
-                  className="border-b border-line bg-fail-wash"
+                  className="border-b border-line bg-fail-wash max-sm:block"
                   onKeyDown={(e) => {
                     if (e.key === "Escape") {
                       e.preventDefault();
@@ -390,7 +394,7 @@ export function YourCases({ cases, onChange }: { cases: CaseSummary[]; onChange:
                     }
                   }}
                 >
-                  <td colSpan={7} className="px-3.5 py-3">
+                  <td colSpan={7} className="px-3.5 py-3 max-sm:block">
                     <span className="duo text-fail">
                       Delete &ldquo;{c.display_name}&rdquo;? Its prediction, plans and drafts are removed.
                     </span>
@@ -406,8 +410,8 @@ export function YourCases({ cases, onChange }: { cases: CaseSummary[]; onChange:
                 </tr>
               );
             return (
-              <tr key={c.id} className="border-b border-line last:border-0 hover:bg-paper">
-                <td className="px-3.5 py-3">
+              <tr key={c.id} className="border-b border-line last:border-0 hover:bg-paper max-sm:relative max-sm:grid max-sm:grid-cols-[minmax(0,1fr)_minmax(0,1fr)] max-sm:gap-x-3 max-sm:gap-y-2 max-sm:px-3.5 max-sm:py-3">
+                <td className="px-3.5 py-3 max-sm:col-span-2 max-sm:p-0 max-sm:pr-10">
                   {renaming === c.id ? (
                     <RenameField value={c.display_name} onDone={(v) => (v === null ? setRenaming(null) : rename(c.id, v))} />
                   ) : (
@@ -423,20 +427,20 @@ export function YourCases({ cases, onChange }: { cases: CaseSummary[]; onChange:
                     </span>
                   )}
                 </td>
-                <td className="px-3.5 py-3 text-[17px] tracking-[-0.03em]">
+                <td data-label={col[1]} className={cx(stack, "text-[17px] tracking-[-0.03em]")}>
                   {c.predicted_origin ? <Country name={c.predicted_origin} size={13} /> : <span className="text-sm text-dim">{copy.cases.notAnalysed}</span>}
                 </td>
-                <td className="px-3.5 py-3">
+                <td data-label={col[2]} className={cx(stack, "max-sm:[&_span]:whitespace-normal")}>
                   <StatusChip route={c.triage_route} />
                 </td>
-                <td className={cx("px-3.5 py-3 text-xs", watchOf(c).attention ? "font-medium text-ask" : c.watch_status ? "text-ok" : "text-dim")}>
+                <td data-label={col[3]} className={cx(stack, "text-xs", watchOf(c).attention ? "font-medium text-ask" : c.watch_status ? "text-ok" : "text-dim")}>
                   {watchOf(c).label}
                 </td>
-                <td className="px-3.5 py-3">{c.scenario_count || "—"}</td>
-                <td className="px-3.5 py-3 text-dim">
+                <td data-label={col[4]} className={stack}>{c.scenario_count || "—"}</td>
+                <td data-label={col[5]} className={cx(stack, "text-dim")}>
                   Step {n} of 4 · {stepNames[n - 1]}
                 </td>
-                <td className="px-2 py-3 text-right">
+                <td className="px-2 py-3 text-right max-sm:absolute max-sm:right-1.5 max-sm:top-2 max-sm:p-0">
                   <RowMenu
                     c={c}
                     onRename={() => setRenaming(c.id)}
@@ -454,6 +458,11 @@ export function YourCases({ cases, onChange }: { cases: CaseSummary[]; onChange:
     </ScrollX>
   );
 }
+
+// A data cell: a table cell from 640 px up; below it a block that names its
+// column above the value (the header row is hidden there).
+const stack =
+  "px-3.5 py-3 max-sm:block max-sm:p-0 max-sm:before:block max-sm:before:text-[11px] max-sm:before:font-medium max-sm:before:uppercase max-sm:before:tracking-[0.08em] max-sm:before:text-dim max-sm:before:content-[attr(data-label)]";
 
 function RenameField({ value, onDone }: { value: string; onDone: (v: string | null) => void }) {
   const [v, setV] = useState(value);

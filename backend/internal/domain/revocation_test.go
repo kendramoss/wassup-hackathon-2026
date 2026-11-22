@@ -87,3 +87,31 @@ func TestRulingAlertsMultipleCitations(t *testing.T) {
 		t.Error("no alert for an unchanged ruling")
 	}
 }
+
+// D490 (judge panel round 10, N4): H325607 revoked N331974 on its own date
+// and cites it. Scored against H325607, an answer citing N331974 is not told
+// to look again because of H325607: the case is the revoking ruling. Nor is
+// a case that cites the revoker beside the ruling it revoked.
+func TestRulingAlertsSkipTheCaseOwnRevocation(t *testing.T) {
+	today := day("2026-11-22")
+	cited := RulingRef{ID: "N331974", Role: RoleCited}
+	if as := RulingAlerts(day("2025-08-29"), today, []RulingRef{cited}); len(as) != 1 || as[0].By != "H325607" {
+		t.Fatalf("without the case's own ruling the alert stands: %+v", as)
+	}
+	if as := RulingAlerts(day("2025-08-29"), today, []RulingRef{{ID: "H325607", Role: RoleSelf}, cited}); len(as) != 0 {
+		t.Errorf("the case is the revoking ruling: %+v", as)
+	}
+	if as := RulingAlerts(day("2025-08-29"), today, []RulingRef{cited, {ID: "H325607", Role: RoleCited}}); len(as) != 0 {
+		t.Errorf("the case names the revoker: %+v", as)
+	}
+	// Only read, the revoker does not silence the alert: the answer did not
+	// rely on it.
+	if as := RulingAlerts(day("2025-08-29"), today, []RulingRef{cited, {ID: "H325607", Role: RoleRead}}); len(as) != 1 {
+		t.Errorf("a revoker only read does not count: %+v", as)
+	}
+	// Another ruling as the case: N356467 citing N344694, modified by
+	// H344999 after the case date, still alerts.
+	if as := RulingAlerts(day("2025-12-22"), today, []RulingRef{{ID: "N356467", Role: RoleSelf}, {ID: "N344694", Role: RoleCited}}); len(as) != 1 || as[0].By != "H344999" || as[0].BeforeCase {
+		t.Errorf("N356467: %+v", as)
+	}
+}

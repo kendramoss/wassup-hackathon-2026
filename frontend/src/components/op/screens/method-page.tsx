@@ -392,8 +392,8 @@ export function MethodPage() {
         <p>
           <b className="font-medium text-ink">Rule check.</b> Beside the model sits a deterministic check of the 19 CFR 102.20 tariff-shift rules for 17 HTS chapters
           (<D id="D360" />, <D id="D460" />). It runs only when the parts list gives HTS codes, says &quot;undetermined&quot; rather than guess, and never changes the answer or what is
-          auto-accepted (<D id="D363" />). On the committed Part 102 rulings it decides 1 of 117 from the facts the model reads, because they rarely give codes; from the full
-          ruling text it decides 12 of 104, each as CBP held (<D id="D362" />, <D id="D461" />). Since parts rarely come with codes, the parts table now suggests up to three per part,
+          auto-accepted (<D id="D363" />). From the facts the model reads it decides almost none of the committed Part 102 rulings, because they rarely give codes: 0 of 72
+          development and 1 of 45 held out. From the full ruling text it decides 8 of 72 development and 4 of 32 held-out rulings, each as CBP held (<D id="D362" />, <D id="D461" />). Since parts rarely come with codes, the parts table now suggests up to three per part,
           each marked as from an earlier CBP ruling on a similar part or as the model&apos;s own reading, and fills one in only when you accept it (<D id="D380" />). Where
           CBP states a part&apos;s code, the top suggestion matched it for 20 of 27 development parts. With CBP&apos;s code for the good and the suggested part codes,
           the check decides 16 of 69 development rulings (all 16 agree with CBP) and, held out, 14 of 29 (13 agree); 11 of 24 (10 agree) without the inputs that
@@ -445,7 +445,7 @@ export function MethodPage() {
             counted from its effective date (<D id="D400" />, <D id="D401" />). 78 changes CBP has only proposed are shown beside the ruling and never block it. Before
             the guard 23 of 13,166 committed rows had shown a changed ruling and 8 had cited one; the bulletin changes add none. When CBP changes a ruling a saved
             case relies on after the case was decided, the case and the cases list say so and offer a re-check; the saved answer is never changed (<D id="D480" />).
-            In the committed results 4 rows rely on a ruling changed on or after their case date, and none on a change that is only proposed.
+            In the committed results 2 rows rely on a ruling changed on or after their case date, and none on a change that is only proposed. A revoking ruling that cites the ruling it revokes is not alerted on itself (<D id="D490" />).
           </li>
           <li>
             <b className="font-medium text-ink">The tariff-shift rule beside it.</b> When the case is routed to the Part 102 rules, or every part has an HTS code, each move

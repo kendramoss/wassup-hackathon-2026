@@ -16,6 +16,10 @@ const (
 	RoleCurrentSetup = "current_setup"
 	// RoleRead: the ruling was shown to the model and not cited.
 	RoleRead = "read"
+	// RoleSelf: the case is this ruling (an evaluation row scored against
+	// CBP's ruling). It is never alerted on; it only tells RulingAlerts that
+	// a change made by this ruling is the case's own act (D490).
+	RoleSelf = "self"
 )
 
 // Alert statuses.
@@ -77,11 +81,23 @@ func (a RulingAlert) Relied() bool {
 // was stored before the guard. A ruling with no final change but a pending
 // proposal is reported as proposed. today decides only InEffect. Rulings
 // appear once, in the order first given, with their roles merged.
+//
+// A change made by the case itself, or by a ruling the case relies on, is
+// not an alert (D490): a revoking ruling cites the ruling it revokes, and an
+// answer that names the revoker already knows of the change. So a final
+// change whose revoker is a RoleSelf ref, or a relied-on ref (cited, a
+// plan's support, the current setup), is left out.
 func RulingAlerts(caseDate, today time.Time, refs []RulingRef) []RulingAlert {
 	var out []RulingAlert
 	at := map[string]int{}
+	known := map[string]bool{}
 	for _, ref := range refs {
-		if ref.ID == "" {
+		if ref.ID != "" && ref.Role != RoleRead {
+			known[ref.ID] = true
+		}
+	}
+	for _, ref := range refs {
+		if ref.ID == "" || ref.Role == RoleSelf {
 			continue
 		}
 		if i, ok := at[ref.ID]; ok {
@@ -89,7 +105,7 @@ func RulingAlerts(caseDate, today time.Time, refs []RulingRef) []RulingAlert {
 			continue
 		}
 		a, ok := alertFor(ref.ID, caseDate, today)
-		if !ok {
+		if !ok || (a.Status == AlertFinal && known[a.By]) {
 			continue
 		}
 		a.Roles = []string{ref.Role}
