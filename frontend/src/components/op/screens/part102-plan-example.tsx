@@ -10,7 +10,9 @@
 // and the broker draft's Part 102 question, tariff-shift paragraph and
 // regime note come from the export package (D502, D520). Rebuilt by `go run
 // ./cmd/tariffshift plans102-example -check` (in make reproduce). No request
-// is made.
+// is made. The recorded note is shown under the page, so the D640 caveat
+// (the precedent checks were made with the codes also in their facts) is on
+// the page, not only in the JSON (judge panel round 16, item 5a).
 import type { ReactNode } from "react";
 import type { Plan } from "@/lib/api/client";
 import { copy } from "@/lib/copy";
@@ -158,6 +160,18 @@ export function Part102PlanExample() {
         <p className="duo max-w-[72ch] text-[13px] text-body">{E.honest}</p>
         <p className="duo mt-1.5 max-w-[72ch] text-[13px] text-dim">{E.nameNote}</p>
       </section>
+
+      <p className="duo max-w-[72ch] text-[12.5px] text-dim" data-recorded-note>
+        {ex.note.split("`").map((seg, i) =>
+          i % 2 ? (
+            <code key={i} className="[overflow-wrap:anywhere]">
+              {seg}
+            </code>
+          ) : (
+            seg
+          ),
+        )}
+      </p>
 
       <p className="duo text-[12.5px] text-dim">
         {E.source}{" "}

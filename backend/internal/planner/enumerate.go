@@ -195,12 +195,14 @@ func groupItems(p domain.Product, t Template, id, madeWith string) []string {
 // under the group, so a PCR instrument with a main board, a monitor and no
 // sensor reads "the PCBA and 4 other parts", not "the PCBA and sensors"
 // (judge panel round 4, D290). It returns the shorter name and, as rest,
-// the plan-sentence items for the parts that name does not cover. An item of more than one word is dropped the
-// same way unless it is a process ("firebox forming" stays), so a merged
-// Part 102 group name such as "Sugar, cocoa and dairy ingredients" reads "the
-// sugar and cocoa" for a blend with no dairy (#633, D622). A name with a
-// parenthesis is left whole. If dropping would leave nothing that fits, the
-// name is kept as it is and rest is nil.
+// the plan-sentence items for the parts that name does not cover. An item of
+// more than one word is dropped the same way, so a merged Part 102 group name
+// such as "Sugar, cocoa and dairy ingredients" reads "the sugar and cocoa" for
+// a blend with no dairy (#633, D622). An item that is a process stays,
+// whatever its length ("firebox forming", "sewing"): it names work, not a
+// part, so "Plush cutting and sewing" keeps the sewing (#651). A name with a
+// parenthesis is left whole. If dropping would leave nothing that fits, or
+// would drop nothing, the name is kept as it is and rest is nil.
 func fittingItems(name string, parts []string) (kept string, rest []string) {
 	if strings.ContainsAny(name, "()") {
 		return name, nil
@@ -212,7 +214,7 @@ func fittingItems(name string, parts []string) (kept string, rest []string) {
 	keep := make([]string, 0, len(items))
 	for _, it := range items {
 		it = strings.TrimSpace(it)
-		if (len(strings.Fields(it)) == 1 || !isProcess(it)) && len(nameWords(it)) > 0 && !describesAny(it, parts) {
+		if !isProcess(it) && len(nameWords(it)) > 0 && !describesAny(it, parts) {
 			continue
 		}
 		keep = append(keep, it)
