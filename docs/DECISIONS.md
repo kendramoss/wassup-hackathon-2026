@@ -2518,3 +2518,9 @@ Committed before any run of either variant. Nothing below changes because of a v
 - **Vb not run.** D650's budget rule allows a full run only if the spend so far plus the run plus a held-out reserve (460 cases at the highest measured per-case cost) stays within $15. After Va the item had spent $5.15; Vb's development run is about $5.7 (Va's $0.0109 a case scaled by the smoke ratio, 1.11) and the reserve about $5.7 to $6.3, $16.5 to $17.1 in all. It is reported as not run. Running it would need about $2 more for this item.
 - **Held out:** no variant passed, so neither the 377-ruling split nor final2 was scored. Production, the code defaults and the calibration map are unchanged; `st-checklist-v1` and `-v2` stay in the code for evaluation only (`eval run -st-prompt ck1|ck2`).
 - **Spend:** $5.1544 gateway-reported for D650 and D651 ($0.1288 for the format check, $5.0256 for the Va run), within D650's $15.
+
+## D652 — Amendment to D650: this item's spend cap raised to $25, and Vb run (22 Nov)
+Committed and pushed before the Vb run, after D651 was written.
+- **Decision (coordinator, relaying the owner's standing instruction that cost is not a gate, 22 Nov):** the budget for D650 and its follow-ups rises from $15 to $25 gateway-reported. Nothing else in D650 changes: the variants, the metrics, the baseline, the pass rule, the tie-break, the held-out plan and the adoption rule stay as written, and Va's result (D651) stands.
+- **Budget check under the new cap, as D650 words it:** spent $5.1544; Vb's development run about $5.7; held-out reserve about $6.3 (460 cases at Vb's format-check cost, $0.0136, plus the router on final2). About $17.2, within $25. Vb is run once: `go run ./cmd/eval run -split dev -st-prompt ck2 -tag d650`.
+- **Disclosed:** Va's development result was known when this amendment was made. It does not change what Vb is or how it is judged; if Vb passes, it is the only passing variant and goes to the held-out splits under D650.
