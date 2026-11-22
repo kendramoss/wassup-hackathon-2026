@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useId, useState } from "react";
+import { useEffect, useId, useRef, useState } from "react";
 import { ACCESS_STALE, ApiError, api, type WorkspaceRole, type WorkspacesMine } from "@/lib/api/client";
 import { ROLES, memberMessage, memberRows, roleLabel, roleNoun, roleSummary, type MemberAction } from "@/lib/roles";
 import { Button, Chip, Panel, PanelHead, Spinner, cx } from "./ui";
@@ -23,6 +23,23 @@ export function WorkspacePanel() {
   const [note, setNote] = useState<string | null>(null);
   // A removal or leave waits for a second click: it ends access to cases.
   const [confirm, setConfirm] = useState<{ kind: "leave" | "remove"; email: string } | null>(null);
+  // #604: focus the safe action on open, keep Tab local, and return focus to
+  // whichever trigger opened the confirmation.
+  const actionRef = useRef<HTMLButtonElement>(null);
+  const cancelRef = useRef<HTMLButtonElement>(null);
+  const restoreTriggerRef = useRef<string | null>(null);
+  useEffect(() => {
+    if (confirm) {
+      cancelRef.current?.focus();
+    } else if (restoreTriggerRef.current && typeof document !== "undefined") {
+      const key = restoreTriggerRef.current;
+      restoreTriggerRef.current = null;
+      [...document.querySelectorAll<HTMLButtonElement>("button[data-confirm-trigger]")]
+        .find((button) => button.dataset.confirmTrigger === key)
+        ?.focus();
+    }
+  }, [confirm]);
+  const cancelConfirm = () => setConfirm(null);
 
   // Server truth. A 404 means Teams is off; any other failure keeps what is shown.
   const load = () =>
@@ -54,6 +71,7 @@ export function WorkspacePanel() {
     setBusy(true);
     setError(null);
     setNote(null);
+    restoreTriggerRef.current = null;
     setConfirm(null);
     try {
       await f();
@@ -114,7 +132,15 @@ export function WorkspacePanel() {
                     m.role && <Chip>{roleLabel(m.role).toLowerCase()}</Chip>
                   )}
                   {ws.admin && !m.you && (
-                    <Button variant="ghost" disabled={busy} onClick={() => setConfirm({ kind: "remove", email: m.email })}>
+                    <Button
+                      variant="ghost"
+                      disabled={busy}
+                      data-confirm-trigger={`remove:${m.email}`}
+                      onClick={() => {
+                        restoreTriggerRef.current = `remove:${m.email}`;
+                        setConfirm({ kind: "remove", email: m.email });
+                      }}
+                    >
                       Remove
                     </Button>
                   )}
@@ -128,7 +154,31 @@ export function WorkspacePanel() {
               ))}
             </ul>
             {confirm && (
-              <div role="alertdialog" aria-label="Confirm" className="mt-3 border border-dashed border-guide bg-sheet px-4 py-3 text-[13px]">
+              <div
+                role="alertdialog"
+                aria-label="Confirm"
+                className="mt-3 border border-dashed border-guide bg-sheet px-4 py-3 text-[13px]"
+                onKeyDown={(e) => {
+                  if (e.key === "Escape") {
+                    e.preventDefault();
+                    e.nativeEvent.stopImmediatePropagation();
+                    cancelConfirm();
+                    return;
+                  }
+                  if (e.key !== "Tab" || !actionRef.current || !cancelRef.current) return;
+                  const first = actionRef.current;
+                  const last = cancelRef.current;
+                  if (e.shiftKey && document.activeElement === first) {
+                    e.preventDefault();
+                    e.nativeEvent.stopImmediatePropagation();
+                    last.focus();
+                  } else if (!e.shiftKey && document.activeElement === last) {
+                    e.preventDefault();
+                    e.nativeEvent.stopImmediatePropagation();
+                    first.focus();
+                  }
+                }}
+              >
                 <p className="duo">
                   {confirm.kind === "leave"
                     ? `Leave ${ws.name}? You lose access to every case in the workspace, including ones you created. Your personal cases stay yours.`
@@ -136,13 +186,14 @@ export function WorkspacePanel() {
                 </p>
                 <div className="mt-2 flex gap-2">
                   <Button
+                    ref={actionRef}
                     variant="ghost"
                     disabled={busy}
                     onClick={() => (confirm.kind === "leave" ? leave(ws) : act(() => api.removeMember(ws.id, confirm.email), "remove", `Removed ${confirm.email}.`))}
                   >
                     {confirm.kind === "leave" ? "Leave workspace" : "Remove member"}
                   </Button>
-                  <Button variant="ghost" onClick={() => setConfirm(null)}>
+                  <Button ref={cancelRef} variant="ghost" onClick={cancelConfirm}>
                     Cancel
                   </Button>
                 </div>
@@ -150,7 +201,15 @@ export function WorkspacePanel() {
             )}
             {!confirm && (
               <div className="mt-3">
-                <Button variant="ghost" disabled={busy} onClick={() => setConfirm({ kind: "leave", email: mine.email })}>
+                <Button
+                  variant="ghost"
+                  disabled={busy}
+                  data-confirm-trigger="leave"
+                  onClick={() => {
+                    restoreTriggerRef.current = "leave";
+                    setConfirm({ kind: "leave", email: mine.email });
+                  }}
+                >
                   Leave workspace
                 </Button>
               </div>
