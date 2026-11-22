@@ -859,7 +859,7 @@ Total $0.97 promo / $1.95 list. The engine's view of the current setup disagreed
 
 ## Held-out Part 102 plan set, first evaluation (gateway, 22 Nov; D570, D571)
 
-### Frozen in D570 (commit 574fd5ca, pushed 13:10 +08:00, before any held-out call; a rebase may change the hash)
+### Frozen in D570 (commit 574fd5ca, pushed 13:10 +08:00, before any held-out call; kept as branch `improve/heldout-part102-prereg`; the rebased history has new hashes)
 - The rule, applied by `python3 -I eval/planner/part102_heldout.py freeze` with no model calls, to the 45 held-out Part 102 rulings (window 1, 32; window 2, 13): a committed extraction with CBP's good code and the production country, at least two materials with a country, the committed held-out D381 suggestion row for the part codes, and a target by the D171 rule counted mechanically. 18 frozen, all window 1. `tariffshift/plans102/heldout/frozen.json` (rule, time, per-ruling outcome, input checksums; `freeze --check` in `make reproduce`).
 - Steps, once each: the production family check on the 18 (`results/families-coverage-final-all-litellm-p102-heldout.jsonl`, RUNLOG `families-coverage-final-all-litellm-p102-heldout`, $0.0404): 6 with a template; the group call on those 6 (`heldout/groups.jsonl`, RUNLOG `part102-heldout-groups`, $0.0245; checked first on the 3 D501 development products, `groups-dev.jsonl`, $0.0172); fixtures by fixed rules (`backend/testdata/planner_part102_heldout/`, `build --check` in `make reproduce`); one plan search each with the Part 102 engine (RUNLOG `planner-part102-heldout-litellm`, $0.2195). Two fixture-build deviations before any search, in D571: names from the subject rule, and materials with no country left out.
 
