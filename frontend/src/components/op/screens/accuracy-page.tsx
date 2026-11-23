@@ -251,7 +251,6 @@ function PlanEvidence({ calibration }: { calibration?: VerifierEvidence }) {
 
 // D691, D716 and D717. The first-render counts are pinned to
 // eval/rcep/japan-summary.json by the Accuracy copy test.
-
 function MarketEvidence() {
   const result = rcepEvidence;
 
