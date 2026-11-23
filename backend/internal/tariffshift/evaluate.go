@@ -192,6 +192,10 @@ func (r *Rules) Lookup(hts string) (Rule, string, bool) {
 // (D722). The second set adds its assumptions and s. 9 after the shared
 // steps.
 func (r *Rules) Evaluate(in Input) Result {
+	// An out-of-range share is invalid input, never a de minimis decision.
+	if err := ValidateShares(in.Materials); err != nil {
+		return Result{Status: Undetermined, Reason: err.Error()}
+	}
 	res := r.evaluate(in)
 	if r.g.ID == US.ID {
 		return res

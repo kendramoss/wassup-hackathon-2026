@@ -214,7 +214,7 @@ func (t *Table) Fill(rates map[string]float64, hts string) (map[string]float64, 
 	given := map[string]bool{}
 	for k, v := range rates {
 		out[k] = v
-		given[domain.NormalizeCountry(k)] = true
+		given[domain.DutyCountry(k)] = true
 	}
 	var filled []string
 	for _, r := range l.Rates {

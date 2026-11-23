@@ -5,6 +5,7 @@ import { DutyBreakdown, DutySources } from "./duty-breakdown";
 import { EstimateCosts, cellKey, type EstimatedCells } from "./money-prefill";
 import type { Economics, Product } from "@/lib/api/client";
 import { copy } from "@/lib/copy";
+import { dutyConflictNote, dutyRateConflict, dutyRateFor, setDutyRate } from "@/lib/duty-rates";
 import { money } from "@/lib/format";
 import { opsActive } from "@/lib/ops";
 import { OPS_UNREADABLE, OperationalFields, useOpsValidity } from "./operational-fields";
@@ -185,17 +186,15 @@ export function MoneyDrawer({
                     inputMode="decimal"
                     aria-label={`Duty rate for ${c}, percent`}
                     placeholder="0"
-                    value={rates[c] === undefined ? "" : String(Math.round(rates[c] * 1000) / 10)}
+                    value={dutyRateFor(rates, c) === undefined ? "" : String(Math.round(dutyRateFor(rates, c)! * 1000) / 10)}
                     onChange={(ev) => {
                       const n = num(ev.target.value);
-                      const next = { ...rates };
-                      if (n === undefined) delete next[c];
-                      else next[c] = n / 100;
-                      setE({ ...e, duty_rates: next });
+                      setE(setDutyRate(e, c, n === undefined ? undefined : n / 100));
                     }}
                   />
                   <span className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-dim">%</span>
                 </span>
+                {dutyRateConflict(rates, c) && <span className="duo max-w-[26rem] text-right text-xs text-ask">{dutyConflictNote(dutyRateConflict(rates, c)!)}</span>}
               </label>
             ))}
           </div>

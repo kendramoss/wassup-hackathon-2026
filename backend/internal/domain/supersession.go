@@ -1,9 +1,14 @@
 package domain
 
 import (
+	"crypto/sha256"
 	_ "embed"
+	"encoding/hex"
 	"encoding/json"
 	"fmt"
+	"sort"
+	"strings"
+	"sync"
 	"time"
 )
 
@@ -193,3 +198,28 @@ func (s Supersession) Note() string {
 
 // SourceCustomsBulletin marks an edge read from a Customs Bulletin notice.
 const SourceCustomsBulletin = "customs_bulletin"
+
+// SupersessionFingerprint is a deterministic digest of the enforced
+// supersession index: each ruling with its earliest supersession date, which
+// is all SupersededAsOf decides on. Proposals, quotes, sources, the version
+// string and edge order do not change it; adding, removing or re-dating an
+// enforced edge does.
+func SupersessionFingerprint(at map[string]time.Time) string {
+	ids := make([]string, 0, len(at))
+	for id := range at {
+		ids = append(ids, id)
+	}
+	sort.Strings(ids)
+	var b strings.Builder
+	for _, id := range ids {
+		b.WriteString(id + " " + at[id].Format(time.DateOnly) + "\n")
+	}
+	h := sha256.Sum256([]byte(b.String()))
+	return hex.EncodeToString(h[:])
+}
+
+var fingerprintOnce = sync.OnceValue(func() string { return SupersessionFingerprint(supersededAt) })
+
+// EmbeddedSupersessionFingerprint is SupersessionFingerprint of the embedded
+// map. It is computed once, after the map is parsed, and never empty.
+func EmbeddedSupersessionFingerprint() string { return fingerprintOnce() }

@@ -240,7 +240,7 @@ export function WorkspacePanel() {
                 {mine.invites.map((inv) => (
                   <li key={inv.workspace_id} className="flex flex-wrap items-center gap-x-3 gap-y-1.5 text-[13.5px]">
                     <span>
-                      {inv.invited_by} invited you to <b className="font-medium">{inv.name}</b>.
+                      {inv.invited_by ? <>{inv.invited_by} invited you to </> : <>You were invited to </>}<b className="font-medium">{inv.name}</b>.
                     </span>
                     <Button variant="ghost" disabled={busy} onClick={() => act(() => api.joinWorkspace(inv.workspace_id), "join", `You joined ${inv.name}.`)}>
                       Join

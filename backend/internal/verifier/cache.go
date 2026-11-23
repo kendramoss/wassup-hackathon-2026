@@ -33,6 +33,11 @@ type Cache struct {
 	inner Checker
 	blobs Blobs
 	model string
+	// asOf and fingerprint are the supersession data this instance validates
+	// against and keys its repair slot by. NewCacheIn captures the embedded
+	// data; tests in this package swap both per instance.
+	asOf        func(string, time.Time) (domain.Supersession, bool)
+	fingerprint string
 }
 
 // NewCache wraps inner with an on-disk cache in dir, keyed by the task, the
@@ -49,7 +54,7 @@ func NewCacheIn(inner Checker, blobs Blobs, model string) *Cache {
 	if m, ok := inner.(*Majority); ok {
 		model = fmt.Sprintf("%s×%d", model, m.n) // a single-run verdict is not reused for a majority
 	}
-	return &Cache{inner: inner, blobs: blobs, model: model}
+	return &Cache{inner: inner, blobs: blobs, model: model, asOf: domain.SupersededAsOf, fingerprint: domain.EmbeddedSupersessionFingerprint()}
 }
 
 // versioned is a Checker that reports its prompt version.
@@ -96,6 +101,14 @@ const ValidationEpoch = "val2"
 // repairKey is where a verdict that replaced an unusable stored one is kept.
 func repairKey(key string) string { return key + "-" + ValidationEpoch }
 
+// repairSlot is where this instance keeps a verdict that replaced an unusable
+// one: the epoch plus the fingerprint of the enforced supersession edges it
+// was built with, so a changed edge opens a fresh slot (stores never
+// overwrite). The un-fingerprinted repairKey stays readable (legacy).
+func (c *Cache) repairSlot(key string) string {
+	return repairKey(key) + "-" + c.fingerprint[:min(16, len(c.fingerprint))]
+}
+
 // cachedViolation reports why a verdict may not be replayed (or returned) for
 // task t, or "" when it is safe. This is the shared cache-compatibility
 // contract (#295, reused by #297). PrecedentSupported requires a non-empty
@@ -112,6 +125,12 @@ func repairKey(key string) string { return key + "-" + ValidationEpoch }
 // mismatched reads. Entries without proof, including legacy and seeded demo
 // verdicts, are a miss.
 func cachedViolation(r Result, t Task) string {
+	return cachedViolationAsOf(r, t, domain.SupersededAsOf)
+}
+
+// cachedViolationAsOf is cachedViolation against the supersession data asOf
+// reads, so a Cache validates with the data it was built with.
+func cachedViolationAsOf(r Result, t Task, asOf func(string, time.Time) (domain.Supersession, bool)) string {
 	v := r.Verdict
 	cited := []string{}
 	for _, id := range []string{v.SupportingRuling, v.CounterRuling} {
@@ -123,7 +142,7 @@ func cachedViolation(r Result, t Task) string {
 		if slices.Contains(t.Exclude, id) {
 			return "cites excluded ruling " + id
 		}
-		if s, ok := domain.SupersededAsOf(id, t.Before); ok {
+		if s, ok := asOf(id, t.Before); ok {
 			return "cites ruling " + id + " " + s.Note()
 		}
 	}
@@ -235,7 +254,7 @@ func (c *Cache) Verify(ctx context.Context, t Task) (Result, error) {
 	}
 	if b, err := json.Marshal(r); err == nil {
 		if stale {
-			key = repairKey(key)
+			key = c.repairSlot(key)
 		}
 		_ = c.blobs.Put(ctx, key, b) // best effort
 	}
@@ -250,20 +269,25 @@ func (c *Cache) Peek(ctx context.Context, t Task) (Result, bool, error) {
 	return r, ok, err
 }
 
-// lookup reads the verdict stored under key, then under its repair slot. An
-// unusable or unproven one is skipped; stale reports that, so a fresh verdict
-// is written to the repair slot (stores never overwrite a key).
+// lookup reads the verdict stored under key, then its legacy repair slot
+// (written before repair keys carried a data fingerprint), then this
+// instance's repair slot. An unusable or unproven one is skipped; stale
+// reports that, so a fresh verdict is written to the current repair slot
+// (stores never overwrite a key). Every slot passes the same checks.
 func (c *Cache) lookup(ctx context.Context, key string, t Task) (r Result, ok, stale bool, err error) {
-	for i, k := range []string{key, repairKey(key)} {
+	for i, k := range []string{key, repairKey(key), c.repairSlot(key)} {
 		b, found, err := c.blobs.Get(ctx, k)
 		if err != nil {
 			return Result{}, false, false, fmt.Errorf("verifier: read cache: %w", err)
 		}
 		if !found {
-			return Result{}, false, stale || i == 1, nil
+			if i == 0 {
+				return Result{}, false, false, nil
+			}
+			continue
 		}
 		var got Result
-		if json.Unmarshal(b, &got) != nil || cachedViolation(got, t) != "" {
+		if json.Unmarshal(b, &got) != nil || cachedViolationAsOf(got, t, c.asOf) != "" {
 			stale = true
 			continue
 		}

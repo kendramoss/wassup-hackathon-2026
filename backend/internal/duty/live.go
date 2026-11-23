@@ -265,10 +265,14 @@ var Column2 = map[string]bool{"Cuba": true, "North Korea": true, "Russia": true,
 var customsTerritory = map[string]bool{"United States": true, "Puerto Rico": true}
 
 // NoLiveRate reports whether a live MFN rate must never be filled for the
-// normalised origin n: a column 2 origin, or a US one. A US plant or target
+// origin n (by its duty identity, domain.DutyCountry, so a spelling of a
+// column 2 origin is covered, #718): a column 2 origin, or a US one. A US plant or target
 // is left unpriced (rather than given the import rate) so a plan never shows
 // an MFN duty on goods that are not imported.
-func NoLiveRate(n string) bool { return Column2[n] || customsTerritory[n] }
+func NoLiveRate(n string) bool {
+	n = domain.DutyCountry(n)
+	return Column2[n] || customsTerritory[n]
+}
 
 // Fill returns rates with the MFN rate added for each origin the user gave
 // no rate for, except column 2 and US origins (NoLiveRate). It reports the
@@ -281,11 +285,11 @@ func (m MFN) Fill(rates map[string]float64, origins []string) (map[string]float6
 	given := map[string]bool{}
 	for k, v := range rates {
 		out[k] = v
-		given[domain.NormalizeCountry(k)] = true
+		given[domain.DutyCountry(k)] = true
 	}
 	var filled []string
 	for _, o := range origins {
-		n := domain.NormalizeCountry(o)
+		n := domain.DutyCountry(o)
 		if n == "" || given[n] || NoLiveRate(n) {
 			continue
 		}

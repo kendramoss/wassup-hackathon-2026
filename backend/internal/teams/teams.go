@@ -149,6 +149,12 @@ type Workspace struct {
 	// Roles maps a joined member's email to a role name. Missing: derived (see
 	// above). Invited emails never appear.
 	Roles map[string]string `json:"roles,omitempty" firestore:"roles,omitempty"`
+	// InvitedBy maps a pending invitee's email to the admin who first sent the
+	// invitation (the trusted actor, #712). It is metadata beside Invited, which
+	// stays the queried list. An invitation stored before this field existed
+	// has no entry: its sender is unknown, never guessed from CreatedBy. An
+	// entry goes when the invitation is used. Never sent to clients whole.
+	InvitedBy map[string]string `json:"invited_by,omitempty" firestore:"invited_by,omitempty"`
 }
 
 // RoleOf returns email's role in w; ok is false unless email has joined w. An
@@ -192,12 +198,58 @@ func (w Workspace) cloneRolesOrNil() map[string]string {
 	return w.cloneRoles()
 }
 
+func cloneStrings(in map[string]string) map[string]string {
+	if in == nil {
+		return nil
+	}
+	out := make(map[string]string, len(in)+1)
+	for k, v := range in {
+		out[k] = v
+	}
+	return out
+}
+
 func (w Workspace) cloneRoles() map[string]string {
 	out := make(map[string]string, len(w.Roles)+1)
 	for k, v := range w.Roles {
 		out[k] = v
 	}
 	return out
+}
+
+// InviterOf returns the admin who sent email's pending invitation; ok is
+// false when email has no invitation or the invitation predates recording.
+func (w Workspace) InviterOf(email string) (string, bool) {
+	if !w.HasInvite(email) {
+		return "", false
+	}
+	by, ok := w.InvitedBy[email]
+	return by, ok && by != ""
+}
+
+// WithInvite returns w with a pending invitation of email made by actor: the
+// whole invite rule (admin only, not already a member, MaxMembers over members
+// plus invitations), run by a Store inside its atomic read-modify-write. An
+// existing invitation is a no-op and keeps its first sender. w is not changed.
+func (w Workspace) WithInvite(actor, email string) (Workspace, error) {
+	switch {
+	case !w.IsAdmin(actor):
+		return Workspace{}, ErrForbidden
+	case w.HasMember(email):
+		return Workspace{}, ErrMember
+	case w.HasInvite(email):
+		return w, nil
+	case len(w.Members)+len(w.Invited) >= MaxMembers:
+		return Workspace{}, ErrFull
+	}
+	w.Members, w.Invited = slices.Clone(w.Members), append(slices.Clone(w.Invited), email)
+	w.Roles = w.cloneRolesOrNil()
+	w.InvitedBy = cloneStrings(w.InvitedBy)
+	if w.InvitedBy == nil {
+		w.InvitedBy = map[string]string{}
+	}
+	w.InvitedBy[email] = actor
+	return w, nil
 }
 
 // WithRole returns w with target's role set by actor. It is the whole rule
@@ -253,13 +305,22 @@ func (w Workspace) HasMember(email string) bool { return slices.Contains(w.Membe
 // HasInvite reports whether email has a pending invitation to w.
 func (w Workspace) HasInvite(email string) bool { return slices.Contains(w.Invited, email) }
 
-// accept moves email from the invitations to the members.
-// The new member is an editor, stored explicitly.
-func (w *Workspace) accept(email string) {
+// Accept returns w with email moved from the invitations to the members, and
+// the invitation's sender dropped. The new member is an editor, stored
+// explicitly. w is not changed.
+func (w Workspace) Accept(email string) Workspace {
 	w.Invited = slices.DeleteFunc(slices.Clone(w.Invited), func(e string) bool { return e == email })
 	w.Members = append(slices.Clone(w.Members), email)
 	w.Roles = w.cloneRoles()
 	w.Roles[email] = string(RoleEditor)
+	if _, ok := w.InvitedBy[email]; ok {
+		w.InvitedBy = cloneStrings(w.InvitedBy)
+		delete(w.InvitedBy, email)
+		if len(w.InvitedBy) == 0 {
+			w.InvitedBy = nil
+		}
+	}
+	return w
 }
 
 // MaxInvites caps the pending invitations returned for one email.
@@ -323,7 +384,7 @@ func (m *Memory) Create(_ context.Context, w Workspace) error {
 			return ErrMember
 		}
 	}
-	w.Members, w.Invited, w.Roles = slices.Clone(w.Members), slices.Clone(w.Invited), w.cloneRolesOrNil()
+	w.Members, w.Invited, w.Roles, w.InvitedBy = slices.Clone(w.Members), slices.Clone(w.Invited), w.cloneRolesOrNil(), cloneStrings(w.InvitedBy)
 	m.byID[w.ID] = w
 	for _, e := range w.Members {
 		m.member[e] = w.ID
@@ -343,7 +404,7 @@ func (m *Memory) get(id string) (Workspace, error) {
 	if !ok {
 		return Workspace{}, ErrNotFound
 	}
-	w.Members, w.Invited, w.Roles = slices.Clone(w.Members), slices.Clone(w.Invited), w.cloneRolesOrNil()
+	w.Members, w.Invited, w.Roles, w.InvitedBy = slices.Clone(w.Members), slices.Clone(w.Invited), w.cloneRolesOrNil(), cloneStrings(w.InvitedBy)
 	return w, nil
 }
 
@@ -363,20 +424,14 @@ func (m *Memory) Invite(_ context.Context, id, actor, email string) (Workspace, 
 	m.mu.Lock()
 	defer m.mu.Unlock()
 	w, ok := m.byID[id]
-	switch {
-	case !ok:
+	if !ok {
 		return Workspace{}, ErrNotFound
-	case !w.IsAdmin(actor):
-		return Workspace{}, ErrForbidden
-	case w.HasMember(email):
-		return Workspace{}, ErrMember
-	case w.HasInvite(email):
-		return m.get(id)
-	case len(w.Members)+len(w.Invited) >= MaxMembers:
-		return Workspace{}, ErrFull
 	}
-	w.Invited = append(slices.Clone(w.Invited), email)
-	m.byID[id] = w
+	out, err := w.WithInvite(actor, email)
+	if err != nil {
+		return Workspace{}, err
+	}
+	m.byID[id] = out
 	return m.get(id)
 }
 
@@ -450,8 +505,7 @@ func (m *Memory) Join(_ context.Context, id, email string) (Workspace, error) {
 	if len(w.Members) >= MaxMembers {
 		return Workspace{}, ErrFull
 	}
-	w.accept(email)
-	m.byID[id] = w
+	m.byID[id] = w.Accept(email)
 	m.member[email] = id
 	return m.get(id)
 }

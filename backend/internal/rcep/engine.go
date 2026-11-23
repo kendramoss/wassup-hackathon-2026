@@ -668,8 +668,19 @@ func tariffShift(in Input, good string, mats []mat, a Alternative) (string, []st
 				return Yes, append(why, fmt.Sprintf("De minimis: those materials are %s %% of the good's weight, within 10 %% (Art. 3.7(b)).", pct(s))), issues, dm
 			}
 			why = append(why, fmt.Sprintf("Those materials are %s %% of the good's weight, over 10 %%.", pct(s)))
-		} else if !valueKnown {
+		}
+		// Value and weight are alternatives (three-valued OR): a passing
+		// measure returned Yes above; a failing measure paired with one we
+		// cannot compute is a missing fact, not a "no".
+		switch {
+		case !valueKnown && !weightKnown:
 			why = append(why, "Give values and FOB, or weights, to test de minimis (Art. 3.7).")
+			return Undetermined, why, issues, dm
+		case !weightKnown:
+			why = append(why, "The weight test could not be run: give the good's weight and each material's weight to test de minimis by weight (Art. 3.7(b)).")
+			return Undetermined, why, issues, dm
+		case !valueKnown:
+			why = append(why, "The value test could not be run: give the FOB value and each material's value to test de minimis by value (Art. 3.7).")
 			return Undetermined, why, issues, dm
 		}
 	} else if !valueKnown {

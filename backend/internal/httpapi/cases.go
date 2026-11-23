@@ -1360,7 +1360,7 @@ func (a *api) asOf() time.Time {
 // US origins never get a live rate, so they do not count).
 func missingRate(e planner.Economics, origins []string) bool {
 	for _, o := range origins {
-		n := domain.NormalizeCountry(o)
+		n := domain.DutyCountry(o)
 		if _, ok := e.DutyRate(n); n != "" && !ok && !duty.NoLiveRate(n) {
 			return true
 		}
@@ -1593,7 +1593,7 @@ func (a *api) buildDraft(r *http.Request, c store.Case, in exportRequest) (draft
 	}
 	ex := export.Input{ProductName: name, Product: c.Product, Facts: c.Facts, Requested: c.Prediction.Origin, Prediction: c.Prediction}
 	if c.CurrentOrigin != nil {
-		ex.CurrentRuled = strings.TrimSpace(c.CurrentOrigin.Country + " (" + c.CurrentOrigin.Ruling + ")")
+		ex.CurrentRuled = currentOriginFallback(*c.CurrentOrigin)
 	}
 	switch id := strings.TrimSpace(in.PlanID); {
 	case id == "":
@@ -2000,4 +2000,14 @@ func sortedKeys[V any](m map[string]V) []string {
 	}
 	sort.Strings(ks)
 	return ks
+}
+
+// currentOriginFallback is the caller's statement of CBP's holding on the
+// current setup when no ruling date is known: "Country (Ruling)", or just
+// "Country" when the optional ruling is absent (#720).
+func currentOriginFallback(o planner.KnownOrigin) string {
+	if o.Ruling == "" {
+		return strings.TrimSpace(o.Country)
+	}
+	return strings.TrimSpace(o.Country + " (" + o.Ruling + ")")
 }

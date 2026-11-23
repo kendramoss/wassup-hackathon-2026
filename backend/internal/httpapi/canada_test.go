@@ -116,3 +116,50 @@ func TestCanadaRegisteredRulesOnly(t *testing.T) {
 		t.Fatalf("no codes: %d %v", code, out["prediction"])
 	}
 }
+
+// Issue #711: shares are fractions in [0,1]; anything else is invalid_input.
+func TestCanadaMarkingShareRange(t *testing.T) {
+	rules, err := tariffshift.CanadaRules()
+	if err != nil {
+		t.Fatal(err)
+	}
+	hs := newHarnessWith(t, "substantial_transformation", func(d *Deps) { d.CanadaMarking = rules })
+	post := func(good, hts, field, share string) (int, map[string]any) {
+		body := `{"good_hts":"` + good + `","country":"Mexico","materials":[{"name":"m","hts":"` + hts + `","origin":"China"` + share + `}]}`
+		_ = field
+		return hs.do(t, "POST", "/v1/rules/canada-marking", body)
+	}
+	for _, field := range []string{"value_share", "weight_share"} {
+		for _, bad := range []string{"-1", "1.5", "-0.0001", "1.0000001"} {
+			code, out := post("8501.10", "8501.10", field, `,"`+field+`":`+bad)
+			if code != http.StatusBadRequest {
+				t.Errorf("%s=%s: %d %v", field, bad, code, out)
+				continue
+			}
+			if out["code"] != "invalid_input" {
+				t.Errorf("%s=%s: error body %v", field, bad, out)
+			}
+		}
+		for _, ok := range []string{"0", "0.05", "1"} {
+			if code, out := post("8501.10", "8501.10", field, `,"`+field+`":`+ok); code != http.StatusOK {
+				t.Errorf("%s=%s: %d %v", field, ok, code, out)
+			}
+		}
+	}
+	// Omitted shares are accepted and 1e999 stays rejected by the decoder.
+	if code, out := post("8501.10", "8501.10", "", ""); code != http.StatusOK {
+		t.Errorf("nil shares: %d %v", code, out)
+	}
+	if code, _ := post("8501.10", "8501.10", "", `,"value_share":1e999`); code != http.StatusBadRequest {
+		t.Errorf("1e999: %d", code)
+	}
+	// The valid de minimis case still decides for Mexico; -1 must not.
+	_, out := post("8501.10", "8501.10", "", `,"value_share":0.05`)
+	if res, _ := out["result"].(map[string]any); res["origin"] != "Mexico" {
+		t.Errorf("0.05: %v", out)
+	}
+	// A negative share on a product-less shifting material is still rejected.
+	if code, _ := post("6301.30", "5205.11", "", `,"value_share":-1`); code != http.StatusBadRequest {
+		t.Errorf("shifting -1: %d", code)
+	}
+}

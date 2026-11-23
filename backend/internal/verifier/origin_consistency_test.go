@@ -171,8 +171,8 @@ func TestCachedOriginInconsistentVerdictIsAMissAndRepaired(t *testing.T) {
 			if string(blobs.m[ch.key(c.task)]) != orig {
 				t.Error("original slot overwritten")
 			}
-			if _, ok := blobs.m[ch.key(c.task)+"-val2"]; !ok {
-				t.Error("repair not stored under key-val2")
+			if _, ok := blobs.m[ch.repairSlot(ch.key(c.task))]; !ok {
+				t.Error("repair not stored in the current repair slot")
 			}
 			if r, _ = ch.Verify(context.Background(), c.task); !r.Cached || inner.calls != 1 {
 				t.Errorf("repaired verdict not reused: %+v calls=%d", r, inner.calls)

@@ -5,6 +5,7 @@ import { DutyBreakdown, DutySources } from "./duty-breakdown";
 import { EstimateCosts } from "./money-prefill";
 import type { Economics, Plan, Product } from "@/lib/api/client";
 import { copy } from "@/lib/copy";
+import { dutyConflictNote, dutyRateConflict, dutyRateFor, setDutyRate } from "@/lib/duty-rates";
 import { money, pct } from "@/lib/format";
 import { groupName } from "@/lib/families";
 import { outcomeLabels } from "@/lib/plan-check";
@@ -339,16 +340,14 @@ export function EconomicsEditor({ value, onChange, product, countries, priced }:
                   aria-label={`Duty rate for ${c}, percent`}
                   inputMode="decimal"
                   className="w-14 bg-transparent text-right"
-                  value={rates[c] === undefined ? "" : String(Math.round(rates[c] * 1000) / 10)}
+                  value={dutyRateFor(rates, c) === undefined ? "" : String(Math.round(dutyRateFor(rates, c)! * 1000) / 10)}
                   onChange={(e) => {
                     const n = num(e.target.value);
-                    const next = { ...rates };
-                    if (n === undefined || Number.isNaN(n)) delete next[c];
-                    else next[c] = n / 100;
-                    onChange({ ...value, duty_rates: next });
+                    onChange(setDutyRate(value, c, n === undefined || Number.isNaN(n) ? undefined : n / 100));
                   }}
                 />
                 %
+                {dutyRateConflict(rates, c) && <span className="duo basis-full text-xs text-ask">{dutyConflictNote(dutyRateConflict(rates, c)!)}</span>}
               </label>
             ))}
           </div>

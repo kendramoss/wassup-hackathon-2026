@@ -4,7 +4,6 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"slices"
 
 	"cloud.google.com/go/firestore"
 	"google.golang.org/grpc/codes"
@@ -101,22 +100,20 @@ func (s *FirestoreWorkspaces) Invite(ctx context.Context, id, actor, email strin
 	var out teams.Workspace
 	err := s.client.RunTransaction(ctx, func(ctx context.Context, tx *firestore.Transaction) error {
 		w, err := decodeWorkspace(tx.Get(s.ws.Doc(id)))
-		switch {
-		case err != nil:
+		if err != nil {
 			return err
-		case !w.IsAdmin(actor): // judged on the document read in this transaction
-			return teams.ErrForbidden
-		case w.HasMember(email):
-			return teams.ErrMember
-		case w.HasInvite(email):
-			out = w
-			return nil
-		case len(w.Members)+len(w.Invited) >= teams.MaxMembers:
-			return teams.ErrFull
 		}
-		w.Invited = append(w.Invited, email)
-		out = w
-		return tx.Set(s.ws.Doc(id), w)
+		// The admin check, the cap and the sender record all judge the
+		// document read in this transaction (teams.Workspace.WithInvite).
+		next, err := w.WithInvite(actor, email)
+		if err != nil {
+			return err
+		}
+		out = next
+		if w.HasInvite(email) { // already invited: nothing to write
+			return nil
+		}
+		return tx.Set(s.ws.Doc(id), next)
 	})
 	if err != nil {
 		return teams.Workspace{}, workspaceErr("invite", err)
@@ -165,12 +162,9 @@ func (s *FirestoreWorkspaces) Join(ctx context.Context, id, email string) (teams
 		if len(w.Members) >= teams.MaxMembers {
 			return teams.ErrFull
 		}
-		w.Invited = slices.DeleteFunc(w.Invited, func(e string) bool { return e == email })
-		w.Members = append(w.Members, email)
-		if w.Roles == nil {
-			w.Roles = map[string]string{}
-		}
-		w.Roles[email] = string(teams.RoleEditor) // explicit, so a creator who left cannot return as admin
+		// Accept writes the editor role explicitly, so a creator who left cannot
+		// return as admin, and drops the invitation's sender record.
+		w = w.Accept(email)
 		if err := tx.Set(s.ws.Doc(id), w); err != nil {
 			return err
 		}

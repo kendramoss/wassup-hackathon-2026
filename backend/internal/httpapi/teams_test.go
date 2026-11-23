@@ -480,3 +480,118 @@ func TestWorkspaceCasesSurviveTheListCap(t *testing.T) {
 		t.Errorf("alice's workspace case fell out of a capped list: %v", got)
 	}
 }
+
+// Issue #712: the invitation names the admin who sent it, not the workspace
+// creator, also after the creator is gone.
+func TestInvitationNamesTheActualInviter(t *testing.T) {
+	hs, _, _ := teamsHarness(t, nil)
+	code, ws := hs.doAs(t, "POST", "/v1/workspaces", `{"name":"Acme"}`, user("alice"))
+	if code != http.StatusCreated {
+		t.Fatalf("create = %d %v", code, ws)
+	}
+	id := ws["id"].(string)
+	hs.addToWorkspace(t, id, "alice", "bob")
+	hs.addToWorkspace(t, id, "alice", "cara")
+	members := "/v1/workspaces/" + id + "/members"
+	role := func(who, target, r string) {
+		t.Helper()
+		if c, o := hs.doAs(t, "PUT", members+"/"+target+"%40example.com/role", `{"role":"`+r+`"}`, user(who)); c != http.StatusOK {
+			t.Fatalf("%s sets %s to %s = %d %v", who, target, r, c, o)
+		}
+	}
+	role("alice", "bob", "admin")
+	role("alice", "cara", "admin")
+
+	// Control: the creator herself invites.
+	if c, o := hs.doAs(t, "POST", members, `{"email":"ann@example.com"}`, user("alice")); c != http.StatusOK {
+		t.Fatalf("alice invites ann = %d %v", c, o)
+	}
+	// The creator leaves; a second admin invites.
+	if c, o := hs.doAs(t, "DELETE", members+"/alice%40example.com", "", user("bob")); c != http.StatusOK {
+		t.Fatalf("bob removes alice = %d %v", c, o)
+	}
+	if c, o := hs.doAs(t, "POST", members, `{"email":"victim@example.com"}`, user("bob")); c != http.StatusOK {
+		t.Fatalf("bob invites victim = %d %v", c, o)
+	}
+	// A different admin invites the same person again: the first sender stays.
+	if c, o := hs.doAs(t, "POST", members, `{"email":"victim@example.com"}`, user("cara")); c != http.StatusOK {
+		t.Fatalf("cara re-invites victim = %d %v", c, o)
+	}
+	invitedBy := func(who string) (map[string]any, any) {
+		t.Helper()
+		c, mine := hs.doAs(t, "GET", "/v1/workspaces/mine", "", user(who))
+		invs, _ := mine["invites"].([]any)
+		if c != http.StatusOK || len(invs) != 1 {
+			t.Fatalf("%s mine = %d %v", who, c, mine)
+		}
+		inv := invs[0].(map[string]any)
+		return inv, inv["invited_by"]
+	}
+	inv, by := invitedBy("victim")
+	if by != "bob@example.com" {
+		t.Errorf("victim's invited_by = %v, want bob@example.com (not the creator, not the later re-inviter)", by)
+	}
+	if inv["created_at"] != ws["created_at"] {
+		t.Errorf("created_at = %v, want the workspace's %v", inv["created_at"], ws["created_at"])
+	}
+	for k := range inv {
+		if k != "workspace_id" && k != "name" && k != "invited_by" && k != "created_at" {
+			t.Errorf("invitation has unexpected field %q", k)
+		}
+	}
+	if _, by := invitedBy("ann"); by != "alice@example.com" {
+		t.Errorf("ann's invited_by = %v, want alice@example.com", by)
+	}
+
+	// The members' view carries no inviter map.
+	c, mine := hs.doAs(t, "GET", "/v1/workspaces/mine", "", user("bob"))
+	if c != http.StatusOK {
+		t.Fatalf("bob mine = %d", c)
+	}
+	for k := range mine["workspace"].(map[string]any) {
+		if strings.Contains(k, "invited_by") || strings.Contains(k, "inviter") {
+			t.Errorf("workspace view exposes %q", k)
+		}
+	}
+
+	// Joining uses the invitation up: the same person invited again later is
+	// attributed to the new sender.
+	if c, o := hs.doAs(t, "POST", "/v1/workspaces/"+id+"/join", "", user("victim")); c != http.StatusOK {
+		t.Fatalf("victim joins = %d %v", c, o)
+	}
+	if c, o := hs.doAs(t, "DELETE", members+"/victim%40example.com", "", user("bob")); c != http.StatusOK {
+		t.Fatalf("bob removes victim = %d %v", c, o)
+	}
+	if c, o := hs.doAs(t, "POST", members, `{"email":"victim@example.com"}`, user("cara")); c != http.StatusOK {
+		t.Fatalf("cara invites victim = %d %v", c, o)
+	}
+	if _, by := invitedBy("victim"); by != "cara@example.com" {
+		t.Errorf("after rejoin cycle invited_by = %v, want cara@example.com", by)
+	}
+}
+
+// An invitation stored before inviters were recorded has no known sender: the
+// field is omitted, never guessed from the creator.
+func TestLegacyInvitationOmitsInvitedBy(t *testing.T) {
+	legacy := teams.NewMemory()
+	if err := legacy.Create(context.Background(), teams.Workspace{ID: "ws_legacy", Name: "Old Co", Members: []string{"alice@example.com"}, Invited: []string{"zed@example.com"}, CreatedBy: "alice@example.com"}); err != nil {
+		t.Fatal(err)
+	}
+	hs, _, _ := teamsHarness(t, func(d *Deps) { d.Workspaces = legacy })
+	c, mine := hs.doAs(t, "GET", "/v1/workspaces/mine", "", user("zed"))
+	invs, _ := mine["invites"].([]any)
+	if c != http.StatusOK || len(invs) != 1 {
+		t.Fatalf("mine = %d %v", c, mine)
+	}
+	inv := invs[0].(map[string]any)
+	if v, present := inv["invited_by"]; present {
+		t.Errorf("legacy invitation reports invited_by = %v, want the field omitted", v)
+	}
+	if inv["workspace_id"] != "ws_legacy" || inv["name"] != "Old Co" {
+		t.Errorf("legacy invitation = %v", inv)
+	}
+	// The invitation still works.
+	if c, o := hs.doAs(t, "POST", "/v1/workspaces/ws_legacy/join", "", user("zed")); c != http.StatusOK {
+		t.Errorf("join legacy invitation = %d %v", c, o)
+	}
+}

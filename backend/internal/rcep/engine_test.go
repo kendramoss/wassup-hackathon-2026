@@ -219,7 +219,11 @@ func TestTariffShift(t *testing.T) {
 		{"CTH needs 4 digits", "8471.30", "84", Undetermined},
 	}
 	for _, c := range cases {
-		in := Input{HS: c.good, ProducedIn: "Thailand", FOB: f(100), Materials: []Material{nonOrig("part", c.mat, 60)}}
+		// Weights are given too so chapters 50-63 know both de minimis
+		// measures (a missing measure is undetermined, issue #710).
+		m := nonOrig("part", c.mat, 60)
+		m.Weight = f(60)
+		in := Input{HS: c.good, ProducedIn: "Thailand", FOB: f(100), Weight: f(100), Materials: []Material{m}}
 		r := check(t, in)
 		// Only the tariff-shift alternative matters here.
 		got := ""
@@ -336,8 +340,51 @@ func TestArt37DeMinimis(t *testing.T) {
 	textile := Input{HS: "5513.11", ProducedIn: "Japan", Weight: f(100), Materials: []Material{
 		{Name: "yarn", HS: "5509.21", Weight: f(11), Status: StatusNonOriginating},
 	}}
-	if r := check(t, textile); r.Outcome != No {
-		t.Errorf("11 %% by weight from an excluded heading: %s", r.Outcome)
+	// Weight over 10 % but the value measure cannot be computed: a missing
+	// fact, so undetermined and naming the missing measure (issue #710).
+	if r := check(t, textile); r.Outcome != Undetermined || !strings.Contains(strings.Join(r.Reasons, " "), "FOB") {
+		t.Errorf("11 %% by weight, value missing: %s %v", r.Outcome, r.Reasons)
+	}
+}
+
+// Issue #710: chapters 50-63 apply Art. 3.7 as value OR weight, so a missing
+// measure must never turn a known over-limit measure into "no".
+func TestArt37TextileThreeValuedOr(t *testing.T) {
+	textile := func(fob, weight, mv, mw *float64) Input {
+		return Input{HS: "5513.11", ProducedIn: "Japan", FOB: fob, Weight: weight, Materials: []Material{
+			{Name: "yarn", HS: "5509.21", Value: mv, Weight: mw, Status: StatusNonOriginating},
+		}}
+	}
+	cases := []struct {
+		name string
+		in   Input
+		want string
+		hint string
+	}{
+		{"weight over, value missing", textile(nil, f(100), nil, f(11)), Undetermined, "FOB"},
+		{"value over, weight missing", textile(f(100), nil, f(50), nil), Undetermined, "weight"},
+		{"both over", textile(f(100), f(100), f(50), f(11)), No, ""},
+		{"value over, weight within", textile(f(100), f(100), f(50), f(5)), Yes, ""},
+		{"value within, weight over", textile(f(100), f(100), f(5), f(11)), Yes, ""},
+		{"neither computable", textile(nil, nil, nil, nil), Undetermined, ""},
+		{"value within, weight missing", textile(f(100), nil, f(5), nil), Yes, ""},
+		{"weight within, value missing", textile(nil, f(100), nil, f(5)), Yes, ""},
+	}
+	for _, c := range cases {
+		r := check(t, c.in)
+		if r.Outcome != c.want {
+			t.Errorf("%s: got %s want %s (%v)", c.name, r.Outcome, c.want, r.Reasons)
+		}
+		if c.hint != "" && !strings.Contains(strings.Join(r.Reasons, " "), c.hint) {
+			t.Errorf("%s: reasons do not name the missing measure %q: %v", c.name, c.hint, r.Reasons)
+		}
+	}
+	// Non-textile behaviour unchanged: value over 10 % with no weight rule is No.
+	nt := Input{HS: "8471.30", ProducedIn: "Japan", FOB: f(100), Materials: []Material{
+		nonOrig("board", "8542.31", 50), nonOrig("same-heading part", "8471.50", 11),
+	}}
+	if r := check(t, nt); r.Outcome != No {
+		t.Errorf("non-textile: %s", r.Outcome)
 	}
 }
 

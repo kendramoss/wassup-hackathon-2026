@@ -42,6 +42,10 @@ type Meter struct {
 	// the store last said, plus anything the store did not take. Reset each
 	// day and capped in size.
 	clients map[string]float64
+	// clientDebt is each client's spend counted locally after a failed
+	// store write, like debt for the global meter (#313). It only has keys
+	// that are in clients, so the same cap bounds it, and it resets with it.
+	clientDebt map[string]float64
 }
 
 // maxLocalClients caps the per-client spend this instance remembers in a day.
@@ -91,7 +95,7 @@ func (m *Meter) clientCap() float64 {
 // resetDayLocked starts a new day's view. m.mu must be held.
 func (m *Meter) resetDayLocked(day string) {
 	if m.day != day {
-		m.day, m.total, m.debt, m.clients = day, 0, 0, nil
+		m.day, m.total, m.debt, m.clients, m.clientDebt = day, 0, 0, nil, nil
 	}
 }
 
@@ -112,9 +116,15 @@ func (m *Meter) addClient(ctx context.Context, day, client string, usd float64) 
 		return
 	}
 	if err == nil {
-		m.clients[client] = max(total, m.clients[client])
+		// The store's total covers every write that reached it; keep this
+		// client's unsent debt on top, and never lower the view.
+		m.clients[client] = max(total+m.clientDebt[client], m.clients[client])
 	} else {
 		m.clients[client] += usd
+		if m.clientDebt == nil {
+			m.clientDebt = map[string]float64{}
+		}
+		m.clientDebt[client] += usd
 	}
 }
 
@@ -133,7 +143,7 @@ func (m *Meter) ClientOver(ctx context.Context, client string) (bool, float64, f
 	m.resetDayLocked(day)
 	spent := m.clients[client]
 	if err == nil {
-		spent = max(total, spent)
+		spent = max(total+m.clientDebt[client], spent)
 	}
 	return spent >= limit, spent, limit
 }

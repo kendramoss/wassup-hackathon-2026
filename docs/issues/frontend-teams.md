@@ -12,7 +12,7 @@
 5. **Workspace UI** (Cases home, small panel or settings page):
    - `GET /v1/workspaces/mine` → `{email, workspace|null, invites[]}`.
    - No workspace: "Create a team workspace" (name field) → `POST /v1/workspaces {name}`.
-   - Pending invitations (`invites`, each `{workspace_id, name, invited_by}`): "alice@acme.com invited you to Acme Imports" with a "Join" button → `POST /v1/workspaces/{workspace_id}/join`. Say that only cases created after joining are shared. 409 means they are already in a workspace.
+   - Pending invitations (`invites`, each `{workspace_id, name, created_at}` and an optional `invited_by`, the admin who sent it; `created_at` is when the workspace was created): "alice@acme.com invited you to Acme Imports" with a "Join" button → `POST /v1/workspaces/{workspace_id}/join`. When `invited_by` is absent (an invitation stored before senders were recorded), say "You were invited to Acme Imports." and never show a sender or the workspace creator. Say that only cases created after joining are shared. 409 means they are already in a workspace.
    - Workspace: name, member list and pending invitations (`invited`, marked "invited"). If `admin`, show "Invite member" (email) → `POST /v1/workspaces/{id}/members {email}`. The invitee joins when they next sign in and accept; nothing is shared before that. Show these errors: 409 "already a member" or "workspace full", 403 "only the admin can invite".
    - A user is in at most one workspace.
 6. **History:** show `actor` (email) on history events when present ("Predicted by amy@acme.com").
