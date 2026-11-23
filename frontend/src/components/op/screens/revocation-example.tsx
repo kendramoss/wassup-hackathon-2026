@@ -47,7 +47,7 @@ export function RevocationExample() {
           <dd>{formatDate(ex.case_date)}</dd>
           <dt className="text-dim">{E.predicted}</dt>
           <dd>
-            <Country name={ex.predicted_origin} /> <span className="text-dim">({ex.confidence.toFixed(2)} stated)</span>
+            <Country name={ex.predicted_origin} /> <span className="text-dim">(model&apos;s own confidence {ex.confidence.toFixed(2)})</span>
           </dd>
           <dt className="text-dim">{E.cited}</dt>
           <dd>

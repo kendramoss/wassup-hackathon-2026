@@ -668,7 +668,7 @@ export const copy = {
     codesNote: "Top suggestions from a recorded run, the product's code included.",
     plants: "Plants",
     moves: "Each move, with both checks",
-    movesNote: "Precedent: an agent reads earlier CBP rulings. Rule: code, run on the product after the move. The rule never reorders the moves.",
+    movesNote: "Precedent check: an AI agent reads earlier CBP rulings. Rule check: code applies the tariff-shift rule to the product after the move. The rule check never reorders the moves.",
     current: "Current setup",
     precedent: "Precedent check",
     rule: "Rule check (19 CFR 102.20)",
@@ -692,7 +692,7 @@ export const copy = {
   part102Example: {
     title: "A Part 102 plan search, ranked by the tariff-shift rule",
     eyebrow: "Recorded example",
-    lede: "An actuator finished in Canada from Chinese parts, which CBP held Chinese. Under the Part 102 marking rules the tariff-shift rule is the test, so each move is checked and ranked by it. It is recorded: nothing here calls a model or saves anything.",
+    lede: "An actuator finished in Canada from Chinese parts; CBP held China. For origin marking (19 CFR Part 102) the tariff-shift rule is the test, so each move is checked and ranked by it. It is recorded: nothing here calls a model or saves anything.",
     details: "Details",
     product: "The product and the current setup",
     cbpSubject: "CBP's subject",

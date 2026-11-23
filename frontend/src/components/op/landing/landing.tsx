@@ -218,7 +218,7 @@ export function Landing() {
                           <p className="duo small">Final assembly in Thailand.</p>
                         </div>
                       </div>
-                      <div className="ft">Router · Gemini 3.8 Flash</div>
+                      <div className="ft">Rules picked by Gemini 3.8 Flash</div>
                     </article>
                     <article className="mini" data-k="mini">
                       <div className="hd">
@@ -241,7 +241,7 @@ export function Landing() {
                           </p>
                         </div>
                       </div>
-                      <div className="ft">Origin engine · Gemini 4 Argon</div>
+                      <div className="ft">Origin read by Gemini 4 Argon</div>
                     </article>
                     <article className="mini plan" data-k="mini">
                       <div className="hd">
@@ -268,7 +268,7 @@ export function Landing() {
                           </details>
                         </div>
                       </div>
-                      <div className="ft">Planner + verifier agent</div>
+                      <div className="ft">Each move checked for and against</div>
                     </article>
                     <article className="mini" data-k="mini">
                       <div className="hd">
@@ -292,7 +292,7 @@ export function Landing() {
                     </article>
                   </div>
                   <div className="foot">
-                    <span>{L.fig2Foot}</span>
+                    <span className="wirenote">{L.fig2Foot}</span>
                     <span>{L.fig2BacktestNote}</span>
                   </div>
                 </div>

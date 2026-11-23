@@ -322,3 +322,21 @@
   .lp .stamp .held { font-size: 16px; }
   .lp .stamp .rul { font-size: 11px; }
 }
+
+/* ---- phones (#685): readable type and 44 px tap targets ----
+   The stacked sheets have room, so no text below 12 px; the drafting
+   labels stay small on wide screens, where the stage is fixed-size. The
+   wire is hidden on phones (above), so its caption goes with it. */
+@media (max-width: 640px) {
+  .lp .f2 .foot .wirenote { display: none; }
+  .lp .dimn, .lp .callout, .lp .legend, .lp .key, .lp .ml, .lp .chip, .lp .letter,
+  .lp .f2 .foot, .lp .testhead .meta, .lp .testfoot,
+  .lp .mini .hd, .lp .mini .ft, .lp .mini .small, .lp .mini.plan .small,
+  .lp .eyebrow, .lp .stamp .rul { font-size: 12px; }
+  .lp .mini .ball { width: 20px; height: 20px; font-size: 12px; }
+  .lp .mini.plan .small { line-height: 1.45; }
+  .lp .ctas a, .lp .hero .also a, .lp .pcfoot a, .lp .testfoot .endcta > a { min-height: 44px; display: inline-flex; align-items: center; }
+  .lp details > summary { display: list-item; min-height: 44px; padding-block: 12px; box-sizing: border-box; cursor: pointer; }
+  .lp .hero .also { margin-top: 4px; }
+  .lp .judgePersonas .lp-ruling-pill { min-height: 44px; }
+}

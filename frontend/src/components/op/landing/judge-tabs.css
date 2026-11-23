@@ -328,3 +328,13 @@
     margin-bottom: 12px;
   }
 }
+
+/* #685: 44 px tap targets on phones for the panel links, the copy button
+   (they stay compact on wide screens). */
+@media (max-width: 640px) {
+  .lp .judgePersonaActions a,
+  .lp .judgePersonaPreviewFoot > a,
+  .lp .judgePersonaTerminalTop button {
+    min-height: 44px;
+  }
+}
