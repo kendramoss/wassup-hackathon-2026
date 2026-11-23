@@ -493,6 +493,9 @@ export const copy = {
   },
 
   japan: {
+    // One short availability line for places that mention Japan without a
+    // configured gateway (#730). It does not promise a live check.
+    notAvailable: "Japan: not available yet.",
     scope: "Trade preference in Japan",
     agreement: "Trade agreement",
     chooseAgreement: "Choose an agreement",

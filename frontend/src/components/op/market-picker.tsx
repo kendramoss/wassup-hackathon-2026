@@ -28,7 +28,7 @@ export function MarketPicker({ id, value, onChange, className }: { id: string; v
           const on = supported.includes(x.code);
           return (
             <option key={x.code} value={x.code} disabled={!on}>
-              {on ? x.name : `${x.name} · ${copy.market.soon}`}
+              {on ? x.name : x.code === "jp" ? copy.japan.notAvailable : `${x.name} · ${copy.market.soon}`}
             </option>
           );
         })}
