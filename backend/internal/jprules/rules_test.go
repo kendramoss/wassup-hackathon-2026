@@ -22,6 +22,17 @@ func TestOfficialSchedules(t *testing.T) {
 		{"Asia treaty merged cell", "AJCEP", "6210.50", "Annex 2 (HS 2017)", "each of the non-originating materials is woven"},
 		{"Asia treaty cross-page rule", "AJCEP", "52.11", "Annex 2 (HS 2017)", "is woven entirely in one or more of the Parties"},
 		{"RCEP annex", "RCEP", "6404.11", "Annex 3A (HS 2022)", "RVC40"},
+		{"India CEPA", "JP-India CEPA", "0101", "Annex 2 (HS 2007)", "wholly obtained"},
+		{"Thailand EPA", "JP-Thailand EPA", "0101", "Annex 2 (HS 2017)", "CC"},
+		{"Indonesia EPA", "JP-Indonesia EPA", "0101", "Annex 2 (HS 2017)", "CC"},
+		{"Australia EPA", "JP-Australia EPA", "0101", "Annex 2 (HS 2012)", "CC"},
+		{"UK CEPA", "JP-UK CEPA", "0101", "Annex 3-B (HS 2017)", "wholly obtained"},
+		{"Vietnam EPA", "JP-Vietnam EPA", "0101", "Annex 2 (HS 2007)", "CC"},
+		{"Malaysia EPA", "JP-Malaysia EPA", "0101", "Annex 2 (HS 2002)", "from any other chapter"},
+		{"Mexico EPA", "JP-Mexico EPA", "0101", "Annex 4 (HS 2002)", "from any other chapter"},
+		{"Philippines EPA", "JP-Philippines EPA", "0101", "Annex 2 (HS 2002)", "from any other chapter"},
+		{"Switzerland EPA", "JP-Switzerland EPA", "0101", "Appendix 1 to Annex II (HS 2007)", "CC"},
+		{"Chile EPA", "JP-Chile EPA", "0101", "Annex 2 (HS 2002)", "from any other chapter"},
 	}
 	for _, c := range cases {
 		t.Run(c.name, func(t *testing.T) {
@@ -37,6 +48,13 @@ func TestOfficialSchedules(t *testing.T) {
 			}
 		})
 	}
+	t.Run("future AJCEP schedule activates on its listed date", func(t *testing.T) {
+		date := time.Date(2027, 2, 15, 0, 0, 0, 0, time.UTC)
+		evidence, err := table.Lookup("AJCEP", "0101", date)
+		if err != nil || len(evidence) == 0 || !strings.Contains(evidence[0].Citation, "HS 2022") {
+			t.Fatalf("future AJCEP: %v, %v", evidence, err)
+		}
+	})
 	t.Run("product branches stay together", func(t *testing.T) {
 		rules, err := table.Lookup("JP-EU EPA", "1517.90", date)
 		if err != nil || len(rules) != 2 || !strings.Contains(rules[1].Text, "Others:") {
@@ -58,8 +76,10 @@ func TestLookupWithoutApplicableRule(t *testing.T) {
 	}
 	cases := []struct{ agreement, hs, date string }{
 		{"GSP", "6404.11", "2026-11-23"},
+		{"JP-US TA", "6404.11", "2026-11-23"},
 		{"JP-EU EPA", "not an HS code 0406.90", "2026-11-23"},
-		{"AJCEP", "6216.00", "2027-02-15"},
+		{"AJCEP", "9999", "2027-02-15"},
+		{"JP-Switzerland EPA", "06.02", "2026-11-23"}, // multi-row cell with no mapped rule
 		{"RCEP", "6404.11", "2022-12-31"},
 		{"CPTPP", "0304", "2026-11-23"},    // per-subheading rules
 		{"CPTPP", "8708.94", "2026-11-23"}, // needs separate vehicle appendix
