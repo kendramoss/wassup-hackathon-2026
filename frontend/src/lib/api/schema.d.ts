@@ -4529,9 +4529,9 @@ export interface operations {
                             name: string;
                             /**
                              * Format: email
-                             * @description The workspace's admin
+                             * @description The admin who sent this invitation (the first sender if several admins invited the same email), even if they have since left the workspace or lost the admin role. Omitted for an invitation stored before senders were recorded: the sender is then unknown, and it is not guessed from the workspace creator.
                              */
-                            invited_by: string;
+                            invited_by?: string;
                             /**
                              * Format: date-time
                              * @description When the workspace was created

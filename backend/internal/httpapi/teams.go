@@ -199,8 +199,15 @@ func workspaceOut(w teams.Workspace, email string) workspaceDTO {
 type inviteDTO struct {
 	WorkspaceID string    `json:"workspace_id"`
 	Name        string    `json:"name"`
-	InvitedBy   string    `json:"invited_by"`
+	InvitedBy   string    `json:"invited_by,omitempty"` // the admin who sent it; omitted when unknown (an invitation stored before senders were recorded)
 	CreatedAt   time.Time `json:"created_at"`
+}
+
+// inviter is who sent email's invitation to ws, or "" when that is unknown.
+// It never falls back to the workspace creator, who may not be the sender.
+func inviter(ws teams.Workspace, email string) string {
+	by, _ := ws.InviterOf(email)
+	return by
 }
 
 // workspaceError maps a teams error to a response; member is the message
@@ -289,7 +296,7 @@ func (a *api) myWorkspace(w http.ResponseWriter, r *http.Request) {
 	}
 	invites := make([]inviteDTO, 0, len(pending))
 	for _, ws := range pending {
-		invites = append(invites, inviteDTO{WorkspaceID: ws.ID, Name: ws.Name, InvitedBy: ws.CreatedBy, CreatedAt: ws.CreatedAt})
+		invites = append(invites, inviteDTO{WorkspaceID: ws.ID, Name: ws.Name, InvitedBy: inviter(ws, id.email), CreatedAt: ws.CreatedAt})
 	}
 	out["invites"] = invites
 	writeJSON(w, http.StatusOK, out)

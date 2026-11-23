@@ -1705,11 +1705,11 @@ paths:
                     description: Workspaces that have invited the user and that they have not joined
                     items:
                       type: object
-                      required: [workspace_id, name, invited_by, created_at]
+                      required: [workspace_id, name, created_at]
                       properties:
                         workspace_id: { type: string }
                         name: { type: string }
-                        invited_by: { type: string, format: email, description: The workspace's admin }
+                        invited_by: { type: string, format: email, description: "The admin who sent this invitation (the first sender if several admins invited the same email), even if they have since left the workspace or lost the admin role. Omitted for an invitation stored before senders were recorded: the sender is then unknown, and it is not guessed from the workspace creator." }
                         created_at: { type: string, format: date-time, description: When the workspace was created }
         "401": { $ref: "#/components/responses/Error" }
   /v1/workspaces/{id}/members:
