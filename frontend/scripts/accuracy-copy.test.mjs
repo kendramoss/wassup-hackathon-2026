@@ -101,6 +101,24 @@ test("the recorded plan bars match the committed known-starting-origin results",
   assert.ok(pageText.includes(`Strict count: ${strictPass}/${strictTotal}`));
 });
 
+test("repeat plan checks are labelled stability, with the distinct-pair interval and no pooled interval", async () => {
+  const { AccuracyPage } = await import("../src/components/op/screens/accuracy-page.tsx");
+  const pageText = text(html(AccuracyPage, {}));
+  const start = pageText.indexOf("Production-move plan evaluation");
+  const end = pageText.indexOf("Strict count:");
+  assert.ok(start >= 0 && end > start);
+  const section = pageText.slice(start, end);
+  assert.doesNotMatch(section, /87\.5/);
+  assert.match(section, /Stability/);
+  assert.match(section, /27\/27/);
+  assert.match(section, /9\/9 distinct pairs/);
+  assert.ok(section.includes("70.1–100%"));
+  assert.ok(section.includes("same 9 distinct pairs"));
+  assert.match(section, /selected moves/);
+  assert.match(section, /starting origin (was )?supplied/);
+  assert.doesNotMatch(pageText, /87\.5–100%/);
+});
+
 test("RCEP reports known positives, criterion agreement and separate synthetic results", async () => {
   const { AccuracyPage } = await import("../src/components/op/screens/accuracy-page.tsx");
   const markup = html(AccuracyPage, {});
