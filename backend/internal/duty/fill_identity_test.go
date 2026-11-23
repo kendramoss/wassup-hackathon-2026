@@ -31,3 +31,14 @@ func TestFillUsesDutyIdentity(t *testing.T) {
 		t.Errorf("manual rate overwritten: %v %v", out, filled)
 	}
 }
+
+// "S. Korea" is an accepted spelling already in the country alias table; duty
+// pricing must read it as South Korea like "Korea, South" (#718 review).
+func TestFillPricesSKoreaAsSouthKorea(t *testing.T) {
+	r := 0.037
+	m := MFN{HTS: "8516.21.00", Supported: true, Rate: &r, FetchedAt: time.Now()}
+	out, filled := m.Fill(nil, []string{"S. Korea", "South Korea"})
+	if len(filled) != 1 || out["South Korea"] != r || len(out) != 1 {
+		t.Errorf("filled %v out %v", filled, out)
+	}
+}

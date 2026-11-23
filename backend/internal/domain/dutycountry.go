@@ -17,6 +17,7 @@ var dutyAliases = map[string]string{
 	"chinese taipei":                        "Taiwan",
 	"taiwan china":                          "Taiwan",
 	"korea south":                           "South Korea",
+	"s korea":                               "South Korea", // "S. Korea"; NormalizeCountry keeps "S Korea"
 }
 
 // DutyCountry is the identity of a country for duty pricing: the Column 2

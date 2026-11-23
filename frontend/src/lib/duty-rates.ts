@@ -34,7 +34,12 @@ const DUTY_ALIASES: Record<string, string> = {
   "chinese taipei": "Taiwan",
   "taiwan china": "Taiwan",
   "korea south": "South Korea",
+  "s korea": "South Korea", // "S. Korea"; normalizeCountry keeps "S Korea"
 };
+
+// Alias lookup on own properties only: country names are free text, and
+// "constructor" or "__proto__" must not resolve to an inherited value.
+const own = (t: Record<string, string>, k: string): string | undefined => (Object.hasOwn(t, k) ? t[k] : undefined);
 
 const ALT_SPLIT = /\s*(?:\/|\||\band\/or\b|\bor\b)\s*/;
 
@@ -52,11 +57,12 @@ function titleCase(s: string): string {
 function normalizeOne(s: string): string {
   let c = s.trim().toLowerCase();
   if (c === "") return "";
-  if (c.includes("ü") && ALIASES[c]) return ALIASES[c];
+  if (c.includes("ü") && own(ALIASES, c)) return own(ALIASES, c)!;
   c = c.replace(/[^a-z .'()]/g, "");
   c = c.replaceAll(".", "").trim();
   if (c.startsWith("the ")) c = c.slice(4);
-  if (ALIASES[c]) return ALIASES[c];
+  const alias = own(ALIASES, c);
+  if (alias) return alias;
   return titleCase(c).replaceAll("Of", "of");
 }
 
@@ -72,7 +78,7 @@ export function dutyCountry(s: string): string {
   if (n === "") return "";
   return n
     .split("/")
-    .map((p) => DUTY_ALIASES[p.toLowerCase()] ?? p)
+    .map((p) => own(DUTY_ALIASES, p.toLowerCase()) ?? p)
     .join("/");
 }
 
@@ -133,7 +139,8 @@ const without = <T,>(m: Record<string, T> | undefined, drop: (k: string) => bool
 export function setDutyRate(e: Economics, country: string, rate: number | undefined): Economics {
   const same = (k: string) => dutyCountry(k) === dutyCountry(country);
   const rates = { ...(without(e.duty_rates, same) ?? {}) };
-  if (rate !== undefined) rates[country] = rate;
+  // defineProperty, not assignment: the country is free text and "__proto__" must be a key.
+  if (rate !== undefined) Object.defineProperty(rates, country, { value: rate, enumerable: true, writable: true, configurable: true });
   const out: Economics = { ...e, duty_rates: rates };
   for (const k of ["duty_rates_from_table", "duty_rates_live_mfn"] as const) {
     if (!e[k]) continue;

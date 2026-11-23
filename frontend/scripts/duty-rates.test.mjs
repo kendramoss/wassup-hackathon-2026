@@ -196,3 +196,48 @@ test("EconomicsEditor (plan inline): canonical plant over an alias-keyed rate; l
   await app.flush();
   assert.deepEqual(app.box.latest.duty_rates, { Taiwan: 0.15 });
 });
+
+// ---- S. Korea duty alias (#718 review): duty reads it as South Korea; normalisation is unchanged ----
+test("dutyCountry: S. Korea is South Korea for duty and a rate keyed South Korea is shown for it", () => {
+  assert.equal(D.dutyCountry("S. Korea"), "South Korea");
+  assert.equal(D.dutyRateFor({ "South Korea": 0.08 }, "S. Korea"), 0.08);
+});
+
+// ---- inherited property names are free text, not table keys ---------------------------------
+const PROTO_NAMES = ["constructor", "__proto__", "toString", "hasOwnProperty", "valueOf"];
+
+test("dutyCountry: prototype-named free text is a plain string, never an inherited value or a throw", () => {
+  for (const n of PROTO_NAMES) {
+    const got = D.dutyCountry(n);
+    assert.equal(typeof got, "string", n);
+    assert.equal(got, D.dutyCountry(n), "stable");
+    assert.ok(got.toLowerCase().includes(n.toLowerCase().replaceAll("_", "")), `${n} -> ${got}`);
+  }
+  assert.equal(D.dutyCountry("constructor/Taiwan, China"), "Constructor/Taiwan");
+});
+
+test("rate helpers: prototype-named countries read, write and clear as ordinary keys", () => {
+  for (const n of PROTO_NAMES) {
+    assert.equal(D.dutyRateFor({ China: 0.2 }, n), undefined, n);
+    const set = D.setDutyRate({ duty_rates: { China: 0.2 } }, n, 0.07);
+    assert.equal(Object.getPrototypeOf(set.duty_rates), Object.prototype, `${n}: prototype of the rate map untouched`);
+    assert.equal(Object.keys(set.duty_rates).length, 2, `${n}: key stored as own property`);
+    assert.equal(D.dutyRateFor(set.duty_rates, n), 0.07, n);
+    assert.deepEqual(Object.keys(D.setDutyRate(set, n, undefined).duty_rates), ["China"]);
+  }
+});
+
+test("MoneyDrawer: a plant country typed as 'constructor' or '__proto__' renders and saves its rate", async () => {
+  for (const n of ["constructor", "__proto__"]) {
+    const app = await drawer({ duty_rates: { China: 0.25 }, annual_import_value_usd: 5 }, [n, "China"]);
+    const input = rateInput(app, n);
+    assert.ok(input, `${n}: rate input rendered`);
+    input.props.onChange({ target: { value: "9" } });
+    await app.flush();
+    assert.equal(rateInput(app, n).props.value, "9");
+    await app.btn("Save money inputs").props.onClick();
+    await app.flush();
+    assert.equal(Object.keys(app.saved[0].duty_rates).length, 2, n);
+    assert.equal(D.dutyRateFor(app.saved[0].duty_rates, n), 0.09);
+  }
+});
