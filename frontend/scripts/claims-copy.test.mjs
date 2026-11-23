@@ -21,8 +21,7 @@ function walk(dir) {
 }
 
 test("the accuracy intro names the scope next to the headline", () => {
-  assert.match(page, /single-origin, multi-country U\.S\. substantial-transformation rulings/);
-  assert.match(page, /not accuracy across every market or rule set/);
+  assert.match(page, /compared with 377 real CBP rulings, Jan–Sep 2026\. Covers single-origin U\.S\. substantial-transformation rulings only, not every market or rule set\./);
 });
 
 test("the unsupported 'never saw' and 'never used for tuning' claims are gone from copy", () => {
@@ -31,6 +30,9 @@ test("the unsupported 'never saw' and 'never used for tuning' claims are gone fr
     if (f.endsWith("schema.d.ts")) continue; // API field description, not a benchmark claim
     assert.ok(!/never saw|never used for tuning/i.test(s), f);
   }
+  assert.match(copy, /fig3Meta: "Jan–Sep 2026 · single-origin, multi-country U\.S\. rulings"/);
+  assert.match(copy, /fig3Caveat: "Prompts were not tuned on these rulings\. The old 0\.92 stated bar looked at both test splits; the 0\.90 calibrated bar now used came from development data\."/);
+  assert.match(flat("../src/components/op/landing/landing.tsx"), /\{L\.fig3Caveat\}/);
   assert.ok(!/it never saw/i.test(copy));
   assert.ok(!/never used for tuning/i.test(copy));
   for (const [name, s] of [["EVALUATION", evaluation], ["DETAILS", details], ["README", flat("../../README.md")]]) {
@@ -38,9 +40,15 @@ test("the unsupported 'never saw' and 'never used for tuning' claims are gone fr
   }
 });
 
+test("held-out labels do not say 'unseen' in the README, DETAILS or NUMBERS origin rows", () => {
+  const numbers = read("../../docs/NUMBERS.md").split("\n").filter((l) => !/probe set 2|One-time unseen test/.test(l)).join("\n");
+  for (const [name, s] of [["README", read("../../README.md")], ["DETAILS", read("../../docs/DETAILS.md")], ["NUMBERS", numbers]]) {
+    assert.ok(!/unseen|never saw/i.test(s), name);
+  }
+});
+
 test("the replacement wording separates retrieval, prompts, pretraining and threshold history", () => {
   assert.match(copy, /fig3Title: "Tested on 377 CBP rulings, scored once"/);
-  assert.match(copy, /prompts not tuned on them/);
   assert.match(page, /Gemini’s pretraining exposure is unknown/);
   assert.match(page, /original threshold selection also considered these rulings/);
 });
@@ -50,7 +58,9 @@ test("0.92 historical stated confidence and 0.90 current calibrated threshold st
   assert.match(evaluation, /historical stated-confidence bar of 0\.92 was chosen with a rule that looked at both splits/);
   assert.match(evaluation, /current 0\.90 calibrated-confidence threshold was derived from development data/);
   assert.ok(!/chosen on the proxy dev run; held-out confirmed it and was not used to search for it/.test(evaluation));
-  assert.ok(!/0\.92 is the lowest stated bar at which accuracy stays at or above 95% on both splits \(D32\)\. /.test(details) || /both splits/.test(details));
+  assert.match(flat("../../README.md"), /historical stated 0\.92 confidence bar also looked at the held-out rulings, D32; the 0\.90 calibrated bar now in use came from development rulings, D160/);
+  assert.match(evaluation, /Held out means not used to tune prompts or retrieval; the historical 0\.92 bar also looked at these rulings \(D32, D260\)/);
+  assert.ok(!/not used to tune anything/.test(evaluation));
   assert.match(details, /historical stated 0\.92 bar \(D32\) looked at both splits/);
 });
 
@@ -65,6 +75,7 @@ test("D32 and D260 keep their original text, with a dated current-status note af
   assert.match(decisions, /The user chose the lowest confidence at which cumulative accuracy stays at or above 95% on both splits\./);
   assert.match(decisions, /Held-out confirmed the dev choice; it was not used to search for the bar\./);
   assert.match(decisions, /the first 0\.92 bar was chosen with a rule that looked at both splits \(D32; the 0\.90 calibrated bar now in use was re-derived on dev only, D160\)/);
+  assert.match(decisions, /## D731 — Current status of the confidence-threshold history/);
   assert.match(decisions, /\*\*Correction:\*\* \/accuracy's "How it's built" said the held-out rulings were never used to tune thresholds\./);
   const note = decisions.indexOf("Current-status note, 23 Nov 2026 (#723)");
   assert.ok(note > decisions.indexOf("## D260"), "note comes after D260");

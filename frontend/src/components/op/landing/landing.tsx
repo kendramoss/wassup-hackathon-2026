@@ -358,6 +358,7 @@ export function Landing() {
                         <p className="duo">
                           <b>96.0%</b> {L.claimAuto}
                         </p>
+                        <p className="dimn">{L.fig3Caveat}</p>
                       </div>
                     </div>
                     <div className="panel">

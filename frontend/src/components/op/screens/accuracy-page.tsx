@@ -451,7 +451,7 @@ export function AccuracyPage() {
     <Main>
       <header>
         <h1 className="text-[clamp(2.25rem,5vw,3.75rem)] font-semibold leading-tight tracking-[-0.06em]">How accurate is it?</h1>
-        <p className="read mt-2 max-w-[65ch] text-base text-dim">U.S. origin predictions compared with 377 real CBP rulings, January–September 2026: single-origin, multi-country U.S. substantial-transformation rulings, not accuracy across every market or rule set.</p>
+        <p className="read mt-2 max-w-[65ch] text-base text-dim">U.S. origin predictions compared with 377 real CBP rulings, Jan–Sep 2026. Covers single-origin U.S. substantial-transformation rulings only, not every market or rule set.</p>
       </header>
       <dl className="mt-6 grid gap-3 md:grid-cols-3">
         <Kpi title="Overall accuracy" value={pct(correct / n)} lead>
