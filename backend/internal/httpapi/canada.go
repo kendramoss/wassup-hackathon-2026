@@ -33,7 +33,11 @@ type CanadaMarkingView struct {
 	Country     string             `json:"country"`
 	CountryFrom string             `json:"country_from,omitempty"`
 	Result      tariffshift.Result `json:"result"`
-	Note        string             `json:"note"`
+	// Guidance says what would resolve an undetermined result; absent
+	// otherwise. It is not part of Result, so the case rule check is
+	// unchanged.
+	Guidance *tariffshift.Guidance `json:"guidance,omitempty"`
+	Note     string                `json:"note"`
 }
 
 type canadaMarkingRequest struct {
@@ -79,6 +83,9 @@ func (a *api) canadaMarking(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	v.Result = a.d.CanadaMarking.Evaluate(q)
+	if v.Result.Status == tariffshift.Undetermined {
+		v.Guidance = tariffshift.Guide(a.d.CanadaMarking, q, v.Result)
+	}
 	writeJSON(w, http.StatusOK, v)
 }
 

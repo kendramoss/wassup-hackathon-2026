@@ -17,6 +17,7 @@ type canadaIn struct {
 	Materials      []map[string]any `json:"materials,omitempty"`
 	SimpleAssembly *bool            `json:"simple_assembly,omitempty"`
 	GRI2a          *bool            `json:"gri_2a,omitempty"`
+	BendingToShape *bool            `json:"bending_to_shape,omitempty"`
 }
 
 // registerCanada adds check_canada_marking (POST /v1/rules/canada-marking,
@@ -37,17 +38,18 @@ func (t tools) registerCanada(s *mcp.Server) {
 		Name: "check_canada_marking",
 		Description: `Check Canada's marking-origin rules (SOR/94-23, goods imported into Canada from the United States or Mexico) for a good, from its HS code and its materials' codes and origins. No model call; nothing is saved.
 Use it when the user ships to Canada and asks what country of origin the goods must be marked with.
-Input: either product (as for predict_origin, with hts on the product and its parts), or good_hts, country (where the good is made) and materials. Optional simple_assembly and gri_2a settle rules that turn on them.
-Returns: status (decided, undetermined or out_of_scope), origin, the Schedule III row applied, which materials do not shift, and plain reasons. A rules check only: there is no accuracy figure, because Canada publishes too few origin rulings to test it. Say so, and that it is not a ruling. REST: POST /v1/rules/canada-marking (operationId checkCanadaMarking).`,
+Input: either product (as for predict_origin, with hts on the product and its parts), or good_hts, country (where the good is made) and materials. Optional simple_assembly, gri_2a and bending_to_shape settle rules that turn on them; leave one out when unknown (false is an answer, not unknown).
+Returns: status (decided, undetermined or out_of_scope), origin, the Schedule III row applied, which materials do not shift, and plain reasons. When undetermined, structuredContent.guidance says what would resolve it: yes/no facts you can send back as the fields above (answerable), codes or shares to add, and rules written by goods description that need human review and cannot be answered by a flag. On the committed Canadian table today, guidance is codes, shares and human review; yes/no facts appear only for a rule that carries such a clause. A rules check only: there is no accuracy figure, because Canada publishes too few origin rulings to test it. Say so, and that it is not a ruling. REST: POST /v1/rules/canada-marking (operationId checkCanadaMarking).`,
 		InputSchema: &jsonschema.Schema{
 			Type: "object", AdditionalProperties: &jsonschema.Schema{Not: &jsonschema.Schema{}},
 			Properties: map[string]*jsonschema.Schema{
-				"product":         t.product(),
-				"good_hts":        code("HS heading or subheading of the good, e.g. 6301.30."),
-				"country":         country("Country where the good is produced."),
-				"materials":       array("", material, 0, 50),
-				"simple_assembly": {Type: "boolean", Description: "The work is a simple assembly (five or fewer foreign parts, minor processing only)."},
-				"gri_2a":          {Type: "boolean", Description: "The change comes from collecting parts classified as the finished good under GRI 2(a)."},
+				"product":          t.product(),
+				"good_hts":         code("HS heading or subheading of the good, e.g. 6301.30."),
+				"country":          country("Country where the good is produced."),
+				"materials":        array("", material, 0, 50),
+				"simple_assembly":  {Type: "boolean", Description: "The work is a simple assembly (five or fewer foreign parts, minor processing only)."},
+				"gri_2a":           {Type: "boolean", Description: "The change comes from collecting parts classified as the finished good under GRI 2(a)."},
+				"bending_to_shape": {Type: "boolean", Description: "The production bends the steel tubes to shape (the heading 7303-7306 exceptions in chapter 84)."},
 			},
 		},
 		Annotations: readOnly("Check Canada marking rules", false),
@@ -66,6 +68,9 @@ func (t tools) canada(ctx context.Context, hdr http.Header, in canadaIn) (*mcp.C
 	}
 	if in.GRI2a != nil {
 		body["gri_2a"] = *in.GRI2a
+	}
+	if in.BendingToShape != nil {
+		body["bending_to_shape"] = *in.BendingToShape
 	}
 	res, err := t.call(ctx, hdr, apiCall{method: "POST", path: "/v1/rules/canada-marking", body: body})
 	if err != nil || !res.ok() {
@@ -102,6 +107,34 @@ func (t tools) canada(ctx context.Context, hdr http.Header, in canadaIn) (*mcp.C
 		}
 		b.WriteString(".")
 	}
+	writeGuidance(&b, obj(out["guidance"]))
 	b.WriteString("\nNot a ruling: confirm with a licensed customs broker in Canada.")
 	return done(b.String(), out)
+}
+
+// writeGuidance adds one short line per kind of guidance: what an answer would
+// resolve, what to add, and what only a person can read.
+func writeGuidance(b *strings.Builder, g map[string]any) {
+	var ask, add, review []string
+	for _, x := range list(g["missing"]) {
+		it := obj(x)
+		label := str0(it["label"], str0(it["key"], ""))
+		switch {
+		case it["kind"] == "review":
+			review = append(review, label)
+		case it["answerable"] == true:
+			ask = append(ask, fmt.Sprintf("%s (send %s true or false)", label, str0(it["key"], "")))
+		default:
+			add = append(add, label)
+		}
+	}
+	if len(ask) > 0 {
+		fmt.Fprintf(b, "\nWould resolve it: %s.", strings.Join(ask, "; "))
+	}
+	if len(add) > 0 {
+		fmt.Fprintf(b, "\nAdd: %s.", strings.Join(add, "; "))
+	}
+	if len(review) > 0 {
+		fmt.Fprintf(b, "\nNeeds human review (no flag can answer it): %s.", strings.Join(review, "; "))
+	}
 }

@@ -779,7 +779,7 @@ export interface paths {
         put?: never;
         /**
          * Canada marking-origin rules check (SOR/94-23), from HTS codes; no model call (D720-D725)
-         * @description Applies Canada's Determination of Country of Origin for the Purpose of Marking Goods (CUSMA Countries) Regulations (SOR/94-23): the Schedule III tariff-shift row for the good, then ss. 4, 5, 9 and 11. Same output shape as a case's `rule_check.result`. A rules check only: Canada publishes too few origin rulings to test it, so there is no accuracy figure, and every answer carries `label` saying so. Send either `product` (read like the case's rule check: its HTS code, parts' codes and `made_in`, and the production country from its plants) or `good_hts`, `country` and `materials`. Headings in Canada's text are written 84.73; send codes as usual (8473.30). Nothing is stored. Served when RULE_CHECK is on (the default).
+         * @description Applies Canada's Determination of Country of Origin for the Purpose of Marking Goods (CUSMA Countries) Regulations (SOR/94-23): the Schedule III tariff-shift row for the good, then ss. 4, 5, 9 and 11. Same output shape as a case's `rule_check.result`. A rules check only: Canada publishes too few origin rulings to test it, so there is no accuracy figure, and every answer carries `label` saying so. Send either `product` (read like the case's rule check: its HTS code, parts' codes and `made_in`, and the production country from its plants) or `good_hts`, `country` and `materials`. Headings in Canada's text are written 84.73; send codes as usual (8473.30). Nothing is stored. Served when RULE_CHECK is on (the default). When `result.status` is `undetermined` and something would resolve it, the response also carries `guidance`: yes/no facts that the request's own `simple_assembly`, `gri_2a` and `bending_to_shape` fields can answer (absent means unknown, false is an answer), codes or shares to add, and rules written by goods description that need human review. On the committed Canadian table today, guidance is codes, shares and human review; yes/no facts appear only for a rule that carries such a clause, and none does yet.
          */
         post: operations["checkCanadaMarking"];
         delete?: never;
@@ -1547,6 +1547,35 @@ export interface components {
              *     ]
              */
             hts_alternatives?: string[];
+        };
+        /** @description What would resolve an undetermined Canada marking result. Present only when result.status is undetermined and at least one item applies; never on out_of_scope, decided or invalid (400) requests. Review items are never answerable: no request field settles them. */
+        CanadaGuidance: {
+            /**
+             * @description answerable: a yes/no fact the request can state would move the answer. needs_input: only a code, share or origin is missing. needs_review: only a person can go further.
+             * @enum {string}
+             */
+            state: "answerable" | "needs_input" | "needs_review";
+            missing: {
+                /**
+                 * @description The first three are the request's own boolean fields.
+                 * @enum {string}
+                 */
+                key: "simple_assembly" | "gri_2a" | "bending_to_shape" | "good_code" | "country" | "material_hts" | "material_code" | "material_origin" | "value_share" | "weight_share" | "goods_description" | "person_reading";
+                /** @enum {string} */
+                kind: "fact" | "code" | "share" | "review";
+                /** @description 0-based index into the request's materials (or product components); omitted for the whole case. 0 is a real index. */
+                material?: number;
+                label: string;
+                detail?: string;
+                /** @description True only for a fact the request can carry as a boolean */
+                answerable: boolean;
+                /** @description Resolving it can change the answer */
+                blocking: boolean;
+            }[];
+            /** @description Present when an item needs a person */
+            review?: {
+                reason: string;
+            };
         };
         /** @description The deterministic 19 CFR 102.20 tariff-shift check (D360, D363), present only when the product gives an HTS code for the good and at least one part. Computed when the case is read; display only: it never changes the prediction, the triage or auto-accept. RULE_CHECK=off removes it. */
         RuleCheck: {
@@ -4601,6 +4630,7 @@ export interface operations {
                         country_from?: string;
                         note: string;
                         result: components["schemas"]["RuleCheck"]["result"];
+                        guidance?: components["schemas"]["CanadaGuidance"];
                     };
                 };
             };
