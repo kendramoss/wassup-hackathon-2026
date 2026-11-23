@@ -10,8 +10,8 @@ type Endpoint = keyof typeof endpoints;
 type Tab<Key extends string> = { key: Key; label: string; subtext?: string };
 
 const modes: Tab<Mode>[] = [
-  { key: "mcp", label: "MCP Server", subtext: "Claude · Gemini · ADK" },
-  { key: "api", label: "REST API (v1)", subtext: "Customs & ERP software" },
+  { key: "mcp", label: "MCP server", subtext: "For AI agents" },
+  { key: "api", label: "REST API", subtext: "Customs & ERP software" },
 ];
 const clients: Tab<Client>[] = [
   { key: "gemini", label: "Gemini CLI" },
@@ -22,7 +22,7 @@ const categories: [ToolGroup | "", string][] = [
   ["", `All ${tools.length}`],
   ["origin", "Origin"],
   ["planning", "Plan"],
-  ["tariff", "Tariff-shift"],
+  ["tariff", "Tariff codes"],
   ["broker", "Draft"],
 ];
 const docLink = "text-ok underline underline-offset-3 hover:text-ink";
@@ -160,7 +160,7 @@ function CopyCode({ label, value, language, dark = false }: {
           type="button"
           aria-label={`Copy ${label}`}
           onClick={copyCode}
-          className="my-1 min-h-8 shrink-0 rounded-sm border border-edge bg-sheet px-2.5 text-xs font-medium text-ok hover:bg-ok-wash"
+          className="my-1 min-h-11 shrink-0 rounded-sm border border-edge bg-sheet px-2.5 text-xs font-medium text-ok hover:bg-ok-wash"
         >
           {copied ? "Copied" : "Copy"}
         </button>
@@ -191,7 +191,7 @@ function Quickstart({ repo }: { repo: string }) {
     <section aria-labelledby="quickstart-heading" className="grid items-start gap-3 lg:grid-cols-[minmax(0,0.55fr)_minmax(0,1.45fr)] lg:gap-6">
       <div className="flex flex-wrap items-baseline justify-between gap-2 lg:block">
         <h2 id="quickstart-heading" className={heading}>Connect a client</h2>
-        <a className={`${docLink} text-xs lg:mt-2 lg:inline-block`} href={`${repo}/blob/main/docs/MCP.md`}>Setup guide ↗</a>
+        <a className={`${docLink} inline-flex min-h-11 items-center text-xs lg:mt-2 lg:min-h-0`} href={`${repo}/blob/main/docs/MCP.md`}>Setup guide ↗</a>
       </div>
       <div className="min-w-0">
         <Tabs label="MCP clients" prefix="setup-" items={clients} active={client} select={setClient} compact />
@@ -222,8 +222,8 @@ function ToolExplorer({ repo }: { repo: string }) {
   return (
     <section aria-labelledby="tool-heading" className="border-t border-line pt-5 sm:pt-6">
       <div className="mb-3 flex flex-wrap items-baseline justify-between gap-2">
-        <h2 id="tool-heading" className={heading}>MCP tool explorer</h2>
-        <a className={`${docLink} text-xs`} href={`${repo}/blob/main/docs/MCP.md#tools`}>Tool reference ↗</a>
+        <h2 id="tool-heading" className={heading}>Pick a tool</h2>
+        <a className={`${docLink} inline-flex min-h-11 items-center text-xs sm:min-h-0`} href={`${repo}/blob/main/docs/MCP.md#tools`}>Tool reference ↗</a>
       </div>
       <div className="grid items-start gap-4 lg:grid-cols-[minmax(260px,0.72fr)_minmax(0,1.28fr)]">
         <div className={panel}>
@@ -243,7 +243,7 @@ function ToolExplorer({ repo }: { repo: string }) {
                   key={key}
                   aria-pressed={group === key}
                   onClick={() => setGroup(key)}
-                  className={`min-h-9 rounded-full border border-edge px-2.5 text-xs hover:bg-ok-wash ${group === key ? "bg-ok-wash text-ok" : "bg-sheet text-ink"}`}
+                  className={`min-h-11 rounded-full border border-edge px-3 text-xs sm:min-h-9 sm:px-2.5 hover:bg-ok-wash ${group === key ? "bg-ok-wash text-ok" : "bg-sheet text-ink"}`}
                 >
                   {text}
                 </button>
@@ -307,7 +307,7 @@ function RestConsole({ repo }: { repo: string }) {
 
   return (
     <section aria-labelledby="rest-heading">
-      <h2 id="rest-heading" className={`${heading} mb-3`}>API console</h2>
+      <h2 id="rest-heading" className={`${heading} mb-3`}>REST examples</h2>
       <div className="grid items-start gap-4 md:grid-cols-2">
         <div id="keys" className="flex min-w-0 flex-col gap-2">
           <label className="block text-xs font-medium text-dim">

@@ -153,3 +153,5 @@
 @media (max-width: 409px) {
   .mi-source-grid { grid-template-columns: 1fr; }
 }
+.mi-limits { margin-top: 12px; }
+.mi-limits summary { min-height: 44px; display: flex; align-items: center; color: var(--ok); cursor: pointer; font-size: 12px; text-decoration: underline; text-underline-offset: 4px; }

@@ -79,7 +79,7 @@ export function CasesHome() {
       {pinned.length > 0 && (
         <section className="mt-8" aria-labelledby="demos-h">
           <h2 id="demos-h" className="eyebrow mb-3">
-            Demos · real CBP facts
+            {copy.cases.demos}
           </h2>
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
             {pinned.map((c) => (
@@ -100,8 +100,9 @@ export function CasesHome() {
               <h3 className="eyebrow mb-1">{copy.cases.moreDemos}</h3>
               <p className="read max-w-[90ch] text-[12.5px] text-dim">{copy.cases.moreDemosNote}</p>
               <details className="mb-3 text-[12.5px] text-dim">
-                <summary className="inline-flex min-h-6 cursor-pointer items-center text-ok">{copy.cases.howPicked}</summary>
+                <summary className="inline-flex min-h-11 cursor-pointer items-center text-ok sm:min-h-6">{copy.cases.howPicked}</summary>
                 <p className="read max-w-[90ch]">{copy.cases.recorded.selection}</p>
+                <Disagreement />
               </details>
               <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
                 {unseeded.map((d) => (
@@ -151,6 +152,31 @@ export function CasesHome() {
       )}
       <WorkspacePanel />
     </Main>
+  );
+}
+
+// Per-family checks where Unde and CBP differ on the starting setup:
+// D171 (23 checks, 7 differ) and D661 live checks (6, 1 differs).
+const FAMILY_CHECKS = [{ n: 23, off: 7 }, { n: 6, off: 1 }];
+export function Disagreement() {
+  const total = FAMILY_CHECKS.reduce((a, b) => a + b.n, 0);
+  const off = FAMILY_CHECKS.reduce((a, b) => a + b.off, 0);
+  const tiles = FAMILY_CHECKS.flatMap(({ n, off: o }) => Array.from({ length: n }, (_, i) => i < o));
+  return (
+    <span className="mt-2 block">
+      <span className="read block max-w-[90ch]">{copy.cases.recorded.disagreement}</span>
+      <span
+        role="img"
+        aria-label={`${total} checks: ${total - off} agree with CBP, ${off} differ`}
+        className="mt-1.5 grid max-w-[28rem] gap-[2px]"
+        style={{ gridTemplateColumns: `repeat(${total}, minmax(0, 1fr))` }}
+      >
+        {tiles.map((differs, i) => (
+          <i key={i} data-differs={differs} className={cx("h-3 rounded-[1px] border", differs ? "border-ink bg-ink" : "border-edge bg-wash")} />
+        ))}
+      </span>
+      <span className="mt-1 block text-[11px]">{total - off} agree · {off} differ</span>
+    </span>
   );
 }
 
@@ -204,7 +230,7 @@ function RecordedRun({ r }: { r: NonNullable<NonNullable<DemoList["demos"]>[numb
   const T = copy.cases.recorded;
   return (
     <details className="relative z-10 border-t border-line pt-2 text-xs" title={`${r.run}. ${r.file}`}>
-      <summary className="flex min-h-6 cursor-pointer list-none items-center gap-2 [&::-webkit-details-marker]:hidden">
+      <summary className="flex min-h-11 cursor-pointer list-none items-center gap-2 sm:min-h-6 [&::-webkit-details-marker]:hidden">
         <span aria-hidden="true" className="text-dim">
           ▸
         </span>
@@ -397,7 +423,7 @@ export function YourCases({ cases, onChange }: { cases: CaseSummary[]; onChange:
         <details className="text-[12.5px] text-dim">
           <summary className="inline-flex min-h-11 cursor-pointer items-center text-ok">What counts</summary>
           <p className="read max-w-[70ch]">
-            A broker asked for changes, a link waiting for the broker ends within {FOLLOW_UP_HOURS} hours, or a cited ruling was revoked or modified. Approved and filing-requested links are not counted. This only filters the list.
+            Cases where a broker asked for changes, a broker link ends within {FOLLOW_UP_HOURS} hours, or a cited ruling was revoked or modified. Approved links are not counted.
           </p>
         </details>
       </div>
@@ -576,7 +602,7 @@ function RowMenu({ c, onRename, onDelete }: { c: CaseSummary; onRename: () => vo
         aria-label={`Actions for ${c.display_name}`}
         data-row-menu-trigger={c.id}
         aria-expanded={open}
-        className="px-2 py-1 text-base text-dim hover:text-ink"
+        className="min-h-11 min-w-11 px-2 py-1 text-base text-dim hover:text-ink sm:min-h-0 sm:min-w-0"
         onKeyDown={(e) => {
           if (e.key === "Enter" || e.key === " ") keyboardOpen.current = true;
           if (e.key === "ArrowDown" && !open) {

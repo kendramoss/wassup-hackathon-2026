@@ -91,7 +91,7 @@ export const toolExamples: Record<ToolName, Example> = {
   predict_origin: {
     input: caseRequest,
     output: { ...casePreview, case_access_key: accessKey },
-    note: "Without an API key, pass the returned case_access_key on later calls on this case. Keep it private. API-key clients do not need it.",
+    note: "Without an API key, pass the returned case_access_key on later calls. Keep it private.",
   },
   extract_product: { input: { facts }, output: { product, warnings: [] } },
   extract_product_from_media: {

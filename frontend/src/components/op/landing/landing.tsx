@@ -16,9 +16,11 @@ import { api } from "@/lib/api/client";
 import { copy } from "@/lib/copy";
 import { ButtonLink, RulingLink } from "../ui";
 import { JudgeImpact } from "./judge-proof";
+import { MarketEvidence } from "./market-evidence";
 import { JudgePersonas } from "./judge-tabs";
 import { startLanding } from "./motion";
 import "./landing.css";
+import "./market-evidence.css";
 
 const L = copy.landing;
 const flag = (c: "China" | "Thailand") => `/flags/${c === "China" ? "cn" : "th"}.svg`;
@@ -444,6 +446,7 @@ export function Landing() {
         </div>
 
         <JudgeImpact />
+        <MarketEvidence />
         <JudgePersonas demoHref={links.demo} compareHref={links.compare} />
       </main>
 
