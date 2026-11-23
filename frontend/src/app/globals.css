@@ -287,3 +287,43 @@
   font-size: 12.5px;
   box-shadow: 3px 3px 0 var(--ask-shadow);
 }
+
+/* #685: phone readability for the try-it flow and the recorded examples
+   (the screens wrapped in .touch44). Key controls get a 44 px tap height
+   and no label is set below 12 px. Unlayered, so it wins over the utility
+   heights (min-h-6, min-h-8, min-h-10) only on phones; wide screens keep
+   the compact sizes. Links styled as plain inline text keep their line
+   height (min-height does not apply to inline boxes). Buttons inside a
+   sentence (a <p> or <dd>: the BOM samples, "Re-check now", "Edit") and
+   round icon buttons keep their size, so the line does not grow; an
+   invisible 44 px ring around each one takes the tap instead. The 640 px
+   breakpoint matches the landing's phone rules. */
+@media (max-width: 640px) {
+  .touch44 :is(button, summary, select, a, [role="button"], [role="tab"]):not(.sr-only, [class*="rounded-full"], :is(p, dd) button),
+  .touch44 input:not([type="checkbox"], [type="radio"], [type="hidden"], [type="file"], [type="range"]),
+  .touch44 label:has(> input[type="checkbox"], > input[type="radio"]) {
+    min-height: 44px;
+  }
+  .touch44 button:not(.sr-only, [class*="rounded-full"], :is(p, dd) button) {
+    min-width: 44px;
+  }
+  .touch44 :is(button[class*="rounded-full"], :is(p, dd) button):not(.sr-only) {
+    position: relative;
+  }
+  .touch44 :is(button[class*="rounded-full"], :is(p, dd) button):not(.sr-only)::after {
+    content: "";
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    width: max(100%, 44px);
+    height: 44px;
+    transform: translate(-50%, -50%);
+  }
+  .touch44 .eyebrow,
+  .touch44 [class*="text-[10px]"],
+  .touch44 [class*="text-[10.5px]"],
+  .touch44 [class*="text-[11px]"],
+  .touch44 [class*="text-[11.5px]"] {
+    font-size: 12px;
+  }
+}

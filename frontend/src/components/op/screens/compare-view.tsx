@@ -197,7 +197,7 @@ function Compare({ id, c, setCase }: CaseCtx) {
           <div className="relative overflow-x-auto">
             <table className="w-full min-w-[820px] border-collapse border border-edge bg-sheet text-[13px] shadow-[4px_4px_0_var(--shadow)]">
               <caption className="pb-2.5 text-left text-[11px] uppercase tracking-[0.08em] text-dimension">
-                Ranked · plan (clear margin first, then at the bar), then below the bar, then no supported plan, then no capable plant
+                Ranked, best plan first · how it works is below the table
                 {part102 ? `; ${copy.planRule.compareCaption}` : ""}
               </caption>
               <thead>
@@ -288,7 +288,7 @@ function Compare({ id, c, setCase }: CaseCtx) {
         <div>
           <Fold title="How the ranking works">
             <p className="duo max-w-[90ch] text-[13px] text-dim">
-              Countries with a shown plan rank by their best plan, the same way plans rank on the Plan step: a clear-margin plan (check 0.93 or more, no counter-ruling) ranks above one at the bar, then by net per year. Moves only go to plants your product lists; a country with no capable plant ranks last rather than being invented. Money is illustrative — editable on the Plan step. Precedent checks vary between runs.
+              Countries with a shown plan rank by their best plan, the same way plans rank on the Plan step: a clear-margin plan (check 0.93 or more, no counter-ruling) ranks above one at the bar, then by net per year. After them come countries whose best move is below the bar, then those with no supported plan. Moves only go to plants your product lists; a country with no capable plant ranks last rather than being invented. Money is illustrative — editable on the Plan step. Precedent checks vary between runs.
             </p>
             {ruleChecked ? <p className="duo mt-2 max-w-[90ch] text-[13px] text-dim">{copy.planRule.compareHow}</p> : null}
           </Fold>

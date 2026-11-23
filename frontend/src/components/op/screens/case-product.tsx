@@ -36,7 +36,7 @@ export function CaseProduct() {
               </Fold>
             </div>
             <p className="text-[13px] text-dim">
-              <Link href={`/cases/new?from=${encodeURIComponent(id)}`} className="text-ok underline underline-offset-2">
+              <Link href={`/cases/new?from=${encodeURIComponent(id)}`} className="inline-flex items-center text-ok underline underline-offset-2">
                 {c.product?.plants?.length ? "Start a new case from this one" : "Add parts and plants on a new case"}
               </Link>
             </p>

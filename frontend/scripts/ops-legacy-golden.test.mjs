@@ -31,6 +31,9 @@ import { html } from "./render-support.mjs";
 // "Scope and limits" disclosure (same words), the step tabs say "Draft" and
 // "Scenarios", and the Ask button says "Ask" (its accessible name is
 // unchanged). No money or ops markup changed.
+// #685 re-captured compare once, on purpose: the table caption is shorter
+// ("Ranked, best plan first") and the full tier order it listed moved into the
+// "How the ranking works" fold (one added sentence). No other markup changed.
 globalThis.window = new EventTarget();
 globalThis.document = Object.assign(new EventTarget(), { body: { style: {} }, activeElement: null });
 stubNavigation({ id: "c1", search: "target=Thailand" });
