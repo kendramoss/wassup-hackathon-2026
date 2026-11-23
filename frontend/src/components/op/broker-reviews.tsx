@@ -10,6 +10,7 @@ import {
   FROZEN_NOTE,
   caseReviewChip,
   caseReviews,
+  changedSinceSharedLabel,
   createBody,
   dateLabel,
   effectiveStatus,
@@ -227,7 +228,7 @@ function CreatedLink({ link, expires }: { link: string; expires: string }) {
   );
 }
 
-function ReviewRow({ r, open, canRevoke, onRevoke }: { r: ReviewSummary; open: boolean; canRevoke: boolean; onRevoke: () => Promise<void> }) {
+export function ReviewRow({ r, open, canRevoke, onRevoke }: { r: ReviewSummary; open: boolean; canRevoke: boolean; onRevoke: () => Promise<void> }) {
   const [confirming, setConfirming] = useState(false);
   const [busy, setBusy] = useState(false);
   // #606: focus the safe action on open, keep Tab local, and return focus to
@@ -251,6 +252,7 @@ function ReviewRow({ r, open, canRevoke, onRevoke }: { r: ReviewSummary; open: b
   const s = statusLabel(status);
   const live = isActive(r);
   const events = timeline(r);
+  const changed = status === "revoked" ? null : changedSinceSharedLabel(r.changed_since_shared);
   return (
     <li className="border-b border-line py-3 first:border-t">
       <div className="flex flex-wrap items-center gap-2">
@@ -260,6 +262,7 @@ function ReviewRow({ r, open, canRevoke, onRevoke }: { r: ReviewSummary; open: b
       <p className="mt-1 text-xs text-dim">
         {formatName(r.format)} · made {dateLabel(r.created_at)} · {live ? "expires" : status === "revoked" ? "was to expire" : "expired"} {dateLabel(r.expires_at)}
       </p>
+      {changed && <p className="mt-1 text-xs font-medium text-ask">△ {changed}</p>}
       <details open={open} className="group mt-2">
         <summary className="flex min-h-8 cursor-pointer list-none items-center gap-2 text-[12.5px] text-ink hover:text-ok [&::-webkit-details-marker]:hidden">
           <span aria-hidden="true" className="inline-block w-3 text-dim transition-transform group-open:rotate-90">

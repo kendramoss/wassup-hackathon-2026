@@ -20,6 +20,8 @@ export type ReviewSummary = {
   revoked_at?: string;
   first_viewed_at?: string;
   decisions?: ReviewDecision[];
+  // #714: final CBP changes since the link was shared; absent when none.
+  changed_since_shared?: number;
 };
 
 export type CreateReviewBody = {
@@ -44,6 +46,22 @@ export type BrokerPacket = {
   draft?: { format?: "markdown" | "cfr177"; content?: string; notes?: string[] } | null;
   shared_at?: string;
   disclaimer?: string;
+  // #714: final, in-effect CBP changes dated on or after the sharing day, to
+  // the rulings the frozen draft cites or its plan rests on. Absent when none.
+  ruling_changes?: RulingChange[];
+};
+
+export type RulingChange = {
+  ruling: string;
+  roles?: string[];
+  status?: "final";
+  kind: "revoked" | "modified";
+  by: string;
+  date?: string;
+  url?: string;
+  note?: string;
+  relevance?: "touches_answer" | "not_answer" | "holding_unchanged" | "unknown";
+  relevance_note?: string;
 };
 
 export const DISCLAIMER = "Not a ruling. Confirm with a licensed customs broker or a CBP binding ruling.";
@@ -208,6 +226,23 @@ export const dateLabel = (iso: string | null | undefined) => formatDate(iso);
 export function caseReviews(c: unknown): ReviewSummary[] {
   const r = (c as { broker_reviews?: unknown } | null | undefined)?.broker_reviews;
   return Array.isArray(r) ? (r as ReviewSummary[]) : [];
+}
+
+// "N344694 was modified by H344999 on 6 May 2026": what CBP changed, nothing
+// about whether a draft or an approval still stands.
+export function changeSentence(c: Pick<RulingChange, "ruling" | "kind" | "by" | "date">): string {
+  const day = formatDate(c.date);
+  return `${c.ruling} was ${c.kind} by ${c.by}${day ? ` on ${day}` : ""}`;
+}
+
+export function relevanceWords(c: Pick<RulingChange, "relevance">): string | null {
+  if (c.relevance === "touches_answer") return "Bears on the answer.";
+  if (c.relevance === "not_answer" || c.relevance === "holding_unchanged") return "Does not touch the answer directly.";
+  return null;
+}
+
+export function changedSinceSharedLabel(n: number | null | undefined): string | null {
+  return typeof n === "number" && n > 0 ? `${n} ${n === 1 ? "ruling" : "rulings"} changed since shared` : null;
 }
 
 export const formatName = (f: string | null | undefined) => (f === "cfr177" ? "Part 177 letter" : "Short draft");

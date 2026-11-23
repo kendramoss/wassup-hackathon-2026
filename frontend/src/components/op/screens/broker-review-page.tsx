@@ -6,16 +6,19 @@ import {
   COMMENT_MAX,
   DISCLAIMER,
   brokerFailure,
+  changeSentence,
   checkDecision,
   counter,
   dateLabel,
   decisionLabel,
   effectiveStatus,
   plausibleToken,
+  relevanceWords,
   tokenFromHash,
   statusLabel,
   type BrokerPacket,
   type DecisionKind,
+  type RulingChange,
 } from "@/lib/broker-review";
 import { copy } from "@/lib/copy";
 import { conf, originConf, originConfCaption, shortSubject } from "@/lib/format";
@@ -294,6 +297,8 @@ export function Packet({
         )}
       </section>
 
+      <RulingChanges changes={p.ruling_changes} />
+
       <section aria-labelledby="draft-h">
         <h2 id="draft-h" className="eyebrow mb-3">
           The draft letter
@@ -313,6 +318,44 @@ export function Packet({
 
       <Decide p={p} token={token} onPacket={onPacket} onGone={onGone} preview={preview} />
     </div>
+  );
+}
+
+// #714: what CBP changed since the link was shared, from the server, with the
+// relevance and date behind a disclosure. It never says the draft is wrong.
+export function RulingChanges({ changes }: { changes?: RulingChange[] }) {
+  const list = Array.isArray(changes) ? changes.filter((x) => x && typeof x.ruling === "string") : [];
+  if (!list.length) return null;
+  return (
+    <section aria-labelledby="chg-h">
+      <h2 id="chg-h" className="eyebrow">
+        CBP changes since this was shared
+      </h2>
+      <ul className="mt-2 flex flex-col">
+        {list.map((x) => {
+          const rel = relevanceWords(x);
+          return (
+            <li key={x.ruling} className="border-b border-line py-2 text-sm first:border-t">
+              <span className="break-words">{changeSentence(x)}</span>
+              <details className="group mt-1 text-[12.5px] text-dim">
+                <summary className="flex min-h-8 cursor-pointer list-none items-center gap-2 text-ink hover:text-ok [&::-webkit-details-marker]:hidden">
+                  <span aria-hidden="true" className="inline-block w-3 transition-transform group-open:rotate-90">
+                    ▸
+                  </span>
+                  Does it matter here?
+                </summary>
+                <p className="duo pl-5">
+                  {rel ?? "CBP's change is not compared with this draft."}
+                  {x.relevance_note ? ` ${x.relevance_note}` : ""}
+                  {x.date ? ` Dated ${dateLabel(x.date)}.` : ""}
+                </p>
+              </details>
+            </li>
+          );
+        })}
+      </ul>
+      <p className="duo mt-2 text-[13px] text-dim">The draft below is still the version that was shared.</p>
+    </section>
   );
 }
 
