@@ -194,6 +194,8 @@ export function CanadaCheckView({
   onShare,
   onClear,
   epoch = 0,
+  shownAnswers,
+  shownShares,
   busy = false,
 }: {
   v: CanadaMarking;
@@ -206,6 +208,10 @@ export function CanadaCheckView({
   onClear?: () => void;
   // Bumped when the answers are reset from outside the boxes.
   epoch?: number;
+  // The answers the shown result was run for; the "Your answers" row follows
+  // them, so it stays until a new result lands.
+  shownAnswers?: Answers;
+  shownShares?: Shares;
   busy?: boolean;
 }) {
   const C = copy.canadaCheck;
@@ -217,16 +223,18 @@ export function CanadaCheckView({
   const isShare = (m: Item) => m.kind === "share" && m.material !== undefined && Boolean(onShare);
   const shareItems = missing.filter(isShare);
   const shown = new Set<string>(facts.map((f) => f.key));
-  const shownShares = new Set(shareItems.map((m) => shareKey(m.key, m.material!)));
+  const shownKeys = new Set(shareItems.map((m) => shareKey(m.key, m.material!)));
   // Answers with no control now (the result is decided, or the question went
   // away): kept visible and clearable.
+  const ra = shownAnswers ?? answers;
+  const rs = shownShares ?? shares;
   const gone: string[] = [
-    ...FACT_KEYS.filter((k) => typeof answers[k] === "boolean" && !shown.has(k)).map((k) => `${C.answerLabels[k]} ${answers[k] ? C.yes.toLowerCase() : C.no.toLowerCase()}`),
-    ...Object.keys(shares)
-      .filter((k) => !shownShares.has(k))
+    ...FACT_KEYS.filter((k) => typeof ra[k] === "boolean" && !shown.has(k)).map((k) => `${C.answerLabels[k]} ${ra[k] ? C.yes.toLowerCase() : C.no.toLowerCase()}`),
+    ...Object.keys(rs)
+      .filter((k) => !shownKeys.has(k))
       .map((k) => {
         const [key, i] = k.split("@");
-        return `${C.shareLabels[key] ?? key} (${parts?.[Number(i)]?.trim() || C.part(Number(i) + 1)}) ${pct(shares[k])}%`;
+        return `${C.shareLabels[key] ?? key} (${parts?.[Number(i)]?.trim() || C.part(Number(i) + 1)}) ${pct(rs[k])}%`;
       }),
   ];
   const adds = missing.filter((m) => (m.kind === "code" || m.kind === "share") && !isShare(m));
@@ -288,7 +296,7 @@ export function CanadaCheckView({
             </p>
           ) : null}
           {onAnswer ? (
-            <p role="status" className="duo min-h-4 text-[12.5px] text-dim">
+            <p role="status" className="duo h-[19px] text-[12.5px] leading-[19px] text-dim">
               {busy ? C.running : ""}
             </p>
           ) : null}
@@ -348,6 +356,7 @@ export function CanadaCheck({ c, auto = false }: { c: CaseResponse; auto?: boole
   const [busy, setBusy] = useState(false);
   const [err, setErr] = useState("");
   const [epoch, setEpoch] = useState(0);
+  const [shownHeld, setShownHeld] = useState<Held>({ key: "", a: {}, s: {} });
   const ok = Boolean(c.product && canCheckCanada(c));
   // Answers (facts and shares) live here only: they are sent with the request
   // and never stored on the case. They belong to the product's content.
@@ -373,6 +382,7 @@ export function CanadaCheck({ c, auto = false }: { c: CaseResponse; auto?: boole
       const r = await api.canadaMarking(buildBody(c.product!, h.a, h.s, vRef.current?.country), ac.signal);
       if (mine !== seq.current) return;
       applied.current = h;
+      setShownHeld(h);
       setV(r);
     } catch (e) {
       if (mine !== seq.current) return;
@@ -421,6 +431,7 @@ export function CanadaCheck({ c, auto = false }: { c: CaseResponse; auto?: boole
       .then((r) => {
         if (!live || mine !== seq.current) return;
         applied.current = curRef.current;
+        setShownHeld(curRef.current);
         setV(r);
       })
       .catch((e) => live && mine === seq.current && setErr(errorText(e instanceof Error ? e.message : String(e))));
@@ -459,6 +470,8 @@ export function CanadaCheck({ c, auto = false }: { c: CaseResponse; auto?: boole
           onShare={answerShare}
           onClear={clearAll}
           epoch={epoch}
+          shownAnswers={shownHeld.key === pkey ? shownHeld.a : {}}
+          shownShares={shownHeld.key === pkey ? shownHeld.s : {}}
           busy={busy}
         />
         {err ? (

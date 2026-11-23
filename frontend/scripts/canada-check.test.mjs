@@ -425,3 +425,28 @@ test("rendered: a new product drops the old result, its country and answers", as
   assert.deepEqual(view.props.shares, {});
   assert.ok(view.props.epoch > 0);
 });
+
+test("rendered: Your answers stays until the new result lands, then goes", async () => {
+  let release;
+  const app = mountWith((b, i) => {
+    if (!b.materials && i >= 2) return new Promise((r) => (release = () => r(json({ ...undet(), country: "Mexico" }))));
+    return json(b.materials ? decidedMx() : { ...undet(), country: "Mexico" });
+  });
+  app.refresh();
+  await app.flush();
+  inputs(app)[0].props.onChange({ target: { value: "5" } });
+  app.refresh();
+  inputs(app)[0].props.onBlur();
+  app.refresh();
+  await app.flush();
+  const row = () => app.find((e) => e.props?.["data-canada-answers"] !== undefined).length;
+  assert.equal(row(), 1, "decided with a hidden answer");
+  app.btn("Clear all").props.onClick();
+  app.refresh();
+  await app.flush();
+  assert.equal(app.calls.length, 3, "clear request sent and held");
+  assert.equal(row(), 1, "row stays while the request runs");
+  release();
+  await app.flush();
+  assert.equal(row(), 0, "gone once the new result lands");
+});
