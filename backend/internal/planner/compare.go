@@ -72,8 +72,10 @@ func Compare(e Economics, current *domain.Product, variant *domain.Product, curr
 			return c
 		}
 		if len(e.GroupCosts) > 0 {
-			if added, known := knownAddedCost(e, *current, c.Moved); known {
-				c.AddedCostUSD = ptr(added)
+			if mm, ok := legacyMoneyMoves(*current, *variant, c.Moved); ok {
+				if added, known := knownAddedCost(e, *current, mm); known {
+					c.AddedCostUSD = ptr(added)
+				}
 			}
 		}
 	}
@@ -112,6 +114,20 @@ func (c *Comparison) priceOps(e Economics, current domain.Product, variant *doma
 // another is unchanged. Only money uses this; legal facts and enumeration keep
 // groupPlant, and the operations block keeps CurrentPlant.
 func moneyBaselinePlant(p domain.Product, group string) (domain.Plant, bool) {
+	ids := moneyPlantSet(p, group)
+	if len(ids) != 1 {
+		return domain.Plant{}, false
+	}
+	for id := range ids {
+		return p.PlantByID(id)
+	}
+	return domain.Plant{}, false
+}
+
+// moneyPlantSet is the set of plants the legacy money paths see for a group:
+// the plants of its operations when it has any, otherwise of its components.
+// It is the one definition behind moneyBaselinePlant and the changed-set guard.
+func moneyPlantSet(p domain.Product, group string) map[string]bool {
 	ids, hasOps := map[string]bool{}, false
 	for _, o := range p.Operations {
 		if o.Group == group {
@@ -126,13 +142,53 @@ func moneyBaselinePlant(p domain.Product, group string) (domain.Plant, bool) {
 			}
 		}
 	}
-	if len(ids) != 1 {
-		return domain.Plant{}, false
+	return ids
+}
+
+// legacyMoneyMoves is what the legacy money path prices: ok is false (money
+// unknown) when the current setup names several money plants for a group and
+// the variant's plant set for it differs, because no single "from" plant is
+// then defined and groupPlant's pick follows list order (#716). A variant that
+// is itself partly split, from a single-plant current group, keeps its
+// pre-existing pricing (the #323 BOM golden). A moved group whose
+// plant set did not change (a reordered split group) is not a money move. Legal
+// enumeration, facts and MatchMove keep movesBetween and groupPlant.
+func legacyMoneyMoves(current, variant domain.Product, moved domain.Move) (domain.Move, bool) {
+	groups := map[string]bool{}
+	for _, p := range []domain.Product{current, variant} {
+		for _, c := range p.Components {
+			groups[c.Group] = true
+		}
+		for _, o := range p.Operations {
+			groups[o.Group] = true
+		}
 	}
-	for id := range ids {
-		return p.PlantByID(id)
+	split := map[string]bool{} // groups whose plant set is ambiguous but unchanged
+	for g := range groups {
+		if g == "" {
+			continue
+		}
+		a, b := moneyPlantSet(current, g), moneyPlantSet(variant, g)
+		if len(a) <= 1 {
+			continue // a single-plant or absent baseline is priced as before
+		}
+		if len(a) != len(b) {
+			return nil, false
+		}
+		for id := range a {
+			if !b[id] {
+				return nil, false
+			}
+		}
+		split[g] = true
 	}
-	return domain.Plant{}, false
+	out := domain.Move{}
+	for _, gm := range moved {
+		if !split[gm.Group] {
+			out = append(out, gm)
+		}
+	}
+	return out, true
 }
 
 // knownAddedCost is the yearly cost of the moves, only when every moved group

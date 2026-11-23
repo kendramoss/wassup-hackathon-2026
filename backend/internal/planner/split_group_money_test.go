@@ -1,6 +1,7 @@
 package planner
 
 import (
+	"fmt"
 	"testing"
 
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/domain"
@@ -167,5 +168,85 @@ func TestComponentOnlySplitGroupUnpriced(t *testing.T) {
 	}
 	if got[0] != got[1] {
 		t.Errorf("order dependent: %v", got)
+	}
+}
+
+// withPcbaOps returns p with the pcba group's operations at the given plants,
+// in the given order.
+func withPcbaOps(p domain.Product, plants ...string) domain.Product {
+	p.Operations = nil
+	for i, pl := range plants {
+		p.Operations = append(p.Operations, domain.Operation{Name: []string{"SMT line", "Reflow"}[i%2], Plant: pl, Group: "pcba"})
+	}
+	return p
+}
+
+// A variant that consolidates an already split group changes the group's plant
+// set. The legacy money must be unknown for every current operation order and
+// every destination, including a destination equal to the plant movesBetween
+// happens to pick first (#716 review finding 1).
+func TestConsolidatingSplitGroupMoneyUnknownInBothOrders(t *testing.T) {
+	e := splitGroupEcon(map[string]float64{"sp1": 100, "sp2": 900, "sp3": 500})
+	for _, dest := range []string{"sp1", "sp2", "sp3"} {
+		for _, flip := range []bool{false, true} {
+			cur := splitGroupProduct(true, flip)
+			v := withPcbaOps(cur, dest, dest)
+			c := Compare(e, &cur, &v, "China", "Vietnam")
+			if c.AddedCostUSD != nil || c.NetUSD != nil {
+				t.Errorf("dest=%s flip=%v: money must be unknown, got added=%v net=%v moved=%v", dest, flip, c.AddedCostUSD, c.NetUSD, c.Moved)
+			}
+			if c.DutySavingsUSD == nil || *c.DutySavingsUSD != 200000 {
+				t.Errorf("dest=%s flip=%v: duty savings must stay known", dest, flip)
+			}
+		}
+	}
+}
+
+// Same legal prediction, only the variant's operation order differs: the money
+// must not depend on either list order.
+func TestConsolidatingSplitGroupVariantOrderIndependent(t *testing.T) {
+	e := splitGroupEcon(map[string]float64{"sp1": 100, "sp2": 900, "sp3": 500})
+	cur := splitGroupProduct(true, false)
+	var got []string
+	for _, v := range []domain.Product{withPcbaOps(cur, "sp1", "sp1"), withPcbaOps(cur, "sp1", "sp1")} {
+		c := Compare(e, &cur, &v, "China", "Vietnam")
+		got = append(got, fmt.Sprint(c.AddedCostUSD == nil, c.NetUSD == nil))
+	}
+	if got[0] != got[1] {
+		t.Errorf("order dependent: %v", got)
+	}
+}
+
+// An unchanged or merely reordered split setup is not a plant-set change and
+// keeps its old (zero added cost) money; a split variant of a single-plant
+// current group is outside this guard (legacy baseline is single-plant).
+func TestSplitGroupUnchangedAndReorderedKeepMoney(t *testing.T) {
+	e := splitGroupEcon(map[string]float64{"sp1": 100, "sp2": 900, "sp3": 500})
+	cur := splitGroupProduct(true, false)
+	for _, v := range []domain.Product{cur, splitGroupProduct(true, true)} {
+		c := Compare(e, &cur, &v, "China", "China")
+		if c.AddedCostUSD == nil || *c.AddedCostUSD != 0 || c.NetUSD == nil || *c.NetUSD != 0 {
+			t.Errorf("unchanged split must stay zero/known: %v %v", c.AddedCostUSD, c.NetUSD)
+		}
+	}
+}
+
+// Single-plant and explicit-zero controls through Compare keep their money when
+// the variant is a plain single-plant move, and the duty-only mode stays nil.
+func TestConsolidationGuardControls(t *testing.T) {
+	for _, flip := range []bool{false, true} {
+		cur := splitGroupProduct(false, flip)
+		v := withPcbaOps(cur, "sp3", "sp3")
+		e := splitGroupEcon(map[string]float64{"sp1": 0, "sp3": 500})
+		c := Compare(e, &cur, &v, "China", "Vietnam")
+		if c.AddedCostUSD == nil || *c.AddedCostUSD != 500 {
+			t.Errorf("explicit zero control: %v", c.AddedCostUSD)
+		}
+		ed := splitGroupEcon(nil)
+		sp := splitGroupProduct(true, flip)
+		vd := withPcbaOps(sp, "sp1", "sp1")
+		if cd := Compare(ed, &sp, &vd, "China", "Vietnam"); cd.AddedCostUSD != nil || cd.NetUSD != nil {
+			t.Errorf("duty-only mode has no group-cost money: %v %v", cd.AddedCostUSD, cd.NetUSD)
+		}
 	}
 }
