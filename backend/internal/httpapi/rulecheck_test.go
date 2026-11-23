@@ -57,6 +57,10 @@ func TestRuleCheckShownBesideTheModel(t *testing.T) {
 				return
 			}
 			res := rc["result"].(map[string]any)
+			// Guidance belongs to the Canada route only: the case's U.S. check is unchanged.
+			if _, has := rc["guidance"]; has || res["guidance"] != nil {
+				t.Fatalf("guidance in the case rule_check: %v", rc)
+			}
 			if rc["applies"] != tt.applies || res["status"] != tt.status || rc["country"] != "Mexico" || rc["country_from"] != "final assembly plant" {
 				t.Fatalf("rule_check %v", rc)
 			}
