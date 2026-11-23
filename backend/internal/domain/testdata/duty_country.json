@@ -1,0 +1,19 @@
+{
+  "comment": "Shared contract for domain.DutyCountry (Go) and frontend/src/lib/duty-rates.ts dutyCountry (TS). Both test suites read this file; every alias key in country.go and dutycountry.go must appear as an input here.",
+  "cases": [
+    ["USA", "United States"], ["us", "United States"], ["U.S.", "United States"], ["United States of America", "United States"],
+    ["US Virgin Islands", "US Virgin Islands"], ["United States Virgin Islands", "US Virgin Islands"],
+    ["PRC", "China"], ["People's Republic of China", "China"], ["Mainland China", "China"], ["China", "China"],
+    ["Viet Nam", "Vietnam"], ["Vietnam", "Vietnam"], ["Republic of Korea", "South Korea"], ["Korea", "South Korea"], ["S. Korea", "S Korea"],
+    ["Taiwan (ROC)", "Taiwan"], ["UK", "United Kingdom"], ["Great Britain", "United Kingdom"], ["England", "United Kingdom"],
+    ["The Netherlands", "Netherlands"], ["Holland", "Netherlands"], ["Czechia", "Czech Republic"], ["Turkiye", "Turkey"],
+    ["Türkiye", "Turkey"], ["Hong Kong SAR", "Hong Kong"], ["Thai", "Thailand"], ["Burma", "Myanmar"],
+    ["DPRK", "North Korea"], ["Democratic People's Republic of Korea", "North Korea"], ["Korea, North", "North Korea"], ["North Korea", "North Korea"],
+    ["NORTH KOREA ", "North Korea"], ["Republic of Cuba", "Cuba"], ["Cuba", "Cuba"], ["Byelorussia", "Belarus"], ["Belarus", "Belarus"],
+    ["UAE", "United Arab Emirates"], ["United Arab Emirates", "United Arab Emirates"], ["Chinese Taipei", "Taiwan"], ["Taiwan, China", "Taiwan"],
+    ["Taiwan", "Taiwan"], ["Korea, South", "South Korea"], ["South Korea", "South Korea"], ["Russia", "Russia"], ["Russian Federation", "Russian Federation"],
+    ["Rossiya", "Rossiya"], ["Indonesia/Malaysia", "Indonesia/Malaysia"], ["UAE/Taiwan, China", "United Arab Emirates/Taiwan"],
+    ["Indonesia or Malaysia", "Indonesia/Malaysia"], ["  ", ""], ["", ""], ["Ivory Coast 2", "Ivory Coast"], ["Bosnia and Herzegovina", "Bosnia And Herzegovina"],
+    ["Republic Of Ireland", "Republic of Ireland"]
+  ]
+}

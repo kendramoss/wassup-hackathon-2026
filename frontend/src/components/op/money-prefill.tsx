@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { ApiError, api, type Economics, type Product } from "@/lib/api/client";
+import { dutyCountry } from "@/lib/duty-rates";
 import { cx } from "./ui";
 
 // Money inputs filled for the user (#235): figures from the uploaded BOM,
@@ -64,7 +65,10 @@ export function mergeDutyPrefill(latest: Economics, started: Economics | undefin
   const now = latest.duty_rates ?? {};
   const was = started?.duty_rates ?? {};
   const got = result?.duty_rates ?? {};
-  const add = Object.keys(got).filter((c) => now[c] === undefined && was[c] === undefined);
+  // By country identity (#718): a rate the user holds under another spelling of
+  // the country is theirs, so the lookup's canonical key must not land beside it.
+  const held = (m: Record<string, number>, c: string) => Object.keys(m).some((k) => m[k] !== undefined && dutyCountry(k) === dutyCountry(c));
+  const add = Object.keys(got).filter((c) => !held(now, c) && !held(was, c));
   if (!add.length) return latest;
   const out: Economics = { ...latest, duty_rates: { ...now, ...Object.fromEntries(add.map((c) => [c, got[c]])) } };
   const pick = <T,>(m: Record<string, T> | undefined) => (m ? Object.fromEntries(Object.entries(m).filter(([c]) => add.includes(c))) : undefined);
