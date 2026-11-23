@@ -21,7 +21,7 @@ func fullProfile() Profile {
 	na := ProvisionNotApplicable
 	return Profile{SimpleGoods: true, MaterialsComplete: true,
 		Sets: na, AccessoriesPacking: na, Fungibles: na, IntermediateMaterials: na,
-		CostAveraging: na, DeMinimis: na, OutsidePartyOperations: na, SpecialValuation: na}
+		CostAveraging: na, DeMinimis: na, OutsidePartyOperations: na, SpecialValuation: na, PartsRoute: na}
 }
 
 func mat(hs string, c OriginClaim) Material { return Material{HS: hs, Originating: c} }
@@ -392,6 +392,7 @@ func TestProfileGates(t *testing.T) {
 		"de_minimis":               func(p *Profile) { p.DeMinimis = ProvisionApplies },
 		"outside_party_operations": func(p *Profile) { p.OutsidePartyOperations = ProvisionApplies },
 		"special_valuation":        func(p *Profile) { p.SpecialValuation = ProvisionApplies },
+		"parts_route":              func(p *Profile) { p.PartsRoute = ProvisionApplies },
 	}
 	for name, set := range provs {
 		in := good()
@@ -450,15 +451,15 @@ func TestUnsupportedGoods(t *testing.T) {
 	}
 }
 
-func TestEmbeddedRulesAreEmpty(t *testing.T) {
+func TestEmbeddedRulesLoad(t *testing.T) {
 	rs, err := DefaultRules()
 	if err != nil {
 		t.Fatal(err)
 	}
-	if rs.Version() == "" || len(rs.Rows()) != 0 {
+	if rs.Version() == "" || len(rs.Rows()) != 3 {
 		t.Fatalf("version %q rows %d", rs.Version(), len(rs.Rows()))
 	}
-	out, err := Check(base("8202310000", nil))
+	out, err := Check(base("8202390000", nil))
 	if err != nil {
 		t.Fatal(err)
 	}

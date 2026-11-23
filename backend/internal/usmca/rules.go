@@ -23,6 +23,7 @@ const (
 	KindChangeFromTariffItem = "change_from_tariff_item"
 	KindForbiddenInputs      = "forbidden_inputs"
 	KindSiblingParts         = "sibling_parts"
+	KindAllInputsFrom        = "all_inputs_from"
 	KindNoShiftRequired      = "no_shift_required"
 	KindRVC                  = "rvc"
 )
@@ -85,6 +86,7 @@ type RowSource struct {
 type Alternative struct {
 	ID         string      `json:"id"`
 	Label      string      `json:"label"`
+	Note       string      `json:"note,omitempty"`
 	Conditions []Condition `json:"conditions"`
 }
 
@@ -248,6 +250,16 @@ func validateCondition(c Condition) error {
 		}
 		if len(c.AtLeastOneFrom) == 0 {
 			return errors.New("sibling_parts needs at_least_one_from")
+		}
+		if c.OthersOutsideChapter != "" && (len(c.OthersOutsideChapter) != 2 || !isDigits(c.OthersOutsideChapter)) {
+			return errors.New("others_outside_chapter must be a 2-digit chapter")
+		}
+	case KindAllInputsFrom:
+		if err := only(hasExcl, hasForb, hasRVC, len(c.AtLeastOneFrom) > 0); err != nil {
+			return err
+		}
+		if len(c.OthersFrom) == 0 && c.OthersOutsideChapter == "" {
+			return errors.New("all_inputs_from needs others_from or others_outside_chapter")
 		}
 		if c.OthersOutsideChapter != "" && (len(c.OthersOutsideChapter) != 2 || !isDigits(c.OthersOutsideChapter)) {
 			return errors.New("others_outside_chapter must be a 2-digit chapter")

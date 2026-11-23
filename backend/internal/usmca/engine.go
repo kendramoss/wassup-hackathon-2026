@@ -67,6 +67,7 @@ type ConditionResult struct {
 type AlternativeResult struct {
 	ID         string            `json:"id"`
 	Label      string            `json:"label"`
+	Note       string            `json:"note,omitempty"`
 	Result     Outcome           `json:"result"`
 	Conditions []ConditionResult `json:"conditions"`
 }
@@ -117,7 +118,7 @@ var Limits = []string{
 	"This checks one selected product-specific origin rule only. It is not a certification of origin, a preferential-treatment or tariff-rate determination, or a duty-saving claim.",
 	"Originating-status claims, material codes, values and profile confirmations are supplied by the caller and are not verified.",
 	"A not_met result concerns the selected rule as modeled; it is not a legal finding that the good fails to originate.",
-	"Unsupported special provisions (sets, accessories/packing, fungibles, intermediate materials, cost averaging, de minimis, outside-party operations, special valuation) are not evaluated.",
+	"Not evaluated: the parts route (Art. 4.2(d) / GN 11(b)(iv)), de minimis, sets, accessories/packing, fungibles, intermediate materials, cost averaging, accumulation, remanufactured goods, automotive rules, outside-party operations and special valuation. Each must be confirmed as not applicable; an invoked one returns not_supported.",
 	"RVC uses exact decimal arithmetic on the supplied figures, which must share one currency and valuation basis; the displayed percentage is rounded for readability only.",
 }
 
@@ -210,7 +211,7 @@ func (rs *RuleSet) Check(in Input) (Output, error) {
 	rule := False
 	var altFacts factSet
 	for _, a := range row.Alternatives {
-		ar := AlternativeResult{ID: a.ID, Label: a.Label}
+		ar := AlternativeResult{ID: a.ID, Label: a.Label, Note: a.Note}
 		res := True
 		for _, c := range a.Conditions {
 			cr := ev.condition(c)
@@ -449,6 +450,9 @@ func (e *evaluator) condition(c Condition) ConditionResult {
 		if len(c.Prefixes) > 0 {
 			cr.Detail += fmt.Sprintf(" (under %v)", c.Prefixes)
 		}
+	case KindAllInputsFrom:
+		t = e.allInputsFrom(&cr, c)
+		cr.Detail = fmt.Sprintf("every non-originating material must be under %v OR outside chapter %q", c.OthersFrom, c.OthersOutsideChapter)
 	case KindSiblingParts:
 		t = e.sibling(&cr, c)
 		cr.Detail = fmt.Sprintf("at least one non-originating material under %v AND every other non-originating material under %v OR outside chapter %q", c.AtLeastOneFrom, c.OthersFrom, c.OthersOutsideChapter)
@@ -460,6 +464,19 @@ func (e *evaluator) condition(c Condition) ConditionResult {
 	}
 	cr.Result = outcome(t)
 	return cr
+}
+
+func (e *evaluator) allInputsFrom(cr *ConditionResult, c Condition) Tri {
+	return e.allMaterials(cr, func(m Material) Tri {
+		if m.HS == "" {
+			return Unknown3
+		}
+		ok := hasAnyPrefix(m.HS, c.OthersFrom)
+		if c.OthersOutsideChapter != "" {
+			ok = ok.Or(hasPrefix(m.HS, c.OthersOutsideChapter).Not())
+		}
+		return ok
+	})
 }
 
 func (e *evaluator) sibling(cr *ConditionResult, c Condition) Tri {

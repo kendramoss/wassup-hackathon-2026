@@ -1,7 +1,64 @@
 {
   "schema_version": 1,
-  "data_version": "empty-0",
-  "note": "No source-backed rows are enabled yet; every good returns not_supported.",
-  "snapshot": {"source": "", "revision": "", "retrieved_on": "", "source_hash": ""},
-  "rows": []
+  "data_version": "pilot-2026-11-24-1",
+  "note": "Pilot rows for three goods only. Source: HTSUS Revision 23 (2026) General Note 11(o); text identical in substance to USMCA Annex 4-B. Classification basis is the current HTSUS per GN 11(m)(i)-(ii). GN 11(o) chapters 82 and 95 contain no chapter, subheading or item overrides. Parts route (Art. 4.2(d) / GN 11(b)(iv)), de minimis, sets, accessories/packing, fungibles, intermediate materials, accumulation, remanufactured goods and automotive rules are not evaluated.",
+  "snapshot": {
+    "source": "USITC HTSUS Revision 23 (2026), General Note 11(o), chapter 82 rules 3 and 6 (GN p.93) and chapter 95 rule 1 (GN p.160); cross-checked to USMCA Annex 4-B",
+    "revision": "HTSUS Rev 23 (2026); PDF CreationDate 2026-11-10; Annex 4-B as in force 2020-07-01",
+    "retrieved_on": "2026-11-24",
+    "source_hash": "gn.pdf sha256 044efaf934ab97bad75c1d42a1fc08671dee74f2cdf145b57b65615970f82028; Annex 4-B (USTR 04-Rules-of-Origin.pdf) sha256 7e63f6065c405d0451d6e4190a165e4b9258faa860c236a77574fe01597773ed"
+  },
+  "rows": [
+    {
+      "id": "gn11o-8202.31",
+      "code": "820231",
+      "description": "Saw blades, subheading 8202.31 (with working part of steel)",
+      "source": {
+        "citation": "HTSUS Rev 23 GN 11(o), Chapter 82, rule 3 (GN p.93); USMCA Annex 4-B Chapter 82",
+        "excerpt": "3. (A) A change to subheading 8202.31 from any other chapter; or (B) A change to subheadings 8202.31 from subheading 8202.39, whether or not there is also a change from any other chapter, provided there is a regional value content of not less than: (1) 60 percent where the transaction value method is used; or (2) 50 percent where the net cost method is used."
+      },
+      "alternatives": [
+        {"id": "A", "label": "Change to 8202.31 from any other chapter",
+         "conditions": [{"kind": "change_from_chapter"}]},
+        {"id": "B", "label": "Change from 8202.39 (with or without other-chapter inputs) and RVC 60 (TV) / 50 (NC)",
+         "note": "Interpretation under GN 11(m)(vii) (the shift applies only to non-originating materials): every non-originating material is in subheading 8202.39 or outside chapter 82, so no other chapter 82 material (including 8202.31 itself) is used. The text does not literally require at least one 8202.39 material, and none is required here.",
+         "conditions": [
+           {"kind": "all_inputs_from", "others_from": ["820239"], "others_outside_chapter": "82"},
+           {"kind": "rvc", "thresholds": {"transaction_value": "60", "net_cost": "50"}}]}
+      ]
+    },
+    {
+      "id": "gn11o-8207.13",
+      "code": "820713",
+      "description": "Rock drilling or earth boring tools, subheading 8207.13 (with working part of cermets)",
+      "source": {
+        "citation": "HTSUS Rev 23 GN 11(o), Chapter 82, rule 6 (GN p.93); USMCA Annex 4-B Chapter 82",
+        "excerpt": "6. (A) A change to subheading 8207.13 from any other chapter; or (B) A change to subheading 8207.13 from subheading 8207.19, whether or not there is also a change from any other chapter, provided there is a regional value content of not less than: (1) 60 percent where the transaction value method is used; or (2) 50 percent where the net cost method is used."
+      },
+      "alternatives": [
+        {"id": "A", "label": "Change to 8207.13 from any other chapter",
+         "conditions": [{"kind": "change_from_chapter"}]},
+        {"id": "B", "label": "Change from 8207.19 (with or without other-chapter inputs) and RVC 60 (TV) / 50 (NC)",
+         "note": "Interpretation under GN 11(m)(vii): every non-originating material is in subheading 8207.19 or outside chapter 82, so no other chapter 82 material (including 8207.13 itself) is used. The text does not literally require at least one 8207.19 material, and none is required here.",
+         "conditions": [
+           {"kind": "all_inputs_from", "others_from": ["820719"], "others_outside_chapter": "82"},
+           {"kind": "rvc", "thresholds": {"transaction_value": "60", "net_cost": "50"}}]}
+      ]
+    },
+    {
+      "id": "gn11o-9503.00",
+      "code": "950300",
+      "description": "Subheading 9503.00 only (the legal row spans 9503.00 through 9505.90; only 9503.00 is enabled here)",
+      "source": {
+        "citation": "HTSUS Rev 23 GN 11(o), Chapter 95, rule 1 (GN p.160); USMCA Annex 4-B Chapter 95",
+        "excerpt": "1. (A) A change to subheadings 9503.00 through 9505.90 from any other subheading, including another subheading within that group; or (B) No change in tariff classification to a good of any of subheadings 9503.00 through 9505.90, provided there is a regional value content of not less than: (1) 45 percent where the transaction value method is used; or (2) 35 percent where the net cost method is used."
+      },
+      "alternatives": [
+        {"id": "A", "label": "Change to 9503.00 from any other subheading",
+         "conditions": [{"kind": "change_from_subheading"}]},
+        {"id": "B", "label": "No change required and RVC 45 (TV) / 35 (NC)",
+         "conditions": [{"kind": "no_shift_required"}, {"kind": "rvc", "thresholds": {"transaction_value": "45", "net_cost": "35"}}]}
+      ]
+    }
+  ]
 }

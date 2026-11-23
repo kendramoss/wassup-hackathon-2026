@@ -74,6 +74,10 @@ type Profile struct {
 	DeMinimis              ProvisionClaim `json:"de_minimis,omitempty"`
 	OutsidePartyOperations ProvisionClaim `json:"outside_party_operations,omitempty"`
 	SpecialValuation       ProvisionClaim `json:"special_valuation,omitempty"`
+	// PartsRoute is reliance on the parts route (Art. 4.2(d) / GN 11(b)(iv)).
+	// Only reliance matters; an ordinary bill of materials containing parts
+	// is not an invoked provision.
+	PartsRoute ProvisionClaim `json:"parts_route,omitempty"`
 }
 
 type provisionRef struct {
@@ -90,6 +94,7 @@ var provisions = []provisionRef{
 	{"de_minimis", func(p Profile) ProvisionClaim { return p.DeMinimis }},
 	{"outside_party_operations", func(p Profile) ProvisionClaim { return p.OutsidePartyOperations }},
 	{"special_valuation", func(p Profile) ProvisionClaim { return p.SpecialValuation }},
+	{"parts_route", func(p Profile) ProvisionClaim { return p.PartsRoute }},
 }
 
 // Input is one stateless check request. Amounts are exact decimal strings in
