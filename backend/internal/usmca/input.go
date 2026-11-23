@@ -99,6 +99,10 @@ var provisions = []provisionRef{
 
 // Input is one stateless check request. Amounts are exact decimal strings in
 // one currency and valuation basis; omitted amounts are unknown, never zero.
+//
+// Materials: an empty list with Profile.MaterialsComplete true means the
+// caller affirms there are no non-originating materials, so shift conditions
+// are satisfied vacuously. A UI must never default MaterialsComplete to true.
 type Input struct {
 	Destination      string     `json:"destination"`
 	Regime           string     `json:"regime"`

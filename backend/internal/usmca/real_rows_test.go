@@ -61,7 +61,7 @@ func TestRealRowsCarryExcerptAndSnapshot(t *testing.T) {
 		t.Fatalf("interpretation note missing: %q", note)
 	}
 	joined := strings.Join(out.Limits, " ")
-	for _, w := range []string{"Art. 4.2(d)", "de minimis", "sets", "accumulation", "remanufactured", "automotive"} {
+	for _, w := range []string{"Art. 4.2(d)", "de minimis", "sets", "Accumulation", "remanufactured", "automotive", "simple_goods_confirmed"} {
 		if !strings.Contains(joined, w) {
 			t.Errorf("limits missing %q", w)
 		}
@@ -290,5 +290,33 @@ func TestAllInputsFromLoader(t *testing.T) {
 	}
 	if _, err := LoadRules(mut(`{"kind":"change_from_chapter"}`, `{"kind":"all_inputs_from","others_from":["7702"],"at_least_one_from":["77"]}`)); err == nil {
 		t.Error("stray at_least_one_from must be rejected")
+	}
+}
+
+func TestMutationIsolation(t *testing.T) {
+	rs := real(t)
+	rows := rs.Rows()
+	rows[0].ID = "x"
+	rows[0].Alternatives[1].Conditions[1].Thresholds.TransactionValue = ptr("1")
+	rows[0].Alternatives[1].Conditions[0].OthersFrom[0] = "99"
+	rows[0].Alternatives[0].Label = "x"
+	fresh := rs.Rows()
+	if fresh[0].ID == "x" || *fresh[0].Alternatives[1].Conditions[1].Thresholds.TransactionValue != "60" ||
+		fresh[0].Alternatives[1].Conditions[0].OthersFrom[0] != "820239" || fresh[0].Alternatives[0].Label == "x" {
+		t.Fatal("Rows() leaked internal state")
+	}
+	out := mustCheck(t, rs, base("8202310000", nil))
+	out.Limits[0] = "mutated"
+	if mustCheck(t, rs, base("8202310000", nil)).Limits[0] == "mutated" || Limits()[0] == "mutated" {
+		t.Fatal("Limits shared between outputs")
+	}
+}
+
+func ptr(s string) *string { return &s }
+
+func TestDuplicateAlternativeIDRejected(t *testing.T) {
+	bad := strings.Replace(syntheticRules, `{"id":"a2","label":"rvc no shift"`, `{"id":"a1","label":"rvc no shift"`, 1)
+	if _, err := LoadRules([]byte(bad)); err == nil || !strings.Contains(err.Error(), "duplicate alternative id") {
+		t.Fatalf("err = %v", err)
 	}
 }

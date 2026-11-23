@@ -113,14 +113,18 @@ type Output struct {
 	Limits             []string            `json:"limits"`
 }
 
-// Limits are the scope statements attached to every result.
-var Limits = []string{
+// limitsText holds the scope statements attached to every result.
+var limitsText = []string{
 	"This checks one selected product-specific origin rule only. It is not a certification of origin, a preferential-treatment or tariff-rate determination, or a duty-saving claim.",
 	"Originating-status claims, material codes, values and profile confirmations are supplied by the caller and are not verified.",
 	"A not_met result concerns the selected rule as modeled; it is not a legal finding that the good fails to originate.",
-	"Not evaluated: the parts route (Art. 4.2(d) / GN 11(b)(iv)), de minimis, sets, accessories/packing, fungibles, intermediate materials, cost averaging, accumulation, remanufactured goods, automotive rules, outside-party operations and special valuation. Each must be confirmed as not applicable; an invoked one returns not_supported.",
+	"Accumulation, remanufactured goods and automotive rules are not evaluated; they are covered only by the caller's explicit simple_goods_confirmed profile confirmation that none applies.",
+	"The parts route (Art. 4.2(d) / GN 11(b)(iv)), de minimis, sets, accessories/packing, fungibles, intermediate materials, cost averaging, outside-party operations and special valuation are not evaluated; each must be confirmed not applicable, and an invoked one returns not_supported.",
 	"RVC uses exact decimal arithmetic on the supplied figures, which must share one currency and valuation basis; the displayed percentage is rounded for readability only.",
 }
+
+// Limits returns a fresh copy of the scope statements attached to results.
+func Limits() []string { return append([]string(nil), limitsText...) }
 
 // Check evaluates in against the embedded rule data.
 func Check(in Input) (Output, error) {
@@ -156,7 +160,7 @@ func (rs *RuleSet) Check(in Input) (Output, error) {
 	out := Output{
 		Destination: in.Destination, Regime: in.Regime, GoodHS: in.GoodHS,
 		Source: SourceInfo{DataVersion: rs.data.DataVersion, Snapshot: rs.data.Snapshot},
-		Limits: Limits,
+		Limits: Limits(),
 	}
 
 	var rvc *Result
@@ -420,7 +424,7 @@ func (e *evaluator) condition(c Condition) ConditionResult {
 	var t Tri
 	switch c.Kind {
 	case KindChangeFromChapter, KindChangeFromHeading, KindChangeFromSubheading, KindChangeFromTariffItem:
-		n := map[string]int{KindChangeFromChapter: 2, KindChangeFromHeading: 4, KindChangeFromSubheading: 6, KindChangeFromTariffItem: 8}[c.Kind]
+		n := shiftDigits(c.Kind)
 		t = e.allMaterials(&cr, func(m Material) Tri {
 			shifted := prefixSame(good, m.HS, n).Not()
 			if m.HS == "" {
@@ -541,4 +545,16 @@ func (e *evaluator) rvcCondition(cr *ConditionResult, c Condition) Tri {
 		return Unknown3
 	}
 	return e.rvc.Meets(*th, true)
+}
+
+func shiftDigits(kind string) int {
+	switch kind {
+	case KindChangeFromChapter:
+		return levelDigits(LevelChapter)
+	case KindChangeFromHeading:
+		return levelDigits(LevelHeading)
+	case KindChangeFromSubheading:
+		return levelDigits(LevelSubheading)
+	}
+	return levelDigits(LevelTariffItem)
 }

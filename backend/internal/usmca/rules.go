@@ -128,7 +128,43 @@ func (rs *RuleSet) Version() string { return rs.data.DataVersion }
 func (rs *RuleSet) Snapshot() Snapshot { return rs.data.Snapshot }
 
 // Rows returns a copy of the row list.
-func (rs *RuleSet) Rows() []Row { return append([]Row(nil), rs.data.Rows...) }
+func (rs *RuleSet) Rows() []Row {
+	out := make([]Row, len(rs.data.Rows))
+	for i, row := range rs.data.Rows {
+		row.Alternatives = cloneAlternatives(row.Alternatives)
+		out[i] = row
+	}
+	return out
+}
+
+func cloneAlternatives(in []Alternative) []Alternative {
+	out := make([]Alternative, len(in))
+	for i, a := range in {
+		conds := make([]Condition, len(a.Conditions))
+		for j, c := range a.Conditions {
+			c.ExcludePrefixes = append([]string(nil), c.ExcludePrefixes...)
+			c.Prefixes = append([]string(nil), c.Prefixes...)
+			c.AtLeastOneFrom = append([]string(nil), c.AtLeastOneFrom...)
+			c.OthersFrom = append([]string(nil), c.OthersFrom...)
+			if c.Thresholds != nil {
+				t := Thresholds{}
+				if c.Thresholds.TransactionValue != nil {
+					v := *c.Thresholds.TransactionValue
+					t.TransactionValue = &v
+				}
+				if c.Thresholds.NetCost != nil {
+					v := *c.Thresholds.NetCost
+					t.NetCost = &v
+				}
+				c.Thresholds = &t
+			}
+			conds[j] = c
+		}
+		a.Conditions = conds
+		out[i] = a
+	}
+	return out
+}
 
 //go:embed data/usmca_rules.json
 var embeddedRules []byte
@@ -192,10 +228,15 @@ func validateData(df DataFile) error {
 		if len(r.Alternatives) == 0 {
 			return fmt.Errorf("row %s: at least one alternative is required", r.ID)
 		}
+		altIDs := map[string]bool{}
 		for _, a := range r.Alternatives {
 			if a.ID == "" || len(a.Conditions) == 0 {
 				return fmt.Errorf("row %s: alternative needs an id and conditions", r.ID)
 			}
+			if altIDs[a.ID] {
+				return fmt.Errorf("row %s: duplicate alternative id %q", r.ID, a.ID)
+			}
+			altIDs[a.ID] = true
 			for _, c := range a.Conditions {
 				if err := validateCondition(c); err != nil {
 					return fmt.Errorf("row %s alternative %s: %w", r.ID, a.ID, err)
