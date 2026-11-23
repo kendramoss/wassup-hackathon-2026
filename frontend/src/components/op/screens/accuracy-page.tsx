@@ -228,7 +228,7 @@ function PlanEvidence({ calibration }: { calibration?: VerifierEvidence }) {
       <h3 className="mt-5 text-sm font-semibold">Starting origin not supplied, same in each run</h3>
       <PlanBars rows={[planNoStart]} />
       <p className="duo mt-4 text-sm">
-        <strong>Stability:</strong> 27/27 repeat checks were right across 3 runs. They repeat the same 9 distinct pairs, so the independent result is 9/9 distinct pairs (95% interval 70.1–100%).
+        <strong>Stability:</strong> 27/27 repeat checks were right across 3 runs, on the same 9 distinct pairs. Independent result: 9/9 distinct pairs (95% interval 70.1–100%).
       </p>
       <p className="duo mt-2 text-sm text-dim">Checks selected moves against past rulings.</p>
       <Details title="Repeat runs and intervals">

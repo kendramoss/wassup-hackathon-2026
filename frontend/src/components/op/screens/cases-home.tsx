@@ -200,6 +200,7 @@ export function LoadDemoCard({ d }: { d: NonNullable<DemoList["demos"]>[number] 
         >
           {d.title}
         </Link>
+        <Chip className="shrink-0">Demo</Chip>
       </span>
       {m && (
         <span className="flex flex-col gap-1">
@@ -305,6 +306,7 @@ export function DemoCard({ c, demo }: { c: CaseSummary; demo?: NonNullable<DemoL
     <Link href={caseHref(c)} className="flex flex-col gap-2.5 rounded-[2px] border border-edge bg-sheet p-4 text-sm shadow-[4px_4px_0_var(--shadow)] hover:bg-white">
       <span className="flex items-start justify-between gap-2">
         <b className="font-medium leading-snug">{c.display_name}</b>
+        <Chip className="shrink-0">Demo</Chip>
       </span>
       <AlertBadge n={c.ruling_alerts} />
       <span className="text-[26px] leading-none tracking-[-0.05em]">

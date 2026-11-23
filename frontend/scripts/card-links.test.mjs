@@ -90,3 +90,8 @@ test("the per-family disagreement chart draws 29 tiles, 8 of them differing", as
   assert.match(m, /29 checks: 21 agree with CBP, 8 differ/);
   assert.match(m, /Across all 29 per-family checks, Unde disagreed with CBP/);
 });
+
+test("both demo card kinds keep the Demo label", () => {
+  const c = { id: "case_1", display_name: "Heat gun", step: "origin", predicted_origin: "China", triage_route: "auto", pinned: true };
+  for (const m of [html(DemoCard, { c }), html(LoadDemoCard, { d: demo })]) assert.match(m, /<span[^>]*>Demo<\/span>/);
+});
