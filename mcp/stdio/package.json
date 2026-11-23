@@ -1,9 +1,8 @@
 {
   "name": "@undelabs/mcp",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Stdio MCP server for Unde Labs: forwards to the hosted endpoint at https://undelabs.dev/mcp",
   "license": "MIT",
-  "private": true,
   "type": "module",
   "bin": { "undelabs-mcp": "index.js" },
   "files": ["index.js"],

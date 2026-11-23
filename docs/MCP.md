@@ -3,7 +3,7 @@
 Status: built. The Unde API is also a [Model Context Protocol](https://modelcontextprotocol.io) server, so an agent in Gemini CLI, Google ADK or Claude (or any other MCP client) can call it as tools.
 
 - Hosted endpoint (Streamable HTTP): `https://undelabs.dev/mcp`
-- Local stdio relay for clients that prefer a local process: `mcp/stdio/` (`undelabs-mcp`)
+- Local stdio relay for clients that prefer a local process: `npx -y @undelabs/mcp` (package `@undelabs/mcp`, bin `undelabs-mcp`) or from a clone at `mcp/stdio/`.
 
 Every answer is a prediction, not a ruling. Confirm it with a licensed customs broker or a CBP binding ruling. Each tool result says so.
 
@@ -82,7 +82,21 @@ Add a custom connector from the connector settings ("Add custom connector"), wit
 
 ### Claude Desktop with the stdio relay
 
-The relay is not published to npm (publishing is an owner step). Run it from a clone of this repository. It has no dependencies, so there is nothing to install beyond Node 20 or later.
+Install Node 20 or later. You can run the published package (no clone needed):
+
+```json
+{
+  "mcpServers": {
+    "unde": {
+      "command": "npx",
+      "args": ["-y", "@undelabs/mcp"],
+      "env": { "UNDE_API_KEY": "op_..." }
+    }
+  }
+}
+```
+
+Or run from a clone of this repository:
 
 ```json
 {
@@ -96,7 +110,7 @@ The relay is not published to npm (publishing is an owner step). Run it from a c
 }
 ```
 
-Or, for Claude Code: `claude mcp add --env UNDE_API_KEY=op_... --transport stdio unde -- node /path/to/mcp/stdio/index.js`. `npx /path/to/mcp/stdio` also runs it (bin `undelabs-mcp`).
+For Claude Code (published package): `claude mcp add --env UNDE_API_KEY=op_... --transport stdio unde -- npx -y @undelabs/mcp`. From a clone: `claude mcp add --env UNDE_API_KEY=op_... --transport stdio unde -- node /path/to/mcp/stdio/index.js`.
 
 Environment: `UNDE_API_KEY` (optional, `op_...`, sent as a bearer token) and `UNDE_BASE_URL` (default `https://undelabs.dev`; the relay calls `<base>/mcp`). The relay forwards each JSON-RPC message to the hosted endpoint and writes the answers back. It holds no logic of its own, so it always lists the hosted tools.
 
@@ -181,7 +195,7 @@ What you send through a tool is what the REST API receives: product facts, parts
 - `backend/internal/mcpserver`: the MCP server (official Go SDK `github.com/modelcontextprotocol/go-sdk`, Streamable HTTP, stateless). Tools build one REST request each and dispatch it to the API's own handler chain in-process (`httpapi.(*api).mcp`), with only the caller's API key, client address and access key. The admin and user tokens never reach the API from there: the MCP guard drops their headers before the handler, and the API's `withUser` middleware also skips `/mcp`, so a signed-in identity cannot reach a tool call through the request context either. An MCP caller is an API key or anonymous, even if it sends a valid `X-User-Token` (#385). As defence in depth, each tool call's `/v1` request is also built on a context that keeps the MCP request's cancellation but none of its values, so no identity, key or audit state the API's middleware put on `POST /mcp` can reach a tool call (D280). A broker review token sent to `/mcp` is dropped.
 - `POST /mcp` on the backend (registered in `httpapi/server.go`).
 - `frontend/src/app/mcp/route.ts` and `frontend/src/lib/mcp-proxy.ts`: the public route. The backend is private on Cloud Run, so the frontend proxies `/mcp` as it proxies `/api/v1`. It forwards the MCP headers, maps `Authorization: Bearer op_...` to `X-API-Key`, sets `X-Client-IP`, refuses the admin token, and streams the response through (an MCP answer can be a `text/event-stream`).
-- `mcp/stdio/index.js`: the stdio relay.
+- `mcp/stdio/index.js`: the stdio relay (also published as `@undelabs/mcp` on npm).
 
 Why in the Go backend rather than in Next.js: tools then share the API's rate limits, quotas, spend cap, isolation and audit natively, instead of re-implementing them, and the proxy stays a thin pass-through.
 

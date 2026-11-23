@@ -59,8 +59,8 @@ const adkEval = `${copy.landing.repo}/blob/main/docs/EVALUATION.md#12-agent-eval
 const desktopRelay = `{
   "mcpServers": {
     "unde": {
-      "command": "node",
-      "args": ["/path/to/wassup-hackathon-2026/mcp/stdio/index.js"],
+      "command": "npx",
+      "args": ["-y", "@undelabs/mcp"],
       "env": { "UNDE_API_KEY": "op_…" }
     }
   }
@@ -271,13 +271,24 @@ export default function Page() {
               {mcpAddKey}
             </Code>
             <p>
-              Claude.ai and Claude Desktop menus differ by plan; Anthropic&apos;s help center has the current steps. A{" "}
-              <a href={relay} target="_blank" rel="noreferrer" className={link}>
-                local stdio relay
+              Claude.ai and Claude Desktop menus differ by plan; Anthropic&apos;s help center has the current steps. Use the published{" "}
+              <a href="https://www.npmjs.com/package/@undelabs/mcp" target="_blank" rel="noreferrer" className={link}>
+                stdio relay (<code className="font-mono text-[12.5px]">npx -y @undelabs/mcp</code>)
               </a>{" "}
-              is in the repository for clients that prefer a local process. In Claude Desktop&apos;s config file it runs from a clone of this repository with Node 20 or later:
+              (Node 20+), or the{" "}
+              <a href={relay} target="_blank" rel="noreferrer" className={link}>
+                repo copy
+              </a>{" "}
+              from a clone. Example Claude Desktop config (published package):
             </p>
-            <Code label="Claude Desktop config">{desktopRelay}</Code>
+            <Code label="Claude Desktop config (published)">{desktopRelay}</Code>
+            <p className="duo text-[13px]">
+              From a clone, use <C>command</C> <C>node</C> with <C>args</C> set to the path of <C>mcp/stdio/index.js</C> (see the{" "}
+              <a href={mcpDoc} target="_blank" rel="noreferrer" className={link}>
+                MCP guide
+              </a>
+              ).
+            </p>
             <p>
               The Google ADK agent runs on Gemini with a Google API key or Vertex AI. Each answer ends with &ldquo;Not a ruling&rdquo; and a pointer to a licensed customs broker.
             </p>
