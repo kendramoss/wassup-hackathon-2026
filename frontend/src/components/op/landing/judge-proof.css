@@ -245,3 +245,22 @@
     grid-template-columns: minmax(0, 1fr);
   }
 }
+
+/* #685: on phones the source link is a 44 px tap target and no label is
+   below 12 px. */
+@media (max-width: 640px) {
+  .lp .judge-impact .judge-source {
+    min-height: 44px;
+  }
+  .lp .judge-benchmarks td span,
+  .lp .judge-waterfall-step,
+  .lp .judge-waterfall-label,
+  .lp .judge-waterfall-amount small {
+    font-size: 12px;
+  }
+  /* Hyphenate rather than cut "manufacturing" mid-word at 12 px. */
+  .lp .judge-waterfall-label {
+    overflow-wrap: normal;
+    hyphens: auto;
+  }
+}

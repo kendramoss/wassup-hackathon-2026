@@ -1816,7 +1816,7 @@ function BomImport({
             </span>
           ))}
           <span className="block">
-            <a className="text-dim underline underline-offset-2" href="/samples/heatgun-bom.csv" download>
+            <a className="inline-flex items-center text-dim underline underline-offset-2" href="/samples/heatgun-bom.csv" download>
               {copy.product.bomSamplesDownload}
             </a>
           </span>
