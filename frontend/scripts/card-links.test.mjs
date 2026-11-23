@@ -84,7 +84,9 @@ test("the per-family disagreement chart draws 29 tiles, 8 of them differing", as
   const { Disagreement } = await import("../src/components/op/screens/cases-home.tsx");
   const m = html(Disagreement, {});
   assert.equal((m.match(/<i /g) || []).length, 29);
-  assert.equal((m.match(/bg-fail/g) || []).length, 8);
+  assert.equal((m.match(/data-differs="true"/g) || []).length, 8);
+  assert.doesNotMatch(m, /bg-fail/);
+  assert.match(m, /Development checks, one run each\./);
   assert.match(m, /29 checks: 21 agree with CBP, 8 differ/);
   assert.match(m, /Across all 29 per-family checks, Unde disagreed with CBP/);
 });

@@ -160,7 +160,7 @@ function CopyCode({ label, value, language, dark = false }: {
           type="button"
           aria-label={`Copy ${label}`}
           onClick={copyCode}
-          className="my-1 min-h-10 shrink-0 sm:min-h-8 rounded-sm border border-edge bg-sheet px-2.5 text-xs font-medium text-ok hover:bg-ok-wash"
+          className="my-1 min-h-11 shrink-0 rounded-sm border border-edge bg-sheet px-2.5 text-xs font-medium text-ok hover:bg-ok-wash"
         >
           {copied ? "Copied" : "Copy"}
         </button>
@@ -243,7 +243,7 @@ function ToolExplorer({ repo }: { repo: string }) {
                   key={key}
                   aria-pressed={group === key}
                   onClick={() => setGroup(key)}
-                  className={`min-h-11 rounded-full border border-edge px-3 sm:min-h-9 sm:px-2.5 text-xs hover:bg-ok-wash ${group === key ? "bg-ok-wash text-ok" : "bg-sheet text-ink"}`}
+                  className={`min-h-11 rounded-full border border-edge px-3 text-xs sm:min-h-9 sm:px-2.5 hover:bg-ok-wash ${group === key ? "bg-ok-wash text-ok" : "bg-sheet text-ink"}`}
                 >
                   {text}
                 </button>

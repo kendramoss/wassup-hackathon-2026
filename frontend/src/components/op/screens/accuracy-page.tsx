@@ -127,16 +127,33 @@ const reviewWrong = review - reviewRight;
 // D155: first country mentioned, scored on the same 377 rulings.
 const FIRST_COUNTRY_BASELINE = 0.634;
 
-// These counts are for each of the three same-pair runs with the starting
-// origin given (D354). The figures are pinned against the served summary.
+// Each count is the same in all three same-pair runs (D354). With the starting
+// origin given, they are pinned against the served summary.
 const planOutcomes = [
   { label: "Plan precision", correct: 9, total: 9, interval: "70.1–100%" },
   { label: "Real shifts found", correct: 9, total: 12, interval: "46.8–91.1%" },
   { label: "False positives on unchanged goods", correct: 0, total: 6, interval: "0–39.0%" },
 ];
-// docs/NUMBERS.md, D192: the same 18 pairs without CBP's starting origin,
-// 5 of 12 real shifts found in each of the 3 runs (19.3-68.1).
-const withoutStart = { label: "Real shifts found, no starting origin", correct: 5, total: 12 };
+// Same 18 pairs without CBP's starting origin: 5 of 12 real shifts found in
+// each of the 3 runs. Pinned to eval/results/planner-post-repeats-summary.json
+// (modes.unknown-a.per_run.*.recall_at_bar) by the Accuracy copy test.
+const planNoStart = { label: "Real shifts found", correct: 5, total: 12, interval: "19.3–68.1%" };
+
+function PlanBars({ rows }: { rows: { label: string; correct: number; total: number }[] }) {
+  return (
+    <ul className="mt-3 grid gap-4">
+      {rows.map(({ label, correct, total }) => (
+        <li key={label} className="grid grid-cols-[minmax(0,1fr)_auto] items-baseline gap-x-3 gap-y-1.5 text-sm">
+          <span>{label}</span>
+          <strong className="text-right tabular-nums">{correct}/{total} <span className="font-normal text-dim">({pct(correct / total, 0)})</span></strong>
+          <span className="col-span-2 h-2.5 overflow-hidden rounded-[2px] bg-wash" aria-hidden="true">
+            <span className="block h-full bg-ok" style={{ width: pct(correct / total, 4) }} />
+          </span>
+        </li>
+      ))}
+    </ul>
+  );
+}
 
 const outcomeGroups = [
   { key: "auto-right", label: "Auto-accepted, right", count: autoRight, tone: "border-ok bg-ok" },
@@ -205,25 +222,18 @@ function PlanEvidence({ calibration }: { calibration?: VerifierEvidence }) {
   return (
     <section id="plan-checks" aria-labelledby="acc-plan" className="mt-9 scroll-mt-20 rounded-[2px] border border-edge bg-sheet px-4 py-5 sm:px-6">
       <h2 id="acc-plan" className="text-xl font-semibold tracking-tight">Production-move plan evaluation</h2>
-      <p className="duo mt-1 text-sm text-dim">18 before-and-after CBP pairs across 3 runs. CBP&apos;s starting origin was supplied.</p>
-      <ul className="mt-5 grid gap-4">
-        {[...planOutcomes, withoutStart].map(({ label, correct, total }) => (
-          <li key={label} className="grid grid-cols-[minmax(0,1fr)_auto] items-baseline gap-x-3 gap-y-1.5 text-sm">
-            <span>{label}</span>
-            <strong className="text-right tabular-nums">{correct}/{total} <span className="font-normal text-dim">({pct(correct / total, 0)})</span></strong>
-            <span className="col-span-2 h-2.5 overflow-hidden rounded-[2px] bg-wash" aria-hidden="true">
-              <span className="block h-full bg-ok" style={{ width: pct(correct / total, 4) }} />
-            </span>
-          </li>
-        ))}
-      </ul>
+      <p className="duo mt-1 text-sm text-dim">18 before-and-after CBP pairs across 3 runs.</p>
+      <h3 className="mt-5 text-sm font-semibold">CBP&apos;s starting origin was supplied.</h3>
+      <PlanBars rows={planOutcomes} />
+      <h3 className="mt-5 text-sm font-semibold">Starting origin not supplied, same in each run</h3>
+      <PlanBars rows={[planNoStart]} />
       <p className="duo mt-4 text-sm">
         <strong>Stability:</strong> 27/27 repeat checks were right across 3 runs. They repeat the same 9 distinct pairs, so the independent result is 9/9 distinct pairs (95% interval 70.1–100%).
       </p>
-      <p className="duo mt-2 text-sm text-dim">Checks selected moves against past rulings. The last bar leaves out CBP&apos;s starting origin.</p>
+      <p className="duo mt-2 text-sm text-dim">Checks selected moves against past rulings.</p>
       <Details title="Repeat runs and intervals">
         <p>
-          95% intervals per run: {planOutcomes.map(({ label, interval }) => `${label} ${interval}`).join(" · ")}.
+          95% intervals per run: {planOutcomes.map(({ label, interval }) => `${label} ${interval}`).join(" · ")}. Without the starting origin, in each of the 3 runs: {planNoStart.label.toLowerCase()} {planNoStart.interval}.
           The same 18 pairs were measured three times through the LiteLLM gateway. All 27 shown checks were right across the three runs. Repeats reused the same nine shown moves, so they are not 27 independent pairs; the interval for the 9 distinct pairs is 70.1–100%.
         </p>
         <p>
@@ -270,10 +280,7 @@ function MarketEvidence() {
             <span><strong>{result.undetermined}</strong> undetermined</span>
             <span className="text-dim">{result.refusals} said no · {result.errors} input errors</span>
           </p>
-          <p className="mt-3 flex flex-wrap gap-x-4 text-sm tabular-nums"><span><strong>{result.criterionMatches}/{result.criteriaCompared}</strong> deciding criteria matched</span></p>
-          <div className="mt-1.5 h-2.5 overflow-hidden rounded-[2px] bg-wash" aria-hidden="true">
-            <div className="h-full bg-ok" style={{ width: pct(result.criterionMatches / result.criteriaCompared, 4) }} />
-          </div>
+          <p className="mt-2 text-sm tabular-nums"><strong>{result.criterionMatches}/{result.criteriaCompared}</strong> deciding criteria matched.</p>
           <p className="read mt-2 text-sm text-dim">Refusal performance on real cases remains unmeasured. Customs specialist review is pending.</p>
           <Details title="RCEP evaluation details">
             <p>
@@ -293,7 +300,7 @@ function MarketEvidence() {
           </div>
           <div>
             <dt className="text-sm font-semibold">Japan model</dt>
-            <dd className="read mt-0.5 text-sm text-dim">{copy.japan.notAvailable} The unseen-test requests gave no measurement.</dd>
+            <dd className="read mt-0.5 text-sm text-dim">{copy.japan.notAvailable}</dd>
           </div>
         </dl>
       </div>

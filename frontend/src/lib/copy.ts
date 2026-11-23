@@ -47,7 +47,7 @@ export const copy = {
       selection:
         "The ten family demos were picked by family, not by result: the first per-family check for vehicle parts, PCBA devices, power supplies, medical devices, paper and tissue products, off-road vehicles and machinery, semiconductor devices, golf and sporting goods, toys and build kits and heat pumps and heaters.",
       // D171 (23 checks, 7 off) and D661 live checks (6, 1 off): 29 and 8.
-      disagreement: "Across all 29 per-family checks, Unde disagreed with CBP's holding on the current setup in 8.",
+      disagreement: "Across all 29 per-family checks, Unde disagreed with CBP's holding on the current setup in 8. Development checks, one run each.",
     },
     columns: ["Product", "Likely origin", "Status", "Ruling watch", "Scenarios", "Where you left off"],
     notAnalysed: "Not analysed yet",

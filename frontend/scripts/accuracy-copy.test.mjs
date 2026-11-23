@@ -134,16 +134,21 @@ test("RCEP reports known positives, criterion agreement and separate synthetic r
   assert.match(markets, /Refusal performance on real cases remains unmeasured/);
   assert.match(markets, /Customs specialist review is pending/);
   assert.match(markets, /Canada marking Checks the marking rules only\. No accuracy figure/);
-  assert.match(markets, /Japan model Japan: not available yet\. The unseen-test requests gave no measurement/);
+  assert.match(markets, /Japan model Japan: not available yet\./);
 });
 
-test("the plan bars include the no-starting-origin result and the RCEP criteria bar", async () => {
+test("the no-starting-origin plan bar and interval come from the committed repeats summary", async () => {
   const { AccuracyPage } = await import("../src/components/op/screens/accuracy-page.tsx");
   const pageText = text(html(AccuracyPage, {}));
   const runs = JSON.parse(read("../../eval/results/planner-post-repeats-summary.json")).modes["unknown-a"].per_run;
-  for (const run of Object.values(runs)) assert.deepEqual([run.recall_at_bar.k, run.recall_at_bar.n], [5, 12]);
-  assert.ok(pageText.includes("Real shifts found, no starting origin 5/12 (42%)"));
+  const recalls = Object.values(runs).map((run) => run.recall_at_bar);
+  assert.equal(recalls.length, 3);
+  const [{ k, n, value, ci95 }] = recalls;
+  for (const x of recalls) assert.deepEqual([x.k, x.n, x.ci95], [k, n, ci95]);
+  assert.ok(pageText.includes(`Starting origin not supplied, same in each run Real shifts found ${k}/${n} (${Math.round(value * 100)}%)`));
+  assert.ok(pageText.includes(`in each of the 3 runs: real shifts found ${(Math.round(ci95[0] * 1000) / 10).toFixed(1)}–${(Math.round(ci95[1] * 1000) / 10).toFixed(1)}%`));
+  assert.ok(pageText.indexOf("CBP's starting origin was supplied.") < pageText.indexOf("Starting origin not supplied"));
   const { held_out: unseen } = JSON.parse(read("../../eval/rcep/japan-summary.json"));
   const c = unseen.published_positives.deciding_criterion_agreement;
-  assert.ok(pageText.includes(`${c.count}/${c.total} deciding criteria matched`));
+  assert.ok(pageText.includes(`${c.count}/${c.total} deciding criteria matched.`));
 });

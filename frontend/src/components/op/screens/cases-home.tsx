@@ -161,17 +161,18 @@ const FAMILY_CHECKS = [{ n: 23, off: 7 }, { n: 6, off: 1 }];
 export function Disagreement() {
   const total = FAMILY_CHECKS.reduce((a, b) => a + b.n, 0);
   const off = FAMILY_CHECKS.reduce((a, b) => a + b.off, 0);
-  const tiles = FAMILY_CHECKS.flatMap(({ n, off: o }, g) => Array.from({ length: n }, (_, i) => ({ g, differs: i < o })));
+  const tiles = FAMILY_CHECKS.flatMap(({ n, off: o }) => Array.from({ length: n }, (_, i) => i < o));
   return (
     <span className="mt-2 block">
       <span className="read block max-w-[90ch]">{copy.cases.recorded.disagreement}</span>
       <span
         role="img"
         aria-label={`${total} checks: ${total - off} agree with CBP, ${off} differ`}
-        className="mt-1.5 grid max-w-[28rem] grid-cols-[repeat(29,minmax(0,1fr))] gap-[2px]"
+        className="mt-1.5 grid max-w-[28rem] gap-[2px]"
+        style={{ gridTemplateColumns: `repeat(${total}, minmax(0, 1fr))` }}
       >
-        {tiles.map((t, i) => (
-          <i key={i} className={cx("h-3 rounded-[1px] border", t.differs ? "border-fail bg-fail" : "border-ok bg-ok")} />
+        {tiles.map((differs, i) => (
+          <i key={i} data-differs={differs} className={cx("h-3 rounded-[1px] border", differs ? "border-ink bg-ink" : "border-edge bg-wash")} />
         ))}
       </span>
       <span className="mt-1 block text-[11px]">{total - off} agree · {off} differ</span>
@@ -228,7 +229,7 @@ function RecordedRun({ r }: { r: NonNullable<NonNullable<DemoList["demos"]>[numb
   const T = copy.cases.recorded;
   return (
     <details className="relative z-10 border-t border-line pt-2 text-xs" title={`${r.run}. ${r.file}`}>
-      <summary className="flex min-h-11 cursor-pointer list-none sm:min-h-6 items-center gap-2 [&::-webkit-details-marker]:hidden">
+      <summary className="flex min-h-11 cursor-pointer list-none items-center gap-2 sm:min-h-6 [&::-webkit-details-marker]:hidden">
         <span aria-hidden="true" className="text-dim">
           ▸
         </span>
