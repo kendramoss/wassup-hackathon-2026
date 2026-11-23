@@ -7,6 +7,7 @@ type PlanResponse = components["schemas"]["PlanResponse"];
 export const mcpEndpoint = "https://undelabs.dev/mcp";
 export const keyHeader = "X-API-Key: op_...";
 const caseId = "case_0123456789ab";
+const accessKey = "mcp_example_not_a_real_key";
 const rulingId = "N328954";
 const facts = "A heat gun is assembled in Thailand from a motor and control board made in China.";
 const disclaimer = "Not a ruling. Confirm with a licensed customs broker or a CBP binding ruling.";
@@ -87,7 +88,11 @@ type Example = {
 // Illustrative excerpts use the field names returned by the MCP server.
 // API tool schemas: backend/internal/mcpserver. REST response shapes: OpenAPI.
 export const toolExamples: Record<ToolName, Example> = {
-  predict_origin: { input: caseRequest, output: casePreview },
+  predict_origin: {
+    input: caseRequest,
+    output: { ...casePreview, case_access_key: accessKey },
+    note: "Without an API key, pass the returned case_access_key on later calls on this case. Keep it private. API-key clients do not need it.",
+  },
   extract_product: { input: { facts }, output: { product, warnings: [] } },
   extract_product_from_media: {
     input: { files: [{ data: "iVBORw0KGgo=", mime_type: "image/png" }] },
@@ -95,12 +100,12 @@ export const toolExamples: Record<ToolName, Example> = {
     note: "Replace the sample data with the complete base64 of your file.",
   },
   plan_production_moves: {
-    input: { case_id: caseId, target_country: "Thailand" },
+    input: { case_id: caseId, case_access_key: accessKey, target_country: "Thailand" },
     output: planPreview,
     note: "Use a U.S. case with structured parts and a product family.",
   },
   compare_target_countries: {
-    input: { case_id: caseId, targets: ["Thailand", "Vietnam"] },
+    input: { case_id: caseId, case_access_key: accessKey, targets: ["Thailand", "Vietnam"] },
     output: { targets: [{ target: "Thailand", rank: 1 }, { target: "Vietnam", rank: 2 }], disclaimer },
   },
   search_rulings: {
@@ -112,21 +117,21 @@ export const toolExamples: Record<ToolName, Example> = {
     input: { hts: "8516.79.0000", country: "Thailand" },
     output: { hts: "8516.79.0000", rates: [{ origin: "Thailand", unverified: true }] },
   },
-  get_case: { input: { case_id: caseId }, output: casePreview },
+  get_case: { input: { case_id: caseId, case_access_key: accessKey }, output: casePreview },
   list_cases: {
-    input: {},
+    input: { case_access_key: accessKey },
     output: { cases: [{ id: caseId, display_name: "Heat gun", predicted_origin: "China", step: "origin" }] },
   },
   export_ruling_request_draft: {
-    input: { case_id: caseId, format: "markdown" },
+    input: { case_id: caseId, case_access_key: accessKey, format: "markdown" },
     output: { format: "markdown", content: "Draft request for a country-of-origin ruling.", disclaimer },
   },
   create_broker_review_link: {
-    input: { case_id: caseId, expires_in_days: 7 },
+    input: { case_id: caseId, case_access_key: accessKey, expires_in_days: 7 },
     output: { review_path: "/review#sample-token", review: { status: "pending" } },
   },
   get_broker_review_status: {
-    input: { case_id: caseId },
+    input: { case_id: caseId, case_access_key: accessKey },
     output: { reviews: [{ status: "pending", decisions: [] }] },
   },
   suggest_part_hts: {

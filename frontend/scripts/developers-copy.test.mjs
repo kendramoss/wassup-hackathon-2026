@@ -69,3 +69,29 @@ test("the playground labels responses as examples and sends no real calls", () =
   assert.doesNotMatch(portal, /\bfetch\s*\(|XMLHttpRequest/);
   assert.doesNotMatch(page + portal, /LiteLLM|\bD\d{2,3}\b|op_visitor|X-Visitor-ID|HttpOnly/);
 });
+
+test("anonymous MCP examples carry the case access key exactly where the tool schema accepts it", () => {
+  const src = read("../../backend/internal/mcpserver/tools.go");
+  const parts = src.split(/\bName:\s*"([a-z_]+)"/);
+  const accepts = new Set();
+  for (let i = 1; i < parts.length; i += 2) {
+    const body = parts[i + 1].split(/\n\t(?:add|\t*add)\(/)[0];
+    if (body.includes('"case_access_key": accessKey()')) accepts.add(parts[i]);
+  }
+  assert.ok(accepts.has("predict_origin") && accepts.has("get_case") && accepts.size >= 8, [...accepts].join());
+  for (const rejected of ["extract_product", "search_rulings", "get_ruling", "get_duty_rates"]) assert.ok(!accepts.has(rejected), rejected);
+  const key = toolExamples.get_case.input.case_access_key;
+  assert.match(key, /^[A-Za-z0-9_-]{16,128}$/);
+  assert.equal(key, "mcp_example_not_a_real_key");
+  for (const name of Object.keys(toolExamples)) {
+    const has = "case_access_key" in toolExamples[name].input;
+    assert.equal(has, accepts.has(name) && name !== "predict_origin", name);
+    if (has) assert.equal(toolExamples[name].input.case_access_key, key, name);
+  }
+  assert.equal(toolExamples.predict_origin.output.case_access_key, key);
+  assert.match(toolExamples.predict_origin.note, /private/i);
+  assert.match(toolExamples.predict_origin.note, /API key/);
+  for (const { command, output } of Object.values(endpoints)) {
+    assert.ok(!command.includes("case_access_key") && !("case_access_key" in output));
+  }
+});
