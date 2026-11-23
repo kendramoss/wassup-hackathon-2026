@@ -186,7 +186,7 @@ function OutcomeMatrix() {
           The 95% Wilson intervals are 86.8–92.8% overall and 93.1–97.7% for auto-accepted cases. They describe sampling uncertainty in the official Gemini on Vertex AI run. Repeat runs are measured separately.
         </p>
         <p>
-          The displayed confidence bar of {calibratedBar.toFixed(2)} selects the same in-scope cases as the stated bar of {bar.toFixed(2)}. The original threshold selection also considered these rulings. The current displayed threshold comes from development rulings.
+          The displayed confidence bar of {calibratedBar.toFixed(2)} selects the same in-scope cases as the stated bar of {bar.toFixed(2)}. The original threshold selection also considered these rulings. The current displayed threshold comes from development rulings. Prompts were not tuned on them.
         </p>
         <p>
           The case verdict stayed out of the evidence for each prediction. Earlier dated rulings could be retrieved. Gemini’s pretraining exposure is unknown. The first-country baseline used the same cases. The earlier LiteLLM proxy run scored {pct(PROXY.from)} against {pct(PROXY.to)} on Vertex AI (McNemar p = {PROXY.p}).
@@ -451,7 +451,7 @@ export function AccuracyPage() {
     <Main>
       <header>
         <h1 className="text-[clamp(2.25rem,5vw,3.75rem)] font-semibold leading-tight tracking-[-0.06em]">How accurate is it?</h1>
-        <p className="read mt-2 max-w-[65ch] text-base text-dim">U.S. origin predictions compared with real CBP rulings, January–September 2026.</p>
+        <p className="read mt-2 max-w-[65ch] text-base text-dim">U.S. origin predictions compared with 377 real CBP rulings, Jan–Sep 2026. Covers single-origin U.S. substantial-transformation rulings only, not every market or rule set.</p>
       </header>
       <dl className="mt-6 grid gap-3 md:grid-cols-3">
         <Kpi title="Overall accuracy" value={pct(correct / n)} lead>

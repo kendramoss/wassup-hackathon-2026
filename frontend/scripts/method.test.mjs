@@ -136,3 +136,29 @@ test("the Method Kobalt excerpts match the committed recordings", () => {
   assert.ok(ask.reply.steps.some(({ tool, arg }) => tool === kobalt.askTool && arg === kobalt.askChange));
   assert.ok(ask.reply.what_ifs.some(({ change, origin, confidence }) => change === kobalt.askChange && origin === kobalt.askOrigin && confidence === kobalt.askStatedConfidence));
 });
+
+// #727: the Fig. 4 benchmark link lands on source rows with their qualifiers.
+test("the check section links the Fig. 4 benchmark evidence and states the qualifiers", () => {
+  const section = page.match(/<section id="check"[\s\S]*?<\/section>/)[0].replace(/\s+/g, " ");
+  for (const p of [
+    "docs/NUMBERS.md#market-and-time-from-hackathon-researchevidencefeesledgermd",
+    "docs/NUMBERS.md#evaluation-results-page--served-by-get-v1evalsummary",
+    "eval/results/plan-heatgun-2022-local-litellm.json",
+  ]) {
+    assert.ok(section.includes(`blob("${p}")`), p);
+    const [file, anchor] = p.split("#");
+    assert.ok(existsSync(new URL(file, root)), file);
+    if (anchor) assert.ok(headings(file).has(anchor), anchor);
+  }
+  assert.match(section, /21 days.*247 Asian-origin CBP rulings.*binding CBP ruling/);
+  assert.match(section, /20 hours.*all ruling subjects, not only origin/);
+  assert.match(section, /About \$3,600.*23 subsidized Korean exporter purchases.*KOTRA export-voucher/);
+  assert.match(section, /not like-for-like.*not a universal broker fee/);
+  assert.match(section, /Only CBP’s ruling binds/);
+  assert.match(section, /illustrative/i);
+  for (const s of ["median 21 days (IQR 14–26), n=247", "median KRW 5.0M ≈ US$3,600 (23 purchases", "| Preparation per ruling request | 20 hours |", "all ruling subjects, not only origin", "| Full plan, heat gun | $0.22 promo / $0.45 list, 33 s", "Proxy; demo fixture"]) assert.ok(numbers.includes(s), s);
+  assert.match(section, /Cost per prediction, \$0\.0078 promo \(\$0\.0157 list\)/);
+  assert.match(section, /Recorded heat-gun plan, 33 s \(proxy run, demo fixture\)/);
+  assert.match(numbers, /Cost per origin prediction \| \$0\.0078 \(promo price\)/);
+  assert.match(read("eval/results/plan-heatgun-2022-local-litellm.json"), /"wall_seconds": 33\.4/);
+});
