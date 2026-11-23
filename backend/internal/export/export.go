@@ -54,6 +54,19 @@ type Input struct {
 	// draft asks about (the chosen plan's move, or the current setup), when
 	// the case carries it (D441). The draft states it in one paragraph.
 	RuleCheck *domain.PlanRuleCheck
+	// RulingChanges are final, in-effect CBP changes to rulings the draft
+	// relies on. They appear in Notes only: never in the Markdown or 19 CFR
+	// 177.2 letter, so the letter text is the same with or without them.
+	RulingChanges []RulingChange
+}
+
+// RulingChange is one CBP change to a ruling the draft relies on.
+type RulingChange struct {
+	Ruling string // e.g. "N344694"
+	Change string // the change in words, e.g. "modified by H344999 on 2026-05-06"
+	// Relevance says whether the change bears on what the draft relies on the
+	// ruling for, e.g. "bears on the answer"; empty when not stated.
+	Relevance string
 }
 
 // RulingRef is what the draft says about one earlier ruling.
@@ -305,6 +318,13 @@ func Notes(in Input, cfr177 bool) []string {
 	}
 	if in.BelowBar != nil {
 		notes = append(notes, fmt.Sprintf("Below the confidence bar: Unde's precedent check rated this change %.2f, under its %.2f bar. Treat the cited support as weaker and confirm with counsel.", in.BelowBar.Confidence, in.BelowBar.Bar))
+	}
+	for _, rc := range in.RulingChanges {
+		line := "Ruling change: " + rc.Ruling + " " + rc.Change
+		if rc.Relevance != "" {
+			line += " (" + rc.Relevance + ")"
+		}
+		notes = append(notes, line+". CBP changed a ruling this draft relies on; check it before filing. The letter text is unchanged.")
 	}
 	return notes
 }

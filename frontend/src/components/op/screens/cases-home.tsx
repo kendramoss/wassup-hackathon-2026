@@ -2,6 +2,7 @@
 
 import { watchView } from "@/lib/watch-state";
 import { badgeText } from "@/lib/ruling-alerts";
+import { FOLLOW_UP_HOURS, followUpRows, reviewRowReading } from "@/lib/cases-follow-up";
 import Link from "next/link";
 import { useEffect, useRef, useState, type KeyboardEvent as ReactKeyboardEvent } from "react";
 import { api, type CaseResponse, type CaseSummary, type DemoList } from "@/lib/api/client";
@@ -375,95 +376,122 @@ export function YourCases({ cases, onChange }: { cases: CaseSummary[]; onChange:
   // is hidden, every cell gives its column name, and nothing scrolls
   // sideways. From 640 px up it is the table it was.
   const col = copy.cases.columns;
+  const [onlyFollowUp, setOnlyFollowUp] = useState(false);
+  const [now] = useState(() => Date.now());
+  const waiting = followUpRows(cases, now).length;
+  const shown = onlyFollowUp ? followUpRows(cases, now) : cases;
   return (
-    <ScrollX label="Your cases">
-      <table data-stacks-below="sm" className="w-full border-collapse border border-edge bg-sheet text-[13px] shadow-[4px_4px_0_var(--shadow)] max-sm:block sm:min-w-[760px]">
-        <thead className="max-sm:hidden">
-          <tr>
-            {[...copy.cases.columns, ""].map((h, i) => (
-              <th key={i} scope="col" className="border-b border-line bg-paper px-3.5 py-2.5 text-left text-[11px] font-medium uppercase tracking-[0.08em] text-dim">
-                {h || <span className="sr-only">Actions</span>}
-              </th>
-            ))}
-          </tr>
-        </thead>
-        <tbody className="max-sm:block">
-          {cases.map((c) => {
-            const n = stepIndex[c.step] ?? 1;
-            if (confirming === c.id)
+    <>
+      <div className="mb-3 flex flex-col items-start gap-1.5">
+        <button
+          type="button"
+          aria-pressed={onlyFollowUp}
+          onClick={() => setOnlyFollowUp((v) => !v)}
+          className={cx(
+            "inline-flex min-h-11 items-center gap-2 rounded-[2px] border px-3 text-[13px]",
+            onlyFollowUp ? "border-ink bg-white font-medium" : "border-line bg-white hover:border-edge",
+          )}
+        >
+          Needs follow-up · {waiting}
+        </button>
+        <details className="text-[12.5px] text-dim">
+          <summary className="inline-flex min-h-11 cursor-pointer items-center text-ok">What counts</summary>
+          <p className="read max-w-[70ch]">
+            A broker asked for changes, a link waiting for the broker ends within {FOLLOW_UP_HOURS} hours, or a cited ruling was revoked or modified. Approved and filing-requested links are not counted. This only filters the list.
+          </p>
+        </details>
+      </div>
+      {shown.length === 0 && <p className="duo mb-3 text-sm text-dim">Nothing needs follow-up.</p>}
+      <ScrollX label="Your cases">
+        <table data-stacks-below="sm" className="w-full border-collapse border border-edge bg-sheet text-[13px] shadow-[4px_4px_0_var(--shadow)] max-sm:block sm:min-w-[760px]">
+          <thead className="max-sm:hidden">
+            <tr>
+              {[...copy.cases.columns, ""].map((h, i) => (
+                <th key={i} scope="col" className="border-b border-line bg-paper px-3.5 py-2.5 text-left text-[11px] font-medium uppercase tracking-[0.08em] text-dim">
+                  {h || <span className="sr-only">Actions</span>}
+                </th>
+              ))}
+            </tr>
+          </thead>
+          <tbody className="max-sm:block">
+            {shown.map((c) => {
+              const n = stepIndex[c.step] ?? 1;
+              if (confirming === c.id)
+                return (
+                  <tr
+                    key={c.id}
+                    className="border-b border-line bg-fail-wash max-sm:block"
+                    onKeyDown={(e) => {
+                      if (e.key === "Escape") {
+                        e.preventDefault();
+                        setConfirming(null);
+                      }
+                    }}
+                  >
+                    <td colSpan={7} className="px-3.5 py-3 max-sm:block">
+                      <span className="duo text-fail">
+                        Delete &ldquo;{c.display_name}&rdquo;? Its prediction, plans and drafts are removed.
+                      </span>
+                      <span className="ml-3 inline-flex gap-2">
+                        <Button className="min-h-8 border-fail bg-fail px-3 py-1 text-[12.5px] text-white shadow-none" onClick={() => remove(c.id)}>
+                          Delete case
+                        </Button>
+                        <Button variant="ghost" autoFocus className="min-h-8 px-3 py-1 text-[12.5px]" onClick={() => setConfirming(null)}>
+                          Cancel
+                        </Button>
+                      </span>
+                    </td>
+                  </tr>
+                );
               return (
-                <tr
-                  key={c.id}
-                  className="border-b border-line bg-fail-wash max-sm:block"
-                  onKeyDown={(e) => {
-                    if (e.key === "Escape") {
-                      e.preventDefault();
-                      setConfirming(null);
-                    }
-                  }}
-                >
-                  <td colSpan={7} className="px-3.5 py-3 max-sm:block">
-                    <span className="duo text-fail">
-                      Delete &ldquo;{c.display_name}&rdquo;? Its prediction, plans and drafts are removed.
-                    </span>
-                    <span className="ml-3 inline-flex gap-2">
-                      <Button className="min-h-8 border-fail bg-fail px-3 py-1 text-[12.5px] text-white shadow-none" onClick={() => remove(c.id)}>
-                        Delete case
-                      </Button>
-                      <Button variant="ghost" autoFocus className="min-h-8 px-3 py-1 text-[12.5px]" onClick={() => setConfirming(null)}>
-                        Cancel
-                      </Button>
-                    </span>
+                <tr key={c.id} className="border-b border-line last:border-0 hover:bg-paper max-sm:relative max-sm:grid max-sm:grid-cols-[minmax(0,1fr)_minmax(0,1fr)] max-sm:gap-x-3 max-sm:gap-y-2 max-sm:px-3.5 max-sm:py-3">
+                  <td className="px-3.5 py-3 max-sm:col-span-2 max-sm:p-0 max-sm:pr-10">
+                    {renaming === c.id ? (
+                      <RenameField value={c.display_name} onDone={(v) => (v === null ? setRenaming(null) : rename(c.id, v))} />
+                    ) : (
+                      <Link href={caseHref(c)} className="block font-medium hover:underline">
+                        {c.display_name}
+                      </Link>
+                    )}
+                    <span className="text-xs text-dim">Case date {formatDate(c.date)}</span>
+                    <AlertBadge n={c.ruling_alerts} />
+                    <ReviewReading c={c} />
+                    {rowError?.id === c.id && (
+                      <span role="alert" className="block text-xs text-fail">
+                        {(rowError.error as Error).message}
+                      </span>
+                    )}
+                  </td>
+                  <td data-label={col[1]} className={cx(stack, "text-[17px] tracking-[-0.03em]")}>
+                    {c.predicted_origin ? <Country name={c.predicted_origin} size={13} /> : <span className="text-sm text-dim">{copy.cases.notAnalysed}</span>}
+                  </td>
+                  <td data-label={col[2]} className={cx(stack, "max-sm:[&_span]:whitespace-normal")}>
+                    <StatusChip route={c.triage_route} />
+                  </td>
+                  <td data-label={col[3]} className={cx(stack, "text-xs", watchOf(c).attention ? "font-medium text-ask" : c.watch_status ? "text-ok" : "text-dim")}>
+                    {watchOf(c).label}
+                  </td>
+                  <td data-label={col[4]} className={stack}>{c.scenario_count || "—"}</td>
+                  <td data-label={col[5]} className={cx(stack, "text-dim")}>
+                    Step {n} of 4 · {stepNames[n - 1]}
+                  </td>
+                  <td className="px-2 py-3 text-right max-sm:absolute max-sm:right-1.5 max-sm:top-2 max-sm:p-0">
+                    <RowMenu
+                      c={c}
+                      onRename={() => setRenaming(c.id)}
+                      onDelete={() => {
+                        restoreFocusRef.current = c.id;
+                        setConfirming(c.id);
+                      }}
+                    />
                   </td>
                 </tr>
               );
-            return (
-              <tr key={c.id} className="border-b border-line last:border-0 hover:bg-paper max-sm:relative max-sm:grid max-sm:grid-cols-[minmax(0,1fr)_minmax(0,1fr)] max-sm:gap-x-3 max-sm:gap-y-2 max-sm:px-3.5 max-sm:py-3">
-                <td className="px-3.5 py-3 max-sm:col-span-2 max-sm:p-0 max-sm:pr-10">
-                  {renaming === c.id ? (
-                    <RenameField value={c.display_name} onDone={(v) => (v === null ? setRenaming(null) : rename(c.id, v))} />
-                  ) : (
-                    <Link href={caseHref(c)} className="block font-medium hover:underline">
-                      {c.display_name}
-                    </Link>
-                  )}
-                  <span className="text-xs text-dim">Case date {formatDate(c.date)}</span>
-                  <AlertBadge n={c.ruling_alerts} />
-                  {rowError?.id === c.id && (
-                    <span role="alert" className="block text-xs text-fail">
-                      {(rowError.error as Error).message}
-                    </span>
-                  )}
-                </td>
-                <td data-label={col[1]} className={cx(stack, "text-[17px] tracking-[-0.03em]")}>
-                  {c.predicted_origin ? <Country name={c.predicted_origin} size={13} /> : <span className="text-sm text-dim">{copy.cases.notAnalysed}</span>}
-                </td>
-                <td data-label={col[2]} className={cx(stack, "max-sm:[&_span]:whitespace-normal")}>
-                  <StatusChip route={c.triage_route} />
-                </td>
-                <td data-label={col[3]} className={cx(stack, "text-xs", watchOf(c).attention ? "font-medium text-ask" : c.watch_status ? "text-ok" : "text-dim")}>
-                  {watchOf(c).label}
-                </td>
-                <td data-label={col[4]} className={stack}>{c.scenario_count || "—"}</td>
-                <td data-label={col[5]} className={cx(stack, "text-dim")}>
-                  Step {n} of 4 · {stepNames[n - 1]}
-                </td>
-                <td className="px-2 py-3 text-right max-sm:absolute max-sm:right-1.5 max-sm:top-2 max-sm:p-0">
-                  <RowMenu
-                    c={c}
-                    onRename={() => setRenaming(c.id)}
-                    onDelete={() => {
-                      restoreFocusRef.current = c.id;
-                      setConfirming(c.id);
-                    }}
-                  />
-                </td>
-              </tr>
-            );
-          })}
-        </tbody>
-      </table>
-    </ScrollX>
+            })}
+          </tbody>
+        </table>
+      </ScrollX>
+    </>
   );
 }
 
@@ -581,6 +609,18 @@ function RowMenu({ c, onRename, onDelete }: { c: CaseSummary; onRename: () => vo
         </div>
       )}
     </div>
+  );
+}
+
+// The newest broker link's status, and when a waiting link ends.
+function ReviewReading({ c }: { c: CaseSummary }) {
+  const r = reviewRowReading(c);
+  if (!r) return null;
+  return (
+    <span className={cx("block text-xs", r.tone === "ask" ? "font-medium text-ask" : "text-dim")}>
+      Broker: {r.label}
+      {r.expires ? ` · link ends ${formatDate(r.expires)}` : ""}
+    </span>
   );
 }
 

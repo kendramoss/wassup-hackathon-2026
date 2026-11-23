@@ -5,7 +5,7 @@ import { html, text } from "./render-support.mjs";
 // D690: the RCEP preference check on a case's parts list. Rules on the
 // server; the screen sends the parts as they are and shows yes / no / not
 // sure with the parts that block it.
-const { rcepBody, blankForm, madeIn, verdict, RcepResult } = await import("../src/components/op/rcep-check.tsx");
+const { rcepBody, blankForm, madeIn, verdict, RcepResult, RcepCheck } = await import("../src/components/op/rcep-check.tsx");
 
 const c = {
   id: "case_1",
@@ -61,4 +61,52 @@ test("the result: a plain verdict and the parts that block it", () => {
   assert.match(t, /Does not qualify/);
   assert.match(t, /ground cinnamon · 0906\.20 · same chapter/);
   assert.match(t, /Not marking origin/);
+});
+
+// #729: RCEP is spelled out once, and a short "what you need" list sits above
+// the form. #732: the parts list stacks at 390px with 44px tap targets.
+const panel = html(RcepCheck, { c });
+const panelText = text(panel);
+const noCode = html(RcepCheck, { c: { ...c, product: { ...c.product, hts: "" } } });
+
+test("RCEP is spelled out exactly once in the panel", () => {
+  assert.equal(panelText.match(/Regional Comprehensive Economic Partnership/g)?.length, 1);
+  assert.match(panelText, /Regional Comprehensive Economic Partnership \(RCEP\)/);
+});
+
+test("a short list of what you need sits above the form, with or without a code", () => {
+  for (const m of [panel, noCode]) {
+    const t = text(m);
+    for (const need of [/HS code/, /Where it is made/i, /origin and value/i, /FOB.*optional|optional.*FOB/i]) assert.match(t, need);
+    assert.ok(m.includes("data-rcep-needs"));
+  }
+  assert.ok(panel.indexOf("data-rcep-needs") < panel.indexOf("<input"), "needs list comes before the first field");
+  assert.equal((panel.match(/data-rcep-needs/g) ?? []).length, 1);
+});
+
+test("the panel copy is plain: no statute or jargon in the visible summary", () => {
+  const needs = panel.match(/<ul[^>]*data-rcep-needs[^>]*>.*?<\/ul>/s)[0];
+  assert.doesNotMatch(text(needs), /Art\.|non-originating|tariff-shift|RVC|CTC/i);
+});
+
+test("parts are stacked rows, not a table that clips at 390px", () => {
+  assert.doesNotMatch(panel, /<table/);
+  assert.equal((panel.match(/data-rcep-part/g) ?? []).length, 3);
+  assert.match(panel, /flex-wrap/);
+});
+
+test("each checkbox has a 44px (min-h-11 min-w-11) tap target and a visible label", () => {
+  const labels = panel.match(/<label[^>]*>(?:(?!<\/label>).)*type="checkbox"(?:(?!<\/label>).)*<\/label>/gs) ?? [];
+  assert.equal(labels.length, 3);
+  for (const l of labels) {
+    assert.match(l, /min-h-11/);
+    assert.match(l, /min-w-11/);
+    assert.match(text(l), /RCEP origin/);
+  }
+});
+
+test("value fields are at least 44px tall on every row", () => {
+  const inputs = panel.match(/<input[^>]*aria-label="[^"]*: value"[^>]*>/g) ?? [];
+  assert.equal(inputs.length, 3);
+  for (const i of inputs) assert.match(i, /h-11/);
 });

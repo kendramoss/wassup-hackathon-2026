@@ -5,9 +5,9 @@ export type WheelInput = { deltaY: number; ctrlKey: boolean; metaKey: boolean };
 export type KeyInput = { key: string; shiftKey: boolean };
 
 const SPACE_KEYS = [" ", "Spacebar"];
-// Native buttons and ARIA controls handle Space themselves; the landing must
+// Native buttons, disclosure summaries and ARIA controls handle Space themselves; the landing must
 // not cancel that activation (the AppBar account controls are native buttons).
-const CONTROL = "button, a[href], [role=button], [role=link], [role=switch], [role=checkbox], [role=tab], [role=menuitem]";
+const CONTROL = "button, summary, a[href], [role=button], [role=link], [role=switch], [role=checkbox], [role=tab], [role=menuitem]";
 
 export const isSpaceKey = (e: KeyInput) => SPACE_KEYS.includes(e.key);
 

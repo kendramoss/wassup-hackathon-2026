@@ -937,6 +937,14 @@ type caseSummary struct {
 	// RulingAlerts counts CBP's final and proposed changes to the rulings the
 	// case relies on (D480); absent when there are none.
 	RulingAlerts *domain.AlertCounts `json:"ruling_alerts,omitempty"`
+	// ReviewStatus is the status of the case's newest non-revoked broker
+	// review link (#715), as reviewStatus reads it now: an expired link reads
+	// expired, never pending. ReviewExpiresAt is that link's expiry, only
+	// while it is pending or viewed. Both are absent for a case with no link
+	// or only revoked ones. The Cases page's "needs follow-up" filter is
+	// display-only and built from these and ruling_alerts.
+	ReviewStatus    string     `json:"review_status,omitempty"`
+	ReviewExpiresAt *time.Time `json:"review_expires_at,omitempty"`
 }
 
 // listCases lists the cases the caller may see: pinned demos first, then the
@@ -1068,6 +1076,14 @@ func (a *api) recentWithoutProbes(ctx context.Context, limit int) ([]store.Case,
 func summaryRow(c store.Case) caseSummary {
 	row := caseSummary{ID: c.ID, Date: c.Date, Step: c.Step(), UpdatedAt: c.UpdatedAt.Format(time.RFC3339), Scenarios: len(c.Scenarios), Pinned: c.Pinned,
 		RulingAlerts: alertCounts(c, alertsNow())}
+	if rv, ok := newestOpenReview(c.BrokerReviews); ok {
+		now := time.Now().UTC()
+		row.ReviewStatus = reviewStatus(rv, now)
+		if row.ReviewStatus == reviewPending || row.ReviewStatus == reviewViewed {
+			exp := rv.ExpiresAt
+			row.ReviewExpiresAt = &exp
+		}
+	}
 	if c.Watch != nil {
 		row.Watch = &c.Watch.Status
 		if c.Watch.Basis != "" {
@@ -1693,6 +1709,14 @@ func (a *api) buildDraft(r *http.Request, c store.Case, in exportRequest) (draft
 	// a Part 102 engine that was off or failed); the export
 	// package's note says the position is not a Part 102 determination (D520).
 	ex.Part102 = ex.Regime == "" && regimeNote == "" && part102Case(c)
+	// CBP changes to the rulings this draft relies on go in the notes beside
+	// the letter, never in it (#714).
+	planTarget := ""
+	if chosen != nil {
+		planTarget = chosen.Prediction.Origin
+	}
+	cd, _ := time.Parse(time.DateOnly, c.Date)
+	ex.RulingChanges = draftRulingChanges(ex, c.CurrentOrigin, planTarget, cd, alertsNow())
 	content := export.Markdown(ex)
 	if format == formatCFR177 {
 		content = export.CFR177(ex)

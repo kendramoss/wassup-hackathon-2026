@@ -153,7 +153,7 @@ export function startLanding(root: HTMLElement, { flag }: { flag: (c: Country) =
     if (!horizontal() || free) return;
     const t = e.target as HTMLElement | null;
     if (t && (t.isContentEditable || ["INPUT", "TEXTAREA", "SELECT"].includes(t.tagName))) return;
-    // A focused button (or equivalent control) owns Space: leave keydown
+    // A focused button, summary or equivalent control owns Space: leave keydown
     // untouched so the browser activates it instead of stepping the story.
     if (isSpaceKey(e) && inControl(t)) return;
     const dir = keyDirection(e);

@@ -38,6 +38,9 @@ func (a *api) summaryFor(p principal, c store.Case) caseSummary {
 	row := summaryRow(a.withCalibration(c))
 	w := p.canWrite(c, a.d.CaseOwnership)
 	row.CanWrite = &w
+	if c.Pinned && !p.Admin { // a visitor sees no links on a demo, as in the case read
+		row.ReviewStatus, row.ReviewExpiresAt = "", nil
+	}
 	if c.Pinned {
 		row.DemoID = demoIDFor(a.d.Demos, row.DisplayName)
 	}

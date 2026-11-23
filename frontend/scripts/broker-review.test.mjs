@@ -220,3 +220,63 @@ test("a token in a path is never accepted: /review/[token] is only a 404", async
   assert.match(screen, /tokenFromHash\(window\.location\.hash\)/);
   assert.match(screen, /history\.replaceState\(null, "", window\.location\.pathname\)/);
 });
+
+// #714: CBP changes made after the link was shared. The server derives them;
+// the screens only word them, and never say an approval is invalid.
+const change = {
+  ruling: "N344694",
+  roles: ["cited"],
+  status: "final",
+  kind: "modified",
+  by: "H344999",
+  date: "2026-05-06",
+  in_effect: true,
+  note: "modified by H344999 on 2026-05-06",
+  relevance: "not_answer",
+  relevance_note: "The modifying ruling holds the same origin.",
+};
+
+test("a ruling change reads as a short fact, with relevance in plain words", () => {
+  assert.equal(B.changeSentence(change), "N344694 was modified by H344999 on 6 May 2026");
+  assert.equal(B.changeSentence({ ...change, kind: "revoked", date: undefined }), "N344694 was revoked by H344999");
+  assert.equal(B.relevanceWords(change), "Does not touch the answer directly.");
+  assert.equal(B.relevanceWords({ ...change, relevance: "touches_answer" }), "Bears on the answer.");
+  assert.equal(B.relevanceWords({ ...change, relevance: "unknown" }), null);
+  assert.equal(B.relevanceWords({ ...change, relevance: undefined }), null);
+});
+
+test("the changed-since-shared count is omitted when zero or absent", () => {
+  assert.equal(B.changedSinceSharedLabel(undefined), null);
+  assert.equal(B.changedSinceSharedLabel(0), null);
+  assert.equal(B.changedSinceSharedLabel(1), "1 ruling changed since shared");
+  assert.equal(B.changedSinceSharedLabel(3), "3 rulings changed since shared");
+});
+
+test("the broker page lists changes only when present and never calls the approval invalid", async () => {
+  const { html, text } = await import("./render-support.mjs");
+  const { Packet } = await import("../src/components/op/screens/broker-review-page.tsx");
+  const packet = { review: base, product_name: "Motor fan", cited_rulings: [{ id: "N344694" }], draft: { content: "Letter", notes: [] } };
+  const props = { token: "t", onPacket() {}, onGone() {} };
+  const none = text(html(Packet, { ...props, p: packet }));
+  assert.doesNotMatch(none, /CBP changes since/);
+  const withChanges = html(Packet, { ...props, p: { ...packet, ruling_changes: [change] } });
+  const t = text(withChanges);
+  assert.match(t, /CBP changes since this was shared/);
+  assert.ok(t.includes("N344694 was modified by H344999 on 6 May 2026"));
+  assert.ok(t.includes("Does not touch the answer directly."));
+  assert.match(withChanges, /<details[^>]*>\s*<summary/);
+  assert.doesNotMatch(t, /invalid|no longer valid|void/i);
+  // The letter stays where it was.
+  assert.ok(t.indexOf("CBP changes since") < t.indexOf("The draft letter"));
+});
+
+test("an owner review row shows the count for expired approved links too, not for revoked ones", async () => {
+  const { html, text } = await import("./render-support.mjs");
+  const { ReviewRow } = await import("../src/components/op/broker-reviews.tsx");
+  const row = (r) => text(html(ReviewRow, { r: { ...base, ...r }, open: false, canRevoke: true, onRevoke: async () => {} }));
+  assert.match(row({ changed_since_shared: 2 }), /2 rulings changed since shared/);
+  assert.match(row({ status: "approved", expires_at: "2026-11-01T00:00:00Z", changed_since_shared: 1 }), /Expired.*1 ruling changed since shared/);
+  assert.doesNotMatch(row({}), /changed since shared/);
+  assert.doesNotMatch(row({ changed_since_shared: 0 }), /changed since shared/);
+  assert.doesNotMatch(row({ status: "revoked", revoked_at: "2026-11-21T10:00:00Z", changed_since_shared: 2 }), /changed since shared/);
+});

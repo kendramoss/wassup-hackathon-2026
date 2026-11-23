@@ -488,6 +488,9 @@ export const copy = {
     unsupported: (name: string) => `Origin rules for ${name} aren't supported yet.`,
     unsupportedNext: "No answer yet. Entering the U.S.? Start a U.S. case.",
     startUS: "Start a U.S. case →",
+    // What each market offers today, beside the picker (#733). Japan's line is
+    // the picker's own; nothing here promises a live check.
+    summary: ["U.S.: live", "Canada: rules check", "RCEP: tariff check", "Japan: not available yet.", "Other markets: not yet"],
     // In the case tabs, where Plan and Draft would be, on a non-U.S. case (#678).
     followUpsUSOnly: "Plans and drafts: U.S. only for now",
   },
@@ -561,13 +564,16 @@ export const copy = {
   rcep: {
     title: "RCEP tariff",
     meta: "separate from origin",
-    lead: "Can it get the RCEP tariff between RCEP countries? A rules check, not yet reviewed by a customs professional. Tick parts your supplier declares RCEP origin.",
+    lead: "The Regional Comprehensive Economic Partnership (RCEP) is a trade deal between Asia-Pacific countries. This checks whether the product can get the lower tariff. A rules check, not yet reviewed by a customs professional.",
+    needsTitle: "What you need",
+    needs: ["Product HS code", "Where it is made", "Each part's origin and value", "Sale price (FOB), optional"],
+    tick: "Tick a part if your supplier declares it has RCEP origin.",
     needCode: "Add the product's HS code to check.",
     madeIn: "Made in",
     price: "Price (FOB)",
     part: "Part",
     declared: "RCEP origin",
-    declaredFor: (n: string) => `${n}: supplier declares RCEP origin`,
+    declaredFor: (n: string) => `${n}: RCEP origin`,
     value: "Value",
     valueFor: (n: string) => `${n}: value`,
     noCode: "no code",
@@ -584,14 +590,16 @@ export const copy = {
   // Canada's marking rules (SOR/94-23, D720): a rules check only. Few words
   // (rule 16); the label stays visible with every answer (D725).
   canadaCheck: {
-    title: "Canada marking rules",
+    title: "Country-of-origin marking for Canada (rules check)",
     run: "Check Canada rules",
     running: "Checking…",
     label: "Rules check only — no accuracy figure yet (no published rulings to test against)",
     decided: "under Canada's marking rules, from the codes given.",
     undetermined: "Not decided from the codes given.",
     outOfScope: "No Canadian rule for this code.",
-    addCodes: "add HS codes for the product and a part to run it.",
+    addCodes: "To run it, add:",
+    needGood: "Product HS code",
+    needPart: "HS code for at least one part",
     details: "Details",
   },
 

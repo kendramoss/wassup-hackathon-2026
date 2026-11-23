@@ -2100,6 +2100,11 @@ components:
         demo_id: { type: string, description: "Present on pinned rows seeded from a demo fixture; the demo's id (#412)" }
         can_write: { type: boolean, description: "Present on list rows; whether the caller may change this case (#283). Computed by the server for each request with the same authorization the write routes use; hidden cases are never returned, and the value is never stored or taken from the client. Pinned demos are false for non-admin callers, but that means no persisted change only: Ask, scenarios and plan previews on a pinned demo stay read-only and allowed. The server still enforces every action (403 forbidden)." }
         ruling_alerts: { $ref: "#/components/schemas/RulingAlertCounts" }
+        review_status:
+          type: string
+          enum: [pending, viewed, approved, changes_requested, file_requested, expired]
+          description: "Status of the case's newest non-revoked broker review link (#715), read from the links already on the case: the latest created, the later in the list when two share a time. A link past its expiry reads `expired`, never `pending`. Absent when the case has no link or only revoked ones, and for a pinned demo to non-admin callers. `approved` and `file_requested` are information only: no follow-up is implied."
+        review_expires_at: { type: string, format: date-time, description: "That link's expiry; present only while its status is pending or viewed (#715)" }
     RulingAlertCounts:
       type: object
       description: "Present only when CBP has changed (final) or proposed to change a ruling the case relies on: cited by the prediction, a shown plan's supporting ruling, or CBP's holding on the current setup (D480)."
@@ -3032,6 +3037,10 @@ components:
         revoked_at: { type: string, format: date-time }
         first_viewed_at: { type: string, format: date-time }
         decisions: { type: array, items: { $ref: "#/components/schemas/BrokerReviewDecision" }, description: Oldest first }
+        changed_since_shared:
+          type: integer
+          minimum: 1
+          description: "Count of final CBP changes, in effect now and dated on or after the day the link was shared, to the rulings the frozen draft cites or its plan rests on (#714). Derived on every read and never stored; present only when at least one, for every link that is not revoked (expired and approved ones included, whatever the broker can still open). Dates are date-only, so a change on the sharing day (UTC calendar date) counts. The current setup's ruling is not in the snapshot, so it is not covered. It says what CBP changed, not that an approval is invalid."
     BrokerReviewForBroker:
       type: object
       required: [id, status, subject, draft_label, created_at, expires_at, decisions]
@@ -3078,6 +3087,29 @@ components:
             format: { type: string, enum: [markdown, cfr177] }
             content: { type: string, description: The letter (Markdown). }
             notes: { type: array, items: { type: string } }
+        ruling_changes:
+          type: array
+          description: "Final CBP changes, in effect now and dated on or after the day the link was shared (UTC calendar date, same day included: dates are date-only), to the rulings the frozen draft cites or its plan rests on (#714). Derived on each read from the frozen snapshot only, never from the live case, and nothing is stored. The current setup's ruling is not a structured field in the snapshot, so it is not covered. Proposed, scheduled and earlier changes are not listed. Present only when there is at least one; says what CBP changed, not that an approval is invalid. No case id or owner data."
+          items:
+            type: object
+            required: [ruling, roles, status, kind, by, note]
+            properties:
+              ruling: { type: string }
+              roles: { type: array, items: { type: string, enum: [cited, plan_support] } }
+              status: { type: string, enum: [final] }
+              kind: { type: string, enum: [revoked, modified] }
+              by: { type: string }
+              date: { type: string, format: date }
+              in_effect: { type: boolean }
+              bulletin: { type: string }
+              url: { type: string }
+              note: { type: string, description: "The change in words, e.g. modified by H344999 on 2026-05-06" }
+              held_before: { type: string }
+              held_after: { type: string }
+              answer: { type: string, description: "The frozen draft's origin" }
+              relevance: { type: string, enum: [touches_answer, not_answer, holding_unchanged, unknown] }
+              relevance_note: { type: string }
+              relevance_role: { type: string, enum: [cited, plan_support] }
         shared_at: { type: string, format: date-time }
         disclaimer: { type: string }
     ExportResponse:
@@ -3091,7 +3123,7 @@ components:
             notes:
               type: array
               items: { type: string }
-              description: "Shown beside the letter, never in it, its print or its download: the draft-for-review disclaimer, how the 177.2 letter marks gaps, and a move under the confidence bar (18 Oct)."
+              description: "Shown beside the letter, never in it, its print or its download: the draft-for-review disclaimer, how the 177.2 letter marks gaps, and a move under the confidence bar (18 Oct), and a final, in-effect CBP change to a ruling the draft relies on, with whether it bears on the answer (#714)."
     Ruling:
       type: object
       properties:

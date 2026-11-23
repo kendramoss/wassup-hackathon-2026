@@ -114,3 +114,21 @@ func TestPartHTSShowsCheckNotes(t *testing.T) {
 		}
 	}
 }
+
+// A link whose cited rulings CBP changed after sharing says so in the
+// status line (#714); a link with no change reads as before.
+func TestReviewStatusMentionsChangedSinceShared(t *testing.T) {
+	api := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		_, _ = w.Write([]byte(`{"case_id":"c","reviews":[
+			{"id":"rv_1","status":"approved","draft_label":"Current setup","expires_at":"2026-12-01T00:00:00Z","decisions":[],"changed_since_shared":2},
+			{"id":"rv_2","status":"pending","draft_label":"Current setup","expires_at":"2026-12-01T00:00:00Z","decisions":[]}]}`))
+	})
+	cs := connect(t, api, false, nil)
+	_, txt, _ := call(t, cs, "get_broker_review_status", map[string]any{"case_id": "c"})
+	if !strings.Contains(txt, "rv_1: approved (Current setup), expires 2026-12-01T00:00:00Z. 2 rulings it relies on changed since it was shared.") {
+		t.Errorf("changed count missing:\n%s", txt)
+	}
+	if strings.Contains(strings.SplitN(strings.SplitN(txt, "rv_2", 2)[1], "\n", 2)[0], "changed") {
+		t.Errorf("unchanged link mentions a change:\n%s", txt)
+	}
+}

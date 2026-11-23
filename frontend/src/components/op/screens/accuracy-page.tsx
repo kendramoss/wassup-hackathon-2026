@@ -214,11 +214,14 @@ function PlanEvidence({ calibration }: { calibration?: VerifierEvidence }) {
           </li>
         ))}
       </ul>
-      <p className="duo mt-4 text-sm text-dim">Without the starting origin, 5 of 12 real shifts were found in each run.</p>
+      <p className="duo mt-4 text-sm">
+        <strong>Stability:</strong> 27/27 repeat checks were right across 3 runs. They repeat the same 9 distinct pairs, so the independent result is 9/9 distinct pairs (95% interval 70.1–100%).
+      </p>
+      <p className="duo mt-2 text-sm text-dim">Precedent checking on selected moves, with CBP&apos;s starting origin supplied. Without the starting origin, 5 of 12 real shifts were found in each run.</p>
       <Details title="Strict Multi-Run & Interval Details">
         <p>
           95% intervals per run: {planOutcomes.map(({ label, interval }) => `${label} ${interval}`).join(" · ")}.
-          The same 18 pairs were measured three times through the LiteLLM gateway. All 27 shown checks were right across the three runs (95% interval 87.5–100%). Repeats reused the same pairs.
+          The same 18 pairs were measured three times through the LiteLLM gateway. All 27 shown checks were right across the three runs. Repeats reused the same nine shown moves, so they are not 27 independent pairs; the interval for the 9 distinct pairs is 70.1–100%.
         </p>
         <p>
           Strict count: 17/59 real changes passed in every run on the earlier development and 2026 pairs. That count includes checks with and without CBP&apos;s starting origin. Parts of the earlier 2026 test informed the prompt.
