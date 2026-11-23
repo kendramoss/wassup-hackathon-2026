@@ -224,7 +224,7 @@ function PlanEvidence({ calibration }: { calibration?: VerifierEvidence }) {
     <section id="plan-checks" aria-labelledby="acc-plan" className="mt-9 scroll-mt-20 rounded-[2px] border border-edge bg-sheet px-4 py-5 sm:px-6">
       <h2 id="acc-plan" className="text-xl font-semibold tracking-tight">Production-move plan evaluation</h2>
       <p className="duo mt-1 text-sm text-dim">18 before-and-after CBP pairs across 3 runs.</p>
-      <h3 className="mt-5 text-sm font-semibold">CBP&apos;s starting origin was supplied.</h3>
+      <h3 className="mt-5 text-sm font-semibold">CBP&apos;s starting origin supplied</h3>
       <PlanBars rows={planOutcomes} />
       <h3 className="mt-5 text-sm font-semibold">Starting origin not supplied, same in each run</h3>
       <PlanBars rows={[planNoStart]} />

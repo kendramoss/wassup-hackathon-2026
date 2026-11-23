@@ -96,7 +96,7 @@ test("the recorded plan bars match the committed known-starting-origin results",
   const historicalSplits = summary.verifier_calibration.splits;
   const strictPass = historicalSplits.reduce((k, r) => k + r.pair_level.shown_every_run, 0);
   const strictTotal = historicalSplits.reduce((n, r) => n + r.pair_level.real_change_pairs, 0);
-  assert.ok(pageText.includes("CBP's starting origin was supplied."));
+  assert.ok(pageText.includes("CBP's starting origin supplied Plan precision"));
   assert.ok(pageText.includes("Repeat runs and intervals"));
   assert.ok(pageText.includes(`Strict count: ${strictPass}/${strictTotal}`));
 });
@@ -147,7 +147,7 @@ test("the no-starting-origin plan bar and interval come from the committed repea
   for (const x of recalls) assert.deepEqual([x.k, x.n, x.ci95], [k, n, ci95]);
   assert.ok(pageText.includes(`Starting origin not supplied, same in each run Real shifts found ${k}/${n} (${Math.round(value * 100)}%)`));
   assert.ok(pageText.includes(`in each of the 3 runs: real shifts found ${(Math.round(ci95[0] * 1000) / 10).toFixed(1)}–${(Math.round(ci95[1] * 1000) / 10).toFixed(1)}%`));
-  assert.ok(pageText.indexOf("CBP's starting origin was supplied.") < pageText.indexOf("Starting origin not supplied"));
+  assert.ok(pageText.indexOf("CBP's starting origin supplied") < pageText.indexOf("Starting origin not supplied"));
   const { held_out: unseen } = JSON.parse(read("../../eval/rcep/japan-summary.json"));
   const c = unseen.published_positives.deciding_criterion_agreement;
   assert.ok(pageText.includes(`${c.count}/${c.total} deciding criteria matched.`));
