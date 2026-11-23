@@ -55,7 +55,7 @@ test("no silent coercion: separators, signs, exponents and words are named, not 
 test("the simple-goods wording names every provision the tick covers", () => {
   const s = copy.usmcaCheck.simple.toLowerCase();
   for (const w of ["sets", "accessories or packing", "fungible", "intermediate", "cost averaging", "de minimis", "outside-party", "special valuation", "parts route", "accumulation", "remanufactured", "automotive"]) assert.ok(s.includes(w), w);
-  assert.match(s, /not relying/);
+  assert.match(s, /without using these special provisions/);
   const v = [copy.usmcaCheck.vnm, copy.usmcaCheck.complete].join(" ");
   assert.equal((v.match(/unknown origin/g) ?? []).length, 2);
 });
