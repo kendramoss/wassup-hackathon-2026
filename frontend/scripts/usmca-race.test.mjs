@@ -198,3 +198,45 @@ test("0 is not unknown, bad input stays visible, TV and NC are separate fields",
   assert.equal("net_cost" in calls[1].body, false);
   inst.unmount();
 });
+
+test("editing a material's HS code or origin answer retires the old result", async () => {
+  const addMaterial = (i) => findAll(i.tree, (el) => el.props?.variant === "ghost")[0].props.onClick();
+  const hsOf = (i) => byId(i, "usmca-m0");
+  const originOf = (i) => findAll(i.tree, (el) => el.type === "select" && el.props["aria-label"]?.includes("has USMCA origin"))[0];
+  for (const [name, edit] of [
+    ["hs", (i) => hsOf(i).props.onChange({ target: { value: "8202.39" } })],
+    ["origin", (i) => originOf(i).props.onChange({ target: { value: "non_originating" } })],
+  ]) {
+    const calls = stub();
+    const inst = mount({ c });
+    addMaterial(inst);
+    submit(inst);
+    calls[0].resolve(res("needs_information", "A"));
+    await tick();
+    assert.equal(result(inst).props.stale, false, name);
+    edit(inst);
+    assert.equal(result(inst).props.stale, true, name);
+    // and a check in flight for the old material is silenced by the edit
+    submit(inst);
+    type(inst, "usmca-m0", "8202.3x");
+    calls[1].resolve(res("met", "late"));
+    await tick();
+    assert.notEqual(result(inst)?.props.res.tag, "late", name);
+    inst.unmount();
+  }
+});
+
+test("a failed submit focuses the first invalid field after the messages render", async () => {
+  const focused = [];
+  globalThis.document = { getElementById: (id) => ({ focus: () => focused.push(id) }) };
+  try {
+    stub();
+    const inst = mount({ c: { id: "c", product: { hts: "82" } } });
+    submit(inst);
+    assert.deepEqual(focused, ["usmca-hs"]);
+    assert.equal(byId(inst, "usmca-hs").props["aria-describedby"], "usmca-hs-err"); // already set when focus lands
+    inst.unmount();
+  } finally {
+    delete globalThis.document;
+  }
+});

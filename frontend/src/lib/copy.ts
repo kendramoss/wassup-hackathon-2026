@@ -820,7 +820,7 @@ export const copy = {
     amountNc: "Net cost",
     vnm: "Value of materials without USMCA origin or of unknown origin",
     sameUnit: "Same currency for both amounts.",
-    simple: "I am not relying on any of these, and none apply: sets, accessories or packing, fungible-material or inventory methods, intermediate-material designation, cost averaging, de minimis, outside-party operations, special valuation, the parts route (Art. 4.2(d)), accumulation, remanufactured goods, automotive rules.",
+    simple: "I am not relying on any of these: sets, accessories or packing, fungible-material or inventory methods, intermediate-material designation, cost averaging, de minimis, outside-party operations, special valuation, the parts route (Art. 4.2(d)), accumulation, remanufactured goods, automotive rules.",
     check: "Check",
     checking: "Checking",
     failed: "The check failed. Try again.",

@@ -131,6 +131,7 @@ export function UsmcaCheck({ c }: { c: CaseResponse }) {
   const [err, setErr] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
   const [tried, setTried] = useState(false);
+  const [focusAsk, setFocusAsk] = useState(0);
   const job = useRef(runner<UsmcaCheckResponse>());
   useEffect(() => {
     const j = job.current;
@@ -138,6 +139,14 @@ export function UsmcaCheck({ c }: { c: CaseResponse }) {
   }, []);
 
   const errors = check(f);
+  useEffect(() => {
+    if (!focusAsk || typeof document === "undefined") return;
+    const e = check(f);
+    const m = e.materials.findIndex(Boolean);
+    const first = e.hs ? "usmca-hs" : m >= 0 ? `usmca-m${m}` : e.amount ? "usmca-amount" : "usmca-vnm";
+    document.getElementById(first)?.focus();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [focusAsk]);
   const shown = tried ? errors : { materials: [] as (string | undefined)[] };
   const key = keyOf(f);
   const stale = Boolean(out && out.key !== key);
@@ -154,9 +163,9 @@ export function UsmcaCheck({ c }: { c: CaseResponse }) {
   function run() {
     setTried(true);
     if (hasErrors(errors)) {
-      // Take the person to the first field that needs fixing.
-      const first = errors.hs ? "usmca-hs" : errors.materials.findIndex(Boolean) >= 0 ? `usmca-m${errors.materials.findIndex(Boolean)}` : errors.amount ? "usmca-amount" : "usmca-vnm";
-      if (typeof document !== "undefined") document.getElementById(first)?.focus();
+      // Focus waits for the render that shows the messages, so the first
+      // invalid field is announced with its message.
+      setFocusAsk((n) => n + 1);
       return;
     }
     const sent = body(f);
