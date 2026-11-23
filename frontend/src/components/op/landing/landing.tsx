@@ -6,70 +6,37 @@
 // explodes and moves its Chinese parts to Thailand, a caption box naming
 // each phase; fig.2, one case as four sheets of real output with the facts
 // drawn through them; fig.3, a test sheet for the 377 held-out rulings,
-// ending on the way into the cases. Phones keep the figures stacked. After
-// "Who it's for", fig.4 tells the impact as one illustrative story. Every
-// number comes from docs/NUMBERS.md.
+// ending on the way into the cases. Phones keep the figures stacked. Below
+// the figures, the impact benchmarks and persona showcase scroll normally.
+// Every number comes from docs/NUMBERS.md.
 import Link from "next/link";
 import { Explained } from "../term";
-import { useEffect, useRef, useState, useSyncExternalStore, type ReactNode } from "react";
+import { useEffect, useRef, useState } from "react";
 import { api } from "@/lib/api/client";
 import { copy } from "@/lib/copy";
 import { ButtonLink, RulingLink } from "../ui";
+import { JudgeImpact } from "./judge-proof";
+import { MarketEvidence } from "./market-evidence";
+import { JudgePersonas } from "./judge-tabs";
 import { startLanding } from "./motion";
 import "./landing.css";
+import "./market-evidence.css";
 
 const L = copy.landing;
-const S = L.story;
-const K = copy.stakeholders;
 const flag = (c: "China" | "Thailand") => `/flags/${c === "China" ? "cn" : "th"}.svg`;
 const Flag = ({ c, h }: { c: "China" | "Thailand"; h?: number }) => (
   // eslint-disable-next-line @next/next/no-img-element
   <img className="flag" alt="" src={flag(c)} style={h ? { height: h } : undefined} />
 );
 
-// A secondary block that phones get folded (judge panel round 3, D270: the
-// phone landing was 11,470 px tall). Wide screens always show it open, with
-// no summary line; below 901 px it starts folded behind a summary that says
-// what is inside. The server renders it open, so nothing is hidden without
-// script; the fold applies on mount, far below the first screen.
-function PhoneFold({ summary, children }: { summary: string; children: ReactNode }) {
-  const phone = useSyncExternalStore(onPhoneChange, isPhone, () => false);
-  const [userOpen, setUserOpen] = useState(false);
-  const open = !phone || userOpen;
-  return (
-    <details
-      className="pfold"
-      open={open}
-      onToggle={(e) => {
-        if (phone) setUserOpen((e.currentTarget as HTMLDetailsElement).open);
-      }}
-    >
-      <summary>
-        <span aria-hidden="true" className="pfmark">
-          ▸
-        </span>
-        {summary}
-      </summary>
-      {children}
-    </details>
-  );
-}
-const PHONE = "(max-width: 900px)";
-const isPhone = () => matchMedia(PHONE).matches;
-function onPhoneChange(cb: () => void) {
-  const mq = matchMedia(PHONE);
-  mq.addEventListener("change", cb);
-  return () => mq.removeEventListener("change", cb);
-}
-
 // The demo links: straight to the pinned heat-gun case when there is one,
 // otherwise the demo loaded into a new case, and /cases if the API is down.
 // The pinned comparison case is a separate demo (its comparison is recorded).
 // The hero's button opens the tour on the plan (judge panel round 4): the
 // origin step, which opens on "needs more facts", is one click from there.
-type DemoLinks = { demo: string; tour: string; heat: string | null; compare: string };
+type DemoLinks = { demo: string; tour: string; compare: string };
 function useDemoLinks(): DemoLinks {
-  const [links, setLinks] = useState<DemoLinks>({ demo: "/cases", tour: "/cases", heat: null, compare: "/cases" });
+  const [links, setLinks] = useState<DemoLinks>({ demo: "/cases", tour: "/cases", compare: "/cases" });
   useEffect(() => {
     let live = true;
     (async () => {
@@ -87,7 +54,6 @@ function useDemoLinks(): DemoLinks {
         setLinks({
           demo: heatCase ? `${heatCase}/origin` : fallback,
           tour: heatCase ? `${heatCase}/plan?tour=1` : fallback,
-          heat: heatCase,
           compare: cmp ? `/cases/${encodeURIComponent(cmp.id)}/compare` : "/cases",
         });
       } catch {
@@ -99,36 +65,6 @@ function useDemoLinks(): DemoLinks {
     };
   }, []);
   return links;
-}
-
-const C = L.can;
-// Where each "What you can do" line leads. Heat-gun steps fall back to the
-// demo link (a new case from the demo, or /cases) when no pinned case loads.
-function canHref(key: string, l: DemoLinks): string {
-  switch (key) {
-    case "origin":
-      return l.demo;
-    case "import":
-      return "/cases/new";
-    case "plan":
-      return l.heat ? `${l.heat}/plan` : l.demo;
-    case "compare":
-      return l.compare;
-    case "draft":
-      return l.heat ? `${l.heat}/draft` : l.demo;
-    case "rules":
-      return "/examples/plan-rule-check";
-    case "part102":
-      return "/examples/part102-plan";
-    case "alerts":
-      return "/examples/revocation-alert";
-    case "mcp":
-      return "/developers#mcp";
-    case "method":
-      return "/method";
-    default:
-      return "/accuracy#misses";
-  }
 }
 
 export function Landing() {
@@ -328,7 +264,7 @@ export function Landing() {
                           </p>
                           <details className="small">
                             <summary>Details</summary>
-                            Live pinned demo (case_000e08240f23, seeded 22 Nov 2026): origin China (needs review); best plan moves motor-fan assembly and PCBA (SMT) to Thailand, precedent check 0.94 (above 0.92). See DEMO.md §9.
+                            Recorded 18 Oct production run (DEMO.md §6): check 0.96, above the 0.92 bar; the pinned case shows 0.96 (18 Oct).
                           </details>
                         </div>
                       </div>
@@ -424,6 +360,7 @@ export function Landing() {
                         <p className="duo">
                           <b>96.0%</b> {L.claimAuto}
                         </p>
+                        <p className="dimn">{L.fig3Caveat}</p>
                       </div>
                     </div>
                     <div className="panel">
@@ -508,233 +445,21 @@ export function Landing() {
           </div>
         </div>
 
-        {/* What you can do (judge journey): every built capability with a
-            way in, so the newer ones are found without reading the docs. */}
-        <section className="can" id="can" aria-labelledby="canh">
-          <h2 id="canh" className="eyebrow">
-            {C.title}
-          </h2>
-          <p className="read canlead">{C.lead}</p>
-          <dl>
-            {C.items.map((it) => (
-              <div key={it.key} className="canrow">
-                <dt className="read">
-                  <Explained text={it.what} terms={["tariffRule", "marking"]} />
-                </dt>
-                <dd>
-                  <p className="read">
-                    <Explained text={it.body} terms={["tariffRule"]} />
-                  </p>
-                  {"code" in it && it.code ? (
-                    <pre className="cancode">
-                      <code>{it.code}</code>
-                    </pre>
-                  ) : null}
-                  <Link href={canHref(it.key, links)}>{it.link}</Link>
-                </dd>
-              </div>
-            ))}
-          </dl>
-        </section>
-
-        <section className="who" aria-labelledby="whoh">
-          <h2 id="whoh" className="eyebrow">
-            {L.whoTitle}
-          </h2>
-          <div className="whobox">
-            <p className="read">{L.who}</p>
-            <p className="read">{L.whoFact}</p>
-          </div>
-          {/* Who uses it and who benefits (review follow-up): roles the
-              product is designed for, plain text with no numbers. */}
-          <section className="roles" aria-labelledby="rolesh">
-            <h3 id="rolesh" className="eyebrow">
-              {K.title}
-            </h3>
-            <p className="read rolelead">{K.lead}</p>
-            <PhoneFold summary={L.foldRoles(K.roles.map((r) => r.role))}>
-              <dl>
-                {K.roles.map((r) => (
-                  <div key={r.role} className="role">
-                    <dt>
-                      <span className="eyebrow">{r.role}</span>
-                      <span className="read">{r.who}</span>
-                    </dt>
-                    <dd className="read">{r.gets}</dd>
-                  </div>
-                ))}
-              </dl>
-            </PhoneFold>
-          </section>
-        </section>
-
-        {/* fig.4, the impact told as one story (review follow-up). It sits
-            after "Who it's for" so the reader meets the user first and then
-            follows one of them through a decision. Measured figures get bars
-            with their values on them; system properties are plain text. The
-            firm is a labelled composite. */}
-        <section className="story" aria-labelledby="storyh">
-          <div className="storysheet">
-            <div className="storyhead">
-              <div>
-                <div className="eyebrow">{S.fig}</div>
-                <h2 id="storyh">{S.title}</h2>
-              </div>
-              <p className="illus">{S.label}</p>
-            </div>
-            <PhoneFold summary={L.foldStory(Object.values(S.beats))}>
-            <ol className="beats">
-              <li className="beat">
-                <span className="bn">
-                  <b>1</b>
-                  {S.beats.decision}
-                </span>
-                <div className="bc">
-                  {S.decision.map((t) => (
-                    <p key={t} className="read">
-                      {t}
-                    </p>
-                  ))}
-                </div>
-              </li>
-              <li className="beat">
-                <span className="bn">
-                  <b>2</b>
-                  {S.beats.oldWay}
-                </span>
-                <div className="bc">
-                  <p className="read">{S.oldWayLead}</p>
-                  <div className="cmp">
-                    <div className="cmphead dimn" aria-hidden="true">
-                      <span>
-                        <i className="bw" />
-                        {S.keyBefore}
-                      </span>
-                      <span>
-                        <i className="bu" />
-                        {S.keyAfter}
-                      </span>
-                    </div>
-                    {S.rows.map((r) => (
-                      <div key={r.label} className="cmprow">
-                        <span className="eyebrow">{r.label}</span>
-                        <div className="bar">
-                          <span className="bt" aria-hidden="true">
-                            <i className="bw" />
-                          </span>
-                          <span className="val">
-                            <b>{r.before}</b> {r.beforeNote}
-                          </span>
-                        </div>
-                        <div className="bar">
-                          <span className="bt" aria-hidden="true">
-                            <i className="bu" style={{ width: `max(2px, ${(r.ratio * 100).toFixed(6)}%)` }} />
-                          </span>
-                          <span className="val">
-                            <b className="ok">{r.after}</b> {r.afterNote}
-                          </span>
-                        </div>
-                      </div>
-                    ))}
-                    <div className="dimn">{S.minBar}</div>
-                  </div>
-                </div>
-              </li>
-              <li className="beat">
-                <span className="bn">
-                  <b>3</b>
-                  {S.beats.withUnde}
-                </span>
-                <div className="bc">
-                  {S.withUnde.map((t, i) => (
-                    <p key={t} className="read">
-                      {t}
-                      {i === 1 ? (
-                        <>
-                          {" "}
-                          {S.withUndeRuling} <RulingLink id="N345938" />.
-                        </>
-                      ) : null}
-                    </p>
-                  ))}
-                </div>
-              </li>
-              <li className="beat">
-                <span className="bn">
-                  <b>4</b>
-                  {S.beats.outcome}
-                </span>
-                <div className="bc">
-                  <p className="read">{S.outcomeLead}</p>
-                  <div className="cmp">
-                    <div className="cmphead dimn" aria-hidden="true">
-                      {S.dutyHead}
-                    </div>
-                    {S.duty.map((d) => (
-                      <div key={d.country} className="cmprow">
-                        <span className="eyebrow">
-                          <Flag c={d.country} /> {d.country} origin · {d.rate}
-                        </span>
-                        <div className="bar">
-                          <span className="bt" aria-hidden="true">
-                            <i className={d.country === "China" ? "bw" : "bu"} style={{ width: `${(d.share / S.duty[0].share) * 100}%` }} />
-                          </span>
-                          <span className="val">
-                            <b className={d.country === "China" ? undefined : "ok"}>{d.value}</b> {d.sum}
-                          </span>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                  <ul className="sums read">
-                    <li>{S.dutyGap}</li>
-                    <li>{S.dutyCost}</li>
-                    <li>
-                      <b>{S.dutyNet}</b>
-                    </li>
-                  </ul>
-                </div>
-              </li>
-              <li className="beat">
-                <span className="bn">
-                  <b>5</b>
-                  {S.beats.broker}
-                </span>
-                <div className="bc">
-                  <ul className="todo read">
-                    {S.broker.map((t) => (
-                      <li key={t}>{t}</li>
-                    ))}
-                  </ul>
-                </div>
-              </li>
-            </ol>
-            </PhoneFold>
-            <div className="storyfoot">
-              <span>
-                {S.sources}{" "}
-                <a href="/method#check" className="text-ok underline underline-offset-2">
-                  Check the benchmark sources
-                </a>
-              </span>
-              <span>{copy.name} · sheet 04</span>
-            </div>
-          </div>
-        </section>
+        <JudgeImpact />
+        <MarketEvidence />
+        <JudgePersonas demoHref={links.demo} compareHref={links.compare} />
       </main>
+
       <footer className="lpfoot">
-        <span>{L.footerDisclaimer}</span>
-        <span>{L.built}</span>
-        <a href={L.repo} target="_blank" rel="noreferrer">
-          GitHub
-        </a>
-        <a href={`${L.repo}/blob/main/docs/ROADMAP.md`} target="_blank" rel="noreferrer">
-          {L.roadmap}
-        </a>
-        <Link href="/method">{copy.method.footer}</Link>
-        <Link href="/developers">{copy.nav.api}</Link>
-        <Link href="/privacy">{copy.legal.footer.privacy}</Link>
-        <Link href="/terms">{copy.legal.footer.terms}</Link>
+        <p>{L.footerDisclaimer}</p>
+        <nav aria-label="More about Unde Labs">
+          <a href={L.repo} target="_blank" rel="noreferrer">GitHub</a>
+          <a href={`${L.repo}/blob/main/docs/ROADMAP.md`} target="_blank" rel="noreferrer">{L.roadmap}</a>
+          <Link href="/method">{copy.method.footer}</Link>
+          <Link href="/developers">{copy.nav.api}</Link>
+          <Link href="/privacy">{copy.legal.footer.privacy}</Link>
+          <Link href="/terms">{copy.legal.footer.terms}</Link>
+        </nav>
       </footer>
     </div>
   );

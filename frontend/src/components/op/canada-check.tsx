@@ -33,8 +33,8 @@ export function CanadaCheckView({ v }: { v: CanadaMarking }) {
   const r = v.result;
   const head = r.status === "decided" ? C.decided : r.status === "out_of_scope" ? C.outOfScope : C.undetermined;
   return (
-    <section aria-label={C.titlePlain} data-canada-check={r.status} className="max-w-[75ch] border border-line bg-sheet px-4 py-3">
-      <h2 className="eyebrow mb-1">{C.titlePlain}</h2>
+    <section aria-label={C.title} data-canada-check={r.status} className="max-w-[75ch] border border-line bg-sheet px-4 py-3">
+      <h2 className="eyebrow mb-1">{C.title}</h2>
       <p data-canada-label className="duo mb-1.5 text-[12.5px] text-dim">
         {C.label}
       </p>

@@ -10,12 +10,12 @@ The story follows one decision through the five roles on the landing page ("Who 
 
 ### Plan screen: one canonical instruction, two branches
 
-As of 22 Nov 2026 the pinned heat gun demo is `case_000e08240f23` (seeded live; see section 9). On that pinned case the Origin step is **China, needs review** (calibrated confidence below the auto-accept bar); the Plan step shows a **best plan**: move the motor-fan assembly and the PCBA (SMT) to Thailand, precedent check **0.94** (above the 0.92 plan bar), illustrative net **$320k/yr**. The live screen may also show other scenarios/notes (motor-only scenario etc.). Do **not** state 0.96 on the live pinned case unless you re-check the screen that day.
+The landing's "check 0.96" is a **recorded 18 Oct 2026 production run**, committed in section 6 below. As of 21 Nov 2026 the pinned case (`case_878d76540b91`, updated 18 Oct) shows the same plan at 0.96; earlier pinned seeds (section 4) showed no plan above the bar, so check before the talk.
 
-- **If the Plan screen shows the 0.94 plan above:** "Pinned live (22 Nov 2026): motor-fan assembly and PCBA (SMT) to Thailand, precedent check 0.94 on the cited ruling, illustrative $320k/yr. Origin remains China (needs review)."
-- **If the screen differs:** read what it says and say “pinned live as of 22 Nov 2026 shows…” with the on-screen numbers.
+- **If the Plan screen shows a plan:** "This is the recorded 18 Oct run: motor-fan assembly, PCBA, switch, cord and minor parts in Thailand, check 0.96 on N345938, $285k a year on illustrative economics. The bar held the motor-fan-only move (0.90) back."
+- **If it shows no plan above the bar (an earlier pinned seed):** "No move cleared the 0.92 bar in this pinned run. The closest below-bar move is PCBA in Thailand at 0.75 on N345938. The landing shows a separate recorded 18 Oct run that did clear it at 0.96; the bar is deliberately conservative, so a below-bar result is not a failed search."
 
-Check before the talk: `GET /v1/demos` and `GET /v1/cases` for the pinned `heatgun-2022` case, then open the live Plan screen.
+Check which branch applies with `GET /v1/cases` (pinned `case_878d76540b91`) before the talk. The landing copy labels the 0.96 as recorded and says the pinned case shows the same plan; change that copy if the case is re-seeded.
 
 ### Which demo cards are safe to click (#412)
 
@@ -269,17 +269,17 @@ Not part of the tour: running it creates a new case of your own. To try it:
 
 Locally with `LLM_PROVIDER=fake`, each part gets the first code its nearest ruling lists and the reason says "Local fake model ... not judged"; on 22 Nov that run filled 12 of 13 parts, and with the 13th typed in the panel decided Thailand (the fake engine said China, so the panel showed "worth a broker's look"). Screens at 1280 and 390 px were checked that day. With a real model the codes and the outcome differ.
 
-## 9. One demo for each of the six D660 families (#558, seeded live 22 Nov 2026)
+## 9. One demo for each of the six D660 families (#558, 22 Nov)
 
-Six families under “More demos” (pinned after live seed). Product facts come from development-pool CBP rulings; duty/import/group costs are illustrative. The table below reflects **live pinned cases** as seeded (verify with `GET /v1/demos` / `GET /v1/cases` before a talk).
+The six families added in D660 now have cards under "More demos". Their product facts come from development-pool CBP rulings, and the cards carry one recorded development run each (`eval/results/families-r3-live-checks.json` and its six result files). Duty rates, import values and group costs remain illustrative. Until they are seeded, they are unpinned and a click starts a live run.
 
-| Demo (case id) | CBP held (record) | Live Origin/route (screen) | Live best plan (Plan screen) | Notes |
+| Demo | CBP held | Engine (recorded run) | First plan shown | Cited ruling, read by hand |
 |---|---|---|---|---|
-| Paper napkins `case_2e03a8454cc8` (N341898) | Indonesia | Indonesia, stated 0.95 (per seed) | Move parent rolls to China; precedent check 0.98, plan check context shows net about −$280k/yr (illustrative) | Plan shown on pinned case. |
-| Roll AGV `case_cca6d70a3b5d` (N336445) | China | South Korea, stated 0.82 (seed: may need review / engine view) | Best plan moves chassis and working frames to South Korea; precedent check ~0.95, illustrative net ~$195k/yr | Recorded seed shows South Korea prediction (82%); compare to CBP held China. |
-| Integrated circuits `case_223a07a47201` (N333934) | South Korea | South Korea, stated 0.98 | Best plan: bare wafers/front-end fabrication moves to China; precedent check ~0.94, illustrative net about −$270k/yr | Plan shown; economics negative in seed. |
-| Golf driver heads `case_1b41bf2321c5` (N346303) | Vietnam | Vietnam, stated 0.90 | **No plan above bar** (seed: `no_plan`) | Honest no-plan result. |
-| Plush dinosaur `case_fa8785aa4a83` (N343777) | China | China, stated 0.96 | **No plan above bar** (seed: `no_plan`) | Honest no-plan result. |
-| Gas heater `case_462266406455` (N345976, vent-free) | China | China, stated 0.90 | Best plan: burners, oxygen sensor and ignitor to Vietnam; precedent check ~0.94, illustrative net ~$210k/yr | Plan shown. |
+| Paper napkins (N341898) | Indonesia | Indonesia, stated 0.95 | parent rolls to China, check 0.98, N340077 | supports the parent roll deciding |
+| Roll AGV (N336445) | China | **South Korea, stated 0.82: disagrees** | chassis and working frames to South Korea, check 0.96, N334276 | by analogy (scissor lifts); CBP's N337718 change was smaller |
+| Integrated circuits (N333934) | South Korea | South Korea, stated 0.98 | bare wafers and front-end fabrication to China, check 0.95, N333677 | partial: a pressure sensor, not an IC |
+| Golf club heads (N346303) | Vietnam | Vietnam, stated 0.90 | club heads to China, check 0.97, N340536 | supports the forming country deciding |
+| Plush dinosaur (N343777) | China | China, stated 0.98 | **no plan above 0.92**; closest cutting and sewing to Vietnam, 0.90 on N342448 | honest send-to-broker result; CBP's scenario 2 made that move |
+| Vent-free gas heater (N345976) | China | China, stated 0.92 | burners, oxygen sensor and ignitor to Vietnam, check 0.94, N346005 | supports the burner and sensor assemblies deciding |
 
-Do not present pre-seed development runs as the live answer. Always confirm numbers on the current live screens.
+After the owner seeds production, replace this paragraph with the live case IDs and what each screen actually shows. Do not present a recorded development run as this site's answer.
