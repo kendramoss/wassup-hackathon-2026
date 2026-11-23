@@ -232,3 +232,34 @@ func TestTariffShiftLineAndNote(t *testing.T) {
 		t.Errorf("line %s", l)
 	}
 }
+
+// A ruling the draft relies on that CBP has changed is named in the notes,
+// beside the letter; the letter text is the same with or without it (#714).
+func TestNotesNameRulingChangesAndLetterIsUnchanged(t *testing.T) {
+	base := goldenInputs()["below_bar"]
+	with := base
+	with.RulingChanges = []RulingChange{
+		{Ruling: "N344694", Change: "modified by H344999 on 2026-05-06", Relevance: "bears on the answer"},
+		{Ruling: "N345891", Change: "revoked by H346161 on 2025-05-05"},
+	}
+	notes := strings.Join(Notes(with, false), "\n")
+	for _, want := range []string{
+		"N344694 modified by H344999 on 2026-05-06 (bears on the answer)",
+		"N345891 revoked by H346161 on 2025-05-05",
+	} {
+		if !strings.Contains(notes, want) {
+			t.Errorf("notes lack %q:\n%s", want, notes)
+		}
+	}
+	if Markdown(with) != Markdown(base) || CFR177(with) != CFR177(base) {
+		t.Error("the letter text changed with a ruling change")
+	}
+	if strings.Join(Notes(base, true), "\n") != strings.Join(Notes(with, true)[:len(Notes(base, true))], "\n") {
+		t.Error("the existing notes changed or moved")
+	}
+	empty := base
+	empty.RulingChanges = []RulingChange{}
+	if strings.Join(Notes(empty, false), "\n") != strings.Join(Notes(base, false), "\n") {
+		t.Error("an empty change list changed the notes")
+	}
+}

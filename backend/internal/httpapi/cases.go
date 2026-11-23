@@ -1693,6 +1693,14 @@ func (a *api) buildDraft(r *http.Request, c store.Case, in exportRequest) (draft
 	// a Part 102 engine that was off or failed); the export
 	// package's note says the position is not a Part 102 determination (D520).
 	ex.Part102 = ex.Regime == "" && regimeNote == "" && part102Case(c)
+	// CBP changes to the rulings this draft relies on go in the notes beside
+	// the letter, never in it (#714).
+	planTarget := ""
+	if chosen != nil {
+		planTarget = chosen.Prediction.Origin
+	}
+	cd, _ := time.Parse(time.DateOnly, c.Date)
+	ex.RulingChanges = draftRulingChanges(ex, c.CurrentOrigin, planTarget, cd, alertsNow())
 	content := export.Markdown(ex)
 	if format == formatCFR177 {
 		content = export.CFR177(ex)

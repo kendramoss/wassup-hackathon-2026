@@ -169,6 +169,13 @@ type reviewSummary struct {
 	RevokedAt     *time.Time             `json:"revoked_at,omitempty"`
 	FirstViewedAt *time.Time             `json:"first_viewed_at,omitempty"`
 	Decisions     []store.ReviewDecision `json:"decisions"`
+	// ChangedSinceShared counts the final, in-effect CBP changes to the
+	// rulings the frozen draft cites or its plan rests on, dated on or after
+	// the day it was shared (#714). Derived on read for every link that is not
+	// revoked, expired and approved ones included: the owner's awareness is
+	// separate from the broker's public access. Omitted when none, and never
+	// part of the broker's own view.
+	ChangedSinceShared int `json:"changed_since_shared,omitempty"`
 }
 
 func summarizeReview(rv store.BrokerReview, now time.Time) reviewSummary {
@@ -176,8 +183,12 @@ func summarizeReview(rv store.BrokerReview, now time.Time) reviewSummary {
 	if d == nil {
 		d = []store.ReviewDecision{}
 	}
-	return reviewSummary{ID: rv.ID, Status: reviewStatus(rv, now), Subject: rv.Draft.Subject, DraftLabel: rv.Draft.Label, Format: rv.Draft.Format,
+	out := reviewSummary{ID: rv.ID, Status: reviewStatus(rv, now), Subject: rv.Draft.Subject, DraftLabel: rv.Draft.Label, Format: rv.Draft.Format,
 		CreatedAt: rv.CreatedAt, ExpiresAt: rv.ExpiresAt, RevokedAt: rv.RevokedAt, FirstViewedAt: rv.FirstViewedAt, Decisions: d}
+	if rv.RevokedAt == nil {
+		out.ChangedSinceShared = len(sharedRulingChanges(rv, alertsNow()))
+	}
+	return out
 }
 
 // reviewsField is the case's links for the owner, newest first.
@@ -553,7 +564,7 @@ func (a *api) brokerPacket(rv store.BrokerReview, now time.Time) map[string]any 
 	if d.Plan != nil && d.Plan.Supporting != "" && !contains(cited, d.Plan.Supporting) {
 		cited = append(append([]string(nil), cited...), d.Plan.Supporting)
 	}
-	return map[string]any{
+	out := map[string]any{
 		"review":       brokerReviewOf(rv, now),
 		"product_name": d.ProductName,
 		"product":      d.Product,
@@ -567,6 +578,12 @@ func (a *api) brokerPacket(rv store.BrokerReview, now time.Time) map[string]any 
 		"shared_at":     rv.CreatedAt,
 		"disclaimer":    domain.Disclaimer,
 	}
+	// CBP changes since the draft was shared, read from the frozen draft only
+	// (#714); absent when there are none.
+	if rc := sharedRulingChanges(rv, alertsNow()); len(rc) > 0 {
+		out["ruling_changes"] = rc
+	}
+	return out
 }
 
 func contains(xs []string, x string) bool {
