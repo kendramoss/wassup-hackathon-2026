@@ -50,3 +50,12 @@ test("the status list has an accessible name", () => {
 test("the landing page renders the market block", () => {
   assert.ok(read("../src/components/op/landing/landing.tsx").includes("<MarketEvidence />"));
 });
+
+test("the evidence link is at least 44px tall", () => {
+  assert.ok(/<a class="judge-source mkt-cta" href="\/accuracy#market-evidence">/.test(markup));
+  const css = read("../src/components/op/landing/market-evidence.css");
+  const rule = css.match(/\.lp \.judge-source\.mkt-cta \{([^}]*)\}/);
+  assert.ok(rule);
+  assert.match(rule[1], /min-height:\s*44px/);
+  assert.match(rule[1], /display:\s*inline-flex/);
+});

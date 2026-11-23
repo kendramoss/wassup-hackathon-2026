@@ -13,3 +13,4 @@
 .lp .mkt-status { font-weight: 600; text-align: right; }
 .lp .mkt-note { grid-column: 1 / -1; font-size: 12px; color: var(--dim); }
 @media (max-width: 760px) { .lp .judge-impact-grid:has(.mkt-list) { grid-template-columns: minmax(0, 1fr); } }
+.lp .judge-source.mkt-cta { min-height: 44px; display: inline-flex; align-items: center; }

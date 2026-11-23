@@ -23,7 +23,7 @@ export function MarketEvidence() {
             <summary>{m.detailsTitle}</summary>
             <ul>{m.details.map((d) => <li key={d}>{d}</li>)}</ul>
           </details>
-          <Link className="judge-source" href="/accuracy#market-evidence">{m.link}</Link>
+          <Link className="judge-source mkt-cta" href="/accuracy#market-evidence">{m.link}</Link>
         </article>
         <article className="judge-card" aria-labelledby="marketstatush">
           <h3 id="marketstatush" className="sr-only">{m.marketsLabel}</h3>
