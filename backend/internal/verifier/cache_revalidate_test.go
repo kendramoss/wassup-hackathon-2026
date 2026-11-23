@@ -100,7 +100,7 @@ func TestCacheMissesWithoutCurrentProof(t *testing.T) {
 			if string(blobs.m[c.key(tk)]) != orig {
 				t.Error("original slot was overwritten")
 			}
-			if _, ok := blobs.m[repairKey(c.key(tk))]; !ok {
+			if _, ok := blobs.m[c.repairSlot(c.key(tk))]; !ok {
 				t.Error("repair slot not written")
 			}
 			r, _ = c.Verify(context.Background(), tk)
@@ -108,10 +108,10 @@ func TestCacheMissesWithoutCurrentProof(t *testing.T) {
 				t.Errorf("repaired verdict not reused: cached=%v calls=%d", r.Cached, inner.calls)
 			}
 			// A later, different fresh verdict must not overwrite the repair slot either.
-			if err := c.blobs.Put(context.Background(), repairKey(c.key(tk)), []byte("{}")); err != nil {
+			if err := c.blobs.Put(context.Background(), c.repairSlot(c.key(tk)), []byte("{}")); err != nil {
 				t.Fatal(err)
 			}
-			if b := blobs.m[repairKey(c.key(tk))]; string(b) == "{}" {
+			if b := blobs.m[c.repairSlot(c.key(tk))]; string(b) == "{}" {
 				t.Error("repair slot is not immutable")
 			}
 		})
