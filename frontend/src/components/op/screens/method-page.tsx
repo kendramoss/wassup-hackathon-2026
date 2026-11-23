@@ -9,10 +9,10 @@ const stack = ["Gemini 3.8 Flash", "Gemini 4 Argon", "ADK for Go", "Cloud Run"];
 function MethodGuardrails() {
   return (
     <section className="mi-section" aria-labelledby="mi-guardrails">
-      <header className="mi-section-title"><h2 id="mi-guardrails">Guardrails</h2></header>
+      <header className="mi-section-title"><h2 id="mi-guardrails">Safeguards</h2></header>
       <div className="mi-triple-grid">
         <article id="clean" className="mi-card" data-tone="evidence">
-          <h3>Temporal cutoff lock</h3>
+          <h3>Only earlier rulings</h3>
           <figure className="mi-figure" aria-labelledby="mi-timeline">
             <figcaption id="mi-timeline">Illustrated 2022 cutoff</figcaption>
             <dl className="mi-timeline">
@@ -49,21 +49,15 @@ function MethodGuardrails() {
         </article>
 
         <article className="mi-card" data-tone="evidence">
-          <h3>Deterministic Go rules</h3>
+          <h3>Fixed rule check</h3>
           <div className="mi-figure">
             <p>19 CFR 102.20</p>
-            <pre>{`input := tariffshift.Input{
-  GoodHTS: code,
-  Country: plantCountry,
-  Materials: parts,
-}
-check := rules.Evaluate(input)`}</pre>
-            <p className="read mi-note">Checks tariff-code changes. Missing inputs can leave the result undetermined.</p>
+            <p className="read mi-note">Checks whether tariff codes change as the rule requires. Missing inputs leave it undetermined.</p>
           </div>
           <Link className="mi-link" href="/examples/rule-check">Recorded rule check <span aria-hidden="true">→</span></Link>
         </article>
       </div>
-      <p className="read mi-footnote">A move needs eligible support to clear the gate. Only CBP’s ruling binds.</p>
+      <p className="read mi-footnote">A move is shown only with eligible supporting rulings. Only CBP’s ruling binds.</p>
     </section>
   );
 }
@@ -73,7 +67,7 @@ export function MethodPage() {
     <Main className="mi">
       <header id="model" className="mi-hero">
         <p className="eyebrow">Method</p>
-        <h1>Temporal RAG + multi-agent verification</h1>
+        <h1>How an answer is made and checked</h1>
         <p className="read mi-lead">Zero production fine-tuning. Predictions retrieve CBP precedent dated strictly before the case.</p>
         <div className="mi-stack" role="group" aria-label="Technology stack">
           {stack.map((label) => <span key={label}>{label}</span>)}
