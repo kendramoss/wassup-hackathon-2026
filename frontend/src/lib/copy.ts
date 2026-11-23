@@ -488,6 +488,9 @@ export const copy = {
     unsupported: (name: string) => `Origin rules for ${name} aren't supported yet.`,
     unsupportedNext: "No answer yet. Entering the U.S.? Start a U.S. case.",
     startUS: "Start a U.S. case →",
+    // What each market offers today, beside the picker (#733). Japan's line is
+    // the picker's own; nothing here promises a live check.
+    summary: ["U.S.: live", "Canada: rules check", "RCEP: tariff check", "Japan: not available yet.", "Other markets: not yet"],
     // In the case tabs, where Plan and Draft would be, on a non-U.S. case (#678).
     followUpsUSOnly: "Plans and drafts: U.S. only for now",
   },
