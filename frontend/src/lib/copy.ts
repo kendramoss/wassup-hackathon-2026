@@ -587,14 +587,16 @@ export const copy = {
   // Canada's marking rules (SOR/94-23, D720): a rules check only. Few words
   // (rule 16); the label stays visible with every answer (D725).
   canadaCheck: {
-    title: "Canada marking rules",
+    title: "Country-of-origin marking for Canada (rules check)",
     run: "Check Canada rules",
     running: "Checking…",
     label: "Rules check only — no accuracy figure yet (no published rulings to test against)",
     decided: "under Canada's marking rules, from the codes given.",
     undetermined: "Not decided from the codes given.",
     outOfScope: "No Canadian rule for this code.",
-    addCodes: "add HS codes for the product and a part to run it.",
+    addCodes: "To run it, add:",
+    needGood: "Product HS code",
+    needPart: "HS code for at least one part",
     details: "Details",
   },
 

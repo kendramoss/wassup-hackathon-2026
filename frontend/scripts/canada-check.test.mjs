@@ -4,7 +4,7 @@ import { html, text } from "./render-support.mjs";
 
 // Canada's marking rules (D720, D725): the label is always shown; details
 // (row text, basis, assumptions) sit behind "Details" (rule 16).
-const { CanadaCheckView, canCheckCanada } = await import("../src/components/op/canada-check.tsx");
+const { CanadaCheckView, CanadaCheck, canCheckCanada } = await import("../src/components/op/canada-check.tsx");
 
 const decided = {
   jurisdiction: "ca",
@@ -27,7 +27,7 @@ const decided = {
 test("decided: origin, short label, details folded", () => {
   const m = html(CanadaCheckView, { v: decided });
   const t = text(m);
-  assert.match(t, /Canada marking rules/);
+  assert.match(t, /Country-of-origin marking for Canada \(rules check\)/);
   assert.match(t, /Rules check only — no accuracy figure yet \(no published rulings to test against\)/);
   assert.match(t, /Mexico under Canada's marking rules, from the codes given\./);
   assert.match(m, /<details[^>]*>.*Details.*SOR\/94-23 s\. 4\(1\)\(c\)/s);
@@ -44,4 +44,34 @@ test("the button needs a code on the good and on a part", () => {
   assert.equal(canCheckCanada({ product: { name: "p", hts: "6301.30", components: [{ name: "a", made_in: "China", hts: "5205.11" }] } }), true);
   assert.equal(canCheckCanada({ product: { name: "p", hts: "6301.30", components: [{ name: "a", made_in: "China" }] } }), false);
   assert.equal(canCheckCanada({ product: { name: "p", components: [{ name: "a", made_in: "China", hts: "5205.11" }] } }), false);
+});
+
+// #731: a plain label, and missing codes as a short checklist. Never a
+// preferential (USMCA) claim.
+const { copy } = await import("../src/lib/copy.ts");
+const ask = (product) => text(html(CanadaCheck, { c: { id: "case_1", product }, auto: true }));
+
+test("the label is plain language, not a statute name", () => {
+  assert.equal(copy.canadaCheck.title, "Country-of-origin marking for Canada (rules check)");
+  assert.doesNotMatch(copy.canadaCheck.title, /SOR|Schedule/);
+});
+
+test("missing codes: a checklist of what to add, only the missing items", () => {
+  const none = ask({ name: "p", components: [{ name: "a", made_in: "China" }] });
+  assert.match(none, /Product HS code/);
+  assert.match(none, /HS code for at least one part/);
+  const goodOnly = ask({ name: "p", hts: "6301.30", components: [{ name: "a", made_in: "China" }] });
+  assert.doesNotMatch(goodOnly, /Product HS code/);
+  assert.match(goodOnly, /HS code for at least one part/);
+  const partOnly = ask({ name: "p", components: [{ name: "a", made_in: "China", hts: "5205.11" }] });
+  assert.match(partOnly, /Product HS code/);
+  assert.doesNotMatch(partOnly, /HS code for at least one part/);
+  const m = html(CanadaCheck, { c: { id: "c", product: { name: "p", components: [] } }, auto: true });
+  assert.match(m, /<ul[^>]*data-canada-needs/);
+  assert.match(m, /Add codes/);
+});
+
+test("the copy never implies preferential USMCA qualification", () => {
+  const all = JSON.stringify(copy.canadaCheck) + ask({ name: "p", components: [] }) + text(html(CanadaCheckView, { v: decided }));
+  assert.doesNotMatch(all, /USMCA|CUSMA|preferential|duty[- ]free|qualif/i);
 });

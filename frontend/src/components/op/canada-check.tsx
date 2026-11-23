@@ -117,12 +117,17 @@ export function CanadaCheck({ c, auto = false }: { c: CaseResponse; auto?: boole
   if (!ok) {
     if (!auto) return null;
     return (
-      <p data-canada-check="codes" className="duo max-w-[75ch] text-[13px] text-dim">
-        <span className="text-body">{C.title}:</span> {C.addCodes}{" "}
-        <Link href={`/cases/new?from=${encodeURIComponent(c.id ?? "")}#field-good-hts`} className="text-ok underline underline-offset-2">
+      <div data-canada-check="codes" className="duo max-w-[75ch] text-[13px] text-dim">
+        <p className="text-body">{C.title}</p>
+        <p className="mt-0.5">{C.addCodes}</p>
+        <ul data-canada-needs className="mt-0.5 list-disc pl-4">
+          {!c.product?.hts?.trim() ? <li>{C.needGood}</li> : null}
+          {!c.product?.components?.some((x) => x.hts?.trim()) ? <li>{C.needPart}</li> : null}
+        </ul>
+        <Link href={`/cases/new?from=${encodeURIComponent(c.id ?? "")}#field-good-hts`} className="mt-1 inline-flex min-h-11 items-center text-ok underline underline-offset-2">
           {copy.ruleCheck.addCodesLink}
         </Link>
-      </p>
+      </div>
     );
   }
   if (v) return <CanadaCheckView v={v} />;
