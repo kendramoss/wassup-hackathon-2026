@@ -728,6 +728,26 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/v1/usmca/check": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * USMCA selected origin-rule check (pilot goods, deterministic, no model call)
+         * @description Checks one selected USMCA product-specific origin rule (HTSUS General Note 11(o), Annex 4-B) for a good imported into the United States, from its HS code, an elected regional value content method and a bill of materials. Pilot coverage: 8202.31, 8207.13 and 9503.00 only; every other good is `not_supported`. Deterministic code (`backend/internal/usmca`), no model call, nothing stored. The answer is the selected-rule status only: `met`, `not_met`, `needs_information` or `not_supported`. It is NOT a certification of origin, NOT a determination that the good is originating, NOT a preferential tariff rate, duty saving or duty-free entitlement, and NOT for deciding a good's legal origin status; a `not_met` result concerns the rule as modeled, not a legal finding. It is separate from the non-preferential prediction, US Part 102 marking, Canadian SOR/94-23 marking and the RCEP check. Not evaluated, and each must be confirmed `not_applicable` in `profile`: the parts route (Art. 4.2(d) / GN 11(b)(iv)), de minimis, sets, accessories and packing, fungibles, intermediate materials, cost averaging, outside-party operations and special valuation; a provision marked `applies` returns `not_supported`. Amounts are exact decimal strings (JSON numbers are 400), parsed with arbitrary precision; the RVC percentage is compared exactly and the displayed value is rounded for humans only. Unknown is not zero: an omitted amount, HS code or originating claim is unknown and yields `needs_information` only when the decision depends on it, while `"0"` is a known zero. A zero denominator is reported as an undefined calculation, and a negative RVC is not clamped. `rvc_method` is never chosen for you. HS codes may be written with dots (`8202.31.00` is read as `82023100`); the engine works on plain digits. Originating claims, codes, values and profile confirmations are the caller's and are not verified. Cheap class (120 a minute); a malformed body, wrong destination or regime, more than 200 materials, a bad decimal or an unknown field is 400 `invalid_input`.
+         */
+        post: operations["checkUsmcaOriginRule"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/v1/jurisdictions": {
         parameters: {
             query?: never;
@@ -1041,6 +1061,132 @@ export interface paths {
 export type webhooks = Record<string, never>;
 export interface components {
     schemas: {
+        /** @description Non-negative exact decimal string (no exponent, sign, NaN or Infinity). Never a JSON number. Omitted or null is unknown, not zero; "0" is a known zero. */
+        UsmcaAmount: string;
+        /**
+         * @description Omitted means unconfirmed, never not_applicable. `applies` for a provision this pilot does not evaluate returns not_supported.
+         * @enum {string}
+         */
+        UsmcaProvisionClaim: "not_applicable" | "applies";
+        UsmcaCheckRequest: {
+            /** @enum {string} */
+            destination: "US";
+            /** @enum {string} */
+            regime: "usmca";
+            /**
+             * @description The good's HS code, 4 to 10 digits. Dots are accepted and removed (8202.31.00 becomes 82023100); the engine requires plain digits.
+             * @example 8202.31
+             */
+            good_hs: string;
+            /**
+             * @description The regional value content method the importer, exporter or producer elects. Required when the rule's value-content alternative is used; never defaulted.
+             * @enum {string}
+             */
+            rvc_method?: "transaction_value" | "net_cost";
+            transaction_value?: components["schemas"]["UsmcaAmount"];
+            net_cost?: components["schemas"]["UsmcaAmount"];
+            /** @description Value of non-originating materials in the same currency and valuation basis, including materials of undetermined origin where the law requires. Omitted is unknown, not zero. */
+            vnm?: components["schemas"]["UsmcaAmount"];
+            materials?: {
+                id?: string;
+                /** @description Material HS code, 2 to 10 digits, dots accepted. Omitted is unknown. */
+                hs?: string;
+                /**
+                 * @description Caller's claim, not verified. Omitted is unknown.
+                 * @enum {string}
+                 */
+                originating?: "originating" | "non_originating" | "unknown";
+            }[];
+            /** @description Explicit simple-goods confirmations. Nothing is assumed when omitted. */
+            profile?: {
+                simple_goods_confirmed?: boolean;
+                /** @description The list names every non-originating input. A missing list is not an empty list of originating inputs. */
+                materials_list_complete?: boolean;
+                sets?: components["schemas"]["UsmcaProvisionClaim"];
+                accessories_packing?: components["schemas"]["UsmcaProvisionClaim"];
+                fungibles?: components["schemas"]["UsmcaProvisionClaim"];
+                intermediate_materials?: components["schemas"]["UsmcaProvisionClaim"];
+                cost_averaging?: components["schemas"]["UsmcaProvisionClaim"];
+                de_minimis?: components["schemas"]["UsmcaProvisionClaim"];
+                outside_party_operations?: components["schemas"]["UsmcaProvisionClaim"];
+                special_valuation?: components["schemas"]["UsmcaProvisionClaim"];
+                /** @description Reliance on the parts route (Art. 4.2(d) / GN 11(b)(iv)). */
+                parts_route?: components["schemas"]["UsmcaProvisionClaim"];
+            };
+        };
+        /** @enum {string} */
+        UsmcaOutcome: "satisfied" | "not_satisfied" | "unknown";
+        UsmcaMissingFact: {
+            code: string;
+            field: string;
+            message: string;
+        };
+        UsmcaCondition: {
+            kind: string;
+            result: components["schemas"]["UsmcaOutcome"];
+            detail: string;
+            materials?: {
+                index: number;
+                id?: string;
+                result: components["schemas"]["UsmcaOutcome"];
+                note: string;
+            }[];
+            missing_facts?: components["schemas"]["UsmcaMissingFact"][];
+        };
+        UsmcaCheckResult: {
+            /**
+             * @description Selected-rule status only; not originating status, certification or entitlement.
+             * @enum {string}
+             */
+            status: "met" | "not_met" | "needs_information" | "not_supported";
+            /** @enum {string} */
+            destination: "US";
+            /** @enum {string} */
+            regime: "usmca";
+            /** @description The normalised plain-digit code that was evaluated. */
+            good_hs: string;
+            row_id?: string;
+            alternatives?: {
+                id: string;
+                label: string;
+                note?: string;
+                result: components["schemas"]["UsmcaOutcome"];
+                conditions: components["schemas"]["UsmcaCondition"][];
+            }[];
+            /** @description Separate exact arithmetic. `exact` is an integer or fraction string (e.g. 200/3); `display` is rounded for humans only and never used to decide. */
+            rvc?: {
+                /** @enum {string} */
+                method: "transaction_value" | "net_cost";
+                /** @enum {string} */
+                status: "computed" | "undefined_denominator" | "needs_information";
+                exact?: string;
+                display?: string;
+                display_note?: string;
+                problems?: components["schemas"]["UsmcaMissingFact"][];
+            };
+            missing_facts?: components["schemas"]["UsmcaMissingFact"][];
+            unsupported_reasons?: string[];
+            source: {
+                data_version: string;
+                snapshot: {
+                    source?: string;
+                    revision?: string;
+                    retrieved_on?: string;
+                    source_hash?: string;
+                };
+                row?: {
+                    id?: string;
+                    code?: string;
+                    description?: string;
+                    source?: {
+                        citation?: string;
+                        excerpt?: string;
+                    };
+                };
+            };
+            /** @description Scope statements attached to every result. */
+            limits: string[];
+        };
         PartHtsCandidate: {
             /**
              * @description 4, 6 or 8 digits, at the level stated
@@ -4365,6 +4511,32 @@ export interface operations {
                         regime?: "rcep_preferential";
                         note?: string;
                     };
+                };
+            };
+            400: components["responses"]["Error"];
+            429: components["responses"]["TooManyRequests"];
+        };
+    };
+    checkUsmcaOriginRule: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["UsmcaCheckRequest"];
+            };
+        };
+        responses: {
+            /** @description Selected-rule result */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["UsmcaCheckResult"];
                 };
             };
             400: components["responses"]["Error"];

@@ -20,6 +20,7 @@ import { ReviewNote } from "../review-note";
 import { RuleCheckPanel } from "../rule-check";
 import { RcepCheck } from "../rcep-check";
 import { CanadaCheck } from "../canada-check";
+import { UsmcaCheck } from "../usmca-check";
 import { JapanPreference } from "../japan-preference";
 import { Term } from "../term";
 import { regimeOf } from "@/lib/regime";
@@ -195,6 +196,7 @@ function Answer({ id, c, setCase }: CaseCtx) {
               </Fold>
             ) : null}
             <RcepCheck c={c} />
+            {(c.jurisdiction ?? "us") === "us" ? <UsmcaCheck key={c.product?.hts ?? ""} c={c} /> : null}
             {!watchBoxed ? (
               <Fold title="Ruling watch" meta={demoWatch ? "not available on this demo" : c.watch ? (wk === "recheck" ? wv.label.toLowerCase() : `${wk === "unchanged" ? "unchanged" : "checked"}, ${formatDate(c.watch.checked_at)}`) : "not re-checked"}>
                 {demoWatch ? <DemoWatchNote c={c} /> : <WatchLine c={c} setCase={setCase} />}

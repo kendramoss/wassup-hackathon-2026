@@ -151,6 +151,10 @@ export const toolExamples: Record<ToolName, Example> = {
       note: "Canada marking review. Not a ruling.",
     },
   },
+  check_usmca_origin_rule: {
+    input: { destination: "US", regime: "usmca", good_hs: "8202.31", rvc_method: "transaction_value", transaction_value: "100", vnm: "40" },
+    output: { status: "needs_information", regime: "usmca", missing_facts: [{ field: "profile.simple_goods_confirmed" }] },
+  },
 };
 
 const api = "https://undelabs.dev/api";
