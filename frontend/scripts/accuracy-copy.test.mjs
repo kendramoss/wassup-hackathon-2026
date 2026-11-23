@@ -116,5 +116,5 @@ test("RCEP reports known positives, criterion agreement and separate synthetic r
   assert.match(markets, /Refusal performance on real cases remains unmeasured/);
   assert.match(markets, /Customs specialist review is pending/);
   assert.match(markets, /Canada marking Rules check only\. No accuracy figure/);
-  assert.match(markets, /Japan model Unavailable in production\. The unseen-test requests yielded no measurement/);
+  assert.match(markets, /Japan model Japan: not available yet\. The unseen-test requests yielded no measurement/);
 });

@@ -8,7 +8,7 @@ All `file:line` anchors are at commit `c0d3115` (the base of this change). The l
 
 | Question | Answer |
 |---|---|
-| Which jurisdiction? | U.S. CBP origin prediction (section 2) and the [Canada marking rules check](#31-canada-marking-rules) are live. The [Japan model](#32-japan-trade-agreements) is disabled in production. |
+| Which jurisdiction? | U.S. CBP origin prediction (section 2) and the [Canada marking rules check](#31-canada-marking-rules) are live. Japan: not available yet — the [trade-agreement assessment](#32-japan-trade-agreements) is built but disabled in production. |
 | Which products does the planner cover? | 26 families with templates (section 4): three earlier ones, eleven added from CBP precedent (ten in D138, one in D212), six written from Part 102 marking rulings (D580) and six picked from rulings with no template in either regime (D660). |
 | EU Binding Origin Information (BOI) | Unsupported. Deferred (section 7). |
 | Preferential origin | The [standalone RCEP calculator](#33-rcep-preference-calculator) is live. USMCA regional value content is deferred (section 7). |
@@ -80,7 +80,7 @@ The Canada case flow and `POST /v1/rules/canada-marking` apply the Schedule III 
 
 ### 3.2 Japan trade agreements
 
-The Japan model is built for selected trade agreements and remains disabled in production (`jp.supported=false`). The unseen-test requests returned HTTP 403 and yielded no eligibility results (D714). The separate synthetic requests also yielded no results (D715).
+Japan: not available yet in production (`jp.supported=false`). The model is built for selected trade agreements. The unseen-test requests returned HTTP 403 and yielded no eligibility results (D714). The separate synthetic requests also yielded no results (D715).
 
 For imports into Japan, supply a trade agreement and the finished good's tariff classification in that agreement's HS edition, plus the materials and production facts. The engine uses product-specific rule text and earlier rulings from Japan Customs under the same agreement. See the [sources and HS editions](../backend/internal/jprules/README.md). The result gives likely eligibility, a preferential origin where known, and the sources. It goes to specialist review in every case. The published test rulings cover goods that qualified.
 

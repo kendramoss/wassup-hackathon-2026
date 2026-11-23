@@ -1,6 +1,6 @@
 """Extract the Japan Customs treaty schedules used by the Japan engine.
 
-Pass the directory containing the four PDFs named in SOURCES. The source
+Pass the directory containing the source PDFs named in SOURCES. The source
 URLs and SHA-256 digests are checked and stored with the generated table.
 Requires pdfplumber 0.11.10.
 """
@@ -18,17 +18,49 @@ SOURCES = (
     ("asean2-1.pdf", "AJCEP", "Annex 2", "2017", "2023-01-01", "2027-02-15"),
     ("tpp5.pdf", "CPTPP", "Annex 4-A", "2012", "2018-12-30", ""),
     ("tpp2.pdf", "CPTPP", "Annex 3-D", "2012", "2018-12-30", ""),
+    ("asean2-2.pdf", "AJCEP", "Annex 2", "2022", "2027-02-15", ""),
+    ("india2.pdf", "JP-India CEPA", "Annex 2", "2007", "2011-08-01", ""),
+    ("thailand2-2.pdf", "JP-Thailand EPA", "Annex 2", "2017", "2023-01-01", ""),
+    ("indonesia2-2.pdf", "JP-Indonesia EPA", "Annex 2", "2017", "2024-02-05", ""),
+    ("australia2.pdf", "JP-Australia EPA", "Annex 2", "2012", "2015-01-15", ""),
+    ("uk3.pdf", "JP-UK CEPA", "Annex 3-B", "2017", "2021-01-01", ""),
+    ("vietnam2.pdf", "JP-Vietnam EPA", "Annex 2", "2007", "2009-10-01", ""),
+    ("malaysia2.pdf", "JP-Malaysia EPA", "Annex 2", "2002", "2006-07-13", ""),
+    ("mexico2.pdf", "JP-Mexico EPA", "Annex 4", "2002", "2005-04-01", ""),
+    ("philippine2.pdf", "JP-Philippines EPA", "Annex 2", "2002", "2008-12-11", ""),
+    ("switzerland3.pdf", "JP-Switzerland EPA", "Appendix 1 to Annex II", "2007", "2009-09-01", ""),
+    ("chile2.pdf", "JP-Chile EPA", "Annex 2", "2002", "2007-09-03", ""),
 )
 DIGESTS = {
     "eu3.pdf": "cb7f029ad6679a70796ba45f619e1a623d8e9304ed041069a4b007cdc9633704",
     "asean2-1.pdf": "00b7e42a64fd0fb7dad809ba3b3d487ecfd84ded5e103eea229fe973de3e127d",
     "tpp2.pdf": "c80acd1e0c458f130cc6d6602ce18192626e801623947fffc9d1ed18020873b9",
     "tpp5.pdf": "56eb27080e455e792131760cb5d0805556de8b73039a4b5f4a5b7485740785d1",
+    "asean2-2.pdf": "4ec0fffea58f4d261d1388ae7284dce8a3e7bef891148144fd7c9c53d32d2cb0",
+    "india2.pdf": "4011ed6be153ec99ce9b199bb314c0f0fa69204677f7150bef649bf55a0b39e9",
+    "thailand2-2.pdf": "f87a52b564a4e6b7c18207c6a0cf6c6cbb244f81f1e6c79204f03f3437db9fbc",
+    "indonesia2-2.pdf": "b82294d088899ad39d6047320a2e88a4af30d0a6efb4ca2283443ca84464f151",
+    "australia2.pdf": "9699b69dbc784d76a7461735d5944b967642cbbca504b17f79cc3669caa7f768",
+    "uk3.pdf": "7caabd2e36f02f6794cff41501ffa4ba339a6603b4c5c462bc4bedc7e371f9eb",
+    "vietnam2.pdf": "12e578de5573c093379d02813ca5215eefaa3cebf8e837bacfdbe1f38d019a4f",
+    "malaysia2.pdf": "10ad097b32caa1de4a2d04a6ecfa67ae118a32da85e135ba3e797402d3e329d3",
+    "mexico2.pdf": "cd746343339b4f1ee9ca892b3874cf68c34266b8c4686a493042b43caac952f0",
+    "philippine2.pdf": "5ec10d077976947d214a723e8e50827c93aefe465e0199f26916b9327b08ca2e",
+    "switzerland3.pdf": "ba550092a9ad93cba330b298a1e88064d060a324e271e944a1435b2503e807f5",
+    "chile2.pdf": "f8078cebd61348669aa4f7b380b93d30832d4bd2d58091823b073456788d2acc",
 }
-CODE = r"(?:\d{2}|\d{2}\.\d{2}|\d{4}\.\d{2})"
-RANGE = re.compile(rf"({CODE})(?:\s*[-–]\s*({CODE}))?")
+URLS = {"indonesia2-2.pdf": "https://www.customs.go.jp/roo/text/indonesia2-2.pdf"}
+TEXT_PDFS = {
+    "chile2.pdf", "india2.pdf", "malaysia2.pdf", "mexico2.pdf", "philippine2.pdf",
+}
+FIVE_COLUMN_PDFS = {"asean2-2.pdf", "vietnam2.pdf"}
+SIX_COLUMN_PDFS = {"indonesia2-2.pdf", "thailand2-2.pdf"}
+
+CODE = r"(?:\d{4}\.\d{2}|\d{2}\.\d{2}|\d{2})"
+RANGE = re.compile(rf"({CODE})(?:\s*[-–—~]\s*({CODE}))?")
+RANGE_IN_TEXT = re.compile(rf"({CODE})(?:\s*[-–—~]\s*({CODE}))?")
 CHAPTER = re.compile(r"Chapter (\d+)\b", re.I)
-SECTION = re.compile(r"Section [IVX]+\b", re.I)
+SECTION = re.compile(r"Section ([IVX]+)\b", re.I)
 NOTE = re.compile(r"(Section|Chapter|Heading|Subheading) Note\b", re.I)
 # PDF footnote superscripts appear as regular digits. The relevant rules
 # refer to a separate vehicle appendix or other legal text. Keep their
@@ -51,18 +83,26 @@ TITLE_CONTINUATIONS = {
     ("tpp2.pdf", 72, "JEWELLERY; COIN"),
     ("tpp2.pdf", 95, "ELECTRICAL EQUIPMENT"),
 }
+END_MARKERS = (
+    "part 3", "section 3", "minimum data requirement", "operational procedures",
+    "attachment b", "proofs of origin", "implementing procedures",
+)
 
 
 def normalize(text):
-    return " ".join((text or "").replace("\u00ad", "").replace("-\n", "-").split())
+    return " ".join((text or "").replace("\u00ad", "").replace("\u2011", "-").replace("-\n", "-").split())
 
 
 def join(text, addition):
     return " ".join(x for x in (text, addition) if x)
 
 
+def clean_code(key):
+    return (key or "").replace("\u00a0", " ").replace("\u2013", "-").replace("\u2014", "-").replace("~", "-")
+
+
 def code_range(key):
-    match = RANGE.fullmatch(key)
+    match = RANGE.fullmatch(clean_code(key).strip())
     if not match:
         raise ValueError(f"unrecognised schedule classification {key!r}")
     start = match[1].replace(".", "")
@@ -76,7 +116,25 @@ def code_range(key):
     return start, end
 
 
+def add_row(rows, key, page, text, description="", blocked=False):
+    start, end = code_range(key)
+    item = {"start": start, "end": end, "page": page, "text": text}
+    if description:
+        item["description"] = description
+    if blocked:
+        item["blocked"] = True
+    rows.append(item)
+    return item
+
+
+def add_note(notes, scope, heading, text, page):
+    item = {"scope": scope, "key": heading, "text": text, "page": page}
+    notes.append(item)
+    return item
+
+
 def schedule(pdf, filename):
+    """Parser for the four original, narrow-table PDFs."""
     rows = []
     notes = []
     chapter = ""
@@ -86,26 +144,6 @@ def schedule(pdf, filename):
     pending = None
     target = None
     merged = []
-
-    def row(key, text, page, description="", blocked=False):
-        start, end = code_range(key)
-        item = {
-            "start": start,
-            "end": end,
-            "page": page,
-            "text": text,
-        }
-        if description:
-            item["description"] = description
-        if blocked:
-            item["blocked"] = True
-        rows.append(item)
-        return item
-
-    def note(scope, heading, text, page):
-        item = {"scope": scope, "key": heading, "text": text, "page": page}
-        notes.append(item)
-        return item
 
     for page_number, page in enumerate(pdf.pages, 1):
         for table in page.extract_tables():
@@ -122,10 +160,6 @@ def schedule(pdf, filename):
                         target = None
                         merged = []
                         continue
-                    # The rule cell can span several classification rows. A
-                    # None cell is inside that merged cell; an empty string is
-                    # a distinct, empty cell. These merged cells begin on
-                    # the previous page, so the opening rule is not repeated.
                     clipped = page_number in (25, 35) and row_number == 0
                     if (not code or clipped) and text:
                         if target is None:
@@ -137,9 +171,9 @@ def schedule(pdf, filename):
                     if raw[4] is None or clipped:
                         if target is None:
                             raise ValueError(f"{filename}:{page_number} missing merged rule {cells!r}")
-                        merged.append(row(code, target["text"], target["page"], description))
+                        merged.append(add_row(rows, code, target["page"], target["text"], description))
                     elif text:
-                        target = row(code, text, page_number, description)
+                        target = add_row(rows, code, page_number, text, description)
                         merged = [target]
                     else:
                         target = None
@@ -156,8 +190,8 @@ def schedule(pdf, filename):
                     pending = None
                     target = None
                     continue
-                if SECTION.match(classification):
-                    section = classification.split()[1]
+                if m := SECTION.match(classification):
+                    section = m[1]
                     key = ""
                     branches = []
                     pending = None
@@ -165,12 +199,9 @@ def schedule(pdf, filename):
                     continue
                 if m := NOTE.match(classification):
                     scope = m[1].lower()
-                    # A heading note often precedes the heading it governs.
-                    # Keep it with its chapter and let its quoted HS scope
-                    # govern. Section notes travel with that HS section.
-                    target = note("section" if scope == "section" else "chapter",
-                                  section if scope == "section" else chapter,
-                                  join(classification, text), page_number)
+                    target = add_note(notes, "section" if scope == "section" else "chapter",
+                                      section if scope == "section" else chapter,
+                                      join(classification, text), page_number)
                     continue
                 if any(filename == f and page_number == p and classification.startswith(prefix)
                        for f, p, prefix in NOTE_CONTINUATIONS):
@@ -194,28 +225,27 @@ def schedule(pdf, filename):
                         branches = branches[:depth - 1] + [piece[depth:].strip()]
                     if not key or not text:
                         raise ValueError(f"{filename}:{page_number} missing parent or rule {cells!r}")
-                    target = row(key, text, page_number, " / ".join(branches))
+                    target = add_row(rows, key, page_number, text, " / ".join(branches))
                     pending = None
                     continue
                 code = EU_FOOTNOTES.get(classification, classification).replace("†", "")
                 blocked = code != classification or "appendix" in text.lower() and "short supply" in text.lower()
-                if not RANGE.fullmatch(code):
+                if not RANGE.fullmatch(clean_code(code)):
                     raise ValueError(f"{filename}:{page_number} stray row {cells!r}")
                 if pending:
                     raise ValueError(f"{filename}:{page_number} row {pending!r} has no rule")
                 key = code
                 branches = []
                 if text:
-                    target = row(code, text, page_number, blocked=blocked)
+                    target = add_row(rows, code, page_number, text, blocked=blocked)
                     pending = None
                 else:
                     pending = classification
                     target = None
         if filename == "asean2-1.pdf":
-            # These notes occur below the last table and on the next page.
             if page_number == 49:
                 text = page.extract_text().split("Notes to Section XI (chapters 50-63):", 1)[1]
-                target = note("section", "XI", normalize(text), page_number)
+                target = add_note(notes, "section", "XI", normalize(text), page_number)
             elif page_number == 50:
                 target["text"] = join(target["text"], normalize(page.extract_text()))
         page.close()
@@ -223,6 +253,299 @@ def schedule(pdf, filename):
     if pending:
         raise ValueError(f"{filename}: missing rule for {pending}")
     return rows, notes
+
+
+def five_column(pdf, filename):
+    """Parser for the HS 2022 AJCEP and Vietnam five-column tables."""
+    rows = []
+    notes = []
+    target = None
+    for page_number, page in enumerate(pdf.pages, 1):
+        for table in page.extract_tables():
+            for raw in table:
+                cells = [normalize(cell) for cell in raw]
+                if len(cells) < 5:
+                    continue
+                ch, heading, sub, description, text = cells[:5]
+                code = sub or heading or ch
+                if code.startswith(("Tariff item number", "Tariff Item Number")):
+                    continue
+                if m := CHAPTER.match(ch):
+                    code = f"{int(m[1]):02}"
+                if SECTION.match(ch):
+                    target = None
+                    continue
+                if description.startswith("Note:") or code.startswith("Note:"):
+                    note = join(code, join(description, text))
+                    chapter_match = CHAPTER.match(ch)
+                    section_match = SECTION.match(ch)
+                    section = section_match[1] if section_match else ""
+                    chapter = f"{int(chapter_match[1]):02}" if chapter_match else ""
+                    key = section or chapter
+                    if key:
+                        target = add_note(notes, "section" if section else "chapter", key, note, page_number)
+                    continue
+                if not code:
+                    if text and target is not None:
+                        target["text"] = join(target["text"], text)
+                    continue
+                if not RANGE.fullmatch(clean_code(code)):
+                    continue
+                if not text and raw[4] is None and target is not None:
+                    target = add_row(rows, code, target["page"], target["text"], description)
+                elif text:
+                    target = add_row(rows, code, page_number, text, description)
+                else:
+                    target = None
+        page.close()
+    return rows, notes
+
+
+def australia(pdf):
+    """Parser for the Japan-Australia four-column table."""
+    rows = []
+    notes = []
+    target = None
+    for page_number, page in enumerate(pdf.pages, 1):
+        for table in page.extract_tables():
+            for raw in table:
+                cells = [normalize(cell) for cell in raw]
+                if len(cells) < 3:
+                    continue
+                code, description, text = cells[:3]
+                if code.startswith(("Tariff Item", "Tariff item")) or code in ("1", "2", "3", "4"):
+                    continue
+                if m := CHAPTER.match(code):
+                    key = f"{int(m[1]):02}"
+                    if text:
+                        target = add_row(rows, key, page_number, text)
+                    else:
+                        target = None
+                    continue
+                if SECTION.match(code):
+                    target = None
+                    continue
+                if description.startswith("Note:") or code.startswith("Note:"):
+                    continue
+                if not RANGE.fullmatch(clean_code(code)):
+                    if text and target is not None:
+                        target["text"] = join(target["text"], text)
+                    continue
+                if text:
+                    target = add_row(rows, code, page_number, text, description)
+                elif raw[2] is None and target is not None:
+                    target = add_row(rows, code, target["page"], target["text"], description)
+                else:
+                    target = None
+        page.close()
+    return rows, notes
+
+
+def six_column(pdf, filename):
+    """Parser for the HS 2017 Thailand and Indonesia tables."""
+    rows = []
+    notes = []
+    target = None
+    chapter = ""
+    section = ""
+    for page_number, page in enumerate(pdf.pages, 1):
+        for table in page.extract_tables():
+            for raw in table:
+                cells = [normalize(cell) for cell in raw]
+                codes = []
+                for i, cell in enumerate(cells):
+                    if m := CHAPTER.match(cell):
+                        chapter = f"{int(m[1]):02}"
+                        target = None
+                    elif m := SECTION.match(cell):
+                        section = m[1]
+                        target = None
+                    elif cell and RANGE.fullmatch(clean_code(cell)):
+                        codes.append((i, cell))
+                if not codes:
+                    continue
+                index, code = codes[0]
+                rule = ""
+                description = ""
+                for cell in cells[index + 1:]:
+                    if not cell or cell in {c for _, c in codes}:
+                        continue
+                    if RANGE.fullmatch(clean_code(cell)):
+                        continue
+                    rule = cell
+                    break
+                if not rule and target is not None:
+                    rule = target["text"]
+                if rule.startswith("Note:"):
+                    key = section or chapter
+                    if key:
+                        add_note(notes, "section" if section else "chapter", key, rule, page_number)
+                    continue
+                if rule:
+                    target = add_row(rows, code, page_number, rule, description)
+        page.close()
+    return rows, notes
+
+
+def switzerland(pdf):
+    """Parser for the Switzerland appendix; multi-code cells fail closed."""
+    rows = []
+    notes = []
+    for page_number, page in enumerate(pdf.pages, 1):
+        for table in page.extract_tables():
+            for raw in table:
+                cells = [normalize(cell) for cell in raw]
+                if len(cells) < 3:
+                    continue
+                chapter_cell, codes, rules = cells[:3]
+                if codes.startswith(("Tariff classi", "Tariff classification")):
+                    continue
+                found = RANGE_IN_TEXT.findall(clean_code(codes))
+                if not found:
+                    continue
+                start, end = code_range(found[0][0] or found[0][1])
+                blocked = len(found) > 1 or "except for" in codes.lower()
+                if len(found) > 1:
+                    last = code_range(found[-1][1] or found[-1][0])[1]
+                    start, end = min(start, last), max(end, last)
+                text = join(rules, cells[3] if len(cells) > 3 else "")
+                item = {"start": start, "end": end, "page": page_number, "text": text}
+                if blocked:
+                    item["blocked"] = True
+                rows.append(item)
+        page.close()
+    return rows, notes
+
+
+def uk(pdf):
+    """Parser for the two-column Japan-UK annex."""
+    rows = []
+    notes = []
+    chapter = ""
+    target = None
+    for page_number, page in enumerate(pdf.pages, 1):
+        for table in page.extract_tables():
+            for raw in table:
+                cells = [normalize(cell) for cell in raw]
+                if len(cells) < 2:
+                    continue
+                classification, text = cells[:2]
+                if classification.startswith(("Column 1", "Harmonized System", "(1)")):
+                    continue
+                if SECTION.match(classification):
+                    target = None
+                    continue
+                if m := CHAPTER.match(classification):
+                    chapter = f"{int(m[1]):02}"
+                    target = None
+                    continue
+                if classification.startswith("Note:") or text.startswith("Note:"):
+                    if chapter:
+                        add_note(notes, "chapter", chapter, join(classification, text), page_number)
+                    continue
+                if RANGE.fullmatch(clean_code(classification)):
+                    if text:
+                        target = add_row(rows, classification, page_number, text)
+                    elif target is not None:
+                        target = add_row(rows, classification, target["page"], target["text"])
+                    else:
+                        target = None
+                    continue
+                if classification.startswith("-"):
+                    if chapter:
+                        target = add_row(rows, chapter, page_number, text, classification)
+                    continue
+                if text and target is not None:
+                    target["text"] = join(target["text"], text)
+        page.close()
+    return rows, notes
+
+
+def text_schedule(pdf, filename):
+    """Parser for the two-column text-only schedules."""
+    rows = []
+    notes = []
+    target = None
+    note = None
+    pending = None
+    chapter = ""
+    section = ""
+    started = False
+    for page_number, page in enumerate(pdf.pages, 1):
+        lines = (page.extract_text() or "").splitlines()
+        for line in lines:
+            text = normalize(line)
+            low = text.lower()
+            if not started:
+                if re.match(r"^(part|section) 2\b", low, re.I) or CHAPTER.fullmatch(text):
+                    started = True
+                else:
+                    continue
+            if any(low.startswith(marker) for marker in END_MARKERS):
+                return rows, notes
+            if re.fullmatch(r"-?\s*\d{1,4}\s*-?", text):
+                continue
+            if m := SECTION.match(text):
+                section = m[1]
+                chapter = ""
+                target = None
+                note = None
+                pending = None
+                continue
+            if m := CHAPTER.match(text):
+                chapter = f"{int(m[1]):02}"
+                target = None
+                note = None
+                pending = None
+                continue
+            if text.startswith("Note:") or text.startswith("Notes to"):
+                note = add_note(notes, "section" if section else "chapter",
+                                section or chapter, text, page_number)
+                target = None
+                pending = None
+                continue
+            match = RANGE_IN_TEXT.match(clean_code(text))
+            if match and (match[1] or match[2]):
+                key = match[0].strip()
+                remainder = clean_code(text)[match.end():].strip(" .;:")
+                if not remainder:
+                    pending = (key, page_number)
+                    target = None
+                    note = None
+                    continue
+                target = add_row(rows, key, page_number, remainder)
+                pending = None
+                note = None
+                continue
+            if pending is not None:
+                key, pending_page = pending
+                target = add_row(rows, key, pending_page, text)
+                pending = None
+                note = None
+                continue
+            if text.startswith("-") and chapter:
+                target = add_row(rows, chapter, page_number, text.lstrip("- "), text)
+                continue
+            if note is not None:
+                note["text"] = join(note["text"], text)
+            elif target is not None:
+                target["text"] = join(target["text"], text)
+        page.close()
+    return rows, notes
+
+
+def table_schedule(pdf, filename):
+    if filename in FIVE_COLUMN_PDFS:
+        return five_column(pdf, filename)
+    if filename in SIX_COLUMN_PDFS:
+        return six_column(pdf, filename)
+    if filename == "australia2.pdf":
+        return australia(pdf)
+    if filename == "switzerland3.pdf":
+        return switzerland(pdf)
+    if filename == "uk3.pdf":
+        return uk(pdf)
+    raise ValueError(f"no parser for {filename}")
 
 
 def main():
@@ -237,11 +560,18 @@ def main():
         if digest != DIGESTS[filename]:
             raise ValueError(f"{filename}: source digest changed ({digest})")
         with pdfplumber.open(path) as pdf:
-            rows, notes = schedule(pdf, filename)
+            if filename in TEXT_PDFS:
+                rows, notes = text_schedule(pdf, filename)
+            elif filename in {"eu3.pdf", "asean2-1.pdf", "tpp5.pdf", "tpp2.pdf"}:
+                rows, notes = schedule(pdf, filename)
+            else:
+                rows, notes = table_schedule(pdf, filename)
+        if not rows:
+            raise ValueError(f"{filename}: no rules extracted")
         sources.append({
             "agreement": agreement,
             "citation": f"{agreement} {annex} (HS {hs})",
-            "source_url": BASE + filename,
+            "source_url": URLS.get(filename, BASE + filename),
             "sha256": digest,
             "from": start,
             "until": end,

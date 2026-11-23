@@ -25,6 +25,8 @@ test("every market but other has a flag the bundle copies", async () => {
 test("unsupported markets are listed but disabled, in few words", async () => {
   const src = await readFile(new URL("../src/components/op/market-picker.tsx", import.meta.url), "utf8");
   assert.match(src, /disabled=\{!on\}/);
+  assert.match(src, /x\.code === "jp" \? copy\.japan\.notAvailable/);
+  assert.equal(copy.japan.notAvailable, "Japan: not available yet.");
   assert.equal(copy.market.soon, "soon");
   assert.equal(copy.market.unsupported("the European Union"), "Origin rules for the European Union aren't supported yet.");
 });

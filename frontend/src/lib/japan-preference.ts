@@ -26,6 +26,17 @@ export const japanTariffEditions: Record<string, string> = {
   CPTPP: "2012",
   AJCEP: "2017",
   RCEP: "2022",
+  "JP-India CEPA": "2007",
+  "JP-Thailand EPA": "2017",
+  "JP-Indonesia EPA": "2017",
+  "JP-Australia EPA": "2012",
+  "JP-UK CEPA": "2017",
+  "JP-Vietnam EPA": "2007",
+  "JP-Malaysia EPA": "2002",
+  "JP-Mexico EPA": "2002",
+  "JP-Philippines EPA": "2002",
+  "JP-Switzerland EPA": "2007",
+  "JP-Chile EPA": "2002",
 };
 
 export const supportedJapanAgreements = Object.keys(japanTariffEditions);

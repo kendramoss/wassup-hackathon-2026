@@ -39,7 +39,7 @@ Status words: **built** means in the code and running; **measured** means recomp
 
 - **As a ruling, or in place of one.** Only a CBP binding ruling (19 CFR Part 177) binds CBP, and only for the facts in that request. Unde predicts from earlier rulings.
 - **Filing or declaring origin** on an entry without a broker's review.
-- **Other countries' origin rules**: EU Binding Origin Information, USMCA regional value content, preferential-origin claims, certificates of origin. Nothing detects or blocks such a question ([scope-and-jurisdiction.md](scope-and-jurisdiction.md)).
+- **Other countries' origin rules**: EU Binding Origin Information, USMCA regional value content, preferential-origin claims, certificates of origin. A chosen or detected non-U.S. market goes to review unless a market-specific check is registered; the text detector misses some cases ([scope-and-jurisdiction.md](scope-and-jurisdiction.md)).
 - **Tariff classification.** The HTS subheading is an input. Unde suggests candidates but does not decide it.
 - **Duty drawback, antidumping or countervailing duty questions, Section 232 duties.**
 - **Planning for product families without a template.** Plans exist for the families listed in [DETAILS.md](DETAILS.md#limitations); other products get an origin prediction but no plan.
@@ -119,7 +119,7 @@ Every held-out ruling the engine got wrong is listed, with a link to CBP's rulin
 **Other failure modes of the system** (built behaviour, documented):
 
 - **Overconfidence** (section 5): high confidence is not a guarantee. 12 of the 300 auto-accepted held-out answers were wrong.
-- **No jurisdiction guard.** A question about another country's rules gets a U.S. answer.
+- **Imperfect jurisdiction guard.** Chosen or detected non-U.S. markets get no U.S. answer unless a registered check applies; the text detector misses some cases (D680-D682).
 - **Planner recall.** The precedent check is strict: about 30% of real origin changes clear its bar on the development pairs. A move that would work may be shown as "below the bar" with its closest ruling.
 - **Run-to-run variation.** Temperature 0 and a seed reduce it but do not remove it; plan verdicts are cached so a repeat search is stable.
 - **Inputs are taken as true.** If the bill of materials is wrong, the answer is wrong. Imports from images and scans are drafts the user must check. Measured once on 20 synthetic images: 151/170 part names read exactly and 151/170 countries correct; 15/20 images fully read; gateway, Gemini 4 Argon. Accuracy on real photos, scans and handwriting is not measured ([MULTIMODAL.md](MULTIMODAL.md)).
