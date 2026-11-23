@@ -64,7 +64,7 @@ test("the first render shows the official counts before the API loaded", async (
   assert.ok(pageText.includes(`Overall accuracy ${rate(overall.value)} ${correct} / ${overall.n} right`));
   assert.ok(pageText.includes(rate(items.get("baseline_first_mentioned").value)));
   assert.ok(pageText.includes(`Auto-accepted accuracy ${rate(fastPath.value)} ${autoRight} / ${fastPath.n} right at ≥ 0.92`));
-  assert.ok(pageText.includes(`Human escalation rate ${rate(review / overall.n)} ${review} sent to review. The model had ${reviewRight} right and ${review - reviewRight} wrong.`));
+  assert.ok(pageText.includes(`Sent to human review ${rate(review / overall.n)} ${review} sent to review. The model had ${reviewRight} right and ${review - reviewRight} wrong.`));
   assert.doesNotMatch(pageText, /Loading the numbers|How it's built/);
 
   const groupCounts = new Map([
@@ -76,8 +76,8 @@ test("the first render shows the official counts before the API loaded", async (
   for (const [key, count] of groupCounts) {
     assert.equal([...markup.matchAll(new RegExp(`data-outcome="${key}"`, "g"))].length, count, key);
   }
-  assert.match(markup, /href="#misses"[^>]*>Inspect all 37 known failures/);
-  assert.match(markup, /href="\/method"[^>]*>See system architecture/);
+  assert.match(markup, /href="#misses"[^>]*>See all 37 known failures/);
+  assert.match(markup, /href="\/method"[^>]*>How it is built/);
   assert.equal((markup.match(/<tbody>/g) || []).length, 1);
   assert.equal((markup.split("<tbody>")[1].split("</tbody>")[0].match(/<tr[ >]/g) || []).length, overall.n - correct);
 });
@@ -97,7 +97,7 @@ test("the recorded plan bars match the committed known-starting-origin results",
   const strictPass = historicalSplits.reduce((k, r) => k + r.pair_level.shown_every_run, 0);
   const strictTotal = historicalSplits.reduce((n, r) => n + r.pair_level.real_change_pairs, 0);
   assert.ok(pageText.includes("CBP's starting origin was supplied."));
-  assert.ok(pageText.includes("Strict Multi-Run & Interval Details"));
+  assert.ok(pageText.includes("Repeat runs and intervals"));
   assert.ok(pageText.includes(`Strict count: ${strictPass}/${strictTotal}`));
 });
 
@@ -128,11 +128,22 @@ test("RCEP reports known positives, criterion agreement and separate synthetic r
 
   assert.ok(markets.includes(`All ${outcomes.yes.total} unseen Japan Customs rulings qualified in the published decisions.`));
   assert.ok(markets.includes(`${outcomes.yes.count}/${outcomes.yes.total} yes ${outcomes.undetermined.count} undetermined`));
-  assert.ok(markets.includes(`${outcomes.no.count} refusals · ${outcomes.error.count} input errors`));
+  assert.ok(markets.includes(`${outcomes.no.count} said no · ${outcomes.error.count} input errors`));
   assert.ok(markets.includes(`${criteria.count}/${criteria.total} deciding criteria matched`));
   assert.ok(markets.includes(`All ${development.synthetic_negatives.undetermined.count} development and ${unseen.synthetic_negatives.undetermined.count} unseen synthetic tariff-code variants were undetermined.`));
   assert.match(markets, /Refusal performance on real cases remains unmeasured/);
   assert.match(markets, /Customs specialist review is pending/);
-  assert.match(markets, /Canada marking Rules check only\. No accuracy figure/);
-  assert.match(markets, /Japan model Japan: not available yet\. The unseen-test requests yielded no measurement/);
+  assert.match(markets, /Canada marking Checks the marking rules only\. No accuracy figure/);
+  assert.match(markets, /Japan model Japan: not available yet\. The unseen-test requests gave no measurement/);
+});
+
+test("the plan bars include the no-starting-origin result and the RCEP criteria bar", async () => {
+  const { AccuracyPage } = await import("../src/components/op/screens/accuracy-page.tsx");
+  const pageText = text(html(AccuracyPage, {}));
+  const runs = JSON.parse(read("../../eval/results/planner-post-repeats-summary.json")).modes["unknown-a"].per_run;
+  for (const run of Object.values(runs)) assert.deepEqual([run.recall_at_bar.k, run.recall_at_bar.n], [5, 12]);
+  assert.ok(pageText.includes("Real shifts found, no starting origin 5/12 (42%)"));
+  const { held_out: unseen } = JSON.parse(read("../../eval/rcep/japan-summary.json"));
+  const c = unseen.published_positives.deciding_criterion_agreement;
+  assert.ok(pageText.includes(`${c.count}/${c.total} deciding criteria matched`));
 });

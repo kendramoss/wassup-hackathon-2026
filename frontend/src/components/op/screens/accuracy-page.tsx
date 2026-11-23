@@ -134,6 +134,9 @@ const planOutcomes = [
   { label: "Real shifts found", correct: 9, total: 12, interval: "46.8–91.1%" },
   { label: "False positives on unchanged goods", correct: 0, total: 6, interval: "0–39.0%" },
 ];
+// docs/NUMBERS.md, D192: the same 18 pairs without CBP's starting origin,
+// 5 of 12 real shifts found in each of the 3 runs (19.3-68.1).
+const withoutStart = { label: "Real shifts found, no starting origin", correct: 5, total: 12 };
 
 const outcomeGroups = [
   { key: "auto-right", label: "Auto-accepted, right", count: autoRight, tone: "border-ok bg-ok" },
@@ -204,7 +207,7 @@ function PlanEvidence({ calibration }: { calibration?: VerifierEvidence }) {
       <h2 id="acc-plan" className="text-xl font-semibold tracking-tight">Production-move plan evaluation</h2>
       <p className="duo mt-1 text-sm text-dim">18 before-and-after CBP pairs across 3 runs. CBP&apos;s starting origin was supplied.</p>
       <ul className="mt-5 grid gap-4">
-        {planOutcomes.map(({ label, correct, total }) => (
+        {[...planOutcomes, withoutStart].map(({ label, correct, total }) => (
           <li key={label} className="grid grid-cols-[minmax(0,1fr)_auto] items-baseline gap-x-3 gap-y-1.5 text-sm">
             <span>{label}</span>
             <strong className="text-right tabular-nums">{correct}/{total} <span className="font-normal text-dim">({pct(correct / total, 0)})</span></strong>
@@ -217,8 +220,8 @@ function PlanEvidence({ calibration }: { calibration?: VerifierEvidence }) {
       <p className="duo mt-4 text-sm">
         <strong>Stability:</strong> 27/27 repeat checks were right across 3 runs. They repeat the same 9 distinct pairs, so the independent result is 9/9 distinct pairs (95% interval 70.1–100%).
       </p>
-      <p className="duo mt-2 text-sm text-dim">Precedent checking on selected moves, with CBP&apos;s starting origin supplied. Without the starting origin, 5 of 12 real shifts were found in each run.</p>
-      <Details title="Strict Multi-Run & Interval Details">
+      <p className="duo mt-2 text-sm text-dim">Checks selected moves against past rulings. The last bar leaves out CBP&apos;s starting origin.</p>
+      <Details title="Repeat runs and intervals">
         <p>
           95% intervals per run: {planOutcomes.map(({ label, interval }) => `${label} ${interval}`).join(" · ")}.
           The same 18 pairs were measured three times through the LiteLLM gateway. All 27 shown checks were right across the three runs. Repeats reused the same nine shown moves, so they are not 27 independent pairs; the interval for the 9 distinct pairs is 70.1–100%.
@@ -257,7 +260,7 @@ function MarketEvidence() {
       <h2 id="acc-markets" className="text-xl font-semibold tracking-tight">Market evidence</h2>
       <div className="mt-4 grid gap-5 md:grid-cols-[minmax(0,3fr)_minmax(0,2fr)]">
         <div>
-          <h3 className="text-sm font-semibold">RCEP preference calculator</h3>
+          <h3 className="text-sm font-semibold">RCEP trade-deal check</h3>
           <p className="read mt-1 text-sm text-dim">All {result.rulings} unseen Japan Customs rulings qualified in the published decisions.</p>
           <div className="mt-3 h-2.5 overflow-hidden rounded-[2px] bg-wash" aria-hidden="true">
             <div className="h-full bg-ok" style={{ width: pct(result.yes / result.rulings, 4) }} />
@@ -265,9 +268,13 @@ function MarketEvidence() {
           <p className="mt-1.5 flex flex-wrap gap-x-4 gap-y-1 text-sm tabular-nums">
             <span><strong>{result.yes}/{result.rulings}</strong> yes</span>
             <span><strong>{result.undetermined}</strong> undetermined</span>
-            <span className="text-dim">{result.refusals} refusals · {result.errors} input errors</span>
+            <span className="text-dim">{result.refusals} said no · {result.errors} input errors</span>
           </p>
-          <p className="read mt-2 text-sm text-dim">{result.criterionMatches}/{result.criteriaCompared} deciding criteria matched. Refusal performance on real cases remains unmeasured. Customs specialist review is pending.</p>
+          <p className="mt-3 flex flex-wrap gap-x-4 text-sm tabular-nums"><span><strong>{result.criterionMatches}/{result.criteriaCompared}</strong> deciding criteria matched</span></p>
+          <div className="mt-1.5 h-2.5 overflow-hidden rounded-[2px] bg-wash" aria-hidden="true">
+            <div className="h-full bg-ok" style={{ width: pct(result.criterionMatches / result.criteriaCompared, 4) }} />
+          </div>
+          <p className="read mt-2 text-sm text-dim">Refusal performance on real cases remains unmeasured. Customs specialist review is pending.</p>
           <Details title="RCEP evaluation details">
             <p>
               The calculator applies published rules without a model. All {result.syntheticDevelopment} development and {result.syntheticUnseen} unseen synthetic tariff-code variants were undetermined.
@@ -282,11 +289,11 @@ function MarketEvidence() {
         <dl className="grid content-start gap-3 border-t border-line pt-3 md:border-l md:border-t-0 md:pl-5 md:pt-0">
           <div>
             <dt className="text-sm font-semibold">Canada marking</dt>
-            <dd className="read mt-0.5 text-sm text-dim">Rules check only. No accuracy figure.</dd>
+            <dd className="read mt-0.5 text-sm text-dim">Checks the marking rules only. No accuracy figure.</dd>
           </div>
           <div>
             <dt className="text-sm font-semibold">Japan model</dt>
-            <dd className="read mt-0.5 text-sm text-dim">{copy.japan.notAvailable} The unseen-test requests yielded no measurement.</dd>
+            <dd className="read mt-0.5 text-sm text-dim">{copy.japan.notAvailable} The unseen-test requests gave no measurement.</dd>
           </div>
         </dl>
       </div>
@@ -460,7 +467,7 @@ export function AccuracyPage() {
         <Kpi title="Auto-accepted accuracy" value={pct(autoRight / auto)}>
           {autoRight} / {auto} right at ≥ {bar.toFixed(2)} stated confidence and in scope.
         </Kpi>
-        <Kpi title="Human escalation rate" value={pct(review / n)}>
+        <Kpi title="Sent to human review" value={pct(review / n)}>
           {review} sent to review. The model had {reviewRight} right and {reviewWrong} wrong.
         </Kpi>
       </dl>
@@ -795,8 +802,8 @@ export function AccuracyPage() {
       </div>
 
       <nav aria-label="Explore the evidence" className="mt-8 flex flex-wrap gap-3 border-t border-line pt-5">
-        <ButtonLink href="#misses" onClick={openFailures}>Inspect all {misses.length} known failures →</ButtonLink>
-        <ButtonLink href="/method" variant="ghost">See system architecture →</ButtonLink>
+        <ButtonLink href="#misses" onClick={openFailures}>See all {misses.length} known failures →</ButtonLink>
+        <ButtonLink href="/method" variant="ghost">How it is built →</ButtonLink>
       </nav>
       <details ref={failures} id="misses" className="group mt-4 scroll-mt-20 border-b border-line">
         <summary className="flex min-h-11 list-none items-center gap-2 text-sm text-ink hover:text-ok [&::-webkit-details-marker]:hidden">
