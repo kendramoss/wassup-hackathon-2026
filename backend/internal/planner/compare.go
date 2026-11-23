@@ -103,16 +103,36 @@ func (c *Comparison) priceOps(e Economics, current domain.Product, variant *doma
 }
 
 // moneyBaselinePlant is the one plant a moved group is priced from in the
-// legacy money paths. A group performed at several plants (CurrentPlant "", the
-// same rule the operations block uses) has no single baseline cost, so it is
-// not found rather than picked from the order of the operations list (#716).
-// Only money uses it; legal facts and enumeration keep groupPlant.
+// legacy money paths: groupPlant's rule (the plant of the group's operations,
+// else of its components) when that names a single plant. A group whose
+// operations, or with no operations whose components, sit at several plants has
+// no single baseline cost; it is not found, rather than picked from the order
+// of the lists (#716). Operations still take precedence over components, as in
+// groupPlant, so a group with an operation at one plant and a component at
+// another is unchanged. Only money uses this; legal facts and enumeration keep
+// groupPlant, and the operations block keeps CurrentPlant.
 func moneyBaselinePlant(p domain.Product, group string) (domain.Plant, bool) {
-	id := CurrentPlant(p, group)
-	if id == "" {
+	ids, hasOps := map[string]bool{}, false
+	for _, o := range p.Operations {
+		if o.Group == group {
+			hasOps = true
+			ids[o.Plant] = true
+		}
+	}
+	if !hasOps {
+		for _, c := range p.Components {
+			if c.Group == group && c.Plant != "" {
+				ids[c.Plant] = true
+			}
+		}
+	}
+	if len(ids) != 1 {
 		return domain.Plant{}, false
 	}
-	return p.PlantByID(id)
+	for id := range ids {
+		return p.PlantByID(id)
+	}
+	return domain.Plant{}, false
 }
 
 // knownAddedCost is the yearly cost of the moves, only when every moved group

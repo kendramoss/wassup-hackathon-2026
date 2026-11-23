@@ -131,3 +131,41 @@ func TestSplitGroupDutyOnlyModeUnchanged(t *testing.T) {
 		}
 	}
 }
+
+// An operation at one plant with a component at another is not a split group:
+// operations take precedence (groupPlant's rule), so the money is unchanged and
+// does not depend on list order.
+func TestOperationAndComponentAtDifferentPlantsStillPriced(t *testing.T) {
+	e := splitGroupEcon(map[string]float64{"sp1": 100, "sp2": 900, "sp3": 500})
+	for _, flip := range []bool{false, true} {
+		cur := splitGroupProduct(false, flip)
+		cur.Components = append(cur.Components, domain.Component{Name: "alt", MadeIn: "Thailand", Group: "pcba", Plant: "sp2"})
+		d, a, priced := economics(Request{Product: cur, Economics: e}, splitGroupMove, "China", "Vietnam")
+		if d != 200000 || a != 400 || !priced {
+			t.Errorf("flip=%v: %v %v %v", flip, d, a, priced)
+		}
+	}
+}
+
+// With no operations, components at two plants are a split group too.
+func TestComponentOnlySplitGroupUnpriced(t *testing.T) {
+	e := splitGroupEcon(map[string]float64{"sp1": 100, "sp2": 900, "sp3": 500})
+	comps := []domain.Component{{Name: "a", Group: "pcba", Plant: "sp1"}, {Name: "b", Group: "pcba", Plant: "sp2"}}
+	var got [2]float64
+	for i, flip := range []bool{false, true} {
+		cur := splitGroupProduct(false, false)
+		cur.Operations = nil
+		cur.Components = []domain.Component{comps[0], comps[1]}
+		if flip {
+			cur.Components = []domain.Component{comps[1], comps[0]}
+		}
+		_, a, priced := economics(Request{Product: cur, Economics: e}, splitGroupMove, "China", "Vietnam")
+		if priced {
+			t.Errorf("flip=%v: component-split group must be unpriced", flip)
+		}
+		got[i] = a
+	}
+	if got[0] != got[1] {
+		t.Errorf("order dependent: %v", got)
+	}
+}
