@@ -14,7 +14,7 @@ export default function Page() {
       <Main className="flex flex-col gap-5 sm:gap-7">
         <header className="grid items-start gap-3 border-b border-line pb-4 sm:grid-cols-[minmax(0,1fr)_auto] sm:gap-8 sm:pb-5">
           <h1 className="max-w-[34ch] text-2xl font-medium leading-[1.08] tracking-[-0.05em] sm:text-4xl lg:text-5xl">
-            Connect Unde to your AI agent or customs software
+            Connect Unde to your agent or software
           </h1>
           <a
             href={`${repo}/blob/main/docs/api/openapi.yaml`}

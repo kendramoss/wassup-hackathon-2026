@@ -4,8 +4,6 @@ import { MethodArchitecture, MethodExperiments } from "../method-architecture";
 import { blob } from "@/lib/method";
 import { kobalt, kobaltSources } from "@/lib/method-inspector";
 
-const stack = ["Gemini 3.8 Flash", "Gemini 4 Argon", "ADK for Go", "Cloud Run"];
-
 function MethodGuardrails() {
   return (
     <section className="mi-section" aria-labelledby="mi-guardrails">
@@ -57,7 +55,7 @@ function MethodGuardrails() {
           <Link className="mi-link" href="/examples/rule-check">Recorded rule check <span aria-hidden="true">→</span></Link>
         </article>
       </div>
-      <p className="read mi-footnote">A move is shown only with eligible supporting rulings. Only CBP’s ruling binds.</p>
+      <p className="read mi-footnote">A move needs eligible support to clear the gate. Only CBP’s ruling binds.</p>
     </section>
   );
 }
@@ -69,10 +67,10 @@ export function MethodPage() {
         <p className="eyebrow">Method</p>
         <h1>How an answer is made and checked</h1>
         <p className="read mi-lead">Zero production fine-tuning. Predictions retrieve CBP precedent dated strictly before the case.</p>
-        <div className="mi-stack" role="group" aria-label="Technology stack">
-          {stack.map((label) => <span key={label}>{label}</span>)}
-        </div>
-        <p className="read mi-note">Gemini’s pretraining exposure is unknown. BM25 word counts span the full corpus. Earlier test rulings can serve as precedents for later ones.</p>
+        <details className="mi-limits">
+          <summary>What this does not show</summary>
+          <p className="read mi-note">Gemini’s pretraining exposure is unknown. BM25 word counts span the full corpus. Earlier test rulings can serve as precedents for later ones.</p>
+        </details>
       </header>
 
       <MethodArchitecture />
@@ -92,10 +90,13 @@ export function MethodPage() {
           <a className="mi-link" href={blob("eval/results/plan-heatgun-2022-local-litellm.json")}>Recorded heat-gun plan, 33 s (proxy run, demo fixture) <span aria-hidden="true">↗</span></a>
           <a className="mi-link" href={blob("docs/NUMBERS.md#evaluation-results-page--served-by-get-v1evalsummary")}>Cost per prediction, $0.0078 promo ($0.0157 list) <span aria-hidden="true">↗</span></a>
         </div>
-        <p className="read mi-note">21 days: the team’s count of 247 Asian-origin CBP rulings, median to a binding CBP ruling.</p>
-        <p className="read mi-note">20 hours: CBP’s estimate across all ruling subjects, not only origin.</p>
-        <p className="read mi-note">About $3,600: median of 23 subsidized Korean exporter purchases (KOTRA export-voucher records).</p>
-        <p className="read mi-note">These are not like-for-like populations and not a universal broker fee. Unde’s figures are non-binding predictions. Only CBP’s ruling binds. The savings story is illustrative.</p>
+        <details className="mi-limits">
+          <summary>Where the time and cost figures come from</summary>
+          <p className="read mi-note">21 days: the team’s count of 247 Asian-origin CBP rulings, median to a binding CBP ruling.</p>
+          <p className="read mi-note">20 hours: CBP’s estimate across all ruling subjects, not only origin.</p>
+          <p className="read mi-note">About $3,600: median of 23 subsidized Korean exporter purchases (KOTRA export-voucher records).</p>
+          <p className="read mi-note">These are not like-for-like populations and not a universal broker fee. Unde’s figures are non-binding predictions. Only CBP’s ruling binds. The savings story is illustrative.</p>
+        </details>
         <p className="read mi-note">The Kobalt backtest helped shape the search. It was not a blind test.</p>
       </section>
     </Main>

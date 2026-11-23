@@ -8,7 +8,12 @@ const page = read("../src/components/op/screens/method-page.tsx");
 const architecture = read("../src/components/op/method-architecture.tsx");
 
 test("Method uses a connected stage inspector and comparison cards without text dumps", () => {
-  assert.doesNotMatch(page + architecture, /<(?:details|ul|ol|Fold|Details)\b/i);
+  assert.doesNotMatch(page + architecture, /<(?:ul|ol|Fold|Details)\b/);
+  assert.doesNotMatch(page + architecture, /<(?:UL|OL)\b/);
+  // Only two short disclosures on the page: the leakage limits and the figures' sources.
+  assert.equal((page.match(/<details\b/g) || []).length, 2);
+  assert.equal((architecture.match(/<details\b/g) || []).length, 0);
+  assert.match(page, /<details className="mi-limits"> <summary>What this does not show<\/summary>.*?pretraining exposure is unknown.*?<\/details>/);
   assert.match(architecture, /role="tablist"[^>]*aria-orientation="vertical"/);
   assert.match(architecture, /aria-controls="architecture-detail"/);
   assert.match(architecture, /role="tabpanel"/);
