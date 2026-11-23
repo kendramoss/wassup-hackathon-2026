@@ -59,6 +59,8 @@ export type PartHtsCandidate = components["schemas"]["PartHtsCandidate"];
 export type MoneyPrefillResponse = Json<"/v1/products/money-prefill", "post">;
 export type RcepCheckResponse = Json<"/v1/rcep/check", "post">;
 export type RcepCheckRequest = NonNullable<paths["/v1/rcep/check"]["post"]["requestBody"]>["content"]["application/json"];
+export type UsmcaCheckResponse = Json<"/v1/usmca/check", "post">;
+export type UsmcaCheckRequest = NonNullable<paths["/v1/usmca/check"]["post"]["requestBody"]>["content"]["application/json"];
 export type FamilyCheckResponse = Json<"/v1/products/family-check", "post">;
 export type CostEstimateResponse = Json<"/v1/products/cost-estimate", "post">;
 export type BomVersionResponse = Json<"/v1/cases/{id}/bom-version", "post">;
@@ -364,6 +366,8 @@ export const api = {
   familyCheck: (body: { text: string; product?: Product }, signal?: AbortSignal) => post<FamilyCheckResponse>("/products/family-check", body, signal),
   // RCEP preference (D690): rules only, no model call, nothing stored.
   rcepCheck: (body: RcepCheckRequest, signal?: AbortSignal) => post<RcepCheckResponse>("/rcep/check", body, signal),
+  // USMCA selected origin rule (D740): rules only, no model call, nothing stored.
+  usmcaCheck: (body: UsmcaCheckRequest, signal?: AbortSignal) => post<UsmcaCheckResponse>("/usmca/check", body, signal),
   costEstimate: (body: { product: Product; economics?: Economics }, signal?: AbortSignal) => post<CostEstimateResponse>("/products/cost-estimate", noOps(body), signal),
   bomVersion: (id: string, file: File, apply = false) => {
     const form = new FormData();
