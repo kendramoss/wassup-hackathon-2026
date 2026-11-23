@@ -55,5 +55,9 @@ test("the Japan form uses the preferential agreement codes and accepts Japanese 
 
 test("the selector’s HS editions match the embedded schedules", async () => {
   const schedules = JSON.parse(await readFile(new URL("../../backend/internal/jprules/data/schedules.json", import.meta.url), "utf8"));
-  assert.deepEqual(japanTariffEditions, { ...Object.fromEntries(schedules.map((s) => [s.agreement, s.citation.match(/HS ([0-9]{4})/)[1]])), RCEP: "2022" });
+  const editions = {};
+  for (const s of schedules) {
+    editions[s.agreement] ??= s.citation.match(/HS ([0-9]{4})/)[1];
+  }
+  assert.deepEqual(japanTariffEditions, { ...editions, RCEP: "2022" });
 });
