@@ -87,6 +87,15 @@ On 12 products against `undelabs.dev`, Gemini 3.8 Flash through the gateway: 10 
 
 After the D470 fixes (plan_id, the no-plan line, one draft), a second evaluation with stricter checks written first (D510) ran against the live server: 9 of 12 passed. The 8 runs the server's anonymous per-client budget did not cut short all passed; a09 to a12 were cut by it (429), and the second run per product, for repeatability, has not run yet (D511).
 
+The [D732 authenticated follow-up](../../docs/DECISIONS.md#d732--pre-registration-for-an-authenticated-live-adk-evaluation-683-23-nov-2026) preserves the historical anonymous rows. After the preregistration is pushed and an approved scoped key is injected into the process as `UNDE_API_KEY`, use the gateway variables above and run each scheduled fixture once. From `examples/adk-agent`, the single-fixture command is:
+
+```bash
+./.venv/bin/python run_eval.py --require-bearer --id a01 \
+  --label live-v2-authenticated-run1 --out ../../eval/agent/results/live-v2-authenticated-run1.jsonl
+```
+
+See D732 for batch size, spend checks and the separate result metadata.
+
 Plumbing, with no model and no cost: start a local server in fake mode (`LLM_PROVIDER=fake make run`), then
 
 ```bash

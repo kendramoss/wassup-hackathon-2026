@@ -1,0 +1,20 @@
+{
+  "date": "2026-11-23",
+  "endpoint": "https://undelabs.dev/mcp",
+  "authentication": "anonymous",
+  "initialize": "succeeded",
+  "tools_list": "succeeded",
+  "request": {
+    "tool": "predict_origin",
+    "date": "2026-01-99"
+  },
+  "response": {
+    "is_error": true,
+    "status": 401,
+    "code": "unauthenticated",
+    "message": "sign in or use an API key; a visitor id alone does not authenticate (STRICT_AUTH is on)"
+  },
+  "product_sessions_started": 0,
+  "model_calls": 0,
+  "cost_usd": 0
+}

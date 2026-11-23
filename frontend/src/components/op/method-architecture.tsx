@@ -113,6 +113,15 @@ export function MethodArchitecture() {
               ))}
             </dl>
           </section>
+          {stage.id === "ask" && (
+            <section className="mi-enforced" aria-labelledby="mi-adk-eval">
+              <h4 id="mi-adk-eval">ADK tool-use evaluation</h4>
+              <p className="read">Run 1 passed the tool-use checks on 9 of 12 products. Production sign-in blocked the second anonymous run.</p>
+              <a className="mi-link" href={blob("docs/EVALUATION.md#12-agent-evaluation-the-adk-agent-on-12-products-22-nov-2026-d450-d451")}>
+                ADK evaluation details <span aria-hidden="true">↗</span>
+              </a>
+            </section>
+          )}
         </div>
       </div>
     </section>

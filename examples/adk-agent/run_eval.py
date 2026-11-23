@@ -20,6 +20,7 @@ kept whole. No key, gateway host or header is written.
 import argparse
 import asyncio
 import json
+import logging
 import os
 import re
 import sys
@@ -32,8 +33,6 @@ from google.adk.models.llm_response import LlmResponse
 from google.adk.runners import Runner
 from google.adk.sessions import InMemorySessionService
 from google.genai import types
-
-from unde_agent import agent as unde
 
 RULING = re.compile(r"\b(?:[HN]\d{6}|NY [A-Z]?\d{5,6}|HQ \d{6})\b")
 SECRET = re.compile(r"\bmcp_[A-Za-z0-9_-]{8,}|\bop_[A-Za-z0-9_-]{8,}")
@@ -143,9 +142,11 @@ class ScriptedModel(BaseLlm):
         elif "export_ruling_request_draft" not in done:
             call = ("export_ruling_request_draft", {"case_id": case_id, "case_access_key": key, "plan_index": 0, "target": self.target})
         else:
+            from unde_agent.agent import DISCLAIMER
+
             pf = predict_fields(pred)
             text = (f"Predicted origin: {pf['origin']}. Cited rulings: {', '.join(pf['cited']) or 'none'}.\n"
-                    f"{unde.DISCLAIMER}")
+                    f"{DISCLAIMER}")
             yield LlmResponse(content=types.Content(role="model", parts=[types.Part(text=text)]))
             return
         name, args = call
@@ -184,7 +185,9 @@ def track_gateway_cost():
     litellm.callbacks = [Tally()]
 
 
-async def run_one(prod, scripted, label):
+async def run_one(prod, scripted, label, require_bearer=False):
+    from unde_agent import agent as unde
+
     model = ScriptedModel(target=prod["target"], family=prod["family"]) if scripted else unde.make_model()
     if not scripted and os.environ.get("LITELLM_BASE_URL"):
         track_gateway_cost()
@@ -193,7 +196,7 @@ async def run_one(prod, scripted, label):
                   description="Unde ADK agent (evaluation run)")
     runner = Runner(app_name="unde_adk_eval", agent=ag, session_service=InMemorySessionService())
     session = await runner.session_service.create_session(app_name="unde_adk_eval", user_id="eval")
-    offered = sorted(t.name for t in await toolset.get_tools())
+    offered = []
     secrets = [os.environ.get(k) for k in ("LITELLM_API_KEY", "LITELLM_BASE_URL", "UNDE_API_KEY")]
     calls, final, error, access_key = [], "", None, None
     pending = {}
@@ -201,6 +204,7 @@ async def run_one(prod, scripted, label):
     started = time.strftime("%Y-%m-%dT%H:%M:%S%z")
     msg = types.Content(role="user", parts=[types.Part(text=prod["prompt"])])
     try:
+        offered = sorted(t.name for t in await toolset.get_tools())
         async for ev in runner.run_async(user_id="eval", session_id=session.id, new_message=msg):
             now = round(time.monotonic() - t0, 1)
             for p in (ev.content.parts if ev.content else None) or []:
@@ -261,6 +265,9 @@ async def run_one(prod, scripted, label):
         "cost_usd": round(COST["usd"], 6) if COST["calls"] else 0.0, "model_calls": COST["calls"],
         "priced_calls": COST["priced"], "prompt_tokens": COST["prompt_tokens"], "completion_tokens": COST["completion_tokens"],
     }
+    if require_bearer:
+        row["mcp_auth"] = "bearer"
+        row["case_access_key_returned"] = bool(access_key)
     return json.loads(scrub(json.dumps(row, ensure_ascii=False), secrets))
 
 
@@ -271,10 +278,24 @@ def main():
     ap.add_argument("--out", required=True)
     ap.add_argument("--label", default="run")
     ap.add_argument("--scripted", action="store_true")
+    ap.add_argument("--require-bearer", action="store_true", help="Use the D732 authenticated production protocol")
     a = ap.parse_args()
+    if a.require_bearer:
+        if a.scripted or not re.fullmatch(r"op_[A-Za-z0-9_-]{8,}", os.environ.get("UNDE_API_KEY", "")):
+            ap.error("--require-bearer needs a scoped UNDE_API_KEY and cannot be used with --scripted")
+        if os.environ.get("UNDE_MCP_URL", "https://undelabs.dev/mcp") != "https://undelabs.dev/mcp":
+            ap.error("--require-bearer requires https://undelabs.dev/mcp")
+        if not (os.environ.get("LITELLM_BASE_URL") and os.environ.get("LITELLM_API_KEY")):
+            ap.error("--require-bearer needs the approved LiteLLM gateway configuration")
+        if os.environ.get("ADK_MODEL", "gemini-3.8-flash") != "gemini-3.8-flash":
+            ap.error("--require-bearer requires Gemini 3.8 Flash")
+        # Keep dependency diagnostics out of the authenticated transcript.
+        # Recorded tool results and exceptions are scrubbed below.
+        logging.disable(logging.CRITICAL)
+        os.environ["LITELLM_LOG"] = "ERROR"
     prods = {json.loads(l)["id"]: json.loads(l) for l in open(a.products) if l.strip()}
     prod = prods[a.id]
-    row = asyncio.run(run_one(prod, a.scripted, a.label))
+    row = asyncio.run(run_one(prod, a.scripted, a.label, a.require_bearer))
     with open(a.out, "a") as f:
         f.write(json.dumps(row, ensure_ascii=False) + "\n")
     print(f"{a.id}: {row['wall_s']}s, tools {[c['tool'] for c in row['calls']]}, ${row['cost_usd']:.4f}, error={row['error']}", file=sys.stderr)

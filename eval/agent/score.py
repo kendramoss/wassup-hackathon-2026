@@ -162,8 +162,16 @@ def score_run(row, prod):
                 arg_issues.append("export without move_key or plan_index")
             if pf.get("case_id") and a.get("case_id") != pf["case_id"]:
                 arg_issues.append("export on another case")
-        if c["tool"] in ("plan_production_moves", "export_ruling_request_draft") and not c.get("access_key_matches"):
-            arg_issues.append(f"{c['tool']} without predict_origin's case_access_key")
+        if c["tool"] in ("plan_production_moves", "export_ruling_request_draft"):
+            if row.get("mcp_auth") == "bearer":
+                # D732: the connection authenticates each call and the server
+                # returns no anonymous case key. The case ID must still match.
+                if not pf.get("case_id"):
+                    arg_issues.append(f"{c['tool']} without predict_origin's case_id")
+                if row.get("case_access_key_returned") is not False or c.get("access_key_sent") or "case_access_key" in a:
+                    arg_issues.append(f"{c['tool']} did not follow bearer-only case access")
+            elif not c.get("access_key_matches"):
+                arg_issues.append(f"{c['tool']} without predict_origin's case_access_key")
     args_ok = not arg_issues and any(c["tool"] == "plan_production_moves" for c in calls)
 
     # Target plant added when the description names none (reported, D450 rule 2b).

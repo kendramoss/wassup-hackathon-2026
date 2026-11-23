@@ -997,3 +997,7 @@ Exact row agreement is unmeasured because the rulings refer to Annex 3A without 
 ### Separate synthetic tariff-shift stress test
 
 For each tariff-shift yes, the first material counted as non-originating was assigned the finished good's four-digit heading. This also leaves a subheading shift without the precision needed to decide. In development, 162 of 162 changed from yes to undetermined (97.7–100). In held out, 71 of 71 changed from yes to undetermined (94.9–100). No synthetic case returned an explicit no, yes or input error. These mutations test how the check softens a positive when classification evidence changes.
+
+## ADK agent evaluation v2, run 2 preflight (23 Nov, D731)
+
+After the daily budget reset, live MCP initialized anonymously, then returned HTTP 401 `unauthenticated` on an invalid-date `predict_origin` probe. Production requires a verified identity for case creation (D730). The D510 run stopped before any product session started. Run 1 supplies the existing score. Repeatability is unmeasured. No model calls, $0 spend. [Preflight record](agent/adk/live-v2-run2-preflight.json).
