@@ -102,6 +102,19 @@ func (c *Comparison) priceOps(e Economics, current domain.Product, variant *doma
 	c.Feasibility = res.Feasibility
 }
 
+// moneyBaselinePlant is the one plant a moved group is priced from in the
+// legacy money paths. A group performed at several plants (CurrentPlant "", the
+// same rule the operations block uses) has no single baseline cost, so it is
+// not found rather than picked from the order of the operations list (#716).
+// Only money uses it; legal facts and enumeration keep groupPlant.
+func moneyBaselinePlant(p domain.Product, group string) (domain.Plant, bool) {
+	id := CurrentPlant(p, group)
+	if id == "" {
+		return domain.Plant{}, false
+	}
+	return p.PlantByID(id)
+}
+
 // knownAddedCost is the yearly cost of the moves, only when every moved group
 // has a cost entered at both its current plant and its destination. A missing
 // entry is unknown, not zero (D131); an explicit 0 is a known cost. A setup
@@ -110,7 +123,7 @@ func (c *Comparison) priceOps(e Economics, current domain.Product, variant *doma
 func knownAddedCost(e Economics, current domain.Product, m domain.Move) (float64, bool) {
 	var added float64
 	for _, gm := range m {
-		from, ok := groupPlant(current, gm.Group)
+		from, ok := moneyBaselinePlant(current, gm.Group)
 		if !ok {
 			return 0, false
 		}

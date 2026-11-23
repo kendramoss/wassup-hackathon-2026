@@ -655,8 +655,8 @@ func economics(req Request, m domain.Move, fromOrigin, toOrigin string) (dutyEff
 	}
 	for _, gm := range m {
 		costs := e.GroupCosts[gm.Group]
-		from, ok := groupPlant(req.Product, gm.Group)
-		if !ok {
+		from, ok := moneyBaselinePlant(req.Product, gm.Group)
+		if !ok { // unknown or ambiguous baseline: no figure, order-independent (#716)
 			continue
 		}
 		addedCost += costs[gm.ToPlant] - costs[from.ID]
