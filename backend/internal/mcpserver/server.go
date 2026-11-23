@@ -91,6 +91,7 @@ func NewServer(o Options) *mcp.Server {
 	t := tools{api: o.API, families: o.Families}
 	t.register(s, o.RulingSearch)
 	t.registerRCEP(s)
+	t.registerUSMCA(s)
 	if o.MediaExtract {
 		t.registerMedia(s)
 	}
