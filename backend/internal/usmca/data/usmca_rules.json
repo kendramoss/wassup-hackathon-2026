@@ -1,0 +1,7 @@
+{
+  "schema_version": 1,
+  "data_version": "empty-0",
+  "note": "No source-backed rows are enabled yet; every good returns not_supported.",
+  "snapshot": {"source": "", "revision": "", "retrieved_on": "", "source_hash": ""},
+  "rows": []
+}
