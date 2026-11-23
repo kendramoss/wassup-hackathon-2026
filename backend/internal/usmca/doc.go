@@ -3,7 +3,9 @@
 // regional value content (RVC) calculation, exact threshold comparison and
 // Kleene three-valued logic.
 //
-// This package contains no product-specific rule data, thresholds or HS data.
+// The arithmetic and logic files hold no rule data. The versioned pilot rows
+// (8202.31, 8207.13, 9503.00) live in the embedded data directory and are read
+// by the rule engine; nothing else here carries thresholds or HS data.
 //
 // # Precision limits
 //

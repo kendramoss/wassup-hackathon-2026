@@ -18,6 +18,10 @@ import (
 // left for the engine to refuse.
 var dottedHS = regexp.MustCompile(`^[0-9]{2}(?:\.?[0-9]{2}){0,4}$`)
 
+// dottedGoodHS is the stricter shape of good_hs, matching the OpenAPI pattern:
+// four leading digits, then up to three pairs ("82.02" is refused).
+var dottedGoodHS = regexp.MustCompile(`^[0-9]{4}(?:\.?[0-9]{2}){0,3}$`)
+
 // normaliseUSMCAHS rewrites dotted HS codes (good_hs and materials[].hs) to
 // the plain digits the engine requires. Anything it cannot parse is returned
 // unchanged so usmca.DecodeInput reports the real error.
@@ -26,9 +30,9 @@ func normaliseUSMCAHS(raw []byte) []byte {
 	if err := json.Unmarshal(raw, &top); err != nil || top == nil {
 		return raw
 	}
-	fix := func(m json.RawMessage) (json.RawMessage, bool) {
+	fix := func(m json.RawMessage, shape *regexp.Regexp) (json.RawMessage, bool) {
 		var s string
-		if json.Unmarshal(m, &s) != nil || !strings.Contains(s, ".") || !dottedHS.MatchString(s) {
+		if json.Unmarshal(m, &s) != nil || !strings.Contains(s, ".") || !shape.MatchString(s) {
 			return m, false
 		}
 		b, _ := json.Marshal(strings.ReplaceAll(s, ".", ""))
@@ -36,7 +40,7 @@ func normaliseUSMCAHS(raw []byte) []byte {
 	}
 	changed := false
 	if v, ok := top["good_hs"]; ok {
-		if nv, c := fix(v); c {
+		if nv, c := fix(v, dottedGoodHS); c {
 			top["good_hs"], changed = nv, true
 		}
 	}
@@ -45,7 +49,7 @@ func normaliseUSMCAHS(raw []byte) []byte {
 		if json.Unmarshal(v, &mats) == nil {
 			for _, m := range mats {
 				if h, ok := m["hs"]; ok {
-					if nv, c := fix(h); c {
+					if nv, c := fix(h, dottedHS); c {
 						m["hs"], changed = nv, true
 					}
 				}

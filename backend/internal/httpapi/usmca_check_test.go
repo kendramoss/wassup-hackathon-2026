@@ -78,6 +78,7 @@ func TestUSMCACheckRejectsBadInput(t *testing.T) {
 		"wrong regime":       strings.Replace(ok, `"usmca"`, `"rcep"`, 1),
 		"malformed good hs":  usmcaBody("8202.3", "880100"),
 		"letters good hs":    usmcaBody("82O231", "880100"),
+		"dotted short good":  usmcaBody("82.02", "880100"),
 		"bad material hs":    usmcaBody("820231", "88.0"),
 		"bad method":         strings.Replace(ok, `"rvc_method":"transaction_value"`, `"rvc_method":"cheapest"`, 1),
 		"bad claim":          strings.Replace(ok, `"non_originating"`, `"maybe"`, 1),

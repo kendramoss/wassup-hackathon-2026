@@ -13,7 +13,8 @@ export type MaterialRow = { hs: string; origin: OriginAnswer };
 export type UsmcaForm = {
   hs: string;
   method: Method;
-  amount: string;
+  tv: string; // transaction value, kept apart so a method switch never reinterprets it
+  nc: string; // net cost
   vnm: string;
   materials: MaterialRow[];
   complete: boolean; // never true until the person says so
@@ -22,10 +23,13 @@ export type UsmcaForm = {
 
 export const HS_GOOD = /^[0-9]{4}(\.?[0-9]{2}){0,3}$/;
 export const HS_MATERIAL = /^[0-9]{2}(\.?[0-9]{2}){0,4}$/;
-export const AMOUNT = /^(0|[1-9][0-9]*)(\.[0-9]+)?$/;
+// The same limits as the engine: 30 integer digits, 12 fraction digits.
+export const AMOUNT = /^(0|[1-9][0-9]{0,29})(\.[0-9]{1,12})?$/;
+
+export const amountOf = (f: UsmcaForm): string => (f.method === "net_cost" ? f.nc : f.method === "transaction_value" ? f.tv : "");
 
 export function blankForm(hs = ""): UsmcaForm {
-  return { hs, method: "", amount: "", vnm: "", materials: [], complete: false, simple: false };
+  return { hs, method: "", tv: "", nc: "", vnm: "", materials: [], complete: false, simple: false };
 }
 
 export type FormErrors = { hs?: string; amount?: string; vnm?: string; materials: (string | undefined)[] };
@@ -36,7 +40,7 @@ const C = copy.usmcaCheck;
 export function check(f: UsmcaForm): FormErrors {
   const e: FormErrors = { materials: f.materials.map((m) => (m.hs.trim() && !HS_MATERIAL.test(m.hs.trim()) ? C.badMaterialHs : undefined)) };
   if (!f.hs.trim() || !HS_GOOD.test(f.hs.trim())) e.hs = C.badHs;
-  if (f.method && f.amount.trim() && !AMOUNT.test(f.amount.trim())) e.amount = C.badAmount;
+  if (f.method && amountOf(f).trim() && !AMOUNT.test(amountOf(f).trim())) e.amount = C.badAmount;
   if (f.method && f.vnm.trim() && !AMOUNT.test(f.vnm.trim())) e.vnm = C.badAmount;
   return e;
 }
@@ -56,7 +60,7 @@ const PROVISIONS = [
 export function body(f: UsmcaForm): UsmcaCheckRequest {
   const profile: NonNullable<UsmcaCheckRequest["profile"]> = { simple_goods_confirmed: f.simple, materials_list_complete: f.complete };
   if (f.simple) for (const p of PROVISIONS) profile[p] = "not_applicable";
-  const amount = f.amount.trim();
+  const amount = amountOf(f).trim();
   const vnm = f.vnm.trim();
   const materials = f.materials.map((m) => ({
     ...(m.hs.trim() ? { hs: m.hs.trim() } : {}),
@@ -85,7 +89,7 @@ const RVC_FIELDS = new Set(["rvc_method", "transaction_value", "net_cost", "vnm"
 // needsValue is true when the value fields can change the answer: the server
 // asked for one, or the person already started on them.
 export function needsValue(f: UsmcaForm, res: { rvc?: unknown; missing_facts?: { field: string }[] } | null | undefined): boolean {
-  if (f.method || f.amount.trim() || f.vnm.trim()) return true;
+  if (f.method || f.tv.trim() || f.nc.trim() || f.vnm.trim()) return true;
   if (res?.rvc) return true;
   return Boolean(res?.missing_facts?.some((m) => RVC_FIELDS.has(m.field)));
 }
@@ -122,5 +126,35 @@ export function sequencer() {
       ctl = null;
     },
     live: (id: number) => id === n,
+  };
+}
+
+// exactNote is the exact percentage when it says more than the rounded one:
+// a fraction such as 200/3, or a value that differs from the display. A whole
+// number already shown as 60.00 needs no second line.
+export function exactNote(rvc: { exact?: string; display?: string }): string | null {
+  if (!rvc.exact) return null;
+  if (rvc.exact.includes("/")) return rvc.exact;
+  return Number(rvc.exact) === Number(rvc.display) ? null : rvc.exact;
+}
+
+// runner runs one check at a time for a form: a new run or a retire() silences
+// every earlier one, so a slow answer never lands on newer facts.
+export function runner<T>() {
+  const s = sequencer();
+  return {
+    async run(call: (signal: AbortSignal) => Promise<T>, h: { busy: (b: boolean) => void; done: (r: T) => void; fail: (e: unknown) => void }) {
+      const { id, signal } = s.start();
+      h.busy(true);
+      try {
+        const r = await call(signal);
+        if (s.live(id)) h.done(r);
+      } catch (e) {
+        if (s.live(id)) h.fail(e);
+      } finally {
+        if (s.live(id)) h.busy(false);
+      }
+    },
+    retire: () => s.retire(),
   };
 }

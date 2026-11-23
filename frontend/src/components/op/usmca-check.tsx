@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import { api, type CaseResponse, type UsmcaCheckResponse } from "@/lib/api/client";
 import { copy } from "@/lib/copy";
-import { MAX_MATERIALS, blankForm, body, check, factList, hasErrors, keyOf, needsValue, sequencer, type OriginAnswer, type UsmcaForm } from "@/lib/usmca-check";
+import { MAX_MATERIALS, blankForm, body, check, factList, exactNote, hasErrors, keyOf, needsValue, runner, type OriginAnswer, type UsmcaForm } from "@/lib/usmca-check";
 import { Button, Chip, Fold, cx } from "./ui";
 
 // The USMCA origin-rule check (D740): does the selected USMCA rule for this
@@ -15,20 +15,22 @@ const C = copy.usmcaCheck;
 const TONE = { met: "ok", not_met: "fail", needs_information: "ask", not_supported: "ask" } as const;
 
 export function UsmcaResult({ res, stale }: { res: UsmcaCheckResponse; stale?: boolean }) {
+  // A result for older facts is not shown at all: only the request to check again.
+  if (stale)
+    return (
+      <p data-usmca-stale role="status" className="duo mt-3 text-[13px] text-ask">
+        {C.stale}
+      </p>
+    );
   const needs = factList(res.missing_facts);
   const rvc = res.rvc;
   const row = res.source.row;
   return (
-    <div data-usmca={res.status} data-stale={stale ? "true" : undefined} className={cx("mt-3 flex flex-col gap-2", stale && "opacity-60")}>
+    <div data-usmca={res.status} className="mt-3 flex flex-col gap-2">
       <p className="read flex flex-wrap items-center gap-2 text-[15px]">
         <Chip tone={TONE[res.status]}>{C.status[res.status]}</Chip>
         <span className="duo text-[13px] text-dim">{C.label}</span>
       </p>
-      {stale ? (
-        <p role="status" className="duo text-[13px] text-ask">
-          {C.stale}
-        </p>
-      ) : null}
       {res.status === "not_met" ? <p className="duo text-[13px] text-body">{C.notMet}</p> : null}
       {res.status === "met" ? <p className="duo text-[13px] text-body">{C.met}</p> : null}
       {res.status === "not_supported" ? (
@@ -46,10 +48,12 @@ export function UsmcaResult({ res, stale }: { res: UsmcaCheckResponse; stale?: b
       {rvc && rvc.status === "computed" ? (
         <p data-usmca-calc className="duo text-[13px] text-body">
           {C.calc} ({rvc.method === "net_cost" ? C.methodNc : C.methodTv}): <span className="tabular-nums text-ink">{rvc.display}%</span>
-          <span className="text-dim">
-            {" "}
-            · {C.exact} <span className="tabular-nums">{rvc.exact}%</span>
-          </span>
+          {exactNote(rvc) ? (
+            <span className="text-dim">
+              {" "}
+              · {C.exact} <span className="tabular-nums">{exactNote(rvc)}%</span>
+            </span>
+          ) : null}
           {rvc.display_note ? <span className="block text-[12px] text-dim">{rvc.display_note}</span> : null}
         </p>
       ) : null}
@@ -115,7 +119,7 @@ const bad = "border-fail";
 
 function Problem({ id, children }: { id: string; children?: string }) {
   return children ? (
-    <span id={id} role="alert" className="duo text-[12px] text-fail">
+    <span id={id} className="duo text-[12px] text-fail">
       {children}
     </span>
   ) : null;
@@ -127,10 +131,10 @@ export function UsmcaCheck({ c }: { c: CaseResponse }) {
   const [err, setErr] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
   const [tried, setTried] = useState(false);
-  const seq = useRef(sequencer());
+  const job = useRef(runner<UsmcaCheckResponse>());
   useEffect(() => {
-    const s = seq.current;
-    return () => s.retire();
+    const j = job.current;
+    return () => j.retire();
   }, []);
 
   const errors = check(f);
@@ -141,30 +145,31 @@ export function UsmcaCheck({ c }: { c: CaseResponse }) {
   // Every edit cancels a check in flight, so an old answer can never land on
   // newer facts.
   function edit(next: UsmcaForm) {
-    seq.current.retire();
+    job.current.retire();
     setBusy(false);
     setErr(null);
     setF(next);
   }
 
-  async function run() {
+  function run() {
     setTried(true);
-    if (hasErrors(errors)) return;
-    const { id: mine, signal } = seq.current.start();
-    const k = JSON.stringify(body(f));
-    setBusy(true);
-    setErr(null);
-    try {
-      const res = await api.usmcaCheck(body(f), signal);
-      if (!seq.current.live(mine)) return;
-      setOut({ key: k, res });
-    } catch (e) {
-      if (!seq.current.live(mine)) return;
-      setOut(null);
-      setErr(e instanceof Error && e.message ? e.message : C.failed);
-    } finally {
-      if (seq.current.live(mine)) setBusy(false);
+    if (hasErrors(errors)) {
+      // Take the person to the first field that needs fixing.
+      const first = errors.hs ? "usmca-hs" : errors.materials.findIndex(Boolean) >= 0 ? `usmca-m${errors.materials.findIndex(Boolean)}` : errors.amount ? "usmca-amount" : "usmca-vnm";
+      if (typeof document !== "undefined") document.getElementById(first)?.focus();
+      return;
     }
+    const sent = body(f);
+    const k = JSON.stringify(sent);
+    setErr(null);
+    void job.current.run((signal) => api.usmcaCheck(sent, signal), {
+      busy: setBusy,
+      done: (res) => setOut({ key: k, res }),
+      fail: (e) => {
+        setOut(null);
+        setErr(e instanceof Error && e.message ? e.message : C.failed);
+      },
+    });
   }
 
   const value = needsValue(f, out?.res);
@@ -179,23 +184,26 @@ export function UsmcaCheck({ c }: { c: CaseResponse }) {
         className="flex max-w-[75ch] flex-col gap-3 text-[13px]"
         onSubmit={(e) => {
           e.preventDefault();
-          void run();
+          run();
         }}
       >
         <p className="duo text-body">{C.lead}</p>
-        <label className="flex flex-col gap-1">
-          <span className="text-dim">{C.good}</span>
-          <input
-            className={cx(field, "w-44", shown.hs && bad)}
-            value={f.hs}
-            inputMode="decimal"
-            autoComplete="off"
-            aria-invalid={shown.hs ? true : undefined}
-            aria-describedby={shown.hs ? "usmca-hs-err" : undefined}
-            onChange={(e) => set("hs", e.target.value)}
-          />
+        <div className="flex flex-col gap-1">
+          <label className="flex flex-col gap-1">
+            <span className="text-dim">{C.good}</span>
+            <input
+              id="usmca-hs"
+              className={cx(field, "w-44", shown.hs && bad)}
+              value={f.hs}
+              inputMode="decimal"
+              autoComplete="off"
+              aria-invalid={shown.hs ? true : undefined}
+              aria-describedby={shown.hs ? "usmca-hs-err" : undefined}
+              onChange={(e) => set("hs", e.target.value)}
+            />
+          </label>
           <Problem id="usmca-hs-err">{shown.hs}</Problem>
-        </label>
+        </div>
 
         <fieldset className="flex flex-col">
           <legend className="text-dim">{C.materials}</legend>
@@ -205,8 +213,9 @@ export function UsmcaCheck({ c }: { c: CaseResponse }) {
                 <label className="flex flex-col gap-1">
                   <span className="sr-only">{C.materialCode(i + 1)}</span>
                   <input
+                    id={`usmca-m${i}`}
                     className={cx(field, "w-36", shown.materials[i] && bad)}
-                    placeholder="HS code"
+                    placeholder={C.hsPlaceholder}
                     value={m.hs}
                     inputMode="decimal"
                     autoComplete="off"
@@ -217,7 +226,7 @@ export function UsmcaCheck({ c }: { c: CaseResponse }) {
                   />
                 </label>
                 <label className="flex items-center gap-2">
-                  <span className="text-dim">{i === 0 ? "USMCA origin" : <span className="sr-only">USMCA origin</span>}</span>
+                  <span className="text-dim">{i === 0 ? C.originColumn : <span className="sr-only">{C.originColumn}</span>}</span>
                   <select className={cx(field, "w-28")} aria-label={C.materialOrigin(i + 1)} value={m.origin} onChange={(e) => setRow(i, { origin: e.target.value as OriginAnswer })}>
                     <option value="unknown">{C.originUnknown}</option>
                     <option value="originating">{C.originYes}</option>
@@ -230,7 +239,7 @@ export function UsmcaCheck({ c }: { c: CaseResponse }) {
                   aria-label={C.removeMaterial(i + 1)}
                   onClick={() => set("materials", f.materials.filter((_, j) => j !== i))}
                 >
-                  ×
+                  {C.removeMark}
                 </button>
                 <Problem id={`usmca-m${i}-err`}>{shown.materials[i]}</Problem>
               </li>
@@ -261,32 +270,39 @@ export function UsmcaCheck({ c }: { c: CaseResponse }) {
             </label>
             {f.method ? (
               <>
-                <label className="flex flex-col gap-1">
-                  <span className="text-dim">{f.method === "net_cost" ? C.amountNc : C.amountTv}</span>
-                  <input
-                    className={cx(field, "w-32 text-right tabular-nums", shown.amount && bad)}
-                    inputMode="decimal"
-                    autoComplete="off"
-                    value={f.amount}
-                    aria-invalid={shown.amount ? true : undefined}
-                    aria-describedby={shown.amount ? "usmca-amount-err" : undefined}
-                    onChange={(e) => set("amount", e.target.value)}
-                  />
+                <div className="flex flex-col gap-1">
+                  <label className="flex flex-col gap-1">
+                    <span className="text-dim">{f.method === "net_cost" ? C.amountNc : C.amountTv}</span>
+                    <input
+                      id="usmca-amount"
+                      key={f.method}
+                      className={cx(field, "w-32 text-right tabular-nums", shown.amount && bad)}
+                      inputMode="decimal"
+                      autoComplete="off"
+                      value={f.method === "net_cost" ? f.nc : f.tv}
+                      aria-invalid={shown.amount ? true : undefined}
+                      aria-describedby={shown.amount ? "usmca-amount-err" : undefined}
+                      onChange={(e) => set(f.method === "net_cost" ? "nc" : "tv", e.target.value)}
+                    />
+                  </label>
                   <Problem id="usmca-amount-err">{shown.amount}</Problem>
-                </label>
-                <label className="flex flex-col gap-1">
-                  <span className="text-dim">{C.vnm}</span>
-                  <input
-                    className={cx(field, "w-32 text-right tabular-nums", shown.vnm && bad)}
-                    inputMode="decimal"
-                    autoComplete="off"
-                    value={f.vnm}
-                    aria-invalid={shown.vnm ? true : undefined}
-                    aria-describedby={shown.vnm ? "usmca-vnm-err" : undefined}
-                    onChange={(e) => set("vnm", e.target.value)}
-                  />
+                </div>
+                <div className="flex flex-col gap-1">
+                  <label className="flex flex-col gap-1">
+                    <span className="text-dim">{C.vnm}</span>
+                    <input
+                      id="usmca-vnm"
+                      className={cx(field, "w-32 text-right tabular-nums", shown.vnm && bad)}
+                      inputMode="decimal"
+                      autoComplete="off"
+                      value={f.vnm}
+                      aria-invalid={shown.vnm ? true : undefined}
+                      aria-describedby={shown.vnm ? "usmca-vnm-err" : undefined}
+                      onChange={(e) => set("vnm", e.target.value)}
+                    />
+                  </label>
                   <Problem id="usmca-vnm-err">{shown.vnm}</Problem>
-                </label>
+                </div>
                 <span className="duo basis-full text-[12px] text-dim">{C.sameUnit}</span>
               </>
             ) : null}

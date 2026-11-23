@@ -196,7 +196,7 @@ function Answer({ id, c, setCase }: CaseCtx) {
               </Fold>
             ) : null}
             <RcepCheck c={c} />
-            {(c.jurisdiction ?? "us") === "us" ? <UsmcaCheck c={c} /> : null}
+            {(c.jurisdiction ?? "us") === "us" ? <UsmcaCheck key={c.product?.hts ?? ""} c={c} /> : null}
             {!watchBoxed ? (
               <Fold title="Ruling watch" meta={demoWatch ? "not available on this demo" : c.watch ? (wk === "recheck" ? wv.label.toLowerCase() : `${wk === "unchanged" ? "unchanged" : "checked"}, ${formatDate(c.watch.checked_at)}`) : "not re-checked"}>
                 {demoWatch ? <DemoWatchNote c={c} /> : <WatchLine c={c} setCase={setCase} />}

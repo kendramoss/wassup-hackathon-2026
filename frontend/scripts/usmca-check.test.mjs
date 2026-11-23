@@ -20,7 +20,7 @@ test("a blank form never confirms anything and sends nothing it was not told", (
 });
 
 test("amounts travel as the typed strings; blank is left out, never zero", () => {
-  const f = { ...L.blankForm("8207.13"), method: "net_cost", amount: " 1250.50 ", vnm: "" };
+  const f = { ...L.blankForm("8207.13"), method: "net_cost", nc: " 1250.50 ", tv: "999", vnm: "" };
   const b = L.body(f);
   assert.equal(b.net_cost, "1250.50");
   assert.equal(typeof b.net_cost, "string");
@@ -28,22 +28,36 @@ test("amounts travel as the typed strings; blank is left out, never zero", () =>
   assert.equal("transaction_value" in b, false);
   const z = L.body({ ...f, vnm: "0" });
   assert.equal(z.vnm, "0");
-  // switching the method leaves the other amount out
-  assert.equal("net_cost" in L.body({ ...f, method: "transaction_value" }), false);
+  // switching the method never reinterprets an amount: each method keeps its own
+  const tv = L.body({ ...f, method: "transaction_value" });
+  assert.equal(tv.transaction_value, "999");
+  assert.equal("net_cost" in tv, false);
+  const none = L.body({ ...f, method: "" });
+  assert.equal("net_cost" in none || "transaction_value" in none, false);
 });
 
 test("no silent coercion: separators, signs, exponents and words are named, not fixed", () => {
-  for (const bad of ["1,250", "$10", "-5", "1e3", "1.", ".5", "01", "ten", "NaN"]) {
-    const e = L.check({ ...L.blankForm("8202.31"), method: "transaction_value", amount: bad });
+  for (const bad of ["1,250", "$10", "-5", "1e3", "1.", ".5", "01", "ten", "NaN", "1".repeat(31), "1.1234567890123"]) {
+    const e = L.check({ ...L.blankForm("8202.31"), method: "transaction_value", tv: bad });
     assert.ok(e.amount, bad);
   }
-  for (const ok of ["0", "10", "1250.50", "0.25"]) assert.equal(L.check({ ...L.blankForm("8202.31"), method: "net_cost", amount: ok }).amount, undefined, ok);
+  for (const ok of ["0", "10", "1250.50", "0.25", "1".repeat(30), "1.123456789012"]) assert.equal(L.check({ ...L.blankForm("8202.31"), method: "net_cost", nc: ok }).amount, undefined, ok);
+  // an invalid amount for the other method is not in play
+  assert.equal(L.check({ ...L.blankForm("8202.31"), method: "net_cost", tv: "1,0", nc: "5" }).amount, undefined);
   assert.equal(L.check({ ...L.blankForm("82"), }).hs, copy.usmcaCheck.badHs);
   assert.equal(L.check(L.blankForm("8202.31.00")).hs, undefined);
   const e = L.check({ ...L.blankForm("8202.31"), materials: [{ hs: "8202.3x", origin: "unknown" }, { hs: "", origin: "unknown" }] });
   assert.ok(e.materials[0]);
   assert.equal(e.materials[1], undefined);
-  assert.equal(L.keyOf({ ...L.blankForm("8202.31"), method: "net_cost", amount: "1,0" }), null);
+  assert.equal(L.keyOf({ ...L.blankForm("8202.31"), method: "net_cost", nc: "1,0" }), null);
+});
+
+test("the simple-goods wording names every provision the tick covers", () => {
+  const s = copy.usmcaCheck.simple.toLowerCase();
+  for (const w of ["sets", "accessories or packing", "fungible", "intermediate", "cost averaging", "de minimis", "outside-party", "special valuation", "parts route", "accumulation", "remanufactured", "automotive"]) assert.ok(s.includes(w), w);
+  assert.match(s, /not relying/);
+  const v = [copy.usmcaCheck.vnm, copy.usmcaCheck.complete].join(" ");
+  assert.equal((v.match(/unknown origin/g) ?? []).length, 2);
 });
 
 test("the simple-goods tick is the one place the unmodeled provisions are set, all not applicable", () => {
@@ -128,10 +142,58 @@ test("an undefined denominator is not shown as a percentage", () => {
   assert.doesNotMatch(t, /%/);
 });
 
-test("a result for older facts is marked as such", () => {
-  const m = html(UsmcaResult, { res: { ...base, status: "met" }, stale: true });
-  assert.match(text(m), /Facts changed\. Check again\./);
-  assert.match(m, /data-stale="true"/);
+test("a result for older facts is hidden: only the request to check again shows", () => {
+  const m = html(UsmcaResult, { res: { ...base, status: "met", rvc: { method: "net_cost", status: "computed", exact: "1", display: "1.00" } }, stale: true });
+  assert.equal(text(m), "Facts changed. Check again.");
+  assert.doesNotMatch(m, /opacity|Rule met|data-usmca=/);
+});
+
+test("a whole-number percentage is not repeated as exact; a fraction is", () => {
+  assert.equal(L.exactNote({ exact: "60", display: "60.00" }), null);
+  assert.equal(L.exactNote({ exact: "200/3", display: "66.67" }), "200/3");
+  assert.equal(L.exactNote({ exact: "125/2", display: "62.50" }), "125/2");
+  assert.equal(L.exactNote({ exact: "1/3", display: "33.33" }), "1/3");
+});
+
+const deferred = () => {
+  let resolve, reject;
+  const p = new Promise((a, b) => ((resolve = a), (reject = b)));
+  return { p, resolve, reject };
+};
+const tick = () => new Promise((r) => setTimeout(r, 0));
+
+test("a slow earlier answer never overwrites a newer check or an edit", async () => {
+  const r = L.runner();
+  const seen = [];
+  const h = { busy: (b) => seen.push(["busy", b]), done: (x) => seen.push(["done", x]), fail: (e) => seen.push(["fail", e.message]) };
+  const a = deferred();
+  const b = deferred();
+  const sigs = [];
+  r.run((s) => (sigs.push(s), a.p), h);
+  r.run((s) => (sigs.push(s), b.p), h);
+  assert.equal(sigs[0].aborted, true);
+  b.resolve("new");
+  await tick();
+  a.resolve("old");
+  await tick();
+  assert.deepEqual(seen.filter(([k]) => k !== "busy"), [["done", "new"]]);
+  // an edit retires a check in flight: nothing lands, not even a failure
+  const c = deferred();
+  const seen2 = [];
+  r.run(() => c.p, { busy: () => {}, done: (x) => seen2.push(x), fail: (e) => seen2.push(e.message) });
+  r.retire();
+  c.reject(new Error("aborted"));
+  await tick();
+  assert.deepEqual(seen2, []);
+});
+
+test("the form shell is static markup, so the browser pass covers the live wiring", () => {
+  // The repo's component tests render to static markup (no DOM). The ordering
+  // rules above are tested on the runner the component uses; focus and
+  // aria-describedby are checked in the browser pass.
+  const m = html(UsmcaCheck, { c: { id: "c", product: { hts: "8202.31" } } });
+  assert.match(m, /id="usmca-hs"/);
+  assert.doesNotMatch(m, /role="alert"/);
 });
 
 test("the panel starts closed to questions: code, materials, two confirmations; no value fields", () => {
