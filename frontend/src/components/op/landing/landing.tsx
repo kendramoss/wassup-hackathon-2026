@@ -218,7 +218,7 @@ export function Landing() {
                           <p className="duo small">Final assembly in Thailand.</p>
                         </div>
                       </div>
-                      <div className="ft">Rules picked by Gemini 3.8 Flash</div>
+                      <div className="ft">Origin rules picked by Gemini 3.8 Flash</div>
                     </article>
                     <article className="mini" data-k="mini">
                       <div className="hd">

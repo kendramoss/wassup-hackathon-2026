@@ -616,7 +616,7 @@ export const copy = {
         ? "Each move also shows the 19 CFR 102.20 rule check of the product after the move. This case is decided under Part 102, so within each tier the moves the rule supports come first and the moves it gives to another country come last, flagged. It does not change which plans are shown."
         : "Each move also shows the 19 CFR 102.20 rule check, for comparison: this case is decided under substantial transformation. Display only: it does not change which plans are shown or their order.",
     // Country comparison (D500): the best move's check, and how it ranks.
-    compareCaption: "on a Part 102 case, a best move the 102.20 rule supports ranks first within its tier",
+    compareCaption: "Part 102: moves the 102.20 rule supports rank first",
     compareHow:
       "On a Part 102 case each country's best move is also checked against the 19 CFR 102.20 tariff-shift rule: within a tier, a move the rule supports ranks above one it cannot decide, and one it gives to another country ranks last, flagged for a broker. On a substantial-transformation case the check is shown for comparison only.",
   },

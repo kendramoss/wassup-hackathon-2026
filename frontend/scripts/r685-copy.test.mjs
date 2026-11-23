@@ -16,9 +16,18 @@ test("the landing sheets name what each step does, not internal parts", () => {
   for (const jargon of ["Router · Gemini", "Origin engine · Gemini", "Planner + verifier agent"]) {
     assert.ok(!landing.includes(jargon), jargon);
   }
-  assert.match(landing, /Rules picked by Gemini 3\.8 Flash/);
+  assert.match(landing, /Origin rules picked by Gemini 3\.8 Flash/);
   assert.match(landing, /Origin read by Gemini 4 Argon/);
   assert.match(landing, /Each move checked for and against/);
+});
+
+test("the landing's model names match the server defaults, which deploy does not override", () => {
+  const config = read("../../backend/internal/config/config.go");
+  assert.match(config, /RouterModel:\s+e\.str\("ROUTER_MODEL", "gemini-3\.8-flash"\)/);
+  assert.match(config, /EngineModel:\s+e\.str\("ENGINE_MODEL", "gemini-4-argon"\)/);
+  const deploy = read("../../.github/workflows/deploy.yml");
+  assert.ok(!/\bROUTER_MODEL=/.test(deploy), "deploy.yml sets ROUTER_MODEL");
+  assert.ok(!/\bENGINE_MODEL=/.test(deploy), "deploy.yml sets ENGINE_MODEL");
 });
 
 test("phones hide the wire caption with the wire, and keep the not-blind note", () => {
@@ -46,7 +55,9 @@ test("landing controls are 44 px tall on phones", () => {
 });
 
 test("the try-it flow and the examples opt in to phone tap targets", () => {
-  assert.match(globals, /@media \(max-width: 639\.98px\) \{\n\s+\.touch44 :is\(button, summary, select, a, \[role="button"\], \[role="tab"\]\)/);
+  assert.match(globals, /@media \(max-width: 640px\) \{\n\s+\.touch44 :is\(button, summary, select, a, \[role="button"\], \[role="tab"\]\)/);
+  // Buttons inside a sentence keep the line height and get a 44 px ring.
+  assert.match(globals, /:is\(p, dd\) button\):not\(\.sr-only\)::after \{[^}]*height: 44px;/);
   assert.match(globals, /min-height: 44px;/);
   const pages = [
     "cases/new",
@@ -66,6 +77,8 @@ test("the compare table caption is short; the full order sits in its fold", () =
   const view = read("../src/components/op/screens/compare-view.tsx");
   assert.match(view, /Ranked, best plan first · how it works is below the table/);
   assert.match(view, /After them come countries whose best move is below the bar, then those with no supported plan\./);
+  // The Part 102 addition stays short too; the fold explains the tiers.
+  assert.match(copy, /compareCaption: "Part 102: moves the 102\.20 rule supports rank first"/);
 });
 
 test("examples explain the two checks and say whose confidence it is", () => {
