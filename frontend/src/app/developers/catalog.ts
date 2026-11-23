@@ -34,6 +34,7 @@ export const tools = [
   ["suggest_part_hts", "tariff", "light", "Product + parts", "Candidate tariff codes"],
   ["check_rcep_preference", "tariff", "basic", "Codes, values + origins", "RCEP eligibility"],
   ["check_canada_marking", "tariff", "basic", "Good + parts codes", "Canadian marking rules check"],
+  ["check_usmca_origin_rule", "tariff", "basic", "Code, method + materials", "USMCA origin-rule check"],
 ] as const satisfies readonly Tool[];
 
 export type ToolName = (typeof tools)[number][0];

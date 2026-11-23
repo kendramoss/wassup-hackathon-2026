@@ -15,7 +15,7 @@ info:
     `prompt_version`, `llm_provider` and the `disclaimer`; cost-estimate and family-check
     carry `prompt_version` and `llm_provider`; ruling search and money-prefill carry only the
     `disclaimer`; extract and extract-media return the draft with its `trace`; import and the
-    rest (case list, ruling fetch, rename, demos, duty rates, RCEP check, economics, eval summary,
+    rest (case list, ruling fetch, rename, demos, duty rates, RCEP check, USMCA origin-rule check, economics, eval summary,
     review links, workspaces, keys, audit) carry none of them; the broker's `GET /v1/review`
     carries the `disclaimer` only. Errors use `{code, message, details}`.
 
@@ -36,7 +36,7 @@ info:
     Rate limits (D45, D137): every `/v1` route has a rate class, keyed per client (the
     frontend forwards the browser's address as `X-Client-IP`; an API key has its own
     buckets). Cheap routes with no model call (case reads, rename, delete, economics,
-    export, demos, rulings, duty rates, RCEP check, Canada marking check, eval summary, workspaces) 120 a minute; light model
+    export, demos, rulings, duty rates, RCEP check, USMCA origin-rule check, Canada marking check, eval summary, workspaces) 120 a minute; light model
     routes (predict, answers, ask, extract, extract-media, import, money-prefill, hts-suggest,
     parts-hts-suggest, cost-estimate, family-check, scenarios, watch, bom-version) 20 a minute,
     and plan estimate and the audit reads take from the same bucket without a model call; heavy
@@ -77,7 +77,7 @@ info:
 
     Audit trail (#284): a tenant-scoped, append-only audit stream that is separate from the case history. It is off unless an operator configures it: `AUDIT` defaults to `auto`, which turns it on only when `AUDIT_ACTOR_KEY` is set, and `on` without a key fails at startup. When it is off, no event is recorded, the two `/v1/audit*` routes are not registered (404) and sensitive writes are not gated; nothing here says any deployment has it enabled. When it is on, the sensitive writes (case delete, workspace invite, join, role change, member removal or leave, API-key issue and disable) write an intent record first; if that record cannot be written the request is 503 `audit_unavailable` and nothing changes. Other writes proceed even if their intent cannot be recorded. If the completion record cannot be written after a change was made, the change is not rolled back and the response keeps its true status, with the header `X-Audit-Incomplete: completion-not-recorded`; the header can appear on any audited non-streaming route, on a success or an error response (every mutating route, a recording or preview export of a non-pinned case, the audit reads and the API-key list), and not only on the fail-closed operations that can answer 503; a Server-Sent-Events response has already committed its 200 before the work runs, so that header cannot be sent there, and the stream path writes its completion record before the final `done` or `error` event instead. In both cases the trail holds an intent with no completion, which `GET /v1/audit/verify` can report as an unresolved intent only on its final call, as of the verified snapshot, and not as an exact count when its own `complete` is false. Allowed ordinary case reads are not audited: the trail records writes, recording exports, previews of non-pinned cases, authorization denials and audit reads, so it is not a complete record of who read confidential data. Audit writes and the case, workspace or key writes are separate stores and are not atomic with each other. Event times are the server clock in microseconds and never go backwards within a tenant. The hash chain is tamper evidence by the application only: it is not immutable or WORM storage, does not protect against someone with write access to the datastore, and this is audit-readiness support, not SOC 2 certification.
 
-    Strict auth (#283, `STRICT_AUTH=on`, default off, same values as `CASE_OWNERSHIP`; any other value fails startup): private case operations (creating, listing and every route on a non-pinned case) require a verified identity, meaning a validated user token, an API key or the admin token. An `X-Visitor-ID` alone is not authentication and gets 401 `unauthenticated`, identical for missing, hidden and unknown cases. Pinned demos, `/v1/demos*`, `/v1/rulings`, `/v1/eval/summary`, `/v1/duty-rates`, `/v1/rcep/check`, `/health` and the stateless `/v1/products/*` helpers stay open. With it off nothing changes.
+    Strict auth (#283, `STRICT_AUTH=on`, default off, same values as `CASE_OWNERSHIP`; any other value fails startup): private case operations (creating, listing and every route on a non-pinned case) require a verified identity, meaning a validated user token, an API key or the admin token. An `X-Visitor-ID` alone is not authentication and gets 401 `unauthenticated`, identical for missing, hidden and unknown cases. Pinned demos, `/v1/demos*`, `/v1/rulings`, `/v1/eval/summary`, `/v1/duty-rates`, `/v1/rcep/check`, `/v1/usmca/check`, `/health` and the stateless `/v1/products/*` helpers stay open. With it off nothing changes.
 
     API keys (D69, `API_KEYS=on`, off by default): brokers may call the API with `X-API-Key: op_...` (securityScheme `ApiKey`). Every `/v1` request with a key is checked (unknown or disabled: 401 `unauthorized`) and counted against the key's daily quota (spent: 429 `quota_exceeded`, `Retry-After` at the next UTC day). A key has its own rate-limit buckets, sees the pinned demos and its own cases only, and its cases are hidden from everyone else but the admin, whatever `CASE_OWNERSHIP` says. The admin issues, lists and disables keys under `/v1/admin/api-keys`.
 
@@ -1526,6 +1526,44 @@ paths:
                   note: { type: string }
         "400": { $ref: "#/components/responses/Error" }
         "429": { $ref: "#/components/responses/TooManyRequests" }
+  /v1/usmca/check:
+    post:
+      operationId: checkUsmcaOriginRule
+      summary: USMCA selected origin-rule check (pilot goods, deterministic, no model call)
+      description: >-
+        Checks one selected USMCA product-specific origin rule (HTSUS General Note 11(o), Annex 4-B) for a good
+        imported into the United States, from its HS code, an elected regional value content method and a bill of
+        materials. Pilot coverage: 8202.31, 8207.13 and 9503.00 only; every other good is `not_supported`.
+        Deterministic code (`backend/internal/usmca`), no model call, nothing stored. The answer is the selected-rule
+        status only: `met`, `not_met`, `needs_information` or `not_supported`. It is NOT a certification of origin,
+        NOT a determination that the good is originating, NOT a preferential tariff rate, duty saving or duty-free
+        entitlement, and NOT for deciding a good's legal origin status; a `not_met` result concerns the rule as
+        modeled, not a legal finding. It is separate from the non-preferential prediction, US Part 102 marking,
+        Canadian SOR/94-23 marking and the RCEP check. Not evaluated, and each must be confirmed `not_applicable` in
+        `profile`: the parts route (Art. 4.2(d) / GN 11(b)(iv)), de minimis, sets, accessories and packing,
+        fungibles, intermediate materials, cost averaging, outside-party operations and special valuation; a
+        provision marked `applies` returns `not_supported`. Amounts are exact decimal strings (JSON numbers are
+        400), parsed with arbitrary precision; the RVC percentage is compared exactly and the displayed value is
+        rounded for humans only. Unknown is not zero: an omitted amount, HS code or originating claim is unknown and
+        yields `needs_information` only when the decision depends on it, while `"0"` is a known zero. A zero
+        denominator is reported as an undefined calculation, and a negative RVC is not clamped. `rvc_method` is
+        never chosen for you. HS codes may be written with dots (`8202.31.00` is read as `82023100`); the engine
+        works on plain digits. Originating claims, codes, values and profile confirmations are the caller's and are
+        not verified. Cheap class (120 a minute); a malformed body, wrong destination or regime, more than 200
+        materials, a bad decimal or an unknown field is 400 `invalid_input`.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/UsmcaCheckRequest" }
+      responses:
+        "200":
+          description: Selected-rule result
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/UsmcaCheckResult" }
+        "400": { $ref: "#/components/responses/Error" }
+        "429": { $ref: "#/components/responses/TooManyRequests" }
   /v1/jurisdictions:
     get:
       operationId: listJurisdictions
@@ -2039,6 +2077,127 @@ components:
         application/json:
           schema: { $ref: "#/components/schemas/Error" }
   schemas:
+    UsmcaAmount:
+      type: string
+      pattern: '^(0|[1-9][0-9]*)(\.[0-9]+)?$'
+      maxLength: 64
+      description: "Non-negative exact decimal string (no exponent, sign, NaN or Infinity). Never a JSON number. Omitted or null is unknown, not zero; \"0\" is a known zero."
+    UsmcaProvisionClaim:
+      type: string
+      enum: [not_applicable, applies]
+      description: "Omitted means unconfirmed, never not_applicable. `applies` for a provision this pilot does not evaluate returns not_supported."
+    UsmcaCheckRequest:
+      type: object
+      additionalProperties: false
+      required: [destination, regime, good_hs]
+      properties:
+        destination: { type: string, enum: [US] }
+        regime: { type: string, enum: [usmca] }
+        good_hs:
+          type: string
+          pattern: '^[0-9]{4}(\.?[0-9]{2}){0,3}$'
+          example: "8202.31"
+          description: "The good's HS code, 4 to 10 digits. Dots are accepted and removed (8202.31.00 becomes 82023100); the engine requires plain digits."
+        rvc_method: { type: string, enum: [transaction_value, net_cost], description: "The regional value content method the importer, exporter or producer elects. Required when the rule's value-content alternative is used; never defaulted." }
+        transaction_value: { $ref: "#/components/schemas/UsmcaAmount" }
+        net_cost: { $ref: "#/components/schemas/UsmcaAmount" }
+        vnm: { allOf: [{ $ref: "#/components/schemas/UsmcaAmount" }], description: "Value of non-originating materials in the same currency and valuation basis, including materials of undetermined origin where the law requires. Omitted is unknown, not zero." }
+        materials:
+          type: array
+          maxItems: 200
+          items:
+            type: object
+            additionalProperties: false
+            properties:
+              id: { type: string, maxLength: 64 }
+              hs: { type: string, pattern: '^[0-9]{2}(\.?[0-9]{2}){0,4}$', description: "Material HS code, 2 to 10 digits, dots accepted. Omitted is unknown." }
+              originating: { type: string, enum: [originating, non_originating, unknown], description: "Caller's claim, not verified. Omitted is unknown." }
+        profile:
+          type: object
+          additionalProperties: false
+          description: "Explicit simple-goods confirmations. Nothing is assumed when omitted."
+          properties:
+            simple_goods_confirmed: { type: boolean }
+            materials_list_complete: { type: boolean, description: "The list names every non-originating input. A missing list is not an empty list of originating inputs." }
+            sets: { $ref: "#/components/schemas/UsmcaProvisionClaim" }
+            accessories_packing: { $ref: "#/components/schemas/UsmcaProvisionClaim" }
+            fungibles: { $ref: "#/components/schemas/UsmcaProvisionClaim" }
+            intermediate_materials: { $ref: "#/components/schemas/UsmcaProvisionClaim" }
+            cost_averaging: { $ref: "#/components/schemas/UsmcaProvisionClaim" }
+            de_minimis: { $ref: "#/components/schemas/UsmcaProvisionClaim" }
+            outside_party_operations: { $ref: "#/components/schemas/UsmcaProvisionClaim" }
+            special_valuation: { $ref: "#/components/schemas/UsmcaProvisionClaim" }
+            parts_route: { $ref: "#/components/schemas/UsmcaProvisionClaim", description: "Reliance on the parts route (Art. 4.2(d) / GN 11(b)(iv))." }
+    UsmcaOutcome: { type: string, enum: [satisfied, not_satisfied, unknown] }
+    UsmcaMissingFact:
+      type: object
+      required: [code, field, message]
+      properties: { code: { type: string }, field: { type: string }, message: { type: string } }
+    UsmcaCondition:
+      type: object
+      required: [kind, result, detail]
+      properties:
+        kind: { type: string }
+        result: { $ref: "#/components/schemas/UsmcaOutcome" }
+        detail: { type: string }
+        materials:
+          type: array
+          items:
+            type: object
+            required: [index, result, note]
+            properties: { index: { type: integer }, id: { type: string }, result: { $ref: "#/components/schemas/UsmcaOutcome" }, note: { type: string } }
+        missing_facts: { type: array, items: { $ref: "#/components/schemas/UsmcaMissingFact" } }
+    UsmcaCheckResult:
+      type: object
+      required: [status, destination, regime, good_hs, source, limits]
+      properties:
+        status: { type: string, enum: [met, not_met, needs_information, not_supported], description: "Selected-rule status only; not originating status, certification or entitlement." }
+        destination: { type: string, enum: [US] }
+        regime: { type: string, enum: [usmca] }
+        good_hs: { type: string, description: "The normalised plain-digit code that was evaluated." }
+        row_id: { type: string }
+        alternatives:
+          type: array
+          items:
+            type: object
+            required: [id, label, result, conditions]
+            properties:
+              id: { type: string }
+              label: { type: string }
+              note: { type: string }
+              result: { $ref: "#/components/schemas/UsmcaOutcome" }
+              conditions: { type: array, items: { $ref: "#/components/schemas/UsmcaCondition" } }
+        rvc:
+          type: object
+          description: "Separate exact arithmetic. `exact` is an integer or fraction string (e.g. 200/3); `display` is rounded for humans only and never used to decide."
+          required: [method, status]
+          properties:
+            method: { type: string, enum: [transaction_value, net_cost] }
+            status: { type: string, enum: [computed, undefined_denominator, needs_information] }
+            exact: { type: string }
+            display: { type: string }
+            display_note: { type: string }
+            problems:
+              type: array
+              items: { $ref: "#/components/schemas/UsmcaMissingFact" }
+        missing_facts: { type: array, items: { $ref: "#/components/schemas/UsmcaMissingFact" } }
+        unsupported_reasons: { type: array, items: { type: string } }
+        source:
+          type: object
+          required: [data_version, snapshot]
+          properties:
+            data_version: { type: string }
+            snapshot:
+              type: object
+              properties: { source: { type: string }, revision: { type: string }, retrieved_on: { type: string }, source_hash: { type: string } }
+            row:
+              type: object
+              properties:
+                id: { type: string }
+                code: { type: string }
+                description: { type: string }
+                source: { type: object, properties: { citation: { type: string }, excerpt: { type: string } } }
+        limits: { type: array, items: { type: string }, description: "Scope statements attached to every result." }
     PartHtsCandidate:
       type: object
       properties:
