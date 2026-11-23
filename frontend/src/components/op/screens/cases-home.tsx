@@ -2,6 +2,7 @@
 
 import { watchView } from "@/lib/watch-state";
 import { badgeText } from "@/lib/ruling-alerts";
+import { FOLLOW_UP_HOURS, followUpRows, reviewRowReading } from "@/lib/cases-follow-up";
 import Link from "next/link";
 import { useEffect, useRef, useState, type KeyboardEvent as ReactKeyboardEvent } from "react";
 import { api, type CaseResponse, type CaseSummary, type DemoList } from "@/lib/api/client";
@@ -375,7 +376,32 @@ export function YourCases({ cases, onChange }: { cases: CaseSummary[]; onChange:
   // is hidden, every cell gives its column name, and nothing scrolls
   // sideways. From 640 px up it is the table it was.
   const col = copy.cases.columns;
+  const [onlyFollowUp, setOnlyFollowUp] = useState(false);
+  const [now] = useState(() => Date.now());
+  const waiting = followUpRows(cases, now).length;
+  const shown = onlyFollowUp ? followUpRows(cases, now) : cases;
   return (
+    <>
+      <div className="mb-3 flex flex-col items-start gap-1.5">
+        <button
+          type="button"
+          aria-pressed={onlyFollowUp}
+          onClick={() => setOnlyFollowUp((v) => !v)}
+          className={cx(
+            "inline-flex min-h-10 items-center gap-2 rounded-[2px] border px-3 text-[13px]",
+            onlyFollowUp ? "border-ink bg-white font-medium" : "border-line bg-white hover:border-edge",
+          )}
+        >
+          Needs follow-up · {waiting}
+        </button>
+        <details className="text-[12.5px] text-dim">
+          <summary className="inline-flex min-h-8 cursor-pointer items-center text-ok">What counts</summary>
+          <p className="read max-w-[70ch]">
+            A broker asked for changes, a link waiting for the broker ends within {FOLLOW_UP_HOURS} hours, or a cited ruling was revoked or modified. Approved and filing-requested links are not counted. This only filters the list.
+          </p>
+        </details>
+      </div>
+      {shown.length === 0 && <p className="duo mb-3 text-sm text-dim">Nothing needs follow-up.</p>}
     <ScrollX label="Your cases">
       <table data-stacks-below="sm" className="w-full border-collapse border border-edge bg-sheet text-[13px] shadow-[4px_4px_0_var(--shadow)] max-sm:block sm:min-w-[760px]">
         <thead className="max-sm:hidden">
@@ -388,7 +414,7 @@ export function YourCases({ cases, onChange }: { cases: CaseSummary[]; onChange:
           </tr>
         </thead>
         <tbody className="max-sm:block">
-          {cases.map((c) => {
+          {shown.map((c) => {
             const n = stepIndex[c.step] ?? 1;
             if (confirming === c.id)
               return (
@@ -429,6 +455,7 @@ export function YourCases({ cases, onChange }: { cases: CaseSummary[]; onChange:
                   )}
                   <span className="text-xs text-dim">Case date {formatDate(c.date)}</span>
                   <AlertBadge n={c.ruling_alerts} />
+                  <ReviewReading c={c} />
                   {rowError?.id === c.id && (
                     <span role="alert" className="block text-xs text-fail">
                       {(rowError.error as Error).message}
@@ -464,6 +491,7 @@ export function YourCases({ cases, onChange }: { cases: CaseSummary[]; onChange:
         </tbody>
       </table>
     </ScrollX>
+    </>
   );
 }
 
@@ -585,6 +613,17 @@ function RowMenu({ c, onRename, onDelete }: { c: CaseSummary; onRename: () => vo
 }
 
 // CBP changed a ruling the case relies on (D480): one line under the name.
+function ReviewReading({ c }: { c: CaseSummary }) {
+  const r = reviewRowReading(c);
+  if (!r) return null;
+  return (
+    <span className={cx("block text-xs", r.tone === "ask" ? "font-medium text-ask" : "text-dim")}>
+      Broker: {r.label}
+      {r.expires ? ` · link ends ${formatDate(r.expires)}` : ""}
+    </span>
+  );
+}
+
 function AlertBadge({ n }: { n?: { final: number; proposed: number } | null }) {
   const b = badgeText(n);
   if (!b) return null;
