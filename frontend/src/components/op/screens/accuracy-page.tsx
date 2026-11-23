@@ -283,7 +283,7 @@ function MarketEvidence() {
           </div>
           <div>
             <dt className="text-sm font-semibold">Japan model</dt>
-            <dd className="read mt-0.5 text-sm text-dim">Unavailable in production. The unseen-test requests yielded no measurement.</dd>
+            <dd className="read mt-0.5 text-sm text-dim">{copy.japan.notAvailable} The unseen-test requests yielded no measurement.</dd>
           </div>
         </dl>
       </div>
