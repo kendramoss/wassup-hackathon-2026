@@ -31,3 +31,8 @@ test("impact keeps measured and illustrative claim sources visible", () => {
 test("the developer tab uses the hosted MCP endpoint", () => {
   assert.match(tabs, /gemini mcp add --transport http unde https:\/\/undelabs\.dev\/mcp/);
 });
+
+test("the benchmark link reaches the method evidence section", () => {
+  assert.match(proof, /href="\/method#check"/);
+  assert.match(readFileSync(new URL("../src/components/op/screens/method-page.tsx", import.meta.url), "utf8"), /<section id="check"/);
+});
