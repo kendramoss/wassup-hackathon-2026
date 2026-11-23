@@ -95,8 +95,8 @@ export function MethodPage() {
           <Link className="mi-link" href="/examples/part102-plan">Part 102 plan <span aria-hidden="true">→</span></Link>
           <Link className="mi-link" href="/examples/revocation-alert">Revocation alert <span aria-hidden="true">→</span></Link>
           <a className="mi-link" href={blob("docs/NUMBERS.md#market-and-time-from-hackathon-researchevidencefeesledgermd")}>Fig. 4 before figures <span aria-hidden="true">↗</span></a>
-          <a className="mi-link" href={blob("eval/results/plan-heatgun-2022-local-litellm.json")}>Recorded heat-gun plan, 33 s <span aria-hidden="true">↗</span></a>
-          <a className="mi-link" href={blob("docs/NUMBERS.md#evaluation-results-page--served-by-get-v1evalsummary")}>Cost per prediction, $0.0078 <span aria-hidden="true">↗</span></a>
+          <a className="mi-link" href={blob("eval/results/plan-heatgun-2022-local-litellm.json")}>Recorded heat-gun plan, 33 s (proxy run, demo fixture) <span aria-hidden="true">↗</span></a>
+          <a className="mi-link" href={blob("docs/NUMBERS.md#evaluation-results-page--served-by-get-v1evalsummary")}>Cost per prediction, $0.0078 promo ($0.0157 list) <span aria-hidden="true">↗</span></a>
         </div>
         <p className="read mi-note">21 days: the team’s count of 247 Asian-origin CBP rulings, median to a binding CBP ruling.</p>
         <p className="read mi-note">20 hours: CBP’s estimate across all ruling subjects, not only origin.</p>

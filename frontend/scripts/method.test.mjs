@@ -156,7 +156,9 @@ test("the check section links the Fig. 4 benchmark evidence and states the quali
   assert.match(section, /not like-for-like.*not a universal broker fee/);
   assert.match(section, /Only CBP’s ruling binds/);
   assert.match(section, /illustrative/i);
-  for (const s of ["247 Asian-origin", "23 purchases", "all ruling subjects", "median 21 days", "20 hours"]) assert.ok(numbers.includes(s) || numbers.includes(s.replace("Asian-origin", "")), s);
+  for (const s of ["median 21 days (IQR 14–26), n=247", "median KRW 5.0M ≈ US$3,600 (23 purchases", "| Preparation per ruling request | 20 hours |", "all ruling subjects, not only origin", "| Full plan, heat gun | $0.22 promo / $0.45 list, 33 s", "Proxy; demo fixture"]) assert.ok(numbers.includes(s), s);
+  assert.match(section, /Cost per prediction, \$0\.0078 promo \(\$0\.0157 list\)/);
+  assert.match(section, /Recorded heat-gun plan, 33 s \(proxy run, demo fixture\)/);
   assert.match(numbers, /Cost per origin prediction \| \$0\.0078 \(promo price\)/);
   assert.match(read("eval/results/plan-heatgun-2022-local-litellm.json"), /"wall_seconds": 33\.4/);
 });

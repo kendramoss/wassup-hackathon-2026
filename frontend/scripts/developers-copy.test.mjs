@@ -78,7 +78,7 @@ test("anonymous MCP examples carry the case access key exactly where the tool sc
     const body = parts[i + 1].split(/\n\t(?:add|\t*add)\(/)[0];
     if (body.includes('"case_access_key": accessKey()')) accepts.add(parts[i]);
   }
-  assert.ok(accepts.has("predict_origin") && accepts.has("get_case") && accepts.size >= 8, [...accepts].join());
+  assert.deepEqual([...accepts].sort(), ["compare_target_countries", "create_broker_review_link", "export_ruling_request_draft", "get_broker_review_status", "get_case", "list_cases", "plan_production_moves", "predict_origin"]);
   for (const rejected of ["extract_product", "search_rulings", "get_ruling", "get_duty_rates"]) assert.ok(!accepts.has(rejected), rejected);
   const key = toolExamples.get_case.input.case_access_key;
   assert.match(key, /^[A-Za-z0-9_-]{16,128}$/);
