@@ -74,6 +74,10 @@ func (a *api) canadaMarking(w http.ResponseWriter, r *http.Request) {
 		a.fail(w, r, fmt.Errorf("%w: at most %d materials", domain.ErrInvalid, maxCanadaMaterials))
 		return
 	}
+	if err := tariffshift.ValidateShares(q.Materials); err != nil {
+		a.fail(w, r, err)
+		return
+	}
 	v.Result = a.d.CanadaMarking.Evaluate(q)
 	writeJSON(w, http.StatusOK, v)
 }
