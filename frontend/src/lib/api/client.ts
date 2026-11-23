@@ -109,7 +109,7 @@ export class ApiError extends Error {
   constructor(
     message: string,
     public status: number,
-    public code: ApiErrorBody["code"] | "network" | "rate_limited" | "budget_reached" | "client_budget_reached" | "too_many_in_flight" | "timeout",
+    public code: ApiErrorBody["code"] | "network" | "timeout",
     public retryable: boolean,
     // Seconds to wait before retrying (429 rate_limited), from Retry-After.
     public retryAfter?: number,

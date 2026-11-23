@@ -1,0 +1,330 @@
+.lp .judgeTabs {
+  min-width: 0;
+}
+
+.lp .judgeTabList {
+  display: grid;
+  grid-auto-columns: minmax(0, 1fr);
+  grid-auto-flow: column;
+  border: 1px solid var(--edge);
+  border-bottom: 0;
+  border-radius: 2px 2px 0 0;
+  background: var(--wash);
+}
+
+.lp .judgeTab {
+  display: flex;
+  min-width: 0;
+  min-height: 54px;
+  flex-direction: column;
+  justify-content: center;
+  align-items: flex-start;
+  gap: 4px;
+  border-bottom: 2px solid var(--edge);
+  padding: 12px clamp(8px, 1.6vw, 20px);
+  text-align: left;
+  color: var(--body);
+  font-size: clamp(13px, 1.5vw, 16px);
+  font-weight: 500;
+  line-height: 1.3;
+  overflow-wrap: anywhere;
+}
+
+.lp .judgeTab + .judgeTab {
+  border-left: 1px solid var(--edge);
+}
+
+.lp .judgeTab:hover {
+  background: var(--paper);
+  color: var(--ink);
+}
+
+.lp .judgeTab[aria-selected="true"] {
+  border-bottom-color: var(--ink);
+  background: var(--sheet);
+  color: var(--ink);
+  font-weight: 600;
+}
+
+.lp .judgeTab:focus-visible,
+.lp .judgeTabPanel:focus-visible {
+  outline-offset: -3px;
+}
+
+.lp .judgeTabModel,
+.lp .judgePanelModel {
+  color: var(--dim);
+  font-size: 11px;
+  font-weight: 400;
+}
+
+.lp .judgePanelModel {
+  display: none;
+}
+
+.lp .judgeTabPanel {
+  min-width: 0;
+  border: 1px solid var(--edge);
+  border-top: 0;
+  border-radius: 0 0 2px 2px;
+  background: var(--sheet);
+  padding: clamp(14px, 2.4vw, 30px);
+}
+
+.lp .judgePersonas {
+  max-width: var(--lp-width);
+  margin-inline: auto;
+  padding: clamp(32px, 5vw, 60px) var(--gutter) 0;
+  scroll-margin-top: 72px;
+}
+
+.lp .judgePersonas h2 {
+  margin-bottom: 16px;
+  color: var(--ink);
+  font-size: clamp(22px, 2.5vw, 32px);
+  font-weight: 600;
+  letter-spacing: -.045em;
+  line-height: 1.15;
+}
+
+.lp .judgeTabsVertical {
+  display: grid;
+  grid-template-columns: minmax(220px, 0.85fr) minmax(0, 1.5fr);
+  border: 1px solid var(--edge);
+  border-radius: 2px;
+  background: var(--sheet);
+}
+
+.lp .judgeTabSidebar {
+  min-width: 0;
+  padding: clamp(14px, 2.4vw, 28px);
+  border-right: 1px solid var(--line);
+}
+
+.lp .judgeTabsVertical .judgeTabList {
+  grid-auto-flow: row;
+  gap: 4px;
+  padding: 4px;
+  border: 1px solid var(--line);
+  border-radius: 2px;
+}
+
+.lp .judgeTabsVertical .judgeTab {
+  min-height: 44px;
+  gap: 0;
+  padding: 8px 11px;
+  border: 1px solid transparent;
+  border-radius: 2px;
+}
+
+.lp .judgeTabsVertical .judgeTab[aria-selected="true"] {
+  border-color: var(--line);
+  border-left: 2px solid var(--ink);
+  padding-left: 10px;
+}
+
+.lp .judgeTabsVertical .judgeTabPanel {
+  align-self: center;
+  border: 0;
+  background: none;
+}
+
+.lp .judgePersonaActions {
+  display: grid;
+  justify-items: start;
+  gap: 6px;
+  margin-top: 14px;
+  color: var(--body);
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+.lp .judgePersonaActions a,
+.lp .judgePersonaPreviewFoot > a {
+  display: inline-flex;
+  align-items: center;
+  min-height: 34px;
+  color: var(--ok);
+  font-weight: 500;
+  text-decoration: underline;
+  text-underline-offset: 4px;
+}
+
+.lp .judgePersonaActions a:hover,
+.lp .judgePersonaPreviewFoot > a:hover {
+  color: var(--ink);
+}
+
+.lp .judgePersonaPreview {
+  display: grid;
+  min-width: 0;
+  gap: 14px;
+  padding: clamp(12px, 2vw, 22px);
+  border: 1px solid var(--line);
+  border-radius: 2px;
+  background: var(--paper);
+}
+
+.lp .judgePersonaPreviewHead,
+.lp .judgePersonaTerminalTop,
+.lp .judgePersonaPreviewFoot {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 6px 12px;
+}
+
+.lp .judgePersonaPreviewHead h3 {
+  font-size: clamp(16px, 2vw, 22px);
+  font-weight: 600;
+  letter-spacing: -.04em;
+}
+
+.lp .judgePersonaPreviewHead > span,
+.lp .judgePersonaSubject,
+.lp .judgePersonaPreviewFoot {
+  color: var(--dim);
+  font-size: 12px;
+}
+
+.lp .judgePersonaPreviewHead > .judgePersonaTag {
+  padding: 3px 6px;
+  border: 1px solid var(--lp-review);
+  border-radius: 2px;
+  color: var(--lp-review);
+  background: var(--lp-review-wash);
+  font-weight: 500;
+}
+
+.lp .judgePersonaEvidence {
+  display: grid;
+  margin-top: -6px;
+}
+
+.lp .judgePersonaEvidence > div {
+  display: grid;
+  grid-template-columns: minmax(104px, .9fr) minmax(0, 1.1fr);
+  gap: 6px 12px;
+  align-items: center;
+  min-height: 45px;
+  padding: 5px 0;
+  border-bottom: 1px solid var(--line);
+  font-size: 13px;
+}
+
+.lp .judgePersonaEvidence dt {
+  color: var(--dim);
+}
+
+.lp .judgePersonaEvidence dd {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 2px 8px;
+  font-weight: 600;
+}
+
+.lp .judgePersonaCompare {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+  gap: clamp(6px, 1.5vw, 14px);
+  align-items: center;
+}
+
+.lp .judgePersonaCompare > div {
+  display: grid;
+  gap: 3px;
+  min-width: 0;
+  padding: 9px 8px;
+  border: 1px solid var(--line);
+  border-radius: 2px;
+  background: var(--sheet);
+}
+
+.lp .judgePersonaCompare > div:last-child {
+  border-color: var(--lp-review);
+  background: var(--lp-review-wash);
+}
+
+.lp .judgePersonaCompare span {
+  color: var(--dim);
+  font-size: 11px;
+}
+
+.lp .judgePersonaCompare strong {
+  color: var(--ink);
+  font-size: clamp(23px, 4vw, 48px);
+  font-weight: 600;
+  line-height: 1;
+  letter-spacing: -.08em;
+}
+
+.lp .judgePersonaCompare > div:last-child strong {
+  color: var(--lp-review);
+}
+
+.lp .judgePersonaTerminal {
+  min-width: 0;
+  border: 1px solid var(--ink);
+  border-radius: 2px;
+  color: var(--sheet);
+  background: var(--ink);
+}
+
+.lp .judgePersonaTerminalTop {
+  padding: 4px 8px 4px 12px;
+  border-bottom: 1px solid var(--dim);
+  font-size: 12px;
+}
+
+.lp .judgePersonaTerminalTop button {
+  min-height: 36px;
+  padding: 0 8px;
+  border: 1px solid var(--edge);
+  border-radius: 2px;
+  color: var(--ink);
+  background: var(--sheet);
+  font-weight: 600;
+}
+
+.lp .judgePersonaTerminalTop button:hover {
+  background: var(--wash);
+}
+
+.lp .judgePersonaCommand {
+  padding: 12px;
+  color: inherit;
+  font-size: clamp(12px, 1.4vw, 14px);
+  line-height: 1.5;
+  overflow-wrap: anywhere;
+  white-space: pre-wrap;
+  user-select: text;
+}
+
+.lp .judgePersonaCopyFeedback {
+  padding: 0 12px 12px;
+  font-size: 12px;
+}
+
+@media (max-width: 760px) {
+  .lp .judgeTabsVertical {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .lp .judgeTabSidebar {
+    border-right: 0;
+    border-bottom: 1px solid var(--line);
+  }
+}
+
+@media (max-width: 520px) {
+  .lp .judgeTabModel {
+    display: none;
+  }
+
+  .lp .judgePanelModel {
+    display: block;
+    margin-bottom: 12px;
+  }
+}

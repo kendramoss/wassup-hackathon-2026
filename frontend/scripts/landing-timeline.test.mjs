@@ -49,7 +49,7 @@ test("one more down from fig.3 enters the first free section, not the page botto
   assert.deepEqual(nextDestination(ARRIVE[2], 1), { kind: "section", index: 0 });
   assert.deepEqual(nextDestination(SCREENS, 1), { kind: "section", index: 0 });
   assert.notDeepEqual(nextDestination(ARRIVE[2], 1), { kind: "bottom" });
-  assert.deepEqual(FREE_SECTIONS.map((s) => s.key), ["can", "who", "story", "footer"]);
+  assert.deepEqual(FREE_SECTIONS, ["#impact", "#can", ".lpfoot"]);
 });
 
 test("back from below the stage returns to fig.3; back from the first stop reaches the page top", () => {

@@ -1,10 +1,14 @@
 // Command jpeval runs and scores the Japan Customs origin-ruling evaluation
-// (D710, D711). Development split only in phase 1: the held-out split is
-// refused until phase 2 is pre-registered.
+// (D710, D711). The phase-one baseline runs only on development; the
+// phase-two candidate requires a pushed pre-registration for held-out or
+// synthetic scoring.
 //
 //	go run ./cmd/jpeval baseline -split dev_eval -tag d711      (gateway; needs LITELLM_BASE_URL, LITELLM_API_KEY)
 //	go run ./cmd/jpeval summary -check                           (no model calls)
 //	go run ./cmd/jpeval index -check                             (no model calls)
+//	go run ./cmd/jpeval bundle -check                            (no model calls)
+//	go run ./cmd/jpeval candidate -split dev_eval -tag d712-dev  (gateway)
+//	go run ./cmd/jpeval candidate-summary -split held_out -check  (no model calls)
 package main
 
 import (
@@ -40,7 +44,7 @@ const (
 
 func main() {
 	if len(os.Args) < 2 {
-		fmt.Fprintln(os.Stderr, "usage: jpeval baseline|summary|index [flags]")
+		fmt.Fprintln(os.Stderr, "usage: jpeval baseline|summary|index|bundle|candidate|candidate-summary [flags]")
 		os.Exit(2)
 	}
 	var err error
@@ -51,6 +55,12 @@ func main() {
 		err = summary(os.Args[2:])
 	case "index":
 		err = index(os.Args[2:])
+	case "bundle":
+		err = bundle(os.Args[2:])
+	case "candidate":
+		err = candidate(os.Args[2:])
+	case "candidate-summary":
+		err = candidateSummary(os.Args[2:])
 	default:
 		err = fmt.Errorf("unknown command %q", os.Args[1])
 	}

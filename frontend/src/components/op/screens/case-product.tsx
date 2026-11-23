@@ -4,9 +4,10 @@ import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import { useEffect } from "react";
 import { stepIndex } from "@/lib/format";
+import { hasFollowUps } from "@/lib/market";
 import { BomVersion } from "../bom-version";
 import { CaseShell } from "../case-shell";
-import { Footer, Main, Next } from "../chrome";
+import { Footer, Main, Next, StepEyebrow } from "../chrome";
 import { PartsByGroup } from "../parts-by-group";
 import { ButtonLink, Fold, Panel, Spinner } from "../ui";
 
@@ -19,7 +20,7 @@ export function CaseProduct() {
         <>
           <Main className="flex max-w-[1240px] flex-col gap-6">
             <div>
-              <p className="eyebrow">Step 1 of 4 · Product</p>
+              <StepEyebrow tab="product" followUps={hasFollowUps(c)} />
               <h1 className="mt-1 text-xl tracking-[-0.04em]">{c.product?.name || "Pasted description"}</h1>
               {c.product?.description && <Description text={c.product.description} />}
             </div>
@@ -41,9 +42,9 @@ export function CaseProduct() {
             </p>
           </Main>
           <Footer>
-            <Next>See the likely origin and the earlier rulings behind it.</Next>
+            {c.jurisdiction !== "ca" && <Next>See the likely origin and the earlier rulings behind it.</Next>}
             <div className="ml-auto">
-              <ButtonLink href={`/cases/${encodeURIComponent(id)}/origin`}>Likely origin →</ButtonLink>
+              <ButtonLink href={`/cases/${encodeURIComponent(id)}/origin`}>{c.jurisdiction === "ca" ? "Canada marking rules →" : "Likely origin →"}</ButtonLink>
             </div>
           </Footer>
         </>

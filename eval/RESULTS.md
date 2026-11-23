@@ -93,7 +93,7 @@ The post-cutoff splits of the textile, pharmaceutical and Part 102 engines were 
 | Substantial transformation, engine-v1 | 340/377 = 90.2% (86.8–92.8) | Vertex AI | 77/83 = 92.8% (85.1–96.6) | gateway |
 | Textile (19 CFR 102.21 rule) | 61/71 = 85.9% (76.0–92.2), textile-v1 | Vertex AI | 15/17 = 88.2% (65.7–96.7), textile-v2 (in production) | gateway |
 | Pharmaceutical, pharma-v1 | 50/56 = 89.3% (78.5–95.0) | proxy | 4/6 = 66.7% (30.0–90.3) | gateway |
-| Part 102 marking origin, usmca-v1 | 25/32 = 78.1% (61.2–89.0) | proxy | 11/13 = 84.6% (57.8–95.7) | gateway |
+| Part 102 marking origin, usmca-v1 | 25/32 = 78.1% (61.2–89.0) | proxy | 11/13 = 84.6% (57.8–95.7), with only the 15 window-2 rulings as precedents (D612) | gateway |
 | Splits added (as the 536 was) | 476/536 = 88.8% (85.9–91.2) | mixed | 107/119 = 89.9% (83.2–94.1) | gateway |
 | **Each ruling once** | 451/509 = 88.6% (85.6–91.1) | mixed | 96/107 = 89.7% (82.5–94.2) | gateway |
 
@@ -935,7 +935,7 @@ Six templates written from the 239 pre-2024 Part 102 rulings in no development o
 | N363381 (Canada → Vietnam) | machinery parts | 1 | 0 | undetermined (chapter 96) | – | undetermined / United States (Canada) | $0.0190, 8 s |
 
 - Planned 8 of 18 (D571: 6). Engine agrees with the rule on 6 of 6 decided moves (61–100%; D571 3 of 6); on the four shared fixtures 3 of 3 (D571 1 of 3). 5 of the 6 decided moves keep CBP's holding. Shown 1, the rule says it shifts. Flagged 0; rows marked for review 0 (D571, scored by the same code, 1). Current setup: rule decides 7 of 8 and gives CBP's holding on 6; engine 6 of 8. Backtests 0. Search wall median 12.5 s, 95th percentile 40.2 s (D571 20.0 s, 35.0 s).
-- Worse: the engine misses one more current setup than in D571 (N363381, United States against CBP's Canada). N358639 is not like for like (one move with the metal-products template, three with vehicle parts).
+- Not a new miss against D571: D571 did not plan N363381 (no template then), and D601 had already scored it wrong (the engine gives the United States where CBP held Canada). The 6 of 8 current-setup result is D601's, ruling for ruling (D670). N358639 is not like for like (one move with the metal-products template, three with vehicle parts).
 - Actuator page re-record (development, not held out): `plan-p102-n348465-local-verifier-v2-d630-litellm.json` (RUNLOG `planner-part102-d630-actuator-litellm`, $0.2923, 47 s): `usmca-v5` agrees with the rule on 12 of 12 moves (D541 `usmca-v1` 12, D501 general 9), 2 shown, both shift.
 - `tariffshift/plans102/runs/plan-p102h-*-local-verifier-v2-heldout2-litellm.json`; `tariffshift/plans102/summary-heldout2.json`, `moves-heldout2.jsonl`; `cd backend && go run ./cmd/tariffshift plans102-eval -series heldout2 -check` and `plans102-example -check` (in `make reproduce`). Total $0.4806.
 
@@ -965,3 +965,39 @@ Six templates written from the 239 pre-2024 Part 102 rulings in no development o
 - Baseline `jp-baseline-v1` (engine-v1's prompt adapted to Japanese preference under the claimed agreement), Gemini 4 Argon, BM25, K = 5, development precedents issued before each case: criterion match 370 of 400 = 92.5% (89.5–94.7); 368 with the labels before D711's two disclosed pattern changes; majority baseline 36.0%. Says originating 396 of 400; named origin 110 of 111. $0.0073 a case, p50 6.7 s, p95 11.1 s. No failed call.
 - Format check first, 5 cases, not scored for anything: `jp/runs/jp-dev_eval-gemini-4-argon-jp-baseline-v1-litellm-smoke.jsonl` ($0.04).
 - Rows `jp/runs/jp-dev_eval-gemini-4-argon-jp-baseline-v1-litellm-d711.jsonl`; summary `jp/baseline-dev-metrics.json` (`cd backend && go run ./cmd/jpeval summary -check`). No held-out ruling scored.
+
+## Japan trade-agreement candidate (23 Nov, #682)
+
+The first development attempt was interrupted after saving 17 of 400 rows. The saved rows include eight gateway timeouts and $0.0414 in reported charges. The run file is `jp/runs/jp-dev_eval-gemini-4-argon-jp-engine-v1-litellm-d712-dev.jsonl`. The matched-rule results from this incomplete prefix are unsuitable for a sample-wide comparison. Charges on in-flight rows may be missing.
+
+The complete development run used the same candidate with six workers. **243 of 400** exact criterion matches (60.75%, 95% Wilson interval 55.88–65.41). The candidate called 244 qualifying, abstained on 155, and had one failed call. The 244 qualifications include 243 criterion matches. It agreed on 51 of 111 named countries and 177 of 292 named origins including the EU. Cost was $2.9794 ($0.0074 a case). Model-call cases took 6.971 s p50 and 10.079 s p95. The D711 baseline's 370 of 400 is from a different candidate. The D712 candidate requires an applicable rule source and keeps abstentions in the denominator. See `jp/jp-dev_eval-gemini-4-argon-jp-engine-v1-litellm-d712-dev-complete-metrics.json` and the matching run rows.
+
+**One-time unseen test attempt.** All 633 labels were affirmative. The D712 engine made 382 requests and all returned HTTP 403. It abstained without a call on 251 cases. The mechanical result is zero criterion matches, zero named-origin matches and zero qualifications because no model prediction came back. The gateway reported $0. The recorded p50 of 0.518 s and p95 of 0.855 s measure rejected requests. Rows and metrics are in `jp/runs/jp-held_out-gemini-4-argon-jp-engine-v1-litellm.jsonl` and `jp/jp-held_out-gemini-4-argon-jp-engine-v1-litellm-metrics.json`. The gateway failure leaves held-out accuracy unmeasured.
+
+**Synthetic preflight.** The first command stopped during local fixture validation before allocating an output file or sending a request. D714 corrects the fixture dates before any synthetic inference.
+
+**Separate synthetic negatives.** The corrected fixtures launched once under D714. All eight returned HTTP 403, with $0 reported and no eligibility responses. Rejected requests took 0.441 s at p50 and 0.711 s at p95. The data is in `jp/runs/jp-synthetic-gemini-4-argon-jp-engine-v1-litellm.jsonl` and `jp/jp-synthetic-gemini-4-argon-jp-engine-v1-litellm-metrics.json`. Both batches establish a gateway availability failure. The development, unseen test and fictional rows stay separate.
+
+## RCEP calculator on Japan Customs rulings (D691, D716, D717)
+
+The frozen D710 split contains 304 development rulings and 98 held-out rulings with agreement code RCEP. All 402 published rulings qualified. The figures measure positive recall from the published facts. They give no estimate of refusal performance on real rulings. The inputs omit supplier declarations and values wherever those are absent from the published material entries. A tariff shift can return yes with a warning that the work must exceed minimal operations.
+
+Each share below has its Wilson 95% interval in parentheses. The runs used the Annex 3A HS 2022 table and no model calls. [Development rows](rcep/japan-dev.jsonl) · [Held-out rows](rcep/japan-heldout.jsonl) · [Full interval registry](rcep/japan-summary.json)
+
+| Published positives | Yes | Undetermined | No | Input error | Criterion agrees where both decide |
+|---|---:|---:|---:|---:|---:|
+| Development | 162/304, 53.3% (47.7–58.8) | 142/304, 46.7% (41.2–52.3) | 0/304 (0–1.2) | 0/304 (0–1.2) | 161/162, 99.4% (96.6–99.9) |
+| Held out | 71/98, 72.4% (62.9–80.3) | 27/98, 27.6% (19.7–37.1) | 0/98 (0–3.8) | 0/98 (0–3.8) | 71/71, 100% (94.9–100) |
+| Pooled, descriptive | 233/402, 58.0% (53.1–62.7) | 169/402, 42.0% (37.3–46.9) | 0/402 (0–0.9) | 0/402 (0–0.9) | 232/233, 99.6% (97.6–99.9) |
+
+Among rulings with a cited tariff-shift criterion and material codes at its required precision, the development check returned yes for 161 of 213, 75.6% (69.4–80.9). The held-out check returned yes for 71 of 72, 98.6% (92.5–99.8). The other cases in those subsets were undetermined. The deciding criterion agreed in 161 of 161 development cases (97.7–100) and 71 of 71 held-out cases (94.9–100). Both splits met D691's point-estimate targets on this subset. No case had a primary RVC label. Missing FOB values blocked some RVC alternatives.
+
+Exact row agreement is unmeasured because the rulings refer to Annex 3A without identifying a unique table row. Where the reasoning named a tariff scope and the engine returned a row, their code prefixes agreed in 293 of 293 development cases (98.7–100) and 95 of 95 held-out cases (96.1–100). This is a consistency check at the stated tariff precision.
+
+### Separate synthetic tariff-shift stress test
+
+For each tariff-shift yes, the first material counted as non-originating was assigned the finished good's four-digit heading. This also leaves a subheading shift without the precision needed to decide. In development, 162 of 162 changed from yes to undetermined (97.7–100). In held out, 71 of 71 changed from yes to undetermined (94.9–100). No synthetic case returned an explicit no, yes or input error. These mutations test how the check softens a positive when classification evidence changes.
+
+## ADK agent evaluation v2, run 2 preflight (23 Nov, D731)
+
+After the daily budget reset, live MCP initialized anonymously, then returned HTTP 401 `unauthenticated` on an invalid-date `predict_origin` probe. Production requires a verified identity for case creation (D730). The D510 run stopped before any product session started. Run 1 supplies the existing score. Repeatability is unmeasured. No model calls, $0 spend. [Preflight record](agent/adk/live-v2-run2-preflight.json).

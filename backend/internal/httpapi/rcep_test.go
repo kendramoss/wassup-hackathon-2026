@@ -1,6 +1,7 @@
 package httpapi
 
 import (
+	"fmt"
 	"net/http"
 	"strings"
 	"testing"
@@ -63,5 +64,46 @@ func TestRCEPCheckOverMCP(t *testing.T) {
 	}
 	if res, _ := callTool(t, cs, "check_rcep_preference", map[string]any{"hs": "0910.91", "produced_in": "Malaysia", "materials": []any{map[string]any{"status": "maybe"}}}); !res.IsError {
 		t.Error("a bad status was accepted")
+	}
+}
+
+// #671: a 4- or 5-digit good under a CTSH heading used to panic and drop the
+// HTTP and MCP connections. It must answer undetermined instead.
+func TestRCEPCheckShortGoodNeverDropsConnection(t *testing.T) {
+	hs := newHarness(t, "substantial_transformation")
+	for _, body := range []string{
+		`{"hs":"2811","produced_in":"Japan","materials":[{"hs":"2804.10","status":"non_originating"}]}`,
+		`{"hs":"38081","produced_in":"Vietnam","materials":[{"hs":"2903.11","status":"non_originating"}]}`,
+	} {
+		code, out := hs.do(t, "POST", "/v1/rcep/check", body)
+		if code != http.StatusOK || out["outcome"] != "undetermined" {
+			t.Errorf("%s: got %d %v", body, code, out)
+		}
+		if !strings.Contains(fmt.Sprint(out["reasons"]), "6-digit") {
+			t.Errorf("%s: reasons do not name the missing digits: %v", body, out["reasons"])
+		}
+	}
+	cs := mcpClient(t, hs, nil)
+	res, out := callTool(t, cs, "check_rcep_preference", map[string]any{
+		"hs": "2811", "produced_in": "Japan",
+		"materials": []any{map[string]any{"hs": "2804.10", "status": "non_originating"}},
+	})
+	if res.IsError || out["outcome"] != "undetermined" || !strings.Contains(text(res), "6-digit") {
+		t.Fatalf("check_rcep_preference: %s %v", text(res), out)
+	}
+}
+
+// #672: finite but overflowing inputs used to encode Inf and get a 500.
+func TestRCEPCheckRejectsNonFiniteComputedShares(t *testing.T) {
+	hs := newHarness(t, "substantial_transformation")
+	for _, body := range []string{
+		`{"hs":"8471.30","produced_in":"Japan","fob":1e-300,"materials":[{"hs":"8471.30","value":1e10,"status":"non_originating"}]}`,
+		`{"hs":"8471.30","produced_in":"Japan","fob":1e308,"materials":[{"hs":"8471.30","value":1e308,"status":"non_originating"},{"hs":"8471.30","value":1e308,"status":"non_originating"}]}`,
+		`{"hs":"8471.30","produced_in":"Japan","fob":100,"costs":{"labour":1e308,"overhead":1e308,"profit":1e308,"other":1e308},"materials":[{"hs":"8471.50","value":10,"status":"non_originating"}]}`,
+	} {
+		code, out := hs.do(t, "POST", "/v1/rcep/check", body)
+		if code != http.StatusBadRequest || out["code"] != "invalid_input" {
+			t.Errorf("%s: got %d %v", body, code, out)
+		}
 	}
 }

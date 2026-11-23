@@ -26,16 +26,9 @@ export const STOPS: readonly number[] = [phaseStop(0), phaseStop(1), phaseStop(2
 // phases settle instantly; the two finished figures draw themselves in time.
 export const arrivalFor = (p: number): 2 | 3 | null => (p === ARRIVE[1] ? 2 : p === ARRIVE[2] ? 3 : null);
 
-// Below the pinned stage, the page's own sections are the stops. Each has a
-// guided top, but the space between them scrolls natively so its content can
-// be read without being stepped through (#409). Kept as selectors, not DOM
-// nodes, so the stop order is testable in Node.
-export const FREE_SECTIONS = [
-  { key: "can", selector: ".can" },
-  { key: "who", selector: ".who" },
-  { key: "story", selector: ".story" },
-  { key: "footer", selector: ".lpfoot" },
-] as const;
+// The first section below the pinned stage starts native scrolling (#409).
+// Keep the order here so the handoff destination is also testable in Node.
+export const FREE_SECTIONS = ["#impact", "#can", ".lpfoot"] as const;
 
 export type Destination =
   | { kind: "stop"; progress: number }

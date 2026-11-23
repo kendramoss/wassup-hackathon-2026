@@ -47,3 +47,17 @@ test("Space on a focused control is not claimed by the landing", () => {
   assert.equal(inControl(element("div")), false);
   assert.equal(inControl(null), false);
 });
+
+// #726: a focused disclosure summary handles Space and Enter itself; the story
+// keeps Space navigation when the story (not a control) has focus.
+test("a focused disclosure summary is a control, so Space and Enter stay native", () => {
+  assert.equal(inControl(element("summary")), true);
+  assert.equal(inControl(element("div")), false);
+  assert.equal(inControl(element("section")), false);
+});
+
+test("Space on the story itself still steps the story", () => {
+  assert.equal(inControl(element("div")), false);
+  assert.equal(keyDirection({ key: " ", shiftKey: false }), 1);
+  assert.equal(keyDirection({ key: " ", shiftKey: true }), -1);
+});

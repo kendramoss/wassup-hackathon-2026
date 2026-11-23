@@ -70,5 +70,5 @@ Moving a case under a user or into a workspace is not supported yet. If it is bu
 ## 5. Limits
 
 - Everything above is exercised against the in-memory stores. The Firestore adapter (`store/workspaces.go`) implements the same operations in transactions, but it was not run here: no emulator. An emulator test is included and skipped unless `FIRESTORE_EMULATOR_HOST` is set. Atomicity under real Firestore contention is unverified.
-- Deployed `CASE_OWNERSHIP`, `TEAMS` and `STRICT_AUTH` values are unverified.
+- `STRICT_AUTH=on` was verified live on undelabs.dev on 23 Nov 2026 (private `/api/v1/cases` → 401, `/api/v1/demos` → 200; D730). The deployed `CASE_OWNERSHIP` and `TEAMS` values are recorded in [api/SECURITY.md](../api/SECURITY.md); the role and workspace transactions were not exercised against real Firestore here.
 - The frontend uses roles (#373): role display, a role selector and remove/leave for admins, viewer-safe screens with 403 handling, a preview-only draft for viewers, and a sign-in-required state when strict is on. What remains here is multi-workspace membership and case reassignment (section 2), not a role UI.

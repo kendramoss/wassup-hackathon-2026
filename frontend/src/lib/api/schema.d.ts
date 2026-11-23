@@ -59,7 +59,7 @@ export interface paths {
         put?: never;
         /**
          * Triage a portfolio (up to 20 products) in one call
-         * @description Each product is predicted from its facts, triaged and saved as an ordinary case (D47). One product's failure fills its row's error and does not fail the rest. Send JSON, or multipart/form-data with a "file" (CSV or .xlsx with a header row: name (or product, sku), facts (or description), optional date, optional jurisdiction). Rate-limited as one heavy request per client that takes 20 from the global cap.
+         * @description Each product is predicted from its facts, triaged and saved as an ordinary case (D47). Japan trade-agreement input is available in JSON rows. One product's failure fills its row's error and does not fail the rest. Send JSON, or multipart/form-data with a "file" (CSV or .xlsx with a header row: name (or product, sku), facts (or description), optional date, optional jurisdiction). Rate-limited as one heavy request per client that takes 20 from the global cap.
          */
         post: operations["triageBatch"];
         delete?: never;
@@ -737,7 +737,7 @@ export interface paths {
         };
         /**
          * Markets a case can name, and which have an origin engine
-         * @description Every market code with its name, whether it is supported (D680) and whether it has the steps after the origin answer. us is supported with every step; ca is supported as a rules check only (D725). A case for any other market gets no prediction and goes to review.
+         * @description Every market and its availability on this deployment. The United States supports follow-up steps. Canada offers a marking rules check. Japan offers a preliminary trade-agreement assessment where the separate gateway is configured. Unsupported markets return no prediction and go to review.
          */
         get: operations["listJurisdictions"];
         put?: never;
@@ -1135,6 +1135,16 @@ export interface components {
             /** @description Present on list rows; whether the caller may change this case (#283). Computed by the server for each request with the same authorization the write routes use; hidden cases are never returned, and the value is never stored or taken from the client. Pinned demos are false for non-admin callers, but that means no persisted change only: Ask, scenarios and plan previews on a pinned demo stay read-only and allowed. The server still enforces every action (403 forbidden). */
             can_write?: boolean;
             ruling_alerts?: components["schemas"]["RulingAlertCounts"];
+            /**
+             * @description Status of the case's newest non-revoked broker review link (#715), read from the links already on the case: the latest created, the later in the list when two share a time. A link past its expiry reads `expired`, never `pending`. Absent when the case has no link or only revoked ones, and for a pinned demo to non-admin callers. `approved` and `file_requested` are information only: no follow-up is implied.
+             * @enum {string}
+             */
+            review_status?: "pending" | "viewed" | "approved" | "changes_requested" | "file_requested" | "expired";
+            /**
+             * Format: date-time
+             * @description That link's expiry; present only while its status is pending or viewed (#715)
+             */
+            review_expires_at?: string;
         };
         /** @description Present only when CBP has changed (final) or proposed to change a ruling the case relies on: cited by the prediction, a shown plan's supporting ruling, or CBP's holding on the current setup (D480). */
         RulingAlertCounts: {
@@ -1200,7 +1210,7 @@ export interface components {
         };
         Error: {
             /** @enum {string} */
-            code: "invalid_input" | "not_found" | "model_unavailable" | "model_bad_response" | "out_of_scope" | "internal" | "rate_limited" | "forbidden" | "budget_reached" | "unauthenticated" | "conflict" | "unauthorized" | "quota_exceeded" | "audit_unavailable";
+            code: "invalid_input" | "not_found" | "model_unavailable" | "model_bad_response" | "out_of_scope" | "internal" | "rate_limited" | "too_many_in_flight" | "client_budget_reached" | "auth_rate_limited" | "forbidden" | "budget_reached" | "unauthenticated" | "conflict" | "unauthorized" | "quota_exceeded" | "audit_unavailable" | "review_not_found" | "link_revoked" | "link_expired";
             message: string;
             details?: unknown;
         };
@@ -1486,11 +1496,11 @@ export interface components {
              */
             hts?: string;
         };
-        /** @description Either `facts` (pasted text, max 12,000 characters) or a structured `product` (+ `family`) is required. When both are given, the engine reads `facts` and the product is kept for plan search (the heat-gun demo does this). */
+        /** @description Either `facts` (pasted text, max 12,000 characters) or a structured `product` is required. U.S. cases without facts need a planner family. Japan cases can give the agreement and finished-good tariff code in `japan`. */
         PredictRequest: {
             /**
              * Format: date
-             * @description Case date; only CBP rulings dated strictly before it are used
+             * @description Case date; only rulings dated strictly before it are used
              */
             date: string;
             facts?: string;
@@ -1508,8 +1518,39 @@ export interface components {
             economics?: components["schemas"]["Economics"];
             /** @description Optional name for the case on Cases home (D48); batch rows pass their name here */
             display_name?: string;
-            /** @description Market the question is for (D680). Omitted: read from the text by a deterministic detector (an authority such as HMRC or CBSA, "imported into <place>", "<market> customs"), else us. Only us has an origin engine today; any other market is saved with no prediction and goes to review with "Origin rules for <market> aren't supported yet". */
+            /** @description Market the question is for. If omitted, a Japan input selects Japan. Otherwise the server reads it from the facts or defaults to the United States. See GET /v1/jurisdictions for current availability. */
             jurisdiction?: components["schemas"]["JurisdictionCode"];
+            japan?: components["schemas"]["JapanInput"];
+        };
+        /** @description Trade-agreement inputs for imports into Japan. A configured Japan assessment goes to review if the agreement, tariff code or applicable rule is missing. */
+        JapanInput: {
+            /**
+             * @description Agreement name or corpus code, such as RCEP, CPTPP, JP-EU EPA or AJCEP
+             * @example RCEP
+             */
+            agreement: string;
+            /**
+             * @description Finished-good tariff classification for Japan. Include the full Japanese code where the agreement rule requires it.
+             * @example 4412.31
+             */
+            hs: string;
+        };
+        JapanSource: {
+            citation: string;
+            /** Format: uri */
+            url: string;
+        };
+        /** @description Preliminary Japan preferential-origin assessment. Every result requires specialist review. Published evaluation rulings only cover goods that qualified. Not a ruling. */
+        JapanResult: {
+            agreement: string;
+            hs: string;
+            /** @enum {string} */
+            outcome: "qualifies" | "does_not_qualify" | "undetermined";
+            criterion?: string;
+            deciding_rule?: string;
+            review_reason?: string;
+            sources?: components["schemas"]["JapanSource"][];
+            precedent_sources?: components["schemas"]["JapanSource"][];
         };
         /**
          * @description Market codes: us United States, eu European Union, uk United Kingdom, ca Canada, jp Japan, kr South Korea, au Australia, mx Mexico, other any other market
@@ -1572,7 +1613,9 @@ export interface components {
             steps?: components["schemas"]["ChatStep"][];
         };
         Prediction: {
+            /** @description For Japan, the predicted preferential origin when the goods qualify and a country is known. */
             origin_country?: string;
+            japan_preference?: components["schemas"]["JapanResult"];
             key_factors?: string[];
             decisive_step?: string;
             /** @description The model's own stated confidence. Overconfident on average (stated 94.7% against 90.2% right on the 377 held-out rulings); use calibrated_confidence when present. */
@@ -1620,6 +1663,7 @@ export interface components {
             exclude_rulings?: string[];
             jurisdiction?: components["schemas"]["JurisdictionCode"];
             jurisdiction_detail?: components["schemas"]["JurisdictionDetail"];
+            japan?: components["schemas"]["JapanInput"];
             /** @description Empty (origin_country "") when jurisdiction_detail.supported is false: no engine ran (D680) */
             prediction?: components["schemas"]["Prediction"];
             triage?: components["schemas"]["Triage"];
@@ -2233,6 +2277,8 @@ export interface components {
             first_viewed_at?: string;
             /** @description Oldest first */
             decisions: components["schemas"]["BrokerReviewDecision"][];
+            /** @description Count of final CBP changes, in effect now and dated on or after the day the link was shared, to the rulings the frozen draft cites or its plan rests on (#714). Derived on every read and never stored; present only when at least one, for every link that is not revoked (expired and approved ones included, whatever the broker can still open). Dates are date-only, so a change on the sharing day (UTC calendar date) counts. The current setup's ruling is not in the snapshot, so it is not covered. It says what CBP changed, not that an approval is invalid. */
+            changed_since_shared?: number;
         };
         BrokerReviewForBroker: {
             id: string;
@@ -2279,6 +2325,32 @@ export interface components {
                 content?: string;
                 notes?: string[];
             };
+            /** @description Final CBP changes, in effect now and dated on or after the day the link was shared (UTC calendar date, same day included: dates are date-only), to the rulings the frozen draft cites or its plan rests on (#714). Derived on each read from the frozen snapshot only, never from the live case, and nothing is stored. The current setup's ruling is not a structured field in the snapshot, so it is not covered. Proposed, scheduled and earlier changes are not listed. Present only when there is at least one; says what CBP changed, not that an approval is invalid. No case id or owner data. */
+            ruling_changes?: {
+                ruling: string;
+                roles: ("cited" | "plan_support")[];
+                /** @enum {string} */
+                status: "final";
+                /** @enum {string} */
+                kind: "revoked" | "modified";
+                by: string;
+                /** Format: date */
+                date?: string;
+                in_effect?: boolean;
+                bulletin?: string;
+                url?: string;
+                /** @description The change in words, e.g. modified by H344999 on 2026-05-06 */
+                note: string;
+                held_before?: string;
+                held_after?: string;
+                /** @description The frozen draft's origin */
+                answer?: string;
+                /** @enum {string} */
+                relevance?: "touches_answer" | "not_answer" | "holding_unchanged" | "unknown";
+                relevance_note?: string;
+                /** @enum {string} */
+                relevance_role?: "cited" | "plan_support";
+            }[];
             /** Format: date-time */
             shared_at: string;
             disclaimer: string;
@@ -2292,7 +2364,7 @@ export interface components {
             format?: "markdown" | "cfr177";
             /** @description The letter only: what would be filed. No reviewer notes or disclaimer. */
             content?: string;
-            /** @description Shown beside the letter, never in it, its print or its download: the draft-for-review disclaimer, how the 177.2 letter marks gaps, and a move under the confidence bar (18 Oct). */
+            /** @description Shown beside the letter, never in it, its print or its download: the draft-for-review disclaimer, how the 177.2 letter marks gaps, and a move under the confidence bar (18 Oct), and a final, in-effect CBP change to a ruling the draft relies on, with whether it bears on the answer (#714). */
             notes?: string[];
         };
         Ruling: {
@@ -2658,6 +2730,7 @@ export interface operations {
                         date?: string;
                         /** @description Optional market (D680); a sheet may have a jurisdiction (or market) column */
                         jurisdiction?: components["schemas"]["JurisdictionCode"];
+                        japan?: components["schemas"]["JapanInput"];
                     }[];
                 };
                 "multipart/form-data": {
@@ -2679,6 +2752,7 @@ export interface operations {
                             name: string;
                             case_id?: string;
                             jurisdiction?: components["schemas"]["JurisdictionCode"];
+                            japan_preference?: components["schemas"]["JapanResult"];
                             /** @description Absent when the market has no engine (D680) */
                             predicted_origin?: string;
                             /** @description The model's stated confidence; read calibrated_confidence first when present (D160, #402) */
@@ -4493,9 +4567,9 @@ export interface operations {
                             name: string;
                             /**
                              * Format: email
-                             * @description The workspace's admin
+                             * @description The admin who sent this invitation (the first sender if several admins invited the same email), even if they have since left the workspace or lost the admin role. Omitted for an invitation stored before senders were recorded: the sender is then unknown, and it is not guessed from the workspace creator.
                              */
-                            invited_by: string;
+                            invited_by?: string;
                             /**
                              * Format: date-time
                              * @description When the workspace was created

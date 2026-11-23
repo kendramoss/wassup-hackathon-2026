@@ -20,9 +20,10 @@ import { ReviewNote } from "../review-note";
 import { RuleCheckPanel } from "../rule-check";
 import { RcepCheck } from "../rcep-check";
 import { CanadaCheck } from "../canada-check";
+import { JapanPreference } from "../japan-preference";
 import { Term } from "../term";
 import { regimeOf } from "@/lib/regime";
-import { marketOf } from "@/lib/market";
+import { hasFollowUps, marketOf } from "@/lib/market";
 import { MarketTag } from "../market-picker";
 import { blankAnswers, buildAnswerPayload, reconcileAnswers, type AnswerState } from "@/lib/answer-state";
 
@@ -31,6 +32,8 @@ export function OriginStep() {
 }
 
 function Result(ctx: CaseCtx) {
+  const { c } = ctx;
+  if (c.jurisdiction === "jp" && (c.prediction?.japan_preference || c.jurisdiction_detail?.supported)) return <JapanPreference c={c} />;
   // A market with no origin engine (D680): no answer was made, so there is
   // no verdict to show, only what to do next.
   if (ctx.c.jurisdiction_detail?.supported === false) return <UnsupportedMarket c={ctx.c} />;
@@ -45,7 +48,7 @@ function CanadaMarket({ c }: { c: CaseResponse }) {
     <>
       <section aria-label="Market" className="border-b border-dashed border-guide">
         <div className="column mx-auto max-w-[1240px] px-4 pb-8 pt-10 sm:px-10">
-          <StepEyebrow tab="origin">{copy.market.label}</StepEyebrow>
+          <StepEyebrow tab="origin" followUps={hasFollowUps(c)}>{copy.market.label}</StepEyebrow>
           <h1 className="mt-1 flex items-center gap-4 text-[44px] font-normal leading-none tracking-[-0.05em] sm:text-[64px]">
             {m.flag ? <Flag country={m.flag} size={44} /> : null}
             {m.name}
@@ -88,7 +91,7 @@ function UnsupportedMarket({ c }: { c: CaseResponse }) {
     <>
       <section aria-label="Market" className="border-b border-dashed border-guide">
         <div className="column mx-auto max-w-[1240px] px-4 pb-8 pt-10 sm:px-10">
-          <StepEyebrow tab="origin">{copy.market.label}</StepEyebrow>
+          <StepEyebrow tab="origin" followUps={hasFollowUps(c)}>{copy.market.label}</StepEyebrow>
           <h1 className="mt-1 flex items-center gap-4 text-[44px] font-normal leading-none tracking-[-0.05em] sm:text-[64px]">
             {m.flag ? <Flag country={m.flag} size={44} /> : null}
             {m.name}

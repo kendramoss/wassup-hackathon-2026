@@ -6,70 +6,37 @@
 // explodes and moves its Chinese parts to Thailand, a caption box naming
 // each phase; fig.2, one case as four sheets of real output with the facts
 // drawn through them; fig.3, a test sheet for the 377 held-out rulings,
-// ending on the way into the cases. Phones keep the figures stacked. After
-// "Who it's for", fig.4 tells the impact as one illustrative story. Every
-// number comes from docs/NUMBERS.md.
+// ending on the way into the cases. Phones keep the figures stacked. Below
+// the figures, the impact benchmarks and persona showcase scroll normally.
+// Every number comes from docs/NUMBERS.md.
 import Link from "next/link";
 import { Explained } from "../term";
-import { useEffect, useRef, useState, useSyncExternalStore, type ReactNode } from "react";
+import { useEffect, useRef, useState } from "react";
 import { api } from "@/lib/api/client";
 import { copy } from "@/lib/copy";
 import { ButtonLink, RulingLink } from "../ui";
+import { JudgeImpact } from "./judge-proof";
+import { MarketEvidence } from "./market-evidence";
+import { JudgePersonas } from "./judge-tabs";
 import { startLanding } from "./motion";
 import "./landing.css";
+import "./market-evidence.css";
 
 const L = copy.landing;
-const S = L.story;
-const K = copy.stakeholders;
 const flag = (c: "China" | "Thailand") => `/flags/${c === "China" ? "cn" : "th"}.svg`;
 const Flag = ({ c, h }: { c: "China" | "Thailand"; h?: number }) => (
   // eslint-disable-next-line @next/next/no-img-element
   <img className="flag" alt="" src={flag(c)} style={h ? { height: h } : undefined} />
 );
 
-// A secondary block that phones get folded (judge panel round 3, D270: the
-// phone landing was 11,470 px tall). Wide screens always show it open, with
-// no summary line; below 901 px it starts folded behind a summary that says
-// what is inside. The server renders it open, so nothing is hidden without
-// script; the fold applies on mount, far below the first screen.
-function PhoneFold({ summary, children }: { summary: string; children: ReactNode }) {
-  const phone = useSyncExternalStore(onPhoneChange, isPhone, () => false);
-  const [userOpen, setUserOpen] = useState(false);
-  const open = !phone || userOpen;
-  return (
-    <details
-      className="pfold"
-      open={open}
-      onToggle={(e) => {
-        if (phone) setUserOpen((e.currentTarget as HTMLDetailsElement).open);
-      }}
-    >
-      <summary>
-        <span aria-hidden="true" className="pfmark">
-          ▸
-        </span>
-        {summary}
-      </summary>
-      {children}
-    </details>
-  );
-}
-const PHONE = "(max-width: 900px)";
-const isPhone = () => matchMedia(PHONE).matches;
-function onPhoneChange(cb: () => void) {
-  const mq = matchMedia(PHONE);
-  mq.addEventListener("change", cb);
-  return () => mq.removeEventListener("change", cb);
-}
-
 // The demo links: straight to the pinned heat-gun case when there is one,
 // otherwise the demo loaded into a new case, and /cases if the API is down.
 // The pinned comparison case is a separate demo (its comparison is recorded).
 // The hero's button opens the tour on the plan (judge panel round 4): the
 // origin step, which opens on "needs more facts", is one click from there.
-type DemoLinks = { demo: string; tour: string; heat: string | null; compare: string };
+type DemoLinks = { demo: string; tour: string; compare: string };
 function useDemoLinks(): DemoLinks {
-  const [links, setLinks] = useState<DemoLinks>({ demo: "/cases", tour: "/cases", heat: null, compare: "/cases" });
+  const [links, setLinks] = useState<DemoLinks>({ demo: "/cases", tour: "/cases", compare: "/cases" });
   useEffect(() => {
     let live = true;
     (async () => {
@@ -87,7 +54,6 @@ function useDemoLinks(): DemoLinks {
         setLinks({
           demo: heatCase ? `${heatCase}/origin` : fallback,
           tour: heatCase ? `${heatCase}/plan?tour=1` : fallback,
-          heat: heatCase,
           compare: cmp ? `/cases/${encodeURIComponent(cmp.id)}/compare` : "/cases",
         });
       } catch {
@@ -99,36 +65,6 @@ function useDemoLinks(): DemoLinks {
     };
   }, []);
   return links;
-}
-
-const C = L.can;
-// Where each "What you can do" line leads. Heat-gun steps fall back to the
-// demo link (a new case from the demo, or /cases) when no pinned case loads.
-function canHref(key: string, l: DemoLinks): string {
-  switch (key) {
-    case "origin":
-      return l.demo;
-    case "import":
-      return "/cases/new";
-    case "plan":
-      return l.heat ? `${l.heat}/plan` : l.demo;
-    case "compare":
-      return l.compare;
-    case "draft":
-      return l.heat ? `${l.heat}/draft` : l.demo;
-    case "rules":
-      return "/examples/plan-rule-check";
-    case "part102":
-      return "/examples/part102-plan";
-    case "alerts":
-      return "/examples/revocation-alert";
-    case "mcp":
-      return "/developers#mcp";
-    case "method":
-      return "/method";
-    default:
-      return "/accuracy#misses";
-  }
 }
 
 export function Landing() {
@@ -424,6 +360,7 @@ export function Landing() {
                         <p className="duo">
                           <b>96.0%</b> {L.claimAuto}
                         </p>
+                        <p className="dimn">{L.fig3Caveat}</p>
                       </div>
                     </div>
                     <div className="panel">
@@ -508,6 +445,7 @@ export function Landing() {
           </div>
         </div>
 
+<<<<<<< HEAD
         {/* What you can do (judge journey): every built capability with a
             way in, so the newer ones are found without reading the docs. */}
         <section className="can" id="can" aria-labelledby="canh">
@@ -721,20 +659,23 @@ export function Landing() {
             </div>
           </div>
         </section>
+=======
+        <JudgeImpact />
+        <MarketEvidence />
+        <JudgePersonas demoHref={links.demo} compareHref={links.compare} />
+>>>>>>> origin/main
       </main>
+
       <footer className="lpfoot">
-        <span>{L.footerDisclaimer}</span>
-        <span>{L.built}</span>
-        <a href={L.repo} target="_blank" rel="noreferrer">
-          GitHub
-        </a>
-        <a href={`${L.repo}/blob/main/docs/ROADMAP.md`} target="_blank" rel="noreferrer">
-          {L.roadmap}
-        </a>
-        <Link href="/method">{copy.method.footer}</Link>
-        <Link href="/developers">{copy.nav.api}</Link>
-        <Link href="/privacy">{copy.legal.footer.privacy}</Link>
-        <Link href="/terms">{copy.legal.footer.terms}</Link>
+        <p>{L.footerDisclaimer}</p>
+        <nav aria-label="More about Unde Labs">
+          <a href={L.repo} target="_blank" rel="noreferrer">GitHub</a>
+          <a href={`${L.repo}/blob/main/docs/ROADMAP.md`} target="_blank" rel="noreferrer">{L.roadmap}</a>
+          <Link href="/method">{copy.method.footer}</Link>
+          <Link href="/developers">{copy.nav.api}</Link>
+          <Link href="/privacy">{copy.legal.footer.privacy}</Link>
+          <Link href="/terms">{copy.legal.footer.terms}</Link>
+        </nav>
       </footer>
     </div>
   );

@@ -326,14 +326,71 @@ func (t *Table) Check(in Input) (Result, error) {
 		case in.Variant != "":
 			return Result{}, bad("variant %q is not one of %s", in.Variant, variantIDs(r.Variants))
 		default:
-			return t.eachVariant(in, mats, res, r), nil
+			variantRes := t.eachVariant(in, mats, res, r)
+			if err := finiteResult(variantRes); err != nil {
+				return Result{}, err
+			}
+			return variantRes, nil
 		}
 	}
 	t.applyAlternatives(in, good, mats, alts, &res)
+	if err := finiteResult(res); err != nil {
+		return Result{}, err
+	}
 	if len(in.Operations) == 0 && res.Outcome == Yes {
 		say("This assumes the work done is more than the minimal operations of Art. 3.6.")
 	}
 	return res, nil
+}
+
+// finiteResult rejects a result whose computed shares are not finite. The
+// inputs can each be finite and in range while their quotient or sum overflows
+// (#672); encoding such a result fails and the route would answer 500. Naming
+// the share in the error keeps the answer an actionable invalid_input (400).
+func finiteResult(res Result) error {
+	share := func(name string, v float64) error {
+		if math.IsInf(v, 0) || math.IsNaN(v) {
+			return bad("computed %s share is not finite; reduce the values", name)
+		}
+		return nil
+	}
+	ptr := func(name string, p *float64) error {
+		if p == nil {
+			return nil
+		}
+		return share(name, *p)
+	}
+	if rvc := res.RVC; rvc != nil {
+		for _, c := range []struct {
+			name string
+			p    *float64
+		}{
+			{"build-down", rvc.BuildDown}, {"build-up", rvc.BuildUp},
+		} {
+			if err := ptr(c.name, c.p); err != nil {
+				return err
+			}
+		}
+		for _, c := range []struct {
+			name string
+			v    float64
+		}{
+			{"VNM", rvc.VNM}, {"VOM", rvc.VOM},
+		} {
+			if err := share(c.name, c.v); err != nil {
+				return err
+			}
+		}
+	}
+	if dm := res.DeMinimis; dm != nil {
+		if err := ptr("de minimis value", dm.ValueShare); err != nil {
+			return err
+		}
+		if err := ptr("de minimis weight", dm.WeightShare); err != nil {
+			return err
+		}
+	}
+	return nil
 }
 
 // eachVariant decides a rule that depends on the product when the caller
@@ -501,6 +558,14 @@ var levelWord = map[int]string{2: "chapter", 4: "heading", 6: "subheading"}
 // it, the Art. 3.7 de minimis.
 func tariffShift(in Input, good string, mats []mat, a Alternative) (string, []string, []Issue, *DeMinimis) {
 	n := shiftDigits(a.Criterion)
+	// #671: Lookup can return a heading-level rule whose CTSH alternative
+	// needs six good digits even when the caller gave only four or five.
+	// Missing digits make the answer undetermined, never a slice panic.
+	if len(good) < n {
+		return Undetermined,
+			[]string{fmt.Sprintf("%s needs the good's %d-digit %s; give at least %d digits.", a.Criterion, n, levelWord[n], n)},
+			nil, nil
+	}
 	var fail, unknown []Issue
 	for _, m := range mats {
 		if m.originating {
@@ -521,11 +586,20 @@ func tariffShift(in Input, good string, mats []mat, a Alternative) (string, []st
 		excluded, short := false, false
 		for _, x := range a.Except {
 			k := levelDigits[x.Level]
+			from, to := digits(x.From), digits(x.To)
 			if len(md) < k {
-				short = true
+				// #673: a short material is untestable only when its known
+				// digits could still be inside the excluded range. If every
+				// k-digit code with this prefix is outside [from, to], the
+				// exclusion cannot apply and the material passes the shift.
+				lo := md + strings.Repeat("0", k-len(md))
+				hi := md + strings.Repeat("9", k-len(md))
+				if hi >= from && lo <= to {
+					short = true
+				}
 				continue
 			}
-			if code := md[:k]; code >= digits(x.From) && code <= digits(x.To) {
+			if code := md[:k]; code >= from && code <= to {
 				excluded = true
 				iss.Reason = fmt.Sprintf("comes from %s %s, which the rule excludes", x.Level, dottedN(md, k))
 				break
@@ -594,8 +668,19 @@ func tariffShift(in Input, good string, mats []mat, a Alternative) (string, []st
 				return Yes, append(why, fmt.Sprintf("De minimis: those materials are %s %% of the good's weight, within 10 %% (Art. 3.7(b)).", pct(s))), issues, dm
 			}
 			why = append(why, fmt.Sprintf("Those materials are %s %% of the good's weight, over 10 %%.", pct(s)))
-		} else if !valueKnown {
+		}
+		// Value and weight are alternatives (three-valued OR): a passing
+		// measure returned Yes above; a failing measure paired with one we
+		// cannot compute is a missing fact, not a "no".
+		switch {
+		case !valueKnown && !weightKnown:
 			why = append(why, "Give values and FOB, or weights, to test de minimis (Art. 3.7).")
+			return Undetermined, why, issues, dm
+		case !weightKnown:
+			why = append(why, "The weight test could not be run: give the good's weight and each material's weight to test de minimis by weight (Art. 3.7(b)).")
+			return Undetermined, why, issues, dm
+		case !valueKnown:
+			why = append(why, "The value test could not be run: give the FOB value and each material's value to test de minimis by value (Art. 3.7).")
 			return Undetermined, why, issues, dm
 		}
 	} else if !valueKnown {

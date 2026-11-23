@@ -1,11 +1,11 @@
 import type { Metadata } from "next";
-import type { ReactNode } from "react";
 import { AppBar, Main } from "@/components/op/chrome";
-import { Fold } from "@/components/op/ui";
 import { copy } from "@/lib/copy";
+import { DevelopersPortal } from "./portal";
 
 export const metadata: Metadata = { title: "API and MCP" };
 
+<<<<<<< HEAD
 const spec = `${copy.landing.repo}/blob/main/docs/api/openapi.yaml`;
 const mcpDoc = `${copy.landing.repo}/blob/main/docs/MCP.md`;
 const relay = `${copy.landing.repo}/tree/main/mcp/stdio`;
@@ -176,10 +176,15 @@ const row = "grid gap-x-4 gap-y-0.5 border-b border-line py-1.5";
 
 // How a broker calls the API with a key (D69). Keys are issued by the admin;
 // the browser never manages them, so this page only documents their use.
+=======
+>>>>>>> origin/main
 export default function Page() {
+  const repo = copy.landing.repo;
+
   return (
     <>
       <AppBar active="api" />
+<<<<<<< HEAD
       <Main className="flex max-w-[860px] flex-col gap-8">
         <div>
           <p className="eyebrow">API · MCP</p>
@@ -509,6 +514,22 @@ export default function Page() {
             </a>
           </p>
         </section>
+=======
+      <Main className="flex flex-col gap-5 sm:gap-7">
+        <header className="grid items-start gap-3 border-b border-line pb-4 sm:grid-cols-[minmax(0,1fr)_auto] sm:gap-8 sm:pb-5">
+          <h1 className="max-w-[34ch] text-2xl font-medium leading-[1.08] tracking-[-0.05em] sm:text-4xl lg:text-5xl">
+            Connect Unde to your agent or software
+          </h1>
+          <a
+            href={`${repo}/blob/main/docs/api/openapi.yaml`}
+            className="inline-flex min-h-10 justify-self-end items-center gap-2 rounded-sm border border-edge bg-sheet px-3 text-xs text-ok hover:bg-ok-wash sm:px-4 sm:text-sm"
+          >
+            OpenAPI 3.1 Spec <span aria-hidden="true">↗</span>
+          </a>
+          <p className="duo text-xs text-dim sm:col-span-2">Local examples only. Predictions are not rulings.</p>
+        </header>
+        <DevelopersPortal repo={repo} />
+>>>>>>> origin/main
       </Main>
     </>
   );

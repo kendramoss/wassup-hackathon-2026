@@ -116,16 +116,31 @@ func (r Request) Validate() error {
 	return nil
 }
 
-// DutyRate is the rate for an origin, normalising country names; ok is false
-// when the user gave no rate for it.
+// DutyRate is the rate for an origin, matching country names by their duty
+// identity (domain.DutyCountry, #718); ok is false when the user gave no rate
+// for it. When several keys name the same country (an alias and its canonical
+// name) the choice is deterministic: the key that is exactly the canonical
+// name, else the first in sorted key order. That tie-rule is a fallback for
+// duplicates that arrive over the API: two explicit rates carry no mark of
+// which one the user typed, so nothing is promised about manual versus derived.
+// The money forms never write such duplicates (frontend/src/lib/duty-rates.ts
+// collapses every spelling to one rate on edit) and show a note when a saved
+// economics has them. Rates are only read, never merged.
 func (e Economics) DutyRate(country string) (float64, bool) {
-	want := domain.NormalizeCountry(country)
-	for c, r := range e.DutyRates {
-		if domain.NormalizeCountry(c) == want {
-			return r, true
+	want := domain.DutyCountry(country)
+	best, found := "", false
+	for c := range e.DutyRates {
+		if domain.DutyCountry(c) != want {
+			continue
+		}
+		if !found || (c == want && best != want) || (best != want && c < best) {
+			best, found = c, true
 		}
 	}
-	return 0, false
+	if !found {
+		return 0, false
+	}
+	return e.DutyRates[best], true
 }
 
 // Date is a calendar date in JSON as "YYYY-MM-DD".

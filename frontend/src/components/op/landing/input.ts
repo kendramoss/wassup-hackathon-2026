@@ -5,8 +5,14 @@ export type WheelInput = { deltaY: number; ctrlKey: boolean; metaKey: boolean };
 export type KeyInput = { key: string; shiftKey: boolean };
 
 const SPACE_KEYS = [" ", "Spacebar"];
+<<<<<<< HEAD
 // Native buttons, links, ARIA controls, and <summary> handle Space/Enter themselves.
 const CONTROL = "button, a[href], summary, [role=button], [role=link], [role=switch], [role=checkbox], [role=tab], [role=menuitem]";
+=======
+// Native buttons, disclosure summaries and ARIA controls handle Space themselves; the landing must
+// not cancel that activation (the AppBar account controls are native buttons).
+const CONTROL = "button, summary, a[href], [role=button], [role=link], [role=switch], [role=checkbox], [role=tab], [role=menuitem]";
+>>>>>>> origin/main
 
 export const isSpaceKey = (e: KeyInput) => SPACE_KEYS.includes(e.key);
 

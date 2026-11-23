@@ -288,7 +288,7 @@ func (a *Adder) ForAsOf(hts, origin string, mfn float64, asOf time.Time) AsOfRes
 func (a *Adder) lookup(hts, origin string, mfn float64, asOf time.Time, dated bool) AsOfResult {
 	var res AsOfResult
 	sub := Normalize(hts)
-	o := domain.NormalizeCountry(origin)
+	o := domain.DutyCountry(origin)
 	status := func(e Exclusion) string {
 		if !dated {
 			return ""
@@ -296,7 +296,7 @@ func (a *Adder) lookup(hts, origin string, mfn float64, asOf time.Time, dated bo
 		return exclusionStatus(e, asOf)
 	}
 	for i, l := range a.file.Lists {
-		if domain.NormalizeCountry(l.Origin) != o || !a.lists[i][sub] {
+		if domain.DutyCountry(l.Origin) != o || !a.lists[i][sub] {
 			continue
 		}
 		removed := false
@@ -383,9 +383,9 @@ func originsOf(origin string) []string {
 	if origin == "European Union" {
 		out := []string{"European Union"}
 		for _, m := range euMembers {
-			out = append(out, domain.NormalizeCountry(m))
+			out = append(out, domain.DutyCountry(m))
 		}
 		return out
 	}
-	return []string{domain.NormalizeCountry(origin)}
+	return []string{domain.DutyCountry(origin)}
 }

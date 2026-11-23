@@ -1,5 +1,5 @@
-# Checks for the backend and frontend. Runs on PRs; on main, deploy.yml calls this
-# workflow before deploying.
+# Checks for the backend, frontend and the MCP stdio relay. Runs on PRs; on main,
+# deploy.yml calls this workflow before deploying.
 name: CI
 
 on:
@@ -16,6 +16,7 @@ jobs:
     outputs:
       backend: ${{ steps.filter.outputs.backend }}
       frontend: ${{ steps.filter.outputs.frontend }}
+      mcp: ${{ steps.filter.outputs.mcp }}
     steps:
       - uses: actions/checkout@v7
       - id: filter
@@ -27,6 +28,9 @@ jobs:
               - '.github/workflows/**'
             frontend:
               - 'frontend/**'
+              - '.github/workflows/**'
+            mcp:
+              - 'mcp/**'
               - '.github/workflows/**'
 
   backend:
@@ -76,17 +80,33 @@ jobs:
       # Also type-checks; plain tsc would miss the route types next generates.
       - run: npm run build
 
+  # The stdio relay has no dependencies, so there is nothing to install.
+  # It is published to npm (#562); its tests must pass before a publish.
+  mcp:
+    needs: changes
+    if: needs.changes.outputs.mcp == 'true'
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: mcp/stdio
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+      - run: npm test
+
   # Single check to require in branch protection: passes when every job that
   # needed to run passed (skipped jobs count as passing).
   # Required check on main is "ci-ok" — the context for pull_request runs.
   # When deploy.yml calls this workflow the context is "ci / ci-ok"; do not
   # require that name, or no PR could ever merge. It covers gofmt, build, vet,
-  # staticcheck, backend tests, frontend lint and build.
+  # staticcheck, backend tests, frontend lint and build, and the MCP relay tests.
   # Main also requires a PR and an up-to-date branch. enforce_admins is on, so
   # admins cannot merge with a failing/missing check; only a repo admin can
   # change the rule in Settings > Branches (there is no code-path bypass).
   ci-ok:
-    needs: [changes, backend, frontend]
+    needs: [changes, backend, frontend, mcp]
     if: always()
     runs-on: ubuntu-latest
     steps:

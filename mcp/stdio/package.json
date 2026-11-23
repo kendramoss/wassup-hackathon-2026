@@ -7,5 +7,14 @@
   "bin": { "undelabs-mcp": "index.js" },
   "files": ["index.js"],
   "engines": { "node": ">=20" },
-  "scripts": { "test": "node --test" }
+  "scripts": { "test": "node --test", "prepublishOnly": "npm test" },
+  "publishConfig": { "access": "public" },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/kendramoss/wassup-hackathon-2026.git",
+    "directory": "mcp/stdio"
+  },
+  "homepage": "https://undelabs.dev/developers",
+  "bugs": { "url": "https://github.com/kendramoss/wassup-hackathon-2026/issues" },
+  "keywords": ["mcp", "model-context-protocol", "unde", "unde-labs", "customs", "trade", "origin"]
 }

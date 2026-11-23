@@ -25,6 +25,8 @@ test("every market but other has a flag the bundle copies", async () => {
 test("unsupported markets are listed but disabled, in few words", async () => {
   const src = await readFile(new URL("../src/components/op/market-picker.tsx", import.meta.url), "utf8");
   assert.match(src, /disabled=\{!on\}/);
+  assert.match(src, /x\.code === "jp" \? copy\.japan\.notAvailable/);
+  assert.equal(copy.japan.notAvailable, "Japan: not available yet.");
   assert.equal(copy.market.soon, "soon");
   assert.equal(copy.market.unsupported("the European Union"), "Origin rules for the European Union aren't supported yet.");
 });
@@ -38,4 +40,19 @@ test("the result screen shows no verdict for an unsupported market and offers th
   const src = await readFile(new URL("../src/components/op/screens/origin-step.tsx", import.meta.url), "utf8");
   assert.match(src, /jurisdiction_detail\?\.supported === false\) return <UnsupportedMarket/);
   assert.match(src, /jurisdiction: "us"/);
+});
+
+// #733: a compact supported-markets summary beside the picker, consistent
+// with the Japan availability line the picker already uses.
+test("the picker carries a short summary of what each market offers today", async () => {
+  const { html, text } = await import("./render-support.mjs");
+  const { MarketPicker } = await import("../src/components/op/market-picker.tsx");
+  const t = text(html(MarketPicker, { id: "m", value: "us", onChange() {} }));
+  assert.match(t, /U\.S\.: live/);
+  assert.match(t, /Canada: rules check/);
+  assert.match(t, /RCEP: tariff check/);
+  assert.ok(t.includes(copy.japan.notAvailable), "Japan line matches the picker's own option text");
+  assert.match(t, /Other markets: not yet/);
+  assert.equal(copy.market.summary.length, 5);
+  for (const line of copy.market.summary) assert.ok(line.length <= 40, line);
 });

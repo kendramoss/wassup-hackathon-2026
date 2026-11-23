@@ -1,81 +1,97 @@
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import { test } from "node:test";
+import { filterTools, rates, toolGroups, tools } from "../src/app/developers/catalog.ts";
+import { endpoints, keyHeader, mcpEndpoint, setupExamples, toolExamples } from "../src/app/developers/examples.ts";
 
-// Copy sweep 4 (#680, rule 16): /developers is written for a developer who
-// wants to connect in two minutes. Setup detail moved into Details folds, but
-// the tool list must stay complete and match docs/MCP.md (which
-// api_docs_test.go checks against server.go), and the key facts stay visible.
-const read = (p) => readFileSync(new URL(p, import.meta.url), "utf8");
+const read = (path) => readFileSync(new URL(path, import.meta.url), "utf8");
 const page = read("../src/app/developers/page.tsx");
+const portal = read("../src/app/developers/portal.tsx");
 const mcp = read("../../docs/MCP.md");
-const flat = page.replace(/\s+/g, " ");
+const openapi = read("../../docs/api/openapi.yaml");
+const documented = [...mcp.matchAll(/^\| `([a-z_]+)` \| `[A-Z]+ [^`]+`[^|]*\| ([^|]+) \|/gm)].map(([, name, cls]) => [name, cls.trim()]);
 
-// The page source with every <Details …>…</Details> block removed.
-const outside = (src) =>
-  src
-    .split(/<Details[ >]/)
-    .map((s, i) => (i === 0 ? s : s.slice(s.indexOf("</Details>") + 10)))
-    .join(" ");
-const jsx = outside(flat.slice(flat.indexOf("export default function Page")));
-
-const pageTools = [...page.matchAll(/^\s*\["([a-z_]+)", "[^"]+", "(basic|light|heavy|lookup)"\],$/gm)].map((m) => [m[1], m[2]]);
-const docTools = [...mcp.matchAll(/^\| `([a-z_]+)` \| `[A-Z]+ [^`]+`[^|]*\| ([^|]+) \|/gm)].map((m) => [m[1], m[2].trim()]);
-
-test("the tool table lists every tool in docs/MCP.md, in order", () => {
-  assert.ok(docTools.length >= 16, `read ${docTools.length} tools from MCP.md`);
-  assert.deepEqual(
-    pageTools.map((t) => t[0]),
-    docTools.map((t) => t[0]),
-  );
-  for (const t of ["check_rcep_preference", "check_canada_marking"]) assert.ok(pageTools.some((p) => p[0] === t), t);
+test("the tool explorer covers every documented tool and has an input and output sample", () => {
+  const classes = { basic: "basic", light: "light", heavy: "heavy", lookup: "ruling lookup" };
+  assert.ok(documented.length >= 16);
+  assert.deepEqual(tools.map(([name]) => name), documented.map(([name]) => name));
+  assert.deepEqual(Object.keys(toolExamples), tools.map(([name]) => name));
+  const docsByName = Object.fromEntries(documented);
+  for (const [name, group, rate, input, output] of tools) {
+    assert.ok(docsByName[name].startsWith(classes[rate]), name);
+    assert.ok(toolGroups[group] && input && output, name);
+    assert.equal(typeof toolExamples[name].input, "object", name);
+    assert.ok(Object.keys(toolExamples[name].output).length, name);
+  }
+  assert.ok(toolExamples.plan_production_moves.input.target_country);
+  assert.ok(!("plan_production_move" in toolExamples));
+  assert.ok(!("check_tariff_shift" in toolExamples));
+  assert.ok(toolExamples.check_canada_marking && toolExamples.check_rcep_preference);
 });
 
-test("each tool's limit is its class in docs/MCP.md", () => {
-  const words = { basic: "basic", light: "light", heavy: "heavy", lookup: "ruling lookup" };
-  const doc = Object.fromEntries(docTools);
-  for (const [name, cls] of pageTools) assert.ok(doc[name].startsWith(words[cls]), `${name}: page ${cls}, MCP.md ${doc[name]}`);
-  assert.match(page, /basic: "120 a minute", light: "20 a minute", heavy: "4 a minute", lookup: "30 a minute"/);
-  assert.match(mcp, /basic 120 a minute \(no model call\), light 20 a minute, heavy 4 a minute, ruling lookup 30 a minute/);
+test("catalog search accepts the tool name and task, and intersects the category", () => {
+  assert.equal(filterTools("", "").length, tools.length);
+  assert.deepEqual(filterTools("  PREDICT origin  ", "").map(([name]) => name), ["predict_origin"]);
+  assert.deepEqual(filterTools("review decisions", "broker").map(([name]) => name), ["get_broker_review_status"]);
+  assert.deepEqual(filterTools("predict_origin", "tariff"), []);
 });
 
-test("the limits table names every limit error code", () => {
-  for (const code of ["rate_limited", "too_many_in_flight", "quota_exceeded", "client_budget_reached", "budget_reached"])
-    assert.ok(jsx.includes(code) || page.includes(`>429 ${code}<`) || page.includes(`>503 ${code}<`), code);
+test("the three setup examples follow the hosted endpoint and repository instructions", () => {
+  assert.equal(mcpEndpoint, "https://undelabs.dev/mcp");
+  assert.equal(setupExamples.gemini.code, mcp.match(/^gemini mcp add --transport http unde\s+\S+/m)[0]);
+  assert.match(JSON.parse(setupExamples.claude.code).mcpServers.unde.args[0], /\/mcp\/stdio\/index\.js$/);
+  assert.match(setupExamples.adk.code, /mcp\.StreamableClientTransport/);
+  assert.match(setupExamples.adk.note, /Illustrative/);
 });
 
-test("the market codes in Details are the ones docs/MCP.md lists", () => {
-  const codes = [...mcp.match(/the market the goods enter \(([^)]+)\)/)[1].matchAll(/`([a-z]+)`/g)].map((m) => m[1]);
-  const shown = [...flat.match(/the market the goods enter \((.+?)\)\. /)[1].matchAll(/<C>([a-z]+)<\/C>/g)].map((m) => m[1]);
-  assert.deepEqual(shown, codes);
+test("the REST console paths, response status and key name follow OpenAPI", () => {
+  assert.equal(keyHeader, "X-API-Key: op_...");
+  for (const { label } of Object.values(endpoints)) {
+    const [, path] = label.split(" ");
+    assert.ok(openapi.includes(`  ${path}:\n`), path);
+  }
+  assert.match(endpoints.predict.command, /\/api\/v1\/cases\/predict/);
+  assert.match(endpoints.plan.command, /\/api\/v1\/cases\/\$CASE_ID\/plan/);
+  assert.match(endpoints.ruling.command, /\/api\/v1\/rulings\/N328954/);
+  assert.equal(endpoints.predict.status, "201");
+  assert.equal(endpoints.predict.output.prediction.confidence, 0.96);
+  assert.match(endpoints.plan.output.disclaimer, /^Not a ruling\./);
+  assert.match(endpoints.predict.output.disclaimer, /^Not a ruling\./);
+  assert.match(openapi, /^openapi: 3\.1\./);
+  assert.match(page, /OpenAPI 3\.1 Spec/);
+  assert.deepEqual(rates, { basic: "120 req/min", light: "20 req/min", heavy: "4 req/min", lookup: "30 req/min" });
 });
 
-test("the quickstart leads: MCP config, a prompt, one curl", () => {
-  const steps = [...page.matchAll(/<Step n=\{(\d)\} title="([^"]+)">/g)].map((m) => m[2]);
-  assert.deepEqual(steps, ["Add the MCP server", "Ask your agent", "Or call the API"]);
-  assert.ok(page.indexOf("<Step n={1}") < page.indexOf('id="mcp"'), "the quickstart comes first");
+test("the playground labels responses as examples and sends no real calls", () => {
+  assert.match(page, /Local examples only/);
+  assert.match(portal, /Structured output · example/);
+  assert.match(portal, /response · example/);
+  assert.doesNotMatch(portal, /\bfetch\s*\(|XMLHttpRequest/);
+  assert.doesNotMatch(page + portal, /LiteLLM|\bD\d{2,3}\b|op_visitor|X-Visitor-ID|HttpOnly/);
 });
 
-test("the key facts stay visible, outside Details", () => {
-  for (const s of [
-    "Every answer is a prediction, not a ruling",
-    "No key needed to start",
-    "Only U.S. imports get an origin prediction",
-    "No tool deletes anything",
-    "Call from your server",
-    "Built, off here: the audit trail and required sign-in",
-    "case_access_key",
-    "X-API-Key: op_…",
-    "Authorization: Bearer op_…",
-  ])
-    assert.ok(jsx.includes(s), s);
-});
-
-test("the open page has no gateway, decision numbers or cookie internals", () => {
-  assert.doesNotMatch(jsx, /gateway|LiteLLM|\bD\d{2,3}\b|op_visitor|X-Visitor-ID|HttpOnly/);
-  // Each visible paragraph stays short (the issue counted 6 over 350 characters).
-  for (const m of jsx.matchAll(/<p className="duo[^"]*">(.*?)<\/p>/g)) {
-    const text = m[1].replace(/<[^>]+>/g, "").replace(/\{" "\}/g, " ");
-    assert.ok(text.length <= 200, `paragraph over 200 characters: ${text.slice(0, 80)}…`);
+test("anonymous MCP examples carry the case access key exactly where the tool schema accepts it", () => {
+  const src = read("../../backend/internal/mcpserver/tools.go");
+  const parts = src.split(/\bName:\s*"([a-z_]+)"/);
+  const accepts = new Set();
+  for (let i = 1; i < parts.length; i += 2) {
+    const body = parts[i + 1].split(/\n\t(?:add|\t*add)\(/)[0];
+    if (body.includes('"case_access_key": accessKey()')) accepts.add(parts[i]);
+  }
+  assert.deepEqual([...accepts].sort(), ["compare_target_countries", "create_broker_review_link", "export_ruling_request_draft", "get_broker_review_status", "get_case", "list_cases", "plan_production_moves", "predict_origin"]);
+  for (const rejected of ["extract_product", "search_rulings", "get_ruling", "get_duty_rates"]) assert.ok(!accepts.has(rejected), rejected);
+  const key = toolExamples.get_case.input.case_access_key;
+  assert.match(key, /^[A-Za-z0-9_-]{16,128}$/);
+  assert.equal(key, "mcp_example_not_a_real_key");
+  for (const name of Object.keys(toolExamples)) {
+    const has = "case_access_key" in toolExamples[name].input;
+    assert.equal(has, accepts.has(name) && name !== "predict_origin", name);
+    if (has) assert.equal(toolExamples[name].input.case_access_key, key, name);
+  }
+  assert.equal(toolExamples.predict_origin.output.case_access_key, key);
+  assert.match(toolExamples.predict_origin.note, /private/i);
+  assert.match(toolExamples.predict_origin.note, /API key/);
+  for (const { command, output } of Object.values(endpoints)) {
+    assert.ok(!command.includes("case_access_key") && !("case_access_key" in output));
   }
 });

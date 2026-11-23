@@ -269,6 +269,7 @@ Not part of the tour: running it creates a new case of your own. To try it:
 
 Locally with `LLM_PROVIDER=fake`, each part gets the first code its nearest ruling lists and the reason says "Local fake model ... not judged"; on 22 Nov that run filled 12 of 13 parts, and with the 13th typed in the panel decided Thailand (the fake engine said China, so the panel showed "worth a broker's look"). Screens at 1280 and 390 px were checked that day. With a real model the codes and the outcome differ.
 
+<<<<<<< HEAD
 ## 9. One demo for each of the six D660 families (#558, seeded live 22 Nov 2026)
 
 Six families under “More demos” (pinned after live seed). Product facts come from development-pool CBP rulings; duty/import/group costs are illustrative. The table below reflects **live pinned cases** as seeded (verify with `GET /v1/demos` / `GET /v1/cases` before a talk).
@@ -283,3 +284,19 @@ Six families under “More demos” (pinned after live seed). Product facts come
 | Gas heater `case_462266406455` (N345976, vent-free) | China | China, stated 0.90 | Best plan: burners, oxygen sensor and ignitor to Vietnam; precedent check ~0.94, illustrative net ~$210k/yr | Plan shown. |
 
 Do not present pre-seed development runs as the live answer. Always confirm numbers on the current live screens.
+=======
+## 9. One demo for each of the six D660 families (#558, 22 Nov)
+
+The six families added in D660 now have cards under "More demos". Their product facts come from development-pool CBP rulings, and the cards carry one recorded development run each (`eval/results/families-r3-live-checks.json` and its six result files). Duty rates, import values and group costs remain illustrative. Until they are seeded, they are unpinned and a click starts a live run.
+
+| Demo | CBP held | Engine (recorded run) | First plan shown | Cited ruling, read by hand |
+|---|---|---|---|---|
+| Paper napkins (N341898) | Indonesia | Indonesia, stated 0.95 | parent rolls to China, check 0.98, N340077 | supports the parent roll deciding |
+| Roll AGV (N336445) | China | **South Korea, stated 0.82: disagrees** | chassis and working frames to South Korea, check 0.96, N334276 | by analogy (scissor lifts); CBP's N337718 change was smaller |
+| Integrated circuits (N333934) | South Korea | South Korea, stated 0.98 | bare wafers and front-end fabrication to China, check 0.95, N333677 | partial: a pressure sensor, not an IC |
+| Golf club heads (N346303) | Vietnam | Vietnam, stated 0.90 | club heads to China, check 0.97, N340536 | supports the forming country deciding |
+| Plush dinosaur (N343777) | China | China, stated 0.98 | **no plan above 0.92**; closest cutting and sewing to Vietnam, 0.90 on N342448 | honest send-to-broker result; CBP's scenario 2 made that move |
+| Vent-free gas heater (N345976) | China | China, stated 0.92 | burners, oxygen sensor and ignitor to Vietnam, check 0.94, N346005 | supports the burner and sensor assemblies deciding |
+
+After the owner seeds production, replace this paragraph with the live case IDs and what each screen actually shows. Do not present a recorded development run as this site's answer.
+>>>>>>> origin/main

@@ -219,7 +219,11 @@ func TestTariffShift(t *testing.T) {
 		{"CTH needs 4 digits", "8471.30", "84", Undetermined},
 	}
 	for _, c := range cases {
-		in := Input{HS: c.good, ProducedIn: "Thailand", FOB: f(100), Materials: []Material{nonOrig("part", c.mat, 60)}}
+		// Weights are given too so chapters 50-63 know both de minimis
+		// measures (a missing measure is undetermined, issue #710).
+		m := nonOrig("part", c.mat, 60)
+		m.Weight = f(60)
+		in := Input{HS: c.good, ProducedIn: "Thailand", FOB: f(100), Weight: f(100), Materials: []Material{m}}
 		r := check(t, in)
 		// Only the tariff-shift alternative matters here.
 		got := ""
@@ -336,8 +340,51 @@ func TestArt37DeMinimis(t *testing.T) {
 	textile := Input{HS: "5513.11", ProducedIn: "Japan", Weight: f(100), Materials: []Material{
 		{Name: "yarn", HS: "5509.21", Weight: f(11), Status: StatusNonOriginating},
 	}}
-	if r := check(t, textile); r.Outcome != No {
-		t.Errorf("11 %% by weight from an excluded heading: %s", r.Outcome)
+	// Weight over 10 % but the value measure cannot be computed: a missing
+	// fact, so undetermined and naming the missing measure (issue #710).
+	if r := check(t, textile); r.Outcome != Undetermined || !strings.Contains(strings.Join(r.Reasons, " "), "FOB") {
+		t.Errorf("11 %% by weight, value missing: %s %v", r.Outcome, r.Reasons)
+	}
+}
+
+// Issue #710: chapters 50-63 apply Art. 3.7 as value OR weight, so a missing
+// measure must never turn a known over-limit measure into "no".
+func TestArt37TextileThreeValuedOr(t *testing.T) {
+	textile := func(fob, weight, mv, mw *float64) Input {
+		return Input{HS: "5513.11", ProducedIn: "Japan", FOB: fob, Weight: weight, Materials: []Material{
+			{Name: "yarn", HS: "5509.21", Value: mv, Weight: mw, Status: StatusNonOriginating},
+		}}
+	}
+	cases := []struct {
+		name string
+		in   Input
+		want string
+		hint string
+	}{
+		{"weight over, value missing", textile(nil, f(100), nil, f(11)), Undetermined, "FOB"},
+		{"value over, weight missing", textile(f(100), nil, f(50), nil), Undetermined, "weight"},
+		{"both over", textile(f(100), f(100), f(50), f(11)), No, ""},
+		{"value over, weight within", textile(f(100), f(100), f(50), f(5)), Yes, ""},
+		{"value within, weight over", textile(f(100), f(100), f(5), f(11)), Yes, ""},
+		{"neither computable", textile(nil, nil, nil, nil), Undetermined, ""},
+		{"value within, weight missing", textile(f(100), nil, f(5), nil), Yes, ""},
+		{"weight within, value missing", textile(nil, f(100), nil, f(5)), Yes, ""},
+	}
+	for _, c := range cases {
+		r := check(t, c.in)
+		if r.Outcome != c.want {
+			t.Errorf("%s: got %s want %s (%v)", c.name, r.Outcome, c.want, r.Reasons)
+		}
+		if c.hint != "" && !strings.Contains(strings.Join(r.Reasons, " "), c.hint) {
+			t.Errorf("%s: reasons do not name the missing measure %q: %v", c.name, c.hint, r.Reasons)
+		}
+	}
+	// Non-textile behaviour unchanged: value over 10 % with no weight rule is No.
+	nt := Input{HS: "8471.30", ProducedIn: "Japan", FOB: f(100), Materials: []Material{
+		nonOrig("board", "8542.31", 50), nonOrig("same-heading part", "8471.50", 11),
+	}}
+	if r := check(t, nt); r.Outcome != No {
+		t.Errorf("non-textile: %s", r.Outcome)
 	}
 }
 
@@ -408,5 +455,145 @@ func TestResultsExplainThemselves(t *testing.T) {
 		if strings.TrimSpace(s) == "" {
 			t.Error("empty reason")
 		}
+	}
+}
+
+// #671: a valid 4- or 5-digit good under a heading whose rule uses CTSH must
+// not slice the good to six digits. Missing digits make the answer
+// undetermined, not a panic or a guess.
+func TestShortGoodCTSHIsUndetermined(t *testing.T) {
+	for _, tc := range []struct {
+		name, hs, country, material string
+	}{
+		{"heading 28.11, four digits", "2811", "Japan", "2804.10"},
+		{"heading 38.08, five digits", "38081", "Vietnam", "2903.11"},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			r := check(t, Input{HS: tc.hs, ProducedIn: tc.country, Materials: []Material{nonOrig("part", tc.material, 10)}})
+			if r.Outcome != Undetermined {
+				t.Fatalf("got %s, want undetermined: %+v", r.Outcome, r)
+			}
+			if reasons := strings.Join(r.Reasons, " "); !strings.Contains(reasons, "6-digit subheading") {
+				t.Errorf("reasons do not name the missing digits: %s", reasons)
+			}
+		})
+	}
+	// Six digits under the same heading still take the ordinary CTSH path.
+	r := check(t, Input{HS: "2811.19", ProducedIn: "Japan", Materials: []Material{nonOrig("part", "2804.10", 10)}})
+	if r.Outcome != Yes || r.Applied != "CTSH" {
+		t.Fatalf("six-digit good: got %s %s: %+v", r.Outcome, r.Applied, r)
+	}
+}
+
+// Every heading- or chapter-level CTSH rule must survive a 4-digit good.
+func TestEveryShortCTSHRuleIsSafe(t *testing.T) {
+	tbl := Default()
+	seen, checked := map[string]bool{}, 0
+	for _, r := range tbl.Rules {
+		if r.Level != "heading" && r.Level != "chapter" || seen[r.Code] {
+			continue
+		}
+		seen[r.Code] = true
+		alts := append([]Alternative(nil), r.Alternatives...)
+		for _, v := range r.Variants {
+			alts = append(alts, v.Alternatives...)
+		}
+		ctsh := false
+		for _, a := range alts {
+			if a.Criterion == "CTSH" {
+				ctsh = true
+			}
+		}
+		if !ctsh {
+			continue
+		}
+		good := digits(r.Code)
+		if len(good) == 2 {
+			good += "00"
+		}
+		if len(good) != 4 {
+			t.Fatalf("%s: unexpected rule code %q", r.Code, r.Code)
+		}
+		checked++
+		mats := []mat{{Material: Material{HS: "1234.56", Status: StatusNonOriginating}, idx: 0}}
+		out, reasons, _, _ := tariffShift(Input{}, good, mats, Alternative{Criterion: "CTSH"})
+		if out != Undetermined || len(reasons) == 0 {
+			t.Errorf("%s (%s): got %s %v", r.Code, good, out, reasons)
+		}
+	}
+	if checked == 0 {
+		t.Fatal("no heading- or chapter-level CTSH rules found")
+	}
+	t.Logf("checked %d heading/chapter CTSH rules", checked)
+}
+
+// #672: finite inputs whose ratios or sums overflow must produce a client
+// error, not a result that JSON cannot encode (which the route turns into 500).
+func TestComputedNonFiniteIsBadInput(t *testing.T) {
+	for _, tc := range []struct {
+		name string
+		in   Input
+	}{
+		{"tiny fob", Input{HS: "8471.30", ProducedIn: "Japan", FOB: f(1e-300), Materials: []Material{
+			nonOrig("chip", "8471.30", 1e10),
+		}}},
+		{"materials sum overflows", Input{HS: "8471.30", ProducedIn: "Japan", FOB: f(1e308), Materials: []Material{
+			nonOrig("a", "8471.30", 1e308), nonOrig("b", "8471.30", 1e308),
+		}}},
+		{"costs sum overflows", Input{HS: "8471.30", ProducedIn: "Japan", FOB: f(100),
+			Costs:     &Costs{Labour: 1e308, Overhead: 1e308, Profit: 1e308, Other: 1e308},
+			Materials: []Material{nonOrig("chip", "8471.50", 10)},
+		}},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			res, err := Check(tc.in)
+			if !errors.Is(err, ErrInput) {
+				t.Fatalf("want ErrInput, got err=%v result=%+v", err, res)
+			}
+		})
+	}
+}
+
+// #673: a short material whose known digits already fall outside an exclusion
+// cannot be in the excluded subheading, so it must not be marked untestable.
+// Good 8458.11 has rule "CTH except from subheading 8537.10, or RVC40".
+func TestExclusionPrefixOutsideIsTestable(t *testing.T) {
+	for _, tc := range []struct {
+		hs, want string
+	}{
+		{"8471", Yes},          // 84.71 is outside 85.37.10 whatever follows
+		{"8537", Undetermined}, // could still be 8537.10
+		{"8537.10", No},        // exactly the excluded subheading
+	} {
+		t.Run(tc.hs, func(t *testing.T) {
+			r := check(t, Input{HS: "8458.11", ProducedIn: "Japan", FOB: f(100), Materials: []Material{
+				nonOrig("board", tc.hs, 100),
+			}})
+			if r.Outcome != tc.want {
+				t.Fatalf("material %s: got %s %v, want %s", tc.hs, r.Outcome, r.Reasons, tc.want)
+			}
+			if tc.want == Yes && !strings.Contains(r.Applied, "CTH") {
+				t.Errorf("material %s: applied %q, want a CTH alternative", tc.hs, r.Applied)
+			}
+		})
+	}
+}
+
+// #673: the same prefix rule at chapter level: a 2-digit material against a
+// heading-level exclusion in a CC rule.
+func TestHeadingExclusionPrefixOutsideIsTestable(t *testing.T) {
+	a := Alternative{Criterion: "CC", Except: []Range{{Level: "heading", From: "85.37", To: "85.37"}}}
+	for _, tc := range []struct {
+		hs, want string
+	}{
+		{"84", Yes}, {"85", Undetermined}, {"8537", No},
+	} {
+		t.Run(tc.hs, func(t *testing.T) {
+			mats := []mat{{Material: Material{HS: tc.hs, Value: f(100), Status: StatusNonOriginating}, idx: 0}}
+			out, _, _, _ := tariffShift(Input{FOB: f(100)}, "9011.10", mats, a)
+			if out != tc.want {
+				t.Fatalf("material %s: got %s, want %s", tc.hs, out, tc.want)
+			}
+		})
 	}
 }

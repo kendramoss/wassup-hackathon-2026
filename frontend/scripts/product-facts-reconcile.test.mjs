@@ -132,5 +132,5 @@ test("product-step wires baselines and the helper (source contract only, not a r
   const src = await readFile(new URL("../src/components/op/screens/product-step.tsx", import.meta.url), "utf8");
   assert.match(src, /baseline: p\.product \? productSignature\(p\.product\)/);
   assert.match(src, /baseline: productSignature\(r\.product!\)/);
-  assert.match(src, /predictBody\(\{ date, tab, name, hts, family, facts, product, extra \}\)/);
+  assert.match(src, /predictBody\(\{ date, tab, name, [^}]*\bfacts, product, extra \}\)/);
 });

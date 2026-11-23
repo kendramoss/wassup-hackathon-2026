@@ -151,6 +151,10 @@ func (a *api) dispatch(ctx context.Context, c domain.Case, st *stages, pin *pinn
 		return d, nil
 	}
 	if auth.Engine != nil {
+		if auth.Market == jurisdiction.JP {
+			st.begin(engine.StageEngine)
+			defer st.end(engine.StageEngine)
+		}
 		res, err := auth.Engine.Predict(ctx, c)
 		if err != nil {
 			return Dispatch{}, fmt.Errorf("%s engine failed: %w", d.Market.Code, err)
@@ -298,6 +302,13 @@ func (a *api) decide(d Dispatch) (domain.Triage, bool) {
 // marketTriage is the triage of a registered non-U.S. authority's answer:
 // auto only at or above its fast path, and never with fast path 0.
 func marketTriage(p domain.Prediction, auth jurisdiction.Authority) domain.Triage {
+	if auth.Market == jurisdiction.JP {
+		reason := "Confirm this trade-agreement assessment with a licensed Japanese customs specialist"
+		if p.Japan != nil && p.Japan.ReviewReason != "" {
+			reason = p.Japan.ReviewReason
+		}
+		return domain.Triage{Route: domain.RouteNeedsReview, Reason: reason}
+	}
 	if auth.FastPath > 0 && p.Confidence >= auth.FastPath {
 		return domain.Triage{Route: domain.RouteAuto, Reason: fmt.Sprintf("confidence %.2f ≥ %.2f (%s rules)", p.Confidence, auth.FastPath, jurisdiction.Name(auth.Market))}
 	}

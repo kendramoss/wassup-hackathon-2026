@@ -22,18 +22,18 @@ export const copy = {
     empty: "No cases yet. Cases you start show here, and only you see them.",
     newCase: "+ New case",
     recheckAll: "Re-check all",
-    demos: "Demos · real CBP facts",
-    demosNote: "Picked because CBP ruled on the same product. They show how it works, not how often it is right.",
+    demos: "Demos from real rulings",
+    demosNote: "Each has a real CBP ruling to compare with. They show how it works, not how often it is right.",
     demosMisses: "Where it was wrong →",
-    moreDemos: "More demos · run live",
-    moreDemosNote: "Loading one runs it live, so the result may differ from the recorded run.",
-    howPicked: "How these were picked",
+    moreDemos: "More demos, run live",
+    moreDemosNote: "Opening one runs it now, so the result may differ from the recorded run.",
+    howPicked: "How the demos were picked",
     // A demo's recorded development run (D191), on its card.
     recorded: {
       label: "Recorded test run",
-      recordLink: "View the committed run (JSON) →",
+      recordLink: "Open the recorded run (JSON) →",
       unseeded: "Runs live",
-      engine: "Engine:",
+      engine: "Unde:",
       agrees: "Agrees with CBP",
       disagrees: "Disagrees with CBP",
       plan: (plan: string, check: string, ruling: string) => `Plan: ${plan} (check ${check}${ruling ? `, ${ruling}` : ""}).`,
@@ -45,7 +45,13 @@ export const copy = {
       // A pinned demo read from CBP's text alone has no parts list to plan.
       originOnly: "Origin only: no parts list to plan",
       selection:
+<<<<<<< HEAD
         "The ten family demos were picked by family, not by result: the first per-family check for vehicle parts, PCBA devices, power supplies, medical devices, paper and tissue products, off-road vehicles and machinery, semiconductor devices, golf and sporting goods, toys and build kits and heat pumps and heaters. Across all 29 per-family checks, D171's 23 and D661's six live checks, the engine disagreed with CBP's holding on the current setup in 8.",
+=======
+        "The ten family demos were picked by family, not by result: the first per-family check for vehicle parts, PCBA devices, power supplies, medical devices, paper and tissue products, off-road vehicles and machinery, semiconductor devices, golf and sporting goods, toys and build kits and heat pumps and heaters.",
+      // D171 (23 checks, 7 off) and D661 live checks (6, 1 off): 29 and 8.
+      disagreement: "Across all 29 per-family checks, Unde disagreed with CBP's holding on the current setup in 8. Development checks, one run each.",
+>>>>>>> origin/main
     },
     columns: ["Product", "Likely origin", "Status", "Ruling watch", "Scenarios", "Where you left off"],
     notAnalysed: "Not analysed yet",
@@ -341,9 +347,6 @@ export const copy = {
     text: "Unde also finds the production moves that would change the origin, and shows only those an earlier CBP ruling backs.",
   },
   landing: {
-    // Phone-only folds (D270): the summary says what is inside.
-    foldRoles: (roles: string[]) => `Who uses it (${roles.length} roles)`,
-    foldStory: (beats: string[]) => `The story in ${beats.length} steps`,
     eyebrow: "fig.0 — US Customs country of origin",
     title: "Plan the production change before you build it.",
     sub: "See the origin U.S. Customs would likely give your product, and which production moves would change it.",
@@ -377,8 +380,9 @@ export const copy = {
     fig2BacktestNote: "Not a blind test: some moves were added after the change was public.",
     wires: ["facts", "origin", "moves"],
     fig3: "fig.3 — how accurate is it",
-    fig3Title: "Tested on 377 CBP rulings it never saw",
-    fig3Meta: "Jan–Sep 2026 · never used for tuning · scored once",
+    fig3Title: "Tested on 377 CBP rulings, scored once",
+    fig3Meta: "Jan–Sep 2026 · single-origin, multi-country U.S. rulings",
+    fig3Caveat: "Prompts were not tuned on these rulings. The old 0.92 stated bar looked at both test splits; the 0.90 calibrated bar now used came from development data.",
     scaleHead: "A · how often it is right",
     squaresHead: "B · every ruling, as a square",
     claimAccuracy: "right. A simple rule gets 63.4%.",
@@ -401,103 +405,8 @@ export const copy = {
     },
     more: "How accurate is it? →",
     cta: "Open the cases →",
-    whoTitle: "Who it's for",
-    who: "For trade-compliance and industrialisation leads at manufacturers moving production out of China.",
-    whoFact: "CBP's rulings office answers 3,628 ruling requests a year, all subjects (CBP's figure).",
-    // fig.4, the impact story (review follow-up). Every figure is a row in
-    // docs/NUMBERS.md ("Impact story"); the firm is a composite, not a customer.
-    story: {
-      fig: "fig.4 — one decision, start to finish",
-      title: "Does making the sub-assemblies in Thailand make the heat gun Thai?",
-      label: "Illustrative: a composite, not a customer",
-      beats: {
-        decision: "The decision",
-        oldWay: "The old way",
-        withUnde: "With Unde",
-        outcome: "The outcome, in duty",
-        broker: "What still needs a broker",
-      },
-      decision: [
-        "A Thai plant assembles $2M of heat guns a year (illustrative) for a U.S. brand. The motor, circuit board and cord come from China.",
-        "Would making them in Thailand make the heat gun Thai? If not, the move buys nothing.",
-      ],
-      oldWayLead: "Unde's answer is a first, non-binding one. Only CBP's ruling binds. Each bar pair has its own scale.",
-      keyBefore: "Today",
-      keyAfter: "With Unde",
-      rows: [
-        {
-          label: "Preparing the question",
-          before: "20 hours",
-          beforeNote: "per ruling request (CBP's estimate)",
-          after: "33 s",
-          afterNote: "measured, heat-gun plan search (median 49 s, slowest 101 s, on six other products)",
-          ratio: 33 / (20 * 3600),
-        },
-        {
-          label: "Waiting for an answer",
-          before: "21 days",
-          beforeNote: "median CBP ruling wait (team count, n = 247)",
-          after: "4.6 s",
-          afterNote: "median first prediction, measured on 377 rulings",
-          ratio: 4.6 / (21 * 24 * 3600),
-        },
-        {
-          label: "Paying for an answer",
-          before: "about US$3,600",
-          beforeNote: "median origin-advice fee paid by Korean exporters (23 purchases), the only public price found",
-          after: "$0.0078",
-          afterNote: "model cost per prediction (promo price), not a broker's fee",
-          ratio: 0.0078 / 3600,
-        },
-      ],
-      minBar: "Bars shorter than 2 px are drawn at 2 px.",
-      withUnde: [
-        "Upload the parts list. Unde names the likely origin: China, as CBP held.",
-        "It finds a move that makes it Thai: the motor, circuit board and cord made in Thailand.",
-        "It drafts the ruling request for a broker.",
-      ],
-      withUndeRuling: "Backed by",
-      outcomeLead: "Illustrative. A broker confirms the tariff code.",
-      duty: [
-        { country: "China" as const, rate: "≈41.7%", sum: "$2,000,000 × 41.7%", value: "$834,000 a year", share: 0.417 },
-        { country: "Thailand" as const, rate: "≈16.7%", sum: "$2,000,000 × 16.7%", value: "$334,000 a year", share: 0.167 },
-      ],
-      dutyGap: "$500,000 a year less duty.",
-      dutyCost: "$215,000 a year more to make the parts in Thailand (illustrative).",
-      dutyNet: "Net about $285,000 a year.",
-      dutyHead: "duty a year on $2M of imports",
-      broker: ["Confirm the tariff code.", "Check the facts.", "File the request. Only CBP's ruling binds.", "Re-check duty rates; they change."],
-      sources: "Sources and arithmetic: docs/NUMBERS.md and docs/DUTY-SOURCES.md.",
-    },
-    // "What you can do" (judge journey): every capability that is built and
-    // running, each with a way in. Plain list, no numbers beyond NUMBERS.md
-    // rows (26 families, 11 MCP tools).
     alsoLink: "What you can do ↓",
-    can: {
-      title: "What you can do",
-      lead: "Built and running here.",
-      items: [
-        { key: "origin", what: "Find the likely origin", body: "From a parts list or a description, with the CBP rulings behind it.", link: "Heat-gun result →" },
-        { key: "import", what: "Import a parts list", body: "CSV, Excel, PDF, or a photo of one.", link: "Start a case →" },
-        { key: "plan", what: "Plan a production move", body: "Moves backed by earlier rulings, for 26 product families.", link: "Heat-gun plan →" },
-        { key: "compare", what: "Compare countries", body: "Side by side, with duty and cost.", link: "Recorded comparison →" },
-        { key: "draft", what: "Draft for a broker", body: "A ruling request, ready to check and file.", link: "See the draft →" },
-        { key: "rules", what: "Check the tariff-shift rule", body: "Flags a move the rule does not back.", link: "Recorded example →" },
-        { key: "part102", what: "Plan under the marking rules", body: "Moves ranked by the tariff-shift rule.", link: "Recorded Part 102 plan →" },
-        { key: "alerts", what: "Know when a ruling changes", body: "When CBP revokes a ruling your case cited.", link: "Recorded alert →" },
-        {
-          key: "mcp",
-          what: "Use it from an AI agent",
-          body: "Gemini CLI, ADK or Claude, over MCP:",
-          code: "gemini mcp add --transport http unde https://undelabs.dev/mcp",
-          link: "Setup and the 14 tools →",
-        },
-        { key: "method", what: "See how it was tested", body: "No model is trained. What we tried, and what failed.", link: "Method →" },
-        { key: "misses", what: "See where it fails", body: "Every test ruling it got wrong.", link: "Known failures →" },
-      ],
-    },
     footerDisclaimer: "Not a ruling. Confirm with a licensed customs broker or a CBP binding ruling.",
-    built: "Built with Gemini on Vertex AI, ADK for Go and Cloud Run.",
     roadmap: "Roadmap",
     repo: "https://github.com/kendramoss/wassup-hackathon-2026",
   },
@@ -574,9 +483,13 @@ export const copy = {
     part177Help: "Part 177 is how to ask CBP for a ruling. It is not an origin rule.",
     compareScope: "Compared on U.S. origin only. Section 232 duties are not included.",
     // Accuracy page, "What we don't claim" (listed unsupported in docs/scope-and-jurisdiction.md section 6).
+<<<<<<< HEAD
     notCovered: "Not covered: EU binding rulings, USMCA origin/value claims, certificates of origin, duty drawback, or anti-dumping/countervailing duties. Section 232 duties are not in costs. RCEP checks are included but not reviewed by customs experts.",
+=======
+    notCovered: "Outside scope: EU Binding Origin Information, USMCA regional value content and preferential claims, certificates of origin, duty drawback, and antidumping and countervailing duty. Section 232 duties are not included in cost figures.",
+>>>>>>> origin/main
     // D680-D682: the market check reads the text, but misses about one in four.
-    noDetector: "U.S. origin only. Pick the market when you start a case; the text check misses some.",
+    noDetector: "Pick the market when you start a case. The text check misses some.",
   },
 
   // The market a case is for (D680).
@@ -586,8 +499,41 @@ export const copy = {
     unsupported: (name: string) => `Origin rules for ${name} aren't supported yet.`,
     unsupportedNext: "No answer yet. Entering the U.S.? Start a U.S. case.",
     startUS: "Start a U.S. case →",
+    // What each market offers today, beside the picker (#733). Japan's line is
+    // the picker's own; nothing here promises a live check.
+    summary: ["U.S.: live", "Canada: rules check", "RCEP: tariff check", "Japan: not available yet.", "Other markets: not yet"],
     // In the case tabs, where Plan and Draft would be, on a non-U.S. case (#678).
     followUpsUSOnly: "Plans and drafts: U.S. only for now",
+  },
+
+  japan: {
+    // One short availability line for places that mention Japan without a
+    // configured gateway (#730). It does not promise a live check.
+    notAvailable: "Japan: not available yet.",
+    scope: "Trade preference in Japan",
+    agreement: "Trade agreement",
+    chooseAgreement: "Choose an agreement",
+    tariffCode: "Product tariff code in Japan",
+    tariffCodeFor: (edition: string) => `Product tariff code (HS ${edition})`,
+    needAgreement: "Choose a trade agreement",
+    needTariffCode: "Enter a 4, 6 or 9 digit tariff code",
+    facts: "Materials and production",
+    factsHelp: "List material countries, tariff codes and production locations.",
+    factsExample: "Plywood is pressed in Vietnam from Malaysian veneer (4408.10). The veneer has proof of origin under RCEP.",
+    check: "Check trade preference",
+    checking: "Checking trade preference.",
+    noResult: "Add the agreement and tariff code to check eligibility.",
+    qualifies: "Likely qualifies",
+    doesNotQualify: "Likely doesn’t qualify",
+    undetermined: "Needs more evidence",
+    review: "Not a ruling. Confirm with a Japanese customs specialist.",
+    simulated: "Simulated result",
+    approvalsOnly: "The published rulings used for testing all approved preferential treatment.",
+    origin: "Likely origin",
+    details: "Details",
+    rule: "Product rule",
+    precedents: "Earlier Japan Customs rulings",
+    edit: "Edit inputs",
   },
 
   // The 19 CFR 102.20 rule check (D363), shown only when the parts list gives
@@ -627,16 +573,29 @@ export const copy = {
   // RCEP preference check (D690).
   rcep: {
     title: "RCEP tariff",
+<<<<<<< HEAD
     meta: "Between RCEP countries",
     acronym: "RCEP: Regional Comprehensive Economic Partnership trade deal between the listed countries.",
     needSummary: "You need: product HS code, where the product is made, and for each part whether your supplier says it is RCEP-origin (and its value if you have it). FOB price is optional.",
     lead: "Can this get an RCEP tariff between RCEP countries? Not reviewed by customs experts. Tick parts your supplier says are RCEP-origin.",
     needCode: "Add the product HS code to check.",
+=======
+    meta: "separate from origin",
+    lead: "The Regional Comprehensive Economic Partnership (RCEP) is a trade deal between Asia-Pacific countries. This checks whether the product can get the lower tariff. A rules check, not yet reviewed by a customs professional.",
+    needsTitle: "What you need",
+    needs: ["Product HS code", "Where it is made", "Each part's origin and value", "Sale price (FOB), optional"],
+    tick: "Tick a part if your supplier declares it has RCEP origin.",
+    needCode: "Add the product's HS code to check.",
+>>>>>>> origin/main
     madeIn: "Made in",
     price: "Price (F.O.B.)",
     part: "Part",
     declared: "RCEP origin",
+<<<<<<< HEAD
     declaredFor: (n: string) => `${n}: supplier says RCEP origin`,
+=======
+    declaredFor: (n: string) => `${n}: RCEP origin`,
+>>>>>>> origin/main
     value: "Value",
     valueFor: (n: string) => `${n} value`,
     noCode: "no code",
@@ -654,15 +613,25 @@ export const copy = {
   // Canada's marking rules (SOR/94-23, D720): a rules check only. Few words
   // (rule 16); the label stays visible with every answer (D725).
   canadaCheck: {
+<<<<<<< HEAD
     title: "Canada marking rules",
     titlePlain: "Country-of-origin marking for goods sold in Canada (rules check)",
+=======
+    title: "Country-of-origin marking for Canada (rules check)",
+>>>>>>> origin/main
     run: "Check Canada rules",
     running: "Checking…",
     label: "Rules check only—no accuracy score yet (no published rulings to test).",
     decided: "Under Canada marking rules, based on the codes given.",
     undetermined: "Not decided from the codes given.",
     outOfScope: "No Canadian rule for this code.",
+<<<<<<< HEAD
     addCodes: "Add both: (1) the product HS code and (2) at least one part HS code.",
+=======
+    addCodes: "To run it, add:",
+    needGood: "Product HS code",
+    needPart: "HS code for at least one part",
+>>>>>>> origin/main
     details: "Details",
     failed: "Couldn't check. Try again.",
   },

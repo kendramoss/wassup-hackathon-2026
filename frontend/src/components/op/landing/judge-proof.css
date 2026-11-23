@@ -1,0 +1,247 @@
+/* Landing-only semantic tokens: evidence in teal, provisional results in amber. */
+.lp {
+  --lp-verified: #075d53;
+  --lp-verified-wash: #e6f4f0;
+  --lp-review: #6b4312;
+  --lp-review-wash: #f8eddb;
+}
+
+.lp .judge-section {
+  margin: clamp(44px, 7vw, 94px) auto;
+  padding-inline: var(--gutter);
+  width: 100%;
+  max-width: var(--lp-width, 1320px);
+  color: var(--ink);
+}
+
+.lp .judge-heading {
+  display: grid;
+  gap: 4px;
+  margin-bottom: 20px;
+}
+
+.lp .judge-figure {
+  color: var(--dim);
+  font-size: 12px;
+}
+
+.lp .judge-heading h2 {
+  font-size: clamp(25px, 3vw, 42px);
+  font-weight: 600;
+  line-height: 1.12;
+  letter-spacing: -.055em;
+}
+
+.lp .judge-impact-grid {
+  display: grid;
+  gap: 14px;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1.1fr);
+}
+
+.lp .judge-card {
+  min-width: 0;
+  border: 1px solid var(--edge);
+  border-radius: 2px;
+  background: var(--sheet);
+  padding: clamp(15px, 2vw, 27px);
+}
+
+.lp .judge-card h3 {
+  margin-block: 7px 4px;
+  font-weight: 600;
+  font-size: clamp(15px, 1.5vw, 20px);
+  letter-spacing: -.035em;
+}
+
+.lp .judge-card > p:not(.judge-badge) {
+  font-size: 13px;
+  color: var(--dim);
+}
+
+.lp .judge-measured {
+  color: var(--lp-verified);
+}
+
+.lp .judge-badge {
+  display: inline-flex;
+  align-items: center;
+  border: 1px solid var(--edge);
+  border-radius: 2px;
+  background: var(--sheet);
+  color: var(--ink);
+  padding: 4px 8px;
+  font-size: 12px;
+  line-height: 1.4;
+}
+
+.lp .judge-review {
+  border-color: var(--lp-review);
+  color: var(--lp-review);
+  background: var(--lp-review-wash);
+}
+
+.lp .judge-benchmarks {
+  table-layout: fixed;
+  border-collapse: collapse;
+  width: 100%;
+  margin-top: 16px;
+}
+
+.lp .judge-benchmarks th,
+.lp .judge-benchmarks td {
+  padding: 8px 5px;
+  border-bottom: 1px solid var(--line);
+  text-align: left;
+  vertical-align: top;
+  overflow-wrap: anywhere;
+}
+
+.lp .judge-benchmarks thead th,
+.lp .judge-benchmarks tbody th {
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.lp .judge-benchmarks tr > :first-child {
+  width: 24%;
+  padding-left: 0;
+}
+
+.lp .judge-benchmarks td b {
+  display: block;
+  margin-bottom: 2px;
+  font-size: clamp(16px, 2.25vw, 30px);
+  font-weight: 600;
+  letter-spacing: -.06em;
+  line-height: 1.08;
+}
+
+.lp .judge-benchmarks td span {
+  display: block;
+  font-size: 11px;
+  color: var(--dim);
+}
+
+.lp .judge-source {
+  display: inline-flex;
+  align-items: center;
+  min-height: 36px;
+  margin-top: 8px;
+  color: var(--ok);
+  font-size: 12px;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.lp .judge-simulation {
+  border-color: var(--lp-review);
+}
+
+.lp .judge-waterfall {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  margin: 24px 0 14px;
+  padding: 0;
+  list-style: none;
+}
+
+.lp .judge-waterfall > li {
+  min-width: 0;
+}
+
+.lp .judge-waterfall-track {
+  position: relative;
+  height: clamp(96px, 12vw, 160px);
+  border-bottom: 1px solid var(--edge);
+}
+
+.lp .judge-waterfall-bar {
+  position: absolute;
+  left: 11%;
+  width: 78%;
+  border: 1px solid var(--lp-review);
+  border-radius: 2px 2px 0 0;
+}
+
+.lp .judge-waterfall-total {
+  background: var(--lp-review);
+}
+
+.lp .judge-waterfall-deduction {
+  background: var(--lp-review-wash);
+}
+
+.lp .judge-waterfall-connector {
+  position: absolute;
+  width: 22%;
+  left: 89%;
+  border-top: 1px dashed var(--lp-review);
+}
+
+.lp .judge-waterfall-connector::after {
+  position: absolute;
+  top: -3px;
+  right: 2px;
+  width: 5px;
+  height: 5px;
+  border-top: 1px solid var(--lp-review);
+  border-right: 1px solid var(--lp-review);
+  transform: rotate(45deg);
+  content: "";
+}
+
+.lp .judge-waterfall-step,
+.lp .judge-waterfall-amount,
+.lp .judge-waterfall-label {
+  display: block;
+  padding-inline: 2px;
+  text-align: center;
+}
+
+.lp .judge-waterfall-step {
+  margin-top: 8px;
+  color: var(--lp-review);
+  font-size: 11px;
+  font-weight: 600;
+}
+
+.lp .judge-waterfall-amount {
+  color: var(--ink);
+  font-size: clamp(14px, 1.9vw, 24px);
+  font-variant-numeric: tabular-nums;
+  font-weight: 600;
+  letter-spacing: -.065em;
+  white-space: nowrap;
+}
+
+.lp .judge-waterfall-amount small {
+  margin-inline-start: 1px;
+  font-size: .62em;
+}
+
+.lp .judge-waterfall-label {
+  font-size: 11px;
+  line-height: 1.4;
+  color: var(--dim);
+  overflow-wrap: anywhere;
+}
+
+.lp .judge-waterfall-net .judge-waterfall-amount,
+.lp .judge-waterfall-net .judge-waterfall-label {
+  color: var(--lp-review);
+}
+
+.lp .judge-waterfall-net .judge-waterfall-label {
+  font-weight: 600;
+}
+
+.lp .judge-impact-note {
+  padding-top: 10px;
+  border-top: 1px dashed var(--line);
+}
+
+@media (max-width: 720px) {
+  .lp .judge-impact-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}

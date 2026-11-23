@@ -1,6 +1,7 @@
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import { test } from "node:test";
+import { html, text } from "./render-support.mjs";
 
 // Copy sweep 2 (#669, rule 16): /accuracy is written for a first-time
 // visitor. Jargon moved into Details folds, but every honesty label must stay
@@ -43,4 +44,111 @@ test("the headline uses plain names, not internal ids", () => {
   const visible = page.split("<Details>").map((s, i) => (i === 0 ? s : s.slice(s.indexOf("</Details>")))).join(" ");
   const jsx = visible.slice(visible.indexOf("return ( <Main>"));
   assert.doesNotMatch(jsx, /held-out|McNemar|usmca-v\d|router-v\d|engine-v1|calibration error/i);
+});
+
+const summary = JSON.parse(read("../../backend/internal/evalsummary/summary.json"));
+const items = new Map(summary.items.map((it) => [it.key, it]));
+const rate = (n) => `${(n * 100).toFixed(1)}%`;
+
+test("the first render shows the official counts before the API loaded", async () => {
+  const { AccuracyPage } = await import("../src/components/op/screens/accuracy-page.tsx");
+  const markup = html(AccuracyPage, {});
+  const pageText = text(markup);
+  const overall = items.get("final_accuracy");
+  const fastPath = items.get("final_fastpath_accuracy");
+  const correct = Math.round(overall.value * overall.n);
+  const autoRight = Math.round(fastPath.value * fastPath.n);
+  const review = overall.n - fastPath.n;
+  const reviewRight = correct - autoRight;
+
+  assert.ok(pageText.includes(`Overall accuracy ${rate(overall.value)} ${correct} / ${overall.n} right`));
+  assert.ok(pageText.includes(rate(items.get("baseline_first_mentioned").value)));
+  assert.ok(pageText.includes(`Auto-accepted accuracy ${rate(fastPath.value)} ${autoRight} / ${fastPath.n} right at ≥ 0.92`));
+  assert.ok(pageText.includes(`Sent to human review ${rate(review / overall.n)} ${review} sent to review. The model had ${reviewRight} right and ${review - reviewRight} wrong.`));
+  assert.doesNotMatch(pageText, /Loading the numbers|How it's built/);
+
+  const groupCounts = new Map([
+    ["auto-right", autoRight],
+    ["auto-wrong", fastPath.n - autoRight],
+    ["review-right", reviewRight],
+    ["review-wrong", review - reviewRight],
+  ]);
+  for (const [key, count] of groupCounts) {
+    assert.equal([...markup.matchAll(new RegExp(`data-outcome="${key}"`, "g"))].length, count, key);
+  }
+  assert.match(markup, /href="#misses"[^>]*>See all 37 known failures/);
+  assert.match(markup, /href="\/method"[^>]*>How it is built/);
+  assert.equal((markup.match(/<tbody>/g) || []).length, 1);
+  assert.equal((markup.split("<tbody>")[1].split("</tbody>")[0].match(/<tr[ >]/g) || []).length, overall.n - correct);
+});
+
+test("the recorded plan bars match the committed known-starting-origin results", async () => {
+  const { AccuracyPage } = await import("../src/components/op/screens/accuracy-page.tsx");
+  const pageText = text(html(AccuracyPage, {}));
+  for (const [label, name] of [
+    ["Plan precision", "precision_at_bar"],
+    ["Real shifts found", "recall_at_bar"],
+    ["False positives on unchanged goods", "controls_shown"],
+  ]) {
+    const { value, n } = items.get(`planner_post_combined_known-a_${name}`);
+    assert.ok(pageText.includes(`${label} ${Math.round(value * n)}/${n} (${Math.round(value * 100)}%)`));
+  }
+  const historicalSplits = summary.verifier_calibration.splits;
+  const strictPass = historicalSplits.reduce((k, r) => k + r.pair_level.shown_every_run, 0);
+  const strictTotal = historicalSplits.reduce((n, r) => n + r.pair_level.real_change_pairs, 0);
+  assert.ok(pageText.includes("CBP's starting origin supplied Plan precision"));
+  assert.ok(pageText.includes("Repeat runs and intervals"));
+  assert.ok(pageText.includes(`Strict count: ${strictPass}/${strictTotal}`));
+});
+
+test("repeat plan checks are labelled stability, with the distinct-pair interval and no pooled interval", async () => {
+  const { AccuracyPage } = await import("../src/components/op/screens/accuracy-page.tsx");
+  const pageText = text(html(AccuracyPage, {}));
+  const start = pageText.indexOf("Production-move plan evaluation");
+  const end = pageText.indexOf("Strict count:");
+  assert.ok(start >= 0 && end > start);
+  const section = pageText.slice(start, end);
+  assert.doesNotMatch(section, /87\.5/);
+  assert.match(section, /Stability/);
+  assert.match(section, /27\/27/);
+  assert.match(section, /9\/9 distinct pairs/);
+  assert.ok(section.includes("70.1–100%"));
+  assert.ok(section.includes("same 9 distinct pairs"));
+  assert.match(section, /selected moves/);
+  assert.match(section, /starting origin (was )?supplied/);
+  assert.doesNotMatch(pageText, /87\.5–100%/);
+});
+
+test("RCEP reports known positives, criterion agreement and separate synthetic results", async () => {
+  const { AccuracyPage } = await import("../src/components/op/screens/accuracy-page.tsx");
+  const markup = html(AccuracyPage, {});
+  const markets = text(markup.split('id="market-evidence"')[1].split("</section>")[0]);
+  const { held_out: unseen, development } = JSON.parse(read("../../eval/rcep/japan-summary.json"));
+  const { outcomes, deciding_criterion_agreement: criteria } = unseen.published_positives;
+
+  assert.ok(markets.includes(`All ${outcomes.yes.total} unseen Japan Customs rulings qualified in the published decisions.`));
+  assert.ok(markets.includes(`${outcomes.yes.count}/${outcomes.yes.total} yes ${outcomes.undetermined.count} undetermined`));
+  assert.ok(markets.includes(`${outcomes.no.count} said no · ${outcomes.error.count} input errors`));
+  assert.ok(markets.includes(`${criteria.count}/${criteria.total} deciding criteria matched`));
+  assert.ok(markets.includes(`All ${development.synthetic_negatives.undetermined.count} development and ${unseen.synthetic_negatives.undetermined.count} unseen synthetic tariff-code variants were undetermined.`));
+  assert.match(markets, /Refusal performance on real cases remains unmeasured/);
+  assert.match(markets, /Customs specialist review is pending/);
+  assert.match(markets, /Canada marking Checks the marking rules only\. No accuracy figure/);
+  assert.match(markets, /Japan model Japan: not available yet\./);
+});
+
+test("the no-starting-origin plan bar and interval come from the committed repeats summary", async () => {
+  const { AccuracyPage } = await import("../src/components/op/screens/accuracy-page.tsx");
+  const pageText = text(html(AccuracyPage, {}));
+  const runs = JSON.parse(read("../../eval/results/planner-post-repeats-summary.json")).modes["unknown-a"].per_run;
+  const recalls = Object.values(runs).map((run) => run.recall_at_bar);
+  assert.equal(recalls.length, 3);
+  const [{ k, n, value, ci95 }] = recalls;
+  for (const x of recalls) assert.deepEqual([x.k, x.n, x.ci95], [k, n, ci95]);
+  assert.ok(pageText.includes(`Starting origin not supplied, same in each run Real shifts found ${k}/${n} (${Math.round(value * 100)}%)`));
+  assert.ok(pageText.includes(`in each of the 3 runs: real shifts found ${(Math.round(ci95[0] * 1000) / 10).toFixed(1)}–${(Math.round(ci95[1] * 1000) / 10).toFixed(1)}%`));
+  assert.ok(pageText.indexOf("CBP's starting origin supplied") < pageText.indexOf("Starting origin not supplied"));
+  const { held_out: unseen } = JSON.parse(read("../../eval/rcep/japan-summary.json"));
+  const c = unseen.published_positives.deciding_criterion_agreement;
+  assert.ok(pageText.includes(`${c.count}/${c.total} deciding criteria matched.`));
 });

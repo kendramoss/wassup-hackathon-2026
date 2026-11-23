@@ -364,7 +364,8 @@ type predictRequest struct {
 	DisplayName string `json:"display_name"`
 	// Jurisdiction is the market the question is for (D680): us, eu, uk,
 	// ca, jp, kr, au, mx or other. Omitted: read from the text, else us.
-	Jurisdiction string `json:"jurisdiction"`
+	Jurisdiction string             `json:"jurisdiction"`
+	Japan        *domain.JapanInput `json:"japan"`
 }
 
 func (a *api) predict(w http.ResponseWriter, r *http.Request) {
@@ -457,33 +458,45 @@ func (a *api) analyseAndSave(r *http.Request, sc store.Case, c domain.Case, star
 // newCase validates a predict request and builds the case to analyse.
 func (a *api) newCase(r *http.Request, in predictRequest) (store.Case, domain.Case, error) {
 	facts := strings.TrimSpace(in.Facts)
+	market, err := jurisdiction.Resolve(in.Jurisdiction, marketText(facts, in.Product))
+	if err != nil {
+		return store.Case{}, domain.Case{}, err
+	}
+	if in.Japan != nil {
+		if in.Jurisdiction == "" {
+			market = domain.Jurisdiction{Code: jurisdiction.JP, Source: jurisdiction.SourceChosen}
+		}
+		if market.Code != jurisdiction.JP {
+			return store.Case{}, domain.Case{}, fmt.Errorf("%w: japan is only for imports into Japan", domain.ErrInvalid)
+		}
+	}
 	if in.Product != nil {
 		if err := in.Product.Validate(); err != nil {
 			return store.Case{}, domain.Case{}, err
 		}
-		if facts == "" {
+		if facts == "" && market.Code != jurisdiction.JP {
 			tm, ok := a.d.Templates[in.Family]
 			if !ok {
 				return store.Case{}, domain.Case{}, fmt.Errorf("%w: family %q has no template; known: %s", domain.ErrInvalid, in.Family, a.families())
 			}
 			facts = planner.Render(*in.Product, tm)
+			if in.Jurisdiction == "" {
+				market = jurisdiction.Detect(marketText(facts, in.Product))
+			}
 		}
 	}
 	for _, id := range in.Exclude {
-		if !domain.ValidRulingID(id) {
-			return store.Case{}, domain.Case{}, fmt.Errorf("%w: exclude_rulings: %q is not a CBP ruling number", domain.ErrInvalid, id)
+		if domain.ValidRulingID(id) || (market.Code == jurisdiction.JP && domain.ValidJapanRulingID(id)) {
+			continue
 		}
+		return store.Case{}, domain.Case{}, fmt.Errorf("%w: exclude_rulings: %q is not a ruling number for this market", domain.ErrInvalid, id)
 	}
 	// Feed facts in the format the engine was benchmarked on: corpus facts
 	// files (and rendered products) end with one newline (D20).
 	if facts != "" && !strings.HasSuffix(facts, "\n") {
 		facts += "\n"
 	}
-	market, err := jurisdiction.Resolve(in.Jurisdiction, marketText(facts, in.Product))
-	if err != nil {
-		return store.Case{}, domain.Case{}, err
-	}
-	c := domain.Case{ID: newCaseID(), Date: in.Date.Time, Facts: facts, Product: in.Product, Exclude: in.Exclude, Jurisdiction: &market}
+	c := domain.Case{ID: newCaseID(), Date: in.Date.Time, Facts: facts, Product: in.Product, Exclude: in.Exclude, Jurisdiction: &market, Japan: in.Japan}
 	if err := c.Validate(); err != nil {
 		return store.Case{}, domain.Case{}, err
 	}
@@ -500,7 +513,7 @@ func (a *api) newCase(r *http.Request, in predictRequest) (store.Case, domain.Ca
 	}
 	now := time.Now().UTC()
 	sc := store.Case{ID: c.ID, Date: in.Date.Format(time.DateOnly), Facts: facts, Family: in.Family, Product: in.Product,
-		Exclude: in.Exclude, Jurisdiction: &market, CurrentOrigin: in.CurrentOrigin, CreatedAt: now, UpdatedAt: now, Economics: in.Economics, DisplayName: displayName,
+		Exclude: in.Exclude, Jurisdiction: &market, Japan: in.Japan, CurrentOrigin: in.CurrentOrigin, CreatedAt: now, UpdatedAt: now, Economics: in.Economics, DisplayName: displayName,
 	}
 	sc.Owner, sc.Workspace = a.principalOf(r).newCaseScope() // a signed-in user's (D68), else the credential owner
 	return sc, c, nil
@@ -723,6 +736,23 @@ func (a *api) caseFieldsBase(r *http.Request, c store.Case) map[string]any {
 		"can_write": a.canWrite(r, c),
 	}
 	a.marketFields(f, c)
+	if jurisdiction.Of(c.Jurisdiction).Code == jurisdiction.JP {
+		f["disclaimer"] = domain.JapanDisclaimer
+		f["precedents_detail"] = nil // Japan sources carry their official URLs in japan_preference.
+		trace := c.Prediction.Trace
+		f["llm_provider"] = trace.Provider
+		f["model_ids"] = map[string]string{}
+		f["prompt_versions"] = map[string]string{}
+		if trace.Identity() != "" {
+			f["model_ids"] = map[string]string{"engine": trace.Identity()}
+		}
+		if trace.PromptVersion != "" {
+			f["prompt_versions"] = map[string]string{"engine": trace.PromptVersion}
+		}
+		if c.Japan != nil {
+			f["japan"] = c.Japan
+		}
+	}
 	// What the case's own prediction read (D220), present only when known.
 	if src := a.factsSource(c); src != "" {
 		f["facts_source"] = src
@@ -784,7 +814,11 @@ func predictionEvent(kind string, c store.Case, start time.Time) store.Event {
 	if c.Clarify != nil {
 		u.trace(c.Clarify.Trace)
 	}
-	return u.on(store.Event{Kind: kind, Summary: fmt.Sprintf("origin %s, %s, %s", p.Origin, confidencePhrase(p), c.Triage.Route),
+	summary := fmt.Sprintf("origin %s, %s, %s", p.Origin, confidencePhrase(p), c.Triage.Route)
+	if p.Japan != nil {
+		summary = "Japan trade-agreement assessment, " + string(c.Triage.Route)
+	}
+	return u.on(store.Event{Kind: kind, Summary: summary,
 		Provider: p.Trace.Provider, Model: p.Trace.ModelID, Prompt: p.Trace.PromptVersion}, start)
 }
 
@@ -903,6 +937,14 @@ type caseSummary struct {
 	// RulingAlerts counts CBP's final and proposed changes to the rulings the
 	// case relies on (D480); absent when there are none.
 	RulingAlerts *domain.AlertCounts `json:"ruling_alerts,omitempty"`
+	// ReviewStatus is the status of the case's newest non-revoked broker
+	// review link (#715), as reviewStatus reads it now: an expired link reads
+	// expired, never pending. ReviewExpiresAt is that link's expiry, only
+	// while it is pending or viewed. Both are absent for a case with no link
+	// or only revoked ones. The Cases page's "needs follow-up" filter is
+	// display-only and built from these and ruling_alerts.
+	ReviewStatus    string     `json:"review_status,omitempty"`
+	ReviewExpiresAt *time.Time `json:"review_expires_at,omitempty"`
 }
 
 // listCases lists the cases the caller may see: pinned demos first, then the
@@ -1034,6 +1076,14 @@ func (a *api) recentWithoutProbes(ctx context.Context, limit int) ([]store.Case,
 func summaryRow(c store.Case) caseSummary {
 	row := caseSummary{ID: c.ID, Date: c.Date, Step: c.Step(), UpdatedAt: c.UpdatedAt.Format(time.RFC3339), Scenarios: len(c.Scenarios), Pinned: c.Pinned,
 		RulingAlerts: alertCounts(c, alertsNow())}
+	if rv, ok := newestOpenReview(c.BrokerReviews); ok {
+		now := time.Now().UTC()
+		row.ReviewStatus = reviewStatus(rv, now)
+		if row.ReviewStatus == reviewPending || row.ReviewStatus == reviewViewed {
+			exp := rv.ExpiresAt
+			row.ReviewExpiresAt = &exp
+		}
+	}
 	if c.Watch != nil {
 		row.Watch = &c.Watch.Status
 		if c.Watch.Basis != "" {
@@ -1326,7 +1376,7 @@ func (a *api) asOf() time.Time {
 // US origins never get a live rate, so they do not count).
 func missingRate(e planner.Economics, origins []string) bool {
 	for _, o := range origins {
-		n := domain.NormalizeCountry(o)
+		n := domain.DutyCountry(o)
 		if _, ok := e.DutyRate(n); n != "" && !ok && !duty.NoLiveRate(n) {
 			return true
 		}
@@ -1559,6 +1609,7 @@ func (a *api) buildDraft(r *http.Request, c store.Case, in exportRequest) (draft
 	}
 	ex := export.Input{ProductName: name, Product: c.Product, Facts: c.Facts, Requested: c.Prediction.Origin, Prediction: c.Prediction}
 	if c.CurrentOrigin != nil {
+<<<<<<< HEAD
 		co := strings.TrimSpace(c.CurrentOrigin.Country)
 		r := strings.TrimSpace(c.CurrentOrigin.Ruling)
 		if r != "" {
@@ -1566,6 +1617,9 @@ func (a *api) buildDraft(r *http.Request, c store.Case, in exportRequest) (draft
 		} else if co != "" {
 			ex.CurrentRuled = co
 		}
+=======
+		ex.CurrentRuled = currentOriginFallback(*c.CurrentOrigin)
+>>>>>>> origin/main
 	}
 	switch id := strings.TrimSpace(in.PlanID); {
 	case id == "":
@@ -1671,6 +1725,14 @@ func (a *api) buildDraft(r *http.Request, c store.Case, in exportRequest) (draft
 	// a Part 102 engine that was off or failed); the export
 	// package's note says the position is not a Part 102 determination (D520).
 	ex.Part102 = ex.Regime == "" && regimeNote == "" && part102Case(c)
+	// CBP changes to the rulings this draft relies on go in the notes beside
+	// the letter, never in it (#714).
+	planTarget := ""
+	if chosen != nil {
+		planTarget = chosen.Prediction.Origin
+	}
+	cd, _ := time.Parse(time.DateOnly, c.Date)
+	ex.RulingChanges = draftRulingChanges(ex, c.CurrentOrigin, planTarget, cd, alertsNow())
 	content := export.Markdown(ex)
 	if format == formatCFR177 {
 		content = export.CFR177(ex)
@@ -1978,4 +2040,14 @@ func sortedKeys[V any](m map[string]V) []string {
 	}
 	sort.Strings(ks)
 	return ks
+}
+
+// currentOriginFallback is the caller's statement of CBP's holding on the
+// current setup when no ruling date is known: "Country (Ruling)", or just
+// "Country" when the optional ruling is absent (#720).
+func currentOriginFallback(o planner.KnownOrigin) string {
+	if o.Ruling == "" {
+		return strings.TrimSpace(o.Country)
+	}
+	return strings.TrimSpace(o.Country + " (" + o.Ruling + ")")
 }

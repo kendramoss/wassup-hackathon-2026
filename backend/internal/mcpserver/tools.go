@@ -12,6 +12,8 @@ import (
 
 	"github.com/google/jsonschema-go/jsonschema"
 	"github.com/modelcontextprotocol/go-sdk/mcp"
+
+	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/domain"
 )
 
 // Disclaimer goes with every tool result (domain.Disclaimer, repeated so the
@@ -55,10 +57,10 @@ func (t tools) register(s *mcp.Server, search bool) {
 	add(s, &mcp.Tool{
 		Name: "predict_origin",
 		Description: `Predict the country of origin U.S. Customs (CBP) would likely assign to a product (substantial-transformation test), citing earlier CBP rulings. Creates a case and returns its case_id.
-Use it when the user asks "what origin would CBP give this product" or before searching production moves.
-Input: facts (plain-language description of parts, where each is made and where it is assembled) and/or a structured product (extract_product drafts one); family helps plan search. Optional jurisdiction: the market the goods enter (default: read from the facts, else us). Only U.S. entry has an origin engine; for another market no origin is returned and the case goes to review.
+For U.S. cases, use it to predict CBP origin or before searching for production moves. For Japan, where available, it assesses preferential treatment under a named trade agreement. Supply japan.agreement and japan.hs for the finished good. Every Japan result goes to specialist review.
+Input: facts (plain-language description of parts, where each is made and where it is assembled) and/or a structured product (extract_product drafts one). Family helps U.S. plan search. Optional jurisdiction sets the import market.
 
-Returns: predicted origin, confidence (0-1; calibrated_confidence is the calibrated probability when one applies, else only the model's stated value), decisive step, cited CBP rulings, triage route (auto, needs_review, needs_info) and the case_id. Without an API key it also returns a case_access_key to pass to later calls on the case.
+Returns: the case id and triage. U.S. results give origin, confidence, the decisive step and cited CBP rulings. Japan results give japan_preference with eligibility, rule, and sources. Without an API key, pass the returned case_access_key on later calls.
 Not a ruling: confirm with a licensed customs broker. REST: POST /v1/cases/predict (operationId predictCase).`,
 		InputSchema: &jsonschema.Schema{
 			// "facts or product" is checked in predict, not with a top-level
@@ -70,14 +72,18 @@ Not a ruling: confirm with a licensed customs broker. REST: POST /v1/cases/predi
 				"facts":   str("The product facts in plain language: what it is, each part and the country it is made in, and where it is assembled or processed. Up to 12,000 characters.", 20, 12000),
 				"product": t.product(),
 				"family":  t.family(),
-				"date":    pattern("Case date (YYYY-MM-DD); only CBP rulings dated before it are used. Default: today (UTC).", datePattern, 10),
+				"date":    pattern("Case date (YYYY-MM-DD); only earlier rulings are used. Default: today (UTC).", datePattern, 10),
 				"current_origin": object("CBP's actual holding on the current setup, if the user has one.", []string{"country"}, map[string]*jsonschema.Schema{
 					"country": country("Country CBP held."),
 					"ruling":  pattern("The ruling number, e.g. N328954.", `^[NH][0-9]{6}$`, 7),
 				}),
 				"display_name":    str("Optional name for the case.", 1, 200),
 				"case_access_key": accessKey(),
-				"jurisdiction":    market("Market the goods enter: us (default), eu, uk, ca, jp, kr, au, mx or other. Omitted: read from the facts (an authority such as HMRC, \"imported into <place>\"), else us. Only us has an origin engine; any other market returns no origin and goes to review."),
+				"jurisdiction":    market("Market the goods enter. Omitted: an explicit japan input selects Japan, else read from the facts and fall back to us."),
+				"japan": object("For Japan only: trade agreement and finished-good tariff classification.", []string{"agreement", "hs"}, map[string]*jsonschema.Schema{
+					"agreement": str("Agreement, for example RCEP, CPTPP or JP-EU EPA.", 1, 60),
+					"hs":        str("The finished good's Japanese tariff code.", 1, 30),
+				}),
 			},
 		},
 		Annotations: writes("Predict country of origin"),
@@ -234,6 +240,7 @@ Not a ruling: the broker's answer is their professional view, not CBP's. REST: P
 		Name: "get_broker_review_status",
 		Description: `Read the case's broker review links: each link's status (pending, viewed, approved, changes_requested, file_requested, revoked, expired), what draft it shares, when it expires, and the broker's answers with their comments.
 Use it after create_broker_review_link to see whether the broker answered. Input: case_id. Never returns a link's token.
+A link's changed_since_shared counts final, in-effect CBP changes, dated on or after the day it was shared, to the rulings its frozen draft cites or its plan rests on (the current setup's ruling is not in the snapshot, so it is not covered). It says what CBP changed, not that an answer is invalid; it is omitted when zero or when the link is revoked.
 REST: GET /v1/cases/{id}/reviews (operationId listBrokerReviewLinks).`,
 		InputSchema: object("", []string{"case_id"}, map[string]*jsonschema.Schema{
 			"case_id":         caseID(),
@@ -253,14 +260,15 @@ type knownOrigin struct {
 }
 
 type predictIn struct {
-	Facts         string         `json:"facts,omitempty"`
-	Product       map[string]any `json:"product,omitempty"`
-	Family        string         `json:"family,omitempty"`
-	Date          string         `json:"date,omitempty"`
-	CurrentOrigin *knownOrigin   `json:"current_origin,omitempty"`
-	DisplayName   string         `json:"display_name,omitempty"`
-	AccessKey     string         `json:"case_access_key,omitempty"`
-	Jurisdiction  string         `json:"jurisdiction,omitempty"`
+	Facts         string             `json:"facts,omitempty"`
+	Product       map[string]any     `json:"product,omitempty"`
+	Family        string             `json:"family,omitempty"`
+	Date          string             `json:"date,omitempty"`
+	CurrentOrigin *knownOrigin       `json:"current_origin,omitempty"`
+	DisplayName   string             `json:"display_name,omitempty"`
+	AccessKey     string             `json:"case_access_key,omitempty"`
+	Jurisdiction  string             `json:"jurisdiction,omitempty"`
+	Japan         *domain.JapanInput `json:"japan,omitempty"`
 }
 
 type extractIn struct {
@@ -358,6 +366,9 @@ func (t tools) predict(ctx context.Context, hdr http.Header, in predictIn) (*mcp
 	if in.Jurisdiction != "" {
 		body["jurisdiction"] = in.Jurisdiction
 	}
+	if in.Japan != nil {
+		body["japan"] = in.Japan
+	}
 	// An anonymous caller gets a case access key: without one, a case made
 	// with CASE_OWNERSHIP on could not be read back (nothing else ties two
 	// stateless MCP requests to the same caller).
@@ -373,6 +384,17 @@ func (t tools) predict(ctx context.Context, hdr http.Header, in predictIn) (*mcp
 	out := trim(res.body)
 	var b strings.Builder
 	p := obj(out["prediction"])
+	if out["jurisdiction"] == "jp" {
+		b.WriteString(japanSummary(out, p))
+		fmt.Fprintf(&b, "\nCase id: %v.", out["id"])
+		if access != "" && !hasKey(hdr) {
+			out["case_access_key"] = access
+			if minted {
+				b.WriteString("\nPass the returned case_access_key on later calls. Keep it private.")
+			}
+		}
+		return done(b.String(), out)
+	}
 	if md := obj(out["jurisdiction_detail"]); md["supported"] == false {
 		// No engine ran for this market (D680): say so, never an origin.
 		fmt.Fprintf(&b, "Market: %s. %s. No origin was predicted.", str0(md["name"], "unknown"), str0(obj(out["triage"])["reason"], "Not supported yet"))
@@ -594,7 +616,9 @@ func (t tools) getCase(ctx context.Context, hdr http.Header, in caseIn) (*mcp.Ca
 	p := obj(out["prediction"])
 	var b strings.Builder
 	fmt.Fprintf(&b, "Case %v %q (step %v).", out["id"], str0(out["display_name"], str0(obj(out["product"])["name"], "")), out["step"])
-	if len(p) > 0 {
+	if out["jurisdiction"] == "jp" {
+		b.WriteString("\n" + japanSummary(out, p))
+	} else if len(p) > 0 {
 		fmt.Fprintf(&b, "\nPredicted origin: %s (%s).", str0(p["origin_country"], "unknown"), confPhrase(p))
 	}
 	if pl := obj(out["plan"]); len(pl) > 0 {
@@ -607,6 +631,31 @@ func (t tools) getCase(ctx context.Context, hdr http.Header, in caseIn) (*mcp.Ca
 		b.WriteString("\n" + l)
 	}
 	return done(b.String(), out)
+}
+
+func japanSummary(out, p map[string]any) string {
+	j := obj(p["japan_preference"])
+	if len(j) == 0 {
+		return "Japan trade-agreement origin: no assessment recorded. " + str0(obj(out["triage"])["reason"], "")
+	}
+	var b strings.Builder
+	fmt.Fprintf(&b, "Japan trade-agreement origin (%s). ", str0(j["agreement"], "agreement needed"))
+	switch j["outcome"] {
+	case "qualifies":
+		b.WriteString("Likely qualifies.")
+		if origin := str0(p["origin_country"], ""); origin != "" {
+			fmt.Fprintf(&b, " Preferential origin: %s.", origin)
+		}
+	case "does_not_qualify":
+		b.WriteString("Likely does not qualify.")
+	default:
+		b.WriteString("Could not determine eligibility.")
+	}
+	if reason := str0(j["review_reason"], ""); reason != "" {
+		b.WriteString(" " + reason)
+	}
+	b.WriteString(" Published test rulings cover only goods that qualified.")
+	return b.String()
 }
 
 // rulingAlertLines words the case's revocation alerts (D480), or "" when
@@ -802,6 +851,13 @@ func (t tools) reviewStatus(ctx context.Context, hdr http.Header, in caseIn) (*m
 	for _, x := range rvs {
 		rv := obj(x)
 		fmt.Fprintf(&b, "\n%v: %v (%s), expires %v.", rv["id"], rv["status"], str0(rv["draft_label"], ""), rv["expires_at"])
+		if n, _ := rv["changed_since_shared"].(float64); n > 0 {
+			noun := "rulings it relies on changed"
+			if n == 1 {
+				noun = "ruling it relies on changed"
+			}
+			fmt.Fprintf(&b, " %d %s since it was shared.", int(n), noun)
+		}
 		for _, d := range list(rv["decisions"]) {
 			dd := obj(d)
 			if c := str0(dd["comment"], ""); c != "" {
@@ -819,10 +875,9 @@ func (t tools) reviewStatus(ctx context.Context, hdr http.Header, in caseIn) (*m
 // done is a successful tool result: the summary text with the disclaimer,
 // and the API's answer (trimmed) as structured content.
 func done(text string, out map[string]any) (*mcp.CallToolResult, any, error) {
-	if _, ok := out["disclaimer"]; !ok {
-		out["disclaimer"] = Disclaimer
-	}
-	return &mcp.CallToolResult{Content: []mcp.Content{&mcp.TextContent{Text: text + "\n\n" + Disclaimer}}}, out, nil
+	disclaimer := str0(out["disclaimer"], Disclaimer)
+	out["disclaimer"] = disclaimer
+	return &mcp.CallToolResult{Content: []mcp.Content{&mcp.TextContent{Text: text + "\n\n" + disclaimer}}}, out, nil
 }
 
 // failed is a tool error: the API's status, code and message, so the model

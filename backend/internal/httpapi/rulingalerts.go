@@ -4,6 +4,8 @@ import (
 	"time"
 
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/domain"
+	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/export"
+	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/planner"
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/store"
 )
 
@@ -52,9 +54,10 @@ func alertCounts(c store.Case, today time.Time) *domain.AlertCounts {
 	return &n
 }
 
-// relevanceWord is the watch job's short form of an alert's relevance,
-// naming what the ruling was judged for (D561).
-func relevanceWord(a domain.RulingAlert) string {
+// relevancePhrase is the short form of an alert's relevance, naming what the
+// ruling was judged for (D561): "bears on the answer", "does not touch the
+// answer directly", and so on.
+func relevancePhrase(a domain.RulingAlert) string {
 	what := "the answer"
 	switch a.RelevanceRole {
 	case domain.RolePlanSupport:
@@ -64,13 +67,97 @@ func relevanceWord(a domain.RulingAlert) string {
 	}
 	switch a.Relevance {
 	case domain.RelevanceTouchesAnswer:
-		return " (bears on " + what + ")"
+		return "bears on " + what
 	case domain.RelevanceNotAnswer:
-		return " (does not touch " + what + " directly)"
+		return "does not touch " + what + " directly"
 	case domain.RelevanceHoldingUnchanged:
-		return " (origin held unchanged)"
+		return "origin held unchanged"
 	}
-	return " (bearing on " + what + " not known)"
+	return "bearing on " + what + " not known"
+}
+
+// relevanceWord is the watch job's short form of an alert's relevance,
+// naming what the ruling was judged for (D561).
+func relevanceWord(a domain.RulingAlert) string { return " (" + relevancePhrase(a) + ")" }
+
+// inEffectChanges keeps the final changes already in force: what a letter or
+// a shared packet may say CBP has changed. A proposed change, or one dated
+// after today, is left out.
+func inEffectChanges(as []domain.RulingAlert) []domain.RulingAlert {
+	var out []domain.RulingAlert
+	for _, a := range as {
+		if a.Relied() && a.Status == domain.AlertFinal && a.InEffect {
+			out = append(out, a)
+		}
+	}
+	return out
+}
+
+// draftRulingChanges are the final, in-effect CBP changes to the rulings a
+// draft relies on (#714): the supporting and counter rulings, the rulings the
+// prediction cited and the current setup's ruling, each judged against the
+// origin the draft asks for. They go in the draft's Notes only, never in the
+// letter. Empty ids are skipped.
+func draftRulingChanges(ex export.Input, current *planner.KnownOrigin, planTarget string, caseDate, today time.Time) []export.RulingChange {
+	var refs []domain.RulingRef
+	basis := domain.RelevanceBasis{Predicted: ex.Prediction.Origin}
+	if ex.Supporting != "" {
+		refs = append(refs, domain.RulingRef{ID: ex.Supporting, Role: domain.RolePlanSupport})
+		if planTarget != "" {
+			basis.PlanTargets = map[string][]string{ex.Supporting: {planTarget}}
+		}
+	}
+	if ex.Counter != "" {
+		refs = append(refs, domain.RulingRef{ID: ex.Counter, Role: domain.RoleCited})
+	}
+	for _, id := range ex.Prediction.CitedRulings {
+		refs = append(refs, domain.RulingRef{ID: id, Role: domain.RoleCited})
+	}
+	if current != nil && current.Ruling != "" {
+		refs = append(refs, domain.RulingRef{ID: current.Ruling, Role: domain.RoleCurrentSetup})
+		basis.CurrentSetup = current.Country
+	}
+	var out []export.RulingChange
+	for _, a := range inEffectChanges(domain.WithRelevanceBy(domain.RulingAlerts(caseDate, today, refs), basis)) {
+		out = append(out, export.RulingChange{Ruling: a.Ruling, Change: a.Note, Relevance: relevancePhrase(a)})
+	}
+	return out
+}
+
+// sharedRulingChanges are the CBP changes to the rulings a shared draft
+// relies on that took effect on or after the day it was shared (#714). It
+// reads only the FROZEN review draft, never the live case, so a later edit
+// of the case cannot move it, and it writes nothing: derived on every read.
+//
+// The frozen draft holds the rulings the prediction cited and the plan's
+// supporting and counter rulings. The current setup's ruling is only text
+// inside the frozen letter, not a structured field, so it is not covered.
+// Dates are date-only: a change on the sharing day counts (UTC calendar
+// dates), whatever the time of day.
+func sharedRulingChanges(rv store.BrokerReview, today time.Time) []domain.RulingAlert {
+	d := rv.Draft
+	basis := domain.RelevanceBasis{Predicted: d.Prediction.Origin}
+	var refs []domain.RulingRef
+	if p := d.Plan; p != nil {
+		if p.Supporting != "" {
+			refs = append(refs, domain.RulingRef{ID: p.Supporting, Role: domain.RolePlanSupport})
+			basis.PlanTargets = map[string][]string{p.Supporting: {p.PredictedOrigin}}
+		}
+		if p.Counter != "" {
+			refs = append(refs, domain.RulingRef{ID: p.Counter, Role: domain.RoleCited})
+		}
+	}
+	for _, id := range d.Prediction.CitedRulings {
+		refs = append(refs, domain.RulingRef{ID: id, Role: domain.RoleCited})
+	}
+	shared := rv.CreatedAt.UTC().Format(time.DateOnly)
+	var out []domain.RulingAlert
+	for _, a := range inEffectChanges(domain.WithRelevanceBy(domain.RulingAlerts(time.Time{}, today, refs), basis)) {
+		if a.Date >= shared {
+			out = append(out, a)
+		}
+	}
+	return out
 }
 
 // watchAlert is one case's line in the watch job's ruling_alerts.

@@ -1,0 +1,459 @@
+{
+  "table_version": "rcep-psr-hs2022-r2022-08-20",
+  "development": {
+    "published_positives": {
+      "outcomes": {
+        "error": {
+          "count": 0,
+          "total": 304,
+          "rate": 0,
+          "lower95": 0,
+          "upper95": 0.012479145118788363
+        },
+        "no": {
+          "count": 0,
+          "total": 304,
+          "rate": 0,
+          "lower95": 0,
+          "upper95": 0.012479145118788363
+        },
+        "undetermined": {
+          "count": 142,
+          "total": 304,
+          "rate": 0.46710526315789475,
+          "lower95": 0.4117802111321424,
+          "upper95": 0.523251311573041
+        },
+        "yes": {
+          "count": 162,
+          "total": 304,
+          "rate": 0.5328947368421053,
+          "lower95": 0.47674868842695906,
+          "upper95": 0.5882197888678576
+        }
+      },
+      "deciding_criterion_agreement": {
+        "count": 161,
+        "total": 162,
+        "rate": 0.9938271604938271,
+        "lower95": 0.9658664892738077,
+        "upper95": 0.9989095379714673
+      }
+    },
+    "published_tariff_shift_with_material_codes": {
+      "outcomes": {
+        "error": {
+          "count": 0,
+          "total": 213,
+          "rate": 0,
+          "lower95": 0,
+          "upper95": 0.017716157785222023
+        },
+        "no": {
+          "count": 0,
+          "total": 213,
+          "rate": 0,
+          "lower95": 0,
+          "upper95": 0.017716157785222023
+        },
+        "undetermined": {
+          "count": 52,
+          "total": 213,
+          "rate": 0.24413145539906103,
+          "lower95": 0.19130826385689534,
+          "upper95": 0.3060206619580775
+        },
+        "yes": {
+          "count": 161,
+          "total": 213,
+          "rate": 0.755868544600939,
+          "lower95": 0.6939793380419226,
+          "upper95": 0.8086917361431047
+        }
+      },
+      "deciding_criterion_agreement": {
+        "count": 161,
+        "total": 161,
+        "rate": 1,
+        "lower95": 0.9766952031526023,
+        "upper95": 1
+      }
+    },
+    "published_rvc": {
+      "outcomes": {
+        "error": {
+          "count": 0,
+          "total": 0
+        },
+        "no": {
+          "count": 0,
+          "total": 0
+        },
+        "undetermined": {
+          "count": 0,
+          "total": 0
+        },
+        "yes": {
+          "count": 0,
+          "total": 0
+        }
+      },
+      "deciding_criterion_agreement": {
+        "count": 0,
+        "total": 0
+      }
+    },
+    "explicit_annex_row_agreement": {
+      "count": 0,
+      "total": 0
+    },
+    "cited_tariff_scope_compatible": {
+      "count": 293,
+      "total": 293,
+      "rate": 1,
+      "lower95": 0.9870584176880869,
+      "upper95": 1
+    },
+    "synthetic_negatives": {
+      "error": {
+        "count": 0,
+        "total": 162,
+        "rate": 0,
+        "lower95": 0,
+        "upper95": 0.023164272414159057
+      },
+      "no": {
+        "count": 0,
+        "total": 162,
+        "rate": 0,
+        "lower95": 0,
+        "upper95": 0.023164272414159057
+      },
+      "no_or_undetermined": {
+        "count": 162,
+        "total": 162,
+        "rate": 1,
+        "lower95": 0.976835727585841,
+        "upper95": 1
+      },
+      "undetermined": {
+        "count": 162,
+        "total": 162,
+        "rate": 1,
+        "lower95": 0.976835727585841,
+        "upper95": 1
+      },
+      "yes": {
+        "count": 0,
+        "total": 162,
+        "rate": 0,
+        "lower95": 0,
+        "upper95": 0.023164272414159057
+      }
+    }
+  },
+  "held_out": {
+    "published_positives": {
+      "outcomes": {
+        "error": {
+          "count": 0,
+          "total": 98,
+          "rate": 0,
+          "lower95": 0,
+          "upper95": 0.037721324095458045
+        },
+        "no": {
+          "count": 0,
+          "total": 98,
+          "rate": 0,
+          "lower95": 0,
+          "upper95": 0.037721324095458045
+        },
+        "undetermined": {
+          "count": 27,
+          "total": 98,
+          "rate": 0.2755102040816326,
+          "lower95": 0.19679426941928943,
+          "upper95": 0.3711622434398958
+        },
+        "yes": {
+          "count": 71,
+          "total": 98,
+          "rate": 0.7244897959183674,
+          "lower95": 0.6288377565601042,
+          "upper95": 0.8032057305807105
+        }
+      },
+      "deciding_criterion_agreement": {
+        "count": 71,
+        "total": 71,
+        "rate": 1,
+        "lower95": 0.9486702582520953,
+        "upper95": 1.0000000000000002
+      }
+    },
+    "published_tariff_shift_with_material_codes": {
+      "outcomes": {
+        "error": {
+          "count": 0,
+          "total": 72,
+          "rate": 0,
+          "lower95": 0,
+          "upper95": 0.05065293981139638
+        },
+        "no": {
+          "count": 0,
+          "total": 72,
+          "rate": 0,
+          "lower95": 0,
+          "upper95": 0.05065293981139638
+        },
+        "undetermined": {
+          "count": 1,
+          "total": 72,
+          "rate": 0.013888888888888888,
+          "lower95": 0.002455888640432169,
+          "upper95": 0.07456780284286987
+        },
+        "yes": {
+          "count": 71,
+          "total": 72,
+          "rate": 0.9861111111111112,
+          "lower95": 0.9254321971571302,
+          "upper95": 0.9975441113595678
+        }
+      },
+      "deciding_criterion_agreement": {
+        "count": 71,
+        "total": 71,
+        "rate": 1,
+        "lower95": 0.9486702582520953,
+        "upper95": 1.0000000000000002
+      }
+    },
+    "published_rvc": {
+      "outcomes": {
+        "error": {
+          "count": 0,
+          "total": 0
+        },
+        "no": {
+          "count": 0,
+          "total": 0
+        },
+        "undetermined": {
+          "count": 0,
+          "total": 0
+        },
+        "yes": {
+          "count": 0,
+          "total": 0
+        }
+      },
+      "deciding_criterion_agreement": {
+        "count": 0,
+        "total": 0
+      }
+    },
+    "explicit_annex_row_agreement": {
+      "count": 0,
+      "total": 0
+    },
+    "cited_tariff_scope_compatible": {
+      "count": 95,
+      "total": 95,
+      "rate": 1,
+      "lower95": 0.9611337736337738,
+      "upper95": 1.0000000000000002
+    },
+    "synthetic_negatives": {
+      "error": {
+        "count": 0,
+        "total": 71,
+        "rate": 0,
+        "lower95": 3.469446951953614e-18,
+        "upper95": 0.05132974174790492
+      },
+      "no": {
+        "count": 0,
+        "total": 71,
+        "rate": 0,
+        "lower95": 3.469446951953614e-18,
+        "upper95": 0.05132974174790492
+      },
+      "no_or_undetermined": {
+        "count": 71,
+        "total": 71,
+        "rate": 1,
+        "lower95": 0.9486702582520953,
+        "upper95": 1.0000000000000002
+      },
+      "undetermined": {
+        "count": 71,
+        "total": 71,
+        "rate": 1,
+        "lower95": 0.9486702582520953,
+        "upper95": 1.0000000000000002
+      },
+      "yes": {
+        "count": 0,
+        "total": 71,
+        "rate": 0,
+        "lower95": 3.469446951953614e-18,
+        "upper95": 0.05132974174790492
+      }
+    }
+  },
+  "overall": {
+    "published_positives": {
+      "outcomes": {
+        "error": {
+          "count": 0,
+          "total": 402,
+          "rate": 0,
+          "lower95": 8.673617379884035e-19,
+          "upper95": 0.009465762011582845
+        },
+        "no": {
+          "count": 0,
+          "total": 402,
+          "rate": 0,
+          "lower95": 8.673617379884035e-19,
+          "upper95": 0.009465762011582845
+        },
+        "undetermined": {
+          "count": 169,
+          "total": 402,
+          "rate": 0.42039800995024873,
+          "lower95": 0.3731199651196913,
+          "upper95": 0.4691830417677249
+        },
+        "yes": {
+          "count": 233,
+          "total": 402,
+          "rate": 0.5796019900497512,
+          "lower95": 0.530816958232275,
+          "upper95": 0.6268800348803087
+        }
+      },
+      "deciding_criterion_agreement": {
+        "count": 232,
+        "total": 233,
+        "rate": 0.9957081545064378,
+        "lower95": 0.9760934128360578,
+        "upper95": 0.9992420012128257
+      }
+    },
+    "published_tariff_shift_with_material_codes": {
+      "outcomes": {
+        "error": {
+          "count": 0,
+          "total": 285,
+          "rate": 0,
+          "lower95": 0,
+          "upper95": 0.01330002326534682
+        },
+        "no": {
+          "count": 0,
+          "total": 285,
+          "rate": 0,
+          "lower95": 0,
+          "upper95": 0.01330002326534682
+        },
+        "undetermined": {
+          "count": 53,
+          "total": 285,
+          "rate": 0.18596491228070175,
+          "lower95": 0.14507687451152051,
+          "upper95": 0.2352062979954868
+        },
+        "yes": {
+          "count": 232,
+          "total": 285,
+          "rate": 0.8140350877192982,
+          "lower95": 0.7647937020045132,
+          "upper95": 0.8549231254884795
+        }
+      },
+      "deciding_criterion_agreement": {
+        "count": 232,
+        "total": 232,
+        "rate": 1,
+        "lower95": 0.9837111010101696,
+        "upper95": 1
+      }
+    },
+    "published_rvc": {
+      "outcomes": {
+        "error": {
+          "count": 0,
+          "total": 0
+        },
+        "no": {
+          "count": 0,
+          "total": 0
+        },
+        "undetermined": {
+          "count": 0,
+          "total": 0
+        },
+        "yes": {
+          "count": 0,
+          "total": 0
+        }
+      },
+      "deciding_criterion_agreement": {
+        "count": 0,
+        "total": 0
+      }
+    },
+    "explicit_annex_row_agreement": {
+      "count": 0,
+      "total": 0
+    },
+    "cited_tariff_scope_compatible": {
+      "count": 388,
+      "total": 388,
+      "rate": 1,
+      "lower95": 0.9901960383991899,
+      "upper95": 1
+    },
+    "synthetic_negatives": {
+      "error": {
+        "count": 0,
+        "total": 233,
+        "rate": 0,
+        "lower95": 1.734723475976807e-18,
+        "upper95": 0.016220123491819005
+      },
+      "no": {
+        "count": 0,
+        "total": 233,
+        "rate": 0,
+        "lower95": 1.734723475976807e-18,
+        "upper95": 0.016220123491819005
+      },
+      "no_or_undetermined": {
+        "count": 233,
+        "total": 233,
+        "rate": 1,
+        "lower95": 0.9837798765081812,
+        "upper95": 1.0000000000000002
+      },
+      "undetermined": {
+        "count": 233,
+        "total": 233,
+        "rate": 1,
+        "lower95": 0.9837798765081812,
+        "upper95": 1.0000000000000002
+      },
+      "yes": {
+        "count": 0,
+        "total": 233,
+        "rate": 0,
+        "lower95": 1.734723475976807e-18,
+        "upper95": 0.016220123491819005
+      }
+    }
+  }
+}
