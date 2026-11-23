@@ -52,7 +52,7 @@ test("the landing page renders the market block", () => {
 });
 
 test("the evidence link is at least 44px tall", () => {
-  assert.ok(/<a class="judge-source mkt-cta" href="\/accuracy#market-evidence">/.test(markup));
+  assert.ok(/<a href="\/accuracy#market-evidence" class="judge-source mkt-cta">/.test(markup));
   const css = read("../src/components/op/landing/market-evidence.css");
   const rule = css.match(/\.lp \.judge-source\.mkt-cta \{([^}]*)\}/);
   assert.ok(rule);
