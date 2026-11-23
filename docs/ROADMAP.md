@@ -20,9 +20,9 @@ These are the foundations the later phases build on. Each is built, but most are
 | Canada marking check | SOR/94-23 rules for marking goods from CUSMA countries (D720–D725) | Teams can check marking from tariff codes and production facts | shipped, rules check only. No accuracy figure |
 | RCEP preference calculator | Annex 3A qualification check with tariff shifts and value-content rules (D690) | Teams can check a trade preference from supplied facts | shipped as a separate rules calculator. Positive-only results are recorded under D691, D716 and D717. [Evaluation](../eval/RESULTS.md#rcep-calculator-on-japan-customs-rulings-d691-d716-d717) |
 | Google sign-in and workspaces | Sign in with a Google account; share cases inside one workspace | Cases belong to a team, not a browser | shipped |
-| Roles (viewer, editor, admin) | Per-workspace roles, read from the store on every request; role display, role management and viewer-safe screens in the UI; `STRICT_AUTH` turns off anonymous use ([roles-and-strict-auth.md](design/roles-and-strict-auth.md)) | Least privilege; reviewers who cannot change a case | shipped; on undelabs.dev roles apply to signed-in users, but required sign-in (`STRICT_AUTH`) is not enabled, so anonymous use is on |
+| Roles (viewer, editor, admin) | Per-workspace roles, read from the store on every request; role display, role management and viewer-safe screens in the UI; `STRICT_AUTH` turns off anonymous use ([roles-and-strict-auth.md](design/roles-and-strict-auth.md)) | Least privilege; reviewers who cannot change a case | shipped; on undelabs.dev `STRICT_AUTH=on`, so private case operations need a verified identity while pinned demos stay open (D730) |
 | Case isolation | One request principal, existence-hiding 404s, no trust in client headers ([case-isolation.md](design/case-isolation.md)) | One team cannot see another's products | shipped |
-| Audit trail | Append-only, tenant-scoped events with a hash chain, `verify`, and retention ([audit-trail.md](design/audit-trail.md)) | Evidence of who did what; input to a SOC 2 program | built and tested; **not enabled on undelabs.dev** (no audit key is set in production, so it is off) |
+| Audit trail | Append-only, tenant-scoped events with a hash chain, `verify`, and retention ([audit-trail.md](design/audit-trail.md)) | Evidence of who did what; input to a SOC 2 program | built, tested and **enabled on undelabs.dev** (`AUDIT_ACTOR_KEY` from Secret Manager, `AUDIT=auto`; D730). Evidence, not a certification |
 | Log policy | A closed allowlist for log fields; case data never logged ([data-handling.md](design/data-handling.md)) | Product data does not leak into logs | shipped |
 | API and API keys | OpenAPI-described REST API, per-key access, batch predict, BOM import from CSV or Excel ([openapi.yaml](api/openapi.yaml)) | ERP and sourcing tools can call it | shipped |
 | Ruling watch | Re-check saved cases against rulings CBP issued later | Origin answers go stale as CBP rules | shipped (needs a corpus rebuild to see new rulings) |
@@ -36,11 +36,11 @@ These are the foundations the later phases build on. Each is built, but most are
 
 ### Owner and infrastructure steps to switch these on
 
-These are deployment changes for the project owner, not code changes, and none is made by a feature PR:
+These are deployment changes for the project owner, not code changes, and none is made by a feature PR. All three were done on 23 Nov 2026 (#561, D730), each deployed and verified before the next:
 
-1. **Enable the audit trail:** create an audit key in Secret Manager and pass it to the backend as `AUDIT_ACTOR_KEY`. Then check that `GET /v1/audit` and `GET /v1/audit/verify` answer (they are registered only when the trail is on, [audit-trail.md](design/audit-trail.md)).
-2. **Require sign-in:** set `STRICT_AUTH=on`. Anonymous visitors then lose access to private case operations; decide first how the public demo should open (the pinned demo cases, or a demo account).
-3. **Bearer check behind IAM:** set `REQUIRE_BEARER=on` after confirming Cloud Run passes the header to the container (defence in depth, [api/SECURITY.md](api/SECURITY.md)).
+1. **Audit trail — done:** `audit-actor-key` v1 in Secret Manager, granted `secretAccessor` to the backend service account, passed as `AUDIT_ACTOR_KEY` with `AUDIT=auto`. `GET /v1/audit` and `/v1/audit/verify` answer (they are registered only when the trail is on, [audit-trail.md](design/audit-trail.md)).
+2. **Require sign-in — done:** `STRICT_AUTH=on`. Anonymous visitors lose access to private case operations (401); the public demo opens through the pinned demo cases and `/v1/demos*`, no demo account needed.
+3. **Bearer check behind IAM — done:** `REQUIRE_BEARER=on`, enabled only after confirming Cloud Run passes the header to the container (public `/api/v1/demos` still 200 with the flag on; defence in depth, [api/SECURITY.md](api/SECURITY.md)).
 
 ## Next: 0–3 months
 
