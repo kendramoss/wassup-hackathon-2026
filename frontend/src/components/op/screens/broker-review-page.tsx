@@ -338,7 +338,7 @@ export function RulingChanges({ changes }: { changes?: RulingChange[] }) {
             <li key={x.ruling} className="border-b border-line py-2 text-sm first:border-t">
               <span className="break-words">{changeSentence(x)}</span>
               <details className="group mt-1 text-[12.5px] text-dim">
-                <summary className="flex min-h-8 cursor-pointer list-none items-center gap-2 text-ink hover:text-ok [&::-webkit-details-marker]:hidden">
+                <summary className="flex min-h-11 cursor-pointer list-none items-center gap-2 text-ink hover:text-ok [&::-webkit-details-marker]:hidden">
                   <span aria-hidden="true" className="inline-block w-3 transition-transform group-open:rotate-90">
                     ▸
                   </span>
