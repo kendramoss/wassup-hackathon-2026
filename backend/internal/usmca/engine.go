@@ -540,7 +540,7 @@ func (e *evaluator) rvcCondition(cr *ConditionResult, c Condition) Tri {
 		return Unknown3
 	case StatusNeedsInformation:
 		for _, p := range e.rvc.Problems {
-			cr.MissingFacts = append(cr.MissingFacts, MissingFact{p.Code, p.Field, p.Message})
+			cr.MissingFacts = append(cr.MissingFacts, MissingFact(p))
 		}
 		return Unknown3
 	}
