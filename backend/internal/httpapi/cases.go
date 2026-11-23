@@ -1559,7 +1559,13 @@ func (a *api) buildDraft(r *http.Request, c store.Case, in exportRequest) (draft
 	}
 	ex := export.Input{ProductName: name, Product: c.Product, Facts: c.Facts, Requested: c.Prediction.Origin, Prediction: c.Prediction}
 	if c.CurrentOrigin != nil {
-		ex.CurrentRuled = strings.TrimSpace(c.CurrentOrigin.Country + " (" + c.CurrentOrigin.Ruling + ")")
+		co := strings.TrimSpace(c.CurrentOrigin.Country)
+		r := strings.TrimSpace(c.CurrentOrigin.Ruling)
+		if r != "" {
+			ex.CurrentRuled = strings.TrimSpace(co + " (" + r + ")")
+		} else if co != "" {
+			ex.CurrentRuled = co
+		}
 	}
 	switch id := strings.TrimSpace(in.PlanID); {
 	case id == "":
@@ -1642,10 +1648,16 @@ func (a *api) buildDraft(r *http.Request, c store.Case, in exportRequest) (draft
 		ids = append(ids, c.CurrentOrigin.Ruling)
 	}
 	ex.Rulings = a.rulingRefs(ids)
-	if c.CurrentOrigin != nil && c.CurrentOrigin.Ruling != "" {
-		ex.CurrentRuled = strings.TrimSpace(c.CurrentOrigin.Country + " (CBP ruling " + c.CurrentOrigin.Ruling + ")")
-		if t, err := time.Parse(time.DateOnly, ex.Rulings[c.CurrentOrigin.Ruling].Date); err == nil {
-			ex.CurrentRuled = strings.TrimSpace(c.CurrentOrigin.Country + " (CBP ruling " + c.CurrentOrigin.Ruling + ", " + t.Format("2 January 2006") + ")")
+	if c.CurrentOrigin != nil {
+		co := strings.TrimSpace(c.CurrentOrigin.Country)
+		r := strings.TrimSpace(c.CurrentOrigin.Ruling)
+		if r != "" {
+			ex.CurrentRuled = strings.TrimSpace(co + " (CBP ruling " + r + ")")
+			if t, err := time.Parse(time.DateOnly, ex.Rulings[r].Date); err == nil {
+				ex.CurrentRuled = strings.TrimSpace(co + " (CBP ruling " + r + ", " + t.Format("2 January 2006") + ")")
+			}
+		} else if co != "" {
+			ex.CurrentRuled = co
 		}
 	}
 	// The letter's regime is the one that produced the prediction behind the
