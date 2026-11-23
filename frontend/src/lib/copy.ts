@@ -604,6 +604,19 @@ export const copy = {
     needGood: "Product HS code",
     needPart: "HS code for at least one part",
     details: "Details",
+    // Guidance on an undetermined answer: yes / no / not sure per fact.
+    yes: "Yes",
+    no: "No",
+    notSure: "Not sure",
+    toAdd: "To decide, add:",
+    part: (n: number) => `Part ${n}`,
+    review: "A person needs to read this rule.",
+    why: "Why we ask",
+    yourAnswers: "Your answers",
+    clearAll: "Clear all",
+    shareBad: "Enter 0 to 100",
+    shareLabels: { value_share: "Value share", weight_share: "Weight share" } as Record<string, string>,
+    answerLabels: { simple_assembly: "Simple assembly", gri_2a: "Parts only gathered together", bending_to_shape: "Bending to shape" } as Record<string, string>,
   },
 
   // The 102.20 rule check on each plan move (D441): a chip on the plan card
