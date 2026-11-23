@@ -1,38 +1,52 @@
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import { test } from "node:test";
+import { html, text } from "./render-support.mjs";
 
 const read = (p) => readFileSync(new URL(p, import.meta.url), "utf8");
-const lib = read("../src/lib/market-evidence.ts");
-const view = read("../src/components/op/landing/market-evidence.tsx");
-const landing = read("../src/components/op/landing/landing.tsx");
+const { MarketEvidence } = await import("../src/components/op/landing/market-evidence.tsx");
+const markup = html(MarketEvidence, {});
+const page = text(markup);
+const { held_out: h } = JSON.parse(read("../../eval/rcep/japan-summary.json"));
+const o = h.published_positives.outcomes;
+const crit = h.published_positives.deciding_criterion_agreement;
 
-test("landing RCEP counts match the committed held-out summary", () => {
-  const { held_out: h } = JSON.parse(read("../../eval/rcep/japan-summary.json"));
-  const o = h.published_positives.outcomes;
-  assert.deepEqual([o.yes.count, o.undetermined.count, o.yes.total], [71, 27, 98]);
-  assert.equal(h.published_positives.deciding_criterion_agreement.count, 71);
-  assert.match(lib, /rulings: 98,\s+yes: 71,\s+undetermined: 27,\s+criterionMatches: 71/);
-  assert.match(lib, /71 of 71 yes answers/);
+test("the rendered RCEP chart and limits match the committed held-out summary", () => {
+  assert.ok(page.includes(`on ${o.yes.total} unseen Japan Customs rulings`));
+  assert.ok(page.includes(`${o.yes.count} Yes ${o.undetermined.count} Undetermined`));
+  assert.ok(markup.includes(`aria-label="${o.yes.count} yes, ${o.undetermined.count} undetermined, out of ${o.yes.total}"`));
+  assert.ok(page.includes(`matched in ${crit.count} of ${crit.total} yes answers`));
+  assert.equal(o.no.count + o.error.count, 0);
+  assert.ok(page.includes("It is not an accuracy test."));
+  assert.ok(page.includes("No rulings that deny the preference were tested, so refusals are unmeasured."));
+  assert.ok(page.includes("Customs specialist review is pending."));
+  assert.ok(page.includes("The calculator's answer on whether the product gets the trade-deal rate."));
 });
 
-test("landing states the RCEP limits", () => {
-  assert.match(lib, /It is not an accuracy test/);
-  assert.match(lib, /No rulings that deny the preference were tested/);
-  assert.match(lib, /Customs specialist review is pending/);
-  assert.match(view, /<details className="mkt-details">/);
-  assert.match(view, /href="\/accuracy#market-evidence"/);
+test("the limits sit in a closed disclosure and the evidence link resolves to the Accuracy block", () => {
+  const details = markup.match(/<details[^>]*>[\s\S]*?<\/details>/g) ?? [];
+  assert.equal(details.length, 1);
+  assert.ok(!/<details[^>]*open/.test(details[0]));
+  assert.ok(text(details[0]).startsWith("Limits"));
+  assert.ok(markup.includes('href="/accuracy#market-evidence"'));
 });
 
-test("market statuses invent no Canada or Japan scores", () => {
-  assert.match(lib, /name: "Canada marking", status: "Rules only", note: "No score\."/);
-  assert.match(lib, /name: "Japan origin", status: "Needs setup", note: "Not available yet\. Not measured\."/);
-  const markets = lib.slice(lib.indexOf("markets: ["), lib.indexOf("detailsTitle"));
-  const lines = markets.split("\n").filter((l) => /Canada|Japan/.test(l));
-  assert.equal(lines.length, 2);
-  for (const l of lines) assert.doesNotMatch(l, /\d/);
+test("each market names what was shown and invents no Canada or Japan score", () => {
+  const items = [...markup.matchAll(/<li[^>]*><b>([^<]*)<\/b><span[^>]*>([^<]*)<\/span><span[^>]*>([^<]*)<\/span><\/li>/g)].map((m) => m.slice(1));
+  assert.deepEqual(items.map((i) => i[0]), ["U.S. origin", "RCEP tariff", "Canada marking", "Japan origin", "Other markets"]);
+  const by = Object.fromEntries(items.map((i) => [i[0], i]));
+  assert.notEqual(by["U.S. origin"][1], by["RCEP tariff"][1]);
+  assert.equal(by["U.S. origin"][2], "Single-origin U.S. substantial-transformation rulings only.");
+  assert.deepEqual(by["Canada marking"].slice(1), ["Rules only", "No score."]);
+  assert.deepEqual(by["Japan origin"].slice(1), ["Not available yet", "Turns on only when the Japan model is configured. Not measured."]);
+  assert.ok(!/\d/.test([...by["Canada marking"], ...by["Japan origin"]].join(" ")));
+  assert.ok(!page.includes("Supported check"));
 });
 
-test("the market block is rendered on the landing page", () => {
-  assert.match(landing, /<MarketEvidence \/>/);
+test("the status list has an accessible name", () => {
+  assert.match(markup, /<article[^>]*aria-labelledby="marketstatush"[^>]*>\s*<h3 id="marketstatush"[^>]*>Market status<\/h3>/);
+});
+
+test("the landing page renders the market block", () => {
+  assert.ok(read("../src/components/op/landing/landing.tsx").includes("<MarketEvidence />"));
 });

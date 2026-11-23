@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 import { api, type EvalSummary } from "@/lib/api/client";
 import { copy } from "@/lib/copy";
+import { rcepEvidence } from "@/lib/market-evidence";
 import failureData from "@/lib/failure-cases.json";
 import { ErrorBox, Main } from "../chrome";
 import { ButtonLink, Chip, Fold, ScrollX, cx } from "../ui";
@@ -250,17 +251,6 @@ function PlanEvidence({ calibration }: { calibration?: VerifierEvidence }) {
 
 // D691, D716 and D717. The first-render counts are pinned to
 // eval/rcep/japan-summary.json by the Accuracy copy test.
-const rcepEvidence = {
-  rulings: 98,
-  yes: 71,
-  undetermined: 27,
-  refusals: 0,
-  errors: 0,
-  criterionMatches: 71,
-  criteriaCompared: 71,
-  syntheticDevelopment: 162,
-  syntheticUnseen: 71,
-};
 
 function MarketEvidence() {
   const result = rcepEvidence;

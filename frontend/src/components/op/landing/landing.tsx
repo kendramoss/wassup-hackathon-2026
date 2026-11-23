@@ -20,6 +20,7 @@ import { MarketEvidence } from "./market-evidence";
 import { JudgePersonas } from "./judge-tabs";
 import { startLanding } from "./motion";
 import "./landing.css";
+import "./market-evidence.css";
 
 const L = copy.landing;
 const flag = (c: "China" | "Thailand") => `/flags/${c === "China" ? "cn" : "th"}.svg`;

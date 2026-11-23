@@ -1,32 +1,42 @@
-// Landing market evidence (#664). The RCEP counts are held-out published
-// positives from eval/rcep/japan-summary.json (D691, D716, D717), pinned by
-// scripts/landing-market-evidence.test.mjs. Canada and Japan carry no scores.
+// Single source for the RCEP held-out counts shown on the landing and Accuracy
+// pages (D691, D716, D717). Pinned to eval/rcep/japan-summary.json by
+// scripts/landing-market-evidence.test.mjs and scripts/accuracy-copy.test.mjs.
+// Canada and Japan carry no scores.
 export const rcepEvidence = {
   rulings: 98,
   yes: 71,
   undetermined: 27,
+  refusals: 0,
+  errors: 0,
   criterionMatches: 71,
-} as const;
+  criteriaCompared: 71,
+  syntheticDevelopment: 162,
+  syntheticUnseen: 71,
+};
+
+const r = rcepEvidence;
 
 export const marketEvidence = {
-  heading: "What each market supports",
-  rcepTitle: "RCEP tariff check on 98 unseen Japan Customs rulings",
+  heading: "Which markets are tested",
+  rcepTitle: `RCEP trade-deal check on ${r.rulings} unseen Japan Customs rulings`,
   rcepYes: "Yes",
   rcepUndetermined: "Undetermined",
-  rcepNote: "All 98 rulings approved the preference, so this shows how often the check finds it. It is not an accuracy test.",
-  // "Status" is what the product offers, not a validation grade.
+  legendNote: "The calculator's answer on whether the product gets the trade-deal rate.",
+  rcepNote: `All ${r.rulings} rulings approved the preference, so this shows how often the check finds it. It is not an accuracy test.`,
+  marketsLabel: "Market status",
+  // Each status says what was shown, not a validation grade.
   markets: [
-    { name: "U.S. origin", status: "Supported check", note: "Measured on held-out rulings." },
-    { name: "RCEP tariff", status: "Supported check", note: "Tested on approvals only." },
+    { name: "U.S. origin", status: "Held-out rulings", note: "Single-origin U.S. substantial-transformation rulings only." },
+    { name: "RCEP tariff", status: "Approvals only", note: "No refusals tested." },
     { name: "Canada marking", status: "Rules only", note: "No score." },
-    { name: "Japan origin", status: "Needs setup", note: "Not available yet. Not measured." },
-    { name: "Other markets", status: "Not yet", note: "" },
+    { name: "Japan origin", status: "Not available yet", note: "Turns on only when the Japan model is configured. Not measured." },
+    { name: "Other markets", status: "Not yet", note: "No rules or tests." },
   ],
   detailsTitle: "Limits",
   details: [
     "No rulings that deny the preference were tested, so refusals are unmeasured.",
-    "The calculator applies published rules without a model. The deciding rule matched in 71 of 71 yes answers.",
+    `The calculator applies published rules without a model. The deciding rule matched in ${r.criterionMatches} of ${r.criteriaCompared} yes answers.`,
     "Customs specialist review is pending.",
   ],
   link: "See the full evidence →",
-} as const;
+};

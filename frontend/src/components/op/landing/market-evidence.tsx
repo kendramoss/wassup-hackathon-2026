@@ -1,6 +1,5 @@
 import Link from "next/link";
 import { marketEvidence as m, rcepEvidence as r } from "@/lib/market-evidence";
-import "./market-evidence.css";
 
 export function MarketEvidence() {
   return (
@@ -19,20 +18,21 @@ export function MarketEvidence() {
             <span><i className="mkt-key mkt-yes" /> <b>{r.yes}</b> {m.rcepYes}</span>
             <span><i className="mkt-key mkt-und" /> <b>{r.undetermined}</b> {m.rcepUndetermined}</span>
           </p>
-          <p>{m.rcepNote}</p>
+          <p>{m.legendNote} {m.rcepNote}</p>
           <details className="mkt-details">
             <summary>{m.detailsTitle}</summary>
             <ul>{m.details.map((d) => <li key={d}>{d}</li>)}</ul>
           </details>
           <Link className="judge-source" href="/accuracy#market-evidence">{m.link}</Link>
         </article>
-        <article className="judge-card">
+        <article className="judge-card" aria-labelledby="marketstatush">
+          <h3 id="marketstatush" className="sr-only">{m.marketsLabel}</h3>
           <ul className="mkt-list">
             {m.markets.map((x) => (
               <li key={x.name}>
                 <b>{x.name}</b>
                 <span className="mkt-status">{x.status}</span>
-                {x.note ? <span className="mkt-note">{x.note}</span> : null}
+                <span className="mkt-note">{x.note}</span>
               </li>
             ))}
           </ul>
