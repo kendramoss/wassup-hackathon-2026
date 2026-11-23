@@ -1,6 +1,6 @@
 /* Landing page (/). Every rule is scoped under .lp; colours are tokens
    from globals.css only. */
-.lp { --gutter: 40px; --bar: 56px; --lp-width: 1320px; }
+.lp { --gutter: 40px; --bar: 56px; }
 .lp .duo { font-feature-settings: "ss02" 1; }
 .lp .eyebrow { font-size: 11px; letter-spacing: .06em; text-transform: uppercase; font-weight: 500; color: var(--dim); }
 .lp .dimn { font-size: 10px; letter-spacing: .02em; color: var(--dimension); }
@@ -181,16 +181,70 @@
 .lp .testfoot { align-items: center; }
 .lp .testfoot .endcta > a:first-child { text-transform: none; letter-spacing: 0; font-size: 13px; color: var(--ok); text-decoration: underline; text-underline-offset: 3px; }
 
+/* ---- what you can do ---- */
 .lp .hero .also { max-width: 64ch; color: var(--body); font-size: 13.5px; line-height: 1.5; }
-.lp .hero .also a { color: var(--ok); text-decoration: underline; text-underline-offset: 3px; }
+.lp .hero .also a, .lp .can dd a { color: var(--ok); text-decoration: underline; text-underline-offset: 3px; }
+.lp .can { max-width: 1240px; margin: 0 auto; padding: 56px var(--gutter) 0; scroll-margin-top: 72px; }
+.lp .canlead { margin-top: 8px; max-width: 78ch; color: var(--body); font-size: 14.5px; line-height: 1.55; }
+.lp .can dl { margin: 12px 0 0; border-top: 1px solid var(--edge); }
+.lp .canrow { display: grid; grid-template-columns: minmax(0, 2fr) minmax(0, 5fr); gap: 6px 32px; padding: 14px 0; border-bottom: 1px dashed var(--guide); }
+.lp .canrow dt { color: var(--ink); font-size: 14.5px; line-height: 1.55; font-weight: 500; }
+.lp .canrow dd { min-width: 0; margin: 0; display: flex; flex-direction: column; align-items: flex-start; gap: 8px; color: var(--body); font-size: 14.5px; line-height: 1.55; }
+.lp .canrow dd a { font-size: 13.5px; min-height: 24px; display: inline-flex; align-items: center; }
+.lp .cancode { box-sizing: border-box; max-width: 100%; white-space: pre-wrap; overflow-wrap: anywhere; border: 1px solid var(--edge); background: var(--sheet); padding: 8px 12px; font-size: 12.5px; line-height: 1.5; }
 
-.lp :is(#impact, #can, .lpfoot) {
-  --gutter: clamp(16px, 4vw, 48px);
-}
+/* ---- who + footer ---- */
+.lp .who { max-width: 1240px; margin: 0 auto; padding: 56px var(--gutter) 0; }
+.lp .whobox { margin-top: 12px; border: 1px dashed var(--guide); background: var(--sheet); padding: 16px 20px; display: grid; grid-template-columns: 1fr 1fr; gap: 6px 32px; }
+.lp .whobox p { color: var(--body); font-size: 14.5px; line-height: 1.55; }
+.lp .roles { margin-top: 28px; }
+.lp .rolelead { margin-top: 8px; max-width: 78ch; color: var(--body); font-size: 14.5px; line-height: 1.55; }
+.lp .roles dl { margin: 12px 0 0; border-top: 1px solid var(--edge); }
+.lp .role { display: grid; grid-template-columns: minmax(0, 2fr) minmax(0, 3fr); gap: 6px 32px; padding: 14px 0; border-bottom: 1px dashed var(--guide); }
+.lp .role dt { display: flex; flex-direction: column; gap: 4px; }
+.lp .role dt .read, .lp .role dd { color: var(--body); font-size: 14.5px; line-height: 1.55; }
+.lp .role dt .read { color: var(--ink); }
+.lp .role dd { margin: 0; }
+/* ---- fig.4, the impact story ----
+   A drawing sheet like fig.3: numbered beats down the left, bars only for
+   measured figures (values written on them), plain text for the rest. */
+.lp .story { max-width: 1240px; margin: 0 auto; padding: 48px var(--gutter) 0; }
+.lp .storysheet { background: var(--sheet); border: 1px solid var(--edge); border-radius: 2px; box-shadow: 4px 4px 0 var(--shadow); padding: 28px 32px 18px; }
+.lp .storyhead { display: grid; grid-template-columns: 1fr auto; gap: 10px 24px; align-items: end; padding-bottom: 14px; border-bottom: 1px solid var(--ink); }
+.lp .storyhead h2 { margin-top: 4px; font-size: 20px; font-weight: 500; letter-spacing: -.04em; line-height: 1.25; color: var(--ink); text-wrap: balance; }
+.lp .illus { border: 1px dashed var(--ask-line); background: var(--ask-wash); padding: 6px 10px; font-size: 11.5px; color: var(--ink); white-space: nowrap; }
+.lp .beats { list-style: none; margin: 0; padding: 0; }
+.lp .beat { display: grid; grid-template-columns: 200px 1fr; gap: 8px 28px; padding: 20px 0; }
+.lp .beat + .beat { border-top: 1px dashed var(--guide); }
+.lp .bn { display: flex; align-items: baseline; gap: 10px; font-size: 13px; font-weight: 500; color: var(--ink); }
+.lp .bn b { display: inline-grid; place-items: center; width: 22px; height: 22px; flex: none; border: 1px solid var(--ink); border-radius: 50%; font-size: 11px; font-weight: 500; }
+.lp .bc { display: flex; flex-direction: column; gap: 10px; max-width: 78ch; }
+.lp .bc p, .lp .sums, .lp .todo { color: var(--body); font-size: 14.5px; line-height: 1.55; }
+.lp .cmp { display: flex; flex-direction: column; gap: 14px; margin: 4px 0; padding: 12px 0; border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); }
+.lp .cmphead { text-transform: uppercase; letter-spacing: .08em; }
+.lp .cmphead span + span { margin-left: 16px; }
+.lp .cmphead i { display: inline-block; width: 14px; height: 8px; margin-right: 6px; vertical-align: 0; }
+.lp .cmphead .bw { background: var(--ink); }
+.lp .cmphead .bu { background: var(--ok); }
+.lp .cmprow { display: flex; flex-direction: column; gap: 5px; }
+.lp .cmprow .eyebrow { color: var(--ink); }
+.lp .bar { display: grid; grid-template-columns: minmax(120px, 2fr) 3fr; gap: 4px 14px; align-items: center; }
+.lp .bt { position: relative; display: block; height: 10px; border-left: 1px solid var(--ink); }
+.lp .bt i { position: absolute; left: 0; top: 1px; bottom: 1px; display: block; }
+.lp .bt .bw { width: 100%; background: var(--ink); }
+.lp .bt .bu { background: var(--ok); }
+.lp .val { font-size: 12px; line-height: 1.45; color: var(--dim); }
+.lp .val b { font-weight: 500; font-size: 13px; color: var(--ink); font-variant-numeric: tabular-nums; }
+.lp .val b.ok { color: var(--ok); }
+.lp .sums, .lp .todo { margin: 0; padding-left: 18px; display: flex; flex-direction: column; gap: 4px; }
+.lp .sums { list-style: none; padding-left: 0; }
+.lp .sums b { font-weight: 600; color: var(--ink); }
+.lp .todo { list-style: square; }
+.lp .storyfoot { margin-top: 6px; padding-top: 12px; border-top: 1px solid var(--line); display: flex; flex-wrap: wrap; justify-content: space-between; gap: 6px 16px; font-size: 10.5px; letter-spacing: .08em; text-transform: uppercase; color: var(--dim); }
 
-.lp :is(#impact, #can) { scroll-margin-top: 88px; }
+.lp .lpfoot { max-width: 1240px; margin: 40px auto 0; padding: 18px var(--gutter) 28px; border-top: 1px dashed var(--guide); display: flex; flex-wrap: wrap; gap: 6px 28px; font-size: 12.5px; color: var(--dim); }
+.lp .lpfoot a { color: var(--ok); text-decoration: underline; text-underline-offset: 2px; }
 
-<<<<<<< HEAD
 /* Folded on phones only (PhoneFold): wide screens never show the summary. */
 .lp .pfold > summary { display: none; }
 @media (max-width: 900px) {
@@ -199,47 +253,6 @@
   .lp .pfold > summary:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
   .lp .pfold .pfmark { display: inline-block; width: 12px; color: var(--dim); transition: transform .15s ease; }
   .lp .pfold[open] .pfmark { transform: rotate(90deg); }
-=======
-.lp .judgePersonas .lp-ruling-pill {
-  display: inline-flex;
-  align-items: center;
-  justify-self: start;
-  min-height: 30px;
-  padding: 3px 8px;
-  border: 1px solid currentColor;
-  border-radius: 2px;
-  font-size: 12px;
-  font-weight: 600;
-}
-
-.lp .judgePersonas .lp-ruling-pill {
-  color: var(--lp-verified);
-  background: var(--lp-verified-wash);
-  text-underline-offset: 3px;
-}
-
-.lp .lpfoot {
-  max-width: var(--lp-width);
-  margin-inline: auto;
-  padding-inline: var(--gutter);
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 12px 24px;
-  margin-top: 44px;
-  border-top: 1px dashed var(--guide);
-  padding-block: 16px 28px;
-  font-size: 12px;
-  color: var(--dim);
-}
-
-.lp .lpfoot nav { display: flex; flex-wrap: wrap; gap: 6px 14px; }
-
-.lp .lpfoot a {
-  color: var(--ok);
-  text-decoration: underline;
-  text-underline-offset: 3px;
->>>>>>> origin/main
 }
 
 /* ---- phones ---- */
@@ -275,7 +288,13 @@
   .lp .endcta { flex-wrap: wrap; gap: 12px 20px; }
   .lp .crop { display: none; }
   .lp .ruler { display: none; } /* too small to read at phone width; the claims below carry the numbers */
-  .lp .panels, .lp .claims, .lp .pcrows { grid-template-columns: 1fr; }
+  .lp .panels, .lp .claims, .lp .pcrows, .lp .whobox, .lp .role { grid-template-columns: 1fr; }
+  .lp .canrow { grid-template-columns: minmax(0, 1fr); }
+  .lp .story { padding-top: 36px; }
+  .lp .storysheet { padding: 20px 16px 14px; }
+  .lp .storyhead, .lp .beat, .lp .bar { grid-template-columns: 1fr; }
+  .lp .illus { white-space: normal; justify-self: start; }
+  .lp .beat { padding: 16px 0; }
   .lp .panel + .panel { padding: 18px 0 0; border-left: 0; border-top: 1px dashed var(--guide); }
   .lp .testhead { grid-template-columns: 1fr; }
   .lp .testhead .meta { text-align: left; }
@@ -287,6 +306,7 @@
 @media (prefers-reduced-motion: reduce) {
   .lp .stamp.flip { animation: none; }
   .lp .mini, .lp .mini .real > * { transition: none; }
+  .lp .pfold .pfmark { transition: none; }
 }
 
 /* ---- window sizes between phone and full desktop ----

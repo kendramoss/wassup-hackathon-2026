@@ -104,7 +104,7 @@ export function RcepCheck({ c }: { c: CaseResponse }) {
   const [busy, setBusy] = useState(false);
   if (!parts.length) return null;
   const noCode = !c.product?.hts?.trim();
-  const field = "h-11 rounded-[2px] border border-edge bg-white px-2 text-sm focus:border-ok";
+  const field = "h-9 rounded-[2px] border border-edge bg-white px-2 text-sm focus:border-ok";
 
   async function run() {
     setBusy(true);
@@ -123,19 +123,8 @@ export function RcepCheck({ c }: { c: CaseResponse }) {
     <Fold title={R.title} meta={R.meta}>
       <div data-rcep-form className="flex max-w-[75ch] flex-col gap-3 text-[13px]">
         <p className="duo text-body">{R.lead}</p>
-<<<<<<< HEAD
         <p className="duo text-dim">{R.acronym}</p>
         <p className="duo text-body">{R.needSummary}</p>
-=======
-        <div>
-          <p className="text-ink">{R.needsTitle}</p>
-          <ul data-rcep-needs className="duo mt-1 flex list-disc flex-col gap-0.5 pl-4 text-body">
-            {R.needs.map((n) => (
-              <li key={n}>{n}</li>
-            ))}
-          </ul>
-        </div>
->>>>>>> origin/main
         {noCode ? (
           <p className="duo text-dim">{R.needCode}</p>
         ) : (
@@ -150,7 +139,6 @@ export function RcepCheck({ c }: { c: CaseResponse }) {
                 <input className={cx(field, "w-32 text-right tabular-nums")} inputMode="decimal" value={f.fob} onChange={(e) => setF({ ...f, fob: e.target.value })} />
               </label>
             </div>
-<<<<<<< HEAD
             <div className="overflow-x-auto">
               <table className="w-full min-w-[560px] border-collapse">
                 <thead>
@@ -190,39 +178,6 @@ export function RcepCheck({ c }: { c: CaseResponse }) {
                 </tbody>
               </table>
             </div>
-=======
-            <p className="duo text-dim">{R.tick}</p>
-            <ul className="flex flex-col">
-              {parts.map((p, i) => (
-                <li key={i} data-rcep-part className="flex flex-wrap items-center gap-x-4 gap-y-1 border-t border-line py-2">
-                  <div className="min-w-0 basis-full sm:basis-52">
-                    <span className="text-ink">{p.name}</span>
-                    <span className="block text-dim">{[p.hts || R.noCode, p.made_in].filter(Boolean).join(" · ")}</span>
-                  </div>
-                  <label className="flex min-h-11 min-w-11 cursor-pointer items-center gap-2">
-                    <input
-                      type="checkbox"
-                      className="size-5 accent-[var(--ok)]"
-                      aria-label={R.declaredFor(p.name)}
-                      checked={f.parts[i]?.originating ?? false}
-                      onChange={(e) => setF({ ...f, parts: f.parts.map((x, j) => (j === i ? { ...x, originating: e.target.checked } : x)) })}
-                    />
-                    <span className="text-body">{R.declared}</span>
-                  </label>
-                  <label className="flex min-h-11 items-center gap-2">
-                    <span className="text-dim">{R.value}</span>
-                    <input
-                      className={cx(field, "w-24 text-right tabular-nums")}
-                      inputMode="decimal"
-                      aria-label={R.valueFor(p.name)}
-                      value={f.parts[i]?.value ?? ""}
-                      onChange={(e) => setF({ ...f, parts: f.parts.map((x, j) => (j === i ? { ...x, value: e.target.value } : x)) })}
-                    />
-                  </label>
-                </li>
-              ))}
-            </ul>
->>>>>>> origin/main
             <div>
               <Button onClick={run} disabled={busy || !f.madeIn.trim()}>
                 {busy ? R.checking : R.check}
