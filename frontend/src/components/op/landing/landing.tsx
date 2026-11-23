@@ -711,7 +711,12 @@ export function Landing() {
             </ol>
             </PhoneFold>
             <div className="storyfoot">
-              <span>{S.sources}</span>
+              <span>
+                {S.sources}{" "}
+                <a href="/method#check" className="text-ok underline underline-offset-2">
+                  Check the benchmark sources
+                </a>
+              </span>
               <span>{copy.name} · sheet 04</span>
             </div>
           </div>

@@ -343,10 +343,28 @@ export default function Page() {
               Only U.S. imports get an origin prediction. Other markets go to review.
             </li>
             <li>
-              Without a key, keep the <C>case_access_key</C> that <C>predict_origin</C> returns. It opens that case in the other tools; keep it private.
+              Without a key, keep the <C>case_access_key</C> that <C>predict_origin</C> returns. It opens that case in the other tools; keep it private. If you use your own API key (<C>X-API-Key</C> or an <C>Authorization: Bearer</C> that owns the case), you do not need it.
             </li>
             <li>No tool deletes anything.</li>
           </ul>
+          <Details title="Anonymous MCP workflow example">
+            <p>Example <C>predict_origin</C> result (synthetic):</p>
+            <Code label="predict_origin result (synthetic)">{`{
+  "id": "case_abc123",
+  "case_access_key": "ca_example_synthetic_key_do_not_use",
+  "prediction": { "origin_country": "…" }
+}`}</Code>
+            <p>Then call other tools for that case with the same key, for example <C>get_case</C>:</p>
+            <Code label="get_case (synthetic)">{`{
+  "id": "case_abc123",
+  "case_access_key": "ca_example_synthetic_key_do_not_use"
+}`}</Code>
+            <p>Or <C>plan_production_moves</C> (pass <C>case_id</C> and <C>case_access_key</C> when you are not the API-key owner):</p>
+            <Code label="plan_production_moves (synthetic)">{`{
+  "case_id": "case_abc123",
+  "case_access_key": "ca_example_synthetic_key_do_not_use"
+}`}</Code>
+          </Details>
           <Details>
             <p>
               <C>predict_origin</C> takes an optional <C>jurisdiction</C>: the market the goods enter (<C>us</C>, <C>eu</C>, <C>uk</C>, <C>ca</C>, <C>jp</C>, <C>kr</C>,{" "}
