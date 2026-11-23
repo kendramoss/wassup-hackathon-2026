@@ -250,6 +250,15 @@ test("no workspace: create form; invitations still join; teams off (404) shows n
   assert.equal(anon.calls.length, 0, "an anonymous visitor makes no workspace request");
 });
 
+test("a legacy invitation without invited_by reads as a neutral sentence, never undefined or null as the inviter", async () => {
+  const app = await mount({ mine: mineOf(null, [{ workspace_id: "w8", name: "Legacy Co", created_at: "2025-01-01T00:00:00Z" }, { workspace_id: "w9", name: "Known Co", invited_by: "z@x.com", created_at: "" }]) }).start();
+  const t = app.text();
+  assert.match(t, /You were invited to\s*Legacy Co\./);
+  assert.match(t, /z@x\.com invited you to\s*Known Co/);
+  assert.doesNotMatch(t, /undefined|null/);
+  assert.ok(app.btn("Join"), "the invitation can still be joined");
+});
+
 test("a refused write elsewhere (ACCESS_STALE) re-reads the role", async () => {
   const app = await mount({ mine: mineOf(ws("editor")) }).start();
   const before = mineGets(app);
