@@ -240,6 +240,7 @@ Not a ruling: the broker's answer is their professional view, not CBP's. REST: P
 		Name: "get_broker_review_status",
 		Description: `Read the case's broker review links: each link's status (pending, viewed, approved, changes_requested, file_requested, revoked, expired), what draft it shares, when it expires, and the broker's answers with their comments.
 Use it after create_broker_review_link to see whether the broker answered. Input: case_id. Never returns a link's token.
+A link's changed_since_shared counts final, in-effect CBP changes, dated on or after the day it was shared, to the rulings its frozen draft cites or its plan rests on (the current setup's ruling is not in the snapshot, so it is not covered). It says what CBP changed, not that an answer is invalid; it is omitted when zero or when the link is revoked.
 REST: GET /v1/cases/{id}/reviews (operationId listBrokerReviewLinks).`,
 		InputSchema: object("", []string{"case_id"}, map[string]*jsonschema.Schema{
 			"case_id":         caseID(),
@@ -850,6 +851,13 @@ func (t tools) reviewStatus(ctx context.Context, hdr http.Header, in caseIn) (*m
 	for _, x := range rvs {
 		rv := obj(x)
 		fmt.Fprintf(&b, "\n%v: %v (%s), expires %v.", rv["id"], rv["status"], str0(rv["draft_label"], ""), rv["expires_at"])
+		if n, _ := rv["changed_since_shared"].(float64); n > 0 {
+			noun := "rulings it relies on changed"
+			if n == 1 {
+				noun = "ruling it relies on changed"
+			}
+			fmt.Fprintf(&b, " %d %s since it was shared.", int(n), noun)
+		}
 		for _, d := range list(rv["decisions"]) {
 			dd := obj(d)
 			if c := str0(dd["comment"], ""); c != "" {

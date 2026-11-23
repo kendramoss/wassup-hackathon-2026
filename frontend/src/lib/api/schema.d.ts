@@ -1135,6 +1135,16 @@ export interface components {
             /** @description Present on list rows; whether the caller may change this case (#283). Computed by the server for each request with the same authorization the write routes use; hidden cases are never returned, and the value is never stored or taken from the client. Pinned demos are false for non-admin callers, but that means no persisted change only: Ask, scenarios and plan previews on a pinned demo stay read-only and allowed. The server still enforces every action (403 forbidden). */
             can_write?: boolean;
             ruling_alerts?: components["schemas"]["RulingAlertCounts"];
+            /**
+             * @description Status of the case's newest non-revoked broker review link (#715), read from the links already on the case: the latest created, the later in the list when two share a time. A link past its expiry reads `expired`, never `pending`. Absent when the case has no link or only revoked ones, and for a pinned demo to non-admin callers. `approved` and `file_requested` are information only: no follow-up is implied.
+             * @enum {string}
+             */
+            review_status?: "pending" | "viewed" | "approved" | "changes_requested" | "file_requested" | "expired";
+            /**
+             * Format: date-time
+             * @description That link's expiry; present only while its status is pending or viewed (#715)
+             */
+            review_expires_at?: string;
         };
         /** @description Present only when CBP has changed (final) or proposed to change a ruling the case relies on: cited by the prediction, a shown plan's supporting ruling, or CBP's holding on the current setup (D480). */
         RulingAlertCounts: {
@@ -2267,6 +2277,8 @@ export interface components {
             first_viewed_at?: string;
             /** @description Oldest first */
             decisions: components["schemas"]["BrokerReviewDecision"][];
+            /** @description Count of final CBP changes, in effect now and dated on or after the day the link was shared, to the rulings the frozen draft cites or its plan rests on (#714). Derived on every read and never stored; present only when at least one, for every link that is not revoked (expired and approved ones included, whatever the broker can still open). Dates are date-only, so a change on the sharing day (UTC calendar date) counts. The current setup's ruling is not in the snapshot, so it is not covered. It says what CBP changed, not that an approval is invalid. */
+            changed_since_shared?: number;
         };
         BrokerReviewForBroker: {
             id: string;
@@ -2313,6 +2325,32 @@ export interface components {
                 content?: string;
                 notes?: string[];
             };
+            /** @description Final CBP changes, in effect now and dated on or after the day the link was shared (UTC calendar date, same day included: dates are date-only), to the rulings the frozen draft cites or its plan rests on (#714). Derived on each read from the frozen snapshot only, never from the live case, and nothing is stored. The current setup's ruling is not a structured field in the snapshot, so it is not covered. Proposed, scheduled and earlier changes are not listed. Present only when there is at least one; says what CBP changed, not that an approval is invalid. No case id or owner data. */
+            ruling_changes?: {
+                ruling: string;
+                roles: ("cited" | "plan_support")[];
+                /** @enum {string} */
+                status: "final";
+                /** @enum {string} */
+                kind: "revoked" | "modified";
+                by: string;
+                /** Format: date */
+                date?: string;
+                in_effect?: boolean;
+                bulletin?: string;
+                url?: string;
+                /** @description The change in words, e.g. modified by H344999 on 2026-05-06 */
+                note: string;
+                held_before?: string;
+                held_after?: string;
+                /** @description The frozen draft's origin */
+                answer?: string;
+                /** @enum {string} */
+                relevance?: "touches_answer" | "not_answer" | "holding_unchanged" | "unknown";
+                relevance_note?: string;
+                /** @enum {string} */
+                relevance_role?: "cited" | "plan_support";
+            }[];
             /** Format: date-time */
             shared_at: string;
             disclaimer: string;
@@ -2326,7 +2364,7 @@ export interface components {
             format?: "markdown" | "cfr177";
             /** @description The letter only: what would be filed. No reviewer notes or disclaimer. */
             content?: string;
-            /** @description Shown beside the letter, never in it, its print or its download: the draft-for-review disclaimer, how the 177.2 letter marks gaps, and a move under the confidence bar (18 Oct). */
+            /** @description Shown beside the letter, never in it, its print or its download: the draft-for-review disclaimer, how the 177.2 letter marks gaps, and a move under the confidence bar (18 Oct), and a final, in-effect CBP change to a ruling the draft relies on, with whether it bears on the answer (#714). */
             notes?: string[];
         };
         Ruling: {
