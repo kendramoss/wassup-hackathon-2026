@@ -937,6 +937,14 @@ type caseSummary struct {
 	// RulingAlerts counts CBP's final and proposed changes to the rulings the
 	// case relies on (D480); absent when there are none.
 	RulingAlerts *domain.AlertCounts `json:"ruling_alerts,omitempty"`
+	// ReviewStatus is the status of the case's newest non-revoked broker
+	// review link (#715), as reviewStatus reads it now: an expired link reads
+	// expired, never pending. ReviewExpiresAt is that link's expiry, only
+	// while it is pending or viewed. Both are absent for a case with no link
+	// or only revoked ones. The Cases page's "needs follow-up" filter is
+	// display-only and built from these and ruling_alerts.
+	ReviewStatus    string     `json:"review_status,omitempty"`
+	ReviewExpiresAt *time.Time `json:"review_expires_at,omitempty"`
 }
 
 // listCases lists the cases the caller may see: pinned demos first, then the
@@ -1068,6 +1076,14 @@ func (a *api) recentWithoutProbes(ctx context.Context, limit int) ([]store.Case,
 func summaryRow(c store.Case) caseSummary {
 	row := caseSummary{ID: c.ID, Date: c.Date, Step: c.Step(), UpdatedAt: c.UpdatedAt.Format(time.RFC3339), Scenarios: len(c.Scenarios), Pinned: c.Pinned,
 		RulingAlerts: alertCounts(c, alertsNow())}
+	if rv, ok := newestOpenReview(c.BrokerReviews); ok {
+		now := time.Now().UTC()
+		row.ReviewStatus = reviewStatus(rv, now)
+		if row.ReviewStatus == reviewPending || row.ReviewStatus == reviewViewed {
+			exp := rv.ExpiresAt
+			row.ReviewExpiresAt = &exp
+		}
+	}
 	if c.Watch != nil {
 		row.Watch = &c.Watch.Status
 		if c.Watch.Basis != "" {

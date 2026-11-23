@@ -191,6 +191,20 @@ func summarizeReview(rv store.BrokerReview, now time.Time) reviewSummary {
 	return out
 }
 
+// newestOpenReview is the case's newest link that is not revoked, read from
+// the links already on the case: the latest CreatedAt, and the later in the
+// list when two share one. No links, or only revoked ones, report false.
+func newestOpenReview(rvs []store.BrokerReview) (store.BrokerReview, bool) {
+	best, found := store.BrokerReview{}, false
+	for _, rv := range rvs {
+		if rv.RevokedAt != nil || (found && rv.CreatedAt.Before(best.CreatedAt)) {
+			continue
+		}
+		best, found = rv, true
+	}
+	return best, found
+}
+
 // reviewsField is the case's links for the owner, newest first.
 func reviewsField(rvs []store.BrokerReview, now time.Time) []reviewSummary {
 	out := make([]reviewSummary, 0, len(rvs))
