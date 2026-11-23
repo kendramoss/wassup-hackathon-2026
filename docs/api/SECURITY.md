@@ -5,10 +5,10 @@ What protects the public API, as built (D137 and the decisions it cites). Defaul
 ## How the API is reached
 
 - The backend runs on Cloud Run and only the frontend's service account may invoke it (Cloud Run IAM). Brokers and browsers reach it through the frontend's `/api/v1/...` proxy (`frontend/src/lib/backend.ts`), which forwards an allowlist of headers: `Content-Type`, `Accept`, `X-API-Key`, `X-Review-Token`, plus `X-Client-IP`, `X-Visitor-ID`, `X-User-Token` it sets itself, and a Google ID token as `Authorization: Bearer` on Cloud Run.
-- `REQUIRE_BEARER=on` (default off) makes the backend refuse, with 401, any request other than `/health` that has no `Authorization: Bearer` header. It is defence in depth behind Cloud Run IAM. It is off by default because it has not been run against the deployed service; turn it on after checking that Cloud Run passes the header through to the container.
+- `REQUIRE_BEARER=on` (default off) makes the backend refuse, with 401, any request other than `/health` that has no `Authorization: Bearer` header. It is defence in depth behind Cloud Run IAM. It is **on in production**: Cloud Run header pass-through to the container was verified end to end before the flag was enabled (23 Nov 2026). The code default stays off so local UI work needs no token.
 - CORS: the API sends no CORS headers, on any route. It is for server-to-server calls with `X-API-Key` and for the frontend's own proxy. Calls from a browser page on another site are not supported.
 
-## As built vs as deployed (21 Nov 2026)
+## As built vs as deployed (23 Nov 2026)
 
 The code defaults are permissive so local UI work works without credentials. "As deployed" is read from `.github/workflows/deploy.yml` and checked against the live public paths; the backend itself is IAM-private (`/health` returns 403 from Google Frontend). This matrix is the answer to "is isolation/auth on?" — do not claim more than it says (#420).
 
@@ -21,18 +21,14 @@ The code defaults are permissive so local UI work works without credentials. "As
 | `DAILY_SPEND_CAP_USD` | 0 (uncapped) | **25** | new model calls stop with 503 `budget_reached` past the cap |
 | `PARTS_HTS_SUGGEST` | **on** | on (code default, not set by the deploy) | `POST /v1/products/parts-hts-suggest` calls the router model once per request; light rate class, in-flight cap, daily spend cap and the client's share apply (D380). Answers are cached in memory for a day, only for the same caller (workspace, else user, API key, visitor ID or client address) and the same part, origin, product name and description; one caller's answer is never served to another (D410, #577). `off` removes the route |
 | `ADMIN_TOKEN` | empty | **set from Secret Manager** | needed to pin demos and issue keys; never sent from the browser |
-| `STRICT_AUTH` | off | **off (intentional)** | would refuse an anonymous visitor ID for private case operations; the public demo is anonymous by design. Cloud Run IAM plus `CASE_OWNERSHIP` are the current boundary |
-| `REQUIRE_BEARER` | off | **off (intentional)** | not enabled until Cloud Run header pass-through to the container has been verified end to end; it is defence in depth behind IAM, not the primary boundary |
-| `AUDIT_ACTOR_KEY` / `AUDIT` | empty / `auto` | **unset / auto → audit off** | `curl -i https://undelabs.dev/api/v1/audit` → **404**; there is no certification or immutable log. Enabling it is a product decision, not a code-only change |
+| `STRICT_AUTH` | off | **on** | `curl https://undelabs.dev/api/v1/cases` with no credentials → **401**; pinned demos and `/v1/demos*` stay open (200). Private case operations need a verified user, API key or admin token |
+| `REQUIRE_BEARER` | off | **on** | Cloud Run passes the frontend's `Authorization: Bearer` to the container: `curl https://undelabs.dev/api/v1/demos` → **200** after the flag was enabled. Defence in depth behind IAM, not the primary boundary |
+| `AUDIT_ACTOR_KEY` / `AUDIT` | empty / `auto` | **set from Secret Manager / auto → audit on** | `curl https://undelabs.dev/api/v1/audit` and `/audit/verify` now answer (**401** without a verified admin, not 404). It is evidence, not a certification or immutable log |
 | `RATE_LIMIT_STORE` | local, auto-firestore on Cloud Run with a project | **Firestore (defaulted)** | model-route buckets are shared by all three instances; `X-Client-IP` is set by the proxy, so a client cannot choose its own bucket through the public path (#421) |
 
-When `K_SERVICE` is set and any of `STRICT_AUTH`, `REQUIRE_BEARER` or `AUDIT_ACTOR_KEY` is missing, the server now logs a `production config` warning at startup naming the gap. This is deliberately a warning, not a boot failure: the flags are off on purpose today, but they must not be invisible.
+When `K_SERVICE` is set and any of `STRICT_AUTH`, `REQUIRE_BEARER` or `AUDIT_ACTOR_KEY` is missing, the server logs a `production config` warning at startup naming the gap. It is a warning, not a boot failure, so a local or staging boot still works; none of the three flags is missing on undelabs.dev (D730).
 
-**Built vs enabled in production.** The audit trail, required sign-in (`STRICT_AUTH`) and the bearer check (`REQUIRE_BEARER`) are built and tested, but they are not enabled on undelabs.dev. Say "built", not "on", for them. Switching them on is an owner and infrastructure step, outside feature PRs ([ROADMAP.md](../ROADMAP.md#owner-and-infrastructure-steps-to-switch-these-on)):
-
-- enable the audit trail: put an audit key in Secret Manager and pass it to the backend as `AUDIT_ACTOR_KEY`;
-- require sign-in: set `STRICT_AUTH=on`, after deciding how the public demo opens without anonymous use;
-- set `REQUIRE_BEARER=on` once Cloud Run's header pass-through is verified.
+**Built and enabled in production.** As of 23 Nov 2026 the audit trail, required sign-in (`STRICT_AUTH`) and the bearer check (`REQUIRE_BEARER`) are all **on** on undelabs.dev. They were rolled out in three separate deploys, each verified before the next: (1) `AUDIT_ACTOR_KEY` from Secret Manager, (2) `STRICT_AUTH=on`, (3) `REQUIRE_BEARER=on` only after Cloud Run header pass-through was confirmed. The public demo opens through the pinned demo cases and `/v1/demos*`; anonymous visitors cannot reach private case operations. This was an owner and infrastructure change, outside feature PRs ([ROADMAP.md](../ROADMAP.md#owner-and-infrastructure-steps-to-switch-these-on), D730). "On" is now the correct word for all three in production; their code defaults remain permissive for local work.
 
 ## Who the caller is
 
