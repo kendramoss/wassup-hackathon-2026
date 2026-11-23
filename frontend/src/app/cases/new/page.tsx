@@ -9,9 +9,12 @@ export default function NewCasePage() {
   return (
     <>
       <AppBar active="cases" />
-      <Suspense fallback={<PageLoading label="Loading…" />}>
-        <ProductStep />
-      </Suspense>
+      {/* #685: phone tap targets and type (globals.css) */}
+      <div className="touch44 contents">
+        <Suspense fallback={<PageLoading label="Loading…" />}>
+          <ProductStep />
+        </Suspense>
+      </div>
     </>
   );
 }

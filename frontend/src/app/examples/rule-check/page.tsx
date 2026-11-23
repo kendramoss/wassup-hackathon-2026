@@ -11,7 +11,10 @@ export default function Page() {
   return (
     <>
       <AppBar active="none" />
-      <RuleCheckExample />
+      {/* #685: phone tap targets and type (globals.css) */}
+      <div className="touch44 contents">
+        <RuleCheckExample />
+      </div>
     </>
   );
 }

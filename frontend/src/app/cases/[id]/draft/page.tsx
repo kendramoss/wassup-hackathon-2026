@@ -9,9 +9,12 @@ export default function Page() {
   return (
     <>
       <AppBar active="cases" />
-      <Suspense fallback={<PageLoading label="Loading the case…" />}>
-        <DraftStep />
-      </Suspense>
+      {/* #685: phone tap targets and type (globals.css) */}
+      <div className="touch44 contents">
+        <Suspense fallback={<PageLoading label="Loading the case…" />}>
+          <DraftStep />
+        </Suspense>
+      </div>
     </>
   );
 }
