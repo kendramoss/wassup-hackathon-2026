@@ -123,6 +123,8 @@ export function RcepCheck({ c }: { c: CaseResponse }) {
     <Fold title={R.title} meta={R.meta}>
       <div data-rcep-form className="flex max-w-[75ch] flex-col gap-3 text-[13px]">
         <p className="duo text-body">{R.lead}</p>
+        <p className="duo text-dim">{R.acronym}</p>
+        <p className="duo text-body">{R.needSummary}</p>
         {noCode ? (
           <p className="duo text-dim">{R.needCode}</p>
         ) : (
@@ -137,43 +139,45 @@ export function RcepCheck({ c }: { c: CaseResponse }) {
                 <input className={cx(field, "w-32 text-right tabular-nums")} inputMode="decimal" value={f.fob} onChange={(e) => setF({ ...f, fob: e.target.value })} />
               </label>
             </div>
-            <table className="w-full border-collapse">
-              <thead>
-                <tr className="text-left text-dim">
-                  <th className="py-1 pr-2 font-normal">{R.part}</th>
-                  <th className="py-1 pr-2 font-normal">{R.declared}</th>
-                  <th className="py-1 font-normal">{R.value}</th>
-                </tr>
-              </thead>
-              <tbody>
-                {parts.map((p, i) => (
-                  <tr key={i} className="border-t border-line">
-                    <td className="py-1.5 pr-2">
-                      <span className="text-ink">{p.name}</span>
-                      <span className="block text-dim">{[p.hts || R.noCode, p.made_in].filter(Boolean).join(" · ")}</span>
-                    </td>
-                    <td className="py-1.5 pr-2">
-                      <input
-                        type="checkbox"
-                        className="size-5 accent-[var(--ok)]"
-                        aria-label={R.declaredFor(p.name)}
-                        checked={f.parts[i]?.originating ?? false}
-                        onChange={(e) => setF({ ...f, parts: f.parts.map((x, j) => (j === i ? { ...x, originating: e.target.checked } : x)) })}
-                      />
-                    </td>
-                    <td className="py-1.5">
-                      <input
-                        className={cx(field, "w-24 text-right tabular-nums")}
-                        inputMode="decimal"
-                        aria-label={R.valueFor(p.name)}
-                        value={f.parts[i]?.value ?? ""}
-                        onChange={(e) => setF({ ...f, parts: f.parts.map((x, j) => (j === i ? { ...x, value: e.target.value } : x)) })}
-                      />
-                    </td>
+            <div className="overflow-x-auto">
+              <table className="w-full min-w-[560px] border-collapse">
+                <thead>
+                  <tr className="text-left text-dim">
+                    <th className="py-1 pr-2 font-normal">{R.part}</th>
+                    <th className="py-1 pr-2 font-normal">{R.declared}</th>
+                    <th className="py-1 font-normal">{R.value}</th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
+                </thead>
+                <tbody>
+                  {parts.map((p, i) => (
+                    <tr key={i} className="border-t border-line">
+                      <td className="py-1.5 pr-2">
+                        <span className="text-ink">{p.name}</span>
+                        <span className="block text-dim">{[p.hts || R.noCode, p.made_in].filter(Boolean).join(" · ")}</span>
+                      </td>
+                      <td className="py-1.5 pr-2">
+                        <input
+                          type="checkbox"
+                          className="size-5 min-h-11 min-w-11 accent-[var(--ok)]"
+                          aria-label={R.declaredFor(p.name)}
+                          checked={f.parts[i]?.originating ?? false}
+                          onChange={(e) => setF({ ...f, parts: f.parts.map((x, j) => (j === i ? { ...x, originating: e.target.checked } : x)) })}
+                        />
+                      </td>
+                      <td className="py-1.5">
+                        <input
+                          className={cx(field, "w-24 text-right tabular-nums")}
+                          inputMode="decimal"
+                          aria-label={R.valueFor(p.name)}
+                          value={f.parts[i]?.value ?? ""}
+                          onChange={(e) => setF({ ...f, parts: f.parts.map((x, j) => (j === i ? { ...x, value: e.target.value } : x)) })}
+                        />
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
             <div>
               <Button onClick={run} disabled={busy || !f.madeIn.trim()}>
                 {busy ? R.checking : R.check}

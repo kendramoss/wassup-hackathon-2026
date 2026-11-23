@@ -628,6 +628,8 @@ export const copy = {
   rcep: {
     title: "RCEP tariff",
     meta: "Between RCEP countries",
+    acronym: "RCEP: Regional Comprehensive Economic Partnership trade deal between the listed countries.",
+    needSummary: "You need: product HS code, where the product is made, and for each part whether your supplier says it is RCEP-origin (and its value if you have it). FOB price is optional.",
     lead: "Can this get an RCEP tariff between RCEP countries? Not reviewed by customs experts. Tick parts your supplier says are RCEP-origin.",
     needCode: "Add the product HS code to check.",
     madeIn: "Made in",
@@ -641,11 +643,11 @@ export const copy = {
     check: "Check RCEP",
     checking: "Checking…",
     yes: "May qualify",
-    no: "Doesn’t qualify",
+    no: "Doesn't qualify",
     unsure: "Need more info",
-    failing: "Parts that didn’t pass",
+    failing: "Parts that didn't pass",
     details: "Details",
-    failed: "Couldn’t check. Try again.",
+    failed: "Couldn't check. Try again.",
     note: "Based on published RCEP rules (change in HS code plus 40% regional value). Not legal advice; confirm your broker.",
   },
 
