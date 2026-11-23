@@ -1360,7 +1360,7 @@ func (a *api) asOf() time.Time {
 // US origins never get a live rate, so they do not count).
 func missingRate(e planner.Economics, origins []string) bool {
 	for _, o := range origins {
-		n := domain.NormalizeCountry(o)
+		n := domain.DutyCountry(o)
 		if _, ok := e.DutyRate(n); n != "" && !ok && !duty.NoLiveRate(n) {
 			return true
 		}
