@@ -75,7 +75,7 @@ test("D32 and D260 keep their original text, with a dated current-status note af
   assert.match(decisions, /The user chose the lowest confidence at which cumulative accuracy stays at or above 95% on both splits\./);
   assert.match(decisions, /Held-out confirmed the dev choice; it was not used to search for the bar\./);
   assert.match(decisions, /the first 0\.92 bar was chosen with a rule that looked at both splits \(D32; the 0\.90 calibrated bar now in use was re-derived on dev only, D160\)/);
-  assert.match(decisions, /## D731 — Current status of the confidence-threshold history/);
+  assert.match(decisions, /## D733 — Current status of the confidence-threshold history/);
   assert.match(decisions, /\*\*Correction:\*\* \/accuracy's "How it's built" said the held-out rulings were never used to tune thresholds\./);
   const note = decisions.indexOf("Current-status note, 23 Nov 2026 (#723)");
   assert.ok(note > decisions.indexOf("## D260"), "note comes after D260");
