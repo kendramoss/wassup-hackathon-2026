@@ -240,7 +240,7 @@ func agentCaseText(c store.Case) string {
 		fmt.Fprintf(&b, "Product: %s.\n", c.Product.Name)
 	}
 	if c.CurrentOrigin != nil && c.CurrentOrigin.Country != "" {
-		fmt.Fprintf(&b, "CBP's ruling on the current setup: %s (%s).\n", c.CurrentOrigin.Country, c.CurrentOrigin.Ruling)
+		fmt.Fprintf(&b, "CBP's ruling on the current setup: %s.\n", currentOriginFallback(*c.CurrentOrigin))
 	}
 	fmt.Fprintf(&b, "\n%s", caseagent.FactsSection(c.Facts))
 	p := c.Prediction
