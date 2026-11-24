@@ -41,7 +41,9 @@ type note struct {
 	Scope string `json:"scope"`
 	Key   string `json:"key"`
 	Text  string `json:"text"`
-	Page  int    `json:"page"`
+	// Page is the PDF page of the note. Zero marks an Unde Labs caveat note,
+	// which is not treaty text and has no source page or link.
+	Page int `json:"page"`
 	// Applies narrows a scope note to codes inside these [start, end] digit
 	// prefix ranges (2 to 6 digits, both ends of equal length). Empty means
 	// the whole chapter or section named by Scope and Key.
@@ -58,6 +60,59 @@ func validateApplies(ranges [][2]string) error {
 			if c < '0' || c > '9' {
 				return fmt.Errorf("bad note applicability %v", r)
 			}
+		}
+	}
+	return nil
+}
+
+const caveatPrefix = "Unde Labs note (not treaty text)"
+
+func validWidth(n int) bool { return n == 2 || n == 4 || n == 6 || n == 9 }
+
+// validateSchedule rejects a malformed schedule at load time. Row codes are
+// digit prefixes of 2, 4, 6 or 9 digits (nine digits for a national tariff
+// item); both ends of a row have equal length unless the row is withheld.
+func validateSchedule(s schedule) error {
+	if s.Agreement == "" || s.Citation == "" || s.URL == "" {
+		return fmt.Errorf("incomplete schedule %q", s.Agreement)
+	}
+	from, err := time.Parse(time.DateOnly, s.From)
+	if err != nil {
+		return fmt.Errorf("%s: bad from date %q", s.Agreement, s.From)
+	}
+	if s.Until != "" {
+		until, err := time.Parse(time.DateOnly, s.Until)
+		if err != nil || !until.After(from) {
+			return fmt.Errorf("%s: bad until date %q", s.Agreement, s.Until)
+		}
+	}
+	for _, r := range s.Rows {
+		// A withheld row may span unequal widths (a multi-row cell of the source).
+		if n, m := len(r.Start), len(r.End); !validWidth(n) || !validWidth(m) || n != m && !r.Blocked || r.Start > r.End {
+			return fmt.Errorf("%s: bad row range %q-%q", s.Agreement, r.Start, r.End)
+		}
+		for _, c := range r.Start + r.End {
+			if c < '0' || c > '9' {
+				return fmt.Errorf("%s: bad row range %q-%q", s.Agreement, r.Start, r.End)
+			}
+		}
+		if r.Page < 1 || strings.TrimSpace(r.Text) == "" {
+			return fmt.Errorf("%s: row %q has no page or text", s.Agreement, r.Start)
+		}
+	}
+	for _, n := range s.Notes {
+		if n.Scope == "section" {
+			if _, ok := sections[n.Key]; !ok {
+				return fmt.Errorf("%s: unknown section %q", s.Agreement, n.Key)
+			}
+		} else if ch, err := strconv.Atoi(n.Key); n.Scope != "chapter" || err != nil || len(n.Key) != 2 || ch < 1 {
+			return fmt.Errorf("%s: bad note scope %q %q", s.Agreement, n.Scope, n.Key)
+		}
+		if strings.TrimSpace(n.Text) == "" || n.Page < 0 || n.Page == 0 && !strings.HasPrefix(n.Text, caveatPrefix) {
+			return fmt.Errorf("%s: bad note %q %q", s.Agreement, n.Scope, n.Key)
+		}
+		if err := validateApplies(n.Applies); err != nil {
+			return fmt.Errorf("%s: %w", s.Agreement, err)
 		}
 	}
 	return nil
@@ -82,6 +137,7 @@ type schedule struct {
 	Agreement string `json:"agreement"`
 	Citation  string `json:"citation"`
 	URL       string `json:"source_url"`
+	SHA256    string `json:"sha256"`
 	From      string `json:"from"`
 	Until     string `json:"until"`
 	Rows      []row  `json:"rows"`
@@ -113,10 +169,8 @@ var parseDefault = sync.OnceValues(func() (*Table, error) {
 	}
 	t := &Table{schedules: make(map[string][]schedule), rcep: rcep.Default()}
 	for _, s := range sources {
-		for _, n := range s.Notes {
-			if err := validateApplies(n.Applies); err != nil {
-				return nil, fmt.Errorf("japan PSR schedules: %s: %w", s.Agreement, err)
-			}
+		if err := validateSchedule(s); err != nil {
+			return nil, fmt.Errorf("japan PSR schedules: %w", err)
 		}
 		t.schedules[s.Agreement] = append(t.schedules[s.Agreement], s)
 	}
@@ -381,6 +435,10 @@ func (s schedule) notesFor(hs string) []Evidence {
 		section := sections[n.Key]
 		if (n.Scope == "chapter" && n.Key == hs[:2] ||
 			n.Scope == "section" && chapter >= section[0] && chapter <= section[1]) && n.appliesTo(hs) {
+			if n.Page == 0 {
+				out = append(out, Evidence{Text: n.Text, Citation: caveatPrefix})
+				continue
+			}
 			out = append(out, s.evidence(n.Text, n.Page))
 		}
 	}
