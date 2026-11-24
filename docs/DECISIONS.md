@@ -3432,3 +3432,37 @@ Some Japan Customs rulings carry a code from a later HS edition than the schedul
 - **Net measurement at 20b39a82 (offline, no model).** Development split eligible rule reference 2589 → 2950 of 2973. `dev_eval` 366 → 395 of 400, a subset of the development split, so the two are not additive. GSP is counted as rule reference only. Not accuracy.
 - **Cost if wrong.** A citation whose wording happens to look like an edition changes what the selector shows; the stricter parse and the "not stated" assertion guard it.
 - **Evidence.** `docs/japan/gsp-pilot.md`, `docs/japan/jp-us-ta-pilot.md`.
+
+## D880 — Japan-UK: header rows no longer copy the previous rule (24 Nov, #808)
+- **Decision.** In the Japan-UK schedule, 38 headings whose rule cell is empty had copied the previous row's rule. The parser now keeps one row per sub-line branch ("-" lines keyed to their chapter) and gives an empty-cell heading no rule of its own. Rows 462 → 424.
+- **Why.** A copied rule is text from a different product, shown as evidence for the heading.
+- **Result.** 198 codes (of the 5,387 HS 2017 codes, two dates) return different or fuller evidence. On the development split, 0 of 24 UK rulings hit a copied row. This is parser correctness, not accuracy.
+- **Cost if wrong.** A heading whose real rule sits in a sub-line is shown the sub-line rows, not one rule. Withheld and footnote rows are unchanged.
+- **Evidence.** `docs/japan/uk-header-rows.md`.
+
+## D881 — Japan: General Notes and Annex notes are evidence, not optional (24 Nov, #809 to #813)
+- **Rule.** Definitions, tolerances and value notes are source-needed evidence. A note is not suppressed to keep the request short.
+- **What shipped.**
+  - **#809.** The gap and the notes already embedded are documented.
+  - **#810.** EU and UK Annex 3-A notes (22 and 20), each with its own source link and citation.
+  - **#811.** Australia column 4: 530 rows and 28 notes.
+  - **#812.** AJCEP Annex 2 provisions returned with product rows. Article 26 is left out so that product rows keep precedence. The HS 2022 window has a gap.
+  - **#813.** 45 notes across nine annexes. CPTPP paragraph 5 is deliberately not attached.
+- **Cost.** `dev_eval` plan request bytes 5,118,030 (at 20b39a82) → 7,332,525 (at 33598601), +43%. This is evidence only; the prompt text is unchanged.
+- **Cost if wrong.** More input tokens and latency per request, and a long note may dilute the rule that decides the case. Neither is measured.
+- **Evidence.** `docs/japan/general-notes-gap.md`, `general-notes-embedded.md`, `annex-3a-notes.md`, `australia-column4.md`, `ajcep-annex2-provisions.md`.
+
+## D882 — Japan: schedule date windows (24 Nov, #809)
+- **Decision.** No date was changed. A treaty's entry into force is not the validity of a given HS schedule edition, so a date moves only on a source that says so.
+- **Unverified starts.** Thailand 2023-01-01 (the Japanese index labels an edition "2022.1.1~"; the two files were compared and are not shown to differ) and the AJCEP HS 2017 start.
+- **RCEP.** `rcepStart` stays 2023-01-01. The 2022 original is an image-only PDF and is not lowered.
+- **Gaps.** India chapter 3 was amended from 2022-04-04 and the amended text was not found, so chapter 3 codes from that date may carry the superseded rule. Indonesia before 2024-02-05 has an HS 2002 annex that is not embedded and returns `no_dated_source`.
+- **Cost if wrong.** A case dated inside an unverified window gets a rule from an edition that may not apply, or a `no_dated_source` it should not.
+- **Evidence.** `docs/japan/date-windows.md`.
+
+## D883 — Japan: net measurement of the campaign, and what it is not (24 Nov, at 33598601)
+- **Measured (offline, no model, no label read).** Development split eligible rule reference 2589 → 2952 of 2973. `dev_eval` 366 → 396 of 400, a subset of the development split, so the two are not additive. GSP is counted as rule reference only. The `dev_eval` plan has 396 requests.
+- **Not claimed.** These count whether a rule source can be shown before any model call. They are not accuracy and not decisions.
+- **Prospective plan.** The evaluation (#804 to #807) is planned and not executed. It has a provider confound: results could differ because of the model provider and not the rule evidence.
+- **Cost if wrong.** A reader takes rule-reference coverage as a quality gain.
+- **Evidence.** `docs/japan/prospective-evaluation-plan.md`; `go run ./cmd/jpeval diagnose -split dev`.
