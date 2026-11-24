@@ -169,7 +169,7 @@ func TestGatedCasesNeverReachTheModel(t *testing.T) {
 		{"AJCEP at HS2022 start unlisted", jpCase("AJCEP", "3215", "2027-02-15"), jprules.ReasonNoMatch},
 		{"AJCEP before window", jpCase("AJCEP", "3215", "2022-12-31"), jprules.ReasonNoDatedSource},
 		{"GSP", jpCase("GSP", "3215", "2025-06-01"), jprules.ReasonUnsupportedAgreement},
-		{"JP-US TA", jpCase("JP-US TA", "3215", "2025-06-01"), jprules.ReasonUnsupportedAgreement},
+		{"JP-US TA unlisted goods", jpCase("JP-US TA", "3215", "2025-06-01"), jprules.ReasonNoMatch},
 		{"RCEP unlisted", jpCase("RCEP", "0000.00", "2025-06-01"), jprules.ReasonNoMatch},
 		{"RCEP before start", jpCase("RCEP", "6404.11", "2022-12-31"), jprules.ReasonNoDatedSource},
 		{"CPTPP unlisted", jpCase("CPTPP", "0304", "2025-06-01"), jprules.ReasonTooBroad},

@@ -46,7 +46,11 @@ The AJCEP Annex 2 schedule lists product-specific rules selectively, so many hea
 
 ### Agreements awaiting a rule source
 
-The corpus also contains Japan–U.S. Trade Agreement and GSP cases. The Japan Customs legal-text index used for this table has no product-specific rule schedule for either preference system, so they stay undetermined with a review reason. Non-preferential origin is outside the Japan assessment.
+Japan's GSP has no embedded rule source, so GSP cases stay undetermined with a review reason. Non-preferential origin is outside the Japan assessment.
+
+### Japan–U.S. Trade Agreement
+
+Annex I Section C is published by Japan Customs only in Japanese ([us2.pdf](https://www.customs.go.jp/roo/text/us2.pdf), applied from 2020-01-01). The table embeds its Japanese text for the agricultural, food and chemical goods it lists; any other code has no rule. The agreement names no HS edition. Sources, counts, omissions and open questions: [docs/japan/jp-us-ta-pilot.md](../../../docs/japan/jp-us-ta-pilot.md).
 
 ## Source and rebuild
 
