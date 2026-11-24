@@ -1,9 +1,29 @@
 # Japan engine: prospective model-quality evaluation plan
 
-Status: a plan only. Nothing in this document has been run. The campaign that
+Status: PLANNED / UNEXECUTED. A plan only. Nothing in this document has been run. The campaign that
 produced the changes below ran no product model inference and makes no accuracy
 claim. Every number here is a rule-availability or request-size count taken
 offline, not a quality result.
+
+## Ground rules
+
+- The D741 held-out set (633 rulings) and the 8 synthetic negatives are burned.
+  They are not reused as a fresh held-out, and are not read.
+- No claim is made that any model has never seen the public rulings. Public
+  Japan Customs rulings may be in a model's pretraining, so even a fresh sample
+  shows relative differences between engine versions, not contamination-free
+  accuracy. Design B reduces this risk (rulings published after the model's
+  training cutoff, which must be checked from the provider's stated cutoff and
+  recorded) but cannot remove it: the cutoff may be inexact, and similar older
+  rulings can still have been seen.
+- No borrowed budget. The budget or grant of any earlier study is not a budget
+  for this plan. The user must supply a new one.
+- The future production path is Vertex with the current candidate pin. It needs
+  separate authorization and authentication, and verified pricing, before any
+  model run. Prices must be taken from the provider's current price list, not
+  from this document. Authenticated smoke stays paused.
+- Offline rule-availability and compatibility results (design C, `diagnose`,
+  `plan`) are reported separately from prediction accuracy and never pooled.
 
 ## 1. What changed since the archived D712 dev_eval run
 
@@ -126,6 +146,18 @@ Register before the first call, in a hashed file:
 - Not measurable by this plan: translation fidelity of the Japanese-only GSP and
   other source text, correctness of a specialist review, and legal sufficiency
   of a result.
+
+### Negative and insufficient-facts stratum
+
+Include cases that must end `undetermined` or `does_not_qualify` (facts missing,
+a material or step unknown, an origin that fails the rule). Source them without
+the synthetic set: from the fresh design B window, rulings whose published
+outcome is not a qualifying one, and cases built by removing facts from
+pre-registered design B or dev_eval cases by a written rule fixed before the run
+(the original is kept as its positive pair). Mark the construction method per
+case. Report this stratum separately from positives with its own denominator,
+and report wrong `qualifies` (false positives) apart from missed positives. Do
+not pool it into the primary metric.
 
 ## 5. Not run
 
