@@ -74,49 +74,107 @@ func agreementCode(raw string) string {
 	return ""
 }
 
-func (e *Engine) Predict(ctx context.Context, c domain.Case) (engine.Result, error) {
+// Engine-level preflight reasons. Rule lookup reasons come from jprules.
+const (
+	ReasonNoFacts         jprules.Reason = "no_facts"
+	ReasonNoDate          jprules.Reason = "no_date"
+	ReasonNoAgreement     jprules.Reason = "no_agreement"
+	ReasonNonPreferential jprules.Reason = "non_preferential"
+	ReasonNoHS            jprules.Reason = "no_hs"
+)
+
+const reasonUnverifiedRule = "We could not verify a rule for this tariff code and date. Check the agreement's tariff schedule or ask a specialist."
+
+// PreflightResult says whether a case can reach the model and why not. It
+// uses no model. Agreement, HS and Date are normalized as Predict uses them;
+// Agreement and HS are empty when the input does not name one. Evidence is the
+// rule text Predict would send: product specific rule rows, or for an
+// unlisted AJCEP HS 2017 code the general originating criteria.
+type PreflightResult struct {
+	Eligible     bool
+	Reason       jprules.Reason
+	ReviewReason string
+	Agreement    string
+	HS           string
+	Date         time.Time
+	Evidence     []jprules.Evidence
+	Err          error
+}
+
+// Preflight runs every check that precedes the model call. Reasons no_facts
+// and no_date are the errors Predict returns.
+func Preflight(rules *jprules.Table, c domain.Case) PreflightResult {
 	if strings.TrimSpace(c.Facts) == "" && c.Product == nil {
-		return engine.Result{}, engine.ErrNoFacts
+		return PreflightResult{Reason: ReasonNoFacts}
 	}
 	if c.Date.IsZero() {
+		return PreflightResult{Reason: ReasonNoDate}
+	}
+	var pf PreflightResult
+	if c.Japan != nil {
+		pf.Agreement, pf.HS = agreementCode(c.Japan.Agreement), hsNumber(c.Japan.HS)
+	}
+	y, m, d := c.Date.Date()
+	pf.Date = time.Date(y, m, d, 0, 0, 0, 0, time.UTC)
+	switch {
+	case pf.Agreement == "":
+		pf.Reason = ReasonNoAgreement
+		pf.ReviewReason = "Choose the trade agreement you want to use for this import."
+		return pf
+	case pf.Agreement == "Non-preferential":
+		pf.Reason = ReasonNonPreferential
+		pf.ReviewReason = "This check covers preferences under trade agreements. Ask a specialist about Japan's other origin rules."
+		return pf
+	case !rules.HasAgreement(pf.Agreement):
+		pf.Reason = jprules.ReasonUnsupportedAgreement
+		pf.ReviewReason = "We do not have a verified product rule for this trade agreement."
+		return pf
+	case pf.HS == "":
+		pf.Reason = ReasonNoHS
+		pf.ReviewReason = "Enter the finished product's tariff code. Use at least four digits."
+		return pf
+	}
+	res, err := rules.LookupDetailed(pf.Agreement, pf.HS, pf.Date)
+	pf.Reason, pf.Err = res.Reason, err
+	if err != nil {
+		return pf
+	}
+	if res.Reason != jprules.ReasonPSR && res.Reason != jprules.ReasonGeneral || len(res.Evidence) == 0 {
+		pf.ReviewReason = reasonUnverifiedRule
+		return pf
+	}
+	pf.Eligible, pf.Evidence = true, res.Evidence
+	return pf
+}
+
+func (e *Engine) Predict(ctx context.Context, c domain.Case) (engine.Result, error) {
+	pf := Preflight(e.rules, c)
+	switch pf.Reason {
+	case ReasonNoFacts:
+		return engine.Result{}, engine.ErrNoFacts
+	case ReasonNoDate:
 		return engine.Result{}, fmt.Errorf("japan preference: case date is required")
 	}
-	p := &domain.JapanResult{Outcome: Undetermined}
+	p := &domain.JapanResult{Outcome: Undetermined, Agreement: pf.Agreement, HS: pf.HS, ReviewReason: pf.ReviewReason}
 	result := engine.Result{Prediction: domain.Prediction{
 		Japan: p, Precedents: []string{}, CitedRulings: []string{}, KeyFactors: []string{},
 	}}
-	if c.Japan != nil {
-		p.Agreement, p.HS = agreementCode(c.Japan.Agreement), hsNumber(c.Japan.HS)
+	if pf.Err != nil {
+		return result, pf.Err
 	}
-	switch {
-	case p.Agreement == "":
-		p.ReviewReason = "Choose the trade agreement you want to use for this import."
-		return result, nil
-	case p.Agreement == "Non-preferential":
-		p.ReviewReason = "This check covers preferences under trade agreements. Ask a specialist about Japan's other origin rules."
-		return result, nil
-	case !e.rules.HasAgreement(p.Agreement):
-		p.ReviewReason = "We do not have a verified product rule for this trade agreement."
-		return result, nil
-	case p.HS == "":
-		p.ReviewReason = "Enter the finished product's tariff code. Use at least four digits."
+	if !pf.Eligible {
 		return result, nil
 	}
-	y, m, d := c.Date.Date()
-	c.Date = time.Date(y, m, d, 0, 0, 0, 0, time.UTC)
-	rules, err := e.rules.Lookup(p.Agreement, p.HS, c.Date)
-	if err != nil {
-		return result, err
-	}
-	if len(rules) == 0 {
-		p.ReviewReason = "We could not verify a rule for this tariff code and date. Check the agreement's tariff schedule or ask a specialist."
-		return result, nil
-	}
+	c.Date = pf.Date
+	rules := pf.Evidence
 
 	facts := caseFacts(c)
 	query := p.Agreement + " " + facts
 	precedents := e.pool.Top(c, p.Agreement, query, e.k)
 	for _, r := range rules {
+		if r.URL == "" { // an Unde Labs caveat note is not a treaty source
+			continue
+		}
 		p.Sources = append(p.Sources, domain.JapanSource{Citation: r.Citation, URL: r.URL})
 	}
 	for _, r := range precedents {

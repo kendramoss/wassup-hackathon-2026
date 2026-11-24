@@ -25,6 +25,25 @@ The `Applied from` date filters case dates, not a legal opinion. RCEP starts on 
 
 Treaty notes and provisions outside the embedded sources can change the answer. Where a listed row names separate provisions and the row is withheld, no text is returned. Examples include the vehicle rules in CPTPP's Appendix 1 to Annex 3-D and the analogous vehicle appendices for Japan–EU and Japan–UK. The EU introductory notes, CPTPP short supply list, and rules outside the embedded annexes are separate legal texts. Multi-rule cells in the Japan–Switzerland appendix are withheld rather than guessed. Japanese customs specialist review is tracked in issue #665. [Japan Customs legal texts](https://www.customs.go.jp/roo/english/text/index.htm)
 
+### AJCEP general originating criteria
+
+The AJCEP Annex 2 schedule lists product-specific rules selectively, so many headings have no row. For those codes the main agreement's general criteria apply (Article 26(1): a regional value content of at least 40% with final production in the Party, or a change of tariff heading for every non-originating material, at the exporter's choice). `LookupDetailed` returns an edited extract of those provisions only when all of these hold:
+
+- the agreement is AJCEP and the case date is on or after 2023-01-01 and before 2027-02-15, the window of the HS 2017 Annex 2 embedded here (a test ties the window to that schedule);
+- the HS 2017 schedule has no matching row, no withheld row and no more specific row that overlaps the code;
+- the code has valid syntax, is not in a reserved or invalid chapter (00, 77, 98, 99), and is not in chapters 50 to 63, where the Section XI notes need separate treatment. A matched Annex 2 rule keeps its own evidence unchanged, and nothing is added to it.
+
+`Lookup` never returns the general extract. `LookupDetailed` also says why no text was returned (`malformed`, `unsupported_agreement`, `no_dated_source`, `too_broad`, `withheld`, `invalid_code`, `no_match`, `excluded_general`) or which kind was returned (`psr`, `general`). Other agreements, the HS 2022 AJCEP schedule and RCEP get no general extract.
+
+`data/ajcep_general.json` holds the extract with exact PDF pages and the SHA-256 of each source: [Chapter 3 excerpt](https://www.customs.go.jp/roo/english/text/asean1.pdf) (Articles 23 to 30 and 32 to 35, including the definitions and the wholly obtained list), [Annex 3](https://www.customs.go.jp/roo/english/text/asean3.pdf) and the Annex 2 introduction. Articles 32 and 33 are included because packaging and accessories change the value and tariff-change tests. Entries marked "Unde Labs note (not treaty text)" are caveats, not treaty wording; they carry no page or link and are not listed as sources:
+
+- Annex 3 covers only the status of information-technology materials; the ITA attachment lists are not embedded, so that status cannot be assumed.
+- Direct consignment (Article 31) and certification (Article 36 and Annex 4) are not verified.
+- The extract is not a claim that a good qualifies or receives duty-free treatment.
+- The general criteria do not validate the tariff code or convert between HS editions.
+
+`python3 -I -B eval/jp/verify_ajcep_general.py <pdf-directory>` checks the three PDFs against the stored digests.
+
 ### Agreements awaiting a rule source
 
 The corpus also contains Japan–U.S. Trade Agreement and GSP cases. The Japan Customs legal-text index used for this table has no product-specific rule schedule for either preference system, so they stay undetermined with a review reason. Non-preferential origin is outside the Japan assessment.
