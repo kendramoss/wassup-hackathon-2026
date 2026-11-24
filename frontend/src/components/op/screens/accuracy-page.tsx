@@ -11,6 +11,7 @@ import { ButtonLink, Chip, Fold, ScrollX, cx } from "../ui";
 import { VerifierCalibration } from "../verifier-calibration";
 import { KnownFailures, Reproduce } from "../failure-cases";
 import { sourceLabel } from "@/lib/source-label";
+import { Term } from "../term";
 
 // The first test window is frozen. Render its committed results and the
 // recorded plan check immediately. The API supplies the additional analyses.
@@ -454,14 +455,17 @@ export function AccuracyPage() {
     <Main>
       <header>
         <h1 className="text-[clamp(2.25rem,5vw,3.75rem)] font-semibold leading-tight tracking-[-0.06em]">How accurate is it?</h1>
-        <p className="read mt-2 max-w-[65ch] text-base text-dim">U.S. origin predictions compared with 377 real CBP rulings, Jan–Sep 2026. Covers single-origin U.S. substantial-transformation rulings only, not every market or rule set.</p>
+        <p className="read mt-2 max-w-[65ch] text-base text-dim">U.S. origin predictions compared with 377 real CBP rulings, Jan–Sep 2026. Covers single-origin U.S. rulings under{" "}
+          <Term explain="Substantial transformation: the origin is the last country where the product became a new article, with a new name, character or use.">CBP’s main origin test</Term> only, not every market or rule set.</p>
       </header>
       <dl className="mt-6 grid gap-3 md:grid-cols-3">
         <Kpi title="Overall accuracy" value={pct(correct / n)} lead>
           {correct} / {n} right on the unseen test set. {pct(FIRST_COUNTRY_BASELINE)} for the first-country baseline.
         </Kpi>
-        <Kpi title="Auto-accepted accuracy" value={pct(autoRight / auto)}>
-          {autoRight} / {auto} right at ≥ {bar.toFixed(2)} stated confidence and in scope.
+        {/* #685: the historical 0.92 bar is on the model's own (stated)
+            confidence; today's 0.90 bar is on calibrated confidence. */}
+        <Kpi title="Right when it was sure" value={pct(autoRight / auto)}>
+          {autoRight} / {auto} right when the model’s own confidence was ≥ {bar.toFixed(2)}, the bar at the time, and the case was in scope. Today’s bar is {calibratedBar.toFixed(2)} on calibrated confidence.
         </Kpi>
         <Kpi title="Sent to human review" value={pct(review / n)}>
           {review} sent to review. The model had {reviewRight} right and {reviewWrong} wrong.

@@ -28,9 +28,12 @@ test("Method uses a connected stage inspector and comparison cards without text 
 });
 
 test("Method scopes its temporal claim and keeps the 2022 and 2026 dates distinct", () => {
-  assert.match(page, /Zero production fine-tuning/);
+  // #685: plain wording. Still scoped to the live (production) model, and
+  // the search statistics still say they include later rulings.
+  assert.match(page, /The live service uses Gemini without fine-tuning\./);
+  assert.match(page, /Each answer reads only CBP rulings dated before the case\./);
   assert.match(page, /Gemini’s pretraining exposure is unknown/);
-  assert.match(page, /BM25 word counts span the full corpus/);
+  assert.match(page, /The ruling search \(BM25\) weighs words by counts taken from every ruling, later ones included\./);
   assert.doesNotMatch(page, /zero training leakage/i);
   assert.match(page, /Illustrated 2022 cutoff/);
   assert.ok(page.includes(`Same-day rulings are blocked. ${kobalt.supporting.id} and ${kobalt.backtestRuling.id} are later. The saved demo uses ${kobalt.cutoff.label}.`));

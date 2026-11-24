@@ -124,7 +124,7 @@ test("/method has no sentence that starts with a lowercase word", async () => {
   const allowed = new Set(["router", "git"]);
   const broken = [...t.matchAll(/[a-z)]\. ([a-z][a-z]+)\b/g)].filter((m) => !allowed.has(m[1])).map((m) => t.slice(Math.max(0, m.index - 40), m.index + 30));
   assert.deepEqual(broken, []);
-  assert.match(t, /Dual-sided precedent gate/);
+  assert.match(t, /Rulings for and against/); // #685: was "Dual-sided precedent gate"
   assert.doesNotMatch(t, /accuracy \(D442\)\. On three|move check\. accuracy/);
 });
 

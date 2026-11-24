@@ -116,8 +116,10 @@ export function SignIn() {
   // with the reason in its label and tooltip, so the bar never widens.
   const note = error ? copy.signIn.failed : expired ? copy.signIn.expired : required ? copy.signIn.required : null;
   return (
-    <span className="relative inline-flex size-10 shrink-0" title={note ?? copy.signIn.button}>
-      <div ref={button} aria-label={note ?? copy.signIn.button} className="size-10" />
+    // Google draws a 40 px button; on phones it is scaled to 44 px so the
+    // tap target matches the rest of the bar (#685).
+    <span className="relative inline-flex size-10 shrink-0 max-sm:size-11" title={note ?? copy.signIn.button}>
+      <div ref={button} aria-label={note ?? copy.signIn.button} className="size-10 origin-top-left max-sm:scale-110" />
       {note && <span aria-hidden="true" className={`pointer-events-none absolute -right-1 -top-1 size-2.5 rounded-full border-2 border-paper ${error ? "bg-fail" : "bg-ask"}`} />}
       {note && (
         <span role="status" className="sr-only">
@@ -167,7 +169,7 @@ function Account({ email, name, picture }: { email: string; name: string | null;
         aria-label={copy.signIn.account(email)}
         title={email}
         onClick={() => setOpen((o) => !o)}
-        className="grid size-10 place-items-center overflow-hidden rounded-[2px] border border-edge bg-sheet text-[15px] font-medium uppercase text-ink shadow-btn hover:border-ink"
+        className="grid size-10 place-items-center overflow-hidden max-sm:size-11 rounded-[2px] border border-edge bg-sheet text-[15px] font-medium uppercase text-ink shadow-btn hover:border-ink"
       >
         {picture && !broken ? (
           // The Google profile photo; the initial if it fails to load.

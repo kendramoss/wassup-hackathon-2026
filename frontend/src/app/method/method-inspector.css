@@ -155,3 +155,13 @@
 }
 .mi-limits { margin-top: 12px; }
 .mi-limits summary { min-height: 44px; display: flex; align-items: center; color: var(--ok); cursor: pointer; font-size: 12px; text-decoration: underline; text-underline-offset: 4px; }
+/* #685: on phones no label on this page is set below 12 px. 640 px and
+   wider keep the compact sizes. */
+@media (max-width: 639px) {
+  .mi-stack span, .mi-badge, .mi-node-index, .mi-node-label,
+  .mi-schema dt, .mi-schema dd, .mi-trace-values dt,
+  .mi-figure > :first-child, .mi-timeline dt, .mi-timeline dd,
+  .mi-evidence-pair dt, .mi-score span, .mi-figure pre, .mi-switch button {
+    font-size: 12px;
+  }
+}

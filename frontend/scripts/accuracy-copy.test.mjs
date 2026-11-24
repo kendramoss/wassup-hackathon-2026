@@ -63,7 +63,9 @@ test("the first render shows the official counts before the API loaded", async (
 
   assert.ok(pageText.includes(`Overall accuracy ${rate(overall.value)} ${correct} / ${overall.n} right`));
   assert.ok(pageText.includes(rate(items.get("baseline_first_mentioned").value)));
-  assert.ok(pageText.includes(`Auto-accepted accuracy ${rate(fastPath.value)} ${autoRight} / ${fastPath.n} right at ≥ 0.92`));
+  // #685: plain label. The historical 0.92 bar on the model's own (stated)
+  // confidence and today's 0.90 calibrated bar stay named side by side.
+  assert.ok(pageText.includes(`Right when it was sure ${rate(fastPath.value)} ${autoRight} / ${fastPath.n} right when the model’s own confidence was ≥ 0.92, the bar at the time, and the case was in scope. Today’s bar is 0.90 on calibrated confidence.`));
   assert.ok(pageText.includes(`Sent to human review ${rate(review / overall.n)} ${review} sent to review. The model had ${reviewRight} right and ${review - reviewRight} wrong.`));
   assert.doesNotMatch(pageText, /Loading the numbers|How it's built/);
 

@@ -32,7 +32,7 @@ export const copy = {
     recorded: {
       label: "Recorded test run",
       recordLink: "Open the recorded run (JSON) →",
-      unseeded: "Runs live",
+      unseeded: "Runs when opened",
       engine: "Unde:",
       agrees: "Agrees with CBP",
       disagrees: "Disagrees with CBP",
@@ -41,7 +41,7 @@ export const copy = {
       noPlan: "No backed plan.",
       // On a card that starts a live run: the run will search plans, nothing
       // is shown yet (judge panel round 3: "Plan included" read as ready).
-      planRuns: "Runs live, with a plan search",
+      planRuns: "Runs when opened, then looks for production moves",
       // A pinned demo read from CBP's text alone has no parts list to plan.
       originOnly: "Origin only: no parts list to plan",
       selection:

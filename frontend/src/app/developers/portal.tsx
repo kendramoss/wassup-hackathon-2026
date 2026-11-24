@@ -10,13 +10,14 @@ type Endpoint = keyof typeof endpoints;
 type Tab<Key extends string> = { key: Key; label: string; subtext?: string };
 
 const modes: Tab<Mode>[] = [
-  { key: "mcp", label: "MCP server", subtext: "For AI agents" },
-  { key: "api", label: "REST API", subtext: "Customs & ERP software" },
+  // MCP is glossed on first use (#685): developers know the term, others may not.
+  { key: "mcp", label: "MCP server", subtext: "Tools your AI agent can call" },
+  { key: "api", label: "REST API", subtext: "For customs and business software" },
 ];
 const clients: Tab<Client>[] = [
   { key: "gemini", label: "Gemini CLI" },
   { key: "claude", label: "Claude Desktop" },
-  { key: "adk", label: "ADK for Go" },
+  { key: "adk", label: "Google ADK" },
 ];
 const categories: [ToolGroup | "", string][] = [
   ["", `All ${tools.length}`],

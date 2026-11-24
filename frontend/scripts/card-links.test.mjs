@@ -71,7 +71,9 @@ test("a pinned demo card has no nested interactive elements", () => {
 test("a live-run card says it will search plans, not that a plan is included", () => {
   const m = html(LoadDemoCard, { d: demo });
   assert.doesNotMatch(m, /Plan included/);
-  assert.match(m, /Runs live, with a plan search/);
+  // #685: plain wording; still says the run happens on opening and only
+  // then searches for moves.
+  assert.match(m, /Runs when opened, then looks for production moves/);
 });
 
 test("a pinned demo card says what CBP held from its demo entry", () => {
