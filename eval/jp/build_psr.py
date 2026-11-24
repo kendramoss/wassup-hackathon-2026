@@ -87,6 +87,42 @@ NOTE_APPLIES = {
     ("mexico2.pdf", 65, "Note 1:"): _headings("847149"),
     ("mexico2.pdf", 65, "Note 2:"): _headings("847330"),
 }
+# Six-column schedules whose code-less "Note:" cells are captured as scope
+# notes (Indonesia has the same layout but is not regenerated here). Every
+# note of these files needs an entry keyed (file, page, label, heading key)
+# so the scope is a reviewed reading of the note's own wording; an empty list
+# means the whole chapter or section named by the heading the note sits under.
+SCOPE_NOTE_PDFS = {"thailand2-2.pdf"}
+SCOPE_NOTE_START = re.compile(r"Note(?: \d+)?:")
+_T = "thailand2-2.pdf"
+NOTE_APPLIES.update({
+    # "subheadings 0306.16, 0306.17, 0306.35, 0306.36 and 0306.95"
+    (_T, 4, "Note:", "03"): _headings("030616", "030617", "030635", "030636", "030695"),
+    (_T, 5, "Note:", "07"): _headings("071022", "071029"),  # "0710.22 and 0710.29"
+    (_T, 6, "Note 1:", "16"): _headings("160414"),
+    (_T, 6, "Note 2:", "16"): _headings("160413", "160415", "160420", "160521", "160529"),
+    # "subheading 1803.20 and heading 18.05"
+    (_T, 7, "Note:", "18"): _headings("180320", "1805"),
+    (_T, 8, "Note:", "19"): _headings("190590"),
+    # "2001.10 through 2005.60, 2005.80 through 2007.10, 2008.11, 2008.19,
+    # 2008.40 through 2008.91, 2009.61, 2009.69, 2009.81 and 2009.89"
+    (_T, 9, "Note:", "20"): _headings(
+        "200110-200560", "200580-200710", "200811", "200819", "200840-200891",
+        "200961", "200969", "200981", "200989"),
+    (_T, 12, "Note:", "27"): [],  # "this chapter"
+    (_T, 12, "Note:", "VI"): _headings("28-38"),  # "chapters 28 through 38"
+    (_T, 20, "Note:", "VII"): _headings("39-40"),  # "chapters 39 and 40"
+    (_T, 23, "Note:", "XI"): _TEXTILE_1,  # "chapters 50 through 55 and 60"
+    (_T, 26, "Note 1:", "61"): [],  # "a good of this chapter"
+    (_T, 27, "Note 2:", "61"): [],  # "this chapter"
+    (_T, 27, "Note 1:", "62"): [],
+    (_T, 27, "Note 2:", "62"): [],
+    (_T, 28, "Note:", "63"): [],
+    (_T, 29, "Note:", "71"): [],
+    (_T, 29, "Note:", "72"): [],
+    (_T, 30, "Note:", "73"): [],
+    (_T, 35, "Note:", "87"): _headings("8702-8704"),  # "headings 87.02 through 87.04"
+})
 COLUMN_HEADER = re.compile(r"^(?:\(HS ?\d{4}\)|HS Classification|Product Specific Rule)", re.I)
 # A rule that ends like this is cut short (end of a page-broken cell).
 DANGLING = re.compile(r"(?:^|[\s,])(?:through|to|from|or|and|than|of|the|any)$|[,-]$", re.I)
@@ -409,6 +445,9 @@ def six_column(pdf, filename):
     chapter = ""
     section = ""
     in_note = False
+    scope_notes = filename in SCOPE_NOTE_PDFS
+    heading = ""  # "chapter" or "section": the last heading seen
+    scope_note = None
     for page_number, page in enumerate(pdf.pages, 1):
         for table in page.extract_tables():
             for raw in table:
@@ -417,12 +456,16 @@ def six_column(pdf, filename):
                 for i, cell in enumerate(cells):
                     if cell.startswith("Chapter") and (m := CHAPTER.match(cell)):
                         chapter = f"{int(m[1]):02}"
+                        heading = "chapter"
                         target = None
                         group = []
+                        scope_note = None
                     elif cell.startswith("Section") and (m := SECTION.match(cell)):
                         section = m[1]
+                        heading = "section"
                         target = None
                         group = []
+                        scope_note = None
                     elif cell and RANGE.fullmatch(clean_code(cell)):
                         codes.append((i, cell))
                 if not codes:
@@ -430,6 +473,20 @@ def six_column(pdf, filename):
                     # one cell filled. The column varies by page layout, so
                     # notes and column headers are excluded instead.
                     filled = [cell for cell in cells if cell]
+                    if scope_notes and len(filled) == 1:
+                        # A scope note sits under a chapter or section
+                        # heading and runs until the next rule row or heading.
+                        if SCOPE_NOTE_START.match(filled[0]):
+                            scope_note = add_note(
+                                notes, heading,
+                                chapter if heading == "chapter" else section,
+                                filled[0], page_number)
+                            target = None
+                            group = []
+                            continue
+                        if scope_note is not None and not COLUMN_HEADER.match(filled[0]):
+                            scope_note["text"] = join(scope_note["text"], filled[0])
+                            continue
                     if len(filled) == 1 and target is not None:
                         if filled[0].startswith("Note:"):
                             in_note = True
@@ -440,6 +497,7 @@ def six_column(pdf, filename):
                                 item["text"] = join(item["text"], filled[0])
                     continue
                 in_note = False
+                scope_note = None
                 index, code = codes[0]
                 rule = ""
                 description = ""
@@ -672,13 +730,18 @@ def table_schedule(pdf, filename):
 
 def scope_numbered_notes(filename, notes):
     for note in notes:
-        label = NUMBERED_NOTE.match(note["text"])
-        if not label:
-            continue
-        key = (filename, note["page"], label[0])
+        if filename in SCOPE_NOTE_PDFS:
+            label = SCOPE_NOTE_START.match(note["text"])[0]
+            key = (filename, note["page"], label, note["key"])
+        else:
+            label = NUMBERED_NOTE.match(note["text"])
+            if not label:
+                continue
+            key = (filename, note["page"], label[0])
         if key not in NOTE_APPLIES:
-            raise ValueError(f"{key}: numbered note has no applicability entry")
-        note["applies"] = NOTE_APPLIES[key]
+            raise ValueError(f"{key}: note has no applicability entry")
+        if NOTE_APPLIES[key]:
+            note["applies"] = NOTE_APPLIES[key]
 
 
 def extract(path, filename):

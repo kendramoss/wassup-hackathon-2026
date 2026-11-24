@@ -27,7 +27,7 @@ AJCEP 2017, Switzerland, Australia and Indonesia are byte-identical.
 | JP-Philippines EPA | 1139 | 716 | 793 | 6 / 8 |
 | JP-Chile EPA | 1000 | 680 | 618 | 6 / 6 |
 | JP-India CEPA | 410 | 378 | 42 | 0 / 0 |
-| JP-Thailand EPA | 739 | 739 | 147 | 0 / 0 |
+| JP-Thailand EPA | 739 | 739 | 147 | 0 / 20 (see thailand-scope-notes.md) |
 | JP-Vietnam EPA | 1218 | 1212 | 67 | 0 / 0 |
 | AJCEP (HS 2022, from 2027-02-15) | 559 | 559 | 44 | 0 / 0 |
 
