@@ -34,9 +34,9 @@ type originMarket struct {
 
 var (
 	euMarket = originMarket{code: jurisdiction.EU, rules: "EU non-preferential origin: UCC Art. 60, Delegated Regulation (EU) 2015/2446 Art. 31-36 and Annex 22-01",
-		note: "The EU's non-preferential origin rules, applied to the codes and answers given. Common EU rules: each Member State's customs authority applies them and issues Binding Origin Information. Not a ruling."}
+		note: "The EU's non-preferential origin rules, applied to the codes and answers given. Not a ruling."}
 	ukMarket = originMarket{code: jurisdiction.UK, rules: "UK non-preferential origin: TCTA 2018 s. 17, SI 2020/1433 and the HMRC reference document v1.2 (Part Four)",
-		note: "The UK's non-preferential origin rules, applied to the codes and answers given. HMRC publishes no origin rulings. Not a ruling."}
+		note: "The UK's non-preferential origin rules, applied to the codes and answers given. Not a ruling."}
 )
 
 // OriginSourceView is the pinned source of a market's rules.

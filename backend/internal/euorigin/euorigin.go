@@ -37,7 +37,7 @@ var General = nporigin.General{
 	Market:     "eu",
 	ListName:   "Annex 22-01",
 	RowRef:     "Delegated Regulation (EU) 2015/2446, Annex 22-01, ",
-	Listed:     "Art. 32 DA (Delegated Regulation (EU) 2015/2446); Annex 22-01",
+	Listed:     "Art. 32 DA",
 	Residual:   "Annex 22-01, chapter residual rule",
 	Mixture:    "Annex 22-01, chapter residual rule applicable to mixtures",
 	Tolerance:  "Annex 22-01, introductory note 2.5",

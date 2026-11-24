@@ -639,7 +639,7 @@ func (s *state) assumes(ch Chapter) []string {
 	g := s.r.g
 	out := []string{fmt.Sprintf(g.MinimalOps, s.country), g.Uneconomic}
 	if len(ch.Notes) > 0 {
-		out = append(out, "no chapter note excludes the change (see the rule details)")
+		out = append(out, "no chapter note excludes the change")
 	}
 	return out
 }

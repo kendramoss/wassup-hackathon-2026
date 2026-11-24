@@ -160,7 +160,7 @@ export const toolExamples: Record<ToolName, Example> = {
     output: {
       jurisdiction: "eu",
       label: "Rules check only — no accuracy figure (no published origin rulings to test against)",
-      result: { status: "decided", origin: "Malaysia", basis: "Art. 32 DA (Delegated Regulation (EU) 2015/2446); Annex 22-01; Delegated Regulation (EU) 2015/2446, Annex 22-01, 8527" },
+      result: { status: "decided", origin: "Malaysia", basis: "Art. 32 DA; Delegated Regulation (EU) 2015/2446, Annex 22-01, 8527" },
     },
   },
   check_uk_origin: {
