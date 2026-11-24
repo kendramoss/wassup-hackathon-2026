@@ -30,18 +30,13 @@ type modelAnswer struct {
 }
 
 func (a modelAnswer) validate() error {
-	if a.Confidence == nil || *a.Confidence < 0 || *a.Confidence > 1 || strings.TrimSpace(a.Reasoning) == "" {
+	if a.Confidence == nil || *a.Confidence < 0 || *a.Confidence > 1 || cleanText(a.Reasoning) == "" {
 		return fmt.Errorf("japan preference: confidence or reasoning invalid: %w", llm.ErrBadResponse)
 	}
 	switch a.Outcome {
 	case Qualifies:
-		origin := normalizeOrigin(a.Origin)
-		switch origin {
-		case "", "Unknown", "Undetermined", "None", "Na":
-			return fmt.Errorf("japan preference: qualifying answer has no origin: %w", llm.ErrBadResponse)
-		}
-		if len(domain.CountryParts(origin)) != 1 || a.DecidingRule == "" {
-			return fmt.Errorf("japan preference: qualifying answer is incomplete: %w", llm.ErrBadResponse)
+		if _, ok := originCountry(a.Origin); !ok || cleanText(a.DecidingRule) == "" {
+			return fmt.Errorf("japan preference: qualifying answer has no single origin country or rule: %w", llm.ErrBadResponse)
 		}
 		switch a.Criterion {
 		case "WO", "PE", "CC", "CTH", "CTSH", "RVC", "SP":
