@@ -91,6 +91,27 @@ rows' rule text) is gone. Not fixed, out of scope: the UK header-only rows 70.06
 
 A test lists every withheld row, so a new block must be added deliberately.
 
+## Lookup differences against main
+
+Basis: every six-digit HS 2017 code in `data/hs2017_codes.txt`, looked up for every
+agreement at four dates (2010-01-01, 2020-06-01, 2025-03-04, 2027-03-01) with
+`LookupDetailed`; counts are distinct codes, and all of them are the codes of the
+three touched agreements (no other agreement differs). Four-digit headings are not
+counted. Reproduce by dumping reason and evidence per (date, agreement, code) on
+main and on this branch and diffing.
+
+| Agreement | Change | Codes |
+|---|---|---|
+| JP-EU | withheld to psr | 6 (7007.19, 7007.29, 7008.00, 7009.10, 7009.91, 7009.92) |
+| JP-Switzerland | withheld to psr | 10 (35.01 to 35.05 subheadings) |
+| JP-UK | no_match to withheld | 67 (8407-8408, 8701-8708) |
+| JP-UK | no_match to psr | 11 (8709-8711) |
+| JP-UK | psr to withheld | 8 (7007-7009) |
+| JP-UK | psr, text changed | 23 (7010 and 8401-8406, pollution removed) |
+
+Four-digit headings (for example 7007, 3502 to 3504) also change, from withheld to
+`too_broad` where a width-6 row now overlaps; they return no text either way.
+
 ## Dev effect (`jpeval diagnose -split dev`, 2,973 cases)
 
 JP-EU withheld 1 to psr 1 (7007.29); Switzerland withheld 1 to psr 1 (3504.00);
