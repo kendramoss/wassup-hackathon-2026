@@ -96,12 +96,16 @@ jobs:
           workload_identity_provider: ${{ env.WIF_PROVIDER }}
           service_account: ${{ env.DEPLOYER }}
       - uses: google-github-actions/setup-gcloud@v3
+      # MCP plan searches run through this service; without a 900 s timeout
+      # they are cut at Cloud Run's 300 s default and the client's retry joins
+      # the still-running search (#587). Keep in sync with the backend above.
       - run: >-
           gcloud run deploy frontend --source frontend
           --project "$PROJECT" --region "$REGION" --quiet
           --service-account "frontend@$PROJECT.iam.gserviceaccount.com"
           --set-env-vars "BACKEND_URL=$BACKEND_URL,GOOGLE_CLIENT_ID=88903435351-i8mugbokimlne3ns8rlsql93qrc7mths.apps.googleusercontent.com"
           --max-instances 3
+          --timeout=900
       # A --no-traffic preview deploy pins traffic to one revision; make sure
       # this deploy goes live anyway.
       - run: gcloud run services update-traffic frontend --project "$PROJECT" --region "$REGION" --to-latest --quiet
