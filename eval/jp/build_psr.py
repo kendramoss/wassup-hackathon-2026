@@ -34,6 +34,9 @@ SOURCES = (
 )
 DIGESTS = {
     "eu3.pdf": "cb7f029ad6679a70796ba45f619e1a623d8e9304ed041069a4b007cdc9633704",
+    # Annex 3-A (introductory notes), read only for the ANNEX_3A notes below.
+    "eu2.pdf": "f9281449008f2f7ea155590404ebb4351c0801dca5038d3ee9714d9f141e8f42",
+    "uk2.pdf": "0fbc823b40513a44d5be2c377e803a84b7d1b4d7c4c2164738a698d511acfcca",
     "asean2-1.pdf": "00b7e42a64fd0fb7dad809ba3b3d487ecfd84ded5e103eea229fe973de3e127d",
     "tpp2.pdf": "c80acd1e0c458f130cc6d6602ce18192626e801623947fffc9d1ed18020873b9",
     "tpp5.pdf": "56eb27080e455e792131760cb5d0805556de8b73039a4b5f4a5b7485740785d1",
@@ -123,6 +126,133 @@ NOTE_APPLIES.update({
     (_T, 30, "Note:", "73"): [],
     (_T, 35, "Note:", "87"): _headings("8702-8704"),  # "headings 87.02 through 87.04"
 })
+# JP-EU EPA / JP-UK CEPA: Section and Chapter note cells of Annex 3-B (a "Section
+# note:" or "Chapter note:" sentence inside the heading cell). Each needs a
+# reviewed entry in NOTE_APPLIES; an empty list is the whole Section or Chapter
+# the cell names ("within this Section", "this Chapter").
+CELL_NOTE_PDFS = {"eu3.pdf", "uk3.pdf"}
+CELL_NOTE = re.compile(r"(?:Section|Chapter) note:")
+NOTE_APPLIES.update({
+    ("eu3.pdf", 12, "Section note:", "V"): [], ("eu3.pdf", 14, "Section note:", "VI"): [],
+    ("eu3.pdf", 24, "Section note:", "VII"): [], ("eu3.pdf", 30, "Section note:", "XI"): [],
+    ("eu3.pdf", 38, "Chapter note:", "57"): [],
+    ("uk3.pdf", 14, "Section note:", "V"): [], ("uk3.pdf", 16, "Section note:", "VI"): [],
+    ("uk3.pdf", 26, "Section note:", "VII"): [], ("uk3.pdf", 32, "Section note:", "XI"): [],
+    ("uk3.pdf", 40, "Chapter note:", "57"): [],
+})
+
+# Annex 3-A (separate PDF) quoted verbatim, one note per source page chunk. Each
+# entry is (page, label, start, end, scope, key, applies). start and end are the
+# first and last words of the quoted chunk in the normalised page text (None: the
+# page edge, without the page footer and the closing rule line). Only the
+# provisions that define a term of the Annex 3-B rules or change how a rule
+# qualifies are quoted; Note 1 paragraphs 1, 2 and 4, Note 2 paragraph 4 (the
+# meaning of Chapter, heading, Section and subheading) are left out.
+# See docs/japan/annex-3a-notes.md.
+_N5 = [["25", "40"]]  # Note 5: "processes referred to in Sections V to VII"
+_W5 = [["5106", "5110"], ["5204", "5207"]]  # Note 7 paragraph 5, from its own wording
+_W8 = [["61", "63"]]  # Note 8 paragraph 2, from its own wording
+_S, _XI = ("schedule", ""), ("section", "XI")
+_EU_FORMULA = " MaxNOM(%) = (VNM / EXW) × 100 RVC(%) = ((FOB − VNM) / FOB) × 100"
+_UK_FORMULA = " (a) MaxNOM(%) = (VNM / EXW) × 100 and (b) RVC(%) = ((FOB − VNM) / FOB) × 100"
+# What the PDF text layer gives for the two typeset fractions; checked so a
+# changed layer fails the build. The linear form above is the one transcription.
+_EU_FORMULA_PDF = "VNM MaxNOM(%) = ×100 EXW FOB−VNM RVC(%) = ×100 FOB"
+_UK_FORMULA_PDF = "(a) VNM MaxNOM(%) 100 EXW = × and (b) FOB VNM RVC(%) 100 FOB − = ×"
+ANNEX_3A = {
+    "eu3.pdf": {
+        "pdf": "eu2.pdf", "label": "JP-EU EPA Annex 3-A",
+        "notes": [
+            (1, "Note 1 paragraph 3", "3. Reference to weight", "packaging.", *_S, []),
+            (2, "Note 2 paragraphs 1 to 3", "Note 2", "all of the requirements.", *_S, []),
+            (3, "Note 2 paragraph 5", "5. For the purposes of product specific rules of origin", "individually or jointly.", *_S, []),
+            (4, "Note 3", "Note 3", "inherent nature.", *_S, []),
+            (5, "Note 4", "Note 4", None, *_S, []),
+            (6, "Note 4", None, None, *_S, []),
+            (7, "Note 4", None, None, *_S, []),
+            (8, "Note 4", None, ("formulas apply:", _EU_FORMULA, _EU_FORMULA_PDF), *_S, []),
+            (9, "Note 5", "Note 5", None, *_S, _N5),
+            (10, "Note 5", None, None, *_S, _N5),
+            (11, "Note 5", '(e) "isomer separation"', "existing impurities.", *_S, _N5),
+            (11, "Note 6", "Note 6", None, *_XI, []),
+            (12, "Note 6", None, None, *_XI, []),
+            (13, "Note 7", None, None, *_XI, []),
+            (14, "Note 7", None, None, *_XI, []),
+            (15, "Note 7", None, None, *_XI, []),
+            (16, "Note 7", None, None, *_XI, []),
+            (17, "Note 7 paragraph 4", "4. Notwithstanding", "exceed 10 per cent.", *_XI, []),
+            (17, "Note 7 paragraph 5", "5. For a product", "weight of the product.", *_XI, _W5),
+            (17, "Note 8 paragraph 1", "Note 8", None, *_XI, []),
+            (18, "Note 8 paragraph 2", "2. Non-originating", "slide-fasteners normally contain textiles.", *_XI, _W8),
+            (18, "Note 8 paragraph 3", "3. Where a requirement", None, *_XI, []),
+        ],
+    },
+    "uk3.pdf": {
+        "pdf": "uk2.pdf", "label": "JP-UK CEPA Annex 3-A",
+        "notes": [
+            (1, "Note 1 paragraph 3", "3. Reference to weight", "packaging.", *_S, []),
+            (1, "Note 2 paragraph 1", "Note 2", None, *_S, []),
+            (2, "Note 2 paragraphs 2 and 3", "2. Each product", "all of the requirements.", *_S, []),
+            (2, "Note 2 paragraph 5", "5. For the purposes of product specific rules of origin", None, *_S, []),
+            (3, "Note 2 paragraph 5", None, "in subheading) of the Harmonized System.", *_S, []),
+            (3, "Note 3", "Note 3", None, *_S, []),
+            (4, "Note 3 paragraph 4", "4. For greater certainty", "European Union.", *_S, []),
+            (4, "Note 4", "Note 4", None, *_S, []),
+            (5, "Note 4", None, None, *_S, []),
+            (6, "Note 4", None, ("apply respectively:", _UK_FORMULA, _UK_FORMULA_PDF), *_S, []),
+            (7, "Note 5", "Note 5", None, *_S, _N5),
+            (8, "Note 5", None, None, *_S, _N5),
+            (9, "Note 6", "Note 6", None, *_XI, []),
+            (10, "Note 7", "Note 7", None, *_XI, []),
+            (11, "Note 7", None, None, *_XI, []),
+            (12, "Note 7", None, None, *_XI, []),
+            (13, "Note 7 paragraph 5", "5. For a product", "weight of the product.", *_XI, _W5),
+            (13, "Note 8 paragraph 1", "Note 8", "of the product.", *_XI, []),
+            (13, "Note 8 paragraph 2", "2. For the purposes", "for that product.", *_XI, _W8),
+            (13, "Note 8 paragraph 3", "3. Where a requirement", None, *_XI, []),
+        ],
+    },
+}
+PAGE_FOOTER = re.compile(r"\s*(?:EU/JP/Annex 3-A/en \d+)?\s*$")
+CLOSING_RULE = re.compile(r"\s*_{4,}\s*$")
+
+
+def quote_chunk(text, start, end):
+    """The verbatim chunk of a normalised page between two anchors."""
+    text = CLOSING_RULE.sub("", PAGE_FOOTER.sub("", text))
+    tail = ""
+    if isinstance(end, tuple):  # (last words, linear formula, expected PDF layer)
+        end, formula, layer = end
+        i = text.index(end) + len(end)
+        if text[i:].strip() != layer:
+            raise ValueError(f"formula text layer changed: {text[i:]!r}")
+        text, tail = text[:i], formula
+    i = 0 if start is None else text.index(start)
+    if start is not None and text.count(start) != 1:
+        raise ValueError(f"start {start!r} is not unique on its page")
+    j = len(text) if end is None else text.index(end, i) + len(end)
+    return text[i:j] + tail
+
+
+def annex_3a_notes(path, filename):
+    spec = ANNEX_3A[filename]
+    notes = []
+    with pdfplumber.open(path) as pdf:
+        for page_number, label, start, end, scope, key, applies in spec["notes"]:
+            page = pdf.pages[page_number - 1]
+            note = {
+                "scope": scope, "key": key,
+                "text": quote_chunk(normalize(page.extract_text()), start, end),
+                "page": page_number,
+                "source_url": BASE + spec["pdf"],
+                "citation": f"{spec['label']}, {label}",
+            }
+            if applies:
+                note["applies"] = applies
+            notes.append(note)
+            page.close()
+    return notes
+
 COLUMN_HEADER = re.compile(r"^(?:\(HS ?\d{4}\)|HS Classification|Product Specific Rule)", re.I)
 # A rule that ends like this is cut short (end of a page-broken cell).
 DANGLING = re.compile(r"(?:^|[\s,])(?:through|to|from|or|and|than|of|the|any)$|[,-]$", re.I)
@@ -237,6 +367,13 @@ def add_note(notes, scope, heading, text, page):
     return item
 
 
+def cell_note(notes, filename, scope, key, cell, page_number):
+    """A "Section note:" or "Chapter note:" sentence inside a heading cell."""
+    m = CELL_NOTE.search(cell) if filename in CELL_NOTE_PDFS else None
+    if m:
+        add_note(notes, scope, key, cell[m.start():], page_number)
+
+
 def schedule(pdf, filename):
     """Parser for the four original, narrow-table PDFs."""
     rows = []
@@ -293,6 +430,7 @@ def schedule(pdf, filename):
                     branches = []
                     pending = None
                     target = None
+                    cell_note(notes, filename, "chapter", chapter, text, page_number)
                     continue
                 if m := SECTION.match(classification):
                     section = m[1]
@@ -300,6 +438,7 @@ def schedule(pdf, filename):
                     branches = []
                     pending = None
                     target = None
+                    cell_note(notes, filename, "section", section, text, page_number)
                     continue
                 if m := NOTE.match(classification):
                     scope = m[1].lower()
@@ -820,16 +959,18 @@ def uk(pdf):
                 classification, text = cells[:2]
                 if classification.startswith(("Column 1", "Harmonized System", "(1)")):
                     continue
-                if SECTION.match(classification):
+                if m := SECTION.match(classification):
                     close_heading()
                     target = None
                     chapter_open = False
+                    cell_note(notes, "uk3.pdf", "section", m[1], text, page_number)
                     continue
                 if m := CHAPTER.match(classification):
                     close_heading()
                     chapter = f"{int(m[1]):02}"
                     target = None
                     chapter_open = True
+                    cell_note(notes, "uk3.pdf", "chapter", chapter, text, page_number)
                     continue
                 if classification.startswith("Note:") or text.startswith("Note:"):
                     if chapter:
@@ -1001,7 +1142,12 @@ def table_schedule(pdf, filename):
 
 def scope_numbered_notes(filename, notes):
     for note in notes:
-        if filename in SCOPE_NOTE_PDFS:
+        if filename in CELL_NOTE_PDFS:
+            label = CELL_NOTE.match(note["text"])
+            if not label:  # a footnote note, scoped where it is added
+                continue
+            key = (filename, note["page"], label[0], note["key"])
+        elif filename in SCOPE_NOTE_PDFS:
             label = SCOPE_NOTE_START.match(note["text"])[0]
             key = (filename, note["page"], label, note["key"])
         else:
@@ -1030,6 +1176,14 @@ def _extract(path, filename):
         return table_schedule(pdf, filename)
 
 
+def annex_path(directory, name):
+    path = directory / name
+    digest = hashlib.sha256(path.read_bytes()).hexdigest()
+    if digest != DIGESTS[name]:
+        raise ValueError(f"{name}: source digest changed ({digest})")
+    return path
+
+
 def main():
     args = argparse.ArgumentParser(description=__doc__)
     args.add_argument("pdf_directory", type=Path)
@@ -1044,6 +1198,8 @@ def main():
         rows, notes = extract(path, filename)
         if not rows:
             raise ValueError(f"{filename}: no rules extracted")
+        if filename in ANNEX_3A:
+            notes += annex_3a_notes(annex_path(args.pdf_directory, ANNEX_3A[filename]["pdf"]), filename)
         sources.append({
             "agreement": agreement,
             "citation": f"{agreement} {annex} (HS {hs})",
