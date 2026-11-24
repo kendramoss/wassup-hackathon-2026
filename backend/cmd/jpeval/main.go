@@ -10,6 +10,7 @@
 //	go run ./cmd/jpeval candidate -split dev_eval -tag d712-dev  (gateway)
 //	go run ./cmd/jpeval candidate-summary -split held_out -check  (no model calls)
 //	go run ./cmd/jpeval plan -split held_out                     (no model calls, no network)
+//	go run ./cmd/jpeval diagnose -split dev_eval                 (no model calls, no network; dev_eval or dev only)
 package main
 
 import (
@@ -48,7 +49,7 @@ var (
 
 func main() {
 	if len(os.Args) < 2 {
-		fmt.Fprintln(os.Stderr, "usage: jpeval baseline|summary|index|bundle|candidate|candidate-summary|plan|smoke|budget-init [flags]")
+		fmt.Fprintln(os.Stderr, "usage: jpeval baseline|summary|index|bundle|candidate|candidate-summary|plan|diagnose|smoke|budget-init [flags]")
 		os.Exit(2)
 	}
 	var err error
@@ -67,6 +68,8 @@ func main() {
 		err = candidateSummary(os.Args[2:])
 	case "plan":
 		err = planCommand(os.Args[2:])
+	case "diagnose":
+		err = diagnoseCommand(os.Args[2:])
 	case "budget-init":
 		err = budgetInit(os.Args[2:])
 	case "smoke":
