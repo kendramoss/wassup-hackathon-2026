@@ -478,6 +478,7 @@ func run(args []string) error {
 	}
 	defer out.Close()
 
+	dirtyAtStart := codeDirty() // before this run appends to RUNLOG (D840)
 	start := time.Now()
 	var mu sync.Mutex
 	sem := make(chan struct{}, *workers)
@@ -518,7 +519,21 @@ func run(args []string) error {
 		return err
 	}
 	s := evalkit.Summarize(rows)
-	if err := appendRunLog(*resultsDir, name, *split, cfg, s, time.Since(start), len(cases), *limit, ctx.Err() != nil); err != nil {
+	data, err := datasetSHA256(*labelsPath, *splitsPath)
+	if err != nil {
+		return err
+	}
+	if *caseLabels != "" {
+		extra, err := datasetSHA256(*caseLabels)
+		if err != nil {
+			return err
+		}
+		for k, v := range extra {
+			data[k] = v
+		}
+	}
+	prov := map[string]any{"dataset_sha256": data, "code_dirty": dirtyAtStart}
+	if err := appendRunLog(*resultsDir, name, *split, cfg, s, time.Since(start), len(cases), *limit, ctx.Err() != nil, prov); err != nil {
 		return err
 	}
 	fmt.Println(evalkit.Markdown(name, *split, s))
@@ -691,7 +706,8 @@ func readRows(path string, ids []string) ([]evalkit.Row, error) {
 }
 
 // appendRunLog records every run (dev and held-out) in RUNLOG.jsonl.
-func appendRunLog(dir, name, split string, cfg config.Config, s evalkit.Summary, wall time.Duration, n, limit int, interrupted bool) error {
+// prov adds provenance keys (dataset_sha256, code_dirty; D840) when given.
+func appendRunLog(dir, name, split string, cfg config.Config, s evalkit.Summary, wall time.Duration, n, limit int, interrupted bool, prov map[string]any) error {
 	f, err := os.OpenFile(filepath.Join(dir, "RUNLOG.jsonl"), os.O_CREATE|os.O_APPEND|os.O_WRONLY, 0o644)
 	if err != nil {
 		return err
@@ -724,6 +740,9 @@ func appendRunLog(dir, name, split string, cfg config.Config, s evalkit.Summary,
 		"prompt_version": prompt, "k": cfg.PrecedentK, "fast_path_threshold": cfg.FastPathConfidence,
 		"git_revision": revision(), "wall_s": int(wall.Seconds()), "interrupted": interrupted,
 		"cost_per_case_usd": s.CostPerCase, "latency_p50_ms": s.LatencyP50, "latency_p95_ms": s.P95,
+	}
+	for k, v := range prov {
+		entry[k] = v
 	}
 	b, _ := json.Marshal(entry)
 	_, err = f.Write(append(b, '\n'))

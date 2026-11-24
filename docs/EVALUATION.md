@@ -138,7 +138,7 @@ A saved case now says when CBP has revoked or modified a ruling it relies on (ci
 
 | Committed results | Count | Would show |
 |---|---:|---|
-| Result rows naming rulings | 14,101 | |
+| Result rows naming rulings | 14,102 | |
 | Relied-on ruling changed on or after the case date | 2 (4 before D490) | the "look again" alert |
 | Relied-on ruling changed before the case date | 7 (8 before D490) | the alert, marked as stored before the guard (7 of the 8 of section 2.5; the eighth also cites the revoker) |
 | Relied-on ruling with a proposed change only | 0 | a calm line |
@@ -964,3 +964,21 @@ The guard was fixed after a second review (a word after the product, as in "batt
 **Results.** Development cases whose BM25 top 5 holds a ruling their template cites: lifting 7 of 7 (1 before), optical 3 of 9 (1 before); unchanged elsewhere. On the recorded guard v3 run the new guard changes two matches: the 3D printer, and the optical window the display template had taken. Two new fixtures pass the plan pipeline with a fake engine.
 
 **Limits.** Small development sets (lifting 7, optical 9, furniture 4); no model run, so no family-check figure for the changed templates until #781; no accuracy is claimed.
+
+### 20.4 Is the family work working? Development, held-out and origin per family (24 Nov 2026, D840–D842)
+
+**What was asked.** Whether the family templates match the goods they were written for, on the frozen development cases and on the held-out split, and how accurate the origin engine is inside each family. Everything was pre-registered and pushed before any run (D840; D841 added three development cases the first run could not load). The family check ran through an OpenAI-compatible LiteLLM gateway to Gemini, same model and settings as the earlier family runs, cache off. The held-out split was run once, on frozen templates, and nothing was tuned after it.
+
+| Family | Matching, development | Matching, held-out (of 377) | Origin, held-out | Origin, development |
+|---|---|---|---|---|
+| Batteries, chargers, packs | 6 of 7 (49–97) | 8 | 8 of 8 | 7 of 7 |
+| Motors, pumps and machines | 6 of 11 (28–79) | 11 | 9 of 11 (52–95) | 9 of 11 |
+| Off-road and lifting (dev: lifting cases) | 7 of 7 (65–100) | 5 | 5 of 5 | 7 of 7 |
+| Furniture | 3 of 4 (30–95) | 4 | 4 of 4 | 2 of 2 |
+| Optical and measuring | 8 of 9 (57–98) | 7 | 7 of 7 | 8 of 8 |
+| Medical devices | 9 of 10 (60–98) | 7 | 7 of 7 | 8 of 10 |
+| All | 39 of 48 (68–90); look-alikes 29 of 30 | 302 (75.8–83.8) | 340 of 377: with a template 278 of 302, none 62 of 75 | 41 of 45 |
+
+**What it shows.** Optical and lifting, the two built in #782, match their development cases (optical from 0 to 8 of 9; lifting 1 to 7 of 7), and the optical template took seven plausible held-out instruments (tape measures, tyre gauges, thermometers). Batteries and medical hold. Machinery does not: four machine subassemblies keep going to the machinery-parts template. Furniture is 3 of 4, too few to say. On held-out, 302 matched against 298 in the earlier 26-template run: a small, non-significant change. Origin accuracy is high in every family #781 measures; it is lowest where no template matched (83%) and in food (73%). The origin engine reads no template, so these per-family origin figures describe where the engine is weaker, not an effect of the templates.
+
+**Limits.** The development cases were used to choose and tune the families, so only the held-out figures are independent. Held-out rulings carry no expected family, so held-out matching is scope, not correctness. One run per set; small n per family. Cost $1.61, lane total $6.37 of $100.
