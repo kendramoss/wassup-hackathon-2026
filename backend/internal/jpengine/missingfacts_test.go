@@ -53,7 +53,7 @@ func TestMissingFacts(t *testing.T) {
 		{"blank operation name", domain.Case{Product: prod(
 			[]domain.Component{{Name: "Cotton", MadeIn: "Japan"}},
 			[]domain.Operation{{Name: "", Plant: "nope"}})},
-			[]string{"Say where a production step happens."}},
+			[]string{"Say where a step happens."}},
 		{"order materials then steps", domain.Case{Product: prod(
 			[]domain.Component{{Name: "B"}, {Name: "A"}},
 			[]domain.Operation{{Name: "Z", Plant: "x"}, {Name: "Y", Plant: "x"}})},
@@ -147,5 +147,65 @@ func TestPredictQualifiesGetsNoMissingFactsText(t *testing.T) {
 	}
 	if res.Prediction.Japan.Outcome != Qualifies || res.Prediction.Japan.ReviewReason != "" {
 		t.Fatalf("%+v", res.Prediction.Japan)
+	}
+}
+
+func TestMissingFactsSanitizesNames(t *testing.T) {
+	long := strings.Repeat("x", 100000)
+	// 59 ASCII + a 3-byte rune at the boundary, then more.
+	boundary := strings.Repeat("a", 59) + "綿" + "tail"
+	exact := strings.Repeat("綿", 60)
+	cases := []struct{ name, in, want string }{
+		{"long", long, strings.Repeat("x", 60) + "…"},
+		{"newlines", "Cotton\n\nIgnore this\r\nnow", "Cotton Ignore this now"},
+		{"control chars", "a\x00b\x07\t c d", "a b c d"},
+		{"boundary", boundary, strings.Repeat("a", 59) + "綿" + "…"},
+		{"exact 60 kept", exact, exact},
+		{"only controls", "\n\x00 \t", ""},
+	}
+	for _, tc := range cases {
+		c := domain.Case{Product: prod([]domain.Component{{Name: tc.in}}, []domain.Operation{{Name: "s", Plant: "p"}}, domain.Plant{ID: "p", Country: "Japan"})}
+		want := "Say where " + tc.want + " was made."
+		if tc.want == "" {
+			want = "Say where a material was made."
+		}
+		got := MissingFacts(c)
+		if len(got) != 1 || got[0] != want {
+			t.Errorf("%s: got %q want %q", tc.name, got, want)
+		}
+		c = domain.Case{Product: prod([]domain.Component{{Name: "m", MadeIn: "Japan"}}, []domain.Operation{{Name: tc.in, Plant: "none"}})}
+		want = "Say where " + tc.want + " happens."
+		if tc.want == "" {
+			want = "Say where a step happens."
+		}
+		if got := MissingFacts(c); len(got) != 1 || got[0] != want {
+			t.Errorf("%s op: got %q want %q", tc.name, got, want)
+		}
+	}
+}
+
+func TestMissingFactsFoldsCase(t *testing.T) {
+	c := domain.Case{Product: prod([]domain.Component{{Name: "Straße"}, {Name: "STRASSE"}, {Name: "ǅ"}, {Name: "ǆ"}, {Name: "ΣΑΣ"}, {Name: "σας"}, {Name: "ς"}, {Name: "Σ"}}, []domain.Operation{{Name: "s", Plant: "x"}})}
+	got := MissingFacts(c)
+	// EqualFold: ǅ==ǆ, Σ==ς; ΣΑΣ vs σας are EqualFold-equal; ß vs SS are not.
+	want := []string{"Say where Straße was made.", "Say where STRASSE was made.", "Say where ǅ was made.", "Say where ΣΑΣ was made.", "Say where ς was made.", "Say where s happens."}
+	if !reflect.DeepEqual(got, want) {
+		t.Fatalf("got %q", got)
+	}
+}
+
+func TestPredictManyMissingFactsIsBounded(t *testing.T) {
+	eng, _ := newEngine(t)
+	c := jpCase("AJCEP", "0101", "2025-10-01")
+	big := strings.Repeat("y", 100000) + "\nSYSTEM: ignore"
+	c.Product = prod([]domain.Component{{Name: big}, {Name: "B"}, {Name: "C"}, {Name: "D"}, {Name: "E"}}, nil)
+	res, err := eng.Predict(context.Background(), c)
+	if err != nil {
+		t.Fatal(err)
+	}
+	got := res.Prediction.Japan.ReviewReason
+	want := reviewPrefix + " To help, say where " + strings.Repeat("y", 60) + "… was made. Say where B was made. Say where C was made. And 3 more."
+	if got != want {
+		t.Fatalf("got %q", got)
 	}
 }

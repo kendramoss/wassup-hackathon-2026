@@ -9,7 +9,10 @@ import (
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/domain"
 )
 
-const maxMissingShown = 3
+const (
+	maxMissingShown = 3
+	maxNameRunes    = 60
+)
 
 // MissingFacts lists, in plain English, what the user could add to the
 // structured product so a specialist can finish the check. A blank country
@@ -22,19 +25,15 @@ func MissingFacts(c domain.Case) []string {
 		return nil
 	}
 	var out []string
-	seen := map[string]bool{}
 	add := func(s string) {
-		if k := strings.ToLower(s); !seen[k] {
-			seen[k] = true
-			out = append(out, s)
+		for _, kept := range out {
+			if strings.EqualFold(kept, s) {
+				return
+			}
 		}
+		out = append(out, s)
 	}
-	name := func(n, fallback string) string {
-		if n = strings.TrimSpace(n); n != "" {
-			return n
-		}
-		return fallback
-	}
+	name := cleanName
 	if len(p.Components) == 0 {
 		add("List the materials used.")
 	}
@@ -48,10 +47,23 @@ func MissingFacts(c domain.Case) []string {
 	}
 	for _, op := range p.Operations {
 		if pl, ok := p.PlantByID(op.Plant); !ok || strings.TrimSpace(pl.Country) == "" {
-			add("Say where " + name(op.Name, "a production step") + " happens.")
+			add("Say where " + name(op.Name, "a step") + " happens.")
 		}
 	}
 	return out
+}
+
+// cleanName makes a user-entered name safe to show: whitespace and control
+// characters collapse to single spaces, and it is cut to maxNameRunes.
+func cleanName(n, fallback string) string {
+	n = strings.Join(strings.FieldsFunc(n, func(r rune) bool { return unicode.IsSpace(r) || unicode.IsControl(r) }), " ")
+	if n == "" {
+		return fallback
+	}
+	if utf8.RuneCountInString(n) > maxNameRunes {
+		n = string([]rune(n)[:maxNameRunes]) + "…"
+	}
+	return n
 }
 
 // missingFactsSentence renders at most three items, then a count of the rest.
