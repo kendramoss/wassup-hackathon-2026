@@ -183,6 +183,10 @@ type Need struct {
 	Label    string   `json:"label"`
 	Detail   string   `json:"detail,omitempty"`
 	Options  []Option `json:"options,omitempty"`
+	// Evidence names the document or input that would settle the need
+	// (#770). Empty for review needs: no document answers a person's
+	// reading.
+	Evidence string `json:"evidence,omitempty"`
 }
 
 // AltRef is one alternative of the applied row and how it came out.
@@ -267,6 +271,9 @@ func (s *state) need(n Need) {
 		return
 	}
 	s.seen[k] = true
+	if n.Evidence == "" {
+		n.Evidence = EvidenceFor(n)
+	}
 	s.needs = append(s.needs, n)
 }
 

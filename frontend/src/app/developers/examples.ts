@@ -171,6 +171,17 @@ export const toolExamples: Record<ToolName, Example> = {
       result: { status: "needs_judgement", basis: "Taxation (Cross-border Trade) Act 2018 s. 17(3)" },
     },
   },
+  get_evidence_report: {
+    input: { case_id: caseId },
+    output: {
+      separate: "These checks answer different legal questions. Each stands on its own; they are not combined into one answer or score.",
+      checks: [
+        { id: "us_origin", status: "answered", outcome: "Likely origin: Malaysia", method: "model" },
+        { id: "eu_origin", status: "needs_information", outcome: "Not decided", missing: [{ label: "Value share of tuner", evidence: "The supplier's bill of materials with values, and the good's ex-works price" }] },
+        { id: "uk_origin", status: "needs_judgement", outcome: "Rule not modelled: needs a substantial-transformation judgement" },
+      ],
+    },
+  },
 };
 
 const api = "https://undelabs.dev/api";

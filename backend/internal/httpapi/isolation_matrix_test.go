@@ -65,6 +65,8 @@ var routeTable = map[string]routeClass{
 	"POST /v1/cases/{id}/plan/estimate":            caseScoped,
 	"POST /v1/cases/{id}/export":                   caseScoped,
 	"POST /v1/cases/{id}/answers":                  caseScoped,
+	"PUT /v1/cases/{id}/origin-facts/{market}":     caseScoped,
+	"GET /v1/cases/{id}/evidence-report":           caseScoped,
 	"GET /v1/rulings/{id}":                         noCaseData,
 	"GET /v1/rulings":                              noCaseData,
 	"POST /mcp":                                    noCaseData, // its tools call the /v1 routes, each checked on its own row; the MCP principal: TestIsolationMatrixOverMCP
@@ -175,6 +177,8 @@ func isoRoutes() []isoRoute {
 		{"plan estimate", "POST", "/plan/estimate", `{"target":"Thailand"}`, nil, "POST /v1/cases/{id}/plan/estimate"},
 		{"export", "POST", "/export", `{"plan_index":0}`, nil, "POST /v1/cases/{id}/export"},
 		{"answers", "POST", "/answers", `{"answers":[{"question_id":"q","answer":"yes"}]}`, nil, "POST /v1/cases/{id}/answers"},
+		{"origin facts", "PUT", "/origin-facts/eu", `{"row":"none"}`, nil, "PUT /v1/cases/{id}/origin-facts/{market}"},
+		{"evidence report", "GET", "/evidence-report", "", nil, "GET /v1/cases/{id}/evidence-report"},
 		{"bom version", "POST", "/bom-version", `{"csv":"x","apply":false}`, nil, "POST /v1/cases/{id}/bom-version"},
 		{"pin", "PUT", "/pin", `{"pinned":true}`, nil, "PUT /v1/cases/{id}/pin"},
 		{"review create", "POST", "/reviews", `{"expires_in_days":7}`, nil, "POST /v1/cases/{id}/reviews"},

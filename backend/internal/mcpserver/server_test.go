@@ -157,7 +157,7 @@ func TestToolsListedAndSearchOptional(t *testing.T) {
 		for _, tool := range lt.Tools {
 			names[tool.Name] = true
 		}
-		if names["search_rulings"] != search || len(lt.Tools) != 13+map[bool]int{false: 0, true: 1}[search] {
+		if names["search_rulings"] != search || len(lt.Tools) != 14+map[bool]int{false: 0, true: 1}[search] {
 			t.Errorf("search %v: tools %v", search, names)
 		}
 	}

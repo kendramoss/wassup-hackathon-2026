@@ -234,6 +234,46 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/v1/cases/{id}/origin-facts/{market}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /**
+         * Save the facts the requester supplies to the case's EU or UK origin check and re-run it; no model call (D800-D802)
+         * @description #770. Replaces every fact saved for that market's check with the body (an empty body clears them). The facts are check inputs only: they are stored beside the case's product, attributed `source` "user-supplied" with `updated_at`, and the case's facts and product are never changed. Each fact must answer something the committed rules ask: an `answers` key a rule reads, a `row` of the list, a part that exists (named as it stands, so a later parts change leaves the fact unread and named rather than misapplied or refused; a BOM update after saving marks the whole set stale), a code that fills a missing part code or lengthens the part's own, an origin only for a part without one, and shares from 0 to 1 that add up to no more than 1 (400 otherwise). Answers with the market's check re-run on the case's product with the saved facts. 400 when the server has not loaded that market's rules. A pinned demo is read-only (403). Records an `origin_facts` event. Rate class basic.
+         */
+        put: operations["putOriginFacts"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/cases/{id}/evidence-report": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * The case's evidence report, every check separate, with the case facts as stored; no model call (D803-D805)
+         * @description #771. Runs every rules check the server serves on the case's product as stored, each on its own: the U.S. 19 CFR 102.20 tariff shift, Canada's marking rules (SOR/94-23), EU and UK non-preferential origin (with the facts the requester supplied to them), RCEP preference and USMCA preference for the pilot goods. The U.S. country of origin is the case's stored model answer, reused and never re-run; a case for another market shows it as not run. Each check carries the legal question it answers, its status and outcome, missing information with the document that would settle it, what is not modelled, its sources, its rule or data version, its limits and when it was made. The checks answer different legal questions and are never combined: there is no overall verdict or score. `markdown` is the same report as a document, with the case's facts and product as stored and the supplied facts listed apart. Read only: nothing is stored or recorded. Rate class basic.
+         */
+        get: operations["getEvidenceReport"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/v1/cases/{id}/reviews": {
         parameters: {
             query?: never;
@@ -1652,6 +1692,8 @@ export interface components {
             };
             /** @description The last work, where the good was made, was only minimal operations (Art. 34 DA / Part Two) */
             minimal_operations_only?: boolean;
+            /** @description With product only: facts the requester supplied (as saved by putOriginFacts), read in beside the product, which is not changed (D801). A supplied row or answer wins over row and answers. */
+            supplied?: components["schemas"]["SuppliedOriginFacts"];
         };
         OriginRulesView: {
             /** @enum {string} */
@@ -1682,6 +1724,14 @@ export interface components {
                 licence: string;
             };
             result: components["schemas"]["OriginRulesResult"];
+            /** @description The supplied facts read into the check, when any were sent */
+            supplied?: components["schemas"]["SuppliedOriginFacts"];
+            /** @description Parts (0-based) whose supplied facts were not read because the part is gone or changed (name, code, or it now has a code or origin the fact no longer fits) */
+            stale_supplied?: number[];
+            /** @description Other supplied facts not read because they no longer fit: good_hts, row, or answers.<key> */
+            supplied_dropped?: string[];
+            /** @description None of the supplied facts was read: they were saved before the parts list was replaced (D806) */
+            supplied_stale?: boolean;
         };
         OriginRulesResult: {
             /**
@@ -1734,12 +1784,129 @@ export interface components {
                 material?: number;
                 label: string;
                 detail?: string;
+                /** @description The document or input that would settle it (D800). Absent for kind review: a person's reading, which no document settles and no control answers */
+                evidence?: string;
                 options?: {
                     key: string;
                     code: string;
                     description: string;
                 }[];
             }[];
+        };
+        SuppliedMaterial: {
+            /** @description 0-based position of the part in product.components */
+            index: number;
+            /** @description The part's name as it stood when the fact was given */
+            name: string;
+            /** @description The part's code as it stood when the fact was given */
+            part_hts?: string;
+            /** @description A code for a part without one, or a longer code that starts with the part's own */
+            hts?: string;
+            /** @description For a part without an origin only */
+            origin?: string;
+            value_share?: number;
+            weight_share?: number;
+        };
+        /** @description Facts the requester supplied to a rules check of the case (D801), kept apart from the case's facts and product, which they never change. */
+        SuppliedOriginFacts: {
+            /** @enum {string} */
+            source?: "user-supplied";
+            /** Format: date-time */
+            updated_at?: string;
+            /** @description The signed-in user who saved them, when there is one */
+            actor?: string;
+            /** @description A longer code for the good that starts with the product's code */
+            good_hts?: string;
+            row?: string;
+            answers?: {
+                [key: string]: boolean;
+            };
+            materials?: components["schemas"]["SuppliedMaterial"][];
+            /** @description Set on read, never stored: the parts list was replaced after these were saved, so none is read (D806) */
+            stale?: boolean;
+        };
+        /** @description Supplied facts by market (eu, uk) */
+        OriginFactsByMarket: {
+            [key: string]: components["schemas"]["SuppliedOriginFacts"];
+        };
+        /** @description Every fact supplied to one market's check; replaces what was saved. Empty clears. */
+        OriginFactsRequest: {
+            /** @description The updated_at of this market's saved answers as last read ("" when none were saved). If they changed since, nothing is saved: 409 (D806). */
+            expected_updated_at?: string;
+            /** @example 8473.30 */
+            good_hts?: string;
+            /** @example 8473x */
+            row?: string;
+            /**
+             * @example {
+             *       "ch85.r": false
+             *     }
+             */
+            answers?: {
+                [key: string]: boolean;
+            };
+            materials?: components["schemas"]["SuppliedMaterial"][];
+        };
+        EvidenceCheck: {
+            /** @enum {string} */
+            id: "us_origin" | "us_part102" | "ca_marking" | "eu_origin" | "uk_origin" | "rcep" | "usmca";
+            title: string;
+            /** @description The legal question this check answers */
+            question: string;
+            /** @enum {string} */
+            method: "model" | "rules";
+            /**
+             * @description needs_information: can be decided once the missing facts are supplied; needs_judgement: the rule turns on a judgement the check does not model
+             * @enum {string}
+             */
+            status: "answered" | "needs_information" | "needs_judgement" | "not_run" | "not_applicable";
+            outcome: string;
+            origin?: string;
+            reason?: string;
+            label: string;
+            /** @description The answer goes to a person before it is relied on */
+            review: boolean;
+            missing?: {
+                label: string;
+                /** @description The document or input that would settle it */
+                evidence?: string;
+            }[];
+            not_modelled?: string[];
+            sources?: {
+                title: string;
+                version?: string;
+                url?: string;
+            }[];
+            rule_version?: string;
+            limitations?: string[];
+            uses_supplied?: boolean;
+            /**
+             * Format: date-time
+             * @description When this result was made: now for a rules check, the stored prediction's time for the U.S. answer
+             */
+            at: string;
+        };
+        EvidenceReport: {
+            case_id: string;
+            name?: string;
+            /** Format: date-time */
+            generated_at: string;
+            /** @description Says the checks answer different legal questions and are not combined */
+            separate: string;
+            not_a_ruling: string;
+            case: {
+                date: string;
+                market: string;
+                facts: string;
+                product?: components["schemas"]["Product"];
+                /** Format: date-time */
+                created_at: string;
+                /** Format: date-time */
+                updated_at: string;
+            };
+            supplied?: components["schemas"]["OriginFactsByMarket"];
+            checks: components["schemas"]["EvidenceCheck"][];
+            markdown: string;
         };
         /** @description The deterministic 19 CFR 102.20 tariff-shift check (D360, D363), present only when the product gives an HTS code for the good and at least one part. Computed when the case is read; display only: it never changes the prediction, the triage or auto-accept. RULE_CHECK=off removes it. */
         RuleCheck: {
@@ -2063,6 +2230,7 @@ export interface components {
              */
             facts_source?: "parts_list" | "pasted";
             rule_check?: components["schemas"]["RuleCheck"];
+            origin_facts?: components["schemas"]["OriginFactsByMarket"];
             ruling_alerts?: components["schemas"]["RulingAlerts"];
             /** @description latest economics given for the case, if any */
             economics?: components["schemas"]["Economics"];
@@ -3427,6 +3595,71 @@ export interface operations {
             409: components["responses"]["Error"];
             429: components["responses"]["TooManyRequests"];
             502: components["responses"]["Error"];
+        };
+    };
+    putOriginFacts: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: components["parameters"]["CaseID"];
+                market: "eu" | "uk";
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["OriginFactsRequest"];
+            };
+        };
+        responses: {
+            /** @description The saved facts for every market, and the check re-run */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        case_id: string;
+                        /** @enum {string} */
+                        market: "eu" | "uk";
+                        origin_facts: components["schemas"]["OriginFactsByMarket"];
+                        check: components["schemas"]["OriginRulesView"];
+                    };
+                };
+            };
+            400: components["responses"]["Error"];
+            401: components["responses"]["Error"];
+            403: components["responses"]["Error"];
+            404: components["responses"]["Error"];
+            409: components["responses"]["Error"];
+            429: components["responses"]["TooManyRequests"];
+        };
+    };
+    getEvidenceReport: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: components["parameters"]["CaseID"];
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description The report */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["EvidenceReport"];
+                };
+            };
+            401: components["responses"]["Error"];
+            403: components["responses"]["Error"];
+            404: components["responses"]["Error"];
+            429: components["responses"]["TooManyRequests"];
         };
     };
     listBrokerReviewLinks: {
