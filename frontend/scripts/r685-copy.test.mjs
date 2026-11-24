@@ -168,7 +168,7 @@ test("review fixes: live-run labels are true, method terms are 24 px targets, fo
   assert.match(copy, /planRuns: "Live run, then you can search for moves"/);
   assert.ok(!/Runs when opened/.test(copy));
   const mi = read("../src/app/method/method-inspector.css");
-  assert.match(mi.slice(mi.indexOf("#685")), /\.mi-schema dt > \[tabindex\] \{ display: inline-block; min-height: 24px; line-height: 24px; \}/);
+  assert.match(mi.slice(mi.indexOf("#685")), /\n\.mi-schema dt > \[tabindex\] \{ display: inline-block; min-height: 24px; line-height: 24px; \}/);
   assert.match(read("../src/lib/method-inspector.ts"), /label: "Rule-based search"/);
   const fc = read("../src/components/op/failure-cases.tsx");
   assert.match(fc, /max-sm:inline-flex max-sm:min-h-11 max-sm:items-center">\s+How the test set is built/);
