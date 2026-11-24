@@ -799,7 +799,7 @@ export interface paths {
         put?: never;
         /**
          * EU non-preferential origin rules check (UCC Art. 60, DA 2015/2446 Art. 31-36 and Annex 22-01), from HS codes; no model call (D760-D766)
-         * @description Applies the EU's non-preferential origin list rules (Annex 22-01 to Delegated Regulation (EU) 2015/2446, consolidated text CELEX 02015R2446-20261101) through Art. 32-34 DA. Annex 22-01 has list rules for some goods in 37 HS chapters only (`chapters`); every other good, and a good that is none of the listed goods of its code, gets `result.status` `needs_judgement`: its origin is the country of its last substantial, economically justified processing (Art. 60(2) UCC), which a person decides. These are common EU rules; each Member State's customs authority applies them and issues Binding Origin Information. Binding Origin Information and EBTI are not read. A rules check only: no origin decisions with their facts are published to test it, so there is no accuracy figure, and every answer carries `label` saying so. Send either `product` (read like the case's rule check) or `good_hts`, `country` and `materials`. When `result.status` is `undetermined`, `result.needs` says what would resolve it: a row to pick (`row`), yes/no facts (`answers`, keyed as the need names them), codes, shares, or review by a person. Nothing is stored. Served when RULE_CHECK is on (the default).
+         * @description Applies the EU's non-preferential origin list rules (Annex 22-01 to Delegated Regulation (EU) 2015/2446, consolidated text CELEX 02015R2446-20261101) through Art. 32-34 DA. Annex 22-01 has list rules for some goods in 37 HS chapters only (`chapters`); every other good, and a good that is none of the listed goods of its code, gets `result.status` `needs_judgement`: its origin is the country of its last substantial, economically justified processing (Art. 60(2) UCC), which a person decides. These are common EU rules; each Member State's customs authority applies them and issues Binding Origin Information. Binding Origin Information and EBTI are not read. A rules check only: no origin decisions with their facts are published to test it (BOI outcomes are published without facts), so there is no accuracy figure, and every answer carries `label` saying so. Value shares, or weight shares, that add up to more than 1 are a 400. Send either `product` (read like the case's rule check) or `good_hts`, `country` and `materials`. When `result.status` is `undetermined`, `result.needs` says what would resolve it: a row to pick (`row`), yes/no facts (`answers`, keyed as the need names them), codes, shares, or review by a person. Nothing is stored. Served when RULE_CHECK is on (the default).
          */
         post: operations["checkEUOrigin"];
         delete?: never;
@@ -1659,8 +1659,11 @@ export interface components {
             rules: string;
             /** @example eu-da2015-2446-annex22-01-v1 */
             table_version: string;
-            /** @enum {string} */
-            label: "Rules check only — no accuracy figure (no published origin rulings to test against)";
+            /**
+             * @description The first for the EU (Binding Origin Information outcomes are published without their facts), the second for the UK (HMRC publishes no origin rulings)
+             * @enum {string}
+             */
+            label: "Rules check only — no accuracy figure (no published origin decisions with their facts to test against)" | "Rules check only — no accuracy figure (no published origin rulings to test against)";
             /** @description HS chapters the list has rules for */
             chapters: string[];
             country: string;
@@ -4729,7 +4732,7 @@ export interface operations {
                         }[];
                         /**
                          * @description Version of the deterministic market detector
-                         * @example market-detect-v2
+                         * @example market-detect-v3
                          */
                         detector?: string;
                     };

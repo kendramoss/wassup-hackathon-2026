@@ -3,6 +3,7 @@ package nporigin
 import (
 	"fmt"
 	"math"
+	"regexp"
 	"sort"
 	"strconv"
 	"strings"
@@ -25,8 +26,6 @@ type General struct {
 	// rule, the residual rule for mixtures, the 10% tolerance and the
 	// chapter primary rules note.
 	Residual, Mixture, Tolerance, ChapterAlt string
-	// Wholly cites the wholly-obtained rule.
-	Wholly string
 	// General cites the general rule for goods the list does not cover, and
 	// Judgement says, as one sentence, that it needs a person.
 	General   string
@@ -42,6 +41,9 @@ type General struct {
 	// MinimalOps and Uneconomic are the assumptions of every decided answer;
 	// MinimalOps has %s for the country.
 	MinimalOps, Uneconomic string
+	// Neutral is the assumption that packing and neutral elements (energy,
+	// plant, tools) are left out of the materials.
+	Neutral string
 	// MaxValueNonOriginating: the market's text defines the value in "the
 	// value of the materials used does not exceed X%" as the value of the
 	// non-originating materials (UK Part Four, value terms). When false the
@@ -321,7 +323,7 @@ func (s *state) evaluate() Result {
 	res.Rule = ref
 	if s.in.MinimalOnly != nil && *s.in.MinimalOnly {
 		if !g.MinimalFallback {
-			res.Status, res.Reason = NeedsJudgement, g.MinimalJudgement
+			res.Status, res.Reason, res.Basis = NeedsJudgement, g.MinimalJudgement, g.MinimalRef
 			return res
 		}
 		// Art. 34 DA: for goods covered by the list, the chapter residual
@@ -479,7 +481,10 @@ func (s *state) pickRow(ch Chapter, res *Result) (Row, bool, bool) {
 	for _, row := range sure {
 		n.Options = append(n.Options, Option{Key: row.Key, Code: row.Code, Description: oneLine(row.Description)})
 	}
-	n.Options = append(n.Options, Option{Key: RowNone, Code: "", Description: "None of these"})
+	// Split rows that end in "Other" cover the whole code: no "none".
+	if !coversAll(sure) {
+		n.Options = append(n.Options, Option{Key: RowNone, Code: "", Description: "None of these"})
+	}
 	s.need(n)
 	res.Status, res.Reason = Undetermined, "the list covers only some goods of this code; say which the good is"
 	return Row{}, false, true
@@ -500,7 +505,7 @@ func (s *state) notListed(res Result, why string) Result {
 	g := s.r.g
 	if s.in.MinimalOnly != nil && *s.in.MinimalOnly {
 		if !g.MinimalFallback {
-			res.Status, res.Reason = NeedsJudgement, g.MinimalJudgement
+			res.Status, res.Reason, res.Basis = NeedsJudgement, g.MinimalJudgement, g.MinimalRef
 			return res
 		}
 		basis := "value"
@@ -637,7 +642,12 @@ func sortedKeys(m map[string]float64) []string {
 
 func (s *state) assumes(ch Chapter) []string {
 	g := s.r.g
-	out := []string{fmt.Sprintf(g.MinimalOps, s.country), g.Uneconomic}
+	var out []string
+	for _, a := range []string{fmt.Sprintf(g.MinimalOps, s.country), g.Uneconomic, g.Neutral} {
+		if a != "" {
+			out = append(out, a)
+		}
+	}
 	if len(ch.Notes) > 0 {
 		out = append(out, "no chapter note excludes the change")
 	}
@@ -649,16 +659,16 @@ func (s *state) assumes(ch Chapter) []string {
 func (s *state) alt(a Alternative) (tri, []MaterialResult) {
 	switch {
 	case !a.Encoded || a.Kind == KindProcess:
-		return s.answer(a.Key, "Was this done in "+s.country+"?", a.Text), nil
+		return s.answer(a.Key, "In "+s.country+": "+brief(a.Text)+"?", a.Text), nil
 	case a.Kind == KindMaxValue:
 		if !s.r.g.MaxValueNonOriginating {
-			return s.answer(a.Key, "Was this rule met in "+s.country+"?", a.Text), nil
+			return s.answer(a.Key, "Met in "+s.country+": "+brief(a.Text)+"?", a.Text), nil
 		}
 		return s.maxValue(a), nil
 	}
 	t, ms := s.change(a)
 	if a.Condition != "" {
-		t = and(t, s.answer(a.Key+".c", "Is this true of the work in "+s.country+"?", a.Condition))
+		t = and(t, s.answer(a.Key+".c", "In "+s.country+": "+brief(a.Condition)+"?", a.Text))
 	}
 	return t, ms
 }
@@ -809,4 +819,34 @@ func (s *state) shifts(a Alternative, code string, i int, m Material) tri {
 		}
 	}
 	return t
+}
+
+// brief is the first line of a rule's text, cut to about 120 characters,
+// for a question's label; the full text is the need's detail.
+func brief(s string) string {
+	s = strings.TrimSpace(strings.SplitN(s, "\n", 2)[0])
+	s = strings.TrimSuffix(strings.TrimSuffix(s, ":"), ".")
+	if r := []rune(s); len(r) > 120 {
+		s = strings.TrimSpace(string(r[:117])) + "…"
+	}
+	return s
+}
+
+// reOther is a split row's catch-all description ("- other", "Other").
+var reOther = regexp.MustCompile(`(?i)^[-–\s]*other\s*$`)
+
+// coversAll: the rows are splits of one code and one of them is "Other",
+// so every good of the code is one of them.
+func coversAll(rows []Row) bool {
+	for _, r := range rows {
+		if r.Split == "" {
+			return false
+		}
+	}
+	for _, r := range rows {
+		if reOther.MatchString(oneLine(r.Description)) {
+			return true
+		}
+	}
+	return false
 }

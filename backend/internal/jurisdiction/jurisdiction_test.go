@@ -119,3 +119,28 @@ func TestRegistry(t *testing.T) {
 		}
 	}
 }
+
+// Northern Ireland (D767): EU or UK rules can apply under the Windsor
+// Framework, so naming it as the destination asks the user to pick; it
+// never picks the UK. Work done there is not a destination.
+func TestDetectNorthernIreland(t *testing.T) {
+	for _, text := range []string{
+		"The lamps are imported into Northern Ireland from Poland. Which origin?",
+		"Our company is shipping smart luminaires to our Belfast distribution hub.",
+		"Heaters assembled in Vietnam, delivered to a warehouse in Belfast.",
+	} {
+		j := Detect(text)
+		if j.Code != Other || j.Cue != CueNorthernIreland || j.Hint != UK || !j.Conflict || j.Source != SourceDetected {
+			t.Errorf("%q: %+v", text, j)
+		}
+	}
+	for _, c := range []struct{ text, code string }{
+		{"Goods imported into the United Kingdom through Felixstowe.", UK},
+		{"Pumps assembled in Northern Ireland are shipped to the United States.", US},
+		{"Kettles assembled in Belfast from Chinese parts.", US},
+	} {
+		if j := Detect(c.text); j.Code != c.code {
+			t.Errorf("%q: %+v, want %s", c.text, j, c.code)
+		}
+	}
+}

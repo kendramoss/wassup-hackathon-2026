@@ -120,7 +120,7 @@ function UnsupportedMarket({ c }: { c: CaseResponse }) {
             {m.flag ? <Flag country={m.flag} size={44} /> : null}
             {m.name}
           </h1>
-          <p className="read mt-5 max-w-[60ch] text-[17px]">{copy.market.unsupported(m.phrase)}</p>
+          <p className="read mt-5 max-w-[60ch] text-[17px]">{d?.cue === "Northern Ireland" ? copy.market.northernIreland : copy.market.unsupported(m.phrase)}</p>
           <p className="duo mt-1.5 max-w-[60ch] text-sm text-dim">
             {copy.market.unsupportedNext}
             {d?.source === "detected" && d.cue ? ` Read from your text: “${d.cue}”.` : ""}

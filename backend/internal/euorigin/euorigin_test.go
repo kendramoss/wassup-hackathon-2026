@@ -1,6 +1,7 @@
 package euorigin
 
 import (
+	"encoding/json"
 	"reflect"
 	"slices"
 	"strings"
@@ -21,7 +22,10 @@ func load(t *testing.T) *nporigin.Rules {
 // TestRulesEUJSON: the committed table re-parses to itself, so a parser
 // change cannot drift from the data (the source XHTML is not committed).
 func TestRulesEUJSON(t *testing.T) {
-	tab := load(t).Table()
+	var tab nporigin.Table
+	if err := json.Unmarshal(rulesJSON, &tab); err != nil {
+		t.Fatal(err)
+	}
 	for _, ch := range tab.Chapters {
 		for _, row := range ch.Rows {
 			applies, ex, split, key, err := nporigin.ParseCode(row.Code)
@@ -127,5 +131,20 @@ func TestEUJudgementCitesArt60(t *testing.T) {
 	res := load(t).Evaluate(nporigin.Input{GoodHTS: "8471.30", Country: "Vietnam", Materials: []nporigin.Material{{HTS: "8473.30", Origin: "China"}}})
 	if !strings.Contains(res.Basis, "Art. 60(2) UCC") || !strings.Contains(res.Reason, "judgement") {
 		t.Errorf("got %+v", res)
+	}
+}
+
+// The two HS 2017 rows are read in HS 2022 (D767): a semiconductor imaging
+// component of 8525 89 and a smartconnect module of 8548 00 reach them.
+func TestHS2017RowsReadInHS2022(t *testing.T) {
+	r := load(t)
+	for _, c := range []struct{ good, row string }{{"8525.89", "852580x"}, {"8525.81", "852580x"}, {"8548.00", "854890x"}} {
+		res := r.Evaluate(nporigin.Input{GoodHTS: c.good, Country: "Malaysia", Row: c.row, Materials: []nporigin.Material{{HTS: "8542.31", Origin: "Taiwan"}}})
+		if res.Status != nporigin.Decided || res.Rule == nil || res.Rule.Key != c.row {
+			t.Errorf("%s: %+v", c.good, res)
+		}
+	}
+	if res := r.Evaluate(nporigin.Input{GoodHTS: "8525.89", Country: "Malaysia", Materials: []nporigin.Material{{HTS: "8542.31", Origin: "Taiwan"}}}); res.Needs[0].Kind != nporigin.NeedRow {
+		t.Errorf("an ex row must be picked: %+v", res)
 	}
 }

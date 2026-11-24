@@ -1587,7 +1587,7 @@ paths:
                         name: { type: string }
                         supported: { type: boolean }
                         follow_ups: { type: boolean, description: "Whether the market's cases have plan search, comparison, scenarios, Ask, the draft and broker review (us only)" }
-                  detector: { type: string, example: market-detect-v2, description: "Version of the deterministic market detector" }
+                  detector: { type: string, example: market-detect-v3, description: "Version of the deterministic market detector" }
   /v1/rules/canada-marking:
     post:
       operationId: checkCanadaMarking
@@ -1661,8 +1661,9 @@ paths:
         gets `result.status` `needs_judgement`: its origin is the country of its last substantial, economically
         justified processing (Art. 60(2) UCC), which a person decides. These are common EU rules; each Member State's
         customs authority applies them and issues Binding Origin Information. Binding Origin Information and EBTI are
-        not read. A rules check only: no origin decisions with their facts are published to test it, so there is no
-        accuracy figure, and every answer carries `label` saying so. Send either `product` (read like the case's rule
+        not read. A rules check only: no origin decisions with their facts are published to test it (BOI outcomes are
+        published without facts), so there is no accuracy figure, and every answer carries `label` saying so. Value
+        shares, or weight shares, that add up to more than 1 are a 400. Send either `product` (read like the case's rule
         check) or `good_hts`, `country` and `materials`. When `result.status` is `undetermined`, `result.needs` says
         what would resolve it: a row to pick (`row`), yes/no facts (`answers`, keyed as the need names them), codes,
         shares, or review by a person. Nothing is stored. Served when RULE_CHECK is on (the default).
@@ -2583,7 +2584,10 @@ components:
         jurisdiction: { type: string, enum: [eu, uk] }
         rules: { type: string }
         table_version: { type: string, example: "eu-da2015-2446-annex22-01-v1" }
-        label: { type: string, enum: ["Rules check only — no accuracy figure (no published origin rulings to test against)"] }
+        label:
+          type: string
+          enum: ["Rules check only — no accuracy figure (no published origin decisions with their facts to test against)", "Rules check only — no accuracy figure (no published origin rulings to test against)"]
+          description: "The first for the EU (Binding Origin Information outcomes are published without their facts), the second for the UK (HMRC publishes no origin rulings)"
         chapters: { type: array, items: { type: string }, description: "HS chapters the list has rules for" }
         country: { type: string }
         country_from: { type: string }

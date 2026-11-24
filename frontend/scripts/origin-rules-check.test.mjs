@@ -9,7 +9,8 @@ import { html, text } from "./render-support.mjs";
 const { OriginRulesView, OriginRulesCheck, canCheckOrigin } = await import("../src/components/op/origin-rules-check.tsx");
 const { copy } = await import("../src/lib/copy.ts");
 
-const LABEL = "Rules check only — no accuracy figure (no published origin rulings to test against)";
+const LABEL = "Rules check only — no accuracy figure (no published origin decisions with their facts to test against)";
+const UK_LABEL = "Rules check only — no accuracy figure (no published origin rulings to test against)";
 const source = {
   title: "Commission Delegated Regulation (EU) 2015/2446, Annex 22-01",
   instrument: "UCC Art. 59-63",
@@ -41,11 +42,13 @@ const decided = {
   },
 };
 
-test("the label is the agreed wording and stays visible", () => {
-  assert.equal(copy.originRules.label, LABEL);
+test("the label is per market, stays visible, and the question is asked plainly", () => {
+  assert.equal(copy.originRules.label.eu, LABEL);
+  assert.equal(copy.originRules.label.uk, UK_LABEL);
   const t = text(html(OriginRulesView, { v: decided }));
   assert.ok(t.includes(LABEL));
   assert.match(t, /EU origin \(rules check\)/);
+  assert.match(t, /Origin under EU non-preferential rules\?/);
   assert.match(t, /Malaysia under EU origin rules, from the codes given\./);
 });
 
@@ -59,12 +62,36 @@ test("source, version, hash and who applies the rules sit behind Details", () =>
 });
 
 test("a good with no list rule is a judgement, with no origin", () => {
-  const v = { ...decided, jurisdiction: "uk", result: { status: "needs_judgement", covered: false, basis: "Taxation (Cross-border Trade) Act 2018 s. 17(3)", reason: "Part Four has no rules for chapter 84" } };
+  const v = { ...decided, jurisdiction: "uk", label: UK_LABEL, result: { status: "needs_judgement", covered: false, basis: "Taxation (Cross-border Trade) Act 2018 s. 17(3)", reason: "Part Four has no rules for chapter 84" } };
   const t = text(html(OriginRulesView, { v }));
+  assert.match(t, /Part Four has no rules for chapter 84\./);
+  assert.match(t, /A customs adviser decides where it was last substantially processed\./);
   assert.match(t, /UK origin \(rules check\)/);
   assert.match(t, /Needs a substantial-transformation judgement\./);
   assert.ok(!t.includes("under UK origin rules"));
-  assert.ok(t.includes(LABEL));
+  assert.ok(t.includes(UK_LABEL));
+});
+
+test("a UK minimal-operations judgement on a listed good does not say no list rule covers it", () => {
+  const reason = "the last work was only operations that are not an important stage of manufacture (SI 2020/1433 reg. 9, Part Two), so it does not confer origin";
+  const v = { ...decided, jurisdiction: "uk", label: UK_LABEL, result: { status: "needs_judgement", covered: true, basis: "SI 2020/1433 reg. 9; Part Two", reason } };
+  const t = text(html(OriginRulesView, { v }));
+  assert.ok(t.includes("Part Two"));
+  assert.doesNotMatch(t, /No list rule/);
+});
+
+test("a fact need names the fact to confirm", () => {
+  const v = {
+    ...decided,
+    result: {
+      status: "undetermined",
+      covered: true,
+      reason: "the primary rule for ex 8473 needs facts the codes cannot show",
+      needs: [{ key: "8473x.2", kind: "fact", label: "In Taiwan: Assembly of semi-conductor products?", detail: "Assembly of semi-conductor products" }],
+    },
+  };
+  const t = text(html(OriginRulesView, { v }));
+  assert.match(t, /In Taiwan: Assembly of semi-conductor products\?/);
 });
 
 test("undetermined lists what would decide it, with row choices, and no controls", () => {

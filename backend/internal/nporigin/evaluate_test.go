@@ -42,7 +42,7 @@ func testRules(g General) *Rules {
 var testGeneral = General{
 	Market: "test", ListName: "the list", RowRef: "List, ", Listed: "Art. L", Residual: "residual rule", Mixture: "mixture rule",
 	Tolerance: "note 2.5", ChapterAlt: "note 2.6", General: "Art. G", Judgement: "A person decides",
-	MinimalFallback: true, MinimalRef: "Art. M", MinimalOps: "work in %s is more than minimal", Uneconomic: "economic",
+	MinimalFallback: true, MinimalRef: "Art. M", MinimalOps: "work in %s is more than minimal", Uneconomic: "economic", Neutral: "neutral",
 }
 
 func f(v float64) *float64 { return &v }
@@ -60,7 +60,7 @@ func TestEvaluateChange(t *testing.T) {
 	// Radio made in Malaysia from Chinese parts of other headings: CTH met.
 	res := r.Evaluate(Input{GoodHTS: "8527.13", Country: "Malaysia", Materials: []Material{
 		{Name: "board", HTS: "8534.00", Origin: "China"}, {Name: "speaker", HTS: "8518.29", Origin: "China"}}})
-	if res.Status != Decided || res.Origin != "Malaysia" || !strings.Contains(res.Basis, "List, 8527") || len(res.Assumes) != 3 {
+	if res.Status != Decided || res.Origin != "Malaysia" || !strings.Contains(res.Basis, "List, 8527") || len(res.Assumes) != 4 {
 		t.Fatalf("got %+v", res)
 	}
 	// A part of heading 8529 is excepted: not met, then the residual rule by
@@ -128,8 +128,14 @@ func TestEvaluateRowChoice(t *testing.T) {
 	r := testRules(testGeneral)
 	in := Input{GoodHTS: "8541.40", Country: "Malaysia", Materials: []Material{{Name: "wafer", HTS: "3818.00", Origin: "China"}}}
 	res := r.Evaluate(in)
-	if res.Status != Undetermined || res.Needs[0].Kind != NeedRow || len(res.Needs[0].Options) != 3 {
+	// The splits end in "Other", so they cover the heading: no "none".
+	if res.Status != Undetermined || res.Needs[0].Kind != NeedRow || len(res.Needs[0].Options) != 2 {
 		t.Fatalf("want a row choice: %+v", res)
+	}
+	// An "ex" row covers only some goods: "none" is offered.
+	res = r.Evaluate(Input{GoodHTS: "8536.50", Country: "Malaysia", Materials: in.Materials})
+	if opts := res.Needs[0].Options; len(opts) != 2 || opts[1].Key != RowNone {
+		t.Fatalf("ex row options %+v", res.Needs)
 	}
 	in.Row = "8541xa"
 	if res = r.Evaluate(in); res.Status != Decided || res.Rule.Code != "ex 8541 (a)" {
@@ -176,7 +182,7 @@ func TestEvaluateNotListed(t *testing.T) {
 	// A market without that rule sends it to a person.
 	g := testGeneral
 	g.MinimalFallback, g.MinimalJudgement = false, "needs a person"
-	if res = testRules(g).Evaluate(Input{GoodHTS: "8471.30", Country: "Vietnam", Materials: mats, MinimalOnly: &yes}); res.Status != NeedsJudgement || res.Reason != "needs a person" {
+	if res = testRules(g).Evaluate(Input{GoodHTS: "8471.30", Country: "Vietnam", Materials: mats, MinimalOnly: &yes}); res.Status != NeedsJudgement || res.Reason != "needs a person" || res.Basis != "Art. M" {
 		t.Fatalf("got %+v", res)
 	}
 }
@@ -185,8 +191,8 @@ func TestEvaluateProcessAndResidual(t *testing.T) {
 	r := testRules(testGeneral)
 	in := Input{GoodHTS: "6301.40", Country: "Turkey", Materials: []Material{{Name: "yarn", HTS: "5509.21", Origin: "India", ValueShare: f(0.7)}, {Name: "trim", HTS: "5808.10", Origin: "Turkey", ValueShare: f(0.1)}}}
 	res := r.Evaluate(in)
-	if res.Status != Undetermined || needKeys(res)[0] != "fact:6301.1" {
-		t.Fatalf("want the process question: %+v", res)
+	if res.Status != Undetermined || needKeys(res)[0] != "fact:6301.1" || res.Needs[0].Label != "In Turkey: Manufacture from yarn?" {
+		t.Fatalf("want the process question, naming the work: %+v", res)
 	}
 	in.Answers = map[string]bool{"6301.1": true}
 	if res = r.Evaluate(in); res.Status != Decided || res.Origin != "Turkey" {

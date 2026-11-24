@@ -49,10 +49,11 @@ test("the picker carries a short summary of what each market offers today", asyn
   const { MarketPicker } = await import("../src/components/op/market-picker.tsx");
   const t = text(html(MarketPicker, { id: "m", value: "us", onChange() {} }));
   assert.match(t, /U\.S\.: live/);
-  assert.match(t, /Canada, EU, UK: rules check/);
+  assert.match(t, /Canada: rules check/);
+  assert.match(t, /EU, UK: rules check, listed goods/);
   assert.match(t, /RCEP: tariff check/);
   assert.ok(t.includes(copy.japan.notAvailable), "Japan line matches the picker's own option text");
   assert.match(t, /Other markets: not yet/);
-  assert.equal(copy.market.summary.length, 5);
+  assert.equal(copy.market.summary.length, 6);
   for (const line of copy.market.summary) assert.ok(line.length <= 40, line);
 });

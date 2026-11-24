@@ -102,8 +102,41 @@ func TestParity(t *testing.T) {
 		}
 	}
 	// About 440 shared rows have the same text; the value rules are skipped.
-	if compared < 400 {
-		t.Errorf("compared %d rows (skipped %d): too few", compared, skipped)
+	if compared != 441 || skipped != 3 {
+		t.Errorf("compared %d rows, skipped %d; want 441 and 3 (D765)", compared, skipped)
 	}
 	t.Logf("parity: %d rows compared, %d skipped", compared, skipped)
+}
+
+// TestFramingDiffers: the cases where the EU and UK texts frame the same row
+// differently give different answers, on purpose (D764).
+func TestFramingDiffers(t *testing.T) {
+	eu, err := euorigin.Rules()
+	if err != nil {
+		t.Fatal(err)
+	}
+	uk, err := ukorigin.Rules()
+	if err != nil {
+		t.Fatal(err)
+	}
+	yes := true
+	mats := []nporigin.Material{{Name: "board", HTS: "8473.30", Origin: "China", ValueShare: f(0.8)}, {Name: "box", HTS: "4819.10", Origin: "Vietnam", ValueShare: f(0.1)}}
+	for _, c := range []struct {
+		name             string
+		in               nporigin.Input
+		euStatus, euOrig string
+		ukStatus         string
+	}{
+		{"minimal operations, unlisted good: Art. 34 DA in the EU, a judgement in the UK",
+			nporigin.Input{GoodHTS: "8471.30", Country: "Vietnam", MinimalOnly: &yes, Materials: mats}, nporigin.Decided, "China", nporigin.NeedsJudgement},
+		{"minimal operations, listed good: EU residual rule, UK judgement",
+			nporigin.Input{GoodHTS: "8527.13", Country: "Vietnam", MinimalOnly: &yes, Materials: mats}, nporigin.Decided, "China", nporigin.NeedsJudgement},
+		{"value of the materials used: a question in the EU, decided in the UK",
+			nporigin.Input{GoodHTS: "6307.20", Country: "Turkey", Materials: []nporigin.Material{{Name: "fabric", HTS: "5903.20", Origin: "India", ValueShare: f(0.35)}}}, nporigin.Undetermined, "", nporigin.Decided},
+	} {
+		re, ru := eu.Evaluate(c.in), uk.Evaluate(c.in)
+		if re.Status != c.euStatus || re.Origin != c.euOrig || ru.Status != c.ukStatus {
+			t.Errorf("%s: EU %s %q, UK %s %q", c.name, re.Status, re.Origin, ru.Status, ru.Origin)
+		}
+	}
 }

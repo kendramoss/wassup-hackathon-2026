@@ -106,6 +106,9 @@ Two separate checks, one per market, with the same shape (D760-D766): `POST /v1/
 | Text version | EUR-Lex consolidated text CELEX 02015R2446-20261101 (1 Nov 2026), SHA-256 `87be4f1a…818be` | Reference document v1.2, 12 April 2023 (in effect from 10 May 2023), SHA-256 `239b6b3d…b850d` |
 | Who applies it | Common EU rules. Each Member State's customs authority applies them, issues Binding Origin Information and checks declarations | HMRC |
 | Published decisions | Public BOI list gives outcomes only, no facts or reasoning; not used. EBTI is tariff classification; not used | HMRC publishes no Advance Origin Rulings |
+| Label on every answer | "Rules check only — no accuracy figure (no published origin decisions with their facts to test against)" | "Rules check only — no accuracy figure (no published origin rulings to test against)" |
+
+**Northern Ireland.** Under the Windsor Framework the EU's customs rules apply to many goods entering Northern Ireland. A case whose text names Northern Ireland (or Belfast, Londonderry, Derry) as the destination is not read as the UK: it gets no answer and asks the user to pick the EU or the UK market (D767). A market the user picks is used as chosen.
 
 **Goods with list rules.** The same 37 HS chapters in both lists, with rules for these headings only (an `ex` heading covers only the goods its description names; other headings may be covered only for some subheadings or descriptions; the full rows are in `rules_eu.json` and `rules_uk.json`):
 
@@ -119,14 +122,15 @@ Two separate checks, one per market, with the same shape (D760-D766): `POST /v1/
 | 72, 73 | 7201 to 7229; 7301 to 7326 |
 | 82 | 8201 to 8207 |
 | 84 | ex 8443 (photocopiers), ex 8473 (memory modules), ex 8482 (assembled bearings) only |
-| 85 | ex 8501, ex 8523, ex 8525, 8527, 8528, 8535, ex 8536, 8541, 8542, ex 8548; the UK also has 8524 |
+| 85 | ex 8501, ex 8523 59, ex 8525 (EU: ex 8525 80, read as 8525 81 to 89), 8527, 8528, 8535, ex 8536, 8541 (split: ex 8541 (a) crystalline silicon photovoltaic cells, ex 8541 (b) other), 8542, ex 8548 (EU: ex 8548 90, read as 8548 00); the UK also has 8524 |
 | 90, 91, 94 | ex 9029; ex 9113; ex 9401, ex 9403, ex 9405; the UK also has ex 9021 |
 
 **What is decided, and how.** A change of classification (CC, CTH, CTSH and their split forms, with "except from" clauses) is decided from the codes, with the 10% value tolerance. Rules written as work done ("Manufacture from yarn", "Assembly of semi-conductor products", "Complete making-up") are decided only from a yes/no answer. When the good's code reaches rows limited by description, the caller picks the row. When the primary rule is not met, the chapter residual rules give the origin from the materials' value or weight shares. EU 446 rows and UK 452 rows; 199 and 205 alternatives decided from codes and shares, 338 and 342 from answers, 5 in each not read (D763).
 
 **What is not decided.**
 - Any good without a list rule: every heading of the other 60 chapters, and the headings of listed chapters without a row (for example 8471 computers). The answer is "needs a substantial-transformation judgement", citing Art. 60(2) UCC or TCTA 2018 s. 17(3). No origin is given (D764).
-- Rules that name the origin by where work was done (meat, eggs, scrap), equal shares, mixtures weighed by dry matter, and changes between splits of the same heading. These go to a person.
+- Rules that name the origin by where work was done (meat, eggs, scrap): a "yes, done in the country of production" decides; a "no" goes to a person, because the rule then names another country. Equal shares, mixtures weighed by dry matter, and changes between splits of the same heading also go to a person.
+- Two EU rows keep HS 2017 codes (ex 8525 80, ex 8548 90, added in 2018 and not renumbered for HS 2022). The check reads them as the HS 2022 subheadings they became (8525 81 to 89, 8548 00); the row text is unchanged (D767).
 - UK minimal operations: the UK text gives no fallback, so a judgement. The EU check applies Art. 34 DA (D764).
 - Accessories, spare parts and tools, packing, neutral elements, wholly obtained goods beyond the rows, and proof of origin.
 

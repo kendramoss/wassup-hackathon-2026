@@ -42,13 +42,13 @@ var General = nporigin.General{
 	Mixture:    "Annex 22-01, chapter residual rule applicable to mixtures",
 	Tolerance:  "Annex 22-01, introductory note 2.5",
 	ChapterAlt: "Annex 22-01, introductory note 2.6",
-	Wholly:     "Art. 60(1) UCC; Art. 31 DA",
 	General:    "Art. 60(2) UCC (Regulation (EU) No 952/2013); Art. 32 DA",
 	Judgement:  "This good has no list rule in Annex 22-01, so its origin is the country of its last substantial, economically justified processing (Art. 60(2) UCC). That is a judgement on the facts; it is not decided by code",
 	// Art. 34 DA, last paragraph (and Art. 33 for uneconomic work).
 	MinimalFallback: true,
 	MinimalRef:      "Art. 34 DA",
 	MinimalOps:      "the work in %s is more than the minimal operations of Art. 34 DA (for example packing, sorting, simple assembly or labelling)",
+	Neutral:         "packing, and neutral elements such as energy, plant and tools, are left out of the materials (Art. 36 DA)",
 	Uneconomic:      "the work was not done to avoid EU measures (Art. 33 DA)",
 	Administration:  "These are common EU rules. Each Member State's customs authority applies them, issues Binding Origin Information and checks declarations.",
 }
@@ -74,7 +74,39 @@ func Rules() (*nporigin.Rules, error) {
 			err0 = fmt.Errorf("euorigin: rules_eu.json is %s %s, want eu %s", t.Market, t.Version, TableVersion)
 			return
 		}
+		if err := correctHS2017(&t); err != nil {
+			err0 = err
+			return
+		}
 		rules = nporigin.New(t, General)
 	})
 	return rules, err0
+}
+
+// hs2017 are two rows the 2018 amendment (Delegated Regulation (EU)
+// 2018/1063, marker M3) wrote with HS 2017 subheadings that the HS 2022
+// update of Annex 22-01 did not renumber (D767). HS 2022 split 8525 80 into
+// 8525 81 to 8525 89 and replaced 8548 90 with 8548 00. Read as written,
+// they would match no HS 2022 code. The row text stays verbatim; only the
+// codes the row covers are read in HS 2022.
+var hs2017 = map[string][]nporigin.Range{
+	"852580x": {{Lo: "852581", Hi: "852589"}},
+	"854890x": {{Lo: "854800", Hi: "854800"}},
+}
+
+func correctHS2017(t *nporigin.Table) error {
+	n := 0
+	for ci := range t.Chapters {
+		for ri := range t.Chapters[ci].Rows {
+			r := &t.Chapters[ci].Rows[ri]
+			if rs, ok := hs2017[r.Key]; ok {
+				r.Applies = rs
+				n++
+			}
+		}
+	}
+	if n != len(hs2017) {
+		return fmt.Errorf("euorigin: %d of %d HS 2017 rows found", n, len(hs2017))
+	}
+	return nil
 }

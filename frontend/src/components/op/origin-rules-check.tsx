@@ -40,6 +40,9 @@ export function OriginRulesView({ v, parts }: { v: OriginRules; parts?: string[]
   return (
     <section aria-label={C.title[market]} data-origin-rules={r.status} data-market={market} className="max-w-[75ch] border border-line bg-sheet px-4 py-3">
       <h2 className="eyebrow mb-1">{C.title[market]}</h2>
+      <p data-origin-question className="duo mb-0.5 text-[13px] text-body">
+        {C.question[market]}
+      </p>
       <p data-origin-label className="duo mb-1.5 text-[12.5px] text-dim">
         {v.label}
       </p>
@@ -51,8 +54,8 @@ export function OriginRulesView({ v, parts }: { v: OriginRules; parts?: string[]
         ) : null}
         {head}
       </p>
+      {r.reason ? <p className="duo mt-1.5 text-[13px] text-body">{sentence(r.reason)}</p> : null}
       {r.status === "needs_judgement" ? <p className="duo mt-1.5 text-[13px] text-body">{C.judgementNext}</p> : null}
-      {r.reason && r.status !== "needs_judgement" ? <p className="duo mt-1.5 text-[13px] text-body">{sentence(r.reason)}</p> : null}
       {needs.length ? (
         <div data-origin-needs className="duo mt-2 text-[13px] text-body">
           <p>{C.toDecide}</p>
@@ -75,7 +78,6 @@ export function OriginRulesView({ v, parts }: { v: OriginRules; parts?: string[]
       <div className="mt-2">
         <Fold title={C.details}>
           <div className="duo flex flex-col gap-2 text-[12.5px] text-dim">
-            {r.status === "needs_judgement" && r.reason ? <p className="text-body">{sentence(r.reason)}</p> : null}
             {r.rule ? (
               <div>
                 <p className="text-body">

@@ -36,7 +36,6 @@ var General = nporigin.General{
 	Mixture:    "Part Four, chapter residual rule applicable to mixtures",
 	Tolerance:  "Part Four, introductory notes (10% tolerance)",
 	ChapterAlt: "Part Four, introductory notes (chapter primary rules)",
-	Wholly:     "TCTA 2018 s. 17(2); SI 2020/1433 reg. 8; Part One",
 	General:    "Taxation (Cross-border Trade) Act 2018 s. 17(3)",
 	Judgement:  "This good has no product-specific rule in Part Four, so its origin is the country of its last substantial, economically justified processing (Taxation (Cross-border Trade) Act 2018 s. 17(3)). That is a judgement on the facts; it is not decided by code",
 	// The UK text gives no "major portion" rule for minimal operations on
@@ -46,6 +45,7 @@ var General = nporigin.General{
 	MinimalRef:             "SI 2020/1433 reg. 9; Part Two",
 	MinimalJudgement:       "the last work was only operations that are not an important stage of manufacture (SI 2020/1433 reg. 9, Part Two), so it does not confer origin. Where the good last underwent substantial processing is a judgement on the facts; it is not decided by code",
 	MinimalOps:             "the work in %s is more than the operations Part Two says are not an important stage of manufacture (for example packing, sorting, simple assembly or labelling)",
+	Neutral:                "cases and containers, and materials that are not part of the final good, are left out of the materials (SI 2020/1433 regs 5 and 6)",
 	Uneconomic:             "the work was not done mainly to change origin and so reduce duty or avoid trade restrictions (SI 2020/1433 reg. 4)",
 	MaxValueNonOriginating: true,
 	Administration:         "HMRC applies these rules for goods imported into the UK. HMRC does not publish its Advance Origin Rulings.",

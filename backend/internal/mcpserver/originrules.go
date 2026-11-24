@@ -57,7 +57,7 @@ func (t tools) registerOrigin(s *mcp.Server, o originTool) {
 	add(s, &mcp.Tool{
 		Name: o.name,
 		Description: fmt.Sprintf(`Check %s for a good, from its HS code and its materials' codes and origins. No model call; nothing is saved.
-Use it when the user imports into the %s and asks the good's non-preferential country of origin (tariff, trade measures, marking questions under those rules). Not for preferential (trade-agreement) origin.
+Use it when the user imports into the %s and asks the good's non-preferential country of origin (tariff and trade measures). Not for preferential (trade-agreement) origin.
 Input: either product (as for predict_origin, with hts on the product and its parts), or good_hts, country (where the good is made) and materials. Optional: row (pick a list row when result.needs asks for one, or "none"), answers (yes/no facts keyed as result.needs names them; leave a key out when unknown, false is an answer), minimal_operations_only.
 Returns: status decided, undetermined or needs_judgement; origin; the list row applied and each alternative's outcome; plain reasons; result.needs listing exactly what would resolve an undetermined answer (fact keys for answers, row options, codes, shares, or review by a person). %s A rules check only: there is no accuracy figure, because no published origin rulings exist to test it against. Say so, and that it is not a ruling. REST: POST %s (operationId %s).`, o.rules, o.market, o.scope, o.path, o.op),
 		InputSchema: &jsonschema.Schema{
@@ -107,7 +107,7 @@ func (t tools) origin(ctx context.Context, hdr http.Header, in originIn, o origi
 	case "decided":
 		fmt.Fprintf(&b, "%s non-preferential origin: %s (%s).", o.market, str0(r["origin"], ""), str0(r["basis"], ""))
 	case "needs_judgement":
-		b.WriteString("No list rule decides this good: its origin needs a substantial-transformation judgement by a person.")
+		b.WriteString("The rules do not decide this good by code: its origin needs a substantial-transformation judgement by a person.")
 	default:
 		b.WriteString("Not decided from what was given.")
 	}
@@ -130,7 +130,7 @@ func (t tools) origin(ctx context.Context, hdr http.Header, in originIn, o origi
 		label := str0(n["label"], str0(n["key"], ""))
 		switch n["kind"] {
 		case "fact":
-			ask = append(ask, fmt.Sprintf("%s (send answers[%q] true or false)", label, str0(n["key"], "")))
+			ask = append(ask, fmt.Sprintf("%s (send answers[%q] true or false)", strings.TrimSuffix(label, "?"), str0(n["key"], "")))
 		case "row":
 			var opts []string
 			for _, y := range list(n["options"]) {

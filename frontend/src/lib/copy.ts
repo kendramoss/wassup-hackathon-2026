@@ -498,7 +498,9 @@ export const copy = {
     startUS: "Start a U.S. case →",
     // What each market offers today, beside the picker (#733). Japan's line is
     // the picker's own; nothing here promises a live check.
-    summary: ["U.S.: live", "Canada, EU, UK: rules check", "RCEP: tariff check", "Japan: not available yet.", "Other markets: not yet"],
+    summary: ["U.S.: live", "Canada: rules check", "EU, UK: rules check, listed goods", "RCEP: tariff check", "Japan: not available yet.", "Other markets: not yet"],
+    // A case whose text names Northern Ireland (D767).
+    northernIreland: "Northern Ireland: EU or UK rules can apply. Pick the market for a new case.",
     // In the case tabs, where Plan and Draft would be, on a non-U.S. case (#678).
     followUpsUSOnly: "Plans and drafts: U.S. only for now",
   },
@@ -629,11 +631,17 @@ export const copy = {
   // the source, version and hash sit under Details.
   originRules: {
     title: { eu: "EU origin (rules check)", uk: "UK origin (rules check)" } as Record<string, string>,
-    label: "Rules check only — no accuracy figure (no published origin rulings to test against)",
+    question: { eu: "Origin under EU non-preferential rules?", uk: "Origin under UK non-preferential rules?" } as Record<string, string>,
+    // The API sends the label; these are the same words (D767): the EU
+    // publishes BOI outcomes without facts, HMRC no rulings.
+    label: {
+      eu: "Rules check only — no accuracy figure (no published origin decisions with their facts to test against)",
+      uk: "Rules check only — no accuracy figure (no published origin rulings to test against)",
+    } as Record<string, string>,
     decided: { eu: "under EU origin rules, from the codes given.", uk: "under UK origin rules, from the codes given." } as Record<string, string>,
     undetermined: "Not decided yet.",
     judgement: "Needs a substantial-transformation judgement.",
-    judgementNext: "No list rule covers this product. A customs adviser decides where it was last substantially processed.",
+    judgementNext: "A customs adviser decides where it was last substantially processed.",
     toDecide: "To decide:",
     none: "None of these",
     running: "Checking…",

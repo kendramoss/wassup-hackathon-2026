@@ -13,10 +13,22 @@ import (
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/nporigin"
 )
 
-// OriginRulesLabel is shown with every EU and UK answer (D766): the checks
-// apply published rules, and no origin decisions with their facts are
-// published to test them against.
-const OriginRulesLabel = "Rules check only — no accuracy figure (no published origin rulings to test against)"
+// The label shown with every EU and UK answer (D766, D767): the checks apply
+// published rules, with nothing to test them against. The EU publishes
+// Binding Origin Information outcomes, but without their facts; HMRC
+// publishes no origin rulings.
+const (
+	EUOriginLabel = "Rules check only — no accuracy figure (no published origin decisions with their facts to test against)"
+	UKOriginLabel = "Rules check only — no accuracy figure (no published origin rulings to test against)"
+)
+
+// OriginLabel is the market's label.
+func OriginLabel(market string) string {
+	if market == jurisdiction.EU {
+		return EUOriginLabel
+	}
+	return UKOriginLabel
+}
 
 // maxOriginMaterials caps the materials of one EU or UK check, and
 // maxOriginAnswers its answers.
@@ -96,7 +108,7 @@ func (a *api) originRules(w http.ResponseWriter, r *http.Request, m originMarket
 		return
 	}
 	q := in.Input
-	v := OriginRulesView{Jurisdiction: m.code, Rules: m.rules, Label: OriginRulesLabel, Note: m.note}
+	v := OriginRulesView{Jurisdiction: m.code, Rules: m.rules, Label: OriginLabel(m.code), Note: m.note}
 	if in.Product != nil {
 		v.Country, v.CountryFrom = productionCountry(*in.Product)
 		q.GoodHTS, q.Country, q.Materials = in.Product.HTS, v.Country, nil
@@ -141,6 +153,21 @@ func validateOriginInput(rules *nporigin.Rules, q nporigin.Input) error {
 			return err
 		}
 	}
+	// Shares are of one good: together they cannot pass the whole (D767).
+	for _, f := range []struct {
+		name string
+		get  func(nporigin.Material) *float64
+	}{{"value_share", func(m nporigin.Material) *float64 { return m.ValueShare }}, {"weight_share", func(m nporigin.Material) *float64 { return m.WeightShare }}} {
+		sum := 0.0
+		for _, m := range q.Materials {
+			if v := f.get(m); v != nil {
+				sum += *v
+			}
+		}
+		if sum > 1+1e-9 {
+			return fmt.Errorf("%w: materials' %s values add up to more than 1", domain.ErrInvalid, f.name)
+		}
+	}
 	if len(q.Answers) > maxOriginAnswers {
 		return fmt.Errorf("%w: at most %d answers", domain.ErrInvalid, maxOriginAnswers)
 	}
@@ -160,7 +187,7 @@ func validateOriginInput(rules *nporigin.Rules, q nporigin.Input) error {
 // product codes. No model is called and no ruling is retrieved, so its fast
 // path is 0: every answer goes to review.
 func OriginRulesAuthority(market string, rules *nporigin.Rules) jurisdiction.Authority {
-	a := jurisdiction.Authority{Market: market, Engine: originEngine{rules: rules},
+	a := jurisdiction.Authority{Market: market, Engine: originEngine{rules: rules, label: OriginLabel(market)},
 		Precedents: "none (rules only; no published origin rulings to test against)"}
 	switch market {
 	case jurisdiction.EU:
@@ -173,7 +200,10 @@ func OriginRulesAuthority(market string, rules *nporigin.Rules) jurisdiction.Aut
 	return a
 }
 
-type originEngine struct{ rules *nporigin.Rules }
+type originEngine struct {
+	rules *nporigin.Rules
+	label string
+}
 
 // Predict reads the case's product like the U.S. rule check and answers
 // with the list-rule result. It never fails: a case without codes, or with
@@ -183,7 +213,7 @@ func (e originEngine) Predict(_ context.Context, c domain.Case) (engine.Result, 
 		Trace: domain.Trace{Provider: "rules", ModelID: "none", PromptVersion: e.rules.Table().Version},
 	}
 	if c.Product == nil || !productHasCodes(*c.Product) {
-		p.Reasoning = OriginRulesLabel + ". Add HS codes for the product and its parts to run the origin rules."
+		p.Reasoning = e.label + ". Add HS codes for the product and its parts to run the origin rules."
 		return engine.Result{Prediction: p}, nil
 	}
 	country, _ := productionCountry(*c.Product)
@@ -199,7 +229,7 @@ func (e originEngine) Predict(_ context.Context, c domain.Case) (engine.Result, 
 	if reason != "" {
 		reason = strings.ToUpper(reason[:1]) + reason[1:]
 	}
-	p.Reasoning = OriginRulesLabel + ". " + strings.TrimSuffix(reason, ".") + "."
+	p.Reasoning = e.label + ". " + strings.TrimSuffix(reason, ".") + "."
 	p.KeyFactors = res.Assumes
 	return engine.Result{Prediction: p}, nil
 }
