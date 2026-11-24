@@ -28,9 +28,16 @@ The AJCEP general bundle matches its window on the typed value. Nothing at
 runtime reads an edition out of citation text, so a phrase such as
 "validated against HS 2022" cannot be taken as a declared edition.
 
-## Not verified here
+## Verification and known gaps
 
-The 16 non-null values carry over the editions already in the build table and
-citations. They were not re-read against each Annex PDF in this change.
-Runtime lookups, the dev diagnosis and the evaluation plan are unchanged; only
-the data file hash differs.
+- The 16 non-null values were independently checked against the Annex PDFs in
+  review. The CPTPP, EU and UK editions are read from column or table headers
+  of the source; the others come from a sentence in the Annex body. JP-US TA
+  and GSP state no edition.
+- RCEP's 2022 is still an untyped literal in the frontend leaf
+  (`japan-preference.ts`) and no test guards it. This is a gap.
+- The Python wording test is a guard only; it does not read any PDF.
+- Loader caveat: an absent `stated_edition` key decodes as null. The data test
+  guards key presence in `schedules.json`; the loader does not.
+- Runtime lookups, the dev diagnosis and the evaluation plan are unchanged;
+  only the data file hash differs.
