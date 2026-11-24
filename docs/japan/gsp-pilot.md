@@ -36,7 +36,7 @@ Every stored row carries `"default": true`, the existing group-row flag: it appl
 
 Rows and notes are located by `ref`, not by PDF page. A row ref reads `別表 row 37 (一八・〇六)`: the 1-based row of the table in the XML where its entry starts, and the table's own code. The evidence citation is the schedule citation, a comma and the ref, and the link is the e-Gov law page with no `#page=` fragment. The stored `page` is 1.
 
-Notes are stored once for the schedule (scope `schedule`) instead of once per HS section. Article 9 paragraph 2 (chapters 50 to 63, the 10% weight tolerance) and remark 4 (section XI) apply only to chapters 50 to 63; remark 5 applies only to chapters 61 to 63. The Unde Labs caveat is the last evidence item.
+Notes are stored once for the schedule (scope `schedule`) instead of once per HS section. Article 9 paragraph 2 (chapters 50 to 63, the 10% weight tolerance) and remark 4 (section XI) apply only to chapters 50 to 63; remark 5 applies only to chapters 61 to 63. The Unde Labs caveat is the first evidence item (schedule field `caveat_first`), before the rows, so the reader sees what was not checked first. It also says that any different or relaxed rules for particular beneficiaries (for example least-developed countries) are not in this text and were not checked.
 
 ## HS edition and the HS 2022 code list
 
@@ -57,6 +57,10 @@ Schema change (additive): a schedule may carry `hs_edition` (2017 or 2022). It s
 - A test runs every one of the 5,612 HS 2022 codes: 2,766 return exactly one rule row (plus notes), 2,846 return `no_match`. No code absent from the list returns a rule (every six digit code from 000100 to 999999 not in the list was tried).
 - The prompt and answer schema are unchanged. Sources shown to the user list the e-Gov law page once per cited item, never the caveat.
 - The new-case selector is not changed: GSP stays out of `japan-preference.ts` until a later, separate step.
+
+## Guard against a qualifying answer
+
+GSP is reachable through the API even though the selector does not list it. Because the beneficiary country, Cabinet Order coverage, Form A and cumulation are not checked, `Predict` never returns `qualifies` for GSP. A model answer of `qualifies` is changed after the model call to `undetermined` (criterion `NONE`, origin cleared) with a review reason saying the rule may be met but a specialist must confirm those four points. The model's reasoning text and confidence are kept. `does_not_qualify` and `undetermined` stay as the model said, other agreements are unchanged, and the prompt is unchanged.
 
 ## What is and is not claimed
 
@@ -80,6 +84,7 @@ Table text is identical within a window (checked by hashing). The ordinance name
 ## Remaining gaps and honest notes
 
 - Rows that cover only part of a heading. 33 entries read "of which ..." (のうち) in their description, so the rule is for those goods only and the rest of the heading falls under the general rule of Article 9 paragraph 1, which is not embedded as a row: 13.02, 15.04, 15.11, 21.01, 21.03, 22.02, 28.52, 29.05, 29.06, 29.34, 35.02, 36.06, 38.01, 38.06, 43.02, 44.07, 44.12, 44.18, 44.20, 46.01, 50.06, 53.08, 56.04, 65.05, 70.13, 75.08, 78.06, 79.07, 80.07, 96.01, 96.03, 96.08 and 96.14. A code in such a heading gets the row and the caveat says to read its description. The lookup cannot tell whether the product is within the described part.
+- Other narrowing wording. Row descriptions and rule text carry restrictions such as 「固体のものに限る」 (limited to solid goods, for 17.01) that limit a row to part of a heading. Only the 33 "のうち" entries and the 9603.10 exclusion were listed above; other narrowing words were not enumerated, and each row must be read in full.
 - Sub-heading exclusion. The 96.03 entry excludes sub-heading 9603.10 in its own text ("第九六〇三・一〇号に該当するものを除く"). The row is returned for 9603.10 too, with the full text; it is not marked withheld because the existing semantics do not fit a sub-heading exclusion inside an entry.
 - Conditions of the form "only if X" inside an entry stay in the text for the model and the reader; they are not evaluated.
 - The Cabinet Order (Arts 26 to 31 and its Appended Table 2) and Japan Customs' notices are not embedded. The list of beneficiary countries and the products covered by the preference on a date are not checked.

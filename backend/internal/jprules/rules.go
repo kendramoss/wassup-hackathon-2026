@@ -112,6 +112,15 @@ func validateSchedule(s schedule) error {
 	}
 	// A schedule locates its rows and notes either by PDF page or, when the
 	// source has no pages, by ref. One schedule never mixes the two.
+	if s.CaveatFirst {
+		has := false
+		for _, n := range s.Notes {
+			has = has || n.Page == 0
+		}
+		if !has {
+			return fmt.Errorf("%s: caveat_first needs a caveat note", s.Agreement)
+		}
+	}
 	byRef := false
 	for _, r := range s.Rows {
 		byRef = byRef || r.Ref != ""
@@ -194,9 +203,12 @@ type schedule struct {
 	Until     string `json:"until"`
 	// HSEdition is the HS edition (2017 or 2022) whose code list gates the
 	// default rows. Zero means 2017, the list every earlier schedule uses.
-	HSEdition int    `json:"hs_edition,omitempty"`
-	Rows      []row  `json:"rows"`
-	Notes     []note `json:"notes"`
+	HSEdition int `json:"hs_edition,omitempty"`
+	// CaveatFirst returns the Unde Labs caveat note before the rows, so a
+	// reader sees what was not checked first. The schedule must have one.
+	CaveatFirst bool   `json:"caveat_first,omitempty"`
+	Rows        []row  `json:"rows"`
+	Notes       []note `json:"notes"`
 }
 
 // codes returns the code list of the schedule's HS edition.
@@ -404,7 +416,7 @@ func (t *Table) lookup(agreement, hs string, before time.Time, general bool) (Re
 			}
 			evidence = append(evidence, s.evidence(text, r.Page, r.Ref))
 		}
-		evidence = append(evidence, s.notesFor(digits)...)
+		evidence = s.withNotes(evidence, digits)
 		return Result{Reason: ReasonPSR, Evidence: evidence, Digits: digits}, nil
 	}
 	switch {
@@ -530,6 +542,28 @@ var sections = map[string][2]int{
 	"XIII": {68, 70}, "XIV": {71, 71}, "XV": {72, 83}, "XVI": {84, 85},
 	"XVII": {86, 89}, "XVIII": {90, 92}, "XIX": {93, 93}, "XX": {94, 96},
 	"XXI": {97, 97},
+}
+
+// withNotes appends the notes that apply to the code, or puts the caveat note
+// ahead of the rows when the schedule asks for that.
+func (s schedule) withNotes(rows []Evidence, hs string) []Evidence {
+	notes := s.notesFor(hs)
+	if !s.CaveatFirst {
+		return append(rows, notes...)
+	}
+	var out []Evidence
+	for _, n := range notes {
+		if n.URL == "" && n.Citation == caveatPrefix {
+			out = append(out, n)
+		}
+	}
+	out = append(out, rows...)
+	for _, n := range notes {
+		if n.URL != "" || n.Citation != caveatPrefix {
+			out = append(out, n)
+		}
+	}
+	return out
 }
 
 func (s schedule) notesFor(hs string) []Evidence {

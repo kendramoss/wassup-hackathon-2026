@@ -174,7 +174,7 @@ func TestGSPRowsMatchTheXML(t *testing.T) {
 			if res.Reason != ReasonPSR || len(res.Evidence) == 0 {
 				t.Fatalf("%s: %+v", c.hs, res)
 			}
-			e := res.Evidence[0]
+			e := res.Evidence[1] // the caveat comes first
 			if want := c.desc + ": " + c.text; e.Text != want {
 				t.Errorf("text = %q\nwant   %q", e.Text, want)
 			}
@@ -351,9 +351,9 @@ func TestGSPNotesFollowTheirScope(t *testing.T) {
 				}
 				seen[e.Text] = true
 			}
-			last := res.Evidence[len(res.Evidence)-1]
-			if !strings.HasPrefix(last.Text, caveatTx) || last.URL != "" {
-				t.Errorf("last evidence = %+v", last)
+			first := res.Evidence[0]
+			if !strings.HasPrefix(first.Text, caveatTx) || first.URL != "" {
+				t.Errorf("first evidence = %+v", first)
 			}
 		})
 	}
@@ -377,11 +377,12 @@ func TestGSPNotesFollowTheirScope(t *testing.T) {
 
 func TestGSPCaveatNamesTheOmissions(t *testing.T) {
 	res := gspLookup(t, "6404.11", gspDate)
-	c := res.Evidence[len(res.Evidence)-1].Text
+	c := res.Evidence[0].Text
 	for _, want := range []string{
+		"least-developed", "different or relaxed rules", "were not checked",
 		"beneficiary", "Cabinet Order", "Form A", "cumulation", "direct consignment",
 		"NOT checked", "not an eligibility finding", "does not name an HS edition", "HS 2022", "partial",
-		"2023-04-01", "Article 9 paragraph 1",
+		"2023-04-01", "Article 9 paragraph 1", "narrowing words",
 	} {
 		if !strings.Contains(c, want) {
 			t.Errorf("caveat lacks %q:\n%s", want, c)
@@ -668,5 +669,31 @@ func TestEvidenceCitationWithRefHasNoPageFragment(t *testing.T) {
 	}
 	if !slices.Equal(res.Evidence, want) {
 		t.Errorf("evidence = %+v", res.Evidence)
+	}
+}
+
+func TestCaveatFirstPutsTheCaveatBeforeTheRows(t *testing.T) {
+	s := schedule{
+		Agreement: "X", Citation: "Law Z", URL: "https://laws.example.org/law/1", From: "2020-01-01", CaveatFirst: true,
+		Rows:  []row{{Start: "0401", End: "0404", Page: 1, Ref: "r", Text: "CC"}},
+		Notes: []note{{Scope: "schedule", Text: "N", Page: 1, Ref: "n"}, {Scope: "schedule", Text: caveatPrefix + ": partial."}},
+	}
+	if err := validateSchedule(s); err != nil {
+		t.Fatal(err)
+	}
+	res, err := (&Table{schedules: map[string][]schedule{"X": {s}}}).LookupDetailed("X", "0402", day(t, "2026-11-23"))
+	if err != nil || len(res.Evidence) != 3 || !strings.HasPrefix(res.Evidence[0].Text, caveatPrefix) || res.Evidence[1].Text != "CC" || res.Evidence[2].Text != "N" {
+		t.Fatalf("%+v %v", res, err)
+	}
+	s.Notes = s.Notes[:1]
+	if err := validateSchedule(s); err == nil {
+		t.Error("caveat_first without a caveat accepted")
+	}
+	for name, list := range mustTable(t).schedules {
+		for _, e := range list {
+			if e.CaveatFirst != (name == gspAgreement) {
+				t.Errorf("%s caveat_first = %v", name, e.CaveatFirst)
+			}
+		}
 	}
 }

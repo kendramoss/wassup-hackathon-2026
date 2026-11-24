@@ -85,6 +85,8 @@ const (
 
 const reasonNotInEdition = "This tariff code is not in the tariff edition that this agreement's schedule uses. If it is a newer code, check the agreement's schedule for that edition or ask a specialist."
 
+const gspReviewReason = "The product rule may be met, but we did not check that the origin country is a GSP beneficiary, the Cabinet Order product coverage, the certificate (Form A) or cumulation. A specialist must confirm."
+
 const reasonUnverifiedRule = "We could not verify a rule for this tariff code and date. Check the agreement's tariff schedule or ask a specialist."
 
 // PreflightResult says whether a case can reach the model and why not. It
@@ -225,7 +227,13 @@ func (e *Engine) Predict(ctx context.Context, c domain.Case) (engine.Result, err
 	p.Outcome, p.Criterion, p.DecidingRule = a.Outcome, a.Criterion, a.DecidingRule
 	result.Prediction.Confidence = *a.Confidence
 	result.Prediction.Reasoning = a.Reasoning
-	if p.Outcome == Qualifies {
+	if p.Outcome == Qualifies && p.Agreement == "GSP" {
+		// The GSP rule text is only one condition of the preference. Nothing
+		// here checks the beneficiary country, the Cabinet Order product list,
+		// the certificate or cumulation, so the answer never reaches qualifies.
+		p.Outcome, p.Criterion = Undetermined, "NONE"
+		p.ReviewReason = gspReviewReason
+	} else if p.Outcome == Qualifies {
 		result.Prediction.Origin, _ = resolveOrigin(a.Origin)
 	} else if p.Outcome == Undetermined {
 		p.ReviewReason = "A specialist needs to check the rule and the missing production or materials facts." + missingFactsSentence(MissingFacts(c))
