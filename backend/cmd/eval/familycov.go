@@ -47,8 +47,10 @@ type familyCovRow struct {
 	// LatencyMS is the wall time of the check, retry included (D785).
 	LatencyMS int64 `json:"latency_ms,omitempty"`
 	// ModelFamily and GuardRule: when the guard (familycheck.GuardVersion)
-	// took the match away, the model's own family and the rule (D786).
+	// took the match away, the model's own family and reason and the rule
+	// (D786, D789).
 	ModelFamily string `json:"model_family,omitempty"`
+	ModelReason string `json:"model_reason,omitempty"`
 	GuardRule   string `json:"guard_rule,omitempty"`
 }
 
@@ -237,7 +239,7 @@ func checkOne(ctx context.Context, c *familycheck.Checker, r domain.Ruling, mode
 		return row
 	}
 	row.Family, row.Confidence, row.Reason = res.Family, res.Confidence, res.Reason
-	row.ModelFamily, row.GuardRule = res.ModelFamily, res.GuardRule
+	row.ModelFamily, row.ModelReason, row.GuardRule = res.ModelFamily, res.ModelReason, res.GuardRule
 	row.Covered = res.Family != familycheck.None && res.Confidence >= familyCovBar
 	return row
 }

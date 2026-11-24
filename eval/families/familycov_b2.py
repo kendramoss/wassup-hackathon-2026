@@ -1,4 +1,4 @@
-"""D785, amended by D786: family-check matches on the development split with main's templates
+"""D785, amended by D786 and D789: family-check matches on the development split with main's templates
 (tag f26-b2-base) and #772's (tag f26-b2). Written and pushed before either
 run. No model calls: reads the two result files.
 
@@ -12,8 +12,9 @@ import os
 import sys
 
 BASE = "eval/results/families-coverage-dev-all-litellm-f26-b2-base.jsonl"
-NEW = "eval/results/families-coverage-dev-all-litellm-f26-b2.jsonl"
-OUT = "eval/families/b2-familycov.json"
+# #772 runs: guard v2 (D787, superseded by D789) and guard v3 (D789).
+RUNS = [("eval/results/families-coverage-dev-all-litellm-f26-b2.jsonl", "eval/families/b2-familycov.json"),
+        ("eval/results/families-coverage-dev-all-litellm-f26-b2-g3.jsonl", "eval/families/b2-familycov-g3.json")]
 EXPECT = {"batteries": "power_supplies_chargers", "machinery": "motors_pumps_compressors", "furniture": "furniture",
           "medical": "medical_devices", "optical": "display_camera_modules"}
 OPTICAL = {"N350680", "N350838"}
@@ -49,7 +50,7 @@ def pct(xs, q):
     return xs[i]
 
 
-def build(root):
+def build(root, NEW):
     with open(os.path.join(root, "eval/families/b2-cases.json")) as f:
         fams = json.load(f)["families"]
     with open(os.path.join(root, "eval/splits/splits_final.json")) as f:
@@ -103,14 +104,17 @@ def build(root):
 
 if __name__ == "__main__":
     root = sys.argv[1]
-    want = json.dumps(build(root), indent=1, ensure_ascii=False) + "\n"
-    path = os.path.join(root, OUT)
-    if "--check" in sys.argv:
-        with open(path) as f:
-            if f.read() != want:
-                sys.exit(OUT + " is stale; re-run")
-        print(OUT, "current")
-    else:
-        with open(path, "w") as f:
-            f.write(want)
-        print("wrote", OUT)
+    for new, out in RUNS:
+        if not os.path.exists(os.path.join(root, new)):
+            sys.exit(new + " is missing")
+        want = json.dumps(build(root, new), indent=1, ensure_ascii=False) + "\n"
+        path = os.path.join(root, out)
+        if "--check" in sys.argv:
+            with open(path) as f:
+                if f.read() != want:
+                    sys.exit(out + " is stale; re-run")
+            print(out, "current")
+        else:
+            with open(path, "w") as f:
+                f.write(want)
+            print("wrote", out)

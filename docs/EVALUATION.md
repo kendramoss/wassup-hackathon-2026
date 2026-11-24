@@ -945,6 +945,6 @@ The published set contains affirmative decisions. The score measures how often t
 
 **Limits.** Small development sets; no model run, so no family-check coverage or plan-quality figure; the battery retrieval gain reflects new citations of rulings the engine already retrieved, not better retrieval. No accuracy is claimed.
 
-### 20.1 A development family-check run (24 Nov 2026, D785–D787)
+### 20.1 A development family-check run (24 Nov 2026, D785–D787; superseded by D789, kept as run)
 
 With a budget granted for this lane, the family check ran twice on the 469 development rulings, never the held-out ones: once with main's templates and no guard, once with this work's templates and guard, same model and settings, gateway cache off. Batteries matched their template in 7 of 7 development cases (5 before; both battery cells had matched nothing). Optical matched 1 of 2 (0 before). Machinery stayed 7 of 11, medical 9 of 10, furniture 1 of 1. Of 33 look-alike products, 32 stayed off the family they only share a cue with (31 before); a 3D printer now matches the renamed machines template, a new stretch. Across all 469 rulings 348 matched against 350, inside run-to-run variation (failed checks 10 against 4). The guard took away one match, the pet bed. Both runs cost $3.14. This is template scope on development rulings, not accuracy.
