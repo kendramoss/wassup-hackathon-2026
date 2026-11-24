@@ -17471,30 +17471,16 @@
     "description": "-- Other"
    },
    {
-    "start": "8539",
-    "end": "8539",
-    "page": 46,
-    "text": "RVC 40% or CTH except from heading 85.42.",
-    "description": "Electric filament or discharge lamps, including sealed beam lamp units and ultra-violet or infra-red lamps; arc-lamps; light-emitting diode (LED) light sources."
-   },
-   {
     "start": "853952",
     "end": "853952",
-    "page": 46,
+    "page": 47,
     "text": "RVC 40% or CTH except from heading 85.42.",
     "description": "-- Light-emitting diode (LED) lamps"
    },
    {
-    "start": "8543",
-    "end": "8543",
-    "page": 46,
-    "text": "RVC 40% or CTH except from heading 85.42.",
-    "description": "Electrical machines and apparatus, having individual functions, not specified or included elsewhere in this Chapter."
-   },
-   {
     "start": "854340",
     "end": "854340",
-    "page": 46,
+    "page": 47,
     "text": "RVC 40% or CTH except from heading 85.42.",
     "description": "- Electronic cigarettes and similar personal electric vaporising devices"
    },
@@ -17502,120 +17488,141 @@
     "start": "870121",
     "end": "870121",
     "page": 47,
-    "text": "-- With only compression-ignition internal combustion piston engine (diesel or semi-diesel)"
+    "text": "RVC 40%",
+    "description": "-- With only compression-ignition"
    },
    {
     "start": "870122",
     "end": "870122",
     "page": 47,
-    "text": "-- With both compression-ignition internal combustion piston engine (diesel or semi-diesel) and electric motor as motors for propulsion"
+    "text": "RVC 40%",
+    "description": "-- With both compression-ignition"
    },
    {
     "start": "870123",
     "end": "870123",
     "page": 47,
-    "text": "-- With both spark-ignition internal combustion piston engine and electric motor as motors for propulsion"
+    "text": "RVC 40%",
+    "description": "-- With both spark-ignition"
    },
    {
     "start": "870124",
     "end": "870124",
     "page": 47,
-    "text": "-- With only electric motor for propulsion"
+    "text": "RVC 40%",
+    "description": "-- With only electric motor for"
    },
    {
     "start": "870129",
     "end": "870129",
     "page": 47,
-    "text": "-- Other"
+    "text": "RVC 40%",
+    "description": "-- Other"
    },
    {
     "start": "8702",
     "end": "8702",
     "page": 47,
-    "text": "-- Other",
+    "text": "RVC 40%",
     "description": "Motor vehicles for the transport of ten or more persons, including the driver."
    },
    {
     "start": "8703",
     "end": "8703",
     "page": 47,
-    "text": "-- Other",
+    "text": "RVC 40%",
     "description": "Motor cars and other motor vehicles principally designed for the transport of persons (other than those of heading 87.02), including station wagons and racing cars."
    },
    {
     "start": "8704",
     "end": "8704",
     "page": 47,
-    "text": "-- Other",
+    "text": "RVC 40%",
     "description": "Motor vehicles for the transport of goods."
    },
    {
     "start": "870600",
     "end": "870600",
-    "page": 47,
-    "text": "-- Other",
+    "page": 48,
+    "text": "RVC 40%",
     "description": "Chassis fitted with engines, for the motor vehicles of headings 87.01 to 87.05."
    },
    {
     "start": "8707",
     "end": "8707",
-    "page": 47,
-    "text": "-- Other",
+    "page": 48,
+    "text": "RVC 40%",
     "description": "Bodies (including cabs), for the motor vehicles of headings 87.01 to 87.05."
    },
    {
     "start": "8708",
     "end": "8708",
-    "page": 47,
-    "text": "-- Other",
+    "page": 48,
+    "text": "RVC 40%",
     "description": "Parts and accessories of the motor vehicles of headings 87.01 to 87.05."
    },
    {
     "start": "8711",
     "end": "8711",
-    "page": 47,
-    "text": "-- Other",
+    "page": 48,
+    "text": "RVC 40%",
     "description": "Motorcycles (including mopeds) and cycles fitted with an auxiliary motor, with or without side-cars; side-cars."
-   },
-   {
-    "start": "8714",
-    "end": "8714",
-    "page": 47,
-    "text": "-- Other",
-    "description": "Parts and accessories of vehicles of headings 87.11 to 87.13."
    },
    {
     "start": "871410",
     "end": "871410",
-    "page": 47,
-    "text": "-- Other",
+    "page": 48,
+    "text": "RVC 40%",
     "description": "- Of motorcycles (including mopeds)"
    },
    {
     "start": "871491",
     "end": "871491",
-    "page": 47,
-    "text": "-- Other",
+    "page": 48,
+    "text": "RVC 40%",
     "description": "-- Frames and forks, and parts thereof"
    },
    {
     "start": "871492",
     "end": "871492",
-    "page": 47,
-    "text": "-- Other",
+    "page": 48,
+    "text": "RVC 40%",
     "description": "-- Wheel rims and spokes"
+   },
+   {
+    "start": "911390",
+    "end": "911390",
+    "page": 48,
+    "text": "CC",
+    "description": "-Other"
+   },
+   {
+    "start": "940110",
+    "end": "940110",
+    "page": 48,
+    "text": "RVC 40% or CTSH",
+    "description": "- Seats of a kind used for aircraft"
+   },
+   {
+    "start": "940120",
+    "end": "940120",
+    "page": 48,
+    "text": "RVC 40% or CTSH",
+    "description": "- Seats of a kind used for motor vehicles"
    },
    {
     "start": "940131",
     "end": "940131",
     "page": 48,
-    "text": "-- Of wood"
+    "text": "RVC 40% or CTSH",
+    "description": "-- Of wood"
    },
    {
     "start": "940139",
     "end": "940139",
     "page": 48,
-    "text": "-- Other"
+    "text": "RVC 40% or CTSH",
+    "description": "-- Other"
    },
    {
     "start": "940141",
@@ -20111,49 +20118,7 @@
     "start": "961210",
     "end": "961210",
     "page": 40,
-    "text": "A change to subheading 9612.10 from any other heading. Appendix to Annex 2 Product Specific Rules for Textile and Textile Goods (Chapter 50-63) A. Yarn Necessary processes to obtain originating status in a Party HS Code Carding/Combing process Spinning process"
-   },
-   {
-    "start": "5005",
-    "end": "5006",
-    "page": 41,
-    "text": "(N/A) Required"
-   },
-   {
-    "start": "5106",
-    "end": "5110",
-    "page": 41,
-    "text": "52.04-52.07 Required Required"
-   },
-   {
-    "start": "5306",
-    "end": "5308",
-    "page": 41,
-    "text": "(N/A) Required"
-   },
-   {
-    "start": "5401",
-    "end": "5406",
-    "page": 41,
-    "text": "55.08-55.11 Required Required B. Woven Fabrics Necessary processes to obtain originating status in a Party HS Code Dyeing/Printing Dyeing/Printing Spinning process Weaving process process to process to yarn＊ fabrics＊ 50.07 Required Required"
-   },
-   {
-    "start": "5208",
-    "end": "5212",
-    "page": 41,
-    "text": "Required Required"
-   },
-   {
-    "start": "5407",
-    "end": "5408",
-    "page": 41,
-    "text": "55.12-55.16 Required Required ＊ \"Dyeing/Printing\" process should be accompanied by two or more of the operations, such as bleaching, waterproofing, decatising, shrinking, mercerising, or similar operations. C. Textile Articles for Industrial Use, etc. (HS 56-59) HS Code Necessary processes to obtain originating status in a Party Knitting/Crocheting/Weaving Spinning process /Making up process 56.01-56.03 (N/A) Required 56.04-56.09 Required Required 57.01-57.02 Required Required 57.03-57.05 (N/A) Required 58.01-58.11 Required Required 59.01 (N/A) Required 59.02-59.11 Required Required D. Knitted or Crocheted Fabrics (HS 60) Necessary processes to obtain originating status in a Party HS Code Knitting Dyeing/Printing Dyeing/Printing Spinning process /Crocheting process to process to yarn＊ process fabrics＊ Required Required 60.01-60.06 Required Required Required Required ＊ \"Dyeing/Printing\" process should be accompanied by two or more of the operations, such as bleaching, waterproofing, decatising, shrinking, mercerising, or similar operations. E. Apparels, Clothing Accessories and Other Textile Articles (HS 61, 62, 63.01–63.10) Necessary processes to obtain originating status in a Party HS Code Knitting/Crocheting/ Weaving process Making up process"
-   },
-   {
-    "start": "6101",
-    "end": "6117",
-    "page": 42,
-    "text": "62.01-62.17 Required Required"
+    "text": "A change to subheading 9612.10 from any other heading."
    }
   ],
   "notes": []
@@ -46268,116 +46233,113 @@
     "start": "220890",
     "end": "220890",
     "page": 14,
-    "text": "LVC 40% and CTH for sake compound or cooking sake (Mirin). CC except from Chapter 8 or 20 for beverage with a basis of fruits, of an alcoholic strength by volume of less than 1 %. CTH except from heading 22.07 for any",
+    "text": "LVC 40% and CTH for sake compound or cooking sake (Mirin). CC except from Chapter 8 or 20 for beverage with a basis of fruits, of an alcoholic strength by volume of less than 1 %. CTH except from heading 22.07 for any other good.",
     "description": "- Other"
    },
    {
     "start": "220900",
     "end": "220900",
     "page": 15,
-    "text": "Vinegar and substitutes for vinegar obtained from acetic acid."
-   },
-   {
-    "start": "23",
-    "end": "23",
-    "page": 15,
-    "text": "Residues and waste from the food industries; prepared animal fodder"
+    "text": "CC",
+    "description": "Vinegar and substitutes for vinegar obtained from acetic acid."
    },
    {
     "start": "2301",
     "end": "2301",
     "page": 15,
-    "text": "Flours, meals and pellets, of meat or meat offal, of fish or of crustaceans, mollusks or other aquatic invertebrates, unfit for human consumption; greaves."
+    "text": "CTH",
+    "description": "Flours, meals and pellets, of meat or meat offal, of fish or of crustaceans, mollusks or other aquatic invertebrates, unfit for human consumption; greaves."
    },
    {
     "start": "2302",
     "end": "2302",
     "page": 15,
-    "text": "Bran, sharps and other residues, whether or not in the form of pellets, derived from the sifting, milling or other working of cereals or of leguminous plants."
+    "text": "CTH",
+    "description": "Bran, sharps and other residues, whether or not in the form of pellets, derived from the sifting, milling or other working of cereals or of leguminous plants."
    },
    {
     "start": "2303",
     "end": "2303",
     "page": 15,
-    "text": "Residues of starch manufacture and similar residues, beet-pulp, bagasse and other waste of sugar manufacture, brewing or distilling dregs and waste, whether or not in the form of pellets."
+    "text": "CTH",
+    "description": "Residues of starch manufacture and similar residues, beet-pulp, bagasse and other waste of sugar manufacture, brewing or distilling dregs and waste, whether or not in the form of pellets."
    },
    {
     "start": "230400",
     "end": "230400",
     "page": 15,
-    "text": "Oil-cake and other solid residues, whether or not ground or in the form of pellets, resulting from the extraction of soya-bean oil."
+    "text": "CTH",
+    "description": "Oil-cake and other solid residues, whether or not ground or in the form of pellets, resulting from the extraction of soya-bean oil."
    },
    {
     "start": "230500",
     "end": "230500",
     "page": 15,
-    "text": "Oil-cake and other solid residues, whether or not ground or in the form of pellets, resulting from the extraction of ground-nut oil."
+    "text": "CTH",
+    "description": "Oil-cake and other solid residues, whether or not ground or in the form of pellets, resulting from the extraction of ground-nut oil."
    },
    {
     "start": "2306",
     "end": "2306",
     "page": 15,
-    "text": "Oil-cake and other solid residues, whether or not ground or in the form of pellets, resulting from the extraction of vegetable fats or oils, other than those of heading 23.04 or 23.05."
+    "text": "CTH",
+    "description": "Oil-cake and other solid residues, whether or not ground or in the form of pellets, resulting from the extraction of vegetable fats or oils, other than those of heading 23.04 or 23.05."
    },
    {
     "start": "230700",
     "end": "230700",
     "page": 15,
-    "text": "Wine lees; argol."
+    "text": "CTH",
+    "description": "Wine lees; argol."
    },
    {
     "start": "230800",
     "end": "230800",
     "page": 15,
-    "text": "Vegetable materials and vegetable waste, vegetable residues and by-products, whether or not in the form of pellets, of a kind used in animal feeding, not elsewhere specified or included."
+    "text": "CTH",
+    "description": "Vegetable materials and vegetable waste, vegetable residues and by-products, whether or not in the form of pellets, of a kind used in animal feeding, not elsewhere specified or included."
    },
    {
     "start": "2309",
     "end": "2309",
     "page": 15,
-    "text": "Preparations of a kind used in animal feeding."
-   },
-   {
-    "start": "24",
-    "end": "24",
-    "page": 15,
-    "text": "Tobacco and manufactured tobacco substitutes"
-   },
-   {
-    "start": "2401",
-    "end": "2401",
-    "page": 15,
-    "text": "Unmanufactured tobacco; tobacco refuse."
+    "text": "LVC 40%",
+    "description": "Preparations of a kind used in animal feeding."
    },
    {
     "start": "240110",
     "end": "240110",
     "page": 15,
-    "text": "- Tobacco, not stemmed/stripped"
+    "text": "CC",
+    "description": "- Tobacco, not stemmed/stripped"
    },
    {
     "start": "240120",
     "end": "240120",
     "page": 15,
-    "text": "- Tobacco, partly or wholly stemmed/stripped"
+    "text": "CC",
+    "description": "- Tobacco, partly or wholly stemmed/stripped"
    },
    {
     "start": "240130",
     "end": "240130",
     "page": 15,
-    "text": "- Tobacco refuse"
+    "text": "CTSH",
+    "description": "- Tobacco refuse"
    },
    {
     "start": "2402",
     "end": "2402",
     "page": 15,
-    "text": "Cigars, cheroots, cigarillos and cigarettes, of tobacco or of tobacco substitutes."
+    "text": "CTH",
+    "description": "Cigars, cheroots, cigarillos and cigarettes, of tobacco or of tobacco substitutes."
    },
    {
     "start": "2403",
     "end": "2403",
     "page": 15,
-    "text": "Other manufactured tobacco and manufactured tobacco substitutes; “homogenized” or “reconstituted” tobacco; tobacco extracts and essences."
+    "text": "CTH",
+    "description": "Other manufactured tobacco and manufactured tobacco substitutes; “homogenized” or “reconstituted” tobacco; tobacco extracts and essences."
    },
    {
     "start": "250100",
@@ -46690,139 +46652,107 @@
    {
     "start": "261900",
     "end": "261900",
-    "page": 17,
+    "page": 18,
     "text": "WO",
     "description": "Slag, dross (other than granulated slag), scalings and other waste form the manufacture of iron or steel."
    },
    {
     "start": "2620",
     "end": "2620",
-    "page": 17,
+    "page": 18,
     "text": "WO",
     "description": "Slag, ash and residues (other than from the manufacture of iron or steel) containing metals, arsenic or their compounds."
    },
    {
     "start": "2621",
     "end": "2621",
-    "page": 17,
+    "page": 18,
     "text": "WO",
     "description": "Other slag and ash, including seaweed ash (kelp); ash and residues from the incineration of municipal waste."
    },
    {
-    "start": "27",
-    "end": "27",
-    "page": 17,
-    "text": "WO",
-    "description": "Mineral fuels, mineral oils and products of their distillation; bituminous substances; mineral waxes"
-   },
-   {
     "start": "2701",
     "end": "2701",
-    "page": 17,
-    "text": "WO",
+    "page": 18,
+    "text": "CC",
     "description": "Coal; briquettes, ovoids and similar solid fuels manufactured from coal."
    },
    {
     "start": "2702",
     "end": "2702",
-    "page": 17,
-    "text": "WO",
+    "page": 18,
+    "text": "CC",
     "description": "Lignite, whether or not agglomerated, excluding jet."
    },
    {
     "start": "270300",
     "end": "270300",
-    "page": 17,
-    "text": "WO",
+    "page": 18,
+    "text": "CC",
     "description": "Peat (including peat litter), whether or not agglomerated."
    },
    {
     "start": "270400",
     "end": "270400",
-    "page": 17,
-    "text": "WO",
+    "page": 18,
+    "text": "CC",
     "description": "Coke and semi-coke of coal, of lignite or of peat, whether or not agglomerated; retort carbon."
    },
    {
     "start": "270500",
     "end": "270500",
-    "page": 17,
-    "text": "WO",
+    "page": 18,
+    "text": "CC",
     "description": "Coal gas, water gas, producer gas and similar gases, other than petroleum gases and other gaseous hydrocarbons."
    },
    {
     "start": "270600",
     "end": "270600",
-    "page": 17,
-    "text": "WO",
+    "page": 18,
+    "text": "CC",
     "description": "Tar distilled from coal, from lignite or from peat, and other mineral tars, whether or not dehydrated or partially distilled, including reconstituted tars."
    },
    {
     "start": "270900",
     "end": "270900",
-    "page": 17,
-    "text": "WO",
+    "page": 18,
+    "text": "CC",
     "description": "Petroleum oils and oils obtained from bituminous minerals, crude."
-   },
-   {
-    "start": "2710",
-    "end": "2710",
-    "page": 17,
-    "text": "WO",
-    "description": "Petroleum oils and oils obtained from bituminous minerals, other than crude; preparations not elsewhere specified or included, containing by weight 70 % or more of petroleum oils or of oils obtained from bituminous minerals, these oils being the basic constituents of the preparations; waste oils."
    },
    {
     "start": "271091",
     "end": "271091",
-    "page": 17,
+    "page": 18,
     "text": "WO",
     "description": "-- Containing polychlorinated biphenyls (PCBs), polychlorinated terphenyls (PCTs) or polybrominated biphenyls (PBBs)"
    },
    {
     "start": "271099",
     "end": "271099",
-    "page": 17,
+    "page": 18,
     "text": "WO",
     "description": "-- Other"
    },
    {
-    "start": "2711",
-    "end": "2711",
-    "page": 17,
-    "text": "WO",
-    "description": "Petroleum gases and other gaseous hydrocarbons."
-   },
-   {
     "start": "271111",
     "end": "271111",
-    "page": 17,
-    "text": "WO",
+    "page": 18,
+    "text": "CC",
     "description": "-- Natural gas"
    },
    {
     "start": "271121",
     "end": "271121",
-    "page": 17,
-    "text": "WO",
+    "page": 18,
+    "text": "CC",
     "description": "-- Natural gas"
-   },
-   {
-    "start": "28",
-    "end": "28",
-    "page": 18,
-    "text": "Inorganic chemicals; organic or inorganic compounds of precious metals, of rare-earth metals, or radioactive elements or of isotopes"
-   },
-   {
-    "start": "2804",
-    "end": "2804",
-    "page": 18,
-    "text": "Hydrogen, rare gases and other non-metals. - Silicon:"
    },
    {
     "start": "280461",
     "end": "280461",
     "page": 18,
-    "text": "-- Containing by weight not less than"
+    "text": "LVC 40% or CTSH",
+    "description": "-- Containing by weight not less than"
    },
    {
     "start": "280469",
@@ -47759,67 +47689,92 @@
     "start": "400110",
     "end": "400110",
     "page": 28,
-    "text": "- Natural rubber latex, whether or not pre-vulcanized"
+    "text": "CC",
+    "description": "- Natural rubber latex, whether or not pre-vulcanized"
    },
    {
     "start": "400400",
     "end": "400400",
     "page": 28,
-    "text": "Waste, parings and scrap of rubber (other than hard rubber) and powders and granules obtained therefrom."
+    "text": "WO",
+    "description": "Waste, parings and scrap of rubber (other than hard rubber) and powders and granules obtained therefrom."
    },
    {
     "start": "4012",
     "end": "4012",
     "page": 28,
-    "text": "Retreaded or used pneumatic tires of rubber; solid or cushion tires, tire treads and tire flaps, of rubber."
+    "text": "LVC 40% or CTSH",
+    "description": "Retreaded or used pneumatic tires of rubber; solid or cushion tires, tire treads and tire flaps, of rubber."
    },
    {
-    "start": "44",
-    "end": "44",
+    "start": "41",
+    "end": "41",
     "page": 28,
-    "text": "Wood and articles of wood; wood charcoal"
+    "text": "CC",
+    "description": "Raw hides and skins(other than furskins) and leather"
+   },
+   {
+    "start": "42",
+    "end": "42",
+    "page": 28,
+    "text": "CC",
+    "description": "Articles of leather; saddlery and harness; travel goods, handbags and similar containers; articles of animal gut (other than silk-worm gut)"
+   },
+   {
+    "start": "43",
+    "end": "43",
+    "page": 28,
+    "text": "CC",
+    "description": "Furskins and artificial fur; manufactures thereof"
    },
    {
     "start": "4401",
     "end": "4401",
     "page": 28,
-    "text": "Fuel wood, in logs, in billets, in twigs, in faggots or in similar forms; wood in chips or particles; sawdust and wood waste and scrap, whether or not agglomerated in logs, briquettes, pellets or similar forms."
+    "text": "CTH",
+    "description": "Fuel wood, in logs, in billets, in twigs, in faggots or in similar forms; wood in chips or particles; sawdust and wood waste and scrap, whether or not agglomerated in logs, briquettes, pellets or similar forms."
    },
    {
     "start": "4402",
     "end": "4402",
     "page": 28,
-    "text": "Wood charcoal (including shell or nut charcoal), whether or not agglomerated."
+    "text": "CTH",
+    "description": "Wood charcoal (including shell or nut charcoal), whether or not agglomerated."
    },
    {
     "start": "4403",
     "end": "4403",
     "page": 28,
-    "text": "Wood in the rough, whether or not stripped of bark or sapwood, or roughly squared."
+    "text": "CTH",
+    "description": "Wood in the rough, whether or not stripped of bark or sapwood, or roughly squared."
    },
    {
     "start": "4404",
     "end": "4404",
     "page": 28,
-    "text": "Hoopwood; split poles; piles, pickets and stakes of wood, pointed but not sawn lengthwise; wooden sticks, roughly trimmed but not turned, bent or otherwise worked, suitable for the manufacture of walking-sticks, umbrellas, tool handles or the like; chipwood and the like."
+    "text": "CTH",
+    "description": "Hoopwood; split poles; piles, pickets and stakes of wood, pointed but not sawn lengthwise; wooden sticks, roughly trimmed but not turned, bent or otherwise worked, suitable for the manufacture of walking-sticks, umbrellas, tool handles or the like; chipwood and the like."
    },
    {
     "start": "440500",
     "end": "440500",
     "page": 28,
-    "text": "Wood wool; wood flour."
+    "text": "CTH",
+    "description": "Wood wool; wood flour."
    },
    {
     "start": "4406",
     "end": "4406",
     "page": 28,
-    "text": "Railway or tramway sleepers (cross-ties) of wood."
+    "text": "CTH",
+    "description": "Railway or tramway sleepers (cross-ties) of wood."
    },
    {
     "start": "4407",
     "end": "4407",
     "page": 28,
-    "text": "Wood sawn or chipped lengthwise, sliced or peeled, whether or not planed, sanded or end-jointed, of a thickness exceeding 6 mm."
+    "text": "CTH",
+    "description": "Wood sawn or chipped lengthwise, sliced or peeled, whether or not planed, sanded or end-jointed, of a thickness exceeding 6 mm."
    },
    {
     "start": "4408",
@@ -55432,6 +55387,90 @@
    {
     "scope": "section",
     "key": "XI",
+    "text": "Note 1: For purposes of Chapter 50 through 55 and 60, the dyeing or printing process shall be accompanied by two or more of the following operations: (1) antibacterial finish; (2) antimelt finish; (3) antimosquito finish; (4) anti-pilling finish; (5) antistatic finish; (6) artificial creasing; (7) bleaching; (8) brushing; (9) buff finish; (10) burn-out finish; (11) calendering; (12) compressive shrinkage; (13) crease resistant finish; (14) decatizing; (15) deodorant finish; (16) easy-care finish; (17) embossing; (18) emerising; (19) flame resistant finish; (20) flock finish; (21) foam printing; (22) liquid ammonia process; (23) mercerization, (24) microbial control finish; (25) milling; (26) moare finish; (27) moisture permeable waterproofing; (28) oil-repellent finish; (29) organdie finish; (30) peeling treatment; (31) perfumed finish; (32) relaxation; (33) ripple finish; (34) schreiner finish; (35) shearing; (36) shrink resistant finish; (37) soil guard finish; (38) soil release finish; (39) stretch finish; (40) tick-proofing; (41) UV cut finish; (42) wash and wear finish; (43) water absorbent finish; (44) waterproofing; (45) water-repellent finish; (46) wet decatizing; (47) windbreak finish; or (48) wire raising.",
+    "page": 35,
+    "applies": [
+     [
+      "50",
+      "55"
+     ],
+     [
+      "60",
+      "60"
+     ]
+    ]
+   },
+   {
+    "scope": "section",
+    "key": "XI",
+    "text": "Note 2: For the purposes of heading 50.07, 51.06 through 51.13, 52.04 through 52.12, 53.09 through 53.11, 54.07 through 54.08, 55.08 through 55.16, 56.04 through 56.09, 57.01 through 57.05, 58.01 through 58.11, 59.02, 59.10, 60.01 through 60.06, 61.01 through 61.17, 62.01 through 62.17 and 63.01 through 63.10, a non- originating material which is carded or combed, spun, dyed or printed, woven, or knitted or crocheted entirely in the territory of the other Country or a third State which is a member country of the ASEAN shall be transported to the territory of the Country where the non-originating material is used for the production of a good : (a) directly from the territory of that other Country or that third State; or (b) through other third States for the purpose of transit or temporary storage in warehouses in such third States, provided that it does not undergo operations other than unloading, reloading or any other operation to preserve it in good condition.",
+    "page": 36,
+    "applies": [
+     [
+      "5007",
+      "5007"
+     ],
+     [
+      "5106",
+      "5113"
+     ],
+     [
+      "5204",
+      "5212"
+     ],
+     [
+      "5309",
+      "5311"
+     ],
+     [
+      "5407",
+      "5408"
+     ],
+     [
+      "5508",
+      "5516"
+     ],
+     [
+      "5604",
+      "5609"
+     ],
+     [
+      "5701",
+      "5705"
+     ],
+     [
+      "5801",
+      "5811"
+     ],
+     [
+      "5902",
+      "5902"
+     ],
+     [
+      "5910",
+      "5910"
+     ],
+     [
+      "6001",
+      "6006"
+     ],
+     [
+      "6101",
+      "6117"
+     ],
+     [
+      "6201",
+      "6217"
+     ],
+     [
+      "6301",
+      "6310"
+     ]
+    ]
+   },
+   {
+    "scope": "section",
+    "key": "XI",
     "text": "Note: For the purposes of determining the origin of a good of this chapter, the rule applicable to that good shall only apply to the component that determines the tariff classification of the good and such component must satisfy the tariff change requirements set out in the rule for that good.",
     "page": 43
    },
@@ -60752,6 +60791,30 @@
     "page": 53
    },
    {
+    "scope": "chapter",
+    "key": "84",
+    "text": "Note 1: For the purposes of subheading 8471.49, the origin of each unit presented within a system shall be determined in accordance with the rule that would be applicable to such unit if it were presented separately and the rate of duty applicable to each unit presented within a system shall be the rate that would be applicable to such unit if it were presented separately. For the purposes of this Note, the term unit presented within a system shall mean: (a) a separate unit as described in Note 5(B) to chapter 84 of the Harmonized System; or (b) any other separate machine that is presented and classified with a system under subheading 8471.49.",
+    "page": 65,
+    "applies": [
+     [
+      "847149",
+      "847149"
+     ]
+    ]
+   },
+   {
+    "scope": "chapter",
+    "key": "84",
+    "text": "Note 2: For the purposes of subheading 8473.30, other parts for printers of subheading 8471.60 cover: (a) Control or command assemblies, incorporating more than one of the following: printed circuit assembly, hard or flexible (floppy) disk drive, keyboard, user interface; (b) Light source assemblies, incorporating more than one of the following: light emitting diode assembly, gas laser, mirror polygon assembly, base casting; (c) Laser imaging assemblies, incorporating more than one of the following: photoreceptor belt or cylinder, toner receptacle unit, toner developing unit, charge/discharge units, cleaning unit; (d) Image fixing assemblies, incorporating more than one of the following: fuser, pressure roller, heating element, release oil dispenser, cleaning unit, electrical control; (e) Ink jet marking assemblies, incorporating more than one of the following: thermal print head, ink dispensing unit, nozzle and reservoir unit, ink heater; (f) Maintenance/sealing assemblies, incorporating more than one of the following: vacuum unit, ink jet covering unit, sealing unit, purging unit; (g) Paper handling assemblies, incorporating more than one of the following: paper transport belt, roller print bar, carriage, gripper roller, paper storage unit, exit tray; (h) Thermal transfer imaging assemblies, incorporating more than one of the following: thermal print head, cleaning unit, supply or take-up roller; (i) Ionographic imaging assemblies, incorporating more than one of the following: ion generation and emitting unit, air assist unit, printed circuit assembly, charge receptor belt or cylinder, toner receptacle unit, toner distribution unit, developer receptacle and distribution unit, developing unit, charge/discharge unit, cleaning unit; or (j) Combinations of the above specified assemblies.",
+    "page": 65,
+    "applies": [
+     [
+      "847330",
+      "847330"
+     ]
+    ]
+   },
+   {
     "scope": "section",
     "key": "XVI",
     "text": "Note: The origin of a television combination unit shall be determined in accordance with the rule that would be applicable to such unit if it were solely a television receiver.",
@@ -65088,6 +65151,86 @@
     "key": "IV",
     "text": "Note: For the purposes of subheadings 2001.10, 2001.90, 2005.40, 2007.10, 2008.11, 2008.19, 2008.40 through 2008.70, 2008.91 through 2008.92, 2009.61 through 2009.69 and 2009.80: (a) a non-originating material harvested, picked, gathered or produced entirely in a non-Party which is a member country of the ASEAN shall be transported to the Party where the non-originating material is used for the production of a good: (i) directly from that non-Party; or (ii) through one or more other non Parties for the purpose of transit or temporary storage in warehouses in such non- Parties, provided that it does not undergo operations other than unloading, reloading or any other operation to preserve it in good condition; and (b) a non-originating material produced entirely in a non-Party which is a member country of the ASEAN and used in the production of a good shall be limited to those produced from materials harvested, picked or gathered in either Party or the non-Party which is a member country of the ASEAN.",
     "page": 9
+   },
+   {
+    "scope": "section",
+    "key": "XI",
+    "text": "Note 1: For purposes of chapters 50 through 55 and 60, the dyeing or printing process shall be accompanied by two or more of the following operations: (1) antibacterial finish; (2) antimelt finish; (3) antimosquito finish; (4) anti-pilling finish; (5) antistatic finish; (6) artificial creasing; (7) bleaching; (8) brushing; (9) buff finish; (10) burn-out finish; (11) calendering; (12) compressive shrinkage; (13) crease resistant finish; (14) decatizing; (15) deodorant finish; (16) easy-care finish; (17) embossing; (18) emerising; (19) flame resistant finish; (20) flock finish; (21) foam printing; (22) liquid ammonia process; (23) mercerization; (24) microbial control finish; (25) milling; (26) moare finish; (27) moisture permeable waterproofing; (28) oil-repellent finish; (29) organdie finish; (30) peeling treatment; (31) perfumed finish; (32) relaxation; (33) ripple finish; (34) schreiner finish; (35) shearing; (36) shrink resistant finish; (37) soil guard finish; (38) soil release finish; (39) stretch finish; (40) tick-proofing; (41) UV cut finish; (42) wash and wear finish; (43) water absorbent finish; (44) waterproofing; (45) water-repellent finish; (46) wet decatizing; (47) windbreak finish; or (48) wire raising.",
+    "page": 33,
+    "applies": [
+     [
+      "50",
+      "55"
+     ],
+     [
+      "60",
+      "60"
+     ]
+    ]
+   },
+   {
+    "scope": "section",
+    "key": "XI",
+    "text": "Note 2: For the purposes of headings 50.07, 51.11 through 51.13, 52.04 through 52.12, 53.09 through 53.11, 54.07 through 54.08, 55.08 through 55.16, 56.04 through 56.09, 57.01 through 57.05, 58.01 through 58.11, 59.02 through 59.11, 60.01 through 60.06, 61.01 through 61.17, 62.01 through 62.17 and 63.01 through 63.08, a non-originating material which is carded or combed, spun, dyed or printed, woven, or knitted or crocheted entirely in the other Party or a non-Party which is a member country of the ASEAN shall be transported to the Party where the non-originating material is used for the production of a good: (a) directly from that other Party or that non-Party; or (b) through one or more non- Parties for the purpose of transit or temporary storage in warehouses in such non-Parties, provided that it does not undergo operations other than unloading, reloading or any other operation to preserve it in good condition.",
+    "page": 34,
+    "applies": [
+     [
+      "5007",
+      "5007"
+     ],
+     [
+      "5111",
+      "5113"
+     ],
+     [
+      "5204",
+      "5212"
+     ],
+     [
+      "5309",
+      "5311"
+     ],
+     [
+      "5407",
+      "5408"
+     ],
+     [
+      "5508",
+      "5516"
+     ],
+     [
+      "5604",
+      "5609"
+     ],
+     [
+      "5701",
+      "5705"
+     ],
+     [
+      "5801",
+      "5811"
+     ],
+     [
+      "5902",
+      "5911"
+     ],
+     [
+      "6001",
+      "6006"
+     ],
+     [
+      "6101",
+      "6117"
+     ],
+     [
+      "6201",
+      "6217"
+     ],
+     [
+      "6301",
+      "6308"
+     ]
+    ]
    },
    {
     "scope": "section",

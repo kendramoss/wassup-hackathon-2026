@@ -20,29 +20,63 @@ AJCEP 2017, Switzerland, Australia and Indonesia are byte-identical.
 
 ## Rows before and after
 
-| Agreement | Rows before | Rows after | Rows changed or removed | Notes repaired |
+| Agreement | Rows before | Rows after | Rows changed or removed | Notes before / after |
 |---|---|---|---|---|
-| JP-Malaysia EPA | 574 | 339 | 422 | 4 of 7 |
-| JP-Mexico EPA | 1640 | 877 | 1117 | 1 of 7 |
-| JP-Philippines EPA | 1139 | 716 | 793 | 3 of 6 |
-| JP-Chile EPA | 1000 | 680 | 618 | 0 |
-| JP-India CEPA | 410 | 385 | 38 | 0 |
-| JP-Thailand EPA | 739 | 739 | 147 | 0 |
-| JP-Vietnam EPA | 1218 | 1218 | 17 | 0 |
-| AJCEP (HS 2022, from 2027-02-15) | 559 | 559 | 22 | 0 |
+| JP-Malaysia EPA | 574 | 339 | 422 | 7 / 9 |
+| JP-Mexico EPA | 1640 | 877 | 1117 | 7 / 9 |
+| JP-Philippines EPA | 1139 | 716 | 793 | 6 / 8 |
+| JP-Chile EPA | 1000 | 680 | 618 | 6 / 6 |
+| JP-India CEPA | 410 | 378 | 42 | 0 / 0 |
+| JP-Thailand EPA | 739 | 739 | 147 | 0 / 0 |
+| JP-Vietnam EPA | 1218 | 1212 | 67 | 0 / 0 |
+| AJCEP (HS 2022, from 2027-02-15) | 559 | 559 | 44 | 0 / 0 |
 
 "Changed or removed" counts old rows with no identical row in the new file.
-Most removed rows are phantom rows. The Malaysia count of 575 versus 574 in the
-audit was the single unrepaired 3809.91 row.
+Removed rows were phantoms or text read from the wrong cell, with one exception
+that the first version of this repair got wrong and the numbered-notes section
+below fixes. Several notes were cut after their first words and are now whole.
+The Malaysia count of 575 versus 574 in the audit was the single unrepaired
+3809.91 row. Merged-cell rows keep the page where the cell starts, so a row's page
+can be earlier than the page that holds the end of its text.
+
+## Numbered scope notes
+
+Malaysia and Philippines "Note 1:" and "Note 2:" (textiles, PDF p35-36 and p33-34)
+and Mexico "Note 1:" and "Note 2:" (chapter 84, PDF p65) were part of row text
+in the old data, so they were found only by chance. They are now notes. Each carries
+an `applies` list of code ranges, read from the note's own wording:
+
+- Malaysia and Philippines Note 1: "chapter 50 through 55 and 60".
+- Malaysia and Philippines Note 2: the heading list in the note (for example
+  5007, 5106-5113 ... 6301-6310 for Malaysia; Philippines differs at 5111-5113,
+  5902-5911 and 6301-6308).
+- Mexico Note 1: subheading 8471.49. Mexico Note 2: subheading 8473.30.
+
+`build_psr.py` has the table and fails if a numbered note has no entry. The Go side
+validates every range when the table loads (2 to 6 digits, equal length, start not
+after end), and a lookup returns the note only for a code in a range. A code of the
+same chapter outside the ranges (for example 8471.30 or 5601.21) does not get it.
+The scope of the note stays "chapter" under a chapter heading and "section"
+otherwise. A check of every schedule found no other old row text holding a numbered
+note that is now missing.
+
+## India appendix
+
+India p41-42 is a textile process-requirement table ("Appendix to Annex 2"), not
+product rules. The parse stops at that heading, so those rows (and a 9612.10 row
+that had the appendix header appended) are gone. The appendix is not embedded. No
+real rule was lost: every other removed India row was a fragment such as ")" or
+a code list cut from a wrapped line.
 
 ## Effect on development rulings
 
-Development split, 2973 rulings, agreement, code and date only. Rule availability
-(eligible, abstained and the per-agreement reason counts) is unchanged: 2674
-eligible, 299 abstained. The returned evidence changed for 50 rulings: Thailand
-26, India 19, Mexico 2, Philippines 2, Chile 1. The reason stays "psr" for all
-50. For 21 of them the number of evidence rows changed, because a phantom
-fragment row is gone.
+Development split, 2973 rulings, agreement, code and date only. Returned evidence
+changed for 51 rulings: Thailand 26, India 19, Mexico 2, Philippines 2, Chile 1,
+Vietnam 1. For 50 the reason stays "psr". The Vietnam ruling (code 2817.00) went
+from "psr" to "no_match": its only evidence was the row for chapter 28, whose
+"rule" was the chapter title, and the PDF lists no rule for 2817. So eligible is 2673
+(was 2674), PSR 2572 (was 2573), abstained 300 (was 299); general and mapped counts
+are unchanged.
 
 ## Pinned examples (tests in `splitrows_test.go`)
 
@@ -57,18 +91,26 @@ Page numbers are PDF pages.
 - Thailand p28 6213-6217 and p9 2001.10: full multi-line cell.
 - Vietnam p33 5208 and AJCEP 2022 p24 5111: complete merged cell.
 - A structural test over every schedule fails on a row that ends in a dangling
-  connective or comma, or starts with a lowercase or "percent" fragment. Its
-  allowlist holds one entry, listed below.
+  connective, comma or hyphen, or starts with a lowercase or "percent" fragment.
+  Its allowlist is empty.
+
+## Wide table pages
+
+Vietnam p15 on (6 columns) and AJCEP 2022 p47 on (7 columns) have extra empty
+columns, so the rule sits in the last column. The parser took the fifth column,
+which gave 59 Vietnam and 19 AJCEP rows whose "rule" was the product description
+or a chapter title. Rows now take the codes from the first three columns, the rule
+from the last and the description from those between. A test fails if any
+Vietnam or AJCEP 2022 row text starts with "-- ".
 
 ## Remaining unknowns
 
-- Six- and seven-column pages (Vietnam about 63 table rows from p15 on, AJCEP 2022
-  about 48 rows from p47 on) shift the columns. The parser can read a product
-  description as the rule, for example Vietnam 2804.61 ("-- Containing by weight not
-  less than"). This is a separate defect, not a split row, and is not repaired here.
-  It is the only allowlist entry.
-- A cell merged across a page break is completed by the rule above. Other
-  page-break shapes may exist; the structural test only finds those that end in a
-  dangling word.
-- The Indonesia PDF was fetched again to confirm its digest, and its output is
-  unchanged. The structural test found no cut rows in it.
+- A cell merged across a page break is completed when the first row of the next
+  page starts lowercase or the cell ends in a dangling word. Other page-break shapes
+  may exist.
+- The structural test also treats a trailing "any" or hyphen as a cut. Its
+  allowlist is empty.
+- `code_column` raises when the most common code-like left edge covers under half
+  of the code-like lines or lies outside 40-150 pt, so a new PDF layout fails loudly.
+- Pure helpers have unit tests in `eval/jp/test_build_psr.py`
+  (`python3 -m unittest test_build_psr` from `eval/jp`).

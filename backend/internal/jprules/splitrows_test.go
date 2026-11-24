@@ -104,18 +104,13 @@ func TestSplitRowsNoPhantoms(t *testing.T) {
 }
 
 var (
-	danglingEnd   = regexp.MustCompile(`(?i)(?:^|[\s,])(?:through|to|from|or|and|than|of|the)$|,$`)
+	danglingEnd   = regexp.MustCompile(`(?i)(?:^|[\s,])(?:through|to|from|or|and|than|of|the|any)$|[,-]$`)
 	fragmentStart = regexp.MustCompile(`^(?:[a-z]|percent\b|per cent\b)`)
 )
 
 // splitRowAllowlist lists rows verified in the official PDF to end or begin
 // the way the structural check forbids. Key: agreement|from|start|end|page.
-var splitRowAllowlist = map[string]string{
-	// Not a split row: this 6-column page layout puts the product description
-	// where the rule cell is expected. A separate, unrepaired extraction defect
-	// (see docs/japan/psr-split-row-repair.md, remaining unknowns).
-	"JP-Vietnam EPA|2009-10-01|280461|280461|18": "description read as rule",
-}
+var splitRowAllowlist = map[string]string{}
 
 func TestNoSplitRowFragments(t *testing.T) {
 	table := mustDefault(t)
@@ -133,6 +128,111 @@ func TestNoSplitRowFragments(t *testing.T) {
 				if fragmentStart.MatchString(text) {
 					t.Errorf("%s: row starts with a continuation fragment: %q", key, text)
 				}
+			}
+		}
+	}
+}
+
+// Numbered scope notes ("Note 1:") were rows of the old data and now are
+// notes with an explicit applicability.
+func TestNumberedScopeNotes(t *testing.T) {
+	table := mustDefault(t)
+	has := func(agreement, hs, prefix string) bool {
+		t.Helper()
+		ev, err := table.Lookup(agreement, hs, correlationDate)
+		if err != nil {
+			t.Fatalf("%s %s: %v", agreement, hs, err)
+		}
+		for _, e := range ev {
+			if strings.HasPrefix(e.Text, prefix) {
+				return true
+			}
+		}
+		return false
+	}
+	const (
+		myNote1 = "Note 1: For purposes of Chapter 50 through 55 and 60, the dyeing or printing process shall be accompanied by two or more of the following operations:"
+		myNote2 = "Note 2: For the purposes of heading 50.07, 51.06 through 51.13"
+		phNote1 = "Note 1: For purposes of chapters 50 through 55 and 60, the dyeing or printing process shall be accompanied by two or more of the following operations:"
+		phNote2 = "Note 2: For the purposes of headings 50.07, 51.11 through 51.13"
+		mxNote1 = "Note 1: For the purposes of subheading 8471.49, the origin of each unit presented within a system"
+		mxNote2 = "Note 2: For the purposes of subheading 8473.30, other parts for printers of subheading 8471.60 cover:"
+	)
+	cases := []struct {
+		agreement, hs, note string
+		want                bool
+	}{
+		{"JP-Malaysia EPA", "5208.11", myNote1, true},
+		{"JP-Malaysia EPA", "6001.10", myNote1, true},
+		{"JP-Malaysia EPA", "6101.10", myNote1, false},
+		{"JP-Malaysia EPA", "5601.21", myNote1, false},
+		{"JP-Malaysia EPA", "5208.11", myNote2, true},
+		{"JP-Malaysia EPA", "6101.10", myNote2, true},
+		{"JP-Malaysia EPA", "5601.21", myNote2, false},
+		{"JP-Philippines EPA", "5208.11", phNote1, true},
+		{"JP-Philippines EPA", "6101.10", phNote1, false},
+		{"JP-Philippines EPA", "6101.10", phNote2, true},
+		{"JP-Philippines EPA", "5601.21", phNote2, false},
+		{"JP-Mexico EPA", "8471.49", mxNote1, true},
+		{"JP-Mexico EPA", "8471.30", mxNote1, false},
+		{"JP-Mexico EPA", "8473.30", mxNote1, false},
+		{"JP-Mexico EPA", "8473.30", mxNote2, true},
+		{"JP-Mexico EPA", "8471.49", mxNote2, false},
+		{"JP-Mexico EPA", "8501.10", mxNote2, false},
+	}
+	for _, c := range cases {
+		if got := has(c.agreement, c.hs, c.note); got != c.want {
+			t.Errorf("%s %s note %.12q...: got %v, want %v", c.agreement, c.hs, c.note, got, c.want)
+		}
+	}
+}
+
+func TestNoteAppliesValidation(t *testing.T) {
+	for _, bad := range [][][2]string{{{"5x", "55"}}, {{"55", "50"}}, {{"50", "5501"}}, {{"5", "5"}}} {
+		if err := validateApplies(bad); err == nil {
+			t.Errorf("%v accepted", bad)
+		}
+	}
+	if err := validateApplies([][2]string{{"50", "55"}, {"847149", "847149"}}); err != nil {
+		t.Error(err)
+	}
+	n := note{Applies: [][2]string{{"5106", "5113"}}}
+	for hs, want := range map[string]bool{"5106": true, "510700": true, "5113": true, "5114": false, "5105": false, "51": true, "5": false} {
+		if len(hs) < 2 {
+			continue
+		}
+		if got := n.appliesTo(hs); got != want {
+			t.Errorf("appliesTo(%s) = %v", hs, got)
+		}
+	}
+}
+
+func TestWideColumnPagesAndIndiaAppendix(t *testing.T) {
+	table := mustDefault(t)
+	india := scheduleFrom(t, table, "JP-India CEPA", "2011-08-01")
+	for _, r := range india.Rows {
+		if r.Page >= 41 {
+			t.Errorf("India textile process appendix is not embedded, got %+v", r)
+		}
+	}
+	if rows := rowsAt(india, "961210", "961210", 40); len(rows) != 1 || rows[0].Text != "A change to subheading 9612.10 from any other heading." {
+		t.Errorf("India 9612.10: %+v", rows)
+	}
+	vn := scheduleFrom(t, table, "JP-Vietnam EPA", "2009-10-01")
+	if rows := rowsAt(vn, "220890", "220890", 14); len(rows) != 1 || !strings.HasSuffix(rows[0].Text, "CTH except from heading 22.07 for any other good.") {
+		t.Errorf("Vietnam 2208.90: %+v", rows)
+	}
+	if rows := rowsAt(vn, "280461", "280461", 18); len(rows) != 1 || rows[0].Text != "LVC 40% or CTSH" {
+		t.Errorf("Vietnam 2804.61: %+v", rows)
+	}
+	aj := scheduleFrom(t, table, "AJCEP", "2027-02-15")
+	if rows := rowsAt(aj, "870121", "870121", 47); len(rows) != 1 || rows[0].Text != "RVC 40%" {
+		t.Errorf("AJCEP 8701.21: %+v", rows)
+	}
+	for _, s := range []schedule{vn, aj} {
+		for _, r := range s.Rows {
+			if strings.HasPrefix(r.Text, "-- ") {
+				t.Errorf("%s: product description read as rule: %+v", s.Agreement, r)
 			}
 		}
 	}
