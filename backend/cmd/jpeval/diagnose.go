@@ -21,12 +21,15 @@ const rulesDataDir = "internal/jprules/data"
 
 const diagnoseBasis = "Counts describe rule availability before any model call: whether a verified rule " +
 	"source can be shown for a case's agreement, code and date. They are not accuracy, recall, " +
-	"resolved decisions or entitlement conclusions. No labels, scoring, precedents or model are used."
+	"resolved decisions or entitlement conclusions. A mapped case shows the rule row of the code's " +
+	"earlier-edition parent codes behind an administrative-correlation note; the rule is not listed for " +
+	"the code itself. No labels, scoring, precedents or model are used."
 
 type diagnoseEligible struct {
 	Total   int `json:"total"`
 	PSR     int `json:"psr"`
 	General int `json:"general"`
+	Mapped  int `json:"mapped"`
 }
 
 type diagnoseProvenance struct {
@@ -119,16 +122,19 @@ func diagnoseRun(split string, cases []domain.Case, rules *jprules.Table) diagno
 		case pf.Eligible:
 			r.Eligible.Total++
 			r.eligibleCaseIDs = append(r.eligibleCaseIDs, c.ID)
-			if pf.Reason == jprules.ReasonGeneral {
+			switch pf.Reason {
+			case jprules.ReasonGeneral:
 				r.Eligible.General++
-			} else {
+			case jprules.ReasonMapped:
+				r.Eligible.Mapped++
+			default:
 				r.Eligible.PSR++
 			}
 		default:
 			r.Abstained++
 		}
 		switch pf.Reason {
-		case jprules.ReasonNoMatch, jprules.ReasonTooBroad, jprules.ReasonWithheld, jprules.ReasonExcludedGeneral:
+		case jprules.ReasonNoMatch, jprules.ReasonTooBroad, jprules.ReasonWithheld, jprules.ReasonExcludedGeneral, jprules.ReasonEditionHint:
 			bump(r.UnmatchedCodes, agr, pf.HS)
 		}
 	}
@@ -171,6 +177,7 @@ func diagnoseDevelopment(split, dir string, rules *jprules.Table) (diagnoseRepor
 		"data/jp/splits.json":             filepath.Join(dir, "splits.json"),
 		"jprules/data/schedules.json":     filepath.Join(rulesDataDir, "schedules.json"),
 		"jprules/data/ajcep_general.json": filepath.Join(rulesDataDir, "ajcep_general.json"),
+		"jprules/data/correlations.json":  filepath.Join(rulesDataDir, "correlations.json"),
 	} {
 		b, err := os.ReadFile(p)
 		if err != nil {

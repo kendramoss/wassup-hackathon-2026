@@ -1,6 +1,6 @@
 # Product-specific rules for import into Japan
 
-The Japan engine reads the text of the applicable rule alongside earlier Japan Customs rulings. The table does not transpose tariff codes or check tariff eligibility, country membership, or treaty requirements outside its sources. A buyer needs the tariff code under the HS edition named by the treaty.
+The Japan engine reads the text of the applicable rule alongside earlier Japan Customs rulings. The table does not transpose tariff codes, apart from the reviewed correlations described in [docs/japan/hs-edition-correlation.md](../../../docs/japan/hs-edition-correlation.md), or check tariff eligibility, country membership, or treaty requirements outside its sources. A buyer needs the tariff code under the HS edition named by the treaty.
 
 | Agreement | Source | HS edition | Applied from |
 |---|---|---|---|
