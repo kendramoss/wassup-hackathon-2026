@@ -48,7 +48,7 @@ var (
 
 func main() {
 	if len(os.Args) < 2 {
-		fmt.Fprintln(os.Stderr, "usage: jpeval baseline|summary|index|bundle|candidate|candidate-summary|plan|smoke [flags]")
+		fmt.Fprintln(os.Stderr, "usage: jpeval baseline|summary|index|bundle|candidate|candidate-summary|plan|smoke|budget-init [flags]")
 		os.Exit(2)
 	}
 	var err error
@@ -67,6 +67,8 @@ func main() {
 		err = candidateSummary(os.Args[2:])
 	case "plan":
 		err = planCommand(os.Args[2:])
+	case "budget-init":
+		err = budgetInit(os.Args[2:])
 	case "smoke":
 		err = smoke(os.Args[2:])
 	default:

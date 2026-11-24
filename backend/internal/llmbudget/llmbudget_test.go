@@ -21,7 +21,7 @@ var bind = Binding{Model: "m", Rates: rates}
 
 func open(t *testing.T, capUSD float64) *Ledger {
 	t.Helper()
-	l, err := Open(filepath.Join(t.TempDir(), "ledger.jsonl"), capUSD, bind)
+	l, err := Create(filepath.Join(t.TempDir(), "ledger.jsonl"), capUSD, bind, nil)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -30,11 +30,11 @@ func open(t *testing.T, capUSD float64) *Ledger {
 
 func TestCapBounds(t *testing.T) {
 	for _, c := range []float64{0, -1, 50.01, 1000} {
-		if _, err := Open(filepath.Join(t.TempDir(), "l"), c, bind); err == nil {
+		if _, err := Create(filepath.Join(t.TempDir(), "l"), c, bind, nil); err == nil {
 			t.Errorf("cap %v accepted", c)
 		}
 	}
-	if _, err := Open(filepath.Join(t.TempDir(), "l"), MaxCapUSD, bind); err != nil {
+	if _, err := Create(filepath.Join(t.TempDir(), "l"), MaxCapUSD, bind, nil); err != nil {
 		t.Errorf("cap %v refused: %v", MaxCapUSD, err)
 	}
 }
@@ -80,6 +80,9 @@ func TestConcurrentReservationsAcrossLedgersNeverPassTheCap(t *testing.T) {
 	path := filepath.Join(t.TempDir(), "ledger.jsonl")
 	var ok atomic.Int64
 	var wg sync.WaitGroup
+	if _, err := Create(path, 5, bind, nil); err != nil {
+		t.Fatal(err)
+	}
 	for p := 0; p < 3; p++ { // three "processes" sharing one file
 		l, err := Open(path, 5, bind)
 		if err != nil {
@@ -156,10 +159,10 @@ func TestSettlementProvenance(t *testing.T) {
 			w.Header().Set("X-Litellm-Response-Cost", "0.0123")
 			w.Write([]byte(okBody))
 		}, Reported, func(_, _ float64) float64 { return 0.0123 }, false},
-		{"reported zero without usage is reported", func(w http.ResponseWriter, r *http.Request) {
+		{"reported zero without usage is never free", func(w http.ResponseWriter, r *http.Request) {
 			w.Header().Set("X-Litellm-Response-Cost", "0")
 			w.Write([]byte(`{"choices":[{"message":{"role":"assistant","content":"{}"},"finish_reason":"stop"}]}`))
-		}, Reported, func(_, _ float64) float64 { return 0 }, false},
+		}, UnreportedWorstCase, func(w, _ float64) float64 { return w }, false},
 		{"reported zero with usage is not trusted as free", func(w http.ResponseWriter, r *http.Request) {
 			w.Header().Set("X-Litellm-Response-Cost", "0")
 			w.Write([]byte(okBody))
@@ -169,7 +172,18 @@ func TestSettlementProvenance(t *testing.T) {
 		}, EstimatedFromUsage, func(_, _ float64) float64 { return (1000*1 + 500*10) / 1e6 }, false},
 		{"403 without header", func(w http.ResponseWriter, r *http.Request) {
 			http.Error(w, "denied for key sk-secret-key at "+r.Host, http.StatusForbidden)
-		}, UnreportedRejection, func(_, in float64) float64 { return in }, true},
+		}, UnreportedWorstCase, func(w, _ float64) float64 { return w }, true},
+		{"400 after generation is not proof of no charge", func(w http.ResponseWriter, r *http.Request) {
+			http.Error(w, "content policy", http.StatusBadRequest)
+		}, UnreportedWorstCase, func(w, _ float64) float64 { return w }, true},
+		{"200 with zero header and no usage keeps the worst case", func(w http.ResponseWriter, r *http.Request) {
+			w.Header().Set("X-Litellm-Response-Cost", "0")
+			w.Write([]byte(`{"choices":[{"message":{"role":"assistant","content":"{}"},"finish_reason":"stop"}],"usage":{"prompt_tokens":0,"completion_tokens":0,"total_tokens":0}}`))
+		}, UnreportedWorstCase, func(w, _ float64) float64 { return w }, false},
+		{"truncated body keeps the worst case", func(w http.ResponseWriter, r *http.Request) {
+			w.Header().Set("Content-Length", "500")
+			w.Write([]byte(`{"choices"`))
+		}, UnreportedWorstCase, func(w, _ float64) float64 { return w }, true},
 		{"500 keeps the worst case", func(w http.ResponseWriter, r *http.Request) {
 			http.Error(w, "boom", http.StatusInternalServerError)
 		}, UnreportedWorstCase, func(w, _ float64) float64 { return w }, true},
@@ -262,8 +276,22 @@ func TestOverrunStopsTheLedgerDurably(t *testing.T) {
 
 func TestBindingIsImmutable(t *testing.T) {
 	path := filepath.Join(t.TempDir(), "ledger.jsonl")
-	if _, err := Open(path, 5, bind); err != nil {
+	if _, err := Open(path, 5, bind); !errors.Is(err, ErrNoLedger) {
+		t.Fatalf("Open on a missing file = %v, want ErrNoLedger", err)
+	}
+	if _, err := os.Stat(path); err == nil {
+		t.Fatal("Open created a file")
+	}
+	if _, err := Create(path, 5, bind, nil); err != nil {
 		t.Fatal(err)
+	}
+	if _, err := Create(path, 5, bind, nil); err == nil {
+		t.Fatal("Create over an existing ledger")
+	}
+	empty := filepath.Join(t.TempDir(), "empty.jsonl")
+	_ = os.WriteFile(empty, nil, 0o600)
+	if _, err := Open(empty, 5, bind); !errors.Is(err, ErrNoLedger) {
+		t.Fatalf("Open on an empty file = %v, want ErrNoLedger", err)
 	}
 	for name, change := range map[string]func() (*Ledger, error){
 		"higher cap":  func() (*Ledger, error) { return Open(path, 50, bind) },
@@ -315,5 +343,126 @@ func TestClaimIsDurableAndExclusive(t *testing.T) {
 	again, _ := Open(l.path, 5, bind)
 	if err := again.Claim("D1|held_out"); !errors.Is(err, ErrClaimed) {
 		t.Fatalf("second claim = %v, want ErrClaimed", err)
+	}
+}
+
+func TestOverrunStopIsDerivedWhenTheStopLineIsMissing(t *testing.T) {
+	l := open(t, 10)
+	r, _ := l.Reserve("a", 1)
+	_ = r.Settle(3, Reported)
+	body, _ := os.ReadFile(l.path)
+	lines := strings.Split(strings.TrimSpace(string(body)), "\n")
+	if !strings.Contains(lines[len(lines)-1], `"t":"stop"`) {
+		t.Fatalf("last line %q is not the stop", lines[len(lines)-1])
+	}
+	// A crash between the settlement and the stop line:
+	_ = os.WriteFile(l.path, []byte(strings.Join(lines[:len(lines)-1], "\n")+"\n"), 0o600)
+	again, err := Open(l.path, 10, bind)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if _, err := again.Reserve("b", 0.01); !errors.Is(err, ErrStopped) {
+		t.Fatalf("reservation = %v, want ErrStopped", err)
+	}
+}
+
+func TestDuplicateReservationIDFailsClosed(t *testing.T) {
+	l := open(t, 10)
+	_, _ = l.Reserve("a", 1)
+	body, _ := os.ReadFile(l.path)
+	lines := strings.Split(strings.TrimSpace(string(body)), "\n")
+	_ = os.WriteFile(l.path, []byte(strings.Join(append(lines, lines[len(lines)-1]), "\n")+"\n"), 0o600)
+	if _, err := l.Reserve("b", 1); err == nil {
+		t.Fatal("duplicate reservation id accepted")
+	}
+}
+
+func TestPlanMustFitAndEveryPhaseIsAffordedTogether(t *testing.T) {
+	phases := map[string]Phase{"smoke": {WorstUSD: 1, Requests: 1, RequestsSHA256: "a"}, "held_out": {WorstUSD: 30, Requests: 9, RequestsSHA256: "b"}, "synthetic": {WorstUSD: 15, Requests: 8, RequestsSHA256: "c"}}
+	path := filepath.Join(t.TempDir(), "l.jsonl")
+	if _, err := Create(path, 40, bind, phases); !errors.Is(err, ErrBudget) {
+		t.Fatalf("an oversized plan was created: %v", err)
+	}
+	if _, err := os.Stat(path); err == nil {
+		t.Fatal("a ledger file exists for an oversized plan")
+	}
+	l, err := Create(path, 50, bind, phases)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if err := l.Affordable("nope"); !errors.Is(err, ErrNotPlanned) {
+		t.Fatalf("unplanned phase = %v", err)
+	}
+	if err := l.Affordable("held_out"); err != nil {
+		t.Fatal(err)
+	}
+	// Spending that leaves held_out alone but starves the others is refused.
+	r, _ := l.Reserve("x", 6)
+	_ = r.Settle(6, Reported)
+	if err := l.Affordable("held_out"); !errors.Is(err, ErrBudget) {
+		t.Fatalf("held_out with synthetic and smoke still to run = %v, want ErrBudget", err)
+	}
+	// Once smoke and synthetic are claimed, their reserve is no longer held back.
+	_ = l.Claim("smoke|smoke")
+	_ = l.Claim("D1|synthetic")
+	if err := l.Affordable("held_out"); err != nil {
+		t.Fatalf("after the other phases started: %v", err)
+	}
+	reopened, err := Open(path, 50, bind)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if p, ok := reopened.Phase("held_out"); !ok || p.Requests != 9 {
+		t.Fatalf("manifest not loaded from the header: %+v", p)
+	}
+}
+
+func TestConcurrentReserveSettleAcrossInstances(t *testing.T) {
+	path := filepath.Join(t.TempDir(), "l.jsonl")
+	if _, err := Create(path, 5, bind, nil); err != nil {
+		t.Fatal(err)
+	}
+	var wg sync.WaitGroup
+	for p := 0; p < 2; p++ {
+		l, _ := Open(path, 5, bind)
+		for w := 0; w < 6; w++ {
+			wg.Add(1)
+			go func() {
+				defer wg.Done()
+				for i := 0; i < 8; i++ {
+					if r, err := l.Reserve("x", 0.4); err == nil {
+						_ = r.Settle(0.1, Reported)
+					}
+				}
+			}()
+		}
+	}
+	wg.Wait()
+	l, _ := Open(path, 5, bind)
+	if c, _ := l.Committed(); c > 5+1e-9 {
+		t.Fatalf("committed %v above the cap", c)
+	}
+}
+
+func TestConcurrentClaimsHaveOneWinner(t *testing.T) {
+	path := filepath.Join(t.TempDir(), "l.jsonl")
+	if _, err := Create(path, 5, bind, nil); err != nil {
+		t.Fatal(err)
+	}
+	var won atomic.Int64
+	var wg sync.WaitGroup
+	for i := 0; i < 8; i++ {
+		l, _ := Open(path, 5, bind)
+		wg.Add(1)
+		go func() {
+			defer wg.Done()
+			if l.Claim("D1|held_out") == nil {
+				won.Add(1)
+			}
+		}()
+	}
+	wg.Wait()
+	if won.Load() != 1 {
+		t.Fatalf("%d winners", won.Load())
 	}
 }

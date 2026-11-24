@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"crypto/sha256"
 	"encoding/json"
 	"errors"
 	"flag"
@@ -78,12 +79,25 @@ func smoke(args []string) error {
 func runSmoke(id, out string, maxOut int, ledger *llmbudget.Ledger, rates llmbudget.Rates, inner llm.Model, sizer interface {
 	RequestBody(llm.Request) ([]byte, error)
 }) error {
+	req := smokeRequest(maxOut)
+	if ph, ok := ledger.Phase("smoke"); !ok {
+		return fmt.Errorf("%w: smoke", llmbudget.ErrNotPlanned)
+	} else if want := smokePhase(rates, maxOut); ph != want {
+		return fmt.Errorf("%w: the smoke request differs from the plan the ledger was created with", llmbudget.ErrNotPlanned)
+	}
+	if on, err := ledger.Stopped(); err != nil || on {
+		return errors.Join(llmbudget.ErrStopped, err)
+	}
+	if err := ledger.Affordable("smoke"); err != nil {
+		return fmt.Errorf("%w; nothing was sent", err)
+	}
 	f, err := os.OpenFile(out, os.O_CREATE|os.O_EXCL|os.O_WRONLY, 0o644)
 	if err != nil {
 		return errors.New("the result file cannot be created exclusively; choose a new path")
 	}
-	req := llm.Request{Model: jpengine.DefaultModel, MaxOutputTokens: maxOut,
-		Messages: []llm.Message{{Role: llm.RoleUser, Content: smokePrompt}}}
+	if err := ledger.Claim("smoke|smoke"); err != nil {
+		return errors.Join(err, f.Close())
+	}
 	size := func(r llm.Request) (int, error) {
 		b, err := sizer.RequestBody(r)
 		return len(b), err
@@ -131,4 +145,20 @@ func runSmoke(id, out string, maxOut int, ledger *llmbudget.Ledger, rates llmbud
 		return fmt.Errorf("smoke call failed: %s", res.Error)
 	}
 	return nil
+}
+
+func smokeRequest(maxOut int) llm.Request {
+	return llm.Request{Model: jpengine.DefaultModel, MaxOutputTokens: maxOut,
+		Messages: []llm.Message{{Role: llm.RoleUser, Content: smokePrompt}}}
+}
+
+// smokePhase is the smoke check's entry in the ledger's plan.
+func smokePhase(rates llmbudget.Rates, maxOut int) llmbudget.Phase {
+	g := llm.NewLiteLLM("https://plan.invalid", "unused", time.Second)
+	g.SkipCache(true)
+	b, err := g.RequestBody(smokeRequest(maxOut))
+	if err != nil {
+		return llmbudget.Phase{}
+	}
+	return llmbudget.Phase{WorstUSD: rates.WorstCase(len(b), maxOut), Requests: 1, RequestsSHA256: fmt.Sprintf("%x", sha256.Sum256(b))}
 }

@@ -12,11 +12,13 @@ package llmbudget
 import (
 	"bufio"
 	"context"
+	"crypto/rand"
 	"encoding/json"
 	"errors"
 	"fmt"
 	"math"
 	"os"
+	"reflect"
 	"strings"
 	"sync"
 	"sync/atomic"
@@ -44,6 +46,15 @@ var ErrClaimed = errors.New("llmbudget: this run was already claimed; an incompl
 // ErrBinding is returned when a ledger was opened with a different cap,
 // model or rates than its first line binds.
 var ErrBinding = errors.New("llmbudget: the ledger is bound to a different cap, model or rates")
+
+// ErrNotPlanned is returned for a phase the ledger's manifest does not list,
+// or one whose planned requests differ from the manifest.
+var ErrNotPlanned = errors.New("llmbudget: this phase is not in the ledger's plan, or it differs from it")
+
+// ErrNoLedger is returned when the ledger file is missing, empty or has no
+// header. Only Create starts a ledger, so a mistyped path cannot start a new
+// budget.
+var ErrNoLedger = errors.New("llmbudget: no initialised ledger at this path")
 
 // ErrBudget is returned, with no model call made, when a reservation would
 // pass the cap.
@@ -97,6 +108,16 @@ type entry struct {
 	In    float64 `json:"in_usd_per_mtok,omitempty"`
 	Out   float64 `json:"out_usd_per_mtok,omitempty"`
 	Src   string  `json:"rates_source,omitempty"`
+	// Phases is the suite manifest, also fixed by the header.
+	Phases map[string]Phase `json:"phases,omitempty"`
+}
+
+// Phase is one planned stage of the suite (smoke, held_out, synthetic): its
+// worst-case cost at the bound rates and the exact requests it will send.
+type Phase struct {
+	WorstUSD       float64 `json:"worst_usd"`
+	Requests       int     `json:"requests"`
+	RequestsSHA256 string  `json:"requests_sha256"`
 }
 
 // Binding is what the first line of a ledger fixes for good.
@@ -107,24 +128,25 @@ type Binding struct {
 
 // Ledger is a cap and its shared file.
 type Ledger struct {
-	path string
-	cap  float64
-	bind Binding
-	mu   sync.Mutex
-	seq  atomic.Int64
-	pid  int
+	path     string
+	cap      float64
+	bind     Binding
+	phases   map[string]Phase
+	creating bool
+	mu       sync.Mutex
+	seq      atomic.Int64
+	pid      int
 }
 
 func (l *Ledger) header() entry {
 	return entry{Kind: "header", Cap: l.cap, Model: l.bind.Model, In: l.bind.Rates.InputPerMTok,
-		Out: l.bind.Rates.OutputPerMTok, Src: l.bind.Rates.Source}
+		Out: l.bind.Rates.OutputPerMTok, Src: l.bind.Rates.Source, Phases: l.phases}
 }
 
-// Open returns the ledger at path, creating it when absent. The cap must be
-// positive and at most MaxCapUSD. The first line of a new ledger binds the cap,
-// model and rates; opening an existing ledger with different values fails
-// closed, so a later process can never raise the approved cap.
-func Open(path string, capUSD float64, b Binding) (*Ledger, error) {
+// Phase returns a planned phase from the manifest.
+func (l *Ledger) Phase(name string) (Phase, bool) { p, ok := l.phases[name]; return p, ok }
+
+func newLedger(path string, capUSD float64, b Binding) (*Ledger, error) {
 	if !(capUSD > 0) || capUSD > MaxCapUSD {
 		return nil, fmt.Errorf("llmbudget: cap must be above 0 and at most $%.2f", MaxCapUSD)
 	}
@@ -134,15 +156,54 @@ func Open(path string, capUSD float64, b Binding) (*Ledger, error) {
 	if strings.TrimSpace(b.Model) == "" {
 		return nil, errors.New("llmbudget: the ledger needs a model name")
 	}
-	f, err := os.OpenFile(path, os.O_CREATE|os.O_RDWR|os.O_APPEND, 0o600)
+	return &Ledger{path: path, cap: capUSD, bind: b, pid: os.Getpid()}, nil
+}
+
+// Create starts a new ledger and writes its header: the cap, model, rates and
+// the suite manifest. It fails when the path exists, and it fails when the
+// phases together would not fit the cap, before anything is written.
+func Create(path string, capUSD float64, b Binding, phases map[string]Phase) (*Ledger, error) {
+	l, err := newLedger(path, capUSD, b)
 	if err != nil {
-		return nil, fmt.Errorf("llmbudget: cannot open the ledger: %w", errors.Unwrap(err))
+		return nil, err
+	}
+	var total float64
+	for name, p := range phases {
+		if strings.TrimSpace(name) == "" || !(p.WorstUSD >= 0) || p.Requests < 0 {
+			return nil, errors.New("llmbudget: invalid phase in the plan")
+		}
+		total += p.WorstUSD
+	}
+	if total > capUSD+1e-9 {
+		return nil, fmt.Errorf("%w: the whole plan needs up to $%.4f, the cap is $%.2f", ErrBudget, total, capUSD)
+	}
+	l.phases, l.creating = phases, true
+	if l.phases == nil {
+		l.phases = map[string]Phase{}
+	}
+	f, err := os.OpenFile(path, os.O_CREATE|os.O_EXCL|os.O_RDWR|os.O_APPEND, 0o600)
+	if err != nil {
+		return nil, errors.New("llmbudget: the ledger cannot be created exclusively; it may already exist")
 	}
 	if err := f.Close(); err != nil {
 		return nil, err
 	}
-	l := &Ledger{path: path, cap: capUSD, bind: b, pid: os.Getpid()}
-	if err := l.locked(func(*os.File, state) error { return nil }); err != nil { // writes or checks the header
+	if err := l.locked(func(*os.File, state) error { return nil }); err != nil { // writes the header
+		return nil, err
+	}
+	l.creating = false
+	return l, nil
+}
+
+// Open opens an existing, initialised ledger. The cap, model and rates must
+// equal what its header fixed. A missing, empty or headerless file is an
+// error: a new path never starts another budget.
+func Open(path string, capUSD float64, b Binding) (*Ledger, error) {
+	l, err := newLedger(path, capUSD, b)
+	if err != nil {
+		return nil, err
+	}
+	if err := l.locked(func(*os.File, state) error { return nil }); err != nil {
 		return nil, err
 	}
 	return l, nil
@@ -161,6 +222,9 @@ func (l *Ledger) locked(fn func(f *os.File, st state) error) error {
 	l.mu.Lock()
 	defer l.mu.Unlock()
 	f, err := os.OpenFile(l.path, os.O_RDWR|os.O_APPEND, 0o600)
+	if errors.Is(err, os.ErrNotExist) {
+		return ErrNoLedger
+	}
 	if err != nil {
 		return fmt.Errorf("llmbudget: cannot open the ledger: %w", errors.Unwrap(err))
 	}
@@ -174,6 +238,9 @@ func (l *Ledger) locked(fn func(f *os.File, st state) error) error {
 		return err
 	}
 	if empty {
+		if l.phases == nil || !l.creating {
+			return ErrNoLedger
+		}
 		if err := l.append(f, l.header()); err != nil {
 			return err
 		}
@@ -207,9 +274,20 @@ func (l *Ledger) scan(f *os.File) (st state, empty bool, err error) {
 				e.Out != l.bind.Rates.OutputPerMTok || e.Src != l.bind.Rates.Source {
 				return st, false, ErrBinding
 			}
+			if l.phases == nil {
+				l.phases = e.Phases
+				if l.phases == nil {
+					l.phases = map[string]Phase{}
+				}
+			} else if !reflect.DeepEqual(l.phases, e.Phases) && !(len(l.phases) == 0 && len(e.Phases) == 0) {
+				return st, false, ErrBinding
+			}
 		case "reserve":
 			if e.ID == "" {
 				return st, false, fmt.Errorf("llmbudget: ledger line %d has no id; refusing to spend", n)
+			}
+			if _, dup := reserved[e.ID]; dup {
+				return st, false, fmt.Errorf("llmbudget: ledger line %d repeats a reservation id; refusing to spend", n)
 			}
 			reserved[e.ID] = e.USD
 		case "settle":
@@ -236,8 +314,12 @@ func (l *Ledger) scan(f *os.File) (st state, empty bool, err error) {
 		}
 	}
 	for id, sv := range settled {
-		if _, ok := reserved[id]; !ok {
+		if rv, ok := reserved[id]; !ok {
 			st.committed += sv
+		} else if sv > rv+1e-9 {
+			// Derived from the amounts, so a crash between the settlement and
+			// the stop line cannot leave an overrun without its stop.
+			st.stopped = true
 		}
 	}
 	return st, n == 0, nil
@@ -292,6 +374,38 @@ func (l *Ledger) Claim(key string) error {
 	})
 }
 
+// Affordable checks, before the first billable call, that what is left covers
+// this phase's planned worst case AND the planned worst case of every other
+// phase that has not been claimed yet, so the whole suite fits together and
+// no phase can spend what a later one needs.
+func (l *Ledger) Affordable(phase string) error {
+	p, ok := l.phases[phase]
+	if !ok {
+		return fmt.Errorf("%w: %q", ErrNotPlanned, phase)
+	}
+	return l.locked(func(_ *os.File, st state) error {
+		need := p.WorstUSD
+		for name, other := range l.phases {
+			if name == phase {
+				continue
+			}
+			claimed := false
+			for id := range st.claims {
+				if strings.HasSuffix(id, "|"+name) {
+					claimed = true
+				}
+			}
+			if !claimed {
+				need += other.WorstUSD
+			}
+		}
+		if st.committed+need > l.cap+1e-9 {
+			return fmt.Errorf("%w: committed $%.4f, this phase and the unstarted phases need up to $%.4f, cap $%.2f", ErrBudget, st.committed, need, l.cap)
+		}
+		return nil
+	})
+}
+
 // Stopped reports whether the durable stop is set.
 func (l *Ledger) Stopped() (bool, error) {
 	var out bool
@@ -305,7 +419,7 @@ func (l *Ledger) Reserve(label string, worstUSD float64) (*Reservation, error) {
 	if !(worstUSD >= 0) || math.IsInf(worstUSD, 0) {
 		return nil, errors.New("llmbudget: invalid reservation")
 	}
-	r := &Reservation{l: l, worst: worstUSD, id: fmt.Sprintf("%d-%d-%d", l.pid, time.Now().UnixNano(), l.seq.Add(1))}
+	r := &Reservation{l: l, worst: worstUSD, id: newID(l)}
 	err := l.locked(func(f *os.File, st state) error {
 		if st.stopped {
 			return ErrStopped
@@ -391,7 +505,7 @@ func (m *Model) WorstCase(req llm.Request) (float64, int, error) {
 
 // Generate implements llm.Model.
 func (m *Model) Generate(ctx context.Context, req llm.Request) (llm.Response, error) {
-	worst, n, err := m.WorstCase(req)
+	worst, _, err := m.WorstCase(req)
 	if err != nil {
 		return llm.Response{}, err
 	}
@@ -401,15 +515,16 @@ func (m *Model) Generate(ctx context.Context, req llm.Request) (llm.Response, er
 	}
 	inner := &llm.CostTally{}
 	resp, callErr := m.Inner.Generate(llm.ContextWithCostTally(ctx, inner), req)
+	// Policy: only a positive reported cost, or positive token usage priced at
+	// the verified rates, settles below the reservation. A zero or missing
+	// cost with no usage, and every error without usage (a 4xx can follow
+	// generation), keep the full worst case. Zero is never taken as free.
 	cost := Cost{USD: worst, Provenance: UnreportedWorstCase}
-	var api *llm.APIError
 	switch {
-	case inner.Reported() > 0 && (inner.USD() > 0 || resp.Usage.InputTokens+resp.Usage.OutputTokens == 0):
+	case inner.Reported() > 0 && inner.USD() > 0:
 		cost = Cost{USD: inner.USD(), Provenance: Reported}
-	case callErr == nil && resp.Usage.InputTokens+resp.Usage.OutputTokens > 0:
+	case resp.Usage.InputTokens+resp.Usage.OutputTokens > 0:
 		cost = Cost{USD: m.Rates.WorstCase(resp.Usage.InputTokens, resp.Usage.OutputTokens), Provenance: EstimatedFromUsage}
-	case errors.As(callErr, &api) && api.StatusCode >= 400 && api.StatusCode < 500:
-		cost = Cost{USD: m.Rates.WorstCase(n, 0), Provenance: UnreportedRejection}
 	}
 	if outer := llm.CostTallyFrom(ctx); outer != nil && inner.Reported() > 0 {
 		outer.Record(inner.USD())
@@ -432,3 +547,11 @@ func (m *Model) Generate(ctx context.Context, req llm.Request) (llm.Response, er
 }
 
 var _ llm.Model = (*Model)(nil)
+
+func newID(l *Ledger) string {
+	var b [8]byte
+	if _, err := rand.Read(b[:]); err != nil {
+		panic("llmbudget: no randomness")
+	}
+	return fmt.Sprintf("%d-%d-%d-%x", l.pid, time.Now().UnixNano(), l.seq.Add(1), b)
+}

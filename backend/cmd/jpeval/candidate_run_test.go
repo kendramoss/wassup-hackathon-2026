@@ -53,13 +53,36 @@ func sandbox(t *testing.T) string {
 	return dir
 }
 
-func options(t *testing.T, capUSD float64, id string) candidateOptions {
+// suiteLedger creates the ledger the way budget-init does, for the smoke
+// check and the synthetic run.
+func suiteLedger(t *testing.T, capUSD float64) *llmbudget.Ledger {
 	t.Helper()
-	l, err := llmbudget.Open(filepath.Join(t.TempDir(), "ledger.jsonl"), capUSD, testBind)
+	items, pool, _, err := loadCandidate("synthetic")
 	if err != nil {
 		t.Fatal(err)
 	}
-	return candidateOptions{split: "synthetic", runID: id, workers: 2, ledger: l, rates: testRates, decision: "D999"}
+	rules, err := jprules.Default()
+	if err != nil {
+		t.Fatal(err)
+	}
+	p, err := planItems("synthetic", items, pool, rules)
+	if err != nil {
+		t.Fatal(err)
+	}
+	phases := map[string]llmbudget.Phase{
+		"smoke":     smokePhase(testRates, 64),
+		"synthetic": {WorstUSD: p.worstCase(testRates), Requests: p.Calls, RequestsSHA256: p.RequestsSHA256},
+	}
+	l, err := llmbudget.Create(filepath.Join(t.TempDir(), "ledger.jsonl"), capUSD, testBind, phases)
+	if err != nil {
+		t.Fatal(err)
+	}
+	return l
+}
+
+func options(t *testing.T, capUSD float64, id string) candidateOptions {
+	t.Helper()
+	return candidateOptions{split: "synthetic", runID: id, workers: 2, ledger: suiteLedger(t, capUSD), rates: testRates, decision: "D999"}
 }
 
 type recorder struct {
@@ -170,7 +193,7 @@ func TestRunCandidateIsExclusiveAndRecordsCostProvenance(t *testing.T) {
 		}
 		rows++
 		if r.CalledModel {
-			if r.Error != "provider_http_4xx (HTTP 403)" || r.CostProvenance != llmbudget.UnreportedRejection || r.CostUSD != 0 || r.BudgetUSD <= 0 {
+			if r.Error != "provider_http_4xx (HTTP 403)" || r.CostProvenance != llmbudget.UnreportedWorstCase || r.CostUSD != 0 || r.BudgetUSD <= 0 {
 				t.Errorf("403 row = %+v", r)
 			}
 		}
@@ -199,18 +222,71 @@ func TestRunCandidateIsExclusiveAndRecordsCostProvenance(t *testing.T) {
 	}
 }
 
-func TestWorstCaseAboveTheCapSendsNothing(t *testing.T) {
+func TestWhatIsLeftMustCoverThisPhaseAndTheUnstartedOnes(t *testing.T) {
 	sandbox(t)
 	rec := &recorder{}
 	g := rec.serve(t, func(w http.ResponseWriter, _ *http.Request) {})
-	o := options(t, 0.05, "toosmall") // 8 requests at the 8192-token output cap cost more
+	o := options(t, 50, "toosmall")
+	r, err := o.ledger.Reserve("earlier spend", 49.99) // leaves less than synthetic plus smoke need
+	if err != nil {
+		t.Fatal(err)
+	}
+	_ = r.Settle(49.99, llmbudget.Reported)
 	name, _ := candidateName(o.split, o.tag, o.runID)
-	err := runCandidate(o, name, g, g)
-	if err == nil || !strings.Contains(err.Error(), "nothing was sent") || len(rec.hashes) != 0 {
+	err = runCandidate(o, name, g, g)
+	if !errors.Is(err, llmbudget.ErrBudget) || !strings.Contains(err.Error(), "nothing was sent") || len(rec.hashes) != 0 {
 		t.Fatalf("err %v, requests %d", err, len(rec.hashes))
 	}
 	if _, statErr := os.Stat(candidateRowsPath(name)); statErr == nil {
 		t.Fatal("a run file was created")
+	}
+	// No claim was burned by the refused preflight.
+	if err := o.ledger.Claim(o.decision + "|synthetic"); err != nil {
+		t.Fatalf("claim burned by a refused run: %v", err)
+	}
+}
+
+func TestAPlanThatDoesNotFitIsNeverCreated(t *testing.T) {
+	phases, err := suitePhases(testRates, 64)
+	if err != nil {
+		t.Fatal(err)
+	}
+	var total float64
+	for _, p := range phases {
+		total += p.WorstUSD
+	}
+	if phases["held_out"].Requests == 0 || phases["synthetic"].Requests != 8 || phases["smoke"].Requests != 1 || total <= 0 {
+		t.Fatalf("suite phases %+v", phases)
+	}
+	path := filepath.Join(t.TempDir(), "l.jsonl")
+	if _, err := llmbudget.Create(path, total/2, testBind, phases); !errors.Is(err, llmbudget.ErrBudget) {
+		t.Fatalf("an oversized suite was created: %v", err)
+	}
+	if _, statErr := os.Stat(path); statErr == nil {
+		t.Fatal("ledger file exists")
+	}
+}
+
+func TestPhaseOutsideThePlanOrAStoppedLedgerSendsNothingAndKeepsTheClaim(t *testing.T) {
+	sandbox(t)
+	rec := &recorder{}
+	g := rec.serve(t, func(w http.ResponseWriter, _ *http.Request) {})
+	o := options(t, 50, "x")
+	o.split = "dev_eval"
+	o.tag = "smoke"
+	o.runID = ""
+	if err := runCandidate(o, "jp-dev_eval-x", g, g); !errors.Is(err, llmbudget.ErrNotPlanned) || len(rec.hashes) != 0 {
+		t.Fatalf("unplanned phase: %v, requests %d", err, len(rec.hashes))
+	}
+	o = options(t, 50, "stopped")
+	r, _ := o.ledger.Reserve("a", 0.01)
+	_ = r.Settle(1, llmbudget.Reported) // an overrun stops the ledger
+	name, _ := candidateName(o.split, o.tag, o.runID)
+	if err := runCandidate(o, name, g, g); !errors.Is(err, llmbudget.ErrStopped) || len(rec.hashes) != 0 {
+		t.Fatalf("stopped ledger: %v, requests %d", err, len(rec.hashes))
+	}
+	if err := o.ledger.Claim("D999|synthetic"); err != nil {
+		t.Fatalf("a stopped ledger burned the claim: %v", err)
 	}
 }
 
@@ -267,12 +343,12 @@ func TestSmokeIsOneRequestWithSeparateArtifactAndHonestCost(t *testing.T) {
 		{"no cost header", func(w http.ResponseWriter, _ *http.Request) {
 			_, _ = io.WriteString(w, `{"choices":[{"message":{"role":"assistant","content":"OK"},"finish_reason":"stop"}],"usage":{"prompt_tokens":9,"completion_tokens":1,"total_tokens":10}}`)
 		}, false, llmbudget.EstimatedFromUsage, true},
-		{"403", func(w http.ResponseWriter, _ *http.Request) { http.Error(w, "nope sk-test-key", http.StatusForbidden) }, true, llmbudget.UnreportedRejection, true},
+		{"403", func(w http.ResponseWriter, _ *http.Request) { http.Error(w, "nope sk-test-key", http.StatusForbidden) }, true, llmbudget.UnreportedWorstCase, true},
 	} {
 		t.Run(c.name, func(t *testing.T) {
 			rec := &recorder{}
 			g := rec.serve(t, c.h)
-			l, _ := llmbudget.Open(filepath.Join(t.TempDir(), "l.jsonl"), 50, testBind)
+			l := suiteLedger(t, 50)
 			out := filepath.Join(t.TempDir(), "smoke.json")
 			err := runSmoke("smoke-1", out, 64, l, testRates, g, g)
 			if (err != nil) != c.wantErr || len(rec.hashes) != 1 {
@@ -320,8 +396,10 @@ func TestClaimBlocksReentryUnderANewRunIDAfterACrash(t *testing.T) {
 	}
 	// Another decision is a different claim and may proceed.
 	o.decision = "D1000"
-	if err := runCandidate(o, name2, g, g); errors.Is(err, llmbudget.ErrClaimed) {
-		t.Fatalf("a different decision was blocked: %v", err)
+	before := len(rec.hashes)
+	_ = runCandidate(o, name2, g, g)
+	if len(rec.hashes) == before {
+		t.Fatal("a different decision was blocked")
 	}
 }
 

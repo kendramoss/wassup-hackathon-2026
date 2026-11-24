@@ -155,20 +155,27 @@ func runCandidate(o candidateOptions, name string, inner llm.Model, sizer interf
 		b, err := sizer.RequestBody(r)
 		return len(b), err
 	}
-	// Preflight: the worst case of every eligible request must fit what the
-	// shared budget has left, or nothing is sent.
+	// Preflight, before any claim or request: the run must be exactly what the
+	// ledger's plan lists, and what is left must cover this phase and every
+	// phase not yet started together.
 	plan, err := planItems(o.split, items, pool, rules)
 	if err != nil {
 		return err
 	}
 	worst := plan.worstCase(o.rates)
+	if ph, ok := o.ledger.Phase(o.split); !ok || ph.RequestsSHA256 != plan.RequestsSHA256 || ph.Requests != plan.Calls || o.limit != 0 {
+		return fmt.Errorf("%w: %s differs from the plan the ledger was created with", llmbudget.ErrNotPlanned, o.split)
+	}
+	if on, err := o.ledger.Stopped(); err != nil || on {
+		return errors.Join(llmbudget.ErrStopped, err)
+	}
 	left, err := o.ledger.Remaining()
 	if err != nil {
 		return err
 	}
 	fmt.Printf("%s: %d eligible requests of %d cases; worst case $%.4f; budget left $%.4f\n", name, plan.Calls, plan.Cases, worst, left)
-	if worst > left+1e-9 {
-		return fmt.Errorf("%w: the worst case of this run ($%.4f) is above the $%.4f left; nothing was sent", llmbudget.ErrBudget, worst, left)
+	if err := o.ledger.Affordable(o.split); err != nil {
+		return fmt.Errorf("%w; nothing was sent", err)
 	}
 	// The claim is durable and written before the first request. A crash
 	// leaves it in place, so the run cannot start again under a new run id.
