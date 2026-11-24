@@ -26,7 +26,7 @@ Not mapped: 2404.12, 2404.19, 2404.91, 2404.92 and 2404.99 stay `no_match`. Thei
 
 The Japan-Malaysia schedule split the rule on PDF page 28 for 3809.91 to 3824.90 into two rows, one truncated after "3809.91 through". It is now one row with the full text of the page, and a test pins it.
 
-The same truncation pattern exists in rows of other schedules (for example other agreements' 3809.91 rows). They were not changed here.
+The same truncation pattern is widespread in other rows. Many JP-Malaysia rows (for example 0901.11, 1513.11 and 1602.xx) and some JP-Thailand rows are split into a first row that ends mid-sentence and a continuation row. None of them were changed here; they are tracked as separate work.
 
 ## Sources
 
