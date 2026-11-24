@@ -258,3 +258,24 @@ func TestDiagnoseCountsMappedAndEditionHintSeparately(t *testing.T) {
 		t.Error("basis must say what a mapped case is")
 	}
 }
+
+func TestDiagnoseReportsNotInEditionAJCEPCodes(t *testing.T) {
+	rules, err := jprules.Default()
+	if err != nil {
+		t.Fatal(err)
+	}
+	mk := func(id, hs string) domain.Case {
+		d, _ := time.Parse(time.DateOnly, "2025-01-01")
+		return domain.Case{ID: id, Date: d, Facts: "facts", Japan: &domain.JapanInput{Agreement: "AJCEP", HS: hs}}
+	}
+	r := diagnoseRun("dev", []domain.Case{mk("a", "3215.90"), mk("b", "3215.99"), mk("c", "3299.00"), mk("d", "3299.00")}, rules)
+	if r.Eligible.General != 1 || r.Eligible.Total != 1 || r.Abstained != 3 {
+		t.Fatalf("eligible %+v abstained %d", r.Eligible, r.Abstained)
+	}
+	if got := r.ReasonByAgree["AJCEP"]; got["general"] != 1 || got["not_in_schedule_edition"] != 3 {
+		t.Errorf("reasons %v", got)
+	}
+	if got := r.UnmatchedCodes["AJCEP"]; got["321599"] != 1 || got["329900"] != 2 || got["321590"] != 0 {
+		t.Errorf("unmatched %v", got)
+	}
+}

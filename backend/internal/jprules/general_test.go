@@ -124,7 +124,7 @@ func TestLookupDetailedReasons(t *testing.T) {
 func TestChapters50To63ExcludedFromGeneralDefault(t *testing.T) {
 	table := mustTable(t)
 	d := day(t, "2025-01-01")
-	excluded := 0
+	v := hs2017Valid()
 	for ch := 50; ch <= 63; ch++ {
 		for h := 0; h < 100; h++ {
 			hs := fmt.Sprintf("%02d%02d", ch, h)
@@ -135,17 +135,23 @@ func TestChapters50To63ExcludedFromGeneralDefault(t *testing.T) {
 			if res.Reason == ReasonGeneral {
 				t.Fatalf("%s got general evidence", hs)
 			}
-			if res.Reason == ReasonExcludedGeneral {
-				excluded++
-				if res.Evidence != nil {
-					t.Fatalf("%s excluded but has evidence", hs)
-				}
+			if res.Evidence != nil && res.Reason != ReasonPSR {
+				t.Fatalf("%s reason %q has evidence", hs, res.Reason)
+			}
+			// Since the general fallback requires a real HS 2017 code, a
+			// code that reaches it is excluded_general only if it exists; the
+			// shipped schedule has a PSR row for every real textile heading,
+			// so a code without a PSR row here must be absent from HS 2017.
+			if res.Reason == ReasonInvalidCode && v.hasPrefix(hs) {
+				t.Fatalf("%s is a real heading but invalid_code", hs)
+			}
+			if res.Reason == ReasonExcludedGeneral && !v.hasPrefix(hs) {
+				t.Fatalf("%s excluded_general but absent from HS 2017", hs)
 			}
 		}
 	}
-	if excluded == 0 {
-		t.Fatal("expected at least one unlisted textile heading to be excluded_general")
-	}
+	// The excluded_general branch itself is exercised in
+	// TestTextileOrderingValidBeforeExcluded on a schedule without textile rows.
 	// Chapters 49 and 64 are not excluded.
 	for _, hs := range []string{"4911", "6499", "6401"} {
 		res, _ := table.LookupDetailed("AJCEP", hs, d)
