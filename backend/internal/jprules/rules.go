@@ -68,6 +68,7 @@ type Table struct {
 	schedules map[string][]schedule
 	rcep      *rcep.Table
 	general   *generalBundle
+	corr      *correlationSet
 }
 
 // Default opens the embedded schedules. The table can be shared by callers.
@@ -85,6 +86,11 @@ var parseDefault = sync.OnceValues(func() (*Table, error) {
 		return nil, err
 	}
 	t.general = g
+	c, err := parseCorrelations(correlationsJSON, t.schedules)
+	if err != nil {
+		return nil, err
+	}
+	t.corr = c
 	return t, nil
 })
 
@@ -124,15 +130,37 @@ const (
 	ReasonPSR Reason = "psr"
 	// ReasonGeneral: the AJCEP general-rule bundle was returned.
 	ReasonGeneral Reason = "general"
+	// ReasonMapped: the code is absent from the schedule's HS edition, and a
+	// reviewed WCO correlation points to parent codes that share one row. The
+	// evidence is that row, behind a note stating the mapping.
+	ReasonMapped Reason = "mapped"
+	// ReasonEditionHint: the code is absent from the schedule's HS edition and
+	// a reviewed WCO correlation names parent codes, but no single rule can be
+	// shown. Hint says which parents to check.
+	ReasonEditionHint Reason = "edition_hint"
 )
 
+// Mapped says how a mapped result was reached. It adds to the result and
+// never replaces the original code in Result.Digits.
+type Mapped struct {
+	From             string   // the requested six digit code
+	To               []string // the six digit parent codes looked up instead
+	RequestedEdition string   // edition label of the requested code
+	ScheduleEdition  string   // edition label of the schedule used
+	SourceURL        string   // first WCO correlation source
+}
+
 // Result is the outcome of a detailed lookup. Evidence is nil unless Reason is
-// ReasonPSR or ReasonGeneral. Digits is the normalized code (at most six
-// digits) the lookup used, empty when the input was malformed.
+// ReasonPSR, ReasonGeneral or ReasonMapped. Digits is the normalized code (at
+// most six digits) the lookup used, empty when the input was malformed. It is
+// always the requested code, also for a mapped result. Mapped is set only for
+// ReasonMapped; Hint only for ReasonEditionHint.
 type Result struct {
 	Reason   Reason
 	Evidence []Evidence
 	Digits   string
+	Mapped   *Mapped
+	Hint     string
 }
 
 // Lookup returns product specific rule text for a code in the tariff
@@ -155,8 +183,16 @@ func (t *Table) Lookup(agreement, hs string, before time.Time) ([]Evidence, erro
 // the date and has no row, no withheld row and no overlapping broader row for
 // the code, and the code's chapter is valid and outside 50-63, it returns the
 // general originating criteria bundle with ReasonGeneral.
+//
+// When a schedule covers the date and the code is absent from it, a reviewed
+// HS edition correlation for that exact agreement and code may turn the
+// no_match into ReasonMapped or ReasonEditionHint. No other outcome changes.
 func (t *Table) LookupDetailed(agreement, hs string, before time.Time) (Result, error) {
-	return t.lookup(agreement, hs, before, true)
+	res, err := t.lookup(agreement, hs, before, true)
+	if err != nil {
+		return res, err
+	}
+	return t.correlate(agreement, res, before)
 }
 
 var reservedChapters = map[string]bool{"00": true, "77": true, "98": true, "99": true}
