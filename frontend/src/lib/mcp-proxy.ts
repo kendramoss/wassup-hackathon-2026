@@ -44,7 +44,11 @@ const jsonError = (status: number, code: string, message: string) =>
 // timeout is 900 s (#587), so the upstream call needs the same budget or the
 // proxy turns a healthy, still-running search into a 502 after five minutes.
 // Kept as one shared dispatcher so sockets are reused across requests.
-const upstream = new Agent({ headersTimeout: 900_000, bodyTimeout: 900_000 });
+export const upstreamAgent = new Agent({ headersTimeout: 900_000, bodyTimeout: 900_000 });
+
+// The upstream call goes through this holder so the tests can stand in for
+// the backend: importing undici's fetch directly bypasses globalThis.fetch.
+export const upstream: { fetch: typeof undiciFetch } = { fetch: undiciFetch };
 
 // apiKeyOf returns the caller's API key, "" for none, or null when the two
 // headers carry different keys.
@@ -78,12 +82,12 @@ export async function proxyMcp(request: Request): Promise<Response> {
   if (body === null) return jsonError(413, "invalid_input", "the MCP request is larger than 12 MB");
 
   try {
-    const res = await undiciFetch(`${backendUrl}/mcp`, {
+    const res = await upstream.fetch(`${backendUrl}/mcp`, {
       method: "POST",
       headers,
       body,
       signal: request.signal,
-      dispatcher: upstream,
+      dispatcher: upstreamAgent,
     });
     const out = new Headers({ "Cache-Control": "no-store, no-transform" });
     for (const h of RETURN) {
