@@ -21,7 +21,7 @@ function sentence(s: string): string {
 // capital letter ("reg. 9" and "Art. 60" are not ends); the rest is under
 // Details (rule 16).
 export function firstSentence(s: string): string {
-  const m = s.match(/^(.*?[.)])\s+(?=[A-Z])/s);
+  const m = s.match(/^([\s\S]*?[.)])\s+(?=[A-Z])/);
   return m ? m[1].replace(/\.$/, "") : s;
 }
 
