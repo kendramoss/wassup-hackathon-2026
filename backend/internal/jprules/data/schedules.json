@@ -24566,7 +24566,270 @@
     "text": "CTH or QVC 40"
    }
   ],
-  "notes": []
+  "notes": [
+   {
+    "scope": "chapter",
+    "key": "03",
+    "text": "Note: For the purposes of subheadings 0306.16, 0306.17, 0306.35, 0306.36 and 0306.95, a non-originating material obtained by fishing in a non-Party which is a member country of the ASEAN or taken by vessels, which are registered in and sail under the flag of a non-Party which is a member country of the ASEAN, from the sea outside the territorial sea of that non-Party shall be transported to the Party where the non-originating material is used for the production of a good: (a) directly from that non-Party; or (b) through one or more other non-Parties for the purpose of transit or temporary storage in warehouses in such non-Parties, provided that it does not undergo operations other than unloading, reloading or any other operation to preserve it in good condition.",
+    "page": 4,
+    "applies": [
+     [
+      "030616",
+      "030616"
+     ],
+     [
+      "030617",
+      "030617"
+     ],
+     [
+      "030635",
+      "030635"
+     ],
+     [
+      "030636",
+      "030636"
+     ],
+     [
+      "030695",
+      "030695"
+     ]
+    ]
+   },
+   {
+    "scope": "chapter",
+    "key": "07",
+    "text": "Note: For the purposes of subheadings 0710.22 and 0710.29, a non-originating material harvested, picked or gathered in a non-Party which is a member country of the ASEAN shall be transported to the Party where the non-originating material is used for the production of a good: (a) directly from that non-Party; or (b) through one or more other non-Parties for the purpose of transit or temporary storage in warehouses in such non-Parties, provided that it does not undergo operations other than unloading, reloading or any other operation to preserve it in good condition.",
+    "page": 5,
+    "applies": [
+     [
+      "071022",
+      "071022"
+     ],
+     [
+      "071029",
+      "071029"
+     ]
+    ]
+   },
+   {
+    "scope": "chapter",
+    "key": "16",
+    "text": "Note 1: For the purposes of subheading 1604.14, a non-originating material taken by authorised fishing vessels on the Indian Ocean Tuna Commission Record (hereinafter referred to in this Agreement as “the IOTC Record”) shall be transported to the Party where the non-originating material is used for the production of a good without having undergone any operation other than operation to preserve it in good condition.",
+    "page": 6,
+    "applies": [
+     [
+      "160414",
+      "160414"
+     ]
+    ]
+   },
+   {
+    "scope": "chapter",
+    "key": "16",
+    "text": "Note 2: For the purposes of subheadings 1604.13, 1604.15, 1604.20, 1605.21 and 1605.29, a non-originating material obtained by fishing in a non-Party which is a member country of the ASEAN or taken by vessels, which are registered in and sail under the flag of a non-Party which is a member country of the ASEAN, from the sea outside the territorial sea of that non-Party shall be transported to the Party where the non-originating material is used for the production of a good: (a) directly from that non-Party; or (b) through one or more other non-Parties for the purpose of transit or temporary storage in warehouses in such non-Parties, provided that it does not undergo operations other than unloading, reloading or any other operation to preserve it in good condition.",
+    "page": 6,
+    "applies": [
+     [
+      "160413",
+      "160413"
+     ],
+     [
+      "160415",
+      "160415"
+     ],
+     [
+      "160420",
+      "160420"
+     ],
+     [
+      "160521",
+      "160521"
+     ],
+     [
+      "160529",
+      "160529"
+     ]
+    ]
+   },
+   {
+    "scope": "chapter",
+    "key": "18",
+    "text": "Note: For the purposes of subheading 1803.20 and heading 18.05, a non-originating material harvested, picked or gathered in a non-Party which is a member country of the ASEAN shall be transported to the Party where the non- originating material is used for the production of a good: (a) directly from that non-Party; or (b) through one or more other non-Parties for the purpose of transit or temporary storage in warehouses in such non-Parties, provided that it does not undergo operations other than unloading, reloading or any other operation to preserve it in good condition.",
+    "page": 7,
+    "applies": [
+     [
+      "180320",
+      "180320"
+     ],
+     [
+      "1805",
+      "1805"
+     ]
+    ]
+   },
+   {
+    "scope": "chapter",
+    "key": "19",
+    "text": "Note: For the purposes of subheading 1905.90: (a) a non-originating material produced entirely in a non-Party which is a member country of the ASEAN shall be transported to the Party where the non- originating material is used for the production of a good: (i) directly from that non-Party; or (ii) through one or more other non-Parties for the purpose of transit or temporary storage in warehouses in such non-Parties, provided that it does not undergo operations other than unloading, reloading or any other operation to preserve it in good condition; and (b) a non-originating material produced entirely in a non-Party which is a member country of the ASEAN and used in the production of a good shall be limited to those produced from materials harvested, picked or gathered in either Party or the non-Party which is a member country of the ASEAN.",
+    "page": 8,
+    "applies": [
+     [
+      "190590",
+      "190590"
+     ]
+    ]
+   },
+   {
+    "scope": "chapter",
+    "key": "20",
+    "text": "Note: For the purposes of subheadings 2001.10 through 2005.60, 2005.80 through 2007.10, 2008.11, 2008.19, 2008.40 through 2008.91, 2009.61, 2009.69, 2009.81 and 2009.89: (a) a non-originating material harvested, picked, gathered or produced entirely in a non-Party which is a member country of the ASEAN shall be transported to the Party where the non-originating material is used for the production of a good: (i) directly from that non-Party; or (ii) through one or more other non-Parties for the purpose of transit or temporary storage in warehouses in such non-Parties, provided that it does not undergo operations other than unloading, reloading or any other operation to preserve it in good condition; and (b) a non-originating material produced entirely in a non-Party which is a member country of the ASEAN and used in the production of a good shall be limited to those produced from materials harvested, picked or gathered in either Party or the non-Party which is a member country of the ASEAN.",
+    "page": 9,
+    "applies": [
+     [
+      "200110",
+      "200560"
+     ],
+     [
+      "200580",
+      "200710"
+     ],
+     [
+      "200811",
+      "200811"
+     ],
+     [
+      "200819",
+      "200819"
+     ],
+     [
+      "200840",
+      "200891"
+     ],
+     [
+      "200961",
+      "200961"
+     ],
+     [
+      "200969",
+      "200969"
+     ],
+     [
+      "200981",
+      "200981"
+     ],
+     [
+      "200989",
+      "200989"
+     ]
+    ]
+   },
+   {
+    "scope": "chapter",
+    "key": "27",
+    "text": "Note: For the purposes of this chapter, the term “chemical reaction” means a process, including a biochemical process, which results in a molecule with a new structure by breaking intramolecular bonds and by forming new intramolecular bonds, or by altering the spatial arrangement of atoms in a molecule, but does not include: (a) dissolving in water or other solvents; (b) the elimination of solvents including solvents water; or (c) the addition or elimination of water of crystallisation.",
+    "page": 12
+   },
+   {
+    "scope": "section",
+    "key": "VI",
+    "text": "Note: For the purposes of chapters 28 through 38: (a) the term “chemical reaction” means a process, including a biochemical process, which results in a molecule with a new structure by breaking intramolecular bonds and by forming new intramolecular bonds, or by altering the spatial arrangement of atoms in a molecule, but does not include: (i) dissolving in water or other solvents; (ii) the elimination of solvents including solvents water; or (iii) the addition or elimination of water of crystallisation; (b) the term “purification” means a process of reduction or elimination of impurities resulting in: (i) the elimination of not less than 80 per cent of the content of existing impurities; or (ii) a good directly suitable for one or more of the following applications: (AA) pharmaceutical, medical, cosmetic, veterinary or food grade substances; (BB) chemical products and reagents for analytical, diagnostic or laboratory use; (CC) elements and components for use in micro-electronics; (DD) specialised optical use; (EE) biotechnical use; (FF) carriers used in a separation process; or (GG) nuclear grade use; (c) the term “isomer separation” means a process of isolation or separation of an isomer from a mixture of isomers; or (d) the term “biotechnological processes” means: (i) biological or biotechnological culturing, hybridisation or genetic modification of micro-organisms or cells of human, animal or plant; or (ii) production, isolation or purification of cellular or intercellular structures.",
+    "page": 12,
+    "applies": [
+     [
+      "28",
+      "38"
+     ]
+    ]
+   },
+   {
+    "scope": "section",
+    "key": "VII",
+    "text": "Note: For the purposes of chapters 39 and 40: (a) the term “chemical reaction” means a process, including a biochemical process, which results in a molecule with a new structure by breaking intramolecular bonds and by forming new intramolecular bonds, or by altering the spatial arrangement of atoms in a molecule, but does not include: (i) dissolving in water or other solvents; (ii) the elimination of solvents including solvents water; or (iii) the addition or elimination of water of crystallisation; (b) the term “purification” means a process of reduction or elimination of impurities resulting in: (i) the elimination of not less than 80 per cent of the content of existing impurities; or (ii) a good directly suitable for one or more of the following applications: (AA) pharmaceutical, medical, cosmetic, veterinary or food grade substances; (BB) chemical products and reagents for analytical, diagnostic or laboratory use; (CC) elements and components for use in micro-electronics; (DD) specialised optical use; (EE) biotechnical use; (FF) carriers used in a separation process; or (GG) nuclear grade use; (c) the term “isomer separation” means a process of isolation or separation of an isomer from a mixture of isomers; or (d) the term “biotechnological processes” means: (i) biological or biotechnological culturing, hybridisation or genetic modification of micro-organisms or cells of human, animal or plant; or (ii) production, isolation or purification of cellular or intercellular structures.",
+    "page": 20,
+    "applies": [
+     [
+      "39",
+      "40"
+     ]
+    ]
+   },
+   {
+    "scope": "section",
+    "key": "XI",
+    "text": "Note: For the purposes of chapters 50 through 55 and 60, the dyeing or printing process shall be accompanied by two or more of the following operations: (1) antibacterial finish; (2) antimelt finish; (3) antimosquito finish; (4) anti-pilling finish; (5) antistatic finish; (6) artificial creasing; (7) bleaching; (8) brushing; (9) buff finish; (10) burn-out finish; (11) calendering; (12) compressive shrinkage; (13) crease resistant finish; (14) decatising; (15) deodorant finish; (16) easy-care finish; (17) embossing; (18) emerising; (19) flame resistant finish; (20) flock finish; (21) foam printing; (22) liquid ammonia process; (23) mercerisation, (24) microbial control finish; (25) milling; (26) moare finish; (27) moisture permeable waterproofing; (28) oil-repellent finish; (29) organdie finish; (30) peeling treatment; (31) perfumed finish; (32) relaxation; (33) ripple finish; (34) schreiner finish; (35) shearing; (36) shrink resistant finish; (37) soil guard finish; (38) soil release finish; (39) stretch finish; (40) tick-proofing; (41) UV cut finish; (42) wash and wear finish; (43) water absorbent finish; (44) waterproofing; (45) water-repellent finish; (46) wet decatising; (47) windbreak finish; or (48) wire raising.",
+    "page": 23,
+    "applies": [
+     [
+      "50",
+      "55"
+     ],
+     [
+      "60",
+      "60"
+     ]
+    ]
+   },
+   {
+    "scope": "chapter",
+    "key": "61",
+    "text": "Note 1: For the purposes of determining the origin of a good of this chapter, the rule applicable to that good shall only apply to the component that determines the tariff classification of the good and such component must satisfy the tariff change requirements set out in the rule for that good.",
+    "page": 26
+   },
+   {
+    "scope": "chapter",
+    "key": "61",
+    "text": "Note 2: For the purposes of this chapter, a non-originating material which is knitted or crocheted entirely in the other Party or a non-Party which is a member country of the ASEAN shall be transported to the Party where the non-originating material is used for the production of a good: (a) directly from that other Party or that non-Party; or (b) through one or more other non-Parties for the purpose of transit or temporary storage in warehouses in such non-Parties, provided that it does not undergo operations other than unloading, reloading or any other operation to preserve it in good condition.",
+    "page": 27
+   },
+   {
+    "scope": "chapter",
+    "key": "62",
+    "text": "Note 1: For the purposes of determining the origin of a good of this chapter, the rule applicable to that good shall only apply to the component that determines the tariff classification of the good and such component must satisfy the tariff change requirements set out in the rule for that good.",
+    "page": 27
+   },
+   {
+    "scope": "chapter",
+    "key": "62",
+    "text": "Note 2: For the purposes of this chapter, a non-originating material which is woven or knitted or crocheted entirely in the other Party or a non-Party which is a member country of the ASEAN shall be transported to the Party where the non-originating material is used for the production of a good: (a) directly from that other Party or that non-Party; or (b) through one or more other non-Parties for the purpose of transit or temporary storage in warehouses in such non-Parties, provided that it does not undergo operations other than unloading, reloading or any other operation to preserve it in good condition.",
+    "page": 27
+   },
+   {
+    "scope": "chapter",
+    "key": "63",
+    "text": "Note: For the purposes of determining the origin of a good of this chapter, the rule applicable to that good shall only apply to the component that determines the tariff classification of the good and such component must satisfy the tariff change requirements set out in the rule for that good.",
+    "page": 28
+   },
+   {
+    "scope": "chapter",
+    "key": "71",
+    "text": "Note: For the purposes of this chapter, natural or cultured pearls which are temporarily strung only for convenience of transport and not otherwise worked shall be regarded as unworked natural or cultured pearls of subheading 7101.21.",
+    "page": 29
+   },
+   {
+    "scope": "chapter",
+    "key": "72",
+    "text": "Note: For the purposes of this chapter, a good shall not be considered to satisfy the requirement of change in tariff classification merely by cutting including shearing or slitting to change its shape or dimensions.",
+    "page": 29
+   },
+   {
+    "scope": "chapter",
+    "key": "73",
+    "text": "Note: For the purposes of this chapter, a good shall not be considered to satisfy the requirement of change in tariff classification merely by cutting including shearing or slitting to change its shape or dimensions.",
+    "page": 30
+   },
+   {
+    "scope": "chapter",
+    "key": "87",
+    "text": "Note: For the purposes of headings 87.02 through 87.04, an originating good of the importing Party may be used, at the discretion of the producer of a good of such heading, as a material in the production of the good in the exporting Party and be considered as an originating material of the exporting Party in calculating the qualifying value content of the good.",
+    "page": 35,
+    "applies": [
+     [
+      "8702",
+      "8704"
+     ]
+    ]
+   }
+  ]
  },
  {
   "agreement": "JP-Indonesia EPA",

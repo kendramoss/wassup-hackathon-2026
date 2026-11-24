@@ -62,6 +62,15 @@ class Helpers(unittest.TestCase):
         b.scope_numbered_notes("malaysia2.pdf", notes)
         self.assertEqual(notes[0]["applies"], [["50", "55"], ["60", "60"]])
 
+    def test_thailand_notes_need_a_reviewed_scope(self):
+        with self.assertRaises(ValueError):
+            b.scope_numbered_notes("thailand2-2.pdf", [{"text": "Note: x", "page": 4, "key": "04"}])
+        notes = [{"text": "Note: x", "page": 7, "key": "18"},
+                 {"text": "Note: y", "page": 29, "key": "71"}]
+        b.scope_numbered_notes("thailand2-2.pdf", notes)
+        self.assertEqual(notes[0]["applies"], [["180320", "180320"], ["1805", "1805"]])
+        self.assertNotIn("applies", notes[1])  # "this chapter": whole chapter
+
 
 if __name__ == "__main__":
     unittest.main()
