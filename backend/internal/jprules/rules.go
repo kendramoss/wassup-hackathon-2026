@@ -51,6 +51,13 @@ type row struct {
 	// e-Gov law page ("別表 row 37"). Page is then 1 and the citation carries
 	// the ref instead of a page number and link fragment.
 	Ref string `json:"ref,omitempty"`
+	// SourceURL and Citation, set together or not at all, name a source other
+	// than the schedule's own, such as an official notice that amended one
+	// part of the schedule. The row then needs a Ref and page 1, and its
+	// evidence is cited "<Citation>, <Ref>" and links to SourceURL. Such a row
+	// does not decide whether the schedule is located by page or by ref.
+	SourceURL string `json:"source_url,omitempty"`
+	Citation  string `json:"citation,omitempty"`
 }
 
 type note struct {
@@ -70,7 +77,9 @@ type note struct {
 	// than the schedule's own, such as an annex in a separate PDF. The note's
 	// evidence is then cited "<Citation>, PDF page <Page>" and links to
 	// "<SourceURL>#page=<Page>" instead of the schedule's citation and URL. A
-	// note with them has a page of 1 or more and no Ref.
+	// note with them has a page of 1 or more and no Ref, unless the source has
+	// no PDF pages (a web notice): then it has Page 1 and a Ref, and is cited
+	// "<Citation>, <Ref>" with the plain link.
 	SourceURL string `json:"source_url,omitempty"`
 	Citation  string `json:"citation,omitempty"`
 }
@@ -89,8 +98,21 @@ func validateNoteSource(n note) error {
 		!strings.HasPrefix(n.SourceURL, "https://") || strings.Contains(n.SourceURL, "#") {
 		return fmt.Errorf("bad note source %q %q", n.SourceURL, n.Citation)
 	}
-	if n.Page < 1 || n.Ref != "" {
-		return fmt.Errorf("note %q %q with a source needs a PDF page and no ref", n.Scope, n.Key)
+	if n.Page < 1 || n.Ref != "" && (n.Page != 1 || !validRef(n.Ref)) {
+		return fmt.Errorf("note %q %q with a source needs a PDF page and no ref, or page 1 and a ref", n.Scope, n.Key)
+	}
+	return nil
+}
+
+// validateRowSource rejects a row that names half a source, a source that is
+// not a plain https link, or a sourced row without a ref and page 1.
+func validateRowSource(agreement string, r row) error {
+	if r.SourceURL == "" && r.Citation == "" {
+		return nil
+	}
+	if !validRef(r.SourceURL) || !validRef(r.Citation) || !validRef(r.Ref) || r.Page != 1 ||
+		!strings.HasPrefix(r.SourceURL, "https://") || strings.Contains(r.SourceURL, "#") {
+		return fmt.Errorf("%s: row %q has a bad source %q %q (needs both, a plain https link, a ref and page 1)", agreement, r.Start, r.SourceURL, r.Citation)
 	}
 	return nil
 }
@@ -147,16 +169,19 @@ func validateSchedule(s schedule) error {
 	}
 	byRef := false
 	for _, r := range s.Rows {
-		byRef = byRef || r.Ref != ""
+		byRef = byRef || r.Ref != "" && r.SourceURL == ""
 	}
 	for _, n := range s.Notes {
-		byRef = byRef || n.Ref != ""
+		byRef = byRef || n.Ref != "" && n.SourceURL == ""
 	}
 	if byRef && strings.Contains(s.URL, "#") {
 		return fmt.Errorf("%s: a source located by ref must have a URL without a fragment", s.Agreement)
 	}
 	for _, r := range s.Rows {
-		if byRef && (!validRef(r.Ref) || r.Page != 1) {
+		if err := validateRowSource(s.Agreement, r); err != nil {
+			return err
+		}
+		if byRef && r.SourceURL == "" && (!validRef(r.Ref) || r.Page != 1) {
 			return fmt.Errorf("%s: row %q needs a ref and page 1", s.Agreement, r.Start)
 		}
 		// A withheld row may span unequal widths (a multi-row cell of the source).
@@ -190,7 +215,7 @@ func validateSchedule(s schedule) error {
 		if strings.TrimSpace(n.Text) == "" || n.Page < 0 || n.Page == 0 && !strings.HasPrefix(n.Text, caveatPrefix) {
 			return fmt.Errorf("%s: bad note %q %q", s.Agreement, n.Scope, n.Key)
 		}
-		if byRef && (n.Page == 0) != (n.Ref == "") || byRef && n.Page > 1 {
+		if byRef && n.SourceURL == "" && ((n.Page == 0) != (n.Ref == "") || n.Page > 1) {
 			return fmt.Errorf("%s: note %q %q needs a ref and page 1 (a caveat has neither)", s.Agreement, n.Scope, n.Key)
 		}
 		if n.Ref != "" && !validRef(n.Ref) {
@@ -438,11 +463,7 @@ func (t *Table) lookup(agreement, hs string, before time.Time, general bool) (Re
 		}
 		evidence := make([]Evidence, 0, len(rows))
 		for _, r := range rows {
-			text := r.Text
-			if r.Description != "" {
-				text = r.Description + ": " + text
-			}
-			evidence = append(evidence, s.evidence(text, r.Page, r.Ref))
+			evidence = append(evidence, s.rowEvidence(r))
 		}
 		evidence = s.withNotes(evidence, digits)
 		if t.general != nil && t.general.applies(agreement, date) {
@@ -500,6 +521,19 @@ func (t *Table) lookupRCEP(hs string, before time.Time) []Evidence {
 		text = r.Description + ": " + text
 	}
 	return []Evidence{{Text: text, URL: url, Citation: citation}}
+}
+
+// rowEvidence quotes a row from the schedule, or from the row's own source
+// when an official notice replaced the schedule's text for that row.
+func (s schedule) rowEvidence(r row) Evidence {
+	text := r.Text
+	if r.Description != "" {
+		text = r.Description + ": " + text
+	}
+	if r.SourceURL != "" {
+		s.URL, s.Citation = r.SourceURL, r.Citation
+	}
+	return s.evidence(text, r.Page, r.Ref)
 }
 
 func (s schedule) evidence(text string, page int, ref string) Evidence {

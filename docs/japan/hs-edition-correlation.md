@@ -19,6 +19,7 @@ The list applies only when a schedule covers the case date, the lookup would ret
 | CPTPP | 3824.99 | HS 2012 | ex 3824.90 (range row 3824.10 to 3824.90, PDF page 56) | mapped |
 | JP-Malaysia EPA | 3824.99 | HS 2002 | ex 3824.20, 3824.71, 3824.79, 3824.90 (range row 3809.91 to 3824.90, PDF page 28) | mapped |
 | CPTPP | 0307.43 | HS 2012 | ex 0307.49 and ex 0307.99, with different rules | edition_hint |
+| JP-India CEPA | 0304.93 to 0304.97 (five entries) | HS 2007 | ex 0304.99 (via HS 2012 0304.93, 0304.94, 0304.95, 0304.99) | edition_hint |
 
 Not mapped: 2404.12, 2404.19, 2404.91, 2404.92 and 2404.99 stay `no_match`. Their WCO sources include a different chapter (ex 3824.99, ex 2106.90), so one schedule row does not follow.
 
@@ -36,7 +37,7 @@ Retrieved 2026-11-25. Page numbers are PDF page indexes. The WCO tables are Secr
 |---|---|---|
 | WCO HS 2022 to HS 2017 Table I | `e6aa91163b993bee6d7bf77c2a5e01914c6a9794829f9164491442ec2b1c1361` | 6 (2404.11), 5 (2202.99), 11 (3824.99) |
 | WCO HS 2017 to HS 2012 Table I (rev 1) | `0c143ddcd4f670f6d2310afe16cdc4d324bec4c735ca3a016c29e9cda53c0f6a` | 9 (2202.99), 15 (3824.99), 8 (0307.43) |
-| WCO HS 2012 to HS 2007 Table I (rev 3) | `a811946b3240aa8389c9f77258640acb0d0ed74e61529a39c56a829a0bbd6cd8` | 20 (3824.90) |
+| WCO HS 2012 to HS 2007 Table I (rev 3) | `a811946b3240aa8389c9f77258640acb0d0ed74e61529a39c56a829a0bbd6cd8` | 20 (3824.90), 6 (0304.93 to 0304.99) |
 | WCO HS 2007 to HS 2002 Table I (rev 5) | `bef4b83f07b72f638ef78b115fcb1872a9f17134c00e64f4677cfc0611c7c6f4` | 13 (3824.90) |
 | JP-EU EPA Annex 3-B (`eu3.pdf`) | `cb7f029ad6679a70796ba45f619e1a623d8e9304ed041069a4b007cdc9633704` | 12 |
 | CPTPP Annex 3-D (`tpp2.pdf`) | `c80acd1e0c458f130cc6d6602ce18192626e801623947fffc9d1ed18020873b9` | 15, 16, 40, 56 |
@@ -68,3 +69,7 @@ The URLs are in `correlations.json` and in `schedules.json`.
 | Malaysia 3824.99 | no_match 1 | mapped 1 | no_match 1 | mapped 1 |
 
 Remaining misses in the dev split are 7007.29 under JP-EU (fixed since: it now returns the rule, see [withheld-rows-narrowing.md](withheld-rows-narrowing.md)), the 0307.43 hints, and agreements without a schedule.
+
+## JP-India 0304.93 to 0304.97
+
+Added with the India chapter 3 amendment ([india-chapter3-amendment.md](india-chapter3-amendment.md)). The WCO HS 2017 to HS 2012 table (page 6) lists 0304.93, 0304.96, 0304.97 and 0304.99 against HS 2012 0304.93 and ex 0304.99. The HS 2012 to HS 2007 table (page 6) lists 0304.93, 0304.94 and 0304.95 against ex 0304.99. HS 2017 0304.94 and 0304.95 are not in the 2017 to 2012 table; that they are unchanged from HS 2012 is an inference from the table listing changed codes only. The India schedule has no row for these codes, so each is an `edition_hint` that names HS 2007 0304.99 and quotes its amended rule without applying it. 0304.98 does not exist in HS 2017. The requested edition is recorded as "HS 2017"; whether HS 2022 code lists differ was not checked.
