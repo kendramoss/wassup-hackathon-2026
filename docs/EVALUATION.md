@@ -982,3 +982,26 @@ The guard was fixed after a second review (a word after the product, as in "batt
 **What it shows.** Optical and lifting, the two built in #782, match their development cases (optical from 0 to 8 of 9; lifting 1 to 7 of 7), and the optical template took seven plausible held-out instruments (tape measures, tyre gauges, thermometers). Batteries and medical hold. Machinery does not: four machine subassemblies keep going to the machinery-parts template. Furniture is 3 of 4, too few to say. On held-out, 302 matched against 298 in the earlier 26-template run: a small, non-significant change. Origin accuracy is high in every family #781 measures; it is lowest where no template matched (83%) and in food (73%). The origin engine reads no template, so these per-family origin figures describe where the engine is weaker, not an effect of the templates.
 
 **Limits.** The development cases were used to choose and tune the families, so only the held-out figures are independent. Held-out rulings carry no expected family, so held-out matching is scope, not correctness. One run per set; small n per family. Cost $1.61, lane total $6.37 of $100.
+
+### 20.5 Machinery: whole machines matched to machinery parts (25 Nov 2026, D850–D855, #785)
+
+**What was asked.** Why machinery matched only 6 of 11 development cases in 20.4, and whether making the boundary between the machines template and the Part 102 machinery-parts template explicit fixes it. Each run was pre-registered and pushed before it ran. Development only: the held-out family check was spent in 20.4 and was not run again.
+
+**What changed.** The family check (`family-check-v2`) now shows each of the two templates a one-line scope. Machinery parts covers loose parts and castings; the machines template covers complete machines, working units and the pump working components its rulings decide on. A guard rule (`family-guard-v6`) takes a whole machine off the machinery-parts template, sending it to review. The output cap went from 2,048 to 4,096 tokens, because every failed check had spent the old cap.
+
+**These figures were tuned on these development cases.** Three scope revisions were written against them, so they are not independent. There is no held-out figure for this change.
+
+| Family (development n) | 20.4 (D842) | D853 | D855 (confirmation) |
+|---|---|---|---|
+| Motors, pumps and machines (11) | 6 | 10 | 10 (62–98) |
+| Off-road and lifting (7) | 7 | 7 | 7 |
+| Batteries, chargers, packs (7) | 6 | 7 | 7 |
+| Medical devices (10) | 9 | 10 | 9 |
+| Optical and measuring (9) | 8 | 8 | 9 |
+| Furniture (4) | 3 | 3 | 3 |
+| All 48 / look-alikes 30 | 39 / 29 | 45 / 29 | 45 / 29 |
+| Failed checks (78) | 3 | 4 | 0 |
+
+**What it shows.** Hydraulic cylinders, a pump impeller and diffuser and fluid ends now go to the machines template. The bearings stay with machinery parts, as that template's operations name them. The first scope (D851) pulled two bottle jacks and a cleaning robot in, so it was revised. The confirmation run's pre-registered no-regression criterion failed on one unstable medical case, the return electrode, which has flipped in every run.
+
+**Limits.** The figures are development only and tuned on these cases, each run once, with small n per family. The held-out 302 in 20.4 was measured with `family-check-v1` and guard v5, before this change. Cost $1.00.

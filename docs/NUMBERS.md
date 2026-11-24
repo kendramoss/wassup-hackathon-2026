@@ -594,3 +594,12 @@ Experimental offline evaluation, advisory and unreviewed. Not Japan market cover
 | Development origin accuracy, the 48 cases | 41 of 45 scorable (91.1%, 79.3–96.5); machinery 9 of 11, medical 8 of 10, others all correct | same (`dev_origin`) | 44 recorded rows (Vertex) and 1 gateway run |
 | Cost and latency | $1.6052; per check p50 5.6 s / p95 30.3 s (development), 4.4 s / 11.9 s (held-out) | `eval/results/RUNLOG.jsonl` | Measured, token-priced at promo rates |
 
+## Machinery boundary (D850–D855, #785)
+
+| Measure | Value | Source | Status |
+|---|---|---|---|
+| Development cases matched, after the fix (D853) | Machinery 10 of 11 (62–98, was 6); lifting 7 of 7; batteries 7 of 7; medical 10 of 10; optical 8 of 9; furniture 3 of 4; all 45 of 48 (83–98); look-alikes 29 of 30 | `eval/families/b3-852-measure.json`; `eval/results/families-coverage-dev-all-litellm-f28-852{,-noorigin}.jsonl` | Development only, **tuned on these cases** (two scope revisions); `family-check-v2`, guard v6 |
+| Confirmation run (D855) | Machinery 10 of 11; medical 9 of 10; optical 9 of 9; all 45 of 48; look-alikes 29 of 30; 0 failed checks (output cap 4096); pre-registered no-regression criterion not met (one medical case, N356150) | `eval/families/b3-854-measure.json`, `b3-854-vs-852-measure.json` | Development only, tuned on these cases |
+| Held-out family matching | 302 of 377 stands as measured in D842 with `family-check-v1` and guard v5; not re-run after this change | as above (D842) | No held-out figure for v2 |
+| Cost | $1.0027 for six development runs | `eval/results/RUNLOG.jsonl` | Measured |
+
