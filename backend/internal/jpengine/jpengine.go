@@ -83,6 +83,8 @@ const (
 	ReasonNoHS            jprules.Reason = "no_hs"
 )
 
+const reasonNotInEdition = "This tariff code is not in the HS 2017 edition that this agreement's schedule uses. If it is a newer code, check the agreement's schedule for that edition or ask a specialist."
+
 const reasonUnverifiedRule = "We could not verify a rule for this tariff code and date. Check the agreement's tariff schedule or ask a specialist."
 
 // PreflightResult says whether a case can reach the model and why not. It
@@ -143,6 +145,10 @@ func Preflight(rules *jprules.Table, c domain.Case) PreflightResult {
 	}
 	if res.Reason == jprules.ReasonEditionHint && res.Hint != "" {
 		pf.ReviewReason = res.Hint
+		return pf
+	}
+	if res.Reason == jprules.ReasonNotInEdition {
+		pf.ReviewReason = reasonNotInEdition
 		return pf
 	}
 	if res.Reason != jprules.ReasonPSR && res.Reason != jprules.ReasonGeneral && res.Reason != jprules.ReasonMapped || len(res.Evidence) == 0 {

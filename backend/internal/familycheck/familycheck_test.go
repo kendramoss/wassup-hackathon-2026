@@ -52,3 +52,34 @@ func TestCheckRejectsAnInventedFamily(t *testing.T) {
 		t.Errorf("err = %v", err)
 	}
 }
+
+// D850 (#785): the model sees the machines and machinery parts scopes, so a
+// whole machine or working unit is not read as a "subassembly" part; a
+// template with no scope gets no scope line.
+func TestPromptShowsTemplateScope(t *testing.T) {
+	c, req := checker(t, `{"family":"none","confidence":0.5,"reason":"x"}`)
+	if _, err := c.Check(context.Background(), "Typed: CNC lathe"); err != nil {
+		t.Fatal(err)
+	}
+	sys := req.System
+	if PromptVersion != "family-check-v2" || !strings.Contains(sys, "When a family gives a scope, follow it") {
+		t.Errorf("prompt %s has no scope instruction", PromptVersion)
+	}
+	for _, want := range []string{
+		"- machinery_parts (Machinery parts and subassemblies): operation groups",
+		"  Scope: Loose parts and castings imported for machines, not machines",
+		"  Scope: Complete industrial machines and functional working units",
+		"Lifting machines (jacks, hoists, cranes, winches, vehicle and platform lifts) go to offroad_vehicles_machinery",
+		"Air (pneumatic) cylinders stay with machinery_parts (N303499",
+	} {
+		if !strings.Contains(sys, want) {
+			t.Errorf("prompt lacks %q", want)
+		}
+	}
+	if n := strings.Count(sys, "  Scope: "); n != 2 {
+		t.Errorf("%d scope lines, want 2 (machinery parts and machines only)", n)
+	}
+	if i := strings.Index(sys, "- led_lights ("); i < 0 || strings.HasPrefix(sys[strings.Index(sys[i:], "\n")+i+1:], "  Scope:") {
+		t.Error("a template with no scope got a scope line")
+	}
+}

@@ -170,7 +170,7 @@ The relocation planner has 27 templates, loaded by `planner.LoadTemplates` (`bac
 | `hvac_heating_units` | Heat pumps, furnaces and heaters (D660) | `backend/internal/planner/templates/hvac_heating_units.json` |
 | `optical_precision_instruments` | Optical and measuring instruments (D822) | `backend/internal/planner/templates/optical_precision_instruments.json` |
 
-Batteries, industrial machinery, furniture and medical devices (D780–D784) are covered inside the templates below, at version 2; optical and measuring instruments have their own template since D822, and lifting jacks, cranes and winches are in the off-road, lifting and mobile machinery template since D826. A deterministic guard after the family check (`family-guard-v5`, D786, D789, D823, D827) sends look-alike products to review.
+Batteries, industrial machinery, furniture and medical devices (D780–D784) are covered inside the templates below, at version 2; optical and measuring instruments have their own template since D822, and lifting jacks, cranes and winches are in the off-road, lifting and mobile machinery template since D826. A deterministic guard after the family check (`family-guard-v6`, D786, D789, D823, D827, D850) sends look-alike products to review. Since D850 the family check (`family-check-v2`) also shows the machines and machinery parts templates' scopes: machinery parts takes loose parts and castings, the machines template takes complete machines, working units and the pump working components its rulings decide on.
 
 | Area | Template (version) | Covered by cited rulings | Not covered |
 |---|---|---|---|

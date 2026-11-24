@@ -4159,7 +4159,7 @@ export interface operations {
                             /** @description The typed text alone names no product type (e.g. random letters); a family here comes from the product's parts */
                             typed_unclear?: boolean;
                         };
-                        /** @example family-check-v1 */
+                        /** @example family-check-v2 */
                         prompt_version?: string;
                         llm_provider?: string;
                     };
