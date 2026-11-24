@@ -89,7 +89,7 @@ var (
 	// valves are left out: the machinery parts template cites air cylinders
 	// (N303499) and a ball valve (N308442).
 	wholeMachineWords = words("machine machinery lathe robot pump compressor motor generator engine turbine conveyor mixer crusher press extruder excavator loader forklift")
-	machPartWords     = words("part component casting forging housing casing body shaft gear rotor stator impeller diffuser runner bearing race ring seal gasket bracket plate cover block head barrel rod spindle bushing sleeve flange coupling pulley sprocket blade vane frame base end kit valve mount cylinder piston liner filter hose belt chain nozzle screw spring wheel")
+	machPartWords     = words("part component casting forging housing casing body shaft gear rotor stator impeller diffuser runner bearing race ring seal gasket bracket plate cover block head barrel rod spindle bushing sleeve flange coupling pulley sprocket blade vane frame base end kit valve mount cylinder piston liner filter hose belt chain nozzle screw spring wheel chuck jaw roller idler brush winding paddle tooling die gripper joint guard")
 	// "Motor vehicle wheel bearings": a vehicle word after "motor" ends the
 	// machine reading.
 	machVehWords = words("vehicle car truck automobile")

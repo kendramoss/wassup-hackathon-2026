@@ -69,7 +69,8 @@ func TestPromptShowsTemplateScope(t *testing.T) {
 		"- machinery_parts (Machinery parts and subassemblies): operation groups",
 		"  Scope: Loose parts and castings imported for machines, not machines",
 		"  Scope: Complete industrial machines and functional working units",
-		"Lifting machines (jacks, hoists, cranes, winches, lifts) go to offroad_vehicles_machinery",
+		"Lifting machines (jacks, hoists, cranes, winches, vehicle and platform lifts) go to offroad_vehicles_machinery",
+		"Air (pneumatic) cylinders stay with machinery_parts (N303499",
 	} {
 		if !strings.Contains(sys, want) {
 			t.Errorf("prompt lacks %q", want)

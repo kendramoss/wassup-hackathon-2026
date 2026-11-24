@@ -121,8 +121,10 @@ func (c *Checker) CheckUsage(ctx context.Context, text string) (Result, llm.Usag
 		SchemaName: "family",
 		// 2048: with thinking billed as output, 400 cut off 31 of 469
 		// development checks before the JSON (D138), and with 14 families
-		// 1024 still cut off 35 of 469 (D212).
-		MaxOutputTokens: 2048,
+		// 1024 still cut off 35 of 469 (D212). 4096 (D854): every failed
+		// check in the recorded runs spent the 2048 cap on both attempts
+		// (about 2,034 output tokens each) and returned no JSON.
+		MaxOutputTokens: 4096,
 	})
 	if err != nil {
 		return Result{}, llm.Usage{}, fmt.Errorf("familycheck: %w", err)

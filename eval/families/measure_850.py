@@ -11,6 +11,9 @@ Run from the repository root:
     python3 -I -B eval/families/measure_850.py .          # write
     python3 -I -B eval/families/measure_850.py . --check  # verify
     python3 -I -B eval/families/measure_850.py . --tag f28-852 [--check]  # D852's run, same measure, b3-852-measure.json
+    python3 -I -B eval/families/measure_850.py . --tag f28-854 [--check]  # D854's run against D842, b3-854-measure.json
+    python3 -I -B eval/families/measure_850.py . --tag f28-854 --against f28-852 [--check]
+        # D854's criterion: against D853's run, b3-854-vs-852-measure.json ("before_d842" then names D853's run)
 """
 import json
 import os
@@ -98,6 +101,19 @@ def build(root):
     out["guard_v6_removed"] = {r: [after[r].get("model_family"), after[r].get("guard_rule")]
                                for r in sorted(after) if after[r].get("guard_rule")}
     out["regressions"] = sorted(regressions)
+    # D854: a case or look-alike right in the earlier run and wrong in this one on an answered check
+    # (a failed check here is listed apart, not counted as a regression).
+    exp_of = ds["expected"]
+
+    def ok(rows, r):
+        x = rows.get(r)
+        if r in look:
+            return not (matched(x) and x["family"] in look[r])
+        return matched(x) and x["family"] == exp_of[r]
+    every = list(ds["dev"]) + sorted(look)
+    out["answered_regressions"] = sorted(r for r in every if ok(before, r) and r in after
+                                         and not after[r].get("error") and not ok(after, r))
+    out["failed_after"] = sorted(r for r in every if (after.get(r) or {}).get("error"))
     return out
 
 
@@ -109,10 +125,20 @@ def use_tag(tag):
     OUT = "eval/families/b3-%s-measure.json" % tag.split("-")[-1]
 
 
+def use_against(tag):
+    """D854: compare with a later run instead of D842's."""
+    global BEFORE, OUT
+    BEFORE = ["eval/results/families-coverage-dev-all-litellm-%s.jsonl" % tag,
+              "eval/results/families-coverage-dev-all-litellm-%s-noorigin.jsonl" % tag]
+    OUT = OUT.replace("-measure.json", "-vs-%s-measure.json" % tag.split("-")[-1])
+
+
 if __name__ == "__main__":
     root = sys.argv[1]
     if "--tag" in sys.argv:
         use_tag(sys.argv[sys.argv.index("--tag") + 1])
+    if "--against" in sys.argv:
+        use_against(sys.argv[sys.argv.index("--against") + 1])
     for p in AFTER:
         if not os.path.exists(os.path.join(root, p)):
             sys.exit(p + " is missing (D850 run not made yet)")
