@@ -15,8 +15,9 @@ import (
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/planner"
 )
 
-// PromptVersion names the prompt below.
-const PromptVersion = "family-check-v1"
+// PromptVersion names the prompt below. v2 (D850) shows a template's scope,
+// when it has one, beside its name and groups.
+const PromptVersion = "family-check-v2"
 
 // None is the answer when no template fits.
 const None = "none"
@@ -59,10 +60,18 @@ func New(model llm.Model, modelID string, templates map[string]planner.Template)
 	b.WriteString("Answer with the family whose operation groups fit how the product is made, or \"none\" when no family fits. ")
 	b.WriteString("Do not stretch: a product that shares no operation groups with a family is \"none\". Confidence is 0 to 1. ")
 	b.WriteString("Also give product_name: what the finished product is, in 2 to 5 plain words (e.g. \"Hair dryer\"), from its name or parts. ")
-	b.WriteString("When the input has a \"Typed:\" line, set typed_unclear to true if that line alone names no product or product type (random letters, a typo you can't read, an unrelated word), even when the parts point to a family; otherwise false.\n\nFamilies:\n")
-	for id := range templates {
+	b.WriteString("When the input has a \"Typed:\" line, set typed_unclear to true if that line alone names no product or product type (random letters, a typo you can't read, an unrelated word), even when the parts point to a family; otherwise false.")
+	scoped := false
+	for id, t := range templates {
 		c.ids = append(c.ids, id)
+		scoped = scoped || t.Scope != ""
 	}
+	if scoped {
+		// v2 (D850): a family's scope settles a boundary its name and groups
+		// leave open.
+		b.WriteString(" When a family gives a scope, follow it: it says what the family covers and which family takes what it does not.")
+	}
+	b.WriteString("\n\nFamilies:\n")
 	sort.Strings(c.ids)
 	for _, id := range c.ids {
 		t := templates[id]
@@ -72,6 +81,9 @@ func New(model llm.Model, modelID string, templates map[string]planner.Template)
 			groups = append(groups, g.Name)
 		}
 		fmt.Fprintf(&b, "- %s (%s): operation groups %s\n", id, t.Name, strings.Join(groups, ", "))
+		if t.Scope != "" {
+			fmt.Fprintf(&b, "  Scope: %s\n", t.Scope)
+		}
 	}
 	c.system = b.String()
 	return c
@@ -109,8 +121,10 @@ func (c *Checker) CheckUsage(ctx context.Context, text string) (Result, llm.Usag
 		SchemaName: "family",
 		// 2048: with thinking billed as output, 400 cut off 31 of 469
 		// development checks before the JSON (D138), and with 14 families
-		// 1024 still cut off 35 of 469 (D212).
-		MaxOutputTokens: 2048,
+		// 1024 still cut off 35 of 469 (D212). 4096 (D854): every failed
+		// check in the recorded runs spent the 2048 cap on both attempts
+		// (about 2,034 output tokens each) and returned no JSON.
+		MaxOutputTokens: 4096,
 	})
 	if err != nil {
 		return Result{}, llm.Usage{}, fmt.Errorf("familycheck: %w", err)

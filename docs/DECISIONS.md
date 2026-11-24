@@ -3205,3 +3205,130 @@ Runs as pre-registered: Run 1 `families-coverage-dev-all-litellm-f27-781` (at 1c
 - **Cost and latency.** Run 1 $0.3299 (105 s wall), Run 1b $0.0072, Run 2 $1.2484 (349 s), Run 3 $0.0088, smoke test $0.0109: **$1.6052**; lane $6.37 of $100. Per family check p50 5.6 s / p95 30.3 s on development (a slow gateway tail), 4.4 s / 11.9 s on held-out; the engine case 7.9 s.
 - **Against the expectation.** Development as expected for batteries, lifting, optical and medical; machinery one below (6 against about 7) and furniture inside 2–4. Held-out 302, inside 295–310. Origin per family near 90% where n is large, with food and unmatched rulings low.
 - **Reading.** The two families #782 built (optical, lifting inside off-road) match their development cases, and optical takes plausible held-out instruments; batteries and medical hold; machinery does not (the Part 102 machinery-parts template keeps taking machine subassemblies) and furniture is unproven at n = 4. On held-out the change from D661 is small and not significant. Coverage is scope, not accuracy; one run per set.
+
+## D850 — Machinery: the boundary between machines and machinery parts, and a development-only family check, pre-registered (25 Nov, #785, refs #767, #778)
+Committed and pushed before the run below and before any figure from it. The fix is at f8abdfc5 (on main a34f8373). The family check sent only an id, a name and group names to the model. Four of D842's five machinery misses went to `machinery_parts`: N351234 hydraulic cylinders, N351538 impeller and diffuser, N354156 fluid ends and N354169 bearings. The fifth, N351349 water pumps, was a failed check. The recorded `model_reason` quotes the template's name and group: "precision mechanical subassemblies", "cast and machined components ... fitting the machinery_parts operation groups", "perfectly matching the operation groups for machinery parts and subassemblies", "precision-ground ... races". **Root cause:** "Machinery parts and subassemblies", with a group "Bodies, castings and precision-ground parts", reads as any machined or assembled component. The machines template's name ("Motors, pumps, compressors and industrial machines") does not say that it also covers pump working components, although its own rulings decide on them (N333514 impeller, N351810 fluid ends).
+- **Fix (f8abdfc5).**
+  - **Template `scope`.** An optional plain-words line says what a family covers and which family takes the rest. A test checks that it cites only rulings the template, or a family it names, already cites, and that every family it names exists. The planner does not read it.
+    - `machinery_parts`: loose parts and castings imported for machines, such as bodies, housings, shafts, runners, valve bodies and valves, bearings and races, reducer casings and drill rods (N306640, N308442). Complete machines, motors, pumps, compressors, hydraulic cylinders and other working units go to the machines template, as do the impellers and diffusers (N333514) and fluid ends (N351810). Its air-cylinder citation (N303499) is a Part 102 tariff-shift holding for goods of Mexico.
+    - `motors_pumps_compressors`: complete machines and working units, citing N346867, N340920, N349312 and N333849, plus the pump and compressor working components named above.
+    - **Where these lines come from.** The bearings line follows `machinery_parts`' own operations (heading 8482 races and bearing assembly); the machines template cites no bearing ruling. The hydraulic-cylinder line follows HTSUS heading 8412, which names linear-acting hydraulic cylinders among engines and motors; no cited ruling is about a hydraulic cylinder.
+    - No group, operation, citation, name, template version or match bar changes.
+  - **`family-check-v2`.** The prompt shows a scope line under the family that has one, and one sentence telling the model to follow it. The other 25 templates' lines are unchanged.
+  - **`family-guard-v6` adds `whole-machine`.** When the product word is a whole machine (machine, lathe, robot, pump, compressor, motor, engine, turbine, press, conveyor and the like), it takes a `machinery_parts` match away to review. A part word after it keeps the match ("pump housing", "motor shaft", "spare parts for compressors"). It never picks a family. Cylinders and valves are left out because `machinery_parts` cites both. On the recorded development rows (469 rows of `f26`, the `f26-b2-g3` rows) it changes nothing (`b2-guard-dev.json` and `b3-guard-g3.json` differ only in the version string and rule list).
+- **Run, development only.** The held-out family check was spent in D842; no held-out ruling is read or sent. The model and settings are as D840 Run 1 and Run 1b: gemini-3.8-flash, match bar 0.6, 6 workers, subject plus the first 1,500 characters of the facts, through an OpenAI-compatible LiteLLM gateway to Gemini with `LITELLM_NO_CACHE=1`, 27 templates, from a clean committed tree. The prompt and guard are now v2 and v6; that is the change being measured. From `backend/`:
+  - `go run ./cmd/eval familycov -split dev -splits ../eval/families/b3-781-run-splits.json -set all -tag f28-850` (the 48 cases and 30 look-alikes of `b3-dev-splits-a1.json`; 75 checks);
+  - `go run ./cmd/eval familycov -split dev -splits ../eval/families/b3-781-noorigin-splits.json -set all -no-origin-ok -tag f28-850-noorigin` (the 3 cases with no held origin, as D841).
+  - Cost about $0.34 against about $93 left in the lane. Each run is logged in the spend ledger. If a run stops partway, it is continued with `-resume` and that is disclosed. Nothing is re-run to get a better draw.
+- **Measured (`eval/families/measure_850.py`, pushed with this entry; writes `b3-850-measure.json`; no model calls).** Per expected template, before (D842: `f27-781` plus `-noorigin`) and after, with Wilson 95% intervals. Paired gained and lost are counted on cases both runs answered, with an exact McNemar p. Also reported: look-alikes right, where each machinery case went and the model's reason, which rows went to `machinery_parts`, and what the guard removed. A failed check is not a match.
+- **What counts as a fix, stated now.**
+  - Machinery (`motors_pumps_compressors`) is **working by D840's rule**: at least 9 of 11, Wilson lower bound ≥ 50%.
+  - At most one of the four `machinery_parts` misses stays with `machinery_parts`, and that one is only the bearings.
+  - **No other family regresses:** no case matched in D842 loses its template, except as a failed check, which is disclosed.
+  - Look-alikes stay at least 29 of 30.
+  - **Partial:** machinery rises but stays under 9. **Not a fix:** machinery does not rise, or another family loses a case.
+- **Expectation stated now.** The hydraulic cylinders, the impeller and diffuser and the fluid ends move to the machines template. The bearings stay with `machinery_parts`, as its operations name them, so the frozen label and the scope disagree on that case; the label is not changed. The water pumps match if the check answers. Machinery 9–10 of 11; the other families as D842.
+- **Disclosure.** The fault was found, and the scopes and guard written, from these development cases and their recorded reasons. The result is a development figure, not an independent one.
+
+## D851 — Machinery boundary, development run: results of D850 (25 Nov, #785)
+The runs went as pre-registered. Run 1 was `families-coverage-dev-all-litellm-f28-850` (built at c9364a3d, 75 checks, 4 failed). Run 1b was `…-f28-850-noorigin` (3 checks, none failed). Both RUNLOG rows have `code_dirty` false, `family-check-v2`, `family-guard-v6` and the cache off. Figures come from `eval/families/measure_850.py` (`b3-850-measure.json`). These are development figures, tuned on these cases.
+- **Machinery (`motors_pumps_compressors`): 6 → 10 of 11** (91%, 62–98), **working** by D840's rule.
+  - Gained: the hydraulic cylinders, the impeller and diffuser and the fluid ends. Each model reason quotes the new scope. The water pumps were a failed check before and now match.
+  - The bearings (N354169) stay with `machinery_parts`, quoting its scope, as expected. On the 10 cases both runs answered, 3 gained, 0 lost (p = 0.25).
+- **Other families.**
+  - **Lifting (`offroad_vehicles_machinery`): 7 → 5 of 7, a regression.** Both bottle jacks (N351580, N355131) moved to the machines template. The reasons quote "hydraulic cylinders and other actuators" and "functional working unit".
+  - Batteries 6 → 7 (a failed check answered), medical 9 → 9, furniture 3 → 3.
+  - Optical 8 → 8: the carrier plate (N350680) was a failed check and the MEMS sensor (N351865) answered.
+  - All 48: 39 → 42.
+- **Look-alikes: 29 → 28 of 30.** The pool-cleaning robot (N355237) moved from motorised tools to the machines template ("a complete machine/robot"). The vein finder (N355289) still matches medical devices, as in D842. The air inflator (N351341) also moved from motorised tools to the machines template; its look-alike cue is batteries, so it still counts as right, but it is the same pull.
+- **Guard v6** took nothing away; the guard removals in this run are the existing printer and pet-product rules.
+- **Against D850's criteria: not a fix.** Machinery is working and three of the four `machinery_parts` misses moved, but lifting lost two cases and look-alikes fell to 28. The machines scope ("complete machines and functional working units ... hydraulic cylinders and other actuators ... robots") drew in lifting machines and motorised appliances that have their own templates. This is said as measured; nothing is re-run on this code.
+- **Cost.** $0.3279 + $0.0080 = **$0.3359**. p50 5.1 s, p95 26.9 s per check.
+
+## D852 — Machinery boundary, a second scope revision and one more development run, pre-registered (25 Nov, #785, after D851)
+Committed and pushed before the run below. D851 found the machines scope too wide: two bottle jacks and a pool-cleaning robot moved to it. The revision is at 9b605066.
+- **Change.** Only the `motors_pumps_compressors` scope changes. It now begins "Complete industrial machines", says "industrial robots", and adds one sentence. That sentence sends lifting machines (jacks, hoists, cranes, winches, lifts) to `offroad_vehicles_machinery` even with a hydraulic cylinder or pump inside (lifting moved there in D826). It sends consumer or household motorised appliances and portable or hand-held tools, cleaning robots included, to `motorised_tools_small_appliances` (D780's machinery screen left out consumer appliances).
+- **Unchanged.** The `machinery_parts` scope, `family-check-v2`'s code, `family-guard-v6`, every group, citation, name, version and the bar. `measure_850.py` gains `--tag`; it still reproduces `b3-850-measure.json` unchanged.
+- **Run, development only, as D850.** Same model, settings and gateway, cache off, from a clean committed tree. From `backend/`:
+  - `go run ./cmd/eval familycov -split dev -splits ../eval/families/b3-781-run-splits.json -set all -tag f28-852`
+  - `go run ./cmd/eval familycov -split dev -splits ../eval/families/b3-781-noorigin-splits.json -set all -no-origin-ok -tag f28-852-noorigin`
+  - About $0.34; about $92.5 left in the lane. No held-out ruling is read. This is the last run on this change: whatever it shows is reported. A further revision would need its own entry.
+- **Measured.** `python3 -I -B eval/families/measure_850.py . --tag f28-852` writes `b3-852-measure.json`, against D842's run as in D850.
+- **What counts as a fix: D850's criteria, unchanged.**
+  - Machinery reaches at least 9 of 11, working by D840's rule.
+  - At most the bearings stay with `machinery_parts`.
+  - No case matched in D842 loses its template, except as a disclosed failed check.
+  - Look-alikes stay at least 29 of 30.
+- **Expectation.** Machinery 9–10 of 11; lifting back to 7 of 7; the pool-cleaning robot back to motorised tools. The air inflator may also go back.
+- **Disclosure.** This is a second revision tuned on the same development cases. The more often a scope is revised against these cases, the less the development figure says about other products.
+
+## D853 — Machinery boundary, second development run: results of D852 (25 Nov, #785)
+The runs went as pre-registered. Run 2 was `families-coverage-dev-all-litellm-f28-852` (built at 76f7efb3, 75 checks, 4 failed). Run 2b was `…-f28-852-noorigin` (3 checks, none failed). Both RUNLOG rows have `code_dirty` false. Figures come from `measure_850.py --tag f28-852` (`b3-852-measure.json`; both measure files are in `make reproduce`). These are development figures, tuned on these cases over two revisions (D850, D852).
+
+| Expected template (n) | D842 | D851 (first scope) | **D853** | Working (D840) |
+|---|---|---|---|---|
+| Machinery `motors_pumps_compressors` (11) | 6 | 10 | **10** (91%, 62–98) | yes (was no) |
+| Lifting `offroad_vehicles_machinery` (7) | 7 | 5 | **7** | yes |
+| Batteries `power_supplies_chargers` (7) | 6 | 7 | **7** | yes (was no, by a failed check) |
+| Medical `medical_devices` (10) | 9 | 9 | **10** | yes |
+| Optical `optical_precision_instruments` (9) | 8 | 8 | **8** | yes |
+| Furniture (4) | 3 | 3 | **3** | no (n = 4) |
+| All 48 | 39 | 42 | **45** (94%, 83–98) | |
+| Look-alikes right (30) | 29 | 28 | **29** | yes |
+
+- **Machinery.** The hydraulic cylinders, the impeller and diffuser and the fluid ends moved from `machinery_parts` to the machines template, and the water pumps answered. On the 10 cases both runs answered: 3 gained, 0 lost, McNemar p = 0.25. That is better, but not significant at n = 11. The bearings (N354169) stay with `machinery_parts`, as that template's scope and operations say; the frozen label is not changed.
+- **No other family lost a case it matched in D842 on an answered check.** The only case matched in D842 and not now is the red-dot carrier plate (N350680), which was a failed check this time (no JSON). The gains outside machinery are the dental implant kit (N356150, "none" in D842) and two cases that were failed checks in D842 (N351263 cell, N351865 MEMS sensor). The planter caddy (N339090, metal products in D842) was a failed check.
+- **Look-alikes.** The bottle jacks are back on the off-road and lifting template. The pool-cleaning robot is no longer on the machines template. The only wrong look-alike is the vein finder on medical devices, as in D842.
+  - Two look-alikes that were right in D842 were failed checks this time: N351651, and N353884, which was "none" in D842.
+  - The guard removed the 3D printer (printer rule), the dog house (pet-product) and a jack stand (support-stand). `whole-machine` fired on nothing, as on the recorded rows.
+- **Against D850's criteria (kept by D852): a fix.** Machinery is working, only the bearings stay with `machinery_parts`, nothing regressed except one disclosed failed check, and look-alikes are 29 of 30.
+- **Not measured.** The held-out family check was spent in D842 and is not run again, so there is no independent figure for this change. Two scope revisions were fitted to these development cases.
+- **Cost.** D851 $0.3359, D853 $0.3516: **$0.6875** for #785. Per check p50 5.1 s, p95 27.4 s, a slow gateway tail as in D842.
+
+## D854 — Review of #790: scope sources, wording fixes, the output cap, and one confirmation run, pre-registered (25 Nov, #785)
+Committed and pushed before the run below. The review fixes are at e71aa708.
+- **Scope lines with no cited ruling behind them** (disclosed here and in the PR).
+  - **Bearings** in `machinery_parts`: from that template's own operations (heading 8482 races and bearing assembly), not a ruling.
+  - **Hydraulic cylinders** in the machines template: from HTSUS heading 8412 (linear-acting hydraulic cylinders are listed among engines and motors), not a ruling.
+  - **"generators" and "machine tools"** in the machines scope: from D780's machinery screen definition and the template's industrial-machines groups. No cited ruling is a standalone generator or a machine tool (N333849's nacelle has a generator rotor and stator).
+  - **"cleaning robots included"**: written after D851 from the development look-alike N355237, a pool-cleaning robot. It is fitted to a development case.
+  - **"the rotary group and cylinder block"** came from the template's operations, not a ruling. It is now dropped.
+- **Wording changes, all prompt text.**
+  - The machines scope drops "the rotary group and cylinder block".
+  - "hydraulic cylinders and other actuators" becomes "hydraulic cylinders and other hydraulic actuators (air cylinders stay with machinery_parts)", so the two scopes agree on air cylinders.
+  - "lifts" becomes "vehicle and platform lifts".
+  - `machinery_parts` adds "Air (pneumatic) cylinders stay with machinery_parts (N303499, …)".
+- **Guard v6 part words.** Added: chuck, jaw, roller, idler, brush, winding, paddle, tooling, die, gripper, joint and guard, so "lathe chuck", "conveyor rollers" and "robot gripper" are not refused as whole machines. The version string stays v6, as the guard has not been released. The pinned dev-row files (`b2-guard-dev.json`, `b3-guard-g3.json`) are unchanged.
+- **Failed checks: the output cap.**
+  - The red-dot carrier plate (N350680) failed with "no JSON object" in both v2 runs.
+  - Every failed check in every recorded family-check run, D853's four included, used about 2,034 output tokens on each of its two attempts, which is the 2,048 cap. Thinking is billed as output and used the budget before the JSON.
+  - Under v1 the same case answered in 1,234 tokens (D842). The v2 prompt adds about 400 input tokens. The prompt length does not truncate anything; the output cap does.
+  - `MaxOutputTokens` is now 4096. A call that ends under 2,048 is unaffected; one that hit the cap can now finish.
+  - This is a settings change against D853, made for this reason only, and it applies in production too.
+- **Run, once, development only.** Same model, gateway, cache off, workers and inputs as D850/D852, from a clean tree. The changes are the wording above and the 4096 cap. No further tuning follows, whatever the result. From `backend/`:
+  - `go run ./cmd/eval familycov -split dev -splits ../eval/families/b3-781-run-splits.json -set all -tag f28-854`
+  - `go run ./cmd/eval familycov -split dev -splits ../eval/families/b3-781-noorigin-splits.json -set all -no-origin-ok -tag f28-854-noorigin`
+  - About $0.35. If the run stops partway it is continued with `-resume`, and that is disclosed.
+- **Measured.**
+  - `measure_850.py . --tag f28-854 --against f28-852` gives the criterion (`b3-854-vs-852-measure.json`).
+  - `measure_850.py . --tag f28-854` gives the table against D842 (`b3-854-measure.json`).
+- **Criterion, stated now.** **No answered case regresses against D853.** A dev case matched to its expected template, or a look-alike kept off its cue family, in D853 must stay so in D854 wherever D854 answered it. A failed check is listed, not counted. If anything regresses, that is reported and nothing is tuned again.
+- **Expectation.** Machinery 10 of 11. Fewer failed checks, with N350680 answering optical as in D842. No regressions.
+
+## D855 — Confirmation run after the #790 review: results of D854 (25 Nov, #785)
+The run went as pre-registered. Run 3 was `families-coverage-dev-all-litellm-f28-854` (built at 9628ccdb, 75 checks, **0 failed**). Run 3b was `…-f28-854-noorigin` (3 checks, 0 failed). Both RUNLOG rows have `code_dirty` false. Figures come from `measure_850.py --tag f28-854` against D842 (`b3-854-measure.json`) and `--against f28-852` against D853 (`b3-854-vs-852-measure.json`). These are development figures, tuned on these cases.
+- **Criterion: not met, by one case.** One answered case regressed against D853: the electrosurgical patient return electrode (N356150). It matched medical devices in D853 at 0.80 and is "none" at 0.85 in D854 ("shares no operation group"). This case has flipped in every run: medical in D790, none in D842, a failed check in D851, medical in D853, none now. Its D854 answer used 2,275 output tokens, so under the old cap it would have been a failed check. It is a medical case, not a machinery one. As D854 said, nothing is tuned again.
+- **Correction to D853.** D853 called N356150 "the dental implant kit", following D842's text. Its subject and every recorded reason describe the return electrode. D842 has the same slip.
+- **Against D842.**
+  - Machinery 6 → **10 of 11**, unchanged from D853 (3 gained, 0 lost). The bearings stay with `machinery_parts`.
+  - Lifting 7 of 7, batteries 7 of 7.
+  - Optical 8 → **9 of 9**: the red-dot carrier plate (N350680), a failed check in both earlier v2 runs, answered optical.
+  - Medical 9 of 10, furniture 3 of 4.
+  - All 48: **45** (94%, 83–98). Look-alikes **29 of 30** (the vein finder still matches medical devices).
+- **Failed checks: 4 → 0** (D853 → D854), with the 4096 cap. One call used 4,032 output tokens (N355934) and still answered.
+- **Look-alikes that moved but stay right.**
+  - The 3D-printer post-curing device (N352242) went from motorised tools to PCBA devices, already so in D853 and not reported there.
+  - The jack stands (N351174) went from none to metal products.
+  - The inspection camera (N355934) went from PCBA devices to displays and cameras.
+- **Cost.** $0.3058 + $0.0094 = $0.3152. p50 5.1 s, p95 17.2 s. **#785 total $1.0027.**
+- **Reading.** The wording and cap changes kept machinery at 10 of 11 and removed every failed check. The pre-registered no-regression criterion failed on one unstable medical case. Development only; no held-out figure exists for any of this.
