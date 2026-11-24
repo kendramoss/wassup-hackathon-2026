@@ -7,6 +7,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
+	"math"
 	"net/http"
 	"net/url"
 	"strconv"
@@ -49,8 +50,17 @@ func (l *LiteLLM) Provider() string { return "litellm" }
 // context that carries it (ContextWithCostTally). Vertex reports no cost, so
 // a tally stays zero there and callers price tokens instead.
 type CostTally struct {
-	mu  sync.Mutex
-	usd float64
+	mu       sync.Mutex
+	usd      float64
+	reported int
+}
+
+// Reported returns how many responses carried a parseable cost header, zero
+// included. A response without one is not free: its cost is unreported.
+func (t *CostTally) Reported() int {
+	t.mu.Lock()
+	defer t.mu.Unlock()
+	return t.reported
 }
 
 // USD returns the total so far.
@@ -60,9 +70,13 @@ func (t *CostTally) USD() float64 {
 	return t.usd
 }
 
+// Record adds one reported response cost, zero included.
+func (t *CostTally) Record(v float64) { t.add(v) }
+
 func (t *CostTally) add(v float64) {
 	t.mu.Lock()
 	t.usd += v
+	t.reported++
 	t.mu.Unlock()
 }
 
@@ -73,6 +87,9 @@ type costTallyKey struct{}
 func ContextWithCostTally(ctx context.Context, t *CostTally) context.Context {
 	return context.WithValue(ctx, costTallyKey{}, t)
 }
+
+// CostTallyFrom returns the tally ctx carries, or nil.
+func CostTallyFrom(ctx context.Context) *CostTally { return tallyFrom(ctx) }
 
 func tallyFrom(ctx context.Context) *CostTally {
 	t, _ := ctx.Value(costTallyKey{}).(*CostTally)
@@ -142,13 +159,9 @@ const costHeader = "X-Litellm-Response-Cost"
 
 // Generate implements Model.
 func (l *LiteLLM) Generate(ctx context.Context, req Request) (Response, error) {
-	oreq, err := l.buildRequest(req)
+	body, err := l.RequestBody(req)
 	if err != nil {
-		return Response{}, fmt.Errorf("litellm: %w", err)
-	}
-	body, err := json.Marshal(oreq)
-	if err != nil {
-		return Response{}, fmt.Errorf("litellm: encode request: %w", err)
+		return Response{}, err
 	}
 	httpReq, err := http.NewRequestWithContext(ctx, http.MethodPost, l.baseURL+"/v1/chat/completions", bytes.NewReader(body))
 	if err != nil {
@@ -168,7 +181,7 @@ func (l *LiteLLM) Generate(ctx context.Context, req Request) (Response, error) {
 	}
 	defer httpResp.Body.Close()
 	if t := tallyFrom(ctx); t != nil {
-		if v, err := strconv.ParseFloat(httpResp.Header.Get(costHeader), 64); err == nil && v > 0 {
+		if v, err := strconv.ParseFloat(httpResp.Header.Get(costHeader), 64); err == nil && v >= 0 && !math.IsInf(v, 0) {
 			t.add(v)
 		}
 	}
@@ -220,6 +233,20 @@ func (l *LiteLLM) Generate(ctx context.Context, req Request) (Response, error) {
 		return resp, fmt.Errorf("litellm: %w: empty answer (finish_reason %q, %d output tokens)", ErrBadResponse, resp.FinishReason, resp.Usage.OutputTokens)
 	}
 	return resp, nil
+}
+
+// RequestBody returns the exact JSON body Generate would send for req, with
+// no network access. Offline call planning and budget bounds measure it.
+func (l *LiteLLM) RequestBody(req Request) ([]byte, error) {
+	oreq, err := l.buildRequest(req)
+	if err != nil {
+		return nil, fmt.Errorf("litellm: %w", err)
+	}
+	body, err := json.Marshal(oreq)
+	if err != nil {
+		return nil, fmt.Errorf("litellm: encode request: %w", err)
+	}
+	return body, nil
 }
 
 // mediaContent turns a user turn with media parts into OpenAI content parts:

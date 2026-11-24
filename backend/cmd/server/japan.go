@@ -19,8 +19,12 @@ import (
 const japanModel = jpengine.DefaultModel
 
 // japanAuthority registers a gateway-backed authority or the offline fixture.
-// Unconfigured deployments keep Japan unavailable and never fall back to Vertex.
+// Japan is unavailable unless JAPAN_ENGINE=on: gateway settings alone never
+// make it public, and nothing falls back to Vertex.
 func japanAuthority(cfg config.Config, meter *spend.Meter, logger *slog.Logger) (jurisdiction.Authority, error) {
+	if !cfg.JapanEngine {
+		return jurisdiction.Authority{}, nil
+	}
 	var model llm.Model
 	if cfg.LLMProvider == config.ProviderFake {
 		model = &llm.Fake{Respond: func(llm.Request) (llm.Response, error) {

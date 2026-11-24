@@ -201,3 +201,43 @@ func TestLiteLLMSkipCacheSendsNoCache(t *testing.T) {
 		t.Errorf("SkipCache request cache = %v, want no-cache true", bodies[1]["cache"])
 	}
 }
+
+// RequestBody is exactly what Generate sends, so offline planning measures the
+// real request; a response without the cost header leaves the tally unreported.
+func TestLiteLLMRequestBodyMatchesWireAndCostReporting(t *testing.T) {
+	var got []byte
+	header := "0"
+	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		got, _ = io.ReadAll(r.Body)
+		if header != "" {
+			w.Header().Set("X-Litellm-Response-Cost", header)
+		}
+		_, _ = io.WriteString(w, `{"choices":[{"message":{"role":"assistant","content":"ok"},"finish_reason":"stop"}]}`)
+	}))
+	defer srv.Close()
+	g := NewLiteLLM(srv.URL, testKey, time.Second)
+	g.SkipCache(true)
+	req := Request{Model: "m", System: "s", MaxOutputTokens: 8192, Messages: []Message{{Role: RoleUser, Content: "hi"}}}
+	want, err := g.RequestBody(req)
+	if err != nil {
+		t.Fatal(err)
+	}
+	tally := &CostTally{}
+	if _, err := g.Generate(ContextWithCostTally(context.Background(), tally), req); err != nil {
+		t.Fatal(err)
+	}
+	if string(got) != string(want) {
+		t.Fatalf("sent body differs from RequestBody:\n%s\n%s", got, want)
+	}
+	if tally.Reported() != 1 || tally.USD() != 0 {
+		t.Errorf("a reported zero: reported %d, usd %v", tally.Reported(), tally.USD())
+	}
+	header = ""
+	tally = &CostTally{}
+	if _, err := g.Generate(ContextWithCostTally(context.Background(), tally), req); err != nil {
+		t.Fatal(err)
+	}
+	if tally.Reported() != 0 {
+		t.Errorf("absent header counted as reported")
+	}
+}
