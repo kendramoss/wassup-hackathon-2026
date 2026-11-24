@@ -3491,3 +3491,25 @@ Some Japan Customs rulings carry a code from a later HS edition than the schedul
 - **Prospective plan.** The evaluation (#804 to #807) is planned and not executed. It has a provider confound: results could differ because of the model provider and not the rule evidence.
 - **Cost if wrong.** A reader takes rule-reference coverage as a quality gain.
 - **Evidence.** `docs/japan/prospective-evaluation-plan.md`; `go run ./cmd/jpeval diagnose -split dev`.
+
+## D884 — Japan-India chapter 3 amendment and a typed declared edition (24 Nov, #817 d728a309, #818 f52f46e6)
+- **India.** The amendment to Annex 2 chapter 3 is effective 2022-04-04, from a Japan Customs notice. The notice is Japanese only; no consolidated or English text was found. The transition for certificates is not modelled. Codes 0304.93 to 0304.97 are covered through WCO-pinned hints. Of 224 HS 2017 six-digit codes in chapter 3: 210 keep the same rule, 0304.99 is CC, 5 are hints and 8 have no rule.
+- **Typed edition.** `stated_edition` is now a nullable typed field on each schedule. It is null only for JP-US TA and GSP, which state no edition. A loader cross-check ties it to the citation. It is a different concept from `hs_edition`, which selects the code list that gates group rows.
+- **Open.** RCEP 2022 is still an untyped frontend literal.
+- **Cost if wrong.** A certificate issued under the old chapter 3 rule is judged against the new one. A hint sends a case to review instead of showing a rule.
+- **Evidence.** `docs/japan/india-chapter3-amendment.md`, `docs/japan/stated-edition.md`.
+
+## D885 — Japan: Chapter 3 articles for EU and UK, and the final measurement (24 Nov, #819 4419ee02)
+- **Decision.** 20 EU and 16 UK Chapter 3 notes are returned as evidence, each with a caveat note. Articles 3.3 and 3.6(3) are scoped to the 26 wholly-obtained rows. Annex 3-C and EU and UK Articles 3.7 to 3.11 and 3.13 onward were not supplied and are not embedded.
+- **Reach.** On the development split, 241 of 1,071 EU rulings and 1 of 24 UK rulings sit on such rows.
+- **Cost.** `dev_eval` request bytes 7,332,525 (33598601, 396 requests) → 9,279,221 (4419ee02, 396 requests), +26.5%. Against 5,118,030 at 20b39a82 (395 requests) the aggregate is +81%. Neither figure is matched per id, and neither is provider usage. Prompt text is unchanged.
+- **Final rule-reference coverage (offline, no model).** Development 2589 → 2952 of 2973; `dev_eval` 366 → 396 of 400, a subset of the development split, so not additive. Unchanged since 33598601. GSP counts as rule reference only. This is not accuracy.
+- **Remaining gaps.**
+  - Thailand and AJCEP date starts are unverified.
+  - RCEP before 2023 and Indonesia before 2024-02-05 are not embedded.
+  - Earlier GSP windows are not embedded.
+  - Annex 3-C and the EU and UK articles named above are missing.
+  - No model accuracy has been measured.
+  - The authenticated smoke test is paused.
+- **Cost if wrong.** More input tokens and latency per request, and a long note may dilute the deciding rule. Not measured.
+- **Evidence.** `docs/japan/chapter3-articles.md`, `docs/japan/date-windows.md`, `docs/japan/prospective-evaluation-plan.md`.
