@@ -55,7 +55,7 @@ test("each missing fact gets a control, its document and its rulings", () => {
 });
 
 test("a partly known question stays open and shows what the parts list says", () => {
-  const partial = { ...cells, known: "China on the parts list; 1 of 2 lines name no country" };
+  const partial = { ...cells, known: "China; 1 of 2 lines name no country" };
   const m = html(FamilyIntakePanel, { c: c(intake([partial])), setCase: () => {} });
   assert.match(m, /id="[^"]*-cells_made"/);
   assert.ok(text(m).includes("1 of 2 lines name no country"));

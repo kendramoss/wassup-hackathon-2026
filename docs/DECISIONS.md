@@ -3080,7 +3080,7 @@ A new development-only candidate, separate from the D741 engine. The AJCEP sched
 
 ## D817 — Review fixes to the family questions (24 Nov, #770, review of 1441ce51)
 - **One group per question.** `pack_work` named two groups, so N346317, N346403 and N347193 showed as both "decided origin" and "not enough". Every question now asks about one template group and shows exactly that group's citations (a test compares them per question). `pack_work` is reworded to "Is the pack's work only welding the cells and fitting the BMS?" under `final_assembly`, where N347193 held pack welding and the BMS not enough. "Formation" is dropped from it: forming cells is a cell-making step (`battery_cells`, N347172) and `cells_made` asks where the cells were made.
-- **Partly known stays open.** A country question is settled only when every part and step in its group names a country. One line blank or "Unknown" keeps it asked, with what the parts list says shown beside it ("China on the parts list; 1 of 2 lines name no country").
+- **Partly known stays open.** A country question is settled only when every part and step in its group names a country. One line blank or "Unknown" keeps it asked, with what the parts list says shown beside it ("China; 1 of 2 lines name no country").
 - **Answers name a real country.** "Unknown", "TBD", "Mars" and the European Union are refused on save. The page's picker and check use the same table.
 - **Smaller.** The intro now reads "The rulings cited turned on these facts." Facts are cut by runes, not bytes. `save_case_answers` is not marked idempotent. A clear says "Cleared". The U.S. not-re-run line appears only when answers were saved. `get_case` says how many family questions are open and to use `save_case_answers`.
 

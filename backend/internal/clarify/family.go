@@ -476,7 +476,7 @@ func known(q familyQuestion, p *domain.Product) (string, bool) {
 		return "", false
 	}
 	if open > 0 {
-		return strings.Join(cs, ", ") + fmt.Sprintf(" on the parts list; %d of %d lines name no country", open, lines), false
+		return strings.Join(cs, ", ") + fmt.Sprintf("; %d of %d lines name no country", open, lines), false
 	}
 	return strings.Join(cs, ", ") + ", from the parts list", true
 }
