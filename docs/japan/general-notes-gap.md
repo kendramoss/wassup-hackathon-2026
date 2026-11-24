@@ -27,6 +27,27 @@ such a term. Nothing here changes lookup output.
 
 Malaysia, Philippines, Mexico and the US TA are not assessed in this table.
 
+## Status after the embedded General Notes
+
+[general-notes-embedded.md](general-notes-embedded.md) lists what was added. The table
+above describes the audit; this table is the state now.
+
+| Agreement | Status |
+|---|---|
+| JP-Thailand EPA | embedded: (b), (c), (d)(v) to (ix), (f), Notes 1 and 2, (g) (7 notes) |
+| JP-Indonesia EPA | embedded: (b), (d), (e), (g), Notes 1 and 2, (h), (i)(i) to (iii), (j) (13 notes) |
+| JP-Malaysia EPA | embedded: (b), (e), Notes 1 and 2, (f) (4 notes) |
+| JP-Philippines EPA | embedded: (b), (c), (f), Notes 1 and 2, (g) (5 notes) |
+| JP-Mexico EPA | embedded: (b), (c), (f), (g) (5 notes) |
+| JP-Chile EPA | embedded: (b), (c), (d) Build-down and Build-up, (f), Notes 1 and 2 (4 notes) |
+| JP-Vietnam EPA | embedded: paragraphs 1 and 3 (3 notes) |
+| JP-Switzerland EPA | embedded: paragraph 1(a) and 1(b) (2 notes) |
+| CPTPP 3-D and 4-A | embedded: Section A 3(c) to (g) in both, and 5 in 3-D (3 notes); 3(b) and the dagger flag on rows not embedded |
+| JP-EU EPA, JP-UK CEPA | embedded earlier ([annex-3a-notes.md](annex-3a-notes.md)) |
+| JP-Australia EPA | embedded earlier ([australia-column4.md](australia-column4.md)) |
+| AJCEP HS 2017 and HS 2022 | not embedded |
+| JP-India CEPA | not embedded (nothing to define) |
+
 ## Australia column 4
 
 The Australia Annex 2 has a fourth column for chapters 27 to 39 holding alternative
@@ -59,8 +80,7 @@ document and page.
 ## Planned follow-ups (not done)
 
 - A per-note source field, so EU and UK notes can cite Annex 3-A pages.
-- Schedule-scope notes for the text-layer annexes (Thailand, Indonesia, Vietnam, Chile
-  and others), quoted exactly, with PDF page.
+- Done: schedule-scope notes for the text-layer annexes (see above).
 - Returning the AJCEP bundle provisions with matched rows, and adding it for HS 2022.
 - Australia column 4 parsing, then the General Notes.
 

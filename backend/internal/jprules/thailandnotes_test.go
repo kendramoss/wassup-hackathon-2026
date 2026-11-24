@@ -66,8 +66,9 @@ var thailandNotes = []thaiNote{
 
 func TestThailandScopeNotesCaptured(t *testing.T) {
 	s := scheduleFrom(t, mustDefault(t), "JP-Thailand EPA", "2023-01-01")
-	if len(s.Notes) != len(thailandNotes) {
-		t.Fatalf("got %d notes, want %d", len(s.Notes), len(thailandNotes))
+	// The 20 table notes come first; the General Notes follow (generalnotes_test.go).
+	if len(s.Notes) != len(thailandNotes)+7 {
+		t.Fatalf("got %d notes, want %d table notes and 7 General Notes", len(s.Notes), len(thailandNotes))
 	}
 	for i, want := range thailandNotes {
 		n := s.Notes[i]
