@@ -472,7 +472,7 @@ func newDeps(cfg config.Config, model, engineModel llm.Model, cases store.Cases,
 			}
 		}
 	}
-	japan, err := japanAuthority(cfg, meter, logger)
+	japan, err := japanAuthority(cfg, engineModel, meter, logger)
 	if err != nil {
 		return httpapi.Deps{}, err
 	}

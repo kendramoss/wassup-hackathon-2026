@@ -26,9 +26,9 @@ test("Japan experiment figures match the committed D741 metrics", () => {
   assert.equal(j.syntheticInterval, `${pct(syn.synthetic_refusals.lo)}–100`);
 });
 
-test("Accuracy page labels the Japan result experimental and keeps Japan unavailable", () => {
+test("Accuracy page labels the Japan result experimental and says it is not evidence for the live route", () => {
   const src = read("../src/components/op/screens/accuracy-page.tsx");
-  assert.ok(src.includes("Experimental and unreviewed. Japan is not available in the product."));
+  assert.ok(src.includes("Experimental and unreviewed. This run used a private gateway, not the live Japan route."));
   assert.ok(src.includes("not an accuracy rate"));
-  assert.ok(src.includes("{copy.japan.notAvailable}"));
+  assert.ok(src.includes("No accuracy figure."));
 });

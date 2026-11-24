@@ -501,9 +501,10 @@ export const copy = {
     unsupported: (name: string) => `Origin rules for ${name} aren't supported yet.`,
     unsupportedNext: "No answer yet. Entering the U.S.? Start a U.S. case.",
     startUS: "Start a U.S. case →",
-    // What each market offers today, beside the picker (#733). Japan's line is
-    // the picker's own; nothing here promises a live check.
-    summary: ["U.S.: live", "Canada: rules check", "EU, UK: rules check, listed goods", "RCEP: tariff check", "Japan: not available yet.", "Other markets: not yet"],
+    // What each market offers today, beside the picker (#733). Japan's line
+    // follows the API's supported flag; it promises no accuracy.
+    summary: ["U.S.: live", "Canada: rules check", "EU, UK: rules check, listed goods", "RCEP: tariff check", "Japan: trade preference", "Other markets: not yet"],
+    summaryJapanOff: "Japan: not available yet.",
     // A case whose text names Northern Ireland (D767).
     northernIreland: "Northern Ireland: EU or UK rules can apply. Pick the market for a new case.",
     // In the case tabs, where Plan and Draft would be, on a non-U.S. case (#678).

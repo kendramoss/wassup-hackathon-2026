@@ -139,7 +139,7 @@ test("RCEP reports known positives, criterion agreement and separate synthetic r
   assert.match(markets, /Customs specialist review is pending/);
   assert.match(markets, /Canada marking Checks the marking rules only\. No accuracy figure/);
   assert.match(markets, /EU and UK origin Checks the list rules only\. No accuracy figure/);
-  assert.match(markets, /Japan model Japan: not available yet\./);
+  assert.match(markets, /Japan model Where Japan is open, it checks the agreement rules and past rulings\. No accuracy figure\./);
 });
 
 test("the no-starting-origin plan bar and interval come from the committed repeats summary", async () => {
