@@ -29,7 +29,7 @@ const categories: [ToolGroup | "", string][] = [
 const docLink = "text-ok underline underline-offset-3 hover:text-ink";
 const panel = "min-w-0 rounded-sm border border-edge bg-sheet";
 const heading = "text-xl font-medium tracking-[-0.04em] sm:text-2xl";
-const field = "min-h-10 w-full rounded-sm border border-edge bg-sheet px-3 text-sm text-ink";
+const field = "min-h-10 max-sm:min-h-11 w-full rounded-sm border border-edge bg-sheet px-3 text-sm text-ink";
 const json = (value: unknown) => JSON.stringify(value, null, 2);
 
 function modeFromURL(): Mode {
@@ -259,7 +259,7 @@ function ToolExplorer({ repo }: { repo: string }) {
                 aria-pressed={selected?.[0] === name}
                 aria-controls="tool-inspector"
                 onClick={() => setActive(name)}
-                className={`block min-h-10 w-full border-l-2 px-3 py-2 text-left text-xs [overflow-wrap:anywhere] hover:bg-wash ${selected?.[0] === name ? "border-ok bg-ok-wash font-medium text-ok" : "border-transparent text-ink"}`}
+                className={`block min-h-10 max-sm:min-h-11 w-full border-l-2 px-3 py-2 text-left text-xs [overflow-wrap:anywhere] hover:bg-wash ${selected?.[0] === name ? "border-ok bg-ok-wash font-medium text-ok" : "border-transparent text-ink"}`}
               >
                 {name}
               </button>

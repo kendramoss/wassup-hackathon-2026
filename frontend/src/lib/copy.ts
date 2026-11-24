@@ -335,12 +335,14 @@ export const copy = {
       ],
     },
   },
-  // One sentence on what is new (judge panel round 4), said the same on the
-  // landing and on /method. Factual: what the product does, no claim of
-  // being first.
+  // One sentence on what is new (judge panel round 4), on the landing only
+  // (/method no longer shows it). Factual: what the product does, no claim
+  // of being first. #685: the subtitle above it already says Unde finds the
+  // moves that would change the origin, so this line keeps only what the
+  // subtitle does not say.
   novel: {
     lead: "What is new:",
-    text: "Unde also finds the production moves that would change the origin, and shows only those an earlier CBP ruling backs.",
+    text: "it shows only the moves an earlier CBP ruling backs.",
   },
   landing: {
     eyebrow: "fig.0 — US Customs country of origin",

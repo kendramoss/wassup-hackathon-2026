@@ -802,8 +802,8 @@ export function AccuracyPage() {
       </div>
 
       <nav aria-label="Explore the evidence" className="mt-8 flex flex-wrap gap-3 border-t border-line pt-5">
-        <ButtonLink href="#misses" onClick={openFailures}>See all {misses.length} known failures →</ButtonLink>
-        <ButtonLink href="/method" variant="ghost">How it is built →</ButtonLink>
+        <ButtonLink href="#misses" onClick={openFailures} className="max-sm:min-h-11">See all {misses.length} known failures →</ButtonLink>
+        <ButtonLink href="/method" variant="ghost" className="max-sm:min-h-11">How it is built →</ButtonLink>
       </nav>
       <details ref={failures} id="misses" className="group mt-4 scroll-mt-20 border-b border-line">
         <summary className="flex min-h-11 list-none items-center gap-2 text-sm text-ink hover:text-ok [&::-webkit-details-marker]:hidden">

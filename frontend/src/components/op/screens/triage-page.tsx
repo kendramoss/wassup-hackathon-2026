@@ -86,7 +86,7 @@ export function TriagePage() {
 
   return (
     <Main>
-      <Link href="/cases" className="text-[13px] text-ok hover:underline">
+      <Link href="/cases" className="text-[13px] text-ok hover:underline max-sm:inline-flex max-sm:min-h-11 max-sm:items-center">
         ← Cases
       </Link>
       <h1 className="mt-3 text-[28px] tracking-[-0.05em]">Triage a portfolio</h1>
@@ -181,13 +181,13 @@ export function TriagePage() {
           </label>
           <div className="mt-3 flex flex-wrap items-center justify-between gap-x-6 gap-y-2 text-[13px]">
             {!file ? (
-              <button type="button" onClick={loadSample} className="inline-flex min-h-6 items-center text-ok hover:underline">
+              <button type="button" onClick={loadSample} className="inline-flex min-h-6 items-center text-ok hover:underline max-sm:min-h-11">
                 Try the sample (5 products)
               </button>
             ) : (
               <span />
             )}
-            <a className="inline-flex min-h-6 items-center gap-1.5 text-xs text-ok underline underline-offset-2" href="/samples/portfolio-template.csv" download>
+            <a className="inline-flex min-h-6 items-center gap-1.5 text-xs text-ok underline underline-offset-2 max-sm:min-h-11" href="/samples/portfolio-template.csv" download>
               <svg aria-hidden="true" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="square">
                 <path d="M12 4v11M7.5 10.5 12 15l4.5-4.5" />
                 <path d="M4 14v6h16v-6" />
@@ -197,7 +197,7 @@ export function TriagePage() {
           </div>
 
           <details className="group mt-6">
-          <summary className="mb-2 flex min-h-6 cursor-pointer list-none items-center gap-2 [&::-webkit-details-marker]:hidden">
+          <summary className="mb-2 flex min-h-6 max-sm:min-h-11 cursor-pointer list-none items-center gap-2 [&::-webkit-details-marker]:hidden">
             <span aria-hidden="true" className="inline-block w-3 text-dim transition-transform group-open:rotate-90">
               ▸
             </span>

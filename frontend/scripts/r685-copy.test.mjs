@@ -138,3 +138,26 @@ test("the jargon on /method, /developers, /accuracy and /cases is plain on the v
   assert.match(read("../src/components/op/method-architecture.tsx"), /<Term explain=\{`API field: \$\{field\}`\}>\{name\}<\/Term>/);
   assert.match(stages, /\["Rulings to leave out", "optional list", "exclude_rulings\?: ID\[\]"\]/);
 });
+
+test("phones: in-page controls left under 44 px get 44 px below 640 px only", () => {
+  const src = (p) => read(`../src/${p}`);
+  assert.match(src("app/developers/page.tsx"), /inline-flex min-h-10 max-sm:min-h-11 justify-self-end/);
+  assert.match(src("app/developers/portal.tsx"), /const field = "min-h-10 max-sm:min-h-11 /);
+  assert.match(src("app/developers/portal.tsx"), /block min-h-10 max-sm:min-h-11 w-full border-l-2/);
+  const accuracy = src("components/op/screens/accuracy-page.tsx");
+  assert.match(accuracy, /<ButtonLink href="#misses" onClick=\{openFailures\} className="max-sm:min-h-11">/);
+  assert.match(accuracy, /<ButtonLink href="\/method" variant="ghost" className="max-sm:min-h-11">/);
+  assert.match(src("components/op/screens/cases-home.tsx"), /<ButtonLink href="\/triage" variant="ghost" className="max-sm:min-h-11">/);
+  const triage = src("components/op/screens/triage-page.tsx");
+  assert.equal((triage.match(/max-sm:min-h-11/g) || []).length, 4);
+  const mi = src("app/method/method-inspector.css");
+  assert.match(mi.slice(mi.indexOf("#685")), /\.mi-evidence-pair a \{ min-height: 44px; \}/);
+});
+
+test("the landing's 'What is new' line no longer repeats the subtitle", () => {
+  const sub = copy.match(/sub: "([^"]+)"/)[1];
+  const novel = copy.match(/novel: \{\s+lead: "What is new:",\s+text: "([^"]+)"/)[1];
+  assert.match(sub, /which production moves would change it/);
+  assert.equal(novel, "it shows only the moves an earlier CBP ruling backs.");
+  assert.ok(!/change the origin|production moves/.test(novel));
+});

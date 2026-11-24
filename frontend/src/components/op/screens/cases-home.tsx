@@ -59,7 +59,7 @@ export function CasesHome() {
           <p className="duo mt-1 text-dim">Open a demo, or start your own.</p>
         </div>
         <div className="ml-auto flex flex-wrap gap-2">
-          <ButtonLink href="/triage" variant="ghost">
+          <ButtonLink href="/triage" variant="ghost" className="max-sm:min-h-11">
             Triage a portfolio
           </ButtonLink>
         </div>
@@ -475,7 +475,7 @@ export function YourCases({ cases, onChange }: { cases: CaseSummary[]; onChange:
                     {renaming === c.id ? (
                       <RenameField value={c.display_name} onDone={(v) => (v === null ? setRenaming(null) : rename(c.id, v))} />
                     ) : (
-                      <Link href={caseHref(c)} className="block font-medium hover:underline">
+                      <Link href={caseHref(c)} className="block font-medium hover:underline max-sm:flex max-sm:min-h-11 max-sm:items-center">
                         {c.display_name}
                       </Link>
                     )}
@@ -623,13 +623,13 @@ function RowMenu({ c, onRename, onDelete }: { c: CaseSummary; onRename: () => vo
           onKeyDown={onMenuKeyDown}
           className="absolute right-0 z-20 mt-1 w-40 border border-edge bg-sheet py-1 text-left text-[13px] shadow-[4px_4px_0_var(--shadow)]"
         >
-          <Link role="menuitem" href={caseHref(c)} className="block px-3 py-1.5 hover:bg-wash">
+          <Link role="menuitem" href={caseHref(c)} className="block px-3 py-1.5 hover:bg-wash max-sm:flex max-sm:min-h-11 max-sm:items-center">
             Open
           </Link>
-          <button role="menuitem" type="button" disabled={caseReadOnly(c)} title={caseReadOnly(c) ? VIEWER_REASON : undefined} className="block w-full px-3 py-1.5 text-left hover:bg-wash disabled:text-dim disabled:hover:bg-transparent" onClick={() => (setOpen(false), onRename())}>
+          <button role="menuitem" type="button" disabled={caseReadOnly(c)} title={caseReadOnly(c) ? VIEWER_REASON : undefined} className="block w-full px-3 py-1.5 text-left max-sm:min-h-11 hover:bg-wash disabled:text-dim disabled:hover:bg-transparent" onClick={() => (setOpen(false), onRename())}>
             Rename
           </button>
-          <button role="menuitem" type="button" disabled={caseReadOnly(c)} title={caseReadOnly(c) ? VIEWER_REASON : undefined} className="block w-full px-3 py-1.5 text-left text-fail hover:bg-fail-wash disabled:text-dim disabled:hover:bg-transparent" onClick={() => (setOpen(false), onDelete())}>
+          <button role="menuitem" type="button" disabled={caseReadOnly(c)} title={caseReadOnly(c) ? VIEWER_REASON : undefined} className="block w-full px-3 py-1.5 text-left max-sm:min-h-11 text-fail hover:bg-fail-wash disabled:text-dim disabled:hover:bg-transparent" onClick={() => (setOpen(false), onDelete())}>
             Delete case…
           </button>
         </div>
