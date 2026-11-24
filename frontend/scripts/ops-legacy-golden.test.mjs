@@ -34,6 +34,9 @@ import { html } from "./render-support.mjs";
 // #685 re-captured compare once, on purpose: the table caption is shorter
 // ("Ranked, best plan first") and the full tier order it listed moved into the
 // "How the ranking works" fold (one added sentence). No other markup changed.
+// #771 re-captured plan, planBelow, planNone, compare and scenarios once, on
+// purpose: the step tabs gain the optional "All checks" tab (one li, its link
+// and its "· optional" mark). No other markup changed.
 globalThis.window = new EventTarget();
 globalThis.document = Object.assign(new EventTarget(), { body: { style: {} }, activeElement: null });
 stubNavigation({ id: "c1", search: "target=Thailand" });

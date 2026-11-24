@@ -59,10 +59,22 @@ function OriginRulesMarket({ c, market }: { c: CaseResponse; market: "eu" | "uk"
           </h1>
         </div>
       </section>
-      <Main>
+      <Main className="flex flex-col gap-4">
         <OriginRulesCheck c={c} market={market} />
+        <ChecksLink c={c} />
       </Main>
     </>
+  );
+}
+
+// ChecksLink opens every check on the same product (#771).
+function ChecksLink({ c }: { c: CaseResponse }) {
+  return (
+    <p className="duo text-[13px]">
+      <Link href={`/cases/${encodeURIComponent(c.id ?? "")}/checks`} className="inline-flex min-h-11 items-center text-ok underline underline-offset-2">
+        {copy.report.link} →
+      </Link>
+    </p>
   );
 }
 
@@ -79,8 +91,9 @@ function CanadaMarket({ c }: { c: CaseResponse }) {
           </h1>
         </div>
       </section>
-      <Main>
+      <Main className="flex flex-col gap-4">
         <CanadaCheck c={c} auto />
+        <ChecksLink c={c} />
       </Main>
     </>
   );
@@ -251,6 +264,7 @@ function Answer({ id, c, setCase }: CaseCtx) {
           steps={[{ label: route === "auto" ? "Draft a ruling request" : "Have a broker review: draft a ruling request", href: `/cases/${enc}/draft` }]}
           suggestions={[
             ...(qs ? [{ label: copy.result.suggestAnswer(qs), onClick: () => document.getElementById("q0")?.focus() }] : []),
+            { label: copy.report.link, href: `/cases/${enc}/checks` },
           ]}
         />
       </Main>

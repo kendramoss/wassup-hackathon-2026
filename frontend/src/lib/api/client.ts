@@ -46,10 +46,18 @@ export type CanadaMarking = paths["/v1/rules/canada-marking"]["post"]["responses
 export type OriginRulesBody = S["OriginRulesRequest"];
 export type OriginRules = S["OriginRulesView"];
 export type OriginMarket = "eu" | "uk";
+// Facts the requester supplies to the EU or UK check of a case (#770,
+// D801): saved beside the product with PUT /cases/{id}/origin-facts/{market}.
+export type SuppliedOriginFacts = S["SuppliedOriginFacts"];
+export type OriginFactsBody = S["OriginFactsRequest"];
+export type OriginFactsResponse = Json<"/v1/cases/{id}/origin-facts/{market}", "put">;
+// The evidence report (#771, D803): every check separate.
+export type EvidenceReport = S["EvidenceReport"];
+export type EvidenceCheck = S["EvidenceCheck"];
 export type Scenario = NonNullable<CaseResponse["scenarios"]>[number];
 export type Watch = NonNullable<CaseResponse["watch"]>;
 
-type Json<P extends keyof paths, M extends "get" | "post", Code extends number = 200> = paths[P][M] extends {
+type Json<P extends keyof paths, M extends "get" | "post" | "put", Code extends number = 200> = paths[P][M] extends {
   responses: { [K in Code]: { content: { "application/json": infer T } } };
 }
   ? T
@@ -377,6 +385,11 @@ export const api = {
   // The EU or UK non-preferential origin rules from the product's codes
   // (D760); no model call.
   originRules: (market: OriginMarket, body: OriginRulesBody, signal?: AbortSignal) => post<OriginRules>(`/rules/${market}-origin`, body, signal),
+  // Save facts supplied to the case's EU or UK check and re-run it (D801).
+  putOriginFacts: (id: string, market: OriginMarket, body: OriginFactsBody) =>
+    post<OriginFactsResponse>(`/cases/${enc(id)}/origin-facts/${market}`, body, undefined, "PUT"),
+  // Every check on the case's product, separate (D803); no model call.
+  evidenceReport: (id: string, signal?: AbortSignal) => call<EvidenceReport>(`/cases/${enc(id)}/evidence-report`, { signal }),
   // Codes for each part (D380): suggestions only, nothing is stored.
   partsHtsSuggest: (body: { product: Product }, signal?: AbortSignal) => post<PartsHtsSuggestResponse>("/products/parts-hts-suggest", body, signal),
   // The lookups price duty and group costs only: the operating-cost block is

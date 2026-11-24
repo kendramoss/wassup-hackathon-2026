@@ -37,6 +37,7 @@ export const tools = [
   ["check_usmca_origin_rule", "tariff", "basic", "Tariff code, value method + materials", "USMCA origin-rule check"],
   ["check_eu_origin", "tariff", "basic", "Good + parts codes", "EU origin rules check"],
   ["check_uk_origin", "tariff", "basic", "Good + parts codes", "UK origin rules check"],
+  ["get_evidence_report", "origin", "basic", "Case ID", "Every check, each separate"],
 ] as const satisfies readonly Tool[];
 
 export type ToolName = (typeof tools)[number][0];
