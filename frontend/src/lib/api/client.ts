@@ -343,7 +343,14 @@ function noOps<B extends { economics?: Economics }>(body: B): B {
 }
 
 export const api = {
-  listCases: () => call<{ cases: CaseSummary[] }>("/cases"),
+  // #786: a signed-out visitor under STRICT_AUTH gets the 401 as a 200 body
+  // (lib/backend.ts), so the browser logs no failed request; it is raised
+  // here exactly as the 401 would have been.
+  listCases: async () => {
+    const r = await call<{ cases: CaseSummary[]; signin_required?: unknown }>("/cases", { headers: { "X-Signin-Optional": "1" } });
+    if (r.signin_required) throw await toError(Response.json(r.signin_required, { status: 401 }));
+    return r;
+  },
   getCase: (id: string) => call<CaseResponse>(`/cases/${enc(id)}`),
   predict: (body: PredictRequest) => post<CaseResponse>("/cases/predict", wireRequest(body)),
   answers: (id: string, answers: { question: string; answer: string }[]) =>
