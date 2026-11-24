@@ -58,21 +58,31 @@ test("the selector’s HS editions match the embedded schedules", async () => {
   const editions = {};
   const unstated = new Set();
   for (const s of schedules) {
-    const edition = s.citation.match(/HS ([0-9]{4})/)?.[1];
+    const edition = s.citation.match(/\(HS ([0-9]{4})\)/)?.[1];
     if (edition) editions[s.agreement] ??= edition;
     else unstated.add(s.agreement);
   }
   // A schedule that states no HS edition must be listed explicitly, never given a guessed year.
   assert.deepEqual([...unstated].sort(), [...japanNoEditionAgreements].sort());
+  // Each such schedule must say so in its citation, so a source change forces a conscious UI decision.
+  for (const s of schedules.filter((x) => !/\(HS [0-9]{4}\)/.test(x.citation))) {
+    assert.match(s.citation, /not stated/, s.agreement);
+    assert.ok(japanNoEditionAgreements.includes(s.agreement), s.agreement);
+  }
+  const gsp = schedules.find((x) => x.agreement === "GSP");
+  assert.equal(gsp.from, "2023-04-01");
+  assert.equal(gsp.hs_edition, 2022);
   assert.deepEqual(japanTariffEditions, { ...editions, RCEP: "2022" });
 });
 
-test("the selector offers Japan–U.S. without inventing an HS edition and keeps GSP out", () => {
-  assert.deepEqual(japanNoEditionAgreements, ["JP-US TA"]);
+test("the selector offers Japan–U.S. and GSP without inventing an HS edition", () => {
+  assert.deepEqual(japanNoEditionAgreements, ["JP-US TA", "GSP"]);
   assert.ok(supportedJapanAgreements.includes("JP-US TA"));
   assert.equal(japanTariffEditions["JP-US TA"], undefined);
   assert.equal(japanAgreements["JP-US TA"], "Japan–U.S. agreement");
-  assert.ok(!supportedJapanAgreements.includes("GSP"));
-  assert.deepEqual(supportedJapanAgreements, Object.keys(japanAgreements).filter((code) => code !== "GSP"));
-  assert.deepEqual(supportedJapanAgreements.slice(0, 5), ["JP-EU EPA", "CPTPP", "AJCEP", "RCEP", "JP-US TA"]);
+  assert.ok(supportedJapanAgreements.includes("GSP"));
+  assert.equal(japanTariffEditions.GSP, undefined);
+  assert.equal(japanAgreements.GSP, "Generalized System of Preferences (GSP)");
+  assert.equal(supportedJapanAgreements.indexOf("GSP"), supportedJapanAgreements.indexOf("JP-US TA") + 1);
+  assert.deepEqual(supportedJapanAgreements.slice(0, 6), ["JP-EU EPA", "CPTPP", "AJCEP", "RCEP", "JP-US TA", "GSP"]);
 });
