@@ -244,7 +244,7 @@ export interface paths {
         get?: never;
         /**
          * Save the facts the requester supplies to the case's EU or UK origin check and re-run it; no model call (D800-D802)
-         * @description #770. Replaces every fact saved for that market's check with the body (an empty body clears them). The facts are check inputs only: they are stored beside the case's product, attributed `source` "user-supplied" with `updated_at`, and the case's facts and product are never changed. Each fact must answer something the committed rules ask: an `answers` key a rule reads, a `row` of the list, a part that exists (named as it stands, so a later parts change leaves the fact unread and named rather than misapplied or refused; a BOM update after saving marks the whole set stale), a code that fills a missing part code or lengthens the part's own, an origin only for a part without one, and shares from 0 to 1 that add up to no more than 1 (400 otherwise). Answers with the market's check re-run on the case's product with the saved facts. A pinned demo is read-only (403). Records an `origin_facts` event. Rate class basic.
+         * @description #770. Replaces every fact saved for that market's check with the body (an empty body clears them). The facts are check inputs only: they are stored beside the case's product, attributed `source` "user-supplied" with `updated_at`, and the case's facts and product are never changed. Each fact must answer something the committed rules ask: an `answers` key a rule reads, a `row` of the list, a part that exists (named as it stands, so a later parts change leaves the fact unread and named rather than misapplied or refused; a BOM update after saving marks the whole set stale), a code that fills a missing part code or lengthens the part's own, an origin only for a part without one, and shares from 0 to 1 that add up to no more than 1 (400 otherwise). Answers with the market's check re-run on the case's product with the saved facts. 400 when the server has not loaded that market's rules. A pinned demo is read-only (403). Records an `origin_facts` event. Rate class basic.
          */
         put: operations["putOriginFacts"];
         post?: never;
@@ -3634,7 +3634,6 @@ export interface operations {
             404: components["responses"]["Error"];
             409: components["responses"]["Error"];
             429: components["responses"]["TooManyRequests"];
-            503: components["responses"]["Error"];
         };
     };
     getEvidenceReport: {

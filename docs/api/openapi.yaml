@@ -473,7 +473,7 @@ paths:
         update after saving marks the whole set stale), a code that fills a missing
         part code or lengthens the part's own, an origin only for a part without one, and shares from 0 to 1 that
         add up to no more than 1 (400 otherwise). Answers with the market's check re-run on the case's product with
-        the saved facts. A pinned demo is read-only (403). Records an `origin_facts` event. Rate class basic.
+        the saved facts. 400 when the server has not loaded that market's rules. A pinned demo is read-only (403). Records an `origin_facts` event. Rate class basic.
       parameters:
         - { $ref: "#/components/parameters/CaseID" }
         - { name: market, in: path, required: true, schema: { type: string, enum: [eu, uk] } }
@@ -501,7 +501,6 @@ paths:
         "404": { $ref: "#/components/responses/Error" }
         "409": { $ref: "#/components/responses/Error" }
         "429": { $ref: "#/components/responses/TooManyRequests" }
-        "503": { $ref: "#/components/responses/Error" }
   /v1/cases/{id}/evidence-report:
     get:
       operationId: getEvidenceReport

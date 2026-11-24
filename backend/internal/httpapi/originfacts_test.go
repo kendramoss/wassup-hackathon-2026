@@ -360,7 +360,7 @@ func TestOriginFactsPreconditionAndRulesOff(t *testing.T) {
 	}
 	off := newHarnessWith(t, "substantial_transformation", func(d *Deps) { d.Cases = mem })
 	code, out = off.do(t, "PUT", path, `{}`)
-	if code != http.StatusServiceUnavailable || !strings.Contains(out["message"].(string), "not loaded") {
+	if code != http.StatusBadRequest || !strings.Contains(out["message"].(string), "not loaded") {
 		t.Errorf("rules off: %d %v", code, out)
 	}
 }

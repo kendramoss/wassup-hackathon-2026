@@ -104,7 +104,7 @@ func (a *api) putOriginFacts(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	if !ok {
-		writeError(w, http.StatusServiceUnavailable, "internal", fmt.Sprintf("the %s origin rules are not loaded on this server (the rule check is off)", strings.ToUpper(m.code)), nil)
+		a.fail(w, r, fmt.Errorf("%w: the %s origin rules are not loaded on this server (the rule check is off), so there is no check to answer", domain.ErrInvalid, strings.ToUpper(m.code)))
 		return
 	}
 	if a.refuseDemoEdit(w, r, c) {
