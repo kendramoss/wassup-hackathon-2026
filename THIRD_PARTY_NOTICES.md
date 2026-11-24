@@ -74,6 +74,21 @@ copy is accurate and not presented as the official version. This copy is not
 the official version. Headings are written 8473 for 84.73; two slips are
 corrected (D720).
 
+The EU non-preferential origin list (`backend/internal/euorigin/rules_eu.json`)
+is the text of Annex 22-01 to Commission Delegated Regulation (EU) 2015/2446,
+from the EUR-Lex consolidated version CELEX 02015R2446-20261101 (fetched from
+the Publications Office, retrieved 24 Nov 2026). © European Union,
+https://eur-lex.europa.eu. Reuse is authorised provided the source is
+acknowledged (Commission Decision 2011/833/EU). Consolidated texts are
+documentation only; only the Official Journal of the European Union is
+authentic. Amendment markers are dropped (D760).
+
+The UK non-preferential product-specific rules
+(`backend/internal/ukorigin/rules_uk.json`) are Part Four of HMRC's *Rules of
+Origin: Special Rules for Determining Non-Preferential Origin*, version 1.2
+(12 April 2023), from GOV.UK (retrieved 24 Nov 2026). Contains public sector
+information licensed under the Open Government Licence v3.0 (D760).
+
 ## Go dependencies
 
 Backend dependencies are declared in `backend/go.mod` and fetched through the

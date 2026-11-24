@@ -788,6 +788,46 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/v1/rules/eu-origin": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * EU non-preferential origin rules check (UCC Art. 60, DA 2015/2446 Art. 31-36 and Annex 22-01), from HS codes; no model call (D760-D766)
+         * @description Applies the EU's non-preferential origin list rules (Annex 22-01 to Delegated Regulation (EU) 2015/2446, consolidated text CELEX 02015R2446-20261101) through Art. 32-34 DA. Annex 22-01 has list rules for some goods in 37 HS chapters only (`chapters`); every other good, and a good that is none of the listed goods of its code, gets `result.status` `needs_judgement`: its origin is the country of its last substantial, economically justified processing (Art. 60(2) UCC), which a person decides. These are common EU rules; each Member State's customs authority applies them and issues Binding Origin Information. Binding Origin Information and EBTI are not read. A rules check only: no origin decisions with their facts are published to test it, so there is no accuracy figure, and every answer carries `label` saying so. Send either `product` (read like the case's rule check) or `good_hts`, `country` and `materials`. When `result.status` is `undetermined`, `result.needs` says what would resolve it: a row to pick (`row`), yes/no facts (`answers`, keyed as the need names them), codes, shares, or review by a person. Nothing is stored. Served when RULE_CHECK is on (the default).
+         */
+        post: operations["checkEUOrigin"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/rules/uk-origin": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * UK non-preferential origin rules check (TCTA 2018 s. 17, SI 2020/1433, HMRC reference document v1.2 Part Four), from HS codes; no model call (D760-D766)
+         * @description Applies the UK's non-preferential product-specific rules (Part Four of HMRC's "Rules of Origin: Special Rules for Determining Non-Preferential Origin", version 1.2, 12 April 2023) through SI 2020/1433 regs 4-11. Part Four has rules for some goods in 37 HS chapters only (`chapters`); every other good gets `result.status` `needs_judgement` (Taxation (Cross-border Trade) Act 2018 s. 17(3)), which a person decides. HMRC publishes no origin rulings, so there is no accuracy figure, and every answer carries `label` saying so. Same request and response shape as checkEUOrigin. Nothing is stored. Served when RULE_CHECK is on (the default).
+         */
+        post: operations["checkUKOrigin"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/v1/demos": {
         parameters: {
             query?: never;
@@ -1576,6 +1616,127 @@ export interface components {
             review?: {
                 reason: string;
             };
+        };
+        /** @description An EU or UK non-preferential origin check (D760-D766). Either product, or good_hts with country and materials. */
+        OriginRulesRequest: {
+            product?: components["schemas"]["Product"];
+            /** @example 8527.13 */
+            good_hts?: string;
+            /**
+             * @description Where the good is produced
+             * @example Malaysia
+             */
+            country?: string;
+            materials?: {
+                name?: string;
+                hts?: string;
+                origin?: string;
+                /** @description Share of the good's ex-works price: for the 10% tolerance, value rules and residual rules by value */
+                value_share?: number;
+                /** @description Share of the good's weight: for residual rules by weight and mixtures */
+                weight_share?: number;
+            }[];
+            /**
+             * @description Key of the list row the good is, from a need of kind row, or "none"
+             * @example 8473x
+             */
+            row?: string;
+            /**
+             * @description Yes/no facts, keyed as result.needs names them. A missing key is unknown; false is an answer. An unknown key is a 400.
+             * @example {
+             *       "8473x.2": true
+             *     }
+             */
+            answers?: {
+                [key: string]: boolean;
+            };
+            /** @description The last work, where the good was made, was only minimal operations (Art. 34 DA / Part Two) */
+            minimal_operations_only?: boolean;
+        };
+        OriginRulesView: {
+            /** @enum {string} */
+            jurisdiction: "eu" | "uk";
+            rules: string;
+            /** @example eu-da2015-2446-annex22-01-v1 */
+            table_version: string;
+            /** @enum {string} */
+            label: "Rules check only — no accuracy figure (no published origin rulings to test against)";
+            /** @description HS chapters the list has rules for */
+            chapters: string[];
+            country: string;
+            country_from?: string;
+            /** @description Who applies the rules (EU: Member State customs authorities; UK: HMRC) */
+            administration: string;
+            note: string;
+            source: {
+                title: string;
+                instrument: string;
+                url: string;
+                version: string;
+                as_of: string;
+                retrieved: string;
+                sha256: string;
+                licence: string;
+            };
+            result: components["schemas"]["OriginRulesResult"];
+        };
+        OriginRulesResult: {
+            /**
+             * @description needs_judgement: no list rule covers the good, so its origin turns on the general test (last substantial, economically justified processing), which a person decides
+             * @enum {string}
+             */
+            status: "decided" | "undetermined" | "needs_judgement";
+            origin?: string;
+            /** @description What decided it: the list row, the chapter residual rule, or Art. 34 DA */
+            basis?: string;
+            reason: string;
+            chapter?: string;
+            /** @description Whether the list has rules for the good's chapter */
+            covered: boolean;
+            assumes?: string[];
+            rule?: {
+                /** @example 8527 */
+                key: string;
+                /** @example 8527 */
+                code: string;
+                description: string;
+                /** @description The primary rule as published */
+                text: string;
+                alternatives: {
+                    key: string;
+                    text: string;
+                    /** @enum {string} */
+                    kind: "change" | "change_from" | "max_value" | "process";
+                    /** @enum {string} */
+                    outcome: "met" | "not_met" | "open";
+                }[];
+                chapter_rules?: string[];
+                notes?: string[];
+                residual?: string;
+            };
+            materials?: {
+                name?: string;
+                hts?: string;
+                origin?: string;
+                /** @enum {string} */
+                status: "originating" | "changes" | "no_change" | "open" | "missing_hts";
+            }[];
+            /** @description Present when undetermined: what would resolve it */
+            needs?: {
+                /** @description For kind fact, the answers key; for row, "row" */
+                key: string;
+                /** @enum {string} */
+                kind: "fact" | "row" | "code" | "share" | "review";
+                /** @description 0-based index into the materials (or product components) */
+                material?: number;
+                label: string;
+                detail?: string;
+                options?: {
+                    key: string;
+                    code: string;
+                    description: string;
+                }[];
+            }[];
         };
         /** @description The deterministic 19 CFR 102.20 tariff-shift check (D360, D363), present only when the product gives an HTS code for the good and at least one part. Computed when the case is read; display only: it never changes the prediction, the triage or auto-accept. RULE_CHECK=off removes it. */
         RuleCheck: {
@@ -4632,6 +4793,58 @@ export interface operations {
                         result: components["schemas"]["RuleCheck"]["result"];
                         guidance?: components["schemas"]["CanadaGuidance"];
                     };
+                };
+            };
+            400: components["responses"]["Error"];
+            429: components["responses"]["TooManyRequests"];
+        };
+    };
+    checkEUOrigin: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["OriginRulesRequest"];
+            };
+        };
+        responses: {
+            /** @description The check */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["OriginRulesView"];
+                };
+            };
+            400: components["responses"]["Error"];
+            429: components["responses"]["TooManyRequests"];
+        };
+    };
+    checkUKOrigin: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["OriginRulesRequest"];
+            };
+        };
+        responses: {
+            /** @description The check */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["OriginRulesView"];
                 };
             };
             400: components["responses"]["Error"];

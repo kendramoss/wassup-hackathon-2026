@@ -20,6 +20,7 @@ import { ReviewNote } from "../review-note";
 import { RuleCheckPanel } from "../rule-check";
 import { RcepCheck } from "../rcep-check";
 import { CanadaCheck } from "../canada-check";
+import { OriginRulesCheck } from "../origin-rules-check";
 import { UsmcaCheck } from "../usmca-check";
 import { JapanPreference } from "../japan-preference";
 import { Term } from "../term";
@@ -40,7 +41,29 @@ function Result(ctx: CaseCtx) {
   if (ctx.c.jurisdiction_detail?.supported === false) return <UnsupportedMarket c={ctx.c} />;
   // Canada is a rules-only market (D725): the marking-rule check, no model answer.
   if (ctx.c.jurisdiction === "ca") return <CanadaMarket c={ctx.c} />;
+  // The EU and the UK are rules-only markets (D766): the list-rule check, no model answer.
+  if (ctx.c.jurisdiction === "eu" || ctx.c.jurisdiction === "uk") return <OriginRulesMarket c={ctx.c} market={ctx.c.jurisdiction} />;
   return <Answer {...ctx} />;
+}
+
+function OriginRulesMarket({ c, market }: { c: CaseResponse; market: "eu" | "uk" }) {
+  const m = marketOf(c.jurisdiction);
+  return (
+    <>
+      <section aria-label="Market" className="border-b border-dashed border-guide">
+        <div className="column mx-auto max-w-[1240px] px-4 pb-8 pt-10 sm:px-10">
+          <StepEyebrow tab="origin" followUps={hasFollowUps(c)}>{copy.market.label}</StepEyebrow>
+          <h1 className="mt-1 flex items-center gap-4 text-[44px] font-normal leading-none tracking-[-0.05em] sm:text-[64px]">
+            {m.flag ? <Flag country={m.flag} size={44} /> : null}
+            {m.name}
+          </h1>
+        </div>
+      </section>
+      <Main>
+        <OriginRulesCheck c={c} market={market} />
+      </Main>
+    </>
+  );
 }
 
 function CanadaMarket({ c }: { c: CaseResponse }) {

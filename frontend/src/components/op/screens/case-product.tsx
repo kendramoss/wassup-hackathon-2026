@@ -42,9 +42,11 @@ export function CaseProduct() {
             </p>
           </Main>
           <Footer>
-            {c.jurisdiction !== "ca" && <Next>See the likely origin and the earlier rulings behind it.</Next>}
+            {c.jurisdiction !== "ca" && c.jurisdiction !== "eu" && c.jurisdiction !== "uk" && <Next>See the likely origin and the earlier rulings behind it.</Next>}
             <div className="ml-auto">
-              <ButtonLink href={`/cases/${encodeURIComponent(id)}/origin`}>{c.jurisdiction === "ca" ? "Canada marking rules →" : "Likely origin →"}</ButtonLink>
+              <ButtonLink href={`/cases/${encodeURIComponent(id)}/origin`}>
+                {c.jurisdiction === "ca" ? "Canada marking rules →" : c.jurisdiction === "eu" ? "EU origin rules →" : c.jurisdiction === "uk" ? "UK origin rules →" : "Likely origin →"}
+              </ButtonLink>
             </div>
           </Footer>
         </>

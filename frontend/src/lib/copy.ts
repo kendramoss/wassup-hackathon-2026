@@ -498,7 +498,7 @@ export const copy = {
     startUS: "Start a U.S. case →",
     // What each market offers today, beside the picker (#733). Japan's line is
     // the picker's own; nothing here promises a live check.
-    summary: ["U.S.: live", "Canada: rules check", "RCEP: tariff check", "Japan: not available yet.", "Other markets: not yet"],
+    summary: ["U.S.: live", "Canada, EU, UK: rules check", "RCEP: tariff check", "Japan: not available yet.", "Other markets: not yet"],
     // In the case tabs, where Plan and Draft would be, on a non-U.S. case (#678).
     followUpsUSOnly: "Plans and drafts: U.S. only for now",
   },
@@ -622,6 +622,34 @@ export const copy = {
     shareBad: "Enter 0 to 100",
     shareLabels: { value_share: "Value share", weight_share: "Weight share" } as Record<string, string>,
     answerLabels: { simple_assembly: "Simple assembly", gri_2a: "Parts only gathered together", bending_to_shape: "Bending to shape" } as Record<string, string>,
+  },
+
+  // The EU and UK non-preferential origin checks (D760-D766): rules checks
+  // only. Few words (rule 16); the label stays visible with every answer, and
+  // the source, version and hash sit under Details.
+  originRules: {
+    title: { eu: "EU origin (rules check)", uk: "UK origin (rules check)" } as Record<string, string>,
+    label: "Rules check only — no accuracy figure (no published origin rulings to test against)",
+    decided: { eu: "under EU origin rules, from the codes given.", uk: "under UK origin rules, from the codes given." } as Record<string, string>,
+    undetermined: "Not decided yet.",
+    judgement: "Needs a substantial-transformation judgement.",
+    judgementNext: "No list rule covers this product. A customs adviser decides where it was last substantially processed.",
+    toDecide: "To decide:",
+    none: "None of these",
+    running: "Checking…",
+    addCodes: "To run it, add:",
+    needGood: "Product HS code",
+    needPart: "HS code for at least one part",
+    details: "Details",
+    rule: "Rule",
+    outcome: { met: "met", not_met: "not met", open: "open" } as Record<string, string>,
+    assumes: "Assumes",
+    who: "Who applies it",
+    source: "Source",
+    version: "Version",
+    retrieved: "Retrieved",
+    hash: "SHA-256",
+    licence: "Licence",
   },
 
   // The 102.20 rule check on each plan move (D441): a chip on the plan card
