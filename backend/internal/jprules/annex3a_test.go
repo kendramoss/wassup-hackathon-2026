@@ -359,9 +359,10 @@ func TestSourcedNoteEvidenceUsesItsOwnSource(t *testing.T) {
 // rows and notes returned for each listed code at the schedule's first day. For
 // EU and UK the Annex 3-A notes and the Section and Chapter note cells are left
 // out, so only those two evidence lists may change.
+// JP-Australia EPA changed deliberately (column 4 and General Notes, docs/japan/australia-column4.md).
 var annexGolden = map[string]string{
 	"AJCEP": "8bf3fd2c4050a40b", "CPTPP": "bf1e2b327d3058aa", "GSP": "f92eb48efa4bda93",
-	"JP-Australia EPA": "6fa94377152e9fa0", "JP-Chile EPA": "d2a9e16a64373c8f", "JP-EU EPA": "611312c2392bec7c",
+	"JP-Australia EPA": "c1b8267d06781365", "JP-Chile EPA": "d2a9e16a64373c8f", "JP-EU EPA": "611312c2392bec7c",
 	"JP-India CEPA": "e90ad4d0aa8edf22", "JP-Indonesia EPA": "9dbd1aab47f662ca", "JP-Malaysia EPA": "51fd6558fa3d530a",
 	"JP-Mexico EPA": "fb63a1bc3cc2def6", "JP-Philippines EPA": "183174e8a417fa6e", "JP-Switzerland EPA": "cf787dcabdd33d67",
 	"JP-Thailand EPA": "b4fdad59224353b0", "JP-UK CEPA": "7ce305399eff57ef", "JP-US TA": "ecb919bc1c7ecf01",
