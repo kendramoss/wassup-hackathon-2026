@@ -98,6 +98,8 @@ var auditTable = map[string]auditRoute{
 	"POST /v1/rcep/check":                          {auditNone, ""},
 	"POST /v1/usmca/check":                         {auditNone, ""},
 	"POST /v1/rules/canada-marking":                {auditNone, ""},
+	"POST /v1/rules/eu-origin":                     {auditNone, ""},
+	"POST /v1/rules/uk-origin":                     {auditNone, ""},
 	"GET /v1/demos":                                {auditNone, ""},
 	"GET /v1/jurisdictions":                        {auditNone, ""},
 	"GET /v1/demos/{id}":                           {auditNone, ""},

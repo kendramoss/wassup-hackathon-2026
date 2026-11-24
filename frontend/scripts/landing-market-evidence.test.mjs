@@ -33,13 +33,14 @@ test("the limits sit in a closed disclosure and the evidence link resolves to th
 
 test("each market names what was shown and invents no Canada or Japan score", () => {
   const items = [...markup.matchAll(/<li[^>]*><b>([^<]*)<\/b><span[^>]*>([^<]*)<\/span><span[^>]*>([^<]*)<\/span><\/li>/g)].map((m) => m.slice(1));
-  assert.deepEqual(items.map((i) => i[0]), ["U.S. origin", "RCEP tariff", "Canada marking", "Japan origin", "Other markets"]);
+  assert.deepEqual(items.map((i) => i[0]), ["U.S. origin", "RCEP tariff", "Canada marking", "EU and UK origin", "Japan origin", "Other markets"]);
   const by = Object.fromEntries(items.map((i) => [i[0], i]));
   assert.notEqual(by["U.S. origin"][1], by["RCEP tariff"][1]);
   assert.equal(by["U.S. origin"][2], "Single-origin U.S. substantial-transformation rulings only.");
   assert.deepEqual(by["Canada marking"].slice(1), ["Rules only", "No score."]);
   assert.deepEqual(by["Japan origin"].slice(1), ["Not available yet", "Offline experiment only. Not a coverage claim."]);
-  assert.ok(!/\d/.test([...by["Canada marking"], ...by["Japan origin"]].join(" ")));
+  assert.deepEqual(by["EU and UK origin"].slice(1), ["Rules only", "No score."]);
+  assert.ok(!/\d/.test([...by["Canada marking"], ...by["EU and UK origin"], ...by["Japan origin"]].join(" ")));
   assert.ok(!page.includes("Supported check"));
 });
 

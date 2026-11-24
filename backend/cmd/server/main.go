@@ -54,6 +54,7 @@ import (
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/domain"
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/duty"
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/engine"
+	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/euorigin"
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/evalsummary"
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/extract"
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/familycheck"
@@ -63,6 +64,7 @@ import (
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/llm"
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/logsafe"
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/nearmiss"
+	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/nporigin"
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/planner"
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/ratelimit"
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/retrieval"
@@ -72,6 +74,7 @@ import (
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/tariffshift"
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/teams"
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/triage"
+	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/ukorigin"
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/verifier"
 )
 
@@ -451,6 +454,24 @@ func newDeps(cfg config.Config, model, engineModel llm.Model, cases store.Cases,
 			return httpapi.Deps{}, err
 		}
 	}
+	// EU and UK non-preferential origin list rules (D760-D766): rules checks
+	// on their own routes, on with the rule check. Both markets are
+	// rules-only: their cases get the check from the product's codes,
+	// always reviewed, with no follow-ups.
+	var euOrigin, ukOrigin *nporigin.Rules
+	if cfg.RuleCheck {
+		if euOrigin, err = euorigin.Rules(); err != nil {
+			return httpapi.Deps{}, err
+		}
+		if ukOrigin, err = ukorigin.Rules(); err != nil {
+			return httpapi.Deps{}, err
+		}
+		for _, a := range []jurisdiction.Authority{httpapi.OriginRulesAuthority(jurisdiction.EU, euOrigin), httpapi.OriginRulesAuthority(jurisdiction.UK, ukOrigin)} {
+			if err = markets.Register(a); err != nil {
+				return httpapi.Deps{}, err
+			}
+		}
+	}
 	japan, err := japanAuthority(cfg, meter, logger)
 	if err != nil {
 		return httpapi.Deps{}, err
@@ -721,6 +742,8 @@ func newDeps(cfg config.Config, model, engineModel llm.Model, cases store.Cases,
 		USMCAFastPath:         cfg.USMCAFastPath,
 		RuleCheck:             ruleCheck,
 		CanadaMarking:         canadaMarking,
+		EUOrigin:              euOrigin,
+		UKOrigin:              ukOrigin,
 		Jurisdictions:         markets,
 		Pharma:                pharma,
 		PharmaFastPath:        cfg.PharmaFastPath,

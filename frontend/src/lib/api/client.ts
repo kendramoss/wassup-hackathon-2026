@@ -41,6 +41,11 @@ export type CanadaBody = {
   bending_to_shape?: boolean;
 };
 export type CanadaMarking = paths["/v1/rules/canada-marking"]["post"]["responses"]["200"]["content"]["application/json"];
+// The EU and UK non-preferential origin checks (D760-D766): POST
+// /v1/rules/eu-origin and /v1/rules/uk-origin, same shape.
+export type OriginRulesBody = S["OriginRulesRequest"];
+export type OriginRules = S["OriginRulesView"];
+export type OriginMarket = "eu" | "uk";
 export type Scenario = NonNullable<CaseResponse["scenarios"]>[number];
 export type Watch = NonNullable<CaseResponse["watch"]>;
 
@@ -369,6 +374,9 @@ export const api = {
   htsSuggest: (body: { facts: string } | { product: Product }, signal?: AbortSignal) => post<HtsSuggestResponse>("/products/hts-suggest", body, signal),
   // Canada's marking rules from the product's codes (D720); no model call.
   canadaMarking: (body: CanadaBody, signal?: AbortSignal) => post<CanadaMarking>("/rules/canada-marking", body, signal),
+  // The EU or UK non-preferential origin rules from the product's codes
+  // (D760); no model call.
+  originRules: (market: OriginMarket, body: OriginRulesBody, signal?: AbortSignal) => post<OriginRules>(`/rules/${market}-origin`, body, signal),
   // Codes for each part (D380): suggestions only, nothing is stored.
   partsHtsSuggest: (body: { product: Product }, signal?: AbortSignal) => post<PartsHtsSuggestResponse>("/products/parts-hts-suggest", body, signal),
   // The lookups price duty and group costs only: the operating-cost block is

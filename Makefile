@@ -69,6 +69,7 @@ reproduce: ## recompute every published number from committed files: no model ca
 	cd $(GO_DIR) && go run ./cmd/tariffshift p102ck-eval -check
 	cd $(GO_DIR) && go run ./cmd/tariffshift p102bar -check
 	cd $(GO_DIR) && go test -count=1 ./internal/tariffshift -run 'RulesCAJSON|Parity'
+	cd $(GO_DIR) && go test -count=1 ./internal/euorigin ./internal/ukorigin -run 'JSON|Coverage|Parity'
 	python3 -I -B eval/planner/part102_dev.py select . --check
 	python3 -I -B eval/planner/part102_dev.py build . --check
 	python3 -I -B eval/tariffshift/chapter_counts.py . --check

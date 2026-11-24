@@ -112,6 +112,12 @@ func NewHandler(logger *slog.Logger, info Info, deps ...Deps) http.Handler {
 		if d.CanadaMarking != nil {
 			mux.HandleFunc("POST /v1/rules/canada-marking", a.cheap(a.canadaMarking))
 		}
+		if d.EUOrigin != nil {
+			mux.HandleFunc("POST /v1/rules/eu-origin", a.cheap(a.euOrigin)) // EU non-preferential origin, no model (D760)
+		}
+		if d.UKOrigin != nil {
+			mux.HandleFunc("POST /v1/rules/uk-origin", a.cheap(a.ukOrigin)) // UK non-preferential origin, no model (D760)
+		}
 		mux.HandleFunc("GET /v1/demos", a.cheap(a.listDemos))
 		mux.HandleFunc("GET /v1/jurisdictions", a.cheap(a.listJurisdictions))
 		mux.HandleFunc("GET /v1/demos/{id}", a.cheap(a.getDemo))

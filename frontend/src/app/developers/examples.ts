@@ -155,6 +155,22 @@ export const toolExamples: Record<ToolName, Example> = {
     input: { destination: "US", regime: "usmca", good_hs: "8202.31", rvc_method: "transaction_value", transaction_value: "100", vnm: "40" },
     output: { status: "needs_information", regime: "usmca", missing_facts: [{ field: "profile.simple_goods_confirmed" }] },
   },
+  check_eu_origin: {
+    input: { good_hts: "8527.13", country: "Malaysia", materials: [{ hts: "8534.00", origin: "China" }] },
+    output: {
+      jurisdiction: "eu",
+      label: "Rules check only — no accuracy figure (no published origin decisions with their facts to test against)",
+      result: { status: "decided", origin: "Malaysia", basis: "Art. 32 DA; Delegated Regulation (EU) 2015/2446, Annex 22-01, 8527" },
+    },
+  },
+  check_uk_origin: {
+    input: { good_hts: "8471.30", country: "Vietnam", materials: [{ hts: "8473.30", origin: "China" }] },
+    output: {
+      jurisdiction: "uk",
+      label: "Rules check only — no accuracy figure (no published origin rulings to test against)",
+      result: { status: "needs_judgement", basis: "Taxation (Cross-border Trade) Act 2018 s. 17(3)" },
+    },
+  },
 };
 
 const api = "https://undelabs.dev/api";

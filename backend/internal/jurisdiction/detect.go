@@ -11,7 +11,7 @@ import (
 
 // DetectorVersion names the cue lists below; a change to them needs a bump
 // and a re-run of the D680 checks.
-const DetectorVersion = "market-detect-v2"
+const DetectorVersion = "market-detect-v3"
 
 // places maps a place a question can name as its destination to its market.
 // Lower case; matched on word boundaries.
@@ -24,7 +24,7 @@ var places = map[string][]string{
 		"paris", "berlin", "hamburg", "munich", "frankfurt", "rotterdam", "amsterdam", "antwerp", "brussels", "madrid", "barcelona",
 		"milan", "rome", "warsaw", "vienna", "dublin", "lisbon", "stockholm", "copenhagen", "prague", "athens", "budapest",
 		"valencia", "genoa", "le havre", "marseille", "gdansk", "piraeus", "lyon", "turin", "naples", "bremen", "cologne", "düsseldorf"},
-	UK: {"the united kingdom", "united kingdom", "the uk", "uk", "great britain", "britain", "england", "scotland", "wales", "northern ireland",
+	UK: {"the united kingdom", "united kingdom", "the uk", "uk", "great britain", "britain", "england", "scotland", "wales",
 		"london", "birmingham", "manchester", "felixstowe", "southampton", "glasgow", "edinburgh", "liverpool", "leeds", "dover", "bristol"},
 	CA: {"canada", "toronto", "vancouver", "montreal", "calgary", "ottawa", "edmonton", "winnipeg", "halifax", "prince rupert"},
 	JP: {"japan", "tokyo", "osaka", "yokohama", "nagoya", "kobe", "kyoto", "fukuoka"},
@@ -38,6 +38,18 @@ var places = map[string][]string{
 		"durban", "johannesburg", "cape town", "santos", "jebel ali", "riyadh", "jeddah", "chennai", "delhi", "jakarta", "bangkok",
 		"ho chi minh city", "hanoi", "manila", "kuala lumpur", "istanbul", "tel aviv", "auckland", "zurich", "oslo"},
 }
+
+// northernIreland are places in Northern Ireland. Under the Windsor
+// Framework the EU's customs rules apply to many goods entering Northern
+// Ireland, so naming it never picks the UK (or the EU): the case asks the
+// user to pick the market (D767).
+var northernIreland = []string{"northern ireland", "belfast", "londonderry", "derry"}
+
+// CueNorthernIreland is the cue of a case read as Northern Ireland.
+const CueNorthernIreland = "Northern Ireland"
+
+// NorthernIrelandReason is the triage reason for such a case.
+const NorthernIrelandReason = "Goods entering Northern Ireland can fall under EU or UK rules. Pick the market to get an answer"
 
 // adjectives maps a market adjective ("German customs") to its market.
 var adjectives = map[string][]string{
@@ -154,6 +166,12 @@ func buildCues() []cueRE {
 			cueRE{market: c, cue: Name(c) + " customs", re: regexp.MustCompile(`(?i)(?:^|[^\p{L}\p{N}])(?:` + alt(adjectives[c]) + `)` + customsNoun), kind: kindAuthority, notBefore: exportSide},
 		)
 	}
+	ni := alt(northernIreland)
+	out = append(out,
+		cueRE{market: UK, cue: CueNorthernIreland, re: regexp.MustCompile(`(?i)\b` + entryVerb + `(` + ni + `)` + end), kind: kindEntry, dest: true},
+		cueRE{market: UK, cue: CueNorthernIreland, re: regexp.MustCompile(`(?i)\b` + sendVerb + `(` + ni + `)` + end), kind: kindWeak, dest: true},
+		cueRE{market: UK, cue: CueNorthernIreland, re: regexp.MustCompile(`(?i)\b(?:to|into|in|at)\s+(?:our\s+|a\s+|the\s+)?(` + ni + `)` + end), kind: kindWeak, dest: true},
+	)
 	for _, c := range currencies {
 		out = append(out, cueRE{market: c.market, cue: "a price in " + Name(c.market) + " currency", re: regexp.MustCompile(`(?i)` + c.re), kind: kindWeak})
 	}
@@ -178,6 +196,21 @@ type hit struct {
 //     non-U.S. one is a Hint.
 //   - No cue: the United States.
 func Detect(text string) domain.Jurisdiction {
+	j := detect(text)
+	// Northern Ireland (D767): EU or UK rules can apply, so a reading of the
+	// UK, or no market, that rests on a Northern Ireland place asks the
+	// user instead.
+	if j.Code == UK || j.Source == SourceDefault && j.Hint == UK {
+		for _, c := range cues {
+			if c.cue == CueNorthernIreland && len(c.find(text)) > 0 {
+				return domain.Jurisdiction{Code: Other, Source: SourceDetected, Cue: CueNorthernIreland, Hint: UK, Conflict: true}
+			}
+		}
+	}
+	return j
+}
+
+func detect(text string) domain.Jurisdiction {
 	var hits []hit
 	for _, c := range cues {
 		for _, loc := range c.find(text) {
