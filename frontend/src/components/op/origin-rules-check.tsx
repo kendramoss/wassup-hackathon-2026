@@ -17,6 +17,14 @@ function sentence(s: string): string {
   return t ? t[0].toUpperCase() + t.slice(1) + (/[.!?]$/.test(t) ? "" : ".") : t;
 }
 
+// firstSentence: a judgement's reason up to its first full stop before a
+// capital letter ("reg. 9" and "Art. 60" are not ends); the rest is under
+// Details (rule 16).
+export function firstSentence(s: string): string {
+  const m = s.match(/^(.*?[.)])\s+(?=[A-Z])/s);
+  return m ? m[1].replace(/\.$/, "") : s;
+}
+
 // canCheckOrigin: the product gives a code for the good and at least one part.
 export function canCheckOrigin(c: CaseResponse): boolean {
   const p = c.product;
@@ -54,7 +62,7 @@ export function OriginRulesView({ v, parts }: { v: OriginRules; parts?: string[]
         ) : null}
         {head}
       </p>
-      {r.reason ? <p className="duo mt-1.5 text-[13px] text-body">{sentence(r.reason)}</p> : null}
+      {r.reason ? <p className="duo mt-1.5 text-[13px] text-body">{sentence(r.status === "needs_judgement" ? firstSentence(r.reason) : r.reason)}</p> : null}
       {r.status === "needs_judgement" ? <p className="duo mt-1.5 text-[13px] text-body">{C.judgementNext}</p> : null}
       {needs.length ? (
         <div data-origin-needs className="duo mt-2 text-[13px] text-body">
@@ -78,6 +86,7 @@ export function OriginRulesView({ v, parts }: { v: OriginRules; parts?: string[]
       <div className="mt-2">
         <Fold title={C.details}>
           <div className="duo flex flex-col gap-2 text-[12.5px] text-dim">
+            {r.status === "needs_judgement" && r.reason && firstSentence(r.reason) !== r.reason ? <p className="text-body">{sentence(r.reason)}</p> : null}
             {r.rule ? (
               <div>
                 <p className="text-body">

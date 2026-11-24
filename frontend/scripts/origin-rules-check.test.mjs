@@ -6,7 +6,7 @@ import { html, text } from "./render-support.mjs";
 // The EU and UK origin rules checks (D760-D766): the label is always shown,
 // a good with no list rule is a judgement (never an origin), and the source,
 // version and hash sit behind "Details" (rule 16). Synthetic responses.
-const { OriginRulesView, OriginRulesCheck, canCheckOrigin } = await import("../src/components/op/origin-rules-check.tsx");
+const { OriginRulesView, OriginRulesCheck, canCheckOrigin, firstSentence } = await import("../src/components/op/origin-rules-check.tsx");
 const { copy } = await import("../src/lib/copy.ts");
 
 const LABEL = "Rules check only — no accuracy figure (no published origin decisions with their facts to test against)";
@@ -133,4 +133,14 @@ test("EU and UK cases show the rules check, not a model answer", async () => {
 test("copy stays short (rule 16)", () => {
   const C = copy.originRules;
   for (const s of [C.undetermined, C.judgement, C.toDecide, C.title.eu, C.title.uk]) assert.ok(s.split(" ").length <= 6, s);
+});
+
+test("a judgement shows its first sentence; the rest sits under Details", () => {
+  const reason = "Annex 22-01 has no rule for this good (chapter 84 rules cover: ex 8443, ex 8473, ex 8482). This good has no list rule in Annex 22-01, so its origin is the country of its last substantial, economically justified processing (Art. 60(2) UCC). That is a judgement on the facts; it is not decided by code";
+  assert.equal(firstSentence(reason), "Annex 22-01 has no rule for this good (chapter 84 rules cover: ex 8443, ex 8473, ex 8482)");
+  assert.equal(firstSentence("only operations (SI 2020/1433 reg. 9, Part Two), so it does not confer origin. Where it was processed is a judgement"), "only operations (SI 2020/1433 reg. 9, Part Two), so it does not confer origin");
+  const m = html(OriginRulesView, { v: { ...decided, result: { status: "needs_judgement", covered: true, basis: "Art. 60(2) UCC", reason } } });
+  const details = m.match(/<details[^>]*>[\s\S]*<\/details>/)[0];
+  assert.ok(!text(m.replace(details, "")).includes("Art. 60(2) UCC). That"));
+  assert.ok(text(details).includes("That is a judgement on the facts"));
 });
