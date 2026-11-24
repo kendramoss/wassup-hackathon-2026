@@ -67,4 +67,4 @@ The URLs are in `correlations.json` and in `schedules.json`.
 | CPTPP 0307.43 | no_match 14 | edition_hint 14 | no_match 2 | edition_hint 2 |
 | Malaysia 3824.99 | no_match 1 | mapped 1 | no_match 1 | mapped 1 |
 
-Remaining misses in the dev split are 7007.29 under JP-EU (withheld, a separate footnote question), the 0307.43 hints, and agreements without a schedule.
+Remaining misses in the dev split are 7007.29 under JP-EU (fixed since: it now returns the rule, see [withheld-rows-narrowing.md](withheld-rows-narrowing.md)), the 0307.43 hints, and agreements without a schedule.

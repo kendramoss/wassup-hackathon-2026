@@ -1682,11 +1682,24 @@
     "description": "Others:"
    },
    {
-    "start": "7007",
-    "end": "7009",
+    "start": "700711",
+    "end": "700711",
     "page": 55,
     "text": "CTH; MaxNOM 50 % (EXW); or RVC 55 % (FOB).",
     "blocked": true
+   },
+   {
+    "start": "700721",
+    "end": "700721",
+    "page": 55,
+    "text": "CTH; MaxNOM 50 % (EXW); or RVC 55 % (FOB).",
+    "blocked": true
+   },
+   {
+    "start": "7007",
+    "end": "7009",
+    "page": 55,
+    "text": "CTH; MaxNOM 50 % (EXW); or RVC 55 % (FOB)."
    },
    {
     "start": "7010",
@@ -2472,7 +2485,20 @@
     "text": "CTH"
    }
   ],
-  "notes": []
+  "notes": [
+   {
+    "scope": "chapter",
+    "key": "70",
+    "text": "For the products of subheadings 7007.11 and 7007.21, see also Appendix 3-B-1.",
+    "page": 55,
+    "applies": [
+     [
+      "7007",
+      "7009"
+     ]
+    ]
+   }
+  ]
  },
  {
   "agreement": "AJCEP",
@@ -44256,14 +44282,21 @@
     "start": "70",
     "end": "70",
     "page": 57,
-    "text": "CTH except from headings 70.02 to 70.05. CTH; MaxNOM 50 % (EXW); or RVC 55 % (FOB).",
+    "text": "CTH except from headings 70.02 to 70.05.",
     "description": "- Others"
+   },
+   {
+    "start": "7007",
+    "end": "7009",
+    "page": 57,
+    "text": "CTH; MaxNOM 50 % (EXW); or RVC 55 % (FOB).",
+    "blocked": true
    },
    {
     "start": "7010",
     "end": "7010",
     "page": 57,
-    "text": "CTH except from headings 70.02 to 70.05. CTH; MaxNOM 50 % (EXW); or RVC 55 % (FOB)."
+    "text": "CTH; MaxNOM 50 % (EXW); or RVC 55 % (FOB)."
    },
    {
     "start": "70",
@@ -44753,7 +44786,14 @@
     "start": "8401",
     "end": "8406",
     "page": 65,
-    "text": "CTH; MaxNOM 50 % (EXW); or RVC 55 % (FOB). MaxNOM 50 % (EXW); or RVC 55 % (FOB)."
+    "text": "CTH; MaxNOM 50 % (EXW); or RVC 55 % (FOB)."
+   },
+   {
+    "start": "8407",
+    "end": "8408",
+    "page": 65,
+    "text": "MaxNOM 50 % (EXW); or RVC 55 % (FOB).",
+    "blocked": true
    },
    {
     "start": "8409",
@@ -44928,6 +44968,47 @@
     "end": "8609",
     "page": 69,
     "text": "CTH except from heading 86.07; MaxNOM 50 % (EXW); or RVC 55 % (FOB)."
+   },
+   {
+    "start": "8701",
+    "end": "8701",
+    "page": 70,
+    "text": "MaxNOM 50 % (EXW); or RVC 55 % (FOB).",
+    "blocked": true
+   },
+   {
+    "start": "8702",
+    "end": "8705",
+    "page": 70,
+    "text": "MaxNOM 45 % (EXW); or RVC 60 % (FOB).",
+    "blocked": true
+   },
+   {
+    "start": "8706",
+    "end": "8706",
+    "page": 70,
+    "text": "MaxNOM 50 % (EXW); or RVC 55 % (FOB).",
+    "blocked": true
+   },
+   {
+    "start": "8707",
+    "end": "8707",
+    "page": 70,
+    "text": "MaxNOM 45 % (EXW); or RVC 60 % (FOB).",
+    "blocked": true
+   },
+   {
+    "start": "8708",
+    "end": "8708",
+    "page": 70,
+    "text": "CTH; MaxNOM 50 % (EXW); or RVC 55 % (FOB).",
+    "blocked": true
+   },
+   {
+    "start": "8709",
+    "end": "8711",
+    "page": 70,
+    "text": "CTH; MaxNOM 50 % (EXW); or RVC 55 % (FOB)."
    },
    {
     "start": "8712",
@@ -65685,10 +65766,27 @@
    },
    {
     "start": "3501",
+    "end": "3501",
+    "page": 10,
+    "text": "CC"
+   },
+   {
+    "start": "350211",
+    "end": "350219",
+    "page": 10,
+    "text": "CC except from chapter 4."
+   },
+   {
+    "start": "350220",
+    "end": "350499",
+    "page": 10,
+    "text": "CTH"
+   },
+   {
+    "start": "3505",
     "end": "3505",
     "page": 10,
-    "text": "CC CC except from chapter 4. CTH CC except from chapter 11.",
-    "blocked": true
+    "text": "CC except from chapter 11."
    },
    {
     "start": "3801",

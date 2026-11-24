@@ -71,6 +71,17 @@ class Helpers(unittest.TestCase):
         self.assertEqual(notes[0]["applies"], [["180320", "180320"], ["1805", "1805"]])
         self.assertNotIn("applies", notes[1])  # "this chapter": whole chapter
 
+    def test_withheld_narrowing_tables(self):
+        self.assertEqual([b.code_range(c) for c in b.EU_NARROW["70.071 -70.09"]["blocked"]],
+                         [("700711", "700711"), ("700721", "700721")])
+        self.assertEqual(b.EU_FOOTNOTES["70.071 -70.09"], "70.07-70.09")
+        ranges = [b.code_range(code) for k in b.UK_FOOTNOTES for code, _ in b.UK_FOOTNOTES[k]]
+        self.assertEqual(ranges, sorted(ranges))
+        self.assertEqual(b.code_range("87.09-87.11"), ("8709", "8711"))
+        (lines,) = b.SWISS_SPLITS.values()
+        swiss = [b.code_range(code) for code, _ in lines]
+        self.assertEqual(swiss, [("3501", "3501"), ("350211", "350219"), ("350220", "350499"), ("3505", "3505")])
+
 
 if __name__ == "__main__":
     unittest.main()
