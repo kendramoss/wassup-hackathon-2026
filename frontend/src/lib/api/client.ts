@@ -51,6 +51,13 @@ export type OriginMarket = "eu" | "uk";
 export type SuppliedOriginFacts = S["SuppliedOriginFacts"];
 export type OriginFactsBody = S["OriginFactsRequest"];
 export type OriginFactsResponse = Json<"/v1/cases/{id}/origin-facts/{market}", "put">;
+// Family questions (#770, D810).
+export type FamilyIntake = S["FamilyIntake"];
+export type FamilyQuestion = S["FamilyQuestion"];
+export type FamilyAnswer = S["FamilyAnswer"];
+export type SuppliedFamilyFacts = S["SuppliedFamilyFacts"];
+export type FamilyFactsBody = S["FamilyFactsRequest"];
+export type FamilyFactsResponse = Json<"/v1/cases/{id}/family-facts", "put">;
 // The evidence report (#771, D803): every check separate.
 export type EvidenceReport = S["EvidenceReport"];
 export type EvidenceCheck = S["EvidenceCheck"];
@@ -388,6 +395,8 @@ export const api = {
   // Save facts supplied to the case's EU or UK check and re-run it (D801).
   putOriginFacts: (id: string, market: OriginMarket, body: OriginFactsBody) =>
     post<OriginFactsResponse>(`/cases/${enc(id)}/origin-facts/${market}`, body, undefined, "PUT"),
+  // Answers to the family questions (D810); no model call.
+  putFamilyFacts: (id: string, body: FamilyFactsBody) => post<FamilyFactsResponse>(`/cases/${enc(id)}/family-facts`, body, undefined, "PUT"),
   // Every check on the case's product, separate (D803); no model call.
   evidenceReport: (id: string, signal?: AbortSignal) => call<EvidenceReport>(`/cases/${enc(id)}/evidence-report`, { signal }),
   // Codes for each part (D380): suggestions only, nothing is stored.

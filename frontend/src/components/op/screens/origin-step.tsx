@@ -21,6 +21,7 @@ import { RuleCheckPanel } from "../rule-check";
 import { RcepCheck } from "../rcep-check";
 import { CanadaCheck } from "../canada-check";
 import { OriginRulesCheck } from "../origin-rules-check";
+import { FamilyIntakePanel } from "../family-intake";
 import { UsmcaCheck } from "../usmca-check";
 import { JapanPreference } from "../japan-preference";
 import { Term } from "../term";
@@ -208,6 +209,7 @@ function Answer({ id, c, setCase }: CaseCtx) {
           ) : null}
           <RuleCheckPanel c={c} />
           <CanadaCheck c={c} />
+          <FamilyIntakePanel c={c} setCase={setCase} />
           {c.clarify?.conflict ? <Conflict c={c} /> : null}
           {qs ? <Questions c={c} setCase={setCase} /> : null}
           {route === "needs_review" && !qs && !regime ? <ReviewPanel c={c} /> : null}

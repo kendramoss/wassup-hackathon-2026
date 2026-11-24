@@ -111,7 +111,28 @@ type Report struct {
 	// Supplied are facts the requester supplied to rules checks, by market,
 	// kept apart from the case's facts (D801).
 	Supplied map[string]*domain.SuppliedOriginFacts `json:"supplied,omitempty"`
-	Checks   []Check                                `json:"checks"`
+	// FamilyAnswers are the requester's answers to the case's family
+	// questions (D810), kept apart from the case's facts like Supplied.
+	FamilyAnswers *FamilyAnswers `json:"family_answers,omitempty"`
+	Checks        []Check        `json:"checks"`
+}
+
+// FamilyAnswers are the answers to a case's family questions, each beside
+// its question and the document that settles it.
+type FamilyAnswers struct {
+	Family  string             `json:"family"`
+	Version string             `json:"version"`
+	Source  string             `json:"source"`
+	Saved   time.Time          `json:"updated_at"`
+	Stale   bool               `json:"stale,omitempty"`
+	Lines   []FamilyAnswerLine `json:"answers"`
+}
+
+// FamilyAnswerLine is one answered family question.
+type FamilyAnswerLine struct {
+	Question string `json:"question"`
+	Answer   string `json:"answer"`
+	Evidence string `json:"evidence"`
 }
 
 // StatusText is a status in plain words.
@@ -256,6 +277,18 @@ func Markdown(r Report) string {
 			}
 			b.WriteString(strings.Join(os, "; ") + "\n\n")
 		}
+	}
+
+	if fa := r.FamilyAnswers; fa != nil && len(fa.Lines) > 0 {
+		b.WriteString("## Answers to the family questions\n\n")
+		fmt.Fprintf(&b, "Given by the requester (%s), saved %s, for %s (%s). Kept apart from the case's facts, which they do not change; no check above reads them.\n\n", md(fa.Source), stamp(fa.Saved), md(fa.Family), md(fa.Version))
+		if fa.Stale {
+			b.WriteString("Not used: saved before the parts list or the product family changed; to be answered again.\n\n")
+		}
+		for _, l := range fa.Lines {
+			fmt.Fprintf(&b, "- %s %s (settled by: %s)\n", md(l.Question), md(l.Answer), md(l.Evidence))
+		}
+		b.WriteString("\n")
 	}
 
 	if len(r.Supplied) > 0 {

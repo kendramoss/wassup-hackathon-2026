@@ -98,7 +98,7 @@ func TestMCPListsToolsWithTightSchemas(t *testing.T) {
 		"predict_origin": false, "extract_product": true, "plan_production_moves": false, "compare_target_countries": false,
 		"search_rulings": true, "get_ruling": true, "get_duty_rates": true, "get_case": true, "list_cases": true, "export_ruling_request_draft": true,
 		"create_broker_review_link": false, "get_broker_review_status": true, "check_rcep_preference": true, "check_usmca_origin_rule": true,
-		"get_evidence_report": true,
+		"get_evidence_report": true, "save_case_answers": false,
 	}
 	if len(lt.Tools) != len(want) {
 		t.Errorf("listed %d tools, want %d", len(lt.Tools), len(want))

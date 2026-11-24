@@ -244,9 +244,29 @@ export interface paths {
         get?: never;
         /**
          * Save the facts the requester supplies to the case's EU or UK origin check and re-run it; no model call (D800-D802)
-         * @description #770. Replaces every fact saved for that market's check with the body (an empty body clears them). The facts are check inputs only: they are stored beside the case's product, attributed `source` "user-supplied" with `updated_at`, and the case's facts and product are never changed. Each fact must answer something the committed rules ask: an `answers` key a rule reads, a `row` of the list, a part that exists (named as it stands, so a later parts change leaves the fact unread and named rather than misapplied or refused; a BOM update after saving marks the whole set stale), a code that fills a missing part code or lengthens the part's own, an origin only for a part without one, and shares from 0 to 1 that add up to no more than 1 (400 otherwise). Answers with the market's check re-run on the case's product with the saved facts. 400 when the server has not loaded that market's rules. A pinned demo is read-only (403). Records an `origin_facts` event. Rate class basic.
+         * @description #770. Replaces every fact saved for that market's check with the body (an empty body clears them). The facts are check inputs only: they are stored beside the case's product, attributed `source` "user-supplied" with `updated_at`, and the case's facts and product are never changed. Each fact must answer something the committed rules ask: an `answers` key a rule reads, a `row` of the list, a part that exists (named as it stands, so a later parts change leaves the fact unread and named rather than misapplied or refused; a BOM update after saving marks the whole set stale), a code that fills a missing part code or lengthens the part's own, an origin only for a part without one, and shares from 0 to 1 that add up to no more than 1 (400 otherwise). Answers with the market's check re-run on the case's product with the saved facts. On a case asked for that market, the case's stored answer is that check, so it is re-run with the saved facts and stored (deterministic, no model; D815, D818): the answer from before the answers is kept as `prediction_before_answers`, and a `rechecked` event records was and now. On a case for another market the stored answer is unchanged. 400 when the server has not loaded that market's rules. A pinned demo is read-only (403). Records an `origin_facts` event. Rate class basic.
          */
         put: operations["putOriginFacts"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/cases/{id}/family-facts": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /**
+         * Save answers to the case's family questions; no model call (D810-D812)
+         * @description #770. The case's `family_intake` asks, for the five product families deepened in #772 (battery packs and power supplies; motors, pumps and industrial machines; furniture; medical devices; displays, cameras and lenses), where the parts or steps the template's cited rulings turn on were made, each naming the document that settles it. This replaces every saved answer with the body (an empty body clears them). Keys are question ids the intake asks now (state missing or answered); a question the parts list already settles (state known), a question it does not ask, or a case whose intake is not_modelled is a 400. A country answer must be in the picker's country table, never "Unknown" or "TBD". A country question takes `country`, a yes/no question `yes`. Answers are stored beside the case, `source` "user-supplied" with `updated_at`; the case's facts, product and parts list are never changed, and the stored U.S. answer (a model answer) is not re-run: the case list marks it `answers_note: added`. A BOM update or a family change after saving marks them stale (not read). `expected_updated_at` as for origin facts (409). A pinned demo is read-only (403). Records a `family_facts` event. Rate class basic.
+         */
+        put: operations["putFamilyFacts"];
         post?: never;
         delete?: never;
         options?: never;
@@ -1371,6 +1391,11 @@ export interface components {
              * @description That link's expiry; present only while its status is pending or viewed (#715)
              */
             review_expires_at?: string;
+            /**
+             * @description How supplied answers (saved and read: not cleared, not stale) relate to the origin shown (D814): rechecked when a rules-only EU or UK case's stored check was re-run with them; added when answers were saved after a model answer, which was not re-run (open the case to see them). Absent otherwise.
+             * @enum {string}
+             */
+            answers_note?: "rechecked" | "added";
         };
         /** @description Present only when CBP has changed (final) or proposed to change a ruling the case relies on: cited by the prediction, a shown plan's supporting ruling, or CBP's holding on the current setup (D480). */
         RulingAlertCounts: {
@@ -1847,6 +1872,89 @@ export interface components {
             };
             materials?: components["schemas"]["SuppliedMaterial"][];
         };
+        /** @description A country for a country question, or yes/no for a yes_no question */
+        FamilyAnswer: {
+            /** @example South Korea */
+            country?: string;
+            yes?: boolean;
+        };
+        /** @description Every answer to the case's family questions; replaces what was saved. Empty clears. */
+        FamilyFactsRequest: {
+            /** @description The updated_at of the saved answers as last read ("" when none were saved). If they changed since, nothing is saved: 409. */
+            expected_updated_at?: string;
+            /**
+             * @example {
+             *       "cells_made": {
+             *         "country": "South Korea"
+             *       },
+             *       "pack_work": {
+             *         "yes": false
+             *       }
+             *     }
+             */
+            answers?: {
+                [key: string]: components["schemas"]["FamilyAnswer"];
+            };
+        };
+        /** @description The requester's answers to the case's family questions (D810), kept apart from the case's facts and product, which they never change. */
+        SuppliedFamilyFacts: {
+            /** @enum {string} */
+            source: "user-supplied";
+            /** Format: date-time */
+            updated_at: string;
+            actor?: string;
+            family: string;
+            template_version: string;
+            answers: {
+                [key: string]: components["schemas"]["FamilyAnswer"];
+            };
+            /** @description Set on read, never stored: the parts list was replaced or the family changed after these were saved, so none is read (D812) */
+            stale?: boolean;
+        };
+        FamilyQuestion: {
+            /** @example cells_made */
+            id: string;
+            /** @enum {string} */
+            kind: "country" | "yes_no";
+            question: string;
+            /** @description The document that settles it */
+            evidence: string;
+            /**
+             * @description known: the parts list already says it, so it is not asked
+             * @enum {string}
+             */
+            state: "missing" | "answered" | "known";
+            /** @description The template groups it asks about */
+            groups: string[];
+            /** @description Rulings the template cites where this work decided origin */
+            confers_origin: string[];
+            /** @description Rulings the template cites where it did not */
+            not_enough: string[];
+            known?: string;
+            answer?: components["schemas"]["FamilyAnswer"];
+        };
+        /** @description The case's family questions (clarify-family-v1, deterministic; D810, D813). Present on a case of a family that has questions, or with saved answers. */
+        FamilyIntake: {
+            version: string;
+            /**
+             * @description missing_information: answerable questions are open; not_modelled: nothing can be asked, so nothing is answered (see not_modelled)
+             * @enum {string}
+             */
+            status: "missing_information" | "complete" | "not_modelled";
+            family?: string;
+            family_name?: string;
+            template_version?: string;
+            not_modelled?: {
+                /** @enum {string} */
+                code: "market" | "no_family" | "unknown_family" | "no_questions" | "no_product" | "guard" | "no_match";
+                reason: string;
+            };
+            questions: components["schemas"]["FamilyQuestion"][];
+            /** @description Saved answers not read: their question is no longer asked */
+            dropped?: string[];
+            /** @description No saved answer was read: they are stale */
+            stale?: boolean;
+        };
         EvidenceCheck: {
             /** @enum {string} */
             id: "us_origin" | "us_part102" | "ca_marking" | "eu_origin" | "uk_origin" | "rcep" | "usmca";
@@ -1905,6 +2013,20 @@ export interface components {
                 updated_at: string;
             };
             supplied?: components["schemas"]["OriginFactsByMarket"];
+            /** @description Answers to the case's family questions (D810), apart from the case's facts; no check reads them */
+            family_answers?: {
+                family: string;
+                version: string;
+                source: string;
+                /** Format: date-time */
+                updated_at: string;
+                stale?: boolean;
+                answers: {
+                    question: string;
+                    answer: string;
+                    evidence: string;
+                }[];
+            };
             checks: components["schemas"]["EvidenceCheck"][];
             markdown: string;
         };
@@ -2231,6 +2353,10 @@ export interface components {
             facts_source?: "parts_list" | "pasted";
             rule_check?: components["schemas"]["RuleCheck"];
             origin_facts?: components["schemas"]["OriginFactsByMarket"];
+            family_intake?: components["schemas"]["FamilyIntake"];
+            family_facts?: components["schemas"]["SuppliedFamilyFacts"];
+            /** @description An EU or UK case's stored answer before supplied answers re-ran it (D815, D818); present only while that re-check is the newest stored prediction */
+            prediction_before_answers?: components["schemas"]["Prediction"];
             ruling_alerts?: components["schemas"]["RulingAlerts"];
             /** @description latest economics given for the case, if any */
             economics?: components["schemas"]["Economics"];
@@ -3625,6 +3751,45 @@ export interface operations {
                         market: "eu" | "uk";
                         origin_facts: components["schemas"]["OriginFactsByMarket"];
                         check: components["schemas"]["OriginRulesView"];
+                        /** @description The case's stored answer after the save: present when the case asks this market's question, so its stored check was re-run with the answers (rules, no model; D815). The answer from before the answers is kept as the case's prediction_before_answers (shown while this re-check is the newest stored prediction) and a `rechecked` event records the change. */
+                        prediction?: components["schemas"]["Prediction"];
+                    };
+                };
+            };
+            400: components["responses"]["Error"];
+            401: components["responses"]["Error"];
+            403: components["responses"]["Error"];
+            404: components["responses"]["Error"];
+            409: components["responses"]["Error"];
+            429: components["responses"]["TooManyRequests"];
+        };
+    };
+    putFamilyFacts: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: components["parameters"]["CaseID"];
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["FamilyFactsRequest"];
+            };
+        };
+        responses: {
+            /** @description The saved answers and the questions read with them */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        case_id: string;
+                        /** @description null when cleared */
+                        family_facts: components["schemas"]["SuppliedFamilyFacts"] | null;
+                        family_intake: components["schemas"]["FamilyIntake"];
                     };
                 };
             };

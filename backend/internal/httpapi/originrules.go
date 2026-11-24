@@ -285,7 +285,16 @@ func (e originEngine) Predict(_ context.Context, c domain.Case) (engine.Result, 
 	for _, comp := range c.Product.Components {
 		in.Materials = append(in.Materials, nporigin.Material{Name: comp.Name, HTS: comp.HTS, Origin: comp.MadeIn})
 	}
-	res := e.rules.Evaluate(in)
+	return engine.Result{Prediction: originPrediction(e.rules, e.label, e.rules.Evaluate(in))}, nil
+}
+
+// originPrediction is the stored prediction of a rules-only EU or UK case
+// for a check result: the case's predict step and a re-check with supplied
+// answers (D815) store the same shape. No model.
+func originPrediction(rules *nporigin.Rules, label string, res nporigin.Result) domain.Prediction {
+	p := domain.Prediction{
+		Trace: domain.Trace{Provider: "rules", ModelID: "none", PromptVersion: rules.Table().Version},
+	}
 	if res.Status == nporigin.Decided {
 		p.Origin, p.DecisiveStep = res.Origin, res.Basis
 	}
@@ -293,7 +302,7 @@ func (e originEngine) Predict(_ context.Context, c domain.Case) (engine.Result, 
 	if reason != "" {
 		reason = strings.ToUpper(reason[:1]) + reason[1:]
 	}
-	p.Reasoning = e.label + ". " + strings.TrimSuffix(reason, ".") + "."
+	p.Reasoning = label + ". " + strings.TrimSuffix(reason, ".") + "."
 	p.KeyFactors = res.Assumes
-	return engine.Result{Prediction: p}, nil
+	return p
 }

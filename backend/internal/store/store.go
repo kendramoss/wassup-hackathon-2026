@@ -87,6 +87,25 @@ type Case struct {
 	// timestamped (#770, D801). They are check inputs only: Facts and
 	// Product above are never changed by them.
 	OriginFacts map[string]*domain.SuppliedOriginFacts `json:"origin_facts,omitempty"`
+	// FamilyFacts are the requester's answers to the case's family
+	// questions (#770, D810), attributed "user-supplied" and timestamped.
+	// Like OriginFacts they never change Facts or Product.
+	FamilyFacts *domain.SuppliedFamilyFacts `json:"family_facts,omitempty"`
+	// PredictionBeforeAnswers is the stored prediction as it was before
+	// supplied answers first re-ran a rules-only market's check (D815):
+	// kept so the original answer is never lost. Set once.
+	PredictionBeforeAnswers *domain.Prediction `json:"prediction_before_answers,omitempty"`
+}
+
+// cloneSupplied detaches the supplied answers, so a read-time flag or a
+// handler's change cannot write through a stored value.
+func (c *Case) cloneSupplied() {
+	c.OriginFacts = domain.CloneOriginFacts(c.OriginFacts)
+	c.FamilyFacts = c.FamilyFacts.Clone()
+	if c.PredictionBeforeAnswers != nil {
+		p := c.PredictionBeforeAnswers.Clone()
+		c.PredictionBeforeAnswers = &p
+	}
 }
 
 // MaxHistory caps a case's audit trail; the oldest events are dropped.
@@ -344,7 +363,7 @@ func ListOwner(ctx context.Context, cs Cases, owner string, n int) ([]Case, erro
 	var out []Case
 	for _, c := range all {
 		if c.Owner == owner {
-			c.OriginFacts = domain.CloneOriginFacts(c.OriginFacts)
+			c.cloneSupplied()
 			out = append(out, c)
 		}
 	}
@@ -410,7 +429,7 @@ func (m *Memory) List(_ context.Context) ([]Case, error) {
 	defer m.mu.RUnlock()
 	out := make([]Case, 0, len(m.cases))
 	for _, c := range m.cases {
-		c.OriginFacts = domain.CloneOriginFacts(c.OriginFacts)
+		c.cloneSupplied()
 		out = append(out, c)
 	}
 	sortNewest(out)
@@ -426,7 +445,7 @@ func (m *Memory) ListOwner(_ context.Context, owner string, n int) ([]Case, erro
 	var out []Case
 	for _, c := range m.cases {
 		if c.Owner == owner {
-			c.OriginFacts = domain.CloneOriginFacts(c.OriginFacts)
+			c.cloneSupplied()
 			out = append(out, c)
 		}
 	}
@@ -454,7 +473,7 @@ func (m *Memory) Get(_ context.Context, id string) (Case, error) {
 	if !ok {
 		return Case{}, ErrNotFound
 	}
-	c.OriginFacts = domain.CloneOriginFacts(c.OriginFacts)
+	c.cloneSupplied()
 	return c, nil
 }
 
@@ -473,12 +492,12 @@ func (m *Memory) Update(_ context.Context, id string, fn func(*Case) error) (Cas
 	c.Scenarios = append([]Scenario(nil), c.Scenarios...)
 	c.Answers = append([]Answer(nil), c.Answers...)
 	c.Exclude = append([]string(nil), c.Exclude...)
-	c.OriginFacts = domain.CloneOriginFacts(c.OriginFacts)
+	c.cloneSupplied()
 	if err := fn(&c); err != nil {
 		return Case{}, err
 	}
 	m.cases[id] = c
-	c.OriginFacts = domain.CloneOriginFacts(c.OriginFacts)
+	c.cloneSupplied()
 	return c, nil
 }
 

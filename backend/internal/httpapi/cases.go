@@ -325,7 +325,7 @@ func (a *api) errorFor(r *http.Request, err error) (int, string, string) {
 		return http.StatusForbidden, "forbidden", forbiddenMessage
 	case errors.Is(err, errAuditUnavailable):
 		return http.StatusServiceUnavailable, "audit_unavailable", "the audit trail is unavailable, so this change was not made; try again"
-	case errors.Is(err, errSuperseded), errors.Is(err, errIdempotencyReuse), errors.Is(err, errOriginFactsChanged):
+	case errors.Is(err, errSuperseded), errors.Is(err, errIdempotencyReuse), errors.Is(err, errOriginFactsChanged), errors.Is(err, errFamilyFactsChanged):
 		return http.StatusConflict, "conflict", err.Error()
 	case errors.Is(err, store.ErrNotFound), errors.Is(err, cross.ErrNotFound), errors.Is(err, apikey.ErrNotFound):
 		return http.StatusNotFound, "not_found", err.Error()
@@ -773,6 +773,19 @@ func (a *api) caseFieldsBase(r *http.Request, c store.Case) map[string]any {
 	if len(c.OriginFacts) > 0 {
 		f["origin_facts"] = originFactsOf(c)
 	}
+	// The family questions (D810), only on a case of a family that has
+	// them or with answers saved, so every other case reads byte for byte
+	// as before: missing information, answered or known, or why nothing is
+	// asked (not modelled).
+	if clarify.HasQuestions(c.Family) || c.FamilyFacts != nil {
+		f["family_intake"] = a.familyIntakeOf(c)
+	}
+	if c.FamilyFacts != nil {
+		f["family_facts"] = familyFactsOf(c)
+	}
+	if pb := predictionBeforeAnswers(c); pb != nil {
+		f["prediction_before_answers"] = pb
+	}
 	// CBP changes to rulings the case relies on (D480), present only when
 	// there is one. Information only: the stored answer is unchanged.
 	if ra := rulingAlertsField(c, alertsNow()); ra != nil {
@@ -956,6 +969,11 @@ type caseSummary struct {
 	// display-only and built from these and ruling_alerts.
 	ReviewStatus    string     `json:"review_status,omitempty"`
 	ReviewExpiresAt *time.Time `json:"review_expires_at,omitempty"`
+	// AnswersNote says how supplied answers relate to the origin shown
+	// (D814): "rechecked" when a rules-only market's stored check was re-run
+	// with them; "added" when answers were saved after a model answer,
+	// which is not re-run. Absent otherwise.
+	AnswersNote string `json:"answers_note,omitempty"`
 }
 
 // listCases lists the cases the caller may see: pinned demos first, then the
@@ -1114,6 +1132,7 @@ func summaryRow(c store.Case) caseSummary {
 	if c.DisplayName != "" {
 		row.DisplayName = c.DisplayName
 	}
+	row.AnswersNote = answersNote(c)
 	if c.Prediction.Origin != "" {
 		o, route, conf := c.Prediction.Origin, string(c.Triage.Route), c.Prediction.Confidence
 		row.Origin, row.Route, row.Confidence = &o, &route, &conf

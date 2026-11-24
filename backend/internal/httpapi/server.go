@@ -120,6 +120,7 @@ func NewHandler(logger *slog.Logger, info Info, deps ...Deps) http.Handler {
 		}
 		mux.HandleFunc("PUT /v1/cases/{id}/origin-facts/{market}", a.cheap(a.putOriginFacts)) // facts supplied to the EU or UK check, no model (D801)
 		mux.HandleFunc("GET /v1/cases/{id}/evidence-report", a.cheap(a.evidenceReport))       // separate checks on one product, no model (D803)
+		mux.HandleFunc("PUT /v1/cases/{id}/family-facts", a.cheap(a.putFamilyFacts))          // answers to the family questions, no model (D810)
 		mux.HandleFunc("GET /v1/demos", a.cheap(a.listDemos))
 		mux.HandleFunc("GET /v1/jurisdictions", a.cheap(a.listJurisdictions))
 		mux.HandleFunc("GET /v1/demos/{id}", a.cheap(a.getDemo))
