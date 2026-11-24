@@ -258,9 +258,9 @@
  "rows": {
   "final_after_case": 2,
   "final_before_case": 7,
-  "read_only_final": 68,
+  "read_only_final": 72,
   "rows_undated": 388,
-  "rows_with_rulings": 14102
+  "rows_with_rulings": 15039
  },
  "rulings_final_relied": {
   "N322364": 1,
