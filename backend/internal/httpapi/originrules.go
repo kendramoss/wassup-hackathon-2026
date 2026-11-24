@@ -75,12 +75,17 @@ type OriginRulesView struct {
 	Chapters []string `json:"chapters"`
 	// Country and CountryFrom say where production was read from, when the
 	// request sent a product.
-	Country        string           `json:"country"`
-	CountryFrom    string           `json:"country_from,omitempty"`
-	Result         nporigin.Result  `json:"result"`
-	Source         OriginSourceView `json:"source"`
-	Administration string           `json:"administration"`
-	Note           string           `json:"note"`
+	Country     string          `json:"country"`
+	CountryFrom string          `json:"country_from,omitempty"`
+	Result      nporigin.Result `json:"result"`
+	// Supplied are the facts the requester supplied and that were read into
+	// the check (#770), with where each came from; Stale lists parts whose
+	// supplied facts were not applied because the parts list changed.
+	Supplied       *domain.SuppliedOriginFacts `json:"supplied,omitempty"`
+	Stale          []int                       `json:"stale_supplied,omitempty"`
+	Source         OriginSourceView            `json:"source"`
+	Administration string                      `json:"administration"`
+	Note           string                      `json:"note"`
 }
 
 type originRulesRequest struct {
@@ -88,6 +93,10 @@ type originRulesRequest struct {
 	// code, its parts' codes and origins, and the production country from
 	// its plants. Otherwise the fields of nporigin.Input are used.
 	Product *domain.Product `json:"product,omitempty"`
+	// Supplied, with Product only, are facts the requester supplied to
+	// settle what the check asked (#770): read in beside the product, which
+	// is not changed.
+	Supplied *domain.SuppliedOriginFacts `json:"supplied,omitempty"`
 	nporigin.Input
 }
 
@@ -107,27 +116,73 @@ func (a *api) originRules(w http.ResponseWriter, r *http.Request, m originMarket
 		a.fail(w, r, err)
 		return
 	}
-	q := in.Input
-	v := OriginRulesView{Jurisdiction: m.code, Rules: m.rules, Label: OriginLabel(m.code), Note: m.note}
-	if in.Product != nil {
-		v.Country, v.CountryFrom = productionCountry(*in.Product)
-		q.GoodHTS, q.Country, q.Materials = in.Product.HTS, v.Country, nil
-		for _, c := range in.Product.Components {
-			q.Materials = append(q.Materials, nporigin.Material{Name: c.Name, HTS: c.HTS, Origin: c.MadeIn})
-		}
-	} else {
-		v.Country = domain.NormalizeCountry(q.Country)
+	if in.Supplied != nil && in.Product == nil {
+		a.fail(w, r, fmt.Errorf("%w: supplied is read only with product", domain.ErrInvalid))
+		return
 	}
+	if in.Product != nil {
+		v, err := originCheck(m, rules, *in.Product, in.Supplied, in.Input)
+		if err != nil {
+			a.fail(w, r, err)
+			return
+		}
+		writeJSON(w, http.StatusOK, v)
+		return
+	}
+	q := in.Input
 	if err := validateOriginInput(rules, q); err != nil {
 		a.fail(w, r, err)
 		return
 	}
-	t := rules.Table()
-	v.TableVersion, v.Chapters, v.Administration = t.Version, t.ChapterCodes(), rules.General().Administration
-	s := t.Source
-	v.Source = OriginSourceView{Title: s.Title, Instrument: s.Instrument, URL: s.URL, Version: s.Version, AsOf: s.AsOf, Retrieved: s.Retrieved, SHA256: s.SHA256, Licence: s.Licence}
+	v := originViewOf(m, rules)
+	v.Country = domain.NormalizeCountry(q.Country)
 	v.Result = rules.Evaluate(q)
 	writeJSON(w, http.StatusOK, v)
+}
+
+// originViewOf is the market's view without a result: rules, label, table
+// version, chapters and pinned source.
+func originViewOf(m originMarket, rules *nporigin.Rules) OriginRulesView {
+	t := rules.Table()
+	s := t.Source
+	return OriginRulesView{Jurisdiction: m.code, Rules: m.rules, Label: OriginLabel(m.code), Note: m.note,
+		TableVersion: t.Version, Chapters: t.ChapterCodes(), Administration: rules.General().Administration,
+		Source: OriginSourceView{Title: s.Title, Instrument: s.Instrument, URL: s.URL, Version: s.Version, AsOf: s.AsOf, Retrieved: s.Retrieved, SHA256: s.SHA256, Licence: s.Licence}}
+}
+
+// originCheck runs the market's check on a product, read like the case's
+// U.S. rule check, with the supplied facts beside it (D801). The product is
+// not changed. The row, answers and minimal-operations flag of direct, when
+// sent, are read too (a supplied row or answer wins).
+func originCheck(m originMarket, rules *nporigin.Rules, p domain.Product, s *domain.SuppliedOriginFacts, direct nporigin.Input) (OriginRulesView, error) {
+	if s != nil {
+		if err := rules.ValidateSupplied(p, *s); err != nil {
+			return OriginRulesView{}, fmt.Errorf("%w: supplied: %v", domain.ErrInvalid, err)
+		}
+	}
+	v := originViewOf(m, rules)
+	v.Country, v.CountryFrom = productionCountry(p)
+	q, ap := nporigin.FromProduct(p, v.Country, s)
+	if q.Row == "" {
+		q.Row = direct.Row
+	}
+	for k, b := range direct.Answers {
+		if _, ok := q.Answers[k]; !ok {
+			if q.Answers == nil {
+				q.Answers = map[string]bool{}
+			}
+			q.Answers[k] = b
+		}
+	}
+	q.MinimalOnly = direct.MinimalOnly
+	if err := validateOriginInput(rules, q); err != nil {
+		return OriginRulesView{}, err
+	}
+	v.Result = rules.Evaluate(q)
+	if !s.Empty() {
+		v.Supplied, v.Stale = s, ap.Stale
+	}
+	return v, nil
 }
 
 // validateOriginInput checks the request's shape: a code, at most 50

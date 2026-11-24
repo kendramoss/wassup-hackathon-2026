@@ -82,6 +82,11 @@ type Case struct {
 	// BrokerReviews are the case's broker review links, oldest first (D200).
 	// Their token hashes and draft snapshots are never returned to the owner.
 	BrokerReviews []BrokerReview `json:"broker_reviews,omitempty"`
+	// OriginFacts are the facts the requester supplied to a rules check of
+	// the case, by market ("eu", "uk"), attributed "user-supplied" and
+	// timestamped (#770, D801). They are check inputs only: Facts and
+	// Product above are never changed by them.
+	OriginFacts map[string]*domain.SuppliedOriginFacts `json:"origin_facts,omitempty"`
 }
 
 // MaxHistory caps a case's audit trail; the oldest events are dropped.

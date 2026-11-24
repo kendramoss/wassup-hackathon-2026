@@ -769,6 +769,10 @@ func (a *api) caseFieldsBase(r *http.Request, c store.Case) map[string]any {
 	if rc := a.ruleCheck(c); rc != nil {
 		f["rule_check"] = rc
 	}
+	// Facts supplied to the EU or UK check (D801), only when there are some.
+	if len(c.OriginFacts) > 0 {
+		f["origin_facts"] = c.OriginFacts
+	}
 	// CBP changes to rulings the case relies on (D480), present only when
 	// there is one. Information only: the stored answer is unchanged.
 	if ra := rulingAlertsField(c, alertsNow()); ra != nil {

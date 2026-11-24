@@ -121,7 +121,7 @@ func roleRoutes() []roleRoute {
 			)
 			continue
 		}
-		out = append(out, roleRoute{rt, rt.name == "get" || rt.name == "plan estimate" || rt.name == "review list"})
+		out = append(out, roleRoute{rt, rt.name == "get" || rt.name == "plan estimate" || rt.name == "review list" || rt.name == "evidence report"})
 	}
 	return out
 }
@@ -184,7 +184,7 @@ func TestRolePermissionTableCoversEveryCaseRoute(t *testing.T) {
 			reads = append(reads, p)
 		}
 	}
-	if len(reads) != 4 { // list, get, plan estimate, broker review list; export is permExport
+	if len(reads) != 5 { // list, get, plan estimate, broker review list, evidence report; export is permExport
 		t.Errorf("read-only routes = %v", reads)
 	}
 	if rolePerms["POST /v1/cases/{id}/export"] != permExport {
