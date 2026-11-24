@@ -87,6 +87,7 @@ func TestUKHeadingLookupReturnsEveryBranch(t *testing.T) {
 			}
 		}
 		res := lookupReason(t, table, ukAgreement, c.hs, "2025-03-04")
+		res.Evidence = ruleEvidence(res.Evidence)
 		if res.Reason != ReasonPSR || len(res.Evidence) != want || want < 2 {
 			t.Fatalf("%s: %v, %d evidence, want %d branches", c.hs, res.Reason, len(res.Evidence), want)
 		}

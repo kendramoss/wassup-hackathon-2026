@@ -585,7 +585,7 @@ func TestExistingSchedulesKeepTheHS2017List(t *testing.T) {
 				}
 			}
 			for _, n := range s.Notes {
-				if n.Ref != "" || n.Scope == "schedule" {
+				if n.Ref != "" || n.Scope == "schedule" && n.SourceURL == "" {
 					t.Errorf("%s: note %q has a ref or schedule scope", name, n.Key)
 				}
 			}

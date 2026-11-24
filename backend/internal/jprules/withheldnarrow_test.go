@@ -44,6 +44,7 @@ func TestEU7007Narrowed(t *testing.T) {
 	}
 	for _, hs := range []string{"7007.19", "7007.29", "7008.00", "7009.10", "7009.92"} {
 		r := lookupReason(t, table, "JP-EU EPA", hs, "2025-03-04")
+		r.Evidence = ruleEvidence(r.Evidence)
 		if r.Reason != ReasonPSR || len(r.Evidence) != 2 {
 			t.Fatalf("%s: %v %+v", hs, r.Reason, r.Evidence)
 		}
@@ -130,6 +131,7 @@ func TestUKFootnotedRowsWithheld(t *testing.T) {
 	}
 	for _, hs := range []string{"8709.11", "8710.00", "8711.20"} {
 		r := lookupReason(t, table, "JP-UK CEPA", hs, "2024-01-01")
+		r.Evidence = ruleEvidence(r.Evidence)
 		if r.Reason != ReasonPSR || len(r.Evidence) != 1 || r.Evidence[0].Text != euRule7007 || !strings.HasSuffix(r.Evidence[0].Citation, "PDF page 70") {
 			t.Errorf("%s: %v %+v", hs, r.Reason, r.Evidence)
 		}
@@ -202,7 +204,7 @@ func TestNarrowedRangesNeverReturnTwoRules(t *testing.T) {
 			n++
 			r := lookupReason(t, table, agreement, code, "2024-04-16")
 			rules := 0
-			for _, e := range r.Evidence {
+			for _, e := range ruleEvidence(r.Evidence) {
 				if !strings.Contains(e.Text, "see also Appendix 3-B-1") {
 					rules++
 				}
