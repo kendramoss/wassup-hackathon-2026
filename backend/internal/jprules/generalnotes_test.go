@@ -128,8 +128,6 @@ var gnAgreements = []gnAgreement{
 	}},
 	{"CPTPP", "Annex 3-D", "2018-12-30", customsText + "tpp2.pdf", "CPTPP Annex 3-D Section A General Interpretative Notes", 23, []gnNote{
 		{2, "paragraphs 3(c) to 3(g)", "(c) the requirement of a change in tariff classification shall apply only to non-originating materials;", "within the group.", nil, []string{"0101.21", "8401.10"}, nil},
-		{2, "paragraph 5", "5. For goods of chapters 84 and 87 marked with a symbol", "Parts of Vehicles) to this Annex.",
-			rng("84", "84", "87", "87"), []string{"8401.10", "8707.10"}, []string{"0101.21"}},
 	}},
 	{"CPTPP", "Annex 4-A", "2018-12-30", customsText + "tpp5.pdf", "CPTPP Annex 4-A Section A General Interpretative Notes", 3, []gnNote{
 		{2, "paragraphs 3(c) to 3(g)", "(c) the requirement of a change in tariff classification shall apply only to non-originating materials;", "rules of origin set out in this Annex.", nil, []string{"6101.20", "6201.11"}, nil},
@@ -281,7 +279,6 @@ func TestGeneralNotesAreQuotesNotParaphrases(t *testing.T) {
 		"CPTPP Annex 3-D": {
 			"it shall be construed to mean that the product-specific rule of origin requires that the excluded materials be originating for the good to be originating;",
 			"if a good is subject to alternative product-specific rules of origin, the good shall be originating if it satisfies one of the alternatives;",
-			"an optional methodology for satisfying the regional value content requirement",
 		},
 		"CPTPP Annex 4-A": {
 			"the Short Supply List of Products, set out as Appendix 1 to this Annex, is read in conjunction with the product-specific rules of origin set out in this Annex.",
@@ -301,6 +298,21 @@ func TestGeneralNotesAreQuotesNotParaphrases(t *testing.T) {
 		for _, f := range frags {
 			if !strings.Contains(text, f) {
 				t.Errorf("%s lacks %q", name, f)
+			}
+		}
+	}
+}
+
+func TestCPTPPParagraph5IsNotEmbedded(t *testing.T) {
+	// The dagger rows are withheld and no row stores the dagger, so paragraph 5 on
+	// all chapter 84 and 87 rows would imply an optional RVC route they may lack.
+	table := mustDefault(t)
+	d, _ := time.Parse(time.DateOnly, "2019-06-01")
+	for _, hs := range []string{"8401.10", "8707.10", "8708.99"} {
+		res, _ := table.LookupDetailed("CPTPP", hs, d)
+		for _, e := range res.Evidence {
+			if strings.Contains(e.Text, "marked with a symbol") || strings.Contains(e.Text, "optional methodology") {
+				t.Errorf("%s (%s) wrongly has paragraph 5", hs, res.Reason)
 			}
 		}
 	}

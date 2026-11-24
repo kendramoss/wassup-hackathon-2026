@@ -389,7 +389,7 @@ func TestOtherEvidenceByteIdentical(t *testing.T) {
 // above, because their lookups gained the quoted notes; every other agreement is
 // unchanged and is checked by the test above.
 var generalNotesGolden = map[string]string{
-	"CPTPP": "74ce4d1947914ae0", "JP-Chile EPA": "3180e63f2aa6768d", "JP-Indonesia EPA": "3570ca8a59f0d32e",
+	"CPTPP": "65694caafec49018", "JP-Chile EPA": "3180e63f2aa6768d", "JP-Indonesia EPA": "3570ca8a59f0d32e",
 	"JP-Malaysia EPA": "25f293b0d9d1c90e", "JP-Mexico EPA": "87e99c0b8806dda9", "JP-Philippines EPA": "799ea99e2b4ced59",
 	"JP-Switzerland EPA": "6f5d5c2e5751639b", "JP-Thailand EPA": "9fb9eb191f08ea22", "JP-Vietnam EPA": "cef54b35473849f8",
 }

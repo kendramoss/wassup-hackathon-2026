@@ -4,7 +4,7 @@ Nine agreements (JP-Thailand, JP-Indonesia, JP-Malaysia, JP-Philippines, JP-Mexi
 JP-Chile, JP-Vietnam, JP-Switzerland, CPTPP Annex 3-D and 4-A) open their product
 specific rules with General Notes that define terms the rows use or change how a rule
 qualifies. They were not in the evidence (see [general-notes-gap.md](general-notes-gap.md)).
-46 of them are now schedule notes, each a verbatim chunk of its own annex PDF with its
+45 of them are now schedule notes, each a verbatim chunk of its own annex PDF with its
 own page, `source_url` and `citation`.
 
 ## How a note is built
@@ -40,15 +40,16 @@ own page, `source_url` and `citation`.
 | Chile | 4 | (b)+(c) dry weight, CTC only on non-originating; (d) Build-down and Build-up methods; (f) tolerance; Notes 1 and 2 | (f): ch 19, 2001.10-2008.91, 2008.92, 2008.99-2009.90, 21, 28-97 |
 | Vietnam | 3 | 1 LVC 40% with its Note, CC, CTH, CTSH, WO (1); 3 tolerance of 10% and seven percent of the FOB (1-2) | 3: 0901.21-.22, 1803.10-.20, 1805.00, 2103.90; 3(b): 2103.90 |
 | Switzerland | 2 | 1(a) VNM, CC, CTH, CTSH, WO (1); 1(b) non-textile materials disregarded (2) | 1(b): 61-63 |
-| CPTPP 3-D | 2 | 3(c)-(g) CTC only on non-originating, excluded materials must be originating, alternatives, multiple requirements, group rule (2); 5 optional RVC methodology for the dagger goods of ch 84 and 87 (2) | 5: 84, 87 |
+| CPTPP 3-D | 1 | 3(c)-(g) CTC only on non-originating, excluded materials must be originating, alternatives, multiple requirements, group rule (2) | none |
 | CPTPP 4-A | 1 | 3(c)-(g) as above, and the Short Supply List is read with the rules (2) | none |
 
 Readings worth checking. Notes 1 and 2 define the two values the formulas and tolerance
 use and carry no chapter in their wording, so they are schedule notes without `applies`.
 The first note of a paragraph that continues (Thailand (f), Vietnam paragraph 3, Indonesia
-(i)(i)) carries the lead-in, so it has the union of the ranges named after it. The CPTPP
-dagger is not on any row (see the gap note), so paragraph 5 is attached by its own words,
-to chapters 84 and 87, not to the 12 dagger ranges. Chile's `applies` use the PDF's HS 2002
+(i)(i)) carries the lead-in, so it has the union of the ranges named after it. Malaysia and
+Philippines Notes 1 and 2 are "Notes" printed inside the tolerance paragraph, but their
+words only define two values and name no chapter, and the same values serve the QVC
+rows, so they stay schedule-wide. Chile's `applies` use the PDF's HS 2002
 wording; the lookup compares digits and does no HS edition conversion.
 
 ## Cut, with reasons
@@ -61,6 +62,12 @@ wording; the lookup compares digits and does no HS edition conversion.
   that must not read as an alternative to the listed rule), 3(a), 3(b) (chapter and
   heading notes are read with the rules; the notes returned state their own content) and
   4 (textile goods are in Annex 4-A; a routing statement).
+- CPTPP Annex 3-D paragraph 5 (the optional regional value content methodology for goods
+  of chapters 84 and 87 "marked with a symbol"): no row stores the dagger, and the 12
+  dagger ranges are withheld rows, which return no evidence, so a note narrowed to them
+  would never be shown. Attaching it to all chapter 84 and 87 rows would imply an optional
+  RVC route for rows that do not have one, and Appendix 1 is not embedded. A test checks
+  that 8401.10, 8707.10 and 8708.99 do not receive it.
 - Australia and India were not in scope: Australia has its own note
   ([australia-column4.md](australia-column4.md)); India's Annex notes define nothing the
   rows use. AJCEP is not text-layer and is not covered here.
@@ -74,8 +81,8 @@ Borderline dropped: CPTPP 3(b), as above.
 
 | | before | after |
 |---|---|---|
-| total request bytes | 6,654,327 | 6,777,520 (+123,193) |
-| average request | 16,804 | 17,115 |
+| total request bytes | 7,209,332 | 7,332,525 (+123,193) |
+| average request | 18,205 | 18,516 |
 | largest request | 35,072 | 35,072 |
 | requests that changed | | 93 (83 CPTPP, 4 Indonesia, 3 Thailand, 1 Malaysia, 1 Mexico, 1 Philippines) |
 
@@ -84,8 +91,8 @@ Bytes added per changed request: CPTPP 1,135 to 1,154; Indonesia 3,610; Thailand
 case is in `dev_eval`. Note text added to `schedules.json`, in characters and as JSON
 bytes: Thailand 3,076 and 4,587; Indonesia 6,998 and 10,091; Malaysia 1,889 and 2,721;
 Philippines 1,969 and 3,089; Mexico 1,507 and 2,671; Chile 1,377 and 2,321; Vietnam 1,925
-and 2,601; Switzerland 1,619 and 2,094; CPTPP 3-D 1,391 and 1,858; CPTPP 4-A 1,055 and
-1,274 (22,806 characters, 33,307 JSON bytes in all). This is an evidence addition. No
+and 2,601; Switzerland 1,619 and 2,094; CPTPP 3-D 1,036 and 1,255; CPTPP 4-A 1,055 and
+1,274. This is an evidence addition. No
 accuracy change is claimed or measured.
 
 `jpeval diagnose` on `dev` and `dev_eval` gives identical counts before and after (only
@@ -96,7 +103,8 @@ Indonesia 5,386, Vietnam 6,476, Switzerland 2,114, CPTPP 10,566, Malaysia 16,020
 15,948, Chile 15,969, Mexico 15,867). In `TestOtherEvidenceByteIdentical` the old golden
 hashes still hold with the General Notes left out; `TestGeneralNotesEvidenceHashes` pins
 the nine new hashes (the only golden values that changed, because their lookups gained
-evidence) and the unchanged hashes of the other agreements.
+evidence). "Before" is current main, which already holds the AJCEP provisions; the plan
+delta is the same with or without paragraph 5, since no dev_eval case is in chapter 84 or 87 and the unchanged hashes of the other agreements.
 
 ## Build
 

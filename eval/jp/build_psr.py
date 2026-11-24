@@ -262,7 +262,7 @@ def annex_3a_notes(path, filename):
 # that define a term of the rows or change how a rule qualifies are quoted; the
 # HS edition statements, the digit-prefix meanings of section, chapter, heading
 # and subheading, the "adjacent rule" paragraphs and the CPTPP paragraphs 1, 2, 3(a),
-# 3(b) and 4 are cut. Provisions that refer to the main Agreement (Articles) are quoted
+# 3(b), 4 and 5 are cut (5: the dagger rows are withheld; see general-notes-embedded.md). Provisions that refer to the main Agreement (Articles) are quoted
 # as the Annex words them and do not supply that text.
 _WEIGHT = "unless otherwise specified in the Harmonized System;"
 _ITA_END = "to subheading 8541.10 through 8542.90 from any other subheading."
@@ -365,8 +365,6 @@ GENERAL_NOTES = {
     "tpp2.pdf": {"label": "CPTPP Annex 3-D Section A General Interpretative Notes", "notes": [
         (2, "paragraphs 3(c) to 3(g)", "(c) the requirement of a change in tariff classification shall apply only to non-originating materials;",
          "within the group.", []),
-        (2, "paragraph 5", "5. For goods of chapters 84 and 87 marked with a symbol",
-         "Parts of Vehicles) to this Annex.", _headings("84", "87")),
     ]},
     "tpp5.pdf": {"label": "CPTPP Annex 4-A Section A General Interpretative Notes", "notes": [
         (2, "paragraphs 3(c) to 3(g)", "(c) the requirement of a change in tariff classification shall apply only to non-originating materials;",

@@ -42,7 +42,7 @@ above describes the audit; this table is the state now.
 | JP-Chile EPA | embedded: (b), (c), (d) Build-down and Build-up, (f), Notes 1 and 2 (4 notes) |
 | JP-Vietnam EPA | embedded: paragraphs 1 and 3 (3 notes) |
 | JP-Switzerland EPA | embedded: paragraph 1(a) and 1(b) (2 notes) |
-| CPTPP 3-D and 4-A | embedded: Section A 3(c) to (g) in both, and 5 in 3-D (3 notes); 3(b) and the dagger flag on rows not embedded |
+| CPTPP 3-D and 4-A | embedded: Section A 3(c) to (g) in both (2 notes); 3(b) and paragraph 5 not embedded (dagger rows are withheld, so a dagger note would never be shown, and on all chapter 84 and 87 rows it would imply an RVC route they lack) |
 | JP-EU EPA, JP-UK CEPA | embedded earlier ([annex-3a-notes.md](annex-3a-notes.md)) |
 | JP-Australia EPA | embedded earlier ([australia-column4.md](australia-column4.md)) |
 | AJCEP HS 2017 and HS 2022 | not embedded |

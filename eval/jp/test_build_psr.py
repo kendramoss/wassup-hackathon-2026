@@ -355,7 +355,7 @@ class GeneralNotes(unittest.TestCase):
     TARGETS = {
         "thailand2-2.pdf": 7, "indonesia2-2.pdf": 13, "malaysia2.pdf": 4, "philippine2.pdf": 5,
         "mexico2.pdf": 5, "chile2.pdf": 4, "vietnam2.pdf": 3, "switzerland3.pdf": 2,
-        "tpp2.pdf": 2, "tpp5.pdf": 1,
+        "tpp2.pdf": 1, "tpp5.pdf": 1,
     }
 
     def test_quote_general_is_verbatim_between_unique_anchors(self):

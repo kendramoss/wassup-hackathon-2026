@@ -14199,24 +14199,6 @@
     "page": 2,
     "source_url": "https://www.customs.go.jp/roo/english/text/tpp2.pdf",
     "citation": "CPTPP Annex 3-D Section A General Interpretative Notes, paragraphs 3(c) to 3(g)"
-   },
-   {
-    "scope": "schedule",
-    "key": "",
-    "text": "5. For goods of chapters 84 and 87 marked with a symbol ( † ), an optional methodology for satisfying the regional value content requirement of the product-specific rule of origin shall apply. This methodology is contained in Appendix 1 (Provisions Related to the Product-Specific Rules of Origin for Certain Vehicles and Parts of Vehicles) to this Annex.",
-    "page": 2,
-    "source_url": "https://www.customs.go.jp/roo/english/text/tpp2.pdf",
-    "citation": "CPTPP Annex 3-D Section A General Interpretative Notes, paragraph 5",
-    "applies": [
-     [
-      "84",
-      "84"
-     ],
-     [
-      "87",
-      "87"
-     ]
-    ]
    }
   ]
  },
