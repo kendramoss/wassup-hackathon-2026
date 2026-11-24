@@ -59,7 +59,7 @@ func TestEU7007Narrowed(t *testing.T) {
 	// The note stays inside 7007-7009.
 	if r := lookupReason(t, table, "JP-EU EPA", "7006.10", "2025-03-04"); r.Reason == ReasonPSR {
 		for _, e := range r.Evidence {
-			if strings.Contains(e.Text, "Appendix 3-B-1") {
+			if strings.Contains(e.Text, "Appendix 3-B-1") && e.Citation != caveatPrefix {
 				t.Errorf("note leaked to 7006: %+v", e)
 			}
 		}

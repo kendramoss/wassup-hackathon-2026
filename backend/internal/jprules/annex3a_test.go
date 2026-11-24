@@ -19,7 +19,7 @@ import (
 func ruleEvidence(ev []Evidence) []Evidence {
 	var out []Evidence
 	for _, e := range ev {
-		if !strings.Contains(e.Citation, "Annex 3-A") && !isGeneralNote(e) && !strings.HasPrefix(e.Text, "Section note:") && !strings.HasPrefix(e.Text, "Chapter note:") {
+		if !strings.Contains(e.Citation, "Annex 3-A") && !isGeneralNote(e) && !isChapter3Article(e) && !strings.HasPrefix(e.Text, "Section note:") && !strings.HasPrefix(e.Text, "Chapter note:") {
 			out = append(out, e)
 		}
 	}
@@ -160,16 +160,18 @@ var annexAgreements = []annexAgreement{
 func TestAnnex3ANotesCaptured(t *testing.T) {
 	for _, a := range annexAgreements {
 		s := scheduleFrom(t, mustDefault(t), a.name, a.from)
-		if len(s.Notes) != a.totalNotes {
-			t.Fatalf("%s: got %d notes, want %d", a.name, len(s.Notes), a.totalNotes)
-		}
 		var cells, annex []note
 		for _, n := range s.Notes {
-			if n.SourceURL == "" {
+			if n.SourceURL == "" && n.Page != 0 {
 				cells = append(cells, n)
+			} else if n.Page == 0 || n.SourceURL == strings.Replace(a.url, "2.pdf", "1.pdf", 1) {
+				continue // Chapter 3 caveat and articles (chapter3_test.go)
 			} else {
 				annex = append(annex, n)
 			}
+		}
+		if len(cells)+len(annex) != a.totalNotes {
+			t.Fatalf("%s: got %d notes, want %d", a.name, len(cells)+len(annex), a.totalNotes)
 		}
 		if len(annex) != len(a.notes) {
 			t.Fatalf("%s: %d Annex 3-A notes, want %d", a.name, len(annex), len(a.notes))
@@ -385,7 +387,7 @@ func TestOtherEvidenceByteIdentical(t *testing.T) {
 	// The General Notes embedded for nine agreements are left out here: with
 	// them out, every agreement's rows and old notes are byte-identical to main
 	// (the hashes above). TestGeneralNotesEvidenceHashes pins the nine with them in.
-	goldenHashes(t, annexGolden, func(e Evidence) bool { return isGeneralNote(e) })
+	goldenHashes(t, annexGolden, func(e Evidence) bool { return isGeneralNote(e) || isChapter3Article(e) })
 }
 
 // General Notes of Thailand, Indonesia, Malaysia, the Philippines, Chile, Vietnam,
@@ -407,7 +409,7 @@ func TestGeneralNotesEvidenceHashes(t *testing.T) {
 	for a, h := range generalNotesGolden {
 		want[a] = h
 	}
-	goldenHashes(t, want, func(Evidence) bool { return false })
+	goldenHashes(t, want, isChapter3Article)
 }
 
 func goldenHashes(t *testing.T, golden map[string]string, skip func(Evidence) bool) {

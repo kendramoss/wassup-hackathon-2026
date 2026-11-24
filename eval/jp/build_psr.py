@@ -60,6 +60,9 @@ DIGESTS = {
     # Annex 3-A (introductory notes), read only for the ANNEX_3A notes below.
     "eu2.pdf": "f9281449008f2f7ea155590404ebb4351c0801dca5038d3ee9714d9f141e8f42",
     "uk2.pdf": "0fbc823b40513a44d5be2c377e803a84b7d1b4d7c4c2164738a698d511acfcca",
+    # Chapter 3 (Rules of origin) main text, read only for the CHAPTER_3 notes below.
+    "eu1.pdf": "a71de5d61cc2fcda3061cf53d356314dbeba473c4b37b51791ca00a4aaa65864",
+    "uk1.pdf": "277066a861134a44acbbd7ca92327fcfd917866d00b5a3dad380cd521265edda",
     "asean2-1.pdf": "00b7e42a64fd0fb7dad809ba3b3d487ecfd84ded5e103eea229fe973de3e127d",
     "tpp2.pdf": "c80acd1e0c458f130cc6d6602ce18192626e801623947fffc9d1ed18020873b9",
     "tpp5.pdf": "56eb27080e455e792131760cb5d0805556de8b73039a4b5f4a5b7485740785d1",
@@ -236,7 +239,7 @@ ANNEX_3A = {
         ],
     },
 }
-PAGE_FOOTER = re.compile(r"\s*(?:EU/JP/Annex 3-A/en \d+)?\s*$")
+PAGE_FOOTER = re.compile(r"\s*(?:(?:EU|UK)/JP/(?:Annex 3-A/)?en \d+)?\s*$")
 CLOSING_RULE = re.compile(r"\s*_{4,}\s*$")
 
 
@@ -272,6 +275,136 @@ def annex_3a_notes(path, filename):
             }
             if applies:
                 note["applies"] = applies
+            notes.append(note)
+            page.close()
+    return notes
+
+
+# Chapter 3 (Rules of origin) Section A articles of the JP-EU EPA (eu1.pdf) and the
+# JP-UK CEPA (uk1.pdf), quoted verbatim one note per page chunk, with a caveat note
+# that the Annex 3-B rule governs. Each entry is (page, label, start, end, wholly):
+# start and end are the first and last words of the quoted chunk in the normalised
+# page text (None: the page edge, without the page footer). The first and last pages
+# also carry text of the neighbouring chapters; the anchors leave it out. wholly
+# True scopes the chunk to the Annex 3-B rows whose rule text says "wholly
+# obtained" (wholly_obtained_ranges); every other chunk is schedule scope. Only
+# Articles 3.2 to 3.6 and 3.12 and the definitions 3.1(e), (f), (h), (i) are quoted.
+# See docs/japan/chapter3-articles.md.
+_A32 = "ARTICLE 3.2 Requirements for originating products 1. For the purpose"
+_A32_END = "all applicable requirements of Annex 3-B."
+_A324 = "2. For the purposes of this Chapter, the territorial scope"
+_A324_END = "shall be satisfied without interruption in a Party."
+_A33 = "ARTICLE 3.3 Wholly obtained products 1. For the purposes of Article 3.2,"
+_A34 = "ARTICLE 3.4 Insufficient working or processing 1. Notwithstanding"
+_A34K = "matching including the making-up of sets of articles;"
+_A34L = "(l) simple placing in bottles"
+_A36 = "ARTICLE 3.6 Tolerances 1. If a non-originating material"
+_A36_2 = "specified in the requirements set out in Annex 3-B."
+_A36_3 = "3. Paragraph 1 does not apply to products wholly obtained"
+_A36_3_END = "paragraphs 1 and 2 apply."
+_A312 = "ARTICLE 3.12 Accessories, spare parts, tools and instructional or other information materials 1."
+_A312_END = "with which they are delivered."
+_DEF_E, _DEF_E_END = '(e) "material" means any matter', "cannot be determined;"
+_DEF_H, _DEF_H_END = '(h) "product" means any matter', "including assembly."
+CHAPTER_3 = {
+    "eu3.pdf": {
+        "pdf": "eu1.pdf", "label": "JP-EU EPA Chapter 3 (Rules of origin)", "short": "JP-EU EPA",
+        "other": "Annex 3-C and Appendix 3-B-1", "omitted": "", "procedural": "3.16 to 3.29",
+        "notes": [
+            (2, "Article 3.1(e) and (f)", _DEF_E, _DEF_E_END, False),
+            (3, "Article 3.1(h) and (i)", _DEF_H, _DEF_H_END, False),
+            (3, "Article 3.2 paragraph 1", _A32, _A32_END, False),
+            (4, "Article 3.2 paragraphs 2 to 4", _A324, _A324_END, False),
+            (4, "Article 3.3 paragraph 1(a) to (c)", _A33, "(c) a product obtained from a live animal raised there;", True),
+            (5, "Article 3.3 paragraph 1(d) to (j)", None, None, True),
+            (6, "Article 3.3 paragraphs 1(k), 1(l) and 2", None, None, True),
+            (7, "Article 3.3 paragraph 2(c)(ii)", "(ii) it is owned by one or more juridical persons1:", "natural persons or juridical persons of a Party.", True),
+            (7, "Article 3.3 footnote 1", '1 For the purposes of this Chapter, "juridical person" means', "sole proprietorship or association.", True),
+            (7, "Article 3.4 paragraph 1(a)", _A34, "remains in good condition during transport and storage;", False),
+            (8, "Article 3.4 paragraph 1(b) to (k)", None, None, False),
+            (9, "Article 3.4 paragraph 1(l) to (q) and footnotes", None, None, False),
+            (10, "Article 3.4 paragraph 2", "2. For the purpose of paragraph 1, operations", "needed for carrying out those operations.", False),
+            (10, "Article 3.5 paragraphs 1 to 4", "ARTICLE 3.5 Accumulation 1.", None, False),
+            (11, "Article 3.5 paragraph 5", "5. The information referred to in paragraph 4", "on which the information was provided.", False),
+            (11, "Article 3.6 paragraph 1", _A36, None, False),
+            (12, "Article 3.6 paragraph 2", "2. Paragraph 1 does not apply if the value", _A36_2, False),
+            (12, "Article 3.6 paragraph 3", _A36_3, _A36_3_END, True),
+            (16, "Article 3.12 paragraph 1(a)", _A312, None, False),
+            (17, "Article 3.12 paragraphs 1(b) to 4", None, None, False),
+        ],
+    },
+    "uk3.pdf": {
+        "pdf": "uk1.pdf", "label": "JP-UK CEPA Chapter 3 (Rules of origin)", "short": "JP-UK CEPA",
+        "other": "Annex 3-C, Annex 3-D and Appendix 3-B-1", "omitted": "Article 3.5 paragraphs 10 to 12, ", "procedural": "3.16 to 3.28",
+        "notes": [
+            (2, "Article 3.1(e) and (f)", _DEF_E, _DEF_E_END, False),
+            (2, "Article 3.1(h) and (i)", _DEF_H, _DEF_H_END, False),
+            (2, "Article 3.2 paragraph 1", _A32, _A32_END, False),
+            (3, "Article 3.2 paragraphs 2 to 4", _A324, _A324_END, False),
+            (3, "Article 3.3 paragraph 1(a) to (g)", _A33, "extracted or taken there;", True),
+            (4, "Article 3.3 paragraph 1(h) to (l) and 2(a), (b)", None, None, True),
+            (5, "Article 3.3 paragraph 2(c) and footnotes", None, None, True),
+            (6, "Article 3.4 paragraph 1(a) to (k)", _A34, _A34K, False),
+            (7, "Article 3.4 paragraph 1(l) to (q) and 2", _A34L, "needed for carrying out those operations.", False),
+            (7, "Article 3.4 footnotes 1 and 2", "1 For the purposes of this Article, simple mixing of products", "foul-tasting substances.", False),
+            (7, "Article 3.5 paragraph 1", "ARTICLE 3.5 Accumulation 1.", "used as a material in the production of another product in the other Party.", False),
+            (8, "Article 3.5 paragraphs 2 to 7", None, None, False),
+            (9, "Article 3.5 paragraphs 8 and 9", "8. The information referred to in paragraph 7", "European Union on a non-originating material.", False),
+            (10, "Article 3.6 paragraphs 1 and 2", _A36, _A36_2, False),
+            (10, "Article 3.6 paragraph 3", _A36_3, _A36_3_END, True),
+            (14, "Article 3.12", _A312, _A312_END, False),
+        ],
+    },
+}
+_ARTICLES_QUOTED = "Articles 3.1(e), (f), (h) and (i), 3.2, 3.3, 3.4, 3.5, 3.6 and 3.12"
+
+
+def chapter_3_caveat(spec):
+    """The Unde Labs note that ranks the quoted articles under the Annex 3-B rule."""
+    return (
+        f"Unde Labs note (not treaty text): {_ARTICLES_QUOTED} of Chapter 3 (Rules of origin) of the "
+        f"{spec['short']} are quoted from {spec['pdf']} as context for the Annex 3-B product specific rule. "
+        "They do not replace the listed rule and do not themselves establish origin. Article 3.2 paragraph 1(b) "
+        "(products produced exclusively from materials originating in that Party) is a route the Chapter lists; "
+        "it is shown as context only, and the listed rule governs unless it says otherwise. "
+        "The Annex 3-A notes are only partly quoted, in notes of their own: Note 1 paragraphs 1, 2 and 4 and "
+        f"Note 2 paragraph 4 are not supplied. {spec['other']}, {spec['omitted']}Articles 3.7 to 3.11 and 3.13 "
+        f"to 3.15, the procedural articles {spec['procedural']} and every Article of Chapter 3 not listed above "
+        "are NOT supplied and are not verified. Where a fact that one of these provisions needs is missing, the "
+        "question is undetermined.")
+
+
+def wholly_obtained_ranges(rows):
+    """Code ranges of the rows whose rule text says "wholly obtained", sorted, with
+    ranges of equal width that touch (next start = previous end + 1) joined."""
+    spans = sorted({(r["start"], r["end"]) for r in rows if "wholly obtained" in r["text"]})
+    out = []
+    for start, end in spans:
+        if out and len(out[-1][0]) == len(start) and int(start) <= int(out[-1][1]) + 1:
+            out[-1][1] = max(out[-1][1], end)
+        else:
+            out.append([start, end])
+    return out
+
+
+def chapter_3_notes(path, filename, rows):
+    spec = CHAPTER_3[filename]
+    wholly = wholly_obtained_ranges(rows)
+    if len(wholly) < 10:
+        raise ValueError(f"{filename}: too few wholly obtained rows")
+    notes = [{"scope": "schedule", "key": "", "text": chapter_3_caveat(spec), "page": 0}]
+    with pdfplumber.open(path) as pdf:
+        for page_number, label, start, end, only_wholly in spec["notes"]:
+            page = pdf.pages[page_number - 1]
+            note = {
+                "scope": "schedule", "key": "",
+                "text": quote_chunk(normalize(page.extract_text()), start, end),
+                "page": page_number,
+                "source_url": BASE + spec["pdf"],
+                "citation": f"{spec['label']}, {label}",
+            }
+            if only_wholly:
+                note["applies"] = wholly
             notes.append(note)
             page.close()
     return notes
@@ -1390,6 +1523,8 @@ def main():
             notes += general_notes(path, filename)
         if filename in ANNEX_3A:
             notes += annex_3a_notes(annex_path(args.pdf_directory, ANNEX_3A[filename]["pdf"]), filename)
+        if filename in CHAPTER_3:
+            notes += chapter_3_notes(annex_path(args.pdf_directory, CHAPTER_3[filename]["pdf"]), filename, rows)
         if str(STATED_EDITIONS[filename]) != hs:
             raise ValueError(f"{filename}: SOURCES edition {hs} differs from STATED_EDITIONS")
         sources.append({**source_entry(filename, agreement, annex, hs, start, end), "rows": rows, "notes": notes})

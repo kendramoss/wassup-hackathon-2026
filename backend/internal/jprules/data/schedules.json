@@ -2738,6 +2738,640 @@
     "page": 18,
     "source_url": "https://www.customs.go.jp/roo/english/text/eu2.pdf",
     "citation": "JP-EU EPA Annex 3-A, Note 8 paragraph 3"
+   },
+   {
+    "scope": "schedule",
+    "key": "",
+    "text": "Unde Labs note (not treaty text): Articles 3.1(e), (f), (h) and (i), 3.2, 3.3, 3.4, 3.5, 3.6 and 3.12 of Chapter 3 (Rules of origin) of the JP-EU EPA are quoted from eu1.pdf as context for the Annex 3-B product specific rule. They do not replace the listed rule and do not themselves establish origin. Article 3.2 paragraph 1(b) (products produced exclusively from materials originating in that Party) is a route the Chapter lists; it is shown as context only, and the listed rule governs unless it says otherwise. The Annex 3-A notes are only partly quoted, in notes of their own: Note 1 paragraphs 1, 2 and 4 and Note 2 paragraph 4 are not supplied. Annex 3-C and Appendix 3-B-1, Articles 3.7 to 3.11 and 3.13 to 3.15, the procedural articles 3.16 to 3.29 and every Article of Chapter 3 not listed above are NOT supplied and are not verified. Where a fact that one of these provisions needs is missing, the question is undetermined.",
+    "page": 0
+   },
+   {
+    "scope": "schedule",
+    "key": "",
+    "text": "(e) \"material\" means any matter or substance used in the production of a product, including any components, ingredients, raw materials or parts; (f) \"non-originating material\" means a material which does not qualify as originating under this Chapter, including a material whose originating status cannot be determined;",
+    "page": 2,
+    "source_url": "https://www.customs.go.jp/roo/english/text/eu1.pdf",
+    "citation": "JP-EU EPA Chapter 3 (Rules of origin), Article 3.1(e) and (f)"
+   },
+   {
+    "scope": "schedule",
+    "key": "",
+    "text": "(h) \"product\" means any matter or substance resulting from production, even if it is intended for use as a material in the production of another product, and shall be understood as a good referred to in Chapter 2; and (i) \"production\" means any kind of working or processing including assembly.",
+    "page": 3,
+    "source_url": "https://www.customs.go.jp/roo/english/text/eu1.pdf",
+    "citation": "JP-EU EPA Chapter 3 (Rules of origin), Article 3.1(h) and (i)"
+   },
+   {
+    "scope": "schedule",
+    "key": "",
+    "text": "ARTICLE 3.2 Requirements for originating products 1. For the purpose of the application of preferential tariff treatment by a Party to an originating good of the other Party in accordance with paragraph 1 of Article 2.8, the following products, if they satisfy all other applicable requirements of this Chapter, shall be considered as originating in the other Party: (a) wholly obtained or produced products as provided for in Article 3.3; (b) products produced exclusively from materials originating in that Party; or (c) products produced using non-originating materials provided they satisfy all applicable requirements of Annex 3-B.",
+    "page": 3,
+    "source_url": "https://www.customs.go.jp/roo/english/text/eu1.pdf",
+    "citation": "JP-EU EPA Chapter 3 (Rules of origin), Article 3.2 paragraph 1"
+   },
+   {
+    "scope": "schedule",
+    "key": "",
+    "text": "2. For the purposes of this Chapter, the territorial scope of a Party does not include the sea, seabed and subsoil beyond its territorial sea. 3. If a product has acquired originating status, the non-originating materials used in the production of the product shall not be considered non-originating when that product is incorporated as material into another product. 4. The requirements set out in this Chapter relating to the acquisition of originating status shall be satisfied without interruption in a Party.",
+    "page": 4,
+    "source_url": "https://www.customs.go.jp/roo/english/text/eu1.pdf",
+    "citation": "JP-EU EPA Chapter 3 (Rules of origin), Article 3.2 paragraphs 2 to 4"
+   },
+   {
+    "scope": "schedule",
+    "key": "",
+    "text": "ARTICLE 3.3 Wholly obtained products 1. For the purposes of Article 3.2, a product is wholly obtained in a Party if it is: (a) a plant or plant product, grown, cultivated, harvested, picked or gathered there; (b) a live animal born and raised there; (c) a product obtained from a live animal raised there;",
+    "page": 4,
+    "source_url": "https://www.customs.go.jp/roo/english/text/eu1.pdf",
+    "citation": "JP-EU EPA Chapter 3 (Rules of origin), Article 3.3 paragraph 1(a) to (c)",
+    "applies": [
+     [
+      "0101",
+      "0106"
+     ],
+     [
+      "0201",
+      "0210"
+     ],
+     [
+      "03",
+      "03"
+     ],
+     [
+      "0401",
+      "0410"
+     ],
+     [
+      "0601",
+      "0604"
+     ],
+     [
+      "0701",
+      "0714"
+     ],
+     [
+      "0801",
+      "0814"
+     ],
+     [
+      "090210",
+      "090220"
+     ],
+     [
+      "1001",
+      "1008"
+     ],
+     [
+      "1101",
+      "1109"
+     ],
+     [
+      "1401",
+      "1404"
+     ],
+     [
+      "1507",
+      "1507"
+     ],
+     [
+      "1509",
+      "1510"
+     ],
+     [
+      "1514",
+      "1515"
+     ],
+     [
+      "1601",
+      "1605"
+     ],
+     [
+      "2002",
+      "2009"
+     ],
+     [
+      "2106",
+      "2106"
+     ],
+     [
+      "2203",
+      "2209"
+     ],
+     [
+      "2309",
+      "2309"
+     ]
+    ]
+   },
+   {
+    "scope": "schedule",
+    "key": "",
+    "text": "(d) a product obtained from a slaughtered animal born and raised there; (e) an animal obtained by hunting, trapping, fishing, gathering or capturing there; (f) a product obtained from aquaculture there; (g) a mineral or other naturally occurring substance, not included in subparagraphs (a) to (f), extracted or taken there; (h) fish, shellfish or other marine life taken by a Party's vessel from the sea, seabed or subsoil beyond the territorial sea of each Party and, in accordance with international law, beyond the territorial sea of third countries; (i) a product produced exclusively from products referred to in subparagraph (h) on board a Party's factory ship beyond the territorial sea of each Party and, in accordance with international law, beyond the territorial sea of third countries; (j) a product other than fish, shellfish and other marine life taken by a Party or a person of a Party from the seabed or subsoil beyond the territorial sea of each Party, and beyond areas over which third countries exercise jurisdiction provided that that Party or a person of that Party has the right to exploit that seabed or subsoil in accordance with international law;",
+    "page": 5,
+    "source_url": "https://www.customs.go.jp/roo/english/text/eu1.pdf",
+    "citation": "JP-EU EPA Chapter 3 (Rules of origin), Article 3.3 paragraph 1(d) to (j)",
+    "applies": [
+     [
+      "0101",
+      "0106"
+     ],
+     [
+      "0201",
+      "0210"
+     ],
+     [
+      "03",
+      "03"
+     ],
+     [
+      "0401",
+      "0410"
+     ],
+     [
+      "0601",
+      "0604"
+     ],
+     [
+      "0701",
+      "0714"
+     ],
+     [
+      "0801",
+      "0814"
+     ],
+     [
+      "090210",
+      "090220"
+     ],
+     [
+      "1001",
+      "1008"
+     ],
+     [
+      "1101",
+      "1109"
+     ],
+     [
+      "1401",
+      "1404"
+     ],
+     [
+      "1507",
+      "1507"
+     ],
+     [
+      "1509",
+      "1510"
+     ],
+     [
+      "1514",
+      "1515"
+     ],
+     [
+      "1601",
+      "1605"
+     ],
+     [
+      "2002",
+      "2009"
+     ],
+     [
+      "2106",
+      "2106"
+     ],
+     [
+      "2203",
+      "2209"
+     ],
+     [
+      "2309",
+      "2309"
+     ]
+    ]
+   },
+   {
+    "scope": "schedule",
+    "key": "",
+    "text": "(k) a product that is: (i) waste or scrap derived from production there; or (ii) waste or scrap derived from used products collected there, provided that those products are fit only for the recovery of raw materials; or (l) a product produced there, exclusively from products referred to in subparagraphs (a) to (k) or from their derivatives. 2. \"A Party's vessel\" in subparagraph 1(h) or \"a Party's factory ship\" in subparagraph 1(i) means respectively a vessel or a factory ship which: (a) is registered in a Member State of the European Union or in Japan; (b) flies the flag of a Member State of the European Union or of Japan; and (c) satisfies one of the following requirements: (i) it is at least 50 per cent owned by one or more natural persons of a Party; or",
+    "page": 6,
+    "source_url": "https://www.customs.go.jp/roo/english/text/eu1.pdf",
+    "citation": "JP-EU EPA Chapter 3 (Rules of origin), Article 3.3 paragraphs 1(k), 1(l) and 2",
+    "applies": [
+     [
+      "0101",
+      "0106"
+     ],
+     [
+      "0201",
+      "0210"
+     ],
+     [
+      "03",
+      "03"
+     ],
+     [
+      "0401",
+      "0410"
+     ],
+     [
+      "0601",
+      "0604"
+     ],
+     [
+      "0701",
+      "0714"
+     ],
+     [
+      "0801",
+      "0814"
+     ],
+     [
+      "090210",
+      "090220"
+     ],
+     [
+      "1001",
+      "1008"
+     ],
+     [
+      "1101",
+      "1109"
+     ],
+     [
+      "1401",
+      "1404"
+     ],
+     [
+      "1507",
+      "1507"
+     ],
+     [
+      "1509",
+      "1510"
+     ],
+     [
+      "1514",
+      "1515"
+     ],
+     [
+      "1601",
+      "1605"
+     ],
+     [
+      "2002",
+      "2009"
+     ],
+     [
+      "2106",
+      "2106"
+     ],
+     [
+      "2203",
+      "2209"
+     ],
+     [
+      "2309",
+      "2309"
+     ]
+    ]
+   },
+   {
+    "scope": "schedule",
+    "key": "",
+    "text": "(ii) it is owned by one or more juridical persons1: (A) which have their head office and their main place of business in a Party; and (B) in which at least 50 per cent of the ownership belongs to natural persons or juridical persons of a Party.",
+    "page": 7,
+    "source_url": "https://www.customs.go.jp/roo/english/text/eu1.pdf",
+    "citation": "JP-EU EPA Chapter 3 (Rules of origin), Article 3.3 paragraph 2(c)(ii)",
+    "applies": [
+     [
+      "0101",
+      "0106"
+     ],
+     [
+      "0201",
+      "0210"
+     ],
+     [
+      "03",
+      "03"
+     ],
+     [
+      "0401",
+      "0410"
+     ],
+     [
+      "0601",
+      "0604"
+     ],
+     [
+      "0701",
+      "0714"
+     ],
+     [
+      "0801",
+      "0814"
+     ],
+     [
+      "090210",
+      "090220"
+     ],
+     [
+      "1001",
+      "1008"
+     ],
+     [
+      "1101",
+      "1109"
+     ],
+     [
+      "1401",
+      "1404"
+     ],
+     [
+      "1507",
+      "1507"
+     ],
+     [
+      "1509",
+      "1510"
+     ],
+     [
+      "1514",
+      "1515"
+     ],
+     [
+      "1601",
+      "1605"
+     ],
+     [
+      "2002",
+      "2009"
+     ],
+     [
+      "2106",
+      "2106"
+     ],
+     [
+      "2203",
+      "2209"
+     ],
+     [
+      "2309",
+      "2309"
+     ]
+    ]
+   },
+   {
+    "scope": "schedule",
+    "key": "",
+    "text": "1 For the purposes of this Chapter, \"juridical person\" means any legal entity duly constituted or otherwise organised under the applicable law, whether for profit or otherwise, and whether privately-owned or governmentally-owned, including any corporation, trust, partnership, joint venture, sole proprietorship or association.",
+    "page": 7,
+    "source_url": "https://www.customs.go.jp/roo/english/text/eu1.pdf",
+    "citation": "JP-EU EPA Chapter 3 (Rules of origin), Article 3.3 footnote 1",
+    "applies": [
+     [
+      "0101",
+      "0106"
+     ],
+     [
+      "0201",
+      "0210"
+     ],
+     [
+      "03",
+      "03"
+     ],
+     [
+      "0401",
+      "0410"
+     ],
+     [
+      "0601",
+      "0604"
+     ],
+     [
+      "0701",
+      "0714"
+     ],
+     [
+      "0801",
+      "0814"
+     ],
+     [
+      "090210",
+      "090220"
+     ],
+     [
+      "1001",
+      "1008"
+     ],
+     [
+      "1101",
+      "1109"
+     ],
+     [
+      "1401",
+      "1404"
+     ],
+     [
+      "1507",
+      "1507"
+     ],
+     [
+      "1509",
+      "1510"
+     ],
+     [
+      "1514",
+      "1515"
+     ],
+     [
+      "1601",
+      "1605"
+     ],
+     [
+      "2002",
+      "2009"
+     ],
+     [
+      "2106",
+      "2106"
+     ],
+     [
+      "2203",
+      "2209"
+     ],
+     [
+      "2309",
+      "2309"
+     ]
+    ]
+   },
+   {
+    "scope": "schedule",
+    "key": "",
+    "text": "ARTICLE 3.4 Insufficient working or processing 1. Notwithstanding subparagraph 1(c) of Article 3.2, a product shall not be considered as originating in a Party if solely one or more of the following operations are conducted on non-originating materials in the production of the product in that Party: (a) preserving operations such as drying, freezing, keeping in brine and other similar operations where their sole purpose is to ensure that the product remains in good condition during transport and storage;",
+    "page": 7,
+    "source_url": "https://www.customs.go.jp/roo/english/text/eu1.pdf",
+    "citation": "JP-EU EPA Chapter 3 (Rules of origin), Article 3.4 paragraph 1(a)"
+   },
+   {
+    "scope": "schedule",
+    "key": "",
+    "text": "(b) changes of packaging; (c) breaking-up or assembly of packages; (d) washing, cleaning or removal of dust, oxide, oil, paint or other coverings; (e) ironing or pressing of textiles and textile articles; (f) simple painting or polishing operations; (g) husking, partial or total bleaching, polishing or glazing of cereals and rice; (h) operations to colour or flavour sugar or form sugar lumps; partial or total milling of sugar in solid form; (i) peeling, stoning or shelling of fruits, nuts or vegetables; (j) sharpening, simple grinding or simple cutting; (k) sifting, screening, sorting, classifying, grading or matching including the making-up of sets of articles;",
+    "page": 8,
+    "source_url": "https://www.customs.go.jp/roo/english/text/eu1.pdf",
+    "citation": "JP-EU EPA Chapter 3 (Rules of origin), Article 3.4 paragraph 1(b) to (k)"
+   },
+   {
+    "scope": "schedule",
+    "key": "",
+    "text": "(l) simple placing in bottles, cans, flasks, bags, cases or boxes, simple fixing on cards or boards and all other simple packaging operations; (m) affixing or printing marks, labels, logos and other like distinguishing signs on products or their packaging; (n) simple mixing of products1, whether or not of different kinds; (o) simple addition of water, dilution, dehydration or denaturation2 of products; (p) simple collection or assembly of parts to constitute a complete or finished article, or an article falling to be classified as complete or finished pursuant to Rule 2(a) of the General Rules for the Interpretation of the Harmonized System; disassembly of products in parts; or (q) slaughter of animals. 1 For the purpose of this Article, simple mixing of products covers mixing of sugar. 2 For the purpose of this Article, denaturation covers in particular making products unfit for human consumption by the addition of toxic or foul-tasting substances.",
+    "page": 9,
+    "source_url": "https://www.customs.go.jp/roo/english/text/eu1.pdf",
+    "citation": "JP-EU EPA Chapter 3 (Rules of origin), Article 3.4 paragraph 1(l) to (q) and footnotes"
+   },
+   {
+    "scope": "schedule",
+    "key": "",
+    "text": "2. For the purpose of paragraph 1, operations shall be considered simple if neither special skills nor machines, apparatus or equipment especially produced or installed are needed for carrying out those operations.",
+    "page": 10,
+    "source_url": "https://www.customs.go.jp/roo/english/text/eu1.pdf",
+    "citation": "JP-EU EPA Chapter 3 (Rules of origin), Article 3.4 paragraph 2"
+   },
+   {
+    "scope": "schedule",
+    "key": "",
+    "text": "ARTICLE 3.5 Accumulation 1. A product that qualifies as originating in a Party shall be considered as originating in the other Party if used as a material in the production of another product in the other Party. 2. Production carried out in a Party on a non-originating material may be taken into account for the purpose of determining whether a product is originating in the other Party. 3. Paragraphs 1 and 2 do not apply if the production carried out in the other Party does not go beyond one or more of the operations referred to in subparagraphs 1(a) to (q) of Article 3.4. 4. In order for an exporter to complete the statement on origin referred to in subparagraph 2(a) of Article 3.16 for a product referred to in paragraph 2, the exporter shall obtain from its supplier information as provided for in Annex 3-C.",
+    "page": 10,
+    "source_url": "https://www.customs.go.jp/roo/english/text/eu1.pdf",
+    "citation": "JP-EU EPA Chapter 3 (Rules of origin), Article 3.5 paragraphs 1 to 4"
+   },
+   {
+    "scope": "schedule",
+    "key": "",
+    "text": "5. The information referred to in paragraph 4 shall apply to a single consignment or multiple consignments for the same material that is supplied within a period that does not exceed 12 months from the date on which the information was provided.",
+    "page": 11,
+    "source_url": "https://www.customs.go.jp/roo/english/text/eu1.pdf",
+    "citation": "JP-EU EPA Chapter 3 (Rules of origin), Article 3.5 paragraph 5"
+   },
+   {
+    "scope": "schedule",
+    "key": "",
+    "text": "ARTICLE 3.6 Tolerances 1. If a non-originating material used in the production of a product does not satisfy the requirements set out in Annex 3-B, the product shall be considered as originating in a Party, provided that: (a) for a product classified under Chapters 1 to 49 or Chapters 64 to 97 of the Harmonized System1, the value of all those non-originating materials does not exceed 10 per cent of the ex-works or free on board price of the product; (b) for a product classified under Chapters 50 to 63 of the Harmonized System, tolerances apply as stipulated in Notes 6 to 8 of Annex 3-A. 1 For greater certainty, the references to the tariff classification number of the Harmonized System in this Chapter are based on the Harmonized System, as amended on 1 January 2017.",
+    "page": 11,
+    "source_url": "https://www.customs.go.jp/roo/english/text/eu1.pdf",
+    "citation": "JP-EU EPA Chapter 3 (Rules of origin), Article 3.6 paragraph 1"
+   },
+   {
+    "scope": "schedule",
+    "key": "",
+    "text": "2. Paragraph 1 does not apply if the value of non-originating materials used in the production of a product exceeds any of the percentages for the maximum value of non-originating materials as specified in the requirements set out in Annex 3-B.",
+    "page": 12,
+    "source_url": "https://www.customs.go.jp/roo/english/text/eu1.pdf",
+    "citation": "JP-EU EPA Chapter 3 (Rules of origin), Article 3.6 paragraph 2"
+   },
+   {
+    "scope": "schedule",
+    "key": "",
+    "text": "3. Paragraph 1 does not apply to products wholly obtained in a Party within the meaning of Article 3.3. If Annex 3-B requires that the materials used in the production of a product are wholly obtained, paragraphs 1 and 2 apply.",
+    "page": 12,
+    "source_url": "https://www.customs.go.jp/roo/english/text/eu1.pdf",
+    "citation": "JP-EU EPA Chapter 3 (Rules of origin), Article 3.6 paragraph 3",
+    "applies": [
+     [
+      "0101",
+      "0106"
+     ],
+     [
+      "0201",
+      "0210"
+     ],
+     [
+      "03",
+      "03"
+     ],
+     [
+      "0401",
+      "0410"
+     ],
+     [
+      "0601",
+      "0604"
+     ],
+     [
+      "0701",
+      "0714"
+     ],
+     [
+      "0801",
+      "0814"
+     ],
+     [
+      "090210",
+      "090220"
+     ],
+     [
+      "1001",
+      "1008"
+     ],
+     [
+      "1101",
+      "1109"
+     ],
+     [
+      "1401",
+      "1404"
+     ],
+     [
+      "1507",
+      "1507"
+     ],
+     [
+      "1509",
+      "1510"
+     ],
+     [
+      "1514",
+      "1515"
+     ],
+     [
+      "1601",
+      "1605"
+     ],
+     [
+      "2002",
+      "2009"
+     ],
+     [
+      "2106",
+      "2106"
+     ],
+     [
+      "2203",
+      "2209"
+     ],
+     [
+      "2309",
+      "2309"
+     ]
+    ]
+   },
+   {
+    "scope": "schedule",
+    "key": "",
+    "text": "ARTICLE 3.12 Accessories, spare parts, tools and instructional or other information materials 1. For the purposes of this Article, accessories, spare parts, tools and instructional or other information materials are covered if: (a) the accessories, spare parts, tools and instructional or other information materials are classified and delivered with, but not invoiced separately from, the product; and",
+    "page": 16,
+    "source_url": "https://www.customs.go.jp/roo/english/text/eu1.pdf",
+    "citation": "JP-EU EPA Chapter 3 (Rules of origin), Article 3.12 paragraph 1(a)"
+   },
+   {
+    "scope": "schedule",
+    "key": "",
+    "text": "(b) the types, quantities and value of the accessories, spare parts, tools and instructional or other information materials are customary for that product. 2. In determining whether a product is wholly obtained, or satisfies a production process or change in tariff classification requirement as set out in Annex 3-B, accessories, spare parts, tools and instructional or other information materials shall be disregarded. 3. In determining whether a product meets a value requirement set out in Annex 3-B, the value of accessories, spare parts, tools and instructional or other information materials shall be taken into account as originating or non-originating materials, as the case may be, in the calculation for the purpose of the application of the value requirement to the product. 4. A product's accessories, spare parts, tools and instructional or other information materials shall have the originating status of the product with which they are delivered.",
+    "page": 17,
+    "source_url": "https://www.customs.go.jp/roo/english/text/eu1.pdf",
+    "citation": "JP-EU EPA Chapter 3 (Rules of origin), Article 3.12 paragraphs 1(b) to 4"
    }
   ]
  },
@@ -49279,6 +49913,468 @@
     "page": 13,
     "source_url": "https://www.customs.go.jp/roo/english/text/uk2.pdf",
     "citation": "JP-UK CEPA Annex 3-A, Note 8 paragraph 3"
+   },
+   {
+    "scope": "schedule",
+    "key": "",
+    "text": "Unde Labs note (not treaty text): Articles 3.1(e), (f), (h) and (i), 3.2, 3.3, 3.4, 3.5, 3.6 and 3.12 of Chapter 3 (Rules of origin) of the JP-UK CEPA are quoted from uk1.pdf as context for the Annex 3-B product specific rule. They do not replace the listed rule and do not themselves establish origin. Article 3.2 paragraph 1(b) (products produced exclusively from materials originating in that Party) is a route the Chapter lists; it is shown as context only, and the listed rule governs unless it says otherwise. The Annex 3-A notes are only partly quoted, in notes of their own: Note 1 paragraphs 1, 2 and 4 and Note 2 paragraph 4 are not supplied. Annex 3-C, Annex 3-D and Appendix 3-B-1, Article 3.5 paragraphs 10 to 12, Articles 3.7 to 3.11 and 3.13 to 3.15, the procedural articles 3.16 to 3.28 and every Article of Chapter 3 not listed above are NOT supplied and are not verified. Where a fact that one of these provisions needs is missing, the question is undetermined.",
+    "page": 0
+   },
+   {
+    "scope": "schedule",
+    "key": "",
+    "text": "(e) \"material\" means any matter or substance used in the production of a product, including any components, ingredients, raw materials or parts; (f) \"non-originating material\" means a material which does not qualify as originating under this Chapter, including a material whose originating status cannot be determined;",
+    "page": 2,
+    "source_url": "https://www.customs.go.jp/roo/english/text/uk1.pdf",
+    "citation": "JP-UK CEPA Chapter 3 (Rules of origin), Article 3.1(e) and (f)"
+   },
+   {
+    "scope": "schedule",
+    "key": "",
+    "text": "(h) \"product\" means any matter or substance resulting from production, even if it is intended for use as a material in the production of another product, and shall be understood as a good referred to in Chapter 2; and (i) \"production\" means any kind of working or processing including assembly.",
+    "page": 2,
+    "source_url": "https://www.customs.go.jp/roo/english/text/uk1.pdf",
+    "citation": "JP-UK CEPA Chapter 3 (Rules of origin), Article 3.1(h) and (i)"
+   },
+   {
+    "scope": "schedule",
+    "key": "",
+    "text": "ARTICLE 3.2 Requirements for originating products 1. For the purpose of the application of preferential tariff treatment by a Party to an originating good of the other Party in accordance with paragraph 1 of Article 2.8, the following products, if they satisfy all other applicable requirements of this Chapter, shall be considered as originating in the other Party: (a) wholly obtained or produced products as provided for in Article 3.3; (b) products produced exclusively from materials originating in that Party; or (c) products produced using non-originating materials provided they satisfy all applicable requirements of Annex 3-B.",
+    "page": 2,
+    "source_url": "https://www.customs.go.jp/roo/english/text/uk1.pdf",
+    "citation": "JP-UK CEPA Chapter 3 (Rules of origin), Article 3.2 paragraph 1"
+   },
+   {
+    "scope": "schedule",
+    "key": "",
+    "text": "2. For the purposes of this Chapter, the territorial scope of a Party does not include the sea, seabed and subsoil beyond its territorial sea. 3. If a product has acquired originating status, the non-originating materials used in the production of the product shall not be considered non-originating when that product is incorporated as material into another product. 4. The requirements set out in this Chapter relating to the acquisition of originating status shall be satisfied without interruption in a Party.",
+    "page": 3,
+    "source_url": "https://www.customs.go.jp/roo/english/text/uk1.pdf",
+    "citation": "JP-UK CEPA Chapter 3 (Rules of origin), Article 3.2 paragraphs 2 to 4"
+   },
+   {
+    "scope": "schedule",
+    "key": "",
+    "text": "ARTICLE 3.3 Wholly obtained products 1. For the purposes of Article 3.2, a product is wholly obtained in a Party if it is: (a) a plant or plant product, grown, cultivated, harvested, picked or gathered there; (b) a live animal born and raised there; (c) a product obtained from a live animal raised there; (d) a product obtained from a slaughtered animal born and raised there; (e) an animal obtained by hunting, trapping, fishing, gathering or capturing there; (f) a product obtained from aquaculture there; (g) a mineral or other naturally occurring substance, not included in subparagraphs (a) to (f), extracted or taken there;",
+    "page": 3,
+    "source_url": "https://www.customs.go.jp/roo/english/text/uk1.pdf",
+    "citation": "JP-UK CEPA Chapter 3 (Rules of origin), Article 3.3 paragraph 1(a) to (g)",
+    "applies": [
+     [
+      "0101",
+      "0106"
+     ],
+     [
+      "0201",
+      "0210"
+     ],
+     [
+      "03",
+      "03"
+     ],
+     [
+      "0401",
+      "0410"
+     ],
+     [
+      "0601",
+      "0604"
+     ],
+     [
+      "0701",
+      "0714"
+     ],
+     [
+      "0801",
+      "0814"
+     ],
+     [
+      "090210",
+      "090220"
+     ],
+     [
+      "1001",
+      "1008"
+     ],
+     [
+      "1102",
+      "1103"
+     ],
+     [
+      "1105",
+      "1109"
+     ],
+     [
+      "1401",
+      "1404"
+     ],
+     [
+      "1507",
+      "1507"
+     ],
+     [
+      "1509",
+      "1510"
+     ],
+     [
+      "1514",
+      "1515"
+     ],
+     [
+      "1601",
+      "1601"
+     ],
+     [
+      "1603",
+      "1605"
+     ],
+     [
+      "2002",
+      "2009"
+     ],
+     [
+      "2106",
+      "2106"
+     ],
+     [
+      "2203",
+      "2209"
+     ]
+    ]
+   },
+   {
+    "scope": "schedule",
+    "key": "",
+    "text": "(h) fish, shellfish or other marine life taken by a Party's vessel from the sea, seabed or subsoil beyond the territorial sea of each Party and, in accordance with international law, beyond the territorial sea of third countries; (i) a product produced exclusively from products referred to in subparagraph (h) on board a Party's factory ship beyond the territorial sea of each Party and, in accordance with international law, beyond the territorial sea of third countries; (j) a product other than fish, shellfish and other marine life taken by a Party or a person of a Party from the seabed or subsoil beyond the territorial sea of each Party, and beyond areas over which third countries exercise jurisdiction provided that that Party or a person of that Party has the right to exploit that seabed or subsoil in accordance with international law; (k) a product that is: (i) waste or scrap derived from production there; or (ii) waste or scrap derived from used products collected there, provided that those products are fit only for the recovery of raw materials; or (l) a product produced there, exclusively from products referred to in subparagraphs (a) to (k) or from their derivatives. 2. \"A Party's vessel\" in subparagraph 1(h) or \"a Party's factory ship\" in subparagraph 1(i) means respectively a vessel or a factory ship which: (a) is registered in a Party; (b) flies the flag of a Party; and",
+    "page": 4,
+    "source_url": "https://www.customs.go.jp/roo/english/text/uk1.pdf",
+    "citation": "JP-UK CEPA Chapter 3 (Rules of origin), Article 3.3 paragraph 1(h) to (l) and 2(a), (b)",
+    "applies": [
+     [
+      "0101",
+      "0106"
+     ],
+     [
+      "0201",
+      "0210"
+     ],
+     [
+      "03",
+      "03"
+     ],
+     [
+      "0401",
+      "0410"
+     ],
+     [
+      "0601",
+      "0604"
+     ],
+     [
+      "0701",
+      "0714"
+     ],
+     [
+      "0801",
+      "0814"
+     ],
+     [
+      "090210",
+      "090220"
+     ],
+     [
+      "1001",
+      "1008"
+     ],
+     [
+      "1102",
+      "1103"
+     ],
+     [
+      "1105",
+      "1109"
+     ],
+     [
+      "1401",
+      "1404"
+     ],
+     [
+      "1507",
+      "1507"
+     ],
+     [
+      "1509",
+      "1510"
+     ],
+     [
+      "1514",
+      "1515"
+     ],
+     [
+      "1601",
+      "1601"
+     ],
+     [
+      "1603",
+      "1605"
+     ],
+     [
+      "2002",
+      "2009"
+     ],
+     [
+      "2106",
+      "2106"
+     ],
+     [
+      "2203",
+      "2209"
+     ]
+    ]
+   },
+   {
+    "scope": "schedule",
+    "key": "",
+    "text": "(c) satisfies one of the following requirements: (i) it is at least 50 per cent owned by one or more natural persons of a Party or of the European Union1 2; or (ii) it is owned by one or more juridical persons3: (A) which have their head office and their main place of business in a Party or in the European Union; and (B) in which at least 50 per cent of the ownership belongs to natural persons or juridical persons of a Party or of the European Union4. 1 For the purposes of this Chapter, references to the \"European Union\", when used in a geographical sense, shall be understood to mean the territories in which the Treaty on European Union and the TFEU, as amended, apply under the conditions laid down in those treaties and the customs territory of the European Union as defined, for the purpose of applying the laws and regulations of the European Union, in Article 4 of Regulation (EU) No 952/2013 of the European Parliament and of the Council of 9 October 2013 laying down the Union Customs Code, as amended by the European Union. Article 1.8 does not apply to the references to the laws and regulations of the European Union in this footnote. Notwithstanding the first sentence of this footnote, the \"European Union\" does not cover Ceuta and Melilla for the purposes of this Chapter. 2 For the purposes of this Chapter, \"natural person of the European Union\" means a national of a Member State of the European Union, in accordance with the applicable laws and regulations of that Member State. 3 For the purposes of this Chapter, \"juridical person\" means any legal entity duly constituted or otherwise organised under the applicable law, whether for profit or otherwise, and whether privately-owned or governmentally-owned, including any corporation, trust, partnership, joint venture, sole proprietorship or association. 4 For the purposes of this Chapter, \"juridical person of the European Union\" means a juridical person of a Member State of the European Union, in accordance with the applicable laws and regulations of that Member State.",
+    "page": 5,
+    "source_url": "https://www.customs.go.jp/roo/english/text/uk1.pdf",
+    "citation": "JP-UK CEPA Chapter 3 (Rules of origin), Article 3.3 paragraph 2(c) and footnotes",
+    "applies": [
+     [
+      "0101",
+      "0106"
+     ],
+     [
+      "0201",
+      "0210"
+     ],
+     [
+      "03",
+      "03"
+     ],
+     [
+      "0401",
+      "0410"
+     ],
+     [
+      "0601",
+      "0604"
+     ],
+     [
+      "0701",
+      "0714"
+     ],
+     [
+      "0801",
+      "0814"
+     ],
+     [
+      "090210",
+      "090220"
+     ],
+     [
+      "1001",
+      "1008"
+     ],
+     [
+      "1102",
+      "1103"
+     ],
+     [
+      "1105",
+      "1109"
+     ],
+     [
+      "1401",
+      "1404"
+     ],
+     [
+      "1507",
+      "1507"
+     ],
+     [
+      "1509",
+      "1510"
+     ],
+     [
+      "1514",
+      "1515"
+     ],
+     [
+      "1601",
+      "1601"
+     ],
+     [
+      "1603",
+      "1605"
+     ],
+     [
+      "2002",
+      "2009"
+     ],
+     [
+      "2106",
+      "2106"
+     ],
+     [
+      "2203",
+      "2209"
+     ]
+    ]
+   },
+   {
+    "scope": "schedule",
+    "key": "",
+    "text": "ARTICLE 3.4 Insufficient working or processing 1. Notwithstanding subparagraph 1(c) of Article 3.2, a product shall not be considered as originating in a Party if solely one or more of the following operations are conducted on non-originating materials in the production of the product in that Party: (a) preserving operations such as drying, freezing, keeping in brine and other similar operations where their sole purpose is to ensure that the product remains in good condition during transport and storage; (b) changes of packaging; (c) breaking-up or assembly of packages; (d) washing, cleaning or removal of dust, oxide, oil, paint or other coverings; (e) ironing or pressing of textiles and textile articles; (f) simple painting or polishing operations; (g) husking, partial or total bleaching, polishing or glazing of cereals and rice; (h) operations to colour or flavour sugar or form sugar lumps; partial or total milling of sugar in solid form; (i) peeling, stoning or shelling of fruits, nuts or vegetables; (j) sharpening, simple grinding or simple cutting; (k) sifting, screening, sorting, classifying, grading or matching including the making-up of sets of articles;",
+    "page": 6,
+    "source_url": "https://www.customs.go.jp/roo/english/text/uk1.pdf",
+    "citation": "JP-UK CEPA Chapter 3 (Rules of origin), Article 3.4 paragraph 1(a) to (k)"
+   },
+   {
+    "scope": "schedule",
+    "key": "",
+    "text": "(l) simple placing in bottles, cans, flasks, bags, cases or boxes, simple fixing on cards or boards and all other simple packaging operations; (m) affixing or printing marks, labels, logos and other like distinguishing signs on products or their packaging; (n) simple mixing of products1, whether or not of different kinds; (o) simple addition of water, dilution, dehydration or denaturation2 of products; (p) simple collection or assembly of parts to constitute a complete or finished article, or an article falling to be classified as complete or finished pursuant to Rule 2(a) of the General Rules for the Interpretation of the Harmonized System; disassembly of products in parts; or (q) slaughter of animals. 2. For the purposes of paragraph 1, operations shall be considered simple if neither special skills nor machines, apparatus or equipment especially produced or installed are needed for carrying out those operations.",
+    "page": 7,
+    "source_url": "https://www.customs.go.jp/roo/english/text/uk1.pdf",
+    "citation": "JP-UK CEPA Chapter 3 (Rules of origin), Article 3.4 paragraph 1(l) to (q) and 2"
+   },
+   {
+    "scope": "schedule",
+    "key": "",
+    "text": "1 For the purposes of this Article, simple mixing of products covers mixing of sugar. 2 For the purposes of this Article, denaturation covers in particular making products unfit for human consumption by the addition of toxic or foul-tasting substances.",
+    "page": 7,
+    "source_url": "https://www.customs.go.jp/roo/english/text/uk1.pdf",
+    "citation": "JP-UK CEPA Chapter 3 (Rules of origin), Article 3.4 footnotes 1 and 2"
+   },
+   {
+    "scope": "schedule",
+    "key": "",
+    "text": "ARTICLE 3.5 Accumulation 1. A product that qualifies as originating in a Party shall be considered as originating in the other Party if used as a material in the production of another product in the other Party.",
+    "page": 7,
+    "source_url": "https://www.customs.go.jp/roo/english/text/uk1.pdf",
+    "citation": "JP-UK CEPA Chapter 3 (Rules of origin), Article 3.5 paragraph 1"
+   },
+   {
+    "scope": "schedule",
+    "key": "",
+    "text": "2. A product that qualifies as originating in the European Union1 shall be considered as originating in a Party if used as a material in the production of another product classified under the Chapters and headings of the Harmonized System2 as specified in Annex 3-C in the Party. 3. Production carried out in a Party on a non-originating material may be taken into account for the purpose of determining whether a product is originating in the other Party. 4. Production carried out in the European Union on a non-originating material may be taken into account for the purpose of determining whether a product classified under the Chapters and headings of the Harmonized System as specified in Annex 3-C is originating in a Party. 5. Paragraphs 1 and 3 do not apply if the production carried out in the other Party does not go beyond one or more of the operations referred to in subparagraphs 1(a) to (q) of Article 3.4. 6. Paragraphs 2 and 4 do not apply if the production carried out in a Party does not go beyond one or more of the operations referred to in subparagraphs 1(a) to (q) of Article 3.4. 7. In order for an exporter to complete the statement on origin referred to in subparagraph 2(a) of Article 3.16 for a product referred to in paragraphs 3 and 4, the exporter shall obtain from its supplier information as provided for in Annex 3-D. 1 The following products shall be treated by the Parties as originating in the European Union within the meaning of this Chapter: (a) products originating in the Principality of Andorra classified under Chapters 25 to 97 of the Harmonized System; and (b) products originating in the Republic of San Marino. The rules of origin under this Chapter shall apply, mutatis mutandis, for the purpose of determining whether products are originating in the Principality of Andorra or the Republic of San Marino. 2 For greater certainty, the references to the tariff classification number of the Harmonized System in this Chapter are based on the Harmonized System, as amended on 1 January 2017.",
+    "page": 8,
+    "source_url": "https://www.customs.go.jp/roo/english/text/uk1.pdf",
+    "citation": "JP-UK CEPA Chapter 3 (Rules of origin), Article 3.5 paragraphs 2 to 7"
+   },
+   {
+    "scope": "schedule",
+    "key": "",
+    "text": "8. The information referred to in paragraph 7 shall apply to a single consignment or multiple consignments for the same material that is supplied within a period that does not exceed 12 months from the date on which the information was provided. 9. For the purposes of paragraphs 2 and 4, the rules of origin under this Chapter shall apply, mutatis mutandis, in order to determine whether a product is originating in the European Union, or in order to take into account the production carried out in the European Union on a non-originating material.",
+    "page": 9,
+    "source_url": "https://www.customs.go.jp/roo/english/text/uk1.pdf",
+    "citation": "JP-UK CEPA Chapter 3 (Rules of origin), Article 3.5 paragraphs 8 and 9"
+   },
+   {
+    "scope": "schedule",
+    "key": "",
+    "text": "ARTICLE 3.6 Tolerances 1. If a non-originating material used in the production of a product does not satisfy the requirements set out in Annex 3-B, the product shall be considered as originating in a Party, provided that: (a) for a product classified under Chapters 1 to 49 or Chapters 64 to 97 of the Harmonized System, the value of all those non-originating materials does not exceed 10 per cent of the ex-works or free on board price of the product; or (b) for a product classified under Chapters 50 to 63 of the Harmonized System, tolerances apply as stipulated in Notes 6 to 8 of Annex 3-A. 2. Paragraph 1 does not apply if the value of non-originating materials used in the production of a product exceeds any of the percentages for the maximum value of non-originating materials as specified in the requirements set out in Annex 3-B.",
+    "page": 10,
+    "source_url": "https://www.customs.go.jp/roo/english/text/uk1.pdf",
+    "citation": "JP-UK CEPA Chapter 3 (Rules of origin), Article 3.6 paragraphs 1 and 2"
+   },
+   {
+    "scope": "schedule",
+    "key": "",
+    "text": "3. Paragraph 1 does not apply to products wholly obtained in a Party within the meaning of Article 3.3. If Annex 3-B requires that the materials used in the production of a product are wholly obtained, paragraphs 1 and 2 apply.",
+    "page": 10,
+    "source_url": "https://www.customs.go.jp/roo/english/text/uk1.pdf",
+    "citation": "JP-UK CEPA Chapter 3 (Rules of origin), Article 3.6 paragraph 3",
+    "applies": [
+     [
+      "0101",
+      "0106"
+     ],
+     [
+      "0201",
+      "0210"
+     ],
+     [
+      "03",
+      "03"
+     ],
+     [
+      "0401",
+      "0410"
+     ],
+     [
+      "0601",
+      "0604"
+     ],
+     [
+      "0701",
+      "0714"
+     ],
+     [
+      "0801",
+      "0814"
+     ],
+     [
+      "090210",
+      "090220"
+     ],
+     [
+      "1001",
+      "1008"
+     ],
+     [
+      "1102",
+      "1103"
+     ],
+     [
+      "1105",
+      "1109"
+     ],
+     [
+      "1401",
+      "1404"
+     ],
+     [
+      "1507",
+      "1507"
+     ],
+     [
+      "1509",
+      "1510"
+     ],
+     [
+      "1514",
+      "1515"
+     ],
+     [
+      "1601",
+      "1601"
+     ],
+     [
+      "1603",
+      "1605"
+     ],
+     [
+      "2002",
+      "2009"
+     ],
+     [
+      "2106",
+      "2106"
+     ],
+     [
+      "2203",
+      "2209"
+     ]
+    ]
+   },
+   {
+    "scope": "schedule",
+    "key": "",
+    "text": "ARTICLE 3.12 Accessories, spare parts, tools and instructional or other information materials 1. For the purposes of this Article, accessories, spare parts, tools and instructional or other information materials are covered if: (a) the accessories, spare parts, tools and instructional or other information materials are classified and delivered with, but not invoiced separately from, the product; and (b) the types, quantities and value of the accessories, spare parts, tools and instructional or other information materials are customary for that product. 2. In determining whether a product is wholly obtained, or satisfies a production process or change in tariff classification requirement as set out in Annex 3-B, accessories, spare parts, tools and instructional or other information materials shall be disregarded. 3. In determining whether a product meets a value requirement set out in Annex 3-B, the value of accessories, spare parts, tools and instructional or other information materials shall be taken into account as originating or non-originating materials, as the case may be, in the calculation for the purpose of the application of the value requirement to the product. 4. A product's accessories, spare parts, tools and instructional or other information materials shall have the originating status of the product with which they are delivered.",
+    "page": 14,
+    "source_url": "https://www.customs.go.jp/roo/english/text/uk1.pdf",
+    "citation": "JP-UK CEPA Chapter 3 (Rules of origin), Article 3.12"
    }
   ]
  },
