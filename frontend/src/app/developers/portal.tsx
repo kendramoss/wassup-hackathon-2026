@@ -10,13 +10,14 @@ type Endpoint = keyof typeof endpoints;
 type Tab<Key extends string> = { key: Key; label: string; subtext?: string };
 
 const modes: Tab<Mode>[] = [
-  { key: "mcp", label: "MCP server", subtext: "For AI agents" },
-  { key: "api", label: "REST API", subtext: "Customs & ERP software" },
+  // MCP is glossed on first use (#685): developers know the term, others may not.
+  { key: "mcp", label: "MCP server", subtext: "Tools your AI agent can call" },
+  { key: "api", label: "REST API", subtext: "For customs and business software" },
 ];
 const clients: Tab<Client>[] = [
   { key: "gemini", label: "Gemini CLI" },
   { key: "claude", label: "Claude Desktop" },
-  { key: "adk", label: "ADK for Go" },
+  { key: "adk", label: "Google ADK" },
 ];
 const categories: [ToolGroup | "", string][] = [
   ["", `All ${tools.length}`],
@@ -28,7 +29,7 @@ const categories: [ToolGroup | "", string][] = [
 const docLink = "text-ok underline underline-offset-3 hover:text-ink";
 const panel = "min-w-0 rounded-sm border border-edge bg-sheet";
 const heading = "text-xl font-medium tracking-[-0.04em] sm:text-2xl";
-const field = "min-h-10 w-full rounded-sm border border-edge bg-sheet px-3 text-sm text-ink";
+const field = "min-h-10 max-sm:min-h-11 w-full rounded-sm border border-edge bg-sheet px-3 text-sm text-ink";
 const json = (value: unknown) => JSON.stringify(value, null, 2);
 
 function modeFromURL(): Mode {
@@ -258,7 +259,7 @@ function ToolExplorer({ repo }: { repo: string }) {
                 aria-pressed={selected?.[0] === name}
                 aria-controls="tool-inspector"
                 onClick={() => setActive(name)}
-                className={`block min-h-10 w-full border-l-2 px-3 py-2 text-left text-xs [overflow-wrap:anywhere] hover:bg-wash ${selected?.[0] === name ? "border-ok bg-ok-wash font-medium text-ok" : "border-transparent text-ink"}`}
+                className={`block min-h-10 max-sm:min-h-11 w-full border-l-2 px-3 py-2 text-left text-xs [overflow-wrap:anywhere] hover:bg-wash ${selected?.[0] === name ? "border-ok bg-ok-wash font-medium text-ok" : "border-transparent text-ink"}`}
               >
                 {name}
               </button>
@@ -326,7 +327,7 @@ function RestConsole({ repo }: { repo: string }) {
         <span className="rounded-sm border border-line bg-sheet px-2 py-1.5"><strong>{rates.light}</strong> predict</span>
         <span className="rounded-sm border border-line bg-sheet px-2 py-1.5"><strong>{rates.heavy}</strong> plan search</span>
         {statuses.map(({ label, color }) => <span key={label} className={`rounded-sm border px-2 py-1.5 ${color}`}>{label}</span>)}
-        <a className={docLink} href={`${repo}/blob/main/docs/api/SECURITY.md`}>Limits and errors ↗</a>
+        <a className={`${docLink} max-sm:inline-flex max-sm:min-h-11 max-sm:items-center`} href={`${repo}/blob/main/docs/api/SECURITY.md`}>Limits and errors ↗</a>
       </div>
     </section>
   );

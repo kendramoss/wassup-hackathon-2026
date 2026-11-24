@@ -28,7 +28,9 @@ export const kobalt = {
   askStatedConfidence: 0.98,
 } as const;
 
-type Field = readonly [name: string, type: string];
+// A plain name, what it holds, and the API field behind it (shown on hover
+// or tap, #685).
+type Field = readonly [name: string, kind: string, field: string];
 
 type Stage = {
   id: string;
@@ -38,7 +40,7 @@ type Stage = {
   input: readonly Field[];
   output: readonly Field[];
   guard: string;
-  trace: readonly Field[];
+  trace: readonly (readonly [label: string, value: string])[];
   source: keyof typeof kobaltSources;
   recording: string;
 };
@@ -46,23 +48,23 @@ type Stage = {
 export const methodStages = [
   {
     id: "router",
-    title: "Router",
+    title: "Rule picker",
     label: "Gemini 3.8 Flash",
     tone: "model",
-    input: [["facts", "string"]],
-    output: [["regime", "string"], ["subfamily", "string"]],
-    guard: "Market routing runs first. The U.S. router handles U.S. cases.",
-    trace: [["Route", "Assembly"], ["Regime", "Substantial transformation"]],
+    input: [["Product facts", "text", "facts: string"]],
+    output: [["Origin rules", "rule set", "regime: string"], ["Product type", "type", "subfamily: string"]],
+    guard: "The market is picked first. U.S. cases get the U.S. rules.",
+    trace: [["Route", "Assembly"], ["Origin rules", "Where it became a new product"]],
     source: "prediction",
     recording: "Vertex production snapshot",
   },
   {
     id: "origin",
     title: "Origin engine",
-    label: "Gemini 4 Argon + BM25",
+    label: "Gemini 4 Argon + ruling search",
     tone: "model",
-    input: [["date", "ISO date"], ["facts", "string"], ["exclude_rulings?", "ID[]"]],
-    output: [["origin_country", "string"], ["cited_rulings", "ID[]"]],
+    input: [["Case date", "date", "date: ISO date"], ["Product facts", "text", "facts: string"], ["Rulings to leave out", "optional list", "exclude_rulings?: ID[]"]],
+    output: [["Likely origin", "country", "origin_country: string"], ["Rulings cited", "list", "cited_rulings: ID[]"]],
     guard: "Rulings must predate the case and pass its exclusions. Citations come from the retrieved set.",
     trace: [["Origin", kobalt.origin], ["Cited", kobalt.citations.join(", ")], ["Cutoff", kobalt.cutoff.label]],
     source: "prediction",
@@ -71,10 +73,10 @@ export const methodStages = [
   {
     id: "triage",
     title: "Confidence gate",
-    label: "0.92 recorded bar",
+    label: "0.92 bar in the saved run",
     tone: "review",
-    input: [["confidence", "0–1"], ["calibrated_confidence?", "0–1"]],
-    output: [["route", "auto | needs_review | needs_info"]],
+    input: [["Model’s own confidence", "0–1", "confidence: 0–1"], ["Calibrated confidence", "0–1, if any", "calibrated_confidence?: 0–1"]],
+    output: [["Next step", "accept, review or ask", "route: auto | needs_review | needs_info"]],
     guard: "The saved run used stated ≥0.92. Today, the main engine auto-accepts in-scope cases at calibrated ≥0.90. Other cases go to review or ask for more facts.",
     trace: [["Stated confidence", kobalt.statedConfidence.toFixed(2)], ["Route", "Needs more facts"], ["Question", "How was the heating element made in Thailand?"]],
     source: "prediction",
@@ -82,11 +84,11 @@ export const methodStages = [
   },
   {
     id: "planner",
-    title: "Operation planner",
-    label: "Go search",
+    title: "Move planner",
+    label: "Rule-based search",
     tone: "evidence",
-    input: [["product", "Product"], ["target", "country"]],
-    output: [["plans", "Plan[]"], ["rejected", "Plan[]"], ["stats", "Stats"]],
+    input: [["Product", "parts and plants", "product: Product"], ["Target country", "country", "target: country"]],
+    output: [["Moves shown", "list", "plans: Plan[]"], ["Moves set aside", "list", "rejected: Plan[]"], ["Search counts", "numbers", "stats: Stats"]],
     guard: "Moves use groups in the product template and target plants that can perform them. Each candidate is re-predicted.",
     trace: [["Target", kobalt.target], ["Searched → shown", kobalt.movesSearched + " → " + kobalt.movesShown], ["Shown move", "Motor-fan, PCBA, switch, cord and minor parts → Thailand"]],
     source: "plan",
@@ -94,11 +96,11 @@ export const methodStages = [
   },
   {
     id: "verifier",
-    title: "Dual-sided verifier",
+    title: "For-and-against check",
     label: "Gemini 4 Argon",
     tone: "evidence",
-    input: [["FactsA / FactsB", "before / after"], ["Target", "country"], ["Before", "cutoff"]],
-    output: [["supporting_ruling?", "ID"], ["counter_ruling?", "ID"], ["confidence", "0–1"]],
+    input: [["Facts before and after", "text", "FactsA / FactsB"], ["Target country", "country", "Target"], ["Cutoff date", "date", "Before"]],
+    output: [["Ruling for", "optional ruling", "supporting_ruling?: ID"], ["Ruling against", "optional ruling", "counter_ruling?: ID"], ["Score", "0–1", "confidence: 0–1"]],
     guard: "Search both sides. Show a move only when the verdict reaches the target, contains eligible support and scores at least 0.92.",
     trace: [["For", kobalt.supporting.id], ["Against", kobalt.counterRuling ?? "None accepted"], ["Score", kobalt.verifierScore.toFixed(2)]],
     source: "plan",
@@ -107,10 +109,10 @@ export const methodStages = [
   {
     id: "ask",
     title: "Ask agent",
-    label: "ADK what-if",
+    label: "What-if questions",
     tone: "model",
-    input: [["question", "string"], ["case", "saved case"]],
-    output: [["what_ifs", "WhatIf[]"], ["steps", "Step[]"], ["cited_rulings", "ID[]"]],
+    input: [["Question", "text", "question: string"], ["Saved case", "case", "case: saved case"]],
+    output: [["What-ifs", "list", "what_ifs: WhatIf[]"], ["Steps", "list", "steps: Step[]"], ["Rulings cited", "list", "cited_rulings: ID[]"]],
     guard: "What-ifs keep the case date and run the same routing and review checks. Citations must come from the case or the tools’ returned evidence.",
     trace: [["Tool", kobalt.askTool], ["Change", kobalt.askChange], ["Origin", kobalt.askOrigin], ["Stated confidence", kobalt.askStatedConfidence.toFixed(2)]],
     source: "ask",

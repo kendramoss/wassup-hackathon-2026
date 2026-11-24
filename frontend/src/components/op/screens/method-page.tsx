@@ -25,7 +25,7 @@ function MethodGuardrails() {
         </article>
 
         <article id="plans" className="mi-card" data-tone="evidence">
-          <h3>Dual-sided precedent gate</h3>
+          <h3>Rulings for and against</h3>
           <div className="mi-figure">
             <dl className="mi-evidence-pair">
               <div>
@@ -66,10 +66,11 @@ export function MethodPage() {
       <header id="model" className="mi-hero">
         <p className="eyebrow">Method</p>
         <h1>How an answer is made and checked</h1>
-        <p className="read mi-lead">Zero production fine-tuning. Predictions retrieve CBP precedent dated strictly before the case.</p>
+        <p className="read mi-lead">The live service uses Gemini without fine-tuning. Each answer retrieves only CBP rulings dated before the case.</p>
+        <p className="read mi-note">Gemini may have seen some rulings in pretraining; we can’t measure how many.</p>
         <details className="mi-limits">
           <summary>What this does not show</summary>
-          <p className="read mi-note">Gemini’s pretraining exposure is unknown. BM25 word counts span the full corpus. Earlier test rulings can serve as precedents for later ones.</p>
+          <p className="read mi-note">Gemini’s pretraining exposure is unknown: we can’t tell which rulings it saw in training. The ruling search (BM25) weighs words by counts taken from every ruling, later ones included. Earlier test rulings can serve as precedents for later ones.</p>
         </details>
       </header>
 

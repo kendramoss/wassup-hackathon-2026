@@ -1,3 +1,4 @@
+import { Agent, fetch as undiciFetch } from "undici";
 import { clientIP, idToken, logProxyFailure, readCapped } from "./backend";
 
 // Proxies the public MCP endpoint (https://undelabs.dev/mcp, docs/MCP.md) to
@@ -38,6 +39,17 @@ const RETURN = [
 const jsonError = (status: number, code: string, message: string) =>
   Response.json({ code, message }, { status, headers: { "Cache-Control": "no-store" } });
 
+// Node's fetch is undici, which gives up waiting for response headers after
+// 300 s by default. A plan search can run longer: the frontend's Cloud Run
+// timeout is 900 s (#587), so the upstream call needs the same budget or the
+// proxy turns a healthy, still-running search into a 502 after five minutes.
+// Kept as one shared dispatcher so sockets are reused across requests.
+export const upstreamAgent = new Agent({ headersTimeout: 900_000, bodyTimeout: 900_000 });
+
+// The upstream call goes through this holder so the tests can stand in for
+// the backend: importing undici's fetch directly bypasses globalThis.fetch.
+export const upstream: { fetch: typeof undiciFetch } = { fetch: undiciFetch };
+
 // apiKeyOf returns the caller's API key, "" for none, or null when the two
 // headers carry different keys.
 export function apiKeyOf(request: Request): string | null {
@@ -70,7 +82,13 @@ export async function proxyMcp(request: Request): Promise<Response> {
   if (body === null) return jsonError(413, "invalid_input", "the MCP request is larger than 12 MB");
 
   try {
-    const res = await fetch(`${backendUrl}/mcp`, { method: "POST", headers, body, signal: request.signal, cache: "no-store" });
+    const res = await upstream.fetch(`${backendUrl}/mcp`, {
+      method: "POST",
+      headers,
+      body,
+      signal: request.signal,
+      dispatcher: upstreamAgent,
+    });
     const out = new Headers({ "Cache-Control": "no-store, no-transform" });
     for (const h of RETURN) {
       const v = res.headers.get(h);
@@ -78,7 +96,7 @@ export async function proxyMcp(request: Request): Promise<Response> {
     }
     if (out.get("content-type")?.startsWith("text/event-stream")) out.set("X-Accel-Buffering", "no");
     if (res.status >= 500) logProxyFailure("backend_status", { path: "/mcp", status: res.status, requestId: res.headers.get("x-request-id") });
-    return new Response(res.status === 202 || res.status === 204 ? null : res.body, { status: res.status, headers: out });
+    return new Response(res.status === 202 || res.status === 204 ? null : (res.body as ReadableStream), { status: res.status, headers: out });
   } catch (err) {
     if (request.signal.aborted) return new Response(null, { status: 499 });
     logProxyFailure("unreachable", { path: "/mcp", err });

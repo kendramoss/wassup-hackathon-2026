@@ -3,16 +3,18 @@
 import { useRef, useState, type KeyboardEvent } from "react";
 import { blob, decisionHref } from "@/lib/method";
 import { kobaltSources, methodExperiments, methodStages } from "@/lib/method-inspector";
+import { Term } from "./term";
 
-function Schema({ title, fields }: { title: string; fields: ReadonlyArray<readonly [string, string]> }) {
+// Plain names first; the API field name is one hover or tap away (#685).
+function Schema({ title, fields }: { title: string; fields: ReadonlyArray<readonly [string, string, string]> }) {
   return (
     <div className="mi-schema">
       <h4>{title}</h4>
       <dl>
-        {fields.map(([field, type]) => (
-          <div key={field}>
-            <dt><code>{field}</code></dt>
-            <dd>{type}</dd>
+        {fields.map(([name, kind, field]) => (
+          <div key={name}>
+            <dt><Term explain={`API field: ${field}`}>{name}</Term></dt>
+            <dd>{kind}</dd>
           </div>
         ))}
       </dl>
@@ -101,7 +103,7 @@ export function MethodArchitecture() {
           </section>
           <section className="mi-trace" aria-labelledby="mi-trace">
             <div className="mi-trace-heading">
-              <h4 id="mi-trace">Recorded Kobalt trace</h4>
+              <h4 id="mi-trace">Recorded run: Kobalt heat gun</h4>
               <a className="mi-link" href={blob(kobaltSources[stage.source])}>{stage.recording} <span aria-hidden="true">↗</span></a>
             </div>
             <dl className="mi-trace-values">
@@ -115,7 +117,7 @@ export function MethodArchitecture() {
           </section>
           {stage.id === "ask" && (
             <section className="mi-enforced" aria-labelledby="mi-adk-eval">
-              <h4 id="mi-adk-eval">ADK tool-use evaluation</h4>
+              <h4 id="mi-adk-eval">Agent test (built with Google’s ADK)</h4>
               <p className="read">Run 1 passed the tool-use checks on 9 of 12 products. Production sign-in blocked the second anonymous run.</p>
               <a className="mi-link" href={blob("docs/EVALUATION.md#12-agent-evaluation-the-adk-agent-on-12-products-22-nov-2026-d450-d451")}>
                 ADK evaluation details <span aria-hidden="true">↗</span>

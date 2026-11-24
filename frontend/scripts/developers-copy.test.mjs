@@ -39,7 +39,11 @@ test("catalog search accepts the tool name and task, and intersects the category
 test("the three setup examples follow the hosted endpoint and repository instructions", () => {
   assert.equal(mcpEndpoint, "https://undelabs.dev/mcp");
   assert.equal(setupExamples.gemini.code, mcp.match(/^gemini mcp add --transport http unde\s+\S+/m)[0]);
-  assert.match(JSON.parse(setupExamples.claude.code).mcpServers.unde.args[0], /\/mcp\/stdio\/index\.js$/);
+  // The relay is published (#562, #758): the example runs it with npx, as docs/MCP.md does.
+  const relay = JSON.parse(setupExamples.claude.code).mcpServers.unde;
+  assert.equal(relay.command, "npx");
+  assert.deepEqual(relay.args, ["-y", "@undelabs/mcp"]);
+  assert.match(mcp, /npx -y @undelabs\/mcp/);
   assert.match(setupExamples.adk.code, /mcp\.StreamableClientTransport/);
   assert.match(setupExamples.adk.note, /Illustrative/);
 });

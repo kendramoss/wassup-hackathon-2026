@@ -7,16 +7,18 @@ import { test } from "node:test";
 // token, and passes an event stream through as a stream.
 process.env.BACKEND_URL = "http://backend.test";
 delete process.env.K_SERVICE;
-const { proxyMcp, apiKeyOf } = await import("../src/lib/mcp-proxy.ts");
+const { proxyMcp, apiKeyOf, upstream, upstreamAgent } = await import("../src/lib/mcp-proxy.ts");
 
-const realFetch = globalThis.fetch;
+// The proxy calls undici's fetch through `upstream`, so the test swaps that
+// in for the backend (replacing globalThis.fetch would not reach it, #759).
+const realFetch = upstream.fetch;
 let sent;
 function backend(respond) {
   sent = [];
-  globalThis.fetch = async (url, init = {}) => {
+  upstream.fetch = async (url, init = {}) => {
     const u = String(url);
-    if (!u.startsWith("http://backend.test")) return realFetch(url, init);
-    sent.push({ u, method: init.method, cache: init.cache, headers: Object.fromEntries(new Headers(init.headers)), body: init.body ? new TextDecoder().decode(init.body) : "" });
+    if (!u.startsWith("http://backend.test")) throw new Error(`unexpected upstream URL ${u}`);
+    sent.push({ u, method: init.method, dispatcher: init.dispatcher, headers: Object.fromEntries(new Headers(init.headers)), body: init.body ? new TextDecoder().decode(init.body) : "" });
     return respond();
   };
 }
@@ -34,7 +36,8 @@ test("forwards the MCP headers, the bearer API key and the client address only",
   assert.equal(res.status, 200);
   assert.equal(sent.length, 1);
   assert.equal(sent[0].u, "http://backend.test/mcp");
-  assert.equal(sent[0].cache, "no-store");
+  // The long-timeout dispatcher (#756): a plan search can outlast undici's 300 s default.
+  assert.equal(sent[0].dispatcher, upstreamAgent);
   assert.equal(sent[0].body, rpc);
   const h = sent[0].headers;
   assert.equal(h["x-api-key"], "op_abc");
@@ -90,5 +93,5 @@ test("passes the backend's limit headers through (D137), and no other backend he
   assert.equal(res.status, 429);
   for (const h of ["retry-after", "ratelimit-limit", "ratelimit-remaining", "ratelimit-reset"]) assert.equal(res.headers.get(h), limited[h], h);
   assert.equal(res.headers.get("x-internal"), null);
-  globalThis.fetch = realFetch;
+  upstream.fetch = realFetch;
 });

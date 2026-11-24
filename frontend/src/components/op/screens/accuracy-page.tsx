@@ -11,6 +11,7 @@ import { ButtonLink, Chip, Fold, ScrollX, cx } from "../ui";
 import { VerifierCalibration } from "../verifier-calibration";
 import { KnownFailures, Reproduce } from "../failure-cases";
 import { sourceLabel } from "@/lib/source-label";
+import { Term } from "../term";
 
 // The first test window is frozen. Render its committed results and the
 // recorded plan check immediately. The API supplies the additional analyses.
@@ -276,7 +277,7 @@ function MarketEvidence() {
               The calculator applies published rules without a model. All {result.syntheticDevelopment} development and {result.syntheticUnseen} unseen synthetic tariff-code variants were undetermined.
             </p>
             <p>
-              <a href={`${copy.landing.repo}/blob/main/eval/RESULTS.md#rcep-calculator-on-japan-customs-rulings-d691-d716-d717`} className="text-ok underline underline-offset-2">
+              <a href={`${copy.landing.repo}/blob/main/eval/RESULTS.md#rcep-calculator-on-japan-customs-rulings-d691-d716-d717`} className="text-ok underline underline-offset-2 max-sm:inline-flex max-sm:min-h-11 max-sm:items-center">
                 See evaluation results and intervals →
               </a>
             </p>
@@ -454,14 +455,20 @@ export function AccuracyPage() {
     <Main>
       <header>
         <h1 className="text-[clamp(2.25rem,5vw,3.75rem)] font-semibold leading-tight tracking-[-0.06em]">How accurate is it?</h1>
-        <p className="read mt-2 max-w-[65ch] text-base text-dim">U.S. origin predictions compared with 377 real CBP rulings, Jan–Sep 2026. Covers single-origin U.S. substantial-transformation rulings only, not every market or rule set.</p>
+        <p className="read mt-2 max-w-[65ch] text-base text-dim">U.S. origin predictions compared with 377 real CBP rulings, Jan–Sep 2026. Covers single-origin U.S. rulings under{" "}
+          <Term explain="Substantial transformation: the origin is the last country where the product became a new article, with a new name, character or use.">CBP’s main origin test</Term> only, not every market or rule set.</p>
+        {/* #685: the pretraining caveat is visible without a click; the full
+            wording stays in the "Test set and confidence intervals" fold. */}
+        <p className="read mt-1 max-w-[65ch] text-sm text-dim">Gemini may have seen some of these rulings in pretraining; we can’t measure how many.</p>
       </header>
       <dl className="mt-6 grid gap-3 md:grid-cols-3">
         <Kpi title="Overall accuracy" value={pct(correct / n)} lead>
           {correct} / {n} right on the unseen test set. {pct(FIRST_COUNTRY_BASELINE)} for the first-country baseline.
         </Kpi>
-        <Kpi title="Auto-accepted accuracy" value={pct(autoRight / auto)}>
-          {autoRight} / {auto} right at ≥ {bar.toFixed(2)} stated confidence and in scope.
+        {/* #685: the historical 0.92 bar is on the model's own (stated)
+            confidence; today's 0.90 bar is on calibrated confidence. */}
+        <Kpi title="Right when it was sure" value={pct(autoRight / auto)}>
+          {autoRight} / {auto} right when the model’s own confidence was ≥ {bar.toFixed(2)}, the bar at the time, and the case was in scope, so it was accepted without review. Today’s bar is {calibratedBar.toFixed(2)} on calibrated confidence.
         </Kpi>
         <Kpi title="Sent to human review" value={pct(review / n)}>
           {review} sent to review. The model had {reviewRight} right and {reviewWrong} wrong.
@@ -782,7 +789,7 @@ export function AccuracyPage() {
                   </tbody>
                 </table>
               </ScrollX>
-              <button type="button" onClick={() => setAll(!all)} className="mt-3 min-h-8 text-[12.5px] text-ok hover:underline">
+              <button type="button" onClick={() => setAll(!all)} className="mt-3 min-h-8 text-[12.5px] text-ok hover:underline max-sm:min-h-11">
                 {all ? "Show the main numbers" : `Show all ${items.length} numbers`}
               </button>
               <p className="duo mt-3 max-w-[90ch] text-[11.5px] text-dim">
@@ -798,8 +805,8 @@ export function AccuracyPage() {
       </div>
 
       <nav aria-label="Explore the evidence" className="mt-8 flex flex-wrap gap-3 border-t border-line pt-5">
-        <ButtonLink href="#misses" onClick={openFailures}>See all {misses.length} known failures →</ButtonLink>
-        <ButtonLink href="/method" variant="ghost">How it is built →</ButtonLink>
+        <ButtonLink href="#misses" onClick={openFailures} className="max-sm:min-h-11">See all {misses.length} known failures →</ButtonLink>
+        <ButtonLink href="/method" variant="ghost" className="max-sm:min-h-11">How it is built →</ButtonLink>
       </nav>
       <details ref={failures} id="misses" className="group mt-4 scroll-mt-20 border-b border-line">
         <summary className="flex min-h-11 list-none items-center gap-2 text-sm text-ink hover:text-ok [&::-webkit-details-marker]:hidden">

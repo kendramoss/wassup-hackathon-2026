@@ -32,7 +32,10 @@ export const copy = {
     recorded: {
       label: "Recorded test run",
       recordLink: "Open the recorded run (JSON) →",
-      unseeded: "Runs live",
+      // The honesty label for a live card (#685 review): opening it only
+      // fills the form; the origin runs on "Find the likely origin", and the
+      // move search is a separate button.
+      unseeded: "Live run: starts when you click Find origin",
       engine: "Unde:",
       agrees: "Agrees with CBP",
       disagrees: "Disagrees with CBP",
@@ -41,7 +44,7 @@ export const copy = {
       noPlan: "No backed plan.",
       // On a card that starts a live run: the run will search plans, nothing
       // is shown yet (judge panel round 3: "Plan included" read as ready).
-      planRuns: "Runs live, with a plan search",
+      planRuns: "Live run, then you can search for moves",
       // A pinned demo read from CBP's text alone has no parts list to plan.
       originOnly: "Origin only: no parts list to plan",
       selection:
@@ -335,12 +338,14 @@ export const copy = {
       ],
     },
   },
-  // One sentence on what is new (judge panel round 4), said the same on the
-  // landing and on /method. Factual: what the product does, no claim of
-  // being first.
+  // One sentence on what is new (judge panel round 4), on the landing only
+  // (/method no longer shows it). Factual: what the product does, no claim
+  // of being first. #685: the subtitle above it already says Unde finds the
+  // moves that would change the origin, so this line keeps only what the
+  // subtitle does not say.
   novel: {
     lead: "What is new:",
-    text: "Unde also finds the production moves that would change the origin, and shows only those an earlier CBP ruling backs.",
+    text: "Unde shows only the moves an earlier CBP ruling backs.",
   },
   landing: {
     eyebrow: "fig.0 — US Customs country of origin",

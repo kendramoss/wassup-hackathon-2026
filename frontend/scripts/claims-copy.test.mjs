@@ -21,7 +21,9 @@ function walk(dir) {
 }
 
 test("the accuracy intro names the scope next to the headline", () => {
-  assert.match(page, /compared with 377 real CBP rulings, Jan–Sep 2026\. Covers single-origin U\.S\. substantial-transformation rulings only, not every market or rule set\./);
+  // #685: the rule is named in plain words beside the headline, with its
+  // legal name (substantial transformation) in the term's explanation.
+  assert.match(page, /compared with 377 real CBP rulings, Jan–Sep 2026\. Covers single-origin U\.S\. rulings under\{" "\} <Term explain="Substantial transformation: [^"]+">CBP’s main origin test<\/Term> only, not every market or rule set\./);
 });
 
 test("the unsupported 'never saw' and 'never used for tuning' claims are gone from copy", () => {
@@ -82,7 +84,8 @@ test("D32 and D260 keep their original text, with a dated current-status note af
   assert.match(decisions.slice(note), /D32/);
   assert.match(decisions.slice(note), /D260/);
   assert.match(decisions.slice(note), /EVALUATION\.md/);
-  assert.match(flat("../src/components/op/screens/method-page.tsx"), /Zero production fine-tuning/);
+  // #685: plain wording, still scoped to the live (production) model.
+  assert.match(flat("../src/components/op/screens/method-page.tsx"), /The live service uses Gemini without fine-tuning\./);
 });
 
 test("prospective rules stay", () => {
