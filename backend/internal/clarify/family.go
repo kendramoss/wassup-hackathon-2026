@@ -439,6 +439,9 @@ func known(q familyQuestion, p *domain.Product) string {
 	}
 	var cs []string
 	add := func(c string) {
+		if unstated.MatchString(c) {
+			return
+		}
 		if c = domain.NormalizeCountry(c); c != "" && !slices.Contains(cs, c) {
 			cs = append(cs, c)
 		}
@@ -460,6 +463,10 @@ func known(q familyQuestion, p *domain.Product) string {
 	}
 	return strings.Join(cs, ", ") + ", from the parts list"
 }
+
+// unstated is a "made in" that names no country: the parts list needs one,
+// so a requester who does not know writes "Unknown", "TBD" or the like.
+var unstated = regexp.MustCompile(`(?i)^\s*(unknown|not known|unsure|tbd|tba|n/?a|none|various|mixed|\?+|-+|)\s*$`)
 
 func addAll(dst, src []string) []string {
 	for _, s := range src {

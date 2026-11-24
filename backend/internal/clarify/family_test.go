@@ -92,6 +92,17 @@ func TestBatteryPackAsksCellsPackWorkAndBMS(t *testing.T) {
 	}
 }
 
+// The parts list needs a "made in" for every part, so "Unknown" is how a
+// requester says they do not know: still missing.
+func TestUnknownOnThePartsListIsStillAsked(t *testing.T) {
+	p := batteryPack()
+	p.Components[0].MadeIn, p.Components[1].MadeIn = "Unknown", "TBD"
+	in := Intake(FamilyCase{US: true, Family: "power_supplies_chargers", Product: p}, templates(t))
+	if got := ids(in, StateMissing); !slices.Equal(got, []string{"cells_made", "pack_work", "bms_made"}) {
+		t.Errorf("%v", got)
+	}
+}
+
 func TestKnownFromThePartsListIsNotAsked(t *testing.T) {
 	p := batteryPack()
 	p.Components[0].MadeIn = "South Korea"

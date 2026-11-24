@@ -72,7 +72,7 @@ function Questions({ c, fi, setCase }: { c: CaseResponse; fi: Intake; setCase: (
 
   return (
     <section aria-labelledby={`${base}-h`} data-family-intake={fi.status} className="max-w-[75ch] border border-line bg-sheet px-4 py-3">
-      <h2 id={`${base}-h`} className="eyebrow mb-1">
+      <h2 id={`${base}-h`} className="mb-1 text-[13px] font-medium">
         {C.title}
       </h2>
       <p className="duo mb-1 text-[13px] text-body">
@@ -108,21 +108,24 @@ function Questions({ c, fi, setCase }: { c: CaseResponse; fi: Intake; setCase: (
               {C.from}: {q.evidence}
             </p>
           );
-          const rulings =
-            q.confers_origin.length || q.not_enough.length ? (
-              <p className="duo mt-0.5 flex flex-wrap items-center gap-x-1.5 gap-y-1 text-[12.5px] text-dim">
-                <span>{C.rulings}:</span>
-                {q.confers_origin.slice(0, 4).map((r) => (
+          // The template's citations for the work asked about: where it
+          // decided origin, and where it was not enough.
+          const cite = (label: string, ids: string[]) =>
+            ids.length ? (
+              <p className="duo flex flex-wrap items-center gap-x-1.5 text-[12.5px] text-dim">
+                <span>{label}:</span>
+                {ids.slice(0, 4).map((r) => (
                   <RulingLink key={r} id={r} className="inline-flex min-h-11 items-center" />
                 ))}
-                {q.confers_origin.length ? <span>{C.decided}</span> : null}
-                {q.not_enough.length ? <span aria-hidden="true">·</span> : null}
-                {q.not_enough.slice(0, 3).map((r) => (
-                  <RulingLink key={r} id={r} className="inline-flex min-h-11 items-center" />
-                ))}
-                {q.not_enough.length ? <span>{C.notEnough}</span> : null}
+                {ids.length > 4 ? <span>+{ids.length - 4}</span> : null}
               </p>
             ) : null;
+          const rulings = (
+            <>
+              {cite(C.decided, q.confers_origin)}
+              {cite(C.notEnough, q.not_enough)}
+            </>
+          );
           if (q.kind === "yes_no") {
             return (
               <fieldset key={q.id} data-question={q.id} data-state={q.state} className="duo text-[13px]" aria-describedby={`${id}-from`}>
