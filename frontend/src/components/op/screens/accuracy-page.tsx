@@ -264,7 +264,7 @@ function JapanExperiment() {
     <div id="japan-experiment" className="mt-5 border-t border-line pt-4">
       <h3 className="text-sm font-semibold">Japan model: offline experiment</h3>
       <p className="read mt-1 text-sm text-dim">
-        Experimental and unreviewed. Japan is not available in the product. All {j.cases} rulings are real approvals, so this is not an accuracy rate.
+        Experimental and unreviewed. This run used a private gateway, not the live Japan route. All {j.cases} rulings are real approvals, so this is not an accuracy rate.
       </p>
       <p className="mt-2 text-sm tabular-nums">
         <strong>{j.criterionMatch}/{j.cases}</strong> matched the ruling&apos;s criterion ({j.matchPct}, 95% interval {j.matchInterval}%).
@@ -344,7 +344,7 @@ function MarketEvidence() {
           </div>
           <div>
             <dt className="text-sm font-semibold">Japan model</dt>
-            <dd className="read mt-0.5 text-sm text-dim">{copy.japan.notAvailable}</dd>
+            <dd className="read mt-0.5 text-sm text-dim">Where Japan is open, it checks the agreement rules and past rulings. No accuracy figure.</dd>
           </div>
         </dl>
       </div>

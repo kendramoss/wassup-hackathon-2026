@@ -86,7 +86,7 @@ For imports into Japan, supply a trade agreement and the finished good's tariff 
 
 If the inputs or an applicable rule are missing, the assessment stays undetermined. General Japanese origin, origin certificates, duty savings and relocation plans sit outside this scope. Review by a licensed Japanese customs specialist is tracked in [#665](https://github.com/kendramoss/wassup-hackathon-2026/issues/665).
 
-The Japan engine registers only when `JAPAN_ENGINE=on` (default off, D741) and the server has dedicated `JAPAN_LITELLM_BASE_URL` and `JAPAN_LITELLM_API_KEY` settings. Those settings alone never make Japan available. With the gate on, the local fake provider can exercise the same route offline. Call `GET /v1/jurisdictions` to check availability on a deployment. Production enablement is tracked in [#694](https://github.com/kendramoss/wassup-hackathon-2026/issues/694).
+The Japan engine is on by default; `JAPAN_ENGINE=off` (or `false`, `0`) makes Japan unavailable. With the dedicated `JAPAN_LITELLM_BASE_URL` and `JAPAN_LITELLM_API_KEY` settings, it uses that private gateway. Without them, and with the Vertex provider, it reuses the production engine model, with the same gate, retries and spend meter as the other engines. If no model is usable, Japan stays unavailable. The local fake provider can exercise the same route offline. No accuracy figure is claimed for the live route. Call `GET /v1/jurisdictions` to check availability on a deployment. Production enablement is tracked in [#694](https://github.com/kendramoss/wassup-hackathon-2026/issues/694).
 
 ### 3.3 RCEP preference calculator
 

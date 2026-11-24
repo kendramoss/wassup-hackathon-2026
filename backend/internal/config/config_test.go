@@ -722,8 +722,14 @@ func TestTrustedProxyCIDRs(t *testing.T) {
 
 func TestJapanEngineGateConfig(t *testing.T) {
 	c, err := FromEnv(getenv(vertexEnv()))
-	if err != nil || c.JapanEngine {
-		t.Fatalf("JAPAN_ENGINE default = %v, %v; want off", c.JapanEngine, err)
+	if err != nil || !c.JapanEngine {
+		t.Fatalf("JAPAN_ENGINE default = %v, %v; want on", c.JapanEngine, err)
+	}
+	for _, v := range []string{"off", "false", "0"} {
+		off, err := FromEnv(getenv(merge(vertexEnv(), map[string]string{"JAPAN_ENGINE": v})))
+		if err != nil || off.JapanEngine {
+			t.Errorf("JAPAN_ENGINE=%s = %v, %v; want off", v, off.JapanEngine, err)
+		}
 	}
 	for _, v := range []string{"on", "true", "1"} {
 		on, err := FromEnv(getenv(merge(vertexEnv(), map[string]string{"JAPAN_ENGINE": v})))
