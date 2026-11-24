@@ -125,15 +125,85 @@ func TestGuardSendsLookalikesToReview(t *testing.T) {
 		{"medical_devices", "Ultrasound gel", "", ""},
 		{"medical_devices", "Children's digital thermometer", "", ""},
 		{"medical_devices", "Kids' nebulizer", "", ""},
-		{"display_camera_modules", "Riflescope lens", "", ""},
+		{"display_camera_modules", "Riflescope lens", "", "standalone-optics"},
 		{"display_camera_modules", "Toy binoculars", "", "toy"},
+		{"offroad_vehicles_machinery", "Bike stand", "", "support-stand"},
+		{"offroad_vehicles_machinery", "Utility task vehicle", "", ""},
 		{"display_camera_modules", "Plug and play USB camera module", "", ""},
 		{"display_camera_modules", "Display module for children's tablet", "", ""},
 		{"display_camera_modules", "Novelty sunglasses", "", "toy"},
+		// 3D printers (#778, D823): no longer an industrial or lifting
+		// machine; the motors template keeps real machines.
+		{"motors_pumps_compressors", "3D printer", "", "printer"},
+		{"motors_pumps_compressors", "Dental 3D printer made in Mexico", "", "printer"},
+		{"motors_pumps_compressors", "", "SprintRay Pro 2 3D printer", "printer"},
+		{"motors_pumps_compressors", "Laser marking and engraving machine", "", ""},
+		{"motors_pumps_compressors", "Printer cartridge filling machine", "", ""},
+		{"motors_pumps_compressors", "Industrial 3D printing machine", "", "printer"},
+		{"motors_pumps_compressors", "Additive manufacturing system", "", "printer"},
+		{"motors_pumps_compressors", "Bike stand", "", ""},
+		{"offroad_vehicles_machinery", "3D printer", "", "printer"},
+		// Off-road, lifting and mobile machinery (#778, D826): jacks, lifts, winches,
+		// cranes and guided vehicles keep it; stands, dollies, vehicles and
+		// toys do not.
+		{"offroad_vehicles_machinery", "Hydraulic floor jack", "", ""},
+		{"offroad_vehicles_machinery", "Hydraulic bottle jacks made in Thailand", "", ""},
+		{"offroad_vehicles_machinery", "Scissor jack", "", ""},
+		{"offroad_vehicles_machinery", "Electric scissor lift", "", ""},
+		{"offroad_vehicles_machinery", "Electric winch 8000 lb", "", ""},
+		{"offroad_vehicles_machinery", "Engine crane", "", ""},
+		{"offroad_vehicles_machinery", "Automated guided vehicle with lifting mechanism", "", ""},
+		{"offroad_vehicles_machinery", "3D printing machine", "", "printer"},
+		{"offroad_vehicles_machinery", "AGV for battery plants", "", ""},
+		{"offroad_vehicles_machinery", "Telehandler", "", ""},
+		{"offroad_vehicles_machinery", "Hydraulic pallet truck", "", ""},
+		{"offroad_vehicles_machinery", "Jack stand", "", "support-stand"},
+		{"offroad_vehicles_machinery", "Automotive jack stands", "", "support-stand"},
+		{"offroad_vehicles_machinery", "Engine stand", "", "support-stand"},
+		{"offroad_vehicles_machinery", "Wheel dolly", "", "support-stand"},
+		{"offroad_vehicles_machinery", "Toy crane", "", "toy-machine"},
+		{"motors_pumps_compressors", "Automated guided vehicle", "", ""},
+		// Optical and measuring instruments (#780, D822): lenses, sights and
+		// instruments keep it; lights, network optics, smart glasses, toys and
+		// drugs do not.
+		{"optical_precision_instruments", "Riflescope lens", "", ""},
+		{"optical_precision_instruments", "Optical windows", "", ""},
+		{"optical_precision_instruments", "Carrier plate assembly for red dot sights", "", ""},
+		{"optical_precision_instruments", "Binoculars", "", ""},
+		{"optical_precision_instruments", "Digital multimeter", "", ""},
+		{"optical_precision_instruments", "Pressure sensors made in Germany", "", ""},
+		{"optical_precision_instruments", "Gas chromatograph", "", ""},
+		{"optical_precision_instruments", "Digital tape measure", "", ""},
+		{"optical_precision_instruments", "Laser level", "", ""},
+		{"optical_precision_instruments", "Light meter", "", ""},
+		{"optical_precision_instruments", "Wireless cooking thermometer", "", ""},
+		{"optical_precision_instruments", "Fiber optic cable tester", "", ""},
+		{"optical_precision_instruments", "Reading glasses", "", ""},
+		{"optical_precision_instruments", "LED flashlight", "", "lighting-optics"},
+		{"optical_precision_instruments", "Work lamp", "", "lighting-optics"},
+		{"optical_precision_instruments", "Fiber optic cable assemblies", "", "network-optics"},
+		{"optical_precision_instruments", "Optical transceiver module", "", "network-optics"},
+		{"optical_precision_instruments", "Patch cord assemblies", "", "network-optics"},
+		{"optical_precision_instruments", "Smart glasses", "", "smart-eyewear"},
+		{"optical_precision_instruments", "Toy binoculars", "", "toy"},
+		{"optical_precision_instruments", "Novelty sunglasses", "", "toy"},
+		{"optical_precision_instruments", "Vitamin C tablets", "", "drug"},
+		{"optical_precision_instruments", "Riflescope lenses", "", ""},
+		{"optical_precision_instruments", "Camera module with lens", "", "camera-display-module"},
+		{"optical_precision_instruments", "LCD display module", "", "camera-display-module"},
+		// Lenses split by where they end up (D826): standalone optics go to the
+		// optical template, lenses in a camera or display module to display.
+		{"display_camera_modules", "Lens assemblies", "", "standalone-optics"},
+		{"display_camera_modules", "Optical windows", "", "standalone-optics"},
+		{"display_camera_modules", "Camera lens assembly", "", ""},
+		{"display_camera_modules", "Lens module for a dashcam", "", ""},
 		// Rules belong to their families: the same words elsewhere do nothing.
 		{"led_lights", "Floor lamp", "", ""},
 		{"motorised_tools_small_appliances", "Cordless drill", "", ""},
 		{"vehicle_parts", "E-bike battery", "", ""},
+		{"hand_tools", "Jack stand", "", ""},
+		{"display_camera_modules", "Fiber optic cable", "", ""},
+		{"furniture", "LED flashlight", "", "lighting"},
 	} {
 		text := "Parts: housing"
 		if c.typed != "" {
@@ -307,5 +377,78 @@ func TestGuardOnDevelopmentRows(t *testing.T) {
 	}
 	if !slices.Contains(GuardRules(), "battery-device") {
 		t.Error("rule list changed")
+	}
+}
+
+var updateGuardG3 = flag.Bool("update-guard-g3", false, "rewrite eval/families/b3-guard-g3.json (D820 M2)")
+
+// D820 M2: the current guard on the recorded #772 run with guard v3 and the
+// version 2 templates (families-coverage-dev-all-litellm-f26-b2-g3.jsonl),
+// the subject as the product line: the 3D printer (H346536) that run matched
+// to the machines template is taken away. No model is re-run.
+func TestGuardOnG3Rows(t *testing.T) {
+	subjects := map[string]string{}
+	lf, err := os.Open("../../data/labels.jsonl")
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer lf.Close()
+	sc := bufio.NewScanner(lf)
+	sc.Buffer(make([]byte, 1<<20), 1<<24)
+	for sc.Scan() {
+		var l struct{ Ruling, Subject string }
+		if err := json.Unmarshal(sc.Bytes(), &l); err != nil {
+			t.Fatal(err)
+		}
+		subjects[l.Ruling] = l.Subject
+	}
+	f, err := os.Open("../../../eval/results/families-coverage-dev-all-litellm-f26-b2-g3.jsonl")
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer f.Close()
+	type changed struct {
+		Ruling  string `json:"ruling"`
+		Subject string `json:"subject"`
+		Family  string `json:"family"`
+		Rule    string `json:"rule"`
+	}
+	var rows, matched int
+	got := []changed{}
+	sc = bufio.NewScanner(f)
+	sc.Buffer(make([]byte, 1<<20), 1<<24)
+	for sc.Scan() {
+		var row struct{ Ruling, Family, Error string }
+		if err := json.Unmarshal(sc.Bytes(), &row); err != nil {
+			t.Fatal(err)
+		}
+		rows++
+		if row.Error != "" || row.Family == "" || row.Family == None {
+			continue
+		}
+		matched++
+		if _, rule := Guard("Product: "+subjects[row.Ruling], Result{Family: row.Family, Confidence: 1}); rule != "" {
+			got = append(got, changed{row.Ruling, subjects[row.Ruling], row.Family, rule})
+		}
+	}
+	sort.Slice(got, func(i, j int) bool { return got[i].Ruling < got[j].Ruling })
+	b, _ := json.MarshalIndent(map[string]any{
+		"note": "D820 M2: rows of families-coverage-dev-all-litellm-f26-b2-g3.jsonl (guard v3 applied during that run) whose recorded family the " +
+			GuardVersion + " guard takes away, the subject as the product line. Written by TestGuardOnG3Rows -update-guard-g3.",
+		"rows": rows, "matched": matched, "changed": got,
+	}, "", " ")
+	b = append(b, '\n')
+	const path = "../../../eval/families/b3-guard-g3.json"
+	if *updateGuardG3 {
+		if err := os.WriteFile(path, b, 0o644); err != nil {
+			t.Fatal(err)
+		}
+	}
+	want, err := os.ReadFile(path)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if string(want) != string(b) {
+		t.Errorf("%s is stale; run go test ./internal/familycheck -run TestGuardOnG3Rows -update-guard-g3", path)
 	}
 }

@@ -1,0 +1,82 @@
+{
+ "rule": "D826 amends D821: the D820 bar applied strictly (rulings a template dedicated to the scope already cites are not counted); expected templates follow the templates actually written.",
+ "amended_at": "2026-11-24",
+ "families": {
+  "battery_packs": {
+   "expected_template": "power_supplies_chargers",
+   "kept_pool": 6,
+   "served_by_dedicated_template": {},
+   "counted": 6,
+   "citable_counted": 6,
+   "bar": "not met: 6 of 10, 4 short"
+  },
+  "lifting_machines": {
+   "expected_template": "offroad_vehicles_machinery",
+   "kept_pool": 11,
+   "served_by_dedicated_template": {
+    "N334276": [
+     "offroad_vehicles_machinery"
+    ],
+    "N336445": [
+     "offroad_vehicles_machinery"
+    ],
+    "N337718": [
+     "offroad_vehicles_machinery"
+    ],
+    "N340047": [
+     "offroad_vehicles_machinery"
+    ],
+    "N343416": [
+     "offroad_vehicles_machinery"
+    ]
+   },
+   "counted": 6,
+   "citable_counted": 6,
+   "bar": "not met: 6 of 10, 4 short"
+  },
+  "furniture": {
+   "expected_template": "furniture",
+   "kept_pool": 12,
+   "served_by_dedicated_template": {
+    "H330862": [
+     "furniture"
+    ],
+    "H338728": [
+     "furniture"
+    ],
+    "N334531": [
+     "furniture"
+    ],
+    "N338514": [
+     "furniture"
+    ],
+    "N339107": [
+     "furniture"
+    ],
+    "N339646": [
+     "furniture"
+    ],
+    "N339685": [
+     "furniture"
+    ],
+    "N344246": [
+     "furniture"
+    ],
+    "N348576": [
+     "furniture"
+    ]
+   },
+   "counted": 3,
+   "citable_counted": 1,
+   "bar": "served by the furniture template"
+  },
+  "optical_precision": {
+   "expected_template": "optical_precision_instruments",
+   "kept_pool": 10,
+   "served_by_dedicated_template": {},
+   "counted": 10,
+   "citable_counted": 9,
+   "bar": "met: 10 kept of 10, 9 citable"
+  }
+ }
+}

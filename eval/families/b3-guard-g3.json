@@ -1,0 +1,19 @@
+{
+ "changed": [
+  {
+   "ruling": "H346536",
+   "subject": "Country of origin of a 3D Printer",
+   "family": "motors_pumps_compressors",
+   "rule": "printer"
+  },
+  {
+   "ruling": "N350838",
+   "subject": "The country of origin of optical windows",
+   "family": "display_camera_modules",
+   "rule": "standalone-optics"
+  }
+ ],
+ "matched": 351,
+ "note": "D820 M2: rows of families-coverage-dev-all-litellm-f26-b2-g3.jsonl (guard v3 applied during that run) whose recorded family the family-guard-v5 guard takes away, the subject as the product line. Written by TestGuardOnG3Rows -update-guard-g3.",
+ "rows": 469
+}

@@ -1,0 +1,85 @@
+{
+  "_source": "Built from the facts of CBP ruling N351865 (2025-08-22, dev split): CBP held United Kingdom. Product written by the agent from the facts, no model draft (D823, D826). Target China (reverse probe: away from a non-China origin); plant capabilities for China and all costs are assumptions. No later ruling on a changed setup, so there is no backtest.",
+  "case_id": "b3-n351865",
+  "date": "2025-08-22",
+  "family": "optical_precision_instruments",
+  "target": "China",
+  "product": {
+    "name": "Ultra-low differential pressure sensor (MEMS), 0-5 mbar",
+    "description": "A piezoresistive silicon pressure sensor die with signal-processing circuitry, wire bonded and encapsulated in a moulded plastic package, for HVAC units.",
+    "plants": [
+      {
+        "id": "uk",
+        "name": "United Kingdom Plant",
+        "country": "United Kingdom",
+        "capabilities": [
+          "sensing_element",
+          "instrument_electronics"
+        ]
+      },
+      {
+        "id": "cn",
+        "name": "China Plant",
+        "country": "China",
+        "capabilities": [
+          "sensing_element",
+          "instrument_housing",
+          "final_assembly"
+        ]
+      }
+    ],
+    "components": [
+      {
+        "name": "Silicon wafers and process chemicals",
+        "made_in": "United Kingdom",
+        "plant": "uk",
+        "group": "sensing_element"
+      },
+      {
+        "name": "Plastic moulding compound and lead frame",
+        "made_in": "China",
+        "plant": "cn",
+        "group": "instrument_housing"
+      }
+    ],
+    "operations": [
+      {
+        "name": "Make the sensor die: photolithography, ion implantation, sputtering, wet and dry etching and probe inspection",
+        "plant": "uk",
+        "group": "sensing_element"
+      },
+      {
+        "name": "Mould the plastic package parts",
+        "plant": "cn",
+        "group": "instrument_housing"
+      },
+      {
+        "name": "Wire bond and encapsulate the die, run continuity and function tests and pack",
+        "plant": "cn",
+        "group": "final_assembly"
+      }
+    ]
+  },
+  "economics": {
+    "illustrative": true,
+    "annual_import_value_usd": 1000000,
+    "duty_rates": {
+      "United Kingdom": 0.125,
+      "China": 0.425
+    },
+    "duty_rates_note": "Illustrative placeholder, not a sourced rate.",
+    "group_costs": {
+      "sensing_element": {
+        "uk": 100000,
+        "cn": 125000
+      }
+    }
+  },
+  "exclude_rulings": [
+    "N351865"
+  ],
+  "current_origin": {
+    "country": "United Kingdom",
+    "ruling": "N351865"
+  }
+}

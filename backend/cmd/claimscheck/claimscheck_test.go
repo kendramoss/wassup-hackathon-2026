@@ -361,7 +361,7 @@ func TestStaleRound13PhrasesFail(t *testing.T) {
 		})
 	}
 	f := newFixture(t)
-	write(t, f.root, "README.md", "Plans cover 26 product families; with the first 14 families 59.4% matched. "+
+	write(t, f.root, "README.md", "Plans cover 27 product families; with the first 14 families 59.4% matched. "+
 		"14 of 29 held out (13 agree); 12 of 29 without the five chapters (D560).\n"+
 		"The engine then in use (`usmca-v1`) agrees with the rule on 13 of 14 moves; usmca-v1 agreed with the rule on 3 of 6.\n"+
 		"usmca-v1: 100% at confidence 0.95, on 46.9% of cases.\n")
@@ -392,7 +392,34 @@ func TestStaleFamilyCount20Fails(t *testing.T) {
 		})
 	}
 	f := newFixture(t)
-	write(t, f.root, "README.md", "Plans need one of 26 product families. A second pass with `usmca-v5` and 20 families planned 8 of 18.\n")
+	write(t, f.root, "README.md", "Plans need one of 27 product families. A second pass with `usmca-v5` and 20 families planned 8 of 18.\n")
+	if r := Check(f.root, f.doc); hasFailure(r, "stale phrase") {
+		t.Fatalf("current wording should pass, got %v", r.Failures)
+	}
+}
+
+// D826: one more family, 27 in all (D822, D826). The old count fails wherever it is
+// stated as the current one; the D661 held-out reading, run with 26, keeps
+// its figure.
+func TestStaleFamilyCount26Fails(t *testing.T) {
+	for name, line := range map[string]string{
+		"product families": "Plans need one of 26 product families.",
+		"with templates":   "26 families with templates (section 4).",
+		"family templates": "The planner has 26 family templates.",
+		"the templates":    "Plan search for any product family outside the 26 templates.",
+		"pins":             "`TestTemplateSetIsPinned` pins the 26 families.",
+		"plan scope":       "Only products in a family with a plan template (26 families, listed in the family picker) are planned.",
+	} {
+		t.Run(name, func(t *testing.T) {
+			f := newFixture(t)
+			write(t, f.root, "README.md", line+"\n")
+			if r := Check(f.root, f.doc); !hasFailure(r, "stale phrase") {
+				t.Fatalf("want a stale-phrase failure, got %v", r.Failures)
+			}
+		})
+	}
+	f := newFixture(t)
+	write(t, f.root, "README.md", "Plans need one of 27 product families. The held-out check matched 79.0% to one of the 26 families, read once (D661).\n")
 	if r := Check(f.root, f.doc); hasFailure(r, "stale phrase") {
 		t.Fatalf("current wording should pass, got %v", r.Failures)
 	}

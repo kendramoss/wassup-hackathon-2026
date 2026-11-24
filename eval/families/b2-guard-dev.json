@@ -8,17 +8,25 @@
   }
  ],
  "matched": 349,
- "note": "D781 M2: rows of families-coverage-dev-all-litellm-f26.jsonl whose recorded family the family-guard-v3 guard takes away, the subject as the product line. Written by TestGuardOnDevelopmentRows -update-guard-dev.",
+ "note": "D781 M2: rows of families-coverage-dev-all-litellm-f26.jsonl whose recorded family the family-guard-v5 guard takes away, the subject as the product line. Written by TestGuardOnDevelopmentRows -update-guard-dev.",
  "rows": 469,
  "rules": [
   "battery-material",
   "battery-device",
   "vehicle",
+  "printer",
+  "support-stand",
   "hand-tool-or-appliance",
   "lighting",
+  "lighting-optics",
   "pet-product",
   "electrical-cabinet",
   "drug",
-  "toy"
+  "toy",
+  "toy-machine",
+  "network-optics",
+  "camera-display-module",
+  "standalone-optics",
+  "smart-eyewear"
  ]
 }

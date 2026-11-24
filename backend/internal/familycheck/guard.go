@@ -6,8 +6,11 @@ import (
 )
 
 // GuardVersion names the deterministic checks below (D783, D786, D789). A
-// change to a rule needs a new version, like a prompt change.
-const GuardVersion = "family-guard-v3"
+// change to a rule needs a new version, like a prompt change. v4 (D823)
+// added printers, stands and the optical instrument template; v5 (D827)
+// moves the lifting rules to the off-road and lifting machinery template and
+// splits lenses between the optical and display templates.
+const GuardVersion = "family-guard-v5"
 
 // guardRule sends a model's match to "none" (review) when the product line
 // names a product that only shares a cue with the family: a cordless drill is
@@ -36,7 +39,7 @@ var (
 	deviceWords = words("drill driver saw sander grinder mower trimmer blower vacuum flashlight light lamp lantern torch earbud earphone headphone headset speaker laptop computer notebook tablet phone smartphone watch smartwatch tracker camera drone toy scooter bike bicycle e-bike truck car vehicle cigarette e-cigarette vape inflator tool thermometer monitor shaver toothbrush fan heater router controller trainer collar wand")
 	materialRe  = regexp.MustCompile(`cathode|anode|electrode|graphite|electrolyte|active material|precursor`)
 	matWords    = words("material powder graphite electrolyte precursor foil slurry")
-	lightWords  = words("lamp light lantern chandelier sconce luminaire bulb lighting")
+	lightWords  = words("lamp light lantern chandelier sconce luminaire bulb lighting flashlight torch")
 	furnWords   = words("table chair desk sofa couch bed cabinet shelf shelving bookcase stool bench ottoman wardrobe dresser recliner stand nightstand futon headboard mattress cart rack sideboard")
 	petWords    = words("pet dog cat puppy kitten")
 	petOnly     = words("house tree crate kennel")
@@ -57,6 +60,28 @@ var (
 	machineWords = words("machine pump compressor motor robot press mixer generator crusher conveyor drill sander mower trimmer blender nailer")
 	// Trucks and carts are left out: a hydraulic pallet truck is a machine.
 	vehWords = words("scooter bike bicycle e-bike car vehicle motorcycle moped kart")
+	// An automated guided vehicle or mobile robot is a handling machine, not
+	// a vehicle (D822: N337718, N343416).
+	agvRe = regexp.MustCompile(`guided vehicle|\bagvs?\b|\bamrs?\b|autonomous mobile robot`)
+	// Printers, 3D printers included ("3D" is dropped as a word with a digit),
+	// and additive-manufacturing machines named as such.
+	printerWords = words("printer")
+	printRe      = regexp.MustCompile(`\b3d[- ]print|three-dimensional print|additive[- ]manufactur`)
+	// Lifting and mobile machines, and stands and dollies that only hold a
+	// raised load (jack stands, engine stands, wheel dollies: D821).
+	liftWords  = words("jack lift hoist winch crane forklift stacker telehandler platform truck vehicle agv machine")
+	standWords = words("stand dolly")
+	// Optical and measuring instruments, and the network optics and smart
+	// eyewear that share their words.
+	instWords = words("lens window prism sight scope riflescope telescope binocular monocular microscope magnifier loupe meter multimeter gauge sensor transducer tester analyzer analyser chromatograph spectrometer spectrophotometer thermometer hygrometer barometer level square rule ruler tape measure caliper micrometer rangefinder theodolite instrument glass eyewear spectacle sunglass")
+	netWords  = words("transceiver cable cord patch jumper connector")
+	// Camera and display modules (display template) and the words that make
+	// a lens part of one; standalone optics (optical template).
+	modWords = words("camera webcam dashcam module display screen panel monitor")
+	inModRe  = regexp.MustCompile(`camera|webcam|dashcam|display|screen|\blcd\b|oled|projector|\bmodule`)
+	optWords = words("lens window prism sight scope riflescope telescope binocular monocular microscope magnifier loupe")
+	eyeWords = words("glass eyewear spectacle")
+	smartRe  = regexp.MustCompile(`\bsmart\b|\bar\b|augmented reality|camera glasses`)
 	// Unit and chemistry words of "12V 100Ah LFP", "12 volt", "100 amp hour".
 	unitWords = words("v w ah mah wh kwh kw mp mm cm m a va vdc vac ft lb kg g volt amp hour lfp sla agm lifepo nmc")
 	// Words that start a clause after the product: "made in", "assembled
@@ -76,14 +101,27 @@ var guardRules = []guardRule{
 		},
 		"a device that runs on a battery is not a battery pack or power supply; choose the device's own family"},
 	{"vehicle", []string{"power_supplies_chargers", "motors_pumps_compressors"},
-		func(p string) bool { return vehWords[productWord(p, vehWords, powerWords, machineWords)] },
+		func(p string) bool {
+			return vehWords[productWord(p, vehWords, powerWords, machineWords, liftWords, standWords)] && !agvRe.MatchString(p)
+		},
 		"a vehicle is not a battery pack or an industrial machine"},
+	{"printer", []string{"motors_pumps_compressors", "offroad_vehicles_machinery"},
+		func(p string) bool {
+			return printRe.MatchString(p) || printerWords[productWord(p, printerWords, machineWords, liftWords)]
+		},
+		"no template is written from 3D-printer or printer rulings; sent to review"},
+	{"support-stand", []string{"offroad_vehicles_machinery"},
+		func(p string) bool { return standWords[productWord(p, standWords, liftWords, vehWords)] },
+		"a stand or dolly that holds a load does not lift it; it is not lifting or mobile machinery"},
 	{"hand-tool-or-appliance", []string{"motors_pumps_compressors"},
 		func(p string) bool { return toolWords[productWord(p, machineWords)] && !proRe.MatchString(p) },
 		"a hand-held power tool or small appliance belongs with motorised tools and small appliances, not industrial machines"},
 	{"lighting", []string{"furniture"},
 		func(p string) bool { return lightWords[productWord(p, lightWords, furnWords)] },
 		"a lamp or light fitting is lighting, not furniture"},
+	{"lighting-optics", []string{"optical_precision_instruments"},
+		func(p string) bool { return lightWords[productWord(p, lightWords, instWords)] },
+		"a lamp, flashlight or light fitting is lighting, not an optical or measuring instrument"},
 	{"pet-product", []string{"furniture"},
 		func(p string) bool {
 			w := productWord(p, furnWords, petOnly)
@@ -93,15 +131,30 @@ var guardRules = []guardRule{
 	{"electrical-cabinet", []string{"furniture"},
 		func(p string) bool { return cabWords[productWord(p, furnWords, cabWords)] && elecCabRe.MatchString(p) },
 		"an electrical, server or battery cabinet is electrical apparatus, not furniture"},
-	{"drug", []string{"medical_devices", "display_camera_modules"},
+	{"drug", []string{"medical_devices", "display_camera_modules", "optical_precision_instruments"},
 		func(p string) bool {
 			w := productWord(p, drugSure, drugForms, devWords)
 			return drugSure[w] || drugForms[w] && drugCtx.MatchString(p) && !notDrug.MatchString(p)
 		},
 		"a drug or supplement is not a device; drugs are checked under the pharmaceutical rules"},
-	{"toy", []string{"medical_devices", "display_camera_modules"},
+	{"toy", []string{"medical_devices", "display_camera_modules", "optical_precision_instruments"},
 		func(p string) bool { return toyRe.MatchString(p) },
 		"a toy or novelty with optics or a medical look is not a medical device or optical instrument"},
+	{"toy-machine", []string{"offroad_vehicles_machinery"},
+		func(p string) bool { return toyRe.MatchString(p) },
+		"a toy or novelty is not lifting or mobile machinery"},
+	{"network-optics", []string{"optical_precision_instruments"},
+		func(p string) bool { return netWords[productWord(p, netWords, instWords)] },
+		"a fibre optic cable or transceiver is communication equipment, not an optical or measuring instrument"},
+	{"camera-display-module", []string{"optical_precision_instruments"},
+		func(p string) bool { return modWords[productWord(p, modWords, instWords)] },
+		"a camera or display module, its lens included, belongs with display modules and cameras"},
+	{"standalone-optics", []string{"display_camera_modules"},
+		func(p string) bool { return optWords[productWord(p, optWords, modWords)] && !inModRe.MatchString(p) },
+		"a standalone lens or optical element belongs with optical and measuring instruments"},
+	{"smart-eyewear", []string{"optical_precision_instruments"},
+		func(p string) bool { return smartRe.MatchString(p) && eyeWords[productWord(p, eyeWords, instWords)] },
+		"smart glasses are electronics, not an optical instrument"},
 }
 
 // GuardRules lists the rule ids, for tests and the eval.
@@ -238,9 +291,11 @@ var tokenRe = regexp.MustCompile(`[a-z][a-z'-]*`)
 
 func singular(w string) string {
 	switch {
+	case w == "lens" || w == "glass":
+		return w
 	case strings.HasSuffix(w, "ies") && len(w) > 4:
 		return w[:len(w)-3] + "y"
-	case strings.HasSuffix(w, "ches") || strings.HasSuffix(w, "shes") || strings.HasSuffix(w, "xes"):
+	case strings.HasSuffix(w, "ches") || strings.HasSuffix(w, "shes") || strings.HasSuffix(w, "xes") || strings.HasSuffix(w, "sses") || strings.HasSuffix(w, "lenses"):
 		return w[:len(w)-2]
 	case strings.HasSuffix(w, "s") && !strings.HasSuffix(w, "ss") && len(w) > 3:
 		return w[:len(w)-1]

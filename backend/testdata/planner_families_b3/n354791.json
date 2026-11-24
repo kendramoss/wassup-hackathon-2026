@@ -1,0 +1,129 @@
+{
+  "_source": "Built from the facts of CBP ruling N354791 (2025-10-28, dev split): CBP held China. Product written by the agent from the facts, no model draft (D823, D826). Target Thailand (where it is finished); plant capabilities for Thailand and all costs are assumptions. No later ruling on a changed setup, so there is no backtest.",
+  "case_id": "b3-n354791",
+  "date": "2025-10-28",
+  "family": "offroad_vehicles_machinery",
+  "target": "Thailand",
+  "product": {
+    "name": "Low-profile steel hydraulic floor jack, 3 ton",
+    "description": "A garage jack: a hydraulic unit on a welded steel frame with a lifting arm, saddle, handle, front wheels and rear casters.",
+    "plants": [
+      {
+        "id": "th",
+        "name": "Thailand Plant",
+        "country": "Thailand",
+        "capabilities": [
+          "lift_mechanism",
+          "working_structure_fab",
+          "chassis_frame_fab",
+          "final_assembly"
+        ]
+      },
+      {
+        "id": "cn",
+        "name": "China Plant",
+        "country": "China",
+        "capabilities": [
+          "lift_mechanism",
+          "working_structure_fab",
+          "chassis_frame_fab",
+          "powertrain_electronics"
+        ]
+      }
+    ],
+    "components": [
+      {
+        "name": "Pump unit base casting",
+        "made_in": "Thailand",
+        "plant": "th",
+        "group": "lift_mechanism"
+      },
+      {
+        "name": "Pump core, pump cover, cylinder body, piston rod and top cap",
+        "made_in": "China",
+        "plant": "cn",
+        "group": "lift_mechanism"
+      },
+      {
+        "name": "Lifting arm assembly",
+        "made_in": "China",
+        "plant": "cn",
+        "group": "working_structure_fab"
+      },
+      {
+        "name": "Steel side plates, cover plate, brackets and rods",
+        "made_in": "China",
+        "plant": "cn",
+        "group": "chassis_frame_fab"
+      },
+      {
+        "name": "Handle, handle bracket, saddle, front wheels and rear casters",
+        "made_in": "China",
+        "plant": "cn",
+        "group": "powertrain_electronics"
+      }
+    ],
+    "operations": [
+      {
+        "name": "Machine the cylinder body, piston rod, pump core and pump cover for the hydraulic unit",
+        "plant": "cn",
+        "group": "lift_mechanism"
+      },
+      {
+        "name": "Form and weld the lifting arm assembly",
+        "plant": "cn",
+        "group": "working_structure_fab"
+      },
+      {
+        "name": "Cut the side plates, brackets and rods",
+        "plant": "cn",
+        "group": "chassis_frame_fab"
+      },
+      {
+        "name": "Clean the parts and assemble the pump housing, cylinder, piston rod and top cap into the hydraulic unit",
+        "plant": "th",
+        "group": "final_assembly"
+      },
+      {
+        "name": "Weld the side plates and brackets into the frame, attach the lifting arm and fit the hydraulic unit, casters, handle bracket and saddle",
+        "plant": "th",
+        "group": "final_assembly"
+      },
+      {
+        "name": "Test, inspect and pack the jacks",
+        "plant": "th",
+        "group": "final_assembly"
+      }
+    ]
+  },
+  "economics": {
+    "illustrative": true,
+    "annual_import_value_usd": 1000000,
+    "duty_rates": {
+      "Thailand": 0.125,
+      "China": 0.425
+    },
+    "duty_rates_note": "Illustrative placeholder, not a sourced rate.",
+    "group_costs": {
+      "lift_mechanism": {
+        "cn": 100000,
+        "th": 125000
+      },
+      "working_structure_fab": {
+        "cn": 100000,
+        "th": 125000
+      },
+      "chassis_frame_fab": {
+        "cn": 100000,
+        "th": 125000
+      }
+    }
+  },
+  "exclude_rulings": [
+    "N354791"
+  ],
+  "current_origin": {
+    "country": "China",
+    "ruling": "N354791"
+  }
+}

@@ -13,8 +13,10 @@ import (
 
 // FamilyVersion names the family questions below (#770, D810). They are
 // fixed text, chosen without a model: a change to a question, its document
-// or when it is asked needs a new version.
-const FamilyVersion = "clarify-family-v1"
+// or when it is asked needs a new version. v2 (D824, D828) adds the
+// off-road and lifting machinery and optical instrument families and stops
+// reading "printer" as a machine.
+const FamilyVersion = "clarify-family-v2"
 
 // Family intake statuses.
 const (
@@ -60,7 +62,7 @@ func re(s string) *regexp.Regexp { return regexp.MustCompile(`(?i)` + s) }
 
 var (
 	batteryText = re(`batter|\bcells?\b|power ?bank|power station|jump starter|accumulator|\bbms\b`)
-	machineText = re(`machine|robot|detector|inspection|injection|moulding|molding|press\b|cnc|laser|printer|conveyor|packaging|filling|cutter|lathe|mill\b|welder`)
+	machineText = re(`machine|robot|detector|inspection|injection|moulding|molding|press\b|cnc|laser|conveyor|packaging|filling|cutter|lathe|mill\b|welder`)
 	pumpText    = re(`pump|compressor|motor|fan\b|blower`)
 	panelText   = re(`table|desk|cabinet|shelf|shelving|bookcase|wardrobe|dresser|sideboard|nightstand|panel|\btop\b|tabletop|board|mdf|particleboard|wood`)
 	softText    = re(`sofa|couch|chair|recliner|ottoman|mattress|\bbed\b|upholster|foam|cushion|futon|headboard|bench`)
@@ -71,10 +73,17 @@ var (
 	lensText    = re(`lens|optic|scope|binocular|telescope|monocular|magnifier|\bwindow\b|prism|loupe`)
 	cameraText  = re(`camera|webcam|dashcam|image sensor|\bccm\b|sensor module`)
 	displayText = re(`display|screen|\bpanel\b|lcd|oled|touch`)
+	liftText    = re(`jack|lift|hoist|winch|crane|forklift|stacker|telehandler|guided vehicle|\bagv|pallet`)
+	// Instrument names, whole words: "meter" never matches "diameter".
+	meterWords  = `\b(meter|multimeter|voltmeter|ammeter|ohmmeter|wattmeter|flowmeter|tachometer|manometer|thermometer|hygrometer|barometer|anemometer|refractometer|spectrometer|spectrophotometer|photometer|colorimeter|micrometer)s?\b`
+	measureText = re(meterWords + `|gauge|sensor|transducer|tester|analy[sz]er|chromatograph|\blevel|square|\brule|tape|measur|caliper|rangefinder|instrument`)
+	elecText    = re(meterWords + `|digital|electronic|sensor|transducer|analy[sz]er|chromatograph|spectro|laser|board|display`)
 )
 
-// familyQuestions are the questions per family: only the five families
-// deepened in #772 (D782). Each names the document that settles it.
+// familyQuestions are the questions per family: the five families deepened
+// in #772 (D782), off-road and lifting machinery (D826) and optical
+// instruments (D822). Each names the document that
+// settles it.
 var familyQuestions = map[string][]familyQuestion{
 	"power_supplies_chargers": {
 		{id: "cells_made", kind: KindCountry, text: "Where were the battery cells made?",
@@ -141,6 +150,47 @@ var familyQuestions = map[string][]familyQuestion{
 		{id: "sterile_only", kind: KindYesNo, text: "Is the work in the last country only sterilisation and packing?",
 			evidence: "Process sheet for the last country's work",
 			groups:   []string{"sterile_packaging"}},
+	},
+	// D826: off-road and lifting machinery, version 2. The lifting mechanism
+	// and the structure decided origin both ways (N333646, N344692; N337718,
+	// N336445); machining imported castings (N344692) and wiring, software
+	// and testing in the last country (N336445) did not.
+	"offroad_vehicles_machinery": {
+		{id: "lift_made", kind: KindCountry, text: "Where was the lifting mechanism or hydraulic power unit made?",
+			evidence: "Production routing or traveller for the power unit or lift assembly, or the supplier's certificate of origin",
+			groups:   []string{"lift_mechanism"}, when: liftText},
+		{id: "castings_machined_only", kind: KindYesNo, text: "Does the last country only machine castings or tubes made elsewhere for the lift?",
+			evidence: "Process sheet for the machining, and the foundry's certificate of origin for the castings",
+			groups:   []string{"lift_part_machining"}, when: liftText},
+		{id: "arms_made", kind: KindCountry, text: "Where were the booms, arms, lifting frames or platform cut, formed and welded?",
+			evidence: "Bill of materials with the origin of each subassembly, or the fabricator's invoice",
+			groups:   []string{"working_structure_fab"}},
+		{id: "chassis_made", kind: KindCountry, text: "Where was the chassis or lower frame cut and welded?",
+			evidence: "Bill of materials with the origin of each subassembly, or the fabricator's invoice",
+			groups:   []string{"chassis_frame_fab"}},
+		{id: "assembly_only", kind: KindYesNo, text: "Is the work in the last country only assembling, wiring, loading software and testing?",
+			evidence: "Process sheet for the last country's work",
+			groups:   []string{"final_assembly"}},
+	},
+	// D822: lenses follow where they were ground (N342427, N345937);
+	// instruments mostly follow the sensing element or scale (N349940,
+	// N344318), but assembly and calibration decided once (N340153).
+	"optical_precision_instruments": {
+		{id: "optics_ground", kind: KindCountry, text: "Where were the lenses or optical elements cut and ground to shape?",
+			evidence: "Process sheet for lens grinding, or the lens maker's certificate of origin",
+			groups:   []string{"optics_shaping"}, when: lensText},
+		{id: "optics_polish_only", kind: KindYesNo, text: "Is the work in the last country only polishing or coating the lenses?",
+			evidence: "Process sheet for the last country's work",
+			groups:   []string{"optics_finishing"}, when: lensText},
+		{id: "sensing_made", kind: KindCountry, text: "Where was the sensing element or measuring scale made (sensor die, gauge, tape blade or engraved scale)?",
+			evidence: "Bill of materials with the origin of the sensing element, or the die or gauge maker's certificate of origin",
+			groups:   []string{"sensing_element"}, when: measureText},
+		{id: "electronics_made", kind: KindCountry, text: "Where were the measuring circuit boards populated?",
+			evidence: "Bill of materials with the origin of each board, or the board maker's certificate of origin",
+			groups:   []string{"instrument_electronics"}, when: elecText},
+		{id: "calibrate_only", kind: KindYesNo, text: "Is the work in the last country only assembling, calibrating and testing?",
+			evidence: "Process sheet for the last country's work",
+			groups:   []string{"final_assembly"}, when: measureText},
 	},
 	"display_camera_modules": {
 		{id: "lens_ground", kind: KindCountry, text: "Where were the lenses ground or milled to shape?",

@@ -112,6 +112,8 @@ func TestUnionDefaultFlagPinned(t *testing.T) {
 		// The third round (D660), written from many rulings too.
 		"golf_sporting_goods": true, "hvac_heating_units": true, "offroad_vehicles_machinery": true,
 		"paper_tissue_products": true, "semiconductor_devices": true, "toys_build_kits": true,
+		// D822, written from many rulings too.
+		"optical_precision_instruments": true,
 	}
 	for _, family := range allFamilies {
 		got := tmpls[family].UnionDefaultOperations

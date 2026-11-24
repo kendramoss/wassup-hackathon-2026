@@ -1,0 +1,2581 @@
+{
+ "rule": "D820 hand screen (see DECISIONS D820 and D821 for how candidates were read)",
+ "frozen_at": "2026-11-24",
+ "families": {
+  "battery_packs": [
+   {
+    "ruling": "H304679",
+    "keep": false,
+    "reason": "D781: subject names a product outside the family"
+   },
+   {
+    "ruling": "H335387",
+    "keep": false,
+    "reason": "D781: battery-electric truck: a vehicle that contains a battery, not a battery",
+    "ambiguous": true
+   },
+   {
+    "ruling": "H338116",
+    "keep": false,
+    "reason": "subject names a product outside the scope"
+   },
+   {
+    "ruling": "H345749",
+    "keep": false,
+    "reason": "subject names a product outside the scope"
+   },
+   {
+    "ruling": "H348154",
+    "keep": false,
+    "reason": "subject names a product outside the scope"
+   },
+   {
+    "ruling": "H350263",
+    "keep": false,
+    "reason": "D781: subject names a product outside the family"
+   },
+   {
+    "ruling": "H354721",
+    "keep": false,
+    "reason": "D781: subject names a product outside the family"
+   },
+   {
+    "ruling": "H355075",
+    "keep": false,
+    "reason": "subject names a product outside the scope"
+   },
+   {
+    "ruling": "H356848",
+    "keep": false,
+    "reason": "subject names a product outside the scope"
+   },
+   {
+    "ruling": "N331943",
+    "keep": false,
+    "reason": "subject names a product outside the scope"
+   },
+   {
+    "ruling": "N332276",
+    "keep": false,
+    "reason": "subject names a product outside the scope"
+   },
+   {
+    "ruling": "N334315",
+    "keep": false,
+    "reason": "D781: subject names a product outside the family"
+   },
+   {
+    "ruling": "N334434",
+    "keep": false,
+    "reason": "D781: subject names a product outside the family"
+   },
+   {
+    "ruling": "N334538",
+    "keep": false,
+    "reason": "subject names a product outside the scope"
+   },
+   {
+    "ruling": "N334757",
+    "keep": false,
+    "reason": "D781: electronic cigarette: a device that contains a battery",
+    "ambiguous": true
+   },
+   {
+    "ruling": "N335017",
+    "keep": false,
+    "reason": "D781: subject names a product outside the family"
+   },
+   {
+    "ruling": "N335537",
+    "keep": false,
+    "reason": "D781: battery charger or converter: a power supply, not a battery"
+   },
+   {
+    "ruling": "N336445",
+    "keep": false,
+    "reason": "automated guided vehicle for battery plants: a handling machine (lifting machines scope), not a battery"
+   },
+   {
+    "ruling": "N337718",
+    "keep": false,
+    "reason": "automated guided vehicle for battery plants: a handling machine (lifting machines scope), not a battery"
+   },
+   {
+    "ruling": "N339485",
+    "keep": false,
+    "reason": "D781: battery-powered device, not a battery",
+    "ambiguous": true
+   },
+   {
+    "ruling": "N340047",
+    "keep": false,
+    "reason": "automated guided vehicle for battery plants: a handling machine (lifting machines scope), not a battery"
+   },
+   {
+    "ruling": "N340825",
+    "keep": false,
+    "reason": "D781: battery charger or converter: a power supply, not a battery"
+   },
+   {
+    "ruling": "N341251",
+    "keep": false,
+    "reason": "automated guided vehicle for battery plants: a handling machine (lifting machines scope), not a battery"
+   },
+   {
+    "ruling": "N341338",
+    "keep": false,
+    "reason": "D781: electronic cigarette: a device that contains a battery",
+    "ambiguous": true
+   },
+   {
+    "ruling": "N341585",
+    "keep": false,
+    "reason": "D781: battery electrode material: a chemical input, not a battery",
+    "ambiguous": true
+   },
+   {
+    "ruling": "N342133",
+    "keep": false,
+    "reason": "D781: battery charger or converter: a power supply, not a battery"
+   },
+   {
+    "ruling": "N342506",
+    "keep": true,
+    "reason": "vanadium flow battery energy storage system; held UK"
+   },
+   {
+    "ruling": "N342514",
+    "keep": false,
+    "reason": "D781: battery electrode material: a chemical input, not a battery",
+    "ambiguous": true
+   },
+   {
+    "ruling": "N342864",
+    "keep": false,
+    "reason": "D781: subject names a product outside the family"
+   },
+   {
+    "ruling": "N343416",
+    "keep": false,
+    "reason": "automated guided vehicle for battery plants: a handling machine (lifting machines scope), not a battery"
+   },
+   {
+    "ruling": "N344188",
+    "keep": false,
+    "reason": "D781: LED light that contains a battery",
+    "ambiguous": true
+   },
+   {
+    "ruling": "N344245",
+    "keep": false,
+    "reason": "subject names a product outside the scope"
+   },
+   {
+    "ruling": "N344252",
+    "keep": false,
+    "reason": "subject names a product outside the scope"
+   },
+   {
+    "ruling": "N344625",
+    "keep": false,
+    "reason": "subject names a product outside the scope"
+   },
+   {
+    "ruling": "N344661",
+    "keep": false,
+    "reason": "subject names a product outside the scope"
+   },
+   {
+    "ruling": "N344694",
+    "keep": false,
+    "reason": "subject names a product outside the scope"
+   },
+   {
+    "ruling": "N344843",
+    "keep": false,
+    "reason": "subject names a product outside the scope"
+   },
+   {
+    "ruling": "N345752",
+    "keep": false,
+    "reason": "subject names a product outside the scope"
+   },
+   {
+    "ruling": "N345899",
+    "keep": false,
+    "reason": "D781: LED light that contains a battery",
+    "ambiguous": true
+   },
+   {
+    "ruling": "N345938",
+    "keep": false,
+    "reason": "subject names a product outside the scope"
+   },
+   {
+    "ruling": "N346317",
+    "keep": true,
+    "reason": "lithium-ion power bank: cells, PCBA and housing"
+   },
+   {
+    "ruling": "N346403",
+    "keep": true,
+    "reason": "lithium-ion power banks: cells, PCBA and housing"
+   },
+   {
+    "ruling": "N346570",
+    "keep": false,
+    "reason": "D781: laptop: electronics that contain a battery",
+    "ambiguous": true
+   },
+   {
+    "ruling": "N346907",
+    "keep": false,
+    "reason": "D781: subject names a product outside the family"
+   },
+   {
+    "ruling": "N346911",
+    "keep": false,
+    "reason": "subject names a product outside the scope"
+   },
+   {
+    "ruling": "N346961",
+    "keep": false,
+    "reason": "D781: impact drill: a power tool that runs on a battery",
+    "ambiguous": true
+   },
+   {
+    "ruling": "N347058",
+    "keep": false,
+    "reason": "subject names a product outside the scope"
+   },
+   {
+    "ruling": "N347135",
+    "keep": false,
+    "reason": "subject names a product outside the scope"
+   },
+   {
+    "ruling": "N347139",
+    "keep": false,
+    "reason": "D781: subject names a product outside the family"
+   },
+   {
+    "ruling": "N347172",
+    "keep": true,
+    "reason": "lithium-ion pouch cell made from imported electrode materials"
+   },
+   {
+    "ruling": "N347193",
+    "keep": true,
+    "reason": "power-tool battery pack: cells, cell monitoring PCBA, housing"
+   },
+   {
+    "ruling": "N347723",
+    "keep": false,
+    "reason": "subject names a product outside the scope"
+   },
+   {
+    "ruling": "N347808",
+    "keep": false,
+    "reason": "D781: battery electrode material: a chemical input, not a battery",
+    "ambiguous": true
+   },
+   {
+    "ruling": "N348147",
+    "keep": false,
+    "reason": "D781: subject names a product outside the family"
+   },
+   {
+    "ruling": "N348871",
+    "keep": true,
+    "reason": "portable power station: battery bank and six PCBAs"
+   },
+   {
+    "ruling": "N349038",
+    "keep": false,
+    "reason": "subject names a product outside the scope"
+   },
+   {
+    "ruling": "N349285",
+    "keep": false,
+    "reason": "subject names a product outside the scope"
+   },
+   {
+    "ruling": "N349313",
+    "keep": false,
+    "reason": "D781: battery charger or converter: a power supply, not a battery"
+   },
+   {
+    "ruling": "N349742",
+    "keep": false,
+    "reason": "subject names a product outside the scope"
+   },
+   {
+    "ruling": "N349869",
+    "keep": false,
+    "reason": "subject names a product outside the scope"
+   },
+   {
+    "ruling": "N350187",
+    "keep": false,
+    "reason": "D781: laptop: electronics that contain a battery",
+    "ambiguous": true
+   },
+   {
+    "ruling": "N350221",
+    "keep": false,
+    "reason": "D781: subject names a product outside the family"
+   },
+   {
+    "ruling": "N350222",
+    "keep": false,
+    "reason": "D781: subject names a product outside the family"
+   },
+   {
+    "ruling": "N350225",
+    "keep": false,
+    "reason": "subject names a product outside the scope"
+   },
+   {
+    "ruling": "N350297",
+    "keep": false,
+    "reason": "D781: subject names a product outside the family"
+   },
+   {
+    "ruling": "N350298",
+    "keep": false,
+    "reason": "D781: subject names a product outside the family"
+   },
+   {
+    "ruling": "N350300",
+    "keep": false,
+    "reason": "D781: subject names a product outside the family"
+   },
+   {
+    "ruling": "N350301",
+    "keep": false,
+    "reason": "D781: subject names a product outside the family"
+   },
+   {
+    "ruling": "N350306",
+    "keep": false,
+    "reason": "D781: e-bike: a vehicle that contains a battery",
+    "ambiguous": true
+   },
+   {
+    "ruling": "N350383",
+    "keep": false,
+    "reason": "D781: battery charger or converter: a power supply, not a battery"
+   },
+   {
+    "ruling": "N350710",
+    "keep": false,
+    "reason": "subject names a product outside the scope"
+   },
+   {
+    "ruling": "N350799",
+    "keep": false,
+    "reason": "D781: earbuds: electronics that contain a battery",
+    "ambiguous": true
+   },
+   {
+    "ruling": "N350800",
+    "keep": false,
+    "reason": "D781: earbuds: electronics that contain a battery",
+    "ambiguous": true
+   },
+   {
+    "ruling": "N350883",
+    "keep": false,
+    "reason": "subject names a product outside the scope"
+   },
+   {
+    "ruling": "N350953",
+    "keep": true,
+    "reason": "battery cell"
+   },
+   {
+    "ruling": "N351106",
+    "keep": false,
+    "reason": "subject names a product outside the scope"
+   },
+   {
+    "ruling": "N351229",
+    "keep": false,
+    "reason": "D781: electronic cigarette: a device that contains a battery",
+    "ambiguous": true
+   },
+   {
+    "ruling": "N351263",
+    "keep": true,
+    "reason": "battery cell"
+   },
+   {
+    "ruling": "N351341",
+    "keep": false,
+    "reason": "D781: battery-powered device, not a battery",
+    "ambiguous": true
+   },
+   {
+    "ruling": "N351493",
+    "keep": false,
+    "reason": "D781: walk-behind lawn mower: a machine that runs on a battery",
+    "ambiguous": true
+   },
+   {
+    "ruling": "N351558",
+    "keep": false,
+    "reason": "D781: subject names a product outside the family"
+   },
+   {
+    "ruling": "N351860",
+    "keep": false,
+    "reason": "subject names a product outside the scope"
+   },
+   {
+    "ruling": "N351861",
+    "keep": false,
+    "reason": "subject names a product outside the scope"
+   },
+   {
+    "ruling": "N351901",
+    "keep": false,
+    "reason": "subject names a product outside the scope"
+   },
+   {
+    "ruling": "N351913",
+    "keep": false,
+    "reason": "D781: subject names a product outside the family"
+   },
+   {
+    "ruling": "N351962",
+    "keep": false,
+    "reason": "D781: battery-powered device, not a battery",
+    "ambiguous": true
+   },
+   {
+    "ruling": "N351963",
+    "keep": false,
+    "reason": "subject names a product outside the scope"
+   },
+   {
+    "ruling": "N352014",
+    "keep": true,
+    "reason": "power bank"
+   },
+   {
+    "ruling": "N352190",
+    "keep": false,
+    "reason": "D781: battery charger or converter: a power supply, not a battery"
+   },
+   {
+    "ruling": "N352290",
+    "keep": false,
+    "reason": "subject names a product outside the scope"
+   },
+   {
+    "ruling": "N352300",
+    "keep": false,
+    "reason": "subject names a product outside the scope"
+   },
+   {
+    "ruling": "N352306",
+    "keep": false,
+    "reason": "D781: battery charger or converter: a power supply, not a battery"
+   },
+   {
+    "ruling": "N352332",
+    "keep": false,
+    "reason": "subject names a product outside the scope"
+   },
+   {
+    "ruling": "N352355",
+    "keep": true,
+    "reason": "power bank"
+   },
+   {
+    "ruling": "N352538",
+    "keep": false,
+    "reason": "D781: battery-powered device, not a battery",
+    "ambiguous": true
+   },
+   {
+    "ruling": "N352655",
+    "keep": false,
+    "reason": "subject names a product outside the scope"
+   },
+   {
+    "ruling": "N352821",
+    "keep": false,
+    "reason": "subject names a product outside the scope"
+   },
+   {
+    "ruling": "N352938",
+    "keep": false,
+    "reason": "subject names a product outside the scope"
+   },
+   {
+    "ruling": "N353023",
+    "keep": true,
+    "reason": "jump starter: a battery pack with clamps and controls"
+   },
+   {
+    "ruling": "N353082",
+    "keep": false,
+    "reason": "D781: battery charger or converter: a power supply, not a battery"
+   },
+   {
+    "ruling": "N353086",
+    "keep": true,
+    "reason": "jump starter: a battery pack with clamps and controls"
+   },
+   {
+    "ruling": "N353152",
+    "keep": false,
+    "reason": "subject names a product outside the scope"
+   },
+   {
+    "ruling": "N353302",
+    "keep": false,
+    "reason": "subject names a product outside the scope"
+   },
+   {
+    "ruling": "N353542",
+    "keep": false,
+    "reason": "D781: battery-powered device, not a battery",
+    "ambiguous": true
+   },
+   {
+    "ruling": "N353786",
+    "keep": false,
+    "reason": "D781: battery-powered garden tool set: tools, not batteries",
+    "ambiguous": true
+   },
+   {
+    "ruling": "N353830",
+    "keep": false,
+    "reason": "D781: battery charger or converter: a power supply, not a battery"
+   },
+   {
+    "ruling": "N353884",
+    "keep": false,
+    "reason": "D781: battery-powered device, not a battery",
+    "ambiguous": true
+   },
+   {
+    "ruling": "N353913",
+    "keep": false,
+    "reason": "subject names a product outside the scope"
+   },
+   {
+    "ruling": "N354016",
+    "keep": false,
+    "reason": "D781: LED light that contains a battery",
+    "ambiguous": true
+   },
+   {
+    "ruling": "N354327",
+    "keep": false,
+    "reason": "subject names a product outside the scope"
+   },
+   {
+    "ruling": "N355069",
+    "keep": false,
+    "reason": "subject names a product outside the scope"
+   },
+   {
+    "ruling": "N355237",
+    "keep": false,
+    "reason": "subject names a product outside the scope"
+   },
+   {
+    "ruling": "N355289",
+    "keep": false,
+    "reason": "subject names a product outside the scope"
+   },
+   {
+    "ruling": "N355396",
+    "keep": false,
+    "reason": "subject names a product outside the scope"
+   },
+   {
+    "ruling": "N355502",
+    "keep": false,
+    "reason": "D781: LED light that contains a battery",
+    "ambiguous": true
+   },
+   {
+    "ruling": "N355934",
+    "keep": false,
+    "reason": "D781: battery-powered device, not a battery",
+    "ambiguous": true
+   },
+   {
+    "ruling": "N356306",
+    "keep": false,
+    "reason": "subject names a product outside the scope"
+   },
+   {
+    "ruling": "N356467",
+    "keep": false,
+    "reason": "subject names a product outside the scope"
+   },
+   {
+    "ruling": "N356670",
+    "keep": true,
+    "reason": "jump starter: a battery pack with clamps and controls"
+   },
+   {
+    "ruling": "N359714",
+    "keep": false,
+    "reason": "subject names a product outside the scope"
+   },
+   {
+    "ruling": "N363926",
+    "keep": false,
+    "reason": "medium voltage substation for a battery energy storage plant: a transformer and switchgear, not a battery; no held-origin sentence",
+    "ambiguous": true
+   }
+  ],
+  "lifting_machines": [
+   {
+    "ruling": "H322161",
+    "keep": false,
+    "reason": "subject names a product outside the scope"
+   },
+   {
+    "ruling": "H327665",
+    "keep": false,
+    "reason": "cover assemblies for a backhoe loader cab: a vehicle part"
+   },
+   {
+    "ruling": "H346536",
+    "keep": false,
+    "reason": "3D printer: an additive-manufacturing device, not an industrial or lifting machine (recorded apart)",
+    "ambiguous": true
+   },
+   {
+    "ruling": "H354721",
+    "keep": false,
+    "reason": "subject names a product outside the scope"
+   },
+   {
+    "ruling": "N330880",
+    "keep": false,
+    "reason": "subject names a product outside the scope"
+   },
+   {
+    "ruling": "N331939",
+    "keep": false,
+    "reason": "subject names a product outside the scope"
+   },
+   {
+    "ruling": "N332914",
+    "keep": false,
+    "reason": "crane truck: a vehicle with a crane; no held-origin sentence",
+    "ambiguous": true
+   },
+   {
+    "ruling": "N333646",
+    "keep": true,
+    "reason": "hydraulic floor jack; Vietnamese frames and hydraulic power unit castings; held Vietnam"
+   },
+   {
+    "ruling": "N334276",
+    "keep": true,
+    "reason": "electric scissor lifts; platform and chassis made in Poland; held Poland"
+   },
+   {
+    "ruling": "N336445",
+    "keep": true,
+    "reason": "automated guided vehicle with a lifting mechanism; frames and lift built in China, electrics and software in Korea; held China"
+   },
+   {
+    "ruling": "N337718",
+    "keep": true,
+    "reason": "automated guided vehicle with a lifting mechanism; Korean lower frame and handling frame, Chinese shear lift; held South Korea"
+   },
+   {
+    "ruling": "N338945",
+    "keep": false,
+    "reason": "subject names a product outside the scope"
+   },
+   {
+    "ruling": "N340047",
+    "keep": true,
+    "reason": "automated guided vehicle that lifts reel stands; Korean frames, Chinese lifting subassembly; held South Korea"
+   },
+   {
+    "ruling": "N340694",
+    "keep": false,
+    "reason": "subject names a product outside the scope"
+   },
+   {
+    "ruling": "N342916",
+    "keep": false,
+    "reason": "subject names a product outside the scope"
+   },
+   {
+    "ruling": "N343416",
+    "keep": true,
+    "reason": "automated guided vehicle with a lift assembly; Korean lift and frame, Chinese drive chassis; held South Korea"
+   },
+   {
+    "ruling": "N343451",
+    "keep": false,
+    "reason": "subject names a product outside the scope"
+   },
+   {
+    "ruling": "N344048",
+    "keep": false,
+    "reason": "subject names a product outside the scope"
+   },
+   {
+    "ruling": "N344692",
+    "keep": true,
+    "reason": "hydraulic bottle jack; Chinese cast base, piston head and pump assembly machined and assembled in Thailand; held China"
+   },
+   {
+    "ruling": "N344910",
+    "keep": false,
+    "reason": "3D printer: an additive-manufacturing device, not an industrial or lifting machine (recorded apart)",
+    "ambiguous": true
+   },
+   {
+    "ruling": "N345436",
+    "keep": false,
+    "reason": "subject names a product outside the scope"
+   },
+   {
+    "ruling": "N346297",
+    "keep": true,
+    "reason": "electric winch; Thai motor and drum, Chinese gearbox; held Thailand"
+   },
+   {
+    "ruling": "N347081",
+    "keep": false,
+    "reason": "subject names a product outside the scope"
+   },
+   {
+    "ruling": "N347135",
+    "keep": false,
+    "reason": "subject names a product outside the scope"
+   },
+   {
+    "ruling": "N347256",
+    "keep": true,
+    "reason": "hydraulic floor jacks (steel, aluminium, aluminium-steel); Thai power unit castings, arms and frames; held Thailand"
+   },
+   {
+    "ruling": "N348221",
+    "keep": false,
+    "reason": "jack stand and engine stand: stands that hold a raised load, not lifting machines",
+    "ambiguous": true
+   },
+   {
+    "ruling": "N348514",
+    "keep": true,
+    "reason": "engine crane sold unassembled; Thai power unit and structure; held Thailand"
+   },
+   {
+    "ruling": "N348905",
+    "keep": true,
+    "reason": "scissor jack; Thai arms, base and screw rod; held Thailand"
+   },
+   {
+    "ruling": "N349312",
+    "keep": false,
+    "reason": "subject names a product outside the scope"
+   },
+   {
+    "ruling": "N349746",
+    "keep": false,
+    "reason": "subject names a product outside the scope"
+   },
+   {
+    "ruling": "N350225",
+    "keep": false,
+    "reason": "subject names a product outside the scope"
+   },
+   {
+    "ruling": "N350285",
+    "keep": false,
+    "reason": "subject names a product outside the scope"
+   },
+   {
+    "ruling": "N350299",
+    "keep": false,
+    "reason": "subject names a product outside the scope"
+   },
+   {
+    "ruling": "N350383",
+    "keep": false,
+    "reason": "subject names a product outside the scope"
+   },
+   {
+    "ruling": "N350985",
+    "keep": false,
+    "reason": "subject names a product outside the scope"
+   },
+   {
+    "ruling": "N351174",
+    "keep": false,
+    "reason": "jack stands: stands that hold a raised vehicle, not lifting machines",
+    "ambiguous": true
+   },
+   {
+    "ruling": "N351234",
+    "keep": false,
+    "reason": "subject names a product outside the scope"
+   },
+   {
+    "ruling": "N351349",
+    "keep": false,
+    "reason": "subject names a product outside the scope"
+   },
+   {
+    "ruling": "N351493",
+    "keep": false,
+    "reason": "subject names a product outside the scope"
+   },
+   {
+    "ruling": "N351538",
+    "keep": false,
+    "reason": "subject names a product outside the scope"
+   },
+   {
+    "ruling": "N351580",
+    "keep": true,
+    "reason": "lifting jack"
+   },
+   {
+    "ruling": "N352101",
+    "keep": true,
+    "reason": "telehandler: a self-propelled lifting and handling machine"
+   },
+   {
+    "ruling": "N352242",
+    "keep": false,
+    "reason": "3D printer post-curing device: an electronic device",
+    "ambiguous": true
+   },
+   {
+    "ruling": "N352655",
+    "keep": false,
+    "reason": "subject names a product outside the scope"
+   },
+   {
+    "ruling": "N352841",
+    "keep": false,
+    "reason": "subject names a product outside the scope"
+   },
+   {
+    "ruling": "N354790",
+    "keep": true,
+    "reason": "lifting jack"
+   },
+   {
+    "ruling": "N354791",
+    "keep": true,
+    "reason": "lifting jack"
+   },
+   {
+    "ruling": "N355131",
+    "keep": true,
+    "reason": "lifting jack"
+   },
+   {
+    "ruling": "N355132",
+    "keep": true,
+    "reason": "lifting jack"
+   },
+   {
+    "ruling": "N355133",
+    "keep": true,
+    "reason": "lifting jack"
+   },
+   {
+    "ruling": "N355930",
+    "keep": false,
+    "reason": "subject names a product outside the scope"
+   },
+   {
+    "ruling": "N356009",
+    "keep": false,
+    "reason": "wheel dolly driven by a drill: a hand tool; no held-origin sentence",
+    "ambiguous": true
+   },
+   {
+    "ruling": "N356381",
+    "keep": false,
+    "reason": "subject names a product outside the scope"
+   },
+   {
+    "ruling": "N356772",
+    "keep": false,
+    "reason": "subject names a product outside the scope"
+   },
+   {
+    "ruling": "N356865",
+    "keep": false,
+    "reason": "subject names a product outside the scope"
+   }
+  ],
+  "furniture": [
+   {
+    "ruling": "H322161",
+    "keep": false,
+    "reason": "D781: subject names a product outside the family"
+   },
+   {
+    "ruling": "H330862",
+    "keep": true,
+    "reason": "furniture already cited by the furniture template"
+   },
+   {
+    "ruling": "H330975",
+    "keep": false,
+    "reason": "D781: subject names a product outside the family"
+   },
+   {
+    "ruling": "H331375",
+    "keep": false,
+    "reason": "prefabricated wooden house kit: a building, not furniture; reassembly of a knock-down kit",
+    "ambiguous": true
+   },
+   {
+    "ruling": "H331515",
+    "keep": false,
+    "reason": "refrigerator shelf light: lighting, not furniture",
+    "ambiguous": true
+   },
+   {
+    "ruling": "H332752",
+    "keep": false,
+    "reason": "subject names a product outside the scope"
+   },
+   {
+    "ruling": "H338482",
+    "keep": true,
+    "reason": "mattress or upholstered chair; holding not in the bundled corpus, so not citable",
+    "tags": [
+     "upholstery"
+    ]
+   },
+   {
+    "ruling": "H338728",
+    "keep": true,
+    "reason": "furniture already cited by the furniture template"
+   },
+   {
+    "ruling": "H342474",
+    "keep": false,
+    "reason": "LED display cabinet: a lit display case, lighting or furniture",
+    "ambiguous": true
+   },
+   {
+    "ruling": "H343750",
+    "keep": false,
+    "reason": "subject names a product outside the scope"
+   },
+   {
+    "ruling": "H345343",
+    "keep": true,
+    "reason": "plastic chairs"
+   },
+   {
+    "ruling": "H346536",
+    "keep": false,
+    "reason": "subject names a product outside the scope"
+   },
+   {
+    "ruling": "H347415",
+    "keep": false,
+    "reason": "subject names a product outside the scope"
+   },
+   {
+    "ruling": "H350263",
+    "keep": false,
+    "reason": "subject names a product outside the scope"
+   },
+   {
+    "ruling": "N330075",
+    "keep": false,
+    "reason": "subject names a product outside the scope"
+   },
+   {
+    "ruling": "N332529",
+    "keep": false,
+    "reason": "cosmetic cushions (compacts), not seat cushions",
+    "ambiguous": true
+   },
+   {
+    "ruling": "N333023",
+    "keep": false,
+    "reason": "subject names a product outside the scope"
+   },
+   {
+    "ruling": "N333330",
+    "keep": false,
+    "reason": "D781: subject names a product outside the family"
+   },
+   {
+    "ruling": "N333849",
+    "keep": false,
+    "reason": "subject names a product outside the scope"
+   },
+   {
+    "ruling": "N333956",
+    "keep": false,
+    "reason": "subject names a product outside the scope"
+   },
+   {
+    "ruling": "N334423",
+    "keep": false,
+    "reason": "subject names a product outside the scope"
+   },
+   {
+    "ruling": "N334424",
+    "keep": false,
+    "reason": "subject names a product outside the scope"
+   },
+   {
+    "ruling": "N334531",
+    "keep": true,
+    "reason": "tables sold unassembled: Thai stone tops, Chinese bases packed with them; held Thailand",
+    "tags": [
+     "knock_down"
+    ]
+   },
+   {
+    "ruling": "N334644",
+    "keep": false,
+    "reason": "subject names a product outside the scope"
+   },
+   {
+    "ruling": "N335085",
+    "keep": false,
+    "reason": "D781: subject names a product outside the family"
+   },
+   {
+    "ruling": "N335086",
+    "keep": false,
+    "reason": "subject names a product outside the scope"
+   },
+   {
+    "ruling": "N335339",
+    "keep": false,
+    "reason": "subject names a product outside the scope"
+   },
+   {
+    "ruling": "N335585",
+    "keep": true,
+    "reason": "hybrid innerspring and foam mattress; holding not in the bundled corpus, so not citable"
+   },
+   {
+    "ruling": "N335829",
+    "keep": false,
+    "reason": "subject names a product outside the scope"
+   },
+   {
+    "ruling": "N336013",
+    "keep": false,
+    "reason": "D781: subject names a product outside the family"
+   },
+   {
+    "ruling": "N338514",
+    "keep": true,
+    "reason": "tool chest (9403 steel cabinet) already cited by the furniture template"
+   },
+   {
+    "ruling": "N338793",
+    "keep": false,
+    "reason": "subject names a product outside the scope"
+   },
+   {
+    "ruling": "N338935",
+    "keep": false,
+    "reason": "subject names a product outside the scope"
+   },
+   {
+    "ruling": "N339090",
+    "keep": true,
+    "reason": "planter caddy (CBP classified it 9403): steel top plate and ring cut, bent, welded and powder coated in Cambodia, Chinese casters; held Cambodia",
+    "tags": [
+     "finishing"
+    ]
+   },
+   {
+    "ruling": "N339107",
+    "keep": true,
+    "reason": "furniture already cited by the furniture template",
+    "tags": [
+     "upholstery"
+    ]
+   },
+   {
+    "ruling": "N339646",
+    "keep": true,
+    "reason": "furniture already cited by the furniture template",
+    "tags": [
+     "upholstery"
+    ]
+   },
+   {
+    "ruling": "N339685",
+    "keep": true,
+    "reason": "furniture already cited by the furniture template"
+   },
+   {
+    "ruling": "N339983",
+    "keep": false,
+    "reason": "subject names a product outside the scope"
+   },
+   {
+    "ruling": "N339984",
+    "keep": false,
+    "reason": "subject names a product outside the scope"
+   },
+   {
+    "ruling": "N340198",
+    "keep": false,
+    "reason": "subject names a product outside the scope"
+   },
+   {
+    "ruling": "N340202",
+    "keep": false,
+    "reason": "subject names a product outside the scope"
+   },
+   {
+    "ruling": "N340345",
+    "keep": false,
+    "reason": "subject names a product outside the scope"
+   },
+   {
+    "ruling": "N340363",
+    "keep": false,
+    "reason": "D781: subject names a product outside the family"
+   },
+   {
+    "ruling": "N341188",
+    "keep": false,
+    "reason": "subject names a product outside the scope"
+   },
+   {
+    "ruling": "N341338",
+    "keep": false,
+    "reason": "subject names a product outside the scope"
+   },
+   {
+    "ruling": "N342977",
+    "keep": false,
+    "reason": "subject names a product outside the scope"
+   },
+   {
+    "ruling": "N343606",
+    "keep": false,
+    "reason": "subject names a product outside the scope"
+   },
+   {
+    "ruling": "N343607",
+    "keep": false,
+    "reason": "subject names a product outside the scope"
+   },
+   {
+    "ruling": "N343952",
+    "keep": false,
+    "reason": "subject names a product outside the scope"
+   },
+   {
+    "ruling": "N344245",
+    "keep": false,
+    "reason": "subject names a product outside the scope"
+   },
+   {
+    "ruling": "N344246",
+    "keep": true,
+    "reason": "furniture already cited by the furniture template"
+   },
+   {
+    "ruling": "N344425",
+    "keep": false,
+    "reason": "subject names a product outside the scope"
+   },
+   {
+    "ruling": "N344475",
+    "keep": false,
+    "reason": "D781: subject names a product outside the family"
+   },
+   {
+    "ruling": "N344477",
+    "keep": false,
+    "reason": "D781: subject names a product outside the family"
+   },
+   {
+    "ruling": "N345195",
+    "keep": false,
+    "reason": "subject names a product outside the scope"
+   },
+   {
+    "ruling": "N345225",
+    "keep": false,
+    "reason": "subject names a product outside the scope"
+   },
+   {
+    "ruling": "N345265",
+    "keep": false,
+    "reason": "electric fireplace heater in a media console: a heater with a cabinet; no held-origin sentence",
+    "ambiguous": true
+   },
+   {
+    "ruling": "N345612",
+    "keep": false,
+    "reason": "subject names a product outside the scope"
+   },
+   {
+    "ruling": "N345915",
+    "keep": false,
+    "reason": "D781: subject names a product outside the family"
+   },
+   {
+    "ruling": "N346000",
+    "keep": false,
+    "reason": "subject names a product outside the scope"
+   },
+   {
+    "ruling": "N346005",
+    "keep": false,
+    "reason": "subject names a product outside the scope"
+   },
+   {
+    "ruling": "N346169",
+    "keep": false,
+    "reason": "subject names a product outside the scope"
+   },
+   {
+    "ruling": "N346297",
+    "keep": false,
+    "reason": "subject names a product outside the scope"
+   },
+   {
+    "ruling": "N346435",
+    "keep": false,
+    "reason": "subject names a product outside the scope"
+   },
+   {
+    "ruling": "N346575",
+    "keep": false,
+    "reason": "subject names a product outside the scope"
+   },
+   {
+    "ruling": "N346613",
+    "keep": false,
+    "reason": "subject names a product outside the scope"
+   },
+   {
+    "ruling": "N346907",
+    "keep": false,
+    "reason": "subject names a product outside the scope"
+   },
+   {
+    "ruling": "N347088",
+    "keep": false,
+    "reason": "subject names a product outside the scope"
+   },
+   {
+    "ruling": "N347140",
+    "keep": false,
+    "reason": "subject names a product outside the scope"
+   },
+   {
+    "ruling": "N347184",
+    "keep": false,
+    "reason": "subject names a product outside the scope"
+   },
+   {
+    "ruling": "N347189",
+    "keep": false,
+    "reason": "D781: subject names a product outside the family"
+   },
+   {
+    "ruling": "N347645",
+    "keep": false,
+    "reason": "D781: subject names a product outside the family"
+   },
+   {
+    "ruling": "N347840",
+    "keep": false,
+    "reason": "subject names a product outside the scope"
+   },
+   {
+    "ruling": "N347995",
+    "keep": false,
+    "reason": "planter set with bamboo plant stands; no held-origin sentence",
+    "ambiguous": true
+   },
+   {
+    "ruling": "N348083",
+    "keep": false,
+    "reason": "subject names a product outside the scope"
+   },
+   {
+    "ruling": "N348193",
+    "keep": false,
+    "reason": "subject names a product outside the scope"
+   },
+   {
+    "ruling": "N348514",
+    "keep": false,
+    "reason": "subject names a product outside the scope"
+   },
+   {
+    "ruling": "N348576",
+    "keep": true,
+    "reason": "furniture already cited by the furniture template",
+    "tags": [
+     "upholstery"
+    ]
+   },
+   {
+    "ruling": "N348764",
+    "keep": false,
+    "reason": "subject names a product outside the scope"
+   },
+   {
+    "ruling": "N348873",
+    "keep": false,
+    "reason": "subject names a product outside the scope"
+   },
+   {
+    "ruling": "N348875",
+    "keep": false,
+    "reason": "D781: subject names a product outside the family"
+   },
+   {
+    "ruling": "N348937",
+    "keep": false,
+    "reason": "subject names a product outside the scope"
+   },
+   {
+    "ruling": "N350011",
+    "keep": false,
+    "reason": "subject names a product outside the scope"
+   },
+   {
+    "ruling": "N350028",
+    "keep": false,
+    "reason": "veneer edge banding: a furniture material, not furniture; Belgian cutting, jointing, sanding and UV coating held not enough (China)",
+    "ambiguous": true
+   },
+   {
+    "ruling": "N350112",
+    "keep": false,
+    "reason": "subject names a product outside the scope"
+   },
+   {
+    "ruling": "N350221",
+    "keep": false,
+    "reason": "subject names a product outside the scope"
+   },
+   {
+    "ruling": "N350222",
+    "keep": false,
+    "reason": "subject names a product outside the scope"
+   },
+   {
+    "ruling": "N350225",
+    "keep": false,
+    "reason": "subject names a product outside the scope"
+   },
+   {
+    "ruling": "N350296",
+    "keep": false,
+    "reason": "subject names a product outside the scope"
+   },
+   {
+    "ruling": "N350297",
+    "keep": false,
+    "reason": "subject names a product outside the scope"
+   },
+   {
+    "ruling": "N350298",
+    "keep": false,
+    "reason": "subject names a product outside the scope"
+   },
+   {
+    "ruling": "N350299",
+    "keep": false,
+    "reason": "subject names a product outside the scope"
+   },
+   {
+    "ruling": "N350300",
+    "keep": false,
+    "reason": "subject names a product outside the scope"
+   },
+   {
+    "ruling": "N350301",
+    "keep": false,
+    "reason": "subject names a product outside the scope"
+   },
+   {
+    "ruling": "N350345",
+    "keep": false,
+    "reason": "subject names a product outside the scope"
+   },
+   {
+    "ruling": "N350492",
+    "keep": false,
+    "reason": "high voltage distribution cabinet: electrical apparatus, not furniture",
+    "ambiguous": true
+   },
+   {
+    "ruling": "N350516",
+    "keep": false,
+    "reason": "subject names a product outside the scope"
+   },
+   {
+    "ruling": "N350528",
+    "keep": false,
+    "reason": "subject names a product outside the scope"
+   },
+   {
+    "ruling": "N350535",
+    "keep": false,
+    "reason": "D781: subject names a product outside the family"
+   },
+   {
+    "ruling": "N350620",
+    "keep": false,
+    "reason": "pneumatic lumbar support system for vehicle seats: a vehicle seat component",
+    "ambiguous": true
+   },
+   {
+    "ruling": "N350678",
+    "keep": false,
+    "reason": "pet bed: D138 called it a stretch for furniture",
+    "ambiguous": true
+   },
+   {
+    "ruling": "N350965",
+    "keep": false,
+    "reason": "subject names a product outside the scope"
+   },
+   {
+    "ruling": "N351057",
+    "keep": false,
+    "reason": "subject names a product outside the scope"
+   },
+   {
+    "ruling": "N351251",
+    "keep": false,
+    "reason": "subject names a product outside the scope"
+   },
+   {
+    "ruling": "N351341",
+    "keep": false,
+    "reason": "D781: subject names a product outside the family"
+   },
+   {
+    "ruling": "N351460",
+    "keep": false,
+    "reason": "subject names a product outside the scope"
+   },
+   {
+    "ruling": "N351505",
+    "keep": false,
+    "reason": "D781: subject names a product outside the family"
+   },
+   {
+    "ruling": "N351958",
+    "keep": false,
+    "reason": "D781: subject names a product outside the family"
+   },
+   {
+    "ruling": "N352073",
+    "keep": false,
+    "reason": "subject names a product outside the scope"
+   },
+   {
+    "ruling": "N352190",
+    "keep": false,
+    "reason": "D781: subject names a product outside the family"
+   },
+   {
+    "ruling": "N352536",
+    "keep": false,
+    "reason": "subject names a product outside the scope"
+   },
+   {
+    "ruling": "N352543",
+    "keep": false,
+    "reason": "subject names a product outside the scope"
+   },
+   {
+    "ruling": "N352802",
+    "keep": false,
+    "reason": "subject names a product outside the scope"
+   },
+   {
+    "ruling": "N353045",
+    "keep": false,
+    "reason": "subject names a product outside the scope"
+   },
+   {
+    "ruling": "N353399",
+    "keep": false,
+    "reason": "subject names a product outside the scope"
+   },
+   {
+    "ruling": "N353511",
+    "keep": false,
+    "reason": "subject names a product outside the scope"
+   },
+   {
+    "ruling": "N353885",
+    "keep": false,
+    "reason": "subject names a product outside the scope"
+   },
+   {
+    "ruling": "N353886",
+    "keep": false,
+    "reason": "subject names a product outside the scope"
+   },
+   {
+    "ruling": "N354016",
+    "keep": false,
+    "reason": "D781: subject names a product outside the family"
+   },
+   {
+    "ruling": "N354279",
+    "keep": false,
+    "reason": "bamboo shelves: CBP read the facts as a plywood panel, not a furniture part",
+    "ambiguous": true
+   },
+   {
+    "ruling": "N354369",
+    "keep": false,
+    "reason": "D781: subject names a product outside the family"
+   },
+   {
+    "ruling": "N354448",
+    "keep": false,
+    "reason": "subject names a product outside the scope"
+   },
+   {
+    "ruling": "N354638",
+    "keep": false,
+    "reason": "subject names a product outside the scope"
+   },
+   {
+    "ruling": "N355399",
+    "keep": false,
+    "reason": "subject names a product outside the scope"
+   },
+   {
+    "ruling": "N355903",
+    "keep": false,
+    "reason": "subject names a product outside the scope"
+   },
+   {
+    "ruling": "N356030",
+    "keep": false,
+    "reason": "subject names a product outside the scope"
+   },
+   {
+    "ruling": "N356544",
+    "keep": false,
+    "reason": "subject names a product outside the scope"
+   },
+   {
+    "ruling": "N358157",
+    "keep": false,
+    "reason": "subject names a product outside the scope"
+   },
+   {
+    "ruling": "N358408",
+    "keep": false,
+    "reason": "subject names a product outside the scope"
+   },
+   {
+    "ruling": "N362462",
+    "keep": false,
+    "reason": "subject names a product outside the scope"
+   },
+   {
+    "ruling": "N363926",
+    "keep": false,
+    "reason": "subject names a product outside the scope"
+   }
+  ],
+  "optical_precision": [
+   {
+    "ruling": "H296919",
+    "keep": false,
+    "reason": "subject names a product outside the scope"
+   },
+   {
+    "ruling": "H327997",
+    "keep": false,
+    "reason": "subject names a product outside the scope"
+   },
+   {
+    "ruling": "H331515",
+    "keep": false,
+    "reason": "subject names a product outside the scope"
+   },
+   {
+    "ruling": "H332331",
+    "keep": false,
+    "reason": "subject names a product outside the scope"
+   },
+   {
+    "ruling": "H332745",
+    "keep": false,
+    "reason": "subject names a product outside the scope"
+   },
+   {
+    "ruling": "H335509",
+    "keep": false,
+    "reason": "subject names a product outside the scope"
+   },
+   {
+    "ruling": "H335829",
+    "keep": false,
+    "reason": "optical transceiver: electronics, not an optical instrument",
+    "ambiguous": true
+   },
+   {
+    "ruling": "H336031",
+    "keep": false,
+    "reason": "subject names a product outside the scope"
+   },
+   {
+    "ruling": "H337046",
+    "keep": false,
+    "reason": "subject names a product outside the scope"
+   },
+   {
+    "ruling": "H338116",
+    "keep": false,
+    "reason": "subject names a product outside the scope"
+   },
+   {
+    "ruling": "H345749",
+    "keep": false,
+    "reason": "subject names a product outside the scope"
+   },
+   {
+    "ruling": "H348154",
+    "keep": false,
+    "reason": "smart glasses: electronics, not eyewear",
+    "ambiguous": true
+   },
+   {
+    "ruling": "H350894",
+    "keep": false,
+    "reason": "subject names a product outside the scope"
+   },
+   {
+    "ruling": "H355075",
+    "keep": false,
+    "reason": "smart glasses: electronics, not eyewear",
+    "ambiguous": true
+   },
+   {
+    "ruling": "H356848",
+    "keep": false,
+    "reason": "smart glasses: electronics, not eyewear",
+    "ambiguous": true
+   },
+   {
+    "ruling": "N330057",
+    "keep": false,
+    "reason": "subject names a product outside the scope"
+   },
+   {
+    "ruling": "N330175",
+    "keep": false,
+    "reason": "subject names a product outside the scope"
+   },
+   {
+    "ruling": "N330805",
+    "keep": false,
+    "reason": "subject names a product outside the scope"
+   },
+   {
+    "ruling": "N331572",
+    "keep": false,
+    "reason": "subject names a product outside the scope"
+   },
+   {
+    "ruling": "N332069",
+    "keep": false,
+    "reason": "subject names a product outside the scope"
+   },
+   {
+    "ruling": "N334296",
+    "keep": false,
+    "reason": "subject names a product outside the scope"
+   },
+   {
+    "ruling": "N334644",
+    "keep": false,
+    "reason": "subject names a product outside the scope"
+   },
+   {
+    "ruling": "N335017",
+    "keep": true,
+    "reason": "wireless cooking thermometer: Vietnamese PCBA with sensors, Chinese tube and handle assembly; held Vietnam"
+   },
+   {
+    "ruling": "N335063",
+    "keep": false,
+    "reason": "subject names a product outside the scope"
+   },
+   {
+    "ruling": "N335085",
+    "keep": false,
+    "reason": "subject names a product outside the scope"
+   },
+   {
+    "ruling": "N335086",
+    "keep": false,
+    "reason": "subject names a product outside the scope"
+   },
+   {
+    "ruling": "N335170",
+    "keep": true,
+    "reason": "hydrogen gas sensor PCBA (CBP classified it 9027): sensing element and board made in China, housing, calibration and testing in the United States; held China"
+   },
+   {
+    "ruling": "N335263",
+    "keep": false,
+    "reason": "subject names a product outside the scope"
+   },
+   {
+    "ruling": "N335300",
+    "keep": false,
+    "reason": "subject names a product outside the scope"
+   },
+   {
+    "ruling": "N335339",
+    "keep": false,
+    "reason": "subject names a product outside the scope"
+   },
+   {
+    "ruling": "N335573",
+    "keep": false,
+    "reason": "subject names a product outside the scope"
+   },
+   {
+    "ruling": "N335593",
+    "keep": false,
+    "reason": "subject names a product outside the scope"
+   },
+   {
+    "ruling": "N335916",
+    "keep": false,
+    "reason": "subject names a product outside the scope"
+   },
+   {
+    "ruling": "N336527",
+    "keep": false,
+    "reason": "subject names a product outside the scope"
+   },
+   {
+    "ruling": "N337572",
+    "keep": false,
+    "reason": "subject names a product outside the scope"
+   },
+   {
+    "ruling": "N338514",
+    "keep": false,
+    "reason": "subject names a product outside the scope"
+   },
+   {
+    "ruling": "N338577",
+    "keep": false,
+    "reason": "subject names a product outside the scope"
+   },
+   {
+    "ruling": "N339983",
+    "keep": false,
+    "reason": "subject names a product outside the scope"
+   },
+   {
+    "ruling": "N339984",
+    "keep": false,
+    "reason": "subject names a product outside the scope"
+   },
+   {
+    "ruling": "N340153",
+    "keep": true,
+    "reason": "gas chromatograph assembled, programmed and calibrated in Singapore from a Chinese electronics box and oven; held Singapore"
+   },
+   {
+    "ruling": "N340920",
+    "keep": false,
+    "reason": "subject names a product outside the scope"
+   },
+   {
+    "ruling": "N341188",
+    "keep": false,
+    "reason": "subject names a product outside the scope"
+   },
+   {
+    "ruling": "N341585",
+    "keep": false,
+    "reason": "subject names a product outside the scope"
+   },
+   {
+    "ruling": "N342133",
+    "keep": false,
+    "reason": "subject names a product outside the scope"
+   },
+   {
+    "ruling": "N342247",
+    "keep": false,
+    "reason": "optical transceiver modules: electronics, not an optical instrument",
+    "ambiguous": true
+   },
+   {
+    "ruling": "N342388",
+    "keep": false,
+    "reason": "subject names a product outside the scope"
+   },
+   {
+    "ruling": "N342427",
+    "keep": true,
+    "reason": "riflescope lens: milled in Singapore, ground, polished and coated in China; held Singapore"
+   },
+   {
+    "ruling": "N342514",
+    "keep": false,
+    "reason": "subject names a product outside the scope"
+   },
+   {
+    "ruling": "N342977",
+    "keep": false,
+    "reason": "subject names a product outside the scope"
+   },
+   {
+    "ruling": "N343132",
+    "keep": false,
+    "reason": "subject names a product outside the scope"
+   },
+   {
+    "ruling": "N343175",
+    "keep": false,
+    "reason": "subject names a product outside the scope"
+   },
+   {
+    "ruling": "N343777",
+    "keep": false,
+    "reason": "subject names a product outside the scope"
+   },
+   {
+    "ruling": "N343808",
+    "keep": false,
+    "reason": "subject names a product outside the scope"
+   },
+   {
+    "ruling": "N344105",
+    "keep": false,
+    "reason": "subject names a product outside the scope"
+   },
+   {
+    "ruling": "N344188",
+    "keep": false,
+    "reason": "subject names a product outside the scope"
+   },
+   {
+    "ruling": "N344245",
+    "keep": false,
+    "reason": "subject names a product outside the scope"
+   },
+   {
+    "ruling": "N344318",
+    "keep": true,
+    "reason": "digital tape measure: origin followed the tape reel, spring and blade assembly in three scenarios, not the Vietnamese PCBAs"
+   },
+   {
+    "ruling": "N344595",
+    "keep": false,
+    "reason": "subject names a product outside the scope"
+   },
+   {
+    "ruling": "N344694",
+    "keep": false,
+    "reason": "subject names a product outside the scope"
+   },
+   {
+    "ruling": "N344910",
+    "keep": false,
+    "reason": "subject names a product outside the scope"
+   },
+   {
+    "ruling": "N345397",
+    "keep": false,
+    "reason": "subject names a product outside the scope"
+   },
+   {
+    "ruling": "N345862",
+    "keep": false,
+    "reason": "subject names a product outside the scope"
+   },
+   {
+    "ruling": "N345899",
+    "keep": false,
+    "reason": "subject names a product outside the scope"
+   },
+   {
+    "ruling": "N345937",
+    "keep": true,
+    "reason": "lens assemblies: glass cut and ground in Vietnam; held Vietnam"
+   },
+   {
+    "ruling": "N345972",
+    "keep": false,
+    "reason": "subject names a product outside the scope"
+   },
+   {
+    "ruling": "N346168",
+    "keep": false,
+    "reason": "subject names a product outside the scope"
+   },
+   {
+    "ruling": "N346317",
+    "keep": false,
+    "reason": "subject names a product outside the scope"
+   },
+   {
+    "ruling": "N346394",
+    "keep": false,
+    "reason": "subject names a product outside the scope"
+   },
+   {
+    "ruling": "N346395",
+    "keep": false,
+    "reason": "subject names a product outside the scope"
+   },
+   {
+    "ruling": "N346396",
+    "keep": false,
+    "reason": "subject names a product outside the scope"
+   },
+   {
+    "ruling": "N346403",
+    "keep": false,
+    "reason": "subject names a product outside the scope"
+   },
+   {
+    "ruling": "N346664",
+    "keep": false,
+    "reason": "subject names a product outside the scope"
+   },
+   {
+    "ruling": "N346719",
+    "keep": false,
+    "reason": "subject names a product outside the scope"
+   },
+   {
+    "ruling": "N346720",
+    "keep": false,
+    "reason": "subject names a product outside the scope"
+   },
+   {
+    "ruling": "N346721",
+    "keep": false,
+    "reason": "subject names a product outside the scope"
+   },
+   {
+    "ruling": "N347034",
+    "keep": false,
+    "reason": "subject names a product outside the scope"
+   },
+   {
+    "ruling": "N347805",
+    "keep": false,
+    "reason": "subject names a product outside the scope"
+   },
+   {
+    "ruling": "N347806",
+    "keep": false,
+    "reason": "subject names a product outside the scope"
+   },
+   {
+    "ruling": "N347808",
+    "keep": false,
+    "reason": "subject names a product outside the scope"
+   },
+   {
+    "ruling": "N347937",
+    "keep": false,
+    "reason": "manual and digital torque wrenches: hand tools with a torque gauge",
+    "ambiguous": true
+   },
+   {
+    "ruling": "N347948",
+    "keep": true,
+    "reason": "speed square: blank cut and stamped in Vietnam, scale engraved or stamped in China; held China (scenarios one and two)"
+   },
+   {
+    "ruling": "N348066",
+    "keep": false,
+    "reason": "subject names a product outside the scope"
+   },
+   {
+    "ruling": "N348409",
+    "keep": false,
+    "reason": "subject names a product outside the scope"
+   },
+   {
+    "ruling": "N348698",
+    "keep": false,
+    "reason": "subject names a product outside the scope"
+   },
+   {
+    "ruling": "N348743",
+    "keep": false,
+    "reason": "subject names a product outside the scope"
+   },
+   {
+    "ruling": "N348790",
+    "keep": true,
+    "reason": "fiberglass measuring reel; no held-origin sentence, so not citable"
+   },
+   {
+    "ruling": "N348827",
+    "keep": false,
+    "reason": "subject names a product outside the scope"
+   },
+   {
+    "ruling": "N348913",
+    "keep": false,
+    "reason": "subject names a product outside the scope"
+   },
+   {
+    "ruling": "N348930",
+    "keep": false,
+    "reason": "subject names a product outside the scope"
+   },
+   {
+    "ruling": "N348937",
+    "keep": false,
+    "reason": "subject names a product outside the scope"
+   },
+   {
+    "ruling": "N348939",
+    "keep": false,
+    "reason": "subject names a product outside the scope"
+   },
+   {
+    "ruling": "N348990",
+    "keep": false,
+    "reason": "subject names a product outside the scope"
+   },
+   {
+    "ruling": "N349028",
+    "keep": false,
+    "reason": "subject names a product outside the scope"
+   },
+   {
+    "ruling": "N349038",
+    "keep": false,
+    "reason": "clinical stick thermometer: a medical device, served by the medical template",
+    "ambiguous": true
+   },
+   {
+    "ruling": "N349312",
+    "keep": false,
+    "reason": "subject names a product outside the scope"
+   },
+   {
+    "ruling": "N349834",
+    "keep": false,
+    "reason": "subject names a product outside the scope"
+   },
+   {
+    "ruling": "N349835",
+    "keep": false,
+    "reason": "subject names a product outside the scope"
+   },
+   {
+    "ruling": "N349836",
+    "keep": false,
+    "reason": "subject names a product outside the scope"
+   },
+   {
+    "ruling": "N349940",
+    "keep": true,
+    "reason": "pressure sensors: origin where the sensing die and strain gauges were made (United States, Germany)"
+   },
+   {
+    "ruling": "N350028",
+    "keep": false,
+    "reason": "subject names a product outside the scope"
+   },
+   {
+    "ruling": "N350046",
+    "keep": false,
+    "reason": "subject names a product outside the scope"
+   },
+   {
+    "ruling": "N350050",
+    "keep": false,
+    "reason": "subject names a product outside the scope"
+   },
+   {
+    "ruling": "N350085",
+    "keep": false,
+    "reason": "subject names a product outside the scope"
+   },
+   {
+    "ruling": "N350170",
+    "keep": false,
+    "reason": "subject names a product outside the scope"
+   },
+   {
+    "ruling": "N350300",
+    "keep": false,
+    "reason": "subject names a product outside the scope"
+   },
+   {
+    "ruling": "N350325",
+    "keep": false,
+    "reason": "subject names a product outside the scope"
+   },
+   {
+    "ruling": "N350433",
+    "keep": false,
+    "reason": "subject names a product outside the scope"
+   },
+   {
+    "ruling": "N350680",
+    "keep": true,
+    "reason": "carrier plate assembly for red dot sights"
+   },
+   {
+    "ruling": "N350710",
+    "keep": false,
+    "reason": "subject names a product outside the scope"
+   },
+   {
+    "ruling": "N350750",
+    "keep": true,
+    "reason": "spectrophotometer"
+   },
+   {
+    "ruling": "N350838",
+    "keep": true,
+    "reason": "optical windows"
+   },
+   {
+    "ruling": "N350868",
+    "keep": false,
+    "reason": "subject names a product outside the scope"
+   },
+   {
+    "ruling": "N350869",
+    "keep": false,
+    "reason": "subject names a product outside the scope"
+   },
+   {
+    "ruling": "N350966",
+    "keep": false,
+    "reason": "subject names a product outside the scope"
+   },
+   {
+    "ruling": "N351073",
+    "keep": false,
+    "reason": "subject names a product outside the scope"
+   },
+   {
+    "ruling": "N351122",
+    "keep": false,
+    "reason": "subject names a product outside the scope"
+   },
+   {
+    "ruling": "N351143",
+    "keep": false,
+    "reason": "subject names a product outside the scope"
+   },
+   {
+    "ruling": "N351263",
+    "keep": false,
+    "reason": "subject names a product outside the scope"
+   },
+   {
+    "ruling": "N351372",
+    "keep": false,
+    "reason": "subject names a product outside the scope"
+   },
+   {
+    "ruling": "N351402",
+    "keep": false,
+    "reason": "subject names a product outside the scope"
+   },
+   {
+    "ruling": "N351558",
+    "keep": false,
+    "reason": "subject names a product outside the scope"
+   },
+   {
+    "ruling": "N351651",
+    "keep": false,
+    "reason": "novelty sunglasses: a toy-like article, not eyewear",
+    "ambiguous": true
+   },
+   {
+    "ruling": "N351865",
+    "keep": true,
+    "reason": "pressure sensors (9026)"
+   },
+   {
+    "ruling": "N351888",
+    "keep": false,
+    "reason": "subject names a product outside the scope"
+   },
+   {
+    "ruling": "N351911",
+    "keep": true,
+    "reason": "digital multimeters and a receptacle tester"
+   },
+   {
+    "ruling": "N351913",
+    "keep": true,
+    "reason": "analog multimeters and a battery tester"
+   },
+   {
+    "ruling": "N351958",
+    "keep": true,
+    "reason": "combination square (measuring tool)"
+   },
+   {
+    "ruling": "N351962",
+    "keep": true,
+    "reason": "laser measurement tool"
+   },
+   {
+    "ruling": "N352223",
+    "keep": false,
+    "reason": "subject names a product outside the scope"
+   },
+   {
+    "ruling": "N352230",
+    "keep": false,
+    "reason": "ultrasonic water-level sensor module for refrigerators: an appliance part",
+    "ambiguous": true
+   },
+   {
+    "ruling": "N352242",
+    "keep": false,
+    "reason": "3D printer post-curing device: an electronic device",
+    "ambiguous": true
+   },
+   {
+    "ruling": "N352484",
+    "keep": false,
+    "reason": "subject names a product outside the scope"
+   },
+   {
+    "ruling": "N352529",
+    "keep": false,
+    "reason": "subject names a product outside the scope"
+   },
+   {
+    "ruling": "N352538",
+    "keep": false,
+    "reason": "subject names a product outside the scope"
+   },
+   {
+    "ruling": "N352561",
+    "keep": false,
+    "reason": "subject names a product outside the scope"
+   },
+   {
+    "ruling": "N352602",
+    "keep": false,
+    "reason": "subject names a product outside the scope"
+   },
+   {
+    "ruling": "N352670",
+    "keep": false,
+    "reason": "transceiver modules: electronics, not an optical instrument",
+    "ambiguous": true
+   },
+   {
+    "ruling": "N352713",
+    "keep": false,
+    "reason": "subject names a product outside the scope"
+   },
+   {
+    "ruling": "N352841",
+    "keep": false,
+    "reason": "subject names a product outside the scope"
+   },
+   {
+    "ruling": "N352876",
+    "keep": false,
+    "reason": "subject names a product outside the scope"
+   },
+   {
+    "ruling": "N353082",
+    "keep": false,
+    "reason": "subject names a product outside the scope"
+   },
+   {
+    "ruling": "N353089",
+    "keep": false,
+    "reason": "subject names a product outside the scope"
+   },
+   {
+    "ruling": "N353105",
+    "keep": false,
+    "reason": "subject names a product outside the scope"
+   },
+   {
+    "ruling": "N353259",
+    "keep": false,
+    "reason": "subject names a product outside the scope"
+   },
+   {
+    "ruling": "N353260",
+    "keep": false,
+    "reason": "subject names a product outside the scope"
+   },
+   {
+    "ruling": "N353302",
+    "keep": false,
+    "reason": "subject names a product outside the scope"
+   },
+   {
+    "ruling": "N353593",
+    "keep": false,
+    "reason": "subject names a product outside the scope"
+   },
+   {
+    "ruling": "N353959",
+    "keep": false,
+    "reason": "subject names a product outside the scope"
+   },
+   {
+    "ruling": "N353976",
+    "keep": false,
+    "reason": "subject names a product outside the scope"
+   },
+   {
+    "ruling": "N354016",
+    "keep": false,
+    "reason": "subject names a product outside the scope"
+   },
+   {
+    "ruling": "N354084",
+    "keep": false,
+    "reason": "subject names a product outside the scope"
+   },
+   {
+    "ruling": "N354220",
+    "keep": false,
+    "reason": "subject names a product outside the scope"
+   },
+   {
+    "ruling": "N354291",
+    "keep": false,
+    "reason": "subject names a product outside the scope"
+   },
+   {
+    "ruling": "N354327",
+    "keep": false,
+    "reason": "subject names a product outside the scope"
+   },
+   {
+    "ruling": "N354369",
+    "keep": false,
+    "reason": "subject names a product outside the scope"
+   },
+   {
+    "ruling": "N354398",
+    "keep": false,
+    "reason": "subject names a product outside the scope"
+   },
+   {
+    "ruling": "N354448",
+    "keep": false,
+    "reason": "subject names a product outside the scope"
+   },
+   {
+    "ruling": "N355045",
+    "keep": false,
+    "reason": "subject names a product outside the scope"
+   },
+   {
+    "ruling": "N355060",
+    "keep": false,
+    "reason": "subject names a product outside the scope"
+   },
+   {
+    "ruling": "N355061",
+    "keep": false,
+    "reason": "subject names a product outside the scope"
+   },
+   {
+    "ruling": "N355128",
+    "keep": false,
+    "reason": "subject names a product outside the scope"
+   },
+   {
+    "ruling": "N355147",
+    "keep": false,
+    "reason": "subject names a product outside the scope"
+   },
+   {
+    "ruling": "N355175",
+    "keep": false,
+    "reason": "subject names a product outside the scope"
+   },
+   {
+    "ruling": "N355289",
+    "keep": false,
+    "reason": "vein finder: a medical electronic device",
+    "ambiguous": true
+   },
+   {
+    "ruling": "N355350",
+    "keep": false,
+    "reason": "subject names a product outside the scope"
+   },
+   {
+    "ruling": "N355502",
+    "keep": false,
+    "reason": "subject names a product outside the scope"
+   },
+   {
+    "ruling": "N355523",
+    "keep": false,
+    "reason": "subject names a product outside the scope"
+   },
+   {
+    "ruling": "N355544",
+    "keep": false,
+    "reason": "subject names a product outside the scope"
+   },
+   {
+    "ruling": "N355841",
+    "keep": false,
+    "reason": "subject names a product outside the scope"
+   },
+   {
+    "ruling": "N355842",
+    "keep": false,
+    "reason": "subject names a product outside the scope"
+   },
+   {
+    "ruling": "N355843",
+    "keep": false,
+    "reason": "subject names a product outside the scope"
+   },
+   {
+    "ruling": "N355902",
+    "keep": false,
+    "reason": "subject names a product outside the scope"
+   },
+   {
+    "ruling": "N355903",
+    "keep": false,
+    "reason": "subject names a product outside the scope"
+   },
+   {
+    "ruling": "N355935",
+    "keep": false,
+    "reason": "subject names a product outside the scope"
+   },
+   {
+    "ruling": "N355950",
+    "keep": false,
+    "reason": "subject names a product outside the scope"
+   },
+   {
+    "ruling": "N355972",
+    "keep": false,
+    "reason": "subject names a product outside the scope"
+   },
+   {
+    "ruling": "N356053",
+    "keep": false,
+    "reason": "subject names a product outside the scope"
+   },
+   {
+    "ruling": "N356074",
+    "keep": false,
+    "reason": "subject names a product outside the scope"
+   },
+   {
+    "ruling": "N356189",
+    "keep": false,
+    "reason": "subject names a product outside the scope"
+   },
+   {
+    "ruling": "N356206",
+    "keep": false,
+    "reason": "subject names a product outside the scope"
+   },
+   {
+    "ruling": "N356243",
+    "keep": false,
+    "reason": "subject names a product outside the scope"
+   },
+   {
+    "ruling": "N356327",
+    "keep": false,
+    "reason": "subject names a product outside the scope"
+   },
+   {
+    "ruling": "N356328",
+    "keep": false,
+    "reason": "subject names a product outside the scope"
+   },
+   {
+    "ruling": "N356350",
+    "keep": false,
+    "reason": "subject names a product outside the scope"
+   },
+   {
+    "ruling": "N356703",
+    "keep": false,
+    "reason": "subject names a product outside the scope"
+   },
+   {
+    "ruling": "N356741",
+    "keep": false,
+    "reason": "subject names a product outside the scope"
+   },
+   {
+    "ruling": "N356742",
+    "keep": false,
+    "reason": "subject names a product outside the scope"
+   },
+   {
+    "ruling": "N357655",
+    "keep": false,
+    "reason": "fibre optic cable: a communication cable, not an optical instrument",
+    "ambiguous": true
+   },
+   {
+    "ruling": "N358288",
+    "keep": true,
+    "reason": "pressure sensors and transducers (2026): origin where the sensing die or gauge wafer was made"
+   },
+   {
+    "ruling": "N359371",
+    "keep": false,
+    "reason": "LiDAR module: served by the LiDAR template",
+    "ambiguous": true
+   },
+   {
+    "ruling": "N361712",
+    "keep": false,
+    "reason": "subject names a product outside the scope"
+   }
+  ]
+ }
+}

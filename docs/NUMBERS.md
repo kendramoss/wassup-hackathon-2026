@@ -571,3 +571,15 @@ Experimental offline evaluation, advisory and unreviewed. Not Japan market cover
 | Dev family check with guard v3, all 469 | 350 → 351 matched; failed checks 4 → 9; guard took 1 match (pet bed) | `eval/results/families-coverage-dev-all-litellm-f26-b2-g3.jsonl` | Measured (D790). Current. |
 | Dev family check with guard v3, cost and latency | $1.6222; p50 5.2 s, p95 15.4 s per check; lane total $4.7649 for three runs | RUNLOG row `families-coverage-dev-all-litellm-f26-b2-g3` | Token-priced at promo rates. |
 
+## Family follow-ups: batteries, lifting machines, furniture, optical instruments (D820–D828, #777–#780)
+
+| Measure | Value | Source | Status |
+|---|---|---|---|
+| Case universe | 1,247 substantial-transformation rulings (dev 469, train 632, other 146, of which 24 dated 2026); 751 held-out IDs excluded by ID | `eval/families/b3-hits.json` (`depth_b3.py`) | Computed, no model call. |
+| Kept pool rulings against D780's bar of 10, strict (D826) | Batteries 6 (4 short); lifting machines 6 of 11 kept, 5 already cited by the off-road template (4 short); optical and measuring instruments 10 kept, 9 citable (met); furniture served by its template | `eval/families/b3-amend-1.json` | D821's count of 11 for lifting was wrong; amended in D826. |
+| Templates | 1 new: `optical_precision_instruments` (9 rulings, 20 citations, 6 groups); `offroad_vehicles_machinery` v2 (25 → 40 citations, 12 → 18 rulings, 4 → 6 groups); `display_camera_modules` v3 (scope note only) | `eval/families/b3-citations.json` | Every new pairing read against its held-origin sentence (D822, D826). |
+| Frozen development cases (before → after) | Batteries 7 → 7; machinery 11 → 11; lifting (off-road template) 0 → 7; furniture 1 → 4; optical 2 → 9; medical 10 → 10; 48 in all, 30 look-alikes | `eval/families/b3-dev-splits-a1.json` (amends `b3-dev-splits.json`) | Frozen 24 Nov (D820, D821, D826); for #781. |
+| BM25 top 5 / top 20 holds a cited ruling (dev, before → after) | Lifting (off-road template) 1 → 7 of 7 / 7 → 7 of 7; optical 1 → 3 of 9 / 5 → 8 of 9; furniture 3 → 3 of 4; others unchanged | `eval/families/b3-retrieval.json` | Measured offline, descriptive; small n. |
+| Guard v5 on recorded development checks | v1 checks: 1 of 349 matches changed (pet bed); guard v3 run: 2 of 351 (the 3D printer; the optical window, now sent from the display template to review) | `eval/families/b2-guard-dev.json`, `eval/families/b3-guard-g3.json` | Measured offline, no model re-run (D827). |
+| Family count | 27 | `TestTemplateSetIsPinned` | Pinned. |
+
