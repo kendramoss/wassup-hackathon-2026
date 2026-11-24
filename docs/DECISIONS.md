@@ -3314,3 +3314,21 @@ Committed and pushed before the run below. The review fixes are at e71aa708.
   - `measure_850.py . --tag f28-854` gives the table against D842 (`b3-854-measure.json`).
 - **Criterion, stated now.** **No answered case regresses against D853.** A dev case matched to its expected template, or a look-alike kept off its cue family, in D853 must stay so in D854 wherever D854 answered it. A failed check is listed, not counted. If anything regresses, that is reported and nothing is tuned again.
 - **Expectation.** Machinery 10 of 11. Fewer failed checks, with N350680 answering optical as in D842. No regressions.
+
+## D855 — Confirmation run after the #790 review: results of D854 (25 Nov, #785)
+The run went as pre-registered. Run 3 was `families-coverage-dev-all-litellm-f28-854` (built at 9628ccdb, 75 checks, **0 failed**). Run 3b was `…-f28-854-noorigin` (3 checks, 0 failed). Both RUNLOG rows have `code_dirty` false. Figures come from `measure_850.py --tag f28-854` against D842 (`b3-854-measure.json`) and `--against f28-852` against D853 (`b3-854-vs-852-measure.json`). These are development figures, tuned on these cases.
+- **Criterion: not met, by one case.** One answered case regressed against D853: the electrosurgical patient return electrode (N356150). It matched medical devices in D853 at 0.80 and is "none" at 0.85 in D854 ("shares no operation group"). This case has flipped in every run: medical in D790, none in D842, a failed check in D851, medical in D853, none now. Its D854 answer used 2,275 output tokens, so under the old cap it would have been a failed check. It is a medical case, not a machinery one. As D854 said, nothing is tuned again.
+- **Correction to D853.** D853 called N356150 "the dental implant kit", following D842's text. Its subject and every recorded reason describe the return electrode. D842 has the same slip.
+- **Against D842.**
+  - Machinery 6 → **10 of 11**, unchanged from D853 (3 gained, 0 lost). The bearings stay with `machinery_parts`.
+  - Lifting 7 of 7, batteries 7 of 7.
+  - Optical 8 → **9 of 9**: the red-dot carrier plate (N350680), a failed check in both earlier v2 runs, answered optical.
+  - Medical 9 of 10, furniture 3 of 4.
+  - All 48: **45** (94%, 83–98). Look-alikes **29 of 30** (the vein finder still matches medical devices).
+- **Failed checks: 4 → 0** (D853 → D854), with the 4096 cap. One call used 4,032 output tokens (N355934) and still answered.
+- **Look-alikes that moved but stay right.**
+  - The 3D-printer post-curing device (N352242) went from motorised tools to PCBA devices, already so in D853 and not reported there.
+  - The jack stands (N351174) went from none to metal products.
+  - The inspection camera (N355934) went from PCBA devices to displays and cameras.
+- **Cost.** $0.3058 + $0.0094 = $0.3152. p50 5.1 s, p95 17.2 s. **#785 total $1.0027.**
+- **Reading.** The wording and cap changes kept machinery at 10 of 11 and removed every failed check. The pre-registered no-regression criterion failed on one unstable medical case. Development only; no held-out figure exists for any of this.
