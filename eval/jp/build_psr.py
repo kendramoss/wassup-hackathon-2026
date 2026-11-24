@@ -7,6 +7,7 @@ Requires pdfplumber 0.11.10.
 import argparse
 import hashlib
 import json
+from collections import Counter
 from pathlib import Path
 import re
 
@@ -59,6 +60,9 @@ SIX_COLUMN_PDFS = {"indonesia2-2.pdf", "thailand2-2.pdf"}
 CODE = r"(?:\d{4}\.\d{2}|\d{2}\.\d{2}|\d{2})"
 RANGE = re.compile(rf"({CODE})(?:\s*[-–—~]\s*({CODE}))?")
 RANGE_IN_TEXT = re.compile(rf"({CODE})(?:\s*[-–—~]\s*({CODE}))?")
+COLUMN_HEADER = re.compile(r"^(?:\(HS ?\d{4}\)|HS Classification|Product Specific Rule)", re.I)
+# A rule that ends like this is cut short (end of a page-broken cell).
+DANGLING = re.compile(r"(?:^|[\s,])(?:through|to|from|or|and|than|of|the)$|,$", re.I)
 CHAPTER = re.compile(r"Chapter (\d+)\b", re.I)
 SECTION = re.compile(r"Section ([IVX]+)\b", re.I)
 NOTE = re.compile(r"(Section|Chapter|Heading|Subheading) Note\b", re.I)
@@ -260,7 +264,9 @@ def five_column(pdf, filename):
     rows = []
     notes = []
     target = None
+    group = []
     for page_number, page in enumerate(pdf.pages, 1):
+        first = True
         for table in page.extract_tables():
             for raw in table:
                 cells = [normalize(cell) for cell in raw]
@@ -270,10 +276,12 @@ def five_column(pdf, filename):
                 code = sub or heading or ch
                 if code.startswith(("Tariff item number", "Tariff Item Number")):
                     continue
+                leading, first = first, False
                 if m := CHAPTER.match(ch):
                     code = f"{int(m[1]):02}"
                 if SECTION.match(ch):
                     target = None
+                    group = []
                     continue
                 if description.startswith("Note:") or code.startswith("Note:"):
                     note = join(code, join(description, text))
@@ -284,19 +292,35 @@ def five_column(pdf, filename):
                     key = section or chapter
                     if key:
                         target = add_note(notes, "section" if section else "chapter", key, note, page_number)
+                        group = [target]
                     continue
                 if not code:
                     if text and target is not None:
-                        target["text"] = join(target["text"], text)
+                        # A merged cell continues under every row that shares it.
+                        for item in group:
+                            item["text"] = join(item["text"], text)
                     continue
                 if not RANGE.fullmatch(clean_code(code)):
                     continue
                 if not text and raw[4] is None and target is not None:
                     target = add_row(rows, code, target["page"], target["text"], description)
+                    group.append(target)
                 elif text:
-                    target = add_row(rows, code, page_number, text, description)
+                    if leading and group and (DANGLING.search(group[0]["text"]) or text[0].islower()):
+                        # A rule cell merged across a page break continues in
+                        # the first row of the next page; every row sharing
+                        # the cell carries the whole rule.
+                        text = join(group[0]["text"], text)
+                        for item in group:
+                            item["text"] = text
+                        target = add_row(rows, code, group[0]["page"], text, description)
+                        group.append(target)
+                    else:
+                        target = add_row(rows, code, page_number, text, description)
+                        group = [target]
                 else:
                     target = None
+                    group = []
         page.close()
     return rows, notes
 
@@ -346,24 +370,41 @@ def six_column(pdf, filename):
     rows = []
     notes = []
     target = None
+    group = []
     chapter = ""
     section = ""
+    in_note = False
     for page_number, page in enumerate(pdf.pages, 1):
         for table in page.extract_tables():
             for raw in table:
                 cells = [normalize(cell) for cell in raw]
                 codes = []
                 for i, cell in enumerate(cells):
-                    if m := CHAPTER.match(cell):
+                    if cell.startswith("Chapter") and (m := CHAPTER.match(cell)):
                         chapter = f"{int(m[1]):02}"
                         target = None
-                    elif m := SECTION.match(cell):
+                        group = []
+                    elif cell.startswith("Section") and (m := SECTION.match(cell)):
                         section = m[1]
                         target = None
+                        group = []
                     elif cell and RANGE.fullmatch(clean_code(cell)):
                         codes.append((i, cell))
                 if not codes:
+                    # Later physical lines of a multi-line rule cell have only
+                    # one cell filled. The column varies by page layout, so
+                    # notes and column headers are excluded instead.
+                    filled = [cell for cell in cells if cell]
+                    if len(filled) == 1 and target is not None:
+                        if filled[0].startswith("Note:"):
+                            in_note = True
+                            target = None
+                            group = []
+                        elif not in_note and not COLUMN_HEADER.match(filled[0]):
+                            for item in group:
+                                item["text"] = join(item["text"], filled[0])
                     continue
+                in_note = False
                 index, code = codes[0]
                 rule = ""
                 description = ""
@@ -374,15 +415,19 @@ def six_column(pdf, filename):
                         continue
                     rule = cell
                     break
-                if not rule and target is not None:
+                copied = not rule and target is not None
+                if copied:
                     rule = target["text"]
                 if rule.startswith("Note:"):
                     key = section or chapter
                     if key:
                         add_note(notes, "section" if section else "chapter", key, rule, page_number)
+                    target = None
+                    group = []
                     continue
                 if rule:
                     target = add_row(rows, code, page_number, rule, description)
+                    group = group + [target] if copied else [target]
         page.close()
     return rows, notes
 
@@ -461,6 +506,36 @@ def uk(pdf):
     return rows, notes
 
 
+CODE_COLUMN_SLACK = 15
+
+
+def code_column(pdf):
+    """Left edge of the classification column of a text schedule.
+
+    A wrapped line of rule prose can start with a code-like token ("3901.20
+    from ...", "35 percent"); only a line that starts in the classification
+    column opens a new row. The edge is the most common left edge of the
+    code-like lines in the whole document. The second result tells whether
+    the rules sit beside the codes (Chile, Malaysia, Mexico, Philippines);
+    in the stacked layout (India) rule text starts at the same left edge, so
+    only a line holding nothing but the code opens a row.
+    """
+    edges = Counter()
+    x0s = []
+    for page in pdf.pages:
+        for line in page.extract_text_lines():
+            text = normalize(line["text"])
+            if re.fullmatch(r"-?\s*\d{1,4}\s*-?", text):
+                continue
+            x0s.append(line["x0"])
+            if RANGE_IN_TEXT.match(clean_code(text)):
+                edges[5 * round(line["x0"] / 5)] += 1
+        page.flush_cache()
+    limit = edges.most_common(1)[0][0] + CODE_COLUMN_SLACK
+    beside = sum(x0 > limit + CODE_COLUMN_SLACK for x0 in x0s)
+    return limit, beside > len(x0s) / 2
+
+
 def text_schedule(pdf, filename):
     """Parser for the two-column text-only schedules."""
     rows = []
@@ -471,10 +546,10 @@ def text_schedule(pdf, filename):
     chapter = ""
     section = ""
     started = False
+    code_limit, beside = code_column(pdf)
     for page_number, page in enumerate(pdf.pages, 1):
-        lines = (page.extract_text() or "").splitlines()
-        for line in lines:
-            text = normalize(line)
+        for line in page.extract_text_lines():
+            text = normalize(line["text"])
             low = text.lower()
             if not started:
                 if re.match(r"^(part|section) 2\b", low, re.I) or CHAPTER.fullmatch(text):
@@ -485,14 +560,15 @@ def text_schedule(pdf, filename):
                 return rows, notes
             if re.fullmatch(r"-?\s*\d{1,4}\s*-?", text):
                 continue
-            if m := SECTION.match(text):
+            in_code_column = line["x0"] <= code_limit or not beside
+            if in_code_column and text.startswith("Section") and (m := SECTION.match(text)):
                 section = m[1]
                 chapter = ""
                 target = None
                 note = None
                 pending = None
                 continue
-            if m := CHAPTER.match(text):
+            if in_code_column and text.startswith("Chapter") and (m := CHAPTER.match(text)):
                 chapter = f"{int(m[1]):02}"
                 target = None
                 note = None
@@ -505,9 +581,9 @@ def text_schedule(pdf, filename):
                 pending = None
                 continue
             match = RANGE_IN_TEXT.match(clean_code(text))
-            if match and (match[1] or match[2]):
+            remainder = clean_code(text)[match.end():].strip(" .;:") if match else ""
+            if match and (match[1] or match[2]) and in_code_column and (beside or not remainder):
                 key = match[0].strip()
-                remainder = clean_code(text)[match.end():].strip(" .;:")
                 if not remainder:
                     pending = (key, page_number)
                     target = None
@@ -548,6 +624,15 @@ def table_schedule(pdf, filename):
     raise ValueError(f"no parser for {filename}")
 
 
+def extract(path, filename):
+    with pdfplumber.open(path) as pdf:
+        if filename in TEXT_PDFS:
+            return text_schedule(pdf, filename)
+        if filename in {"eu3.pdf", "asean2-1.pdf", "tpp5.pdf", "tpp2.pdf"}:
+            return schedule(pdf, filename)
+        return table_schedule(pdf, filename)
+
+
 def main():
     args = argparse.ArgumentParser(description=__doc__)
     args.add_argument("pdf_directory", type=Path)
@@ -559,13 +644,7 @@ def main():
         digest = hashlib.sha256(path.read_bytes()).hexdigest()
         if digest != DIGESTS[filename]:
             raise ValueError(f"{filename}: source digest changed ({digest})")
-        with pdfplumber.open(path) as pdf:
-            if filename in TEXT_PDFS:
-                rows, notes = text_schedule(pdf, filename)
-            elif filename in {"eu3.pdf", "asean2-1.pdf", "tpp5.pdf", "tpp2.pdf"}:
-                rows, notes = schedule(pdf, filename)
-            else:
-                rows, notes = table_schedule(pdf, filename)
+        rows, notes = extract(path, filename)
         if not rows:
             raise ValueError(f"{filename}: no rules extracted")
         sources.append({
