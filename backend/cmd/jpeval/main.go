@@ -9,6 +9,7 @@
 //	go run ./cmd/jpeval bundle -check                            (no model calls)
 //	go run ./cmd/jpeval candidate -split dev_eval -tag d712-dev  (gateway)
 //	go run ./cmd/jpeval candidate-summary -split held_out -check  (no model calls)
+//	go run ./cmd/jpeval plan -split held_out                     (no model calls, no network)
 package main
 
 import (
@@ -36,15 +37,18 @@ import (
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/retrieval"
 )
 
-const (
-	dataDir    = "../data/jp"
+const dataDir = "../data/jp"
+
+// Output locations are variables so tests can point them at a temporary
+// directory; nothing else changes them.
+var (
 	outDir     = "../eval/jp"
 	runlogPath = "../eval/results/RUNLOG.jsonl"
 )
 
 func main() {
 	if len(os.Args) < 2 {
-		fmt.Fprintln(os.Stderr, "usage: jpeval baseline|summary|index|bundle|candidate|candidate-summary [flags]")
+		fmt.Fprintln(os.Stderr, "usage: jpeval baseline|summary|index|bundle|candidate|candidate-summary|plan|smoke [flags]")
 		os.Exit(2)
 	}
 	var err error
@@ -61,6 +65,10 @@ func main() {
 		err = candidate(os.Args[2:])
 	case "candidate-summary":
 		err = candidateSummary(os.Args[2:])
+	case "plan":
+		err = planCommand(os.Args[2:])
+	case "smoke":
+		err = smoke(os.Args[2:])
 	default:
 		err = fmt.Errorf("unknown command %q", os.Args[1])
 	}

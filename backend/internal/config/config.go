@@ -253,6 +253,10 @@ type Config struct {
 	// product gives HTS codes for the good and its parts. Display only: it
 	// never changes the prediction, the triage or auto-accept.
 	RuleCheck bool
+	// JapanEngine (on|off, default off) is the public enable gate for the
+	// Japan trade-agreement authority. Gateway settings alone never register
+	// it, and while off Japan stays unavailable (D710, #694).
+	JapanEngine bool
 	// USMCAEngine (on|off, default off) predicts cases the router labels
 	// usmca_part102 under the Part 102 rules (19 CFR 102.11 / 102.20,
 	// usmca-v5 since D602) with precedents from USMCALabels (a copy of
@@ -490,6 +494,13 @@ func FromEnv(getenv func(string) string) (Config, error) {
 	case "off", "false", "0":
 	default:
 		e.errs = append(e.errs, fmt.Errorf("TEXTILE_ENGINE must be on or off, got %q", v))
+	}
+	switch v := strings.ToLower(e.str("JAPAN_ENGINE", "off")); v {
+	case "on", "true", "1":
+		c.JapanEngine = true
+	case "off", "false", "0":
+	default:
+		e.errs = append(e.errs, fmt.Errorf("JAPAN_ENGINE must be on or off, got %q", v))
 	}
 	switch v := strings.ToLower(e.str("RULE_CHECK", "on")); v {
 	case "on", "true", "1":

@@ -719,3 +719,19 @@ func TestTrustedProxyCIDRs(t *testing.T) {
 		t.Errorf("bad cidr: %v", err)
 	}
 }
+
+func TestJapanEngineGateConfig(t *testing.T) {
+	c, err := FromEnv(getenv(vertexEnv()))
+	if err != nil || c.JapanEngine {
+		t.Fatalf("JAPAN_ENGINE default = %v, %v; want off", c.JapanEngine, err)
+	}
+	for _, v := range []string{"on", "true", "1"} {
+		on, err := FromEnv(getenv(merge(vertexEnv(), map[string]string{"JAPAN_ENGINE": v})))
+		if err != nil || !on.JapanEngine {
+			t.Errorf("JAPAN_ENGINE=%s = %v, %v", v, on.JapanEngine, err)
+		}
+	}
+	if _, err := FromEnv(getenv(merge(vertexEnv(), map[string]string{"JAPAN_ENGINE": "maybe"}))); err == nil || !strings.Contains(err.Error(), "JAPAN_ENGINE") {
+		t.Errorf("bad JAPAN_ENGINE error = %v", err)
+	}
+}
