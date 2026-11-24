@@ -28,16 +28,29 @@ In the embedded 2011 PDF, chapter 3 has exactly one row (page 2): 03.01-03.07, "
 ## What is modelled
 
 - Old entry: `until` is 2022-04-04. The `until` date is exclusive, so 2022-04-03 returns the old row and 2022-04-04 the new rows (tests pin both days).
-- New entry from 2022-04-04, citation "JP-India CEPA Annex 2 (HS 2007) as amended, effective 2022-04-04" (the edition stays HS 2007). All rows outside chapter 3 are byte-identical to the 2011 rows and keep their PDF page citations.
+- New entry from 2022-04-04 with the same citation as the original, "JP-India CEPA Annex 2 (HS 2007)". All rows outside chapter 3 are byte-identical to the 2011 rows and keep their PDF page citations, so lookups outside chapter 3 return exactly what they did before. Only the chapter 3 rows say "as amended": their row citation reads "JP-India CEPA Annex 2 (HS 2007) as amended, effective 2022-04-04 (Japan Customs notice of 2022-03-23, ...)".
 - Chapter 3 rows are quoted in Japanese from the Customs notice. The notice gives no English text, so none is added. Each row carries its own source (row fields `source_url` and `citation`, with a `ref` such as `【改正後】 row 1 (０３０１．１０－０３０４．９２)` and page 1). Evidence for such a row is cited "<citation>, <ref>" and links to the notice. This is additive: no schedule used these row fields before.
 - The first new row is stored as two rows with the same text, 0301-0303 and 030410-030492, and the third as 0305-0307. The code ranges are equal to the notice's rows; the split keeps four-digit headings 0301, 0302, 0303, 0305, 0306 and 0307 answerable. Heading 0304 mixes rules, so a four-digit 0304 query returns `too_broad`.
-- An Unde Labs caveat note (schedule scope) states that rows outside chapter 3 are the 2011 rows, that no consolidated amended text or English text was found, and where the chapter 3 rows come from.
-- The transition clause is a chapter 3 note, verbatim Japanese, with the same source. It concerns certificates, not the rule.
+- An Unde Labs caveat note (chapter 3 scope, applies to 0301-0307) states that rows outside chapter 3 are the 2011 rows, that no consolidated amended text or English text was found, and where the chapter 3 rows come from.
+- The transition clause is a chapter 3 note (applies to 0301-0307), verbatim Japanese, with the same source. It concerns certificates, not the rule.
 
 ## What is not modelled
 
 - No consolidated amended Annex 2 (Japanese or English) and no Indian-side notice (DGFT or Commerce) was found; English versions on the Customs page link only the 2011 texts. Rows other than chapter 3 are assumed unchanged on the strength of the notice's statement.
-- HS 2017 codes 0304.93 to 0304.97 do not exist in HS 2007 and lie between the notice's ranges 0304.10-0304.92 and 0304.99, so they return `no_match` from 2022-04-04 (before, the old 03.01-03.07 row answered them). Which of the notice's rows applies to them would need a reviewed HS 2007 to HS 2017 correlation entry for India, which is not added here (the correlation set has no India entry).
+- HS 2017 codes 0304.93 to 0304.97 do not exist in HS 2007 and lie between the notice's ranges 0304.10-0304.92 and 0304.99. They return an `edition_hint` from 2022-04-04 (before, the old 03.01-03.07 row answered them). The WCO tables show they descend from ex 0304.99 of HS 2007 (see [hs-edition-correlation.md](hs-edition-correlation.md)); the hint quotes the amended 0304.99 rule (change from any other chapter) without choosing it. A four-digit 0304 query returns `too_broad` from 2022-04-04 because the heading now has different rules.
 - The certificate transition is not modelled: no check of a certificate's issue date or the one-year validity is made.
 - Whether the amendment entered into force on 2022-04-04 on the Indian side is not checked.
 - Ruling dates in the development data for this agreement start 2023-11-09 and none concerns chapter 3 (24 India development rulings), so this change does not move development results.
+
+## Codes whose answer changes on 2022-04-04
+
+Basis: every chapter 3 code of the embedded HS 2017 list (224 six-digit codes, 8 four-digit headings), looked up for JP-India CEPA on 2022-04-03 and on 2022-04-04. Nothing outside chapter 3 differs, checked with one hash per agreement, date and chapter against `origin/main` for 6 dates and all agreements.
+
+| Six-digit codes | Count | Change |
+|---|---|---|
+| Same rule, now the Japanese notice text and its citation | 210 | wholly obtained in the old and the new rows |
+| 0304.99 | 1 | wholly obtained becomes change of chapter |
+| 0304.93 to 0304.97 | 5 | rule becomes `edition_hint` |
+| No row before or after (0308 and related) | 8 | unchanged `no_match` |
+
+Four-digit headings: 6 keep a rule (0301, 0302, 0303, 0305, 0306, 0307), 0304 goes from a rule to `too_broad`, 0308 stays `no_match`.

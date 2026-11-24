@@ -369,7 +369,7 @@ func TestSourcedNoteEvidenceUsesItsOwnSource(t *testing.T) {
 var annexGolden = map[string]string{
 	"AJCEP": "8bf3fd2c4050a40b", "CPTPP": "bf1e2b327d3058aa", "GSP": "f92eb48efa4bda93",
 	"JP-Australia EPA": "c1b8267d06781365", "JP-Chile EPA": "d2a9e16a64373c8f", "JP-EU EPA": "611312c2392bec7c",
-	"JP-India CEPA": "2d3d95dbbc3ac286", "JP-Indonesia EPA": "9dbd1aab47f662ca", "JP-Malaysia EPA": "51fd6558fa3d530a",
+	"JP-India CEPA": "d868c11ce0cb7e7b", "JP-Indonesia EPA": "9dbd1aab47f662ca", "JP-Malaysia EPA": "51fd6558fa3d530a",
 	"JP-Mexico EPA": "fb63a1bc3cc2def6", "JP-Philippines EPA": "183174e8a417fa6e", "JP-Switzerland EPA": "cf787dcabdd33d67",
 	"JP-Thailand EPA": "b4fdad59224353b0", "JP-UK CEPA": "7ce305399eff57ef", "JP-US TA": "ecb919bc1c7ecf01",
 	"JP-Vietnam EPA": "eb7adeac63c68982",

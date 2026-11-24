@@ -14,7 +14,8 @@ const (
 	indiaNewWO    = "締約国において製造され、かつ、製造に使用する全ての材料が当該締約国において完全に得られるものであること。"
 	indiaNewCC    = "第０３０４．９９号の産品への他の類の材料からの変更"
 	indiaNoticeEv = "https://www.customs.go.jp/roo/information/indiakaisei.html"
-	indiaAmended  = "JP-India CEPA Annex 2 (HS 2007) as amended, effective 2022-04-04"
+	indiaCitation = "JP-India CEPA Annex 2 (HS 2007)"
+	indiaAmended  = indiaCitation + " as amended, effective 2022-04-04"
 	indiaPDFSHA   = "4011ed6be153ec99ce9b199bb314c0f0fa69204677f7150bef649bf55a0b39e9"
 )
 
@@ -68,7 +69,7 @@ func TestIndiaChapter3AtTheBoundary(t *testing.T) {
 		if c.cite != "" && first.Citation != c.cite {
 			t.Errorf("%s %s: citation %q", c.date, c.hs, first.Citation)
 		}
-		if c.cite == "" && (first.URL != indiaNoticeEv || !strings.HasPrefix(first.Citation, "Japan Customs notice of 2022-03-23")) {
+		if c.cite == "" && (first.URL != indiaNoticeEv || !strings.HasPrefix(first.Citation, indiaAmended) || !strings.Contains(first.Citation, "Japan Customs notice of 2022-03-23")) {
 			t.Errorf("%s %s: evidence not from the notice: %+v", c.date, c.hs, first)
 		}
 	}
@@ -98,8 +99,9 @@ func isChapter3(r row) bool { return r.Start[:2] == "03" }
 // Only chapter 3 changes: every other row, and the source, are identical.
 func TestIndiaAmendedEntryChangesOnlyChapter3(t *testing.T) {
 	old, amended := indiaPair(t)
-	if amended.Citation != indiaAmended {
-		t.Errorf("citation %q", amended.Citation)
+	// The schedule keeps the original citation; only the chapter 3 rows say "as amended".
+	if amended.Citation != indiaCitation || old.Citation != indiaCitation {
+		t.Errorf("citations %q %q", old.Citation, amended.Citation)
 	}
 	if old.URL != amended.URL || old.SHA256 != amended.SHA256 || old.SHA256 != indiaPDFSHA || old.HSEdition != amended.HSEdition {
 		t.Errorf("source differs: %q %q", old.URL, amended.URL)
@@ -127,7 +129,7 @@ func TestIndiaAmendedEntryChangesOnlyChapter3(t *testing.T) {
 	for _, r := range amended.Rows {
 		if isChapter3(r) {
 			ch3 = append(ch3, r.Start+"-"+r.End)
-			if r.SourceURL != indiaNoticeEv || r.Page != 1 || r.Ref == "" || r.Default || r.Blocked {
+			if r.SourceURL != indiaNoticeEv || !strings.HasPrefix(r.Citation, indiaAmended) || r.Page != 1 || r.Ref == "" || r.Default || r.Blocked {
 				t.Errorf("chapter 3 row %+v", r)
 			}
 			if r.Start == "030499" && r.Text != indiaNewCC || r.Start != "030499" && r.Text != indiaNewWO {
@@ -152,23 +154,8 @@ func TestIndiaOtherChaptersIdenticalInBothWindows(t *testing.T) {
 		}
 		a, _ := table.Lookup("JP-India CEPA", r.Start, indiaDay(t, "2022-04-03"))
 		b, _ := table.Lookup("JP-India CEPA", r.Start, indiaDay(t, "2022-04-04"))
-		if len(a) == 0 || len(b) != len(a)+1 && !(len(b) == len(a)) {
-			t.Fatalf("%s: %d vs %d evidence items", r.Start, len(a), len(b))
-		}
-		// The amended window adds the caveat (first) and the chapter 3 note
-		// only for chapter 3; the rule text and its page are the same.
-		var rules []string
-		for _, e := range b {
-			if e.Citation != caveatPrefix {
-				rules = append(rules, e.Text+"|"+strings.TrimPrefix(e.Citation, indiaAmended)+"|"+e.URL)
-			}
-		}
-		var want []string
-		for _, e := range a {
-			want = append(want, e.Text+"|"+strings.TrimPrefix(e.Citation, "JP-India CEPA Annex 2 (HS 2007)")+"|"+e.URL)
-		}
-		if !reflect.DeepEqual(rules, want) {
-			t.Fatalf("%s differs:\n%v\n%v", r.Start, rules, want)
+		if len(a) == 0 || !reflect.DeepEqual(a, b) {
+			t.Fatalf("%s differs between the windows:\n%v\n%v", r.Start, a, b)
 		}
 	}
 }
@@ -183,7 +170,7 @@ func TestIndiaAmendedNotes(t *testing.T) {
 		switch {
 		case n.Page == 0:
 			caveat = &amended.Notes[i]
-		case n.Scope == "chapter" && n.Key == "03":
+		case n.Page == 1:
 			transition = &amended.Notes[i]
 		default:
 			t.Errorf("unexpected note %+v", n)
@@ -197,8 +184,11 @@ func TestIndiaAmendedNotes(t *testing.T) {
 			t.Errorf("caveat lacks %q: %s", frag, caveat.Text)
 		}
 	}
-	if caveat.Scope != "schedule" {
-		t.Errorf("caveat scope %q", caveat.Scope)
+	// Both notes are scoped to chapter 3 so that every other lookup is unchanged.
+	for _, n := range []*note{caveat, transition} {
+		if n.Scope != "chapter" || n.Key != "03" || !reflect.DeepEqual(n.Applies, [][2]string{{"0301", "0307"}}) {
+			t.Errorf("note scope %+v", n)
+		}
 	}
 	wantTransition := "なお、本改正においては、改正前の品目別規則に基づきインドの当局が発給した原産地証明書についても、改正後の規則を満たすことが明らかなため、有効期間内（発給から１年間）は輸入通関時に有効なものと認めます。"
 	if transition.Text != wantTransition || transition.SourceURL != indiaNoticeEv || transition.Page != 1 || transition.Ref == "" {
@@ -210,9 +200,9 @@ func TestIndiaAmendedNotes(t *testing.T) {
 	if len(ev) != 3 || ev[0].Text != indiaNewCC || ev[1].Citation != caveatPrefix || ev[2].Text != wantTransition {
 		t.Fatalf("chapter 3 evidence: %+v", ev)
 	}
-	// The transition note is scoped to chapter 3; other chapters get the caveat only.
+	// Other chapters get the rule only, exactly as before the amendment.
 	ev, _ = table.Lookup("JP-India CEPA", "0401", indiaDay(t, "2023-01-01"))
-	if len(ev) != 2 || ev[1].Citation != caveatPrefix || strings.Contains(ev[1].Text, "原産地証明書") {
+	if len(ev) != 1 || ev[0].Citation != indiaCitation+", PDF page 2" {
 		t.Fatalf("chapter 4 evidence: %+v", ev)
 	}
 	// The old window has no notes.
@@ -303,18 +293,34 @@ func TestIndiaWindowsDocumented(t *testing.T) {
 }
 
 // The notice's ranges are HS 2007 codes. HS 2017 0304.93-0304.97 do not exist in
-// HS 2007 and sit between the ranges, so they are no_match, never a guessed rule
-// (docs/japan/india-chapter3-amendment.md).
-func TestIndiaHS2017CodesBetweenTheNoticeRangesAreNoMatch(t *testing.T) {
+// HS 2007 and sit between the ranges. The WCO tables (HS 2017 to 2012 page 6, HS
+// 2012 to 2007 page 6) name ex 0304.99 as their HS 2007 source, so they get a
+// review hint with the amended 0304.99 rule, never an applied rule.
+func TestIndiaHS2017CodesBetweenTheNoticeRangesGetAHint(t *testing.T) {
 	table := mustDefault(t)
-	for _, hs := range []string{"030493", "030495", "030497"} {
+	for _, hs := range []string{"030493", "030494", "030495", "030496", "030497"} {
 		res, _ := table.LookupDetailed("JP-India CEPA", hs, indiaDay(t, "2022-04-03"))
 		if res.Reason != ReasonPSR {
 			t.Errorf("%s before: %v", hs, res.Reason)
 		}
 		res, _ = table.LookupDetailed("JP-India CEPA", hs, indiaDay(t, "2022-04-04"))
-		if res.Reason != ReasonNoMatch || len(res.Evidence) != 0 {
-			t.Errorf("%s after: %v %v", hs, res.Reason, res.Evidence)
+		if res.Reason != ReasonEditionHint || len(res.Evidence) != 0 {
+			t.Fatalf("%s after: %v %v", hs, res.Reason, res.Evidence)
 		}
+		for _, frag := range []string{dotted(hs), "HS 2007", "ex 0304.99", indiaNewCC, "2022-03-23", "specialist"} {
+			if !strings.Contains(res.Hint, frag) {
+				t.Errorf("%s hint lacks %q: %s", hs, frag, res.Hint)
+			}
+		}
+		if strings.Contains(res.Hint, "applies to") {
+			t.Errorf("%s hint chooses the rule: %s", hs, res.Hint)
+		}
+	}
+	// 0304.98 does not exist in HS 2017; 0304.99 has its own row; 0304 stays too broad.
+	if res, _ := table.LookupDetailed("JP-India CEPA", "030498", indiaDay(t, "2022-04-04")); res.Reason == ReasonEditionHint {
+		t.Errorf("030498 got a hint")
+	}
+	if res, _ := table.LookupDetailed("JP-India CEPA", "0304", indiaDay(t, "2022-04-04")); res.Reason != ReasonTooBroad {
+		t.Errorf("0304: %v", res.Reason)
 	}
 }

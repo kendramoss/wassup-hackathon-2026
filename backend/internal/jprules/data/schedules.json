@@ -20407,7 +20407,7 @@
  },
  {
   "agreement": "JP-India CEPA",
-  "citation": "JP-India CEPA Annex 2 (HS 2007) as amended, effective 2022-04-04",
+  "citation": "JP-India CEPA Annex 2 (HS 2007)",
   "source_url": "https://www.customs.go.jp/roo/english/text/india2.pdf",
   "sha256": "4011ed6be153ec99ce9b199bb314c0f0fa69204677f7150bef649bf55a0b39e9",
   "from": "2022-04-04",
@@ -20432,7 +20432,7 @@
     "text": "締約国において製造され、かつ、製造に使用する全ての材料が当該締約国において完全に得られるものであること。",
     "ref": "【改正後】 row 1 (０３０１．１０－０３０４．９２)",
     "source_url": "https://www.customs.go.jp/roo/information/indiakaisei.html",
-    "citation": "Japan Customs notice of 2022-03-23, 日インド包括的経済連携協定の品目別規則の一部改正について"
+    "citation": "JP-India CEPA Annex 2 (HS 2007) as amended, effective 2022-04-04 (Japan Customs notice of 2022-03-23, 日インド包括的経済連携協定の品目別規則の一部改正について)"
    },
    {
     "start": "030410",
@@ -20441,7 +20441,7 @@
     "text": "締約国において製造され、かつ、製造に使用する全ての材料が当該締約国において完全に得られるものであること。",
     "ref": "【改正後】 row 1 (０３０１．１０－０３０４．９２)",
     "source_url": "https://www.customs.go.jp/roo/information/indiakaisei.html",
-    "citation": "Japan Customs notice of 2022-03-23, 日インド包括的経済連携協定の品目別規則の一部改正について"
+    "citation": "JP-India CEPA Annex 2 (HS 2007) as amended, effective 2022-04-04 (Japan Customs notice of 2022-03-23, 日インド包括的経済連携協定の品目別規則の一部改正について)"
    },
    {
     "start": "030499",
@@ -20450,7 +20450,7 @@
     "text": "第０３０４．９９号の産品への他の類の材料からの変更",
     "ref": "【改正後】 row 2 (０３０４．９９)",
     "source_url": "https://www.customs.go.jp/roo/information/indiakaisei.html",
-    "citation": "Japan Customs notice of 2022-03-23, 日インド包括的経済連携協定の品目別規則の一部改正について"
+    "citation": "JP-India CEPA Annex 2 (HS 2007) as amended, effective 2022-04-04 (Japan Customs notice of 2022-03-23, 日インド包括的経済連携協定の品目別規則の一部改正について)"
    },
    {
     "start": "0305",
@@ -20459,7 +20459,7 @@
     "text": "締約国において製造され、かつ、製造に使用する全ての材料が当該締約国において完全に得られるものであること。",
     "ref": "【改正後】 row 3 (０３０５．１０－０３０７．９９)",
     "source_url": "https://www.customs.go.jp/roo/information/indiakaisei.html",
-    "citation": "Japan Customs notice of 2022-03-23, 日インド包括的経済連携協定の品目別規則の一部改正について"
+    "citation": "JP-India CEPA Annex 2 (HS 2007) as amended, effective 2022-04-04 (Japan Customs notice of 2022-03-23, 日インド包括的経済連携協定の品目別規則の一部改正について)"
    },
    {
     "start": "0401",
@@ -22714,18 +22714,30 @@
   ],
   "notes": [
    {
-    "scope": "schedule",
-    "key": "",
+    "scope": "chapter",
+    "key": "03",
     "page": 0,
-    "text": "Unde Labs note (not treaty text): rows other than chapter 3 are those of the 2011 Annex 2 (india2.pdf, sha256 4011ed6be153ec99ce9b199bb314c0f0fa69204677f7150bef649bf55a0b39e9); no consolidated amended text and no English text of the amended Annex 2 was found, and the Indian-side notice was not found. The chapter 3 rows are quoted in Japanese from the Japan Customs notice dated 2022-03-23, which states that Annex 2 was amended from 2022-04-04 and that the rest of the agreement and annexes are unchanged. Whether anything else in the amended Annex 2 differs from the 2011 text was not checked beyond that notice."
+    "applies": [
+     [
+      "0301",
+      "0307"
+     ]
+    ],
+    "text": "Unde Labs note (not treaty text): this schedule window is the 2011 Annex 2 with chapter 3 replaced. Rows other than chapter 3 are those of the 2011 Annex 2 (india2.pdf, sha256 4011ed6be153ec99ce9b199bb314c0f0fa69204677f7150bef649bf55a0b39e9); no consolidated amended text and no English text of the amended Annex 2 was found, and the Indian-side notice was not found. The chapter 3 rows are quoted in Japanese from the Japan Customs notice dated 2022-03-23, which states that Annex 2 was amended from 2022-04-04 and that the rest of the agreement and annexes are unchanged. Whether anything else in the amended Annex 2 differs from the 2011 text was not checked beyond that notice."
    },
    {
     "scope": "chapter",
     "key": "03",
     "page": 1,
     "ref": "本文 なお書き",
+    "applies": [
+     [
+      "0301",
+      "0307"
+     ]
+    ],
     "source_url": "https://www.customs.go.jp/roo/information/indiakaisei.html",
-    "citation": "Japan Customs notice of 2022-03-23, 日インド包括的経済連携協定の品目別規則の一部改正について",
+    "citation": "JP-India CEPA Annex 2 (HS 2007) as amended, effective 2022-04-04 (Japan Customs notice of 2022-03-23, 日インド包括的経済連携協定の品目別規則の一部改正について)",
     "text": "なお、本改正においては、改正前の品目別規則に基づきインドの当局が発給した原産地証明書についても、改正後の規則を満たすことが明らかなため、有効期間内（発給から１年間）は輸入通関時に有効なものと認めます。"
    }
   ]
