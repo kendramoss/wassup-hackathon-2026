@@ -1,0 +1,288 @@
+{
+ "note": "Development split only (469). No held-out ruling is read. Causes assigned by hand (see diagnose_815.py).",
+ "engine_run": "dev-gemini-4-argon-prec-engine-v1-vertex.jsonl",
+ "family_run": "families-coverage-dev-all-litellm-f26-b2-g3.jsonl",
+ "slice_counts": {
+  "other": {
+   "n": 331,
+   "correct": 303
+  },
+  "none": {
+   "n": 118,
+   "correct": 103
+  },
+  "food": {
+   "n": 20,
+   "correct": 16
+  }
+ },
+ "causes_by_slice": {
+  "none": {
+   "rule": 9,
+   "label": 5,
+   "retrieval": 1
+  },
+  "food": {
+   "rule": 3,
+   "label": 1
+  }
+ },
+ "causes_all": {
+  "rule": 12,
+  "label": 6,
+  "retrieval": 1
+ },
+ "china_predictions": {
+  "predicted": 92,
+  "correct": 69
+ },
+ "misses": [
+  {
+   "ruling": "H331375",
+   "slice": "none",
+   "family_run": "none",
+   "gold": "Italy",
+   "engine": "China",
+   "confidence": 0.95,
+   "label_method": "regex",
+   "cause": "rule",
+   "why": "House kit made in China, assembled in Italy, used, disassembled: the engine kept China; HQ held Italy, where the kit last became the house.",
+   "unstable": false,
+   "correct_in_other_runs": 0
+  },
+  {
+   "ruling": "H354210",
+   "slice": "none",
+   "family_run": "none",
+   "gold": "United States",
+   "engine": "Brazil",
+   "confidence": 0.9,
+   "label_method": "regex",
+   "cause": "rule",
+   "why": "Retanning and dyeing U.S. wet blue hides in Brazil was read as a transformation to crust leather; HQ held the United States.",
+   "unstable": false,
+   "correct_in_other_runs": 0
+  },
+  {
+   "ruling": "N348376",
+   "slice": "none",
+   "family_run": "none",
+   "gold": "Germany",
+   "engine": "China",
+   "confidence": 0.95,
+   "label_method": "manual",
+   "cause": "rule",
+   "why": "Sintered spinel from China, then crushed, milled and classified in Germany: engine kept China (crushing is not a transformation); CBP held Germany. Label is manual.",
+   "unstable": false,
+   "correct_in_other_runs": 0
+  },
+  {
+   "ruling": "N349972",
+   "slice": "none",
+   "family_run": "none",
+   "gold": "Taiwan",
+   "engine": "China",
+   "confidence": 0.78,
+   "label_method": "regex",
+   "cause": "label",
+   "why": "Helmet shell moulded in Taiwan, liner and assembly in China. Essential character is close; the engine flips between identical runs (right in -litellm-gw).",
+   "unstable": true,
+   "correct_in_other_runs": 1
+  },
+  {
+   "ruling": "N350091",
+   "slice": "none",
+   "family_run": "none",
+   "gold": "India",
+   "engine": "China",
+   "confidence": 0.65,
+   "label_method": "regex",
+   "cause": "rule",
+   "why": "Pen with an Indian refill and Chinese barrel parts assembled in China: the engine named N345964 (refill gives character) and still chose China, at 0.65.",
+   "unstable": false,
+   "correct_in_other_runs": 0
+  },
+  {
+   "ruling": "N350517",
+   "slice": "food",
+   "family_run": "food_preparations",
+   "gold": "France",
+   "engine": "Guatemala",
+   "confidence": 0.85,
+   "label_method": "regex",
+   "cause": "rule",
+   "why": "Pureeing and blending fruit, then pasteurising, was read as simple processing; CBP held France (a different food: puree). No fruit-puree precedent exists before this date, so retrieval is not the cause.",
+   "unstable": false,
+   "correct_in_other_runs": 0
+  },
+  {
+   "ruling": "N351073",
+   "slice": "none",
+   "family_run": "none",
+   "gold": "China",
+   "engine": "Thailand",
+   "confidence": 0.88,
+   "label_method": "regex",
+   "cause": "label",
+   "why": "Oven lights with two scenarios; the label is the second scenario's result and the engine answered the first. The ruling has two answers.",
+   "unstable": false,
+   "correct_in_other_runs": 0
+  },
+  {
+   "ruling": "N351081",
+   "slice": "none",
+   "family_run": "none",
+   "gold": "China",
+   "engine": "Thailand",
+   "confidence": 0.9,
+   "label_method": "regex",
+   "cause": "rule",
+   "why": "Air filter: CBP held China, where the filter paper is made; the engine took Thailand, where it was pleated and assembled.",
+   "unstable": false,
+   "correct_in_other_runs": 0
+  },
+  {
+   "ruling": "N351174",
+   "slice": "none",
+   "family_run": "none",
+   "gold": "Thailand",
+   "engine": "China",
+   "confidence": 0.78,
+   "label_method": "regex",
+   "cause": "label",
+   "why": "Jack stands: Thai ratchet bar, Chinese base parts, assembly in Thailand. Close; right in two other identical runs.",
+   "unstable": true,
+   "correct_in_other_runs": 2
+  },
+  {
+   "ruling": "N351368",
+   "slice": "none",
+   "family_run": "none",
+   "gold": "China",
+   "engine": "Vietnam",
+   "confidence": 0.85,
+   "label_method": "regex",
+   "cause": "rule",
+   "why": "Door lock: Chinese knob assemblies, Vietnamese cylinder and latch. CBP held China; the engine held Vietnam. Retrieved precedents are ovens and ranges, not locks.",
+   "unstable": false,
+   "correct_in_other_runs": 0
+  },
+  {
+   "ruling": "N352231",
+   "slice": "food",
+   "family_run": "food_preparations",
+   "gold": "Ireland",
+   "engine": "Spain",
+   "confidence": 0.9,
+   "label_method": "regex",
+   "cause": "label",
+   "why": "Cooking and canning razor clams was read as a transformation; CBP held the harvest country. The gateway run (-litellm-gw) was right: the call is close.",
+   "unstable": true,
+   "correct_in_other_runs": 1
+  },
+  {
+   "ruling": "N352389",
+   "slice": "food",
+   "family_run": "food_preparations",
+   "gold": "Peru",
+   "engine": "China",
+   "confidence": 0.9,
+   "label_method": "manual",
+   "cause": "rule",
+   "why": "Esterification and distillation of crude fish oil was read as a chemical transformation; CBP held Peru (refining an oil). Label is manual.",
+   "unstable": false,
+   "correct_in_other_runs": 0
+  },
+  {
+   "ruling": "N352485",
+   "slice": "none",
+   "family_run": "none",
+   "gold": "Thailand",
+   "engine": "China",
+   "confidence": 0.95,
+   "label_method": "regex",
+   "cause": "retrieval",
+   "why": "Four retrieved sibling air filters all held China (Chinese media); here the media is composited and pleated in Thailand and CBP held Thailand. The near-duplicate precedents anchored the answer.",
+   "unstable": false,
+   "correct_in_other_runs": 0
+  },
+  {
+   "ruling": "N353232",
+   "slice": "none",
+   "family_run": "none",
+   "gold": "United Kingdom",
+   "engine": "Canada",
+   "confidence": 0.85,
+   "label_method": "regex",
+   "cause": "label",
+   "why": "Soap: UK soap base, mixed and moulded in Canada. Close; right in one other identical run.",
+   "unstable": true,
+   "correct_in_other_runs": 1
+  },
+  {
+   "ruling": "N353581",
+   "slice": "none",
+   "family_run": "none",
+   "gold": "France",
+   "engine": "United States",
+   "confidence": 0.95,
+   "label_method": "regex",
+   "cause": "rule",
+   "why": "Borax pentahydrate (U.S.) made into decahydrate in France: the engine held that a hydration change is not a transformation; CBP held France (new chemical name and use).",
+   "unstable": false,
+   "correct_in_other_runs": 0
+  },
+  {
+   "ruling": "N353597",
+   "slice": "none",
+   "family_run": "none",
+   "gold": "Cambodia",
+   "engine": "China",
+   "confidence": 0.96,
+   "label_method": "regex",
+   "cause": "rule",
+   "why": "Metal tiara body from China, Cambodian headband and combs, gluing, screwing and ribbon in Cambodia: engine kept China; CBP held Cambodia.",
+   "unstable": false,
+   "correct_in_other_runs": 0
+  },
+  {
+   "ruling": "N353879",
+   "slice": "none",
+   "family_run": "none",
+   "gold": "Thailand",
+   "engine": "China",
+   "confidence": 0.92,
+   "label_method": "regex",
+   "cause": "rule",
+   "why": "Showerhead: about 40 parts from China, assembled and tested in Thailand. The engine called it simple assembly; CBP held Thailand.",
+   "unstable": false,
+   "correct_in_other_runs": 0
+  },
+  {
+   "ruling": "N354481",
+   "slice": "food",
+   "family_run": "food_preparations",
+   "gold": "United States",
+   "engine": "China",
+   "confidence": 0.9,
+   "label_method": "regex",
+   "cause": "rule",
+   "why": "Cooking skewered chicken was read as a transformation (N345699, fully cooked, battered chicken: China); CBP held the United States, as for chargrilled chicken (N339749). Retrieved precedents point both ways.",
+   "unstable": false,
+   "correct_in_other_runs": 0
+  },
+  {
+   "ruling": "N356520",
+   "slice": "none",
+   "family_run": "none",
+   "gold": "South Korea",
+   "engine": "China",
+   "confidence": 0.78,
+   "label_method": "regex",
+   "cause": "label",
+   "why": "Deodorising filter: Korean core and mesh, Chinese carbon, filled and heat-pressed in Korea. The five retrieved water filters all held Korea; right in one other identical run.",
+   "unstable": true,
+   "correct_in_other_runs": 1
+  }
+ ]
+}

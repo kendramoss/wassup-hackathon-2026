@@ -39,6 +39,12 @@ type Options struct {
 	// quoted 102.20 rows for the Part 102 engine (Part102RuleText, D550).
 	// The cache key includes it.
 	RuleText func(domain.Case) string
+	// CaseRules, when set, returns extra guidance for one case, added to the
+	// system prompt after Rules; "" adds nothing, so a case it does not name
+	// is sent exactly as without it (food-v1, D856). CaseRulesVersion names it
+	// in the prediction's prompt version, for the cases that got it.
+	CaseRules        func(domain.Case) string
+	CaseRulesVersion string
 	// Schema, when set, replaces the answer schema; it must keep the
 	// standard fields (origin_country ... reasoning), and the whole answer
 	// is kept in Result.Answer (D590; the production Part 102 engine since
@@ -186,15 +192,26 @@ func (e *Engine) vote(ctx context.Context, c domain.Case, precedents []domain.Ru
 	return best, nil
 }
 
-func (e *Engine) system() string {
+func (e *Engine) system(c domain.Case) string {
 	sys := System
 	if e.opts.System != "" {
 		sys = e.opts.System
 	}
-	if e.opts.Rules == "" {
-		return sys
+	if e.opts.Rules != "" {
+		sys += "\n\n" + e.opts.Rules
 	}
-	return sys + "\n\n" + e.opts.Rules
+	if r := e.caseRules(c); r != "" {
+		sys += "\n\n" + r
+	}
+	return sys
+}
+
+// caseRules is the case's own added guidance ("" without Options.CaseRules).
+func (e *Engine) caseRules(c domain.Case) string {
+	if e.opts.CaseRules == nil {
+		return ""
+	}
+	return e.opts.CaseRules(c)
 }
 
 // ruleText is the case's added rule text ("" without Options.RuleText).
@@ -235,11 +252,21 @@ func (e *Engine) promptVersion() string {
 	return v
 }
 
+// promptVersionFor is promptVersion, plus the case-rules version when the
+// case got case rules.
+func (e *Engine) promptVersionFor(c domain.Case) string {
+	v := e.promptVersion()
+	if e.caseRules(c) != "" && e.opts.CaseRulesVersion != "" {
+		v += "+" + e.opts.CaseRulesVersion
+	}
+	return v
+}
+
 // ask makes one model call with the given precedents in the given order.
 func (e *Engine) ask(ctx context.Context, c domain.Case, precedents []domain.Ruling) (Result, error) {
 	resp, err := e.model.Generate(ctx, llm.Request{
 		Model:           e.opts.Model,
-		System:          e.system(),
+		System:          e.system(c),
 		Messages:        []llm.Message{{Role: llm.RoleUser, Content: withRuleText(renderUser(c.Facts, precedents, e.opts.PrecedentReasoning), e.ruleText(c))}},
 		JSONSchema:      e.schema(),
 		SchemaName:      "origin_prediction",
@@ -268,7 +295,7 @@ func (e *Engine) ask(ctx context.Context, c domain.Case, precedents []domain.Rul
 			Provider:       resp.Provider,
 			ModelID:        resp.ModelID,
 			RequestedModel: requestedOf(resp, e.opts.Model),
-			PromptVersion:  e.promptVersion(),
+			PromptVersion:  e.promptVersionFor(c),
 			InputTokens:    resp.Usage.InputTokens,
 			OutputTokens:   resp.Usage.OutputTokens,
 			LatencyMS:      resp.Latency.Milliseconds(),

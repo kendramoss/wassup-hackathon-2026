@@ -55,7 +55,7 @@ func (c *Cache) key(model string, k domain.Case) string {
 		Exclude                       []string
 		Evidence                      string `json:",omitempty"` // empty only without a retriever
 		RuleText                      string `json:",omitempty"` // empty without Options.RuleText (D550)
-	}{model, c.inner.promptVersion(), k.Facts, k.Date.Format(time.DateOnly), c.inner.opts.K, c.inner.opts.Votes, c.inner.opts.VoteBelow, ex, rev, c.inner.ruleText(k)})
+	}{model, c.inner.promptVersionFor(k), k.Facts, k.Date.Format(time.DateOnly), c.inner.opts.K, c.inner.opts.Votes, c.inner.opts.VoteBelow, ex, rev, c.inner.ruleText(k)})
 	h := sha256.Sum256(b)
 	return hex.EncodeToString(h[:])
 }
