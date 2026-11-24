@@ -138,6 +138,41 @@ EU_FOOTNOTES = {
     "87.01 -87.071": "87.01-87.07",
     "87.082": "87.08",
 }
+# A footnote that names only some subheadings of a range limits the block to
+# those subheadings. The rest of the range keeps its rule and carries the
+# footnote as a page-bearing note. Footnote text is quoted from eu3.pdf page 55.
+EU_NARROW = {
+    "70.071 -70.09": {
+        "blocked": ("7007.11", "7007.21"),
+        "note": ("70", "For the products of subheadings 7007.11 and 7007.21, see also Appendix 3-B-1.",
+                 [["7007", "7009"]]),
+    },
+}
+# Japan-UK: the PDF glues the footnote digit to the code ("87.011"), which the
+# generic reader does not recognise, so these rows were dropped. Each entry
+# lists (code range, withheld). The footnotes say "see also Appendix 3-B-1"
+# for 70.07 (7007.11 and 7007.21 only), 84.07-84.08 and 87.01-87.08; every
+# such range is withheld here, the rest of 87.08-87.11 is a normal row.
+UK_FOOTNOTES = {
+    "70.071 -70.09": (("70.07-70.09", True),),
+    "84.07-84.081": (("84.07-84.08", True),),
+    "87.011": (("87.01", True),),
+    "87.02-87.052": (("87.02-87.05", True),),
+    "87.063": (("87.06", True),),
+    "87.074": (("87.07", True),),
+    "87.085-87.11": (("87.08", True), ("87.09-87.11", False)),
+}
+# Japan-Switzerland: a cell that lists several codes is split into its source
+# lines when the table pins them. Column (4) is empty in these lines, so the
+# rule is column (3) alone. Keys are the code cell, values (code, rule) lines.
+SWISS_SPLITS = {
+    "35.01 3502.11 -3502.19 3502.20 -35.04 35.05": (
+        ("35.01", "CC"),
+        ("3502.11-3502.19", "CC except from chapter 4."),
+        ("3502.20-35.04", "CTH"),
+        ("35.05", "CC except from chapter 11."),
+    ),
+}
 # Split merged cells. These four are headings / note continuations and
 # contain no tariff line or independent product-specific requirement.
 NOTE_CONTINUATIONS = {
@@ -296,6 +331,16 @@ def schedule(pdf, filename):
                         raise ValueError(f"{filename}:{page_number} missing parent or rule {cells!r}")
                     target = add_row(rows, key, page_number, text, " / ".join(branches))
                     pending = None
+                    continue
+                if filename == "eu3.pdf" and classification in EU_NARROW and text:
+                    narrow = EU_NARROW[classification]
+                    for blocked_code in narrow["blocked"]:
+                        add_row(rows, blocked_code, page_number, text, blocked=True)
+                    key = EU_FOOTNOTES[classification]
+                    target = add_row(rows, key, page_number, text)
+                    scope, note_text, applies = narrow["note"]
+                    add_note(notes, "chapter", scope, note_text, page_number)["applies"] = applies
+                    branches = []
                     continue
                 code = EU_FOOTNOTES.get(classification, classification).replace("†", "")
                 blocked = code != classification or "appendix" in text.lower() and "short supply" in text.lower()
@@ -541,6 +586,13 @@ def switzerland(pdf):
                 found = RANGE_IN_TEXT.findall(clean_code(codes))
                 if not found:
                     continue
+                if codes in SWISS_SPLITS:
+                    lines = SWISS_SPLITS[codes]
+                    if " ".join(rule for _, rule in lines) != rules or len(cells) > 3 and cells[3]:
+                        raise ValueError(f"{filename}:{page_number} split {codes!r} does not match {rules!r}")
+                    for code, rule in lines:
+                        add_row(rows, code, page_number, rule)
+                    continue
                 start, end = code_range(found[0][0] or found[0][1])
                 blocked = len(found) > 1 or "except for" in codes.lower()
                 if len(found) > 1:
@@ -580,6 +632,10 @@ def uk(pdf):
                 if classification.startswith("Note:") or text.startswith("Note:"):
                     if chapter:
                         add_note(notes, "chapter", chapter, join(classification, text), page_number)
+                    continue
+                if classification in UK_FOOTNOTES and text:
+                    for code, blocked in UK_FOOTNOTES[classification]:
+                        target = add_row(rows, code, page_number, text, blocked=blocked)
                     continue
                 if RANGE.fullmatch(clean_code(classification)):
                     if text:
