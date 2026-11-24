@@ -46,7 +46,11 @@ The AJCEP Annex 2 schedule lists product-specific rules selectively, so many hea
 
 ### Agreements awaiting a rule source
 
-Japan's GSP has no embedded rule source, so GSP cases stay undetermined with a review reason. Non-preferential origin is outside the Japan assessment.
+Non-preferential origin is outside the Japan assessment, so those cases stay undetermined with a review reason.
+
+### Japan GSP
+
+The Appendix Table to Article 9 of the Ministerial Ordinance for Enforcement of the Temporary Tariff Measures Law ([e-Gov 344M50000040039](https://laws.e-gov.go.jp/law/344M50000040039/20230401_505M60000040029)) is embedded in Japanese for import dates from 2023-04-01; earlier dates have no rule source. The ordinance names no HS edition, so codes are validated against HS 2022 (inferred) and evidence is cited by table row, not by page. Beneficiary countries, the Cabinet Order product coverage, Form A, cumulation and direct consignment are not checked. Sources, hashes, the earlier windows and open questions: [docs/japan/gsp-pilot.md](../../../docs/japan/gsp-pilot.md).
 
 ### Japan–U.S. Trade Agreement
 

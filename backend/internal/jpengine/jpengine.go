@@ -83,7 +83,7 @@ const (
 	ReasonNoHS            jprules.Reason = "no_hs"
 )
 
-const reasonNotInEdition = "This tariff code is not in the HS 2017 edition that this agreement's schedule uses. If it is a newer code, check the agreement's schedule for that edition or ask a specialist."
+const reasonNotInEdition = "This tariff code is not in the HS edition that this agreement's schedule uses. If it is a newer code, check the agreement's schedule for that edition or ask a specialist."
 
 const reasonUnverifiedRule = "We could not verify a rule for this tariff code and date. Check the agreement's tariff schedule or ask a specialist."
 

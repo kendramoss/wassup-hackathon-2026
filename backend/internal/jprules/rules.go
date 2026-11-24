@@ -24,6 +24,9 @@ var generalJSON []byte
 //go:embed data/hs2017_codes.txt
 var hs2017CodesTXT []byte
 
+//go:embed data/hs2022_codes.txt
+var hs2022CodesTXT []byte
+
 const rcepAnnexURL = "https://rcepsec.org/wp-content/uploads/2024/07/RCEP-PSR-in-HS-2022-adopted-by-RJC-30June2022-corrected20Aug2022.pdf"
 
 var (
@@ -40,9 +43,14 @@ type row struct {
 	Blocked     bool   `json:"blocked"`
 	// Default marks a rule stated for a group of goods (a default sentence, a
 	// chapter, heading or range) rather than for one listed code. It applies
-	// only to codes that exist in the embedded HS 2017 list, never to a code
+	// only to codes that exist in the embedded code list of the schedule's HS
+	// edition (HS 2017 unless the schedule says otherwise), never to a code
 	// that exists in no edition.
 	Default bool `json:"default,omitempty"`
+	// Ref locates the row in a source that has no PDF pages, such as an
+	// e-Gov law page ("別表 row 37"). Page is then 1 and the citation carries
+	// the ref instead of a page number and link fragment.
+	Ref string `json:"ref,omitempty"`
 }
 
 type note struct {
@@ -52,11 +60,16 @@ type note struct {
 	// Page is the PDF page of the note. Zero marks an Unde Labs caveat note,
 	// which is not treaty text and has no source page or link.
 	Page int `json:"page"`
+	// Ref locates the note in a source without PDF pages (see row.Ref).
+	Ref string `json:"ref,omitempty"`
 	// Applies narrows a scope note to codes inside these [start, end] digit
 	// prefix ranges (2 to 6 digits, both ends of equal length). Empty means
 	// the whole chapter or section named by Scope and Key.
 	Applies [][2]string `json:"applies,omitempty"`
 }
+
+// validRef reports whether a locator is a non-empty, trimmed string.
+func validRef(ref string) bool { return ref != "" && ref == strings.TrimSpace(ref) }
 
 // validateApplies rejects a malformed applicability range at load time.
 func validateApplies(ranges [][2]string) error {
@@ -94,7 +107,25 @@ func validateSchedule(s schedule) error {
 			return fmt.Errorf("%s: bad until date %q", s.Agreement, s.Until)
 		}
 	}
+	if s.HSEdition != 0 && s.HSEdition != 2017 && s.HSEdition != 2022 {
+		return fmt.Errorf("%s: unsupported HS edition %d", s.Agreement, s.HSEdition)
+	}
+	// A schedule locates its rows and notes either by PDF page or, when the
+	// source has no pages, by ref. One schedule never mixes the two.
+	byRef := false
 	for _, r := range s.Rows {
+		byRef = byRef || r.Ref != ""
+	}
+	for _, n := range s.Notes {
+		byRef = byRef || n.Ref != ""
+	}
+	if byRef && strings.Contains(s.URL, "#") {
+		return fmt.Errorf("%s: a source located by ref must have a URL without a fragment", s.Agreement)
+	}
+	for _, r := range s.Rows {
+		if byRef && (!validRef(r.Ref) || r.Page != 1) {
+			return fmt.Errorf("%s: row %q needs a ref and page 1", s.Agreement, r.Start)
+		}
 		// A withheld row may span unequal widths (a multi-row cell of the source).
 		if n, m := len(r.Start), len(r.End); !validWidth(n) || !validWidth(m) || n != m && !r.Blocked || r.Start > r.End {
 			return fmt.Errorf("%s: bad row range %q-%q", s.Agreement, r.Start, r.End)
@@ -112,7 +143,11 @@ func validateSchedule(s schedule) error {
 		}
 	}
 	for _, n := range s.Notes {
-		if n.Scope == "section" {
+		if n.Scope == "schedule" {
+			if n.Key != "" {
+				return fmt.Errorf("%s: a schedule note has no key, got %q", s.Agreement, n.Key)
+			}
+		} else if n.Scope == "section" {
 			if _, ok := sections[n.Key]; !ok {
 				return fmt.Errorf("%s: unknown section %q", s.Agreement, n.Key)
 			}
@@ -121,6 +156,12 @@ func validateSchedule(s schedule) error {
 		}
 		if strings.TrimSpace(n.Text) == "" || n.Page < 0 || n.Page == 0 && !strings.HasPrefix(n.Text, caveatPrefix) {
 			return fmt.Errorf("%s: bad note %q %q", s.Agreement, n.Scope, n.Key)
+		}
+		if byRef && (n.Page == 0) != (n.Ref == "") || byRef && n.Page > 1 {
+			return fmt.Errorf("%s: note %q %q needs a ref and page 1 (a caveat has neither)", s.Agreement, n.Scope, n.Key)
+		}
+		if n.Ref != "" && !validRef(n.Ref) {
+			return fmt.Errorf("%s: bad note ref %q", s.Agreement, n.Ref)
 		}
 		if err := validateApplies(n.Applies); err != nil {
 			return fmt.Errorf("%s: %w", s.Agreement, err)
@@ -151,8 +192,19 @@ type schedule struct {
 	SHA256    string `json:"sha256"`
 	From      string `json:"from"`
 	Until     string `json:"until"`
+	// HSEdition is the HS edition (2017 or 2022) whose code list gates the
+	// default rows. Zero means 2017, the list every earlier schedule uses.
+	HSEdition int    `json:"hs_edition,omitempty"`
 	Rows      []row  `json:"rows"`
 	Notes     []note `json:"notes"`
+}
+
+// codes returns the code list of the schedule's HS edition.
+func (s schedule) codes() *hsCodes {
+	if s.HSEdition == 2022 {
+		return hs2022Valid()
+	}
+	return hs2017Valid()
 }
 
 // Evidence quotes a rule branch or accompanying note from an official
@@ -226,7 +278,8 @@ const (
 	ReasonInvalidCode Reason = "invalid_code"
 	// ReasonNotInEdition: in the AJCEP general branch, or under a schedule that
 	// has default rows, a code in a non-reserved chapter is absent from the
-	// HS 2017 list. It may be a
+	// code list of the schedule's HS edition (HS 2017 unless the schedule says
+	// HS 2022). It may be a
 	// code of a later edition or a typo; the lookup does not say which.
 	ReasonNotInEdition Reason = "not_in_schedule_edition"
 	// ReasonNoMatch: a schedule covers the date, no row matches, and no
@@ -326,13 +379,13 @@ func (t *Table) lookup(agreement, hs string, before time.Time, general bool) (Re
 		return Result{Reason: ReasonUnsupportedAgreement, Digits: digits}, nil
 	}
 	date := before.Format(time.DateOnly)
-	covered, hasDefault := false, false
+	covered, notInEdition := false, false
 	for _, s := range t.schedules[agreement] {
 		if date < s.From || s.Until != "" && date >= s.Until {
 			continue
 		}
 		covered = true
-		hasDefault = hasDefault || s.hasDefaultRows()
+		notInEdition = notInEdition || s.hasDefaultRows() && !s.codes().hasPrefix(digits)
 		rows, status := s.match(digits)
 		switch status {
 		case matchTooBroad:
@@ -349,7 +402,7 @@ func (t *Table) lookup(agreement, hs string, before time.Time, general bool) (Re
 			if r.Description != "" {
 				text = r.Description + ": " + text
 			}
-			evidence = append(evidence, s.evidence(text, r.Page))
+			evidence = append(evidence, s.evidence(text, r.Page, r.Ref))
 		}
 		evidence = append(evidence, s.notesFor(digits)...)
 		return Result{Reason: ReasonPSR, Evidence: evidence, Digits: digits}, nil
@@ -359,7 +412,7 @@ func (t *Table) lookup(agreement, hs string, before time.Time, general bool) (Re
 		return Result{Reason: ReasonNoDatedSource, Digits: digits}, nil
 	case reservedChapters[digits[:2]]:
 		return Result{Reason: ReasonInvalidCode, Digits: digits}, nil
-	case hasDefault && !hs2017Valid().hasPrefix(digits):
+	case notInEdition:
 		// Default rows never answer for a code that exists in no edition. A
 		// code with a reviewed correlation stays no_match for the correlation step.
 		if _, ok := t.corr.find(agreement, digits); ok && len(digits) == 6 {
@@ -406,7 +459,10 @@ func (t *Table) lookupRCEP(hs string, before time.Time) []Evidence {
 	return []Evidence{{Text: text, URL: url, Citation: citation}}
 }
 
-func (s schedule) evidence(text string, page int) Evidence {
+func (s schedule) evidence(text string, page int, ref string) Evidence {
+	if ref != "" {
+		return Evidence{Text: text, URL: s.URL, Citation: s.Citation + ", " + ref}
+	}
 	return Evidence{
 		Text:     text,
 		URL:      fmt.Sprintf("%s#page=%d", s.URL, page),
@@ -436,7 +492,7 @@ func (s schedule) hasDefaultRows() bool {
 // when a matching row is withheld.
 func (s schedule) match(hs string) (matching []row, status matchStatus) {
 	specificity := 0
-	inEdition := hs2017Valid().hasPrefix(hs)
+	inEdition := s.codes().hasPrefix(hs)
 	for _, r := range s.Rows {
 		if r.Default && !inEdition {
 			continue
@@ -481,13 +537,14 @@ func (s schedule) notesFor(hs string) []Evidence {
 	var out []Evidence
 	for _, n := range s.Notes {
 		section := sections[n.Key]
-		if (n.Scope == "chapter" && n.Key == hs[:2] ||
+		if (n.Scope == "schedule" ||
+			n.Scope == "chapter" && n.Key == hs[:2] ||
 			n.Scope == "section" && chapter >= section[0] && chapter <= section[1]) && n.appliesTo(hs) {
 			if n.Page == 0 {
 				out = append(out, Evidence{Text: n.Text, Citation: caveatPrefix})
 				continue
 			}
-			out = append(out, s.evidence(n.Text, n.Page))
+			out = append(out, s.evidence(n.Text, n.Page, n.Ref))
 		}
 	}
 	return out

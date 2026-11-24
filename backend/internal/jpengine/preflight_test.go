@@ -168,7 +168,7 @@ func TestGatedCasesNeverReachTheModel(t *testing.T) {
 		{"withheld CPTPP", jpCase("CPTPP", "8708.94", "2025-06-01"), jprules.ReasonWithheld},
 		{"AJCEP at HS2022 start unlisted", jpCase("AJCEP", "3215", "2027-02-15"), jprules.ReasonNoMatch},
 		{"AJCEP before window", jpCase("AJCEP", "3215", "2022-12-31"), jprules.ReasonNoDatedSource},
-		{"GSP", jpCase("GSP", "3215", "2025-06-01"), jprules.ReasonUnsupportedAgreement},
+		{"GSP unlisted goods", jpCase("GSP", "3215", "2025-06-01"), jprules.ReasonNoMatch},
 		{"JP-US TA unlisted goods", jpCase("JP-US TA", "3215", "2025-06-01"), jprules.ReasonNoMatch},
 		{"RCEP unlisted", jpCase("RCEP", "0000.00", "2025-06-01"), jprules.ReasonNoMatch},
 		{"RCEP before start", jpCase("RCEP", "6404.11", "2022-12-31"), jprules.ReasonNoDatedSource},
@@ -245,7 +245,7 @@ func TestPreflightMatchesPredictOrderAndNormalization(t *testing.T) {
 	}{
 		{jpCase("", "3215", "2025-06-01"), "Choose the trade agreement you want to use for this import."},
 		{jpCase("Non-preferential", "3215", "2025-06-01"), "This check covers preferences under trade agreements. Ask a specialist about Japan's other origin rules."},
-		{jpCase("GSP", "3215", "2025-06-01"), "We do not have a verified product rule for this trade agreement."},
+		{jpCase("GSP", "3215", "2025-06-01"), "We could not verify a rule for this tariff code and date. Check the agreement's tariff schedule or ask a specialist."},
 		{jpCase("AJCEP", "", "2025-06-01"), "Enter the finished product's tariff code. Use at least four digits."},
 		{jpCase("AJCEP", "9999", "2025-06-01"), "We could not verify a rule for this tariff code and date. Check the agreement's tariff schedule or ask a specialist."},
 		{jpCase("CPTPP", "8708.94", "2025-06-01"), "We could not verify a rule for this tariff code and date. Check the agreement's tariff schedule or ask a specialist."},

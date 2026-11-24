@@ -75,7 +75,8 @@ func TestLookupWithoutApplicableRule(t *testing.T) {
 		t.Fatal(err)
 	}
 	cases := []struct{ agreement, hs, date string }{
-		{"GSP", "6404.11", "2026-11-23"},
+		{"GSP", "6404.11", "2023-03-31"}, // before the only embedded window
+		{"GSP", "0101.21", "2026-11-23"}, // no row for live animals
 		{"JP-US TA", "6404.11", "2026-11-23"},
 		{"JP-EU EPA", "not an HS code 0406.90", "2026-11-23"},
 		{"AJCEP", "9999", "2027-02-15"},

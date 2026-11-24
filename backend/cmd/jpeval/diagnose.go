@@ -180,6 +180,7 @@ func diagnoseDevelopment(split, dir string, rules *jprules.Table) (diagnoseRepor
 		"jprules/data/ajcep_general.json": filepath.Join(rulesDataDir, "ajcep_general.json"),
 		"jprules/data/correlations.json":  filepath.Join(rulesDataDir, "correlations.json"),
 		"jprules/data/hs2017_codes.txt":   filepath.Join(rulesDataDir, "hs2017_codes.txt"),
+		"jprules/data/hs2022_codes.txt":   filepath.Join(rulesDataDir, "hs2022_codes.txt"),
 	} {
 		b, err := os.ReadFile(p)
 		if err != nil {
