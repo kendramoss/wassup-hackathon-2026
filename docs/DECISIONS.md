@@ -3244,3 +3244,20 @@ The runs went as pre-registered. Run 1 was `families-coverage-dev-all-litellm-f2
 - **Guard v6** took nothing away; the guard removals in this run are the existing printer and pet-product rules.
 - **Against D850's criteria: not a fix.** Machinery is working and three of the four `machinery_parts` misses moved, but lifting lost two cases and look-alikes fell to 28. The machines scope ("complete machines and functional working units ... hydraulic cylinders and other actuators ... robots") drew in lifting machines and motorised appliances that have their own templates. This is said as measured; nothing is re-run on this code.
 - **Cost.** $0.3279 + $0.0080 = **$0.3359**. p50 5.1 s, p95 26.9 s per check.
+
+## D852 — Machinery boundary, a second scope revision and one more development run, pre-registered (25 Nov, #785, after D851)
+Committed and pushed before the run below. D851 found the machines scope too wide: two bottle jacks and a pool-cleaning robot moved to it. The revision is at 9b605066.
+- **Change.** Only the `motors_pumps_compressors` scope changes. It now begins "Complete industrial machines", says "industrial robots", and adds one sentence. That sentence sends lifting machines (jacks, hoists, cranes, winches, lifts) to `offroad_vehicles_machinery` even with a hydraulic cylinder or pump inside (lifting moved there in D826). It sends consumer or household motorised appliances and portable or hand-held tools, cleaning robots included, to `motorised_tools_small_appliances` (D780's machinery screen left out consumer appliances).
+- **Unchanged.** The `machinery_parts` scope, `family-check-v2`'s code, `family-guard-v6`, every group, citation, name, version and the bar. `measure_850.py` gains `--tag`; it still reproduces `b3-850-measure.json` unchanged.
+- **Run, development only, as D850.** Same model, settings and gateway, cache off, from a clean committed tree. From `backend/`:
+  - `go run ./cmd/eval familycov -split dev -splits ../eval/families/b3-781-run-splits.json -set all -tag f28-852`
+  - `go run ./cmd/eval familycov -split dev -splits ../eval/families/b3-781-noorigin-splits.json -set all -no-origin-ok -tag f28-852-noorigin`
+  - About $0.34; about $92.5 left in the lane. No held-out ruling is read. This is the last run on this change: whatever it shows is reported. A further revision would need its own entry.
+- **Measured.** `python3 -I -B eval/families/measure_850.py . --tag f28-852` writes `b3-852-measure.json`, against D842's run as in D850.
+- **What counts as a fix: D850's criteria, unchanged.**
+  - Machinery reaches at least 9 of 11, working by D840's rule.
+  - At most the bearings stay with `machinery_parts`.
+  - No case matched in D842 loses its template, except as a disclosed failed check.
+  - Look-alikes stay at least 29 of 30.
+- **Expectation.** Machinery 9–10 of 11; lifting back to 7 of 7; the pool-cleaning robot back to motorised tools. The air inflator may also go back.
+- **Disclosure.** This is a second revision tuned on the same development cases. The more often a scope is revised against these cases, the less the development figure says about other products.
