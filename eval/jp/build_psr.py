@@ -253,6 +253,157 @@ def annex_3a_notes(path, filename):
             page.close()
     return notes
 
+# General Notes of the text-layer Annexes quoted verbatim from their own PDF
+# (docs/japan/general-notes-embedded.md). Each entry is (page, label, start, end,
+# applies): start and end are the first and last words of the quoted chunk in the
+# normalised page text, so a page footer or a table row after the paragraph is
+# never in it. Scope is schedule for all of them; applies is read from the
+# paragraph's own wording (an empty list means the whole annex). Only provisions
+# that define a term of the rows or change how a rule qualifies are quoted; the
+# HS edition statements, the digit-prefix meanings of section, chapter, heading
+# and subheading, the "adjacent rule" paragraphs and the CPTPP paragraphs 1, 2, 3(a),
+# 3(b), 4 and 5 are cut (5: the dagger rows are withheld; see general-notes-embedded.md). Provisions that refer to the main Agreement (Articles) are quoted
+# as the Annex words them and do not supply that text.
+_WEIGHT = "unless otherwise specified in the Harmonized System;"
+_ITA_END = "to subheading 8541.10 through 8542.90 from any other subheading."
+# Indonesia (i)(ii), "For the purposes of headings 50.07, 51.11 through 51.13, ..."
+_INDONESIA_TRANSPORT = _headings(
+    "5007", "5111-5113", "5204-5212", "5309-5311", "5407", "5408", "5508-5516",
+    "5604-5609", "5902", "5910", "57-58", "60-63")
+_CHILE_F = _headings("19", "200110-200891", "200892", "200899-200990", "21", "28-97")
+GENERAL_NOTES = {
+    "thailand2-2.pdf": {"label": "JP-Thailand EPA Annex 2 General Notes", "notes": [
+        (1, "paragraphs (b) and (c)", "(b) a requirement of a change in tariff classification", _WEIGHT, []),
+        (1, "paragraph (d)(v)", "(v) the term “QVC 40” means", "has been performed in a Party;", []),
+        (2, "paragraphs (d)(vi) to (d)(ix)", "(vi) the term “CC” denotes", "as defined in paragraph 2 of Article 28;", []),
+        (2, "paragraph (f)", "(f) specific percentages referred to in Article 30,", "10 per cent in value of the good; and",
+         _headings("19-24", "28-97")),
+        (3, "paragraph (f)(iii)", "(iii) in the case of a good provided for in chapters 50 through 63",
+         "10 per cent by weight of the good; and", _headings("50-63")),
+        (3, "Notes 1 and 2 to paragraph (f)", "Note 1: The term “value of non-originating materials”",
+         "the value provided for in paragraph 5 of that Article.", []),
+        (3, "paragraph (g)", "(g) a good which is covered by Attachment A or B",
+         "classified in subheadings 8541.10 through 8542.90.", []),
+    ]},
+    "indonesia2-2.pdf": {"label": "JP-Indonesia EPA Annex 2 General Notes", "notes": [
+        (1, "paragraph (b)", "(b) reference to weight in this Annex means dry weight", _WEIGHT, []),
+        (1, "paragraphs (d), (e)(i) and (e)(ii)", "(d) where a specific rule of origin is defined using the criterion",
+         "(i.e. a change in heading) of the Harmonized System;", []),
+        (2, "paragraphs (e)(iii) and (e)(iv)", "(iii) the term “CTSH” denotes", "has been performed in a Party;", []),
+        (2, "paragraph (g)", "(g) specific percentages referred to in Article 31,", "seven percent by weight of the good;",
+         _headings("28-97")),
+        (2, "Notes 1 and 2 to paragraph (g)", "Note 1: The term “value of non-originating materials”",
+         "the value set out in paragraph 5 of that Article.", []),
+        (2, "paragraph (h)(i)", "(h) For the purposes of chapters 28 through 40",
+         "(C) the addition or elimination of water of crystallization;", _headings("28-40")),
+        (3, "paragraphs (h)(ii) to (h)(iv)", "(ii) the term “purification” means", "of cellular or intercellular structures;",
+         _headings("28-40")),
+        (3, "paragraph (i)(i)", "(i) (i) For the purposes of chapters 50 through 55 and 60", "(2) antimelt finish;", _TEXTILE_1),
+        (4, "paragraph (i)(i), items (3) to (25)", "(3) antimosquito finish;", "(25) milling;", _TEXTILE_1),
+        (5, "paragraph (i)(i), items (26) to (48)", "(26) moare finishing;", "(48) wire raising;", _TEXTILE_1),
+        (6, "paragraph (i)(ii)", "(ii) For the purposes of headings 50.07, 51.11 through 51.13,",
+         "any other operation to preserve it in good condition;", _INDONESIA_TRANSPORT),
+        (6, "paragraph (i)(iii)", "(iii) For the purposes of determining the origin of a good of chapters 61 through 63",
+         "set out in the rule for that good;", _headings("61-63")),
+        (6, "paragraph (j)", "(j) (i) a good which is covered by Attachment A or B", "8541.10 through 8542.90.", []),
+    ]},
+    "malaysia2.pdf": {"label": "JP-Malaysia EPA Annex 2 General Notes", "notes": [
+        (1, "paragraph (b)", "(b) reference to weight in this Annex means dry weight", _WEIGHT, []),
+        (1, "paragraph (e)", "(e) Specific percentages referred to in Article 30,", "7 percent by weight of the good;",
+         _headings("28-97")),
+        (2, "Notes 1 and 2 to paragraph (e)", "Note 1: the term “value of non-originating materials”",
+         "the value set out in paragraph 5 of that Article.", []),
+        (2, "paragraph (f)", "(f) (i) a good which is covered by Attachment A or B", _ITA_END, []),
+    ]},
+    "philippine2.pdf": {"label": "JP-Philippines EPA Annex 2 General Notes", "notes": [
+        (1, "paragraphs (b) and (c)", "(b) reference to weight in this Annex means dry weight",
+         "does not indicate priority of application;", []),
+        (1, "paragraph (f), introduction", "(f) Specific percentages referred to in Article 31,", "are as follows:",
+         _headings("28-97")),
+        (2, "paragraphs (f)(i) and (f)(ii)", "(i) in the case of a good provided for in chapter 28 through 49",
+         "7 percent by weight of the good;", _headings("28-97")),
+        (2, "Notes 1 and 2 to paragraph (f)", "Note 1: The term “value of non-originating materials”",
+         "the value set out in paragraph 5 of that Article.", []),
+        (2, "paragraph (g)", "(g) (i) a good which is covered by Attachment A or B", _ITA_END, []),
+    ]},
+    "mexico2.pdf": {"label": "JP-Mexico EPA Annex 4 General Interpretative Notes", "notes": [
+        (1, "paragraph (b)", "(b) a requirement of a change in tariff classification applies only to non-originating materials;",
+         "applies only to non-originating materials;", []),
+        (1, "paragraph (c)", "(c) reference to weight in the rules for goods provided for in chapter 1 through 24", _WEIGHT,
+         _headings("01-24")),
+        (1, "paragraph (f)", "(f) the goods classified on Chapter 61, 62 or 63 and exported from Mexico to Japan",
+         "calculated on a F.O.B. basis:", _headings("61-63")),
+        (2, "paragraphs (f)(i) to (f)(iii)", "(i) 61.01 – 61.17 A change to heading 61.01 through 61.17 from any other chapter;",
+         "63.10 from any other chapter; and", _headings("61-63")),
+        (2, "paragraph (g)", "(g) paragraph (f) above shall be implemented in accordance with",
+         "management of such allocation.", _headings("61-63")),
+    ]},
+    "chile2.pdf": {"label": "JP-Chile EPA Annex 2 General Notes", "notes": [
+        (1, "paragraphs (b) and (c)", "(b) reference to weight in this Annex means dry weight",
+         "applies only to non-originating materials;", []),
+        (1, "paragraph (d), Build-down and Build-up methods",
+         "the term “Build-down method” means the method referred to in subparagraph 1(a) of Article 30;",
+         "subparagraph 1(b) of Article 30;", []),
+        (2, "paragraph (f)", "(f) specific percentages referred to in Article 32,", "7 percent by weight of the good.", _CHILE_F),
+        (2, "Notes 1 and 2 to paragraph (f)", "Note 1: The term “value of non-originating materials”",
+         "the value set out in paragraph 2 of that Article.", []),
+    ]},
+    "vietnam2.pdf": {"label": "JP-Vietnam EPA Annex 2", "notes": [
+        (1, "paragraph 1", "1. For the purposes of the product specific rules set out in this Annex and the Attachment to Annex 3, the term:",
+         "as defined in Article 25.", []),
+        (1, "paragraph 3", "3. For the purposes of subparagraph 1(b) of Article 28, the following shall apply:",
+         "10 percent of the FOB; and", _headings("090121-090122", "180310-180320", "180500", "210390")),
+        (2, "paragraph 3(b)", "(b) in the case of a good classified under subheading 2103.90", "seven percent of the FOB.",
+         _headings("210390")),
+    ]},
+    "switzerland3.pdf": {"label": "JP-Switzerland EPA Appendix 1 to Annex II Introductory Notes", "notes": [
+        (1, "paragraph 1(a)", "1. For the purposes of the product specific rules set out in this Appendix:",
+         "as defined in Article III of Annex II;", []),
+        (2, "paragraph 1(b)", "(b) In determining the origin of a product classified under chapters 61 to 63,",
+         "whether or not they contain textiles.", _headings("61-63")),
+    ]},
+    "tpp2.pdf": {"label": "CPTPP Annex 3-D Section A General Interpretative Notes", "notes": [
+        (2, "paragraphs 3(c) to 3(g)", "(c) the requirement of a change in tariff classification shall apply only to non-originating materials;",
+         "within the group.", []),
+    ]},
+    "tpp5.pdf": {"label": "CPTPP Annex 4-A Section A General Interpretative Notes", "notes": [
+        (2, "paragraphs 3(c) to 3(g)", "(c) the requirement of a change in tariff classification shall apply only to non-originating materials;",
+         "rules of origin set out in this Annex.", []),
+    ]},
+}
+
+
+def quote_general(text, start, end):
+    """The verbatim chunk of a normalised page from a unique start to the end
+    words, which must occur exactly once after the start."""
+    if text.count(start) != 1:
+        raise ValueError(f"start {start!r} is not unique on its page")
+    i = text.index(start)
+    if end not in text[i:] or text[i:].count(end) != 1:
+        raise ValueError(f"end {end!r} does not occur exactly once after the start")
+    return text[i:text.index(end, i) + len(end)]
+
+
+def general_notes(path, filename):
+    spec = GENERAL_NOTES[filename]
+    notes = []
+    with pdfplumber.open(path) as pdf:
+        for page_number, label, start, end, applies in spec["notes"]:
+            page = pdf.pages[page_number - 1]
+            note = {
+                "scope": "schedule", "key": "",
+                "text": quote_general(normalize(page.extract_text()), start, end),
+                "page": page_number,
+                "source_url": URLS.get(filename, BASE + filename),
+                "citation": f"{spec['label']}, {label}",
+            }
+            if applies:
+                note["applies"] = applies
+            notes.append(note)
+            page.close()
+    return notes
+
+
 COLUMN_HEADER = re.compile(r"^(?:\(HS ?\d{4}\)|HS Classification|Product Specific Rule)", re.I)
 # A rule that ends like this is cut short (end of a page-broken cell).
 DANGLING = re.compile(r"(?:^|[\s,])(?:through|to|from|or|and|than|of|the|any)$|[,-]$", re.I)
@@ -1198,6 +1349,8 @@ def main():
         rows, notes = extract(path, filename)
         if not rows:
             raise ValueError(f"{filename}: no rules extracted")
+        if filename in GENERAL_NOTES:
+            notes += general_notes(path, filename)
         if filename in ANNEX_3A:
             notes += annex_3a_notes(annex_path(args.pdf_directory, ANNEX_3A[filename]["pdf"]), filename)
         sources.append({

@@ -89,6 +89,7 @@ func TestSwiss3501To3505Split(t *testing.T) {
 		"3505.20": "CC except from chapter 11.",
 	} {
 		r := lookupReason(t, table, "JP-Switzerland EPA", hs, "2024-04-16")
+		r.Evidence = ruleEvidence(r.Evidence)
 		if r.Reason != ReasonPSR || len(r.Evidence) != 1 || r.Evidence[0].Text != want || !strings.HasSuffix(r.Evidence[0].Citation, "PDF page 10") {
 			t.Errorf("%s: %v %+v", hs, r.Reason, r.Evidence)
 		}

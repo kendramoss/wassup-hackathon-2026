@@ -349,5 +349,72 @@ class Annex3A(unittest.TestCase):
         self.assertEqual(notes, [])
 
 
+class GeneralNotes(unittest.TestCase):
+    """General Notes of the text-layer Annexes (build_psr.GENERAL_NOTES)."""
+
+    TARGETS = {
+        "thailand2-2.pdf": 7, "indonesia2-2.pdf": 13, "malaysia2.pdf": 4, "philippine2.pdf": 5,
+        "mexico2.pdf": 5, "chile2.pdf": 4, "vietnam2.pdf": 3, "switzerland3.pdf": 2,
+        "tpp2.pdf": 1, "tpp5.pdf": 1,
+    }
+
+    def test_quote_general_is_verbatim_between_unique_anchors(self):
+        page = "Intro (a) one; (b) two; (c) three. 7"
+        self.assertEqual(b.quote_general(page, "(b) two;", "two;"), "(b) two;")
+        self.assertEqual(b.quote_general(page, "(a) one;", "three."), "(a) one; (b) two; (c) three.")
+
+    def test_quote_general_rejects_ambiguous_or_missing_anchors(self):
+        with self.assertRaises(ValueError):
+            b.quote_general("x; y; x; y;", "x;", "y;")  # start twice
+        with self.assertRaises(ValueError):
+            b.quote_general("a b c b", "a", "b")  # end twice after the start
+        with self.assertRaises(ValueError):
+            b.quote_general("a b", "a", "zzz")
+        with self.assertRaises(ValueError):
+            b.quote_general("end a", "a", "end")  # end before the start
+
+    def test_every_target_has_a_pinned_reviewed_spec(self):
+        self.assertEqual({f: len(v["notes"]) for f, v in b.GENERAL_NOTES.items()}, self.TARGETS)
+        for filename, spec in b.GENERAL_NOTES.items():
+            self.assertIn(filename, b.DIGESTS)
+            self.assertTrue(spec["label"].endswith(("General Notes", "General Interpretative Notes", "Annex 2", "Introductory Notes")))
+            keys = [(page, label) for page, label, *_ in spec["notes"]]
+            self.assertEqual(len(keys), len(set(keys)), "labels are unique per page")
+            pages = [n[0] for n in spec["notes"]]
+            self.assertEqual(pages, sorted(pages))
+            for page, label, start, end, applies in spec["notes"]:
+                self.assertGreaterEqual(page, 1)
+                self.assertTrue(start and end and label)
+                for lo, hi in applies:
+                    self.assertTrue(lo.isdigit() and len(lo) == len(hi) and 2 <= len(lo) <= 6 and lo <= hi)
+
+    def test_general_notes_are_not_attached_to_other_pdfs(self):
+        for filename in b.ANNEX_3A:
+            self.assertNotIn(filename, b.GENERAL_NOTES)
+        self.assertNotIn("australia2.pdf", b.GENERAL_NOTES)
+
+
+@unittest.skipUnless(os.environ.get("JP_PDF_DIR"), "set JP_PDF_DIR to the directory holding the Annex PDFs")
+class GeneralNotesPdfTruth(unittest.TestCase):
+    """Pinned to the official PDFs (digest checked): text, page, citation, source."""
+
+    def test_every_note_is_a_verbatim_page_chunk_of_its_own_pdf(self):
+        import hashlib
+        for filename, count in GeneralNotes.TARGETS.items():
+            path = os.path.join(os.environ["JP_PDF_DIR"], filename)
+            with open(path, "rb") as f:
+                self.assertEqual(hashlib.sha256(f.read()).hexdigest(), b.DIGESTS[filename], filename)
+            notes = b.general_notes(path, filename)
+            spec = b.GENERAL_NOTES[filename]
+            self.assertEqual(len(notes), count, filename)
+            for note, (page, label, start, end, applies) in zip(notes, spec["notes"]):
+                self.assertTrue(note["text"].startswith(start) and note["text"].endswith(end), (filename, label))
+                self.assertEqual((note["scope"], note["key"], note["page"]), ("schedule", "", page))
+                self.assertEqual(note["source_url"], b.URLS.get(filename, b.BASE + filename))
+                self.assertEqual(note["citation"], f"{spec['label']}, {label}")
+                self.assertEqual(note.get("applies", []), [list(a) for a in applies])
+                self.assertNotIn("  ", note["text"])
+
+
 if __name__ == "__main__":
     unittest.main()

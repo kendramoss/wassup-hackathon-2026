@@ -108,6 +108,7 @@ func TestMalaysiaSplitRowRepaired(t *testing.T) {
 		t.Fatalf("PDF page 28 row must be one complete rule, got %+v", rows)
 	}
 	ev, err := table.Lookup("JP-Malaysia EPA", "3824.90", correlationDate)
+	ev = ruleEvidence(ev)
 	if err != nil || len(ev) != 1 || ev[0].Text != malaysia3824Rule {
 		t.Fatalf("got %v, %v", ev, err)
 	}

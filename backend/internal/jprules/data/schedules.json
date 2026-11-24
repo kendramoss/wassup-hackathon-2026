@@ -7145,6 +7145,14 @@
     "key": "63",
     "text": "Chapter Note 1: For the purposes of determining whether a good of this chapter is originating, the rule applicable to that good shall only apply to the component that determines the tariff classification of the good and such component must satisfy the requirements of the change in tariff classification set out in the rule for that good. Chapter Note 2: Notwithstanding Chapter Note 1, a good of this chapter containing sewing thread of heading 52.04, 54.01 or 55.08, or yarn of heading 54.02 used as sewing thread is originating only if such sewing thread is wholly formed in the territory of one or more of the Parties.",
     "page": 15
+   },
+   {
+    "scope": "schedule",
+    "key": "",
+    "text": "(c) the requirement of a change in tariff classification shall apply only to non-originating materials; (d) if a product-specific rule of origin excludes certain materials of the Harmonized System, it shall be construed to mean that the product-specific rule of origin requires that the excluded materials be originating for the good to be originating; (e) if a good is subject to a product-specific rule of origin that includes multiple requirements, the good shall be originating only if it satisfies all of the requirements; (f) if a single product-specific rule of origin applies to a group of headings or subheadings and that rule of origin specifies a change of heading or subheading, it shall be understood that the change in heading or subheading may occur from any other heading or subheading, as the case may be, including from any other heading or subheading within the group; and (g) the Short Supply List of Products, set out as Appendix 1 to this Annex, is read in conjunction with the product-specific rules of origin set out in this Annex.",
+    "page": 2,
+    "source_url": "https://www.customs.go.jp/roo/english/text/tpp5.pdf",
+    "citation": "CPTPP Annex 4-A Section A General Interpretative Notes, paragraphs 3(c) to 3(g)"
    }
   ]
  },
@@ -14183,6 +14191,14 @@
     "key": "96",
     "text": "Chapter Note: The product-specific rules of origin for goods of heading 96.19 of textile material are contained in Annex 4-A (Textiles and Apparel Product-Specific Rules of Origin).",
     "page": 206
+   },
+   {
+    "scope": "schedule",
+    "key": "",
+    "text": "(c) the requirement of a change in tariff classification shall apply only to non-originating materials; (d) if a product-specific rule of origin excludes certain materials of the Harmonized System, it shall be construed to mean that the product-specific rule of origin requires that the excluded materials be originating for the good to be originating; (e) if a good is subject to alternative product-specific rules of origin, the good shall be originating if it satisfies one of the alternatives; (f) if a good is subject to a product-specific rule of origin that includes multiple requirements, the good shall be originating only if it satisfies all of the requirements; and (g) if a single product-specific rule of origin applies to a group of headings or subheadings and that rule of origin specifies a change of heading or subheading, it shall be understood that the change in heading or subheading may occur from any other heading or subheading, as the case may be, including from any other heading or subheading within the group.",
+    "page": 2,
+    "source_url": "https://www.customs.go.jp/roo/english/text/tpp2.pdf",
+    "citation": "CPTPP Annex 3-D Section A General Interpretative Notes, paragraphs 3(c) to 3(g)"
    }
   ]
  },
@@ -25094,6 +25110,78 @@
       "8704"
      ]
     ]
+   },
+   {
+    "scope": "schedule",
+    "key": "",
+    "text": "(b) a requirement of a change in tariff classification or a specific manufacturing or processing operation applies only to non-originating materials; (c) reference to weight in this Annex means dry weight unless otherwise specified in the Harmonized System;",
+    "page": 1,
+    "source_url": "https://www.customs.go.jp/roo/english/text/thailand2-2.pdf",
+    "citation": "JP-Thailand EPA Annex 2 General Notes, paragraphs (b) and (c)"
+   },
+   {
+    "scope": "schedule",
+    "key": "",
+    "text": "(v) the term “QVC 40” means that the good has a qualifying value content, calculated using the formula set out in paragraph 4 of Article 28, of not less than 40 per cent, and the final process of production has been performed in a Party;",
+    "page": 1,
+    "source_url": "https://www.customs.go.jp/roo/english/text/thailand2-2.pdf",
+    "citation": "JP-Thailand EPA Annex 2 General Notes, paragraph (d)(v)"
+   },
+   {
+    "scope": "schedule",
+    "key": "",
+    "text": "(vi) the term “CC” denotes a change to the chapter, heading or subheading from any other chapter. This means that all non-originating materials used in the production of the good have undergone a change in tariff classification at the two-digit level (i.e. a change in chapter) of the Harmonized System; (vii) the term “CTH” denotes a change to the chapter, heading or subheading from any other heading. This means that all non-originating materials used in the production of the good have undergone a change in tariff classification at the four-digit level (i.e. a change in heading) of the Harmonized System; (viii) the term “CTSH” denotes a change to the chapter, heading or subheading from any other subheading. This means that all non-originating materials used in the production of the good have undergone a change in tariff classification at the six-digit level (i.e. a change in subheading) of the Harmonized System; and (ix) the term “WO” means that the good is wholly obtained or produced entirely in a Party as defined in paragraph 2 of Article 28;",
+    "page": 2,
+    "source_url": "https://www.customs.go.jp/roo/english/text/thailand2-2.pdf",
+    "citation": "JP-Thailand EPA Annex 2 General Notes, paragraphs (d)(vi) to (d)(ix)"
+   },
+   {
+    "scope": "schedule",
+    "key": "",
+    "text": "(f) specific percentages referred to in Article 30, which relate to the total value or the total weight of non-originating materials used in the production of a good that do not undergo an applicable change in tariff classification, are as follows: (i) in the case of a good provided for in chapters 19 through 24 of the Harmonized System, seven per cent in value of the good; (ii) in the case of a good provided for in chapters 28 through 49 and 64 through 97 of the Harmonized System, 10 per cent in value of the good; and",
+    "page": 2,
+    "source_url": "https://www.customs.go.jp/roo/english/text/thailand2-2.pdf",
+    "citation": "JP-Thailand EPA Annex 2 General Notes, paragraph (f)",
+    "applies": [
+     [
+      "19",
+      "24"
+     ],
+     [
+      "28",
+      "97"
+     ]
+    ]
+   },
+   {
+    "scope": "schedule",
+    "key": "",
+    "text": "(iii) in the case of a good provided for in chapters 50 through 63 of the Harmonized System, 10 per cent by weight of the good; and",
+    "page": 3,
+    "source_url": "https://www.customs.go.jp/roo/english/text/thailand2-2.pdf",
+    "citation": "JP-Thailand EPA Annex 2 General Notes, paragraph (f)(iii)",
+    "applies": [
+     [
+      "50",
+      "63"
+     ]
+    ]
+   },
+   {
+    "scope": "schedule",
+    "key": "",
+    "text": "Note 1: The term “value of non-originating materials” means the value determined in accordance with paragraph 6 of Article 28. Note 2: The term “value of the good” means the free-on-board value of the good referred to in subparagraph 4(b) of Article 28 or the value provided for in paragraph 5 of that Article.",
+    "page": 3,
+    "source_url": "https://www.customs.go.jp/roo/english/text/thailand2-2.pdf",
+    "citation": "JP-Thailand EPA Annex 2 General Notes, Notes 1 and 2 to paragraph (f)"
+   },
+   {
+    "scope": "schedule",
+    "key": "",
+    "text": "(g) a good which is covered by Attachment A or B of the Ministerial Declaration on Trade in Information Technology Products adopted in the Ministerial Conference of the World Trade Organization on 13 December 1996 and is used as a material in the production of another good in a Party may be considered as an originating material of the Party, regardless of the applicable product specific rule for the former good, provided that the former good is assembled in either Party, except where the former good is classified in subheadings 8541.10 through 8542.90.",
+    "page": 3,
+    "source_url": "https://www.customs.go.jp/roo/english/text/thailand2-2.pdf",
+    "citation": "JP-Thailand EPA Annex 2 General Notes, paragraph (g)"
    }
   ]
  },
@@ -27362,7 +27450,216 @@
     "text": "CTSH or QVC 40"
    }
   ],
-  "notes": []
+  "notes": [
+   {
+    "scope": "schedule",
+    "key": "",
+    "text": "(b) reference to weight in this Annex means dry weight unless otherwise specified in the Harmonized System;",
+    "page": 1,
+    "source_url": "https://www.customs.go.jp/roo/text/indonesia2-2.pdf",
+    "citation": "JP-Indonesia EPA Annex 2 General Notes, paragraph (b)"
+   },
+   {
+    "scope": "schedule",
+    "key": "",
+    "text": "(d) where a specific rule of origin is defined using the criterion of a change in tariff classification (hereinafter referred to in this Annex as “CTC”), as set out in subparagraphs (e)(i) through (iii), each of the non-originating materials used in the production of the good shall be required to undergo the applicable CTC. A requirement of a CTC shall apply only to non-originating materials; (e) the following abbreviations apply: (i) the term “CC” denotes a change to the chapter, heading or subheading from any other chapter. This means that all non-originating materials used in the production of the good have undergone a CTC at the two-digit level (i.e. a change in chapter) of the Harmonized System; (ii) the term “CTH” denotes a change to the chapter, heading or subheading from any other heading. This means that all non-originating materials used in the production of the good have undergone a CTC at the four-digit level (i.e. a change in heading) of the Harmonized System;",
+    "page": 1,
+    "source_url": "https://www.customs.go.jp/roo/text/indonesia2-2.pdf",
+    "citation": "JP-Indonesia EPA Annex 2 General Notes, paragraphs (d), (e)(i) and (e)(ii)"
+   },
+   {
+    "scope": "schedule",
+    "key": "",
+    "text": "(iii) the term “CTSH” denotes a change to the chapter, heading or subheading from any other subheading. This means that all non-originating materials used in the production of the good have undergone a CTC at the six-digit level (i.e. a change in subheading) of the Harmonized System; and (iv) the term “QVC 40” or “QVC 50” respectively means that the good has a qualifying value content, calculated using the formula set out in subparagraph 4(b) of Article 29, of not less than 40 percent or 50 percent, and the final process of production has been performed in a Party;",
+    "page": 2,
+    "source_url": "https://www.customs.go.jp/roo/text/indonesia2-2.pdf",
+    "citation": "JP-Indonesia EPA Annex 2 General Notes, paragraphs (e)(iii) and (e)(iv)"
+   },
+   {
+    "scope": "schedule",
+    "key": "",
+    "text": "(g) specific percentages referred to in Article 31, which relate to the total value or the total weight of non-originating materials used in the production of a good that do not undergo an applicable change in tariff classification, are as follows: (i) in the case of a good provided for in chapters 28 through 49 and 64 through 97 of the Harmonized System, 10 percent in value of the good; and (ii) in the case of a good provided for in chapters 50 through 63 of the Harmonized System, seven percent by weight of the good;",
+    "page": 2,
+    "source_url": "https://www.customs.go.jp/roo/text/indonesia2-2.pdf",
+    "citation": "JP-Indonesia EPA Annex 2 General Notes, paragraph (g)",
+    "applies": [
+     [
+      "28",
+      "97"
+     ]
+    ]
+   },
+   {
+    "scope": "schedule",
+    "key": "",
+    "text": "Note 1: The term “value of non-originating materials” means the value determined in accordance with paragraph 6 of Article 29. Note 2: The term “value of the good” means the free-on-board value of the good referred to in subparagraph 4(b) of Article 29 or the value set out in paragraph 5 of that Article.",
+    "page": 2,
+    "source_url": "https://www.customs.go.jp/roo/text/indonesia2-2.pdf",
+    "citation": "JP-Indonesia EPA Annex 2 General Notes, Notes 1 and 2 to paragraph (g)"
+   },
+   {
+    "scope": "schedule",
+    "key": "",
+    "text": "(h) For the purposes of chapters 28 through 40 of the Harmonized System: (i) the term “chemical reaction” means a process, including a biochemical process, which results in a molecule with a new structure by breaking intramolecular bonds and by forming new intramolecular bonds, or by altering the spatial arrangement of atoms in a molecule, but does not include: (A) dissolving in water or other solvents; (B) the elimination of solvents including solvents water; or (C) the addition or elimination of water of crystallization;",
+    "page": 2,
+    "source_url": "https://www.customs.go.jp/roo/text/indonesia2-2.pdf",
+    "citation": "JP-Indonesia EPA Annex 2 General Notes, paragraph (h)(i)",
+    "applies": [
+     [
+      "28",
+      "40"
+     ]
+    ]
+   },
+   {
+    "scope": "schedule",
+    "key": "",
+    "text": "(ii) the term “purification” means a process of reduction or elimination of impurities resulting in: (A) the elimination of not less than 80 percent of the content of existing impurities; or (B) a good directly suitable for one or more of the following applications: (AA) pharmaceutical, medical, cosmetic, veterinary or food grade substances; (BB) chemical products and reagents for analytical, diagnostic or laboratory use; (CC) elements and components for use in micro-electronics; (DD) specialized optical use; (EE) biotechnical use; (FF) carriers used in a separation process; or (GG) nuclear grade use; (iii) the term “isomer separation” means a process of isolation or separation of an isomer from a mixture of isomers; and (iv) the term “biotechnological processes” means: (A) biological or biotechnological culturing, hybridization or genetic modification of micro-organisms or cells of human, animal or plant; or (B) production, isolation or purification of cellular or intercellular structures;",
+    "page": 3,
+    "source_url": "https://www.customs.go.jp/roo/text/indonesia2-2.pdf",
+    "citation": "JP-Indonesia EPA Annex 2 General Notes, paragraphs (h)(ii) to (h)(iv)",
+    "applies": [
+     [
+      "28",
+      "40"
+     ]
+    ]
+   },
+   {
+    "scope": "schedule",
+    "key": "",
+    "text": "(i) (i) For the purposes of chapters 50 through 55 and 60 of the Harmonized System, dyeing or printing process shall be accompanied by two or more of the following operations: (1) antibacterial finish; (2) antimelt finish;",
+    "page": 3,
+    "source_url": "https://www.customs.go.jp/roo/text/indonesia2-2.pdf",
+    "citation": "JP-Indonesia EPA Annex 2 General Notes, paragraph (i)(i)",
+    "applies": [
+     [
+      "50",
+      "55"
+     ],
+     [
+      "60",
+      "60"
+     ]
+    ]
+   },
+   {
+    "scope": "schedule",
+    "key": "",
+    "text": "(3) antimosquito finish; (4) anti-pilling finish; (5) antistatic finish; (6) artificial creasing; (7) bleaching; (8) brushing; (9) buff finish; (10) burn-out finish; (11) calendering; (12) compressive shrinkage; (13) crease resistant finish; (14) decatizing; (15) deodorant finish; (16) easy-care finish; (17) embossing; (18) emerizing; (19) flame resistant finish; (20) flock finish; (21) foam printing; (22) liquid ammonia process; (23) mercerization; (24) microbial control finish; (25) milling;",
+    "page": 4,
+    "source_url": "https://www.customs.go.jp/roo/text/indonesia2-2.pdf",
+    "citation": "JP-Indonesia EPA Annex 2 General Notes, paragraph (i)(i), items (3) to (25)",
+    "applies": [
+     [
+      "50",
+      "55"
+     ],
+     [
+      "60",
+      "60"
+     ]
+    ]
+   },
+   {
+    "scope": "schedule",
+    "key": "",
+    "text": "(26) moare finishing; (27) moisture permeable waterproofing; (28) oil-repellent finish; (29) organdie finish; (30) peeling treatment; (31) perfumed finish; (32) relaxation; (33) ripple finish; (34) schreiner finish; (35) shearing; (36) shrink resistant finish; (37) soil guard finish; (38) soil release finish; (39) stretch finish; (40) tick-proofing; (41) UV cut finish; (42) wash and wear finish; (43) water absorbent finish; (44) waterproofing; (45) water-repellent finish; (46) wet decatizing; (47) windbreak finish; or (48) wire raising;",
+    "page": 5,
+    "source_url": "https://www.customs.go.jp/roo/text/indonesia2-2.pdf",
+    "citation": "JP-Indonesia EPA Annex 2 General Notes, paragraph (i)(i), items (26) to (48)",
+    "applies": [
+     [
+      "50",
+      "55"
+     ],
+     [
+      "60",
+      "60"
+     ]
+    ]
+   },
+   {
+    "scope": "schedule",
+    "key": "",
+    "text": "(ii) For the purposes of headings 50.07, 51.11 through 51.13, 52.04 through 52.12, 53.09 through 53.11, 54.07, 54.08, 55.08 through 55.16, 56.04 through 56.09, 59.02, 59.10, chapters 57, 58 and 60 through 63, a non-originating material which is carded or combed, spun, dyed or printed, woven, or knitted or crocheted entirely in the other Party or a non-Party which is a member country of the ASEAN shall be transported to the Party where the non-originating material is used for the production of a good: (A) directly from that other Party or that non-Party; or (B) through one or more non-Parties for the purpose of transit or temporary storage in warehouses in such non-Parties, provided that it does not undergo operations other than unloading, reloading or any other operation to preserve it in good condition;",
+    "page": 6,
+    "source_url": "https://www.customs.go.jp/roo/text/indonesia2-2.pdf",
+    "citation": "JP-Indonesia EPA Annex 2 General Notes, paragraph (i)(ii)",
+    "applies": [
+     [
+      "5007",
+      "5007"
+     ],
+     [
+      "5111",
+      "5113"
+     ],
+     [
+      "5204",
+      "5212"
+     ],
+     [
+      "5309",
+      "5311"
+     ],
+     [
+      "5407",
+      "5407"
+     ],
+     [
+      "5408",
+      "5408"
+     ],
+     [
+      "5508",
+      "5516"
+     ],
+     [
+      "5604",
+      "5609"
+     ],
+     [
+      "5902",
+      "5902"
+     ],
+     [
+      "5910",
+      "5910"
+     ],
+     [
+      "57",
+      "58"
+     ],
+     [
+      "60",
+      "63"
+     ]
+    ]
+   },
+   {
+    "scope": "schedule",
+    "key": "",
+    "text": "(iii) For the purposes of determining the origin of a good of chapters 61 through 63, the rule applicable to that good shall only apply to the component that determines the tariff classification of the good and such component must satisfy the tariff change requirements set out in the rule for that good;",
+    "page": 6,
+    "source_url": "https://www.customs.go.jp/roo/text/indonesia2-2.pdf",
+    "citation": "JP-Indonesia EPA Annex 2 General Notes, paragraph (i)(iii)",
+    "applies": [
+     [
+      "61",
+      "63"
+     ]
+    ]
+   },
+   {
+    "scope": "schedule",
+    "key": "",
+    "text": "(j) (i) a good which is covered by Attachment A or B of the Ministerial Declaration on Trade in Information Technology Products adopted in the Ministerial Conference of the World Trade Organization on December 13, 1996 and is used as a material in the production of another good in a Party may be considered as an originating material of the Party, regardless of the applicable product specific rule for the former good, provided that the former good is assembled in either Party; and (ii) subparagraph (i) shall not apply to a good which is classified in subheading 8541.10 through 8542.90.",
+    "page": 6,
+    "source_url": "https://www.customs.go.jp/roo/text/indonesia2-2.pdf",
+    "citation": "JP-Indonesia EPA Annex 2 General Notes, paragraph (j)"
+   }
+  ]
  },
  {
   "agreement": "JP-Australia EPA",
@@ -55130,7 +55427,56 @@
     "description": "- Other lighters"
    }
   ],
-  "notes": []
+  "notes": [
+   {
+    "scope": "schedule",
+    "key": "",
+    "text": "1. For the purposes of the product specific rules set out in this Annex and the Attachment to Annex 3, the term: (a) “LVC 40%” means that the good has a local value content, calculated using the formula set out in Article 27, of not less than 40 percent, and the final process of production has been performed in a Party; Note: For the purposes of this Annex, subparagraph 2(a) of Article 27 shall apply. (b) “CC” denotes a change to the chapter, heading or subheading from any other chapter. This means that all non-originating materials used in the production of the good have undergone a change in tariff classification at the 2-digit level (i.e. a change in chapter) of the HS; (c) “CTH” denotes a change to the chapter, heading or subheading from any other heading. This means that all non-originating materials used in the production of the good have undergone a change in tariff classification at the 4-digit level (i.e. a change in heading) of the HS; (d) “CTSH” denotes a change to the chapter, heading or subheading from any other subheading. This means that all non-originating materials used in the production of the good have undergone a change in tariff classification at the 6-digit level (i.e. a change in subheading) of the HS; and (e) “WO” means that the good is wholly obtained or produced entirely in a Party as defined in Article 25.",
+    "page": 1,
+    "source_url": "https://www.customs.go.jp/roo/english/text/vietnam2.pdf",
+    "citation": "JP-Vietnam EPA Annex 2, paragraph 1"
+   },
+   {
+    "scope": "schedule",
+    "key": "",
+    "text": "3. For the purposes of subparagraph 1(b) of Article 28, the following shall apply: (a) in the case of a good classified under subheadings 0901.21, 0901.22, 1803.10, 1803.20, and 1805.00 of the HS, the total value of non-originating materials used in its production that have not undergone the required CTC does not exceed 10 percent of the FOB; and",
+    "page": 1,
+    "source_url": "https://www.customs.go.jp/roo/english/text/vietnam2.pdf",
+    "citation": "JP-Vietnam EPA Annex 2, paragraph 3",
+    "applies": [
+     [
+      "090121",
+      "090122"
+     ],
+     [
+      "180310",
+      "180320"
+     ],
+     [
+      "180500",
+      "180500"
+     ],
+     [
+      "210390",
+      "210390"
+     ]
+    ]
+   },
+   {
+    "scope": "schedule",
+    "key": "",
+    "text": "(b) in the case of a good classified under subheading 2103.90 of the HS, the total value of non-originating materials used in its production that have not undergone the required CTC does not exceed seven percent of the FOB.",
+    "page": 2,
+    "source_url": "https://www.customs.go.jp/roo/english/text/vietnam2.pdf",
+    "citation": "JP-Vietnam EPA Annex 2, paragraph 3(b)",
+    "applies": [
+     [
+      "210390",
+      "210390"
+     ]
+    ]
+   }
+  ]
  },
  {
   "agreement": "JP-Malaysia EPA",
@@ -57301,6 +57647,44 @@
     "key": "XI",
     "text": "Note: For the purposes of determining the origin of a good of this chapter, the rule applicable to that good shall only apply to the component that determines the tariff classification of the good and such component must satisfy the tariff change requirements set out in the rule for that good.",
     "page": 45
+   },
+   {
+    "scope": "schedule",
+    "key": "",
+    "text": "(b) reference to weight in this Annex means dry weight unless otherwise specified in the Harmonized System;",
+    "page": 1,
+    "source_url": "https://www.customs.go.jp/roo/english/text/malaysia2.pdf",
+    "citation": "JP-Malaysia EPA Annex 2 General Notes, paragraph (b)"
+   },
+   {
+    "scope": "schedule",
+    "key": "",
+    "text": "(e) Specific percentages referred to in Article 30, which relate to the total value and the total weight of non-originating materials used in the production of a good provided for in Chapter 28 through 97 of the Harmonized System, that do not undergo an applicable change in tariff classification, are as follows: (i) in the case of a good provided for in Chapter 28 through 49 and 64 through 97 of the Harmonized System, 10 percent in value of the good; and (ii) in the case of a good provided for in Chapter 50 through 63 of the Harmonized System, 7 percent by weight of the good;",
+    "page": 1,
+    "source_url": "https://www.customs.go.jp/roo/english/text/malaysia2.pdf",
+    "citation": "JP-Malaysia EPA Annex 2 General Notes, paragraph (e)",
+    "applies": [
+     [
+      "28",
+      "97"
+     ]
+    ]
+   },
+   {
+    "scope": "schedule",
+    "key": "",
+    "text": "Note 1: the term “value of non-originating materials” means the value determined in accordance with paragraph 6 of Article 28. Note 2: the term “value of the good” means the free-on-board value of the good referred to in subparagraph 4(b) of Article 28 or the value set out in paragraph 5 of that Article.",
+    "page": 2,
+    "source_url": "https://www.customs.go.jp/roo/english/text/malaysia2.pdf",
+    "citation": "JP-Malaysia EPA Annex 2 General Notes, Notes 1 and 2 to paragraph (e)"
+   },
+   {
+    "scope": "schedule",
+    "key": "",
+    "text": "(f) (i) a good which is covered by Attachment A or B of the Ministerial Declaration on Trade in Information Technology Products adopted in the Ministerial Conference of the World Trade Organization on 13 December 1996 and is used as a material in the production of another good in the territory of a Country may be considered as an originating material of the Country, regardless of the applicable product specific rule for the former good, provided that the former good is assembled in the territory of either Country; and (ii) notwithstanding subparagraph (i), where the good covered by Attachment A or B of the Declaration referred to in the said subparagraph is classified in subheading 8541.10 through 8542.90, all the non-originating materials used in the production of the good shall undergo change in tariff classification to subheading 8541.10 through 8542.90 from any other subheading.",
+    "page": 2,
+    "source_url": "https://www.customs.go.jp/roo/english/text/malaysia2.pdf",
+    "citation": "JP-Malaysia EPA Annex 2 General Notes, paragraph (f)"
    }
   ]
  },
@@ -62641,6 +63025,70 @@
     "key": "XVIII",
     "text": "Note: The origin of the goods of chapter 90 shall be determined without regard to the origin of any automatic data processing machines or units thereof of heading 84.71, or parts and accessories thereof of heading 84.73, which may be included therewith.",
     "page": 100
+   },
+   {
+    "scope": "schedule",
+    "key": "",
+    "text": "(b) a requirement of a change in tariff classification applies only to non-originating materials;",
+    "page": 1,
+    "source_url": "https://www.customs.go.jp/roo/english/text/mexico2.pdf",
+    "citation": "JP-Mexico EPA Annex 4 General Interpretative Notes, paragraph (b)"
+   },
+   {
+    "scope": "schedule",
+    "key": "",
+    "text": "(c) reference to weight in the rules for goods provided for in chapter 1 through 24 of the Harmonized System means dry weight unless otherwise specified in the Harmonized System;",
+    "page": 1,
+    "source_url": "https://www.customs.go.jp/roo/english/text/mexico2.pdf",
+    "citation": "JP-Mexico EPA Annex 4 General Interpretative Notes, paragraph (c)",
+    "applies": [
+     [
+      "01",
+      "24"
+     ]
+    ]
+   },
+   {
+    "scope": "schedule",
+    "key": "",
+    "text": "(f) the goods classified on Chapter 61, 62 or 63 and exported from Mexico to Japan that do not satisfy its corresponding specific rules of origin set out in Section 2 of this Annex, but that satisfy the specific rules of origin set out in subparagraph (i), (ii) or (iii) below in the Area of Mexico and any other applicable requirement of Chapter 4, shall be considered as originating, for an annual aggregate value of such goods in total imported to Japan of 200,000,000 United States dollars calculated on a F.O.B. basis:",
+    "page": 1,
+    "source_url": "https://www.customs.go.jp/roo/english/text/mexico2.pdf",
+    "citation": "JP-Mexico EPA Annex 4 General Interpretative Notes, paragraph (f)",
+    "applies": [
+     [
+      "61",
+      "63"
+     ]
+    ]
+   },
+   {
+    "scope": "schedule",
+    "key": "",
+    "text": "(i) 61.01 – 61.17 A change to heading 61.01 through 61.17 from any other chapter; (ii) 62.01 – 62.17 A change to heading 62.01 through 62.17 from any other chapter; or (iii) 63.01 – 63.10 A change to heading 63.01 through 63.10 from any other chapter; and",
+    "page": 2,
+    "source_url": "https://www.customs.go.jp/roo/english/text/mexico2.pdf",
+    "citation": "JP-Mexico EPA Annex 4 General Interpretative Notes, paragraphs (f)(i) to (f)(iii)",
+    "applies": [
+     [
+      "61",
+      "63"
+     ]
+    ]
+   },
+   {
+    "scope": "schedule",
+    "key": "",
+    "text": "(g) paragraph (f) above shall be implemented in accordance with the provisions of the Uniform Regulations referred to in Article 10. For the purposes of paragraph (f) above, Mexico shall implement and manage the allocation of the aggregate value referred to in paragraph (f) above. On the request of either Party, the Parties shall consult as soon as possible to resolve any matter arising related to the implementation and management of such allocation.",
+    "page": 2,
+    "source_url": "https://www.customs.go.jp/roo/english/text/mexico2.pdf",
+    "citation": "JP-Mexico EPA Annex 4 General Interpretative Notes, paragraph (g)",
+    "applies": [
+     [
+      "61",
+      "63"
+     ]
+    ]
    }
   ]
  },
@@ -67065,6 +67513,58 @@
     "key": "XI",
     "text": "Note: For the purposes of determining the origin of a good of this chapter, the rule applicable to that good shall only apply to the component that determines the tariff classification of the good and such component must satisfy the tariff change requirements set out in the rule for that good.",
     "page": 44
+   },
+   {
+    "scope": "schedule",
+    "key": "",
+    "text": "(b) reference to weight in this Annex means dry weight unless otherwise specified in the Harmonized System; (c) where the specific set of rules provides for more than one rule to be selectively applied, the order of the description of the rules does not indicate priority of application;",
+    "page": 1,
+    "source_url": "https://www.customs.go.jp/roo/english/text/philippine2.pdf",
+    "citation": "JP-Philippines EPA Annex 2 General Notes, paragraphs (b) and (c)"
+   },
+   {
+    "scope": "schedule",
+    "key": "",
+    "text": "(f) Specific percentages referred to in Article 31, which relate to the total value or the total weight of non-originating materials used in the production of a good that do not undergo an applicable change in tariff classification, are as follows:",
+    "page": 1,
+    "source_url": "https://www.customs.go.jp/roo/english/text/philippine2.pdf",
+    "citation": "JP-Philippines EPA Annex 2 General Notes, paragraph (f), introduction",
+    "applies": [
+     [
+      "28",
+      "97"
+     ]
+    ]
+   },
+   {
+    "scope": "schedule",
+    "key": "",
+    "text": "(i) in the case of a good provided for in chapter 28 through 49 and 64 through 97 of the Harmonized System, 10 percent in value of the good; and (ii) in the case of a good provided for in chapter 50 through 63 of the Harmonized System, 7 percent by weight of the good;",
+    "page": 2,
+    "source_url": "https://www.customs.go.jp/roo/english/text/philippine2.pdf",
+    "citation": "JP-Philippines EPA Annex 2 General Notes, paragraphs (f)(i) and (f)(ii)",
+    "applies": [
+     [
+      "28",
+      "97"
+     ]
+    ]
+   },
+   {
+    "scope": "schedule",
+    "key": "",
+    "text": "Note 1: The term “value of non-originating materials” means the value determined in accordance with paragraph 6 of Article 29. Note 2: The term “value of the good” means the free-on-board value of the good referred to in subparagraph 4(b) of Article 29 or the value set out in paragraph 5 of that Article.",
+    "page": 2,
+    "source_url": "https://www.customs.go.jp/roo/english/text/philippine2.pdf",
+    "citation": "JP-Philippines EPA Annex 2 General Notes, Notes 1 and 2 to paragraph (f)"
+   },
+   {
+    "scope": "schedule",
+    "key": "",
+    "text": "(g) (i) a good which is covered by Attachment A or B of the Ministerial Declaration on Trade in Information Technology Products adopted in the Ministerial Conference of the World Trade Organization on 13 December, 1996 and is used as a material in the production of another good in a Party may be considered to be an originating material of the Party, regardless of the applicable product specific rule for the former good, provided that the former good is assembled in either Party; and (ii) notwithstanding subparagraph (i) above, where the good covered by Attachment A or B of the Declaration referred to in the said subparagraph is classified in subheading 8541.10 through 8542.90, all non-originating materials used in the production of the good shall undergo change in tariff classification to subheading 8541.10 through 8542.90 from any other subheading.",
+    "page": 2,
+    "source_url": "https://www.customs.go.jp/roo/english/text/philippine2.pdf",
+    "citation": "JP-Philippines EPA Annex 2 General Notes, paragraph (g)"
    }
   ]
  },
@@ -67425,7 +67925,30 @@
     "blocked": true
    }
   ],
-  "notes": []
+  "notes": [
+   {
+    "scope": "schedule",
+    "key": "",
+    "text": "1. For the purposes of the product specific rules set out in this Appendix: (a) (i) “VNM” denotes the maximum value, in percentage of the ex-works price of the product as indicated by the figure immediately after it, of non-originating materials used in the production of the product. For example, “VNM 40%” denotes that the VNM does not exceed 40 per cent of the ex-works price of the product. (ii) “CC” denotes a change to the chapter, heading or subheading from any other chapter. This means that all non-originating materials used in the production of the product have undergone a change in tariff classification at the two-digit level (i.e. a change in chapter) of the HS; (iii) “CTH” denotes a change to the chapter, heading or subheading from any other heading. This means that all non-originating materials used in the production of the product have undergone a change in tariff classification at the four-digit level (i.e. a change in heading) of the HS; (iv) “CTSH” denotes a change to the chapter, heading or subheading from any other subheading. This means that all non-originating materials used in the production of the product have undergone a change in tariff classification at the six-digit level (i.e. a change in subheading) of the HS; and (v) “WO” means that the product is wholly obtained in the customs territory of a Party as defined in Article III of Annex II;",
+    "page": 1,
+    "source_url": "https://www.customs.go.jp/roo/english/text/switzerland3.pdf",
+    "citation": "JP-Switzerland EPA Appendix 1 to Annex II Introductory Notes, paragraph 1(a)"
+   },
+   {
+    "scope": "schedule",
+    "key": "",
+    "text": "(b) In determining the origin of a product classified under chapters 61 to 63, materials used in the production of the product which are not classified under chapters 50 to 63 shall be disregarded, whether or not they contain textiles.",
+    "page": 2,
+    "source_url": "https://www.customs.go.jp/roo/english/text/switzerland3.pdf",
+    "citation": "JP-Switzerland EPA Appendix 1 to Annex II Introductory Notes, paragraph 1(b)",
+    "applies": [
+     [
+      "61",
+      "63"
+     ]
+    ]
+   }
+  ]
  },
  {
   "agreement": "JP-Chile EPA",
@@ -71552,6 +72075,64 @@
     "key": "XI",
     "text": "Note: For the purposes of determining the origin of a good of this chapter, the rule applicable to that good shall only apply to the component that determines the tariff classification of the good and such component must satisfy the requirements of change in tariff classification set out in the rule for that good.",
     "page": 50
+   },
+   {
+    "scope": "schedule",
+    "key": "",
+    "text": "(b) reference to weight in this Annex means dry weight unless otherwise specified in the Harmonized System; (c) the requirement of a change in tariff classification applies only to non-originating materials;",
+    "page": 1,
+    "source_url": "https://www.customs.go.jp/roo/english/text/chile2.pdf",
+    "citation": "JP-Chile EPA Annex 2 General Notes, paragraphs (b) and (c)"
+   },
+   {
+    "scope": "schedule",
+    "key": "",
+    "text": "the term “Build-down method” means the method referred to in subparagraph 1(a) of Article 30; and the term “Build-up method” means the method referred to in subparagraph 1(b) of Article 30;",
+    "page": 1,
+    "source_url": "https://www.customs.go.jp/roo/english/text/chile2.pdf",
+    "citation": "JP-Chile EPA Annex 2 General Notes, paragraph (d), Build-down and Build-up methods"
+   },
+   {
+    "scope": "schedule",
+    "key": "",
+    "text": "(f) specific percentages referred to in Article 32, which relate to the total value or the total weight of non-originating materials used in the production of a good that do not undergo an applicable change in tariff classification, are as follows: (i) in the case of a good provided for in chapter 19, subheading 2001.10 through 2008.91, 2008.99 through 2009.90 and chapter 21 of the Harmonized System, 7 percent in value of the good; (ii) in the case of a good provided for in subheading 2008.92, chapter 28 through 49 and 64 through 97 of the Harmonized System, 10 percent in value of the good; and (iii) in the case of a good provided for in chapter 50 through 63 of the Harmonized System, 7 percent by weight of the good.",
+    "page": 2,
+    "source_url": "https://www.customs.go.jp/roo/english/text/chile2.pdf",
+    "citation": "JP-Chile EPA Annex 2 General Notes, paragraph (f)",
+    "applies": [
+     [
+      "19",
+      "19"
+     ],
+     [
+      "200110",
+      "200891"
+     ],
+     [
+      "200892",
+      "200892"
+     ],
+     [
+      "200899",
+      "200990"
+     ],
+     [
+      "21",
+      "21"
+     ],
+     [
+      "28",
+      "97"
+     ]
+    ]
+   },
+   {
+    "scope": "schedule",
+    "key": "",
+    "text": "Note 1: The term “value of non-originating materials” means the value determined in accordance with Article 31. Note 2: The term “value of the good” means the TV referred to in paragraph 1 of Article 30 or the value set out in paragraph 2 of that Article.",
+    "page": 2,
+    "source_url": "https://www.customs.go.jp/roo/english/text/chile2.pdf",
+    "citation": "JP-Chile EPA Annex 2 General Notes, Notes 1 and 2 to paragraph (f)"
    }
   ]
  },

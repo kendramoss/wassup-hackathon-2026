@@ -13,12 +13,13 @@ import (
 // page and source of their own, and the Section and Chapter note cells of
 // Annex 3-B. See docs/japan/annex-3a-notes.md.
 
-// ruleEvidence drops the Annex 3-A notes and the Section and Chapter note cells
-// of Annex 3-B, which tests of the rule rows do not count.
+// ruleEvidence drops the Annex 3-A notes, the Section and Chapter note cells
+// of Annex 3-B and the embedded General Notes (isGeneralNote), which tests of
+// the rule rows do not count.
 func ruleEvidence(ev []Evidence) []Evidence {
 	var out []Evidence
 	for _, e := range ev {
-		if !strings.Contains(e.Citation, "Annex 3-A") && !strings.HasPrefix(e.Text, "Section note:") && !strings.HasPrefix(e.Text, "Chapter note:") {
+		if !strings.Contains(e.Citation, "Annex 3-A") && !isGeneralNote(e) && !strings.HasPrefix(e.Text, "Section note:") && !strings.HasPrefix(e.Text, "Chapter note:") {
 			out = append(out, e)
 		}
 	}
@@ -376,13 +377,42 @@ var annexGolden = map[string]string{
 const ajcepProvisionsGolden = "02c4f1c66b22b72f"
 
 func TestOtherEvidenceByteIdentical(t *testing.T) {
+	// The General Notes embedded for nine agreements are left out here: with
+	// them out, every agreement's rows and old notes are byte-identical to main
+	// (the hashes above). TestGeneralNotesEvidenceHashes pins the nine with them in.
+	goldenHashes(t, annexGolden, func(e Evidence) bool { return isGeneralNote(e) })
+}
+
+// General Notes of Thailand, Indonesia, Malaysia, the Philippines, Chile, Vietnam,
+// Switzerland, Mexico and CPTPP (docs/japan/general-notes-embedded.md): the same
+// hash with their evidence kept. Only these nine agreements differ from the hashes
+// above, because their lookups gained the quoted notes; every other agreement is
+// unchanged and is checked by the test above.
+var generalNotesGolden = map[string]string{
+	"CPTPP": "65694caafec49018", "JP-Chile EPA": "3180e63f2aa6768d", "JP-Indonesia EPA": "3570ca8a59f0d32e",
+	"JP-Malaysia EPA": "25f293b0d9d1c90e", "JP-Mexico EPA": "87e99c0b8806dda9", "JP-Philippines EPA": "799ea99e2b4ced59",
+	"JP-Switzerland EPA": "6f5d5c2e5751639b", "JP-Thailand EPA": "9fb9eb191f08ea22", "JP-Vietnam EPA": "cef54b35473849f8",
+}
+
+func TestGeneralNotesEvidenceHashes(t *testing.T) {
+	want := map[string]string{}
+	for a, h := range annexGolden {
+		want[a] = h
+	}
+	for a, h := range generalNotesGolden {
+		want[a] = h
+	}
+	goldenHashes(t, want, func(Evidence) bool { return false })
+}
+
+func goldenHashes(t *testing.T, golden map[string]string, skip func(Evidence) bool) {
 	table := mustDefault(t)
 	var names []string
 	for a := range table.schedules {
 		names = append(names, a)
 	}
 	sort.Strings(names)
-	if len(names) != len(annexGolden) {
+	if len(names) != len(golden) {
 		t.Fatalf("agreements %v", names)
 	}
 	for _, a := range names {
@@ -406,7 +436,7 @@ func TestOtherEvidenceByteIdentical(t *testing.T) {
 						res.Evidence = res.Evidence[:len(res.Evidence)-len(table.general.psrEvidence())]
 					}
 					for _, e := range res.Evidence {
-						if strings.Contains(e.Citation, "Annex 3-A") || strings.HasPrefix(e.Text, "Section note:") || strings.HasPrefix(e.Text, "Chapter note:") {
+						if strings.Contains(e.Citation, "Annex 3-A") || strings.HasPrefix(e.Text, "Section note:") || strings.HasPrefix(e.Text, "Chapter note:") || skip(e) {
 							continue
 						}
 						fmt.Fprintf(h, "%q|%s|%s\n", e.Text, e.URL, e.Citation)
@@ -414,8 +444,8 @@ func TestOtherEvidenceByteIdentical(t *testing.T) {
 				}
 			}
 		}
-		if got := fmt.Sprintf("%x", h.Sum(nil))[:16]; got != annexGolden[a] {
-			t.Errorf("%s: evidence changed (%s, was %s)", a, got, annexGolden[a])
+		if got := fmt.Sprintf("%x", h.Sum(nil))[:16]; got != golden[a] {
+			t.Errorf("%s: evidence changed (%s, was %s)", a, got, golden[a])
 		}
 		if a == "AJCEP" {
 			if got := fmt.Sprintf("%x", full.Sum(nil))[:16]; got != ajcepProvisionsGolden {
