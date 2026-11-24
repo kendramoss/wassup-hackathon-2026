@@ -72,13 +72,6 @@ func originFactsOf(c store.Case) map[string]*domain.SuppliedOriginFacts {
 	return out
 }
 
-func stamp(s *domain.SuppliedOriginFacts) string {
-	if s == nil {
-		return ""
-	}
-	return s.UpdatedAt.UTC().Format(time.RFC3339Nano)
-}
-
 func sameStamp(want string, s *domain.SuppliedOriginFacts) bool {
 	if s == nil {
 		return want == ""
