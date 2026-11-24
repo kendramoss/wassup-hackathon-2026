@@ -6,6 +6,7 @@
   "sha256": "cb7f029ad6679a70796ba45f619e1a623d8e9304ed041069a4b007cdc9633704",
   "from": "2019-02-01",
   "until": "",
+  "stated_edition": 2017,
   "rows": [
    {
     "start": "0101",
@@ -2747,6 +2748,7 @@
   "sha256": "00b7e42a64fd0fb7dad809ba3b3d487ecfd84ded5e103eea229fe973de3e127d",
   "from": "2023-01-01",
   "until": "2027-02-15",
+  "stated_edition": 2017,
   "rows": [
    {
     "start": "01",
@@ -6573,6 +6575,7 @@
   "sha256": "56eb27080e455e792131760cb5d0805556de8b73039a4b5f4a5b7485740785d1",
   "from": "2018-12-30",
   "until": "",
+  "stated_edition": 2012,
   "rows": [
    {
     "start": "420212",
@@ -7163,6 +7166,7 @@
   "sha256": "c80acd1e0c458f130cc6d6602ce18192626e801623947fffc9d1ed18020873b9",
   "from": "2018-12-30",
   "until": "",
+  "stated_edition": 2012,
   "rows": [
    {
     "start": "0101",
@@ -14209,6 +14213,7 @@
   "sha256": "4ec0fffea58f4d261d1388ae7284dce8a3e7bef891148144fd7c9c53d32d2cb0",
   "from": "2027-02-15",
   "until": "",
+  "stated_edition": 2022,
   "rows": [
    {
     "start": "01",
@@ -18133,6 +18138,7 @@
   "sha256": "4011ed6be153ec99ce9b199bb314c0f0fa69204677f7150bef649bf55a0b39e9",
   "from": "2011-08-01",
   "until": "2022-04-04",
+  "stated_edition": 2007,
   "rows": [
    {
     "start": "0101",
@@ -20412,6 +20418,7 @@
   "sha256": "4011ed6be153ec99ce9b199bb314c0f0fa69204677f7150bef649bf55a0b39e9",
   "from": "2022-04-04",
   "until": "",
+  "stated_edition": 2007,
   "rows": [
    {
     "start": "0101",
@@ -22749,6 +22756,7 @@
   "sha256": "f87a52b564a4e6b7c18207c6a0cf6c6cbb244f81f1e6c79204f03f3437db9fbc",
   "from": "2023-01-01",
   "until": "",
+  "stated_edition": 2017,
   "rows": [
    {
     "start": "0101",
@@ -27529,6 +27537,7 @@
   "sha256": "b82294d088899ad39d6047320a2e88a4af30d0a6efb4ca2283443ca84464f151",
   "from": "2024-02-05",
   "until": "",
+  "stated_edition": 2017,
   "rows": [
    {
     "start": "0101",
@@ -30005,6 +30014,7 @@
   "sha256": "9699b69dbc784d76a7461735d5944b967642cbbca504b17f79cc3669caa7f768",
   "from": "2015-01-15",
   "until": "",
+  "stated_edition": 2012,
   "rows": [
    {
     "start": "01",
@@ -46403,6 +46413,7 @@
   "sha256": "7caabd2e36f02f6794cff41501ffa4ba339a6603b4c5c462bc4bedc7e371f9eb",
   "from": "2021-01-01",
   "until": "",
+  "stated_edition": 2017,
   "rows": [
    {
     "start": "0101",
@@ -49278,6 +49289,7 @@
   "sha256": "12e578de5573c093379d02813ca5215eefaa3cebf8e837bacfdbe1f38d019a4f",
   "from": "2009-10-01",
   "until": "",
+  "stated_edition": 2007,
   "rows": [
    {
     "start": "01",
@@ -57822,6 +57834,7 @@
   "sha256": "10ad097b32caa1de4a2d04a6ecfa67ae118a32da85e135ba3e797402d3e329d3",
   "from": "2006-07-13",
   "until": "",
+  "stated_edition": 2002,
   "rows": [
    {
     "start": "0101",
@@ -60032,6 +60045,7 @@
   "sha256": "cd746343339b4f1ee9ca892b3874cf68c34266b8c4686a493042b43caac952f0",
   "from": "2005-04-01",
   "until": "",
+  "stated_edition": 2002,
   "rows": [
    {
     "start": "0101",
@@ -65436,6 +65450,7 @@
   "sha256": "5ec10d077976947d214a723e8e50827c93aefe465e0199f26916b9327b08ca2e",
   "from": "2008-12-11",
   "until": "",
+  "stated_edition": 2002,
   "rows": [
    {
     "start": "0101",
@@ -69912,6 +69927,7 @@
   "sha256": "ba550092a9ad93cba330b298a1e88064d060a324e271e944a1435b2503e807f5",
   "from": "2009-09-01",
   "until": "",
+  "stated_edition": 2007,
   "rows": [
    {
     "start": "01",
@@ -70294,6 +70310,7 @@
   "sha256": "f8078cebd61348669aa4f7b380b93d30832d4bd2d58091823b073456788d2acc",
   "from": "2007-09-03",
   "until": "",
+  "stated_edition": 2002,
   "rows": [
    {
     "start": "0101",
@@ -74480,6 +74497,7 @@
   "sha256": "af460808179a30ce688197ac064b170f64f7d55f943bc898860771eabf9962d6",
   "from": "2020-01-01",
   "until": "",
+  "stated_edition": null,
   "rows": [
    {
     "start": "0401",
@@ -75800,6 +75818,7 @@
   "sha256": "8dfd625b110a8fd9699f6a17d583c17b0cb3a957388da398b7484392a8ddfb56",
   "from": "2023-04-01",
   "until": "",
+  "stated_edition": null,
   "hs_edition": 2022,
   "rows": [
    {

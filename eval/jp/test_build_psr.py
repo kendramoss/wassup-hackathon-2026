@@ -11,6 +11,30 @@ except ImportError as error:  # pdfplumber missing
     raise unittest.SkipTest(str(error))
 
 
+class StatedEdition(unittest.TestCase):
+    """The declared HS edition is an explicit typed table, never read from prose."""
+
+    def test_every_source_has_an_explicit_known_edition(self):
+        self.assertEqual(set(b.STATED_EDITIONS), {s[0] for s in b.SOURCES})
+        for filename, edition in b.STATED_EDITIONS.items():
+            self.assertIn(edition, (2002, 2007, 2012, 2017, 2022), filename)
+            self.assertIsInstance(edition, int)
+
+    def test_citation_edition_matches_the_table(self):
+        for filename, agreement, annex, hs, start, end in b.SOURCES:
+            entry = b.source_entry(filename, agreement, annex, hs, start, end)
+            self.assertEqual(entry["stated_edition"], b.STATED_EDITIONS[filename])
+            self.assertIn(f"(HS {entry['stated_edition']})", entry["citation"])
+
+    def test_wording_cannot_change_the_edition(self):
+        entry = b.source_entry("eu3.pdf", "JP-EU EPA", "Annex 3-B", "2017", "2019-02-01", "")
+        self.assertEqual(entry["stated_edition"], 2017)
+        self.assertEqual(b.source_entry("eu3.pdf", "X validated against HS 2022", "A", "2017", "", "")["stated_edition"], 2017)
+
+    def test_editions_without_a_statement_are_listed(self):
+        self.assertEqual(b.NOT_STATED, ("JP-US TA", "GSP"))
+
+
 class FakePage:
     def __init__(self, x0s):
         self.lines = [{"text": "3901.10 x", "x0": x} for x in x0s]
