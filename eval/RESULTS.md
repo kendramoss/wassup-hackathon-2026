@@ -1072,3 +1072,10 @@ After the daily budget reset, live MCP initialized anonymously, then returned HT
 - BM25 top 5 / top 20 holds a cited ruling, before → after (`b3-retrieval.json`): lifting 1 → 7 of 7 / 7 → 7 of 7; optical 1 → 3 of 9 / 5 → 8 of 9; furniture 3 → 3 of 4; batteries, machinery and medical unchanged.
 - Guard `family-guard-v5`: 1 of 349 recorded v1 matches changed (pet bed); on the guard v3 run, 2 of 351 (the 3D printer; the optical window, a standalone lens matched to display) (`b2-guard-dev.json`, `b3-guard-g3.json`). Two new fixtures pass the fake-engine plan pipeline.
 - Development set for the next family-check run (#781): 48 cases with expected templates and 30 look-alikes (`b3-dev-splits-a1.json`). No model call in this work.
+
+## Is the family work working? (gateway, 24 Nov; D840–D842, #781)
+- Pre-registered in D840 (pushed as 1ca30be9 before any run), amended by D841 (three no-origin development cases). Table `families/b3-781-measure.json` (`families/measure_781.py`).
+- Development (48 frozen cases, `families/b3-781-run-splits.json`): `results/families-coverage-dev-all-litellm-f27-781.jsonl` plus `…-f27-781-noorigin.jsonl`. Batteries 6 of 7, machinery 6 of 11, lifting (off-road) 7 of 7, furniture 3 of 4, optical 8 of 9, medical 9 of 10; 39 of 48. Look-alikes 29 of 30.
+- Held-out (377, once): `results/families-coverage-final-all-litellm-f27-781.jsonl`. 302 matched (80.1%, 75.8–83.8), 5 failed; against D661's 298, on 368 both answered 294 → 300 (9 gained, 3 lost, p = 0.146). Optical took 7.
+- Origin per family, held-out: `results/final-gemini-4-argon-prec-engine-v1-vertex.jsonl` re-sliced, no new calls: with a template 278 of 302, none 62 of 75; food 11 of 15. Development: 41 of 45 (`dev-gemini-4-argon-prec-engine-v1-vertex.jsonl`, plus `dev-gemini-4-argon-prec-engine-v1-litellm-781pool.jsonl` for N339090).
+- $1.6052 (family checks $1.5855, engine $0.0088, smoke test $0.0109); per check p50 5.6 s / p95 30.3 s (development), 4.4 s / 11.9 s (held-out).
