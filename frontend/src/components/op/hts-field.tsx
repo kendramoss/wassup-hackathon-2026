@@ -1,22 +1,10 @@
 "use client";
 
-import { useEffect, useId, useState } from "react";
+import { useId, useState } from "react";
 import { copy } from "@/lib/copy";
 import { Term } from "./term";
 import { ApiError, api, type HtsSuggestResponse, type Product } from "@/lib/api/client";
 import { Button, Chip, Spinner, cx } from "./ui";
-
-// Whether the server suggests HTS codes (HTS_SUGGEST, D64). The route only
-// exists when it's on, so an empty request is a 400 when on and a 404 when
-// off; it runs no model call. Asked once per page load.
-let available: Promise<boolean> | null = null;
-function suggestAvailable(): Promise<boolean> {
-  available ??= api.htsSuggest({ facts: "" }).then(
-    () => true,
-    (e) => !(e instanceof ApiError && e.status === 404),
-  );
-  return available;
-}
 
 const rulingUrl = (id: string) => `https://rulings.cbp.gov/ruling/${encodeURIComponent(id)}`;
 
@@ -47,18 +35,13 @@ export function HtsField({
   const autoId = useId();
   const id = inputId ?? autoId;
   const whyId = `${id}-why`;
-  const [on, setOn] = useState(false);
+  // Whether the server suggests HTS codes (HTS_SUGGEST, D64). The route is
+  // only called with a product to suggest for (#786: no empty probe on
+  // load); a 404 then means it is off here, and the button goes.
+  const [on, setOn] = useState(true);
   const [busy, setBusy] = useState(false);
   const [res, setRes] = useState<HtsSuggestResponse | null>(null);
   const [error, setError] = useState<string | null>(null);
-
-  useEffect(() => {
-    let live = true;
-    suggestAvailable().then((ok) => live && setOn(ok));
-    return () => {
-      live = false;
-    };
-  }, []);
 
   const suggest = async () => {
     if (!source) return;
@@ -67,7 +50,11 @@ export function HtsField({
     try {
       setRes(await api.htsSuggest(source));
     } catch (e) {
-      if (e instanceof ApiError && e.status === 404) setOn(false);
+      if (e instanceof ApiError && e.status === 404) {
+        setOn(false);
+        setError("Suggestions are off here. Type the code.");
+        return;
+      }
       setError(e instanceof ApiError && e.status === 429 ? "Too many suggestions at once. Wait a moment and try again." : "Couldn't get suggestions. Try again, or type the code.");
     } finally {
       setBusy(false);
