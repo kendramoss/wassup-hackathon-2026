@@ -1060,3 +1060,8 @@ After the daily budget reset, live MCP initialized anonymously, then returned HT
 - Two runs on the 469 development rulings only, same model and settings as the committed f26 run, gateway cache off: main's templates (`results/families-coverage-dev-all-litellm-f26-b2-base.jsonl`) and #772's with `family-guard-v2` (`…-f26-b2.jsonl`). Per-family table: `families/b2-familycov.json`.
 - Frozen cases matched to their template, base → #772: batteries 5 → 7 of 7, machinery 7 → 7 of 11, medical 9 → 9 of 10, optical 0 → 1 of 2, furniture 1 → 1 of 1. Look-alikes kept off their cue family 31 → 32 of 33. All 469: 350 → 348 matched (failed checks 4 → 10). Guard took away 1 match (the pet bed).
 - $3.1427 for both; p50 4.0 / 4.4 s, p95 9.8 / 13.0 s per check.
+
+### Development family-check run for #772 with guard v3 (gateway, 24 Nov; D789, D790)
+- Replaces the guard v2 run above (kept as run). `results/families-coverage-dev-all-litellm-f26-b2-g3.jsonl` against the same baseline; table `families/b2-familycov-g3.json`.
+- Frozen cases matched, base → #772: batteries 5 → 6 of 7 (the seventh a failed check), machinery 7 → 7 of 11, medical 9 → 10 of 10, optical 0 → 1 of 2, furniture 1 → 1 of 1. Look-alikes 31 → 32 of 33. All 469: 350 → 351 (failed checks 4 → 9). Guard took away 1 match (the pet bed).
+- $1.6222; p50 5.2 s, p95 15.4 s per check.

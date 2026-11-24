@@ -555,3 +555,8 @@ Experimental offline evaluation, advisory and unreviewed. Not Japan market cover
 | Dev family check, look-alikes kept off their cue family | 31 → 32 of 33 (failed checks counted as not matched) | Same | Measured (D787). Superseded by D789 (guard v2 run). |
 | Dev family check, all 469 | 350 → 348 matched; failed checks 4 → 10; guard took 1 match (pet bed) | `eval/results/families-coverage-dev-all-litellm-f26-b2{-base,}.jsonl` | Measured (D787); within run-to-run variation. Superseded by D789 (guard v2 run). |
 | Dev family-check run cost and latency | $3.1427 for both runs; p50 4.0 / 4.4 s, p95 9.8 / 13.0 s per check | Same, RUNLOG rows `families-coverage-dev-all-litellm-f26-b2-base`, `…-f26-b2` | Token-priced at promo rates. |
+| Dev family check with guard v3, frozen cases matched (base → #772) | Batteries 5 → 6 of 7 (one failed check); machinery 7 → 7 of 11; medical 9 → 10 of 10; optical 0 → 1 of 2; furniture 1 → 1 of 1 | `eval/families/b2-familycov-g3.json` | Measured once, development only (D790). Current. |
+| Dev family check with guard v3, look-alikes kept off their cue family | 31 → 32 of 33 (failed checks counted as not matched) | Same | Measured (D790). Current. |
+| Dev family check with guard v3, all 469 | 350 → 351 matched; failed checks 4 → 9; guard took 1 match (pet bed) | `eval/results/families-coverage-dev-all-litellm-f26-b2-g3.jsonl` | Measured (D790). Current. |
+| Dev family check with guard v3, cost and latency | $1.6222; p50 5.2 s, p95 15.4 s per check; lane total $4.7649 for three runs | RUNLOG row `families-coverage-dev-all-litellm-f26-b2-g3` | Token-priced at promo rates. |
+
