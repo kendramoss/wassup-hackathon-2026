@@ -1,0 +1,138 @@
+[
+ {
+  "agreement": "JP-EU EPA",
+  "code": "240411",
+  "requested_edition": "HS 2022",
+  "schedule_edition": "HS 2017",
+  "parents": [
+   "240391",
+   "240399"
+  ],
+  "mode": "map",
+  "sources": [
+   {
+    "name": "WCO HS 2022 to HS 2017 correlation Table I",
+    "url": "https://www.wcoomd.org/-/media/wco/public/global/pdf/topics/nomenclature/instruments-and-tools/hs-nomenclature-2022/table-i_en.pdf",
+    "sha256": "e6aa91163b993bee6d7bf77c2a5e01914c6a9794829f9164491442ec2b1c1361",
+    "page": 6,
+    "table": "HS 2022 to HS 2017 correlation Table I"
+   }
+  ]
+ },
+ {
+  "agreement": "CPTPP",
+  "code": "220299",
+  "requested_edition": "HS 2017 or later",
+  "schedule_edition": "HS 2012",
+  "parents": [
+   "220290"
+  ],
+  "mode": "map",
+  "sources": [
+   {
+    "name": "WCO HS 2022 to HS 2017 correlation Table I",
+    "url": "https://www.wcoomd.org/-/media/wco/public/global/pdf/topics/nomenclature/instruments-and-tools/hs-nomenclature-2022/table-i_en.pdf",
+    "sha256": "e6aa91163b993bee6d7bf77c2a5e01914c6a9794829f9164491442ec2b1c1361",
+    "page": 5,
+    "table": "HS 2022 to HS 2017 correlation Table I"
+   },
+   {
+    "name": "WCO HS 2017 to HS 2012 correlation Table I",
+    "url": "https://www.wcoomd.org/-/media/wco/public/global/pdf/topics/nomenclature/instruments-and-tools/hs-nomenclature-2017/2016/table_i_trp1712_en_rev1.pdf",
+    "sha256": "0c143ddcd4f670f6d2310afe16cdc4d324bec4c735ca3a016c29e9cda53c0f6a",
+    "page": 9,
+    "table": "HS 2017 to HS 2012 correlation Table I"
+   }
+  ]
+ },
+ {
+  "agreement": "CPTPP",
+  "code": "382499",
+  "requested_edition": "HS 2017 or later",
+  "schedule_edition": "HS 2012",
+  "parents": [
+   "382490"
+  ],
+  "mode": "map",
+  "sources": [
+   {
+    "name": "WCO HS 2022 to HS 2017 correlation Table I",
+    "url": "https://www.wcoomd.org/-/media/wco/public/global/pdf/topics/nomenclature/instruments-and-tools/hs-nomenclature-2022/table-i_en.pdf",
+    "sha256": "e6aa91163b993bee6d7bf77c2a5e01914c6a9794829f9164491442ec2b1c1361",
+    "page": 11,
+    "table": "HS 2022 to HS 2017 correlation Table I"
+   },
+   {
+    "name": "WCO HS 2017 to HS 2012 correlation Table I",
+    "url": "https://www.wcoomd.org/-/media/wco/public/global/pdf/topics/nomenclature/instruments-and-tools/hs-nomenclature-2017/2016/table_i_trp1712_en_rev1.pdf",
+    "sha256": "0c143ddcd4f670f6d2310afe16cdc4d324bec4c735ca3a016c29e9cda53c0f6a",
+    "page": 15,
+    "table": "HS 2017 to HS 2012 correlation Table I"
+   }
+  ]
+ },
+ {
+  "agreement": "CPTPP",
+  "code": "030743",
+  "requested_edition": "HS 2017 or later",
+  "schedule_edition": "HS 2012",
+  "parents": [
+   "030749",
+   "030799"
+  ],
+  "mode": "hint",
+  "sources": [
+   {
+    "name": "WCO HS 2017 to HS 2012 correlation Table I",
+    "url": "https://www.wcoomd.org/-/media/wco/public/global/pdf/topics/nomenclature/instruments-and-tools/hs-nomenclature-2017/2016/table_i_trp1712_en_rev1.pdf",
+    "sha256": "0c143ddcd4f670f6d2310afe16cdc4d324bec4c735ca3a016c29e9cda53c0f6a",
+    "page": 8,
+    "table": "HS 2017 to HS 2012 correlation Table I"
+   }
+  ],
+  "hint": "0307.43 is not in the HS 2012 schedule. It descends from the HS 2012 codes 0307.49 and 0307.99, whose rules differ. A specialist needs to choose the rule by product."
+ },
+ {
+  "agreement": "JP-Malaysia EPA",
+  "code": "382499",
+  "requested_edition": "HS 2017 or later",
+  "schedule_edition": "HS 2002",
+  "parents": [
+   "382420",
+   "382471",
+   "382479",
+   "382490"
+  ],
+  "mode": "map",
+  "sources": [
+   {
+    "name": "WCO HS 2022 to HS 2017 correlation Table I",
+    "url": "https://www.wcoomd.org/-/media/wco/public/global/pdf/topics/nomenclature/instruments-and-tools/hs-nomenclature-2022/table-i_en.pdf",
+    "sha256": "e6aa91163b993bee6d7bf77c2a5e01914c6a9794829f9164491442ec2b1c1361",
+    "page": 11,
+    "table": "HS 2022 to HS 2017 correlation Table I"
+   },
+   {
+    "name": "WCO HS 2017 to HS 2012 correlation Table I",
+    "url": "https://www.wcoomd.org/-/media/wco/public/global/pdf/topics/nomenclature/instruments-and-tools/hs-nomenclature-2017/2016/table_i_trp1712_en_rev1.pdf",
+    "sha256": "0c143ddcd4f670f6d2310afe16cdc4d324bec4c735ca3a016c29e9cda53c0f6a",
+    "page": 15,
+    "table": "HS 2017 to HS 2012 correlation Table I"
+   },
+   {
+    "name": "WCO HS 2012 to HS 2007 correlation Table I",
+    "url": "https://www.wcoomd.org/-/media/wco/public/global/pdf/topics/nomenclature/instruments-and-tools/hs-nomenclature-2012/correlations-2007-2012/i_trp1207rev3eng.pdf",
+    "sha256": "a811946b3240aa8389c9f77258640acb0d0ed74e61529a39c56a829a0bbd6cd8",
+    "page": 20,
+    "table": "HS 2012 to HS 2007 correlation Table I"
+   },
+   {
+    "name": "WCO HS 2007 to HS 2002 correlation Table I",
+    "url": "https://www.wcoomd.org/-/media/wco/public/global/pdf/topics/nomenclature/instruments-and-tools/hs-nomenclature-older-edition/2007/correlations-2002-2007/hs_correlation2007_table_i_e_rev5.pdf",
+    "sha256": "bef4b83f07b72f638ef78b115fcb1872a9f17134c00e64f4677cfc0611c7c6f4",
+    "page": 13,
+    "table": "HS 2007 to HS 2002 correlation Table I"
+   }
+  ]
+ }
+]

@@ -9,7 +9,9 @@ import (
 	"slices"
 	"strings"
 	"testing"
+	"time"
 
+	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/domain"
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/jpcorpus"
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/jpengine"
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/jprules"
@@ -129,7 +131,7 @@ func TestDiagnoseDevEvalMatchesTheRequestsActuallyPlanned(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if d.Eligible.Total != p.Calls || d.Eligible.PSR+d.Eligible.General != p.Calls || d.Abstained != p.AbstainedBeforeCall || d.Cases != p.Cases {
+	if d.Eligible.Total != p.Calls || d.Eligible.PSR+d.Eligible.General+d.Eligible.Mapped != p.Calls || d.Abstained != p.AbstainedBeforeCall || d.Cases != p.Cases {
 		t.Errorf("diagnose %+v abstained=%d cases=%d vs plan calls=%d abstained=%d cases=%d", d.Eligible, d.Abstained, d.Cases, p.Calls, p.AbstainedBeforeCall, p.Cases)
 	}
 	got := slices.Clone(d.eligibleCaseIDs)
@@ -213,5 +215,46 @@ func TestDiagnoseIsDeterministicAndExclusiveCreate(t *testing.T) {
 		if err := diagnoseCommand([]string{"-out", p}); err == nil || !strings.Contains(err.Error(), "never written") {
 			t.Errorf("%s: %v", p, err)
 		}
+	}
+}
+
+func TestDiagnoseCountsMappedAndEditionHintSeparately(t *testing.T) {
+	rules, err := jprules.Default()
+	if err != nil {
+		t.Fatal(err)
+	}
+	mk := func(id, agreement, hs, date string) domain.Case {
+		d, _ := time.Parse(time.DateOnly, date)
+		return domain.Case{ID: id, Date: d, Facts: "facts", Japan: &domain.JapanInput{Agreement: agreement, HS: hs}}
+	}
+	cases := []domain.Case{
+		mk("m1", "JP-EU EPA", "2404.11", "2025-01-01"),
+		mk("m2", "JP-EU EPA", "240411", "2025-02-01"),
+		mk("m3", "CPTPP", "2202.99", "2025-01-01"),
+		mk("h1", "CPTPP", "0307.43", "2025-01-01"),
+		mk("p1", "JP-EU EPA", "2403.99", "2025-01-01"),
+		mk("g1", "AJCEP", "3215.90", "2025-01-01"),
+		mk("n1", "JP-EU EPA", "2404.12", "2025-01-01"),
+		mk("b1", "JP-EU EPA", "2404.11", "2018-01-01"), // before the schedule
+	}
+	r := diagnoseRun("dev", cases, rules)
+	if r.Eligible.Mapped != 3 || r.Eligible.PSR != 1 || r.Eligible.General != 1 || r.Eligible.Total != 5 ||
+		r.Eligible.Total != r.Eligible.PSR+r.Eligible.General+r.Eligible.Mapped || r.Abstained != 3 {
+		t.Fatalf("eligible %+v abstained %d", r.Eligible, r.Abstained)
+	}
+	if got := r.ReasonByAgree["JP-EU EPA"]; got["mapped"] != 2 || got["psr"] != 1 || got["no_match"] != 1 || got["no_dated_source"] != 1 {
+		t.Errorf("JP-EU %v", got)
+	}
+	if got := r.ReasonByAgree["CPTPP"]; got["mapped"] != 1 || got["edition_hint"] != 1 {
+		t.Errorf("CPTPP %v", got)
+	}
+	if r.UnmatchedCodes["JP-EU EPA"]["240412"] != 1 || r.UnmatchedCodes["JP-EU EPA"]["240411"] != 0 {
+		t.Errorf("unmatched %v", r.UnmatchedCodes)
+	}
+	if n := r.UnmatchedCodes["CPTPP"]["030743"]; n != 1 {
+		t.Errorf("an edition hint is still an unmatched code, got %v", r.UnmatchedCodes)
+	}
+	if !strings.Contains(r.Provenance.Basis, "mapped") {
+		t.Error("basis must say what a mapped case is")
 	}
 }

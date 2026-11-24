@@ -89,7 +89,9 @@ const reasonUnverifiedRule = "We could not verify a rule for this tariff code an
 // uses no model. Agreement, HS and Date are normalized as Predict uses them;
 // Agreement and HS are empty when the input does not name one. Evidence is the
 // rule text Predict would send: product specific rule rows, or for an
-// unlisted AJCEP HS 2017 code the general originating criteria.
+// unlisted AJCEP HS 2017 code the general originating criteria, or for a code
+// of a later HS edition with a reviewed correlation the parent codes' rule row
+// behind a mapping note.
 type PreflightResult struct {
 	Eligible     bool
 	Reason       jprules.Reason
@@ -139,7 +141,11 @@ func Preflight(rules *jprules.Table, c domain.Case) PreflightResult {
 	if err != nil {
 		return pf
 	}
-	if res.Reason != jprules.ReasonPSR && res.Reason != jprules.ReasonGeneral || len(res.Evidence) == 0 {
+	if res.Reason == jprules.ReasonEditionHint && res.Hint != "" {
+		pf.ReviewReason = res.Hint
+		return pf
+	}
+	if res.Reason != jprules.ReasonPSR && res.Reason != jprules.ReasonGeneral && res.Reason != jprules.ReasonMapped || len(res.Evidence) == 0 {
 		pf.ReviewReason = reasonUnverifiedRule
 		return pf
 	}

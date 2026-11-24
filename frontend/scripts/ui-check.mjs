@@ -88,8 +88,8 @@ for (const scheme of ["light", "dark"]) {
         ? route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify({ case_id: reflowId, reviews: [] }) })
         : route.continue(),
     );
-    // /cases/new probes HTS_SUGGEST with an empty POST; a real 404 is
-    // intentional and would log a console error. Answer it locally instead.
+    // hts-suggest is only called on a click (#786); with HTS_SUGGEST off a
+    // real 404 would log a console error. Answer it locally instead.
     await page.route("**/api/v1/products/hts-suggest", (route) =>
       route.fulfill({ status: 200, contentType: "application/json", body: "{}" }),
     );

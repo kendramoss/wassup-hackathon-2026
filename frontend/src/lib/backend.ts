@@ -225,6 +225,27 @@ export async function proxyBackend(request: Request, path: string): Promise<Resp
   const user = userFromCookieHeader(cookies);
   let res = await forward(request, path, id, user);
   if (!known) res.headers.append("Set-Cookie", visitorSetCookie(request, id));
+  // #786: under STRICT_AUTH an anonymous visitor's case list is a 401, which
+  // the browser logs as a failed resource on / and /cases. The page asks for
+  // the expected anonymous answer (X-Signin-Optional), so a caller with no
+  // sign-in and no API key gets it as 200 with the error beside an empty
+  // list; the page raises the same 401 itself. Everyone else gets the 401.
+  if (res.status === 401 && !user && !request.headers.get("x-api-key") && request.headers.get("x-signin-optional") && request.method === "GET" && path === "cases") {
+    const text = await res.text();
+    let body: { code?: unknown } | null = null;
+    try {
+      body = JSON.parse(text);
+    } catch {
+      /* not the API's error body */
+    }
+    const headers = new Headers(res.headers);
+    if (body?.code === "unauthenticated") {
+      headers.set("Content-Type", "application/json");
+      res = new Response(JSON.stringify({ cases: [], signin_required: body }), { status: 200, headers });
+    } else {
+      res = new Response(text, { status: 401, headers });
+    }
+  }
   if (user && res.status === 401) {
     const text = await res.text();
     const headers = new Headers(res.headers);
