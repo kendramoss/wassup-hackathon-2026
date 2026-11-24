@@ -48,7 +48,7 @@ Every page was searched, as table cells and as page text, for "Note", "Notes" an
 | 2 | "Note 1: The term 'value of non-originating materials' ..." (Article 29 paragraph 6) | Omitted |
 | 2 | "Note 2: The term 'value of the good' ..." (Article 29 paragraph 4(b) or 5) | Omitted |
 
-Both sit in the page 1 to 3 General Notes, as definitions for sub-paragraph (g) of the
+Both sit on page 2, within the page 1 to 6 General Notes, as definitions for sub-paragraph (g) of the
 whole annex. They have no chapter or section, and a captured note must be scoped to
 one, so they are omitted rather than attached to a guessed scope (same reasoning as
 Thailand p3 Notes 1 and 2).

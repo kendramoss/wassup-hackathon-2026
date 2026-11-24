@@ -61,3 +61,21 @@ func TestReadmeAJCEPStartNotClaimedFromIndex(t *testing.T) {
 		t.Error("README must say the AJCEP HS 2017 official start is unverified")
 	}
 }
+
+// The AJCEP HS 2017 window ends where the HS 2022 edition starts (Customs index
+// "2027.2.14" and "2027.2.15~"); the start is the unverified embedded start.
+func TestAJCEPHS2017WindowBounds(t *testing.T) {
+	table := mustDefault(t)
+	var found bool
+	for _, s := range table.schedules["AJCEP"] {
+		if s.From == "2023-01-01" {
+			found = true
+			if s.Until != "2027-02-15" {
+				t.Fatalf("until = %s", s.Until)
+			}
+		}
+	}
+	if !found {
+		t.Fatal("AJCEP HS 2017 schedule not found")
+	}
+}

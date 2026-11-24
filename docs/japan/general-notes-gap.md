@@ -21,13 +21,11 @@ such a term. Nothing here changes lookup output.
 | JP-Australia EPA | 1 to 10 | None | QVC 40 (955 rows), textile codes "(1)" to "(17)" (224 rows hold only a code), CR/D/P/CPS/SM/IS definitions, ch61 to 63 clause | 955 and 224 | 0 |
 | JP-Vietnam EPA | 1 to 2 | None | LVC 40 percent, paragraph 3 tolerance | 725 | 0 |
 | JP-Chile EPA | 1 to 2 | Six table notes (checked: six in `schedules.json`; the PDF has eight "Note" lines, two of them the General Notes Notes 1 and 2 on page 2, which are not table cells) | Build-up and build-down definitions, Notes 1 and 2 | 133 | 0 |
-| JP-Switzerland EPA | Introductory notes 1(a), (b) | None | VNM definition | 13 | 0 |
+| JP-Switzerland EPA | Introductory notes 1(a) (PDF page 1) and 1(b) (PDF page 2) | None | VNM definition | 13 | 0 |
 | JP-India CEPA | 1 | Already represented | none identified | 0 | 0 |
 | CPTPP 3-D and 4-A | Section A (pages 1 to 2) | 23 (3-D) and 3 (4-A) table notes in `schedules.json` | Interpretive paragraphs (excluded materials must be originating, alternatives, multiple requirements, group rules) and the dagger marker | 139 (3-D) and 68 (4-A) rows contain "except" | 142 of 595 CPTPP dev rulings have a first covering row with "except" |
 
-Malaysia, Philippines, Mexico and the US TA already have most notes captured or spell
-out their value terms in the rows; their remaining absences (tolerance, Notes 1 and
-2, IT clause) are listed in the audit and are smaller.
+Malaysia, Philippines, Mexico and the US TA are not assessed in this table.
 
 ## Australia column 4
 
