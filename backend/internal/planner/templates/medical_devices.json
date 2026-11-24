@@ -1,18 +1,21 @@
 {
   "family": "medical_devices",
-  "version": "1",
+  "version": "2",
   "union_default_operations": true,
   "name": "Medical devices and disposables",
-  "note": "For medical devices and disposables, CBP usually finds that origin is conferred where the primary functional component, such as the stainless steel needle cannula, syringe barrel or bulb, main fluid chamber or tubing, forged surgical blank, or printed circuit board assembly and optical sensor array, is manufactured. Conversely, CBP treats attaching plastic hubs, bonding connectors and clamps onto tubing, inserting plungers into barrels, putting components into blister trays, and sterilizing and packaging as simple assembly that does not confer origin. Written from 26 CBP substantial-transformation rulings outside the dev and held-out splits (D138); every cited ruling was checked against its facts and holding. Costs are illustrative defaults; users edit them.",
+  "note": "For medical devices and disposables, CBP usually finds that origin is conferred where the primary functional component, such as the stainless steel needle cannula, syringe barrel or bulb, main fluid chamber or tubing, forged surgical blank, or printed circuit board assembly and sensors, is made. Attaching plastic hubs, bonding connectors and clamps onto tubing, inserting plungers into barrels, putting components into blister trays, and sterilising and packing are treated as assembly that does not confer origin. Precision finishing of an imported blank was not enough in the one pool ruling on it. Origin under these rulings says nothing about regulatory clearance or approval. Written from 26 CBP substantial-transformation rulings outside the dev and held-out splits (D138), with four rulings from the train and other pools added in version 2 (D782); every new citation was read against its facts and held origin. Costs are illustrative defaults; users edit them.",
   "sources": [
     "H322967",
     "H339462",
+    "N334538",
     "N336168",
     "N340345",
+    "N341537",
     "N342838",
     "N343161",
     "N343712",
     "N343771",
+    "N343773",
     "N343774",
     "N343775",
     "N344211",
@@ -22,6 +25,7 @@
     "N348317",
     "N349038",
     "N350041",
+    "N355983",
     "N357919",
     "N361712"
   ],
@@ -43,13 +47,16 @@
           "N343771",
           "N343774",
           "N348317",
-          "N361712"
+          "N361712",
+          "N341537",
+          "N343773"
         ],
         "not_enough": [
           "N344211",
-          "N344695"
+          "N344695",
+          "N341537"
         ],
-        "note": "CBP held that manufacturing the sharpened or pre-processed stainless steel cannula or hot-forged surgical blank confers origin on needles, tips, and forceps (H322967, N343712, N343771, N348317, N361712), though a pre-made needle alone did not determine origin when combined with locally molded and assembled syringe parts (N344211, N344695)."
+        "note": "CBP held that manufacturing the sharpened or pre-processed stainless steel cannula or hot-forged surgical blank confers origin on needles, tips, and forceps (H322967, N343712, N343771, N348317, N361712), and dental tips took the origin of their first, pre-bent cannula (N343773), though a pre-made needle alone did not determine origin when combined with locally molded and assembled syringe parts (N344211, N344695). Medical drill bits took the origin of the Chinese blanks (steel rods cut and lathe-machined); grinding the cutting flutes and notching them in Ireland was not enough (N341537)."
       }
     },
     {
@@ -70,13 +77,14 @@
           "N343775",
           "N344211",
           "N348081",
-          "N357919"
+          "N357919",
+          "N355983"
         ],
         "not_enough": [
           "N342838",
           "N343161"
         ],
-        "note": "CBP looked to the country producing the core fluid-handling body, such as molded syringe parts (N343161, N344211), a soft bulb (N342838), an integral molded tip (N343775), or primary medical tubing (N348081), while finding secondary molded parts insufficient when paired with a more essential imported component (N342838, N343161)."
+        "note": "CBP looked to the country producing the core fluid-handling body, such as molded syringe parts (N343161, N344211), a soft bulb (N342838), an integral molded tip (N343775), or primary medical tubing (N348081), while finding secondary molded parts insufficient when paired with a more essential imported component (N342838, N343161). Extruding the silicone drain tube in Israel made Israel the origin of wound drains cut and assembled in India (N355983)."
       }
     },
     {
@@ -93,9 +101,10 @@
         "confers_origin": [
           "N336168",
           "N345397",
-          "N350041"
+          "N350041",
+          "N334538"
         ],
-        "note": "For electronic and optical medical devices, CBP held that origin is conferred where the SMT printed circuit board assembly, electronic movement, or LED/photodetector array is manufactured (N336168, N345397, N350041)."
+        "note": "For electronic and optical medical devices, CBP held that origin is conferred where the SMT printed circuit board assembly, electronic movement, or LED/photodetector array is manufactured (N336168, N345397, N350041); for blood pressure monitors, making the PCBA by SMT and chip-on-board, burning the firmware into it and calibrating the pressure sensor in Vietnam made Vietnam the origin (N334538)."
       }
     },
     {
@@ -115,9 +124,26 @@
           "N343771",
           "N343774",
           "N348081",
-          "N349038"
+          "N349038",
+          "N334538"
         ],
-        "note": "CBP found that sourcing minor connecting or housing parts such as plastic hubs, sheaths, clamps, luer locks, cords, brush fibers, or outer enclosures does not confer origin on the finished device (H322967, N336168, N343771, N343774, N348081, N349038)."
+        "note": "CBP found that sourcing minor connecting or housing parts such as plastic hubs, sheaths, clamps, luer locks, cords, brush fibers, outer enclosures or a blood pressure cuff does not confer origin on the finished device (H322967, N334538, N336168, N343771, N343774, N348081, N349038)."
+      }
+    },
+    {
+      "id": "sterile_packaging",
+      "name": "Sterilisation and sterile packing",
+      "operations": [
+        "place devices in blister trays or pouches and seal them with Tyvek lids",
+        "sterilise packed devices with ethylene oxide or gamma radiation, then release them"
+      ],
+      "movable": true,
+      "precedent": {
+        "not_enough": [
+          "H322967",
+          "N341537"
+        ],
+        "note": "Packing and sterilising did not change origin: safety needles packed and sterilised in the United States kept their needles' origin (H322967), and drill bits packed and sterilised in Ireland stayed Chinese (N341537)."
       }
     },
     {
@@ -128,7 +154,7 @@
         "insert plungers with gaskets into syringe barrels and screw hubbed needles onto syringe tips",
         "solvent-bond medical tubing to drip chambers, spikes, Y-sites, and luer connectors in a cleanroom",
         "assemble sensor arrays, PCBs, displays, and batteries into plastic housings or adhesive foam pads",
-        "place syringes, tubing assemblies, and spikes into blister trays, seal with Tyvek, and sterilize"
+        "cut extruded tubing to length and assemble drains, connectors and bulbs"
       ],
       "movable": false,
       "precedent": {
@@ -143,9 +169,10 @@
           "N340345",
           "N343712",
           "N348081",
-          "N357919"
+          "N357919",
+          "N355983"
         ],
-        "note": "CBP held that gluing hubs to needles, bonding tubing, assembling syringe components, and kit packaging do not confer origin on their own (H322967, N336168, N340345, N343712, N348081, N357919), conferring origin only when combined with molding core parts or complex assembly (H339462, N344211, N344695)."
+        "note": "CBP held that gluing hubs to needles, bonding tubing, assembling syringe components, and kit packaging do not confer origin on their own (H322967, N336168, N340345, N343712, N348081, N357919), nor cutting imported drain tubes and assembling drains (N355983), conferring origin only when combined with molding core parts or complex assembly (H339462, N344211, N344695)."
       }
     }
   ]

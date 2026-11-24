@@ -1049,3 +1049,19 @@ For each tariff-shift yes, the first material counted as non-originating was ass
 ## ADK agent evaluation v2, run 2 preflight (23 Nov, D731)
 
 After the daily budget reset, live MCP initialized anonymously, then returned HTTP 401 `unauthenticated` on an invalid-date `predict_origin` probe. Production requires a verified identity for case creation (D730). The D510 run stopped before any product session started. Run 1 supplies the existing score. Repeatability is unmeasured. No model calls, $0 spend. [Preflight record](agent/adk/live-v2-run2-preflight.json).
+
+## Family depth for batteries, machinery, furniture, medical and optical (offline, 24 Nov; D780–D784, #766–#769)
+- Cases from dev, train and other pools only (`eval/families/depth_b2.py`, `b2-hits.json`, `b2-screen.json`, `b2-cases.json`); held-out IDs excluded by ID. No family reached D780's bar for a new template, so five templates went to version 2 (battery cells; industrial machine units, frames and tooling; sterilisation and packing; lens polishing and coating; a stone-top table ruling). 16 new citations (`b2-citations.json`).
+- BM25 top 5 holds a ruling the family's template cites, before → after, development cases: batteries 0 → 7 of 7, machinery 3 → 3 of 11, medical 7 → 7 of 10, optical 1 → 1 of 2, furniture 0 → 0 of 1 (`b2-retrieval.json`).
+- Guard after the family check (`family-guard-v3`, D786, D789) on the 469 recorded development checks: 1 of 349 matches changed, the pet bed, judged right (`b2-guard-dev.json`).
+- Five new development fixtures pass the fake-engine plan pipeline (`TestFamilyFixturesPlan`). Not plan quality and not accuracy; the family check with the changed templates is not re-run (no model budget).
+
+### Development family-check run for #772 (gateway, 24 Nov; D785–D787) — superseded by D789 (guard v2 run; kept as run)
+- Two runs on the 469 development rulings only, same model and settings as the committed f26 run, gateway cache off: main's templates (`results/families-coverage-dev-all-litellm-f26-b2-base.jsonl`) and #772's with `family-guard-v2` (`…-f26-b2.jsonl`). Per-family table: `families/b2-familycov.json`.
+- Frozen cases matched to their template, base → #772: batteries 5 → 7 of 7, machinery 7 → 7 of 11, medical 9 → 9 of 10, optical 0 → 1 of 2, furniture 1 → 1 of 1. Look-alikes kept off their cue family 31 → 32 of 33. All 469: 350 → 348 matched (failed checks 4 → 10). Guard took away 1 match (the pet bed).
+- $3.1427 for both; p50 4.0 / 4.4 s, p95 9.8 / 13.0 s per check.
+
+### Development family-check run for #772 with guard v3 (gateway, 24 Nov; D789, D790)
+- Replaces the guard v2 run above (kept as run). `results/families-coverage-dev-all-litellm-f26-b2-g3.jsonl` against the same baseline; table `families/b2-familycov-g3.json`.
+- Frozen cases matched, base → #772: batteries 5 → 6 of 7 (the seventh a failed check), machinery 7 → 7 of 11, medical 9 → 10 of 10, optical 0 → 1 of 2, furniture 1 → 1 of 1. Look-alikes 31 → 32 of 33. All 469: 350 → 351 (failed checks 4 → 9). Guard took away 1 match (the pet bed).
+- $1.6222; p50 5.2 s, p95 15.4 s per check.

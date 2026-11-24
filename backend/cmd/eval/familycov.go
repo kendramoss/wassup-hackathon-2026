@@ -44,6 +44,14 @@ type familyCovRow struct {
 	OutputTokens int     `json:"output_tokens"`
 	CostUSD      float64 `json:"cost_usd"`
 	Error        string  `json:"error,omitempty"`
+	// LatencyMS is the wall time of the check, retry included (D785).
+	LatencyMS int64 `json:"latency_ms,omitempty"`
+	// ModelFamily and GuardRule: when the guard (familycheck.GuardVersion)
+	// took the match away, the model's own family and reason and the rule
+	// (D786, D789).
+	ModelFamily string `json:"model_family,omitempty"`
+	ModelReason string `json:"model_reason,omitempty"`
+	GuardRule   string `json:"guard_rule,omitempty"`
 }
 
 // familyCovCmd measures product-scope coverage (D138): the share of a
@@ -198,7 +206,7 @@ func familyCovCmd(args []string) error {
 		"time": time.Now().Format(time.RFC3339), "run": name, "split": *split, "held_out": *split == "final",
 		"cases": len(rows), "scored": n, "errors": errs, "covered": covered, "coverage": round(p),
 		"ci95": []float64{round(lo), round(hi)}, "templates": len(tmpls), "family_model": *model,
-		"llm_provider": cfg.LLMProvider, "prompt_version": familycheck.PromptVersion, "match_bar": familyCovBar,
+		"llm_provider": cfg.LLMProvider, "prompt_version": familycheck.PromptVersion, "guard_version": familycheck.GuardVersion, "match_bar": familyCovBar,
 		"cost_usd": round(cost), "git_revision": revision(), "wall_s": int(time.Since(start).Seconds()),
 	}
 	b, _ := json.Marshal(entry)
@@ -212,6 +220,7 @@ func checkOne(ctx context.Context, c *familycheck.Checker, r domain.Ruling, mode
 	var row familyCovRow
 	var res familycheck.Result
 	var err error
+	began := time.Now()
 	for attempt := 0; attempt < 2; attempt++ {
 		var usage llm.Usage
 		res, usage, err = c.CheckUsage(ctx, text)
@@ -223,11 +232,14 @@ func checkOne(ctx context.Context, c *familycheck.Checker, r domain.Ruling, mode
 		}
 	}
 	row.Ruling = r.ID
+	row.LatencyMS = time.Since(began).Milliseconds()
 	if err != nil {
-		row.Error = err.Error()
+		// Never write the gateway's address into a result file.
+		row.Error = llm.ScrubGatewayHost(err.Error(), os.Getenv("LITELLM_BASE_URL"))
 		return row
 	}
 	row.Family, row.Confidence, row.Reason = res.Family, res.Confidence, res.Reason
+	row.ModelFamily, row.ModelReason, row.GuardRule = res.ModelFamily, res.ModelReason, res.GuardRule
 	row.Covered = res.Family != familycheck.None && res.Confidence >= familyCovBar
 	return row
 }

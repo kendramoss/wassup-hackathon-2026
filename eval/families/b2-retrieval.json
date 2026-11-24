@@ -1,0 +1,517 @@
+{
+ "cases": {
+  "batteries": [
+   {
+    "case": "N350953",
+    "template": "power_supplies_chargers",
+    "before_top5": false,
+    "after_top5": true,
+    "before_top20": false,
+    "after_top20": true,
+    "top5": [
+     "N347172",
+     "N341875",
+     "N330771",
+     "N350063",
+     "N347193"
+    ]
+   },
+   {
+    "case": "N351263",
+    "template": "power_supplies_chargers",
+    "before_top5": false,
+    "after_top5": true,
+    "before_top20": false,
+    "after_top20": true,
+    "top5": [
+     "N350953",
+     "N347172",
+     "N342506",
+     "N329847",
+     "N346403"
+    ]
+   },
+   {
+    "case": "N352014",
+    "template": "power_supplies_chargers",
+    "before_top5": false,
+    "after_top5": true,
+    "before_top20": true,
+    "after_top20": true,
+    "top5": [
+     "N346403",
+     "N346317",
+     "N347193",
+     "N348871",
+     "N351263"
+    ]
+   },
+   {
+    "case": "N352355",
+    "template": "power_supplies_chargers",
+    "before_top5": false,
+    "after_top5": true,
+    "before_top20": true,
+    "after_top20": true,
+    "top5": [
+     "N346403",
+     "N346317",
+     "N352014",
+     "N331903",
+     "N351341"
+    ]
+   },
+   {
+    "case": "N353023",
+    "template": "power_supplies_chargers",
+    "before_top5": false,
+    "after_top5": true,
+    "before_top20": false,
+    "after_top20": true,
+    "top5": [
+     "N351505",
+     "N351341",
+     "N348083",
+     "N346403",
+     "N346317"
+    ]
+   },
+   {
+    "case": "N353086",
+    "template": "power_supplies_chargers",
+    "before_top5": false,
+    "after_top5": true,
+    "before_top20": true,
+    "after_top20": true,
+    "top5": [
+     "N352355",
+     "N346403",
+     "N352014",
+     "N346317",
+     "N351341"
+    ]
+   },
+   {
+    "case": "N356670",
+    "template": "power_supplies_chargers",
+    "before_top5": false,
+    "after_top5": true,
+    "before_top20": false,
+    "after_top20": true,
+    "top5": [
+     "N353023",
+     "N353086",
+     "N352355",
+     "N346317",
+     "N346403"
+    ]
+   }
+  ],
+  "furniture": [
+   {
+    "case": "H345343",
+    "template": "furniture",
+    "before_top5": false,
+    "after_top5": false,
+    "before_top20": false,
+    "after_top20": false,
+    "top5": [
+     "N348265",
+     "N348726",
+     "N345935",
+     "N347182",
+     "N345246"
+    ]
+   }
+  ],
+  "machinery": [
+   {
+    "case": "H342833",
+    "template": "motors_pumps_compressors",
+    "before_top5": false,
+    "after_top5": false,
+    "before_top20": true,
+    "after_top20": true,
+    "top5": [
+     "H337371",
+     "N351504",
+     "N350304",
+     "N351597",
+     "N346397"
+    ]
+   },
+   {
+    "case": "N351234",
+    "template": "motors_pumps_compressors",
+    "before_top5": false,
+    "after_top5": false,
+    "before_top20": false,
+    "after_top20": false,
+    "top5": [
+     "N344048",
+     "N337718",
+     "N343555",
+     "N347256",
+     "N340058"
+    ]
+   },
+   {
+    "case": "N351349",
+    "template": "motors_pumps_compressors",
+    "before_top5": true,
+    "after_top5": true,
+    "before_top20": true,
+    "after_top20": true,
+    "top5": [
+     "N347081",
+     "N345436",
+     "N351140",
+     "N333514",
+     "N348037"
+    ]
+   },
+   {
+    "case": "N351538",
+    "template": "motors_pumps_compressors",
+    "before_top5": true,
+    "after_top5": true,
+    "before_top20": true,
+    "after_top20": true,
+    "top5": [
+     "N333514",
+     "N351349",
+     "N350001",
+     "N346289",
+     "N335319"
+    ]
+   },
+   {
+    "case": "N351922",
+    "template": "motors_pumps_compressors",
+    "before_top5": true,
+    "after_top5": true,
+    "before_top20": true,
+    "after_top20": true,
+    "top5": [
+     "N351901",
+     "N349662",
+     "N347899",
+     "N351860",
+     "N348913"
+    ]
+   },
+   {
+    "case": "N352067",
+    "template": "motors_pumps_compressors",
+    "before_top5": false,
+    "after_top5": false,
+    "before_top20": true,
+    "after_top20": true,
+    "top5": [
+     "N351922",
+     "N351580",
+     "N352477",
+     "N349662",
+     "N351782"
+    ]
+   },
+   {
+    "case": "N354156",
+    "template": "motors_pumps_compressors",
+    "before_top5": false,
+    "after_top5": false,
+    "before_top20": true,
+    "after_top20": true,
+    "top5": [
+     "N352067",
+     "N351580",
+     "N343418",
+     "N351901",
+     "N353576"
+    ]
+   },
+   {
+    "case": "N354169",
+    "template": "motors_pumps_compressors",
+    "before_top5": false,
+    "after_top5": false,
+    "before_top20": false,
+    "after_top20": false,
+    "top5": [
+     "N346258",
+     "N339022",
+     "N351140",
+     "N351266",
+     "N351627"
+    ]
+   },
+   {
+    "case": "N354559",
+    "template": "motors_pumps_compressors",
+    "before_top5": false,
+    "after_top5": false,
+    "before_top20": true,
+    "after_top20": true,
+    "top5": [
+     "N352067",
+     "N348913",
+     "N354156",
+     "N345436",
+     "N351349"
+    ]
+   },
+   {
+    "case": "N355567",
+    "template": "motors_pumps_compressors",
+    "before_top5": false,
+    "after_top5": false,
+    "before_top20": true,
+    "after_top20": true,
+    "top5": [
+     "N352067",
+     "N351922",
+     "N354156",
+     "N354559",
+     "N351580"
+    ]
+   },
+   {
+    "case": "N356592",
+    "template": "motors_pumps_compressors",
+    "before_top5": false,
+    "after_top5": false,
+    "before_top20": true,
+    "after_top20": true,
+    "top5": [
+     "N354559",
+     "N355567",
+     "N345436",
+     "N352067",
+     "N348913"
+    ]
+   }
+  ],
+  "medical": [
+   {
+    "case": "N350152",
+    "template": "medical_devices",
+    "before_top5": true,
+    "after_top5": true,
+    "before_top20": true,
+    "after_top20": true,
+    "top5": [
+     "N343771",
+     "N344695",
+     "N343712",
+     "N343774",
+     "N344211"
+    ]
+   },
+   {
+    "case": "N350225",
+    "template": "medical_devices",
+    "before_top5": true,
+    "after_top5": true,
+    "before_top20": true,
+    "after_top20": true,
+    "top5": [
+     "N349038",
+     "N340187",
+     "N342124",
+     "N334434",
+     "N331903"
+    ]
+   },
+   {
+    "case": "N353259",
+    "template": "medical_devices",
+    "before_top5": true,
+    "after_top5": true,
+    "before_top20": true,
+    "after_top20": true,
+    "top5": [
+     "N350152",
+     "H322967",
+     "N344211",
+     "N343771",
+     "N344695"
+    ]
+   },
+   {
+    "case": "N353260",
+    "template": "medical_devices",
+    "before_top5": true,
+    "after_top5": true,
+    "before_top20": true,
+    "after_top20": true,
+    "top5": [
+     "N350152",
+     "N344211",
+     "H322967",
+     "N344695",
+     "N343771"
+    ]
+   },
+   {
+    "case": "N353976",
+    "template": "medical_devices",
+    "before_top5": true,
+    "after_top5": true,
+    "before_top20": true,
+    "after_top20": true,
+    "top5": [
+     "N353260",
+     "N353259",
+     "N343775",
+     "N350152",
+     "H322967"
+    ]
+   },
+   {
+    "case": "N355059",
+    "template": "medical_devices",
+    "before_top5": true,
+    "after_top5": true,
+    "before_top20": true,
+    "after_top20": true,
+    "top5": [
+     "N348081",
+     "H339462",
+     "N343389",
+     "N348086",
+     "N341969"
+    ]
+   },
+   {
+    "case": "N355175",
+    "template": "medical_devices",
+    "before_top5": false,
+    "after_top5": false,
+    "before_top20": true,
+    "after_top20": true,
+    "top5": [
+     "N350225",
+     "N351962",
+     "N344188",
+     "N342124",
+     "N340187"
+    ]
+   },
+   {
+    "case": "N355466",
+    "template": "medical_devices",
+    "before_top5": true,
+    "after_top5": true,
+    "before_top20": true,
+    "after_top20": true,
+    "top5": [
+     "N355059",
+     "N348081",
+     "H339462",
+     "N353976",
+     "N341969"
+    ]
+   },
+   {
+    "case": "N356150",
+    "template": "medical_devices",
+    "before_top5": false,
+    "after_top5": false,
+    "before_top20": false,
+    "after_top20": false,
+    "top5": [
+     "N353573",
+     "N350953",
+     "N352841",
+     "N335974",
+     "N353976"
+    ]
+   },
+   {
+    "case": "N356289",
+    "template": "medical_devices",
+    "before_top5": false,
+    "after_top5": false,
+    "before_top20": true,
+    "after_top20": true,
+    "top5": [
+     "N353573",
+     "N356150",
+     "N347638",
+     "H331939",
+     "H329104"
+    ]
+   }
+  ],
+  "optical": [
+   {
+    "case": "N350680",
+    "template": "display_camera_modules",
+    "before_top5": false,
+    "after_top5": false,
+    "before_top20": true,
+    "after_top20": true,
+    "top5": [
+     "N350433",
+     "N350325",
+     "N348066",
+     "N339090",
+     "N338577"
+    ]
+   },
+   {
+    "case": "N350838",
+    "template": "display_camera_modules",
+    "before_top5": true,
+    "after_top5": true,
+    "before_top20": true,
+    "after_top20": true,
+    "top5": [
+     "N345937",
+     "N342427",
+     "N339798",
+     "N343132",
+     "N334757"
+    ]
+   }
+  ]
+ },
+ "note": "D781 M1: development cases (b2-cases.json) whose BM25 top 5 or top 20, as in production, holds a ruling their family's template cites; before = version 1 citations (b2-v1-citations.json), after = current templates. Descriptive only. Written by TestB2RetrievalOfCitedPrecedents -update-b2-retrieval.",
+ "summary": {
+  "batteries": {
+   "n": 7,
+   "before_top5": 0,
+   "after_top5": 7,
+   "before_top20": 3,
+   "after_top20": 7
+  },
+  "furniture": {
+   "n": 1,
+   "before_top5": 0,
+   "after_top5": 0,
+   "before_top20": 0,
+   "after_top20": 0
+  },
+  "machinery": {
+   "n": 11,
+   "before_top5": 3,
+   "after_top5": 3,
+   "before_top20": 9,
+   "after_top20": 9
+  },
+  "medical": {
+   "n": 10,
+   "before_top5": 7,
+   "after_top5": 7,
+   "before_top20": 9,
+   "after_top20": 9
+  },
+  "optical": {
+   "n": 2,
+   "before_top5": 1,
+   "after_top5": 1,
+   "before_top20": 2,
+   "after_top20": 2
+  }
+ }
+}

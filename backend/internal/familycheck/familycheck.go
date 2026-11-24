@@ -34,6 +34,12 @@ type Result struct {
 	// product or product type (e.g. random letters), whatever the parts
 	// suggest, so a match is never credited to it (18 Oct).
 	TypedUnclear bool `json:"typed_unclear"`
+	// ModelFamily, ModelReason and GuardRule keep the model's answer and the
+	// guard rule (GuardVersion) when the guard took the family away (D783).
+	// They are for logs and the coverage eval, not the API response.
+	ModelFamily string `json:"-"`
+	ModelReason string `json:"-"`
+	GuardRule   string `json:"-"`
 }
 
 // Checker matches text to a template family.
@@ -118,5 +124,8 @@ func (c *Checker) CheckUsage(ctx context.Context, text string) (Result, llm.Usag
 	}
 	r.Name = c.names[r.Family]
 	r.Confidence = min(max(r.Confidence, 0), 1)
+	// Deterministic checks after the model (D783): a match the product line
+	// contradicts goes to "none" for review.
+	r, _ = Guard(text, r)
 	return r, resp.Usage, nil
 }

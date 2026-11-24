@@ -1,0 +1,344 @@
+{
+ "rule": "D785: matched = family check answered the expected template at confidence >= 0.6; a failed check is not a match. Look-alike right = not matched to the family it shares a cue with. Wilson 95% intervals.",
+ "runs": {
+  "base": {
+   "rows": 469,
+   "failed": 4,
+   "cost_usd": 1.5039,
+   "latency_ms_p50": 4006,
+   "latency_ms_p95": 9831
+  },
+  "b2": {
+   "rows": 469,
+   "failed": 10,
+   "cost_usd": 1.6388,
+   "latency_ms_p50": 4363,
+   "latency_ms_p95": 12950
+  }
+ },
+ "groups": {
+  "batteries": {
+   "n": 7,
+   "expected": "power_supplies_chargers",
+   "base": {
+    "matched": 5,
+    "wilson": [
+     0.7143,
+     0.3589,
+     0.9178
+    ],
+    "families": {
+     "N350953": "none",
+     "N351263": "none",
+     "N352014": "power_supplies_chargers",
+     "N352355": "power_supplies_chargers",
+     "N353023": "power_supplies_chargers",
+     "N353086": "power_supplies_chargers",
+     "N356670": "power_supplies_chargers"
+    }
+   },
+   "b2": {
+    "matched": 7,
+    "wilson": [
+     1.0,
+     0.6457,
+     1
+    ],
+    "families": {
+     "N350953": "power_supplies_chargers",
+     "N351263": "power_supplies_chargers",
+     "N352014": "power_supplies_chargers",
+     "N352355": "power_supplies_chargers",
+     "N353023": "power_supplies_chargers",
+     "N353086": "power_supplies_chargers",
+     "N356670": "power_supplies_chargers"
+    }
+   }
+  },
+  "furniture": {
+   "n": 1,
+   "expected": "furniture",
+   "base": {
+    "matched": 1,
+    "wilson": [
+     1.0,
+     0.2065,
+     1
+    ],
+    "families": {
+     "H345343": "furniture"
+    }
+   },
+   "b2": {
+    "matched": 1,
+    "wilson": [
+     1.0,
+     0.2065,
+     1
+    ],
+    "families": {
+     "H345343": "furniture"
+    }
+   }
+  },
+  "machinery": {
+   "n": 11,
+   "expected": "motors_pumps_compressors",
+   "base": {
+    "matched": 7,
+    "wilson": [
+     0.6364,
+     0.3538,
+     0.8483
+    ],
+    "families": {
+     "H342833": "motors_pumps_compressors",
+     "N351234": "machinery_parts",
+     "N351349": "motors_pumps_compressors",
+     "N351538": "machinery_parts",
+     "N351922": "motors_pumps_compressors",
+     "N352067": "motors_pumps_compressors",
+     "N354156": "machinery_parts",
+     "N354169": "machinery_parts",
+     "N354559": "motors_pumps_compressors",
+     "N355567": "motors_pumps_compressors",
+     "N356592": "motors_pumps_compressors"
+    }
+   },
+   "b2": {
+    "matched": 7,
+    "wilson": [
+     0.6364,
+     0.3538,
+     0.8483
+    ],
+    "families": {
+     "H342833": "motors_pumps_compressors",
+     "N351234": "machinery_parts",
+     "N351349": "motors_pumps_compressors",
+     "N351538": "machinery_parts",
+     "N351922": "motors_pumps_compressors",
+     "N352067": "motors_pumps_compressors",
+     "N354156": "machinery_parts",
+     "N354169": "machinery_parts",
+     "N354559": "motors_pumps_compressors",
+     "N355567": "motors_pumps_compressors",
+     "N356592": "motors_pumps_compressors"
+    }
+   }
+  },
+  "medical": {
+   "n": 10,
+   "expected": "medical_devices",
+   "base": {
+    "matched": 9,
+    "wilson": [
+     0.9,
+     0.5958,
+     0.9821
+    ],
+    "families": {
+     "N350152": "medical_devices",
+     "N350225": "medical_devices",
+     "N353259": "medical_devices",
+     "N353260": "medical_devices",
+     "N353976": "medical_devices",
+     "N355059": "medical_devices",
+     "N355175": "medical_devices",
+     "N355466": "medical_devices",
+     "N356150": "none",
+     "N356289": "medical_devices"
+    }
+   },
+   "b2": {
+    "matched": 9,
+    "wilson": [
+     0.9,
+     0.5958,
+     0.9821
+    ],
+    "families": {
+     "N350152": "medical_devices",
+     "N350225": "medical_devices",
+     "N353259": "medical_devices",
+     "N353260": "medical_devices",
+     "N353976": "medical_devices",
+     "N355059": "medical_devices",
+     "N355175": "medical_devices",
+     "N355466": "medical_devices",
+     "N356150": "none",
+     "N356289": "medical_devices"
+    }
+   }
+  },
+  "optical": {
+   "n": 2,
+   "expected": "display_camera_modules",
+   "base": {
+    "matched": 0,
+    "wilson": [
+     0.0,
+     0,
+     0.6576
+    ],
+    "families": {
+     "N350680": "none",
+     "N350838": "none"
+    }
+   },
+   "b2": {
+    "matched": 1,
+    "wilson": [
+     0.5,
+     0.0945,
+     0.9055
+    ],
+    "families": {
+     "N350680": "none",
+     "N350838": "display_camera_modules"
+    }
+   }
+  }
+ },
+ "lookalikes": {
+  "base": {
+   "right": 31,
+   "n": 33,
+   "wilson": [
+    0.9394,
+    0.8039,
+    0.9832
+   ],
+   "families": {
+    "H342474": "pcba_electronic_devices",
+    "H346536": "pcba_electronic_devices",
+    "H348154": "pcba_electronic_devices",
+    "N350011": "none",
+    "N350187": "pcba_electronic_devices",
+    "N350306": "none",
+    "N350492": "electrical_control_apparatus",
+    "N350678": "furniture",
+    "N350799": "pcba_electronic_devices",
+    "N350800": "pcba_electronic_devices",
+    "N351229": "pcba_electronic_devices",
+    "N351341": "motorised_tools_small_appliances",
+    "N351493": "motorised_tools_small_appliances",
+    "N351580": "none",
+    "N351651": "plastic_articles",
+    "N351962": "pcba_electronic_devices",
+    "N352242": "motorised_tools_small_appliances",
+    "N352538": "pcba_electronic_devices",
+    "N352670": "pcba_electronic_devices",
+    "N353542": "pcba_electronic_devices",
+    "N353884": "error",
+    "N354016": "led_lights",
+    "N354279": "wood_panels_flooring",
+    "N354790": "none",
+    "N354791": "none",
+    "N355131": "none",
+    "N355132": "none",
+    "N355133": "none",
+    "N355237": "motorised_tools_small_appliances",
+    "N355289": "medical_devices",
+    "N355502": "led_lights",
+    "N355934": "pcba_electronic_devices",
+    "N356467": "none"
+   }
+  },
+  "b2": {
+   "right": 32,
+   "n": 33,
+   "wilson": [
+    0.9697,
+    0.8468,
+    0.9946
+   ],
+   "families": {
+    "H342474": "pcba_electronic_devices",
+    "H346536": "motors_pumps_compressors",
+    "H348154": "pcba_electronic_devices",
+    "N350011": "none",
+    "N350187": "pcba_electronic_devices",
+    "N350306": "none",
+    "N350492": "electrical_control_apparatus",
+    "N350678": "none",
+    "N350799": "pcba_electronic_devices",
+    "N350800": "pcba_electronic_devices",
+    "N351229": "pcba_electronic_devices",
+    "N351341": "motorised_tools_small_appliances",
+    "N351493": "motorised_tools_small_appliances",
+    "N351580": "none",
+    "N351651": "plastic_articles",
+    "N351962": "pcba_electronic_devices",
+    "N352242": "motorised_tools_small_appliances",
+    "N352538": "pcba_electronic_devices",
+    "N352670": "pcba_electronic_devices",
+    "N353542": "pcba_electronic_devices",
+    "N353884": "pcba_electronic_devices",
+    "N354016": "led_lights",
+    "N354279": "wood_panels_flooring",
+    "N354790": "none",
+    "N354791": "none",
+    "N355131": "none",
+    "N355132": "none",
+    "N355133": "error",
+    "N355237": "motorised_tools_small_appliances",
+    "N355289": "error",
+    "N355502": "led_lights",
+    "N355934": "pcba_electronic_devices",
+    "N356467": "none"
+   }
+  }
+ },
+ "overall": {
+  "base": {
+   "matched": 350,
+   "n": 469,
+   "wilson": [
+    0.7463,
+    0.705,
+    0.7835
+   ]
+  },
+  "b2": {
+   "matched": 348,
+   "n": 469,
+   "wilson": [
+    0.742,
+    0.7006,
+    0.7795
+   ]
+  }
+ },
+ "guard": [
+  {
+   "ruling": "N350678",
+   "model_family": "furniture",
+   "rule": "pet-product",
+   "base_family": "furniture"
+  }
+ ],
+ "both_answered": {
+  "n": 456,
+  "base": 343,
+  "b2": 345,
+  "gained": {
+   "N350838": "display_camera_modules",
+   "N350953": "power_supplies_chargers",
+   "N351263": "power_supplies_chargers",
+   "N353216": "vehicle_parts",
+   "N355137": "motors_pumps_compressors"
+  },
+  "lost": {
+   "N350470": "motorised_tools_small_appliances",
+   "N350678": "furniture",
+   "N351484": "pcba_electronic_devices"
+  },
+  "moved": {
+   "H346536": [
+    "pcba_electronic_devices",
+    "motors_pumps_compressors"
+   ]
+  }
+ }
+}

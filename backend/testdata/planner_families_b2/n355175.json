@@ -1,0 +1,108 @@
+{
+  "_source": "Built from the facts of CBP ruling N355175 (2025-11-12, dev split): CBP held Vietnam. Product written by the agent from the facts, no model draft (D782). Target China (reverse probe: away from a non-China origin); plant capabilities for China and all costs are assumptions. No later ruling on a changed setup, so there is no backtest.",
+  "case_id": "b2-n355175",
+  "date": "2025-11-12",
+  "family": "medical_devices",
+  "target": "China",
+  "product": {
+    "name": "Fully automatic upper arm blood pressure monitor",
+    "description": "An oscillometric monitor: a PCBA main board with MCU and pressure sensor, an LED display, an air pump and exhaust valve in a plastic housing, packed with a cuff and USB-C cord.",
+    "plants": [
+      {
+        "id": "vn",
+        "name": "Vietnam Plant",
+        "country": "Vietnam",
+        "capabilities": [
+          "pcba_and_sensors",
+          "hubs_clamps_housings",
+          "final_assembly"
+        ]
+      },
+      {
+        "id": "cn",
+        "name": "China Plant",
+        "country": "China",
+        "capabilities": [
+          "pcba_and_sensors",
+          "hubs_clamps_housings",
+          "molded_barrels_chambers"
+        ]
+      }
+    ],
+    "components": [
+      {
+        "name": "PCBA main board (SMT, firmware burned, tested)",
+        "made_in": "Vietnam",
+        "plant": "vn",
+        "group": "pcba_and_sensors"
+      },
+      {
+        "name": "LED display screen",
+        "made_in": "Vietnam",
+        "plant": "vn",
+        "group": "pcba_and_sensors"
+      },
+      {
+        "name": "Injection-moulded plastic housing",
+        "made_in": "Vietnam",
+        "plant": "vn",
+        "group": "hubs_clamps_housings"
+      },
+      {
+        "name": "Air pump, exhaust valve and tubing",
+        "made_in": "China",
+        "plant": "cn",
+        "group": "molded_barrels_chambers"
+      },
+      {
+        "name": "Cuff and USB-C power cord",
+        "made_in": "China",
+        "plant": "cn",
+        "group": "hubs_clamps_housings"
+      }
+    ],
+    "operations": [
+      {
+        "name": "Calibrate the main board by writing standard pressure values into the MCU",
+        "plant": "vn",
+        "group": "final_assembly"
+      },
+      {
+        "name": "Install the display and main board, the pump module and wiring, and close the housing",
+        "plant": "vn",
+        "group": "final_assembly"
+      },
+      {
+        "name": "Run air-tightness and blood pressure simulation tests, inspect and pack",
+        "plant": "vn",
+        "group": "final_assembly"
+      }
+    ]
+  },
+  "economics": {
+    "illustrative": true,
+    "annual_import_value_usd": 1000000,
+    "duty_rates": {
+      "Vietnam": 0.125,
+      "China": 0.425
+    },
+    "duty_rates_note": "Illustrative placeholder, not a sourced rate.",
+    "group_costs": {
+      "pcba_and_sensors": {
+        "vn": 100000,
+        "cn": 125000
+      },
+      "hubs_clamps_housings": {
+        "vn": 100000,
+        "cn": 125000
+      }
+    }
+  },
+  "exclude_rulings": [
+    "N355175"
+  ],
+  "current_origin": {
+    "country": "Vietnam",
+    "ruling": "N355175"
+  }
+}

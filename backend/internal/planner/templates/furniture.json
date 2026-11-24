@@ -1,13 +1,14 @@
 {
   "family": "furniture",
-  "version": "1",
+  "version": "2",
   "union_default_operations": true,
   "name": "Furniture and mattresses",
-  "note": "CBP generally determines the country of origin for furniture and mattresses based on where the primary structural components, such as tabletops, metal cabinets, or foam mattress cores, are fabricated from raw or semi-finished materials. Conversely, simple assembly, co-packaging pre-made bases with tops, attaching electronic controllers, or placing finished mattresses into sofa frames does not constitute a substantial transformation. Written from 15 CBP substantial-transformation rulings outside the dev and held-out splits (D138); every cited ruling was checked against its facts and holding. Costs are illustrative defaults; users edit them.",
+  "note": "CBP generally determines the country of origin for furniture and mattresses based on where the primary structural components, such as tabletops, metal cabinets, or foam mattress cores, are fabricated from raw or semi-finished materials. Conversely, simple assembly, co-packaging pre-made bases with tops, attaching electronic controllers, or placing finished mattresses into sofa frames does not constitute a substantial transformation. Tables sold unassembled took the origin of their stone tops, not of the welded, painted bases packed with them (version 2). Written from 15 CBP substantial-transformation rulings outside the dev and held-out splits (D138), with one table ruling from the train pool added in version 2 (D782); every cited ruling was checked against its facts and holding. Costs are illustrative defaults; users edit them.",
   "sources": [
     "H330862",
     "H338728",
     "N330057",
+    "N334531",
     "N335242",
     "N338514",
     "N339107",
@@ -30,12 +31,13 @@
         "confers_origin": [
           "H330862",
           "H338728",
-          "N339685"
+          "N339685",
+          "N334531"
         ],
         "not_enough": [
           "N344246"
         ],
-        "note": "CBP often finds that fabricating the tabletop imparts the essential character and origin of a table (H330862, H338728, N339685), though importing pre-cut laminated MDF boards for complex desk assembly did not control origin (N344246)."
+        "note": "CBP often finds that fabricating the tabletop imparts the essential character and origin of a table (H330862, H338728, N339685), including cutting, bevelling and polishing engineered quartz slabs into tops for tables sold unassembled (N334531), though importing pre-cut laminated MDF boards for complex desk assembly did not control origin (N344246)."
       }
     },
     {
@@ -55,9 +57,10 @@
           "N338514"
         ],
         "not_enough": [
-          "N339685"
+          "N339685",
+          "N334531"
         ],
-        "note": "Stamping, extruding, and welding metal into structural bodies or frames confers origin when it forms the core structure (H330862, N335242, N338514), whereas manufacturing a wood pedestal alone did not confer origin compared to the stone tabletop (N339685)."
+        "note": "Stamping, extruding, and welding metal into structural bodies or frames confers origin when it forms the core structure (H330862, N335242, N338514), whereas manufacturing a wood pedestal alone did not confer origin compared to the stone tabletop (N339685), nor did welding and painting metal bases or machining and painting wood bases in China for tables with Thai stone tops (N334531)."
       }
     },
     {
@@ -103,7 +106,8 @@
       "operations": [
         "mount controllers, brackets, latches, drawers, and hardware onto tabletops, frames, or cabinets",
         "unroll and place finished foam mattresses onto sleeper sofa or ottoman frames",
-        "combine and package finished tabletops with pedestals, legs, or bases for retail shipment"
+        "combine and package finished tabletops with pedestals, legs, or bases for retail shipment",
+        "pack tabletops with unassembled bases and hardware as knock-down kits for assembly by the buyer"
       ],
       "movable": false,
       "precedent": {
@@ -114,9 +118,10 @@
         "not_enough": [
           "N348576",
           "N339107",
-          "N339646"
+          "N339646",
+          "N334531"
         ],
-        "note": "Final assembly confers origin when paired with substantial component fabrication or complex multi-part integration (N338514, N344246), but merely co-packaging or minor joining does not transform the components (N348576, N339107, N339646)."
+        "note": "Final assembly confers origin when paired with substantial component fabrication or complex multi-part integration (N338514, N344246), but merely co-packaging or minor joining does not transform the components (N334531, N348576, N339107, N339646)."
       }
     }
   ]

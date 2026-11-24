@@ -550,3 +550,24 @@ Experimental offline evaluation, advisory and unreviewed. Not Japan market cover
 | Precedent pool | 197 of 863 cited precedents were earlier held-out rulings; 0 self, 0 future | Held-out rows | Chronological rolling pool. Earlier held-out rulings were retrievable, so the cases are not wholly fresh. |
 | Cost | $4.1258349 conservative charge (430 attempts) | `eval/results/RUNLOG.jsonl` rows `d741-heldout-1`, `d741-synthetic-1` | $3.7019269 gateway-reported plus $0.423908 worst case for 4 unreported failures. Not an invoice or a future quote. |
 | Latency | Held-out p50 7.701 s, p95 15.515 s; synthetic p50 8.040 s, p95 10.134 s | Same metrics | Model-call cases. |
+
+## Family depth: batteries, machinery, furniture, medical and optical (D780–D784)
+
+| Measure | Value | Source | Status |
+|---|---|---|---|
+| Case universe | 1,223 substantial-transformation rulings dated before 2026 (dev 469, train 632, other 122); 751 held-out IDs excluded by ID | `eval/families/b2-hits.json` (`depth_b2.py`) | Computed, no model call. |
+| Frozen kept rulings (pool + dev) | Batteries 6 + 7, machinery 16 + 11, furniture 10 + 1, medical and optical 20 + 12; ambiguous 26, 18, 5, 17 | `eval/families/b2-cases.json` | Hand screen; N354279 moved to ambiguous after the freeze (D782). |
+| New templates | 0 of 4 tracks reached D780's bar of 10 citable pool rulings not served by a template (batteries 6, industrial machines 5, optical 2) | D781 | Decision by a pre-registered bar. |
+| New citations | 16 rulings, each with its held-origin sentence | `eval/families/b2-citations.json` | Read by the agent, no model check. |
+| BM25 top 5 holds a cited ruling (dev) | Batteries 0 → 7 of 7; machinery 3 → 3 of 11; medical 7 → 7 of 10; optical 1 → 1 of 2; furniture 0 → 0 of 1 | `eval/families/b2-retrieval.json` | Measured offline, descriptive; small n. |
+| Family-check guard on dev rows | 1 of 349 matched rows changed (pet bed, furniture → none) | `eval/families/b2-guard-dev.json` | Measured offline on recorded v1 checks; the first run's 7 changes included 6 subject-parsing artifacts (D783). |
+| Family count | 26 (unchanged) | `TestTemplateSetIsPinned` | Pinned. |
+| Dev family check, frozen cases matched (base → #772) | Batteries 5 → 7 of 7; machinery 7 → 7 of 11; medical 9 → 9 of 10; optical 0 → 1 of 2; furniture 1 → 1 of 1 | `eval/families/b2-familycov.json` | Measured once per configuration, development only (D787). Superseded by D789: guard v2 run, kept as run. |
+| Dev family check, look-alikes kept off their cue family | 31 → 32 of 33 (failed checks counted as not matched) | Same | Measured (D787). Superseded by D789 (guard v2 run). |
+| Dev family check, all 469 | 350 → 348 matched; failed checks 4 → 10; guard took 1 match (pet bed) | `eval/results/families-coverage-dev-all-litellm-f26-b2{-base,}.jsonl` | Measured (D787); within run-to-run variation. Superseded by D789 (guard v2 run). |
+| Dev family-check run cost and latency | $3.1427 for both runs; p50 4.0 / 4.4 s, p95 9.8 / 13.0 s per check | Same, RUNLOG rows `families-coverage-dev-all-litellm-f26-b2-base`, `…-f26-b2` | Token-priced at promo rates. |
+| Dev family check with guard v3, frozen cases matched (base → #772) | Batteries 5 → 6 of 7 (one failed check); machinery 7 → 7 of 11; medical 9 → 10 of 10; optical 0 → 1 of 2; furniture 1 → 1 of 1 | `eval/families/b2-familycov-g3.json` | Measured once, development only (D790). Current. |
+| Dev family check with guard v3, look-alikes kept off their cue family | 31 → 32 of 33 (failed checks counted as not matched) | Same | Measured (D790). Current. |
+| Dev family check with guard v3, all 469 | 350 → 351 matched; failed checks 4 → 9; guard took 1 match (pet bed) | `eval/results/families-coverage-dev-all-litellm-f26-b2-g3.jsonl` | Measured (D790). Current. |
+| Dev family check with guard v3, cost and latency | $1.6222; p50 5.2 s, p95 15.4 s per check; lane total $4.7649 for three runs | RUNLOG row `families-coverage-dev-all-litellm-f26-b2-g3` | Token-priced at promo rates. |
+

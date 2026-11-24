@@ -1,0 +1,106 @@
+{
+  "_source": "Built from the facts of CBP ruling N346867 (2025-04-16, train split): CBP held Japan. Product written by the agent from the facts, no model draft (D782). Target China (reverse probe: away from a non-China origin); plant capabilities for China and all costs are assumptions. No later ruling on a changed setup, so there is no backtest.",
+  "case_id": "b2-n346867",
+  "date": "2025-04-16",
+  "family": "motors_pumps_compressors",
+  "target": "China",
+  "product": {
+    "name": "Industrial robot assembly (pick-and-place station robot)",
+    "description": "A robot arm on a pedestal with a customised gripper, vacuum actuator, sensors, light source and camera, for one pick-and-place task in an assembly line.",
+    "plants": [
+      {
+        "id": "jp",
+        "name": "Japan Plant",
+        "country": "Japan",
+        "capabilities": [
+          "machine_working_unit",
+          "controls_and_valves"
+        ]
+      },
+      {
+        "id": "cn",
+        "name": "China Plant",
+        "country": "China",
+        "capabilities": [
+          "machine_working_unit",
+          "machine_frame_tooling",
+          "final_assembly"
+        ]
+      },
+      {
+        "id": "vn",
+        "name": "Vietnam Plant",
+        "country": "Vietnam",
+        "capabilities": [
+          "controls_and_valves"
+        ]
+      }
+    ],
+    "components": [
+      {
+        "name": "Finished robot arm",
+        "made_in": "Japan",
+        "plant": "jp",
+        "group": "machine_working_unit"
+      },
+      {
+        "name": "Camera, vacuum actuator and light source",
+        "made_in": "Japan",
+        "plant": "jp",
+        "group": "controls_and_valves"
+      },
+      {
+        "name": "Reflection and beam sensors",
+        "made_in": "Vietnam",
+        "plant": "vn",
+        "group": "controls_and_valves"
+      },
+      {
+        "name": "Gripper mechanism, pedestal, brackets, fixation blocks and aluminium profiles",
+        "made_in": "China",
+        "plant": "cn",
+        "group": "machine_frame_tooling"
+      }
+    ],
+    "operations": [
+      {
+        "name": "Bolt the robot arm to the pedestal and build the gripper from profiles and brackets",
+        "plant": "cn",
+        "group": "final_assembly"
+      },
+      {
+        "name": "Attach the gripper cylinder, actuator, sensors, light source and camera",
+        "plant": "cn",
+        "group": "final_assembly"
+      },
+      {
+        "name": "Wire, adjust and test the robot assembly",
+        "plant": "cn",
+        "group": "final_assembly"
+      }
+    ]
+  },
+  "economics": {
+    "illustrative": true,
+    "annual_import_value_usd": 1000000,
+    "duty_rates": {
+      "Japan": 0.125,
+      "China": 0.425,
+      "Vietnam": 0.125
+    },
+    "duty_rates_note": "Illustrative placeholder, not a sourced rate.",
+    "group_costs": {
+      "machine_working_unit": {
+        "jp": 100000,
+        "cn": 125000
+      }
+    }
+  },
+  "exclude_rulings": [
+    "N346867"
+  ],
+  "current_origin": {
+    "country": "Japan",
+    "ruling": "N346867"
+  }
+}

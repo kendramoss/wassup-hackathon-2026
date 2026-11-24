@@ -104,7 +104,7 @@ func say(text string) func(llm.Request) (llm.Response, error) {
 	return func(llm.Request) (llm.Response, error) { return llm.Response{Text: text}, nil }
 }
 
-const synthetic = `{"text":"synthetic solar garden lamp, smoke test","product":{"name":"Synthetic lamp","components":[{"name":"LED board","made_in":"China"}],"plants":[],"operations":[]}}`
+const synthetic = `{"text":"synthetic widget assembly, smoke test","product":{"name":"Synthetic widget","components":[{"name":"LED board","made_in":"China"}],"plants":[],"operations":[]}}`
 
 // assertFailClosed: a non-200 answer is the documented error body (code and
 // message, nothing else), carries no family result, and never echoes an
@@ -137,7 +137,7 @@ func TestSupportedFamily(t *testing.T) {
 	r := newRig(t, nil, true)
 	for _, id := range r.ids {
 		id := id
-		r.model.Respond = say(`{"family":"` + id + `","confidence":0.93,"reason":"synthetic","product_name":"Synthetic lamp","typed_unclear":false}`)
+		r.model.Respond = say(`{"family":"` + id + `","confidence":0.93,"reason":"synthetic","product_name":"Synthetic widget","typed_unclear":false}`)
 		code, out, raw := r.post(t, synthetic)
 		res, _ := out["result"].(map[string]any)
 		if code != 200 || res["family"] != id || res["name"] != r.templates[id].Name || out["prompt_version"] != familycheck.PromptVersion || out["llm_provider"] != "fake" {
