@@ -3434,7 +3434,7 @@ Some Japan Customs rulings carry a code from a later HS edition than the schedul
 - **Evidence.** `docs/japan/gsp-pilot.md`, `docs/japan/jp-us-ta-pilot.md`.
 
 ## D880 — Japan-UK: header rows no longer copy the previous rule (24 Nov, #808)
-- **Decision.** In the Japan-UK schedule, 38 headings whose rule cell is empty had copied the previous row's rule. The parser now keeps one row per sub-line branch ("-" lines keyed to their chapter) and gives an empty-cell heading no rule of its own. Rows 462 → 424.
+- **Decision.** In the Japan-UK schedule, 38 headings whose rule cell is empty had copied the previous row's rule. The parser now keeps one row per "-" sub-line branch, keyed to the heading's own code range (before, they were keyed to the chapter, which the copied heading row shadowed), and gives an empty-cell heading no rule of its own. Rows 462 → 424.
 - **Why.** A copied rule is text from a different product, shown as evidence for the heading.
 - **Result.** 198 codes (of the 5,387 HS 2017 codes, two dates) return different or fuller evidence. On the development split, 0 of 24 UK rulings hit a copied row. This is parser correctness, not accuracy.
 - **Cost if wrong.** A heading whose real rule sits in a sub-line is shown the sub-line rows, not one rule. Withheld and footnote rows are unchanged.
