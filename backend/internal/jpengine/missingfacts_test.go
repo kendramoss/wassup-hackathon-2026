@@ -134,7 +134,7 @@ func TestPredictUndeterminedFreeTextKeepsPlainReason(t *testing.T) {
 }
 
 func TestPredictQualifiesGetsNoMissingFactsText(t *testing.T) {
-	model := llm.FakeText(`{"outcome":"qualifies","criterion":"CTH","origin_country":"Japan","deciding_rule":"Change of heading","confidence":0.7,"reasoning":"ok","cited_rulings":[]}`)
+	model := llm.FakeText(`{"outcome":"qualifies","criterion":"CTH","origin_country":"Thailand","deciding_rule":"Change of heading","confidence":0.7,"reasoning":"ok","cited_rulings":[]}`)
 	eng, err := NewDefault(model, "fake", DefaultK)
 	if err != nil {
 		t.Fatal(err)
