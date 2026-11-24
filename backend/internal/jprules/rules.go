@@ -66,10 +66,34 @@ type note struct {
 	// prefix ranges (2 to 6 digits, both ends of equal length). Empty means
 	// the whole chapter or section named by Scope and Key.
 	Applies [][2]string `json:"applies,omitempty"`
+	// SourceURL and Citation, set together or not at all, name a source other
+	// than the schedule's own, such as an annex in a separate PDF. The note's
+	// evidence is then cited "<Citation>, PDF page <Page>" and links to
+	// "<SourceURL>#page=<Page>" instead of the schedule's citation and URL. A
+	// note with them has a page of 1 or more and no Ref.
+	SourceURL string `json:"source_url,omitempty"`
+	Citation  string `json:"citation,omitempty"`
 }
 
 // validRef reports whether a locator is a non-empty, trimmed string.
 func validRef(ref string) bool { return ref != "" && ref == strings.TrimSpace(ref) }
+
+// validateNoteSource rejects a note that names half a source, a source that is
+// not a plain https link (the page fragment is added by the evidence), or a
+// source on a note that has no page of the source PDF.
+func validateNoteSource(n note) error {
+	if n.SourceURL == "" && n.Citation == "" {
+		return nil
+	}
+	if !validRef(n.SourceURL) || !validRef(n.Citation) ||
+		!strings.HasPrefix(n.SourceURL, "https://") || strings.Contains(n.SourceURL, "#") {
+		return fmt.Errorf("bad note source %q %q", n.SourceURL, n.Citation)
+	}
+	if n.Page < 1 || n.Ref != "" {
+		return fmt.Errorf("note %q %q with a source needs a PDF page and no ref", n.Scope, n.Key)
+	}
+	return nil
+}
 
 // validateApplies rejects a malformed applicability range at load time.
 func validateApplies(ranges [][2]string) error {
@@ -173,6 +197,9 @@ func validateSchedule(s schedule) error {
 			return fmt.Errorf("%s: bad note ref %q", s.Agreement, n.Ref)
 		}
 		if err := validateApplies(n.Applies); err != nil {
+			return fmt.Errorf("%s: %w", s.Agreement, err)
+		}
+		if err := validateNoteSource(n); err != nil {
 			return fmt.Errorf("%s: %w", s.Agreement, err)
 		}
 	}
@@ -578,7 +605,11 @@ func (s schedule) notesFor(hs string) []Evidence {
 				out = append(out, Evidence{Text: n.Text, Citation: caveatPrefix})
 				continue
 			}
-			out = append(out, s.evidence(n.Text, n.Page, n.Ref))
+			src := s
+			if n.SourceURL != "" {
+				src.URL, src.Citation = n.SourceURL, n.Citation
+			}
+			out = append(out, src.evidence(n.Text, n.Page, n.Ref))
 		}
 	}
 	return out

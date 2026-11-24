@@ -168,5 +168,64 @@ class UkHeaderRows(unittest.TestCase):
             self.run_uk([("Chapter 70", "x"), ("70.01", "R"), ("- A", "R2")])
 
 
+class Annex3A(unittest.TestCase):
+    """Annex 3-A quoting and the Annex 3-B Section/Chapter note cells."""
+
+    def test_quote_chunk_is_verbatim_between_anchors_without_footer(self):
+        page = "Note 3 Application 1. One. 2. Two. EU/JP/Annex 3-A/en 4"
+        self.assertEqual(b.quote_chunk(page, "Note 3", None), "Note 3 Application 1. One. 2. Two.")
+        self.assertEqual(b.quote_chunk(page, "1. One.", "2. Two."), "1. One. 2. Two.")
+        self.assertEqual(b.quote_chunk("Text. ________________ EU/JP/Annex 3-A/en 18", None, None), "Text.")
+
+    def test_quote_chunk_needs_a_unique_start(self):
+        with self.assertRaises(ValueError):
+            b.quote_chunk("a b a b", "a", None)
+        with self.assertRaises(ValueError):
+            b.quote_chunk("a b", "zzz", None)
+
+    def test_formula_page_must_keep_its_text_layer(self):
+        end = ("apply:", " F = x", "layer")
+        self.assertEqual(b.quote_chunk("1. apply: layer", None, end), "1. apply: F = x")
+        with self.assertRaises(ValueError):
+            b.quote_chunk("1. apply: other layer", None, end)
+
+    def test_every_annex_note_is_page_pinned_and_scoped(self):
+        for filename, spec in b.ANNEX_3A.items():
+            self.assertIn(spec["pdf"], b.DIGESTS)
+            self.assertIn(filename, b.DIGESTS)
+            for page, label, start, end, scope, key, applies in spec["notes"]:
+                self.assertGreaterEqual(page, 1)
+                self.assertTrue(label.startswith("Note "))
+                self.assertIn((scope, key), (("schedule", ""), ("section", "XI")))
+                for lo, hi in applies:
+                    self.assertTrue(lo.isdigit() and len(lo) == len(hi) and lo <= hi)
+            pages = [n[0] for n in spec["notes"]]
+            self.assertEqual(pages, sorted(pages))
+
+    def test_cell_notes_are_captured_with_a_reviewed_scope(self):
+        pdf = TablePdf([
+            ("SECTION V", "MINERAL PRODUCTS Section note: See Note 5 of Annex 3-A."),
+            ("Chapter 57", "Carpets Chapter note: Jute may be a backing."),
+            ("57.01", "Rule.")])
+        for filename, page in (("eu3.pdf", 12), ("uk3.pdf", 14)):
+            notes = []
+            b.cell_note(notes, filename, "section", "V", "MINERAL PRODUCTS Section note: See.", page)
+            self.assertEqual(notes, [{"scope": "section", "key": "V", "text": "Section note: See.", "page": page}])
+            b.scope_numbered_notes(filename, notes)
+            self.assertNotIn("applies", notes[0])
+        rows, notes = b.uk(pdf)
+        self.assertEqual([(n["scope"], n["key"], n["text"][:14]) for n in notes],
+                         [("section", "V", "Section note: "), ("chapter", "57", "Chapter note: ")])
+
+    def test_cell_note_without_an_applicability_entry_fails_the_build(self):
+        with self.assertRaises(ValueError):
+            b.scope_numbered_notes("eu3.pdf", [{"text": "Section note: x", "page": 13, "key": "V"}])
+
+    def test_other_pdfs_do_not_take_cell_notes(self):
+        notes = []
+        b.cell_note(notes, "tpp2.pdf", "section", "V", "x Section note: y", 1)
+        self.assertEqual(notes, [])
+
+
 if __name__ == "__main__":
     unittest.main()

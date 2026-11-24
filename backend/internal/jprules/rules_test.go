@@ -57,6 +57,7 @@ func TestOfficialSchedules(t *testing.T) {
 	})
 	t.Run("product branches stay together", func(t *testing.T) {
 		rules, err := table.Lookup("JP-EU EPA", "1517.90", date)
+		rules = ruleEvidence(rules)
 		if err != nil || len(rules) != 2 || !strings.Contains(rules[1].Text, "Others:") {
 			t.Fatalf("got %v, %v", rules, err)
 		}
