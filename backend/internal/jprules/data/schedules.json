@@ -24566,7 +24566,270 @@
     "text": "CTH or QVC 40"
    }
   ],
-  "notes": []
+  "notes": [
+   {
+    "scope": "chapter",
+    "key": "03",
+    "text": "Note: For the purposes of subheadings 0306.16, 0306.17, 0306.35, 0306.36 and 0306.95, a non-originating material obtained by fishing in a non-Party which is a member country of the ASEAN or taken by vessels, which are registered in and sail under the flag of a non-Party which is a member country of the ASEAN, from the sea outside the territorial sea of that non-Party shall be transported to the Party where the non-originating material is used for the production of a good: (a) directly from that non-Party; or (b) through one or more other non-Parties for the purpose of transit or temporary storage in warehouses in such non-Parties, provided that it does not undergo operations other than unloading, reloading or any other operation to preserve it in good condition.",
+    "page": 4,
+    "applies": [
+     [
+      "030616",
+      "030616"
+     ],
+     [
+      "030617",
+      "030617"
+     ],
+     [
+      "030635",
+      "030635"
+     ],
+     [
+      "030636",
+      "030636"
+     ],
+     [
+      "030695",
+      "030695"
+     ]
+    ]
+   },
+   {
+    "scope": "chapter",
+    "key": "07",
+    "text": "Note: For the purposes of subheadings 0710.22 and 0710.29, a non-originating material harvested, picked or gathered in a non-Party which is a member country of the ASEAN shall be transported to the Party where the non-originating material is used for the production of a good: (a) directly from that non-Party; or (b) through one or more other non-Parties for the purpose of transit or temporary storage in warehouses in such non-Parties, provided that it does not undergo operations other than unloading, reloading or any other operation to preserve it in good condition.",
+    "page": 5,
+    "applies": [
+     [
+      "071022",
+      "071022"
+     ],
+     [
+      "071029",
+      "071029"
+     ]
+    ]
+   },
+   {
+    "scope": "chapter",
+    "key": "16",
+    "text": "Note 1: For the purposes of subheading 1604.14, a non-originating material taken by authorised fishing vessels on the Indian Ocean Tuna Commission Record (hereinafter referred to in this Agreement as “the IOTC Record”) shall be transported to the Party where the non-originating material is used for the production of a good without having undergone any operation other than operation to preserve it in good condition.",
+    "page": 6,
+    "applies": [
+     [
+      "160414",
+      "160414"
+     ]
+    ]
+   },
+   {
+    "scope": "chapter",
+    "key": "16",
+    "text": "Note 2: For the purposes of subheadings 1604.13, 1604.15, 1604.20, 1605.21 and 1605.29, a non-originating material obtained by fishing in a non-Party which is a member country of the ASEAN or taken by vessels, which are registered in and sail under the flag of a non-Party which is a member country of the ASEAN, from the sea outside the territorial sea of that non-Party shall be transported to the Party where the non-originating material is used for the production of a good: (a) directly from that non-Party; or (b) through one or more other non-Parties for the purpose of transit or temporary storage in warehouses in such non-Parties, provided that it does not undergo operations other than unloading, reloading or any other operation to preserve it in good condition.",
+    "page": 6,
+    "applies": [
+     [
+      "160413",
+      "160413"
+     ],
+     [
+      "160415",
+      "160415"
+     ],
+     [
+      "160420",
+      "160420"
+     ],
+     [
+      "160521",
+      "160521"
+     ],
+     [
+      "160529",
+      "160529"
+     ]
+    ]
+   },
+   {
+    "scope": "chapter",
+    "key": "18",
+    "text": "Note: For the purposes of subheading 1803.20 and heading 18.05, a non-originating material harvested, picked or gathered in a non-Party which is a member country of the ASEAN shall be transported to the Party where the non- originating material is used for the production of a good: (a) directly from that non-Party; or (b) through one or more other non-Parties for the purpose of transit or temporary storage in warehouses in such non-Parties, provided that it does not undergo operations other than unloading, reloading or any other operation to preserve it in good condition.",
+    "page": 7,
+    "applies": [
+     [
+      "180320",
+      "180320"
+     ],
+     [
+      "1805",
+      "1805"
+     ]
+    ]
+   },
+   {
+    "scope": "chapter",
+    "key": "19",
+    "text": "Note: For the purposes of subheading 1905.90: (a) a non-originating material produced entirely in a non-Party which is a member country of the ASEAN shall be transported to the Party where the non- originating material is used for the production of a good: (i) directly from that non-Party; or (ii) through one or more other non-Parties for the purpose of transit or temporary storage in warehouses in such non-Parties, provided that it does not undergo operations other than unloading, reloading or any other operation to preserve it in good condition; and (b) a non-originating material produced entirely in a non-Party which is a member country of the ASEAN and used in the production of a good shall be limited to those produced from materials harvested, picked or gathered in either Party or the non-Party which is a member country of the ASEAN.",
+    "page": 8,
+    "applies": [
+     [
+      "190590",
+      "190590"
+     ]
+    ]
+   },
+   {
+    "scope": "chapter",
+    "key": "20",
+    "text": "Note: For the purposes of subheadings 2001.10 through 2005.60, 2005.80 through 2007.10, 2008.11, 2008.19, 2008.40 through 2008.91, 2009.61, 2009.69, 2009.81 and 2009.89: (a) a non-originating material harvested, picked, gathered or produced entirely in a non-Party which is a member country of the ASEAN shall be transported to the Party where the non-originating material is used for the production of a good: (i) directly from that non-Party; or (ii) through one or more other non-Parties for the purpose of transit or temporary storage in warehouses in such non-Parties, provided that it does not undergo operations other than unloading, reloading or any other operation to preserve it in good condition; and (b) a non-originating material produced entirely in a non-Party which is a member country of the ASEAN and used in the production of a good shall be limited to those produced from materials harvested, picked or gathered in either Party or the non-Party which is a member country of the ASEAN.",
+    "page": 9,
+    "applies": [
+     [
+      "200110",
+      "200560"
+     ],
+     [
+      "200580",
+      "200710"
+     ],
+     [
+      "200811",
+      "200811"
+     ],
+     [
+      "200819",
+      "200819"
+     ],
+     [
+      "200840",
+      "200891"
+     ],
+     [
+      "200961",
+      "200961"
+     ],
+     [
+      "200969",
+      "200969"
+     ],
+     [
+      "200981",
+      "200981"
+     ],
+     [
+      "200989",
+      "200989"
+     ]
+    ]
+   },
+   {
+    "scope": "chapter",
+    "key": "27",
+    "text": "Note: For the purposes of this chapter, the term “chemical reaction” means a process, including a biochemical process, which results in a molecule with a new structure by breaking intramolecular bonds and by forming new intramolecular bonds, or by altering the spatial arrangement of atoms in a molecule, but does not include: (a) dissolving in water or other solvents; (b) the elimination of solvents including solvents water; or (c) the addition or elimination of water of crystallisation.",
+    "page": 12
+   },
+   {
+    "scope": "section",
+    "key": "VI",
+    "text": "Note: For the purposes of chapters 28 through 38: (a) the term “chemical reaction” means a process, including a biochemical process, which results in a molecule with a new structure by breaking intramolecular bonds and by forming new intramolecular bonds, or by altering the spatial arrangement of atoms in a molecule, but does not include: (i) dissolving in water or other solvents; (ii) the elimination of solvents including solvents water; or (iii) the addition or elimination of water of crystallisation; (b) the term “purification” means a process of reduction or elimination of impurities resulting in: (i) the elimination of not less than 80 per cent of the content of existing impurities; or (ii) a good directly suitable for one or more of the following applications: (AA) pharmaceutical, medical, cosmetic, veterinary or food grade substances; (BB) chemical products and reagents for analytical, diagnostic or laboratory use; (CC) elements and components for use in micro-electronics; (DD) specialised optical use; (EE) biotechnical use; (FF) carriers used in a separation process; or (GG) nuclear grade use; (c) the term “isomer separation” means a process of isolation or separation of an isomer from a mixture of isomers; or (d) the term “biotechnological processes” means: (i) biological or biotechnological culturing, hybridisation or genetic modification of micro-organisms or cells of human, animal or plant; or (ii) production, isolation or purification of cellular or intercellular structures.",
+    "page": 12,
+    "applies": [
+     [
+      "28",
+      "38"
+     ]
+    ]
+   },
+   {
+    "scope": "section",
+    "key": "VII",
+    "text": "Note: For the purposes of chapters 39 and 40: (a) the term “chemical reaction” means a process, including a biochemical process, which results in a molecule with a new structure by breaking intramolecular bonds and by forming new intramolecular bonds, or by altering the spatial arrangement of atoms in a molecule, but does not include: (i) dissolving in water or other solvents; (ii) the elimination of solvents including solvents water; or (iii) the addition or elimination of water of crystallisation; (b) the term “purification” means a process of reduction or elimination of impurities resulting in: (i) the elimination of not less than 80 per cent of the content of existing impurities; or (ii) a good directly suitable for one or more of the following applications: (AA) pharmaceutical, medical, cosmetic, veterinary or food grade substances; (BB) chemical products and reagents for analytical, diagnostic or laboratory use; (CC) elements and components for use in micro-electronics; (DD) specialised optical use; (EE) biotechnical use; (FF) carriers used in a separation process; or (GG) nuclear grade use; (c) the term “isomer separation” means a process of isolation or separation of an isomer from a mixture of isomers; or (d) the term “biotechnological processes” means: (i) biological or biotechnological culturing, hybridisation or genetic modification of micro-organisms or cells of human, animal or plant; or (ii) production, isolation or purification of cellular or intercellular structures.",
+    "page": 20,
+    "applies": [
+     [
+      "39",
+      "40"
+     ]
+    ]
+   },
+   {
+    "scope": "section",
+    "key": "XI",
+    "text": "Note: For the purposes of chapters 50 through 55 and 60, the dyeing or printing process shall be accompanied by two or more of the following operations: (1) antibacterial finish; (2) antimelt finish; (3) antimosquito finish; (4) anti-pilling finish; (5) antistatic finish; (6) artificial creasing; (7) bleaching; (8) brushing; (9) buff finish; (10) burn-out finish; (11) calendering; (12) compressive shrinkage; (13) crease resistant finish; (14) decatising; (15) deodorant finish; (16) easy-care finish; (17) embossing; (18) emerising; (19) flame resistant finish; (20) flock finish; (21) foam printing; (22) liquid ammonia process; (23) mercerisation, (24) microbial control finish; (25) milling; (26) moare finish; (27) moisture permeable waterproofing; (28) oil-repellent finish; (29) organdie finish; (30) peeling treatment; (31) perfumed finish; (32) relaxation; (33) ripple finish; (34) schreiner finish; (35) shearing; (36) shrink resistant finish; (37) soil guard finish; (38) soil release finish; (39) stretch finish; (40) tick-proofing; (41) UV cut finish; (42) wash and wear finish; (43) water absorbent finish; (44) waterproofing; (45) water-repellent finish; (46) wet decatising; (47) windbreak finish; or (48) wire raising.",
+    "page": 23,
+    "applies": [
+     [
+      "50",
+      "55"
+     ],
+     [
+      "60",
+      "60"
+     ]
+    ]
+   },
+   {
+    "scope": "chapter",
+    "key": "61",
+    "text": "Note 1: For the purposes of determining the origin of a good of this chapter, the rule applicable to that good shall only apply to the component that determines the tariff classification of the good and such component must satisfy the tariff change requirements set out in the rule for that good.",
+    "page": 26
+   },
+   {
+    "scope": "chapter",
+    "key": "61",
+    "text": "Note 2: For the purposes of this chapter, a non-originating material which is knitted or crocheted entirely in the other Party or a non-Party which is a member country of the ASEAN shall be transported to the Party where the non-originating material is used for the production of a good: (a) directly from that other Party or that non-Party; or (b) through one or more other non-Parties for the purpose of transit or temporary storage in warehouses in such non-Parties, provided that it does not undergo operations other than unloading, reloading or any other operation to preserve it in good condition.",
+    "page": 27
+   },
+   {
+    "scope": "chapter",
+    "key": "62",
+    "text": "Note 1: For the purposes of determining the origin of a good of this chapter, the rule applicable to that good shall only apply to the component that determines the tariff classification of the good and such component must satisfy the tariff change requirements set out in the rule for that good.",
+    "page": 27
+   },
+   {
+    "scope": "chapter",
+    "key": "62",
+    "text": "Note 2: For the purposes of this chapter, a non-originating material which is woven or knitted or crocheted entirely in the other Party or a non-Party which is a member country of the ASEAN shall be transported to the Party where the non-originating material is used for the production of a good: (a) directly from that other Party or that non-Party; or (b) through one or more other non-Parties for the purpose of transit or temporary storage in warehouses in such non-Parties, provided that it does not undergo operations other than unloading, reloading or any other operation to preserve it in good condition.",
+    "page": 27
+   },
+   {
+    "scope": "chapter",
+    "key": "63",
+    "text": "Note: For the purposes of determining the origin of a good of this chapter, the rule applicable to that good shall only apply to the component that determines the tariff classification of the good and such component must satisfy the tariff change requirements set out in the rule for that good.",
+    "page": 28
+   },
+   {
+    "scope": "chapter",
+    "key": "71",
+    "text": "Note: For the purposes of this chapter, natural or cultured pearls which are temporarily strung only for convenience of transport and not otherwise worked shall be regarded as unworked natural or cultured pearls of subheading 7101.21.",
+    "page": 29
+   },
+   {
+    "scope": "chapter",
+    "key": "72",
+    "text": "Note: For the purposes of this chapter, a good shall not be considered to satisfy the requirement of change in tariff classification merely by cutting including shearing or slitting to change its shape or dimensions.",
+    "page": 29
+   },
+   {
+    "scope": "chapter",
+    "key": "73",
+    "text": "Note: For the purposes of this chapter, a good shall not be considered to satisfy the requirement of change in tariff classification merely by cutting including shearing or slitting to change its shape or dimensions.",
+    "page": 30
+   },
+   {
+    "scope": "chapter",
+    "key": "87",
+    "text": "Note: For the purposes of headings 87.02 through 87.04, an originating good of the importing Party may be used, at the discretion of the producer of a good of such heading, as a material in the production of the good in the exporting Party and be considered as an originating material of the exporting Party in calculating the qualifying value content of the good.",
+    "page": 35,
+    "applies": [
+     [
+      "8702",
+      "8704"
+     ]
+    ]
+   }
+  ]
  },
  {
   "agreement": "JP-Indonesia EPA",
@@ -69719,6 +69982,1326 @@
     "key": "XI",
     "text": "Note: For the purposes of determining the origin of a good of this chapter, the rule applicable to that good shall only apply to the component that determines the tariff classification of the good and such component must satisfy the requirements of change in tariff classification set out in the rule for that good.",
     "page": 50
+   }
+  ]
+ },
+ {
+  "agreement": "JP-US TA",
+  "citation": "Japan-US Trade Agreement Annex I Section C Subsection 3 (Japanese text; HS edition not stated by the agreement)",
+  "source_url": "https://www.customs.go.jp/roo/text/us2.pdf",
+  "sha256": "af460808179a30ce688197ac064b170f64f7d55f943bc898860771eabf9962d6",
+  "from": "2020-01-01",
+  "until": "",
+  "rows": [
+   {
+    "start": "0401",
+    "end": "0404",
+    "page": 15,
+    "text": "ＣＣ（第一九〇一・九〇号の酪農調製品（乳固形分の含有量が乾燥状態において全重量の十パーセントを超えるもの）からの変更を除く。）",
+    "default": true
+   },
+   {
+    "start": "0405",
+    "end": "0405",
+    "page": 16,
+    "text": "ＣＣ（第一九〇一・九〇号の酪農調製品（乳固形分の含有量が乾燥状態において全重量の十パーセントを超えるもの）又は第二一〇六・九〇号の酪農調製品（乳固形分の含有量が乾燥状態において全重量の十パーセントを超えるもの）からの変更を除く。）",
+    "default": true
+   },
+   {
+    "start": "0406",
+    "end": "0406",
+    "page": 16,
+    "text": "ＣＣ（第一九〇一・九〇号の酪農調製品（乳固形分の含有量が乾燥状態において全重量の十パーセントを超えるもの）からの変更を除く。）",
+    "default": true
+   },
+   {
+    "start": "080132",
+    "end": "080132",
+    "page": 16,
+    "text": "ＣＴＳＨ"
+   },
+   {
+    "start": "090121",
+    "end": "090122",
+    "page": 16,
+    "text": "ＣＴＳＨ",
+    "default": true
+   },
+   {
+    "start": "090230",
+    "end": "090230",
+    "page": 16,
+    "text": "ＣＴＳＨ"
+   },
+   {
+    "start": "090421",
+    "end": "090421",
+    "page": 16,
+    "text": "ＣＣ（第〇七〇九・六〇号の材料からの変更を除く。）（とうがらしに限る。） ＣＣ（その他の産品）"
+   },
+   {
+    "start": "090422",
+    "end": "090422",
+    "page": 16,
+    "text": "ＣＣ（第〇七〇九・六〇号の材料からの変更を除く。）（とうがらしに限る。） ＣＴＳＨ（その他の産品）"
+   },
+   {
+    "start": "090520",
+    "end": "090520",
+    "page": 16,
+    "text": "ＣＴＳＨ"
+   },
+   {
+    "start": "090620",
+    "end": "090620",
+    "page": 16,
+    "text": "ＣＴＳＨ"
+   },
+   {
+    "start": "090720",
+    "end": "090720",
+    "page": 16,
+    "text": "ＣＴＳＨ"
+   },
+   {
+    "start": "090812",
+    "end": "090812",
+    "page": 16,
+    "text": "ＣＴＳＨ"
+   },
+   {
+    "start": "090822",
+    "end": "090822",
+    "page": 17,
+    "text": "ＣＴＳＨ"
+   },
+   {
+    "start": "090832",
+    "end": "090832",
+    "page": 17,
+    "text": "ＣＴＳＨ"
+   },
+   {
+    "start": "090922",
+    "end": "090922",
+    "page": 17,
+    "text": "ＣＴＳＨ"
+   },
+   {
+    "start": "090932",
+    "end": "090932",
+    "page": 17,
+    "text": "ＣＴＳＨ"
+   },
+   {
+    "start": "090962",
+    "end": "090962",
+    "page": 17,
+    "text": "ＣＴＳＨ"
+   },
+   {
+    "start": "091012",
+    "end": "091012",
+    "page": 17,
+    "text": "ＣＴＳＨ"
+   },
+   {
+    "start": "091020",
+    "end": "091030",
+    "page": 17,
+    "text": "ＣＣ又は 破砕し若しくは粉砕してない産品を破砕し若しくは粉砕すること（第〇九一〇・二〇号から第〇九一〇・三〇号までの各号の産品への関税分類の変更を必要としない。）。",
+    "default": true
+   },
+   {
+    "start": "091091",
+    "end": "091091",
+    "page": 17,
+    "text": "ＣＴＳＨ"
+   },
+   {
+    "start": "091099",
+    "end": "091099",
+    "page": 17,
+    "text": "ＣＴＳＨ又は 破砕し若しくは粉砕してない産品を破砕し若しくは粉砕すること（第〇九一〇・九九号の産品への関税分類の変更を必要としない。）。"
+   },
+   {
+    "start": "110290",
+    "end": "110290",
+    "page": 17,
+    "text": "ＣＣ（第一〇・〇六項の材料からの変更を除く。）"
+   },
+   {
+    "start": "110320",
+    "end": "110320",
+    "page": 17,
+    "text": "ＣＣ（第一〇・〇六項の材料からの変更を除く。）"
+   },
+   {
+    "start": "1105",
+    "end": "1105",
+    "page": 17,
+    "text": "ＣＣ（第〇七・〇一項の材料からの変更を除く。）",
+    "default": true
+   },
+   {
+    "start": "110710",
+    "end": "110710",
+    "page": 18,
+    "text": "ＣＣ（第一〇・〇三項の材料からの変更を除く。）"
+   },
+   {
+    "start": "110720",
+    "end": "110720",
+    "page": 18,
+    "text": "ＣＣ（第一〇・〇三項の材料からの変更を除く。）"
+   },
+   {
+    "start": "110812",
+    "end": "110812",
+    "page": 18,
+    "text": "ＣＣ。ただし、産品がアメリカ合衆国において収穫されるとうもろこしからアメリカ合衆国において生産されることを条件とする。"
+   },
+   {
+    "start": "110813",
+    "end": "110813",
+    "page": 18,
+    "text": "ＣＣ。ただし、産品がアメリカ合衆国において収穫されるばれいしょからアメリカ合衆国において生産されることを条件とする。"
+   },
+   {
+    "start": "110814",
+    "end": "110814",
+    "page": 18,
+    "text": "ＣＣ（第〇七一四・一〇号の材料からの変更を除く。）"
+   },
+   {
+    "start": "120890",
+    "end": "120890",
+    "page": 18,
+    "text": "ＣＣ（サフラワーの種の粉及びミールに限る。） ＣＴＨ（その他の産品）"
+   },
+   {
+    "start": "1518",
+    "end": "1522",
+    "page": 18,
+    "text": "ＣＴＨ",
+    "default": true
+   },
+   {
+    "start": "160232",
+    "end": "160232",
+    "page": 18,
+    "text": "ＣＣ（第二類の材料からの変更を除く。）"
+   },
+   {
+    "start": "160241",
+    "end": "160249",
+    "page": 18,
+    "text": "ＣＣ（第二類の材料からの変更を除く。）",
+    "default": true
+   },
+   {
+    "start": "160250",
+    "end": "160250",
+    "page": 18,
+    "text": "ＣＣ。ただし、第二類の非原産材料が使用される場合には、当該非原産材料のそれぞれが二千十八年三月八日にサンティアゴで作成された環太平洋パートナーシップに関する包括的及び先進的な協定の締約国である第三国において完全に生産されるものであることを条件とする。"
+   },
+   {
+    "start": "170113",
+    "end": "170199",
+    "page": 19,
+    "text": "ＣＣ（第一二一二・九三号の材料からの変更を除く。）",
+    "default": true
+   },
+   {
+    "start": "170230",
+    "end": "170260",
+    "page": 19,
+    "text": "ＣＣ（第一二一二・九三号の材料からの変更を除く。）",
+    "default": true
+   },
+   {
+    "start": "1704",
+    "end": "1704",
+    "page": 19,
+    "text": "ＣＴＨ",
+    "default": true
+   },
+   {
+    "start": "1803",
+    "end": "1805",
+    "page": 19,
+    "text": "ＣＴＨ",
+    "default": true
+   },
+   {
+    "start": "180610",
+    "end": "180610",
+    "page": 19,
+    "text": "ＣＴＨ（第一七・〇一項の材料からの変更を除く。）（砂糖の含有量が乾燥状態において全重量の九十パーセント以上である加糖ココア粉に限る。） ＣＴＨ。ただし、第一七・〇一項の非原産材料の重量が産品の重量の五十パーセントを超えないことを条件とする。（その他の産品）"
+   },
+   {
+    "start": "180620",
+    "end": "180620",
+    "page": 19,
+    "text": "ＣＴＨ"
+   },
+   {
+    "start": "180631",
+    "end": "180690",
+    "page": 19,
+    "text": "ＣＣ（カカオ含有量割合が産品の重量の七十パーセントを超える菓子に限る。） ＣＴＳＨ（その他の産品）",
+    "default": true
+   },
+   {
+    "start": "190110",
+    "end": "190110",
+    "page": 19,
+    "text": "ＣＣ（第〇四・〇一項から第〇四・〇六項までの各項の材料からの変更を除く。）（乳固形分の含有量が乾燥状態において全重量の十パーセントを超える産品に限る。） ＣＣ（その他の産品）"
+   },
+   {
+    "start": "190120",
+    "end": "190120",
+    "page": 19,
+    "text": "ＣＣ（第〇四・〇一項から第〇四・〇六項までの各項の材料からの変更を除く。）（バター脂の含有量が乾燥状態において全重量の二十五パーセントを超える産品であって小売用でないものに限る。） ＣＣ。ただし、非原産材料である第一一〇二・九〇号の米粉の価額が産品の価額の三十パーセントを超えないことを条件とする。（米粉の含有量が乾燥状態において全重量の三十パーセントを超える産品に限る。） ＣＣ（その他の産品） 注二以上の品目別原産地規則が適用可能である場合には、産品は、それぞれの適用可能な品目別原産地規則の要件を満たさなければならない。"
+   },
+   {
+    "start": "190190",
+    "end": "190190",
+    "page": 20,
+    "text": "ＣＣ（第〇四・〇一項から第〇四・〇六項までの各項の材料からの変更を除く。）（乳固形分の含有量が乾燥状態において全重量の十パーセントを超える産品に限る。） ＣＣ。ただし、非原産材料である第一一〇二・九〇号の米粉の価額が産品の価額の三十パーセントを超えないことを条件とする。（米粉の含有量が乾燥状態において全重量の三十パーセントを超える産品に限る。） ＣＣ（その他の産品） 注二以上の品目別原産地規則が適用可能である場合には、産品は、それぞれの適用可能な品目別原産地規則の要件を満たさなければならない。"
+   },
+   {
+    "start": "1905",
+    "end": "1905",
+    "page": 20,
+    "text": "ＣＴＨ",
+    "default": true
+   },
+   {
+    "start": "200190",
+    "end": "200190",
+    "page": 20,
+    "text": "ＣＣ（第〇七〇三・一〇号、第〇七〇九・六〇号、第〇七〇九・九一号、第〇七〇九・九二号若しくは第〇七一一・二〇号の材料又は第〇七一一・九〇号のアーティチョーク、たまねぎ若しくはピーマンからの変更を除く。）（野菜の調製品（二以上の野菜から得たものを除く。）に限る。） ＣＣ。ただし、第〇七〇三・一〇号、第〇七〇九・六〇号、第〇七〇九・九一号、第〇七〇九・九二号及び第〇七一一・二〇号の非原産材料並びに非原産材料である第〇七一一・九〇号のアーティチョーク、たまねぎ及びピーマンの価額が産品の価額の四十パーセントを超えないことを条件とする。（その他の産品）"
+   },
+   {
+    "start": "200310",
+    "end": "200310",
+    "page": 20,
+    "text": "ＣＣ（第〇七〇九・五一号、第〇七一〇・八〇号又は第〇七一一・五一号の材料からの変更を除く。）"
+   },
+   {
+    "start": "200410",
+    "end": "200410",
+    "page": 21,
+    "text": "ＣＣ（第〇七・〇一項、第〇七一〇・一〇号、第〇七一一・九〇号又は第〇七一二・九〇号の材料からの変更を除く。）"
+   },
+   {
+    "start": "200490",
+    "end": "200490",
+    "page": 21,
+    "text": "ＣＣ（第〇七〇三・一〇号、第〇七〇九・六〇号、第〇七一三・一〇号又は第〇七一三・三二号から第〇七一三・四〇号までの各号の材料からの変更を除く。）（野菜の調製品（二以上の野菜から得たものを除く。）に限る。） ＣＣ。ただし、第〇七〇三・一〇号、第〇七〇九・六〇号、第〇七一三・一〇号及び第〇七一三・三二号から第〇七一三・四〇号までの各号の非原産材料の価額が産品の価額の四十パーセントを超えないことを条件とする。（その他の産品）"
+   },
+   {
+    "start": "200520",
+    "end": "200520",
+    "page": 21,
+    "text": "ＣＣ（第〇七・〇一項、第〇七一〇・一〇号、第〇七一一・九〇号、第〇七一二・九〇号又は第一一・〇五項の材料からの変更を除く。）"
+   },
+   {
+    "start": "200540",
+    "end": "200540",
+    "page": 21,
+    "text": "ＣＣ（第〇七一三・一〇号の材料からの変更を除く。）"
+   },
+   {
+    "start": "200551",
+    "end": "200551",
+    "page": 21,
+    "text": "ＣＣ（第〇七一三・三二号から第〇七一三・三九号までの各号の材料からの変更を除く。）"
+   },
+   {
+    "start": "200560",
+    "end": "200560",
+    "page": 21,
+    "text": "ＣＣ（第〇七〇九・二〇号の材料又は第〇七一〇・八〇号のアスパラガスからの変更を除く。）"
+   },
+   {
+    "start": "200570",
+    "end": "200570",
+    "page": 21,
+    "text": "ＣＣ（第〇七〇九・九一号から第〇七〇九・九九号までの各号又は第〇七一一・二〇号の材料からの変更を除く。）"
+   },
+   {
+    "start": "200599",
+    "end": "200599",
+    "page": 21,
+    "text": "ＣＣ（第〇七・〇一項、第〇七〇九・五一号若しくは第〇七〇九・六〇号の材料又は第〇七・一〇項から第〇七・一二項までの各項のばれいしょ若しくはきのこ（はらたけ属のもの）からの変更を除く。）（野菜の調製品（二以上の野菜から得たものを除く。）に限る。） ＣＣ。ただし、第〇七・〇一項、第〇七〇九・五一号及び第〇七〇九・六〇号の非原産材料並びに非原産材料である第〇七・一〇項から第〇七・一二項までの各項のばれいしょ及びきのこ（はらたけ属のもの）の価額が産品の価額の四十パーセントを超えないことを条件とする。（その他の産品）"
+   },
+   {
+    "start": "200799",
+    "end": "200799",
+    "page": 22,
+    "text": "ＣＴＨ（第〇八〇四・五〇号のマンゴー若しくはグアバ、第〇八〇九・三〇号の桃、第〇八一〇・一〇号、第〇八一一・一〇号、第二〇・〇六項、第二〇・〇八項若しくは第二〇〇九・四一号から第二〇〇九・四九号までの各号の材料又は第二〇〇九・八九号のマンゴージュース若しくはグアバジュースからの変更を除く。）。ただし、第〇八〇四・三〇号の非原産材料の価額が産品の価額の五十パーセントを超えないことを条件とする。（果実の調製品（二以上の果実から得たものを除く。）に限る。） ＣＴＨ。ただし、第〇八〇四・三〇号の非原産材料、非原産材料である第〇八〇四・五〇号のマンゴー及びグアバ、非原産材料である第〇八〇九・三〇号の桃、第〇八一〇・一〇号、第〇八一一・一〇号、第二〇・〇六項、第二〇・〇八項及び第二〇〇九・四一号から第二〇〇九・四九号までの各号の非原産材料並びに非原産材料である第二〇〇九・八九号のマンゴージュース又はグアバジュースの価額が産品の価額の四十パーセントを超えないことを条件とする。（その他の産品）"
+   },
+   {
+    "start": "200811",
+    "end": "200811",
+    "page": 22,
+    "text": "ＣＣ（第一二・〇二項の材料からの変更を除く。）"
+   },
+   {
+    "start": "200819",
+    "end": "200819",
+    "page": 22,
+    "text": "ＣＣ（第〇八・〇二項又は第一二・〇二項の材料からの変更を除く。）（単に煎っただけのナット又は落花生（乾いたもの又は油漬けしたものであって、塩を加えたかどうかを問わない。）に限る。） ＣＣ（第〇八・〇二項又は第一二・〇二項の材料からの変更を除く。）（単に煎っただけのナット又は落花生（乾いたもの又は油漬けしたものであって、塩を加えたかどうかを問わない。）の含有量が乾燥状態において全重量の五十パーセント以上である混合物に限る。） ＣＣ（その他の産品）"
+   },
+   {
+    "start": "200820",
+    "end": "200820",
+    "page": 23,
+    "text": "ＣＣ（第〇八〇四・三〇号又は第〇八一一・九〇号の材料からの変更を除く。）"
+   },
+   {
+    "start": "200840",
+    "end": "200840",
+    "page": 23,
+    "text": "ＣＣ（第〇八〇八・三〇号、第〇八〇八・四〇号又は第〇八一一・九〇号の材料からの変更を除く。）"
+   },
+   {
+    "start": "200850",
+    "end": "200850",
+    "page": 23,
+    "text": "ＣＣ（第〇八〇九・一〇号又は第〇八一一・九〇号の材料からの変更を除く。）"
+   },
+   {
+    "start": "200870",
+    "end": "200870",
+    "page": 23,
+    "text": "ＣＣ（第〇八〇九・三〇号の桃又は第〇八一一・九〇号の桃からの変更を除く。）"
+   },
+   {
+    "start": "200880",
+    "end": "200880",
+    "page": 23,
+    "text": "ＣＣ（第〇八一〇・一〇号又は第〇八一一・一〇号の材料からの変更を除く。）"
+   },
+   {
+    "start": "200897",
+    "end": "200897",
+    "page": 23,
+    "text": "ＣＣ（第〇八〇四・五〇号のマンゴー若しくはグアバ、第〇八・〇五項、第〇八〇八・三〇号若しくは第〇八〇九・一〇号の材料、第〇八〇九・三〇号の桃又は第〇八一一・九〇号の冷凍のあんず、梨若しくは桃からの変更を除く。）。ただし、第〇八〇四・三〇号の非原産材料の価額が産品の価額の五十パーセントを超えないことを条件とする。（液体又はゼラチンに入った混合物に限る。） ＣＣ（その他の産品）"
+   },
+   {
+    "start": "200899",
+    "end": "200899",
+    "page": 23,
+    "text": "ＣＣ（第〇八〇四・五〇号のマンゴー又はグアバからの変更を除く。）"
+   },
+   {
+    "start": "200911",
+    "end": "200939",
+    "page": 23,
+    "text": "ＣＣ（第〇八・〇五項の材料からの変更を除く。）",
+    "default": true
+   },
+   {
+    "start": "200941",
+    "end": "200949",
+    "page": 23,
+    "text": "ＣＣ（第〇八〇四・三〇号の材料からの変更を除く。）",
+    "default": true
+   },
+   {
+    "start": "200989",
+    "end": "200989",
+    "page": 24,
+    "text": "ＣＣ（第〇八〇四・五〇号のマンゴー若しくはグアバ、第〇八〇七・二〇号の材料又は第〇八一〇・九〇号のパッションフルーツからの変更を除く。）"
+   },
+   {
+    "start": "200990",
+    "end": "200990",
+    "page": 24,
+    "text": "非原産材料の価額が産品の価額の五十五パーセントを超えないこと（関税分類の変更を必要としない。）。"
+   },
+   {
+    "start": "210130",
+    "end": "210130",
+    "page": 24,
+    "text": "ＣＣ（第一〇・〇三項の材料からの変更を除く。）（麦茶に限る。） ＣＣ（その他の産品）"
+   },
+   {
+    "start": "210310",
+    "end": "210310",
+    "page": 24,
+    "text": "ＣＴＨ"
+   },
+   {
+    "start": "210320",
+    "end": "210320",
+    "page": 24,
+    "text": "ＣＣ（第二〇〇二・九〇号の材料からの変更を除く。）（ケチャップに限る。） ＣＴＳＨ（その他の産品）"
+   },
+   {
+    "start": "210330",
+    "end": "210330",
+    "page": 24,
+    "text": "ＣＴＨ"
+   },
+   {
+    "start": "210390",
+    "end": "210390",
+    "page": 24,
+    "text": "ＣＴＳＨ"
+   },
+   {
+    "start": "2104",
+    "end": "2104",
+    "page": 24,
+    "text": "ＣＴＨ",
+    "default": true
+   },
+   {
+    "start": "2105",
+    "end": "2105",
+    "page": 24,
+    "text": "ＣＴＨ（第〇四・〇一項から第〇四・〇六項までの各項の材料、第一九〇一・九〇号の酪農調製品（乳固形分の含有量が乾燥状態において全重量の十パーセントを超えるもの）又は第二一〇六・九〇号の酪農調製品（乳固形分の含有量が乾燥状態において全重量の十パーセントを超えるもの）からの変更を除く。）",
+    "default": true
+   },
+   {
+    "start": "210610",
+    "end": "210610",
+    "page": 24,
+    "text": "ＣＴＳＨ"
+   },
+   {
+    "start": "210690",
+    "end": "210690",
+    "page": 25,
+    "text": "ＣＣ（第〇八・〇五項若しくは第二〇・〇九項の材料又は第二二〇二・九〇号の果実若しくは野菜のジュースからの変更を除く。）（果実又は野菜のジュース（二以上の果実又は野菜から得たものを除く。）に限る。） ＣＣ（第二〇類の材料からの変更を除く。）（ゼラチンに入った果実であって、当該果実の含有量が全重量の二十パーセントを超えるものに限る。） ＣＣ（第〇四・〇一項から第〇四・〇六項までの各項の材料又は第一九〇一・九〇号の酪農調製品（乳固形分の含有量が乾燥状態において全重量の十パーセントを超えるもの）からの変更を除く。）（乳固形分の含有量が乾燥状態において全重量の十パーセントを超える調製品に限る。） ＣＣ（第一七類の材料からの変更を除く。）（糖水に限る。） ＣＣ。ただし、非原産材料である第一一〇二・九〇号の米粉の価額が産品の価額の三十パーセントを超えないことを条件とする。（米粉の含有量が乾燥状態において全重量の三十パーセントを超える調製品に限る。） ＣＣ（第一二一二・九九号の材料からの変更を除く。）（こんにゃく調製品に限る。） ＣＴＳＨ（その他の産品） 注二以上の品目別原産地規則が適用可能な場合には、産品は、それぞれの適用可能な品目別原産地規則の要件を満たさなければならない。"
+   },
+   {
+    "start": "220291",
+    "end": "220299",
+    "page": 25,
+    "text": "ＣＣ（第〇四・〇一項から第〇四・〇六項までの各項の材料又は第一九〇一・九〇号の酪農調製品（乳固形分の含有量が乾燥状態において全重量の十パーセントを超えるもの）からの変更を除く。）（ミルクを含有する飲料に限る。） ＣＣ（第〇八・〇五項若しくは第二〇・〇九項の材料又は第二一〇六・九〇号の果実若しくは野菜のジュースからの変更を除く。）（果実又は野菜のジュース（二以上の果実又は野菜から得たものを除く。）に限る。） ＣＣ（その他の産品） 注二以上の品目別原産地規則が適用可能な場合には、産品は、それぞれの適用可能な品目別原産地規則の要件を満たさなければならない。",
+    "default": true
+   },
+   {
+    "start": "220600100",
+    "end": "220600100",
+    "page": 26,
+    "text": "ＣＴＨ"
+   },
+   {
+    "start": "2209",
+    "end": "2209",
+    "page": 26,
+    "text": "ＣＴＨ",
+    "default": true
+   },
+   {
+    "start": "230910",
+    "end": "230910",
+    "page": 26,
+    "text": "ＣＴＨ"
+   },
+   {
+    "start": "230990",
+    "end": "230990",
+    "page": 26,
+    "text": "ＣＴＨ（第〇四・〇一項から第〇四・〇六項までの各項の材料又は第一九〇一・九〇号の酪農調製品（乳固形分の含有量が乾燥状態において全重量の十パーセントを超えるもの）からの変更を除く。）（飼料用に供する種類の調製品であって、乳固形分の含有量が乾燥状態において全重量の十パーセントを超えるものに限る。） ＣＴＨ。ただし、第一〇・〇六項の非原産材料の価額が産品の価額の三十パーセントを超えないことを条件とする。（ペットフード以外の調製品であって、米の含有量が乾燥状態において全重量の三十パーセントを超えるものに限る。） ＣＴＨ（その他の産品） 注二以上の品目別原産地規則が適用可能な場合には、産品は、それぞれの適用可能な品目別原産地規則の要件を満たさなければならない。"
+   },
+   {
+    "start": "290543",
+    "end": "290545",
+    "page": 26,
+    "text": "ＣＴＳＨ",
+    "default": true
+   },
+   {
+    "start": "330112",
+    "end": "330190",
+    "page": 26,
+    "text": "ＣＴＳＨ",
+    "default": true
+   },
+   {
+    "start": "350110",
+    "end": "350190",
+    "page": 26,
+    "text": "ＣＴＳＨ",
+    "default": true
+   },
+   {
+    "start": "350211",
+    "end": "350219",
+    "page": 26,
+    "text": "ＣＴＨ",
+    "default": true
+   },
+   {
+    "start": "350220",
+    "end": "350290",
+    "page": 26,
+    "text": "ＣＴＳＨ",
+    "default": true
+   },
+   {
+    "start": "3504",
+    "end": "3504",
+    "page": 27,
+    "text": "ＣＴＨ",
+    "default": true
+   },
+   {
+    "start": "350510",
+    "end": "350520",
+    "page": 27,
+    "text": "ＣＴＨ",
+    "default": true
+   },
+   {
+    "start": "380910",
+    "end": "380910",
+    "page": 27,
+    "text": "ＣＴＨ"
+   },
+   {
+    "start": "382311",
+    "end": "382370",
+    "page": 27,
+    "text": "ＣＴＳＨ",
+    "default": true
+   },
+   {
+    "start": "01",
+    "end": "02",
+    "page": 15,
+    "text": "前款１(a)から(p)までに分類される産品の各品目別原産地規則は、次の表に別段の定めがある場合を除き、ＣＣとする。",
+    "description": "Default rule where the table has no row",
+    "default": true
+   },
+   {
+    "start": "04",
+    "end": "05",
+    "page": 15,
+    "text": "前款１(a)から(p)までに分類される産品の各品目別原産地規則は、次の表に別段の定めがある場合を除き、ＣＣとする。",
+    "description": "Default rule where the table has no row",
+    "default": true
+   },
+   {
+    "start": "06",
+    "end": "14",
+    "page": 15,
+    "text": "前款１(a)から(p)までに分類される産品の各品目別原産地規則は、次の表に別段の定めがある場合を除き、ＣＣとする。",
+    "description": "Default rule where the table has no row",
+    "default": true
+   },
+   {
+    "start": "15",
+    "end": "15",
+    "page": 15,
+    "text": "前款１(a)から(p)までに分類される産品の各品目別原産地規則は、次の表に別段の定めがある場合を除き、ＣＣとする。",
+    "description": "Default rule where the table has no row",
+    "default": true
+   },
+   {
+    "start": "1601",
+    "end": "1603",
+    "page": 15,
+    "text": "前款１(a)から(p)までに分類される産品の各品目別原産地規則は、次の表に別段の定めがある場合を除き、ＣＣとする。",
+    "description": "Default rule where the table has no row",
+    "default": true
+   },
+   {
+    "start": "17",
+    "end": "21",
+    "page": 15,
+    "text": "前款１(a)から(p)までに分類される産品の各品目別原産地規則は、次の表に別段の定めがある場合を除き、ＣＣとする。",
+    "description": "Default rule where the table has no row",
+    "default": true
+   },
+   {
+    "start": "2202",
+    "end": "2202",
+    "page": 15,
+    "text": "前款１(a)から(p)までに分類される産品の各品目別原産地規則は、次の表に別段の定めがある場合を除き、ＣＣとする。",
+    "description": "Default rule where the table has no row",
+    "default": true
+   },
+   {
+    "start": "2204",
+    "end": "2204",
+    "page": 15,
+    "text": "前款１(a)から(p)までに分類される産品の各品目別原産地規則は、次の表に別段の定めがある場合を除き、ＣＣとする。",
+    "description": "Default rule where the table has no row",
+    "default": true
+   },
+   {
+    "start": "23",
+    "end": "23",
+    "page": 15,
+    "text": "前款１(a)から(p)までに分類される産品の各品目別原産地規則は、次の表に別段の定めがある場合を除き、ＣＣとする。",
+    "description": "Default rule where the table has no row",
+    "default": true
+   },
+   {
+    "start": "220710199",
+    "end": "220710199",
+    "page": 15,
+    "text": "前款１(a)から(p)までに分類される産品の各品目別原産地規則は、次の表に別段の定めがある場合を除き、ＣＣとする。",
+    "description": "Default rule where the table has no row (national tariff item only)",
+    "default": true
+   }
+  ],
+  "notes": [
+   {
+    "scope": "section",
+    "key": "I",
+    "text": "１この節の規定の適用上、 (a)「代替性のある産品又は材料」とは、商取引において相互に交換することが可能な産品又は材料であって、それらの特性が本質的に同一のものをいう。 (b)「一般的に認められている会計原則」とは、収益、経費、費用、資産又は負債の記録、情報の開示及び財務書類の作成に関して、締約国の領域において一般的に認められている、又は十分なかつ権威のある支持を得ている会計原則をいう。これらの原則には、一般的に適用される概括的な指針並びに詳細な基準、慣行及び手続を含む。 (c)「産品」とは、商品、生産品、製品又は材料をいう。 (d)「間接材料」とは、産品の生産、試験若しくは検査において使用される材料（当該産品に物理的に組み込まれないものに限る。）又は産品の生産に関連する建物の維持若しくは設備の稼働のために使用される材料をいい、次のものを含む。 (i)燃料、エネルギー、触媒及び溶剤 (ii)産品の試験又は検査に使用される設備、装置及び備品 (iii)手袋、眼鏡、履物、衣類並びに安全のための設備及び備品 (iv)工具、ダイス及び鋳型 (v)設備及び建物の維持のために使用される予備部品及び材料 (vi)生産において使用され、又は設備及び建物の稼働のために使用される潤滑剤、グリース、コンパウンド材その他の材料 (vii)産品に組み込まれない他の材料であって、当該産品の生産における使用が当該生産の一部であると合理的に示すことができるもの (e)「材料」とは、他の産品の生産において使用される産品をいう。 (f)「非原産品」又は「非原産材料」とは、この節の規定に従って原産品とされない産品又は材料をいう。 (g)「原産品」又は「原産材料」とは、この節の規定に従って原産品とされる産品又は材料をいう。 (h)「輸送用のこん包材料及びこん包容器」とは、他の産品を輸送中に保護するために使用される産品（小売用に包装された産品の包装材料及び包装容器を含まない。）をいう。 (i)「関税上の特恵待遇」とは、前節の規定に従って原産品について適用する関税率をいう。 (j)「生産」とは、作業をいい、産品の栽培、耕作、成育、採掘、収穫、漁ろう、わなかけ、狩猟、捕獲、収集、繁殖、抽出、採集、製造、加工及び組立てを含む。 (k)「取引価額」とは、産品が輸出のために販売されるに当たって現実に支払われた若しくは支払われるべき価格又は世界貿易機関設立協定附属書一Ａ千九百九十四年の関税及び貿易に関する一般協定第七条の実施に関する協定に従って決定されるその他の価額をいう。 (l)「産品の価額」とは、産品の取引価額から当該産品の国際輸送に要する費用を除いたものをいう。",
+    "page": 1,
+    "applies": [
+     [
+      "01",
+      "02"
+     ],
+     [
+      "04",
+      "05"
+     ]
+    ]
+   },
+   {
+    "scope": "section",
+    "key": "I",
+    "text": "２(a)日本国は、この節に別段の定めがある場合を除くほか、次のいずれかの産品であって、この節に規定する他の全ての関連する要件を満たすものを原産品とすることを定める。 (i)一方又は双方の締約国の領域において完全に得られ、又は生産される産品であって、(b)に定めるもの (ii)一方又は双方の締約国の領域において原産材料のみから完全に生産される産品 (iii)一方又は双方の締約国の領域において一又は二以上の生産者により非原産材料を使用して完全に生産される産品であって、次款及び第三款に定める全ての関連する要件を満たすもの (b)日本国は、(a)の規定の適用上、次に掲げる産品を、一方又は双方の締約国の領域において完全に得られ、又は生産される産品とすることを定める。 (i)当該領域において栽培され、耕作され、収穫され、採取され、又は採集される植物又は植物性生産品 (ii)当該領域において生まれ、かつ、成育された生きている動物（第三類に該当するものを除く。） (iii)当該領域において生きている動物（第三類に該当するものを除く。）から得られる産品 (iv)当該領域において狩猟、わなかけ、漁ろう、採集又は捕獲により得られる動物（第三類に該当するものを除く。） (v)当該領域から抽出され、又は得られる鉱物その他の天然の物質（(i)から(iv)までに規定するものを除く。） (vi)当該領域において、(i)から(v)までに規定する産品又はそれらの派生物のみから生産される産品",
+    "page": 3,
+    "applies": [
+     [
+      "01",
+      "02"
+     ],
+     [
+      "04",
+      "05"
+     ]
+    ]
+   },
+   {
+    "scope": "section",
+    "key": "I",
+    "text": "３(a)日本国は、(c)に規定する場合を除くほか、産品が次款及び第三款に定める適用可能な関税分類の変更の要件を満たさない非原産材料を含む場合であっても、全ての当該非原産材料の価額が当該産品の価額の十パーセントを超えず、かつ、当該産品がこの節に定める他の全ての関連する要件を満たすときは、当該産品を原産品とすることを定める。 (b)(a)の規定は、非原産材料を他の産品の生産において使用している場合にのみ適用する。 (c)(a)の規定は、次のものについては、適用しない。 (i)第〇四・〇一項から第〇四・〇六項までの各項の非原産材料又は第一九〇一・九〇号若しくは第二一〇六・九〇号の原産品でない酪農調製品（乳固形分の含有量が乾燥状態において全重量の十パーセントを超えるものに限る。）であって、第〇四・〇一項から第〇四・〇六項までの各項の産品（第〇四〇二・一〇号から第〇四〇二・二九号までの各号及び第〇四〇六・三〇号の産品を除く。）の生産において使用されるもの（第〇四〇二・一〇号から第〇四〇二・二九号までの各号の粉乳又は第〇四〇六・三〇号のプロセスチーズであって、(a)に定める僅少の非原産材料に係る十パーセントの許容限度を適用する結果として原産品であるものは、この(i)に規定する第〇四・〇一項から第〇四・〇六項までの各項の産品又は(ii)に規定する産品の生産において使用される場合には、原産材料とする。） (ii)第〇四・〇一項から第〇四・〇六項までの各項の非原産材料又は第一九〇一・九〇号の原産品でない酪農調製品（乳固形分の含有量が乾燥状態において全重量の十パーセントを超えるものに限る。）であって、次のいずれかの産品の生産において使用されるもの (A)第一九〇一・一〇号の育児食用の調製品（乳固形分の含有量が乾燥状態において全重量の十パーセントを超えるものに限る。） (B)第一九〇一・二〇号の混合物及び練り生地（バター脂の含有量が乾燥状態において全重量の二十五パーセントを超えるものであって小売用でないものに限る。） (C)第一九〇一・九〇号又は第二一〇六・九〇号の酪農調製品（乳固形分の含有量が乾燥状態において全重量の十パーセントを超えるものに限る。） (D)第二一・○五項の産品 (E)第二二〇二・九一号又は第二二〇二・九九号の飲料（ミルクを含有するものに限る。） (F)第二三〇九・九〇号の飼料（乳固形分の含有量が乾燥状態において全重量の十パーセントを超えるものに限る。） (iii)第○八・○五項又は第二○○九・一一号から第二○○九・三九号までの各号の非原産材料であって、第二○○九・一一号から第二○○九・三九号までの各号の産品又は第二一〇六・九〇号、第二二〇二・九一号若しくは第二二〇二・九九号の果実若しくは野菜のジュース（ミネラル又はビタミンを加えたものに限るものとし、濃縮したものかどうかを問わず、二以上の果実又は野菜から得たものを除く。）の生産において使用されるもの (iv)第一五類の非原産材料であって、第一五・○七項、第一五・○八項、第一五・一二項又は第一五・一四項の産品の生産において使用されるもの (v)第八類又は第二〇類の原産品でない桃、梨又はあんずであって、第二○・○八項の産品の生産において使用されるもの",
+    "page": 5,
+    "applies": [
+     [
+      "01",
+      "02"
+     ],
+     [
+      "04",
+      "05"
+     ]
+    ]
+   },
+   {
+    "scope": "section",
+    "key": "I",
+    "text": "第二款品目別原産地規則の解釈のための一般的注釈 １この款及び次款の規定は、次の類、項、号及び品目に分類される産品について適用する。 (a)第一類から第二類までの各類 (b)第四類から第一五類までの各類 (c)第一六・〇一項から第一六・〇三項までの各項 (d)第一七類から第二一類までの各類 (e)第二二・〇二項 (f)第二二・〇四項 (g)関税分類番号二二〇六〇〇・一〇〇の品目 (h)関税分類番号二二〇七一〇・一九九の品目 (i)第二二・〇九項 (j)第二三類 (k)第二九〇五・四三号から第二九〇五・四五号までの各号 (l)第三三・〇一項 (m)第三五・〇一項から第三五・〇二項までの各項 (n)第三五・〇四項から第三五・〇五項までの各項 (o)第三八〇九・一〇号 (p)第三八二三・一一号から第三八二三・七〇号までの各号 ２この款及び次款に定める品目別原産地規則の適用上、次の略号を適用する。 (a)「ＣＣ」とは、いずれかの類の非原産材料からの生産（当該類には、当該非原産材料から生産される産品が該当する類を含まない。）又は産品が該当する類、項若しくは号への他の類からの変更をいう。このことは、当該産品の生産において使用される全ての非原産材料について、統一システムの関税分類の二桁番号の水準における変更（すなわち、類の変更）が行われなければならないことを意味する。 (b)「ＣＴＨ」とは、いずれかの項の非原産材料からの生産（当該項には、当該非原産材料から生産される産品が該当する項を含まない。）又は産品が該当する類、項若しくは号への他の項からの変更をいう。このことは、当該産品の生産において使用される全ての非原産材料について、統一システムの関税分類の四桁番号の水準における変更（すなわち、項の変更）が行われなければならないことを意味する。 (c)「ＣＴＳＨ」とは、いずれかの号の非原産材料からの生産（当該号には、当該非原産材料から生産される産品が該当する号を含まない。）又は産品が該当する類、項若しくは号への他の号からの変更をいう。このことは、当該産品の生産において使用される全ての非原産材料について、統一システムの関税分類の六桁番号の水準における変更（すなわち、号の変更）が行われなければならないことを意味する。 ３この款及び次款に定める品目別原産地規則の解釈上、 (a)関税分類の変更の要件は、非原産材料についてのみ適用する。 (b)品目別原産地規則が統一システムの特定の材料を除外する場合には、当該品目別原産地規則は、産品が原産品となるために、除外された当該特定の材料が原産材料であることを要件とすることを意味するものとする。 (c)一の産品が、二以上の選択的な品目別原産地規則の対象である場合において、当該選択的な品目別原産地規則のいずれかを満たすときは、当該一の産品は、原産品とする。 (d)一の産品が複数の要件を含む品目別原産地規則の対象である場合には、当該一の産品は、当該複数の要件の全てを満たすときにのみ原産品とする。 (e)単一の品目別原産地規則が一連の項又は号の産品について適用され、かつ、当該品目別原産地規則が当該産品の項又は号の変更を定める場合には、当該変更は、他の項又は号（当該一連の項又は号の中の他の項又は号を含む。）から生ずることがあるものと了解される。",
+    "page": 11,
+    "applies": [
+     [
+      "01",
+      "02"
+     ],
+     [
+      "04",
+      "05"
+     ]
+    ]
+   },
+   {
+    "scope": "section",
+    "key": "I",
+    "text": "第三款品目別原産地規則前款１(a)から(p)までに分類される産品の各品目別原産地規則は、次の表に別段の定めがある場合を除き、ＣＣとする。同表一欄に示す品目に該当する原産品については、同表二欄に定めるそれぞれの品目別原産地規則を適用する。",
+    "page": 15,
+    "applies": [
+     [
+      "01",
+      "02"
+     ],
+     [
+      "04",
+      "05"
+     ]
+    ]
+   },
+   {
+    "scope": "section",
+    "key": "II",
+    "text": "１この節の規定の適用上、 (a)「代替性のある産品又は材料」とは、商取引において相互に交換することが可能な産品又は材料であって、それらの特性が本質的に同一のものをいう。 (b)「一般的に認められている会計原則」とは、収益、経費、費用、資産又は負債の記録、情報の開示及び財務書類の作成に関して、締約国の領域において一般的に認められている、又は十分なかつ権威のある支持を得ている会計原則をいう。これらの原則には、一般的に適用される概括的な指針並びに詳細な基準、慣行及び手続を含む。 (c)「産品」とは、商品、生産品、製品又は材料をいう。 (d)「間接材料」とは、産品の生産、試験若しくは検査において使用される材料（当該産品に物理的に組み込まれないものに限る。）又は産品の生産に関連する建物の維持若しくは設備の稼働のために使用される材料をいい、次のものを含む。 (i)燃料、エネルギー、触媒及び溶剤 (ii)産品の試験又は検査に使用される設備、装置及び備品 (iii)手袋、眼鏡、履物、衣類並びに安全のための設備及び備品 (iv)工具、ダイス及び鋳型 (v)設備及び建物の維持のために使用される予備部品及び材料 (vi)生産において使用され、又は設備及び建物の稼働のために使用される潤滑剤、グリース、コンパウンド材その他の材料 (vii)産品に組み込まれない他の材料であって、当該産品の生産における使用が当該生産の一部であると合理的に示すことができるもの (e)「材料」とは、他の産品の生産において使用される産品をいう。 (f)「非原産品」又は「非原産材料」とは、この節の規定に従って原産品とされない産品又は材料をいう。 (g)「原産品」又は「原産材料」とは、この節の規定に従って原産品とされる産品又は材料をいう。 (h)「輸送用のこん包材料及びこん包容器」とは、他の産品を輸送中に保護するために使用される産品（小売用に包装された産品の包装材料及び包装容器を含まない。）をいう。 (i)「関税上の特恵待遇」とは、前節の規定に従って原産品について適用する関税率をいう。 (j)「生産」とは、作業をいい、産品の栽培、耕作、成育、採掘、収穫、漁ろう、わなかけ、狩猟、捕獲、収集、繁殖、抽出、採集、製造、加工及び組立てを含む。 (k)「取引価額」とは、産品が輸出のために販売されるに当たって現実に支払われた若しくは支払われるべき価格又は世界貿易機関設立協定附属書一Ａ千九百九十四年の関税及び貿易に関する一般協定第七条の実施に関する協定に従って決定されるその他の価額をいう。 (l)「産品の価額」とは、産品の取引価額から当該産品の国際輸送に要する費用を除いたものをいう。",
+    "page": 1,
+    "applies": [
+     [
+      "06",
+      "14"
+     ]
+    ]
+   },
+   {
+    "scope": "section",
+    "key": "II",
+    "text": "２(a)日本国は、この節に別段の定めがある場合を除くほか、次のいずれかの産品であって、この節に規定する他の全ての関連する要件を満たすものを原産品とすることを定める。 (i)一方又は双方の締約国の領域において完全に得られ、又は生産される産品であって、(b)に定めるもの (ii)一方又は双方の締約国の領域において原産材料のみから完全に生産される産品 (iii)一方又は双方の締約国の領域において一又は二以上の生産者により非原産材料を使用して完全に生産される産品であって、次款及び第三款に定める全ての関連する要件を満たすもの (b)日本国は、(a)の規定の適用上、次に掲げる産品を、一方又は双方の締約国の領域において完全に得られ、又は生産される産品とすることを定める。 (i)当該領域において栽培され、耕作され、収穫され、採取され、又は採集される植物又は植物性生産品 (ii)当該領域において生まれ、かつ、成育された生きている動物（第三類に該当するものを除く。） (iii)当該領域において生きている動物（第三類に該当するものを除く。）から得られる産品 (iv)当該領域において狩猟、わなかけ、漁ろう、採集又は捕獲により得られる動物（第三類に該当するものを除く。） (v)当該領域から抽出され、又は得られる鉱物その他の天然の物質（(i)から(iv)までに規定するものを除く。） (vi)当該領域において、(i)から(v)までに規定する産品又はそれらの派生物のみから生産される産品",
+    "page": 3,
+    "applies": [
+     [
+      "06",
+      "14"
+     ]
+    ]
+   },
+   {
+    "scope": "section",
+    "key": "II",
+    "text": "３(a)日本国は、(c)に規定する場合を除くほか、産品が次款及び第三款に定める適用可能な関税分類の変更の要件を満たさない非原産材料を含む場合であっても、全ての当該非原産材料の価額が当該産品の価額の十パーセントを超えず、かつ、当該産品がこの節に定める他の全ての関連する要件を満たすときは、当該産品を原産品とすることを定める。 (b)(a)の規定は、非原産材料を他の産品の生産において使用している場合にのみ適用する。 (c)(a)の規定は、次のものについては、適用しない。 (i)第〇四・〇一項から第〇四・〇六項までの各項の非原産材料又は第一九〇一・九〇号若しくは第二一〇六・九〇号の原産品でない酪農調製品（乳固形分の含有量が乾燥状態において全重量の十パーセントを超えるものに限る。）であって、第〇四・〇一項から第〇四・〇六項までの各項の産品（第〇四〇二・一〇号から第〇四〇二・二九号までの各号及び第〇四〇六・三〇号の産品を除く。）の生産において使用されるもの（第〇四〇二・一〇号から第〇四〇二・二九号までの各号の粉乳又は第〇四〇六・三〇号のプロセスチーズであって、(a)に定める僅少の非原産材料に係る十パーセントの許容限度を適用する結果として原産品であるものは、この(i)に規定する第〇四・〇一項から第〇四・〇六項までの各項の産品又は(ii)に規定する産品の生産において使用される場合には、原産材料とする。） (ii)第〇四・〇一項から第〇四・〇六項までの各項の非原産材料又は第一九〇一・九〇号の原産品でない酪農調製品（乳固形分の含有量が乾燥状態において全重量の十パーセントを超えるものに限る。）であって、次のいずれかの産品の生産において使用されるもの (A)第一九〇一・一〇号の育児食用の調製品（乳固形分の含有量が乾燥状態において全重量の十パーセントを超えるものに限る。） (B)第一九〇一・二〇号の混合物及び練り生地（バター脂の含有量が乾燥状態において全重量の二十五パーセントを超えるものであって小売用でないものに限る。） (C)第一九〇一・九〇号又は第二一〇六・九〇号の酪農調製品（乳固形分の含有量が乾燥状態において全重量の十パーセントを超えるものに限る。） (D)第二一・○五項の産品 (E)第二二〇二・九一号又は第二二〇二・九九号の飲料（ミルクを含有するものに限る。） (F)第二三〇九・九〇号の飼料（乳固形分の含有量が乾燥状態において全重量の十パーセントを超えるものに限る。） (iii)第○八・○五項又は第二○○九・一一号から第二○○九・三九号までの各号の非原産材料であって、第二○○九・一一号から第二○○九・三九号までの各号の産品又は第二一〇六・九〇号、第二二〇二・九一号若しくは第二二〇二・九九号の果実若しくは野菜のジュース（ミネラル又はビタミンを加えたものに限るものとし、濃縮したものかどうかを問わず、二以上の果実又は野菜から得たものを除く。）の生産において使用されるもの (iv)第一五類の非原産材料であって、第一五・○七項、第一五・○八項、第一五・一二項又は第一五・一四項の産品の生産において使用されるもの (v)第八類又は第二〇類の原産品でない桃、梨又はあんずであって、第二○・○八項の産品の生産において使用されるもの",
+    "page": 5,
+    "applies": [
+     [
+      "06",
+      "14"
+     ]
+    ]
+   },
+   {
+    "scope": "section",
+    "key": "II",
+    "text": "第二款品目別原産地規則の解釈のための一般的注釈 １この款及び次款の規定は、次の類、項、号及び品目に分類される産品について適用する。 (a)第一類から第二類までの各類 (b)第四類から第一五類までの各類 (c)第一六・〇一項から第一六・〇三項までの各項 (d)第一七類から第二一類までの各類 (e)第二二・〇二項 (f)第二二・〇四項 (g)関税分類番号二二〇六〇〇・一〇〇の品目 (h)関税分類番号二二〇七一〇・一九九の品目 (i)第二二・〇九項 (j)第二三類 (k)第二九〇五・四三号から第二九〇五・四五号までの各号 (l)第三三・〇一項 (m)第三五・〇一項から第三五・〇二項までの各項 (n)第三五・〇四項から第三五・〇五項までの各項 (o)第三八〇九・一〇号 (p)第三八二三・一一号から第三八二三・七〇号までの各号 ２この款及び次款に定める品目別原産地規則の適用上、次の略号を適用する。 (a)「ＣＣ」とは、いずれかの類の非原産材料からの生産（当該類には、当該非原産材料から生産される産品が該当する類を含まない。）又は産品が該当する類、項若しくは号への他の類からの変更をいう。このことは、当該産品の生産において使用される全ての非原産材料について、統一システムの関税分類の二桁番号の水準における変更（すなわち、類の変更）が行われなければならないことを意味する。 (b)「ＣＴＨ」とは、いずれかの項の非原産材料からの生産（当該項には、当該非原産材料から生産される産品が該当する項を含まない。）又は産品が該当する類、項若しくは号への他の項からの変更をいう。このことは、当該産品の生産において使用される全ての非原産材料について、統一システムの関税分類の四桁番号の水準における変更（すなわち、項の変更）が行われなければならないことを意味する。 (c)「ＣＴＳＨ」とは、いずれかの号の非原産材料からの生産（当該号には、当該非原産材料から生産される産品が該当する号を含まない。）又は産品が該当する類、項若しくは号への他の号からの変更をいう。このことは、当該産品の生産において使用される全ての非原産材料について、統一システムの関税分類の六桁番号の水準における変更（すなわち、号の変更）が行われなければならないことを意味する。 ３この款及び次款に定める品目別原産地規則の解釈上、 (a)関税分類の変更の要件は、非原産材料についてのみ適用する。 (b)品目別原産地規則が統一システムの特定の材料を除外する場合には、当該品目別原産地規則は、産品が原産品となるために、除外された当該特定の材料が原産材料であることを要件とすることを意味するものとする。 (c)一の産品が、二以上の選択的な品目別原産地規則の対象である場合において、当該選択的な品目別原産地規則のいずれかを満たすときは、当該一の産品は、原産品とする。 (d)一の産品が複数の要件を含む品目別原産地規則の対象である場合には、当該一の産品は、当該複数の要件の全てを満たすときにのみ原産品とする。 (e)単一の品目別原産地規則が一連の項又は号の産品について適用され、かつ、当該品目別原産地規則が当該産品の項又は号の変更を定める場合には、当該変更は、他の項又は号（当該一連の項又は号の中の他の項又は号を含む。）から生ずることがあるものと了解される。",
+    "page": 11,
+    "applies": [
+     [
+      "06",
+      "14"
+     ]
+    ]
+   },
+   {
+    "scope": "section",
+    "key": "II",
+    "text": "第三款品目別原産地規則前款１(a)から(p)までに分類される産品の各品目別原産地規則は、次の表に別段の定めがある場合を除き、ＣＣとする。同表一欄に示す品目に該当する原産品については、同表二欄に定めるそれぞれの品目別原産地規則を適用する。",
+    "page": 15,
+    "applies": [
+     [
+      "06",
+      "14"
+     ]
+    ]
+   },
+   {
+    "scope": "section",
+    "key": "II",
+    "text": "４第六類から第一四類までの各類の規定の適用上、第三国から輸入した種、りん茎、根茎、台木、挿穂、接ぎ穂、苗条、芽その他植物の生きている部分から締約国の領域において栽培される農産品又は園芸品は、原産品とする。",
+    "page": 14,
+    "applies": [
+     [
+      "06",
+      "14"
+     ]
+    ]
+   },
+   {
+    "scope": "section",
+    "key": "III",
+    "text": "１この節の規定の適用上、 (a)「代替性のある産品又は材料」とは、商取引において相互に交換することが可能な産品又は材料であって、それらの特性が本質的に同一のものをいう。 (b)「一般的に認められている会計原則」とは、収益、経費、費用、資産又は負債の記録、情報の開示及び財務書類の作成に関して、締約国の領域において一般的に認められている、又は十分なかつ権威のある支持を得ている会計原則をいう。これらの原則には、一般的に適用される概括的な指針並びに詳細な基準、慣行及び手続を含む。 (c)「産品」とは、商品、生産品、製品又は材料をいう。 (d)「間接材料」とは、産品の生産、試験若しくは検査において使用される材料（当該産品に物理的に組み込まれないものに限る。）又は産品の生産に関連する建物の維持若しくは設備の稼働のために使用される材料をいい、次のものを含む。 (i)燃料、エネルギー、触媒及び溶剤 (ii)産品の試験又は検査に使用される設備、装置及び備品 (iii)手袋、眼鏡、履物、衣類並びに安全のための設備及び備品 (iv)工具、ダイス及び鋳型 (v)設備及び建物の維持のために使用される予備部品及び材料 (vi)生産において使用され、又は設備及び建物の稼働のために使用される潤滑剤、グリース、コンパウンド材その他の材料 (vii)産品に組み込まれない他の材料であって、当該産品の生産における使用が当該生産の一部であると合理的に示すことができるもの (e)「材料」とは、他の産品の生産において使用される産品をいう。 (f)「非原産品」又は「非原産材料」とは、この節の規定に従って原産品とされない産品又は材料をいう。 (g)「原産品」又は「原産材料」とは、この節の規定に従って原産品とされる産品又は材料をいう。 (h)「輸送用のこん包材料及びこん包容器」とは、他の産品を輸送中に保護するために使用される産品（小売用に包装された産品の包装材料及び包装容器を含まない。）をいう。 (i)「関税上の特恵待遇」とは、前節の規定に従って原産品について適用する関税率をいう。 (j)「生産」とは、作業をいい、産品の栽培、耕作、成育、採掘、収穫、漁ろう、わなかけ、狩猟、捕獲、収集、繁殖、抽出、採集、製造、加工及び組立てを含む。 (k)「取引価額」とは、産品が輸出のために販売されるに当たって現実に支払われた若しくは支払われるべき価格又は世界貿易機関設立協定附属書一Ａ千九百九十四年の関税及び貿易に関する一般協定第七条の実施に関する協定に従って決定されるその他の価額をいう。 (l)「産品の価額」とは、産品の取引価額から当該産品の国際輸送に要する費用を除いたものをいう。",
+    "page": 1,
+    "applies": [
+     [
+      "15",
+      "15"
+     ]
+    ]
+   },
+   {
+    "scope": "section",
+    "key": "III",
+    "text": "２(a)日本国は、この節に別段の定めがある場合を除くほか、次のいずれかの産品であって、この節に規定する他の全ての関連する要件を満たすものを原産品とすることを定める。 (i)一方又は双方の締約国の領域において完全に得られ、又は生産される産品であって、(b)に定めるもの (ii)一方又は双方の締約国の領域において原産材料のみから完全に生産される産品 (iii)一方又は双方の締約国の領域において一又は二以上の生産者により非原産材料を使用して完全に生産される産品であって、次款及び第三款に定める全ての関連する要件を満たすもの (b)日本国は、(a)の規定の適用上、次に掲げる産品を、一方又は双方の締約国の領域において完全に得られ、又は生産される産品とすることを定める。 (i)当該領域において栽培され、耕作され、収穫され、採取され、又は採集される植物又は植物性生産品 (ii)当該領域において生まれ、かつ、成育された生きている動物（第三類に該当するものを除く。） (iii)当該領域において生きている動物（第三類に該当するものを除く。）から得られる産品 (iv)当該領域において狩猟、わなかけ、漁ろう、採集又は捕獲により得られる動物（第三類に該当するものを除く。） (v)当該領域から抽出され、又は得られる鉱物その他の天然の物質（(i)から(iv)までに規定するものを除く。） (vi)当該領域において、(i)から(v)までに規定する産品又はそれらの派生物のみから生産される産品",
+    "page": 3,
+    "applies": [
+     [
+      "15",
+      "15"
+     ]
+    ]
+   },
+   {
+    "scope": "section",
+    "key": "III",
+    "text": "３(a)日本国は、(c)に規定する場合を除くほか、産品が次款及び第三款に定める適用可能な関税分類の変更の要件を満たさない非原産材料を含む場合であっても、全ての当該非原産材料の価額が当該産品の価額の十パーセントを超えず、かつ、当該産品がこの節に定める他の全ての関連する要件を満たすときは、当該産品を原産品とすることを定める。 (b)(a)の規定は、非原産材料を他の産品の生産において使用している場合にのみ適用する。 (c)(a)の規定は、次のものについては、適用しない。 (i)第〇四・〇一項から第〇四・〇六項までの各項の非原産材料又は第一九〇一・九〇号若しくは第二一〇六・九〇号の原産品でない酪農調製品（乳固形分の含有量が乾燥状態において全重量の十パーセントを超えるものに限る。）であって、第〇四・〇一項から第〇四・〇六項までの各項の産品（第〇四〇二・一〇号から第〇四〇二・二九号までの各号及び第〇四〇六・三〇号の産品を除く。）の生産において使用されるもの（第〇四〇二・一〇号から第〇四〇二・二九号までの各号の粉乳又は第〇四〇六・三〇号のプロセスチーズであって、(a)に定める僅少の非原産材料に係る十パーセントの許容限度を適用する結果として原産品であるものは、この(i)に規定する第〇四・〇一項から第〇四・〇六項までの各項の産品又は(ii)に規定する産品の生産において使用される場合には、原産材料とする。） (ii)第〇四・〇一項から第〇四・〇六項までの各項の非原産材料又は第一九〇一・九〇号の原産品でない酪農調製品（乳固形分の含有量が乾燥状態において全重量の十パーセントを超えるものに限る。）であって、次のいずれかの産品の生産において使用されるもの (A)第一九〇一・一〇号の育児食用の調製品（乳固形分の含有量が乾燥状態において全重量の十パーセントを超えるものに限る。） (B)第一九〇一・二〇号の混合物及び練り生地（バター脂の含有量が乾燥状態において全重量の二十五パーセントを超えるものであって小売用でないものに限る。） (C)第一九〇一・九〇号又は第二一〇六・九〇号の酪農調製品（乳固形分の含有量が乾燥状態において全重量の十パーセントを超えるものに限る。） (D)第二一・○五項の産品 (E)第二二〇二・九一号又は第二二〇二・九九号の飲料（ミルクを含有するものに限る。） (F)第二三〇九・九〇号の飼料（乳固形分の含有量が乾燥状態において全重量の十パーセントを超えるものに限る。） (iii)第○八・○五項又は第二○○九・一一号から第二○○九・三九号までの各号の非原産材料であって、第二○○九・一一号から第二○○九・三九号までの各号の産品又は第二一〇六・九〇号、第二二〇二・九一号若しくは第二二〇二・九九号の果実若しくは野菜のジュース（ミネラル又はビタミンを加えたものに限るものとし、濃縮したものかどうかを問わず、二以上の果実又は野菜から得たものを除く。）の生産において使用されるもの (iv)第一五類の非原産材料であって、第一五・○七項、第一五・○八項、第一五・一二項又は第一五・一四項の産品の生産において使用されるもの (v)第八類又は第二〇類の原産品でない桃、梨又はあんずであって、第二○・○八項の産品の生産において使用されるもの",
+    "page": 5,
+    "applies": [
+     [
+      "15",
+      "15"
+     ]
+    ]
+   },
+   {
+    "scope": "section",
+    "key": "III",
+    "text": "第二款品目別原産地規則の解釈のための一般的注釈 １この款及び次款の規定は、次の類、項、号及び品目に分類される産品について適用する。 (a)第一類から第二類までの各類 (b)第四類から第一五類までの各類 (c)第一六・〇一項から第一六・〇三項までの各項 (d)第一七類から第二一類までの各類 (e)第二二・〇二項 (f)第二二・〇四項 (g)関税分類番号二二〇六〇〇・一〇〇の品目 (h)関税分類番号二二〇七一〇・一九九の品目 (i)第二二・〇九項 (j)第二三類 (k)第二九〇五・四三号から第二九〇五・四五号までの各号 (l)第三三・〇一項 (m)第三五・〇一項から第三五・〇二項までの各項 (n)第三五・〇四項から第三五・〇五項までの各項 (o)第三八〇九・一〇号 (p)第三八二三・一一号から第三八二三・七〇号までの各号 ２この款及び次款に定める品目別原産地規則の適用上、次の略号を適用する。 (a)「ＣＣ」とは、いずれかの類の非原産材料からの生産（当該類には、当該非原産材料から生産される産品が該当する類を含まない。）又は産品が該当する類、項若しくは号への他の類からの変更をいう。このことは、当該産品の生産において使用される全ての非原産材料について、統一システムの関税分類の二桁番号の水準における変更（すなわち、類の変更）が行われなければならないことを意味する。 (b)「ＣＴＨ」とは、いずれかの項の非原産材料からの生産（当該項には、当該非原産材料から生産される産品が該当する項を含まない。）又は産品が該当する類、項若しくは号への他の項からの変更をいう。このことは、当該産品の生産において使用される全ての非原産材料について、統一システムの関税分類の四桁番号の水準における変更（すなわち、項の変更）が行われなければならないことを意味する。 (c)「ＣＴＳＨ」とは、いずれかの号の非原産材料からの生産（当該号には、当該非原産材料から生産される産品が該当する号を含まない。）又は産品が該当する類、項若しくは号への他の号からの変更をいう。このことは、当該産品の生産において使用される全ての非原産材料について、統一システムの関税分類の六桁番号の水準における変更（すなわち、号の変更）が行われなければならないことを意味する。 ３この款及び次款に定める品目別原産地規則の解釈上、 (a)関税分類の変更の要件は、非原産材料についてのみ適用する。 (b)品目別原産地規則が統一システムの特定の材料を除外する場合には、当該品目別原産地規則は、産品が原産品となるために、除外された当該特定の材料が原産材料であることを要件とすることを意味するものとする。 (c)一の産品が、二以上の選択的な品目別原産地規則の対象である場合において、当該選択的な品目別原産地規則のいずれかを満たすときは、当該一の産品は、原産品とする。 (d)一の産品が複数の要件を含む品目別原産地規則の対象である場合には、当該一の産品は、当該複数の要件の全てを満たすときにのみ原産品とする。 (e)単一の品目別原産地規則が一連の項又は号の産品について適用され、かつ、当該品目別原産地規則が当該産品の項又は号の変更を定める場合には、当該変更は、他の項又は号（当該一連の項又は号の中の他の項又は号を含む。）から生ずることがあるものと了解される。",
+    "page": 11,
+    "applies": [
+     [
+      "15",
+      "15"
+     ]
+    ]
+   },
+   {
+    "scope": "section",
+    "key": "III",
+    "text": "第三款品目別原産地規則前款１(a)から(p)までに分類される産品の各品目別原産地規則は、次の表に別段の定めがある場合を除き、ＣＣとする。同表一欄に示す品目に該当する原産品については、同表二欄に定めるそれぞれの品目別原産地規則を適用する。",
+    "page": 15,
+    "applies": [
+     [
+      "15",
+      "15"
+     ]
+    ]
+   },
+   {
+    "scope": "section",
+    "key": "IV",
+    "text": "１この節の規定の適用上、 (a)「代替性のある産品又は材料」とは、商取引において相互に交換することが可能な産品又は材料であって、それらの特性が本質的に同一のものをいう。 (b)「一般的に認められている会計原則」とは、収益、経費、費用、資産又は負債の記録、情報の開示及び財務書類の作成に関して、締約国の領域において一般的に認められている、又は十分なかつ権威のある支持を得ている会計原則をいう。これらの原則には、一般的に適用される概括的な指針並びに詳細な基準、慣行及び手続を含む。 (c)「産品」とは、商品、生産品、製品又は材料をいう。 (d)「間接材料」とは、産品の生産、試験若しくは検査において使用される材料（当該産品に物理的に組み込まれないものに限る。）又は産品の生産に関連する建物の維持若しくは設備の稼働のために使用される材料をいい、次のものを含む。 (i)燃料、エネルギー、触媒及び溶剤 (ii)産品の試験又は検査に使用される設備、装置及び備品 (iii)手袋、眼鏡、履物、衣類並びに安全のための設備及び備品 (iv)工具、ダイス及び鋳型 (v)設備及び建物の維持のために使用される予備部品及び材料 (vi)生産において使用され、又は設備及び建物の稼働のために使用される潤滑剤、グリース、コンパウンド材その他の材料 (vii)産品に組み込まれない他の材料であって、当該産品の生産における使用が当該生産の一部であると合理的に示すことができるもの (e)「材料」とは、他の産品の生産において使用される産品をいう。 (f)「非原産品」又は「非原産材料」とは、この節の規定に従って原産品とされない産品又は材料をいう。 (g)「原産品」又は「原産材料」とは、この節の規定に従って原産品とされる産品又は材料をいう。 (h)「輸送用のこん包材料及びこん包容器」とは、他の産品を輸送中に保護するために使用される産品（小売用に包装された産品の包装材料及び包装容器を含まない。）をいう。 (i)「関税上の特恵待遇」とは、前節の規定に従って原産品について適用する関税率をいう。 (j)「生産」とは、作業をいい、産品の栽培、耕作、成育、採掘、収穫、漁ろう、わなかけ、狩猟、捕獲、収集、繁殖、抽出、採集、製造、加工及び組立てを含む。 (k)「取引価額」とは、産品が輸出のために販売されるに当たって現実に支払われた若しくは支払われるべき価格又は世界貿易機関設立協定附属書一Ａ千九百九十四年の関税及び貿易に関する一般協定第七条の実施に関する協定に従って決定されるその他の価額をいう。 (l)「産品の価額」とは、産品の取引価額から当該産品の国際輸送に要する費用を除いたものをいう。",
+    "page": 1,
+    "applies": [
+     [
+      "1601",
+      "1603"
+     ],
+     [
+      "17",
+      "21"
+     ],
+     [
+      "2202",
+      "2202"
+     ],
+     [
+      "2204",
+      "2204"
+     ],
+     [
+      "2209",
+      "2209"
+     ],
+     [
+      "23",
+      "23"
+     ]
+    ]
+   },
+   {
+    "scope": "section",
+    "key": "IV",
+    "text": "２(a)日本国は、この節に別段の定めがある場合を除くほか、次のいずれかの産品であって、この節に規定する他の全ての関連する要件を満たすものを原産品とすることを定める。 (i)一方又は双方の締約国の領域において完全に得られ、又は生産される産品であって、(b)に定めるもの (ii)一方又は双方の締約国の領域において原産材料のみから完全に生産される産品 (iii)一方又は双方の締約国の領域において一又は二以上の生産者により非原産材料を使用して完全に生産される産品であって、次款及び第三款に定める全ての関連する要件を満たすもの (b)日本国は、(a)の規定の適用上、次に掲げる産品を、一方又は双方の締約国の領域において完全に得られ、又は生産される産品とすることを定める。 (i)当該領域において栽培され、耕作され、収穫され、採取され、又は採集される植物又は植物性生産品 (ii)当該領域において生まれ、かつ、成育された生きている動物（第三類に該当するものを除く。） (iii)当該領域において生きている動物（第三類に該当するものを除く。）から得られる産品 (iv)当該領域において狩猟、わなかけ、漁ろう、採集又は捕獲により得られる動物（第三類に該当するものを除く。） (v)当該領域から抽出され、又は得られる鉱物その他の天然の物質（(i)から(iv)までに規定するものを除く。） (vi)当該領域において、(i)から(v)までに規定する産品又はそれらの派生物のみから生産される産品",
+    "page": 3,
+    "applies": [
+     [
+      "1601",
+      "1603"
+     ],
+     [
+      "17",
+      "21"
+     ],
+     [
+      "2202",
+      "2202"
+     ],
+     [
+      "2204",
+      "2204"
+     ],
+     [
+      "2209",
+      "2209"
+     ],
+     [
+      "23",
+      "23"
+     ]
+    ]
+   },
+   {
+    "scope": "section",
+    "key": "IV",
+    "text": "３(a)日本国は、(c)に規定する場合を除くほか、産品が次款及び第三款に定める適用可能な関税分類の変更の要件を満たさない非原産材料を含む場合であっても、全ての当該非原産材料の価額が当該産品の価額の十パーセントを超えず、かつ、当該産品がこの節に定める他の全ての関連する要件を満たすときは、当該産品を原産品とすることを定める。 (b)(a)の規定は、非原産材料を他の産品の生産において使用している場合にのみ適用する。 (c)(a)の規定は、次のものについては、適用しない。 (i)第〇四・〇一項から第〇四・〇六項までの各項の非原産材料又は第一九〇一・九〇号若しくは第二一〇六・九〇号の原産品でない酪農調製品（乳固形分の含有量が乾燥状態において全重量の十パーセントを超えるものに限る。）であって、第〇四・〇一項から第〇四・〇六項までの各項の産品（第〇四〇二・一〇号から第〇四〇二・二九号までの各号及び第〇四〇六・三〇号の産品を除く。）の生産において使用されるもの（第〇四〇二・一〇号から第〇四〇二・二九号までの各号の粉乳又は第〇四〇六・三〇号のプロセスチーズであって、(a)に定める僅少の非原産材料に係る十パーセントの許容限度を適用する結果として原産品であるものは、この(i)に規定する第〇四・〇一項から第〇四・〇六項までの各項の産品又は(ii)に規定する産品の生産において使用される場合には、原産材料とする。） (ii)第〇四・〇一項から第〇四・〇六項までの各項の非原産材料又は第一九〇一・九〇号の原産品でない酪農調製品（乳固形分の含有量が乾燥状態において全重量の十パーセントを超えるものに限る。）であって、次のいずれかの産品の生産において使用されるもの (A)第一九〇一・一〇号の育児食用の調製品（乳固形分の含有量が乾燥状態において全重量の十パーセントを超えるものに限る。） (B)第一九〇一・二〇号の混合物及び練り生地（バター脂の含有量が乾燥状態において全重量の二十五パーセントを超えるものであって小売用でないものに限る。） (C)第一九〇一・九〇号又は第二一〇六・九〇号の酪農調製品（乳固形分の含有量が乾燥状態において全重量の十パーセントを超えるものに限る。） (D)第二一・○五項の産品 (E)第二二〇二・九一号又は第二二〇二・九九号の飲料（ミルクを含有するものに限る。） (F)第二三〇九・九〇号の飼料（乳固形分の含有量が乾燥状態において全重量の十パーセントを超えるものに限る。） (iii)第○八・○五項又は第二○○九・一一号から第二○○九・三九号までの各号の非原産材料であって、第二○○九・一一号から第二○○九・三九号までの各号の産品又は第二一〇六・九〇号、第二二〇二・九一号若しくは第二二〇二・九九号の果実若しくは野菜のジュース（ミネラル又はビタミンを加えたものに限るものとし、濃縮したものかどうかを問わず、二以上の果実又は野菜から得たものを除く。）の生産において使用されるもの (iv)第一五類の非原産材料であって、第一五・○七項、第一五・○八項、第一五・一二項又は第一五・一四項の産品の生産において使用されるもの (v)第八類又は第二〇類の原産品でない桃、梨又はあんずであって、第二○・○八項の産品の生産において使用されるもの",
+    "page": 5,
+    "applies": [
+     [
+      "1601",
+      "1603"
+     ],
+     [
+      "17",
+      "21"
+     ],
+     [
+      "2202",
+      "2202"
+     ],
+     [
+      "2204",
+      "2204"
+     ],
+     [
+      "2209",
+      "2209"
+     ],
+     [
+      "23",
+      "23"
+     ]
+    ]
+   },
+   {
+    "scope": "section",
+    "key": "IV",
+    "text": "第二款品目別原産地規則の解釈のための一般的注釈 １この款及び次款の規定は、次の類、項、号及び品目に分類される産品について適用する。 (a)第一類から第二類までの各類 (b)第四類から第一五類までの各類 (c)第一六・〇一項から第一六・〇三項までの各項 (d)第一七類から第二一類までの各類 (e)第二二・〇二項 (f)第二二・〇四項 (g)関税分類番号二二〇六〇〇・一〇〇の品目 (h)関税分類番号二二〇七一〇・一九九の品目 (i)第二二・〇九項 (j)第二三類 (k)第二九〇五・四三号から第二九〇五・四五号までの各号 (l)第三三・〇一項 (m)第三五・〇一項から第三五・〇二項までの各項 (n)第三五・〇四項から第三五・〇五項までの各項 (o)第三八〇九・一〇号 (p)第三八二三・一一号から第三八二三・七〇号までの各号 ２この款及び次款に定める品目別原産地規則の適用上、次の略号を適用する。 (a)「ＣＣ」とは、いずれかの類の非原産材料からの生産（当該類には、当該非原産材料から生産される産品が該当する類を含まない。）又は産品が該当する類、項若しくは号への他の類からの変更をいう。このことは、当該産品の生産において使用される全ての非原産材料について、統一システムの関税分類の二桁番号の水準における変更（すなわち、類の変更）が行われなければならないことを意味する。 (b)「ＣＴＨ」とは、いずれかの項の非原産材料からの生産（当該項には、当該非原産材料から生産される産品が該当する項を含まない。）又は産品が該当する類、項若しくは号への他の項からの変更をいう。このことは、当該産品の生産において使用される全ての非原産材料について、統一システムの関税分類の四桁番号の水準における変更（すなわち、項の変更）が行われなければならないことを意味する。 (c)「ＣＴＳＨ」とは、いずれかの号の非原産材料からの生産（当該号には、当該非原産材料から生産される産品が該当する号を含まない。）又は産品が該当する類、項若しくは号への他の号からの変更をいう。このことは、当該産品の生産において使用される全ての非原産材料について、統一システムの関税分類の六桁番号の水準における変更（すなわち、号の変更）が行われなければならないことを意味する。 ３この款及び次款に定める品目別原産地規則の解釈上、 (a)関税分類の変更の要件は、非原産材料についてのみ適用する。 (b)品目別原産地規則が統一システムの特定の材料を除外する場合には、当該品目別原産地規則は、産品が原産品となるために、除外された当該特定の材料が原産材料であることを要件とすることを意味するものとする。 (c)一の産品が、二以上の選択的な品目別原産地規則の対象である場合において、当該選択的な品目別原産地規則のいずれかを満たすときは、当該一の産品は、原産品とする。 (d)一の産品が複数の要件を含む品目別原産地規則の対象である場合には、当該一の産品は、当該複数の要件の全てを満たすときにのみ原産品とする。 (e)単一の品目別原産地規則が一連の項又は号の産品について適用され、かつ、当該品目別原産地規則が当該産品の項又は号の変更を定める場合には、当該変更は、他の項又は号（当該一連の項又は号の中の他の項又は号を含む。）から生ずることがあるものと了解される。",
+    "page": 11,
+    "applies": [
+     [
+      "1601",
+      "1603"
+     ],
+     [
+      "17",
+      "21"
+     ],
+     [
+      "2202",
+      "2202"
+     ],
+     [
+      "2204",
+      "2204"
+     ],
+     [
+      "2209",
+      "2209"
+     ],
+     [
+      "23",
+      "23"
+     ]
+    ]
+   },
+   {
+    "scope": "section",
+    "key": "IV",
+    "text": "第三款品目別原産地規則前款１(a)から(p)までに分類される産品の各品目別原産地規則は、次の表に別段の定めがある場合を除き、ＣＣとする。同表一欄に示す品目に該当する原産品については、同表二欄に定めるそれぞれの品目別原産地規則を適用する。",
+    "page": 15,
+    "applies": [
+     [
+      "1601",
+      "1603"
+     ],
+     [
+      "17",
+      "21"
+     ],
+     [
+      "2202",
+      "2202"
+     ],
+     [
+      "2204",
+      "2204"
+     ],
+     [
+      "2209",
+      "2209"
+     ],
+     [
+      "23",
+      "23"
+     ]
+    ]
+   },
+   {
+    "scope": "section",
+    "key": "IV",
+    "text": "５第一八・〇六項の規定の適用上、「カカオ含有量」とは、カカオ豆由来の成分（チョコレートリカー又はココア粉（固形物）及びカカオ脂）から成るものをいう。カカオ含有量割合とは、産品の重量に占めるカカオ豆由来の成分の割合をいう。 ６第一八・〇六項の規定の適用上、「菓子」とは、小売用にした産品であって更なる調製なく食することを主に目的とするものをいう。",
+    "page": 15,
+    "applies": [
+     [
+      "1806",
+      "1806"
+     ]
+    ]
+   },
+   {
+    "scope": "section",
+    "key": "VI",
+    "text": "１この節の規定の適用上、 (a)「代替性のある産品又は材料」とは、商取引において相互に交換することが可能な産品又は材料であって、それらの特性が本質的に同一のものをいう。 (b)「一般的に認められている会計原則」とは、収益、経費、費用、資産又は負債の記録、情報の開示及び財務書類の作成に関して、締約国の領域において一般的に認められている、又は十分なかつ権威のある支持を得ている会計原則をいう。これらの原則には、一般的に適用される概括的な指針並びに詳細な基準、慣行及び手続を含む。 (c)「産品」とは、商品、生産品、製品又は材料をいう。 (d)「間接材料」とは、産品の生産、試験若しくは検査において使用される材料（当該産品に物理的に組み込まれないものに限る。）又は産品の生産に関連する建物の維持若しくは設備の稼働のために使用される材料をいい、次のものを含む。 (i)燃料、エネルギー、触媒及び溶剤 (ii)産品の試験又は検査に使用される設備、装置及び備品 (iii)手袋、眼鏡、履物、衣類並びに安全のための設備及び備品 (iv)工具、ダイス及び鋳型 (v)設備及び建物の維持のために使用される予備部品及び材料 (vi)生産において使用され、又は設備及び建物の稼働のために使用される潤滑剤、グリース、コンパウンド材その他の材料 (vii)産品に組み込まれない他の材料であって、当該産品の生産における使用が当該生産の一部であると合理的に示すことができるもの (e)「材料」とは、他の産品の生産において使用される産品をいう。 (f)「非原産品」又は「非原産材料」とは、この節の規定に従って原産品とされない産品又は材料をいう。 (g)「原産品」又は「原産材料」とは、この節の規定に従って原産品とされる産品又は材料をいう。 (h)「輸送用のこん包材料及びこん包容器」とは、他の産品を輸送中に保護するために使用される産品（小売用に包装された産品の包装材料及び包装容器を含まない。）をいう。 (i)「関税上の特恵待遇」とは、前節の規定に従って原産品について適用する関税率をいう。 (j)「生産」とは、作業をいい、産品の栽培、耕作、成育、採掘、収穫、漁ろう、わなかけ、狩猟、捕獲、収集、繁殖、抽出、採集、製造、加工及び組立てを含む。 (k)「取引価額」とは、産品が輸出のために販売されるに当たって現実に支払われた若しくは支払われるべき価格又は世界貿易機関設立協定附属書一Ａ千九百九十四年の関税及び貿易に関する一般協定第七条の実施に関する協定に従って決定されるその他の価額をいう。 (l)「産品の価額」とは、産品の取引価額から当該産品の国際輸送に要する費用を除いたものをいう。",
+    "page": 1,
+    "applies": [
+     [
+      "290543",
+      "290545"
+     ],
+     [
+      "3301",
+      "3301"
+     ],
+     [
+      "3501",
+      "3502"
+     ],
+     [
+      "3504",
+      "3505"
+     ],
+     [
+      "380910",
+      "380910"
+     ],
+     [
+      "382311",
+      "382370"
+     ]
+    ]
+   },
+   {
+    "scope": "section",
+    "key": "VI",
+    "text": "２(a)日本国は、この節に別段の定めがある場合を除くほか、次のいずれかの産品であって、この節に規定する他の全ての関連する要件を満たすものを原産品とすることを定める。 (i)一方又は双方の締約国の領域において完全に得られ、又は生産される産品であって、(b)に定めるもの (ii)一方又は双方の締約国の領域において原産材料のみから完全に生産される産品 (iii)一方又は双方の締約国の領域において一又は二以上の生産者により非原産材料を使用して完全に生産される産品であって、次款及び第三款に定める全ての関連する要件を満たすもの (b)日本国は、(a)の規定の適用上、次に掲げる産品を、一方又は双方の締約国の領域において完全に得られ、又は生産される産品とすることを定める。 (i)当該領域において栽培され、耕作され、収穫され、採取され、又は採集される植物又は植物性生産品 (ii)当該領域において生まれ、かつ、成育された生きている動物（第三類に該当するものを除く。） (iii)当該領域において生きている動物（第三類に該当するものを除く。）から得られる産品 (iv)当該領域において狩猟、わなかけ、漁ろう、採集又は捕獲により得られる動物（第三類に該当するものを除く。） (v)当該領域から抽出され、又は得られる鉱物その他の天然の物質（(i)から(iv)までに規定するものを除く。） (vi)当該領域において、(i)から(v)までに規定する産品又はそれらの派生物のみから生産される産品",
+    "page": 3,
+    "applies": [
+     [
+      "290543",
+      "290545"
+     ],
+     [
+      "3301",
+      "3301"
+     ],
+     [
+      "3501",
+      "3502"
+     ],
+     [
+      "3504",
+      "3505"
+     ],
+     [
+      "380910",
+      "380910"
+     ],
+     [
+      "382311",
+      "382370"
+     ]
+    ]
+   },
+   {
+    "scope": "section",
+    "key": "VI",
+    "text": "３(a)日本国は、(c)に規定する場合を除くほか、産品が次款及び第三款に定める適用可能な関税分類の変更の要件を満たさない非原産材料を含む場合であっても、全ての当該非原産材料の価額が当該産品の価額の十パーセントを超えず、かつ、当該産品がこの節に定める他の全ての関連する要件を満たすときは、当該産品を原産品とすることを定める。 (b)(a)の規定は、非原産材料を他の産品の生産において使用している場合にのみ適用する。 (c)(a)の規定は、次のものについては、適用しない。 (i)第〇四・〇一項から第〇四・〇六項までの各項の非原産材料又は第一九〇一・九〇号若しくは第二一〇六・九〇号の原産品でない酪農調製品（乳固形分の含有量が乾燥状態において全重量の十パーセントを超えるものに限る。）であって、第〇四・〇一項から第〇四・〇六項までの各項の産品（第〇四〇二・一〇号から第〇四〇二・二九号までの各号及び第〇四〇六・三〇号の産品を除く。）の生産において使用されるもの（第〇四〇二・一〇号から第〇四〇二・二九号までの各号の粉乳又は第〇四〇六・三〇号のプロセスチーズであって、(a)に定める僅少の非原産材料に係る十パーセントの許容限度を適用する結果として原産品であるものは、この(i)に規定する第〇四・〇一項から第〇四・〇六項までの各項の産品又は(ii)に規定する産品の生産において使用される場合には、原産材料とする。） (ii)第〇四・〇一項から第〇四・〇六項までの各項の非原産材料又は第一九〇一・九〇号の原産品でない酪農調製品（乳固形分の含有量が乾燥状態において全重量の十パーセントを超えるものに限る。）であって、次のいずれかの産品の生産において使用されるもの (A)第一九〇一・一〇号の育児食用の調製品（乳固形分の含有量が乾燥状態において全重量の十パーセントを超えるものに限る。） (B)第一九〇一・二〇号の混合物及び練り生地（バター脂の含有量が乾燥状態において全重量の二十五パーセントを超えるものであって小売用でないものに限る。） (C)第一九〇一・九〇号又は第二一〇六・九〇号の酪農調製品（乳固形分の含有量が乾燥状態において全重量の十パーセントを超えるものに限る。） (D)第二一・○五項の産品 (E)第二二〇二・九一号又は第二二〇二・九九号の飲料（ミルクを含有するものに限る。） (F)第二三〇九・九〇号の飼料（乳固形分の含有量が乾燥状態において全重量の十パーセントを超えるものに限る。） (iii)第○八・○五項又は第二○○九・一一号から第二○○九・三九号までの各号の非原産材料であって、第二○○九・一一号から第二○○九・三九号までの各号の産品又は第二一〇六・九〇号、第二二〇二・九一号若しくは第二二〇二・九九号の果実若しくは野菜のジュース（ミネラル又はビタミンを加えたものに限るものとし、濃縮したものかどうかを問わず、二以上の果実又は野菜から得たものを除く。）の生産において使用されるもの (iv)第一五類の非原産材料であって、第一五・○七項、第一五・○八項、第一五・一二項又は第一五・一四項の産品の生産において使用されるもの (v)第八類又は第二〇類の原産品でない桃、梨又はあんずであって、第二○・○八項の産品の生産において使用されるもの",
+    "page": 5,
+    "applies": [
+     [
+      "290543",
+      "290545"
+     ],
+     [
+      "3301",
+      "3301"
+     ],
+     [
+      "3501",
+      "3502"
+     ],
+     [
+      "3504",
+      "3505"
+     ],
+     [
+      "380910",
+      "380910"
+     ],
+     [
+      "382311",
+      "382370"
+     ]
+    ]
+   },
+   {
+    "scope": "section",
+    "key": "VI",
+    "text": "第二款品目別原産地規則の解釈のための一般的注釈 １この款及び次款の規定は、次の類、項、号及び品目に分類される産品について適用する。 (a)第一類から第二類までの各類 (b)第四類から第一五類までの各類 (c)第一六・〇一項から第一六・〇三項までの各項 (d)第一七類から第二一類までの各類 (e)第二二・〇二項 (f)第二二・〇四項 (g)関税分類番号二二〇六〇〇・一〇〇の品目 (h)関税分類番号二二〇七一〇・一九九の品目 (i)第二二・〇九項 (j)第二三類 (k)第二九〇五・四三号から第二九〇五・四五号までの各号 (l)第三三・〇一項 (m)第三五・〇一項から第三五・〇二項までの各項 (n)第三五・〇四項から第三五・〇五項までの各項 (o)第三八〇九・一〇号 (p)第三八二三・一一号から第三八二三・七〇号までの各号 ２この款及び次款に定める品目別原産地規則の適用上、次の略号を適用する。 (a)「ＣＣ」とは、いずれかの類の非原産材料からの生産（当該類には、当該非原産材料から生産される産品が該当する類を含まない。）又は産品が該当する類、項若しくは号への他の類からの変更をいう。このことは、当該産品の生産において使用される全ての非原産材料について、統一システムの関税分類の二桁番号の水準における変更（すなわち、類の変更）が行われなければならないことを意味する。 (b)「ＣＴＨ」とは、いずれかの項の非原産材料からの生産（当該項には、当該非原産材料から生産される産品が該当する項を含まない。）又は産品が該当する類、項若しくは号への他の項からの変更をいう。このことは、当該産品の生産において使用される全ての非原産材料について、統一システムの関税分類の四桁番号の水準における変更（すなわち、項の変更）が行われなければならないことを意味する。 (c)「ＣＴＳＨ」とは、いずれかの号の非原産材料からの生産（当該号には、当該非原産材料から生産される産品が該当する号を含まない。）又は産品が該当する類、項若しくは号への他の号からの変更をいう。このことは、当該産品の生産において使用される全ての非原産材料について、統一システムの関税分類の六桁番号の水準における変更（すなわち、号の変更）が行われなければならないことを意味する。 ３この款及び次款に定める品目別原産地規則の解釈上、 (a)関税分類の変更の要件は、非原産材料についてのみ適用する。 (b)品目別原産地規則が統一システムの特定の材料を除外する場合には、当該品目別原産地規則は、産品が原産品となるために、除外された当該特定の材料が原産材料であることを要件とすることを意味するものとする。 (c)一の産品が、二以上の選択的な品目別原産地規則の対象である場合において、当該選択的な品目別原産地規則のいずれかを満たすときは、当該一の産品は、原産品とする。 (d)一の産品が複数の要件を含む品目別原産地規則の対象である場合には、当該一の産品は、当該複数の要件の全てを満たすときにのみ原産品とする。 (e)単一の品目別原産地規則が一連の項又は号の産品について適用され、かつ、当該品目別原産地規則が当該産品の項又は号の変更を定める場合には、当該変更は、他の項又は号（当該一連の項又は号の中の他の項又は号を含む。）から生ずることがあるものと了解される。",
+    "page": 11,
+    "applies": [
+     [
+      "290543",
+      "290545"
+     ],
+     [
+      "3301",
+      "3301"
+     ],
+     [
+      "3501",
+      "3502"
+     ],
+     [
+      "3504",
+      "3505"
+     ],
+     [
+      "380910",
+      "380910"
+     ],
+     [
+      "382311",
+      "382370"
+     ]
+    ]
+   },
+   {
+    "scope": "section",
+    "key": "VI",
+    "text": "第三款品目別原産地規則前款１(a)から(p)までに分類される産品の各品目別原産地規則は、次の表に別段の定めがある場合を除き、ＣＣとする。同表一欄に示す品目に該当する原産品については、同表二欄に定めるそれぞれの品目別原産地規則を適用する。",
+    "page": 15,
+    "applies": [
+     [
+      "290543",
+      "290545"
+     ],
+     [
+      "3301",
+      "3301"
+     ],
+     [
+      "3501",
+      "3502"
+     ],
+     [
+      "3504",
+      "3505"
+     ],
+     [
+      "380910",
+      "380910"
+     ],
+     [
+      "382311",
+      "382370"
+     ]
+    ]
+   },
+   {
+    "scope": "section",
+    "key": "I",
+    "text": "Unde Labs note (not treaty text): The embedded Japanese text of Annex I Section C is partial. It contains the product specific rule table (Subsection 3) with its default rule, paragraphs 1 to 3 of Subsection 1 and the interpretive notes 1 to 6 of Subsection 2, as printed. Paragraphs 4 to 10 of Subsection 1 (fungible goods or materials, accessories, spare parts and tools, packaging for retail sale, indirect materials, transport through a third country, the importer's declaration, verification and denial of the claim) and Annex II are not embedded, and a provision in them may change the answer. Rules are embedded only for the goods listed in Subsection 2 note 1(a) to (p); no rule is returned for any other good. The agreement names no HS edition; the codes in the table were checked against the HS 2017 list only, and codes of another edition are not converted. This is not a claim that the good is originating or receives preferential tariff treatment.",
+    "page": 0,
+    "applies": [
+     [
+      "01",
+      "02"
+     ],
+     [
+      "04",
+      "05"
+     ]
+    ]
+   },
+   {
+    "scope": "section",
+    "key": "II",
+    "text": "Unde Labs note (not treaty text): The embedded Japanese text of Annex I Section C is partial. It contains the product specific rule table (Subsection 3) with its default rule, paragraphs 1 to 3 of Subsection 1 and the interpretive notes 1 to 6 of Subsection 2, as printed. Paragraphs 4 to 10 of Subsection 1 (fungible goods or materials, accessories, spare parts and tools, packaging for retail sale, indirect materials, transport through a third country, the importer's declaration, verification and denial of the claim) and Annex II are not embedded, and a provision in them may change the answer. Rules are embedded only for the goods listed in Subsection 2 note 1(a) to (p); no rule is returned for any other good. The agreement names no HS edition; the codes in the table were checked against the HS 2017 list only, and codes of another edition are not converted. This is not a claim that the good is originating or receives preferential tariff treatment.",
+    "page": 0,
+    "applies": [
+     [
+      "06",
+      "14"
+     ]
+    ]
+   },
+   {
+    "scope": "section",
+    "key": "III",
+    "text": "Unde Labs note (not treaty text): The embedded Japanese text of Annex I Section C is partial. It contains the product specific rule table (Subsection 3) with its default rule, paragraphs 1 to 3 of Subsection 1 and the interpretive notes 1 to 6 of Subsection 2, as printed. Paragraphs 4 to 10 of Subsection 1 (fungible goods or materials, accessories, spare parts and tools, packaging for retail sale, indirect materials, transport through a third country, the importer's declaration, verification and denial of the claim) and Annex II are not embedded, and a provision in them may change the answer. Rules are embedded only for the goods listed in Subsection 2 note 1(a) to (p); no rule is returned for any other good. The agreement names no HS edition; the codes in the table were checked against the HS 2017 list only, and codes of another edition are not converted. This is not a claim that the good is originating or receives preferential tariff treatment.",
+    "page": 0,
+    "applies": [
+     [
+      "15",
+      "15"
+     ]
+    ]
+   },
+   {
+    "scope": "section",
+    "key": "IV",
+    "text": "Unde Labs note (not treaty text): The embedded Japanese text of Annex I Section C is partial. It contains the product specific rule table (Subsection 3) with its default rule, paragraphs 1 to 3 of Subsection 1 and the interpretive notes 1 to 6 of Subsection 2, as printed. Paragraphs 4 to 10 of Subsection 1 (fungible goods or materials, accessories, spare parts and tools, packaging for retail sale, indirect materials, transport through a third country, the importer's declaration, verification and denial of the claim) and Annex II are not embedded, and a provision in them may change the answer. Rules are embedded only for the goods listed in Subsection 2 note 1(a) to (p); no rule is returned for any other good. The agreement names no HS edition; the codes in the table were checked against the HS 2017 list only, and codes of another edition are not converted. This is not a claim that the good is originating or receives preferential tariff treatment.",
+    "page": 0,
+    "applies": [
+     [
+      "1601",
+      "1603"
+     ],
+     [
+      "17",
+      "21"
+     ],
+     [
+      "2202",
+      "2202"
+     ],
+     [
+      "2204",
+      "2204"
+     ],
+     [
+      "2209",
+      "2209"
+     ],
+     [
+      "23",
+      "23"
+     ]
+    ]
+   },
+   {
+    "scope": "section",
+    "key": "VI",
+    "text": "Unde Labs note (not treaty text): The embedded Japanese text of Annex I Section C is partial. It contains the product specific rule table (Subsection 3) with its default rule, paragraphs 1 to 3 of Subsection 1 and the interpretive notes 1 to 6 of Subsection 2, as printed. Paragraphs 4 to 10 of Subsection 1 (fungible goods or materials, accessories, spare parts and tools, packaging for retail sale, indirect materials, transport through a third country, the importer's declaration, verification and denial of the claim) and Annex II are not embedded, and a provision in them may change the answer. Rules are embedded only for the goods listed in Subsection 2 note 1(a) to (p); no rule is returned for any other good. The agreement names no HS edition; the codes in the table were checked against the HS 2017 list only, and codes of another edition are not converted. This is not a claim that the good is originating or receives preferential tariff treatment.",
+    "page": 0,
+    "applies": [
+     [
+      "290543",
+      "290545"
+     ],
+     [
+      "3301",
+      "3301"
+     ],
+     [
+      "3501",
+      "3502"
+     ],
+     [
+      "3504",
+      "3505"
+     ],
+     [
+      "380910",
+      "380910"
+     ],
+     [
+      "382311",
+      "382370"
+     ]
+    ]
    }
   ]
  }

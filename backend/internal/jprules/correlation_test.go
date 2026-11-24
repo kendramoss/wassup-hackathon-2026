@@ -183,8 +183,8 @@ func TestCorrelationLeavesEverythingElseUnchanged(t *testing.T) {
 // so the correlation never competes with a listed rule.
 func TestShippedEntriesAreAbsentFromTheirSchedule(t *testing.T) {
 	table := mustDefault(t)
-	if len(table.corr.entries) != 5 {
-		t.Fatalf("want 5 entries, got %d", len(table.corr.entries))
+	if len(table.corr.entries) != 25 {
+		t.Fatalf("want 25 entries, got %d", len(table.corr.entries))
 	}
 	for _, e := range table.corr.entries {
 		base, err := table.lookup(e.Agreement, e.Code, correlationDate, true)

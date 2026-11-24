@@ -38,13 +38,20 @@ type row struct {
 	Text        string `json:"text"`
 	Description string `json:"description"`
 	Blocked     bool   `json:"blocked"`
+	// Default marks a rule stated for a group of goods (a default sentence, a
+	// chapter, heading or range) rather than for one listed code. It applies
+	// only to codes that exist in the embedded HS 2017 list, never to a code
+	// that exists in no edition.
+	Default bool `json:"default,omitempty"`
 }
 
 type note struct {
 	Scope string `json:"scope"`
 	Key   string `json:"key"`
 	Text  string `json:"text"`
-	Page  int    `json:"page"`
+	// Page is the PDF page of the note. Zero marks an Unde Labs caveat note,
+	// which is not treaty text and has no source page or link.
+	Page int `json:"page"`
 	// Applies narrows a scope note to codes inside these [start, end] digit
 	// prefix ranges (2 to 6 digits, both ends of equal length). Empty means
 	// the whole chapter or section named by Scope and Key.
@@ -61,6 +68,62 @@ func validateApplies(ranges [][2]string) error {
 			if c < '0' || c > '9' {
 				return fmt.Errorf("bad note applicability %v", r)
 			}
+		}
+	}
+	return nil
+}
+
+const caveatPrefix = "Unde Labs note (not treaty text)"
+
+func validWidth(n int) bool { return n == 2 || n == 4 || n == 6 || n == 9 }
+
+// validateSchedule rejects a malformed schedule at load time. Row codes are
+// digit prefixes of 2, 4, 6 or 9 digits (nine digits for a national tariff
+// item); both ends of a row have equal length unless the row is withheld.
+func validateSchedule(s schedule) error {
+	if s.Agreement == "" || s.Citation == "" || s.URL == "" {
+		return fmt.Errorf("incomplete schedule %q", s.Agreement)
+	}
+	from, err := time.Parse(time.DateOnly, s.From)
+	if err != nil {
+		return fmt.Errorf("%s: bad from date %q", s.Agreement, s.From)
+	}
+	if s.Until != "" {
+		until, err := time.Parse(time.DateOnly, s.Until)
+		if err != nil || !until.After(from) {
+			return fmt.Errorf("%s: bad until date %q", s.Agreement, s.Until)
+		}
+	}
+	for _, r := range s.Rows {
+		// A withheld row may span unequal widths (a multi-row cell of the source).
+		if n, m := len(r.Start), len(r.End); !validWidth(n) || !validWidth(m) || n != m && !r.Blocked || r.Start > r.End {
+			return fmt.Errorf("%s: bad row range %q-%q", s.Agreement, r.Start, r.End)
+		}
+		for _, c := range r.Start + r.End {
+			if c < '0' || c > '9' {
+				return fmt.Errorf("%s: bad row range %q-%q", s.Agreement, r.Start, r.End)
+			}
+		}
+		if r.Default && r.Blocked {
+			return fmt.Errorf("%s: row %q is both default and withheld", s.Agreement, r.Start)
+		}
+		if r.Page < 1 || strings.TrimSpace(r.Text) == "" {
+			return fmt.Errorf("%s: row %q has no page or text", s.Agreement, r.Start)
+		}
+	}
+	for _, n := range s.Notes {
+		if n.Scope == "section" {
+			if _, ok := sections[n.Key]; !ok {
+				return fmt.Errorf("%s: unknown section %q", s.Agreement, n.Key)
+			}
+		} else if ch, err := strconv.Atoi(n.Key); n.Scope != "chapter" || err != nil || len(n.Key) != 2 || ch < 1 {
+			return fmt.Errorf("%s: bad note scope %q %q", s.Agreement, n.Scope, n.Key)
+		}
+		if strings.TrimSpace(n.Text) == "" || n.Page < 0 || n.Page == 0 && !strings.HasPrefix(n.Text, caveatPrefix) {
+			return fmt.Errorf("%s: bad note %q %q", s.Agreement, n.Scope, n.Key)
+		}
+		if err := validateApplies(n.Applies); err != nil {
+			return fmt.Errorf("%s: %w", s.Agreement, err)
 		}
 	}
 	return nil
@@ -85,6 +148,7 @@ type schedule struct {
 	Agreement string `json:"agreement"`
 	Citation  string `json:"citation"`
 	URL       string `json:"source_url"`
+	SHA256    string `json:"sha256"`
 	From      string `json:"from"`
 	Until     string `json:"until"`
 	Rows      []row  `json:"rows"`
@@ -116,10 +180,8 @@ var parseDefault = sync.OnceValues(func() (*Table, error) {
 	}
 	t := &Table{schedules: make(map[string][]schedule), rcep: rcep.Default()}
 	for _, s := range sources {
-		for _, n := range s.Notes {
-			if err := validateApplies(n.Applies); err != nil {
-				return nil, fmt.Errorf("japan PSR schedules: %s: %w", s.Agreement, err)
-			}
+		if err := validateSchedule(s); err != nil {
+			return nil, fmt.Errorf("japan PSR schedules: %w", err)
 		}
 		t.schedules[s.Agreement] = append(t.schedules[s.Agreement], s)
 	}
@@ -162,8 +224,9 @@ const (
 	ReasonWithheld Reason = "withheld"
 	// ReasonInvalidCode: the code sits in a reserved HS chapter (00, 77, 98, 99).
 	ReasonInvalidCode Reason = "invalid_code"
-	// ReasonNotInEdition: in the AJCEP general branch, a code in a non-reserved
-	// chapter is absent from the HS 2017 list the schedule uses. It may be a
+	// ReasonNotInEdition: in the AJCEP general branch, or under a schedule that
+	// has default rows, a code in a non-reserved chapter is absent from the
+	// HS 2017 list. It may be a
 	// code of a later edition or a typo; the lookup does not say which.
 	ReasonNotInEdition Reason = "not_in_schedule_edition"
 	// ReasonNoMatch: a schedule covers the date, no row matches, and no
@@ -263,12 +326,13 @@ func (t *Table) lookup(agreement, hs string, before time.Time, general bool) (Re
 		return Result{Reason: ReasonUnsupportedAgreement, Digits: digits}, nil
 	}
 	date := before.Format(time.DateOnly)
-	covered := false
+	covered, hasDefault := false, false
 	for _, s := range t.schedules[agreement] {
 		if date < s.From || s.Until != "" && date >= s.Until {
 			continue
 		}
 		covered = true
+		hasDefault = hasDefault || s.hasDefaultRows()
 		rows, status := s.match(digits)
 		switch status {
 		case matchTooBroad:
@@ -295,6 +359,13 @@ func (t *Table) lookup(agreement, hs string, before time.Time, general bool) (Re
 		return Result{Reason: ReasonNoDatedSource, Digits: digits}, nil
 	case reservedChapters[digits[:2]]:
 		return Result{Reason: ReasonInvalidCode, Digits: digits}, nil
+	case hasDefault && !hs2017Valid().hasPrefix(digits):
+		// Default rows never answer for a code that exists in no edition. A
+		// code with a reviewed correlation stays no_match for the correlation step.
+		if _, ok := t.corr.find(agreement, digits); ok && len(digits) == 6 {
+			return Result{Reason: ReasonNoMatch, Digits: digits}, nil
+		}
+		return Result{Reason: ReasonNotInEdition, Digits: digits}, nil
 	case general && t.general != nil && t.general.applies(agreement, date):
 		// The general fallback is for real HS 2017 codes only (the window is
 		// the HS 2017 edition). This check comes before the chapter 50-63
@@ -351,12 +422,25 @@ const (
 	matchWithheld
 )
 
+func (s schedule) hasDefaultRows() bool {
+	for _, r := range s.Rows {
+		if r.Default {
+			return true
+		}
+	}
+	return false
+}
+
 // match returns the most specific rows covering hs. It reports matchTooBroad
 // when a more specific row overlaps the supplied digits and matchWithheld
 // when a matching row is withheld.
 func (s schedule) match(hs string) (matching []row, status matchStatus) {
 	specificity := 0
+	inEdition := hs2017Valid().hasPrefix(hs)
 	for _, r := range s.Rows {
+		if r.Default && !inEdition {
+			continue
+		}
 		width := len(r.Start)
 		if width > len(hs) {
 			if hs >= r.Start[:len(hs)] && hs <= r.End[:len(hs)] {
@@ -399,6 +483,10 @@ func (s schedule) notesFor(hs string) []Evidence {
 		section := sections[n.Key]
 		if (n.Scope == "chapter" && n.Key == hs[:2] ||
 			n.Scope == "section" && chapter >= section[0] && chapter <= section[1]) && n.appliesTo(hs) {
+			if n.Page == 0 {
+				out = append(out, Evidence{Text: n.Text, Citation: caveatPrefix})
+				continue
+			}
 			out = append(out, s.evidence(n.Text, n.Page))
 		}
 	}

@@ -134,5 +134,389 @@
     "table": "HS 2007 to HS 2002 correlation Table I"
    }
   ]
+ },
+ {
+  "agreement": "JP-US TA",
+  "code": "040320",
+  "requested_edition": "HS 2022",
+  "schedule_edition": "HS 2017",
+  "parents": [
+   "040310",
+   "190190"
+  ],
+  "mode": "hint",
+  "hint": "0403.20 is not in the HS 2017 list. The WCO names 0403.10 and part of 1901.90 as its HS 2017 sources, and the Japan-US Trade Agreement lists different rules for the two. A specialist needs to choose the rule by product.",
+  "sources": [
+   {
+    "name": "WCO HS 2022 to HS 2017 correlation Table I",
+    "url": "https://www.wcoomd.org/-/media/wco/public/global/pdf/topics/nomenclature/instruments-and-tools/hs-nomenclature-2022/table-i_en.pdf",
+    "sha256": "e6aa91163b993bee6d7bf77c2a5e01914c6a9794829f9164491442ec2b1c1361",
+    "page": 2,
+    "table": "HS 2022 to HS 2017 correlation Table I"
+   }
+  ]
+ },
+ {
+  "agreement": "JP-US TA",
+  "code": "041010",
+  "requested_edition": "HS 2022",
+  "schedule_edition": "HS 2017",
+  "parents": [
+   "020890",
+   "021099",
+   "041000"
+  ],
+  "mode": "map",
+  "sources": [
+   {
+    "name": "WCO HS 2022 to HS 2017 correlation Table I",
+    "url": "https://www.wcoomd.org/-/media/wco/public/global/pdf/topics/nomenclature/instruments-and-tools/hs-nomenclature-2022/table-i_en.pdf",
+    "sha256": "e6aa91163b993bee6d7bf77c2a5e01914c6a9794829f9164491442ec2b1c1361",
+    "page": 2,
+    "table": "HS 2022 to HS 2017 correlation Table I"
+   }
+  ]
+ },
+ {
+  "agreement": "JP-US TA",
+  "code": "041090",
+  "requested_edition": "HS 2022",
+  "schedule_edition": "HS 2017",
+  "parents": [
+   "041000"
+  ],
+  "mode": "map",
+  "sources": [
+   {
+    "name": "WCO HS 2022 to HS 2017 correlation Table I",
+    "url": "https://www.wcoomd.org/-/media/wco/public/global/pdf/topics/nomenclature/instruments-and-tools/hs-nomenclature-2022/table-i_en.pdf",
+    "sha256": "e6aa91163b993bee6d7bf77c2a5e01914c6a9794829f9164491442ec2b1c1361",
+    "page": 2,
+    "table": "HS 2022 to HS 2017 correlation Table I"
+   }
+  ]
+ },
+ {
+  "agreement": "JP-US TA",
+  "code": "070952",
+  "requested_edition": "HS 2022",
+  "schedule_edition": "HS 2017",
+  "parents": [
+   "070959"
+  ],
+  "mode": "map",
+  "sources": [
+   {
+    "name": "WCO HS 2022 to HS 2017 correlation Table I",
+    "url": "https://www.wcoomd.org/-/media/wco/public/global/pdf/topics/nomenclature/instruments-and-tools/hs-nomenclature-2022/table-i_en.pdf",
+    "sha256": "e6aa91163b993bee6d7bf77c2a5e01914c6a9794829f9164491442ec2b1c1361",
+    "page": 2,
+    "table": "HS 2022 to HS 2017 correlation Table I"
+   }
+  ]
+ },
+ {
+  "agreement": "JP-US TA",
+  "code": "070953",
+  "requested_edition": "HS 2022",
+  "schedule_edition": "HS 2017",
+  "parents": [
+   "070959"
+  ],
+  "mode": "map",
+  "sources": [
+   {
+    "name": "WCO HS 2022 to HS 2017 correlation Table I",
+    "url": "https://www.wcoomd.org/-/media/wco/public/global/pdf/topics/nomenclature/instruments-and-tools/hs-nomenclature-2022/table-i_en.pdf",
+    "sha256": "e6aa91163b993bee6d7bf77c2a5e01914c6a9794829f9164491442ec2b1c1361",
+    "page": 2,
+    "table": "HS 2022 to HS 2017 correlation Table I"
+   }
+  ]
+ },
+ {
+  "agreement": "JP-US TA",
+  "code": "070954",
+  "requested_edition": "HS 2022",
+  "schedule_edition": "HS 2017",
+  "parents": [
+   "070959"
+  ],
+  "mode": "map",
+  "sources": [
+   {
+    "name": "WCO HS 2022 to HS 2017 correlation Table I",
+    "url": "https://www.wcoomd.org/-/media/wco/public/global/pdf/topics/nomenclature/instruments-and-tools/hs-nomenclature-2022/table-i_en.pdf",
+    "sha256": "e6aa91163b993bee6d7bf77c2a5e01914c6a9794829f9164491442ec2b1c1361",
+    "page": 2,
+    "table": "HS 2022 to HS 2017 correlation Table I"
+   }
+  ]
+ },
+ {
+  "agreement": "JP-US TA",
+  "code": "070955",
+  "requested_edition": "HS 2022",
+  "schedule_edition": "HS 2017",
+  "parents": [
+   "070959"
+  ],
+  "mode": "map",
+  "sources": [
+   {
+    "name": "WCO HS 2022 to HS 2017 correlation Table I",
+    "url": "https://www.wcoomd.org/-/media/wco/public/global/pdf/topics/nomenclature/instruments-and-tools/hs-nomenclature-2022/table-i_en.pdf",
+    "sha256": "e6aa91163b993bee6d7bf77c2a5e01914c6a9794829f9164491442ec2b1c1361",
+    "page": 2,
+    "table": "HS 2022 to HS 2017 correlation Table I"
+   }
+  ]
+ },
+ {
+  "agreement": "JP-US TA",
+  "code": "070956",
+  "requested_edition": "HS 2022",
+  "schedule_edition": "HS 2017",
+  "parents": [
+   "070959"
+  ],
+  "mode": "map",
+  "sources": [
+   {
+    "name": "WCO HS 2022 to HS 2017 correlation Table I",
+    "url": "https://www.wcoomd.org/-/media/wco/public/global/pdf/topics/nomenclature/instruments-and-tools/hs-nomenclature-2022/table-i_en.pdf",
+    "sha256": "e6aa91163b993bee6d7bf77c2a5e01914c6a9794829f9164491442ec2b1c1361",
+    "page": 2,
+    "table": "HS 2022 to HS 2017 correlation Table I"
+   }
+  ]
+ },
+ {
+  "agreement": "JP-US TA",
+  "code": "071234",
+  "requested_edition": "HS 2022",
+  "schedule_edition": "HS 2017",
+  "parents": [
+   "071239"
+  ],
+  "mode": "map",
+  "sources": [
+   {
+    "name": "WCO HS 2022 to HS 2017 correlation Table I",
+    "url": "https://www.wcoomd.org/-/media/wco/public/global/pdf/topics/nomenclature/instruments-and-tools/hs-nomenclature-2022/table-i_en.pdf",
+    "sha256": "e6aa91163b993bee6d7bf77c2a5e01914c6a9794829f9164491442ec2b1c1361",
+    "page": 3,
+    "table": "HS 2022 to HS 2017 correlation Table I"
+   }
+  ]
+ },
+ {
+  "agreement": "JP-US TA",
+  "code": "080291",
+  "requested_edition": "HS 2022",
+  "schedule_edition": "HS 2017",
+  "parents": [
+   "080290"
+  ],
+  "mode": "map",
+  "sources": [
+   {
+    "name": "WCO HS 2022 to HS 2017 correlation Table I",
+    "url": "https://www.wcoomd.org/-/media/wco/public/global/pdf/topics/nomenclature/instruments-and-tools/hs-nomenclature-2022/table-i_en.pdf",
+    "sha256": "e6aa91163b993bee6d7bf77c2a5e01914c6a9794829f9164491442ec2b1c1361",
+    "page": 3,
+    "table": "HS 2022 to HS 2017 correlation Table I"
+   }
+  ]
+ },
+ {
+  "agreement": "JP-US TA",
+  "code": "080292",
+  "requested_edition": "HS 2022",
+  "schedule_edition": "HS 2017",
+  "parents": [
+   "080290"
+  ],
+  "mode": "map",
+  "sources": [
+   {
+    "name": "WCO HS 2022 to HS 2017 correlation Table I",
+    "url": "https://www.wcoomd.org/-/media/wco/public/global/pdf/topics/nomenclature/instruments-and-tools/hs-nomenclature-2022/table-i_en.pdf",
+    "sha256": "e6aa91163b993bee6d7bf77c2a5e01914c6a9794829f9164491442ec2b1c1361",
+    "page": 3,
+    "table": "HS 2022 to HS 2017 correlation Table I"
+   }
+  ]
+ },
+ {
+  "agreement": "JP-US TA",
+  "code": "080299",
+  "requested_edition": "HS 2022",
+  "schedule_edition": "HS 2017",
+  "parents": [
+   "080290"
+  ],
+  "mode": "map",
+  "sources": [
+   {
+    "name": "WCO HS 2022 to HS 2017 correlation Table I",
+    "url": "https://www.wcoomd.org/-/media/wco/public/global/pdf/topics/nomenclature/instruments-and-tools/hs-nomenclature-2022/table-i_en.pdf",
+    "sha256": "e6aa91163b993bee6d7bf77c2a5e01914c6a9794829f9164491442ec2b1c1361",
+    "page": 3,
+    "table": "HS 2022 to HS 2017 correlation Table I"
+   }
+  ]
+ },
+ {
+  "agreement": "JP-US TA",
+  "code": "121160",
+  "requested_edition": "HS 2022",
+  "schedule_edition": "HS 2017",
+  "parents": [
+   "121190"
+  ],
+  "mode": "map",
+  "sources": [
+   {
+    "name": "WCO HS 2022 to HS 2017 correlation Table I",
+    "url": "https://www.wcoomd.org/-/media/wco/public/global/pdf/topics/nomenclature/instruments-and-tools/hs-nomenclature-2022/table-i_en.pdf",
+    "sha256": "e6aa91163b993bee6d7bf77c2a5e01914c6a9794829f9164491442ec2b1c1361",
+    "page": 3,
+    "table": "HS 2022 to HS 2017 correlation Table I"
+   }
+  ]
+ },
+ {
+  "agreement": "JP-US TA",
+  "code": "150920",
+  "requested_edition": "HS 2022",
+  "schedule_edition": "HS 2017",
+  "parents": [
+   "150910"
+  ],
+  "mode": "map",
+  "sources": [
+   {
+    "name": "WCO HS 2022 to HS 2017 correlation Table I",
+    "url": "https://www.wcoomd.org/-/media/wco/public/global/pdf/topics/nomenclature/instruments-and-tools/hs-nomenclature-2022/table-i_en.pdf",
+    "sha256": "e6aa91163b993bee6d7bf77c2a5e01914c6a9794829f9164491442ec2b1c1361",
+    "page": 3,
+    "table": "HS 2022 to HS 2017 correlation Table I"
+   }
+  ]
+ },
+ {
+  "agreement": "JP-US TA",
+  "code": "150930",
+  "requested_edition": "HS 2022",
+  "schedule_edition": "HS 2017",
+  "parents": [
+   "150910"
+  ],
+  "mode": "map",
+  "sources": [
+   {
+    "name": "WCO HS 2022 to HS 2017 correlation Table I",
+    "url": "https://www.wcoomd.org/-/media/wco/public/global/pdf/topics/nomenclature/instruments-and-tools/hs-nomenclature-2022/table-i_en.pdf",
+    "sha256": "e6aa91163b993bee6d7bf77c2a5e01914c6a9794829f9164491442ec2b1c1361",
+    "page": 3,
+    "table": "HS 2022 to HS 2017 correlation Table I"
+   }
+  ]
+ },
+ {
+  "agreement": "JP-US TA",
+  "code": "150940",
+  "requested_edition": "HS 2022",
+  "schedule_edition": "HS 2017",
+  "parents": [
+   "150910"
+  ],
+  "mode": "map",
+  "sources": [
+   {
+    "name": "WCO HS 2022 to HS 2017 correlation Table I",
+    "url": "https://www.wcoomd.org/-/media/wco/public/global/pdf/topics/nomenclature/instruments-and-tools/hs-nomenclature-2022/table-i_en.pdf",
+    "sha256": "e6aa91163b993bee6d7bf77c2a5e01914c6a9794829f9164491442ec2b1c1361",
+    "page": 3,
+    "table": "HS 2022 to HS 2017 correlation Table I"
+   }
+  ]
+ },
+ {
+  "agreement": "JP-US TA",
+  "code": "151010",
+  "requested_edition": "HS 2022",
+  "schedule_edition": "HS 2017",
+  "parents": [
+   "151000"
+  ],
+  "mode": "map",
+  "sources": [
+   {
+    "name": "WCO HS 2022 to HS 2017 correlation Table I",
+    "url": "https://www.wcoomd.org/-/media/wco/public/global/pdf/topics/nomenclature/instruments-and-tools/hs-nomenclature-2022/table-i_en.pdf",
+    "sha256": "e6aa91163b993bee6d7bf77c2a5e01914c6a9794829f9164491442ec2b1c1361",
+    "page": 3,
+    "table": "HS 2022 to HS 2017 correlation Table I"
+   }
+  ]
+ },
+ {
+  "agreement": "JP-US TA",
+  "code": "151090",
+  "requested_edition": "HS 2022",
+  "schedule_edition": "HS 2017",
+  "parents": [
+   "151000"
+  ],
+  "mode": "map",
+  "sources": [
+   {
+    "name": "WCO HS 2022 to HS 2017 correlation Table I",
+    "url": "https://www.wcoomd.org/-/media/wco/public/global/pdf/topics/nomenclature/instruments-and-tools/hs-nomenclature-2022/table-i_en.pdf",
+    "sha256": "e6aa91163b993bee6d7bf77c2a5e01914c6a9794829f9164491442ec2b1c1361",
+    "page": 3,
+    "table": "HS 2022 to HS 2017 correlation Table I"
+   }
+  ]
+ },
+ {
+  "agreement": "JP-US TA",
+  "code": "151560",
+  "requested_edition": "HS 2022",
+  "schedule_edition": "HS 2017",
+  "parents": [
+   "151590"
+  ],
+  "mode": "map",
+  "sources": [
+   {
+    "name": "WCO HS 2022 to HS 2017 correlation Table I",
+    "url": "https://www.wcoomd.org/-/media/wco/public/global/pdf/topics/nomenclature/instruments-and-tools/hs-nomenclature-2022/table-i_en.pdf",
+    "sha256": "e6aa91163b993bee6d7bf77c2a5e01914c6a9794829f9164491442ec2b1c1361",
+    "page": 3,
+    "table": "HS 2022 to HS 2017 correlation Table I"
+   }
+  ]
+ },
+ {
+  "agreement": "JP-US TA",
+  "code": "151630",
+  "requested_edition": "HS 2022",
+  "schedule_edition": "HS 2017",
+  "parents": [
+   "151620"
+  ],
+  "mode": "map",
+  "sources": [
+   {
+    "name": "WCO HS 2022 to HS 2017 correlation Table I",
+    "url": "https://www.wcoomd.org/-/media/wco/public/global/pdf/topics/nomenclature/instruments-and-tools/hs-nomenclature-2022/table-i_en.pdf",
+    "sha256": "e6aa91163b993bee6d7bf77c2a5e01914c6a9794829f9164491442ec2b1c1361",
+    "page": 3,
+    "table": "HS 2022 to HS 2017 correlation Table I"
+   }
+  ]
  }
 ]
