@@ -9,8 +9,9 @@ import (
 // change to a rule needs a new version, like a prompt change. v4 (D823)
 // added printers, stands and the optical instrument template; v5 (D827)
 // moves the lifting rules to the off-road and lifting machinery template and
-// splits lenses between the optical and display templates.
-const GuardVersion = "family-guard-v5"
+// splits lenses between the optical and display templates; v6 (D850) keeps a
+// whole machine off the machinery parts template.
+const GuardVersion = "family-guard-v6"
 
 // guardRule sends a model's match to "none" (review) when the product line
 // names a product that only shares a cue with the family: a cordless drill is
@@ -82,6 +83,16 @@ var (
 	optWords = words("lens window prism sight scope riflescope telescope binocular monocular microscope magnifier loupe")
 	eyeWords = words("glass eyewear spectacle")
 	smartRe  = regexp.MustCompile(`\bsmart\b|\bar\b|augmented reality|camera glasses`)
+	// Whole machines and working units, which are not loose machinery parts
+	// (D850), and the part words that make a phrase a part of one ("pump
+	// housing", "motor shaft", "spare parts for compressors"). Cylinders and
+	// valves are left out: the machinery parts template cites air cylinders
+	// (N303499) and a ball valve (N308442).
+	wholeMachineWords = words("machine machinery lathe robot pump compressor motor generator engine turbine conveyor mixer crusher press extruder excavator loader forklift")
+	machPartWords     = words("part component casting forging housing casing body shaft gear rotor stator impeller diffuser runner bearing race ring seal gasket bracket plate cover block head barrel rod spindle bushing sleeve flange coupling pulley sprocket blade vane frame base end kit valve mount cylinder piston liner filter hose belt chain nozzle screw spring wheel")
+	// "Motor vehicle wheel bearings": a vehicle word after "motor" ends the
+	// machine reading.
+	machVehWords = words("vehicle car truck automobile")
 	// Unit and chemistry words of "12V 100Ah LFP", "12 volt", "100 amp hour".
 	unitWords = words("v w ah mah wh kwh kw mp mm cm m a va vdc vac ft lb kg g volt amp hour lfp sla agm lifepo nmc")
 	// Words that start a clause after the product: "made in", "assembled
@@ -113,6 +124,11 @@ var guardRules = []guardRule{
 	{"support-stand", []string{"offroad_vehicles_machinery"},
 		func(p string) bool { return standWords[productWord(p, standWords, liftWords, vehWords)] },
 		"a stand or dolly that holds a load does not lift it; it is not lifting or mobile machinery"},
+	{"whole-machine", []string{"machinery_parts"},
+		func(p string) bool {
+			return wholeMachineWords[productWord(p, wholeMachineWords, machPartWords, machVehWords)]
+		},
+		"a complete machine, motor, pump or compressor is not a loose machinery part"},
 	{"hand-tool-or-appliance", []string{"motors_pumps_compressors"},
 		func(p string) bool { return toolWords[productWord(p, machineWords)] && !proRe.MatchString(p) },
 		"a hand-held power tool or small appliance belongs with motorised tools and small appliances, not industrial machines"},
