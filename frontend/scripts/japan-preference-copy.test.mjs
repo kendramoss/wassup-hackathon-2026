@@ -64,6 +64,14 @@ test("the selector’s HS editions match the embedded schedules", async () => {
   }
   // A schedule that states no HS edition must be listed explicitly, never given a guessed year.
   assert.deepEqual([...unstated].sort(), [...japanNoEditionAgreements].sort());
+  // Each such schedule must say so in its citation, so a source change forces a conscious UI decision.
+  for (const s of schedules.filter((x) => !/\(HS [0-9]{4}\)/.test(x.citation))) {
+    assert.match(s.citation, /not stated/, s.agreement);
+    assert.ok(japanNoEditionAgreements.includes(s.agreement), s.agreement);
+  }
+  const gsp = schedules.find((x) => x.agreement === "GSP");
+  assert.equal(gsp.from, "2023-04-01");
+  assert.equal(gsp.hs_edition, 2022);
   assert.deepEqual(japanTariffEditions, { ...editions, RCEP: "2022" });
 });
 
