@@ -580,7 +580,9 @@ func TestExistingSchedulesKeepTheHS2017List(t *testing.T) {
 				t.Errorf("%s %s sets an edition", name, s.From)
 			}
 			for _, r := range s.Rows {
-				if r.Ref != "" {
+				// Only a row quoted from its own official notice (India chapter 3,
+				// docs/japan/india-chapter3-amendment.md) carries a ref.
+				if r.Ref != "" && r.SourceURL == "" {
 					t.Errorf("%s: row %s has a ref", name, r.Start)
 				}
 			}
@@ -588,8 +590,9 @@ func TestExistingSchedulesKeepTheHS2017List(t *testing.T) {
 				// A schedule-scope note of a PDF-paged schedule needs its own source
 				// (source_url, EU/UK Annex 3-A) or, for the Australia General Notes
 				// (australiacolumn4_test.go), an applies list.
-				sourced := n.SourceURL != "" || name == "JP-Australia EPA" && len(n.Applies) > 0
-				if n.Ref != "" || n.Scope == "schedule" && !sourced {
+				// The India amended window carries an Unde Labs caveat (page 0) as its schedule note.
+				sourced := n.SourceURL != "" || name == "JP-Australia EPA" && len(n.Applies) > 0 || name == "JP-India CEPA" && n.Page == 0
+				if n.Ref != "" && n.SourceURL == "" || n.Scope == "schedule" && !sourced {
 					t.Errorf("%s: note %q has a ref or schedule scope", name, n.Key)
 				}
 			}

@@ -18132,7 +18132,7 @@
   "source_url": "https://www.customs.go.jp/roo/english/text/india2.pdf",
   "sha256": "4011ed6be153ec99ce9b199bb314c0f0fa69204677f7150bef649bf55a0b39e9",
   "from": "2011-08-01",
-  "until": "",
+  "until": "2022-04-04",
   "rows": [
    {
     "start": "0101",
@@ -20404,6 +20404,2331 @@
    }
   ],
   "notes": []
+ },
+ {
+  "agreement": "JP-India CEPA",
+  "citation": "JP-India CEPA Annex 2 (HS 2007) as amended, effective 2022-04-04",
+  "source_url": "https://www.customs.go.jp/roo/english/text/india2.pdf",
+  "sha256": "4011ed6be153ec99ce9b199bb314c0f0fa69204677f7150bef649bf55a0b39e9",
+  "from": "2022-04-04",
+  "until": "",
+  "rows": [
+   {
+    "start": "0101",
+    "end": "0106",
+    "page": 2,
+    "text": "All the animals of Chapter 1 shall be wholly obtained."
+   },
+   {
+    "start": "0201",
+    "end": "0210",
+    "page": 2,
+    "text": "Manufacture in which all the materials used are wholly obtained."
+   },
+   {
+    "start": "0301",
+    "end": "0303",
+    "page": 1,
+    "text": "締約国において製造され、かつ、製造に使用する全ての材料が当該締約国において完全に得られるものであること。",
+    "ref": "【改正後】 row 1 (０３０１．１０－０３０４．９２)",
+    "source_url": "https://www.customs.go.jp/roo/information/indiakaisei.html",
+    "citation": "Japan Customs notice of 2022-03-23, 日インド包括的経済連携協定の品目別規則の一部改正について"
+   },
+   {
+    "start": "030410",
+    "end": "030492",
+    "page": 1,
+    "text": "締約国において製造され、かつ、製造に使用する全ての材料が当該締約国において完全に得られるものであること。",
+    "ref": "【改正後】 row 1 (０３０１．１０－０３０４．９２)",
+    "source_url": "https://www.customs.go.jp/roo/information/indiakaisei.html",
+    "citation": "Japan Customs notice of 2022-03-23, 日インド包括的経済連携協定の品目別規則の一部改正について"
+   },
+   {
+    "start": "030499",
+    "end": "030499",
+    "page": 1,
+    "text": "第０３０４．９９号の産品への他の類の材料からの変更",
+    "ref": "【改正後】 row 2 (０３０４．９９)",
+    "source_url": "https://www.customs.go.jp/roo/information/indiakaisei.html",
+    "citation": "Japan Customs notice of 2022-03-23, 日インド包括的経済連携協定の品目別規則の一部改正について"
+   },
+   {
+    "start": "0305",
+    "end": "0307",
+    "page": 1,
+    "text": "締約国において製造され、かつ、製造に使用する全ての材料が当該締約国において完全に得られるものであること。",
+    "ref": "【改正後】 row 3 (０３０５．１０－０３０７．９９)",
+    "source_url": "https://www.customs.go.jp/roo/information/indiakaisei.html",
+    "citation": "Japan Customs notice of 2022-03-23, 日インド包括的経済連携協定の品目別規則の一部改正について"
+   },
+   {
+    "start": "0401",
+    "end": "0410",
+    "page": 2,
+    "text": "Manufacture in which all the materials used are wholly obtained."
+   },
+   {
+    "start": "0501",
+    "end": "0511",
+    "page": 2,
+    "text": "Manufacture in which all the materials used are wholly obtained."
+   },
+   {
+    "start": "0601",
+    "end": "0604",
+    "page": 3,
+    "text": "Manufacture in which all the materials used are wholly obtained."
+   },
+   {
+    "start": "0701",
+    "end": "0714",
+    "page": 3,
+    "text": "Manufacture in which all the materials used are wholly obtained."
+   },
+   {
+    "start": "0801",
+    "end": "0814",
+    "page": 3,
+    "text": "Manufacture in which all the materials used are wholly obtained."
+   },
+   {
+    "start": "090111",
+    "end": "090220",
+    "page": 3,
+    "text": "Manufacture in which all the materials used are wholly obtained."
+   },
+   {
+    "start": "090230",
+    "end": "090240",
+    "page": 3,
+    "text": "A change to subheading 0902.30 through 0902.40 from any other heading; or No required change in tariff classification to subheading 0902.30 through 0902.40, provided that there is a qualifying value content of not less than 50 percent."
+   },
+   {
+    "start": "0903",
+    "end": "0910",
+    "page": 3,
+    "text": "Manufacture in which all the materials used are wholly obtained."
+   },
+   {
+    "start": "1001",
+    "end": "1008",
+    "page": 3,
+    "text": "Manufacture in which all the materials used are wholly obtained."
+   },
+   {
+    "start": "110100",
+    "end": "110220",
+    "page": 4,
+    "text": "Manufacture in which all the materials used are wholly obtained."
+   },
+   {
+    "start": "110290",
+    "end": "110290",
+    "page": 4,
+    "text": "A change to subheading 1102.90 from any other chapter, provided that there is a qualifying value content of not less than 40 percent."
+   },
+   {
+    "start": "1103",
+    "end": "1109",
+    "page": 4,
+    "text": "Manufacture in which all the materials used are wholly obtained."
+   },
+   {
+    "start": "1201",
+    "end": "1214",
+    "page": 4,
+    "text": "Manufacture in which all the materials used are wholly obtained."
+   },
+   {
+    "start": "1301",
+    "end": "1302",
+    "page": 4,
+    "text": "Manufacture in which all the materials used are wholly obtained."
+   },
+   {
+    "start": "1401",
+    "end": "1404",
+    "page": 4,
+    "text": "Manufacture in which all the materials used are wholly obtained."
+   },
+   {
+    "start": "1501",
+    "end": "1522",
+    "page": 5,
+    "text": "Manufacture in which all the materials used are wholly obtained."
+   },
+   {
+    "start": "160100",
+    "end": "160419",
+    "page": 5,
+    "text": "Manufacture in which all the materials used are wholly obtained."
+   },
+   {
+    "start": "160420",
+    "end": "160420",
+    "page": 5,
+    "text": "A change to subheading 1604.20 from any other chapter."
+   },
+   {
+    "start": "160430",
+    "end": "160510",
+    "page": 5,
+    "text": "Manufacture in which all the materials used are wholly obtained."
+   },
+   {
+    "start": "160520",
+    "end": "160520",
+    "page": 5,
+    "text": "A change to subheading 1605.20 from any other chapter."
+   },
+   {
+    "start": "160530",
+    "end": "160540",
+    "page": 5,
+    "text": "Manufacture in which all the materials used are wholly obtained."
+   },
+   {
+    "start": "160590",
+    "end": "160590",
+    "page": 5,
+    "text": "Of cuttle fish and squid: Manufacture in which all the materials used are wholly obtained. Others: A change to subheading 1605.90 from any other chapter."
+   },
+   {
+    "start": "1701",
+    "end": "1704",
+    "page": 6,
+    "text": "Manufacture in which all the materials used are wholly obtained."
+   },
+   {
+    "start": "1801",
+    "end": "1806",
+    "page": 6,
+    "text": "Manufacture in which all the materials used are wholly obtained."
+   },
+   {
+    "start": "1901",
+    "end": "1905",
+    "page": 6,
+    "text": "Manufacture in which all the materials used are wholly obtained."
+   },
+   {
+    "start": "2001",
+    "end": "2009",
+    "page": 6,
+    "text": "Manufacture in which all the materials used are wholly obtained."
+   },
+   {
+    "start": "210111",
+    "end": "210111",
+    "page": 6,
+    "text": "A change to subheading 2101.11 from any other chapter."
+   },
+   {
+    "start": "210112",
+    "end": "210112",
+    "page": 6,
+    "text": "Manufacture in which all the materials used are wholly obtained."
+   },
+   {
+    "start": "210120",
+    "end": "210120",
+    "page": 6,
+    "text": "A change to subheading 2101.20 from any other chapter."
+   },
+   {
+    "start": "210130",
+    "end": "210500",
+    "page": 6,
+    "text": "Manufacture in which all the materials used are wholly obtained."
+   },
+   {
+    "start": "210610",
+    "end": "210610",
+    "page": 6,
+    "text": "A change to subheading 2106.10 from any other chapter."
+   },
+   {
+    "start": "210690",
+    "end": "210690",
+    "page": 7,
+    "text": "A change to subheading 2106.90 from any other chapter, provided that there is a qualifying value content of not less than 40 percent."
+   },
+   {
+    "start": "2201",
+    "end": "2206",
+    "page": 7,
+    "text": "Manufacture in which all the materials used are wholly obtained."
+   },
+   {
+    "start": "2207",
+    "end": "2207",
+    "page": 7,
+    "text": "A change to heading 22.07 from any other chapter."
+   },
+   {
+    "start": "2208",
+    "end": "2209",
+    "page": 7,
+    "text": "Manufacture in which all the materials used are wholly obtained."
+   },
+   {
+    "start": "2301",
+    "end": "2309",
+    "page": 7,
+    "text": "Manufacture in which all the materials used are wholly obtained."
+   },
+   {
+    "start": "2401",
+    "end": "2403",
+    "page": 7,
+    "text": "Manufacture in which all the materials used are wholly obtained."
+   },
+   {
+    "start": "250100",
+    "end": "250100",
+    "page": 7,
+    "text": "Manufacture in which all the materials used are wholly obtained."
+   },
+   {
+    "start": "280120",
+    "end": "280120",
+    "page": 8,
+    "text": "A change to subheading 2801.20 from any other heading."
+   },
+   {
+    "start": "2802",
+    "end": "2803",
+    "page": 8,
+    "text": "A change to heading 28.02 through 28.03 from any other heading."
+   },
+   {
+    "start": "280430",
+    "end": "280430",
+    "page": 8,
+    "text": "A change to subheading 2804.30 from any other heading."
+   },
+   {
+    "start": "280450",
+    "end": "280450",
+    "page": 8,
+    "text": "A change to subheading 2804.50 from any other heading."
+   },
+   {
+    "start": "280490",
+    "end": "280490",
+    "page": 8,
+    "text": "A change to subheading 2804.90 from any other heading."
+   },
+   {
+    "start": "2806",
+    "end": "2806",
+    "page": 8,
+    "text": "A change to heading 28.06 from any other heading, provided that there is a qualifying value content of not less than 35 percent."
+   },
+   {
+    "start": "280700",
+    "end": "280700",
+    "page": 8,
+    "text": "A change to subheading 2807.00 from any other heading."
+   },
+   {
+    "start": "281119",
+    "end": "281119",
+    "page": 8,
+    "text": "A change to subheading 2811.19 from any other heading."
+   },
+   {
+    "start": "281122",
+    "end": "281122",
+    "page": 8,
+    "text": "A change to subheading 2811.22 from any other heading."
+   },
+   {
+    "start": "281511",
+    "end": "281511",
+    "page": 8,
+    "text": "A change to subheading 2815.11 from any other heading, provided that there is a qualifying value content of not less than 35 percent."
+   },
+   {
+    "start": "281520",
+    "end": "281520",
+    "page": 8,
+    "text": "A change to subheading 2815.20 from any other heading."
+   },
+   {
+    "start": "281610",
+    "end": "281610",
+    "page": 9,
+    "text": "A change to subheading 2816.10 from any other heading."
+   },
+   {
+    "start": "281700",
+    "end": "281820",
+    "page": 9,
+    "text": "A change to subheading 2817.00 through 2818.20 from any other heading."
+   },
+   {
+    "start": "281990",
+    "end": "281990",
+    "page": 9,
+    "text": "A change to subheading 2819.90 from any other heading."
+   },
+   {
+    "start": "282010",
+    "end": "282010",
+    "page": 9,
+    "text": "A change to subheading 2820.10 from any other chapter."
+   },
+   {
+    "start": "2821",
+    "end": "2823",
+    "page": 9,
+    "text": "A change to heading 28.21 through 28.23 from any other heading."
+   },
+   {
+    "start": "2824",
+    "end": "2824",
+    "page": 9,
+    "text": "A change to heading 28.24 from any other chapter."
+   },
+   {
+    "start": "282510",
+    "end": "282510",
+    "page": 9,
+    "text": "A change to subheading 2825.10 from any other heading."
+   },
+   {
+    "start": "282540",
+    "end": "282540",
+    "page": 9,
+    "text": "A change to subheading 2825.40 from any other heading."
+   },
+   {
+    "start": "282550",
+    "end": "282550",
+    "page": 9,
+    "text": "A change to subheading 2825.50 from any other chapter."
+   },
+   {
+    "start": "282560",
+    "end": "282560",
+    "page": 9,
+    "text": "A change to subheading 2825.60 from any other heading."
+   },
+   {
+    "start": "282580",
+    "end": "282590",
+    "page": 9,
+    "text": "A change to subheading 2825.80 through 2825.90 from any other heading."
+   },
+   {
+    "start": "282630",
+    "end": "282630",
+    "page": 9,
+    "text": "A change to subheading 2826.30 from any other heading."
+   },
+   {
+    "start": "282732",
+    "end": "282732",
+    "page": 9,
+    "text": "A change to subheading 2827.32 from any other heading, provided that there is a qualifying value content of not less than 35 percent."
+   },
+   {
+    "start": "282735",
+    "end": "282735",
+    "page": 9,
+    "text": "A change to subheading 2827.35 from any other chapter."
+   },
+   {
+    "start": "282739",
+    "end": "282739",
+    "page": 10,
+    "text": "A change to subheading 2827.39 from any other heading."
+   },
+   {
+    "start": "282890",
+    "end": "282890",
+    "page": 10,
+    "text": "A change to subheading 2828.90 from any other heading, provided that there is a qualifying value content of not less than 35 percent."
+   },
+   {
+    "start": "283090",
+    "end": "283090",
+    "page": 10,
+    "text": "A change to subheading 2830.90 from any other heading."
+   },
+   {
+    "start": "283311",
+    "end": "283311",
+    "page": 10,
+    "text": "A change to subheading 2833.11 from any other heading."
+   },
+   {
+    "start": "283324",
+    "end": "283325",
+    "page": 10,
+    "text": "A change to subheading 2833.24 through 2833.25 from any other chapter."
+   },
+   {
+    "start": "283327",
+    "end": "283329",
+    "page": 10,
+    "text": "A change to subheading 2833.27 through 2833.29 from any other heading."
+   },
+   {
+    "start": "283340",
+    "end": "283340",
+    "page": 10,
+    "text": "A change to subheading 2833.40 from any other heading."
+   },
+   {
+    "start": "283429",
+    "end": "283429",
+    "page": 10,
+    "text": "A change to subheading 2834.29 from any other heading."
+   },
+   {
+    "start": "283525",
+    "end": "283526",
+    "page": 10,
+    "text": "A change to subheading 2835.25 through 2835.26 from any other heading."
+   },
+   {
+    "start": "283539",
+    "end": "283539",
+    "page": 10,
+    "text": "A change to subheading 2835.39 from any other heading."
+   },
+   {
+    "start": "283650",
+    "end": "283650",
+    "page": 10,
+    "text": "A change to subheading 2836.50 from any other heading."
+   },
+   {
+    "start": "283699",
+    "end": "283719",
+    "page": 10,
+    "text": "A change to subheading 2836.99 through 2837.19 from any other heading."
+   },
+   {
+    "start": "283990",
+    "end": "283990",
+    "page": 10,
+    "text": "A change to subheading 2839.90 from any other heading."
+   },
+   {
+    "start": "284020",
+    "end": "284020",
+    "page": 10,
+    "text": "A change to subheading 2840.20 from any other heading."
+   },
+   {
+    "start": "284130",
+    "end": "284130",
+    "page": 11,
+    "text": "A change to subheading 2841.30 from any other heading."
+   },
+   {
+    "start": "284190",
+    "end": "284190",
+    "page": 11,
+    "text": "A change to subheading 2841.90 from any other heading."
+   },
+   {
+    "start": "284290",
+    "end": "284290",
+    "page": 11,
+    "text": "A change to subheading 2842.90 from any other heading."
+   },
+   {
+    "start": "284390",
+    "end": "284390",
+    "page": 11,
+    "text": "A change to subheading 2843.90 from any other heading."
+   },
+   {
+    "start": "284690",
+    "end": "284690",
+    "page": 11,
+    "text": "A change to subheading 2846.90 from any other heading."
+   },
+   {
+    "start": "284990",
+    "end": "285000",
+    "page": 11,
+    "text": "A change to subheading 2849.90 through 2850.00 from any other heading."
+   },
+   {
+    "start": "285300",
+    "end": "285300",
+    "page": 11,
+    "text": "A change to subheading 2853.00 from any other heading."
+   },
+   {
+    "start": "290110",
+    "end": "290110",
+    "page": 11,
+    "text": "A change to subheading 2901.10 from any other heading."
+   },
+   {
+    "start": "290219",
+    "end": "290219",
+    "page": 11,
+    "text": "A change to subheading 2902.19 from any other heading."
+   },
+   {
+    "start": "290230",
+    "end": "290230",
+    "page": 11,
+    "text": "A change to subheading 2902.30 from any other heading."
+   },
+   {
+    "start": "290290",
+    "end": "290290",
+    "page": 11,
+    "text": "A change to subheading 2902.90 from any other heading."
+   },
+   {
+    "start": "290312",
+    "end": "290313",
+    "page": 11,
+    "text": "A change to subheading 2903.12 through 2903.13 from any other heading."
+   },
+   {
+    "start": "290322",
+    "end": "290322",
+    "page": 11,
+    "text": "A change to subheading 2903.22 from any other heading."
+   },
+   {
+    "start": "290329",
+    "end": "290329",
+    "page": 11,
+    "text": "A change to subheading 2903.29 from any other heading."
+   },
+   {
+    "start": "290339",
+    "end": "290339",
+    "page": 12,
+    "text": "A change to subheading 2903.39 from any other heading."
+   },
+   {
+    "start": "290349",
+    "end": "290349",
+    "page": 12,
+    "text": "A change to subheading 2903.49 from any other heading."
+   },
+   {
+    "start": "290361",
+    "end": "290361",
+    "page": 12,
+    "text": "A change to subheading 2903.61 from any other heading."
+   },
+   {
+    "start": "290369",
+    "end": "290410",
+    "page": 12,
+    "text": "A change to subheading 2903.69 through 2904.10 from any other heading."
+   },
+   {
+    "start": "290490",
+    "end": "290490",
+    "page": 12,
+    "text": "A change to subheading 2904.90 from any other heading."
+   },
+   {
+    "start": "290514",
+    "end": "290516",
+    "page": 12,
+    "text": "A change to subheading 2905.14 through 2905.16 from any other heading."
+   },
+   {
+    "start": "290519",
+    "end": "290529",
+    "page": 12,
+    "text": "A change to subheading 2905.19 through 2905.29 from any other heading."
+   },
+   {
+    "start": "290539",
+    "end": "290541",
+    "page": 12,
+    "text": "A change to subheading 2905.39 through 2905.41 from any other heading."
+   },
+   {
+    "start": "290544",
+    "end": "290544",
+    "page": 12,
+    "text": "A change to subheading 2905.44 from any other heading, except from heading 17.02."
+   },
+   {
+    "start": "290559",
+    "end": "290559",
+    "page": 12,
+    "text": "A change to subheading 2905.59 from any other heading."
+   },
+   {
+    "start": "290611",
+    "end": "290611",
+    "page": 12,
+    "text": "Manufacture in which all the materials used are wholly obtained."
+   },
+   {
+    "start": "290612",
+    "end": "290612",
+    "page": 12,
+    "text": "A change to subheading 2906.12 from any other heading."
+   },
+   {
+    "start": "290619",
+    "end": "290619",
+    "page": 12,
+    "text": "A change to subheading 2906.19 from any other heading."
+   },
+   {
+    "start": "290629",
+    "end": "290713",
+    "page": 13,
+    "text": "A change to subheading 2906.29 through 2907.13 from any other heading."
+   },
+   {
+    "start": "290719",
+    "end": "290719",
+    "page": 13,
+    "text": "A change to subheading 2907.19 from any other heading."
+   },
+   {
+    "start": "290729",
+    "end": "290729",
+    "page": 13,
+    "text": "A change to subheading 2907.29 from any other heading."
+   },
+   {
+    "start": "290919",
+    "end": "290919",
+    "page": 13,
+    "text": "A change to subheading 2909.19 from any other heading."
+   },
+   {
+    "start": "290930",
+    "end": "290930",
+    "page": 13,
+    "text": "A change to subheading 2909.30 from any other heading."
+   },
+   {
+    "start": "290943",
+    "end": "290949",
+    "page": 13,
+    "text": "A change to subheading 2909.43 through 2909.49 from any other heading."
+   },
+   {
+    "start": "291030",
+    "end": "291030",
+    "page": 13,
+    "text": "A change to subheading 2910.30 from any other heading."
+   },
+   {
+    "start": "291090",
+    "end": "291090",
+    "page": 13,
+    "text": "A change to subheading 2910.90 from any other heading."
+   },
+   {
+    "start": "291219",
+    "end": "291219",
+    "page": 13,
+    "text": "A change to subheading 2912.19 from any other heading."
+   },
+   {
+    "start": "291229",
+    "end": "291230",
+    "page": 13,
+    "text": "A change to subheading 2912.29 through 2912.30 from any other heading."
+   },
+   {
+    "start": "291260",
+    "end": "291300",
+    "page": 13,
+    "text": "A change to subheading 2912.60 through 2913.00 from any other heading."
+   },
+   {
+    "start": "291413",
+    "end": "291419",
+    "page": 13,
+    "text": "A change to subheading 2914.13 through 2914.19 from any other heading."
+   },
+   {
+    "start": "291429",
+    "end": "291429",
+    "page": 13,
+    "text": "A change to subheading 2914.29 from any other heading."
+   },
+   {
+    "start": "291440",
+    "end": "291450",
+    "page": 13,
+    "text": "A change to subheading 2914.40 through 2914.50 from any other heading."
+   },
+   {
+    "start": "291470",
+    "end": "291511",
+    "page": 14,
+    "text": "A change to subheading 2914.70 through 2915.11 from any other heading."
+   },
+   {
+    "start": "291529",
+    "end": "291529",
+    "page": 14,
+    "text": "A change to subheading 2915.29 from any other heading."
+   },
+   {
+    "start": "291539",
+    "end": "291539",
+    "page": 14,
+    "text": "A change to subheading 2915.39 from any other heading."
+   },
+   {
+    "start": "291560",
+    "end": "291560",
+    "page": 14,
+    "text": "A change to subheading 2915.60 from any other heading."
+   },
+   {
+    "start": "291612",
+    "end": "291614",
+    "page": 14,
+    "text": "A change to subheading 2916.12 through 2916.14 from any other heading."
+   },
+   {
+    "start": "291619",
+    "end": "291620",
+    "page": 14,
+    "text": "A change to subheading 2916.19 through 2916.20 from any other heading."
+   },
+   {
+    "start": "291639",
+    "end": "291639",
+    "page": 14,
+    "text": "A change to subheading 2916.39 from any other heading."
+   },
+   {
+    "start": "291712",
+    "end": "291720",
+    "page": 14,
+    "text": "A change to subheading 2917.12 through 2917.20 from any other heading."
+   },
+   {
+    "start": "291735",
+    "end": "291735",
+    "page": 14,
+    "text": "A change to subheading 2917.35 from any other heading."
+   },
+   {
+    "start": "291739",
+    "end": "291739",
+    "page": 14,
+    "text": "A change to subheading 2917.39 from any other heading."
+   },
+   {
+    "start": "291814",
+    "end": "291815",
+    "page": 14,
+    "text": "Manufacture in which all the materials used are wholly obtained."
+   },
+   {
+    "start": "291819",
+    "end": "291819",
+    "page": 14,
+    "text": "A change to subheading 2918.19 from any other heading."
+   },
+   {
+    "start": "292090",
+    "end": "292090",
+    "page": 14,
+    "text": "A change to subheading 2920.90 from any other heading."
+   },
+   {
+    "start": "292119",
+    "end": "292121",
+    "page": 14,
+    "text": "A change to subheading 2921.19 through 2921.21 from any other heading."
+   },
+   {
+    "start": "292129",
+    "end": "292129",
+    "page": 15,
+    "text": "A change to subheading 2921.29 from any other heading."
+   },
+   {
+    "start": "292142",
+    "end": "292144",
+    "page": 15,
+    "text": "A change to subheading 2921.42 through 2921.44 from any other heading."
+   },
+   {
+    "start": "292151",
+    "end": "292211",
+    "page": 15,
+    "text": "A change to subheading 2921.51 through 2922.11 from any other heading."
+   },
+   {
+    "start": "292219",
+    "end": "292219",
+    "page": 15,
+    "text": "A change to subheading 2922.19 from any other heading."
+   },
+   {
+    "start": "292229",
+    "end": "292229",
+    "page": 15,
+    "text": "A change to subheading 2922.29 from any other heading."
+   },
+   {
+    "start": "292241",
+    "end": "292241",
+    "page": 15,
+    "text": "A change to subheading 2922.41 from any other heading."
+   },
+   {
+    "start": "292390",
+    "end": "292390",
+    "page": 15,
+    "text": "A change to subheading 2923.90 from any other heading."
+   },
+   {
+    "start": "292419",
+    "end": "292419",
+    "page": 15,
+    "text": "A change to subheading 2924.19 from any other heading."
+   },
+   {
+    "start": "292511",
+    "end": "292511",
+    "page": 15,
+    "text": "A change to subheading 2925.11 from any other heading."
+   },
+   {
+    "start": "292519",
+    "end": "292519",
+    "page": 15,
+    "text": "A change to subheading 2925.19 from any other heading."
+   },
+   {
+    "start": "2927",
+    "end": "2929",
+    "page": 15,
+    "text": "A change to heading 29.27 through 29.29 from any other heading."
+   },
+   {
+    "start": "293100",
+    "end": "293211",
+    "page": 15,
+    "text": "A change to subheading 2931.00 through 2932.11 from any other heading."
+   },
+   {
+    "start": "293361",
+    "end": "293361",
+    "page": 15,
+    "text": "A change to subheading 2933.61 from any other heading."
+   },
+   {
+    "start": "293420",
+    "end": "293420",
+    "page": 15,
+    "text": "A change to subheading 2934.20 from any other heading."
+   },
+   {
+    "start": "294000",
+    "end": "294000",
+    "page": 16,
+    "text": "Manufacture in which all the materials used are wholly obtained."
+   },
+   {
+    "start": "294200",
+    "end": "294200",
+    "page": 16,
+    "text": "A change to subheading 2942.00 from any other heading."
+   },
+   {
+    "start": "320190",
+    "end": "320190",
+    "page": 16,
+    "text": "A change to subheading 3201.90 from any other heading, provided that there is a qualifying value content of not less than 35 percent."
+   },
+   {
+    "start": "320290",
+    "end": "320419",
+    "page": 16,
+    "text": "A change to subheading 3202.90 through 3204.19 from any other heading, provided that there is a qualifying value content of not less than 35 percent."
+   },
+   {
+    "start": "320420",
+    "end": "320420",
+    "page": 16,
+    "text": "A change to subheading 3204.20 from any other heading."
+   },
+   {
+    "start": "320500",
+    "end": "320642",
+    "page": 16,
+    "text": "A change to subheading 3205.00 through 3206.42 from any other heading, provided that there is a qualifying value content of not less than 35 percent."
+   },
+   {
+    "start": "320649",
+    "end": "320649",
+    "page": 16,
+    "text": "A change to subheading 3206.49 from any other heading."
+   },
+   {
+    "start": "320650",
+    "end": "320890",
+    "page": 16,
+    "text": "A change to subheading 3206.50 through 3208.90 from any other heading, provided that there is a qualifying value content of not less than 35 percent."
+   },
+   {
+    "start": "320910",
+    "end": "320910",
+    "page": 16,
+    "text": "A change to subheading 3209.10 from any other heading."
+   },
+   {
+    "start": "320990",
+    "end": "320990",
+    "page": 16,
+    "text": "A change to subheading 3209.90 from any other heading, provided that there is a qualifying value content of not less than 35 percent."
+   },
+   {
+    "start": "321000",
+    "end": "321000",
+    "page": 17,
+    "text": "A change to subheading 3210.00 from any other heading."
+   },
+   {
+    "start": "3211",
+    "end": "3212",
+    "page": 17,
+    "text": "A change to heading 32.11 through 32.12 from any other heading, provided that there is a qualifying value content of not less than 35 percent."
+   },
+   {
+    "start": "321390",
+    "end": "321590",
+    "page": 17,
+    "text": "A change to subheading 3213.90 through 3215.90 from any other heading, provided that there is a qualifying value content of not less than 35 percent."
+   },
+   {
+    "start": "330410",
+    "end": "330510",
+    "page": 17,
+    "text": "A change to subheading 3304.10 through 3305.10 from any other heading."
+   },
+   {
+    "start": "330530",
+    "end": "330590",
+    "page": 17,
+    "text": "A change to subheading 3305.30 through 3305.90 from any other heading."
+   },
+   {
+    "start": "350211",
+    "end": "350219",
+    "page": 17,
+    "text": "Manufacture in which all the materials used are wholly obtained."
+   },
+   {
+    "start": "3505",
+    "end": "3505",
+    "page": 17,
+    "text": "Manufacture in which all the materials used are wholly obtained."
+   },
+   {
+    "start": "370790",
+    "end": "370790",
+    "page": 17,
+    "text": "A change to subheading 3707.90 from any other chapter."
+   },
+   {
+    "start": "3801",
+    "end": "3801",
+    "page": 17,
+    "text": "A change to heading 38.01 from any other heading."
+   },
+   {
+    "start": "380400",
+    "end": "380510",
+    "page": 18,
+    "text": "A change to subheading 3804.00 through 3805.10 from any other heading."
+   },
+   {
+    "start": "380690",
+    "end": "380690",
+    "page": 18,
+    "text": "A change to subheading 3806.90 from any other heading."
+   },
+   {
+    "start": "380891",
+    "end": "380899",
+    "page": 18,
+    "text": "A change to subheading 3808.91 through 3808.99 from any other heading."
+   },
+   {
+    "start": "380910",
+    "end": "380910",
+    "page": 18,
+    "text": "Manufacture in which all the materials used are wholly obtained."
+   },
+   {
+    "start": "380991",
+    "end": "380992",
+    "page": 18,
+    "text": "A change to subheading 3809.91 through 3809.92 from any other heading."
+   },
+   {
+    "start": "3810",
+    "end": "3810",
+    "page": 18,
+    "text": "A change to heading 38.10 from any other heading."
+   },
+   {
+    "start": "381121",
+    "end": "381121",
+    "page": 18,
+    "text": "A change to subheading 3811.21 from any other heading."
+   },
+   {
+    "start": "381190",
+    "end": "381900",
+    "page": 18,
+    "text": "A change to subheading 3811.90 through 3819.00 from any other heading."
+   },
+   {
+    "start": "3821",
+    "end": "3822",
+    "page": 18,
+    "text": "A change to heading 38.21 through 38.22 from any other heading."
+   },
+   {
+    "start": "382410",
+    "end": "382410",
+    "page": 18,
+    "text": "A change to subheading 3824.10 from any other heading."
+   },
+   {
+    "start": "382440",
+    "end": "382440",
+    "page": 18,
+    "text": "A change to subheading 3824.40 from any other heading."
+   },
+   {
+    "start": "382460",
+    "end": "382460",
+    "page": 18,
+    "text": "Manufacture in which all the materials used are wholly obtained."
+   },
+   {
+    "start": "382490",
+    "end": "382490",
+    "page": 18,
+    "text": "A change to subheading 3824.90 from any other heading."
+   },
+   {
+    "start": "390110",
+    "end": "390120",
+    "page": 19,
+    "text": "A change to subheading 3901.10 through 3901.20 from any other heading."
+   },
+   {
+    "start": "390210",
+    "end": "390422",
+    "page": 19,
+    "text": "A change to subheading 3902.10 through 3904.22 from any other heading."
+   },
+   {
+    "start": "390450",
+    "end": "390490",
+    "page": 19,
+    "text": "A change to subheading 3904.50 through 3904.90 from any other heading."
+   },
+   {
+    "start": "390521",
+    "end": "390521",
+    "page": 19,
+    "text": "A change to subheading 3905.21 from any other heading."
+   },
+   {
+    "start": "390530",
+    "end": "390530",
+    "page": 19,
+    "text": "A change to subheading 3905.30 from any other heading."
+   },
+   {
+    "start": "390690",
+    "end": "390730",
+    "page": 19,
+    "text": "A change to subheading 3906.90 through 3907.30 from any other heading."
+   },
+   {
+    "start": "390750",
+    "end": "390760",
+    "page": 19,
+    "text": "A change to subheading 3907.50 through 3907.60 from any other heading."
+   },
+   {
+    "start": "390791",
+    "end": "390791",
+    "page": 19,
+    "text": "A change to subheading 3907.91 from any other heading."
+   },
+   {
+    "start": "3910",
+    "end": "3911",
+    "page": 19,
+    "text": "A change to heading 39.10 through 39.11 from any other heading."
+   },
+   {
+    "start": "391722",
+    "end": "391810",
+    "page": 19,
+    "text": "A change to subheading 3917.22 through 3918.10 from any other heading."
+   },
+   {
+    "start": "391910",
+    "end": "392062",
+    "page": 19,
+    "text": "A change to subheading 3919.10 through 3920.62 from any other heading."
+   },
+   {
+    "start": "392069",
+    "end": "392071",
+    "page": 20,
+    "text": "A change to subheading 3920.69 through 3920.71 from any other heading."
+   },
+   {
+    "start": "392079",
+    "end": "392079",
+    "page": 20,
+    "text": "A change to subheading 3920.79 from any other heading."
+   },
+   {
+    "start": "392092",
+    "end": "392092",
+    "page": 20,
+    "text": "A change to subheading 3920.92 from any other heading."
+   },
+   {
+    "start": "392099",
+    "end": "392099",
+    "page": 20,
+    "text": "A change to subheading 3920.99 from any other heading."
+   },
+   {
+    "start": "392112",
+    "end": "392113",
+    "page": 20,
+    "text": "A change to subheading 3921.12 through 3921.13 from any other heading."
+   },
+   {
+    "start": "392119",
+    "end": "392190",
+    "page": 20,
+    "text": "A change to subheading 3921.19 through 3921.90 from any other heading."
+   },
+   {
+    "start": "392310",
+    "end": "392410",
+    "page": 20,
+    "text": "A change to subheading 3923.10 through 3924.10 from any other heading."
+   },
+   {
+    "start": "392510",
+    "end": "392510",
+    "page": 20,
+    "text": "A change to subheading 3925.10 from any other heading."
+   },
+   {
+    "start": "392530",
+    "end": "392590",
+    "page": 20,
+    "text": "A change to subheading 3925.30 through 3925.90 from any other heading."
+   },
+   {
+    "start": "392630",
+    "end": "392630",
+    "page": 20,
+    "text": "A change to subheading 3926.30 from any other heading."
+   },
+   {
+    "start": "392690",
+    "end": "392690",
+    "page": 20,
+    "text": "A change to subheading 3926.90 from any other heading."
+   },
+   {
+    "start": "400819",
+    "end": "400819",
+    "page": 20,
+    "text": "A change to subheading 4008.19 from any other heading, provided that there is a qualifying value content of not less than 40 percent."
+   },
+   {
+    "start": "400829",
+    "end": "400829",
+    "page": 21,
+    "text": "A change to subheading 4008.29 from any other heading, provided that there is a qualifying value content of not less than 40 percent."
+   },
+   {
+    "start": "400931",
+    "end": "400931",
+    "page": 21,
+    "text": "A change to subheading 4009.31 from any other heading, provided that there is a qualifying value content of not less than 40 percent."
+   },
+   {
+    "start": "400941",
+    "end": "400942",
+    "page": 21,
+    "text": "A change to subheading 4009.41 through 4009.42 from any other heading, provided that there is a qualifying value content of not less than 40 percent."
+   },
+   {
+    "start": "401032",
+    "end": "401032",
+    "page": 21,
+    "text": "A change to subheading 4010.32 from any other heading, provided that there is a qualifying value content of not less than 40 percent."
+   },
+   {
+    "start": "401693",
+    "end": "401693",
+    "page": 21,
+    "text": "A change to subheading 4016.93 from any other heading, provided that there is a qualifying value content of not less than 40 percent."
+   },
+   {
+    "start": "401699",
+    "end": "401699",
+    "page": 21,
+    "text": "A change to subheading 4016.99 from any other heading, provided that there is a qualifying value content of not less than 40 percent."
+   },
+   {
+    "start": "4101",
+    "end": "4115",
+    "page": 21,
+    "text": "A change to heading 41.01 through 41.15 from any other chapter."
+   },
+   {
+    "start": "4201",
+    "end": "4206",
+    "page": 22,
+    "text": "A change to heading 42.01 through 42.06 from any other chapter."
+   },
+   {
+    "start": "4301",
+    "end": "4304",
+    "page": 22,
+    "text": "A change to heading 43.01 through 43.04 from any other chapter."
+   },
+   {
+    "start": "460129",
+    "end": "460129",
+    "page": 22,
+    "text": "Only for goods made of Igusa (Juncus effusu): Igusa (Juncus effusu) used in the manufacturing are wholly obtained."
+   },
+   {
+    "start": "460194",
+    "end": "460194",
+    "page": 22,
+    "text": "Only for goods made of Igusa (Juncus effusu): Igusa (Juncus effusu) used in the manufacturing are wholly obtained."
+   },
+   {
+    "start": "460219",
+    "end": "460219",
+    "page": 22,
+    "text": "Only for goods made of Igusa (Juncus effusu): Igusa (Juncus effusu) used in the manufacturing are wholly obtained."
+   },
+   {
+    "start": "5001",
+    "end": "5003",
+    "page": 23,
+    "text": "Manufacture in which all the materials used are wholly obtained."
+   },
+   {
+    "start": "500400",
+    "end": "500400",
+    "page": 23,
+    "text": "A change to subheading 5004.00 from any other heading."
+   },
+   {
+    "start": "5005",
+    "end": "5006",
+    "page": 23,
+    "text": "Manufacture from fibres, provided that necessary process stipulated in the Appendix is undertaken."
+   },
+   {
+    "start": "5007",
+    "end": "5007",
+    "page": 23,
+    "text": "Manufacture from yarns, provided that necessary process stipulated in the Appendix is undertaken."
+   },
+   {
+    "start": "5101",
+    "end": "5103",
+    "page": 23,
+    "text": "Manufacture in which all the materials used are wholly obtained."
+   },
+   {
+    "start": "5104",
+    "end": "5105",
+    "page": 23,
+    "text": "A change to heading 51.04 through 51.05 from any other chapter."
+   },
+   {
+    "start": "5106",
+    "end": "5110",
+    "page": 23,
+    "text": "Manufacture from fibres, provided that necessary process stipulated in the Appendix is undertaken."
+   },
+   {
+    "start": "5111",
+    "end": "5113",
+    "page": 23,
+    "text": "Manufacture from yarns, provided that necessary process stipulated in the Appendix is undertaken."
+   },
+   {
+    "start": "5201",
+    "end": "5203",
+    "page": 23,
+    "text": "Manufacture in which all the materials used are wholly obtained."
+   },
+   {
+    "start": "5204",
+    "end": "5207",
+    "page": 24,
+    "text": "Manufacture from fibres, provided that necessary process stipulated in the Appendix is undertaken."
+   },
+   {
+    "start": "5208",
+    "end": "5212",
+    "page": 24,
+    "text": "Manufacture from yarns, provided that necessary process stipulated in the Appendix is undertaken."
+   },
+   {
+    "start": "5301",
+    "end": "5302",
+    "page": 24,
+    "text": "Manufacture in which all the materials used are wholly obtained."
+   },
+   {
+    "start": "5303",
+    "end": "5305",
+    "page": 24,
+    "text": "A change to heading 53.03 through 53.05 from any other chapter."
+   },
+   {
+    "start": "5306",
+    "end": "5308",
+    "page": 24,
+    "text": "Manufacture from fibres, provided that necessary process stipulated in the Appendix is undertaken."
+   },
+   {
+    "start": "5309",
+    "end": "5311",
+    "page": 24,
+    "text": "Manufacture from yarns, provided that necessary process stipulated in the Appendix is undertaken."
+   },
+   {
+    "start": "5401",
+    "end": "5406",
+    "page": 24,
+    "text": "Manufacture from chemical materials or textile pulps, provided that necessary process stipulated in the Appendix is undertaken."
+   },
+   {
+    "start": "5407",
+    "end": "5408",
+    "page": 24,
+    "text": "Manufacture from yarns, provided that necessary process stipulated in the Appendix is undertaken."
+   },
+   {
+    "start": "5501",
+    "end": "5507",
+    "page": 24,
+    "text": "Manufacture from chemical materials or textile pulps."
+   },
+   {
+    "start": "5508",
+    "end": "5511",
+    "page": 25,
+    "text": "Manufacture from fibres, provided that necessary process stipulated in the Appendix is undertaken."
+   },
+   {
+    "start": "5512",
+    "end": "5516",
+    "page": 25,
+    "text": "Manufacture from yarns, provided that necessary process stipulated in the Appendix is undertaken."
+   },
+   {
+    "start": "5601",
+    "end": "5603",
+    "page": 25,
+    "text": "Manufacture from fibres, provided that necessary process stipulated in the Appendix is undertaken."
+   },
+   {
+    "start": "5604",
+    "end": "5609",
+    "page": 25,
+    "text": "Manufacture from yarns, provided that necessary process stipulated in the Appendix is undertaken."
+   },
+   {
+    "start": "5701",
+    "end": "5705",
+    "page": 25,
+    "text": "Manufacture from yarns, provided that necessary process stipulated in the Appendix is undertaken."
+   },
+   {
+    "start": "5801",
+    "end": "5811",
+    "page": 25,
+    "text": "Manufacture from yarns, provided that necessary process stipulated in the Appendix is undertaken."
+   },
+   {
+    "start": "5901",
+    "end": "5911",
+    "page": 25,
+    "text": "Manufacture from yarns, provided that necessary process stipulated in the Appendix is undertaken."
+   },
+   {
+    "start": "6001",
+    "end": "6006",
+    "page": 26,
+    "text": "Manufacture from yarns, provided that necessary process stipulated in the Appendix is undertaken."
+   },
+   {
+    "start": "6101",
+    "end": "6117",
+    "page": 26,
+    "text": "Manufacture from fabrics, provided that necessary process stipulated in the Appendix is undertaken."
+   },
+   {
+    "start": "6201",
+    "end": "6217",
+    "page": 26,
+    "text": "Manufacture from fabrics, provided that necessary process stipulated in the Appendix is undertaken."
+   },
+   {
+    "start": "6301",
+    "end": "6310",
+    "page": 26,
+    "text": "Manufacture from fabrics, provided that necessary process stipulated in the Appendix is undertaken."
+   },
+   {
+    "start": "6401",
+    "end": "6406",
+    "page": 26,
+    "text": "A change to heading 64.01 through 64.06 from any other chapter."
+   },
+   {
+    "start": "650400",
+    "end": "650400",
+    "page": 27,
+    "text": "A change to subheading 6504.00 from any other heading except from heading 65.05."
+   },
+   {
+    "start": "6505",
+    "end": "6505",
+    "page": 27,
+    "text": "A change to heading 65.05 from any other heading except from heading 65.04."
+   },
+   {
+    "start": "6506",
+    "end": "6507",
+    "page": 27,
+    "text": "A change to heading 65.06 through 65.07 from any other heading."
+   },
+   {
+    "start": "681299",
+    "end": "681299",
+    "page": 27,
+    "text": "A change to subheading 6812.99 from any other heading, provided that there is a qualifying value content of not less than 40 percent."
+   },
+   {
+    "start": "7007",
+    "end": "7007",
+    "page": 27,
+    "text": "A change to heading 70.07 from any other heading, provided that there is a qualifying value content of not less than 35 percent."
+   },
+   {
+    "start": "700910",
+    "end": "700910",
+    "page": 27,
+    "text": "A change to subheading 7009.10 from any other heading, provided that there is a qualifying value content of not less than 35 percent."
+   },
+   {
+    "start": "701810",
+    "end": "701810",
+    "page": 27,
+    "text": "A change to subheading 7018.10 from any other chapter."
+   },
+   {
+    "start": "701890",
+    "end": "701890",
+    "page": 27,
+    "text": "A change to subheading 7018.90 from any other chapter."
+   },
+   {
+    "start": "720249",
+    "end": "720249",
+    "page": 28,
+    "text": "A change to subheading 7202.49 from any other heading."
+   },
+   {
+    "start": "720260",
+    "end": "720260",
+    "page": 28,
+    "text": "A change to subheading 7202.60 from any other chapter."
+   },
+   {
+    "start": "720299",
+    "end": "720390",
+    "page": 28,
+    "text": "A change to subheading 7202.99 through 7203.90 from any other heading."
+   },
+   {
+    "start": "720421",
+    "end": "720429",
+    "page": 28,
+    "text": "A change to subheading 7204.21 through 7204.29 from any other heading."
+   },
+   {
+    "start": "720449",
+    "end": "722990",
+    "page": 28,
+    "text": "A change to subheading 7204.49 through 7229.90 from any other heading."
+   },
+   {
+    "start": "7301",
+    "end": "7307",
+    "page": 28,
+    "text": "A change to heading 73.01 through 73.07 from any other heading."
+   },
+   {
+    "start": "730830",
+    "end": "731010",
+    "page": 28,
+    "text": "A change to subheading 7308.30 through 7310.10 from any other heading."
+   },
+   {
+    "start": "731029",
+    "end": "731290",
+    "page": 28,
+    "text": "A change to subheading 7310.29 through 7312.90 from any other heading."
+   },
+   {
+    "start": "731412",
+    "end": "731419",
+    "page": 28,
+    "text": "A change to subheading 7314.12 through 7314.19 from any other heading."
+   },
+   {
+    "start": "731449",
+    "end": "731449",
+    "page": 28,
+    "text": "A change to subheading 7314.49 from any other heading."
+   },
+   {
+    "start": "731511",
+    "end": "731519",
+    "page": 29,
+    "text": "A change to subheading 7315.11 through 7315.19 from any other heading."
+   },
+   {
+    "start": "731582",
+    "end": "731589",
+    "page": 29,
+    "text": "A change to subheading 7315.82 through 7315.89 from any other heading."
+   },
+   {
+    "start": "731600",
+    "end": "731600",
+    "page": 29,
+    "text": "A change to subheading 7316.00 from any other heading."
+   },
+   {
+    "start": "731811",
+    "end": "731811",
+    "page": 29,
+    "text": "A change to subheading 7318.11 from any other heading."
+   },
+   {
+    "start": "731814",
+    "end": "731814",
+    "page": 29,
+    "text": "A change to subheading 7318.14 from any other heading."
+   },
+   {
+    "start": "731815",
+    "end": "731815",
+    "page": 29,
+    "text": "A change to subheading 7318.15 from any other heading, provided that there is a qualifying value content of not less than 35 percent."
+   },
+   {
+    "start": "731816",
+    "end": "731822",
+    "page": 29,
+    "text": "A change to subheading 7318.16 through 7318.22 from any other heading."
+   },
+   {
+    "start": "731823",
+    "end": "731824",
+    "page": 29,
+    "text": "A change to subheading 7318.23 through 7318.24 from any other heading, provided that there is a qualifying value content of not less than 35 percent."
+   },
+   {
+    "start": "731829",
+    "end": "731990",
+    "page": 29,
+    "text": "A change to subheading 7318.29 through 7319.90 from any other heading."
+   },
+   {
+    "start": "7320",
+    "end": "7320",
+    "page": 29,
+    "text": "A change to heading 73.20 from any other heading, provided that there is a qualifying value content of not less than 35 percent."
+   },
+   {
+    "start": "732111",
+    "end": "732111",
+    "page": 29,
+    "text": "A change to subheading 7321.11 from any other heading."
+   },
+   {
+    "start": "732119",
+    "end": "732119",
+    "page": 29,
+    "text": "A change to subheading 7321.19 from any other heading."
+   },
+   {
+    "start": "732182",
+    "end": "732182",
+    "page": 30,
+    "text": "A change to subheading 7321.82 from any other heading."
+   },
+   {
+    "start": "732211",
+    "end": "732211",
+    "page": 30,
+    "text": "A change to subheading 7322.11 from any other heading, provided that there is a qualifying value content of not less than 35 percent."
+   },
+   {
+    "start": "732310",
+    "end": "732310",
+    "page": 30,
+    "text": "A change to subheading 7323.10 from any other heading."
+   },
+   {
+    "start": "732393",
+    "end": "732393",
+    "page": 30,
+    "text": "A change to subheading 7323.93 from any other heading."
+   },
+   {
+    "start": "732399",
+    "end": "732399",
+    "page": 30,
+    "text": "A change to subheading 7323.99 from any other heading."
+   },
+   {
+    "start": "732421",
+    "end": "732421",
+    "page": 30,
+    "text": "A change to subheading 7324.21 from any other heading."
+   },
+   {
+    "start": "732490",
+    "end": "732490",
+    "page": 30,
+    "text": "A change to subheading 7324.90 from any other heading."
+   },
+   {
+    "start": "732599",
+    "end": "732599",
+    "page": 30,
+    "text": "A change to subheading 7325.99 from any other heading."
+   },
+   {
+    "start": "732619",
+    "end": "732690",
+    "page": 30,
+    "text": "A change to subheading 7326.19 through 7326.90 from any other heading."
+   },
+   {
+    "start": "740200",
+    "end": "740311",
+    "page": 30,
+    "text": "A change to subheading 7402.00 through 7403.11 from any other heading."
+   },
+   {
+    "start": "740313",
+    "end": "740319",
+    "page": 30,
+    "text": "A change to subheading 7403.13 through 7403.19 from any other heading."
+   },
+   {
+    "start": "740329",
+    "end": "741521",
+    "page": 30,
+    "text": "A change to subheading 7403.29 through 7415.21 from any other heading."
+   },
+   {
+    "start": "741533",
+    "end": "741539",
+    "page": 31,
+    "text": "A change to subheading 7415.33 through 7415.39 from any other heading."
+   },
+   {
+    "start": "741820",
+    "end": "741820",
+    "page": 31,
+    "text": "A change to subheading 7418.20 from any other heading."
+   },
+   {
+    "start": "741991",
+    "end": "741999",
+    "page": 31,
+    "text": "A change to subheading 7419.91 through 7419.99 from any other heading."
+   },
+   {
+    "start": "750210",
+    "end": "750512",
+    "page": 31,
+    "text": "A change to subheading 7502.10 through 7505.12 from any other heading."
+   },
+   {
+    "start": "750522",
+    "end": "750620",
+    "page": 31,
+    "text": "A change to subheading 7505.22 through 7506.20 from any other heading."
+   },
+   {
+    "start": "750712",
+    "end": "750712",
+    "page": 31,
+    "text": "A change to subheading 7507.12 from any other heading."
+   },
+   {
+    "start": "7508",
+    "end": "7508",
+    "page": 31,
+    "text": "A change to heading 75.08 from any other heading."
+   },
+   {
+    "start": "760120",
+    "end": "760120",
+    "page": 31,
+    "text": "A change to subheading 7601.20 from any other heading."
+   },
+   {
+    "start": "7603",
+    "end": "7604",
+    "page": 31,
+    "text": "A change to heading 76.03 through 76.04 from any other heading."
+   },
+   {
+    "start": "760519",
+    "end": "760519",
+    "page": 31,
+    "text": "A change to subheading 7605.19 from any other heading."
+   },
+   {
+    "start": "760529",
+    "end": "761090",
+    "page": 31,
+    "text": "A change to subheading 7605.29 through 7610.90 from any other heading."
+   },
+   {
+    "start": "761410",
+    "end": "761410",
+    "page": 31,
+    "text": "A change to subheading 7614.10 from any other heading."
+   },
+   {
+    "start": "761519",
+    "end": "761519",
+    "page": 32,
+    "text": "A change to subheading 7615.19 from any other heading."
+   },
+   {
+    "start": "761610",
+    "end": "761610",
+    "page": 32,
+    "text": "A change to subheading 7616.10 from any other heading."
+   },
+   {
+    "start": "761699",
+    "end": "761699",
+    "page": 32,
+    "text": "A change to subheading 7616.99 from any other heading."
+   },
+   {
+    "start": "7801",
+    "end": "7801",
+    "page": 32,
+    "text": "A change to heading 78.01 from any other heading."
+   },
+   {
+    "start": "780600",
+    "end": "780600",
+    "page": 32,
+    "text": "A change to subheading 7806.00 from any other heading."
+   },
+   {
+    "start": "7901",
+    "end": "7902",
+    "page": 32,
+    "text": "A change to heading 79.01 through 79.02 from any other heading."
+   },
+   {
+    "start": "790390",
+    "end": "790390",
+    "page": 32,
+    "text": "A change to subheading 7903.90 from any other heading."
+   },
+   {
+    "start": "790700",
+    "end": "790700",
+    "page": 32,
+    "text": "A change to subheading 7907.00 from any other heading."
+   },
+   {
+    "start": "800120",
+    "end": "800120",
+    "page": 32,
+    "text": "A change to subheading 8001.20 from any other heading."
+   },
+   {
+    "start": "8003",
+    "end": "8007",
+    "page": 32,
+    "text": "A change to heading 80.03 through 80.07 from any other heading."
+   },
+   {
+    "start": "810110",
+    "end": "810196",
+    "page": 32,
+    "text": "A change to subheading 8101.10 through 8101.96 from any other heading."
+   },
+   {
+    "start": "810199",
+    "end": "810210",
+    "page": 33,
+    "text": "A change to subheading 8101.99 through 8102.10 from any other heading."
+   },
+   {
+    "start": "810295",
+    "end": "810296",
+    "page": 33,
+    "text": "A change to subheading 8102.95 through 8102.96 from any other heading."
+   },
+   {
+    "start": "810299",
+    "end": "810299",
+    "page": 33,
+    "text": "A change to subheading 8102.99 from any other heading."
+   },
+   {
+    "start": "810600",
+    "end": "810720",
+    "page": 33,
+    "text": "A change to subheading 8106.00 through 8107.20 from any other chapter."
+   },
+   {
+    "start": "820150",
+    "end": "820150",
+    "page": 33,
+    "text": "A change to subheading 8201.50 from any other heading."
+   },
+   {
+    "start": "820210",
+    "end": "820239",
+    "page": 33,
+    "text": "A change to subheading 8202.10 through 8202.39 from any other heading."
+   },
+   {
+    "start": "820299",
+    "end": "820510",
+    "page": 33,
+    "text": "A change to subheading 8202.99 through 8205.10 from any other heading."
+   },
+   {
+    "start": "820540",
+    "end": "820559",
+    "page": 33,
+    "text": "A change to subheading 8205.40 through 8205.59 from any other heading."
+   },
+   {
+    "start": "820570",
+    "end": "820570",
+    "page": 33,
+    "text": "A change to subheading 8205.70 from any other heading."
+   },
+   {
+    "start": "820590",
+    "end": "820830",
+    "page": 33,
+    "text": "A change to subheading 8205.90 through 8208.30 from any other heading."
+   },
+   {
+    "start": "820890",
+    "end": "821000",
+    "page": 33,
+    "text": "A change to subheading 8208.90 through 8210.00 from any other heading."
+   },
+   {
+    "start": "821192",
+    "end": "821194",
+    "page": 34,
+    "text": "A change to subheading 8211.92 through 8211.94 from any other heading."
+   },
+   {
+    "start": "821220",
+    "end": "821220",
+    "page": 34,
+    "text": "A change to subheading 8212.20 from any other heading."
+   },
+   {
+    "start": "821591",
+    "end": "821591",
+    "page": 34,
+    "text": "A change to subheading 8215.91 from any other heading."
+   },
+   {
+    "start": "830120",
+    "end": "830120",
+    "page": 34,
+    "text": "A change to subheading 8301.20 from any other heading, provided that there is a qualifying value content of not less than 35 percent."
+   },
+   {
+    "start": "830140",
+    "end": "830220",
+    "page": 34,
+    "text": "A change to subheading 8301.40 through 8302.20 from any other heading."
+   },
+   {
+    "start": "830230",
+    "end": "830230",
+    "page": 34,
+    "text": "A change to subheading 8302.30 from any other heading, provided that there is a qualifying value content of not less than 35 percent."
+   },
+   {
+    "start": "830241",
+    "end": "830260",
+    "page": 34,
+    "text": "A change to subheading 8302.41 through 8302.60 from any other heading."
+   },
+   {
+    "start": "830520",
+    "end": "830520",
+    "page": 34,
+    "text": "A change to subheading 8305.20 from any other heading."
+   },
+   {
+    "start": "830629",
+    "end": "830629",
+    "page": 34,
+    "text": "A change to subheading 8306.29 from any other heading."
+   },
+   {
+    "start": "830710",
+    "end": "830810",
+    "page": 34,
+    "text": "A change to subheading 8307.10 through 8308.10 from any other heading."
+   },
+   {
+    "start": "830890",
+    "end": "830890",
+    "page": 34,
+    "text": "A change to subheading 8308.90 from any other heading."
+   },
+   {
+    "start": "8310",
+    "end": "8311",
+    "page": 34,
+    "text": "A change to heading 83.10 through 83.11 from any other heading."
+   },
+   {
+    "start": "840731",
+    "end": "840731",
+    "page": 35,
+    "text": "A change to subheading 8407.31 from any other heading, provided that there is a qualifying value content of not less than 50 percent."
+   },
+   {
+    "start": "840732",
+    "end": "840734",
+    "page": 35,
+    "text": "A change to subheading 8407.32 through 8407.34 from any other heading, provided that there is a qualifying value content of not less than 40 percent."
+   },
+   {
+    "start": "840820",
+    "end": "840890",
+    "page": 35,
+    "text": "A change to subheading 8408.20 through 8408.90 from any other heading, provided that there is a qualifying value content of not less than 40 percent."
+   },
+   {
+    "start": "840999",
+    "end": "840999",
+    "page": 35,
+    "text": "A change to subheading 8409.99 from any other heading, provided that there is a qualifying value content of not less than 40 percent."
+   },
+   {
+    "start": "841330",
+    "end": "841330",
+    "page": 35,
+    "text": "A change to subheading 8413.30 from any other heading, provided that there is a qualifying value content of not less than 40 percent."
+   },
+   {
+    "start": "841510",
+    "end": "841510",
+    "page": 35,
+    "text": "A change to subheading 8415.10 from any other subheading, provided that there is a qualifying value content of not less than 50 percent."
+   },
+   {
+    "start": "8482",
+    "end": "8482",
+    "page": 35,
+    "text": "A change to heading 84.82 from any other heading, provided that there is a qualifying value content of not less than 40 percent."
+   },
+   {
+    "start": "848360",
+    "end": "848360",
+    "page": 36,
+    "text": "A change to subheading 8483.60 from any other heading, provided that there is a qualifying value content of not less than 40 percent."
+   },
+   {
+    "start": "8484",
+    "end": "8484",
+    "page": 36,
+    "text": "A change to heading 84.84 from any other heading, provided that there is a qualifying value content of not less than 40 percent."
+   },
+   {
+    "start": "850110",
+    "end": "850110",
+    "page": 36,
+    "text": "A change to subheading 8501.10 from any other heading, provided that there is a qualifying value content of not less than 40 percent."
+   },
+   {
+    "start": "850131",
+    "end": "850132",
+    "page": 36,
+    "text": "A change to subheading 8501.31 through 8501.32 from any other heading, provided that there is a qualifying value content of not less than 40 percent."
+   },
+   {
+    "start": "851190",
+    "end": "851190",
+    "page": 36,
+    "text": "A change to subheading 8511.90 from any other heading, provided that there is a qualifying value content of not less than 40 percent."
+   },
+   {
+    "start": "851230",
+    "end": "851290",
+    "page": 36,
+    "text": "A change to subheading 8512.30 through 8512.90 from any other heading, provided that there is a qualifying value content of not less than 40 percent."
+   },
+   {
+    "start": "851650",
+    "end": "851650",
+    "page": 36,
+    "text": "A change to subheading 8516.50 from any other heading, provided that there is a qualifying value content of not less than 40 percent."
+   },
+   {
+    "start": "851840",
+    "end": "851840",
+    "page": 36,
+    "text": "A change to subheading 8518.40 from any other heading, provided that there is a qualifying value content of not less than 40 percent."
+   },
+   {
+    "start": "852190",
+    "end": "852190",
+    "page": 37,
+    "text": "A change to subheading 8521.90 from any other heading, provided that there is a qualifying value content of not less than 40 percent."
+   },
+   {
+    "start": "8541",
+    "end": "8541",
+    "page": 37,
+    "text": "A change to heading 85.41 from any other chapter, provided that components not classified in 8541.10, 8541.21, 8541.29, 8541.30, 8541.40, 8541.50, 8542.31, 8542.32, 8542.33 and 8542.39 are disregarded."
+   },
+   {
+    "start": "854231",
+    "end": "854239",
+    "page": 37,
+    "text": "For Hybrid integrated circuits, a change to subheading 8542.31 through 8542.39 from any other subheading, provided that there is a qualifying value content of not less than 35 percent; or For Integrated Circuits except Hybrid integrated circuits, a change to subheading 8542.31 through 8542.39 from any other chapter, provided that components not classified in 8541.10, 8541.21, 8541.29, 8541.30, 8541.40, 8541.50, 8542.31, 8542.32, 8542.33 and 8542.39 are disregarded."
+   },
+   {
+    "start": "854430",
+    "end": "854430",
+    "page": 37,
+    "text": "A change to subheading 8544.30 from any other heading, provided that there is a qualifying value content of not less than 40 percent."
+   },
+   {
+    "start": "870120",
+    "end": "870190",
+    "page": 37,
+    "text": "A change to subheading 8701.20 through 8701.90 from any other heading, provided that there is a qualifying value content of not less than 50 percent."
+   },
+   {
+    "start": "870310",
+    "end": "870310",
+    "page": 37,
+    "text": "A change to subheading 8703.10 from any other heading, provided that there is a qualifying value content of not less than 50 percent."
+   },
+   {
+    "start": "870410",
+    "end": "870410",
+    "page": 38,
+    "text": "A change to subheading 8704.10 from any other heading, provided that there is a qualifying value content of not less than 50 percent."
+   },
+   {
+    "start": "870432",
+    "end": "870790",
+    "page": 38,
+    "text": "A change to subheading 8704.32 through 8707.90 from any other heading, provided that there is a qualifying value content of not less than 50 percent."
+   },
+   {
+    "start": "870810",
+    "end": "870829",
+    "page": 38,
+    "text": "A change to subheading 8708.10 through 8708.29 from any other heading, provided that there is a qualifying value content of not less than 40 percent."
+   },
+   {
+    "start": "870840",
+    "end": "870880",
+    "page": 38,
+    "text": "A change to subheading 8708.40 through 8708.80 from any other heading, provided that there is a qualifying value content of not less than 40 percent."
+   },
+   {
+    "start": "870892",
+    "end": "870894",
+    "page": 38,
+    "text": "A change to subheading 8708.92 through 8708.94 from any other heading, provided that there is a qualifying value content of not less than 40 percent."
+   },
+   {
+    "start": "870899",
+    "end": "870899",
+    "page": 38,
+    "text": "A change to subheading 8708.99 from any other heading, provided that there is a qualifying value content of not less than 40 percent."
+   },
+   {
+    "start": "8709",
+    "end": "8709",
+    "page": 38,
+    "text": "A change to heading 87.09 from any other heading, provided that there is a qualifying value content of not less than 50 percent."
+   },
+   {
+    "start": "871110",
+    "end": "871110",
+    "page": 38,
+    "text": "A change to subheading 8711.10 from any other heading, provided that there is a qualifying value content of not less than 50 percent."
+   },
+   {
+    "start": "871130",
+    "end": "871130",
+    "page": 38,
+    "text": "A change to subheading 8711.30 from any other heading, provided that there is a qualifying value content of not less than 50 percent."
+   },
+   {
+    "start": "871150",
+    "end": "871190",
+    "page": 39,
+    "text": "A change to subheading 8711.50 through 8711.90 from any other heading, provided that there is a qualifying value content of not less than 50 percent."
+   },
+   {
+    "start": "871411",
+    "end": "871419",
+    "page": 39,
+    "text": "A change to subheading 8714.11 through 8714.19 from any other heading, provided that there is a qualifying value content of not less than 40 percent."
+   },
+   {
+    "start": "871491",
+    "end": "871496",
+    "page": 39,
+    "text": "A change to subheading 8714.91 through 8714.96 from any other heading, provided that there is a qualifying value content of not less than 40 percent."
+   },
+   {
+    "start": "871690",
+    "end": "871690",
+    "page": 39,
+    "text": "A change to subheading 8716.90 from any other heading, provided that there is a qualifying value content of not less than 50 percent."
+   },
+   {
+    "start": "901580",
+    "end": "901580",
+    "page": 39,
+    "text": "A change to subheading 9015.80 from any other heading, provided that there is a qualifying value content of not less than 40 percent."
+   },
+   {
+    "start": "902910",
+    "end": "902920",
+    "page": 39,
+    "text": "A change to subheading 9029.10 through 9029.20 from any other heading, provided that there is a qualifying value content of not less than 40 percent."
+   },
+   {
+    "start": "903190",
+    "end": "903190",
+    "page": 39,
+    "text": "A change to subheading 9031.90 from any other heading, provided that there is a qualifying value content of not less than 40 percent."
+   },
+   {
+    "start": "911390",
+    "end": "911390",
+    "page": 40,
+    "text": "A change to subheading 9113.90 from any other chapter."
+   },
+   {
+    "start": "940120",
+    "end": "940120",
+    "page": 40,
+    "text": "A change to subheading 9401.20 from any other heading, provided that there is a qualifying value content of not less than 40 percent."
+   },
+   {
+    "start": "940190",
+    "end": "940190",
+    "page": 40,
+    "text": "A change to subheading 9401.90 from any other chapter."
+   },
+   {
+    "start": "940421",
+    "end": "940429",
+    "page": 40,
+    "text": "A change to subheading 9404.21 through 9404.29 from any other chapter."
+   },
+   {
+    "start": "940490",
+    "end": "940490",
+    "page": 40,
+    "text": "Manufacture from yarns."
+   },
+   {
+    "start": "960500",
+    "end": "960500",
+    "page": 40,
+    "text": "A change to subheading 9605.00 from any other chapter."
+   },
+   {
+    "start": "961210",
+    "end": "961210",
+    "page": 40,
+    "text": "A change to subheading 9612.10 from any other heading."
+   }
+  ],
+  "notes": [
+   {
+    "scope": "schedule",
+    "key": "",
+    "page": 0,
+    "text": "Unde Labs note (not treaty text): rows other than chapter 3 are those of the 2011 Annex 2 (india2.pdf, sha256 4011ed6be153ec99ce9b199bb314c0f0fa69204677f7150bef649bf55a0b39e9); no consolidated amended text and no English text of the amended Annex 2 was found, and the Indian-side notice was not found. The chapter 3 rows are quoted in Japanese from the Japan Customs notice dated 2022-03-23, which states that Annex 2 was amended from 2022-04-04 and that the rest of the agreement and annexes are unchanged. Whether anything else in the amended Annex 2 differs from the 2011 text was not checked beyond that notice."
+   },
+   {
+    "scope": "chapter",
+    "key": "03",
+    "page": 1,
+    "ref": "本文 なお書き",
+    "source_url": "https://www.customs.go.jp/roo/information/indiakaisei.html",
+    "citation": "Japan Customs notice of 2022-03-23, 日インド包括的経済連携協定の品目別規則の一部改正について",
+    "text": "なお、本改正においては、改正前の品目別規則に基づきインドの当局が発給した原産地証明書についても、改正後の規則を満たすことが明らかなため、有効期間内（発給から１年間）は輸入通関時に有効なものと認めます。"
+   }
+  ]
  },
  {
   "agreement": "JP-Thailand EPA",

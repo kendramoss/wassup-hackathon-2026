@@ -322,6 +322,10 @@ func TestSourcedNoteValidation(t *testing.T) {
 	if err := validateSchedule(base(note{Scope: "schedule", Text: "t", Page: 2})); err != nil {
 		t.Fatalf("plain note rejected: %v", err)
 	}
+	// A source without PDF pages (a web notice) is located by ref on page 1.
+	if err := validateSchedule(base(note{Scope: "schedule", Text: "t", Page: 1, Ref: "r", SourceURL: ok.SourceURL, Citation: ok.Citation})); err != nil {
+		t.Fatalf("sourced note with a ref rejected: %v", err)
+	}
 	bad := map[string]note{
 		"url without citation": {Scope: "schedule", Text: "t", Page: 2, SourceURL: ok.SourceURL},
 		"citation without url": {Scope: "schedule", Text: "t", Page: 2, Citation: ok.Citation},
@@ -330,7 +334,7 @@ func TestSourcedNoteValidation(t *testing.T) {
 		"padded citation":      {Scope: "schedule", Text: "t", Page: 2, SourceURL: ok.SourceURL, Citation: " A "},
 		"padded url":           {Scope: "schedule", Text: "t", Page: 2, SourceURL: " https://x.example/b.pdf", Citation: ok.Citation},
 		"no page":              {Scope: "schedule", Text: caveatPrefix + " t", Page: 0, SourceURL: ok.SourceURL, Citation: ok.Citation},
-		"with ref":             {Scope: "schedule", Text: "t", Page: 1, Ref: "r", SourceURL: ok.SourceURL, Citation: ok.Citation},
+		"with ref on page 2":   {Scope: "schedule", Text: "t", Page: 2, Ref: "r", SourceURL: ok.SourceURL, Citation: ok.Citation},
 	}
 	for name, n := range bad {
 		if err := validateSchedule(base(n)); err == nil {
@@ -360,11 +364,12 @@ func TestSourcedNoteEvidenceUsesItsOwnSource(t *testing.T) {
 // rows and notes returned for each listed code at the schedule's first day. For
 // EU and UK the Annex 3-A notes and the Section and Chapter note cells are left
 // out, so only those two evidence lists may change.
+// JP-India CEPA changed deliberately (a second window from 2022-04-04, docs/japan/india-chapter3-amendment.md).
 // JP-Australia EPA changed deliberately (column 4 and General Notes, docs/japan/australia-column4.md).
 var annexGolden = map[string]string{
 	"AJCEP": "8bf3fd2c4050a40b", "CPTPP": "bf1e2b327d3058aa", "GSP": "f92eb48efa4bda93",
 	"JP-Australia EPA": "c1b8267d06781365", "JP-Chile EPA": "d2a9e16a64373c8f", "JP-EU EPA": "611312c2392bec7c",
-	"JP-India CEPA": "e90ad4d0aa8edf22", "JP-Indonesia EPA": "9dbd1aab47f662ca", "JP-Malaysia EPA": "51fd6558fa3d530a",
+	"JP-India CEPA": "2d3d95dbbc3ac286", "JP-Indonesia EPA": "9dbd1aab47f662ca", "JP-Malaysia EPA": "51fd6558fa3d530a",
 	"JP-Mexico EPA": "fb63a1bc3cc2def6", "JP-Philippines EPA": "183174e8a417fa6e", "JP-Switzerland EPA": "cf787dcabdd33d67",
 	"JP-Thailand EPA": "b4fdad59224353b0", "JP-UK CEPA": "7ce305399eff57ef", "JP-US TA": "ecb919bc1c7ecf01",
 	"JP-Vietnam EPA": "eb7adeac63c68982",
