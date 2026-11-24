@@ -64,7 +64,8 @@ func TestOfficialSchedules(t *testing.T) {
 	})
 	t.Run("textile notes stay with the rule", func(t *testing.T) {
 		rules, err := table.Lookup("AJCEP", "6210.50", date)
-		if err != nil || len(rules) != 2 || !strings.Contains(rules[1].Text, "component that determines the tariff classification") {
+		// row, section note, then the Annex 2 provisions (psr_provisions, psr_notes)
+		if want := 2 + len(table.general.PSRProvisions) + len(table.general.PSRNotes); err != nil || len(rules) != want || !strings.Contains(rules[1].Text, "component that determines the tariff classification") {
 			t.Fatalf("got %v, %v", rules, err)
 		}
 	})

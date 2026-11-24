@@ -368,6 +368,12 @@ var annexGolden = map[string]string{
 	"JP-Vietnam EPA": "eb7adeac63c68982",
 }
 
+// ajcepProvisionsGolden pins the AJCEP evidence including the Annex 2
+// provisions that now follow a matched rule (psr_provisions, psr_notes). The
+// AJCEP entry in annexGolden still pins the rows and notes alone: the
+// appended provisions are cut from that hash, so it is unchanged from main.
+const ajcepProvisionsGolden = "8af0b20d4b0eaf98"
+
 func TestOtherEvidenceByteIdentical(t *testing.T) {
 	table := mustDefault(t)
 	var names []string
@@ -379,7 +385,7 @@ func TestOtherEvidenceByteIdentical(t *testing.T) {
 		t.Fatalf("agreements %v", names)
 	}
 	for _, a := range names {
-		h := sha256.New()
+		h, full := sha256.New(), sha256.New()
 		for _, s := range table.schedules[a] {
 			d, _ := time.Parse(time.DateOnly, s.From)
 			seen := map[string]bool{}
@@ -391,6 +397,13 @@ func TestOtherEvidenceByteIdentical(t *testing.T) {
 					seen[c] = true
 					res, _ := table.LookupDetailed(a, c, d)
 					fmt.Fprintf(h, "%s|%s|%s|%s\n", a, s.From, c, res.Reason)
+					fmt.Fprintf(full, "%s|%s|%s|%s\n", a, s.From, c, res.Reason)
+					for _, e := range res.Evidence {
+						fmt.Fprintf(full, "%q|%s|%s\n", e.Text, e.URL, e.Citation)
+					}
+					if a == "AJCEP" && res.Reason == ReasonPSR && table.general.applies(a, s.From) {
+						res.Evidence = res.Evidence[:len(res.Evidence)-len(table.general.psrEvidence())]
+					}
 					for _, e := range res.Evidence {
 						if strings.Contains(e.Citation, "Annex 3-A") || strings.HasPrefix(e.Text, "Section note:") || strings.HasPrefix(e.Text, "Chapter note:") {
 							continue
@@ -402,6 +415,11 @@ func TestOtherEvidenceByteIdentical(t *testing.T) {
 		}
 		if got := fmt.Sprintf("%x", h.Sum(nil))[:16]; got != annexGolden[a] {
 			t.Errorf("%s: evidence changed (%s, was %s)", a, got, annexGolden[a])
+		}
+		if a == "AJCEP" {
+			if got := fmt.Sprintf("%x", full.Sum(nil))[:16]; got != ajcepProvisionsGolden {
+				t.Errorf("AJCEP: evidence with Annex 2 provisions changed (%s, was %s)", got, ajcepProvisionsGolden)
+			}
 		}
 	}
 }

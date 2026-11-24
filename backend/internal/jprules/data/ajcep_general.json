@@ -253,5 +253,26 @@
    "text": "Unde Labs note (not treaty text): Article 36 refers certification procedures to Annex 4 (certificate of origin and related matters). Annex 4 has not been verified here, so no certification or procedural requirement is established by this extract.",
    "kind": "note"
   }
+ ],
+ "psr_provisions": [
+  "annex2-1-3a",
+  "annex2-3b",
+  "art25-intro",
+  "art25-a-i",
+  "art25-j-k",
+  "art27-1-3",
+  "art27-4-6",
+  "art28-1a",
+  "art28-1b-2"
+ ],
+ "psr_notes": [
+  {
+   "id": "note-psr-scope",
+   "source": "",
+   "citation": "Unde Labs note (not treaty text)",
+   "page": 0,
+   "text": "Unde Labs note (not treaty text): The provisions above are supplied with the listed Annex 2 rule because Annex 2 defines its rule codes by reference to them: Article 27 (RVC formula), Article 25 (WO) and Article 28(1)(b) (tolerance). A listed rule applies in place of the general criteria of Article 26(1), which are not supplied here. Article 28 concerns a good that does not satisfy a CTC-based rule; it does not replace an RVC-based rule, and the tolerance basis (value or weight) and percentage depend on the code's chapter and on the Annex 2 paragraph 3 codes as quoted above. Other provisions of Chapter 3, Article 31 (Direct Consignment) and Annex 4 are not supplied and have not been verified here. This is not a claim that the good qualifies as originating; every condition above, and the facts about materials, values and production, must be established from the case facts, and missing facts mean the question stays undetermined.",
+   "kind": "note"
+  }
  ]
 }
