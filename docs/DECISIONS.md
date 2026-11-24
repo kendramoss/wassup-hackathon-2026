@@ -3284,3 +3284,33 @@ The runs went as pre-registered. Run 2 was `families-coverage-dev-all-litellm-f2
 - **Against D850's criteria (kept by D852): a fix.** Machinery is working, only the bearings stay with `machinery_parts`, nothing regressed except one disclosed failed check, and look-alikes are 29 of 30.
 - **Not measured.** The held-out family check was spent in D842 and is not run again, so there is no independent figure for this change. Two scope revisions were fitted to these development cases.
 - **Cost.** D851 $0.3359, D853 $0.3516: **$0.6875** for #785. Per check p50 5.1 s, p95 27.4 s, a slow gateway tail as in D842.
+
+## D854 — Review of #790: scope sources, wording fixes, the output cap, and one confirmation run, pre-registered (25 Nov, #785)
+Committed and pushed before the run below. The review fixes are at e71aa708.
+- **Scope lines with no cited ruling behind them** (disclosed here and in the PR).
+  - **Bearings** in `machinery_parts`: from that template's own operations (heading 8482 races and bearing assembly), not a ruling.
+  - **Hydraulic cylinders** in the machines template: from HTSUS heading 8412 (linear-acting hydraulic cylinders are listed among engines and motors), not a ruling.
+  - **"generators" and "machine tools"** in the machines scope: from D780's machinery screen definition and the template's industrial-machines groups. No cited ruling is a standalone generator or a machine tool (N333849's nacelle has a generator rotor and stator).
+  - **"cleaning robots included"**: written after D851 from the development look-alike N355237, a pool-cleaning robot. It is fitted to a development case.
+  - **"the rotary group and cylinder block"** came from the template's operations, not a ruling. It is now dropped.
+- **Wording changes, all prompt text.**
+  - The machines scope drops "the rotary group and cylinder block".
+  - "hydraulic cylinders and other actuators" becomes "hydraulic cylinders and other hydraulic actuators (air cylinders stay with machinery_parts)", so the two scopes agree on air cylinders.
+  - "lifts" becomes "vehicle and platform lifts".
+  - `machinery_parts` adds "Air (pneumatic) cylinders stay with machinery_parts (N303499, …)".
+- **Guard v6 part words.** Added: chuck, jaw, roller, idler, brush, winding, paddle, tooling, die, gripper, joint and guard, so "lathe chuck", "conveyor rollers" and "robot gripper" are not refused as whole machines. The version string stays v6, as the guard has not been released. The pinned dev-row files (`b2-guard-dev.json`, `b3-guard-g3.json`) are unchanged.
+- **Failed checks: the output cap.**
+  - The red-dot carrier plate (N350680) failed with "no JSON object" in both v2 runs.
+  - Every failed check in every recorded family-check run, D853's four included, used about 2,034 output tokens on each of its two attempts, which is the 2,048 cap. Thinking is billed as output and used the budget before the JSON.
+  - Under v1 the same case answered in 1,234 tokens (D842). The v2 prompt adds about 400 input tokens. The prompt length does not truncate anything; the output cap does.
+  - `MaxOutputTokens` is now 4096. A call that ends under 2,048 is unaffected; one that hit the cap can now finish.
+  - This is a settings change against D853, made for this reason only, and it applies in production too.
+- **Run, once, development only.** Same model, gateway, cache off, workers and inputs as D850/D852, from a clean tree. The changes are the wording above and the 4096 cap. No further tuning follows, whatever the result. From `backend/`:
+  - `go run ./cmd/eval familycov -split dev -splits ../eval/families/b3-781-run-splits.json -set all -tag f28-854`
+  - `go run ./cmd/eval familycov -split dev -splits ../eval/families/b3-781-noorigin-splits.json -set all -no-origin-ok -tag f28-854-noorigin`
+  - About $0.35. If the run stops partway it is continued with `-resume`, and that is disclosed.
+- **Measured.**
+  - `measure_850.py . --tag f28-854 --against f28-852` gives the criterion (`b3-854-vs-852-measure.json`).
+  - `measure_850.py . --tag f28-854` gives the table against D842 (`b3-854-measure.json`).
+- **Criterion, stated now.** **No answered case regresses against D853.** A dev case matched to its expected template, or a look-alike kept off its cue family, in D853 must stay so in D854 wherever D854 answered it. A failed check is listed, not counted. If anything regresses, that is reported and nothing is tuned again.
+- **Expectation.** Machinery 10 of 11. Fewer failed checks, with N350680 answering optical as in D842. No regressions.
