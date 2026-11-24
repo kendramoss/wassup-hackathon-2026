@@ -18,7 +18,7 @@ export default function Page() {
           </h1>
           <a
             href={`${repo}/blob/main/docs/api/openapi.yaml`}
-            className="inline-flex min-h-10 justify-self-end items-center gap-2 rounded-sm border border-edge bg-sheet px-3 text-xs text-ok hover:bg-ok-wash sm:px-4 sm:text-sm"
+            className="inline-flex min-h-10 max-sm:min-h-11 justify-self-end items-center gap-2 rounded-sm border border-edge bg-sheet px-3 text-xs text-ok hover:bg-ok-wash sm:px-4 sm:text-sm"
           >
             OpenAPI 3.1 Spec <span aria-hidden="true">↗</span>
           </a>

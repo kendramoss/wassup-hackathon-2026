@@ -327,3 +327,19 @@
     font-size: 12px;
   }
 }
+
+/* #685, site-wide: the shared labels on phones. .eyebrow (above) and the
+   10–11.5 px label classes are set to 12 px on every page below 640 px, the
+   same band as Tailwind's max-sm, so 640 px and wider keep the compact
+   sizes. The .touch44 rule above already did this for the try-it flow and
+   the recorded examples; this extends it to /cases, /accuracy, /method,
+   /developers, /triage and the legal pages. The landing sets its own sizes
+   (landing.css). The header's 44 px tap targets are in chrome.tsx. */
+@media (max-width: 639px) {
+  /* A ::before-only size (the /cases table's phone labels) is resized on
+     the ::before, not on the cell's own text. */
+  :where(.eyebrow, [class*="text-[10px]"], [class*="text-[10.5px]"], [class*="text-[11px]"], [class*="text-[11.5px]"]):not([class*="before:text-["]),
+  [class*="before:text-[11px]"]::before {
+    font-size: 12px;
+  }
+}

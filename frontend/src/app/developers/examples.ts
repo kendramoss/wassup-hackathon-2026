@@ -31,8 +31,8 @@ export const setupExamples = {
     }, null, 2),
   },
   adk: {
-    label: "ADK for Go",
-    note: "Illustrative toolset code. Add it to your ADK agent.",
+    label: "Google ADK, Go",
+    note: "Illustrative Go code for Google’s Agent Development Kit (ADK). Add the toolset to your agent.",
     code: `package unde
 
 import (

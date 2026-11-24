@@ -20,8 +20,9 @@ export function AppBar({ active = "cases", sticky = false }: { active?: "cases" 
   // group, the current one filled.
   const item = (on: boolean) =>
     // At 320 px the four links plus their padding overflow the viewport, so
-    // tighten only that narrowest band; hit heights stay at 40 px (#509).
-    cx("flex min-h-10 items-center rounded-[2px] px-3 transition-colors max-[359px]:px-2 lg:px-5", on ? "bg-ink text-paper" : "text-ink hover:bg-wash");
+    // tighten only that narrowest band (#509). Phones (below 640 px) get
+    // 44 px tap heights (#685); wider screens keep 40 px.
+    cx("flex min-h-10 items-center rounded-[2px] px-3 transition-colors max-sm:min-h-11 max-[359px]:px-2 lg:px-5", on ? "bg-ink text-paper" : "text-ink hover:bg-wash");
   return (
     // From md up the bar is three columns, so the section buttons sit in the
     // true middle on one row: logo and case breadcrumb left, actions right.
@@ -37,7 +38,7 @@ export function AppBar({ active = "cases", sticky = false }: { active?: "cases" 
             is read on click, so the bar still prerenders. */}
         <Link
           href="/"
-          className="flex shrink-0 items-center gap-2.5 text-[19px] font-semibold tracking-[-0.03em]"
+          className="flex shrink-0 items-center gap-2.5 text-[19px] font-semibold tracking-[-0.03em] max-sm:min-h-11"
           onClick={(e) => {
             if (window.location.pathname !== "/") return;
             e.preventDefault();
@@ -80,7 +81,7 @@ export function AppBar({ active = "cases", sticky = false }: { active?: "cases" 
           the landing footer, on the accuracy page and on the broker draft. */}
       <div className="ml-auto flex min-w-0 items-center justify-end gap-4 md:ml-0">
         <span className="flex shrink-0 items-center gap-4">
-          <ButtonLink href="/cases/new" className="min-h-9 py-1.5" aria-label={copy.cases.newCase}>
+          <ButtonLink href="/cases/new" className="min-h-9 py-1.5 max-sm:min-h-11" aria-label={copy.cases.newCase}>
             <span className="lg:hidden" aria-hidden="true">+ New</span>
             <span className="hidden lg:inline" aria-hidden="true">{copy.cases.newCase}</span>
           </ButtonLink>
