@@ -83,5 +83,90 @@ class Helpers(unittest.TestCase):
         self.assertEqual(swiss, [("3501", "3501"), ("350211", "350219"), ("350220", "350499"), ("3505", "3505")])
 
 
+class TablePage:
+    def __init__(self, *rows):
+        self.rows = rows
+
+    def extract_tables(self):
+        return [[list(r) for r in self.rows]]
+
+    def close(self):
+        pass
+
+
+class TablePdf:
+    def __init__(self, *pages):
+        self.pages = [TablePage(*rows) for rows in pages]
+
+
+class UkHeaderRows(unittest.TestCase):
+    """Empty-cell heading rows never copy the previous row's rule."""
+
+    PREV = ("70.01-70.05", "CTH; MaxNOM 50 % (EXW); or RVC 55 % (FOB).")
+
+    def run_uk(self, *pages):
+        return b.uk(TablePdf(*pages))
+
+    def test_empty_heading_creates_branch_rows_not_a_copy(self):
+        rows, _ = self.run_uk([
+            ("Chapter 70", "Glass"), self.PREV, ("70.06", ""),
+            ("- Coated plates", "Rule A."), ("- Others", "Rule B."),
+            ("70.07", "Rule C.")])
+        self.assertEqual([(r["start"], r["end"], r["text"], r.get("description")) for r in rows], [
+            ("7001", "7005", self.PREV[1], None),
+            ("7006", "7006", "Rule A.", "- Coated plates"),
+            ("7006", "7006", "Rule B.", "- Others"),
+            ("7007", "7007", "Rule C.", None)])
+
+    def test_branches_follow_across_a_page_break(self):
+        rows, _ = self.run_uk(
+            [("Chapter 59", "x"), ("59.05", ""), ("- A", "Rule A.")],
+            [("Column 1 Harmonized System classification (2017)", "Column 2"), ("- Others", "Rule B.")])
+        self.assertEqual([(r["start"], r["page"], r["description"]) for r in rows],
+                         [("5905", 1, "- A"), ("5905", 2, "- Others")])
+
+    def test_heading_only_range_keeps_its_codes(self):
+        rows, _ = self.run_uk([("Chapter 61", "x"), ("61.01-61.17", ""), ("- Others", "R")])
+        self.assertEqual([(r["start"], r["end"]) for r in rows], [("6101", "6117")])
+
+    def test_heading_ends_at_the_next_row(self):
+        rows, _ = self.run_uk([
+            ("Chapter 62", "x"), ("62.02", ""), ("- Others", "R1"), ("62.03", "R2"),
+            ("62.04", ""), ("- Others", "R3")])
+        self.assertEqual([(r["start"], r["text"]) for r in rows],
+                         [("6202", "R1"), ("6203", "R2"), ("6204", "R3")])
+
+    def test_own_cells_with_identical_text_stay_separate_rows(self):
+        rows, _ = self.run_uk([("Chapter 62", "x"), ("62.03", "Same."), ("62.05", "Same.")])
+        self.assertEqual([r["text"] for r in rows], ["Same.", "Same."])
+
+    def test_one_footnoted_cell_for_several_codes_is_split_with_its_own_text(self):
+        rows, _ = self.run_uk([("Chapter 87", "x"), ("87.085-87.11", "CTH.")])
+        self.assertEqual([(r["start"], r["end"], r["text"], r.get("blocked", False)) for r in rows],
+                         [("8708", "8708", "CTH.", True), ("8709", "8711", "CTH.", False)])
+
+    def test_chapter_level_sub_lines_stay_with_the_chapter(self):
+        rows, _ = self.run_uk([("Chapter 3", "x"), ("- Tuna", "R1"), ("- Others", "R2")])
+        self.assertEqual([(r["start"], r["end"]) for r in rows], [("03", "03"), ("03", "03")])
+
+    def test_continuation_text_joins_the_branch_row(self):
+        rows, _ = self.run_uk([("Chapter 70", "x"), ("70.06", ""), ("- A", "Part one."), ("", "Part two.")])
+        self.assertEqual(rows[0]["text"], "Part one. Part two.")
+
+    def test_heading_without_branches_fails_the_build(self):
+        with self.assertRaises(ValueError):
+            self.run_uk([("Chapter 70", "x"), ("70.06", ""), ("70.07", "R")])
+        with self.assertRaises(ValueError):
+            self.run_uk([("Chapter 70", "x"), ("70.06", "")])
+
+    def test_branch_without_rule_fails_the_build(self):
+        with self.assertRaises(ValueError):
+            self.run_uk([("Chapter 70", "x"), ("70.06", ""), ("- A", "")])
+
+    def test_branch_without_a_heading_or_chapter_row_fails_the_build(self):
+        with self.assertRaises(ValueError):
+            self.run_uk([("Chapter 70", "x"), ("70.01", "R"), ("- A", "R2")])
+
+
 if __name__ == "__main__":
     unittest.main()
