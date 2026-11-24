@@ -441,10 +441,159 @@ def five_column(pdf, filename):
     return rows, notes
 
 
+AUSTRALIA_COLUMN_3 = "Rule (column 3): "
+AUSTRALIA_COLUMN_4 = "; alternative (column 4): "
+# Chapters whose rows can carry a column 4 (General Notes paragraph 6 and the
+# table header note speak of chapters 27 to 40).
+AUSTRALIA_ALTERNATIVE_CHAPTERS = [["27", "40"]]
+AUSTRALIA_NOTE_PAGES = 10  # General Notes, PDF pages 1-10; the table starts on page 11
+
+
+def australia_text(column3, column4):
+    """Row text keeping both columns, labelled as the PDF header relates them."""
+    if not column4:
+        return column3
+    return f"{AUSTRALIA_COLUMN_3}{column3}{AUSTRALIA_COLUMN_4}{column4}"
+
+
+def australia_columns(text):
+    """Inverse of australia_text: (column 3, column 4)."""
+    if text.startswith(AUSTRALIA_COLUMN_3) and AUSTRALIA_COLUMN_4 in text:
+        column3, _, column4 = text[len(AUSTRALIA_COLUMN_3):].partition(AUSTRALIA_COLUMN_4)
+        return column3, column4
+    return text, ""
+
+
+def padded_range(start, end):
+    return start.ljust(6, "0"), end.ljust(6, "9")
+
+
+def usage_ranges(rows, uses):
+    """6-digit [start, end] ranges covering the rows that use a term.
+
+    Consecutive rows that all use the term merge into one range; a range may
+    never cover a row that does not use the term.
+    """
+    ranges = []
+    run = None
+    for row in rows:
+        if not uses(row):
+            run = None
+            continue
+        lo, hi = padded_range(row["start"], row["end"])
+        if run is not None and lo > run[1]:
+            run[1] = hi
+        else:
+            run = [lo, hi]
+            ranges.append(run)
+    for row in rows:
+        if uses(row):
+            continue
+        lo, hi = padded_range(row["start"], row["end"])
+        if any(a <= hi and lo <= z for a, z in ranges):
+            raise ValueError(f"row {row['start']}-{row['end']} lies inside a usage range")
+    return ranges
+
+
+def annex_text(page):
+    """Verbatim text of a General Notes page: lines joined, page number dropped.
+
+    A line that ends in a hyphen glued to a letter ("non-" / "originating")
+    is joined without a space; "Origin -" keeps its space.
+    """
+    lines = (page.extract_text() or "").split("\n")
+    if lines and lines[-1].strip().isdigit():
+        lines.pop()
+    out = ""
+    for line in lines:
+        line = line.strip()
+        if out.endswith("-") and not out.endswith(" -"):
+            out += line
+        else:
+            out = f"{out} {line}" if out else line
+    return " ".join(out.split())
+
+
+def between(text, start, end):
+    """The text from one marker up to, not including, the next; each marker is unique."""
+    for marker in (start, end):
+        if text.count(marker) != 1:
+            raise ValueError(f"marker {marker!r} found {text.count(marker)} times")
+    i, j = text.index(start), text.index(end)
+    if j <= i:
+        raise ValueError(f"marker {end!r} precedes {start!r}")
+    return text[i:j].strip()
+
+
+QVC = "QVC 40"
+TEXTILE_CODES = [f"({n})" for n in range(1, 18)]
+COLUMN_4_CODES = ("CR", "D", "P", "CPS", "SM", "IS")
+CODE_WORD = re.compile(r"[A-Z]+")
+PARA_5_LEAD = ("5. For the purposes of column 3", "(a) “CC” denotes")
+PARA_6_LEAD = ("6. For the purposes of column 4", "(a) “CR” means")
+_CODE_START = {"CR": "(a) “CR”", "D": "(b) “D”", "P": "(c) “P”", "CPS": "(d) “CPS”",
+               "SM": "(e) “SM”", "IS": "(f) “IS”"}
+_CODE_END = {"CR": "(b) “D”", "D": "(c) “P”", "P": "(d) “CPS”", "CPS": "(e) “SM”",
+             "SM": "(f) “IS”", "IS": "7. In determining"}
+_LETTERS = "efghijklmnopqrstu"
+_TEXTILE_START = {f"({n})": f"({_LETTERS[n - 1]}) “({n})” denotes" for n in range(1, 18)}
+_TEXTILE_END = {f"({n})": f"({_LETTERS[n]}) “({n + 1})” denotes" for n in range(1, 17)}
+_TEXTILE_END["(17)"] = "6. For the purposes of column 4"
+
+
+def row_uses(term, row):
+    column3, column4 = australia_columns(row["text"])
+    if term == QVC or term in TEXTILE_CODES:
+        return term in column3
+    return term in CODE_WORD.findall(column4)
+
+
+def australia_general_notes(pages, rows):
+    """Schedule-scope notes for the General Notes that define the rule codes.
+
+    Each definition is its own verbatim note, pinned to the PDF page it starts
+    on and attached only to the rows that use the term. Paragraphs 1-2 attach
+    to chapters 27-40 (where column 4 exists) and paragraph 7 to chapters
+    61-63, which its own wording names.
+    """
+    texts = [annex_text(page) for page in pages]
+    full = " ".join(texts)
+    ends = []
+    total = 0
+    for text in texts:
+        total += len(text) + 1
+        ends.append(total)
+
+    def note(body, applies, lead=""):
+        page = 1 + next(i for i, end in enumerate(ends) if full.index(body) < end)
+        return {"scope": "schedule", "key": "", "text": f"{lead} {body}".strip(), "page": page,
+                "applies": applies}
+
+    lead5 = between(full, *PARA_5_LEAD)
+    lead6 = between(full, *PARA_6_LEAD)
+    out = [note(between(full, "1. The specific rule or specific set", "3. Where a specific rule of origin"),
+                AUSTRALIA_ALTERNATIVE_CHAPTERS)]
+    out.append(note(between(full, "(d) “QVC 40” means", "(e) “(1)” denotes"),
+                    usage_ranges(rows, lambda r: row_uses(QVC, r)), lead5))
+    for code in TEXTILE_CODES:
+        out.append(note(between(full, _TEXTILE_START[code], _TEXTILE_END[code]),
+                        usage_ranges(rows, lambda r, c=code: row_uses(c, r)), lead5))
+    for code in COLUMN_4_CODES:
+        out.append(note(between(full, _CODE_START[code], _CODE_END[code]),
+                        usage_ranges(rows, lambda r, c=code: row_uses(c, r)), lead6))
+    out.append(note(between(full, "7. In determining", "8. This Annex is based"), [["61", "63"]]))
+    return out
+
+
 def australia(pdf):
-    """Parser for the Japan-Australia four-column table."""
+    """Parser for the Japan-Australia four-column table.
+
+    Column 3 holds the rule and column 4 the alternative rules of chapters 27
+    to 40; the row text keeps both, labelled (see australia_text).
+    """
     rows = []
     notes = []
+    column4 = {}
     target = None
     for page_number, page in enumerate(pdf.pages, 1):
         for table in page.extract_tables():
@@ -453,12 +602,21 @@ def australia(pdf):
                 if len(cells) < 3:
                     continue
                 code, description, text = cells[:3]
+                alternative = cells[3] if len(cells) > 3 else ""
                 if code.startswith(("Tariff Item", "Tariff item")) or code in ("1", "2", "3", "4"):
+                    continue
+                if code.startswith("Note:") and not description and not text:
+                    notes.append({"scope": "schedule", "key": "", "text": code, "page": page_number,
+                                  "applies": AUSTRALIA_ALTERNATIVE_CHAPTERS})
                     continue
                 if m := CHAPTER.match(code):
                     key = f"{int(m[1]):02}"
                     if text:
                         target = add_row(rows, key, page_number, text)
+                        if alternative:
+                            column4[id(target)] = alternative
+                    elif alternative:
+                        raise ValueError(f"{code}: column 4 without a column 3 rule")
                     else:
                         target = None
                     continue
@@ -468,16 +626,32 @@ def australia(pdf):
                 if description.startswith("Note:") or code.startswith("Note:"):
                     continue
                 if not RANGE.fullmatch(clean_code(code)):
+                    if alternative:
+                        raise ValueError(f"{code!r}: column 4 {alternative!r} on a row without a code")
                     if text and target is not None:
                         target["text"] = join(target["text"], text)
                     continue
                 if text:
                     target = add_row(rows, code, page_number, text, description)
+                    if alternative:
+                        column4[id(target)] = alternative
                 elif raw[2] is None and target is not None:
                     target = add_row(rows, code, target["page"], target["text"], description)
+                elif alternative:
+                    raise ValueError(f"{code}: column 4 without a column 3 rule")
                 else:
                     target = None
         page.close()
+    for row in rows:
+        if id(row) in column4:
+            row["text"] = australia_text(row["text"], column4[id(row)])
+    return rows, notes
+
+
+def australia_schedule(pdf):
+    """The table (australia) plus the General Notes (PDF pages 1-10) it needs."""
+    rows, notes = australia(pdf)
+    notes = australia_general_notes(pdf.pages[:AUSTRALIA_NOTE_PAGES], rows) + notes
     return rows, notes
 
 
@@ -811,7 +985,7 @@ def table_schedule(pdf, filename):
     if filename in SIX_COLUMN_PDFS:
         return six_column(pdf, filename)
     if filename == "australia2.pdf":
-        return australia(pdf)
+        return australia_schedule(pdf)
     if filename == "switzerland3.pdf":
         return switzerland(pdf)
     if filename == "uk3.pdf":

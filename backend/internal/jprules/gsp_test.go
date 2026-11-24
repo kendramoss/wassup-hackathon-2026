@@ -585,7 +585,9 @@ func TestExistingSchedulesKeepTheHS2017List(t *testing.T) {
 				}
 			}
 			for _, n := range s.Notes {
-				if n.Ref != "" || n.Scope == "schedule" {
+				// Only the Australia General Notes (australiacolumn4_test.go) are
+				// schedule-scope notes of a PDF-paged schedule; all carry applies.
+				if n.Ref != "" || n.Scope == "schedule" && (name != "JP-Australia EPA" || len(n.Applies) == 0) {
 					t.Errorf("%s: note %q has a ref or schedule scope", name, n.Key)
 				}
 			}
