@@ -24,7 +24,7 @@ const cells = {
 const pack = {
   id: "pack_work",
   kind: "yes_no",
-  question: "Does pack assembly include programming the battery management system (BMS), welding the cells and formation?",
+  question: "Is the pack's work only welding the cells and fitting the BMS?",
   evidence: "Production routing or traveller for pack assembly",
   state: "missing",
   groups: ["battery_cells", "final_assembly"],
@@ -51,6 +51,14 @@ test("each missing fact gets a control, its document and its rulings", () => {
   assert.ok(!/id="[^"]*-bms_made"/.test(m));
   // Phone-sized targets: 44px controls.
   assert.match(m, /min-h-11/);
+  assert.ok(t.includes(copy.family.lede));
+});
+
+test("a partly known question stays open and shows what the parts list says", () => {
+  const partial = { ...cells, known: "China on the parts list; 1 of 2 lines name no country" };
+  const m = html(FamilyIntakePanel, { c: c(intake([partial])), setCase: () => {} });
+  assert.match(m, /id="[^"]*-cells_made"/);
+  assert.ok(text(m).includes("1 of 2 lines name no country"));
 });
 
 test("not modelled: a reason, no control", () => {
@@ -73,6 +81,9 @@ test("answers are filled from what was saved and sent whole", () => {
   assert.equal(F.changed(fi, F.initialForm(fi)), false);
   assert.equal(F.changed(fi, { ...F.initialForm(fi), cells_made: "Japan" }), true);
   assert.deepEqual(F.formErrors(fi, { cells_made: "<b>" }), ["cells_made"]);
+  for (const bad of ["Unknown", "TBD", "Mars", "European Union"]) assert.deepEqual(F.formErrors(fi, { cells_made: bad }), ["cells_made"], bad);
+  assert.deepEqual(F.formErrors(fi, { cells_made: "south korea" }), []);
+  assert.ok(!F.COUNTRIES.includes("European Union") && F.COUNTRIES.includes("Vietnam"));
   assert.deepEqual(F.asked({ status: "not_modelled", questions: [cells] }), []);
 });
 

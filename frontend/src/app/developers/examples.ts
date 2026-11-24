@@ -188,7 +188,7 @@ export const toolExamples: Record<ToolName, Example> = {
       family_facts: { source: "user-supplied", family: "power_supplies_chargers", answers: { cells_made: { country: "South Korea" } } },
       family_intake: {
         status: "missing_information",
-        questions: [{ id: "pack_work", kind: "yes_no", state: "missing", question: "Does pack assembly include programming the battery management system (BMS), welding the cells and formation?", evidence: "Production routing or traveller for pack assembly" }],
+        questions: [{ id: "pack_work", kind: "yes_no", state: "missing", question: "Is the pack's work only welding the cells and fitting the BMS?", evidence: "Production routing or traveller for pack assembly" }],
       },
     },
   },

@@ -3,8 +3,7 @@
 import { useId, useRef, useState } from "react";
 import { api, type CaseResponse, type FamilyIntake as Intake, type SuppliedFamilyFacts } from "@/lib/api/client";
 import { copy } from "@/lib/copy";
-import { countryCodes } from "@/lib/countries";
-import { asked, answerText, body, changed, formErrors, initialForm, type FamilyForm } from "@/lib/family-intake";
+import { COUNTRIES, asked, answerText, body, changed, formErrors, initialForm, type FamilyForm } from "@/lib/family-intake";
 import { formatDate } from "@/lib/format";
 import { caseReadOnly, isStatus, writeGate } from "@/lib/roles";
 import { ErrorBox } from "./chrome";
@@ -16,8 +15,6 @@ import { Button, Chip, Fold, RulingLink, cx } from "./ui";
 // control; "not modelled" (no template, a family the guard refuses, nothing
 // fits) gets a reason and no control. Answers sit beside the case; the
 // product, facts and stored origin are unchanged.
-
-const COUNTRIES = Object.keys(countryCodes).sort();
 
 export function FamilyIntakePanel({ c, setCase }: { c: CaseResponse; setCase: (c: CaseResponse) => void }) {
   const fi = c.family_intake;
@@ -104,9 +101,17 @@ function Questions({ c, fi, setCase }: { c: CaseResponse; fi: Intake; setCase: (
         {qs.map((q) => {
           const id = `${base}-${q.id}`;
           const from = (
-            <p id={`${id}-from`} className="duo mt-0.5 text-[12.5px] text-dim">
-              {C.from}: {q.evidence}
-            </p>
+            <>
+              <p id={`${id}-from`} className="duo mt-0.5 text-[12.5px] text-dim">
+                {C.from}: {q.evidence}
+              </p>
+              {/* Partly on the parts list: what it says, beside the question. */}
+              {q.known ? (
+                <p className="duo mt-0.5 text-[12.5px] text-dim">
+                  {C.known}: {q.known}
+                </p>
+              ) : null}
+            </>
           );
           // The template's citations for the work asked about: where it
           // decided origin, and where it was not enough.

@@ -1,3 +1,4 @@
+import { countryCodes } from "@/lib/countries";
 import type { FamilyAnswer, FamilyFactsBody, FamilyIntake, FamilyQuestion, SuppliedFamilyFacts } from "@/lib/api/client";
 
 // The family questions (#770, D810-D813). Pure logic, no React. The server
@@ -25,13 +26,19 @@ export function initialForm(fi: FamilyIntake | undefined): FamilyForm {
   return f;
 }
 
-// A country as typed: letters, spaces and . ' ( ) -, 2 to 60 characters.
-export const COUNTRY = /^\p{L}[\p{L} .'()-]{1,59}$/u;
+// The countries an answer can name: the picker's table without the
+// European Union (a customs union, not where a part is made). The server
+// checks the same table (domain.KnownCountry) and refuses "Unknown".
+export const COUNTRIES = Object.keys(countryCodes)
+  .filter((n) => n !== "European Union")
+  .sort();
+const KNOWN = new Set(COUNTRIES.map((n) => n.toLowerCase()));
+export const isCountry = (s: string) => KNOWN.has(s.trim().toLowerCase());
 
 // formErrors names the questions typed wrong.
 export function formErrors(fi: FamilyIntake | undefined, f: FamilyForm): string[] {
   return asked(fi)
-    .filter((q) => q.kind === "country" && (f[q.id] ?? "").trim() !== "" && !COUNTRY.test((f[q.id] ?? "").trim()))
+    .filter((q) => q.kind === "country" && (f[q.id] ?? "").trim() !== "" && !isCountry(f[q.id] ?? ""))
     .map((q) => q.id);
 }
 

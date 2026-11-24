@@ -694,7 +694,7 @@ export const copy = {
   family: {
     title: "Missing information",
     notModelled: "Not modelled",
-    lede: "These facts decide origin under the rulings cited.",
+    lede: "The rulings cited turned on these facts.",
     from: "From",
     decided: "Decided origin",
     notEnough: "Not enough",
@@ -712,7 +712,7 @@ export const copy = {
     clear: "Clear answers",
     stale: "Your answers were from before the parts list changed. Answer again.",
     dropped: "Some answers no longer fit this product; they were not used.",
-    badCountry: "Enter a country.",
+    badCountry: "Pick a country from the list.",
     fixFields: "Fix the fields marked.",
     demo: "Pinned demo: answers can't be added.",
   },
