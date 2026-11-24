@@ -228,12 +228,49 @@ def devsplit(root):
             "lookalikes": {r: sorted(f) for r, f in sorted(look.items())}}
 
 
+NEW = {"lifting_handling_machines": "lifting_machines", "optical_precision_instruments": "optical_precision"}
+
+
+def check_citations(root):
+    """Every group/outcome pairing of the D822 templates is a ruling of the
+    scope's frozen citable pool with its held-origin sentence in the bundled
+    labels, recorded in b3-citations.json with exactly where it is cited; no
+    template cites a frozen development case (D820)."""
+    cases = freeze(root)["families"]
+    lab = {l["ruling"]: l for l in _b2(root).jsonl(os.path.join(root, "backend/data/labels.jsonl"))}
+    with open(os.path.join(root, CITES)) as f:
+        rec = {(c["template"], c["ruling"]): c for c in json.load(f)["citations"]}
+    want = {}
+    for fam, scope in NEW.items():
+        with open(os.path.join(root, "backend/internal/planner/templates", fam + ".json")) as f:
+            t = json.load(f)
+        for g in t["groups"]:
+            p = g.get("precedent") or {}
+            for k in ("confers_origin", "not_enough"):
+                for r in p.get(k) or []:
+                    want.setdefault((fam, r), []).append(g["id"] + ":" + k)
+    if set(want) != set(rec):
+        sys.exit("b3-citations.json records %s, the templates cite %s" % (sorted(rec), sorted(want)))
+    for (fam, r), where in want.items():
+        c = rec[(fam, r)]
+        if r not in cases[NEW[fam]]["citable_pool"] or not lab.get(r, {}).get("evidence") or sorted(c["cited_in"]) != sorted(where) \
+                or c["held_sentence"] != lab[r]["evidence"]:
+            sys.exit(f"{fam} {r}: not in the frozen citable pool, no held-origin sentence, or its record is stale")
+    dev = {r for v in cases.values() for r in v["regression_dev"] + v["dev_uncitable_pool"] + v["dev_held_back"]}
+    cited = template_citations(root)
+    if dev & cited:
+        sys.exit("a template cites a frozen development case: %s" % sorted(dev & cited))
+    print(len(want), "new pairings checked")
+
+
 def dump(o):
     return json.dumps(o, indent=1, ensure_ascii=False) + "\n"
 
 
 if __name__ == "__main__":
     root, cmd = sys.argv[1], sys.argv[2]
+    if cmd == "check":
+        check_citations(root)
     jobs = {"hits": [(HITS, hits)], "freeze": [(CASES, freeze), (DEVSPLIT, devsplit)],
             "check": [(HITS, hits), (CASES, freeze), (DEVSPLIT, devsplit)]}[cmd]
     for path, fn in jobs:

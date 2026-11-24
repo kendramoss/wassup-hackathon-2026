@@ -1,0 +1,132 @@
+{
+  "family": "optical_precision_instruments",
+  "version": "1",
+  "union_default_operations": true,
+  "name": "Optical and measuring instruments",
+  "note": "For lenses, sights and other optical elements, and for measuring and checking instruments (pressure sensors, gas analysers, tape measures, squares, thermometers and the like), the CBP rulings in the pool turn on the facts. A lens took the origin of the country that milled or ground its shape; polishing and coating did not change it. Instruments mostly took the origin of the part that senses or measures: a sensing die or gauge wafer, a tape blade and reel, a scale engraved on the blank, or a board with its sensors. But a gas chromatograph assembled, programmed and calibrated in Singapore from a Chinese electronics box and oven took Singapore's origin, while a gas sensor board housed, calibrated and tested in the United States did not. No single step always decides. Camera and display modules stay with the display template; medical devices with the medical template. Origin under these rulings says nothing about calibration standards, certification or any regulatory approval. Written from 9 CBP substantial-transformation rulings outside the development and held-out splits (D820, D822), two of them also cited by the display template; every citation was read against its facts and held origin. Costs are illustrative defaults; users edit them.",
+  "sources": [
+    "N335017",
+    "N335170",
+    "N340153",
+    "N342427",
+    "N344318",
+    "N345937",
+    "N347948",
+    "N349940",
+    "N358288"
+  ],
+  "groups": [
+    {
+      "id": "optics_shaping",
+      "name": "Lens and optical element shaping",
+      "operations": [
+        "cut raw optical glass into blanks",
+        "mill or grind the blank to its shape, curvature and optical properties"
+      ],
+      "movable": true,
+      "precedent": {
+        "confers_origin": [
+          "N342427",
+          "N345937"
+        ],
+        "note": "Milling a riflescope lens's shape and curvature from a glass blank made Singapore its origin (N342427), and cutting raw optical glass and grinding it into lenses made Vietnam the origin of lens assemblies (N345937)."
+      }
+    },
+    {
+      "id": "optics_finishing",
+      "name": "Lens polishing and coating",
+      "operations": [
+        "fine-grind, polish and wash the optical surfaces",
+        "apply anti-reflective or filter coatings, inspect and pack"
+      ],
+      "movable": true,
+      "precedent": {
+        "not_enough": [
+          "N342427"
+        ],
+        "note": "Grinding, polishing, washing and coating in China did not change the origin of a lens milled in Singapore (N342427)."
+      }
+    },
+    {
+      "id": "sensing_element",
+      "name": "Sensing element or measuring scale",
+      "operations": [
+        "fabricate the sensing die or strain-gauge wafer",
+        "make the board with the gas sensing element",
+        "cut and heat treat the tape, print the graduations and build the reel, spring and blade",
+        "engrave or stamp the measuring scale on the blank"
+      ],
+      "movable": true,
+      "precedent": {
+        "confers_origin": [
+          "N349940",
+          "N358288",
+          "N335170",
+          "N344318",
+          "N347948"
+        ],
+        "note": "Pressure sensors took the origin of the country where the sensing die or strain-gauge wafer was made, over dicing, bonding, housing, calibration and testing in China or Malaysia (N349940, N358288); a gas sensor board with its sensing element made in China stayed Chinese (N335170); a digital tape measure took the origin of its tape reel, spring and blade assembly in each of three scenarios (N344318); a speed square took the origin of China, where its scale was engraved or stamped (N347948)."
+      }
+    },
+    {
+      "id": "instrument_electronics",
+      "name": "Measuring electronics and display",
+      "operations": [
+        "populate and solder the main and reader boards (SMT), load firmware and test them",
+        "build the electronics box or controller that reads and processes the signal",
+        "fit the display"
+      ],
+      "movable": true,
+      "precedent": {
+        "confers_origin": [
+          "N335017"
+        ],
+        "not_enough": [
+          "N344318",
+          "N340153",
+          "N358288"
+        ],
+        "note": "A wireless cooking thermometer took the origin of Vietnam, where its boards with the sensors, battery and antenna were made (N335017). The boards did not decide for a digital tape measure whose Vietnamese PCBAs went with a reel made elsewhere (N344318), for a gas chromatograph whose Chinese electronics box was built into it in Singapore (N340153), or for pressure sensors whose boards were fitted in China (N358288)."
+      }
+    },
+    {
+      "id": "instrument_housing",
+      "name": "Housing, body and blank",
+      "operations": [
+        "mould or machine the housing, lid, tube and handle",
+        "cut, stamp and punch the metal blank of a square or rule"
+      ],
+      "movable": true,
+      "precedent": {
+        "not_enough": [
+          "N335170",
+          "N335017",
+          "N347948"
+        ],
+        "note": "A U.S. housing and lid did not decide for a Chinese gas sensor board (N335170), nor a Chinese tube and handle for a Vietnamese thermometer board (N335017), nor cutting and stamping a speed square's blank in Vietnam when China engraved its scale (N347948)."
+      }
+    },
+    {
+      "id": "final_assembly",
+      "name": "Final assembly",
+      "operations": [
+        "assemble the sensing element, boards, display and housing",
+        "load software, calibrate and test the instrument",
+        "mount optical elements in holders, inspect and pack"
+      ],
+      "movable": false,
+      "precedent": {
+        "confers_origin": [
+          "N340153"
+        ],
+        "not_enough": [
+          "N335170",
+          "N349940",
+          "N358288",
+          "N344318"
+        ],
+        "note": "Integrating the oven, electronics box and other parts on the chassis, installing the software, calibrating and testing made Singapore the origin of a gas chromatograph (N340153). Housing, calibration and testing in the United States did not change a Chinese gas sensor board (N335170); die attach, wire bonding, welding, oil filling, calibration and pressure testing in China or Malaysia did not change pressure sensors' origin (N349940, N358288); assembling a digital tape measure in China did not, when its reel was Thai (N344318)."
+      }
+    }
+  ]
+}

@@ -293,5 +293,273 @@
   "N357919",
   "N361712"
  ],
- "citations": []
+ "citations": [
+  {
+   "ruling": "N333646",
+   "template": "lifting_handling_machines",
+   "cited_in": [
+    "lift_mechanism:confers_origin",
+    "lift_structure:confers_origin"
+   ],
+   "held": "Vietnam",
+   "held_sentence": [
+    "Thus, based on the totality of the circumstances, the country of origin of the hydraulic floor jacks will be Vietnam."
+   ],
+   "facts_read": "Vietnam: steel sheet laser cut, stamped, welded, shot blasted and powder coated into the chassis and lift arm; manifold blocks for the hydraulic power unit sand cast and machined, assembled with Vietnamese or Chinese valves, seals, cylinder and piston; final fitting, greasing and fastening. Held Vietnam."
+  },
+  {
+   "ruling": "N334276",
+   "template": "lifting_handling_machines",
+   "cited_in": [
+    "lift_structure:confers_origin"
+   ],
+   "held": "Poland",
+   "held_sentence": [
+    "Because two of the three major structural subassemblies (i.e., platform and chassis subassemblies) are produced in Poland, the country of origin for marking purposes will be Poland."
+   ],
+   "facts_read": "Arm and chassis subassemblies made in Poland or India (three scenarios), platform made in Poland in all; final assembly in Poland of about 21 components (controller, steering, motor pump, valves, battery, counterweight, platform). Held Poland because two of the three major structural subassemblies (platform and chassis) were made there."
+  },
+  {
+   "ruling": "N336445",
+   "template": "lifting_handling_machines",
+   "cited_in": [
+    "lift_structure:confers_origin",
+    "lift_drive_controls:not_enough",
+    "final_assembly:not_enough"
+   ],
+   "held": "China",
+   "held_sentence": [
+    "As such, the country of origin of the JAS-Roll-Electrode will be China."
+   ],
+   "facts_read": "China: lower frame (chassis) and upper frame with the shear lifting mechanism and roller support cut, welded and assembled. Korea: drive assembly, battery, casters, controllers, cameras, cables, Wi-Fi, power supply and sensors added, frames joined, cover fitted, software loaded, calibrated and tested. Held China."
+  },
+  {
+   "ruling": "N337718",
+   "template": "lifting_handling_machines",
+   "cited_in": [
+    "lift_mechanism:not_enough",
+    "lift_structure:confers_origin"
+   ],
+   "held": "South Korea",
+   "held_sentence": [
+    "Thus, based on the totality of the circumstances, the country of origin of the JAS-Roll-1500kg, as described above, will be South Korea."
+   ],
+   "facts_read": "Korea: lower frame formed and welded from Korean plate with drive and steering assemblies, harnesses, batteries, sensors; handling frame from Korean tubing; Chinese shear lifting assembly bolted in; covers, software, calibration and testing. Held South Korea."
+  },
+  {
+   "ruling": "N340047",
+   "template": "lifting_handling_machines",
+   "cited_in": [
+    "lift_mechanism:not_enough",
+    "lift_structure:confers_origin"
+   ],
+   "held": "South Korea",
+   "held_sentence": [
+    "Thus, based on the totality of the circumstances, the country of origin of the JAS-Reel-1000kg, as described above, will be South Korea."
+   ],
+   "facts_read": "Korea: drive frame on a Korean chassis frame with power supply, controllers, batteries, drive motor and casters; handling frame on a Korean vertical frame support with a Chinese lifting subassembly (motor, reducer, plate, guides) and a Korean lift plate; wiring, covers, software, calibration and testing. Held South Korea."
+  },
+  {
+   "ruling": "N343416",
+   "template": "lifting_handling_machines",
+   "cited_in": [
+    "lift_mechanism:confers_origin",
+    "lift_structure:not_enough"
+   ],
+   "held": "South Korea",
+   "held_sentence": [
+    "Thus, based on the totality of the circumstances, the country of origin of the JAS-JR Assembly-600kg, as described above, will be South Korea."
+   ],
+   "facts_read": "Korea: Chinese drive plate chassis fitted with drive motor, casters and electricals; structural metal frame and electrical lift assembly made from Korean components fastened on; battery, display, sensors, wiring, covers, testing and calibration. Held South Korea."
+  },
+  {
+   "ruling": "N344692",
+   "template": "lifting_handling_machines",
+   "cited_in": [
+    "lift_mechanism:confers_origin",
+    "final_assembly:not_enough"
+   ],
+   "held": "China",
+   "held_sentence": [
+    "Thus, based on the totality of the circumstances, the country of origin of the hydraulic bottle jacks, model numbers TH90604XT and TH91204XT, will be China."
+   ],
+   "facts_read": "Thailand: piston rod machined from Chinese bar; Chinese cast piston head and base machined and drilled; Chinese tubes machined into cylinder and sleeve; Chinese pump assembly; welding, assembly, oil filling, painting and testing. All materials Chinese. Held China."
+  },
+  {
+   "ruling": "N346297",
+   "template": "lifting_handling_machines",
+   "cited_in": [
+    "lift_mechanism:confers_origin"
+   ],
+   "held": "Thailand",
+   "held_sentence": [
+    "Thus, based on the totality of the circumstances, the country of origin of the electric winch (model numbers EVO 8 and EVO 8-S) as described above, will be Thailand."
+   ],
+   "facts_read": "Thailand: Thai electric motor assembly and drum assembly, Chinese gearbox; motor prepared with brake and shaft, gearbox fastened to motor and drum, control box mounted, rope wound, tested and packed. Held Thailand."
+  },
+  {
+   "ruling": "N347256",
+   "template": "lifting_handling_machines",
+   "cited_in": [
+    "lift_mechanism:confers_origin",
+    "lift_structure:confers_origin"
+   ],
+   "held": "Thailand",
+   "held_sentence": [
+    "Thus, based on the totality of the circumstances, the country of origin of the steel floor jack (model THF3-26XHB), the aluminum floor jack (model THA3-3XTB), and the aluminum-steel floor jack (model THA1.5-16CX), will be Thailand."
+   ],
+   "facts_read": "Thailand: power unit base, top cap and piston head cast from Thai scrap, machined; cylinder, sleeve and piston rod machined from pipe and bar; Chinese pump core and body; lifting arm and frame laser cut, stamped and robot welded from Thai sheet (aluminium models with a Chinese back block casting machined in Thailand); Chinese wheels, casters and fasteners; final assembly with fasteners. Held Thailand for all three models."
+  },
+  {
+   "ruling": "N348514",
+   "template": "lifting_handling_machines",
+   "cited_in": [
+    "lift_mechanism:confers_origin",
+    "lift_structure:confers_origin"
+   ],
+   "held": "Thailand",
+   "held_sentence": [
+    "Thus, based on the totality of the circumstances, the country of origin of the engine crane, model number THE02-2CX, will be Thailand."
+   ],
+   "facts_read": "Thailand: power unit base forged and machined, piston cap cast and finished, sleeve, cylinder, pump body and piston rod machined, assembled, oil filled, load tested and painted; base, post, boom, extension, supports and legs cut and welded from steel; packed unassembled with Chinese hook, chain, casters and fasteners. Held Thailand."
+  },
+  {
+   "ruling": "N348905",
+   "template": "lifting_handling_machines",
+   "cited_in": [
+    "lift_mechanism:confers_origin",
+    "lift_structure:confers_origin"
+   ],
+   "held": "Thailand",
+   "held_sentence": [
+    "Thus, based on the totality of the circumstances, the country of origin of the scissor jack, model number THS02001, will be Thailand."
+   ],
+   "facts_read": "Thailand: upper and lower arms sheared, punched, stamped and riveted; base from steel plate; screw rod cut, forged and roll threaded; bracket and nut machined; Chinese bearing, handle and pins; riveting and greasing. Held Thailand."
+  },
+  {
+   "ruling": "N335017",
+   "template": "optical_precision_instruments",
+   "cited_in": [
+    "instrument_electronics:confers_origin",
+    "instrument_housing:not_enough"
+   ],
+   "held": "Vietnam",
+   "held_sentence": [
+    "Thus, for origin and marking purposes, the wireless cooking thermometer, charging sleeve, and timer are considered products of Vietnam at time of importation into the United States."
+   ],
+   "facts_read": "Vietnam: SMT of the probe, charger and timer PCBAs, programming and testing, thermistor and battery soldered; China: tube and handle assembly, O-rings, charger clip and covers. Held Vietnam."
+  },
+  {
+   "ruling": "N335170",
+   "template": "optical_precision_instruments",
+   "cited_in": [
+    "sensing_element:confers_origin",
+    "instrument_housing:not_enough",
+    "final_assembly:not_enough"
+   ],
+   "held": "China",
+   "held_sentence": [
+    "Accordingly, for origin and marking purposes, the printed circuit board assembly for the hydrogen gas sensor is considered a product of China at time of importation into the United States."
+   ],
+   "facts_read": "China: PCBA with the gas sensing element, microprocessor and components made, with measuring capability on export. United States: plastic housing, lid and compression limiters assembled, calibration and testing. Held China."
+  },
+  {
+   "ruling": "N340153",
+   "template": "optical_precision_instruments",
+   "cited_in": [
+    "instrument_electronics:not_enough",
+    "final_assembly:confers_origin"
+   ],
+   "held": "Singapore",
+   "held_sentence": [
+    "Accordingly, for origin and marking purposes, the gas chromatograph would be considered a product of Singapore at the time of importation into the United States."
+   ],
+   "facts_read": "Singapore: base assembly integrating the Chinese oven and electronics box, a U.S. motor, cables and tubing on the chassis; software (developed in Italy) loaded; temperature probes calibrated; operational testing. Held Singapore."
+  },
+  {
+   "ruling": "N342427",
+   "template": "optical_precision_instruments",
+   "cited_in": [
+    "optics_shaping:confers_origin",
+    "optics_finishing:not_enough"
+   ],
+   "held": "Singapore",
+   "held_sentence": [
+    "Based upon the facts presented and the relevant authorities, the origin of the singlet lens, item number 66426, will be Singapore."
+   ],
+   "facts_read": "Singapore: lens shape and curvature milled from a glass blank. China: grinding, polishing, washing and anti-reflective coating. Held Singapore."
+  },
+  {
+   "ruling": "N344318",
+   "template": "optical_precision_instruments",
+   "cited_in": [
+    "sensing_element:confers_origin",
+    "instrument_electronics:not_enough",
+    "final_assembly:not_enough"
+   ],
+   "held": "per scenario",
+   "held_sentence": [
+    "In view of these facts, the country of origin for scenario one will be China, which is where the tape reel/spring/blade/magnet assembly and final assembly is conducted.",
+    "The country of origin for scenario two will be Thailand, which is where the tape reel/spring/blade/magnet assembly is produced.",
+    "Finally, in scenario three, the country of origin will be Thailand, which is where the tape reel/spring/blade/magnet assembly will be sourced from."
+   ],
+   "facts_read": "Three scenarios: (1) Vietnamese PCBAs, Chinese reel/spring/blade/magnet assembly and Chinese final assembly, held China; (2) Thai reel assembly, Chinese PCBAs and final assembly, held Thailand; (3) Vietnamese PCBAs, Thai reel assembly, Chinese final assembly, held Thailand. Held origin follows the reel assembly."
+  },
+  {
+   "ruling": "N345937",
+   "template": "optical_precision_instruments",
+   "cited_in": [
+    "optics_shaping:confers_origin"
+   ],
+   "held": "Vietnam",
+   "held_sentence": [
+    "Based upon the facts presented and the relevant authorities, the origin of the singlet and doublet spherical lens assemblies, part numbers 183587, 183245, and 56397, will be Vietnam."
+   ],
+   "facts_read": "Vietnam: raw optical glass cut into blanks and ground and milled into lenses, assembled into lens assemblies. Held Vietnam."
+  },
+  {
+   "ruling": "N347948",
+   "template": "optical_precision_instruments",
+   "cited_in": [
+    "sensing_element:confers_origin",
+    "instrument_housing:not_enough"
+   ],
+   "held": "China",
+   "held_sentence": [
+    "Therefore, in the first and second scenario, the country of origin of the speed square would be China, which is where the measurements were stamped or laser engraved."
+   ],
+   "facts_read": "Scenarios one and two: Vietnam cuts and stamps the aluminium blank to final size and angles and punches holes; China mills the edges, treats the surface and laser engraves or stamps the numbers. Held China (where the measurements were stamped or engraved)."
+  },
+  {
+   "ruling": "N349940",
+   "template": "optical_precision_instruments",
+   "cited_in": [
+    "sensing_element:confers_origin",
+    "final_assembly:not_enough"
+   ],
+   "held": "per scenario",
+   "held_sentence": [
+    "Therefore, the country of origin of the SA87A pressure sensor in both scenarios is the United States.",
+    "Therefore, the country of origin of the second pressure sensor in both scenarios is Germany."
+   ],
+   "facts_read": "SA87A: MEMS sensing die and wafer made in the United States; China or Malaysia glue the die, wire bond, weld the diaphragm, fill oil, pressure test and assemble: held United States. SAGF100: German strain-gauge wafers; China or Malaysia bond gauges, attach the PCB, weld and test: held Germany."
+  },
+  {
+   "ruling": "N358288",
+   "template": "optical_precision_instruments",
+   "cited_in": [
+    "sensing_element:confers_origin",
+    "instrument_electronics:not_enough",
+    "final_assembly:not_enough"
+   ],
+   "held": "per scenario",
+   "held_sentence": [
+    "Therefore, the country of origin for the 20005327-42 Pressure Sensor is Germany.",
+    "Consequently, the country of origin for the 11026687-00 Pressure Transducer is the United States.",
+    "Thus, the country of origin for the 4525-DS5A001GP Pressure Transducer is the United Kingdom.",
+    "Therefore, the country of origin for the 20008088-03 Pressure Sensor is the United States."
+   ],
+   "facts_read": "Four sensors: sensing die or gauge wafer made in Germany, the United States, the United Kingdom and the United States; China dices, bonds, fits the housing and PCBA, laser trims, calibrates and tests. Each held the country of the wafer."
+  }
+ ]
 }

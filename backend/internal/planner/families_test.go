@@ -20,16 +20,17 @@ import (
 )
 
 // The families written from CBP precedent (D138, D212), the three earlier
-// templates, the six written from Part 102 rulings (D580) and the six of the
-// third round (D660). Pinning the set
+// templates, the six written from Part 102 rulings (D580), the six of the
+// third round (D660) and the two of D822. Pinning the set
 // makes adding or dropping a family a visible change.
 var allFamilies = []string{
 	"cables_harnesses", "display_camera_modules", "electrical_control_apparatus", "food_preparations", "furniture",
 	"gas_grills_cooking", "golf_sporting_goods", "hand_tools", "hvac_heating_units", "led_lights", "lidar_modules",
-	"machinery_parts", "medical_devices", "metal_products", "motorised_tools_small_appliances",
-	"motors_pumps_compressors", "offroad_vehicles_machinery", "paper_tissue_products", "pcba_electronic_devices",
-	"plastic_articles", "power_supplies_chargers", "semiconductor_devices", "toys_build_kits", "vehicle_parts",
-	"water_filters", "wood_panels_flooring",
+	"lifting_handling_machines", "machinery_parts", "medical_devices", "metal_products",
+	"motorised_tools_small_appliances", "motors_pumps_compressors", "offroad_vehicles_machinery",
+	"optical_precision_instruments", "paper_tissue_products", "pcba_electronic_devices", "plastic_articles",
+	"power_supplies_chargers", "semiconductor_devices", "toys_build_kits", "vehicle_parts", "water_filters",
+	"wood_panels_flooring",
 }
 
 // round3Families are the third round (D660), chosen by counting development
@@ -285,9 +286,9 @@ func TestFamilyFixturesPlan(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	// The planner evaluation's fixtures (D170, D171, D501) and the tracks 3-6
-	// fixtures (D782) run the same checks.
-	for _, dir := range []string{"planner_post", "planner_families", "planner_part102", "planner_families_b2"} {
+	// The planner evaluation's fixtures (D170, D171, D501), the tracks 3-6
+	// fixtures (D782) and the D822 fixtures (D823) run the same checks.
+	for _, dir := range []string{"planner_post", "planner_families", "planner_part102", "planner_families_b2", "planner_families_b3"} {
 		more, err := filepath.Glob(filepath.Join("..", "..", "testdata", dir, "*.json"))
 		if err != nil {
 			t.Fatal(err)
