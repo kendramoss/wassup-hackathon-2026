@@ -487,10 +487,7 @@ func TestLoaderRejectsMalformedSchedules(t *testing.T) {
 
 func hs2017All(t *testing.T) []string {
 	t.Helper()
-	var out []string
-	for _, l := range strings.Fields(string(hs2017CodesTXT)) {
-		out = append(out, l)
-	}
+	out := strings.Fields(string(hs2017CodesTXT))
 	if len(out) != 5387 {
 		t.Fatalf("%d codes", len(out))
 	}
