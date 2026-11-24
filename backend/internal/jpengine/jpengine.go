@@ -214,7 +214,7 @@ func (e *Engine) Predict(ctx context.Context, c domain.Case) (engine.Result, err
 	if p.Outcome == Qualifies {
 		result.Prediction.Origin = normalizeOrigin(a.Origin)
 	} else if p.Outcome == Undetermined {
-		p.ReviewReason = "A specialist needs to check the rule and the missing production or materials facts."
+		p.ReviewReason = "A specialist needs to check the rule and the missing production or materials facts." + missingFactsSentence(MissingFacts(c))
 	}
 	allowed := make(map[string]bool, len(precedents))
 	named := make(map[string]bool, len(a.Cited))
