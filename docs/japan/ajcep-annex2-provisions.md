@@ -13,14 +13,14 @@ A rule hit used to return only the matched rows and the one Section XI note. The
 | `art25-intro`, `art25-a-i`, `art25-j-k` | Chapter 3 (asean1.pdf), pages 3 to 5 | Annex 2 paragraph 1(e): WO means wholly obtained "as defined in Article 25" |
 | `art27-1-3`, `art27-4-6` | asean1.pdf, pages 6 and 7 | Annex 2 paragraph 1(a): RVC "calculated using the formula set out in Article 27", and its note applies Article 27(2)(a) |
 | `art28-1a`, `art28-1b-2` | asean1.pdf, pages 7 and 8 | Annex 2 paragraph 3 operates "for the purposes of subparagraph 1(b) of Article 28"; the chapter ranges, the value (FOB) and weight bases and paragraph 2 (tolerance value still counts for RVC) are in the same Article |
-| `note-psr-scope` (Unde Labs note) | none | Says a listed rule applies in place of the general criteria of Article 26(1), that Article 28 concerns CTC-based rules, and what is not supplied |
+| `note-psr-scope` (Unde Labs note) | none | Says, citing Article 26(2), that a listed rule applies in place of the general criteria of Article 26(1), that Article 28 concerns CTC-based rules, and what is not supplied |
 
 Citation, page and URL of each treaty entry are exactly those of the bundle. The list is data: `psr_provisions` (ids, validated against `provisions`, treaty entries only, no duplicates) and `psr_notes` in `ajcep_general.json`.
 
 ## What is not returned
 
 - Article 26 (including 26(1) general RVC or CTH criteria). Annex 2 does not cite it, and returning it next to a listed rule could read as an alternative to a stricter rule. The note states that the listed rule applies in place of the general criteria.
-- Articles 23, 24, 29, 30, 32 to 35 and Annex 3: not cited by Annex 2 paragraphs 1 to 3. Article 31 and Annex 4 are unverified; the note says so.
+- Articles 23, 24, 29, 30, 32 to 35 and Annex 3: not cited by Annex 2 paragraphs 1 to 3. The note names Articles 24 (including 24(c)), 29 (accumulation) and 30 (non-qualifying operations) as not supplied and not verified, as it does Article 31 and Annex 4.
 - The no-row fallback is unchanged byte for byte (it does not carry the new note).
 - Other agreements are unchanged.
 

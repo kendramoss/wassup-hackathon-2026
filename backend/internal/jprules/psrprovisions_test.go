@@ -115,6 +115,13 @@ func TestPSRProvisionsAreScopedAndKeepSources(t *testing.T) {
 		!strings.Contains(last.Text, "in place of the general criteria") {
 		t.Fatalf("scope note: %+v", last)
 	}
+	for _, frag := range []string{"sets tolerance codes by reference to Article 28(1)(b)", "Under Article 26(2) a listed rule applies",
+		"Article 24 (including the route of production entirely from originating materials in Article 24(c))",
+		"Article 29 (accumulation)", "Article 30 (non-qualifying operations)", "not supplied and have not been verified"} {
+		if !strings.Contains(last.Text, frag) {
+			t.Errorf("scope note lacks %q", frag)
+		}
+	}
 	// The provision evidence keeps the bundle's citation, page and URL.
 	for _, e := range res.Evidence {
 		if strings.Contains(e.URL, "asean1.pdf") {

@@ -372,7 +372,7 @@ var annexGolden = map[string]string{
 // provisions that now follow a matched rule (psr_provisions, psr_notes). The
 // AJCEP entry in annexGolden still pins the rows and notes alone: the
 // appended provisions are cut from that hash, so it is unchanged from main.
-const ajcepProvisionsGolden = "8af0b20d4b0eaf98"
+const ajcepProvisionsGolden = "02c4f1c66b22b72f"
 
 func TestOtherEvidenceByteIdentical(t *testing.T) {
 	table := mustDefault(t)
