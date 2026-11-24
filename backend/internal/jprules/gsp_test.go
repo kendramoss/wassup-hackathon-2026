@@ -592,8 +592,10 @@ func TestExistingSchedulesKeepTheHS2017List(t *testing.T) {
 			for _, n := range s.Notes {
 				// A schedule-scope note of a PDF-paged schedule needs its own source
 				// (source_url, EU/UK Annex 3-A) or, for the Australia General Notes
-				// (australiacolumn4_test.go), an applies list.
-				sourced := n.SourceURL != "" || name == "JP-Australia EPA" && len(n.Applies) > 0
+				// (australiacolumn4_test.go), an applies list, or be the one Unde Labs
+				// caveat (page 0) of the EU and UK Chapter 3 articles (chapter3_test.go).
+				sourced := n.SourceURL != "" || name == "JP-Australia EPA" && len(n.Applies) > 0 ||
+					n.Page == 0 && (name == "JP-EU EPA" || name == "JP-UK CEPA") && strings.Contains(n.Text, "Chapter 3 (Rules of origin)")
 				if n.Ref != "" && !(n.SourceURL != "" && name == "JP-India CEPA" && s.From == "2022-04-04" && n.Key == "03") || n.Scope == "schedule" && !sourced {
 					t.Errorf("%s: note %q has a ref or schedule scope", name, n.Key)
 				}

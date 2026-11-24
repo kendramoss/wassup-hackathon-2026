@@ -440,5 +440,76 @@ class GeneralNotesPdfTruth(unittest.TestCase):
                 self.assertNotIn("  ", note["text"])
 
 
+class Chapter3Articles(unittest.TestCase):
+    """Chapter 3 (Rules of origin) articles of the JP-EU EPA and JP-UK CEPA."""
+
+    def test_sources_are_pinned_and_paired_with_their_schedule(self):
+        self.assertEqual(b.DIGESTS["eu1.pdf"][:8], "a71de5d6")
+        self.assertEqual(b.DIGESTS["uk1.pdf"][:8], "277066a8")
+        self.assertEqual({k: v["pdf"] for k, v in b.CHAPTER_3.items()}, {"eu3.pdf": "eu1.pdf", "uk3.pdf": "uk1.pdf"})
+
+    def test_only_listed_articles_and_sorted_pages(self):
+        for filename, spec in b.CHAPTER_3.items():
+            pages = [n[0] for n in spec["notes"]]
+            self.assertEqual(pages, sorted(pages))
+            for page, label, start, end, wholly in spec["notes"]:
+                self.assertTrue(label.startswith("Article 3."), label)
+                self.assertRegex(label, r"^Article 3\.(1\(|2|3|4|5|6|12)")
+                self.assertIsInstance(wholly, bool)
+                for anchor in (start, end):
+                    if anchor:
+                        self.assertNotRegex(anchor, r"ARTICLE 3\.(7|8|9|1[0-1]|1[3-9]|2\d)\b")
+            # the Article 3.3 and 3.6(3) chunks are the only ones scoped to wholly obtained rows
+            for page, label, start, end, wholly in spec["notes"]:
+                self.assertEqual(wholly, label.startswith("Article 3.3") or label == "Article 3.6 paragraph 3", label)
+
+    def test_wholly_obtained_ranges_join_only_touching_equal_width_ranges(self):
+        rows = [{"start": s, "end": e, "text": t} for s, e, t in [
+            ("0101", "0106", "All animals of Chapter 1 are wholly obtained."),
+            ("0107", "0108", "x is wholly obtained"),
+            ("0109", "0109", "CC"),
+            ("0110", "0110", "wholly obtained"),
+            ("090210", "090220", "wholly obtained"),
+            ("090221", "090221", "wholly obtained"),
+            ("03", "03", "wholly obtained"), ("03", "03", "All fish are wholly obtained."),
+            ("04", "04", "CC"),
+        ]]
+        self.assertEqual(b.wholly_obtained_ranges(rows), [["0101", "0108"], ["0110", "0110"], ["03", "03"], ["090210", "090221"]])
+
+    def test_caveat_is_an_unde_labs_note_with_the_required_statements(self):
+        for filename, spec in b.CHAPTER_3.items():
+            text = b.chapter_3_caveat(spec)
+            self.assertTrue(text.startswith("Unde Labs note (not treaty text)"))
+            for frag in ("do not replace the listed rule", "Annex 3-C", "Appendix 3-B-1", spec["procedural"],
+                         "NOT supplied", "not verified", "undetermined"):
+                self.assertIn(frag, text, filename)
+
+    def test_page_footer_of_chapter_3_is_cut_from_a_page_edge(self):
+        self.assertEqual(b.quote_chunk("A text. EU/JP/en 61", "A", None), "A text.")
+        self.assertEqual(b.quote_chunk("A text. UK/JP/en 7", "A", None), "A text.")
+
+
+@unittest.skipUnless(os.environ.get("JP_PDF_DIR"), "set JP_PDF_DIR to the directory holding eu1.pdf and uk1.pdf")
+class Chapter3PdfTruth(unittest.TestCase):
+    """Pinned to the official PDFs (digest checked): verbatim page chunks."""
+
+    def test_every_note_is_a_verbatim_page_chunk(self):
+        import hashlib
+        for filename, spec in b.CHAPTER_3.items():
+            path = os.path.join(os.environ["JP_PDF_DIR"], spec["pdf"])
+            with open(path, "rb") as f:
+                self.assertEqual(hashlib.sha256(f.read()).hexdigest(), b.DIGESTS[spec["pdf"]])
+            rows = [{"start": f"{n:04d}", "end": f"{n:04d}", "text": "wholly obtained"} for n in range(101, 123, 2)]
+            notes = b.chapter_3_notes(path, filename, rows)
+            self.assertEqual(len(notes), len(spec["notes"]) + 1)
+            self.assertEqual((notes[0]["page"], notes[0]["scope"]), (0, "schedule"))
+            for note, (page, label, start, end, wholly) in zip(notes[1:], spec["notes"]):
+                self.assertEqual((note["scope"], note["page"], note["source_url"]), ("schedule", page, b.BASE + spec["pdf"]))
+                self.assertEqual(note["citation"], f"{spec['label']}, {label}")
+                self.assertEqual("applies" in note, wholly)
+                self.assertNotIn("  ", note["text"])
+                self.assertNotRegex(note["text"], r"(EU|UK)/JP/en|Working Group on Wine|ARTICLE 4\.1")
+
+
 if __name__ == "__main__":
     unittest.main()

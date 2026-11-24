@@ -12,8 +12,8 @@ such a term. Nothing here changes lookup output.
 
 | Agreement | General Notes (PDF page) | Represented today | Materially absent | Rows using absent-only terms | Dev rulings |
 |---|---|---|---|---|---|
-| JP-EU EPA | Annex 3-A (separate PDF `eu2.pdf`, not embedded) | Four section notes and one chapter note that point to it | MaxNOM, RVC, EXW, FOB definitions and formulas (Note 4), CC/CTH/CTSH, Notes 3 and 5 to 8 (textile, 10 percent and 8 percent tolerances) | 157 | 457 |
-| JP-UK CEPA | Annex 3-A (`uk2.pdf`, not embedded) | Same pointer cells | Same as EU, plus Note 3.4 | 197 | 15 |
+| JP-EU EPA | Annex 3-A (separate PDF `eu2.pdf`, since embedded) | Four section notes and one chapter note that point to it | MaxNOM, RVC, EXW, FOB definitions and formulas (Note 4), CC/CTH/CTSH, Notes 3 and 5 to 8 (textile, 10 percent and 8 percent tolerances) | 157 | 457 |
+| JP-UK CEPA | Annex 3-A (`uk2.pdf`, since embedded) | Same pointer cells | Same as EU, plus Note 3.4 | 197 | 15 |
 | JP-Thailand EPA | 1 to 3 | 20 table notes | (b), (d)(v) to (ix), (f) tolerances, Notes 1 and 2, (g) | 417 (QVC 40) | 6 |
 | AJCEP HS 2017 | 1 to 2 | One section XI note; the Chapter 3 and Annex 2 text exists in a separate bundle | The bundle is returned only when no row matches, not with rows; tolerance (seven and 10 percent) applies to many rows | 162 (RVC 40 percent); tolerance-eligible rows 227 | 2 (298 rulings sit on tolerance-eligible rows) |
 | AJCEP HS 2022 (from 2027-02-15) | 1 to 2 | None | No bundle at all | 175 | 0 |
@@ -43,7 +43,7 @@ above describes the audit; this table is the state now.
 | JP-Vietnam EPA | embedded: paragraphs 1 and 3 (3 notes) |
 | JP-Switzerland EPA | embedded: paragraph 1(a) and 1(b) (2 notes) |
 | CPTPP 3-D and 4-A | embedded: Section A 3(c) to (g) in both (2 notes); 3(b) and paragraph 5 not embedded (dagger rows are withheld, so a dagger note would never be shown, and on all chapter 84 and 87 rows it would imply an RVC route they lack) |
-| JP-EU EPA, JP-UK CEPA | embedded earlier ([annex-3a-notes.md](annex-3a-notes.md)) |
+| JP-EU EPA, JP-UK CEPA | Annex 3-A embedded earlier ([annex-3a-notes.md](annex-3a-notes.md)); Chapter 3 Articles 3.1(e), (f), (h), (i), 3.2 to 3.6 and 3.12 embedded ([chapter3-articles.md](chapter3-articles.md)); Annex 3-C, Appendix 3-B-1 and Articles 3.7 to 3.11, 3.13 to 3.15 and 3.16 onward not embedded |
 | JP-Australia EPA | embedded earlier ([australia-column4.md](australia-column4.md)) |
 | AJCEP HS 2017 and HS 2022 | not embedded |
 | JP-India CEPA | not embedded (nothing to define) |
@@ -77,9 +77,14 @@ embedded. A note is currently tied to the URL of its schedule, so evidence links
 note to the Annex 3-B URL; a note taken from Annex 3-A would be linked to the wrong
 document and page.
 
+Both Annex 3-A files were embedded later with a per-note source, and the main-text
+Chapter 3 articles that qualify the Annex 3-B rules were added after them; see
+[chapter3-articles.md](chapter3-articles.md). Annex 3-C, Appendix 3-B-1 and the
+procedural Articles remain absent and are named as such in the evidence.
+
 ## Planned follow-ups (not done)
 
-- A per-note source field, so EU and UK notes can cite Annex 3-A pages.
+- Done: a per-note source field, so EU and UK notes cite Annex 3-A pages.
 - Done: schedule-scope notes for the text-layer annexes (see above).
 - Returning the AJCEP bundle provisions with matched rows, and adding it for HS 2022.
 - Australia column 4 parsing, then the General Notes.
