@@ -76,6 +76,9 @@ jobs:
           cache: npm
           cache-dependency-path: frontend/package-lock.json
       - run: npm ci
+      # The ~800 frontend unit tests (scripts/*.test.mjs). They need no network
+      # or backend; without this step two PRs broke tests unnoticed (#759).
+      - run: npm test
       - run: npm run lint
       # Also type-checks; plain tsc would miss the route types next generates.
       - run: npm run build
@@ -101,7 +104,7 @@ jobs:
   # Required check on main is "ci-ok" — the context for pull_request runs.
   # When deploy.yml calls this workflow the context is "ci / ci-ok"; do not
   # require that name, or no PR could ever merge. It covers gofmt, build, vet,
-  # staticcheck, backend tests, frontend lint and build, and the MCP relay tests.
+  # staticcheck, backend tests, frontend tests, lint and build, and the MCP relay tests.
   # Main also requires a PR and an up-to-date branch. enforce_admins is on, so
   # admins cannot merge with a failing/missing check; only a repo admin can
   # change the rule in Settings > Branches (there is no code-path bypass).
