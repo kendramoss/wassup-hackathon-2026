@@ -50,10 +50,16 @@ function Checks({ id, c, reload: reloadCase }: CaseCtx) {
     a.href = URL.createObjectURL(new Blob([rep.markdown], { type: "text/markdown" }));
     a.download = `evidence-report-${id}.md`;
     a.click();
-    URL.revokeObjectURL(a.href);
+    // Some browsers start the download after click returns.
+    setTimeout(() => URL.revokeObjectURL(a.href), 1000);
   };
+  // Every fold prints open, from the Print button or the browser's own.
+  useEffect(() => {
+    const open = () => document.querySelectorAll<HTMLDetailsElement>("#main details").forEach((d) => (d.open = true));
+    window.addEventListener("beforeprint", open);
+    return () => window.removeEventListener("beforeprint", open);
+  }, []);
   const print = () => {
-    // Every fold prints open.
     document.querySelectorAll<HTMLDetailsElement>("#main details").forEach((d) => (d.open = true));
     window.print();
   };
@@ -117,7 +123,7 @@ export function CheckCard({ ch, c, onSaved }: { ch: EvidenceCheck; c: CaseRespon
         {ch.review ? <Chip>{R.review}</Chip> : null}
         {ch.uses_supplied ? <Chip>{R.supplied}</Chip> : null}
       </p>
-      <p className="read mt-2 text-[15px]" data-outcome>
+      <p className="read mt-2 text-[15px] outline-none" data-outcome tabIndex={-1} aria-live="polite">
         {ch.origin ? <OriginOutcome outcome={ch.outcome} origin={ch.origin} /> : ch.outcome}
       </p>
       {ch.reason ? <p className="duo mt-1 text-[13px] text-body">{ch.reason}</p> : null}
@@ -202,6 +208,43 @@ export function OriginOutcome({ outcome, origin }: { outcome: string; origin: st
   );
 }
 
+// Supplied lists the answers given to a check, apart from the case facts,
+// with who gave them and when; a set saved before the parts list changed is
+// marked not used.
+export function ReportSupplied({ rep }: { rep: EvidenceReport }) {
+  const C = copy.originRules;
+  const sets = Object.entries(rep.supplied ?? {}).filter(([, s]) => s);
+  if (!sets.length) return null;
+  return (
+    <div data-report-supplied className="mt-2 flex flex-col gap-2">
+      <p className="text-body">{C.yours}</p>
+      {sets.map(([m, s]) => (
+        <div key={m}>
+          <p className="text-dim">
+            {m.toUpperCase()} · {C.yoursMeta(0, formatDate(s!.updated_at)).replace(/^0 · /, "")}
+          </p>
+          {s!.stale ? <p className="text-ask">{C.staleAll}</p> : null}
+          <ul className="list-disc pl-4">
+            {s!.good_hts ? <li>HS {s!.good_hts}</li> : null}
+            {s!.row ? <li>{s!.row === "none" ? C.none : s!.row}</li> : null}
+            {Object.entries(s!.answers ?? {}).map(([k, b]) => (
+              <li key={k}>
+                {k}: {b ? C.yes : C.no}
+              </li>
+            ))}
+            {(s!.materials ?? []).map((x) => (
+              <li key={x.index}>
+                {x.name}:{" "}
+                {[x.hts, x.origin, x.value_share !== undefined ? `${Math.round(x.value_share * 10000) / 100}% value` : "", x.weight_share !== undefined ? `${Math.round(x.weight_share * 10000) / 100}% weight` : ""].filter(Boolean).join(", ")}
+              </li>
+            ))}
+          </ul>
+        </div>
+      ))}
+    </div>
+  );
+}
+
 function CaseFacts({ rep }: { rep: EvidenceReport }) {
   const p = rep.case.product;
   return (
@@ -231,6 +274,7 @@ function CaseFacts({ rep }: { rep: EvidenceReport }) {
             </>
           ) : null}
           {rep.case.facts?.trim() ? <p className="whitespace-pre-line break-words text-body">{rep.case.facts.trim()}</p> : null}
+          <ReportSupplied rep={rep} />
         </div>
       </Fold>
     </section>

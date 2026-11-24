@@ -128,3 +128,31 @@ test("copy stays short (rule 16)", () => {
   const C = copy.originRules;
   for (const s of [C.missing, C.notModelled, C.ask, C.recheck, C.person, C.yours, copy.report.title, copy.report.lede]) assert.ok(s.split(" ").length <= 12, s);
 });
+
+const { ReportSupplied } = await import("../src/components/op/screens/checks-view.tsx");
+const { readFile } = await import("node:fs/promises");
+
+test("All checks lists the answers given, apart from the case facts, and marks a stale set", () => {
+  const rep = {
+    supplied: {
+      eu: { source: "user-supplied", updated_at: "2026-11-24T06:00:00Z", answers: { "ch85.r": false }, materials: [{ index: 0, name: "tuner", part_hts: "8529.90", value_share: 0.7 }] },
+      uk: { source: "user-supplied", updated_at: "2026-11-23T06:00:00Z", stale: true, answers: { "6404.1.c": true } },
+    },
+  };
+  const t = text(html(ReportSupplied, { rep }));
+  for (const s of ["EU", "ch85.r: No", "tuner: 70% value", "UK", "6404.1.c: Yes", copy.originRules.staleAll, "you supplied"]) assert.ok(t.includes(s), s);
+  assert.equal(html(ReportSupplied, { rep: {} }), "");
+});
+
+test("stale answers are said, not resent; saves carry the precondition; errors are announced", async () => {
+  const src = await readFile(new URL("../src/components/op/origin-rules-check.tsx", import.meta.url), "utf8");
+  assert.match(src, /saved=\{staleAll \? undefined : saved\}/);
+  assert.match(src, /expected_updated_at: saved\?\.updated_at \?\? ""/);
+  assert.match(src, /role="alert"[^>]*>\s*\{C\.fixFields\}/);
+  assert.match(src, /aria-describedby=\{wrong \? `\$\{id\}-err` : undefined\}/);
+  assert.match(src, /data-origin-outcome tabIndex=\{-1\} aria-live="polite"/);
+  const view = await readFile(new URL("../src/components/op/screens/checks-view.tsx", import.meta.url), "utf8");
+  assert.match(view, /data-outcome tabIndex=\{-1\} aria-live="polite"/);
+  assert.match(view, /addEventListener\("beforeprint"/);
+  assert.match(view, /setTimeout\(\(\) => URL\.revokeObjectURL/);
+});

@@ -677,7 +677,10 @@ export const copy = {
     yoursMeta: (n: number, date: string) => `${n} · you supplied · ${date}`,
     yoursNote: "Kept beside the case. The product is unchanged.",
     clear: "Clear answers",
-    stale: "Some answers were for parts that changed; they were not used.",
+    stale: "Some answers no longer fit the parts list; they were not used.",
+    staleAll: "Your answers were from before the parts list changed. Answer again.",
+    badShare: "Enter a number from 0 to 100.",
+    badCode: "Enter an HS code, like 8529.90.",
     demo: "Pinned demo: answers can't be added.",
   },
 

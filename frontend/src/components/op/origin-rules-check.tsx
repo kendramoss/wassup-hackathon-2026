@@ -1,12 +1,12 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useState, type ReactNode } from "react";
+import { useEffect, useRef, useState, type ReactNode } from "react";
 import { api, errorText, type CaseResponse, type OriginMarket, type OriginRules, type SuppliedOriginFacts } from "@/lib/api/client";
 import { copy } from "@/lib/copy";
 import { formatDate } from "@/lib/format";
 import { blankForm, body as intakeBody, classify, formErrors, hasInput, suppliedCount, type IntakeForm } from "@/lib/origin-intake";
-import { caseReadOnly, writeGate } from "@/lib/roles";
+import { caseReadOnly, isStatus, writeGate } from "@/lib/roles";
 import { ErrorBox } from "./chrome";
 import { Button, Chip, Country, Fold, cx } from "./ui";
 
@@ -68,7 +68,7 @@ export function OriginRulesView({ v, parts, intake }: { v: OriginRules; parts?: 
           <Chip>{C.notModelled}</Chip>
         </p>
       ) : null}
-      <p className="read text-[15px]">
+      <p data-origin-outcome tabIndex={-1} aria-live="polite" className="read text-[15px] outline-none">
         {r.status === "decided" && r.origin ? (
           <>
             <Country name={r.origin} />{" "}
@@ -170,6 +170,16 @@ export function OriginRulesCheck({ c, market, onSaved, bare }: { c: CaseResponse
   // The answers as saved; the PUT answer replaces them.
   const [saved, setSaved] = useState<SuppliedOriginFacts | undefined>(() => c.origin_facts?.[market]);
   const [first] = useState(saved);
+  // After Re-check the questions are new: focus the next one, else the
+  // outcome, so a keyboard or screen-reader user is not left on nothing.
+  const box = useRef<HTMLDivElement>(null);
+  const focusNext = useRef(false);
+  useEffect(() => {
+    if (!focusNext.current) return;
+    focusNext.current = false;
+    const el = box.current?.querySelector<HTMLElement>("[data-origin-intake] input:not([disabled])") ?? box.current?.querySelector<HTMLElement>("[data-origin-outcome]") ?? document.querySelector<HTMLElement>(`[data-check="${market}_origin"] [data-outcome]`);
+    el?.focus();
+  }, [v, market]);
   const ok = canCheckOrigin(c);
   const product = c.product;
   useEffect(() => {
@@ -213,25 +223,40 @@ export function OriginRulesCheck({ c, market, onSaved, bare }: { c: CaseResponse
       </p>
     );
   const parts = c.product?.components?.map((x) => x.name ?? "");
+  // Answers saved before the parts list was replaced are not read (D806):
+  // they are not resent either, so the questions start fresh.
+  const staleAll = Boolean(saved?.stale || v.supplied_stale);
+  const stalePart = Boolean(v.stale_supplied?.length || v.supplied_dropped?.length);
   const save = async (facts: Parameters<typeof api.putOriginFacts>[2]) => {
-    const r = await api.putOriginFacts(c.id!, market, facts);
+    // The answers as this page read them: 409 if someone saved since.
+    const r = await api.putOriginFacts(c.id!, market, { ...facts, expected_updated_at: saved?.updated_at ?? "" });
+    focusNext.current = true;
     setV(r.check);
     setSaved(r.origin_facts[market]);
     onSaved?.();
   };
-  const intake = c.pinned ? null : <OriginIntake key={v.result.status + JSON.stringify(v.result.needs ?? [])} c={c} v={v} saved={saved} save={save} />;
+  const intake = c.pinned ? null : <OriginIntake key={v.result.status + JSON.stringify(v.result.needs ?? [])} c={c} v={v} saved={staleAll ? undefined : saved} save={save} />;
+  const note =
+    saved && (staleAll || stalePart) ? (
+      <p data-origin-stale role="status" className="duo text-[13px] text-ask">
+        {staleAll ? C.staleAll : C.stale}
+      </p>
+    ) : null;
+  const yours = saved ? <Supplied c={c} saved={saved} stale={staleAll || stalePart} clear={() => save({})} /> : null;
   if (bare)
     return (
-      <div className="flex max-w-[75ch] flex-col gap-2">
+      <div ref={box} className="flex max-w-[75ch] flex-col gap-2">
+        {note}
         {v.result.status === "undetermined" ? intake : null}
-        {saved ? <Supplied c={c} saved={saved} stale={Boolean(v.stale_supplied?.length)} clear={() => save({})} /> : null}
+        {yours}
       </div>
     );
   return (
-    <div className="flex max-w-[75ch] flex-col gap-2">
+    <div ref={box} className="flex max-w-[75ch] flex-col gap-2">
+      {note}
       <OriginRulesView v={v} parts={parts} intake={intake} />
       {c.pinned && v.result.status === "undetermined" ? <p className="duo text-[12.5px] text-dim">{C.demo}</p> : null}
-      {saved ? <Supplied c={c} saved={saved} stale={Boolean(v.stale_supplied?.length)} clear={() => save({})} /> : null}
+      {yours}
     </div>
   );
 }
@@ -353,11 +378,17 @@ export function OriginIntake({
                     value={val}
                     disabled={ro}
                     aria-invalid={wrong || undefined}
+                    aria-describedby={wrong ? `${id}-err` : undefined}
                     placeholder={kind === "value" || kind === "weight" ? "e.g. 70" : kind === "origin" ? "e.g. China" : "e.g. 8529.90"}
                     onChange={(e) => onChange(e.target.value)}
                   />
                   {kind === "value" || kind === "weight" ? <span className="text-dim">{C.percent}</span> : null}
                 </div>
+                {wrong ? (
+                  <p id={`${id}-err`} className="mt-0.5 text-[12.5px] text-fail">
+                    {kind === "value" || kind === "weight" ? C.badShare : C.badCode}
+                  </p>
+                ) : null}
               </div>
             );
           })}
@@ -365,9 +396,13 @@ export function OriginIntake({
             <Button type="submit" variant="ghost" disabled={!hasInput(f) || bad.length > 0 || busy} {...writeGate(ro)}>
               {busy ? C.rechecking : C.recheck}
             </Button>
-            {bad.length ? <span className="text-[12.5px] text-fail">{C.fixFields}</span> : null}
+            {bad.length ? (
+              <span role="alert" className="text-[12.5px] text-fail">
+                {C.fixFields}
+              </span>
+            ) : null}
           </div>
-          {error ? <ErrorBox error={error} onRetry={submit} /> : null}
+          {error ? <ErrorBox error={error} onRetry={isStatus(error, 409) ? undefined : submit} /> : null}
         </form>
       ) : null}
       {product.length ? (
