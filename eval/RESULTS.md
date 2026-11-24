@@ -1065,3 +1065,10 @@ After the daily budget reset, live MCP initialized anonymously, then returned HT
 - Replaces the guard v2 run above (kept as run). `results/families-coverage-dev-all-litellm-f26-b2-g3.jsonl` against the same baseline; table `families/b2-familycov-g3.json`.
 - Frozen cases matched, base → #772: batteries 5 → 6 of 7 (the seventh a failed check), machinery 7 → 7 of 11, medical 9 → 10 of 10, optical 0 → 1 of 2, furniture 1 → 1 of 1. Look-alikes 31 → 32 of 33. All 469: 350 → 351 (failed checks 4 → 9). Guard took away 1 match (the pet bed).
 - $1.6222; p50 5.2 s, p95 15.4 s per check.
+
+## Family follow-ups (offline, 24 Nov; D820–D825, #777–#780)
+- Universe and screens pre-registered and pushed before counting (D820): D780's pools plus 24 non-held-out 2026 rulings, keyword and HTS screens per scope, D780's bar (`eval/families/depth_b3.py`, `b3-hits.json`, `b3-screen.json`, `b3-cases.json`). Held-out IDs excluded by ID.
+- Bar (10 kept pool rulings): lifting machines 11 and optical and measuring instruments 10, so two new templates (`lifting_handling_machines`, 21 citations; `optical_precision_instruments`, 20; `b3-citations.json`); batteries 6, 4 short, no template; furniture no new group.
+- BM25 top 5 / top 20 holds a cited ruling, before → after (`b3-retrieval.json`): lifting 0 → 7 of 7 / 3 → 7 of 7; optical 1 → 3 of 9 / 5 → 8 of 9; furniture 3 → 3 of 4; batteries, machinery and medical unchanged.
+- Guard `family-guard-v4`: 1 of 349 recorded v1 matches changed (pet bed); on the guard v3 run, 1 of 351 (the 3D printer) (`b2-guard-dev.json`, `b3-guard-g3.json`). Two new fixtures pass the fake-engine plan pipeline.
+- Development set for the next family-check run (#781): 48 cases with expected templates and 30 look-alikes (`b3-dev-splits.json`). No model call in this work.

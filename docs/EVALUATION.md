@@ -952,3 +952,15 @@ With a budget granted for this lane, the family check ran twice on the 469 devel
 ### 20.2 The development run again with guard v3 (24 Nov 2026, D789, D790)
 
 The guard was fixed after a second review (a word after the product, as in "battery made in Vietnam", was read as the product) and the #772 run was repeated against the same baseline; the earlier run is kept as run. Batteries matched 6 of 7 development cases (5 before; the seventh check failed), medical 10 of 10 (9), optical 1 of 2 (0), machinery 7 of 11 and furniture 1 of 1 as before. 32 of 33 look-alikes stayed off the family they only resemble (31). Across all 469 rulings 351 matched against 350. The guard took away one match, the pet bed. The run cost $1.62. Template scope on development rulings, not accuracy.
+
+### 20.3 Follow-ups: batteries, lifting machines, furniture, optical instruments (24 Nov 2026, D820–D825)
+
+**Why.** The four gaps left by section 20 (#777–#780): no battery template, lifting jacks uncovered and a 3D printer matched to the machines template, furniture with one development case, optical instruments inside the display template.
+
+**Cases.** The rule was pushed before any count: D780's universe with the non-held-out 2026 rulings added, a keyword and HTS screen per scope, D780's bar of 10 kept pool rulings, and a rule for development cases. Held-out rulings excluded by ID; nothing held out was read.
+
+**What changed.** Lifting machines (11 pool rulings) and optical and measuring instruments (10) met the bar and got templates, cited both ways: for jacks, lifts and guided vehicles the lifting mechanism and the frames decided origin, while drives, wiring, software and testing did not; for instruments the sensing element or the scale mostly decided, lens polishing and coating did not, and assembly with calibration decided once. Batteries had 6, so no template. No furniture ruling turns on upholstery, finishing or knock-down work alone, so no group was added. The guard now sends 3D printers, jack stands, dollies, lights, fibre cables, transceivers and smart glasses to review. The family questions cover both new templates, each naming its document.
+
+**Results.** Development cases whose BM25 top 5 holds a ruling their template cites: lifting 7 of 7 (0 before), optical 3 of 9 (1 before); unchanged elsewhere. On recorded development checks the new guard changes one match, the 3D printer. Two new fixtures pass the plan pipeline with a fake engine.
+
+**Limits.** Small development sets (lifting 7, optical 9, furniture 4); no model run, so no family-check figure for the new templates until #781; no accuracy is claimed.
