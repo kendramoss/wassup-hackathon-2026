@@ -20,12 +20,12 @@ export const setupExamples = {
   },
   claude: {
     label: "Claude Desktop",
-    note: "Add the URL as a custom connector, or point this relay config to a local clone.",
+    note: "Add the URL as a custom connector, or run the published relay with npx.",
     code: JSON.stringify({
       mcpServers: {
         unde: {
-          command: "node",
-          args: ["/path/to/wassup-hackathon-2026/mcp/stdio/index.js"],
+          command: "npx",
+          args: ["-y", "@undelabs/mcp"],
         },
       },
     }, null, 2),

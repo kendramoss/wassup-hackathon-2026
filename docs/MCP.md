@@ -82,21 +82,21 @@ Add a custom connector from the connector settings ("Add custom connector"), wit
 
 ### Claude Desktop with the stdio relay
 
-The relay is not published to npm (publishing is an owner step). Run it from a clone of this repository. It has no dependencies, so there is nothing to install beyond Node 20 or later.
+The relay is published as [`@undelabs/mcp`](https://www.npmjs.com/package/@undelabs/mcp). Run it with `npx -y @undelabs/mcp` — no install and no dependencies beyond Node 20 or later. You can also run it from a clone of this repository with `node mcp/stdio/index.js`.
 
 ```json
 {
   "mcpServers": {
     "unde": {
-      "command": "node",
-      "args": ["/path/to/wassup-hackathon-2026/mcp/stdio/index.js"],
+      "command": "npx",
+      "args": ["-y", "@undelabs/mcp"],
       "env": { "UNDE_API_KEY": "op_..." }
     }
   }
 }
 ```
 
-Or, for Claude Code: `claude mcp add --env UNDE_API_KEY=op_... --transport stdio unde -- node /path/to/mcp/stdio/index.js`. `npx /path/to/mcp/stdio` also runs it (bin `undelabs-mcp`).
+Or, for Claude Code: `claude mcp add --env UNDE_API_KEY=op_... --transport stdio unde -- npx -y @undelabs/mcp`.
 
 Environment: `UNDE_API_KEY` (optional, `op_...`, sent as a bearer token) and `UNDE_BASE_URL` (default `https://undelabs.dev`; the relay calls `<base>/mcp`). The relay forwards each JSON-RPC message to the hosted endpoint and writes the answers back. It holds no logic of its own, so it always lists the hosted tools.
 
