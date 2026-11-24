@@ -32,10 +32,11 @@ func ids(in FamilyIntake, state string) []string {
 func yes(b bool) *bool { return &b }
 
 // writtenFor is the template version each family's questions were written
-// for: the five #772 families at version 2 (D810), the D822 templates at 1.
+// for: the #772 families at version 2 (D810; display 3, D826), off-road
+// and lifting machinery at 2 (D826), optical instruments at 1 (D822).
 var writtenFor = map[string]string{
 	"power_supplies_chargers": "2", "motors_pumps_compressors": "2", "furniture": "2", "medical_devices": "2",
-	"display_camera_modules": "2", "lifting_handling_machines": "1", "optical_precision_instruments": "1",
+	"display_camera_modules": "3", "offroad_vehicles_machinery": "2", "optical_precision_instruments": "1",
 }
 
 // Each question asks about one template group, names a document, and
@@ -79,7 +80,7 @@ func TestFamilyQuestionsAreGroundedInTheirTemplates(t *testing.T) {
 			// The question as asked carries exactly the group's citations.
 			asked := false
 			for _, x := range Intake(FamilyCase{US: true, Family: fam, Facts: "x", Product: &domain.Product{Name: "Product", Description: q.text + map[string]string{"motors_pumps_compressors": " (a pump)",
-				"lifting_handling_machines": " (a floor jack)", "optical_precision_instruments": " (a digital pressure gauge with a lens)"}[fam]}}, tms).Questions {
+				"offroad_vehicles_machinery": " (a floor jack)", "optical_precision_instruments": " (a digital pressure gauge with a lens)"}[fam]}}, tms).Questions {
 				if x.ID != q.id {
 					continue
 				}
@@ -227,10 +228,12 @@ func TestEachDeepenedFamilyAsksItsDecidingFacts(t *testing.T) {
 		{"furniture", &domain.Product{Name: "Upholstered sofa"}, []string{"frame_made", "upholstered"}},
 		{"medical_devices", &domain.Product{Name: "Surgical drill bits"}, []string{"blanks_made", "sterile_only"}},
 		{"medical_devices", &domain.Product{Name: "Blood pressure monitor"}, []string{"sensors_made", "sterile_only"}},
-		{"display_camera_modules", &domain.Product{Name: "Riflescope lens"}, []string{"lens_ground", "polish_only"}},
+		{"display_camera_modules", &domain.Product{Name: "Camera lens assembly"}, []string{"lens_ground", "polish_only", "sensor_made"}},
 		{"display_camera_modules", &domain.Product{Name: "Camera module"}, []string{"sensor_made"}},
-		{"lifting_handling_machines", &domain.Product{Name: "Hydraulic floor jack"}, []string{"lift_made", "structure_made", "assembly_only"}},
-		{"lifting_handling_machines", &domain.Product{Name: "Automated guided vehicle", Description: "lifts and carries reel stands"}, []string{"lift_made", "structure_made", "assembly_only"}},
+		{"offroad_vehicles_machinery", &domain.Product{Name: "Hydraulic floor jack"}, []string{"lift_made", "castings_machined_only", "arms_made", "chassis_made", "assembly_only"}},
+		{"offroad_vehicles_machinery", &domain.Product{Name: "Automated guided vehicle", Description: "lifts and carries reel stands"}, []string{"lift_made", "castings_machined_only", "arms_made", "chassis_made", "assembly_only"}},
+		{"offroad_vehicles_machinery", &domain.Product{Name: "Utility task vehicle"}, []string{"arms_made", "chassis_made", "assembly_only"}},
+		{"optical_precision_instruments", &domain.Product{Name: "Pipe with a 2 inch diameter"}, nil},
 		{"optical_precision_instruments", &domain.Product{Name: "Riflescope lens"}, []string{"optics_ground", "optics_polish_only"}},
 		{"optical_precision_instruments", &domain.Product{Name: "Digital pressure sensor"}, []string{"sensing_made", "electronics_made", "calibrate_only"}},
 		{"optical_precision_instruments", &domain.Product{Name: "Speed square"}, []string{"sensing_made", "calibrate_only"}},
@@ -264,8 +267,9 @@ func TestNotModelled(t *testing.T) {
 		{"vitamin as a device", FamilyCase{US: true, Family: "medical_devices", Product: &domain.Product{Name: "Vitamin D supplement"}}, "guard"},
 		{"ambiguous machine", FamilyCase{US: true, Family: "motors_pumps_compressors", Product: &domain.Product{Name: "Widget assembly"}}, "no_match"},
 		{"3D printer as a machine", FamilyCase{US: true, Family: "motors_pumps_compressors", Product: &domain.Product{Name: "3D printer"}}, "guard"},
-		{"3D printer as a lifting machine", FamilyCase{US: true, Family: "lifting_handling_machines", Product: &domain.Product{Name: "Dental 3D printer"}}, "guard"},
-		{"jack stand as a lifting machine", FamilyCase{US: true, Family: "lifting_handling_machines", Product: &domain.Product{Name: "Automotive jack stands"}}, "guard"},
+		{"3D printer as a lifting machine", FamilyCase{US: true, Family: "offroad_vehicles_machinery", Product: &domain.Product{Name: "Dental 3D printer"}}, "guard"},
+		{"jack stand as a lifting machine", FamilyCase{US: true, Family: "offroad_vehicles_machinery", Product: &domain.Product{Name: "Automotive jack stands"}}, "guard"},
+		{"riflescope lens as a display module", FamilyCase{US: true, Family: "display_camera_modules", Product: &domain.Product{Name: "Riflescope lens"}}, "guard"},
 		{"flashlight as an instrument", FamilyCase{US: true, Family: "optical_precision_instruments", Product: &domain.Product{Name: "LED flashlight"}}, "guard"},
 		{"fibre cable as an instrument", FamilyCase{US: true, Family: "optical_precision_instruments", Product: &domain.Product{Name: "Fiber optic cable assemblies"}}, "guard"},
 		{"smart glasses as optics", FamilyCase{US: true, Family: "optical_precision_instruments", Product: &domain.Product{Name: "Smart glasses"}}, "guard"},
