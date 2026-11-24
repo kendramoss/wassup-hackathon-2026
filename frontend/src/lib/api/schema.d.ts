@@ -244,7 +244,7 @@ export interface paths {
         get?: never;
         /**
          * Save the facts the requester supplies to the case's EU or UK origin check and re-run it; no model call (D800-D802)
-         * @description #770. Replaces every fact saved for that market's check with the body (an empty body clears them). The facts are check inputs only: they are stored beside the case's product, attributed `source` "user-supplied" with `updated_at`, and the case's facts and product are never changed. Each fact must answer something the committed rules ask: an `answers` key a rule reads, a `row` of the list, a part that exists (named as it stands, so a later parts change leaves the fact unread rather than misapplied), a code that fills a missing part code or lengthens the part's own, an origin only for a part without one, and shares from 0 to 1 that add up to no more than 1 (400 otherwise). Answers with the market's check re-run on the case's product with the saved facts. A pinned demo is read-only (403). Records an `origin_facts` event. Rate class basic.
+         * @description #770. Replaces every fact saved for that market's check with the body (an empty body clears them). The facts are check inputs only: they are stored beside the case's product, attributed `source` "user-supplied" with `updated_at`, and the case's facts and product are never changed. Each fact must answer something the committed rules ask: an `answers` key a rule reads, a `row` of the list, a part that exists (named as it stands, so a later parts change leaves the fact unread and named rather than misapplied or refused; a BOM update after saving marks the whole set stale), a code that fills a missing part code or lengthens the part's own, an origin only for a part without one, and shares from 0 to 1 that add up to no more than 1 (400 otherwise). Answers with the market's check re-run on the case's product with the saved facts. A pinned demo is read-only (403). Records an `origin_facts` event. Rate class basic.
          */
         put: operations["putOriginFacts"];
         post?: never;
@@ -1726,8 +1726,12 @@ export interface components {
             result: components["schemas"]["OriginRulesResult"];
             /** @description The supplied facts read into the check, when any were sent */
             supplied?: components["schemas"]["SuppliedOriginFacts"];
-            /** @description Parts (0-based) whose supplied facts were not read because the part at that position changed */
+            /** @description Parts (0-based) whose supplied facts were not read because the part is gone or changed (name, code, or it now has a code or origin the fact no longer fits) */
             stale_supplied?: number[];
+            /** @description Other supplied facts not read because they no longer fit: good_hts, row, or answers.<key> */
+            supplied_dropped?: string[];
+            /** @description None of the supplied facts was read: they were saved before the parts list was replaced (D806) */
+            supplied_stale?: boolean;
         };
         OriginRulesResult: {
             /**
@@ -1818,6 +1822,8 @@ export interface components {
                 [key: string]: boolean;
             };
             materials?: components["schemas"]["SuppliedMaterial"][];
+            /** @description Set on read, never stored: the parts list was replaced after these were saved, so none is read (D806) */
+            stale?: boolean;
         };
         /** @description Supplied facts by market (eu, uk) */
         OriginFactsByMarket: {
@@ -1825,6 +1831,8 @@ export interface components {
         };
         /** @description Every fact supplied to one market's check; replaces what was saved. Empty clears. */
         OriginFactsRequest: {
+            /** @description The updated_at of this market's saved answers as last read ("" when none were saved). If they changed since, nothing is saved: 409 (D806). */
+            expected_updated_at?: string;
             /** @example 8473.30 */
             good_hts?: string;
             /** @example 8473x */
@@ -3624,7 +3632,9 @@ export interface operations {
             401: components["responses"]["Error"];
             403: components["responses"]["Error"];
             404: components["responses"]["Error"];
+            409: components["responses"]["Error"];
             429: components["responses"]["TooManyRequests"];
+            503: components["responses"]["Error"];
         };
     };
     getEvidenceReport: {

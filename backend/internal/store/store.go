@@ -344,6 +344,7 @@ func ListOwner(ctx context.Context, cs Cases, owner string, n int) ([]Case, erro
 	var out []Case
 	for _, c := range all {
 		if c.Owner == owner {
+			c.OriginFacts = domain.CloneOriginFacts(c.OriginFacts)
 			out = append(out, c)
 		}
 	}
@@ -409,6 +410,7 @@ func (m *Memory) List(_ context.Context) ([]Case, error) {
 	defer m.mu.RUnlock()
 	out := make([]Case, 0, len(m.cases))
 	for _, c := range m.cases {
+		c.OriginFacts = domain.CloneOriginFacts(c.OriginFacts)
 		out = append(out, c)
 	}
 	sortNewest(out)
@@ -424,6 +426,7 @@ func (m *Memory) ListOwner(_ context.Context, owner string, n int) ([]Case, erro
 	var out []Case
 	for _, c := range m.cases {
 		if c.Owner == owner {
+			c.OriginFacts = domain.CloneOriginFacts(c.OriginFacts)
 			out = append(out, c)
 		}
 	}
@@ -451,6 +454,7 @@ func (m *Memory) Get(_ context.Context, id string) (Case, error) {
 	if !ok {
 		return Case{}, ErrNotFound
 	}
+	c.OriginFacts = domain.CloneOriginFacts(c.OriginFacts)
 	return c, nil
 }
 
@@ -469,10 +473,12 @@ func (m *Memory) Update(_ context.Context, id string, fn func(*Case) error) (Cas
 	c.Scenarios = append([]Scenario(nil), c.Scenarios...)
 	c.Answers = append([]Answer(nil), c.Answers...)
 	c.Exclude = append([]string(nil), c.Exclude...)
+	c.OriginFacts = domain.CloneOriginFacts(c.OriginFacts)
 	if err := fn(&c); err != nil {
 		return Case{}, err
 	}
 	m.cases[id] = c
+	c.OriginFacts = domain.CloneOriginFacts(c.OriginFacts)
 	return c, nil
 }
 

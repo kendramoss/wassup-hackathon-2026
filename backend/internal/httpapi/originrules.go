@@ -81,11 +81,16 @@ type OriginRulesView struct {
 	// Supplied are the facts the requester supplied and that were read into
 	// the check (#770), with where each came from; Stale lists parts whose
 	// supplied facts were not applied because the parts list changed.
-	Supplied       *domain.SuppliedOriginFacts `json:"supplied,omitempty"`
-	Stale          []int                       `json:"stale_supplied,omitempty"`
-	Source         OriginSourceView            `json:"source"`
-	Administration string                      `json:"administration"`
-	Note           string                      `json:"note"`
+	Supplied *domain.SuppliedOriginFacts `json:"supplied,omitempty"`
+	Stale    []int                       `json:"stale_supplied,omitempty"`
+	// Dropped names supplied facts not read because they no longer fit
+	// ("good_hts", "row", "answers.<key>"); StaleAll says none was read
+	// because the parts list was replaced after they were saved (D806).
+	Dropped        []string         `json:"supplied_dropped,omitempty"`
+	StaleAll       bool             `json:"supplied_stale,omitempty"`
+	Source         OriginSourceView `json:"source"`
+	Administration string           `json:"administration"`
+	Note           string           `json:"note"`
 }
 
 type originRulesRequest struct {
@@ -121,7 +126,7 @@ func (a *api) originRules(w http.ResponseWriter, r *http.Request, m originMarket
 		return
 	}
 	if in.Product != nil {
-		v, err := originCheck(m, rules, *in.Product, in.Supplied, in.Input)
+		v, err := originCheck(m, rules, *in.Product, in.Supplied, in.Input, false)
 		if err != nil {
 			a.fail(w, r, err)
 			return
@@ -152,17 +157,21 @@ func originViewOf(m originMarket, rules *nporigin.Rules) OriginRulesView {
 
 // originCheck runs the market's check on a product, read like the case's
 // U.S. rule check, with the supplied facts beside it (D801). The product is
-// not changed. The row, answers and minimal-operations flag of direct, when
-// sent, are read too (a supplied row or answer wins).
-func originCheck(m originMarket, rules *nporigin.Rules, p domain.Product, s *domain.SuppliedOriginFacts, direct nporigin.Input) (OriginRulesView, error) {
-	if s != nil {
+// not changed. strict (saving) refuses facts that do not fit; otherwise
+// (reading) they are left out and named (stale_supplied, supplied_dropped,
+// supplied_stale), so a parts change never breaks the check (D806). The
+// row, answers and minimal-operations flag of direct, when sent, are read
+// too (a supplied row or answer wins).
+func originCheck(m originMarket, rules *nporigin.Rules, p domain.Product, s *domain.SuppliedOriginFacts, direct nporigin.Input, strict bool) (OriginRulesView, error) {
+	if s != nil && strict {
 		if err := rules.ValidateSupplied(p, *s); err != nil {
 			return OriginRulesView{}, fmt.Errorf("%w: supplied: %v", domain.ErrInvalid, err)
 		}
 	}
+	fit, ap := rules.Fit(p, s)
 	v := originViewOf(m, rules)
 	v.Country, v.CountryFrom = productionCountry(p)
-	q, ap := nporigin.FromProduct(p, v.Country, s)
+	q := nporigin.FromProduct(p, v.Country, fit)
 	if q.Row == "" {
 		q.Row = direct.Row
 	}
@@ -180,7 +189,7 @@ func originCheck(m originMarket, rules *nporigin.Rules, p domain.Product, s *dom
 	}
 	v.Result = rules.Evaluate(q)
 	if !s.Empty() {
-		v.Supplied, v.Stale = s, ap.Stale
+		v.Supplied, v.Stale, v.Dropped, v.StaleAll = s, ap.Stale, ap.Dropped, ap.AllStale
 	}
 	return v, nil
 }

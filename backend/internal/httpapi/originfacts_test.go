@@ -245,3 +245,142 @@ func TestOriginFactsPinnedDemoIsReadOnly(t *testing.T) {
 		t.Errorf("pinned demo: %d", code)
 	}
 }
+
+// A parts change never breaks the check (D806): answers for a removed part,
+// a part whose code changed, or a part that now has an origin are left out
+// and named; a good code that no longer lengthens the product's is dropped.
+// The check still answers 200 on every read path.
+func TestOriginFactsStaleAfterPartsChange(t *testing.T) {
+	hs, mem := originHarness(t)
+	trainers := &domain.Product{Name: "Trainers", HTS: "6404.11", Plants: []domain.Plant{{ID: "kh", Country: "Cambodia"}},
+		Components: []domain.Component{{Name: "uppers", HTS: "6406.10", MadeIn: "Vietnam", Plant: "kh"}, {Name: "laces", Plant: "kh"}}}
+	c := seedCase(t, mem, "case_uk_stale", "uk", trainers)
+	if code, out := hs.do(t, "PUT", "/v1/cases/"+c.ID+"/origin-facts/uk",
+		`{"good_hts":"6404.11.10","answers":{"6404.1.c":true},"materials":[{"index":0,"name":"uppers","part_hts":"6406.10","value_share":0.4},{"index":1,"name":"laces","hts":"5609.00","origin":"China","value_share":0.05}]}`); code != 200 {
+		t.Fatalf("save: %d %v", code, out)
+	}
+	saved, _ := mem.Get(context.Background(), c.ID)
+	s := saved.OriginFacts["uk"]
+	for _, tc := range []struct {
+		name    string
+		edit    func(p *domain.Product)
+		stale   []any
+		dropped []any
+	}{
+		{"removed part", func(p *domain.Product) { p.Components = p.Components[:1] }, []any{1.0}, nil},
+		{"changed code", func(p *domain.Product) { p.Components[0].HTS = "6406.90" }, []any{0.0}, nil},
+		{"part now has an origin", func(p *domain.Product) { p.Components[1].MadeIn = "India" }, []any{1.0}, nil},
+		{"product code changed", func(p *domain.Product) { p.HTS = "6404.19" }, nil, []any{"good_hts"}},
+	} {
+		p := *trainers
+		p.Components = append([]domain.Component(nil), trainers.Components...)
+		tc.edit(&p)
+		code, out := hs.do(t, "POST", "/v1/rules/uk-origin", mustJSON(map[string]any{"product": p, "supplied": s}))
+		if code != 200 {
+			t.Fatalf("%s: %d %v", tc.name, code, out)
+		}
+		if !reflect.DeepEqual(asList(out["stale_supplied"]), tc.stale) || !reflect.DeepEqual(asList(out["supplied_dropped"]), tc.dropped) {
+			t.Errorf("%s: stale %v dropped %v", tc.name, out["stale_supplied"], out["supplied_dropped"])
+		}
+		// The same product stored on the case: the report reads it too.
+		cc := saved
+		cc.ID = "case_uk_stale_" + strings.ReplaceAll(tc.name, " ", "_")
+		pp := p
+		cc.Product = &pp
+		if err := mem.Put(context.Background(), cc); err != nil {
+			t.Fatal(err)
+		}
+		code, rep := hs.do(t, "GET", "/v1/cases/"+cc.ID+"/evidence-report", "")
+		if code != 200 || !strings.Contains(rep["markdown"].(string), "no longer fit") {
+			t.Errorf("%s: report %d", tc.name, code)
+		}
+		if code, _ := hs.do(t, "GET", "/v1/cases/"+cc.ID, ""); code != 200 {
+			t.Errorf("%s: case read %d", tc.name, code)
+		}
+	}
+}
+
+// A BOM update after the answers were saved makes the whole set stale: none
+// is read, the case answer and the report say so, and saving again clears it.
+func TestOriginFactsStaleAfterBOMUpdate(t *testing.T) {
+	hs, mem := originHarness(t)
+	c := seedCase(t, mem, "case_uk_bom", "uk", &domain.Product{Name: "Trainers", HTS: "6404.11", Plants: []domain.Plant{{ID: "kh", Country: "Cambodia"}},
+		Components: []domain.Component{{Name: "uppers", HTS: "6406.10", MadeIn: "Vietnam", Plant: "kh"}}})
+	path := "/v1/cases/" + c.ID + "/origin-facts/uk"
+	if code, _ := hs.do(t, "PUT", path, `{"answers":{"6404.1.c":true}}`); code != 200 {
+		t.Fatal(code)
+	}
+	if _, err := mem.Update(context.Background(), c.ID, func(x *store.Case) error {
+		x.Record(store.Event{At: time.Now().UTC().Add(time.Second), Kind: "bom_updated", Summary: "new BOM"})
+		return nil
+	}); err != nil {
+		t.Fatal(err)
+	}
+	_, cv := hs.do(t, "GET", "/v1/cases/"+c.ID, "")
+	uk := cv["origin_facts"].(map[string]any)["uk"].(map[string]any)
+	if uk["stale"] != true {
+		t.Fatalf("case answer: %v", uk)
+	}
+	_, out := hs.do(t, "POST", "/v1/rules/uk-origin", mustJSON(map[string]any{"product": c.Product, "supplied": uk}))
+	if out["supplied_stale"] != true || out["result"].(map[string]any)["status"] != "undetermined" {
+		t.Errorf("stale set was read: %v", out["result"])
+	}
+	_, rep := hs.do(t, "GET", "/v1/cases/"+c.ID+"/evidence-report", "")
+	if md := rep["markdown"].(string); !strings.Contains(md, "Not used: saved before the parts list was replaced") || !strings.Contains(md, "answer again") {
+		t.Errorf("report:\n%s", md)
+	}
+	// The stored record was never marked.
+	got, _ := mem.Get(context.Background(), c.ID)
+	if got.OriginFacts["uk"].Stale {
+		t.Error("stale was stored")
+	}
+	// Saving again (after the update) is fresh.
+	if code, out := hs.do(t, "PUT", path, `{"answers":{"6404.1.c":true}}`); code != 200 || checkOf(t, out)["origin"] != "Cambodia" {
+		t.Errorf("re-answer: %d %v", code, out)
+	}
+}
+
+func TestOriginFactsPreconditionAndRulesOff(t *testing.T) {
+	hs, mem := originHarness(t)
+	c := seedCase(t, mem, "case_eu_pre", "eu", radioProduct())
+	path := "/v1/cases/" + c.ID + "/origin-facts/eu"
+	if code, _ := hs.do(t, "PUT", path, `{"expected_updated_at":"2020-01-01T00:00:00Z","answers":{"ch85.r":false}}`); code != 409 {
+		t.Errorf("stale precondition on an empty set: %d", code)
+	}
+	code, out := hs.do(t, "PUT", path, `{"expected_updated_at":"","answers":{"ch85.r":false}}`)
+	if code != 200 {
+		t.Fatalf("%d %v", code, out)
+	}
+	at := out["origin_facts"].(map[string]any)["eu"].(map[string]any)["updated_at"].(string)
+	if code, _ := hs.do(t, "PUT", path, `{"expected_updated_at":"","answers":{"ch85.r":true}}`); code != 409 {
+		t.Errorf("a second writer from the empty state: %d", code)
+	}
+	if code, _ := hs.do(t, "PUT", path, mustJSON(map[string]any{"expected_updated_at": at, "answers": map[string]bool{"ch85.r": true}})); code != 200 {
+		t.Errorf("matching precondition: %d", code)
+	}
+	off := newHarnessWith(t, "substantial_transformation", func(d *Deps) { d.Cases = mem })
+	code, out = off.do(t, "PUT", path, `{}`)
+	if code != http.StatusServiceUnavailable || !strings.Contains(out["message"].(string), "not loaded") {
+		t.Errorf("rules off: %d %v", code, out)
+	}
+}
+
+// Saving answers while reports are read: run with -race.
+func TestOriginFactsConcurrentPutAndReport(t *testing.T) {
+	hs, mem := originHarness(t)
+	c := seedCase(t, mem, "case_eu_race", "eu", radioProduct())
+	done := make(chan struct{})
+	go func() {
+		defer close(done)
+		for i := 0; i < 20; i++ {
+			hs.do(t, "PUT", "/v1/cases/"+c.ID+"/origin-facts/eu", mustJSON(map[string]any{"answers": map[string]bool{"ch85.r": i%2 == 0}}))
+		}
+	}()
+	for i := 0; i < 20; i++ {
+		if code, _ := hs.do(t, "GET", "/v1/cases/"+c.ID+"/evidence-report", ""); code != 200 {
+			t.Errorf("report %d", code)
+		}
+		hs.do(t, "GET", "/v1/cases/"+c.ID, "")
+	}
+	<-done
+}

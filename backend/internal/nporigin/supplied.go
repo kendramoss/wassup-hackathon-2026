@@ -2,32 +2,123 @@ package nporigin
 
 import (
 	"fmt"
+	"sort"
 	"strings"
 
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/domain"
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/tariffshift"
 )
 
-// Applied says how supplied facts were read into an Input.
+// Applied says how supplied facts were read into an Input. Facts that no
+// longer fit the product or the rules are left out and named here, never
+// an error: a parts change must not break the check (D806).
 type Applied struct {
-	// Stale lists the supplied materials not applied because the part at
-	// that position is no longer the one they were given for.
+	// Stale lists the supplied materials not read because the part at that
+	// position is gone or changed (its name, its code, or it now has a code
+	// or an origin the fact no longer fits).
 	Stale []int `json:"stale,omitempty"`
+	// Dropped names the other facts not read: "good_hts" (it no longer
+	// lengthens the product's code), "row", or "answers.<key>".
+	Dropped []string `json:"dropped,omitempty"`
+	// AllStale: the whole set was saved before the parts list was replaced.
+	AllStale bool `json:"all_stale,omitempty"`
+}
+
+// Fit keeps the supplied facts that still fit the product and these rules,
+// and says what it left out. It never fails.
+func (r *Rules) Fit(p domain.Product, s *domain.SuppliedOriginFacts) (*domain.SuppliedOriginFacts, Applied) {
+	var ap Applied
+	if s == nil {
+		return nil, ap
+	}
+	if s.Stale {
+		ap.AllStale = true
+		return nil, ap
+	}
+	out := &domain.SuppliedOriginFacts{Source: s.Source, UpdatedAt: s.UpdatedAt, Actor: s.Actor}
+	if s.GoodHTS != "" {
+		if extends(p.HTS, s.GoodHTS) {
+			out.GoodHTS = s.GoodHTS
+		} else {
+			ap.Dropped = append(ap.Dropped, "good_hts")
+		}
+	}
+	if s.Row != "" {
+		if r.ValidRow(s.Row) {
+			out.Row = s.Row
+		} else {
+			ap.Dropped = append(ap.Dropped, "row")
+		}
+	}
+	for _, k := range sortedBoolKeys(s.Answers) {
+		if !r.ValidAnswer(k) {
+			ap.Dropped = append(ap.Dropped, "answers."+k)
+			continue
+		}
+		if out.Answers == nil {
+			out.Answers = map[string]bool{}
+		}
+		out.Answers[k] = s.Answers[k]
+	}
+	seen := map[int]bool{}
+	for _, m := range s.Materials {
+		if !materialFits(p, m) || seen[m.Index] {
+			ap.Stale = append(ap.Stale, m.Index)
+			continue
+		}
+		seen[m.Index] = true
+		out.Materials = append(out.Materials, m)
+	}
+	return out, ap
+}
+
+// materialFits: the part is still there as it was, and each fact still
+// fills or lengthens what the part lacks.
+func materialFits(p domain.Product, m domain.SuppliedMaterial) bool {
+	if m.Index < 0 || m.Index >= len(p.Components) {
+		return false
+	}
+	c := p.Components[m.Index]
+	if strings.TrimSpace(c.Name) != strings.TrimSpace(m.Name) || tariffshift.Digits(c.HTS) != tariffshift.Digits(m.PartHTS) {
+		return false
+	}
+	if m.HTS != "" {
+		if d := tariffshift.Digits(m.HTS); len(d) < 4 || len(d) > 10 || (strings.TrimSpace(c.HTS) != "" && !extends(c.HTS, m.HTS)) {
+			return false
+		}
+	}
+	if m.Origin != "" && strings.TrimSpace(c.MadeIn) != "" {
+		return false
+	}
+	for _, v := range []*float64{m.ValueShare, m.WeightShare} {
+		if v != nil && (*v < 0 || *v > 1 || *v != *v) {
+			return false
+		}
+	}
+	return true
+}
+
+func sortedBoolKeys(m map[string]bool) []string {
+	out := make([]string, 0, len(m))
+	for k := range m {
+		out = append(out, k)
+	}
+	sort.Strings(out)
+	return out
 }
 
 // FromProduct reads a case's product into an Input the way the case's U.S.
 // rule check does (its code, its parts' codes and origins, country the
-// production country), then adds the supplied facts (#770, D801). The
-// product is not changed. A supplied code only fills a missing code or
-// lengthens the product's own; a supplied origin only fills a missing one.
-func FromProduct(p domain.Product, country string, s *domain.SuppliedOriginFacts) (Input, Applied) {
+// production country), then adds the supplied facts (#770, D801). Pass facts
+// through Rules.Fit first; a material that does not fit is skipped here too.
+// The product is not changed.
+func FromProduct(p domain.Product, country string, s *domain.SuppliedOriginFacts) Input {
 	in := Input{GoodHTS: p.HTS, Country: country}
 	for _, c := range p.Components {
 		in.Materials = append(in.Materials, Material{Name: c.Name, HTS: c.HTS, Origin: c.MadeIn})
 	}
-	var ap Applied
 	if s == nil {
-		return in, ap
+		return in
 	}
 	if extends(p.HTS, s.GoodHTS) {
 		in.GoodHTS = s.GoodHTS
@@ -40,17 +131,12 @@ func FromProduct(p domain.Product, country string, s *domain.SuppliedOriginFacts
 		}
 	}
 	for _, m := range s.Materials {
-		if m.Index < 0 || m.Index >= len(p.Components) {
-			ap.Stale = append(ap.Stale, m.Index)
+		if !materialFits(p, m) {
 			continue
 		}
 		c := p.Components[m.Index]
-		if strings.TrimSpace(c.Name) != strings.TrimSpace(m.Name) || tariffshift.Digits(c.HTS) != tariffshift.Digits(m.PartHTS) {
-			ap.Stale = append(ap.Stale, m.Index)
-			continue
-		}
 		t := &in.Materials[m.Index]
-		if m.HTS != "" && (strings.TrimSpace(c.HTS) == "" || extends(c.HTS, m.HTS)) {
+		if m.HTS != "" {
 			t.HTS = m.HTS
 		}
 		if m.Origin != "" && strings.TrimSpace(c.MadeIn) == "" {
@@ -58,7 +144,7 @@ func FromProduct(p domain.Product, country string, s *domain.SuppliedOriginFacts
 		}
 		t.ValueShare, t.WeightShare = m.ValueShare, m.WeightShare
 	}
-	return in, ap
+	return in
 }
 
 // extends: code is longer than base and starts with it, digit for digit.
@@ -92,6 +178,11 @@ func (r *Rules) ValidateSupplied(p domain.Product, s domain.SuppliedOriginFacts)
 			return fmt.Errorf("materials[%d].index %d is given twice", i, m.Index)
 		}
 		seen[m.Index] = true
+		for _, v := range []*float64{m.ValueShare, m.WeightShare} {
+			if v != nil && (*v < 0 || *v > 1 || *v != *v) {
+				return fmt.Errorf("materials[%d]: shares must be from 0 to 1", i)
+			}
+		}
 		c := p.Components[m.Index]
 		if m.HTS != "" {
 			d := tariffshift.Digits(m.HTS)

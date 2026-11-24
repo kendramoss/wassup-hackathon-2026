@@ -27,6 +27,10 @@ type SuppliedOriginFacts struct {
 	Answers map[string]bool `json:"answers,omitempty"`
 	// Materials add to the product's parts, by position.
 	Materials []SuppliedMaterial `json:"materials,omitempty"`
+	// Stale is set on read, never stored: the parts list was replaced (a
+	// BOM update) after these facts were saved, so none of them is read and
+	// they are asked again (D806).
+	Stale bool `json:"stale,omitempty"`
 }
 
 // SuppliedMaterial adds facts to one part of the product. Name and PartHTS
@@ -43,6 +47,45 @@ type SuppliedMaterial struct {
 	Origin      string   `json:"origin,omitempty"`
 	ValueShare  *float64 `json:"value_share,omitempty"`
 	WeightShare *float64 `json:"weight_share,omitempty"`
+}
+
+// Clone copies s deeply, so a read-time flag or a handler's change cannot
+// write through a stored value.
+func (s *SuppliedOriginFacts) Clone() *SuppliedOriginFacts {
+	if s == nil {
+		return nil
+	}
+	c := *s
+	if s.Answers != nil {
+		c.Answers = make(map[string]bool, len(s.Answers))
+		for k, v := range s.Answers {
+			c.Answers[k] = v
+		}
+	}
+	c.Materials = append([]SuppliedMaterial(nil), s.Materials...)
+	for i, m := range c.Materials {
+		if m.ValueShare != nil {
+			v := *m.ValueShare
+			c.Materials[i].ValueShare = &v
+		}
+		if m.WeightShare != nil {
+			v := *m.WeightShare
+			c.Materials[i].WeightShare = &v
+		}
+	}
+	return &c
+}
+
+// CloneOriginFacts copies a by-market map deeply; nil stays nil.
+func CloneOriginFacts(m map[string]*SuppliedOriginFacts) map[string]*SuppliedOriginFacts {
+	if m == nil {
+		return nil
+	}
+	out := make(map[string]*SuppliedOriginFacts, len(m))
+	for k, v := range m {
+		out[k] = v.Clone()
+	}
+	return out
 }
 
 // Empty reports whether nothing was supplied.

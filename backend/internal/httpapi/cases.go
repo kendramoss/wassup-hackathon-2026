@@ -325,7 +325,7 @@ func (a *api) errorFor(r *http.Request, err error) (int, string, string) {
 		return http.StatusForbidden, "forbidden", forbiddenMessage
 	case errors.Is(err, errAuditUnavailable):
 		return http.StatusServiceUnavailable, "audit_unavailable", "the audit trail is unavailable, so this change was not made; try again"
-	case errors.Is(err, errSuperseded), errors.Is(err, errIdempotencyReuse):
+	case errors.Is(err, errSuperseded), errors.Is(err, errIdempotencyReuse), errors.Is(err, errOriginFactsChanged):
 		return http.StatusConflict, "conflict", err.Error()
 	case errors.Is(err, store.ErrNotFound), errors.Is(err, cross.ErrNotFound), errors.Is(err, apikey.ErrNotFound):
 		return http.StatusNotFound, "not_found", err.Error()
@@ -771,7 +771,7 @@ func (a *api) caseFieldsBase(r *http.Request, c store.Case) map[string]any {
 	}
 	// Facts supplied to the EU or UK check (D801), only when there are some.
 	if len(c.OriginFacts) > 0 {
-		f["origin_facts"] = c.OriginFacts
+		f["origin_facts"] = originFactsOf(c)
 	}
 	// CBP changes to rulings the case relies on (D480), present only when
 	// there is one. Information only: the stored answer is unchanged.

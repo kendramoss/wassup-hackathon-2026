@@ -197,7 +197,7 @@ func Markdown(r Report) string {
 					line += ", " + v
 				}
 				if s.URL != "" {
-					line += " (" + s.URL + ")"
+					line += " (" + strings.NewReplacer(" ", "%20", "(", "%28", ")", "%29", "<", "%3C", ">", "%3E").Replace(s.URL) + ")"
 				}
 				fmt.Fprintf(&b, "- %s\n", line)
 			}
@@ -219,9 +219,13 @@ func Markdown(r Report) string {
 	b.WriteString("## Case facts as stored\n\n")
 	fmt.Fprintf(&b, "- Market: %s\n- Case date: %s\n\n", r.Case.Market, r.Case.Date)
 	if strings.TrimSpace(r.Case.Facts) != "" {
-		b.WriteString("Facts text:\n\n```text\n")
-		b.WriteString(strings.ReplaceAll(strings.TrimRight(r.Case.Facts, "\n"), "```", "'''"))
-		b.WriteString("\n```\n\n")
+		f := fence(r.Case.Facts)
+		b.WriteString("Facts text, exactly as stored:\n\n" + f + "text\n")
+		b.WriteString(strings.TrimSuffix(r.Case.Facts, "\n"))
+		b.WriteString("\n" + f + "\n\n")
+	}
+	if r.Case.Product != nil {
+		b.WriteString("Product fields are shown one line each, with Markdown and HTML characters escaped.\n\n")
 	}
 	if p := r.Case.Product; p != nil {
 		fmt.Fprintf(&b, "Product: %s", md(p.Name))
@@ -267,7 +271,10 @@ func Markdown(r Report) string {
 			if s == nil {
 				continue
 			}
-			fmt.Fprintf(&b, "### %s check\n\n- Source: %s\n- Saved: %s\n", strings.ToUpper(m), s.Source, stamp(s.UpdatedAt))
+			fmt.Fprintf(&b, "### %s check\n\n- Source: %s\n- Saved: %s\n", strings.ToUpper(m), md(s.Source), stamp(s.UpdatedAt))
+			if s.Stale {
+				b.WriteString("- Not used: saved before the parts list was replaced; to be answered again\n")
+			}
 			if s.GoodHTS != "" {
 				fmt.Fprintf(&b, "- Good's code: %s\n", md(s.GoodHTS))
 			}
@@ -323,9 +330,43 @@ func pct(v float64) string {
 }
 
 // md keeps a value on one line, so a newline in a stored value cannot start
-// a new heading or list item.
+// a new heading or list item, and escapes it: HTML's &, < and > become
+// entities, and Markdown's specials are backslash-escaped, so stored text
+// (a part named "**x**" or "[x](javascript:...)") is shown, never rendered.
 func md(s string) string {
-	return strings.Join(strings.Fields(s), " ")
+	s = strings.Join(strings.Fields(s), " ")
+	var b strings.Builder
+	for _, r := range s {
+		switch r {
+		case '&':
+			b.WriteString("&amp;")
+		case '<':
+			b.WriteString("&lt;")
+		case '>':
+			b.WriteString("&gt;")
+		case '\\', '`', '*', '_', '[', ']', '(', ')', '#', '|', '!', '~':
+			b.WriteByte('\\')
+			b.WriteRune(r)
+		default:
+			b.WriteRune(r)
+		}
+	}
+	return b.String()
+}
+
+// fence returns a code fence longer than any backtick run in s, so the text
+// inside stays byte for byte and cannot close the block.
+func fence(s string) string {
+	longest, run := 0, 0
+	for _, r := range s {
+		if r == '`' {
+			run++
+			longest = max(longest, run)
+		} else {
+			run = 0
+		}
+	}
+	return strings.Repeat("`", max(3, longest+1))
 }
 
 // cell keeps a value inside one table cell.
@@ -334,5 +375,5 @@ func cell(s string) string {
 	if s == "" {
 		return "—"
 	}
-	return strings.ReplaceAll(s, "|", "\\|")
+	return s
 }

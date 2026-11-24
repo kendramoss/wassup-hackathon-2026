@@ -30,7 +30,7 @@ func EvidenceFor(n Need) string {
 	switch n.Key {
 	case "good_code":
 		return "The HS code on the commercial invoice or the good's classification"
-	case "material_hts":
+	case "material_hts", "material_code":
 		return "The HS code on the supplier's invoice or the supplier's declaration"
 	case "material_origin":
 		return "The supplier's declaration or certificate of origin"

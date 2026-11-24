@@ -46,16 +46,17 @@ func (a *api) buildEvidenceReport(c store.Case, now time.Time) evreport.Report {
 		CaseID: c.ID, Name: c.DisplayName, GeneratedAt: now, Separate: evreport.Separate, NotARuling: evreport.NotARuling,
 		Case: evreport.CaseFacts{Date: c.Date, Market: c.Jurisdiction.MarketCode(), Facts: c.Facts, Product: c.Product, Created: c.CreatedAt, Updated: c.UpdatedAt},
 	}
-	if len(c.OriginFacts) > 0 {
-		rep.Supplied = c.OriginFacts
+	supplied := originFactsOf(c)
+	if len(supplied) > 0 {
+		rep.Supplied = supplied
 	}
 	rep.Checks = append(rep.Checks, a.usOriginCheck(c), a.part102Check(c, now))
 	if a.d.CanadaMarking != nil {
 		rep.Checks = append(rep.Checks, a.canadaCheck(c, now))
 	}
 	for _, code := range []string{jurisdiction.EU, jurisdiction.UK} {
-		if m, rules, ok := a.originMarketOf(code); ok {
-			rep.Checks = append(rep.Checks, originReportCheck(c, m, rules, now))
+		if m, rules, _, ok := a.originMarketOf(code); ok {
+			rep.Checks = append(rep.Checks, originReportCheck(c, supplied[code], m, rules, now))
 		}
 	}
 	rep.Checks = append(rep.Checks, rcepReportCheck(c, now), usmcaReportCheck(c, now))
@@ -151,7 +152,11 @@ func (a *api) part102Check(c store.Case, now time.Time) evreport.Check {
 		ch.Status, ch.Outcome = evreport.NotRun, "Needs HS codes"
 		return ch
 	}
-	tariffshiftInto(&ch, v.Result, nil)
+	var g *tariffshift.Guidance
+	if v.Result.Status == tariffshift.Undetermined {
+		g = tariffshift.Guide(a.d.RuleCheck, tariffshiftInput(*c.Product), v.Result)
+	}
+	tariffshiftInto(&ch, v.Result, g)
 	ch.Limitations = []string{"Applies the tariff-shift rule only; it does not change the U.S. answer or what is auto-accepted.", "Reads the codes as given; it does not classify the goods."}
 	return ch
 }
@@ -170,11 +175,7 @@ func (a *api) canadaCheck(c store.Case, now time.Time) evreport.Check {
 		ch.Status, ch.Outcome, ch.Missing = evreport.NotRun, "Needs HS codes", []evreport.Missing{addCodes}
 		return ch
 	}
-	country, _ := productionCountry(*c.Product)
-	in := tariffshift.Input{GoodHTS: c.Product.HTS, Country: country}
-	for _, comp := range c.Product.Components {
-		in.Materials = append(in.Materials, tariffshift.Material{Name: comp.Name, HTS: comp.HTS, Origin: comp.MadeIn})
-	}
+	in := tariffshiftInput(*c.Product)
 	res := a.d.CanadaMarking.Evaluate(in)
 	var g *tariffshift.Guidance
 	if res.Status == tariffshift.Undetermined {
@@ -182,6 +183,16 @@ func (a *api) canadaCheck(c store.Case, now time.Time) evreport.Check {
 	}
 	tariffshiftInto(&ch, res, g)
 	return ch
+}
+
+// tariffshiftInput reads the product like the case's U.S. rule check.
+func tariffshiftInput(p domain.Product) tariffshift.Input {
+	country, _ := productionCountry(p)
+	in := tariffshift.Input{GoodHTS: p.HTS, Country: country}
+	for _, comp := range p.Components {
+		in.Materials = append(in.Materials, tariffshift.Material{Name: comp.Name, HTS: comp.HTS, Origin: comp.MadeIn})
+	}
+	return in
 }
 
 // tariffshiftInto reads a tariff-shift result, and its guidance when there
@@ -227,7 +238,7 @@ func sentenceOf(s string) string {
 
 // originReportCheck is the EU or UK non-preferential origin check on the
 // product, with the facts the requester supplied to it (D801).
-func originReportCheck(c store.Case, m originMarket, rules *nporigin.Rules, now time.Time) evreport.Check {
+func originReportCheck(c store.Case, s *domain.SuppliedOriginFacts, m originMarket, rules *nporigin.Rules, now time.Time) evreport.Check {
 	ch := evreport.Check{ID: m.code + "_origin", Method: "rules", Label: OriginLabel(m.code), Review: true, At: now}
 	switch m.code {
 	case jurisdiction.EU:
@@ -245,21 +256,19 @@ func originReportCheck(c store.Case, m originMarket, rules *nporigin.Rules, now 
 		ch.Status, ch.Outcome, ch.Missing = evreport.NotRun, "Needs HS codes", []evreport.Missing{addCodes}
 		return ch
 	}
-	s := c.OriginFacts[m.code]
-	got, err := originCheck(m, rules, *c.Product, s, nporigin.Input{})
+	// Read leniently: answers that no longer fit are left out and said so,
+	// never an error (D806).
+	got, err := originCheck(m, rules, *c.Product, s, nporigin.Input{}, false)
 	if err != nil {
-		// Supplied facts that no longer fit the product (a parts change):
-		// the check runs on the product alone and says so.
-		got, err = originCheck(m, rules, *c.Product, nil, nporigin.Input{})
-		ch.Limitations = append(ch.Limitations, "The facts supplied earlier no longer fit the parts list and were not read.")
-		if err != nil {
-			ch.Status, ch.Outcome, ch.Reason = evreport.NotRun, "The product's codes could not be read", err.Error()
-			return ch
-		}
+		ch.Status, ch.Outcome, ch.Reason = evreport.NotRun, "The product's codes could not be read", err.Error()
+		return ch
 	}
-	ch.UsesSupplied = got.Supplied != nil
-	if len(got.Stale) > 0 {
-		ch.Limitations = append(ch.Limitations, "Some supplied part facts were not read because the parts list changed.")
+	ch.UsesSupplied = got.Supplied != nil && !got.StaleAll
+	switch {
+	case got.StaleAll:
+		ch.Limitations = append(ch.Limitations, "Answers given before the parts list was replaced were not used; answer again.")
+	case len(got.Stale) > 0 || len(got.Dropped) > 0:
+		ch.Limitations = append(ch.Limitations, "Some answers no longer fit the parts list or the product code and were not used.")
 	}
 	res := got.Result
 	ch.Reason = sentenceOf(res.Reason)
@@ -370,7 +379,7 @@ func rcepReportCheck(c store.Case, now time.Time) evreport.Check {
 			{Label: "The parts' values and the good's FOB value", Evidence: "The supplier's bill of materials with values, and the good's FOB price"},
 		}
 		for _, f := range res.Failing {
-			ch.Missing = append(ch.Missing, evreport.Missing{Label: strings.TrimSpace(f.Name + ": " + f.Reason)})
+			ch.Missing = append(ch.Missing, evreport.Missing{Label: strings.TrimSpace(f.Name + ": " + f.Reason), Evidence: "The part's HS code on the supplier's invoice, and the supplier's declaration or RCEP certificate of origin"})
 		}
 	}
 	return ch
@@ -429,8 +438,27 @@ func usmcaReportCheck(c store.Case, now time.Time) evreport.Check {
 	default:
 		ch.Status, ch.Outcome = evreport.NeedsInformation, "Not decided"
 		for _, m := range out.MissingFacts {
-			ch.Missing = append(ch.Missing, evreport.Missing{Label: m.Message})
+			ch.Missing = append(ch.Missing, evreport.Missing{Label: m.Message, Evidence: usmcaEvidence(m)})
 		}
 	}
 	return ch
+}
+
+// usmcaEvidence names the document that settles a USMCA missing fact.
+func usmcaEvidence(m usmca.MissingFact) string {
+	switch {
+	case strings.HasSuffix(m.Field, ".originating"):
+		return "The supplier's USMCA certification of origin for the material, or a supplier declaration"
+	case strings.HasSuffix(m.Field, ".hs"), m.Field == "good_hs":
+		return nporigin.EvidenceFor(nporigin.Need{Kind: nporigin.NeedCode, Key: "material_hts"})
+	case m.Field == "materials" || m.Field == "profile.materials_list_complete":
+		return "The complete bill of materials, each line with its HS code and origin"
+	case strings.HasPrefix(m.Field, "profile."):
+		return "The producer's statement on how the good is made and what it includes"
+	case m.Field == "vnm":
+		return "The supplier's bill of materials with the value of each non-originating material"
+	case m.Field == "rvc_method", m.Field == "transaction_value", m.Field == "net_cost":
+		return "The producer's transaction value or net cost from its accounts"
+	}
+	return ""
 }
