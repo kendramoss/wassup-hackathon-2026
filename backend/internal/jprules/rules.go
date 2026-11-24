@@ -42,6 +42,40 @@ type note struct {
 	Key   string `json:"key"`
 	Text  string `json:"text"`
 	Page  int    `json:"page"`
+	// Applies narrows a scope note to codes inside these [start, end] digit
+	// prefix ranges (2 to 6 digits, both ends of equal length). Empty means
+	// the whole chapter or section named by Scope and Key.
+	Applies [][2]string `json:"applies,omitempty"`
+}
+
+// validateApplies rejects a malformed applicability range at load time.
+func validateApplies(ranges [][2]string) error {
+	for _, r := range ranges {
+		if len(r[0]) < 2 || len(r[0]) > 6 || len(r[0]) != len(r[1]) || r[0] > r[1] {
+			return fmt.Errorf("bad note applicability %v", r)
+		}
+		for _, c := range r[0] + r[1] {
+			if c < '0' || c > '9' {
+				return fmt.Errorf("bad note applicability %v", r)
+			}
+		}
+	}
+	return nil
+}
+
+// appliesTo reports whether a code (digits only) lies in the note's ranges. A
+// code shorter than a range is included when it could contain codes in it.
+func (n note) appliesTo(hs string) bool {
+	if len(n.Applies) == 0 {
+		return true
+	}
+	for _, r := range n.Applies {
+		w := min(len(hs), len(r[0]))
+		if r[0][:w] <= hs[:w] && hs[:w] <= r[1][:w] {
+			return true
+		}
+	}
+	return false
 }
 
 type schedule struct {
@@ -79,6 +113,11 @@ var parseDefault = sync.OnceValues(func() (*Table, error) {
 	}
 	t := &Table{schedules: make(map[string][]schedule), rcep: rcep.Default()}
 	for _, s := range sources {
+		for _, n := range s.Notes {
+			if err := validateApplies(n.Applies); err != nil {
+				return nil, fmt.Errorf("japan PSR schedules: %s: %w", s.Agreement, err)
+			}
+		}
 		t.schedules[s.Agreement] = append(t.schedules[s.Agreement], s)
 	}
 	g, err := parseGeneral(generalJSON, t.schedules)
@@ -340,8 +379,8 @@ func (s schedule) notesFor(hs string) []Evidence {
 	var out []Evidence
 	for _, n := range s.Notes {
 		section := sections[n.Key]
-		if n.Scope == "chapter" && n.Key == hs[:2] ||
-			n.Scope == "section" && chapter >= section[0] && chapter <= section[1] {
+		if (n.Scope == "chapter" && n.Key == hs[:2] ||
+			n.Scope == "section" && chapter >= section[0] && chapter <= section[1]) && n.appliesTo(hs) {
 			out = append(out, s.evidence(n.Text, n.Page))
 		}
 	}
