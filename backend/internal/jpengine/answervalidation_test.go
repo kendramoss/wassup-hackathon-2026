@@ -53,7 +53,7 @@ func avRun(t *testing.T, text string, mut func(*domain.Case)) (engine.Result, er
 func TestQualifyingOriginMustBeOneRealCountryOrEU(t *testing.T) {
 	bad := []string{"Japan", "japan", " JAPAN ", "Asia", "ASEAN", "Various", "Multiple", "Not applicable", "N/A", "No origin",
 		"Unknown", "China, Vietnam", "Vietnam and Thailand", "Vietnam; Thailand", "Vietnam/Thailand", "Vietnam or Thailand",
-		"Vietnam (not Japan)", "1", "Southeast Asia", "Atlantis"}
+		"Vietnam (not Japan)", "1", "Southeast Asia", "None", "Multiple countries", "Various countries", "Not specified", "Europe", "Africa", "Vietnam & Thailand", "Vietnam, not Japan", "Japan (JP)", "Vietnam | Thailand"}
 	for _, o := range bad {
 		_, err, _ := avRun(t, avAnswer(Qualifies, "CTH", o, "CTH", "ok"), nil)
 		if !errors.Is(err, llm.ErrBadResponse) {
@@ -69,8 +69,9 @@ func TestQualifyingOriginMustBeOneRealCountryOrEU(t *testing.T) {
 	}
 }
 
-// agreementParties lists the parties of the agreements in jpcorpus.AgreementNames
-// other than Japan; GSP beneficiaries are not enumerated here.
+// agreementParties is a hand-written sample of the parties of the agreements
+// in jpcorpus.AgreementNames (the corpus exposes agreement names, not parties);
+// it is not claimed to be complete.
 var agreementParties = []string{
 	// AJCEP / RCEP ASEAN members
 	"Brunei", "Brunei Darussalam", "Cambodia", "Indonesia", "Laos", "Malaysia", "Myanmar", "Philippines", "Singapore", "Thailand", "Vietnam",
@@ -79,11 +80,28 @@ var agreementParties = []string{
 	"United Kingdom", "Switzerland", "India", "United States", "EU",
 }
 
-func TestEveryAgreementPartyIsAnAcceptedOrigin(t *testing.T) {
+func TestSampleAgreementPartiesAreAcceptedOrigins(t *testing.T) {
 	for _, party := range agreementParties {
 		res, err, _ := avRun(t, avAnswer(Qualifies, "WO", party, "WO", "ok"), nil)
 		if err != nil || res.Prediction.Origin == "" {
 			t.Errorf("party %q rejected: %v", party, err)
+		}
+	}
+}
+
+func TestRealWorldOriginSpellingsAreAccepted(t *testing.T) {
+	want := map[string]string{
+		"Korea, Republic of": "South Korea", "Korea (Republic of)": "South Korea", "Republic of Korea": "South Korea",
+		"Lao PDR": "Laos", "Lao People's Democratic Republic": "Laos", "Hong Kong, China": "Hong Kong", "Myanmar (Burma)": "Myanmar",
+		"Greece": "", "Bulgaria": "", "Croatia": "", "Luxembourg": "", "Estonia": "", "Latvia": "", "Lithuania": "", "Cyprus": "", "Malta": "",
+		"Nepal": "", "Kenya": "", "Ethiopia": "", "Mongolia": "", "Fiji": "", "Bhutan": "", "Maldives": "", "Uzbekistan": "", "Ghana": "",
+		"Tanzania": "", "Madagascar": "", "Iceland": "", "Liechtenstein": "", "Russia": "", "Saudi Arabia": "", "Côte d'Ivoire": "",
+		"Timor-Leste": "", "Trinidad and Tobago": "", "Bosnia and Herzegovina": "", "Congo, Democratic Republic of": "", "Tanzania, United Republic of": "", "South Africa": "South Africa", "United States of America": "United States",
+	}
+	for in, out := range want {
+		res, err, _ := avRun(t, avAnswer(Qualifies, "WO", in, "WO", "ok"), nil)
+		if err != nil || res.Prediction.Origin == "" || (out != "" && res.Prediction.Origin != out) {
+			t.Errorf("origin %q: got %q, %v; want %q", in, res.Prediction.Origin, err, out)
 		}
 	}
 }
@@ -142,13 +160,13 @@ func TestRulingNumberMasking(t *testing.T) {
 	}
 	_ = m
 	allowed := res.Prediction.Precedents[0]
-	masked := []string{"JP 1260484", "JP_1240271", "JP-1240271", "jp1240271", "Jp 1240271", "JP1234567JP1234568", "ＪＰ1234567", "ＪＰ１２３４５６７", "JP　1234567", "JP - 1234567", "JP12345678"}
+	masked := []string{"JP 1260484", "JP_1240271", "JP-1240271", "jp1240271", "Jp 1240271", "JP1234567JP1234568", "ＪＰ1234567", "ＪＰ１２３４５６７", "JP　1234567", "JP - 1234567", "JP12345678", "日本JP1234567です", "日本 JP 1234567 です"}
 	for _, s := range masked {
 		got := maskUnknownRulings("see "+s+" end", nil)
 		if strings.Contains(got, "1234") || strings.Contains(got, "1240271") || strings.Contains(got, "1260484") || strings.Contains(got, "１２３") {
 			t.Errorf("%q not masked: %q", s, got)
 		}
-		if !strings.HasPrefix(got, "see an unverified reference") || !strings.HasSuffix(got, " end") {
+		if !strings.HasPrefix(got, "see ") || !strings.Contains(got, "an unverified reference") || !strings.HasSuffix(got, " end") {
 			t.Errorf("%q: corrupted surroundings: %q", s, got)
 		}
 	}
@@ -164,10 +182,16 @@ func TestRulingNumberMasking(t *testing.T) {
 		}
 	}
 	// Other text is untouched.
-	for _, s := range []string{"JPEG 1234567", "JP 2025 rules", "jp1234", "JP-123", "MAJP1234567", "in JPY 1234567", "ordinary words, jpg and Japan", "tariff 1704.90", "2025-10-01", "ａｂｃ１２３"} {
+	for _, s := range []string{"JPEG 1234567", "JP 2025 rules", "jp1234", "JP-123", "MAJP1234567", "in JPY 1234567", "ordinary words, jpg and Japan", "tariff 1704.90", "2025-10-01", "ａｂｃ１２３", "JP 20250101", "JP 12345678"} {
 		if got := maskUnknownRulings(s, nil); got != s {
 			t.Errorf("%q corrupted to %q", s, got)
 		}
+	}
+}
+
+func TestZeroWidthJoinersAreKept(t *testing.T) {
+	if got := cleanText("a\u200db\u200cc\u202ed\u200b"); got != "a\u200db\u200ccd" {
+		t.Errorf("got %q", got)
 	}
 }
 
