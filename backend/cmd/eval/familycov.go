@@ -1,7 +1,6 @@
 package main
 
 import (
-	"bufio"
 	"context"
 	"encoding/json"
 	"errors"
@@ -71,6 +70,7 @@ func familyCovCmd(args []string) error {
 	resultsDir := fl.String("results", "../eval/results", "results directory")
 	model := fl.String("model", "gemini-3.8-flash", "family-check model")
 	tag := fl.String("tag", "", "appended to the result name, to keep a later template set apart (D212: f14)")
+	resume := fl.Bool("resume", false, "continue an interrupted run: rows already in the result file are kept and not sent again (D840)")
 	_ = fl.Parse(args)
 	if *split == "final" && !*confirmFinal {
 		return errors.New("familycov: the final split is held out: pass -confirm-final once the templates are frozen")
@@ -133,38 +133,88 @@ func familyCovCmd(args []string) error {
 		name += "-" + *tag
 	}
 	path := filepath.Join(*resultsDir, name+".jsonl")
-	if _, err := os.Stat(path); err == nil && *split == "final" {
-		return fmt.Errorf("familycov: %s exists; the held-out split is scored once per set", path)
+	// Resume (D840): rows already in the file are finished checks, failed
+	// ones included, and are never sent again. The held-out split is
+	// scored once per set: an existing file is refused unless -resume
+	// continues the same interrupted run.
+	done := map[string]familyCovRow{}
+	if b, err := os.ReadFile(path); err == nil {
+		if *split == "final" && !*resume {
+			return fmt.Errorf("familycov: %s exists; the held-out split is scored once per set (-resume continues an interrupted run)", path)
+		}
+		if !*resume {
+			return fmt.Errorf("familycov: %s exists; pass -resume to continue it or a new -tag", path)
+		}
+		for _, l := range strings.Split(string(b), "\n") {
+			if strings.TrimSpace(l) == "" {
+				continue
+			}
+			var r familyCovRow
+			if err := json.Unmarshal([]byte(l), &r); err != nil {
+				return fmt.Errorf("familycov: %s: %w", path, err)
+			}
+			done[r.Ruling] = r
+		}
+	} else if !errors.Is(err, os.ErrNotExist) {
+		return err
+	}
+	texts := make([]string, len(cases))
+	for i, c := range cases {
+		texts[i] = c.ID + "\t" + familyCovText(c)
+	}
+	data, err := datasetSHA256(*labelsPath, *splitsPath)
+	if err != nil {
+		return err
+	}
+	data["case_inputs"] = textSHA256(texts)
+	dirty := codeDirty() // before this run appends to RUNLOG
+	var todo []domain.Ruling
+	for _, c := range cases {
+		if _, ok := done[c.ID]; !ok {
+			todo = append(todo, c)
+		}
+	}
+	fmt.Fprintf(os.Stderr, "%d cases, %d already in %s, %d to run\n", len(cases), len(cases)-len(todo), filepath.Base(path), len(todo))
+	out, err := os.OpenFile(path, os.O_CREATE|os.O_APPEND|os.O_WRONLY, 0o644)
+	if err != nil {
+		return err
 	}
 	start := time.Now()
-	rows := make([]familyCovRow, len(cases))
+	var mu sync.Mutex
 	var wg sync.WaitGroup
+	var runCost float64
 	sem := make(chan struct{}, max(*workers, 1))
-	for i, c := range cases {
+	for _, c := range todo {
 		wg.Add(1)
 		go func() {
 			defer wg.Done()
 			sem <- struct{}{}
 			defer func() { <-sem }()
-			rows[i] = checkOne(ctx, checker, c, *model)
+			if ctx.Err() != nil {
+				return
+			}
+			r := checkOne(ctx, checker, c, *model)
+			if ctx.Err() != nil && r.Error != "" {
+				return // interrupted: left for -resume
+			}
+			b, _ := json.Marshal(r)
+			mu.Lock()
+			defer mu.Unlock()
+			_, _ = out.Write(append(b, '\n'))
+			done[r.Ruling] = r
+			runCost += r.CostUSD
 		}()
 	}
 	wg.Wait()
-
-	f, err := os.Create(path)
-	if err != nil {
+	if err := out.Close(); err != nil {
 		return err
 	}
-	w := bufio.NewWriter(f)
-	for _, r := range rows {
-		b, _ := json.Marshal(r)
-		w.Write(append(b, '\n'))
+	if ctx.Err() != nil {
+		return fmt.Errorf("familycov: interrupted with %d of %d rows written; re-run with -resume: %w", len(done), len(cases), ctx.Err())
 	}
-	if err := w.Flush(); err != nil {
-		return err
-	}
-	if err := f.Close(); err != nil {
-		return err
+	rows := make([]familyCovRow, 0, len(cases))
+	for _, c := range cases {
+		rows = append(rows, done[c.ID])
 	}
 
 	var covered, errs int
@@ -195,7 +245,7 @@ func familyCovCmd(args []string) error {
 	for _, k := range fams {
 		fmt.Printf("  - %s: %d\n", k, byFamily[k])
 	}
-	fmt.Printf("- Cost: $%.4f (promo prices), %.0f s\n", cost, time.Since(start).Seconds())
+	fmt.Printf("- Cost: $%.4f (promo prices; this invocation $%.4f), %.0f s\n", cost, runCost, time.Since(start).Seconds())
 
 	lf, err := os.OpenFile(filepath.Join(*resultsDir, "RUNLOG.jsonl"), os.O_CREATE|os.O_APPEND|os.O_WRONLY, 0o644)
 	if err != nil {
@@ -208,6 +258,8 @@ func familyCovCmd(args []string) error {
 		"ci95": []float64{round(lo), round(hi)}, "templates": len(tmpls), "family_model": *model,
 		"llm_provider": cfg.LLMProvider, "prompt_version": familycheck.PromptVersion, "guard_version": familycheck.GuardVersion, "match_bar": familyCovBar,
 		"cost_usd": round(cost), "git_revision": revision(), "wall_s": int(time.Since(start).Seconds()),
+		"dataset_sha256": data, "code_dirty": dirty, "resumed": len(todo) < len(cases), "invocation_cost_usd": round(runCost),
+		"llm_no_cache": os.Getenv("LITELLM_NO_CACHE") == "1", "workers": *workers,
 	}
 	b, _ := json.Marshal(entry)
 	_, err = lf.Write(append(b, '\n'))
@@ -215,7 +267,7 @@ func familyCovCmd(args []string) error {
 }
 
 func checkOne(ctx context.Context, c *familycheck.Checker, r domain.Ruling, model string) familyCovRow {
-	text := "Product: " + r.Subject + "\n\n" + clip(r.Facts, 1500)
+	text := familyCovText(r)
 	// One retry: a reply cut off by the output cap is an error, not "none".
 	var row familyCovRow
 	var res familycheck.Result
@@ -242,6 +294,12 @@ func checkOne(ctx context.Context, c *familycheck.Checker, r domain.Ruling, mode
 	row.ModelFamily, row.ModelReason, row.GuardRule = res.ModelFamily, res.ModelReason, res.GuardRule
 	row.Covered = res.Family != familycheck.None && res.Confidence >= familyCovBar
 	return row
+}
+
+// familyCovText is the text a coverage check sends: the subject and the
+// first 1,500 characters of the facts.
+func familyCovText(r domain.Ruling) string {
+	return "Product: " + r.Subject + "\n\n" + clip(r.Facts, 1500)
 }
 
 func clip(s string, n int) string {

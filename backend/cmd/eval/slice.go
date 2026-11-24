@@ -215,7 +215,7 @@ func sliceRun(cfg config.Config, s evalslice.Slice, labelsPath, factsDir, out st
 	if err := writeRows(out, rows); err != nil {
 		return "", err
 	}
-	if err := appendRunLog(filepath.Dir(out), name, "slice30", cfg, evalkit.Summarize(rows), time.Since(start), len(cases), 0, ctx.Err() != nil); err != nil {
+	if err := appendRunLog(filepath.Dir(out), name, "slice30", cfg, evalkit.Summarize(rows), time.Since(start), len(cases), 0, ctx.Err() != nil, nil); err != nil {
 		return "", err
 	}
 	fmt.Fprintf(os.Stderr, "%d slice cases -> %s\n", len(rows), out)

@@ -1,0 +1,7 @@
+{
+ "rule": "D840 (#781): the one frozen development case with a CBP held origin that no recorded engine run scored (N339090, a train/other pool ruling, D820 (c)). The other three pool cases (H338482, N335585, N348790) have no held-origin sentence and are not scorable.",
+ "frozen_at": "2026-11-24",
+ "dev": [
+  "N339090"
+ ]
+}
