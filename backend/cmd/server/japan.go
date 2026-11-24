@@ -18,14 +18,19 @@ import (
 // japanModel names the same gateway model used for the Japan evaluation.
 const japanModel = jpengine.DefaultModel
 
-// japanAuthority registers a gateway-backed authority or the offline fixture.
-// Japan is unavailable unless JAPAN_ENGINE=on: gateway settings alone never
-// make it public, and nothing falls back to Vertex.
-func japanAuthority(cfg config.Config, meter *spend.Meter, logger *slog.Logger) (jurisdiction.Authority, error) {
+// japanAuthority registers the Japan authority. Japan is unavailable when
+// JAPAN_ENGINE is off. The fake provider uses an offline fixture. Dedicated
+// JAPAN_LITELLM_* settings (either one set) keep the validated private
+// gateway path with japanModel. Otherwise, with the vertex provider, Japan
+// reuses the production engineModel (already gated, retried and metered)
+// and cfg.EngineModel; no new client is built. With no usable model Japan
+// stays unavailable (fail closed).
+func japanAuthority(cfg config.Config, engineModel llm.Model, meter *spend.Meter, logger *slog.Logger) (jurisdiction.Authority, error) {
 	if !cfg.JapanEngine {
 		return jurisdiction.Authority{}, nil
 	}
 	var model llm.Model
+	modelID := japanModel
 	if cfg.LLMProvider == config.ProviderFake {
 		model = &llm.Fake{Respond: func(llm.Request) (llm.Response, error) {
 			return llm.Response{Text: `{"outcome":"qualifies","criterion":"CTH","origin_country":"Vietnam","deciding_rule":"Change of tariff heading","confidence":0.74,"reasoning":"Illustrative result from the local fake model.","cited_rulings":[]}`}, nil
@@ -34,7 +39,11 @@ func japanAuthority(cfg config.Config, meter *spend.Meter, logger *slog.Logger) 
 		base := strings.TrimSpace(os.Getenv("JAPAN_LITELLM_BASE_URL"))
 		key := strings.TrimSpace(os.Getenv("JAPAN_LITELLM_API_KEY"))
 		if base == "" && key == "" {
-			return jurisdiction.Authority{}, nil
+			if cfg.LLMProvider != config.ProviderVertex || engineModel == nil || strings.TrimSpace(cfg.EngineModel) == "" {
+				return jurisdiction.Authority{}, nil
+			}
+			model, modelID = engineModel, cfg.EngineModel
+			return newJapanAuthority(model, modelID)
 		}
 		u, err := url.Parse(base)
 		if err != nil || u.Scheme != "https" || u.Hostname() == "" || u.User != nil || u.RawQuery != "" || u.Fragment != "" || key == "" {
@@ -45,7 +54,11 @@ func japanAuthority(cfg config.Config, meter *spend.Meter, logger *slog.Logger) 
 		paced := llm.WithPace(meter.Attempts(raw), cfg.LLMCallGap, gate)
 		model = llm.WithLogging(llm.WithRetry(paced, cfg.LLMMaxRetries, time.Second), logger)
 	}
-	japan, err := jpengine.NewDefault(model, japanModel, jpengine.DefaultK)
+	return newJapanAuthority(model, modelID)
+}
+
+func newJapanAuthority(model llm.Model, modelID string) (jurisdiction.Authority, error) {
+	japan, err := jpengine.NewDefault(model, modelID, jpengine.DefaultK)
 	if err != nil {
 		return jurisdiction.Authority{}, err
 	}

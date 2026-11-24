@@ -3086,3 +3086,7 @@ A new development-only candidate, separate from the D741 engine. The AJCEP sched
 
 ## D818 — `prediction_before_answers` follows new predictions (24 Nov, #770, review of 1441ce51)
 - D815 kept the first stored answer forever, so it outlived a parts-list change. On each re-check the kept prediction is taken from the newest stored prediction that was not itself a re-check, so a prediction stored since (predict, answers, a BOM update) replaces it. The field is shown only while the newest stored prediction is that re-check. Stores deep-copy it on every read. `answers_note` ignores cleared and stale answers.
+
+## D819 — Japan is live on the production Vertex engine model (24 Nov, #694)
+- **Choice.** `JAPAN_ENGINE` now defaults to on. With the Vertex provider and no `JAPAN_LITELLM_*` settings, Japan reuses the production engine model (the shared client, fallback, gate and spend meter) and `ENGINE_MODEL` as its model id. No new client is built and no gateway is assumed. If either `JAPAN_LITELLM_*` variable is set, the validated private LiteLLM path is kept unchanged. If no usable model exists, Japan stays unavailable. `JAPAN_ENGINE=off` disables it. The market picker follows the API's supported flag.
+- **What this is not.** The D741 private results come from the LiteLLM route and are not evidence for this Vertex path. No accuracy is claimed for live Japan, and results are not a ruling or a specialist's review.

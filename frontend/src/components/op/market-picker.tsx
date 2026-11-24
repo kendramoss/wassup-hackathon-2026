@@ -39,9 +39,10 @@ export function MarketPicker({ id, value, onChange, className }: { id: string; v
         </span>
       </div>
       <ul data-market-summary className="duo mt-1.5 flex flex-wrap gap-x-3 gap-y-0.5 text-[12.5px] text-dim">
-        {copy.market.summary.map((line) => (
-          <li key={line}>{line}</li>
-        ))}
+        {copy.market.summary.map((line) => {
+          const text = line.startsWith("Japan:") && !supported.includes("jp") ? copy.market.summaryJapanOff : line;
+          return <li key={line}>{text}</li>;
+        })}
       </ul>
     </div>
   );
