@@ -38,6 +38,7 @@ type candidateMetrics struct {
 	// never presented as free. Both are absent from runs before the guard.
 	UnreportedCostCalls int     `json:"calls_without_reported_cost,omitempty"`
 	BudgetChargedUSD    float64 `json:"budget_charged_usd,omitempty"`
+	BudgetOverruns      int     `json:"budget_overruns,omitempty"`
 	CostPerCase         float64 `json:"cost_per_case_usd"`
 	CostPerModelCall    float64 `json:"cost_per_model_call_usd"`
 	P50MS               int64   `json:"model_call_cases_latency_p50_ms"`
@@ -54,6 +55,9 @@ func scoreCandidate(name, split string, rows []candidateRow, expected int, label
 	for _, row := range rows {
 		s.CostUSD += row.CostUSD
 		s.BudgetChargedUSD += row.BudgetUSD
+		if row.BudgetOverrun {
+			s.BudgetOverruns++
+		}
 		if row.CalledModel && row.CostProvenance != "" && row.CostProvenance != llmbudget.Reported {
 			s.UnreportedCostCalls++
 		}

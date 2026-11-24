@@ -3,6 +3,7 @@ package main
 import (
 	"crypto/sha256"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io"
 	"net/http"
@@ -30,6 +31,7 @@ func TestMain(m *testing.M) {
 }
 
 var testRates = llmbudget.Rates{InputPerMTok: 1, OutputPerMTok: 10, Source: "test quote"}
+var testBind = llmbudget.Binding{Model: "gemini-4-argon", Rates: testRates}
 
 // sandbox points every output at a temporary directory and returns it.
 func sandbox(t *testing.T) string {
@@ -53,7 +55,7 @@ func sandbox(t *testing.T) string {
 
 func options(t *testing.T, capUSD float64, id string) candidateOptions {
 	t.Helper()
-	l, err := llmbudget.Open(filepath.Join(t.TempDir(), "ledger.jsonl"), capUSD)
+	l, err := llmbudget.Open(filepath.Join(t.TempDir(), "ledger.jsonl"), capUSD, testBind)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -270,7 +272,7 @@ func TestSmokeIsOneRequestWithSeparateArtifactAndHonestCost(t *testing.T) {
 		t.Run(c.name, func(t *testing.T) {
 			rec := &recorder{}
 			g := rec.serve(t, c.h)
-			l, _ := llmbudget.Open(filepath.Join(t.TempDir(), "l.jsonl"), 50)
+			l, _ := llmbudget.Open(filepath.Join(t.TempDir(), "l.jsonl"), 50, testBind)
 			out := filepath.Join(t.TempDir(), "smoke.json")
 			err := runSmoke("smoke-1", out, 64, l, testRates, g, g)
 			if (err != nil) != c.wantErr || len(rec.hashes) != 1 {
@@ -291,5 +293,61 @@ func TestSmokeIsOneRequestWithSeparateArtifactAndHonestCost(t *testing.T) {
 				t.Fatalf("second smoke over the same file: %v, requests %d", err, len(rec.hashes))
 			}
 		})
+	}
+}
+
+// A crash after the first request leaves no run log entry. A new run id under
+// the same decision and split must still be refused, with no request sent.
+func TestClaimBlocksReentryUnderANewRunIDAfterACrash(t *testing.T) {
+	sandbox(t)
+	rec := &recorder{}
+	g := rec.serve(t, func(w http.ResponseWriter, _ *http.Request) { http.Error(w, "x", http.StatusForbidden) })
+	o := options(t, 50, "first-attempt")
+	name, _ := candidateName(o.split, o.tag, o.runID)
+	_ = runCandidate(o, name, g, g)
+	if err := os.Remove(runlogPath); err != nil { // the crash: the final log never existed
+		t.Fatal(err)
+	}
+	sent := len(rec.hashes)
+	o.runID = "second-attempt"
+	name2, _ := candidateName(o.split, o.tag, o.runID)
+	err := runCandidate(o, name2, g, g)
+	if !errors.Is(err, llmbudget.ErrClaimed) || len(rec.hashes) != sent {
+		t.Fatalf("re-entry: err %v, extra requests %d", err, len(rec.hashes)-sent)
+	}
+	if _, statErr := os.Stat(candidateRowsPath(name2)); statErr == nil {
+		t.Fatal("a second run file was created")
+	}
+	// Another decision is a different claim and may proceed.
+	o.decision = "D1000"
+	if err := runCandidate(o, name2, g, g); errors.Is(err, llmbudget.ErrClaimed) {
+		t.Fatalf("a different decision was blocked: %v", err)
+	}
+}
+
+// A call that costs more than it reserved stops all further dispatch.
+func TestOverrunStopsFurtherDispatch(t *testing.T) {
+	sandbox(t)
+	rec := &recorder{}
+	g := rec.serve(t, func(w http.ResponseWriter, _ *http.Request) {
+		w.Header().Set("X-Litellm-Response-Cost", "5")
+		_, _ = io.WriteString(w, `{"choices":[{"message":{"role":"assistant","content":"{}"},"finish_reason":"stop"}]}`)
+	})
+	o := options(t, 50, "overrun")
+	o.workers = 1
+	name, _ := candidateName(o.split, o.tag, o.runID)
+	err := runCandidate(o, name, g, g)
+	if err == nil || !strings.Contains(err.Error(), "budget overrun") {
+		t.Fatalf("err = %v, want a budget overrun", err)
+	}
+	if len(rec.hashes) != 1 {
+		t.Fatalf("%d requests were sent; dispatch must stop after the overrun", len(rec.hashes))
+	}
+	raw, _ := os.ReadFile(candidateRowsPath(name))
+	if !strings.Contains(string(raw), `"budget_overrun":true`) || !strings.Contains(string(raw), `"budget_stopped"`) {
+		t.Fatalf("rows do not show the overrun and the stop:\n%s", raw)
+	}
+	if on, _ := o.ledger.Stopped(); !on {
+		t.Fatal("ledger not stopped")
 	}
 }

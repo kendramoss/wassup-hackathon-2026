@@ -44,6 +44,9 @@ type candidateRow struct {
 	// before the budget guard have neither field.
 	CostProvenance string  `json:"cost_provenance,omitempty"`
 	BudgetUSD      float64 `json:"budget_charged_usd,omitempty"`
+	// BudgetOverrun marks the call whose cost passed its reservation. The
+	// ledger stopped there and no later request was sent.
+	BudgetOverrun bool `json:"budget_overrun,omitempty"`
 }
 
 var runTag = regexp.MustCompile(`^[a-z0-9-]{1,42}$`)
@@ -102,7 +105,7 @@ func candidate(args []string) error {
 	if *ledgerPath == "" {
 		return errors.New("every paid run needs -budget-ledger")
 	}
-	if o.ledger, err = llmbudget.Open(*ledgerPath, *capUSD); err != nil {
+	if o.ledger, err = llmbudget.Open(*ledgerPath, *capUSD, llmbudget.Binding{Model: jpengine.DefaultModel, Rates: o.rates}); err != nil {
 		return err
 	}
 	// Create nothing and call nothing until the output names are free.
@@ -167,6 +170,13 @@ func runCandidate(o candidateOptions, name string, inner llm.Model, sizer interf
 	if worst > left+1e-9 {
 		return fmt.Errorf("%w: the worst case of this run ($%.4f) is above the $%.4f left; nothing was sent", llmbudget.ErrBudget, worst, left)
 	}
+	// The claim is durable and written before the first request. A crash
+	// leaves it in place, so the run cannot start again under a new run id.
+	if o.split == "held_out" || o.split == "synthetic" {
+		if err := o.ledger.Claim(o.decision + "|" + o.split); err != nil {
+			return fmt.Errorf("%s %s: %w", o.decision, o.split, err)
+		}
+	}
 	gateway := &llmbudget.Model{Inner: inner, Ledger: o.ledger, Rates: o.rates, Size: size}
 	eng := jpengine.New(gateway, jpengine.DefaultModel, pool, rules, jpengine.DefaultK)
 	path := candidateRowsPath(name)
@@ -184,6 +194,10 @@ func runCandidate(o candidateOptions, name string, inner llm.Model, sizer interf
 	s := scoreCandidate(name, o.split, rows, len(items), labelHash)
 	fmt.Printf("%s: criterion %d/%d (%d had a model response); %d qualified, %d declined, %d undetermined, %d failed; gateway-reported $%.4f (%d calls without a reported cost); budget charged $%.4f\n",
 		name, s.Criterion.K, s.Criterion.N, s.ModelCalls-s.Errors, s.Qualifies, s.DoesNotQualify, s.Undetermined, s.Errors, s.CostUSD, s.UnreportedCostCalls, s.BudgetChargedUSD)
+	if s.BudgetOverruns > 0 {
+		fmt.Printf("%s: BUDGET STOPPED: %d call(s) cost more than reserved; the ledger refuses further reservations and the run is incomplete\n", name, s.BudgetOverruns)
+		runErr = errors.Join(runErr, errors.New("budget overrun: the ledger is stopped"))
+	}
 	if s.Cases != s.Expected {
 		runErr = errors.Join(runErr, fmt.Errorf("run incomplete: %d of %d rows saved", s.Cases, s.Expected))
 	}
@@ -197,7 +211,7 @@ func runCandidate(o candidateOptions, name string, inner llm.Model, sizer interf
 		"scored": s.Criterion.N, "correct": s.Criterion.K, "accuracy": s.Criterion.P, "synthetic_refusals": s.SyntheticRefusals,
 		"errors": s.Errors, "model_calls": s.ModelCalls, "cost_usd": s.CostUSD, "latency_p50_ms": s.P50MS,
 		"latency_p95_ms": s.P95MS, "complete": runErr == nil && closeErr == nil,
-		"unreported_cost_calls": s.UnreportedCostCalls, "budget_charged_usd": s.BudgetChargedUSD, "budget_cap_usd": o.ledger.Cap(),
+		"unreported_cost_calls": s.UnreportedCostCalls, "budget_overruns": s.BudgetOverruns, "budget_charged_usd": s.BudgetChargedUSD, "budget_cap_usd": o.ledger.Cap(),
 		"budget_committed_after_usd": committed, "rates_input_usd_per_mtok": o.rates.InputPerMTok,
 		"rates_output_usd_per_mtok": o.rates.OutputPerMTok, "rates_source": o.rates.Source, "planned_requests": plan.Calls,
 		"planned_requests_sha256": plan.RequestsSHA256, "planned_worst_case_usd": worst, "labels_sha256": labelHash,
@@ -432,9 +446,9 @@ func predictCandidate(parent context.Context, e *jpengine.Engine, item candidate
 	defer cancel()
 	start := time.Now()
 	res, err := e.Predict(ctx, item.caseValue)
-	refused := errors.Is(err, llmbudget.ErrBudget)
+	refused := errors.Is(err, llmbudget.ErrBudget) || errors.Is(err, llmbudget.ErrStopped)
 	row := candidateRow{ID: item.label.ID, Label: item.label, Prediction: res.Prediction, CalledModel: res.Votes > 0 && !refused,
-		LatencyMS: time.Since(start).Milliseconds(), CostUSD: tally.USD(), CostProvenance: cost.Provenance, BudgetUSD: cost.USD}
+		LatencyMS: time.Since(start).Milliseconds(), CostUSD: tally.USD(), CostProvenance: cost.Provenance, BudgetUSD: cost.USD, BudgetOverrun: cost.Overrun}
 	if err != nil {
 		// Only a closed class and an HTTP status are saved, never provider text.
 		code, status := logsafe.Classify(err)
@@ -442,7 +456,9 @@ func predictCandidate(parent context.Context, e *jpengine.Engine, item candidate
 		if status > 0 {
 			row.Error = fmt.Sprintf("%s (HTTP %d)", code, status)
 		}
-		if refused {
+		if errors.Is(err, llmbudget.ErrStopped) {
+			row.Error = "budget_stopped"
+		} else if refused {
 			row.Error = "budget_cap_refused"
 		}
 	}

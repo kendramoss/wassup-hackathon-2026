@@ -59,7 +59,7 @@ func smoke(args []string) error {
 	if err := safePlanPath(*out); err != nil {
 		return err
 	}
-	ledger, err := llmbudget.Open(*ledgerPath, *capUSD)
+	ledger, err := llmbudget.Open(*ledgerPath, *capUSD, llmbudget.Binding{Model: jpengine.DefaultModel, Rates: rates})
 	if err != nil {
 		return err
 	}
@@ -107,9 +107,15 @@ func runSmoke(id, out string, maxOut int, ledger *llmbudget.Ledger, rates llmbud
 		if status > 0 {
 			res.Error = fmt.Sprintf("%s (HTTP %d)", code, status)
 		}
-		if errors.Is(callErr, llmbudget.ErrBudget) {
+		if errors.Is(callErr, llmbudget.ErrStopped) {
+			res.Error = "budget_stopped"
+		} else if errors.Is(callErr, llmbudget.ErrBudget) {
 			res.Error = "budget_cap_refused"
 		}
+	}
+	if cost.Overrun {
+		res.Error = "budget_overrun"
+		callErr = errors.Join(callErr, llmbudget.ErrOverrun)
 	}
 	b, err := json.MarshalIndent(res, "", " ")
 	if err != nil {

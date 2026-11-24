@@ -29,6 +29,22 @@ import (
 // MaxCapUSD is the largest total the approved Japan evaluation may spend.
 const MaxCapUSD = 50.0
 
+// ErrStopped is returned for every reservation once a settlement passed its
+// reservation. The stop is durable: it survives restarts and only a person
+// clearing the ledger can lift it.
+var ErrStopped = errors.New("llmbudget: stopped after a cost passed its reservation")
+
+// ErrOverrun reports the settlement that tripped the stop.
+var ErrOverrun = errors.New("llmbudget: a call cost more than was reserved; the ledger is stopped")
+
+// ErrClaimed is returned when a protocol run was already started, finished or
+// crashed under the same key.
+var ErrClaimed = errors.New("llmbudget: this run was already claimed; an incomplete attempt stays recorded and is not repeated")
+
+// ErrBinding is returned when a ledger was opened with a different cap,
+// model or rates than its first line binds.
+var ErrBinding = errors.New("llmbudget: the ledger is bound to a different cap, model or rates")
+
 // ErrBudget is returned, with no model call made, when a reservation would
 // pass the cap.
 var ErrBudget = errors.New("llmbudget: budget cap would be exceeded")
@@ -70,27 +86,53 @@ func (r Rates) WorstCase(inputTokens, maxOutput int) float64 {
 
 type entry struct {
 	Kind  string  `json:"t"`
-	ID    string  `json:"id"`
+	ID    string  `json:"id,omitempty"`
 	USD   float64 `json:"usd"`
 	Label string  `json:"label,omitempty"`
 	Prov  string  `json:"prov,omitempty"`
 	At    string  `json:"at"`
+	// Header fields (first line only).
+	Cap   float64 `json:"cap,omitempty"`
+	Model string  `json:"model,omitempty"`
+	In    float64 `json:"in_usd_per_mtok,omitempty"`
+	Out   float64 `json:"out_usd_per_mtok,omitempty"`
+	Src   string  `json:"rates_source,omitempty"`
+}
+
+// Binding is what the first line of a ledger fixes for good.
+type Binding struct {
+	Model string
+	Rates Rates
 }
 
 // Ledger is a cap and its shared file.
 type Ledger struct {
 	path string
 	cap  float64
+	bind Binding
 	mu   sync.Mutex
 	seq  atomic.Int64
 	pid  int
 }
 
+func (l *Ledger) header() entry {
+	return entry{Kind: "header", Cap: l.cap, Model: l.bind.Model, In: l.bind.Rates.InputPerMTok,
+		Out: l.bind.Rates.OutputPerMTok, Src: l.bind.Rates.Source}
+}
+
 // Open returns the ledger at path, creating it when absent. The cap must be
-// positive and at most MaxCapUSD.
-func Open(path string, capUSD float64) (*Ledger, error) {
+// positive and at most MaxCapUSD. The first line of a new ledger binds the cap,
+// model and rates; opening an existing ledger with different values fails
+// closed, so a later process can never raise the approved cap.
+func Open(path string, capUSD float64, b Binding) (*Ledger, error) {
 	if !(capUSD > 0) || capUSD > MaxCapUSD {
 		return nil, fmt.Errorf("llmbudget: cap must be above 0 and at most $%.2f", MaxCapUSD)
+	}
+	if err := b.Rates.Validate(); err != nil {
+		return nil, err
+	}
+	if strings.TrimSpace(b.Model) == "" {
+		return nil, errors.New("llmbudget: the ledger needs a model name")
 	}
 	f, err := os.OpenFile(path, os.O_CREATE|os.O_RDWR|os.O_APPEND, 0o600)
 	if err != nil {
@@ -99,13 +141,23 @@ func Open(path string, capUSD float64) (*Ledger, error) {
 	if err := f.Close(); err != nil {
 		return nil, err
 	}
-	return &Ledger{path: path, cap: capUSD, pid: os.Getpid()}, nil
+	l := &Ledger{path: path, cap: capUSD, bind: b, pid: os.Getpid()}
+	if err := l.locked(func(*os.File, state) error { return nil }); err != nil { // writes or checks the header
+		return nil, err
+	}
+	return l, nil
 }
 
 // Cap returns the total cap in USD.
 func (l *Ledger) Cap() float64 { return l.cap }
 
-func (l *Ledger) locked(fn func(f *os.File, committed float64) error) error {
+type state struct {
+	committed float64
+	stopped   bool
+	claims    map[string]bool
+}
+
+func (l *Ledger) locked(fn func(f *os.File, st state) error) error {
 	l.mu.Lock()
 	defer l.mu.Unlock()
 	f, err := os.OpenFile(l.path, os.O_RDWR|os.O_APPEND, 0o600)
@@ -117,52 +169,78 @@ func (l *Ledger) locked(fn func(f *os.File, committed float64) error) error {
 		return fmt.Errorf("llmbudget: cannot lock the ledger")
 	}
 	defer syscall.Flock(int(f.Fd()), syscall.LOCK_UN)
-	committed, err := sum(f)
+	st, empty, err := l.scan(f)
 	if err != nil {
 		return err
 	}
-	return fn(f, committed)
+	if empty {
+		if err := l.append(f, l.header()); err != nil {
+			return err
+		}
+	}
+	return fn(f, st)
 }
 
-// sum reads every line; an unreadable line fails closed.
-func sum(f *os.File) (float64, error) {
+// scan reads every line and checks the header; anything unreadable fails
+// closed. It never repairs or rewrites the file.
+func (l *Ledger) scan(f *os.File) (st state, empty bool, err error) {
 	if _, err := f.Seek(0, 0); err != nil {
-		return 0, err
+		return st, false, err
 	}
+	st.claims = map[string]bool{}
 	reserved, settled := map[string]float64{}, map[string]float64{}
 	sc := bufio.NewScanner(f)
 	sc.Buffer(make([]byte, 64<<10), 1<<20)
-	for n := 1; sc.Scan(); n++ {
+	n := 0
+	for sc.Scan() {
+		n++
 		var e entry
-		if err := json.Unmarshal(sc.Bytes(), &e); err != nil || e.ID == "" || !(e.USD >= 0) || math.IsInf(e.USD, 0) {
-			return 0, fmt.Errorf("llmbudget: ledger line %d is unreadable; refusing to spend", n)
+		if err := json.Unmarshal(sc.Bytes(), &e); err != nil || !(e.USD >= 0) || math.IsInf(e.USD, 0) {
+			return st, false, fmt.Errorf("llmbudget: ledger line %d is unreadable; refusing to spend", n)
+		}
+		if (n == 1) != (e.Kind == "header") {
+			return st, false, fmt.Errorf("llmbudget: ledger line %d: the header must be the first line and appear once; refusing to spend", n)
 		}
 		switch e.Kind {
+		case "header":
+			if e.Cap != l.cap || e.Model != l.bind.Model || e.In != l.bind.Rates.InputPerMTok ||
+				e.Out != l.bind.Rates.OutputPerMTok || e.Src != l.bind.Rates.Source {
+				return st, false, ErrBinding
+			}
 		case "reserve":
+			if e.ID == "" {
+				return st, false, fmt.Errorf("llmbudget: ledger line %d has no id; refusing to spend", n)
+			}
 			reserved[e.ID] = e.USD
 		case "settle":
+			if e.ID == "" {
+				return st, false, fmt.Errorf("llmbudget: ledger line %d has no id; refusing to spend", n)
+			}
 			settled[e.ID] += e.USD
+		case "stop":
+			st.stopped = true
+		case "claim":
+			st.claims[e.ID] = true
 		default:
-			return 0, fmt.Errorf("llmbudget: ledger line %d has an unknown kind; refusing to spend", n)
+			return st, false, fmt.Errorf("llmbudget: ledger line %d has an unknown kind; refusing to spend", n)
 		}
 	}
 	if err := sc.Err(); err != nil {
-		return 0, err
+		return st, false, err
 	}
-	var total float64
 	for id, v := range reserved {
-		if s, ok := settled[id]; ok {
-			total += s
+		if sv, ok := settled[id]; ok {
+			st.committed += sv
 		} else {
-			total += v
+			st.committed += v
 		}
 	}
-	for id, s := range settled {
+	for id, sv := range settled {
 		if _, ok := reserved[id]; !ok {
-			total += s
+			st.committed += sv
 		}
 	}
-	return total, nil
+	return st, n == 0, nil
 }
 
 func (l *Ledger) append(f *os.File, e entry) error {
@@ -180,7 +258,7 @@ func (l *Ledger) append(f *os.File, e entry) error {
 // Committed returns settled spend plus unsettled reservations.
 func (l *Ledger) Committed() (float64, error) {
 	var out float64
-	err := l.locked(func(_ *os.File, c float64) error { out = c; return nil })
+	err := l.locked(func(_ *os.File, st state) error { out = st.committed; return nil })
 	return out, err
 }
 
@@ -192,21 +270,48 @@ func (l *Ledger) Remaining() (float64, error) {
 
 // Reservation is held until Settle.
 type Reservation struct {
-	l    *Ledger
-	id   string
-	once sync.Once
+	l     *Ledger
+	id    string
+	worst float64
+	once  sync.Once
 }
 
-// Reserve holds worstUSD. It fails with ErrBudget, writing nothing, when the
-// total would pass the cap.
+// Claim records, before any request, that the run under key has started. A
+// second claim of the same key fails with ErrClaimed whether the first run
+// finished, failed or crashed. Claims are never released.
+func (l *Ledger) Claim(key string) error {
+	if strings.TrimSpace(key) == "" {
+		return errors.New("llmbudget: empty claim key")
+	}
+	id := "claim:" + key
+	return l.locked(func(f *os.File, st state) error {
+		if st.claims[id] {
+			return ErrClaimed
+		}
+		return l.append(f, entry{Kind: "claim", ID: id})
+	})
+}
+
+// Stopped reports whether the durable stop is set.
+func (l *Ledger) Stopped() (bool, error) {
+	var out bool
+	err := l.locked(func(_ *os.File, st state) error { out = st.stopped; return nil })
+	return out, err
+}
+
+// Reserve holds worstUSD. It fails with ErrStopped after an overrun and with
+// ErrBudget, writing nothing, when the total would pass the cap.
 func (l *Ledger) Reserve(label string, worstUSD float64) (*Reservation, error) {
 	if !(worstUSD >= 0) || math.IsInf(worstUSD, 0) {
 		return nil, errors.New("llmbudget: invalid reservation")
 	}
-	r := &Reservation{l: l, id: fmt.Sprintf("%d-%d-%d", l.pid, time.Now().UnixNano(), l.seq.Add(1))}
-	err := l.locked(func(f *os.File, committed float64) error {
-		if committed+worstUSD > l.cap+1e-9 {
-			return fmt.Errorf("%w: committed $%.4f, this call up to $%.4f, cap $%.2f", ErrBudget, committed, worstUSD, l.cap)
+	r := &Reservation{l: l, worst: worstUSD, id: fmt.Sprintf("%d-%d-%d", l.pid, time.Now().UnixNano(), l.seq.Add(1))}
+	err := l.locked(func(f *os.File, st state) error {
+		if st.stopped {
+			return ErrStopped
+		}
+		if st.committed+worstUSD > l.cap+1e-9 {
+			return fmt.Errorf("%w: committed $%.4f, this call up to $%.4f, cap $%.2f", ErrBudget, st.committed, worstUSD, l.cap)
 		}
 		return l.append(f, entry{Kind: "reserve", ID: r.id, USD: worstUSD, Label: label})
 	})
@@ -217,15 +322,26 @@ func (l *Ledger) Reserve(label string, worstUSD float64) (*Reservation, error) {
 }
 
 // Settle replaces the reservation with the actual cost. Only the first call
-// has an effect.
+// has an effect. A cost above the reservation is recorded as it was, the
+// durable stop is written in the same step, and ErrOverrun is returned: money
+// already charged cannot be undone, but nothing further is reserved.
 func (r *Reservation) Settle(actualUSD float64, provenance string) (err error) {
 	r.once.Do(func() {
 		if !(actualUSD >= 0) || math.IsInf(actualUSD, 0) {
 			err = errors.New("llmbudget: invalid settlement")
 			return
 		}
-		err = r.l.locked(func(f *os.File, _ float64) error {
-			return r.l.append(f, entry{Kind: "settle", ID: r.id, USD: actualUSD, Prov: provenance})
+		err = r.l.locked(func(f *os.File, _ state) error {
+			if err := r.l.append(f, entry{Kind: "settle", ID: r.id, USD: actualUSD, Prov: provenance}); err != nil {
+				return err
+			}
+			if actualUSD > r.worst+1e-9 {
+				if err := r.l.append(f, entry{Kind: "stop", ID: r.id, USD: actualUSD, Label: fmt.Sprintf("settled $%.6f above reserved $%.6f", actualUSD, r.worst)}); err != nil {
+					return err
+				}
+				return fmt.Errorf("%w: settled $%.6f, reserved $%.6f", ErrOverrun, actualUSD, r.worst)
+			}
+			return nil
 		})
 	})
 	return err
@@ -235,6 +351,9 @@ func (r *Reservation) Settle(actualUSD float64, provenance string) (err error) {
 type Cost struct {
 	USD        float64
 	Provenance string
+	// Overrun is set when this call cost more than its reservation; the
+	// ledger is then stopped for good.
+	Overrun bool
 }
 
 type sinkKey struct{}
@@ -299,6 +418,14 @@ func (m *Model) Generate(ctx context.Context, req llm.Request) (llm.Response, er
 		*sink = cost
 	}
 	if err := res.Settle(cost.USD, cost.Provenance); err != nil {
+		if errors.Is(err, ErrOverrun) {
+			// The answer is kept and the overrun is reported with the row.
+			cost.Overrun = true
+			if sink, _ := ctx.Value(sinkKey{}).(*Cost); sink != nil {
+				*sink = cost
+			}
+			return resp, callErr
+		}
 		return resp, errors.Join(callErr, err)
 	}
 	return resp, callErr

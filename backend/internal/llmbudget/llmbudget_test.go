@@ -17,10 +17,11 @@ import (
 )
 
 var rates = Rates{InputPerMTok: 1, OutputPerMTok: 10, Source: "test quote"}
+var bind = Binding{Model: "m", Rates: rates}
 
 func open(t *testing.T, capUSD float64) *Ledger {
 	t.Helper()
-	l, err := Open(filepath.Join(t.TempDir(), "ledger.jsonl"), capUSD)
+	l, err := Open(filepath.Join(t.TempDir(), "ledger.jsonl"), capUSD, bind)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -29,11 +30,11 @@ func open(t *testing.T, capUSD float64) *Ledger {
 
 func TestCapBounds(t *testing.T) {
 	for _, c := range []float64{0, -1, 50.01, 1000} {
-		if _, err := Open(filepath.Join(t.TempDir(), "l"), c); err == nil {
+		if _, err := Open(filepath.Join(t.TempDir(), "l"), c, bind); err == nil {
 			t.Errorf("cap %v accepted", c)
 		}
 	}
-	if _, err := Open(filepath.Join(t.TempDir(), "l"), MaxCapUSD); err != nil {
+	if _, err := Open(filepath.Join(t.TempDir(), "l"), MaxCapUSD, bind); err != nil {
 		t.Errorf("cap %v refused: %v", MaxCapUSD, err)
 	}
 }
@@ -80,7 +81,7 @@ func TestConcurrentReservationsAcrossLedgersNeverPassTheCap(t *testing.T) {
 	var ok atomic.Int64
 	var wg sync.WaitGroup
 	for p := 0; p < 3; p++ { // three "processes" sharing one file
-		l, err := Open(path, 5)
+		l, err := Open(path, 5, bind)
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -97,7 +98,7 @@ func TestConcurrentReservationsAcrossLedgersNeverPassTheCap(t *testing.T) {
 		}
 	}
 	wg.Wait()
-	l, _ := Open(path, 5)
+	l, _ := Open(path, 5, bind)
 	c, _ := l.Committed()
 	if c > 5+1e-9 || ok.Load() != 16 {
 		t.Fatalf("granted %d reservations, committed %v; want 16 and at most 5", ok.Load(), c)
@@ -222,5 +223,97 @@ func TestRequestWithoutOutputCapIsRefused(t *testing.T) {
 	_, err := wrap(g, open(t, 5)).Generate(context.Background(), llm.Request{Model: "m", Messages: []llm.Message{{Role: llm.RoleUser, Content: "hi"}}})
 	if err == nil || n.Load() != 0 {
 		t.Fatalf("err %v, requests %d", err, n.Load())
+	}
+}
+
+func TestOverrunStopsTheLedgerDurably(t *testing.T) {
+	l := open(t, 10)
+	r, err := l.Reserve("a", 1)
+	if err != nil {
+		t.Fatal(err)
+	}
+	other, err := l.Reserve("b", 1) // already in flight when the overrun lands
+	if err != nil {
+		t.Fatal(err)
+	}
+	if err := r.Settle(3, Reported); !errors.Is(err, ErrOverrun) {
+		t.Fatalf("settle = %v, want ErrOverrun", err)
+	}
+	if c, _ := l.Committed(); c != 4 { // 3 truly charged + 1 still reserved
+		t.Fatalf("committed %v, want the real charge recorded (4)", c)
+	}
+	if _, err := l.Reserve("c", 0.01); !errors.Is(err, ErrStopped) {
+		t.Fatalf("reservation after the overrun = %v, want ErrStopped", err)
+	}
+	reopened, err := Open(l.path, 10, bind) // a new process sees the same stop
+	if err != nil {
+		t.Fatal(err)
+	}
+	if _, err := reopened.Reserve("d", 0.01); !errors.Is(err, ErrStopped) {
+		t.Fatalf("reservation after reopening = %v, want ErrStopped", err)
+	}
+	if err := other.Settle(0.5, Reported); err != nil { // in-flight work can still settle
+		t.Fatal(err)
+	}
+	if on, _ := reopened.Stopped(); !on {
+		t.Fatal("stop lost")
+	}
+}
+
+func TestBindingIsImmutable(t *testing.T) {
+	path := filepath.Join(t.TempDir(), "ledger.jsonl")
+	if _, err := Open(path, 5, bind); err != nil {
+		t.Fatal(err)
+	}
+	for name, change := range map[string]func() (*Ledger, error){
+		"higher cap":  func() (*Ledger, error) { return Open(path, 50, bind) },
+		"lower cap":   func() (*Ledger, error) { return Open(path, 4, bind) },
+		"other model": func() (*Ledger, error) { return Open(path, 5, Binding{Model: "other", Rates: rates}) },
+		"input rate":  func() (*Ledger, error) { b := bind; b.Rates.InputPerMTok = 0.5; return Open(path, 5, b) },
+		"output rate": func() (*Ledger, error) { b := bind; b.Rates.OutputPerMTok = 20; return Open(path, 5, b) },
+		"source":      func() (*Ledger, error) { b := bind; b.Rates.Source = "another quote"; return Open(path, 5, b) },
+	} {
+		if _, err := change(); !errors.Is(err, ErrBinding) {
+			t.Errorf("%s: error %v, want ErrBinding", name, err)
+		}
+	}
+	if _, err := Open(path, 5, bind); err != nil {
+		t.Errorf("same binding refused: %v", err)
+	}
+	// A file with spending but no header, or a second header, fails closed.
+	body, _ := os.ReadFile(path)
+	headerless := filepath.Join(t.TempDir(), "h.jsonl")
+	_ = os.WriteFile(headerless, []byte(`{"t":"reserve","id":"x","usd":1,"at":"t"}`+"\n"), 0o600)
+	if _, err := Open(headerless, 5, bind); err == nil {
+		t.Error("headerless ledger accepted")
+	}
+	twice := filepath.Join(t.TempDir(), "t.jsonl")
+	_ = os.WriteFile(twice, append(append([]byte{}, body...), body...), 0o600)
+	if _, err := Open(twice, 5, bind); err == nil {
+		t.Error("second header accepted")
+	}
+	// A half-written last line fails closed and is not repaired.
+	half := filepath.Join(t.TempDir(), "half.jsonl")
+	_ = os.WriteFile(half, append(append([]byte{}, body...), []byte(`{"t":"reserve","id":"y","us`)...), 0o600)
+	before, _ := os.ReadFile(half)
+	if _, err := Open(half, 5, bind); err == nil {
+		t.Error("half-written ledger accepted")
+	}
+	if after, _ := os.ReadFile(half); string(after) != string(before) {
+		t.Error("the ledger was rewritten")
+	}
+}
+
+func TestClaimIsDurableAndExclusive(t *testing.T) {
+	l := open(t, 5)
+	if err := l.Claim("D1|held_out"); err != nil {
+		t.Fatal(err)
+	}
+	if err := l.Claim("D1|synthetic"); err != nil {
+		t.Fatal(err)
+	}
+	again, _ := Open(l.path, 5, bind)
+	if err := again.Claim("D1|held_out"); !errors.Is(err, ErrClaimed) {
+		t.Fatalf("second claim = %v, want ErrClaimed", err)
 	}
 }
