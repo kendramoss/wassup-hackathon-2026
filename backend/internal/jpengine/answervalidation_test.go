@@ -37,7 +37,7 @@ func avAnswer(outcome, crit, origin, rule, reasoning string, cited ...string) st
 	return string(b)
 }
 
-func avRun(t *testing.T, text string, mut func(*domain.Case)) (engine.Result, error, *llm.Fake) {
+func avRun(t *testing.T, text string, mut func(*domain.Case)) (engine.Result, *llm.Fake, error) {
 	t.Helper()
 	m := llm.FakeText(text)
 	eng, err := NewDefault(m, "fake", DefaultK)
@@ -49,7 +49,7 @@ func avRun(t *testing.T, text string, mut func(*domain.Case)) (engine.Result, er
 		mut(&c)
 	}
 	res, err := eng.Predict(context.Background(), c)
-	return res, err, m
+	return res, m, err
 }
 
 func TestQualifyingOriginMustBeOneRealCountryOrEU(t *testing.T) {
@@ -57,14 +57,14 @@ func TestQualifyingOriginMustBeOneRealCountryOrEU(t *testing.T) {
 		"Unknown", "China, Vietnam", "Vietnam and Thailand", "Vietnam; Thailand", "Vietnam/Thailand", "Vietnam or Thailand",
 		"Vietnam (not Japan)", "1", "Southeast Asia", "None", "Multiple countries", "Various countries", "Not specified", "Europe", "Africa", "Vietnam & Thailand", "Vietnam, not Japan", "Japan (JP)", "Vietnam | Thailand"}
 	for _, o := range bad {
-		_, err, _ := avRun(t, avAnswer(Qualifies, "CTH", o, "CTH", "ok"), nil)
+		_, _, err := avRun(t, avAnswer(Qualifies, "CTH", o, "CTH", "ok"), nil)
 		if !errors.Is(err, llm.ErrBadResponse) {
 			t.Errorf("origin %q: err = %v, want ErrBadResponse", o, err)
 		}
 	}
 	good := map[string]string{"EU": "EU", "European Union": "EU", "Viet Nam": "Vietnam", "  Vietnam  ": "Vietnam", "United States of America": "United States"}
 	for o, want := range good {
-		res, err, _ := avRun(t, avAnswer(Qualifies, "CTH", o, "CTH", "ok"), nil)
+		res, _, err := avRun(t, avAnswer(Qualifies, "CTH", o, "CTH", "ok"), nil)
 		if err != nil || res.Prediction.Origin != want {
 			t.Errorf("origin %q: got %q, %v; want %q", o, res.Prediction.Origin, err, want)
 		}
@@ -84,7 +84,7 @@ var agreementParties = []string{
 
 func TestSampleAgreementPartiesAreAcceptedOrigins(t *testing.T) {
 	for _, party := range agreementParties {
-		res, err, _ := avRun(t, avAnswer(Qualifies, "WO", party, "WO", "ok"), nil)
+		res, _, err := avRun(t, avAnswer(Qualifies, "WO", party, "WO", "ok"), nil)
 		if err != nil || res.Prediction.Origin == "" {
 			t.Errorf("party %q rejected: %v", party, err)
 		}
@@ -101,7 +101,7 @@ func TestRealWorldOriginSpellingsAreAccepted(t *testing.T) {
 		"Timor-Leste": "", "Trinidad and Tobago": "", "Bosnia and Herzegovina": "", "Congo, Democratic Republic of": "", "Tanzania, United Republic of": "", "South Africa": "South Africa", "United States of America": "United States",
 	}
 	for in, out := range want {
-		res, err, _ := avRun(t, avAnswer(Qualifies, "WO", in, "WO", "ok"), nil)
+		res, _, err := avRun(t, avAnswer(Qualifies, "WO", in, "WO", "ok"), nil)
 		if err != nil || res.Prediction.Origin == "" || (out != "" && res.Prediction.Origin != out) {
 			t.Errorf("origin %q: got %q, %v; want %q", in, res.Prediction.Origin, err, out)
 		}
@@ -109,7 +109,7 @@ func TestRealWorldOriginSpellingsAreAccepted(t *testing.T) {
 }
 
 func TestUndeterminedStaysAbstentionNotError(t *testing.T) {
-	res, err, _ := avRun(t, avAnswer(Undetermined, "NONE", "", "", "needs facts"), nil)
+	res, _, err := avRun(t, avAnswer(Undetermined, "NONE", "", "", "needs facts"), nil)
 	if err != nil || res.Prediction.Japan.Outcome != Undetermined || res.Prediction.Japan.ReviewReason == "" {
 		t.Fatalf("undetermined = %+v, %v", res.Prediction.Japan, err)
 	}
@@ -117,7 +117,7 @@ func TestUndeterminedStaysAbstentionNotError(t *testing.T) {
 
 func TestWhitespaceOnlyDecidingRuleIsRejected(t *testing.T) {
 	for _, rule := range []string{"   ", "\t\n", "\u0000", "\u202e", "　"} {
-		_, err, _ := avRun(t, avAnswer(Qualifies, "CTH", "Vietnam", rule, "ok"), nil)
+		_, _, err := avRun(t, avAnswer(Qualifies, "CTH", "Vietnam", rule, "ok"), nil)
 		if !errors.Is(err, llm.ErrBadResponse) {
 			t.Errorf("rule %q: err = %v", rule, err)
 		}
@@ -126,7 +126,7 @@ func TestWhitespaceOnlyDecidingRuleIsRejected(t *testing.T) {
 
 func TestReasoningAndRuleAreCappedAndSanitised(t *testing.T) {
 	long := strings.Repeat("é", 5000)
-	res, err, _ := avRun(t, avAnswer(Qualifies, "CTH", "Vietnam", long, long), nil)
+	res, _, err := avRun(t, avAnswer(Qualifies, "CTH", "Vietnam", long, long), nil)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -143,7 +143,7 @@ func TestReasoningAndRuleAreCappedAndSanitised(t *testing.T) {
 		t.Error("a rule at the cap must be kept whole")
 	}
 
-	res, err, _ = avRun(t, avAnswer(Qualifies, "CTH", "Vietnam", "<b>CTH\u0000</b>\u202e", "line one\nline\ttwo\u0000\u202e\u2066x\u200b\ufeffy\u0007 done"), nil)
+	res, _, err = avRun(t, avAnswer(Qualifies, "CTH", "Vietnam", "<b>CTH\u0000</b>\u202e", "line one\nline\ttwo\u0000\u202e\u2066x\u200b\ufeffy\u0007 done"), nil)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -156,7 +156,7 @@ func TestReasoningAndRuleAreCappedAndSanitised(t *testing.T) {
 }
 
 func TestRulingNumberMasking(t *testing.T) {
-	res, _, m := avRun(t, avAnswer(Undetermined, "NONE", "", "", "x"), nil)
+	res, m, _ := avRun(t, avAnswer(Undetermined, "NONE", "", "", "x"), nil)
 	if len(res.Prediction.Precedents) == 0 {
 		t.Fatal("need a retrieved precedent")
 	}
@@ -198,7 +198,7 @@ func TestZeroWidthJoinersAreKept(t *testing.T) {
 }
 
 func TestMaskingAppliesToReasoningAndRuleOnTheResult(t *testing.T) {
-	res, err, _ := avRun(t, avAnswer(Qualifies, "CTH", "Vietnam", "per JP 7777773", "like JP_7777771 and ＪＰ7777772"), nil)
+	res, _, err := avRun(t, avAnswer(Qualifies, "CTH", "Vietnam", "per JP 7777773", "like JP_7777771 and ＪＰ7777772"), nil)
 	if err != nil {
 		t.Fatal(err)
 	}
