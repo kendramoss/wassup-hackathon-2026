@@ -30,7 +30,7 @@ export function Reproduce() {
         <h2 id="repro-h" className="eyebrow">
           {T.reproTitle}
         </h2>
-        <a href={`${repo}/blob/main/docs/EVALUATION.md`} target="_blank" rel="noreferrer" className="ml-auto text-[12px] text-ok underline underline-offset-2">
+        <a href={`${repo}/blob/main/docs/EVALUATION.md`} target="_blank" rel="noreferrer" className="ml-auto text-[12px] text-ok underline underline-offset-2 max-sm:inline-flex max-sm:min-h-11 max-sm:items-center">
           How the test set is built →
         </a>
       </div>
@@ -110,7 +110,7 @@ export function KnownFailures({ all, onAllChange }: { all: boolean; onAllChange:
           </tbody>
         </table>
       </ScrollX>
-      <button type="button" onClick={() => onAllChange(!all)} className="mt-3 min-h-8 text-[12.5px] text-ok hover:underline" aria-expanded={all}>
+      <button type="button" onClick={() => onAllChange(!all)} className="mt-3 min-h-8 text-[12.5px] text-ok hover:underline max-sm:min-h-11" aria-expanded={all}>
         {all ? T.showAuto : T.showAll(data.misses.length)}
       </button>
 

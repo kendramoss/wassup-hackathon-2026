@@ -159,6 +159,20 @@ test("the landing's 'What is new' line no longer repeats the subtitle", () => {
   const sub = copy.match(/sub: "([^"]+)"/)[1];
   const novel = copy.match(/novel: \{\s+lead: "What is new:",\s+text: "([^"]+)"/)[1];
   assert.match(sub, /which production moves would change it/);
-  assert.equal(novel, "it shows only the moves an earlier CBP ruling backs.");
+  assert.equal(novel, "Unde shows only the moves an earlier CBP ruling backs.");
   assert.ok(!/change the origin|production moves/.test(novel));
+});
+
+test("review fixes: live-run labels are true, method terms are 24 px targets, fold controls are 44 px on phones", () => {
+  assert.match(copy, /unseeded: "Live run: starts when you click Find origin"/);
+  assert.match(copy, /planRuns: "Live run, then you can search for moves"/);
+  assert.ok(!/Runs when opened/.test(copy));
+  const mi = read("../src/app/method/method-inspector.css");
+  assert.match(mi.slice(mi.indexOf("#685")), /\.mi-schema dt > \[tabindex\] \{ display: inline-block; min-height: 24px; line-height: 24px; \}/);
+  assert.match(read("../src/lib/method-inspector.ts"), /label: "Rule-based search"/);
+  const fc = read("../src/components/op/failure-cases.tsx");
+  assert.match(fc, /max-sm:inline-flex max-sm:min-h-11 max-sm:items-center">\s+How the test set is built/);
+  assert.match(fc, /hover:underline max-sm:min-h-11" aria-expanded=\{all\}>/);
+  assert.match(read("../src/components/op/screens/accuracy-page.tsx"), /hover:underline max-sm:min-h-11">\s+\{all \? "Show the main numbers"/);
+  assert.match(read("../src/components/op/screens/cases-home.tsx"), /max-sm:inline-flex max-sm:min-h-11 max-sm:items-center"\s+>\s+\{T\.recordLink\}/);
 });

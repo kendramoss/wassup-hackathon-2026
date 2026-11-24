@@ -166,4 +166,7 @@
   }
   /* The ruling link in the For/Against pair: a 44 px tap height. */
   .mi-evidence-pair a { min-height: 44px; }
+  /* The schema names are focusable tooltips: 24 px tall each, so they
+     neither overlap nor sit closer than WCAG 2.5.8 allows. */
+  .mi-schema dt > [tabindex] { display: inline-block; min-height: 24px; line-height: 24px; }
 }

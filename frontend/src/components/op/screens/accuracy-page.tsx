@@ -465,7 +465,7 @@ export function AccuracyPage() {
         {/* #685: the historical 0.92 bar is on the model's own (stated)
             confidence; today's 0.90 bar is on calibrated confidence. */}
         <Kpi title="Right when it was sure" value={pct(autoRight / auto)}>
-          {autoRight} / {auto} right when the model’s own confidence was ≥ {bar.toFixed(2)}, the bar at the time, and the case was in scope. Today’s bar is {calibratedBar.toFixed(2)} on calibrated confidence.
+          {autoRight} / {auto} right when the model’s own confidence was ≥ {bar.toFixed(2)}, the bar at the time, and the case was in scope, so it was accepted without review. Today’s bar is {calibratedBar.toFixed(2)} on calibrated confidence.
         </Kpi>
         <Kpi title="Sent to human review" value={pct(review / n)}>
           {review} sent to review. The model had {reviewRight} right and {reviewWrong} wrong.
@@ -786,7 +786,7 @@ export function AccuracyPage() {
                   </tbody>
                 </table>
               </ScrollX>
-              <button type="button" onClick={() => setAll(!all)} className="mt-3 min-h-8 text-[12.5px] text-ok hover:underline">
+              <button type="button" onClick={() => setAll(!all)} className="mt-3 min-h-8 text-[12.5px] text-ok hover:underline max-sm:min-h-11">
                 {all ? "Show the main numbers" : `Show all ${items.length} numbers`}
               </button>
               <p className="duo mt-3 max-w-[90ch] text-[11.5px] text-dim">

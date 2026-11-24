@@ -52,7 +52,7 @@ export const methodStages = [
     label: "Gemini 3.8 Flash",
     tone: "model",
     input: [["Product facts", "text", "facts: string"]],
-    output: [["Origin rules", "name", "regime: string"], ["Product type", "name", "subfamily: string"]],
+    output: [["Origin rules", "rule set", "regime: string"], ["Product type", "type", "subfamily: string"]],
     guard: "The market is picked first. U.S. cases get the U.S. rules.",
     trace: [["Route", "Assembly"], ["Origin rules", "Where it became a new product"]],
     source: "prediction",
@@ -85,7 +85,7 @@ export const methodStages = [
   {
     id: "planner",
     title: "Move planner",
-    label: "Search in code",
+    label: "Rule-based search",
     tone: "evidence",
     input: [["Product", "parts and plants", "product: Product"], ["Target country", "country", "target: country"]],
     output: [["Moves shown", "list", "plans: Plan[]"], ["Moves set aside", "list", "rejected: Plan[]"], ["Search counts", "numbers", "stats: Stats"]],

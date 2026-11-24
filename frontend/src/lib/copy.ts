@@ -32,7 +32,10 @@ export const copy = {
     recorded: {
       label: "Recorded test run",
       recordLink: "Open the recorded run (JSON) →",
-      unseeded: "Runs when opened",
+      // The honesty label for a live card (#685 review): opening it only
+      // fills the form; the origin runs on "Find the likely origin", and the
+      // move search is a separate button.
+      unseeded: "Live run: starts when you click Find origin",
       engine: "Unde:",
       agrees: "Agrees with CBP",
       disagrees: "Disagrees with CBP",
@@ -41,7 +44,7 @@ export const copy = {
       noPlan: "No backed plan.",
       // On a card that starts a live run: the run will search plans, nothing
       // is shown yet (judge panel round 3: "Plan included" read as ready).
-      planRuns: "Runs when opened, then looks for production moves",
+      planRuns: "Live run, then you can search for moves",
       // A pinned demo read from CBP's text alone has no parts list to plan.
       originOnly: "Origin only: no parts list to plan",
       selection:
@@ -342,7 +345,7 @@ export const copy = {
   // subtitle does not say.
   novel: {
     lead: "What is new:",
-    text: "it shows only the moves an earlier CBP ruling backs.",
+    text: "Unde shows only the moves an earlier CBP ruling backs.",
   },
   landing: {
     eyebrow: "fig.0 — US Customs country of origin",

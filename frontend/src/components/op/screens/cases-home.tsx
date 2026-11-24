@@ -257,7 +257,7 @@ function RecordedRun({ r }: { r: NonNullable<NonNullable<DemoList["demos"]>[numb
           href={`https://github.com/kendramoss/wassup-hackathon-2026/blob/main/${encodeURI(r.file)}`}
           target="_blank"
           rel="noreferrer"
-          className="relative z-10 self-start text-ok underline underline-offset-2"
+          className="relative z-10 self-start text-ok underline underline-offset-2 max-sm:inline-flex max-sm:min-h-11 max-sm:items-center"
         >
           {T.recordLink}
         </a>
