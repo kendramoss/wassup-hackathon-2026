@@ -30,6 +30,14 @@ func TestGuardSendsLookalikesToReview(t *testing.T) {
 		{"power_supplies_chargers", "Lithium-ion jump starter", "", ""},
 		{"power_supplies_chargers", "Battery charger", "", ""},
 		{"power_supplies_chargers", "Rechargeable batteries", "", ""},
+		// Review B1: units, BMS boards, backups and locations are not the product word.
+		{"power_supplies_chargers", "Lithium battery 12V 100Ah", "", ""},
+		{"power_supplies_chargers", "LiFePO4 battery pack 48V", "", ""},
+		{"power_supplies_chargers", "Rechargeable power bank 10000mAh", "", ""},
+		{"power_supplies_chargers", "Rechargeable power bank 10000 mAh", "", ""},
+		{"power_supplies_chargers", "Battery management board", "", ""},
+		{"power_supplies_chargers", "Home UPS battery backup", "", ""},
+		{"power_supplies_chargers", "We assemble lithium battery packs in Vietnam", "", ""},
 		// ... a device that runs on one does not.
 		{"power_supplies_chargers", "Cordless drill", "", "battery-device"},
 		{"power_supplies_chargers", "Battery-powered lawn mower", "", "battery-device"},
@@ -48,6 +56,10 @@ func TestGuardSendsLookalikesToReview(t *testing.T) {
 		{"motors_pumps_compressors", "Concrete mixer", "", ""},
 		{"motors_pumps_compressors", "Cordless hammer drill", "", "hand-tool-or-appliance"},
 		{"motors_pumps_compressors", "Electric scooter", "", "vehicle"},
+		{"motors_pumps_compressors", "Hydraulic pallet truck", "", ""},
+		{"motors_pumps_compressors", "Electric forklift", "", ""},
+		{"motors_pumps_compressors", "Industrial blender", "", ""},
+		{"motors_pumps_compressors", "Personal blender", "", "hand-tool-or-appliance"},
 		// Furniture: furniture keeps it; lamps, pet beds and electrical
 		// cabinets do not.
 		{"furniture", "Dining table with stone top", "", ""},
@@ -60,6 +72,11 @@ func TestGuardSendsLookalikesToReview(t *testing.T) {
 		{"furniture", "Orthopedic dog sofa", "", "pet-product"},
 		{"furniture", "High voltage distribution cabinets", "", "electrical-cabinet"},
 		{"furniture", "Kitchen cabinet", "", ""},
+		{"furniture", "Pet-friendly sofa", "", ""},
+		{"furniture", "Cat-proof leather recliner", "", ""},
+		{"furniture", "Bed frame", "", ""},
+		{"furniture", "Cat tree", "", "pet-product"},
+		{"furniture", "Bed for dogs", "", "pet-product"},
 		// Medical and optical: devices and lenses keep their templates;
 		// drugs and toys do not.
 		{"medical_devices", "Hypodermic needles", "", ""},
@@ -68,8 +85,13 @@ func TestGuardSendsLookalikesToReview(t *testing.T) {
 		{"medical_devices", "Ibuprofen tablets", "", "drug"},
 		{"medical_devices", "Vitamin D3 gummy supplement", "", "drug"},
 		{"medical_devices", "Toy stethoscope", "", "toy"},
+		{"medical_devices", "Ultrasound gel", "", ""},
+		{"medical_devices", "Children's digital thermometer", "", ""},
+		{"medical_devices", "Kids' nebulizer", "", ""},
 		{"display_camera_modules", "Riflescope lens", "", ""},
-		{"display_camera_modules", "Kids' binoculars", "", "toy"},
+		{"display_camera_modules", "Toy binoculars", "", "toy"},
+		{"display_camera_modules", "Plug and play USB camera module", "", ""},
+		{"display_camera_modules", "Display module for children's tablet", "", ""},
 		{"display_camera_modules", "Novelty sunglasses", "", "toy"},
 		// Rules belong to their families: the same words elsewhere do nothing.
 		{"led_lights", "Floor lamp", "", ""},
@@ -89,7 +111,9 @@ func TestGuardSendsLookalikesToReview(t *testing.T) {
 		if rule == "" && got != in {
 			t.Errorf("%q: result changed with no rule: %+v", c.typed, got)
 		}
-		if rule != "" && (got.Family != None || got.Name != "" || !strings.Contains(got.Reason, GuardVersion) || !strings.Contains(got.Reason, "model")) {
+		if rule != "" && (got.Family != None || got.Name != "" || got.Confidence != 0 || got.GuardRule != rule ||
+			got.ModelFamily != c.family || got.ModelReason != "model" || !strings.HasPrefix(got.Reason, "Not planned as x: ") ||
+			strings.Contains(got.Reason, GuardVersion) || strings.Contains(got.Reason, "rule ") || strings.Contains(got.Reason, "_")) {
 			t.Errorf("%q: guarded result %+v", c.typed, got)
 		}
 	}
@@ -108,20 +132,40 @@ func TestCheckAppliesTheGuard(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if r.Family != None || r.Name != "" || !strings.Contains(r.Reason, "rule lighting") {
+	if r.Family != None || r.Name != "" || r.Confidence != 0 || r.GuardRule != "lighting" || r.ModelFamily != "furniture" ||
+		r.Reason != "Not planned as Furniture and mattresses: a lamp or light fitting is lighting, not furniture." {
 		t.Errorf("result = %+v", r)
+	}
+	b, _ := json.Marshal(r)
+	if strings.Contains(string(b), "furniture\"") || strings.Contains(string(b), "lighting\"") {
+		t.Errorf("the guard's log fields reached the JSON: %s", b)
 	}
 }
 
-func TestProductLineAndHeadNoun(t *testing.T) {
-	for in, want := range map[string]string{
-		"Typed: cordless drill\nParts: motor":       "cordless drill",
-		"Product name: Floor lamp\nParts: base":     "Floor lamp",
-		"Product: Country of origin of a lamp\n\nX": "Country of origin of a lamp",
-		"\n  Power bank  \nmore":                    "Power bank",
+// Review B1: an import with no product name sends only "Parts: ..."; the
+// guard reads no parts list, so a battery pack's parts never take its match.
+func TestGuardIgnoresAPartsList(t *testing.T) {
+	in := Result{Family: "power_supplies_chargers", Name: "x", Confidence: 0.9, Reason: "model"}
+	if got, rule := Guard("Parts: housing, lithium cells, BMS board", in); rule != "" || got != in {
+		t.Errorf("parts only = %+v, %q", got, rule)
+	}
+	// The model's product name is still read.
+	in.ProductName = "Cordless drill"
+	if _, rule := Guard("Parts: motor, lithium cells, chuck", in); rule != "battery-device" {
+		t.Errorf("product name rule = %q", rule)
+	}
+}
+
+func TestProductLinesAndHeadNoun(t *testing.T) {
+	for in, want := range map[string][]string{
+		"Typed: cordless drill\nProduct name: Drill\nParts: motor": {"cordless drill", "Drill"},
+		"Product name: Floor lamp\nParts: base":                    {"Floor lamp"},
+		"Product: Country of origin of a lamp\n\nX":                {"Country of origin of a lamp"},
+		"\n  Power bank  \nmore":                                   nil,
+		"Parts: housing, lithium cells, BMS board":                 nil,
 	} {
-		if got := ProductLine(in); got != want {
-			t.Errorf("ProductLine(%q) = %q, want %q", in, got, want)
+		if got := ProductLines(in); !slices.Equal(got, want) {
+			t.Errorf("ProductLines(%q) = %q, want %q", in, got, want)
 		}
 	}
 	for in, want := range map[string]string{
@@ -133,6 +177,11 @@ func TestProductLineAndHeadNoun(t *testing.T) {
 		"power bank (10,000 mah)":           "bank",
 		"set of dining chairs":              "chair",
 		"the country of origin and marking of battery chargers": "charger",
+		"lithium battery 12v 100ah":                             "battery",
+		"lifepo4 battery pack 48v":                              "pack",
+		"rechargeable power bank 10000mah":                      "bank",
+		"we assemble lithium battery packs in vietnam":          "pack",
+		"12v": "",
 	} {
 		if got := headNoun(in); got != want {
 			t.Errorf("headNoun(%q) = %q, want %q", in, got, want)

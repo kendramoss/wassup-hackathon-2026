@@ -7,7 +7,7 @@ import (
 
 // GuardVersion names the deterministic checks below (D783). A change to a
 // rule needs a new version, like a prompt change.
-const GuardVersion = "family-guard-v1"
+const GuardVersion = "family-guard-v2"
 
 // guardRule sends a model's match to "none" (review) when the product line
 // names a product that only shares a cue with the family: a cordless drill is
@@ -28,18 +28,24 @@ var (
 	batteryCue = regexp.MustCompile(`batter|cordless|rechargeable|lithium|li-ion`)
 	// Head nouns of goods the power supplies, chargers and battery packs
 	// template covers.
-	powerHeads = words("battery batterie cell pack bank station starter charger adapter supply module storage system converter inverter generator bms unit dock cradle")
+	powerHeads = words("battery batterie cell pack bank station starter charger adapter supply module storage system converter inverter generator bms unit dock cradle board backup ups")
 	materialRe = regexp.MustCompile(`cathode|anode|electrode|graphite|electrolyte|active material|precursor`)
 	matHeads   = words("material powder graphite electrolyte precursor foil slurry")
 	lightHeads = words("lamp light lantern chandelier sconce luminaire bulb lighting")
+	petWords   = words("pet dog cat puppy kitten")
+	petHeads   = words("bed house tree crate kennel")
 	petRe      = regexp.MustCompile(`\b(pet|dog|cat|puppy|kitten)s?\b`)
 	elecCabRe  = regexp.MustCompile(`distribution|switchgear|electrical|electric panel|server|network|telecom|battery`)
 	cabHeads   = words("cabinet rack enclosure box")
-	drugRe     = regexp.MustCompile(`\b(tablet|capsule|drug|medicine|medication|vaccine|ointment|cream|syrup|supplement|vitamin|gel|lozenge)s?\b|active pharmaceutical|\bapi\b`)
-	drugHeads  = words("tablet capsule drug medicine medication vaccine ointment cream syrup supplement vitamin gel lozenge solution api ingredient")
-	toyRe      = regexp.MustCompile(`\btoys?\b|novelty|\bkids?'?\b|children'?s?|\bplay\b|\bplayset\b`)
+	drugRe     = regexp.MustCompile(`\b(tablet|capsule|drug|medicine|medication|vaccine|ointment|cream|syrup|supplement|vitamin|lozenge)s?\b|active pharmaceutical|\bapi\b`)
+	drugHeads  = words("tablet capsule drug medicine medication vaccine ointment cream syrup supplement vitamin lozenge api ingredient")
+	toyRe      = regexp.MustCompile(`\btoys?\b|\bnovelty\b`)
 	toolHeads  = words("drill sander mower trimmer blender nailer")
-	vehHeads   = words("scooter bike bicycle e-bike car truck vehicle motorcycle cart moped kart")
+	proRe      = regexp.MustCompile(`industrial|commercial`)
+	// Trucks and carts are left out: a hydraulic pallet truck is a machine.
+	vehHeads = words("scooter bike bicycle e-bike car vehicle motorcycle moped kart")
+	// Unit words read as the last word of "12V 100Ah" or "10000 mAh".
+	unitWords = words("v w ah mah wh kwh kw mp mm cm m a va vdc vac in ft lb kg g")
 )
 
 var guardRules = []guardRule{
@@ -48,25 +54,25 @@ var guardRules = []guardRule{
 		"a battery material (a chemical input) is not a battery, charger or power supply"},
 	{"battery-device", []string{"power_supplies_chargers"},
 		func(p, h string) bool { return batteryCue.MatchString(p) && !powerHeads[h] && !matHeads[h] },
-		"a device that runs on a battery is not a battery pack or power supply: plan it under the device's own family"},
+		"a device that runs on a battery is not a battery pack or power supply; choose the device's own family"},
 	{"vehicle", []string{"power_supplies_chargers", "motors_pumps_compressors"},
 		func(_, h string) bool { return vehHeads[h] },
 		"a vehicle is not a battery pack or an industrial machine"},
 	{"hand-tool-or-appliance", []string{"motors_pumps_compressors"},
-		func(_, h string) bool { return toolHeads[h] },
+		func(p, h string) bool { return toolHeads[h] && !proRe.MatchString(p) },
 		"a hand-held power tool or small appliance belongs with motorised tools and small appliances, not industrial machines"},
 	{"lighting", []string{"furniture"},
 		func(_, h string) bool { return lightHeads[h] },
 		"a lamp or light fitting is lighting, not furniture"},
 	{"pet-product", []string{"furniture"},
-		func(p, _ string) bool { return petRe.MatchString(p) },
-		"a pet bed or pet product is not furniture (D138 called this match a stretch)"},
+		func(p, h string) bool { return petBefore(p, h) || petHeads[h] && petRe.MatchString(p) },
+		"a pet bed or other pet product is not furniture"},
 	{"electrical-cabinet", []string{"furniture"},
 		func(p, h string) bool { return cabHeads[h] && elecCabRe.MatchString(p) },
 		"an electrical, server or battery cabinet is electrical apparatus, not furniture"},
 	{"drug", []string{"medical_devices", "display_camera_modules"},
 		func(p, h string) bool { return drugRe.MatchString(p) && drugHeads[h] },
-		"a drug or supplement is not a device; pharmaceutical origin has its own engine"},
+		"a drug or supplement is not a device; drugs are checked under the pharmaceutical rules"},
 	{"toy", []string{"medical_devices", "display_camera_modules"},
 		func(p, _ string) bool { return toyRe.MatchString(p) },
 		"a toy or novelty with optics or a medical look is not a medical device or optical instrument"},
@@ -82,14 +88,18 @@ func GuardRules() []string {
 }
 
 // Guard applies the deterministic checks to a model's answer for text (the
-// input Check was given). It returns the result, with the family taken away
-// when a rule fires, and the rule's id ("" when none fired).
+// input Check was given). It reads only the lines that name the product (the
+// "Typed:", "Product name:" or "Product:" line) and the model's product name;
+// with neither it does nothing. When a rule fires it takes the family away,
+// sets the confidence to 0, puts a plain sentence in Reason, and keeps the
+// model's family, reason and the rule for logs (ModelFamily, ModelReason,
+// GuardRule; not in the JSON). It returns the rule's id ("" when none fired).
 func Guard(text string, r Result) (Result, string) {
 	if r.Family == None {
 		return r, ""
 	}
 	var phrases []string
-	for _, p := range []string{ProductLine(text), r.ProductName} {
+	for _, p := range append(ProductLines(text), r.ProductName) {
 		if p = strings.ToLower(strings.TrimSpace(p)); p != "" {
 			phrases = append(phrases, p)
 		}
@@ -99,10 +109,14 @@ func Guard(text string, r Result) (Result, string) {
 			continue
 		}
 		for _, p := range phrases {
-			if g.match(p, headNoun(p)) {
-				from := r.Family
-				r.Family, r.Name = None, ""
-				r.Reason = "Not matched to " + from + ": " + g.reason + " (" + GuardVersion + ", rule " + g.id + "). Model reason: " + r.Reason
+			if h := headNoun(p); h != "" && g.match(p, h) {
+				r.ModelFamily, r.ModelReason, r.GuardRule = r.Family, r.Reason, g.id
+				name := r.Name
+				if name == "" {
+					name = r.Family
+				}
+				r.Reason = "Not planned as " + name + ": " + g.reason + "."
+				r.Family, r.Name, r.Confidence = None, "", 0
 				return r, g.id
 			}
 		}
@@ -110,35 +124,42 @@ func Guard(text string, r Result) (Result, string) {
 	return r, ""
 }
 
-// ProductLine is the line of text that names the product: the "Typed:",
-// "Product name:" or "Product:" line, else the first non-empty line.
-func ProductLine(text string) string {
-	first := ""
+// ProductLines are the lines of text that name the product: the "Typed:",
+// "Product name:" and "Product:" (the coverage eval's subject) lines. A parts
+// list never names the product, so text with none of them gives none.
+func ProductLines(text string) []string {
+	var out []string
 	for _, line := range strings.Split(text, "\n") {
 		line = strings.TrimSpace(line)
-		if line == "" {
-			continue
-		}
 		for _, pre := range []string{"Typed:", "Product name:", "Product:"} {
 			if strings.HasPrefix(line, pre) {
-				return strings.TrimSpace(strings.TrimPrefix(line, pre))
+				out = append(out, strings.TrimSpace(strings.TrimPrefix(line, pre)))
+				break
 			}
 		}
-		if first == "" {
-			first = line
-		}
 	}
-	return first
+	return out
 }
 
-var tokenRe = regexp.MustCompile(`[a-z][a-z'-]*`)
-
-// headNoun is the last word of a product phrase before any "for", "with",
-// "from" or comma clause and after the last "of", in the singular:
+// headNoun is the product word of a phrase: the last word before a "for",
+// "with", "from", "in" or comma clause and after the last "of", skipping
+// words with digits and unit words ("12V 100Ah"), in the singular:
 // "Cordless drill with two batteries" -> "drill", "Floor lamps" -> "lamp",
-// "Set of chairs" and "The country of origin of two chairs" -> "chair".
+// "Lithium battery 12V 100Ah" -> "battery", "We assemble lithium battery
+// packs in Vietnam" -> "pack".
 func headNoun(p string) string {
-	for _, sep := range []string{",", ";", "(", " for ", " with ", " from ", " - "} {
+	toks := phraseWords(p)
+	if len(toks) == 0 {
+		return ""
+	}
+	return singular(toks[len(toks)-1])
+}
+
+// phraseWords are the words of the product phrase that headNoun reads, in
+// order.
+func phraseWords(p string) []string {
+	p = " " + p + " "
+	for _, sep := range []string{",", ";", "(", " for ", " with ", " from ", " in ", " made ", " - "} {
 		if i := strings.Index(p, sep); i > 0 {
 			p = p[:i]
 		}
@@ -146,20 +167,40 @@ func headNoun(p string) string {
 	if i := strings.LastIndex(p, " of "); i >= 0 {
 		p = p[i+len(" of "):]
 	}
-	toks := tokenRe.FindAllString(p, -1)
-	if len(toks) == 0 {
-		return ""
+	var out []string
+	for _, f := range strings.Fields(p) {
+		if strings.ContainsAny(f, "0123456789") {
+			continue
+		}
+		w := strings.Trim(tokenRe.FindString(f), "'-")
+		if w == "" || unitWords[w] {
+			continue
+		}
+		out = append(out, w)
 	}
-	w := strings.Trim(toks[len(toks)-1], "'-")
+	return out
+}
+
+var tokenRe = regexp.MustCompile(`[a-z][a-z'-]*`)
+
+func singular(w string) string {
 	switch {
 	case strings.HasSuffix(w, "ies") && len(w) > 4:
-		w = w[:len(w)-3] + "y"
+		return w[:len(w)-3] + "y"
 	case strings.HasSuffix(w, "ches") || strings.HasSuffix(w, "shes") || strings.HasSuffix(w, "xes"):
-		w = w[:len(w)-2]
+		return w[:len(w)-2]
 	case strings.HasSuffix(w, "s") && !strings.HasSuffix(w, "ss") && len(w) > 3:
-		w = w[:len(w)-1]
+		return w[:len(w)-1]
 	}
 	return w
+}
+
+// petBefore reports whether a pet word comes right before the product word
+// ("dog sofa", "pet bed"), not anywhere ("pet-friendly sofa").
+func petBefore(p, head string) bool {
+	toks := phraseWords(p)
+	n := len(toks)
+	return n >= 2 && singular(toks[n-1]) == head && petWords[singular(toks[n-2])]
 }
 
 func words(s string) map[string]bool {

@@ -3,7 +3,7 @@
   "version": "2",
   "union_default_operations": true,
   "name": "Power supplies, chargers and battery packs",
-  "note": "For power supplies, adapters and chargers, CBP generally finds origin where the main printed circuit board assembly (PCBA), power conversion module or inductive charging module is made; inserting those into housings, soldering wires and connectors, sealing, testing and packing do not change it. For battery products the pool rulings point both ways and no single part always decides: a power bank and a power-tool battery pack took the origin of their cells over a PCBA or cell monitoring board made elsewhere, a pouch cell took the origin of the country that made it from imported electrode materials, and a flow battery took the origin of the country that built its stacks; but a portable power station took the origin of its six PCBAs over its Chinese battery bank. Written from 23 CBP substantial-transformation rulings outside the dev and held-out splits (D138), with six battery rulings from the train and other pools added in version 2 (D782); every battery citation was read against its facts and held origin. Costs are illustrative defaults; users edit them.",
+  "note": "For power supplies, adapters and chargers, CBP generally finds origin where the main printed circuit board assembly (PCBA), power conversion module or inductive charging module is made; inserting those into housings, soldering wires and connectors, sealing, testing and packing do not change it. For battery products the pool rulings point both ways and no single part always decides: a power bank and a power-tool battery pack took the origin of their cells over a PCBA or cell monitoring board made elsewhere, a pouch cell took the origin of the country that made it from imported electrode materials, and a flow battery took the origin of the country that built its stacks; but a portable power station's origin followed where its PCBAs were made across four scenarios, and its batteries were Chinese in all. Written from 23 CBP substantial-transformation rulings outside the dev and held-out splits (D138), with six battery rulings from the train and other pools added in version 2 (D782); every battery citation was read against its facts and held origin. Costs are illustrative defaults; users edit them.",
   "sources": [
     "N331901",
     "N331934",
@@ -48,7 +48,7 @@
           "N346403",
           "N347193"
         ],
-        "note": "CBP holds that the country where bare PCBs are populated and soldered into functional power conversion and control PCBAs confers origin (N331901, N344179, N346631, N349313); a portable power station whose six PCBAs, battery protection board included, were made in Vietnam was held Vietnamese though it was assembled in China with Chinese batteries (N348871). For power banks and a power-tool battery pack the PCBA did not decide: a Vietnamese SMT PCBA (N346317, N346403) and a Chinese cell monitoring board (N347193) left the origin with the cells."
+        "note": "CBP holds that the country where bare PCBs are populated and soldered into functional power conversion and control PCBAs confers origin (N331901, N344179, N346631, N349313); a portable power station's origin followed where its PCBAs, battery protection board included, were made across four scenarios (Vietnam when they were made there, though it was assembled in China); its batteries were Chinese in all (N348871). For power banks and a power-tool battery pack the PCBA did not decide: a Vietnamese SMT PCBA (N346317, N346403) and a Chinese cell monitoring board (N347193) left the origin with the cells."
       }
     },
     {
@@ -71,7 +71,7 @@
           "N349313",
           "N348871"
         ],
-        "note": "Manufacturing the core power conversion module (such as an SMPS or IGBT module) or inductive charging module confers origin when combined with the PCBA or control board (N333268, N342133, N347058, N349537), though a foreign inverter block alone did not outweigh domestic manufacturing of eight PCBAs and system integration in N349313. A Japanese inverter did not make Japan the origin of a portable power station whose other boards were Vietnamese (N348871)."
+        "note": "Manufacturing the core power conversion module (such as an SMPS or IGBT module) or inductive charging module confers origin when combined with the PCBA or control board (N333268, N342133, N347058, N349537), though a foreign inverter block alone did not outweigh domestic manufacturing of eight PCBAs and system integration in N349313. A portable power station with a Japanese inverter and its other boards made in Vietnam was held Vietnamese (N348871)."
       }
     },
     {
@@ -115,7 +115,7 @@
         "not_enough": [
           "N348871"
         ],
-        "note": "Making the cell from imported electrode materials (slurry, coating, stacking, electrolyte filling, formation) made South Korea the origin of a pouch cell (N347172); a power-tool battery pack took its cells' origin, whichever of three countries made them (N347193); power banks assembled in Vietnam took the origin of their Chinese cells (N346317, N346403); and building the stacks of a flow battery in the United Kingdom was part of what made it British (N342506). The cells did not decide for a portable power station: Chinese batteries did not outweigh six Vietnamese PCBAs (N348871)."
+        "note": "Making the cell from imported electrode materials (slurry, coating, stacking, electrolyte filling, formation) made South Korea the origin of a pouch cell (N347172); a power-tool battery pack took its cells' origin, whichever of three countries made them (N347193); power banks assembled in Vietnam took the origin of their Chinese cells (N346317, N346403); and building the stacks of a flow battery in the United Kingdom was part of what made it British (N342506). The cells did not decide for a portable power station: its origin followed where its PCBAs were made across four scenarios, and its batteries were Chinese in all (N348871)."
       }
     },
     {

@@ -3,7 +3,7 @@
   "version": "2",
   "union_default_operations": true,
   "name": "Motors, pumps, compressors and industrial machines",
-  "note": "For electric motors, pumps, compressors and related fluid-handling equipment, CBP usually finds that origin is conferred by the manufacture of the core functional mechanism, such as the stator and rotor, impeller, rotary group, compressor unit or heavy-duty machined fluid-end housing, or by extensive local sheet-metal fabrication combined with multi-stage subassembly. Simple mechanical assembly of pre-manufactured motors, impellers, switches, valves and control boards into a housing, or minor finishing of imported blanks, does not. For industrial machines (version 2) the rulings turn on the facts: a robot arm and a metal detector head decided origin over the frames, tooling and assembly added elsewhere, while building an injection moulding machine from about ten subassemblies, with its software programmed there, and assembling a wind turbine nacelle's generator and frames made the assembly country the origin. Written from 10 CBP substantial-transformation rulings outside the dev and held-out splits (D212), with four machine rulings from the train pool added in version 2 (D782). Costs are illustrative defaults; users edit them.",
+  "note": "For electric motors, pumps, compressors and related fluid-handling equipment, CBP usually finds that origin is conferred by the manufacture of the core functional mechanism, such as the stator and rotor, impeller, rotary group, compressor unit or heavy-duty machined fluid-end housing, or by extensive local sheet-metal fabrication combined with multi-stage subassembly. Simple mechanical assembly of pre-manufactured motors, impellers, switches, valves and control boards into a housing, or minor finishing of imported blanks, does not. For industrial machines (version 2) the rulings turn on the facts: a robot arm and a metal detector head decided origin over the frames, tooling and assembly added elsewhere, while building an injection moulding machine from about ten subassemblies, with its software programmed there, and a wind turbine nacelle was held French on the French assembly work taken collectively. Written from 10 CBP substantial-transformation rulings outside the dev and held-out splits (D212), with four machine rulings from the train pool added in version 2 (D782). Costs are illustrative defaults; users edit them.",
   "sources": [
     "N333514",
     "N333849",
@@ -112,7 +112,7 @@
         "not_enough": [
           "N349312"
         ],
-        "note": "The unit that does the work decided origin when the rest was frames, tooling and assembly: a Japanese robot arm (N346867) and a Chinese metal detector head (N340920). Assembling the rotor and stator into a nacelle's drivetrain in France was among the processes that made France the origin (N333849). It did not decide for an injection moulding machine: EU-made plasticizing components and servo motors did not outweigh the assembly of about ten subassemblies in Mexico (N349312)."
+        "note": "The unit that does the work decided origin when the rest was frames, tooling and assembly: a Japanese robot arm (N346867) and a Chinese metal detector head (N340920). In France a nacelle generator's rotor and stator were assembled and built into drivetrain subassemblies made in China; CBP held France on the French work taken collectively (N333849). It did not decide for an injection moulding machine: EU-made plasticizing components and servo motors did not outweigh the assembly of about ten subassemblies in Mexico (N349312)."
       }
     },
     {
@@ -159,7 +159,7 @@
           "N340920",
           "N346867"
         ],
-        "note": "Final assembly conferred origin when combined with local steel chassis fabrication and key subassembly manufacturing (N347270, N347271, N347272), or when a machine was built from about ten subassemblies with its software programmed there (N349312) or a nacelle's generator and frames were assembled and joined there (N333849); simply assembling imported components like impellers, motors and housings was not enough (N333514, N347899, N351810), nor mounting a finished robot arm on a pedestal with a gripper and camera (N346867) or joining a detector head to a conveyor and reject unit (N340920)."
+        "note": "Final assembly conferred origin when combined with local steel chassis fabrication and key subassembly manufacturing (N347270, N347271, N347272), or when a machine was built from about ten subassemblies with its software programmed there (N349312) or a nacelle's rotor and stator were assembled and its frames joined there, CBP weighing that work collectively (N333849); simply assembling imported components like impellers, motors and housings was not enough (N333514, N347899, N351810), nor mounting a finished robot arm on a pedestal with a gripper and camera (N346867) or joining a detector head to a conveyor and reject unit (N340920)."
       }
     }
   ]

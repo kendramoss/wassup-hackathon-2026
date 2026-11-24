@@ -1,4 +1,4 @@
-"""D785: family-check matches on the development split with main's templates
+"""D785, amended by D786: family-check matches on the development split with main's templates
 (tag f26-b2-base) and #772's (tag f26-b2). Written and pushed before either
 run. No model calls: reads the two result files.
 
@@ -20,7 +20,6 @@ OPTICAL = {"N350680", "N350838"}
 # The family each frozen list's look-alikes share a cue with.
 CUE = {"batteries": {"power_supplies_chargers"}, "machinery": {"motors_pumps_compressors"}, "furniture": {"furniture"},
        "medical_optical": {"medical_devices", "display_camera_modules"}}
-GUARD = "family-guard-v1"
 
 
 def wilson(k, n, z=1.959963984540054):
@@ -96,11 +95,9 @@ def build(root):
                             "gained": {r: n[r]["family"] for r in gained}, "lost": {r: b[r]["family"] for r in lost},
                             "moved": {r: [b[r]["family"], n[r]["family"]] for r in moved}}
     for r in sorted(n):
-        reason = n[r].get("reason") or ""
-        if GUARD in reason and reason.startswith("Not matched to "):
-            fam = reason[len("Not matched to "):].split(":")[0]
-            rule = reason.split("rule ")[1].split(")")[0] if "rule " in reason else ""
-            out["guard"].append({"ruling": r, "model_family": fam, "rule": rule, "base_family": b.get(r, {}).get("family")})
+        if n[r].get("guard_rule"):
+            out["guard"].append({"ruling": r, "model_family": n[r].get("model_family"), "rule": n[r]["guard_rule"],
+                                 "base_family": b.get(r, {}).get("family")})
     return out
 
 

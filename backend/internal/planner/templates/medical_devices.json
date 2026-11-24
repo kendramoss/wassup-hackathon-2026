@@ -141,10 +141,9 @@
       "precedent": {
         "not_enough": [
           "H322967",
-          "N341537",
-          "N361712"
+          "N341537"
         ],
-        "note": "Packing and sterilising did not change origin: safety needles packed and sterilised in the United States kept their needles' origin (H322967), drill bits packed and sterilised in Ireland stayed Chinese (N341537), and hubbed needles gamma sterilised in China took their needles' origin (N361712)."
+        "note": "Packing and sterilising did not change origin: safety needles packed and sterilised in the United States kept their needles' origin (H322967), and drill bits packed and sterilised in Ireland stayed Chinese (N341537)."
       }
     },
     {

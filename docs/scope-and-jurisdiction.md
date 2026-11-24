@@ -129,7 +129,7 @@ The relocation planner has 26 templates, loaded by `planner.LoadTemplates` (`bac
 | `toys_build_kits` | Toys and build kits (D660) | `backend/internal/planner/templates/toys_build_kits.json` |
 | `hvac_heating_units` | Heat pumps, furnaces and heaters (D660) | `backend/internal/planner/templates/hvac_heating_units.json` |
 
-Batteries, machinery, furniture, and medical or optical goods (D780–D784) have no template of their own; they are covered inside the templates below, at version 2, and a deterministic guard after the family check (`family-guard-v1`) sends look-alike products to review.
+Batteries, machinery, furniture, and medical or optical goods (D780–D784) have no template of their own; they are covered inside the templates below, at version 2, and a deterministic guard after the family check (`family-guard-v2`, D786) sends look-alike products to review.
 
 | Area | Template (version) | Covered by cited rulings | Not covered |
 |---|---|---|---|

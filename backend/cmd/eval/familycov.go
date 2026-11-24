@@ -46,6 +46,10 @@ type familyCovRow struct {
 	Error        string  `json:"error,omitempty"`
 	// LatencyMS is the wall time of the check, retry included (D785).
 	LatencyMS int64 `json:"latency_ms,omitempty"`
+	// ModelFamily and GuardRule: when the guard (familycheck.GuardVersion)
+	// took the match away, the model's own family and the rule (D786).
+	ModelFamily string `json:"model_family,omitempty"`
+	GuardRule   string `json:"guard_rule,omitempty"`
 }
 
 // familyCovCmd measures product-scope coverage (D138): the share of a
@@ -200,7 +204,7 @@ func familyCovCmd(args []string) error {
 		"time": time.Now().Format(time.RFC3339), "run": name, "split": *split, "held_out": *split == "final",
 		"cases": len(rows), "scored": n, "errors": errs, "covered": covered, "coverage": round(p),
 		"ci95": []float64{round(lo), round(hi)}, "templates": len(tmpls), "family_model": *model,
-		"llm_provider": cfg.LLMProvider, "prompt_version": familycheck.PromptVersion, "match_bar": familyCovBar,
+		"llm_provider": cfg.LLMProvider, "prompt_version": familycheck.PromptVersion, "guard_version": familycheck.GuardVersion, "match_bar": familyCovBar,
 		"cost_usd": round(cost), "git_revision": revision(), "wall_s": int(time.Since(start).Seconds()),
 	}
 	b, _ := json.Marshal(entry)
@@ -233,6 +237,7 @@ func checkOne(ctx context.Context, c *familycheck.Checker, r domain.Ruling, mode
 		return row
 	}
 	row.Family, row.Confidence, row.Reason = res.Family, res.Confidence, res.Reason
+	row.ModelFamily, row.GuardRule = res.ModelFamily, res.GuardRule
 	row.Covered = res.Family != familycheck.None && res.Confidence >= familyCovBar
 	return row
 }

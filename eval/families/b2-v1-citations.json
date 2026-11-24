@@ -1,5 +1,5 @@
 {
- "note": "Rulings cited by each template before D781 (version 1), for M1 before/after.",
+ "note": "Rulings and group/outcome pairs cited by each template before D781 (version 1, main at 1c1a63f0), for M1 and the D786 pairing check.",
  "templates": {
   "power_supplies_chargers": {
    "version": "1",
@@ -16,6 +16,29 @@
     "N348708",
     "N349313",
     "N349537"
+   ],
+   "pairs": [
+    "final_assembly:confers_origin:N342133",
+    "final_assembly:confers_origin:N344179",
+    "final_assembly:not_enough:N333268",
+    "final_assembly:not_enough:N347058",
+    "final_assembly:not_enough:N349537",
+    "housing_cables_parts:not_enough:N342133",
+    "housing_cables_parts:not_enough:N347058",
+    "housing_cables_parts:not_enough:N348029",
+    "housing_cables_parts:not_enough:N349537",
+    "pcba_manufacturing:confers_origin:N331901",
+    "pcba_manufacturing:confers_origin:N331934",
+    "pcba_manufacturing:confers_origin:N344179",
+    "pcba_manufacturing:confers_origin:N346631",
+    "pcba_manufacturing:confers_origin:N348708",
+    "pcba_manufacturing:confers_origin:N349313",
+    "power_charging_modules:confers_origin:N331943",
+    "power_charging_modules:confers_origin:N333268",
+    "power_charging_modules:confers_origin:N342133",
+    "power_charging_modules:confers_origin:N347058",
+    "power_charging_modules:confers_origin:N349537",
+    "power_charging_modules:not_enough:N349313"
    ]
   },
   "motors_pumps_compressors": {
@@ -28,6 +51,26 @@
     "N347272",
     "N347899",
     "N351810"
+   ],
+   "pairs": [
+    "controls_and_valves:not_enough:N344081",
+    "controls_and_valves:not_enough:N347271",
+    "controls_and_valves:not_enough:N347899",
+    "controls_and_valves:not_enough:N351810",
+    "final_assembly:confers_origin:N347270",
+    "final_assembly:confers_origin:N347271",
+    "final_assembly:confers_origin:N347272",
+    "final_assembly:not_enough:N333514",
+    "final_assembly:not_enough:N347899",
+    "final_assembly:not_enough:N351810",
+    "fluid_rotary_mechanism:confers_origin:N333514",
+    "fluid_rotary_mechanism:not_enough:N333514",
+    "housing_and_chassis:confers_origin:N347270",
+    "housing_and_chassis:confers_origin:N347271",
+    "housing_and_chassis:confers_origin:N347272",
+    "housing_and_chassis:confers_origin:N351810",
+    "housing_and_chassis:not_enough:N344081",
+    "motor_stator_rotor:confers_origin:N344081"
    ]
   },
   "furniture": {
@@ -43,6 +86,26 @@
     "N339685",
     "N344246",
     "N348576"
+   ],
+   "pairs": [
+    "electronics_mechanisms:confers_origin:N330057",
+    "electronics_mechanisms:not_enough:H330862",
+    "final_assembly:confers_origin:N338514",
+    "final_assembly:confers_origin:N344246",
+    "final_assembly:not_enough:N339107",
+    "final_assembly:not_enough:N339646",
+    "final_assembly:not_enough:N348576",
+    "foam_textile_production:confers_origin:N339107",
+    "foam_textile_production:confers_origin:N339646",
+    "foam_textile_production:confers_origin:N348576",
+    "frame_metal_fabrication:confers_origin:H330862",
+    "frame_metal_fabrication:confers_origin:N335242",
+    "frame_metal_fabrication:confers_origin:N338514",
+    "frame_metal_fabrication:not_enough:N339685",
+    "tabletop_fabrication:confers_origin:H330862",
+    "tabletop_fabrication:confers_origin:H338728",
+    "tabletop_fabrication:confers_origin:N339685",
+    "tabletop_fabrication:not_enough:N344246"
    ]
   },
   "medical_devices": {
@@ -67,6 +130,42 @@
     "N350041",
     "N357919",
     "N361712"
+   ],
+   "pairs": [
+    "final_assembly:confers_origin:H339462",
+    "final_assembly:confers_origin:N344211",
+    "final_assembly:confers_origin:N344695",
+    "final_assembly:not_enough:H322967",
+    "final_assembly:not_enough:N336168",
+    "final_assembly:not_enough:N340345",
+    "final_assembly:not_enough:N343712",
+    "final_assembly:not_enough:N348081",
+    "final_assembly:not_enough:N357919",
+    "hubs_clamps_housings:not_enough:H322967",
+    "hubs_clamps_housings:not_enough:N336168",
+    "hubs_clamps_housings:not_enough:N343771",
+    "hubs_clamps_housings:not_enough:N343774",
+    "hubs_clamps_housings:not_enough:N348081",
+    "hubs_clamps_housings:not_enough:N349038",
+    "metal_cannula_forging:confers_origin:H322967",
+    "metal_cannula_forging:confers_origin:N343712",
+    "metal_cannula_forging:confers_origin:N343771",
+    "metal_cannula_forging:confers_origin:N343774",
+    "metal_cannula_forging:confers_origin:N348317",
+    "metal_cannula_forging:confers_origin:N361712",
+    "metal_cannula_forging:not_enough:N344211",
+    "metal_cannula_forging:not_enough:N344695",
+    "molded_barrels_chambers:confers_origin:N342838",
+    "molded_barrels_chambers:confers_origin:N343161",
+    "molded_barrels_chambers:confers_origin:N343775",
+    "molded_barrels_chambers:confers_origin:N344211",
+    "molded_barrels_chambers:confers_origin:N348081",
+    "molded_barrels_chambers:confers_origin:N357919",
+    "molded_barrels_chambers:not_enough:N342838",
+    "molded_barrels_chambers:not_enough:N343161",
+    "pcba_and_sensors:confers_origin:N336168",
+    "pcba_and_sensors:confers_origin:N345397",
+    "pcba_and_sensors:confers_origin:N350041"
    ]
   },
   "display_camera_modules": {
@@ -84,6 +183,27 @@
     "N345963",
     "N348165",
     "N349742"
+   ],
+   "pairs": [
+    "camera_pcba_smt:confers_origin:N330296",
+    "camera_pcba_smt:confers_origin:N339727",
+    "camera_pcba_smt:confers_origin:N344595",
+    "camera_pcba_smt:confers_origin:N349742",
+    "camera_pcba_smt:not_enough:N348165",
+    "display_cell_fab:confers_origin:N335871",
+    "display_cell_fab:confers_origin:N335873",
+    "display_cell_fab:confers_origin:N337202",
+    "display_cell_fab:confers_origin:N343835",
+    "display_cell_fab:confers_origin:N345328",
+    "display_cell_fab:confers_origin:N345963",
+    "final_assembly:confers_origin:N348165",
+    "final_assembly:not_enough:N330296",
+    "final_assembly:not_enough:N335871",
+    "final_assembly:not_enough:N339727",
+    "final_assembly:not_enough:N344595",
+    "final_assembly:not_enough:N345328",
+    "final_assembly:not_enough:N349742",
+    "optical_lens_shaping:confers_origin:N345937"
    ]
   }
  }

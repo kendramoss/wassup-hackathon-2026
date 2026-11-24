@@ -78,7 +78,7 @@ def universe(root):
     out = {}
     for l in lab:
         r = l["ruling"]
-        if l["regime"] != "substantial_transformation" or r not in facts or l["date"] >= CUTOFF or r in held:
+        if r in held or l["regime"] != "substantial_transformation" or r not in facts or l["date"] >= CUTOFF:
             continue
         out[r] = dict(l, pool="dev" if r in dev else "train" if r in train else "other")
     if set(out) & held:
@@ -130,17 +130,19 @@ def freeze(root):
 
 
 def check_citations(root):
-    """Every ruling a v2 template cites that v1 did not is in a frozen citable pool,
-    has its held-origin sentence in the bundled labels, and is recorded in
-    b2-citations.json with where it is cited (D782)."""
+    """Every group/outcome pairing a v2 template has that v1 did not (D786),
+    whether the ruling is new or reused, is a ruling of a frozen citable pool
+    with its held-origin sentence in the bundled labels, and is recorded in
+    b2-citations.json ("citations" for new rulings, "reused" for rulings v1
+    already cited) with exactly where it is cited (D782)."""
     with open(os.path.join(root, CASES)) as f:
         pool = {r for v in json.load(f)["families"].values() for r in v["citable_pool"]}
     with open(os.path.join(root, "eval/families/b2-v1-citations.json")) as f:
         v1 = json.load(f)["templates"]
     with open(os.path.join(root, "eval/families/b2-citations.json")) as f:
-        rec = {c["ruling"]: c for c in json.load(f)["citations"]}
+        rec = json.load(f)
     lab = {l["ruling"]: l for l in jsonl(os.path.join(root, "eval/data/labels.jsonl"))}
-    new = {}
+    want = {}
     for fam, old in v1.items():
         with open(os.path.join(root, "backend/internal/planner/templates", fam + ".json")) as f:
             t = json.load(f)
@@ -148,15 +150,17 @@ def check_citations(root):
             p = g.get("precedent") or {}
             for k in ("confers_origin", "not_enough"):
                 for r in p.get(k) or []:
-                    if r not in old["cited"]:
-                        new.setdefault(r, (fam, []))[1].append(g["id"] + ":" + k)
-    if set(new) != set(rec):
-        sys.exit("b2-citations.json lists %s, templates add %s" % (sorted(rec), sorted(new)))
-    for r, (fam, where) in new.items():
-        c = rec[r]
-        if r not in pool or not lab[r]["evidence"] or c["template"] != fam or sorted(c["cited_in"]) != sorted(where):
+                    if g["id"] + ":" + k + ":" + r not in old["pairs"]:
+                        kind = "reused" if r in old["cited"] else "citations"
+                        want.setdefault((kind, r), (fam, []))[1].append(g["id"] + ":" + k)
+    have = {(kind, c["ruling"]): c for kind in ("citations", "reused") for c in rec.get(kind, [])}
+    if set(want) != set(have):
+        sys.exit("b2-citations.json records %s, the templates add %s" % (sorted(have), sorted(want)))
+    for key, (fam, where) in want.items():
+        r, c = key[1], have[key]
+        if r not in pool or not lab.get(r, {}).get("evidence") or c["template"] != fam or sorted(c["cited_in"]) != sorted(where):
             sys.exit(f"{r}: not in a frozen pool, no held-origin sentence, or its record is stale")
-    print(len(new), "new citations checked")
+    print(len(want), "new pairings checked")
 
 
 def dump(o):
