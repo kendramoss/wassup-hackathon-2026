@@ -69734,19 +69734,22 @@
     "start": "0401",
     "end": "0404",
     "page": 15,
-    "text": "ＣＣ（第一九〇一・九〇号の酪農調製品（乳固形分の含有量が乾燥状態において全重量の十パーセントを超えるもの）からの変更を除く。）"
+    "text": "ＣＣ（第一九〇一・九〇号の酪農調製品（乳固形分の含有量が乾燥状態において全重量の十パーセントを超えるもの）からの変更を除く。）",
+    "default": true
    },
    {
     "start": "0405",
     "end": "0405",
     "page": 16,
-    "text": "ＣＣ（第一九〇一・九〇号の酪農調製品（乳固形分の含有量が乾燥状態において全重量の十パーセントを超えるもの）又は第二一〇六・九〇号の酪農調製品（乳固形分の含有量が乾燥状態において全重量の十パーセントを超えるもの）からの変更を除く。）"
+    "text": "ＣＣ（第一九〇一・九〇号の酪農調製品（乳固形分の含有量が乾燥状態において全重量の十パーセントを超えるもの）又は第二一〇六・九〇号の酪農調製品（乳固形分の含有量が乾燥状態において全重量の十パーセントを超えるもの）からの変更を除く。）",
+    "default": true
    },
    {
     "start": "0406",
     "end": "0406",
     "page": 16,
-    "text": "ＣＣ（第一九〇一・九〇号の酪農調製品（乳固形分の含有量が乾燥状態において全重量の十パーセントを超えるもの）からの変更を除く。）"
+    "text": "ＣＣ（第一九〇一・九〇号の酪農調製品（乳固形分の含有量が乾燥状態において全重量の十パーセントを超えるもの）からの変更を除く。）",
+    "default": true
    },
    {
     "start": "080132",
@@ -69758,7 +69761,8 @@
     "start": "090121",
     "end": "090122",
     "page": 16,
-    "text": "ＣＴＳＨ"
+    "text": "ＣＴＳＨ",
+    "default": true
    },
    {
     "start": "090230",
@@ -69842,7 +69846,8 @@
     "start": "091020",
     "end": "091030",
     "page": 17,
-    "text": "ＣＣ又は 破砕し若しくは粉砕してない産品を破砕し若しくは粉砕すること（第〇九一〇・二〇号から第〇九一〇・三〇号までの各号の産品への関税分類の変更を必要としない。）。"
+    "text": "ＣＣ又は 破砕し若しくは粉砕してない産品を破砕し若しくは粉砕すること（第〇九一〇・二〇号から第〇九一〇・三〇号までの各号の産品への関税分類の変更を必要としない。）。",
+    "default": true
    },
    {
     "start": "091091",
@@ -69872,7 +69877,8 @@
     "start": "1105",
     "end": "1105",
     "page": 17,
-    "text": "ＣＣ（第〇七・〇一項の材料からの変更を除く。）"
+    "text": "ＣＣ（第〇七・〇一項の材料からの変更を除く。）",
+    "default": true
    },
    {
     "start": "110710",
@@ -69914,7 +69920,8 @@
     "start": "1518",
     "end": "1522",
     "page": 18,
-    "text": "ＣＴＨ"
+    "text": "ＣＴＨ",
+    "default": true
    },
    {
     "start": "160232",
@@ -69926,7 +69933,8 @@
     "start": "160241",
     "end": "160249",
     "page": 18,
-    "text": "ＣＣ（第二類の材料からの変更を除く。）"
+    "text": "ＣＣ（第二類の材料からの変更を除く。）",
+    "default": true
    },
    {
     "start": "160250",
@@ -69938,25 +69946,29 @@
     "start": "170113",
     "end": "170199",
     "page": 19,
-    "text": "ＣＣ（第一二一二・九三号の材料からの変更を除く。）"
+    "text": "ＣＣ（第一二一二・九三号の材料からの変更を除く。）",
+    "default": true
    },
    {
     "start": "170230",
     "end": "170260",
     "page": 19,
-    "text": "ＣＣ（第一二一二・九三号の材料からの変更を除く。）"
+    "text": "ＣＣ（第一二一二・九三号の材料からの変更を除く。）",
+    "default": true
    },
    {
     "start": "1704",
     "end": "1704",
     "page": 19,
-    "text": "ＣＴＨ"
+    "text": "ＣＴＨ",
+    "default": true
    },
    {
     "start": "1803",
     "end": "1805",
     "page": 19,
-    "text": "ＣＴＨ"
+    "text": "ＣＴＨ",
+    "default": true
    },
    {
     "start": "180610",
@@ -69974,7 +69986,8 @@
     "start": "180631",
     "end": "180690",
     "page": 19,
-    "text": "ＣＣ（カカオ含有量割合が産品の重量の七十パーセントを超える菓子に限る。） ＣＴＳＨ（その他の産品）"
+    "text": "ＣＣ（カカオ含有量割合が産品の重量の七十パーセントを超える菓子に限る。） ＣＴＳＨ（その他の産品）",
+    "default": true
    },
    {
     "start": "190110",
@@ -69998,7 +70011,8 @@
     "start": "1905",
     "end": "1905",
     "page": 20,
-    "text": "ＣＴＨ"
+    "text": "ＣＴＨ",
+    "default": true
    },
    {
     "start": "200190",
@@ -70124,13 +70138,15 @@
     "start": "200911",
     "end": "200939",
     "page": 23,
-    "text": "ＣＣ（第〇八・〇五項の材料からの変更を除く。）"
+    "text": "ＣＣ（第〇八・〇五項の材料からの変更を除く。）",
+    "default": true
    },
    {
     "start": "200941",
     "end": "200949",
     "page": 23,
-    "text": "ＣＣ（第〇八〇四・三〇号の材料からの変更を除く。）"
+    "text": "ＣＣ（第〇八〇四・三〇号の材料からの変更を除く。）",
+    "default": true
    },
    {
     "start": "200989",
@@ -70178,13 +70194,15 @@
     "start": "2104",
     "end": "2104",
     "page": 24,
-    "text": "ＣＴＨ"
+    "text": "ＣＴＨ",
+    "default": true
    },
    {
     "start": "2105",
     "end": "2105",
     "page": 24,
-    "text": "ＣＴＨ（第〇四・〇一項から第〇四・〇六項までの各項の材料、第一九〇一・九〇号の酪農調製品（乳固形分の含有量が乾燥状態において全重量の十パーセントを超えるもの）又は第二一〇六・九〇号の酪農調製品（乳固形分の含有量が乾燥状態において全重量の十パーセントを超えるもの）からの変更を除く。）"
+    "text": "ＣＴＨ（第〇四・〇一項から第〇四・〇六項までの各項の材料、第一九〇一・九〇号の酪農調製品（乳固形分の含有量が乾燥状態において全重量の十パーセントを超えるもの）又は第二一〇六・九〇号の酪農調製品（乳固形分の含有量が乾燥状態において全重量の十パーセントを超えるもの）からの変更を除く。）",
+    "default": true
    },
    {
     "start": "210610",
@@ -70202,7 +70220,8 @@
     "start": "220291",
     "end": "220299",
     "page": 25,
-    "text": "ＣＣ（第〇四・〇一項から第〇四・〇六項までの各項の材料又は第一九〇一・九〇号の酪農調製品（乳固形分の含有量が乾燥状態において全重量の十パーセントを超えるもの）からの変更を除く。）（ミルクを含有する飲料に限る。） ＣＣ（第〇八・〇五項若しくは第二〇・〇九項の材料又は第二一〇六・九〇号の果実若しくは野菜のジュースからの変更を除く。）（果実又は野菜のジュース（二以上の果実又は野菜から得たものを除く。）に限る。） ＣＣ（その他の産品） 注二以上の品目別原産地規則が適用可能な場合には、産品は、それぞれの適用可能な品目別原産地規則の要件を満たさなければならない。"
+    "text": "ＣＣ（第〇四・〇一項から第〇四・〇六項までの各項の材料又は第一九〇一・九〇号の酪農調製品（乳固形分の含有量が乾燥状態において全重量の十パーセントを超えるもの）からの変更を除く。）（ミルクを含有する飲料に限る。） ＣＣ（第〇八・〇五項若しくは第二〇・〇九項の材料又は第二一〇六・九〇号の果実若しくは野菜のジュースからの変更を除く。）（果実又は野菜のジュース（二以上の果実又は野菜から得たものを除く。）に限る。） ＣＣ（その他の産品） 注二以上の品目別原産地規則が適用可能な場合には、産品は、それぞれの適用可能な品目別原産地規則の要件を満たさなければならない。",
+    "default": true
    },
    {
     "start": "220600100",
@@ -70214,7 +70233,8 @@
     "start": "2209",
     "end": "2209",
     "page": 26,
-    "text": "ＣＴＨ"
+    "text": "ＣＴＨ",
+    "default": true
    },
    {
     "start": "230910",
@@ -70232,43 +70252,50 @@
     "start": "290543",
     "end": "290545",
     "page": 26,
-    "text": "ＣＴＳＨ"
+    "text": "ＣＴＳＨ",
+    "default": true
    },
    {
     "start": "330112",
     "end": "330190",
     "page": 26,
-    "text": "ＣＴＳＨ"
+    "text": "ＣＴＳＨ",
+    "default": true
    },
    {
     "start": "350110",
     "end": "350190",
     "page": 26,
-    "text": "ＣＴＳＨ"
+    "text": "ＣＴＳＨ",
+    "default": true
    },
    {
     "start": "350211",
     "end": "350219",
     "page": 26,
-    "text": "ＣＴＨ"
+    "text": "ＣＴＨ",
+    "default": true
    },
    {
     "start": "350220",
     "end": "350290",
     "page": 26,
-    "text": "ＣＴＳＨ"
+    "text": "ＣＴＳＨ",
+    "default": true
    },
    {
     "start": "3504",
     "end": "3504",
     "page": 27,
-    "text": "ＣＴＨ"
+    "text": "ＣＴＨ",
+    "default": true
    },
    {
     "start": "350510",
     "end": "350520",
     "page": 27,
-    "text": "ＣＴＨ"
+    "text": "ＣＴＨ",
+    "default": true
    },
    {
     "start": "380910",
@@ -70280,126 +70307,88 @@
     "start": "382311",
     "end": "382370",
     "page": 27,
-    "text": "ＣＴＳＨ"
+    "text": "ＣＴＳＨ",
+    "default": true
    },
    {
     "start": "01",
     "end": "02",
     "page": 15,
     "text": "前款１(a)から(p)までに分類される産品の各品目別原産地規則は、次の表に別段の定めがある場合を除き、ＣＣとする。",
-    "description": "Default rule where the table has no row"
+    "description": "Default rule where the table has no row",
+    "default": true
    },
    {
     "start": "04",
     "end": "05",
     "page": 15,
     "text": "前款１(a)から(p)までに分類される産品の各品目別原産地規則は、次の表に別段の定めがある場合を除き、ＣＣとする。",
-    "description": "Default rule where the table has no row"
+    "description": "Default rule where the table has no row",
+    "default": true
    },
    {
     "start": "06",
     "end": "14",
     "page": 15,
     "text": "前款１(a)から(p)までに分類される産品の各品目別原産地規則は、次の表に別段の定めがある場合を除き、ＣＣとする。",
-    "description": "Default rule where the table has no row"
+    "description": "Default rule where the table has no row",
+    "default": true
    },
    {
     "start": "15",
     "end": "15",
     "page": 15,
     "text": "前款１(a)から(p)までに分類される産品の各品目別原産地規則は、次の表に別段の定めがある場合を除き、ＣＣとする。",
-    "description": "Default rule where the table has no row"
+    "description": "Default rule where the table has no row",
+    "default": true
    },
    {
     "start": "1601",
     "end": "1603",
     "page": 15,
     "text": "前款１(a)から(p)までに分類される産品の各品目別原産地規則は、次の表に別段の定めがある場合を除き、ＣＣとする。",
-    "description": "Default rule where the table has no row"
+    "description": "Default rule where the table has no row",
+    "default": true
    },
    {
     "start": "17",
     "end": "21",
     "page": 15,
     "text": "前款１(a)から(p)までに分類される産品の各品目別原産地規則は、次の表に別段の定めがある場合を除き、ＣＣとする。",
-    "description": "Default rule where the table has no row"
+    "description": "Default rule where the table has no row",
+    "default": true
    },
    {
     "start": "2202",
     "end": "2202",
     "page": 15,
     "text": "前款１(a)から(p)までに分類される産品の各品目別原産地規則は、次の表に別段の定めがある場合を除き、ＣＣとする。",
-    "description": "Default rule where the table has no row"
+    "description": "Default rule where the table has no row",
+    "default": true
    },
    {
     "start": "2204",
     "end": "2204",
     "page": 15,
     "text": "前款１(a)から(p)までに分類される産品の各品目別原産地規則は、次の表に別段の定めがある場合を除き、ＣＣとする。",
-    "description": "Default rule where the table has no row"
-   },
-   {
-    "start": "2209",
-    "end": "2209",
-    "page": 15,
-    "text": "前款１(a)から(p)までに分類される産品の各品目別原産地規則は、次の表に別段の定めがある場合を除き、ＣＣとする。",
-    "description": "Default rule where the table has no row"
+    "description": "Default rule where the table has no row",
+    "default": true
    },
    {
     "start": "23",
     "end": "23",
     "page": 15,
     "text": "前款１(a)から(p)までに分類される産品の各品目別原産地規則は、次の表に別段の定めがある場合を除き、ＣＣとする。",
-    "description": "Default rule where the table has no row"
-   },
-   {
-    "start": "290543",
-    "end": "290545",
-    "page": 15,
-    "text": "前款１(a)から(p)までに分類される産品の各品目別原産地規則は、次の表に別段の定めがある場合を除き、ＣＣとする。",
-    "description": "Default rule where the table has no row"
-   },
-   {
-    "start": "3301",
-    "end": "3301",
-    "page": 15,
-    "text": "前款１(a)から(p)までに分類される産品の各品目別原産地規則は、次の表に別段の定めがある場合を除き、ＣＣとする。",
-    "description": "Default rule where the table has no row"
-   },
-   {
-    "start": "3501",
-    "end": "3502",
-    "page": 15,
-    "text": "前款１(a)から(p)までに分類される産品の各品目別原産地規則は、次の表に別段の定めがある場合を除き、ＣＣとする。",
-    "description": "Default rule where the table has no row"
-   },
-   {
-    "start": "3504",
-    "end": "3505",
-    "page": 15,
-    "text": "前款１(a)から(p)までに分類される産品の各品目別原産地規則は、次の表に別段の定めがある場合を除き、ＣＣとする。",
-    "description": "Default rule where the table has no row"
-   },
-   {
-    "start": "380910",
-    "end": "380910",
-    "page": 15,
-    "text": "前款１(a)から(p)までに分類される産品の各品目別原産地規則は、次の表に別段の定めがある場合を除き、ＣＣとする。",
-    "description": "Default rule where the table has no row"
-   },
-   {
-    "start": "382311",
-    "end": "382370",
-    "page": 15,
-    "text": "前款１(a)から(p)までに分類される産品の各品目別原産地規則は、次の表に別段の定めがある場合を除き、ＣＣとする。",
-    "description": "Default rule where the table has no row"
+    "description": "Default rule where the table has no row",
+    "default": true
    },
    {
     "start": "220710199",
     "end": "220710199",
     "page": 15,
     "text": "前款１(a)から(p)までに分類される産品の各品目別原産地規則は、次の表に別段の定めがある場合を除き、ＣＣとする。",
-    "description": "Default rule where the table has no row (national tariff item only)"
+    "description": "Default rule where the table has no row (national tariff item only)",
+    "default": true
    }
   ],
   "notes": [

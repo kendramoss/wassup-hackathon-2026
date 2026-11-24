@@ -2,6 +2,7 @@ package jprules
 
 import (
 	"encoding/json"
+	"slices"
 	"strings"
 	"testing"
 
@@ -128,7 +129,7 @@ func TestJPUSDefaultRowOnlyWhereTheTextMakesCCTheDefault(t *testing.T) {
 	inside := []string{
 		"0101.21", "0201.10", "0407.11", "0701.10", "0801.11", "1001.99", "1507.10",
 		"1601.00", "1602.10", "1603.00", "1701.12", "2202.10", "2204.10",
-		"2301.10", "3301.11",
+		"2301.10",
 	}
 	for _, hs := range inside {
 		res := jpusLookup(t, hs, "2026-11-23")
@@ -154,7 +155,7 @@ func TestJPUSNothingOutsideTheListedGoods(t *testing.T) {
 		"2401.10",            // chapter 24
 		"2905.41", "2905.49", // either side of 2905.43-45
 		"3302.10", "3503.00", "3506.10", // beside 33.01 and 35.01-02, 35.04-05
-		"3809.91", "3823.90", "3822.00", // beside 3809.10 and 3823.11-70
+		"3809.91", "3824.10", "3822.00", // beside 3809.10 and 3823.11-70
 		"2501.00", "6404.11", "8708.94", "9999.00",
 	}
 	for _, hs := range outside {
@@ -385,17 +386,19 @@ func TestJPUSRowShapeAndCounts(t *testing.T) {
 			t.Errorf("row %+v withheld", r)
 		}
 	}
-	if explicit != 92 || def != 17 || len(s.Rows) != 109 {
+	if explicit != 92 || def != 10 || len(s.Rows) != 102 {
 		t.Errorf("rows: %d explicit, %d default, %d total", explicit, def, len(s.Rows))
 	}
 	// The default rows are exactly the goods of note 1(a)-(p), item level
 	// entries as nine digit national items.
 	want := map[string]bool{
 		"01-02": true, "04-05": true, "06-14": true, "15-15": true, "1601-1603": true,
-		"17-21": true, "2202-2202": true, "2204-2204": true, "2209-2209": true, "23-23": true,
-		"290543-290545": true, "3301-3301": true, "3501-3502": true, "3504-3505": true,
-		"380910-380910": true, "382311-382370": true, "220710199-220710199": true,
+		"17-21": true, "2202-2202": true, "2204-2204": true, "23-23": true,
+		"220710199-220710199": true,
 	}
+	// Goods of note 1 whose every HS 2017 code has a table row (2209, 2905.43-45,
+	// 3301, 3501-3502, 3504-3505, 3809.10, 3823.11-70) get no default row: a
+	// default row must never sit beside a table row for the same code.
 	got := map[string]bool{}
 	for _, r := range s.Rows {
 		if r.Description != "" {
@@ -479,5 +482,125 @@ func TestLoaderRejectsMalformedSchedules(t *testing.T) {
 				t.Errorf("%s: %v", name, err)
 			}
 		}
+	}
+}
+
+func hs2017All(t *testing.T) []string {
+	t.Helper()
+	var out []string
+	for _, l := range strings.Fields(string(hs2017CodesTXT)) {
+		out = append(out, l)
+	}
+	if len(out) != 5387 {
+		t.Fatalf("%d codes", len(out))
+	}
+	return out
+}
+
+// ruleRows counts the table or default rows in a result, notes excluded: they
+// are the evidence whose text is not a note of the agreement.
+func ruleRows(res Result, notes []note) int {
+	n := 0
+	for _, e := range res.Evidence {
+		isNote := false
+		for _, nt := range notes {
+			if e.Text == nt.Text {
+				isNote = true
+				break
+			}
+		}
+		if !isNote {
+			n++
+		}
+	}
+	return n
+}
+
+func TestJPUSEveryHS2017CodeGetsExactlyOneRuleRow(t *testing.T) {
+	table := mustTable(t)
+	notes := table.schedules[jpusAgreement][0].Notes
+	psr, none := 0, 0
+	for _, code := range hs2017All(t) {
+		res := jpusLookup(t, code, "2026-11-23")
+		switch res.Reason {
+		case ReasonPSR:
+			psr++
+			if n := ruleRows(res, notes); n != 1 {
+				t.Errorf("%s: %d rule rows: %+v", code, n, res.Evidence)
+			}
+		case ReasonNoMatch, ReasonTooBroad:
+			none++
+		default:
+			t.Errorf("%s: reason %s", code, res.Reason)
+		}
+	}
+	if psr == 0 || none == 0 {
+		t.Fatalf("psr %d, none %d", psr, none)
+	}
+}
+
+func TestJPUSNoCodeOutsideHS2017ReturnsARule(t *testing.T) {
+	table := mustTable(t)
+	valid := map[string]bool{}
+	for _, c := range hs2017All(t) {
+		valid[c] = true
+	}
+	mapped := map[string]bool{}
+	for _, e := range table.corr.entries {
+		if e.Agreement == jpusAgreement {
+			mapped[e.Code] = true
+		}
+	}
+	for h := 100; h <= 999999; h++ {
+		code := itoa(h)
+		code = strings.Repeat("0", 6-len(code)) + code
+		if valid[code] {
+			continue
+		}
+		res, err := table.LookupDetailed(jpusAgreement, code, day(t, "2026-11-23"))
+		if err != nil {
+			t.Fatal(err)
+		}
+		switch {
+		case mapped[code]: // a reviewed correlation, tested separately
+		case res.Reason == ReasonPSR || len(res.Evidence) > 0:
+			t.Fatalf("%s is not an HS 2017 code but got %+v", code, res)
+		case code[:2] != "00" && code[:2] != "77" && code[:2] != "98" && code[:2] != "99" && res.Reason != ReasonNotInEdition && res.Reason != ReasonTooBroad:
+			t.Fatalf("%s: reason %s", code, res.Reason)
+		}
+	}
+	for _, hs := range []string{"0100.99", "1999.99", "0399.99"} {
+		if res := jpusLookup(t, hs, "2026-11-23"); res.Reason != ReasonNotInEdition {
+			t.Errorf("%s: %+v", hs, res)
+		}
+	}
+}
+
+func TestJPUSHS2022OnlyCodesAreMappedToTheirParents(t *testing.T) {
+	// WCO HS 2022 to HS 2017 correlation Table I, pages 2 and 3.
+	mapped := map[string]string{
+		"0410.10": "041000", "0410.90": "041000",
+		"0709.52": "070959", "0709.53": "070959", "0709.54": "070959", "0709.55": "070959", "0709.56": "070959",
+		"0712.34": "071239", "0802.91": "080290", "0802.92": "080290", "0802.99": "080290",
+		"1211.60": "121190", "1509.20": "150910", "1509.30": "150910", "1509.40": "150910",
+		"1510.10": "151000", "1510.90": "151000", "1515.60": "151590", "1516.30": "151620",
+	}
+	for hs, parent := range mapped {
+		res := jpusLookup(t, hs, "2026-11-23")
+		want := jpusLookup(t, parent, "2026-11-23")
+		if res.Reason != ReasonMapped || res.Mapped == nil || !slices.Contains(res.Mapped.To, parent) || len(res.Evidence) == 0 || want.Reason != ReasonPSR {
+			t.Errorf("%s: %+v", hs, res)
+			continue
+		}
+		// the evidence is the parent's rule behind one mapping note, requested code kept
+		if res.Digits != strings.ReplaceAll(hs, ".", "") || len(res.Evidence) != len(want.Evidence)+1 {
+			t.Errorf("%s: digits %s, %d evidence vs %d", hs, res.Digits, len(res.Evidence), len(want.Evidence))
+		}
+	}
+	// 0403.20 descends from 0403.10 (table row for 04.01-04.04) and part of
+	// 1901.90 (a different row): no single rule can be shown.
+	res := jpusLookup(t, "0403.20", "2026-11-23")
+	if res.Reason != ReasonEditionHint || len(res.Evidence) != 0 || !strings.Contains(res.Hint, "0403.10") || !strings.Contains(res.Hint, "1901.90") {
+		t.Errorf("0403.20: %+v", res)
 	}
 }

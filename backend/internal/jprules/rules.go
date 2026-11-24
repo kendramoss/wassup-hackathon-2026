@@ -38,6 +38,11 @@ type row struct {
 	Text        string `json:"text"`
 	Description string `json:"description"`
 	Blocked     bool   `json:"blocked"`
+	// Default marks a rule stated for a group of goods (a default sentence, a
+	// chapter, heading or range) rather than for one listed code. It applies
+	// only to codes that exist in the embedded HS 2017 list, never to a code
+	// that exists in no edition.
+	Default bool `json:"default,omitempty"`
 }
 
 type note struct {
@@ -98,6 +103,9 @@ func validateSchedule(s schedule) error {
 			if c < '0' || c > '9' {
 				return fmt.Errorf("%s: bad row range %q-%q", s.Agreement, r.Start, r.End)
 			}
+		}
+		if r.Default && r.Blocked {
+			return fmt.Errorf("%s: row %q is both default and withheld", s.Agreement, r.Start)
 		}
 		if r.Page < 1 || strings.TrimSpace(r.Text) == "" {
 			return fmt.Errorf("%s: row %q has no page or text", s.Agreement, r.Start)
@@ -216,8 +224,9 @@ const (
 	ReasonWithheld Reason = "withheld"
 	// ReasonInvalidCode: the code sits in a reserved HS chapter (00, 77, 98, 99).
 	ReasonInvalidCode Reason = "invalid_code"
-	// ReasonNotInEdition: in the AJCEP general branch, a code in a non-reserved
-	// chapter is absent from the HS 2017 list the schedule uses. It may be a
+	// ReasonNotInEdition: in the AJCEP general branch, or under a schedule that
+	// has default rows, a code in a non-reserved chapter is absent from the
+	// HS 2017 list. It may be a
 	// code of a later edition or a typo; the lookup does not say which.
 	ReasonNotInEdition Reason = "not_in_schedule_edition"
 	// ReasonNoMatch: a schedule covers the date, no row matches, and no
@@ -317,12 +326,13 @@ func (t *Table) lookup(agreement, hs string, before time.Time, general bool) (Re
 		return Result{Reason: ReasonUnsupportedAgreement, Digits: digits}, nil
 	}
 	date := before.Format(time.DateOnly)
-	covered := false
+	covered, hasDefault := false, false
 	for _, s := range t.schedules[agreement] {
 		if date < s.From || s.Until != "" && date >= s.Until {
 			continue
 		}
 		covered = true
+		hasDefault = hasDefault || s.hasDefaultRows()
 		rows, status := s.match(digits)
 		switch status {
 		case matchTooBroad:
@@ -349,6 +359,13 @@ func (t *Table) lookup(agreement, hs string, before time.Time, general bool) (Re
 		return Result{Reason: ReasonNoDatedSource, Digits: digits}, nil
 	case reservedChapters[digits[:2]]:
 		return Result{Reason: ReasonInvalidCode, Digits: digits}, nil
+	case hasDefault && !hs2017Valid().hasPrefix(digits):
+		// Default rows never answer for a code that exists in no edition. A
+		// code with a reviewed correlation stays no_match for the correlation step.
+		if _, ok := t.corr.find(agreement, digits); ok && len(digits) == 6 {
+			return Result{Reason: ReasonNoMatch, Digits: digits}, nil
+		}
+		return Result{Reason: ReasonNotInEdition, Digits: digits}, nil
 	case general && t.general != nil && t.general.applies(agreement, date):
 		// The general fallback is for real HS 2017 codes only (the window is
 		// the HS 2017 edition). This check comes before the chapter 50-63
@@ -405,12 +422,25 @@ const (
 	matchWithheld
 )
 
+func (s schedule) hasDefaultRows() bool {
+	for _, r := range s.Rows {
+		if r.Default {
+			return true
+		}
+	}
+	return false
+}
+
 // match returns the most specific rows covering hs. It reports matchTooBroad
 // when a more specific row overlaps the supplied digits and matchWithheld
 // when a matching row is withheld.
 func (s schedule) match(hs string) (matching []row, status matchStatus) {
 	specificity := 0
+	inEdition := hs2017Valid().hasPrefix(hs)
 	for _, r := range s.Rows {
+		if r.Default && !inEdition {
+			continue
+		}
 		width := len(r.Start)
 		if width > len(hs) {
 			if hs >= r.Start[:len(hs)] && hs <= r.End[:len(hs)] {
