@@ -74,9 +74,9 @@ type ch3Agreement struct {
 
 var ch3Agreements = []ch3Agreement{
 	{"JP-EU EPA", "JP-EU EPA Chapter 3 (Rules of origin)", "https://www.customs.go.jp/roo/english/text/eu1.pdf", "2019-02-01", euWholly, euArticles,
-		[]string{"JP-EU EPA", "Articles 3.1", "do not replace the listed rule", "Annex 3-C", "Appendix 3-B-1", "3.16 to 3.29", "NOT supplied", "not verified", "undetermined"}},
+		[]string{"JP-EU EPA", "Articles 3.1", "do not replace the listed rule", "do not themselves establish origin", "Article 3.2 paragraph 1(b)", "context only", "unless it says otherwise", "only partly quoted", "Note 1 paragraphs 1, 2 and 4", "Note 2 paragraph 4", "Articles 3.7 to 3.11 and 3.13 to 3.15", "Annex 3-C", "Appendix 3-B-1", "3.16 to 3.29", "NOT supplied", "not verified", "undetermined"}},
 	{"JP-UK CEPA", "JP-UK CEPA Chapter 3 (Rules of origin)", "https://www.customs.go.jp/roo/english/text/uk1.pdf", "2021-01-01", ukWholly, ukArticles,
-		[]string{"JP-UK CEPA", "Articles 3.1", "do not replace the listed rule", "Annex 3-C", "Annex 3-D", "Appendix 3-B-1", "3.16 to 3.28", "NOT supplied", "not verified", "undetermined"}},
+		[]string{"JP-UK CEPA", "Articles 3.1", "do not replace the listed rule", "do not themselves establish origin", "Article 3.2 paragraph 1(b)", "context only", "unless it says otherwise", "only partly quoted", "Note 1 paragraphs 1, 2 and 4", "Note 2 paragraph 4", "Articles 3.7 to 3.11 and 3.13 to 3.15", "Annex 3-C", "Annex 3-D", "Appendix 3-B-1", "Article 3.5 paragraphs 10 to 12", "3.16 to 3.28", "NOT supplied", "not verified", "undetermined"}},
 }
 
 func chapter3Notes(s schedule, url string) (caveats, quoted []note) {
@@ -281,7 +281,7 @@ func TestChapter3OtherAgreementsAndOldEvidenceUnchanged(t *testing.T) {
 }
 
 // Full EU and UK evidence including the Chapter 3 articles and caveat.
-var chapter3Golden = map[string]string{"JP-EU EPA": "e7c5acc3752afa83", "JP-UK CEPA": "d1b898548fbd7718"}
+var chapter3Golden = map[string]string{"JP-EU EPA": "d17bd27b04754e12", "JP-UK CEPA": "6a572d16a3f767d4"}
 
 func TestChapter3EvidenceHashes(t *testing.T) {
 	want := map[string]string{}

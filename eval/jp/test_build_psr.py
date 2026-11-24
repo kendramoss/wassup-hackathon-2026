@@ -480,7 +480,11 @@ class Chapter3Articles(unittest.TestCase):
         for filename, spec in b.CHAPTER_3.items():
             text = b.chapter_3_caveat(spec)
             self.assertTrue(text.startswith("Unde Labs note (not treaty text)"))
-            for frag in ("do not replace the listed rule", "Annex 3-C", "Appendix 3-B-1", spec["procedural"],
+            if filename == "uk3.pdf":
+                self.assertIn("Article 3.5 paragraphs 10 to 12", text)
+            for frag in ("do not replace the listed rule", "do not themselves establish origin", "Article 3.2 paragraph 1(b)",
+                         "only partly quoted", "Note 1 paragraphs 1, 2 and 4", "Note 2 paragraph 4",
+                         "Articles 3.7 to 3.11 and 3.13 to 3.15", "Annex 3-C", "Appendix 3-B-1", spec["procedural"],
                          "NOT supplied", "not verified", "undetermined"):
                 self.assertIn(frag, text, filename)
 

@@ -309,7 +309,7 @@ _DEF_H, _DEF_H_END = '(h) "product" means any matter', "including assembly."
 CHAPTER_3 = {
     "eu3.pdf": {
         "pdf": "eu1.pdf", "label": "JP-EU EPA Chapter 3 (Rules of origin)", "short": "JP-EU EPA",
-        "other": "Annex 3-C and Appendix 3-B-1", "procedural": "3.16 to 3.29",
+        "other": "Annex 3-C and Appendix 3-B-1", "omitted": "", "procedural": "3.16 to 3.29",
         "notes": [
             (2, "Article 3.1(e) and (f)", _DEF_E, _DEF_E_END, False),
             (3, "Article 3.1(h) and (i)", _DEF_H, _DEF_H_END, False),
@@ -335,7 +335,7 @@ CHAPTER_3 = {
     },
     "uk3.pdf": {
         "pdf": "uk1.pdf", "label": "JP-UK CEPA Chapter 3 (Rules of origin)", "short": "JP-UK CEPA",
-        "other": "Annex 3-C, Annex 3-D and Appendix 3-B-1", "procedural": "3.16 to 3.28",
+        "other": "Annex 3-C, Annex 3-D and Appendix 3-B-1", "omitted": "Article 3.5 paragraphs 10 to 12, ", "procedural": "3.16 to 3.28",
         "notes": [
             (2, "Article 3.1(e) and (f)", _DEF_E, _DEF_E_END, False),
             (2, "Article 3.1(h) and (i)", _DEF_H, _DEF_H_END, False),
@@ -364,10 +364,14 @@ def chapter_3_caveat(spec):
     return (
         f"Unde Labs note (not treaty text): {_ARTICLES_QUOTED} of Chapter 3 (Rules of origin) of the "
         f"{spec['short']} are quoted from {spec['pdf']} as context for the Annex 3-B product specific rule. "
-        "They do not replace the listed rule. The Annex 3-A notes are quoted separately and are not part of "
-        f"these notes. {spec['other']}, the procedural articles {spec['procedural']} and every Article of "
-        "Chapter 3 not listed above are NOT supplied and are not verified. Where a fact that one of these "
-        "provisions needs is missing, the question is undetermined.")
+        "They do not replace the listed rule and do not themselves establish origin. Article 3.2 paragraph 1(b) "
+        "(products produced exclusively from materials originating in that Party) is a route the Chapter lists; "
+        "it is shown as context only, and the listed rule governs unless it says otherwise. "
+        "The Annex 3-A notes are only partly quoted, in notes of their own: Note 1 paragraphs 1, 2 and 4 and "
+        f"Note 2 paragraph 4 are not supplied. {spec['other']}, {spec['omitted']}Articles 3.7 to 3.11 and 3.13 "
+        f"to 3.15, the procedural articles {spec['procedural']} and every Article of Chapter 3 not listed above "
+        "are NOT supplied and are not verified. Where a fact that one of these provisions needs is missing, the "
+        "question is undetermined.")
 
 
 def wholly_obtained_ranges(rows):

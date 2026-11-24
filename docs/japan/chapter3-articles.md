@@ -63,12 +63,16 @@ a note.
 ## Precedence caveat
 
 One Unde Labs note per agreement (page 0, no URL, text begins "Unde Labs note (not
-treaty text)") says that the quoted articles are context for the Annex 3-B rule, that
-they do not replace the listed rule, that Annex 3-C and Appendix 3-B-1 (UK: also Annex
-3-D), the procedural articles and every Chapter 3 article not listed are not supplied
-and not verified, and that a missing fact leaves the question undetermined. It is
-returned with the articles on every lookup of the schedule. The Annex 3-A notes are
-quoted by their own notes and are not what the caveat calls unsupplied.
+treaty text)") says that the quoted articles are context for the Annex 3-B rule, do
+not replace the listed rule and do not themselves establish origin; that Article 3.2
+paragraph 1(b) (products produced exclusively from originating materials) is a route
+the Chapter lists, shown as context only, with the listed rule governing unless it
+says otherwise; that Annex 3-A is only partly quoted (Note 1 paragraphs 1, 2 and 4 and
+Note 2 paragraph 4 are not supplied); that Annex 3-C and Appendix 3-B-1 (UK: also Annex
+3-D and Article 3.5 paragraphs 10 to 12), Articles 3.7 to 3.11 and 3.13 to 3.15, the
+procedural articles and every Chapter 3 article not listed are not supplied and not
+verified; and that a missing fact leaves the question undetermined. It is returned
+with the articles on every lookup of the schedule.
 
 ## Effect on the development rulings
 
@@ -78,15 +82,15 @@ schedules. Only the evidence blocks of EU and UK requests grow.
 
 | | before | after |
 |---|---|---|
-| total request bytes | 7,332,525 | 9,214,942 |
-| average request | 18,516 | 23,270 |
-| largest request | 35,072 | 36,259 |
+| total request bytes | 7,332,525 | 9,279,221 |
+| average request | 18,516 | 23,432 |
+| largest request | 35,072 | 36,612 |
 | requests that changed | | 182 (181 EU, 1 UK) |
-| average EU/UK request | 19,787 | 30,130 |
-| bytes added per EU/UK request | | 9,410 minimum, 10,343 average, 12,993 maximum |
+| average EU/UK request | 19,787 | 30,483 |
+| bytes added per EU/UK request | | 9,763 minimum, 10,696 average, 13,346 maximum |
 
-A request on a non-wholly-obtained row gains 9,410 bytes (EU, 134 requests), one on a
-wholly obtained row 12,993 (EU, 47 requests); the one UK request gains 10,806. This is
+A request on a non-wholly-obtained row gains 9,763 bytes (EU, 134 requests), one on a
+wholly obtained row 13,346 (EU, 47 requests); the one UK request gains 11,192. This is
 an evidence addition. No accuracy change is claimed or measured. `jpeval diagnose` on
 the dev and dev_eval splits is identical before and after apart from the data digest.
 
