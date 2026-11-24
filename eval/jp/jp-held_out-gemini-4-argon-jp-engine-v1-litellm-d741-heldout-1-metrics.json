@@ -1,0 +1,161 @@
+{
+ "run": "jp-held_out-gemini-4-argon-jp-engine-v1-litellm-d741-heldout-1",
+ "split": "held_out",
+ "expected_cases": 633,
+ "cases": 633,
+ "errors": 4,
+ "model_calls": 421,
+ "qualifies": 266,
+ "does_not_qualify": 0,
+ "undetermined": 363,
+ "criterion_match": {
+  "k": 260,
+  "n": 633,
+  "p": 0.4107,
+  "lo": 0.3731,
+  "hi": 0.4495
+ },
+ "criterion_in_cited_set": {
+  "k": 260,
+  "n": 633,
+  "p": 0.4107,
+  "lo": 0.3731,
+  "hi": 0.4495
+ },
+ "stated_country_match": {
+  "k": 117,
+  "n": 238,
+  "p": 0.4916,
+  "lo": 0.4287,
+  "hi": 0.5547
+ },
+ "stated_origin_match_including_eu": {
+  "k": 217,
+  "n": 472,
+  "p": 0.4597,
+  "lo": 0.4153,
+  "hi": 0.5049
+ },
+ "positive_recall": {
+  "k": 266,
+  "n": 633,
+  "p": 0.4202,
+  "lo": 0.3824,
+  "hi": 0.459
+ },
+ "synthetic_refusals": {
+  "k": 0,
+  "n": 0,
+  "p": 0,
+  "lo": 0,
+  "hi": 0
+ },
+ "criterion_match_by_agreement": {
+  "AJCEP": {
+   "k": 11,
+   "n": 60,
+   "p": 0.1833,
+   "lo": 0.1056,
+   "hi": 0.2992
+  },
+  "CPTPP": {
+   "k": 48,
+   "n": 75,
+   "p": 0.64,
+   "lo": 0.527,
+   "hi": 0.7394
+  },
+  "GSP": {
+   "k": 0,
+   "n": 37,
+   "p": 0,
+   "lo": 0,
+   "hi": 0.0941
+  },
+  "JP-Australia EPA": {
+   "k": 2,
+   "n": 10,
+   "p": 0.2,
+   "lo": 0.0567,
+   "hi": 0.5098
+  },
+  "JP-EU EPA": {
+   "k": 96,
+   "n": 234,
+   "p": 0.4103,
+   "lo": 0.3492,
+   "hi": 0.4742
+  },
+  "JP-India CEPA": {
+   "k": 6,
+   "n": 18,
+   "p": 0.3333,
+   "lo": 0.1628,
+   "hi": 0.5625
+  },
+  "JP-Indonesia EPA": {
+   "k": 3,
+   "n": 4,
+   "p": 0.75,
+   "lo": 0.3006,
+   "hi": 0.9544
+  },
+  "JP-Malaysia EPA": {
+   "k": 1,
+   "n": 1,
+   "p": 1,
+   "lo": 0.2065,
+   "hi": 1
+  },
+  "JP-Thailand EPA": {
+   "k": 1,
+   "n": 2,
+   "p": 0.5,
+   "lo": 0.0945,
+   "hi": 0.9055
+  },
+  "JP-UK CEPA": {
+   "k": 3,
+   "n": 4,
+   "p": 0.75,
+   "lo": 0.3006,
+   "hi": 0.9544
+  },
+  "JP-US TA": {
+   "k": 0,
+   "n": 85,
+   "p": 0,
+   "lo": 0,
+   "hi": 0.0432
+  },
+  "JP-Vietnam EPA": {
+   "k": 0,
+   "n": 1,
+   "p": 0,
+   "lo": 0,
+   "hi": 0.7935
+  },
+  "Non-preferential": {
+   "k": 0,
+   "n": 4,
+   "p": 0,
+   "lo": 0,
+   "hi": 0.4899
+  },
+  "RCEP": {
+   "k": 89,
+   "n": 98,
+   "p": 0.9082,
+   "lo": 0.8346,
+   "hi": 0.9509
+  }
+ },
+ "cost_usd": 3.6329,
+ "calls_without_reported_cost": 4,
+ "budget_charged_usd": 4.0568,
+ "cost_per_case_usd": 0.0057,
+ "cost_per_model_call_usd": 0.0086,
+ "model_call_cases_latency_p50_ms": 7701,
+ "model_call_cases_latency_p95_ms": 15515,
+ "labels_sha256": "d77f895754897df02dc0366103b7a9c72e6310b0957bb9d321139dbbde4134da"
+}

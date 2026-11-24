@@ -918,6 +918,15 @@ D710 froze the chronological split. D712 and D713 froze the same-agreement retri
 
 The development baseline and the rule-grounded candidate use different criteria for when they answer. The public test cohort covers qualifying goods only. No held-out accuracy or refusal rate is available. The [results record](../eval/RESULTS.md) links every run and summary, including the interrupted development attempt.
 
+**Update, 24 Nov 2026 (D741, #735).** The unseen-test and fictional-case attempts above were rerun once under a new pre-registration, and the earlier counts stand as recorded. This is an experimental offline evaluation. It is not Japan market coverage, and Japan remains unavailable in the product.
+
+| Sample | Result |
+|---|---|
+| Unseen published rulings (633, all positive) | Criterion match 260 of 633 (41.07%, 95% Wilson interval 37.31–44.95). Positive recall 266 of 633 (42.02%, 38.24–45.90). 363 undetermined (including 212 abstentions before a call) and 4 errors stay in the denominator. |
+| Fictional negative cases | 8 of 8 declined (67.56–100). A toy check, not a refusal guarantee. |
+
+All rulings are approvals, so there is no accuracy, specificity or false-positive claim. The precedent pool is chronological and rolling: earlier held-out rulings could be retrieved for later cases (197 of 863 cited precedents), so the cases are not wholly unseen. Per-agreement results, cost and the run-protocol calibration are in the [results record](../eval/RESULTS.md#japan-d741-re-run). No customs specialist has reviewed the model.
+
 ## 19. RCEP calculator on Japan Customs rulings
 
 D691 froze the evaluation rules. D716 fixed the facts-only mapping before scoring. The calculator reads the stated country of manufacture and the published material classifications. An originating material requires an explicit claim in the material entry. Japanese reasoning supplies the scoring label only. Both splits retain their D710 dates and use the same Annex 3A HS 2022 table.

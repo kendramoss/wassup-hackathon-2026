@@ -525,3 +525,17 @@ Rules: small-n numbers carry CIs; development-only numbers say "development set"
 | Development run cost and latency | $2.9794 total, $0.0074 per case, p50 6.971 s, p95 10.079 s among model-call cases | Same development metrics | Measured through the gateway. An interrupted attempt logged a further $0.0414 on 17 saved rows. |
 | One-time unseen test | 633 positive labels, 251 no-call abstentions, 382 HTTP 403 responses, zero model results, $0 reported | `eval/jp/jp-held_out-gemini-4-argon-jp-engine-v1-litellm-metrics.json` and matching rows under `eval/jp/runs/` | Gateway failure. An accuracy estimate is unavailable. |
 | Separate synthetic negatives | Eight fictional cases, eight HTTP 403 responses, zero model results, $0 reported | `eval/jp/jp-synthetic-gemini-4-argon-jp-engine-v1-litellm-metrics.json` and matching rows under `eval/jp/runs/` | Gateway failure. A refusal rate is unavailable. |
+
+### Update: Japan D741 re-run (24 Nov 2026, #735)
+
+Experimental offline evaluation, advisory and unreviewed. Not Japan market coverage; Japan stays "not available yet". The D712–D715 rows above stay as recorded (gateway failures, unmeasured, not 0%).
+
+| Measure | Value | Source | Status |
+|---|---|---|---|
+| Held-out criterion match | 260 of 633 (41.07%, 95% Wilson interval 37.31–44.95) | `eval/jp/jp-held_out-gemini-4-argon-jp-engine-v1-litellm-d741-heldout-1-metrics.json` and `eval/jp/runs/` rows | Measured, positive-only. All 212 abstentions, 4 errors and 363 undetermined stay in 633. Not general accuracy. |
+| Held-out positive recall | 266 of 633 (42.02%, 38.24–45.90) | Same metrics | Measured. 260 criterion match plus 6 qualified with a different criterion. |
+| Held-out outcomes | 266 qualified, 0 declined, 363 undetermined, 4 errors; 421 model attempts, 212 abstentions before a call, 4 `model_unavailable` | Same metrics | Measured. |
+| Synthetic refusal | 8 of 8 (67.56–100) | `eval/jp/jp-synthetic-gemini-4-argon-jp-engine-v1-litellm-d741-synthetic-1-metrics.json` | Eight fictional cases only. Legacy `accuracy` field 0 does not mean 0% refusal. |
+| Precedent pool | 197 of 863 cited precedents were earlier held-out rulings; 0 self, 0 future | Held-out rows | Chronological rolling pool. Earlier held-out rulings were retrievable, so the cases are not wholly fresh. |
+| Cost | $4.1258349 conservative charge (430 attempts) | `eval/results/RUNLOG.jsonl` rows `d741-heldout-1`, `d741-synthetic-1` | $3.7019269 gateway-reported plus $0.423908 worst case for 4 unreported failures. Not an invoice or a future quote. |
+| Latency | Held-out p50 7.701 s, p95 15.515 s; synthetic p50 8.040 s, p95 10.134 s | Same metrics | Model-call cases. |
