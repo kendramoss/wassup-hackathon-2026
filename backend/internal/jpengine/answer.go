@@ -66,16 +66,23 @@ var originAliases = map[string]string{
 	"myanmar (burma)": "Myanmar", "burma (myanmar)": "Myanmar", "burma": "Myanmar",
 	"brunei": "Brunei", "brunei darussalam": "Brunei",
 	"viet nam": "Vietnam", "turkiye": "Turkey", "czechia": "Czech Republic",
-	"russia": "Russian Federation", "iran": "Iran (Islamic Republic of)", "syria": "Syrian Arab Republic",
-	"bolivia": "Bolivia (Plurinational State of)", "venezuela": "Venezuela (Bolivarian Republic of)",
-	"tanzania": "United Republic of Tanzania", "tanzania, united republic of": "United Republic of Tanzania",
-	"moldova": "Republic of Moldova", "moldova, republic of": "Republic of Moldova",
-	"iran, islamic republic of": "Iran (Islamic Republic of)", "congo, democratic republic of": "Democratic Republic of the Congo",
-	"congo, republic of": "Congo", "drc": "Democratic Republic of the Congo", "dr congo": "Democratic Republic of the Congo",
-	"palestine": "State of Palestine", "swaziland": "Eswatini", "cape verde": "Cabo Verde", "east timor": "Timor-Leste",
-	"ivory coast": "C\u00f4te d\u2019Ivoire", "micronesia": "Micronesia (Federated States of)", "the bahamas": "Bahamas", "the gambia": "Gambia",
-	"netherlands": "Netherlands", "united kingdom of great britain and northern ireland": "United Kingdom",
+	// Long M49 forms and common spellings map to the short names the shared
+	// country table and the jpeval labels use.
+	"russian federation": "Russia", "iran (islamic republic of)": "Iran", "iran, islamic republic of": "Iran",
+	"syrian arab republic": "Syria", "bolivia (plurinational state of)": "Bolivia", "venezuela (bolivarian republic of)": "Venezuela",
+	"united republic of tanzania": "Tanzania", "tanzania, united republic of": "Tanzania", "republic of moldova": "Moldova",
+	"moldova, republic of": "Moldova", "micronesia (federated states of)": "Micronesia", "state of palestine": "Palestine",
+	"netherlands (kingdom of the)": "Netherlands", "holland": "Netherlands",
+	"congo, democratic republic of": "Democratic Republic of the Congo", "congo, republic of": "Congo", "drc": "Democratic Republic of the Congo",
+	"dr congo": "Democratic Republic of the Congo", "swaziland": "Eswatini", "cape verde": "Cabo Verde", "east timor": "Timor-Leste",
+	"c\u00f4te d\u2019ivoire": "Cote d'Ivoire", "ivory coast": "Cote d'Ivoire", "united kingdom of great britain and northern ireland": "United Kingdom",
 	"united states of america": "United States", "taiwan, province of china": "Taiwan", "republic of korea": "South Korea",
+	"us": "United States", "usa": "United States", "uk": "United Kingdom", "england": "United Kingdom", "great britain": "United Kingdom",
+	"prc": "China", "mainland china": "China", "taiwan (roc)": "Taiwan", "s korea": "South Korea", "nz": "New Zealand",
+	"uae": "United Arab Emirates", "slovak republic": "Slovakia", "kyrgyz republic": "Kyrgyzstan", "vatican": "Holy See",
+	"vatican city": "Holy See", "macedonia": "North Macedonia", "st lucia": "Saint Lucia", "st kitts and nevis": "Saint Kitts and Nevis",
+	// Not on the UN list; kept as a project alias.
+	"kosovo": "Kosovo",
 }
 
 // foldName makes country names comparable: NFKC, lower case, no diacritics,
@@ -88,6 +95,8 @@ func foldName(s string) string {
 			return -1
 		case r == '\u2019' || r == '\u2018' || r == '\u02bc':
 			return '\''
+		case r == '.':
+			return -1
 		}
 		return unicode.ToLower(r)
 	}, s)
@@ -134,6 +143,10 @@ func originCountry(raw string) (string, bool) {
 		return "EU", true
 	}
 	n, ok := countryIndex()[k]
+	if !ok && !strings.ContainsAny(raw, "0123456789/") {
+		// the shared alias table (read only), e.g. "Holland", "S. Korea"
+		n, ok = countryIndex()[foldName(domain.NormalizeCountry(raw))]
+	}
 	if !ok || n == "Japan" {
 		return "", false
 	}

@@ -12,7 +12,12 @@ prompt, prompt version and request bytes are unchanged.
   "and" (Trinidad and Tobago) match as whole names. Official spellings with a
   comma or brackets ("Korea, Republic of", "Lao PDR", "Hong Kong, China",
   "Myanmar (Burma)") are listed aliases and are returned as one name (South
-  Korea, Laos, Hong Kong, Myanmar). An "undetermined" answer is still an
+  Korea, Laos, Hong Kong, Myanmar). Leading "the" and dots are ignored. The
+  shared country helper's aliases (US, PRC, Holland, England, S. Korea) are
+  tried as a second lookup, read only. UN long forms are returned as the short
+  names the shared table and the eval labels use (Russia, Iran, Tanzania,
+  Moldova, Bolivia, Venezuela, Syria, Palestine), so the eval comparison sees
+  equal names. Kosovo, NZ, UAE, Vatican and Macedonia are project aliases. An "undetermined" answer is still an
   abstention, not an error.
   This is a well-formedness check on the answer only. It is not a treaty-party
   or origin-eligibility rule: a country that is not a party to the agreement
@@ -24,7 +29,8 @@ prompt, prompt version and request bytes are unchanged.
   rows that carry ISO alpha-2 and alpha-3 codes, extracted to
   `countries_un_m49.tsv` (sha256
   7c8c33846a0e2dbf70acb4f36a41ff4477a55cdc59d4612b9756e9a652478662, pinned by
-  a test), plus the shared country table and the listed aliases. Limits: a
+  a test), plus the shared country table and the listed aliases. Limits: the
+  alias list is not exhaustive, so an uncommon alias is rejected until added; a
   country or territory added later, or a name written some other way, is
   rejected; this errors rather than guesses. Taiwan comes from the shared
   table because the UN list has no separate row. Tests cover every EU member

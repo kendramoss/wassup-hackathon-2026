@@ -296,7 +296,7 @@ func TestEUMembersAndPartiesAreAccepted(t *testing.T) {
 	}
 	for in, want := range map[string]string{"Korea, Republic of": "South Korea", "Republic of Korea": "South Korea", "Lao PDR": "Laos",
 		"Hong Kong, China": "Hong Kong", "Myanmar (Burma)": "Myanmar", "Viet Nam": "Vietnam", "Türkiye": "Turkey", "turkiye": "Turkey",
-		"Russia": "Russian Federation", "Côte d’Ivoire": "Côte d’Ivoire", "cote d'ivoire": "Côte d’Ivoire", "  NEPAL ": "Nepal", "Ｖｉｅｔｎａｍ": "Vietnam",
+		"Russia": "Russia", "Russian Federation": "Russia", "Côte d’Ivoire": "Cote d'Ivoire", "cote d'ivoire": "Cote d'Ivoire", "  NEPAL ": "Nepal", "Ｖｉｅｔｎａｍ": "Vietnam",
 		"Taiwan": "Taiwan", "Iceland": "Iceland", "Saudi Arabia": "Saudi Arabia", "Kenya": "Kenya"} {
 		if got, ok := originCountry(in); !ok || got != want {
 			t.Errorf("%q = %q, %v; want %q", in, got, ok, want)
@@ -311,5 +311,39 @@ func TestCountryDataIsPinned(t *testing.T) {
 	}
 	if n := len(strings.Split(strings.TrimSpace(unCountryTSV), "\n")); n != 248 {
 		t.Errorf("rows = %d", n)
+	}
+}
+
+func TestSharedAliasSpellingsAreStillAccepted(t *testing.T) {
+	want := map[string]string{"US": "United States", "U.S.": "United States", "U.S.A.": "United States", "PRC": "China", "NZ": "New Zealand",
+		"UAE": "United Arab Emirates", "S. Korea": "South Korea", "Mainland China": "China", "Taiwan (ROC)": "Taiwan", "Holland": "Netherlands",
+		"England": "United Kingdom", "Great Britain": "United Kingdom", "the Netherlands": "Netherlands", "The Philippines": "Philippines",
+		"Slovak Republic": "Slovakia", "Kyrgyz Republic": "Kyrgyzstan", "Vatican": "Holy See", "Macedonia": "North Macedonia", "Kosovo": "Kosovo",
+		"UK": "United Kingdom", "USA": "United States"}
+	for in, w := range want {
+		if got, ok := originCountry(in); !ok || got != w {
+			t.Errorf("%q = %q, %v; want %q", in, got, ok, w)
+		}
+	}
+	for _, in := range []string{"Vietnam 2025", "China 1", "U.S. and China"} {
+		if _, ok := originCountry(in); ok {
+			t.Errorf("%q accepted", in)
+		}
+	}
+}
+
+// The jpeval scorer compares domain.NormalizeCountry of label and prediction.
+func TestOriginsScoreEqualToCommonLabelSpellings(t *testing.T) {
+	pairs := map[string]string{"Russian Federation": "Russia", "Iran (Islamic Republic of)": "Iran", "United Republic of Tanzania": "Tanzania",
+		"Republic of Moldova": "Moldova", "Bolivia (Plurinational State of)": "Bolivia", "Venezuela (Bolivarian Republic of)": "Venezuela",
+		"Syrian Arab Republic": "Syria", "Micronesia (Federated States of)": "Micronesia", "State of Palestine": "Palestine",
+		"Republic of Korea": "South Korea", "Democratic People's Republic of Korea": "North Korea", "Viet Nam": "Vietnam",
+		"Lao People's Democratic Republic": "Laos", "Czechia": "Czechia", "Türkiye": "Turkey", "Côte d’Ivoire": "Cote d'Ivoire",
+		"Netherlands (Kingdom of the)": "Netherlands", "United States of America": "USA", "China, Hong Kong Special Administrative Region": "Hong Kong"}
+	for long, label := range pairs {
+		got, ok := originCountry(long)
+		if !ok || domain.NormalizeCountry(got) != domain.NormalizeCountry(label) {
+			t.Errorf("%q -> %q (%v), label %q normalises to %q", long, got, ok, label, domain.NormalizeCountry(label))
+		}
 	}
 }
