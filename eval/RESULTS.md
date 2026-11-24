@@ -1055,3 +1055,8 @@ After the daily budget reset, live MCP initialized anonymously, then returned HT
 - BM25 top 5 holds a ruling the family's template cites, before → after, development cases: batteries 0 → 7 of 7, machinery 3 → 3 of 11, medical 7 → 7 of 10, optical 1 → 1 of 2, furniture 0 → 0 of 1 (`b2-retrieval.json`).
 - Guard after the family check (`family-guard-v2`, D786) on the 469 recorded development checks: 1 of 349 matches changed, the pet bed, judged right (`b2-guard-dev.json`).
 - Five new development fixtures pass the fake-engine plan pipeline (`TestFamilyFixturesPlan`). Not plan quality and not accuracy; the family check with the changed templates is not re-run (no model budget).
+
+### Development family-check run for #772 (gateway, 24 Nov; D785–D787)
+- Two runs on the 469 development rulings only, same model and settings as the committed f26 run, gateway cache off: main's templates (`results/families-coverage-dev-all-litellm-f26-b2-base.jsonl`) and #772's with `family-guard-v2` (`…-f26-b2.jsonl`). Per-family table: `families/b2-familycov.json`.
+- Frozen cases matched to their template, base → #772: batteries 5 → 7 of 7, machinery 7 → 7 of 11, medical 9 → 9 of 10, optical 0 → 1 of 2, furniture 1 → 1 of 1. Look-alikes kept off their cue family 31 → 32 of 33. All 469: 350 → 348 matched (failed checks 4 → 10). Guard took away 1 match (the pet bed).
+- $3.1427 for both; p50 4.0 / 4.4 s, p95 9.8 / 13.0 s per check.

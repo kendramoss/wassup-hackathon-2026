@@ -551,3 +551,7 @@ Experimental offline evaluation, advisory and unreviewed. Not Japan market cover
 | BM25 top 5 holds a cited ruling (dev) | Batteries 0 → 7 of 7; machinery 3 → 3 of 11; medical 7 → 7 of 10; optical 1 → 1 of 2; furniture 0 → 0 of 1 | `eval/families/b2-retrieval.json` | Measured offline, descriptive; small n. |
 | Family-check guard on dev rows | 1 of 349 matched rows changed (pet bed, furniture → none) | `eval/families/b2-guard-dev.json` | Measured offline on recorded v1 checks; the first run's 7 changes included 6 subject-parsing artifacts (D783). |
 | Family count | 26 (unchanged) | `TestTemplateSetIsPinned` | Pinned. |
+| Dev family check, frozen cases matched (base → #772) | Batteries 5 → 7 of 7; machinery 7 → 7 of 11; medical 9 → 9 of 10; optical 0 → 1 of 2; furniture 1 → 1 of 1 | `eval/families/b2-familycov.json` | Measured once per configuration, development only (D787). |
+| Dev family check, look-alikes kept off their cue family | 31 → 32 of 33 (failed checks counted as not matched) | Same | Measured (D787). |
+| Dev family check, all 469 | 350 → 348 matched; failed checks 4 → 10; guard took 1 match (pet bed) | `eval/results/families-coverage-dev-all-litellm-f26-b2{-base,}.jsonl` | Measured (D787); within run-to-run variation. |
+| Dev family-check run cost and latency | $3.1427 for both runs; p50 4.0 / 4.4 s, p95 9.8 / 13.0 s per check | Same, RUNLOG rows `families-coverage-dev-all-litellm-f26-b2-base`, `…-f26-b2` | Token-priced at promo rates. |
