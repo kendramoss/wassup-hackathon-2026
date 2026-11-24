@@ -1,0 +1,4576 @@
+{
+ "rule": "D820 screens: keyword pattern over subject + first 1500 characters of facts, or a stated HTSUS heading of the scope; universe and pools as in this script's docstring. A hit is a candidate only; the hand screen (b3-screen.json) decides.",
+ "universe": 1247,
+ "excluded_held_out_ids": 751,
+ "pools": {
+  "dev": 469,
+  "train": 632,
+  "other": 146
+ },
+ "pools_2026": {
+  "dev": 0,
+  "train": 0,
+  "other": 24
+ },
+ "patterns": {
+  "battery_packs": "batter(y|ies)|accumulator|lithium[- ]ion|\\bli-?ion\\b|\\blifepo|power bank|power station|energy storage|\\bbess\\b|\\bbms\\b|battery management|cell modules?|\\bcells?\\b[^.]{0,40}\\b(lithium|battery|batteries|ion)\\b",
+  "lifting_machines": "\\bjacks?\\b|jack stand|\\bhoists?\\b|\\bwinch(es)?\\b|\\bcranes?\\b|forklift|fork lift|pallet (truck|jack)|stacker|\\blifts?\\b|lifting|scissor lift|tail ?gate lift|\\bdavits?\\b|\\btackle\\b|chain block|\\bpulley|3d printer|three-dimensional printer|additive manufactur",
+  "furniture": "furniture|\\bchairs?\\b|\\btables?\\b|\\bdesks?\\b|\\bsofas?\\b|\\bcouch|\\bcabinets?\\b|shel(f|ves|ving)\\b|\\bbeds?\\b|bed frame|mattress|\\bstools?\\b|\\bbench(es)?\\b|ottoman|wardrobe|dresser|recliner|\\bvanit(y|ies)\\b|bookcase|nightstand|futon|headboard|seating|\\bseats?\\b|upholster|cushion|knock[- ]?down|ready[- ]to[- ]assemble|\\brta\\b|flat[- ]?pack|unassembled|disassembled|lacquer|varnish|\\bstain(ed|ing)?\\b|veneer",
+  "optical_precision": "\\blens(es)?\\b|optical|optics|microscope|telescope|binocular|monocular|riflescope|rifle ?scope|spotting scope|\\bsights?\\b|magnif|\\bloupes?\\b|\\bprisms?\\b|rangefinder|range finder|laser level|\\blevels?\\b|caliper|micrometer|\\bgauges?\\b|measuring|surveying|theodolite|total station|spectromet|refractomet|hygromet|thermomet|anemomet|baromet|tape measure|\\bruler|eyewear|eyeglass|spectacle|sunglass"
+ },
+ "headings": {
+  "battery_packs": [
+   "8506",
+   "8507"
+  ],
+  "lifting_machines": [
+   "8425",
+   "8426",
+   "8427",
+   "8428",
+   "8485"
+  ],
+  "furniture": [
+   "9401",
+   "9403",
+   "9404"
+  ],
+  "optical_precision": [
+   "9001",
+   "9002",
+   "9003",
+   "9004",
+   "9005",
+   "9011",
+   "9012",
+   "9013",
+   "9015",
+   "9016",
+   "9017",
+   "9024",
+   "9025",
+   "9026",
+   "9027",
+   "9028",
+   "9029",
+   "9030",
+   "9031",
+   "9032",
+   "9033"
+  ]
+ },
+ "counts": {
+  "battery_packs": {
+   "dev": 52,
+   "train": 52,
+   "other": 17
+  },
+  "lifting_machines": {
+   "dev": 25,
+   "train": 28,
+   "other": 2
+  },
+  "furniture": {
+   "dev": 37,
+   "train": 65,
+   "other": 29
+  },
+  "optical_precision": {
+   "dev": 86,
+   "train": 86,
+   "other": 19
+  }
+ },
+ "hits": {
+  "battery_packs": [
+   {
+    "ruling": "H304679",
+    "pool": "train",
+    "date": "2024-06-11",
+    "origin": "China",
+    "multi_country": true,
+    "subject": "Country of Origin of LED Light Sets; Marking",
+    "by": "keyword"
+   },
+   {
+    "ruling": "H335387",
+    "pool": "other",
+    "date": "2024-05-08",
+    "origin": null,
+    "multi_country": true,
+    "subject": "U.S. Government Procurement; Title III, Trade Agreements Act of 1979 (19 U.S.C. § 2511); Subpart B, Part 177, CBP Regulations; Country of Origin of Battery-Electric Semi-Truck",
+    "by": "keyword"
+   },
+   {
+    "ruling": "H338116",
+    "pool": "train",
+    "date": "2024-06-04",
+    "origin": "United States",
+    "multi_country": true,
+    "subject": "U.S. Government Procurement; Title III, Trade Agreements Act of 1979 (19 U.S.C. 2511); Subpart B, Part 177, CBP Regulations; Country of Origin of Global Navigation Satellite System R12i Receivers; Country of Origin Marking 134.32(d); 19 CFR 134.32(m).",
+    "by": "keyword"
+   },
+   {
+    "ruling": "H345749",
+    "pool": "train",
+    "date": "2025-06-18",
+    "origin": "United States",
+    "multi_country": true,
+    "subject": "U.S. Government Procurement; Title III, Trade Agreements Act of 1979 (19 U.S.C. § 2511); Subpart B, Part 177, CBP Regulations; Country of Origin of R980 Global Navigation Satellite System Receiver; Country of Origin Marking",
+    "by": "keyword"
+   },
+   {
+    "ruling": "H348154",
+    "pool": "dev",
+    "date": "2025-08-29",
+    "origin": "Vietnam",
+    "multi_country": true,
+    "subject": "Country of Origin Marking of Smart Glasses; Section 301",
+    "by": "keyword"
+   },
+   {
+    "ruling": "H350263",
+    "pool": "other",
+    "date": "2025-10-03",
+    "origin": "Japan | South Korea | Taiwan | Vietnam",
+    "multi_country": true,
+    "subject": "Unassembled Disc Launcher Build Box; Country of Origin for Purposes of Trade Remedies",
+    "by": "keyword"
+   },
+   {
+    "ruling": "H354721",
+    "pool": "train",
+    "date": "2025-03-09",
+    "origin": "Malaysia",
+    "multi_country": true,
+    "subject": "Country of Origin of an Alternator Assembly",
+    "by": "keyword"
+   },
+   {
+    "ruling": "H355075",
+    "pool": "other",
+    "date": "2026-03-31",
+    "origin": "Vietnam | Taiwan",
+    "multi_country": true,
+    "subject": "Country of origin marking of Smart Glasses; Section 301",
+    "by": "keyword"
+   },
+   {
+    "ruling": "H356848",
+    "pool": "other",
+    "date": "2026-05-20",
+    "origin": "Vietnam | Taiwan",
+    "multi_country": true,
+    "subject": "Country of origin marking of Smart Glasses; Section 301",
+    "by": "keyword"
+   },
+   {
+    "ruling": "N331943",
+    "pool": "train",
+    "date": "2023-04-20",
+    "origin": "Philippines",
+    "multi_country": true,
+    "subject": "The country of origin of a wireless charger set",
+    "by": "keyword"
+   },
+   {
+    "ruling": "N332276",
+    "pool": "train",
+    "date": "2023-05-08",
+    "origin": "Vietnam",
+    "multi_country": true,
+    "subject": "The country of origin of a universal remote control",
+    "by": "keyword"
+   },
+   {
+    "ruling": "N334315",
+    "pool": "train",
+    "date": "2023-08-17",
+    "origin": "Taiwan",
+    "multi_country": true,
+    "subject": "The country of origin of an electrical controller",
+    "by": "keyword"
+   },
+   {
+    "ruling": "N334434",
+    "pool": "train",
+    "date": "2023-08-21",
+    "origin": "Taiwan",
+    "multi_country": true,
+    "subject": "The country of origin and marking of musical instrument tuners",
+    "by": "keyword"
+   },
+   {
+    "ruling": "N334538",
+    "pool": "other",
+    "date": "2023-09-05",
+    "origin": null,
+    "multi_country": true,
+    "subject": "The country of origin, application of Section 301 trade remedies, and marking of two digital blood pressure monitors",
+    "by": "keyword"
+   },
+   {
+    "ruling": "N334757",
+    "pool": "train",
+    "date": "2023-08-28",
+    "origin": "Indonesia | Vietnam",
+    "multi_country": true,
+    "subject": "The country of origin of vaping control units",
+    "by": "keyword"
+   },
+   {
+    "ruling": "N335017",
+    "pool": "train",
+    "date": "2023-09-15",
+    "origin": "Vietnam",
+    "multi_country": true,
+    "subject": "The country of origin of a wireless cooking thermometer, charging sleeve and timer",
+    "by": "keyword"
+   },
+   {
+    "ruling": "N335537",
+    "pool": "train",
+    "date": "2023-10-12",
+    "origin": "Vietnam",
+    "multi_country": true,
+    "subject": "The country of origin of battery chargers",
+    "by": "keyword"
+   },
+   {
+    "ruling": "N336445",
+    "pool": "train",
+    "date": "2023-12-05",
+    "origin": "China",
+    "multi_country": true,
+    "subject": "The country of origin of the JAS-Roll-Electrode",
+    "by": "keyword"
+   },
+   {
+    "ruling": "N337718",
+    "pool": "train",
+    "date": "2024-02-15",
+    "origin": "South Korea",
+    "multi_country": true,
+    "subject": "The country of origin of the JAS-Roll-1500kg",
+    "by": "keyword"
+   },
+   {
+    "ruling": "N339485",
+    "pool": "train",
+    "date": "2024-05-03",
+    "origin": "Vietnam",
+    "multi_country": true,
+    "subject": "The country of origin of dog trackers",
+    "by": "keyword"
+   },
+   {
+    "ruling": "N340047",
+    "pool": "train",
+    "date": "2024-06-07",
+    "origin": "South Korea",
+    "multi_country": true,
+    "subject": "The country of origin of an automated guided vehicle",
+    "by": "keyword"
+   },
+   {
+    "ruling": "N340825",
+    "pool": "train",
+    "date": "2024-07-09",
+    "origin": "Malaysia",
+    "multi_country": true,
+    "subject": "The country of origin of battery chargers",
+    "by": "keyword"
+   },
+   {
+    "ruling": "N341251",
+    "pool": "train",
+    "date": "2024-07-29",
+    "origin": "South Korea",
+    "multi_country": true,
+    "subject": "The country of origin of an automated guided vehicle",
+    "by": "keyword"
+   },
+   {
+    "ruling": "N341338",
+    "pool": "train",
+    "date": "2024-08-01",
+    "origin": "Indonesia",
+    "multi_country": true,
+    "subject": "The country of origin of electronic cigarettes",
+    "by": "keyword"
+   },
+   {
+    "ruling": "N341585",
+    "pool": "train",
+    "date": "2024-08-14",
+    "origin": "South Korea",
+    "multi_country": true,
+    "subject": "The country of origin of a doped and cathode material",
+    "by": "keyword"
+   },
+   {
+    "ruling": "N342133",
+    "pool": "train",
+    "date": "2024-09-11",
+    "origin": "Malaysia",
+    "multi_country": true,
+    "subject": "The country of origin and applicability of Section 301 Trade Remedies of a DC-DC Converter",
+    "by": "keyword"
+   },
+   {
+    "ruling": "N342506",
+    "pool": "train",
+    "date": "2024-10-04",
+    "origin": "United Kingdom",
+    "multi_country": true,
+    "subject": "The country of origin of a vanadium flow battery",
+    "by": "keyword"
+   },
+   {
+    "ruling": "N342514",
+    "pool": "train",
+    "date": "2024-10-08",
+    "origin": "South Korea",
+    "multi_country": true,
+    "subject": "The country of origin of a doped and coated single crystal cathode material",
+    "by": "keyword"
+   },
+   {
+    "ruling": "N342864",
+    "pool": "train",
+    "date": "2024-10-08",
+    "origin": "Thailand",
+    "multi_country": true,
+    "subject": "The country of origin of booster cables",
+    "by": "keyword"
+   },
+   {
+    "ruling": "N343416",
+    "pool": "train",
+    "date": "2024-11-13",
+    "origin": "South Korea",
+    "multi_country": true,
+    "subject": "The country of origin of the JAS-JR Assembly-600kg",
+    "by": "keyword"
+   },
+   {
+    "ruling": "N344188",
+    "pool": "train",
+    "date": "2024-12-09",
+    "origin": "Vietnam",
+    "multi_country": true,
+    "subject": "The country of origin of an LED emergency light",
+    "by": "keyword"
+   },
+   {
+    "ruling": "N344245",
+    "pool": "train",
+    "date": "2024-12-20",
+    "origin": "Vietnam",
+    "multi_country": true,
+    "subject": "The Country-of-Origin of E-bikes from Vietnam",
+    "by": "keyword"
+   },
+   {
+    "ruling": "N344252",
+    "pool": "train",
+    "date": "2024-12-12",
+    "origin": "Malaysia",
+    "multi_country": true,
+    "subject": "The country of origin of sleep headbands",
+    "by": "keyword"
+   },
+   {
+    "ruling": "N344625",
+    "pool": "other",
+    "date": "2025-01-10",
+    "origin": null,
+    "multi_country": true,
+    "subject": "The country of origin and status under the United States-Korea Free Trade Agreement (UKFTA) of the Pokit Pro",
+    "by": "keyword"
+   },
+   {
+    "ruling": "N344661",
+    "pool": "train",
+    "date": "2025-01-10",
+    "origin": "Cambodia",
+    "multi_country": true,
+    "subject": "The classification and country of origin of a solar powered decorative steel Patio Pillar",
+    "by": "keyword"
+   },
+   {
+    "ruling": "N344694",
+    "pool": "train",
+    "date": "2025-01-14",
+    "origin": "China",
+    "multi_country": true,
+    "subject": "The tariff classification and country of origin of an e-scooter",
+    "by": "keyword"
+   },
+   {
+    "ruling": "N344843",
+    "pool": "train",
+    "date": "2025-01-22",
+    "origin": "France",
+    "multi_country": true,
+    "subject": "The country of origin for an electric stand-up all-terrain vehicle (ATV)",
+    "by": "keyword"
+   },
+   {
+    "ruling": "N345752",
+    "pool": "other",
+    "date": "2025-03-05",
+    "origin": null,
+    "multi_country": true,
+    "subject": "The country of origin of an electronic, keyless entry lock system",
+    "by": "keyword"
+   },
+   {
+    "ruling": "N345899",
+    "pool": "train",
+    "date": "2025-03-06",
+    "origin": "India | China",
+    "multi_country": true,
+    "subject": "The country of origin of an LED emergency light",
+    "by": "keyword"
+   },
+   {
+    "ruling": "N345938",
+    "pool": "train",
+    "date": "2025-03-06",
+    "origin": "Vietnam",
+    "multi_country": true,
+    "subject": "The country of origin of a hair clipper kit",
+    "by": "keyword"
+   },
+   {
+    "ruling": "N346317",
+    "pool": "train",
+    "date": "2025-03-13",
+    "origin": "China",
+    "multi_country": true,
+    "subject": "The country of origin of a power bank",
+    "by": "keyword"
+   },
+   {
+    "ruling": "N346403",
+    "pool": "train",
+    "date": "2025-03-14",
+    "origin": "China",
+    "multi_country": true,
+    "subject": "The country of origin of power banks",
+    "by": "keyword"
+   },
+   {
+    "ruling": "N346570",
+    "pool": "train",
+    "date": "2025-03-18",
+    "origin": "Vietnam",
+    "multi_country": true,
+    "subject": "The country of origin of a laptop",
+    "by": "keyword"
+   },
+   {
+    "ruling": "N346907",
+    "pool": "train",
+    "date": "2025-04-04",
+    "origin": "China",
+    "multi_country": true,
+    "subject": "The country of origin and applicability of the United States- Korea Free Trade Agreement (UKFTA) of a plastic shipping box",
+    "by": "keyword"
+   },
+   {
+    "ruling": "N346911",
+    "pool": "train",
+    "date": "2025-04-02",
+    "origin": "Malaysia",
+    "multi_country": true,
+    "subject": "The country of origin of the huupe smart mini basketball hoop game console",
+    "by": "keyword"
+   },
+   {
+    "ruling": "N346961",
+    "pool": "train",
+    "date": "2025-04-09",
+    "origin": "Vietnam",
+    "multi_country": true,
+    "subject": "The country of origin of an impact drill",
+    "by": "keyword"
+   },
+   {
+    "ruling": "N347058",
+    "pool": "train",
+    "date": "2025-04-08",
+    "origin": "China",
+    "multi_country": true,
+    "subject": "The tariff classification and country of origin of an inductive charger",
+    "by": "keyword"
+   },
+   {
+    "ruling": "N347135",
+    "pool": "train",
+    "date": "2025-04-24",
+    "origin": "Thailand",
+    "multi_country": true,
+    "subject": "The country of origin of the Steam Deck OLED gaming device",
+    "by": "keyword"
+   },
+   {
+    "ruling": "N347139",
+    "pool": "train",
+    "date": "2025-04-25",
+    "origin": "Thailand",
+    "multi_country": true,
+    "subject": "The country of origin of ignition coils for an automotive engine",
+    "by": "keyword"
+   },
+   {
+    "ruling": "N347172",
+    "pool": "train",
+    "date": "2025-04-25",
+    "origin": "South Korea",
+    "multi_country": true,
+    "subject": "The country of origin of a lithium-ion pouch cell",
+    "by": "keyword"
+   },
+   {
+    "ruling": "N347193",
+    "pool": "train",
+    "date": "2025-04-09",
+    "origin": "China | Malaysia | South Korea",
+    "multi_country": true,
+    "subject": "The country of origin of a battery pack",
+    "by": "keyword"
+   },
+   {
+    "ruling": "N347723",
+    "pool": "train",
+    "date": "2025-05-07",
+    "origin": "Vietnam",
+    "multi_country": true,
+    "subject": "The country of origin of the Ableton “Move”",
+    "by": "keyword"
+   },
+   {
+    "ruling": "N347808",
+    "pool": "train",
+    "date": "2025-05-07",
+    "origin": "South Korea",
+    "multi_country": true,
+    "subject": "The country of origin of an artificial graphite anode active material",
+    "by": "keyword"
+   },
+   {
+    "ruling": "N348147",
+    "pool": "train",
+    "date": "2025-05-22",
+    "origin": "Thailand",
+    "multi_country": true,
+    "subject": "The country of origin of ignition coils for an automotive engine",
+    "by": "keyword"
+   },
+   {
+    "ruling": "N348871",
+    "pool": "train",
+    "date": "2025-06-06",
+    "origin": "Vietnam",
+    "multi_country": true,
+    "subject": "The country of origin of the Portable Storage Generator",
+    "by": "keyword"
+   },
+   {
+    "ruling": "N349038",
+    "pool": "train",
+    "date": "2025-05-30",
+    "origin": "China",
+    "multi_country": true,
+    "subject": "The country of origin of a digital stick thermometer",
+    "by": "keyword"
+   },
+   {
+    "ruling": "N349285",
+    "pool": "train",
+    "date": "2025-06-09",
+    "origin": "Thailand",
+    "multi_country": true,
+    "subject": "The country of origin of desktop personal computers",
+    "by": "keyword"
+   },
+   {
+    "ruling": "N349313",
+    "pool": "train",
+    "date": "2025-06-06",
+    "origin": "South Korea",
+    "multi_country": true,
+    "subject": "The country of origin of the Electric Vehicle Battery Charger",
+    "by": "keyword"
+   },
+   {
+    "ruling": "N349742",
+    "pool": "train",
+    "date": "2025-06-18",
+    "origin": "South Korea",
+    "multi_country": true,
+    "subject": "The country of origin of cameras",
+    "by": "keyword"
+   },
+   {
+    "ruling": "N349869",
+    "pool": "train",
+    "date": "2025-06-13",
+    "origin": "Thailand",
+    "multi_country": true,
+    "subject": "The country of origin of an audio amplifier",
+    "by": "keyword"
+   },
+   {
+    "ruling": "N350187",
+    "pool": "dev",
+    "date": "2025-07-03",
+    "origin": "Vietnam",
+    "multi_country": true,
+    "subject": "The country of origin of laptop computers",
+    "by": "keyword"
+   },
+   {
+    "ruling": "N350221",
+    "pool": "other",
+    "date": "2025-12-11",
+    "origin": "Japan | South Korea | Taiwan | Vietnam",
+    "multi_country": true,
+    "subject": "The country of origin of a Drawing Machine Build Box",
+    "by": "keyword"
+   },
+   {
+    "ruling": "N350222",
+    "pool": "other",
+    "date": "2025-12-11",
+    "origin": "Japan | South Korea | Taiwan | Vietnam",
+    "multi_country": true,
+    "subject": "The country of origin of a Strobe Light Animator Build Box",
+    "by": "keyword"
+   },
+   {
+    "ruling": "N350225",
+    "pool": "dev",
+    "date": "2025-07-17",
+    "origin": "Cambodia",
+    "multi_country": true,
+    "subject": "The country of origin of a digital blood pressure monitor",
+    "by": "keyword"
+   },
+   {
+    "ruling": "N350297",
+    "pool": "other",
+    "date": "2025-12-11",
+    "origin": "Taiwan | Italy | Malaysia | Vietnam",
+    "multi_country": true,
+    "subject": "The country of origin of a Domino Robot Hack Pack",
+    "by": "keyword"
+   },
+   {
+    "ruling": "N350298",
+    "pool": "other",
+    "date": "2025-12-11",
+    "origin": "Taiwan | Italy | Malaysia | Vietnam",
+    "multi_country": true,
+    "subject": "The country of origin of a Infrared Turret Hack Pack",
+    "by": "keyword"
+   },
+   {
+    "ruling": "N350300",
+    "pool": "other",
+    "date": "2025-12-11",
+    "origin": "Taiwan | Italy | Malaysia | Vietnam",
+    "multi_country": true,
+    "subject": "The country of origin of a Laser Tag Hack Pack",
+    "by": "keyword"
+   },
+   {
+    "ruling": "N350301",
+    "pool": "other",
+    "date": "2025-12-11",
+    "origin": "Taiwan | Italy | Malaysia | Vietnam",
+    "multi_country": true,
+    "subject": "The country of origin of a Label Maker Hack Pack",
+    "by": "keyword"
+   },
+   {
+    "ruling": "N350306",
+    "pool": "dev",
+    "date": "2025-07-03",
+    "origin": "Cambodia",
+    "multi_country": true,
+    "subject": "The country of origin of an E-bike",
+    "by": "keyword"
+   },
+   {
+    "ruling": "N350383",
+    "pool": "dev",
+    "date": "2025-07-09",
+    "origin": "Indonesia",
+    "multi_country": true,
+    "subject": "The country of origin and marking of battery chargers",
+    "by": "keyword"
+   },
+   {
+    "ruling": "N350710",
+    "pool": "dev",
+    "date": "2025-07-21",
+    "origin": "Vietnam",
+    "multi_country": true,
+    "subject": "The country of origin of an LED flashlight from Vietnam",
+    "by": "keyword"
+   },
+   {
+    "ruling": "N350799",
+    "pool": "dev",
+    "date": "2025-07-10",
+    "origin": "Philippines",
+    "multi_country": true,
+    "subject": "The country of origin of wireless ear buds",
+    "by": "keyword"
+   },
+   {
+    "ruling": "N350800",
+    "pool": "dev",
+    "date": "2025-07-10",
+    "origin": "Philippines",
+    "multi_country": true,
+    "subject": "The country of origin of Bluetooth earbuds",
+    "by": "keyword"
+   },
+   {
+    "ruling": "N350883",
+    "pool": "dev",
+    "date": "2025-07-17",
+    "origin": "Thailand",
+    "multi_country": true,
+    "subject": "The country of origin of LED light bars",
+    "by": "keyword"
+   },
+   {
+    "ruling": "N350953",
+    "pool": "dev",
+    "date": "2025-07-30",
+    "origin": "Thailand",
+    "multi_country": true,
+    "subject": "The country of origin of a battery cell",
+    "by": "keyword"
+   },
+   {
+    "ruling": "N351106",
+    "pool": "dev",
+    "date": "2025-07-31",
+    "origin": "Taiwan",
+    "multi_country": true,
+    "subject": "The country of origin of a CEFALY Connected kit",
+    "by": "keyword"
+   },
+   {
+    "ruling": "N351229",
+    "pool": "dev",
+    "date": "2025-07-24",
+    "origin": "Indonesia",
+    "multi_country": true,
+    "subject": "The country of origin of disposable electronic cigarettes",
+    "by": "keyword"
+   },
+   {
+    "ruling": "N351263",
+    "pool": "dev",
+    "date": "2025-07-31",
+    "origin": "China",
+    "multi_country": true,
+    "subject": "The country of origin of a battery cell",
+    "by": "keyword"
+   },
+   {
+    "ruling": "N351341",
+    "pool": "dev",
+    "date": "2025-08-04",
+    "origin": "Vietnam",
+    "multi_country": true,
+    "subject": "The country of origin of an air inflator",
+    "by": "keyword"
+   },
+   {
+    "ruling": "N351493",
+    "pool": "dev",
+    "date": "2025-08-07",
+    "origin": "Vietnam",
+    "multi_country": true,
+    "subject": "The country of origin of a walk-behind lawn mower",
+    "by": "keyword"
+   },
+   {
+    "ruling": "N351558",
+    "pool": "dev",
+    "date": "2025-07-30",
+    "origin": "Vietnam",
+    "multi_country": true,
+    "subject": "The country of origin of booster cables",
+    "by": "keyword"
+   },
+   {
+    "ruling": "N351860",
+    "pool": "dev",
+    "date": "2025-08-19",
+    "origin": "China",
+    "multi_country": true,
+    "subject": "The country of origin of a heat pump",
+    "by": "keyword"
+   },
+   {
+    "ruling": "N351861",
+    "pool": "dev",
+    "date": "2025-08-14",
+    "origin": "Philippines",
+    "multi_country": true,
+    "subject": "The country of origin of noise cancelling headphones",
+    "by": "keyword"
+   },
+   {
+    "ruling": "N351901",
+    "pool": "dev",
+    "date": "2025-08-21",
+    "origin": "China",
+    "multi_country": true,
+    "subject": "The country of origin of a heat pump",
+    "by": "keyword"
+   },
+   {
+    "ruling": "N351913",
+    "pool": "dev",
+    "date": "2025-08-20",
+    "origin": "Vietnam",
+    "multi_country": true,
+    "subject": "The country of origin of analog multimeters and a battery tester",
+    "by": "keyword"
+   },
+   {
+    "ruling": "N351962",
+    "pool": "dev",
+    "date": "2025-08-26",
+    "origin": "Vietnam",
+    "multi_country": true,
+    "subject": "The country of origin of a laser measurement tool",
+    "by": "keyword"
+   },
+   {
+    "ruling": "N351963",
+    "pool": "dev",
+    "date": "2025-08-22",
+    "origin": "Vietnam",
+    "multi_country": true,
+    "subject": "The country of origin of the Ableton Push 3 standalone musical instrument",
+    "by": "keyword"
+   },
+   {
+    "ruling": "N352014",
+    "pool": "dev",
+    "date": "2025-08-21",
+    "origin": "China",
+    "multi_country": true,
+    "subject": "The country of origin of a power bank",
+    "by": "keyword"
+   },
+   {
+    "ruling": "N352190",
+    "pool": "dev",
+    "date": "2025-08-22",
+    "origin": "South Korea",
+    "multi_country": true,
+    "subject": "The country of origin of a battery charging system",
+    "by": "keyword"
+   },
+   {
+    "ruling": "N352290",
+    "pool": "dev",
+    "date": "2025-08-29",
+    "origin": "Taiwan",
+    "multi_country": true,
+    "subject": "The country of origin of a CEFALY Enhanced Kit (SKU 10701)",
+    "by": "keyword"
+   },
+   {
+    "ruling": "N352300",
+    "pool": "dev",
+    "date": "2025-08-29",
+    "origin": "Taiwan",
+    "multi_country": true,
+    "subject": "The country of origin of a CEFALY Connected Bundle VA Set (SKU 10811)",
+    "by": "keyword"
+   },
+   {
+    "ruling": "N352306",
+    "pool": "dev",
+    "date": "2025-08-22",
+    "origin": "Malaysia",
+    "multi_country": true,
+    "subject": "The country of origin of two models of battery chargers",
+    "by": "keyword"
+   },
+   {
+    "ruling": "N352332",
+    "pool": "dev",
+    "date": "2025-08-29",
+    "origin": "Taiwan",
+    "multi_country": true,
+    "subject": "The country of origin of a CEFALY Connected Kit (SKU 10810)",
+    "by": "keyword"
+   },
+   {
+    "ruling": "N352355",
+    "pool": "dev",
+    "date": "2025-09-03",
+    "origin": "China",
+    "multi_country": true,
+    "subject": "The country of origin of a power bank",
+    "by": "keyword"
+   },
+   {
+    "ruling": "N352538",
+    "pool": "dev",
+    "date": "2025-10-03",
+    "origin": "China",
+    "multi_country": true,
+    "subject": "The tariff classification and country of origin of a drone set",
+    "by": "keyword"
+   },
+   {
+    "ruling": "N352655",
+    "pool": "dev",
+    "date": "2025-08-27",
+    "origin": "Vietnam",
+    "multi_country": true,
+    "subject": "The country of origin of a digital coin counting bank",
+    "by": "keyword"
+   },
+   {
+    "ruling": "N352821",
+    "pool": "dev",
+    "date": "2025-09-22",
+    "origin": "Singapore",
+    "multi_country": true,
+    "subject": "The country of origin of micro controller integrated circuits",
+    "by": "keyword"
+   },
+   {
+    "ruling": "N352938",
+    "pool": "dev",
+    "date": "2025-09-08",
+    "origin": "China",
+    "multi_country": true,
+    "subject": "The country of origin of a printed laminated plastic sheet",
+    "by": "keyword"
+   },
+   {
+    "ruling": "N353023",
+    "pool": "dev",
+    "date": "2025-09-25",
+    "origin": "Vietnam",
+    "multi_country": true,
+    "subject": "The country of origin of a jump starter.",
+    "by": "keyword"
+   },
+   {
+    "ruling": "N353082",
+    "pool": "dev",
+    "date": "2025-09-10",
+    "origin": "Vietnam",
+    "multi_country": true,
+    "subject": "The country of origin of a Wheeled Battery Charger",
+    "by": "keyword"
+   },
+   {
+    "ruling": "N353086",
+    "pool": "dev",
+    "date": "2025-09-25",
+    "origin": "Vietnam",
+    "multi_country": true,
+    "subject": "The country of origin of a lithium-ion jump starter",
+    "by": "keyword"
+   },
+   {
+    "ruling": "N353152",
+    "pool": "dev",
+    "date": "2025-09-23",
+    "origin": "China",
+    "multi_country": true,
+    "subject": "The country of origin of a fountain",
+    "by": "keyword"
+   },
+   {
+    "ruling": "N353302",
+    "pool": "dev",
+    "date": "2025-10-03",
+    "origin": "Vietnam",
+    "multi_country": true,
+    "subject": "The country of origin of an LED flashlight",
+    "by": "keyword"
+   },
+   {
+    "ruling": "N353542",
+    "pool": "dev",
+    "date": "2025-10-03",
+    "origin": "Vietnam",
+    "multi_country": true,
+    "subject": "The country of origin of dog training devices",
+    "by": "keyword"
+   },
+   {
+    "ruling": "N353786",
+    "pool": "other",
+    "date": "2025-09-23",
+    "origin": null,
+    "multi_country": true,
+    "subject": "The tariff classification and country of origin of a battery-powered outdoor garden and yard maintenance set",
+    "by": "keyword"
+   },
+   {
+    "ruling": "N353830",
+    "pool": "dev",
+    "date": "2025-10-01",
+    "origin": "Vietnam",
+    "multi_country": true,
+    "subject": "The country of origin of two battery chargers",
+    "by": "keyword"
+   },
+   {
+    "ruling": "N353884",
+    "pool": "dev",
+    "date": "2025-10-10",
+    "origin": "China",
+    "multi_country": true,
+    "subject": "The tariff classification and country of origin of a light-up wand",
+    "by": "keyword"
+   },
+   {
+    "ruling": "N353913",
+    "pool": "other",
+    "date": "2025-10-06",
+    "origin": null,
+    "multi_country": true,
+    "subject": "The country of origin of an infrared transmitter and receiver",
+    "by": "keyword"
+   },
+   {
+    "ruling": "N354016",
+    "pool": "dev",
+    "date": "2025-10-16",
+    "origin": "Thailand",
+    "multi_country": true,
+    "subject": "The country of origin of LED lights",
+    "by": "keyword"
+   },
+   {
+    "ruling": "N354327",
+    "pool": "dev",
+    "date": "2025-10-22",
+    "origin": "China",
+    "multi_country": true,
+    "subject": "The country of origin of handheld electronic devices",
+    "by": "keyword"
+   },
+   {
+    "ruling": "N355069",
+    "pool": "dev",
+    "date": "2025-11-06",
+    "origin": "Vietnam",
+    "multi_country": true,
+    "subject": "The country of origin of a gaming controller",
+    "by": "keyword"
+   },
+   {
+    "ruling": "N355237",
+    "pool": "dev",
+    "date": "2025-11-19",
+    "origin": "Thailand",
+    "multi_country": true,
+    "subject": "The country of origin of a pool cleaning robot",
+    "by": "keyword"
+   },
+   {
+    "ruling": "N355289",
+    "pool": "dev",
+    "date": "2025-11-17",
+    "origin": "China",
+    "multi_country": true,
+    "subject": "The country of origin of NextVein Projection Vein Finder",
+    "by": "keyword"
+   },
+   {
+    "ruling": "N355396",
+    "pool": "dev",
+    "date": "2025-11-21",
+    "origin": "Thailand",
+    "multi_country": true,
+    "subject": "The country of origin of a radio remote control apparatus",
+    "by": "keyword"
+   },
+   {
+    "ruling": "N355502",
+    "pool": "dev",
+    "date": "2025-11-17",
+    "origin": "Thailand",
+    "multi_country": true,
+    "subject": "The country of origin of a portable LED light",
+    "by": "keyword"
+   },
+   {
+    "ruling": "N355934",
+    "pool": "dev",
+    "date": "2025-12-03",
+    "origin": "Vietnam",
+    "multi_country": true,
+    "subject": "The country of origin of rechargeable compact inspection cameras",
+    "by": "keyword"
+   },
+   {
+    "ruling": "N356306",
+    "pool": "dev",
+    "date": "2025-12-05",
+    "origin": "Thailand",
+    "multi_country": true,
+    "subject": "The country of origin of an oil immersed transformer",
+    "by": "keyword"
+   },
+   {
+    "ruling": "N356467",
+    "pool": "dev",
+    "date": "2025-12-22",
+    "origin": "Vietnam",
+    "multi_country": true,
+    "subject": "The country of origin of an electric scooter",
+    "by": "keyword"
+   },
+   {
+    "ruling": "N356670",
+    "pool": "dev",
+    "date": "2025-12-23",
+    "origin": "Vietnam",
+    "multi_country": true,
+    "subject": "The country of origin of a lead-acid jump starter",
+    "by": "keyword"
+   },
+   {
+    "ruling": "N359714",
+    "pool": "other",
+    "date": "2026-04-06",
+    "origin": null,
+    "multi_country": true,
+    "subject": "The country of origin of wiring harnesses",
+    "by": "keyword"
+   },
+   {
+    "ruling": "N363926",
+    "pool": "other",
+    "date": "2026-08-21",
+    "origin": null,
+    "multi_country": true,
+    "subject": "RE: The country of origin of Medium Voltage Substation",
+    "by": "keyword"
+   }
+  ],
+  "lifting_machines": [
+   {
+    "ruling": "H322161",
+    "pool": "train",
+    "date": "2023-03-14",
+    "origin": "China",
+    "multi_country": true,
+    "subject": "AFR of Protests Nos. 2301-20-100059 and 2301-20-100060; Actuator Cable Assembly; Origin; Section 301; Post Summary Corrections; Reliquidations; 19 U.S.C. § 1501",
+    "by": "keyword"
+   },
+   {
+    "ruling": "H327665",
+    "pool": "train",
+    "date": "2025-03-25",
+    "origin": "United States",
+    "multi_country": true,
+    "subject": "Application for Further Review of Protest No. 3801-22-107986; Tariff Classification and Country of Origin of Cover Assemblies for a Backhoe Loader; Section 301 Measures",
+    "by": "keyword"
+   },
+   {
+    "ruling": "H346536",
+    "pool": "dev",
+    "date": "2025-10-17",
+    "origin": "China",
+    "multi_country": true,
+    "subject": "Country of origin of a 3D Printer",
+    "by": "keyword"
+   },
+   {
+    "ruling": "H354721",
+    "pool": "train",
+    "date": "2025-03-09",
+    "origin": "Malaysia",
+    "multi_country": true,
+    "subject": "Country of Origin of an Alternator Assembly",
+    "by": "keyword"
+   },
+   {
+    "ruling": "N330880",
+    "pool": "train",
+    "date": "2023-02-23",
+    "origin": "China",
+    "multi_country": true,
+    "subject": "The classification and country of origin of a titanium “substrate”",
+    "by": "keyword"
+   },
+   {
+    "ruling": "N331939",
+    "pool": "train",
+    "date": "2023-04-19",
+    "origin": "Philippines",
+    "multi_country": true,
+    "subject": "The country of origin of an audio cable",
+    "by": "keyword"
+   },
+   {
+    "ruling": "N332914",
+    "pool": "other",
+    "date": "2023-06-08",
+    "origin": null,
+    "multi_country": true,
+    "subject": "The tariff classification and country of origin of a crane truck",
+    "by": "keyword"
+   },
+   {
+    "ruling": "N333646",
+    "pool": "train",
+    "date": "2023-07-14",
+    "origin": "Vietnam",
+    "multi_country": true,
+    "subject": "The country of origin of a hydraulic floor jack",
+    "by": "keyword"
+   },
+   {
+    "ruling": "N334276",
+    "pool": "train",
+    "date": "2023-08-11",
+    "origin": "Poland",
+    "multi_country": true,
+    "subject": "The country of origin of scissor lifts",
+    "by": "keyword"
+   },
+   {
+    "ruling": "N336445",
+    "pool": "train",
+    "date": "2023-12-05",
+    "origin": "China",
+    "multi_country": true,
+    "subject": "The country of origin of the JAS-Roll-Electrode",
+    "by": "keyword"
+   },
+   {
+    "ruling": "N337718",
+    "pool": "train",
+    "date": "2024-02-15",
+    "origin": "South Korea",
+    "multi_country": true,
+    "subject": "The country of origin of the JAS-Roll-1500kg",
+    "by": "keyword"
+   },
+   {
+    "ruling": "N338945",
+    "pool": "train",
+    "date": "2024-04-04",
+    "origin": "Thailand",
+    "multi_country": true,
+    "subject": "The country of origin of an electric bread maker.",
+    "by": "keyword"
+   },
+   {
+    "ruling": "N340047",
+    "pool": "train",
+    "date": "2024-06-07",
+    "origin": "South Korea",
+    "multi_country": true,
+    "subject": "The country of origin of an automated guided vehicle",
+    "by": "keyword"
+   },
+   {
+    "ruling": "N340694",
+    "pool": "train",
+    "date": "2024-06-27",
+    "origin": "Taiwan",
+    "multi_country": true,
+    "subject": "The country of origin of audio adapter",
+    "by": "keyword"
+   },
+   {
+    "ruling": "N342916",
+    "pool": "train",
+    "date": "2024-10-18",
+    "origin": "Thailand",
+    "multi_country": true,
+    "subject": "The country of origin of an electric bread maker.",
+    "by": "keyword"
+   },
+   {
+    "ruling": "N343416",
+    "pool": "train",
+    "date": "2024-11-13",
+    "origin": "South Korea",
+    "multi_country": true,
+    "subject": "The country of origin of the JAS-JR Assembly-600kg",
+    "by": "keyword"
+   },
+   {
+    "ruling": "N343451",
+    "pool": "train",
+    "date": "2024-11-05",
+    "origin": "Taiwan",
+    "multi_country": true,
+    "subject": "The country of origin of a teleconferencing device",
+    "by": "keyword"
+   },
+   {
+    "ruling": "N344048",
+    "pool": "train",
+    "date": "2024-12-10",
+    "origin": "Germany",
+    "multi_country": true,
+    "subject": "The country of origin of a bent axis hydraulic motor",
+    "by": "keyword"
+   },
+   {
+    "ruling": "N344692",
+    "pool": "train",
+    "date": "2025-01-10",
+    "origin": "China",
+    "multi_country": true,
+    "subject": "The country of origin of a hydraulic bottle jack",
+    "by": "keyword"
+   },
+   {
+    "ruling": "N344910",
+    "pool": "train",
+    "date": "2025-01-22",
+    "origin": "Mexico",
+    "multi_country": true,
+    "subject": "The country of origin of a 3D printer and the applicability of certain trade remedies under Section 301.",
+    "by": "keyword"
+   },
+   {
+    "ruling": "N345436",
+    "pool": "train",
+    "date": "2025-02-05",
+    "origin": "Mexico",
+    "multi_country": true,
+    "subject": "The country of origin of a water pump",
+    "by": "keyword"
+   },
+   {
+    "ruling": "N346297",
+    "pool": "train",
+    "date": "2025-03-12",
+    "origin": "Thailand",
+    "multi_country": true,
+    "subject": "The country of origin of an electric winch",
+    "by": "keyword"
+   },
+   {
+    "ruling": "N347081",
+    "pool": "train",
+    "date": "2025-04-10",
+    "origin": "United States",
+    "multi_country": true,
+    "subject": "The country of origin of a water pump",
+    "by": "keyword"
+   },
+   {
+    "ruling": "N347135",
+    "pool": "train",
+    "date": "2025-04-24",
+    "origin": "Thailand",
+    "multi_country": true,
+    "subject": "The country of origin of the Steam Deck OLED gaming device",
+    "by": "keyword"
+   },
+   {
+    "ruling": "N347256",
+    "pool": "train",
+    "date": "2025-04-29",
+    "origin": "Thailand",
+    "multi_country": true,
+    "subject": "The country of origin of hydraulic floor jacks",
+    "by": "keyword"
+   },
+   {
+    "ruling": "N348221",
+    "pool": "train",
+    "date": "2025-05-12",
+    "origin": "Thailand",
+    "multi_country": true,
+    "subject": "The country of origin of a jack stand and engine stand",
+    "by": "keyword"
+   },
+   {
+    "ruling": "N348514",
+    "pool": "train",
+    "date": "2025-05-21",
+    "origin": "Thailand",
+    "multi_country": true,
+    "subject": "The country of origin of an engine crane",
+    "by": "keyword"
+   },
+   {
+    "ruling": "N348905",
+    "pool": "train",
+    "date": "2025-05-30",
+    "origin": "Thailand",
+    "multi_country": true,
+    "subject": "The country of origin of a scissor jack",
+    "by": "keyword"
+   },
+   {
+    "ruling": "N349312",
+    "pool": "train",
+    "date": "2025-06-12",
+    "origin": "Mexico",
+    "multi_country": true,
+    "subject": "The country of origin of an electric-powered injection molding machine.",
+    "by": "keyword"
+   },
+   {
+    "ruling": "N349746",
+    "pool": "train",
+    "date": "2025-06-06",
+    "origin": "Vietnam",
+    "multi_country": true,
+    "subject": "The country of origin of garden forks",
+    "by": "keyword"
+   },
+   {
+    "ruling": "N350225",
+    "pool": "dev",
+    "date": "2025-07-17",
+    "origin": "Cambodia",
+    "multi_country": true,
+    "subject": "The country of origin of a digital blood pressure monitor",
+    "by": "keyword"
+   },
+   {
+    "ruling": "N350285",
+    "pool": "dev",
+    "date": "2025-07-14",
+    "origin": "Cambodia",
+    "multi_country": true,
+    "subject": "The country of origin and marking of a mode shift actuator for top-loading washing machines",
+    "by": "keyword"
+   },
+   {
+    "ruling": "N350299",
+    "pool": "other",
+    "date": "2025-12-11",
+    "origin": "Taiwan | Italy | Malaysia | Vietnam",
+    "multi_country": true,
+    "subject": "The country of origin of a Sand Garden Hack Pack",
+    "by": "keyword"
+   },
+   {
+    "ruling": "N350383",
+    "pool": "dev",
+    "date": "2025-07-09",
+    "origin": "Indonesia",
+    "multi_country": true,
+    "subject": "The country of origin and marking of battery chargers",
+    "by": "keyword"
+   },
+   {
+    "ruling": "N350985",
+    "pool": "dev",
+    "date": "2025-07-16",
+    "origin": "Canada",
+    "multi_country": true,
+    "subject": "The country of origin of rifle stocks",
+    "by": "keyword"
+   },
+   {
+    "ruling": "N351174",
+    "pool": "dev",
+    "date": "2025-07-24",
+    "origin": "Thailand",
+    "multi_country": true,
+    "subject": "The country of origin of automotive jack stands",
+    "by": "keyword"
+   },
+   {
+    "ruling": "N351234",
+    "pool": "dev",
+    "date": "2025-07-31",
+    "origin": "South Korea",
+    "multi_country": true,
+    "subject": "The country of origin of Hydraulic Cylinders for mechanical equipment",
+    "by": "keyword"
+   },
+   {
+    "ruling": "N351349",
+    "pool": "dev",
+    "date": "2025-07-29",
+    "origin": "Vietnam",
+    "multi_country": true,
+    "subject": "The country of origin of water pumps",
+    "by": "keyword"
+   },
+   {
+    "ruling": "N351493",
+    "pool": "dev",
+    "date": "2025-08-07",
+    "origin": "Vietnam",
+    "multi_country": true,
+    "subject": "The country of origin of a walk-behind lawn mower",
+    "by": "keyword"
+   },
+   {
+    "ruling": "N351538",
+    "pool": "dev",
+    "date": "2025-08-15",
+    "origin": "Malaysia",
+    "multi_country": true,
+    "subject": "The country of origin of an impeller and a diffuser",
+    "by": "keyword"
+   },
+   {
+    "ruling": "N351580",
+    "pool": "dev",
+    "date": "2025-08-14",
+    "origin": "Thailand",
+    "multi_country": true,
+    "subject": "The country of origin of a bottle jack",
+    "by": "keyword"
+   },
+   {
+    "ruling": "N352101",
+    "pool": "dev",
+    "date": "2025-08-27",
+    "origin": "Turkey",
+    "multi_country": true,
+    "subject": "The country of origin of a telehandler",
+    "by": "keyword"
+   },
+   {
+    "ruling": "N352242",
+    "pool": "dev",
+    "date": "2025-09-09",
+    "origin": "Thailand",
+    "multi_country": true,
+    "subject": "The country of origin of a SprintRay NanoCure 3D Printer Post-Curing Device",
+    "by": "keyword"
+   },
+   {
+    "ruling": "N352655",
+    "pool": "dev",
+    "date": "2025-08-27",
+    "origin": "Vietnam",
+    "multi_country": true,
+    "subject": "The country of origin of a digital coin counting bank",
+    "by": "keyword"
+   },
+   {
+    "ruling": "N352841",
+    "pool": "dev",
+    "date": "2025-09-23",
+    "origin": "South Korea",
+    "multi_country": true,
+    "subject": "The country of origin of a cool mist humidifier",
+    "by": "keyword"
+   },
+   {
+    "ruling": "N354790",
+    "pool": "dev",
+    "date": "2025-10-28",
+    "origin": "China",
+    "multi_country": true,
+    "subject": "The country of origin of low profile floor jacks",
+    "by": "keyword"
+   },
+   {
+    "ruling": "N354791",
+    "pool": "dev",
+    "date": "2025-10-28",
+    "origin": "China",
+    "multi_country": true,
+    "subject": "The country of origin of floor jacks",
+    "by": "keyword"
+   },
+   {
+    "ruling": "N355131",
+    "pool": "dev",
+    "date": "2025-11-10",
+    "origin": "China",
+    "multi_country": true,
+    "subject": "The country of origin of bottle jacks",
+    "by": "keyword"
+   },
+   {
+    "ruling": "N355132",
+    "pool": "dev",
+    "date": "2025-10-28",
+    "origin": "China",
+    "multi_country": true,
+    "subject": "The country of origin of trolley jacks",
+    "by": "keyword"
+   },
+   {
+    "ruling": "N355133",
+    "pool": "dev",
+    "date": "2025-11-10",
+    "origin": "China",
+    "multi_country": true,
+    "subject": "The country of origin of hydraulic bottle jacks",
+    "by": "keyword"
+   },
+   {
+    "ruling": "N355930",
+    "pool": "dev",
+    "date": "2025-12-03",
+    "origin": "Thailand",
+    "multi_country": true,
+    "subject": "The country of origin of Gigabyte monitors",
+    "by": "keyword"
+   },
+   {
+    "ruling": "N356009",
+    "pool": "dev",
+    "date": "2025-12-11",
+    "origin": "Canada",
+    "multi_country": true,
+    "subject": "The tariff classification and country of origin of a wheel dolly",
+    "by": "keyword"
+   },
+   {
+    "ruling": "N356381",
+    "pool": "dev",
+    "date": "2025-12-11",
+    "origin": "Vietnam",
+    "multi_country": true,
+    "subject": "The country of origin of a breaker bar and a pry bar",
+    "by": "keyword"
+   },
+   {
+    "ruling": "N356772",
+    "pool": "dev",
+    "date": "2025-12-31",
+    "origin": "Thailand",
+    "multi_country": true,
+    "subject": "The country of origin of a pry bar",
+    "by": "keyword"
+   },
+   {
+    "ruling": "N356865",
+    "pool": "dev",
+    "date": "2025-12-31",
+    "origin": "Italy",
+    "multi_country": true,
+    "subject": "The tariff classification and country of origin of a woman’s mule style footwear",
+    "by": "keyword"
+   }
+  ],
+  "furniture": [
+   {
+    "ruling": "H322161",
+    "pool": "train",
+    "date": "2023-03-14",
+    "origin": "China",
+    "multi_country": true,
+    "subject": "AFR of Protests Nos. 2301-20-100059 and 2301-20-100060; Actuator Cable Assembly; Origin; Section 301; Post Summary Corrections; Reliquidations; 19 U.S.C. § 1501",
+    "by": "keyword"
+   },
+   {
+    "ruling": "H330862",
+    "pool": "train",
+    "date": "2023-04-10",
+    "origin": "United States",
+    "multi_country": true,
+    "subject": "U.S. Government Procurement; Title III, Trade Agreements Act of 1979 (19 U.S.C. 2511); Subpart B, Part 177, CBP Regulations; Country of Origin of Height Adjustable Workstations",
+    "by": "keyword"
+   },
+   {
+    "ruling": "H330975",
+    "pool": "other",
+    "date": "2024-01-25",
+    "origin": null,
+    "multi_country": true,
+    "subject": "Country of Origin; Marking; Section 301 Measures; Truck Bed Flooring Panels Processed in FTZ",
+    "by": "keyword"
+   },
+   {
+    "ruling": "H331375",
+    "pool": "dev",
+    "date": "2025-07-23",
+    "origin": "Italy",
+    "multi_country": true,
+    "subject": "Subheading 9804.00.05; Country of Origin; Appraisement",
+    "by": "keyword"
+   },
+   {
+    "ruling": "H331515",
+    "pool": "train",
+    "date": "2023-12-06",
+    "origin": "Mexico",
+    "multi_country": true,
+    "subject": "Country of origin of a refrigerator shelf light",
+    "by": "keyword"
+   },
+   {
+    "ruling": "H332752",
+    "pool": "train",
+    "date": "2024-06-10",
+    "origin": "Taiwan",
+    "multi_country": true,
+    "subject": "U.S. Government Procurement; Title III, Trade Agreements Act of 1979 (19 U.S.C. 2511); Subpart B, Part 177, CBP Regulations; Country of Origin of UPanelS Products",
+    "by": "keyword"
+   },
+   {
+    "ruling": "H338482",
+    "pool": "other",
+    "date": "2024-05-29",
+    "origin": null,
+    "multi_country": true,
+    "subject": "U.S. Government Procurement; Title III, Trade Agreements Act of 1979 (19 U.S.C. 2511); Subpart B, Part 177, CBP Regulations; Country of Origin of Upholstered Wood Chairs",
+    "by": "keyword"
+   },
+   {
+    "ruling": "H338728",
+    "pool": "train",
+    "date": "2025-05-13",
+    "origin": "Canada",
+    "multi_country": true,
+    "subject": "U.S. Government Procurement; Title III, Trade Agreements Act of 1979 (19 U.S.C. 2511); Subpart B, Part 177, CBP Regulations; Global Industries, Inc.; Country of Origin of Meeting Tables; Substantial Transformation",
+    "by": "keyword"
+   },
+   {
+    "ruling": "H342474",
+    "pool": "dev",
+    "date": "2025-10-21",
+    "origin": "China",
+    "multi_country": true,
+    "subject": "Country of Origin; USMCA; Marking; Verona Crystal LED Display Cabinet",
+    "by": "keyword"
+   },
+   {
+    "ruling": "H343750",
+    "pool": "train",
+    "date": "2025-06-04",
+    "origin": "China",
+    "multi_country": true,
+    "subject": "Outdoor Barrel Saunas; United States-Mexico-Canada Agreement; Section 301 Trade Remedies",
+    "by": "keyword"
+   },
+   {
+    "ruling": "H345343",
+    "pool": "dev",
+    "date": "2025-07-21",
+    "origin": "United States",
+    "multi_country": true,
+    "subject": "Origin; USMCA Eligibility; Section 301 Measures; Plastic Chairs",
+    "by": "keyword+hts 9401"
+   },
+   {
+    "ruling": "H346536",
+    "pool": "dev",
+    "date": "2025-10-17",
+    "origin": "China",
+    "multi_country": true,
+    "subject": "Country of origin of a 3D Printer",
+    "by": "keyword"
+   },
+   {
+    "ruling": "H347415",
+    "pool": "dev",
+    "date": "2025-07-21",
+    "origin": "China",
+    "multi_country": true,
+    "subject": "Unassembled Latch Assemblies; Country of Origin; Section 301 and IEEPA Duties",
+    "by": "keyword"
+   },
+   {
+    "ruling": "H350263",
+    "pool": "other",
+    "date": "2025-10-03",
+    "origin": "Japan | South Korea | Taiwan | Vietnam",
+    "multi_country": true,
+    "subject": "Unassembled Disc Launcher Build Box; Country of Origin for Purposes of Trade Remedies",
+    "by": "keyword"
+   },
+   {
+    "ruling": "N330075",
+    "pool": "train",
+    "date": "2023-01-20",
+    "origin": "South Korea",
+    "multi_country": true,
+    "subject": "The country of origin of an Airwave Outlet Assembly",
+    "by": "keyword"
+   },
+   {
+    "ruling": "N332529",
+    "pool": "train",
+    "date": "2023-05-25",
+    "origin": "South Korea",
+    "multi_country": true,
+    "subject": "The country of origin of cushions, powder wash and brow wax",
+    "by": "keyword"
+   },
+   {
+    "ruling": "N333023",
+    "pool": "train",
+    "date": "2023-06-12",
+    "origin": "Philippines",
+    "multi_country": true,
+    "subject": "The country of origin of assorted tourist gift items.",
+    "by": "keyword"
+   },
+   {
+    "ruling": "N333330",
+    "pool": "train",
+    "date": "2023-07-05",
+    "origin": "China",
+    "multi_country": true,
+    "subject": "The country of origin of a Tonneau cover.",
+    "by": "keyword"
+   },
+   {
+    "ruling": "N333849",
+    "pool": "train",
+    "date": "2023-11-06",
+    "origin": "France",
+    "multi_country": true,
+    "subject": "The country of origin of the Haliade-X Nacelle",
+    "by": "keyword"
+   },
+   {
+    "ruling": "N333956",
+    "pool": "train",
+    "date": "2023-07-21",
+    "origin": "South Korea",
+    "multi_country": true,
+    "subject": "The country of origin of a bolt cutter",
+    "by": "keyword"
+   },
+   {
+    "ruling": "N334423",
+    "pool": "train",
+    "date": "2023-08-22",
+    "origin": "Vietnam",
+    "multi_country": true,
+    "subject": "The country of origin of a gaming headset",
+    "by": "keyword"
+   },
+   {
+    "ruling": "N334424",
+    "pool": "train",
+    "date": "2023-08-22",
+    "origin": "Vietnam",
+    "multi_country": true,
+    "subject": "The country of origin of gaming headsets",
+    "by": "keyword"
+   },
+   {
+    "ruling": "N334531",
+    "pool": "train",
+    "date": "2023-09-06",
+    "origin": "Thailand",
+    "multi_country": true,
+    "subject": "The tariff classification and country of origin of four tables",
+    "by": "keyword+hts 9403"
+   },
+   {
+    "ruling": "N334644",
+    "pool": "train",
+    "date": "2023-08-23",
+    "origin": "Vietnam",
+    "multi_country": true,
+    "subject": "The country of origin of a brick trowel, finish trowel, garden tool, and hand rake",
+    "by": "keyword"
+   },
+   {
+    "ruling": "N335085",
+    "pool": "other",
+    "date": "2023-09-14",
+    "origin": null,
+    "multi_country": true,
+    "subject": "The country of origin of gas grills",
+    "by": "keyword"
+   },
+   {
+    "ruling": "N335086",
+    "pool": "train",
+    "date": "2023-09-15",
+    "origin": "Indonesia",
+    "multi_country": true,
+    "subject": "The country of origin of gas grills",
+    "by": "keyword"
+   },
+   {
+    "ruling": "N335339",
+    "pool": "train",
+    "date": "2023-09-27",
+    "origin": "Vietnam",
+    "multi_country": true,
+    "subject": "The country of origin of a brick trowel and a finish trowel",
+    "by": "keyword"
+   },
+   {
+    "ruling": "N335585",
+    "pool": "other",
+    "date": "2023-10-24",
+    "origin": null,
+    "multi_country": true,
+    "subject": "Country of origin of a hybrid innerspring and foam mattress",
+    "by": "keyword"
+   },
+   {
+    "ruling": "N335829",
+    "pool": "other",
+    "date": "2023-11-02",
+    "origin": null,
+    "multi_country": true,
+    "subject": "Country of origin of an unassembled steel curtain rod",
+    "by": "keyword"
+   },
+   {
+    "ruling": "N336013",
+    "pool": "train",
+    "date": "2023-10-31",
+    "origin": "Indonesia",
+    "multi_country": true,
+    "subject": "The country of origin of an electrical controller",
+    "by": "keyword"
+   },
+   {
+    "ruling": "N338514",
+    "pool": "train",
+    "date": "2024-03-20",
+    "origin": "Thailand",
+    "multi_country": true,
+    "subject": "The classification and country of origin of a 7-drawer tool chest",
+    "by": "keyword"
+   },
+   {
+    "ruling": "N338793",
+    "pool": "train",
+    "date": "2024-03-19",
+    "origin": "Thailand",
+    "multi_country": true,
+    "subject": "The country of origin of an ultrasonic transducer",
+    "by": "keyword"
+   },
+   {
+    "ruling": "N338935",
+    "pool": "train",
+    "date": "2024-04-02",
+    "origin": "Vietnam",
+    "multi_country": true,
+    "subject": "The country of origin of an electric range from Vietnam.",
+    "by": "keyword"
+   },
+   {
+    "ruling": "N339090",
+    "pool": "train",
+    "date": "2024-04-17",
+    "origin": "Cambodia",
+    "multi_country": true,
+    "subject": "The country of origin of a plant dolly",
+    "by": "hts 9403"
+   },
+   {
+    "ruling": "N339107",
+    "pool": "other",
+    "date": "2024-04-16",
+    "origin": null,
+    "multi_country": true,
+    "subject": "The country of origin of three mattresses incorporated into a sleeper ottoman or sofa bed",
+    "by": "keyword+hts 9401,9404"
+   },
+   {
+    "ruling": "N339646",
+    "pool": "other",
+    "date": "2024-05-09",
+    "origin": null,
+    "multi_country": true,
+    "subject": "The country of origin of three mattresses incorporated into a sleeper ottoman or sofa bed",
+    "by": "keyword+hts 9401,9404"
+   },
+   {
+    "ruling": "N339685",
+    "pool": "train",
+    "date": "2024-05-09",
+    "origin": "Thailand",
+    "multi_country": true,
+    "subject": "The classification and country of origin of three tables",
+    "by": "keyword+hts 9403"
+   },
+   {
+    "ruling": "N339983",
+    "pool": "other",
+    "date": "2024-05-29",
+    "origin": null,
+    "multi_country": true,
+    "subject": "The country of origin of gas grills",
+    "by": "keyword"
+   },
+   {
+    "ruling": "N339984",
+    "pool": "train",
+    "date": "2024-05-31",
+    "origin": "Malaysia",
+    "multi_country": true,
+    "subject": "The country of origin of gas grills",
+    "by": "keyword"
+   },
+   {
+    "ruling": "N340198",
+    "pool": "train",
+    "date": "2024-06-06",
+    "origin": "Vietnam",
+    "multi_country": true,
+    "subject": "The country of origin of gas ranges from Vietnam",
+    "by": "keyword"
+   },
+   {
+    "ruling": "N340202",
+    "pool": "other",
+    "date": "2024-06-07",
+    "origin": null,
+    "multi_country": true,
+    "subject": "The country of origin of an electric range from Vietnam.",
+    "by": "keyword"
+   },
+   {
+    "ruling": "N340345",
+    "pool": "train",
+    "date": "2024-06-13",
+    "origin": "China",
+    "multi_country": true,
+    "subject": "The country of origin of an angiographic syringe kit",
+    "by": "keyword"
+   },
+   {
+    "ruling": "N340363",
+    "pool": "train",
+    "date": "2024-06-18",
+    "origin": "Indonesia",
+    "multi_country": true,
+    "subject": "The country of origin of gas grills",
+    "by": "keyword"
+   },
+   {
+    "ruling": "N341188",
+    "pool": "train",
+    "date": "2024-08-02",
+    "origin": "Vietnam",
+    "multi_country": true,
+    "subject": "The country of origin of gas grills and a pizza oven",
+    "by": "keyword"
+   },
+   {
+    "ruling": "N341338",
+    "pool": "train",
+    "date": "2024-08-01",
+    "origin": "Indonesia",
+    "multi_country": true,
+    "subject": "The country of origin of electronic cigarettes",
+    "by": "keyword"
+   },
+   {
+    "ruling": "N342977",
+    "pool": "train",
+    "date": "2024-10-28",
+    "origin": "China",
+    "multi_country": true,
+    "subject": "The country of origin of an airbag module",
+    "by": "keyword"
+   },
+   {
+    "ruling": "N343606",
+    "pool": "train",
+    "date": "2024-11-21",
+    "origin": "Thailand",
+    "multi_country": true,
+    "subject": "The country of origin of multilayer wood flooring panels",
+    "by": "keyword"
+   },
+   {
+    "ruling": "N343607",
+    "pool": "train",
+    "date": "2024-11-21",
+    "origin": "Thailand",
+    "multi_country": true,
+    "subject": "The country of origin of multilayer wood flooring panels",
+    "by": "keyword"
+   },
+   {
+    "ruling": "N343952",
+    "pool": "train",
+    "date": "2024-11-26",
+    "origin": "Thailand",
+    "multi_country": true,
+    "subject": "The country of origin of wheel speed sensors",
+    "by": "keyword"
+   },
+   {
+    "ruling": "N344245",
+    "pool": "train",
+    "date": "2024-12-20",
+    "origin": "Vietnam",
+    "multi_country": true,
+    "subject": "The Country-of-Origin of E-bikes from Vietnam",
+    "by": "keyword"
+   },
+   {
+    "ruling": "N344246",
+    "pool": "train",
+    "date": "2024-12-10",
+    "origin": "Vietnam",
+    "multi_country": true,
+    "subject": "The country of origin of a gaming desk",
+    "by": "keyword"
+   },
+   {
+    "ruling": "N344425",
+    "pool": "train",
+    "date": "2024-12-30",
+    "origin": "Malaysia",
+    "multi_country": true,
+    "subject": "The classification and country of origin of “Completely Knocked Down (CKD)” bicycles from Malaysia",
+    "by": "keyword"
+   },
+   {
+    "ruling": "N344475",
+    "pool": "train",
+    "date": "2025-01-02",
+    "origin": "Thailand | China",
+    "multi_country": true,
+    "subject": "The country of origin of grills",
+    "by": "keyword"
+   },
+   {
+    "ruling": "N344477",
+    "pool": "train",
+    "date": "2025-01-02",
+    "origin": "Thailand | China",
+    "multi_country": true,
+    "subject": "The country of origin of griddles",
+    "by": "keyword"
+   },
+   {
+    "ruling": "N345195",
+    "pool": "train",
+    "date": "2025-01-24",
+    "origin": "China",
+    "multi_country": true,
+    "subject": "A country of origin determination on dental and medical products",
+    "by": "keyword"
+   },
+   {
+    "ruling": "N345225",
+    "pool": "other",
+    "date": "2025-02-12",
+    "origin": null,
+    "multi_country": true,
+    "subject": "The country of origin of wheel bearing kits",
+    "by": "keyword"
+   },
+   {
+    "ruling": "N345265",
+    "pool": "other",
+    "date": "2025-02-03",
+    "origin": null,
+    "multi_country": true,
+    "subject": "The country of origin of an electric fireplace and media console",
+    "by": "keyword"
+   },
+   {
+    "ruling": "N345612",
+    "pool": "train",
+    "date": "2025-02-27",
+    "origin": "Thailand",
+    "multi_country": true,
+    "subject": "The country of origin of multilayer wood flooring panels",
+    "by": "keyword"
+   },
+   {
+    "ruling": "N345915",
+    "pool": "train",
+    "date": "2025-02-26",
+    "origin": "Indonesia",
+    "multi_country": true,
+    "subject": "A country of origin determination on exam table paper",
+    "by": "keyword"
+   },
+   {
+    "ruling": "N346000",
+    "pool": "train",
+    "date": "2025-02-27",
+    "origin": "Thailand",
+    "multi_country": true,
+    "subject": "The country of origin of a speed sensor",
+    "by": "keyword"
+   },
+   {
+    "ruling": "N346005",
+    "pool": "train",
+    "date": "2025-03-07",
+    "origin": "China",
+    "multi_country": true,
+    "subject": "The country of origin of vent free gas logs and a vent free stove",
+    "by": "keyword"
+   },
+   {
+    "ruling": "N346169",
+    "pool": "train",
+    "date": "2025-03-17",
+    "origin": "Thailand",
+    "multi_country": true,
+    "subject": "The country of origin of a fuel injector",
+    "by": "keyword"
+   },
+   {
+    "ruling": "N346297",
+    "pool": "train",
+    "date": "2025-03-12",
+    "origin": "Thailand",
+    "multi_country": true,
+    "subject": "The country of origin of an electric winch",
+    "by": "keyword"
+   },
+   {
+    "ruling": "N346435",
+    "pool": "train",
+    "date": "2025-03-26",
+    "origin": "Thailand",
+    "multi_country": true,
+    "subject": "The country of origin of fuel modules",
+    "by": "keyword"
+   },
+   {
+    "ruling": "N346575",
+    "pool": "train",
+    "date": "2025-04-04",
+    "origin": "China",
+    "multi_country": true,
+    "subject": "The tariff classification and country of origin marking of two unassembled gate latches.",
+    "by": "keyword"
+   },
+   {
+    "ruling": "N346613",
+    "pool": "train",
+    "date": "2025-04-08",
+    "origin": "Cambodia",
+    "multi_country": true,
+    "subject": "The country of origin of an electric fireplace insert from Cambodia.",
+    "by": "keyword"
+   },
+   {
+    "ruling": "N346907",
+    "pool": "train",
+    "date": "2025-04-04",
+    "origin": "China",
+    "multi_country": true,
+    "subject": "The country of origin and applicability of the United States- Korea Free Trade Agreement (UKFTA) of a plastic shipping box",
+    "by": "keyword"
+   },
+   {
+    "ruling": "N347088",
+    "pool": "other",
+    "date": "2025-04-23",
+    "origin": null,
+    "multi_country": true,
+    "subject": "The country of origin of trim kits",
+    "by": "keyword"
+   },
+   {
+    "ruling": "N347140",
+    "pool": "train",
+    "date": "2025-04-08",
+    "origin": "China",
+    "multi_country": true,
+    "subject": "The country of origin of a steering tie rod",
+    "by": "keyword"
+   },
+   {
+    "ruling": "N347184",
+    "pool": "train",
+    "date": "2025-04-10",
+    "origin": "Vietnam",
+    "multi_country": true,
+    "subject": "The country of origin of pencils",
+    "by": "keyword"
+   },
+   {
+    "ruling": "N347189",
+    "pool": "train",
+    "date": "2025-04-09",
+    "origin": "Thailand",
+    "multi_country": true,
+    "subject": "The country of origin of folders",
+    "by": "keyword"
+   },
+   {
+    "ruling": "N347645",
+    "pool": "train",
+    "date": "2025-04-29",
+    "origin": "Malaysia",
+    "multi_country": true,
+    "subject": "The tariff classification and country of origin of hanging folders",
+    "by": "keyword"
+   },
+   {
+    "ruling": "N347840",
+    "pool": "train",
+    "date": "2025-05-07",
+    "origin": "Vietnam",
+    "multi_country": true,
+    "subject": "The country of origin of faucets",
+    "by": "keyword"
+   },
+   {
+    "ruling": "N347995",
+    "pool": "other",
+    "date": "2025-05-06",
+    "origin": null,
+    "multi_country": true,
+    "subject": "The country of origin and marking of a set of two planters and two plant stands",
+    "by": "keyword"
+   },
+   {
+    "ruling": "N348083",
+    "pool": "train",
+    "date": "2025-05-09",
+    "origin": "China",
+    "multi_country": true,
+    "subject": "The country of origin of a commercial food warmer",
+    "by": "keyword"
+   },
+   {
+    "ruling": "N348193",
+    "pool": "train",
+    "date": "2025-05-08",
+    "origin": "China",
+    "multi_country": true,
+    "subject": "A country of origin determination on bulletin boards",
+    "by": "keyword"
+   },
+   {
+    "ruling": "N348514",
+    "pool": "train",
+    "date": "2025-05-21",
+    "origin": "Thailand",
+    "multi_country": true,
+    "subject": "The country of origin of an engine crane",
+    "by": "keyword"
+   },
+   {
+    "ruling": "N348576",
+    "pool": "train",
+    "date": "2025-05-20",
+    "origin": "Japan",
+    "multi_country": true,
+    "subject": "The country of origin of two foam mattresses incorporated into a sleeper sofa bed",
+    "by": "keyword"
+   },
+   {
+    "ruling": "N348764",
+    "pool": "train",
+    "date": "2025-05-29",
+    "origin": "China",
+    "multi_country": true,
+    "subject": "The country of origin of a power carpet stretcher",
+    "by": "keyword"
+   },
+   {
+    "ruling": "N348873",
+    "pool": "train",
+    "date": "2025-05-22",
+    "origin": "Indonesia",
+    "multi_country": true,
+    "subject": "The country of origin of toilet seat covers",
+    "by": "keyword"
+   },
+   {
+    "ruling": "N348875",
+    "pool": "train",
+    "date": "2025-05-22",
+    "origin": "Indonesia",
+    "multi_country": true,
+    "subject": "The country of origin of exam table paper",
+    "by": "keyword"
+   },
+   {
+    "ruling": "N348937",
+    "pool": "train",
+    "date": "2025-06-02",
+    "origin": "Thailand",
+    "multi_country": true,
+    "subject": "The country of origin of a Segway off-road vehicle",
+    "by": "keyword"
+   },
+   {
+    "ruling": "N350011",
+    "pool": "dev",
+    "date": "2025-07-10",
+    "origin": "China",
+    "multi_country": true,
+    "subject": "The country of origin of a basic trainer aircraft",
+    "by": "keyword"
+   },
+   {
+    "ruling": "N350028",
+    "pool": "train",
+    "date": "2025-06-13",
+    "origin": "China",
+    "multi_country": true,
+    "subject": "The country of origin of veneer edge banding",
+    "by": "keyword"
+   },
+   {
+    "ruling": "N350112",
+    "pool": "dev",
+    "date": "2025-07-03",
+    "origin": "China",
+    "multi_country": true,
+    "subject": "The country of origin of a vinyl record",
+    "by": "keyword"
+   },
+   {
+    "ruling": "N350221",
+    "pool": "other",
+    "date": "2025-12-11",
+    "origin": "Japan | South Korea | Taiwan | Vietnam",
+    "multi_country": true,
+    "subject": "The country of origin of a Drawing Machine Build Box",
+    "by": "keyword"
+   },
+   {
+    "ruling": "N350222",
+    "pool": "other",
+    "date": "2025-12-11",
+    "origin": "Japan | South Korea | Taiwan | Vietnam",
+    "multi_country": true,
+    "subject": "The country of origin of a Strobe Light Animator Build Box",
+    "by": "keyword"
+   },
+   {
+    "ruling": "N350225",
+    "pool": "dev",
+    "date": "2025-07-17",
+    "origin": "Cambodia",
+    "multi_country": true,
+    "subject": "The country of origin of a digital blood pressure monitor",
+    "by": "keyword"
+   },
+   {
+    "ruling": "N350296",
+    "pool": "other",
+    "date": "2025-12-11",
+    "origin": "Taiwan | Italy | Malaysia | Vietnam",
+    "multi_country": true,
+    "subject": "The country of origin of a Balance Bot Hack Pack",
+    "by": "keyword"
+   },
+   {
+    "ruling": "N350297",
+    "pool": "other",
+    "date": "2025-12-11",
+    "origin": "Taiwan | Italy | Malaysia | Vietnam",
+    "multi_country": true,
+    "subject": "The country of origin of a Domino Robot Hack Pack",
+    "by": "keyword"
+   },
+   {
+    "ruling": "N350298",
+    "pool": "other",
+    "date": "2025-12-11",
+    "origin": "Taiwan | Italy | Malaysia | Vietnam",
+    "multi_country": true,
+    "subject": "The country of origin of a Infrared Turret Hack Pack",
+    "by": "keyword"
+   },
+   {
+    "ruling": "N350299",
+    "pool": "other",
+    "date": "2025-12-11",
+    "origin": "Taiwan | Italy | Malaysia | Vietnam",
+    "multi_country": true,
+    "subject": "The country of origin of a Sand Garden Hack Pack",
+    "by": "keyword"
+   },
+   {
+    "ruling": "N350300",
+    "pool": "other",
+    "date": "2025-12-11",
+    "origin": "Taiwan | Italy | Malaysia | Vietnam",
+    "multi_country": true,
+    "subject": "The country of origin of a Laser Tag Hack Pack",
+    "by": "keyword"
+   },
+   {
+    "ruling": "N350301",
+    "pool": "other",
+    "date": "2025-12-11",
+    "origin": "Taiwan | Italy | Malaysia | Vietnam",
+    "multi_country": true,
+    "subject": "The country of origin of a Label Maker Hack Pack",
+    "by": "keyword"
+   },
+   {
+    "ruling": "N350345",
+    "pool": "dev",
+    "date": "2025-07-08",
+    "origin": "Thailand",
+    "multi_country": true,
+    "subject": "The country of origin of an oil filter",
+    "by": "keyword"
+   },
+   {
+    "ruling": "N350492",
+    "pool": "dev",
+    "date": "2025-07-21",
+    "origin": "United States",
+    "multi_country": true,
+    "subject": "The country of origin of high voltage distribution cabinets",
+    "by": "keyword"
+   },
+   {
+    "ruling": "N350516",
+    "pool": "dev",
+    "date": "2025-07-08",
+    "origin": "Indonesia",
+    "multi_country": true,
+    "subject": "The country of origin of toilet seat covers",
+    "by": "keyword"
+   },
+   {
+    "ruling": "N350528",
+    "pool": "dev",
+    "date": "2025-07-10",
+    "origin": "Cambodia",
+    "multi_country": true,
+    "subject": "Country of Origin Determination for Section 301 Tariff Purposes – Bicycle Assembled in China with Frame Made in Cambodia",
+    "by": "keyword"
+   },
+   {
+    "ruling": "N350535",
+    "pool": "train",
+    "date": "2025-06-27",
+    "origin": "Vietnam",
+    "multi_country": true,
+    "subject": "The country of origin of a bench vise",
+    "by": "keyword"
+   },
+   {
+    "ruling": "N350620",
+    "pool": "other",
+    "date": "2025-07-24",
+    "origin": "South Korea | China",
+    "multi_country": true,
+    "subject": "The country of origin of an electronic pneumatic lumbar support system",
+    "by": "keyword"
+   },
+   {
+    "ruling": "N350678",
+    "pool": "dev",
+    "date": "2025-07-15",
+    "origin": "Vietnam",
+    "multi_country": true,
+    "subject": "The country of origin of a pet bed",
+    "by": "keyword"
+   },
+   {
+    "ruling": "N350965",
+    "pool": "dev",
+    "date": "2025-07-10",
+    "origin": "Vietnam",
+    "multi_country": true,
+    "subject": "The country of origin of a bow rake",
+    "by": "keyword"
+   },
+   {
+    "ruling": "N351057",
+    "pool": "dev",
+    "date": "2025-07-24",
+    "origin": "Vietnam",
+    "multi_country": true,
+    "subject": "Country of Origin Determination for Section 301 and Marking Purposes – Bicycle Assembled in China with Frame Made in Vietnam",
+    "by": "keyword"
+   },
+   {
+    "ruling": "N351251",
+    "pool": "dev",
+    "date": "2025-07-30",
+    "origin": "Vietnam",
+    "multi_country": true,
+    "subject": "The country of origin of Utility Task Vehicles (UTVs)",
+    "by": "keyword"
+   },
+   {
+    "ruling": "N351341",
+    "pool": "dev",
+    "date": "2025-08-04",
+    "origin": "Vietnam",
+    "multi_country": true,
+    "subject": "The country of origin of an air inflator",
+    "by": "keyword"
+   },
+   {
+    "ruling": "N351460",
+    "pool": "other",
+    "date": "2025-07-29",
+    "origin": null,
+    "multi_country": true,
+    "subject": "The country of origin of a door latch for a front-loading dryer",
+    "by": "keyword"
+   },
+   {
+    "ruling": "N351505",
+    "pool": "dev",
+    "date": "2025-08-07",
+    "origin": "Vietnam",
+    "multi_country": true,
+    "subject": "The country of origin of an air inflator",
+    "by": "keyword"
+   },
+   {
+    "ruling": "N351958",
+    "pool": "dev",
+    "date": "2025-08-12",
+    "origin": "Vietnam",
+    "multi_country": true,
+    "subject": "The country of origin of a combination square",
+    "by": "keyword"
+   },
+   {
+    "ruling": "N352073",
+    "pool": "dev",
+    "date": "2025-08-22",
+    "origin": "China",
+    "multi_country": true,
+    "subject": "The country of origin of brake shoes",
+    "by": "keyword"
+   },
+   {
+    "ruling": "N352190",
+    "pool": "dev",
+    "date": "2025-08-22",
+    "origin": "South Korea",
+    "multi_country": true,
+    "subject": "The country of origin of a battery charging system",
+    "by": "keyword"
+   },
+   {
+    "ruling": "N352536",
+    "pool": "dev",
+    "date": "2025-09-09",
+    "origin": "Thailand",
+    "multi_country": true,
+    "subject": "The country of origin of an automotive airbag module.",
+    "by": "keyword"
+   },
+   {
+    "ruling": "N352543",
+    "pool": "dev",
+    "date": "2025-09-09",
+    "origin": "Thailand",
+    "multi_country": true,
+    "subject": "The country of origin of an automotive airbag system.",
+    "by": "keyword"
+   },
+   {
+    "ruling": "N352802",
+    "pool": "dev",
+    "date": "2025-09-17",
+    "origin": "South Korea",
+    "multi_country": true,
+    "subject": "The country of origin of lipliner stain, lip gloss, and lip glaze",
+    "by": "keyword"
+   },
+   {
+    "ruling": "N353045",
+    "pool": "dev",
+    "date": "2025-09-19",
+    "origin": "Cambodia",
+    "multi_country": true,
+    "subject": "Country of Origin Determination for Section 301 Tariff Purposes – Bicycle Assembled in China with Frame Made in Cambodia",
+    "by": "keyword"
+   },
+   {
+    "ruling": "N353399",
+    "pool": "dev",
+    "date": "2025-10-08",
+    "origin": "China",
+    "multi_country": true,
+    "subject": "The country of origin of a fishing fly rod",
+    "by": "keyword"
+   },
+   {
+    "ruling": "N353511",
+    "pool": "dev",
+    "date": "2025-10-07",
+    "origin": "United States",
+    "multi_country": true,
+    "subject": "The country of origin of fishing rods",
+    "by": "keyword"
+   },
+   {
+    "ruling": "N353885",
+    "pool": "dev",
+    "date": "2025-10-15",
+    "origin": "Taiwan",
+    "multi_country": true,
+    "subject": "The country of origin of a mechanical keyboard module",
+    "by": "keyword"
+   },
+   {
+    "ruling": "N353886",
+    "pool": "dev",
+    "date": "2025-10-06",
+    "origin": "Thailand",
+    "multi_country": true,
+    "subject": "The country of origin of a hydraulic shock absorber",
+    "by": "keyword"
+   },
+   {
+    "ruling": "N354016",
+    "pool": "dev",
+    "date": "2025-10-16",
+    "origin": "Thailand",
+    "multi_country": true,
+    "subject": "The country of origin of LED lights",
+    "by": "keyword"
+   },
+   {
+    "ruling": "N354279",
+    "pool": "dev",
+    "date": "2025-10-16",
+    "origin": "China",
+    "multi_country": true,
+    "subject": "The country of origin of bamboo shelves",
+    "by": "keyword+hts 9403"
+   },
+   {
+    "ruling": "N354369",
+    "pool": "dev",
+    "date": "2025-10-23",
+    "origin": "Thailand",
+    "multi_country": true,
+    "subject": "The country of origin of a heat pump",
+    "by": "keyword"
+   },
+   {
+    "ruling": "N354448",
+    "pool": "dev",
+    "date": "2025-10-17",
+    "origin": "Indonesia",
+    "multi_country": true,
+    "subject": "The country of origin of propane gas island grills",
+    "by": "keyword"
+   },
+   {
+    "ruling": "N354638",
+    "pool": "dev",
+    "date": "2025-10-29",
+    "origin": "Thailand",
+    "multi_country": true,
+    "subject": "The country of origin of a steering tie rod end assembly",
+    "by": "keyword"
+   },
+   {
+    "ruling": "N355399",
+    "pool": "other",
+    "date": "2025-11-20",
+    "origin": null,
+    "multi_country": true,
+    "subject": "The country of origin of valves",
+    "by": "keyword"
+   },
+   {
+    "ruling": "N355903",
+    "pool": "dev",
+    "date": "2025-12-02",
+    "origin": "United States",
+    "multi_country": true,
+    "subject": "The country of origin of fiber optic cables",
+    "by": "keyword"
+   },
+   {
+    "ruling": "N356030",
+    "pool": "dev",
+    "date": "2025-12-03",
+    "origin": "China",
+    "multi_country": true,
+    "subject": "The country of origin of a strut assembly",
+    "by": "keyword"
+   },
+   {
+    "ruling": "N356544",
+    "pool": "dev",
+    "date": "2025-12-22",
+    "origin": "Cambodia",
+    "multi_country": true,
+    "subject": "The country of origin of an electric bicycle (e-bike)",
+    "by": "keyword"
+   },
+   {
+    "ruling": "N358157",
+    "pool": "other",
+    "date": "2026-02-27",
+    "origin": null,
+    "multi_country": true,
+    "subject": "The country of origin of valves",
+    "by": "keyword"
+   },
+   {
+    "ruling": "N358408",
+    "pool": "other",
+    "date": "2026-02-27",
+    "origin": null,
+    "multi_country": true,
+    "subject": "The country of origin of a bond paper roll and bond paper flat pack",
+    "by": "keyword"
+   },
+   {
+    "ruling": "N362462",
+    "pool": "other",
+    "date": "2026-07-14",
+    "origin": null,
+    "multi_country": true,
+    "subject": "The country of origin of chassis components",
+    "by": "keyword"
+   },
+   {
+    "ruling": "N363926",
+    "pool": "other",
+    "date": "2026-08-21",
+    "origin": null,
+    "multi_country": true,
+    "subject": "RE: The country of origin of Medium Voltage Substation",
+    "by": "keyword"
+   }
+  ],
+  "optical_precision": [
+   {
+    "ruling": "H296919",
+    "pool": "train",
+    "date": "2025-06-25",
+    "origin": "South Korea",
+    "multi_country": true,
+    "subject": "Classification of certain crystalline silicon photovoltaic modules",
+    "by": "keyword"
+   },
+   {
+    "ruling": "H327997",
+    "pool": "train",
+    "date": "2023-04-10",
+    "origin": "Singapore",
+    "multi_country": true,
+    "subject": "U.S. Government Procurement; Title III, Trade Agreements Act of 1979 (19 U.S.C.  2511); Subpart B, Part 177, CBP Regulations; Security Lab Inc.; Country of Origin of Video Surveillance and Data Management System; Substantial Transformation",
+    "by": "keyword"
+   },
+   {
+    "ruling": "H331515",
+    "pool": "train",
+    "date": "2023-12-06",
+    "origin": "Mexico",
+    "multi_country": true,
+    "subject": "Country of origin of a refrigerator shelf light",
+    "by": "keyword"
+   },
+   {
+    "ruling": "H332331",
+    "pool": "other",
+    "date": "2023-09-28",
+    "origin": null,
+    "multi_country": true,
+    "subject": "Bonded warehouse; manipulation; 19 U.S.C. § 1562; 19 C.F.R. § 19.8; 19 C.F.R. § 19.11",
+    "by": "keyword"
+   },
+   {
+    "ruling": "H332745",
+    "pool": "train",
+    "date": "2025-01-17",
+    "origin": "Mexico",
+    "multi_country": true,
+    "subject": "U.S. Government Procurement; Title III, Trade Agreements Act of 1979 (19 U.S.C. § 2511); Subpart B, Part 177, CBP Regulations; Konica Minolta Business Solutions U.S.A., Inc.; Country of Origin of Multifunction Digital Printers; Substantial Transformation",
+    "by": "keyword"
+   },
+   {
+    "ruling": "H335509",
+    "pool": "train",
+    "date": "2023-12-21",
+    "origin": "Thailand",
+    "multi_country": true,
+    "subject": "Internal Advice; Application for Further Review of Protest No. 5203-23-100456; Coated and Embossed Aluminum Coils; U.S.-Jordan Free Trade Agreement",
+    "by": "keyword"
+   },
+   {
+    "ruling": "H335829",
+    "pool": "train",
+    "date": "2025-02-26",
+    "origin": "China",
+    "multi_country": true,
+    "subject": "Country of Origin; Optical Transceivers",
+    "by": "keyword"
+   },
+   {
+    "ruling": "H336031",
+    "pool": "train",
+    "date": "2024-04-11",
+    "origin": "China",
+    "multi_country": true,
+    "subject": "Country of Origin; CATV Amplifiers; Section 301 trade remedy",
+    "by": "keyword"
+   },
+   {
+    "ruling": "H337046",
+    "pool": "train",
+    "date": "2024-09-27",
+    "origin": "France",
+    "multi_country": true,
+    "subject": "Application for Further Review of Protest 5501-23-106826; Country of Origin and Tariff Classification of Fiber Optic Cables; Section 301 Measures",
+    "by": "keyword"
+   },
+   {
+    "ruling": "H338116",
+    "pool": "train",
+    "date": "2024-06-04",
+    "origin": "United States",
+    "multi_country": true,
+    "subject": "U.S. Government Procurement; Title III, Trade Agreements Act of 1979 (19 U.S.C. 2511); Subpart B, Part 177, CBP Regulations; Country of Origin of Global Navigation Satellite System R12i Receivers; Country of Origin Marking 134.32(d); 19 CFR 134.32(m).",
+    "by": "keyword"
+   },
+   {
+    "ruling": "H345749",
+    "pool": "train",
+    "date": "2025-06-18",
+    "origin": "United States",
+    "multi_country": true,
+    "subject": "U.S. Government Procurement; Title III, Trade Agreements Act of 1979 (19 U.S.C. § 2511); Subpart B, Part 177, CBP Regulations; Country of Origin of R980 Global Navigation Satellite System Receiver; Country of Origin Marking",
+    "by": "keyword"
+   },
+   {
+    "ruling": "H348154",
+    "pool": "dev",
+    "date": "2025-08-29",
+    "origin": "Vietnam",
+    "multi_country": true,
+    "subject": "Country of Origin Marking of Smart Glasses; Section 301",
+    "by": "keyword"
+   },
+   {
+    "ruling": "H350894",
+    "pool": "dev",
+    "date": "2025-12-19",
+    "origin": "Taiwan",
+    "multi_country": true,
+    "subject": "U.S. Government Procurement; Title III, Trade Agreements Act of 1979 (19 U.S.C. § 2511); Subpart B, Part 177, CBP Regulations; Country of Origin of Lumens Camera",
+    "by": "keyword"
+   },
+   {
+    "ruling": "H355075",
+    "pool": "other",
+    "date": "2026-03-31",
+    "origin": "Vietnam | Taiwan",
+    "multi_country": true,
+    "subject": "Country of origin marking of Smart Glasses; Section 301",
+    "by": "keyword"
+   },
+   {
+    "ruling": "H356848",
+    "pool": "other",
+    "date": "2026-05-20",
+    "origin": "Vietnam | Taiwan",
+    "multi_country": true,
+    "subject": "Country of origin marking of Smart Glasses; Section 301",
+    "by": "keyword"
+   },
+   {
+    "ruling": "N330057",
+    "pool": "train",
+    "date": "2023-01-18",
+    "origin": "Malaysia",
+    "multi_country": true,
+    "subject": "The country of origin of a multi-function baby bassinet",
+    "by": "keyword"
+   },
+   {
+    "ruling": "N330175",
+    "pool": "other",
+    "date": "2023-05-05",
+    "origin": null,
+    "multi_country": true,
+    "subject": "The country of origin ferrotitanium powder",
+    "by": "keyword"
+   },
+   {
+    "ruling": "N330805",
+    "pool": "other",
+    "date": "2023-03-03",
+    "origin": null,
+    "multi_country": true,
+    "subject": "The tariff classification, country of origin and marking of dehydrated fruit and fruit powder from multiple countries",
+    "by": "keyword"
+   },
+   {
+    "ruling": "N331572",
+    "pool": "train",
+    "date": "2023-03-28",
+    "origin": "India",
+    "multi_country": true,
+    "subject": "The country of origin of fiber optic modules",
+    "by": "keyword"
+   },
+   {
+    "ruling": "N332069",
+    "pool": "train",
+    "date": "2023-05-03",
+    "origin": "South Korea",
+    "multi_country": true,
+    "subject": "The country of origin of bottle grade polyethylene terephthalate (PET) resin chips from South Korea",
+    "by": "keyword"
+   },
+   {
+    "ruling": "N334296",
+    "pool": "other",
+    "date": "2023-08-16",
+    "origin": null,
+    "multi_country": true,
+    "subject": "The country of origin of brass slip-joint extension tubes and brass threaded tubes",
+    "by": "keyword"
+   },
+   {
+    "ruling": "N334644",
+    "pool": "train",
+    "date": "2023-08-23",
+    "origin": "Vietnam",
+    "multi_country": true,
+    "subject": "The country of origin of a brick trowel, finish trowel, garden tool, and hand rake",
+    "by": "keyword"
+   },
+   {
+    "ruling": "N335017",
+    "pool": "train",
+    "date": "2023-09-15",
+    "origin": "Vietnam",
+    "multi_country": true,
+    "subject": "The country of origin of a wireless cooking thermometer, charging sleeve and timer",
+    "by": "keyword"
+   },
+   {
+    "ruling": "N335063",
+    "pool": "other",
+    "date": "2023-09-12",
+    "origin": null,
+    "multi_country": true,
+    "subject": "The country of origin of ferrosilicon powder",
+    "by": "keyword"
+   },
+   {
+    "ruling": "N335085",
+    "pool": "other",
+    "date": "2023-09-14",
+    "origin": null,
+    "multi_country": true,
+    "subject": "The country of origin of gas grills",
+    "by": "keyword"
+   },
+   {
+    "ruling": "N335086",
+    "pool": "train",
+    "date": "2023-09-15",
+    "origin": "Indonesia",
+    "multi_country": true,
+    "subject": "The country of origin of gas grills",
+    "by": "keyword"
+   },
+   {
+    "ruling": "N335170",
+    "pool": "train",
+    "date": "2023-09-28",
+    "origin": "China",
+    "multi_country": true,
+    "subject": "The tariff classification and country of origin of a hydrogen gas sensor printed circuit board assembly",
+    "by": "keyword+hts 9027"
+   },
+   {
+    "ruling": "N335263",
+    "pool": "train",
+    "date": "2023-10-04",
+    "origin": "China",
+    "multi_country": true,
+    "subject": "The country of origin of LED grow lights",
+    "by": "keyword"
+   },
+   {
+    "ruling": "N335300",
+    "pool": "other",
+    "date": "2023-09-29",
+    "origin": null,
+    "multi_country": true,
+    "subject": "The tariff classification, country of origin, marking, and applicability of Section 301 Trade Remedies of two stainless steel sink kits",
+    "by": "keyword"
+   },
+   {
+    "ruling": "N335339",
+    "pool": "train",
+    "date": "2023-09-27",
+    "origin": "Vietnam",
+    "multi_country": true,
+    "subject": "The country of origin of a brick trowel and a finish trowel",
+    "by": "keyword"
+   },
+   {
+    "ruling": "N335573",
+    "pool": "train",
+    "date": "2023-10-11",
+    "origin": "Vietnam",
+    "multi_country": true,
+    "subject": "The country of origin of the LED light",
+    "by": "keyword"
+   },
+   {
+    "ruling": "N335593",
+    "pool": "train",
+    "date": "2023-10-06",
+    "origin": "South Korea",
+    "multi_country": true,
+    "subject": "The country of origin of a Step Drill Bit",
+    "by": "keyword"
+   },
+   {
+    "ruling": "N335916",
+    "pool": "train",
+    "date": "2023-10-18",
+    "origin": "Thailand",
+    "multi_country": true,
+    "subject": "The country of origin of a Step Drill Bit",
+    "by": "keyword"
+   },
+   {
+    "ruling": "N336527",
+    "pool": "train",
+    "date": "2023-12-07",
+    "origin": "Cambodia",
+    "multi_country": true,
+    "subject": "The country of origin of medical instrument covers from Cambodia.",
+    "by": "keyword"
+   },
+   {
+    "ruling": "N337572",
+    "pool": "other",
+    "date": "2024-02-14",
+    "origin": null,
+    "multi_country": true,
+    "subject": "The classification, country of origin, and marking of footwear parts from China",
+    "by": "keyword"
+   },
+   {
+    "ruling": "N338514",
+    "pool": "train",
+    "date": "2024-03-20",
+    "origin": "Thailand",
+    "multi_country": true,
+    "subject": "The classification and country of origin of a 7-drawer tool chest",
+    "by": "keyword"
+   },
+   {
+    "ruling": "N338577",
+    "pool": "train",
+    "date": "2024-03-20",
+    "origin": "Vietnam",
+    "multi_country": true,
+    "subject": "The country of origin of an LED light",
+    "by": "keyword"
+   },
+   {
+    "ruling": "N339983",
+    "pool": "other",
+    "date": "2024-05-29",
+    "origin": null,
+    "multi_country": true,
+    "subject": "The country of origin of gas grills",
+    "by": "keyword"
+   },
+   {
+    "ruling": "N339984",
+    "pool": "train",
+    "date": "2024-05-31",
+    "origin": "Malaysia",
+    "multi_country": true,
+    "subject": "The country of origin of gas grills",
+    "by": "keyword"
+   },
+   {
+    "ruling": "N340153",
+    "pool": "train",
+    "date": "2024-06-06",
+    "origin": "Singapore",
+    "multi_country": true,
+    "subject": "The country of origin of a gas chromatograph",
+    "by": "keyword"
+   },
+   {
+    "ruling": "N340920",
+    "pool": "train",
+    "date": "2024-07-01",
+    "origin": "China",
+    "multi_country": true,
+    "subject": "The tariff classification and country of origin of metal detector systems",
+    "by": "keyword"
+   },
+   {
+    "ruling": "N341188",
+    "pool": "train",
+    "date": "2024-08-02",
+    "origin": "Vietnam",
+    "multi_country": true,
+    "subject": "The country of origin of gas grills and a pizza oven",
+    "by": "keyword"
+   },
+   {
+    "ruling": "N341585",
+    "pool": "train",
+    "date": "2024-08-14",
+    "origin": "South Korea",
+    "multi_country": true,
+    "subject": "The country of origin of a doped and cathode material",
+    "by": "keyword"
+   },
+   {
+    "ruling": "N342133",
+    "pool": "train",
+    "date": "2024-09-11",
+    "origin": "Malaysia",
+    "multi_country": true,
+    "subject": "The country of origin and applicability of Section 301 Trade Remedies of a DC-DC Converter",
+    "by": "keyword"
+   },
+   {
+    "ruling": "N342247",
+    "pool": "train",
+    "date": "2024-09-20",
+    "origin": "Philippines",
+    "multi_country": true,
+    "subject": "The country of origin of optical transceiver modules",
+    "by": "keyword"
+   },
+   {
+    "ruling": "N342388",
+    "pool": "train",
+    "date": "2024-09-24",
+    "origin": "Mexico | China",
+    "multi_country": true,
+    "subject": "The country of origin of an LED Panel Fixture",
+    "by": "keyword"
+   },
+   {
+    "ruling": "N342427",
+    "pool": "train",
+    "date": "2024-09-27",
+    "origin": "Singapore",
+    "multi_country": true,
+    "subject": "The country of origin of a riflescope lens",
+    "by": "keyword"
+   },
+   {
+    "ruling": "N342514",
+    "pool": "train",
+    "date": "2024-10-08",
+    "origin": "South Korea",
+    "multi_country": true,
+    "subject": "The country of origin of a doped and coated single crystal cathode material",
+    "by": "keyword"
+   },
+   {
+    "ruling": "N342977",
+    "pool": "train",
+    "date": "2024-10-28",
+    "origin": "China",
+    "multi_country": true,
+    "subject": "The country of origin of an airbag module",
+    "by": "keyword"
+   },
+   {
+    "ruling": "N343132",
+    "pool": "train",
+    "date": "2024-10-24",
+    "origin": "United States",
+    "multi_country": true,
+    "subject": "The country of origin of fiber optic cable assemblies",
+    "by": "keyword"
+   },
+   {
+    "ruling": "N343175",
+    "pool": "train",
+    "date": "2024-10-25",
+    "origin": "India",
+    "multi_country": true,
+    "subject": "The country of origin of a banknote counter",
+    "by": "keyword"
+   },
+   {
+    "ruling": "N343777",
+    "pool": "train",
+    "date": "2024-11-27",
+    "origin": "China",
+    "multi_country": true,
+    "subject": "The country-of-origin of a plush dinosaur toy",
+    "by": "keyword"
+   },
+   {
+    "ruling": "N343808",
+    "pool": "train",
+    "date": "2024-11-14",
+    "origin": "Thailand",
+    "multi_country": true,
+    "subject": "The country or origin of patient cables for Section 301 Trade Remedy Purposes",
+    "by": "keyword"
+   },
+   {
+    "ruling": "N344105",
+    "pool": "train",
+    "date": "2024-12-12",
+    "origin": "South Korea",
+    "multi_country": true,
+    "subject": "The country of origin of transistors",
+    "by": "keyword"
+   },
+   {
+    "ruling": "N344188",
+    "pool": "train",
+    "date": "2024-12-09",
+    "origin": "Vietnam",
+    "multi_country": true,
+    "subject": "The country of origin of an LED emergency light",
+    "by": "keyword"
+   },
+   {
+    "ruling": "N344245",
+    "pool": "train",
+    "date": "2024-12-20",
+    "origin": "Vietnam",
+    "multi_country": true,
+    "subject": "The Country-of-Origin of E-bikes from Vietnam",
+    "by": "keyword"
+   },
+   {
+    "ruling": "N344318",
+    "pool": "other",
+    "date": "2024-12-27",
+    "origin": null,
+    "multi_country": true,
+    "subject": "The country of origin of a digital tape measure",
+    "by": "keyword"
+   },
+   {
+    "ruling": "N344595",
+    "pool": "train",
+    "date": "2025-01-08",
+    "origin": "Taiwan",
+    "multi_country": true,
+    "subject": "The country of origin of a Driver Behavior Smart Camera",
+    "by": "keyword"
+   },
+   {
+    "ruling": "N344694",
+    "pool": "train",
+    "date": "2025-01-14",
+    "origin": "China",
+    "multi_country": true,
+    "subject": "The tariff classification and country of origin of an e-scooter",
+    "by": "keyword"
+   },
+   {
+    "ruling": "N344910",
+    "pool": "train",
+    "date": "2025-01-22",
+    "origin": "Mexico",
+    "multi_country": true,
+    "subject": "The country of origin of a 3D printer and the applicability of certain trade remedies under Section 301.",
+    "by": "keyword"
+   },
+   {
+    "ruling": "N345397",
+    "pool": "train",
+    "date": "2025-02-12",
+    "origin": "Mexico",
+    "multi_country": true,
+    "subject": "The country of origin of NanoCure",
+    "by": "keyword"
+   },
+   {
+    "ruling": "N345862",
+    "pool": "train",
+    "date": "2025-03-11",
+    "origin": "United States",
+    "multi_country": true,
+    "subject": "The country of origin of  LED flashlights",
+    "by": "keyword"
+   },
+   {
+    "ruling": "N345899",
+    "pool": "train",
+    "date": "2025-03-06",
+    "origin": "India | China",
+    "multi_country": true,
+    "subject": "The country of origin of an LED emergency light",
+    "by": "keyword"
+   },
+   {
+    "ruling": "N345937",
+    "pool": "train",
+    "date": "2025-02-26",
+    "origin": "Vietnam",
+    "multi_country": true,
+    "subject": "The country of origin of lens assemblies",
+    "by": "keyword"
+   },
+   {
+    "ruling": "N345972",
+    "pool": "train",
+    "date": "2025-03-05",
+    "origin": "Vietnam",
+    "multi_country": true,
+    "subject": "The tariff classification and country of origin of self-adhesive labels and perforated paper sheets",
+    "by": "keyword"
+   },
+   {
+    "ruling": "N346168",
+    "pool": "train",
+    "date": "2025-03-17",
+    "origin": "South Korea",
+    "multi_country": true,
+    "subject": "The country of origin of Main Beam Module Assemblies from Mexico",
+    "by": "keyword"
+   },
+   {
+    "ruling": "N346317",
+    "pool": "train",
+    "date": "2025-03-13",
+    "origin": "China",
+    "multi_country": true,
+    "subject": "The country of origin of a power bank",
+    "by": "keyword"
+   },
+   {
+    "ruling": "N346394",
+    "pool": "train",
+    "date": "2025-03-21",
+    "origin": "Vietnam",
+    "multi_country": true,
+    "subject": "The country of origin of air fryer",
+    "by": "keyword"
+   },
+   {
+    "ruling": "N346395",
+    "pool": "train",
+    "date": "2025-03-21",
+    "origin": "Vietnam",
+    "multi_country": true,
+    "subject": "The country of origin of air fryer",
+    "by": "keyword"
+   },
+   {
+    "ruling": "N346396",
+    "pool": "train",
+    "date": "2025-03-21",
+    "origin": "Vietnam",
+    "multi_country": true,
+    "subject": "The country of origin of air fryer",
+    "by": "keyword"
+   },
+   {
+    "ruling": "N346403",
+    "pool": "train",
+    "date": "2025-03-14",
+    "origin": "China",
+    "multi_country": true,
+    "subject": "The country of origin of power banks",
+    "by": "keyword"
+   },
+   {
+    "ruling": "N346664",
+    "pool": "train",
+    "date": "2025-03-31",
+    "origin": "Cambodia",
+    "multi_country": true,
+    "subject": "The tariff classification and marking of adhesive tape with dispensers",
+    "by": "keyword"
+   },
+   {
+    "ruling": "N346719",
+    "pool": "train",
+    "date": "2025-04-09",
+    "origin": "Vietnam",
+    "multi_country": true,
+    "subject": "The country of origin of an air fryer from Vietnam.",
+    "by": "keyword"
+   },
+   {
+    "ruling": "N346720",
+    "pool": "train",
+    "date": "2025-04-09",
+    "origin": "Vietnam",
+    "multi_country": true,
+    "subject": "The country of origin of an air fryer from Vietnam.",
+    "by": "keyword"
+   },
+   {
+    "ruling": "N346721",
+    "pool": "train",
+    "date": "2025-04-10",
+    "origin": "Vietnam",
+    "multi_country": true,
+    "subject": "The country of origin of an air fryer from Vietnam.",
+    "by": "keyword"
+   },
+   {
+    "ruling": "N347034",
+    "pool": "train",
+    "date": "2025-04-07",
+    "origin": "United States",
+    "multi_country": true,
+    "subject": "The country of origin of fiber optic cable assemblies",
+    "by": "keyword"
+   },
+   {
+    "ruling": "N347805",
+    "pool": "train",
+    "date": "2025-05-02",
+    "origin": "United States",
+    "multi_country": true,
+    "subject": "The country of origin of fiber optic cable assemblies",
+    "by": "keyword"
+   },
+   {
+    "ruling": "N347806",
+    "pool": "train",
+    "date": "2025-05-02",
+    "origin": "Taiwan",
+    "multi_country": true,
+    "subject": "A country of origin determination on greeting cards with matching envelopes",
+    "by": "keyword"
+   },
+   {
+    "ruling": "N347808",
+    "pool": "train",
+    "date": "2025-05-07",
+    "origin": "South Korea",
+    "multi_country": true,
+    "subject": "The country of origin of an artificial graphite anode active material",
+    "by": "keyword"
+   },
+   {
+    "ruling": "N347937",
+    "pool": "train",
+    "date": "2025-05-06",
+    "origin": "Vietnam",
+    "multi_country": true,
+    "subject": "The country of origin of manual and digital torque wrenches",
+    "by": "keyword"
+   },
+   {
+    "ruling": "N347948",
+    "pool": "train",
+    "date": "2025-05-05",
+    "origin": "China",
+    "multi_country": true,
+    "subject": "The country of origin of a speed square",
+    "by": "keyword"
+   },
+   {
+    "ruling": "N348066",
+    "pool": "train",
+    "date": "2025-05-08",
+    "origin": "Vietnam",
+    "multi_country": true,
+    "subject": "The country of origin of an LED Mini Light Bar",
+    "by": "keyword"
+   },
+   {
+    "ruling": "N348409",
+    "pool": "train",
+    "date": "2025-05-13",
+    "origin": "United States",
+    "multi_country": true,
+    "subject": "The country of origin of fiber optic cable assemblies",
+    "by": "keyword"
+   },
+   {
+    "ruling": "N348698",
+    "pool": "train",
+    "date": "2025-05-19",
+    "origin": "United States",
+    "multi_country": true,
+    "subject": "The country of origin of patch cord assemblies",
+    "by": "keyword"
+   },
+   {
+    "ruling": "N348743",
+    "pool": "train",
+    "date": "2025-05-21",
+    "origin": "United States",
+    "multi_country": true,
+    "subject": "The country of origin of fiber optic terminal boxes",
+    "by": "keyword"
+   },
+   {
+    "ruling": "N348790",
+    "pool": "other",
+    "date": "2025-05-22",
+    "origin": null,
+    "multi_country": true,
+    "subject": "The country of origin of a fiberglass measuring reel",
+    "by": "keyword"
+   },
+   {
+    "ruling": "N348827",
+    "pool": "train",
+    "date": "2025-05-21",
+    "origin": "United States",
+    "multi_country": true,
+    "subject": "The country of origin of patch cord assemblies",
+    "by": "keyword"
+   },
+   {
+    "ruling": "N348913",
+    "pool": "train",
+    "date": "2025-05-29",
+    "origin": "India",
+    "multi_country": true,
+    "subject": "The country of origin of heat pump units",
+    "by": "keyword"
+   },
+   {
+    "ruling": "N348930",
+    "pool": "train",
+    "date": "2025-05-22",
+    "origin": "United States",
+    "multi_country": true,
+    "subject": "The country of origin of patch cord assemblies",
+    "by": "keyword"
+   },
+   {
+    "ruling": "N348937",
+    "pool": "train",
+    "date": "2025-06-02",
+    "origin": "Thailand",
+    "multi_country": true,
+    "subject": "The country of origin of a Segway off-road vehicle",
+    "by": "keyword"
+   },
+   {
+    "ruling": "N348939",
+    "pool": "train",
+    "date": "2025-05-20",
+    "origin": "United States",
+    "multi_country": true,
+    "subject": "The country of origin of fiber optic cable assemblies. Correction to Ruling Number N347034",
+    "by": "keyword"
+   },
+   {
+    "ruling": "N348990",
+    "pool": "train",
+    "date": "2025-05-22",
+    "origin": "United States",
+    "multi_country": true,
+    "subject": "The country of origin of patch cord assemblies",
+    "by": "keyword"
+   },
+   {
+    "ruling": "N349028",
+    "pool": "train",
+    "date": "2025-05-27",
+    "origin": "United States",
+    "multi_country": true,
+    "subject": "The country of origin of patch cord assemblies",
+    "by": "keyword"
+   },
+   {
+    "ruling": "N349038",
+    "pool": "train",
+    "date": "2025-05-30",
+    "origin": "China",
+    "multi_country": true,
+    "subject": "The country of origin of a digital stick thermometer",
+    "by": "keyword"
+   },
+   {
+    "ruling": "N349312",
+    "pool": "train",
+    "date": "2025-06-12",
+    "origin": "Mexico",
+    "multi_country": true,
+    "subject": "The country of origin of an electric-powered injection molding machine.",
+    "by": "keyword"
+   },
+   {
+    "ruling": "N349834",
+    "pool": "train",
+    "date": "2025-06-16",
+    "origin": "United States",
+    "multi_country": true,
+    "subject": "The country of origin of patch cord assemblies",
+    "by": "keyword"
+   },
+   {
+    "ruling": "N349835",
+    "pool": "train",
+    "date": "2025-06-18",
+    "origin": "United States",
+    "multi_country": true,
+    "subject": "The country of origin of patch cord assemblies",
+    "by": "keyword"
+   },
+   {
+    "ruling": "N349836",
+    "pool": "train",
+    "date": "2025-06-18",
+    "origin": "United States",
+    "multi_country": true,
+    "subject": "The country of origin of patch cord assemblies",
+    "by": "keyword"
+   },
+   {
+    "ruling": "N349940",
+    "pool": "other",
+    "date": "2025-07-02",
+    "origin": null,
+    "multi_country": true,
+    "subject": "The country of origin of pressure sensors",
+    "by": "keyword"
+   },
+   {
+    "ruling": "N350028",
+    "pool": "train",
+    "date": "2025-06-13",
+    "origin": "China",
+    "multi_country": true,
+    "subject": "The country of origin of veneer edge banding",
+    "by": "keyword"
+   },
+   {
+    "ruling": "N350046",
+    "pool": "dev",
+    "date": "2025-07-10",
+    "origin": "Vietnam",
+    "multi_country": true,
+    "subject": "The tariff classification, country of origin, and marking of a tool set",
+    "by": "keyword"
+   },
+   {
+    "ruling": "N350050",
+    "pool": "dev",
+    "date": "2025-07-02",
+    "origin": "China",
+    "multi_country": true,
+    "subject": "The country of origin of three oven lamps",
+    "by": "keyword"
+   },
+   {
+    "ruling": "N350085",
+    "pool": "dev",
+    "date": "2025-07-08",
+    "origin": "China",
+    "multi_country": true,
+    "subject": "The country of origin of a tub light from China",
+    "by": "keyword"
+   },
+   {
+    "ruling": "N350170",
+    "pool": "dev",
+    "date": "2025-07-01",
+    "origin": "United States",
+    "multi_country": true,
+    "subject": "The country of origin of patch cord assemblies",
+    "by": "keyword"
+   },
+   {
+    "ruling": "N350300",
+    "pool": "other",
+    "date": "2025-12-11",
+    "origin": "Taiwan | Italy | Malaysia | Vietnam",
+    "multi_country": true,
+    "subject": "The country of origin of a Laser Tag Hack Pack",
+    "by": "keyword"
+   },
+   {
+    "ruling": "N350325",
+    "pool": "train",
+    "date": "2025-06-24",
+    "origin": "South Korea",
+    "multi_country": true,
+    "subject": "The country of origin of the LED lighting fixtures",
+    "by": "keyword"
+   },
+   {
+    "ruling": "N350433",
+    "pool": "train",
+    "date": "2025-06-25",
+    "origin": "South Korea",
+    "multi_country": true,
+    "subject": "The country of origin of the LED lighting fixtures",
+    "by": "keyword"
+   },
+   {
+    "ruling": "N350680",
+    "pool": "dev",
+    "date": "2025-07-15",
+    "origin": "Taiwan",
+    "multi_country": true,
+    "subject": "The country of origin of a carrier plate assembly for red dot sights",
+    "by": "keyword"
+   },
+   {
+    "ruling": "N350710",
+    "pool": "dev",
+    "date": "2025-07-21",
+    "origin": "Vietnam",
+    "multi_country": true,
+    "subject": "The country of origin of an LED flashlight from Vietnam",
+    "by": "keyword"
+   },
+   {
+    "ruling": "N350750",
+    "pool": "dev",
+    "date": "2025-07-16",
+    "origin": "United States",
+    "multi_country": true,
+    "subject": "The country of origin of a spectrophotometer",
+    "by": "keyword"
+   },
+   {
+    "ruling": "N350838",
+    "pool": "dev",
+    "date": "2025-07-10",
+    "origin": "Thailand",
+    "multi_country": true,
+    "subject": "The country of origin of optical windows",
+    "by": "keyword"
+   },
+   {
+    "ruling": "N350868",
+    "pool": "dev",
+    "date": "2025-07-11",
+    "origin": "United States",
+    "multi_country": true,
+    "subject": "The country of origin of patch cord assemblies",
+    "by": "keyword"
+   },
+   {
+    "ruling": "N350869",
+    "pool": "dev",
+    "date": "2025-07-11",
+    "origin": "United States",
+    "multi_country": true,
+    "subject": "The country of origin of patch cord assemblies",
+    "by": "keyword"
+   },
+   {
+    "ruling": "N350966",
+    "pool": "dev",
+    "date": "2025-07-15",
+    "origin": "United States",
+    "multi_country": true,
+    "subject": "The country of origin of patch cord assemblies",
+    "by": "keyword"
+   },
+   {
+    "ruling": "N351073",
+    "pool": "dev",
+    "date": "2025-08-04",
+    "origin": "China",
+    "multi_country": true,
+    "subject": "The country of origin of three oven lights",
+    "by": "keyword"
+   },
+   {
+    "ruling": "N351122",
+    "pool": "dev",
+    "date": "2025-08-01",
+    "origin": "Thailand",
+    "multi_country": true,
+    "subject": "The country of origin of Outdoor Pedestrian Boundary Line LED work lamps",
+    "by": "keyword"
+   },
+   {
+    "ruling": "N351143",
+    "pool": "dev",
+    "date": "2025-08-04",
+    "origin": "Thailand",
+    "multi_country": true,
+    "subject": "The country of origin of an LED tub light",
+    "by": "keyword"
+   },
+   {
+    "ruling": "N351263",
+    "pool": "dev",
+    "date": "2025-07-31",
+    "origin": "China",
+    "multi_country": true,
+    "subject": "The country of origin of a battery cell",
+    "by": "keyword"
+   },
+   {
+    "ruling": "N351372",
+    "pool": "dev",
+    "date": "2025-07-28",
+    "origin": "United States",
+    "multi_country": true,
+    "subject": "The country of origin of fiber optic cables",
+    "by": "keyword"
+   },
+   {
+    "ruling": "N351402",
+    "pool": "dev",
+    "date": "2025-07-29",
+    "origin": "United States",
+    "multi_country": true,
+    "subject": "The country of origin of patch cord assemblies",
+    "by": "keyword"
+   },
+   {
+    "ruling": "N351558",
+    "pool": "dev",
+    "date": "2025-07-30",
+    "origin": "Vietnam",
+    "multi_country": true,
+    "subject": "The country of origin of booster cables",
+    "by": "keyword"
+   },
+   {
+    "ruling": "N351651",
+    "pool": "dev",
+    "date": "2025-08-08",
+    "origin": "Cambodia",
+    "multi_country": true,
+    "subject": "The country of origin of novelty sunglasses",
+    "by": "keyword"
+   },
+   {
+    "ruling": "N351865",
+    "pool": "dev",
+    "date": "2025-08-22",
+    "origin": "United Kingdom",
+    "multi_country": true,
+    "subject": "The tariff classification and country of origin of pressure sensors",
+    "by": "keyword+hts 9026"
+   },
+   {
+    "ruling": "N351888",
+    "pool": "dev",
+    "date": "2025-08-13",
+    "origin": "United States",
+    "multi_country": true,
+    "subject": "The country of origin of fiber optic cable assemblies",
+    "by": "keyword"
+   },
+   {
+    "ruling": "N351911",
+    "pool": "dev",
+    "date": "2025-08-20",
+    "origin": "Vietnam",
+    "multi_country": true,
+    "subject": "The country of origin of digital multimeters and a receptacle tester",
+    "by": "keyword"
+   },
+   {
+    "ruling": "N351913",
+    "pool": "dev",
+    "date": "2025-08-20",
+    "origin": "Vietnam",
+    "multi_country": true,
+    "subject": "The country of origin of analog multimeters and a battery tester",
+    "by": "keyword"
+   },
+   {
+    "ruling": "N351958",
+    "pool": "dev",
+    "date": "2025-08-12",
+    "origin": "Vietnam",
+    "multi_country": true,
+    "subject": "The country of origin of a combination square",
+    "by": "keyword"
+   },
+   {
+    "ruling": "N351962",
+    "pool": "dev",
+    "date": "2025-08-26",
+    "origin": "Vietnam",
+    "multi_country": true,
+    "subject": "The country of origin of a laser measurement tool",
+    "by": "keyword"
+   },
+   {
+    "ruling": "N352223",
+    "pool": "dev",
+    "date": "2025-08-22",
+    "origin": "Philippines",
+    "multi_country": true,
+    "subject": "The country of origin of a liquid crystal lighting device",
+    "by": "keyword"
+   },
+   {
+    "ruling": "N352230",
+    "pool": "dev",
+    "date": "2025-08-28",
+    "origin": "China",
+    "multi_country": true,
+    "subject": "The country of origin of an ultrasonic sensor module",
+    "by": "keyword"
+   },
+   {
+    "ruling": "N352242",
+    "pool": "dev",
+    "date": "2025-09-09",
+    "origin": "Thailand",
+    "multi_country": true,
+    "subject": "The country of origin of a SprintRay NanoCure 3D Printer Post-Curing Device",
+    "by": "keyword"
+   },
+   {
+    "ruling": "N352484",
+    "pool": "dev",
+    "date": "2025-08-27",
+    "origin": "United States",
+    "multi_country": true,
+    "subject": "The country of origin of patch cord assemblies",
+    "by": "keyword"
+   },
+   {
+    "ruling": "N352529",
+    "pool": "dev",
+    "date": "2025-08-27",
+    "origin": "United States",
+    "multi_country": true,
+    "subject": "The country of origin of patch cord assemblies",
+    "by": "keyword"
+   },
+   {
+    "ruling": "N352538",
+    "pool": "dev",
+    "date": "2025-10-03",
+    "origin": "China",
+    "multi_country": true,
+    "subject": "The tariff classification and country of origin of a drone set",
+    "by": "keyword"
+   },
+   {
+    "ruling": "N352561",
+    "pool": "dev",
+    "date": "2025-09-10",
+    "origin": "Taiwan",
+    "multi_country": true,
+    "subject": "The country of origin of an integrated circuit",
+    "by": "keyword"
+   },
+   {
+    "ruling": "N352602",
+    "pool": "dev",
+    "date": "2025-08-28",
+    "origin": "United States",
+    "multi_country": true,
+    "subject": "The country of origin of patch cord assemblies",
+    "by": "keyword"
+   },
+   {
+    "ruling": "N352670",
+    "pool": "dev",
+    "date": "2025-09-10",
+    "origin": "United States",
+    "multi_country": true,
+    "subject": "The country of origin of transceiver modules",
+    "by": "keyword"
+   },
+   {
+    "ruling": "N352713",
+    "pool": "dev",
+    "date": "2025-09-08",
+    "origin": "Germany",
+    "multi_country": true,
+    "subject": "The tariff classification and country of origin of regenerated cellulose sponge sheets",
+    "by": "keyword"
+   },
+   {
+    "ruling": "N352841",
+    "pool": "dev",
+    "date": "2025-09-23",
+    "origin": "South Korea",
+    "multi_country": true,
+    "subject": "The country of origin of a cool mist humidifier",
+    "by": "keyword"
+   },
+   {
+    "ruling": "N352876",
+    "pool": "dev",
+    "date": "2025-09-04",
+    "origin": "United States",
+    "multi_country": true,
+    "subject": "The country of origin of patch cord assemblies",
+    "by": "keyword"
+   },
+   {
+    "ruling": "N353082",
+    "pool": "dev",
+    "date": "2025-09-10",
+    "origin": "Vietnam",
+    "multi_country": true,
+    "subject": "The country of origin of a Wheeled Battery Charger",
+    "by": "keyword"
+   },
+   {
+    "ruling": "N353089",
+    "pool": "dev",
+    "date": "2025-09-10",
+    "origin": "United States",
+    "multi_country": true,
+    "subject": "The country of origin of fiber optic terminal boxes",
+    "by": "keyword"
+   },
+   {
+    "ruling": "N353105",
+    "pool": "dev",
+    "date": "2025-09-23",
+    "origin": "Malaysia",
+    "multi_country": true,
+    "subject": "The country of origin of in-dash car stereos",
+    "by": "keyword"
+   },
+   {
+    "ruling": "N353259",
+    "pool": "dev",
+    "date": "2025-09-30",
+    "origin": "Japan",
+    "multi_country": true,
+    "subject": "The country of origin of Epidural Needles",
+    "by": "keyword"
+   },
+   {
+    "ruling": "N353260",
+    "pool": "dev",
+    "date": "2025-09-30",
+    "origin": "Japan",
+    "multi_country": true,
+    "subject": "The country of origin of Spinal Needles",
+    "by": "keyword"
+   },
+   {
+    "ruling": "N353302",
+    "pool": "dev",
+    "date": "2025-10-03",
+    "origin": "Vietnam",
+    "multi_country": true,
+    "subject": "The country of origin of an LED flashlight",
+    "by": "keyword"
+   },
+   {
+    "ruling": "N353593",
+    "pool": "dev",
+    "date": "2025-09-16",
+    "origin": "United States",
+    "multi_country": true,
+    "subject": "The country of origin of patch cord assemblies",
+    "by": "keyword"
+   },
+   {
+    "ruling": "N353959",
+    "pool": "dev",
+    "date": "2025-10-01",
+    "origin": "United States",
+    "multi_country": true,
+    "subject": "The country of origin of patch cord assemblies",
+    "by": "keyword"
+   },
+   {
+    "ruling": "N353976",
+    "pool": "dev",
+    "date": "2025-10-14",
+    "origin": "Slovakia",
+    "multi_country": true,
+    "subject": "The country of origin of blood lancets",
+    "by": "keyword"
+   },
+   {
+    "ruling": "N354016",
+    "pool": "dev",
+    "date": "2025-10-16",
+    "origin": "Thailand",
+    "multi_country": true,
+    "subject": "The country of origin of LED lights",
+    "by": "keyword"
+   },
+   {
+    "ruling": "N354084",
+    "pool": "dev",
+    "date": "2025-10-01",
+    "origin": "United States",
+    "multi_country": true,
+    "subject": "The country of origin of patch cord assemblies",
+    "by": "keyword"
+   },
+   {
+    "ruling": "N354220",
+    "pool": "dev",
+    "date": "2025-10-15",
+    "origin": "China",
+    "multi_country": true,
+    "subject": "The country of origin of a multi tool",
+    "by": "keyword"
+   },
+   {
+    "ruling": "N354291",
+    "pool": "dev",
+    "date": "2025-10-21",
+    "origin": "China",
+    "multi_country": true,
+    "subject": "The country of origin of High-Purity Hydrofluoric Acid 49% (HF 49%)",
+    "by": "keyword"
+   },
+   {
+    "ruling": "N354327",
+    "pool": "dev",
+    "date": "2025-10-22",
+    "origin": "China",
+    "multi_country": true,
+    "subject": "The country of origin of handheld electronic devices",
+    "by": "keyword"
+   },
+   {
+    "ruling": "N354369",
+    "pool": "dev",
+    "date": "2025-10-23",
+    "origin": "Thailand",
+    "multi_country": true,
+    "subject": "The country of origin of a heat pump",
+    "by": "keyword"
+   },
+   {
+    "ruling": "N354398",
+    "pool": "dev",
+    "date": "2025-10-16",
+    "origin": "United States",
+    "multi_country": true,
+    "subject": "The country of origin of patch cord assemblies",
+    "by": "keyword"
+   },
+   {
+    "ruling": "N354448",
+    "pool": "dev",
+    "date": "2025-10-17",
+    "origin": "Indonesia",
+    "multi_country": true,
+    "subject": "The country of origin of propane gas island grills",
+    "by": "keyword"
+   },
+   {
+    "ruling": "N355045",
+    "pool": "dev",
+    "date": "2025-11-17",
+    "origin": "Thailand",
+    "multi_country": true,
+    "subject": "The country of origin of a brake caliper",
+    "by": "keyword"
+   },
+   {
+    "ruling": "N355060",
+    "pool": "dev",
+    "date": "2025-10-30",
+    "origin": "United States",
+    "multi_country": true,
+    "subject": "The country of origin of patch cord assemblies",
+    "by": "keyword"
+   },
+   {
+    "ruling": "N355061",
+    "pool": "dev",
+    "date": "2025-10-30",
+    "origin": "United States",
+    "multi_country": true,
+    "subject": "The country of origin of patch cord assemblies",
+    "by": "keyword"
+   },
+   {
+    "ruling": "N355128",
+    "pool": "dev",
+    "date": "2025-10-30",
+    "origin": "United States",
+    "multi_country": true,
+    "subject": "The country of origin of patch cord assemblies",
+    "by": "keyword"
+   },
+   {
+    "ruling": "N355147",
+    "pool": "dev",
+    "date": "2025-10-30",
+    "origin": "United States",
+    "multi_country": true,
+    "subject": "The country of origin of patch cord assemblies",
+    "by": "keyword"
+   },
+   {
+    "ruling": "N355175",
+    "pool": "dev",
+    "date": "2025-11-12",
+    "origin": "Vietnam",
+    "multi_country": true,
+    "subject": "The country of origin of an automatic upper arm blood pressure monitor",
+    "by": "keyword"
+   },
+   {
+    "ruling": "N355289",
+    "pool": "dev",
+    "date": "2025-11-17",
+    "origin": "China",
+    "multi_country": true,
+    "subject": "The country of origin of NextVein Projection Vein Finder",
+    "by": "keyword"
+   },
+   {
+    "ruling": "N355350",
+    "pool": "dev",
+    "date": "2025-11-07",
+    "origin": "United States",
+    "multi_country": true,
+    "subject": "The country of origin of fiber optic terminal boxes",
+    "by": "keyword"
+   },
+   {
+    "ruling": "N355502",
+    "pool": "dev",
+    "date": "2025-11-17",
+    "origin": "Thailand",
+    "multi_country": true,
+    "subject": "The country of origin of a portable LED light",
+    "by": "keyword"
+   },
+   {
+    "ruling": "N355523",
+    "pool": "dev",
+    "date": "2025-11-20",
+    "origin": "Thailand",
+    "multi_country": true,
+    "subject": "The country of origin of textured silicon wafers",
+    "by": "keyword"
+   },
+   {
+    "ruling": "N355544",
+    "pool": "dev",
+    "date": "2025-11-19",
+    "origin": "United States",
+    "multi_country": true,
+    "subject": "The country of origin of fiber optic cassettes",
+    "by": "keyword"
+   },
+   {
+    "ruling": "N355841",
+    "pool": "dev",
+    "date": "2025-11-20",
+    "origin": "United States",
+    "multi_country": true,
+    "subject": "The country of origin of patch cord assemblies",
+    "by": "keyword"
+   },
+   {
+    "ruling": "N355842",
+    "pool": "dev",
+    "date": "2025-11-20",
+    "origin": "United States",
+    "multi_country": true,
+    "subject": "The country of origin of patch cord assemblies",
+    "by": "keyword"
+   },
+   {
+    "ruling": "N355843",
+    "pool": "dev",
+    "date": "2025-11-20",
+    "origin": "United States",
+    "multi_country": true,
+    "subject": "The country of origin of patch cord assemblies",
+    "by": "keyword"
+   },
+   {
+    "ruling": "N355902",
+    "pool": "dev",
+    "date": "2025-12-02",
+    "origin": "United States",
+    "multi_country": true,
+    "subject": "The country of origin of fiber optic cables",
+    "by": "keyword"
+   },
+   {
+    "ruling": "N355903",
+    "pool": "dev",
+    "date": "2025-12-02",
+    "origin": "United States",
+    "multi_country": true,
+    "subject": "The country of origin of fiber optic cables",
+    "by": "keyword"
+   },
+   {
+    "ruling": "N355935",
+    "pool": "dev",
+    "date": "2025-11-20",
+    "origin": "United States",
+    "multi_country": true,
+    "subject": "The country of origin of patch cord assemblies",
+    "by": "keyword"
+   },
+   {
+    "ruling": "N355950",
+    "pool": "dev",
+    "date": "2025-11-21",
+    "origin": "United States",
+    "multi_country": true,
+    "subject": "The country of origin of fiber optic terminal boxes",
+    "by": "keyword"
+   },
+   {
+    "ruling": "N355972",
+    "pool": "dev",
+    "date": "2025-12-12",
+    "origin": "South Korea",
+    "multi_country": true,
+    "subject": "The Country of Origin of Converted Oil",
+    "by": "keyword"
+   },
+   {
+    "ruling": "N356053",
+    "pool": "dev",
+    "date": "2025-11-24",
+    "origin": "United States",
+    "multi_country": true,
+    "subject": "The country of origin of patch cord assemblies",
+    "by": "keyword"
+   },
+   {
+    "ruling": "N356074",
+    "pool": "dev",
+    "date": "2025-11-25",
+    "origin": "United States",
+    "multi_country": true,
+    "subject": "The country of origin of patch cord assemblies",
+    "by": "keyword"
+   },
+   {
+    "ruling": "N356189",
+    "pool": "dev",
+    "date": "2025-12-03",
+    "origin": "United States",
+    "multi_country": true,
+    "subject": "The country of origin of optical fiber cables",
+    "by": "keyword"
+   },
+   {
+    "ruling": "N356206",
+    "pool": "dev",
+    "date": "2025-12-03",
+    "origin": "United States",
+    "multi_country": true,
+    "subject": "The country of origin of fiber optic terminal boxes",
+    "by": "keyword"
+   },
+   {
+    "ruling": "N356243",
+    "pool": "dev",
+    "date": "2025-12-05",
+    "origin": "United States",
+    "multi_country": true,
+    "subject": "The country of origin of fiber optic cable assemblies",
+    "by": "keyword"
+   },
+   {
+    "ruling": "N356327",
+    "pool": "dev",
+    "date": "2025-12-03",
+    "origin": "United States",
+    "multi_country": true,
+    "subject": "The country of origin of patch cord assemblies",
+    "by": "keyword"
+   },
+   {
+    "ruling": "N356328",
+    "pool": "dev",
+    "date": "2025-12-03",
+    "origin": "United States",
+    "multi_country": true,
+    "subject": "The country of origin of patch cord assemblies",
+    "by": "keyword"
+   },
+   {
+    "ruling": "N356350",
+    "pool": "dev",
+    "date": "2025-12-04",
+    "origin": "United States",
+    "multi_country": true,
+    "subject": "The country of origin of fiber optic cable assemblies",
+    "by": "keyword"
+   },
+   {
+    "ruling": "N356703",
+    "pool": "dev",
+    "date": "2025-12-29",
+    "origin": "Brazil",
+    "multi_country": true,
+    "subject": "The country of origin of Refined Aluminum Hydroxide (dry)",
+    "by": "keyword"
+   },
+   {
+    "ruling": "N356741",
+    "pool": "dev",
+    "date": "2025-12-11",
+    "origin": "United States",
+    "multi_country": true,
+    "subject": "The country of origin of patch cord assemblies",
+    "by": "keyword"
+   },
+   {
+    "ruling": "N356742",
+    "pool": "dev",
+    "date": "2025-12-11",
+    "origin": "United States",
+    "multi_country": true,
+    "subject": "The country of origin of patch cords assemblies",
+    "by": "keyword"
+   },
+   {
+    "ruling": "N357655",
+    "pool": "other",
+    "date": "2026-01-23",
+    "origin": null,
+    "multi_country": true,
+    "subject": "The tariff classification, country of origin, and eligibility of the United States-Korea Free Trade Agreement (UKFTA) of fiber optic cables",
+    "by": "keyword"
+   },
+   {
+    "ruling": "N358288",
+    "pool": "other",
+    "date": "2026-02-05",
+    "origin": null,
+    "multi_country": true,
+    "subject": "The country of origin of pressure sensors",
+    "by": "keyword"
+   },
+   {
+    "ruling": "N359371",
+    "pool": "other",
+    "date": "2026-03-25",
+    "origin": null,
+    "multi_country": true,
+    "subject": "The country of origin of a LiDAR Module",
+    "by": "keyword"
+   },
+   {
+    "ruling": "N361712",
+    "pool": "other",
+    "date": "2026-06-01",
+    "origin": "Slovakia | Thailand",
+    "multi_country": true,
+    "subject": "The country of origin of disposable hubbed hypodermic needles",
+    "by": "keyword"
+   }
+  ]
+ }
+}

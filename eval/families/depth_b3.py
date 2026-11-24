@@ -126,13 +126,116 @@ def hits(root):
             "patterns": PATTERNS, "headings": HEADINGS, "counts": counts, "hits": fams}
 
 
+# The template each scope's development cases are expected to match (D820,
+# D821): a new template where the bar is met, otherwise the existing one.
+EXPECT = {"battery_packs": "power_supplies_chargers", "lifting_machines": "lifting_handling_machines",
+          "furniture": "furniture", "optical_precision": "optical_precision_instruments"}
+# Scopes a dedicated template already serves: the bar does not apply.
+SERVED = {"furniture": "furniture"}
+BAR = 10
+MIN_DEV = 5
+
+
+def template_citations(root):
+    out = set()
+    d = os.path.join(root, "backend/internal/planner/templates")
+    for n in sorted(os.listdir(d)):
+        with open(os.path.join(d, n)) as f:
+            t = json.load(f)
+        for g in t["groups"]:
+            p = g.get("precedent") or {}
+            out |= set(p.get("confers_origin") or []) | set(p.get("not_enough") or [])
+    return out
+
+
+def freeze(root):
+    """D820's frozen lists. Development cases: (a) dev-split rulings kept;
+    (b) kept pool rulings with no held-origin sentence; (c) where (a) and (b)
+    give fewer than MIN_DEV, kept pool rulings no template cites, latest date
+    first, until MIN_DEV, never in a scope whose new template's bar depends
+    on them."""
+    uni, _ = universe(root)
+    lab = {l["ruling"]: l for l in _b2(root).jsonl(os.path.join(root, "eval/data/labels.jsonl"))}
+    with open(os.path.join(root, SCREEN)) as f:
+        scr = json.load(f)
+    with open(os.path.join(root, CITES)) as f:
+        frozen_cited = set(json.load(f)["cited_before_freeze"])
+    out = {"rule": scr["rule"], "frozen_at": scr["frozen_at"], "bar": BAR, "families": {}}
+    for fam, rows in scr["families"].items():
+        for row in rows:
+            if row["ruling"] not in uni:
+                sys.exit(f"{fam}: {row['ruling']} is outside the universe")
+        keep = [r for r in rows if r["keep"]]
+        pool = sorted(r["ruling"] for r in keep if uni[r["ruling"]]["pool"] != "dev")
+        dev = sorted(r["ruling"] for r in keep if uni[r["ruling"]]["pool"] == "dev")
+        uncitable = sorted(r for r in pool if not lab[r].get("evidence"))
+        hold = []
+        if len(dev) + len(uncitable) < MIN_DEV and fam in SERVED:
+            spare = [r for r in pool if r not in uncitable and r not in frozen_cited]
+            spare.sort(key=lambda r: (lab[r]["date"], r), reverse=True)
+            hold = sorted(spare[:MIN_DEV - len(dev) - len(uncitable)])
+        out["families"][fam] = {
+            "expected_template": EXPECT[fam],
+            "kept_pool": len(pool),
+            "bar": ("served by the %s template" % SERVED[fam]) if fam in SERVED else
+                   ("met: %d of %d" % (len(pool), BAR) if len(pool) >= BAR else "not met: %d of %d, %d short" % (len(pool), BAR, BAR - len(pool))),
+            "regression_dev": dev,
+            "dev_uncitable_pool": uncitable,
+            "dev_held_back": hold,
+            "citable_pool": [r for r in pool if r not in uncitable and r not in hold],
+            "screened_out": sorted(r["ruling"] for r in rows if not r["keep"]),
+            "ambiguous": sorted(r["ruling"] for r in rows if not r["keep"] and r.get("ambiguous")),
+            "tags": {r["ruling"]: r["tags"] for r in rows if r.get("tags")},
+        }
+    return out
+
+
+def devsplit(root):
+    """The development set for #781 in the splits format familycov reads
+    (-splits ../eval/families/b3-dev-splits.json -split dev): D781's frozen
+    development cases and D820's, with the template each is expected to
+    match, and the development rulings screened as look-alikes. No held-out
+    ID is listed here; the held-out comparison is splits_final.json "final"."""
+    b3 = freeze(root)
+    with open(os.path.join(root, "eval/families/b2-cases.json")) as f:
+        b2 = json.load(f)["families"]
+    with open(os.path.join(root, "eval/splits/splits_final.json")) as f:
+        devsplit_ids = set(json.load(f)["dev"])
+    b2exp = {"batteries": "power_supplies_chargers", "machinery": "motors_pumps_compressors",
+             "furniture": "furniture", "medical_optical": "medical_devices"}
+    expected, source = {}, {}
+    for fam, v in b2.items():
+        for r in v["regression_dev"]:
+            expected[r] = b2exp[fam]
+            source[r] = "D781 " + fam
+    for fam, v in b3["families"].items():
+        for r in v["regression_dev"] + v["dev_uncitable_pool"] + v["dev_held_back"]:
+            if r in expected and expected[r] != v["expected_template"]:
+                source[r] += "; D820 " + fam + " (expected template changed)"
+            elif r not in expected:
+                source[r] = "D820 " + fam
+            expected[r] = v["expected_template"]
+    look = {}
+    for fam, v in list(b2.items()) + list(b3["families"].items()):
+        for r in v["ambiguous"]:
+            if r in devsplit_ids and r not in expected:
+                look.setdefault(r, set()).add(fam)
+    return {"rule": "D820: development cases for family matching, frozen 2026-11-24 before any template was written from the "
+                    "D820 screen. dev = cases expected to match a template (expected); lookalikes = development rulings "
+                    "screened as sharing a cue with a scope, right when not matched to it. No held-out ID is listed.",
+            "frozen_at": b3["frozen_at"],
+            "dev": sorted(expected), "expected": dict(sorted(expected.items())), "source": dict(sorted(source.items())),
+            "lookalikes": {r: sorted(f) for r, f in sorted(look.items())}}
+
+
 def dump(o):
     return json.dumps(o, indent=1, ensure_ascii=False) + "\n"
 
 
 if __name__ == "__main__":
     root, cmd = sys.argv[1], sys.argv[2]
-    jobs = {"hits": [(HITS, hits)], "check": [(HITS, hits)]}[cmd]
+    jobs = {"hits": [(HITS, hits)], "freeze": [(CASES, freeze), (DEVSPLIT, devsplit)],
+            "check": [(HITS, hits), (CASES, freeze), (DEVSPLIT, devsplit)]}[cmd]
     for path, fn in jobs:
         want = dump(fn(root))
         full = os.path.join(root, path)
