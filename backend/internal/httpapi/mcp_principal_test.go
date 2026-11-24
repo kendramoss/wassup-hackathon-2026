@@ -151,7 +151,7 @@ func TestMCPIgnoresABrokerReviewToken(t *testing.T) {
 		t.Fatalf("the token itself works over REST = %d", code)
 	}
 	cs := mcpClient(t, hs, map[string]string{reviewTokenHeader: tok, "X-Client-IP": "198.51.100.74"})
-	for _, name := range []string{"get_case", "get_broker_review_status", "create_broker_review_link"} {
+	for _, name := range []string{"get_case", "get_broker_review_status", "create_broker_review_link", "get_evidence_report"} {
 		if res, _ := callTool(t, cs, name, map[string]any{"case_id": alice}); !res.IsError {
 			t.Errorf("%s with a review token on /mcp reached the case: %s", name, text(res))
 		}

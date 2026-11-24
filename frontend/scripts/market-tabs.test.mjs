@@ -47,8 +47,10 @@ test("saved case step labels agree with the market's available steps", () => {
 });
 
 test("the tab being viewed stays, so a direct link still has its tab", () => {
-  assert.deepEqual(caseTabs(false, "plan").map((t) => t.key), ["product", "origin", "plan"]);
-  assert.deepEqual(caseTabs(true, "origin").map((t) => t.key), ["product", "origin", "plan", "draft", "scenarios"]);
+  assert.deepEqual(caseTabs(false, "plan").map((t) => t.key), ["product", "origin", "plan", "checks"]);
+  assert.deepEqual(caseTabs(true, "origin").map((t) => t.key), ["product", "origin", "plan", "draft", "scenarios", "checks"]);
+  // All checks are rules checks: every market has the tab (#771).
+  assert.deepEqual(caseTabs(false, "origin").map((t) => t.key), ["product", "origin", "checks"]);
 });
 
 test("the flag comes from the API, with a fallback for cases read before it", async () => {

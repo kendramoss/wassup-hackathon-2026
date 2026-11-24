@@ -128,6 +128,9 @@ func (t tools) origin(ctx context.Context, hdr http.Header, in originIn, o origi
 	for _, x := range list(r["needs"]) {
 		n := obj(x)
 		label := str0(n["label"], str0(n["key"], ""))
+		if ev := str0(n["evidence"], ""); ev != "" {
+			label += " [settled by: " + ev + "]"
+		}
 		switch n["kind"] {
 		case "fact":
 			ask = append(ask, fmt.Sprintf("%s (send answers[%q] true or false)", strings.TrimSuffix(label, "?"), str0(n["key"], "")))

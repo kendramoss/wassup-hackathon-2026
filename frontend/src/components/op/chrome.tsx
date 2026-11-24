@@ -93,7 +93,7 @@ export function AppBar({ active = "cases", sticky = false }: { active?: "cases" 
   );
 }
 
-export type CaseTab = "product" | "origin" | "scenarios" | "plan" | "draft";
+export type CaseTab = "product" | "origin" | "scenarios" | "plan" | "draft" | "checks";
 
 // The four steps in order, then the optional scenario sandbox (#82): it sat
 // between Origin and Plan and read as a required step.
@@ -103,16 +103,19 @@ const tabs: { key: CaseTab; label: string; step: number; path: string; optional?
   { key: "plan", label: "Plan", step: 3, path: "plan" },
   { key: "draft", label: "Draft", step: 4, path: "draft" },
   { key: "scenarios", label: "Scenarios", step: 2, path: "scenarios", optional: true },
+  // Every check on the same product, each on its own card (#771, D803).
+  // Rules checks only, so every market has it.
+  { key: "checks", label: "All checks", step: 2, path: "checks", optional: true },
 ];
 
-export const tabStep: Record<CaseTab, number> = { product: 1, origin: 2, scenarios: 2, plan: 3, draft: 4 };
+export const tabStep: Record<CaseTab, number> = { product: 1, origin: 2, scenarios: 2, plan: 3, draft: 4, checks: 2 };
 
 // The tabs a case shows. Plan, Draft and Scenarios are U.S. steps (CBP
 // searches, letters, re-runs), so a case whose market has no follow-ups
 // (jurisdiction_detail.follow_ups, #678) hides them; the one being viewed
 // stays so a direct link still has its tab.
 export function caseTabs(followUps: boolean, current: CaseTab) {
-  return tabs.filter((t) => followUps || t.key === "product" || t.key === "origin" || t.key === current);
+  return tabs.filter((t) => followUps || t.key === "product" || t.key === "origin" || t.key === "checks" || t.key === current);
 }
 
 // Case tabs: every case action one click away, each a separate quiet button
@@ -146,7 +149,7 @@ export function CaseTabs({
         {caseTabs(followUps, current).map((t) => {
           const on = t.key === current;
           const open = Boolean(caseId) && (t.step <= Math.max(reached, 2) || t.key === "plan" || t.key === "draft");
-          const done = Boolean(caseId) && !on && t.step < 4 && t.step <= reached && t.key !== "scenarios";
+          const done = Boolean(caseId) && !on && t.step < 4 && t.step <= reached && !t.optional;
           const cls = cx(
             "inline-flex min-h-8 items-center gap-1.5 rounded-[2px] border px-3 py-1",
             on ? "border-ink bg-white font-medium text-ink" : open ? "border-line bg-sheet text-dim hover:border-edge hover:text-ink" : "cursor-not-allowed border-dashed border-line text-faint",

@@ -460,6 +460,73 @@ paths:
         "409": { $ref: "#/components/responses/Error" }
         "429": { $ref: "#/components/responses/TooManyRequests" }
         "502": { $ref: "#/components/responses/Error" }
+  /v1/cases/{id}/origin-facts/{market}:
+    put:
+      operationId: putOriginFacts
+      summary: Save the facts the requester supplies to the case's EU or UK origin check and re-run it; no model call (D800-D802)
+      description: >-
+        #770. Replaces every fact saved for that market's check with the body (an empty body clears them). The facts
+        are check inputs only: they are stored beside the case's product, attributed `source` "user-supplied" with
+        `updated_at`, and the case's facts and product are never changed. Each fact must answer something the
+        committed rules ask: an `answers` key a rule reads, a `row` of the list, a part that exists (named as it
+        stands, so a later parts change leaves the fact unread and named rather than misapplied or refused; a BOM
+        update after saving marks the whole set stale), a code that fills a missing
+        part code or lengthens the part's own, an origin only for a part without one, and shares from 0 to 1 that
+        add up to no more than 1 (400 otherwise). Answers with the market's check re-run on the case's product with
+        the saved facts. 400 when the server has not loaded that market's rules. A pinned demo is read-only (403). Records an `origin_facts` event. Rate class basic.
+      parameters:
+        - { $ref: "#/components/parameters/CaseID" }
+        - { name: market, in: path, required: true, schema: { type: string, enum: [eu, uk] } }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/OriginFactsRequest" }
+      responses:
+        "200":
+          description: The saved facts for every market, and the check re-run
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [case_id, market, origin_facts, check]
+                properties:
+                  case_id: { type: string }
+                  market: { type: string, enum: [eu, uk] }
+                  origin_facts: { $ref: "#/components/schemas/OriginFactsByMarket" }
+                  check: { $ref: "#/components/schemas/OriginRulesView" }
+        "400": { $ref: "#/components/responses/Error" }
+        "401": { $ref: "#/components/responses/Error" }
+        "403": { $ref: "#/components/responses/Error" }
+        "404": { $ref: "#/components/responses/Error" }
+        "409": { $ref: "#/components/responses/Error" }
+        "429": { $ref: "#/components/responses/TooManyRequests" }
+  /v1/cases/{id}/evidence-report:
+    get:
+      operationId: getEvidenceReport
+      summary: The case's evidence report, every check separate, with the case facts as stored; no model call (D803-D805)
+      description: >-
+        #771. Runs every rules check the server serves on the case's product as stored, each on its own: the U.S.
+        19 CFR 102.20 tariff shift, Canada's marking rules (SOR/94-23), EU and UK non-preferential origin (with the
+        facts the requester supplied to them), RCEP preference and USMCA preference for the pilot goods. The U.S.
+        country of origin is the case's stored model answer, reused and never re-run; a case for another market
+        shows it as not run. Each check carries the legal question it answers, its status and outcome, missing
+        information with the document that would settle it, what is not modelled, its sources, its rule or data
+        version, its limits and when it was made. The checks answer different legal questions and are never
+        combined: there is no overall verdict or score. `markdown` is the same report as a document, with the
+        case's facts and product as stored and the supplied facts listed apart. Read only: nothing is stored or
+        recorded. Rate class basic.
+      parameters: [{ $ref: "#/components/parameters/CaseID" }]
+      responses:
+        "200":
+          description: The report
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/EvidenceReport" }
+        "401": { $ref: "#/components/responses/Error" }
+        "403": { $ref: "#/components/responses/Error" }
+        "404": { $ref: "#/components/responses/Error" }
+        "429": { $ref: "#/components/responses/TooManyRequests" }
   /v1/cases/{id}/reviews:
     post:
       operationId: createBrokerReviewLink
@@ -2577,6 +2644,9 @@ components:
           description: "Yes/no facts, keyed as result.needs names them. A missing key is unknown; false is an answer. An unknown key is a 400."
           example: { "8473x.2": true }
         minimal_operations_only: { type: boolean, description: "The last work, where the good was made, was only minimal operations (Art. 34 DA / Part Two)" }
+        supplied:
+          allOf: [{ $ref: "#/components/schemas/SuppliedOriginFacts" }]
+          description: "With product only: facts the requester supplied (as saved by putOriginFacts), read in beside the product, which is not changed (D801). A supplied row or answer wins over row and answers."
     OriginRulesView:
       type: object
       required: [jurisdiction, rules, table_version, label, chapters, country, result, source, administration, note]
@@ -2606,6 +2676,18 @@ components:
             sha256: { type: string }
             licence: { type: string }
         result: { $ref: "#/components/schemas/OriginRulesResult" }
+        supplied:
+          allOf: [{ $ref: "#/components/schemas/SuppliedOriginFacts" }]
+          description: "The supplied facts read into the check, when any were sent"
+        stale_supplied:
+          type: array
+          items: { type: integer, minimum: 0 }
+          description: "Parts (0-based) whose supplied facts were not read because the part is gone or changed (name, code, or it now has a code or origin the fact no longer fits)"
+        supplied_dropped:
+          type: array
+          items: { type: string }
+          description: "Other supplied facts not read because they no longer fit: good_hts, row, or answers.<key>"
+        supplied_stale: { type: boolean, description: "None of the supplied facts was read: they were saved before the parts list was replaced (D806)" }
     OriginRulesResult:
       type: object
       required: [status, reason, covered]
@@ -2663,6 +2745,7 @@ components:
               material: { type: integer, minimum: 0, description: "0-based index into the materials (or product components)" }
               label: { type: string }
               detail: { type: string }
+              evidence: { type: string, description: "The document or input that would settle it (D800). Absent for kind review: a person's reading, which no document settles and no control answers" }
               options:
                 type: array
                 items:
@@ -2672,6 +2755,105 @@ components:
                     key: { type: string }
                     code: { type: string }
                     description: { type: string }
+    SuppliedMaterial:
+      type: object
+      additionalProperties: false
+      required: [index, name]
+      properties:
+        index: { type: integer, minimum: 0, description: "0-based position of the part in product.components" }
+        name: { type: string, description: "The part's name as it stood when the fact was given" }
+        part_hts: { type: string, description: "The part's code as it stood when the fact was given" }
+        hts: { type: string, description: "A code for a part without one, or a longer code that starts with the part's own" }
+        origin: { type: string, description: "For a part without an origin only" }
+        value_share: { type: number, minimum: 0, maximum: 1 }
+        weight_share: { type: number, minimum: 0, maximum: 1 }
+    SuppliedOriginFacts:
+      type: object
+      description: "Facts the requester supplied to a rules check of the case (D801), kept apart from the case's facts and product, which they never change."
+      properties:
+        source: { type: string, enum: [user-supplied] }
+        updated_at: { type: string, format: date-time }
+        actor: { type: string, description: "The signed-in user who saved them, when there is one" }
+        good_hts: { type: string, description: "A longer code for the good that starts with the product's code" }
+        row: { type: string }
+        answers: { type: object, additionalProperties: { type: boolean } }
+        materials: { type: array, maxItems: 50, items: { $ref: "#/components/schemas/SuppliedMaterial" } }
+        stale: { type: boolean, description: "Set on read, never stored: the parts list was replaced after these were saved, so none is read (D806)" }
+    OriginFactsByMarket:
+      type: object
+      description: "Supplied facts by market (eu, uk)"
+      additionalProperties: { $ref: "#/components/schemas/SuppliedOriginFacts" }
+    OriginFactsRequest:
+      type: object
+      additionalProperties: false
+      description: "Every fact supplied to one market's check; replaces what was saved. Empty clears."
+      properties:
+        expected_updated_at: { type: string, description: "The updated_at of this market's saved answers as last read (\"\" when none were saved). If they changed since, nothing is saved: 409 (D806)." }
+        good_hts: { type: string, example: "8473.30" }
+        row: { type: string, example: "8473x" }
+        answers: { type: object, maxProperties: 100, additionalProperties: { type: boolean }, example: { "ch85.r": false } }
+        materials: { type: array, maxItems: 50, items: { $ref: "#/components/schemas/SuppliedMaterial" } }
+    EvidenceCheck:
+      type: object
+      required: [id, title, question, method, status, outcome, label, review, at]
+      properties:
+        id: { type: string, enum: [us_origin, us_part102, ca_marking, eu_origin, uk_origin, rcep, usmca] }
+        title: { type: string }
+        question: { type: string, description: "The legal question this check answers" }
+        method: { type: string, enum: [model, rules] }
+        status:
+          type: string
+          enum: [answered, needs_information, needs_judgement, not_run, not_applicable]
+          description: "needs_information: can be decided once the missing facts are supplied; needs_judgement: the rule turns on a judgement the check does not model"
+        outcome: { type: string }
+        origin: { type: string }
+        reason: { type: string }
+        label: { type: string }
+        review: { type: boolean, description: "The answer goes to a person before it is relied on" }
+        missing:
+          type: array
+          items:
+            type: object
+            required: [label]
+            properties:
+              label: { type: string }
+              evidence: { type: string, description: "The document or input that would settle it" }
+        not_modelled: { type: array, items: { type: string } }
+        sources:
+          type: array
+          items:
+            type: object
+            required: [title]
+            properties:
+              title: { type: string }
+              version: { type: string }
+              url: { type: string }
+        rule_version: { type: string }
+        limitations: { type: array, items: { type: string } }
+        uses_supplied: { type: boolean }
+        at: { type: string, format: date-time, description: "When this result was made: now for a rules check, the stored prediction's time for the U.S. answer" }
+    EvidenceReport:
+      type: object
+      required: [case_id, generated_at, separate, not_a_ruling, case, checks, markdown]
+      properties:
+        case_id: { type: string }
+        name: { type: string }
+        generated_at: { type: string, format: date-time }
+        separate: { type: string, description: "Says the checks answer different legal questions and are not combined" }
+        not_a_ruling: { type: string }
+        case:
+          type: object
+          required: [date, market, facts, created_at, updated_at]
+          properties:
+            date: { type: string }
+            market: { type: string }
+            facts: { type: string }
+            product: { $ref: "#/components/schemas/Product" }
+            created_at: { type: string, format: date-time }
+            updated_at: { type: string, format: date-time }
+        supplied: { $ref: "#/components/schemas/OriginFactsByMarket" }
+        checks: { type: array, items: { $ref: "#/components/schemas/EvidenceCheck" } }
+        markdown: { type: string }
     RuleCheck:
       type: object
       description: "The deterministic 19 CFR 102.20 tariff-shift check (D360, D363), present only when the product gives an HTS code for the good and at least one part. Computed when the case is read; display only: it never changes the prediction, the triage or auto-accept. RULE_CHECK=off removes it."
@@ -2950,6 +3132,7 @@ components:
                       target: { type: string }
             facts_source: { type: string, enum: [parts_list, pasted], description: "What the case's own prediction read (D220): parts_list when its facts are the structured product rendered with the family template, as scenarios and plan moves are; pasted when they are text the user gave, such as CBP's own facts. The two can give different answers for the same setup. Absent without a product." }
             rule_check: { $ref: "#/components/schemas/RuleCheck" }
+            origin_facts: { $ref: "#/components/schemas/OriginFactsByMarket" }
             ruling_alerts: { $ref: "#/components/schemas/RulingAlerts" }
             economics: { description: "latest economics given for the case, if any", allOf: [{ $ref: "#/components/schemas/Economics" }] }
             plan_economics_stale: { type: boolean, enum: [true], description: "Present, and true, only when the stored plan was priced from economics that have since changed: do not present its money as current; a missing flag means not stale" }
