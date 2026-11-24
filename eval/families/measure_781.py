@@ -22,6 +22,8 @@ import sys
 
 DEV_SPLITS = "eval/families/b3-dev-splits-a1.json"
 DEV_RUN = "eval/results/families-coverage-dev-all-litellm-f27-781.jsonl"
+# D841: the three frozen cases with no held origin that Run 1's loader skipped, checked with -no-origin-ok.
+DEV_SUPP = "eval/results/families-coverage-dev-all-litellm-f27-781-noorigin.jsonl"
 DEV_BEFORE = "eval/results/families-coverage-dev-all-litellm-f26-b2-g3.jsonl"
 HO_RUN = "eval/results/families-coverage-final-all-litellm-f27-781.jsonl"
 HO_D661 = "eval/results/families-coverage-final-all-litellm-f26.jsonl"
@@ -133,7 +135,10 @@ def build(root):
 
     # 1. development matching
     dev, before = load(root, DEV_RUN), load(root, DEV_BEFORE)
-    out["dev_runs"] = {"after": run_stats(dev), "before_d790": run_stats({k: v for k, v in before.items() if k in dev})}
+    supp = load(root, DEV_SUPP)
+    assert not set(supp) & set(dev), "D841 rows must be new"
+    dev.update(supp)
+    out["dev_runs"] = {"after": run_stats(dev), "after_d841_rows": sorted(supp), "before_d790": run_stats({k: v for k, v in before.items() if k in dev})}
     groups = {}
     for rid in ds["dev"]:
         groups.setdefault(ds["expected"][rid], []).append(rid)
@@ -222,7 +227,7 @@ def build(root):
 
 if __name__ == "__main__":
     root = sys.argv[1]
-    for p in (DEV_RUN, HO_RUN, ORIGIN_POOL):
+    for p in (DEV_RUN, DEV_SUPP, HO_RUN, ORIGIN_POOL):
         if not os.path.exists(os.path.join(root, p)):
             sys.exit(p + " is missing (D840 runs not made yet)")
     want = json.dumps(build(root), indent=1, ensure_ascii=False) + "\n"

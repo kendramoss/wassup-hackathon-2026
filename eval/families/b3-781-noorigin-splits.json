@@ -1,0 +1,9 @@
+{
+ "rule": "D841 (#781): the three frozen development cases of b3-781-run-splits.json that Run 1 skipped because the corpus loader keeps only rulings with one held origin (H338482, N335585, N348790; D820 (b) pool cases). Checked with -no-origin-ok.",
+ "frozen_at": "2026-11-24",
+ "dev": [
+  "H338482",
+  "N335585",
+  "N348790"
+ ]
+}

@@ -70,6 +70,7 @@ func familyCovCmd(args []string) error {
 	resultsDir := fl.String("results", "../eval/results", "results directory")
 	model := fl.String("model", "gemini-3.8-flash", "family-check model")
 	tag := fl.String("tag", "", "appended to the result name, to keep a later template set apart (D212: f14)")
+	noOriginOK := fl.Bool("no-origin-ok", false, "also check listed rulings with facts but no held origin (D841)")
 	resume := fl.Bool("resume", false, "continue an interrupted run: rows already in the result file are kept and not sent again (D840)")
 	_ = fl.Parse(args)
 	if *split == "final" && !*confirmFinal {
@@ -119,10 +120,26 @@ func familyCovCmd(args []string) error {
 		return err
 	}
 	var cases []domain.Ruling
+	byID := map[string]corpus.Label{}
+	for _, l := range labels {
+		byID[l.Ruling] = l
+	}
 	for _, id := range ids {
 		if r, ok := store.Get(id); ok {
 			cases = append(cases, r)
+			continue
 		}
+		// The store keeps only rulings with one held origin. The family
+		// check reads the subject and facts alone, so -no-origin-ok also
+		// checks a listed ruling with no held origin (D841); otherwise it
+		// is skipped, as before, and named.
+		l, ok := byID[id]
+		facts, err := os.ReadFile(filepath.Join(*factsDir, id+".txt"))
+		if *noOriginOK && ok && l.Origin() == "" && err == nil {
+			cases = append(cases, domain.Ruling{ID: id, Subject: l.Subject, Facts: string(facts)})
+			continue
+		}
+		fmt.Fprintf(os.Stderr, "warning: %s has no facts or no held origin; skipped\n", id)
 	}
 	if *limit > 0 && *limit < len(cases) {
 		cases = cases[:*limit]
