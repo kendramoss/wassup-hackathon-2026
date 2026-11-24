@@ -147,6 +147,7 @@ var australiaNotes = []struct {
 	end   string
 }{
 	{"alt", 1, "1. The specific rule or specific set of rules that applies", "if a good satisfies one of the alternatives."},
+	{"CTC", 1, "3. Where a specific rule of origin is defined using the criterion of a change in tariff classification", "shall apply only to non-originating materials."},
 	{"QVC 40", 2, "5. For the purposes of column 3 of the product specific rules set out in this Annex: (d) “QVC 40” means", "shall apply."},
 	{"(1)", 2, "5. For the purposes of column 3 of the product specific rules set out in this Annex: (e) “(1)” denotes", "one or both Parties;"},
 	{"(2)", 3, "5. For the purposes of column 3 of the product specific rules set out in this Annex: (f) “(2)” denotes", "one or both Parties;"},
@@ -191,18 +192,18 @@ func TestAustraliaGeneralNotesCapturedVerbatim(t *testing.T) {
 		}
 	}
 	// Whole texts of the two notes that carry a Note: and exception lists.
-	qvc := s.Notes[1].Text
+	qvc := s.Notes[2].Text
 	if !strings.Contains(qvc, "of not less than 40 per cent, and the last process of production of the good has been performed in the exporting Party; Note: For the purpose of this Annex, paragraph 2 of Article 3.5 (Rules of Origin - Calculation of Qualifying Value Content) shall apply.") {
 		t.Errorf("QVC 40 note: %q", qvc)
 	}
-	if !strings.Contains(s.Notes[21].Text, "3809.10, 38.23, 3824.60, and 38.25), “purification” means") {
+	if !strings.Contains(s.Notes[22].Text, "3809.10, 38.23, 3824.60, and 38.25), “purification” means") {
 		t.Errorf("P exceptions lost: %q", s.Notes[22].Text)
 	}
 	if !strings.Contains(s.Notes[0].Text, "set out in column 3 or 4 of the product specific rules") {
 		t.Errorf("paragraph 1: %q", s.Notes[0].Text)
 	}
-	if !strings.Contains(s.Notes[26].Text, "column 3 or column 4") {
-		t.Errorf("header: %q", s.Notes[26].Text)
+	if !strings.Contains(s.Notes[27].Text, "column 3 or column 4") {
+		t.Errorf("header: %q", s.Notes[27].Text)
 	}
 }
 
@@ -256,13 +257,23 @@ func TestAustraliaNotesReachOnlyTheRowsThatUseThem(t *testing.T) {
 			if extra == "QVC 40" && strings.Contains(ev[0].Text, "QVC 40") {
 				continue
 			}
+			if extra == "CTC" && regexp.MustCompile(`\b(CC|CTH|CTSH)\b`).MatchString(ev[0].Text) {
+				continue
+			}
 			t.Errorf("%s wrongly has note %s", c.hs, extra)
+		}
+	}
+	// Paragraph 3 (CTC applies to non-originating materials) follows CC/CTH/CTSH.
+	for hs, want := range map[string]bool{"0101": true, "2701.11": true, "2710.12": true, "6101.20": false, "6203.43": false} {
+		ev, _ := table.Lookup("JP-Australia EPA", hs, australiaDate)
+		if got := australiaNoteLabels(ev)["CTC"]; got != want {
+			t.Errorf("%s: CTC note %v, want %v (%q)", hs, got, want, ev[0].Text)
 		}
 	}
 	// A product outside chapters 27-40 never gets the column-4 definitions.
 	ev, _ := table.Lookup("JP-Australia EPA", "8501.10", australiaDate)
 	for label := range australiaNoteLabels(ev) {
-		if label != "QVC 40" || !strings.Contains(ev[0].Text, "QVC 40") {
+		if label != "CTC" && (label != "QVC 40" || !strings.Contains(ev[0].Text, "QVC 40")) {
 			t.Errorf("8501.10 has note %s", label)
 		}
 	}
@@ -284,6 +295,9 @@ func TestAustraliaNoteApplicabilityMatchesRowUsage(t *testing.T) {
 			return false
 		case "QVC 40":
 			return strings.Contains(c3, "QVC 40")
+		case "CTC":
+			ctc := regexp.MustCompile(`\b(CC|CTH|CTSH)\b`)
+			return ctc.MatchString(c3) || ctc.MatchString(rest)
 		}
 		if strings.HasPrefix(label, "(") {
 			return strings.Contains(c3, label)

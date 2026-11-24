@@ -282,7 +282,7 @@ class AustraliaPdfTruth(unittest.TestCase):
         qvc = [n for n in self.notes if "QVC 40" in n["text"] and n["text"].startswith("5.")][0]
         self.assertEqual(qvc["page"], 2)
         self.assertTrue(qvc["text"].endswith("shall apply."))
-        self.assertEqual(len(self.notes), 1 + 1 + 17 + 6 + 1 + 1)
+        self.assertEqual(len(self.notes), 1 + 1 + 1 + 17 + 6 + 1 + 1)
         header = [n for n in self.notes if n["page"] == 11]
         self.assertEqual(header[0]["text"], "Note: Goods which satisfy the applicable rules set out in column 3 or column 4 below shall be considered as originating goods of a Party.")
         self.assertEqual(sorted({n["scope"] for n in self.notes}), ["schedule"])

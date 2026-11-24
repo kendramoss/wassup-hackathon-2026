@@ -526,6 +526,8 @@ def between(text, start, end):
 
 
 QVC = "QVC 40"
+CTC = "CTC"  # rows whose rule text (column 3 or 4) uses CC, CTH or CTSH
+CTC_WORD = re.compile(r"\b(?:CC|CTH|CTSH)\b")
 TEXTILE_CODES = [f"({n})" for n in range(1, 18)]
 COLUMN_4_CODES = ("CR", "D", "P", "CPS", "SM", "IS")
 CODE_WORD = re.compile(r"[A-Z]+")
@@ -543,6 +545,8 @@ _TEXTILE_END["(17)"] = "6. For the purposes of column 4"
 
 def row_uses(term, row):
     column3, column4 = australia_columns(row["text"])
+    if term == CTC:
+        return bool(CTC_WORD.search(column3) or CTC_WORD.search(column4))
     if term == QVC or term in TEXTILE_CODES:
         return term in column3
     return term in CODE_WORD.findall(column4)
@@ -553,7 +557,7 @@ def australia_general_notes(pages, rows):
 
     Each definition is its own verbatim note, pinned to the PDF page it starts
     on and attached only to the rows that use the term. Paragraphs 1-2 attach
-    to chapters 27-40 (where column 4 exists) and paragraph 7 to chapters
+    to chapters 27-40, paragraph 3 to rows using CC, CTH or CTSH (where column 4 exists) and paragraph 7 to chapters
     61-63, which its own wording names.
     """
     texts = [annex_text(page) for page in pages]
@@ -569,10 +573,12 @@ def australia_general_notes(pages, rows):
         return {"scope": "schedule", "key": "", "text": f"{lead} {body}".strip(), "page": page,
                 "applies": applies}
 
+    out_para3 = note(between(full, "3. Where a specific rule of origin", "4. For the purposes of this Annex"),
+                     usage_ranges(rows, lambda r: row_uses(CTC, r)))
     lead5 = between(full, *PARA_5_LEAD)
     lead6 = between(full, *PARA_6_LEAD)
     out = [note(between(full, "1. The specific rule or specific set", "3. Where a specific rule of origin"),
-                AUSTRALIA_ALTERNATIVE_CHAPTERS)]
+                AUSTRALIA_ALTERNATIVE_CHAPTERS), out_para3]
     out.append(note(between(full, "(d) “QVC 40” means", "(e) “(1)” denotes"),
                     usage_ranges(rows, lambda r: row_uses(QVC, r)), lead5))
     for code in TEXTILE_CODES:

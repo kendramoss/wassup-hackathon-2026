@@ -45,12 +45,13 @@ example `Rule (column 3): CTH; alternative (column 4): CR, P, SM or IS`. Both ce
 texts are verbatim. "alternative" follows paragraph 2 and the header note. Rows
 with an empty column 4 are unchanged (1,638 of the 2,168 rows).
 
-Notes. 27 schedule-scope notes, each verbatim from the PDF text with the page
+Notes. 28 schedule-scope notes, each verbatim from the PDF text with the page
 number removed and each pinned to the PDF page where it starts:
 
 | Page | Note | Attached to |
 |---|---|---|
 | 1 | paragraphs 1 and 2 (column 3 or 4; alternatives) | chapters 27 to 40 |
+| 1 | paragraph 3 (a CTC applies only to non-originating materials; each must undergo it) | rows whose column 3 or 4 uses CC, CTH or CTSH (25 ranges, 1,944 rows) |
 | 2 | 5(d) "QVC 40", with its Note | rows whose column 3 uses "QVC 40" |
 | 2 to 7 | 5(e) to 5(u), codes "(1)" to "(17)", one note per code | rows whose column 3 uses that code |
 | 7 to 10 | 6(a) to 6(f), CR, D, P, CPS, SM, IS, one note per code | rows whose column 4 uses that code |
@@ -66,11 +67,18 @@ row's own text uses the code. A lookup therefore returns only the definitions a
 row needs: a "CR or D" row gets CR and D but not P, CPS, SM or IS.
 
 All-schedule definitions (paragraph 5(d), the codes) are schedule scope as
-required; none is a row footnote. Paragraph 3 (change of tariff classification
-applies to non-originating materials), paragraph 4 (chapter, heading, section,
-subheading) and paragraph 8 (HS 2012) are not embedded: the rule codes do not
-need them. Paragraphs 5(a) to 5(c) (CC, CTH, CTSH) are also not embedded; the
-prompt already glosses them.
+required; none is a row footnote. Paragraph 3 changes how CC, CTH and CTSH read
+(each non-originating material must undergo the CTC; the requirement applies only
+to non-originating materials), so it is embedded and attached to every row whose
+rule text uses one of them. Rows that use only a "(n)" code do not name CC, CTH or
+CTSH in their own text and do not get it, although the definitions of those codes
+use them.
+
+Still omitted, with reasons: paragraph 4 (definitions of chapter, heading, section
+and subheading as digit prefixes; the lookup already works on those digits);
+paragraphs 5(a) to 5(c) (CC, CTH, CTSH meanings; the prompt gives a generic gloss
+of them, and the PDF text is not embedded here); paragraph 8 (the Annex is based
+on HS 2012, which the schedule citation already states).
 
 ## Build
 
@@ -91,18 +99,19 @@ parser against the PDF.
   three dates (274,737 lookups): only JP-Australia EPA changed (12,855 lookups);
   no other agreement changed.
 - Evidence size per Australia lookup, in characters of rule and note text added:
-  chapters 27 to 40 (530 rows) mean 3,420, max 4,710; chapters 50 to 63 rows
-  with a "(n)" code (299 rows) mean 437, max 663;
-  other rows that use "QVC 40" about 520; 552 rows add nothing. The notes hold
-  15,016 characters in all.
+  chapters 27 to 40 (530 rows) mean 3,764, max 5,054; chapters 50 to 63 rows
+  with a "(n)" code (299 rows) mean 523, max 663;
+  other rows that use "QVC 40" about 520; the mean over all 2,168 rows is 1,409 (it was 1,101 before paragraph 3), and the 224 rows without CC, CTH or CTSH in their text add less. The notes hold
+  15,360 characters in all.
 - Development rulings, `jpeval diagnose`: 18 JP-Australia rulings in `dev` (2,973),
   1 of them in chapters 27 to 40 (ruling 1251362, code 3504.00); the other 17 are
-  chapters 02, 04, 09 and 10 with no change. Evidence for that one ruling grows
-  from 158 to 1,745 characters (the row plus three notes). Eligible, abstained and
-  reason counts are identical before and after for `dev` and `dev_eval`. In
-  `dev_eval` the one Australia case (0902.20) is unchanged, and `jpeval plan -split
-  dev_eval` gives the same `requests_sha256` before and after. These counts show
-  evidence availability only, not accuracy.
+  chapters 02, 04, 09 and 10. Eligible, abstained and reason counts are identical
+  before and after for `dev` and `dev_eval`. Evidence grows for the chapter 27 to
+  40 ruling (row plus four notes) and by the paragraph 3 note (343 characters) for
+  rulings whose rule text uses CC, CTH or CTSH. `jpeval plan -split dev_eval`
+  (1 Australia case, 0902.20): request bytes total 5,130,506 before, 5,130,908
+  after (+402), max request unchanged at 35,072, `requests_sha256` changes. These
+  counts show evidence availability only, not accuracy.
 
 ## Not done
 
