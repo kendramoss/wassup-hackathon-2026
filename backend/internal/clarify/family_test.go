@@ -31,6 +31,13 @@ func ids(in FamilyIntake, state string) []string {
 
 func yes(b bool) *bool { return &b }
 
+// writtenFor is the template version each family's questions were written
+// for: the five #772 families at version 2 (D810), the D822 templates at 1.
+var writtenFor = map[string]string{
+	"power_supplies_chargers": "2", "motors_pumps_compressors": "2", "furniture": "2", "medical_devices": "2",
+	"display_camera_modules": "2", "lifting_handling_machines": "1", "optical_precision_instruments": "1",
+}
+
 // Each question asks about one template group, names a document, and
 // shows exactly that group's citations: a ruling is "decided origin" or
 // "not enough" for a question only as the template cites it for that
@@ -42,8 +49,8 @@ func TestFamilyQuestionsAreGroundedInTheirTemplates(t *testing.T) {
 		if !ok {
 			t.Fatalf("%s: no template", fam)
 		}
-		if tm.Version != "2" {
-			t.Errorf("%s: questions were written for version 2 templates, got %s", fam, tm.Version)
+		if want := writtenFor[fam]; tm.Version != want {
+			t.Errorf("%s: questions were written for version %s of the template, got %s", fam, want, tm.Version)
 		}
 		cited := 0
 		for _, q := range qs {
@@ -71,7 +78,8 @@ func TestFamilyQuestionsAreGroundedInTheirTemplates(t *testing.T) {
 			cited += len(conf) + len(ne)
 			// The question as asked carries exactly the group's citations.
 			asked := false
-			for _, x := range Intake(FamilyCase{US: true, Family: fam, Facts: "x", Product: &domain.Product{Name: "Product", Description: q.text + map[string]string{"motors_pumps_compressors": " (a pump)"}[fam]}}, tms).Questions {
+			for _, x := range Intake(FamilyCase{US: true, Family: fam, Facts: "x", Product: &domain.Product{Name: "Product", Description: q.text + map[string]string{"motors_pumps_compressors": " (a pump)",
+				"lifting_handling_machines": " (a floor jack)", "optical_precision_instruments": " (a digital pressure gauge with a lens)"}[fam]}}, tms).Questions {
 				if x.ID != q.id {
 					continue
 				}
@@ -221,6 +229,11 @@ func TestEachDeepenedFamilyAsksItsDecidingFacts(t *testing.T) {
 		{"medical_devices", &domain.Product{Name: "Blood pressure monitor"}, []string{"sensors_made", "sterile_only"}},
 		{"display_camera_modules", &domain.Product{Name: "Riflescope lens"}, []string{"lens_ground", "polish_only"}},
 		{"display_camera_modules", &domain.Product{Name: "Camera module"}, []string{"sensor_made"}},
+		{"lifting_handling_machines", &domain.Product{Name: "Hydraulic floor jack"}, []string{"lift_made", "structure_made", "assembly_only"}},
+		{"lifting_handling_machines", &domain.Product{Name: "Automated guided vehicle", Description: "lifts and carries reel stands"}, []string{"lift_made", "structure_made", "assembly_only"}},
+		{"optical_precision_instruments", &domain.Product{Name: "Riflescope lens"}, []string{"optics_ground", "optics_polish_only"}},
+		{"optical_precision_instruments", &domain.Product{Name: "Digital pressure sensor"}, []string{"sensing_made", "electronics_made", "calibrate_only"}},
+		{"optical_precision_instruments", &domain.Product{Name: "Speed square"}, []string{"sensing_made", "calibrate_only"}},
 	} {
 		in := Intake(FamilyCase{US: true, Family: tc.fam, Product: tc.p}, tms)
 		if got := ids(in, StateMissing); !slices.Equal(got, tc.want) {
@@ -250,6 +263,13 @@ func TestNotModelled(t *testing.T) {
 		{"toy binoculars as optics", FamilyCase{US: true, Family: "display_camera_modules", Product: &domain.Product{Name: "Toy binoculars"}}, "guard"},
 		{"vitamin as a device", FamilyCase{US: true, Family: "medical_devices", Product: &domain.Product{Name: "Vitamin D supplement"}}, "guard"},
 		{"ambiguous machine", FamilyCase{US: true, Family: "motors_pumps_compressors", Product: &domain.Product{Name: "Widget assembly"}}, "no_match"},
+		{"3D printer as a machine", FamilyCase{US: true, Family: "motors_pumps_compressors", Product: &domain.Product{Name: "3D printer"}}, "guard"},
+		{"3D printer as a lifting machine", FamilyCase{US: true, Family: "lifting_handling_machines", Product: &domain.Product{Name: "Dental 3D printer"}}, "guard"},
+		{"jack stand as a lifting machine", FamilyCase{US: true, Family: "lifting_handling_machines", Product: &domain.Product{Name: "Automotive jack stands"}}, "guard"},
+		{"flashlight as an instrument", FamilyCase{US: true, Family: "optical_precision_instruments", Product: &domain.Product{Name: "LED flashlight"}}, "guard"},
+		{"fibre cable as an instrument", FamilyCase{US: true, Family: "optical_precision_instruments", Product: &domain.Product{Name: "Fiber optic cable assemblies"}}, "guard"},
+		{"smart glasses as optics", FamilyCase{US: true, Family: "optical_precision_instruments", Product: &domain.Product{Name: "Smart glasses"}}, "guard"},
+		{"ambiguous instrument", FamilyCase{US: true, Family: "optical_precision_instruments", Product: &domain.Product{Name: "Widget assembly"}}, "no_match"},
 	} {
 		in := Intake(tc.c, tms)
 		if in.Status != FamilyNotModelled || in.NotModelled == nil || in.NotModelled.Code != tc.code || len(in.Questions) != 0 {
