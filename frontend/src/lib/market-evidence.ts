@@ -1,7 +1,7 @@
 // Single source for the RCEP held-out counts shown on the landing and Accuracy
 // pages (D691, D716, D717). Pinned to eval/rcep/japan-summary.json by
 // scripts/landing-market-evidence.test.mjs and scripts/accuracy-copy.test.mjs.
-// Canada and Japan carry no scores.
+// Canada carries no score. Japan's offline model test (D741) is below.
 export const rcepEvidence = {
   rulings: 98,
   yes: 71,
@@ -29,7 +29,7 @@ export const marketEvidence = {
     { name: "U.S. origin", status: "Held-out rulings", note: "Single-origin U.S. substantial-transformation rulings only." },
     { name: "RCEP tariff", status: "Approvals only", note: "No refusals tested." },
     { name: "Canada marking", status: "Rules only", note: "No score." },
-    { name: "Japan origin", status: "Not available yet", note: "Turns on only when the Japan model is configured. Not measured." },
+    { name: "Japan origin", status: "Not available yet", note: "Offline experiment only. Not a coverage claim." },
     { name: "Other markets", status: "Not yet", note: "No rules or tests." },
   ],
   detailsTitle: "Limits",
@@ -39,4 +39,23 @@ export const marketEvidence = {
     "Customs specialist review is pending.",
   ],
   link: "See the full evidence →",
+};
+
+// D741 offline Japan model evaluation. Pinned to the two committed D741
+// metrics files under eval/jp by scripts/japan-evidence.test.mjs. Experimental,
+// positive-only, not a market-coverage claim; Japan stays unavailable.
+export const japanEvidence = {
+  cases: 633,
+  criterionMatch: 260,
+  otherQualifies: 6,
+  undetermined: 363,
+  errors: 4,
+  matchPct: "41.07%",
+  matchInterval: "37.31–44.95",
+  recall: 266,
+  recallPct: "42.02%",
+  recallInterval: "38.24–45.90",
+  syntheticRefused: 8,
+  syntheticCases: 8,
+  syntheticInterval: "67.56–100",
 };

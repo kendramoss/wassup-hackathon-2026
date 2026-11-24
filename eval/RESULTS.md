@@ -978,6 +978,54 @@ The complete development run used the same candidate with six workers. **243 of 
 
 **Separate synthetic negatives.** The corrected fixtures launched once under D714. All eight returned HTTP 403, with $0 reported and no eligibility responses. Rejected requests took 0.441 s at p50 and 0.711 s at p95. The data is in `jp/runs/jp-synthetic-gemini-4-argon-jp-engine-v1-litellm.jsonl` and `jp/jp-synthetic-gemini-4-argon-jp-engine-v1-litellm-metrics.json`. Both batches establish a gateway availability failure. The development, unseen test and fictional rows stay separate.
 
+**Update, 24 Nov (D741).** A new run answered the unseen-test question this section left unmeasured. See [Japan D741 re-run](#japan-d741-re-run) below. The text above stays as recorded.
+
+## Japan D741 re-run (24 Nov, #735)
+
+This is an **experimental offline evaluation**. It is advisory and unreviewed, and it measures one candidate on published rulings. It is not Japan market coverage and it does not activate Japan in the product (Japan stays "not available yet"). No customs specialist has reviewed it.
+
+**Protocol (D741).** One run of candidate `jp-engine-v1` with `gemini-4-argon` through the LiteLLM gateway (not native Vertex, so no claim that this equals any other alias or route). One request per eligible case, no retries, no repeat of the held-out run, no tuning from results, no selective stopping. The pre-registration, labels (SHA-256 `d77f895754897df02dc0366103b7a9c72e6310b0957bb9d321139dbbde4134da`), prompt, scorer and data were frozen before the run. Rows and metrics: `jp/runs/jp-held_out-gemini-4-argon-jp-engine-v1-litellm-d741-heldout-1.jsonl`, `jp/jp-held_out-gemini-4-argon-jp-engine-v1-litellm-d741-heldout-1-metrics.json`, and the matching `...-d741-synthetic-1` files. Two new run records are appended to `results/RUNLOG.jsonl`.
+
+**Held-out result, 633 published rulings, all positive.** 421 rulings went to the model, 212 abstained before a call, and 4 of the 421 calls returned `model_unavailable`. The candidate qualified 266, declined none, left 363 undetermined (this includes the 212 abstentions) and had 4 errors. Every abstention and error stays in the denominator.
+
+| Measure | Result | 95% Wilson interval |
+|---|---:|---:|
+| Criterion match | 260/633, 41.07% | 37.31–44.95 |
+| Positive recall (qualified, any criterion) | 266/633, 42.02% | 38.24–45.90 |
+
+Outcomes add to 633: 260 criterion match + 6 qualified with a different criterion + 363 undetermined + 4 errors.
+
+**Synthetic check, separate.** Eight fictional non-qualifying cases, 8 attempts, no errors, 8 declined. Refusal 8/8 (95% Wilson interval 67.56–100). Eight cases is a toy check. It is not a refusal guarantee. The legacy run-log fields `accuracy`, `correct` and `scored` are zero for this run because no case in it has a qualifying label. That is not 0% refusal.
+
+**What the numbers do not say.** Every held-out ruling is a published approval, so the criterion match is positive-only and is not general accuracy, specificity or a false-positive rate. The RUNLOG field named `accuracy` holds the criterion-match share for compatibility. Do not combine these figures with the U.S. 340 of 377 results or the RCEP calculator results above, which answer different questions.
+
+**Precedent pool.** Retrieval is chronological and rolling (D712, D741). Earlier held-out rulings could be retrieved as precedents for later cases: 197 of 863 cited precedents were earlier held-out rulings, with 0 self-citations and 0 future or same-date citations. The retrieval pool is not development-only and the rulings are not wholly unseen.
+
+**By agreement (criterion match, all groups, as reported).** Small groups carry wide intervals and no multiple-comparison correction was made. RCEP at 89/98 is one subset of the 633. The headline is 260/633.
+
+| Agreement | Match | Share | 95% interval |
+|---|---:|---:|---:|
+| JP-EU EPA | 96/234 | 41.03% | 34.92–47.42 |
+| RCEP | 89/98 | 90.82% | 83.46–95.09 |
+| JP-US TA | 0/85 | 0.00% | 0.00–4.32 |
+| CPTPP | 48/75 | 64.00% | 52.70–73.94 |
+| AJCEP | 11/60 | 18.33% | 10.56–29.92 |
+| GSP | 0/37 | 0.00% | 0.00–9.41 |
+| JP-India CEPA | 6/18 | 33.33% | 16.28–56.25 |
+| JP-Australia EPA | 2/10 | 20.00% | 5.67–50.98 |
+| JP-Indonesia EPA | 3/4 | 75.00% | 30.06–95.44 |
+| JP-UK CEPA | 3/4 | 75.00% | 30.06–95.44 |
+| Non-preferential | 0/4 | 0.00% | 0.00–48.99 |
+| JP-Thailand EPA | 1/2 | 50.00% | 9.45–90.55 |
+| JP-Malaysia EPA | 1/1 | 100.00% | 20.65–100.00 |
+| JP-Vietnam EPA | 0/1 | 0.00% | 0.00–79.35 |
+
+**Cost.** 430 model attempts in all: 1 admission smoke check, 421 held-out and 8 synthetic. The ledger reserved and settled all 430 with none pending, against a $50 private cap. The conservative charge is $4.1258349: $3.7019269 reported by the gateway plus $0.423908 as a worst case for the 4 failed calls that reported no cost. It is not a billing invoice, not an actual-billed total (it includes worst-case placeholders for the 4 unreported calls) and not a quote for future runs. A historical sample of 2 of 10 gateway prices corroborated the rates used, and no commercial quote for future runs exists. Held-out rows reported cost $3.6329 (run record `cost_usd`); the conservative held-out charge was $4.0568. Latency among model-call cases: held-out p50 7.701 s, p95 15.515 s; synthetic p50 8.040 s, p95 10.134 s.
+
+**Earlier attempts preserved.** D714 and D715 ended in gateway HTTP 403 failures: 382 rejected held-out requests with 251 abstentions before a call, and 8 rejected synthetic requests. Those rows and counts remain as recorded above. They are unmeasured, not 0% model accuracy.
+
+**Run protocol calibration.** The first private supervisor finished the held-out run and then stopped before it claimed or called any synthetic case, because `.strip()` on a porcelain status line damaged a changed-path name. A versioned private script parsed NUL-separated records and ran only the eight synthetic cases that had never been attempted. The candidate, model, prompt, data and scorer did not change, and no held-out case was repeated. The synthetic run record shows `code_dirty: true` only because the held-out outputs and `RUNLOG.jsonl` were already in the tree. The source pin, binary and frozen-input hashes are unchanged.
+
 ## RCEP calculator on Japan Customs rulings (D691, D716, D717)
 
 The frozen D710 split contains 304 development rulings and 98 held-out rulings with agreement code RCEP. All 402 published rulings qualified. The figures measure positive recall from the published facts. They give no estimate of refusal performance on real rulings. The inputs omit supplier declarations and values wherever those are absent from the published material entries. A tariff shift can return yes with a warning that the work must exceed minimal operations.

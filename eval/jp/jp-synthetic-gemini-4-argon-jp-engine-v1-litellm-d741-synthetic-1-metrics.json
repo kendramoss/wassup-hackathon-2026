@@ -1,0 +1,60 @@
+{
+ "run": "jp-synthetic-gemini-4-argon-jp-engine-v1-litellm-d741-synthetic-1",
+ "split": "synthetic",
+ "expected_cases": 8,
+ "cases": 8,
+ "errors": 0,
+ "model_calls": 8,
+ "qualifies": 0,
+ "does_not_qualify": 8,
+ "undetermined": 0,
+ "criterion_match": {
+  "k": 0,
+  "n": 0,
+  "p": 0,
+  "lo": 0,
+  "hi": 0
+ },
+ "criterion_in_cited_set": {
+  "k": 0,
+  "n": 0,
+  "p": 0,
+  "lo": 0,
+  "hi": 0
+ },
+ "stated_country_match": {
+  "k": 0,
+  "n": 0,
+  "p": 0,
+  "lo": 0,
+  "hi": 0
+ },
+ "stated_origin_match_including_eu": {
+  "k": 0,
+  "n": 0,
+  "p": 0,
+  "lo": 0,
+  "hi": 0
+ },
+ "positive_recall": {
+  "k": 0,
+  "n": 0,
+  "p": 0,
+  "lo": 0,
+  "hi": 0
+ },
+ "synthetic_refusals": {
+  "k": 8,
+  "n": 8,
+  "p": 1,
+  "lo": 0.6756,
+  "hi": 1
+ },
+ "criterion_match_by_agreement": {},
+ "cost_usd": 0.0689,
+ "budget_charged_usd": 0.0689,
+ "cost_per_case_usd": 0.0086,
+ "cost_per_model_call_usd": 0.0086,
+ "model_call_cases_latency_p50_ms": 8040,
+ "model_call_cases_latency_p95_ms": 10134
+}

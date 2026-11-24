@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 import { api, type EvalSummary } from "@/lib/api/client";
 import { copy } from "@/lib/copy";
-import { rcepEvidence } from "@/lib/market-evidence";
+import { japanEvidence, rcepEvidence } from "@/lib/market-evidence";
 import failureData from "@/lib/failure-cases.json";
 import { ErrorBox, Main } from "../chrome";
 import { ButtonLink, Chip, Fold, ScrollX, cx } from "../ui";
@@ -252,6 +252,56 @@ function PlanEvidence({ calibration }: { calibration?: VerifierEvidence }) {
 
 // D691, D716 and D717. The first-render counts are pinned to
 // eval/rcep/japan-summary.json by the Accuracy copy test.
+function JapanExperiment() {
+  const j = japanEvidence;
+  const parts = [
+    { key: "match", label: "Matched the ruling's criterion", n: j.criterionMatch, bar: "bg-ok" },
+    { key: "other", label: "Qualified, different criterion", n: j.otherQualifies, bar: "bg-ok-wash border border-ok" },
+    { key: "und", label: "Undetermined", n: j.undetermined, bar: "bg-guide" },
+    { key: "err", label: "Failed calls", n: j.errors, bar: "bg-fail" },
+  ];
+  return (
+    <div id="japan-experiment" className="mt-5 border-t border-line pt-4">
+      <h3 className="text-sm font-semibold">Japan model: offline experiment</h3>
+      <p className="read mt-1 text-sm text-dim">
+        Experimental and unreviewed. Japan is not available in the product. All {j.cases} rulings are real approvals, so this is not an accuracy rate.
+      </p>
+      <p className="mt-2 text-sm tabular-nums">
+        <strong>{j.criterionMatch}/{j.cases}</strong> matched the ruling&apos;s criterion ({j.matchPct}, 95% interval {j.matchInterval}%).
+      </p>
+      <div role="img" aria-label={parts.map((x) => `${x.n} ${x.label.toLowerCase()}`).join(", ") + `, out of ${j.cases}`} className="mt-2 flex h-2.5 gap-0.5">
+        {parts.map((x) => (
+          <span key={x.key} className={`h-full rounded-[2px] ${x.bar}`} style={{ flexGrow: x.n, minWidth: 3 }} />
+        ))}
+      </div>
+      <ul className="mt-2 grid gap-x-4 gap-y-1 text-sm tabular-nums sm:grid-cols-2">
+        {parts.map((x) => (
+          <li key={x.key} className="flex items-center gap-2">
+            <span aria-hidden="true" className={`inline-block size-2.5 shrink-0 rounded-[2px] ${x.bar}`} />
+            <strong>{x.n}</strong> <span className="text-dim">{x.label}</span>
+          </li>
+        ))}
+      </ul>
+      <p className="mt-2 text-sm tabular-nums">
+        <strong>{j.syntheticRefused}/{j.syntheticCases}</strong> fictional non-qualifying cases refused (95% interval {j.syntheticInterval}%). Too few to show a refusal rate.
+      </p>
+      <Details title="Japan experiment details">
+        <p>
+          One run of one model and prompt through the LiteLLM gateway, no retries. Positive recall, counting qualifying answers of any criterion, was {j.recall}/{j.cases} ({j.recallPct}, {j.recallInterval}%). Every undetermined answer and failed call stays in the {j.cases}.
+        </p>
+        <p>
+          Earlier rulings in the test set could be retrieved as precedents for later cases (197 of 863 cited), never the same or a later case. The rulings are not wholly unseen. The earlier attempt returned only gateway errors and is kept as unmeasured, not 0%.
+        </p>
+        <p>
+          <a href={`${copy.landing.repo}/blob/main/eval/RESULTS.md#japan-d741-re-run`} className="text-ok underline underline-offset-2 max-sm:inline-flex max-sm:min-h-11 max-sm:items-center">
+            See the Japan run results →
+          </a>
+        </p>
+      </Details>
+    </div>
+  );
+}
+
 function MarketEvidence() {
   const result = rcepEvidence;
 
@@ -294,6 +344,7 @@ function MarketEvidence() {
           </div>
         </dl>
       </div>
+      <JapanExperiment />
     </section>
   );
 }
