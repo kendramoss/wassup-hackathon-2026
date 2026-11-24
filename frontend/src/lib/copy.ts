@@ -54,6 +54,11 @@ export const copy = {
     },
     columns: ["Product", "Likely origin", "Status", "Ruling watch", "Scenarios", "Where you left off"],
     notAnalysed: "Not analysed yet",
+    // How supplied answers relate to the origin shown (D814).
+    answers: {
+      rechecked: "Re-checked with your answers",
+      added: "Answers added. Open to see them.",
+    } as Record<string, string>,
   },
 
   product: {
@@ -681,6 +686,35 @@ export const copy = {
     staleAll: "Your answers were from before the parts list changed. Answer again.",
     badShare: "Enter a number from 0 to 100.",
     badCode: "Enter an HS code, like 8529.90.",
+    demo: "Pinned demo: answers can't be added.",
+  },
+
+  // Family questions (#770, D810-D813): what the family's rulings turn on,
+  // each with the document that settles it. Not modelled: no controls.
+  family: {
+    title: "Missing information",
+    notModelled: "Not modelled",
+    lede: "Where each part was made decides origin under the rulings below.",
+    from: "From",
+    rulings: "Rulings",
+    decided: "decided origin",
+    notEnough: "not enough",
+    known: "On the parts list",
+    country: "Country",
+    yes: "Yes",
+    no: "No",
+    save: "Save answers",
+    saving: "Saving…",
+    saved: "Saved. The origin above is unchanged; it was made before these answers.",
+    complete: "All answered.",
+    yours: "Your answers",
+    yoursMeta: (n: number, date: string) => `${n} · you supplied · ${date}`,
+    yoursNote: "Kept beside the case. The product and facts are unchanged.",
+    clear: "Clear answers",
+    stale: "Your answers were from before the parts list changed. Answer again.",
+    dropped: "Some answers no longer fit this product; they were not used.",
+    badCountry: "Enter a country.",
+    fixFields: "Fix the fields marked.",
     demo: "Pinned demo: answers can't be added.",
   },
 

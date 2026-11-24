@@ -490,6 +490,11 @@ export function YourCases({ cases, onChange }: { cases: CaseSummary[]; onChange:
                   </td>
                   <td data-label={col[1]} className={cx(stack, "text-[17px] tracking-[-0.03em]")}>
                     {c.predicted_origin ? <Country name={c.predicted_origin} size={13} /> : <span className="text-sm text-dim">{copy.cases.notAnalysed}</span>}
+                    {c.answers_note && copy.cases.answers[c.answers_note] ? (
+                      <span data-answers-note={c.answers_note} className={cx("block text-xs tracking-normal", c.answers_note === "added" ? "text-ask" : "text-dim")}>
+                        {copy.cases.answers[c.answers_note]}
+                      </span>
+                    ) : null}
                   </td>
                   <td data-label={col[2]} className={cx(stack, "max-sm:[&_span]:whitespace-normal")}>
                     <StatusChip route={c.triage_route} />

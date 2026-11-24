@@ -182,6 +182,16 @@ export const toolExamples: Record<ToolName, Example> = {
       ],
     },
   },
+  save_case_answers: {
+    input: { case_id: caseId, check: "family", expected_updated_at: "", family_answers: { cells_made: { country: "South Korea" } } },
+    output: {
+      family_facts: { source: "user-supplied", family: "power_supplies_chargers", answers: { cells_made: { country: "South Korea" } } },
+      family_intake: {
+        status: "missing_information",
+        questions: [{ id: "pack_work", kind: "yes_no", state: "missing", question: "Does pack assembly include programming the battery management system (BMS), welding the cells and formation?", evidence: "Production routing or traveller for pack assembly" }],
+      },
+    },
+  },
 };
 
 const api = "https://undelabs.dev/api";
