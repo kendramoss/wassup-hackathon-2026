@@ -1,7 +1,7 @@
 import "./render-support.mjs";
 import assert from "node:assert/strict";
 import { test } from "node:test";
-import { byName, findAll, instance, json, tick } from "./lib/hook-runtime.mjs";
+import { findAll, instance, json, tick } from "./lib/hook-runtime.mjs";
 
 // #786: no console noise on page load. /cases/new must not call
 // hts-suggest before there is a product, and an anonymous visitor's case list
@@ -47,6 +47,14 @@ test("proxy: everyone else keeps the 401 (no marker, API key, signed in, other r
   assert.equal((await proxyBackend(req({ "x-signin-optional": "1" }), "cases/c1")).status, 401);
   backend(() => json({ code: "forbidden", message: "no" }, 401));
   assert.equal((await proxyBackend(req({ "x-signin-optional": "1" }), "cases")).status, 401, "only unauthenticated is the anonymous path");
+});
+
+test("proxy: HEAD and POST with the marker are not rewritten", async () => {
+  backend(() => json(unauth, 401));
+  for (const method of ["HEAD", "POST"]) {
+    const res = await proxyBackend(req({ "x-signin-optional": "1", cookie: "op_visitor=v_1" }, method), "cases");
+    assert.equal(res.status, 401, method);
+  }
 });
 
 // The client through the real proxy, as the browser sees it.
@@ -121,7 +129,8 @@ test("hts-field: nothing is sent on load, with or without a product", async () =
   }
 });
 
-test("hts-field: a click with a product sends that product; a 404 removes the button", async () => {
+// Runs last: a 404 is remembered for the rest of the page load.
+test("hts-field: a click with a product sends that product; a 404 removes the button, keeps focus and says why", async () => {
   const source = { facts: "A cordless heat gun with a lithium battery pack" };
   const props = { value: "", onChange() {}, source, inputClass: "w-full" };
   const { calls, inst } = mountHts(props);
@@ -129,12 +138,24 @@ test("hts-field: a click with a product sends that product; a 404 removes the bu
     calls.push({ url: String(url), body: init.body });
     return json({ code: "not_found", message: "not found" }, 404);
   };
-  const btn = () => findAll(inst.tree, (e) => e?.props?.children === "Suggest from earlier rulings");
-  await btn()[0].props.onClick();
+  let focused = 0;
+  const input = findAll(inst.tree, (e) => e?.type === "input")[0];
+  input.props.ref.current = { focus: () => focused++ };
+  const btn = (tree) => findAll(tree, (e) => e?.props?.children === "Suggest from earlier rulings");
+  await btn(inst.tree)[0].props.onClick();
   for (let i = 0; i < 5; i++) await tick();
   assert.equal(calls.length, 1);
   assert.equal(calls[0].url, "/api/v1/products/hts-suggest");
   assert.deepEqual(JSON.parse(calls[0].body), source);
-  assert.equal(btn().length, 0);
-  assert.ok(findAll(inst.tree, byName("Spinner")).length === 0);
+  assert.equal(btn(inst.tree).length, 0);
+  assert.equal(focused, 1, "focus moves to the HTS input, not <body>");
+  const alert = findAll(inst.tree, (e) => e?.props?.role === "alert");
+  assert.equal(alert.length, 1);
+  assert.equal(alert[0].props.children, "Suggestions are off here. Type the code.");
+  assert.match(alert[0].props.className, /text-dim/);
+  assert.doesNotMatch(alert[0].props.className, /text-fail/);
+  const again = mountHts(props);
+  for (let i = 0; i < 5; i++) await tick();
+  assert.equal(btn(again.inst.tree).length, 0, "a remount remembers suggestions are off");
+  assert.deepEqual(again.calls, []);
 });

@@ -239,11 +239,12 @@ export async function proxyBackend(request: Request, path: string): Promise<Resp
       /* not the API's error body */
     }
     const headers = new Headers(res.headers);
-    headers.set("Content-Type", "application/json");
-    res =
-      body?.code === "unauthenticated"
-        ? new Response(JSON.stringify({ cases: [], signin_required: body }), { status: 200, headers })
-        : new Response(text, { status: 401, headers });
+    if (body?.code === "unauthenticated") {
+      headers.set("Content-Type", "application/json");
+      res = new Response(JSON.stringify({ cases: [], signin_required: body }), { status: 200, headers });
+    } else {
+      res = new Response(text, { status: 401, headers });
+    }
   }
   if (user && res.status === 401) {
     const text = await res.text();

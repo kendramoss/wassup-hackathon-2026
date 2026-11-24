@@ -1,10 +1,14 @@
 "use client";
 
-import { useId, useState } from "react";
+import { useId, useRef, useState } from "react";
 import { copy } from "@/lib/copy";
 import { Term } from "./term";
 import { ApiError, api, type HtsSuggestResponse, type Product } from "@/lib/api/client";
 import { Button, Chip, Spinner, cx } from "./ui";
+
+// Set once the server says suggestions are off (404), so a remount on the
+// same page load doesn't show the button again.
+let suggestOff = false;
 
 const rulingUrl = (id: string) => `https://rulings.cbp.gov/ruling/${encodeURIComponent(id)}`;
 
@@ -38,7 +42,8 @@ export function HtsField({
   // Whether the server suggests HTS codes (HTS_SUGGEST, D64). The route is
   // only called with a product to suggest for (#786: no empty probe on
   // load); a 404 then means it is off here, and the button goes.
-  const [on, setOn] = useState(true);
+  const [on, setOn] = useState(!suggestOff);
+  const inputRef = useRef<HTMLInputElement>(null);
   const [busy, setBusy] = useState(false);
   const [res, setRes] = useState<HtsSuggestResponse | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -51,8 +56,11 @@ export function HtsField({
       setRes(await api.htsSuggest(source));
     } catch (e) {
       if (e instanceof ApiError && e.status === 404) {
+        suggestOff = true;
         setOn(false);
         setError("Suggestions are off here. Type the code.");
+        // The button the user pressed is gone: keep focus on the field.
+        inputRef.current?.focus();
         return;
       }
       setError(e instanceof ApiError && e.status === 429 ? "Too many suggestions at once. Wait a moment and try again." : "Couldn't get suggestions. Try again, or type the code.");
@@ -72,6 +80,7 @@ export function HtsField({
       </div>
       <div className="mt-1.5 flex flex-wrap items-center gap-2.5">
         <input
+          ref={inputRef}
           id={id}
           className={cx(inputClass.replace("w-full", ""), "w-44 tabular-nums")}
           value={value}
@@ -108,7 +117,7 @@ export function HtsField({
         </div>
       )}
       {error && (
-        <p role="alert" className="mt-2 text-xs text-fail">
+        <p role="alert" className={cx("mt-2 text-xs", on ? "text-fail" : "text-dim")}>
           {error}
         </p>
       )}
