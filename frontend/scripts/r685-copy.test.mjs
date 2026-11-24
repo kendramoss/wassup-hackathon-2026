@@ -144,6 +144,7 @@ test("phones: in-page controls left under 44 px get 44 px below 640 px only", ()
   assert.match(src("app/developers/page.tsx"), /inline-flex min-h-10 max-sm:min-h-11 justify-self-end/);
   assert.match(src("app/developers/portal.tsx"), /const field = "min-h-10 max-sm:min-h-11 /);
   assert.match(src("app/developers/portal.tsx"), /block min-h-10 max-sm:min-h-11 w-full border-l-2/);
+  assert.match(src("app/developers/portal.tsx"), /\$\{docLink\} max-sm:inline-flex max-sm:min-h-11 max-sm:items-center`\} href=\{`\$\{repo\}\/blob\/main\/docs\/api\/SECURITY\.md`\}/);
   const accuracy = src("components/op/screens/accuracy-page.tsx");
   assert.match(accuracy, /<ButtonLink href="#misses" onClick=\{openFailures\} className="max-sm:min-h-11">/);
   assert.match(accuracy, /<ButtonLink href="\/method" variant="ghost" className="max-sm:min-h-11">/);

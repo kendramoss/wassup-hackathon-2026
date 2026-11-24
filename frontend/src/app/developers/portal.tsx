@@ -327,7 +327,7 @@ function RestConsole({ repo }: { repo: string }) {
         <span className="rounded-sm border border-line bg-sheet px-2 py-1.5"><strong>{rates.light}</strong> predict</span>
         <span className="rounded-sm border border-line bg-sheet px-2 py-1.5"><strong>{rates.heavy}</strong> plan search</span>
         {statuses.map(({ label, color }) => <span key={label} className={`rounded-sm border px-2 py-1.5 ${color}`}>{label}</span>)}
-        <a className={docLink} href={`${repo}/blob/main/docs/api/SECURITY.md`}>Limits and errors ↗</a>
+        <a className={`${docLink} max-sm:inline-flex max-sm:min-h-11 max-sm:items-center`} href={`${repo}/blob/main/docs/api/SECURITY.md`}>Limits and errors ↗</a>
       </div>
     </section>
   );
