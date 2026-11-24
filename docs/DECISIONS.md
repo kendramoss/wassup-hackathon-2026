@@ -3402,3 +3402,33 @@ Some Japan Customs rulings carry a code from a later HS edition than the schedul
 - **Authenticated smoke paused and untouched.** No product backend call, no credentials.
 - **Frozen D741 untouched.** Only development ids were analysed; no held-out label was read.
 - **Deployment through the normal merge path.** No workflow, script or infrastructure change.
+
+## D877 — Japan: Generalized System of Preferences rule pilot, current window only (24 Nov, #800 20b39a82)
+- **Decision.**
+  - **Source.** The Appendix Table of the Ministerial Ordinance for Enforcement of the Temporary Tariff Measures Law, from the e-Gov law API. It is published only in Japanese, so rows and notes are stored in Japanese.
+  - **One window.** Only the window from 2023-04-01 is embedded. The three earlier windows were extracted and checked against their XML but not shipped; earlier dates return `no_dated_source`.
+  - **What is stored.** 251 rows, 9 quoted notes, and an Unde Labs caveat note that is shown first. Rows are located by a `ref` into the table, not by page.
+  - **HS 2022 gate.** The ordinance names no edition; HS 2022 is an inference, and the citation says so. A list of 5,612 HS 2022 codes (UN Comtrade H6, codes only, same licence caveat as D873) gates the group rows, so a code in no edition never gets a chapter row.
+  - **No qualifying answer.** A model answer of `qualifies` is changed to `undetermined` for this agreement, because the beneficiary country, Cabinet Order coverage, Form A, cumulation and least-developed-country relaxations are not modelled. `does_not_qualify` and `undetermined` stay as the model said. The prompt is unchanged. The new-case selector does not list this agreement.
+- **Result, development split (offline, no model).** Of 131 GSP cases: all `unsupported_agreement` before; after, 130 with a rule and 1 `no_match`. This is rule-reference coverage only, not decisions and not accuracy.
+- **Cost if wrong.** A GSP `does_not_qualify` can be given on a row that covers only part of a heading: 33 entries read "of which" (のうち) in their description, and the lookup cannot tell whether the product is in that part. These are disclosed in the doc and the caveat. Narrowing words inside other rows were not enumerated.
+- **Evidence.** `docs/japan/gsp-pilot.md` (revision ids and sha256, earlier windows table, gaps).
+
+## D878 — Japan: withheld rows reviewed, three narrowed or restored (24 Nov, #802 e289e798)
+- **Decision.** The 41 rows blocked before this change (JP-EU 4, CPTPP 12, Switzerland 25) were reviewed against the official footnotes. A block stays unless the footnote proves the exact limit.
+  - **JP-EU 7007.** Footnote 1 names only 7007.11 and 7007.21, so those two stay withheld and the rest of 7007 to 7009 is a normal row with the footnote as a note.
+  - **Switzerland 3501 to 3505.** The merged row is split into its four source lines.
+  - **UK.** Rows with a footnote digit glued to the code ("70.071 -70.09") had been dropped silently and returned `no_match`. They are restored as withheld, as in the EU.
+  - **Stay withheld.** CPTPP dagger rows (the appendix is an optional RVC route and an unblock needs a note citing a second PDF; no dev case), JP-EU and JP-UK 84 and 87, and the other 24 Switzerland rows.
+- **Result, development split.** Eligible 2950 → 2952 (JP-EU 7007.29 and Switzerland 3504.00 moved from withheld to a rule). Code-level differences are in the doc on its stated basis. Rule availability only, not accuracy.
+- **Cost if wrong.** A narrowed row shows a rule for a code whose appendix has a different threshold. The footnote text bounds this for 7007 and 3501 to 3505. A restored UK row stays withheld, so it adds no text.
+- **Not fixed.** UK header-only rows 70.06 and 70.10 still copy the previous rule.
+- **Evidence.** `docs/japan/withheld-rows-narrowing.md`.
+
+## D879 — Japan: selector contract and a process lesson; net measurement (24 Nov, #798, #801; measured at 20b39a82)
+- **Contract.** The frontend selector test derives each agreement's declared edition from "(HS yyyy)" in the schedule citations. Agreements with no stated edition (Japan-US, GSP) must show none.
+- **What happened.** #800 changed only backend data, so the frontend CI job was skipped by its path filter. The GSP citation contains "validated against HS 2022", which the test read as a declared edition, and the test failed on main. #801 fixed it: the test now parses only a parenthesised stated edition and asserts that schedules without one say "not stated".
+- **Rule.** A PR that changes `backend/internal/jprules/data` must also run the frontend `japan-preference` test locally before merge. A skipped job is not a pass.
+- **Net measurement at 20b39a82 (offline, no model).** Development split eligible rule reference 2589 → 2950 of 2973. `dev_eval` 366 → 395 of 400, a subset of the development split, so the two are not additive. GSP is counted as rule reference only. Not accuracy.
+- **Cost if wrong.** A citation whose wording happens to look like an edition changes what the selector shows; the stricter parse and the "not stated" assertion guard it.
+- **Evidence.** `docs/japan/gsp-pilot.md`, `docs/japan/jp-us-ta-pilot.md`.
