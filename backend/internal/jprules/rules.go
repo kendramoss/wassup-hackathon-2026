@@ -369,8 +369,9 @@ type Result struct {
 // other nomenclatures. before is the case date, not the day this selection
 // happens. No evidence is returned for an unsupported agreement, date or
 // insufficiently precise HS code, or where the row requires material that was
-// not embedded. It never returns the AJCEP general-rule bundle; use
-// LookupDetailed for that.
+// not embedded. It never returns the AJCEP general fallback; use
+// LookupDetailed for that. For an AJCEP HS 2017 rule hit it ends with the
+// Annex 2 provisions listed in the bundle's psr_provisions.
 func (t *Table) Lookup(agreement, hs string, before time.Time) ([]Evidence, error) {
 	r, err := t.lookup(agreement, hs, before, false)
 	if err != nil || r.Reason != ReasonPSR {
@@ -444,6 +445,9 @@ func (t *Table) lookup(agreement, hs string, before time.Time, general bool) (Re
 			evidence = append(evidence, s.evidence(text, r.Page, r.Ref))
 		}
 		evidence = s.withNotes(evidence, digits)
+		if t.general != nil && t.general.applies(agreement, date) {
+			evidence = append(evidence, t.general.psrEvidence()...)
+		}
 		return Result{Reason: ReasonPSR, Evidence: evidence, Digits: digits}, nil
 	}
 	switch {
@@ -644,6 +648,12 @@ type generalBundle struct {
 	Retrieved  string             `json:"retrieved"`
 	Sources    []generalSource    `json:"sources"`
 	Provisions []generalProvision `json:"provisions"`
+	// PSRProvisions lists, in order, the treaty provisions returned after the
+	// rows of a matched rule in this bundle's window: the ones Annex 2 cites
+	// or applies to its rule codes. PSRNotes are Unde Labs notes that go with
+	// them; they are not part of the no-row fallback.
+	PSRProvisions []string           `json:"psr_provisions"`
+	PSRNotes      []generalProvision `json:"psr_notes"`
 }
 
 func parseGeneral(data []byte, schedules map[string][]schedule) (*generalBundle, error) {
@@ -684,6 +694,27 @@ func parseGeneral(data []byte, schedules map[string][]schedule) (*generalBundle,
 		}
 		seen[p.ID] = true
 	}
+	kinds := map[string]string{}
+	for _, p := range g.Provisions {
+		kinds[p.ID] = p.Kind
+	}
+	if len(g.PSRProvisions) == 0 || len(g.PSRNotes) == 0 {
+		return nil, fmt.Errorf("japan general rules: psr provisions and notes are required")
+	}
+	listed := map[string]bool{}
+	for _, id := range g.PSRProvisions {
+		if kinds[id] != "treaty" || listed[id] {
+			return nil, fmt.Errorf("japan general rules: invalid psr provision %q", id)
+		}
+		listed[id] = true
+	}
+	for _, p := range g.PSRNotes {
+		if p.ID == "" || seen[p.ID] || p.Kind != "note" || p.Source != "" || p.Page != 0 || p.Citation == "" ||
+			!strings.HasPrefix(p.Text, "Unde Labs note (not treaty text): ") {
+			return nil, fmt.Errorf("japan general rules: invalid psr note %q", p.ID)
+		}
+		seen[p.ID] = true
+	}
 	return &g, nil
 }
 
@@ -703,15 +734,35 @@ func (g *generalBundle) applies(agreement, date string) bool {
 func (g *generalBundle) evidence() []Evidence {
 	out := make([]Evidence, 0, len(g.Provisions))
 	for _, p := range g.Provisions {
-		if p.Kind == "note" {
-			out = append(out, Evidence{Text: p.Text, Citation: p.Citation})
-			continue
+		out = append(out, g.provisionEvidence(p))
+	}
+	return out
+}
+
+func (g *generalBundle) provisionEvidence(p generalProvision) Evidence {
+	if p.Kind == "note" {
+		return Evidence{Text: p.Text, Citation: p.Citation}
+	}
+	return Evidence{
+		Text:     p.Text,
+		URL:      fmt.Sprintf("%s#page=%d", g.source(p.Source).URL, p.Page),
+		Citation: fmt.Sprintf("%s, PDF page %d", p.Citation, p.Page),
+	}
+}
+
+// psrEvidence is appended after the rows and notes of a matched rule: the
+// listed provisions in the listed order, then the PSR notes.
+func (g *generalBundle) psrEvidence() []Evidence {
+	out := make([]Evidence, 0, len(g.PSRProvisions)+len(g.PSRNotes))
+	for _, id := range g.PSRProvisions {
+		for _, p := range g.Provisions {
+			if p.ID == id {
+				out = append(out, g.provisionEvidence(p))
+			}
 		}
-		out = append(out, Evidence{
-			Text:     p.Text,
-			URL:      fmt.Sprintf("%s#page=%d", g.source(p.Source).URL, p.Page),
-			Citation: fmt.Sprintf("%s, PDF page %d", p.Citation, p.Page),
-		})
+	}
+	for _, p := range g.PSRNotes {
+		out = append(out, g.provisionEvidence(p))
 	}
 	return out
 }

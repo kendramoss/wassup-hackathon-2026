@@ -335,9 +335,15 @@ func TestPSRKeepsLegacyEvidenceOverDefault(t *testing.T) {
 		if res.Reason != ReasonPSR || !reflect.DeepEqual(res.Evidence, old) {
 			t.Errorf("%s: %+v vs %+v", hs, res, old)
 		}
+		// Only the listed Annex 2 provisions follow the rows; nothing else
+		// of the general fallback (Article 26 and others, Annex 3, notes).
+		allowed := map[string]bool{}
+		for _, e := range table.general.psrEvidence() {
+			allowed[e.Text] = true
+		}
 		for _, e := range res.Evidence {
-			if strings.Contains(e.URL, "asean1.pdf") || strings.Contains(e.URL, "asean3.pdf") {
-				t.Errorf("general text appended to PSR for %s", hs)
+			if (strings.Contains(e.URL, "asean1.pdf") || strings.Contains(e.URL, "asean3.pdf")) && !allowed[e.Text] {
+				t.Errorf("general text appended to PSR for %s: %.60s", hs, e.Text)
 			}
 		}
 	}
