@@ -21,7 +21,8 @@ ruling (backend/data/hts_index.json, or the heading written in the facts).
 Run from the repository root:
     python3 -I -B eval/families/depth_b3.py . hits     # write eval/families/b3-hits.json
     python3 -I -B eval/families/depth_b3.py . freeze   # write eval/families/b3-cases.json and b3-dev-splits.json
-    python3 -I -B eval/families/depth_b3.py . check    # verify both and the citations (b3-citations.json)
+    python3 -I -B eval/families/depth_b3.py . amend    # write b3-amend-1.json and b3-dev-splits-a1.json (D826)
+    python3 -I -B eval/families/depth_b3.py . check    # verify all and the citations (b3-citations.json)
 """
 import importlib.util
 import json
@@ -228,29 +229,97 @@ def devsplit(root):
             "lookalikes": {r: sorted(f) for r, f in sorted(look.items())}}
 
 
-NEW = {"lifting_handling_machines": "lifting_machines", "optical_precision_instruments": "optical_precision"}
+# D826: the template whose new group/outcome pairings each scope's frozen
+# citable pool may supply (lifting machines deepen the off-road and lifting
+# machinery template; optical instruments have their own template).
+NEW = {"offroad_vehicles_machinery": "lifting_machines", "optical_precision_instruments": "optical_precision"}
+BEFORE = "eval/families/b3-before-citations.json"
+AMEND = "eval/families/b3-amend-1.json"
+DEVSPLIT_A1 = "eval/families/b3-dev-splits-a1.json"
+# D826, from the review of #782: rulings a template dedicated to the scope's
+# goods already cites do not count toward the bar (D820). The off-road and
+# mobile machinery template (D660) was written from the scissor lifts and
+# the guided vehicles. The display and PCBA templates are broad, as D820's
+# own example of the display template's lens rulings says, so their
+# citations count.
+DEDICATED = {"lifting_machines": ["offroad_vehicles_machinery"], "furniture": ["furniture"]}
+EXPECT_A1 = {"lifting_machines": "offroad_vehicles_machinery"}
+
+
+def amend(root):
+    """D826, amending D821 (dated 2026-11-24, after the review of #782):
+    the bar recounted strictly, and the expected templates that change.
+    D821's files are left as frozen."""
+    b3 = freeze(root)["families"]
+    with open(os.path.join(root, BEFORE)) as f:
+        before = json.load(f)["templates"]
+    lab = {l["ruling"]: l for l in _b2(root).jsonl(os.path.join(root, "eval/data/labels.jsonl"))}
+    fams = {}
+    for fam, v in b3.items():
+        pool = sorted(v["citable_pool"] + v["dev_uncitable_pool"] + v["dev_held_back"])
+        served = {r: [t for t in DEDICATED.get(fam, []) if r in before[t]["cited"]] for r in pool}
+        served = {r: t for r, t in served.items() if t}
+        counted = [r for r in pool if r not in served]
+        citable = [r for r in counted if lab[r].get("evidence")]
+        if fam in SERVED:
+            bar = "served by the %s template" % SERVED[fam]
+        elif len(counted) >= BAR:
+            bar = "met: %d kept of %d, %d citable" % (len(counted), BAR, len(citable))
+        else:
+            bar = "not met: %d of %d, %d short" % (len(counted), BAR, BAR - len(counted))
+        fams[fam] = {"expected_template": EXPECT_A1.get(fam, v["expected_template"]),
+                     "kept_pool": len(pool), "served_by_dedicated_template": served,
+                     "counted": len(counted), "citable_counted": len(citable), "bar": bar}
+    return {"rule": "D826 amends D821: the D820 bar applied strictly (rulings a template dedicated to the scope already "
+                    "cites are not counted); expected templates follow the templates actually written.",
+            "amended_at": "2026-11-24", "families": fams}
+
+
+def devsplit_a1(root):
+    """D821's development set with D826's expected templates. Same cases."""
+    d = devsplit(root)
+    a = amend(root)["families"]
+    b3 = freeze(root)["families"]
+    old = d["expected"]
+    for fam, v in b3.items():
+        for r in v["regression_dev"] + v["dev_uncitable_pool"] + v["dev_held_back"]:
+            if old[r] != a[fam]["expected_template"]:
+                d["source"][r] += "; D826: expected %s (was %s)" % (a[fam]["expected_template"], old[r])
+                d["expected"][r] = a[fam]["expected_template"]
+    d["rule"] = "D826 amendment of b3-dev-splits.json (D821, left as frozen): same cases and look-alikes; expected templates " \
+                "follow the templates written (lifting cases expect offroad_vehicles_machinery). " + d["rule"]
+    d["amended_at"] = "2026-11-24"
+    return d
 
 
 def check_citations(root):
-    """Every group/outcome pairing of the D822 templates is a ruling of the
+    """Every group/outcome pairing a template has that main's did not
+    (b3-before-citations.json) is in a template of NEW, is a ruling of that
     scope's frozen citable pool with its held-origin sentence in the bundled
-    labels, recorded in b3-citations.json with exactly where it is cited; no
-    template cites a frozen development case (D820)."""
+    labels, and is recorded in b3-citations.json with exactly where it is
+    cited; no template cites a frozen development case (D820, D826)."""
     cases = freeze(root)["families"]
     lab = {l["ruling"]: l for l in _b2(root).jsonl(os.path.join(root, "backend/data/labels.jsonl"))}
+    with open(os.path.join(root, BEFORE)) as f:
+        before = json.load(f)["templates"]
     with open(os.path.join(root, CITES)) as f:
         rec = {(c["template"], c["ruling"]): c for c in json.load(f)["citations"]}
     want = {}
-    for fam, scope in NEW.items():
-        with open(os.path.join(root, "backend/internal/planner/templates", fam + ".json")) as f:
+    d = os.path.join(root, "backend/internal/planner/templates")
+    for n in sorted(os.listdir(d)):
+        with open(os.path.join(d, n)) as f:
             t = json.load(f)
+        old = set(before.get(t["family"], {}).get("pairs", []))
         for g in t["groups"]:
             p = g.get("precedent") or {}
             for k in ("confers_origin", "not_enough"):
                 for r in p.get(k) or []:
-                    want.setdefault((fam, r), []).append(g["id"] + ":" + k)
+                    if g["id"] + ":" + k + ":" + r not in old:
+                        if t["family"] not in NEW:
+                            sys.exit(f"{t['family']}: new pairing {g['id']}:{k}:{r} in a template D826 does not change")
+                        want.setdefault((t["family"], r), []).append(g["id"] + ":" + k)
     if set(want) != set(rec):
-        sys.exit("b3-citations.json records %s, the templates cite %s" % (sorted(rec), sorted(want)))
+        sys.exit("b3-citations.json records %s, the templates add %s" % (sorted(rec), sorted(want)))
     for (fam, r), where in want.items():
         c = rec[(fam, r)]
         if r not in cases[NEW[fam]]["citable_pool"] or not lab.get(r, {}).get("evidence") or sorted(c["cited_in"]) != sorted(where) \
@@ -272,7 +341,8 @@ if __name__ == "__main__":
     if cmd == "check":
         check_citations(root)
     jobs = {"hits": [(HITS, hits)], "freeze": [(CASES, freeze), (DEVSPLIT, devsplit)],
-            "check": [(HITS, hits), (CASES, freeze), (DEVSPLIT, devsplit)]}[cmd]
+            "amend": [(AMEND, amend), (DEVSPLIT_A1, devsplit_a1)],
+            "check": [(HITS, hits), (CASES, freeze), (DEVSPLIT, devsplit), (AMEND, amend), (DEVSPLIT_A1, devsplit_a1)]}[cmd]
     for path, fn in jobs:
         want = dump(fn(root))
         full = os.path.join(root, path)

@@ -1,5 +1,5 @@
 {
-  "_source": "Built from the facts of CBP ruling N351865 (2025-08-22, dev split): CBP held United Kingdom. Product written by the agent from the facts, no model draft (D823). Target China (reverse probe: away from a non-China origin); plant capabilities for China and all costs are assumptions. No later ruling on a changed setup, so there is no backtest.",
+  "_source": "Built from the facts of CBP ruling N351865 (2025-08-22, dev split): CBP held United Kingdom. Product written by the agent from the facts, no model draft (D823, D826). Target China (reverse probe: away from a non-China origin); plant capabilities for China and all costs are assumptions. No later ruling on a changed setup, so there is no backtest.",
   "case_id": "b3-n351865",
   "date": "2025-08-22",
   "family": "optical_precision_instruments",

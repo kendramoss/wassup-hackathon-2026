@@ -17,14 +17,13 @@ import (
 
 var updateB3Retrieval = flag.Bool("update-b3-retrieval", false, "rewrite eval/families/b3-retrieval.json (D820 M1)")
 
-// b3Before is the template a D822 family's cases were checked against before
-// it existed: the machines template for lifting machines, the display and
-// lens template for optical instruments.
-var b3Before = map[string]string{
-	"lifting_handling_machines": "motors_pumps_compressors", "optical_precision_instruments": "display_camera_modules",
-}
+// b3Before is the template the optical instruments' cases were checked
+// against before it existed: the display and lens template. Every other
+// family is compared with its own version on main (lifting cases with the
+// off-road template before D826 deepened it).
+var b3Before = map[string]string{"optical_precision_instruments": "display_camera_modules"}
 
-// D820 M1: for each frozen development case (b3-dev-splits.json), does BM25
+// D820 M1: for each frozen development case (b3-dev-splits-a1.json, D826), does BM25
 // as in production (the bundled single-origin corpus, engine.PrecedentText,
 // retrieval.PrecedentFilter) put a ruling cited by the case's expected
 // template in the top 5 or top 20, with main's templates before D822
@@ -50,7 +49,7 @@ func TestB3RetrievalOfCitedPrecedents(t *testing.T) {
 		Dev      []string          `json:"dev"`
 		Expected map[string]string `json:"expected"`
 	}
-	readJSON(t, "../../../eval/families/b3-dev-splits.json", &dev)
+	readJSON(t, "../../../eval/families/b3-dev-splits-a1.json", &dev)
 	var before struct {
 		Templates map[string]struct{ Cited []string } `json:"templates"`
 	}
@@ -141,7 +140,7 @@ func TestB3RetrievalOfCitedPrecedents(t *testing.T) {
 		rows[fam] = append(rows[fam], r)
 	}
 	out, _ := json.MarshalIndent(map[string]any{
-		"note":    "D820 M1: frozen development cases (b3-dev-splits.json) whose BM25 top 5 or top 20, as in production, holds a ruling cited by the expected template; before = main's templates before D822 (b3-before-citations.json; lifting machines against motors_pumps_compressors, optical instruments against display_camera_modules), after = current templates. Descriptive only. Written by TestB3RetrievalOfCitedPrecedents -update-b3-retrieval.",
+		"note":    "D820 M1, D826: frozen development cases (b3-dev-splits-a1.json) whose BM25 top 5 or top 20, as in production, holds a ruling cited by the expected template; before = main's templates (b3-before-citations.json; optical instruments against display_camera_modules), after = current templates. Descriptive only. Written by TestB3RetrievalOfCitedPrecedents -update-b3-retrieval.",
 		"summary": sums, "cases": rows,
 	}, "", " ")
 	out = append(out, '\n')

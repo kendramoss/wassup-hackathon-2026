@@ -1,5 +1,5 @@
 {
- "note": "D820: rulings cited by any template on main (3b52890c) when the D820 lists were frozen, for the hold-back rule (c); the new citations follow in 'citations' with the held-origin sentence and the facts read.",
+ "note": "D820: rulings cited by any template on main (3b52890c) when the D820 lists were frozen, for the hold-back rule (c); the new citations follow in 'citations' with the held-origin sentence and the facts read. D826: the lifting rulings are cited by offroad_vehicles_machinery version 2 (only pairings new against main are recorded); N345937 and N335170 corrected after review.",
  "cited_before_freeze": [
   "H256782",
   "H256784",
@@ -296,10 +296,10 @@
  "citations": [
   {
    "ruling": "N333646",
-   "template": "lifting_handling_machines",
+   "template": "offroad_vehicles_machinery",
    "cited_in": [
-    "lift_mechanism:confers_origin",
-    "lift_structure:confers_origin"
+    "chassis_frame_fab:confers_origin",
+    "lift_mechanism:confers_origin"
    ],
    "held": "Vietnam",
    "held_sentence": [
@@ -308,37 +308,10 @@
    "facts_read": "Vietnam: steel sheet laser cut, stamped, welded, shot blasted and powder coated into the chassis and lift arm; manifold blocks for the hydraulic power unit sand cast and machined, assembled with Vietnamese or Chinese valves, seals, cylinder and piston; final fitting, greasing and fastening. Held Vietnam."
   },
   {
-   "ruling": "N334276",
-   "template": "lifting_handling_machines",
-   "cited_in": [
-    "lift_structure:confers_origin"
-   ],
-   "held": "Poland",
-   "held_sentence": [
-    "Because two of the three major structural subassemblies (i.e., platform and chassis subassemblies) are produced in Poland, the country of origin for marking purposes will be Poland."
-   ],
-   "facts_read": "Arm and chassis subassemblies made in Poland or India (three scenarios), platform made in Poland in all; final assembly in Poland of about 21 components (controller, steering, motor pump, valves, battery, counterweight, platform). Held Poland because two of the three major structural subassemblies (platform and chassis) were made there."
-  },
-  {
-   "ruling": "N336445",
-   "template": "lifting_handling_machines",
-   "cited_in": [
-    "lift_structure:confers_origin",
-    "lift_drive_controls:not_enough",
-    "final_assembly:not_enough"
-   ],
-   "held": "China",
-   "held_sentence": [
-    "As such, the country of origin of the JAS-Roll-Electrode will be China."
-   ],
-   "facts_read": "China: lower frame (chassis) and upper frame with the shear lifting mechanism and roller support cut, welded and assembled. Korea: drive assembly, battery, casters, controllers, cameras, cables, Wi-Fi, power supply and sensors added, frames joined, cover fitted, software loaded, calibrated and tested. Held China."
-  },
-  {
    "ruling": "N337718",
-   "template": "lifting_handling_machines",
+   "template": "offroad_vehicles_machinery",
    "cited_in": [
-    "lift_mechanism:not_enough",
-    "lift_structure:confers_origin"
+    "lift_mechanism:not_enough"
    ],
    "held": "South Korea",
    "held_sentence": [
@@ -348,10 +321,9 @@
   },
   {
    "ruling": "N340047",
-   "template": "lifting_handling_machines",
+   "template": "offroad_vehicles_machinery",
    "cited_in": [
-    "lift_mechanism:not_enough",
-    "lift_structure:confers_origin"
+    "lift_mechanism:not_enough"
    ],
    "held": "South Korea",
    "held_sentence": [
@@ -361,10 +333,9 @@
   },
   {
    "ruling": "N343416",
-   "template": "lifting_handling_machines",
+   "template": "offroad_vehicles_machinery",
    "cited_in": [
-    "lift_mechanism:confers_origin",
-    "lift_structure:not_enough"
+    "lift_mechanism:confers_origin"
    ],
    "held": "South Korea",
    "held_sentence": [
@@ -374,9 +345,10 @@
   },
   {
    "ruling": "N344692",
-   "template": "lifting_handling_machines",
+   "template": "offroad_vehicles_machinery",
    "cited_in": [
     "lift_mechanism:confers_origin",
+    "lift_part_machining:not_enough",
     "final_assembly:not_enough"
    ],
    "held": "China",
@@ -387,7 +359,7 @@
   },
   {
    "ruling": "N346297",
-   "template": "lifting_handling_machines",
+   "template": "offroad_vehicles_machinery",
    "cited_in": [
     "lift_mechanism:confers_origin"
    ],
@@ -399,10 +371,10 @@
   },
   {
    "ruling": "N347256",
-   "template": "lifting_handling_machines",
+   "template": "offroad_vehicles_machinery",
    "cited_in": [
-    "lift_mechanism:confers_origin",
-    "lift_structure:confers_origin"
+    "chassis_frame_fab:confers_origin",
+    "lift_mechanism:confers_origin"
    ],
    "held": "Thailand",
    "held_sentence": [
@@ -412,10 +384,10 @@
   },
   {
    "ruling": "N348514",
-   "template": "lifting_handling_machines",
+   "template": "offroad_vehicles_machinery",
    "cited_in": [
-    "lift_mechanism:confers_origin",
-    "lift_structure:confers_origin"
+    "working_structure_fab:confers_origin",
+    "lift_mechanism:confers_origin"
    ],
    "held": "Thailand",
    "held_sentence": [
@@ -425,10 +397,10 @@
   },
   {
    "ruling": "N348905",
-   "template": "lifting_handling_machines",
+   "template": "offroad_vehicles_machinery",
    "cited_in": [
-    "lift_mechanism:confers_origin",
-    "lift_structure:confers_origin"
+    "working_structure_fab:confers_origin",
+    "lift_mechanism:confers_origin"
    ],
    "held": "Thailand",
    "held_sentence": [
@@ -453,15 +425,13 @@
    "ruling": "N335170",
    "template": "optical_precision_instruments",
    "cited_in": [
-    "sensing_element:confers_origin",
-    "instrument_housing:not_enough",
-    "final_assembly:not_enough"
+    "sensing_element:confers_origin"
    ],
    "held": "China",
    "held_sentence": [
     "Accordingly, for origin and marking purposes, the printed circuit board assembly for the hydrogen gas sensor is considered a product of China at time of importation into the United States."
    ],
-   "facts_read": "China: PCBA with the gas sensing element, microprocessor and components made, with measuring capability on export. United States: plastic housing, lid and compression limiters assembled, calibration and testing. Held China."
+   "facts_read": "China: PCBA with the gas sensing element, microprocessor and components made; it can measure when it leaves China and gives the finished sensor its essential character. Held China for the board as imported. After import, the United States adds the housing, lid and compression limiters and calibrates and tests; CBP did not rule on those steps."
   },
   {
    "ruling": "N340153",
@@ -509,13 +479,15 @@
    "ruling": "N345937",
    "template": "optical_precision_instruments",
    "cited_in": [
-    "optics_shaping:confers_origin"
+    "optics_shaping:confers_origin",
+    "optics_finishing:not_enough",
+    "final_assembly:not_enough"
    ],
    "held": "Vietnam",
    "held_sentence": [
     "Based upon the facts presented and the relevant authorities, the origin of the singlet and doublet spherical lens assemblies, part numbers 183587, 183245, and 56397, will be Vietnam."
    ],
-   "facts_read": "Vietnam: raw optical glass cut into blanks and ground and milled into lenses, assembled into lens assemblies. Held Vietnam."
+   "facts_read": "Scenario A: Vietnam cuts unworked Japanese or Chinese optical glass into blanks and grinds and mills the curvature; China smooths, polishes, centres and coats the lenses and mounts them with metal rings, spacers and O-rings. Scenario B: all of that lens work in Vietnam, mounting in China. Held Vietnam."
   },
   {
    "ruling": "N347948",

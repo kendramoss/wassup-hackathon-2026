@@ -1,4 +1,4 @@
-"""Development fixtures for the D822 templates (D820 M3). No model calls.
+"""Development fixtures for the D822 and D826 templates (D820 M3). No model calls.
 
 Each product was written by the agent from a development ruling's facts (no
 model draft), starting from CBP's setup and holding. Target rule as D171:
@@ -27,18 +27,19 @@ def O(name, plant, group):
 
 FX = [
     # (ruling, file stem, family, target, product)
-    ("N354791", "n354791", "lifting_handling_machines", "Thailand", {
+    ("N354791", "n354791", "offroad_vehicles_machinery", "Thailand", {
         "name": "Low-profile steel hydraulic floor jack, 3 ton",
         "description": "A garage jack: a hydraulic unit on a welded steel frame with a lifting arm, saddle, handle, front wheels and rear casters.",
-        "plants": [{"id": "th", "name": "Thailand Plant", "country": "Thailand", "capabilities": ["lift_mechanism", "lift_structure", "final_assembly"]},
-                   {"id": "cn", "name": "China Plant", "country": "China", "capabilities": ["lift_mechanism", "lift_structure", "lift_drive_controls"]}],
+        "plants": [{"id": "th", "name": "Thailand Plant", "country": "Thailand", "capabilities": ["lift_mechanism", "working_structure_fab", "chassis_frame_fab", "final_assembly"]},
+                   {"id": "cn", "name": "China Plant", "country": "China", "capabilities": ["lift_mechanism", "working_structure_fab", "chassis_frame_fab", "powertrain_electronics"]}],
         "components": [C("Pump unit base casting", "Thailand", "th", "lift_mechanism"),
                        C("Pump core, pump cover, cylinder body, piston rod and top cap", "China", "cn", "lift_mechanism"),
-                       C("Lifting arm assembly", "China", "cn", "lift_structure"),
-                       C("Steel side plates, cover plate, brackets and rods", "China", "cn", "lift_structure"),
-                       C("Handle, handle bracket, saddle, front wheels and rear casters", "China", "cn", "lift_drive_controls")],
+                       C("Lifting arm assembly", "China", "cn", "working_structure_fab"),
+                       C("Steel side plates, cover plate, brackets and rods", "China", "cn", "chassis_frame_fab"),
+                       C("Handle, handle bracket, saddle, front wheels and rear casters", "China", "cn", "powertrain_electronics")],
         "operations": [O("Machine the cylinder body, piston rod, pump core and pump cover for the hydraulic unit", "cn", "lift_mechanism"),
-                       O("Form and weld the lifting arm assembly and cut the side plates, brackets and rods", "cn", "lift_structure"),
+                       O("Form and weld the lifting arm assembly", "cn", "working_structure_fab"),
+                       O("Cut the side plates, brackets and rods", "cn", "chassis_frame_fab"),
                        O("Clean the parts and assemble the pump housing, cylinder, piston rod and top cap into the hydraulic unit", "th", "final_assembly"),
                        O("Weld the side plates and brackets into the frame, attach the lifting arm and fit the hydraulic unit, casters, handle bracket and saddle", "th", "final_assembly"),
                        O("Test, inspect and pack the jacks", "th", "final_assembly")]}),
@@ -75,7 +76,7 @@ def build():
                 gc[g] = {x["plant"]: 100000, tp["id"]: 125000}
         assert gc, rid
         req = {"_source": (f"Built from the facts of CBP ruling {rid} ({lab['date']}, dev split): CBP held {held}. Product written by the agent "
-                           f"from the facts, no model draft (D823). Target {target}" + (" (reverse probe: away from a non-China origin)" if held != "China" else " (where it is finished)")
+                           f"from the facts, no model draft (D823, D826). Target {target}" + (" (reverse probe: away from a non-China origin)" if held != "China" else " (where it is finished)")
                            + f"; plant capabilities for {target} and all costs are assumptions. No later ruling on a changed setup, so there is no backtest."),
                "case_id": f"b3-{rid.lower()}", "date": lab["date"], "family": fam, "target": target, "product": p,
                "economics": {"illustrative": True, "annual_import_value_usd": 1000000,

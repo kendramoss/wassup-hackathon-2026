@@ -1,8 +1,8 @@
 {
-  "_source": "Built from the facts of CBP ruling N354791 (2025-10-28, dev split): CBP held China. Product written by the agent from the facts, no model draft (D823). Target Thailand (where it is finished); plant capabilities for Thailand and all costs are assumptions. No later ruling on a changed setup, so there is no backtest.",
+  "_source": "Built from the facts of CBP ruling N354791 (2025-10-28, dev split): CBP held China. Product written by the agent from the facts, no model draft (D823, D826). Target Thailand (where it is finished); plant capabilities for Thailand and all costs are assumptions. No later ruling on a changed setup, so there is no backtest.",
   "case_id": "b3-n354791",
   "date": "2025-10-28",
-  "family": "lifting_handling_machines",
+  "family": "offroad_vehicles_machinery",
   "target": "Thailand",
   "product": {
     "name": "Low-profile steel hydraulic floor jack, 3 ton",
@@ -14,7 +14,8 @@
         "country": "Thailand",
         "capabilities": [
           "lift_mechanism",
-          "lift_structure",
+          "working_structure_fab",
+          "chassis_frame_fab",
           "final_assembly"
         ]
       },
@@ -24,8 +25,9 @@
         "country": "China",
         "capabilities": [
           "lift_mechanism",
-          "lift_structure",
-          "lift_drive_controls"
+          "working_structure_fab",
+          "chassis_frame_fab",
+          "powertrain_electronics"
         ]
       }
     ],
@@ -46,19 +48,19 @@
         "name": "Lifting arm assembly",
         "made_in": "China",
         "plant": "cn",
-        "group": "lift_structure"
+        "group": "working_structure_fab"
       },
       {
         "name": "Steel side plates, cover plate, brackets and rods",
         "made_in": "China",
         "plant": "cn",
-        "group": "lift_structure"
+        "group": "chassis_frame_fab"
       },
       {
         "name": "Handle, handle bracket, saddle, front wheels and rear casters",
         "made_in": "China",
         "plant": "cn",
-        "group": "lift_drive_controls"
+        "group": "powertrain_electronics"
       }
     ],
     "operations": [
@@ -68,9 +70,14 @@
         "group": "lift_mechanism"
       },
       {
-        "name": "Form and weld the lifting arm assembly and cut the side plates, brackets and rods",
+        "name": "Form and weld the lifting arm assembly",
         "plant": "cn",
-        "group": "lift_structure"
+        "group": "working_structure_fab"
+      },
+      {
+        "name": "Cut the side plates, brackets and rods",
+        "plant": "cn",
+        "group": "chassis_frame_fab"
       },
       {
         "name": "Clean the parts and assemble the pump housing, cylinder, piston rod and top cap into the hydraulic unit",
@@ -102,7 +109,11 @@
         "cn": 100000,
         "th": 125000
       },
-      "lift_structure": {
+      "working_structure_fab": {
+        "cn": 100000,
+        "th": 125000
+      },
+      "chassis_frame_fab": {
         "cn": 100000,
         "th": 125000
       }

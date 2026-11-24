@@ -1,9 +1,9 @@
 {
   "family": "display_camera_modules",
-  "version": "2",
+  "version": "3",
   "union_default_operations": true,
-  "name": "Display modules, cameras and lenses",
-  "note": "For display modules, cameras, and optical assemblies, CBP generally confers origin where the core active element is fabricated, such as TFT-LCD or OLED display cell formation, SMT production of camera sensor and processing PCBAs, or milling the curvature of optical lens blanks. Polishing and coating a lens milled elsewhere did not change its origin (version 2). Downstream cutting of display cells, attaching driver ICs, polarizers, backlights, lenses, or housings, and final testing are treated as assembly operations that do not substantially transform the core components. Written from 14 CBP substantial-transformation rulings outside the dev and held-out splits (D138), with a riflescope lens ruling from the train pool added in version 2 (D782); every cited ruling was checked against its facts and holding. Costs are illustrative defaults; users edit them.",
+  "name": "Display modules, cameras and camera lenses",
+  "note": "For display modules, cameras, and optical assemblies, CBP generally confers origin where the core active element is fabricated, such as TFT-LCD or OLED display cell formation, SMT production of camera sensor and processing PCBAs, or milling the curvature of optical lens blanks. Polishing and coating a lens milled elsewhere did not change its origin (version 2). Downstream cutting of display cells, attaching driver ICs, polarizers, backlights, lenses, or housings, and final testing are treated as assembly operations that do not substantially transform the core components. Lenses here are those built into a camera or display module; standalone lenses, optical elements and instruments belong with the optical and measuring instruments template (version 3, D826). Written from 14 CBP substantial-transformation rulings outside the dev and held-out splits (D138), with a riflescope lens ruling from the train pool added in version 2 (D782); every cited ruling was checked against its facts and holding. Costs are illustrative defaults; users edit them.",
   "sources": [
     "N330296",
     "N335871",
@@ -76,7 +76,7 @@
           "N345937",
           "N342427"
         ],
-        "note": "Cutting raw optical glass into blanks and grinding and milling its curvature conferred country of origin for standalone lens assemblies (N345937), and milling a riflescope lens's shape and curvature from a glass blank in Singapore made Singapore the origin (N342427)."
+        "note": "Cutting raw optical glass into blanks and grinding and milling its curvature conferred origin for riflescope lens assemblies (N345937), and milling a riflescope lens's shape and curvature from a glass blank in Singapore made Singapore the origin (N342427). Both are standalone lenses, cited here for the grinding step of a lens built into a camera or display module; a standalone lens is planned with the optical and measuring instruments template."
       }
     },
     {
@@ -91,7 +91,7 @@
         "not_enough": [
           "N342427"
         ],
-        "note": "Grinding, polishing, washing and anti-reflective coating in China did not change the origin of a lens milled in Singapore (N342427)."
+        "note": "Grinding, polishing, washing and anti-reflective coating in China did not change the origin of a lens milled in Singapore (N342427). (A standalone lens is planned with the optical and measuring instruments template.)"
       }
     },
     {

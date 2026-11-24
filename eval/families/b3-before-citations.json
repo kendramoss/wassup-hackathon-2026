@@ -1,5 +1,5 @@
 {
- "note": "D820 M1: what each template cites on main (3b52890c) before D822, the \"before\" side of b3-retrieval.json.",
+ "note": "D820 M1 and D826: what each template cites on main (3b52890c) before D822, the \"before\" side of b3-retrieval.json, and the group/outcome pairings depth_b3.py check compares against.",
  "templates": {
   "cables_harnesses": {
    "version": "1",
@@ -27,6 +27,40 @@
     "N348409",
     "N348567",
     "N348743"
+   ],
+   "pairs": [
+    "cable_insulation_jacket:confers_origin:N331900",
+    "cable_insulation_jacket:confers_origin:N340107",
+    "cable_insulation_jacket:confers_origin:N343287",
+    "cable_insulation_jacket:confers_origin:N343808",
+    "cable_insulation_jacket:confers_origin:N348303",
+    "cable_insulation_jacket:not_enough:N331047",
+    "cable_insulation_jacket:not_enough:N343132",
+    "cable_insulation_jacket:not_enough:N346532",
+    "cable_insulation_jacket:not_enough:N347034",
+    "cable_insulation_jacket:not_enough:N347166",
+    "cable_insulation_jacket:not_enough:N348567",
+    "conductor_core_making:confers_origin:N340694",
+    "conductor_core_making:confers_origin:N344328",
+    "conductor_core_making:confers_origin:N346532",
+    "conductor_core_making:confers_origin:N347166",
+    "conductor_core_making:confers_origin:N348567",
+    "connectors_and_housings:confers_origin:N345400",
+    "connectors_and_housings:confers_origin:N347638",
+    "connectors_and_housings:not_enough:N335078",
+    "connectors_and_housings:not_enough:N348304",
+    "connectors_and_housings:not_enough:N348743",
+    "final_assembly:not_enough:N331047",
+    "final_assembly:not_enough:N331572",
+    "final_assembly:not_enough:N335078",
+    "final_assembly:not_enough:N340107",
+    "final_assembly:not_enough:N340244",
+    "final_assembly:not_enough:N343808",
+    "optical_fiber_drawing:confers_origin:H337046",
+    "optical_fiber_drawing:confers_origin:N343132",
+    "optical_fiber_drawing:confers_origin:N347034",
+    "optical_fiber_drawing:confers_origin:N347805",
+    "optical_fiber_drawing:confers_origin:N348409"
    ]
   },
   "display_camera_modules": {
@@ -45,6 +79,29 @@
     "N345963",
     "N348165",
     "N349742"
+   ],
+   "pairs": [
+    "camera_pcba_smt:confers_origin:N330296",
+    "camera_pcba_smt:confers_origin:N339727",
+    "camera_pcba_smt:confers_origin:N344595",
+    "camera_pcba_smt:confers_origin:N349742",
+    "camera_pcba_smt:not_enough:N348165",
+    "display_cell_fab:confers_origin:N335871",
+    "display_cell_fab:confers_origin:N335873",
+    "display_cell_fab:confers_origin:N337202",
+    "display_cell_fab:confers_origin:N343835",
+    "display_cell_fab:confers_origin:N345328",
+    "display_cell_fab:confers_origin:N345963",
+    "final_assembly:confers_origin:N348165",
+    "final_assembly:not_enough:N330296",
+    "final_assembly:not_enough:N335871",
+    "final_assembly:not_enough:N339727",
+    "final_assembly:not_enough:N344595",
+    "final_assembly:not_enough:N345328",
+    "final_assembly:not_enough:N349742",
+    "lens_polish_coat:not_enough:N342427",
+    "optical_lens_shaping:confers_origin:N342427",
+    "optical_lens_shaping:confers_origin:N345937"
    ]
   },
   "electrical_control_apparatus": {
@@ -56,6 +113,17 @@
     "N303603",
     "N303604",
     "N330771"
+   ],
+   "pairs": [
+    "conductors_connectors:confers_origin:N303599",
+    "conductors_connectors:confers_origin:N330771",
+    "control_modules:confers_origin:N302344",
+    "enclosures_insulators:not_enough:N303599",
+    "final_assembly:confers_origin:N301448",
+    "final_assembly:confers_origin:N303603",
+    "final_assembly:confers_origin:N303604",
+    "final_assembly:confers_origin:N330771",
+    "final_assembly:not_enough:N303599"
    ]
   },
   "food_preparations": {
@@ -79,6 +147,29 @@
     "N324459",
     "N325637",
     "N326397"
+   ],
+   "pairs": [
+    "extracts_and_bases:confers_origin:H260568",
+    "extracts_and_bases:confers_origin:H264513",
+    "extracts_and_bases:confers_origin:H312440",
+    "extracts_and_bases:confers_origin:N324458",
+    "extracts_and_bases:confers_origin:N324459",
+    "final_assembly:confers_origin:H313780",
+    "final_assembly:confers_origin:N317341",
+    "final_assembly:confers_origin:N320151",
+    "final_assembly:confers_origin:N320159",
+    "final_assembly:confers_origin:N321763",
+    "final_assembly:confers_origin:N326397",
+    "final_assembly:not_enough:H256782",
+    "final_assembly:not_enough:H256784",
+    "final_assembly:not_enough:H312440",
+    "final_assembly:not_enough:H313454",
+    "final_assembly:not_enough:N305233",
+    "final_assembly:not_enough:N323065",
+    "nut_seed_seafood_prep:confers_origin:H256784",
+    "nut_seed_seafood_prep:confers_origin:N305233",
+    "sugar_cocoa_dairy:confers_origin:N322844",
+    "sugar_cocoa_dairy:confers_origin:N325637"
    ]
   },
   "furniture": {
@@ -95,6 +186,29 @@
     "N339685",
     "N344246",
     "N348576"
+   ],
+   "pairs": [
+    "electronics_mechanisms:confers_origin:N330057",
+    "electronics_mechanisms:not_enough:H330862",
+    "final_assembly:confers_origin:N338514",
+    "final_assembly:confers_origin:N344246",
+    "final_assembly:not_enough:N334531",
+    "final_assembly:not_enough:N339107",
+    "final_assembly:not_enough:N339646",
+    "final_assembly:not_enough:N348576",
+    "foam_textile_production:confers_origin:N339107",
+    "foam_textile_production:confers_origin:N339646",
+    "foam_textile_production:confers_origin:N348576",
+    "frame_metal_fabrication:confers_origin:H330862",
+    "frame_metal_fabrication:confers_origin:N335242",
+    "frame_metal_fabrication:confers_origin:N338514",
+    "frame_metal_fabrication:not_enough:N334531",
+    "frame_metal_fabrication:not_enough:N339685",
+    "tabletop_fabrication:confers_origin:H330862",
+    "tabletop_fabrication:confers_origin:H338728",
+    "tabletop_fabrication:confers_origin:N334531",
+    "tabletop_fabrication:confers_origin:N339685",
+    "tabletop_fabrication:not_enough:N344246"
    ]
   },
   "gas_grills_cooking": {
@@ -110,6 +224,27 @@
     "N344477",
     "N345976",
     "N346005"
+   ],
+   "pairs": [
+    "burners_and_gas_train:confers_origin:N345976",
+    "burners_and_gas_train:not_enough:N344475",
+    "burners_and_gas_train:not_enough:N344477",
+    "burners_and_gas_train:not_enough:N345976",
+    "burners_and_gas_train:not_enough:N346005",
+    "cooking_surface_frame:confers_origin:N335581",
+    "cooking_surface_frame:confers_origin:N344475",
+    "cooking_surface_frame:confers_origin:N344477",
+    "final_assembly:confers_origin:N344475",
+    "final_assembly:confers_origin:N344477",
+    "final_assembly:not_enough:N335085",
+    "final_assembly:not_enough:N339983",
+    "final_assembly:not_enough:N345976",
+    "final_assembly:not_enough:N346005",
+    "lid_and_firebox:confers_origin:N335086",
+    "lid_and_firebox:confers_origin:N339984",
+    "lid_and_firebox:confers_origin:N340363",
+    "lid_and_firebox:not_enough:N335085",
+    "lid_and_firebox:not_enough:N339983"
    ]
   },
   "golf_sporting_goods": {
@@ -120,6 +255,18 @@
     "N334756",
     "N340536",
     "N346303"
+   ],
+   "pairs": [
+    "boot_and_binding_parts:confers_origin:N334283",
+    "final_assembly:confers_origin:N334756",
+    "final_assembly:not_enough:H332922",
+    "final_assembly:not_enough:N340536",
+    "final_assembly:not_enough:N346303",
+    "primary_head_forming:confers_origin:H332922",
+    "primary_head_forming:confers_origin:N340536",
+    "primary_head_forming:confers_origin:N346303",
+    "textiles_and_grips:not_enough:N334283",
+    "textiles_and_grips:not_enough:N334756"
    ]
   },
   "hand_tools": {
@@ -144,6 +291,48 @@
     "N347613",
     "N347615",
     "N348003"
+   ],
+   "pairs": [
+    "final_assembly:confers_origin:N332258",
+    "final_assembly:confers_origin:N334540",
+    "final_assembly:confers_origin:N339039",
+    "final_assembly:confers_origin:N346289",
+    "final_assembly:not_enough:N330201",
+    "final_assembly:not_enough:N331764",
+    "final_assembly:not_enough:N332747",
+    "final_assembly:not_enough:N333023",
+    "final_assembly:not_enough:N347615",
+    "final_assembly:not_enough:N348003",
+    "handles_and_hardware:confers_origin:N332258",
+    "handles_and_hardware:confers_origin:N333956",
+    "handles_and_hardware:confers_origin:N334540",
+    "handles_and_hardware:confers_origin:N339039",
+    "handles_and_hardware:confers_origin:N346289",
+    "handles_and_hardware:not_enough:N330201",
+    "handles_and_hardware:not_enough:N333361",
+    "handles_and_hardware:not_enough:N335339",
+    "handles_and_hardware:not_enough:N335671",
+    "handles_and_hardware:not_enough:N336828",
+    "handles_and_hardware:not_enough:N347615",
+    "machining_and_treatment:confers_origin:N332258",
+    "machining_and_treatment:confers_origin:N346289",
+    "machining_and_treatment:not_enough:N330201",
+    "machining_and_treatment:not_enough:N331764",
+    "machining_and_treatment:not_enough:N332747",
+    "machining_and_treatment:not_enough:N332748",
+    "machining_and_treatment:not_enough:N333956",
+    "machining_and_treatment:not_enough:N335671",
+    "primary_metal_forming:confers_origin:N330201",
+    "primary_metal_forming:confers_origin:N331764",
+    "primary_metal_forming:confers_origin:N332747",
+    "primary_metal_forming:confers_origin:N335671",
+    "primary_metal_forming:confers_origin:N346340",
+    "primary_metal_forming:confers_origin:N347613",
+    "primary_metal_forming:not_enough:N331036",
+    "primary_metal_forming:not_enough:N332258",
+    "primary_metal_forming:not_enough:N334540",
+    "primary_metal_forming:not_enough:N339039",
+    "primary_metal_forming:not_enough:N346289"
    ]
   },
   "hvac_heating_units": {
@@ -154,15 +343,33 @@
     "N347271",
     "N347272",
     "N348913"
+   ],
+   "pairs": [
+    "chassis_metal_parts:confers_origin:N347270",
+    "chassis_metal_parts:confers_origin:N347271",
+    "chassis_metal_parts:confers_origin:N347272",
+    "compressor_unit:confers_origin:N348913",
+    "compressor_unit:not_enough:N348913",
+    "final_assembly:confers_origin:N347270",
+    "final_assembly:confers_origin:N347271",
+    "final_assembly:confers_origin:N347272",
+    "final_assembly:not_enough:N345976",
+    "final_assembly:not_enough:N348913",
+    "heating_cooling_core:confers_origin:N345976",
+    "heating_cooling_core:confers_origin:N348913",
+    "heating_cooling_core:not_enough:N347271",
+    "valves_regulators_tubes:not_enough:N345976"
    ]
   },
   "led_lights": {
    "version": "1",
-   "cited": []
+   "cited": [],
+   "pairs": []
   },
   "lidar_modules": {
    "version": "1",
-   "cited": []
+   "cited": [],
+   "pairs": []
   },
   "machinery_parts": {
    "version": "1",
@@ -170,6 +377,13 @@
     "N303499",
     "N306640",
     "N308442"
+   ],
+   "pairs": [
+    "final_assembly:confers_origin:N303499",
+    "final_assembly:not_enough:N308442",
+    "minor_machining_finish:not_enough:N306640",
+    "primary_body_casting:confers_origin:N306640",
+    "primary_body_casting:confers_origin:N308442"
    ]
   },
   "medical_devices": {
@@ -198,6 +412,51 @@
     "N355983",
     "N357919",
     "N361712"
+   ],
+   "pairs": [
+    "final_assembly:confers_origin:H339462",
+    "final_assembly:confers_origin:N344211",
+    "final_assembly:confers_origin:N344695",
+    "final_assembly:not_enough:H322967",
+    "final_assembly:not_enough:N336168",
+    "final_assembly:not_enough:N340345",
+    "final_assembly:not_enough:N343712",
+    "final_assembly:not_enough:N348081",
+    "final_assembly:not_enough:N355983",
+    "final_assembly:not_enough:N357919",
+    "hubs_clamps_housings:not_enough:H322967",
+    "hubs_clamps_housings:not_enough:N334538",
+    "hubs_clamps_housings:not_enough:N336168",
+    "hubs_clamps_housings:not_enough:N343771",
+    "hubs_clamps_housings:not_enough:N343774",
+    "hubs_clamps_housings:not_enough:N348081",
+    "hubs_clamps_housings:not_enough:N349038",
+    "metal_cannula_forging:confers_origin:H322967",
+    "metal_cannula_forging:confers_origin:N341537",
+    "metal_cannula_forging:confers_origin:N343712",
+    "metal_cannula_forging:confers_origin:N343771",
+    "metal_cannula_forging:confers_origin:N343773",
+    "metal_cannula_forging:confers_origin:N343774",
+    "metal_cannula_forging:confers_origin:N348317",
+    "metal_cannula_forging:confers_origin:N361712",
+    "metal_cannula_forging:not_enough:N341537",
+    "metal_cannula_forging:not_enough:N344211",
+    "metal_cannula_forging:not_enough:N344695",
+    "molded_barrels_chambers:confers_origin:N342838",
+    "molded_barrels_chambers:confers_origin:N343161",
+    "molded_barrels_chambers:confers_origin:N343775",
+    "molded_barrels_chambers:confers_origin:N344211",
+    "molded_barrels_chambers:confers_origin:N348081",
+    "molded_barrels_chambers:confers_origin:N355983",
+    "molded_barrels_chambers:confers_origin:N357919",
+    "molded_barrels_chambers:not_enough:N342838",
+    "molded_barrels_chambers:not_enough:N343161",
+    "pcba_and_sensors:confers_origin:N334538",
+    "pcba_and_sensors:confers_origin:N336168",
+    "pcba_and_sensors:confers_origin:N345397",
+    "pcba_and_sensors:confers_origin:N350041",
+    "sterile_packaging:not_enough:H322967",
+    "sterile_packaging:not_enough:N341537"
    ]
   },
   "metal_products": {
@@ -213,6 +472,23 @@
     "N316780",
     "N325521",
     "N326606"
+   ],
+   "pairs": [
+    "final_assembly:confers_origin:N285686",
+    "final_assembly:confers_origin:N309421",
+    "final_assembly:confers_origin:N325521",
+    "final_assembly:confers_origin:N326606",
+    "final_assembly:not_enough:H263772",
+    "final_assembly:not_enough:H314561",
+    "final_assembly:not_enough:H314563",
+    "final_assembly:not_enough:N262359",
+    "final_assembly:not_enough:N316637",
+    "final_assembly:not_enough:N316780",
+    "pipe_tube_hose_mfg:confers_origin:N262359",
+    "powder_billet_cast:confers_origin:H314561",
+    "powder_billet_cast:confers_origin:H314563",
+    "sheet_strip_foil_mill:confers_origin:N316637",
+    "sheet_strip_foil_mill:confers_origin:N316780"
    ]
   },
   "motorised_tools_small_appliances": {
@@ -220,6 +496,11 @@
    "cited": [
     "N342916",
     "N347421"
+   ],
+   "pairs": [
+    "cord_knobs_covers:not_enough:N342916",
+    "cord_knobs_covers:not_enough:N347421",
+    "switch_cord_minor_parts:not_enough:N347421"
    ]
   },
   "motors_pumps_compressors": {
@@ -236,6 +517,39 @@
     "N347899",
     "N349312",
     "N351810"
+   ],
+   "pairs": [
+    "controls_and_valves:not_enough:N344081",
+    "controls_and_valves:not_enough:N347271",
+    "controls_and_valves:not_enough:N347899",
+    "controls_and_valves:not_enough:N349312",
+    "controls_and_valves:not_enough:N351810",
+    "final_assembly:confers_origin:N333849",
+    "final_assembly:confers_origin:N347270",
+    "final_assembly:confers_origin:N347271",
+    "final_assembly:confers_origin:N347272",
+    "final_assembly:confers_origin:N349312",
+    "final_assembly:not_enough:N333514",
+    "final_assembly:not_enough:N340920",
+    "final_assembly:not_enough:N346867",
+    "final_assembly:not_enough:N347899",
+    "final_assembly:not_enough:N351810",
+    "fluid_rotary_mechanism:confers_origin:N333514",
+    "fluid_rotary_mechanism:not_enough:N333514",
+    "housing_and_chassis:confers_origin:N347270",
+    "housing_and_chassis:confers_origin:N347271",
+    "housing_and_chassis:confers_origin:N347272",
+    "housing_and_chassis:confers_origin:N351810",
+    "housing_and_chassis:not_enough:N344081",
+    "machine_frame_tooling:not_enough:N333849",
+    "machine_frame_tooling:not_enough:N340920",
+    "machine_frame_tooling:not_enough:N346867",
+    "machine_frame_tooling:not_enough:N349312",
+    "machine_working_unit:confers_origin:N333849",
+    "machine_working_unit:confers_origin:N340920",
+    "machine_working_unit:confers_origin:N346867",
+    "machine_working_unit:not_enough:N349312",
+    "motor_stator_rotor:confers_origin:N344081"
    ]
   },
   "offroad_vehicles_machinery": {
@@ -253,6 +567,33 @@
     "N348598",
     "N348937",
     "N349019"
+   ],
+   "pairs": [
+    "chassis_frame_fab:confers_origin:N334276",
+    "chassis_frame_fab:confers_origin:N336445",
+    "chassis_frame_fab:confers_origin:N337356",
+    "chassis_frame_fab:confers_origin:N344843",
+    "chassis_frame_fab:confers_origin:N348598",
+    "chassis_frame_fab:confers_origin:N349019",
+    "final_assembly:confers_origin:N337356",
+    "final_assembly:confers_origin:N337718",
+    "final_assembly:confers_origin:N340047",
+    "final_assembly:confers_origin:N341251",
+    "final_assembly:confers_origin:N343416",
+    "final_assembly:confers_origin:N348937",
+    "final_assembly:not_enough:N336445",
+    "final_assembly:not_enough:N344843",
+    "final_assembly:not_enough:N349019",
+    "powertrain_electronics:confers_origin:N348937",
+    "powertrain_electronics:not_enough:N336445",
+    "powertrain_electronics:not_enough:N344843",
+    "powertrain_electronics:not_enough:N349019",
+    "working_structure_fab:confers_origin:N334276",
+    "working_structure_fab:confers_origin:N336445",
+    "working_structure_fab:confers_origin:N337356",
+    "working_structure_fab:confers_origin:N337718",
+    "working_structure_fab:confers_origin:N340482",
+    "working_structure_fab:not_enough:N334276"
    ]
   },
   "paper_tissue_products": {
@@ -278,6 +619,47 @@
     "N347988",
     "N348208",
     "N348329"
+   ],
+   "pairs": [
+    "die_cut_mold_shape:confers_origin:N333537",
+    "die_cut_mold_shape:confers_origin:N334032",
+    "die_cut_mold_shape:confers_origin:N335200",
+    "die_cut_mold_shape:confers_origin:N345972",
+    "die_cut_mold_shape:confers_origin:N347648",
+    "die_cut_mold_shape:confers_origin:N348208",
+    "final_assembly:confers_origin:N333537",
+    "final_assembly:confers_origin:N334032",
+    "final_assembly:confers_origin:N347187",
+    "final_assembly:confers_origin:N347189",
+    "final_assembly:confers_origin:N347645",
+    "final_assembly:confers_origin:N347648",
+    "final_assembly:not_enough:N341898",
+    "final_assembly:not_enough:N344612",
+    "final_assembly:not_enough:N344620",
+    "final_assembly:not_enough:N344621",
+    "final_assembly:not_enough:N345915",
+    "final_assembly:not_enough:N347059",
+    "hardware_and_accessories:not_enough:N345915",
+    "hardware_and_accessories:not_enough:N347187",
+    "hardware_and_accessories:not_enough:N347189",
+    "parent_roll_production:confers_origin:N339156",
+    "parent_roll_production:confers_origin:N341898",
+    "parent_roll_production:confers_origin:N344612",
+    "parent_roll_production:confers_origin:N344620",
+    "parent_roll_production:confers_origin:N344621",
+    "parent_roll_production:confers_origin:N345915",
+    "parent_roll_production:not_enough:N335200",
+    "parent_roll_production:not_enough:N345972",
+    "parent_roll_production:not_enough:N347645",
+    "parent_roll_production:not_enough:N347648",
+    "parent_roll_production:not_enough:N348208",
+    "parent_roll_production:not_enough:N348329",
+    "surface_printing_decor:not_enough:N333537",
+    "surface_printing_decor:not_enough:N334032",
+    "surface_printing_decor:not_enough:N339156",
+    "surface_printing_decor:not_enough:N347806",
+    "surface_printing_decor:not_enough:N347987",
+    "surface_printing_decor:not_enough:N347988"
    ]
   },
   "pcba_electronic_devices": {
@@ -305,6 +687,38 @@
     "N341338",
     "N341875",
     "N342124"
+   ],
+   "pairs": [
+    "final_assembly:confers_origin:H332745",
+    "final_assembly:confers_origin:H333699",
+    "final_assembly:confers_origin:N340153",
+    "final_assembly:not_enough:H331939",
+    "final_assembly:not_enough:H338116",
+    "final_assembly:not_enough:N332332",
+    "final_assembly:not_enough:N334757",
+    "final_assembly:not_enough:N335809",
+    "final_assembly:not_enough:N341280",
+    "functional_subassemblies:confers_origin:H304677",
+    "functional_subassemblies:confers_origin:H332752",
+    "functional_subassemblies:confers_origin:H333699",
+    "functional_subassemblies:confers_origin:N341338",
+    "functional_subassemblies:confers_origin:N341875",
+    "functional_subassemblies:not_enough:N335213",
+    "housing_and_cables:confers_origin:N340187",
+    "housing_and_cables:confers_origin:N342124",
+    "housing_and_cables:not_enough:N334315",
+    "housing_and_cables:not_enough:N336013",
+    "housing_and_cables:not_enough:N336580",
+    "housing_and_cables:not_enough:N340516",
+    "housing_and_cables:not_enough:N341280",
+    "pcba_manufacturing:confers_origin:H331939",
+    "pcba_manufacturing:confers_origin:H338116",
+    "pcba_manufacturing:confers_origin:H355075",
+    "pcba_manufacturing:confers_origin:N334757",
+    "pcba_manufacturing:confers_origin:N336013",
+    "pcba_manufacturing:confers_origin:N336580",
+    "pcba_manufacturing:not_enough:H304677",
+    "pcba_manufacturing:not_enough:H328859"
    ]
   },
   "plastic_articles": {
@@ -320,6 +734,24 @@
     "N331595",
     "N334326",
     "N335182"
+   ],
+   "pairs": [
+    "component_moulding:confers_origin:H285605",
+    "component_moulding:confers_origin:N273778",
+    "component_moulding:confers_origin:N306037",
+    "component_moulding:confers_origin:N330295",
+    "component_moulding:confers_origin:N331459",
+    "film_sheet_cutting:confers_origin:N308174",
+    "film_sheet_cutting:confers_origin:N308175",
+    "film_sheet_cutting:confers_origin:N331595",
+    "final_assembly:not_enough:N273778",
+    "final_assembly:not_enough:N306037",
+    "final_assembly:not_enough:N308174",
+    "final_assembly:not_enough:N308175",
+    "final_assembly:not_enough:N331459",
+    "final_assembly:not_enough:N331595",
+    "resin_compounding:confers_origin:N334326",
+    "resin_compounding:confers_origin:N335182"
    ]
   },
   "power_supplies_chargers": {
@@ -343,6 +775,45 @@
     "N348871",
     "N349313",
     "N349537"
+   ],
+   "pairs": [
+    "battery_cells:confers_origin:N342506",
+    "battery_cells:confers_origin:N346317",
+    "battery_cells:confers_origin:N346403",
+    "battery_cells:confers_origin:N347172",
+    "battery_cells:confers_origin:N347193",
+    "battery_cells:not_enough:N348871",
+    "final_assembly:confers_origin:N342133",
+    "final_assembly:confers_origin:N342506",
+    "final_assembly:confers_origin:N344179",
+    "final_assembly:not_enough:N333268",
+    "final_assembly:not_enough:N346317",
+    "final_assembly:not_enough:N346403",
+    "final_assembly:not_enough:N347058",
+    "final_assembly:not_enough:N347193",
+    "final_assembly:not_enough:N348871",
+    "final_assembly:not_enough:N349537",
+    "housing_cables_parts:not_enough:N342133",
+    "housing_cables_parts:not_enough:N347058",
+    "housing_cables_parts:not_enough:N348029",
+    "housing_cables_parts:not_enough:N349537",
+    "pcba_manufacturing:confers_origin:N331901",
+    "pcba_manufacturing:confers_origin:N331934",
+    "pcba_manufacturing:confers_origin:N344179",
+    "pcba_manufacturing:confers_origin:N346631",
+    "pcba_manufacturing:confers_origin:N348708",
+    "pcba_manufacturing:confers_origin:N348871",
+    "pcba_manufacturing:confers_origin:N349313",
+    "pcba_manufacturing:not_enough:N346317",
+    "pcba_manufacturing:not_enough:N346403",
+    "pcba_manufacturing:not_enough:N347193",
+    "power_charging_modules:confers_origin:N331943",
+    "power_charging_modules:confers_origin:N333268",
+    "power_charging_modules:confers_origin:N342133",
+    "power_charging_modules:confers_origin:N347058",
+    "power_charging_modules:confers_origin:N349537",
+    "power_charging_modules:not_enough:N348871",
+    "power_charging_modules:not_enough:N349313"
    ]
   },
   "semiconductor_devices": {
@@ -357,6 +828,32 @@
     "N345881",
     "N347292",
     "N347890"
+   ],
+   "pairs": [
+    "bare_wafer_production:confers_origin:H338127",
+    "bare_wafer_production:confers_origin:N333934",
+    "bare_wafer_production:confers_origin:N337307",
+    "bare_wafer_production:confers_origin:N344105",
+    "bare_wafer_production:confers_origin:N345881",
+    "bare_wafer_production:not_enough:N334417",
+    "epitaxial_deposition:confers_origin:N333934",
+    "epitaxial_deposition:confers_origin:N334417",
+    "epitaxial_deposition:confers_origin:N337307",
+    "epitaxial_deposition:confers_origin:N344105",
+    "final_assembly:not_enough:N333934",
+    "final_assembly:not_enough:N337307",
+    "final_assembly:not_enough:N343494",
+    "final_assembly:not_enough:N344105",
+    "final_assembly:not_enough:N345881",
+    "final_assembly:not_enough:N347890",
+    "front_end_wafer_fab:confers_origin:N333934",
+    "front_end_wafer_fab:confers_origin:N337307",
+    "front_end_wafer_fab:confers_origin:N343494",
+    "front_end_wafer_fab:confers_origin:N344105",
+    "front_end_wafer_fab:confers_origin:N345881",
+    "front_end_wafer_fab:confers_origin:N347292",
+    "wafer_bumping_dicing:not_enough:N333934",
+    "wafer_bumping_dicing:not_enough:N337307"
    ]
   },
   "toys_build_kits": {
@@ -370,6 +867,19 @@
     "N350222",
     "N350296",
     "N350297"
+   ],
+   "pairs": [
+    "core_electronics_motors:confers_origin:H350263",
+    "core_electronics_motors:confers_origin:N348808",
+    "core_electronics_motors:confers_origin:N350221",
+    "core_electronics_motors:confers_origin:N350222",
+    "core_electronics_motors:confers_origin:N350296",
+    "core_electronics_motors:confers_origin:N350297",
+    "final_assembly:not_enough:H350263",
+    "final_assembly:not_enough:N343777",
+    "final_assembly:not_enough:N348808",
+    "plush_shell_cut_sew:confers_origin:N343777",
+    "plush_shell_cut_sew:confers_origin:N347170"
    ]
   },
   "vehicle_parts": {
@@ -394,6 +904,32 @@
     "N345322",
     "N345436",
     "N345996"
+   ],
+   "pairs": [
+    "electromechanical_core:confers_origin:H322161",
+    "electromechanical_core:confers_origin:H337371",
+    "electromechanical_core:confers_origin:H354721",
+    "electromechanical_core:confers_origin:N330075",
+    "electromechanical_core:confers_origin:N344657",
+    "electromechanical_core:confers_origin:N344809",
+    "electromechanical_core:not_enough:N343953",
+    "final_assembly:confers_origin:N344657",
+    "final_assembly:confers_origin:N345322",
+    "final_assembly:confers_origin:N345996",
+    "final_assembly:not_enough:H322161",
+    "final_assembly:not_enough:N334204",
+    "final_assembly:not_enough:N343372",
+    "housings_and_structures:confers_origin:H335139",
+    "housings_and_structures:not_enough:H322161",
+    "housings_and_structures:not_enough:N333330",
+    "housings_and_structures:not_enough:N337565",
+    "precision_machined_parts:confers_origin:N334204",
+    "precision_machined_parts:confers_origin:N339022",
+    "precision_machined_parts:confers_origin:N340438",
+    "precision_machined_parts:confers_origin:N343396",
+    "precision_machined_parts:confers_origin:N345286",
+    "precision_machined_parts:confers_origin:N345436",
+    "precision_machined_parts:not_enough:N337565"
    ]
   },
   "water_filters": {
@@ -408,6 +944,30 @@
     "N348711",
     "N350079",
     "N350082"
+   ],
+   "pairs": [
+    "carbon_block:confers_origin:N347101",
+    "carbon_block:confers_origin:N347698",
+    "carbon_block:confers_origin:N348086",
+    "carbon_block:confers_origin:N348297",
+    "carbon_block:confers_origin:N350079",
+    "carbon_block:confers_origin:N350082",
+    "carbon_block:not_enough:N348298",
+    "cartridge_housings:not_enough:N347101",
+    "cartridge_housings:not_enough:N348086",
+    "cartridge_housings:not_enough:N348297",
+    "cartridge_housings:not_enough:N348710",
+    "cartridge_housings:not_enough:N348711",
+    "cartridge_housings:not_enough:N350079",
+    "dispenser_electronics:not_enough:N347698",
+    "dispenser_electronics:not_enough:N350082",
+    "final_assembly:confers_origin:N348298",
+    "final_assembly:not_enough:N347101",
+    "final_assembly:not_enough:N347698",
+    "final_assembly:not_enough:N348086",
+    "final_assembly:not_enough:N348297",
+    "final_assembly:not_enough:N350079",
+    "final_assembly:not_enough:N350082"
    ]
   },
   "wood_panels_flooring": {
@@ -422,6 +982,20 @@
     "N329364",
     "N333155",
     "N335201"
+   ],
+   "pairs": [
+    "final_assembly:confers_origin:N275636",
+    "final_assembly:confers_origin:N284256",
+    "final_assembly:confers_origin:N328654",
+    "final_assembly:confers_origin:N335201",
+    "final_assembly:not_enough:N287335",
+    "final_assembly:not_enough:N329364",
+    "panel_lamination:confers_origin:N286714",
+    "panel_lamination:confers_origin:N287335",
+    "panel_lamination:confers_origin:N295956",
+    "panel_lamination:not_enough:N328654",
+    "veneer_core_prep:confers_origin:N329364",
+    "veneer_core_prep:not_enough:N333155"
    ]
   }
  }
