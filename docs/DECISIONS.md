@@ -3332,3 +3332,73 @@ The run went as pre-registered. Run 3 was `families-coverage-dev-all-litellm-f28
   - The inspection camera (N355934) went from PCBA devices to displays and cameras.
 - **Cost.** $0.3058 + $0.0094 = $0.3152. p50 5.1 s, p95 17.2 s. **#785 total $1.0027.**
 - **Reading.** The wording and cap changes kept machinery at 10 of 11 and removed every failed check. The pre-registered no-regression criterion failed on one unstable medical case. Development only; no held-out figure exists for any of this.
+
+## D870 — Japan: a reviewed HS-edition correlation, applied only when the lookup finds no rule (24 Nov, #791 94fb24f6)
+Some Japan Customs rulings carry a code from a later HS edition than the schedule uses, so the lookup returned `no_match` and the case went to review. A short list of correlations (`backend/internal/jprules/data/correlations.json`) now sits behind that outcome.
+- **Decision.**
+  - The list applies only on `no_match`, for an exact agreement and six-digit code. A matched rule, `too_broad`, `withheld`, `invalid_code` and the general rules are untouched.
+  - **Map or hint.** `mapped` when every parent code in the older edition returns the same schedule row; the case then goes to the model with that row behind a plain note that the link is administrative and partial. `edition_hint` when the parents differ: the case goes to review naming the parents, with no rule text.
+  - **The edition comes from the code, never from the case date.**
+  - JP-EU 2404.11 is mapped (WCO Table I, both parents inside one row). CPTPP 2202.99 and 3824.99 and JP-Malaysia 3824.99 are mapped. CPTPP 0307.43 is a hint: its two parents have different rules.
+  - Sibling codes 2404.12 to 2404.99 stay `no_match`; their WCO sources include a second chapter.
+- **Why.** Japan published no later-edition annex for JP-EU or CPTPP in the sources checked, so the only evidence for these codes is the older row and the WCO table. A hint where the rules differ avoids choosing one.
+- **Result, development split (offline, no model, no label read).** Eligible 2589 → 2674 of 2973. Mapped 85; 0307.43 as hint for 14. This counts cases that can show a rule source, not accuracy.
+- **Cost if wrong.** A mapped rule is shown for a code whose HS 2017 parents' rule differs from the shown row. The identical-rows requirement is the guard: if the parents do not return identical rows, the entry downgrades to a hint. The model still answers from the case facts and may return "undetermined".
+- **Evidence.** `docs/japan/hs-edition-correlation.md` (sources with sha256 and pages); `go run ./cmd/jpeval diagnose -split dev`.
+
+## D871 — Japan: missing-facts text in the review message, and where the input check stops (24 Nov, #792 f0351172)
+- **Decision.** When a Japan check ends "undetermined" and the case has a structured product, the review message adds up to three things the user can fill in (no materials, a material with a blank origin, no production steps, a step with no resolved plant country), then "And N more". It is advisory. Qualifies and does not-qualify results are untouched. The model prompt bytes are unchanged (`TestPSRRequestBytesUnchanged` passes).
+- **Corpus check boundary.** The current English-input projection was checked across the 2973 development cases: no truncation. Structured countries (222 of 272 verbatim, 50 spelling variants) and percentage and threshold counts were compared. Not verified: semantic translation fidelity, structured `inputs[]` chapters and headings, the contents of `other_ja`. No corpus change was made.
+- **Why.** Unknowns reach the user only as a bare "undetermined" today. A prompt change to render unknowns would need a PromptVersion bump, so it was not done.
+- **Cost if wrong.** A user is asked for a fact the case already holds in free text (negations are not parsed). Names are bounded and sanitised after review found the first version could print unbounded user text.
+- **Evidence.** `docs/japan/missing-facts-review.md`.
+
+## D872 — Japan: split-row repair and Thailand scope notes (24 Nov, #793 3a44d562, #795 c5f7b4eb)
+- **Decision.**
+  - **Parser fix (#793).** `eval/jp/build_psr.py` no longer lets a wrapped line starting with a code-like token open a new row, keeps code-less continuation lines in six-column tables, and completes merged cells in five-column tables. Only the changed schedules were regenerated; the rest are byte-identical.
+  - **Rows before → after.** Malaysia 574 → 339, Mexico 1640 → 877, Philippines 1139 → 716, Chile 1000 → 680, India 410 → 378, Vietnam 1218 → 1212. Thailand (739) and AJCEP HS 2022 (559) keep their counts with changed text.
+  - **Dropped notes.** Independent review found the first repair had dropped "Note N:" scope notes for Malaysia, Philippines and Mexico. They were restored as notes with an `applies` list of code ranges read from each note's own wording, validated on load.
+  - **Thailand (#795).** 20 scope notes were missing from the data and are now captured, each with applicability.
+- **Result, development split.** Eligible 2674 → 2673: Vietnam 2817.00 moved from `psr` to `no_match` because the PDF lists no 2817 rule. Evidence text changed for 51 rulings after #793 and for 25 Thailand rulings after #795.
+- **Known remaining gaps.** Indonesia's notes were not audited. Thailand p3 General Notes 1 and 2 are omitted (no chapter or section to scope them to), so some rule text uses terms the model is not shown. Some Vietnam and AJCEP rows may still hold a product description in place of a rule.
+- **Cost if wrong.** A rule's evidence misses text that changes its meaning. This is checked only by the audit and tests, not by the held-out set.
+- **Evidence.** `docs/japan/psr-split-row-repair.md`, `docs/japan/thailand-scope-notes.md`.
+
+## D873 — Japan: AJCEP general fallback only for a real HS 2017 code (24 Nov, #794 c6be884a)
+- **Decision.** The AJCEP general criteria used to be returned for any code with no product row, including codes in no HS 2017 subheading. Now they are returned only for a code in an embedded HS 2017 list (5,387 six-digit codes, codes only). Reserved chapters 00, 77, 98, 99 return `invalid_code`. Any other absent code returns `not_in_schedule_edition`, because the lookup cannot tell a later-edition code from a typo. Product rows still come first.
+- **Source.** UN Comtrade reference file H5 (retrieved 24 Nov), cross-checked against five UNSD tables and a Japan Customs tariff. The licence is unclear (UN copyright notice; no open licence found), so only bare numeric codes are embedded, with no descriptions or hierarchy. This is a recorded caveat, not a clearance.
+- **Result, development split.** Eligible 2673 → 2672 (code 3907.29 is not in HS 2017). No AJCEP correlation exists for it.
+- **Cost if wrong.** A real HS 2017 code missing from the list is sent to review instead of getting the general rules. Tests check every code the HS 2017 schedules cite against the list.
+- **Evidence.** `docs/japan/ajcep-general-validity.md`.
+
+## D874 — Japan: Japan-US Trade Agreement pilot (24 Nov, #796 d990d606, selector #798 d9ce88dc)
+- **Decision.**
+  - **Japanese text accepted.** Annex I Section C is published only in Japanese; rows and notes are stored in Japanese as the authoritative text.
+  - **Edition not stated.** The agreement names no HS edition, so citations say so and no edition label is shown in the selector.
+  - **Default rows.** The Subsection 3 head sets CC for the goods in Subsection 2 note 1(a) to (p) unless a table row says otherwise. Default rows are quoted for those goods only, apply only to real HS 2017 codes, and never overlap an explicit row (review caught overlaps).
+  - **HS 2022 codes.** 20 codes exist only in HS 2022; 19 are mapped through the WCO table and one (0403.20) is a hint.
+  - **National items.** 2206.00-100 and 2207.10-199 return `too_broad`.
+  - **Partial.** General rules, Subsection 1 paragraphs 4 to 10, and Annex II are not embedded. Every result carries a caveat that the text is partial. Later Annex I amendments are unchecked. A Japanese customs specialist has not reviewed the text.
+- **Result, development split.** Of 149 JP-US TA cases, all `unsupported_agreement` before; after, 148 `psr` and 1 `too_broad` (2207.10).
+- **Cost if wrong.** A default CC row is shown where an unembedded paragraph (for example accessories or third-country transport) changes the answer. The caveat names this.
+- **Evidence.** `docs/japan/jp-us-ta-pilot.md`; source `us2.pdf` sha256 `af460808…962d6`.
+
+## D875 — Japan: answer validation hardening, and what was left as documentation (24 Nov, #797 d4a1a23b)
+- **Shipped.** A qualifying answer's origin must be one country or territory from a closed list (UN M49 names, the shared country table, listed aliases) or the EU. The resolver both accepts and returns the name. Blank deciding rules are rejected. Reasoning and deciding rule are length-capped and stripped of control characters. Unshown ruling numbers in free text become "an unverified reference". Case ids are normalised before retrieval. This is a well-formedness check, not a treaty-party or eligibility check.
+- **Documented only (changes what the model sees).** Irrelevant precedents (the agreement code in the query matches every ruling of that agreement) and duplicate precedents (295 same-agreement groups with identical facts; 6.3% of precedent slots).
+- **Offline replay.** The archived D712 `dev_eval` outputs were replayed through the new checks: 400 ids, 348 comparable, 0 new rejects, 0 of 244 origins changed. The archive stores origins already normalised, so regressions on raw alias spellings cannot be tested. This is not an accuracy result.
+- **Cost if wrong.** A valid but uncommon country spelling is rejected until added. It errs toward review, not toward a guess.
+- **Evidence.** `docs/japan/answer-validation.md`.
+
+## D876 — Japan campaign: process rulings (24 Nov, campaign start 17:08Z; #791 to #798)
+- **One writer, one PR at a time.** Each batch was built on the merged main of the one before. Rule-core edits were serialised.
+- **Independent review rounds that caught defects before merge.**
+  - Overlapping default and explicit rows returned two rules for the same code (#796).
+  - Default rows answered for non-HS codes (#796).
+  - Dropped "Note N:" scope conditions after the split-row repair (#793).
+  - Unbounded user names in the review message (#792).
+  - Origin false rejections for official spellings, then permissive acceptance of non-country text, then alias gaps, over three rounds (#797).
+  - A rule was not merged until a covering approval of the exact head.
+- **Authenticated smoke paused and untouched.** No product backend call, no credentials.
+- **Frozen D741 untouched.** Only development ids were analysed; no held-out label was read.
+- **Deployment through the normal merge path.** No workflow, script or infrastructure change.
