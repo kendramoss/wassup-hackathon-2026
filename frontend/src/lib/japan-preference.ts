@@ -39,7 +39,13 @@ export const japanTariffEditions: Record<string, string> = {
   "JP-Chile EPA": "2002",
 };
 
-export const supportedJapanAgreements = Object.keys(japanTariffEditions);
+// Supported agreements whose schedule does not state an HS edition; the tariff-code label stays generic.
+export const japanNoEditionAgreements = ["JP-US TA"];
+
+// Selector order follows japanAgreements.
+export const supportedJapanAgreements = Object.keys(japanAgreements).filter(
+  (code) => code in japanTariffEditions || japanNoEditionAgreements.includes(code),
+);
 
 export function validJapanHS(value: string): boolean {
   return /^[0-9]{4}(?:[. ]?[0-9]{2}(?:[-. ]?[0-9]{3})?)?$/.test(value.trim());
