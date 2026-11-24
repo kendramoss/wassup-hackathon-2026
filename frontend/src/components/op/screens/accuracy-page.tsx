@@ -277,7 +277,7 @@ function MarketEvidence() {
               The calculator applies published rules without a model. All {result.syntheticDevelopment} development and {result.syntheticUnseen} unseen synthetic tariff-code variants were undetermined.
             </p>
             <p>
-              <a href={`${copy.landing.repo}/blob/main/eval/RESULTS.md#rcep-calculator-on-japan-customs-rulings-d691-d716-d717`} className="text-ok underline underline-offset-2">
+              <a href={`${copy.landing.repo}/blob/main/eval/RESULTS.md#rcep-calculator-on-japan-customs-rulings-d691-d716-d717`} className="text-ok underline underline-offset-2 max-sm:inline-flex max-sm:min-h-11 max-sm:items-center">
                 See evaluation results and intervals →
               </a>
             </p>
@@ -457,6 +457,9 @@ export function AccuracyPage() {
         <h1 className="text-[clamp(2.25rem,5vw,3.75rem)] font-semibold leading-tight tracking-[-0.06em]">How accurate is it?</h1>
         <p className="read mt-2 max-w-[65ch] text-base text-dim">U.S. origin predictions compared with 377 real CBP rulings, Jan–Sep 2026. Covers single-origin U.S. rulings under{" "}
           <Term explain="Substantial transformation: the origin is the last country where the product became a new article, with a new name, character or use.">CBP’s main origin test</Term> only, not every market or rule set.</p>
+        {/* #685: the pretraining caveat is visible without a click; the full
+            wording stays in the "Test set and confidence intervals" fold. */}
+        <p className="read mt-1 max-w-[65ch] text-sm text-dim">Gemini may have seen some of these rulings in pretraining; we can’t measure how many.</p>
       </header>
       <dl className="mt-6 grid gap-3 md:grid-cols-3">
         <Kpi title="Overall accuracy" value={pct(correct / n)} lead>

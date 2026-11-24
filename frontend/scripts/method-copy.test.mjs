@@ -34,6 +34,9 @@ test("Method scopes its temporal claim and keeps the 2022 and 2026 dates distinc
   // #685 review: "retrieves", not "reads" (pretraining exposure is unknown).
   assert.match(page, /Each answer retrieves only CBP rulings dated before the case\./);
   assert.doesNotMatch(page, /Each answer reads only/);
+  // #685: the pretraining caveat is visible next to the lead, outside the fold.
+  const outsideFolds = markup.replace(/<details\b[\s\S]*?<\/details>/g, "");
+  assert.match(text(outsideFolds), /Gemini may have seen some rulings in pretraining; we can’t measure how many\./);
   assert.match(page, /Gemini’s pretraining exposure is unknown/);
   assert.match(page, /The ruling search \(BM25\) weighs words by counts taken from every ruling, later ones included\./);
   assert.doesNotMatch(page, /zero training leakage/i);

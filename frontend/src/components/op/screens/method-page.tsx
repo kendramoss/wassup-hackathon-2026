@@ -67,6 +67,7 @@ export function MethodPage() {
         <p className="eyebrow">Method</p>
         <h1>How an answer is made and checked</h1>
         <p className="read mi-lead">The live service uses Gemini without fine-tuning. Each answer retrieves only CBP rulings dated before the case.</p>
+        <p className="read mi-note">Gemini may have seen some rulings in pretraining; we can’t measure how many.</p>
         <details className="mi-limits">
           <summary>What this does not show</summary>
           <p className="read mi-note">Gemini’s pretraining exposure is unknown: we can’t tell which rulings it saw in training. The ruling search (BM25) weighs words by counts taken from every ruling, later ones included. Earlier test rulings can serve as precedents for later ones.</p>

@@ -33,6 +33,8 @@ test("the honesty lines stay outside the Details folds", () => {
     "synthetic images, illustrative · small",
     "It runs high",
     "Not a ruling. A licensed broker confirms",
+    // #685: the pretraining caveat is visible without opening a fold.
+    "Gemini may have seen some of these rulings in pretraining; we can’t measure how many.",
     "copy.jurisdiction.notCovered",
     "copy.jurisdiction.noDetector",
   ])
