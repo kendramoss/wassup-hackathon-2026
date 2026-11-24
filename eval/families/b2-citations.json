@@ -1,0 +1,227 @@
+{
+ "note": "D782: each citation added in template version 2, read by the agent against the ruling facts and the held-origin sentence of backend/data/labels.jsonl (no model check).",
+ "citations": [
+  {
+   "ruling": "N333849",
+   "template": "motors_pumps_compressors",
+   "cited_in": [
+    "machine_working_unit:confers_origin",
+    "machine_frame_tooling:not_enough",
+    "final_assembly:confers_origin"
+   ],
+   "held": "France",
+   "held_sentence": [
+    "Furthermore, while there is a significant amount of input of Chinese content used in the production of the Nacelle, it is the opinion of this office that the manufacturing and assembly processes performed in France, taken collectively, result in a substantial transformation of the non-French components and the Nacelle is considered a product of France."
+   ],
+   "facts_read": "France: Chinese central frame and hub finished, rear frame built, rotor and stator assembled into the drivetrain, frames joined and tested. Held France."
+  },
+  {
+   "ruling": "N334531",
+   "template": "furniture",
+   "cited_in": [
+    "tabletop_fabrication:confers_origin",
+    "frame_metal_fabrication:not_enough",
+    "final_assembly:not_enough"
+   ],
+   "held": "Thailand",
+   "held_sentence": [
+    "Therefore, the country of origin of the imported tables is Thailand."
+   ],
+   "facts_read": "Thailand: quartz slabs cut, bevelled, polished into tops, packed with unassembled Chinese metal or wood bases (welded or machined and painted in China). Held Thailand."
+  },
+  {
+   "ruling": "N334538",
+   "template": "medical_devices",
+   "cited_in": [
+    "pcba_and_sensors:confers_origin",
+    "hubs_clamps_housings:not_enough"
+   ],
+   "held": null,
+   "held_sentence": [
+    "As such, we agree that the country of origin for the wrist BPM will be Vietnam for the purposes of marking and for the assessment of both the normal trade relations duty rate and the Section 301 duties.",
+    "In the case of the upper arm BPM, the country of origin of the entire upper arm BPM for the purposes of duties (both normal trade relations duty rate and Section 301 duties) will be Vietnam.",
+    "Therefore, for the purposes of marking, the countries of origin of the upper arm BPM will be Vietnam and China."
+   ],
+   "facts_read": "Vietnam: PCBA by SMT and chip-on-board, firmware burned, pressure sensor calibrated, assembled; wrist cuff from China. Held Vietnam for duty purposes."
+  },
+  {
+   "ruling": "N340920",
+   "template": "motors_pumps_compressors",
+   "cited_in": [
+    "machine_working_unit:confers_origin",
+    "machine_frame_tooling:not_enough",
+    "final_assembly:not_enough"
+   ],
+   "held": "China",
+   "held_sentence": [
+    "Therefore, since a substantial transformation does not occur as a result of the Mexican processing, the origin of the Thermo Scientific™ Quickfit™ Metal Detector Conveyor Systems (Quickfit Conveyor with Apex Metal Detector and Quickfit Conveyor with Sentinel Metal Detector), for 301 trade remedy purposes, is China."
+   ],
+   "facts_read": "Chinese metal detector unit assembled in Mexico with a Mexican conveyor and reject unit. Held China."
+  },
+  {
+   "ruling": "N341537",
+   "template": "medical_devices",
+   "cited_in": [
+    "metal_cannula_forging:confers_origin",
+    "metal_cannula_forging:not_enough",
+    "sterile_packaging:not_enough"
+   ],
+   "held": "China",
+   "held_sentence": [
+    "Therefore, the country of origin of the finished drill bits will be China."
+   ],
+   "facts_read": "China: steel rods made, cut and lathe-machined into blanks. Ireland: flutes ground, notched, cleaned, packaged, sterilised. Held China."
+  },
+  {
+   "ruling": "N342427",
+   "template": "display_camera_modules",
+   "cited_in": [
+    "optical_lens_shaping:confers_origin",
+    "lens_polish_coat:not_enough"
+   ],
+   "held": "Singapore",
+   "held_sentence": [
+    "Based upon the facts presented and the relevant authorities, the origin of the singlet lens, item number 66426, will be Singapore."
+   ],
+   "facts_read": "Singapore: lens milled from a glass blank to shape and curvature. China: ground, polished, washed, anti-reflective coated, inspected. Held Singapore."
+  },
+  {
+   "ruling": "N342506",
+   "template": "power_supplies_chargers",
+   "cited_in": [
+    "battery_cells:confers_origin",
+    "final_assembly:confers_origin"
+   ],
+   "held": "United Kingdom",
+   "held_sentence": [
+    "As such, the country of origin of the Invinity Six Pack Vanadium Flow Battery, model number VS3-022-UK, for purposes of Section 301 trade remedies is the United Kingdom."
+   ],
+   "facts_read": "Stacks built in the UK from cut felt and membrane, frames and bipolar plates; balance-of-system enclosure from China; UK integration, wiring and electrolyte fill. Held UK."
+  },
+  {
+   "ruling": "N343773",
+   "template": "medical_devices",
+   "cited_in": [
+    "metal_cannula_forging:confers_origin"
+   ],
+   "held": "United States | Japan | South Korea | India",
+   "held_sentence": [
+    "Accordingly, the country of origin of the dental tips will be the United States, Japan, South Korea, or India depending on the country of origin of the first tube/cannulas."
+   ],
+   "facts_read": "Dental tips held the origin of the first, pre-bent cannula (US, Japan, South Korea or India)."
+  },
+  {
+   "ruling": "N346317",
+   "template": "power_supplies_chargers",
+   "cited_in": [
+    "pcba_manufacturing:not_enough",
+    "battery_cells:confers_origin",
+    "final_assembly:not_enough"
+   ],
+   "held": "China",
+   "held_sentence": [
+    "In view of these facts, and based on the totality of the circumstances, the country of origin of the subject power bank, model number AST-MP595, is China."
+   ],
+   "facts_read": "Vietnam: SMT PCBA from Chinese parts, mounted with one Chinese cell in a housing, tested. Held China."
+  },
+  {
+   "ruling": "N346403",
+   "template": "power_supplies_chargers",
+   "cited_in": [
+    "pcba_manufacturing:not_enough",
+    "battery_cells:confers_origin",
+    "final_assembly:not_enough"
+   ],
+   "held": "China",
+   "held_sentence": [
+    "In view of these facts, and based on the totality of the circumstances, the country of origin of the subject power banks, model number AST-MP621 and AST-MP663F, is China."
+   ],
+   "facts_read": "Same process as N346317 for two power banks (one or two Chinese cells). Held China."
+  },
+  {
+   "ruling": "N346867",
+   "template": "motors_pumps_compressors",
+   "cited_in": [
+    "machine_working_unit:confers_origin",
+    "machine_frame_tooling:not_enough",
+    "final_assembly:not_enough"
+   ],
+   "held": "Japan",
+   "held_sentence": [
+    "Thus, based on the totality of the circumstances, the country of origin of the Industrial Robot Assembly, machine 120-02, as described above, will be Japan."
+   ],
+   "facts_read": "Finished Japanese robot arm mounted in China on a Chinese pedestal with a Chinese gripper, Japanese camera and sensors. Held Japan."
+  },
+  {
+   "ruling": "N347172",
+   "template": "power_supplies_chargers",
+   "cited_in": [
+    "battery_cells:confers_origin"
+   ],
+   "held": "South Korea",
+   "held_sentence": [
+    "Therefore, it is the opinion of this office that the manufacturing processes performed in South Korea result in a substantial transformation of the foreign components and the country of origin of the ESS LFP pouch cell is South Korea."
+   ],
+   "facts_read": "South Korea: electrode slurry, coating, calendering, slitting, notching, stacking, electrolyte fill, sealing and formation from Chinese active materials. Held South Korea."
+  },
+  {
+   "ruling": "N347193",
+   "template": "power_supplies_chargers",
+   "cited_in": [
+    "pcba_manufacturing:not_enough",
+    "battery_cells:confers_origin",
+    "final_assembly:not_enough"
+   ],
+   "held": "China | Malaysia | South Korea",
+   "held_sentence": [
+    "In view of these facts, and based on the totality of the circumstances, the country of origin of the subject battery pack is China, Malaysia, or South Korea, depending on the origin of the battery cell."
+   ],
+   "facts_read": "Poland: cells sorted, pressed into holders, contact plates welded, Chinese cell monitoring PCBA laser welded, housing closed. Held the cell country (China, Malaysia or South Korea)."
+  },
+  {
+   "ruling": "N348871",
+   "template": "power_supplies_chargers",
+   "cited_in": [
+    "pcba_manufacturing:confers_origin",
+    "power_charging_modules:not_enough",
+    "battery_cells:not_enough",
+    "final_assembly:not_enough"
+   ],
+   "held": "Vietnam",
+   "held_sentence": [
+    "As a result, the Portable Solar Generator, Model HTE1172000A-US-JAK, described in scenarios two and three, are considered products of Vietnam at the time of importation into the United States."
+   ],
+   "facts_read": "Scenarios 2 and 3: six PCBAs (incl. battery protection board; inverter Japanese in 2, Vietnamese in 3) made in Vietnam, assembled in China with Chinese batteries. Held Vietnam for those scenarios; the template cites only them."
+  },
+  {
+   "ruling": "N349312",
+   "template": "motors_pumps_compressors",
+   "cited_in": [
+    "controls_and_valves:not_enough",
+    "machine_working_unit:not_enough",
+    "machine_frame_tooling:not_enough",
+    "final_assembly:confers_origin"
+   ],
+   "held": "Mexico",
+   "held_sentence": [
+    "Therefore, the country of origin of the E-MAC 265/110 series injection molding machine will be Mexico."
+   ],
+   "facts_read": "Mexico: about 1,100 components from China, EU and Mexico built into about ten subassemblies and a complete machine; software programmed and tested in Mexico; EU plasticizing parts, electronics and servo motors; Chinese castings. Held Mexico."
+  },
+  {
+   "ruling": "N355983",
+   "template": "medical_devices",
+   "cited_in": [
+    "molded_barrels_chambers:confers_origin",
+    "final_assembly:not_enough"
+   ],
+   "held": null,
+   "held_sentence": [
+    "Accordingly, the country of origin for Item# 110065A2461ET will be Israel.",
+    "Accordingly, the country of origin for both items will be Israel.",
+    "The country of origin of this item will be India."
+   ],
+   "facts_read": "Israel: silicone drain tube extruded; India: cut, assembled with adapters and trocars, packed non-sterile. Drains held Israel."
+  }
+ ]
+}

@@ -109,13 +109,13 @@ The relocation planner has 26 templates, loaded by `planner.LoadTemplates` (`bac
 | `vehicle_parts` | Vehicle parts (mechanical and electromechanical) | `backend/internal/planner/templates/vehicle_parts.json` |
 | `hand_tools` | Hand tools and cutting tools | `backend/internal/planner/templates/hand_tools.json` |
 | `cables_harnesses` | Cables, cord sets and wire harnesses | `backend/internal/planner/templates/cables_harnesses.json` |
-| `medical_devices` | Medical devices and disposables | `backend/internal/planner/templates/medical_devices.json` |
-| `power_supplies_chargers` | Power supplies, adapters and chargers | `backend/internal/planner/templates/power_supplies_chargers.json` |
-| `furniture` | Furniture and mattresses | `backend/internal/planner/templates/furniture.json` |
-| `display_camera_modules` | Display modules and cameras | `backend/internal/planner/templates/display_camera_modules.json` |
+| `medical_devices` | Medical devices and disposables (v2, D782) | `backend/internal/planner/templates/medical_devices.json` |
+| `power_supplies_chargers` | Power supplies, chargers and battery packs (v2, D782) | `backend/internal/planner/templates/power_supplies_chargers.json` |
+| `furniture` | Furniture and mattresses (v2, D782) | `backend/internal/planner/templates/furniture.json` |
+| `display_camera_modules` | Display modules, cameras and lenses (v2, D782) | `backend/internal/planner/templates/display_camera_modules.json` |
 | `water_filters` | Water filters and filtration systems | `backend/internal/planner/templates/water_filters.json` |
 | `gas_grills_cooking` | Gas grills and outdoor cooking appliances | `backend/internal/planner/templates/gas_grills_cooking.json` |
-| `motors_pumps_compressors` | Electric motors, pumps and compressors | `backend/internal/planner/templates/motors_pumps_compressors.json` |
+| `motors_pumps_compressors` | Motors, pumps, compressors and industrial machines (v2, D782) | `backend/internal/planner/templates/motors_pumps_compressors.json` |
 | `food_preparations` | Food and beverage preparations (Part 102) | `backend/internal/planner/templates/food_preparations.json` |
 | `metal_products` | Metal semi-finished and fabricated products (Part 102) | `backend/internal/planner/templates/metal_products.json` |
 | `wood_panels_flooring` | Plywood, wood flooring and panels (Part 102) | `backend/internal/planner/templates/wood_panels_flooring.json` |
@@ -128,6 +128,16 @@ The relocation planner has 26 templates, loaded by `planner.LoadTemplates` (`bac
 | `golf_sporting_goods` | Golf clubs and sporting goods (D660) | `backend/internal/planner/templates/golf_sporting_goods.json` |
 | `toys_build_kits` | Toys and build kits (D660) | `backend/internal/planner/templates/toys_build_kits.json` |
 | `hvac_heating_units` | Heat pumps, furnaces and heaters (D660) | `backend/internal/planner/templates/hvac_heating_units.json` |
+
+Batteries, machinery, furniture, and medical or optical goods (D780–D784) have no template of their own; they are covered inside the templates below, at version 2, and a deterministic guard after the family check (`family-guard-v1`) sends look-alike products to review.
+
+| Area | Template (version) | Covered by cited rulings | Not covered |
+|---|---|---|---|
+| Batteries and energy storage | `power_supplies_chargers` (2) | Cells and cell stacks, battery packs, power banks, portable power stations; cell origin decided in some rulings, PCBAs in another | Cell-material plants (chemicals), battery-powered devices (guarded to review), no battery template |
+| Industrial machinery | `motors_pumps_compressors` (2) | Motors, pumps, compressors; a machine's working unit, frames and tooling, assembly with programming | Lifting jacks, machine tools by name, software loading on its own (no ruling) |
+| Furniture | `furniture` (2) | Tabletops, frames and bases, foam and upholstery, mechanisms, knock-down packing | Finishing and upholstery work on their own; lamps, pet beds and electrical cabinets (guarded to review) |
+| Medical devices | `medical_devices` (2) | Cannulas and blanks, moulded parts and tubing, PCBA and sensors, hubs and housings, sterilisation and packing (not enough) | Drugs (guarded; own engine), regulatory status (never implied) |
+| Optical and precision | `display_camera_modules` (2) | Lens milling (decided), polishing and coating (not enough) | Optical instruments as a family (two citable rulings), toys with optics (guarded) |
 
 On the 2026 held-out rulings the product's family check matched 79.0% (298 of 377) to one of the 26 families, read once (D661), against 59.4% with the first 14 (57.0% with the first 13, 4.2% with the first three; D138, D212, `eval/RESULTS.md`); no 20-family run of that set exists. With 20, it matched 68.1% of the Part 102 development rulings (27.8% with 14) and 8 of the 18 frozen held-out Part 102 rulings (6 with 14; D580, D581); with 26, 69.4% and 8 of 18 (D660, D661).
 

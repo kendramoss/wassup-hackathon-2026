@@ -1,0 +1,78 @@
+{
+  "_source": "Built from the facts of CBP ruling N350838 (2025-07-10, dev split): CBP held Thailand. Product written by the agent from the facts, no model draft (D782). Target China (reverse probe: away from a non-China origin); plant capabilities for China and all costs are assumptions. No later ruling on a changed setup, so there is no backtest.",
+  "case_id": "b2-n350838",
+  "date": "2025-07-10",
+  "family": "display_camera_modules",
+  "target": "China",
+  "product": {
+    "name": "Riflescope optical window",
+    "description": "An unmounted plate of optical glass that filters wavelengths and seals the end of a riflescope.",
+    "plants": [
+      {
+        "id": "th",
+        "name": "Thailand Plant",
+        "country": "Thailand",
+        "capabilities": [
+          "optical_lens_shaping",
+          "final_assembly"
+        ]
+      },
+      {
+        "id": "cn",
+        "name": "China Plant",
+        "country": "China",
+        "capabilities": [
+          "optical_lens_shaping",
+          "lens_polish_coat"
+        ]
+      }
+    ],
+    "components": [
+      {
+        "name": "Unworked optical glass pucks, sheets, bars or rods",
+        "made_in": "China",
+        "plant": "cn",
+        "group": "optical_lens_shaping"
+      }
+    ],
+    "operations": [
+      {
+        "name": "Cut the glass to shape and grind and mill it to the optical properties",
+        "plant": "th",
+        "group": "optical_lens_shaping"
+      },
+      {
+        "name": "Coat the window",
+        "plant": "cn",
+        "group": "lens_polish_coat"
+      },
+      {
+        "name": "Inspect and pack the windows",
+        "plant": "cn",
+        "group": "final_assembly"
+      }
+    ]
+  },
+  "economics": {
+    "illustrative": true,
+    "annual_import_value_usd": 1000000,
+    "duty_rates": {
+      "Thailand": 0.125,
+      "China": 0.425
+    },
+    "duty_rates_note": "Illustrative placeholder, not a sourced rate.",
+    "group_costs": {
+      "optical_lens_shaping": {
+        "th": 100000,
+        "cn": 125000
+      }
+    }
+  },
+  "exclude_rulings": [
+    "N350838"
+  ],
+  "current_origin": {
+    "country": "Thailand",
+    "ruling": "N350838"
+  }
+}

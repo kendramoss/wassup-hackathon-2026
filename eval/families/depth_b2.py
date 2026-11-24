@@ -17,7 +17,7 @@ Templates cite train and other only; dev rulings are regression cases.
 Run from the repository root:
     python3 -I -B eval/families/depth_b2.py . hits     # write eval/families/b2-hits.json
     python3 -I -B eval/families/depth_b2.py . freeze   # write eval/families/b2-cases.json from b2-screen.json
-    python3 -I -B eval/families/depth_b2.py . check    # verify both are current
+    python3 -I -B eval/families/depth_b2.py . check    # verify both are current and the v2 citations (D782)
 """
 import glob
 import json
@@ -129,12 +129,44 @@ def freeze(root):
     return out
 
 
+def check_citations(root):
+    """Every ruling a v2 template cites that v1 did not is in a frozen citable pool,
+    has its held-origin sentence in the bundled labels, and is recorded in
+    b2-citations.json with where it is cited (D782)."""
+    with open(os.path.join(root, CASES)) as f:
+        pool = {r for v in json.load(f)["families"].values() for r in v["citable_pool"]}
+    with open(os.path.join(root, "eval/families/b2-v1-citations.json")) as f:
+        v1 = json.load(f)["templates"]
+    with open(os.path.join(root, "eval/families/b2-citations.json")) as f:
+        rec = {c["ruling"]: c for c in json.load(f)["citations"]}
+    lab = {l["ruling"]: l for l in jsonl(os.path.join(root, "eval/data/labels.jsonl"))}
+    new = {}
+    for fam, old in v1.items():
+        with open(os.path.join(root, "backend/internal/planner/templates", fam + ".json")) as f:
+            t = json.load(f)
+        for g in t["groups"]:
+            p = g.get("precedent") or {}
+            for k in ("confers_origin", "not_enough"):
+                for r in p.get(k) or []:
+                    if r not in old["cited"]:
+                        new.setdefault(r, (fam, []))[1].append(g["id"] + ":" + k)
+    if set(new) != set(rec):
+        sys.exit("b2-citations.json lists %s, templates add %s" % (sorted(rec), sorted(new)))
+    for r, (fam, where) in new.items():
+        c = rec[r]
+        if r not in pool or not lab[r]["evidence"] or c["template"] != fam or sorted(c["cited_in"]) != sorted(where):
+            sys.exit(f"{r}: not in a frozen pool, no held-origin sentence, or its record is stale")
+    print(len(new), "new citations checked")
+
+
 def dump(o):
     return json.dumps(o, indent=1, ensure_ascii=False) + "\n"
 
 
 if __name__ == "__main__":
     root, cmd = sys.argv[1], sys.argv[2]
+    if cmd == "check":
+        check_citations(root)
     jobs = {"hits": [(HITS, hits)], "freeze": [(CASES, freeze)], "check": [(HITS, hits), (CASES, freeze)]}[cmd]
     for path, fn in jobs:
         want = dump(fn(root))

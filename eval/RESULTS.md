@@ -1049,3 +1049,9 @@ For each tariff-shift yes, the first material counted as non-originating was ass
 ## ADK agent evaluation v2, run 2 preflight (23 Nov, D731)
 
 After the daily budget reset, live MCP initialized anonymously, then returned HTTP 401 `unauthenticated` on an invalid-date `predict_origin` probe. Production requires a verified identity for case creation (D730). The D510 run stopped before any product session started. Run 1 supplies the existing score. Repeatability is unmeasured. No model calls, $0 spend. [Preflight record](agent/adk/live-v2-run2-preflight.json).
+
+## Family depth for batteries, machinery, furniture, medical and optical (offline, 24 Nov; D780–D784, #766–#769)
+- Cases from dev, train and other pools only (`eval/families/depth_b2.py`, `b2-hits.json`, `b2-screen.json`, `b2-cases.json`); held-out IDs excluded by ID. No family reached D780's bar for a new template, so five templates went to version 2 (battery cells; industrial machine units, frames and tooling; sterilisation and packing; lens polishing and coating; a stone-top table ruling). 16 new citations (`b2-citations.json`).
+- BM25 top 5 holds a ruling the family's template cites, before → after, development cases: batteries 0 → 7 of 7, machinery 3 → 3 of 11, medical 7 → 7 of 10, optical 1 → 1 of 2, furniture 0 → 0 of 1 (`b2-retrieval.json`).
+- Guard after the family check (`family-guard-v1`) on the 469 recorded development checks: 1 of 349 matches changed, the pet bed, judged right (`b2-guard-dev.json`).
+- Five new development fixtures pass the fake-engine plan pipeline (`TestFamilyFixturesPlan`). Not plan quality and not accuracy; the family check with the changed templates is not re-run (no model budget).

@@ -932,3 +932,15 @@ All rulings are approvals, so there is no accuracy, specificity or false-positiv
 D691 froze the evaluation rules. D716 fixed the facts-only mapping before scoring. The calculator reads the stated country of manufacture and the published material classifications. An originating material requires an explicit claim in the material entry. Japanese reasoning supplies the scoring label only. Both splits retain their D710 dates and use the same Annex 3A HS 2022 table.
 
 The published set contains affirmative decisions. The score measures how often the calculator finds a qualifying rule when given incomplete public facts. A published ruling can rely on declarations, values or other evidence that is absent from those facts. An undetermined result is a request for that evidence. Synthetic changes to a material's tariff code test the calculator's response to a changed input separately. The counts and Wilson intervals are in [RESULTS](../eval/RESULTS.md#rcep-calculator-on-japan-customs-rulings-d691-d716-d717).
+
+## 20. Family depth for batteries, machinery, furniture and medical or optical goods (24 Nov 2026, D780–D784)
+
+**Why.** Four product areas had thin or no template support (#766–#769). No model budget was available, so everything here is offline.
+
+**Cases.** A fixed keyword pattern per area over the subject and the start of the facts, on substantial-transformation rulings dated before 2026 in the development, train and remaining pools; held-out rulings excluded by ID and never read. Every candidate's subject was read, and the facts and held-origin sentence of every kept or unclear one. Templates cite train and other rulings only; development rulings are regression cases. The rule and the measurements were pushed before any template changed (D780, D781).
+
+**What changed.** No area reached the bar for a new template (10 citable pool rulings not served by one): batteries 6, industrial machines 5, optical instruments 2. Five templates went to version 2 instead, with the rulings cited both ways: battery cells can decide a power bank's or pack's origin, but a portable power station took its PCBAs' origin over its cells; a robot arm or detector head decided a machine's origin while frames and tooling did not, and building an injection moulding machine from about ten subassemblies did; sterilisation and packing, and lens polishing and coating, were not enough. A deterministic guard after the family check sends look-alikes (a cordless drill, a floor lamp, a tablet, toy binoculars) to review.
+
+**Results.** On development cases, BM25 as in production put a cited ruling in the top 5 for 7 of 7 battery cases (0 before), 3 of 11 machinery, 7 of 10 medical, 1 of 2 optical and 0 of 1 furniture (unchanged). The guard changed 1 of 349 recorded development matches (the pet bed). Five new fixtures pass the plan pipeline with a fake engine.
+
+**Limits.** Small development sets; no model run, so no family-check coverage or plan-quality figure; the battery retrieval gain reflects new citations of rulings the engine already retrieved, not better retrieval. No accuracy is claimed.

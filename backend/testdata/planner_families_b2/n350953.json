@@ -1,0 +1,96 @@
+{
+  "_source": "Built from the facts of CBP ruling N350953 (2025-07-30, dev split): CBP held Thailand. Product written by the agent from the facts, no model draft (D782). Target China (reverse probe: away from a non-China origin); plant capabilities for China and all costs are assumptions. No later ruling on a changed setup, so there is no backtest.",
+  "case_id": "b2-n350953",
+  "date": "2025-07-30",
+  "family": "power_supplies_chargers",
+  "target": "China",
+  "product": {
+    "name": "Lithium iron phosphate prismatic battery cell, 314 Ah",
+    "description": "A 3.2 V prismatic cell in a rigid aluminium case, made from electrode materials, foils, separator and electrolyte.",
+    "plants": [
+      {
+        "id": "th",
+        "name": "Thailand Plant",
+        "country": "Thailand",
+        "capabilities": [
+          "battery_cells",
+          "housing_cables_parts",
+          "final_assembly"
+        ]
+      },
+      {
+        "id": "cn",
+        "name": "China Plant",
+        "country": "China",
+        "capabilities": [
+          "battery_cells",
+          "housing_cables_parts"
+        ]
+      }
+    ],
+    "components": [
+      {
+        "name": "Anode and cathode active materials, binders and solvents",
+        "made_in": "China",
+        "plant": "cn",
+        "group": "battery_cells"
+      },
+      {
+        "name": "Aluminium and copper foils, separator and electrolyte",
+        "made_in": "China",
+        "plant": "cn",
+        "group": "battery_cells"
+      },
+      {
+        "name": "Aluminium cell case, cover and connectors",
+        "made_in": "China",
+        "plant": "cn",
+        "group": "housing_cables_parts"
+      }
+    ],
+    "operations": [
+      {
+        "name": "Mix electrode slurries, coat them on foil, dry, calender and laser-slit the electrodes",
+        "plant": "th",
+        "group": "battery_cells"
+      },
+      {
+        "name": "Wind electrodes and separators into a jelly roll, weld tabs to the cover and laser-weld the case",
+        "plant": "th",
+        "group": "battery_cells"
+      },
+      {
+        "name": "Pre-charge, inject electrolyte, age and hermetically seal the cell",
+        "plant": "th",
+        "group": "battery_cells"
+      },
+      {
+        "name": "Test and pack the cells",
+        "plant": "th",
+        "group": "final_assembly"
+      }
+    ]
+  },
+  "economics": {
+    "illustrative": true,
+    "annual_import_value_usd": 1000000,
+    "duty_rates": {
+      "Thailand": 0.125,
+      "China": 0.425
+    },
+    "duty_rates_note": "Illustrative placeholder, not a sourced rate.",
+    "group_costs": {
+      "battery_cells": {
+        "th": 100000,
+        "cn": 125000
+      }
+    }
+  },
+  "exclude_rulings": [
+    "N350953"
+  ],
+  "current_origin": {
+    "country": "Thailand",
+    "ruling": "N350953"
+  }
+}

@@ -285,8 +285,9 @@ func TestFamilyFixturesPlan(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	// The planner evaluation's fixtures (D170, D171, D501) run the same checks.
-	for _, dir := range []string{"planner_post", "planner_families", "planner_part102"} {
+	// The planner evaluation's fixtures (D170, D171, D501) and the tracks 3-6
+	// fixtures (D782) run the same checks.
+	for _, dir := range []string{"planner_post", "planner_families", "planner_part102", "planner_families_b2"} {
 		more, err := filepath.Glob(filepath.Join("..", "..", "testdata", dir, "*.json"))
 		if err != nil {
 			t.Fatal(err)

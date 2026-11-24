@@ -118,5 +118,8 @@ func (c *Checker) CheckUsage(ctx context.Context, text string) (Result, llm.Usag
 	}
 	r.Name = c.names[r.Family]
 	r.Confidence = min(max(r.Confidence, 0), 1)
+	// Deterministic checks after the model (D783): a match the product line
+	// contradicts goes to "none" for review.
+	r, _ = Guard(text, r)
 	return r, resp.Usage, nil
 }

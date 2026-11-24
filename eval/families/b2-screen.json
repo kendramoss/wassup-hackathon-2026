@@ -1896,7 +1896,7 @@
    {
     "ruling": "H345343",
     "keep": true,
-    "reason": "plastic chairs or bamboo shelves"
+    "reason": "plastic chairs"
    },
    {
     "ruling": "N333330",
@@ -2027,8 +2027,9 @@
    },
    {
     "ruling": "N354279",
-    "keep": true,
-    "reason": "plastic chairs or bamboo shelves"
+    "keep": false,
+    "ambiguous": true,
+    "reason": "bamboo shelves: CBP read the facts as a plywood panel, not a furniture part (changed after the freeze, D782)"
    },
    {
     "ruling": "N354369",
