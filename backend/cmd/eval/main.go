@@ -199,6 +199,7 @@ func run(args []string) error {
 	voteBelow := fl.Float64("vote-below", 0.95, "vote only when the first answer's confidence is below this")
 	useRules := fl.Bool("rules", false, "append engine.Rules (rules-v1) to the system prompt")
 	rulesVersion := fl.String("rules-version", "v1", "with -rules: v1 (rules-v1) or v2 (rules-v2, D157)")
+	foodRules := fl.Bool("food-rules", false, "add engine.FoodRules (food-v1, D856) to the system prompt of cases whose facts describe a food; other cases are sent as without it")
 	useReasoning := fl.Bool("reasoning", false, "show each precedent's CBP reasoning (reasoning-v1; needs -raw)")
 	rawDir := fl.String("raw", "../data/corpus/raw", "raw ruling JSON, for -reasoning")
 	confirmFinal := fl.Bool("confirm-final", false, "required to score a held-out split (final, final2)")
@@ -372,6 +373,13 @@ func run(args []string) error {
 		eng = engine.New(model, retr, sopts)
 		stVersion = sopts.Version
 	}
+	if *foodRules {
+		if *regime != "st" || *stPrompt != "v1" || *useRules || *useReasoning || *votes > 1 || *retrievalMode != "bm25" {
+			return errors.New("-food-rules supports plain bm25 runs of -regime st")
+		}
+		eng = engine.New(model, retr, engine.Options{Model: cfg.EngineModel, K: cfg.PrecedentK, MaxOutputTokens: cfg.MaxOutputTokens,
+			CaseRules: engine.FoodCaseRules, CaseRulesVersion: engine.FoodVersion})
+	}
 	if *regime == "textile" {
 		if *useRules || *retrievalMode != "bm25" {
 			return errors.New("-regime textile supports bm25 runs, optionally with -reasoning")
@@ -446,6 +454,9 @@ func run(args []string) error {
 	}
 	if *useReasoning {
 		name += "-" + engine.ReasoningVersion
+	}
+	if *foodRules {
+		name += "-" + engine.FoodVersion
 	}
 	if *useRouter {
 		name += "-router"
@@ -532,7 +543,7 @@ func run(args []string) error {
 			data[k] = v
 		}
 	}
-	prov := map[string]any{"dataset_sha256": data, "code_dirty": dirtyAtStart}
+	prov := map[string]any{"dataset_sha256": data, "code_dirty": dirtyAtStart, "llm_no_cache": os.Getenv("LITELLM_NO_CACHE") == "1", "workers": *workers}
 	if err := appendRunLog(*resultsDir, name, *split, cfg, s, time.Since(start), len(cases), *limit, ctx.Err() != nil, prov); err != nil {
 		return err
 	}
@@ -730,6 +741,9 @@ func appendRunLog(dir, name, split string, cfg config.Config, s evalkit.Summary,
 	}
 	if strings.HasPrefix(name, "pharma-") {
 		prompt = engine.PharmaVersion
+	}
+	if strings.Contains(name, "-"+engine.FoodVersion) {
+		prompt += "+" + engine.FoodVersion
 	}
 	entry := map[string]any{
 		"time": time.Now().Format(time.RFC3339), "run": name, "split": split, "held_out": isHeldOut(split),
