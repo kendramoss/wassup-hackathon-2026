@@ -1079,3 +1079,10 @@ After the daily budget reset, live MCP initialized anonymously, then returned HT
 - Held-out (377, once): `results/families-coverage-final-all-litellm-f27-781.jsonl`. 302 matched (80.1%, 75.8–83.8), 5 failed; against D661's 298, on 368 both answered 294 → 300 (9 gained, 3 lost, p = 0.146). Optical took 7.
 - Origin per family, held-out: `results/final-gemini-4-argon-prec-engine-v1-vertex.jsonl` re-sliced, no new calls: with a template 278 of 302, none 62 of 75; food 11 of 15. Development: 41 of 45 (`dev-gemini-4-argon-prec-engine-v1-vertex.jsonl`, plus `dev-gemini-4-argon-prec-engine-v1-litellm-781pool.jsonl` for N339090).
 - $1.6052 (family checks $1.5855, engine $0.0088, smoke test $0.0109); per check p50 5.6 s / p95 30.3 s (development), 4.4 s / 11.9 s (held-out).
+
+## Machinery boundary (gateway, 25 Nov; D850–D855, #785)
+- These figures are development only and were **tuned on these cases**. The held-out 302 above was measured with `family-check-v1` and guard v5 and was not re-run.
+- **D853 (`results/families-coverage-dev-all-litellm-f28-852{,-noorigin}.jsonl`, `families/b3-852-measure.json`).** Machinery 6 → 10 of 11, lifting 7 of 7, batteries 7 of 7, medical 10 of 10, optical 8 of 9, furniture 3 of 4; 45 of 48; look-alikes 29 of 30.
+- **First scope, D851 (`…-f28-850`).** Lifting fell to 5 of 7 (two bottle jacks moved), so it was not a fix.
+- **D855 confirmation (`…-f28-854`, `families/b3-854-measure.json`, `b3-854-vs-852-measure.json`).** Output cap 4096 and 0 failed checks. Machinery 10 of 11, medical 9 of 10, optical 9 of 9; 45 of 48; look-alikes 29 of 30. The no-regression criterion failed on N356150, the return electrode.
+- $1.0027 in all; one run per revision.

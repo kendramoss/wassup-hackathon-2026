@@ -41,6 +41,11 @@ type Template struct {
 	// families. Like Sources, it documents the template; the planner does
 	// not read it.
 	Regime string `json:"regime,omitempty"`
+	// Scope says in plain words what the family covers and what belongs to
+	// another family, grounded in the rulings the template cites (D850). The
+	// family check shows it to its model beside the name and groups; the
+	// planner does not read it. Empty for most families.
+	Scope string `json:"scope,omitempty"`
 }
 
 // TemplateGroup is an operation group with whether the planner may move it.

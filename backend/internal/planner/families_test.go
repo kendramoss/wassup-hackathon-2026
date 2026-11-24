@@ -383,3 +383,42 @@ func TestFamilyFixturesPlan(t *testing.T) {
 // legacyFamilies have their own fixtures in testdata (heat gun, LiDAR, tub
 // light).
 var legacyFamilies = []string{"led_lights", "lidar_modules", "motorised_tools_small_appliances"}
+
+// D850 (#785): a template's scope cites only rulings that it, or a family
+// the scope names, already cites, and names only families that exist.
+func TestTemplateScopesAreGrounded(t *testing.T) {
+	tmpls, err := LoadTemplates()
+	if err != nil {
+		t.Fatal(err)
+	}
+	famRe := regexp.MustCompile(`\b[a-z]+(?:_[a-z]+)+\b`)
+	scoped := 0
+	for fam, tm := range tmpls {
+		if tm.Scope == "" {
+			continue
+		}
+		scoped++
+		cited := map[string]bool{}
+		for _, id := range tm.Sources {
+			cited[id] = true
+		}
+		for _, other := range famRe.FindAllString(tm.Scope, -1) {
+			o, ok := tmpls[other]
+			if !ok {
+				t.Errorf("%s: scope names %q, which is no template", fam, other)
+				continue
+			}
+			for _, id := range o.Sources {
+				cited[id] = true
+			}
+		}
+		for _, id := range rulingID.FindAllString(tm.Scope, -1) {
+			if !cited[id] {
+				t.Errorf("%s: scope cites %s, which neither it nor a family it names cites", fam, id)
+			}
+		}
+	}
+	if scoped < 2 {
+		t.Errorf("%d templates with a scope, want the machines and machinery parts templates at least", scoped)
+	}
+}
