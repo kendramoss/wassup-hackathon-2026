@@ -46,7 +46,13 @@ Section 1 General Notes, sub-paragraph (f), and define terms for the whole annex
 They have no chapter or section, and a note of the table can only be scoped to one,
 so they are left out rather than attached to a guessed scope.
 
-Indonesia (same six-column layout) is not changed here; its notes were not audited.
+Many Thailand rules use terms that the omitted p3 General Notes define: "QVC 40"
+(defined in the p1 General Notes), "value of the good" and "value of
+non-originating materials" (p3 Notes 1 and 2). The rule text shown to the model
+therefore does not contain those definitions.
+
+Indonesia (same six-column layout) is not changed here. Its code-less notes are
+not captured, and were not audited.
 
 ## Effect on development rulings
 
