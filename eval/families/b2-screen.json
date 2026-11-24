@@ -1,0 +1,2694 @@
+{
+ "rule": "D780 hand screen (see DECISIONS D780 and D781 for how candidates were read)",
+ "frozen_at": "2026-11-24",
+ "families": {
+  "batteries": [
+   {
+    "ruling": "H304679",
+    "keep": false,
+    "reason": "subject names a product outside the family"
+   },
+   {
+    "ruling": "H335387",
+    "keep": false,
+    "ambiguous": true,
+    "reason": "battery-electric truck: a vehicle that contains a battery, not a battery"
+   },
+   {
+    "ruling": "H350263",
+    "keep": false,
+    "reason": "subject names a product outside the family"
+   },
+   {
+    "ruling": "H354721",
+    "keep": false,
+    "reason": "subject names a product outside the family"
+   },
+   {
+    "ruling": "N334315",
+    "keep": false,
+    "reason": "subject names a product outside the family"
+   },
+   {
+    "ruling": "N334434",
+    "keep": false,
+    "reason": "subject names a product outside the family"
+   },
+   {
+    "ruling": "N334757",
+    "keep": false,
+    "ambiguous": true,
+    "reason": "electronic cigarette: a device that contains a battery"
+   },
+   {
+    "ruling": "N335017",
+    "keep": false,
+    "reason": "subject names a product outside the family"
+   },
+   {
+    "ruling": "N335537",
+    "keep": false,
+    "reason": "battery charger or converter: a power supply, not a battery"
+   },
+   {
+    "ruling": "N336445",
+    "keep": false,
+    "reason": "subject names a product outside the family"
+   },
+   {
+    "ruling": "N339485",
+    "keep": false,
+    "ambiguous": true,
+    "reason": "battery-powered device, not a battery"
+   },
+   {
+    "ruling": "N340047",
+    "keep": false,
+    "reason": "subject names a product outside the family"
+   },
+   {
+    "ruling": "N340825",
+    "keep": false,
+    "reason": "battery charger or converter: a power supply, not a battery"
+   },
+   {
+    "ruling": "N341251",
+    "keep": false,
+    "reason": "subject names a product outside the family"
+   },
+   {
+    "ruling": "N341338",
+    "keep": false,
+    "ambiguous": true,
+    "reason": "electronic cigarette: a device that contains a battery"
+   },
+   {
+    "ruling": "N341585",
+    "keep": false,
+    "ambiguous": true,
+    "reason": "battery electrode material: a chemical input, not a battery"
+   },
+   {
+    "ruling": "N342133",
+    "keep": false,
+    "reason": "battery charger or converter: a power supply, not a battery"
+   },
+   {
+    "ruling": "N342506",
+    "keep": true,
+    "reason": "vanadium flow battery energy storage system; held UK"
+   },
+   {
+    "ruling": "N342514",
+    "keep": false,
+    "ambiguous": true,
+    "reason": "battery electrode material: a chemical input, not a battery"
+   },
+   {
+    "ruling": "N342864",
+    "keep": false,
+    "reason": "subject names a product outside the family"
+   },
+   {
+    "ruling": "N343416",
+    "keep": false,
+    "reason": "subject names a product outside the family"
+   },
+   {
+    "ruling": "N344188",
+    "keep": false,
+    "ambiguous": true,
+    "reason": "LED light that contains a battery"
+   },
+   {
+    "ruling": "N345899",
+    "keep": false,
+    "ambiguous": true,
+    "reason": "LED light that contains a battery"
+   },
+   {
+    "ruling": "N346317",
+    "keep": true,
+    "reason": "lithium-ion power bank: one or two cells, PCBA and housing"
+   },
+   {
+    "ruling": "N346403",
+    "keep": true,
+    "reason": "lithium-ion power bank: one or two cells, PCBA and housing"
+   },
+   {
+    "ruling": "N346570",
+    "keep": false,
+    "ambiguous": true,
+    "reason": "laptop: electronics that contain a battery"
+   },
+   {
+    "ruling": "N346907",
+    "keep": false,
+    "reason": "subject names a product outside the family"
+   },
+   {
+    "ruling": "N346961",
+    "keep": false,
+    "ambiguous": true,
+    "reason": "impact drill: a power tool that runs on a battery"
+   },
+   {
+    "ruling": "N347139",
+    "keep": false,
+    "reason": "subject names a product outside the family"
+   },
+   {
+    "ruling": "N347172",
+    "keep": true,
+    "reason": "lithium-ion pouch cell made from imported electrode materials"
+   },
+   {
+    "ruling": "N347193",
+    "keep": true,
+    "reason": "power-tool battery pack: cells, cell monitoring PCBA, housing; origin follows the cell"
+   },
+   {
+    "ruling": "N347808",
+    "keep": false,
+    "ambiguous": true,
+    "reason": "battery electrode material: a chemical input, not a battery"
+   },
+   {
+    "ruling": "N348147",
+    "keep": false,
+    "reason": "subject names a product outside the family"
+   },
+   {
+    "ruling": "N348871",
+    "keep": true,
+    "reason": "portable power station: battery bank, six PCBAs including battery protection board and inverter"
+   },
+   {
+    "ruling": "N349313",
+    "keep": false,
+    "reason": "battery charger or converter: a power supply, not a battery"
+   },
+   {
+    "ruling": "N350187",
+    "keep": false,
+    "ambiguous": true,
+    "reason": "laptop: electronics that contain a battery"
+   },
+   {
+    "ruling": "N350221",
+    "keep": false,
+    "reason": "subject names a product outside the family"
+   },
+   {
+    "ruling": "N350222",
+    "keep": false,
+    "reason": "subject names a product outside the family"
+   },
+   {
+    "ruling": "N350297",
+    "keep": false,
+    "reason": "subject names a product outside the family"
+   },
+   {
+    "ruling": "N350298",
+    "keep": false,
+    "reason": "subject names a product outside the family"
+   },
+   {
+    "ruling": "N350300",
+    "keep": false,
+    "reason": "subject names a product outside the family"
+   },
+   {
+    "ruling": "N350301",
+    "keep": false,
+    "reason": "subject names a product outside the family"
+   },
+   {
+    "ruling": "N350306",
+    "keep": false,
+    "ambiguous": true,
+    "reason": "e-bike: a vehicle that contains a battery"
+   },
+   {
+    "ruling": "N350383",
+    "keep": false,
+    "reason": "battery charger or converter: a power supply, not a battery"
+   },
+   {
+    "ruling": "N350799",
+    "keep": false,
+    "ambiguous": true,
+    "reason": "earbuds: electronics that contain a battery"
+   },
+   {
+    "ruling": "N350800",
+    "keep": false,
+    "ambiguous": true,
+    "reason": "earbuds: electronics that contain a battery"
+   },
+   {
+    "ruling": "N350953",
+    "keep": true,
+    "reason": "battery cell"
+   },
+   {
+    "ruling": "N351229",
+    "keep": false,
+    "ambiguous": true,
+    "reason": "electronic cigarette: a device that contains a battery"
+   },
+   {
+    "ruling": "N351263",
+    "keep": true,
+    "reason": "battery cell"
+   },
+   {
+    "ruling": "N351341",
+    "keep": false,
+    "ambiguous": true,
+    "reason": "battery-powered device, not a battery"
+   },
+   {
+    "ruling": "N351493",
+    "keep": false,
+    "ambiguous": true,
+    "reason": "walk-behind lawn mower: a machine that runs on a battery"
+   },
+   {
+    "ruling": "N351558",
+    "keep": false,
+    "reason": "subject names a product outside the family"
+   },
+   {
+    "ruling": "N351913",
+    "keep": false,
+    "reason": "subject names a product outside the family"
+   },
+   {
+    "ruling": "N351962",
+    "keep": false,
+    "ambiguous": true,
+    "reason": "battery-powered device, not a battery"
+   },
+   {
+    "ruling": "N352014",
+    "keep": true,
+    "reason": "power bank"
+   },
+   {
+    "ruling": "N352190",
+    "keep": false,
+    "reason": "battery charger or converter: a power supply, not a battery"
+   },
+   {
+    "ruling": "N352306",
+    "keep": false,
+    "reason": "battery charger or converter: a power supply, not a battery"
+   },
+   {
+    "ruling": "N352355",
+    "keep": true,
+    "reason": "power bank"
+   },
+   {
+    "ruling": "N352538",
+    "keep": false,
+    "ambiguous": true,
+    "reason": "battery-powered device, not a battery"
+   },
+   {
+    "ruling": "N353023",
+    "keep": true,
+    "reason": "jump starter: a battery pack with clamps and controls"
+   },
+   {
+    "ruling": "N353082",
+    "keep": false,
+    "reason": "battery charger or converter: a power supply, not a battery"
+   },
+   {
+    "ruling": "N353086",
+    "keep": true,
+    "reason": "jump starter: a battery pack with clamps and controls"
+   },
+   {
+    "ruling": "N353542",
+    "keep": false,
+    "ambiguous": true,
+    "reason": "battery-powered device, not a battery"
+   },
+   {
+    "ruling": "N353786",
+    "keep": false,
+    "ambiguous": true,
+    "reason": "battery-powered garden tool set: tools, not batteries"
+   },
+   {
+    "ruling": "N353830",
+    "keep": false,
+    "reason": "battery charger or converter: a power supply, not a battery"
+   },
+   {
+    "ruling": "N353884",
+    "keep": false,
+    "ambiguous": true,
+    "reason": "battery-powered device, not a battery"
+   },
+   {
+    "ruling": "N354016",
+    "keep": false,
+    "ambiguous": true,
+    "reason": "LED light that contains a battery"
+   },
+   {
+    "ruling": "N355502",
+    "keep": false,
+    "ambiguous": true,
+    "reason": "LED light that contains a battery"
+   },
+   {
+    "ruling": "N355934",
+    "keep": false,
+    "ambiguous": true,
+    "reason": "battery-powered device, not a battery"
+   },
+   {
+    "ruling": "N356670",
+    "keep": true,
+    "reason": "jump starter: a battery pack with clamps and controls"
+   }
+  ],
+  "machinery": [
+   {
+    "ruling": "H304677",
+    "keep": false,
+    "reason": "subject names a product outside the family"
+   },
+   {
+    "ruling": "H305940",
+    "keep": false,
+    "reason": "subject names a product outside the family"
+   },
+   {
+    "ruling": "H322161",
+    "keep": false,
+    "reason": "subject names a product outside the family"
+   },
+   {
+    "ruling": "H323218",
+    "keep": false,
+    "reason": "subject names a product outside the family"
+   },
+   {
+    "ruling": "H325607",
+    "keep": false,
+    "reason": "subject names a product outside the family"
+   },
+   {
+    "ruling": "H326072",
+    "keep": true,
+    "reason": "refrigerator compressor; holding not in the bundled corpus, so not citable"
+   },
+   {
+    "ruling": "H327731",
+    "keep": false,
+    "reason": "subject names a product outside the family"
+   },
+   {
+    "ruling": "H328731",
+    "keep": false,
+    "ambiguous": true,
+    "reason": "bike and scooter docking station: street equipment, not an industrial machine"
+   },
+   {
+    "ruling": "H329582",
+    "keep": false,
+    "reason": "subject names a product outside the family"
+   },
+   {
+    "ruling": "H330862",
+    "keep": false,
+    "reason": "subject names a product outside the family"
+   },
+   {
+    "ruling": "H332331",
+    "keep": false,
+    "reason": "subject names a product outside the family"
+   },
+   {
+    "ruling": "H332368",
+    "keep": false,
+    "reason": "subject names a product outside the family"
+   },
+   {
+    "ruling": "H332745",
+    "keep": false,
+    "reason": "subject names a product outside the family"
+   },
+   {
+    "ruling": "H333319",
+    "keep": false,
+    "reason": "subject names a product outside the family"
+   },
+   {
+    "ruling": "H333699",
+    "keep": false,
+    "reason": "subject names a product outside the family"
+   },
+   {
+    "ruling": "H335387",
+    "keep": false,
+    "reason": "subject names a product outside the family"
+   },
+   {
+    "ruling": "H337371",
+    "keep": false,
+    "reason": "subject names a product outside the family"
+   },
+   {
+    "ruling": "H338116",
+    "keep": false,
+    "reason": "subject names a product outside the family"
+   },
+   {
+    "ruling": "H338127",
+    "keep": false,
+    "reason": "subject names a product outside the family"
+   },
+   {
+    "ruling": "H339179",
+    "keep": false,
+    "reason": "subject names a product outside the family"
+   },
+   {
+    "ruling": "H341544",
+    "keep": false,
+    "reason": "subject names a product outside the family"
+   },
+   {
+    "ruling": "H342833",
+    "keep": true,
+    "reason": "motor, pump, compressor, hydraulic cylinder, fluid end or bearing"
+   },
+   {
+    "ruling": "H344538",
+    "keep": false,
+    "reason": "subject names a product outside the family"
+   },
+   {
+    "ruling": "H345749",
+    "keep": false,
+    "reason": "subject names a product outside the family"
+   },
+   {
+    "ruling": "H346536",
+    "keep": false,
+    "ambiguous": true,
+    "reason": "3D printer: an electronic device, not an industrial machine"
+   },
+   {
+    "ruling": "H350263",
+    "keep": false,
+    "reason": "subject names a product outside the family"
+   },
+   {
+    "ruling": "H354721",
+    "keep": false,
+    "reason": "subject names a product outside the family"
+   },
+   {
+    "ruling": "N330075",
+    "keep": false,
+    "reason": "subject names a product outside the family"
+   },
+   {
+    "ruling": "N330513",
+    "keep": false,
+    "reason": "subject names a product outside the family"
+   },
+   {
+    "ruling": "N331703",
+    "keep": false,
+    "reason": "subject names a product outside the family"
+   },
+   {
+    "ruling": "N331764",
+    "keep": false,
+    "reason": "subject names a product outside the family"
+   },
+   {
+    "ruling": "N331814",
+    "keep": false,
+    "reason": "subject names a product outside the family"
+   },
+   {
+    "ruling": "N332332",
+    "keep": false,
+    "reason": "subject names a product outside the family"
+   },
+   {
+    "ruling": "N333337",
+    "keep": false,
+    "reason": "subject names a product outside the family"
+   },
+   {
+    "ruling": "N333514",
+    "keep": true,
+    "reason": "motor, pump, compressor or valve served by motors_pumps_compressors"
+   },
+   {
+    "ruling": "N333646",
+    "keep": false,
+    "ambiguous": true,
+    "reason": "lifting jack: no template covers it (D660 named it)"
+   },
+   {
+    "ruling": "N333710",
+    "keep": false,
+    "reason": "subject names a product outside the family"
+   },
+   {
+    "ruling": "N333775",
+    "keep": false,
+    "reason": "subject names a product outside the family"
+   },
+   {
+    "ruling": "N333849",
+    "keep": true,
+    "reason": "wind turbine nacelle; generator assembly and frame joining in France"
+   },
+   {
+    "ruling": "N334276",
+    "keep": false,
+    "reason": "subject names a product outside the family"
+   },
+   {
+    "ruling": "N334644",
+    "keep": false,
+    "reason": "subject names a product outside the family"
+   },
+   {
+    "ruling": "N334669",
+    "keep": false,
+    "reason": "subject names a product outside the family"
+   },
+   {
+    "ruling": "N334762",
+    "keep": false,
+    "reason": "subject names a product outside the family"
+   },
+   {
+    "ruling": "N335078",
+    "keep": false,
+    "reason": "subject names a product outside the family"
+   },
+   {
+    "ruling": "N335179",
+    "keep": false,
+    "reason": "subject names a product outside the family"
+   },
+   {
+    "ruling": "N335213",
+    "keep": false,
+    "reason": "subject names a product outside the family"
+   },
+   {
+    "ruling": "N335339",
+    "keep": false,
+    "reason": "subject names a product outside the family"
+   },
+   {
+    "ruling": "N335537",
+    "keep": false,
+    "reason": "subject names a product outside the family"
+   },
+   {
+    "ruling": "N335835",
+    "keep": true,
+    "reason": "ingot grower; facts in the corpus do not say what was done in each country, so not citable"
+   },
+   {
+    "ruling": "N335871",
+    "keep": false,
+    "reason": "subject names a product outside the family"
+   },
+   {
+    "ruling": "N335873",
+    "keep": false,
+    "reason": "subject names a product outside the family"
+   },
+   {
+    "ruling": "N336013",
+    "keep": false,
+    "reason": "subject names a product outside the family"
+   },
+   {
+    "ruling": "N336263",
+    "keep": false,
+    "reason": "subject names a product outside the family"
+   },
+   {
+    "ruling": "N336688",
+    "keep": false,
+    "reason": "subject names a product outside the family"
+   },
+   {
+    "ruling": "N336828",
+    "keep": false,
+    "reason": "subject names a product outside the family"
+   },
+   {
+    "ruling": "N337356",
+    "keep": false,
+    "reason": "subject names a product outside the family"
+   },
+   {
+    "ruling": "N338204",
+    "keep": false,
+    "reason": "subject names a product outside the family"
+   },
+   {
+    "ruling": "N338577",
+    "keep": false,
+    "reason": "subject names a product outside the family"
+   },
+   {
+    "ruling": "N338713",
+    "keep": false,
+    "reason": "subject names a product outside the family"
+   },
+   {
+    "ruling": "N339011",
+    "keep": false,
+    "reason": "subject names a product outside the family"
+   },
+   {
+    "ruling": "N339022",
+    "keep": false,
+    "reason": "subject names a product outside the family"
+   },
+   {
+    "ruling": "N339166",
+    "keep": true,
+    "reason": "motor, pump, compressor or valve served by motors_pumps_compressors"
+   },
+   {
+    "ruling": "N339513",
+    "keep": false,
+    "reason": "subject names a product outside the family"
+   },
+   {
+    "ruling": "N339944",
+    "keep": false,
+    "reason": "subject names a product outside the family"
+   },
+   {
+    "ruling": "N340198",
+    "keep": false,
+    "reason": "subject names a product outside the family"
+   },
+   {
+    "ruling": "N340242",
+    "keep": false,
+    "reason": "subject names a product outside the family"
+   },
+   {
+    "ruling": "N340243",
+    "keep": false,
+    "reason": "subject names a product outside the family"
+   },
+   {
+    "ruling": "N340244",
+    "keep": false,
+    "reason": "subject names a product outside the family"
+   },
+   {
+    "ruling": "N340482",
+    "keep": false,
+    "reason": "subject names a product outside the family"
+   },
+   {
+    "ruling": "N340493",
+    "keep": false,
+    "reason": "subject names a product outside the family"
+   },
+   {
+    "ruling": "N340654",
+    "keep": false,
+    "reason": "subject names a product outside the family"
+   },
+   {
+    "ruling": "N340920",
+    "keep": true,
+    "reason": "metal detector conveyor system; Mexican conveyor and rejecter and assembly not enough"
+   },
+   {
+    "ruling": "N341088",
+    "keep": false,
+    "reason": "subject names a product outside the family"
+   },
+   {
+    "ruling": "N341280",
+    "keep": false,
+    "reason": "subject names a product outside the family"
+   },
+   {
+    "ruling": "N342124",
+    "keep": false,
+    "reason": "subject names a product outside the family"
+   },
+   {
+    "ruling": "N342125",
+    "keep": false,
+    "reason": "subject names a product outside the family"
+   },
+   {
+    "ruling": "N342421",
+    "keep": false,
+    "reason": "subject names a product outside the family"
+   },
+   {
+    "ruling": "N342480",
+    "keep": false,
+    "reason": "subject names a product outside the family"
+   },
+   {
+    "ruling": "N342861",
+    "keep": false,
+    "reason": "subject names a product outside the family"
+   },
+   {
+    "ruling": "N343494",
+    "keep": false,
+    "reason": "subject names a product outside the family"
+   },
+   {
+    "ruling": "N343543",
+    "keep": false,
+    "reason": "subject names a product outside the family"
+   },
+   {
+    "ruling": "N343697",
+    "keep": false,
+    "reason": "subject names a product outside the family"
+   },
+   {
+    "ruling": "N343835",
+    "keep": false,
+    "reason": "subject names a product outside the family"
+   },
+   {
+    "ruling": "N343914",
+    "keep": false,
+    "reason": "subject names a product outside the family"
+   },
+   {
+    "ruling": "N343950",
+    "keep": false,
+    "reason": "subject names a product outside the family"
+   },
+   {
+    "ruling": "N344048",
+    "keep": true,
+    "reason": "motor, pump, compressor or valve served by motors_pumps_compressors"
+   },
+   {
+    "ruling": "N344081",
+    "keep": true,
+    "reason": "motor, pump, compressor or valve served by motors_pumps_compressors"
+   },
+   {
+    "ruling": "N344082",
+    "keep": false,
+    "reason": "subject names a product outside the family"
+   },
+   {
+    "ruling": "N344206",
+    "keep": false,
+    "reason": "subject names a product outside the family"
+   },
+   {
+    "ruling": "N344657",
+    "keep": false,
+    "reason": "subject names a product outside the family"
+   },
+   {
+    "ruling": "N344692",
+    "keep": false,
+    "ambiguous": true,
+    "reason": "lifting jack: no template covers it (D660 named it)"
+   },
+   {
+    "ruling": "N344694",
+    "keep": false,
+    "ambiguous": true,
+    "reason": "e-bike or e-scooter: a vehicle"
+   },
+   {
+    "ruling": "N344808",
+    "keep": false,
+    "reason": "subject names a product outside the family"
+   },
+   {
+    "ruling": "N344905",
+    "keep": false,
+    "reason": "subject names a product outside the family"
+   },
+   {
+    "ruling": "N344910",
+    "keep": false,
+    "ambiguous": true,
+    "reason": "3D printer: an electronic device, not an industrial machine"
+   },
+   {
+    "ruling": "N344961",
+    "keep": false,
+    "reason": "subject names a product outside the family"
+   },
+   {
+    "ruling": "N345088",
+    "keep": false,
+    "reason": "subject names a product outside the family"
+   },
+   {
+    "ruling": "N345261",
+    "keep": false,
+    "reason": "subject names a product outside the family"
+   },
+   {
+    "ruling": "N345322",
+    "keep": false,
+    "reason": "subject names a product outside the family"
+   },
+   {
+    "ruling": "N345436",
+    "keep": true,
+    "reason": "motor, pump, compressor or valve served by motors_pumps_compressors"
+   },
+   {
+    "ruling": "N345996",
+    "keep": false,
+    "reason": "subject names a product outside the family"
+   },
+   {
+    "ruling": "N345997",
+    "keep": false,
+    "reason": "subject names a product outside the family"
+   },
+   {
+    "ruling": "N346169",
+    "keep": false,
+    "reason": "subject names a product outside the family"
+   },
+   {
+    "ruling": "N346185",
+    "keep": false,
+    "reason": "subject names a product outside the family"
+   },
+   {
+    "ruling": "N346250",
+    "keep": false,
+    "reason": "subject names a product outside the family"
+   },
+   {
+    "ruling": "N346289",
+    "keep": false,
+    "reason": "subject names a product outside the family"
+   },
+   {
+    "ruling": "N346297",
+    "keep": false,
+    "reason": "subject names a product outside the family"
+   },
+   {
+    "ruling": "N346375",
+    "keep": false,
+    "reason": "subject names a product outside the family"
+   },
+   {
+    "ruling": "N346378",
+    "keep": false,
+    "reason": "subject names a product outside the family"
+   },
+   {
+    "ruling": "N346394",
+    "keep": false,
+    "reason": "subject names a product outside the family"
+   },
+   {
+    "ruling": "N346395",
+    "keep": false,
+    "reason": "subject names a product outside the family"
+   },
+   {
+    "ruling": "N346396",
+    "keep": false,
+    "reason": "subject names a product outside the family"
+   },
+   {
+    "ruling": "N346397",
+    "keep": false,
+    "reason": "subject names a product outside the family"
+   },
+   {
+    "ruling": "N346435",
+    "keep": false,
+    "reason": "subject names a product outside the family"
+   },
+   {
+    "ruling": "N346445",
+    "keep": false,
+    "reason": "subject names a product outside the family"
+   },
+   {
+    "ruling": "N346631",
+    "keep": false,
+    "reason": "subject names a product outside the family"
+   },
+   {
+    "ruling": "N346718",
+    "keep": false,
+    "reason": "subject names a product outside the family"
+   },
+   {
+    "ruling": "N346719",
+    "keep": false,
+    "reason": "subject names a product outside the family"
+   },
+   {
+    "ruling": "N346720",
+    "keep": false,
+    "reason": "subject names a product outside the family"
+   },
+   {
+    "ruling": "N346721",
+    "keep": false,
+    "reason": "subject names a product outside the family"
+   },
+   {
+    "ruling": "N346867",
+    "keep": true,
+    "reason": "industrial robot assembly; held Japan (robot arm) over Chinese gripper, pedestal and assembly"
+   },
+   {
+    "ruling": "N346923",
+    "keep": false,
+    "reason": "subject names a product outside the family"
+   },
+   {
+    "ruling": "N347081",
+    "keep": true,
+    "reason": "motor, pump, compressor or valve served by motors_pumps_compressors"
+   },
+   {
+    "ruling": "N347135",
+    "keep": false,
+    "reason": "subject names a product outside the family"
+   },
+   {
+    "ruling": "N347137",
+    "keep": false,
+    "reason": "subject names a product outside the family"
+   },
+   {
+    "ruling": "N347139",
+    "keep": false,
+    "reason": "subject names a product outside the family"
+   },
+   {
+    "ruling": "N347176",
+    "keep": false,
+    "reason": "subject names a product outside the family"
+   },
+   {
+    "ruling": "N347207",
+    "keep": false,
+    "reason": "subject names a product outside the family"
+   },
+   {
+    "ruling": "N347256",
+    "keep": false,
+    "ambiguous": true,
+    "reason": "lifting jack: no template covers it (D660 named it)"
+   },
+   {
+    "ruling": "N347270",
+    "keep": false,
+    "reason": "subject names a product outside the family"
+   },
+   {
+    "ruling": "N347271",
+    "keep": false,
+    "reason": "subject names a product outside the family"
+   },
+   {
+    "ruling": "N347272",
+    "keep": false,
+    "reason": "subject names a product outside the family"
+   },
+   {
+    "ruling": "N347302",
+    "keep": false,
+    "reason": "subject names a product outside the family"
+   },
+   {
+    "ruling": "N347306",
+    "keep": false,
+    "reason": "subject names a product outside the family"
+   },
+   {
+    "ruling": "N347309",
+    "keep": false,
+    "reason": "subject names a product outside the family"
+   },
+   {
+    "ruling": "N347396",
+    "keep": false,
+    "reason": "subject names a product outside the family"
+   },
+   {
+    "ruling": "N347421",
+    "keep": false,
+    "reason": "subject names a product outside the family"
+   },
+   {
+    "ruling": "N347556",
+    "keep": false,
+    "reason": "subject names a product outside the family"
+   },
+   {
+    "ruling": "N347603",
+    "keep": false,
+    "reason": "subject names a product outside the family"
+   },
+   {
+    "ruling": "N347613",
+    "keep": false,
+    "reason": "subject names a product outside the family"
+   },
+   {
+    "ruling": "N347615",
+    "keep": false,
+    "reason": "subject names a product outside the family"
+   },
+   {
+    "ruling": "N347634",
+    "keep": false,
+    "reason": "subject names a product outside the family"
+   },
+   {
+    "ruling": "N347899",
+    "keep": true,
+    "reason": "motor, pump, compressor or valve served by motors_pumps_compressors"
+   },
+   {
+    "ruling": "N347986",
+    "keep": false,
+    "reason": "subject names a product outside the family"
+   },
+   {
+    "ruling": "N347987",
+    "keep": false,
+    "reason": "subject names a product outside the family"
+   },
+   {
+    "ruling": "N347988",
+    "keep": false,
+    "reason": "subject names a product outside the family"
+   },
+   {
+    "ruling": "N348003",
+    "keep": false,
+    "reason": "subject names a product outside the family"
+   },
+   {
+    "ruling": "N348037",
+    "keep": false,
+    "reason": "subject names a product outside the family"
+   },
+   {
+    "ruling": "N348147",
+    "keep": false,
+    "reason": "subject names a product outside the family"
+   },
+   {
+    "ruling": "N348221",
+    "keep": false,
+    "reason": "subject names a product outside the family"
+   },
+   {
+    "ruling": "N348304",
+    "keep": false,
+    "reason": "subject names a product outside the family"
+   },
+   {
+    "ruling": "N348305",
+    "keep": false,
+    "reason": "subject names a product outside the family"
+   },
+   {
+    "ruling": "N348424",
+    "keep": false,
+    "reason": "subject names a product outside the family"
+   },
+   {
+    "ruling": "N348447",
+    "keep": false,
+    "reason": "subject names a product outside the family"
+   },
+   {
+    "ruling": "N348490",
+    "keep": false,
+    "reason": "subject names a product outside the family"
+   },
+   {
+    "ruling": "N348514",
+    "keep": false,
+    "reason": "subject names a product outside the family"
+   },
+   {
+    "ruling": "N348537",
+    "keep": false,
+    "reason": "subject names a product outside the family"
+   },
+   {
+    "ruling": "N348598",
+    "keep": false,
+    "reason": "subject names a product outside the family"
+   },
+   {
+    "ruling": "N348711",
+    "keep": false,
+    "reason": "subject names a product outside the family"
+   },
+   {
+    "ruling": "N348871",
+    "keep": false,
+    "reason": "subject names a product outside the family"
+   },
+   {
+    "ruling": "N348878",
+    "keep": false,
+    "reason": "subject names a product outside the family"
+   },
+   {
+    "ruling": "N348913",
+    "keep": false,
+    "reason": "subject names a product outside the family"
+   },
+   {
+    "ruling": "N349019",
+    "keep": false,
+    "reason": "subject names a product outside the family"
+   },
+   {
+    "ruling": "N349285",
+    "keep": false,
+    "reason": "subject names a product outside the family"
+   },
+   {
+    "ruling": "N349312",
+    "keep": true,
+    "reason": "electric injection moulding machine; assembly of ten subassemblies and programming in Mexico"
+   },
+   {
+    "ruling": "N349389",
+    "keep": false,
+    "reason": "subject names a product outside the family"
+   },
+   {
+    "ruling": "N349662",
+    "keep": true,
+    "reason": "motor, pump, compressor or valve served by motors_pumps_compressors"
+   },
+   {
+    "ruling": "N349893",
+    "keep": false,
+    "reason": "subject names a product outside the family"
+   },
+   {
+    "ruling": "N349899",
+    "keep": false,
+    "reason": "subject names a product outside the family"
+   },
+   {
+    "ruling": "N350011",
+    "keep": false,
+    "ambiguous": true,
+    "reason": "aircraft: no planner family"
+   },
+   {
+    "ruling": "N350059",
+    "keep": false,
+    "reason": "subject names a product outside the family"
+   },
+   {
+    "ruling": "N350063",
+    "keep": false,
+    "reason": "subject names a product outside the family"
+   },
+   {
+    "ruling": "N350085",
+    "keep": false,
+    "reason": "subject names a product outside the family"
+   },
+   {
+    "ruling": "N350221",
+    "keep": false,
+    "reason": "subject names a product outside the family"
+   },
+   {
+    "ruling": "N350222",
+    "keep": false,
+    "reason": "subject names a product outside the family"
+   },
+   {
+    "ruling": "N350225",
+    "keep": false,
+    "reason": "subject names a product outside the family"
+   },
+   {
+    "ruling": "N350285",
+    "keep": false,
+    "reason": "subject names a product outside the family"
+   },
+   {
+    "ruling": "N350296",
+    "keep": false,
+    "reason": "subject names a product outside the family"
+   },
+   {
+    "ruling": "N350297",
+    "keep": false,
+    "reason": "subject names a product outside the family"
+   },
+   {
+    "ruling": "N350298",
+    "keep": false,
+    "reason": "subject names a product outside the family"
+   },
+   {
+    "ruling": "N350299",
+    "keep": false,
+    "reason": "subject names a product outside the family"
+   },
+   {
+    "ruling": "N350301",
+    "keep": false,
+    "reason": "subject names a product outside the family"
+   },
+   {
+    "ruling": "N350306",
+    "keep": false,
+    "ambiguous": true,
+    "reason": "e-bike or e-scooter: a vehicle"
+   },
+   {
+    "ruling": "N350310",
+    "keep": false,
+    "reason": "subject names a product outside the family"
+   },
+   {
+    "ruling": "N350320",
+    "keep": false,
+    "reason": "subject names a product outside the family"
+   },
+   {
+    "ruling": "N350345",
+    "keep": false,
+    "reason": "subject names a product outside the family"
+   },
+   {
+    "ruling": "N350383",
+    "keep": false,
+    "reason": "subject names a product outside the family"
+   },
+   {
+    "ruling": "N350492",
+    "keep": false,
+    "reason": "subject names a product outside the family"
+   },
+   {
+    "ruling": "N350520",
+    "keep": false,
+    "reason": "subject names a product outside the family"
+   },
+   {
+    "ruling": "N350620",
+    "keep": false,
+    "reason": "subject names a product outside the family"
+   },
+   {
+    "ruling": "N350641",
+    "keep": false,
+    "reason": "subject names a product outside the family"
+   },
+   {
+    "ruling": "N350672",
+    "keep": false,
+    "reason": "subject names a product outside the family"
+   },
+   {
+    "ruling": "N350710",
+    "keep": false,
+    "reason": "subject names a product outside the family"
+   },
+   {
+    "ruling": "N350724",
+    "keep": false,
+    "reason": "subject names a product outside the family"
+   },
+   {
+    "ruling": "N350727",
+    "keep": false,
+    "reason": "subject names a product outside the family"
+   },
+   {
+    "ruling": "N350865",
+    "keep": false,
+    "reason": "subject names a product outside the family"
+   },
+   {
+    "ruling": "N350920",
+    "keep": false,
+    "reason": "subject names a product outside the family"
+   },
+   {
+    "ruling": "N350963",
+    "keep": false,
+    "reason": "subject names a product outside the family"
+   },
+   {
+    "ruling": "N351081",
+    "keep": false,
+    "reason": "subject names a product outside the family"
+   },
+   {
+    "ruling": "N351140",
+    "keep": false,
+    "reason": "subject names a product outside the family"
+   },
+   {
+    "ruling": "N351143",
+    "keep": false,
+    "reason": "subject names a product outside the family"
+   },
+   {
+    "ruling": "N351233",
+    "keep": false,
+    "reason": "subject names a product outside the family"
+   },
+   {
+    "ruling": "N351234",
+    "keep": true,
+    "reason": "motor, pump, compressor, hydraulic cylinder, fluid end or bearing"
+   },
+   {
+    "ruling": "N351251",
+    "keep": false,
+    "reason": "subject names a product outside the family"
+   },
+   {
+    "ruling": "N351266",
+    "keep": false,
+    "reason": "subject names a product outside the family"
+   },
+   {
+    "ruling": "N351335",
+    "keep": false,
+    "reason": "subject names a product outside the family"
+   },
+   {
+    "ruling": "N351349",
+    "keep": true,
+    "reason": "motor, pump, compressor, hydraulic cylinder, fluid end or bearing"
+   },
+   {
+    "ruling": "N351402",
+    "keep": false,
+    "reason": "subject names a product outside the family"
+   },
+   {
+    "ruling": "N351460",
+    "keep": false,
+    "reason": "subject names a product outside the family"
+   },
+   {
+    "ruling": "N351493",
+    "keep": false,
+    "ambiguous": true,
+    "reason": "walk-behind lawn mower: outdoor power equipment, not an industrial machine"
+   },
+   {
+    "ruling": "N351503",
+    "keep": false,
+    "reason": "subject names a product outside the family"
+   },
+   {
+    "ruling": "N351504",
+    "keep": false,
+    "reason": "subject names a product outside the family"
+   },
+   {
+    "ruling": "N351506",
+    "keep": false,
+    "reason": "subject names a product outside the family"
+   },
+   {
+    "ruling": "N351528",
+    "keep": false,
+    "reason": "subject names a product outside the family"
+   },
+   {
+    "ruling": "N351538",
+    "keep": true,
+    "reason": "motor, pump, compressor, hydraulic cylinder, fluid end or bearing"
+   },
+   {
+    "ruling": "N351580",
+    "keep": false,
+    "ambiguous": true,
+    "reason": "lifting jack: no template covers it (D660 named it)"
+   },
+   {
+    "ruling": "N351597",
+    "keep": false,
+    "reason": "subject names a product outside the family"
+   },
+   {
+    "ruling": "N351627",
+    "keep": false,
+    "reason": "subject names a product outside the family"
+   },
+   {
+    "ruling": "N351631",
+    "keep": false,
+    "reason": "subject names a product outside the family"
+   },
+   {
+    "ruling": "N351649",
+    "keep": false,
+    "reason": "subject names a product outside the family"
+   },
+   {
+    "ruling": "N351763",
+    "keep": false,
+    "reason": "subject names a product outside the family"
+   },
+   {
+    "ruling": "N351782",
+    "keep": false,
+    "reason": "subject names a product outside the family"
+   },
+   {
+    "ruling": "N351810",
+    "keep": true,
+    "reason": "motor, pump, compressor or valve served by motors_pumps_compressors"
+   },
+   {
+    "ruling": "N351860",
+    "keep": false,
+    "reason": "subject names a product outside the family"
+   },
+   {
+    "ruling": "N351901",
+    "keep": false,
+    "reason": "subject names a product outside the family"
+   },
+   {
+    "ruling": "N351904",
+    "keep": false,
+    "reason": "subject names a product outside the family"
+   },
+   {
+    "ruling": "N351922",
+    "keep": true,
+    "reason": "motor, pump, compressor, hydraulic cylinder, fluid end or bearing"
+   },
+   {
+    "ruling": "N351996",
+    "keep": false,
+    "reason": "subject names a product outside the family"
+   },
+   {
+    "ruling": "N352061",
+    "keep": false,
+    "reason": "subject names a product outside the family"
+   },
+   {
+    "ruling": "N352067",
+    "keep": true,
+    "reason": "motor, pump, compressor, hydraulic cylinder, fluid end or bearing"
+   },
+   {
+    "ruling": "N352101",
+    "keep": false,
+    "reason": "subject names a product outside the family"
+   },
+   {
+    "ruling": "N352167",
+    "keep": false,
+    "reason": "subject names a product outside the family"
+   },
+   {
+    "ruling": "N352190",
+    "keep": false,
+    "reason": "subject names a product outside the family"
+   },
+   {
+    "ruling": "N352477",
+    "keep": false,
+    "reason": "subject names a product outside the family"
+   },
+   {
+    "ruling": "N352495",
+    "keep": false,
+    "reason": "subject names a product outside the family"
+   },
+   {
+    "ruling": "N352739",
+    "keep": false,
+    "reason": "subject names a product outside the family"
+   },
+   {
+    "ruling": "N352741",
+    "keep": false,
+    "reason": "subject names a product outside the family"
+   },
+   {
+    "ruling": "N352837",
+    "keep": false,
+    "reason": "subject names a product outside the family"
+   },
+   {
+    "ruling": "N353023",
+    "keep": false,
+    "reason": "subject names a product outside the family"
+   },
+   {
+    "ruling": "N353152",
+    "keep": false,
+    "reason": "subject names a product outside the family"
+   },
+   {
+    "ruling": "N353214",
+    "keep": false,
+    "reason": "subject names a product outside the family"
+   },
+   {
+    "ruling": "N353216",
+    "keep": false,
+    "reason": "subject names a product outside the family"
+   },
+   {
+    "ruling": "N353220",
+    "keep": false,
+    "reason": "subject names a product outside the family"
+   },
+   {
+    "ruling": "N353302",
+    "keep": false,
+    "reason": "subject names a product outside the family"
+   },
+   {
+    "ruling": "N353476",
+    "keep": false,
+    "reason": "subject names a product outside the family"
+   },
+   {
+    "ruling": "N353576",
+    "keep": false,
+    "reason": "subject names a product outside the family"
+   },
+   {
+    "ruling": "N353664",
+    "keep": false,
+    "reason": "subject names a product outside the family"
+   },
+   {
+    "ruling": "N353786",
+    "keep": false,
+    "reason": "subject names a product outside the family"
+   },
+   {
+    "ruling": "N353851",
+    "keep": false,
+    "reason": "subject names a product outside the family"
+   },
+   {
+    "ruling": "N353879",
+    "keep": false,
+    "reason": "subject names a product outside the family"
+   },
+   {
+    "ruling": "N353886",
+    "keep": false,
+    "reason": "subject names a product outside the family"
+   },
+   {
+    "ruling": "N353921",
+    "keep": false,
+    "reason": "subject names a product outside the family"
+   },
+   {
+    "ruling": "N354105",
+    "keep": false,
+    "reason": "subject names a product outside the family"
+   },
+   {
+    "ruling": "N354156",
+    "keep": true,
+    "reason": "motor, pump, compressor, hydraulic cylinder, fluid end or bearing"
+   },
+   {
+    "ruling": "N354162",
+    "keep": false,
+    "reason": "subject names a product outside the family"
+   },
+   {
+    "ruling": "N354164",
+    "keep": false,
+    "reason": "subject names a product outside the family"
+   },
+   {
+    "ruling": "N354169",
+    "keep": true,
+    "reason": "motor, pump, compressor, hydraulic cylinder, fluid end or bearing"
+   },
+   {
+    "ruling": "N354327",
+    "keep": false,
+    "reason": "subject names a product outside the family"
+   },
+   {
+    "ruling": "N354369",
+    "keep": false,
+    "reason": "subject names a product outside the family"
+   },
+   {
+    "ruling": "N354393",
+    "keep": false,
+    "reason": "subject names a product outside the family"
+   },
+   {
+    "ruling": "N354559",
+    "keep": true,
+    "reason": "motor, pump, compressor, hydraulic cylinder, fluid end or bearing"
+   },
+   {
+    "ruling": "N354624",
+    "keep": false,
+    "reason": "subject names a product outside the family"
+   },
+   {
+    "ruling": "N354790",
+    "keep": false,
+    "ambiguous": true,
+    "reason": "lifting jack: no template covers it (D660 named it)"
+   },
+   {
+    "ruling": "N354791",
+    "keep": false,
+    "ambiguous": true,
+    "reason": "lifting jack: no template covers it (D660 named it)"
+   },
+   {
+    "ruling": "N354794",
+    "keep": false,
+    "reason": "subject names a product outside the family"
+   },
+   {
+    "ruling": "N355045",
+    "keep": false,
+    "reason": "subject names a product outside the family"
+   },
+   {
+    "ruling": "N355059",
+    "keep": false,
+    "reason": "subject names a product outside the family"
+   },
+   {
+    "ruling": "N355131",
+    "keep": false,
+    "ambiguous": true,
+    "reason": "lifting jack: no template covers it (D660 named it)"
+   },
+   {
+    "ruling": "N355132",
+    "keep": false,
+    "ambiguous": true,
+    "reason": "lifting jack: no template covers it (D660 named it)"
+   },
+   {
+    "ruling": "N355133",
+    "keep": false,
+    "ambiguous": true,
+    "reason": "lifting jack: no template covers it (D660 named it)"
+   },
+   {
+    "ruling": "N355137",
+    "keep": false,
+    "reason": "subject names a product outside the family"
+   },
+   {
+    "ruling": "N355148",
+    "keep": false,
+    "reason": "subject names a product outside the family"
+   },
+   {
+    "ruling": "N355150",
+    "keep": false,
+    "reason": "subject names a product outside the family"
+   },
+   {
+    "ruling": "N355173",
+    "keep": false,
+    "reason": "subject names a product outside the family"
+   },
+   {
+    "ruling": "N355175",
+    "keep": false,
+    "reason": "subject names a product outside the family"
+   },
+   {
+    "ruling": "N355237",
+    "keep": false,
+    "ambiguous": true,
+    "reason": "pool cleaning robot: a consumer appliance, not an industrial machine"
+   },
+   {
+    "ruling": "N355399",
+    "keep": true,
+    "reason": "motor, pump, compressor or valve served by motors_pumps_compressors"
+   },
+   {
+    "ruling": "N355567",
+    "keep": true,
+    "reason": "motor, pump, compressor, hydraulic cylinder, fluid end or bearing"
+   },
+   {
+    "ruling": "N355860",
+    "keep": false,
+    "reason": "subject names a product outside the family"
+   },
+   {
+    "ruling": "N355934",
+    "keep": false,
+    "reason": "subject names a product outside the family"
+   },
+   {
+    "ruling": "N356042",
+    "keep": false,
+    "reason": "subject names a product outside the family"
+   },
+   {
+    "ruling": "N356155",
+    "keep": false,
+    "reason": "subject names a product outside the family"
+   },
+   {
+    "ruling": "N356338",
+    "keep": false,
+    "reason": "subject names a product outside the family"
+   },
+   {
+    "ruling": "N356398",
+    "keep": false,
+    "reason": "subject names a product outside the family"
+   },
+   {
+    "ruling": "N356467",
+    "keep": false,
+    "ambiguous": true,
+    "reason": "e-bike or e-scooter: a vehicle"
+   },
+   {
+    "ruling": "N356520",
+    "keep": false,
+    "reason": "subject names a product outside the family"
+   },
+   {
+    "ruling": "N356592",
+    "keep": true,
+    "reason": "motor, pump, compressor, hydraulic cylinder, fluid end or bearing"
+   },
+   {
+    "ruling": "N356661",
+    "keep": false,
+    "reason": "subject names a product outside the family"
+   },
+   {
+    "ruling": "N356663",
+    "keep": false,
+    "reason": "subject names a product outside the family"
+   },
+   {
+    "ruling": "N356761",
+    "keep": false,
+    "reason": "subject names a product outside the family"
+   },
+   {
+    "ruling": "N357057",
+    "keep": false,
+    "reason": "subject names a product outside the family"
+   }
+  ],
+  "furniture": [
+   {
+    "ruling": "H322161",
+    "keep": false,
+    "reason": "subject names a product outside the family"
+   },
+   {
+    "ruling": "H330862",
+    "keep": true,
+    "reason": "furniture already cited by the furniture template"
+   },
+   {
+    "ruling": "H330975",
+    "keep": false,
+    "reason": "subject names a product outside the family"
+   },
+   {
+    "ruling": "H331515",
+    "keep": false,
+    "ambiguous": true,
+    "reason": "refrigerator shelf light: lighting, not furniture"
+   },
+   {
+    "ruling": "H338482",
+    "keep": true,
+    "reason": "mattress or upholstered chair; holding not in the bundled corpus, so not citable"
+   },
+   {
+    "ruling": "H338728",
+    "keep": true,
+    "reason": "furniture already cited by the furniture template"
+   },
+   {
+    "ruling": "H342474",
+    "keep": false,
+    "ambiguous": true,
+    "reason": "LED display cabinet: a lit display case, lighting or furniture"
+   },
+   {
+    "ruling": "H345343",
+    "keep": true,
+    "reason": "plastic chairs or bamboo shelves"
+   },
+   {
+    "ruling": "N333330",
+    "keep": false,
+    "reason": "subject names a product outside the family"
+   },
+   {
+    "ruling": "N334531",
+    "keep": true,
+    "reason": "tables: Thai stone tabletop, Chinese welded and painted bases, sold unassembled"
+   },
+   {
+    "ruling": "N335085",
+    "keep": false,
+    "reason": "subject names a product outside the family"
+   },
+   {
+    "ruling": "N335585",
+    "keep": true,
+    "reason": "mattress or upholstered chair; holding not in the bundled corpus, so not citable"
+   },
+   {
+    "ruling": "N336013",
+    "keep": false,
+    "reason": "subject names a product outside the family"
+   },
+   {
+    "ruling": "N339107",
+    "keep": true,
+    "reason": "furniture already cited by the furniture template"
+   },
+   {
+    "ruling": "N339646",
+    "keep": true,
+    "reason": "furniture already cited by the furniture template"
+   },
+   {
+    "ruling": "N339685",
+    "keep": true,
+    "reason": "furniture already cited by the furniture template"
+   },
+   {
+    "ruling": "N340363",
+    "keep": false,
+    "reason": "subject names a product outside the family"
+   },
+   {
+    "ruling": "N344246",
+    "keep": true,
+    "reason": "furniture already cited by the furniture template"
+   },
+   {
+    "ruling": "N344475",
+    "keep": false,
+    "reason": "subject names a product outside the family"
+   },
+   {
+    "ruling": "N344477",
+    "keep": false,
+    "reason": "subject names a product outside the family"
+   },
+   {
+    "ruling": "N345915",
+    "keep": false,
+    "reason": "subject names a product outside the family"
+   },
+   {
+    "ruling": "N347189",
+    "keep": false,
+    "reason": "subject names a product outside the family"
+   },
+   {
+    "ruling": "N347645",
+    "keep": false,
+    "reason": "subject names a product outside the family"
+   },
+   {
+    "ruling": "N348576",
+    "keep": true,
+    "reason": "furniture already cited by the furniture template"
+   },
+   {
+    "ruling": "N348875",
+    "keep": false,
+    "reason": "subject names a product outside the family"
+   },
+   {
+    "ruling": "N350492",
+    "keep": false,
+    "ambiguous": true,
+    "reason": "high voltage distribution cabinet: electrical apparatus, not furniture"
+   },
+   {
+    "ruling": "N350535",
+    "keep": false,
+    "reason": "subject names a product outside the family"
+   },
+   {
+    "ruling": "N350678",
+    "keep": false,
+    "ambiguous": true,
+    "reason": "pet bed: D138 called it a stretch for furniture"
+   },
+   {
+    "ruling": "N351341",
+    "keep": false,
+    "reason": "subject names a product outside the family"
+   },
+   {
+    "ruling": "N351505",
+    "keep": false,
+    "reason": "subject names a product outside the family"
+   },
+   {
+    "ruling": "N351958",
+    "keep": false,
+    "reason": "subject names a product outside the family"
+   },
+   {
+    "ruling": "N352190",
+    "keep": false,
+    "reason": "subject names a product outside the family"
+   },
+   {
+    "ruling": "N354016",
+    "keep": false,
+    "reason": "subject names a product outside the family"
+   },
+   {
+    "ruling": "N354279",
+    "keep": true,
+    "reason": "plastic chairs or bamboo shelves"
+   },
+   {
+    "ruling": "N354369",
+    "keep": false,
+    "reason": "subject names a product outside the family"
+   }
+  ],
+  "medical_optical": [
+   {
+    "ruling": "H322967",
+    "keep": true,
+    "reason": "medical device already cited by the medical template"
+   },
+   {
+    "ruling": "H327732",
+    "keep": false,
+    "ambiguous": true,
+    "reason": "absorbent or battery material: a chemical"
+   },
+   {
+    "ruling": "H331515",
+    "keep": false,
+    "reason": "subject names a product outside the family"
+   },
+   {
+    "ruling": "H335829",
+    "keep": false,
+    "ambiguous": true,
+    "reason": "optical transceiver: electronics, not an optical instrument"
+   },
+   {
+    "ruling": "H337046",
+    "keep": false,
+    "reason": "subject names a product outside the family"
+   },
+   {
+    "ruling": "H341544",
+    "keep": false,
+    "reason": "subject names a product outside the family"
+   },
+   {
+    "ruling": "H346536",
+    "keep": false,
+    "reason": "subject names a product outside the family"
+   },
+   {
+    "ruling": "H348154",
+    "keep": false,
+    "ambiguous": true,
+    "reason": "smart glasses: electronics, not eyewear"
+   },
+   {
+    "ruling": "H350894",
+    "keep": false,
+    "reason": "subject names a product outside the family"
+   },
+   {
+    "ruling": "N331651",
+    "keep": false,
+    "reason": "subject names a product outside the family"
+   },
+   {
+    "ruling": "N334538",
+    "keep": true,
+    "reason": "digital blood pressure monitors: Vietnamese PCBA, firmware loading and calibration"
+   },
+   {
+    "ruling": "N335017",
+    "keep": false,
+    "reason": "subject names a product outside the family"
+   },
+   {
+    "ruling": "N335085",
+    "keep": false,
+    "reason": "subject names a product outside the family"
+   },
+   {
+    "ruling": "N335263",
+    "keep": false,
+    "reason": "subject names a product outside the family"
+   },
+   {
+    "ruling": "N335573",
+    "keep": false,
+    "reason": "subject names a product outside the family"
+   },
+   {
+    "ruling": "N336168",
+    "keep": true,
+    "reason": "medical device already cited by the medical template"
+   },
+   {
+    "ruling": "N336527",
+    "keep": false,
+    "ambiguous": true,
+    "reason": "medical instrument cover: a plastic article"
+   },
+   {
+    "ruling": "N338577",
+    "keep": false,
+    "reason": "subject names a product outside the family"
+   },
+   {
+    "ruling": "N340107",
+    "keep": false,
+    "ambiguous": true,
+    "reason": "medical patient cable: a cable assembly"
+   },
+   {
+    "ruling": "N340345",
+    "keep": true,
+    "reason": "medical device already cited by the medical template"
+   },
+   {
+    "ruling": "N341537",
+    "keep": true,
+    "reason": "medical drill bits: Chinese blank, Irish precision grinding and sterilisation"
+   },
+   {
+    "ruling": "N342074",
+    "keep": false,
+    "ambiguous": true,
+    "reason": "dental floss: a consumable, not a device"
+   },
+   {
+    "ruling": "N342247",
+    "keep": false,
+    "ambiguous": true,
+    "reason": "optical transceiver: electronics, not an optical instrument"
+   },
+   {
+    "ruling": "N342427",
+    "keep": true,
+    "reason": "riflescope lens: milled in Singapore, ground, polished and coated in China"
+   },
+   {
+    "ruling": "N342838",
+    "keep": true,
+    "reason": "medical device already cited by the medical template"
+   },
+   {
+    "ruling": "N343161",
+    "keep": true,
+    "reason": "medical device already cited by the medical template"
+   },
+   {
+    "ruling": "N343712",
+    "keep": true,
+    "reason": "medical device already cited by the medical template"
+   },
+   {
+    "ruling": "N343771",
+    "keep": true,
+    "reason": "medical device already cited by the medical template"
+   },
+   {
+    "ruling": "N343773",
+    "keep": true,
+    "reason": "dental tips: origin follows the first cannula"
+   },
+   {
+    "ruling": "N343774",
+    "keep": true,
+    "reason": "medical device already cited by the medical template"
+   },
+   {
+    "ruling": "N343775",
+    "keep": true,
+    "reason": "medical device already cited by the medical template"
+   },
+   {
+    "ruling": "N343808",
+    "keep": false,
+    "ambiguous": true,
+    "reason": "medical patient cable: a cable assembly"
+   },
+   {
+    "ruling": "N344188",
+    "keep": false,
+    "reason": "subject names a product outside the family"
+   },
+   {
+    "ruling": "N344211",
+    "keep": true,
+    "reason": "medical device already cited by the medical template"
+   },
+   {
+    "ruling": "N344695",
+    "keep": true,
+    "reason": "medical device already cited by the medical template"
+   },
+   {
+    "ruling": "N344910",
+    "keep": false,
+    "reason": "subject names a product outside the family"
+   },
+   {
+    "ruling": "N345195",
+    "keep": false,
+    "ambiguous": true,
+    "reason": "dental bib or exam table paper: a paper good"
+   },
+   {
+    "ruling": "N345372",
+    "keep": false,
+    "reason": "subject names a product outside the family"
+   },
+   {
+    "ruling": "N345397",
+    "keep": true,
+    "reason": "medical device already cited by the medical template"
+   },
+   {
+    "ruling": "N345862",
+    "keep": false,
+    "reason": "subject names a product outside the family"
+   },
+   {
+    "ruling": "N345899",
+    "keep": false,
+    "reason": "subject names a product outside the family"
+   },
+   {
+    "ruling": "N345915",
+    "keep": false,
+    "ambiguous": true,
+    "reason": "dental bib or exam table paper: a paper good"
+   },
+   {
+    "ruling": "N345937",
+    "keep": true,
+    "reason": "lens assemblies, already cited by the display and camera template"
+   },
+   {
+    "ruling": "N346185",
+    "keep": false,
+    "reason": "subject names a product outside the family"
+   },
+   {
+    "ruling": "N347034",
+    "keep": false,
+    "reason": "subject names a product outside the family"
+   },
+   {
+    "ruling": "N347059",
+    "keep": false,
+    "ambiguous": true,
+    "reason": "medical drape or gown: a textile good"
+   },
+   {
+    "ruling": "N347805",
+    "keep": false,
+    "reason": "subject names a product outside the family"
+   },
+   {
+    "ruling": "N347808",
+    "keep": false,
+    "ambiguous": true,
+    "reason": "absorbent or battery material: a chemical"
+   },
+   {
+    "ruling": "N348208",
+    "keep": false,
+    "reason": "subject names a product outside the family"
+   },
+   {
+    "ruling": "N348317",
+    "keep": true,
+    "reason": "medical device already cited by the medical template"
+   },
+   {
+    "ruling": "N348409",
+    "keep": false,
+    "reason": "subject names a product outside the family"
+   },
+   {
+    "ruling": "N348698",
+    "keep": false,
+    "reason": "subject names a product outside the family"
+   },
+   {
+    "ruling": "N348805",
+    "keep": false,
+    "ambiguous": true,
+    "reason": "medical drape or gown: a textile good"
+   },
+   {
+    "ruling": "N348827",
+    "keep": false,
+    "reason": "subject names a product outside the family"
+   },
+   {
+    "ruling": "N348930",
+    "keep": false,
+    "reason": "subject names a product outside the family"
+   },
+   {
+    "ruling": "N348990",
+    "keep": false,
+    "reason": "subject names a product outside the family"
+   },
+   {
+    "ruling": "N349028",
+    "keep": false,
+    "reason": "subject names a product outside the family"
+   },
+   {
+    "ruling": "N349038",
+    "keep": true,
+    "reason": "medical device already cited by the medical template"
+   },
+   {
+    "ruling": "N349834",
+    "keep": false,
+    "reason": "subject names a product outside the family"
+   },
+   {
+    "ruling": "N349835",
+    "keep": false,
+    "reason": "subject names a product outside the family"
+   },
+   {
+    "ruling": "N349836",
+    "keep": false,
+    "reason": "subject names a product outside the family"
+   },
+   {
+    "ruling": "N350050",
+    "keep": false,
+    "reason": "subject names a product outside the family"
+   },
+   {
+    "ruling": "N350085",
+    "keep": false,
+    "reason": "subject names a product outside the family"
+   },
+   {
+    "ruling": "N350152",
+    "keep": true,
+    "reason": "medical device or disposable"
+   },
+   {
+    "ruling": "N350170",
+    "keep": false,
+    "reason": "subject names a product outside the family"
+   },
+   {
+    "ruling": "N350225",
+    "keep": true,
+    "reason": "medical device or disposable"
+   },
+   {
+    "ruling": "N350680",
+    "keep": true,
+    "reason": "optical window or sight part"
+   },
+   {
+    "ruling": "N350710",
+    "keep": false,
+    "reason": "subject names a product outside the family"
+   },
+   {
+    "ruling": "N350711",
+    "keep": false,
+    "reason": "subject names a product outside the family"
+   },
+   {
+    "ruling": "N350838",
+    "keep": true,
+    "reason": "optical window or sight part"
+   },
+   {
+    "ruling": "N350868",
+    "keep": false,
+    "reason": "subject names a product outside the family"
+   },
+   {
+    "ruling": "N350869",
+    "keep": false,
+    "reason": "subject names a product outside the family"
+   },
+   {
+    "ruling": "N350953",
+    "keep": false,
+    "reason": "subject names a product outside the family"
+   },
+   {
+    "ruling": "N350966",
+    "keep": false,
+    "reason": "subject names a product outside the family"
+   },
+   {
+    "ruling": "N351073",
+    "keep": false,
+    "reason": "subject names a product outside the family"
+   },
+   {
+    "ruling": "N351143",
+    "keep": false,
+    "reason": "subject names a product outside the family"
+   },
+   {
+    "ruling": "N351263",
+    "keep": false,
+    "reason": "subject names a product outside the family"
+   },
+   {
+    "ruling": "N351402",
+    "keep": false,
+    "reason": "subject names a product outside the family"
+   },
+   {
+    "ruling": "N351651",
+    "keep": false,
+    "ambiguous": true,
+    "reason": "novelty sunglasses: a toy-like article, not eyewear"
+   },
+   {
+    "ruling": "N351888",
+    "keep": false,
+    "reason": "subject names a product outside the family"
+   },
+   {
+    "ruling": "N352242",
+    "keep": false,
+    "ambiguous": true,
+    "reason": "dental curing device or vein finder: an electronic device; medical use alone does not decide the family"
+   },
+   {
+    "ruling": "N352484",
+    "keep": false,
+    "reason": "subject names a product outside the family"
+   },
+   {
+    "ruling": "N352529",
+    "keep": false,
+    "reason": "subject names a product outside the family"
+   },
+   {
+    "ruling": "N352602",
+    "keep": false,
+    "reason": "subject names a product outside the family"
+   },
+   {
+    "ruling": "N352670",
+    "keep": false,
+    "ambiguous": true,
+    "reason": "optical transceiver: electronics, not an optical instrument"
+   },
+   {
+    "ruling": "N352841",
+    "keep": false,
+    "reason": "subject names a product outside the family"
+   },
+   {
+    "ruling": "N352876",
+    "keep": false,
+    "reason": "subject names a product outside the family"
+   },
+   {
+    "ruling": "N353259",
+    "keep": true,
+    "reason": "medical device or disposable"
+   },
+   {
+    "ruling": "N353260",
+    "keep": true,
+    "reason": "medical device or disposable"
+   },
+   {
+    "ruling": "N353302",
+    "keep": false,
+    "reason": "subject names a product outside the family"
+   },
+   {
+    "ruling": "N353593",
+    "keep": false,
+    "reason": "subject names a product outside the family"
+   },
+   {
+    "ruling": "N353851",
+    "keep": false,
+    "reason": "subject names a product outside the family"
+   },
+   {
+    "ruling": "N353959",
+    "keep": false,
+    "reason": "subject names a product outside the family"
+   },
+   {
+    "ruling": "N353976",
+    "keep": true,
+    "reason": "medical device or disposable"
+   },
+   {
+    "ruling": "N354016",
+    "keep": false,
+    "reason": "subject names a product outside the family"
+   },
+   {
+    "ruling": "N354084",
+    "keep": false,
+    "reason": "subject names a product outside the family"
+   },
+   {
+    "ruling": "N354290",
+    "keep": false,
+    "reason": "subject names a product outside the family"
+   },
+   {
+    "ruling": "N354398",
+    "keep": false,
+    "reason": "subject names a product outside the family"
+   },
+   {
+    "ruling": "N355045",
+    "keep": false,
+    "reason": "subject names a product outside the family"
+   },
+   {
+    "ruling": "N355059",
+    "keep": true,
+    "reason": "medical device or disposable"
+   },
+   {
+    "ruling": "N355060",
+    "keep": false,
+    "reason": "subject names a product outside the family"
+   },
+   {
+    "ruling": "N355061",
+    "keep": false,
+    "reason": "subject names a product outside the family"
+   },
+   {
+    "ruling": "N355128",
+    "keep": false,
+    "reason": "subject names a product outside the family"
+   },
+   {
+    "ruling": "N355147",
+    "keep": false,
+    "reason": "subject names a product outside the family"
+   },
+   {
+    "ruling": "N355175",
+    "keep": true,
+    "reason": "medical device or disposable"
+   },
+   {
+    "ruling": "N355289",
+    "keep": false,
+    "ambiguous": true,
+    "reason": "dental curing device or vein finder: an electronic device; medical use alone does not decide the family"
+   },
+   {
+    "ruling": "N355320",
+    "keep": false,
+    "reason": "subject names a product outside the family"
+   },
+   {
+    "ruling": "N355350",
+    "keep": false,
+    "reason": "subject names a product outside the family"
+   },
+   {
+    "ruling": "N355466",
+    "keep": true,
+    "reason": "medical device or disposable"
+   },
+   {
+    "ruling": "N355841",
+    "keep": false,
+    "reason": "subject names a product outside the family"
+   },
+   {
+    "ruling": "N355842",
+    "keep": false,
+    "reason": "subject names a product outside the family"
+   },
+   {
+    "ruling": "N355843",
+    "keep": false,
+    "reason": "subject names a product outside the family"
+   },
+   {
+    "ruling": "N355902",
+    "keep": false,
+    "reason": "subject names a product outside the family"
+   },
+   {
+    "ruling": "N355903",
+    "keep": false,
+    "reason": "subject names a product outside the family"
+   },
+   {
+    "ruling": "N355934",
+    "keep": false,
+    "reason": "subject names a product outside the family"
+   },
+   {
+    "ruling": "N355935",
+    "keep": false,
+    "reason": "subject names a product outside the family"
+   },
+   {
+    "ruling": "N355983",
+    "keep": true,
+    "reason": "wound drains and evacuator: Israeli extruded tube, Indian cutting and assembly"
+   },
+   {
+    "ruling": "N356074",
+    "keep": false,
+    "reason": "subject names a product outside the family"
+   },
+   {
+    "ruling": "N356150",
+    "keep": true,
+    "reason": "medical device or disposable"
+   },
+   {
+    "ruling": "N356189",
+    "keep": false,
+    "reason": "subject names a product outside the family"
+   },
+   {
+    "ruling": "N356243",
+    "keep": false,
+    "reason": "subject names a product outside the family"
+   },
+   {
+    "ruling": "N356289",
+    "keep": true,
+    "reason": "medical device or disposable"
+   },
+   {
+    "ruling": "N356306",
+    "keep": false,
+    "reason": "subject names a product outside the family"
+   },
+   {
+    "ruling": "N356327",
+    "keep": false,
+    "reason": "subject names a product outside the family"
+   },
+   {
+    "ruling": "N356328",
+    "keep": false,
+    "reason": "subject names a product outside the family"
+   },
+   {
+    "ruling": "N356350",
+    "keep": false,
+    "reason": "subject names a product outside the family"
+   },
+   {
+    "ruling": "N356964",
+    "keep": false,
+    "reason": "subject names a product outside the family"
+   }
+  ]
+ }
+}
