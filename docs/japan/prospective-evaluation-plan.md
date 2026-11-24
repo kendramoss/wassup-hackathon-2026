@@ -51,7 +51,7 @@ Vietnam 1); for 50 the reason stays `psr` with different text, and one went from
 
 ## 2. Candidate designs
 
-### A. Paired rerun on dev_eval
+### A. Rerun on dev_eval (historical / regression-only)
 Rerun the 400 dev_eval ids (395 eligible requests) and compare with the archived
 D712 outputs.
 - Compute which requests changed offline, with no model: run
@@ -68,9 +68,10 @@ D712 outputs.
   cap 8192 tokens per request (3235840 tokens total cap), `requests_sha256`
   `3b654bfe243a7e59fa88df0206a949330039fe12e646f994e2978b1aa5a01ec2`. Later
   merges (#802) can change this hash; re-measure at the commit that is frozen.
-- Pro: cheapest, paired, isolates the evidence change. Con: dev_eval is a
-  development set already looked at, so it shows regression and change, not
-  generalisation. Identical-request ids only measure model noise, not engine
+- Pro: cheapest. Con: the comparison with the archived run does not isolate the
+  engine-evidence change (see Provider and model confounds), so it is
+  historical / regression-only. dev_eval is also a development set already
+  looked at, so it shows regression and change, not generalisation. Identical-request ids only measure model noise, not engine
   change.
 
 ### B. Fresh prospective sample
@@ -107,7 +108,7 @@ USD per million tokens, `cap` = 8192 output tokens per request.
 
 For design A at `20b39a82`: input_tokens_upper = 5118030, output_tokens_upper =
 3235840 (N = 395). The measured token counts will be lower; this is a ceiling,
-not an estimate. Two passes (rerun plus any repeat) multiply by the pass count.
+not an estimate, and for orientation only (see below). Two passes (rerun plus any repeat) multiply by the pass count.
 
 `jpeval plan` computes this from flags: `-rate-in <USD per million input>`,
 `-rate-out <USD per million output>` and `-rates-source <where the rates come
@@ -118,8 +119,32 @@ verifies the current official provider pricing and records it with its source;
 the user approves the resulting budget and does not need to research rates. Design B needs the same command run on the frozen sample.
 Retries, a second model or a judge pass are not in this formula.
 
+`jpeval plan` request bytes measure the LiteLLM-style request body. They are
+not literal Vertex transport bytes and not Vertex usage or tokenization, so the
+formulas are ceilings for orientation only. A causal paired comparison runs both
+the old and the new candidate, so both runs' costs belong in the approved budget.
+
 Each study needs its own authorization, access and provider admission before
 any model call. Authenticated app-login completion is a separate matter.
+
+## Provider and model confounds
+
+The archived D712 run used LiteLLM (`gemini-4-argon`); the live production
+candidate uses Vertex with the current served model. Provider, time, model
+version and sampling are therefore confounded with the engine-evidence changes.
+Comparing an archived run with a new run does not isolate the effect of those
+changes, even with the same requested alias or an identical request hash.
+
+A causal paired engine comparison would have to run both the old and the new
+candidate prospectively under one verified provider, model and policy, paired,
+with order and sampling randomised before any call, and both runs' costs in the
+approved budget. A harness that runs an old engine commit alongside the new one
+may not exist yet; it would need to be built and reviewed first. No such run is
+authorized now.
+
+For every call record the requested alias, the served model id and the
+version or revision the provider returns. If the provider returns no served
+version, state that as a limit of the study.
 
 ## 4. Metrics and pre-registration
 
