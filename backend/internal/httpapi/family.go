@@ -60,9 +60,5 @@ func (a *api) familyCheck(w http.ResponseWriter, r *http.Request) {
 		a.fail(w, r, err)
 		return
 	}
-	if res.GuardRule != "" {
-		a.d.Logger.InfoContext(r.Context(), "family check: guard took the match away", "request_id", requestRef(r.Context()),
-			"guard_version", familycheck.GuardVersion, "rule", res.GuardRule, "model_family", res.ModelFamily)
-	}
 	writeJSON(w, http.StatusOK, map[string]any{"result": res, "prompt_version": familycheck.PromptVersion, "llm_provider": a.d.Provider})
 }
