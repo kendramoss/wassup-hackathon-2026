@@ -4,7 +4,7 @@ import { test } from "node:test";
 import { html, text } from "./render-support.mjs";
 
 const { JapanPreference } = await import("../src/components/op/japan-preference.tsx");
-const { japanAgreements, japanTariffEditions, validJapanHS } = await import("../src/lib/japan-preference.ts");
+const { japanAgreements, japanNoEditionAgreements, japanTariffEditions, supportedJapanAgreements, validJapanHS } = await import("../src/lib/japan-preference.ts");
 
 const c = {
   id: "case_f987ac",
@@ -56,8 +56,23 @@ test("the Japan form uses the preferential agreement codes and accepts Japanese 
 test("the selector’s HS editions match the embedded schedules", async () => {
   const schedules = JSON.parse(await readFile(new URL("../../backend/internal/jprules/data/schedules.json", import.meta.url), "utf8"));
   const editions = {};
+  const unstated = new Set();
   for (const s of schedules) {
-    editions[s.agreement] ??= s.citation.match(/HS ([0-9]{4})/)[1];
+    const edition = s.citation.match(/HS ([0-9]{4})/)?.[1];
+    if (edition) editions[s.agreement] ??= edition;
+    else unstated.add(s.agreement);
   }
+  // A schedule that states no HS edition must be listed explicitly, never given a guessed year.
+  assert.deepEqual([...unstated].sort(), [...japanNoEditionAgreements].sort());
   assert.deepEqual(japanTariffEditions, { ...editions, RCEP: "2022" });
+});
+
+test("the selector offers Japan–U.S. without inventing an HS edition and keeps GSP out", () => {
+  assert.deepEqual(japanNoEditionAgreements, ["JP-US TA"]);
+  assert.ok(supportedJapanAgreements.includes("JP-US TA"));
+  assert.equal(japanTariffEditions["JP-US TA"], undefined);
+  assert.equal(japanAgreements["JP-US TA"], "Japan–U.S. agreement");
+  assert.ok(!supportedJapanAgreements.includes("GSP"));
+  assert.deepEqual(supportedJapanAgreements, Object.keys(japanAgreements).filter((code) => code !== "GSP"));
+  assert.deepEqual(supportedJapanAgreements.slice(0, 5), ["JP-EU EPA", "CPTPP", "AJCEP", "RCEP", "JP-US TA"]);
 });

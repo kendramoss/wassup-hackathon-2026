@@ -8,6 +8,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/corpus"
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/domain"
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/engine"
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/jpcorpus"
@@ -54,7 +55,6 @@ func (e *Engine) Get(id string) (domain.Ruling, string, bool) {
 }
 
 var hsSyntax = regexp.MustCompile(`^[0-9]{4}(?:[. ]?[0-9]{2}(?:[-. ]?[0-9]{3})?)?$`)
-var rulingNumber = regexp.MustCompile(`\b(?i:JP[0-9]{5,10})\b`)
 
 func hsNumber(raw string) string {
 	s := strings.TrimSpace(raw)
@@ -83,7 +83,7 @@ const (
 	ReasonNoHS            jprules.Reason = "no_hs"
 )
 
-const reasonNotInEdition = "This tariff code is not in the HS edition that this agreement's schedule uses. If it is a newer code, check the agreement's schedule for that edition or ask a specialist."
+const reasonNotInEdition = "This tariff code is not in the tariff edition that this agreement's schedule uses. If it is a newer code, check the agreement's schedule for that edition or ask a specialist."
 
 const reasonUnverifiedRule = "We could not verify a rule for this tariff code and date. Check the agreement's tariff schedule or ask a specialist."
 
@@ -181,8 +181,15 @@ func (e *Engine) Predict(ctx context.Context, c domain.Case) (engine.Result, err
 	rules := pf.Evidence
 
 	facts := caseFacts(c)
-	query := p.Agreement + " " + facts
-	precedents := e.pool.Top(c, p.Agreement, query, e.k)
+	c.ID = normalizeRulingID(c.ID)
+	if len(c.Exclude) > 0 {
+		exclude := make([]string, len(c.Exclude))
+		for i, id := range c.Exclude {
+			exclude[i] = normalizeRulingID(id)
+		}
+		c.Exclude = exclude
+	}
+	precedents := e.pool.Top(c, p.Agreement, retrievalQuery(p.Agreement, facts), e.k)
 	for _, r := range rules {
 		if r.URL == "" { // an Unde Labs caveat note is not a treaty source
 			continue
@@ -211,6 +218,7 @@ func (e *Engine) Predict(ctx context.Context, c domain.Case) (engine.Result, err
 	if err := resp.DecodeJSON(&a); err != nil {
 		return result, err
 	}
+	a = a.sanitized()
 	if err := a.validate(); err != nil {
 		return result, err
 	}
@@ -218,7 +226,7 @@ func (e *Engine) Predict(ctx context.Context, c domain.Case) (engine.Result, err
 	result.Prediction.Confidence = *a.Confidence
 	result.Prediction.Reasoning = a.Reasoning
 	if p.Outcome == Qualifies {
-		result.Prediction.Origin = normalizeOrigin(a.Origin)
+		result.Prediction.Origin, _ = resolveOrigin(a.Origin)
 	} else if p.Outcome == Undetermined {
 		p.ReviewReason = "A specialist needs to check the rule and the missing production or materials facts." + missingFactsSentence(MissingFacts(c))
 	}
@@ -235,22 +243,9 @@ func (e *Engine) Predict(ctx context.Context, c domain.Case) (engine.Result, err
 			p.PrecedentSources = append(p.PrecedentSources, domain.JapanSource{Citation: r.ID, URL: u})
 		}
 	}
-	maskUnknown := func(s string) string {
-		if allowed[strings.ToUpper(s)] {
-			return s
-		}
-		return "an unverified reference"
-	}
-	result.Prediction.Reasoning = rulingNumber.ReplaceAllStringFunc(result.Prediction.Reasoning, maskUnknown)
-	p.DecidingRule = rulingNumber.ReplaceAllStringFunc(p.DecidingRule, maskUnknown)
+	result.Prediction.Reasoning = maskUnknownRulings(result.Prediction.Reasoning, allowed)
+	p.DecidingRule = maskUnknownRulings(p.DecidingRule, allowed)
 	return result, nil
-}
-
-func normalizeOrigin(s string) string {
-	if strings.EqualFold(s, "EU") || strings.EqualFold(s, "European Union") {
-		return "EU"
-	}
-	return domain.NormalizeCountry(s)
 }
 
 func caseFacts(c domain.Case) string {
@@ -269,4 +264,23 @@ func caseFacts(c domain.Case) string {
 		}
 	}
 	return out.String()
+}
+
+// retrievalQuery is the text the pool searches with: the agreement code and
+// the case facts, cut to the same length the prompt shows the model.
+func retrievalQuery(agreement, facts string) string {
+	return agreement + " " + corpus.Truncate(facts, engine.FactsRunes)
+}
+
+// normalizeRulingID reads "1240271" and "jp1240271" as "JP1240271", the id a
+// Japan precedent carries. Other ids are only trimmed and upper-cased.
+func normalizeRulingID(id string) string {
+	id = strings.ToUpper(strings.TrimSpace(id))
+	if id == "" || strings.HasPrefix(id, "JP") {
+		return id
+	}
+	if domain.ValidJapanRulingID("JP" + id) {
+		return "JP" + id
+	}
+	return id
 }

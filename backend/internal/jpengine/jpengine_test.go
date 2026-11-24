@@ -2,6 +2,7 @@ package jpengine
 
 import (
 	"context"
+	"regexp"
 	"strings"
 	"testing"
 	"time"
@@ -43,7 +44,7 @@ func TestJapanPredictionKeepsOnlyDatedPrecedentsAndKnownCitations(t *testing.T) 
 			!strings.Contains(msg, "CTH") || !strings.Contains(msg, "tariff code: 1806.20") {
 			t.Errorf("prompt missing Japan evidence or supplier code: %s", msg)
 		}
-		ruling := rulingNumber.FindString(msg)
+		ruling := regexp.MustCompile(`JP[0-9]{7}`).FindString(msg)
 		if ruling == "" {
 			t.Fatal("prompt lacks a ruling ID")
 		}

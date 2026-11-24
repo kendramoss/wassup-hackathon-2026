@@ -188,7 +188,7 @@ func TestGatedCasesNeverReachTheModel(t *testing.T) {
 			if pf.Eligible || pf.Reason != tc.want || pf.Evidence != nil || pf.ReviewReason == "" {
 				t.Fatalf("preflight = %+v, want reason %q", pf, tc.want)
 			}
-			if tc.want == jprules.ReasonNotInEdition && pf.ReviewReason != reasonNotInEdition {
+			if tc.want == jprules.ReasonNotInEdition && pf.ReviewReason != "This tariff code is not in the tariff edition that this agreement's schedule uses. If it is a newer code, check the agreement's schedule for that edition or ask a specialist." {
 				t.Fatalf("review reason %q", pf.ReviewReason)
 			}
 			if tc.want == jprules.ReasonInvalidCode && pf.ReviewReason == reasonNotInEdition {
