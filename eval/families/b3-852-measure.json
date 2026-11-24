@@ -1,0 +1,622 @@
+{
+ "rule": "D850. Matched = a template at confidence >= 0.6 without error; a failed check is not a match. Case right = matched to its expected template (b3-dev-splits-a1.json); look-alike right = not matched to a family its scope shares a cue with (D840's map). Working = matched/n >= 80% with Wilson lower bound >= 50% (D840). Paired on cases both runs answered; exact two-sided McNemar p. Tuned on these development cases: not independent.",
+ "runs": {
+  "before_d842": {
+   "rows": 78,
+   "failed": 3,
+   "cost_usd": 0.3371,
+   "latency_ms_p50": 5565,
+   "latency_ms_p95": 30337
+  },
+  "after": {
+   "rows": 78,
+   "failed": 4,
+   "cost_usd": 0.3517,
+   "latency_ms_p50": 5060,
+   "latency_ms_p95": 27422
+  }
+ },
+ "dev_cases": {
+  "groups": {
+   "furniture": {
+    "n": 4,
+    "before": 3,
+    "after": 3,
+    "before_wilson": [
+     0.75,
+     0.3006,
+     0.9544
+    ],
+    "after_wilson": [
+     0.75,
+     0.3006,
+     0.9544
+    ],
+    "working": false,
+    "paired": {
+     "n": 3,
+     "gained": [],
+     "lost": [],
+     "mcnemar_p": 1.0
+    },
+    "cases": {
+     "H338482": [
+      "furniture",
+      "furniture"
+     ],
+     "H345343": [
+      "furniture",
+      "furniture"
+     ],
+     "N335585": [
+      "furniture",
+      "furniture"
+     ],
+     "N339090": [
+      "metal_products",
+      "failed"
+     ]
+    }
+   },
+   "medical_devices": {
+    "n": 10,
+    "before": 9,
+    "after": 10,
+    "before_wilson": [
+     0.9,
+     0.5958,
+     0.9821
+    ],
+    "after_wilson": [
+     1.0,
+     0.7225,
+     1.0
+    ],
+    "working": true,
+    "paired": {
+     "n": 10,
+     "gained": [
+      "N356150"
+     ],
+     "lost": [],
+     "mcnemar_p": 1.0
+    },
+    "cases": {
+     "N350152": [
+      "medical_devices",
+      "medical_devices"
+     ],
+     "N350225": [
+      "medical_devices",
+      "medical_devices"
+     ],
+     "N353259": [
+      "medical_devices",
+      "medical_devices"
+     ],
+     "N353260": [
+      "medical_devices",
+      "medical_devices"
+     ],
+     "N353976": [
+      "medical_devices",
+      "medical_devices"
+     ],
+     "N355059": [
+      "medical_devices",
+      "medical_devices"
+     ],
+     "N355175": [
+      "medical_devices",
+      "medical_devices"
+     ],
+     "N355466": [
+      "medical_devices",
+      "medical_devices"
+     ],
+     "N356150": [
+      "none",
+      "medical_devices"
+     ],
+     "N356289": [
+      "medical_devices",
+      "medical_devices"
+     ]
+    }
+   },
+   "motors_pumps_compressors": {
+    "n": 11,
+    "before": 6,
+    "after": 10,
+    "before_wilson": [
+     0.5455,
+     0.2801,
+     0.7873
+    ],
+    "after_wilson": [
+     0.9091,
+     0.6226,
+     0.9838
+    ],
+    "working": true,
+    "paired": {
+     "n": 10,
+     "gained": [
+      "N351234",
+      "N351538",
+      "N354156"
+     ],
+     "lost": [],
+     "mcnemar_p": 0.25
+    },
+    "cases": {
+     "H342833": [
+      "motors_pumps_compressors",
+      "motors_pumps_compressors"
+     ],
+     "N351234": [
+      "machinery_parts",
+      "motors_pumps_compressors"
+     ],
+     "N351349": [
+      "failed",
+      "motors_pumps_compressors"
+     ],
+     "N351538": [
+      "machinery_parts",
+      "motors_pumps_compressors"
+     ],
+     "N351922": [
+      "motors_pumps_compressors",
+      "motors_pumps_compressors"
+     ],
+     "N352067": [
+      "motors_pumps_compressors",
+      "motors_pumps_compressors"
+     ],
+     "N354156": [
+      "machinery_parts",
+      "motors_pumps_compressors"
+     ],
+     "N354169": [
+      "machinery_parts",
+      "machinery_parts"
+     ],
+     "N354559": [
+      "motors_pumps_compressors",
+      "motors_pumps_compressors"
+     ],
+     "N355567": [
+      "motors_pumps_compressors",
+      "motors_pumps_compressors"
+     ],
+     "N356592": [
+      "motors_pumps_compressors",
+      "motors_pumps_compressors"
+     ]
+    }
+   },
+   "offroad_vehicles_machinery": {
+    "n": 7,
+    "before": 7,
+    "after": 7,
+    "before_wilson": [
+     1.0,
+     0.6457,
+     1
+    ],
+    "after_wilson": [
+     1.0,
+     0.6457,
+     1
+    ],
+    "working": true,
+    "paired": {
+     "n": 7,
+     "gained": [],
+     "lost": [],
+     "mcnemar_p": 1.0
+    },
+    "cases": {
+     "N351580": [
+      "offroad_vehicles_machinery",
+      "offroad_vehicles_machinery"
+     ],
+     "N352101": [
+      "offroad_vehicles_machinery",
+      "offroad_vehicles_machinery"
+     ],
+     "N354790": [
+      "offroad_vehicles_machinery",
+      "offroad_vehicles_machinery"
+     ],
+     "N354791": [
+      "offroad_vehicles_machinery",
+      "offroad_vehicles_machinery"
+     ],
+     "N355131": [
+      "offroad_vehicles_machinery",
+      "offroad_vehicles_machinery"
+     ],
+     "N355132": [
+      "offroad_vehicles_machinery",
+      "offroad_vehicles_machinery"
+     ],
+     "N355133": [
+      "offroad_vehicles_machinery",
+      "offroad_vehicles_machinery"
+     ]
+    }
+   },
+   "optical_precision_instruments": {
+    "n": 9,
+    "before": 8,
+    "after": 8,
+    "before_wilson": [
+     0.8889,
+     0.565,
+     0.9801
+    ],
+    "after_wilson": [
+     0.8889,
+     0.565,
+     0.9801
+    ],
+    "working": true,
+    "paired": {
+     "n": 7,
+     "gained": [],
+     "lost": [],
+     "mcnemar_p": 1.0
+    },
+    "cases": {
+     "N348790": [
+      "optical_precision_instruments",
+      "optical_precision_instruments"
+     ],
+     "N350680": [
+      "optical_precision_instruments",
+      "failed"
+     ],
+     "N350750": [
+      "optical_precision_instruments",
+      "optical_precision_instruments"
+     ],
+     "N350838": [
+      "optical_precision_instruments",
+      "optical_precision_instruments"
+     ],
+     "N351865": [
+      "failed",
+      "optical_precision_instruments"
+     ],
+     "N351911": [
+      "optical_precision_instruments",
+      "optical_precision_instruments"
+     ],
+     "N351913": [
+      "optical_precision_instruments",
+      "optical_precision_instruments"
+     ],
+     "N351958": [
+      "optical_precision_instruments",
+      "optical_precision_instruments"
+     ],
+     "N351962": [
+      "optical_precision_instruments",
+      "optical_precision_instruments"
+     ]
+    }
+   },
+   "power_supplies_chargers": {
+    "n": 7,
+    "before": 6,
+    "after": 7,
+    "before_wilson": [
+     0.8571,
+     0.4869,
+     0.9743
+    ],
+    "after_wilson": [
+     1.0,
+     0.6457,
+     1
+    ],
+    "working": true,
+    "paired": {
+     "n": 6,
+     "gained": [],
+     "lost": [],
+     "mcnemar_p": 1.0
+    },
+    "cases": {
+     "N350953": [
+      "power_supplies_chargers",
+      "power_supplies_chargers"
+     ],
+     "N351263": [
+      "failed",
+      "power_supplies_chargers"
+     ],
+     "N352014": [
+      "power_supplies_chargers",
+      "power_supplies_chargers"
+     ],
+     "N352355": [
+      "power_supplies_chargers",
+      "power_supplies_chargers"
+     ],
+     "N353023": [
+      "power_supplies_chargers",
+      "power_supplies_chargers"
+     ],
+     "N353086": [
+      "power_supplies_chargers",
+      "power_supplies_chargers"
+     ],
+     "N356670": [
+      "power_supplies_chargers",
+      "power_supplies_chargers"
+     ]
+    }
+   }
+  },
+  "overall": {
+   "before": 39,
+   "after": 45,
+   "n": 48,
+   "before_wilson": [
+    0.8125,
+    0.6806,
+    0.8981
+   ],
+   "after_wilson": [
+    0.9375,
+    0.8316,
+    0.9785
+   ]
+  }
+ },
+ "lookalikes": {
+  "n": 30,
+  "before": 29,
+  "after": 29,
+  "after_wilson": [
+   0.9667,
+   0.8333,
+   0.9941
+  ],
+  "wrong_after": {
+   "N355289": "medical_devices"
+  },
+  "cases": {
+   "H331375": [
+    "none",
+    "none"
+   ],
+   "H342474": [
+    "pcba_electronic_devices",
+    "pcba_electronic_devices"
+   ],
+   "H346536": [
+    "none",
+    "none"
+   ],
+   "H348154": [
+    "pcba_electronic_devices",
+    "pcba_electronic_devices"
+   ],
+   "N350011": [
+    "none",
+    "none"
+   ],
+   "N350187": [
+    "pcba_electronic_devices",
+    "pcba_electronic_devices"
+   ],
+   "N350306": [
+    "none",
+    "none"
+   ],
+   "N350492": [
+    "electrical_control_apparatus",
+    "electrical_control_apparatus"
+   ],
+   "N350678": [
+    "none",
+    "none"
+   ],
+   "N350799": [
+    "pcba_electronic_devices",
+    "pcba_electronic_devices"
+   ],
+   "N350800": [
+    "pcba_electronic_devices",
+    "pcba_electronic_devices"
+   ],
+   "N351174": [
+    "none",
+    "none"
+   ],
+   "N351229": [
+    "pcba_electronic_devices",
+    "pcba_electronic_devices"
+   ],
+   "N351341": [
+    "motorised_tools_small_appliances",
+    "motorised_tools_small_appliances"
+   ],
+   "N351493": [
+    "motorised_tools_small_appliances",
+    "motorised_tools_small_appliances"
+   ],
+   "N351651": [
+    "plastic_articles",
+    "failed"
+   ],
+   "N352230": [
+    "pcba_electronic_devices",
+    "pcba_electronic_devices"
+   ],
+   "N352242": [
+    "motorised_tools_small_appliances",
+    "pcba_electronic_devices"
+   ],
+   "N352538": [
+    "pcba_electronic_devices",
+    "pcba_electronic_devices"
+   ],
+   "N352670": [
+    "pcba_electronic_devices",
+    "pcba_electronic_devices"
+   ],
+   "N353542": [
+    "pcba_electronic_devices",
+    "pcba_electronic_devices"
+   ],
+   "N353884": [
+    "none",
+    "failed"
+   ],
+   "N354016": [
+    "led_lights",
+    "led_lights"
+   ],
+   "N354279": [
+    "wood_panels_flooring",
+    "wood_panels_flooring"
+   ],
+   "N355237": [
+    "motorised_tools_small_appliances",
+    "motorised_tools_small_appliances"
+   ],
+   "N355289": [
+    "medical_devices",
+    "medical_devices"
+   ],
+   "N355502": [
+    "led_lights",
+    "led_lights"
+   ],
+   "N355934": [
+    "pcba_electronic_devices",
+    "pcba_electronic_devices"
+   ],
+   "N356009": [
+    "none",
+    "none"
+   ],
+   "N356467": [
+    "none",
+    "none"
+   ]
+  }
+ },
+ "machinery": {
+  "H342833": {
+   "before": "motors_pumps_compressors",
+   "after": "motors_pumps_compressors",
+   "reason": "The product is an electronically commutated motor (ECM motor), an electric motor comprised of a rotor subassembly, stator subassembly, and structural bracket, fitting directly into the motors_pumps_compressors family.",
+   "guard_rule": null,
+   "model_family": null
+  },
+  "N351234": {
+   "before": "machinery_parts",
+   "after": "motors_pumps_compressors",
+   "reason": "Complete hydraulic cylinders are functional working units explicitly assigned to motors_pumps_compressors per scope definitions.",
+   "guard_rule": null,
+   "model_family": null
+  },
+  "N351349": {
+   "before": "failed",
+   "after": "motors_pumps_compressors",
+   "reason": "The product is a complete pump (automotive engine water pump) consisting of a machined metal housing, impeller, bearings, seal, and gaskets, fitting the operation groups for impellers, housings/machined blocks, and final assembly in the motors_pumps_compressors family.",
+   "guard_rule": null,
+   "model_family": null
+  },
+  "N351538": {
+   "before": "machinery_parts",
+   "after": "motors_pumps_compressors",
+   "reason": "The scope for motors_pumps_compressors specifically includes the working components of a pump such as impellers and diffusers (citing ruling N333514), distinct from generic machinery parts.",
+   "guard_rule": null,
+   "model_family": null
+  },
+  "N351922": {
+   "before": "motors_pumps_compressors",
+   "after": "motors_pumps_compressors",
+   "reason": "The product is a complete refrigerant recovery unit (compressor-based machine) featuring detailed motor stator and rotor manufacturing operations, compressor and condenser components, and final machine assembly.",
+   "guard_rule": null,
+   "model_family": null
+  },
+  "N352067": {
+   "before": "motors_pumps_compressors",
+   "after": "motors_pumps_compressors",
+   "reason": "The product is an air conditioning compressor (a swashplate-type refrigerant compressor). Complete compressors, pumps, and motors fall under the motors_pumps_compressors family, which covers operations such as casting and machining cylinder blocks/housings, rotary/piston mechanisms, and final assembly and testing.",
+   "guard_rule": null,
+   "model_family": null
+  },
+  "N354156": {
+   "before": "machinery_parts",
+   "after": "motors_pumps_compressors",
+   "reason": "Fluid ends are working components of pumps used in hydraulic fracturing and oil/gas applications; the scope explicitly assigns pump working components including fluid ends (N351810) to motors_pumps_compressors.",
+   "guard_rule": null,
+   "model_family": null
+  },
+  "N354169": {
+   "before": "machinery_parts",
+   "after": "machinery_parts",
+   "reason": "The products are ball bearings and tapered roller bearings, undergoing machining, precision grinding, honing, and assembly of races, balls, rollers, and retainers. Bearings and their races are specifically listed under the scope of machinery_parts.",
+   "guard_rule": null,
+   "model_family": null
+  },
+  "N354559": {
+   "before": "motors_pumps_compressors",
+   "after": "motors_pumps_compressors",
+   "reason": "The product is a complete industrial hydraulic gear pump (a rotary positive displacement pump), which falls under the scope of motors_pumps_compressors covering complete industrial pumps, functional working units, and rotary mechanisms.",
+   "guard_rule": null,
+   "model_family": null
+  },
+  "N355567": {
+   "before": "motors_pumps_compressors",
+   "after": "motors_pumps_compressors",
+   "reason": "The product is an automotive air conditioning compressor, complete with a cylinder block, covers, and swashplate rotary mechanism. Complete compressors and functional working units are explicitly covered under motors_pumps_compressors.",
+   "guard_rule": null,
+   "model_family": null
+  },
+  "N356592": {
+   "before": "motors_pumps_compressors",
+   "after": "motors_pumps_compressors",
+   "reason": "The product is a complete industrial rotary positive displacement pump (hydraulic gear pump), which is explicitly covered by the motors_pumps_compressors family scope.",
+   "guard_rule": null,
+   "model_family": null
+  }
+ },
+ "to_machinery_parts": {
+  "before": [
+   "N351234",
+   "N351538",
+   "N354156",
+   "N354169"
+  ],
+  "after": [
+   "N354169"
+  ]
+ },
+ "guard_v6_removed": {
+  "H346536": [
+   "motors_pumps_compressors",
+   "printer"
+  ],
+  "N350678": [
+   "furniture",
+   "pet-product"
+  ],
+  "N356009": [
+   "offroad_vehicles_machinery",
+   "support-stand"
+  ]
+ },
+ "regressions": [
+  "N350680"
+ ]
+}

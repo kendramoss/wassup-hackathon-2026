@@ -85,6 +85,8 @@ reproduce: ## recompute every published number from committed files: no model ca
 	python3 -I -B eval/planner/build_b3_fixtures.py . --check
 	python3 -I -B eval/families/familycov_b2.py . --check
 	python3 -I -B eval/families/measure_781.py . --check
+	python3 -I -B eval/families/measure_850.py . --check
+	python3 -I -B eval/families/measure_850.py . --tag f28-852 --check
 	python3 -I -B eval/supersession/impact.py . --check
 	python3 -I -B eval/charts/build_evaluation.py . --check
 	python3 -I -B eval/charts/build_trust_data.py . --check

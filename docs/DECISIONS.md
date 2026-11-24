@@ -3261,3 +3261,26 @@ Committed and pushed before the run below. D851 found the machines scope too wid
   - Look-alikes stay at least 29 of 30.
 - **Expectation.** Machinery 9–10 of 11; lifting back to 7 of 7; the pool-cleaning robot back to motorised tools. The air inflator may also go back.
 - **Disclosure.** This is a second revision tuned on the same development cases. The more often a scope is revised against these cases, the less the development figure says about other products.
+
+## D853 — Machinery boundary, second development run: results of D852 (25 Nov, #785)
+The runs went as pre-registered. Run 2 was `families-coverage-dev-all-litellm-f28-852` (built at 76f7efb3, 75 checks, 4 failed). Run 2b was `…-f28-852-noorigin` (3 checks, none failed). Both RUNLOG rows have `code_dirty` false. Figures come from `measure_850.py --tag f28-852` (`b3-852-measure.json`; both measure files are in `make reproduce`). These are development figures, tuned on these cases over two revisions (D850, D852).
+
+| Expected template (n) | D842 | D851 (first scope) | **D853** | Working (D840) |
+|---|---|---|---|---|
+| Machinery `motors_pumps_compressors` (11) | 6 | 10 | **10** (91%, 62–98) | yes (was no) |
+| Lifting `offroad_vehicles_machinery` (7) | 7 | 5 | **7** | yes |
+| Batteries `power_supplies_chargers` (7) | 6 | 7 | **7** | yes (was no, by a failed check) |
+| Medical `medical_devices` (10) | 9 | 9 | **10** | yes |
+| Optical `optical_precision_instruments` (9) | 8 | 8 | **8** | yes |
+| Furniture (4) | 3 | 3 | **3** | no (n = 4) |
+| All 48 | 39 | 42 | **45** (94%, 83–98) | |
+| Look-alikes right (30) | 29 | 28 | **29** | yes |
+
+- **Machinery.** The hydraulic cylinders, the impeller and diffuser and the fluid ends moved from `machinery_parts` to the machines template, and the water pumps answered. On the 10 cases both runs answered: 3 gained, 0 lost, McNemar p = 0.25. That is better, but not significant at n = 11. The bearings (N354169) stay with `machinery_parts`, as that template's scope and operations say; the frozen label is not changed.
+- **No other family lost a case it matched in D842 on an answered check.** The only case matched in D842 and not now is the red-dot carrier plate (N350680), which was a failed check this time (no JSON). The gains outside machinery are the dental implant kit (N356150, "none" in D842) and two cases that were failed checks in D842 (N351263 cell, N351865 MEMS sensor). The planter caddy (N339090, metal products in D842) was a failed check.
+- **Look-alikes.** The bottle jacks are back on the off-road and lifting template. The pool-cleaning robot is no longer on the machines template. The only wrong look-alike is the vein finder on medical devices, as in D842.
+  - Two look-alikes that were right in D842 were failed checks this time: N351651, and N353884, which was "none" in D842.
+  - The guard removed the 3D printer (printer rule), the dog house (pet-product) and a jack stand (support-stand). `whole-machine` fired on nothing, as on the recorded rows.
+- **Against D850's criteria (kept by D852): a fix.** Machinery is working, only the bearings stay with `machinery_parts`, nothing regressed except one disclosed failed check, and look-alikes are 29 of 30.
+- **Not measured.** The held-out family check was spent in D842 and is not run again, so there is no independent figure for this change. Two scope revisions were fitted to these development cases.
+- **Cost.** D851 $0.3359, D853 $0.3516: **$0.6875** for #785. Per check p50 5.1 s, p95 27.4 s, a slow gateway tail as in D842.
