@@ -585,7 +585,11 @@ func TestExistingSchedulesKeepTheHS2017List(t *testing.T) {
 				}
 			}
 			for _, n := range s.Notes {
-				if n.Ref != "" || n.Scope == "schedule" && n.SourceURL == "" {
+				// A schedule-scope note of a PDF-paged schedule needs its own source
+				// (source_url, EU/UK Annex 3-A) or, for the Australia General Notes
+				// (australiacolumn4_test.go), an applies list.
+				sourced := n.SourceURL != "" || name == "JP-Australia EPA" && len(n.Applies) > 0
+				if n.Ref != "" || n.Scope == "schedule" && !sourced {
 					t.Errorf("%s: note %q has a ref or schedule scope", name, n.Key)
 				}
 			}
