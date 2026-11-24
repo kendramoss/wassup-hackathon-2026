@@ -19,6 +19,8 @@ prompt, prompt version and request bytes are unchanged.
   Moldova, Bolivia, Venezuela, Syria, Palestine), so the eval comparison sees
   equal names. Kosovo, NZ, UAE, Vatican and Macedonia are project aliases. An "undetermined" answer is still an
   abstention, not an error.
+  One function, `resolveOrigin`, both decides acceptance and returns the
+  emitted origin, so they cannot drift.
   This is a well-formedness check on the answer only. It is not a treaty-party
   or origin-eligibility rule: a country that is not a party to the agreement
   is still accepted here.

@@ -35,7 +35,7 @@ func (a modelAnswer) validate() error {
 	}
 	switch a.Outcome {
 	case Qualifies:
-		if _, ok := originCountry(a.Origin); !ok || cleanText(a.DecidingRule) == "" {
+		if _, ok := resolveOrigin(a.Origin); !ok || cleanText(a.DecidingRule) == "" {
 			return fmt.Errorf("japan preference: qualifying answer has no single origin country or rule: %w", llm.ErrBadResponse)
 		}
 		switch a.Criterion {

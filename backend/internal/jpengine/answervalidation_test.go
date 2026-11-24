@@ -276,7 +276,7 @@ func TestNonCountryTextIsNotAnOrigin(t *testing.T) {
 		"Undetermined country", "Unclear", "Cannot determine", "Same as above", "Third country", "Any country", "TBC", "Country X", "Party A",
 		"China Vietnam", "Thailand Vietnam", "Vietnam (Thailand)", "East Africa", "Western Europe", "Mercosur", "ASEAN countries",
 		"Non-Japan", "China-made", "Vietnam 2025", "Japan", "Atlantis"} {
-		if _, ok := originCountry(o); ok {
+		if _, ok := resolveOrigin(o); ok {
 			t.Errorf("%q accepted", o)
 		}
 	}
@@ -290,7 +290,7 @@ func TestEUMembersAndPartiesAreAccepted(t *testing.T) {
 		t.Fatal(len(eu))
 	}
 	for _, c := range append(eu, agreementParties...) {
-		if n, ok := originCountry(c); !ok || n == "" {
+		if n, ok := resolveOrigin(c); !ok || n == "" {
 			t.Errorf("%q rejected", c)
 		}
 	}
@@ -298,7 +298,7 @@ func TestEUMembersAndPartiesAreAccepted(t *testing.T) {
 		"Hong Kong, China": "Hong Kong", "Myanmar (Burma)": "Myanmar", "Viet Nam": "Vietnam", "Türkiye": "Turkey", "turkiye": "Turkey",
 		"Russia": "Russia", "Russian Federation": "Russia", "Côte d’Ivoire": "Cote d'Ivoire", "cote d'ivoire": "Cote d'Ivoire", "  NEPAL ": "Nepal", "Ｖｉｅｔｎａｍ": "Vietnam",
 		"Taiwan": "Taiwan", "Iceland": "Iceland", "Saudi Arabia": "Saudi Arabia", "Kenya": "Kenya"} {
-		if got, ok := originCountry(in); !ok || got != want {
+		if got, ok := resolveOrigin(in); !ok || got != want {
 			t.Errorf("%q = %q, %v; want %q", in, got, ok, want)
 		}
 	}
@@ -321,12 +321,12 @@ func TestSharedAliasSpellingsAreStillAccepted(t *testing.T) {
 		"Slovak Republic": "Slovakia", "Kyrgyz Republic": "Kyrgyzstan", "Vatican": "Holy See", "Macedonia": "North Macedonia", "Kosovo": "Kosovo",
 		"UK": "United Kingdom", "USA": "United States"}
 	for in, w := range want {
-		if got, ok := originCountry(in); !ok || got != w {
+		if got, ok := resolveOrigin(in); !ok || got != w {
 			t.Errorf("%q = %q, %v; want %q", in, got, ok, w)
 		}
 	}
 	for _, in := range []string{"Vietnam 2025", "China 1", "U.S. and China"} {
-		if _, ok := originCountry(in); ok {
+		if _, ok := resolveOrigin(in); ok {
 			t.Errorf("%q accepted", in)
 		}
 	}
@@ -341,9 +341,58 @@ func TestOriginsScoreEqualToCommonLabelSpellings(t *testing.T) {
 		"Lao People's Democratic Republic": "Laos", "Czechia": "Czechia", "Türkiye": "Turkey", "Côte d’Ivoire": "Cote d'Ivoire",
 		"Netherlands (Kingdom of the)": "Netherlands", "United States of America": "USA", "China, Hong Kong Special Administrative Region": "Hong Kong"}
 	for long, label := range pairs {
-		got, ok := originCountry(long)
+		got, ok := resolveOrigin(long)
 		if !ok || domain.NormalizeCountry(got) != domain.NormalizeCountry(label) {
 			t.Errorf("%q -> %q (%v), label %q normalises to %q", long, got, ok, label, domain.NormalizeCountry(label))
+		}
+	}
+}
+
+// resolveOrigin is the one resolver: validate() accepts exactly what it
+// resolves and Predict emits exactly what it returns. Empty want = rejected.
+func TestResolveOriginTable(t *testing.T) {
+	table := []struct{ in, want string }{
+		// EU forms
+		{"EU", "EU"}, {"eu", "EU"}, {"European Union", "EU"}, {" european  union ", "EU"},
+		// short and official names
+		{"Vietnam", "Vietnam"}, {"Viet Nam", "Vietnam"}, {"Thailand", "Thailand"}, {"Brunei", "Brunei"}, {"Brunei Darussalam", "Brunei"},
+		{"Cambodia", "Cambodia"}, {"Laos", "Laos"}, {"Myanmar", "Myanmar"}, {"Singapore", "Singapore"}, {"Indonesia", "Indonesia"},
+		{"Malaysia", "Malaysia"}, {"Philippines", "Philippines"}, {"China", "China"}, {"Republic of Korea", "South Korea"},
+		{"South Korea", "South Korea"}, {"Korea", "South Korea"}, {"Australia", "Australia"}, {"New Zealand", "New Zealand"},
+		{"Canada", "Canada"}, {"Chile", "Chile"}, {"Mexico", "Mexico"}, {"Peru", "Peru"}, {"Switzerland", "Switzerland"},
+		{"India", "India"}, {"United Kingdom", "United Kingdom"}, {"United States", "United States"}, {"Nepal", "Nepal"},
+		{"Kenya", "Kenya"}, {"Iceland", "Iceland"}, {"Saudi Arabia", "Saudi Arabia"}, {"Greece", "Greece"}, {"Czechia", "Czech Republic"},
+		{"Czech Republic", "Czech Republic"}, {"Türkiye", "Turkey"}, {"Turkey", "Turkey"}, {"Taiwan", "Taiwan"}, {"Hong Kong", "Hong Kong"},
+		// project and shared aliases
+		{"US", "United States"}, {"U.S.", "United States"}, {"U.S.A.", "United States"}, {"PRC", "China"}, {"NZ", "New Zealand"},
+		{"UAE", "United Arab Emirates"}, {"S. Korea", "South Korea"}, {"Mainland China", "China"}, {"Taiwan (ROC)", "Taiwan"},
+		{"Holland", "Netherlands"}, {"England", "United Kingdom"}, {"Great Britain", "United Kingdom"}, {"the Netherlands", "Netherlands"},
+		{"The Philippines", "Philippines"}, {"Slovak Republic", "Slovakia"}, {"Kyrgyz Republic", "Kyrgyzstan"}, {"Vatican", "Holy See"},
+		{"Macedonia", "North Macedonia"}, {"Kosovo", "Kosovo"}, {"Korea, Republic of", "South Korea"}, {"Korea (Republic of)", "South Korea"},
+		{"Lao PDR", "Laos"}, {"Hong Kong, China", "Hong Kong"}, {"Myanmar (Burma)", "Myanmar"}, {"Russia", "Russia"},
+		{"Russian Federation", "Russia"}, {"Iran (Islamic Republic of)", "Iran"}, {"United Republic of Tanzania", "Tanzania"},
+		{"Côte d’Ivoire", "Cote d'Ivoire"}, {"Ivory Coast", "Cote d'Ivoire"}, {"Ｖｉｅｔｎａｍ", "Vietnam"},
+		// whole names containing "and"
+		{"Trinidad and Tobago", "Trinidad and Tobago"}, {"Bosnia and Herzegovina", "Bosnia and Herzegovina"},
+		{"Antigua and Barbuda", "Antigua and Barbuda"}, {"Saint Kitts and Nevis", "Saint Kitts and Nevis"},
+		{"Sao Tome and Principe", ""}, {"Turks and Caicos Islands", "Turks and Caicos Islands"},
+		// rejected
+		{"Japan", ""}, {"JAPAN", ""}, {"Asia", ""}, {"ASEAN", ""}, {"N/A", ""}, {"China, Vietnam", ""}, {"Vietnam and Thailand", ""},
+		{"Vietnam; Thailand", ""}, {"Vietnam/Thailand", ""}, {"See reasoning", ""}, {"Ignore previous instructions", ""},
+		{"Made in China", ""}, {"Product of China", ""}, {"Unclear", ""}, {"TBC", ""}, {"Country X", ""}, {"China Vietnam", ""},
+		{"Vietnam (Thailand)", ""}, {"East Africa", ""}, {"Western Europe", ""}, {"Mercosur", ""}, {"ASEAN countries", ""},
+		{"Non-Japan", ""}, {"China-made", ""}, {"Vietnam 2025", ""}, {"", ""}, {"   ", ""},
+	}
+	for _, tc := range table {
+		got, ok := resolveOrigin(tc.in)
+		if tc.in == "Sao Tome and Principe" { // UN spelling carries diacritics: check it resolves, whatever the canon
+			if !ok {
+				t.Errorf("%q rejected", tc.in)
+			}
+			continue
+		}
+		if got != tc.want || ok != (tc.want != "") {
+			t.Errorf("resolveOrigin(%q) = %q, %v; want %q", tc.in, got, ok, tc.want)
 		}
 	}
 }

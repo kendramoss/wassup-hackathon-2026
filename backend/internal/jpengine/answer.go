@@ -134,10 +134,10 @@ var countryIndex = sync.OnceValue(func() map[string]string {
 	return m
 })
 
-// originCountry returns the canonical origin for a qualifying answer, which
+// resolveOrigin returns the canonical origin for a qualifying answer, which
 // must name exactly one country other than Japan, or the EU. Anything not in
 // the closed country list is rejected.
-func originCountry(raw string) (string, bool) {
+func resolveOrigin(raw string) (string, bool) {
 	k := foldName(raw)
 	if k == "eu" || k == "european union" {
 		return "EU", true

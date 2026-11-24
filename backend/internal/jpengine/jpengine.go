@@ -226,7 +226,7 @@ func (e *Engine) Predict(ctx context.Context, c domain.Case) (engine.Result, err
 	result.Prediction.Confidence = *a.Confidence
 	result.Prediction.Reasoning = a.Reasoning
 	if p.Outcome == Qualifies {
-		result.Prediction.Origin, _ = originCountry(a.Origin)
+		result.Prediction.Origin, _ = resolveOrigin(a.Origin)
 	} else if p.Outcome == Undetermined {
 		p.ReviewReason = "A specialist needs to check the rule and the missing production or materials facts." + missingFactsSentence(MissingFacts(c))
 	}
