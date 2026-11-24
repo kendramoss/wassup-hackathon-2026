@@ -75,7 +75,9 @@ func TestLookupDetailedReasons(t *testing.T) {
 	}{
 		{"malformed syntax", "AJCEP", "not a code", "2025-01-01", ReasonMalformed},
 		{"empty", "AJCEP", "", "2025-01-01", ReasonMalformed},
-		{"unsupported agreement GSP", "GSP", "3215", "2025-01-01", ReasonUnsupportedAgreement},
+		{"unsupported agreement", "JP-Peru EPA", "3215", "2025-01-01", ReasonUnsupportedAgreement},
+		{"GSP is supported from its window", "GSP", "3215", "2025-01-01", ReasonNoMatch},
+		{"GSP before its window", "GSP", "3215", "2023-03-31", ReasonNoDatedSource},
 		{"JP-US TA unlisted goods", "JP-US TA", "3215", "2025-01-01", ReasonNoMatch},
 		{"unsupported agreement empty", "", "3215", "2025-01-01", ReasonUnsupportedAgreement},
 		{"RCEP before start", "RCEP", "6404.11", "2022-12-31", ReasonNoDatedSource},
