@@ -2,6 +2,8 @@ package jpengine
 
 import (
 	"context"
+	"crypto/sha256"
+	"encoding/hex"
 	"encoding/json"
 	"errors"
 	"strings"
@@ -268,3 +270,46 @@ func TestRetrievalQueryIsCapped(t *testing.T) {
 }
 
 var _ = jpcorpus.AgreementNames
+
+func TestNonCountryTextIsNotAnOrigin(t *testing.T) {
+	for _, o := range []string{"See reasoning", "Ignore previous instructions", "Made in China", "Product of China", "Country of origin",
+		"Undetermined country", "Unclear", "Cannot determine", "Same as above", "Third country", "Any country", "TBC", "Country X", "Party A",
+		"China Vietnam", "Thailand Vietnam", "Vietnam (Thailand)", "East Africa", "Western Europe", "Mercosur", "ASEAN countries",
+		"Non-Japan", "China-made", "Vietnam 2025", "Japan", "Atlantis"} {
+		if _, ok := originCountry(o); ok {
+			t.Errorf("%q accepted", o)
+		}
+	}
+}
+
+func TestEUMembersAndPartiesAreAccepted(t *testing.T) {
+	eu := []string{"Austria", "Belgium", "Bulgaria", "Croatia", "Cyprus", "Czechia", "Denmark", "Estonia", "Finland", "France", "Germany", "Greece",
+		"Hungary", "Ireland", "Italy", "Latvia", "Lithuania", "Luxembourg", "Malta", "Netherlands", "Poland", "Portugal", "Romania", "Slovakia",
+		"Slovenia", "Spain", "Sweden"}
+	if len(eu) != 27 {
+		t.Fatal(len(eu))
+	}
+	for _, c := range append(eu, agreementParties...) {
+		if n, ok := originCountry(c); !ok || n == "" {
+			t.Errorf("%q rejected", c)
+		}
+	}
+	for in, want := range map[string]string{"Korea, Republic of": "South Korea", "Republic of Korea": "South Korea", "Lao PDR": "Laos",
+		"Hong Kong, China": "Hong Kong", "Myanmar (Burma)": "Myanmar", "Viet Nam": "Vietnam", "Türkiye": "Turkey", "turkiye": "Turkey",
+		"Russia": "Russian Federation", "Côte d’Ivoire": "Côte d’Ivoire", "cote d'ivoire": "Côte d’Ivoire", "  NEPAL ": "Nepal", "Ｖｉｅｔｎａｍ": "Vietnam",
+		"Taiwan": "Taiwan", "Iceland": "Iceland", "Saudi Arabia": "Saudi Arabia", "Kenya": "Kenya"} {
+		if got, ok := originCountry(in); !ok || got != want {
+			t.Errorf("%q = %q, %v; want %q", in, got, ok, want)
+		}
+	}
+}
+
+func TestCountryDataIsPinned(t *testing.T) {
+	sum := sha256.Sum256([]byte(unCountryTSV))
+	if got := hex.EncodeToString(sum[:]); got != "7c8c33846a0e2dbf70acb4f36a41ff4477a55cdc59d4612b9756e9a652478662" {
+		t.Errorf("countries_un_m49.tsv changed: %s", got)
+	}
+	if n := len(strings.Split(strings.TrimSpace(unCountryTSV), "\n")); n != 248 {
+		t.Errorf("rows = %d", n)
+	}
+}

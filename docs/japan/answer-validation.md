@@ -4,18 +4,32 @@ What the Japan engine checks in a model answer before it reaches a result. The
 prompt, prompt version and request bytes are unchanged.
 
 ## Shipped
-- Origin of a qualifying answer: exactly one country, or the EU. Japan (the
-  importing country), regions and placeholders (Asia, ASEAN, Various, None,
-  Not applicable, N/A, Unknown) and several countries in one string (commas,
-  "and", "or", slashes, semicolons, "&") are rejected as an invalid answer.
-  Official spellings with a comma or brackets ("Korea, Republic of",
-  "Lao PDR", "Hong Kong, China", "Myanmar (Burma)") are read as one country
-  first. A name outside the shared country table is accepted when it looks
-  like one name (letters, spaces, hyphen, apostrophe, brackets, at most 60
-  characters), so the full set of countries still works; this also means an
-  invented country name is accepted. A test covers a sample of agreement
-  parties; the corpus lists agreement names, not parties, so completeness is
-  not claimed. An "undetermined" answer is still an abstention, not an error.
+- Origin of a qualifying answer: exactly one country or territory from a
+  closed list, or the EU. Japan (the importing country), regions, groups,
+  placeholders, sentences and several countries in one string are all rejected
+  as an invalid answer, because they are not on the list. Names are compared
+  ignoring case, spacing, accents and fullwidth forms. Names that contain
+  "and" (Trinidad and Tobago) match as whole names. Official spellings with a
+  comma or brackets ("Korea, Republic of", "Lao PDR", "Hong Kong, China",
+  "Myanmar (Burma)") are listed aliases and are returned as one name (South
+  Korea, Laos, Hong Kong, Myanmar). An "undetermined" answer is still an
+  abstention, not an error.
+  This is a well-formedness check on the answer only. It is not a treaty-party
+  or origin-eligibility rule: a country that is not a party to the agreement
+  is still accepted here.
+  The list is the English country and area names of the UN Statistics
+  Division M49 overview (https://unstats.un.org/unsd/methodology/m49/overview/,
+  retrieved 2026-11-24, page sha256
+  b9048114f6e7f2abda83bf03d4263c9d7cd1bd7230e3d0461025ee7839a7a1fb), the 248
+  rows that carry ISO alpha-2 and alpha-3 codes, extracted to
+  `countries_un_m49.tsv` (sha256
+  7c8c33846a0e2dbf70acb4f36a41ff4477a55cdc59d4612b9756e9a652478662, pinned by
+  a test), plus the shared country table and the listed aliases. Limits: a
+  country or territory added later, or a name written some other way, is
+  rejected; this errors rather than guesses. Taiwan comes from the shared
+  table because the UN list has no separate row. Tests cover every EU member
+  and a sample of agreement parties; completeness against each agreement's
+  party list is not claimed.
 - A blank deciding rule (spaces, control or invisible characters only) is
   rejected for a qualifying answer.
 - Reasoning is cut to 2000 characters and the deciding rule to 200, ending in

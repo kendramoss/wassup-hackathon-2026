@@ -1,8 +1,10 @@
 package jpengine
 
 import (
+	_ "embed"
 	"regexp"
 	"strings"
+	"sync"
 	"unicode"
 	"unicode/utf8"
 
@@ -51,91 +53,91 @@ func (a modelAnswer) sanitized() modelAnswer {
 	return a
 }
 
-// extraParties are parties of the agreements in jpcorpus.AgreementNames that
-// the shared country table lacks.
-var extraParties = map[string]bool{"Brunei": true, "Brunei Darussalam": true, "Myanmar": true}
-
-// originAliases are spellings of one country that contain a comma, brackets
-// or an abbreviation; they are read before the multi-country check.
+// originAliases maps other spellings of one country to its canonical name.
+// Keys are matched after foldName. A target that is a table name of the shared
+// country table or a UN M49 name is used as written.
 var originAliases = map[string]string{
 	"korea, republic of": "South Korea", "korea (republic of)": "South Korea", "korea, rep.": "South Korea", "korea (south)": "South Korea",
+	"korea, democratic people's republic of": "North Korea", "democratic people's republic of korea": "North Korea", "north korea": "North Korea",
 	"lao pdr": "Laos", "lao people's democratic republic": "Laos", "lao": "Laos",
-	"hong kong, china": "Hong Kong", "hong kong (china)": "Hong Kong", "china, hong kong": "Hong Kong",
+	"hong kong, china": "Hong Kong", "hong kong (china)": "Hong Kong", "china, hong kong": "Hong Kong", "hong kong sar": "Hong Kong",
+	"china, hong kong special administrative region": "Hong Kong",
+	"macau": "Macao", "macao": "Macao", "macao sar": "Macao", "china, macao": "Macao", "china, macao special administrative region": "Macao",
 	"myanmar (burma)": "Myanmar", "burma (myanmar)": "Myanmar", "burma": "Myanmar",
-	"brunei darussalam": "Brunei Darussalam",
-	"viet nam":          "Vietnam",
-	// Single countries whose official names contain "and" or a comma.
-	"trinidad and tobago": "Trinidad and Tobago", "bosnia and herzegovina": "Bosnia and Herzegovina",
-	"antigua and barbuda": "Antigua and Barbuda", "saint kitts and nevis": "Saint Kitts and Nevis",
-	"sao tome and principe": "Sao Tome and Principe", "saint vincent and the grenadines": "Saint Vincent and the Grenadines",
-	"congo, democratic republic of": "Democratic Republic of the Congo", "congo, republic of": "Republic of the Congo",
-	"tanzania, united republic of": "Tanzania", "iran, islamic republic of": "Iran", "moldova, republic of": "Moldova",
-	"korea, democratic people's republic of": "North Korea", "taiwan, province of china": "Taiwan",
-	"micronesia, federated states of": "Micronesia", "bolivia (plurinational state of)": "Bolivia",
+	"brunei": "Brunei", "brunei darussalam": "Brunei",
+	"viet nam": "Vietnam", "turkiye": "Turkey", "czechia": "Czech Republic",
+	"russia": "Russian Federation", "iran": "Iran (Islamic Republic of)", "syria": "Syrian Arab Republic",
+	"bolivia": "Bolivia (Plurinational State of)", "venezuela": "Venezuela (Bolivarian Republic of)",
+	"tanzania": "United Republic of Tanzania", "tanzania, united republic of": "United Republic of Tanzania",
+	"moldova": "Republic of Moldova", "moldova, republic of": "Republic of Moldova",
+	"iran, islamic republic of": "Iran (Islamic Republic of)", "congo, democratic republic of": "Democratic Republic of the Congo",
+	"congo, republic of": "Congo", "drc": "Democratic Republic of the Congo", "dr congo": "Democratic Republic of the Congo",
+	"palestine": "State of Palestine", "swaziland": "Eswatini", "cape verde": "Cabo Verde", "east timor": "Timor-Leste",
+	"ivory coast": "C\u00f4te d\u2019Ivoire", "micronesia": "Micronesia (Federated States of)", "the bahamas": "Bahamas", "the gambia": "Gambia",
+	"netherlands": "Netherlands", "united kingdom of great britain and northern ireland": "United Kingdom",
+	"united states of america": "United States", "taiwan, province of china": "Taiwan", "republic of korea": "South Korea",
 }
 
-// notOrigins are whole answers that name a region or no country at all.
-var notOrigins = map[string]bool{
-	"asia": true, "southeast asia": true, "south east asia": true, "east asia": true, "south asia": true, "asean": true,
-	"asia pacific": true, "europe": true, "africa": true, "america": true, "americas": true, "north america": true,
-	"south america": true, "latin america": true, "oceania": true, "middle east": true, "various": true, "multiple": true,
-	"several": true, "mixed": true, "unknown": true, "none": true, "n/a": true, "na": true, "undetermined": true,
-	"unspecified": true, "other": true, "others": true, "global": true, "worldwide": true, "tbd": true, "any": true,
-	"not applicable": true, "no origin": true, "not specified": true,
+// foldName makes country names comparable: NFKC, lower case, no diacritics,
+// straight apostrophes, single spaces.
+func foldName(s string) string {
+	s = norm.NFD.String(norm.NFKC.String(s))
+	s = strings.Map(func(r rune) rune {
+		switch {
+		case unicode.Is(unicode.Mn, r):
+			return -1
+		case r == '\u2019' || r == '\u2018' || r == '\u02bc':
+			return '\''
+		}
+		return unicode.ToLower(r)
+	}, s)
+	return strings.Join(strings.Fields(s), " ")
 }
 
-var notOriginPrefixes = []string{"various ", "multiple ", "several ", "not ", "no ", "unknown ", "mixed "}
-
-var multiCountry = regexp.MustCompile(`[,;/|&+]|\b(?:and|or|and/or|not|except|excluding|plus|with|from)\b`)
-
-// singleName is a permissive shape for one country name.
-var singleName = regexp.MustCompile(`^\p{L}[\p{L}\p{M} .'\x{2019}()\-]*$`)
+// countryIndex maps a folded country name to its canonical name. It is closed:
+// the shared country table, the aliases above, and the English country and
+// area names of the UN Statistics Division M49 list (see
+// docs/japan/answer-validation.md for source and hash).
+var countryIndex = sync.OnceValue(func() map[string]string {
+	m := map[string]string{}
+	add := func(name, canon string) {
+		if k := foldName(name); k != "" && m[k] == "" {
+			m[k] = canon
+		}
+	}
+	for _, n := range domain.CountryTable() {
+		if n == "European Union" {
+			continue
+		}
+		c := domain.NormalizeCountry(n)
+		add(n, c)
+		add(c, c)
+	}
+	for alias, canon := range originAliases {
+		add(alias, canon)
+		add(canon, canon)
+	}
+	for _, line := range strings.Split(strings.TrimSpace(unCountryTSV), "\n") {
+		if f := strings.Split(line, "\t"); len(f) == 4 {
+			add(f[3], f[3])
+		}
+	}
+	return m
+})
 
 // originCountry returns the canonical origin for a qualifying answer, which
-// must name exactly one country other than Japan, or the EU. Names the shared
-// country table lacks are accepted when they look like one country name.
+// must name exactly one country other than Japan, or the EU. Anything not in
+// the closed country list is rejected.
 func originCountry(raw string) (string, bool) {
-	s := strings.Join(strings.Fields(raw), " ")
-	l := strings.ToLower(s)
-	if l == "eu" || l == "european union" {
+	k := foldName(raw)
+	if k == "eu" || k == "european union" {
 		return "EU", true
 	}
-	if a, ok := originAliases[l]; ok {
-		s, l = a, strings.ToLower(a)
-	}
-	if l == "" || notOrigins[l] || l == "japan" || strings.Contains(" "+l+" ", " japan ") {
+	n, ok := countryIndex()[k]
+	if !ok || n == "Japan" {
 		return "", false
 	}
-	for _, p := range notOriginPrefixes {
-		if strings.HasPrefix(l, p) {
-			return "", false
-		}
-	}
-	if _, aliased := originAliases[l]; !aliased && multiCountry.MatchString(l) {
-		return "", false
-	}
-	if n, ok := domain.KnownCountry(s); ok && n != "Japan" && len(domain.CountryParts(n)) == 1 {
-		return n, true
-	}
-	if n := domain.NormalizeCountry(s); extraParties[n] {
-		return n, true
-	}
-	if utf8.RuneCountInString(s) > 60 || utf8.RuneCountInString(s) < 3 || !singleName.MatchString(s) {
-		return "", false
-	}
-	if isASCII(s) {
-		return domain.NormalizeCountry(s), true
-	}
-	return s, true
-}
-
-func isASCII(s string) bool {
-	for i := 0; i < len(s); i++ {
-		if s[i] >= utf8.RuneSelf {
-			return false
-		}
-	}
-	return true
+	return n, true
 }
 
 // rulingMention finds a Japan ruling number as written in free text: JP, any
@@ -193,3 +195,6 @@ func digitCount(s string) int {
 	}
 	return n
 }
+
+//go:embed countries_un_m49.tsv
+var unCountryTSV string
