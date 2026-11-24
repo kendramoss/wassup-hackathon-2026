@@ -1,7 +1,7 @@
 // Single source for the RCEP held-out counts shown on the landing and Accuracy
 // pages (D691, D716, D717). Pinned to eval/rcep/japan-summary.json by
 // scripts/landing-market-evidence.test.mjs and scripts/accuracy-copy.test.mjs.
-// Canada carries no score. Japan's offline model test (D741) is below.
+// Canada, the EU and the UK carry no score. Japan's offline model test (D741) is below.
 export const rcepEvidence = {
   rulings: 98,
   yes: 71,
@@ -29,6 +29,7 @@ export const marketEvidence = {
     { name: "U.S. origin", status: "Held-out rulings", note: "Single-origin U.S. substantial-transformation rulings only." },
     { name: "RCEP tariff", status: "Approvals only", note: "No refusals tested." },
     { name: "Canada marking", status: "Rules only", note: "No score." },
+    { name: "EU and UK origin", status: "Rules only", note: "No score." },
     { name: "Japan origin", status: "Not available yet", note: "Offline experiment only. Not a coverage claim." },
     { name: "Other markets", status: "Not yet", note: "No rules or tests." },
   ],

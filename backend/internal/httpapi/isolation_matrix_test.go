@@ -73,6 +73,8 @@ var routeTable = map[string]routeClass{
 	"POST /v1/rcep/check":                          noCaseData,
 	"POST /v1/usmca/check":                         noCaseData,
 	"POST /v1/rules/canada-marking":                noCaseData, // computes from the request alone; nothing stored (D720)
+	"POST /v1/rules/eu-origin":                     noCaseData, // computes from the request alone; nothing stored (D760)
+	"POST /v1/rules/uk-origin":                     noCaseData, // computes from the request alone; nothing stored (D760)
 	"GET /v1/demos":                                noCaseData,
 	"GET /v1/jurisdictions":                        noCaseData,
 	"GET /v1/demos/{id}":                           noCaseData,

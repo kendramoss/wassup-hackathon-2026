@@ -10,6 +10,7 @@ import (
 	"fmt"
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/calibrate"
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/jurisdiction"
+	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/nporigin"
 	"io"
 	"log/slog"
 	"math"
@@ -180,6 +181,12 @@ type Deps struct {
 	// SOR/94-23 marking-rule check for goods imported into Canada (D720).
 	// A rules check only, never stored and never read by the engine.
 	CanadaMarking *tariffshift.Rules
+	// EUOrigin and UKOrigin, when set, serve POST /v1/rules/eu-origin and
+	// POST /v1/rules/uk-origin: the non-preferential origin list rules of
+	// the EU (Annex 22-01) and the UK (Part Four) (D760-D766). Rules checks
+	// only, never stored.
+	EUOrigin *nporigin.Rules
+	UKOrigin *nporigin.Rules
 	// Pharma, when set, predicts cases the router labels pharma_api with the
 	// pharmaceutical prompt (origin follows the active ingredient) instead of
 	// leaving them out of scope (D62). PharmaFastPath is its auto-accept bar;

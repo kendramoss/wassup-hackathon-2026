@@ -278,6 +278,8 @@ func (a *api) dispatch(ctx context.Context, c domain.Case, st *stages, pin *pinn
 // Family bars and the fallback-model check keep their existing order.
 func (a *api) decide(d Dispatch) (domain.Triage, bool) {
 	switch {
+	case d.Unsupported && d.Market.Cue == jurisdiction.CueNorthernIreland:
+		return domain.Triage{Route: domain.RouteNeedsReview, Reason: jurisdiction.NorthernIrelandReason}, false
 	case d.Unsupported:
 		return domain.Triage{Route: domain.RouteNeedsReview, Reason: jurisdiction.UnsupportedReason(d.Market.Code)}, false
 	case d.Authority != "":

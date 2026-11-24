@@ -53,6 +53,11 @@ type Options struct {
 	// CanadaMarking reports that POST /v1/rules/canada-marking is served;
 	// without it check_canada_marking is not listed.
 	CanadaMarking bool
+	// EUOrigin and UKOrigin report that POST /v1/rules/eu-origin and
+	// POST /v1/rules/uk-origin are served; without them check_eu_origin and
+	// check_uk_origin are not listed.
+	EUOrigin bool
+	UKOrigin bool
 	// Version is reported in the MCP initialize result.
 	Version string
 	// ClientAddress resolves the outer request's connection address and
@@ -100,6 +105,12 @@ func NewServer(o Options) *mcp.Server {
 	}
 	if o.CanadaMarking {
 		t.registerCanada(s)
+	}
+	if o.EUOrigin {
+		t.registerOrigin(s, euOriginTool)
+	}
+	if o.UKOrigin {
+		t.registerOrigin(s, ukOriginTool)
 	}
 	t.registerResources(s)
 	t.registerPrompts(s)

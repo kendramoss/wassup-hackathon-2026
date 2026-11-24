@@ -26,6 +26,8 @@ func (a *api) mcp(root *http.Handler, version string) http.HandlerFunc {
 		MediaExtract:  a.d.MediaExtractor != nil,
 		PartsHTS:      a.d.PartsHTS != nil,
 		CanadaMarking: a.d.CanadaMarking != nil,
+		EUOrigin:      a.d.EUOrigin != nil,
+		UKOrigin:      a.d.UKOrigin != nil,
 		Version:       version,
 		// The MCP guard resolves the address with the same trusted-proxy
 		// rule as clientKey, so a direct caller's header cannot pick the

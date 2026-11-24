@@ -8,9 +8,9 @@ All `file:line` anchors are at commit `c0d3115` (the base of this change). The l
 
 | Question | Answer |
 |---|---|
-| Which jurisdiction? | U.S. CBP origin prediction (section 2) and the [Canada marking rules check](#31-canada-marking-rules) are live. Japan: not available yet — the [trade-agreement assessment](#32-japan-trade-agreements) is built but disabled in production. |
+| Which jurisdiction? | U.S. CBP origin prediction (section 2) and the [Canada marking rules check](#31-canada-marking-rules) are live. The [EU and UK non-preferential origin rules checks](#34-eu-and-uk-non-preferential-origin-rules) cover only the goods their lists name. Japan: not available yet — the [trade-agreement assessment](#32-japan-trade-agreements) is built but disabled in production. |
 | Which products does the planner cover? | 26 families with templates (section 4): three earlier ones, eleven added from CBP precedent (ten in D138, one in D212), six written from Part 102 marking rulings (D580) and six picked from rulings with no template in either regime (D660). |
-| EU Binding Origin Information (BOI) | Unsupported. Deferred (section 7). |
+| EU Binding Origin Information (BOI) | Unsupported. Deferred (section 7). The EU rules check (section 3.4) applies the published rules; it does not read BOI decisions. |
 | Preferential origin | The [standalone RCEP calculator](#33-rcep-preference-calculator) is live. USMCA regional value content is deferred (section 7). |
 | Does "Part 102" in this repo mean USMCA qualification? | No. It means the Part 102 marking-origin rules (section 5). |
 | Does the Part 177 export decide origin? | No. It lays out a ruling request letter (section 5). |
@@ -93,6 +93,46 @@ The Japan engine registers only when `JAPAN_ENGINE=on` (default off, D741) and t
 `POST /v1/rcep/check` applies the RCEP Annex 3A rules in the HS 2022 tariff edition. It uses the supplied tariff codes and, where the rule requires them, values, weights and supplier origin declarations. This calculator runs without a model and has its own outcome (D690).
 
 In the unseen Japan Customs set, all 98 published rulings qualified. The calculator returned yes on 71 and undetermined on 27, with zero refusals or input errors. The deciding criterion agreed in all 71 decisions. The synthetic tariff-code mutations were all undetermined. Refusal performance on real cases remains unmeasured. [Evaluation rows and intervals](../eval/RESULTS.md#rcep-calculator-on-japan-customs-rulings-d691-d716-d717)
+
+### 3.4 EU and UK non-preferential origin rules
+
+Two separate checks, one per market, with the same shape (D760-D766): `POST /v1/rules/eu-origin` and `POST /v1/rules/uk-origin`, the `check_eu_origin` and `check_uk_origin` MCP tools, and the origin page of an EU or UK case. They run without a model. Both are rules checks only, with no accuracy figure: no origin decisions with their facts are published in either market to test them against.
+
+**Question.** The non-preferential country of origin of a good imported into the EU, or into the UK. Supply the good's HS code, the country where it was made and its materials' codes and origins. Value or weight shares, a list row and yes/no facts are asked for when a rule needs them. Not preferential (trade-agreement) origin, not tariff classification, not a ruling.
+
+| | EU | UK |
+|---|---|---|
+| Rules | Union Customs Code (Regulation (EU) No 952/2013) Art. 59-63; Delegated Regulation (EU) 2015/2446 Art. 31-36 and the list rules of Annex 22-01 | Taxation (Cross-border Trade) Act 2018 s. 17; SI 2020/1433 regs 4-11; Part Four of HMRC's reference document |
+| Text version | EUR-Lex consolidated text CELEX 02015R2446-20261101 (1 Nov 2026), SHA-256 `87be4f1a…818be` | Reference document v1.2, 12 April 2023 (in effect from 10 May 2023), SHA-256 `239b6b3d…b850d` |
+| Who applies it | Common EU rules. Each Member State's customs authority applies them, issues Binding Origin Information and checks declarations | HMRC |
+| Published decisions | Public BOI list gives outcomes only, no facts or reasoning; not used. EBTI is tariff classification; not used | HMRC publishes no Advance Origin Rulings |
+| Label on every answer | "Rules check only — no accuracy figure (no published origin decisions with their facts to test against)" | "Rules check only — no accuracy figure (no published origin rulings to test against)" |
+
+**Northern Ireland.** Under the Windsor Framework the EU's customs rules apply to many goods entering Northern Ireland. A case whose text names Northern Ireland (or Belfast, Londonderry, Derry) as the destination is not read as the UK: it gets no answer and asks the user to pick the EU or the UK market (D767). A market the user picks is used as chosen.
+
+**Goods with list rules.** The same 37 HS chapters in both lists, with rules for these headings only (an `ex` heading covers only the goods its description names; other headings may be covered only for some subheadings or descriptions; the full rows are in `rules_eu.json` and `rules_uk.json`):
+
+| Chapter | Headings |
+|---|---|
+| 02 | 0201 to 0206 |
+| 04, 09, 11, 14, 17 | ex 0408; 0901 (subheadings 0901 11 to 0901 22); 1101 to 1109; ex 1404; 1701 to 1704 |
+| 20, 22, 34, 35, 42, 49 | ex 2009; ex 2204, ex 2205; ex 3401, ex 3405; ex 3502; ex 4203; ex 4910 |
+| 50 to 63 (textiles) | Most headings of each chapter |
+| 64, 69, 71 | 6401 to 6405; ex 6911 to ex 6913; ex 7117 |
+| 72, 73 | 7201 to 7229; 7301 to 7326 |
+| 82 | 8201 to 8207 |
+| 84 | ex 8443 (photocopiers), ex 8473 (memory modules), ex 8482 (assembled bearings) only |
+| 85 | ex 8501, ex 8523 59, ex 8525 (EU: ex 8525 80, read as 8525 81 to 89), 8527, 8528, 8535, ex 8536, 8541 (split: ex 8541 (a) crystalline silicon photovoltaic cells, ex 8541 (b) other), 8542, ex 8548 (EU: ex 8548 90, read as 8548 00); the UK also has 8524 |
+| 90, 91, 94 | ex 9029; ex 9113; ex 9401, ex 9403, ex 9405; the UK also has ex 9021 |
+
+**What is decided, and how.** A change of classification (CC, CTH, CTSH and their split forms, with "except from" clauses) is decided from the codes, with the 10% value tolerance. Rules written as work done ("Manufacture from yarn", "Assembly of semi-conductor products", "Complete making-up") are decided only from a yes/no answer. When the good's code reaches rows limited by description, the caller picks the row. When the primary rule is not met, the chapter residual rules give the origin from the materials' value or weight shares. EU 446 rows and UK 452 rows; 199 and 205 alternatives decided from codes and shares, 338 and 342 from answers, 5 in each not read (D763).
+
+**What is not decided.**
+- Any good without a list rule: every heading of the other 60 chapters, and the headings of listed chapters without a row (for example 8471 computers). The answer is "needs a substantial-transformation judgement", citing Art. 60(2) UCC or TCTA 2018 s. 17(3). No origin is given (D764).
+- Rules that name the origin by where work was done (meat, eggs, scrap): a "yes, done in the country of production" decides; a "no" goes to a person, because the rule then names another country. Equal shares, mixtures weighed by dry matter, and changes between splits of the same heading also go to a person.
+- Two EU rows keep HS 2017 codes (ex 8525 80, ex 8548 90, added in 2018 and not renumbered for HS 2022). The check reads them as the HS 2022 subheadings they became (8525 81 to 89, 8548 00); the row text is unchanged (D767).
+- UK minimal operations: the UK text gives no fallback, so a judgement. The EU check applies Art. 34 DA (D764).
+- Accessories, spare parts and tools, packing, neutral elements, wholly obtained goods beyond the rows, and proof of origin.
 
 ## 4. Planner coverage
 
@@ -191,7 +231,7 @@ None of the following is implemented. A result from this system must not be used
 - Filing preferential duty claims or obtaining preferential-origin certificates. The RCEP calculator supports preliminary qualification from the supplied facts. It awaits qualified professional review (D690).
 - USMCA regional value content, net cost and transaction value calculations. The RCEP calculator uses the value-content methods in that agreement.
 - Certificates of origin, USMCA certification of origin, or any origin declaration for a trade agreement.
-- EU Binding Origin Information, UK origin and other customs regimes outside the shipped checks above. Japan model activation is tracked in section 3.2.
+- EU Binding Origin Information, the origin of EU or UK goods without a list rule (a substantial-transformation judgement, section 3.4), EU and UK preferential origin, and other customs regimes outside the shipped checks above. Japan model activation is tracked in section 3.2.
 - Duty drawback.
 - Antidumping and countervailing duty (AD/CVD) circumvention or scope determinations. No such code exists.
 - Section 232 and Section 301 origin determinations. Section 301 is only touched as a separate question that the Part 102 draft keeps apart (`export/regime.go:37`); the live duty note states Section 232 duties are not included (`internal/duty/live.go:371`).
@@ -201,7 +241,7 @@ None of the following is implemented. A result from this system must not be used
 
 ## 7. Deferral record
 
-Decision on the #282 acceptance criterion "implementation/defer decision, no invented international coverage": **defer both, as two separate roadmap scopes. Nothing here is implemented and no coverage is claimed.** An EU BOI corpus, licence records for these two scopes, and qualified professional validation remain prerequisites.
+Decision on the #282 acceptance criterion "implementation/defer decision, no invented international coverage": **defer both, as two separate roadmap scopes. Nothing here is implemented and no coverage is claimed.** The EU rules check of section 3.4 (D760-D766) applies the published non-preferential list rules; it reads no BOI decision and does not change scope A below. An EU BOI corpus, licence records for these two scopes, and qualified professional validation remain prerequisites.
 
 Before any coverage claim for either scope, all of the following must exist as separate, reviewed artefacts:
 

@@ -339,6 +339,10 @@ function MarketEvidence() {
             <dd className="read mt-0.5 text-sm text-dim">Checks the marking rules only. No accuracy figure.</dd>
           </div>
           <div>
+            <dt className="text-sm font-semibold">EU and UK origin</dt>
+            <dd className="read mt-0.5 text-sm text-dim">Checks the list rules only. No accuracy figure.</dd>
+          </div>
+          <div>
             <dt className="text-sm font-semibold">Japan model</dt>
             <dd className="read mt-0.5 text-sm text-dim">{copy.japan.notAvailable}</dd>
           </div>

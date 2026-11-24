@@ -123,6 +123,17 @@ Recomputed by `cd backend && go test ./internal/tariffshift -run 'RulesCAJSON|Pa
 | Parity with the U.S. check on identical rows | 116 rows with the same text; same answer on 2,094 of 2,094 inputs (1,029 decided by the U.S. rules) | `TestParityOnIdenticalRows` | Built, synthetic inputs; not an accuracy figure |
 | Published Canadian rulings to test against | about 11 origin and 3 marking rulings, none negative (CBSA list archived 2 Jul 2025) | day-0 check for #663, D725 | Too few for an accuracy figure; none shown |
 
+### EU and UK non-preferential origin list rules (D760-D766)
+
+Recomputed by `cd backend && go test ./internal/euorigin ./internal/ukorigin -run 'JSON|Coverage|Parity'` (in `make reproduce`); no model calls. Rules checks only: no accuracy figure exists (D766).
+
+| Number | Value | Source | Status |
+|---|---|---|---|
+| EU chapters, rows and alternatives | 37 chapters; 446 rows; 542 alternatives: 199 decided from codes and shares, 338 process rules decided only from an answer, 5 not read; rows: 182 by code alone, 259 with a process rule, 5 with an unread rule | `backend/internal/euorigin/rules_eu.json` (CELEX 02015R2446-20261101, retrieved 24 Nov 2026), `TestCoverageEU` | Built; a test re-parses the committed text |
+| UK chapters, rows and alternatives | 37 chapters; 452 rows; 552 alternatives: 205 from codes and shares, 342 process, 5 not read; rows: 184, 263, 5 | `backend/internal/ukorigin/rules_uk.json` (reference document v1.2, retrieved 24 Nov 2026), `TestCoverageUK` | Built; a test re-parses the committed text |
+| EU and UK parity on rows with the same text | 444 rows with the same text; 441 compared (3 value rules skipped); same status and origin on 1,764 of 1,764 synthetic inputs per market | `TestParity` | Built, synthetic inputs; not an accuracy figure |
+| Published origin decisions with facts to test against | EU: none (the public BOI list has outcomes only); UK: none (HMRC publishes no Advance Origin Rulings) | D766 | No accuracy figure; none shown |
+
 ### Per-part HTS suggestions (D380-D382)
 
 Recomputed by `cd backend && go run ./cmd/tariffshift parts-eval -check` (in `make reproduce`) from the committed rows; no model calls at scoring.
