@@ -259,7 +259,7 @@ func TestDiagnoseCountsMappedAndEditionHintSeparately(t *testing.T) {
 	}
 }
 
-func TestDiagnoseReportsInvalidAJCEPGeneralCodes(t *testing.T) {
+func TestDiagnoseReportsNotInEditionAJCEPCodes(t *testing.T) {
 	rules, err := jprules.Default()
 	if err != nil {
 		t.Fatal(err)
@@ -272,7 +272,7 @@ func TestDiagnoseReportsInvalidAJCEPGeneralCodes(t *testing.T) {
 	if r.Eligible.General != 1 || r.Eligible.Total != 1 || r.Abstained != 3 {
 		t.Fatalf("eligible %+v abstained %d", r.Eligible, r.Abstained)
 	}
-	if got := r.ReasonByAgree["AJCEP"]; got["general"] != 1 || got["invalid_code"] != 3 {
+	if got := r.ReasonByAgree["AJCEP"]; got["general"] != 1 || got["not_in_schedule_edition"] != 3 {
 		t.Errorf("reasons %v", got)
 	}
 	if got := r.UnmatchedCodes["AJCEP"]; got["321599"] != 1 || got["329900"] != 2 || got["321590"] != 0 {

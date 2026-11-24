@@ -23,7 +23,7 @@ const diagnoseBasis = "Counts describe rule availability before any model call: 
 	"source can be shown for a case's agreement, code and date. They are not accuracy, recall, " +
 	"resolved decisions or entitlement conclusions. A mapped case shows the rule row of the code's " +
 	"earlier-edition parent codes behind an administrative-correlation note; the rule is not listed for " +
-	"the code itself. An invalid_code case is a code that is not a real HS 2017 subheading and has no " +
+	"the code itself. A not_in_schedule_edition case is a code that is not a real HS 2017 subheading and has no " +
 	"product specific row; no general rule is shown for it. No labels, scoring, precedents or model are used."
 
 type diagnoseEligible struct {
@@ -135,7 +135,7 @@ func diagnoseRun(split string, cases []domain.Case, rules *jprules.Table) diagno
 			r.Abstained++
 		}
 		switch pf.Reason {
-		case jprules.ReasonNoMatch, jprules.ReasonInvalidCode, jprules.ReasonTooBroad, jprules.ReasonWithheld, jprules.ReasonExcludedGeneral, jprules.ReasonEditionHint:
+		case jprules.ReasonNoMatch, jprules.ReasonNotInEdition, jprules.ReasonTooBroad, jprules.ReasonWithheld, jprules.ReasonExcludedGeneral, jprules.ReasonEditionHint:
 			bump(r.UnmatchedCodes, agr, pf.HS)
 		}
 	}

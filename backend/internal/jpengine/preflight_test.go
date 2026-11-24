@@ -159,7 +159,8 @@ func TestGatedCasesNeverReachTheModel(t *testing.T) {
 		c    domain.Case
 		want jprules.Reason
 	}{
-		{"chapter 50-63 absent from HS 2017", jpCase("AJCEP", "5008", "2025-06-01"), jprules.ReasonInvalidCode},
+		{"chapter 50-63 absent from HS 2017", jpCase("AJCEP", "5008", "2025-06-01"), jprules.ReasonNotInEdition},
+		{"newer-edition code", jpCase("AJCEP", "3907.29", "2023-12-18"), jprules.ReasonNotInEdition},
 		{"reserved 77", jpCase("AJCEP", "7701", "2025-06-01"), jprules.ReasonInvalidCode},
 		{"reserved 99", jpCase("AJCEP", "9999", "2025-06-01"), jprules.ReasonInvalidCode},
 		{"reserved 98", jpCase("AJCEP", "9801.00", "2025-06-01"), jprules.ReasonInvalidCode},
@@ -179,13 +180,19 @@ func TestGatedCasesNeverReachTheModel(t *testing.T) {
 	}
 	// Every real chapter 50-63 heading has a PSR row, and the general fallback
 	// (and its excluded_general branch) requires a real HS 2017 code first, so
-	// a textile heading with no PSR row is invalid_code (see jprules tests).
+	// a textile heading with no PSR row is not_in_schedule_edition (see jprules tests).
 	for _, tc := range cases {
 		t.Run(tc.name, func(t *testing.T) {
 			eng, model := newEngine(t)
 			pf := Preflight(eng.rules, tc.c)
 			if pf.Eligible || pf.Reason != tc.want || pf.Evidence != nil || pf.ReviewReason == "" {
 				t.Fatalf("preflight = %+v, want reason %q", pf, tc.want)
+			}
+			if tc.want == jprules.ReasonNotInEdition && pf.ReviewReason != reasonNotInEdition {
+				t.Fatalf("review reason %q", pf.ReviewReason)
+			}
+			if tc.want == jprules.ReasonInvalidCode && pf.ReviewReason == reasonNotInEdition {
+				t.Fatal("reserved chapter must not use the edition message")
 			}
 			res, err := eng.Predict(context.Background(), tc.c)
 			if err != nil {

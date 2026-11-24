@@ -1,18 +1,18 @@
 # AJCEP general fallback requires a real HS 2017 code
 
-The AJCEP general criteria (Articles 23 to 35 extract) used to be returned for any code with no product specific row, including codes that do not exist in HS 2017 (for example an HS 2022 code, or a typo). Now the general fallback is returned only for a real HS 2017 code. Any other code returns `invalid_code` and the case goes to review.
+The AJCEP general criteria (Articles 23 to 35 extract) used to be returned for any code with no product specific row, including codes that do not exist in HS 2017 (for example an HS 2022 code, or a typo). Now the general fallback is returned only for a real HS 2017 code. Any other code returns `not_in_schedule_edition` and the case goes to review.
 
 ## Behaviour
 
 Order inside `LookupDetailed` for AJCEP in the HS 2017 window (2023-01-01 up to, not including, 2027-02-15):
 
 1. Product specific rows, `too_broad`, `withheld` come first, unchanged. A chapter-wide row (for example chapter 01) therefore still returns `psr` even for a code absent from the list.
-2. Reserved chapters 00, 77, 98 and 99 return `invalid_code`.
-3. Not a real HS 2017 code returns `invalid_code`. This comes before `excluded_general`, so a non-existent chapter 50 to 63 code reports `invalid_code`, not `excluded_general`. A real chapter 50 to 63 code without a row stays `excluded_general`; the shipped schedule has a row for every real textile code, so today that is only reached on a modified schedule in a test.
+2. Reserved chapters 00, 77, 98 and 99 return `invalid_code`. That reason is now only for reserved chapters.
+3. A code in another chapter that is not a real HS 2017 code returns `not_in_schedule_edition`. It may be a code of a later edition or a typo; the lookup does not say which, and the review message says only that the code is not in the HS 2017 edition the schedule uses. This comes before `excluded_general`, so a non-existent chapter 50 to 63 code reports `not_in_schedule_edition`, not `excluded_general`. A real chapter 50 to 63 code without a row stays `excluded_general`; the shipped schedule has a row for every real textile code, so today that is only reached on a modified schedule in a test.
 4. Otherwise `general`.
-5. The correlation step still runs only on `no_match`. When a reviewed correlation exists for the exact agreement and six-digit code, the invalid code is left as `no_match`, so the correlation can return `mapped` or `edition_hint` before `invalid_code` would apply. No AJCEP correlation ships today; a test injects one to prove the order. Correlations never rescue a reserved chapter.
+5. The correlation step still runs only on `no_match`. When a reviewed correlation exists for the exact agreement and six-digit code, the code is left as `no_match`, so the correlation can return `mapped` or `edition_hint` before `not_in_schedule_edition` would apply. No AJCEP correlation ships today; a test injects one to prove the order. Correlations never rescue a reserved chapter.
 
-Code lengths: the lookup uses four or six digits. A six-digit code must be in the list. A four-digit heading is valid if some listed subheading starts with it (a heading present in HS 2017 keeps today's behaviour; a heading that does not exist is `invalid_code`). Nine-digit national codes are cut to six first. The list is HS 2017 only, so the HS 2022 AJCEP window and other agreements are unchanged.
+Code lengths: the lookup uses four or six digits. A six-digit code must be in the list. A four-digit heading is valid if some listed subheading starts with it (a heading present in HS 2017 keeps today's behaviour; a heading that does not exist is `not_in_schedule_edition`). Nine-digit national codes are cut to six first. The list is HS 2017 only, so the HS 2022 AJCEP window and other agreements are unchanged.
 
 ## Source record
 
@@ -48,6 +48,6 @@ The UN Comtrade license agreement (https://comtradeplus.un.org/en/license-agreem
 | eligible total | 2,673 | 2,672 |
 | psr / general / mapped | 2,572 / 16 / 85 | 2,572 / 15 / 85 |
 | abstained | 300 | 301 |
-| AJCEP reasons | general 16, psr 557 | general 15, invalid_code 1, psr 557 |
+| AJCEP reasons | general 16, psr 557 | general 15, not_in_schedule_edition 1, psr 557 |
 
-The one change is a case with code 390729. Subheading 3907.29 is not in the HS 2017 list. Before, it got the general rules for a code that does not exist in the HS 2017 schedule. Now it is `invalid_code` and shows in `unmatched_codes`. There is no reviewed AJCEP correlation for it; adding one needs its own review and is not part of this change. `dev_eval` after the change: 400 cases, AJCEP general 1, psr 55.
+The one change is a case with code 390729. Subheading 3907.29 is not in the HS 2017 list. Before, it got the general rules for a code that does not exist in the HS 2017 schedule. Now it is `not_in_schedule_edition` and shows in `unmatched_codes`. There is no reviewed AJCEP correlation for it; adding one needs its own review and is not part of this change. `dev_eval` after the change: 400 cases, AJCEP general 1, psr 55.

@@ -84,14 +84,14 @@ func TestGeneralFallbackRequiresValidHS2017Code(t *testing.T) {
 		{"real subheading 9 digit", "3215.90-000", "2025-01-01", ReasonGeneral},
 		{"real heading", "3215", "2025-01-01", ReasonGeneral},
 		{"real chapter 90 subheading", "9018.90", "2025-01-01", ReasonGeneral},
-		{"absent subheading in a real heading", "3215.99", "2025-01-01", ReasonInvalidCode},
+		{"absent subheading in a real heading", "3215.99", "2025-01-01", ReasonNotInEdition},
 		// PSR rows (here a chapter-wide row) are matched first, even for a code absent from the list.
 		{"PSR chapter row wins over validity", "0101.99", "2025-01-01", ReasonPSR},
-		{"absent subheading chapter 90", "9018.99", "2025-01-01", ReasonInvalidCode},
-		{"absent heading", "3299", "2025-01-01", ReasonInvalidCode},
-		{"absent heading 0900", "0900", "2025-01-01", ReasonInvalidCode},
+		{"absent subheading chapter 90", "9018.99", "2025-01-01", ReasonNotInEdition},
+		{"absent heading", "3299", "2025-01-01", ReasonNotInEdition},
+		{"absent heading 0900", "0900", "2025-01-01", ReasonNotInEdition},
 		// Order: the validity check is before excluded_general.
-		{"absent chapter 50 heading is invalid not excluded", "5008", "2025-01-01", ReasonInvalidCode},
+		{"absent chapter 50 heading is invalid not excluded", "5008", "2025-01-01", ReasonNotInEdition},
 		// Reserved chapters stay invalid before and independent of the list.
 		{"reserved 77", "7701", "2025-01-01", ReasonInvalidCode},
 		// The list is HS 2017 only: no change outside the general window.
@@ -107,7 +107,7 @@ func TestGeneralFallbackRequiresValidHS2017Code(t *testing.T) {
 			if res.Reason != c.want {
 				t.Fatalf("%s: reason %q, want %q", c.hs, res.Reason, c.want)
 			}
-			if res.Reason == ReasonInvalidCode && res.Evidence != nil {
+			if res.Reason == ReasonNotInEdition && res.Evidence != nil {
 				t.Fatal("invalid code carried evidence")
 			}
 		})
@@ -129,7 +129,7 @@ func TestTextileOrderingValidBeforeExcluded(t *testing.T) {
 			if a == "AJCEP" {
 				rows := []row{}
 				for _, r := range s.Rows {
-					if r.Start[:2] < "50" || r.Start[:2] > "63" || len(r.Start) < 2 {
+					if len(r.Start) < 2 || r.Start[:2] < "50" || r.Start[:2] > "63" {
 						rows = append(rows, r)
 					}
 				}
@@ -151,12 +151,12 @@ func TestTextileOrderingValidBeforeExcluded(t *testing.T) {
 		if v.hasPrefix(strings.NewReplacer(".", "").Replace(hs)) {
 			t.Fatalf("%s should be absent", hs)
 		}
-		if res, _ := cp.LookupDetailed("AJCEP", hs, d); res.Reason != ReasonInvalidCode {
-			t.Errorf("absent %s: %q, want invalid_code", hs, res.Reason)
+		if res, _ := cp.LookupDetailed("AJCEP", hs, d); res.Reason != ReasonNotInEdition {
+			t.Errorf("absent %s: %q, want not_in_schedule_edition", hs, res.Reason)
 		}
 	}
 	// The shipped schedule: absent 5008 is invalid_code.
-	if res, _ := base.LookupDetailed("AJCEP", "5008", d); res.Reason != ReasonInvalidCode {
+	if res, _ := base.LookupDetailed("AJCEP", "5008", d); res.Reason != ReasonNotInEdition {
 		t.Errorf("shipped 5008: %q", res.Reason)
 	}
 }
@@ -178,9 +178,9 @@ func TestHeadingValidityMatchesList(t *testing.T) {
 			if !v.hasPrefix(hs) {
 				t.Fatalf("%s: %q for a heading absent from HS 2017", hs, res.Reason)
 			}
-		case ReasonInvalidCode:
+		case ReasonNotInEdition:
 			if v.hasPrefix(hs) {
-				t.Fatalf("%s: invalid_code for a real heading", hs)
+				t.Fatalf("%s: not_in_schedule_edition for a real heading", hs)
 			}
 		}
 	}
@@ -189,6 +189,20 @@ func TestHeadingValidityMatchesList(t *testing.T) {
 // The correlation step runs on no_match, so a code that has a reviewed
 // correlation must reach it before the general validity check turns it into
 // invalid_code. No AJCEP correlation ships today, so the test injects one.
+func TestNotInEditionIsDistinctFromReserved(t *testing.T) {
+	table := mustTable(t)
+	d := day(t, "2025-01-01")
+	if ReasonNotInEdition != "not_in_schedule_edition" {
+		t.Fatalf("reason value %q", ReasonNotInEdition)
+	}
+	// 3907.29 exists only in a later HS edition than the schedule's.
+	for hs, want := range map[string]Reason{"3907.29": ReasonNotInEdition, "390729": ReasonNotInEdition, "7701": ReasonInvalidCode, "9999": ReasonInvalidCode, "0000": ReasonInvalidCode} {
+		if res, _ := table.LookupDetailed("AJCEP", hs, d); res.Reason != want {
+			t.Errorf("%s: %q, want %q", hs, res.Reason, want)
+		}
+	}
+}
+
 func TestCorrelationBeforeGeneralValidity(t *testing.T) {
 	base := mustTable(t)
 	d := day(t, "2025-01-01")
@@ -204,7 +218,7 @@ func TestCorrelationBeforeGeneralValidity(t *testing.T) {
 		return &tt
 	}
 	// No correlation: invalid_code.
-	if res, _ := base.LookupDetailed("AJCEP", code, d); res.Reason != ReasonInvalidCode {
+	if res, _ := base.LookupDetailed("AJCEP", code, d); res.Reason != ReasonNotInEdition {
 		t.Fatalf("no correlation: %q", res.Reason)
 	}
 	// Mapped correlation to parents sharing a PSR row: mapped, not invalid_code.
@@ -228,7 +242,7 @@ func TestCorrelationBeforeGeneralValidity(t *testing.T) {
 	tt2 := *base
 	tt2.corr = &correlationSet{entries: []correlation{{Agreement: "CPTPP", Code: code,
 		RequestedEdition: "HS 2022", ScheduleEdition: "HS 2017", Parents: []string{"010121"}, Mode: modeHint, Sources: src, Hint: "x"}}}
-	if r, _ := tt2.LookupDetailed("AJCEP", code, d); r.Reason != ReasonInvalidCode {
+	if r, _ := tt2.LookupDetailed("AJCEP", code, d); r.Reason != ReasonNotInEdition {
 		t.Fatalf("other agreement: %q", r.Reason)
 	}
 	// Plain Lookup never returns it.
