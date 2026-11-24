@@ -50,6 +50,7 @@ func (a *api) buildEvidenceReport(c store.Case, now time.Time) evreport.Report {
 	if len(supplied) > 0 {
 		rep.Supplied = supplied
 	}
+	rep.FamilyAnswers = a.familyAnswersOf(c)
 	rep.Checks = append(rep.Checks, a.usOriginCheck(c), a.part102Check(c, now))
 	if a.d.CanadaMarking != nil {
 		rep.Checks = append(rep.Checks, a.canadaCheck(c, now))

@@ -98,6 +98,7 @@ func NewServer(o Options) *mcp.Server {
 	t.registerRCEP(s)
 	t.registerUSMCA(s)
 	t.registerEvidenceReport(s)
+	t.registerAnswers(s)
 	if o.MediaExtract {
 		t.registerMedia(s)
 	}

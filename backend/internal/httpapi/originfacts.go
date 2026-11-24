@@ -35,6 +35,9 @@ type OriginFactsView struct {
 	Market      string                                 `json:"market"`
 	OriginFacts map[string]*domain.SuppliedOriginFacts `json:"origin_facts"`
 	Check       OriginRulesView                        `json:"check"`
+	// Prediction is the case's stored answer after the save, present when
+	// the case asks this market's question and so was re-checked (D815).
+	Prediction *domain.Prediction `json:"prediction,omitempty"`
 }
 
 // originMarketOf is the EU or UK market and its rules for a path value.
@@ -167,6 +170,20 @@ func (a *api) putOriginFacts(w http.ResponseWriter, r *http.Request) {
 		latest.OriginFacts = facts
 		latest.UpdatedAt = s.UpdatedAt
 		record(r.Context(), latest, store.Event{Kind: "origin_facts", Summary: sum})
+		// On a case asked for this market, the stored answer is this
+		// check, so it is re-run with the answers: deterministic, no
+		// model (D815). The first stored answer is kept, and the event
+		// says what it was before.
+		if jurisdiction.Of(latest.Jurisdiction).Code == m.code {
+			before := latest.Prediction
+			if latest.PredictionBeforeAnswers == nil {
+				kept := before
+				latest.PredictionBeforeAnswers = &kept
+			}
+			latest.Prediction = originPrediction(rules, OriginLabel(m.code), v.Result)
+			record(r.Context(), latest, store.Event{Kind: rechecked, Provider: "rules", Model: "none", Prompt: latest.Prediction.Trace.PromptVersion,
+				Summary: fmt.Sprintf("Stored %s check re-run with the answers: was %s, now %s", strings.ToUpper(m.code), originOrNone(before.Origin), originOrNone(latest.Prediction.Origin))})
+		}
 		return nil
 	})
 	if err != nil {
@@ -177,7 +194,19 @@ func (a *api) putOriginFacts(w http.ResponseWriter, r *http.Request) {
 	if facts == nil {
 		facts = map[string]*domain.SuppliedOriginFacts{}
 	}
-	writeJSON(w, http.StatusOK, OriginFactsView{CaseID: saved.ID, Market: m.code, OriginFacts: facts, Check: v})
+	view := OriginFactsView{CaseID: saved.ID, Market: m.code, OriginFacts: facts, Check: v}
+	if jurisdiction.Of(saved.Jurisdiction).Code == m.code {
+		p := saved.Prediction
+		view.Prediction = &p
+	}
+	writeJSON(w, http.StatusOK, view)
+}
+
+func originOrNone(o string) string {
+	if o == "" {
+		return "no origin"
+	}
+	return o
 }
 
 func rowNote(row string) string {

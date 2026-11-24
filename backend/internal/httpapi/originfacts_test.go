@@ -128,7 +128,11 @@ func TestOriginFactsEUValueShareEndToEnd(t *testing.T) {
 	if f == nil || f.Source != domain.SourceUserSupplied || f.UpdatedAt.IsZero() || len(f.Materials) != 2 || f.Answers["ch85.r"] {
 		t.Fatalf("stored: %+v", f)
 	}
-	if e := got.History[len(got.History)-1]; e.Kind != "origin_facts" || !strings.Contains(e.Summary, "decided") {
+	// The answers event, then the stored check re-run with them (D815).
+	if e := got.History[len(got.History)-2]; e.Kind != "origin_facts" || !strings.Contains(e.Summary, "decided") {
+		t.Errorf("event %+v", e)
+	}
+	if e := got.History[len(got.History)-1]; e.Kind != "rechecked" {
 		t.Errorf("event %+v", e)
 	}
 	// The case answer carries them; the stateless route reads them.

@@ -57,6 +57,7 @@ var rolePerms = map[string]perm{
 	"POST /v1/cases/{id}/plan":                 permEdit,
 	"POST /v1/cases/{id}/answers":              permEdit,
 	"PUT /v1/cases/{id}/origin-facts/{market}": permEdit, // saves supplied facts and records an event (D801)
+	"PUT /v1/cases/{id}/family-facts":          permEdit, // saves answers to the family questions and records an event (D810)
 	"GET /v1/cases/{id}/evidence-report":       permRead, // runs rules checks and reads the stored answer; stores nothing (D803)
 	"GET /v1/cases/{id}/reviews":               permRead, // the owner's view of the links: status and comments
 	"POST /v1/cases/{id}/reviews":              permEdit, // shares case content outside the workspace
