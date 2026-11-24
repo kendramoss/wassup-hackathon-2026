@@ -55,7 +55,8 @@ type schedule struct {
 }
 
 // Evidence quotes a rule branch or accompanying note from an official
-// schedule. Its applicability still depends on the facts and the treaty.
+// schedule. Its applicability still depends on the facts and the treaty. An
+// Unde Labs caveat note has an empty URL because it has no source page.
 type Evidence struct {
 	Text     string
 	URL      string
@@ -363,9 +364,19 @@ func parseGeneral(data []byte, schedules map[string][]schedule) (*generalBundle,
 	}
 	seen := map[string]bool{}
 	for _, p := range g.Provisions {
-		src := g.source(p.Source)
-		if src == nil || p.ID == "" || seen[p.ID] || p.Text == "" || p.Citation == "" || p.Page < 1 || p.Page > src.PDFPages ||
-			p.Kind != "treaty" && p.Kind != "note" {
+		if p.ID == "" || seen[p.ID] || p.Text == "" || p.Citation == "" {
+			return nil, fmt.Errorf("japan general rules: invalid provision %q", p.ID)
+		}
+		switch src := g.source(p.Source); p.Kind {
+		case "treaty":
+			if src == nil || p.Page < 1 || p.Page > src.PDFPages {
+				return nil, fmt.Errorf("japan general rules: invalid provision %q", p.ID)
+			}
+		case "note": // a note is not treaty text and has no source page
+			if p.Source != "" || p.Page != 0 {
+				return nil, fmt.Errorf("japan general rules: invalid provision %q", p.ID)
+			}
+		default:
 			return nil, fmt.Errorf("japan general rules: invalid provision %q", p.ID)
 		}
 		seen[p.ID] = true
@@ -389,6 +400,10 @@ func (g *generalBundle) applies(agreement, date string) bool {
 func (g *generalBundle) evidence() []Evidence {
 	out := make([]Evidence, 0, len(g.Provisions))
 	for _, p := range g.Provisions {
+		if p.Kind == "note" {
+			out = append(out, Evidence{Text: p.Text, Citation: p.Citation})
+			continue
+		}
 		out = append(out, Evidence{
 			Text:     p.Text,
 			URL:      fmt.Sprintf("%s#page=%d", g.source(p.Source).URL, p.Page),

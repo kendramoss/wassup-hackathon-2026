@@ -172,11 +172,12 @@ func TestReservedAndMalformedNeverFallThrough(t *testing.T) {
 func TestGeneralBundleEvidence(t *testing.T) {
 	table := mustTable(t)
 	required := map[string]int{ // provision id -> pdf page
+		"art23-a": 1, "art23-b-f": 2, "art23-g-k": 3, "art25-intro": 3, "art25-a-i": 4, "art25-j-k": 5,
 		"art24": 3, "art26-1-2": 5, "art26-3-5": 6, "art27-1-3": 6, "art27-4-6": 7,
 		"art28-1a": 7, "art28-1b-2": 8, "art29": 8, "art30-a-d": 8, "art30-e-g": 9,
 		"art32-33a": 9, "art33": 10, "art34-a": 10, "art34-b-35": 11,
 		"annex3": 1, "annex2-1-3a": 1, "annex2-3b": 2,
-		"note-scope": 5, "note-hs": 1, "note-annex3": 1, "note-direct-consignment": 9, "note-certification": 11,
+		"note-scope": 0, "note-hs": 0, "note-annex3": 0, "note-direct-consignment": 0, "note-certification": 0,
 	}
 	b := table.general
 	if b == nil {
@@ -205,6 +206,12 @@ func TestGeneralBundleEvidence(t *testing.T) {
 		}
 		for i, e := range res.Evidence {
 			p := b.Provisions[i]
+			if p.Kind == "note" {
+				if e.Text != p.Text || e.URL != "" || e.Citation != "Unde Labs note (not treaty text)" || p.Page != 0 || p.Source != "" {
+					t.Fatalf("note evidence %d = %+v for %+v", i, e, p)
+				}
+				continue
+			}
 			src := b.source(p.Source)
 			if e.Text != p.Text || e.URL != fmt.Sprintf("%s#page=%d", src.URL, p.Page) ||
 				e.Citation != fmt.Sprintf("%s, PDF page %d", p.Citation, p.Page) {
@@ -221,6 +228,9 @@ func TestGeneralBundleEvidence(t *testing.T) {
 		all += p.Text + "\n"
 	}
 	for _, frag := range []string{
+		"\"exporter\" means a natural or juridical person", "\"materials\" means any matter or substance", "\"production\" means methods of obtaining a good",
+		"\"originating good\" or \"originating material\" means", "\"identical and interchangeable materials\" means",
+		"Article 25 Goods Wholly Obtained or Produced", "(k) goods obtained or produced in the Party exclusively from goods referred to in paragraphs (a) through (j)",
 		"not less than forty (40) per cent", "exporter of the good to decide whether to use subparagraph (a) or (b)",
 		"Notwithstanding paragraph 1, a good subject to product specific rules",
 		"RVC = ((FOB - VNM) / FOB) X 100 %", "Agreement on Customs Valuation", "ten (10) per cent of the total weight",
@@ -237,6 +247,9 @@ func TestGeneralBundleEvidence(t *testing.T) {
 		}
 	}
 	for _, p := range b.Provisions {
+		if p.Kind == "note" && strings.Contains(p.Citation, "PDF page") {
+			t.Errorf("%s: note citation names a page", p.ID)
+		}
 		if (p.Kind == "note") != strings.HasPrefix(p.Text, "Unde Labs note (not treaty text): ") {
 			t.Errorf("%s kind/prefix mismatch", p.ID)
 		}

@@ -172,6 +172,9 @@ func (e *Engine) Predict(ctx context.Context, c domain.Case) (engine.Result, err
 	query := p.Agreement + " " + facts
 	precedents := e.pool.Top(c, p.Agreement, query, e.k)
 	for _, r := range rules {
+		if r.URL == "" { // an Unde Labs caveat note is not a treaty source
+			continue
+		}
 		p.Sources = append(p.Sources, domain.JapanSource{Citation: r.Citation, URL: r.URL})
 	}
 	for _, r := range precedents {

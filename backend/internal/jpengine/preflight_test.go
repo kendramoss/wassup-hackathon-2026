@@ -104,7 +104,7 @@ func TestGeneralRuleCaseSendsOneRequestWithAllProvisions(t *testing.T) {
 			t.Fatalf("%s: %d requests", hs, len(calls))
 		}
 		det, _ := table.LookupDetailed("AJCEP", hsNumber(hs), c.Date)
-		if det.Reason != jprules.ReasonGeneral || len(det.Evidence) < 20 {
+		if det.Reason != jprules.ReasonGeneral || len(det.Evidence) < 25 {
 			t.Fatalf("%s: %+v", hs, det.Reason)
 		}
 		msg := calls[0].Messages[0].Content
@@ -120,7 +120,7 @@ func TestGeneralRuleCaseSendsOneRequestWithAllProvisions(t *testing.T) {
 			last = at
 		}
 		for _, marker := range []string{
-			"Article 24 Originating Goods", "Article 26 Goods Not Wholly Obtained", "Article 27 Calculation of Regional Value Content",
+			"Article 23 Definitions", "Article 25 Goods Wholly Obtained or Produced", "Article 24 Originating Goods", "Article 26 Goods Not Wholly Obtained", "Article 27 Calculation of Regional Value Content",
 			"Article 28 De Minimis", "Article 29 Accumulation", "Article 30 Non-qualifying Operations",
 			"Article 32 Packing Materials", "Article 33 Accessories", "Article 34 Indirect Materials", "Article 35 Identical and Interchangeable",
 			"Annex 3 Information Technology Products", "Annex 2 Product Specific Rules",
@@ -132,11 +132,17 @@ func TestGeneralRuleCaseSendsOneRequestWithAllProvisions(t *testing.T) {
 			}
 		}
 		p := res.Prediction.Japan
-		if len(p.Sources) != len(det.Evidence) {
-			t.Fatalf("sources %d vs %d", len(p.Sources), len(det.Evidence))
+		var treaty []jprules.Evidence
+		for _, e := range det.Evidence {
+			if e.URL != "" { // notes carry no source URL and are not listed as sources
+				treaty = append(treaty, e)
+			}
+		}
+		if len(treaty) == len(det.Evidence) || len(treaty) == 0 || len(p.Sources) != len(treaty) {
+			t.Fatalf("sources %d vs %d treaty of %d evidence", len(p.Sources), len(treaty), len(det.Evidence))
 		}
 		for i, s := range p.Sources {
-			if s.Citation != det.Evidence[i].Citation || s.URL != det.Evidence[i].URL {
+			if s.Citation != treaty[i].Citation || s.URL != treaty[i].URL || s.URL == "" || strings.Contains(s.Citation, "Unde Labs") {
 				t.Fatalf("source %d = %+v", i, s)
 			}
 		}
