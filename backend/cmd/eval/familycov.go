@@ -44,6 +44,8 @@ type familyCovRow struct {
 	OutputTokens int     `json:"output_tokens"`
 	CostUSD      float64 `json:"cost_usd"`
 	Error        string  `json:"error,omitempty"`
+	// LatencyMS is the wall time of the check, retry included (D785).
+	LatencyMS int64 `json:"latency_ms,omitempty"`
 }
 
 // familyCovCmd measures product-scope coverage (D138): the share of a
@@ -212,6 +214,7 @@ func checkOne(ctx context.Context, c *familycheck.Checker, r domain.Ruling, mode
 	var row familyCovRow
 	var res familycheck.Result
 	var err error
+	began := time.Now()
 	for attempt := 0; attempt < 2; attempt++ {
 		var usage llm.Usage
 		res, usage, err = c.CheckUsage(ctx, text)
@@ -223,8 +226,10 @@ func checkOne(ctx context.Context, c *familycheck.Checker, r domain.Ruling, mode
 		}
 	}
 	row.Ruling = r.ID
+	row.LatencyMS = time.Since(began).Milliseconds()
 	if err != nil {
-		row.Error = err.Error()
+		// Never write the gateway's address into a result file.
+		row.Error = llm.ScrubGatewayHost(err.Error(), os.Getenv("LITELLM_BASE_URL"))
 		return row
 	}
 	row.Family, row.Confidence, row.Reason = res.Family, res.Confidence, res.Reason
