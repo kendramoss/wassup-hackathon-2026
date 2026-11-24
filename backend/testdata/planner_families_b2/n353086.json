@@ -1,0 +1,109 @@
+{
+  "_source": "Built from the facts of CBP ruling N353086 (2025-09-25, dev split): CBP held Vietnam. Product written by the agent from the facts, no model draft (D782). Target China (reverse probe: away from a non-China origin); plant capabilities for China and all costs are assumptions. No later ruling on a changed setup, so there is no backtest.",
+  "case_id": "b2-n353086",
+  "date": "2025-09-25",
+  "family": "power_supplies_chargers",
+  "target": "China",
+  "product": {
+    "name": "Portable lithium-ion jump starter, 12,000 mAh",
+    "description": "A lithium-ion battery pack in a plastic case with 12 V, USB-A and USB-C outputs, a work light, an LCD and wireless charging, packed with booster clamps and a power supply.",
+    "plants": [
+      {
+        "id": "vn",
+        "name": "Vietnam Plant",
+        "country": "Vietnam",
+        "capabilities": [
+          "battery_cells",
+          "housing_cables_parts",
+          "final_assembly"
+        ]
+      },
+      {
+        "id": "cn",
+        "name": "China Plant",
+        "country": "China",
+        "capabilities": [
+          "pcba_manufacturing",
+          "power_charging_modules",
+          "battery_cells",
+          "housing_cables_parts"
+        ]
+      }
+    ],
+    "components": [
+      {
+        "name": "Lithium-ion battery pack",
+        "made_in": "Vietnam",
+        "plant": "vn",
+        "group": "battery_cells"
+      },
+      {
+        "name": "Lower plastic case and plastic cover",
+        "made_in": "Vietnam",
+        "plant": "vn",
+        "group": "housing_cables_parts"
+      },
+      {
+        "name": "Main and lamp printed circuit board assemblies",
+        "made_in": "China",
+        "plant": "cn",
+        "group": "pcba_manufacturing"
+      },
+      {
+        "name": "Wireless charging coil and power supply",
+        "made_in": "China",
+        "plant": "cn",
+        "group": "power_charging_modules"
+      },
+      {
+        "name": "LCD display, LED backlight and alligator booster clamps",
+        "made_in": "China",
+        "plant": "cn",
+        "group": "housing_cables_parts"
+      }
+    ],
+    "operations": [
+      {
+        "name": "Fit the battery pack and main PCBA in the lower case and connect them",
+        "plant": "vn",
+        "group": "final_assembly"
+      },
+      {
+        "name": "Fit the lamp board, wireless coil and LCD board in the cover and connect them",
+        "plant": "vn",
+        "group": "final_assembly"
+      },
+      {
+        "name": "Close, test and pack with the power supply, carry case and clamps",
+        "plant": "vn",
+        "group": "final_assembly"
+      }
+    ]
+  },
+  "economics": {
+    "illustrative": true,
+    "annual_import_value_usd": 1000000,
+    "duty_rates": {
+      "Vietnam": 0.125,
+      "China": 0.425
+    },
+    "duty_rates_note": "Illustrative placeholder, not a sourced rate.",
+    "group_costs": {
+      "battery_cells": {
+        "vn": 100000,
+        "cn": 125000
+      },
+      "housing_cables_parts": {
+        "vn": 100000,
+        "cn": 125000
+      }
+    }
+  },
+  "exclude_rulings": [
+    "N353086"
+  ],
+  "current_origin": {
+    "country": "Vietnam",
+    "ruling": "N353086"
+  }
+}

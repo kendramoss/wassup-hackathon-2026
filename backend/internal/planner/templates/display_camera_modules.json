@@ -1,15 +1,16 @@
 {
   "family": "display_camera_modules",
-  "version": "1",
+  "version": "2",
   "union_default_operations": true,
-  "name": "Display modules and cameras",
-  "note": "For display modules, cameras, and optical assemblies, CBP generally confers origin where the core active element is fabricated, such as TFT-LCD or OLED display cell formation, SMT production of camera sensor and processing PCBAs, or grinding and milling of optical lens blanks. Downstream cutting of display cells, attaching driver ICs, polarizers, backlights, lenses, or housings, and final testing are treated as assembly operations that do not substantially transform the core components. Written from 14 CBP substantial-transformation rulings outside the dev and held-out splits (D138); every cited ruling was checked against its facts and holding. Costs are illustrative defaults; users edit them.",
+  "name": "Display modules, cameras and lenses",
+  "note": "For display modules, cameras, and optical assemblies, CBP generally confers origin where the core active element is fabricated, such as TFT-LCD or OLED display cell formation, SMT production of camera sensor and processing PCBAs, or milling the curvature of optical lens blanks. Polishing and coating a lens milled elsewhere did not change its origin (version 2). Downstream cutting of display cells, attaching driver ICs, polarizers, backlights, lenses, or housings, and final testing are treated as assembly operations that do not substantially transform the core components. Written from 14 CBP substantial-transformation rulings outside the dev and held-out splits (D138), with a riflescope lens ruling from the train pool added in version 2 (D782); every cited ruling was checked against its facts and holding. Costs are illustrative defaults; users edit them.",
   "sources": [
     "N330296",
     "N335871",
     "N335873",
     "N337202",
     "N339727",
+    "N342427",
     "N343835",
     "N344595",
     "N345328",
@@ -67,15 +68,30 @@
       "name": "Lens grinding",
       "operations": [
         "cut raw optical glass pucks, sheets, bars, or rods into disk-shaped lens blanks",
-        "grind and mill the lens blank to create the required optical curvature",
-        "smooth, polish, center, and coat the curved lens element"
+        "grind and mill the lens blank to create the required optical curvature"
       ],
       "movable": true,
       "precedent": {
         "confers_origin": [
-          "N345937"
+          "N345937",
+          "N342427"
         ],
-        "note": "Cutting raw optical glass into blanks and grinding and milling its curvature conferred country of origin for standalone lens assemblies (N345937)."
+        "note": "Cutting raw optical glass into blanks and grinding and milling its curvature conferred country of origin for standalone lens assemblies (N345937), and milling a riflescope lens's shape and curvature from a glass blank in Singapore made Singapore the origin (N342427)."
+      }
+    },
+    {
+      "id": "lens_polish_coat",
+      "name": "Lens polishing and coating",
+      "operations": [
+        "fine-grind, polish and wash the curved lens surfaces",
+        "apply anti-reflective coating, inspect and pack the lens"
+      ],
+      "movable": true,
+      "precedent": {
+        "not_enough": [
+          "N342427"
+        ],
+        "note": "Grinding, polishing, washing and anti-reflective coating in China did not change the origin of a lens milled in Singapore (N342427)."
       }
     },
     {
