@@ -21,6 +21,9 @@ var schedulesJSON []byte
 //go:embed data/ajcep_general.json
 var generalJSON []byte
 
+//go:embed data/hs2017_codes.txt
+var hs2017CodesTXT []byte
+
 const rcepAnnexURL = "https://rcepsec.org/wp-content/uploads/2024/07/RCEP-PSR-in-HS-2022-adopted-by-RJC-30June2022-corrected20Aug2022.pdf"
 
 var (
@@ -289,6 +292,17 @@ func (t *Table) lookup(agreement, hs string, before time.Time, general bool) (Re
 	case reservedChapters[digits[:2]]:
 		return Result{Reason: ReasonInvalidCode, Digits: digits}, nil
 	case general && t.general != nil && t.general.applies(agreement, date):
+		// The general fallback is for real HS 2017 codes only (the window is
+		// the HS 2017 edition). This check comes before the chapter 50-63
+		// exclusion, so a non-existent textile code is invalid_code. A code
+		// with a reviewed correlation is left as no_match so the correlation
+		// step can map it or hint at its parents.
+		if !hs2017Valid().hasPrefix(digits) {
+			if _, ok := t.corr.find(agreement, digits); ok && len(digits) == 6 {
+				return Result{Reason: ReasonNoMatch, Digits: digits}, nil
+			}
+			return Result{Reason: ReasonInvalidCode, Digits: digits}, nil
+		}
 		if ch, _ := strconv.Atoi(digits[:2]); ch >= 50 && ch <= 63 {
 			return Result{Reason: ReasonExcludedGeneral, Digits: digits}, nil
 		}

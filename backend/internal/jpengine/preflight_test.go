@@ -159,7 +159,7 @@ func TestGatedCasesNeverReachTheModel(t *testing.T) {
 		c    domain.Case
 		want jprules.Reason
 	}{
-		{"chapter 50-63 unlisted", jpCase("AJCEP", "5001", "2025-06-01"), jprules.ReasonTooBroad}, // placeholder, set below
+		{"chapter 50-63 absent from HS 2017", jpCase("AJCEP", "5008", "2025-06-01"), jprules.ReasonInvalidCode},
 		{"reserved 77", jpCase("AJCEP", "7701", "2025-06-01"), jprules.ReasonInvalidCode},
 		{"reserved 99", jpCase("AJCEP", "9999", "2025-06-01"), jprules.ReasonInvalidCode},
 		{"reserved 98", jpCase("AJCEP", "9801.00", "2025-06-01"), jprules.ReasonInvalidCode},
@@ -177,22 +177,9 @@ func TestGatedCasesNeverReachTheModel(t *testing.T) {
 		{"no agreement", jpCase("", "3215", "2025-06-01"), ReasonNoAgreement},
 		{"non-preferential", jpCase("Non-preferential", "3215", "2025-06-01"), ReasonNonPreferential},
 	}
-	// Find a real unlisted chapter 50-63 heading rather than assuming one.
-	table, _ := jprules.Default()
-	for h := 5000; h < 6400; h++ {
-		code := []byte("0000")
-		for i, v := 0, h; i < 4; i, v = i+1, v/10 {
-			code[3-i] = byte('0' + v%10)
-		}
-		if res, _ := table.LookupDetailed("AJCEP", string(code), time.Date(2025, 6, 1, 0, 0, 0, 0, time.UTC)); res.Reason == jprules.ReasonExcludedGeneral {
-			cases[0].c = jpCase("AJCEP", string(code), "2025-06-01")
-			cases[0].want = jprules.ReasonExcludedGeneral
-			break
-		}
-	}
-	if cases[0].want != jprules.ReasonExcludedGeneral {
-		t.Fatal("no excluded textile heading found")
-	}
+	// Every real chapter 50-63 heading has a PSR row, and the general fallback
+	// (and its excluded_general branch) requires a real HS 2017 code first, so
+	// a textile heading with no PSR row is invalid_code (see jprules tests).
 	for _, tc := range cases {
 		t.Run(tc.name, func(t *testing.T) {
 			eng, model := newEngine(t)
