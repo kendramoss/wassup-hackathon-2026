@@ -155,10 +155,14 @@ func TestSettlementProvenance(t *testing.T) {
 			w.Header().Set("X-Litellm-Response-Cost", "0.0123")
 			w.Write([]byte(okBody))
 		}, Reported, func(_, _ float64) float64 { return 0.0123 }, false},
-		{"reported zero is still reported", func(w http.ResponseWriter, r *http.Request) {
+		{"reported zero without usage is reported", func(w http.ResponseWriter, r *http.Request) {
+			w.Header().Set("X-Litellm-Response-Cost", "0")
+			w.Write([]byte(`{"choices":[{"message":{"role":"assistant","content":"{}"},"finish_reason":"stop"}]}`))
+		}, Reported, func(_, _ float64) float64 { return 0 }, false},
+		{"reported zero with usage is not trusted as free", func(w http.ResponseWriter, r *http.Request) {
 			w.Header().Set("X-Litellm-Response-Cost", "0")
 			w.Write([]byte(okBody))
-		}, Reported, func(_, _ float64) float64 { return 0 }, false},
+		}, EstimatedFromUsage, func(_, _ float64) float64 { return (1000*1 + 500*10) / 1e6 }, false},
 		{"absent header is estimated from usage, not free", func(w http.ResponseWriter, r *http.Request) {
 			w.Write([]byte(okBody))
 		}, EstimatedFromUsage, func(_, _ float64) float64 { return (1000*1 + 500*10) / 1e6 }, false},

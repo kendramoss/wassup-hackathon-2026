@@ -285,7 +285,7 @@ func (m *Model) Generate(ctx context.Context, req llm.Request) (llm.Response, er
 	cost := Cost{USD: worst, Provenance: UnreportedWorstCase}
 	var api *llm.APIError
 	switch {
-	case inner.Reported() > 0:
+	case inner.Reported() > 0 && (inner.USD() > 0 || resp.Usage.InputTokens+resp.Usage.OutputTokens == 0):
 		cost = Cost{USD: inner.USD(), Provenance: Reported}
 	case callErr == nil && resp.Usage.InputTokens+resp.Usage.OutputTokens > 0:
 		cost = Cost{USD: m.Rates.WorstCase(resp.Usage.InputTokens, resp.Usage.OutputTokens), Provenance: EstimatedFromUsage}

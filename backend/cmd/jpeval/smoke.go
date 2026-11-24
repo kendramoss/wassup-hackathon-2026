@@ -120,5 +120,9 @@ func runSmoke(id, out string, maxOut int, ledger *llmbudget.Ledger, rates llmbud
 		return err
 	}
 	fmt.Printf("smoke %s: sent %v, error %q, budget charged $%.6f (%s)\n", id, res.Sent, res.Error, res.BudgetUSD, res.CostProvenance)
-	return callErr
+	if callErr != nil {
+		// The raw error may carry provider text; only the saved class is shown.
+		return fmt.Errorf("smoke call failed: %s", res.Error)
+	}
+	return nil
 }

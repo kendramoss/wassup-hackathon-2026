@@ -294,6 +294,7 @@ var frozenPaths = []string{
 	"backend/internal/corpus", "backend/internal/blob", "backend/internal/tariffshift", "backend/internal/planner/opcost",
 	"backend/go.mod", "backend/go.sum", "eval/jp/labels.py", "eval/jp/synthetic-negatives.jsonl",
 	"data/jp/rulings.jsonl", "data/jp/translations-en.jsonl", "data/jp/splits.json",
+	"data/jp/labels-dev.jsonl", "data/jp/labels-heldout.jsonl",
 }
 
 // priorRun returns the run name of an earlier run log entry for the split
