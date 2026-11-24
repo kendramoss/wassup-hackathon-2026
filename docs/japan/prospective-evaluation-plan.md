@@ -17,11 +17,11 @@ offline, not a quality result.
   recorded) but cannot remove it: the cutoff may be inexact, and similar older
   rulings can still have been seen.
 - No borrowed budget. The budget or grant of any earlier study is not a budget
-  for this plan. The user must supply a new one.
+  for this plan. The user approves a new one.
 - The future production path is Vertex with the current candidate pin. It needs
   separate authorization and authentication, and verified pricing, before any
   model run. Prices must be taken from the provider's current price list, not
-  from this document. Authenticated smoke stays paused.
+  from this document. Authenticated app smoke stays paused and is unrelated unless a study uses the app path.
 - Offline rule-availability and compatibility results (design C, `diagnose`,
   `plan`) are reported separately from prediction accuracy and never pooled.
 
@@ -113,19 +113,26 @@ not an estimate. Two passes (rerun plus any repeat) multiply by the pass count.
 `-rate-out <USD per million output>` and `-rates-source <where the rates come
 from>`; it prints `worst_case_usd` and the rates. Example shape (placeholders,
 not prices): `go run ./cmd/jpeval plan -split dev_eval -rate-in R_IN -rate-out
-R_OUT -rates-source "SOURCE"`. The user must supply the rates and the budget and
-must approve a run. Design B needs the same command run on the frozen sample.
+R_OUT -rates-source "SOURCE"`. The rates are not in this document. At run time an agent
+verifies the current official provider pricing and records it with its source;
+the user approves the resulting budget and does not need to research rates. Design B needs the same command run on the frozen sample.
 Retries, a second model or a judge pass are not in this formula.
 
-Running anything that calls a model also needs a separate prerequisite:
-authenticated live smoke stays paused and must be resumed on its own, with its
-own approval, before any live check.
+Each study needs its own authorization, access and provider admission before
+any model call. Authenticated app-login completion is a separate matter.
 
 ## 4. Metrics and pre-registration
 
 Register before the first call, in a hashed file:
-- Primary metric: agreement of the answer class (`qualifies`, `does_not_qualify`)
-  with the label, over answered cases; report the denominator.
+- Primary metric: an end-to-end decision metric over a fixed cohort. The cohort
+  (the id list) and the denominator are fixed and hashed before the run. Errors,
+  invalid answers and abstentions stay in the denominator: for a positive case
+  each is scored not-correct; for a negative case an abstention
+  (`undetermined`) is correct only where the label is `undetermined`. Report the
+  rate of each outcome (correct, wrong class, abstained, invalid, error)
+  alongside. Class agreement over answered cases only is a secondary,
+  conditional diagnostic, never the headline, because on the all-positive
+  dev_eval it hides abstentions.
 - Keep apart: abstention before request (rule absent, 5 in design A), model
   `undetermined` (an abstention, not an error), invalid answer (for example a
   rejected origin) and transport or parse error. None is counted as correct or
@@ -133,16 +140,20 @@ Register before the first call, in a hashed file:
 - Strata, each with its own denominator: per agreement, per reason (`psr`,
   `general`, `mapped`, `edition_hint`, `withheld`), per request-changed vs
   request-identical. Strata with few cases are listed, not tested.
-- Design A test: McNemar exact test on discordant pairs among changed-request
-  ids (old vs new correct), with the count of each discordant type; the
+- Design A test: McNemar exact test on pairs from the same fixed case
+  population defined before the run, never an outcome-selected answered subset.
+  Each side is scored with the primary rule, so an abstained, invalid or error
+  result on either side is a not-correct member of the pair. Pairs (old vs new
+  correct) are taken among changed-request ids, with the count of each discordant type; the
   identical-request stratum reports run-to-run noise. Report the interval, not
   only a p-value.
 - Regression: a pre-set rule, for example any agreement stratum where
   new-only-wrong exceeds old-only-wrong, or any rise in invalid answers or
   errors. The threshold is written before the run.
-- GSP: the guard turns a model `qualifies` into `undetermined`, so a GSP
-  `qualifies` metric is structurally zero. Report GSP separately, or on
-  `does_not_qualify` only; do not pool it with other agreements.
+- GSP: predeclare a separate rule-reference-only policy stratum. The guard turns
+  a model `qualifies` into `undetermined`, so `qualifies` is never returned and
+  no `qualifies` metric exists; measure only `does_not_qualify` and
+  `undetermined` behaviour. Do not pool it with other agreements.
 - Not measurable by this plan: translation fidelity of the Japanese-only GSP and
   other source text, correctness of a specialist review, and legal sufficiency
   of a result.
@@ -154,13 +165,16 @@ a material or step unknown, an origin that fails the rule). Source them without
 the synthetic set: from the fresh design B window, rulings whose published
 outcome is not a qualifying one, and cases built by removing facts from
 pre-registered design B or dev_eval cases by a written rule fixed before the run
-(the original is kept as its positive pair). Mark the construction method per
-case. Report this stratum separately from positives with its own denominator,
+(the original is kept as its positive pair). Removing a fact does not make a case
+`undetermined` if another independent origin route remains, so each fact-removed
+label needs a source-checked justification that no other route to the same
+conclusion remains. Record the construction method per case. Report this stratum separately from positives with its own denominator,
 and report wrong `qualifies` (false positives) apart from missed positives. Do
 not pool it into the primary metric.
 
 ## 5. Not run
 
 None of designs A, B or C-with-model has been run. No model was called, no
-result exists, and no accuracy claim is made. Running requires user-supplied
-rates, a user-approved budget and the separate live-smoke prerequisite above.
+result exists, and no accuracy claim is made. Running requires a user-approved budget
+(from verified current pricing) and its own authorization, access and provider
+admission.
