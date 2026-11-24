@@ -58,7 +58,7 @@ test("the selector’s HS editions match the embedded schedules", async () => {
   const editions = {};
   const unstated = new Set();
   for (const s of schedules) {
-    const edition = s.citation.match(/HS ([0-9]{4})/)?.[1];
+    const edition = s.citation.match(/\(HS ([0-9]{4})\)/)?.[1];
     if (edition) editions[s.agreement] ??= edition;
     else unstated.add(s.agreement);
   }
@@ -67,12 +67,14 @@ test("the selector’s HS editions match the embedded schedules", async () => {
   assert.deepEqual(japanTariffEditions, { ...editions, RCEP: "2022" });
 });
 
-test("the selector offers Japan–U.S. without inventing an HS edition and keeps GSP out", () => {
-  assert.deepEqual(japanNoEditionAgreements, ["JP-US TA"]);
+test("the selector offers Japan–U.S. and GSP without inventing an HS edition", () => {
+  assert.deepEqual(japanNoEditionAgreements, ["JP-US TA", "GSP"]);
   assert.ok(supportedJapanAgreements.includes("JP-US TA"));
   assert.equal(japanTariffEditions["JP-US TA"], undefined);
   assert.equal(japanAgreements["JP-US TA"], "Japan–U.S. agreement");
-  assert.ok(!supportedJapanAgreements.includes("GSP"));
-  assert.deepEqual(supportedJapanAgreements, Object.keys(japanAgreements).filter((code) => code !== "GSP"));
-  assert.deepEqual(supportedJapanAgreements.slice(0, 5), ["JP-EU EPA", "CPTPP", "AJCEP", "RCEP", "JP-US TA"]);
+  assert.ok(supportedJapanAgreements.includes("GSP"));
+  assert.equal(japanTariffEditions.GSP, undefined);
+  assert.equal(japanAgreements.GSP, "Generalized System of Preferences (GSP)");
+  assert.equal(supportedJapanAgreements.indexOf("GSP"), supportedJapanAgreements.indexOf("JP-US TA") + 1);
+  assert.deepEqual(supportedJapanAgreements.slice(0, 6), ["JP-EU EPA", "CPTPP", "AJCEP", "RCEP", "JP-US TA", "GSP"]);
 });

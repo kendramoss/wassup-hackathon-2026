@@ -40,7 +40,7 @@ export const japanTariffEditions: Record<string, string> = {
 };
 
 // Supported agreements whose schedule does not state an HS edition; the tariff-code label stays generic.
-export const japanNoEditionAgreements = ["JP-US TA"];
+export const japanNoEditionAgreements = ["JP-US TA", "GSP"];
 
 // Selector order follows japanAgreements.
 export const supportedJapanAgreements = Object.keys(japanAgreements).filter(
