@@ -3229,3 +3229,18 @@ Committed and pushed before the run below and before any figure from it. The fix
   - **Partial:** machinery rises but stays under 9. **Not a fix:** machinery does not rise, or another family loses a case.
 - **Expectation stated now.** The hydraulic cylinders, the impeller and diffuser and the fluid ends move to the machines template. The bearings stay with `machinery_parts`, as its operations name them, so the frozen label and the scope disagree on that case; the label is not changed. The water pumps match if the check answers. Machinery 9–10 of 11; the other families as D842.
 - **Disclosure.** The fault was found, and the scopes and guard written, from these development cases and their recorded reasons. The result is a development figure, not an independent one.
+
+## D851 — Machinery boundary, development run: results of D850 (25 Nov, #785)
+The runs went as pre-registered. Run 1 was `families-coverage-dev-all-litellm-f28-850` (built at c9364a3d, 75 checks, 4 failed). Run 1b was `…-f28-850-noorigin` (3 checks, none failed). Both RUNLOG rows have `code_dirty` false, `family-check-v2`, `family-guard-v6` and the cache off. Figures come from `eval/families/measure_850.py` (`b3-850-measure.json`). These are development figures, tuned on these cases.
+- **Machinery (`motors_pumps_compressors`): 6 → 10 of 11** (91%, 62–98), **working** by D840's rule.
+  - Gained: the hydraulic cylinders, the impeller and diffuser and the fluid ends. Each model reason quotes the new scope. The water pumps were a failed check before and now match.
+  - The bearings (N354169) stay with `machinery_parts`, quoting its scope, as expected. On the 10 cases both runs answered, 3 gained, 0 lost (p = 0.25).
+- **Other families.**
+  - **Lifting (`offroad_vehicles_machinery`): 7 → 5 of 7, a regression.** Both bottle jacks (N351580, N355131) moved to the machines template. The reasons quote "hydraulic cylinders and other actuators" and "functional working unit".
+  - Batteries 6 → 7 (a failed check answered), medical 9 → 9, furniture 3 → 3.
+  - Optical 8 → 8: the carrier plate (N350680) was a failed check and the MEMS sensor (N351865) answered.
+  - All 48: 39 → 42.
+- **Look-alikes: 29 → 28 of 30.** The pool-cleaning robot (N355237) moved from motorised tools to the machines template ("a complete machine/robot"). The vein finder (N355289) still matches medical devices, as in D842. The air inflator (N351341) also moved from motorised tools to the machines template; its look-alike cue is batteries, so it still counts as right, but it is the same pull.
+- **Guard v6** took nothing away; the guard removals in this run are the existing printer and pet-product rules.
+- **Against D850's criteria: not a fix.** Machinery is working and three of the four `machinery_parts` misses moved, but lifting lost two cases and look-alikes fell to 28. The machines scope ("complete machines and functional working units ... hydraulic cylinders and other actuators ... robots") drew in lifting machines and motorised appliances that have their own templates. This is said as measured; nothing is re-run on this code.
+- **Cost.** $0.3279 + $0.0080 = **$0.3359**. p50 5.1 s, p95 26.9 s per check.
