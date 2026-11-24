@@ -32,6 +32,29 @@ SOURCES = (
     ("switzerland3.pdf", "JP-Switzerland EPA", "Appendix 1 to Annex II", "2007", "2009-09-01", ""),
     ("chile2.pdf", "JP-Chile EPA", "Annex 2", "2002", "2007-09-03", ""),
 )
+# HS edition each Annex itself declares, read from the Annex (not from the
+# citation text). Typed into schedules.json as `stated_edition`. The two
+# schedules whose source states no edition are hand-maintained entries of
+# schedules.json and carry `"stated_edition": null`.
+STATED_EDITIONS = {
+    "eu3.pdf": 2017,
+    "asean2-1.pdf": 2017,
+    "tpp5.pdf": 2012,
+    "tpp2.pdf": 2012,
+    "asean2-2.pdf": 2022,
+    "india2.pdf": 2007,
+    "thailand2-2.pdf": 2017,
+    "indonesia2-2.pdf": 2017,
+    "australia2.pdf": 2012,
+    "uk3.pdf": 2017,
+    "vietnam2.pdf": 2007,
+    "malaysia2.pdf": 2002,
+    "mexico2.pdf": 2002,
+    "philippine2.pdf": 2002,
+    "switzerland3.pdf": 2007,
+    "chile2.pdf": 2002,
+}
+NOT_STATED = ("JP-US TA", "GSP")
 DIGESTS = {
     "eu3.pdf": "cb7f029ad6679a70796ba45f619e1a623d8e9304ed041069a4b007cdc9633704",
     # Annex 3-A (introductory notes), read only for the ANNEX_3A notes below.
@@ -1335,6 +1358,20 @@ def annex_path(directory, name):
     return path
 
 
+def source_entry(filename, agreement, annex, hs, start, end):
+    """Schedule metadata for one source; the edition comes from STATED_EDITIONS."""
+    edition = STATED_EDITIONS[filename]
+    return {
+        "agreement": agreement,
+        "citation": f"{agreement} {annex} (HS {edition})",
+        "source_url": URLS.get(filename, BASE + filename),
+        "sha256": DIGESTS[filename],
+        "from": start,
+        "until": end,
+        "stated_edition": edition,
+    }
+
+
 def main():
     args = argparse.ArgumentParser(description=__doc__)
     args.add_argument("pdf_directory", type=Path)
@@ -1353,16 +1390,9 @@ def main():
             notes += general_notes(path, filename)
         if filename in ANNEX_3A:
             notes += annex_3a_notes(annex_path(args.pdf_directory, ANNEX_3A[filename]["pdf"]), filename)
-        sources.append({
-            "agreement": agreement,
-            "citation": f"{agreement} {annex} (HS {hs})",
-            "source_url": URLS.get(filename, BASE + filename),
-            "sha256": digest,
-            "from": start,
-            "until": end,
-            "rows": rows,
-            "notes": notes,
-        })
+        if str(STATED_EDITIONS[filename]) != hs:
+            raise ValueError(f"{filename}: SOURCES edition {hs} differs from STATED_EDITIONS")
+        sources.append({**source_entry(filename, agreement, annex, hs, start, end), "rows": rows, "notes": notes})
     args.destination.write_text(
         json.dumps(sources, ensure_ascii=False, indent=1) + "\n",
         encoding="utf-8",

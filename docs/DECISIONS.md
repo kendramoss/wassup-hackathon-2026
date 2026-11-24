@@ -3448,7 +3448,7 @@ Some Japan Customs rulings carry a code from a later HS edition than the schedul
   - **#811.** Australia column 4: 530 rows and 28 notes.
   - **#812.** AJCEP Annex 2 provisions returned with product rows. Article 26 is left out so that product rows keep precedence. The HS 2022 window has a gap.
   - **#813.** 45 notes across nine annexes. CPTPP paragraph 5 is deliberately not attached.
-- **Cost.** `dev_eval` plan request bytes 5,118,030 (at 20b39a82) → 7,332,525 (at 33598601), +43%. This is evidence only; the prompt text is unchanged.
+- **Cost.** `dev_eval` plan request bytes 5,118,030 (at 20b39a82) → 7,332,525 (at 33598601), +43%. This is evidence only; the prompt text is unchanged. Clarification: 5,118,030 bytes is at 20b39a82 with 395 requests; 7,332,525 is at 33598601 with 396 requests. The +43% is an aggregate, not a per-ID matched evidence effect, and not literal Vertex usage or cost. It is not the programme's initial 366 baseline.
 - **Cost if wrong.** More input tokens and latency per request, and a long note may dilute the rule that decides the case. Neither is measured.
 - **Evidence.** `docs/japan/general-notes-gap.md`, `general-notes-embedded.md`, `annex-3a-notes.md`, `australia-column4.md`, `ajcep-annex2-provisions.md`.
 

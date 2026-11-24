@@ -5,6 +5,7 @@ package jprules
 import (
 	_ "embed"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"regexp"
 	"strconv"
@@ -134,6 +135,33 @@ func validateApplies(ranges [][2]string) error {
 
 const caveatPrefix = "Unde Labs note (not treaty text)"
 
+// statedEditions are the HS editions an Annex may declare.
+var statedEditions = map[int]bool{2002: true, 2007: true, 2012: true, 2017: true, 2022: true}
+
+// validateStatedEdition checks the declared edition: a known HS edition, or
+// nil. As a consistency check (not inference) the citation must carry
+// "(HS <edition>)" when one is stated and "not stated" when none is.
+func validateStatedEdition(s schedule) error {
+	if s.StatedEdition == nil {
+		if !strings.Contains(s.Citation, "not stated") {
+			return fmt.Errorf("%s: no stated edition but the citation does not say \"not stated\"", s.Agreement)
+		}
+		if edHS.MatchString(s.Citation) {
+			return fmt.Errorf("%s: no stated edition but the citation declares one", s.Agreement)
+		}
+		return nil
+	}
+	if !statedEditions[*s.StatedEdition] {
+		return fmt.Errorf("%s: unsupported stated HS edition %d", s.Agreement, *s.StatedEdition)
+	}
+	if !strings.Contains(s.Citation, fmt.Sprintf("(HS %d)", *s.StatedEdition)) {
+		return fmt.Errorf("%s: citation %q does not declare (HS %d)", s.Agreement, s.Citation, *s.StatedEdition)
+	}
+	return nil
+}
+
+var edHS = regexp.MustCompile(`\(HS [0-9]{4}\)`)
+
 func validWidth(n int) bool { return n == 2 || n == 4 || n == 6 || n == 9 }
 
 // validateSchedule rejects a malformed schedule at load time. Row codes are
@@ -256,6 +284,11 @@ type schedule struct {
 	// HSEdition is the HS edition (2017 or 2022) whose code list gates the
 	// default rows. Zero means 2017, the list every earlier schedule uses.
 	HSEdition int `json:"hs_edition,omitempty"`
+	// StatedEdition is the HS edition the agreement's own Annex declares for
+	// its schedule (2002, 2007, 2012, 2017 or 2022), set explicitly by the
+	// build table. Nil means the agreement states none. It is a different
+	// concept from HSEdition, the code list used for validation.
+	StatedEdition *int `json:"stated_edition"`
 	// CaveatFirst returns the Unde Labs caveat note before the rows, so a
 	// reader sees what was not checked first. The schedule must have one.
 	CaveatFirst bool   `json:"caveat_first,omitempty"`
@@ -296,7 +329,7 @@ var parseDefault = sync.OnceValues(func() (*Table, error) {
 	}
 	t := &Table{schedules: make(map[string][]schedule), rcep: rcep.Default()}
 	for _, s := range sources {
-		if err := validateSchedule(s); err != nil {
+		if err := errors.Join(validateSchedule(s), validateStatedEdition(s)); err != nil {
 			return nil, fmt.Errorf("japan PSR schedules: %w", err)
 		}
 		t.schedules[s.Agreement] = append(t.schedules[s.Agreement], s)
@@ -702,7 +735,7 @@ func parseGeneral(data []byte, schedules map[string][]schedule) (*generalBundle,
 	edition := fmt.Sprintf("(HS %d)", g.HSEdition)
 	found := false
 	for _, s := range schedules[g.Agreement] {
-		if strings.Contains(s.Citation, edition) && s.From == g.From && s.Until == g.Until {
+		if s.StatedEdition != nil && *s.StatedEdition == g.HSEdition && s.From == g.From && s.Until == g.Until {
 			found = true
 		}
 	}

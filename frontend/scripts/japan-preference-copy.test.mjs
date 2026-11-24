@@ -53,26 +53,55 @@ test("the Japan form uses the preferential agreement codes and accepts Japanese 
   for (const value of ["", "640", "6403.9", "6403.99.00", "6403.99.000A"]) assert.ok(!validJapanHS(value), value);
 });
 
-test("the selector’s HS editions match the embedded schedules", async () => {
-  const schedules = JSON.parse(await readFile(new URL("../../backend/internal/jprules/data/schedules.json", import.meta.url), "utf8"));
+// The declared edition of an Annex is the typed `stated_edition`; citation prose is only cross-checked.
+function derive(schedules) {
   const editions = {};
   const unstated = new Set();
   for (const s of schedules) {
-    const edition = s.citation.match(/\(HS ([0-9]{4})\)/)?.[1];
-    if (edition) editions[s.agreement] ??= edition;
-    else unstated.add(s.agreement);
+    assert.ok("stated_edition" in s, `${s.agreement}: stated_edition missing`);
+    if (s.stated_edition === null) unstated.add(s.agreement);
+    else {
+      assert.ok([2002, 2007, 2012, 2017, 2022].includes(s.stated_edition), s.agreement);
+      editions[s.agreement] ??= String(s.stated_edition);
+    }
   }
+  return { editions, unstated };
+}
+
+function crossCheck(s) {
+  if (s.stated_edition === null) return /not stated/.test(s.citation) && !/\(HS [0-9]{4}\)/.test(s.citation);
+  return s.citation.includes(`(HS ${s.stated_edition})`);
+}
+
+test("the selector’s HS editions match the embedded schedules", async () => {
+  const schedules = JSON.parse(await readFile(new URL("../../backend/internal/jprules/data/schedules.json", import.meta.url), "utf8"));
+  const { editions, unstated } = derive(schedules);
   // A schedule that states no HS edition must be listed explicitly, never given a guessed year.
   assert.deepEqual([...unstated].sort(), [...japanNoEditionAgreements].sort());
-  // Each such schedule must say so in its citation, so a source change forces a conscious UI decision.
-  for (const s of schedules.filter((x) => !/\(HS [0-9]{4}\)/.test(x.citation))) {
-    assert.match(s.citation, /not stated/, s.agreement);
-    assert.ok(japanNoEditionAgreements.includes(s.agreement), s.agreement);
-  }
+  // The citation must agree with the typed field, so a source change forces a conscious UI decision.
+  for (const s of schedules) assert.ok(crossCheck(s), `${s.agreement}: ${s.citation}`);
+  for (const s of schedules.filter((x) => x.stated_edition === null)) assert.ok(japanNoEditionAgreements.includes(s.agreement), s.agreement);
   const gsp = schedules.find((x) => x.agreement === "GSP");
   assert.equal(gsp.from, "2023-04-01");
   assert.equal(gsp.hs_edition, 2022);
+  // The validation list (2022) and the declared edition (none) are different things.
+  assert.equal(gsp.stated_edition, null);
   assert.deepEqual(japanTariffEditions, { ...editions, RCEP: "2022" });
+});
+
+test("the derived edition does not change with citation wording", async () => {
+  const schedules = JSON.parse(await readFile(new URL("../../backend/internal/jprules/data/schedules.json", import.meta.url), "utf8"));
+  const base = derive(schedules);
+  const reworded = schedules.map((s, i) => ({
+    ...s,
+    citation: [`validated against HS 2022; ${s.citation}`, `${s.citation}, HS 2017 in prose`, `HS 2012 ${s.citation}`][i % 3],
+  }));
+  assert.deepEqual(derive(reworded), base);
+  // A schedule whose citation disagrees with its typed edition is caught.
+  const mismatch = { ...schedules[0], stated_edition: 2012 };
+  assert.ok(!crossCheck(mismatch));
+  assert.ok(!crossCheck({ ...schedules.find((x) => x.agreement === "GSP"), citation: "GSP (HS 2022)" }));
+  assert.ok(!crossCheck({ ...schedules.find((x) => x.agreement === "GSP"), citation: "GSP" }));
 });
 
 test("the selector offers Japan–U.S. and GSP without inventing an HS edition", () => {
