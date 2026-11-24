@@ -42481,18 +42481,12 @@
     "start": "1514",
     "end": "1514",
     "page": 4,
-    "text": "CTH"
-   },
-   {
-    "start": "15",
-    "end": "15",
-    "page": 4,
     "text": "Production in which all the materials of headings 12.05 and 15.14 used are wholly obtained.",
     "description": "- Rape or Colza oil and fractions thereof"
    },
    {
-    "start": "15",
-    "end": "15",
+    "start": "1514",
+    "end": "1514",
     "page": 4,
     "text": "CTH",
     "description": "- Mustard oil and fractions thereof"
@@ -42500,19 +42494,13 @@
    {
     "start": "1515",
     "end": "1515",
-    "page": 4,
-    "text": "CTH"
-   },
-   {
-    "start": "15",
-    "end": "15",
     "page": 5,
     "text": "Production in which all the materials of headings 10.06 and 15.15 used are wholly obtained.",
     "description": "- Rice bran oil and its fractions"
    },
    {
-    "start": "15",
-    "end": "15",
+    "start": "1515",
+    "end": "1515",
     "page": 5,
     "text": "CTH",
     "description": "- Others"
@@ -42527,18 +42515,12 @@
     "start": "151790",
     "end": "151790",
     "page": 5,
-    "text": "CTH"
-   },
-   {
-    "start": "15",
-    "end": "15",
-    "page": 5,
     "text": "CC",
     "description": "- Mixed vegetable oils not further processed"
    },
    {
-    "start": "15",
-    "end": "15",
+    "start": "151790",
+    "end": "151790",
     "page": 5,
     "text": "CTH",
     "description": "- Others"
@@ -42628,15 +42610,15 @@
     "text": "CTH, provided that: - the total weight of non-originating materials of Chapter 4 and heading 19.01 used does not exceed 10 % of the weight of the product; and - the total weight of non-originating materials of headings 17.01 and 17.02 used does not exceed 30 % of the weight of the product."
    },
    {
-    "start": "19",
-    "end": "19",
+    "start": "190110",
+    "end": "190110",
     "page": 7,
     "text": "CC except from headings 04.01 to 04.06.",
     "description": "- Containing more than 10 % by dry weight of milk solids"
    },
    {
-    "start": "19",
-    "end": "19",
+    "start": "190110",
+    "end": "190110",
     "page": 7,
     "text": "CC",
     "description": "- Others"
@@ -42645,32 +42627,26 @@
     "start": "190120",
     "end": "190120",
     "page": 7,
-    "text": "CC"
-   },
-   {
-    "start": "19",
-    "end": "19",
-    "page": 7,
     "text": "CC except from headings 04.01 to 04.06, provided that the value of non-originating rice flour of subheading 1102.90 used does not exceed 35 % of the EXW or 30 % of the FOB of the product.",
     "description": "- A product containing more than 25 % by dry weight of butterfat, not put up for retail sale, and containing more than 30 % by dry weight of rice flour"
    },
    {
-    "start": "19",
-    "end": "19",
+    "start": "190120",
+    "end": "190120",
     "page": 7,
     "text": "CC except from headings 04.01 to 04.06.",
     "description": "- A product containing more than 25 % by dry weight of butterfat, not put up for retail sale, and containing not more than 30 % by dry weight of rice flour"
    },
    {
-    "start": "19",
-    "end": "19",
+    "start": "190120",
+    "end": "190120",
     "page": 7,
     "text": "CC, provided that the value of non-originating rice flour of subheading 1102.90 used does not exceed 35 % of the EXW or 30 % of the FOB of the product.",
     "description": "- A product containing more than 30 % by dry weight of rice flour, except for a product containing more than 25 % by dry weight of butterfat, not put up for retail sale"
    },
    {
-    "start": "19",
-    "end": "19",
+    "start": "190120",
+    "end": "190120",
     "page": 7,
     "text": "CC",
     "description": "- Others"
@@ -42679,32 +42655,26 @@
     "start": "190190",
     "end": "190190",
     "page": 7,
-    "text": "CC"
-   },
-   {
-    "start": "19",
-    "end": "19",
-    "page": 7,
     "text": "CC except from headings 04.01 to 04.06, provided that the value of non-originating rice flour of subheading 1102.90 used does not exceed 35 % of the EXW or 30 % of the FOB of the product.",
     "description": "- Containing more than 10 % by dry weight of milk solids, and more than 30 % by dry weight of rice flour"
    },
    {
-    "start": "19",
-    "end": "19",
+    "start": "190190",
+    "end": "190190",
     "page": 8,
     "text": "CC except from headings 04.01 to 04.06.",
     "description": "- Containing more than 10 % by dry weight of milk solids, and not more than 30 % by dry weight of rice flour"
    },
    {
-    "start": "19",
-    "end": "19",
+    "start": "190190",
+    "end": "190190",
     "page": 8,
     "text": "CC, provided that the value of non-originating rice flour of subheading 1102.90 used does not exceed 35 % of the EXW or 30 % of the FOB of the product.",
     "description": "- Containing more than 30 % by dry weight of rice flour, and not more than 10 % by dry weight of milk solids"
    },
    {
-    "start": "19",
-    "end": "19",
+    "start": "190190",
+    "end": "190190",
     "page": 8,
     "text": "CC",
     "description": "- Others"
@@ -42767,18 +42737,12 @@
     "start": "210130",
     "end": "210130",
     "page": 10,
-    "text": "CC"
-   },
-   {
-    "start": "21",
-    "end": "21",
-    "page": 10,
     "text": "CC except from heading 10.03.",
     "description": "- Roasted barley tea"
    },
    {
-    "start": "21",
-    "end": "21",
+    "start": "210130",
+    "end": "210130",
     "page": 10,
     "text": "CC",
     "description": "- Others"
@@ -42877,32 +42841,26 @@
     "start": "230990",
     "end": "230990",
     "page": 13,
-    "text": "CTH"
-   },
-   {
-    "start": "23",
-    "end": "23",
-    "page": 13,
     "text": "CTH except from headings 04.01 to 04.06 or dairy preparations of subheading 1901.90 containing more than 10 % by dry weight of milk solids, provided that the value of non-originating materials of heading 10.06 used does not exceed 35 % of the EXW or 30 % of the FOB of the product.",
     "description": "- A product of a preparation used in animal feeding containing more than 10 % by dry weight of milk solids, and of a preparation other than pet food containing more than 30 % by dry weight of rice"
    },
    {
-    "start": "23",
-    "end": "23",
+    "start": "230990",
+    "end": "230990",
     "page": 13,
     "text": "CTH except from headings 04.01 to 04.06 or dairy preparations of subheading 1901.90 containing more than 10 % by dry weight of milk solids.",
     "description": "- A product of a preparation used in animal feeding containing more than 10 % by dry weight of milk solids, and not of a preparation other than pet food containing more than 30 % by dry weight of rice"
    },
    {
-    "start": "23",
-    "end": "23",
+    "start": "230990",
+    "end": "230990",
     "page": 13,
     "text": "CTH, provided that the value of non-originating materials of heading 10.06 used does not exceed 35 % of the EXW or 30 % of the FOB of the product.",
     "description": "- A product of a preparation other than pet food containing more than 30 % by dry weight of rice, and not of a preparation used in animal feeding containing more than 10 % by dry weight of milk solids"
    },
    {
-    "start": "23",
-    "end": "23",
+    "start": "230990",
+    "end": "230990",
     "page": 13,
     "text": "CTH",
     "description": "- Others"
@@ -43097,18 +43055,12 @@
     "start": "3105",
     "end": "3105",
     "page": 20,
-    "text": "CTH; MaxNOM 50 % (EXW); or RVC 55 % (FOB)."
-   },
-   {
-    "start": "31",
-    "end": "31",
-    "page": 20,
     "text": "CTH; MaxNOM 50 % (EXW); or RVC 55 % (FOB).",
     "description": "- Sodium nitrate - Calcium cyanamide - Potassium sulphate - Magnesium potassium sulphate"
    },
    {
-    "start": "31",
-    "end": "31",
+    "start": "3105",
+    "end": "3105",
     "page": 20,
     "text": "CTH and MaxNOM 50 % (EXW); or CTH and RVC 55 % (FOB); however, non-originating materials of heading 31.05 may be used, provided that their total value does not exceed 20 % of the EXW or 15 % of the FOB of the product; MaxNOM 40 % (EXW); or RVC 65 % (FOB).",
     "description": "- Others"
@@ -43249,18 +43201,12 @@
     "start": "382499",
     "end": "382499",
     "page": 25,
-    "text": "CTSH; A chemical reaction, purification, production of standard materials, isomer separation or biotechnological processing is undergone; MaxNOM 50 % (EXW); or RVC 55 % (FOB)."
-   },
-   {
-    "start": "38",
-    "end": "38",
-    "page": 25,
     "text": "Production in which biodiesel is obtained through transesterification, esterification or hydro-treatment.",
     "description": "- Biodiesel"
    },
    {
-    "start": "38",
-    "end": "38",
+    "start": "382499",
+    "end": "382499",
     "page": 25,
     "text": "CTSH; A chemical reaction, purification, production of standard materials, isomer separation or biotechnological processing is undergone; MaxNOM 50 % (EXW); or RVC 55 % (FOB).",
     "description": "- Others"
@@ -43395,18 +43341,12 @@
     "start": "410640",
     "end": "410640",
     "page": 28,
-    "text": "CTSH"
-   },
-   {
-    "start": "41",
-    "end": "41",
-    "page": 28,
     "text": "CTH",
     "description": "- A product in the wet state"
    },
    {
-    "start": "41",
-    "end": "41",
+    "start": "410640",
+    "end": "410640",
     "page": 28,
     "text": "CTH; or Production from non-originating materials in the wet state.",
     "description": "- A product in the dry state"
@@ -43541,18 +43481,12 @@
     "start": "5003",
     "end": "5003",
     "page": 32,
-    "text": "CTH except from heading 50.01."
-   },
-   {
-    "start": "50",
-    "end": "50",
-    "page": 32,
     "text": "Carding or combing of silk waste.",
     "description": "- Carded or combed"
    },
    {
-    "start": "50",
-    "end": "50",
+    "start": "5003",
+    "end": "5003",
     "page": 32,
     "text": "CTH",
     "description": "- Others"
@@ -43567,18 +43501,12 @@
     "start": "5006",
     "end": "5006",
     "page": 32,
-    "text": "Spinning of natural fibres; Extrusion of man-made continuous filament combined with spinning; Extrusion of man-made continuous filament combined with twisting; or Twisting combined with any mechanical operation."
-   },
-   {
-    "start": "50",
-    "end": "50",
-    "page": 32,
     "text": "Spinning of natural fibres; Extrusion of man-made continuous filament combined with spinning; Extrusion of man-made continuous filament combined with twisting; or Twisting combined with any mechanical operation.",
     "description": "- Silk yarn and yarn spun from silk waste"
    },
    {
-    "start": "50",
-    "end": "50",
+    "start": "5006",
+    "end": "5006",
     "page": 33,
     "text": "CTH",
     "description": "- Silk-worm gut"
@@ -43682,19 +43610,13 @@
    {
     "start": "5602",
     "end": "5602",
-    "page": 37,
-    "text": "Spinning of natural fibres; Extrusion of man-made fibres combined with spinning; Flocking combined with dyeing or with printing; or Coating, flocking, laminating or metalising combined with at least two other main preparatory or finishing operations (such as calendering, shrink-resistance processes, heat setting, permanent finishing), provided that the value of non-originating materials used does not exceed 50 % of the EXW or 45 % of the FOB of the product."
-   },
-   {
-    "start": "56",
-    "end": "56",
     "page": 38,
     "text": "Extrusion of man-made fibres combined with fabric formation; however: - non-originating polypropylene filament of heading 54.02; - non-originating polypropylene fibres of heading 55.03 or 55.06; or - non-originating polypropylene filament tow of heading 55.01; of which the denomination in all cases of a single filament or fibre is less than 9 decitex, may be used, provided that their total value does not exceed 40 % of the EXW or 35 % of the FOB of the product; or Nonwoven fabric formation alone in the case of felt made from natural fibres.",
     "description": "- Needleloom felt"
    },
    {
-    "start": "56",
-    "end": "56",
+    "start": "5602",
+    "end": "5602",
     "page": 38,
     "text": "Extrusion of man-made fibres combined with fabric formation; or Nonwoven fabric formation alone in the case of other felt made from natural fibres.",
     "description": "- Others"
@@ -43786,19 +43708,13 @@
    {
     "start": "5902",
     "end": "5902",
-    "page": 43,
-    "text": "Weaving, knitting or nonwoven fabric formation combined with dyeing, with flocking, with coating, with laminating or with metalising; or Flocking combined with dyeing or with printing."
-   },
-   {
-    "start": "59",
-    "end": "59",
     "page": 44,
     "text": "Weaving, knitting or nonwoven fabric formation.",
     "description": "- Containing not more than 90 % by weight of textile materials"
    },
    {
-    "start": "59",
-    "end": "59",
+    "start": "5902",
+    "end": "5902",
     "page": 44,
     "text": "Extrusion of man-made fibres combined with weaving, with knitting or with nonwoven fabric formation.",
     "description": "- Others"
@@ -43819,18 +43735,12 @@
     "start": "5905",
     "end": "5905",
     "page": 44,
-    "text": "Weaving, knitting or nonwoven fabric formation combined with dyeing, with coating, with laminating or with metalising."
-   },
-   {
-    "start": "59",
-    "end": "59",
-    "page": 44,
     "text": "Weaving, knitting or nonwoven fabric formation combined with impregnating, with coating, with covering, with laminating or with metalising.",
     "description": "- Impregnated, coated, covered or laminated with rubber, plastics or other materials"
    },
    {
-    "start": "59",
-    "end": "59",
+    "start": "5905",
+    "end": "5905",
     "page": 45,
     "text": "Spinning of natural or man-made staple fibres combined with weaving; Extrusion of man-made filament yarn combined with weaving; Weaving, knitting or nonwoven fabric formation combined with dyeing, with coating or with laminating; Weaving combined with printing; or Printing (as standalone operation).",
     "description": "- Others"
@@ -43839,25 +43749,19 @@
     "start": "5906",
     "end": "5906",
     "page": 45,
-    "text": "Spinning of natural or man-made staple fibres combined with weaving; Extrusion of man-made filament yarn combined with weaving; Weaving, knitting or nonwoven fabric formation combined with dyeing, with coating or with laminating; Weaving combined with printing; or Printing (as standalone operation)."
-   },
-   {
-    "start": "59",
-    "end": "59",
-    "page": 45,
     "text": "Spinning of natural or man-made staple fibres combined with knitting or with crocheting; Extrusion of man-made filament yarn combined with knitting or with crocheting; Knitting or crocheting combined with rubberising; or Rubberising combined with at least two other main preparatory or finishing operations (such as calendering, shrink-resistance processes, heat setting, permanent finishing), provided that the value of non-originating materials used does not exceed 50 % of the EXW or 45 % of the FOB of the product.",
     "description": "- Knitted or crocheted fabrics"
    },
    {
-    "start": "59",
-    "end": "59",
+    "start": "5906",
+    "end": "5906",
     "page": 45,
     "text": "Extrusion of man-made fibres combined with weaving.",
     "description": "- Other fabrics made of synthetic filament yarn, containing more than 90 % by weight of textile materials"
    },
    {
-    "start": "59",
-    "end": "59",
+    "start": "5906",
+    "end": "5906",
     "page": 46,
     "text": "Weaving, knitting or nonwoven process combined with dyeing, with coating or with rubberising; Yarn dyeing combined with weaving, with knitting or with nonwoven process; or Rubberising combined with at least two other main preparatory or finishing operations (such as calendering, shrink-resistance processes, heat setting, permanent finishing), provided that the value of non-originating materials used does not exceed 50 % of the EXW or 45 % of the FOB of the product.",
     "description": "- Others"
@@ -43872,18 +43776,12 @@
     "start": "5908",
     "end": "5908",
     "page": 46,
-    "text": "Weaving, knitting or nonwoven fabric formation combined with dyeing, with printing, with coating, with impregnating or with covering; Flocking combined with dyeing or with printing; or Printing (as standalone operation)."
-   },
-   {
-    "start": "59",
-    "end": "59",
-    "page": 46,
     "text": "Production from tubular knitted or crocheted gas mantle fabric.",
     "description": "- Incandescent gas mantles, impregnated"
    },
    {
-    "start": "59",
-    "end": "59",
+    "start": "5908",
+    "end": "5908",
     "page": 46,
     "text": "CTH",
     "description": "- Others"
@@ -43901,15 +43799,15 @@
     "text": "Spinning of natural or man-made staple fibres combined with knitting or with crocheting; Extrusion of man-made filament yarn combined with knitting or with crocheting; Knitting or crocheting combined with dyeing, with flocking, with coating, with laminating or with printing; Flocking combined with dyeing or with printing; Yarn dyeing combined with knitting or with crocheting; or Twisting or texturing combined with knitting or with crocheting, provided that the value of non-originating non-twisted or non-textured yarns used does not exceed 50 % of the EXW or 45 % of the FOB of the product."
    },
    {
-    "start": "61",
-    "end": "61",
+    "start": "6101",
+    "end": "6117",
     "page": 48,
     "text": "Knitting or crocheting combined with making-up including cutting of fabric; or Making-up including cutting of fabric, provided that the value of non-originating materials used does not exceed 50 % of the EXW or 45 % of the FOB of the product.",
     "description": "- Obtained by sewing together or otherwise assembling, two or more pieces of knitted or crocheted fabric which have been either cut to form or obtained directly to form"
    },
    {
-    "start": "61",
-    "end": "61",
+    "start": "6101",
+    "end": "6117",
     "page": 48,
     "text": "Spinning of natural or man-made staple fibres combined with knitting or with crocheting; Extrusion of man-made filament yarn combined with knitting or with crocheting; Knitting and making-up in one operation; or Making-up including cutting of fabric, provided that the value of non-originating materials used does not exceed 50 % of the EXW or 45 % of the FOB of the product.",
     "description": "- Others"
@@ -43923,19 +43821,13 @@
    {
     "start": "6202",
     "end": "6202",
-    "page": 48,
-    "text": "Weaving combined with making-up including cutting of fabric; Making-up including cutting of fabric preceded by printing (as standalone operation); or Making-up including cutting of fabric, provided that the value of non-originating materials used does not exceed 50 % of the EXW or 45 % of the FOB of the product."
-   },
-   {
-    "start": "62",
-    "end": "62",
     "page": 49,
     "text": "Weaving combined with making-up including cutting of fabric; Production from unembroidered fabric, provided that the value of non-originating unembroidered fabric used does not exceed 50 % of the EXW or 45 % of the FOB of the product; or Making-up including cutting of fabric, provided that the value of non-originating materials used does not exceed 50 % of the EXW or 45 % of the FOB of the product.",
     "description": "- Embroidered"
    },
    {
-    "start": "62",
-    "end": "62",
+    "start": "6202",
+    "end": "6202",
     "page": 49,
     "text": "Weaving combined with making-up including cutting of fabric; Making-up including cutting of fabric preceded by printing (as standalone operation); or Making-up including cutting of fabric, provided that the value of non-originating materials used does not exceed 50 % of the EXW or 45 % of the FOB of the product.",
     "description": "- Others"
@@ -43950,18 +43842,12 @@
     "start": "6204",
     "end": "6204",
     "page": 49,
-    "text": "Weaving combined with making-up including cutting of fabric; Making-up including cutting of fabric preceded by printing (as standalone operation); or Making-up including cutting of fabric, provided that the value of non-originating materials used does not exceed 50 % of the EXW or 45 % of the FOB of the product."
-   },
-   {
-    "start": "62",
-    "end": "62",
-    "page": 49,
     "text": "Weaving combined with making-up including cutting of fabric; Production from unembroidered fabric, provided that the value of non-originating unembroidered fabric used does not exceed 50 % of the EXW or 45 % of the FOB of the product; or Making-up including cutting of fabric, provided that the value of non-originating materials used does not exceed 50 % of the EXW or 45 % of the FOB of the product.",
     "description": "- Embroidered"
    },
    {
-    "start": "62",
-    "end": "62",
+    "start": "6204",
+    "end": "6204",
     "page": 49,
     "text": "Weaving combined with making-up including cutting of fabric; Making-up including cutting of fabric preceded by printing (as standalone operation); or Making-up including cutting of fabric, provided that the value of non-originating materials used does not exceed 50 % of the EXW or 45 % of the FOB of the product.",
     "description": "- Others"
@@ -43976,18 +43862,12 @@
     "start": "6206",
     "end": "6206",
     "page": 50,
-    "text": "Weaving combined with making-up including cutting of fabric; Making-up including cutting of fabric preceded by printing (as standalone operation); or Making-up including cutting of fabric, provided that the value of non-originating materials used does not exceed 50 % of the EXW or 45 % of the FOB of the product."
-   },
-   {
-    "start": "62",
-    "end": "62",
-    "page": 50,
     "text": "Weaving combined with making-up including cutting of fabric; Production from unembroidered fabric, provided that the value of non-originating unembroidered fabric used does not exceed 50 % of the EXW or 45 % of the FOB of the product; or Making-up including cutting of fabric, provided that the value of non-originating materials used does not exceed 50 % of the EXW or 45 % of the FOB of the product.",
     "description": "- Embroidered"
    },
    {
-    "start": "62",
-    "end": "62",
+    "start": "6206",
+    "end": "6206",
     "page": 50,
     "text": "Weaving combined with making-up including cutting of fabric; Making-up including cutting of fabric preceded by printing (as standalone operation); or Making-up including cutting of fabric, provided that the value of non-originating materials used does not exceed 50 % of the EXW or 45 % of the FOB of the product.",
     "description": "- Others"
@@ -44002,18 +43882,12 @@
     "start": "6209",
     "end": "6209",
     "page": 50,
-    "text": "Weaving combined with making-up including cutting of fabric; Making-up including cutting of fabric preceded by printing (as standalone operation); or Making-up including cutting of fabric, provided that the value of non-originating materials used does not exceed 50 % of the EXW or 45 % of the FOB of the product."
-   },
-   {
-    "start": "62",
-    "end": "62",
-    "page": 50,
     "text": "Weaving combined with making-up including cutting of fabric; Production from unembroidered fabric, provided that the value of non-originating unembroidered fabric used does not exceed 50 % of the EXW or 45 % of the FOB of the product; or Making-up including cutting of fabric, provided that the value of non-originating materials used does not exceed 50 % of the EXW or 45 % of the FOB of the product.",
     "description": "- Embroidered"
    },
    {
-    "start": "62",
-    "end": "62",
+    "start": "6209",
+    "end": "6209",
     "page": 51,
     "text": "Weaving combined with making-up including cutting of fabric; Making-up including cutting of fabric preceded by printing (as standalone operation); or Making-up including cutting of fabric, provided that the value of non-originating materials used does not exceed 50 % of the EXW or 45 % of the FOB of the product.",
     "description": "- Others"
@@ -44022,18 +43896,12 @@
     "start": "6210",
     "end": "6210",
     "page": 51,
-    "text": "Weaving combined with making-up including cutting of fabric; Making-up including cutting of fabric preceded by printing (as standalone operation); or Making-up including cutting of fabric, provided that the value of non-originating materials used does not exceed 50 % of the EXW or 45 % of the FOB of the product."
-   },
-   {
-    "start": "62",
-    "end": "62",
-    "page": 51,
     "text": "Weaving combined with making-up including cutting of fabric; Coating or laminating combined with making-up including cutting of fabric, provided that the value of non-originating uncoated or unlaminated fabric used does not exceed 50 % of the EXW or 45 % of the FOB of the product; or Making-up including cutting of fabric, provided that the value of non-originating materials used does not exceed 50 % of the EXW or 45 % of the FOB of the product.",
     "description": "- Fire-resistant equipment of fabric covered with foil of aluminised polyester"
    },
    {
-    "start": "62",
-    "end": "62",
+    "start": "6210",
+    "end": "6210",
     "page": 51,
     "text": "Weaving combined with making-up including cutting of fabric; Making-up including cutting of fabric preceded by printing (as standalone operation); or Making-up including cutting of fabric, provided that the value of non-originating materials used does not exceed 50 % of the EXW or 45 % of the FOB of the product.",
     "description": "- Others"
@@ -44042,18 +43910,12 @@
     "start": "6211",
     "end": "6211",
     "page": 51,
-    "text": "Weaving combined with making-up including cutting of fabric; Making-up including cutting of fabric preceded by printing (as standalone operation); or Making-up including cutting of fabric, provided that the value of non-originating materials used does not exceed 50 % of the EXW or 45 % of the FOB of the product."
-   },
-   {
-    "start": "62",
-    "end": "62",
-    "page": 51,
     "text": "Weaving combined with making-up including cutting of fabric; Production from unembroidered fabric, provided that the value of non-originating unembroidered fabric used does not exceed 50 % of the EXW or 45 % of the FOB of the product; or Making-up including cutting of fabric, provided that the value of non-originating materials used does not exceed 50 % of the EXW or 45 % of the FOB of the product.",
     "description": "- Women's or girls' garments, embroidered"
    },
    {
-    "start": "62",
-    "end": "62",
+    "start": "6211",
+    "end": "6211",
     "page": 51,
     "text": "Weaving combined with making-up including cutting of fabric; Making-up including cutting of fabric preceded by printing (as standalone operation); or Making-up including cutting of fabric, provided that the value of non-originating materials used does not exceed 50 % of the EXW or 45 % of the FOB of the product.",
     "description": "- Others"
@@ -44061,19 +43923,13 @@
    {
     "start": "6212",
     "end": "6212",
-    "page": 51,
-    "text": "Weaving combined with making-up including cutting of fabric; Making-up including cutting of fabric preceded by printing (as standalone operation); or Making-up including cutting of fabric, provided that the value of non-originating materials used does not exceed 50 % of the EXW or 45 % of the FOB of the product."
-   },
-   {
-    "start": "62",
-    "end": "62",
     "page": 52,
     "text": "Knitting combined with making-up including cutting of fabric; Making-up including cutting of fabric preceded by printing (as standalone operation); or Making-up including cutting of fabric, provided that the value of non-originating materials used does not exceed 50 % of the EXW or 45 % of the FOB of the product.",
     "description": "- Knitted or crocheted obtained by sewing together or otherwise assembling, two or more pieces of knitted or crocheted fabric which have been either cut to form or obtained directly to form"
    },
    {
-    "start": "62",
-    "end": "62",
+    "start": "6212",
+    "end": "6212",
     "page": 52,
     "text": "Weaving combined with making-up including cutting of fabric; Making-up including cutting of fabric preceded by printing (as standalone operation); or Making-up including cutting of fabric, provided that the value of non-originating materials used does not exceed 50 % of the EXW or 45 % of the FOB of the product.",
     "description": "- Others"
@@ -44082,18 +43938,12 @@
     "start": "6213",
     "end": "6214",
     "page": 52,
-    "text": "Weaving combined with making-up including cutting of fabric; Making-up including cutting of fabric preceded by printing (as standalone operation); or Making-up including cutting of fabric, provided that the value of non-originating materials used does not exceed 50 % of the EXW or 45 % of the FOB of the product."
-   },
-   {
-    "start": "62",
-    "end": "62",
-    "page": 52,
     "text": "Weaving combined with making-up including cutting of fabric; Production from unembroidered fabric, provided that the value of non-originating unembroidered fabric used does not exceed 50 % of the EXW or 45 % of the FOB of the product; Making-up including cutting of fabric preceded by printing (as standalone operation); or Making-up including cutting of fabric, provided that the value of non-originating materials used does not exceed 50 % of the EXW or 45 % of the FOB of the product.",
     "description": "- Embroidered"
    },
    {
-    "start": "62",
-    "end": "62",
+    "start": "6213",
+    "end": "6214",
     "page": 53,
     "text": "Weaving combined with making-up including cutting of fabric; Making-up including cutting of fabric preceded by printing (as standalone operation); or Making-up including cutting of fabric, provided that the value of non-originating materials used does not exceed 50 % of the EXW or 45 % of the FOB of the product.",
     "description": "- Others"
@@ -44108,18 +43958,12 @@
     "start": "6216",
     "end": "6216",
     "page": 53,
-    "text": "Weaving combined with making-up including cutting of fabric; Making-up including cutting of fabric preceded by printing (as standalone operation); or Making-up including cutting of fabric, provided that the value of non-originating materials used does not exceed 50 % of the EXW or 45 % of the FOB of the product."
-   },
-   {
-    "start": "62",
-    "end": "62",
-    "page": 53,
     "text": "Weaving combined with making-up including cutting of fabric; Coating or laminating combined with making-up including cutting of fabric, provided that the value of non-originating uncoated or unlaminated fabric used does not exceed 50 % of the EXW or 45 % of the FOB of the product; or Making-up including cutting of fabric, provided that the value of non-originating materials used does not exceed 50 % of the EXW or 45 % of the FOB of the product.",
     "description": "- Fire-resistant equipment of fabric covered with foil of aluminised polyester"
    },
    {
-    "start": "62",
-    "end": "62",
+    "start": "6216",
+    "end": "6216",
     "page": 53,
     "text": "Weaving combined with making-up including cutting of fabric; Making-up including cutting of fabric preceded by printing (as standalone operation); or Making-up including cutting of fabric, provided that the value of non-originating materials used does not exceed 50 % of the EXW or 45 % of the FOB of the product.",
     "description": "- Others"
@@ -44127,54 +43971,48 @@
    {
     "start": "6217",
     "end": "6217",
-    "page": 53,
-    "text": "Weaving combined with making-up including cutting of fabric; Making-up including cutting of fabric preceded by printing (as standalone operation); or Making-up including cutting of fabric, provided that the value of non-originating materials used does not exceed 50 % of the EXW or 45 % of the FOB of the product."
-   },
-   {
-    "start": "62",
-    "end": "62",
     "page": 54,
     "text": "Weaving combined with making-up including cutting of fabric; Production from unembroidered fabric, provided that the value of non-originating unembroidered fabric used does not exceed 50 % of the EXW or 45 % of the FOB of the product; Making-up including cutting of fabric preceded by printing (as standalone operation); or Making-up including cutting of fabric, provided that the value of non-originating materials used does not exceed 50 % of the EXW or 45 % of the FOB of the product.",
     "description": "- Embroidered"
    },
    {
-    "start": "62",
-    "end": "62",
+    "start": "6217",
+    "end": "6217",
     "page": 54,
     "text": "Weaving combined with making-up including cutting of fabric; Coating or laminating combined with making-up including cutting of fabric, provided that the value of non-originating uncoated or unlaminated fabric used does not exceed 50 % of the EXW or 45 % of the FOB of the product; or Making-up including cutting of fabric, provided that the value of non-originating materials used does not exceed 50 % of the EXW or 45 % of the FOB of the product.",
     "description": "- Fire-resistant equipment of fabric covered with foil of aluminised polyester"
    },
    {
-    "start": "62",
-    "end": "62",
+    "start": "6217",
+    "end": "6217",
     "page": 54,
     "text": "CTH, provided that the value of non-originating materials used does not exceed 50 % of the EXW or 45 % of the FOB of the product.",
     "description": "- Interlinings for collars and cuffs, cut out"
    },
    {
-    "start": "62",
-    "end": "62",
+    "start": "6217",
+    "end": "6217",
     "page": 54,
     "text": "Weaving combined with making-up including cutting of fabric; or Making-up including cutting of fabric, provided that the value of non-originating materials used does not exceed 50 % of the EXW or 45 % of the FOB of the product.",
     "description": "- Others"
    },
    {
-    "start": "63",
-    "end": "63",
+    "start": "6301",
+    "end": "6304",
     "page": 54,
     "text": "Nonwoven fabric formation combined with making-up including cutting of fabric.",
     "description": "- Of felt and of nonwovens"
    },
    {
-    "start": "63",
-    "end": "63",
+    "start": "6301",
+    "end": "6304",
     "page": 55,
     "text": "Weaving, knitting or crocheting combined with making-up including cutting of fabric; or Production from unembroidered fabric (other than knitted or crocheted), provided that the value of non-originating unembroidered fabric used does not exceed 40 % of the EXW or 35 % of the FOB of the product.",
     "description": "- Others -- Embroidered"
    },
    {
-    "start": "63",
-    "end": "63",
+    "start": "6301",
+    "end": "6304",
     "page": 55,
     "text": "Weaving, knitting or crocheting combined with making-up including cutting of fabric.",
     "description": "-- Others"
@@ -44189,18 +44027,12 @@
     "start": "6306",
     "end": "6306",
     "page": 55,
-    "text": "Extrusion of man-made fibres or spinning of natural or man-made staple fibres, combined with weaving or with knitting and making-up including cutting of fabric."
-   },
-   {
-    "start": "63",
-    "end": "63",
-    "page": 55,
     "text": "Nonwoven fabric formation combined with making-up including cutting of fabric.",
     "description": "- Of nonwovens"
    },
    {
-    "start": "63",
-    "end": "63",
+    "start": "6306",
+    "end": "6306",
     "page": 55,
     "text": "Weaving combined with making-up including cutting of fabric.",
     "description": "- Others"
@@ -44269,18 +44101,12 @@
     "start": "7006",
     "end": "7006",
     "page": 57,
-    "text": "CTH; MaxNOM 50 % (EXW); or RVC 55 % (FOB)."
-   },
-   {
-    "start": "70",
-    "end": "70",
-    "page": 57,
     "text": "CTH; or Production from non-coated glass-plate substrate of heading 70.06.",
     "description": "- Coated glass-plate substrates"
    },
    {
-    "start": "70",
-    "end": "70",
+    "start": "7006",
+    "end": "7006",
     "page": 57,
     "text": "CTH except from headings 70.02 to 70.05.",
     "description": "- Others"
@@ -44295,19 +44121,13 @@
    {
     "start": "7010",
     "end": "7010",
-    "page": 57,
-    "text": "CTH; MaxNOM 50 % (EXW); or RVC 55 % (FOB)."
-   },
-   {
-    "start": "70",
-    "end": "70",
     "page": 58,
     "text": "CTH; however, non-originating materials of heading 70.10 may be used, provided that their total value does not exceed 15 % of the EXW or the FOB of the product.",
     "description": "- Glass and glassware, containers made of glass"
    },
    {
-    "start": "70",
-    "end": "70",
+    "start": "7010",
+    "end": "7010",
     "page": 58,
     "text": "CTH; MaxNOM 50 % (EXW); or RVC 55 % (FOB).",
     "description": "- Others"
@@ -44376,18 +44196,12 @@
     "start": "7106",
     "end": "7106",
     "page": 59,
-    "text": "CTH"
-   },
-   {
-    "start": "71",
-    "end": "71",
-    "page": 59,
     "text": "CTH except from headings 71.06, 71.08 and 71.10; Electrolytic, thermal or chemical separation of precious metals of headings 71.06, 71.08 and 71.10; or Fusion or alloying of precious metals of headings 71.06, 71.08 and 71.10 with each other or with base metals or purification.",
     "description": "- Unwrought"
    },
    {
-    "start": "71",
-    "end": "71",
+    "start": "7106",
+    "end": "7106",
     "page": 59,
     "text": "Production from unwrought precious metals.",
     "description": "- Semi-manufactured or in powder form"
@@ -44396,18 +44210,12 @@
     "start": "7107",
     "end": "7107",
     "page": 59,
-    "text": "Production from unwrought precious metals."
-   },
-   {
-    "start": "71",
-    "end": "71",
-    "page": 59,
     "text": "Production from metals clad with precious metals, unwrought.",
     "description": "- Metals clad with precious metals, semi-manufactured"
    },
    {
-    "start": "71",
-    "end": "71",
+    "start": "7107",
+    "end": "7107",
     "page": 60,
     "text": "CTH",
     "description": "- Others"
@@ -44416,18 +44224,12 @@
     "start": "7108",
     "end": "7108",
     "page": 60,
-    "text": "CTH"
-   },
-   {
-    "start": "71",
-    "end": "71",
-    "page": 60,
     "text": "CTH except from headings 71.06, 71.08 and 71.10; Electrolytic, thermal or chemical separation of precious metals of headings 71.06, 71.08 and 71.10; or Fusion or alloying of precious metals of headings 71.06, 71.08 and 71.10 with each other or with base metals or purification.",
     "description": "- Unwrought"
    },
    {
-    "start": "71",
-    "end": "71",
+    "start": "7108",
+    "end": "7108",
     "page": 60,
     "text": "Production from unwrought precious metals.",
     "description": "- Semi-manufactured or in powder form"
@@ -44436,18 +44238,12 @@
     "start": "7109",
     "end": "7109",
     "page": 60,
-    "text": "Production from unwrought precious metals."
-   },
-   {
-    "start": "71",
-    "end": "71",
-    "page": 60,
     "text": "Production from metals clad with precious metals, unwrought.",
     "description": "- Metals clad with precious metals, semi-manufactured"
    },
    {
-    "start": "71",
-    "end": "71",
+    "start": "7109",
+    "end": "7109",
     "page": 60,
     "text": "CTH",
     "description": "- Others"
@@ -44456,18 +44252,12 @@
     "start": "7110",
     "end": "7110",
     "page": 60,
-    "text": "CTH"
-   },
-   {
-    "start": "71",
-    "end": "71",
-    "page": 60,
     "text": "CTH except from headings 71.06, 71.08 and 71.10; Electrolytic, thermal or chemical separation of precious metals of headings 71.06, 71.08 and 71.10; or Fusion or alloying of precious metals of headings 71.06, 71.08 and 71.10 with each other or with base metals or purification.",
     "description": "- Unwrought"
    },
    {
-    "start": "71",
-    "end": "71",
+    "start": "7110",
+    "end": "7110",
     "page": 61,
     "text": "Production from unwrought precious metals.",
     "description": "- Semi-manufactured or in powder form"
@@ -44476,18 +44266,12 @@
     "start": "7111",
     "end": "7111",
     "page": 61,
-    "text": "Production from unwrought precious metals."
-   },
-   {
-    "start": "71",
-    "end": "71",
-    "page": 61,
     "text": "Production from metals clad with precious metals, unwrought.",
     "description": "- Metals clad with precious metals, semi-manufactured"
    },
    {
-    "start": "71",
-    "end": "71",
+    "start": "7111",
+    "end": "7111",
     "page": 61,
     "text": "CTH",
     "description": "- Others"
@@ -44598,18 +44382,12 @@
     "start": "7307",
     "end": "7307",
     "page": 62,
-    "text": "CC except from headings 72.13 to 72.17, 72.21 to 72.23 and 72.25 to 72.29."
-   },
-   {
-    "start": "73",
-    "end": "73",
-    "page": 62,
     "text": "CTH except from forged blanks of heading 72.07; however, non-originating forged blanks of heading 72.07 may be used, provided that their value does not exceed 50 % of the EXW or 45 % of the FOB of the product.",
     "description": "- Tube or pipe fittings of stainless steel"
    },
    {
-    "start": "73",
-    "end": "73",
+    "start": "7307",
+    "end": "7307",
     "page": 62,
     "text": "CTH",
     "description": "- Others"
@@ -45110,18 +44888,12 @@
     "start": "9506",
     "end": "9506",
     "page": 73,
-    "text": "CTH; MaxNOM 50 % (EXW); or RVC 55 % (FOB)."
-   },
-   {
-    "start": "95",
-    "end": "95",
-    "page": 73,
     "text": "CTH; however non-originating roughly-shaped blocks for making golf club heads may be used.",
     "description": "- Golf clubs and parts thereof"
    },
    {
-    "start": "95",
-    "end": "95",
+    "start": "9506",
+    "end": "9506",
     "page": 73,
     "text": "CTH; MaxNOM 50 % (EXW); or RVC 55 % (FOB).",
     "description": "- Others"

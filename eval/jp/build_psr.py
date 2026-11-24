@@ -608,11 +608,29 @@ def switzerland(pdf):
 
 
 def uk(pdf):
-    """Parser for the two-column Japan-UK annex."""
+    """Parser for the two-column Japan-UK annex.
+
+    A code row with an empty rule cell is a heading: its rules are the "-"
+    lines that follow, stored one row per line, keyed to the heading's codes
+    with the line's label as description. A heading never takes the previous
+    row's rule (the cell is empty in the PDF, not merged). The build fails on
+    a heading without branch lines, a branch line without a rule, and a
+    branch line that follows neither a heading nor a chapter title.
+    """
     rows = []
     notes = []
     chapter = ""
     target = None
+    heading = None  # (code cell, page) of an open empty-cell heading
+    heading_branches = 0
+    chapter_open = False  # a chapter title with no code row after it yet
+
+    def close_heading():
+        nonlocal heading
+        if heading is not None and not heading_branches:
+            raise ValueError(f"uk3.pdf:{heading[1]} heading {heading[0]!r} has no rule lines")
+        heading = None
+
     for page_number, page in enumerate(pdf.pages, 1):
         for table in page.extract_tables():
             for raw in table:
@@ -623,35 +641,52 @@ def uk(pdf):
                 if classification.startswith(("Column 1", "Harmonized System", "(1)")):
                     continue
                 if SECTION.match(classification):
+                    close_heading()
                     target = None
+                    chapter_open = False
                     continue
                 if m := CHAPTER.match(classification):
+                    close_heading()
                     chapter = f"{int(m[1]):02}"
                     target = None
+                    chapter_open = True
                     continue
                 if classification.startswith("Note:") or text.startswith("Note:"):
                     if chapter:
                         add_note(notes, "chapter", chapter, join(classification, text), page_number)
                     continue
                 if classification in UK_FOOTNOTES and text:
+                    close_heading()
+                    chapter_open = False
                     for code, blocked in UK_FOOTNOTES[classification]:
                         target = add_row(rows, code, page_number, text, blocked=blocked)
                     continue
                 if RANGE.fullmatch(clean_code(classification)):
+                    close_heading()
+                    chapter_open = False
                     if text:
                         target = add_row(rows, classification, page_number, text)
-                    elif target is not None:
-                        target = add_row(rows, classification, target["page"], target["text"])
                     else:
-                        target = None
+                        heading, heading_branches, target = (classification, page_number), 0, None
                     continue
                 if classification.startswith("-"):
-                    if chapter:
-                        target = add_row(rows, chapter, page_number, text, classification)
+                    if not text:
+                        raise ValueError(f"uk3.pdf:{page_number} rule line {classification!r} has no rule")
+                    if heading is not None:
+                        heading_branches += 1
+                        key = heading[0]
+                    elif chapter_open:
+                        key = chapter
+                    else:
+                        raise ValueError(f"uk3.pdf:{page_number} rule line {classification!r} follows no heading")
+                    target = add_row(rows, key, page_number, text, classification)
                     continue
                 if text and target is not None:
                     target["text"] = join(target["text"], text)
         page.close()
+    close_heading()
+    if any(not row["text"] for row in rows):
+        raise ValueError("uk3.pdf: a row has no rule text")
     return rows, notes
 
 
