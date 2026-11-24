@@ -518,5 +518,126 @@
     "table": "HS 2022 to HS 2017 correlation Table I"
    }
   ]
+ },
+ {
+  "agreement": "JP-India CEPA",
+  "code": "030493",
+  "requested_edition": "HS 2017",
+  "schedule_edition": "HS 2007",
+  "parents": [
+   "030499"
+  ],
+  "mode": "hint",
+  "sources": [
+   {
+    "name": "WCO HS 2017 to HS 2012 correlation Table I",
+    "url": "https://www.wcoomd.org/-/media/wco/public/global/pdf/topics/nomenclature/instruments-and-tools/hs-nomenclature-2017/2016/table_i_trp1712_en_rev1.pdf",
+    "sha256": "0c143ddcd4f670f6d2310afe16cdc4d324bec4c735ca3a016c29e9cda53c0f6a",
+    "page": 6,
+    "table": "HS 2017 to HS 2012 correlation Table I"
+   },
+   {
+    "name": "WCO HS 2012 to HS 2007 correlation Table I",
+    "url": "https://www.wcoomd.org/-/media/wco/public/global/pdf/topics/nomenclature/instruments-and-tools/hs-nomenclature-2012/correlations-2007-2012/i_trp1207rev3eng.pdf",
+    "sha256": "a811946b3240aa8389c9f77258640acb0d0ed74e61529a39c56a829a0bbd6cd8",
+    "page": 6,
+    "table": "HS 2012 to HS 2007 correlation Table I"
+   }
+  ],
+  "hint": "0304.93 is not in the HS 2007 schedule. The WCO tables name part of HS 2007 0304.99 (ex 0304.99) as its source, through HS 2012. From 2022-04-04 the amended rule for 0304.99 is a change from materials of any other chapter (Japan Customs notice of 2022-03-23: 第０３０４．９９号の産品への他の類の材料からの変更). The link is partial and administrative, so it is not shown as the rule for 0304.93. A specialist needs to confirm the rule by product."
+ },
+ {
+  "agreement": "JP-India CEPA",
+  "code": "030494",
+  "requested_edition": "HS 2017",
+  "schedule_edition": "HS 2007",
+  "parents": [
+   "030499"
+  ],
+  "mode": "hint",
+  "sources": [
+   {
+    "name": "WCO HS 2012 to HS 2007 correlation Table I",
+    "url": "https://www.wcoomd.org/-/media/wco/public/global/pdf/topics/nomenclature/instruments-and-tools/hs-nomenclature-2012/correlations-2007-2012/i_trp1207rev3eng.pdf",
+    "sha256": "a811946b3240aa8389c9f77258640acb0d0ed74e61529a39c56a829a0bbd6cd8",
+    "page": 6,
+    "table": "HS 2012 to HS 2007 correlation Table I"
+   }
+  ],
+  "hint": "0304.94 is not in the HS 2007 schedule. The WCO tables name part of HS 2007 0304.99 (ex 0304.99) as its source, through HS 2012. From 2022-04-04 the amended rule for 0304.99 is a change from materials of any other chapter (Japan Customs notice of 2022-03-23: 第０３０４．９９号の産品への他の類の材料からの変更). The link is partial and administrative, so it is not shown as the rule for 0304.94. A specialist needs to confirm the rule by product."
+ },
+ {
+  "agreement": "JP-India CEPA",
+  "code": "030495",
+  "requested_edition": "HS 2017",
+  "schedule_edition": "HS 2007",
+  "parents": [
+   "030499"
+  ],
+  "mode": "hint",
+  "sources": [
+   {
+    "name": "WCO HS 2012 to HS 2007 correlation Table I",
+    "url": "https://www.wcoomd.org/-/media/wco/public/global/pdf/topics/nomenclature/instruments-and-tools/hs-nomenclature-2012/correlations-2007-2012/i_trp1207rev3eng.pdf",
+    "sha256": "a811946b3240aa8389c9f77258640acb0d0ed74e61529a39c56a829a0bbd6cd8",
+    "page": 6,
+    "table": "HS 2012 to HS 2007 correlation Table I"
+   }
+  ],
+  "hint": "0304.95 is not in the HS 2007 schedule. The WCO tables name part of HS 2007 0304.99 (ex 0304.99) as its source, through HS 2012. From 2022-04-04 the amended rule for 0304.99 is a change from materials of any other chapter (Japan Customs notice of 2022-03-23: 第０３０４．９９号の産品への他の類の材料からの変更). The link is partial and administrative, so it is not shown as the rule for 0304.95. A specialist needs to confirm the rule by product."
+ },
+ {
+  "agreement": "JP-India CEPA",
+  "code": "030496",
+  "requested_edition": "HS 2017",
+  "schedule_edition": "HS 2007",
+  "parents": [
+   "030499"
+  ],
+  "mode": "hint",
+  "sources": [
+   {
+    "name": "WCO HS 2017 to HS 2012 correlation Table I",
+    "url": "https://www.wcoomd.org/-/media/wco/public/global/pdf/topics/nomenclature/instruments-and-tools/hs-nomenclature-2017/2016/table_i_trp1712_en_rev1.pdf",
+    "sha256": "0c143ddcd4f670f6d2310afe16cdc4d324bec4c735ca3a016c29e9cda53c0f6a",
+    "page": 6,
+    "table": "HS 2017 to HS 2012 correlation Table I"
+   },
+   {
+    "name": "WCO HS 2012 to HS 2007 correlation Table I",
+    "url": "https://www.wcoomd.org/-/media/wco/public/global/pdf/topics/nomenclature/instruments-and-tools/hs-nomenclature-2012/correlations-2007-2012/i_trp1207rev3eng.pdf",
+    "sha256": "a811946b3240aa8389c9f77258640acb0d0ed74e61529a39c56a829a0bbd6cd8",
+    "page": 6,
+    "table": "HS 2012 to HS 2007 correlation Table I"
+   }
+  ],
+  "hint": "0304.96 is not in the HS 2007 schedule. The WCO tables name part of HS 2007 0304.99 (ex 0304.99) as its source, through HS 2012. From 2022-04-04 the amended rule for 0304.99 is a change from materials of any other chapter (Japan Customs notice of 2022-03-23: 第０３０４．９９号の産品への他の類の材料からの変更). The link is partial and administrative, so it is not shown as the rule for 0304.96. A specialist needs to confirm the rule by product."
+ },
+ {
+  "agreement": "JP-India CEPA",
+  "code": "030497",
+  "requested_edition": "HS 2017",
+  "schedule_edition": "HS 2007",
+  "parents": [
+   "030499"
+  ],
+  "mode": "hint",
+  "sources": [
+   {
+    "name": "WCO HS 2017 to HS 2012 correlation Table I",
+    "url": "https://www.wcoomd.org/-/media/wco/public/global/pdf/topics/nomenclature/instruments-and-tools/hs-nomenclature-2017/2016/table_i_trp1712_en_rev1.pdf",
+    "sha256": "0c143ddcd4f670f6d2310afe16cdc4d324bec4c735ca3a016c29e9cda53c0f6a",
+    "page": 6,
+    "table": "HS 2017 to HS 2012 correlation Table I"
+   },
+   {
+    "name": "WCO HS 2012 to HS 2007 correlation Table I",
+    "url": "https://www.wcoomd.org/-/media/wco/public/global/pdf/topics/nomenclature/instruments-and-tools/hs-nomenclature-2012/correlations-2007-2012/i_trp1207rev3eng.pdf",
+    "sha256": "a811946b3240aa8389c9f77258640acb0d0ed74e61529a39c56a829a0bbd6cd8",
+    "page": 6,
+    "table": "HS 2012 to HS 2007 correlation Table I"
+   }
+  ],
+  "hint": "0304.97 is not in the HS 2007 schedule. The WCO tables name part of HS 2007 0304.99 (ex 0304.99) as its source, through HS 2012. From 2022-04-04 the amended rule for 0304.99 is a change from materials of any other chapter (Japan Customs notice of 2022-03-23: 第０３０４．９９号の産品への他の類の材料からの変更). The link is partial and administrative, so it is not shown as the rule for 0304.97. A specialist needs to confirm the rule by product."
  }
 ]
