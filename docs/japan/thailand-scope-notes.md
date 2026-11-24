@@ -46,13 +46,20 @@ Section 1 General Notes, sub-paragraph (f), and define terms for the whole annex
 They have no chapter or section, and a note of the table can only be scoped to one,
 so they are left out rather than attached to a guessed scope.
 
-Many Thailand rules use terms that the omitted p3 General Notes define: "QVC 40"
-(defined in the p1 General Notes), "value of the good" and "value of
-non-originating materials" (p3 Notes 1 and 2). The rule text shown to the model
-therefore does not contain those definitions.
+The Annex 2 General Notes (PDF pages 1 to 3) as a whole are materially absent from
+lookup evidence today; only the 20 table notes above are returned. The absent text is:
+(b) a change in tariff classification applies only to non-originating materials;
+(d)(v) "QVC 40" (qualifying value content of at least 40 percent by the Article 28
+paragraph 4 formula, and the final process of production performed in a Party);
+(d)(vi) to (viii) CC, CTH and CTSH; (d)(ix) WO; (f) tolerances (seven percent by
+value for chapters 19 to 24, 10 percent by value for chapters 28 to 49 and 64 to 97,
+10 percent by weight for chapters 50 to 63); Notes 1 and 2; and (g) the Information
+Technology Agreement clause (except subheadings 8541.10 to 8542.90). About 417
+schedule rows use "QVC 40". The rule text shown to the model therefore does not
+contain those definitions. This covers the Annex 2 PDF only. See `general-notes-gap.md`.
 
 Indonesia (same six-column layout) was audited separately: its tables have no scope
-notes, so nothing is captured there. See `indonesia-scope-notes.md`.
+note cells, so no table note is captured there (its General Notes are likewise not returned). See `indonesia-scope-notes.md`.
 
 ## Effect on development rulings
 

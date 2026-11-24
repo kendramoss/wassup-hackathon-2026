@@ -1,9 +1,12 @@
-# JP-Indonesia EPA scope notes: negative finding
+# JP-Indonesia EPA scope notes
 
 The Thailand Annex 2 tables carry "Note:" cells under chapter and section headings
 (see `thailand-scope-notes.md`). Indonesia has the same six-column layout, and its
-notes had not been audited. This is that audit. Result: the Indonesia Annex 2 has no
-scope notes in its tables, so nothing is captured and no code or data changes.
+notes had not been audited. This is that audit. Result: the tables carry no "Note"
+cells under chapter or section headings, so no table scope note is captured and no
+code or data changes. This is not a finding that the annex has no notes: its General
+Notes (PDF pages 1 to 6) are not in lookup evidence today, and that is material (next
+section).
 
 ## Source
 
@@ -11,6 +14,29 @@ JP-Indonesia EPA Annex 2 (HS 2017), `indonesia2-2.pdf`, 25 pages,
 https://www.customs.go.jp/roo/text/indonesia2-2.pdf, sha256
 `b82294d088899ad39d6047320a2e88a4af30d0a6efb4ca2283443ca84464f151` (the digest pinned
 in `eval/jp/build_psr.py`). Checked on 2026-11-25.
+
+## General Notes (PDF pages 1 to 6), materially absent from lookup evidence
+
+A lookup returns the matched rows and the captured scope notes (none for Indonesia).
+The following General Notes of this Annex 2 PDF are not returned:
+
+- (b) weight means dry weight; (d) a change in tariff classification (CTC) applies to
+  each non-originating material and only to non-originating materials;
+- (e)(i) to (iii) the definitions of CC, CTH and CTSH;
+- (e)(iv) "QVC 40" and "QVC 50": qualifying value content of at least 40 or 50 percent
+  by the formula in Article 29 paragraph 4(b), and the final process of production
+  performed in a Party. About 159 schedule rows use these terms;
+- (g) tolerances: 10 percent by value (chapters 28 to 49 and 64 to 97) and seven
+  percent by weight (chapters 50 to 63), with Notes 1 and 2 (the value terms);
+- (h) definitions of chemical reaction, purification, isomer separation and
+  biotechnological processes, for chapters 28 to 40 (about 47 rows);
+- (i)(i) two or more of 48 listed finishing operations for dyeing or printing in
+  chapters 50 to 55 and 60; (i)(ii) direct transport of materials processed in an
+  ASEAN non-Party for listed headings; (i)(iii) the component rule for chapters 61 to 63;
+- (j) the Information Technology Agreement clause, except subheadings 8541.10 to 8542.90.
+
+This covers the Annex 2 PDF only. It says nothing about other provisions of the
+treaty and is not a claim that no other conditions apply. See `general-notes-gap.md`.
 
 ## Audit
 

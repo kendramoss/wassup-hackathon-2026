@@ -38,4 +38,6 @@ Only one development ruling falls in any gap below (id 1231682, JP-Indonesia, HS
 - **Mexico and Malaysia.** Revised pages are unreachable, so the editions are unverifiable.
 - **AJCEP HS 2022 from 2027-02-15.** Real, from the index, and future-dated; nothing today reaches it.
 
+Related: the General Notes of most annexes are not returned with rule rows; see [general-notes-gap.md](general-notes-gap.md).
+
 Source index pages (retrieved 2026-11-25): https://www.customs.go.jp/roo/english/text/index.htm (sha256 c0dba02637417ebbea1cf1f985e87a66b8fc20dbc0e151cc8b15055fd5ea766d) and https://www.customs.go.jp/roo/text/index.htm (sha256 516706f55e51fb82f7fc7bd22424f8718e177131b4a1955c65c860fbc9140edc). Thailand Japanese Annex 2, https://www.customs.go.jp/roo/text/thailand3-2.pdf, sha256 2472b2ece3b55962a58e1cbf273d68bca0783341ba8cfac91bd4d0c3c214dd6b. English `thailand2-2.pdf` sha256 f87a52b564a4e6b7c18207c6a0cf6c6cbb244f81f1e6c79204f03f3437db9fbc.

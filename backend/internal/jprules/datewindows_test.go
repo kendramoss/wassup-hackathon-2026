@@ -31,7 +31,7 @@ func TestDateWindowsDocListsEverySchedule(t *testing.T) {
 			}
 		}
 	}
-	for _, want := range []string{"unverified", "1231682", "2022-04-04", "2023-03-01", "2022-01-01", "indonesia-scope-notes.md"} {
+	for _, want := range []string{"unverified", "1231682", "2022-04-04", "2023-03-01", "2022-01-01", "indonesia-scope-notes.md", "general-notes-gap.md"} {
 		if !strings.Contains(doc, want) {
 			t.Errorf("date-windows.md missing %q", want)
 		}
