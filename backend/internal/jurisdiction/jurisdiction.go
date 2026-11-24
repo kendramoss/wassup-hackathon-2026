@@ -148,7 +148,8 @@ var USAuthority = Authority{
 }
 
 // Default is the registry with the United States only. The server adds
-// Canada as a rules-only market when the rule check is on (D725).
+// Canada (D725), the EU and the UK (D766) as rules-only markets when the
+// rule check is on.
 func Default() *Registry {
 	r, _ := NewRegistry(USAuthority)
 	return r
