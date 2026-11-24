@@ -264,7 +264,7 @@ export interface paths {
         get?: never;
         /**
          * Save answers to the case's family questions; no model call (D810-D812)
-         * @description #770. The case's `family_intake` asks, for the five product families deepened in #772 (battery packs and power supplies; motors, pumps and industrial machines; furniture; medical devices; displays, cameras and lenses) and the two of D822 (lifting and handling machines; optical and measuring instruments), where the parts or steps the template's cited rulings turn on were made, each naming the document that settles it. This replaces every saved answer with the body (an empty body clears them). Keys are question ids the intake asks now (state missing or answered); a question the parts list already settles (state known), a question it does not ask, or a case whose intake is not_modelled is a 400. A country answer must be in the picker's country table, never "Unknown" or "TBD". A country question takes `country`, a yes/no question `yes`. Answers are stored beside the case, `source` "user-supplied" with `updated_at`; the case's facts, product and parts list are never changed, and the stored U.S. answer (a model answer) is not re-run: the case list marks it `answers_note: added`. A BOM update or a family change after saving marks them stale (not read). `expected_updated_at` as for origin facts (409). A pinned demo is read-only (403). Records a `family_facts` event. Rate class basic.
+         * @description #770. The case's `family_intake` asks, for the five product families deepened in #772 (battery packs and power supplies; motors, pumps and industrial machines; furniture; medical devices; displays, cameras and lenses), off-road, lifting and mobile machinery (D826) and optical and measuring instruments (D822), where the parts or steps the template's cited rulings turn on were made, each naming the document that settles it. This replaces every saved answer with the body (an empty body clears them). Keys are question ids the intake asks now (state missing or answered); a question the parts list already settles (state known), a question it does not ask, or a case whose intake is not_modelled is a 400. A country answer must be in the picker's country table, never "Unknown" or "TBD". A country question takes `country`, a yes/no question `yes`. Answers are stored beside the case, `source` "user-supplied" with `updated_at`; the case's facts, product and parts list are never changed, and the stored U.S. answer (a model answer) is not re-run: the case list marks it `answers_note: added`. A BOM update or a family change after saving marks them stale (not read). `expected_updated_at` as for origin facts (409). A pinned demo is read-only (403). Records a `family_facts` event. Rate class basic.
          */
         put: operations["putFamilyFacts"];
         post?: never;
@@ -1933,7 +1933,7 @@ export interface components {
             known?: string;
             answer?: components["schemas"]["FamilyAnswer"];
         };
-        /** @description The case's family questions (clarify-family-v2, deterministic; D810, D813, D824). Present on a case of a family that has questions, or with saved answers. */
+        /** @description The case's family questions (clarify-family-v2, deterministic; D810, D813, D824, D828). Present on a case of a family that has questions, or with saved answers. */
         FamilyIntake: {
             version: string;
             /**

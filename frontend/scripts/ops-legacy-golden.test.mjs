@@ -25,7 +25,7 @@ import { html } from "./render-support.mjs";
 // D562 replaced the plan screen's scope line in place (planScope said plans
 // apply no Part 102 rules, false since D500 and D541); no markup changed.
 // D580 replaced the family count in that line in place (14 → 20 families); no
-// markup changed. D660 did the same (20 → 26 families), and D822 (26 → 28).
+// markup changed. D660 did the same (20 → 26 families), and D826 (26 → 27).
 // Copy sweep 1 re-captured plan, compare and scenarios once, on purpose: copy
 // is shorter, and the review note's bounded and scope lines moved under a
 // "Scope and limits" disclosure (same words), the step tabs say "Draft" and

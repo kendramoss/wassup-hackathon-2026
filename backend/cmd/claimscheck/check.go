@@ -348,11 +348,11 @@ var stalePhrases = []struct {
 	},
 	{
 		re:  regexp.MustCompile(`(?i)\b(20|twenty) product families\b|\b20 families with (a plan )?templates?\b|\b20 family templates\b|\b(the|has) 20 templates\b|\bpins the 20 families\b|\(20 families, listed`),
-		why: "plans cover 28 product families since D822",
+		why: "plans cover 27 product families since D826",
 	},
 	{
 		re:  regexp.MustCompile(`(?i)\b(26|twenty-six) product families\b|\b26 families with (a plan )?templates?\b|\b26 family templates\b|\b(the|has) 26 templates\b|\bpins the 26 families\b|\(26 families, listed`),
-		why: "plans cover 28 product families since D822 (lifting machines, optical and measuring instruments)",
+		why: "plans cover 27 product families since D826 (optical and measuring instruments added; lifting machines folded into off-road and lifting machinery)",
 	},
 	{
 		re:     regexp.MustCompile(`14 of 29 held[ -]out`),
