@@ -68,7 +68,8 @@ func TestPromptShowsTemplateScope(t *testing.T) {
 	for _, want := range []string{
 		"- machinery_parts (Machinery parts and subassemblies): operation groups",
 		"  Scope: Loose parts and castings imported for machines, not machines",
-		"  Scope: Complete machines and functional working units",
+		"  Scope: Complete industrial machines and functional working units",
+		"Lifting machines (jacks, hoists, cranes, winches, lifts) go to offroad_vehicles_machinery",
 	} {
 		if !strings.Contains(sys, want) {
 			t.Errorf("prompt lacks %q", want)

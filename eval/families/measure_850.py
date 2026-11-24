@@ -10,6 +10,7 @@ These cases were used to find the fault and write the fix, so the figures are no
 Run from the repository root:
     python3 -I -B eval/families/measure_850.py .          # write
     python3 -I -B eval/families/measure_850.py . --check  # verify
+    python3 -I -B eval/families/measure_850.py . --tag f28-852 [--check]  # D852's run, same measure, b3-852-measure.json
 """
 import json
 import os
@@ -100,8 +101,18 @@ def build(root):
     return out
 
 
+def use_tag(tag):
+    """D852: the same measure on a later run tag, written to its own file."""
+    global AFTER, OUT
+    AFTER = ["eval/results/families-coverage-dev-all-litellm-%s.jsonl" % tag,
+             "eval/results/families-coverage-dev-all-litellm-%s-noorigin.jsonl" % tag]
+    OUT = "eval/families/b3-%s-measure.json" % tag.split("-")[-1]
+
+
 if __name__ == "__main__":
     root = sys.argv[1]
+    if "--tag" in sys.argv:
+        use_tag(sys.argv[sys.argv.index("--tag") + 1])
     for p in AFTER:
         if not os.path.exists(os.path.join(root, p)):
             sys.exit(p + " is missing (D850 run not made yet)")
