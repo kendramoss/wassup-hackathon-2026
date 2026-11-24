@@ -51,8 +51,8 @@ Many Thailand rules use terms that the omitted p3 General Notes define: "QVC 40"
 non-originating materials" (p3 Notes 1 and 2). The rule text shown to the model
 therefore does not contain those definitions.
 
-Indonesia (same six-column layout) is not changed here. Its code-less notes are
-not captured, and were not audited.
+Indonesia (same six-column layout) was audited separately: its tables have no scope
+notes, so nothing is captured there. See `indonesia-scope-notes.md`.
 
 ## Effect on development rulings
 

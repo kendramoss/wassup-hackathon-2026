@@ -88,7 +88,7 @@ NOTE_APPLIES = {
     ("mexico2.pdf", 65, "Note 2:"): _headings("847330"),
 }
 # Six-column schedules whose code-less "Note:" cells are captured as scope
-# notes (Indonesia has the same layout but is not regenerated here). Every
+# notes (Indonesia was audited and has no scope notes; see docs/japan/indonesia-scope-notes.md). Every
 # note of these files needs an entry keyed (file, page, label, heading key)
 # so the scope is a reviewed reading of the note's own wording; an empty list
 # means the whole chapter or section named by the heading the note sits under.
