@@ -474,7 +474,7 @@ paths:
         part code or lengthens the part's own, an origin only for a part without one, and shares from 0 to 1 that
         add up to no more than 1 (400 otherwise). Answers with the market's check re-run on the case's product with
         the saved facts. On a case asked for that market, the case's stored answer is that check, so it is re-run
-        with the saved facts and stored (deterministic, no model; D815): the first stored answer is kept as
+        with the saved facts and stored (deterministic, no model; D815, D818): the answer from before the answers is kept as
         `prediction_before_answers`, and a `rechecked` event records was and now. On a case for another market
         the stored answer is unchanged. 400 when the server has not loaded that market's rules. A pinned demo is read-only (403). Records an `origin_facts` event. Rate class basic.
       parameters:
@@ -498,7 +498,7 @@ paths:
                   market: { type: string, enum: [eu, uk] }
                   origin_facts: { $ref: "#/components/schemas/OriginFactsByMarket" }
                   check: { $ref: "#/components/schemas/OriginRulesView" }
-                  prediction: { description: "The case's stored answer after the save: present when the case asks this market's question, so its stored check was re-run with the answers (rules, no model; D815). The first stored answer is kept as the case's prediction_before_answers and a `rechecked` event records the change.", allOf: [{ $ref: "#/components/schemas/Prediction" }] }
+                  prediction: { description: "The case's stored answer after the save: present when the case asks this market's question, so its stored check was re-run with the answers (rules, no model; D815). The answer from before the answers is kept as the case's prediction_before_answers (shown while this re-check is the newest stored prediction) and a `rechecked` event records the change.", allOf: [{ $ref: "#/components/schemas/Prediction" }] }
         "400": { $ref: "#/components/responses/Error" }
         "401": { $ref: "#/components/responses/Error" }
         "403": { $ref: "#/components/responses/Error" }
@@ -515,7 +515,7 @@ paths:
         lenses), where the parts or steps the template's cited rulings turn on were made, each naming the document
         that settles it. This replaces every saved answer with the body (an empty body clears them). Keys are
         question ids the intake asks now (state missing or answered); a question the parts list already settles
-        (state known), a question it does not ask, or a case whose intake is not_modelled is a 400. A country
+        (state known), a question it does not ask, or a case whose intake is not_modelled is a 400. A country answer must be in the picker's country table, never "Unknown" or "TBD". A country
         question takes `country`, a yes/no question `yes`. Answers are stored beside the case, `source`
         "user-supplied" with `updated_at`; the case's facts, product and parts list are never changed, and the
         stored U.S. answer (a model answer) is not re-run: the case list marks it `answers_note: added`. A BOM
@@ -2434,7 +2434,7 @@ components:
           enum: [pending, viewed, approved, changes_requested, file_requested, expired]
           description: "Status of the case's newest non-revoked broker review link (#715), read from the links already on the case: the latest created, the later in the list when two share a time. A link past its expiry reads `expired`, never `pending`. Absent when the case has no link or only revoked ones, and for a pinned demo to non-admin callers. `approved` and `file_requested` are information only: no follow-up is implied."
         review_expires_at: { type: string, format: date-time, description: "That link's expiry; present only while its status is pending or viewed (#715)" }
-        answers_note: { type: string, enum: [rechecked, added], description: "How supplied answers relate to the origin shown (D814): rechecked when a rules-only EU or UK case's stored check was re-run with them; added when answers were saved after a model answer, which was not re-run (open the case to see them). Absent otherwise." }
+        answers_note: { type: string, enum: [rechecked, added], description: "How supplied answers (saved and read: not cleared, not stale) relate to the origin shown (D814): rechecked when a rules-only EU or UK case's stored check was re-run with them; added when answers were saved after a model answer, which was not re-run (open the case to see them). Absent otherwise." }
     RulingAlertCounts:
       type: object
       description: "Present only when CBP has changed (final) or proposed to change a ruling the case relies on: cited by the prediction, a shown plan's supporting ruling, or CBP's holding on the current setup (D480)."
@@ -3261,7 +3261,7 @@ components:
             origin_facts: { $ref: "#/components/schemas/OriginFactsByMarket" }
             family_intake: { $ref: "#/components/schemas/FamilyIntake" }
             family_facts: { $ref: "#/components/schemas/SuppliedFamilyFacts" }
-            prediction_before_answers: { description: "An EU or UK case's stored answer before supplied answers first re-ran it (D815); absent otherwise", allOf: [{ $ref: "#/components/schemas/Prediction" }] }
+            prediction_before_answers: { description: "An EU or UK case's stored answer before supplied answers re-ran it (D815, D818); present only while that re-check is the newest stored prediction", allOf: [{ $ref: "#/components/schemas/Prediction" }] }
             ruling_alerts: { $ref: "#/components/schemas/RulingAlerts" }
             economics: { description: "latest economics given for the case, if any", allOf: [{ $ref: "#/components/schemas/Economics" }] }
             plan_economics_stale: { type: boolean, enum: [true], description: "Present, and true, only when the stored plan was priced from economics that have since changed: do not present its money as current; a missing flag means not stale" }

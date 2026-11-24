@@ -783,8 +783,8 @@ func (a *api) caseFieldsBase(r *http.Request, c store.Case) map[string]any {
 	if c.FamilyFacts != nil {
 		f["family_facts"] = familyFactsOf(c)
 	}
-	if c.PredictionBeforeAnswers != nil {
-		f["prediction_before_answers"] = c.PredictionBeforeAnswers
+	if pb := predictionBeforeAnswers(c); pb != nil {
+		f["prediction_before_answers"] = pb
 	}
 	// CBP changes to rulings the case relies on (D480), present only when
 	// there is one. Information only: the stored answer is unchanged.

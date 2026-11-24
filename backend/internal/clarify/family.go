@@ -80,10 +80,12 @@ var familyQuestions = map[string][]familyQuestion{
 		{id: "cells_made", kind: KindCountry, text: "Where were the battery cells made?",
 			evidence: "Bill of materials with the origin of each part, or the cell maker's certificate of origin",
 			groups:   []string{"battery_cells"}, when: batteryText},
-		{id: "pack_work", kind: KindYesNo, text: "Does pack assembly include programming the battery management system (BMS), welding the cells and formation?",
+		// Pack work, not cell making: N347193 held that welding cells into a
+		// pack and fitting its BMS was not enough; formation is a cell step
+		// (battery_cells, N347172) and is asked by cells_made (D817).
+		{id: "pack_work", kind: KindYesNo, text: "Is the pack's work only welding the cells and fitting the BMS?",
 			evidence: "Production routing or traveller for pack assembly",
-			groups:   []string{"battery_cells", "final_assembly"}, when: batteryText,
-			knownWhen: []*regexp.Regexp{re(`program|\bbms\b|firmware`), re(`weld`), re(`formation|\bform\b`)}},
+			groups:   []string{"final_assembly"}, when: batteryText},
 		{id: "bms_made", kind: KindCountry, text: "Where was the battery management board (BMS) made?",
 			evidence: "Bill of materials with the origin of each board, or the board maker's certificate of origin",
 			groups:   []string{"pcba_manufacturing"}, when: batteryText},
@@ -295,8 +297,10 @@ func Intake(c FamilyCase, templates map[string]planner.Template) FamilyIntake {
 			v.ConfersOrigin = addAll(v.ConfersOrigin, g.Precedent.ConfersOrigin)
 			v.NotEnough = addAll(v.NotEnough, g.Precedent.NotEnough)
 		}
-		if k := known(q, c.Product); k != "" {
-			v.State, v.Known = StateKnown, k
+		k, settled := known(q, c.Product)
+		v.Known = k // what the parts list says, also beside an open question
+		if settled {
+			v.State = StateKnown
 		} else if a, ok := suppliedAnswer(sup, q.id); ok {
 			v.State, v.Answer = StateAnswered, &a
 			asked[q.id] = true
@@ -343,7 +347,7 @@ func ValidateFamilyAnswers(in FamilyIntake, answers map[string]domain.FamilyAnsw
 		case q.State == StateKnown:
 			return errorf("%q is already on the parts list (%s); change it on the product", id, q.Known)
 		case q.Kind == KindCountry && (a.Yes != nil || !validCountry(a.Country)):
-			return errorf("%q needs a country", id)
+			return errorf("%q needs a country from the list (not unknown)", id)
 		case q.Kind == KindYesNo && (a.Yes == nil || a.Country != ""):
 			return errorf("%q needs yes or no", id)
 		}
@@ -359,10 +363,14 @@ func errorf(format string, a ...any) error {
 	return intakeError(fmt.Sprintf(format, a...))
 }
 
-var countryRe = regexp.MustCompile(`^[\p{L}][\p{L} .'()-]{1,59}$`)
-
+// validCountry: a country of the picker's table (domain.KnownCountry), never
+// a word that says it is not known.
 func validCountry(s string) bool {
-	return countryRe.MatchString(strings.TrimSpace(s))
+	if unstated.MatchString(s) {
+		return false
+	}
+	_, ok := domain.KnownCountry(s)
+	return ok
 }
 
 func suppliedAnswer(s *domain.SuppliedFamilyFacts, id string) (domain.FamilyAnswer, bool) {
@@ -394,8 +402,8 @@ func productText(c FamilyCase) string {
 		}
 	}
 	f := c.Facts
-	if len(f) > 2000 {
-		f = f[:2000]
+	if r := []rune(f); len(r) > 2000 {
+		f = string(r[:2000])
 	}
 	b.WriteString(f)
 	return b.String()
@@ -411,17 +419,18 @@ func guardReason(text, fam, name string) string {
 	return why
 }
 
-// known is what the parts list already says about a question: for a
-// country question, the countries of the parts and steps in its groups;
-// for a yes/no question, whether every knownWhen pattern matches an
-// operation. "" when it says nothing.
-func known(q familyQuestion, p *domain.Product) string {
+// known is what the parts list says about a question, and whether that
+// settles it. A yes/no question is settled when every knownWhen pattern
+// matches an operation. A country question is settled only when every part
+// and step in its groups names a country: one line blank or "Unknown" keeps
+// it open, with the countries that are known shown beside it (D817).
+func known(q familyQuestion, p *domain.Product) (string, bool) {
 	if p == nil {
-		return ""
+		return "", false
 	}
 	if q.kind == KindYesNo {
 		if len(q.knownWhen) == 0 {
-			return ""
+			return "", false
 		}
 		for _, k := range q.knownWhen {
 			hit := false
@@ -432,17 +441,20 @@ func known(q familyQuestion, p *domain.Product) string {
 				}
 			}
 			if !hit {
-				return ""
+				return "", false
 			}
 		}
-		return "the parts list names these steps"
+		return "the parts list names these steps", true
 	}
 	var cs []string
+	lines, open := 0, 0
 	add := func(c string) {
+		lines++
 		if unstated.MatchString(c) {
+			open++
 			return
 		}
-		if c = domain.NormalizeCountry(c); c != "" && !slices.Contains(cs, c) {
+		if c = domain.NormalizeCountry(c); !slices.Contains(cs, c) {
 			cs = append(cs, c)
 		}
 	}
@@ -453,15 +465,20 @@ func known(q familyQuestion, p *domain.Product) string {
 	}
 	for _, op := range p.Operations {
 		if slices.Contains(q.groups, op.Group) {
+			country := ""
 			if pl, ok := p.PlantByID(op.Plant); ok {
-				add(pl.Country)
+				country = pl.Country
 			}
+			add(country)
 		}
 	}
 	if len(cs) == 0 {
-		return ""
+		return "", false
 	}
-	return strings.Join(cs, ", ") + ", from the parts list"
+	if open > 0 {
+		return strings.Join(cs, ", ") + fmt.Sprintf(" on the parts list; %d of %d lines name no country", open, lines), false
+	}
+	return strings.Join(cs, ", ") + ", from the parts list", true
 }
 
 // unstated is a "made in" that names no country: the parts list needs one,

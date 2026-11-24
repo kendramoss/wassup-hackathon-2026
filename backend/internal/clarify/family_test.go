@@ -31,8 +31,10 @@ func ids(in FamilyIntake, state string) []string {
 
 func yes(b bool) *bool { return &b }
 
-// Every question asks about groups its template has, names a document, and
-// cites only rulings the template cites for those groups.
+// Each question asks about one template group, names a document, and
+// shows exactly that group's citations: a ruling is "decided origin" or
+// "not enough" for a question only as the template cites it for that
+// group (D817).
 func TestFamilyQuestionsAreGroundedInTheirTemplates(t *testing.T) {
 	tms := templates(t)
 	for fam, qs := range familyQuestions {
@@ -48,23 +50,49 @@ func TestFamilyQuestionsAreGroundedInTheirTemplates(t *testing.T) {
 			if q.evidence == "" || q.text == "" || (q.kind != KindCountry && q.kind != KindYesNo) {
 				t.Errorf("%s/%s: incomplete", fam, q.id)
 			}
-			for _, g := range q.groups {
-				found := false
-				for _, tg := range tm.Groups {
-					if tg.ID == g {
-						found = true
-						if tg.Precedent != nil {
-							cited += len(tg.Precedent.ConfersOrigin) + len(tg.Precedent.NotEnough)
-						}
-					}
+			if len(q.groups) != 1 {
+				t.Errorf("%s/%s: asks about %d groups, want one", fam, q.id, len(q.groups))
+				continue
+			}
+			var g *planner.TemplateGroup
+			for i := range tm.Groups {
+				if tm.Groups[i].ID == q.groups[0] {
+					g = &tm.Groups[i]
 				}
-				if !found {
-					t.Errorf("%s/%s: group %s is not in the template", fam, q.id, g)
+			}
+			if g == nil {
+				t.Errorf("%s/%s: group %s is not in the template", fam, q.id, q.groups[0])
+				continue
+			}
+			var conf, ne []string
+			if g.Precedent != nil {
+				conf, ne = g.Precedent.ConfersOrigin, g.Precedent.NotEnough
+			}
+			cited += len(conf) + len(ne)
+			// The question as asked carries exactly the group's citations.
+			asked := false
+			for _, x := range Intake(FamilyCase{US: true, Family: fam, Facts: "x", Product: &domain.Product{Name: "Product", Description: q.text + map[string]string{"motors_pumps_compressors": " (a pump)"}[fam]}}, tms).Questions {
+				if x.ID != q.id {
+					continue
 				}
+				asked = true
+				if !slices.Equal(x.ConfersOrigin, append([]string{}, conf...)) || !slices.Equal(x.NotEnough, append([]string{}, ne...)) {
+					t.Errorf("%s/%s: shows %v / %v, the group cites %v / %v", fam, q.id, x.ConfersOrigin, x.NotEnough, conf, ne)
+				}
+			}
+			if !asked {
+				t.Errorf("%s/%s: not asked for a product described by its own text", fam, q.id)
 			}
 		}
 		if cited == 0 {
 			t.Errorf("%s: no question rests on a cited ruling", fam)
+		}
+	}
+	// The pack question: welding cells and fitting the BMS is final assembly,
+	// which N347193 held not enough; formation is a cell step, not asked here.
+	for _, q := range familyQuestions["power_supplies_chargers"] {
+		if q.id == "pack_work" && (strings.Contains(strings.ToLower(q.text), "formation") || q.groups[0] != "final_assembly") {
+			t.Errorf("pack_work: %+v", q)
 		}
 	}
 }
@@ -103,12 +131,34 @@ func TestUnknownOnThePartsListIsStillAsked(t *testing.T) {
 	}
 }
 
+// One cells line marked China and one blank: still asked, with China shown.
+func TestPartlyKnownIsStillAsked(t *testing.T) {
+	p := batteryPack()
+	p.Components[0].MadeIn = "China"
+	p.Components = append(p.Components, domain.Component{Name: "spare cells", Group: "battery_cells"})
+	in := Intake(FamilyCase{US: true, Family: "power_supplies_chargers", Product: p}, templates(t))
+	q := in.Questions[0]
+	if q.ID != "cells_made" || q.State != StateMissing || !strings.Contains(q.Known, "China") || !strings.Contains(q.Known, "1 of 2 lines") {
+		t.Fatalf("%+v", q)
+	}
+	if err := ValidateFamilyAnswers(in, map[string]domain.FamilyAnswer{"cells_made": {Country: "Vietnam"}}); err != nil {
+		t.Errorf("answer refused: %v", err)
+	}
+	// An operation at a plant with no country also keeps it open.
+	p = batteryPack()
+	p.Components[0].MadeIn = "China"
+	p.Plants = append(p.Plants, domain.Plant{ID: "x", Country: "Unknown"})
+	p.Operations = append(p.Operations, domain.Operation{Name: "stack cells", Plant: "x", Group: "battery_cells"})
+	if q := Intake(FamilyCase{US: true, Family: "power_supplies_chargers", Product: p}, templates(t)).Questions[0]; q.State != StateMissing {
+		t.Errorf("op without a country: %+v", q)
+	}
+}
+
 func TestKnownFromThePartsListIsNotAsked(t *testing.T) {
 	p := batteryPack()
 	p.Components[0].MadeIn = "South Korea"
-	p.Operations = append(p.Operations, domain.Operation{Name: "program the BMS", Plant: "mx"}, domain.Operation{Name: "laser weld cells", Plant: "mx"}, domain.Operation{Name: "formation and grading", Plant: "mx"})
 	in := Intake(FamilyCase{US: true, Family: "power_supplies_chargers", Product: p}, templates(t))
-	if !slices.Equal(ids(in, StateKnown), []string{"cells_made", "pack_work"}) || in.Questions[0].Known != "South Korea, from the parts list" {
+	if !slices.Equal(ids(in, StateKnown), []string{"cells_made"}) || in.Questions[0].Known != "South Korea, from the parts list" {
 		t.Fatalf("%+v", in.Questions)
 	}
 	if err := ValidateFamilyAnswers(in, map[string]domain.FamilyAnswer{"cells_made": {Country: "China"}}); err == nil {
@@ -125,6 +175,10 @@ func TestAnswersAreReadAndValidated(t *testing.T) {
 		"yes on country":    {"cells_made": {Yes: yes(true)}},
 		"blank country":     {"cells_made": {Country: " "}},
 		"junk country":      {"cells_made": {Country: "<script>"}},
+		"unknown":           {"cells_made": {Country: "Unknown"}},
+		"tbd":               {"cells_made": {Country: "TBD"}},
+		"not a country":     {"cells_made": {Country: "Mars"}},
+		"a customs union":   {"cells_made": {Country: "European Union"}},
 		"country on yes/no": {"pack_work": {Country: "China"}},
 		"empty yes/no":      {"pack_work": {}},
 	} {

@@ -171,25 +171,49 @@ const rechecked = "rechecked"
 // the newest stored prediction is a re-check with supplied answers, "added"
 // when family answers or origin facts were saved after the newest stored
 // prediction and did not re-run it.
+//
+// Only answers that are saved and read count: cleared or stale answers
+// (D806, D812) say nothing.
 func answersNote(c store.Case) string {
+	last := lastPrediction(c)
+	if last.Kind == rechecked {
+		if s := originFactsOf(c)[jurisdiction.Of(c.Jurisdiction).Code]; !s.Empty() && !s.Stale {
+			return "rechecked"
+		}
+		return "" // answers cleared or stale: the stored check is the codes-only one
+	}
+	if s := familyFactsOf(c); !s.Empty() && !s.Stale && s.UpdatedAt.After(last.At) {
+		return "added"
+	}
+	for _, s := range originFactsOf(c) {
+		if !s.Empty() && !s.Stale && s.UpdatedAt.After(last.At) {
+			return "added"
+		}
+	}
+	return ""
+}
+
+// lastPrediction is the newest event that stored a prediction.
+func lastPrediction(c store.Case) store.Event {
 	var last store.Event
 	for _, e := range c.History {
 		if predictionKinds[e.Kind] {
 			last = e
 		}
 	}
-	if last.Kind == rechecked {
-		if !c.OriginFacts[jurisdiction.Of(c.Jurisdiction).Code].Empty() {
-			return "rechecked"
-		}
-		return "" // answers cleared: the stored check is the codes-only one again
+	return last
+}
+
+// predictionBeforeAnswers is the stored answer before supplied answers
+// re-ran it, shown only while the newest stored prediction is that re-check
+// (D815, D818): a new prediction (predict, answers, a BOM update) makes it
+// history.
+func predictionBeforeAnswers(c store.Case) *domain.Prediction {
+	if c.PredictionBeforeAnswers == nil || lastPrediction(c).Kind != rechecked {
+		return nil
 	}
-	for _, e := range c.History {
-		if (e.Kind == "family_facts" || e.Kind == "origin_facts") && e.At.After(last.At) && (c.FamilyFacts != nil || len(c.OriginFacts) > 0) {
-			return "added"
-		}
-	}
-	return ""
+	p := *c.PredictionBeforeAnswers
+	return &p
 }
 
 // familyAnswersOf is the report's list of family answers (D810): each saved

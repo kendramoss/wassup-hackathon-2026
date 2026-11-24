@@ -66,7 +66,7 @@ Returns the saved answers and the check or questions read with them. REST: PUT /
 			"family_answers": {Type: "object", Description: "family: answers keyed by question id.",
 				AdditionalProperties: familyAnswer},
 		}),
-		Annotations: &mcp.ToolAnnotations{Title: "Save answers to a case's questions", IdempotentHint: true, DestructiveHint: ptr(false), OpenWorldHint: ptr(false)},
+		Annotations: &mcp.ToolAnnotations{Title: "Save answers to a case's questions", IdempotentHint: false, DestructiveHint: ptr(false), OpenWorldHint: ptr(false)},
 	}, t.saveAnswers)
 }
 
@@ -113,7 +113,11 @@ func (t tools) saveAnswers(ctx context.Context, hdr http.Header, in answersIn) (
 	var b strings.Builder
 	if in.Check == "family" {
 		saved := obj(out["family_facts"])
-		fmt.Fprintf(&b, "Saved %d answer(s) to the family questions, at %s.", len(obj(saved["answers"])), str0(saved["updated_at"], "-"))
+		if len(obj(saved["answers"])) == 0 {
+			b.WriteString("Cleared the answers to the family questions.")
+		} else {
+			fmt.Fprintf(&b, "Saved %d answer(s) to the family questions, at %s.", len(obj(saved["answers"])), str0(saved["updated_at"], ""))
+		}
 		fi := obj(out["family_intake"])
 		var open []string
 		for _, x := range list(fi["questions"]) {
@@ -127,7 +131,9 @@ func (t tools) saveAnswers(ctx context.Context, hdr http.Header, in answersIn) (
 		} else {
 			b.WriteString("\nNo family question is open.")
 		}
-		b.WriteString("\nThe U.S. answer is a model answer and was not re-run.")
+		if fi["status"] != "not_modelled" && len(obj(saved["answers"])) > 0 {
+			b.WriteString("\nThe case's U.S. answer is a model answer and was not re-run.")
+		}
 		return done(b.String(), out)
 	}
 	r := obj(obj(out["check"])["result"])

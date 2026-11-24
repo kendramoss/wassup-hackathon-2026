@@ -630,7 +630,32 @@ func (t tools) getCase(ctx context.Context, hdr http.Header, in caseIn) (*mcp.Ca
 	if l := rulingAlertLines(out); l != "" {
 		b.WriteString("\n" + l)
 	}
+	if l := familyIntakeLine(out); l != "" {
+		b.WriteString("\n" + l)
+	}
 	return done(b.String(), out)
+}
+
+// familyIntakeLine says how many family questions are open (D810), or why
+// none is asked (D813).
+func familyIntakeLine(out map[string]any) string {
+	fi := obj(out["family_intake"])
+	if len(fi) == 0 {
+		return ""
+	}
+	if fi["status"] == "not_modelled" {
+		return "Family questions: not modelled (" + strings.TrimSuffix(str0(obj(fi["not_modelled"])["reason"], ""), ".") + "). Ask nothing."
+	}
+	open := 0
+	for _, x := range list(fi["questions"]) {
+		if obj(x)["state"] == "missing" {
+			open++
+		}
+	}
+	if open == 0 {
+		return "Family questions: none open."
+	}
+	return fmt.Sprintf("%d family question(s) open (family_intake.questions, state missing); ask the user and save with save_case_answers.", open)
 }
 
 func japanSummary(out, p map[string]any) string {

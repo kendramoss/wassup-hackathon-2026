@@ -102,6 +102,10 @@ type Case struct {
 func (c *Case) cloneSupplied() {
 	c.OriginFacts = domain.CloneOriginFacts(c.OriginFacts)
 	c.FamilyFacts = c.FamilyFacts.Clone()
+	if c.PredictionBeforeAnswers != nil {
+		p := c.PredictionBeforeAnswers.Clone()
+		c.PredictionBeforeAnswers = &p
+	}
 }
 
 // MaxHistory caps a case's audit trail; the oldest events are dropped.

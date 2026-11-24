@@ -176,8 +176,11 @@ func (a *api) putOriginFacts(w http.ResponseWriter, r *http.Request) {
 		// says what it was before.
 		if jurisdiction.Of(latest.Jurisdiction).Code == m.code {
 			before := latest.Prediction
-			if latest.PredictionBeforeAnswers == nil {
-				kept := before
+			// Kept from the newest stored prediction that was not itself a
+			// re-check: a prediction made since (predict, a BOM update)
+			// replaces the one kept before it (D818).
+			if latest.PredictionBeforeAnswers == nil || lastPrediction(*latest).Kind != rechecked {
+				kept := before.Clone()
 				latest.PredictionBeforeAnswers = &kept
 			}
 			latest.Prediction = originPrediction(rules, OriginLabel(m.code), v.Result)

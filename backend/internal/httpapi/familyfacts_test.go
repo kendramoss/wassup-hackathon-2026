@@ -127,6 +127,9 @@ func TestFamilyFactsRefusals(t *testing.T) {
 		"yes on a country": `{"answers":{"cells_made":{"yes":true}}}`,
 		"bad country":      `{"answers":{"cells_made":{"country":"<b>x</b>"}}}`,
 		"country on yes":   `{"answers":{"pack_work":{"country":"China"}}}`,
+		"unknown":          `{"answers":{"cells_made":{"country":"Unknown"}}}`,
+		"tbd":              `{"answers":{"cells_made":{"country":"TBD"}}}`,
+		"not a country":    `{"answers":{"cells_made":{"country":"Mars"}}}`,
 		"unknown field":    `{"answers":{},"extra":1}`,
 	} {
 		if code, _ := hs.do(t, "PUT", path, body); code != http.StatusBadRequest {
@@ -269,6 +272,12 @@ func TestMCPSaveCaseAnswers(t *testing.T) {
 	if got, _ := mem.Get(context.Background(), fam.ID); got.FamilyFacts.Answers["cells_made"].Country != "China" || !reflect.DeepEqual(got.Product, fam.Product) {
 		t.Errorf("stored: %+v", got.FamilyFacts)
 	}
+	if res, _ = callTool(t, cs, "get_case", map[string]any{"case_id": fam.ID}); !strings.Contains(text(res), "2 family question(s) open") || !strings.Contains(text(res), "save_case_answers") {
+		t.Errorf("get_case: %s", text(res))
+	}
+	if res, _ = callTool(t, cs, "save_case_answers", map[string]any{"case_id": fam.ID, "check": "family"}); res.IsError || !strings.Contains(text(res), "Cleared") || strings.Contains(text(res), "not re-run") {
+		t.Errorf("clear: %s", text(res))
+	}
 
 	res, out = callTool(t, cs, "save_case_answers", map[string]any{"case_id": eu.ID, "check": "eu", "answers": map[string]any{"ch85.r": false},
 		"materials": []any{map[string]any{"index": 0, "name": "tuner", "part_hts": "8529.90", "value_share": 0.7}, map[string]any{"index": 1, "name": "case", "part_hts": "3926.90", "value_share": 0.2}}})
@@ -277,5 +286,111 @@ func TestMCPSaveCaseAnswers(t *testing.T) {
 	}
 	if res, _ = callTool(t, cs, "save_case_answers", map[string]any{"case_id": eu.ID, "check": "eu", "answers": map[string]any{"nope": true}}); !res.IsError {
 		t.Errorf("unknown eu key accepted: %s", text(res))
+	}
+}
+
+// Saves and reads at once (run with -race): no model call, ever.
+func TestFamilyFactsConcurrentPutAndGet(t *testing.T) {
+	hs, mem := familyHarness(t)
+	c := seedFamilyCase(t, mem, "case_fam_race", "power_supplies_chargers", packProduct())
+	hs.engine.mu.Lock()
+	before := hs.engine.calls
+	hs.engine.mu.Unlock()
+	done := make(chan struct{})
+	go func() {
+		defer close(done)
+		for i := 0; i < 20; i++ {
+			country := []string{"China", "South Korea"}[i%2]
+			hs.do(t, "PUT", "/v1/cases/"+c.ID+"/family-facts", mustJSON(map[string]any{"answers": map[string]any{"cells_made": map[string]string{"country": country}}}))
+		}
+	}()
+	for i := 0; i < 20; i++ {
+		if code, _ := hs.do(t, "GET", "/v1/cases/"+c.ID, ""); code != 200 {
+			t.Errorf("get %d", code)
+		}
+		hs.do(t, "GET", "/v1/cases/"+c.ID+"/evidence-report", "")
+		hs.do(t, "GET", "/v1/cases", "")
+	}
+	<-done
+	hs.engine.mu.Lock()
+	calls := hs.engine.calls
+	hs.engine.mu.Unlock()
+	if calls != before {
+		t.Errorf("engine calls %d -> %d: family answers called the model", before, calls)
+	}
+	if got, _ := mem.Get(context.Background(), c.ID); !reflect.DeepEqual(got.Product, c.Product) || got.Facts != c.Facts {
+		t.Error("the case changed")
+	}
+}
+
+// The kept answer is shown only while the newest stored prediction is the
+// re-check; a new prediction (a BOM update) makes it history, and the next
+// re-check keeps the newer one (D818).
+func TestPredictionBeforeAnswersFollowsNewPredictions(t *testing.T) {
+	hs, mem := originHarness(t)
+	c := seedCase(t, mem, "case_eu_pba", "eu", radioProduct())
+	path := "/v1/cases/" + c.ID + "/origin-facts/eu"
+	if code, _ := hs.do(t, "PUT", path, `{"answers":{"ch85.r":false}}`); code != 200 {
+		t.Fatal(code)
+	}
+	_, cv := hs.do(t, "GET", "/v1/cases/"+c.ID, "")
+	if cv["prediction_before_answers"].(map[string]any)["origin_country"] != "Malaysia" {
+		t.Fatalf("kept: %v", cv["prediction_before_answers"])
+	}
+	// A BOM update stores a new prediction.
+	if _, err := mem.Update(context.Background(), c.ID, func(x *store.Case) error {
+		x.Prediction = domain.Prediction{Origin: "Thailand", Trace: domain.Trace{Provider: "rules"}}
+		x.Record(store.Event{At: time.Now().UTC().Add(time.Second), Kind: "bom_updated", Summary: "new BOM"})
+		return nil
+	}); err != nil {
+		t.Fatal(err)
+	}
+	_, cv = hs.do(t, "GET", "/v1/cases/"+c.ID, "")
+	if cv["prediction_before_answers"] != nil {
+		t.Errorf("shown after a new prediction: %v", cv["prediction_before_answers"])
+	}
+	got, _ := mem.Get(context.Background(), c.ID)
+	if n := answersNote(got); n != "" {
+		t.Errorf("stale answers noted %q", n)
+	}
+	time.Sleep(1100 * time.Millisecond) // after the BOM event
+	if code, _ := hs.do(t, "PUT", path, `{"answers":{"ch85.r":false}}`); code != 200 {
+		t.Fatal(code)
+	}
+	_, cv = hs.do(t, "GET", "/v1/cases/"+c.ID, "")
+	if cv["prediction_before_answers"].(map[string]any)["origin_country"] != "Thailand" {
+		t.Errorf("kept after re-answer: %v", cv["prediction_before_answers"])
+	}
+	// The stored copy shares nothing with the prediction.
+	got, _ = mem.Get(context.Background(), c.ID)
+	got.PredictionBeforeAnswers.KeyFactors = append(got.PredictionBeforeAnswers.KeyFactors, "x")
+	if again, _ := mem.Get(context.Background(), c.ID); len(again.PredictionBeforeAnswers.KeyFactors) != len(got.PredictionBeforeAnswers.KeyFactors)-1 {
+		t.Error("write-through on the kept prediction")
+	}
+}
+
+// Cleared or stale family answers say nothing on the case list.
+func TestAnswersNoteIgnoresClearedAndStale(t *testing.T) {
+	hs, mem := familyHarness(t)
+	c := seedFamilyCase(t, mem, "case_fam_note", "power_supplies_chargers", packProduct())
+	path := "/v1/cases/" + c.ID + "/family-facts"
+	hs.do(t, "PUT", path, `{"answers":{"cells_made":{"country":"China"}}}`)
+	got, _ := mem.Get(context.Background(), c.ID)
+	if answersNote(got) != "added" {
+		t.Fatalf("note %q", answersNote(got))
+	}
+	hs.do(t, "PUT", path, `{}`)
+	if got, _ = mem.Get(context.Background(), c.ID); answersNote(got) != "" {
+		t.Errorf("cleared: %q", answersNote(got))
+	}
+	hs.do(t, "PUT", path, `{"answers":{"cells_made":{"country":"China"}}}`)
+	if _, err := mem.Update(context.Background(), c.ID, func(x *store.Case) error {
+		x.Record(store.Event{At: time.Now().UTC().Add(time.Second), Kind: "bom_updated", Summary: "new BOM"})
+		return nil
+	}); err != nil {
+		t.Fatal(err)
+	}
+	if got, _ = mem.Get(context.Background(), c.ID); answersNote(got) != "" {
+		t.Errorf("stale: %q", answersNote(got))
 	}
 }
