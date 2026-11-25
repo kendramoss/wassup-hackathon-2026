@@ -101,6 +101,11 @@ export type WorkspaceRole = S["WorkspaceRole"];
 // updated workspace (null when the caller left).
 export type RemoveMemberResponse = { removed: string; workspace: Workspace | null };
 export type WorkspacesMine = Json<"/v1/workspaces/mine", "get">;
+// Self-service API keys (#788). The secret is returned only by create; the
+// list and the stored record never carry it.
+export type ApiKey = S["APIKey"];
+export type ApiKeyIssue = Json<"/v1/api-keys", "post", 201>;
+export type ApiKeyList = Json<"/v1/api-keys", "get">;
 export type ChatTurn = NonNullable<AskResponse["chat"]>[number];
 export type WhatIf = NonNullable<NonNullable<AskResponse["reply"]>["what_ifs"]>[number];
 
@@ -435,6 +440,11 @@ export const api = {
   setMemberRole: (id: string, email: string, role: WorkspaceRole) => post<Workspace>(`/workspaces/${enc(id)}/members/${enc(email)}/role`, { role }, undefined, "PUT"),
   // An admin removes anyone; any member removes themself (leave).
   removeMember: (id: string, email: string) => call<RemoveMemberResponse>(`/workspaces/${enc(id)}/members/${enc(email)}`, { method: "DELETE" }),
+  // Signed-in user's own API keys (#788). The secret is shown only on create;
+  // the account owner is read from the verified sign-in, never from here.
+  listApiKeys: () => call<ApiKeyList>("/api-keys"),
+  createApiKey: (name: string) => post<ApiKeyIssue>("/api-keys", { name }),
+  revokeApiKey: (id: string) => call<void>(`/api-keys/${enc(id)}`, { method: "DELETE" }),
   // Broker review links, owner side. The token comes back once, on create.
   createReview: (id: string, body: CreateReviewBody) => post<CreateReviewResponse>(`/cases/${enc(id)}/reviews`, body),
   listReviews: (id: string) => call<ReviewList>(`/cases/${enc(id)}/reviews`),

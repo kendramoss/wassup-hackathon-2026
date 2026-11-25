@@ -115,6 +115,9 @@ var auditTable = map[string]auditRoute{
 	"POST /v1/admin/api-keys":                      {auditTwoPhase, audit.APIKeyIssue},
 	"GET /v1/admin/api-keys":                       {auditSingleOnly, audit.APIKeyList},
 	"DELETE /v1/admin/api-keys/{id}":               {auditTwoPhase, audit.APIKeyDisable},
+	"POST /v1/api-keys":                            {auditTwoPhase, audit.APIKeyIssue},
+	"GET /v1/api-keys":                             {auditSingleOnly, audit.APIKeyList},
+	"DELETE /v1/api-keys/{id}":                     {auditTwoPhase, audit.APIKeyDisable},
 	"GET /v1/audit":                                {auditSingleOnly, audit.AuditRead},
 	"GET /v1/audit/verify":                         {auditSingleOnly, audit.AuditVerify},
 	"POST /v1/cases/{id}/reviews":                  {auditTwoPhase, audit.ReviewCreate},
@@ -308,7 +311,7 @@ func (op *auditOp) denialObject() string {
 		kind = "case"
 	case strings.Contains(op.pattern, "/v1/workspaces/{id}"):
 		kind = "workspace"
-	case strings.Contains(op.pattern, "/v1/admin/api-keys/{id}"):
+	case strings.Contains(op.pattern, "/v1/admin/api-keys/{id}"), strings.Contains(op.pattern, "/v1/api-keys/{id}"):
 		kind = "apikey"
 	default:
 		return ""
@@ -504,7 +507,8 @@ func auditReason(err error) audit.Reason {
 	return audit.ReasonInternal
 }
 
-// auditHidden marks the request's 404 as hiding an existing case.
+// auditHidden marks the request's 404 as hiding an existing object (a case or
+// an API key) the caller may not see.
 func auditHidden(r *http.Request) {
 	if op := auditOpOf(r.Context()); op != nil {
 		op.hidden = true

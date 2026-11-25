@@ -435,8 +435,9 @@ func typeName(e ast.Expr) string {
 func TestMintedRefCallSitesAreAudited(t *testing.T) {
 	want := map[string]string{
 		"apikeys.go:keyAttr(key.ID)":  "2", // key returned by APIKeys.Authenticate
-		"apikeys.go:keyAttr(k.ID)":    "1", // key returned by APIKeys.Issue
+		"apikeys.go:keyAttr(k.ID)":    "2", // key returned by APIKeys.Issue or IssueFor
 		"apikeys.go:keyAttr(id)":      "1", // path id confirmed by APIKeys.Exists and acted on by Disable
+		"apikeys.go:keyAttr(keyID)":   "1", // path id confirmed by APIKeys.ExistsForOwner and acted on by DisableForOwner
 		"scenarios.go:caseAttr(c.ID)": "1", // case listed by the case store
 	}
 	got := map[string]int{}

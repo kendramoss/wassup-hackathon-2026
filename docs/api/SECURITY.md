@@ -36,7 +36,7 @@ When `K_SERVICE` is set and any of `STRICT_AUTH`, `REQUIRE_BEARER` or `AUDIT_ACT
 |---|---|---|
 | Anonymous visitor | `X-Visitor-ID` (set by the proxy from an httpOnly cookie) | Scopes which cases a visitor sees with `CASE_OWNERSHIP=on`. Not authentication: `STRICT_AUTH=on` refuses it alone for private case operations. |
 | Signed-in user | `X-User-Token` (Google ID token, `TEAMS=on`) | Verified on every request: signature, expiry, issuer, audience, verified email (D68). |
-| API key | `X-API-Key: op_...` (`API_KEYS=on`) | Only a SHA-256 of the key is stored. Unknown or disabled: 401 `unauthorized`, never a silent fall back to anonymous (D69). |
+| API key | `X-API-Key: op_...` (`API_KEYS=on`) | Admin-issued or self-service (created at `/settings` or `POST /v1/api-keys` by a verified sign-in, #788). Only a SHA-256 of the key is stored. Unknown or disabled: 401 `unauthorized`, never a silent fall back to anonymous (D69). |
 | Admin | `X-Admin-Token` | Seeding, pinning, the batch watch, issuing keys. Not limited. Never sent from the browser. |
 | Broker review link | `X-Review-Token: ubr_...` (on `/v1/review*` only) | Opens one frozen draft and answers it; no identity on any other route (D200, below). |
 
@@ -89,6 +89,7 @@ A case owner sends one draft to an outside customs broker as a link; the broker 
 ## Quotas and spend caps
 
 - API key quota: each key has a request quota per UTC day, set when it is issued. Past it: 429 `quota_exceeded` until 00:00 UTC. If the shared usage counter is unavailable, the request is served (fail open) and logged, and the key is counted on that instance instead, so it still stops at its quota there.
+- Self-service keys (#788): a verified sign-in creates a named key through `POST /v1/api-keys` with a quota **fixed at 200** requests per UTC day; a `daily_quota` or `owner` in the body is refused. The internal owner is read from the sign-in, never sent on the wire, and scopes `GET /v1/api-keys` and `DELETE /v1/api-keys/{id}` to that account. Another account's id, an admin/legacy key and an unknown id answer 404, so ids cannot be probed. The secret is shown once on creation; only its hash is stored. Issue, list and revoke are recorded as `apikey.issue`, `apikey.list` and `apikey.disable` in the requester's tenant, with a pseudonymous user actor and no owner or hash in the trail.
 - Daily model budget: past `DAILY_SPEND_CAP_USD` of estimated model spend in a UTC day, new model-calling requests get 503 `budget_reached` (D59). Saved cases and reads keep working.
 - Per-client share: one client (API key or address) may spend at most `DAILY_SPEND_CLIENT_SHARE` of that budget in a UTC day, default 0.1 (a tenth). Past it: 429 `client_budget_reached` until 00:00 UTC. Model calls are charged to the client that made the request. The admin token is exempt. With no daily budget set, there is no share either.
 
