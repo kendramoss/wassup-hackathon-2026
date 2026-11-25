@@ -3669,3 +3669,7 @@ Committed and pushed before the fit. No model calls. D901 found that support as 
 - **Test at matched coverage.** In each development run, keep the number of auto-accepted answers today's rule gives (in scope, stated ≥ 0.92) and take that many in-scope answers by the new score instead; count the wrong ones. Same coverage, so a gain is fewer wrong answers auto-accepted.
 - **Passes** when on the official development run it auto-accepts at least 3 fewer wrong answers (16 today), and in D815's and D860's controls no more, and fewer in at least one.
 - **If it passes**, wiring it into production calibration is a separate decision. **If not**, D904 tests recency in retrieval, as asked.
+## D903 — Precedent support inside the confidence score: results of D902
+`eval/accuracy/902-measure.json` (in `make reproduce`); no model calls. Fitted weights: confidence 18.15, agree 0.78, age −1.45, intercept −14.92 (support adds little next to confidence).
+- **Matched coverage, wrong answers auto-accepted (today → support score):** official development run 16 → 19 (376 auto-accepted; 12 swapped); D815's control 17 → 17; D860's control 16 → 19. **Criterion: not met**; it is worse. Nothing changes.
+- **Reading.** With D901: precedent support predicts errors over all answers but not among confident ones, as a gate or inside the score. Closed. Next, as asked: recency in retrieval (D904).
