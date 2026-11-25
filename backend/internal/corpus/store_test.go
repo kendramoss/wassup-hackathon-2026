@@ -61,6 +61,40 @@ func TestLoadSplitsAndLabelsFromRepo(t *testing.T) {
 	}
 }
 
+// The food-fresh split (D858) holds no ruling food-v1 was written from and no
+// development or held-out ruling.
+func TestFoodFreshSplitIsDisjoint(t *testing.T) {
+	root := filepath.Join("..", "..", "..", "eval", "splits")
+	fresh, err := LoadSplits(filepath.Join(root, "splits_foodfresh.json"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	ids, err := fresh.IDs("foodfresh")
+	if err != nil || len(ids) != 17 {
+		t.Fatalf("foodfresh: %d ids (%v), want 17", len(ids), err)
+	}
+	used := map[string]bool{}
+	for _, id := range []string{"N350517", "N352231", "N352389", "N354481", "H326919", "N330420", "N331014", "N335413", "N337385", "N338956", "N339749", "N333864", "N334669", "N345699"} {
+		used[id] = true
+	}
+	for _, f := range []string{"splits_final.json", "splits_final2.json"} {
+		sp, err := LoadSplits(filepath.Join(root, f))
+		if err != nil {
+			t.Fatal(err)
+		}
+		for _, l := range [][]string{sp.Dev, sp.Final, sp.Final2, sp.Pilot} {
+			for _, id := range l {
+				used[id] = true
+			}
+		}
+	}
+	for _, id := range ids {
+		if used[id] {
+			t.Errorf("%s is a source, development or held-out ruling", id)
+		}
+	}
+}
+
 // The pharma split is dated: dev is Jul–Dec 2025, final is 2026, both drawn
 // from the pharma pool, and the server's list is the same pool (D62).
 func TestPharmaSplitIsDated(t *testing.T) {

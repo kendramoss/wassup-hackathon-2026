@@ -1,0 +1,26 @@
+{
+  "frozen_at": "2026-11-25T10:43:07+08:00",
+  "rule": "food rulings food-v1 was not written from (D858): (a) training and tune_check rulings that pass engine.FoodCase with one held origin, minus the D856 source rulings and the 17 the writer read; (b) rulings in labels_foodfresh.jsonl (cited by the corpus's food rulings, or published after 13 Nov 2026) that are substantial transformation, have one held origin and pass engine.FoodCase; H317062 left out by hand",
+  "excluded": {
+    "H317062": "a trade-agreement claim on tahini; the label is the seeds' origin, not the tahini's, and it shares its importer and question with source ruling H326919"
+  },
+  "foodfresh": [
+    "N008056",
+    "N217299",
+    "N284246",
+    "N288870",
+    "N302233",
+    "N302350",
+    "N320603",
+    "N326044",
+    "N330098",
+    "N333392",
+    "N342894",
+    "N345287",
+    "N347700",
+    "N347732",
+    "N348009",
+    "N349124",
+    "N349326"
+  ]
+}
