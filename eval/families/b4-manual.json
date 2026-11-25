@@ -1,0 +1,34 @@
+{
+ "H306336": {
+  "primary_origin": "China",
+  "evidence": [
+   "We affirm NY N306161.  We find that NY N306161 correctly applied the substantial transformation test to determine that the country of origin for the items at issue for Section 301 purposes was China."
+  ],
+  "note": "regex took the importer's argument (Mexico); CBP's holding is China"
+ },
+ "N306161": {
+  "regime": "substantial_transformation",
+  "note": "labeller read Part 102 from the marking discussion; the holding is a substantial-transformation analysis (\"no substantial transformation takes place\")"
+ },
+ "N322258": {
+  "primary_origin": "Mexico",
+  "evidence": [
+   "This office agrees with the requester that the processing in Mexico results in a substantial transformation of the wood and hardware and finds the country of origin of item B09 to be Mexico."
+  ],
+  "note": "regex found no holding"
+ },
+ "N307432": {
+  "primary_origin": "Vietnam",
+  "evidence": [
+   "As a “product of Vietnam,” the foam mattress is not subject to China Section 301 trade remedy duties."
+  ],
+  "note": "regex found no holding"
+ },
+ "N306524": {
+  "primary_origin": "Vietnam",
+  "evidence": [
+   "As a “product of Vietnam,” the mechanically adjustable bed foundation is not subject to China Section 301 trade remedy duties."
+  ],
+  "note": "regex found no holding"
+ }
+}

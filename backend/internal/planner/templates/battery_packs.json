@@ -1,0 +1,100 @@
+{
+  "family": "battery_packs",
+  "version": "1",
+  "union_default_operations": true,
+  "name": "Battery cells, packs and storage systems",
+  "note": "For battery packs, power banks, battery racks and storage systems, CBP holds that the cells store and provide the power and give the pack its essential character, so the pack takes the origin of its cells: assembling Chinese cells into packs in Mexico, power banks in Vietnam or a grid battery rack in South Korea did not change their origin, even with a battery management system, main board or submodules made there. Making the cell itself from imported electrode materials does confer origin, and so did building a flow battery's stacks. The one exception in the pool is a portable power station, whose origin followed its converter and inverter boards; that product also sits with the power supplies template. Origin under these rulings says nothing about safety certification or transport approval. Written from 10 CBP substantial-transformation rulings: the 6 in the bundled corpus that the power supplies template already cited, and 4 older rulings fetched by number from CROSS and kept in the cited-only pool (D862); every citation was read against its facts and held origin. Costs are illustrative defaults; users edit them.",
+  "sources": [
+    "H309485",
+    "H316545",
+    "N306055",
+    "N306161",
+    "N342506",
+    "N346317",
+    "N346403",
+    "N347172",
+    "N347193",
+    "N348871"
+  ],
+  "groups": [
+    {
+      "id": "battery_cells",
+      "name": "Battery cells",
+      "operations": [
+        "mix electrode slurry from active materials, binders and conductive agents, coat it on foil, calender and slit the electrode rolls",
+        "notch the electrodes, stack or wind them with separators, weld the tabs, fill electrolyte and seal the cell",
+        "form, degas, test and grade the cells",
+        "build flow-battery stacks from felt, membrane, bipolar plates and frames, then compress and test them"
+      ],
+      "movable": true,
+      "precedent": {
+        "confers_origin": [
+          "N347172",
+          "N347193",
+          "N346317",
+          "N346403",
+          "N306055",
+          "H309485",
+          "N306161",
+          "H316545",
+          "N342506"
+        ],
+        "not_enough": [
+          "N348871"
+        ],
+        "note": "Making the cell from imported electrode materials made South Korea the origin of a pouch cell (N347172). Packs took the origin of their cells wherever they were assembled: a power-tool pack (N347193), power banks assembled in Vietnam (N346317, N346403), a grid battery rack assembled in South Korea from Chinese cells (N306055, affirmed in H309485), and medical-cart and medical-device packs assembled in Mexico from Chinese cells (N306161, H316545). Building the stacks of a flow battery in the United Kingdom was part of what made it British (N342506). The cells did not decide for a portable power station, whose origin followed its boards (N348871)."
+      }
+    },
+    {
+      "id": "bms_pcba",
+      "name": "Battery management and control boards",
+      "operations": [
+        "populate battery management, protection and main control boards by SMT and through-hole insertion",
+        "program the boards and build the battery management submodules",
+        "populate converter and inverter boards for storage systems with outputs"
+      ],
+      "movable": true,
+      "precedent": {
+        "confers_origin": [
+          "N348871"
+        ],
+        "not_enough": [
+          "N346317",
+          "N346403",
+          "N347193",
+          "N306055",
+          "H309485",
+          "N306161",
+          "H316545"
+        ],
+        "note": "A portable power station's origin followed where its converter, inverter and battery protection boards were made (N348871). For packs and racks the boards did not decide: Vietnamese power-bank boards (N346317, N346403), a Chinese cell monitoring board (N347193), a battery management system and submodules made in South Korea (N306055, H309485) and main boards in Mexican packs (N306161, H316545) left the origin with the cells."
+      }
+    },
+    {
+      "id": "final_assembly",
+      "name": "Module, pack and system assembly",
+      "operations": [
+        "test and sort cells, press them into holders and laser-weld busbars or contact plates to the tabs",
+        "assemble cells into modules and modules, boards, fans and wiring into a housing, rack or container",
+        "seal the housing, charge, test, label and pack"
+      ],
+      "movable": false,
+      "precedent": {
+        "confers_origin": [
+          "N342506"
+        ],
+        "not_enough": [
+          "N347193",
+          "N346317",
+          "N346403",
+          "N306055",
+          "H309485",
+          "N306161",
+          "H316545",
+          "N348871"
+        ],
+        "note": "Assembly did not confer origin on packs or racks: welding contact plates and closing a tool pack's housing (N347193), mounting a board and a cell in a power-bank housing (N346317, N346403), welding busbars and building a rack with its fan, protection unit and management system in South Korea (N306055, H309485), assembling medical packs in Mexico (N306161, H316545), or assembling a power station in China from Vietnamese boards (N348871). Integrating locally built stacks into a flow-battery system did, with the stacks (N342506)."
+      }
+    }
+  ]
+}

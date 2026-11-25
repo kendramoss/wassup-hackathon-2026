@@ -33,10 +33,12 @@ func yes(b bool) *bool { return &b }
 
 // writtenFor is the template version each family's questions were written
 // for: the #772 families at version 2 (D810; display 3, D826), off-road
-// and lifting machinery at 2 (D826), optical instruments at 1 (D822).
+// and lifting machinery at 2 (D826), optical instruments at 1 (D822),
+// battery packs at 1 and furniture at 3 (D863).
 var writtenFor = map[string]string{
-	"power_supplies_chargers": "2", "motors_pumps_compressors": "2", "furniture": "2", "medical_devices": "2",
+	"power_supplies_chargers": "2", "motors_pumps_compressors": "2", "furniture": "3", "medical_devices": "2",
 	"display_camera_modules": "3", "offroad_vehicles_machinery": "2", "optical_precision_instruments": "1",
+	"battery_packs": "1",
 }
 
 // Each question asks about one template group, names a document, and

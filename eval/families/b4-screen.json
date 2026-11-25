@@ -1,0 +1,229 @@
+{
+ "frozen": "2026-11-25",
+ "rule": "D862",
+ "battery": {
+  "N329305": {
+   "status": "excluded",
+   "why": "in a split file or labels file"
+  },
+  "N350953": {
+   "status": "excluded",
+   "why": "in a split file or labels file"
+  },
+  "N359554": {
+   "status": "excluded",
+   "why": "in a split file; dated 2026"
+  },
+  "N360412": {
+   "status": "excluded",
+   "why": "in a split file; dated 2026"
+  },
+  "N346317": {
+   "status": "excluded",
+   "why": "already in the corpus"
+  },
+  "N351263": {
+   "status": "excluded",
+   "why": "in a split file or labels file"
+  },
+  "N329847": {
+   "status": "excluded",
+   "why": "in a split file or labels file"
+  },
+  "H316389": {
+   "status": "not_kept",
+   "why": "two or more held origins (follows the cells)"
+  },
+  "H308831": {
+   "status": "not_kept",
+   "why": "two or more held origins (per model)"
+  },
+  "N335526": {
+   "status": "not_kept",
+   "why": "a classification ruling, no origin held"
+  },
+  "H316545": {
+   "status": "kept",
+   "why": "custom battery packs assembled in Mexico; cells decide (China)"
+  },
+  "N306055": {
+   "status": "kept",
+   "why": "battery rack system assembled in Korea; Chinese cells decide"
+  },
+  "N306161": {
+   "status": "kept",
+   "why": "battery packs assembled in Mexico; Chinese cells decide"
+  },
+  "H306336": {
+   "status": "development",
+   "why": "battery packs, Mexico; affirms N306161 (third by date)"
+  },
+  "H309485": {
+   "status": "kept",
+   "why": "battery rack system; affirms N306055"
+  },
+  "H170315": {
+   "status": "out_of_scope",
+   "why": "cited by a kept ruling; not a battery good"
+  },
+  "H287548": {
+   "status": "out_of_scope",
+   "why": "cited by a kept ruling; not a battery good"
+  },
+  "H301910": {
+   "status": "out_of_scope",
+   "why": "cited by a kept ruling; not a battery good"
+  },
+  "H302801": {
+   "status": "out_of_scope",
+   "why": "cited by a kept ruling; not a battery good"
+  },
+  "H303279": {
+   "status": "out_of_scope",
+   "why": "cited by a kept ruling; not a battery good"
+  },
+  "H303529": {
+   "status": "out_of_scope",
+   "why": "cited by a kept ruling; not a battery good"
+  },
+  "H303753": {
+   "status": "out_of_scope",
+   "why": "cited by a kept ruling; not a battery good"
+  },
+  "H303865": {
+   "status": "out_of_scope",
+   "why": "cited by a kept ruling; not a battery good"
+  },
+  "N302707": {
+   "status": "out_of_scope",
+   "why": "cited by a kept ruling; not a battery good"
+  },
+  "N303008": {
+   "status": "out_of_scope",
+   "why": "cited by a kept ruling; not a battery good"
+  },
+  "N304425": {
+   "status": "out_of_scope",
+   "why": "cited by a kept ruling; not a battery good"
+  },
+  "N305104": {
+   "status": "out_of_scope",
+   "why": "cited by a kept ruling; not a battery good"
+  },
+  "N305821": {
+   "status": "out_of_scope",
+   "why": "cited by a kept ruling; not a battery good"
+  },
+  "N306230": {
+   "status": "out_of_scope",
+   "why": "cited by a kept ruling; not a battery good"
+  }
+ },
+ "furniture": {
+  "H338482": {
+   "status": "excluded",
+   "why": "already in the corpus"
+  },
+  "N335585": {
+   "status": "excluded",
+   "why": "already in the corpus"
+  },
+  "N334531": {
+   "status": "excluded",
+   "why": "already in the corpus"
+  },
+  "N320075": {
+   "status": "excluded",
+   "why": "in a split file or labels file"
+  },
+  "N303338": {
+   "status": "excluded",
+   "why": "in a split file or labels file"
+  },
+  "H338728": {
+   "status": "excluded",
+   "why": "in a split file or labels file"
+  },
+  "N072855": {
+   "status": "not_kept",
+   "why": "two or more held origins (sofa scenarios)"
+  },
+  "N322850": {
+   "status": "not_kept",
+   "why": "two or more held origins (futon parts)"
+  },
+  "N302634": {
+   "status": "not_kept",
+   "why": "not a substantial-transformation holding (single country)"
+  },
+  "H004448": {
+   "status": "not_kept",
+   "why": "9802 repair and alteration, not origin"
+  },
+  "N313390": {
+   "status": "not_kept",
+   "why": "bed linen, textile rule 102.21; out of scope"
+  },
+  "N017962": {
+   "status": "not_kept",
+   "why": "a classification ruling, no origin held"
+  },
+  "H005728": {
+   "status": "out_of_scope",
+   "why": "cited by a kept ruling; not furniture"
+  },
+  "H301619": {
+   "status": "out_of_scope",
+   "why": "cited by a kept ruling; not furniture"
+  },
+  "N064195": {
+   "status": "kept",
+   "why": "fitted covers cut in China (9401.90); attached to U.S. frames they transform",
+   "tags": [
+    "upholstery"
+   ]
+  },
+  "N087858": {
+   "status": "kept",
+   "why": "cabinets assembled in the U.S. from Chinese finished, stained parts: U.S.",
+   "tags": [
+    "knock_down"
+   ]
+  },
+  "H083693": {
+   "status": "development",
+   "why": "wood chest assembled in the U.S. (third by date)"
+  },
+  "N101033": {
+   "status": "kept",
+   "why": "cover kits sewn onto U.S. frames: U.S.; onto finished foreign frames: not",
+   "tags": [
+    "upholstery"
+   ]
+  },
+  "N228696": {
+   "status": "kept",
+   "why": "wooden headboard: Taiwan"
+  },
+  "N300248": {
+   "status": "development",
+   "why": "furniture parts from U.S. lumber made in Vietnam (sixth by date)"
+  },
+  "N306524": {
+   "status": "kept",
+   "why": "adjustable bed foundation assembled in Vietnam from Chinese parts: Vietnam"
+  },
+  "N307432": {
+   "status": "kept",
+   "why": "foam mattress: Vietnam"
+  },
+  "N313752": {
+   "status": "development",
+   "why": "kitchen cabinets from raw materials in Malaysia (ninth by date)"
+  },
+  "N322258": {
+   "status": "kept",
+   "why": "kitchen cabinets: wood cut, engraved, drilled, stained and sealed in Mexico"
+  }
+ }
+}
