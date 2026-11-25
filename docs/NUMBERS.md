@@ -581,7 +581,7 @@ Experimental offline evaluation, advisory and unreviewed. Not Japan market cover
 | Frozen development cases (before → after) | Batteries 7 → 7; machinery 11 → 11; lifting (off-road template) 0 → 7; furniture 1 → 4; optical 2 → 9; medical 10 → 10; 48 in all, 30 look-alikes | `eval/families/b3-dev-splits-a1.json` (amends `b3-dev-splits.json`) | Frozen 24 Nov (D820, D821, D826); for #781. |
 | BM25 top 5 / top 20 holds a cited ruling (dev, before → after) | Lifting (off-road template) 1 → 7 of 7 / 7 → 7 of 7; optical 1 → 3 of 9 / 5 → 8 of 9; furniture 3 → 3 of 4; others unchanged | `eval/families/b3-retrieval.json` | Measured offline, descriptive; small n. |
 | Guard v5 on recorded development checks | v1 checks: 1 of 349 matches changed (pet bed); guard v3 run: 2 of 351 (the 3D printer; the optical window, now sent from the display template to review) | `eval/families/b2-guard-dev.json`, `eval/families/b3-guard-g3.json` | Measured offline, no model re-run (D827). |
-| Family count | 27 | `TestTemplateSetIsPinned` | Pinned. |
+| Family count | 28 (27 before D863: battery packs added) | `TestTemplateSetIsPinned` | Pinned. |
 
 ## Is the family work working? (D840–D842, #781)
 

@@ -1,0 +1,20 @@
+{
+  "frozen": "2026-11-25",
+  "note": "D862: web search queries, run once each; only N/H ruling numbers in the results are used",
+  "battery": [
+    "rulings.cbp.gov country of origin battery pack cells assembled substantial transformation NY ruling",
+    "CBP ruling country of origin lithium-ion battery pack assembled from imported cells",
+    "CBP ruling country of origin power bank battery cells assembled",
+    "CBP ruling country of origin battery module battery management system substantial transformation",
+    "CBP ruling country of origin energy storage system battery cabinet",
+    "CBP ruling country of origin battery cell manufactured from imported electrodes"
+  ],
+  "furniture": [
+    "CBP ruling country of origin upholstered furniture frame upholstery substantial transformation NY ruling",
+    "CBP ruling country of origin furniture finishing painting lacquer staining substantial transformation",
+    "CBP ruling country of origin ready-to-assemble knock-down furniture",
+    "CBP ruling country of origin chair assembled and upholstered",
+    "CBP ruling country of origin mattress substantial transformation",
+    "CBP ruling country of origin table or cabinet assembled from imported parts"
+  ]
+}

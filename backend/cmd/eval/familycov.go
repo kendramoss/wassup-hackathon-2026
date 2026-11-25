@@ -64,9 +64,9 @@ func familyCovCmd(args []string) error {
 	workers := fl.Int("workers", 6, "concurrent model calls")
 	limit := fl.Int("limit", 0, "only the first N cases (0 = all)")
 	confirmFinal := fl.Bool("confirm-final", false, "required for the held-out final split (scored once per set)")
-	labelsPath := fl.String("labels", "../eval/data/labels.jsonl", "labels file")
+	labelsPath := fl.String("labels", "../eval/data/labels.jsonl", "labels file(s), comma-separated (D863: add data/labels_cited.jsonl for the cited-only pool's development cases)")
 	splitsPath := fl.String("splits", "../eval/splits/splits_final.json", "splits file")
-	factsDir := fl.String("facts", "data/facts", "facts directory")
+	factsDir := fl.String("facts", "data/facts", "facts directory, comma-separated to add more (D863: data/facts_cited)")
 	resultsDir := fl.String("results", "../eval/results", "results directory")
 	model := fl.String("model", "gemini-3.8-flash", "family-check model")
 	tag := fl.String("tag", "", "appended to the result name, to keep a later template set apart (D212: f14)")
@@ -103,11 +103,16 @@ func familyCovCmd(args []string) error {
 	}
 	checker := familycheck.New(m, *model, tmpls)
 
-	labels, err := corpus.LoadLabels(*labelsPath)
-	if err != nil {
-		return err
+	var labels []corpus.Label
+	for _, p := range strings.Split(*labelsPath, ",") {
+		ls, err := corpus.LoadLabels(p)
+		if err != nil {
+			return err
+		}
+		labels = append(labels, ls...)
 	}
-	store, err := corpus.Load(labels, *factsDir)
+	dirs := strings.Split(*factsDir, ",")
+	store, err := corpus.LoadDirs(labels, dirs...)
 	if err != nil {
 		return err
 	}
@@ -134,7 +139,12 @@ func familyCovCmd(args []string) error {
 		// checks a listed ruling with no held origin (D841); otherwise it
 		// is skipped, as before, and named.
 		l, ok := byID[id]
-		facts, err := os.ReadFile(filepath.Join(*factsDir, id+".txt"))
+		var facts []byte
+		for _, d := range dirs {
+			if facts, err = os.ReadFile(filepath.Join(d, id+".txt")); err == nil {
+				break
+			}
+		}
 		if *noOriginOK && ok && l.Origin() == "" && err == nil {
 			cases = append(cases, domain.Ruling{ID: id, Subject: l.Subject, Facts: string(facts)})
 			continue

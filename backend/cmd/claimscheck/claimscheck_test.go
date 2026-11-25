@@ -361,7 +361,7 @@ func TestStaleRound13PhrasesFail(t *testing.T) {
 		})
 	}
 	f := newFixture(t)
-	write(t, f.root, "README.md", "Plans cover 27 product families; with the first 14 families 59.4% matched. "+
+	write(t, f.root, "README.md", "Plans cover 28 product families; with the first 14 families 59.4% matched. "+
 		"14 of 29 held out (13 agree); 12 of 29 without the five chapters (D560).\n"+
 		"The engine then in use (`usmca-v1`) agrees with the rule on 13 of 14 moves; usmca-v1 agreed with the rule on 3 of 6.\n"+
 		"usmca-v1: 100% at confidence 0.95, on 46.9% of cases.\n")
@@ -392,7 +392,7 @@ func TestStaleFamilyCount20Fails(t *testing.T) {
 		})
 	}
 	f := newFixture(t)
-	write(t, f.root, "README.md", "Plans need one of 27 product families. A second pass with `usmca-v5` and 20 families planned 8 of 18.\n")
+	write(t, f.root, "README.md", "Plans need one of 28 product families. A second pass with `usmca-v5` and 20 families planned 8 of 18.\n")
 	if r := Check(f.root, f.doc); hasFailure(r, "stale phrase") {
 		t.Fatalf("current wording should pass, got %v", r.Failures)
 	}
@@ -419,7 +419,32 @@ func TestStaleFamilyCount26Fails(t *testing.T) {
 		})
 	}
 	f := newFixture(t)
-	write(t, f.root, "README.md", "Plans need one of 27 product families. The held-out check matched 79.0% to one of the 26 families, read once (D661).\n")
+	write(t, f.root, "README.md", "Plans need one of 28 product families. The held-out check matched 79.0% to one of the 26 families, read once (D661).\n")
+	if r := Check(f.root, f.doc); hasFailure(r, "stale phrase") {
+		t.Fatalf("current wording should pass, got %v", r.Failures)
+	}
+}
+
+// D863: battery packs make 28; the 27-family wording is stale.
+func TestStaleFamilyCount27Fails(t *testing.T) {
+	for name, line := range map[string]string{
+		"product families": "Plans need one of 27 product families.",
+		"with templates":   "27 families with templates (section 4).",
+		"family templates": "The planner has 27 family templates.",
+		"the templates":    "Plan search for any product family outside the 27 templates.",
+		"pins":             "`TestTemplateSetIsPinned` pins the 27 families.",
+		"plan scope":       "Only products in a family with a plan template (27 families, listed in the family picker) are planned.",
+	} {
+		t.Run(name, func(t *testing.T) {
+			f := newFixture(t)
+			write(t, f.root, "README.md", line+"\n")
+			if r := Check(f.root, f.doc); !hasFailure(r, "stale phrase") {
+				t.Fatalf("want a stale-phrase failure, got %v", r.Failures)
+			}
+		})
+	}
+	f := newFixture(t)
+	write(t, f.root, "README.md", "Plans need one of 28 product families. The held-out check matched 302 of 377 with 27 families (D842).\n")
 	if r := Check(f.root, f.doc); hasFailure(r, "stale phrase") {
 		t.Fatalf("current wording should pass, got %v", r.Failures)
 	}

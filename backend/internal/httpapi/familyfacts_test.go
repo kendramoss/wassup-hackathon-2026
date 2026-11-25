@@ -81,7 +81,7 @@ func TestFamilyFactsBatteryPackEndToEnd(t *testing.T) {
 		t.Fatalf("put: %d %v", code, out)
 	}
 	ff := out["family_facts"].(map[string]any)
-	if ff["source"] != domain.SourceUserSupplied || ff["family"] != "power_supplies_chargers" || ff["template_version"] != "2" {
+	if ff["source"] != domain.SourceUserSupplied || ff["family"] != "power_supplies_chargers" || ff["template_version"] != "3" {
 		t.Errorf("saved: %v", ff)
 	}
 	in = intakeOf(t, out["family_intake"])

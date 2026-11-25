@@ -1983,7 +1983,7 @@ export interface components {
             known?: string;
             answer?: components["schemas"]["FamilyAnswer"];
         };
-        /** @description The case's family questions (clarify-family-v2, deterministic; D810, D813, D824, D828). Present on a case of a family that has questions, or with saved answers. */
+        /** @description The case's family questions (clarify-family-v3, deterministic; D810, D813, D824, D828, D863). Present on a case of a family that has questions, or with saved answers. */
         FamilyIntake: {
             version: string;
             /**

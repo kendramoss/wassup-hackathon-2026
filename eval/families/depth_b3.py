@@ -292,6 +292,15 @@ def devsplit_a1(root):
     return d
 
 
+def later_pairs(root):
+    """Pairings a later round records with its own check (D863, depth_b4.py)."""
+    p = os.path.join(root, "eval/families/b4-citations.json")
+    if not os.path.exists(p):
+        return set()
+    with open(p) as f:
+        return {(c["template"], w + ":" + c["ruling"]) for c in json.load(f)["citations"] for w in c["cited_in"]}
+
+
 def check_citations(root):
     """Every group/outcome pairing a template has that main's did not
     (b3-before-citations.json) is in a template of NEW, is a ruling of that
@@ -305,6 +314,7 @@ def check_citations(root):
     with open(os.path.join(root, CITES)) as f:
         rec = {(c["template"], c["ruling"]): c for c in json.load(f)["citations"]}
     want = {}
+    later = later_pairs(root)
     d = os.path.join(root, "backend/internal/planner/templates")
     for n in sorted(os.listdir(d)):
         with open(os.path.join(d, n)) as f:
@@ -314,7 +324,7 @@ def check_citations(root):
             p = g.get("precedent") or {}
             for k in ("confers_origin", "not_enough"):
                 for r in p.get(k) or []:
-                    if g["id"] + ":" + k + ":" + r not in old:
+                    if g["id"] + ":" + k + ":" + r not in old and (t["family"], g["id"] + ":" + k + ":" + r) not in later:
                         if t["family"] not in NEW:
                             sys.exit(f"{t['family']}: new pairing {g['id']}:{k}:{r} in a template D826 does not change")
                         want.setdefault((t["family"], r), []).append(g["id"] + ":" + k)

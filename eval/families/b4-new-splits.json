@@ -1,0 +1,10 @@
+{
+ "rule": "D863: the four new development cases, for the before run on main's templates",
+ "frozen_at": "2026-11-25",
+ "dev": [
+  "H306336",
+  "H083693",
+  "N300248",
+  "N313752"
+ ]
+}

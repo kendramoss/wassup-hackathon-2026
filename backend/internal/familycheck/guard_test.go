@@ -22,12 +22,19 @@ func TestGuardSendsLookalikesToReview(t *testing.T) {
 		rule                   string // "" keeps the match
 	}{
 		// Batteries: a battery pack, cell, power bank or station keeps the
-		// power supplies, chargers and battery packs template.
+		// power supplies and chargers template.
 		{"power_supplies_chargers", "Lithium-ion battery pack for cordless drills", "", ""},
 		{"power_supplies_chargers", "ESS LFP pouch cell", "", ""},
 		{"power_supplies_chargers", "Power bank", "Portable power bank", ""},
 		{"power_supplies_chargers", "Portable power station", "", ""},
 		{"power_supplies_chargers", "Lithium-ion jump starter", "", ""},
+		// D864: the same goods keep the battery packs template, and a
+		// device that runs on a battery does not get it.
+		{"battery_packs", "Portable power bank", "", ""},
+		{"battery_packs", "Lithium-ion jump starter", "", ""},
+		{"battery_packs", "Battery rack system", "", ""},
+		{"battery_packs", "Cordless drill with lithium-ion battery", "", "battery-device"},
+		{"battery_packs", "Cathode active material for lithium batteries", "", "battery-material"},
 		{"power_supplies_chargers", "Battery charger", "", ""},
 		{"power_supplies_chargers", "Rechargeable batteries", "", ""},
 		// Review B1: units, BMS boards, backups and locations are not the product word.

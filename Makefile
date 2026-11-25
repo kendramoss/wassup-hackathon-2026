@@ -89,6 +89,9 @@ reproduce: ## recompute every published number from committed files: no model ca
 	python3 -I -B eval/families/measure_850.py . --tag f28-852 --check
 	python3 -I -B eval/families/measure_850.py . --tag f28-854 --check
 	python3 -I -B eval/families/measure_850.py . --tag f28-854 --against f28-852 --check
+	python3 -I -B eval/families/depth_b4.py . check
+	python3 -I -B eval/families/measure_863.py . --check
+	python3 -I -B eval/families/measure_863.py . --tag f29-864 --check
 	python3 -I -B eval/accuracy/diagnose_815.py . --check
 	python3 -I -B eval/accuracy/measure_815.py . --check
 	python3 -I -B eval/accuracy/measure_858.py . --check

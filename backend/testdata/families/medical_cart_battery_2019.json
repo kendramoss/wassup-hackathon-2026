@@ -1,0 +1,39 @@
+{
+  "_source": "CBP ruling N306161 (4 Oct 2019), affirmed by H306336 (11 Feb 2020): lithium-ion battery packs for mobile medical carts, Chinese cells, main and communications boards, wiring and housing, assembled in Mexico: CBP held China. In the cited-only pool (D862); excluded here, with the ruling that affirms it.",
+  "case_id": "medical-cart-battery-2019",
+  "date": "2019-10-04",
+  "family": "battery_packs",
+  "target": "Mexico",
+  "product": {
+    "name": "Battery pack for a mobile medical cart",
+    "description": "A rectangular lithium-ion battery pack for a mobile medical cart: 48, 56 or 64 lithium-ion cells, a main board assembly that runs software and monitors the flow of power between the cells and the cart, a communications board, wiring, a wiring harness, fasteners and a plastic housing.",
+    "plants": [
+      {"id": "mx", "name": "Mexico assembly plant", "country": "Mexico", "capabilities": ["battery_cells", "bms_pcba", "final_assembly"]},
+      {"id": "cn", "name": "China suppliers", "country": "China", "capabilities": ["battery_cells", "bms_pcba"]}
+    ],
+    "components": [
+      {"name": "Lithium-ion battery cells", "made_in": "China", "plant": "cn", "group": "battery_cells"},
+      {"name": "Main board assembly", "made_in": "Mexico", "plant": "mx", "group": "bms_pcba"},
+      {"name": "Communications board assembly", "made_in": "Mexico", "plant": "mx", "group": "bms_pcba"},
+      {"name": "Wiring harness and plastic housing", "made_in": "Mexico", "plant": "mx", "group": "final_assembly"}
+    ],
+    "operations": [
+      {"name": "Manufacture the lithium-ion battery cells", "plant": "cn", "group": "battery_cells"},
+      {"name": "Populate and program the main and communications boards", "plant": "mx", "group": "bms_pcba"},
+      {"name": "Weld the cells into strings and connect them to the main board", "plant": "mx", "group": "final_assembly"},
+      {"name": "Fit the cells, boards and harness into the plastic housing, seal, charge and test the pack", "plant": "mx", "group": "final_assembly"}
+    ]
+  },
+  "economics": {
+    "illustrative": true,
+    "annual_import_value_usd": 1000000,
+    "duty_rates": {"China": 0.25, "Mexico": 0.0},
+    "duty_rates_note": "Illustrative placeholder, not a sourced rate.",
+    "group_costs": {
+      "battery_cells": {"cn": 300000, "mx": 390000},
+      "bms_pcba": {"cn": 60000, "mx": 75000}
+    }
+  },
+  "exclude_rulings": ["N306161", "H306336"],
+  "current_origin": {"country": "China", "ruling": "N306161"}
+}

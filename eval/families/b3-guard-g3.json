@@ -14,6 +14,6 @@
   }
  ],
  "matched": 351,
- "note": "D820 M2: rows of families-coverage-dev-all-litellm-f26-b2-g3.jsonl (guard v3 applied during that run) whose recorded family the family-guard-v6 guard takes away, the subject as the product line. Written by TestGuardOnG3Rows -update-guard-g3.",
+ "note": "D820 M2: rows of families-coverage-dev-all-litellm-f26-b2-g3.jsonl (guard v3 applied during that run) whose recorded family the family-guard-v7 guard takes away, the subject as the product line. Written by TestGuardOnG3Rows -update-guard-g3.",
  "rows": 469
 }

@@ -1,0 +1,244 @@
+{
+ "note": "D863: group/outcome pairings new against main (b4-before-citations.json), with the held-origin sentence and the facts read; depth_b4.py check recomputes them.",
+ "citations": [
+  {
+   "ruling": "H309485",
+   "template": "battery_packs",
+   "cited_in": [
+    "battery_cells:confers_origin",
+    "bms_pcba:not_enough",
+    "final_assembly:not_enough"
+   ],
+   "held": "China",
+   "held_sentence": [
+    "Accordingly, we agree with NY N306055 that there is no substantial transformation of the battery cells manufactured in China and that the country of origin of the subject battery rack system for Section 301 purposes is China."
+   ],
+   "facts_read": "Reconsideration of N306055: the Korean battery management system and assembly did not change the Chinese cells' origin.",
+   "source": "labels_cited.jsonl"
+  },
+  {
+   "ruling": "H316545",
+   "template": "battery_packs",
+   "cited_in": [
+    "battery_cells:confers_origin",
+    "bms_pcba:not_enough",
+    "final_assembly:not_enough"
+   ],
+   "held": "China",
+   "held_sentence": [
+    "In accordance with these rulings, we find that the country of origin of the custom battery packs at issue for the purposes of the application of Section 301 trade remedy measures is China, where the lithium-ion cells are produced.",
+    "The country of origin of the custom battery packs for purposes of the application of Section 301 trade remedy measures is China and therefore they are subject to Section 301 duties."
+   ],
+   "facts_read": "Mexico: twelve Chinese lithium-ion cells assembled with a main board assembly, wiring and housing into custom battery packs for a radiology injector.",
+   "source": "labels_cited.jsonl"
+  },
+  {
+   "ruling": "N306055",
+   "template": "battery_packs",
+   "cited_in": [
+    "battery_cells:confers_origin",
+    "bms_pcba:not_enough",
+    "final_assembly:not_enough"
+   ],
+   "held": "China",
+   "held_sentence": [
+    "In view of these facts, the country or origin of the subject battery rack system is China."
+   ],
+   "facts_read": "South Korea: Chinese lithium-ion cells combined with Korean modules, submodules and a battery management system into a grid battery rack; busbars laser welded to the cell tabs.",
+   "source": "labels_cited.jsonl"
+  },
+  {
+   "ruling": "N306161",
+   "template": "battery_packs",
+   "cited_in": [
+    "battery_cells:confers_origin",
+    "bms_pcba:not_enough",
+    "final_assembly:not_enough"
+   ],
+   "held": "China",
+   "held_sentence": [
+    "Therefore, since the battery cells are of Chinese origin and no substantial transformation takes place, the country of origin of the battery packs for the purpose of Section 301 measures is China. \u000bPursuant to U.S. Note 20 to Subchapter III, Chapter 99, HTSUS, products of China classified under subheading 8507.60.0020, HTSUS, unless specifically excluded, are subject to an additional 15 percent ad"
+   ],
+   "facts_read": "Mexico: Chinese lithium-ion cells assembled with a main board, communications board, wiring and housing into medical-cart battery packs.",
+   "source": "labels_cited.jsonl"
+  },
+  {
+   "ruling": "N342506",
+   "template": "battery_packs",
+   "cited_in": [
+    "battery_cells:confers_origin",
+    "final_assembly:confers_origin"
+   ],
+   "held": "United Kingdom",
+   "held_sentence": [
+    "As such, the country of origin of the Invinity Six Pack Vanadium Flow Battery, model number VS3-022-UK, for purposes of Section 301 trade remedies is the United Kingdom."
+   ],
+   "facts_read": "United Kingdom: flow-battery stacks built and integrated into a six-module containerised system.",
+   "source": "labels.jsonl"
+  },
+  {
+   "ruling": "N346317",
+   "template": "battery_packs",
+   "cited_in": [
+    "battery_cells:confers_origin",
+    "bms_pcba:not_enough",
+    "final_assembly:not_enough"
+   ],
+   "held": "China",
+   "held_sentence": [
+    "In view of these facts, and based on the totality of the circumstances, the country of origin of the subject power bank, model number AST-MP595, is China."
+   ],
+   "facts_read": "Vietnam: a Chinese cell and Vietnamese-made PCBA assembled into a power bank housing.",
+   "source": "labels.jsonl"
+  },
+  {
+   "ruling": "N346403",
+   "template": "battery_packs",
+   "cited_in": [
+    "battery_cells:confers_origin",
+    "bms_pcba:not_enough",
+    "final_assembly:not_enough"
+   ],
+   "held": "China",
+   "held_sentence": [
+    "In view of these facts, and based on the totality of the circumstances, the country of origin of the subject power banks, model number AST-MP621 and AST-MP663F, is China."
+   ],
+   "facts_read": "Vietnam: Chinese cells and a Vietnamese SMT PCBA assembled into power banks.",
+   "source": "labels.jsonl"
+  },
+  {
+   "ruling": "N347172",
+   "template": "battery_packs",
+   "cited_in": [
+    "battery_cells:confers_origin"
+   ],
+   "held": "South Korea",
+   "held_sentence": [
+    "Therefore, it is the opinion of this office that the manufacturing processes performed in South Korea result in a substantial transformation of the foreign components and the country of origin of the ESS LFP pouch cell is South Korea."
+   ],
+   "facts_read": "South Korea: electrode slurry mixed, coated, stacked, filled and formed into a pouch cell from imported materials.",
+   "source": "labels.jsonl"
+  },
+  {
+   "ruling": "N347193",
+   "template": "battery_packs",
+   "cited_in": [
+    "battery_cells:confers_origin",
+    "bms_pcba:not_enough",
+    "final_assembly:not_enough"
+   ],
+   "held": "China | Malaysia | South Korea",
+   "held_sentence": [
+    "In view of these facts, and based on the totality of the circumstances, the country of origin of the subject battery pack is China, Malaysia, or South Korea, depending on the origin of the battery cell."
+   ],
+   "facts_read": "Assembly of cells from one of three countries into a power-tool pack with a Chinese cell monitoring board.",
+   "source": "labels.jsonl"
+  },
+  {
+   "ruling": "N348871",
+   "template": "battery_packs",
+   "cited_in": [
+    "battery_cells:not_enough",
+    "bms_pcba:confers_origin",
+    "final_assembly:not_enough"
+   ],
+   "held": "Vietnam",
+   "held_sentence": [
+    "As a result, the Portable Solar Generator, Model HTE1172000A-US-JAK, described in scenarios two and three, are considered products of Vietnam at the time of importation into the United States."
+   ],
+   "facts_read": "Portable power station: PCBAs made in Vietnam or China across scenarios, Chinese batteries, assembly in China or Vietnam.",
+   "source": "labels.jsonl"
+  },
+  {
+   "ruling": "N064195",
+   "template": "furniture",
+   "cited_in": [
+    "foam_textile_production:confers_origin"
+   ],
+   "held": "China",
+   "held_sentence": [
+    "Based on the information provided, we find that the component materials: (1) fabric from China which is then subsequently cut to size and shape to form fitted furniture covers is a product of China; and (2) fabric from Taiwan sent to China which is then cut to size and shape to form fitted furniture covers, undergoes a substantial transformation in China."
+   ],
+   "facts_read": "China: Chinese and Taiwanese fabric cut to shape and sewn into fitted covers for U.S.-made sofa and chair frames, fitted in the U.S.",
+   "source": "labels_cited.jsonl"
+  },
+  {
+   "ruling": "N087858",
+   "template": "furniture",
+   "cited_in": [
+    "final_assembly:confers_origin"
+   ],
+   "held": "United States",
+   "held_sentence": [
+    "Accordingly the assembled cabinets are products of the United States, and are excepted from the country of origin marking requirements, and require no country of origin marking."
+   ],
+   "facts_read": "U.S.: kits of finished, stained and topcoated Chinese cabinet face frames, doors and boxes assembled into kitchen and bath cabinets.",
+   "source": "labels_cited.jsonl"
+  },
+  {
+   "ruling": "N101033",
+   "template": "furniture",
+   "cited_in": [
+    "foam_textile_production:confers_origin"
+   ],
+   "held": "United States",
+   "held_sentence": [
+    "We find that a substantial transformation would occur in the United States of the textile upholstery cover kits used in the manufacture of completed seats, when foreign fabric that is cut to size and shape, is sewn onto United States manufactured wood frames containing their springs, foam and padding; in this case the completed sofas, loveseats, chairs and ottomans would be of United States origin"
+   ],
+   "facts_read": "U.S.: Chinese fabric cut and partly sewn into cover kits, sewn in the U.S. onto U.S.-built frames with springs, foam and padding.",
+   "source": "labels_cited.jsonl"
+  },
+  {
+   "ruling": "N228696",
+   "template": "furniture",
+   "cited_in": [
+    "frame_metal_fabrication:confers_origin"
+   ],
+   "held": "Taiwan",
+   "held_sentence": [
+    "Accordingly the country of origin of the headboard is Taiwan."
+   ],
+   "facts_read": "Taiwan: rough-cut Chinese wood sanded, mortised, drilled, tenoned, stained, lacquered and assembled into a headboard.",
+   "source": "labels_cited.jsonl"
+  },
+  {
+   "ruling": "N306524",
+   "template": "furniture",
+   "cited_in": [
+    "electronics_mechanisms:confers_origin"
+   ],
+   "held": "Vietnam",
+   "held_sentence": [
+    "As a “product of Vietnam,” the mechanically adjustable bed foundation is not subject to China Section 301 trade remedy duties."
+   ],
+   "facts_read": "Vietnam: mechanically adjustable bed foundation built from mostly Chinese parts with its electromechanical structure.",
+   "source": "labels_cited.jsonl"
+  },
+  {
+   "ruling": "N307432",
+   "template": "furniture",
+   "cited_in": [
+    "foam_textile_production:confers_origin"
+   ],
+   "held": "Vietnam",
+   "held_sentence": [
+    "As a “product of Vietnam,” the foam mattress is not subject to China Section 301 trade remedy duties."
+   ],
+   "facts_read": "Vietnam: foam poured, cured, cut and layered, covered with a Chinese inner and outer cover.",
+   "source": "labels_cited.jsonl"
+  },
+  {
+   "ruling": "N322258",
+   "template": "furniture",
+   "cited_in": [
+    "frame_metal_fabrication:confers_origin"
+   ],
+   "held": "Mexico",
+   "held_sentence": [
+    "This office agrees with the requester that the processing in Mexico results in a substantial transformation of the wood and hardware and finds the country of origin of item B09 to be Mexico."
+   ],
+   "facts_read": "Mexico: wood cut, engraved, drilled, stained and sealed and hardware fitted into kitchen cabinets.",
+   "source": "labels_cited.jsonl"
+  }
+ ]
+}

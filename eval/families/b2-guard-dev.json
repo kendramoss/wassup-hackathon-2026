@@ -8,7 +8,7 @@
   }
  ],
  "matched": 349,
- "note": "D781 M2: rows of families-coverage-dev-all-litellm-f26.jsonl whose recorded family the family-guard-v6 guard takes away, the subject as the product line. Written by TestGuardOnDevelopmentRows -update-guard-dev.",
+ "note": "D781 M2: rows of families-coverage-dev-all-litellm-f26.jsonl whose recorded family the family-guard-v7 guard takes away, the subject as the product line. Written by TestGuardOnDevelopmentRows -update-guard-dev.",
  "rows": 469,
  "rules": [
   "battery-material",

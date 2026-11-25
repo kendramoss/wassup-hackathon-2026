@@ -1,12 +1,19 @@
 {
   "family": "furniture",
-  "version": "2",
+  "version": "3",
   "union_default_operations": true,
   "name": "Furniture and mattresses",
-  "note": "CBP generally determines the country of origin for furniture and mattresses based on where the primary structural components, such as tabletops, metal cabinets, or foam mattress cores, are fabricated from raw or semi-finished materials. Conversely, simple assembly, co-packaging pre-made bases with tops, attaching electronic controllers, or placing finished mattresses into sofa frames does not constitute a substantial transformation. Tables sold unassembled took the origin of their stone tops, not of the welded, painted bases packed with them (version 2). Written from 15 CBP substantial-transformation rulings outside the dev and held-out splits (D138), with one table ruling from the train pool added in version 2 (D782); every cited ruling was checked against its facts and holding. Costs are illustrative defaults; users edit them.",
+  "note": "CBP generally determines the country of origin for furniture and mattresses based on where the primary structural components, such as tabletops, metal cabinets, or foam mattress cores, are fabricated from raw or semi-finished materials. Conversely, simple assembly, co-packaging pre-made bases with tops, attaching electronic controllers, or placing finished mattresses into sofa frames does not constitute a substantial transformation. Tables sold unassembled took the origin of their stone tops, not of the welded, painted bases packed with them (version 2). Upholstery can decide: cutting and sewing covers onto frames built with their springs, foam and padding made the seat a product of the country that built the frame and upholstered it, while fitting covers to finished foreign frames did not; assembling finished, stained cabinet kits into cabinets and machining, staining and lacquering rough-cut wood into a headboard also conferred origin (version 3). No ruling found turns on finishing alone. Written from 15 CBP substantial-transformation rulings outside the dev and held-out splits (D138), with one table ruling from the train pool added in version 2 (D782) and seven older rulings fetched by number from CROSS, kept in the cited-only pool, added in version 3 (D862); every cited ruling was checked against its facts and holding. Costs are illustrative defaults; users edit them.",
   "sources": [
     "H330862",
     "H338728",
+    "N064195",
+    "N087858",
+    "N101033",
+    "N228696",
+    "N306524",
+    "N307432",
+    "N322258",
     "N330057",
     "N334531",
     "N335242",
@@ -47,20 +54,23 @@
         "stamp, shear, laser cut, pierce, and bend steel coil or metal tubing into structural plates, legs, and rails",
         "extrude and shape aluminum rails, posts, and blind slats",
         "weld metal legs, frames, and cabinet bodies and apply powder coating",
-        "cut, mold, join, and stain wood pedestal bases and structural legs"
+        "cut, mold, join, and stain wood pedestal bases and structural legs",
+        "sand, mortise, tenon and drill rough-cut wood into posts, rails and cabinet parts, then stain, lacquer or seal them"
       ],
       "movable": true,
       "precedent": {
         "confers_origin": [
           "H330862",
           "N335242",
-          "N338514"
+          "N338514",
+          "N228696",
+          "N322258"
         ],
         "not_enough": [
           "N339685",
           "N334531"
         ],
-        "note": "Stamping, extruding, and welding metal into structural bodies or frames confers origin when it forms the core structure (H330862, N335242, N338514), whereas manufacturing a wood pedestal alone did not confer origin compared to the stone tabletop (N339685), nor did welding and painting metal bases or machining and painting wood bases in China for tables with Thai stone tops (N334531)."
+        "note": "Stamping, extruding, and welding metal into structural bodies or frames confers origin when it forms the core structure (H330862, N335242, N338514), whereas manufacturing a wood pedestal alone did not confer origin compared to the stone tabletop (N339685), nor did welding and painting metal bases or machining and painting wood bases in China for tables with Thai stone tops (N334531). Turning rough-cut Chinese wood into headboard posts and rails in Taiwan by sanding, mortising, tenoning, staining and lacquering made the headboard Taiwanese (N228696), and cutting, engraving, drilling, staining and sealing wood into kitchen cabinets in Mexico made them Mexican (N322258)."
       }
     },
     {
@@ -69,16 +79,20 @@
       "operations": [
         "extrude, layer, and cut polyurethane memory foam to size",
         "cut and sew textile fabrics, fireproof socks, welt cords, and zippered outer covers",
-        "enclose foam layers and innerspring coils into sewn fireproof socks and zippered textile covers"
+        "enclose foam layers and innerspring coils into sewn fireproof socks and zippered textile covers",
+        "cut fabric to pattern and sew it into upholstery covers, then stretch, staple and sew the covers onto frames fitted with their springs, foam and padding"
       ],
       "movable": true,
       "precedent": {
         "confers_origin": [
           "N348576",
           "N339107",
-          "N339646"
+          "N339646",
+          "N307432",
+          "N101033",
+          "N064195"
         ],
-        "note": "Extruding, layering, and cutting memory foam and zipping it into covers in Japan established Japanese origin for the mattresses even after they were placed into sleeper sofas in another country (N348576, N339107, N339646)."
+        "note": "Extruding, layering, and cutting memory foam and zipping it into covers in Japan established Japanese origin for the mattresses even after they were placed into sleeper sofas in another country (N348576, N339107, N339646). Pouring, curing and cutting foam and covering it in Vietnam made a foam mattress Vietnamese despite Chinese covers (N307432). Sewing covers cut abroad onto U.S.-built frames with their springs, foam and padding made the seats U.S. products, though fitting the same covers to finished foreign frames would be simple assembly (N101033); fitted covers cut in China to fit U.S. sofa and chair frames were Chinese as covers and lost that identity once fitted (N064195)."
       }
     },
     {
@@ -92,12 +106,13 @@
       "movable": true,
       "precedent": {
         "confers_origin": [
-          "N330057"
+          "N330057",
+          "N306524"
         ],
         "not_enough": [
           "H330862"
         ],
-        "note": "Populating the main control PCB and assembling the motorized scissor mechanism contributed to origin (N330057), whereas supplying imported hand controllers and control boxes did not confer origin (H330862)."
+        "note": "Populating the main control PCB and assembling the motorized scissor mechanism contributed to origin (N330057), whereas supplying imported hand controllers and control boxes did not confer origin (H330862). Building a mechanically adjustable bed foundation, with its articulating electromechanical structure, in Vietnam from mostly Chinese parts made it Vietnamese (N306524)."
       }
     },
     {
@@ -107,13 +122,15 @@
         "mount controllers, brackets, latches, drawers, and hardware onto tabletops, frames, or cabinets",
         "unroll and place finished foam mattresses onto sleeper sofa or ottoman frames",
         "combine and package finished tabletops with pedestals, legs, or bases for retail shipment",
-        "pack tabletops with unassembled bases and hardware as knock-down kits for assembly by the buyer"
+        "pack tabletops with unassembled bases and hardware as knock-down kits for assembly by the buyer",
+        "assemble imported kits of finished, stained cabinet parts into complete cabinets"
       ],
       "movable": false,
       "precedent": {
         "confers_origin": [
           "N338514",
-          "N344246"
+          "N344246",
+          "N087858"
         ],
         "not_enough": [
           "N348576",
@@ -121,7 +138,7 @@
           "N339646",
           "N334531"
         ],
-        "note": "Final assembly confers origin when paired with substantial component fabrication or complex multi-part integration (N338514, N344246), but merely co-packaging or minor joining does not transform the components (N334531, N348576, N339107, N339646)."
+        "note": "Final assembly confers origin when paired with substantial component fabrication or complex multi-part integration (N338514, N344246), but merely co-packaging or minor joining does not transform the components (N334531, N348576, N339107, N339646). Assembling kits of finished, stained and topcoated Chinese face frames, doors and boxes into kitchen and bath cabinets in the United States made them U.S. products (N087858)."
       }
     }
   ]
