@@ -3513,3 +3513,12 @@ Some Japan Customs rulings carry a code from a later HS edition than the schedul
   - The authenticated smoke test is paused.
 - **Cost if wrong.** More input tokens and latency per request, and a long note may dilute the deciding rule. Not measured.
 - **Evidence.** `docs/japan/chapter3-articles.md`, `docs/japan/date-windows.md`, `docs/japan/prospective-evaluation-plan.md`.
+
+## D886 — U.S. food-v1: independent-test protocol reserved before any new run (25 Nov, #821, #823)
+- **Status.** Protocol only. No independent split is frozen and no model call has been made for this decision. D856/D857's development gain (food 15 → 19 of 20, McNemar p = 0.125, three of four gains on rulings the text was written from) stays eval-only and is not evidence of accuracy on unseen food rulings.
+- **Blocker.** The exact IDs remain unavailable: D856 names 14 written-from rulings and the writer read 17 more that are not recorded; the 7 cited older rulings need raw full texts or the author's list; the ~2 rulings after the 13 Nov final2 cutoff are not in the repository. Gateway credentials are also absent. #823 records the owner asks.
+- **Pre-registered rule.** Once #823 supplies the IDs: exclude every D856-written-from ruling and any ruling whose facts/holdings the writer read; exclude the spent D842 held-out food slice and the already-scored final2 split; keep only train/other rulings not already served by a dedicated template for the training-rule part; freeze an ID-and-date manifest in `eval/splits/` before the first call. Cases dated before 2023 see only earlier rulings in the same set as precedents; both arms get identical retrieval.
+- **Runs.** One control and one `-food-rules` arm through the approved gateway with `LITELLM_NO_CACHE=1`, same code, model, facts, split and workers. The ~16-ruling small set is directional only; no accuracy claim or enablement follows from it alone.
+- **Report and decision.** `eval/accuracy/measure_food_independent.py` pairs the committed result files, reports Wilson 95% intervals and exact two-sided McNemar, and lists gained/lost IDs. Its `--self-test` is in `make reproduce`. A later decision records enable/no-enable; until then the server does not wire `CaseRules` and no number is published.
+- **Cost if wrong.** Calling D857 an accuracy gain, or scoring a split whose provenance is unknown, would claim what the test cannot support.
+- **Evidence.** `docs/issues/` protocol in #823; `eval/accuracy/measure_food_independent.py`.
