@@ -407,7 +407,7 @@ The same proposed replacements, as exact strings for the integrator, are in the 
 `eval/SHA256SUMS` already pins the labelled corpora and the splits, and `claimscheck` verifies it. The block below pins the other files the check reads (the facts directory is pinned by the digest of its sorted file-name list instead of repeating 3,081 hashes). A changed file fails the check until a person reviews it and refreshes the line. Regenerate with `cd backend && go run ./cmd/claimscheck -print-manifest`.
 
 ```
-6775732ac00a7d30a3e4cffe58e68ce9734fc9a63ef196a52b1d5171a757a33d  eval/SHA256SUMS
+f955eede045ff68c3b3d940488c071ab240fc03836d204fc47e3287729cadcd0  eval/SHA256SUMS
 727918a055ad3bb10d13392c7859da004f2d8cea2b90fd4a564e71a326d326ad  eval/data/scoring_adjustments.json
 2d8a357af6eeb134485c05d60af08eb15f75c37b39ae49b9fc2a14203c34ec81  eval/results/final-gemini-4-argon-prec-engine-v1-vertex.jsonl
 f5c24fac4e27a88941c981c7ff042b8e4094d55441c7a6bf67280c342c164551  eval/results/scope-final-router-v2-vertex.jsonl
