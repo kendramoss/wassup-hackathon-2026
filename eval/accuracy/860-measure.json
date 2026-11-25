@@ -1,0 +1,247 @@
+{
+  "check": {
+    "all": {
+      "control": 534,
+      "control_wilson": [
+        0.8571,
+        0.8275,
+        0.8824
+      ],
+      "gained": 10,
+      "gained_ids": [
+        "H328752",
+        "H329104",
+        "N333410",
+        "N335711",
+        "N336804",
+        "N341537",
+        "N342480",
+        "N342514",
+        "N344661",
+        "N347603"
+      ],
+      "lost": 5,
+      "lost_ids": [
+        "N335263",
+        "N335835",
+        "N340058",
+        "N341518",
+        "N344204"
+      ],
+      "mcnemar_p": 0.3018,
+      "n": 623,
+      "net": 5,
+      "variant": 539,
+      "variant_wilson": [
+        0.8652,
+        0.8361,
+        0.8898
+      ]
+    },
+    "china_answers": {
+      "control": {
+        "answers": 121,
+        "right": 80
+      },
+      "variant": {
+        "answers": 118,
+        "right": 79
+      }
+    },
+    "control": "eval/results/train-gemini-4-argon-prec-engine-v1-litellm-860-control.jsonl",
+    "failed": {
+      "control": [],
+      "variant": []
+    },
+    "gated": {
+      "control": 534,
+      "control_wilson": [
+        0.8571,
+        0.8275,
+        0.8824
+      ],
+      "gained": 10,
+      "gained_ids": [
+        "H328752",
+        "H329104",
+        "N333410",
+        "N335711",
+        "N336804",
+        "N341537",
+        "N342480",
+        "N342514",
+        "N344661",
+        "N347603"
+      ],
+      "lost": 5,
+      "lost_ids": [
+        "N335263",
+        "N335835",
+        "N340058",
+        "N341518",
+        "N344204"
+      ],
+      "mcnemar_p": 0.3018,
+      "n": 623,
+      "net": 5,
+      "variant": 539,
+      "variant_wilson": [
+        0.8652,
+        0.8361,
+        0.8898
+      ]
+    },
+    "rows": [
+      623,
+      623
+    ],
+    "ungated": {
+      "control": 0,
+      "control_wilson": [
+        null,
+        null,
+        null
+      ],
+      "gained": 0,
+      "gained_ids": [],
+      "lost": 0,
+      "lost_ids": [],
+      "mcnemar_p": 1.0,
+      "n": 0,
+      "net": 0,
+      "variant": 0,
+      "variant_wilson": [
+        null,
+        null,
+        null
+      ]
+    },
+    "variant": "eval/results/train-gemini-4-argon-prec-engine-v1-litellm-china-v1-860-china-v1.jsonl"
+  },
+  "dev": {
+    "all": {
+      "control": 422,
+      "control_wilson": [
+        0.8998,
+        0.8693,
+        0.9238
+      ],
+      "gained": 10,
+      "gained_ids": [
+        "H323218",
+        "N349972",
+        "N350091",
+        "N350425",
+        "N350480",
+        "N351081",
+        "N352230",
+        "N353879",
+        "N356150",
+        "N356481"
+      ],
+      "lost": 8,
+      "lost_ids": [
+        "N350516",
+        "N350678",
+        "N350865",
+        "N350920",
+        "N351922",
+        "N352477",
+        "N354493",
+        "N355972"
+      ],
+      "mcnemar_p": 0.8145,
+      "n": 469,
+      "net": 2,
+      "variant": 424,
+      "variant_wilson": [
+        0.9041,
+        0.874,
+        0.9275
+      ]
+    },
+    "china_answers": {
+      "control": {
+        "answers": 93,
+        "right": 68
+      },
+      "variant": {
+        "answers": 92,
+        "right": 68
+      }
+    },
+    "control": "eval/results/dev-gemini-4-argon-prec-engine-v1-litellm-860-control.jsonl",
+    "failed": {
+      "control": [],
+      "variant": []
+    },
+    "gated": {
+      "control": 353,
+      "control_wilson": [
+        0.9028,
+        0.8694,
+        0.9284
+      ],
+      "gained": 9,
+      "gained_ids": [
+        "H323218",
+        "N349972",
+        "N350091",
+        "N350425",
+        "N350480",
+        "N351081",
+        "N352230",
+        "N353879",
+        "N356481"
+      ],
+      "lost": 8,
+      "lost_ids": [
+        "N350516",
+        "N350678",
+        "N350865",
+        "N350920",
+        "N351922",
+        "N352477",
+        "N354493",
+        "N355972"
+      ],
+      "mcnemar_p": 1.0,
+      "n": 391,
+      "net": 1,
+      "variant": 354,
+      "variant_wilson": [
+        0.9054,
+        0.8723,
+        0.9306
+      ]
+    },
+    "rows": [
+      469,
+      469
+    ],
+    "ungated": {
+      "control": 69,
+      "control_wilson": [
+        0.8846,
+        0.795,
+        0.9381
+      ],
+      "gained": 1,
+      "gained_ids": [
+        "N356150"
+      ],
+      "lost": 0,
+      "lost_ids": [],
+      "mcnemar_p": 1.0,
+      "n": 78,
+      "net": 1,
+      "variant": 70,
+      "variant_wilson": [
+        0.8974,
+        0.8105,
+        0.9471
+      ]
+    },
+    "variant": "eval/results/dev-gemini-4-argon-prec-engine-v1-litellm-china-v1-860-china-v1.jsonl"
+  }
+}

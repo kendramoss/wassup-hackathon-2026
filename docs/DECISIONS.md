@@ -3395,6 +3395,15 @@ Committed and pushed before any run below. Held-out was spent in D842 and is not
 - **What follows.** "Helped" would justify a separate decision on the server; nothing changes in production here. Otherwise china-v1 stays eval-only and this group is closed for prompt text.
 - **Cost and stop rule.** Development about $3.7 a run, the check about $4.9 a run: about $17 in all, against a $25 cap for this task; a run that would pass the cap is not started. Each cost goes in the spend ledger.
 
+## D861 — U.S. origin accuracy: results of D860, china-v1 (25 Nov, #831)
+Runs as pre-registered, each from a clean committed tree through the gateway with `LITELLM_NO_CACHE=1` (`code_dirty` false, `dataset_sha256` recorded); no failed calls. Figures from `eval/accuracy/measure_860.py` (`860-measure.json`, in `make reproduce`); Wilson 95% intervals; exact two-sided McNemar.
+- **Development (469): 422 → 424** (90.0%, 86.9–92.4 → 90.4%, 87.4–92.8); 10 gained, 8 lost, p = 0.81. Gated (391): 353 → 354, 9 gained, 8 lost. Ungated (78, byte-identical prompts): 69 → 70, gateway variation.
+- **Unseen check (623 training rulings): 534 → 539** (85.7%, 82.7–88.2 → 86.5%, 83.6–89.0); 10 gained, 5 lost, p = 0.30.
+- **China answers did not change.** Development 68 right of 93 → 68 of 92; check 80 of 121 → 79 of 118. The text moved individual rulings both ways without changing how often the engine picks the parts country over the assembly country.
+- **Criterion, as stated in D860: no detectable effect.** "Helped" needed development +3 and the check +5; development was +2. Not "harms". The check's +5 is the size D860 set for it, but with 15 discordant rulings it is not significant, and the China answers, the pattern this targeted, stayed the same.
+- **Reading.** A written statement of CBP's parts-versus-assembly test does not shift the engine's judgment on these cases, as with rules-v1 and rules-v2 (D27, D157). china-v1 stays eval-only and this group is closed for prompt text. The remaining China misses are essential-character calls that CBP itself makes both ways for similar goods (air filters: N351081 China, N352485 Thailand).
+- **Cost and latency.** Development $3.69 and $3.93, check $4.88 and $5.24: $17.74, inside the $25 cap. Per call $0.0079 control, $0.0084 variant (longer prompt). p50 7.4 s and 7.2 s on development; p95 11.0 s and 11.6 s.
+
 ## D870 — Japan: a reviewed HS-edition correlation, applied only when the lookup finds no rule (24 Nov, #791 94fb24f6)
 Some Japan Customs rulings carry a code from a later HS edition than the schedule uses, so the lookup returned `no_match` and the case went to review. A short list of correlations (`backend/internal/jprules/data/correlations.json`) now sits behind that outcome.
 - **Decision.**
