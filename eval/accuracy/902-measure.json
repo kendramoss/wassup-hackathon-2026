@@ -1,0 +1,90 @@
+{
+  "passed": false,
+  "test": {
+    "eval/results/dev-gemini-4-argon-prec-engine-v1-litellm-815-control.jsonl": {
+      "auto": 378,
+      "errors_support_score": 17,
+      "errors_today": 17,
+      "swapped_in": [
+        "N350963",
+        "N351809",
+        "N351904",
+        "N353214",
+        "N355067",
+        "N356522"
+      ],
+      "swapped_out": [
+        "N348376",
+        "N350225",
+        "N350470",
+        "N355289",
+        "N355694",
+        "N356144"
+      ]
+    },
+    "eval/results/dev-gemini-4-argon-prec-engine-v1-litellm-860-control.jsonl": {
+      "auto": 377,
+      "errors_support_score": 19,
+      "errors_today": 16,
+      "swapped_in": [
+        "N349871",
+        "N351081",
+        "N351477",
+        "N351809",
+        "N351904",
+        "N352223",
+        "N352477",
+        "N356522"
+      ],
+      "swapped_out": [
+        "N350225",
+        "N350470",
+        "N353105",
+        "N354424",
+        "N355173",
+        "N355289",
+        "N355694",
+        "N356144"
+      ]
+    },
+    "eval/results/dev-gemini-4-argon-prec-engine-v1-vertex.jsonl": {
+      "auto": 376,
+      "errors_support_score": 19,
+      "errors_today": 16,
+      "swapped_in": [
+        "N349871",
+        "N350425",
+        "N350865",
+        "N350962",
+        "N351081",
+        "N351477",
+        "N351807",
+        "N351887",
+        "N351904",
+        "N352223",
+        "N353214",
+        "N355067"
+      ],
+      "swapped_out": [
+        "H346979",
+        "N350470",
+        "N350480",
+        "N350867",
+        "N351335",
+        "N351528",
+        "N353105",
+        "N354424",
+        "N355289",
+        "N355549",
+        "N356144",
+        "N356865"
+      ]
+    }
+  },
+  "weights": {
+    "age": -1.450839,
+    "agree": 0.776199,
+    "confidence": 18.146929,
+    "intercept": -14.922197
+  }
+}

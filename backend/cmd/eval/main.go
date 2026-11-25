@@ -195,7 +195,7 @@ func run(args []string) error {
 	hedgeAfter := fl.Duration("hedge-after", 0, "send a call once more if it has not answered after this long and use the first answer (D611; 0 = off)")
 	useRouter := fl.Bool("router", false, "also run the router; its regime label drives the scope check")
 	cond := fl.String("cond", "prec", "prec (with precedents) or zero (facts only)")
-	retrievalMode := fl.String("retrieval", "bm25", "bm25, hybrid (BM25 candidates re-ranked by embeddings) or vector")
+	retrievalMode := fl.String("retrieval", "bm25", "bm25, hybrid (BM25 candidates re-ranked by embeddings), vector, or recency (BM25 top 20 re-ranked by recency, recency-v1, D904)")
 	candidates := fl.Int("candidates", 30, "BM25 candidates re-ranked in hybrid mode")
 	vectorsPath := fl.String("vectors", "../data/corpus/embeddings-768.bin", "embedding index (go run ./cmd/corpus embed)")
 	votes := fl.Int("votes", 1, "calls per low-confidence case (majority over rotated precedent orders); 1 = no voting")
@@ -328,6 +328,8 @@ func run(args []string) error {
 		retr = bm
 		switch *retrievalMode {
 		case "bm25":
+		case "recency":
+			retr = &retrieval.Recency{BM25: bm}
 		case "hybrid", "vector":
 			vecs, err := retrieval.LoadVectors(*vectorsPath)
 			if err != nil {
@@ -346,7 +348,7 @@ func run(args []string) error {
 			}
 			retr = &retrieval.Hybrid{BM25: bm, Vectors: vecs, Embedder: emb, Candidates: n}
 		default:
-			return fmt.Errorf("-retrieval must be bm25, hybrid or vector")
+			return fmt.Errorf("-retrieval must be bm25, hybrid, vector or recency")
 		}
 	}
 	eng := engine.New(model, retr, engine.Options{Model: cfg.EngineModel, K: cfg.PrecedentK, MaxOutputTokens: cfg.MaxOutputTokens,
@@ -584,6 +586,7 @@ func evaluate(ctx context.Context, eng *engine.Engine, rt *router.Router, cfg co
 		}
 	}
 	t0 := time.Now()
+	ctx = retrieval.WithCaseDate(ctx, c.Date) // read by -retrieval recency only (D904)
 	res, err := eng.Predict(ctx, domain.Case{ID: c.ID, Date: c.Date, Facts: c.Facts})
 	row.WallMS = time.Since(t0).Milliseconds()
 	row.GatewayCostUSD = tally.USD()

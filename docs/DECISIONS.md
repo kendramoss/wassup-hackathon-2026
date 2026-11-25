@@ -3663,3 +3663,29 @@ Committed and pushed before any figure on the fit set was read. This lane takes 
 - **Test, official development run:** auto-accepted 376 (16 wrong, 95.7%, 80.2% coverage) → 320 (13 wrong, 95.9%, 68.2%). Errors cut 19% (30% needed), coverage down 11.9 points (10 allowed). Secondary runs: D815's control 95.5% → 95.4%, D860's 95.8% → 95.7%. **Criterion: not met.** Nothing changes in production.
 - **Every gate, for the record (official run, auto-accepted, wrong):** none 376/16; S1 287/11; S2 216/8; A12 320/13; S1A6 324/12. Each removes about 10–20 right answers per wrong one.
 - **Reading.** The support signal is strong over all answers (D900: 84% with no supporting precedent, 99% with five) but weak among auto-accepted ones: the confidence bar already sends most weakly supported errors to review. As a gate it costs far more coverage than it saves errors. It stays a diagnostic. Not tried, and not pre-registered here: support as an input to the calibration map itself.
+## D902 — Precedent support inside the confidence score, pre-registered (25 Nov)
+Committed and pushed before the fit. No model calls. D901 found that support as a separate gate costs too much coverage; this tests it as part of the score that decides auto-accept.
+- **Score** (`eval/accuracy/measure_902.py`). Logistic regression on stated confidence, agree/5 and capped mean precedent age (as D900), with an intercept, fitted on the 623 training rows of D860's check control (target: answer right), L2 1e-3, deterministic Newton steps.
+- **Test at matched coverage.** In each development run, keep the number of auto-accepted answers today's rule gives (in scope, stated ≥ 0.92) and take that many in-scope answers by the new score instead; count the wrong ones. Same coverage, so a gain is fewer wrong answers auto-accepted.
+- **Passes** when on the official development run it auto-accepts at least 3 fewer wrong answers (16 today), and in D815's and D860's controls no more, and fewer in at least one.
+- **If it passes**, wiring it into production calibration is a separate decision. **If not**, D904 tests recency in retrieval, as asked.
+## D903 — Precedent support inside the confidence score: results of D902
+`eval/accuracy/902-measure.json` (in `make reproduce`); no model calls. Fitted weights: confidence 18.15, agree 0.78, age −1.45, intercept −14.92 (support adds little next to confidence).
+- **Matched coverage, wrong answers auto-accepted (today → support score):** official development run 16 → 19 (376 auto-accepted; 12 swapped); D815's control 17 → 17; D860's control 16 → 19. **Criterion: not met**; it is worse. Nothing changes.
+- **Reading.** With D901: precedent support predicts errors over all answers but not among confident ones, as a gate or inside the score. Closed. Next, as asked: recency in retrieval (D904).
+## D904 — Recency in retrieval, pre-registered (25 Nov)
+Committed and pushed before the runs. Development only; held-out is not read.
+- **Why.** On D860's development control, cases whose precedents were on average under 6 months older were right 94% of the time, against 85–87% for older ones (D900), and the fish rulings of D859 showed CBP practice changing over years. The age signal may only mark rare products, so this tests whether preferring newer precedents helps.
+- **The change, eval-only (`retrieval.Recency`, `recency-v1`).** BM25's top 20 candidates are re-scored by 1 + 0.10·exp(−months/12), where months is how much older the precedent is than the case: +10% for a same-month ruling, +3.7% at a year, +1.4% at two years. Then the top 5 are kept. It only reorders near ties. `eval run -retrieval recency`; the server is unchanged.
+- **Reach** (`eval retrdiff -recency`, `904-retrdiff.json`, offline). 296 of 469 development cases change: 172 get at least one different precedent, 124 only a different order. So both arms run on all 469.
+- **Runs, gateway only** (gemini-4-argon, `LITELLM_NO_CACHE=1`, clean committed tree, results committed after each). From `backend/` with `-split dev -facts data/facts`: control `-tag 904-control`, variant `-retrieval recency -tag 904-recency`.
+- **Measured** (`measure_904.py`, written before): paired gained, lost and exact McNemar, Wilson intervals, on all 469 and split into new-precedent, order-only and unchanged cases.
+- **Criteria.** **Helped:** net +4 or better on all 469 (identical prompts moved ±2 between runs in D857). **Harms:** net −4 or worse. Otherwise **no detectable effect**. Helped would justify a separate decision on production retrieval.
+- **Expectation.** No detectable effect is likeliest; D22's retrieval variants did not move accuracy.
+- **Cost.** About $7.5 for both runs; cap $12.
+## D905 — Recency in retrieval: results of D904
+Runs as pre-registered (`dev-…-904-control`, `dev-gemini-4-argon-recency30-engine-v1-litellm-904-recency`; gateway, clean tree); `eval/accuracy/904-measure.json` (in `make reproduce`). One failed call in the variant (N350720, "unchanged", counted wrong).
+- **All 469: 421 → 422** (89.8% → 90.0%); 6 gained, 5 lost, McNemar p = 1.0. New precedent (172): 148 → 149. Order only (124): 111 → 112. Unchanged (173): 162 → 161, the failed call.
+- **Criterion, as D904 stated: no detectable effect** (net +1; ±4 needed either way). Production retrieval stays BM25.
+- **Reading.** Preferring newer precedents among near ties changes the precedents of most cases and the answers of almost none; the age signal of D900 marks harder cases, not worse retrieval. With D901 and D903, the support and recency signals are closed.
+- **Cost.** $3.69 and $3.68.
