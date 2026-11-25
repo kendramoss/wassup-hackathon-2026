@@ -1,0 +1,192 @@
+{
+  "criterion": {
+    "passed": false,
+    "primary_coverage_drop_points": 11.94,
+    "primary_errors_cut": 0.1875,
+    "secondary_accuracy_up_both": false
+  },
+  "fit": {
+    "before": {
+      "auto": 477,
+      "auto_accuracy": 0.9329,
+      "auto_errors": 32,
+      "coverage": 0.7657,
+      "n": 623
+    },
+    "eligible": [
+      "A12"
+    ],
+    "file": "eval/results/train-gemini-4-argon-prec-engine-v1-litellm-860-control.jsonl",
+    "gates": {
+      "A12": {
+        "auto": 421,
+        "auto_accuracy": 0.9406,
+        "auto_errors": 25,
+        "coverage": 0.6758,
+        "n": 623
+      },
+      "S1": {
+        "auto": 327,
+        "auto_accuracy": 0.9541,
+        "auto_errors": 15,
+        "coverage": 0.5249,
+        "n": 623
+      },
+      "S1A6": {
+        "auto": 396,
+        "auto_accuracy": 0.9495,
+        "auto_errors": 20,
+        "coverage": 0.6356,
+        "n": 623
+      },
+      "S2": {
+        "auto": 234,
+        "auto_accuracy": 0.9744,
+        "auto_errors": 6,
+        "coverage": 0.3756,
+        "n": 623
+      }
+    },
+    "picked": "A12"
+  },
+  "test": {
+    "eval/results/dev-gemini-4-argon-prec-engine-v1-litellm-815-control.jsonl": {
+      "after": {
+        "auto": 325,
+        "auto_accuracy": 0.9538,
+        "auto_errors": 15,
+        "coverage": 0.693,
+        "n": 469
+      },
+      "all_gates": {
+        "A12": {
+          "auto": 325,
+          "auto_accuracy": 0.9538,
+          "auto_errors": 15,
+          "coverage": 0.693,
+          "n": 469
+        },
+        "S1": {
+          "auto": 292,
+          "auto_accuracy": 0.9589,
+          "auto_errors": 12,
+          "coverage": 0.6226,
+          "n": 469
+        },
+        "S1A6": {
+          "auto": 329,
+          "auto_accuracy": 0.9574,
+          "auto_errors": 14,
+          "coverage": 0.7015,
+          "n": 469
+        },
+        "S2": {
+          "auto": 223,
+          "auto_accuracy": 0.9552,
+          "auto_errors": 10,
+          "coverage": 0.4755,
+          "n": 469
+        }
+      },
+      "before": {
+        "auto": 378,
+        "auto_accuracy": 0.955,
+        "auto_errors": 17,
+        "coverage": 0.806,
+        "n": 469
+      }
+    },
+    "eval/results/dev-gemini-4-argon-prec-engine-v1-litellm-860-control.jsonl": {
+      "after": {
+        "auto": 323,
+        "auto_accuracy": 0.9567,
+        "auto_errors": 14,
+        "coverage": 0.6887,
+        "n": 469
+      },
+      "all_gates": {
+        "A12": {
+          "auto": 323,
+          "auto_accuracy": 0.9567,
+          "auto_errors": 14,
+          "coverage": 0.6887,
+          "n": 469
+        },
+        "S1": {
+          "auto": 292,
+          "auto_accuracy": 0.9658,
+          "auto_errors": 10,
+          "coverage": 0.6226,
+          "n": 469
+        },
+        "S1A6": {
+          "auto": 329,
+          "auto_accuracy": 0.9605,
+          "auto_errors": 13,
+          "coverage": 0.7015,
+          "n": 469
+        },
+        "S2": {
+          "auto": 221,
+          "auto_accuracy": 0.9638,
+          "auto_errors": 8,
+          "coverage": 0.4712,
+          "n": 469
+        }
+      },
+      "before": {
+        "auto": 377,
+        "auto_accuracy": 0.9576,
+        "auto_errors": 16,
+        "coverage": 0.8038,
+        "n": 469
+      }
+    },
+    "eval/results/dev-gemini-4-argon-prec-engine-v1-vertex.jsonl": {
+      "after": {
+        "auto": 320,
+        "auto_accuracy": 0.9594,
+        "auto_errors": 13,
+        "coverage": 0.6823,
+        "n": 469
+      },
+      "all_gates": {
+        "A12": {
+          "auto": 320,
+          "auto_accuracy": 0.9594,
+          "auto_errors": 13,
+          "coverage": 0.6823,
+          "n": 469
+        },
+        "S1": {
+          "auto": 287,
+          "auto_accuracy": 0.9617,
+          "auto_errors": 11,
+          "coverage": 0.6119,
+          "n": 469
+        },
+        "S1A6": {
+          "auto": 324,
+          "auto_accuracy": 0.963,
+          "auto_errors": 12,
+          "coverage": 0.6908,
+          "n": 469
+        },
+        "S2": {
+          "auto": 216,
+          "auto_accuracy": 0.963,
+          "auto_errors": 8,
+          "coverage": 0.4606,
+          "n": 469
+        }
+      },
+      "before": {
+        "auto": 376,
+        "auto_accuracy": 0.9574,
+        "auto_errors": 16,
+        "coverage": 0.8017,
+        "n": 469
+      }
+    }
+  }
+}
