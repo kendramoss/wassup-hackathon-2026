@@ -3373,6 +3373,15 @@ Committed and pushed before either run below. D857 found food 15 → 19 of 20 on
 - **What follows.** Enabling food-v1 in the server needs its own entry and is not decided here. If it harms, it stays eval-only and the larger probe is dropped. Otherwise the 2019–2022 probe (#821) is the next measurement.
 - **Cost and stop rule.** Two runs of 17 calls, about $0.40; stop at $5. Each cost goes in the spend ledger.
 
+## D859 — U.S. origin accuracy on food: results of D858 (25 Nov, #821)
+Runs as pre-registered. Control `foodfresh-gemini-4-argon-prec-engine-v1-litellm-858-control` and variant `foodfresh-gemini-4-argon-prec-engine-v1-litellm-food-v1-858-food-v1`, both through the gateway with `LITELLM_NO_CACHE=1`, each from a clean committed tree (`code_dirty` false, `dataset_sha256` recorded). Figures from `eval/accuracy/measure_858.py` (`858-measure.json`, in `make reproduce`). No failed calls; all 17 variant prompts carried the food text.
+- **All 17: 17 → 15** (100%, 81.6–100 → 88.2%, 65.7–96.7); 0 gained, 2 lost, McNemar p = 0.5. **Training 9: 9 → 9.** **New 8: 8 → 6.**
+- **Criterion, as stated in D858: harms** (net -2). The control answered all 17 right, so no gain was possible on this set; the test could only find harm, and it did, though not significantly.
+- **The two losses are the same kind of case.** N284246 (2017): U.S. salmon filleted in China, marinated in the United States; CBP held China, food-v1 answered United States. N320603 (2021): tuna caught by Chinese-flagged vessels, loined and trimmed in Japan; CBP held Japan, food-v1 answered China. In both, CBP held that cutting a fish into fillets or loins in a second country changed its origin. food-v1's first statement says the opposite, which is what the 2023–2025 rulings it was written from hold (frozen fish, squid, halibut, scallops). Without the text the engine followed the precedents and answered both right.
+- **Reading.** food-v1 fixes the development rulings it was written from and overrides older fish rulings that went the other way. Whether CBP changed practice or these are fact-specific was not checked. Either way, a fixed rule on fish processing is wrong for some real rulings the engine otherwise gets right. **food-v1 stays eval-only and is not proposed for the server.** As D858 set out, the larger 2019–2022 probe is dropped: those rulings are the period where the conflict sits.
+- **Not shown.** Nothing here is significant (n = 17, two discordant pairs). The set is small and skewed to cited, older rulings, where the control was perfect.
+- **Cost.** Control $0.115, variant $0.125: $0.24. Latency p50 8.0 s and 7.7 s.
+
 ## D870 — Japan: a reviewed HS-edition correlation, applied only when the lookup finds no rule (24 Nov, #791 94fb24f6)
 Some Japan Customs rulings carry a code from a later HS edition than the schedule uses, so the lookup returned `no_match` and the case went to review. A short list of correlations (`backend/internal/jprules/data/correlations.json`) now sits behind that outcome.
 - **Decision.**

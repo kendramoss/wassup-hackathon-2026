@@ -1,0 +1,72 @@
+{
+  "all": {
+    "control": 17,
+    "control_wilson": [
+      1.0,
+      0.8157,
+      1
+    ],
+    "gained": [],
+    "lost": [
+      "N284246",
+      "N320603"
+    ],
+    "mcnemar_p": 0.5,
+    "n": 17,
+    "net": -2,
+    "variant": 15,
+    "variant_wilson": [
+      0.8824,
+      0.6566,
+      0.9671
+    ]
+  },
+  "control": "eval/results/foodfresh-gemini-4-argon-prec-engine-v1-litellm-858-control.jsonl",
+  "errors": {
+    "control": [],
+    "variant": []
+  },
+  "gated": 17,
+  "new": {
+    "control": 8,
+    "control_wilson": [
+      1.0,
+      0.6756,
+      1
+    ],
+    "gained": [],
+    "lost": [
+      "N284246",
+      "N320603"
+    ],
+    "mcnemar_p": 0.5,
+    "n": 8,
+    "net": -2,
+    "variant": 6,
+    "variant_wilson": [
+      0.75,
+      0.4093,
+      0.9285
+    ]
+  },
+  "training": {
+    "control": 9,
+    "control_wilson": [
+      1.0,
+      0.7009,
+      1
+    ],
+    "gained": [],
+    "lost": [],
+    "mcnemar_p": 1.0,
+    "n": 9,
+    "net": 0,
+    "variant": 9,
+    "variant_wilson": [
+      1.0,
+      0.7009,
+      1
+    ]
+  },
+  "variant": "eval/results/foodfresh-gemini-4-argon-prec-engine-v1-litellm-food-v1-858-food-v1.jsonl"
+}
