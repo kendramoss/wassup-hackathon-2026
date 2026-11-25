@@ -138,7 +138,7 @@ A saved case now says when CBP has revoked or modified a ruling it relies on (ci
 
 | Committed results | Count | Would show |
 |---|---:|---|
-| Result rows naming rulings | 15,071 (15,039 before D859; 14,102 before D857) | |
+| Result rows naming rulings | 17,253 (15,071 before D861; 15,039 before D859; 14,102 before D857) | |
 | Relied-on ruling changed on or after the case date | 2 (4 before D490) | the "look again" alert |
 | Relied-on ruling changed before the case date | 7 (8 before D490) | the alert, marked as stored before the guard (7 of the 8 of section 2.5; the eighth also cites the revoker) |
 | Relied-on ruling with a proposed change only | 0 | a calm line |
