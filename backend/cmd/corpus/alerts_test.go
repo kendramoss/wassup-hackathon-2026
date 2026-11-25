@@ -27,7 +27,7 @@ func TestCommittedAlertCount(t *testing.T) {
 	if err := json.Unmarshal(b, &d); err != nil {
 		t.Fatal(err)
 	}
-	want := map[string]int{"rows_with_rulings": 18222, "final_after_case": 3, "final_before_case": 7, "read_only_final": 95, "rows_undated": 388}
+	want := map[string]int{"rows_with_rulings": 19159, "final_after_case": 3, "final_before_case": 7, "read_only_final": 99, "rows_undated": 388}
 	for k, v := range want {
 		if d.Rows[k] != v {
 			t.Errorf("rows %s = %d, docs/NUMBERS.md says %d", k, d.Rows[k], v)
@@ -45,7 +45,7 @@ func TestCommittedAlertCount(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if !strings.Contains(string(nums), "of 18,222 result rows naming rulings: 3 rely on a ruling changed on or after their case date") {
+	if !strings.Contains(string(nums), "of 19,159 result rows naming rulings: 3 rely on a ruling changed on or after their case date") {
 		t.Error("docs/NUMBERS.md row changed: update this test with it")
 	}
 }

@@ -3707,3 +3707,11 @@ Committed and pushed before the pool is labelled and before the runs. Developmen
 - **Criteria.** **Helped:** net +4 or better on all 469 (identical prompts moved ±2 between runs in D857). **Harms:** net −4 or worse. Otherwise **no detectable effect**. Helped would justify a separate decision on the production pool and a held-out check.
 - **Expectation.** 1–3 points at best, possibly nothing.
 - **Cost.** The probe has no model cost. About $7.5 for both runs; cap $12.
+## D908 — Older-ruling precedent pool: results of D907 (26 Nov)
+Runs as pre-registered (`dev-…-907-control`, `dev-…-907-older`; gateway, clean tree, 26 Nov 06:09–06:52 +08:00); `eval/accuracy/907-measure.json` (in `make reproduce`). One failed call in the variant (N353851, "unchanged", counted wrong; right in the control). A first attempt on 25 Nov returned no model output (the gateway refused every call) and its rows were removed before these runs.
+- **The pool.** The probe tried 25,501 numbers; 1,507 saved rulings are dated 2019-02-05 to 2022-06-22 (2019: 464, 2020: 538, 2021: 338, 2022: 167), and 1,388 not already labelled form `labels_older.jsonl` (substantial transformation 683, other 305, Part 102 158, single country 119, pharmaceutical 114, 9802 9; 448 with no single held origin).
+- **Reach.** 261 of 469 cases change; 203 retrieve at least one older ruling, 58 only reorder. The variant cites an older ruling in 97 cases.
+- **All 469: 422 → 420** (90.0% → 89.6%), McNemar p = 0.81. With an older ruling (203): 170 → 172, 8 gained and 6 lost, p = 0.79. Order only (58): 55 → 52. Unchanged (208): 197 → 196, the failed call.
+- **Criterion, as D907 stated: no detectable effect** (net −2; ±4 needed either way). The production pool stays 2023 onward; no held-out check.
+- **Reading.** Older rulings reach almost half the development cases and are cited in a fifth of them, yet answers move no more than between identical runs (D857). A missing precedent was not what made the model wrong; with D901, D903 and D905, the retrieval levers tried since D22 are closed. The pool has a gap: nothing from July to December 2022, the months just before the production pool starts.
+- **Cost.** $3.70 and $3.69.

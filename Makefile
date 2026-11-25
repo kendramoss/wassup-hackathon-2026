@@ -100,6 +100,7 @@ reproduce: ## recompute every published number from committed files: no model ca
 	python3 -I -B eval/accuracy/measure_900.py . --check
 	python3 -I -B eval/accuracy/measure_902.py . --check
 	python3 -I -B eval/accuracy/measure_904.py . --check
+	python3 -I -B eval/accuracy/measure_907.py . --check
 	python3 -I -B eval/accuracy/measure_food_independent.py . --self-test
 	python3 -I -B eval/supersession/impact.py . --check
 	python3 -I -B eval/charts/build_evaluation.py . --check

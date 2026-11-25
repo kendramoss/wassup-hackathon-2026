@@ -1,0 +1,120 @@
+{
+  "all": {
+    "after": 420,
+    "after_wilson": [
+      0.8646,
+      0.9201
+    ],
+    "before": 422,
+    "before_wilson": [
+      0.8693,
+      0.9238
+    ],
+    "gained": [
+      "H354210",
+      "N350091",
+      "N350425",
+      "N350962",
+      "N351582",
+      "N353573",
+      "N356150",
+      "N356663"
+    ],
+    "lost": [
+      "N351174",
+      "N351341",
+      "N351782",
+      "N352231",
+      "N352477",
+      "N353851",
+      "N354493",
+      "N355854",
+      "N355929",
+      "N355972"
+    ],
+    "mcnemar_p": 0.8145,
+    "n": 469,
+    "net": -2
+  },
+  "control": "eval/results/dev-gemini-4-argon-prec-engine-v1-litellm-907-control.jsonl",
+  "failed": {
+    "control": [],
+    "variant": [
+      "N353851"
+    ]
+  },
+  "reordered_only": {
+    "after": 52,
+    "after_wilson": [
+      0.7921,
+      0.9517
+    ],
+    "before": 55,
+    "before_wilson": [
+      0.8586,
+      0.9823
+    ],
+    "gained": [],
+    "lost": [
+      "N351174",
+      "N355929",
+      "N355972"
+    ],
+    "mcnemar_p": 0.25,
+    "n": 58,
+    "net": -3
+  },
+  "unchanged": {
+    "after": 196,
+    "after_wilson": [
+      0.9019,
+      0.9667
+    ],
+    "before": 197,
+    "before_wilson": [
+      0.9078,
+      0.9702
+    ],
+    "gained": [],
+    "lost": [
+      "N353851"
+    ],
+    "mcnemar_p": 1.0,
+    "n": 208,
+    "net": -1
+  },
+  "variant": "eval/results/dev-gemini-4-argon-prec-engine-v1-litellm-907-older.jsonl",
+  "with_an_older_ruling": {
+    "after": 172,
+    "after_wilson": [
+      0.7914,
+      0.8903
+    ],
+    "before": 170,
+    "before_wilson": [
+      0.7805,
+      0.8818
+    ],
+    "gained": [
+      "H354210",
+      "N350091",
+      "N350425",
+      "N350962",
+      "N351582",
+      "N353573",
+      "N356150",
+      "N356663"
+    ],
+    "lost": [
+      "N351341",
+      "N351782",
+      "N352231",
+      "N352477",
+      "N354493",
+      "N355854"
+    ],
+    "mcnemar_p": 0.7905,
+    "n": 203,
+    "net": 2
+  }
+}
