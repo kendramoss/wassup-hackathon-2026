@@ -118,7 +118,7 @@ export function MethodArchitecture() {
           {stage.id === "ask" && (
             <section className="mi-enforced" aria-labelledby="mi-adk-eval">
               <h4 id="mi-adk-eval">Agent test (built with Google’s ADK)</h4>
-              <p className="read">Run 1, live, passed the tool-use checks on 9 of 12 products. Run 2, on a local copy of the server, passed 12 of 12.</p>
+              <p className="read">Live runs passed the tool-use checks on 9 and, signed in, 10 of 12 products. A local repeat passed 12 of 12.</p>
               <a className="mi-link" href={blob("docs/EVALUATION.md#12-agent-evaluation-the-adk-agent-on-12-products-22-nov-2026-d450-d451")}>
                 ADK evaluation details <span aria-hidden="true">↗</span>
               </a>

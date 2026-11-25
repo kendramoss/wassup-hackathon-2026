@@ -1293,6 +1293,708 @@
     }
    ]
   },
+  "live-v2-authenticated-run1": {
+   "note": "D732 authenticated live run (run once per product): the agent from examples/adk-agent as on main (d753f91b), Gemini 3.8 Flash through an OpenAI-compatible LiteLLM gateway to Gemini, against https://undelabs.dev/mcp with an evaluator-scoped Unde API key sent as a bearer credential (--require-bearer), products a01-a12, one run each, batches of three in fixture order, 25 Nov 2026 17:05-17:48 +08:00. A first invocation at 16:55 started no session (a shell loop passed all three ids of a batch as one, and run_eval.py stopped on the unknown id before any network call); no product was run twice. Historical comparison: live-v2-run1 (anonymous, 22 Nov).",
+   "file": "eval/agent/results/live-v2-authenticated-run1.jsonl",
+   "aggregate": {
+    "runs": 12,
+    "completed": 12,
+    "order_ok": 10,
+    "args_ok": 9,
+    "origin_consistent": [
+     11,
+     11
+    ],
+    "cites_tool_ruling": 11,
+    "runs_with_invented_rulings": 0,
+    "disclaimer": 12,
+    "disclaimer_lenient": 12,
+    "target_plant_added": [
+     4,
+     4
+    ],
+    "pass_all": 8,
+    "d510": {
+     "order_ok": 10,
+     "args_ok": 11,
+     "no_plan_honest": [
+      2,
+      2
+     ],
+     "runs_with_plans_shown": 9,
+     "pass_all": 10
+    },
+    "gold_agree": [
+     11,
+     11
+    ],
+    "gold_source_in_precedents": 11,
+    "gold_source_in_answer": 11,
+    "wall_s": {
+     "median": 491.8,
+     "max": 795.5,
+     "min": 166.3
+    },
+    "cost_usd": {
+     "total": 0.5361,
+     "per_run_mean": 0.0447,
+     "per_run_max": 0.0638
+    }
+   },
+   "scored": [
+    {
+     "id": "a01",
+     "run": "live-v2-authenticated-run1",
+     "model": "gemini-3.8-flash",
+     "mcp": "https://undelabs.dev/mcp",
+     "tools": [
+      "extract_product",
+      "predict_origin",
+      "suggest_part_hts",
+      "plan_production_moves",
+      "export_ruling_request_draft"
+     ],
+     "order_ok": true,
+     "order_issues": [],
+     "args_ok": true,
+     "arg_issues": [],
+     "target_plant_added": null,
+     "predicted": "Vietnam",
+     "origin_consistent": true,
+     "cites_tool_ruling": true,
+     "invented_rulings": [],
+     "disclaimer": true,
+     "disclaimer_lenient": true,
+     "completed": true,
+     "error": null,
+     "plans_shown": 3,
+     "tool_errors": [],
+     "wall_s": 744.4,
+     "cost_usd": 0.051323,
+     "model_calls": 6,
+     "gold": {
+      "cbp": "Vietnam",
+      "predicted": "Vietnam",
+      "agree": true,
+      "source_ruling_in_precedents": true,
+      "source_ruling_in_answer": true
+     },
+     "pass": true,
+     "v2": {
+      "order_ok": true,
+      "order_issues": [],
+      "args_ok": true,
+      "arg_issues": [],
+      "no_plan_claims": null,
+      "pass": true,
+      "plan_ids": [
+       "pcba_manufacturing@target_plant",
+       "pcba_manufacturing@target_plant+functional_subassemblies@target_plant",
+       "pcba_manufacturing@target_plant+functional_subassemblies@target_plant+housing_and_cables@target_plant"
+      ],
+      "export_plan_ids": [
+       "pcba_manufacturing@target_plant"
+      ]
+     }
+    },
+    {
+     "id": "a02",
+     "run": "live-v2-authenticated-run1",
+     "model": "gemini-3.8-flash",
+     "mcp": "https://undelabs.dev/mcp",
+     "tools": [
+      "extract_product",
+      "predict_origin",
+      "suggest_part_hts",
+      "plan_production_moves",
+      "export_ruling_request_draft"
+     ],
+     "order_ok": true,
+     "order_issues": [],
+     "args_ok": true,
+     "arg_issues": [],
+     "target_plant_added": true,
+     "predicted": "Vietnam",
+     "origin_consistent": true,
+     "cites_tool_ruling": true,
+     "invented_rulings": [],
+     "disclaimer": true,
+     "disclaimer_lenient": true,
+     "completed": true,
+     "error": null,
+     "plans_shown": 4,
+     "tool_errors": [],
+     "wall_s": 679.6,
+     "cost_usd": 0.042237,
+     "model_calls": 6,
+     "gold": {
+      "cbp": "Vietnam",
+      "predicted": "Vietnam",
+      "agree": true,
+      "source_ruling_in_precedents": true,
+      "source_ruling_in_answer": true
+     },
+     "pass": true,
+     "v2": {
+      "order_ok": true,
+      "order_issues": [],
+      "args_ok": true,
+      "arg_issues": [],
+      "no_plan_claims": null,
+      "pass": true,
+      "plan_ids": [
+       "pcba_manufacturing@target_plant",
+       "pcba_manufacturing@target_plant+functional_subassemblies@target_plant",
+       "pcba_manufacturing@target_plant+housing_and_cables@target_plant",
+       "pcba_manufacturing@target_plant+functional_subassemblies@target_plant+housing_and_cables@target_plant"
+      ],
+      "export_plan_ids": [
+       "pcba_manufacturing@target_plant"
+      ]
+     }
+    },
+    {
+     "id": "a03",
+     "run": "live-v2-authenticated-run1",
+     "model": "gemini-3.8-flash",
+     "mcp": "https://undelabs.dev/mcp",
+     "tools": [
+      "extract_product",
+      "predict_origin",
+      "suggest_part_hts",
+      "plan_production_moves",
+      "export_ruling_request_draft"
+     ],
+     "order_ok": true,
+     "order_issues": [],
+     "args_ok": false,
+     "arg_issues": [
+      "export without move_key or plan_index"
+     ],
+     "target_plant_added": null,
+     "predicted": "Cambodia",
+     "origin_consistent": true,
+     "cites_tool_ruling": true,
+     "invented_rulings": [],
+     "disclaimer": true,
+     "disclaimer_lenient": true,
+     "completed": true,
+     "error": null,
+     "plans_shown": 0,
+     "tool_errors": [],
+     "wall_s": 371.3,
+     "cost_usd": 0.051297,
+     "model_calls": 6,
+     "gold": {
+      "cbp": "Cambodia",
+      "predicted": "Cambodia",
+      "agree": true,
+      "source_ruling_in_precedents": true,
+      "source_ruling_in_answer": true
+     },
+     "pass": false,
+     "v2": {
+      "order_ok": true,
+      "order_issues": [],
+      "args_ok": true,
+      "arg_issues": [],
+      "no_plan_claims": [],
+      "pass": true,
+      "plan_ids": [],
+      "export_plan_ids": [
+       null
+      ]
+     }
+    },
+    {
+     "id": "a04",
+     "run": "live-v2-authenticated-run1",
+     "model": "gemini-3.8-flash",
+     "mcp": "https://undelabs.dev/mcp",
+     "tools": [
+      "extract_product",
+      "predict_origin",
+      "suggest_part_hts",
+      "plan_production_moves",
+      "export_ruling_request_draft"
+     ],
+     "order_ok": true,
+     "order_issues": [],
+     "args_ok": true,
+     "arg_issues": [],
+     "target_plant_added": null,
+     "predicted": "Indonesia",
+     "origin_consistent": true,
+     "cites_tool_ruling": true,
+     "invented_rulings": [],
+     "disclaimer": true,
+     "disclaimer_lenient": true,
+     "completed": true,
+     "error": null,
+     "plans_shown": 2,
+     "tool_errors": [],
+     "wall_s": 489.7,
+     "cost_usd": 0.043534,
+     "model_calls": 6,
+     "gold": {
+      "cbp": "Indonesia",
+      "predicted": "Indonesia",
+      "agree": true,
+      "source_ruling_in_precedents": true,
+      "source_ruling_in_answer": true
+     },
+     "pass": true,
+     "v2": {
+      "order_ok": true,
+      "order_issues": [],
+      "args_ok": true,
+      "arg_issues": [],
+      "no_plan_claims": null,
+      "pass": true,
+      "plan_ids": [
+       "pcba_manufacturing@plant_in_malaysia",
+       "pcba_manufacturing@plant_in_malaysia+housing_cables_parts@plant_in_malaysia"
+      ],
+      "export_plan_ids": [
+       "pcba_manufacturing@plant_in_malaysia"
+      ]
+     }
+    },
+    {
+     "id": "a05",
+     "run": "live-v2-authenticated-run1",
+     "model": "gemini-3.8-flash",
+     "mcp": "https://undelabs.dev/mcp",
+     "tools": [
+      "extract_product",
+      "predict_origin",
+      "suggest_part_hts",
+      "plan_production_moves",
+      "export_ruling_request_draft"
+     ],
+     "order_ok": true,
+     "order_issues": [],
+     "args_ok": false,
+     "arg_issues": [
+      "export without move_key or plan_index"
+     ],
+     "target_plant_added": true,
+     "predicted": "Malaysia",
+     "origin_consistent": true,
+     "cites_tool_ruling": true,
+     "invented_rulings": [],
+     "disclaimer": true,
+     "disclaimer_lenient": true,
+     "completed": true,
+     "error": null,
+     "plans_shown": 0,
+     "tool_errors": [],
+     "wall_s": 577.1,
+     "cost_usd": 0.039296,
+     "model_calls": 6,
+     "gold": {
+      "cbp": "Malaysia",
+      "predicted": "Malaysia",
+      "agree": true,
+      "source_ruling_in_precedents": true,
+      "source_ruling_in_answer": true
+     },
+     "pass": false,
+     "v2": {
+      "order_ok": true,
+      "order_issues": [],
+      "args_ok": true,
+      "arg_issues": [],
+      "no_plan_claims": [],
+      "pass": true,
+      "plan_ids": [],
+      "export_plan_ids": [
+       null
+      ]
+     }
+    },
+    {
+     "id": "a06",
+     "run": "live-v2-authenticated-run1",
+     "model": "gemini-3.8-flash",
+     "mcp": "https://undelabs.dev/mcp",
+     "tools": [
+      "extract_product",
+      "predict_origin",
+      "predict_origin",
+      "suggest_part_hts",
+      "plan_production_moves",
+      "export_ruling_request_draft"
+     ],
+     "order_ok": false,
+     "order_issues": [
+      "predict_origin called more than once (an earlier call was refused; no second case)"
+     ],
+     "args_ok": true,
+     "arg_issues": [],
+     "target_plant_added": null,
+     "predicted": "Vietnam",
+     "origin_consistent": true,
+     "cites_tool_ruling": true,
+     "invented_rulings": [],
+     "disclaimer": true,
+     "disclaimer_lenient": true,
+     "completed": true,
+     "error": null,
+     "plans_shown": 2,
+     "tool_errors": [
+      "predict_origin"
+     ],
+     "wall_s": 795.5,
+     "cost_usd": 0.06382,
+     "model_calls": 7,
+     "gold": {
+      "cbp": "Vietnam",
+      "predicted": "Vietnam",
+      "agree": true,
+      "source_ruling_in_precedents": true,
+      "source_ruling_in_answer": true
+     },
+     "pass": false,
+     "v2": {
+      "order_ok": false,
+      "order_issues": [
+       "predict_origin called more than once (an earlier call was refused; no second case)"
+      ],
+      "args_ok": true,
+      "arg_issues": [],
+      "no_plan_claims": null,
+      "pass": false,
+      "plan_ids": [
+       "precision_machined_parts@plant_in_thailand",
+       "electromechanical_core@plant_in_thailand+precision_machined_parts@plant_in_thailand"
+      ],
+      "export_plan_ids": [
+       "precision_machined_parts@plant_in_thailand"
+      ]
+     }
+    },
+    {
+     "id": "a07",
+     "run": "live-v2-authenticated-run1",
+     "model": "gemini-3.8-flash",
+     "mcp": "https://undelabs.dev/mcp",
+     "tools": [
+      "extract_product"
+     ],
+     "order_ok": false,
+     "order_issues": [
+      "missing predict_origin",
+      "missing plan_production_moves"
+     ],
+     "args_ok": false,
+     "arg_issues": [],
+     "target_plant_added": null,
+     "predicted": null,
+     "origin_consistent": null,
+     "cites_tool_ruling": false,
+     "invented_rulings": [],
+     "disclaimer": true,
+     "disclaimer_lenient": true,
+     "completed": true,
+     "error": null,
+     "plans_shown": 0,
+     "tool_errors": [
+      "extract_product"
+     ],
+     "wall_s": 166.3,
+     "cost_usd": 0.016644,
+     "model_calls": 2,
+     "gold": null,
+     "pass": false,
+     "v2": {
+      "order_ok": false,
+      "order_issues": [
+       "missing predict_origin",
+       "missing plan_production_moves"
+      ],
+      "args_ok": false,
+      "arg_issues": [],
+      "no_plan_claims": null,
+      "pass": false,
+      "plan_ids": [],
+      "export_plan_ids": []
+     }
+    },
+    {
+     "id": "a08",
+     "run": "live-v2-authenticated-run1",
+     "model": "gemini-3.8-flash",
+     "mcp": "https://undelabs.dev/mcp",
+     "tools": [
+      "extract_product",
+      "predict_origin",
+      "suggest_part_hts",
+      "plan_production_moves",
+      "export_ruling_request_draft"
+     ],
+     "order_ok": true,
+     "order_issues": [],
+     "args_ok": true,
+     "arg_issues": [],
+     "target_plant_added": null,
+     "predicted": "Vietnam",
+     "origin_consistent": true,
+     "cites_tool_ruling": true,
+     "invented_rulings": [],
+     "disclaimer": true,
+     "disclaimer_lenient": true,
+     "completed": true,
+     "error": null,
+     "plans_shown": 1,
+     "tool_errors": [],
+     "wall_s": 526.1,
+     "cost_usd": 0.053411,
+     "model_calls": 6,
+     "gold": {
+      "cbp": "Vietnam",
+      "predicted": "Vietnam",
+      "agree": true,
+      "source_ruling_in_precedents": true,
+      "source_ruling_in_answer": true
+     },
+     "pass": true,
+     "v2": {
+      "order_ok": true,
+      "order_issues": [],
+      "args_ok": true,
+      "arg_issues": [],
+      "no_plan_claims": null,
+      "pass": true,
+      "plan_ids": [
+       "primary_metal_forming@plant_in_cambodia+handles_and_hardware@plant_in_cambodia"
+      ],
+      "export_plan_ids": [
+       "primary_metal_forming@plant_in_cambodia+handles_and_hardware@plant_in_cambodia"
+      ]
+     }
+    },
+    {
+     "id": "a09",
+     "run": "live-v2-authenticated-run1",
+     "model": "gemini-3.8-flash",
+     "mcp": "https://undelabs.dev/mcp",
+     "tools": [
+      "extract_product",
+      "predict_origin",
+      "suggest_part_hts",
+      "plan_production_moves",
+      "export_ruling_request_draft"
+     ],
+     "order_ok": true,
+     "order_issues": [],
+     "args_ok": true,
+     "arg_issues": [],
+     "target_plant_added": null,
+     "predicted": "Thailand",
+     "origin_consistent": true,
+     "cites_tool_ruling": true,
+     "invented_rulings": [],
+     "disclaimer": true,
+     "disclaimer_lenient": true,
+     "completed": true,
+     "error": null,
+     "plans_shown": 1,
+     "tool_errors": [],
+     "wall_s": 493.8,
+     "cost_usd": 0.038045,
+     "model_calls": 6,
+     "gold": {
+      "cbp": "Thailand",
+      "predicted": "Thailand",
+      "agree": true,
+      "source_ruling_in_precedents": true,
+      "source_ruling_in_answer": true
+     },
+     "pass": true,
+     "v2": {
+      "order_ok": true,
+      "order_issues": [],
+      "args_ok": true,
+      "arg_issues": [],
+      "no_plan_claims": null,
+      "pass": true,
+      "plan_ids": [
+       "motor_stator_rotor@plant_in_vietnam+housing_and_chassis@plant_in_vietnam"
+      ],
+      "export_plan_ids": [
+       "motor_stator_rotor@plant_in_vietnam+housing_and_chassis@plant_in_vietnam"
+      ]
+     }
+    },
+    {
+     "id": "a10",
+     "run": "live-v2-authenticated-run1",
+     "model": "gemini-3.8-flash",
+     "mcp": "https://undelabs.dev/mcp",
+     "tools": [
+      "extract_product",
+      "predict_origin",
+      "suggest_part_hts",
+      "plan_production_moves",
+      "export_ruling_request_draft"
+     ],
+     "order_ok": true,
+     "order_issues": [],
+     "args_ok": true,
+     "arg_issues": [],
+     "target_plant_added": true,
+     "predicted": "Vietnam",
+     "origin_consistent": true,
+     "cites_tool_ruling": true,
+     "invented_rulings": [],
+     "disclaimer": true,
+     "disclaimer_lenient": true,
+     "completed": true,
+     "error": null,
+     "plans_shown": 4,
+     "tool_errors": [],
+     "wall_s": 387.6,
+     "cost_usd": 0.042964,
+     "model_calls": 6,
+     "gold": {
+      "cbp": "Vietnam",
+      "predicted": "Vietnam",
+      "agree": true,
+      "source_ruling_in_precedents": true,
+      "source_ruling_in_answer": true
+     },
+     "pass": true,
+     "v2": {
+      "order_ok": true,
+      "order_issues": [],
+      "args_ok": true,
+      "arg_issues": [],
+      "no_plan_claims": null,
+      "pass": true,
+      "plan_ids": [
+       "pcba_manufacturing@target_plant",
+       "pcba_manufacturing@target_plant+functional_subassemblies@target_plant",
+       "pcba_manufacturing@target_plant+housing_and_cables@target_plant",
+       "pcba_manufacturing@target_plant+functional_subassemblies@target_plant+housing_and_cables@target_plant"
+      ],
+      "export_plan_ids": [
+       "pcba_manufacturing@target_plant"
+      ]
+     }
+    },
+    {
+     "id": "a11",
+     "run": "live-v2-authenticated-run1",
+     "model": "gemini-3.8-flash",
+     "mcp": "https://undelabs.dev/mcp",
+     "tools": [
+      "extract_product",
+      "predict_origin",
+      "suggest_part_hts",
+      "plan_production_moves",
+      "export_ruling_request_draft"
+     ],
+     "order_ok": true,
+     "order_issues": [],
+     "args_ok": true,
+     "arg_issues": [],
+     "target_plant_added": null,
+     "predicted": "Vietnam",
+     "origin_consistent": true,
+     "cites_tool_ruling": true,
+     "invented_rulings": [],
+     "disclaimer": true,
+     "disclaimer_lenient": true,
+     "completed": true,
+     "error": null,
+     "plans_shown": 4,
+     "tool_errors": [],
+     "wall_s": 349.9,
+     "cost_usd": 0.048205,
+     "model_calls": 6,
+     "gold": {
+      "cbp": "Vietnam",
+      "predicted": "Vietnam",
+      "agree": true,
+      "source_ruling_in_precedents": true,
+      "source_ruling_in_answer": true
+     },
+     "pass": true,
+     "v2": {
+      "order_ok": true,
+      "order_issues": [],
+      "args_ok": true,
+      "arg_issues": [],
+      "no_plan_claims": null,
+      "pass": true,
+      "plan_ids": [
+       "pcba_manufacturing@target_plant",
+       "pcba_manufacturing@target_plant+functional_subassemblies@target_plant",
+       "pcba_manufacturing@target_plant+housing_and_cables@target_plant",
+       "pcba_manufacturing@target_plant+functional_subassemblies@target_plant+housing_and_cables@target_plant"
+      ],
+      "export_plan_ids": [
+       "pcba_manufacturing@target_plant"
+      ]
+     }
+    },
+    {
+     "id": "a12",
+     "run": "live-v2-authenticated-run1",
+     "model": "gemini-3.8-flash",
+     "mcp": "https://undelabs.dev/mcp",
+     "tools": [
+      "extract_product",
+      "predict_origin",
+      "suggest_part_hts",
+      "plan_production_moves",
+      "export_ruling_request_draft"
+     ],
+     "order_ok": true,
+     "order_issues": [],
+     "args_ok": true,
+     "arg_issues": [],
+     "target_plant_added": true,
+     "predicted": "Vietnam",
+     "origin_consistent": true,
+     "cites_tool_ruling": true,
+     "invented_rulings": [],
+     "disclaimer": true,
+     "disclaimer_lenient": true,
+     "completed": true,
+     "error": null,
+     "plans_shown": 2,
+     "tool_errors": [],
+     "wall_s": 461.0,
+     "cost_usd": 0.045345,
+     "model_calls": 6,
+     "gold": {
+      "cbp": "Vietnam",
+      "predicted": "Vietnam",
+      "agree": true,
+      "source_ruling_in_precedents": true,
+      "source_ruling_in_answer": true
+     },
+     "pass": true,
+     "v2": {
+      "order_ok": true,
+      "order_issues": [],
+      "args_ok": true,
+      "arg_issues": [],
+      "no_plan_claims": null,
+      "pass": true,
+      "plan_ids": [
+       "precision_machined_parts@target_plant",
+       "precision_machined_parts@target_plant+housings_and_structures@target_plant"
+      ],
+      "export_plan_ids": [
+       "precision_machined_parts@target_plant"
+      ]
+     }
+    }
+   ]
+  },
   "live-v2-run1": {
    "note": "Scored run (D510), run 1 of the two pre-registered: the agent from examples/adk-agent as at the D510 commit, on Gemini 3.8 Flash through an OpenAI-compatible LiteLLM gateway to Gemini, against https://undelabs.dev/mcp anonymously, products a01-a12, one run each, three at a time, 22 Nov 2026 10:30-10:40 +08:00. From about 10:39:50 the live server refused this address's model calls with 429 client_budget_reached (the anonymous per-client share of the day's model budget, which reopens at 00:00 UTC): a09's plan search, a10's part codes and a11's and a12's extraction were refused, so those four runs stopped early. Kept and scored as the rules say; see D511. Run 2 could not start for the same reason. Changed after the run: the scorer reads \"NY N\" and \"HQ H\" as the ruling number (norm_one, D511). It changes one row: a06 named \"NY N340438\", which the scorer had read as NN340438 and counted as invented; a06 passes under both rule sets after the fix and failed before. The headline: all 8 runs the budget did not touch (a01-a08) passed; 9 of 12 as scored, a09 passing because the agent reported the refused plan call and stopped.",
    "file": "eval/agent/results/live-v2-run1.jsonl",
@@ -3530,6 +4232,307 @@
   }
  },
  "series": {
+  "v2-authenticated": {
+   "runs": [
+    "live-v2-authenticated-run1"
+   ],
+   "baseline": "live-v2-run1",
+   "products": 12,
+   "pass_d510_per_run": [
+    10
+   ],
+   "pass_d450_per_run": [
+    8
+   ],
+   "pass_d510_pooled": [
+    10,
+    12
+   ],
+   "agree": {
+    "pass_d510": 12,
+    "both_pass_d510": 10,
+    "both_fail_d510": 2,
+    "predicted_origin": 12,
+    "plan_found": 12,
+    "plans_shown_count": 12,
+    "export_plan_id": 12,
+    "required_tool_order": 12,
+    "full_tool_sequence": 12
+   },
+   "baseline_d450": 8,
+   "baseline_d510": 9,
+   "rows": [
+    {
+     "id": "a01",
+     "v1_d450": true,
+     "v1_d510": true,
+     "runs_d510": [
+      true
+     ],
+     "predicted": [
+      "Vietnam"
+     ],
+     "plans_shown": [
+      3
+     ],
+     "export_plan_ids": [
+      [
+       "pcba_manufacturing@target_plant"
+      ]
+     ],
+     "issues": [
+      []
+     ]
+    },
+    {
+     "id": "a02",
+     "v1_d450": true,
+     "v1_d510": true,
+     "runs_d510": [
+      true
+     ],
+     "predicted": [
+      "Vietnam"
+     ],
+     "plans_shown": [
+      4
+     ],
+     "export_plan_ids": [
+      [
+       "pcba_manufacturing@target_plant"
+      ]
+     ],
+     "issues": [
+      []
+     ]
+    },
+    {
+     "id": "a03",
+     "v1_d450": false,
+     "v1_d510": true,
+     "runs_d510": [
+      true
+     ],
+     "predicted": [
+      "Cambodia"
+     ],
+     "plans_shown": [
+      0
+     ],
+     "export_plan_ids": [
+      [
+       null
+      ]
+     ],
+     "issues": [
+      []
+     ]
+    },
+    {
+     "id": "a04",
+     "v1_d450": true,
+     "v1_d510": true,
+     "runs_d510": [
+      true
+     ],
+     "predicted": [
+      "Indonesia"
+     ],
+     "plans_shown": [
+      2
+     ],
+     "export_plan_ids": [
+      [
+       "pcba_manufacturing@plant_in_malaysia"
+      ]
+     ],
+     "issues": [
+      []
+     ]
+    },
+    {
+     "id": "a05",
+     "v1_d450": true,
+     "v1_d510": true,
+     "runs_d510": [
+      true
+     ],
+     "predicted": [
+      "Malaysia"
+     ],
+     "plans_shown": [
+      0
+     ],
+     "export_plan_ids": [
+      [
+       null
+      ]
+     ],
+     "issues": [
+      []
+     ]
+    },
+    {
+     "id": "a06",
+     "v1_d450": true,
+     "v1_d510": true,
+     "runs_d510": [
+      false
+     ],
+     "predicted": [
+      "Vietnam"
+     ],
+     "plans_shown": [
+      2
+     ],
+     "export_plan_ids": [
+      [
+       "precision_machined_parts@plant_in_thailand"
+      ]
+     ],
+     "issues": [
+      [
+       "predict_origin called more than once (an earlier call was refused; no second case)",
+       "tool errors: predict_origin"
+      ]
+     ]
+    },
+    {
+     "id": "a07",
+     "v1_d450": true,
+     "v1_d510": true,
+     "runs_d510": [
+      false
+     ],
+     "predicted": [
+      null
+     ],
+     "plans_shown": [
+      0
+     ],
+     "export_plan_ids": [
+      []
+     ],
+     "issues": [
+      [
+       "missing predict_origin",
+       "missing plan_production_moves",
+       "tool errors: extract_product"
+      ]
+     ]
+    },
+    {
+     "id": "a08",
+     "v1_d450": true,
+     "v1_d510": true,
+     "runs_d510": [
+      true
+     ],
+     "predicted": [
+      "Vietnam"
+     ],
+     "plans_shown": [
+      1
+     ],
+     "export_plan_ids": [
+      [
+       "primary_metal_forming@plant_in_cambodia+handles_and_hardware@plant_in_cambodia"
+      ]
+     ],
+     "issues": [
+      []
+     ]
+    },
+    {
+     "id": "a09",
+     "v1_d450": true,
+     "v1_d510": true,
+     "runs_d510": [
+      true
+     ],
+     "predicted": [
+      "Thailand"
+     ],
+     "plans_shown": [
+      1
+     ],
+     "export_plan_ids": [
+      [
+       "motor_stator_rotor@plant_in_vietnam+housing_and_chassis@plant_in_vietnam"
+      ]
+     ],
+     "issues": [
+      []
+     ]
+    },
+    {
+     "id": "a10",
+     "v1_d450": false,
+     "v1_d510": false,
+     "runs_d510": [
+      true
+     ],
+     "predicted": [
+      "Vietnam"
+     ],
+     "plans_shown": [
+      4
+     ],
+     "export_plan_ids": [
+      [
+       "pcba_manufacturing@target_plant"
+      ]
+     ],
+     "issues": [
+      []
+     ]
+    },
+    {
+     "id": "a11",
+     "v1_d450": false,
+     "v1_d510": false,
+     "runs_d510": [
+      true
+     ],
+     "predicted": [
+      "Vietnam"
+     ],
+     "plans_shown": [
+      4
+     ],
+     "export_plan_ids": [
+      [
+       "pcba_manufacturing@target_plant"
+      ]
+     ],
+     "issues": [
+      []
+     ]
+    },
+    {
+     "id": "a12",
+     "v1_d450": false,
+     "v1_d510": false,
+     "runs_d510": [
+      true
+     ],
+     "predicted": [
+      "Vietnam"
+     ],
+     "plans_shown": [
+      2
+     ],
+     "export_plan_ids": [
+      [
+       "precision_machined_parts@target_plant"
+      ]
+     ],
+     "issues": [
+      []
+     ]
+    }
+   ]
+  },
   "v2": {
    "runs": [
     "live-v2-run1",
