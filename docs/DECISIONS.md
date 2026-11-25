@@ -3434,6 +3434,13 @@ Committed and pushed before the run below. Development only; these cases were us
 - **Run.** The same command as D863's after run with `-tag f29-864`; measured by `measure_863.py --tag f29-864` (`b4-864-measure.json`), against the same before.
 - **Criteria, as D863.** Battery working: at least 6 of 8 match `battery_packs`. No harm: furniture not fewer than 6; look-alikes right at least 28; at most 2 answered regressions elsewhere. If battery working is still not met, the template stays, `power_supplies_chargers` keeps its new name, and the gap is reported; no third attempt in this lane.
 
+## D865 — Batteries: results of D864 (25 Nov, #777)
+Run as pre-registered (`families-coverage-dev-all-litellm-f29-864`, gateway, clean tree, no failed checks); `b4-864-measure.json`. Development only, and tuned on these cases (D864 was written after D863's result), so not independent.
+- **Battery cases to `battery_packs`: 6 of 8** (0 before, 3 after D863). Gained two power banks (N352014, N352355) and a lithium jump starter (N353086) over D863. The two lead-acid jump starters (N353023, N356670) stay with power supplies and chargers.
+- **Furniture 6 → 7 of 7** (the plant dolly N339090 now matches furniture). Medical 9 → 10. Machines, off-road and optical unchanged. **Overall 41 → 49 of 52.** Look-alikes 29 → 29 of 30. No answered regression.
+- **Criterion, as stated in D863 and D864: met** (battery working 6 of 6 needed; no harm). Cost $0.36. The family check uses gemini-3.8-flash, about $0.004 a case.
+- **Issues.** #777 closes (battery packs template). #779 closes with upholstery and knock-down covered by citations; no CBP ruling found turns on finishing alone, so finishing has no group of its own. #826 and #827 close: their rulings were found outside the corpus (D862).
+
 ## D870 — Japan: a reviewed HS-edition correlation, applied only when the lookup finds no rule (24 Nov, #791 94fb24f6)
 Some Japan Customs rulings carry a code from a later HS edition than the schedule uses, so the lookup returned `no_match` and the case went to review. A short list of correlations (`backend/internal/jprules/data/correlations.json`) now sits behind that outcome.
 - **Decision.**

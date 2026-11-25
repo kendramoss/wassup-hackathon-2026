@@ -129,6 +129,15 @@ def freeze(root):
     return out
 
 
+def later_pairs(root):
+    """Pairings a later round records with its own check (D863, depth_b4.py)."""
+    p = os.path.join(root, "eval/families/b4-citations.json")
+    if not os.path.exists(p):
+        return set()
+    with open(p) as f:
+        return {(c["template"], w + ":" + c["ruling"]) for c in json.load(f)["citations"] for w in c["cited_in"]}
+
+
 def check_citations(root):
     """Every group/outcome pairing a v2 template has that v1 did not (D786),
     whether the ruling is new or reused, is a ruling of a frozen citable pool
@@ -143,6 +152,7 @@ def check_citations(root):
         rec = json.load(f)
     lab = {l["ruling"]: l for l in jsonl(os.path.join(root, "eval/data/labels.jsonl"))}
     want = {}
+    later = later_pairs(root)
     for fam, old in v1.items():
         with open(os.path.join(root, "backend/internal/planner/templates", fam + ".json")) as f:
             t = json.load(f)
@@ -150,7 +160,7 @@ def check_citations(root):
             p = g.get("precedent") or {}
             for k in ("confers_origin", "not_enough"):
                 for r in p.get(k) or []:
-                    if g["id"] + ":" + k + ":" + r not in old["pairs"]:
+                    if g["id"] + ":" + k + ":" + r not in old["pairs"] and (fam, g["id"] + ":" + k + ":" + r) not in later:
                         kind = "reused" if r in old["cited"] else "citations"
                         want.setdefault((kind, r), (fam, []))[1].append(g["id"] + ":" + k)
     have = {(kind, c["ruling"]): c for kind in ("citations", "reused") for c in rec.get(kind, [])}

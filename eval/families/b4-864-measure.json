@@ -1,0 +1,540 @@
+{
+ "answered_regressions": [],
+ "battery_either": {
+  "after": 8,
+  "before": 8,
+  "n": 8
+ },
+ "dev_cases": {
+  "groups": {
+   "battery_packs": {
+    "after": 6,
+    "after_wilson": [
+     0.75,
+     0.4093,
+     0.9285
+    ],
+    "before": 0,
+    "before_wilson": [
+     0.0,
+     0,
+     0.3244
+    ],
+    "cases": {
+     "H306336": [
+      "power_supplies_chargers",
+      "battery_packs"
+     ],
+     "N350953": [
+      "power_supplies_chargers",
+      "battery_packs"
+     ],
+     "N351263": [
+      "power_supplies_chargers",
+      "battery_packs"
+     ],
+     "N352014": [
+      "power_supplies_chargers",
+      "battery_packs"
+     ],
+     "N352355": [
+      "power_supplies_chargers",
+      "battery_packs"
+     ],
+     "N353023": [
+      "power_supplies_chargers",
+      "power_supplies_chargers"
+     ],
+     "N353086": [
+      "power_supplies_chargers",
+      "battery_packs"
+     ],
+     "N356670": [
+      "power_supplies_chargers",
+      "power_supplies_chargers"
+     ]
+    },
+    "n": 8,
+    "paired": {
+     "gained": [
+      "H306336",
+      "N350953",
+      "N351263",
+      "N352014",
+      "N352355",
+      "N353086"
+     ],
+     "lost": [],
+     "mcnemar_p": 0.0312,
+     "n": 8
+    }
+   },
+   "furniture": {
+    "after": 7,
+    "after_wilson": [
+     1.0,
+     0.6457,
+     1
+    ],
+    "before": 6,
+    "before_wilson": [
+     0.8571,
+     0.4869,
+     0.9743
+    ],
+    "cases": {
+     "H083693": [
+      "furniture",
+      "furniture"
+     ],
+     "H338482": [
+      "furniture",
+      "furniture"
+     ],
+     "H345343": [
+      "furniture",
+      "furniture"
+     ],
+     "N300248": [
+      "furniture",
+      "furniture"
+     ],
+     "N313752": [
+      "furniture",
+      "furniture"
+     ],
+     "N335585": [
+      "furniture",
+      "furniture"
+     ],
+     "N339090": [
+      "metal_products",
+      "furniture"
+     ]
+    },
+    "n": 7,
+    "paired": {
+     "gained": [
+      "N339090"
+     ],
+     "lost": [],
+     "mcnemar_p": 1.0,
+     "n": 7
+    }
+   },
+   "medical_devices": {
+    "after": 10,
+    "after_wilson": [
+     1.0,
+     0.7225,
+     1.0
+    ],
+    "before": 9,
+    "before_wilson": [
+     0.9,
+     0.5958,
+     0.9821
+    ],
+    "cases": {
+     "N350152": [
+      "medical_devices",
+      "medical_devices"
+     ],
+     "N350225": [
+      "medical_devices",
+      "medical_devices"
+     ],
+     "N353259": [
+      "medical_devices",
+      "medical_devices"
+     ],
+     "N353260": [
+      "medical_devices",
+      "medical_devices"
+     ],
+     "N353976": [
+      "medical_devices",
+      "medical_devices"
+     ],
+     "N355059": [
+      "medical_devices",
+      "medical_devices"
+     ],
+     "N355175": [
+      "medical_devices",
+      "medical_devices"
+     ],
+     "N355466": [
+      "medical_devices",
+      "medical_devices"
+     ],
+     "N356150": [
+      "none",
+      "medical_devices"
+     ],
+     "N356289": [
+      "medical_devices",
+      "medical_devices"
+     ]
+    },
+    "n": 10,
+    "paired": {
+     "gained": [
+      "N356150"
+     ],
+     "lost": [],
+     "mcnemar_p": 1.0,
+     "n": 10
+    }
+   },
+   "motors_pumps_compressors": {
+    "after": 10,
+    "after_wilson": [
+     0.9091,
+     0.6226,
+     0.9838
+    ],
+    "before": 10,
+    "before_wilson": [
+     0.9091,
+     0.6226,
+     0.9838
+    ],
+    "cases": {
+     "H342833": [
+      "motors_pumps_compressors",
+      "motors_pumps_compressors"
+     ],
+     "N351234": [
+      "motors_pumps_compressors",
+      "motors_pumps_compressors"
+     ],
+     "N351349": [
+      "motors_pumps_compressors",
+      "motors_pumps_compressors"
+     ],
+     "N351538": [
+      "motors_pumps_compressors",
+      "motors_pumps_compressors"
+     ],
+     "N351922": [
+      "motors_pumps_compressors",
+      "motors_pumps_compressors"
+     ],
+     "N352067": [
+      "motors_pumps_compressors",
+      "motors_pumps_compressors"
+     ],
+     "N354156": [
+      "motors_pumps_compressors",
+      "motors_pumps_compressors"
+     ],
+     "N354169": [
+      "machinery_parts",
+      "machinery_parts"
+     ],
+     "N354559": [
+      "motors_pumps_compressors",
+      "motors_pumps_compressors"
+     ],
+     "N355567": [
+      "motors_pumps_compressors",
+      "motors_pumps_compressors"
+     ],
+     "N356592": [
+      "motors_pumps_compressors",
+      "motors_pumps_compressors"
+     ]
+    },
+    "n": 11,
+    "paired": {
+     "gained": [],
+     "lost": [],
+     "mcnemar_p": 1.0,
+     "n": 11
+    }
+   },
+   "offroad_vehicles_machinery": {
+    "after": 7,
+    "after_wilson": [
+     1.0,
+     0.6457,
+     1
+    ],
+    "before": 7,
+    "before_wilson": [
+     1.0,
+     0.6457,
+     1
+    ],
+    "cases": {
+     "N351580": [
+      "offroad_vehicles_machinery",
+      "offroad_vehicles_machinery"
+     ],
+     "N352101": [
+      "offroad_vehicles_machinery",
+      "offroad_vehicles_machinery"
+     ],
+     "N354790": [
+      "offroad_vehicles_machinery",
+      "offroad_vehicles_machinery"
+     ],
+     "N354791": [
+      "offroad_vehicles_machinery",
+      "offroad_vehicles_machinery"
+     ],
+     "N355131": [
+      "offroad_vehicles_machinery",
+      "offroad_vehicles_machinery"
+     ],
+     "N355132": [
+      "offroad_vehicles_machinery",
+      "offroad_vehicles_machinery"
+     ],
+     "N355133": [
+      "offroad_vehicles_machinery",
+      "offroad_vehicles_machinery"
+     ]
+    },
+    "n": 7,
+    "paired": {
+     "gained": [],
+     "lost": [],
+     "mcnemar_p": 1.0,
+     "n": 7
+    }
+   },
+   "optical_precision_instruments": {
+    "after": 9,
+    "after_wilson": [
+     1.0,
+     0.7009,
+     1
+    ],
+    "before": 9,
+    "before_wilson": [
+     1.0,
+     0.7009,
+     1
+    ],
+    "cases": {
+     "N348790": [
+      "optical_precision_instruments",
+      "optical_precision_instruments"
+     ],
+     "N350680": [
+      "optical_precision_instruments",
+      "optical_precision_instruments"
+     ],
+     "N350750": [
+      "optical_precision_instruments",
+      "optical_precision_instruments"
+     ],
+     "N350838": [
+      "optical_precision_instruments",
+      "optical_precision_instruments"
+     ],
+     "N351865": [
+      "optical_precision_instruments",
+      "optical_precision_instruments"
+     ],
+     "N351911": [
+      "optical_precision_instruments",
+      "optical_precision_instruments"
+     ],
+     "N351913": [
+      "optical_precision_instruments",
+      "optical_precision_instruments"
+     ],
+     "N351958": [
+      "optical_precision_instruments",
+      "optical_precision_instruments"
+     ],
+     "N351962": [
+      "optical_precision_instruments",
+      "optical_precision_instruments"
+     ]
+    },
+    "n": 9,
+    "paired": {
+     "gained": [],
+     "lost": [],
+     "mcnemar_p": 1.0,
+     "n": 9
+    }
+   }
+  },
+  "overall": {
+   "after": 49,
+   "after_wilson": [
+    0.9423,
+    0.8436,
+    0.9802
+   ],
+   "before": 41,
+   "before_wilson": [
+    0.7885,
+    0.6597,
+    0.8776
+   ],
+   "n": 52
+  }
+ },
+ "failed_after": [],
+ "lookalikes": {
+  "after": 29,
+  "before": 29,
+  "cases": {
+   "H331375": [
+    "none",
+    "none"
+   ],
+   "H342474": [
+    "pcba_electronic_devices",
+    "pcba_electronic_devices"
+   ],
+   "H346536": [
+    "none",
+    "none"
+   ],
+   "H348154": [
+    "pcba_electronic_devices",
+    "pcba_electronic_devices"
+   ],
+   "N350011": [
+    "none",
+    "none"
+   ],
+   "N350187": [
+    "pcba_electronic_devices",
+    "pcba_electronic_devices"
+   ],
+   "N350306": [
+    "none",
+    "none"
+   ],
+   "N350492": [
+    "electrical_control_apparatus",
+    "electrical_control_apparatus"
+   ],
+   "N350678": [
+    "none",
+    "none"
+   ],
+   "N350799": [
+    "pcba_electronic_devices",
+    "pcba_electronic_devices"
+   ],
+   "N350800": [
+    "pcba_electronic_devices",
+    "pcba_electronic_devices"
+   ],
+   "N351174": [
+    "metal_products",
+    "metal_products"
+   ],
+   "N351229": [
+    "pcba_electronic_devices",
+    "pcba_electronic_devices"
+   ],
+   "N351341": [
+    "motorised_tools_small_appliances",
+    "motorised_tools_small_appliances"
+   ],
+   "N351493": [
+    "motorised_tools_small_appliances",
+    "motorised_tools_small_appliances"
+   ],
+   "N351651": [
+    "none",
+    "none"
+   ],
+   "N352230": [
+    "pcba_electronic_devices",
+    "pcba_electronic_devices"
+   ],
+   "N352242": [
+    "pcba_electronic_devices",
+    "pcba_electronic_devices"
+   ],
+   "N352538": [
+    "pcba_electronic_devices",
+    "pcba_electronic_devices"
+   ],
+   "N352670": [
+    "pcba_electronic_devices",
+    "pcba_electronic_devices"
+   ],
+   "N353542": [
+    "pcba_electronic_devices",
+    "pcba_electronic_devices"
+   ],
+   "N353884": [
+    "none",
+    "none"
+   ],
+   "N354016": [
+    "led_lights",
+    "led_lights"
+   ],
+   "N354279": [
+    "wood_panels_flooring",
+    "wood_panels_flooring"
+   ],
+   "N355237": [
+    "motorised_tools_small_appliances",
+    "motorised_tools_small_appliances"
+   ],
+   "N355289": [
+    "medical_devices",
+    "medical_devices"
+   ],
+   "N355502": [
+    "led_lights",
+    "led_lights"
+   ],
+   "N355934": [
+    "display_camera_modules",
+    "pcba_electronic_devices"
+   ],
+   "N356009": [
+    "none",
+    "none"
+   ],
+   "N356467": [
+    "none",
+    "none"
+   ]
+  },
+  "n": 30,
+  "wrong_after": {
+   "N355289": "medical_devices"
+  }
+ },
+ "rule": "D863. Matched = a template at confidence >= 0.6 without error. Case right = matched to its expected template (b4-dev-splits.json; before, a battery case is scored against battery_packs too, so main's power_supplies_chargers matches count as wrong there and are reported apart as 'battery_either'). Look-alike right = not matched to a family its scope shares a cue with (D840's map). Paired on cases both runs answered; exact two-sided McNemar p. Development only, not independent.",
+ "runs": {
+  "after": {
+   "cost_usd": 0.3596,
+   "failed": 0,
+   "latency_ms_p50": 4519,
+   "latency_ms_p95": 17541,
+   "rows": 82
+  },
+  "before": {
+   "cost_usd": 0.3332,
+   "failed": 0,
+   "latency_ms_p50": 5071,
+   "latency_ms_p95": 17171,
+   "rows": 82
+  }
+ },
+ "to_battery_packs_after": [
+  "H306336",
+  "N350953",
+  "N351263",
+  "N352014",
+  "N352355",
+  "N353086"
+ ]
+}
