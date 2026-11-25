@@ -3683,3 +3683,9 @@ Committed and pushed before the runs. Development only; held-out is not read.
 - **Criteria.** **Helped:** net +4 or better on all 469 (identical prompts moved ±2 between runs in D857). **Harms:** net −4 or worse. Otherwise **no detectable effect**. Helped would justify a separate decision on production retrieval.
 - **Expectation.** No detectable effect is likeliest; D22's retrieval variants did not move accuracy.
 - **Cost.** About $7.5 for both runs; cap $12.
+## D905 — Recency in retrieval: results of D904
+Runs as pre-registered (`dev-…-904-control`, `dev-gemini-4-argon-recency30-engine-v1-litellm-904-recency`; gateway, clean tree); `eval/accuracy/904-measure.json` (in `make reproduce`). One failed call in the variant (N350720, "unchanged", counted wrong).
+- **All 469: 421 → 422** (89.8% → 90.0%); 6 gained, 5 lost, McNemar p = 1.0. New precedent (172): 148 → 149. Order only (124): 111 → 112. Unchanged (173): 162 → 161, the failed call.
+- **Criterion, as D904 stated: no detectable effect** (net +1; ±4 needed either way). Production retrieval stays BM25.
+- **Reading.** Preferring newer precedents among near ties changes the precedents of most cases and the answers of almost none; the age signal of D900 marks harder cases, not worse retrieval. With D901 and D903, the support and recency signals are closed.
+- **Cost.** $3.69 and $3.68.
