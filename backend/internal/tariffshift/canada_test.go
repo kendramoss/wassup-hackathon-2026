@@ -154,8 +154,11 @@ func TestCanadaDeMinimisByWeight(t *testing.T) {
 		{Name: "woven trim", HTS: "5208.11", Origin: "China", ValueShare: f(0.05)},
 	}}
 	res := mustCanada(t).Evaluate(in)
-	if res.Status != Undetermined || !strings.Contains(res.Reason, "weigh no more than 7%") || !strings.Contains(res.Reason, "(s. 11)") {
-		t.Fatalf("value only: %+v", res)
+	if res.Status != Undetermined || !strings.Contains(res.Reason, "if they weigh no more than 7%") || strings.Contains(res.Reason, "are weigh") || !strings.Contains(res.Reason, "(s. 11)") {
+		t.Fatalf("weight only: %+v", res)
+	}
+	if res.IfNotDeMinimis == nil || !strings.Contains(res.IfNotDeMinimis.Condition, "if the materials that do not shift weigh more than 7%") || strings.Contains(res.IfNotDeMinimis.Condition, "are weigh") {
+		t.Fatalf("weight condition: %+v", res.IfNotDeMinimis)
 	}
 	in.Materials[1].WeightShare = f(0.05)
 	res = mustCanada(t).Evaluate(in)

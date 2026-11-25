@@ -288,9 +288,9 @@ func (r *Rules) evaluate(in Input) Result {
 	chapter := g[:2]
 	deMinimisOpen := false
 	byWeight := slices.Contains(g0.ByWeight, chapter)
-	worth, measure := "worth", "value"
+	verb, measure := "are worth", "value"
 	if byWeight {
-		worth, measure = "weigh", "weight"
+		verb, measure = "weigh", "weight"
 	}
 	if !slices.Contains(g0.DeMinimisExcluded, chapter) {
 		limit := 0.07
@@ -364,9 +364,9 @@ func (r *Rules) evaluate(in Input) Result {
 	bAssumes := []string{g0.NotSet}
 	if deMinimisOpen {
 		res.Status = Undetermined
-		res.Reason = fmt.Sprintf("%s do not shift; if they are %s no more than 7%% of the good, the origin is %s (%s); their %s is not given", names(res.Materials, fail), worth, country, g0.DeMinimisRef, measure)
+		res.Reason = fmt.Sprintf("%s do not shift; if they %s no more than 7%% of the good, the origin is %s (%s); their %s is not given", names(res.Materials, fail), verb, country, g0.DeMinimisRef, measure)
 		if b != nil {
-			b.Condition = "if the materials that do not shift are " + worth + " more than 7% of the good: " + bReason
+			b.Condition = "if the materials that do not shift " + verb + " more than 7% of the good: " + bReason
 			res.IfNotDeMinimis = b
 		} else {
 			res.Reason += "; otherwise " + bReason
