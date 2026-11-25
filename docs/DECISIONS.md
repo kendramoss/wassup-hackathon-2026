@@ -3451,6 +3451,14 @@ Committed and pushed before the run. D511 left run 2 blocked; since D730 the liv
 - **Cost cap.** Agent and server model calls together $5 for this item; about $0.42 agent spend in run 1.
 - **Amended before the run (setup only).** The server's committed providers refuse `litellm` (D49), so, as in D472, the server ran from a scratch copy of this commit with an uncommitted two-line patch that accepts `LLM_PROVIDER=litellm` and builds `llm.NewLiteLLM`; nothing of it is in the repository. Port 8787, not 8080. `VERIFIER_CACHE_STORE=off` (the config accepts no in-memory cache), `RATE_LIMIT_STORE=memory`, `AUDIT=off`.
 
+## D867 — ADK agent evaluation v2, run 2 (local): results of D866 (25 Nov, #683)
+Run as D866 says (amended before the run for the server setup), 25 Nov 2026 13:13–13:22 +08:00; rows `eval/agent/results/local-v2-run2.jsonl`, scored by `eval/agent/score.py` unchanged.
+- **12/12 passed every D510 check** (D450 rules as published: 10/12, a03 and a09 drafting the current setup after no plan, which D510 counts right). All 12 called the five tools in order, stated `predict_origin`'s origin, cited only rulings the tools returned, named none they did not, and ended with the "Not a ruling" line word for word. `predict_origin` agreed with CBP in 12/12 (not an accuracy figure: each product's ruling is in the pool, D450). Median wall time 117 s (95–145 s); no plan call near the 300 s cut.
+- **Hand reading (rule 7).** a03 and a09 found no plan to Vietnam; both answers say no move is supported and the origin stands, and draft the current setup. The scorer and the hand reading agree.
+- **Repeatability, run 1 (live) against run 2 (local):** same pass or fail 9/12 (all 9 pass in both; a10–a12 failed in run 1 only, on the live budget cut); same predicted origin 10/12 (a11 and a12 had none in run 1); plan found or not in both 9/12; same number of plans shown 7/12; same plan drafted 6/12; same full tool sequence 8/12. Pooled 21/24. As D866 says, a difference can come from the agent, the code since 22 Nov or the model path, not the agent alone.
+- **Cost.** Agent $0.5369 gateway-reported (61 model calls in run 1, $0.4189). Server about $1.84 (211 gemini-4-argon and 24 gemini-3.8-flash calls, estimated from logged tokens at the repository's promo prices). About $2.38 of the $5 cap.
+- **#683** closes. D732's authenticated live run stays pre-registered and unrun (no evaluator key).
+
 ## D870 — Japan: a reviewed HS-edition correlation, applied only when the lookup finds no rule (24 Nov, #791 94fb24f6)
 Some Japan Customs rulings carry a code from a later HS edition than the schedule uses, so the lookup returned `no_match` and the case went to review. A short list of correlations (`backend/internal/jprules/data/correlations.json`) now sits behind that outcome.
 - **Decision.**
