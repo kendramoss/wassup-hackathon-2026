@@ -3673,3 +3673,13 @@ Committed and pushed before the fit. No model calls. D901 found that support as 
 `eval/accuracy/902-measure.json` (in `make reproduce`); no model calls. Fitted weights: confidence 18.15, agree 0.78, age −1.45, intercept −14.92 (support adds little next to confidence).
 - **Matched coverage, wrong answers auto-accepted (today → support score):** official development run 16 → 19 (376 auto-accepted; 12 swapped); D815's control 17 → 17; D860's control 16 → 19. **Criterion: not met**; it is worse. Nothing changes.
 - **Reading.** With D901: precedent support predicts errors over all answers but not among confident ones, as a gate or inside the score. Closed. Next, as asked: recency in retrieval (D904).
+## D904 — Recency in retrieval, pre-registered (25 Nov)
+Committed and pushed before the runs. Development only; held-out is not read.
+- **Why.** On D860's development control, cases whose precedents were on average under 6 months older were right 94% of the time, against 85–87% for older ones (D900), and the fish rulings of D859 showed CBP practice changing over years. The age signal may only mark rare products, so this tests whether preferring newer precedents helps.
+- **The change, eval-only (`retrieval.Recency`, `recency-v1`).** BM25's top 20 candidates are re-scored by 1 + 0.10·exp(−months/12), where months is how much older the precedent is than the case: +10% for a same-month ruling, +3.7% at a year, +1.4% at two years. Then the top 5 are kept. It only reorders near ties. `eval run -retrieval recency`; the server is unchanged.
+- **Reach** (`eval retrdiff -recency`, `904-retrdiff.json`, offline). 296 of 469 development cases change: 172 get at least one different precedent, 124 only a different order. So both arms run on all 469.
+- **Runs, gateway only** (gemini-4-argon, `LITELLM_NO_CACHE=1`, clean committed tree, results committed after each). From `backend/` with `-split dev -facts data/facts`: control `-tag 904-control`, variant `-retrieval recency -tag 904-recency`.
+- **Measured** (`measure_904.py`, written before): paired gained, lost and exact McNemar, Wilson intervals, on all 469 and split into new-precedent, order-only and unchanged cases.
+- **Criteria.** **Helped:** net +4 or better on all 469 (identical prompts moved ±2 between runs in D857). **Harms:** net −4 or worse. Otherwise **no detectable effect**. Helped would justify a separate decision on production retrieval.
+- **Expectation.** No detectable effect is likeliest; D22's retrieval variants did not move accuracy.
+- **Cost.** About $7.5 for both runs; cap $12.

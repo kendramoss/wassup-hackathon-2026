@@ -27,6 +27,7 @@ func retrDiffCmd(args []string) error {
 	split := fl.String("split", "dev", "split")
 	k := fl.Int("k", 5, "precedents per case")
 	out := fl.String("out", "", "write the JSON here (default stdout)")
+	recency := fl.Bool("recency", false, "B is pool A re-ranked by recency (recency-v1, D904) instead of pool B")
 	_ = fl.Parse(args)
 	if isHeldOut(*split) {
 		return fmt.Errorf("retrdiff reads development splits only")
@@ -87,6 +88,12 @@ func retrDiffCmd(args []string) error {
 			return out
 		}
 		ta, tb := top(ia), top(ib)
+		if *recency {
+			tb = nil
+			for _, h := range retrieval.RecencyRerank(ia.Top(c.Facts, max(*k, retrieval.RecencyPool), retrieval.PrecedentFilter(cs)), c.Date, *k) {
+				tb = append(tb, h.Ruling.ID)
+			}
+		}
 		if !slices.Equal(ta, tb) {
 			var added []string
 			for _, x := range tb {
@@ -103,6 +110,9 @@ func retrDiffCmd(args []string) error {
 		if len(r.Added) > 0 {
 			withAdded++
 		}
+	}
+	if *recency {
+		*b = *a + " re-ranked by " + retrieval.RecencyVersion
 	}
 	res := map[string]any{"split": *split, "cases": n, "k": *k, "pool_a": *a, "pool_b": *b,
 		"changed": len(changed), "changed_with_a_b_ruling": withAdded, "rows": changed}
