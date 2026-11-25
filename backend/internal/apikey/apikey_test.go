@@ -109,3 +109,70 @@ func TestUseCountsPerUTCDay(t *testing.T) {
 		t.Errorf("next day = %v %d, want a fresh count", ok, n)
 	}
 }
+
+// Self-service keys belong to the verified account that made them (#788).
+// The owner is internal: it scopes list and revoke but never goes on the wire.
+func TestOwnerScopedKeys(t *testing.T) {
+	k := New(NewMemory())
+	ctx := context.Background()
+	aliceSecret, alice, err := k.IssueFor(ctx, "u_alice", "Alice's agent", 200)
+	if err != nil {
+		t.Fatal(err)
+	}
+	bobSecret, bob, err := k.IssueFor(ctx, "u_bob", "Bob's agent", 200)
+	if err != nil {
+		t.Fatal(err)
+	}
+	adminSecret, admin, err := k.Issue(ctx, "Broker", 5) // no owner: admin/legacy path
+	if err != nil {
+		t.Fatal(err)
+	}
+	if alice.Owner != "u_alice" || bob.Owner != "u_bob" || admin.Owner != "" {
+		t.Fatalf("owners = %q %q %q", alice.Owner, bob.Owner, admin.Owner)
+	}
+
+	for owner, want := range map[string]string{"u_alice": alice.ID, "u_bob": bob.ID} {
+		ks, err := k.ListForOwner(ctx, owner)
+		if err != nil || len(ks) != 1 || ks[0].ID != want {
+			t.Errorf("ListForOwner(%q) = %+v %v", owner, ks, err)
+		}
+	}
+	if _, err := k.ListForOwner(ctx, ""); !errors.Is(err, ErrBadRequest) {
+		t.Errorf("ListForOwner(\"\") = %v, want ErrBadRequest", err)
+	}
+
+	if err := k.ExistsForOwner(ctx, "u_alice", alice.ID); err != nil {
+		t.Errorf("Alice's key is not hers: %v", err)
+	}
+	for _, tc := range []struct{ owner, id string }{
+		{"u_bob", alice.ID}, {"u_alice", bob.ID}, {"u_alice", admin.ID},
+		{"u_alice", "0123456789abcdef"}, {"", alice.ID},
+	} {
+		want := ErrNotFound
+		if tc.owner == "" {
+			want = ErrBadRequest
+		}
+		if err := k.ExistsForOwner(ctx, tc.owner, tc.id); !errors.Is(err, want) {
+			t.Errorf("ExistsForOwner(%q, %q) = %v, want %v", tc.owner, tc.id, err, want)
+		}
+		if err := k.DisableForOwner(ctx, tc.owner, tc.id); !errors.Is(err, want) {
+			t.Errorf("DisableForOwner(%q, %q) = %v, want %v", tc.owner, tc.id, err, want)
+		}
+	}
+
+	if err := k.DisableForOwner(ctx, "u_alice", alice.ID); err != nil {
+		t.Fatal(err)
+	}
+	if _, err := k.Authenticate(ctx, aliceSecret); !errors.Is(err, ErrInvalid) {
+		t.Errorf("revoked key still works: %v", err)
+	}
+	for name, secret := range map[string]string{"bob": bobSecret, "admin": adminSecret} {
+		if _, err := k.Authenticate(ctx, secret); err != nil {
+			t.Errorf("%s's key was affected: %v", name, err)
+		}
+	}
+	ks, err := k.List(ctx)
+	if err != nil || len(ks) != 3 {
+		t.Fatalf("admin List = %d keys, %v", len(ks), err)
+	}
+}

@@ -491,6 +491,7 @@ type FirestoreAPIKeys struct {
 
 type apiKeyDoc struct {
 	ID         string    `firestore:"id"`
+	Owner      string    `firestore:"owner,omitempty"`
 	Name       string    `firestore:"name"`
 	Hash       string    `firestore:"sha256"`
 	CreatedAt  time.Time `firestore:"created_at"`
@@ -499,12 +500,12 @@ type apiKeyDoc struct {
 }
 
 func (d apiKeyDoc) key() apikey.Key {
-	return apikey.Key{ID: d.ID, Name: d.Name, Hash: d.Hash, CreatedAt: d.CreatedAt, DailyQuota: d.DailyQuota, Disabled: d.Disabled}
+	return apikey.Key{ID: d.ID, Owner: d.Owner, Name: d.Name, Hash: d.Hash, CreatedAt: d.CreatedAt, DailyQuota: d.DailyQuota, Disabled: d.Disabled}
 }
 
 // Create implements apikey.Store.
 func (s *FirestoreAPIKeys) Create(ctx context.Context, k apikey.Key) error {
-	d := apiKeyDoc{ID: k.ID, Name: k.Name, Hash: k.Hash, CreatedAt: k.CreatedAt, DailyQuota: k.DailyQuota, Disabled: k.Disabled}
+	d := apiKeyDoc{ID: k.ID, Owner: k.Owner, Name: k.Name, Hash: k.Hash, CreatedAt: k.CreatedAt, DailyQuota: k.DailyQuota, Disabled: k.Disabled}
 	if _, err := s.keys.Doc(k.ID).Create(ctx, d); err != nil {
 		return fmt.Errorf("store: create api key: %w", err)
 	}
@@ -548,6 +549,28 @@ func (s *FirestoreAPIKeys) List(ctx context.Context) ([]apikey.Key, error) {
 	}
 }
 
+// ListByOwner implements apikey.Store. A single-field equality query needs
+// no composite index; legacy docs with no owner are not returned.
+func (s *FirestoreAPIKeys) ListByOwner(ctx context.Context, owner string) ([]apikey.Key, error) {
+	it := s.keys.Where("owner", "==", owner).Documents(ctx)
+	defer it.Stop()
+	var out []apikey.Key
+	for {
+		snap, err := it.Next()
+		if errors.Is(err, iterator.Done) {
+			return out, nil
+		}
+		if err != nil {
+			return nil, fmt.Errorf("store: list api keys by owner: %w", err)
+		}
+		var d apiKeyDoc
+		if err := snap.DataTo(&d); err != nil {
+			return nil, fmt.Errorf("store: decode api key: %w", err)
+		}
+		out = append(out, d.key())
+	}
+}
+
 // Disable implements apikey.Store.
 func (s *FirestoreAPIKeys) Disable(ctx context.Context, id string) error {
 	_, err := s.keys.Doc(id).Update(ctx, []firestore.Update{{Path: "disabled", Value: true}})
@@ -556,6 +579,36 @@ func (s *FirestoreAPIKeys) Disable(ctx context.Context, id string) error {
 	}
 	if err != nil {
 		return fmt.Errorf("store: disable api key: %w", err)
+	}
+	return nil
+}
+
+// DisableForOwner implements apikey.Store. The owner check and the write are
+// in one transaction so a concurrent revoke or owner change cannot slip by.
+func (s *FirestoreAPIKeys) DisableForOwner(ctx context.Context, owner, id string) error {
+	ref := s.keys.Doc(id)
+	err := s.client.RunTransaction(ctx, func(ctx context.Context, tx *firestore.Transaction) error {
+		snap, err := tx.Get(ref)
+		if status.Code(err) == codes.NotFound {
+			return apikey.ErrNotFound
+		}
+		if err != nil {
+			return err
+		}
+		var d apiKeyDoc
+		if err := snap.DataTo(&d); err != nil {
+			return fmt.Errorf("store: decode api key: %w", err)
+		}
+		if d.Owner == "" || d.Owner != owner {
+			return apikey.ErrNotFound
+		}
+		return tx.Update(ref, []firestore.Update{{Path: "disabled", Value: true}})
+	})
+	if errors.Is(err, apikey.ErrNotFound) {
+		return err
+	}
+	if err != nil {
+		return fmt.Errorf("store: disable api key for owner: %w", err)
 	}
 	return nil
 }

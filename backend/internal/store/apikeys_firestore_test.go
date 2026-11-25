@@ -36,6 +36,29 @@ func TestFirestoreAPIKeys(t *testing.T) {
 			t.Errorf("use %d = %v %d %v", i, ok, n, err)
 		}
 	}
+	// A self-service key carries an owner; the query and the scoped disable
+	// must not touch an admin key or another account's key (#788).
+	ownedSecret, owned, err := keys.IssueFor(ctx, "u_alice", "Alice's agent", 5)
+	if err != nil {
+		t.Fatal(err)
+	}
+	mine, err := keys.ListForOwner(ctx, "u_alice")
+	if err != nil || len(mine) != 1 || mine[0].ID != owned.ID || mine[0].Owner != "u_alice" {
+		t.Fatalf("ListForOwner = %+v %v", mine, err)
+	}
+	if err := keys.ExistsForOwner(ctx, "u_bob", owned.ID); !errors.Is(err, apikey.ErrNotFound) {
+		t.Errorf("another account sees the key: %v", err)
+	}
+	if err := keys.DisableForOwner(ctx, "u_bob", owned.ID); !errors.Is(err, apikey.ErrNotFound) {
+		t.Errorf("another account revoked the key: %v", err)
+	}
+	if err := keys.DisableForOwner(ctx, "u_alice", owned.ID); err != nil {
+		t.Fatal(err)
+	}
+	if _, err := keys.Authenticate(ctx, ownedSecret); !errors.Is(err, apikey.ErrInvalid) {
+		t.Errorf("revoked self-service key still works: %v", err)
+	}
+
 	if err := keys.Disable(ctx, k.ID); err != nil {
 		t.Fatal(err)
 	}

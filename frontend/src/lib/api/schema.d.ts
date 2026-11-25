@@ -1137,6 +1137,56 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/v1/api-keys": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * List your own API keys, newest first, without secrets (sign-in required)
+         * @description Only keys issued by this signed-in account; admin and other users' keys are never included. Revoked keys stay in the list with `disabled` true.
+         */
+        get: operations["listOwnApiKeys"];
+        put?: never;
+        /**
+         * Create your own API key (sign-in required; API_KEYS and TEAMS on)
+         * @description Self-service issuance (#788). The owner is the verified sign-in, never
+         *     a field in the body. The daily quota is fixed at 200 requests per UTC
+         *     day; a `daily_quota` in the body is refused. The secret is returned
+         *     once, in `key`: only its SHA-256 is stored, so it cannot be shown
+         *     again. Use it as `X-API-Key` on REST and `Authorization: Bearer` on
+         *     `/mcp`. The recorded key never carries `owner`. Served only with
+         *     API_KEYS and TEAMS on (404 otherwise).
+         */
+        post: operations["issueOwnApiKey"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/api-keys/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        /**
+         * Revoke one of your API keys for good (sign-in required)
+         * @description The record stays with `disabled` true. An id that is not one of the signed-in user's keys is a 404, so another account's key id cannot be probed.
+         */
+        delete: operations["disableOwnApiKey"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/mcp": {
         parameters: {
             query?: never;
@@ -5735,6 +5785,100 @@ export interface operations {
             };
             403: components["responses"]["Error"];
             404: components["responses"]["Error"];
+            503: components["responses"]["Error"];
+        };
+    };
+    listOwnApiKeys: {
+        parameters: {
+            query?: never;
+            header: {
+                /** @description The signed-in user's Google ID token, forwarded by the frontend proxy (D68). Optional on every other endpoint. */
+                "X-User-Token": components["parameters"]["UserToken"];
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description The signed-in user's keys */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        api_keys: components["schemas"]["APIKey"][];
+                    };
+                };
+            };
+            401: components["responses"]["Error"];
+            429: components["responses"]["TooManyRequests"];
+        };
+    };
+    issueOwnApiKey: {
+        parameters: {
+            query?: never;
+            header: {
+                /** @description The signed-in user's Google ID token, forwarded by the frontend proxy (D68). Optional on every other endpoint. */
+                "X-User-Token": components["parameters"]["UserToken"];
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": {
+                    /** @description A name for this key; whitespace is collapsed */
+                    name: string;
+                };
+            };
+        };
+        responses: {
+            /** @description The new key, shown once, and its record */
+            201: {
+                headers: {
+                    "X-Audit-Incomplete": components["headers"]["AuditIncomplete"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        /** @description Send as X-API-Key (REST) or Authorization: Bearer (MCP). Not stored; shown only here. */
+                        key: string;
+                        api_key: components["schemas"]["APIKey"];
+                    };
+                };
+            };
+            400: components["responses"]["Error"];
+            401: components["responses"]["Error"];
+            429: components["responses"]["TooManyRequests"];
+            503: components["responses"]["Error"];
+        };
+    };
+    disableOwnApiKey: {
+        parameters: {
+            query?: never;
+            header: {
+                /** @description The signed-in user's Google ID token, forwarded by the frontend proxy (D68). Optional on every other endpoint. */
+                "X-User-Token": components["parameters"]["UserToken"];
+            };
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Revoked */
+            204: {
+                headers: {
+                    "X-Audit-Incomplete": components["headers"]["AuditIncomplete"];
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            401: components["responses"]["Error"];
+            404: components["responses"]["Error"];
+            429: components["responses"]["TooManyRequests"];
             503: components["responses"]["Error"];
         };
     };

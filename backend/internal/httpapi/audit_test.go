@@ -1077,3 +1077,81 @@ func TestVerifyRouteAnswers409WhenAPurgeKeepsMovingTheCheckpoint(t *testing.T) {
 		t.Errorf("verify after = %d %v", code, body)
 	}
 }
+
+// Self-service keys are audited like admin keys, but in the requester's
+// tenant and under their pseudonymous user actor (#788).
+func TestSelfServiceAPIKeysAuditedInRequesterTenant(t *testing.T) {
+	e := newAuditEnvWith(t, true, withKeys)
+	ten := e.tenant() // dave is a member of carol's workspace
+	n := len(e.events(ten))
+	code, out := e.hs.doAs(t, "POST", "/v1/api-keys", `{"name":"Agent"}`, user("dave"))
+	if code != http.StatusCreated {
+		t.Fatalf("issue = %d %v", code, out)
+	}
+	issue, _ := pair(t, "self-service issue", e.since(ten, n), audit.APIKeyIssue, "")
+	if issue.Actor != e.actor("dave@example.com") {
+		t.Errorf("issue actor = %q, want dave's pseudonym", issue.Actor)
+	}
+	id, _ := out["api_key"].(map[string]any)["id"].(string)
+	if id == "" {
+		t.Fatalf("no key id in %v", out)
+	}
+
+	n = len(e.events(ten))
+	if code, _ := e.hs.doAs(t, "DELETE", "/v1/api-keys/"+id, "", user("dave")); code != http.StatusNoContent {
+		t.Fatalf("revoke = %d", code)
+	}
+	revoke, _ := pair(t, "self-service revoke", e.since(ten, n), audit.APIKeyDisable, "")
+	if revoke.Actor != e.actor("dave@example.com") {
+		t.Errorf("revoke actor = %q, want dave's pseudonym", revoke.Actor)
+	}
+}
+
+// A borrowed or admin key id is a plain 404 to the caller, but unlike an
+// unknown id it is recorded as a hidden denial in the requester's tenant
+// (#788, D887). The victim's tenant sees nothing.
+func TestSelfServiceAPIKeyHiddenProbesAreAudited(t *testing.T) {
+	e := newAuditEnvWith(t, true, withKeys)
+	ten := e.tenant()
+	code, out := e.hs.doAs(t, "POST", "/v1/api-keys", `{"name":"Bob's agent"}`, user("bob"))
+	if code != http.StatusCreated {
+		t.Fatalf("bob's issue = %d %v", code, out)
+	}
+	bobID, _ := out["api_key"].(map[string]any)["id"].(string)
+	_, adminID := issueKey(t, e.hs, "Broker", 10)
+	if bobID == "" || adminID == "" {
+		t.Fatalf("no ids: bob %q, admin %q", bobID, adminID)
+	}
+	bobTen := "own:" + userOwner("bob@example.com")
+	beforeBob, beforeDave := len(e.events(bobTen)), len(e.events(ten))
+
+	for _, id := range []string{bobID, adminID} {
+		if code, _ := e.hs.doAs(t, "DELETE", "/v1/api-keys/"+id, "", user("dave")); code != http.StatusNotFound {
+			t.Errorf("probe of %s = %d, want 404", id, code)
+		}
+	}
+	if got := len(e.events(bobTen)); got != beforeBob {
+		t.Errorf("a probe wrote %d events into bob's tenant", got-beforeBob)
+	}
+	evs := e.since(ten, beforeDave)
+	if len(evs) != 2 {
+		t.Fatalf("hidden denials = %s", brief(evs))
+	}
+	for i, ev := range evs {
+		probed := []string{bobID, adminID}[i]
+		if ev.Phase != audit.PhaseSingle || ev.Outcome != audit.Denied || ev.Reason != audit.ReasonHidden || ev.Action != audit.APIKeyDisable {
+			t.Errorf("probe denial = %+v", ev)
+		}
+		if strings.Contains(ev.Object, probed) || !strings.HasPrefix(ev.Object, "apikey:h_") {
+			t.Errorf("the probed key id is in the denial: %q", ev.Object)
+		}
+	}
+
+	n := len(e.events(ten))
+	if code, _ := e.hs.doAs(t, "DELETE", "/v1/api-keys/0000000000000000", "", user("dave")); code != http.StatusNotFound {
+		t.Errorf("unknown id = %d, want 404", code)
+	}
+	if got := len(e.events(ten)); got != n {
+		t.Errorf("an unknown id wrote %d events", got-n)
+	}
+}

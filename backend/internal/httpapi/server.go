@@ -140,6 +140,12 @@ func NewHandler(logger *slog.Logger, info Info, deps ...Deps) http.Handler {
 			mux.HandleFunc("POST /v1/admin/api-keys", a.adminOnly(a.issueAPIKey))
 			mux.HandleFunc("GET /v1/admin/api-keys", a.adminOnly(a.listAPIKeys))
 			mux.HandleFunc("DELETE /v1/admin/api-keys/{id}", a.adminOnly(a.disableAPIKey))
+			// Self-service needs a verified sign-in as well as keys (#788).
+			if d.Teams {
+				mux.HandleFunc("POST /v1/api-keys", a.cheap(a.issueOwnAPIKey))
+				mux.HandleFunc("GET /v1/api-keys", a.cheap(a.listOwnAPIKeys))
+				mux.HandleFunc("DELETE /v1/api-keys/{id}", a.cheap(a.disableOwnAPIKey))
+			}
 		}
 	}
 	// Not /healthz: Cloud Run reserves paths ending in "z".

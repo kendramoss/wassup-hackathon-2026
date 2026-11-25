@@ -56,6 +56,10 @@ type Key struct {
 	CreatedAt  time.Time `json:"created_at"`
 	DailyQuota int       `json:"daily_quota"`
 	Disabled   bool      `json:"disabled"`
+	// Owner is the verified user who issued a self-service key (#788). It
+	// is internal: it scopes list and revoke, and is never sent to a client.
+	// Empty means an admin or legacy key (D69).
+	Owner string `json:"-"`
 }
 
 // Store keeps the keys and their per-day request counts.
@@ -64,8 +68,13 @@ type Store interface {
 	// Get returns ErrNotFound when there is no key with id.
 	Get(ctx context.Context, id string) (Key, error)
 	List(ctx context.Context) ([]Key, error)
+	// ListByOwner returns only the keys issued by owner; legacy keys with
+	// no owner are admin-only (#788).
+	ListByOwner(ctx context.Context, owner string) ([]Key, error)
 	// Disable returns ErrNotFound when there is no key with id.
 	Disable(ctx context.Context, id string) error
+	// DisableForOwner returns ErrNotFound unless id belongs to owner.
+	DisableForOwner(ctx context.Context, owner, id string) error
 	// Use adds one request to the key's count for day (YYYY-MM-DD, UTC)
 	// and returns the new count.
 	Use(ctx context.Context, id, day string) (int64, error)
@@ -92,6 +101,13 @@ func ValidID(id string) bool { return idPattern.MatchString(id) }
 // Issue creates a key and returns its secret, which is not stored and cannot
 // be shown again.
 func (k *Keys) Issue(ctx context.Context, name string, dailyQuota int) (string, Key, error) {
+	return k.IssueFor(ctx, "", name, dailyQuota)
+}
+
+// IssueFor is Issue with an account owner (#788). An empty owner keeps the
+// admin/CLI path unchanged; a non-empty owner is the verified user who may
+// later list and revoke this key.
+func (k *Keys) IssueFor(ctx context.Context, owner, name string, dailyQuota int) (string, Key, error) {
 	name = strings.Join(strings.Fields(name), " ")
 	if err := ValidateIssue(name, dailyQuota); err != nil {
 		return "", Key{}, err
@@ -102,7 +118,7 @@ func (k *Keys) Issue(ctx context.Context, name string, dailyQuota int) (string, 
 	}
 	secret := Prefix + base64.RawURLEncoding.EncodeToString(b)
 	h := hashOf(secret)
-	key := Key{ID: h[:16], Name: name, Hash: h, CreatedAt: k.now().UTC(), DailyQuota: dailyQuota}
+	key := Key{ID: h[:16], Owner: owner, Name: name, Hash: h, CreatedAt: k.now().UTC(), DailyQuota: dailyQuota}
 	if err := k.store.Create(ctx, key); err != nil {
 		return "", Key{}, err
 	}
@@ -139,7 +155,50 @@ func (k *Keys) List(ctx context.Context) ([]Key, error) {
 	return ks, nil
 }
 
-// Disable turns a key off for good; requests with it get 401.
+// ListForOwner returns owner's keys, newest first. An empty owner is refused
+// so a caller cannot read the admin's legacy keys.
+func (k *Keys) ListForOwner(ctx context.Context, owner string) ([]Key, error) {
+	if owner == "" {
+		return nil, ErrBadRequest
+	}
+	ks, err := k.store.ListByOwner(ctx, owner)
+	if err != nil {
+		return nil, err
+	}
+	sort.SliceStable(ks, func(i, j int) bool { return ks[i].CreatedAt.After(ks[j].CreatedAt) })
+	return ks, nil
+}
+
+// ExistsForOwner returns ErrNotFound unless id is a key issued by owner.
+func (k *Keys) ExistsForOwner(ctx context.Context, owner, id string) error {
+	if owner == "" {
+		return ErrBadRequest
+	}
+	if !ValidID(id) {
+		return ErrNotFound
+	}
+	key, err := k.store.Get(ctx, id)
+	if err != nil {
+		return err
+	}
+	if key.Owner == "" || key.Owner != owner {
+		return ErrNotFound
+	}
+	return nil
+}
+
+// DisableForOwner turns owner's key off for good; requests with it get 401.
+// A stale or borrowed id is a 404, never a hint that the id exists.
+func (k *Keys) DisableForOwner(ctx context.Context, owner, id string) error {
+	if owner == "" {
+		return ErrBadRequest
+	}
+	if !ValidID(id) {
+		return ErrNotFound
+	}
+	return k.store.DisableForOwner(ctx, owner, id)
+}
+
 // ValidateIssue checks an issue request (name already whitespace-normalized)
 // without issuing anything, so a caller can refuse a bad request before it
 // records an audit intent.
@@ -165,6 +224,7 @@ func (k *Keys) Exists(ctx context.Context, id string) error {
 	return err
 }
 
+// Disable turns a key off for good; requests with it get 401.
 func (k *Keys) Disable(ctx context.Context, id string) error {
 	if !ValidID(id) {
 		return ErrNotFound
@@ -228,12 +288,38 @@ func (m *Memory) List(_ context.Context) ([]Key, error) {
 	return out, nil
 }
 
+// ListByOwner implements Store.
+func (m *Memory) ListByOwner(_ context.Context, owner string) ([]Key, error) {
+	m.mu.Lock()
+	defer m.mu.Unlock()
+	out := make([]Key, 0)
+	for _, k := range m.keys {
+		if k.Owner != "" && k.Owner == owner {
+			out = append(out, k)
+		}
+	}
+	return out, nil
+}
+
 // Disable implements Store.
 func (m *Memory) Disable(_ context.Context, id string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
 	k, ok := m.keys[id]
 	if !ok {
+		return ErrNotFound
+	}
+	k.Disabled = true
+	m.keys[id] = k
+	return nil
+}
+
+// DisableForOwner implements Store.
+func (m *Memory) DisableForOwner(_ context.Context, owner, id string) error {
+	m.mu.Lock()
+	defer m.mu.Unlock()
+	k, ok := m.keys[id]
+	if !ok || k.Owner == "" || k.Owner != owner {
 		return ErrNotFound
 	}
 	k.Disabled = true
