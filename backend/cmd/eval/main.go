@@ -186,7 +186,7 @@ func main() {
 
 func run(args []string) error {
 	fl := flag.NewFlagSet("run", flag.ExitOnError)
-	split := fl.String("split", "dev", "dev, final or pilot; final2 with -splits ../eval/splits/splits_final2.json; train or tune_check with -splits ../eval/splits/splits_tune.json")
+	split := fl.String("split", "dev", "dev, final or pilot; final2 with -splits ../eval/splits/splits_final2.json; train or tune_check with -splits ../eval/splits/splits_tune.json; foodfresh with -splits ../eval/splits/splits_foodfresh.json")
 	limit := fl.Int("limit", 0, "only the first N cases (0 = all)")
 	workers := fl.Int("workers", 8, "concurrent model calls")
 	hedgeAfter := fl.Duration("hedge-after", 0, "send a call once more if it has not answered after this long and use the first answer (D611; 0 = off)")

@@ -75,6 +75,9 @@ type Splits struct {
 	Pilot     []string `json:"pilot,omitempty"`
 	Train     []string `json:"train,omitempty"`
 	TuneCheck []string `json:"tune_check,omitempty"`
+	// FoodFresh is a food test set the food-v1 guidance was not written
+	// from (eval/splits/splits_foodfresh.json, D858).
+	FoodFresh []string `json:"foodfresh,omitempty"`
 	// Textile lists every textile (19 CFR 102.21) ruling, the textile
 	// engine's precedent pool (eval/splits/splits_textile.json, D51).
 	Textile []string `json:"textile,omitempty"`
@@ -111,6 +114,8 @@ func (s Splits) IDs(name string) ([]string, error) {
 		return s.Train, nil
 	case "tune_check":
 		return s.TuneCheck, nil
+	case "foodfresh":
+		return s.FoodFresh, nil
 	}
-	return nil, fmt.Errorf("corpus: unknown split %q (want final, final2, dev, pilot, train or tune_check)", name)
+	return nil, fmt.Errorf("corpus: unknown split %q (want final, final2, dev, pilot, train, tune_check or foodfresh)", name)
 }

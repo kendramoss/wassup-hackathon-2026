@@ -1,0 +1,16 @@
+{
+  "N008056": {
+    "primary_origin": "Brazil",
+    "evidence": [
+      "Accordingly, we find that, for purposes of 19 U.S.C. 1304, the imported raw cashews of the present case are not substantially transformed into products of the U.S. by post-importation processing, but remain products of Brazil."
+    ],
+    "note": "regex found no holding; the holding sentence names Brazil (D858)"
+  },
+  "N326044": {
+    "primary_origin": "Spain",
+    "evidence": [
+      "As such, they are not substantially transformed as a result of the processing in South Africa. The black garlic seasoning will remain a product of the country where the bulbs were grown, which in this case is Spain."
+    ],
+    "note": "regex found no holding; the holding sentence names Spain (D858)"
+  }
+}
