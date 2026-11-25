@@ -3449,6 +3449,7 @@ Committed and pushed before the run. D511 left run 2 blocked; since D730 the liv
 - **Scored** by `eval/agent/score.py` unchanged (D510 rules, D450's beside them), with D510's repeatability measures against run 1.
 - **Pass for #683:** the 12 runs complete and are scored. #683 closes with the result whatever the score; /method's ADK line is updated to say what run 2 found.
 - **Cost cap.** Agent and server model calls together $5 for this item; about $0.42 agent spend in run 1.
+- **Amended before the run (setup only).** The server's committed providers refuse `litellm` (D49), so, as in D472, the server ran from a scratch copy of this commit with an uncommitted two-line patch that accepts `LLM_PROVIDER=litellm` and builds `llm.NewLiteLLM`; nothing of it is in the repository. Port 8787, not 8080. `VERIFIER_CACHE_STORE=off` (the config accepts no in-memory cache), `RATE_LIMIT_STORE=memory`, `AUDIT=off`.
 
 ## D870 — Japan: a reviewed HS-edition correlation, applied only when the lookup finds no rule (24 Nov, #791 94fb24f6)
 Some Japan Customs rulings carry a code from a later HS edition than the schedule uses, so the lookup returned `no_match` and the case went to review. A short list of correlations (`backend/internal/jprules/data/correlations.json`) now sits behind that outcome.
