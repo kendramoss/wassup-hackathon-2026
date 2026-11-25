@@ -3441,6 +3441,15 @@ Run as pre-registered (`families-coverage-dev-all-litellm-f29-864`, gateway, cle
 - **Criterion, as stated in D863 and D864: met** (battery working 6 of 6 needed; no harm). Cost $0.36. The family check uses gemini-3.8-flash, about $0.004 a case.
 - **Issues.** #777 closes (battery packs template). #779 closes with upholstery and knock-down covered by citations; no CBP ruling found turns on finishing alone, so finishing has no group of its own. #826 and #827 close: their rulings were found outside the corpus (D862).
 
+## D866 — ADK agent evaluation v2, run 2, against a local server, pre-registered (25 Nov, #683)
+Committed and pushed before the run. D511 left run 2 blocked; since D730 the live server needs a verified identity to create a case, so the anonymous D510 protocol cannot run there. Run 2 is run against a local server instead, so nothing reaches production (no prod case, no prod model budget, no API key).
+- **Setup.** Agent: `examples/adk-agent` as on main (the D470 instruction, unchanged since D510), Gemini 3.8 Flash through an OpenAI-compatible LiteLLM gateway to Gemini, as in run 1. Server: `backend/cmd/server` built from main at this commit, `http://localhost:8080/mcp`, `LLM_PROVIDER=litellm` (engine, router and verifier on their production model names through the same gateway, never Vertex), `CASES_STORE=memory`, `STRICT_AUTH` off, no daily spend cap, every other setting at its default.
+- **Differences from run 1, stated now.** Run 1 used the live server (production's model path, its bundled corpus, its deploy of 22 Nov). Run 2 uses today's main, the gateway for the server's model calls and the repository's corpus. So run 1 against run 2 is not a pure repeat: a difference can come from the agent, the server's code since 22 Nov or the model path. It is reported as repeatability across those changes, not of the agent alone.
+- **Runs, as D510.** a01–a12 of `eval/agent/products.jsonl`, one run each, three at a time, each a new ADK session and a new case. Rows `eval/agent/results/local-v2-run2.jsonl`; meta names the series (`v2`), run 2, the baseline and the local server. Every row kept and scored; no product re-run.
+- **Scored** by `eval/agent/score.py` unchanged (D510 rules, D450's beside them), with D510's repeatability measures against run 1.
+- **Pass for #683:** the 12 runs complete and are scored. #683 closes with the result whatever the score; /method's ADK line is updated to say what run 2 found.
+- **Cost cap.** Agent and server model calls together $5 for this item; about $0.42 agent spend in run 1.
+
 ## D870 — Japan: a reviewed HS-edition correlation, applied only when the lookup finds no rule (24 Nov, #791 94fb24f6)
 Some Japan Customs rulings carry a code from a later HS edition than the schedule uses, so the lookup returned `no_match` and the case went to review. A short list of correlations (`backend/internal/jprules/data/correlations.json`) now sits behind that outcome.
 - **Decision.**
