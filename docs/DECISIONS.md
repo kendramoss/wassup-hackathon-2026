@@ -3469,6 +3469,13 @@ Committed and pushed before the runs. Development only; held-out is not read.
 - **Expectation.** No detectable effect: the pool is 15 rulings against 2,790, and 12 of the 16 changes are reorderings. The question this answers is whether a pool this small is worth wiring into production; a larger pool of older rulings would be the follow-up.
 - **Cost.** About $0.25 for both runs; cap $2.
 
+## D869 — Older rulings as retrieval precedents: results of D868 (25 Nov, #837)
+Runs as pre-registered (`subset-gemini-4-argon-prec-engine-v1-litellm-868-control` and `-868-cited`, gateway, clean tree, no failed calls); `eval/accuracy/868-measure.json`.
+- **16 changed cases: 12 → 13** (1 gained, 0 lost, p = 1.0). Gained N356481 (CBP: Turkey; control China): the older furniture-parts ruling N300248 (U.S. lumber made into parts in Vietnam: Vietnam) took a precedent slot. The other three cases that retrieved an older ruling did not change (H331375 wrong in both, N351341 and N353511 right in both). The 12 reordered cases: 10 → 10. The control matches D860's control on all 16 (12 → 12).
+- **Criterion, as D868 stated: no detectable effect** ("helped" needed net +2).
+- **Reading.** A 15-ruling pool reaches 16 of 469 development cases and 4 of them get an older ruling; the most it could move is a handful of answers, and it moved one. Wiring it into production is not worth a decision on this evidence; the pool stays cited-only. A larger pool of older rulings would be the way to test the idea properly, and that needs a fetch of many more rulings than this lane found by search.
+- **Cost.** $0.25. `eval retrdiff` (new) lists the cases a pool change can touch, so a test like this runs only those.
+
 ## D870 — Japan: a reviewed HS-edition correlation, applied only when the lookup finds no rule (24 Nov, #791 94fb24f6)
 Some Japan Customs rulings carry a code from a later HS edition than the schedule uses, so the lookup returned `no_match` and the case went to review. A short list of correlations (`backend/internal/jprules/data/correlations.json`) now sits behind that outcome.
 - **Decision.**
