@@ -10,7 +10,7 @@
   "retrieved": "2026-11-24",
   "sha256": "239b6b3d103dd4d22bfc639638759bb41a6ba98233540e150c79b912d22b850d",
   "licence": "Open Government Licence v3.0 (GOV.UK: \"All content is available under the Open Government Licence v3.0, except where otherwise stated\"; the document states nothing else).",
-  "note": "Publication page https://www.gov.uk/government/publications/reference-document-for-the-customs-origin-of-chargeable-goods-eu-exit-regulations-2020 (last updated 10 Sep 2025; v1.2 is the current non-preferential document). Rows, descriptions and rule text verbatim. Alternatives parsed by nporigin.ParseRule; an alternative with encoded=false, and every process rule, is decided only from a yes/no answer."
+  "note": "Publication page https://www.gov.uk/government/publications/reference-document-for-the-customs-origin-of-chargeable-goods-eu-exit-regulations-2020 (last updated 10 Sep 2025; v1.2 is the current non-preferential document). Rows, descriptions and rule text verbatim. Alternatives parsed by nporigin.ParseRule; an alternative with encoded=false, and every process rule, is decided only from a yes/no answer. SI 2020/1433 is pinned separately at https://www.legislation.gov.uk/uksi/2020/1433/made/data.xml (made 15 Dec 2020, laid 16 Dec 2020; retrieved 25 Nov 2026, SHA-256 7b806032c37b28ac2d988f69c1d53d3d300f7a846951fd756808fa5e214636da). No rule data was taken from the instrument; it is cited for legal framing only."
  },
  "chapters": [
   {

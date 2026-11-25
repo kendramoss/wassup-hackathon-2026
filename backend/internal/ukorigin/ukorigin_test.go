@@ -57,6 +57,9 @@ func TestCoverageUK(t *testing.T) {
 	if s.SHA256 != "239b6b3d103dd4d22bfc639638759bb41a6ba98233540e150c79b912d22b850d" || !strings.Contains(s.Version, "1.2") || !strings.Contains(s.Licence, "Open Government Licence v3.0") {
 		t.Errorf("source %+v", s)
 	}
+	if !strings.Contains(s.Note, "7b806032c37b28ac2d988f69c1d53d3d300f7a846951fd756808fa5e214636da") || !strings.Contains(s.Instrument, "SI 2020/1433") {
+		t.Errorf("instrument pin missing: %+v", s)
+	}
 }
 
 func f(v float64) *float64 { return &v }
