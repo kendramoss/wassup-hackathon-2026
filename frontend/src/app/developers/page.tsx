@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 import { AppBar, Main } from "@/components/op/chrome";
 import { copy } from "@/lib/copy";
 import { DevelopersPortal } from "./portal";
@@ -23,6 +24,12 @@ export default function Page() {
             OpenAPI 3.1 Spec <span aria-hidden="true">↗</span>
           </a>
           <p className="duo text-xs text-dim sm:col-span-2">Local examples only. Predictions are not rulings.</p>
+          <p className="duo text-xs text-dim sm:col-span-2">
+            {copy.developers.keyLead}{" "}
+            <Link href="/settings" className="text-ok underline underline-offset-2">
+              {copy.developers.keyLink}
+            </Link>
+          </p>
         </header>
         <DevelopersPortal repo={repo} />
       </Main>

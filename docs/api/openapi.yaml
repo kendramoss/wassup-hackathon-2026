@@ -79,7 +79,7 @@ info:
 
     Strict auth (#283, `STRICT_AUTH=on`, default off, same values as `CASE_OWNERSHIP`; any other value fails startup): private case operations (creating, listing and every route on a non-pinned case) require a verified identity, meaning a validated user token, an API key or the admin token. An `X-Visitor-ID` alone is not authentication and gets 401 `unauthenticated`, identical for missing, hidden and unknown cases. Pinned demos, `/v1/demos*`, `/v1/rulings`, `/v1/eval/summary`, `/v1/duty-rates`, `/v1/rcep/check`, `/v1/usmca/check`, `/health` and the stateless `/v1/products/*` helpers stay open. With it off nothing changes.
 
-    API keys (D69, `API_KEYS=on`, off by default): brokers may call the API with `X-API-Key: op_...` (securityScheme `ApiKey`). Every `/v1` request with a key is checked (unknown or disabled: 401 `unauthorized`) and counted against the key's daily quota (spent: 429 `quota_exceeded`, `Retry-After` at the next UTC day). A key has its own rate-limit buckets, sees the pinned demos and its own cases only, and its cases are hidden from everyone else but the admin, whatever `CASE_OWNERSHIP` says. The admin issues, lists and disables keys under `/v1/admin/api-keys`.
+    API keys (D69, `API_KEYS=on`, off by default): brokers may call the API with `X-API-Key: op_...` (securityScheme `ApiKey`). Every `/v1` request with a key is checked (unknown or disabled: 401 `unauthorized`) and counted against the key's daily quota (spent: 429 `quota_exceeded`, `Retry-After` at the next UTC day). A key has its own rate-limit buckets, sees the pinned demos and its own cases only, and its cases are hidden from everyone else but the admin, whatever `CASE_OWNERSHIP` says. The admin issues, lists and disables keys under `/v1/admin/api-keys`. Signed-in users also create, list and revoke their own keys under `/v1/api-keys` when `TEAMS` is on (#788): the owner comes from the verified sign-in, the quota is fixed at 200 requests per UTC day, and the secret is returned only on creation.
 
     Broker review links (D200): a case owner makes a link for one draft (`POST /v1/cases/{id}/reviews`), and a customs broker opens it without an account. The broker's two routes, `GET /v1/review` and `POST /v1/review/decision`, take the link token in the `X-Review-Token` header (securityScheme `ReviewToken`), never in a path or query. They have their own rate class (`review`, 30 a minute per client, counted per instance, `RATE_REVIEW_PER_MIN`) and an invalid token counts against a per-client failure budget like an invalid API key (429 `auth_rate_limited`). A revoked or expired link is 410. A token opens one frozen draft snapshot and nothing else.
 security:
@@ -2151,6 +2151,76 @@ paths:
         "204": { description: Disabled, headers: { X-Audit-Incomplete: { $ref: "#/components/headers/AuditIncomplete" } } }
         "403": { $ref: "#/components/responses/Error" }
         "404": { $ref: "#/components/responses/Error" }
+  /v1/api-keys:
+    post:
+      operationId: issueOwnApiKey
+      summary: Create your own API key (sign-in required; API_KEYS and TEAMS on)
+      description: |
+        Self-service issuance (#788). The owner is the verified sign-in, never
+        a field in the body. The daily quota is fixed at 200 requests per UTC
+        day; a `daily_quota` in the body is refused. The secret is returned
+        once, in `key`: only its SHA-256 is stored, so it cannot be shown
+        again. Use it as `X-API-Key` on REST and `Authorization: Bearer` on
+        `/mcp`. The recorded key never carries `owner`. Served only with
+        API_KEYS and TEAMS on (404 otherwise).
+      parameters: [{ $ref: "#/components/parameters/UserToken" }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [name]
+              properties:
+                name: { type: string, minLength: 1, maxLength: 100, description: "A name for this key; whitespace is collapsed" }
+      responses:
+        "429": { $ref: "#/components/responses/TooManyRequests" }
+        "201":
+          headers:
+            X-Audit-Incomplete: { $ref: "#/components/headers/AuditIncomplete" }
+          description: The new key, shown once, and its record
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [key, api_key]
+                properties:
+                  key: { type: string, pattern: "^op_[A-Za-z0-9_-]{43}$", description: "Send as X-API-Key (REST) or Authorization: Bearer (MCP). Not stored; shown only here." }
+                  api_key: { $ref: "#/components/schemas/APIKey" }
+        "400": { $ref: "#/components/responses/Error" }
+        "401": { $ref: "#/components/responses/Error" }
+        "503": { $ref: "#/components/responses/Error" }
+    get:
+      operationId: listOwnApiKeys
+      summary: List your own API keys, newest first, without secrets (sign-in required)
+      description: Only keys issued by this signed-in account; admin and other users' keys are never included. Revoked keys stay in the list with `disabled` true.
+      parameters: [{ $ref: "#/components/parameters/UserToken" }]
+      responses:
+        "429": { $ref: "#/components/responses/TooManyRequests" }
+        "200":
+          description: The signed-in user's keys
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [api_keys]
+                properties:
+                  api_keys: { type: array, items: { $ref: "#/components/schemas/APIKey" } }
+        "401": { $ref: "#/components/responses/Error" }
+  /v1/api-keys/{id}:
+    delete:
+      operationId: disableOwnApiKey
+      summary: Revoke one of your API keys for good (sign-in required)
+      description: The record stays with `disabled` true. An id that is not one of the signed-in user's keys is a 404, so another account's key id cannot be probed.
+      parameters:
+        - { $ref: "#/components/parameters/UserToken" }
+        - { name: id, in: path, required: true, schema: { type: string, pattern: "^[0-9a-f]{16}$" } }
+      responses:
+        "429": { $ref: "#/components/responses/TooManyRequests" }
+        "204": { description: Revoked, headers: { X-Audit-Incomplete: { $ref: "#/components/headers/AuditIncomplete" } } }
+        "401": { $ref: "#/components/responses/Error" }
+        "404": { $ref: "#/components/responses/Error" }
+        "503": { $ref: "#/components/responses/Error" }
   /mcp:
     post:
       operationId: mcp

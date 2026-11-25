@@ -186,11 +186,19 @@ function Account({ email, name, picture }: { email: string; name: string | null;
           <p className={name ? "truncate text-dim" : "mt-1 truncate text-ink"} title={email}>
             {email}
           </p>
+          <Link
+            href="/settings"
+            role="menuitem"
+            autoFocus
+            onClick={() => setOpen(false)}
+            className="mt-3 block min-h-8 text-ok underline-offset-2 hover:underline"
+          >
+            {copy.settings.apiKeys.menu}
+          </Link>
           <button
             type="button"
             role="menuitem"
-            autoFocus
-            className="mt-3 min-h-8 text-ok underline-offset-2 hover:underline"
+            className="mt-3 block min-h-8 text-ok underline-offset-2 hover:underline"
             onClick={async () => {
               await fetch("/api/session", { method: "DELETE" });
               window.google?.accounts.id.disableAutoSelect();

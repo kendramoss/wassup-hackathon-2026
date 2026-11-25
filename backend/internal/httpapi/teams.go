@@ -122,7 +122,7 @@ func unauthenticated(w http.ResponseWriter) {
 func requireUser(w http.ResponseWriter, r *http.Request) (identity, bool) {
 	id := identityOf(r.Context())
 	if id.email == "" {
-		writeError(w, http.StatusUnauthorized, "unauthenticated", "sign in to use workspaces", nil)
+		writeError(w, http.StatusUnauthorized, "unauthenticated", "sign in to continue", nil)
 		return identity{}, false
 	}
 	return id, true

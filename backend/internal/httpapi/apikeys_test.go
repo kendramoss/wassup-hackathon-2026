@@ -79,6 +79,89 @@ func TestAPIKeysIssueListDisable(t *testing.T) {
 	}
 }
 
+// A signed-in user gets a key without an admin handoff (#788). The owner is
+// taken from the verified sign-in, the quota is fixed on the server, and
+// another account cannot see or revoke the key.
+func TestSelfServiceAPIKeys(t *testing.T) {
+	hs, _, _ := teamsHarness(t, withKeys)
+	if code, _ := hs.do(t, "POST", "/v1/api-keys", `{"name":"My agent"}`); code != http.StatusUnauthorized {
+		t.Errorf("issue while signed out = %d, want 401", code)
+	}
+	for _, body := range []string{`{"name":"","daily_quota":200}`, `{"name":"Mine","daily_quota":9999}`, `{"name":"Mine","owner":"u_bob"}`} {
+		if code, _ := hs.doAs(t, "POST", "/v1/api-keys", body, user("alice")); code != http.StatusBadRequest {
+			t.Errorf("issue %s = %d, want 400", body, code)
+		}
+	}
+
+	code, out := hs.doAs(t, "POST", "/v1/api-keys", `{"name":"  My   agent  "}`, user("alice"))
+	if code != http.StatusCreated {
+		t.Fatalf("issue = %d %v", code, out)
+	}
+	secret, ok := out["key"].(string)
+	if !ok || !strings.HasPrefix(secret, "op_") {
+		t.Fatalf("secret = %v", out["key"])
+	}
+	mine, ok := out["api_key"].(map[string]any)
+	if !ok {
+		t.Fatalf("api_key = %v", out["api_key"])
+	}
+	id, _ := mine["id"].(string)
+	if id == "" || mine["name"] != "My agent" || mine["daily_quota"] != float64(selfServiceKeyQuota) {
+		t.Fatalf("issued key = %v", mine)
+	}
+	for field := range mine {
+		if field != "id" && field != "name" && field != "daily_quota" && field != "disabled" && field != "created_at" {
+			t.Errorf("issued key returns %q", field)
+		}
+	}
+
+	code, out = hs.doAs(t, "GET", "/v1/api-keys", "", user("alice"))
+	keys, _ := out["api_keys"].([]any)
+	if code != http.StatusOK || len(keys) != 1 || keys[0].(map[string]any)["id"] != id {
+		t.Fatalf("alice's list = %d %v", code, out)
+	}
+	code, out = hs.doAs(t, "GET", "/v1/api-keys", "", user("bob"))
+	keys, _ = out["api_keys"].([]any)
+	if code != http.StatusOK || len(keys) != 0 {
+		t.Fatalf("bob's list = %d %v", code, out)
+	}
+	if code, _ := hs.do(t, "GET", "/v1/api-keys", ""); code != http.StatusUnauthorized {
+		t.Errorf("list while signed out = %d, want 401", code)
+	}
+
+	// The secret works on the REST API as X-API-Key (D69), with the same
+	// limits and case isolation as an admin-issued key.
+	if code, _ := hs.doAs(t, "GET", "/v1/cases", "", map[string]string{"X-API-Key": secret}); code != http.StatusOK {
+		t.Errorf("new key on REST = %d", code)
+	}
+	// The documented MCP form is Authorization: Bearer op_... (docs/MCP.md).
+	cs := mcpClient(t, hs, map[string]string{"Authorization": "Bearer " + secret})
+	if res, _ := callTool(t, cs, "list_cases", nil); res.IsError {
+		t.Errorf("new key on MCP: %s", text(res))
+	}
+
+	// An admin key is not a self-service key: it is invisible and unreachable
+	// even if its id is known.
+	_, adminID := issueKey(t, hs, "Broker", 10)
+	if code, _ := hs.doAs(t, "DELETE", "/v1/api-keys/"+adminID, "", user("alice")); code != http.StatusNotFound {
+		t.Errorf("revoking an admin key = %d, want 404", code)
+	}
+	if code, _ := hs.doAs(t, "DELETE", "/v1/api-keys/"+id, "", user("bob")); code != http.StatusNotFound {
+		t.Errorf("bob revoking alice's key = %d, want 404", code)
+	}
+	if code, _ := hs.doAs(t, "DELETE", "/v1/api-keys/"+id, "", user("alice")); code != http.StatusNoContent {
+		t.Errorf("alice revoking her key = %d", code)
+	}
+	if code, out := hs.doAs(t, "GET", "/v1/cases", "", map[string]string{"X-API-Key": secret}); code != http.StatusUnauthorized || out["code"] != "unauthorized" {
+		t.Errorf("revoked key = %d %v", code, out)
+	}
+	code, out = hs.doAs(t, "GET", "/v1/api-keys", "", user("alice"))
+	keys, _ = out["api_keys"].([]any)
+	if code != http.StatusOK || len(keys) != 1 || keys[0].(map[string]any)["disabled"] != true {
+		t.Fatalf("list after revoke = %d %v", code, out)
+	}
+}
+
 func TestAPIKeyInvalidIs401(t *testing.T) {
 	hs := newHarnessWith(t, "substantial_transformation", withKeys)
 	for _, bad := range []string{"op_nope", "op_" + strings.Repeat("A", 43), "Bearer something"} {
@@ -103,6 +186,32 @@ func TestAPIKeysOffByDefault(t *testing.T) {
 	}
 	if code, _ := hs.doAs(t, "GET", "/v1/cases", "", map[string]string{"X-API-Key": "op_whatever"}); code != http.StatusOK {
 		t.Errorf("X-API-Key with keys off = %d, want it ignored", code)
+	}
+}
+
+func TestSelfServiceAPIKeysNeedKeysAndTeams(t *testing.T) {
+	routes := []struct {
+		method, path, body string
+	}{
+		{"POST", "/v1/api-keys", `{"name":"Mine"}`},
+		{"GET", "/v1/api-keys", ""},
+		{"DELETE", "/v1/api-keys/apikey_000000000000", ""},
+	}
+	for _, name := range []string{"keys off", "teams off"} {
+		t.Run(name, func(t *testing.T) {
+			hs := newHarness(t, "substantial_transformation")
+			if name == "teams off" {
+				hs = newHarnessWith(t, "substantial_transformation", func(d *Deps) {
+					withKeys(d)
+					d.Teams = false
+				})
+			}
+			for _, route := range routes {
+				if code, _ := hs.doAs(t, route.method, route.path, route.body, user("alice")); code != http.StatusNotFound {
+					t.Errorf("%s %s = %d, want 404", route.method, route.path, code)
+				}
+			}
+		})
 	}
 }
 

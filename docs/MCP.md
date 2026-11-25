@@ -105,7 +105,11 @@ Environment: `UNDE_API_KEY` (optional, `op_...`, sent as a bearer token) and `UN
 The bearer form (`Authorization: Bearer op_...`) works only on `/mcp`. The REST API at `https://undelabs.dev/api/v1/...` takes the key only as `X-API-Key: op_...`; a bearer header there is dropped ([api/openapi.yaml](api/openapi.yaml)).
 
 
-Keys (`op_...`) are issued by the Unde admin, not self-service. An admin issues one with `go run ./cmd/apikey issue -name "..." -quota N` (see `backend/cmd/apikey`) or `POST /v1/admin/api-keys` with the admin token. Ask the team for one. A key:
+Signed-in users create their own keys in [Settings](https://undelabs.dev/settings) or with `POST /v1/api-keys` (a sign-in token is required; the routes are 404 when `API_KEYS` or `TEAMS` is off). Give the key a name; the owner comes from the verified sign-in, and the quota is fixed at **200 requests per UTC day** — a body cannot set `owner` or `daily_quota`. The secret is returned only on creation; `GET /v1/api-keys` lists your keys without it, and `DELETE /v1/api-keys/{id}` revokes one for good. Another account's id, an admin key's id and an unknown id all answer 404. Revoked keys stay in the list with `disabled: true`.
+
+The admin path remains for service accounts that have no sign-in: `go run ./cmd/apikey issue -name "..." -quota N` (see `backend/cmd/apikey`) or `POST /v1/admin/api-keys` with the admin token. Admin keys have no account owner, are never returned by the self-service list, and cannot be revoked through it.
+
+Every key, whichever path issued it:
 
 - has its own rate-limit buckets and a daily request quota (each tool call is one request);
 - owns the cases it creates: only that key (and the admin) can see them;
