@@ -36,7 +36,7 @@ func yes(b bool) *bool { return &b }
 // and lifting machinery at 2 (D826), optical instruments at 1 (D822),
 // battery packs at 1 and furniture at 3 (D863).
 var writtenFor = map[string]string{
-	"power_supplies_chargers": "2", "motors_pumps_compressors": "2", "furniture": "3", "medical_devices": "2",
+	"power_supplies_chargers": "3", "motors_pumps_compressors": "2", "furniture": "3", "medical_devices": "2",
 	"display_camera_modules": "3", "offroad_vehicles_machinery": "2", "optical_precision_instruments": "1",
 	"battery_packs": "1",
 }

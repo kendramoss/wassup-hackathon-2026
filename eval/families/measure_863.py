@@ -7,6 +7,7 @@ the four new cases). After: `...-f29-863` (this branch, all 82, -no-origin-ok).
 
     python3 -I -B eval/families/measure_863.py .          # write
     python3 -I -B eval/families/measure_863.py . --check  # verify
+    python3 -I -B eval/families/measure_863.py . --tag f29-864 [--check]  # D864's run, b4-864-measure.json
 """
 import json
 import os
@@ -100,6 +101,10 @@ def build(root):
 
 if __name__ == "__main__":
     root = sys.argv[1]
+    if "--tag" in sys.argv:
+        tag = sys.argv[sys.argv.index("--tag") + 1]
+        AFTER = [R + tag + ".jsonl"]
+        OUT = "eval/families/b4-%s-measure.json" % tag.split("-")[-1]
     got = json.dumps(build(root), indent=1, sort_keys=True) + "\n"
     p = os.path.join(root, OUT)
     if "--check" in sys.argv:

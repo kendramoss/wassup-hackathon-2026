@@ -150,7 +150,7 @@ The relocation planner has 28 templates, loaded by `planner.LoadTemplates` (`bac
 | `hand_tools` | Hand tools and cutting tools | `backend/internal/planner/templates/hand_tools.json` |
 | `cables_harnesses` | Cables, cord sets and wire harnesses | `backend/internal/planner/templates/cables_harnesses.json` |
 | `medical_devices` | Medical devices and disposables (v2, D782) | `backend/internal/planner/templates/medical_devices.json` |
-| `power_supplies_chargers` | Power supplies, chargers and battery packs (v2, D782) | `backend/internal/planner/templates/power_supplies_chargers.json` |
+| `power_supplies_chargers` | Power supplies and chargers (v3, D864; battery goods moved to `battery_packs`) | `backend/internal/planner/templates/power_supplies_chargers.json` |
 | `furniture` | Furniture and mattresses (v2, D782) | `backend/internal/planner/templates/furniture.json` |
 | `display_camera_modules` | Display modules, cameras and camera lenses (v3, D826) | `backend/internal/planner/templates/display_camera_modules.json` |
 | `water_filters` | Water filters and filtration systems | `backend/internal/planner/templates/water_filters.json` |
@@ -170,7 +170,7 @@ The relocation planner has 28 templates, loaded by `planner.LoadTemplates` (`bac
 | `hvac_heating_units` | Heat pumps, furnaces and heaters (D660) | `backend/internal/planner/templates/hvac_heating_units.json` |
 | `optical_precision_instruments` | Optical and measuring instruments (D822) | `backend/internal/planner/templates/optical_precision_instruments.json` |
 
-Batteries, industrial machinery, furniture and medical devices (D780–D784) are covered inside the templates below, at version 2; optical and measuring instruments have their own template since D822, and lifting jacks, cranes and winches are in the off-road, lifting and mobile machinery template since D826. A deterministic guard after the family check (`family-guard-v6`, D786, D789, D823, D827, D850) sends look-alike products to review. Since D850 the family check (`family-check-v2`) also shows the machines and machinery parts templates' scopes: machinery parts takes loose parts and castings, the machines template takes complete machines, working units and the pump working components its rulings decide on.
+Batteries, industrial machinery, furniture and medical devices (D780–D784) are covered inside the templates below, at version 2; optical and measuring instruments have their own template since D822, lifting jacks, cranes and winches are in the off-road, lifting and mobile machinery template since D826, and battery cells, packs, power banks and storage systems have their own template since D863 (furniture at version 3). A deterministic guard after the family check (`family-guard-v7`, D786, D789, D823, D827, D850, D864) sends look-alike products to review. Since D850 the family check (`family-check-v2`) also shows the machines and machinery parts templates' scopes: machinery parts takes loose parts and castings, the machines template takes complete machines, working units and the pump working components its rulings decide on.
 
 | Area | Template (version) | Covered by cited rulings | Not covered |
 |---|---|---|---|
