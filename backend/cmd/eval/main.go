@@ -199,6 +199,7 @@ func run(args []string) error {
 	voteBelow := fl.Float64("vote-below", 0.95, "vote only when the first answer's confidence is below this")
 	useRules := fl.Bool("rules", false, "append engine.Rules (rules-v1) to the system prompt")
 	rulesVersion := fl.String("rules-version", "v1", "with -rules: v1 (rules-v1) or v2 (rules-v2, D157)")
+	chinaRules := fl.Bool("china-rules", false, "add engine.ChinaRules (china-v1, D860) to the system prompt of cases whose facts name China and another country; other cases are sent as without it")
 	foodRules := fl.Bool("food-rules", false, "add engine.FoodRules (food-v1, D856) to the system prompt of cases whose facts describe a food; other cases are sent as without it")
 	useReasoning := fl.Bool("reasoning", false, "show each precedent's CBP reasoning (reasoning-v1; needs -raw)")
 	rawDir := fl.String("raw", "../data/corpus/raw", "raw ruling JSON, for -reasoning")
@@ -380,6 +381,13 @@ func run(args []string) error {
 		eng = engine.New(model, retr, engine.Options{Model: cfg.EngineModel, K: cfg.PrecedentK, MaxOutputTokens: cfg.MaxOutputTokens,
 			CaseRules: engine.FoodCaseRules, CaseRulesVersion: engine.FoodVersion})
 	}
+	if *chinaRules {
+		if *foodRules || *regime != "st" || *stPrompt != "v1" || *useRules || *useReasoning || *votes > 1 || *retrievalMode != "bm25" {
+			return errors.New("-china-rules supports plain bm25 runs of -regime st, without -food-rules")
+		}
+		eng = engine.New(model, retr, engine.Options{Model: cfg.EngineModel, K: cfg.PrecedentK, MaxOutputTokens: cfg.MaxOutputTokens,
+			CaseRules: engine.ChinaCaseRules, CaseRulesVersion: engine.ChinaVersion})
+	}
 	if *regime == "textile" {
 		if *useRules || *retrievalMode != "bm25" {
 			return errors.New("-regime textile supports bm25 runs, optionally with -reasoning")
@@ -457,6 +465,9 @@ func run(args []string) error {
 	}
 	if *foodRules {
 		name += "-" + engine.FoodVersion
+	}
+	if *chinaRules {
+		name += "-" + engine.ChinaVersion
 	}
 	if *useRouter {
 		name += "-router"
@@ -744,6 +755,9 @@ func appendRunLog(dir, name, split string, cfg config.Config, s evalkit.Summary,
 	}
 	if strings.Contains(name, "-"+engine.FoodVersion) {
 		prompt += "+" + engine.FoodVersion
+	}
+	if strings.Contains(name, "-"+engine.ChinaVersion) {
+		prompt += "+" + engine.ChinaVersion
 	}
 	entry := map[string]any{
 		"time": time.Now().Format(time.RFC3339), "run": name, "split": split, "held_out": isHeldOut(split),
