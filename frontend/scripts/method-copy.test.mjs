@@ -57,7 +57,7 @@ test("The archived and current confidence gates stay distinct", () => {
 });
 
 test("The Ask inspector shows the live run and the local repeat apart", () => {
-  assert.match(architecture, /stage\.id === "ask".*Run 1, live, passed the tool-use checks on 9 of 12 products/);
-  assert.match(architecture, /Run 2, on a local copy of the server, passed 12 of 12/);
+  assert.match(architecture, /stage\.id === "ask".*Live runs passed the tool-use checks on 9 and, signed in, 10 of 12 products/);
+  assert.match(architecture, /A local repeat passed 12 of 12/);
   assert.match(architecture, /ADK evaluation details/);
 });

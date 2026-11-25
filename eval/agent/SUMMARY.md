@@ -102,6 +102,44 @@ Scored run (D450): the agent from examples/adk-agent, unchanged, on Gemini 3.8 F
 | a11 | extract product > predict origin > suggest part hts > plan production moves > export ruling request draft | yes | yes | yes | yes | none | yes | Vietnam / Vietnam | 160.9 s |  |
 | a12 | extract product > predict origin > suggest part hts > plan production moves > export ruling request draft | yes | yes | yes | yes | none | yes | Vietnam / Vietnam | 247.0 s |  |
 
+## live-v2-authenticated-run1
+
+D732 authenticated live run (run once per product): the agent from examples/adk-agent as on main (d753f91b), Gemini 3.8 Flash through an OpenAI-compatible LiteLLM gateway to Gemini, against https://undelabs.dev/mcp with an evaluator-scoped Unde API key sent as a bearer credential (--require-bearer), products a01-a12, one run each, batches of three in fixture order, 25 Nov 2026 17:05-17:48 +08:00. A first invocation at 16:55 started no session (a shell loop passed all three ids of a batch as one, and run_eval.py stopped on the unknown id before any network call); no product was run twice. Historical comparison: live-v2-run1 (anonymous, 22 Nov).
+
+| Measure | Result |
+|---|---|
+| Runs finished with an answer | 12/12 (100%) |
+| Tool order correct | 10/12 (83%) |
+| Arguments valid | 9/12 (75%) |
+| Final answer states predict_origin's origin | 11/11 (100%) |
+| Cites a ruling the tools returned | 11/12 (92%) |
+| Runs naming a ruling no tool returned | 0/12 (0%) |
+| "Not a ruling" line, word for word | 12/12 (100%) |
+| Target plant added when none was named | 4/4 (100%) |
+| Passed every check | 8/12 (67%) |
+| predict_origin agrees with CBP (not an accuracy figure, see D450) | 11/11 (100%); the scored product's own ruling was among the tools' rulings in 11 and named in the answer in 11 |
+| Wall time per run, median (min to max) | 491.8 s (166.3 to 795.5 s) |
+| Agent model cost (gateway-reported) | $0.5361 total, $0.0447 mean per run, $0.0638 max |
+| D510 rules: tool order correct | 10/12 (83%) |
+| D510 rules: arguments valid | 11/12 (92%) |
+| D510 rules: no move claimed after a search with no plan | 2/2 (100%) |
+| D510 rules: passed every check | 10/12 (83%) |
+
+| Product | Tools called | Order | Args | Origin said | Cites | Invented | Disclaimer | CBP / predicted | Time | Notes |
+|---|---|---|---|---|---|---|---|---|---|---|
+| a01 | extract product > predict origin > suggest part hts > plan production moves > export ruling request draft | yes | yes | yes | yes | none | yes | Vietnam / Vietnam | 744.4 s |  |
+| a02 | extract product > predict origin > suggest part hts > plan production moves > export ruling request draft | yes | yes | yes | yes | none | yes | Vietnam / Vietnam | 679.6 s |  |
+| a03 | extract product > predict origin > suggest part hts > plan production moves > export ruling request draft | yes | no | yes | yes | none | yes | Cambodia / Cambodia | 371.3 s | export without move_key or plan_index; D510 pass: yes |
+| a04 | extract product > predict origin > suggest part hts > plan production moves > export ruling request draft | yes | yes | yes | yes | none | yes | Indonesia / Indonesia | 489.7 s |  |
+| a05 | extract product > predict origin > suggest part hts > plan production moves > export ruling request draft | yes | no | yes | yes | none | yes | Malaysia / Malaysia | 577.1 s | export without move_key or plan_index; D510 pass: yes |
+| a06 | extract product > predict origin > predict origin > suggest part hts > plan production moves > export ruling request draft | no | yes | yes | yes | none | yes | Vietnam / Vietnam | 795.5 s | predict_origin called more than once (an earlier call was refused; no second case); tool errors: predict_origin |
+| a07 | extract product | no | no | n/a | no | none | yes | / none | 166.3 s | missing predict_origin; missing plan_production_moves; tool errors: extract_product |
+| a08 | extract product > predict origin > suggest part hts > plan production moves > export ruling request draft | yes | yes | yes | yes | none | yes | Vietnam / Vietnam | 526.1 s |  |
+| a09 | extract product > predict origin > suggest part hts > plan production moves > export ruling request draft | yes | yes | yes | yes | none | yes | Thailand / Thailand | 493.8 s |  |
+| a10 | extract product > predict origin > suggest part hts > plan production moves > export ruling request draft | yes | yes | yes | yes | none | yes | Vietnam / Vietnam | 387.6 s |  |
+| a11 | extract product > predict origin > suggest part hts > plan production moves > export ruling request draft | yes | yes | yes | yes | none | yes | Vietnam / Vietnam | 349.9 s |  |
+| a12 | extract product > predict origin > suggest part hts > plan production moves > export ruling request draft | yes | yes | yes | yes | none | yes | Vietnam / Vietnam | 461.0 s |  |
+
 ## live-v2-run1
 
 Scored run (D510), run 1 of the two pre-registered: the agent from examples/adk-agent as at the D510 commit, on Gemini 3.8 Flash through an OpenAI-compatible LiteLLM gateway to Gemini, against https://undelabs.dev/mcp anonymously, products a01-a12, one run each, three at a time, 22 Nov 2026 10:30-10:40 +08:00. From about 10:39:50 the live server refused this address's model calls with 429 client_budget_reached (the anonymous per-client share of the day's model budget, which reopens at 00:00 UTC): a09's plan search, a10's part codes and a11's and a12's extraction were refused, so those four runs stopped early. Kept and scored as the rules say; see D511. Run 2 could not start for the same reason. Changed after the run: the scorer reads "NY N" and "HQ H" as the ruling number (norm_one, D511). It changes one row: a06 named "NY N340438", which the scorer had read as NN340438 and counted as invented; a06 passes under both rule sets after the fix and failed before. The headline: all 8 runs the budget did not touch (a01-a08) passed; 9 of 12 as scored, a09 passing because the agent reported the refused plan call and stopped.
@@ -217,6 +255,32 @@ Plumbing only: a scripted stand-in for the model (no model, no cost) against a l
 | a12 | extract product > predict origin > plan production moves > export ruling request draft | yes | no | yes | no | none | yes | Vietnam / China | 0.1 s | predict without the named family; export names a plan when the search showed none; tool errors: export_ruling_request_draft |
 | a13 | extract product > predict origin > plan production moves > export ruling request draft | yes | no | yes | no | none | yes | Thailand / China | 0.1 s | predict without the named family; export names a plan when the search showed none; tool errors: export_ruling_request_draft |
 | a14 | extract product > predict origin > plan production moves > export ruling request draft | yes | no | yes | no | none | yes | Vietnam / China | 0.1 s | predict without the named family; export names a plan when the search showed none; tool errors: export_ruling_request_draft |
+
+## Series v2-authenticated: 1 run per product so far, compared with the baseline (D510)
+
+Runs: live-v2-authenticated-run1. Baseline: live-v2-run1 (one run per product). Pass is under D510 rules unless the row says D450.
+
+| Measure | Result |
+|---|---|
+| Baseline passed every check, D450 rules as published | 8/12 (67%) |
+| Baseline passed every check, rescored under D510 rules | 9/12 (75%) |
+| Run 1 (live-v2-authenticated-run1) passed every check | 10/12 (83%) (D450 rules: 8/12) |
+| Repeatability (same product, run against run) | not measured: D510 asks for two runs per product and this series has one |
+
+| Product | v1 (D450) | v1 (D510) | v2 run 1 | Predicted | Plans shown | Drafted plan_id | Issues |
+|---|---|---|---|---|---|---|---|
+| a01 | pass | pass | pass | Vietnam | 3 | pcba_manufacturing@target_plant |  |
+| a02 | pass | pass | pass | Vietnam | 4 | pcba_manufacturing@target_plant |  |
+| a03 | fail | pass | pass | Cambodia | 0 | current setup |  |
+| a04 | pass | pass | pass | Indonesia | 2 | pcba_manufacturing@plant_in_malaysia |  |
+| a05 | pass | pass | pass | Malaysia | 0 | current setup |  |
+| a06 | pass | pass | fail | Vietnam | 2 | precision_machined_parts@plant_in_thailand | run 1: predict_origin called more than once (an earlier call was refused; no second case); tool errors: predict_origin |
+| a07 | pass | pass | fail | none | 0 | no draft | run 1: missing predict_origin; missing plan_production_moves; tool errors: extract_product |
+| a08 | pass | pass | pass | Vietnam | 1 | primary_metal_forming@plant_in_cambodia+handles_and_hardware@plant_in_cambodia |  |
+| a09 | pass | pass | pass | Thailand | 1 | motor_stator_rotor@plant_in_vietnam+housing_and_chassis@plant_in_vietnam |  |
+| a10 | fail | fail | pass | Vietnam | 4 | pcba_manufacturing@target_plant |  |
+| a11 | fail | fail | pass | Vietnam | 4 | pcba_manufacturing@target_plant |  |
+| a12 | fail | fail | pass | Vietnam | 2 | precision_machined_parts@target_plant |  |
 
 ## Series v2: 2 runs per product so far, compared with the baseline (D510)
 

@@ -1,0 +1,8 @@
+{
+ "note": "D732 authenticated live run (run once per product): the agent from examples/adk-agent as on main (d753f91b), Gemini 3.8 Flash through an OpenAI-compatible LiteLLM gateway to Gemini, against https://undelabs.dev/mcp with an evaluator-scoped Unde API key sent as a bearer credential (--require-bearer), products a01-a12, one run each, batches of three in fixture order, 25 Nov 2026 17:05-17:48 +08:00. A first invocation at 16:55 started no session (a shell loop passed all three ids of a batch as one, and run_eval.py stopped on the unknown id before any network call); no product was run twice. Historical comparison: live-v2-run1 (anonymous, 22 Nov).",
+ "series": "v2-authenticated",
+ "rep": 1,
+ "baseline": "live-v2-run1",
+ "auth": "bearer",
+ "decision": "D732"
+}
