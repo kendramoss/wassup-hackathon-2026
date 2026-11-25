@@ -65,6 +65,7 @@
 //	    The product's family check on the starting setup of every post-cutoff
 //	    flip pair (D170); decides which pairs the plan search can try.
 //	eval familycov -split dev|final -set legacy|all [-confirm-final]
+//	eval retrdiff [-a LABELS] [-b LABELS] -split dev   (cases whose precedents change with a bigger pool; no model, D868)
 //	    Product-scope coverage (D138): run the family checker on a split's
 //	    rulings with the legacy three templates or all of them, and report
 //	    the share matched to a family with a plan template.
@@ -167,6 +168,8 @@ func main() {
 		err = flipsFamilyCmd(os.Args[2:])
 	case "familycov":
 		err = familyCovCmd(os.Args[2:])
+	case "retrdiff":
+		err = retrDiffCmd(os.Args[2:])
 	case "baselines":
 		err = baselinesCmd(os.Args[2:])
 	case "p102moves":

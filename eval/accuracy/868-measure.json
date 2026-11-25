@@ -1,0 +1,59 @@
+{
+  "all": {
+    "after": 13,
+    "before": 12,
+    "gained": [
+      "N356481"
+    ],
+    "lost": [],
+    "mcnemar_p": 1.0,
+    "n": 16,
+    "net": 1
+  },
+  "control": "eval/results/subset-gemini-4-argon-prec-engine-v1-litellm-868-control.jsonl",
+  "control_vs_d860_control": {
+    "after": 12,
+    "before": 12,
+    "gained": [],
+    "lost": [],
+    "mcnemar_p": 1.0,
+    "n": 16,
+    "net": 0
+  },
+  "failed": {
+    "control": [],
+    "variant": []
+  },
+  "reordered_only": {
+    "after": 10,
+    "before": 10,
+    "gained": [],
+    "lost": [],
+    "mcnemar_p": 1.0,
+    "n": 12,
+    "net": 0
+  },
+  "variant": "eval/results/subset-gemini-4-argon-prec-engine-v1-litellm-868-cited.jsonl",
+  "vs_d860_control": {
+    "after": 13,
+    "before": 12,
+    "gained": [
+      "N356481"
+    ],
+    "lost": [],
+    "mcnemar_p": 1.0,
+    "n": 16,
+    "net": 1
+  },
+  "with_an_older_ruling": {
+    "after": 3,
+    "before": 2,
+    "gained": [
+      "N356481"
+    ],
+    "lost": [],
+    "mcnemar_p": 1.0,
+    "n": 4,
+    "net": 1
+  }
+}

@@ -3459,6 +3459,23 @@ Run as D866 says (amended before the run for the server setup), 25 Nov 2026 13:1
 - **Cost.** Agent $0.5369 gateway-reported (61 model calls in run 1, $0.4189). Server about $1.84 (211 gemini-4-argon and 24 gemini-3.8-flash calls, estimated from logged tokens at the repository's promo prices). About $2.38 of the $5 cap.
 - **#683** closes. D732's authenticated live run stays pre-registered and unrun (no evaluator key).
 
+## D868 — Older rulings as retrieval precedents: a test on the development cases they change, pre-registered (25 Nov, #837)
+Committed and pushed before the runs. Development only; held-out is not read.
+- **The change tested.** The cited-only pool of D862 (`backend/data/labels_cited.jsonl`, 15 rulings dated 2009–2021: 5 battery, 10 furniture) joins the BM25 precedent pool. Eval-only: `eval run -labels ../eval/data/labels.jsonl,data/labels_cited.jsonl -facts data/facts,data/facts_cited`; the server and production are unchanged.
+- **Which cases can change** (`eval retrdiff`, new, offline, no model; `eval/accuracy/868-retrdiff.json`). Of 469 development cases, **16** get a different top-5; **4** retrieve an older ruling (H331375 gets H316545, N351341 gets N306161, N353511 and N356481 get N300248), and 12 only reorder or swap one precedent because the larger pool shifts BM25's term weights. Every other case gets a byte-identical prompt, so only these 16 are run (`eval/splits/splits_retrdiff.json`, key `subset`). In D860's development control, 12 of the 16 were right.
+- **Runs, gateway only** (gemini-4-argon, `LITELLM_NO_CACHE=1`, clean committed tree, results committed after each). From `backend/`, `-split subset -splits ../eval/splits/splits_retrdiff.json -facts data/facts,data/facts_cited`: control `-tag 868-control` (labels as production), variant `-labels ../eval/data/labels.jsonl,data/labels_cited.jsonl -tag 868-cited`.
+- **Measured** (`eval/accuracy/measure_868.py`, written before): gained, lost and exact McNemar on all 16, on the 4 that retrieve an older ruling and on the 12 that only reorder; against D860's control too.
+- **Criteria.** **Helped:** net +2 or better on the 16 and no loss among the 4. **Harms:** net -2 or worse. Otherwise **no detectable effect**. With 16 cases nothing here can be significant, and the ceiling is small: at most 4 misses in D860's control.
+- **Expectation.** No detectable effect: the pool is 15 rulings against 2,790, and 12 of the 16 changes are reorderings. The question this answers is whether a pool this small is worth wiring into production; a larger pool of older rulings would be the follow-up.
+- **Cost.** About $0.25 for both runs; cap $2.
+
+## D869 — Older rulings as retrieval precedents: results of D868 (25 Nov, #837)
+Runs as pre-registered (`subset-gemini-4-argon-prec-engine-v1-litellm-868-control` and `-868-cited`, gateway, clean tree, no failed calls); `eval/accuracy/868-measure.json`.
+- **16 changed cases: 12 → 13** (1 gained, 0 lost, p = 1.0). Gained N356481 (CBP: Turkey; control China): the older furniture-parts ruling N300248 (U.S. lumber made into parts in Vietnam: Vietnam) took a precedent slot. The other three cases that retrieved an older ruling did not change (H331375 wrong in both, N351341 and N353511 right in both). The 12 reordered cases: 10 → 10. The control matches D860's control on all 16 (12 → 12).
+- **Criterion, as D868 stated: no detectable effect** ("helped" needed net +2).
+- **Reading.** A 15-ruling pool reaches 16 of 469 development cases and 4 of them get an older ruling; the most it could move is a handful of answers, and it moved one. Wiring it into production is not worth a decision on this evidence; the pool stays cited-only. A larger pool of older rulings would be the way to test the idea properly, and that needs a fetch of many more rulings than this lane found by search.
+- **Cost.** $0.25. `eval retrdiff` (new) lists the cases a pool change can touch, so a test like this runs only those.
+
 ## D870 — Japan: a reviewed HS-edition correlation, applied only when the lookup finds no rule (24 Nov, #791 94fb24f6)
 Some Japan Customs rulings carry a code from a later HS edition than the schedule uses, so the lookup returned `no_match` and the case went to review. A short list of correlations (`backend/internal/jprules/data/correlations.json`) now sits behind that outcome.
 - **Decision.**

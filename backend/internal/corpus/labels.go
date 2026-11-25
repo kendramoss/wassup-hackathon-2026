@@ -78,6 +78,9 @@ type Splits struct {
 	// FoodFresh is a food test set the food-v1 guidance was not written
 	// from (eval/splits/splits_foodfresh.json, D858).
 	FoodFresh []string `json:"foodfresh,omitempty"`
+	// Subset is a list of development cases picked by a rule stated in its
+	// file (eval/splits/splits_retrdiff.json, D868).
+	Subset []string `json:"subset,omitempty"`
 	// Textile lists every textile (19 CFR 102.21) ruling, the textile
 	// engine's precedent pool (eval/splits/splits_textile.json, D51).
 	Textile []string `json:"textile,omitempty"`
@@ -116,6 +119,8 @@ func (s Splits) IDs(name string) ([]string, error) {
 		return s.TuneCheck, nil
 	case "foodfresh":
 		return s.FoodFresh, nil
+	case "subset":
+		return s.Subset, nil
 	}
-	return nil, fmt.Errorf("corpus: unknown split %q (want final, final2, dev, pilot, train, tune_check or foodfresh)", name)
+	return nil, fmt.Errorf("corpus: unknown split %q (want final, final2, dev, pilot, train, tune_check, foodfresh or subset)", name)
 }
