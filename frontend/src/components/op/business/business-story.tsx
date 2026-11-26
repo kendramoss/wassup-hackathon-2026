@@ -45,7 +45,10 @@ export function BusinessStory() {
           <a href="#ch6">Brokers</a>
         </nav>
         <div className="biz-bar-end">
-          <Link href="/cases/new" className="biz-btn ink">Check a product</Link>
+          <Link href="/cases/new" className="biz-btn ink" aria-label="Check a product">
+            <span className="biz-wide" aria-hidden="true">Check a product</span>
+            <span className="biz-narrow" aria-hidden="true">+ New</span>
+          </Link>
           <ViewToggle view="business" />
           <ViewTransition name="account-tile" share="bar-keep" default="none">
             <SignIn look="business" />
