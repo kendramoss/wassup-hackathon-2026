@@ -6,11 +6,19 @@ There are two separate checks. `.github/workflows/smoke-nonprod.yml` is a manual
 
 Before production traffic moves to a new revision, a person must run the live smoke against a tag on that revision and keep the generated evidence. The gate is not satisfied by mocked tests or by the offline workflow alone.
 
-The tag is added without shifting traffic:
+Deploy the candidate without traffic and tag it:
+
+```powershell
+gcloud run deploy backend --source backend --project wassup-hackathon-2026 --region us-central1 --no-traffic --tag audit-m2
+```
+
+or tag an existing revision without shifting traffic:
 
 ```powershell
 gcloud run services update-traffic backend --project wassup-hackathon-2026 --region us-central1 --update-tags=audit-m2=<REVISION>
 ```
+
+**Known gap:** `.github/workflows/deploy.yml` runs `update-traffic --to-latest` after each backend deploy, so a merge to `main` puts the new revision on 100% of traffic before anyone can run this gate. Until #845 changes the deploy, the gate only holds for revisions deployed by hand with `--no-traffic`.
 
 Then run the smoke:
 
@@ -18,7 +26,7 @@ Then run the smoke:
 powershell -NoProfile -ExecutionPolicy Bypass -File scripts/audit-m2-smoke.ps1
 ```
 
-The script resolves the tag URL, obtains an identity token, posts synthetic inputs to the family-check endpoint, verifies the real Vertex response, writes `docs/audit-m2-evidence.md`, and exits non-zero on failure. It never deploys, shifts traffic, or creates the tag. On a machine that blocks Go-built test binaries, run the guard tests through `smoke-nonprod.yml` and pass the passing run URL with `-SkipOfflineTests -OfflineTestEvidenceUrl <URL>`.
+The script resolves the tag URL, obtains an identity token, posts synthetic inputs to the family-check endpoint, verifies the real Vertex response, writes `docs/audit-m2-evidence.md`, and exits non-zero on failure. It never deploys, shifts traffic, or creates the tag. It refuses a revision that already serves traffic; pass `-AllowLiveRevision` to re-check a live revision, and the evidence then records the run as a post-deploy re-check, not as the gate. Supported products must return exactly `-ExpectedSupportedFamily` (default `motorised_tools_small_appliances`). Remove the tag afterwards with `--remove-tags=audit-m2`, or it keeps the old revision reachable. On a machine that blocks Go-built test binaries, run the guard tests through `smoke-nonprod.yml` and pass the passing run URL with `-SkipOfflineTests -OfflineTestEvidenceUrl <URL>`.
 
 ## What the workflow runs
 
@@ -54,6 +62,6 @@ It proves the handler and checker reject invented, malformed and failed answers 
 
 `scripts/audit-m2-smoke.ps1` covers the native Vertex path without adding a paid path to CI. It needs a signed-in `gcloud` with project access, `curl`, Go (unless the offline tests are skipped with CI evidence), and a no-traffic tag on the revision under test. It records the tag URL, revision, image, service account, provider, model and project/location in `docs/audit-m2-evidence.md`. Use synthetic inputs only.
 
-Live cases: a clearly supported product (expect a known template family), an unsupported product (expect `none`), and a malformed request (expect `400 invalid_input`). Native Vertex cannot be forced on demand to emit a bad enum, malformed JSON or a provider error, so those paths stay in the offline guard tests: invented or invalid-enum families and malformed model output return `502 model_bad_response` with no result and no retry, and provider errors return `502 model_unavailable` without echoing upstream details. The passing `smoke-nonprod.yml` run is linked from the evidence file.
+Live cases: a clearly supported product (expect a known template family), an unsupported product (expect `none`), and four malformed requests: blank text, a body that isn't JSON, an unknown field, and text over 2,000 characters (each expects `400 invalid_input`, rejected before any model call). Native Vertex cannot be forced on demand to emit a bad enum, malformed JSON or a provider error, so those paths stay in the offline guard tests: invented or invalid-enum families and malformed model output return `502 model_bad_response` with no result and no retry, and provider errors return `502 model_unavailable` without echoing upstream details. The passing `smoke-nonprod.yml` run is linked from the evidence file.
 
 The separate LiteLLM gateway evaluation remains blocked until the budget runner, frozen pricing proof, gateway egress facts, shared-cap sub-allocation, `calls_authorized`, run handoff and protected environment all exist (see `docs/evaluation-readiness.md`). Missing secrets or endpoint are a documented blocker, not a reason to configure anything. A future gateway run reuses the reviewed guard and its `--allow-model-calls`; it must not add a second HTTP client that can spend outside the guard. The live script relies on the owner's `gcloud` identity and the service account's Vertex access; it embeds no credentials.

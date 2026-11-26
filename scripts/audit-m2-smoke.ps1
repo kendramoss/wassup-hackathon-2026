@@ -11,6 +11,10 @@ answers, and writes an evidence file. It never shifts traffic or creates a tag.
 .EXAMPLE
 powershell -NoProfile -ExecutionPolicy Bypass -File scripts/audit-m2-smoke.ps1
 
+.EXAMPLE
+# Re-verify the revision that is already live (recorded as post-deploy, not as the gate)
+powershell -NoProfile -ExecutionPolicy Bypass -File scripts/audit-m2-smoke.ps1 -AllowLiveRevision
+
 .NOTES
 Prerequisites: gcloud signed in with project access, curl, Go, and an existing
 no-traffic tag on the service. See docs/smoke-workflow.md.
@@ -21,8 +25,12 @@ param(
     [string]$Service = 'backend',
     [string]$Tag = 'audit-m2',
     [string]$EvidenceFile = (Join-Path $PSScriptRoot '..\docs\audit-m2-evidence.md'),
+    [string]$ExpectedSupportedFamily = 'motorised_tools_small_appliances',
     [switch]$SkipOfflineTests,
-    [string]$OfflineTestEvidenceUrl = ''
+    [string]$OfflineTestEvidenceUrl = '',
+    # The gate is for a revision that serves no traffic yet. Pass this only to
+    # re-verify a revision that is already live; the evidence then says so.
+    [switch]$AllowLiveRevision
 )
 
 $ErrorActionPreference = 'Continue'
@@ -51,7 +59,7 @@ function Get-EnvValue {
 }
 
 function Post-FamilyCheck {
-    param([string]$BaseUrl, [string]$Token, [string]$Body)
+    param([string]$BaseUrl, [string]$Token, [string]$Body, [switch]$NoJson)
     $tmp = Join-Path ([IO.Path]::GetTempPath()) ("m2-" + [guid]::NewGuid().ToString('N') + '.json')
     [IO.File]::WriteAllText($tmp, $Body, (New-Object Text.UTF8Encoding($false)))
     try {
@@ -60,7 +68,9 @@ function Post-FamilyCheck {
             --data-binary "@$tmp" "$BaseUrl/v1/products/family-check"
         if ($LASTEXITCODE -ne 0) { throw "curl failed with exit $LASTEXITCODE" }
         $raw = [IO.File]::ReadAllText("$tmp.out")
-        return [pscustomobject]@{ Code = [int]$code; Raw = $raw; Json = ($raw | ConvertFrom-Json) }
+        $json = $null
+        try { $json = $raw | ConvertFrom-Json } catch { }
+        return [pscustomobject]@{ Code = [int]$code; Raw = $raw; Json = $json }
     }
     finally {
         Remove-Item $tmp, "$tmp.out" -Force -ErrorAction SilentlyContinue
@@ -83,13 +93,24 @@ if (-not $baseUrl) {
 $revisionName = $route.revisionName
 if (-not $revisionName) { throw "tag '$Tag' has no revisionName" }
 
+# Traffic the tagged revision already serves through the untagged URL.
+$livePercent = 0
+foreach ($t in $traffic) {
+    if ($t.revisionName -eq $revisionName -and ($t.PSObject.Properties.Name -contains 'percent')) { $livePercent += [int]$t.percent }
+}
+if ($livePercent -gt 0 -and -not $AllowLiveRevision) {
+    throw "revision '$revisionName' already serves $livePercent% of traffic, so this cannot be a pre-promotion gate. Deploy the candidate with --no-traffic --tag $Tag, or pass -AllowLiveRevision to record a post-deploy re-check."
+}
+$runKind = if ($livePercent -gt 0) { "post-deploy re-check: the revision already served $livePercent% of traffic, so this run does not count as the pre-promotion gate" } else { 'pre-promotion gate: the revision served 0% of traffic during the run' }
+
 $revision = Invoke-GcloudJson @('run','revisions','describe',$revisionName,'--project',$Project,'--region',$Region,'--format=json')
 $image = [string]$revision.spec.containers[0].image
 $serviceAccount = [string]$revision.spec.serviceAccountName
 $created = [string]$revision.metadata.creationTimestamp
 $provider = Get-EnvValue $revision 'LLM_PROVIDER'
 $routerModel = Get-EnvValue $revision 'ROUTER_MODEL'
-if (-not $routerModel) { $routerModel = 'gemini-3.8-flash' } # config.go default
+$modelSource = 'ROUTER_MODEL env'
+if (-not $routerModel) { $routerModel = 'gemini-3.8-flash'; $modelSource = 'config.go default; ROUTER_MODEL unset' }
 $googleLocation = Get-EnvValue $revision 'GOOGLE_CLOUD_LOCATION'
 $googleProject = Get-EnvValue $revision 'GOOGLE_CLOUD_PROJECT'
 
@@ -99,23 +120,33 @@ if ($LASTEXITCODE -ne 0 -or -not $token) { throw 'could not get a Google identit
 $results = @()
 
 $supported = Post-FamilyCheck $baseUrl $token '{"text":"hair dryer with a motor, heating coil and moulded plastic housing"}'
-if ($supported.Code -ne 200 -or [string]$supported.Json.llm_provider -ne 'vertex' -or
-    [string]$supported.Json.result.family -in @('', 'none')) {
+if ($supported.Code -ne 200 -or -not $supported.Json -or [string]$supported.Json.llm_provider -ne 'vertex' -or
+    [string]$supported.Json.result.family -ne $ExpectedSupportedFamily) {
     throw "supported case failed: $($supported.Code) $($supported.Raw)"
 }
 $results += [pscustomobject]@{ Case = 'supported synthetic hair dryer'; Status = $supported.Code; Family = [string]$supported.Json.result.family; Provider = [string]$supported.Json.llm_provider; Body = $supported.Raw }
 
 $unsupported = Post-FamilyCheck $baseUrl $token '{"text":"synthetic sailing yacht hull made of fibreglass"}'
-if ($unsupported.Code -ne 200 -or [string]$unsupported.Json.result.family -ne 'none') {
+if ($unsupported.Code -ne 200 -or -not $unsupported.Json -or [string]$unsupported.Json.llm_provider -ne 'vertex' -or
+    [string]$unsupported.Json.result.family -ne 'none') {
     throw "unsupported case failed: $($unsupported.Code) $($unsupported.Raw)"
 }
 $results += [pscustomobject]@{ Case = 'unsupported synthetic yacht hull'; Status = $unsupported.Code; Family = [string]$unsupported.Json.result.family; Provider = [string]$unsupported.Json.llm_provider; Body = $unsupported.Raw }
 
-$malformed = Post-FamilyCheck $baseUrl $token '{"text":"   "}'
-if ($malformed.Code -ne 400 -or [string]$malformed.Json.code -ne 'invalid_input') {
-    throw "malformed request case failed: $($malformed.Code) $($malformed.Raw)"
+# Bad requests are rejected before any model call, so they cost nothing.
+$badRequests = @(
+    @{ Case = 'malformed request (blank text)'; Body = '{"text":"   "}' },
+    @{ Case = 'malformed request (not JSON)'; Body = 'text=hair dryer' },
+    @{ Case = 'malformed request (unknown field)'; Body = '{"text":"hair dryer","family":"led_lights"}' },
+    @{ Case = 'malformed request (2001 characters)'; Body = ('{"text":"' + ('a' * 2001) + '"}') }
+)
+foreach ($bad in $badRequests) {
+    $resp = Post-FamilyCheck $baseUrl $token $bad.Body
+    if ($resp.Code -ne 400 -or -not $resp.Json -or [string]$resp.Json.code -ne 'invalid_input') {
+        throw "$($bad.Case) failed: $($resp.Code) $($resp.Raw)"
+    }
+    $results += [pscustomobject]@{ Case = $bad.Case; Status = $resp.Code; Family = '-'; Provider = '-'; Body = $resp.Raw }
 }
-$results += [pscustomobject]@{ Case = 'malformed request (blank text)'; Status = $malformed.Code; Family = '-'; Provider = '-'; Body = $malformed.Raw }
 
 $offlineCommand = "GOFLAGS=-mod=readonly go test -count=1 -run 'TestSchemaSentToModelListsOnlyKnownFamiliesAndNone|TestInventedFamilyAndInvalidEnumAreRejected|TestMalformedModelOutputFailsClosed|TestProviderErrorsFailClosedWithoutRetry' ./internal/readiness/smokecheck/"
 if ($SkipOfflineTests) {
@@ -158,15 +189,16 @@ $lines += '| Field | Value |'
 $lines += '| --- | --- |'
 $lines += "| Project / region | ``$Project`` / ``$Region`` |"
 $lines += "| Service | ``$Service`` |"
-$lines += "| No-traffic tag | ``$Tag`` |"
+$lines += "| Tag | ``$Tag`` |"
 $lines += "| Tag URL | ``$baseUrl`` |"
 $lines += "| Revision | ``$revisionName`` (created $created) |"
 $lines += "| Image | ``$image`` |"
 $lines += "| Service account | ``$serviceAccount`` |"
-$lines += "| Provider / model | ``$provider`` / ``$routerModel`` |"
+$lines += "| Provider / model | ``$provider`` / ``$routerModel`` ($modelSource) |"
 $lines += "| Location / project env | ``$googleLocation`` / ``$googleProject`` |"
+$lines += "| Run kind | $runKind |"
 $lines += ''
-$lines += 'The tag URL addresses the revision directly. No traffic percentage was shifted by this run; the untagged service URL remains the live route.'
+$lines += 'The tag URL addresses the revision directly. This run shifted no traffic; the untagged service URL remains the live route.'
 $lines += ''
 $lines += '## Live cases against real Vertex'
 $lines += ''
@@ -191,9 +223,11 @@ $lines += 'These tests assert the schema enum contains only known template famil
 $lines += ''
 $lines += '## Promotion gate'
 $lines += ''
-$lines += 'Before production traffic moves to a new revision, a person must run this script against a no-traffic tag of that revision and keep the generated evidence. Promotion is blocked when any live case, guard test, or recorded revision/model/config check fails. Mocked tests alone never satisfy this gate.'
+$lines += 'Before production traffic moves to a new revision, a person must run this script against a no-traffic tag of that revision and keep the generated evidence. Promotion is blocked when any live case, guard test, or recorded revision/model/config check fails. Mocked tests alone never satisfy this gate. The script refuses a revision that already serves traffic unless `-AllowLiveRevision` is passed, and then it records the run as a post-deploy re-check. Today `deploy.yml` moves every new backend revision to 100% straight away, so the gate cannot run before promotion until #845 is done.'
 
 $fullPath = [IO.Path]::GetFullPath($EvidenceFile)
 [IO.File]::WriteAllLines($fullPath, $lines, (New-Object Text.UTF8Encoding($false)))
 Write-Host "PASS: real-Vertex smoke against $baseUrl"
 Write-Host "Evidence written to $fullPath"
+Write-Host "Remove the tag when done so it does not keep pinning this revision:"
+Write-Host "  gcloud run services update-traffic $Service --project $Project --region $Region --remove-tags=$Tag"
