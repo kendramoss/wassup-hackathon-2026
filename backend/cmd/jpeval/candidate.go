@@ -65,7 +65,7 @@ type candidateOptions struct {
 
 func candidate(args []string) error {
 	fs := flag.NewFlagSet("candidate", flag.ExitOnError)
-	split := fs.String("split", "dev_eval", "dev_eval, dev_neg, held_out, or synthetic")
+	split := fs.String("split", "dev_eval", "dev_eval, dev_neg, fresh_1126, fresh_1126_notwin, held_out, or synthetic")
 	tag := fs.String("tag", "", "required for development runs only")
 	id := fs.String("run-id", "", "unique id for a new held_out or synthetic run file (lowercase letters, digits, hyphens); omitted, the original fixed file name is used and an existing file stops the run")
 	workers := fs.Int("workers", 8, "number of requests in flight, up to 16")
@@ -246,7 +246,7 @@ func candidateName(split, tag, id string) (string, error) {
 			return "", errors.New("-run-id needs lowercase letters, digits and inner hyphens, at most 40 characters")
 		}
 		return name + "-" + id, nil
-	case "dev_eval", "dev_neg":
+	case "dev_eval", "dev_neg", "fresh_1126", "fresh_1126_notwin":
 		if id != "" {
 			return "", errors.New("development runs are named with -tag")
 		}
@@ -359,6 +359,9 @@ func loadCandidate(split string) ([]candidateInput, *jpcorpus.Pool, string, erro
 	sp, err := jpcorpus.LoadSplits(filepath.Join(dataDir, "splits.json"))
 	if err != nil {
 		return nil, nil, "", err
+	}
+	if isFresh(split) {
+		return freshCases(c, sp, split)
 	}
 	poolIDs := sp.Dev
 	if split == "held_out" {

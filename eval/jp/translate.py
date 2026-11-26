@@ -1,6 +1,6 @@
 """English translation of the Japan Customs origin rulings, for retrieval and display only (D710, D711).
 
-Usage: python3 -I -B eval/jp/translate.py <repo> [--limit N] [--ids a,b,...]
+Usage: python3 -I -B eval/jp/translate.py <repo> [--limit N] [--ids a,b,...] [--data data/jp/fresh-1126]
 
 Model calls go to an OpenAI-compatible LiteLLM gateway to Gemini (LITELLM_BASE_URL,
 LITELLM_API_KEY in the environment). Writes data/jp/translations-en.jsonl, one row
@@ -55,8 +55,9 @@ def one(r):
 
 def main():
     repo = sys.argv[1]
-    rulings = [json.loads(l) for l in open(os.path.join(repo, "data/jp/rulings.jsonl"), encoding="utf-8")]
-    outp = os.path.join(repo, "data/jp/translations-en.jsonl")
+    data = sys.argv[sys.argv.index("--data") + 1] if "--data" in sys.argv else "data/jp"
+    rulings = [json.loads(l) for l in open(os.path.join(repo, data, "rulings.jsonl"), encoding="utf-8")]
+    outp = os.path.join(repo, data, "translations-en.jsonl")
     done = {}
     if os.path.exists(outp):
         for l in open(outp, encoding="utf-8"):
