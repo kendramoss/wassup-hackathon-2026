@@ -18,7 +18,25 @@ or tag an existing revision without shifting traffic:
 gcloud run services update-traffic backend --project wassup-hackathon-2026 --region us-central1 --update-tags=audit-m2=<REVISION>
 ```
 
-**Known gap:** `.github/workflows/deploy.yml` runs `update-traffic --to-latest` after each backend deploy, so a merge to `main` puts the new revision on 100% of traffic before anyone can run this gate. Until #845 changes the deploy, the gate only holds for revisions deployed by hand with `--no-traffic`.
+## Automatic gate in deploy.yml (#845)
+
+Every backend deploy from `main` now runs this gate before the new revision takes any traffic:
+
+1. `gcloud run deploy backend ... --no-traffic --tag candidate`: the new revision serves 0%, and production stays on the previous one.
+2. `scripts/backend-candidate-smoke.sh` calls the `candidate` tag URL with the deployer's identity token, against real Vertex. It runs the same six cases as the PowerShell script: supported family, `none`, and four malformed requests. The results go into the job summary as the recorded evidence for that revision.
+3. Traffic moves to the candidate (`--to-latest`) and the tag is removed, but only if every case passes. If the smoke fails, the job fails, production keeps the previous revision and the frontend deploy is skipped.
+
+This needs `roles/run.invoker` on `backend` for `github-deployer@`. A project owner grants it once:
+
+```powershell
+gcloud run services add-iam-policy-binding backend --project wassup-hackathon-2026 --region us-central1 --member=serviceAccount:github-deployer@wassup-hackathon-2026.iam.gserviceaccount.com --role=roles/run.invoker
+```
+
+Without it the smoke gets 403, traffic is not shifted, and the frontend deploy is skipped.
+
+**When the smoke fails:** the failed revision stays reachable on the `candidate` tag for debugging, and the next deploy moves the tag to the new revision. To roll back by hand, run `gcloud run services update-traffic backend --to-revisions=<REVISION>=100`.
+
+The PowerShell script stays the manual runbook for hand deploys and for re-checking a live revision.
 
 Then run the smoke:
 
