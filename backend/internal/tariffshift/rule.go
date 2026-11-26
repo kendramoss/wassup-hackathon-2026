@@ -93,11 +93,15 @@ type Rule struct {
 	ID string `json:"id"`
 	// Paragraph is the 102.20 paragraph letter of the section ("o" for
 	// Section XVI); Section is its heading.
-	Paragraph    string        `json:"paragraph"`
-	Section      string        `json:"section"`
-	HTS          string        `json:"hts"`
-	Applies      Range         `json:"applies"`
-	Text         string        `json:"text"`
+	Paragraph string `json:"paragraph"`
+	Section   string `json:"section"`
+	HTS       string `json:"hts"`
+	Applies   Range  `json:"applies"`
+	Text      string `json:"text"`
+	// TextES is the row's original Spanish text (Mexico, D914); Text is
+	// then its mechanical English rendering, or the Spanish itself when the
+	// row does not translate cleanly.
+	TextES       string        `json:"text_es,omitempty"`
 	Alternatives []Alternative `json:"alternatives"`
 	// Notes are table notes of the same paragraph that govern this rule
 	// (verbatim); a barring note is also an exception on each alternative.
