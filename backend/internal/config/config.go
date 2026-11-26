@@ -221,6 +221,13 @@ type Config struct {
 	// /v1/cases/{id}/bom-version, a newer BOM diffed against the case's
 	// product and re-predicted (D67).
 	BOMVersions string
+	// AuditExport (on|off, default off) serves GET /v1/audit/export when the
+	// audit trail is on (#871).
+	AuditExport bool
+	// Retention (on|off, default off) serves workspace retention policies and
+	// tombstones and lets cmd/retention purge (#875). Its store follows
+	// CASES_STORE (file: CASES_DIR/retention.json).
+	Retention bool
 	// Teams (on|off, default off) verifies the Google ID token the frontend
 	// proxy forwards as X-User-Token and serves team workspaces (D68).
 	// TeamsAudience is the OAuth client ID the tokens must be issued to;
@@ -510,6 +517,15 @@ func FromEnv(getenv func(string) string) (Config, error) {
 	case "off", "false", "0":
 	default:
 		e.errs = append(e.errs, fmt.Errorf("API_KEYS must be on or off, got %q", v))
+	}
+	for name, dst := range map[string]*bool{"AUDIT_EXPORT": &c.AuditExport, "RETENTION": &c.Retention} {
+		switch v := strings.ToLower(e.str(name, "off")); v {
+		case "on", "true", "1":
+			*dst = true
+		case "off", "false", "0":
+		default:
+			e.errs = append(e.errs, fmt.Errorf("%s must be on or off, got %q", name, v))
+		}
 	}
 	switch v := strings.ToLower(e.str("TEXTILE_ENGINE", "off")); v {
 	case "on", "true", "1":

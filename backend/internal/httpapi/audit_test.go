@@ -14,6 +14,7 @@ import (
 	"time"
 
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/audit"
+	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/retention"
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/sso"
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/sso/ssotest"
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/store"
@@ -90,6 +91,7 @@ type auditEnv struct {
 	fault *faultStore
 	clk   *auditClock
 	sso   *sso.MemoryStore
+	ret   *retention.Memory
 }
 
 const auditTestKey = "audit-test-actor-key-0123456789abcdef"
@@ -113,7 +115,8 @@ func newAuditEnvWith(t *testing.T, ownership bool, adjust ...func(*Deps)) *audit
 		}
 		d.SSO = svc
 	}
-	ae.roleEnv = newRoleEnv(t, ownership, append([]func(*Deps){func(d *Deps) { d.Audit = ae.svc }, withSSO}, adjust...)...)
+	ae.ret = retention.NewMemory()
+	ae.roleEnv = newRoleEnv(t, ownership, append([]func(*Deps){func(d *Deps) { d.Audit = ae.svc; d.Retention = ae.ret; d.AuditExport = true }, withSSO}, adjust...)...)
 	return ae
 }
 
@@ -607,6 +610,12 @@ func (e *auditEnv) sensitiveCases(t *testing.T) map[audit.Action]struct {
 				return e.hs.doAs(t, "DELETE", e.memberPath(fid, "gus"), "", user("fiona"))
 			},
 			func() bool { w, _ := e.ws.Get(context.Background(), fid); return w.HasMember("gus@example.com") },
+		},
+		audit.WorkspaceRetention: {
+			func() (int, map[string]any) {
+				return e.hs.doAs(t, "PUT", "/v1/workspaces/"+fid+"/retention", `{"case_days":30}`, user("fiona"))
+			},
+			func() bool { _, ok, _ := e.ret.Policy(context.Background(), fid); return !ok },
 		},
 		audit.WorkspaceLeave: {
 			func() (int, map[string]any) { return e.hs.doAs(t, "DELETE", e.memberPath(fid, "kim"), "", user("kim")) },
