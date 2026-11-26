@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { ViewTransition, useEffect, useRef, useState } from "react";
+import { ViewTransition, useEffect, useLayoutEffect, useRef, useState } from "react";
 import { cx } from "./ui";
 
 // Business / technical switch, right of the New case button. It is one
@@ -31,7 +31,19 @@ export function ViewToggle({ view }: { view: "business" | "technical" }) {
   useEffect(() => {
     router.prefetch(hrefFor(other));
   }, [router, other]);
-  useEffect(() => () => clearTimeout(timer.current), []);
+  // Next keeps a page you leave alive in the background (Activity) and
+  // shows it again with its old state when you come back, which left the
+  // thumb on the view you had clicked towards, so the next click only put
+  // it back (#867). A layout effect's cleanup runs as the page is hidden,
+  // so reset the thumb to this page's view there; it is right when shown.
+  useLayoutEffect(
+    () => () => {
+      clearTimeout(timer.current);
+      pushed.current = false;
+      setTarget(view);
+    },
+    [view],
+  );
 
   const onBusiness = target === "business";
   const sharp = !business;
