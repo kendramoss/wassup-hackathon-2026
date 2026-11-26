@@ -14,13 +14,15 @@
 }
 .biz .mono { font-family: var(--font-paper-mono), ui-monospace, monospace; font-variant-numeric: tabular-nums; }
 
-/* Top bar */
-.biz-bar { height: 64px; flex-shrink: 0; display: flex; align-items: center; gap: 40px; padding: 0 32px; border-bottom: 1px solid var(--hair); background: var(--paper); }
+/* Top bar. Same height, side padding and right-hand spacing as the
+   technical bar, so the view toggle and the account tile stay in place
+   when you switch views. */
+.biz-bar { box-sizing: border-box; height: 67px; flex-shrink: 0; display: flex; align-items: center; gap: 40px; padding: 0 40px; border-bottom: 1px solid var(--hair); background: var(--paper); }
 .biz-logo { display: flex; align-items: center; gap: 10px; font-size: 17px; font-weight: 600; color: var(--ink); }
 .biz-nav { display: flex; gap: 24px; font-size: 14px; font-weight: 500; }
 .biz-nav a { color: var(--dim); transition: color 150ms var(--ease); }
 .biz-nav a:hover { color: var(--ink); }
-.biz-bar-end { margin-left: auto; display: flex; align-items: center; gap: 12px; }
+.biz-bar-end { margin-left: auto; display: flex; align-items: center; gap: 16px; }
 .biz-btn { display: inline-flex; align-items: center; height: 36px; padding: 0 16px; border-radius: 8px; font-size: 14px; font-weight: 500; transition: background-color 150ms var(--ease), transform 150ms var(--ease); }
 .biz-btn:active { transform: scale(0.98); }
 .biz-btn.ink { background: var(--ink); color: var(--sheet); }
@@ -117,7 +119,7 @@
 /* Phones and narrow screens: stack, scroll normally */
 @media (max-width: 1023px) {
   .biz { height: auto; min-height: 100dvh; }
-  .biz-bar { gap: 16px; padding: 0 16px; }
+  .biz-bar { gap: 16px; }
   .biz-nav { display: none; }
   .biz-shell { display: block; }
   .biz-side { border-right: 0; border-bottom: 1px solid var(--hair); }
@@ -130,6 +132,9 @@
   .biz-letters { height: 520px; }
   .biz-letter { width: 78%; height: 400px; }
   .biz-app-body { display: flex; flex-direction: column; }
+}
+@media (max-width: 639px) {
+  .biz-bar { padding: 0 16px; }
 }
 @media (prefers-reduced-motion: reduce) {
   .biz-story { scroll-behavior: auto; }

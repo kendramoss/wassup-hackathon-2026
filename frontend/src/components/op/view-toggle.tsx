@@ -48,7 +48,8 @@ export function ViewToggle({ view }: { view: "business" | "technical" }) {
         "group relative flex shrink-0 gap-1 p-1 transition-colors",
         sharp
           ? "rounded-[2px] border border-edge bg-sheet shadow-btn hover:border-ink"
-          : "rounded-[10px] bg-[rgba(19,33,58,0.05)] hover:bg-[rgba(19,33,58,0.09)]",
+          : // Transparent border: same outer size as the technical toggle.
+          "rounded-[10px] border border-transparent bg-[rgba(19,33,58,0.05)] hover:bg-[rgba(19,33,58,0.09)]",
       )}
     >
       <span

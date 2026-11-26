@@ -18,7 +18,7 @@ import { copy } from "@/lib/copy";
 type Look = "technical" | "business";
 const tile: Record<Look, string> = {
   technical: "size-10 rounded-[2px] border border-edge bg-sheet shadow-btn max-sm:size-11",
-  business: "size-9 rounded-[8px] bg-sheet shadow-[0_1px_2px_rgba(19,33,58,0.08),inset_0_0_0_1px_rgba(19,33,58,0.1)]",
+  business: "size-10 rounded-[8px] max-sm:size-11 bg-sheet shadow-[0_1px_2px_rgba(19,33,58,0.08),inset_0_0_0_1px_rgba(19,33,58,0.1)]",
 };
 const tileHover: Record<Look, string> = {
   technical: "group-hover:border-ink",
