@@ -9,7 +9,7 @@ import (
 )
 
 // TestReferenceCases runs the authority worked examples pre-registered in
-// D925 (eval/atiga/reference-cases.json) and checks each stated result.
+// D927 (eval/atiga/reference-cases.json) and checks each stated result.
 func TestReferenceCases(t *testing.T) {
 	_, here, _, _ := runtime.Caller(0)
 	b, err := os.ReadFile(filepath.Join(filepath.Dir(here), "..", "..", "..", "eval", "atiga", "reference-cases.json"))
@@ -39,7 +39,7 @@ func TestReferenceCases(t *testing.T) {
 		t.Fatalf("%d cases, want the 7 pre-registered", len(doc.Cases))
 	}
 	// knownDeviation lists pre-registered checks that failed, with the
-	// cause, as reported in D925. Nothing else may fail.
+	// cause, as reported in D927. Nothing else may fail.
 	knownDeviation := map[string]string{
 		"sgc-b-rvc": "the source prints RVC 36 %; (15 - 9.50) / 15 and (1 + 2 + 2.50) / 15 are 36.67 %, so the pre-registered 35.9-36.1 range copied the source's rounding down; the stated result, RVC40 not met, matches",
 	}
