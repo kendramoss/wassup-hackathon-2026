@@ -203,6 +203,14 @@ type Config struct {
 	// public endpoints stay open. It is not a claim that visitor IDs
 	// authenticate anyone (#283).
 	StrictAuth bool
+	// UsageMetering (USAGE_METERING on|off, default off) counts each
+	// workspace's predictions, plan searches and model spend per UTC month
+	// and serves workspace budgets with an optional hard cap (#886). Needs
+	// TEAMS=on: only signed-in workspace members are metered.
+	UsageMetering bool
+	// ERPImport (ERP_IMPORT on|off, default off) serves POST
+	// /v1/products/erp-import, BOM exports from an ERP filed as cases (#880).
+	ERPImport bool
 	// Audit (#284). AuditMode is AUDIT: on, off, or auto (the default). Audit is
 	// the resolved switch: on, or auto with AUDIT_ACTOR_KEY set. auto never
 	// enables the trail without the secret and never generates one; on without
@@ -451,6 +459,18 @@ func FromEnv(getenv func(string) string) (Config, error) {
 	case "off", "false", "0":
 	default:
 		e.errs = append(e.errs, fmt.Errorf("CASE_OWNERSHIP must be on or off, got %q", v))
+	}
+	for _, f := range []struct {
+		key string
+		dst *bool
+	}{{"USAGE_METERING", &c.UsageMetering}, {"ERP_IMPORT", &c.ERPImport}} {
+		switch v := strings.ToLower(e.str(f.key, "off")); v {
+		case "on", "true", "1":
+			*f.dst = true
+		case "off", "false", "0":
+		default:
+			e.errs = append(e.errs, fmt.Errorf("%s must be on or off, got %q", f.key, v))
+		}
 	}
 	switch v := strings.ToLower(e.str("STRICT_AUTH", "off")); v {
 	case "on", "true", "1":
@@ -744,6 +764,9 @@ func (c Config) validate() error {
 	}
 	if c.BOMVersions != "on" && c.BOMVersions != "off" {
 		bad("BOM_VERSIONS must be on or off, got %q", c.BOMVersions)
+	}
+	if c.UsageMetering && !c.Teams {
+		bad("USAGE_METERING=on needs TEAMS=on: usage is counted per workspace")
 	}
 	if c.BrokerWorkflow != "on" && c.BrokerWorkflow != "off" {
 		bad("BROKER_WORKFLOW must be on or off, got %q", c.BrokerWorkflow)

@@ -1,0 +1,4 @@
+Internal ID,Assembly Description,Location Country,Member Item,Member Description,Member Quantity,Country of Manufacture,HS Tariff Number,Assembly HS Tariff Number
+ASM-77,Electric scooter,United States,ITM-1,Lithium battery pack,1,China,8507.60.0020,8711.60.0050
+ASM-77,Electric scooter,United States,ITM-2,Hub motor,1,Taiwan,8501.32,8711.60.0050
+ASM-77,Electric scooter,United States,ITM-3,Steel frame,1,United States,8714.10,8711.60.0050
