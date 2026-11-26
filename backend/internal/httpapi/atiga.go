@@ -15,7 +15,7 @@ const maxATIGAMaterials = 200
 // atigaCheck answers POST /v1/atiga/check: does a good qualify as ATIGA
 // originating (preferential origin under the ASEAN Trade in Goods
 // Agreement, Chapter 3 and Annex 3)? Deterministic code, no model call,
-// nothing stored (D925). Served only with ATIGA_CHECK=on.
+// nothing stored (D927). Served only with ATIGA_CHECK=on.
 func (a *api) atigaCheck(w http.ResponseWriter, r *http.Request) {
 	var in atiga.Input
 	if err := decode(w, r, &in); err != nil {
