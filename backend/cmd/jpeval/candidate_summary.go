@@ -17,23 +17,26 @@ import (
 )
 
 type candidateMetrics struct {
-	Run               string          `json:"run"`
-	Split             string          `json:"split"`
-	Expected          int             `json:"expected_cases"`
-	Cases             int             `json:"cases"`
-	Errors            int             `json:"errors"`
-	ModelCalls        int             `json:"model_calls"`
-	Qualifies         int             `json:"qualifies"`
-	DoesNotQualify    int             `json:"does_not_qualify"`
-	Undetermined      int             `json:"undetermined"`
-	Criterion         Rate            `json:"criterion_match"`
-	CriterionAny      Rate            `json:"criterion_in_cited_set"`
-	NamedCountry      Rate            `json:"stated_country_match"`
-	NamedOrigin       Rate            `json:"stated_origin_match_including_eu"`
-	PublishedPositive Rate            `json:"positive_recall"`
-	SyntheticRefusals Rate            `json:"synthetic_refusals"`
-	ByAgreement       map[string]Rate `json:"criterion_match_by_agreement"`
-	CostUSD           float64         `json:"cost_usd"`
+	Run               string `json:"run"`
+	Split             string `json:"split"`
+	Expected          int    `json:"expected_cases"`
+	Cases             int    `json:"cases"`
+	Errors            int    `json:"errors"`
+	ModelCalls        int    `json:"model_calls"`
+	Qualifies         int    `json:"qualifies"`
+	DoesNotQualify    int    `json:"does_not_qualify"`
+	Undetermined      int    `json:"undetermined"`
+	Criterion         Rate   `json:"criterion_match"`
+	CriterionAny      Rate   `json:"criterion_in_cited_set"`
+	NamedCountry      Rate   `json:"stated_country_match"`
+	NamedOrigin       Rate   `json:"stated_origin_match_including_eu"`
+	PublishedPositive Rate   `json:"positive_recall"`
+	SyntheticRefusals Rate   `json:"synthetic_refusals"`
+	// NegativesNotApproved (dev_neg, D913): negatives answered anything but
+	// "qualifies". A wrong approval is the failure this split measures.
+	NegativesNotApproved *Rate           `json:"negatives_not_approved,omitempty"`
+	ByAgreement          map[string]Rate `json:"criterion_match_by_agreement"`
+	CostUSD              float64         `json:"cost_usd"`
 	// A call with no reported cost is counted here and charged to the budget,
 	// never presented as free. Both are absent from runs before the guard.
 	UnreportedCostCalls int     `json:"calls_without_reported_cost,omitempty"`
@@ -50,7 +53,7 @@ func scoreCandidate(name, split string, rows []candidateRow, expected int, label
 	s := candidateMetrics{Run: name, Split: split, Cases: len(rows), Expected: expected, LabelsSHA256: labelHash, ByAgreement: map[string]Rate{}}
 	var calls []int64
 	var criterion, cited, country, origin, positive, synthetic int
-	var nc, ncountry, no, np, ns int
+	var nc, ncountry, no, np, ns, nn, notApproved int
 	agN, agK := map[string]int{}, map[string]int{}
 	for _, row := range rows {
 		s.CostUSD += row.CostUSD
@@ -115,6 +118,12 @@ func scoreCandidate(name, split string, rows []candidateRow, expected int, label
 				positive++
 			}
 		}
+		if split == "dev_neg" && l.Outcome == "negative" {
+			nn++
+			if outcome != jpengine.Qualifies {
+				notApproved++
+			}
+		}
 		if split == "synthetic" && l.Outcome == "negative" {
 			ns++
 			if outcome == jpengine.DoesNotQualify {
@@ -125,6 +134,10 @@ func scoreCandidate(name, split string, rows []candidateRow, expected int, label
 	s.Criterion, s.CriterionAny = rate(criterion, nc), rate(cited, nc)
 	s.NamedCountry, s.NamedOrigin = rate(country, ncountry), rate(origin, no)
 	s.PublishedPositive, s.SyntheticRefusals = rate(positive, np), rate(synthetic, ns)
+	if split == "dev_neg" {
+		r := rate(notApproved, nn)
+		s.NegativesNotApproved = &r
+	}
 	for a, n := range agN {
 		s.ByAgreement[a] = rate(agK[a], n)
 	}
@@ -142,7 +155,7 @@ func scoreCandidate(name, split string, rows []candidateRow, expected int, label
 
 func candidateSummary(args []string) error {
 	fs := flag.NewFlagSet("candidate-summary", flag.ExitOnError)
-	split := fs.String("split", "dev_eval", "dev_eval, held_out, or synthetic")
+	split := fs.String("split", "dev_eval", "dev_eval, dev_neg, held_out, or synthetic")
 	tag := fs.String("tag", "", "tag for a development run")
 	id := fs.String("run-id", "", "run id of a held_out or synthetic run")
 	check := fs.Bool("check", false, "fail if the committed metrics differ")

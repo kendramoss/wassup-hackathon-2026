@@ -65,7 +65,7 @@ type candidateOptions struct {
 
 func candidate(args []string) error {
 	fs := flag.NewFlagSet("candidate", flag.ExitOnError)
-	split := fs.String("split", "dev_eval", "dev_eval, held_out, or synthetic")
+	split := fs.String("split", "dev_eval", "dev_eval, dev_neg, held_out, or synthetic")
 	tag := fs.String("tag", "", "required for development runs only")
 	id := fs.String("run-id", "", "unique id for a new held_out or synthetic run file (lowercase letters, digits, hyphens); omitted, the original fixed file name is used and an existing file stops the run")
 	workers := fs.Int("workers", 8, "number of requests in flight, up to 16")
@@ -241,12 +241,12 @@ func candidateName(split, tag, id string) (string, error) {
 			return "", errors.New("-run-id needs lowercase letters, digits and inner hyphens, at most 40 characters")
 		}
 		return name + "-" + id, nil
-	case "dev_eval":
+	case "dev_eval", "dev_neg":
 		if id != "" {
 			return "", errors.New("development runs are named with -tag")
 		}
 		if !runTag.MatchString(tag) {
-			return "", errors.New("dev_eval requires a tag with lowercase letters, digits or hyphens")
+			return "", errors.New("development runs require a tag with lowercase letters, digits or hyphens")
 		}
 		return name + "-" + tag, nil
 	default:
@@ -365,6 +365,10 @@ func loadCandidate(split string) ([]candidateInput, *jpcorpus.Pool, string, erro
 	}
 	if split == "synthetic" {
 		items, err := syntheticCases()
+		return items, pool, "", err
+	}
+	if split == "dev_neg" {
+		items, err := devNegCases()
 		return items, pool, "", err
 	}
 	ids, labelFile := sp.DevEval, "labels-dev.jsonl"

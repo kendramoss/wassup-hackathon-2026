@@ -147,6 +147,9 @@ func datasetHashes(split string) (map[string]string, error) {
 		files["data/jp/labels-heldout.jsonl"] = filepath.Join(dataDir, "labels-heldout.jsonl")
 	case "synthetic":
 		files["eval/jp/synthetic-negatives.jsonl"] = filepath.Join(outDir, "synthetic-negatives.jsonl")
+	case "dev_neg":
+		files["data/jp/labels-dev.jsonl"] = filepath.Join(dataDir, "labels-dev.jsonl")
+		files["eval/jp/"+devNegFile] = filepath.Join(outDir, devNegFile)
 	}
 	out := map[string]string{}
 	for name, p := range files {
@@ -172,7 +175,7 @@ func planCommand(args []string) error {
 	if fs.NArg() != 0 {
 		return errors.New("no positional arguments")
 	}
-	if *split != "dev_eval" && *split != "held_out" && *split != "synthetic" {
+	if *split != "dev_eval" && *split != "dev_neg" && *split != "held_out" && *split != "synthetic" {
 		return fmt.Errorf("unknown candidate split %q", *split)
 	}
 	items, pool, _, err := loadCandidate(*split)
