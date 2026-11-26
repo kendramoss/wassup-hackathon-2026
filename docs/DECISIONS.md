@@ -3722,3 +3722,10 @@ Committed and pushed before any model call. Design A of `docs/japan/prospective-
 - **Measured** as D712: criterion match, positive recall, named-origin match, all out of 400 with every abstention and error counted, paired against D712's rows (gained, lost, exact McNemar).
 - **Criteria.** **Improved:** criterion match net +8 or better (about 2 points). **Worse:** net −8 or worse. Otherwise no detectable change. A provider or gateway change since 23 Nov is a confound and is reported, not corrected.
 - **What follows.** The misses of this run are read (development only) to design `jp-engine-v2`, which gets its own pre-registration and a test with negatives, so a prompt that answers "qualifies" more often cannot pass on positives alone.
+## D910 — Japan: the D870–D885 campaign, results of D909 (26 Nov)
+Run as pre-registered (`jp-dev_eval-gemini-4-argon-jp-engine-v1-litellm-d909-dev`, gateway, 26 Nov; the ledger tooling commit after D909 changed no request, `requests_sha256` 2d5b8b49… as planned). Development set only; held-out not read.
+- **Criterion match 243 → 272 of 400** (60.8% → 68.0%, 63.3–72.4); 30 gained, 1 lost, exact McNemar p < 0.001. Positive recall 244 → 273. Named origin 177 → 187 of 292 including the EU; named country 51 → 58 of 111. No errors (1 in D712).
+- **Criterion, as D909 stated: improved** (net +29; +8 needed). The campaign's rule text turned abstentions into answers; the prompt is unchanged.
+- **What is still wrong (read for v2).** 127 undetermined: JP-EU EPA 52, AJCEP 30, CPTPP 19, GSP 7 (GSP never answers "qualifies", by design). Most are refusals where an intermediate material of the good's own chapter or heading (footwear counters and insoles, rice-bran ferment) is listed without a stated originating status, although the facts describe it being made in the exporting Party from materials that do shift. That is a prompt-level gap, not missing rule text.
+- **Limits.** Development rulings only, all of them published approvals, so this run cannot show wrong approvals; the gateway model may differ from production's Vertex path.
+- **Cost.** $5.47 gateway-reported.
