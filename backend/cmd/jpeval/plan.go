@@ -147,6 +147,10 @@ func datasetHashes(split string) (map[string]string, error) {
 		files["data/jp/labels-heldout.jsonl"] = filepath.Join(dataDir, "labels-heldout.jsonl")
 	case "synthetic":
 		files["eval/jp/synthetic-negatives.jsonl"] = filepath.Join(outDir, "synthetic-negatives.jsonl")
+	case "fresh_1126", "fresh_1126_notwin":
+		for _, f := range []string{"rulings.jsonl", "translations-en.jsonl", "labels.jsonl", "twins.json"} {
+			files["data/jp/"+freshDir+"/"+f] = filepath.Join(dataDir, freshDir, f)
+		}
 	case "dev_neg":
 		files["data/jp/labels-dev.jsonl"] = filepath.Join(dataDir, "labels-dev.jsonl")
 		files["eval/jp/"+devNegFile] = filepath.Join(outDir, devNegFile)
@@ -175,7 +179,7 @@ func planCommand(args []string) error {
 	if fs.NArg() != 0 {
 		return errors.New("no positional arguments")
 	}
-	if *split != "dev_eval" && *split != "dev_neg" && *split != "held_out" && *split != "synthetic" {
+	if *split != "dev_eval" && *split != "dev_neg" && !isFresh(*split) && *split != "held_out" && *split != "synthetic" {
 		return fmt.Errorf("unknown candidate split %q", *split)
 	}
 	items, pool, _, err := loadCandidate(*split)

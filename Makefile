@@ -122,6 +122,8 @@ reproduce: ## recompute every published number from committed files: no model ca
 	python3 -I -B eval/agent/score.py . --check
 	python3 -I -B eval/jp/split.py . --check
 	python3 -I -B eval/jp/labels.py . --check
+	python3 -I -B eval/jp/labels.py . --fresh --check
+	python3 -I -B eval/jp/fresh_twins.py . --check
 	python3 -I -B eval/jp/check_translations.py . --check
 	cd $(GO_DIR) && go run ./cmd/rcepeval -check
 	cd $(GO_DIR) && go run ./cmd/jpeval bundle -check
