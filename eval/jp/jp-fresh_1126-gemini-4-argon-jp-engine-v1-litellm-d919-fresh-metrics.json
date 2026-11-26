@@ -1,0 +1,104 @@
+{
+ "run": "jp-fresh_1126-gemini-4-argon-jp-engine-v1-litellm-d919-fresh",
+ "split": "fresh_1126",
+ "expected_cases": 44,
+ "cases": 44,
+ "errors": 0,
+ "model_calls": 44,
+ "qualifies": 39,
+ "does_not_qualify": 0,
+ "undetermined": 5,
+ "criterion_match": {
+  "k": 37,
+  "n": 44,
+  "p": 0.8409,
+  "lo": 0.7063,
+  "hi": 0.9207
+ },
+ "criterion_in_cited_set": {
+  "k": 37,
+  "n": 44,
+  "p": 0.8409,
+  "lo": 0.7063,
+  "hi": 0.9207
+ },
+ "stated_country_match": {
+  "k": 23,
+  "n": 24,
+  "p": 0.9583,
+  "lo": 0.7976,
+  "hi": 0.9926
+ },
+ "stated_origin_match_including_eu": {
+  "k": 31,
+  "n": 35,
+  "p": 0.8857,
+  "lo": 0.7405,
+  "hi": 0.9546
+ },
+ "positive_recall": {
+  "k": 39,
+  "n": 44,
+  "p": 0.8864,
+  "lo": 0.7602,
+  "hi": 0.9505
+ },
+ "synthetic_refusals": {
+  "k": 0,
+  "n": 0,
+  "p": 0,
+  "lo": 0,
+  "hi": 0
+ },
+ "criterion_match_by_agreement": {
+  "AJCEP": {
+   "k": 0,
+   "n": 1,
+   "p": 0,
+   "lo": 0,
+   "hi": 0.7935
+  },
+  "CPTPP": {
+   "k": 8,
+   "n": 9,
+   "p": 0.8889,
+   "lo": 0.565,
+   "hi": 0.9801
+  },
+  "JP-EU EPA": {
+   "k": 6,
+   "n": 11,
+   "p": 0.5455,
+   "lo": 0.2801,
+   "hi": 0.7873
+  },
+  "JP-Indonesia EPA": {
+   "k": 4,
+   "n": 4,
+   "p": 1,
+   "lo": 0.5101,
+   "hi": 1
+  },
+  "JP-UK CEPA": {
+   "k": 1,
+   "n": 1,
+   "p": 1,
+   "lo": 0.2065,
+   "hi": 1
+  },
+  "RCEP": {
+   "k": 18,
+   "n": 18,
+   "p": 1,
+   "lo": 0.8241,
+   "hi": 1
+  }
+ },
+ "cost_usd": 0.4742,
+ "budget_charged_usd": 0.4742,
+ "cost_per_case_usd": 0.0108,
+ "cost_per_model_call_usd": 0.0108,
+ "model_call_cases_latency_p50_ms": 9078,
+ "model_call_cases_latency_p95_ms": 21699,
+ "labels_sha256": "859398b7ffc74cba1dd7cb526b65f923cd88309cf9e81d1186407256999b2627"
+}

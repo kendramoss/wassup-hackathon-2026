@@ -16,6 +16,7 @@ export const copy = {
   nav: { cases: "Cases", accuracy: "How accurate is it?", accuracyShort: "Accuracy", method: "Method", api: "API · MCP" },
 
   cases: {
+    signedOut: "Sign in to see and save your own cases. The demos above open without signing in.",
     title: "Cases",
     // A demo's case date sits just before CBP's later ruling: a backtest.
     demoDate: (d: string) => `Rulings before ${d} only`,
@@ -575,6 +576,14 @@ export const copy = {
     rule: "Product rule",
     precedents: "Earlier Japan Customs rulings",
     edit: "Edit inputs",
+    // D917: the questions on an undetermined result.
+    ask: "Answer to decide",
+    yes: "Yes",
+    no: "No",
+    notSure: "Not sure",
+    checkAgain: "Check again",
+    pickOne: "Answer at least one",
+    was: "Was",
   },
 
   // The 19 CFR 102.20 rule check (D363), shown only when the parts list gives
@@ -641,11 +650,15 @@ export const copy = {
 
   // Canada's marking rules (SOR/94-23, D720): a rules check only. Few words
   // (rule 16); the label stays visible with every answer (D725).
+  cbsaRulings: {
+    title: "CBSA rulings",
+    meta: (n: number) => `${n} related`,
+  },
   canadaCheck: {
     title: "Country-of-origin marking for Canada (rules check)",
     run: "Check Canada rules",
     running: "Checking…",
-    label: "Rules check only — no accuracy figure yet (no published rulings to test against)",
+    label: "Rules check only — no accuracy figure yet (too few published rulings to test against)",
     decided: "under Canada's marking rules, from the codes given.",
     undetermined: "Not decided from the codes given.",
     outOfScope: "No Canadian rule for this code.",

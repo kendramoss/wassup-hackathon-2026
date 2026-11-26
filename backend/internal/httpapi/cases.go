@@ -634,7 +634,7 @@ func (a *api) answers(w http.ResponseWriter, r *http.Request) {
 	sc.Answers = append(sc.Answers, in.Answers...)
 	facts, _ := clarify.AppendAnswers(sc.OriginalFacts, toClarify(sc.Answers))
 	date, _ := time.Parse(time.DateOnly, sc.Date)
-	c := domain.Case{ID: sc.ID, Date: date, Facts: facts, Product: sc.Product, Exclude: sc.Exclude, Jurisdiction: caseMarket(sc)}
+	c := domain.Case{ID: sc.ID, Date: date, Facts: facts, Product: sc.Product, Exclude: sc.Exclude, Jurisdiction: caseMarket(sc), Japan: sc.Japan}
 	if err := c.Validate(); err != nil {
 		a.fail(w, r, err)
 		return

@@ -6,7 +6,8 @@ import { FOLLOW_UP_HOURS, followUpRows, reviewRowReading } from "@/lib/cases-fol
 import Link from "next/link";
 import { useEffect, useRef, useState, type KeyboardEvent as ReactKeyboardEvent } from "react";
 import { api, type CaseResponse, type CaseSummary, type DemoList } from "@/lib/api/client";
-import { VIEWER_REASON, caseReadOnly } from "@/lib/roles";
+import { VIEWER_REASON, caseReadOnly, isSigninRequired } from "@/lib/roles";
+import { SignIn } from "../sign-in";
 import { copy } from "@/lib/copy";
 import { conf, formatDate, originConf, originConfCaption, stepIndex, stepNames } from "@/lib/format";
 import { currentOrigin } from "../case-shell";
@@ -25,13 +26,28 @@ export function CasesHome() {
   const [cases, setCases] = useState<CaseSummary[] | null>(null);
   const [demos, setDemos] = useState<DemoList["demos"]>([]);
   const [error, setError] = useState<unknown>(null);
+  // Signed out on a site that requires sign-in (STRICT_AUTH): the demos
+  // still show and open; only "Your cases" asks to sign in (#888).
+  const [signedOut, setSignedOut] = useState(false);
 
+  const fetchCases = () =>
+    api.listCases().then(
+      (r) => {
+        setSignedOut(false);
+        setCases(r.cases);
+      },
+      async (e) => {
+        if (!isSigninRequired(e)) return setError(e);
+        setSignedOut(true);
+        setCases(await api.publicDemoCases().catch(() => []));
+      },
+    );
   const load = () => {
     setError(null);
-    api.listCases().then((r) => setCases(r.cases), setError);
+    fetchCases();
   };
   useEffect(() => {
-    api.listCases().then((r) => setCases(r.cases), setError);
+    fetchCases();
     api.demos().then((r) => setDemos(r.demos ?? []), () => setDemos([]));
   }, []);
 
@@ -137,7 +153,12 @@ export function CasesHome() {
           <h2 id="yours-h" className="eyebrow mb-3">
             Your cases {yours.length ? `· ${yours.length}` : ""}
           </h2>
-          {yours.length === 0 ? (
+          {signedOut ? (
+            <div className="flex flex-wrap items-center gap-3 border border-dashed border-guide bg-sheet px-5 py-4">
+              <SignIn />
+              <p className="duo text-dim">{copy.cases.signedOut}</p>
+            </div>
+          ) : yours.length === 0 ? (
             <p className="duo border border-dashed border-guide bg-sheet px-5 py-4 text-dim">
               {copy.cases.empty}{" "}
               <Link href="/cases/new" className="text-ok underline underline-offset-2">

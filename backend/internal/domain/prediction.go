@@ -56,6 +56,25 @@ type Prediction struct {
 	VoteAgreement string       `json:"vote_agreement,omitempty"`
 	Trace         Trace        `json:"trace"`
 	Japan         *JapanResult `json:"japan_preference,omitempty"`
+	// CanadaRulings, on a Canada case, are published CBSA rulings related to
+	// the product (D923). Display only: they play no part in the answer.
+	CanadaRulings []CanadaRuling `json:"canada_rulings,omitempty"`
+}
+
+// CanadaRuling is a published CBSA origin or marking ruling shown on a
+// Canada case (internal/carulings, D923).
+type CanadaRuling struct {
+	ID   string `json:"id"`
+	Date string `json:"date"`
+	// Kind is "origin" (an origin advance ruling under a trade agreement)
+	// or "marking" (a marking national customs ruling).
+	Kind      string `json:"kind"`
+	Product   string `json:"product"`
+	Agreement string `json:"agreement"`
+	// Holding is a one-line summary of the decision; URL opens the full
+	// ruling on the CBSA's site.
+	Holding string `json:"holding"`
+	URL     string `json:"url"`
 }
 
 // Validate checks the model returned an origin and a confidence in [0, 1].

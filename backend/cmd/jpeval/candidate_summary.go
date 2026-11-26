@@ -118,7 +118,7 @@ func scoreCandidate(name, split string, rows []candidateRow, expected int, label
 				positive++
 			}
 		}
-		if split == "dev_neg" && l.Outcome == "negative" {
+		if baseSplit(split) == "dev_neg" && l.Outcome == "negative" {
 			nn++
 			if outcome != jpengine.Qualifies {
 				notApproved++
@@ -134,7 +134,7 @@ func scoreCandidate(name, split string, rows []candidateRow, expected int, label
 	s.Criterion, s.CriterionAny = rate(criterion, nc), rate(cited, nc)
 	s.NamedCountry, s.NamedOrigin = rate(country, ncountry), rate(origin, no)
 	s.PublishedPositive, s.SyntheticRefusals = rate(positive, np), rate(synthetic, ns)
-	if split == "dev_neg" {
+	if baseSplit(split) == "dev_neg" {
 		r := rate(notApproved, nn)
 		s.NegativesNotApproved = &r
 	}
@@ -155,7 +155,7 @@ func scoreCandidate(name, split string, rows []candidateRow, expected int, label
 
 func candidateSummary(args []string) error {
 	fs := flag.NewFlagSet("candidate-summary", flag.ExitOnError)
-	split := fs.String("split", "dev_eval", "dev_eval, dev_neg, held_out, or synthetic")
+	split := fs.String("split", "dev_eval", "dev_eval, dev_neg, fresh_1126, fresh_1126_notwin, held_out, or synthetic")
 	pv := fs.String("prompt-version", jpengine.PromptVersion, "prompt version in the run's file name, for runs of an earlier prompt")
 	tag := fs.String("tag", "", "tag for a development run")
 	id := fs.String("run-id", "", "run id of a held_out or synthetic run")
