@@ -13,6 +13,7 @@ import Link from "next/link";
 import { Explained } from "../term";
 import { useEffect, useRef, useState } from "react";
 import { api } from "@/lib/api/client";
+import { isSigninRequired } from "@/lib/roles";
 import { copy } from "@/lib/copy";
 import { ButtonLink, RulingLink } from "../ui";
 import { JudgeImpact } from "./judge-proof";
@@ -41,7 +42,12 @@ function useDemoLinks(): DemoLinks {
     let live = true;
     (async () => {
       try {
-        const [cases, demos] = await Promise.all([api.listCases(), api.demos()]);
+        // Signed out under STRICT_AUTH, /cases says "sign in": fall back to
+        // the public demo list's pinned cases (#888).
+        const [cases, demos] = await Promise.all([
+          api.listCases().catch(async (e) => (isSigninRequired(e) ? { cases: await api.publicDemoCases() } : Promise.reject(e))),
+          api.demos(),
+        ]);
         // The 2022-setup case tells the landing story (CBP held China; the
         // plan moves work to Thailand); other heat-gun demos are variants (#149).
         const heat = cases.cases.filter((c) => c.pinned && /heat gun|kobalt/i.test(`${c.display_name ?? ""} ${c.product_name ?? ""}`));
