@@ -40,6 +40,7 @@ import (
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/ratelimit"
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/router"
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/spend"
+	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/sso"
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/store"
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/tariffshift"
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/teams"
@@ -243,6 +244,11 @@ type Deps struct {
 	Teams      bool
 	Users      teams.Verifier
 	Workspaces teams.Store
+	// SSO, when set (and Teams on), serves single sign-on (#868): the
+	// sign-in routes under /v1/sso and the connection routes under
+	// /v1/workspaces/{id}/sso. Users should then be SSO.Verifier(google), so
+	// SSO session tokens are accepted as X-User-Token. Nil: 404.
+	SSO *sso.Service
 	// APIKeys, when set, accepts X-API-Key (its own rate-limit buckets, a
 	// daily request quota, cases owned by the key) and serves the admin key
 	// endpoints (D69). Nil: the header is ignored and the endpoints are 404.

@@ -2241,6 +2241,190 @@ paths:
         "405": { description: Only POST is served }
         "413": { description: The body is over 12 MB }
         "429": { $ref: "#/components/responses/TooManyRequests" }
+  /v1/sso/start:
+    post:
+      operationId: ssoStart
+      summary: Start a single sign-on for an email (SSO=on)
+      description: "Finds the enabled SSO connection whose verified domain matches the email and returns the identity provider URL to send the browser to. The OIDC state, nonce and PKCE verifier, or the SAML request ID, are kept server side for ten minutes and work once. 404 sso_not_configured when the domain has no enabled connection."
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { type: object, required: [email], properties: { email: { type: string, format: email } } }
+      responses:
+        "200":
+          description: Where to send the browser
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [protocol, url, connection_id, expires_at]
+                properties:
+                  protocol: { type: string, enum: [oidc, saml] }
+                  url: { type: string, format: uri }
+                  connection_id: { type: string }
+                  expires_at: { type: string, format: date-time }
+        "400": { $ref: "#/components/responses/Error" }
+        "404": { $ref: "#/components/responses/Error" }
+        "429": { $ref: "#/components/responses/TooManyRequests" }
+  /v1/sso/oidc/callback:
+    post:
+      operationId: ssoOIDCCallback
+      summary: Finish an OIDC sign-in (SSO=on)
+      description: "The callback page posts the state and code the identity provider returned. The code is exchanged with PKCE; issuer, audience, expiry, signature and nonce are checked and the state is single use. A user signing in for the first time joins the connection's workspace with its default role. 401 sso_failed without detail; 403 sso_other_workspace for a member of another workspace."
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [state]
+              properties:
+                state: { type: string }
+                code: { type: string }
+                error: { type: string, description: The provider's error parameter, if it sent one }
+      responses:
+        "200": { $ref: "#/components/responses/SSOLogin" }
+        "401": { $ref: "#/components/responses/Error" }
+        "403": { $ref: "#/components/responses/Error" }
+        "429": { $ref: "#/components/responses/TooManyRequests" }
+        "502": { $ref: "#/components/responses/Error" }
+  /v1/sso/saml/acs:
+    post:
+      operationId: ssoSAMLACS
+      summary: Finish a SAML sign-in (SSO=on)
+      description: "The assertion consumer service. Accepts the HTTP-POST binding form (SAMLResponse, RelayState) or the same as JSON. The response or assertion must be signed by a configured certificate; issuer, audience, destination, time window and InResponseTo are checked, the relay state is single use and each assertion ID is accepted once. 401 sso_failed without detail; 403 sso_other_workspace."
+      requestBody:
+        required: true
+        content:
+          application/x-www-form-urlencoded:
+            schema: { type: object, required: [SAMLResponse, RelayState], properties: { SAMLResponse: { type: string }, RelayState: { type: string } } }
+          application/json:
+            schema: { type: object, required: [saml_response, relay_state], properties: { saml_response: { type: string }, relay_state: { type: string } } }
+      responses:
+        "200": { $ref: "#/components/responses/SSOLogin" }
+        "400": { $ref: "#/components/responses/Error" }
+        "401": { $ref: "#/components/responses/Error" }
+        "403": { $ref: "#/components/responses/Error" }
+        "429": { $ref: "#/components/responses/TooManyRequests" }
+  /v1/sso/saml/metadata:
+    get:
+      operationId: ssoSAMLMetadata
+      summary: SAML service provider metadata (SSO=on)
+      responses:
+        "200":
+          description: The service provider's entity descriptor
+          content:
+            application/samlmetadata+xml: { schema: { type: string } }
+  /v1/workspaces/{id}/sso:
+    get:
+      operationId: listSSOConnections
+      summary: List the workspace's SSO connections (SSO=on, workspace admin)
+      parameters:
+        - { $ref: "#/components/parameters/UserToken" }
+        - { name: id, in: path, required: true, schema: { type: string } }
+      responses:
+        "200":
+          description: The connections; client secrets are never returned
+          content:
+            application/json:
+              schema: { type: object, required: [connections], properties: { connections: { type: array, items: { $ref: "#/components/schemas/SSOConnection" } } } }
+        "401": { $ref: "#/components/responses/Error" }
+        "403": { $ref: "#/components/responses/Error" }
+        "404": { $ref: "#/components/responses/Error" }
+    post:
+      operationId: createSSOConnection
+      summary: Add an SSO connection (SSO=on, workspace admin)
+      description: "A new connection starts disabled: each domain must first be verified with a DNS TXT record (record_name, record_value in the answer). Public mail domains cannot be claimed. An OIDC issuer must answer discovery. 409 sso_domain_taken, sso_limit or sso_unverified."
+      parameters:
+        - { $ref: "#/components/parameters/UserToken" }
+        - { name: id, in: path, required: true, schema: { type: string } }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/SSOConnectionRequest" }
+      responses:
+        "201":
+          headers:
+            X-Audit-Incomplete: { $ref: "#/components/headers/AuditIncomplete" }
+          description: The connection
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/SSOConnection" }
+        "400": { $ref: "#/components/responses/Error" }
+        "401": { $ref: "#/components/responses/Error" }
+        "403": { $ref: "#/components/responses/Error" }
+        "404": { $ref: "#/components/responses/Error" }
+        "409": { $ref: "#/components/responses/Error" }
+        "503": { $ref: "#/components/responses/Error" }
+  /v1/workspaces/{id}/sso/{conn}:
+    put:
+      operationId: updateSSOConnection
+      summary: Replace an SSO connection (SSO=on, workspace admin)
+      description: An omitted oidc_client_secret keeps the stored one. A removed domain loses its verification.
+      parameters:
+        - { $ref: "#/components/parameters/UserToken" }
+        - { name: id, in: path, required: true, schema: { type: string } }
+        - { name: conn, in: path, required: true, schema: { type: string } }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/SSOConnectionRequest" }
+      responses:
+        "200":
+          headers:
+            X-Audit-Incomplete: { $ref: "#/components/headers/AuditIncomplete" }
+          description: The connection
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/SSOConnection" }
+        "400": { $ref: "#/components/responses/Error" }
+        "401": { $ref: "#/components/responses/Error" }
+        "403": { $ref: "#/components/responses/Error" }
+        "404": { $ref: "#/components/responses/Error" }
+        "409": { $ref: "#/components/responses/Error" }
+        "503": { $ref: "#/components/responses/Error" }
+    delete:
+      operationId: deleteSSOConnection
+      summary: Remove an SSO connection (SSO=on, workspace admin)
+      description: Every session the connection issued stops working at once.
+      parameters:
+        - { $ref: "#/components/parameters/UserToken" }
+        - { name: id, in: path, required: true, schema: { type: string } }
+        - { name: conn, in: path, required: true, schema: { type: string } }
+      responses:
+        "204": { description: Removed }
+        "401": { $ref: "#/components/responses/Error" }
+        "403": { $ref: "#/components/responses/Error" }
+        "404": { $ref: "#/components/responses/Error" }
+        "503": { $ref: "#/components/responses/Error" }
+  /v1/workspaces/{id}/sso/{conn}/verify:
+    post:
+      operationId: verifySSOConnection
+      summary: Check the connection's domain TXT records (SSO=on, workspace admin)
+      description: Looks up _undelabs-verify.<domain> for each domain. With enable true, turns the connection on once every domain is verified. The answer lists each domain's check.
+      parameters:
+        - { $ref: "#/components/parameters/UserToken" }
+        - { name: id, in: path, required: true, schema: { type: string } }
+        - { name: conn, in: path, required: true, schema: { type: string } }
+      requestBody:
+        content:
+          application/json:
+            schema: { type: object, properties: { enable: { type: boolean } } }
+      responses:
+        "200":
+          headers:
+            X-Audit-Incomplete: { $ref: "#/components/headers/AuditIncomplete" }
+          description: The connection with the checks
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/SSOConnection" }
+        "401": { $ref: "#/components/responses/Error" }
+        "403": { $ref: "#/components/responses/Error" }
+        "404": { $ref: "#/components/responses/Error" }
+        "503": { $ref: "#/components/responses/Error" }
 components:
   securitySchemes:
     ApiKey:
@@ -2300,6 +2484,20 @@ components:
       description: "Set to `completion-not-recorded` when the audit trail is enabled and the completion or single event of an audited request could not be stored. It can appear on ANY audited route that is not a Server-Sent-Events stream, on a success OR an error response, not only on the fail-closed operations that can answer 503: every mutating route, a recording or preview export of a non-pinned case, the audit read and verify routes, and the API-key list. For a write, the change stands and the response status is the true one. It is never sent on a Server-Sent-Events response, whose headers are committed before the work runs, so a stream that could not record its completion carries no header and the trail holds an intent without a completion. It is not present when the audit trail is off."
       schema: { type: string, enum: [completion-not-recorded] }
   responses:
+    SSOLogin:
+      description: A session token to send as X-User-Token
+      content:
+        application/json:
+          schema:
+            type: object
+            required: [token, expires_at, email, workspace_id, role, provisioned]
+            properties:
+              token: { type: string, description: "Starts with ops1." }
+              expires_at: { type: string, format: date-time }
+              email: { type: string, format: email }
+              workspace_id: { type: string }
+              role: { type: string, enum: [viewer, editor, admin] }
+              provisioned: { type: boolean, description: True when this sign-in made the user a member }
     Error:
       description: Error
       content:
@@ -2317,6 +2515,64 @@ components:
         application/json:
           schema: { $ref: "#/components/schemas/Error" }
   schemas:
+    SSOConnectionRequest:
+      type: object
+      required: [protocol, domains]
+      properties:
+        protocol: { type: string, enum: [oidc, saml] }
+        domains: { type: array, maxItems: 20, items: { type: string } }
+        default_role: { type: string, enum: [viewer, editor, admin], default: viewer }
+        enabled: { type: boolean }
+        enforced: { type: boolean, description: Refuse Google sign-in for these domains }
+        oidc_issuer: { type: string, format: uri }
+        oidc_client_id: { type: string }
+        oidc_client_secret: { type: string, writeOnly: true }
+        saml_sso_url: { type: string, format: uri }
+        saml_issuer: { type: string }
+        saml_certs_pem: { type: array, maxItems: 3, items: { type: string } }
+    SSOConnection:
+      type: object
+      required: [id, protocol, domains, default_role, enabled, enforced, has_client_secret, service_provider, created_at, updated_at]
+      properties:
+        id: { type: string }
+        protocol: { type: string, enum: [oidc, saml] }
+        domains:
+          type: array
+          items:
+            type: object
+            required: [domain, verified, record_name, record_value]
+            properties:
+              domain: { type: string }
+              verified: { type: boolean }
+              verified_at: { type: string, format: date-time }
+              record_name: { type: string }
+              record_value: { type: string }
+        default_role: { type: string, enum: [viewer, editor, admin] }
+        enabled: { type: boolean }
+        enforced: { type: boolean }
+        oidc_issuer: { type: string }
+        oidc_client_id: { type: string }
+        has_client_secret: { type: boolean }
+        saml_sso_url: { type: string }
+        saml_issuer: { type: string }
+        saml_certs_pem: { type: array, items: { type: string } }
+        service_provider:
+          type: object
+          properties:
+            oidc_redirect_url: { type: string }
+            saml_acs_url: { type: string }
+            saml_entity_id: { type: string }
+        checks:
+          type: array
+          items:
+            type: object
+            properties:
+              domain: { type: string }
+              record: { type: string }
+              verified: { type: boolean }
+              problem: { type: string }
+        created_at: { type: string, format: date-time }
+        updated_at: { type: string, format: date-time }
     UsmcaAmount:
       type: string
       pattern: '^(0|[1-9][0-9]*)(\.[0-9]+)?$'
@@ -2553,7 +2809,7 @@ components:
       properties:
         code:
           type: string
-          enum: [invalid_input, not_found, model_unavailable, model_bad_response, out_of_scope, internal, rate_limited, too_many_in_flight, client_budget_reached, auth_rate_limited, forbidden, budget_reached, unauthenticated, conflict, unauthorized, quota_exceeded, audit_unavailable, review_not_found, link_revoked, link_expired]
+          enum: [invalid_input, not_found, model_unavailable, model_bad_response, out_of_scope, internal, rate_limited, too_many_in_flight, client_budget_reached, auth_rate_limited, forbidden, budget_reached, unauthenticated, conflict, unauthorized, quota_exceeded, audit_unavailable, review_not_found, link_revoked, link_expired, sso_not_configured, sso_failed, sso_other_workspace, sso_unavailable, sso_unverified, sso_domain_taken, sso_limit]
         message: { type: string }
         details: {}
     Workspace:

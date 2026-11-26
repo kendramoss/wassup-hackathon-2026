@@ -1207,10 +1207,211 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/v1/sso/start": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Start a single sign-on for an email (SSO=on)
+         * @description Finds the enabled SSO connection whose verified domain matches the email and returns the identity provider URL to send the browser to. The OIDC state, nonce and PKCE verifier, or the SAML request ID, are kept server side for ten minutes and work once. 404 sso_not_configured when the domain has no enabled connection.
+         */
+        post: operations["ssoStart"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/sso/oidc/callback": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Finish an OIDC sign-in (SSO=on)
+         * @description The callback page posts the state and code the identity provider returned. The code is exchanged with PKCE; issuer, audience, expiry, signature and nonce are checked and the state is single use. A user signing in for the first time joins the connection's workspace with its default role. 401 sso_failed without detail; 403 sso_other_workspace for a member of another workspace.
+         */
+        post: operations["ssoOIDCCallback"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/sso/saml/acs": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Finish a SAML sign-in (SSO=on)
+         * @description The assertion consumer service. Accepts the HTTP-POST binding form (SAMLResponse, RelayState) or the same as JSON. The response or assertion must be signed by a configured certificate; issuer, audience, destination, time window and InResponseTo are checked, the relay state is single use and each assertion ID is accepted once. 401 sso_failed without detail; 403 sso_other_workspace.
+         */
+        post: operations["ssoSAMLACS"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/sso/saml/metadata": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** SAML service provider metadata (SSO=on) */
+        get: operations["ssoSAMLMetadata"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/workspaces/{id}/sso": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List the workspace's SSO connections (SSO=on, workspace admin) */
+        get: operations["listSSOConnections"];
+        put?: never;
+        /**
+         * Add an SSO connection (SSO=on, workspace admin)
+         * @description A new connection starts disabled: each domain must first be verified with a DNS TXT record (record_name, record_value in the answer). Public mail domains cannot be claimed. An OIDC issuer must answer discovery. 409 sso_domain_taken, sso_limit or sso_unverified.
+         */
+        post: operations["createSSOConnection"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/workspaces/{id}/sso/{conn}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /**
+         * Replace an SSO connection (SSO=on, workspace admin)
+         * @description An omitted oidc_client_secret keeps the stored one. A removed domain loses its verification.
+         */
+        put: operations["updateSSOConnection"];
+        post?: never;
+        /**
+         * Remove an SSO connection (SSO=on, workspace admin)
+         * @description Every session the connection issued stops working at once.
+         */
+        delete: operations["deleteSSOConnection"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/workspaces/{id}/sso/{conn}/verify": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Check the connection's domain TXT records (SSO=on, workspace admin)
+         * @description Looks up _undelabs-verify.<domain> for each domain. With enable true, turns the connection on once every domain is verified. The answer lists each domain's check.
+         */
+        post: operations["verifySSOConnection"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
     schemas: {
+        SSOConnectionRequest: {
+            /** @enum {string} */
+            protocol: "oidc" | "saml";
+            domains: string[];
+            /**
+             * @default viewer
+             * @enum {string}
+             */
+            default_role: "viewer" | "editor" | "admin";
+            enabled?: boolean;
+            /** @description Refuse Google sign-in for these domains */
+            enforced?: boolean;
+            /** Format: uri */
+            oidc_issuer?: string;
+            oidc_client_id?: string;
+            oidc_client_secret?: string;
+            /** Format: uri */
+            saml_sso_url?: string;
+            saml_issuer?: string;
+            saml_certs_pem?: string[];
+        };
+        SSOConnection: {
+            id: string;
+            /** @enum {string} */
+            protocol: "oidc" | "saml";
+            domains: {
+                domain: string;
+                verified: boolean;
+                /** Format: date-time */
+                verified_at?: string;
+                record_name: string;
+                record_value: string;
+            }[];
+            /** @enum {string} */
+            default_role: "viewer" | "editor" | "admin";
+            enabled: boolean;
+            enforced: boolean;
+            oidc_issuer?: string;
+            oidc_client_id?: string;
+            has_client_secret: boolean;
+            saml_sso_url?: string;
+            saml_issuer?: string;
+            saml_certs_pem?: string[];
+            service_provider: {
+                oidc_redirect_url?: string;
+                saml_acs_url?: string;
+                saml_entity_id?: string;
+            };
+            checks?: {
+                domain?: string;
+                record?: string;
+                verified?: boolean;
+                problem?: string;
+            }[];
+            /** Format: date-time */
+            created_at: string;
+            /** Format: date-time */
+            updated_at: string;
+        };
         /** @description Non-negative exact decimal string (no exponent, sign, NaN or Infinity). Never a JSON number. Omitted or null is unknown, not zero; "0" is a known zero. */
         UsmcaAmount: string;
         /**
@@ -1511,7 +1712,7 @@ export interface components {
         };
         Error: {
             /** @enum {string} */
-            code: "invalid_input" | "not_found" | "model_unavailable" | "model_bad_response" | "out_of_scope" | "internal" | "rate_limited" | "too_many_in_flight" | "client_budget_reached" | "auth_rate_limited" | "forbidden" | "budget_reached" | "unauthenticated" | "conflict" | "unauthorized" | "quota_exceeded" | "audit_unavailable" | "review_not_found" | "link_revoked" | "link_expired";
+            code: "invalid_input" | "not_found" | "model_unavailable" | "model_bad_response" | "out_of_scope" | "internal" | "rate_limited" | "too_many_in_flight" | "client_budget_reached" | "auth_rate_limited" | "forbidden" | "budget_reached" | "unauthenticated" | "conflict" | "unauthorized" | "quota_exceeded" | "audit_unavailable" | "review_not_found" | "link_revoked" | "link_expired" | "sso_not_configured" | "sso_failed" | "sso_other_workspace" | "sso_unavailable" | "sso_unverified" | "sso_domain_taken" | "sso_limit";
             message: string;
             details?: unknown;
         };
@@ -3312,6 +3513,27 @@ export interface components {
         };
     };
     responses: {
+        /** @description A session token to send as X-User-Token */
+        SSOLogin: {
+            headers: {
+                [name: string]: unknown;
+            };
+            content: {
+                "application/json": {
+                    /** @description Starts with ops1. */
+                    token: string;
+                    /** Format: date-time */
+                    expires_at: string;
+                    /** Format: email */
+                    email: string;
+                    workspace_id: string;
+                    /** @enum {string} */
+                    role: "viewer" | "editor" | "admin";
+                    /** @description True when this sign-in made the user a member */
+                    provisioned: boolean;
+                };
+            };
+        };
         /** @description Error */
         Error: {
             headers: {
@@ -5960,6 +6182,284 @@ export interface operations {
                 content?: never;
             };
             429: components["responses"]["TooManyRequests"];
+        };
+    };
+    ssoStart: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": {
+                    /** Format: email */
+                    email: string;
+                };
+            };
+        };
+        responses: {
+            /** @description Where to send the browser */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        /** @enum {string} */
+                        protocol: "oidc" | "saml";
+                        /** Format: uri */
+                        url: string;
+                        connection_id: string;
+                        /** Format: date-time */
+                        expires_at: string;
+                    };
+                };
+            };
+            400: components["responses"]["Error"];
+            404: components["responses"]["Error"];
+            429: components["responses"]["TooManyRequests"];
+        };
+    };
+    ssoOIDCCallback: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": {
+                    state: string;
+                    code?: string;
+                    /** @description The provider's error parameter */
+                    error?: string;
+                };
+            };
+        };
+        responses: {
+            200: components["responses"]["SSOLogin"];
+            401: components["responses"]["Error"];
+            403: components["responses"]["Error"];
+            429: components["responses"]["TooManyRequests"];
+            502: components["responses"]["Error"];
+        };
+    };
+    ssoSAMLACS: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/x-www-form-urlencoded": {
+                    SAMLResponse: string;
+                    RelayState: string;
+                };
+                "application/json": {
+                    saml_response: string;
+                    relay_state: string;
+                };
+            };
+        };
+        responses: {
+            200: components["responses"]["SSOLogin"];
+            400: components["responses"]["Error"];
+            401: components["responses"]["Error"];
+            403: components["responses"]["Error"];
+            429: components["responses"]["TooManyRequests"];
+        };
+    };
+    ssoSAMLMetadata: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description The service provider's entity descriptor */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/samlmetadata+xml": string;
+                };
+            };
+        };
+    };
+    listSSOConnections: {
+        parameters: {
+            query?: never;
+            header: {
+                /** @description The signed-in user's Google ID token, forwarded by the frontend proxy (D68). Optional on every other endpoint. */
+                "X-User-Token": components["parameters"]["UserToken"];
+            };
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description The connections; client secrets are never returned */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        connections: components["schemas"]["SSOConnection"][];
+                    };
+                };
+            };
+            401: components["responses"]["Error"];
+            403: components["responses"]["Error"];
+            404: components["responses"]["Error"];
+        };
+    };
+    createSSOConnection: {
+        parameters: {
+            query?: never;
+            header: {
+                /** @description The signed-in user's Google ID token, forwarded by the frontend proxy (D68). Optional on every other endpoint. */
+                "X-User-Token": components["parameters"]["UserToken"];
+            };
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["SSOConnectionRequest"];
+            };
+        };
+        responses: {
+            /** @description The connection */
+            201: {
+                headers: {
+                    "X-Audit-Incomplete": components["headers"]["AuditIncomplete"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SSOConnection"];
+                };
+            };
+            400: components["responses"]["Error"];
+            401: components["responses"]["Error"];
+            403: components["responses"]["Error"];
+            404: components["responses"]["Error"];
+            409: components["responses"]["Error"];
+            503: components["responses"]["Error"];
+        };
+    };
+    updateSSOConnection: {
+        parameters: {
+            query?: never;
+            header: {
+                /** @description The signed-in user's Google ID token, forwarded by the frontend proxy (D68). Optional on every other endpoint. */
+                "X-User-Token": components["parameters"]["UserToken"];
+            };
+            path: {
+                id: string;
+                conn: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["SSOConnectionRequest"];
+            };
+        };
+        responses: {
+            /** @description The connection */
+            200: {
+                headers: {
+                    "X-Audit-Incomplete": components["headers"]["AuditIncomplete"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SSOConnection"];
+                };
+            };
+            400: components["responses"]["Error"];
+            401: components["responses"]["Error"];
+            403: components["responses"]["Error"];
+            404: components["responses"]["Error"];
+            409: components["responses"]["Error"];
+            503: components["responses"]["Error"];
+        };
+    };
+    deleteSSOConnection: {
+        parameters: {
+            query?: never;
+            header: {
+                /** @description The signed-in user's Google ID token, forwarded by the frontend proxy (D68). Optional on every other endpoint. */
+                "X-User-Token": components["parameters"]["UserToken"];
+            };
+            path: {
+                id: string;
+                conn: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Removed */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            401: components["responses"]["Error"];
+            403: components["responses"]["Error"];
+            404: components["responses"]["Error"];
+            503: components["responses"]["Error"];
+        };
+    };
+    verifySSOConnection: {
+        parameters: {
+            query?: never;
+            header: {
+                /** @description The signed-in user's Google ID token, forwarded by the frontend proxy (D68). Optional on every other endpoint. */
+                "X-User-Token": components["parameters"]["UserToken"];
+            };
+            path: {
+                id: string;
+                conn: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: {
+            content: {
+                "application/json": {
+                    enable?: boolean;
+                };
+            };
+        };
+        responses: {
+            /** @description The connection with the checks */
+            200: {
+                headers: {
+                    "X-Audit-Incomplete": components["headers"]["AuditIncomplete"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SSOConnection"];
+                };
+            };
+            401: components["responses"]["Error"];
+            403: components["responses"]["Error"];
+            404: components["responses"]["Error"];
+            503: components["responses"]["Error"];
         };
     };
 }

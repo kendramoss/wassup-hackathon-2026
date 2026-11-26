@@ -49,7 +49,7 @@ The work that stands between the prototype and a first paid pilot: identity, ten
 
 | Item | What it is | Why an enterprise needs it | Removes | Effort | Status |
 |---|---|---|---|---|---|
-| SSO with SAML and OIDC | Sign in through the customer's identity provider (Okta, Entra ID, Google Workspace) | Security teams require their own IdP, MFA and offboarding | Google sign-in is the only identity; "company sign-in would need work" (README) | M | planned |
+| SSO with SAML and OIDC | Sign in through the customer's identity provider (Okta, Entra ID, Google Workspace) | Security teams require their own IdP, MFA and offboarding | Google sign-in is the only identity; "company sign-in would need work" (README) | M | backend shipped behind `SSO` (off by default): OIDC and SAML connections per workspace with DNS-verified domains, just-in-time membership, enforced mode ([sso.md](design/sso.md), #868, D925). Remaining: the sign-in and callback pages and the admin screen (frontend), and `SSO_SESSION_KEY` / `SSO_SITE_URL` set by the owner |
 | SCIM provisioning | Users and groups created, changed and removed from the IdP, mapped to roles | Access ends when someone leaves, without a manual step | Membership is invite-by-email only (roles-and-strict-auth.md, section 2) | M | planned |
 | Multiple workspaces per user | A user in more than one workspace, with case moves between them | Business units and brokers work across teams | A user is in at most one workspace; case reassignment is not supported | M | planned |
 | Public API, versioned | A stable `/v1` contract with deprecation rules, SDK examples and webhooks for long jobs | ERP and PLM integrations need a contract that will not move | The API exists but carries no stability promise | M | planned |

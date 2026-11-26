@@ -126,6 +126,15 @@ var auditTable = map[string]auditRoute{
 	"GET /v1/review":                               {auditSingleOnly, audit.ReviewView},
 	"POST /v1/review/decision":                     {auditTwoPhase, audit.ReviewDecision},
 	"GET /health":                                  {auditNone, ""},
+	"POST /v1/sso/start":                           {auditNone, ""},
+	"POST /v1/sso/oidc/callback":                   {auditSingleOnly, audit.SSOLogin},
+	"POST /v1/sso/saml/acs":                        {auditSingleOnly, audit.SSOLogin},
+	"GET /v1/sso/saml/metadata":                    {auditNone, ""},
+	"GET /v1/workspaces/{id}/sso":                  {auditSingleOnly, audit.SSOConnectionList},
+	"POST /v1/workspaces/{id}/sso":                 {auditTwoPhase, audit.SSOConnectionCreate},
+	"PUT /v1/workspaces/{id}/sso/{conn}":           {auditTwoPhase, audit.SSOConnectionUpdate},
+	"POST /v1/workspaces/{id}/sso/{conn}/verify":   {auditTwoPhase, audit.SSOConnectionUpdate},
+	"DELETE /v1/workspaces/{id}/sso/{conn}":        {auditTwoPhase, audit.SSOConnectionDelete},
 }
 
 type auditCtxKey struct{}
