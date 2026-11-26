@@ -3286,6 +3286,243 @@ paths:
         "403": { $ref: "#/components/responses/Error" }
         "404": { $ref: "#/components/responses/Error" }
         "503": { $ref: "#/components/responses/Error" }
+  /v1/workspaces/{id}/scim:
+    get:
+      operationId: getSCIMToken
+      summary: The workspace's SCIM token status (SCIM=on, workspace admin)
+      description: Whether a token exists, its last four characters, the domains it manages, its default role and allow_admin, and the base URL and header an identity provider uses. Never the token itself.
+      parameters:
+        - { $ref: "#/components/parameters/UserToken" }
+        - { name: id, in: path, required: true, schema: { type: string } }
+      responses:
+        "200":
+          description: The status
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/SCIMTokenStatus" }
+        "401": { $ref: "#/components/responses/Error" }
+        "403": { $ref: "#/components/responses/Error" }
+        "404": { $ref: "#/components/responses/Error" }
+  /v1/workspaces/{id}/scim/token:
+    post:
+      operationId: issueSCIMToken
+      summary: Issue the workspace's SCIM token, replacing any previous one (SCIM=on, workspace admin)
+      description: "Every domain must be verified on one of the workspace's SSO connections (409 scim_unverified_domain). default_role is viewer or editor. allow_admin lets the token grant, change and remove the admin role; without it, admins are out of the token's reach. The token is in this answer only and is stored as a SHA-256 hash."
+      parameters:
+        - { $ref: "#/components/parameters/UserToken" }
+        - { name: id, in: path, required: true, schema: { type: string } }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [domains]
+              properties:
+                domains: { type: array, minItems: 1, maxItems: 20, items: { type: string } }
+                default_role: { type: string, enum: [viewer, editor], default: viewer }
+                allow_admin: { type: boolean, default: false }
+      responses:
+        "201":
+          headers:
+            X-Audit-Incomplete: { $ref: "#/components/headers/AuditIncomplete" }
+          description: The status, with the token shown once
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/SCIMTokenStatus" }
+        "400": { $ref: "#/components/responses/Error" }
+        "401": { $ref: "#/components/responses/Error" }
+        "403": { $ref: "#/components/responses/Error" }
+        "404": { $ref: "#/components/responses/Error" }
+        "409": { $ref: "#/components/responses/Error" }
+        "503": { $ref: "#/components/responses/Error" }
+    delete:
+      operationId: revokeSCIMToken
+      summary: Revoke the workspace's SCIM token (SCIM=on, workspace admin)
+      parameters:
+        - { $ref: "#/components/parameters/UserToken" }
+        - { name: id, in: path, required: true, schema: { type: string } }
+      responses:
+        "204":
+          headers:
+            X-Audit-Incomplete: { $ref: "#/components/headers/AuditIncomplete" }
+          description: Revoked (also when there was none)
+        "401": { $ref: "#/components/responses/Error" }
+        "403": { $ref: "#/components/responses/Error" }
+        "404": { $ref: "#/components/responses/Error" }
+        "503": { $ref: "#/components/responses/Error" }
+  /v1/scim/v2/ServiceProviderConfig:
+    get:
+      operationId: scimServiceProviderConfig
+      summary: SCIM service provider configuration (RFC 7643 5)
+      security: [{ SCIMToken: [] }]
+      responses:
+        "200": { description: The configuration, content: { application/scim+json: { schema: { type: object } } } }
+        "401": { $ref: "#/components/responses/SCIMError" }
+        "429": { $ref: "#/components/responses/SCIMError" }
+  /v1/scim/v2/ResourceTypes:
+    get:
+      operationId: scimResourceTypes
+      summary: SCIM resource types (User only)
+      security: [{ SCIMToken: [] }]
+      responses:
+        "200": { description: The resource types, content: { application/scim+json: { schema: { type: object } } } }
+        "401": { $ref: "#/components/responses/SCIMError" }
+        "429": { $ref: "#/components/responses/SCIMError" }
+  /v1/scim/v2/Schemas:
+    get:
+      operationId: scimSchemas
+      summary: SCIM schemas (the User attributes this server reads)
+      security: [{ SCIMToken: [] }]
+      responses:
+        "200": { description: The schemas, content: { application/scim+json: { schema: { type: object } } } }
+        "401": { $ref: "#/components/responses/SCIMError" }
+        "429": { $ref: "#/components/responses/SCIMError" }
+  /v1/scim/v2/Users:
+    get:
+      operationId: listSCIMUsers
+      summary: List the members the token manages (SCIM=on)
+      description: 'Only members of the token''s workspace on its domains. The one filter supported is userName eq "email" (400 invalidFilter otherwise). startIndex and count page the list; count is at most 100.'
+      security: [{ SCIMToken: [] }]
+      parameters:
+        - { name: filter, in: query, schema: { type: string } }
+        - { name: startIndex, in: query, schema: { type: integer, minimum: 1 } }
+        - { name: count, in: query, schema: { type: integer, minimum: 0, maximum: 100 } }
+      responses:
+        "200":
+          description: A ListResponse of Users
+          content:
+            application/scim+json:
+              schema: { $ref: "#/components/schemas/SCIMUserList" }
+        "400": { $ref: "#/components/responses/SCIMError" }
+        "401": { $ref: "#/components/responses/SCIMError" }
+        "429": { $ref: "#/components/responses/SCIMError" }
+    post:
+      operationId: createSCIMUser
+      summary: Add a member (SCIM=on)
+      description: "userName (or the primary email) must be on one of the token's domains (403 otherwise). The role is roles[0].value or the token's default; admin needs allow_admin (403). A member already: 409 uniqueness. Someone in another workspace: 409 that names nothing."
+      security: [{ SCIMToken: [] }]
+      requestBody:
+        required: true
+        content:
+          application/scim+json:
+            schema: { $ref: "#/components/schemas/SCIMUserInput" }
+      responses:
+        "201":
+          headers:
+            X-Audit-Incomplete: { $ref: "#/components/headers/AuditIncomplete" }
+          description: The new User
+          content:
+            application/scim+json:
+              schema: { $ref: "#/components/schemas/SCIMUser" }
+        "400": { $ref: "#/components/responses/SCIMError" }
+        "403": { $ref: "#/components/responses/SCIMError" }
+        "409": { $ref: "#/components/responses/SCIMError" }
+        "503": { $ref: "#/components/responses/Error" }
+        "401": { $ref: "#/components/responses/SCIMError" }
+        "429": { $ref: "#/components/responses/SCIMError" }
+  /v1/scim/v2/Users/{uid}:
+    get:
+      operationId: getSCIMUser
+      summary: One member the token manages (SCIM=on)
+      security: [{ SCIMToken: [] }]
+      parameters:
+        - { name: uid, in: path, required: true, schema: { type: string, pattern: "^u[0-9a-f]{24}$" } }
+      responses:
+        "200":
+          description: The User
+          content:
+            application/scim+json:
+              schema: { $ref: "#/components/schemas/SCIMUser" }
+        "404": { $ref: "#/components/responses/SCIMError" }
+        "401": { $ref: "#/components/responses/SCIMError" }
+        "429": { $ref: "#/components/responses/SCIMError" }
+    put:
+      operationId: replaceSCIMUser
+      summary: Set a member's role and active state (SCIM=on)
+      description: "active false removes the member from the workspace. userName cannot change (400 mutability). Changing an admin, or to admin, needs allow_admin (403); the last admin cannot be demoted (409)."
+      security: [{ SCIMToken: [] }]
+      parameters:
+        - { name: uid, in: path, required: true, schema: { type: string, pattern: "^u[0-9a-f]{24}$" } }
+      requestBody:
+        required: true
+        content:
+          application/scim+json:
+            schema: { $ref: "#/components/schemas/SCIMUserInput" }
+      responses:
+        "200":
+          headers:
+            X-Audit-Incomplete: { $ref: "#/components/headers/AuditIncomplete" }
+          description: The User (active false after a removal)
+          content:
+            application/scim+json:
+              schema: { $ref: "#/components/schemas/SCIMUser" }
+        "400": { $ref: "#/components/responses/SCIMError" }
+        "403": { $ref: "#/components/responses/SCIMError" }
+        "404": { $ref: "#/components/responses/SCIMError" }
+        "409": { $ref: "#/components/responses/SCIMError" }
+        "503": { $ref: "#/components/responses/Error" }
+        "401": { $ref: "#/components/responses/SCIMError" }
+        "429": { $ref: "#/components/responses/SCIMError" }
+    patch:
+      operationId: patchSCIMUser
+      summary: Change active or roles (SCIM=on)
+      description: 'PatchOp with replace or add on active or roles, by path or as a value object; Entra ID''s string booleans ("False") are accepted. active false removes the member. Other attributes: 400.'
+      security: [{ SCIMToken: [] }]
+      parameters:
+        - { name: uid, in: path, required: true, schema: { type: string, pattern: "^u[0-9a-f]{24}$" } }
+      requestBody:
+        required: true
+        content:
+          application/scim+json:
+            schema:
+              type: object
+              required: [Operations]
+              properties:
+                schemas: { type: array, items: { type: string } }
+                Operations:
+                  type: array
+                  maxItems: 10
+                  items:
+                    type: object
+                    required: [op]
+                    properties:
+                      op: { type: string }
+                      path: { type: string }
+                      value: {}
+      responses:
+        "200":
+          headers:
+            X-Audit-Incomplete: { $ref: "#/components/headers/AuditIncomplete" }
+          description: The User (active false after a removal)
+          content:
+            application/scim+json:
+              schema: { $ref: "#/components/schemas/SCIMUser" }
+        "400": { $ref: "#/components/responses/SCIMError" }
+        "403": { $ref: "#/components/responses/SCIMError" }
+        "404": { $ref: "#/components/responses/SCIMError" }
+        "409": { $ref: "#/components/responses/SCIMError" }
+        "503": { $ref: "#/components/responses/Error" }
+        "401": { $ref: "#/components/responses/SCIMError" }
+        "429": { $ref: "#/components/responses/SCIMError" }
+    delete:
+      operationId: deleteSCIMUser
+      summary: Remove a member (SCIM=on)
+      description: An admin needs allow_admin (403); the last admin cannot be removed (409).
+      security: [{ SCIMToken: [] }]
+      parameters:
+        - { name: uid, in: path, required: true, schema: { type: string, pattern: "^u[0-9a-f]{24}$" } }
+      responses:
+        "204":
+          headers:
+            X-Audit-Incomplete: { $ref: "#/components/headers/AuditIncomplete" }
+          description: Removed
+        "403": { $ref: "#/components/responses/SCIMError" }
+        "404": { $ref: "#/components/responses/SCIMError" }
+        "409": { $ref: "#/components/responses/SCIMError" }
+        "503": { $ref: "#/components/responses/Error" }
+        "401": { $ref: "#/components/responses/SCIMError" }
+        "429": { $ref: "#/components/responses/SCIMError" }
 components:
   securitySchemes:
     ApiKey:
@@ -3299,6 +3536,11 @@ components:
       in: header
       name: X-Review-Token
       description: A broker review link's token, `ubr_` plus the case id's 12 hex digits, `_` and 43 characters (256 random bits), made by the case owner with createBrokerReviewLink (D200). It opens one link's snapshot only. Stored as a SHA-256 hash and compared in constant time.
+    SCIMToken:
+      type: apiKey
+      in: header
+      name: X-SCIM-Token
+      description: "A workspace's SCIM token, `scim_` plus 43 characters, issued by a workspace admin with issueSCIMToken (SCIM=on). Stored as a SHA-256 hash. Outside the gateway, `Authorization: Bearer scim_...` is also accepted. Too many wrong tokens from one client: 429 with Retry-After."
     AdminToken:
       type: apiKey
       in: header
@@ -3364,6 +3606,11 @@ components:
       content:
         application/json:
           schema: { $ref: "#/components/schemas/Error" }
+    SCIMError:
+      description: A SCIM error (RFC 7644 3.12)
+      content:
+        application/scim+json:
+          schema: { $ref: "#/components/schemas/SCIMError" }
     TooManyRequests:
       description: |
         Refused by a limit (D137, docs/api/SECURITY.md). `code` says which: `rate_limited` (the route's rate class), `too_many_in_flight` (too many model-calling requests running at once), `client_budget_reached` (this client's share of the day's model budget is spent), `quota_exceeded` (the API key's daily request quota) or `auth_rate_limited` (too many invalid API keys from this client). `details.retry_after_s` repeats `Retry-After`.
@@ -3376,6 +3623,55 @@ components:
         application/json:
           schema: { $ref: "#/components/schemas/Error" }
   schemas:
+    SCIMTokenStatus:
+      type: object
+      required: [configured, domains, allow_admin, base_url, token_header]
+      properties:
+        configured: { type: boolean }
+        hint: { type: string, description: The token's last four characters }
+        domains: { type: array, items: { type: string } }
+        default_role: { type: string, enum: [viewer, editor] }
+        allow_admin: { type: boolean }
+        created_at: { type: string, format: date-time }
+        base_url: { type: string, description: The SCIM base URL to give the identity provider }
+        token_header: { type: string }
+        token: { type: string, description: Only in the answer that issues it }
+    SCIMUserInput:
+      type: object
+      properties:
+        schemas: { type: array, items: { type: string } }
+        userName: { type: string, description: The member's email }
+        active: { type: boolean }
+        emails: { type: array, items: { type: object, properties: { value: { type: string }, primary: { type: boolean }, type: { type: string } } } }
+        roles: { type: array, maxItems: 1, items: { type: object, properties: { value: { type: string, enum: [viewer, editor, admin] } } } }
+    SCIMUser:
+      type: object
+      required: [schemas, id, userName, active, emails, roles, meta]
+      properties:
+        schemas: { type: array, items: { type: string } }
+        id: { type: string }
+        userName: { type: string }
+        active: { type: boolean }
+        emails: { type: array, items: { type: object, properties: { value: { type: string }, primary: { type: boolean }, type: { type: string } } } }
+        roles: { type: array, items: { type: object, properties: { value: { type: string }, primary: { type: boolean } } } }
+        meta: { type: object, properties: { resourceType: { type: string }, location: { type: string } } }
+    SCIMUserList:
+      type: object
+      required: [schemas, totalResults, startIndex, itemsPerPage, Resources]
+      properties:
+        schemas: { type: array, items: { type: string } }
+        totalResults: { type: integer }
+        startIndex: { type: integer }
+        itemsPerPage: { type: integer }
+        Resources: { type: array, items: { $ref: "#/components/schemas/SCIMUser" } }
+    SCIMError:
+      type: object
+      required: [schemas, status, detail]
+      properties:
+        schemas: { type: array, items: { type: string } }
+        status: { type: string }
+        scimType: { type: string }
+        detail: { type: string }
     SSOConnectionRequest:
       type: object
       required: [protocol, domains]
@@ -3823,7 +4119,7 @@ components:
       properties:
         code:
           type: string
-          enum: [invalid_input, not_found, model_unavailable, model_bad_response, out_of_scope, internal, rate_limited, too_many_in_flight, client_budget_reached, auth_rate_limited, forbidden, budget_reached, unauthenticated, conflict, unauthorized, quota_exceeded, audit_unavailable, review_not_found, link_revoked, link_expired, workspace_budget_reached, sso_not_configured, sso_failed, sso_other_workspace, sso_unavailable, sso_unverified, sso_domain_taken, sso_limit]
+          enum: [invalid_input, not_found, model_unavailable, model_bad_response, out_of_scope, internal, rate_limited, too_many_in_flight, client_budget_reached, auth_rate_limited, forbidden, budget_reached, unauthenticated, conflict, unauthorized, quota_exceeded, audit_unavailable, review_not_found, link_revoked, link_expired, workspace_budget_reached, sso_not_configured, sso_failed, sso_other_workspace, sso_unavailable, sso_unverified, sso_domain_taken, sso_limit, scim_unverified_domain]
         message: { type: string }
         details: {}
     WorkspaceBudget:

@@ -157,6 +157,18 @@ var auditTable = map[string]auditRoute{
 	"POST /v1/workspaces/{id}/sso/{conn}/verify":   {auditTwoPhase, audit.SSOConnectionUpdate},
 	"DELETE /v1/workspaces/{id}/sso/{conn}":        {auditTwoPhase, audit.SSOConnectionDelete},
 	"GET /v1/status":                               {auditNone, ""},
+	"GET /v1/workspaces/{id}/scim":                 {auditDenyOnly, audit.SCIMTokenRead},
+	"POST /v1/workspaces/{id}/scim/token":          {auditTwoPhase, audit.SCIMTokenIssue},
+	"DELETE /v1/workspaces/{id}/scim/token":        {auditTwoPhase, audit.SCIMTokenRevoke},
+	"GET /v1/scim/v2/ServiceProviderConfig":        {auditDenyOnly, audit.SCIMUserRead},
+	"GET /v1/scim/v2/ResourceTypes":                {auditDenyOnly, audit.SCIMUserRead},
+	"GET /v1/scim/v2/Schemas":                      {auditDenyOnly, audit.SCIMUserRead},
+	"GET /v1/scim/v2/Users":                        {auditDenyOnly, audit.SCIMUserRead},
+	"POST /v1/scim/v2/Users":                       {auditTwoPhase, audit.SCIMUserCreate},
+	"GET /v1/scim/v2/Users/{uid}":                  {auditDenyOnly, audit.SCIMUserRead},
+	"PUT /v1/scim/v2/Users/{uid}":                  {auditTwoPhase, audit.SCIMUserUpdate},
+	"PATCH /v1/scim/v2/Users/{uid}":                {auditTwoPhase, audit.SCIMUserUpdate},
+	"DELETE /v1/scim/v2/Users/{uid}":               {auditTwoPhase, audit.SCIMUserDelete},
 }
 
 type auditCtxKey struct{}
@@ -175,6 +187,10 @@ type auditOp struct {
 
 	object string // a server-confirmed object ref for denials ("" none)
 	hidden bool   // a 404 that hid an existing case: a denial
+	// systemTenant is set once a SCIM token is verified (#869): the caller
+	// is the workspace's identity provider, recorded as the system actor in
+	// that workspace's tenant.
+	systemTenant string
 }
 
 func auditOpOf(ctx context.Context) *auditOp {
@@ -320,7 +336,11 @@ func (op *auditOp) deny(code int) {
 	a := op.a
 	p := a.principalOf(op.req)
 	kind, id := a.auditActor(p)
-	d := audit.Draft{Event: audit.Event{Tenant: a.requesterTenant(p), ActorKind: kind, Action: op.route.Action, Phase: audit.PhaseSingle,
+	tenant := a.requesterTenant(p)
+	if op.systemTenant != "" {
+		kind, id, tenant = audit.ActorSystem, "", op.systemTenant
+	}
+	d := audit.Draft{Event: audit.Event{Tenant: tenant, ActorKind: kind, Action: op.route.Action, Phase: audit.PhaseSingle,
 		Outcome: audit.Denied, Reason: reason, Object: op.denialObject(), Route: op.pattern}, ActorID: id, RequestRef: requestRef(op.req.Context())}
 	ctx, cancel := auditCtx(op.req.Context())
 	defer cancel()
@@ -428,6 +448,9 @@ type auditStep struct {
 func (a *api) auditDraft(op *auditOp, st auditStep, phase audit.Phase) audit.Draft {
 	p := a.principalOf(op.req)
 	kind, id := a.auditActor(p)
+	if op.systemTenant != "" {
+		kind, id = audit.ActorSystem, ""
+	}
 	act := st.Action
 	if act == "" {
 		act = op.route.Action
@@ -543,6 +566,14 @@ func auditReason(err error) audit.Reason {
 func auditHidden(r *http.Request) {
 	if op := auditOpOf(r.Context()); op != nil {
 		op.hidden = true
+	}
+}
+
+// auditAsSystem marks the request as made by the identity provider of
+// workspace wsID through its SCIM token (#869).
+func auditAsSystem(r *http.Request, wsID string) {
+	if op := auditOpOf(r.Context()); op != nil {
+		op.systemTenant = workspaceTenant(wsID)
 	}
 }
 

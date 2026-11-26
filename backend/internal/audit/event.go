@@ -73,6 +73,16 @@ const (
 	SSOConnectionDelete Action = "sso.connection_delete"
 	SSOConnectionList   Action = "sso.connection_list"
 	SSOLogin            Action = "sso.login"
+
+	// SCIM provisioning (#869). The token's object is the workspace; a user
+	// event's object is the workspace and its target the member.
+	SCIMTokenIssue  Action = "scim.token_issue"
+	SCIMTokenRevoke Action = "scim.token_revoke"
+	SCIMTokenRead   Action = "scim.token_read"
+	SCIMUserCreate  Action = "scim.user_create"
+	SCIMUserUpdate  Action = "scim.user_update"
+	SCIMUserDelete  Action = "scim.user_delete"
+	SCIMUserRead    Action = "scim.user_read"
 	// Broker workflow (BROKER_WORKFLOW). The object is always the case; no
 	// comment, reason or letter text reaches the trail.
 	QueueChange      Action = "queue.change"
@@ -127,6 +137,15 @@ var actionSpecs = map[Action]actionSpec{
 	SSOConnectionDelete: {sensitive: true},
 	SSOConnectionList:   {},
 	SSOLogin:            {details: []string{"", "provisioned"}},
+	// The identity provider changes who is in a workspace: it fails closed,
+	// like an invitation, a role change or a removal by an admin.
+	SCIMTokenIssue:  {sensitive: true},
+	SCIMTokenRevoke: {sensitive: true},
+	SCIMTokenRead:   {},
+	SCIMUserCreate:  {details: []string{"viewer", "editor", "admin"}, sensitive: true},
+	SCIMUserUpdate:  {details: []string{"viewer", "editor", "admin"}, sensitive: true},
+	SCIMUserDelete:  {details: []string{"", "deactivate"}, sensitive: true},
+	SCIMUserRead:    {},
 	// A comment, a sign-off or a per-case role changes only the case's own
 	// discussion; preparing a package stays inside the system and a download
 	// goes to someone who can already read the case. None fails closed.
