@@ -1,0 +1,886 @@
+{
+ "ca_statuses": {
+  "ca:decided": 29,
+  "ca:undetermined": 75
+ },
+ "canada": {
+  "n": 104,
+  "decided": 29,
+  "agree": 26,
+  "disagree": 3,
+  "undetermined": 75,
+  "out_of_scope": 0
+ },
+ "cases": [
+  {
+   "ruling": "H322922",
+   "split": "dev",
+   "gold": "Japan",
+   "us_status": "undetermined",
+   "ca_status": "undetermined",
+   "ca_rule": "SOR/94-23 Sch. III, 3901-3915"
+  },
+  {
+   "ruling": "H333407",
+   "split": "dev",
+   "gold": "Canada",
+   "us_status": "undetermined",
+   "ca_status": "undetermined",
+   "ca_rule": "SOR/94-23 Sch. III, 8421.11-8421.39"
+  },
+  {
+   "ruling": "H333699",
+   "split": "dev",
+   "gold": "Mexico",
+   "us_status": "undetermined",
+   "ca_status": "undetermined"
+  },
+  {
+   "ruling": "H334088",
+   "split": "dev",
+   "gold": "Canada",
+   "us_status": "out_of_scope",
+   "ca_status": "undetermined"
+  },
+  {
+   "ruling": "H335912",
+   "split": "dev",
+   "gold": "Canada",
+   "us_status": "out_of_scope",
+   "ca_status": "decided",
+   "ca_origin": "Canada",
+   "ca_rule": "SOR/94-23 Sch. III, 2005.20-2005.99"
+  },
+  {
+   "ruling": "H339179",
+   "split": "dev",
+   "gold": "China",
+   "us_status": "undetermined",
+   "ca_status": "decided",
+   "ca_origin": "Mexico",
+   "ca_rule": "SOR/94-23 Sch. III, 8409.10-8409.99"
+  },
+  {
+   "ruling": "H340588",
+   "split": "dev",
+   "gold": "Australia",
+   "us_status": "out_of_scope",
+   "ca_status": "undetermined",
+   "ca_rule": "SOR/94-23 Sch. III, 7501-7504"
+  },
+  {
+   "ruling": "H341021",
+   "split": "dev",
+   "gold": "China",
+   "us_status": "undetermined",
+   "ca_status": "decided",
+   "ca_origin": "Canada",
+   "ca_rule": "SOR/94-23 Sch. III, 8710-8713"
+  },
+  {
+   "ruling": "H341208",
+   "split": "dev",
+   "gold": "Canada",
+   "us_status": "decided",
+   "us_origin": "Canada",
+   "ca_status": "decided",
+   "ca_origin": "Canada",
+   "ca_rule": "SOR/94-23 Sch. III, 3922-3926"
+  },
+  {
+   "ruling": "H341684",
+   "split": "dev",
+   "gold": "Mexico",
+   "us_status": "undetermined",
+   "ca_status": "decided",
+   "ca_origin": "Mexico",
+   "ca_rule": "SOR/94-23 Sch. III, 8701-8707"
+  },
+  {
+   "ruling": "H341787",
+   "split": "dev",
+   "gold": "Canada",
+   "us_status": "out_of_scope",
+   "ca_status": "undetermined"
+  },
+  {
+   "ruling": "H342474",
+   "split": "dev",
+   "gold": "China",
+   "us_status": "undetermined",
+   "ca_status": "undetermined",
+   "ca_rule": "SOR/94-23 Sch. III, 8528.41-8529.90"
+  },
+  {
+   "ruling": "H345343",
+   "split": "dev",
+   "gold": "United States",
+   "us_status": "undetermined",
+   "ca_status": "undetermined",
+   "ca_rule": "SOR/94-23 Sch. III, 9401.10-9401.80"
+  },
+  {
+   "ruling": "H349670",
+   "split": "dev",
+   "gold": "United States",
+   "us_status": "undetermined",
+   "ca_status": "undetermined"
+  },
+  {
+   "ruling": "H350291",
+   "split": "final",
+   "gold": "Mexico",
+   "us_status": "undetermined",
+   "ca_status": "undetermined"
+  },
+  {
+   "ruling": "H351116",
+   "split": "final",
+   "gold": "United States",
+   "us_status": "undetermined",
+   "ca_status": "undetermined",
+   "ca_rule": "SOR/94-23 Sch. III, 4001.10-4012.90"
+  },
+  {
+   "ruling": "H355020",
+   "split": "final",
+   "gold": "Canada",
+   "us_status": "decided",
+   "us_origin": "Canada",
+   "ca_status": "decided",
+   "ca_origin": "Canada",
+   "ca_rule": "SOR/94-23 Sch. III, 3922-3926"
+  },
+  {
+   "ruling": "H356468",
+   "split": "final",
+   "gold": "Mexico",
+   "us_status": "undetermined",
+   "ca_status": "undetermined"
+  },
+  {
+   "ruling": "N337260",
+   "split": "dev",
+   "gold": "Mexico",
+   "us_status": "undetermined",
+   "ca_status": "decided",
+   "ca_origin": "Mexico",
+   "ca_rule": "SOR/94-23 Sch. III, 8469.00-8473.50"
+  },
+  {
+   "ruling": "N337479",
+   "split": "dev",
+   "gold": "India",
+   "us_status": "undetermined",
+   "ca_status": "undetermined",
+   "ca_rule": "SOR/94-23 Sch. III, 8302.10-8311.90"
+  },
+  {
+   "ruling": "N337651",
+   "split": "dev",
+   "gold": "China",
+   "us_status": "undetermined",
+   "ca_status": "undetermined",
+   "ca_rule": "SOR/94-23 Sch. III, 7606-7615"
+  },
+  {
+   "ruling": "N337715",
+   "split": "dev",
+   "gold": "Canada",
+   "us_status": "out_of_scope",
+   "ca_status": "undetermined",
+   "ca_rule": "SOR/94-23 Sch. III, 2208.30-2208.70"
+  },
+  {
+   "ruling": "N337938",
+   "split": "dev",
+   "gold": "Canada",
+   "us_status": "undetermined",
+   "ca_status": "undetermined",
+   "ca_rule": "SOR/94-23 Sch. III, 2106.90"
+  },
+  {
+   "ruling": "N338004",
+   "split": "dev",
+   "gold": "Canada",
+   "us_status": "out_of_scope",
+   "ca_status": "undetermined",
+   "ca_rule": "SOR/94-23 Sch. III, 1904.10"
+  },
+  {
+   "ruling": "N338219",
+   "split": "dev",
+   "gold": "Mexico",
+   "us_status": "undetermined",
+   "ca_status": "decided",
+   "ca_origin": "Mexico",
+   "ca_rule": "SOR/94-23 Sch. III, 8708.10-8708.99"
+  },
+  {
+   "ruling": "N338249",
+   "split": "dev",
+   "gold": "Mexico",
+   "us_status": "undetermined",
+   "ca_status": "decided",
+   "ca_origin": "Mexico",
+   "ca_rule": "SOR/94-23 Sch. III, 8708.10-8708.99"
+  },
+  {
+   "ruling": "N338270",
+   "split": "dev",
+   "gold": "Mexico",
+   "us_status": "undetermined",
+   "ca_status": "undetermined",
+   "ca_rule": "SOR/94-23 Sch. III, 8540.11-8542.90"
+  },
+  {
+   "ruling": "N338502",
+   "split": "dev",
+   "gold": "Mexico",
+   "us_status": "undetermined",
+   "ca_status": "undetermined",
+   "ca_rule": "SOR/94-23 Sch. III, 3916.10-3921.90"
+  },
+  {
+   "ruling": "N339353",
+   "split": "dev",
+   "gold": "Canada",
+   "us_status": "out_of_scope",
+   "ca_status": "undetermined",
+   "ca_rule": "SOR/94-23 Sch. III, 1601-1605"
+  },
+  {
+   "ruling": "N339851",
+   "split": "dev",
+   "gold": "Canada",
+   "us_status": "undetermined",
+   "ca_status": "undetermined",
+   "ca_rule": "SOR/94-23 Sch. III, 4412"
+  },
+  {
+   "ruling": "N339969",
+   "split": "dev",
+   "gold": "Canada",
+   "us_status": "undetermined",
+   "ca_status": "undetermined",
+   "ca_rule": "SOR/94-23 Sch. III, 7606-7615"
+  },
+  {
+   "ruling": "N340017",
+   "split": "dev",
+   "gold": "China",
+   "us_status": "undetermined",
+   "ca_status": "undetermined",
+   "ca_rule": "SOR/94-23 Sch. III, 8483.90"
+  },
+  {
+   "ruling": "N340075",
+   "split": "dev",
+   "gold": "India",
+   "us_status": "undetermined",
+   "ca_status": "undetermined",
+   "ca_rule": "SOR/94-23 Sch. III, 8302.10-8311.90"
+  },
+  {
+   "ruling": "N341003",
+   "split": "dev",
+   "gold": "Canada",
+   "us_status": "undetermined",
+   "ca_status": "undetermined",
+   "ca_rule": "SOR/94-23 Sch. III, 7325-7326"
+  },
+  {
+   "ruling": "N341152",
+   "split": "dev",
+   "gold": "Mexico",
+   "us_status": "decided",
+   "us_origin": "Mexico",
+   "ca_status": "decided",
+   "ca_origin": "Mexico",
+   "ca_rule": "SOR/94-23 Sch. III, 3922-3926"
+  },
+  {
+   "ruling": "N341165",
+   "split": "dev",
+   "gold": "Canada",
+   "us_status": "out_of_scope",
+   "ca_status": "undetermined",
+   "ca_rule": "SOR/94-23 Sch. III, 3201.10-3215.90"
+  },
+  {
+   "ruling": "N342447",
+   "split": "dev",
+   "gold": "Canada",
+   "us_status": "undetermined",
+   "ca_status": "undetermined",
+   "ca_rule": "SOR/94-23 Sch. III, 7606-7615"
+  },
+  {
+   "ruling": "N342477",
+   "split": "dev",
+   "gold": "Canada",
+   "us_status": "undetermined",
+   "ca_status": "undetermined",
+   "ca_rule": "SOR/94-23 Sch. III, 4810.13-4811.90"
+  },
+  {
+   "ruling": "N342959",
+   "split": "dev",
+   "gold": "Germany",
+   "us_status": "undetermined",
+   "ca_status": "undetermined",
+   "ca_rule": "SOR/94-23 Sch. III, 8469.00-8473.50"
+  },
+  {
+   "ruling": "N343290",
+   "split": "dev",
+   "gold": "Mexico",
+   "us_status": "undetermined",
+   "ca_status": "decided",
+   "ca_origin": "Mexico",
+   "ca_rule": "SOR/94-23 Sch. III, 8708.10-8708.99"
+  },
+  {
+   "ruling": "N343418",
+   "split": "dev",
+   "gold": "Mexico",
+   "us_status": "undetermined",
+   "ca_status": "undetermined",
+   "ca_rule": "SOR/94-23 Sch. III, 7305-7314"
+  },
+  {
+   "ruling": "N343690",
+   "split": "dev",
+   "gold": "Brazil",
+   "us_status": "out_of_scope",
+   "ca_status": "undetermined",
+   "ca_rule": "SOR/94-23 Sch. III, 7216"
+  },
+  {
+   "ruling": "N343893",
+   "split": "dev",
+   "gold": "Mexico",
+   "us_status": "undetermined",
+   "ca_status": "undetermined",
+   "ca_rule": "SOR/94-23 Sch. III, 8708.10-8708.99"
+  },
+  {
+   "ruling": "N344002",
+   "split": "dev",
+   "gold": "Mexico",
+   "us_status": "decided",
+   "us_origin": "Mexico",
+   "ca_status": "decided",
+   "ca_origin": "Mexico",
+   "ca_rule": "SOR/94-23 Sch. III, 8414.10-8414.80"
+  },
+  {
+   "ruling": "N344091",
+   "split": "dev",
+   "gold": "Mexico",
+   "us_status": "decided",
+   "us_origin": "Mexico",
+   "ca_status": "decided",
+   "ca_origin": "Mexico",
+   "ca_rule": "SOR/94-23 Sch. III, 8507.90"
+  },
+  {
+   "ruling": "N345167",
+   "split": "dev",
+   "gold": "Canada",
+   "us_status": "out_of_scope",
+   "ca_status": "undetermined",
+   "ca_rule": "SOR/94-23 Sch. III, 1905"
+  },
+  {
+   "ruling": "N345246",
+   "split": "dev",
+   "gold": "China",
+   "us_status": "undetermined",
+   "ca_status": "undetermined",
+   "ca_rule": "SOR/94-23 Sch. III, 9401.10-9401.80"
+  },
+  {
+   "ruling": "N347004",
+   "split": "dev",
+   "gold": "Canada",
+   "us_status": "out_of_scope",
+   "ca_status": "undetermined",
+   "ca_rule": "SOR/94-23 Sch. III, 0501.00-0511.99"
+  },
+  {
+   "ruling": "N347157",
+   "split": "dev",
+   "gold": "United States",
+   "us_status": "out_of_scope",
+   "ca_status": "undetermined",
+   "ca_rule": "SOR/94-23 Sch. III, 0406"
+  },
+  {
+   "ruling": "N347253",
+   "split": "dev",
+   "gold": "Canada",
+   "us_status": "undetermined",
+   "ca_status": "undetermined",
+   "ca_rule": "SOR/94-23 Sch. III, 8714.10-8715.00"
+  },
+  {
+   "ruling": "N347305",
+   "split": "dev",
+   "gold": "Canada",
+   "us_status": "out_of_scope",
+   "ca_status": "undetermined"
+  },
+  {
+   "ruling": "N348465",
+   "split": "dev",
+   "gold": "China",
+   "us_status": "undetermined",
+   "ca_status": "undetermined",
+   "ca_rule": "SOR/94-23 Sch. III, 8501-8503"
+  },
+  {
+   "ruling": "N349660",
+   "split": "dev",
+   "gold": "Mexico",
+   "us_status": "undetermined",
+   "ca_status": "undetermined",
+   "ca_rule": "SOR/94-23 Sch. III, 8708.10-8708.99"
+  },
+  {
+   "ruling": "N349989",
+   "split": "dev",
+   "gold": "Mexico",
+   "us_status": "undetermined",
+   "ca_status": "decided",
+   "ca_origin": "Mexico",
+   "ca_rule": "SOR/94-23 Sch. III, 8544.11-8547.90"
+  },
+  {
+   "ruling": "N350133",
+   "split": "dev",
+   "gold": "Mexico",
+   "us_status": "undetermined",
+   "ca_status": "undetermined",
+   "ca_rule": "SOR/94-23 Sch. III, 8433.11-8433.60"
+  },
+  {
+   "ruling": "N351308",
+   "split": "dev",
+   "gold": "Mexico",
+   "us_status": "undetermined",
+   "ca_status": "undetermined",
+   "ca_rule": "SOR/94-23 Sch. III, 8708.10-8708.99"
+  },
+  {
+   "ruling": "N351636",
+   "split": "dev",
+   "gold": "Mexico",
+   "us_status": "out_of_scope",
+   "ca_status": "decided",
+   "ca_origin": "Mexico",
+   "ca_rule": "SOR/94-23 Sch. III, 1806.10-1806.90"
+  },
+  {
+   "ruling": "N351725",
+   "split": "dev",
+   "gold": "Canada",
+   "us_status": "undetermined",
+   "ca_status": "undetermined",
+   "ca_rule": "SOR/94-23 Sch. III, 3916.10-3921.90"
+  },
+  {
+   "ruling": "N351895",
+   "split": "dev",
+   "gold": "Canada",
+   "us_status": "decided",
+   "us_origin": "Canada",
+   "ca_status": "decided",
+   "ca_origin": "Canada",
+   "ca_rule": "SOR/94-23 Sch. III, 1501-1515"
+  },
+  {
+   "ruling": "N352059",
+   "split": "dev",
+   "gold": "Mexico",
+   "us_status": "decided",
+   "us_origin": "Mexico",
+   "ca_status": "decided",
+   "ca_origin": "Mexico",
+   "ca_rule": "SOR/94-23 Sch. III, 4812-4822"
+  },
+  {
+   "ruling": "N352250",
+   "split": "dev",
+   "gold": "China",
+   "us_status": "undetermined",
+   "ca_status": "undetermined",
+   "ca_rule": "SOR/94-23 Sch. III, 3916.10-3921.90"
+  },
+  {
+   "ruling": "N352583",
+   "split": "dev",
+   "gold": "Canada",
+   "us_status": "decided",
+   "us_origin": "Canada",
+   "ca_status": "decided",
+   "ca_origin": "Canada",
+   "ca_rule": "SOR/94-23 Sch. III, 1501-1515"
+  },
+  {
+   "ruling": "N352763",
+   "split": "dev",
+   "gold": "Mexico",
+   "us_status": "undetermined",
+   "ca_status": "undetermined"
+  },
+  {
+   "ruling": "N352810",
+   "split": "dev",
+   "gold": "Canada",
+   "us_status": "undetermined",
+   "ca_status": "undetermined",
+   "ca_rule": "SOR/94-23 Sch. III, 3922-3926"
+  },
+  {
+   "ruling": "N352844",
+   "split": "dev",
+   "gold": "Mexico",
+   "us_status": "out_of_scope",
+   "ca_status": "decided",
+   "ca_origin": "Mexico",
+   "ca_rule": "SOR/94-23 Sch. III, 1301.20-1302.39"
+  },
+  {
+   "ruling": "N352871",
+   "split": "dev",
+   "gold": "Mexico",
+   "us_status": "undetermined",
+   "ca_status": "undetermined",
+   "ca_rule": "SOR/94-23 Sch. III, 7113.11-7115.90"
+  },
+  {
+   "ruling": "N353285",
+   "split": "dev",
+   "gold": "Mexico",
+   "us_status": "decided",
+   "us_origin": "Mexico",
+   "ca_status": "decided",
+   "ca_origin": "Mexico",
+   "ca_rule": "SOR/94-23 Sch. III, 3922-3926"
+  },
+  {
+   "ruling": "N354024",
+   "split": "dev",
+   "gold": "Mexico",
+   "us_status": "undetermined",
+   "ca_status": "undetermined",
+   "ca_rule": "SOR/94-23 Sch. III, 8433.11-8433.60"
+  },
+  {
+   "ruling": "N354470",
+   "split": "dev",
+   "gold": "China",
+   "us_status": "undetermined",
+   "ca_status": "undetermined",
+   "ca_rule": "SOR/94-23 Sch. III, 8421.11-8421.39"
+  },
+  {
+   "ruling": "N354641",
+   "split": "dev",
+   "gold": "Taiwan",
+   "us_status": "undetermined",
+   "ca_status": "undetermined",
+   "ca_rule": "SOR/94-23 Sch. III, 4001.10-4012.90"
+  },
+  {
+   "ruling": "N354812",
+   "split": "dev",
+   "gold": "Mexico",
+   "us_status": "undetermined",
+   "ca_status": "undetermined",
+   "ca_rule": "SOR/94-23 Sch. III, 4413-4417"
+  },
+  {
+   "ruling": "N355127",
+   "split": "dev",
+   "gold": "Mexico",
+   "us_status": "undetermined",
+   "ca_status": "undetermined",
+   "ca_rule": "SOR/94-23 Sch. III, 7111-7112"
+  },
+  {
+   "ruling": "N355835",
+   "split": "dev",
+   "gold": "Canada",
+   "us_status": "undetermined",
+   "ca_status": "undetermined"
+  },
+  {
+   "ruling": "N356280",
+   "split": "dev",
+   "gold": "Mexico",
+   "us_status": "undetermined",
+   "ca_status": "undetermined",
+   "ca_rule": "SOR/94-23 Sch. III, 8414.10-8414.80"
+  },
+  {
+   "ruling": "N356375",
+   "split": "dev",
+   "gold": "China",
+   "us_status": "undetermined",
+   "ca_status": "decided",
+   "ca_origin": "Mexico",
+   "ca_rule": "SOR/94-23 Sch. III, 9503.00-9505.90"
+  },
+  {
+   "ruling": "N356696",
+   "split": "dev",
+   "gold": "Mexico",
+   "us_status": "undetermined",
+   "ca_status": "undetermined",
+   "ca_rule": "SOR/94-23 Sch. III, 9018.11-9022.90"
+  },
+  {
+   "ruling": "N356876",
+   "split": "final",
+   "gold": "Canada",
+   "us_status": "undetermined",
+   "ca_status": "undetermined",
+   "ca_rule": "SOR/94-23 Sch. III, 7101.10-7105.90"
+  },
+  {
+   "ruling": "N357063",
+   "split": "final",
+   "gold": "Canada",
+   "us_status": "undetermined",
+   "ca_status": "undetermined",
+   "ca_rule": "SOR/94-23 Sch. III, 3922-3926"
+  },
+  {
+   "ruling": "N357770",
+   "split": "final",
+   "gold": "Canada",
+   "us_status": "undetermined",
+   "ca_status": "undetermined",
+   "ca_rule": "SOR/94-23 Sch. III, 9503.00-9505.90"
+  },
+  {
+   "ruling": "N357927",
+   "split": "final",
+   "gold": "Canada",
+   "us_status": "undetermined",
+   "ca_status": "undetermined",
+   "ca_rule": "SOR/94-23 Sch. III, 8714.10-8715.00"
+  },
+  {
+   "ruling": "N357951",
+   "split": "final",
+   "gold": "Canada",
+   "us_status": "undetermined",
+   "ca_status": "undetermined",
+   "ca_rule": "SOR/94-23 Sch. III, 9403.10-9403.89"
+  },
+  {
+   "ruling": "N358639",
+   "split": "final",
+   "gold": "South Korea",
+   "us_status": "undetermined",
+   "ca_status": "undetermined",
+   "ca_rule": "SOR/94-23 Sch. III, 8708.10-8708.99"
+  },
+  {
+   "ruling": "N359001",
+   "split": "final",
+   "gold": "Canada",
+   "us_status": "undetermined",
+   "ca_status": "undetermined",
+   "ca_rule": "SOR/94-23 Sch. III, 8421.11-8421.39"
+  },
+  {
+   "ruling": "N359145",
+   "split": "final",
+   "gold": "Canada",
+   "us_status": "undetermined",
+   "ca_status": "undetermined",
+   "ca_rule": "SOR/94-23 Sch. III, 9403.10-9403.89"
+  },
+  {
+   "ruling": "N359569",
+   "split": "final",
+   "gold": "Canada",
+   "us_status": "out_of_scope",
+   "ca_status": "undetermined"
+  },
+  {
+   "ruling": "N359690",
+   "split": "final",
+   "gold": "Canada",
+   "us_status": "undetermined",
+   "ca_status": "undetermined",
+   "ca_rule": "SOR/94-23 Sch. III, 8415.10-8415.83"
+  },
+  {
+   "ruling": "N359933",
+   "split": "final",
+   "gold": "Canada",
+   "us_status": "out_of_scope",
+   "ca_status": "undetermined",
+   "ca_rule": "SOR/94-23 Sch. III, 3809.10-3823.70"
+  },
+  {
+   "ruling": "N360891",
+   "split": "final",
+   "gold": "Canada",
+   "us_status": "decided",
+   "us_origin": "Canada",
+   "ca_status": "decided",
+   "ca_origin": "Canada",
+   "ca_rule": "SOR/94-23 Sch. III, 8708.10-8708.99"
+  },
+  {
+   "ruling": "N361217",
+   "split": "final",
+   "gold": "United Kingdom",
+   "us_status": "undetermined",
+   "ca_status": "undetermined",
+   "ca_rule": "SOR/94-23 Sch. III, 1501-1515"
+  },
+  {
+   "ruling": "N361490",
+   "split": "final",
+   "gold": "Canada",
+   "us_status": "undetermined",
+   "ca_status": "undetermined",
+   "ca_rule": "SOR/94-23 Sch. III, 9507.90"
+  },
+  {
+   "ruling": "N361684",
+   "split": "final",
+   "gold": "United States",
+   "us_status": "undetermined",
+   "ca_status": "undetermined"
+  },
+  {
+   "ruling": "N362083",
+   "split": "final",
+   "gold": "Canada",
+   "us_status": "out_of_scope",
+   "ca_status": "decided",
+   "ca_origin": "Canada",
+   "ca_rule": "SOR/94-23 Sch. III, 3101.00-3105.90"
+  },
+  {
+   "ruling": "N362347",
+   "split": "final",
+   "gold": "Canada",
+   "us_status": "undetermined",
+   "ca_status": "undetermined",
+   "ca_rule": "SOR/94-23 Sch. III, 4412"
+  },
+  {
+   "ruling": "N362414",
+   "split": "final",
+   "gold": "Canada",
+   "us_status": "undetermined",
+   "ca_status": "undetermined",
+   "ca_rule": "SOR/94-23 Sch. III, 8414.10-8414.80"
+  },
+  {
+   "ruling": "N362506",
+   "split": "final",
+   "gold": "Mexico",
+   "us_status": "decided",
+   "us_origin": "Mexico",
+   "ca_status": "decided",
+   "ca_origin": "Mexico",
+   "ca_rule": "SOR/94-23 Sch. III, 8507.10-8507.80"
+  },
+  {
+   "ruling": "N362599",
+   "split": "final",
+   "gold": "Mexico",
+   "us_status": "out_of_scope",
+   "ca_status": "decided",
+   "ca_origin": "Mexico",
+   "ca_rule": "SOR/94-23 Sch. III, 4201-4206"
+  },
+  {
+   "ruling": "N363092",
+   "split": "final",
+   "gold": "Mexico",
+   "us_status": "out_of_scope",
+   "ca_status": "decided",
+   "ca_origin": "Mexico",
+   "ca_rule": "SOR/94-23 Sch. III, 3503.00-3507.90"
+  },
+  {
+   "ruling": "N363347",
+   "split": "final",
+   "gold": "Canada",
+   "us_status": "undetermined",
+   "ca_status": "decided",
+   "ca_origin": "Canada",
+   "ca_rule": "SOR/94-23 Sch. III, 8479.10-8479.89"
+  },
+  {
+   "ruling": "N363381",
+   "split": "final",
+   "gold": "Canada",
+   "us_status": "out_of_scope",
+   "ca_status": "undetermined",
+   "ca_rule": "SOR/94-23 Sch. III, 9601-9605"
+  },
+  {
+   "ruling": "N363600",
+   "split": "final",
+   "gold": "Canada",
+   "us_status": "undetermined",
+   "ca_status": "undetermined"
+  },
+  {
+   "ruling": "N364188",
+   "split": "final",
+   "gold": "China",
+   "us_status": "out_of_scope",
+   "ca_status": "undetermined",
+   "ca_rule": "SOR/94-23 Sch. III, 3201.10-3215.90"
+  },
+  {
+   "ruling": "N364328",
+   "split": "final",
+   "gold": "Mexico",
+   "us_status": "undetermined",
+   "ca_status": "undetermined",
+   "ca_rule": "SOR/94-23 Sch. III, 7322-7323"
+  },
+  {
+   "ruling": "N364405",
+   "split": "final",
+   "gold": "Mexico",
+   "us_status": "decided",
+   "us_origin": "Mexico",
+   "ca_status": "decided",
+   "ca_origin": "Mexico",
+   "ca_rule": "SOR/94-23 Sch. III, 8302.10-8311.90"
+  },
+  {
+   "ruling": "N364586",
+   "split": "final",
+   "gold": "Canada",
+   "us_status": "undetermined",
+   "ca_status": "decided",
+   "ca_origin": "Canada",
+   "ca_rule": "SOR/94-23 Sch. III, 3922-3926"
+  }
+ ],
+ "note": "Canada's SOR/94-23 Schedule III table and the U.S. 19 CFR 102.20 table, each applied to the same inputs read from CBP Part 102 rulings (eval/tariffshift/inputs-*-full_text.jsonl, extracted once per D360/D361). Gold is CBP's holding. The rulings decide U.S. marking of goods processed in Canada or Mexico; Canada's table is applied to the same facts as a rule-text test, not as a Canadian ruling. No model call. Recompute: cd backend \u0026\u0026 go run ./cmd/marketeval canada -check",
+ "us_102_20": {
+  "n": 104,
+  "decided": 12,
+  "agree": 12,
+  "disagree": 0,
+  "undetermined": 70,
+  "out_of_scope": 22
+ }
+}
