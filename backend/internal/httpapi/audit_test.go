@@ -15,9 +15,11 @@ import (
 
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/audit"
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/retention"
+	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/scim"
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/sso"
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/sso/ssotest"
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/store"
+	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/teams"
 )
 
 // Audit trail (#284) through the real handler over memory stores. Expectations
@@ -91,6 +93,7 @@ type auditEnv struct {
 	fault *faultStore
 	clk   *auditClock
 	sso   *sso.MemoryStore
+	scim  *scim.Memory
 	ret   *retention.Memory
 }
 
@@ -102,7 +105,7 @@ func newAuditEnvWith(t *testing.T, ownership bool, adjust ...func(*Deps)) *audit
 	if err != nil {
 		t.Fatal(err)
 	}
-	ae := &auditEnv{fault: &faultStore{Store: audit.NewMemory()}, clk: &auditClock{t: time.Date(2026, 11, 20, 10, 0, 0, 0, time.UTC)}, sso: sso.NewMemoryStore()}
+	ae := &auditEnv{fault: &faultStore{Store: audit.NewMemory()}, clk: &auditClock{t: time.Date(2026, 11, 20, 10, 0, 0, 0, time.UTC)}, sso: sso.NewMemoryStore(), scim: scim.NewMemory()}
 	ae.svc = audit.NewService(ae.fault, ps, audit.Options{Now: ae.clk.now})
 	withSSO := func(d *Deps) {
 		keys, err := sso.NewKeys([]byte(strings.Repeat("a", 32)))
@@ -113,7 +116,7 @@ func newAuditEnvWith(t *testing.T, ownership bool, adjust ...func(*Deps)) *audit
 		if err != nil {
 			t.Fatal(err)
 		}
-		d.SSO = svc
+		d.SSO, d.SCIM = svc, ae.scim
 	}
 	ae.ret = retention.NewMemory()
 	ae.roleEnv = newRoleEnv(t, ownership, append([]func(*Deps){func(d *Deps) { d.Audit = ae.svc; d.Retention = ae.ret; d.AuditExport = true }, withSSO}, adjust...)...)
@@ -568,6 +571,29 @@ func (e *auditEnv) sensitiveCases(t *testing.T) map[audit.Action]struct {
 		}
 		conns[name] = c.ID
 	}
+	// SCIM: a verified domain on fid, two provisioned members and a token
+	// that every SCIM row puts back first (the token rows replace it).
+	{
+		c := sso.Connection{ID: sso.NewConnectionID(), Workspace: fid, Protocol: sso.ProtocolOIDC, Domains: []string{"scim.example.org"},
+			OIDCIssuer: "https://idp.example.org", OIDCClientID: "c", DefaultRole: "viewer", VerifyToken: sso.NewVerifyToken(),
+			Verified: map[string]time.Time{"scim.example.org": time.Now()}}
+		if err := e.sso.Put(context.Background(), c); err != nil {
+			t.Fatal(err)
+		}
+		for _, u := range []string{"u1@scim.example.org", "u2@scim.example.org"} {
+			if _, err := e.ws.Provision(context.Background(), fid, u, teams.RoleViewer); err != nil {
+				t.Fatal(err)
+			}
+		}
+	}
+	scimSecret, scimHash := scim.NewSecret()
+	scimTok := scim.Token{Workspace: fid, Hash: scimHash, Domains: []string{"scim.example.org"}, DefaultRole: "viewer"}
+	scimRun := func(method, path, body string) (int, map[string]any) {
+		_ = e.scim.Put(context.Background(), scimTok)
+		return e.hs.doAs(t, method, path, body, map[string]string{scimTokenHeader: scimSecret})
+	}
+	_, zedHash := scim.NewSecret()
+	_ = e.scim.Put(context.Background(), scim.Token{Workspace: e.zed, Hash: zedHash, Domains: []string{"zed.example.org"}, DefaultRole: "viewer"})
 	roleOf := func(email string) string {
 		w, _ := e.ws.Get(context.Background(), fid)
 		r, _ := w.RoleOf(email)
@@ -661,6 +687,39 @@ func (e *auditEnv) sensitiveCases(t *testing.T) map[audit.Action]struct {
 				return e.hs.doAs(t, "DELETE", "/v1/workspaces/"+fid+"/sso/"+conns["del"], "", user("fiona"))
 			},
 			func() bool { _, err := e.sso.Get(context.Background(), conns["del"]); return err == nil },
+		},
+		audit.SCIMTokenIssue: {
+			func() (int, map[string]any) {
+				return e.hs.doAs(t, "POST", "/v1/workspaces/"+fid+"/scim/token", `{"domains":["scim.example.org"]}`, user("fiona"))
+			},
+			func() bool {
+				tk, err := e.scim.Get(context.Background(), fid)
+				return err != nil || tk.Hash == scimHash
+			},
+		},
+		audit.SCIMTokenRevoke: {
+			func() (int, map[string]any) {
+				return e.hs.doAs(t, "DELETE", "/v1/workspaces/"+e.zed+"/scim/token", "", user("zed"))
+			},
+			func() bool { _, err := e.scim.Get(context.Background(), e.zed); return err == nil },
+		},
+		audit.SCIMUserCreate: {
+			func() (int, map[string]any) {
+				return scimRun("POST", "/v1/scim/v2/Users", `{"userName":"new@scim.example.org"}`)
+			},
+			func() bool { return roleOf("new@scim.example.org") == "" },
+		},
+		audit.SCIMUserUpdate: {
+			func() (int, map[string]any) {
+				return scimRun("PATCH", "/v1/scim/v2/Users/"+scim.UserID(fid, "u1@scim.example.org"), `{"Operations":[{"op":"replace","path":"roles","value":"editor"}]}`)
+			},
+			func() bool { return roleOf("u1@scim.example.org") == "viewer" },
+		},
+		audit.SCIMUserDelete: {
+			func() (int, map[string]any) {
+				return scimRun("DELETE", "/v1/scim/v2/Users/"+scim.UserID(fid, "u2@scim.example.org"), "")
+			},
+			func() bool { return roleOf("u2@scim.example.org") == "viewer" },
 		},
 		audit.APIKeyDisable: {
 			func() (int, map[string]any) { return e.hs.doAs(t, "DELETE", "/v1/admin/api-keys/"+keyID, "", admin) },

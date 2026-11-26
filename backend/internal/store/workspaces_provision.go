@@ -80,3 +80,27 @@ func (s *FirestoreWorkspaces) Deprovision(ctx context.Context, id, email string)
 }
 
 var _ teams.Provisioner = (*FirestoreWorkspaces)(nil)
+
+// SetProvisionedRole implements teams.Provisioner.
+func (s *FirestoreWorkspaces) SetProvisionedRole(ctx context.Context, id, email string, role teams.Role) (teams.Workspace, error) {
+	if !caseIDPattern.MatchString(id) {
+		return teams.Workspace{}, teams.ErrNotFound
+	}
+	var out teams.Workspace
+	err := s.client.RunTransaction(ctx, func(ctx context.Context, tx *firestore.Transaction) error {
+		w, err := decodeWorkspace(tx.Get(s.ws.Doc(id)))
+		if err != nil {
+			return err
+		}
+		next, err := w.WithProvisionedRole(email, role)
+		if err != nil {
+			return err
+		}
+		out = next
+		return tx.Set(s.ws.Doc(id), next)
+	})
+	if err != nil {
+		return teams.Workspace{}, workspaceErr("set provisioned role in", err)
+	}
+	return out, nil
+}

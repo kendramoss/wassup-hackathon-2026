@@ -257,6 +257,9 @@ type Config struct {
 	SSOSessionKey string
 	SSOSiteURL    string
 	SSOSessionTTL time.Duration
+	// SCIM (on|off, default off) serves SCIM 2.0 user provisioning (#869)
+	// for domains verified on a workspace's SSO connections. It needs SSO.
+	SCIM bool
 	// APIKeys (on|off, default off) accepts X-API-Key from brokers: the
 	// admin issues keys with a daily request quota, each key gets its own
 	// rate-limit buckets and owns its cases (D69). Keys are kept in Firestore
@@ -545,6 +548,13 @@ func FromEnv(getenv func(string) string) (Config, error) {
 	case "off", "false", "0":
 	default:
 		e.errs = append(e.errs, fmt.Errorf("SSO must be on or off, got %q", v))
+	}
+	switch v := strings.ToLower(e.str("SCIM", "off")); v {
+	case "on", "true", "1":
+		c.SCIM = true
+	case "off", "false", "0":
+	default:
+		e.errs = append(e.errs, fmt.Errorf("SCIM must be on or off, got %q", v))
 	}
 	switch v := strings.ToLower(e.str("API_KEYS", "off")); v {
 	case "on", "true", "1":
@@ -899,6 +909,9 @@ func (c Config) validate() error {
 		if c.SSOSessionTTL < 5*time.Minute || c.SSOSessionTTL > 24*time.Hour {
 			bad("SSO_SESSION_TTL must be between 5m and 24h, got %s", c.SSOSessionTTL)
 		}
+	}
+	if c.SCIM && !c.SSO {
+		bad("SCIM=on needs SSO=on (a SCIM token manages only domains verified on an SSO connection)")
 	}
 	// Audit (#284). Messages never include the key.
 	if c.AuditActorKey != "" && len(c.AuditActorKey) < audit.MinKeyBytes {

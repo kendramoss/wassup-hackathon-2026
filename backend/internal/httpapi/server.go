@@ -164,6 +164,23 @@ func NewHandler(logger *slog.Logger, info Info, deps ...Deps) http.Handler {
 				mux.HandleFunc("PUT /v1/workspaces/{id}/sso/{conn}", a.cheap(a.updateSSOConnection))
 				mux.HandleFunc("POST /v1/workspaces/{id}/sso/{conn}/verify", a.cheap(a.verifySSOConnection))
 				mux.HandleFunc("DELETE /v1/workspaces/{id}/sso/{conn}", a.cheap(a.deleteSSOConnection))
+				if d.SCIM != nil {
+					if d.Limits.AuthFailuresPerMin > 0 {
+						a.scimFails = newAuthFailures(d.Limits.AuthFailuresPerMin)
+					}
+					mux.HandleFunc("GET /v1/workspaces/{id}/scim", a.cheap(a.getSCIMToken))
+					mux.HandleFunc("POST /v1/workspaces/{id}/scim/token", a.cheap(a.issueSCIMToken))
+					mux.HandleFunc("DELETE /v1/workspaces/{id}/scim/token", a.cheap(a.revokeSCIMToken))
+					mux.HandleFunc("GET /v1/scim/v2/ServiceProviderConfig", a.rateOnly(review, a.scimServiceProviderConfig))
+					mux.HandleFunc("GET /v1/scim/v2/ResourceTypes", a.rateOnly(review, a.scimResourceTypes))
+					mux.HandleFunc("GET /v1/scim/v2/Schemas", a.rateOnly(review, a.scimSchemas))
+					mux.HandleFunc("GET /v1/scim/v2/Users", a.rateOnly(review, a.listSCIMUsers))
+					mux.HandleFunc("POST /v1/scim/v2/Users", a.rateOnly(review, a.createSCIMUser))
+					mux.HandleFunc("GET /v1/scim/v2/Users/{uid}", a.rateOnly(review, a.getSCIMUser))
+					mux.HandleFunc("PUT /v1/scim/v2/Users/{uid}", a.rateOnly(review, a.replaceSCIMUser))
+					mux.HandleFunc("PATCH /v1/scim/v2/Users/{uid}", a.rateOnly(review, a.patchSCIMUser))
+					mux.HandleFunc("DELETE /v1/scim/v2/Users/{uid}", a.rateOnly(review, a.deleteSCIMUser))
+				}
 			}
 			if d.Metering != nil {
 				mux.HandleFunc("GET /v1/workspaces/{id}/usage", a.cheap(a.workspaceUsage))
