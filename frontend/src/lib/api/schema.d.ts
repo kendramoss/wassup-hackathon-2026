@@ -410,6 +410,27 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/v1/products/erp-import": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Import BOMs from an ERP export (ERP_IMPORT=on)
+         * @description Reads a bill-of-materials export, one row per BOM line (#880): `generic` CSV (product_id, product_name, assembled_in, component, made_in; optional product_hts, component_hts, description), an SAP S/4HANA BOM explosion joined to the material master (`sap_s4`: Material, Material Description, Plant Country, Component and/or Component Description, Country of Origin, Commodity Code, optional Header Commodity Code), a NetSuite assembly-item saved search (`netsuite`: Internal ID or Assembly Item, Assembly Description, Location Country, Member Item and/or Member Description, Country of Manufacture, HS Tariff Number, optional Assembly HS Tariff Number), or JSON `items`. Country columns take names or ISO alpha-2 codes; codes are normalised to dotted HTS form. Each assembly becomes one product assembled in its assembly country; a problem on any line of an assembly keeps that assembly out and is reported with its line number, and other assemblies are unaffected.
+         *     Without `commit` (a dry run) nothing is stored and no model is called: each complete assembly is reported as `new`, `changed` or `unchanged` against its case. With `commit: true` each is filed and predicted: the case ID is derived from the caller (user, workspace or API key), `source` and the ERP key, so re-importing the same export updates the same cases. An unchanged assembly is left alone (no model call); a changed one gets its new BOM, a new prediction and a `bom_updated` history event; a new one is created as by predict. A commit needs sign-in or an API key and takes at most 20 complete assemblies; split larger exports. Rate-limited like batch.
+         */
+        post: operations["erpImport"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/v1/products/money-prefill": {
         parameters: {
             query?: never;
@@ -1039,6 +1060,50 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/v1/workspaces/{id}/usage": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * The workspace's use this month and its budget (USAGE_METERING=on, TEAMS=on)
+         * @description Counts per UTC month (#886): predictions (each engine run on a case), plan searches, and the model spend of every call made for a signed-in member of the workspace, at the prices the daily spend cap uses. Any member may read it. Requests without a workspace (anonymous, API keys) are not counted here. 404 for a workspace the caller is not in.
+         */
+        get: operations["workspaceUsage"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/workspaces/{id}/budget": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /**
+         * Set the workspace's monthly model budget (workspace admin; USAGE_METERING=on)
+         * @description With `hard_cap`, model-calling requests by members are refused with 402 `workspace_budget_reached` once the month's spend reaches `monthly_usd` (Retry-After: the next UTC month), and a plan search whose estimated maximum cost would pass it is refused before it runs. Without it the budget is reported only. `alert_percent` (default 80) sets when `usage.alert` turns true. Nothing is billed. 403 for a member who is not an admin.
+         */
+        put: operations["setWorkspaceBudget"];
+        post?: never;
+        /**
+         * Remove the workspace's budget (workspace admin; USAGE_METERING=on)
+         * @description Use is still counted. 403 for a member who is not an admin; 404 for a workspace the caller is not in.
+         */
+        delete: operations["deleteWorkspaceBudget"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/v1/audit": {
         parameters: {
             query?: never;
@@ -1511,9 +1576,33 @@ export interface components {
         };
         Error: {
             /** @enum {string} */
-            code: "invalid_input" | "not_found" | "model_unavailable" | "model_bad_response" | "out_of_scope" | "internal" | "rate_limited" | "too_many_in_flight" | "client_budget_reached" | "auth_rate_limited" | "forbidden" | "budget_reached" | "unauthenticated" | "conflict" | "unauthorized" | "quota_exceeded" | "audit_unavailable" | "review_not_found" | "link_revoked" | "link_expired";
+            code: "invalid_input" | "not_found" | "model_unavailable" | "model_bad_response" | "out_of_scope" | "internal" | "rate_limited" | "too_many_in_flight" | "client_budget_reached" | "auth_rate_limited" | "forbidden" | "budget_reached" | "unauthenticated" | "conflict" | "unauthorized" | "quota_exceeded" | "audit_unavailable" | "review_not_found" | "link_revoked" | "link_expired" | "workspace_budget_reached";
             message: string;
             details?: unknown;
+        };
+        WorkspaceBudget: {
+            monthly_usd: number;
+            hard_cap: boolean;
+            alert_percent: number;
+            /** Format: email */
+            updated_by?: string;
+            /** Format: date-time */
+            updated_at: string;
+        };
+        WorkspaceUsage: {
+            totals: {
+                /** @example 2026-11 */
+                month: string;
+                predictions: number;
+                plan_searches: number;
+                model_usd: number;
+            };
+            budget: components["schemas"]["WorkspaceBudget"] | null;
+            remaining_usd: number | null;
+            /** @description Spend reached the budget's alert share */
+            alert: boolean;
+            /** @description A hard cap is reached: model-calling requests are refused (402) */
+            blocked: boolean;
         };
         /** @description A team workspace (D68); its members see each other's cases. */
         Workspace: {
@@ -1548,7 +1637,7 @@ export interface components {
          * @description `case.read` appears only as a denial; allowed ordinary reads are not audited.
          * @enum {string}
          */
-        AuditAction: "case.create" | "case.update" | "case.export" | "case.delete" | "case.pin" | "case.read" | "workspace.create" | "workspace.invite" | "workspace.join" | "workspace.role_change" | "workspace.member_remove" | "workspace.leave" | "apikey.issue" | "apikey.list" | "apikey.disable" | "admin.watch_run" | "audit.read" | "audit.verify" | "auth.denied";
+        AuditAction: "case.create" | "case.update" | "case.export" | "case.delete" | "case.pin" | "case.read" | "workspace.create" | "workspace.invite" | "workspace.join" | "workspace.role_change" | "workspace.member_remove" | "workspace.leave" | "workspace.budget" | "apikey.issue" | "apikey.list" | "apikey.disable" | "admin.watch_run" | "audit.read" | "audit.verify" | "auth.denied";
         /** @enum {string} */
         AuditPhase: "intent" | "completion" | "single";
         /** @enum {string} */
@@ -3706,6 +3795,16 @@ export interface operations {
                     "application/json": {
                         case_id?: string;
                         estimate?: components["schemas"]["PlanEstimate"];
+                        /** @description With USAGE_METERING=on, for a member of a workspace with a budget (#886): the month's budget, spend and what is left, and whether the estimate's maximum fits. A plan search that would not fit a hard cap is refused with 402. */
+                        workspace_budget?: {
+                            /** @example 2026-11 */
+                            month?: string;
+                            budget_usd?: number;
+                            spent_usd?: number;
+                            remaining_usd?: number;
+                            hard_cap?: boolean;
+                            fits?: boolean;
+                        };
                     };
                 };
             };
@@ -4153,6 +4252,118 @@ export interface operations {
             };
             400: components["responses"]["Error"];
             429: components["responses"]["TooManyRequests"];
+        };
+    };
+    erpImport: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": {
+                    /** @enum {string} */
+                    format: "generic" | "sap_s4" | "netsuite" | "json";
+                    /** @description Label for the ERP or export, part of each case's key; default the format */
+                    source?: string;
+                    /** @description The export */
+                    csv?: string;
+                    /** @description For format json */
+                    items?: {
+                        external_id: string;
+                        name: string;
+                        description?: string;
+                        hts?: string;
+                        /** @description Country name or ISO alpha-2 code */
+                        assembled_in: string;
+                        components: {
+                            name: string;
+                            made_in: string;
+                            hts?: string;
+                        }[];
+                    }[];
+                    /** @default false */
+                    commit?: boolean;
+                    /** @description Optional product family template; without one the facts are written from the BOM */
+                    family?: string;
+                    jurisdiction?: components["schemas"]["JurisdictionCode"];
+                };
+                "multipart/form-data": {
+                    /**
+                     * Format: binary
+                     * @description CSV or .xlsx
+                     */
+                    file: string;
+                    /** @enum {string} */
+                    format: "generic" | "sap_s4" | "netsuite";
+                    source?: string;
+                    /** @enum {string} */
+                    commit?: "true" | "false";
+                    family?: string;
+                    jurisdiction?: string;
+                };
+            };
+        };
+        responses: {
+            /** @description One row per complete assembly, the problems, and counts */
+            200: {
+                headers: {
+                    "X-Audit-Incomplete": components["headers"]["AuditIncomplete"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Meta"] & {
+                        format: string;
+                        source: string;
+                        committed: boolean;
+                        rows: {
+                            external_id: string;
+                            name: string;
+                            /** @enum {string} */
+                            status: "new" | "changed" | "unchanged" | "created" | "updated" | "failed";
+                            /** @description The assembly's case (on a dry run, the case it would use) */
+                            case_id: string;
+                            /** @description Source line numbers (the header is line 1) */
+                            rows: number[];
+                            components: number;
+                            countries: string[];
+                            hts?: string;
+                            predicted_origin?: string;
+                            triage_route?: string;
+                            jurisdiction?: string;
+                            cost_usd?: number;
+                            error: string | null;
+                        }[];
+                        problems: {
+                            /** @description Source line (CSV) or 1-based item index (JSON) */
+                            row?: number;
+                            external_id?: string;
+                            message: string;
+                        }[];
+                        summary: {
+                            assemblies?: number;
+                            problems?: number;
+                            lines?: number;
+                            new?: number;
+                            changed?: number;
+                            unchanged?: number;
+                            created?: number;
+                            updated?: number;
+                            failed?: number;
+                            cost_usd?: number;
+                            latency_ms?: number;
+                        };
+                    };
+                };
+            };
+            400: components["responses"]["Error"];
+            401: components["responses"]["Error"];
+            402: components["responses"]["Error"];
+            403: components["responses"]["Error"];
+            429: components["responses"]["TooManyRequests"];
+            503: components["responses"]["Error"];
         };
     };
     prefillMoney: {
@@ -5628,6 +5839,115 @@ export interface operations {
             401: components["responses"]["Error"];
             404: components["responses"]["Error"];
             409: components["responses"]["Error"];
+            429: components["responses"]["TooManyRequests"];
+            503: components["responses"]["Error"];
+        };
+    };
+    workspaceUsage: {
+        parameters: {
+            query?: {
+                /** @description YYYY-MM; default this month (UTC) */
+                month?: string;
+            };
+            header: {
+                /** @description The signed-in user's Google ID token, forwarded by the frontend proxy (D68). Optional on every other endpoint. */
+                "X-User-Token": components["parameters"]["UserToken"];
+            };
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description The month's use */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        workspace_id: string;
+                        usage: components["schemas"]["WorkspaceUsage"];
+                    };
+                };
+            };
+            400: components["responses"]["Error"];
+            401: components["responses"]["Error"];
+            404: components["responses"]["Error"];
+            429: components["responses"]["TooManyRequests"];
+        };
+    };
+    setWorkspaceBudget: {
+        parameters: {
+            query?: never;
+            header: {
+                /** @description The signed-in user's Google ID token, forwarded by the frontend proxy (D68). Optional on every other endpoint. */
+                "X-User-Token": components["parameters"]["UserToken"];
+            };
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": {
+                    monthly_usd: number;
+                    /** @default false */
+                    hard_cap?: boolean;
+                    /** @description 0 means 80 */
+                    alert_percent?: number;
+                };
+            };
+        };
+        responses: {
+            /** @description The budget saved */
+            200: {
+                headers: {
+                    "X-Audit-Incomplete": components["headers"]["AuditIncomplete"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        workspace_id?: string;
+                        budget?: components["schemas"]["WorkspaceBudget"];
+                    };
+                };
+            };
+            400: components["responses"]["Error"];
+            401: components["responses"]["Error"];
+            403: components["responses"]["Error"];
+            404: components["responses"]["Error"];
+            429: components["responses"]["TooManyRequests"];
+            503: components["responses"]["Error"];
+        };
+    };
+    deleteWorkspaceBudget: {
+        parameters: {
+            query?: never;
+            header: {
+                /** @description The signed-in user's Google ID token, forwarded by the frontend proxy (D68). Optional on every other endpoint. */
+                "X-User-Token": components["parameters"]["UserToken"];
+            };
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Removed */
+            204: {
+                headers: {
+                    "X-Audit-Incomplete": components["headers"]["AuditIncomplete"];
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            401: components["responses"]["Error"];
+            403: components["responses"]["Error"];
+            404: components["responses"]["Error"];
             429: components["responses"]["TooManyRequests"];
             503: components["responses"]["Error"];
         };

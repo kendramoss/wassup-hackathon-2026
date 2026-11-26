@@ -63,6 +63,7 @@ import (
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/jurisdiction"
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/llm"
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/logsafe"
+	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/metering"
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/nearmiss"
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/nporigin"
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/planner"
@@ -158,6 +159,9 @@ func run(logger *slog.Logger, errorLog *log.Logger, cfg config.Config, smoke boo
 	}
 	if deps.Audit, err = newAudit(ctx, cfg, cases, logger); err != nil {
 		return err
+	}
+	if cfg.UsageMetering {
+		deps.Metering = newMetering(cases, meter, logger)
 	}
 	srv := newServer(":"+cfg.Port, httpapi.NewHandler(logger, httpapi.Info{Provider: model.Provider(), Version: os.Getenv("K_REVISION")}, deps), errorLog)
 	go func() {
@@ -267,6 +271,21 @@ func newMeter(cfg config.Config, cases store.Cases, logger *slog.Logger) *spend.
 		logger.Info("daily model spend cap", "usd", cfg.DailySpendCapUSD)
 	}
 	return spend.New(spendStore, cfg.DailySpendCapUSD).WithClientShare(cfg.DailySpendClientShare)
+}
+
+// newMetering builds per-workspace monthly metering (#886) on the cases'
+// database, and has the daily spend meter tell it every model charge.
+func newMetering(cases store.Cases, meter *spend.Meter, logger *slog.Logger) *metering.Meter {
+	var ms metering.Store = metering.NewMemory()
+	if fs, ok := cases.(*store.Firestore); ok {
+		ms = fs.Metering()
+	}
+	m := metering.New(ms)
+	if meter != nil {
+		meter.Observe(m.Charge)
+	}
+	logger.Info("workspace usage metering on")
+	return m
 }
 
 // newBase builds the configured provider with no retry. The router, verifier,
@@ -747,6 +766,7 @@ func newDeps(cfg config.Config, model, engineModel llm.Model, cases store.Cases,
 		CaseOwnership:         cfg.CaseOwnership,
 		StrictAuth:            cfg.StrictAuth,
 		BOMVersions:           cfg.BOMVersions == "on",
+		ERPImport:             cfg.ERPImport,
 		Teams:                 cfg.Teams,
 		Users:                 users,
 		Workspaces:            workspaces,

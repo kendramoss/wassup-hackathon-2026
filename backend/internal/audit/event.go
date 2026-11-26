@@ -47,6 +47,7 @@ const (
 	WorkspaceRoleChange   Action = "workspace.role_change"
 	WorkspaceMemberRemove Action = "workspace.member_remove"
 	WorkspaceLeave        Action = "workspace.leave"
+	WorkspaceBudget       Action = "workspace.budget"
 
 	APIKeyIssue   Action = "apikey.issue"
 	APIKeyList    Action = "apikey.list"
@@ -85,6 +86,7 @@ var actionSpecs = map[Action]actionSpec{
 	WorkspaceRoleChange:   {details: []string{"", "viewer", "editor", "admin"}, sensitive: true},
 	WorkspaceMemberRemove: {sensitive: true},
 	WorkspaceLeave:        {sensitive: true},
+	WorkspaceBudget:       {details: []string{"set", "clear"}},
 	APIKeyIssue:           {sensitive: true},
 	APIKeyList:            {},
 	APIKeyDisable:         {sensitive: true},

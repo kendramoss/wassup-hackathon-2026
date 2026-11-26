@@ -193,7 +193,7 @@ var knownMessages = []string{
 	"sign-in token refused", "specialist engine failed; provisional general prediction needs review",
 	"teams on: Google sign-in and workspaces", "textile engine on",
 	"verifier verdicts and engine predictions cached in Firestore", "verifier verdicts and engine predictions cached",
-	"watch failed", msgStdLog,
+	"watch failed", "workspace usage metering on", "workspace usage unavailable; not enforcing the budget", msgStdLog,
 }
 
 // DefaultPolicy is the operational allowlist: status, latency, token counts,

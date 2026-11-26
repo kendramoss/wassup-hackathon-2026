@@ -46,6 +46,7 @@ var rolePerms = map[string]perm{
 	"POST /v1/cases/{id}/export":               permExport,
 	"POST /v1/cases/predict":                   permEdit,
 	"POST /v1/cases/batch":                     permEdit,
+	"POST /v1/products/erp-import":             permEdit, // creates and updates cases on commit
 	"POST /v1/cases/{id}/bom-version":          permEdit,
 	"POST /v1/cases/{id}/scenarios":            permEdit,
 	"POST /v1/cases/{id}/compare-targets":      permEdit,

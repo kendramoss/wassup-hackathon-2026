@@ -373,6 +373,16 @@ paths:
                 properties:
                   case_id: { type: string }
                   estimate: { $ref: "#/components/schemas/PlanEstimate" }
+                  workspace_budget:
+                    type: object
+                    description: "With USAGE_METERING=on, for a member of a workspace with a budget (#886): the month's budget, spend and what is left, and whether the estimate's maximum fits. A plan search that would not fit a hard cap is refused with 402."
+                    properties:
+                      month: { type: string, example: "2026-11" }
+                      budget_usd: { type: number }
+                      spent_usd: { type: number }
+                      remaining_usd: { type: number }
+                      hard_cap: { type: boolean }
+                      fits: { type: boolean }
         "400": { $ref: "#/components/responses/Error" }
         "404": { $ref: "#/components/responses/Error" }
         "429": { $ref: "#/components/responses/TooManyRequests" }
@@ -785,6 +795,123 @@ paths:
                   family_source: { type: string, enum: [given, file, ai] }
                   family_reason: { type: string, description: "The family check's reason, when family_source is ai" }
         "400": { $ref: "#/components/responses/Error" }
+  /v1/products/erp-import:
+    post:
+      operationId: erpImport
+      summary: Import BOMs from an ERP export (ERP_IMPORT=on)
+      description: |
+        Reads a bill-of-materials export, one row per BOM line (#880): `generic` CSV (product_id, product_name, assembled_in, component, made_in; optional product_hts, component_hts, description), an SAP S/4HANA BOM explosion joined to the material master (`sap_s4`: Material, Material Description, Plant Country, Component and/or Component Description, Country of Origin, Commodity Code, optional Header Commodity Code), a NetSuite assembly-item saved search (`netsuite`: Internal ID or Assembly Item, Assembly Description, Location Country, Member Item and/or Member Description, Country of Manufacture, HS Tariff Number, optional Assembly HS Tariff Number), or JSON `items`. Country columns take names or ISO alpha-2 codes; codes are normalised to dotted HTS form. Each assembly becomes one product assembled in its assembly country; a problem on any line of an assembly keeps that assembly out and is reported with its line number, and other assemblies are unaffected.
+        Without `commit` (a dry run) nothing is stored and no model is called: each complete assembly is reported as `new`, `changed` or `unchanged` against its case. With `commit: true` each is filed and predicted: the case ID is derived from the caller (user, workspace or API key), `source` and the ERP key, so re-importing the same export updates the same cases. An unchanged assembly is left alone (no model call); a changed one gets its new BOM, a new prediction and a `bom_updated` history event; a new one is created as by predict. A commit needs sign-in or an API key and takes at most 20 complete assemblies; split larger exports. Rate-limited like batch.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [format]
+              additionalProperties: false
+              properties:
+                format: { type: string, enum: [generic, sap_s4, netsuite, json] }
+                source: { type: string, maxLength: 64, description: "Label for the ERP or export, part of each case's key; default the format" }
+                csv: { type: string, description: The export, for the CSV formats }
+                items:
+                  type: array
+                  maxItems: 200
+                  description: For format json
+                  items:
+                    type: object
+                    required: [external_id, name, assembled_in, components]
+                    properties:
+                      external_id: { type: string, maxLength: 120 }
+                      name: { type: string }
+                      description: { type: string }
+                      hts: { type: string }
+                      assembled_in: { type: string, description: Country name or ISO alpha-2 code }
+                      components:
+                        type: array
+                        maxItems: 200
+                        items:
+                          type: object
+                          required: [name, made_in]
+                          properties: { name: { type: string }, made_in: { type: string }, hts: { type: string } }
+                commit: { type: boolean, default: false }
+                family: { type: string, description: "Optional product family template; without one the facts are written from the BOM" }
+                jurisdiction: { $ref: "#/components/schemas/JurisdictionCode" }
+          multipart/form-data:
+            schema:
+              type: object
+              required: [file, format]
+              properties:
+                file: { type: string, format: binary, description: CSV or .xlsx }
+                format: { type: string, enum: [generic, sap_s4, netsuite] }
+                source: { type: string }
+                commit: { type: string, enum: ["true", "false"] }
+                family: { type: string }
+                jurisdiction: { type: string }
+      responses:
+        "200":
+          headers:
+            X-Audit-Incomplete: { $ref: "#/components/headers/AuditIncomplete" }
+          description: One row per complete assembly, the problems, and counts
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/Meta"
+                  - type: object
+                    required: [format, source, committed, rows, problems, summary]
+                    properties:
+                      format: { type: string }
+                      source: { type: string }
+                      committed: { type: boolean }
+                      rows:
+                        type: array
+                        items:
+                          type: object
+                          required: [external_id, name, status, case_id, rows, components, countries, error]
+                          properties:
+                            external_id: { type: string }
+                            name: { type: string }
+                            status: { type: string, enum: [new, changed, unchanged, created, updated, failed] }
+                            case_id: { type: string, description: "The assembly's case (on a dry run, the case it would use)" }
+                            rows: { type: array, items: { type: integer }, description: Source line numbers (the header is line 1) }
+                            components: { type: integer }
+                            countries: { type: array, items: { type: string } }
+                            hts: { type: string }
+                            predicted_origin: { type: string }
+                            triage_route: { type: string }
+                            jurisdiction: { type: string }
+                            cost_usd: { type: number }
+                            error: { type: [string, "null"] }
+                      problems:
+                        type: array
+                        items:
+                          type: object
+                          required: [message]
+                          properties:
+                            row: { type: integer, description: "Source line (CSV) or 1-based item index (JSON)" }
+                            external_id: { type: string }
+                            message: { type: string }
+                      summary:
+                        type: object
+                        properties:
+                          assemblies: { type: integer }
+                          problems: { type: integer }
+                          lines: { type: integer }
+                          new: { type: integer }
+                          changed: { type: integer }
+                          unchanged: { type: integer }
+                          created: { type: integer }
+                          updated: { type: integer }
+                          failed: { type: integer }
+                          cost_usd: { type: number }
+                          latency_ms: { type: integer }
+        "400": { $ref: "#/components/responses/Error" }
+        "401": { $ref: "#/components/responses/Error" }
+        "402": { $ref: "#/components/responses/Error" }
+        "403": { $ref: "#/components/responses/Error" }
+        "429": { $ref: "#/components/responses/TooManyRequests" }
+        "503": { $ref: "#/components/responses/Error" }
   /v1/products/money-prefill:
     post:
       operationId: prefillMoney
@@ -2028,6 +2155,85 @@ paths:
         "401": { $ref: "#/components/responses/Error" }
         "404": { $ref: "#/components/responses/Error" }
         "409": { $ref: "#/components/responses/Error" }
+  /v1/workspaces/{id}/usage:
+    get:
+      operationId: workspaceUsage
+      summary: The workspace's use this month and its budget (USAGE_METERING=on, TEAMS=on)
+      description: "Counts per UTC month (#886): predictions (each engine run on a case), plan searches, and the model spend of every call made for a signed-in member of the workspace, at the prices the daily spend cap uses. Any member may read it. Requests without a workspace (anonymous, API keys) are not counted here. 404 for a workspace the caller is not in."
+      parameters:
+        - { $ref: "#/components/parameters/UserToken" }
+        - { name: id, in: path, required: true, schema: { type: string } }
+        - { name: month, in: query, required: false, schema: { type: string, pattern: "^[0-9]{4}-(0[1-9]|1[0-2])$" }, description: "YYYY-MM; default this month (UTC)" }
+      responses:
+        "429": { $ref: "#/components/responses/TooManyRequests" }
+        "200":
+          description: The month's use
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [workspace_id, usage]
+                properties:
+                  workspace_id: { type: string }
+                  usage: { $ref: "#/components/schemas/WorkspaceUsage" }
+        "400": { $ref: "#/components/responses/Error" }
+        "401": { $ref: "#/components/responses/Error" }
+        "404": { $ref: "#/components/responses/Error" }
+  /v1/workspaces/{id}/budget:
+    put:
+      operationId: setWorkspaceBudget
+      summary: Set the workspace's monthly model budget (workspace admin; USAGE_METERING=on)
+      description: "With `hard_cap`, model-calling requests by members are refused with 402 `workspace_budget_reached` once the month's spend reaches `monthly_usd` (Retry-After: the next UTC month), and a plan search whose estimated maximum cost would pass it is refused before it runs. Without it the budget is reported only. `alert_percent` (default 80) sets when `usage.alert` turns true. Nothing is billed. 403 for a member who is not an admin."
+      parameters:
+        - { $ref: "#/components/parameters/UserToken" }
+        - { name: id, in: path, required: true, schema: { type: string } }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [monthly_usd]
+              additionalProperties: false
+              properties:
+                monthly_usd: { type: number, exclusiveMinimum: 0, maximum: 1000000 }
+                hard_cap: { type: boolean, default: false }
+                alert_percent: { type: integer, minimum: 0, maximum: 100, description: 0 means 80 }
+      responses:
+        "429": { $ref: "#/components/responses/TooManyRequests" }
+        "503": { $ref: "#/components/responses/Error" }
+        "200":
+          headers:
+            X-Audit-Incomplete: { $ref: "#/components/headers/AuditIncomplete" }
+          description: The budget saved
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  workspace_id: { type: string }
+                  budget: { $ref: "#/components/schemas/WorkspaceBudget" }
+        "400": { $ref: "#/components/responses/Error" }
+        "401": { $ref: "#/components/responses/Error" }
+        "403": { $ref: "#/components/responses/Error" }
+        "404": { $ref: "#/components/responses/Error" }
+    delete:
+      operationId: deleteWorkspaceBudget
+      summary: Remove the workspace's budget (workspace admin; USAGE_METERING=on)
+      description: Use is still counted. 403 for a member who is not an admin; 404 for a workspace the caller is not in.
+      parameters:
+        - { $ref: "#/components/parameters/UserToken" }
+        - { name: id, in: path, required: true, schema: { type: string } }
+      responses:
+        "429": { $ref: "#/components/responses/TooManyRequests" }
+        "503": { $ref: "#/components/responses/Error" }
+        "204":
+          description: Removed
+          headers:
+            X-Audit-Incomplete: { $ref: "#/components/headers/AuditIncomplete" }
+        "401": { $ref: "#/components/responses/Error" }
+        "403": { $ref: "#/components/responses/Error" }
+        "404": { $ref: "#/components/responses/Error" }
   /v1/audit:
     get:
       operationId: listAudit
@@ -2553,9 +2759,34 @@ components:
       properties:
         code:
           type: string
-          enum: [invalid_input, not_found, model_unavailable, model_bad_response, out_of_scope, internal, rate_limited, too_many_in_flight, client_budget_reached, auth_rate_limited, forbidden, budget_reached, unauthenticated, conflict, unauthorized, quota_exceeded, audit_unavailable, review_not_found, link_revoked, link_expired]
+          enum: [invalid_input, not_found, model_unavailable, model_bad_response, out_of_scope, internal, rate_limited, too_many_in_flight, client_budget_reached, auth_rate_limited, forbidden, budget_reached, unauthenticated, conflict, unauthorized, quota_exceeded, audit_unavailable, review_not_found, link_revoked, link_expired, workspace_budget_reached]
         message: { type: string }
         details: {}
+    WorkspaceBudget:
+      type: object
+      required: [monthly_usd, hard_cap, alert_percent, updated_at]
+      properties:
+        monthly_usd: { type: number }
+        hard_cap: { type: boolean }
+        alert_percent: { type: integer }
+        updated_by: { type: string, format: email }
+        updated_at: { type: string, format: date-time }
+    WorkspaceUsage:
+      type: object
+      required: [totals, budget, remaining_usd, alert, blocked]
+      properties:
+        totals:
+          type: object
+          required: [month, predictions, plan_searches, model_usd]
+          properties:
+            month: { type: string, example: "2026-11" }
+            predictions: { type: integer }
+            plan_searches: { type: integer }
+            model_usd: { type: number }
+        budget: { oneOf: [{ $ref: "#/components/schemas/WorkspaceBudget" }, { type: "null" }] }
+        remaining_usd: { type: [number, "null"] }
+        alert: { type: boolean, description: "Spend reached the budget's alert share" }
+        blocked: { type: boolean, description: "A hard cap is reached: model-calling requests are refused (402)" }
     Workspace:
       type: object
       description: A team workspace (D68); its members see each other's cases.
@@ -2579,7 +2810,7 @@ components:
       description: The caller's role in the workspace, derived by the server from stored membership.
     AuditAction:
       type: string
-      enum: [case.create, case.update, case.export, case.delete, case.pin, case.read, workspace.create, workspace.invite, workspace.join, workspace.role_change, workspace.member_remove, workspace.leave, apikey.issue, apikey.list, apikey.disable, admin.watch_run, audit.read, audit.verify, auth.denied]
+      enum: [case.create, case.update, case.export, case.delete, case.pin, case.read, workspace.create, workspace.invite, workspace.join, workspace.role_change, workspace.member_remove, workspace.leave, workspace.budget, apikey.issue, apikey.list, apikey.disable, admin.watch_run, audit.read, audit.verify, auth.denied]
       description: "`case.read` appears only as a denial; allowed ordinary reads are not audited."
     AuditPhase:
       type: string
