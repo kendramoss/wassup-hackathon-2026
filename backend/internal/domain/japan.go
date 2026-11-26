@@ -18,6 +18,18 @@ type JapanResult struct {
 	ReviewReason     string        `json:"review_reason,omitempty"`
 	Sources          []JapanSource `json:"sources,omitempty"`
 	PrecedentSources []JapanSource `json:"precedent_sources,omitempty"`
+	// Questions are what the user can answer to turn an undetermined result
+	// into a decision (D917). Answers go to POST /v1/cases/{id}/answers with
+	// the question text, and the check runs again.
+	Questions []JapanQuestion `json:"questions,omitempty"`
+}
+
+// JapanQuestion is one fact to ask. Options lists the buttons to offer; an
+// empty list means a short typed answer.
+type JapanQuestion struct {
+	ID      string   `json:"id"`
+	Text    string   `json:"text"`
+	Options []string `json:"options,omitempty"`
 }
 
 // JapanSource identifies a treaty rule or Japan Customs ruling.

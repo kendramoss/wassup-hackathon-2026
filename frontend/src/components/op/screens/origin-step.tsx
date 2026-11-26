@@ -36,7 +36,7 @@ export function OriginStep() {
 
 function Result(ctx: CaseCtx) {
   const { c } = ctx;
-  if (c.jurisdiction === "jp" && (c.prediction?.japan_preference || c.jurisdiction_detail?.supported)) return <JapanPreference c={c} />;
+  if (c.jurisdiction === "jp" && (c.prediction?.japan_preference || c.jurisdiction_detail?.supported)) return <JapanPreference c={c} setCase={ctx.setCase} />;
   // A market with no origin engine (D680): no answer was made, so there is
   // no verdict to show, only what to do next.
   if (ctx.c.jurisdiction_detail?.supported === false) return <UnsupportedMarket c={ctx.c} />;
