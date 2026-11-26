@@ -133,8 +133,15 @@
   .biz-letter { width: 78%; height: 400px; }
   .biz-app-body { display: flex; flex-direction: column; }
 }
+.biz-narrow { display: none; }
+.biz-logo { min-width: 0; }
+.biz-btn { white-space: nowrap; }
+/* Below 640 px the business bar's actions match the technical bar's ("+ New",
+   toggle, tile, 16 px apart), so the toggle and tile hold still (#864). */
 @media (max-width: 639px) {
   .biz-bar { padding: 0 16px; }
+  .biz-wide { display: none; }
+  .biz-narrow { display: inline; }
 }
 @media (prefers-reduced-motion: reduce) {
   .biz-story { scroll-behavior: auto; }
