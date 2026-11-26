@@ -96,6 +96,10 @@ var routeTable = map[string]routeClass{
 	"DELETE /v1/api-keys/{id}":                     noCaseData,
 	"GET /v1/audit":                                noCaseData, // reads the audit trail, no case
 	"GET /v1/audit/verify":                         noCaseData,
+	"GET /v1/audit/export":                         noCaseData,
+	"GET /v1/workspaces/{id}/retention":            noCaseData,
+	"PUT /v1/workspaces/{id}/retention":            noCaseData,
+	"GET /v1/workspaces/{id}/tombstones":           noCaseData, // case IDs and dates only, workspace admins
 	"POST /v1/cases/{id}/reviews":                  caseScoped,
 	"GET /v1/cases/{id}/reviews":                   caseScoped,
 	"DELETE /v1/cases/{id}/reviews/{review}":       caseScoped,

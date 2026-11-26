@@ -38,6 +38,7 @@ import (
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/planner"
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/planrule"
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/ratelimit"
+	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/retention"
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/router"
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/spend"
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/store"
@@ -265,6 +266,13 @@ type Deps struct {
 	// /v1/audit and /v1/audit/verify. Nil: no event is recorded, the routes
 	// are not registered and no write is gated on the trail.
 	Audit *audit.Service
+	// AuditExport serves GET /v1/audit/export (#871) when Audit is set.
+	// Off by default.
+	AuditExport bool
+	// Retention, when set with Teams, serves a workspace's retention policy
+	// and tombstones and writes a tombstone before each workspace case
+	// deletion (#875). Nil: off.
+	Retention retention.Store
 }
 
 // maxBody caps request bodies (a product with dozens of parts is ~10 KB).
