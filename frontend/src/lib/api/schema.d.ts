@@ -378,6 +378,214 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/v1/queue": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * The human review queue of the cases the caller can see
+         * @description BROKER_WORKFLOW=on only. `state` is open (default, not decided), queued, assigned, in_review, decided or all; `assignee=me` keeps the caller's own. Overdue items first, then by due time. `suggested` lists cases the model routed to review that are not queued yet (at most 50). Review targets by priority: urgent 4 h, high 24 h, normal 72 h, low 7 days.
+         */
+        get: operations["listReviewQueue"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/cases/{id}/queue": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /**
+         * Put the case in the human review queue, or change its priority
+         * @description BROKER_WORKFLOW=on only. A waiting or started review keeps its place and its assignee; a decided one is queued again. `reason` is required. Refused for a workspace viewer and on a pinned demo.
+         */
+        put: operations["enqueueForReview"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/cases/{id}/queue/transition": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Assign, start, decide or release the case's review
+         * @description BROKER_WORKFLOW=on only. `assign` needs `assignee` (an email; in a workspace only an admin assigns someone else). `start` is for the assignee, or takes an unassigned review. `decide` is for the assignee of a started review and needs `outcome` and `reason`; `on_time` records whether it beat the due time. `release` puts it back in the queue. A move the state does not allow is 409.
+         */
+        post: operations["moveReview"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/cases/{id}/collab": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * The case's discussion threads, sign-offs and per-case roles
+         * @description BROKER_WORKFLOW=on only. `sign_off` counts each person's latest decision; a broker's approval (role broker, or an approve or file_request answer on a review link) is what a filing needs.
+         */
+        get: operations["getCaseCollaboration"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/cases/{id}/comments": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Add a comment, or a reply with parent_id
+         * @description BROKER_WORKFLOW=on only. Anyone who can see the case may comment, a workspace viewer included. Plain text, at most 2000 characters; a reply to a reply joins its thread. At most 500 comments.
+         */
+        post: operations["commentOnCase"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/cases/{id}/approvals": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Approve the ruling request, ask for changes, or reject it
+         * @description BROKER_WORKFLOW=on only. `reason` is required unless the decision is approve. The role recorded is the person's case role (broker or reviewer from collaborators), else their workspace role, else owner. Refused for a workspace viewer.
+         */
+        post: operations["signOffCase"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/cases/{id}/collaborators": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /**
+         * Give a person a broker or reviewer role on this case, or remove it
+         * @description BROKER_WORKFLOW=on only. An empty `role` removes the person. A role says how their comments and sign-offs count; it never lets anyone see a case they could not see before. At most 20.
+         */
+        put: operations["setCaseCollaborator"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/review/comments": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * The case's discussion as the broker holding a review link sees it
+         * @description BROKER_WORKFLOW=on only. Token in `X-Review-Token`. Authors are shown by role only. Errors as getBrokerReview.
+         */
+        get: operations["getBrokerReviewComments"];
+        put?: never;
+        /**
+         * The broker holding a review link comments on the case
+         * @description BROKER_WORKFLOW=on only. Token in `X-Review-Token`. Plain text, at most 2000 characters. Errors as decideBrokerReview.
+         */
+        post: operations["postBrokerReviewComment"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/cases/{id}/filing": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * The filing package's state, or the package as JSON, zip or PDF
+         * @description BROKER_WORKFLOW=on only. Without `format`, the state (`ready_to_file` needs every required element and a broker's approval; `blocking` says what is missing). `format=json` is the package; `zip` holds package.json, letter.pdf, letter.md, exhibit-a-materials.csv and exhibit-b-steps.txt (reproducible: same package, same bytes); `pdf` is the letter. A download is recorded as `filing.download`.
+         */
+        get: operations["getRulingFiling"];
+        put?: never;
+        /**
+         * Prepare the CBP eRulings-ready filing package
+         * @description BROKER_WORKFLOW=on only. Builds the 19 CFR 177.2 letter (as exportCase with format cfr177, or the broker's edited `letter`), fills it from `submitter`, checks each required element (177.2(b)(1), (b)(2)(ii), (b)(3)-(4), (b)(6), (b)(7), the declaration and CBP's origin checklist) and stores the package with its SHA-256. Nothing is sent to CBP. Can be prepared again until it is submitted (409 after). Refused for a workspace viewer and on a pinned demo.
+         */
+        post: operations["prepareRulingFiling"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/cases/{id}/filing/status": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Record what happened to the request after it left
+         * @description BROKER_WORKFLOW=on only. prepared → submitted (with the eRulings `reference`, and only when `ready_to_file`) → acknowledged → ruling_issued (with the ruling number as `reference`); withdrawn from any status before a ruling. Any other move is 409.
+         */
+        post: operations["setRulingFilingStatus"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/v1/products/import": {
         parameters: {
             query?: never;
@@ -1211,6 +1419,152 @@ export interface paths {
 export type webhooks = Record<string, never>;
 export interface components {
     schemas: {
+        QueueView: {
+            case_id: string;
+            product?: string;
+            route?: string;
+            overdue: boolean;
+            /** @description Seconds until due; negative when overdue; 0 once decided. */
+            due_in_s: number;
+            item: {
+                /** @enum {string} */
+                state?: "queued" | "assigned" | "in_review" | "decided";
+                /** @enum {string} */
+                priority?: "urgent" | "high" | "normal" | "low";
+                reason?: string;
+                queued_by?: string;
+                /** Format: date-time */
+                queued_at?: string;
+                /** Format: date-time */
+                due_at?: string;
+                assignee?: string;
+                /** Format: date-time */
+                assigned_at?: string;
+                /** Format: date-time */
+                started_at?: string;
+                decision?: {
+                    /** @enum {string} */
+                    outcome?: "approve" | "reject" | "changes";
+                    reason?: string;
+                    by?: string;
+                    /** Format: date-time */
+                    at?: string;
+                    on_time?: boolean;
+                };
+                log?: {
+                    action?: string;
+                    by?: string;
+                    /** Format: date-time */
+                    at?: string;
+                    detail?: string;
+                }[];
+            } | null;
+        };
+        Comment: {
+            id: string;
+            parent_id?: string;
+            author: string;
+            role: string;
+            /** @description Plain text; render as text. */
+            body: string;
+            /** Format: date-time */
+            at: string;
+        };
+        CommentThread: components["schemas"]["Comment"] & {
+            replies: components["schemas"]["Comment"][];
+        };
+        Approval: {
+            /** @enum {string} */
+            decision: "approve" | "reject" | "changes";
+            reason?: string;
+            by: string;
+            role: string;
+            /** Format: date-time */
+            at: string;
+        };
+        SignOff: {
+            /** @enum {string} */
+            state: "none" | "approved" | "changes_requested" | "rejected";
+            broker_approved: boolean;
+            approvers: string[];
+            blocking: string[];
+        };
+        Collaboration: {
+            collaborators: {
+                email?: string;
+                /** @enum {string} */
+                role?: "broker" | "reviewer";
+                added_by?: string;
+                /** Format: date-time */
+                added_at?: string;
+            }[];
+            threads: components["schemas"]["CommentThread"][];
+            approvals: components["schemas"]["Approval"][];
+            sign_off: components["schemas"]["SignOff"];
+        };
+        /** @description What the case does not know. Each answer fills its placeholder in the letter; what is left stays [FILL IN …]. */
+        FilingSubmitter: {
+            requester_name?: string;
+            requester_address?: string;
+            requester_email?: string;
+            requester_phone?: string;
+            /** @enum {string} */
+            interest?: "importer" | "exporter" | "manufacturer" | "agent" | "other";
+            importer_of_record?: string;
+            /** @description Blank fills "Not yet known" (the rule asks for it only if known). */
+            port_of_entry?: string;
+            /** @description Confirms the 177.2(b)(2)(ii) statement. */
+            no_prior_consideration?: boolean;
+            /** @description "none", or the information to withhold under 177.2(b)(7). */
+            confidential?: string;
+            signer_name?: string;
+            signer_title?: string;
+            /** @description Plant name in the case → legal name, address and MID code. */
+            manufacturers?: {
+                [key: string]: string;
+            };
+            country_of_exportation?: string;
+            first_shipment?: string;
+            product_model?: string;
+            product_description?: string;
+            hts_reference?: string;
+            marking?: string;
+            legal_basis?: string;
+            prior_ruling_note?: string;
+            prior_advice?: string;
+            /** @enum {string} */
+            series?: "is" | "is not";
+            sample?: string;
+        };
+        FilingView: {
+            /** @enum {string} */
+            status?: "prepared" | "submitted" | "acknowledged" | "ruling_issued" | "withdrawn";
+            /** Format: date-time */
+            prepared_at?: string;
+            prepared_by?: string;
+            submitter?: components["schemas"]["FilingSubmitter"];
+            letter?: string;
+            elements?: {
+                key?: string;
+                citation?: string;
+                label?: string;
+                /** @enum {string} */
+                status?: "present" | "missing";
+                detail?: string;
+                required?: boolean;
+            }[];
+            /** @description Every required element is present. */
+            ready?: boolean;
+            attachments?: Record<string, never>[];
+            package_sha256?: string;
+            cbp_reference?: string;
+            ruling_number?: string;
+            history?: Record<string, never>[];
+            ready_to_file: boolean;
+            sign_off: components["schemas"]["SignOff"];
+            next_statuses: string[];
+            blocking: string[];
+        };
         /** @description Non-negative exact decimal string (no exponent, sign, NaN or Infinity). Never a JSON number. Omitted or null is unknown, not zero; "0" is a known zero. */
         UsmcaAmount: string;
         /**
@@ -4086,6 +4440,433 @@ export interface operations {
             410: components["responses"]["Error"];
             429: components["responses"]["TooManyRequests"];
             503: components["responses"]["Error"];
+        };
+    };
+    listReviewQueue: {
+        parameters: {
+            query?: {
+                state?: "open" | "all" | "queued" | "assigned" | "in_review" | "decided";
+                assignee?: "me";
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description The queue */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        items: components["schemas"]["QueueView"][];
+                        overdue: number;
+                        suggested: components["schemas"]["QueueView"][];
+                        review_targets_h: {
+                            [key: string]: number;
+                        };
+                    };
+                };
+            };
+            400: components["responses"]["Error"];
+            401: components["responses"]["Error"];
+            403: components["responses"]["Error"];
+            404: components["responses"]["Error"];
+            429: components["responses"]["TooManyRequests"];
+        };
+    };
+    enqueueForReview: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: components["parameters"]["CaseID"];
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": {
+                    /**
+                     * @default normal
+                     * @enum {string}
+                     */
+                    priority?: "urgent" | "high" | "normal" | "low";
+                    reason: string;
+                };
+            };
+        };
+        responses: {
+            /** @description The queue item */
+            200: {
+                headers: {
+                    "X-Audit-Incomplete": components["headers"]["AuditIncomplete"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["QueueView"];
+                };
+            };
+            400: components["responses"]["Error"];
+            401: components["responses"]["Error"];
+            403: components["responses"]["Error"];
+            404: components["responses"]["Error"];
+            429: components["responses"]["TooManyRequests"];
+        };
+    };
+    moveReview: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: components["parameters"]["CaseID"];
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": {
+                    /** @enum {string} */
+                    action: "assign" | "start" | "decide" | "release";
+                    assignee?: string;
+                    /** @enum {string} */
+                    outcome?: "approve" | "reject" | "changes";
+                    reason?: string;
+                };
+            };
+        };
+        responses: {
+            /** @description The queue item */
+            200: {
+                headers: {
+                    "X-Audit-Incomplete": components["headers"]["AuditIncomplete"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["QueueView"];
+                };
+            };
+            400: components["responses"]["Error"];
+            401: components["responses"]["Error"];
+            403: components["responses"]["Error"];
+            404: components["responses"]["Error"];
+            409: components["responses"]["Error"];
+            429: components["responses"]["TooManyRequests"];
+        };
+    };
+    getCaseCollaboration: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: components["parameters"]["CaseID"];
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description The collaboration state */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Collaboration"];
+                };
+            };
+            400: components["responses"]["Error"];
+            401: components["responses"]["Error"];
+            403: components["responses"]["Error"];
+            404: components["responses"]["Error"];
+            429: components["responses"]["TooManyRequests"];
+        };
+    };
+    commentOnCase: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: components["parameters"]["CaseID"];
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": {
+                    body: string;
+                    parent_id?: string;
+                };
+            };
+        };
+        responses: {
+            /** @description The collaboration state after the comment */
+            201: {
+                headers: {
+                    "X-Audit-Incomplete": components["headers"]["AuditIncomplete"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Collaboration"];
+                };
+            };
+            400: components["responses"]["Error"];
+            401: components["responses"]["Error"];
+            403: components["responses"]["Error"];
+            404: components["responses"]["Error"];
+            409: components["responses"]["Error"];
+            429: components["responses"]["TooManyRequests"];
+        };
+    };
+    signOffCase: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: components["parameters"]["CaseID"];
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": {
+                    /** @enum {string} */
+                    decision: "approve" | "changes" | "reject";
+                    reason?: string;
+                };
+            };
+        };
+        responses: {
+            /** @description The collaboration state after the sign-off */
+            201: {
+                headers: {
+                    "X-Audit-Incomplete": components["headers"]["AuditIncomplete"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Collaboration"];
+                };
+            };
+            400: components["responses"]["Error"];
+            401: components["responses"]["Error"];
+            403: components["responses"]["Error"];
+            404: components["responses"]["Error"];
+            409: components["responses"]["Error"];
+            429: components["responses"]["TooManyRequests"];
+        };
+    };
+    setCaseCollaborator: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: components["parameters"]["CaseID"];
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": {
+                    email: string;
+                    /** @enum {string} */
+                    role: "broker" | "reviewer" | "";
+                };
+            };
+        };
+        responses: {
+            /** @description The collaboration state */
+            200: {
+                headers: {
+                    "X-Audit-Incomplete": components["headers"]["AuditIncomplete"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Collaboration"];
+                };
+            };
+            400: components["responses"]["Error"];
+            401: components["responses"]["Error"];
+            403: components["responses"]["Error"];
+            404: components["responses"]["Error"];
+            409: components["responses"]["Error"];
+            429: components["responses"]["TooManyRequests"];
+        };
+    };
+    getBrokerReviewComments: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description The threads */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        threads: components["schemas"]["CommentThread"][];
+                    };
+                };
+            };
+            404: components["responses"]["Error"];
+            410: components["responses"]["Error"];
+            429: components["responses"]["TooManyRequests"];
+        };
+    };
+    postBrokerReviewComment: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": {
+                    body: string;
+                    parent_id?: string;
+                };
+            };
+        };
+        responses: {
+            /** @description The threads after the comment */
+            201: {
+                headers: {
+                    "X-Audit-Incomplete": components["headers"]["AuditIncomplete"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        threads: components["schemas"]["CommentThread"][];
+                    };
+                };
+            };
+            400: components["responses"]["Error"];
+            404: components["responses"]["Error"];
+            409: components["responses"]["Error"];
+            410: components["responses"]["Error"];
+            429: components["responses"]["TooManyRequests"];
+        };
+    };
+    getRulingFiling: {
+        parameters: {
+            query?: {
+                format?: "json" | "zip" | "pdf";
+            };
+            header?: never;
+            path: {
+                id: components["parameters"]["CaseID"];
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description The state or the package */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["FilingView"];
+                    "application/zip": string;
+                    "application/pdf": string;
+                };
+            };
+            400: components["responses"]["Error"];
+            401: components["responses"]["Error"];
+            403: components["responses"]["Error"];
+            404: components["responses"]["Error"];
+            429: components["responses"]["TooManyRequests"];
+        };
+    };
+    prepareRulingFiling: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: components["parameters"]["CaseID"];
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": {
+                    submitter?: components["schemas"]["FilingSubmitter"];
+                    /** @description The broker's edited letter (Markdown, under 64 KB). Omit to generate it. */
+                    letter?: string;
+                    attachments?: {
+                        name: string;
+                        description?: string;
+                        sha256?: string;
+                        bytes?: number;
+                    }[];
+                    plan_id?: string;
+                    plan_index?: number;
+                    move_key?: string;
+                    target?: string;
+                };
+            };
+        };
+        responses: {
+            /** @description The package's state */
+            200: {
+                headers: {
+                    "X-Audit-Incomplete": components["headers"]["AuditIncomplete"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["FilingView"];
+                };
+            };
+            400: components["responses"]["Error"];
+            401: components["responses"]["Error"];
+            403: components["responses"]["Error"];
+            404: components["responses"]["Error"];
+            409: components["responses"]["Error"];
+            429: components["responses"]["TooManyRequests"];
+        };
+    };
+    setRulingFilingStatus: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: components["parameters"]["CaseID"];
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": {
+                    /** @enum {string} */
+                    status: "submitted" | "acknowledged" | "ruling_issued" | "withdrawn";
+                    reference?: string;
+                    note?: string;
+                };
+            };
+        };
+        responses: {
+            /** @description The package's state */
+            200: {
+                headers: {
+                    "X-Audit-Incomplete": components["headers"]["AuditIncomplete"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["FilingView"];
+                };
+            };
+            400: components["responses"]["Error"];
+            401: components["responses"]["Error"];
+            403: components["responses"]["Error"];
+            404: components["responses"]["Error"];
+            409: components["responses"]["Error"];
+            429: components["responses"]["TooManyRequests"];
         };
     };
     importProduct: {

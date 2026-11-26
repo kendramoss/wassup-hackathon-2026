@@ -125,6 +125,18 @@ var auditTable = map[string]auditRoute{
 	"DELETE /v1/cases/{id}/reviews/{review}":       {auditTwoPhase, audit.ReviewRevoke},
 	"GET /v1/review":                               {auditSingleOnly, audit.ReviewView},
 	"POST /v1/review/decision":                     {auditTwoPhase, audit.ReviewDecision},
+	"PUT /v1/cases/{id}/queue":                     {auditTwoPhase, audit.QueueChange},
+	"POST /v1/cases/{id}/queue/transition":         {auditTwoPhase, audit.QueueChange},
+	"GET /v1/queue":                                {auditDenyOnly, audit.CaseRead},
+	"GET /v1/cases/{id}/collab":                    {auditDenyOnly, audit.CaseRead},
+	"POST /v1/cases/{id}/comments":                 {auditTwoPhase, audit.CaseComment},
+	"POST /v1/cases/{id}/approvals":                {auditTwoPhase, audit.CaseApproval},
+	"PUT /v1/cases/{id}/collaborators":             {auditTwoPhase, audit.CaseCollaborator},
+	"GET /v1/review/comments":                      {auditSingleOnly, audit.ReviewView},
+	"POST /v1/review/comments":                     {auditTwoPhase, audit.CaseComment},
+	"POST /v1/cases/{id}/filing":                   {auditTwoPhase, audit.FilingPrepare},
+	"GET /v1/cases/{id}/filing":                    {auditDenyOnly, audit.CaseRead}, // a download is recorded as filing.download by the handler
+	"POST /v1/cases/{id}/filing/status":            {auditTwoPhase, audit.FilingStatus},
 	"GET /health":                                  {auditNone, ""},
 }
 
