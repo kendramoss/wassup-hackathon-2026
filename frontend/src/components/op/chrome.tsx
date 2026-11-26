@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useStepLabel } from "./demo-tour";
-import { ViewTransition, createContext, useCallback, useContext, useEffect, useRef, useState, type ReactNode } from "react";
+import { createContext, useCallback, useContext, useEffect, useRef, useState, type ReactNode } from "react";
 import { api, ApiError, errorText, isDailyLimit, type CaseSummary } from "@/lib/api/client";
 import { copy } from "@/lib/copy";
 import { stepIndex } from "@/lib/format";
@@ -29,20 +29,17 @@ export function AppBar({ active = "cases", sticky = false }: { active?: "cases" 
     // true middle on one row: logo and case breadcrumb left, actions right.
     <header
       className={cx(
-        "no-print flex min-h-14 flex-wrap items-center gap-x-5 gap-y-2 max-sm:gap-x-4 border-b border-line bg-paper px-4 py-2 sm:px-10 md:grid md:grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] md:gap-x-4 lg:gap-x-6",
+        "no-print flex min-h-14 flex-wrap items-center gap-x-5 gap-y-2 border-b border-line bg-paper px-4 py-2 sm:px-10 md:grid md:grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] md:gap-x-4 lg:gap-x-6",
         sticky && "sticky top-0 z-30",
       )}
     >
-      {/* Below sm the logo takes what the actions leave and its name may wrap,
-          so the actions never drop to a row of their own and the view toggle
-          and account tile sit where the business bar has them (#864). */}
-      <div className="flex min-w-0 items-center gap-5 max-sm:flex-1 max-sm:basis-0">
+      <div className="flex min-w-0 items-center gap-5">
         {/* On the landing page a link to "/" doesn't navigate, so it scrolls
             back to the top instead; elsewhere it goes home as usual. The path
             is read on click, so the bar still prerenders. */}
         <Link
           href="/"
-          className="flex shrink-0 items-center gap-2.5 text-[19px] font-semibold tracking-[-0.03em] max-sm:min-h-11 max-sm:shrink max-sm:leading-tight"
+          className="flex shrink-0 items-center gap-2.5 text-[19px] font-semibold tracking-[-0.03em] max-sm:min-h-11"
           onClick={(e) => {
             if (window.location.pathname !== "/") return;
             e.preventDefault();
@@ -91,10 +88,7 @@ export function AppBar({ active = "cases", sticky = false }: { active?: "cases" 
           </ButtonLink>
           <ViewToggle view="technical" />
           {/* The account square ends the bar: Google's G signed out, your initial signed in. */}
-          {/* Named in both bars so it holds still while the page crossfades. */}
-          <ViewTransition name="account-tile" share="bar-keep" default="none">
-            <SignIn />
-          </ViewTransition>
+          <SignIn />
         </span>
       </div>
     </header>

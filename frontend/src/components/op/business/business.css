@@ -14,15 +14,13 @@
 }
 .biz .mono { font-family: var(--font-paper-mono), ui-monospace, monospace; font-variant-numeric: tabular-nums; }
 
-/* Top bar. Same height, side padding and right-hand spacing as the
-   technical bar, so the view toggle and the account tile stay in place
-   when you switch views. */
-.biz-bar { box-sizing: border-box; height: 67px; flex-shrink: 0; display: flex; align-items: center; gap: 40px; padding: 0 40px; border-bottom: 1px solid var(--hair); background: var(--paper); }
+/* Top bar */
+.biz-bar { height: 64px; flex-shrink: 0; display: flex; align-items: center; gap: 40px; padding: 0 32px; border-bottom: 1px solid var(--hair); background: var(--paper); }
 .biz-logo { display: flex; align-items: center; gap: 10px; font-size: 17px; font-weight: 600; color: var(--ink); }
 .biz-nav { display: flex; gap: 24px; font-size: 14px; font-weight: 500; }
 .biz-nav a { color: var(--dim); transition: color 150ms var(--ease); }
 .biz-nav a:hover { color: var(--ink); }
-.biz-bar-end { margin-left: auto; display: flex; align-items: center; gap: 16px; }
+.biz-bar-end { margin-left: auto; display: flex; align-items: center; gap: 12px; }
 .biz-btn { display: inline-flex; align-items: center; height: 36px; padding: 0 16px; border-radius: 8px; font-size: 14px; font-weight: 500; transition: background-color 150ms var(--ease), transform 150ms var(--ease); }
 .biz-btn:active { transform: scale(0.98); }
 .biz-btn.ink { background: var(--ink); color: var(--sheet); }
@@ -110,7 +108,7 @@
 .biz-rows { grid-column: span 7; }
 .biz-row { height: 40px; display: grid; grid-template-columns: 1fr 120px 72px; align-items: center; font-size: 14px; border-bottom: 1px solid var(--hair-soft); }
 .biz-row.head { height: 32px; font-size: 12px; color: var(--dim); border-color: var(--hair); }
-.biz-switch { justify-self: end; width: 32px; height: 20px; padding: 0; border: 0; border-radius: 10px; position: relative; background: rgba(19, 33, 58, 0.12); cursor: pointer; transition: background-color 150ms var(--ease); }
+.biz-switch { justify-self: end; width: 32px; height: 20px; border-radius: 10px; position: relative; background: rgba(19, 33, 58, 0.12); }
 .biz-switch.on { background: var(--ok); }
 .biz-switch::after { content: ""; position: absolute; top: 2px; left: 2px; width: 16px; height: 16px; border-radius: 8px; background: #fff; box-shadow: 0 1px 2px rgba(19, 33, 58, 0.2); transition: transform 180ms var(--ease); }
 .biz-switch.on::after { transform: translateX(12px); }
@@ -119,7 +117,7 @@
 /* Phones and narrow screens: stack, scroll normally */
 @media (max-width: 1023px) {
   .biz { height: auto; min-height: 100dvh; }
-  .biz-bar { gap: 16px; }
+  .biz-bar { gap: 16px; padding: 0 16px; }
   .biz-nav { display: none; }
   .biz-shell { display: block; }
   .biz-side { border-right: 0; border-bottom: 1px solid var(--hair); }
@@ -132,16 +130,6 @@
   .biz-letters { height: 520px; }
   .biz-letter { width: 78%; height: 400px; }
   .biz-app-body { display: flex; flex-direction: column; }
-}
-.biz-narrow { display: none; }
-.biz-logo { min-width: 0; }
-.biz-btn { white-space: nowrap; }
-/* Below 640 px the business bar's actions match the technical bar's ("+ New",
-   toggle, tile, 16 px apart), so the toggle and tile hold still (#864). */
-@media (max-width: 639px) {
-  .biz-bar { padding: 0 16px; }
-  .biz-wide { display: none; }
-  .biz-narrow { display: inline; }
 }
 @media (prefers-reduced-motion: reduce) {
   .biz-story { scroll-behavior: auto; }
