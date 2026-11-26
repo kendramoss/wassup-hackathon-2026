@@ -1,5 +1,5 @@
 {
- "about": "Worked examples published by ASEAN Member State authorities, encoded as inputs to the ATIGA check with the result the source states. Written before the check was run on them (D924). No published ATIGA origin rulings were found (D924).",
+ "about": "Worked examples published by ASEAN Member State authorities, encoded as inputs to the ATIGA check with the result the source states. Written before the check was run on them (D925). No published ATIGA origin rulings were found (D925).",
  "sources": {
   "miti": {"title": "MITI Malaysia, Rules of Origin worked examples (AFTA/ATIGA)", "url": "https://www.miti.gov.my/index.php/pages/view/2071", "retrieved": "2026-11-27"},
   "sgc": {"title": "Singapore Customs, Handbook on Rules of Origin for Preferential Certificates of Origin (Dec 2025)", "url": "https://isomer-user-content.by.gov.sg/174/fc3ecb0b-d701-4d8f-9881-9d99f90f35a2/Handbook_on_ROO_for_PCO_Dec2025__clean_.pdf", "sha256": "6f9db34eb9923abb0831f30e70f1f67478c861dea63fc7f591cb9577e724da85", "retrieved": "2026-11-27"}

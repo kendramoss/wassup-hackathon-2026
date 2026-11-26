@@ -110,7 +110,7 @@ func NewHandler(logger *slog.Logger, info Info, deps ...Deps) http.Handler {
 		mux.HandleFunc("POST /v1/rcep/check", a.cheap(a.rcepCheck))   // RCEP preferential origin, no model
 		mux.HandleFunc("POST /v1/usmca/check", a.cheap(a.usmcaCheck)) // USMCA selected origin rule, no model
 		if d.ATIGACheck {
-			mux.HandleFunc("POST /v1/atiga/check", a.cheap(a.atigaCheck)) // ATIGA preferential origin, no model (D924)
+			mux.HandleFunc("POST /v1/atiga/check", a.cheap(a.atigaCheck)) // ATIGA preferential origin, no model (D925)
 		}
 		if d.CanadaMarking != nil {
 			mux.HandleFunc("POST /v1/rules/canada-marking", a.cheap(a.canadaMarking))

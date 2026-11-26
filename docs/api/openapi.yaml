@@ -1645,7 +1645,7 @@ paths:
         Does a good made in an ASEAN Member State qualify as ATIGA originating, so it can claim the ATIGA (AFTA, Form D)
         preferential tariff when imported into another Member State? Served only with `ATIGA_CHECK=on` (default off:
         404). Deterministic code over the official Annex 3 product-specific rules (HS 2022, endorsed by the 36th AFTA
-        Council, read row by row from the ASEAN Secretariat workbook; `backend/internal/atiga`, D924). Implements
+        Council, read row by row from the ASEAN Secretariat workbook; `backend/internal/atiga`, D925). Implements
         Art. 26 and 27 (wholly obtained), Art. 28.1 (the general rule RVC40 or CTH for goods not listed in Annex 3),
         Art. 28.2 (the Annex 3 rule, including RVC35 with CTSH, "except from" exclusions, the textile process rule and
         "cut and sewn in any Member State", which the caller states in `processes`), Art. 29 RVC by the direct or

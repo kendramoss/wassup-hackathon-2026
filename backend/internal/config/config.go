@@ -314,7 +314,7 @@ type Config struct {
 	exportCFR177 string // as given, checked by validate
 	// ATIGACheck (on|off, default off) serves POST /v1/atiga/check and the
 	// check_atiga_preference MCP tool: ATIGA preferential origin from a bill
-	// of materials, deterministic, no model call (D924).
+	// of materials, deterministic, no model call (D925).
 	ATIGACheck bool
 	atigaCheck string // as given, checked by validate
 	// NearMissAdvice (on|off, default off) adds near-miss advice to the
