@@ -157,6 +157,7 @@ var auditTable = map[string]auditRoute{
 	"POST /v1/workspaces/{id}/sso/{conn}/verify":   {auditTwoPhase, audit.SSOConnectionUpdate},
 	"DELETE /v1/workspaces/{id}/sso/{conn}":        {auditTwoPhase, audit.SSOConnectionDelete},
 	"GET /v1/status":                               {auditNone, ""},
+	"GET /v1/workspaces/{id}/admin":                {auditSingleOnly, audit.WorkspaceAdminView},
 	"GET /v1/workspaces/{id}/scim":                 {auditDenyOnly, audit.SCIMTokenRead},
 	"POST /v1/workspaces/{id}/scim/token":          {auditTwoPhase, audit.SCIMTokenIssue},
 	"DELETE /v1/workspaces/{id}/scim/token":        {auditTwoPhase, audit.SCIMTokenRevoke},

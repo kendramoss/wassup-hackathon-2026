@@ -83,6 +83,9 @@ const (
 	SCIMUserUpdate  Action = "scim.user_update"
 	SCIMUserDelete  Action = "scim.user_delete"
 	SCIMUserRead    Action = "scim.user_read"
+
+	// Admin console (#870): the admin's one read of the workspace settings.
+	WorkspaceAdminView Action = "workspace.admin_view"
 	// Broker workflow (BROKER_WORKFLOW). The object is always the case; no
 	// comment, reason or letter text reaches the trail.
 	QueueChange      Action = "queue.change"
@@ -139,13 +142,14 @@ var actionSpecs = map[Action]actionSpec{
 	SSOLogin:            {details: []string{"", "provisioned"}},
 	// The identity provider changes who is in a workspace: it fails closed,
 	// like an invitation, a role change or a removal by an admin.
-	SCIMTokenIssue:  {sensitive: true},
-	SCIMTokenRevoke: {sensitive: true},
-	SCIMTokenRead:   {},
-	SCIMUserCreate:  {details: []string{"viewer", "editor", "admin"}, sensitive: true},
-	SCIMUserUpdate:  {details: []string{"viewer", "editor", "admin"}, sensitive: true},
-	SCIMUserDelete:  {details: []string{"", "deactivate"}, sensitive: true},
-	SCIMUserRead:    {},
+	SCIMTokenIssue:     {sensitive: true},
+	SCIMTokenRevoke:    {sensitive: true},
+	SCIMTokenRead:      {},
+	SCIMUserCreate:     {details: []string{"viewer", "editor", "admin"}, sensitive: true},
+	SCIMUserUpdate:     {details: []string{"viewer", "editor", "admin"}, sensitive: true},
+	SCIMUserDelete:     {details: []string{"", "deactivate"}, sensitive: true},
+	SCIMUserRead:       {},
+	WorkspaceAdminView: {},
 	// A comment, a sign-off or a per-case role changes only the case's own
 	// discussion; preparing a package stays inside the system and a download
 	// goes to someone who can already read the case. None fails closed.

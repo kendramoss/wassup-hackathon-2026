@@ -3897,3 +3897,9 @@ Off by default (`SCIM=on`, needs `SSO=on`); production behaviour is unchanged.
 - **Audit.** Token issue and revoke and user create, update and delete are sensitive and fail closed; provider actions use the system actor in the workspace tenant, members as pseudonyms.
 - **Gap.** The frontend proxy does not forward `Authorization` to the backend, so the bearer token must be mapped to `X-SCIM-Token` there before an IdP can reach SCIM through the site; frontend work, not done.
 - **Checks.** Unit tests of tokens, filters, PATCH and roles; HTTP tests of the lifecycle, domain and workspace scoping, admin protection, bad tokens and rate limit, flag off = 404, audit actor and the fail-closed rows. No model spend.
+
+## D935 — Admin console backend: one settings overview for a workspace admin (27 Nov, #870)
+Off by default (`ADMIN_CONSOLE=on`, needs `TEAMS=on`).
+- **Shape.** `GET /v1/workspaces/{id}/admin` returns, for a workspace admin, the members and roles, pending invitations, which features are on, the SSO connections with domain status (D929), the SCIM token status (D934), the retention policy (D924) and this month's usage (metering), each only when its feature is on, plus the route that changes each. Changes stay on the existing routes, each with its own checks and audit; the console adds no new write path.
+- **No leakage.** The answer never carries a SCIM token or hash, an OIDC client secret, a DNS verification value or who sent an invitation; a test checks the body. Editors get 403, other workspaces 404, a SCIM token 401. The read is audited (`workspace.admin_view`).
+- **Not done.** The screen itself; renaming a workspace (no store method yet); API keys are issued by the operator, not per workspace, so they are not in the overview.

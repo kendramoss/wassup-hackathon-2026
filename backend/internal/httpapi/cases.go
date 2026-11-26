@@ -272,6 +272,9 @@ type Deps struct {
 	// are registered only with SSO, whose verified domains bound what a
 	// token may manage. Nil: 404.
 	SCIM scim.Store
+	// AdminConsole registers GET /v1/workspaces/{id}/admin (#870), the
+	// workspace admin's settings overview. Needs Teams.
+	AdminConsole bool
 	// APIKeys, when set, accepts X-API-Key (its own rate-limit buckets, a
 	// daily request quota, cases owned by the key) and serves the admin key
 	// endpoints (D69). Nil: the header is ignored and the endpoints are 404.

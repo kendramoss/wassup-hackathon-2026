@@ -102,6 +102,7 @@ var routeTable = map[string]routeClass{
 	"PUT /v1/workspaces/{id}/sso/{conn}":           noCaseData,
 	"POST /v1/workspaces/{id}/sso/{conn}/verify":   noCaseData,
 	"DELETE /v1/workspaces/{id}/sso/{conn}":        noCaseData,
+	"GET /v1/workspaces/{id}/admin":                noCaseData,
 	"GET /v1/workspaces/{id}/scim":                 noCaseData,
 	"POST /v1/workspaces/{id}/scim/token":          noCaseData,
 	"DELETE /v1/workspaces/{id}/scim/token":        noCaseData,

@@ -3286,6 +3286,37 @@ paths:
         "403": { $ref: "#/components/responses/Error" }
         "404": { $ref: "#/components/responses/Error" }
         "503": { $ref: "#/components/responses/Error" }
+  /v1/workspaces/{id}/admin:
+    get:
+      operationId: getAdminConsole
+      summary: The workspace admin's settings overview (ADMIN_CONSOLE=on, workspace admin)
+      description: "Members with roles, pending invitations, which features are on, the SSO connections and their domains, the SCIM token status, the retention policy and this month's usage, each only when its feature is on, and the route that changes each. Read only; never a token, hash, client secret or DNS verification value."
+      parameters:
+        - { $ref: "#/components/parameters/UserToken" }
+        - { name: id, in: path, required: true, schema: { type: string } }
+      responses:
+        "200":
+          headers:
+            X-Audit-Incomplete: { $ref: "#/components/headers/AuditIncomplete" }
+          description: The overview
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [workspace, members, invited, features, routes]
+                properties:
+                  workspace: { type: object, properties: { id: { type: string }, name: { type: string }, created_at: { type: string, format: date-time }, member_count: { type: integer } } }
+                  members: { type: array, items: { type: object, properties: { email: { type: string }, role: { type: string } } } }
+                  invited: { type: array, items: { type: string } }
+                  features: { type: object, additionalProperties: { type: boolean } }
+                  sso: { type: object }
+                  scim: { type: object }
+                  retention: { type: object, properties: { case_days: { type: integer } } }
+                  usage: { type: object }
+                  routes: { type: object, additionalProperties: { type: string } }
+        "401": { $ref: "#/components/responses/Error" }
+        "403": { $ref: "#/components/responses/Error" }
+        "404": { $ref: "#/components/responses/Error" }
   /v1/workspaces/{id}/scim:
     get:
       operationId: getSCIMToken
