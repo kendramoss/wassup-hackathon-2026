@@ -484,6 +484,15 @@ func newDeps(cfg config.Config, model, engineModel llm.Model, cases store.Cases,
 			return httpapi.Deps{}, err
 		}
 	}
+	// South Korea and Australia are RCEP Parties: their cases get the RCEP
+	// rules check from the product's codes, always reviewed.
+	if cfg.RuleCheck {
+		for _, a := range []jurisdiction.Authority{httpapi.RCEPAuthority(jurisdiction.KR, "Korea Customs Service"), httpapi.RCEPAuthority(jurisdiction.AU, "Australian Border Force")} {
+			if err = markets.Register(a); err != nil {
+				return httpapi.Deps{}, err
+			}
+		}
+	}
 	japan, err := japanAuthority(cfg, engineModel, meter, logger)
 	if err != nil {
 		return httpapi.Deps{}, err
