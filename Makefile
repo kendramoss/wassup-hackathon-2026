@@ -121,6 +121,7 @@ reproduce: ## recompute every published number from committed files: no model ca
 	python3 -I -B eval/planner/plan_rank.py . --check
 	python3 -I -B eval/agent/score.py . --check
 	python3 -I -B eval/jp/split.py . --check
+	python3 -I -B eval/ca/parse.py --check
 	python3 -I -B eval/jp/labels.py . --check
 	python3 -I -B eval/jp/labels.py . --fresh --check
 	python3 -I -B eval/jp/fresh_twins.py . --check

@@ -146,7 +146,7 @@ export const toolExamples: Record<ToolName, Example> = {
     input: { good_hts: "6301.30", country: "Mexico", materials: [{ hts: "5205.11", origin: "United States" }] },
     output: {
       jurisdiction: "ca",
-      label: "Rules check only — no accuracy figure yet (no published rulings to test against)",
+      label: "Rules check only — no accuracy figure yet (too few published rulings to test against)",
       result: { status: "undetermined" },
       note: "Canada marking review. Not a ruling.",
     },

@@ -9,6 +9,7 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/domain"
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/jurisdiction"
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/tariffshift"
 )
@@ -116,6 +117,45 @@ func TestCanadaRegisteredRulesOnly(t *testing.T) {
 	code, out = hs.do(t, "POST", "/v1/cases/predict", marketBody("A compressor housing machined in Mexico from a Chinese casting, shipped to Canada.", "ca"))
 	if code != http.StatusCreated || out["prediction"].(map[string]any)["origin_country"] != "" {
 		t.Fatalf("no codes: %d %v", code, out["prediction"])
+	}
+}
+
+// D923: a Canada case carries related published CBSA rulings, for reading
+// only; the rules-check answer is the same with or without them.
+func TestCanadaCaseShowsCBSARulings(t *testing.T) {
+	rules, err := tariffshift.CanadaRules()
+	if err != nil {
+		t.Fatal(err)
+	}
+	reg, err := jurisdiction.NewRegistry(jurisdiction.USAuthority, CanadaAuthority(rules))
+	if err != nil {
+		t.Fatal(err)
+	}
+	hs := newHarnessWith(t, RegimeGeneral, func(d *Deps) { d.Jurisdictions, d.CanadaMarking = reg, rules })
+	product := domain.Product{Name: "Decorative cushion", Family: "furniture", HTS: "9404.90",
+		Plants:     []domain.Plant{{ID: "us", Country: "United States"}, {ID: "cn", Country: "China"}},
+		Components: []domain.Component{{Name: "polyester cover", MadeIn: "China", Plant: "cn", HTS: "6307.90"}},
+		Operations: []domain.Operation{{Name: "fill and close", Plant: "us", Group: "final_assembly"}}}
+	body, _ := json.Marshal(map[string]any{"date": "2026-11-01", "jurisdiction": "ca", "family": "furniture", "product": product})
+	code, out := hs.do(t, "POST", "/v1/cases/predict", string(body))
+	if code != http.StatusCreated {
+		t.Fatalf("%d %v", code, out)
+	}
+	p := out["prediction"].(map[string]any)
+	got, _ := p["canada_rulings"].([]any)
+	if len(got) == 0 || len(got) > 3 {
+		t.Fatalf("canada_rulings %v", p["canada_rulings"])
+	}
+	first := got[0].(map[string]any)
+	if first["id"] != "8000002867" && first["id"] != "8000002155" || first["url"] == "" || first["holding"] == "" {
+		t.Fatalf("first %v", first)
+	}
+	want, err := canadaEngine{rules: rules}.Predict(context.Background(), domain.Case{Product: &product})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if p["origin_country"] != want.Prediction.Origin || p["decisive_step"] != want.Prediction.DecisiveStep || hs.engine.calls != 0 {
+		t.Fatalf("answer changed: %v vs %+v", p, want.Prediction)
 	}
 }
 

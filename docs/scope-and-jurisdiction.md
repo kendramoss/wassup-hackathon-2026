@@ -76,7 +76,7 @@ Gaps to state plainly:
 
 ### 3.1 Canada marking rules
 
-The Canada case flow and `POST /v1/rules/canada-marking` apply the Schedule III tariff shifts and general rules in SOR/94-23 for marking goods from CUSMA countries. Supply the finished good and material tariff codes and the production country. The check runs without a model. Canada has too few published rulings for an accuracy figure (D720–D725).
+The Canada case flow and `POST /v1/rules/canada-marking` apply the Schedule III tariff shifts and general rules in SOR/94-23 for marking goods from CUSMA countries. Supply the finished good and material tariff codes and the production country. The check runs without a model. Canada has too few published rulings for an accuracy figure (D720–D725). A Canada case also lists up to three related published CBSA origin or marking rulings, linked to the CBSA text; they are for reading and do not change the answer (D923).
 
 ### 3.2 Japan trade agreements
 
