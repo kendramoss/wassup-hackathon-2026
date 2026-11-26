@@ -15,6 +15,8 @@ import (
 
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/audit"
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/retention"
+	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/sso"
+	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/sso/ssotest"
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/store"
 )
 
@@ -88,6 +90,7 @@ type auditEnv struct {
 	svc   *audit.Service
 	fault *faultStore
 	clk   *auditClock
+	sso   *sso.MemoryStore
 	ret   *retention.Memory
 }
 
@@ -99,10 +102,21 @@ func newAuditEnvWith(t *testing.T, ownership bool, adjust ...func(*Deps)) *audit
 	if err != nil {
 		t.Fatal(err)
 	}
-	ae := &auditEnv{fault: &faultStore{Store: audit.NewMemory()}, clk: &auditClock{t: time.Date(2026, 11, 20, 10, 0, 0, 0, time.UTC)}}
+	ae := &auditEnv{fault: &faultStore{Store: audit.NewMemory()}, clk: &auditClock{t: time.Date(2026, 11, 20, 10, 0, 0, 0, time.UTC)}, sso: sso.NewMemoryStore()}
 	ae.svc = audit.NewService(ae.fault, ps, audit.Options{Now: ae.clk.now})
+	withSSO := func(d *Deps) {
+		keys, err := sso.NewKeys([]byte(strings.Repeat("a", 32)))
+		if err != nil {
+			t.Fatal(err)
+		}
+		svc, err := sso.New(sso.Config{SiteURL: "https://app.example.com"}, keys, ae.sso, sso.NewMemoryOneTime(nil), d.Workspaces)
+		if err != nil {
+			t.Fatal(err)
+		}
+		d.SSO = svc
+	}
 	ae.ret = retention.NewMemory()
-	ae.roleEnv = newRoleEnv(t, ownership, append([]func(*Deps){func(d *Deps) { d.Audit = ae.svc; d.Retention = ae.ret; d.AuditExport = true }}, adjust...)...)
+	ae.roleEnv = newRoleEnv(t, ownership, append([]func(*Deps){func(d *Deps) { d.Audit = ae.svc; d.Retention = ae.ret; d.AuditExport = true }, withSSO}, adjust...)...)
 	return ae
 }
 
@@ -545,6 +559,15 @@ func (e *auditEnv) sensitiveCases(t *testing.T) map[audit.Action]struct {
 		_, out := e.hs.doAs(t, "POST", "/v1/admin/api-keys", `{"name":"k","daily_quota":5}`, admin)
 		keyID = out["api_key"].(map[string]any)["id"].(string)
 	}
+	conns := map[string]string{}
+	for _, name := range []string{"upd", "del"} {
+		c := sso.Connection{ID: sso.NewConnectionID(), Workspace: fid, Protocol: sso.ProtocolOIDC, Domains: []string{name + ".example.org"},
+			OIDCIssuer: "https://idp.example.org", OIDCClientID: "c", DefaultRole: "viewer", VerifyToken: sso.NewVerifyToken()}
+		if err := e.sso.Put(context.Background(), c); err != nil {
+			t.Fatal(err)
+		}
+		conns[name] = c.ID
+	}
 	roleOf := func(email string) string {
 		w, _ := e.ws.Get(context.Background(), fid)
 		r, _ := w.RoleOf(email)
@@ -611,6 +634,33 @@ func (e *auditEnv) sensitiveCases(t *testing.T) map[audit.Action]struct {
 				}
 				return true
 			},
+		},
+		audit.SSOConnectionCreate: {
+			func() (int, map[string]any) {
+				certs, _ := json.Marshal([]string{ssotest.NewSAMLIdP(t).CertPEM})
+				return e.hs.doAs(t, "POST", "/v1/workspaces/"+fid+"/sso", `{"protocol":"saml","domains":["new.example.org"],"saml_sso_url":"https://idp.example.org/sso","saml_issuer":"https://idp.example.org","saml_certs_pem":`+string(certs)+`}`, user("fiona"))
+			},
+			func() bool {
+				cs, _ := e.sso.List(context.Background(), fid)
+				for _, c := range cs {
+					if len(c.Domains) > 0 && c.Domains[0] == "new.example.org" {
+						return false
+					}
+				}
+				return true
+			},
+		},
+		audit.SSOConnectionUpdate: {
+			func() (int, map[string]any) {
+				return e.hs.doAs(t, "PUT", "/v1/workspaces/"+fid+"/sso/"+conns["upd"], `{"protocol":"oidc","domains":["upd.example.org"],"oidc_issuer":"https://idp.example.org","oidc_client_id":"changed"}`, user("fiona"))
+			},
+			func() bool { c, _ := e.sso.Get(context.Background(), conns["upd"]); return c.OIDCClientID == "c" },
+		},
+		audit.SSOConnectionDelete: {
+			func() (int, map[string]any) {
+				return e.hs.doAs(t, "DELETE", "/v1/workspaces/"+fid+"/sso/"+conns["del"], "", user("fiona"))
+			},
+			func() bool { _, err := e.sso.Get(context.Background(), conns["del"]); return err == nil },
 		},
 		audit.APIKeyDisable: {
 			func() (int, map[string]any) { return e.hs.doAs(t, "DELETE", "/v1/admin/api-keys/"+keyID, "", admin) },

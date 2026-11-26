@@ -73,6 +73,7 @@ import (
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/retrieval"
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/router"
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/spend"
+	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/sso"
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/store"
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/tariffshift"
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/teams"
@@ -707,6 +708,26 @@ func newDeps(cfg config.Config, model, engineModel llm.Model, cases store.Cases,
 		}
 		logger.Info("teams on: Google sign-in and workspaces", "audience", cfg.TeamsAudience, "workspaces", kind)
 	}
+	// Single sign-on (#868): OIDC and SAML for workspaces with a verified
+	// email domain. Its session tokens are accepted beside Google's.
+	var ssoSvc *sso.Service
+	if cfg.SSO {
+		keys, err := sso.NewKeys([]byte(cfg.SSOSessionKey))
+		if err != nil {
+			return httpapi.Deps{}, err
+		}
+		var conns sso.Store = sso.NewMemoryStore()
+		var state sso.OneTime = sso.NewMemoryOneTime(nil)
+		kind := config.CasesMemory
+		if fs, ok := cases.(*store.Firestore); ok {
+			conns, state, kind = fs.SSOConnections(), fs.SSOOneTime(), config.CasesFirestore
+		}
+		if ssoSvc, err = sso.New(sso.Config{SiteURL: cfg.SSOSiteURL, SessionTTL: cfg.SSOSessionTTL}, keys, conns, state, workspaces); err != nil {
+			return httpapi.Deps{}, err
+		}
+		users = ssoSvc.Verifier(users)
+		logger.Info("sso on: OIDC and SAML sign-in", "store", kind, "session_ttl", cfg.SSOSessionTTL.String())
+	}
 	if cfg.StrictAuth && !cfg.Teams && !cfg.APIKeys {
 		logger.Warn("STRICT_AUTH is on but neither TEAMS nor API_KEYS is: only the admin token can reach private case routes")
 	}
@@ -783,6 +804,7 @@ func newDeps(cfg config.Config, model, engineModel llm.Model, cases store.Cases,
 		Teams:                 cfg.Teams,
 		Users:                 users,
 		Workspaces:            workspaces,
+		SSO:                   ssoSvc,
 		APIKeys:               keys,
 		StreamPredict:         cfg.StreamPredictOn(),
 		Spend:                 meter,

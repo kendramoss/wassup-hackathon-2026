@@ -154,6 +154,17 @@ func NewHandler(logger *slog.Logger, info Info, deps ...Deps) http.Handler {
 			mux.HandleFunc("POST /v1/workspaces/{id}/join", a.cheap(a.joinWorkspace))
 			mux.HandleFunc("PUT /v1/workspaces/{id}/members/{email}/role", a.cheap(a.setMemberRole))
 			mux.HandleFunc("DELETE /v1/workspaces/{id}/members/{email}", a.cheap(a.removeMember))
+			if d.SSO != nil {
+				mux.HandleFunc("POST /v1/sso/start", a.rateOnly(review, a.ssoStart))
+				mux.HandleFunc("POST /v1/sso/oidc/callback", a.rateOnly(review, a.ssoOIDCCallback))
+				mux.HandleFunc("POST /v1/sso/saml/acs", a.rateOnly(review, a.ssoSAMLACS))
+				mux.HandleFunc("GET /v1/sso/saml/metadata", a.cheap(a.ssoMetadata))
+				mux.HandleFunc("GET /v1/workspaces/{id}/sso", a.cheap(a.listSSOConnections))
+				mux.HandleFunc("POST /v1/workspaces/{id}/sso", a.cheap(a.createSSOConnection))
+				mux.HandleFunc("PUT /v1/workspaces/{id}/sso/{conn}", a.cheap(a.updateSSOConnection))
+				mux.HandleFunc("POST /v1/workspaces/{id}/sso/{conn}/verify", a.cheap(a.verifySSOConnection))
+				mux.HandleFunc("DELETE /v1/workspaces/{id}/sso/{conn}", a.cheap(a.deleteSSOConnection))
+			}
 			if d.Metering != nil {
 				mux.HandleFunc("GET /v1/workspaces/{id}/usage", a.cheap(a.workspaceUsage))
 				mux.HandleFunc("PUT /v1/workspaces/{id}/budget", a.cheap(a.putWorkspaceBudget))

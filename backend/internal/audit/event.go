@@ -67,6 +67,12 @@ const (
 	ReviewView     Action = "review.view"
 	ReviewDecision Action = "review.decision"
 
+	// Single sign-on (#868). The object is the connection.
+	SSOConnectionCreate Action = "sso.connection_create"
+	SSOConnectionUpdate Action = "sso.connection_update"
+	SSOConnectionDelete Action = "sso.connection_delete"
+	SSOConnectionList   Action = "sso.connection_list"
+	SSOLogin            Action = "sso.login"
 	// Broker workflow (BROKER_WORKFLOW). The object is always the case; no
 	// comment, reason or letter text reaches the trail.
 	QueueChange      Action = "queue.change"
@@ -115,6 +121,12 @@ var actionSpecs = map[Action]actionSpec{
 	ReviewRevoke:   {},
 	ReviewView:     {},
 	ReviewDecision: {details: []string{"approve", "changes", "file_request"}},
+	// Changing who can sign in to a workspace fails closed, like a role change.
+	SSOConnectionCreate: {sensitive: true},
+	SSOConnectionUpdate: {details: []string{"", "verify"}, sensitive: true},
+	SSOConnectionDelete: {sensitive: true},
+	SSOConnectionList:   {},
+	SSOLogin:            {details: []string{"", "provisioned"}},
 	// A comment, a sign-off or a per-case role changes only the case's own
 	// discussion; preparing a package stays inside the system and a download
 	// goes to someone who can already read the case. None fails closed.
@@ -258,7 +270,7 @@ var (
 	// user text by construction), "new" for an API key not yet issued, or a
 	// keyed opaque hash of an ID the requester supplied and the server did not
 	// confirm (see Pseudonymizer.Opaque).
-	objectPattern  = regexp.MustCompile(`^(case:(case_[0-9a-f]{12}|h_[0-9a-f]{16})|workspace:(ws_[0-9a-f]{12}|h_[0-9a-f]{16})|apikey:([0-9a-f]{16}|new|h_[0-9a-f]{16})|batch)$`)
+	objectPattern  = regexp.MustCompile(`^(case:(case_[0-9a-f]{12}|h_[0-9a-f]{16})|workspace:(ws_[0-9a-f]{12}|h_[0-9a-f]{16})|apikey:([0-9a-f]{16}|new|h_[0-9a-f]{16})|ssoconn:(sso_[0-9a-f]{16}|h_[0-9a-f]{16})|batch)$`)
 	routePattern   = regexp.MustCompile(`^[A-Z]{3,7} /[A-Za-z0-9/_{}.-]{0,110}$`)
 	requestPattern = regexp.MustCompile(`^(h_)?[0-9a-f]{16}$`)
 	hashPattern    = regexp.MustCompile(`^[0-9a-f]{64}$`)
@@ -429,6 +441,8 @@ func ObjectRef(kind, id string) (string, bool) {
 		ok = workspaceIDPattern.MatchString(id)
 	case "apikey":
 		ok = apiKeyIDPattern.MatchString(id)
+	case "ssoconn":
+		ok = ssoConnIDPattern.MatchString(id)
 	}
 	if !ok {
 		return "", false
@@ -440,6 +454,7 @@ var (
 	caseIDPattern      = regexp.MustCompile(`^case_[0-9a-f]{12}$`)
 	workspaceIDPattern = regexp.MustCompile(`^ws_[0-9a-f]{12}$`)
 	apiKeyIDPattern    = regexp.MustCompile(`^[0-9a-f]{16}$`)
+	ssoConnIDPattern   = regexp.MustCompile(`^sso_[0-9a-f]{16}$`)
 )
 
 // ValidActor reports whether s is a pseudonym (for the actor filter).

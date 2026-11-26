@@ -96,9 +96,10 @@ func startupValues(cfg config.Config) map[string][]string {
 		"audit":              {cfg.AuditMode},
 		"actor_key_id":       {cfg.AuditActorKeyID},
 		// Which kind of store backs a feature: fixed words, not Go type names.
-		"store":      {config.CasesFirestore, config.CasesFile, config.CasesMemory, cfg.AuditStore},
-		"workspaces": {config.CasesFirestore, config.CasesMemory},
-		"tier":       {string(placement.Shared), string(placement.Dedicated)},
-		"encryption": {string(envelope.LocalMode), string(envelope.KMSMode)},
+		"store":       {config.CasesFirestore, config.CasesFile, config.CasesMemory, cfg.AuditStore},
+		"workspaces":  {config.CasesFirestore, config.CasesMemory},
+		"session_ttl": {cfg.SSOSessionTTL.String()},
+		"tier":        {string(placement.Shared), string(placement.Dedicated)},
+		"encryption":  {string(envelope.LocalMode), string(envelope.KMSMode)},
 	}
 }

@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"math"
 	"net"
+	"net/url"
 	"os"
 	"regexp"
 	"strconv"
@@ -245,6 +246,17 @@ type Config struct {
 	// required when Teams is on.
 	Teams         bool
 	TeamsAudience string
+	// SSO (on|off, default off) serves enterprise single sign-on (#868),
+	// OIDC and SAML, for workspaces with a verified email domain. It needs
+	// Teams. SSOSessionKey (a secret, excluded from String, at least 32
+	// bytes) signs session tokens and seals stored client secrets;
+	// SSOSiteURL is the public https origin whose /sso/... pages receive
+	// the identity provider's callbacks; SSOSessionTTL is a session's
+	// lifetime (default 8h, at most 24h).
+	SSO           bool
+	SSOSessionKey string
+	SSOSiteURL    string
+	SSOSessionTTL time.Duration
 	// APIKeys (on|off, default off) accepts X-API-Key from brokers: the
 	// admin issues keys with a daily request quota, each key gets its own
 	// rate-limit buckets and owns its cases (D69). Keys are kept in Firestore
@@ -438,6 +450,9 @@ func FromEnv(getenv func(string) string) (Config, error) {
 		AuditRetentionDays:     e.integer("AUDIT_RETENTION_DAYS", 90),
 		AuditDir:               e.dir("AUDIT_DIR", "../data/audit"),
 		TeamsAudience:          e.str("TEAMS_AUDIENCE", ""),
+		SSOSessionKey:          e.str("SSO_SESSION_KEY", ""),
+		SSOSiteURL:             e.str("SSO_SITE_URL", ""),
+		SSOSessionTTL:          e.duration("SSO_SESSION_TTL", 8*time.Hour),
 		TextileRulings:         e.str("TEXTILE_RULINGS", "data/textile_rulings.json"),
 		TextileFastPath:        e.float("TEXTILE_FAST_PATH", 0),
 		TextilePrompt:          strings.ToLower(e.str("TEXTILE_PROMPT", "v1")),
@@ -523,6 +538,13 @@ func FromEnv(getenv func(string) string) (Config, error) {
 	case "off", "false", "0":
 	default:
 		e.errs = append(e.errs, fmt.Errorf("TEAMS must be on or off, got %q", v))
+	}
+	switch v := strings.ToLower(e.str("SSO", "off")); v {
+	case "on", "true", "1":
+		c.SSO = true
+	case "off", "false", "0":
+	default:
+		e.errs = append(e.errs, fmt.Errorf("SSO must be on or off, got %q", v))
 	}
 	switch v := strings.ToLower(e.str("API_KEYS", "off")); v {
 	case "on", "true", "1":
@@ -862,6 +884,21 @@ func (c Config) validate() error {
 	case VerdictsOff:
 	default:
 		bad("VERIFIER_CACHE_STORE must be firestore, file or off, got %q", c.VerifierCacheStore)
+	}
+	// SSO (#868). Messages never include the key.
+	if c.SSO {
+		if !c.Teams {
+			bad("SSO=on needs TEAMS=on (single sign-on signs users in to workspaces)")
+		}
+		if len(c.SSOSessionKey) < 32 {
+			bad("SSO=on needs SSO_SESSION_KEY of at least 32 bytes (it is a secret: use a random value from the secret manager)")
+		}
+		if u, err := url.Parse(c.SSOSiteURL); err != nil || u.Scheme != "https" || u.Host == "" || (u.Path != "" && u.Path != "/") {
+			bad("SSO=on needs SSO_SITE_URL, the site's https origin (e.g. https://example.com), got %q", c.SSOSiteURL)
+		}
+		if c.SSOSessionTTL < 5*time.Minute || c.SSOSessionTTL > 24*time.Hour {
+			bad("SSO_SESSION_TTL must be between 5m and 24h, got %s", c.SSOSessionTTL)
+		}
 	}
 	// Audit (#284). Messages never include the key.
 	if c.AuditActorKey != "" && len(c.AuditActorKey) < audit.MinKeyBytes {
