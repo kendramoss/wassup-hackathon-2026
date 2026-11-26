@@ -98,3 +98,34 @@ func TestProvisionUsesPendingInvitation(t *testing.T) {
 		t.Fatalf("role = %v", r)
 	}
 }
+
+func TestSetProvisionedRoleKeepsAnAdmin(t *testing.T) {
+	ctx := context.Background()
+	m := NewMemory()
+	if err := m.Create(ctx, Workspace{ID: "ws_a", Members: []string{"admin@a.com"}, CreatedBy: "admin@a.com", Roles: map[string]string{"admin@a.com": "admin"}}); err != nil {
+		t.Fatal(err)
+	}
+	if _, err := m.SetProvisionedRole(ctx, "ws_a", "admin@a.com", RoleViewer); !errors.Is(err, ErrLastAdmin) {
+		t.Fatalf("demote last admin = %v", err)
+	}
+	if _, err := m.SetProvisionedRole(ctx, "ws_a", "nobody@a.com", RoleViewer); !errors.Is(err, ErrNotMember) {
+		t.Fatalf("non-member = %v", err)
+	}
+	if _, err := m.Provision(ctx, "ws_a", "b@a.com", RoleViewer); err != nil {
+		t.Fatal(err)
+	}
+	if _, err := m.SetProvisionedRole(ctx, "ws_a", "b@a.com", Role("owner")); !errors.Is(err, ErrInvalidRole) {
+		t.Fatalf("bad role = %v", err)
+	}
+	w, err := m.SetProvisionedRole(ctx, "ws_a", "b@a.com", RoleAdmin)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if r, _ := w.RoleOf("b@a.com"); r != RoleAdmin {
+		t.Fatal(r)
+	}
+	// Two admins: either may now be demoted.
+	if _, err := m.SetProvisionedRole(ctx, "ws_a", "admin@a.com", RoleEditor); err != nil {
+		t.Fatal(err)
+	}
+}

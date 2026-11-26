@@ -92,6 +92,9 @@ func isLocalHost(h string) bool { return h == "localhost" || h == "127.0.0.1" ||
 // RedirectURL is the OIDC redirect URI to register with the provider.
 func (s *Service) RedirectURL() string { return s.site + "/sso/oidc/callback" }
 
+// SiteURL is the public origin the service was configured with.
+func (s *Service) SiteURL() string { return s.site }
+
 // ACSURL is the SAML assertion consumer service URL.
 func (s *Service) ACSURL() string { return s.site + "/sso/saml/acs" }
 

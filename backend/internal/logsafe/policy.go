@@ -191,7 +191,7 @@ var knownMessages = []string{
 	"precedent-check panel on", "production config", "rate counters not pruned", "rate limits counted in fixed windows in memory", "rate limits shared in Firestore",
 	"request", "retention on: workspace policies and tombstones", "router failed; scope unknown", "shared rate limiter unavailable; using this instance's limits",
 	"sign-in token refused", "specialist engine failed; provisional general prediction needs review",
-	"sso error", "sso on: OIDC and SAML sign-in", "sso provider returned an error", "sso sign-in refused",
+	"scim error", "scim on: provisioning for SSO-verified domains", "sso error", "sso on: OIDC and SAML sign-in", "sso provider returned an error", "sso sign-in refused",
 	"sso sign-in refused: member of another workspace",
 	"teams on: Google sign-in and workspaces", "textile engine on",
 	"verifier verdicts and engine predictions cached in Firestore", "verifier verdicts and engine predictions cached",

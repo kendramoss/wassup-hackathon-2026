@@ -814,3 +814,32 @@ func TestRecordsFlagsDefaultOff(t *testing.T) {
 		t.Fatal("accepted RETENTION=maybe")
 	}
 }
+
+func TestSSOAndSCIMConfig(t *testing.T) {
+	c, err := FromEnv(getenv(vertexEnv()))
+	if err != nil || c.SSO || c.SCIM {
+		t.Fatalf("defaults = %v %v %v, want both off", c.SSO, c.SCIM, err)
+	}
+	teams := map[string]string{"TEAMS": "on", "TEAMS_AUDIENCE": "1234-abc.apps.googleusercontent.com"}
+	sso := merge(teams, map[string]string{"SSO": "on", "SSO_SESSION_KEY": strings.Repeat("k", 32), "SSO_SITE_URL": "https://app.example.com"})
+	on, err := FromEnv(getenv(merge(vertexEnv(), merge(sso, map[string]string{"SCIM": "on"}))))
+	if err != nil || !on.SSO || !on.SCIM || on.SSOSessionTTL != 8*time.Hour {
+		t.Fatalf("on = %v %v %v %v", on.SSO, on.SCIM, on.SSOSessionTTL, err)
+	}
+	if strings.Contains(on.String(), strings.Repeat("k", 32)) {
+		t.Error("the session key is printed")
+	}
+	for _, bad := range []map[string]string{
+		{"SSO": "on", "SSO_SESSION_KEY": strings.Repeat("k", 32), "SSO_SITE_URL": "https://app.example.com"}, // no TEAMS
+		merge(sso, map[string]string{"SSO_SESSION_KEY": "short"}),
+		merge(sso, map[string]string{"SSO_SITE_URL": "http://app.example.com"}),
+		merge(sso, map[string]string{"SSO_SITE_URL": "https://app.example.com/path"}),
+		merge(sso, map[string]string{"SSO_SESSION_TTL": "48h"}),
+		merge(teams, map[string]string{"SCIM": "on"}), // no SSO
+		merge(sso, map[string]string{"SCIM": "maybe"}),
+	} {
+		if _, err := FromEnv(getenv(merge(vertexEnv(), bad))); err == nil || !strings.Contains(err.Error(), "SSO") && !strings.Contains(err.Error(), "SCIM") {
+			t.Errorf("%v accepted: %v", bad, err)
+		}
+	}
+}

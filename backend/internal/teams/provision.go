@@ -20,6 +20,9 @@ type Provisioner interface {
 	// ErrLastAdmin (the identity provider cannot leave a workspace with no
 	// admin).
 	Deprovision(ctx context.Context, id, email string) (Workspace, error)
+	// SetProvisionedRole sets a joined member's role for the identity
+	// provider. ErrNotFound, ErrNotMember, ErrInvalidRole, ErrLastAdmin.
+	SetProvisionedRole(ctx context.Context, id, email string, role Role) (Workspace, error)
 }
 
 // WithProvisioned returns w with email a member with role, or w unchanged if
@@ -60,6 +63,41 @@ func (w Workspace) WithDeprovisioned(email string) (Workspace, error) {
 	w.Roles = w.cloneRoles()
 	delete(w.Roles, email)
 	return w, nil
+}
+
+// WithProvisionedRole returns w with email's role set to role. The last admin
+// cannot be demoted. w is not changed.
+func (w Workspace) WithProvisionedRole(email string, role Role) (Workspace, error) {
+	if _, ok := ParseRole(string(role)); !ok {
+		return Workspace{}, ErrInvalidRole
+	}
+	cur, ok := w.RoleOf(email)
+	if !ok {
+		return Workspace{}, ErrNotMember
+	}
+	if cur == RoleAdmin && role != RoleAdmin && w.adminCount() <= 1 {
+		return Workspace{}, ErrLastAdmin
+	}
+	w.Members, w.Invited = slices.Clone(w.Members), slices.Clone(w.Invited)
+	w.Roles = w.cloneRoles()
+	w.Roles[email] = string(role)
+	return w, nil
+}
+
+// SetProvisionedRole implements Provisioner.
+func (m *Memory) SetProvisionedRole(_ context.Context, id, email string, role Role) (Workspace, error) {
+	m.mu.Lock()
+	defer m.mu.Unlock()
+	w, ok := m.byID[id]
+	if !ok {
+		return Workspace{}, ErrNotFound
+	}
+	next, err := w.WithProvisionedRole(email, role)
+	if err != nil {
+		return Workspace{}, err
+	}
+	m.byID[id] = next
+	return m.get(id)
 }
 
 // Provision implements Provisioner.

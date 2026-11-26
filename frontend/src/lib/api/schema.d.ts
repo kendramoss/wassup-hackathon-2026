@@ -1726,10 +1726,218 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/v1/workspaces/{id}/scim": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * The workspace's SCIM token status (SCIM=on, workspace admin)
+         * @description Whether a token exists, its last four characters, the domains it manages, its default role and allow_admin, and the base URL and header an identity provider uses. Never the token itself.
+         */
+        get: operations["getSCIMToken"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/workspaces/{id}/scim/token": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Issue the workspace's SCIM token, replacing any previous one (SCIM=on, workspace admin)
+         * @description Every domain must be verified on one of the workspace's SSO connections (409 scim_unverified_domain). default_role is viewer or editor. allow_admin lets the token grant, change and remove the admin role; without it, admins are out of the token's reach. The token is in this answer only and is stored as a SHA-256 hash.
+         */
+        post: operations["issueSCIMToken"];
+        /** Revoke the workspace's SCIM token (SCIM=on, workspace admin) */
+        delete: operations["revokeSCIMToken"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/scim/v2/ServiceProviderConfig": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** SCIM service provider configuration (RFC 7643 5) */
+        get: operations["scimServiceProviderConfig"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/scim/v2/ResourceTypes": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** SCIM resource types (User only) */
+        get: operations["scimResourceTypes"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/scim/v2/Schemas": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** SCIM schemas (the User attributes this server reads) */
+        get: operations["scimSchemas"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/scim/v2/Users": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * List the members the token manages (SCIM=on)
+         * @description Only members of the token's workspace on its domains. The one filter supported is userName eq "email" (400 invalidFilter otherwise). startIndex and count page the list; count is at most 100.
+         */
+        get: operations["listSCIMUsers"];
+        put?: never;
+        /**
+         * Add a member (SCIM=on)
+         * @description userName (or the primary email) must be on one of the token's domains (403 otherwise). The role is roles[0].value or the token's default; admin needs allow_admin (403). A member already: 409 uniqueness. Someone in another workspace: 409 that names nothing.
+         */
+        post: operations["createSCIMUser"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/scim/v2/Users/{uid}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** One member the token manages (SCIM=on) */
+        get: operations["getSCIMUser"];
+        /**
+         * Set a member's role and active state (SCIM=on)
+         * @description active false removes the member from the workspace. userName cannot change (400 mutability). Changing an admin, or to admin, needs allow_admin (403); the last admin cannot be demoted (409).
+         */
+        put: operations["replaceSCIMUser"];
+        post?: never;
+        /**
+         * Remove a member (SCIM=on)
+         * @description An admin needs allow_admin (403); the last admin cannot be removed (409).
+         */
+        delete: operations["deleteSCIMUser"];
+        options?: never;
+        head?: never;
+        /**
+         * Change active or roles (SCIM=on)
+         * @description PatchOp with replace or add on active or roles, by path or as a value object; Entra ID's string booleans ("False") are accepted. active false removes the member. Other attributes: 400.
+         */
+        patch: operations["patchSCIMUser"];
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
     schemas: {
+        SCIMTokenStatus: {
+            configured: boolean;
+            /** @description The token's last four characters */
+            hint?: string;
+            domains: string[];
+            /** @enum {string} */
+            default_role?: "viewer" | "editor";
+            allow_admin: boolean;
+            /** Format: date-time */
+            created_at?: string;
+            /** @description The SCIM base URL to give the identity provider */
+            base_url: string;
+            token_header: string;
+            /** @description Only in the answer that issues it */
+            token?: string;
+        };
+        SCIMUserInput: {
+            schemas?: string[];
+            /** @description The member's email */
+            userName?: string;
+            active?: boolean;
+            emails?: {
+                value?: string;
+                primary?: boolean;
+                type?: string;
+            }[];
+            roles?: {
+                /** @enum {string} */
+                value?: "viewer" | "editor" | "admin";
+            }[];
+        };
+        SCIMUser: {
+            schemas: string[];
+            id: string;
+            userName: string;
+            active: boolean;
+            emails: {
+                value?: string;
+                primary?: boolean;
+                type?: string;
+            }[];
+            roles: {
+                value?: string;
+                primary?: boolean;
+            }[];
+            meta: {
+                resourceType?: string;
+                location?: string;
+            };
+        };
+        SCIMUserList: {
+            schemas: string[];
+            totalResults: number;
+            startIndex: number;
+            itemsPerPage: number;
+            Resources: components["schemas"]["SCIMUser"][];
+        };
+        SCIMError: {
+            schemas: string[];
+            status: string;
+            scimType?: string;
+            detail: string;
+        };
         SSOConnectionRequest: {
             /** @enum {string} */
             protocol: "oidc" | "saml";
@@ -2253,7 +2461,7 @@ export interface components {
         };
         Error: {
             /** @enum {string} */
-            code: "invalid_input" | "not_found" | "model_unavailable" | "model_bad_response" | "out_of_scope" | "internal" | "rate_limited" | "too_many_in_flight" | "client_budget_reached" | "auth_rate_limited" | "forbidden" | "budget_reached" | "unauthenticated" | "conflict" | "unauthorized" | "quota_exceeded" | "audit_unavailable" | "review_not_found" | "link_revoked" | "link_expired" | "workspace_budget_reached" | "sso_not_configured" | "sso_failed" | "sso_other_workspace" | "sso_unavailable" | "sso_unverified" | "sso_domain_taken" | "sso_limit";
+            code: "invalid_input" | "not_found" | "model_unavailable" | "model_bad_response" | "out_of_scope" | "internal" | "rate_limited" | "too_many_in_flight" | "client_budget_reached" | "auth_rate_limited" | "forbidden" | "budget_reached" | "unauthenticated" | "conflict" | "unauthorized" | "quota_exceeded" | "audit_unavailable" | "review_not_found" | "link_revoked" | "link_expired" | "workspace_budget_reached" | "sso_not_configured" | "sso_failed" | "sso_other_workspace" | "sso_unavailable" | "sso_unverified" | "sso_domain_taken" | "sso_limit" | "scim_unverified_domain";
             message: string;
             details?: unknown;
         };
@@ -4128,6 +4336,15 @@ export interface components {
             };
             content: {
                 "application/json": components["schemas"]["Error"];
+            };
+        };
+        /** @description A SCIM error (RFC 7644 3.12) */
+        SCIMError: {
+            headers: {
+                [name: string]: unknown;
+            };
+            content: {
+                "application/scim+json": components["schemas"]["SCIMError"];
             };
         };
         /** @description Refused by a limit (D137, docs/api/SECURITY.md). `code` says which: `rate_limited` (the route's rate class), `too_many_in_flight` (too many model-calling requests running at once), `client_budget_reached` (this client's share of the day's model budget is spent), `quota_exceeded` (the API key's daily request quota) or `auth_rate_limited` (too many invalid API keys from this client). `details.retry_after_s` repeats `Retry-After`. */
@@ -8035,6 +8252,358 @@ export interface operations {
             401: components["responses"]["Error"];
             403: components["responses"]["Error"];
             404: components["responses"]["Error"];
+            503: components["responses"]["Error"];
+        };
+    };
+    getSCIMToken: {
+        parameters: {
+            query?: never;
+            header: {
+                /** @description The signed-in user's Google ID token, forwarded by the frontend proxy (D68). Optional on every other endpoint. */
+                "X-User-Token": components["parameters"]["UserToken"];
+            };
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description The status */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SCIMTokenStatus"];
+                };
+            };
+            401: components["responses"]["Error"];
+            403: components["responses"]["Error"];
+            404: components["responses"]["Error"];
+        };
+    };
+    issueSCIMToken: {
+        parameters: {
+            query?: never;
+            header: {
+                /** @description The signed-in user's Google ID token, forwarded by the frontend proxy (D68). Optional on every other endpoint. */
+                "X-User-Token": components["parameters"]["UserToken"];
+            };
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": {
+                    domains: string[];
+                    /**
+                     * @default viewer
+                     * @enum {string}
+                     */
+                    default_role?: "viewer" | "editor";
+                    /** @default false */
+                    allow_admin?: boolean;
+                };
+            };
+        };
+        responses: {
+            /** @description The status, with the token shown once */
+            201: {
+                headers: {
+                    "X-Audit-Incomplete": components["headers"]["AuditIncomplete"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SCIMTokenStatus"];
+                };
+            };
+            400: components["responses"]["Error"];
+            401: components["responses"]["Error"];
+            403: components["responses"]["Error"];
+            404: components["responses"]["Error"];
+            409: components["responses"]["Error"];
+            503: components["responses"]["Error"];
+        };
+    };
+    revokeSCIMToken: {
+        parameters: {
+            query?: never;
+            header: {
+                /** @description The signed-in user's Google ID token, forwarded by the frontend proxy (D68). Optional on every other endpoint. */
+                "X-User-Token": components["parameters"]["UserToken"];
+            };
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Revoked (also when there was none) */
+            204: {
+                headers: {
+                    "X-Audit-Incomplete": components["headers"]["AuditIncomplete"];
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            401: components["responses"]["Error"];
+            403: components["responses"]["Error"];
+            404: components["responses"]["Error"];
+            503: components["responses"]["Error"];
+        };
+    };
+    scimServiceProviderConfig: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description The configuration */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/scim+json": Record<string, never>;
+                };
+            };
+            401: components["responses"]["SCIMError"];
+            429: components["responses"]["SCIMError"];
+        };
+    };
+    scimResourceTypes: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description The resource types */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/scim+json": Record<string, never>;
+                };
+            };
+            401: components["responses"]["SCIMError"];
+            429: components["responses"]["SCIMError"];
+        };
+    };
+    scimSchemas: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description The schemas */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/scim+json": Record<string, never>;
+                };
+            };
+            401: components["responses"]["SCIMError"];
+            429: components["responses"]["SCIMError"];
+        };
+    };
+    listSCIMUsers: {
+        parameters: {
+            query?: {
+                filter?: string;
+                startIndex?: number;
+                count?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description A ListResponse of Users */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/scim+json": components["schemas"]["SCIMUserList"];
+                };
+            };
+            400: components["responses"]["SCIMError"];
+            401: components["responses"]["SCIMError"];
+            429: components["responses"]["SCIMError"];
+        };
+    };
+    createSCIMUser: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/scim+json": components["schemas"]["SCIMUserInput"];
+            };
+        };
+        responses: {
+            /** @description The new User */
+            201: {
+                headers: {
+                    "X-Audit-Incomplete": components["headers"]["AuditIncomplete"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/scim+json": components["schemas"]["SCIMUser"];
+                };
+            };
+            400: components["responses"]["SCIMError"];
+            401: components["responses"]["SCIMError"];
+            403: components["responses"]["SCIMError"];
+            409: components["responses"]["SCIMError"];
+            429: components["responses"]["SCIMError"];
+            503: components["responses"]["Error"];
+        };
+    };
+    getSCIMUser: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                uid: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description The User */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/scim+json": components["schemas"]["SCIMUser"];
+                };
+            };
+            401: components["responses"]["SCIMError"];
+            404: components["responses"]["SCIMError"];
+            429: components["responses"]["SCIMError"];
+        };
+    };
+    replaceSCIMUser: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                uid: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/scim+json": components["schemas"]["SCIMUserInput"];
+            };
+        };
+        responses: {
+            /** @description The User (active false after a removal) */
+            200: {
+                headers: {
+                    "X-Audit-Incomplete": components["headers"]["AuditIncomplete"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/scim+json": components["schemas"]["SCIMUser"];
+                };
+            };
+            400: components["responses"]["SCIMError"];
+            401: components["responses"]["SCIMError"];
+            403: components["responses"]["SCIMError"];
+            404: components["responses"]["SCIMError"];
+            409: components["responses"]["SCIMError"];
+            429: components["responses"]["SCIMError"];
+            503: components["responses"]["Error"];
+        };
+    };
+    deleteSCIMUser: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                uid: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Removed */
+            204: {
+                headers: {
+                    "X-Audit-Incomplete": components["headers"]["AuditIncomplete"];
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            401: components["responses"]["SCIMError"];
+            403: components["responses"]["SCIMError"];
+            404: components["responses"]["SCIMError"];
+            409: components["responses"]["SCIMError"];
+            429: components["responses"]["SCIMError"];
+            503: components["responses"]["Error"];
+        };
+    };
+    patchSCIMUser: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                uid: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/scim+json": {
+                    schemas?: string[];
+                    Operations: {
+                        op: string;
+                        path?: string;
+                        value?: unknown;
+                    }[];
+                };
+            };
+        };
+        responses: {
+            /** @description The User (active false after a removal) */
+            200: {
+                headers: {
+                    "X-Audit-Incomplete": components["headers"]["AuditIncomplete"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/scim+json": components["schemas"]["SCIMUser"];
+                };
+            };
+            400: components["responses"]["SCIMError"];
+            401: components["responses"]["SCIMError"];
+            403: components["responses"]["SCIMError"];
+            404: components["responses"]["SCIMError"];
+            409: components["responses"]["SCIMError"];
+            429: components["responses"]["SCIMError"];
             503: components["responses"]["Error"];
         };
     };

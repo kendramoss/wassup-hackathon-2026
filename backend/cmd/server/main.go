@@ -72,6 +72,7 @@ import (
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/ratelimit"
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/retrieval"
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/router"
+	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/scim"
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/spend"
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/sso"
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/store"
@@ -728,6 +729,16 @@ func newDeps(cfg config.Config, model, engineModel llm.Model, cases store.Cases,
 		users = ssoSvc.Verifier(users)
 		logger.Info("sso on: OIDC and SAML sign-in", "store", kind, "session_ttl", cfg.SSOSessionTTL.String())
 	}
+	// SCIM provisioning (#869) for the SSO-verified domains.
+	var scimTokens scim.Store
+	if cfg.SCIM {
+		scimTokens = scim.NewMemory()
+		kind := config.CasesMemory
+		if fs, ok := cases.(*store.Firestore); ok {
+			scimTokens, kind = fs.SCIMTokens(), config.CasesFirestore
+		}
+		logger.Info("scim on: provisioning for SSO-verified domains", "store", kind)
+	}
 	if cfg.StrictAuth && !cfg.Teams && !cfg.APIKeys {
 		logger.Warn("STRICT_AUTH is on but neither TEAMS nor API_KEYS is: only the admin token can reach private case routes")
 	}
@@ -805,6 +816,7 @@ func newDeps(cfg config.Config, model, engineModel llm.Model, cases store.Cases,
 		Users:                 users,
 		Workspaces:            workspaces,
 		SSO:                   ssoSvc,
+		SCIM:                  scimTokens,
 		APIKeys:               keys,
 		StreamPredict:         cfg.StreamPredictOn(),
 		Spend:                 meter,
