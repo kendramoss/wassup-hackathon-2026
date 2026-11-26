@@ -163,6 +163,10 @@ func run(logger *slog.Logger, errorLog *log.Logger, cfg config.Config, smoke boo
 	if cfg.UsageMetering {
 		deps.Metering = newMetering(cases, meter, logger)
 	}
+	deps.AuditExport = cfg.AuditExport && deps.Audit != nil
+	if deps.Retention, err = newRetention(ctx, cfg, cases, logger); err != nil {
+		return err
+	}
 	srv := newServer(":"+cfg.Port, httpapi.NewHandler(logger, httpapi.Info{Provider: model.Provider(), Version: os.Getenv("K_REVISION")}, deps), errorLog)
 	go func() {
 		<-ctx.Done()

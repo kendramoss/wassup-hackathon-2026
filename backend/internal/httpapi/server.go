@@ -143,6 +143,14 @@ func NewHandler(logger *slog.Logger, info Info, deps ...Deps) http.Handler {
 		if d.Audit != nil {
 			mux.HandleFunc("GET /v1/audit", a.rateOnly(light, a.auditList))
 			mux.HandleFunc("GET /v1/audit/verify", a.rateOnly(light, a.auditVerify))
+			if d.AuditExport {
+				mux.HandleFunc("GET /v1/audit/export", a.rateOnly(light, a.auditExport))
+			}
+		}
+		if d.Teams && d.Retention != nil {
+			mux.HandleFunc("GET /v1/workspaces/{id}/retention", a.cheap(a.getRetention))
+			mux.HandleFunc("PUT /v1/workspaces/{id}/retention", a.cheap(a.putRetention))
+			mux.HandleFunc("GET /v1/workspaces/{id}/tombstones", a.cheap(a.listTombstones))
 		}
 		if d.APIKeys != nil {
 			mux.HandleFunc("POST /v1/admin/api-keys", a.adminOnly(a.issueAPIKey))

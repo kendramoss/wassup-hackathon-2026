@@ -1144,6 +1144,70 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/v1/audit/export": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Export a tenant's retained audit trail as JSONL or CSV (workspace admin or admin token; AUDIT_EXPORT=on only)
+         * @description Registered only when the audit trail is on and `AUDIT_EXPORT=on` (404 otherwise). Same access and tenant rules as `GET /v1/audit`. The export is a snapshot: the head is read first, and events appended later are not included. JSONL (the default) is the verifiable form: a `header` line (tenant, head, retention checkpoint, window), one event per line oldest first exactly as stored with `prev_hash` and `hash`, and a `summary` line with the event count and the SHA-256 of every byte before it. `cmd/auditverify` re-checks a JSONL file offline with the same chain rules as `GET /v1/audit/verify`. An export cut short by a store error has no summary line, so it fails verification. `from` and `to` narrow by event time; a narrowed export is checked event by event, not as a whole chain. At most 200,000 events per export (`summary.complete` false beyond that; export in time windows). CSV has the same columns as an event and no header or summary line. Each export is audited (`audit.export`). Tamper evidence by the application only, not a signature.
+         */
+        get: operations["exportAudit"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/workspaces/{id}/retention": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * A workspace's case retention policy (TEAMS=on and RETENTION=on; any member)
+         * @description `case_days` 0 means cases are kept until someone deletes them. 404 for a workspace the caller is not in.
+         */
+        get: operations["getWorkspaceRetention"];
+        /**
+         * Set a workspace's case retention policy (TEAMS=on and RETENTION=on; workspace admin)
+         * @description `case_days` is 0 (keep forever) or 7 to 3650. The operator's purge run (`cmd/retention`) then hard-deletes the workspace's cases not updated for that many days, oldest first, writing a tombstone and a `case.delete` audit event (detail `retention`, actor `system`) before each deletion. Pinned demo cases are never purged. Setting the policy deletes nothing by itself. A sensitive write when the audit trail is on: 503 `audit_unavailable` if its intent cannot be recorded.
+         */
+        put: operations["setWorkspaceRetention"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/workspaces/{id}/tombstones": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * A workspace's hard-deleted cases, newest first (TEAMS=on and RETENTION=on; workspace admin)
+         * @description One tombstone per deleted workspace case: the case ID, when, why (`retention_policy` or `user_delete`), the policy in force and when the case was last changed. No case content.
+         */
+        get: operations["listWorkspaceTombstones"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/v1/eval/summary": {
         parameters: {
             query?: never;
@@ -1633,11 +1697,33 @@ export interface components {
          * @enum {string}
          */
         WorkspaceRole: "viewer" | "editor" | "admin";
+        RetentionPolicy: {
+            workspace: string;
+            /** @description 0: keep forever */
+            case_days: number;
+            /** Format: date-time */
+            updated_at?: string;
+            limits: {
+                min_case_days?: number;
+                max_case_days?: number;
+            };
+        };
+        Tombstone: {
+            case_id: string;
+            workspace?: string;
+            /** Format: date-time */
+            deleted_at: string;
+            /** @enum {string} */
+            reason: "retention_policy" | "user_delete";
+            policy_days?: number;
+            /** Format: date-time */
+            last_updated: string;
+        };
         /**
          * @description `case.read` appears only as a denial; allowed ordinary reads are not audited.
          * @enum {string}
          */
-        AuditAction: "case.create" | "case.update" | "case.export" | "case.delete" | "case.pin" | "case.read" | "workspace.create" | "workspace.invite" | "workspace.join" | "workspace.role_change" | "workspace.member_remove" | "workspace.leave" | "workspace.budget" | "apikey.issue" | "apikey.list" | "apikey.disable" | "admin.watch_run" | "audit.read" | "audit.verify" | "auth.denied";
+        AuditAction: "case.create" | "case.update" | "case.export" | "case.delete" | "case.pin" | "case.read" | "workspace.create" | "workspace.invite" | "workspace.join" | "workspace.role_change" | "workspace.member_remove" | "workspace.leave" | "workspace.retention" | "workspace.budget" | "apikey.issue" | "apikey.list" | "apikey.disable" | "admin.watch_run" | "audit.read" | "audit.verify" | "audit.export" | "auth.denied" | "review.create" | "review.revoke" | "review.view" | "review.decision";
         /** @enum {string} */
         AuditPhase: "intent" | "completion" | "single";
         /** @enum {string} */
@@ -6029,6 +6115,145 @@ export interface operations {
             403: components["responses"]["Error"];
             404: components["responses"]["Error"];
             409: components["responses"]["Error"];
+            429: components["responses"]["TooManyRequests"];
+        };
+    };
+    exportAudit: {
+        parameters: {
+            query?: {
+                format?: "jsonl" | "csv";
+                /** @description RFC 3339 */
+                from?: string;
+                /** @description RFC 3339 */
+                to?: string;
+                /** @description Admin token only (required for it); 400 for any other caller */
+                tenant?: string;
+            };
+            header?: {
+                /** @description The signed-in user's Google ID token (D68); the workspace admin's way in. */
+                "X-User-Token"?: string;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description The export, as a file download. `X-Audit-Head-Seq` and `X-Audit-Head-Hash` repeat the snapshot head. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/x-ndjson": string;
+                    "text/csv": string;
+                };
+            };
+            400: components["responses"]["Error"];
+            401: components["responses"]["Error"];
+            403: components["responses"]["Error"];
+            404: components["responses"]["Error"];
+            429: components["responses"]["TooManyRequests"];
+        };
+    };
+    getWorkspaceRetention: {
+        parameters: {
+            query?: never;
+            header: {
+                /** @description The signed-in user's Google ID token, forwarded by the frontend proxy (D68). Optional on every other endpoint. */
+                "X-User-Token": components["parameters"]["UserToken"];
+            };
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description The policy */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["RetentionPolicy"];
+                };
+            };
+            401: components["responses"]["Error"];
+            404: components["responses"]["Error"];
+            429: components["responses"]["TooManyRequests"];
+        };
+    };
+    setWorkspaceRetention: {
+        parameters: {
+            query?: never;
+            header: {
+                /** @description The signed-in user's Google ID token, forwarded by the frontend proxy (D68). Optional on every other endpoint. */
+                "X-User-Token": components["parameters"]["UserToken"];
+            };
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": {
+                    /** @description 0, or 7 to 3650 */
+                    case_days: number;
+                };
+            };
+        };
+        responses: {
+            /** @description The saved policy */
+            200: {
+                headers: {
+                    "X-Audit-Incomplete": components["headers"]["AuditIncomplete"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["RetentionPolicy"];
+                };
+            };
+            400: components["responses"]["Error"];
+            401: components["responses"]["Error"];
+            403: components["responses"]["Error"];
+            404: components["responses"]["Error"];
+            429: components["responses"]["TooManyRequests"];
+            503: components["responses"]["Error"];
+        };
+    };
+    listWorkspaceTombstones: {
+        parameters: {
+            query?: {
+                limit?: number;
+            };
+            header: {
+                /** @description The signed-in user's Google ID token, forwarded by the frontend proxy (D68). Optional on every other endpoint. */
+                "X-User-Token": components["parameters"]["UserToken"];
+            };
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Tombstones */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        workspace: string;
+                        tombstones: components["schemas"]["Tombstone"][];
+                    };
+                };
+            };
+            400: components["responses"]["Error"];
+            401: components["responses"]["Error"];
+            403: components["responses"]["Error"];
+            404: components["responses"]["Error"];
             429: components["responses"]["TooManyRequests"];
         };
     };

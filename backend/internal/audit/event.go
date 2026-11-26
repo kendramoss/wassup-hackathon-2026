@@ -47,7 +47,9 @@ const (
 	WorkspaceRoleChange   Action = "workspace.role_change"
 	WorkspaceMemberRemove Action = "workspace.member_remove"
 	WorkspaceLeave        Action = "workspace.leave"
-	WorkspaceBudget       Action = "workspace.budget"
+	// WorkspaceRetention sets a workspace's case retention policy (#875).
+	WorkspaceRetention Action = "workspace.retention"
+	WorkspaceBudget    Action = "workspace.budget"
 
 	APIKeyIssue   Action = "apikey.issue"
 	APIKeyList    Action = "apikey.list"
@@ -56,6 +58,7 @@ const (
 	AdminWatchRun Action = "admin.watch_run"
 	AuditRead     Action = "audit.read"
 	AuditVerify   Action = "audit.verify"
+	AuditExport   Action = "audit.export" // #871
 	AuthDenied    Action = "auth.denied"
 
 	// Broker review links (D200). The object is always the case.
@@ -77,7 +80,7 @@ var actionSpecs = map[Action]actionSpec{
 	CaseCreate:            {},
 	CaseUpdate:            {details: []string{"", "rename", "economics", "answers", "scenarios", "compare", "ask", "watch", "plan", "bom_version"}},
 	CaseExport:            {details: []string{"", "markdown", "cfr177"}},
-	CaseDelete:            {sensitive: true},
+	CaseDelete:            {details: []string{"", "retention"}, sensitive: true},
 	CasePin:               {details: []string{"", "pin", "unpin"}},
 	CaseRead:              {},
 	WorkspaceCreate:       {},
@@ -86,6 +89,7 @@ var actionSpecs = map[Action]actionSpec{
 	WorkspaceRoleChange:   {details: []string{"", "viewer", "editor", "admin"}, sensitive: true},
 	WorkspaceMemberRemove: {sensitive: true},
 	WorkspaceLeave:        {sensitive: true},
+	WorkspaceRetention:    {details: []string{"", "keep", "expire"}, sensitive: true},
 	WorkspaceBudget:       {details: []string{"set", "clear"}},
 	APIKeyIssue:           {sensitive: true},
 	APIKeyList:            {},
@@ -93,6 +97,7 @@ var actionSpecs = map[Action]actionSpec{
 	AdminWatchRun:         {},
 	AuditRead:             {},
 	AuditVerify:           {},
+	AuditExport:           {details: []string{"", "jsonl", "csv"}},
 	AuthDenied:            {},
 	// Creating a link hands case content to someone outside the system: it
 	// fails closed like issuing an API key. Revoking never waits on the trail.
