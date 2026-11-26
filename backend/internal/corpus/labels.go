@@ -81,6 +81,9 @@ type Splits struct {
 	// Subset is a list of development cases picked by a rule stated in its
 	// file (eval/splits/splits_retrdiff.json, D868).
 	Subset []string `json:"subset,omitempty"`
+	// Monthly is one month's re-scoring set: rulings CBP published after
+	// every earlier set, frozen before scoring (eval/rescore/<month>/splits.json, D931).
+	Monthly []string `json:"monthly,omitempty"`
 	// Textile lists every textile (19 CFR 102.21) ruling, the textile
 	// engine's precedent pool (eval/splits/splits_textile.json, D51).
 	Textile []string `json:"textile,omitempty"`
@@ -121,6 +124,8 @@ func (s Splits) IDs(name string) ([]string, error) {
 		return s.FoodFresh, nil
 	case "subset":
 		return s.Subset, nil
+	case "monthly":
+		return s.Monthly, nil
 	}
-	return nil, fmt.Errorf("corpus: unknown split %q (want final, final2, dev, pilot, train, tune_check, foodfresh or subset)", name)
+	return nil, fmt.Errorf("corpus: unknown split %q (want final, final2, dev, pilot, train, tune_check, foodfresh, subset or monthly)", name)
 }

@@ -6,6 +6,8 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"regexp"
+	"strings"
 
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/domain"
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/jpcorpus"
@@ -16,18 +18,32 @@ import (
 // splits and labels stay byte-identical. fresh_1126 retrieves precedents from
 // every earlier ruling, as production does; fresh_1126_notwin drops from that
 // pool each earlier ruling recorded as a near-duplicate in twins.json.
-const freshDir = "fresh-1126"
+//
+// Later months follow the same layout (D931): split fresh_<MMDD> reads
+// data/jp/fresh-<MMDD>, written by the monthly re-scoring (docs/REFRESH.md),
+// and fresh_<MMDD>_notwin drops its twins.
+var freshSplit = regexp.MustCompile(`^fresh_([0-9]{4})(_notwin)?$`)
 
-func isFresh(split string) bool { return split == "fresh_1126" || split == "fresh_1126_notwin" }
+// freshDirOf names the data/jp directory of a fresh split.
+func freshDirOf(split string) (string, bool) {
+	m := freshSplit.FindStringSubmatch(split)
+	if m == nil {
+		return "", false
+	}
+	return "fresh-" + m[1], true
+}
+
+func isFresh(split string) bool { _, ok := freshDirOf(split); return ok }
 
 func freshCases(c *jpcorpus.Corpus, sp jpcorpus.Splits, split string) ([]candidateInput, *jpcorpus.Pool, string, error) {
-	dir := filepath.Join(dataDir, freshDir)
+	name, _ := freshDirOf(split)
+	dir := filepath.Join(dataDir, name)
 	fc, err := jpcorpus.Load(dir)
 	if err != nil {
 		return nil, nil, "", err
 	}
 	drop := map[string]bool{}
-	if split == "fresh_1126_notwin" {
+	if strings.HasSuffix(split, "_notwin") {
 		b, err := os.ReadFile(filepath.Join(dir, "twins.json"))
 		if err != nil {
 			return nil, nil, "", err

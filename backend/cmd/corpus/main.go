@@ -25,6 +25,11 @@
 //	    Walk a range of ruling numbers through /api/ruling/<id> (~1 request/s)
 //	    and save the origin rulings dated on or after -since; every number
 //	    and its answer go to eval/data/final2_probe.jsonl (D150).
+//	corpus refresh [-date D] [-out-root DIR] [-previous F,...] [-window 4000]
+//	    The scheduled corpus refresh (D931): walk the ruling numbers after the
+//	    highest ones every earlier probe index found, save the new origin
+//	    rulings and write ../eval/refresh/<date>/cbp_probe.jsonl and
+//	    cbp_report.json with each new ruling's checks. Resume-safe.
 //	corpus label-check [-labels F] [-out F]
 //	    Re-label every ruling of labels.jsonl with corpus.LabelRuling and
 //	    report the agreement (regime, multi-country, held origin; D150).
@@ -79,7 +84,7 @@ const userAgent = cross.UserAgent
 
 func main() {
 	if len(os.Args) < 2 {
-		fmt.Fprintln(os.Stderr, "usage: corpus fetch|build|bundle|compare|embed|reasoning|usmca-fetch|usmca-label|hts-index|part-hts-index|probe|label-check|final2-label|supersession|alerts|alerts-example|holdings [flags]")
+		fmt.Fprintln(os.Stderr, "usage: corpus fetch|build|bundle|compare|embed|reasoning|usmca-fetch|usmca-label|hts-index|part-hts-index|probe|refresh|label-check|final2-label|supersession|alerts|alerts-example|holdings [flags]")
 		os.Exit(2)
 	}
 	var err error
@@ -104,6 +109,8 @@ func main() {
 		err = htsIndex(os.Args[2:])
 	case "part-hts-index":
 		err = partHTSIndex(os.Args[2:])
+	case "refresh":
+		err = refresh(os.Args[2:])
 	case "probe":
 		err = probe(os.Args[2:])
 	case "label-check":
