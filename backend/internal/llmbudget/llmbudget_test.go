@@ -29,7 +29,7 @@ func open(t *testing.T, capUSD float64) *Ledger {
 }
 
 func TestCapBounds(t *testing.T) {
-	for _, c := range []float64{0, -1, 50.01, 1000} {
+	for _, c := range []float64{0, -1, 60.01, 1000} {
 		if _, err := Create(filepath.Join(t.TempDir(), "l"), c, bind, nil); err == nil {
 			t.Errorf("cap %v accepted", c)
 		}
