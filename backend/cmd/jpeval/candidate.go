@@ -227,8 +227,13 @@ func runCandidate(o candidateOptions, name string, inner llm.Model, sizer interf
 	return errors.Join(runErr, closeErr, logErr, writeCandidateSummary(s, false, true))
 }
 
+// runPromptVersion names the prompt in run file names. It is the engine's
+// own version except when candidate-summary re-scores a run of an earlier
+// prompt (-prompt-version).
+var runPromptVersion = jpengine.PromptVersion
+
 func candidateName(split, tag, id string) (string, error) {
-	name := "jp-" + split + "-" + jpengine.DefaultModel + "-" + jpengine.PromptVersion + "-litellm"
+	name := "jp-" + split + "-" + jpengine.DefaultModel + "-" + runPromptVersion + "-litellm"
 	switch split {
 	case "held_out", "synthetic":
 		if tag != "" {

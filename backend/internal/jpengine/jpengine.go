@@ -17,7 +17,7 @@ import (
 )
 
 const (
-	PromptVersion = "jp-engine-v1"
+	PromptVersion = "jp-engine-v2"
 	DefaultModel  = "gemini-4-argon"
 	DefaultK      = 5
 

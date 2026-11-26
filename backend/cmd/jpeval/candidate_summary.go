@@ -156,10 +156,12 @@ func scoreCandidate(name, split string, rows []candidateRow, expected int, label
 func candidateSummary(args []string) error {
 	fs := flag.NewFlagSet("candidate-summary", flag.ExitOnError)
 	split := fs.String("split", "dev_eval", "dev_eval, dev_neg, held_out, or synthetic")
+	pv := fs.String("prompt-version", jpengine.PromptVersion, "prompt version in the run's file name, for runs of an earlier prompt")
 	tag := fs.String("tag", "", "tag for a development run")
 	id := fs.String("run-id", "", "run id of a held_out or synthetic run")
 	check := fs.Bool("check", false, "fail if the committed metrics differ")
 	_ = fs.Parse(args)
+	runPromptVersion = *pv
 	name, err := candidateName(*split, *tag, *id)
 	if err != nil {
 		return err
