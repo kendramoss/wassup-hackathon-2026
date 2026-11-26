@@ -118,7 +118,7 @@ func scoreCandidate(name, split string, rows []candidateRow, expected int, label
 				positive++
 			}
 		}
-		if split == "dev_neg" && l.Outcome == "negative" {
+		if baseSplit(split) == "dev_neg" && l.Outcome == "negative" {
 			nn++
 			if outcome != jpengine.Qualifies {
 				notApproved++
@@ -134,7 +134,7 @@ func scoreCandidate(name, split string, rows []candidateRow, expected int, label
 	s.Criterion, s.CriterionAny = rate(criterion, nc), rate(cited, nc)
 	s.NamedCountry, s.NamedOrigin = rate(country, ncountry), rate(origin, no)
 	s.PublishedPositive, s.SyntheticRefusals = rate(positive, np), rate(synthetic, ns)
-	if split == "dev_neg" {
+	if baseSplit(split) == "dev_neg" {
 		r := rate(notApproved, nn)
 		s.NegativesNotApproved = &r
 	}

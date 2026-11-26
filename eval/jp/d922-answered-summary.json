@@ -1,0 +1,168 @@
+{
+ "dev_eval": {
+  "answered_run": "jp-dev_eval_answered-gemini-4-argon-jp-engine-v1-litellm-d921-dev",
+  "base_run": "jp-dev_eval-gemini-4-argon-jp-engine-v1-litellm-d909-dev",
+  "by_agreement": {
+   "AJCEP": {
+    "after": 53,
+    "before": 26,
+    "n": 56
+   },
+   "CPTPP": {
+    "after": 78,
+    "before": 66,
+    "n": 85
+   },
+   "GSP": {
+    "after": 0,
+    "before": 0,
+    "n": 7
+   },
+   "JP-Australia EPA": {
+    "after": 1,
+    "before": 0,
+    "n": 1
+   },
+   "JP-EU EPA": {
+    "after": 179,
+    "before": 128,
+    "n": 181
+   },
+   "JP-India CEPA": {
+    "after": 2,
+    "before": 1,
+    "n": 4
+   },
+   "JP-Indonesia EPA": {
+    "after": 4,
+    "before": 1,
+    "n": 4
+   },
+   "JP-Malaysia EPA": {
+    "after": 1,
+    "before": 1,
+    "n": 1
+   },
+   "JP-Mexico EPA": {
+    "after": 1,
+    "before": 1,
+    "n": 1
+   },
+   "JP-Philippines EPA": {
+    "after": 1,
+    "before": 0,
+    "n": 1
+   },
+   "JP-Thailand EPA": {
+    "after": 3,
+    "before": 2,
+    "n": 3
+   },
+   "JP-UK CEPA": {
+    "after": 1,
+    "before": 1,
+    "n": 1
+   },
+   "JP-US TA": {
+    "after": 22,
+    "before": 19,
+    "n": 22
+   },
+   "JP-Vietnam EPA": {
+    "after": 0,
+    "before": 0,
+    "n": 1
+   },
+   "Non-preferential": {
+    "after": 0,
+    "before": 0,
+    "n": 1
+   },
+   "RCEP": {
+    "after": 28,
+    "before": 26,
+    "n": 31
+   }
+  },
+  "cases": 400,
+  "ci_after": [
+   0.9065,
+   0.9553
+  ],
+  "cost_usd": 1.7501,
+  "criterion_after": 374,
+  "criterion_before": 272,
+  "declined_after": 0,
+  "gained": 102,
+  "lost": 0,
+  "mcnemar_p": 0.0,
+  "net": 102,
+  "rechecked": 119,
+  "undetermined_after": 20,
+  "wrong_approvals_after": 6,
+  "wrong_approvals_before": 1
+ },
+ "dev_neg": {
+  "answered_run": "jp-dev_neg_answered-gemini-4-argon-jp-engine-v1-litellm-d921-neg",
+  "approved_after": 0,
+  "approved_before": 0,
+  "base_run": "jp-dev_neg-gemini-4-argon-jp-engine-v1-litellm-d913-neg-v1",
+  "cases": 80,
+  "cost_usd": 0.2621,
+  "rechecked": 18,
+  "undetermined_after": 12
+ },
+ "fresh_1126": {
+  "answered_run": "jp-fresh_1126_answered-gemini-4-argon-jp-engine-v1-litellm-d921-fresh",
+  "base_run": "jp-fresh_1126-gemini-4-argon-jp-engine-v1-litellm-d919-fresh",
+  "by_agreement": {
+   "AJCEP": {
+    "after": 1,
+    "before": 0,
+    "n": 1
+   },
+   "CPTPP": {
+    "after": 9,
+    "before": 8,
+    "n": 9
+   },
+   "JP-EU EPA": {
+    "after": 9,
+    "before": 6,
+    "n": 11
+   },
+   "JP-Indonesia EPA": {
+    "after": 4,
+    "before": 4,
+    "n": 4
+   },
+   "JP-UK CEPA": {
+    "after": 1,
+    "before": 1,
+    "n": 1
+   },
+   "RCEP": {
+    "after": 18,
+    "before": 18,
+    "n": 18
+   }
+  },
+  "cases": 44,
+  "ci_after": [
+   0.8487,
+   0.9874
+  ],
+  "cost_usd": 0.0778,
+  "criterion_after": 42,
+  "criterion_before": 37,
+  "declined_after": 0,
+  "gained": 5,
+  "lost": 0,
+  "mcnemar_p": 0.0625,
+  "net": 5,
+  "rechecked": 5,
+  "undetermined_after": 0,
+  "wrong_approvals_after": 2,
+  "wrong_approvals_before": 2
+ }
+}
