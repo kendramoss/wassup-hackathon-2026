@@ -227,6 +227,10 @@ type Config struct {
 	// tombstones and lets cmd/retention purge (#875). Its store follows
 	// CASES_STORE (file: CASES_DIR/retention.json).
 	Retention bool
+	// BrokerWorkflow is on or off (default): on serves the review queue,
+	// case discussion and sign-offs, and the eRulings filing package
+	// (docs/design/broker-workflow.md).
+	BrokerWorkflow string
 	// Teams (on|off, default off) verifies the Google ID token the frontend
 	// proxy forwards as X-User-Token and serves team workspaces (D68).
 	// TeamsAudience is the OAuth client ID the tokens must be issued to;
@@ -407,6 +411,7 @@ func FromEnv(getenv func(string) string) (Config, error) {
 		RateReviewPerMin:       e.integer("RATE_REVIEW_PER_MIN", 30),
 		CasesListLimit:         e.integer("CASES_LIST_LIMIT", 200),
 		BOMVersions:            strings.ToLower(e.str("BOM_VERSIONS", "off")),
+		BrokerWorkflow:         strings.ToLower(e.str("BROKER_WORKFLOW", "off")),
 		DailySpendCapUSD:       e.float("DAILY_SPEND_CAP_USD", 0),
 		DailySpendClientShare:  e.float("DAILY_SPEND_CLIENT_SHARE", 0.1),
 		AdminToken:             e.str("ADMIN_TOKEN", ""),
@@ -727,6 +732,9 @@ func (c Config) validate() error {
 	}
 	if c.BOMVersions != "on" && c.BOMVersions != "off" {
 		bad("BOM_VERSIONS must be on or off, got %q", c.BOMVersions)
+	}
+	if c.BrokerWorkflow != "on" && c.BrokerWorkflow != "off" {
+		bad("BROKER_WORKFLOW must be on or off, got %q", c.BrokerWorkflow)
 	}
 	if c.Teams && !strings.HasSuffix(c.TeamsAudience, ".apps.googleusercontent.com") {
 		bad("TEAMS=on needs TEAMS_AUDIENCE, the Google OAuth client ID (…apps.googleusercontent.com), got %q", c.TeamsAudience)
