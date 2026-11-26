@@ -3767,3 +3767,18 @@ Runs as pre-registered (gateway, 26 Nov): `d913-neg-v1`, `d913-neg-v2`, `d913-de
 - **Fixed on the way.** Re-running a Japan case after answers or a new parts list dropped its agreement and tariff code, so the re-run could only answer "choose the trade agreement"; both paths now keep them.
 - **Not changed.** The `jp-engine-v1` prompt, the rule text and GSP (its answer turns on the beneficiary country, so it gets no part questions). The local fake model now returns "undetermined" for a case with a parts list and no answers, so the card can be tried without a model; production refuses the fake.
 - **Not measured.** No evaluation shows how often an answered question turns into a right decision; the development rulings carry no user answers.
+## D916 — Japan: the missing Chapter 3 text (EU, UK, CPTPP, AJCEP), pre-registered (26 Nov)
+Committed and pushed before any model call. Development only; the D741 held-out set stays burned.
+- **Why.** D910 showed that giving the model rule text helps (243 → 272 of 400) and D915 that prompt wording does not. The remaining JP-EU, CPTPP and AJCEP misses mostly cite provisions that were not in the request.
+- **The change (evidence only; `jp-engine-v1` prompt unchanged).** JP-EU EPA and JP-UK CEPA Articles 3.7 to 3.9 and 3.13 to 3.15; CPTPP Chapter 3 Articles 3.2, 3.6, 3.7, 3.10 to 3.17 and Annex 3-C (new source `tpp1.pdf`, SHA-256 da772daa…); AJCEP Articles 24, 29 and 30 returned with a matched Annex 2 row. All verbatim, page-pinned, with one Unde Labs note per agreement naming what is still not supplied. Details and scopes: `docs/japan/chapter3-articles-d916.md`.
+- **Reach (offline).** `dev_eval`: 396 requests, bytes 9,279,221 → 11,172,654, `requests_sha256` dabd515a…; requests gaining text: EU 181, CPTPP 82, AJCEP 55, UK 1. `dev_neg`: 79 requests, `requests_sha256` 5c6a7f77…. Diagnose counts unchanged.
+- **Runs** (gateway, `gemini-4-argon`, `LITELLM_NO_CACHE=1`, at the commit of this entry): `go run ./cmd/jpeval candidate -split dev_eval -tag d916-dev` and `-split dev_neg -tag d916-neg`.
+- **Criteria for adopting.** (1) `dev_eval` criterion match net +8 or better against D909's 272, paired, exact McNemar reported; and (2) at most 2 of the 80 `dev_neg` negatives approved. Both, or the text is reverted.
+- **Cost.** About $6.5 for `dev_eval` (worst case $54.79 at the D741 rates) and $1.1 for `dev_neg`.
+## D918 — Japan Chapter 3 text: results of D916, not adopted (26 Nov)
+Runs as pre-registered on `feat/japan-rule-text` at 4d17af89 (gateway, 26 Nov): `d916-neg`, `d916-dev`. The input grew as planned (2,251,655 → 2,665,344 input tokens on `dev_eval`), so the text reached the model.
+- **Development approvals (400).** Criterion match **271**, against 272 in D909: 0 gained, 1 lost. Answers were otherwise the same case by case; 127 stay undetermined.
+- **Negatives (80).** 0 approved (69 declined, 11 undetermined).
+- **Criterion (1), net +8: fails. The text is not shipped**: it adds about 20% to every Japan request with no change in answers. The branch `feat/japan-rule-text` keeps the sourced text and tests for later use; production keeps the D885 evidence.
+- **Reading.** With rule text added twice (D910: helped; this: no change) and prompt wording ruled out (D915), the remaining 128 misses are cases whose published facts do not say whether a material is originating. No rule text or wording settles that; the user has to supply it, which is what the question card of D917 asks.
+- **Cost.** $1.18 and $6.28.
