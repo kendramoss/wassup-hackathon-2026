@@ -21,6 +21,12 @@ Built step by step (process from Figma "Design systems 102", Disher's front-end 
 2. **Confident where measured, gated where not.** Lead with what we measured (overall accuracy and accuracy on auto-accepted cases, as in `docs/NUMBERS.md`; the auto-accept bar is 0.92 since D32). Present uncertainty as the safety system — "auto" vs "sent to an expert", "precedent-supported" with a counter-ruling — the way winning entries framed their human approval gates. Caveats sit one click away, never on the headline, and we never claim more than we measured.
 3. **Document, not dashboard.** Calm, readable, printable, like a CBP ruling letter. No decorative charts.
 4. **One decision per screen.** Input: describe the product. Result: is this the origin? Plan: which change? Results: can I trust it?
+5. **Plain, literal words (decided 26 Nov).** Unde is a very niche product (U.S. Customs country of origin), and many judges and users do not speak English as a first language. Every word on screen must be understood on first read by a non-native reader with no customs background.
+   - No clever lines, jokes, wordplay, idioms, metaphors, rhetorical questions or subtext the reader has to decode. "Built in Thailand, taxed as China" becomes "U.S. Customs may say this product is from China".
+   - Short sentences, common words, one idea each. Say "import tax" for duty and "country" or "country of origin" for origin or label. Explain a term on first use or leave it out: CBP ("U.S. Customs"), ruling ("an earlier U.S. Customs decision"), PCBA, MFN, Section 301.
+   - Buttons and links say the action literally ("Open the heat gun example", "Next: how much you save"), never a teaser ("Is it worth it", "Can I trust it").
+   - Applies to both views (technical and business), every caption, tooltip and aria-label, and to mocks. The number rules (principle 2, `docs/NUMBERS.md`, "likely", never "approved") still hold.
+   - Mock of the rewrite: the "Plain copy" page of the design canvas (business chapters, landing hero, and a before/after sheet of every line).
 
 **Success checks**
 - 10-second test: someone new can say the origin and the recommended change after 10 seconds on each screen.
