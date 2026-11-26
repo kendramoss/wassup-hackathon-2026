@@ -154,6 +154,9 @@ func NewHandler(logger *slog.Logger, info Info, deps ...Deps) http.Handler {
 			mux.HandleFunc("POST /v1/workspaces/{id}/join", a.cheap(a.joinWorkspace))
 			mux.HandleFunc("PUT /v1/workspaces/{id}/members/{email}/role", a.cheap(a.setMemberRole))
 			mux.HandleFunc("DELETE /v1/workspaces/{id}/members/{email}", a.cheap(a.removeMember))
+			if d.AdminConsole {
+				mux.HandleFunc("GET /v1/workspaces/{id}/admin", a.cheap(a.adminConsole))
+			}
 			if d.SSO != nil {
 				mux.HandleFunc("POST /v1/sso/start", a.rateOnly(review, a.ssoStart))
 				mux.HandleFunc("POST /v1/sso/oidc/callback", a.rateOnly(review, a.ssoOIDCCallback))

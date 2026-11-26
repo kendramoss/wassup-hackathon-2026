@@ -31,7 +31,7 @@ func newSCIMEnv(t *testing.T, failuresPerMin int) *scimEnv {
 		if err != nil {
 			t.Fatal(err)
 		}
-		d.SSO, d.Users, d.SCIM = svc, svc.Verifier(d.Users), scim.NewMemory()
+		d.SSO, d.Users, d.SCIM, d.AdminConsole = svc, svc.Verifier(d.Users), scim.NewMemory(), true
 		if failuresPerMin > 0 {
 			d.Limits.AuthFailuresPerMin = failuresPerMin
 		}

@@ -823,6 +823,9 @@ func TestSSOAndSCIMConfig(t *testing.T) {
 	teams := map[string]string{"TEAMS": "on", "TEAMS_AUDIENCE": "1234-abc.apps.googleusercontent.com"}
 	sso := merge(teams, map[string]string{"SSO": "on", "SSO_SESSION_KEY": strings.Repeat("k", 32), "SSO_SITE_URL": "https://app.example.com"})
 	on, err := FromEnv(getenv(merge(vertexEnv(), merge(sso, map[string]string{"SCIM": "on"}))))
+	if ac, err := FromEnv(getenv(merge(vertexEnv(), merge(teams, map[string]string{"ADMIN_CONSOLE": "on"})))); err != nil || !ac.AdminConsole {
+		t.Errorf("admin console = %v %v", ac.AdminConsole, err)
+	}
 	if err != nil || !on.SSO || !on.SCIM || on.SSOSessionTTL != 8*time.Hour {
 		t.Fatalf("on = %v %v %v %v", on.SSO, on.SCIM, on.SSOSessionTTL, err)
 	}
@@ -837,8 +840,10 @@ func TestSSOAndSCIMConfig(t *testing.T) {
 		merge(sso, map[string]string{"SSO_SESSION_TTL": "48h"}),
 		merge(teams, map[string]string{"SCIM": "on"}), // no SSO
 		merge(sso, map[string]string{"SCIM": "maybe"}),
+		{"ADMIN_CONSOLE": "on"}, // no TEAMS
+		merge(teams, map[string]string{"ADMIN_CONSOLE": "maybe"}),
 	} {
-		if _, err := FromEnv(getenv(merge(vertexEnv(), bad))); err == nil || !strings.Contains(err.Error(), "SSO") && !strings.Contains(err.Error(), "SCIM") {
+		if _, err := FromEnv(getenv(merge(vertexEnv(), bad))); err == nil || !strings.Contains(err.Error(), "SSO") && !strings.Contains(err.Error(), "SCIM") && !strings.Contains(err.Error(), "ADMIN_CONSOLE") {
 			t.Errorf("%v accepted: %v", bad, err)
 		}
 	}

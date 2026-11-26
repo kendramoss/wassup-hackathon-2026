@@ -1726,6 +1726,26 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/v1/workspaces/{id}/admin": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * The workspace admin's settings overview (ADMIN_CONSOLE=on, workspace admin)
+         * @description Members with roles, pending invitations, which features are on, the SSO connections and their domains, the SCIM token status, the retention policy and this month's usage, each only when its feature is on, and the route that changes each. Read only; never a token, hash, client secret or DNS verification value.
+         */
+        get: operations["getAdminConsole"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/v1/workspaces/{id}/scim": {
         parameters: {
             query?: never;
@@ -8253,6 +8273,60 @@ export interface operations {
             403: components["responses"]["Error"];
             404: components["responses"]["Error"];
             503: components["responses"]["Error"];
+        };
+    };
+    getAdminConsole: {
+        parameters: {
+            query?: never;
+            header: {
+                /** @description The signed-in user's Google ID token, forwarded by the frontend proxy (D68). Optional on every other endpoint. */
+                "X-User-Token": components["parameters"]["UserToken"];
+            };
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description The overview */
+            200: {
+                headers: {
+                    "X-Audit-Incomplete": components["headers"]["AuditIncomplete"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        workspace: {
+                            id?: string;
+                            name?: string;
+                            /** Format: date-time */
+                            created_at?: string;
+                            member_count?: number;
+                        };
+                        members: {
+                            email?: string;
+                            role?: string;
+                        }[];
+                        invited: string[];
+                        features: {
+                            [key: string]: boolean;
+                        };
+                        sso?: Record<string, never>;
+                        scim?: Record<string, never>;
+                        retention?: {
+                            case_days?: number;
+                        };
+                        usage?: Record<string, never>;
+                        routes: {
+                            [key: string]: string;
+                        };
+                    };
+                };
+            };
+            401: components["responses"]["Error"];
+            403: components["responses"]["Error"];
+            404: components["responses"]["Error"];
         };
     };
     getSCIMToken: {
