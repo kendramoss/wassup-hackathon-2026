@@ -141,6 +141,10 @@ reproduce: ## recompute every published number from committed files: no model ca
 	cd $(GO_DIR) && go run ./cmd/jpeval candidate-summary -prompt-version jp-engine-v1 -split dev_neg -tag d916-neg -check
 	cd $(GO_DIR) && go run ./cmd/jpeval candidate-summary -split fresh_1126 -tag d919-fresh -check
 	cd $(GO_DIR) && go run ./cmd/jpeval candidate-summary -split fresh_1126_notwin -tag d919-notwin -check
+	cd $(GO_DIR) && go run ./cmd/jpeval candidate-summary -split dev_eval_answered -tag d921-dev -check
+	cd $(GO_DIR) && go run ./cmd/jpeval candidate-summary -split fresh_1126_answered -tag d921-fresh -check
+	cd $(GO_DIR) && go run ./cmd/jpeval candidate-summary -split dev_neg_answered -tag d921-neg -check
+	python3 -I -B eval/jp/answered_summary.py . --check
 	python3 -I -B eval/jp/labels.py . --held-out --confirm-phase2 --check
 	cd $(GO_DIR) && go run ./cmd/jpeval candidate-summary -prompt-version jp-engine-v1 -split held_out -check
 	cd $(GO_DIR) && go run ./cmd/jpeval candidate-summary -prompt-version jp-engine-v1 -split synthetic -check
