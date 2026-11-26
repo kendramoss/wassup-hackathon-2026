@@ -772,6 +772,7 @@ func newDeps(cfg config.Config, model, engineModel llm.Model, cases store.Cases,
 		HTS:                   htsSuggester,
 		PartsHTS:              partsSuggester,
 		ExportCFR177:          cfg.ExportCFR177,
+		ATIGACheck:            cfg.ATIGACheck,
 		Checks:                []httpapi.HealthCheck{httpapi.StoreCheck(cases), httpapi.ModelCheck("model", model, cfg.RouterModel)},
 	}
 	// The agent's what_if uses the same dispatch and triage as a saved

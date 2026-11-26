@@ -312,6 +312,11 @@ type Config struct {
 	// 19 CFR 177.2 (D66). Off: only the Markdown draft.
 	ExportCFR177 bool
 	exportCFR177 string // as given, checked by validate
+	// ATIGACheck (on|off, default off) serves POST /v1/atiga/check and the
+	// check_atiga_preference MCP tool: ATIGA preferential origin from a bill
+	// of materials, deterministic, no model call (D924).
+	ATIGACheck bool
+	atigaCheck string // as given, checked by validate
 	// NearMissAdvice (on|off, default off) adds near-miss advice to the
 	// closest plan moves just under the plan bar: what differs from the
 	// supporting ruling and what would match it (D81). One model call each,
@@ -552,6 +557,8 @@ func FromEnv(getenv func(string) string) (Config, error) {
 	c.PlanMaxMoves = e.integer("PLAN_MAX_MOVES", 12)
 	c.exportCFR177 = strings.ToLower(e.str("EXPORT_CFR177", "off"))
 	c.ExportCFR177 = c.exportCFR177 == "on" || c.exportCFR177 == "true" || c.exportCFR177 == "1"
+	c.atigaCheck = strings.ToLower(e.str("ATIGA_CHECK", "off"))
+	c.ATIGACheck = c.atigaCheck == "on" || c.atigaCheck == "true" || c.atigaCheck == "1"
 	switch v := strings.ToLower(e.str("STREAM_PREDICT", "off")); v {
 	case "on", "true", "1":
 		c.StreamPredict = "on"
@@ -695,6 +702,11 @@ func (c Config) validate() error {
 	case "on", "true", "1", "off", "false", "0":
 	default:
 		bad("EXPORT_CFR177 must be on or off, got %q", c.exportCFR177)
+	}
+	switch c.atigaCheck {
+	case "on", "true", "1", "off", "false", "0":
+	default:
+		bad("ATIGA_CHECK must be on or off, got %q", c.atigaCheck)
 	}
 	switch c.nearMissAdvice {
 	case "on", "true", "1", "off", "false", "0":

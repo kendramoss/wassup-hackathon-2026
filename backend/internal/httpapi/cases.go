@@ -213,6 +213,8 @@ type Deps struct {
 	// ExportCFR177 lets export take "format": "cfr177", the ruling-request
 	// letter laid out on 19 CFR 177.2 (D66). Off: the field is refused.
 	ExportCFR177 bool
+	// ATIGACheck serves POST /v1/atiga/check (D924). Off by default.
+	ATIGACheck bool
 	// CaseOwnership limits each visitor to the pinned demos and their own
 	// cases (X-Visitor-ID from the frontend proxy; D58). Off by default.
 	CaseOwnership bool

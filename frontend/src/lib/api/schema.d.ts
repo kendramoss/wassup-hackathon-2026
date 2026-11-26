@@ -788,6 +788,26 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/v1/atiga/check": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * ATIGA preferential origin check from a bill of materials (deterministic, no model call; off unless ATIGA_CHECK=on)
+         * @description Does a good made in an ASEAN Member State qualify as ATIGA originating, so it can claim the ATIGA (AFTA, Form D) preferential tariff when imported into another Member State? Served only with `ATIGA_CHECK=on` (default off: 404). Deterministic code over the official Annex 3 product-specific rules (HS 2022, endorsed by the 36th AFTA Council, read row by row from the ASEAN Secretariat workbook; `backend/internal/atiga`, D924). Implements Art. 26 and 27 (wholly obtained), Art. 28.1 (the general rule RVC40 or CTH for goods not listed in Annex 3), Art. 28.2 (the Annex 3 rule, including RVC35 with CTSH, "except from" exclusions, the textile process rule and "cut and sewn in any Member State", which the caller states in `processes`), Art. 29 RVC by the direct or indirect method (Art. 29.3: give `method` to use only your Member State's), Art. 30.1 cumulation, Art. 30.2 partial cumulation (a Member State material with its own RVC from 20 % to under 40 % adds that share of its value as ASEAN content), Art. 31 minimal operations and Art. 33 de minimis (10 % of FOB value). Not covered: ITA goods (Art. 28.3, Annex 4), direct consignment (Art. 32), packaging, accessories, neutral elements and interchangeable materials (Art. 34 to 37), and proof-of-origin procedures. Missing facts make the answer `undetermined`, never `no`. Preferential origin only (`regime: atiga_preferential`), separate from the marking and non-preferential origin a case answer gives. Nothing is stored. Not a ruling and not a Certificate of Origin. Cheap class (120 a minute); a malformed body is 400 `invalid_input`.
+         */
+        post: operations["checkAtigaPreference"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/v1/usmca/check": {
         parameters: {
             query?: never;
@@ -5155,6 +5175,161 @@ export interface operations {
                 };
             };
             400: components["responses"]["Error"];
+            429: components["responses"]["TooManyRequests"];
+        };
+    };
+    checkAtigaPreference: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": {
+                    /**
+                     * @description The good's HS code, 4 to 10 digits (HS 2022). A heading with Annex 3 rows needs the 6-digit subheading.
+                     * @example 6101.20
+                     */
+                    hs: string;
+                    /**
+                     * @description Where the good is produced: country name or ISO alpha-2 code. A non-Member State is `no`.
+                     * @example Cambodia
+                     */
+                    produced_in: string;
+                    /** @description FOB value of the good; needed for RVC and de minimis */
+                    fob?: number;
+                    /**
+                     * @description The RVC method the exporting Member State uses (Art. 29.3). Unset: either may decide.
+                     * @enum {string}
+                     */
+                    method?: "direct" | "indirect";
+                    /** @description The producer states the good is wholly obtained or produced in the Member State (Art. 27) */
+                    wholly_obtained?: boolean;
+                    /** @description What is done to the non-originating materials. If every entry is an Art. 31 key (preservation, shipment, packaging), the good does not qualify. Any other word counts as real production. */
+                    operations?: string[];
+                    /** @description Annex 3 conditions written in words: true if it applies, false if not, left out if not stated (undetermined). */
+                    processes?: {
+                        /** @description The Attachment 1 working or processing for textiles was done in a Member State */
+                        textile_process?: boolean;
+                        /** @description The good is both cut and sewn in a Member State */
+                        cut_and_sewn?: boolean;
+                        /** @description The good is produced by refining */
+                        refining?: boolean;
+                        /** @description There is a change from the wet state to the dry state */
+                        wet_to_dry?: boolean;
+                        /** @description Recording onto blank or unrecorded media */
+                        recording?: boolean;
+                        /** @description Made from parts produced solely for goods of the same subheading */
+                        parts_same_subheading?: boolean;
+                    };
+                    /** @description For rows whose rule depends on the product (e.g. 7317.00 of steel vs of stainless steel), the branch id from `rule.variants`. Unset: decided only if every branch agrees. */
+                    variant?: string;
+                    /** @description Direct method terms, Art. 29.1(a); same currency as fob */
+                    costs?: {
+                        labour?: number;
+                        overhead?: number;
+                        profit?: number;
+                        other?: number;
+                    };
+                    materials?: {
+                        name?: string;
+                        /** @description The material's HS code, 2 to 10 digits; the rule needs 2, 4 or 6 */
+                        hs?: string;
+                        /** @description CIF at import, or the earliest price paid in the Member State (Art. 29.2) */
+                        value?: number;
+                        /** @description Where the material originates */
+                        country?: string;
+                        /**
+                         * @description originating: the supplier's declaration or proof of origin says it is ATIGA originating
+                         * @default unknown
+                         * @enum {string}
+                         */
+                        status?: "originating" | "non_originating" | "unknown";
+                        /** @description The material's own ASEAN value content, for Art. 30.2 partial cumulation */
+                        rvc_pct?: number;
+                    }[];
+                };
+            };
+        };
+        responses: {
+            /** @description The answer, with the rule used and plain-English reasons */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        /** @enum {string} */
+                        outcome?: "yes" | "no" | "undetermined";
+                        /**
+                         * @description Art. 26 limb of a yes
+                         * @enum {string}
+                         */
+                        basis?: "WO" | "PE" | "PSR";
+                        /**
+                         * @description The alternative that decided a yes
+                         * @example CC and cut and sewn in any AMS
+                         */
+                        applied?: string;
+                        rule?: {
+                            /**
+                             * @description The Annex 3 subheading, or Art. 28.1 for the general rule
+                             * @example 6101.20
+                             */
+                            code?: string;
+                            /** @description true: an Annex 3 row; false: the Art. 28.1 general rule */
+                            listed?: boolean;
+                            /** @example RVC40 or CC and cut and sewn in any AMS or textile process rule */
+                            concise?: string;
+                            full?: string;
+                            /** @example atiga-annex3-psr-hs2022-aftac36 */
+                            version?: string;
+                            variants?: Record<string, never>[];
+                        };
+                        rvc?: {
+                            /** @example 40 */
+                            threshold?: number;
+                            /** @description (ASEAN materials + labour + overhead + profit + other) / FOB x 100 */
+                            direct?: number;
+                            /** @description (FOB - non-originating materials) / FOB x 100 */
+                            indirect?: number;
+                            vnm?: number;
+                            vom?: number;
+                            /** @description ASEAN content counted from partially cumulated materials (Art. 30.2) */
+                            partial?: number;
+                        };
+                        de_minimis?: {
+                            used?: boolean;
+                            /** @description per cent of FOB */
+                            value_share?: number;
+                        };
+                        /** @description Originating materials from another Member State were counted (Art. 30.1) */
+                        accumulation?: boolean;
+                        /** @description Art. 30.2 partial cumulation was used */
+                        partial_cumulation?: boolean;
+                        failing?: {
+                            index?: number;
+                            name?: string;
+                            hs?: string;
+                            reason?: string;
+                        }[];
+                        alternatives?: {
+                            rule?: string;
+                            /** @enum {string} */
+                            outcome?: "yes" | "no" | "undetermined";
+                            reasons?: string[];
+                        }[];
+                        reasons?: string[];
+                        /** @enum {string} */
+                        regime?: "atiga_preferential";
+                        note?: string;
+                    };
+                };
+            };
+            400: components["responses"]["Error"];
+            404: components["responses"]["Error"];
             429: components["responses"]["TooManyRequests"];
         };
     };

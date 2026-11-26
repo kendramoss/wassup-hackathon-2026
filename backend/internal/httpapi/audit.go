@@ -99,6 +99,7 @@ var auditTable = map[string]auditRoute{
 	"GET /v1/eval/summary":                         {auditNone, ""},
 	"GET /v1/duty-rates":                           {auditNone, ""},
 	"POST /v1/rcep/check":                          {auditNone, ""},
+	"POST /v1/atiga/check":                         {auditNone, ""},
 	"POST /v1/usmca/check":                         {auditNone, ""},
 	"POST /v1/rules/canada-marking":                {auditNone, ""},
 	"POST /v1/rules/eu-origin":                     {auditNone, ""},

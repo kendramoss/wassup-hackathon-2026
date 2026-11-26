@@ -1,0 +1,56 @@
+{
+ "about": "Worked examples published by ASEAN Member State authorities, encoded as inputs to the ATIGA check with the result the source states. Written before the check was run on them (D924). No published ATIGA origin rulings were found (D924).",
+ "sources": {
+  "miti": {"title": "MITI Malaysia, Rules of Origin worked examples (AFTA/ATIGA)", "url": "https://www.miti.gov.my/index.php/pages/view/2071", "retrieved": "2026-11-27"},
+  "sgc": {"title": "Singapore Customs, Handbook on Rules of Origin for Preferential Certificates of Origin (Dec 2025)", "url": "https://isomer-user-content.by.gov.sg/174/fc3ecb0b-d701-4d8f-9881-9d99f90f35a2/Handbook_on_ROO_for_PCO_Dec2025__clean_.pdf", "sha256": "6f9db34eb9923abb0831f30e70f1f67478c861dea63fc7f591cb9577e724da85", "retrieved": "2026-11-27"}
+ },
+ "cases": [
+  {"id": "miti-1-wo", "source": "miti", "where": "Example 1", "states": "Qualified as wholly obtained (dracaena, 0604.91, 100 % local material)",
+   "input": {"hs": "0604.91", "produced_in": "Malaysia", "fob": 1.10, "wholly_obtained": true,
+     "materials": [{"name": "Dracaena", "hs": "0604.91", "value": 0.50, "country": "Malaysia", "status": "originating"}]},
+   "expect": {"outcome": "yes", "applied": "WO"}},
+  {"id": "miti-2-rvc", "source": "miti", "where": "Example 2", "states": "Qualified for RVC 43 % ((28.70 - 16.20) / 28.70)",
+   "input": {"hs": "9403.60", "produced_in": "Malaysia", "fob": 28.70, "method": "indirect",
+     "materials": [
+      {"name": "Chipboard", "hs": "4410.90", "value": 4.00, "country": "Malaysia", "status": "originating"},
+      {"name": "Fibreboard", "hs": "4421.21", "value": 5.30, "country": "Belgium"},
+      {"name": "Decorative paper", "hs": "4811.90", "value": 4.40, "country": "France"},
+      {"name": "Bugle", "hs": "7318.15", "value": 6.50, "country": "USA"}]},
+   "expect": {"outcome": "yes", "alternative": {"RVC40": "yes"}, "rvc_indirect_min": 43, "rvc_indirect_max": 44}},
+  {"id": "miti-3-cc", "source": "miti", "where": "Example 3", "states": "Originating by a change of chapter (palm oil product 1512.90 from material 3824.90, Indonesia)",
+   "input": {"hs": "1512.90", "produced_in": "Malaysia", "fob": 1.10,
+     "materials": [{"name": "Palm olein", "hs": "3824.90", "value": 0.50, "country": "Indonesia"}]},
+   "expect": {"outcome": "yes"}},
+  {"id": "miti-4-cth", "source": "miti", "where": "Example 4", "states": "Originating by a change of heading (chemical 3802.10)",
+   "input": {"hs": "3802.10", "produced_in": "Malaysia", "fob": 20.80,
+     "materials": [
+      {"name": "Acid", "hs": "2917.36", "value": 5.50, "country": "Malaysia", "status": "originating"},
+      {"name": "Butanediol", "hs": "2905.35", "value": 1.30, "country": "Malaysia", "status": "originating"},
+      {"name": "Titanium", "hs": "3815.19", "value": 3.70, "country": "USA"}]},
+   "expect": {"outcome": "yes", "alternative": {"CTH": "yes"}}},
+  {"id": "miti-5-ctsh", "source": "miti", "where": "Example 5", "states": "Originating by a change of subheading (copper wire 7408.21 from brass wire 7408.10)",
+   "input": {"hs": "7408.21", "produced_in": "Malaysia", "fob": 15.25,
+     "materials": [
+      {"name": "Brass wire", "hs": "7408.10", "value": 3.90, "country": "Taiwan"},
+      {"name": "Spool", "hs": "3923.40", "value": 0.15, "country": "China"},
+      {"name": "Plastic gasket", "hs": "8484.10", "value": 0.40, "country": "Malaysia", "status": "originating"},
+      {"name": "Polypropylene", "hs": "3903.30", "value": 0.40, "country": "Thailand", "status": "originating"}]},
+   "expect": {"outcome": "yes"}},
+  {"id": "sgc-b-rvc", "source": "sgc", "where": "Example B, p. 9", "states": "RVC 36 % (both approaches), less than 40 %: biscuit 1905.31 is non-originating",
+   "input": {"hs": "1905.31", "produced_in": "Singapore", "fob": 15, "costs": {"labour": 2, "overhead": 0, "profit": 2.50, "other": 0},
+     "materials": [
+      {"name": "Flour", "value": 4, "country": "Malaysia", "status": "non_originating"},
+      {"name": "Sugar", "value": 2.50, "country": "Australia", "status": "non_originating"},
+      {"name": "Flavour essence", "value": 1, "country": "Singapore", "status": "originating"},
+      {"name": "Eggs", "value": 3, "country": "Malaysia", "status": "non_originating"}]},
+   "expect": {"alternative": {"RVC40": "no"}, "rvc_indirect_min": 35.9, "rvc_indirect_max": 36.1, "rvc_direct_min": 35.9, "rvc_direct_max": 36.1}},
+  {"id": "sgc-f-accumulation", "source": "sgc", "where": "Example F, p. 13", "states": "With Malaysian flour and eggs accumulated (Form D), RVC 83 %: originating",
+   "input": {"hs": "1905.31", "produced_in": "Singapore", "fob": 15, "costs": {"labour": 2, "overhead": 0, "profit": 2.50, "other": 0},
+     "materials": [
+      {"name": "Flour", "value": 4, "country": "Malaysia", "status": "originating"},
+      {"name": "Sugar", "value": 2.50, "country": "Australia", "status": "non_originating"},
+      {"name": "Flavour essence", "value": 1, "country": "Singapore", "status": "originating"},
+      {"name": "Eggs", "value": 3, "country": "Malaysia", "status": "originating"}]},
+   "expect": {"outcome": "yes", "applied": "RVC40", "accumulation": true, "rvc_indirect_min": 83, "rvc_indirect_max": 83.4}}
+ ]
+}
