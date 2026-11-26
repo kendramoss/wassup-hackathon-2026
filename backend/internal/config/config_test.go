@@ -758,3 +758,29 @@ func TestJapanEngineGateConfig(t *testing.T) {
 		t.Errorf("bad JAPAN_ENGINE error = %v", err)
 	}
 }
+
+func TestRecordsFlagsDefaultOff(t *testing.T) {
+	base := map[string]string{"LLM_PROVIDER": "fake"}
+	get := func(extra map[string]string) func(string) string {
+		return func(k string) string {
+			if v, ok := extra[k]; ok {
+				return v
+			}
+			return base[k]
+		}
+	}
+	c, err := FromEnv(get(nil))
+	if err != nil {
+		t.Fatal(err)
+	}
+	if c.AuditExport || c.Retention {
+		t.Fatalf("records flags on by default: export=%v retention=%v", c.AuditExport, c.Retention)
+	}
+	c, err = FromEnv(get(map[string]string{"AUDIT_EXPORT": "on", "RETENTION": "on"}))
+	if err != nil || !c.AuditExport || !c.Retention {
+		t.Fatalf("on: %+v %v", c.AuditExport, err)
+	}
+	if _, err := FromEnv(get(map[string]string{"RETENTION": "maybe"})); err == nil {
+		t.Fatal("accepted RETENTION=maybe")
+	}
+}

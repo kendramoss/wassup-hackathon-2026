@@ -1,6 +1,6 @@
 # Broker workflow: review queue, collaboration and the eRulings filing package
 
-Issues #879, #881 and #882; decision D924. Behind `BROKER_WORKFLOW=on` (default off: the routes are not registered and production is unchanged). API only; the screens are not built.
+Issues #879, #881 and #882; decision D925. Behind `BROKER_WORKFLOW=on` (default off: the routes are not registered and production is unchanged). API only; the screens are not built.
 
 ## What it adds
 

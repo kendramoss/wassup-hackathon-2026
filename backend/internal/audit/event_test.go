@@ -116,14 +116,14 @@ func TestHashCoversEveryField(t *testing.T) {
 
 func TestSensitiveSetIsThePolicy(t *testing.T) {
 	want := map[Action]bool{CaseDelete: true, WorkspaceInvite: true, WorkspaceJoin: true, WorkspaceRoleChange: true,
-		WorkspaceMemberRemove: true, WorkspaceLeave: true, APIKeyIssue: true, APIKeyDisable: true, ReviewCreate: true}
+		WorkspaceMemberRemove: true, WorkspaceLeave: true, WorkspaceRetention: true, APIKeyIssue: true, APIKeyDisable: true, ReviewCreate: true}
 	for _, a := range Actions() {
 		if a.Sensitive() != want[a] {
 			t.Errorf("%s sensitive=%v, policy says %v", a, a.Sensitive(), want[a])
 		}
 	}
-	if len(Actions()) != 30 { // 23, plus the 7 broker workflow actions
-		t.Errorf("%d actions, the contract lists 30", len(Actions()))
+	if len(Actions()) != 32 { // 25, plus the 7 broker workflow actions
+		t.Errorf("%d actions, the contract lists 32", len(Actions()))
 	}
 }
 
