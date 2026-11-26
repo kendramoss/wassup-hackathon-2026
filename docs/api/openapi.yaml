@@ -1644,7 +1644,11 @@ paths:
       description: >-
         Checks one selected USMCA product-specific origin rule (HTSUS General Note 11(o), Annex 4-B) for a good
         imported into the United States, from its HS code, an elected regional value content method and a bill of
-        materials. Pilot coverage: 8202.31, 8207.13 and 9503.00 only; every other good is `not_supported`.
+        materials. Pilot coverage: 8202.31, 8207.13 and 9503.00 only; every other good is `not_supported`. With
+        `USMCA_RULES_EXT=on` (default off, D930) the check also covers the rows generated from HTSUS Rev 23 GN 11(o)
+        (alternatives with a product, process or end-use condition answer unknown; end-use rules and headings 8701
+        to 8708 stay `not_supported`), and it evaluates de minimis (GN 11(e)(i)), the parts route (GN 11(n)(i)) and
+        the GN 11(p) deemed-originating goods when invoked; off, the answers are unchanged.
         Deterministic code (`backend/internal/usmca`), no model call, nothing stored. The answer is the selected-rule
         status only: `met`, `not_met`, `needs_information` or `not_supported`. It is NOT a certification of origin,
         NOT a determination that the good is originating, NOT a preferential tariff rate, duty saving or duty-free
@@ -2342,6 +2346,8 @@ components:
         transaction_value: { $ref: "#/components/schemas/UsmcaAmount" }
         net_cost: { $ref: "#/components/schemas/UsmcaAmount" }
         vnm: { allOf: [{ $ref: "#/components/schemas/UsmcaAmount" }], description: "Value of non-originating materials in the same currency and valuation basis, including materials of undetermined origin where the law requires. Omitted is unknown, not zero." }
+        total_cost: { allOf: [{ $ref: "#/components/schemas/UsmcaAmount" }], description: "The good's total cost, a de minimis base (USMCA_RULES_EXT only). Omitted is unknown." }
+        de_minimis_basis: { type: string, enum: [transaction_value, total_cost], description: "The de minimis base the caller elects (USMCA_RULES_EXT only); never defaulted." }
         materials:
           type: array
           maxItems: 200
@@ -2352,6 +2358,7 @@ components:
               id: { type: string, maxLength: 64 }
               hs: { type: string, pattern: '^[0-9]{2}(\.?[0-9]{2}){0,4}$', description: "Material HS code, 2 to 10 digits, dots accepted. Omitted is unknown." }
               originating: { type: string, enum: [originating, non_originating, unknown], description: "Caller's claim, not verified. Omitted is unknown." }
+              value: { allOf: [{ $ref: "#/components/schemas/UsmcaAmount" }], description: "The material's value, used only by de minimis (USMCA_RULES_EXT only). Omitted is unknown." }
         profile:
           type: object
           additionalProperties: false
@@ -2368,6 +2375,9 @@ components:
             outside_party_operations: { $ref: "#/components/schemas/UsmcaProvisionClaim" }
             special_valuation: { $ref: "#/components/schemas/UsmcaProvisionClaim" }
             parts_route: { $ref: "#/components/schemas/UsmcaProvisionClaim", description: "Reliance on the parts route (Art. 4.2(d) / GN 11(b)(iv))." }
+            parts_route_basis: { type: string, enum: [same_classification, unassembled], description: "Why the parts cannot shift, for the parts route (GN 11(n)(i)(B), USMCA_RULES_EXT only)." }
+            produced_entirely_in_usmca_confirmed: { type: boolean, description: "The good is produced entirely in one or more USMCA countries (parts route, USMCA_RULES_EXT only)." }
+            imported_from_usmca_country_confirmed: { type: boolean, description: "The good is imported from Mexico or Canada (GN 11(p) goods, USMCA_RULES_EXT only)." }
     UsmcaOutcome: { type: string, enum: [satisfied, not_satisfied, unknown] }
     UsmcaMissingFact:
       type: object
