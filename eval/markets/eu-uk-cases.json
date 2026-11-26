@@ -1,0 +1,194 @@
+{
+ "cases": [
+  {
+   "id": "thomson-tv-poland",
+   "market": "eu",
+   "rules_in_force": "pre2016",
+   "confidence": "medium",
+   "expected": "South Korea",
+   "status": "decided",
+   "origin": "Poland",
+   "reason": "the primary rule for 8528 is met in Poland: CTH, except from heading 8529"
+  },
+  {
+   "id": "vestel-tv-turkey",
+   "market": "eu",
+   "rules_in_force": "pre2016",
+   "confidence": "medium",
+   "expected": "China",
+   "status": "decided",
+   "origin": "Turkey",
+   "reason": "the primary rule for 8528 is met in Turkey: CTH, except from heading 8529"
+  },
+  {
+   "id": "hoesch-silicon-india",
+   "market": "eu",
+   "rules_in_force": "pre2016",
+   "confidence": "medium",
+   "expected": "China",
+   "status": "needs_judgement",
+   "reason": "Annex 22-01 has no rules for chapter 28. This good has no list rule in Annex 22-01, so its origin is the country of its last substantial, economically justified processing (Art. 60(2) UCC). That is a judgement on the facts; it is not decided by code"
+  },
+  {
+   "id": "renesola-solar-india",
+   "market": "eu",
+   "rules_in_force": "pre2016",
+   "confidence": "medium",
+   "expected": "China",
+   "status": "undetermined",
+   "reason": "the list covers only some goods of this code; say which the good is"
+  },
+  {
+   "id": "stappert-ss-pipes-korea",
+   "market": "eu",
+   "rules_in_force": "annex22-01",
+   "confidence": "medium",
+   "expected": "South Korea",
+   "status": "undetermined",
+   "reason": "the primary rule for 7304 41 needs facts the codes cannot show"
+  },
+  {
+   "id": "csteel-ss-pipes-india",
+   "market": "eu",
+   "rules_in_force": "annex22-01",
+   "confidence": "high",
+   "expected": "China",
+   "status": "undetermined",
+   "reason": "the primary rule for 7304 41 needs facts the codes cannot show"
+  },
+  {
+   "id": "teak-debark-taiwan",
+   "market": "eu",
+   "rules_in_force": "pre2016",
+   "confidence": "medium",
+   "expected": "Myanmar",
+   "status": "needs_judgement",
+   "reason": "Annex 22-01 has no rules for chapter 44. This good has no list rule in Annex 22-01, so its origin is the country of its last substantial, economically justified processing (Art. 60(2) UCC). That is a judgement on the facts; it is not decided by code"
+  },
+  {
+   "id": "teak-cuboids-taiwan",
+   "market": "eu",
+   "rules_in_force": "pre2016",
+   "confidence": "medium",
+   "expected": "Myanmar",
+   "status": "needs_judgement",
+   "reason": "Annex 22-01 has no rules for chapter 44. This good has no list rule in Annex 22-01, so its origin is the country of its last substantial, economically justified processing (Art. 60(2) UCC). That is a judgement on the facts; it is not decided by code"
+  },
+  {
+   "id": "teak-sawn-wood-taiwan",
+   "market": "eu",
+   "rules_in_force": "pre2016",
+   "confidence": "medium",
+   "expected": "Taiwan",
+   "status": "needs_judgement",
+   "reason": "Annex 22-01 has no rules for chapter 44. This good has no list rule in Annex 22-01, so its origin is the country of its last substantial, economically justified processing (Art. 60(2) UCC). That is a judgement on the facts; it is not decided by code"
+  },
+  {
+   "id": "zentrag-beef-austria",
+   "market": "eu",
+   "rules_in_force": "pre2016",
+   "confidence": "medium",
+   "expected": "Hungary",
+   "status": "undetermined",
+   "reason": "the primary rule for 0201 needs facts the codes cannot show"
+  },
+  {
+   "id": "yoshida-slide-fasteners-germany",
+   "market": "eu",
+   "rules_in_force": "pre2016",
+   "confidence": "medium",
+   "expected": "Germany",
+   "status": "needs_judgement",
+   "reason": "Annex 22-01 has no rules for chapter 96. This good has no list rule in Annex 22-01, so its origin is the country of its last substantial, economically justified processing (Art. 60(2) UCC). That is a judgement on the facts; it is not decided by code"
+  },
+  {
+   "id": "guidance-hairbrush-set",
+   "market": "eu",
+   "rules_in_force": "annex22-01",
+   "confidence": "medium",
+   "expected": "Country X",
+   "status": "decided",
+   "origin": "Country X",
+   "reason": "Annex 22-01 has no rules for chapter 96; the work was only minimal operations (Art. 34 DA), so the origin is where the major portion of the materials originated; materials from Country X are the largest part (50% by value)"
+  },
+  {
+   "id": "guidance-tools-set-8206",
+   "market": "eu",
+   "rules_in_force": "annex22-01",
+   "confidence": "high",
+   "expected": "Country B",
+   "status": "undetermined",
+   "reason": "the work was only minimal operations (Art. 34 DA), so the chapter residual rule applies; under the chapter residual rule the origin is where the major portion of the materials originated, by value; each material's value share is needed"
+  },
+  {
+   "id": "guidance-tomatoes-morocco",
+   "market": "eu",
+   "rules_in_force": "annex22-01",
+   "confidence": "medium",
+   "expected": "Morocco",
+   "status": "needs_judgement",
+   "reason": "Annex 22-01 has no rules for chapter 07. This good has no list rule in Annex 22-01, so its origin is the country of its last substantial, economically justified processing (Art. 60(2) UCC). That is a judgement on the facts; it is not decided by code"
+  },
+  {
+   "id": "morrisons-foil-thailand",
+   "market": "uk",
+   "rules_in_force": "annex22-01",
+   "confidence": "medium",
+   "expected": "China",
+   "status": "needs_judgement",
+   "reason": "Part Four has no rules for chapter 76. This good has no product-specific rule in Part Four, so its origin is the country of its last substantial, economically justified processing (Taxation (Cross-border Trade) Act 2018 s. 17(3)). That is a judgement on the facts; it is not decided by code"
+  },
+  {
+   "id": "recoverypak-bags-china",
+   "market": "uk",
+   "rules_in_force": "pre2016",
+   "confidence": "medium",
+   "expected": "China",
+   "status": "needs_judgement",
+   "reason": "Part Four has no rules for chapter 39. This good has no product-specific rule in Part Four, so its origin is the country of its last substantial, economically justified processing (Taxation (Cross-border Trade) Act 2018 s. 17(3)). That is a judgement on the facts; it is not decided by code"
+  }
+ ],
+ "note": "EU and UK list-rule checks on hand-built cases from court, tribunal and Commission guidance texts with a stated origin (eval/markets/eu-uk/cases.jsonl). pre2016 cases were decided under the old Annex 11 / Art. 24 rules, not the Annex 22-01 rules the check applies. undetermined counts answers that need a person (no list rule, or a missing fact). No model call. Recompute: cd backend \u0026\u0026 go run ./cmd/marketeval euuk -check",
+ "totals": {
+  "all": {
+   "n": 16,
+   "decided": 3,
+   "agree": 1,
+   "disagree": 2,
+   "undetermined": 13,
+   "out_of_scope": 0
+  },
+  "annex22-01": {
+   "n": 6,
+   "decided": 1,
+   "agree": 1,
+   "disagree": 0,
+   "undetermined": 5,
+   "out_of_scope": 0
+  },
+  "eu": {
+   "n": 14,
+   "decided": 3,
+   "agree": 1,
+   "disagree": 2,
+   "undetermined": 11,
+   "out_of_scope": 0
+  },
+  "pre2016": {
+   "n": 10,
+   "decided": 2,
+   "agree": 0,
+   "disagree": 2,
+   "undetermined": 8,
+   "out_of_scope": 0
+  },
+  "uk": {
+   "n": 2,
+   "decided": 0,
+   "agree": 0,
+   "disagree": 0,
+   "undetermined": 2,
+   "out_of_scope": 0
+  }
+ }
+}
