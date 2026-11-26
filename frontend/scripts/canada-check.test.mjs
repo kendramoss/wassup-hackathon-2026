@@ -14,7 +14,7 @@ const decided = {
   jurisdiction: "ca",
   rules: "SOR/94-23 Schedule III",
   table_version: "ca-sor-94-23-v1",
-  label: "Rules check only — no accuracy figure yet (no published rulings to test against)",
+  label: "Rules check only — no accuracy figure yet (too few published rulings to test against)",
   country: "Mexico",
   note: "n",
   result: {
@@ -32,7 +32,7 @@ test("decided: origin, short label, details folded", () => {
   const m = html(CanadaCheckView, { v: decided });
   const t = text(m);
   assert.match(t, /Country-of-origin marking for Canada \(rules check\)/);
-  assert.match(t, /Rules check only — no accuracy figure yet \(no published rulings to test against\)/);
+  assert.match(t, /Rules check only — no accuracy figure yet \(too few published rulings to test against\)/);
   assert.match(t, /Mexico under Canada's marking rules, from the codes given\./);
   assert.match(m, /<details[^>]*>.*Details.*SOR\/94-23 s\. 4\(1\)\(c\)/s);
 });

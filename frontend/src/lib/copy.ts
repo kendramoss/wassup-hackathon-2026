@@ -649,11 +649,15 @@ export const copy = {
 
   // Canada's marking rules (SOR/94-23, D720): a rules check only. Few words
   // (rule 16); the label stays visible with every answer (D725).
+  cbsaRulings: {
+    title: "CBSA rulings",
+    meta: (n: number) => `${n} related`,
+  },
   canadaCheck: {
     title: "Country-of-origin marking for Canada (rules check)",
     run: "Check Canada rules",
     running: "Checking…",
-    label: "Rules check only — no accuracy figure yet (no published rulings to test against)",
+    label: "Rules check only — no accuracy figure yet (too few published rulings to test against)",
     decided: "under Canada's marking rules, from the codes given.",
     undetermined: "Not decided from the codes given.",
     outOfScope: "No Canadian rule for this code.",

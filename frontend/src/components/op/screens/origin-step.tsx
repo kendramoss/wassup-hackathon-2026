@@ -20,6 +20,7 @@ import { ReviewNote } from "../review-note";
 import { RuleCheckPanel } from "../rule-check";
 import { RcepCheck } from "../rcep-check";
 import { CanadaCheck } from "../canada-check";
+import { CbsaRulings } from "../cbsa-rulings";
 import { OriginRulesCheck } from "../origin-rules-check";
 import { FamilyIntakePanel } from "../family-intake";
 import { UsmcaCheck } from "../usmca-check";
@@ -94,6 +95,7 @@ function CanadaMarket({ c }: { c: CaseResponse }) {
       </section>
       <Main className="flex flex-col gap-4">
         <CanadaCheck c={c} auto />
+        <CbsaRulings rulings={c.prediction?.canada_rulings} />
         <ChecksLink c={c} />
       </Main>
     </>
