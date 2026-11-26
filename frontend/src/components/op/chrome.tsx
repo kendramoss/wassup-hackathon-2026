@@ -11,6 +11,7 @@ import { LogoMark } from "./logo";
 import { isDemoRefusal, isForbidden, isSigninRequired } from "@/lib/roles";
 import { SignIn, SignInRequired } from "./sign-in";
 import { Button, ButtonLink, Spinner, cx } from "./ui";
+import { ViewToggle } from "./view-toggle";
 
 // The active section is passed in rather than read from the URL, so the bar
 // prerenders in the static shell of dynamic routes. Cases lives at /cases;
@@ -85,6 +86,7 @@ export function AppBar({ active = "cases", sticky = false }: { active?: "cases" 
             <span className="lg:hidden" aria-hidden="true">+ New</span>
             <span className="hidden lg:inline" aria-hidden="true">{copy.cases.newCase}</span>
           </ButtonLink>
+          <ViewToggle view="technical" />
           {/* The account square ends the bar: Google's G signed out, your initial signed in. */}
           <SignIn />
         </span>
