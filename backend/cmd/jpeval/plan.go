@@ -140,13 +140,21 @@ func datasetHashes(split string) (map[string]string, error) {
 		"data/jp/translations-en.jsonl": filepath.Join(dataDir, "translations-en.jsonl"),
 		"data/jp/splits.json":           filepath.Join(dataDir, "splits.json"),
 	}
-	switch split {
+	if b, ok := answeredBase[split]; ok {
+		files["eval/jp/"+answersFile] = filepath.Join(outDir, answersFile)
+		files["eval/jp/runs/"+b.run+".jsonl"] = candidateRowsPath(b.run)
+	}
+	switch baseSplit(split) {
 	case "dev_eval":
 		files["data/jp/labels-dev.jsonl"] = filepath.Join(dataDir, "labels-dev.jsonl")
 	case "held_out":
 		files["data/jp/labels-heldout.jsonl"] = filepath.Join(dataDir, "labels-heldout.jsonl")
 	case "synthetic":
 		files["eval/jp/synthetic-negatives.jsonl"] = filepath.Join(outDir, "synthetic-negatives.jsonl")
+	case "fresh_1126", "fresh_1126_notwin":
+		for _, f := range []string{"rulings.jsonl", "translations-en.jsonl", "labels.jsonl", "twins.json"} {
+			files["data/jp/"+freshDir+"/"+f] = filepath.Join(dataDir, freshDir, f)
+		}
 	case "dev_neg":
 		files["data/jp/labels-dev.jsonl"] = filepath.Join(dataDir, "labels-dev.jsonl")
 		files["eval/jp/"+devNegFile] = filepath.Join(outDir, devNegFile)
@@ -175,7 +183,7 @@ func planCommand(args []string) error {
 	if fs.NArg() != 0 {
 		return errors.New("no positional arguments")
 	}
-	if *split != "dev_eval" && *split != "dev_neg" && *split != "held_out" && *split != "synthetic" {
+	if *split != "dev_eval" && *split != "dev_neg" && !isFresh(*split) && !isAnswered(*split) && *split != "held_out" && *split != "synthetic" {
 		return fmt.Errorf("unknown candidate split %q", *split)
 	}
 	items, pool, _, err := loadCandidate(*split)

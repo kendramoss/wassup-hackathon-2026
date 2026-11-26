@@ -32,7 +32,12 @@ func japanAuthority(cfg config.Config, engineModel llm.Model, meter *spend.Meter
 	var model llm.Model
 	modelID := japanModel
 	if cfg.LLMProvider == config.ProviderFake {
-		model = &llm.Fake{Respond: func(llm.Request) (llm.Response, error) {
+		// A case with a parts list and no answers yet comes back undetermined,
+		// so the questions of D917 can be tried locally; an answer settles it.
+		model = &llm.Fake{Respond: func(r llm.Request) (llm.Response, error) {
+			if in := r.Messages[len(r.Messages)-1].Content; strings.Contains(in, "\nMaterial: ") && !strings.Contains(in, "\nA: ") {
+				return llm.Response{Text: `{"outcome":"undetermined","criterion":"NONE","origin_country":"","deciding_rule":"Change of tariff heading","confidence":0.5,"reasoning":"Illustrative result from the local fake model: the parts' origin status is not given.","cited_rulings":[]}`}, nil
+			}
 			return llm.Response{Text: `{"outcome":"qualifies","criterion":"CTH","origin_country":"Vietnam","deciding_rule":"Change of tariff heading","confidence":0.74,"reasoning":"Illustrative result from the local fake model.","cited_rulings":[]}`}, nil
 		}}
 	} else {

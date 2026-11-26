@@ -1,0 +1,336 @@
+{
+ "source": "Japan Customs, 事前教示回答事例（原産地関係）",
+ "search_url": "https://www.customs.go.jp/searchao/jaosv001.jsp",
+ "index_url": "https://www.customs.go.jp/zeikan/seido/origin/kaitoujirei.htm",
+ "licence": "PDL1.0 (https://www.digital.go.jp/resources/open_data/public_data_license_v1.0)",
+ "list_retrieved_start_utc": "2026-11-26T06:44:54Z",
+ "detail_pages_fetched_utc": [
+  "2026-11-26T06:44:47Z",
+  "2026-11-26T06:46:25Z"
+ ],
+ "user_agent": "rulings-research-crawler/1.0",
+ "search_result_count": 3599,
+ "retrieval": "second retrieval (D919): list re-read on 26 Nov 2026; only rulings absent from the 22 Nov snapshot are kept here",
+ "list_retrieved_end_utc": "2026-11-26T06:46:25Z",
+ "previous_search_result_count": 3606,
+ "absent_from_second_list": [
+  "1231385",
+  "1231386",
+  "1231407",
+  "1231420",
+  "1231421",
+  "1231424",
+  "1231425",
+  "1231426",
+  "1231428",
+  "1231442",
+  "1231443",
+  "1231445",
+  "1231447",
+  "1231448",
+  "1231449",
+  "1231450",
+  "1231451",
+  "1231452",
+  "1231453",
+  "1231454",
+  "1231455",
+  "1231456",
+  "1231457",
+  "1231458",
+  "1231459",
+  "1231460",
+  "1231461",
+  "1231462",
+  "1231463",
+  "1231464",
+  "1231465",
+  "1231470",
+  "1231471",
+  "1231472",
+  "1231477",
+  "1231478",
+  "1231479",
+  "1231480",
+  "1231482",
+  "1231483",
+  "1231484",
+  "1231485",
+  "1231486",
+  "1231487",
+  "1231489",
+  "1231490",
+  "1231491",
+  "1231506",
+  "1231507",
+  "1231508",
+  "1231509"
+ ],
+ "new_ids": 44,
+ "pages": [
+  {
+   "id": "1260371",
+   "url": "https://www.customs.go.jp/tetsuzuki_search/origin/J1/26/J126198.htm",
+   "sha256": "9e43003e7e48af19bef1b1f71cb1b6b96bf7b6d344093356790cdaa79d833aaf",
+   "bytes": 14937
+  },
+  {
+   "id": "1260372",
+   "url": "https://www.customs.go.jp/tetsuzuki_search/origin/J1/26/J126199.htm",
+   "sha256": "3be04a91096057825867972f68c186959a5bf9e47e08f519a785c34227619595",
+   "bytes": 14798
+  },
+  {
+   "id": "1260380",
+   "url": "https://www.customs.go.jp/tetsuzuki_search/origin/J1/26/J126202.htm",
+   "sha256": "2b993441dcb73b7397dab888c0d4f94d242192796357a7ae7a17422bfea980c9",
+   "bytes": 14653
+  },
+  {
+   "id": "1260381",
+   "url": "https://www.customs.go.jp/tetsuzuki_search/origin/J1/26/J126203.htm",
+   "sha256": "faa43f006108cd5eb15744f12ef02ec3f35838d7ac66be1a07c50179dc49d570",
+   "bytes": 14836
+  },
+  {
+   "id": "1260712",
+   "url": "https://www.customs.go.jp/tetsuzuki_search/origin/J5/26/J526075.htm",
+   "sha256": "a081b03e08fbf4b116d1238e8dad2d0a5abd84e59ed5c3854b173794ea0ff62a",
+   "bytes": 14788
+  },
+  {
+   "id": "1260746",
+   "url": "https://www.customs.go.jp/tetsuzuki_search/origin/J5/26/J526078.htm",
+   "sha256": "b65b1604355395c5eb51767b10d5cafa2d99eb9763ccf501919a6266d6ff2fd5",
+   "bytes": 14901
+  },
+  {
+   "id": "1260747",
+   "url": "https://www.customs.go.jp/tetsuzuki_search/origin/J5/26/J526079.htm",
+   "sha256": "ed0159539468dfd186a8147b4e2f2f7dda97576a5835bf77dbdf693de8a810c8",
+   "bytes": 14899
+  },
+  {
+   "id": "1260748",
+   "url": "https://www.customs.go.jp/tetsuzuki_search/origin/J5/26/J526080.htm",
+   "sha256": "10b433ffd48f41a15774fb3449fde49a39af9dfe35e55b9ba985ecf4bf7d64aa",
+   "bytes": 14634
+  },
+  {
+   "id": "1260749",
+   "url": "https://www.customs.go.jp/tetsuzuki_search/origin/J5/26/J526081.htm",
+   "sha256": "a497ccfe8a966b79b3c79cd53aa4e15d040849c4370edde8f939c07ecea97a90",
+   "bytes": 14642
+  },
+  {
+   "id": "1260773",
+   "url": "https://www.customs.go.jp/tetsuzuki_search/origin/J1/26/J126427.htm",
+   "sha256": "777e6da8b9fb7e14bb03e34a5238a4e0f883cc9833bbbb07bb8a659c0ef79a87",
+   "bytes": 14484
+  },
+  {
+   "id": "1260774",
+   "url": "https://www.customs.go.jp/tetsuzuki_search/origin/J5/26/J526082.htm",
+   "sha256": "b93fa80aefbf94cdeff4b32f71ecdb016608ccf72e4b29125f9e8c5648139058",
+   "bytes": 14947
+  },
+  {
+   "id": "1260775",
+   "url": "https://www.customs.go.jp/tetsuzuki_search/origin/J5/26/J526083.htm",
+   "sha256": "024be58c02d5769313559ddc3133fb900d2ec288a038f18fa6f2035ec62abc27",
+   "bytes": 14916
+  },
+  {
+   "id": "1260776",
+   "url": "https://www.customs.go.jp/tetsuzuki_search/origin/J5/26/J526084.htm",
+   "sha256": "3cd13ccfeaf9fa1492520d5bc9c997b61b32ab42eff4b0a7708697a12241af4c",
+   "bytes": 14941
+  },
+  {
+   "id": "1260777",
+   "url": "https://www.customs.go.jp/tetsuzuki_search/origin/J5/26/J526085.htm",
+   "sha256": "dd4360ebf8f154957139d5fd32cc4234f367292c323383b86d55895972b95413",
+   "bytes": 14966
+  },
+  {
+   "id": "1260778",
+   "url": "https://www.customs.go.jp/tetsuzuki_search/origin/J5/26/J526086.htm",
+   "sha256": "7ff2b55b30cbb077feb893fb5934f37f185942b880338a6839b72d7dd2203ac5",
+   "bytes": 14912
+  },
+  {
+   "id": "1260779",
+   "url": "https://www.customs.go.jp/tetsuzuki_search/origin/J5/26/J526087.htm",
+   "sha256": "48cc35144dbfd0f9569e3a7e8beefc2bb31a53f136d6720946566c541b77bf1f",
+   "bytes": 14943
+  },
+  {
+   "id": "1260780",
+   "url": "https://www.customs.go.jp/tetsuzuki_search/origin/J5/26/J526088.htm",
+   "sha256": "c6fb86faa24f1bf4dde13e5b7162efc008e6baabc23fcca30569593e9b919d61",
+   "bytes": 14943
+  },
+  {
+   "id": "1260781",
+   "url": "https://www.customs.go.jp/tetsuzuki_search/origin/J5/26/J526089.htm",
+   "sha256": "c4e930c4befe8d42d7ef4f36f6cd30b5e9207bbbec56b4c6628a2d95fe7b0bb0",
+   "bytes": 14970
+  },
+  {
+   "id": "1260782",
+   "url": "https://www.customs.go.jp/tetsuzuki_search/origin/J5/26/J526090.htm",
+   "sha256": "418eb9dc38f6c9931dd418418cf093d6fcbec6c685dccdbd8389a8768f7a4cdf",
+   "bytes": 14916
+  },
+  {
+   "id": "1260783",
+   "url": "https://www.customs.go.jp/tetsuzuki_search/origin/J5/26/J526091.htm",
+   "sha256": "5ac6cd3641e43dc7831307bfeb8c15350683cbf068a89e145849c5083044d476",
+   "bytes": 14943
+  },
+  {
+   "id": "1260784",
+   "url": "https://www.customs.go.jp/tetsuzuki_search/origin/J5/26/J526092.htm",
+   "sha256": "6c731df5326325f14c6bb3589318dc46e4a416d86ba7c889590d10f8cf0d2b50",
+   "bytes": 14949
+  },
+  {
+   "id": "1260785",
+   "url": "https://www.customs.go.jp/tetsuzuki_search/origin/J5/26/J526093.htm",
+   "sha256": "13134d69ce4d4b2f4ea712b3a359b4d6fc1cc3ae00e63dcd9bedb47bc61ff338",
+   "bytes": 14966
+  },
+  {
+   "id": "1260786",
+   "url": "https://www.customs.go.jp/tetsuzuki_search/origin/J5/26/J526094.htm",
+   "sha256": "c6f9e8a6cbcccb8b9718002493923b9bd31cf8db984ac66d1c0176e96278505f",
+   "bytes": 14941
+  },
+  {
+   "id": "1260787",
+   "url": "https://www.customs.go.jp/tetsuzuki_search/origin/J5/26/J526095.htm",
+   "sha256": "7f18ed446dd0aecd354ae579780099e2259f745b6c0614024728699b4ece06ec",
+   "bytes": 14953
+  },
+  {
+   "id": "1260788",
+   "url": "https://www.customs.go.jp/tetsuzuki_search/origin/J5/26/J526096.htm",
+   "sha256": "4dfd1853e76747186b92494f061239274b05087cd2fad2bbe5bc9718b2e7e7e2",
+   "bytes": 14940
+  },
+  {
+   "id": "1260789",
+   "url": "https://www.customs.go.jp/tetsuzuki_search/origin/J5/26/J526097.htm",
+   "sha256": "2a29c923820187596566820ed66cf5b9d5482702a21e687176137ac862a1db99",
+   "bytes": 14912
+  },
+  {
+   "id": "1260790",
+   "url": "https://www.customs.go.jp/tetsuzuki_search/origin/J5/26/J526098.htm",
+   "sha256": "9524b2bd619d0a61147d3ba18a5a62b75c0d8018481d52530a946a3ee7dec67c",
+   "bytes": 14943
+  },
+  {
+   "id": "1260791",
+   "url": "https://www.customs.go.jp/tetsuzuki_search/origin/J5/26/J526099.htm",
+   "sha256": "9af2a9cdf17947065c38b5ec2607852d4bfa7610aed5f2ff6c0b4c864931b769",
+   "bytes": 14941
+  },
+  {
+   "id": "1260792",
+   "url": "https://www.customs.go.jp/tetsuzuki_search/origin/J1/26/J126430.htm",
+   "sha256": "5764a956219e58dcbc305d2e7d459fa3ae24e21ed9dbf757675fc03dddf55ffd",
+   "bytes": 14606
+  },
+  {
+   "id": "1260793",
+   "url": "https://www.customs.go.jp/tetsuzuki_search/origin/J1/26/J126431.htm",
+   "sha256": "a180a1b366112e39b45d682d73a1e8cc0ed681c377766fe74c2ff2c4b39b643f",
+   "bytes": 14606
+  },
+  {
+   "id": "1260794",
+   "url": "https://www.customs.go.jp/tetsuzuki_search/origin/J1/26/J126432.htm",
+   "sha256": "b42223da64800eef216de01a8e717a107bf75f1f8529457bc310533987a67818",
+   "bytes": 14606
+  },
+  {
+   "id": "1260795",
+   "url": "https://www.customs.go.jp/tetsuzuki_search/origin/J1/26/J126433.htm",
+   "sha256": "60cc7f625ff49fc69452d6d44c3a11fd100e2a161f7b4ab839c86cb5275ef903",
+   "bytes": 14588
+  },
+  {
+   "id": "1260796",
+   "url": "https://www.customs.go.jp/tetsuzuki_search/origin/J1/26/J126434.htm",
+   "sha256": "6d35ea7e2392683c810d85c0e62b96253792d78056bd999b304a0a36f0fceae1",
+   "bytes": 14558
+  },
+  {
+   "id": "1260797",
+   "url": "https://www.customs.go.jp/tetsuzuki_search/origin/J1/26/J126435.htm",
+   "sha256": "3c94d08e4f0c741ac89f7695c673be4f6a043638c5e46d6dce69bb716040c2cb",
+   "bytes": 14564
+  },
+  {
+   "id": "1260798",
+   "url": "https://www.customs.go.jp/tetsuzuki_search/origin/J1/26/J126436.htm",
+   "sha256": "a8fb057eb09a5eb3c1452c3ab37badfe2b996496bd9c5e2f2ae4520c56d3709d",
+   "bytes": 14588
+  },
+  {
+   "id": "1260799",
+   "url": "https://www.customs.go.jp/tetsuzuki_search/origin/J1/26/J126437.htm",
+   "sha256": "b3ec0f29aa2336abb827c96a0933092b0d5eb3a4ee329d7ac98567249ab21886",
+   "bytes": 14618
+  },
+  {
+   "id": "1260830",
+   "url": "https://www.customs.go.jp/tetsuzuki_search/origin/J1/26/J126465.htm",
+   "sha256": "f8350eee6daf78905f7730068de8c815776f157feb4dce7c4657fd0f3e7205b2",
+   "bytes": 14848
+  },
+  {
+   "id": "1260831",
+   "url": "https://www.customs.go.jp/tetsuzuki_search/origin/J1/26/J126466.htm",
+   "sha256": "395c4764c054ba2e8221d1977b8943eff2ac7f7c8f908568503fd6676dd99690",
+   "bytes": 14558
+  },
+  {
+   "id": "1260832",
+   "url": "https://www.customs.go.jp/tetsuzuki_search/origin/J1/26/J126467.htm",
+   "sha256": "ea03990396dc12048e245429a6b1af482d95b82bdf3ae121435703254820d496",
+   "bytes": 14558
+  },
+  {
+   "id": "1260834",
+   "url": "https://www.customs.go.jp/tetsuzuki_search/origin/J1/26/J126469.htm",
+   "sha256": "87f1f13a218954ac0c299ec542977ce0b5da95c6a7a74589fea2e87c4ec3e402",
+   "bytes": 14791
+  },
+  {
+   "id": "1260835",
+   "url": "https://www.customs.go.jp/tetsuzuki_search/origin/J1/26/J126470.htm",
+   "sha256": "325bf5a685f4bc389c68c902dc82fc17b308e0f38a5f3b2bfd3d735f2a826052",
+   "bytes": 14791
+  },
+  {
+   "id": "1260836",
+   "url": "https://www.customs.go.jp/tetsuzuki_search/origin/J1/26/J126471.htm",
+   "sha256": "3d95d985d66ae72983d7da88fa2b89254c53a8c70d46db05d5cf6408e39cbc73",
+   "bytes": 14791
+  },
+  {
+   "id": "1260837",
+   "url": "https://www.customs.go.jp/tetsuzuki_search/origin/J1/26/J126472.htm",
+   "sha256": "cc538c27479856c88a99a381ea1a111afd60c6092b08f7ad0b1617133db0aed3",
+   "bytes": 14773
+  },
+  {
+   "id": "1260847",
+   "url": "https://www.customs.go.jp/tetsuzuki_search/origin/J1/26/J126482.htm",
+   "sha256": "62c75bfe0df4002afd9158f644a01f0d5f1c7062a0ef48615b854c4c23c13fed",
+   "bytes": 14926
+  }
+ ]
+}

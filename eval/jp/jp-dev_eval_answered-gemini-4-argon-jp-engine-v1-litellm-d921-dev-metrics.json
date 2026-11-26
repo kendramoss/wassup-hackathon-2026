@@ -1,0 +1,139 @@
+{
+ "run": "jp-dev_eval_answered-gemini-4-argon-jp-engine-v1-litellm-d921-dev",
+ "split": "dev_eval_answered",
+ "expected_cases": 119,
+ "cases": 119,
+ "errors": 0,
+ "model_calls": 116,
+ "qualifies": 107,
+ "does_not_qualify": 0,
+ "undetermined": 12,
+ "criterion_match": {
+  "k": 102,
+  "n": 119,
+  "p": 0.8571,
+  "lo": 0.7831,
+  "hi": 0.9089
+ },
+ "criterion_in_cited_set": {
+  "k": 102,
+  "n": 119,
+  "p": 0.8571,
+  "lo": 0.7831,
+  "hi": 0.9089
+ },
+ "stated_country_match": {
+  "k": 38,
+  "n": 45,
+  "p": 0.8444,
+  "lo": 0.7122,
+  "hi": 0.9225
+ },
+ "stated_origin_match_including_eu": {
+  "k": 90,
+  "n": 97,
+  "p": 0.9278,
+  "lo": 0.8585,
+  "hi": 0.9646
+ },
+ "positive_recall": {
+  "k": 107,
+  "n": 119,
+  "p": 0.8992,
+  "lo": 0.832,
+  "hi": 0.9414
+ },
+ "synthetic_refusals": {
+  "k": 0,
+  "n": 0,
+  "p": 0,
+  "lo": 0,
+  "hi": 0
+ },
+ "criterion_match_by_agreement": {
+  "AJCEP": {
+   "k": 27,
+   "n": 30,
+   "p": 0.9,
+   "lo": 0.7438,
+   "hi": 0.9654
+  },
+  "CPTPP": {
+   "k": 12,
+   "n": 19,
+   "p": 0.6316,
+   "lo": 0.4104,
+   "hi": 0.8085
+  },
+  "JP-Australia EPA": {
+   "k": 1,
+   "n": 1,
+   "p": 1,
+   "lo": 0.2065,
+   "hi": 1
+  },
+  "JP-EU EPA": {
+   "k": 51,
+   "n": 52,
+   "p": 0.9808,
+   "lo": 0.8988,
+   "hi": 0.9966
+  },
+  "JP-India CEPA": {
+   "k": 1,
+   "n": 3,
+   "p": 0.3333,
+   "lo": 0.0615,
+   "hi": 0.7923
+  },
+  "JP-Indonesia EPA": {
+   "k": 3,
+   "n": 3,
+   "p": 1,
+   "lo": 0.4385,
+   "hi": 1
+  },
+  "JP-Philippines EPA": {
+   "k": 1,
+   "n": 1,
+   "p": 1,
+   "lo": 0.2065,
+   "hi": 1
+  },
+  "JP-Thailand EPA": {
+   "k": 1,
+   "n": 1,
+   "p": 1,
+   "lo": 0.2065,
+   "hi": 1
+  },
+  "JP-US TA": {
+   "k": 3,
+   "n": 3,
+   "p": 1,
+   "lo": 0.4385,
+   "hi": 1
+  },
+  "JP-Vietnam EPA": {
+   "k": 0,
+   "n": 1,
+   "p": 0,
+   "lo": 0,
+   "hi": 0.7935
+  },
+  "RCEP": {
+   "k": 2,
+   "n": 5,
+   "p": 0.4,
+   "lo": 0.1176,
+   "hi": 0.7693
+  }
+ },
+ "cost_usd": 1.7501,
+ "budget_charged_usd": 1.7501,
+ "cost_per_case_usd": 0.0147,
+ "cost_per_model_call_usd": 0.0151,
+ "model_call_cases_latency_p50_ms": 8443,
+ "model_call_cases_latency_p95_ms": 12754,
+ "labels_sha256": "0ff297ebbc9a44208e34c21f3a87161bd48958b0f0132bb13dd33c9757e7558a"
+}

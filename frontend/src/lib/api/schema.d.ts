@@ -2218,6 +2218,24 @@ export interface components {
             /** Format: uri */
             url: string;
         };
+        CanadaRuling: {
+            /** @example 8000005476 */
+            id: string;
+            /** Format: date */
+            date: string;
+            /** @enum {string} */
+            kind: "origin" | "marking";
+            product: string;
+            /** @description Trade agreement of an origin ruling, or the marking rules applied */
+            agreement: string;
+            /** @description One-line summary of the decision (ours, not CBSA text) */
+            holding: string;
+            /**
+             * Format: uri
+             * @description The full ruling on the CBSA's site
+             */
+            url: string;
+        };
         /** @description Preliminary Japan preferential-origin assessment. Every result requires specialist review. Published evaluation rulings only cover goods that qualified. Not a ruling. */
         JapanResult: {
             agreement: string;
@@ -2229,6 +2247,15 @@ export interface components {
             review_reason?: string;
             sources?: components["schemas"]["JapanSource"][];
             precedent_sources?: components["schemas"]["JapanSource"][];
+            /** @description On an undetermined result only (D917): facts the user can give. Send each answer with the question text to POST /v1/cases/{id}/answers; "Not sure" adds no fact. */
+            questions?: components["schemas"]["JapanQuestion"][];
+        };
+        JapanQuestion: {
+            /** @description originating:<part index>, made_in:<part index>, steps or materials */
+            id: string;
+            text: string;
+            /** @description Answer buttons, e.g. Yes, No, Not sure. Absent: a short typed answer. */
+            options?: string[];
         };
         /**
          * @description Market codes: us United States, eu European Union, uk United Kingdom, ca Canada, jp Japan, kr South Korea, au Australia, mx Mexico, other any other market
@@ -2294,6 +2321,8 @@ export interface components {
             /** @description For Japan, the predicted preferential origin when the goods qualify and a country is known. */
             origin_country?: string;
             japan_preference?: components["schemas"]["JapanResult"];
+            /** @description On a Canada case, published CBSA origin and marking rulings related to the product (D923). Display only; they play no part in the answer. */
+            canada_rulings?: components["schemas"]["CanadaRuling"][];
             key_factors?: string[];
             decisive_step?: string;
             /** @description The model's own stated confidence. Overconfident on average (stated 94.7% against 90.2% right on the 377 held-out rulings); use calibrated_confidence when present. */
@@ -5236,7 +5265,7 @@ export interface operations {
                         rules: "SOR/94-23 Schedule III";
                         /** @example ca-sor-94-23-v1 */
                         table_version: string;
-                        /** @example Rules check only — no accuracy figure yet (no published rulings to test against) */
+                        /** @example Rules check only — no accuracy figure yet (too few published rulings to test against) */
                         label: string;
                         country: string;
                         country_from?: string;

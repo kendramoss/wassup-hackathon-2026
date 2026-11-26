@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"strings"
 
+	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/carulings"
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/domain"
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/engine"
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/jurisdiction"
@@ -15,7 +16,7 @@ import (
 // CanadaLabel is shown with every Canadian answer: the check has no
 // accuracy figure, because Canada publishes too few origin rulings to test
 // it against (D725).
-const CanadaLabel = "Rules check only — no accuracy figure yet (no published rulings to test against)"
+const CanadaLabel = "Rules check only — no accuracy figure yet (too few published rulings to test against)"
 
 const canadaNote = "Canada's marking rules for goods imported from the United States or Mexico (SOR/94-23), applied to the codes given. Not a ruling."
 
@@ -91,14 +92,15 @@ func (a *api) canadaMarking(w http.ResponseWriter, r *http.Request) {
 
 // CanadaAuthority registers Canada as a rules-only market (D725): its
 // "engine" is the SOR/94-23 check on the case's product codes. No model is
-// called and no ruling is retrieved, so its fast path is 0: every answer
-// goes to review, and an answer without codes has no origin.
+// called, so its fast path is 0: every answer goes to review, and an
+// answer without codes has no origin. Published CBSA rulings related to the
+// product are attached for reading only (D923).
 func CanadaAuthority(rules *tariffshift.Rules) jurisdiction.Authority {
 	return jurisdiction.Authority{
 		Market:     jurisdiction.CA,
 		Agency:     "Canada Border Services Agency",
 		Rules:      "SOR/94-23 (marking rules for goods from CUSMA countries), rules check only",
-		Precedents: "none (rules only; no published rulings to test against)",
+		Precedents: "published CBSA origin and marking rulings, shown beside the check (display only, D923)",
 		Engine:     canadaEngine{rules: rules},
 	}
 }
@@ -112,6 +114,7 @@ func (e canadaEngine) Predict(_ context.Context, c domain.Case) (engine.Result, 
 	p := domain.Prediction{
 		Trace: domain.Trace{Provider: "rules", ModelID: "none", PromptVersion: e.rules.Table().Version},
 	}
+	p.CanadaRulings = carulings.For(c.Product)
 	if c.Product == nil || !productHasCodes(*c.Product) {
 		p.Reasoning = CanadaLabel + ". Add HS codes for the product and its parts to run Canada's marking rules."
 		return engine.Result{Prediction: p}, nil

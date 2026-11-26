@@ -2,6 +2,7 @@
 
 Usage: python3 -I -B eval/jp/labels.py <repo> [--check]
        python3 -I -B eval/jp/labels.py <repo> --held-out --confirm-phase2   (phase 2 only)
+       python3 -I -B eval/jp/labels.py <repo> --fresh [--check]   (D919: data/jp/fresh-1126; prints only the count)
 
 Writes data/jp/labels-dev.jsonl for the development split. Held-out labels are
 written only with --held-out --confirm-phase2, and nothing about them is printed.
@@ -126,6 +127,19 @@ def label(r):
 
 def main():
     repo = sys.argv[1]
+    if "--fresh" in sys.argv:
+        d = os.path.join(repo, "data/jp/fresh-1126")
+        rows = [json.loads(l) for l in open(os.path.join(d, "rulings.jsonl"), encoding="utf-8")]
+        out = "".join(json.dumps(label(r), ensure_ascii=False, sort_keys=True) + "\n" for r in rows)
+        p = os.path.join(d, "labels.jsonl")
+        if "--check" in sys.argv:
+            if open(p, encoding="utf-8").read() != out:
+                sys.exit(p + " differs from labels.py")
+            print("jp fresh labels ok")
+            return
+        open(p, "w", encoding="utf-8").write(out)
+        print("fresh labels written:", len(rows))
+        return
     rulings = {json.loads(l)["id"]: json.loads(l) for l in open(os.path.join(repo, "data/jp/rulings.jsonl"), encoding="utf-8")}
     splits = json.load(open(os.path.join(repo, "data/jp/splits.json")))
     held = "--held-out" in sys.argv

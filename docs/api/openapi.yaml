@@ -1753,7 +1753,7 @@ paths:
                   jurisdiction: { type: string, enum: [ca] }
                   rules: { type: string, enum: ["SOR/94-23 Schedule III"] }
                   table_version: { type: string, example: "ca-sor-94-23-v1" }
-                  label: { type: string, example: "Rules check only — no accuracy figure yet (no published rulings to test against)" }
+                  label: { type: string, example: "Rules check only — no accuracy figure yet (too few published rulings to test against)" }
                   country: { type: string }
                   country_from: { type: string }
                   note: { type: string }
@@ -3176,6 +3176,17 @@ components:
       properties:
         citation: { type: string }
         url: { type: string, format: uri }
+    CanadaRuling:
+      type: object
+      required: [id, date, kind, product, agreement, holding, url]
+      properties:
+        id: { type: string, example: "8000005476" }
+        date: { type: string, format: date }
+        kind: { type: string, enum: [origin, marking] }
+        product: { type: string }
+        agreement: { type: string, description: "Trade agreement of an origin ruling, or the marking rules applied" }
+        holding: { type: string, description: "One-line summary of the decision (ours, not CBSA text)" }
+        url: { type: string, format: uri, description: "The full ruling on the CBSA's site" }
     JapanResult:
       type: object
       description: Preliminary Japan preferential-origin assessment. Every result requires specialist review. Published evaluation rulings only cover goods that qualified. Not a ruling.
@@ -3189,6 +3200,17 @@ components:
         review_reason: { type: string }
         sources: { type: array, items: { $ref: "#/components/schemas/JapanSource" } }
         precedent_sources: { type: array, items: { $ref: "#/components/schemas/JapanSource" } }
+        questions:
+          type: array
+          description: "On an undetermined result only (D917): facts the user can give. Send each answer with the question text to POST /v1/cases/{id}/answers; \"Not sure\" adds no fact."
+          items: { $ref: "#/components/schemas/JapanQuestion" }
+    JapanQuestion:
+      type: object
+      required: [id, text]
+      properties:
+        id: { type: string, description: "originating:<part index>, made_in:<part index>, steps or materials" }
+        text: { type: string }
+        options: { type: array, items: { type: string }, description: "Answer buttons, e.g. Yes, No, Not sure. Absent: a short typed answer." }
     JurisdictionCode:
       type: string
       enum: [us, eu, uk, ca, jp, kr, au, mx, other]
@@ -3239,6 +3261,7 @@ components:
       properties:
         origin_country: { type: string, description: "For Japan, the predicted preferential origin when the goods qualify and a country is known." }
         japan_preference: { $ref: "#/components/schemas/JapanResult" }
+        canada_rulings: { type: array, items: { $ref: "#/components/schemas/CanadaRuling" }, description: "On a Canada case, published CBSA origin and marking rulings related to the product (D923). Display only; they play no part in the answer." }
         key_factors: { type: array, items: { type: string } }
         decisive_step: { type: string }
         confidence: { type: number, minimum: 0, maximum: 1, description: "The model's own stated confidence. Overconfident on average (stated 94.7% against 90.2% right on the 377 held-out rulings); use calibrated_confidence when present." }
