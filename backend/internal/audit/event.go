@@ -65,6 +65,16 @@ const (
 	ReviewRevoke   Action = "review.revoke"
 	ReviewView     Action = "review.view"
 	ReviewDecision Action = "review.decision"
+
+	// Broker workflow (BROKER_WORKFLOW). The object is always the case; no
+	// comment, reason or letter text reaches the trail.
+	QueueChange      Action = "queue.change"
+	CaseComment      Action = "case.comment"
+	CaseApproval     Action = "case.approval"
+	CaseCollaborator Action = "case.collaborator"
+	FilingPrepare    Action = "filing.prepare"
+	FilingStatus     Action = "filing.status"
+	FilingDownload   Action = "filing.download"
 )
 
 type actionSpec struct {
@@ -103,6 +113,16 @@ var actionSpecs = map[Action]actionSpec{
 	ReviewRevoke:   {},
 	ReviewView:     {},
 	ReviewDecision: {details: []string{"approve", "changes", "file_request"}},
+	// A comment, a sign-off or a per-case role changes only the case's own
+	// discussion; preparing a package stays inside the system and a download
+	// goes to someone who can already read the case. None fails closed.
+	QueueChange:      {details: []string{"enqueue", "assign", "start", "decide", "release"}},
+	CaseComment:      {details: []string{"", "external_broker"}},
+	CaseApproval:     {details: []string{"approve", "reject", "changes"}},
+	CaseCollaborator: {details: []string{"broker", "reviewer", "remove"}},
+	FilingPrepare:    {},
+	FilingStatus:     {details: []string{"submitted", "acknowledged", "ruling_issued", "withdrawn"}},
+	FilingDownload:   {details: []string{"json", "zip", "pdf"}},
 }
 
 // Actions lists every action, for coverage tests and docs.

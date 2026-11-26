@@ -458,6 +458,23 @@ func TestBOMVersionsConfig(t *testing.T) {
 	}
 }
 
+func TestBrokerWorkflowFlag(t *testing.T) {
+	for _, tt := range []struct {
+		value, want string
+		ok          bool
+	}{
+		{"", "off", true}, {"off", "off", true}, {"ON", "on", true}, {"yes", "", false},
+	} {
+		c, err := FromEnv(getenv(merge(vertexEnv(), map[string]string{"BROKER_WORKFLOW": tt.value})))
+		switch {
+		case tt.ok && (err != nil || c.BrokerWorkflow != tt.want):
+			t.Errorf("BROKER_WORKFLOW=%q: got %q, %v; want %q", tt.value, c.BrokerWorkflow, err, tt.want)
+		case !tt.ok && (err == nil || !strings.Contains(err.Error(), "BROKER_WORKFLOW must be on or off")):
+			t.Errorf("BROKER_WORKFLOW=%q accepted: %v", tt.value, err)
+		}
+	}
+}
+
 func TestTeamsConfig(t *testing.T) {
 	c, err := FromEnv(getenv(vertexEnv()))
 	if err != nil || c.Teams || c.TeamsAudience != "" {
