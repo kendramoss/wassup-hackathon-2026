@@ -3737,3 +3737,10 @@ Committed and pushed before any v2 call and before the v1 negatives run. Develop
 - **Runs** (gateway, `gemini-4-argon`, `LITELLM_NO_CACHE=1`): v1 on `dev_neg` (`-tag d913-neg-v1`) at this commit; then v2 on `dev_eval` (`-tag d913-dev-v2`) and `dev_neg` (`-tag d913-neg-v2`).
 - **Criteria for adopting v2.** (1) `dev_eval` criterion match net +8 or better against D909's 272 (paired, exact McNemar reported); and (2) v2 wrong approvals on `dev_neg` at most v1's plus 2, and at most 8 of 80. Both or v1 stays. No held-out figure follows from this; the D741 set stays burned.
 - **Cost.** About $7.7 for three runs.
+## D915 — Japan jp-engine-v2: results of D913, not adopted (26 Nov)
+Runs as pre-registered (gateway, 26 Nov): `d913-neg-v1`, `d913-neg-v2`, `d913-dev-v2`. Development only.
+- **Negatives (80).** v1 approved 0 and v2 approved 0 (v2: 67 declined, 13 undetermined; v1: 62 and 18). Criterion (2) passes.
+- **Development approvals (400).** v2 criterion match **269**, against v1's 272 in D909: 2 gained, 5 lost, McNemar p = 0.45. v2 also declined 14 published approvals outright, which v1 never did. Named origin 187 → 186 of 292. Criterion (1), net +8, **fails**.
+- **Decision.** v1 stays; the prompt is back to `jp-engine-v1`, word for word. The intermediate-materials instruction moved answers from "undetermined" to wrong refusals as often as to right approvals. With food-v1 (D858) and china-v1 (D861), this is the third prompt-text rule that did not help; the gains in D910 came from rule text the model is given.
+- **What it leaves.** Japan stands at 272 of 400 development approvals (68%) with no wrong approval on 80 constructed negatives. The negatives file and `dev_neg` split stay for any later change.
+- **Cost.** $0.94, $0.98 and $5.62.

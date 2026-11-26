@@ -106,12 +106,12 @@ func (r *recorder) serve(t *testing.T, h http.HandlerFunc) *llm.LiteLLM {
 }
 
 func TestCandidateNames(t *testing.T) {
-	base := "jp-held_out-gemini-4-argon-jp-engine-v2-litellm"
+	base := "jp-held_out-gemini-4-argon-jp-engine-v1-litellm"
 	for _, c := range []struct{ split, tag, id, want string }{
 		{"held_out", "", "", base},
 		{"held_out", "", "d741-run-1", base + "-d741-run-1"},
-		{"synthetic", "", "x", "jp-synthetic-gemini-4-argon-jp-engine-v2-litellm-x"},
-		{"dev_eval", "smoke", "", "jp-dev_eval-gemini-4-argon-jp-engine-v2-litellm-smoke"},
+		{"synthetic", "", "x", "jp-synthetic-gemini-4-argon-jp-engine-v1-litellm-x"},
+		{"dev_eval", "smoke", "", "jp-dev_eval-gemini-4-argon-jp-engine-v1-litellm-smoke"},
 	} {
 		if got, err := candidateName(c.split, c.tag, c.id); err != nil || got != c.want {
 			t.Errorf("candidateName(%q,%q,%q) = %q, %v; want %q", c.split, c.tag, c.id, got, err, c.want)
