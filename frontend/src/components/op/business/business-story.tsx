@@ -8,6 +8,7 @@
 import Link from "next/link";
 import { useEffect, useRef, useState, type ReactNode } from "react";
 import { LogoMark } from "../logo";
+import { SignIn } from "../sign-in";
 import { ViewToggle } from "../view-toggle";
 import "./business.css";
 
@@ -46,6 +47,7 @@ export function BusinessStory() {
         <div className="biz-bar-end">
           <Link href="/cases/new" className="biz-btn ink">Check a product</Link>
           <ViewToggle view="business" />
+          <SignIn look="business" />
         </div>
       </header>
 
