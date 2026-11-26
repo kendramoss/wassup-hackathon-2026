@@ -36,7 +36,7 @@ One record per event, validated against closed enums and strict patterns before 
 | `time` | UTC, microsecond, never earlier than the previous event of the tenant |
 | `actor_kind` / `actor` | `user` and `apikey`: pseudonym `a<keyid>_<32 hex>` (HMAC of the verified email or API key id under `AUDIT_ACTOR_KEY`); `admin` (one shared token), `anonymous`, `system`: no pseudonym |
 | `target` | pseudonym of the affected member (invite, join, role, remove) |
-| `action` | `case.create` `case.update` `case.export` `case.delete` `case.pin` `case.read` (denials only) `workspace.create` `workspace.invite` `workspace.join` `workspace.role_change` `workspace.member_remove` `workspace.leave` `apikey.issue` `apikey.list` `apikey.disable` `admin.watch_run` `audit.read` `audit.verify` `auth.denied` `review.create` `review.revoke` `review.view` `review.decision` (broker review links, D200) |
+| `action` | `case.create` `case.update` `case.export` `case.delete` `case.pin` `case.read` (denials only) `workspace.create` `workspace.invite` `workspace.join` `workspace.role_change` `workspace.member_remove` `workspace.leave` `workspace.retention` (#875, sensitive) `apikey.issue` `apikey.list` `apikey.disable` `admin.watch_run` `audit.read` `audit.verify` `audit.export` (#871) `auth.denied` `review.create` `review.revoke` `review.view` `review.decision` (broker review links, D200) |
 | `phase` / `outcome` | intent/allowed; completion/allowed or failed; single/allowed, denied or failed |
 | `reason` | `forbidden` `hidden` `unauthenticated` `invalid_credential` `invalid_input` `conflict` `not_found` `upstream` `unavailable` `internal` `superseded` `audit_unavailable` `rate_limited` |
 | `detail` | closed per action: update kind, export format, the new role, pin/unpin, the shared draft (`setup`, `plan`), the broker's decision (`approve`, `changes`, `file_request`) |
@@ -112,7 +112,7 @@ Verification works on a snapshot. The first call reads the head (seq and hash) a
 
 - Detects, with `verify`: a modified event, a reordered or inserted event, a deleted event in the middle, a removed tail (against the stored head), a missing prefix with no checkpoint, time going backwards, an event of another tenant.
 - Does NOT give: immutability. The events, the head and the checkpoint are written by this application into one datastore. Whoever can write that datastore, a cloud administrator included, can rewrite all of them consistently and the chain will verify. There is no WORM storage, no external anchor, no signature by a key the datastore administrator lacks. Do not describe the trail as immutable or tamper-proof.
-- Hardening not done here: periodically export the head hash to a separate system, object-lock storage, restricted IAM on the audit collections, backups.
+- Hardening not done here: anchoring the head hash in a separate system, object-lock storage, restricted IAM on the audit collections, backups. `GET /v1/audit/export` (section 13) gives the customer a copy and the head at that moment; keeping exports elsewhere is the customer's anchor, not ours.
 
 ## 9. Actor pseudonym key
 
@@ -125,6 +125,7 @@ A pseudonym is a keyed hash of a verified identity; it is not anonymisation, bec
 3. Run `GET /v1/audit/verify` until `complete:true`; `ok:true` with no `findings`; read `unresolved_intents`.
 4. Sample the coverage: perform a role change, a delete, a refused action and an export in a test workspace and find the events.
 5. Retention: show `AUDIT_RETENTION_DAYS`, the `checkpoint` in the verify result after a sweep.
+5a. Export (with `AUDIT_EXPORT=on`): `GET /v1/audit/export` as the workspace admin, then `go run ./cmd/auditverify export.jsonl` (exit 0 when intact).
 6. Deployment items (NOT verified by this repository, require the cloud owner): the IAM members able to write or delete the audit collections, whether any Firestore TTL policy exists on them, the database backup and export policy, Cloud Logging retention, where `AUDIT_ACTOR_KEY` is stored and who can read it, and the current key id.
 
 ## 11. How this supports a SOC 2 readiness program
@@ -134,3 +135,9 @@ It produces evidence relevant to common criteria areas: logical access (who chan
 ## 12. Known low risks (recorded, not fixed here)
 
 Firestore purge reads up to 400 oldest events per tenant per sweep and its cost is unmeasured; the file store uses mode 0644/0755 and follows symlinks (local development only); rotating `AUDIT_ACTOR_KEY` without bumping `AUDIT_ACTOR_KEY_ID` is not detected; a short `AUDIT_ACTOR_KEY` fails startup even with `AUDIT=off`.
+
+## 13. Export (#871)
+
+`AUDIT_EXPORT=on` (default off) registers `GET /v1/audit/export` with the same readers and tenant rules as `GET /v1/audit`. JSONL is the verifiable form: a `header` line with the head and retention checkpoint read before any event (a snapshot: later appends are not included), the events oldest first exactly as stored, and a `summary` line with the count and the SHA-256 of every byte before it. `cmd/auditverify` re-checks a file offline with the chain rules of `verify`; an export cut short by a store error has no summary and fails. `from` and `to` narrow by event time; such a file is checked event by event and link by link, not as a whole chain. CSV carries the same columns without header or summary. At most 200,000 events per export. Each export is an `audit.export` event in the tenant exported, written before the file streams. The same limits as section 8 apply: this is a copy the customer can keep, not a signature.
+
+Case retention (#875, `RETENTION=on`) is separate from audit retention: a workspace admin sets `case_days` with `PUT /v1/workspaces/{id}/retention` (a sensitive `workspace.retention` write), and the operator's `cmd/retention -apply` purges expired cases, writing a tombstone and a system `case.delete` event (detail `retention`) before each deletion.
