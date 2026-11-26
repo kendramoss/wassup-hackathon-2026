@@ -16,6 +16,7 @@ export const copy = {
   nav: { cases: "Cases", accuracy: "How accurate is it?", accuracyShort: "Accuracy", method: "Method", api: "API · MCP" },
 
   cases: {
+    signedOut: "Sign in to see and save your own cases. The demos above open without signing in.",
     title: "Cases",
     // A demo's case date sits just before CBP's later ruling: a backtest.
     demoDate: (d: string) => `Rulings before ${d} only`,

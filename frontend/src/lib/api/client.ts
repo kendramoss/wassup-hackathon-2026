@@ -356,6 +356,49 @@ export const api = {
     if (r.signin_required) throw await toError(Response.json(r.signin_required, { status: 401 }));
     return r;
   },
+  // The pinned demo cases as list rows, for a signed-out visitor. Under
+  // STRICT_AUTH /cases answers "sign in" to a visitor, but /demos is public
+  // and names each demo's pinned case, and pinned cases open without
+  // sign-in (#888). Without this the landing's demo button and /cases
+  // showed only a sign-in wall.
+  publicDemoCases: async (): Promise<CaseSummary[]> => {
+    const { demos } = await call<DemoList>("/demos");
+    const rows = await Promise.all(
+      (demos ?? [])
+        .filter((d) => d.pinned_case_id)
+        .map(async (d): Promise<CaseSummary | null> => {
+          try {
+            const c = (await call<CaseResponse>(`/cases/${enc(d.pinned_case_id!)}`)) as CaseResponse & {
+              prediction?: { origin_country?: string; confidence?: number; calibrated_confidence?: number };
+              triage?: { route?: CaseSummary["triage_route"] };
+              updated_at?: string;
+              step?: CaseSummary["step"];
+              scenarios?: unknown[];
+            };
+            return {
+              id: c.id ?? d.pinned_case_id!,
+              product_name: c.product?.name ?? d.title ?? "",
+              display_name: c.display_name ?? d.title ?? "",
+              date: c.date ?? "",
+              predicted_origin: c.prediction?.origin_country ?? null,
+              triage_route: c.triage?.route ?? null,
+              confidence: c.prediction?.confidence ?? null,
+              calibrated_confidence: c.prediction?.calibrated_confidence ?? null,
+              step: c.step ?? "origin",
+              updated_at: c.updated_at ?? "",
+              watch_status: null,
+              scenario_count: c.scenarios?.length ?? 0,
+              pinned: true,
+              demo_id: d.id,
+              can_write: false,
+            };
+          } catch {
+            return null;
+          }
+        }),
+    );
+    return rows.filter((r): r is CaseSummary => r !== null);
+  },
   getCase: (id: string) => call<CaseResponse>(`/cases/${enc(id)}`),
   predict: (body: PredictRequest) => post<CaseResponse>("/cases/predict", wireRequest(body)),
   answers: (id: string, answers: { question: string; answer: string }[]) =>
