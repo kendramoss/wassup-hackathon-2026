@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"math"
 	"net"
+	"net/url"
 	"os"
 	"regexp"
 	"strconv"
@@ -203,6 +204,14 @@ type Config struct {
 	// public endpoints stay open. It is not a claim that visitor IDs
 	// authenticate anyone (#283).
 	StrictAuth bool
+	// UsageMetering (USAGE_METERING on|off, default off) counts each
+	// workspace's predictions, plan searches and model spend per UTC month
+	// and serves workspace budgets with an optional hard cap (#886). Needs
+	// TEAMS=on: only signed-in workspace members are metered.
+	UsageMetering bool
+	// ERPImport (ERP_IMPORT on|off, default off) serves POST
+	// /v1/products/erp-import, BOM exports from an ERP filed as cases (#880).
+	ERPImport bool
 	// Audit (#284). AuditMode is AUDIT: on, off, or auto (the default). Audit is
 	// the resolved switch: on, or auto with AUDIT_ACTOR_KEY set. auto never
 	// enables the trail without the secret and never generates one; on without
@@ -220,12 +229,34 @@ type Config struct {
 	// /v1/cases/{id}/bom-version, a newer BOM diffed against the case's
 	// product and re-predicted (D67).
 	BOMVersions string
+	// AuditExport (on|off, default off) serves GET /v1/audit/export when the
+	// audit trail is on (#871).
+	AuditExport bool
+	// Retention (on|off, default off) serves workspace retention policies and
+	// tombstones and lets cmd/retention purge (#875). Its store follows
+	// CASES_STORE (file: CASES_DIR/retention.json).
+	Retention bool
+	// BrokerWorkflow is on or off (default): on serves the review queue,
+	// case discussion and sign-offs, and the eRulings filing package
+	// (docs/design/broker-workflow.md).
+	BrokerWorkflow string
 	// Teams (on|off, default off) verifies the Google ID token the frontend
 	// proxy forwards as X-User-Token and serves team workspaces (D68).
 	// TeamsAudience is the OAuth client ID the tokens must be issued to;
 	// required when Teams is on.
 	Teams         bool
 	TeamsAudience string
+	// SSO (on|off, default off) serves enterprise single sign-on (#868),
+	// OIDC and SAML, for workspaces with a verified email domain. It needs
+	// Teams. SSOSessionKey (a secret, excluded from String, at least 32
+	// bytes) signs session tokens and seals stored client secrets;
+	// SSOSiteURL is the public https origin whose /sso/... pages receive
+	// the identity provider's callbacks; SSOSessionTTL is a session's
+	// lifetime (default 8h, at most 24h).
+	SSO           bool
+	SSOSessionKey string
+	SSOSiteURL    string
+	SSOSessionTTL time.Duration
 	// APIKeys (on|off, default off) accepts X-API-Key from brokers: the
 	// admin issues keys with a daily request quota, each key gets its own
 	// rate-limit buckets and owns its cases (D69). Keys are kept in Firestore
@@ -266,6 +297,11 @@ type Config struct {
 	USMCAEngine   bool
 	USMCALabels   string
 	USMCAFastPath float64
+	// USMCARulesExt (on|off, default off) extends the USMCA origin-rule check
+	// (POST /v1/usmca/check) from the three pilot rows to the rows generated
+	// from HTSUS GN 11(o), with de minimis, the parts route and GN 11(p).
+	// Off keeps the pilot answers unchanged.
+	USMCARulesExt bool
 	// PharmaEngine (on|off, default off) predicts pharmaceutical cases (router
 	// regime pharma_api) with the pharma-v1 prompt, where origin follows the
 	// active ingredient, instead of leaving them out of scope (D62), with
@@ -312,6 +348,11 @@ type Config struct {
 	// 19 CFR 177.2 (D66). Off: only the Markdown draft.
 	ExportCFR177 bool
 	exportCFR177 string // as given, checked by validate
+	// ATIGACheck (on|off, default off) serves POST /v1/atiga/check and the
+	// check_atiga_preference MCP tool: ATIGA preferential origin from a bill
+	// of materials, deterministic, no model call (D927).
+	ATIGACheck bool
+	atigaCheck string // as given, checked by validate
 	// NearMissAdvice (on|off, default off) adds near-miss advice to the
 	// closest plan moves just under the plan bar: what differs from the
 	// supporting ruling and what would match it (D81). One model call each,
@@ -400,6 +441,7 @@ func FromEnv(getenv func(string) string) (Config, error) {
 		RateReviewPerMin:       e.integer("RATE_REVIEW_PER_MIN", 30),
 		CasesListLimit:         e.integer("CASES_LIST_LIMIT", 200),
 		BOMVersions:            strings.ToLower(e.str("BOM_VERSIONS", "off")),
+		BrokerWorkflow:         strings.ToLower(e.str("BROKER_WORKFLOW", "off")),
 		DailySpendCapUSD:       e.float("DAILY_SPEND_CAP_USD", 0),
 		DailySpendClientShare:  e.float("DAILY_SPEND_CLIENT_SHARE", 0.1),
 		AdminToken:             e.str("ADMIN_TOKEN", ""),
@@ -408,6 +450,9 @@ func FromEnv(getenv func(string) string) (Config, error) {
 		AuditRetentionDays:     e.integer("AUDIT_RETENTION_DAYS", 90),
 		AuditDir:               e.dir("AUDIT_DIR", "../data/audit"),
 		TeamsAudience:          e.str("TEAMS_AUDIENCE", ""),
+		SSOSessionKey:          e.str("SSO_SESSION_KEY", ""),
+		SSOSiteURL:             e.str("SSO_SITE_URL", ""),
+		SSOSessionTTL:          e.duration("SSO_SESSION_TTL", 8*time.Hour),
 		TextileRulings:         e.str("TEXTILE_RULINGS", "data/textile_rulings.json"),
 		TextileFastPath:        e.float("TEXTILE_FAST_PATH", 0),
 		TextilePrompt:          strings.ToLower(e.str("TEXTILE_PROMPT", "v1")),
@@ -434,6 +479,18 @@ func FromEnv(getenv func(string) string) (Config, error) {
 	case "off", "false", "0":
 	default:
 		e.errs = append(e.errs, fmt.Errorf("CASE_OWNERSHIP must be on or off, got %q", v))
+	}
+	for _, f := range []struct {
+		key string
+		dst *bool
+	}{{"USAGE_METERING", &c.UsageMetering}, {"ERP_IMPORT", &c.ERPImport}} {
+		switch v := strings.ToLower(e.str(f.key, "off")); v {
+		case "on", "true", "1":
+			*f.dst = true
+		case "off", "false", "0":
+		default:
+			e.errs = append(e.errs, fmt.Errorf("%s must be on or off, got %q", f.key, v))
+		}
 	}
 	switch v := strings.ToLower(e.str("STRICT_AUTH", "off")); v {
 	case "on", "true", "1":
@@ -482,12 +539,28 @@ func FromEnv(getenv func(string) string) (Config, error) {
 	default:
 		e.errs = append(e.errs, fmt.Errorf("TEAMS must be on or off, got %q", v))
 	}
+	switch v := strings.ToLower(e.str("SSO", "off")); v {
+	case "on", "true", "1":
+		c.SSO = true
+	case "off", "false", "0":
+	default:
+		e.errs = append(e.errs, fmt.Errorf("SSO must be on or off, got %q", v))
+	}
 	switch v := strings.ToLower(e.str("API_KEYS", "off")); v {
 	case "on", "true", "1":
 		c.APIKeys = true
 	case "off", "false", "0":
 	default:
 		e.errs = append(e.errs, fmt.Errorf("API_KEYS must be on or off, got %q", v))
+	}
+	for name, dst := range map[string]*bool{"AUDIT_EXPORT": &c.AuditExport, "RETENTION": &c.Retention} {
+		switch v := strings.ToLower(e.str(name, "off")); v {
+		case "on", "true", "1":
+			*dst = true
+		case "off", "false", "0":
+		default:
+			e.errs = append(e.errs, fmt.Errorf("%s must be on or off, got %q", name, v))
+		}
 	}
 	switch v := strings.ToLower(e.str("TEXTILE_ENGINE", "off")); v {
 	case "on", "true", "1":
@@ -516,6 +589,13 @@ func FromEnv(getenv func(string) string) (Config, error) {
 	case "off", "false", "0":
 	default:
 		e.errs = append(e.errs, fmt.Errorf("USMCA_ENGINE must be on or off, got %q", v))
+	}
+	switch v := strings.ToLower(e.str("USMCA_RULES_EXT", "off")); v {
+	case "on", "true", "1":
+		c.USMCARulesExt = true
+	case "off", "false", "0":
+	default:
+		e.errs = append(e.errs, fmt.Errorf("USMCA_RULES_EXT must be on or off, got %q", v))
 	}
 	switch v := strings.ToLower(e.str("PHARMA_ENGINE", "off")); v {
 	case "on", "true", "1":
@@ -552,6 +632,8 @@ func FromEnv(getenv func(string) string) (Config, error) {
 	c.PlanMaxMoves = e.integer("PLAN_MAX_MOVES", 12)
 	c.exportCFR177 = strings.ToLower(e.str("EXPORT_CFR177", "off"))
 	c.ExportCFR177 = c.exportCFR177 == "on" || c.exportCFR177 == "true" || c.exportCFR177 == "1"
+	c.atigaCheck = strings.ToLower(e.str("ATIGA_CHECK", "off"))
+	c.ATIGACheck = c.atigaCheck == "on" || c.atigaCheck == "true" || c.atigaCheck == "1"
 	switch v := strings.ToLower(e.str("STREAM_PREDICT", "off")); v {
 	case "on", "true", "1":
 		c.StreamPredict = "on"
@@ -696,6 +778,11 @@ func (c Config) validate() error {
 	default:
 		bad("EXPORT_CFR177 must be on or off, got %q", c.exportCFR177)
 	}
+	switch c.atigaCheck {
+	case "on", "true", "1", "off", "false", "0":
+	default:
+		bad("ATIGA_CHECK must be on or off, got %q", c.atigaCheck)
+	}
 	switch c.nearMissAdvice {
 	case "on", "true", "1", "off", "false", "0":
 	default:
@@ -711,6 +798,12 @@ func (c Config) validate() error {
 	}
 	if c.BOMVersions != "on" && c.BOMVersions != "off" {
 		bad("BOM_VERSIONS must be on or off, got %q", c.BOMVersions)
+	}
+	if c.UsageMetering && !c.Teams {
+		bad("USAGE_METERING=on needs TEAMS=on: usage is counted per workspace")
+	}
+	if c.BrokerWorkflow != "on" && c.BrokerWorkflow != "off" {
+		bad("BROKER_WORKFLOW must be on or off, got %q", c.BrokerWorkflow)
 	}
 	if c.Teams && !strings.HasSuffix(c.TeamsAudience, ".apps.googleusercontent.com") {
 		bad("TEAMS=on needs TEAMS_AUDIENCE, the Google OAuth client ID (…apps.googleusercontent.com), got %q", c.TeamsAudience)
@@ -791,6 +884,21 @@ func (c Config) validate() error {
 	case VerdictsOff:
 	default:
 		bad("VERIFIER_CACHE_STORE must be firestore, file or off, got %q", c.VerifierCacheStore)
+	}
+	// SSO (#868). Messages never include the key.
+	if c.SSO {
+		if !c.Teams {
+			bad("SSO=on needs TEAMS=on (single sign-on signs users in to workspaces)")
+		}
+		if len(c.SSOSessionKey) < 32 {
+			bad("SSO=on needs SSO_SESSION_KEY of at least 32 bytes (it is a secret: use a random value from the secret manager)")
+		}
+		if u, err := url.Parse(c.SSOSiteURL); err != nil || u.Scheme != "https" || u.Host == "" || (u.Path != "" && u.Path != "/") {
+			bad("SSO=on needs SSO_SITE_URL, the site's https origin (e.g. https://example.com), got %q", c.SSOSiteURL)
+		}
+		if c.SSOSessionTTL < 5*time.Minute || c.SSOSessionTTL > 24*time.Hour {
+			bad("SSO_SESSION_TTL must be between 5m and 24h, got %s", c.SSOSessionTTL)
+		}
 	}
 	// Audit (#284). Messages never include the key.
 	if c.AuditActorKey != "" && len(c.AuditActorKey) < audit.MinKeyBytes {

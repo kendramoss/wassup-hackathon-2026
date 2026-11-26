@@ -82,6 +82,13 @@ type Case struct {
 	// BrokerReviews are the case's broker review links, oldest first (D200).
 	// Their token hashes and draft snapshots are never returned to the owner.
 	BrokerReviews []BrokerReview `json:"broker_reviews,omitempty"`
+	// Broker workflow (BROKER_WORKFLOW, see broker.go): the review queue
+	// item, the discussion, sign-offs, per-case roles and the filing package.
+	Queue         *QueueItem     `json:"queue,omitempty"`
+	Comments      []Comment      `json:"comments,omitempty"`
+	Approvals     []Approval     `json:"approvals,omitempty"`
+	Collaborators []Collaborator `json:"collaborators,omitempty"`
+	Filing        *Filing        `json:"filing,omitempty"`
 	// OriginFacts are the facts the requester supplied to a rules check of
 	// the case, by market ("eu", "uk"), attributed "user-supplied" and
 	// timestamped (#770, D801). They are check inputs only: Facts and
@@ -95,6 +102,10 @@ type Case struct {
 	// supplied answers first re-ran a rules-only market's check (D815):
 	// kept so the original answer is never lost. Set once.
 	PredictionBeforeAnswers *domain.Prediction `json:"prediction_before_answers,omitempty"`
+	// DataRegion is the data region of the deployment that created the
+	// case (DATA_REGION, #873); empty when residency is off. A deployment
+	// with a region never reads or writes a case tagged with another one.
+	DataRegion string `json:"data_region,omitempty"`
 }
 
 // cloneSupplied detaches the supplied answers, so a read-time flag or a

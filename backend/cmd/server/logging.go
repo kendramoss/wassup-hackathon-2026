@@ -8,9 +8,11 @@ import (
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/config"
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/duty"
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/engine"
+	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/envelope"
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/httpapi"
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/logsafe"
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/nearmiss"
+	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/placement"
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/store"
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/verifier"
 )
@@ -94,7 +96,10 @@ func startupValues(cfg config.Config) map[string][]string {
 		"audit":              {cfg.AuditMode},
 		"actor_key_id":       {cfg.AuditActorKeyID},
 		// Which kind of store backs a feature: fixed words, not Go type names.
-		"store":      {config.CasesFirestore, config.CasesFile, config.CasesMemory, cfg.AuditStore},
-		"workspaces": {config.CasesFirestore, config.CasesMemory},
+		"store":       {config.CasesFirestore, config.CasesFile, config.CasesMemory, cfg.AuditStore},
+		"workspaces":  {config.CasesFirestore, config.CasesMemory},
+		"session_ttl": {cfg.SSOSessionTTL.String()},
+		"tier":        {string(placement.Shared), string(placement.Dedicated)},
+		"encryption":  {string(envelope.LocalMode), string(envelope.KMSMode)},
 	}
 }

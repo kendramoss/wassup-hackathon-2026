@@ -373,6 +373,16 @@ paths:
                 properties:
                   case_id: { type: string }
                   estimate: { $ref: "#/components/schemas/PlanEstimate" }
+                  workspace_budget:
+                    type: object
+                    description: "With USAGE_METERING=on, for a member of a workspace with a budget (#886): the month's budget, spend and what is left, and whether the estimate's maximum fits. A plan search that would not fit a hard cap is refused with 402."
+                    properties:
+                      month: { type: string, example: "2026-11" }
+                      budget_usd: { type: number }
+                      spent_usd: { type: number }
+                      remaining_usd: { type: number }
+                      hard_cap: { type: boolean }
+                      fits: { type: boolean }
         "400": { $ref: "#/components/responses/Error" }
         "404": { $ref: "#/components/responses/Error" }
         "429": { $ref: "#/components/responses/TooManyRequests" }
@@ -723,6 +733,388 @@ paths:
         "404": { $ref: "#/components/responses/Error" }
         "409": { $ref: "#/components/responses/Error" }
         "410": { $ref: "#/components/responses/Error" }
+  /v1/queue:
+    get:
+      operationId: listReviewQueue
+      summary: The human review queue of the cases the caller can see
+      description: >-
+        BROKER_WORKFLOW=on only. `state` is open (default, not decided), queued, assigned, in_review, decided
+        or all; `assignee=me` keeps the caller's own. Overdue items first, then by due time. `suggested`
+        lists cases the model routed to review that are not queued yet (at most 50). Review targets by
+        priority: urgent 4 h, high 24 h, normal 72 h, low 7 days.
+      parameters:
+        - { name: state, in: query, schema: { type: string, enum: [open, all, queued, assigned, in_review, decided] } }
+        - { name: assignee, in: query, schema: { type: string, enum: [me] } }
+      responses:
+        "200":
+          description: The queue
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [items, overdue, suggested, review_targets_h]
+                properties:
+                  items: { type: array, items: { $ref: "#/components/schemas/QueueView" } }
+                  overdue: { type: integer }
+                  suggested: { type: array, items: { $ref: "#/components/schemas/QueueView" } }
+                  review_targets_h: { type: object, additionalProperties: { type: integer } }
+        "400": { $ref: "#/components/responses/Error" }
+        "401": { $ref: "#/components/responses/Error" }
+        "403": { $ref: "#/components/responses/Error" }
+        "404": { $ref: "#/components/responses/Error" }
+        "429": { $ref: "#/components/responses/TooManyRequests" }
+  /v1/cases/{id}/queue:
+    put:
+      operationId: enqueueForReview
+      summary: Put the case in the human review queue, or change its priority
+      description: >-
+        BROKER_WORKFLOW=on only. A waiting or started review keeps its place and its assignee; a decided
+        one is queued again. `reason` is required. Refused for a workspace viewer and on a pinned demo.
+      parameters: [{ $ref: "#/components/parameters/CaseID" }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: false
+              required: [reason]
+              properties:
+                priority: { type: string, enum: [urgent, high, normal, low], default: normal }
+                reason: { type: string, maxLength: 2000 }
+      responses:
+        "200":
+          description: The queue item
+          headers:
+            X-Audit-Incomplete: { $ref: "#/components/headers/AuditIncomplete" }
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/QueueView" }
+        "400": { $ref: "#/components/responses/Error" }
+        "401": { $ref: "#/components/responses/Error" }
+        "403": { $ref: "#/components/responses/Error" }
+        "404": { $ref: "#/components/responses/Error" }
+        "429": { $ref: "#/components/responses/TooManyRequests" }
+  /v1/cases/{id}/queue/transition:
+    post:
+      operationId: moveReview
+      summary: Assign, start, decide or release the case's review
+      description: >-
+        BROKER_WORKFLOW=on only. `assign` needs `assignee` (an email; in a workspace only an admin assigns
+        someone else). `start` is for the assignee, or takes an unassigned review. `decide` is for the
+        assignee of a started review and needs `outcome` and `reason`; `on_time` records whether it beat
+        the due time. `release` puts it back in the queue. A move the state does not allow is 409.
+      parameters: [{ $ref: "#/components/parameters/CaseID" }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: false
+              required: [action]
+              properties:
+                action: { type: string, enum: [assign, start, decide, release] }
+                assignee: { type: string }
+                outcome: { type: string, enum: [approve, reject, changes] }
+                reason: { type: string, maxLength: 2000 }
+      responses:
+        "200":
+          description: The queue item
+          headers:
+            X-Audit-Incomplete: { $ref: "#/components/headers/AuditIncomplete" }
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/QueueView" }
+        "400": { $ref: "#/components/responses/Error" }
+        "401": { $ref: "#/components/responses/Error" }
+        "403": { $ref: "#/components/responses/Error" }
+        "404": { $ref: "#/components/responses/Error" }
+        "429": { $ref: "#/components/responses/TooManyRequests" }
+        "409": { $ref: "#/components/responses/Error" }
+  /v1/cases/{id}/collab:
+    get:
+      operationId: getCaseCollaboration
+      summary: The case's discussion threads, sign-offs and per-case roles
+      description: >-
+        BROKER_WORKFLOW=on only. `sign_off` counts each person's latest decision; a broker's approval
+        (role broker, or an approve or file_request answer on a review link) is what a filing needs.
+      parameters: [{ $ref: "#/components/parameters/CaseID" }]
+      responses:
+        "200":
+          description: The collaboration state
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Collaboration" }
+        "400": { $ref: "#/components/responses/Error" }
+        "401": { $ref: "#/components/responses/Error" }
+        "403": { $ref: "#/components/responses/Error" }
+        "404": { $ref: "#/components/responses/Error" }
+        "429": { $ref: "#/components/responses/TooManyRequests" }
+  /v1/cases/{id}/comments:
+    post:
+      operationId: commentOnCase
+      summary: Add a comment, or a reply with parent_id
+      description: >-
+        BROKER_WORKFLOW=on only. Anyone who can see the case may comment, a workspace viewer included.
+        Plain text, at most 2000 characters; a reply to a reply joins its thread. At most 500 comments.
+      parameters: [{ $ref: "#/components/parameters/CaseID" }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: false
+              required: [body]
+              properties:
+                body: { type: string, maxLength: 2000 }
+                parent_id: { type: string }
+      responses:
+        "201":
+          description: The collaboration state after the comment
+          headers:
+            X-Audit-Incomplete: { $ref: "#/components/headers/AuditIncomplete" }
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Collaboration" }
+        "400": { $ref: "#/components/responses/Error" }
+        "401": { $ref: "#/components/responses/Error" }
+        "403": { $ref: "#/components/responses/Error" }
+        "404": { $ref: "#/components/responses/Error" }
+        "429": { $ref: "#/components/responses/TooManyRequests" }
+        "409": { $ref: "#/components/responses/Error" }
+  /v1/cases/{id}/approvals:
+    post:
+      operationId: signOffCase
+      summary: Approve the ruling request, ask for changes, or reject it
+      description: >-
+        BROKER_WORKFLOW=on only. `reason` is required unless the decision is approve. The role recorded is
+        the person's case role (broker or reviewer from collaborators), else their workspace role, else
+        owner. Refused for a workspace viewer.
+      parameters: [{ $ref: "#/components/parameters/CaseID" }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: false
+              required: [decision]
+              properties:
+                decision: { type: string, enum: [approve, changes, reject] }
+                reason: { type: string, maxLength: 2000 }
+      responses:
+        "201":
+          description: The collaboration state after the sign-off
+          headers:
+            X-Audit-Incomplete: { $ref: "#/components/headers/AuditIncomplete" }
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Collaboration" }
+        "400": { $ref: "#/components/responses/Error" }
+        "401": { $ref: "#/components/responses/Error" }
+        "403": { $ref: "#/components/responses/Error" }
+        "404": { $ref: "#/components/responses/Error" }
+        "429": { $ref: "#/components/responses/TooManyRequests" }
+        "409": { $ref: "#/components/responses/Error" }
+  /v1/cases/{id}/collaborators:
+    put:
+      operationId: setCaseCollaborator
+      summary: Give a person a broker or reviewer role on this case, or remove it
+      description: >-
+        BROKER_WORKFLOW=on only. An empty `role` removes the person. A role says how their comments and
+        sign-offs count; it never lets anyone see a case they could not see before. At most 20.
+      parameters: [{ $ref: "#/components/parameters/CaseID" }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: false
+              required: [email, role]
+              properties:
+                email: { type: string }
+                role: { type: string, enum: [broker, reviewer, ""] }
+      responses:
+        "200":
+          description: The collaboration state
+          headers:
+            X-Audit-Incomplete: { $ref: "#/components/headers/AuditIncomplete" }
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Collaboration" }
+        "400": { $ref: "#/components/responses/Error" }
+        "401": { $ref: "#/components/responses/Error" }
+        "403": { $ref: "#/components/responses/Error" }
+        "404": { $ref: "#/components/responses/Error" }
+        "429": { $ref: "#/components/responses/TooManyRequests" }
+        "409": { $ref: "#/components/responses/Error" }
+  /v1/review/comments:
+    get:
+      operationId: getBrokerReviewComments
+      summary: The case's discussion as the broker holding a review link sees it
+      description: BROKER_WORKFLOW=on only. Token in `X-Review-Token`. Authors are shown by role only. Errors as getBrokerReview.
+      security: [{ ReviewToken: [] }]
+      responses:
+        "429": { $ref: "#/components/responses/TooManyRequests" }
+        "200":
+          description: The threads
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [threads]
+                properties:
+                  threads: { type: array, items: { $ref: "#/components/schemas/CommentThread" } }
+        "404": { $ref: "#/components/responses/Error" }
+        "410": { $ref: "#/components/responses/Error" }
+    post:
+      operationId: postBrokerReviewComment
+      summary: The broker holding a review link comments on the case
+      description: BROKER_WORKFLOW=on only. Token in `X-Review-Token`. Plain text, at most 2000 characters. Errors as decideBrokerReview.
+      security: [{ ReviewToken: [] }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: false
+              required: [body]
+              properties:
+                body: { type: string, maxLength: 2000 }
+                parent_id: { type: string }
+      responses:
+        "429": { $ref: "#/components/responses/TooManyRequests" }
+        "201":
+          description: The threads after the comment
+          headers:
+            X-Audit-Incomplete: { $ref: "#/components/headers/AuditIncomplete" }
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [threads]
+                properties:
+                  threads: { type: array, items: { $ref: "#/components/schemas/CommentThread" } }
+        "400": { $ref: "#/components/responses/Error" }
+        "404": { $ref: "#/components/responses/Error" }
+        "409": { $ref: "#/components/responses/Error" }
+        "410": { $ref: "#/components/responses/Error" }
+  /v1/cases/{id}/filing:
+    post:
+      operationId: prepareRulingFiling
+      summary: Prepare the CBP eRulings-ready filing package
+      description: >-
+        BROKER_WORKFLOW=on only. Builds the 19 CFR 177.2 letter (as exportCase with format cfr177, or the
+        broker's edited `letter`), fills it from `submitter`, checks each required element (177.2(b)(1),
+        (b)(2)(ii), (b)(3)-(4), (b)(6), (b)(7), the declaration and CBP's origin checklist) and stores the
+        package with its SHA-256. Nothing is sent to CBP. Can be prepared again until it is submitted
+        (409 after). Refused for a workspace viewer and on a pinned demo.
+      parameters: [{ $ref: "#/components/parameters/CaseID" }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: false
+              properties:
+                submitter: { $ref: "#/components/schemas/FilingSubmitter" }
+                letter: { type: string, description: "The broker's edited letter (Markdown, under 64 KB). Omit to generate it." }
+                attachments:
+                  type: array
+                  maxItems: 20
+                  items:
+                    type: object
+                    required: [name]
+                    properties:
+                      name: { type: string }
+                      description: { type: string }
+                      sha256: { type: string, pattern: "^[0-9a-fA-F]{64}$" }
+                      bytes: { type: integer, minimum: 0 }
+                plan_id: { type: string }
+                plan_index: { type: integer }
+                move_key: { type: string }
+                target: { type: string }
+      responses:
+        "200":
+          description: The package's state
+          headers:
+            X-Audit-Incomplete: { $ref: "#/components/headers/AuditIncomplete" }
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/FilingView" }
+        "400": { $ref: "#/components/responses/Error" }
+        "401": { $ref: "#/components/responses/Error" }
+        "403": { $ref: "#/components/responses/Error" }
+        "404": { $ref: "#/components/responses/Error" }
+        "429": { $ref: "#/components/responses/TooManyRequests" }
+        "409": { $ref: "#/components/responses/Error" }
+    get:
+      operationId: getRulingFiling
+      summary: The filing package's state, or the package as JSON, zip or PDF
+      description: >-
+        BROKER_WORKFLOW=on only. Without `format`, the state (`ready_to_file` needs every required element
+        and a broker's approval; `blocking` says what is missing). `format=json` is the package;
+        `zip` holds package.json, letter.pdf, letter.md, exhibit-a-materials.csv and exhibit-b-steps.txt
+        (reproducible: same package, same bytes); `pdf` is the letter. A download is recorded as
+        `filing.download`.
+      parameters:
+        - { $ref: "#/components/parameters/CaseID" }
+        - { name: format, in: query, schema: { type: string, enum: [json, zip, pdf] } }
+      responses:
+        "200":
+          description: The state or the package
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/FilingView" }
+            application/zip:
+              schema: { type: string, format: binary }
+            application/pdf:
+              schema: { type: string, format: binary }
+        "400": { $ref: "#/components/responses/Error" }
+        "401": { $ref: "#/components/responses/Error" }
+        "403": { $ref: "#/components/responses/Error" }
+        "404": { $ref: "#/components/responses/Error" }
+        "429": { $ref: "#/components/responses/TooManyRequests" }
+  /v1/cases/{id}/filing/status:
+    post:
+      operationId: setRulingFilingStatus
+      summary: Record what happened to the request after it left
+      description: >-
+        BROKER_WORKFLOW=on only. prepared → submitted (with the eRulings `reference`, and only when
+        `ready_to_file`) → acknowledged → ruling_issued (with the ruling number as `reference`);
+        withdrawn from any status before a ruling. Any other move is 409.
+      parameters: [{ $ref: "#/components/parameters/CaseID" }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: false
+              required: [status]
+              properties:
+                status: { type: string, enum: [submitted, acknowledged, ruling_issued, withdrawn] }
+                reference: { type: string, maxLength: 64 }
+                note: { type: string, maxLength: 2000 }
+      responses:
+        "200":
+          description: The package's state
+          headers:
+            X-Audit-Incomplete: { $ref: "#/components/headers/AuditIncomplete" }
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/FilingView" }
+        "400": { $ref: "#/components/responses/Error" }
+        "401": { $ref: "#/components/responses/Error" }
+        "403": { $ref: "#/components/responses/Error" }
+        "404": { $ref: "#/components/responses/Error" }
+        "429": { $ref: "#/components/responses/TooManyRequests" }
+        "409": { $ref: "#/components/responses/Error" }
   /v1/products/import:
     post:
       operationId: importProduct
@@ -785,6 +1177,123 @@ paths:
                   family_source: { type: string, enum: [given, file, ai] }
                   family_reason: { type: string, description: "The family check's reason, when family_source is ai" }
         "400": { $ref: "#/components/responses/Error" }
+  /v1/products/erp-import:
+    post:
+      operationId: erpImport
+      summary: Import BOMs from an ERP export (ERP_IMPORT=on)
+      description: |
+        Reads a bill-of-materials export, one row per BOM line (#880): `generic` CSV (product_id, product_name, assembled_in, component, made_in; optional product_hts, component_hts, description), an SAP S/4HANA BOM explosion joined to the material master (`sap_s4`: Material, Material Description, Plant Country, Component and/or Component Description, Country of Origin, Commodity Code, optional Header Commodity Code), a NetSuite assembly-item saved search (`netsuite`: Internal ID or Assembly Item, Assembly Description, Location Country, Member Item and/or Member Description, Country of Manufacture, HS Tariff Number, optional Assembly HS Tariff Number), or JSON `items`. Country columns take names or ISO alpha-2 codes; codes are normalised to dotted HTS form. Each assembly becomes one product assembled in its assembly country; a problem on any line of an assembly keeps that assembly out and is reported with its line number, and other assemblies are unaffected.
+        Without `commit` (a dry run) nothing is stored and no model is called: each complete assembly is reported as `new`, `changed` or `unchanged` against its case. With `commit: true` each is filed and predicted: the case ID is derived from the caller (user, workspace or API key), `source` and the ERP key, so re-importing the same export updates the same cases. An unchanged assembly is left alone (no model call); a changed one gets its new BOM, a new prediction and a `bom_updated` history event; a new one is created as by predict. A commit needs sign-in or an API key and takes at most 20 complete assemblies; split larger exports. Rate-limited like batch.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [format]
+              additionalProperties: false
+              properties:
+                format: { type: string, enum: [generic, sap_s4, netsuite, json] }
+                source: { type: string, maxLength: 64, description: "Label for the ERP or export, part of each case's key; default the format" }
+                csv: { type: string, description: The export, for the CSV formats }
+                items:
+                  type: array
+                  maxItems: 200
+                  description: For format json
+                  items:
+                    type: object
+                    required: [external_id, name, assembled_in, components]
+                    properties:
+                      external_id: { type: string, maxLength: 120 }
+                      name: { type: string }
+                      description: { type: string }
+                      hts: { type: string }
+                      assembled_in: { type: string, description: Country name or ISO alpha-2 code }
+                      components:
+                        type: array
+                        maxItems: 200
+                        items:
+                          type: object
+                          required: [name, made_in]
+                          properties: { name: { type: string }, made_in: { type: string }, hts: { type: string } }
+                commit: { type: boolean, default: false }
+                family: { type: string, description: "Optional product family template; without one the facts are written from the BOM" }
+                jurisdiction: { $ref: "#/components/schemas/JurisdictionCode" }
+          multipart/form-data:
+            schema:
+              type: object
+              required: [file, format]
+              properties:
+                file: { type: string, format: binary, description: CSV or .xlsx }
+                format: { type: string, enum: [generic, sap_s4, netsuite] }
+                source: { type: string }
+                commit: { type: string, enum: ["true", "false"] }
+                family: { type: string }
+                jurisdiction: { type: string }
+      responses:
+        "200":
+          headers:
+            X-Audit-Incomplete: { $ref: "#/components/headers/AuditIncomplete" }
+          description: One row per complete assembly, the problems, and counts
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/Meta"
+                  - type: object
+                    required: [format, source, committed, rows, problems, summary]
+                    properties:
+                      format: { type: string }
+                      source: { type: string }
+                      committed: { type: boolean }
+                      rows:
+                        type: array
+                        items:
+                          type: object
+                          required: [external_id, name, status, case_id, rows, components, countries, error]
+                          properties:
+                            external_id: { type: string }
+                            name: { type: string }
+                            status: { type: string, enum: [new, changed, unchanged, created, updated, failed] }
+                            case_id: { type: string, description: "The assembly's case (on a dry run, the case it would use)" }
+                            rows: { type: array, items: { type: integer }, description: Source line numbers (the header is line 1) }
+                            components: { type: integer }
+                            countries: { type: array, items: { type: string } }
+                            hts: { type: string }
+                            predicted_origin: { type: string }
+                            triage_route: { type: string }
+                            jurisdiction: { type: string }
+                            cost_usd: { type: number }
+                            error: { type: [string, "null"] }
+                      problems:
+                        type: array
+                        items:
+                          type: object
+                          required: [message]
+                          properties:
+                            row: { type: integer, description: "Source line (CSV) or 1-based item index (JSON)" }
+                            external_id: { type: string }
+                            message: { type: string }
+                      summary:
+                        type: object
+                        properties:
+                          assemblies: { type: integer }
+                          problems: { type: integer }
+                          lines: { type: integer }
+                          new: { type: integer }
+                          changed: { type: integer }
+                          unchanged: { type: integer }
+                          created: { type: integer }
+                          updated: { type: integer }
+                          failed: { type: integer }
+                          cost_usd: { type: number }
+                          latency_ms: { type: integer }
+        "400": { $ref: "#/components/responses/Error" }
+        "401": { $ref: "#/components/responses/Error" }
+        "402": { $ref: "#/components/responses/Error" }
+        "403": { $ref: "#/components/responses/Error" }
+        "429": { $ref: "#/components/responses/TooManyRequests" }
+        "503": { $ref: "#/components/responses/Error" }
   /v1/products/money-prefill:
     post:
       operationId: prefillMoney
@@ -1637,6 +2146,138 @@ paths:
                   note: { type: string }
         "400": { $ref: "#/components/responses/Error" }
         "429": { $ref: "#/components/responses/TooManyRequests" }
+  /v1/atiga/check:
+    post:
+      operationId: checkAtigaPreference
+      summary: ATIGA preferential origin check from a bill of materials (deterministic, no model call; off unless ATIGA_CHECK=on)
+      description: >-
+        Does a good made in an ASEAN Member State qualify as ATIGA originating, so it can claim the ATIGA (AFTA, Form D)
+        preferential tariff when imported into another Member State? Served only with `ATIGA_CHECK=on` (default off:
+        404). Deterministic code over the official Annex 3 product-specific rules (HS 2022, endorsed by the 36th AFTA
+        Council, read row by row from the ASEAN Secretariat workbook; `backend/internal/atiga`, D927). Implements
+        Art. 26 and 27 (wholly obtained), Art. 28.1 (the general rule RVC40 or CTH for goods not listed in Annex 3),
+        Art. 28.2 (the Annex 3 rule, including RVC35 with CTSH, "except from" exclusions, the textile process rule and
+        "cut and sewn in any Member State", which the caller states in `processes`), Art. 29 RVC by the direct or
+        indirect method (Art. 29.3: give `method` to use only your Member State's), Art. 30.1 cumulation, Art. 30.2
+        partial cumulation (a Member State material with its own RVC from 20 % to under 40 % adds that share of its
+        value as ASEAN content), Art. 31 minimal operations and Art. 33 de minimis (10 % of FOB value). Not covered:
+        ITA goods (Art. 28.3, Annex 4), direct consignment (Art. 32), packaging, accessories, neutral elements and
+        interchangeable materials (Art. 34 to 37), and proof-of-origin procedures. Missing facts make the answer
+        `undetermined`, never `no`. Preferential origin only (`regime: atiga_preferential`), separate from the marking
+        and non-preferential origin a case answer gives. Nothing is stored. Not a ruling and not a Certificate of
+        Origin. Cheap class (120 a minute); a malformed body is 400 `invalid_input`.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: false
+              required: [hs, produced_in]
+              properties:
+                hs: { type: string, example: "6101.20", description: "The good's HS code, 4 to 10 digits (HS 2022). A heading with Annex 3 rows needs the 6-digit subheading." }
+                produced_in: { type: string, example: Cambodia, description: "Where the good is produced: country name or ISO alpha-2 code. A non-Member State is `no`." }
+                fob: { type: number, exclusiveMinimum: 0, description: "FOB value of the good; needed for RVC and de minimis" }
+                method: { type: string, enum: [direct, indirect], description: "The RVC method the exporting Member State uses (Art. 29.3). Unset: either may decide." }
+                wholly_obtained: { type: boolean, description: "The producer states the good is wholly obtained or produced in the Member State (Art. 27)" }
+                operations:
+                  type: array
+                  maxItems: 50
+                  items: { type: string }
+                  description: "What is done to the non-originating materials. If every entry is an Art. 31 key (preservation, shipment, packaging), the good does not qualify. Any other word counts as real production."
+                processes:
+                  type: object
+                  additionalProperties: false
+                  description: "Annex 3 conditions written in words: true if it applies, false if not, left out if not stated (undetermined)."
+                  properties:
+                    textile_process: { type: boolean, description: "The Attachment 1 working or processing for textiles was done in a Member State" }
+                    cut_and_sewn: { type: boolean, description: "The good is both cut and sewn in a Member State" }
+                    refining: { type: boolean, description: "The good is produced by refining" }
+                    wet_to_dry: { type: boolean, description: "There is a change from the wet state to the dry state" }
+                    recording: { type: boolean, description: "Recording onto blank or unrecorded media" }
+                    parts_same_subheading: { type: boolean, description: "Made from parts produced solely for goods of the same subheading" }
+                variant: { type: string, description: "For rows whose rule depends on the product (e.g. 7317.00 of steel vs of stainless steel), the branch id from `rule.variants`. Unset: decided only if every branch agrees." }
+                costs:
+                  type: object
+                  additionalProperties: false
+                  description: "Direct method terms, Art. 29.1(a); same currency as fob"
+                  properties:
+                    labour: { type: number, minimum: 0 }
+                    overhead: { type: number, minimum: 0 }
+                    profit: { type: number, minimum: 0 }
+                    other: { type: number, minimum: 0 }
+                materials:
+                  type: array
+                  maxItems: 200
+                  items:
+                    type: object
+                    additionalProperties: false
+                    properties:
+                      name: { type: string }
+                      hs: { type: string, description: "The material's HS code, 2 to 10 digits; the rule needs 2, 4 or 6" }
+                      value: { type: number, minimum: 0, description: "CIF at import, or the earliest price paid in the Member State (Art. 29.2)" }
+                      country: { type: string, description: "Where the material originates" }
+                      status: { type: string, enum: [originating, non_originating, unknown], default: unknown, description: "originating: the supplier's declaration or proof of origin says it is ATIGA originating" }
+                      rvc_pct: { type: number, minimum: 0, maximum: 100, description: "The material's own ASEAN value content, for Art. 30.2 partial cumulation" }
+      responses:
+        "200":
+          description: The answer, with the rule used and plain-English reasons
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  outcome: { type: string, enum: ["yes", "no", undetermined] }
+                  basis: { type: string, enum: [WO, PE, PSR], description: "Art. 26 limb of a yes" }
+                  applied: { type: string, example: "CC and cut and sewn in any AMS", description: "The alternative that decided a yes" }
+                  rule:
+                    type: object
+                    properties:
+                      code: { type: string, example: "6101.20", description: "The Annex 3 subheading, or Art. 28.1 for the general rule" }
+                      listed: { type: boolean, description: "true: an Annex 3 row; false: the Art. 28.1 general rule" }
+                      concise: { type: string, example: "RVC40 or CC and cut and sewn in any AMS or textile process rule" }
+                      full: { type: string }
+                      version: { type: string, example: atiga-annex3-psr-hs2022-aftac36 }
+                      variants: { type: array, items: { type: object } }
+                  rvc:
+                    type: object
+                    properties:
+                      threshold: { type: integer, example: 40 }
+                      direct: { type: number, description: "(ASEAN materials + labour + overhead + profit + other) / FOB x 100" }
+                      indirect: { type: number, description: "(FOB - non-originating materials) / FOB x 100" }
+                      vnm: { type: number }
+                      vom: { type: number }
+                      partial: { type: number, description: "ASEAN content counted from partially cumulated materials (Art. 30.2)" }
+                  de_minimis:
+                    type: object
+                    properties:
+                      used: { type: boolean }
+                      value_share: { type: number, description: "per cent of FOB" }
+                  accumulation: { type: boolean, description: "Originating materials from another Member State were counted (Art. 30.1)" }
+                  partial_cumulation: { type: boolean, description: "Art. 30.2 partial cumulation was used" }
+                  failing:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        index: { type: integer }
+                        name: { type: string }
+                        hs: { type: string }
+                        reason: { type: string }
+                  alternatives:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        rule: { type: string }
+                        outcome: { type: string, enum: ["yes", "no", undetermined] }
+                        reasons: { type: array, items: { type: string } }
+                  reasons: { type: array, items: { type: string } }
+                  regime: { type: string, enum: [atiga_preferential] }
+                  note: { type: string }
+        "400": { $ref: "#/components/responses/Error" }
+        "404": { $ref: "#/components/responses/Error" }
+        "429": { $ref: "#/components/responses/TooManyRequests" }
   /v1/usmca/check:
     post:
       operationId: checkUsmcaOriginRule
@@ -1644,7 +2285,11 @@ paths:
       description: >-
         Checks one selected USMCA product-specific origin rule (HTSUS General Note 11(o), Annex 4-B) for a good
         imported into the United States, from its HS code, an elected regional value content method and a bill of
-        materials. Pilot coverage: 8202.31, 8207.13 and 9503.00 only; every other good is `not_supported`.
+        materials. Pilot coverage: 8202.31, 8207.13 and 9503.00 only; every other good is `not_supported`. With
+        `USMCA_RULES_EXT=on` (default off, D930) the check also covers the rows generated from HTSUS Rev 23 GN 11(o)
+        (alternatives with a product, process or end-use condition answer unknown; end-use rules and headings 8701
+        to 8708 stay `not_supported`), and it evaluates de minimis (GN 11(e)(i)), the parts route (GN 11(n)(i)) and
+        the GN 11(p) deemed-originating goods when invoked; off, the answers are unchanged.
         Deterministic code (`backend/internal/usmca`), no model call, nothing stored. The answer is the selected-rule
         status only: `met`, `not_met`, `needs_information` or `not_supported`. It is NOT a certification of origin,
         NOT a determination that the good is originating, NOT a preferential tariff rate, duty saving or duty-free
@@ -2028,6 +2673,85 @@ paths:
         "401": { $ref: "#/components/responses/Error" }
         "404": { $ref: "#/components/responses/Error" }
         "409": { $ref: "#/components/responses/Error" }
+  /v1/workspaces/{id}/usage:
+    get:
+      operationId: workspaceUsage
+      summary: The workspace's use this month and its budget (USAGE_METERING=on, TEAMS=on)
+      description: "Counts per UTC month (#886): predictions (each engine run on a case), plan searches, and the model spend of every call made for a signed-in member of the workspace, at the prices the daily spend cap uses. Any member may read it. Requests without a workspace (anonymous, API keys) are not counted here. 404 for a workspace the caller is not in."
+      parameters:
+        - { $ref: "#/components/parameters/UserToken" }
+        - { name: id, in: path, required: true, schema: { type: string } }
+        - { name: month, in: query, required: false, schema: { type: string, pattern: "^[0-9]{4}-(0[1-9]|1[0-2])$" }, description: "YYYY-MM; default this month (UTC)" }
+      responses:
+        "429": { $ref: "#/components/responses/TooManyRequests" }
+        "200":
+          description: The month's use
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [workspace_id, usage]
+                properties:
+                  workspace_id: { type: string }
+                  usage: { $ref: "#/components/schemas/WorkspaceUsage" }
+        "400": { $ref: "#/components/responses/Error" }
+        "401": { $ref: "#/components/responses/Error" }
+        "404": { $ref: "#/components/responses/Error" }
+  /v1/workspaces/{id}/budget:
+    put:
+      operationId: setWorkspaceBudget
+      summary: Set the workspace's monthly model budget (workspace admin; USAGE_METERING=on)
+      description: "With `hard_cap`, model-calling requests by members are refused with 402 `workspace_budget_reached` once the month's spend reaches `monthly_usd` (Retry-After: the next UTC month), and a plan search whose estimated maximum cost would pass it is refused before it runs. Without it the budget is reported only. `alert_percent` (default 80) sets when `usage.alert` turns true. Nothing is billed. 403 for a member who is not an admin."
+      parameters:
+        - { $ref: "#/components/parameters/UserToken" }
+        - { name: id, in: path, required: true, schema: { type: string } }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [monthly_usd]
+              additionalProperties: false
+              properties:
+                monthly_usd: { type: number, exclusiveMinimum: 0, maximum: 1000000 }
+                hard_cap: { type: boolean, default: false }
+                alert_percent: { type: integer, minimum: 0, maximum: 100, description: 0 means 80 }
+      responses:
+        "429": { $ref: "#/components/responses/TooManyRequests" }
+        "503": { $ref: "#/components/responses/Error" }
+        "200":
+          headers:
+            X-Audit-Incomplete: { $ref: "#/components/headers/AuditIncomplete" }
+          description: The budget saved
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  workspace_id: { type: string }
+                  budget: { $ref: "#/components/schemas/WorkspaceBudget" }
+        "400": { $ref: "#/components/responses/Error" }
+        "401": { $ref: "#/components/responses/Error" }
+        "403": { $ref: "#/components/responses/Error" }
+        "404": { $ref: "#/components/responses/Error" }
+    delete:
+      operationId: deleteWorkspaceBudget
+      summary: Remove the workspace's budget (workspace admin; USAGE_METERING=on)
+      description: Use is still counted. 403 for a member who is not an admin; 404 for a workspace the caller is not in.
+      parameters:
+        - { $ref: "#/components/parameters/UserToken" }
+        - { name: id, in: path, required: true, schema: { type: string } }
+      responses:
+        "429": { $ref: "#/components/responses/TooManyRequests" }
+        "503": { $ref: "#/components/responses/Error" }
+        "204":
+          description: Removed
+          headers:
+            X-Audit-Incomplete: { $ref: "#/components/headers/AuditIncomplete" }
+        "401": { $ref: "#/components/responses/Error" }
+        "403": { $ref: "#/components/responses/Error" }
+        "404": { $ref: "#/components/responses/Error" }
   /v1/audit:
     get:
       operationId: listAudit
@@ -2080,6 +2804,105 @@ paths:
         "403": { $ref: "#/components/responses/Error" }
         "404": { $ref: "#/components/responses/Error" }
         "429": { $ref: "#/components/responses/TooManyRequests" }
+  /v1/audit/export:
+    get:
+      operationId: exportAudit
+      summary: Export a tenant's retained audit trail as JSONL or CSV (workspace admin or admin token; AUDIT_EXPORT=on only)
+      description: "Registered only when the audit trail is on and `AUDIT_EXPORT=on` (404 otherwise). Same access and tenant rules as `GET /v1/audit`. The export is a snapshot: the head is read first, and events appended later are not included. JSONL (the default) is the verifiable form: a `header` line (tenant, head, retention checkpoint, window), one event per line oldest first exactly as stored with `prev_hash` and `hash`, and a `summary` line with the event count and the SHA-256 of every byte before it. `cmd/auditverify` re-checks a JSONL file offline with the same chain rules as `GET /v1/audit/verify`. An export cut short by a store error has no summary line, so it fails verification. `from` and `to` narrow by event time; a narrowed export is checked event by event, not as a whole chain. At most 200,000 events per export (`summary.complete` false beyond that; export in time windows). CSV has the same columns as an event and no header or summary line. Each export is audited (`audit.export`). Tamper evidence by the application only, not a signature."
+      security: [{ AdminToken: [] }, {}]
+      parameters:
+        - { name: X-User-Token, in: header, required: false, description: "The signed-in user's Google ID token (D68); the workspace admin's way in.", schema: { type: string } }
+        - { name: format, in: query, schema: { type: string, enum: [jsonl, csv], default: jsonl } }
+        - { name: from, in: query, description: RFC 3339, on `time`, schema: { type: string, format: date-time } }
+        - { name: to, in: query, description: RFC 3339, on `time`, schema: { type: string, format: date-time } }
+        - { name: tenant, in: query, description: Admin token only (required for it); 400 for any other caller, schema: { type: string } }
+      responses:
+        "200":
+          description: The export, as a file download. `X-Audit-Head-Seq` and `X-Audit-Head-Hash` repeat the snapshot head.
+          content:
+            application/x-ndjson:
+              schema: { type: string }
+            text/csv:
+              schema: { type: string }
+        "400": { $ref: "#/components/responses/Error" }
+        "401": { $ref: "#/components/responses/Error" }
+        "403": { $ref: "#/components/responses/Error" }
+        "404": { $ref: "#/components/responses/Error" }
+        "429": { $ref: "#/components/responses/TooManyRequests" }
+  /v1/workspaces/{id}/retention:
+    get:
+      operationId: getWorkspaceRetention
+      summary: A workspace's case retention policy (TEAMS=on and RETENTION=on; any member)
+      description: "`case_days` 0 means cases are kept until someone deletes them. 404 for a workspace the caller is not in."
+      parameters:
+        - { $ref: "#/components/parameters/UserToken" }
+        - { name: id, in: path, required: true, schema: { type: string } }
+      responses:
+        "429": { $ref: "#/components/responses/TooManyRequests" }
+        "200":
+          description: The policy
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/RetentionPolicy" }
+        "401": { $ref: "#/components/responses/Error" }
+        "404": { $ref: "#/components/responses/Error" }
+    put:
+      operationId: setWorkspaceRetention
+      summary: Set a workspace's case retention policy (TEAMS=on and RETENTION=on; workspace admin)
+      description: "`case_days` is 0 (keep forever) or 7 to 3650. The operator's purge run (`cmd/retention`) then hard-deletes the workspace's cases not updated for that many days, oldest first, writing a tombstone and a `case.delete` audit event (detail `retention`, actor `system`) before each deletion. Pinned demo cases are never purged. Setting the policy deletes nothing by itself. A sensitive write when the audit trail is on: 503 `audit_unavailable` if its intent cannot be recorded."
+      parameters:
+        - { $ref: "#/components/parameters/UserToken" }
+        - { name: id, in: path, required: true, schema: { type: string } }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [case_days]
+              properties:
+                case_days: { type: integer, description: "0, or 7 to 3650" }
+      responses:
+        "429": { $ref: "#/components/responses/TooManyRequests" }
+        "503": { $ref: "#/components/responses/Error" }
+        "200":
+          headers:
+            X-Audit-Incomplete: { $ref: "#/components/headers/AuditIncomplete" }
+          description: The saved policy
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/RetentionPolicy" }
+        "400": { $ref: "#/components/responses/Error" }
+        "401": { $ref: "#/components/responses/Error" }
+        "403": { $ref: "#/components/responses/Error" }
+        "404": { $ref: "#/components/responses/Error" }
+  /v1/workspaces/{id}/tombstones:
+    get:
+      operationId: listWorkspaceTombstones
+      summary: A workspace's hard-deleted cases, newest first (TEAMS=on and RETENTION=on; workspace admin)
+      description: "One tombstone per deleted workspace case: the case ID, when, why (`retention_policy` or `user_delete`), the policy in force and when the case was last changed. No case content."
+      parameters:
+        - { $ref: "#/components/parameters/UserToken" }
+        - { name: id, in: path, required: true, schema: { type: string } }
+        - { name: limit, in: query, schema: { type: integer, minimum: 1, maximum: 500, default: 100 } }
+      responses:
+        "429": { $ref: "#/components/responses/TooManyRequests" }
+        "200":
+          description: Tombstones
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [workspace, tombstones]
+                properties:
+                  workspace: { type: string }
+                  tombstones:
+                    type: array
+                    items: { $ref: "#/components/schemas/Tombstone" }
+        "400": { $ref: "#/components/responses/Error" }
+        "401": { $ref: "#/components/responses/Error" }
+        "403": { $ref: "#/components/responses/Error" }
+        "404": { $ref: "#/components/responses/Error" }
   /v1/eval/summary:
     get:
       operationId: getEvalSummary
@@ -2091,6 +2914,44 @@ paths:
           content:
             application/json:
               schema: { $ref: "#/components/schemas/EvalSummary" }
+  /v1/status:
+    get:
+      operationId: getStatus
+      summary: Service status for a status page (STATUS_PAGE=on only)
+      description: >-
+        The last snapshot of the deep health checks, refreshed in the background at most every 5 minutes,
+        and the published service-level objectives (docs/design/sla-and-status.md). Never runs a check on
+        the request path and never returns error text. `status` is `unknown` until the first snapshot.
+      responses:
+        "429": { $ref: "#/components/responses/TooManyRequests" }
+        "200":
+          description: Status
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [status, components, slos]
+                properties:
+                  status: { type: string, enum: [operational, degraded, unknown] }
+                  checked_at: { type: string, format: date-time }
+                  components:
+                    type: array
+                    items:
+                      type: object
+                      required: [name, status]
+                      properties:
+                        name: { type: string }
+                        status: { type: string, enum: [operational, degraded, unknown] }
+                  slos:
+                    type: array
+                    items:
+                      type: object
+                      required: [name, objective_percent, window, measures]
+                      properties:
+                        name: { type: string }
+                        objective_percent: { type: number }
+                        window: { type: string }
+                        measures: { type: string }
   /v1/admin/api-keys:
     post:
       operationId: issueApiKey
@@ -2241,6 +3102,190 @@ paths:
         "405": { description: Only POST is served }
         "413": { description: The body is over 12 MB }
         "429": { $ref: "#/components/responses/TooManyRequests" }
+  /v1/sso/start:
+    post:
+      operationId: ssoStart
+      summary: Start a single sign-on for an email (SSO=on)
+      description: "Finds the enabled SSO connection whose verified domain matches the email and returns the identity provider URL to send the browser to. The OIDC state, nonce and PKCE verifier, or the SAML request ID, are kept server side for ten minutes and work once. 404 sso_not_configured when the domain has no enabled connection."
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { type: object, required: [email], properties: { email: { type: string, format: email } } }
+      responses:
+        "200":
+          description: Where to send the browser
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [protocol, url, connection_id, expires_at]
+                properties:
+                  protocol: { type: string, enum: [oidc, saml] }
+                  url: { type: string, format: uri }
+                  connection_id: { type: string }
+                  expires_at: { type: string, format: date-time }
+        "400": { $ref: "#/components/responses/Error" }
+        "404": { $ref: "#/components/responses/Error" }
+        "429": { $ref: "#/components/responses/TooManyRequests" }
+  /v1/sso/oidc/callback:
+    post:
+      operationId: ssoOIDCCallback
+      summary: Finish an OIDC sign-in (SSO=on)
+      description: "The callback page posts the state and code the identity provider returned. The code is exchanged with PKCE; issuer, audience, expiry, signature and nonce are checked and the state is single use. A user signing in for the first time joins the connection's workspace with its default role. 401 sso_failed without detail; 403 sso_other_workspace for a member of another workspace."
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [state]
+              properties:
+                state: { type: string }
+                code: { type: string }
+                error: { type: string, description: The provider's error parameter, if it sent one }
+      responses:
+        "200": { $ref: "#/components/responses/SSOLogin" }
+        "401": { $ref: "#/components/responses/Error" }
+        "403": { $ref: "#/components/responses/Error" }
+        "429": { $ref: "#/components/responses/TooManyRequests" }
+        "502": { $ref: "#/components/responses/Error" }
+  /v1/sso/saml/acs:
+    post:
+      operationId: ssoSAMLACS
+      summary: Finish a SAML sign-in (SSO=on)
+      description: "The assertion consumer service. Accepts the HTTP-POST binding form (SAMLResponse, RelayState) or the same as JSON. The response or assertion must be signed by a configured certificate; issuer, audience, destination, time window and InResponseTo are checked, the relay state is single use and each assertion ID is accepted once. 401 sso_failed without detail; 403 sso_other_workspace."
+      requestBody:
+        required: true
+        content:
+          application/x-www-form-urlencoded:
+            schema: { type: object, required: [SAMLResponse, RelayState], properties: { SAMLResponse: { type: string }, RelayState: { type: string } } }
+          application/json:
+            schema: { type: object, required: [saml_response, relay_state], properties: { saml_response: { type: string }, relay_state: { type: string } } }
+      responses:
+        "200": { $ref: "#/components/responses/SSOLogin" }
+        "400": { $ref: "#/components/responses/Error" }
+        "401": { $ref: "#/components/responses/Error" }
+        "403": { $ref: "#/components/responses/Error" }
+        "429": { $ref: "#/components/responses/TooManyRequests" }
+  /v1/sso/saml/metadata:
+    get:
+      operationId: ssoSAMLMetadata
+      summary: SAML service provider metadata (SSO=on)
+      responses:
+        "200":
+          description: The service provider's entity descriptor
+          content:
+            application/samlmetadata+xml: { schema: { type: string } }
+  /v1/workspaces/{id}/sso:
+    get:
+      operationId: listSSOConnections
+      summary: List the workspace's SSO connections (SSO=on, workspace admin)
+      parameters:
+        - { $ref: "#/components/parameters/UserToken" }
+        - { name: id, in: path, required: true, schema: { type: string } }
+      responses:
+        "200":
+          description: The connections; client secrets are never returned
+          content:
+            application/json:
+              schema: { type: object, required: [connections], properties: { connections: { type: array, items: { $ref: "#/components/schemas/SSOConnection" } } } }
+        "401": { $ref: "#/components/responses/Error" }
+        "403": { $ref: "#/components/responses/Error" }
+        "404": { $ref: "#/components/responses/Error" }
+    post:
+      operationId: createSSOConnection
+      summary: Add an SSO connection (SSO=on, workspace admin)
+      description: "A new connection starts disabled: each domain must first be verified with a DNS TXT record (record_name, record_value in the answer). Public mail domains cannot be claimed. An OIDC issuer must answer discovery. 409 sso_domain_taken, sso_limit or sso_unverified."
+      parameters:
+        - { $ref: "#/components/parameters/UserToken" }
+        - { name: id, in: path, required: true, schema: { type: string } }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/SSOConnectionRequest" }
+      responses:
+        "201":
+          headers:
+            X-Audit-Incomplete: { $ref: "#/components/headers/AuditIncomplete" }
+          description: The connection
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/SSOConnection" }
+        "400": { $ref: "#/components/responses/Error" }
+        "401": { $ref: "#/components/responses/Error" }
+        "403": { $ref: "#/components/responses/Error" }
+        "404": { $ref: "#/components/responses/Error" }
+        "409": { $ref: "#/components/responses/Error" }
+        "503": { $ref: "#/components/responses/Error" }
+  /v1/workspaces/{id}/sso/{conn}:
+    put:
+      operationId: updateSSOConnection
+      summary: Replace an SSO connection (SSO=on, workspace admin)
+      description: An omitted oidc_client_secret keeps the stored one. A removed domain loses its verification.
+      parameters:
+        - { $ref: "#/components/parameters/UserToken" }
+        - { name: id, in: path, required: true, schema: { type: string } }
+        - { name: conn, in: path, required: true, schema: { type: string } }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/SSOConnectionRequest" }
+      responses:
+        "200":
+          headers:
+            X-Audit-Incomplete: { $ref: "#/components/headers/AuditIncomplete" }
+          description: The connection
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/SSOConnection" }
+        "400": { $ref: "#/components/responses/Error" }
+        "401": { $ref: "#/components/responses/Error" }
+        "403": { $ref: "#/components/responses/Error" }
+        "404": { $ref: "#/components/responses/Error" }
+        "409": { $ref: "#/components/responses/Error" }
+        "503": { $ref: "#/components/responses/Error" }
+    delete:
+      operationId: deleteSSOConnection
+      summary: Remove an SSO connection (SSO=on, workspace admin)
+      description: Every session the connection issued stops working at once.
+      parameters:
+        - { $ref: "#/components/parameters/UserToken" }
+        - { name: id, in: path, required: true, schema: { type: string } }
+        - { name: conn, in: path, required: true, schema: { type: string } }
+      responses:
+        "204": { description: Removed }
+        "401": { $ref: "#/components/responses/Error" }
+        "403": { $ref: "#/components/responses/Error" }
+        "404": { $ref: "#/components/responses/Error" }
+        "503": { $ref: "#/components/responses/Error" }
+  /v1/workspaces/{id}/sso/{conn}/verify:
+    post:
+      operationId: verifySSOConnection
+      summary: Check the connection's domain TXT records (SSO=on, workspace admin)
+      description: Looks up _undelabs-verify.<domain> for each domain. With enable true, turns the connection on once every domain is verified. The answer lists each domain's check.
+      parameters:
+        - { $ref: "#/components/parameters/UserToken" }
+        - { name: id, in: path, required: true, schema: { type: string } }
+        - { name: conn, in: path, required: true, schema: { type: string } }
+      requestBody:
+        content:
+          application/json:
+            schema: { type: object, properties: { enable: { type: boolean } } }
+      responses:
+        "200":
+          headers:
+            X-Audit-Incomplete: { $ref: "#/components/headers/AuditIncomplete" }
+          description: The connection with the checks
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/SSOConnection" }
+        "401": { $ref: "#/components/responses/Error" }
+        "403": { $ref: "#/components/responses/Error" }
+        "404": { $ref: "#/components/responses/Error" }
+        "503": { $ref: "#/components/responses/Error" }
 components:
   securitySchemes:
     ApiKey:
@@ -2300,6 +3345,20 @@ components:
       description: "Set to `completion-not-recorded` when the audit trail is enabled and the completion or single event of an audited request could not be stored. It can appear on ANY audited route that is not a Server-Sent-Events stream, on a success OR an error response, not only on the fail-closed operations that can answer 503: every mutating route, a recording or preview export of a non-pinned case, the audit read and verify routes, and the API-key list. For a write, the change stands and the response status is the true one. It is never sent on a Server-Sent-Events response, whose headers are committed before the work runs, so a stream that could not record its completion carries no header and the trail holds an intent without a completion. It is not present when the audit trail is off."
       schema: { type: string, enum: [completion-not-recorded] }
   responses:
+    SSOLogin:
+      description: A session token to send as X-User-Token
+      content:
+        application/json:
+          schema:
+            type: object
+            required: [token, expires_at, email, workspace_id, role, provisioned]
+            properties:
+              token: { type: string, description: "Starts with ops1." }
+              expires_at: { type: string, format: date-time }
+              email: { type: string, format: email }
+              workspace_id: { type: string }
+              role: { type: string, enum: [viewer, editor, admin] }
+              provisioned: { type: boolean, description: True when this sign-in made the user a member }
     Error:
       description: Error
       content:
@@ -2317,6 +3376,211 @@ components:
         application/json:
           schema: { $ref: "#/components/schemas/Error" }
   schemas:
+    SSOConnectionRequest:
+      type: object
+      required: [protocol, domains]
+      properties:
+        protocol: { type: string, enum: [oidc, saml] }
+        domains: { type: array, maxItems: 20, items: { type: string } }
+        default_role: { type: string, enum: [viewer, editor, admin], default: viewer }
+        enabled: { type: boolean }
+        enforced: { type: boolean, description: Refuse Google sign-in for these domains }
+        oidc_issuer: { type: string, format: uri }
+        oidc_client_id: { type: string }
+        oidc_client_secret: { type: string, writeOnly: true }
+        saml_sso_url: { type: string, format: uri }
+        saml_issuer: { type: string }
+        saml_certs_pem: { type: array, maxItems: 3, items: { type: string } }
+    SSOConnection:
+      type: object
+      required: [id, protocol, domains, default_role, enabled, enforced, has_client_secret, service_provider, created_at, updated_at]
+      properties:
+        id: { type: string }
+        protocol: { type: string, enum: [oidc, saml] }
+        domains:
+          type: array
+          items:
+            type: object
+            required: [domain, verified, record_name, record_value]
+            properties:
+              domain: { type: string }
+              verified: { type: boolean }
+              verified_at: { type: string, format: date-time }
+              record_name: { type: string }
+              record_value: { type: string }
+        default_role: { type: string, enum: [viewer, editor, admin] }
+        enabled: { type: boolean }
+        enforced: { type: boolean }
+        oidc_issuer: { type: string }
+        oidc_client_id: { type: string }
+        has_client_secret: { type: boolean }
+        saml_sso_url: { type: string }
+        saml_issuer: { type: string }
+        saml_certs_pem: { type: array, items: { type: string } }
+        service_provider:
+          type: object
+          properties:
+            oidc_redirect_url: { type: string }
+            saml_acs_url: { type: string }
+            saml_entity_id: { type: string }
+        checks:
+          type: array
+          items:
+            type: object
+            properties:
+              domain: { type: string }
+              record: { type: string }
+              verified: { type: boolean }
+              problem: { type: string }
+        created_at: { type: string, format: date-time }
+        updated_at: { type: string, format: date-time }
+    QueueView:
+      type: object
+      required: [case_id, item, overdue, due_in_s]
+      properties:
+        case_id: { type: string }
+        product: { type: string }
+        route: { type: string }
+        overdue: { type: boolean }
+        due_in_s: { type: integer, description: "Seconds until due; negative when overdue; 0 once decided." }
+        item:
+          type: object
+          nullable: true
+          properties:
+            state: { type: string, enum: [queued, assigned, in_review, decided] }
+            priority: { type: string, enum: [urgent, high, normal, low] }
+            reason: { type: string }
+            queued_by: { type: string }
+            queued_at: { type: string, format: date-time }
+            due_at: { type: string, format: date-time }
+            assignee: { type: string }
+            assigned_at: { type: string, format: date-time }
+            started_at: { type: string, format: date-time }
+            decision:
+              type: object
+              properties:
+                outcome: { type: string, enum: [approve, reject, changes] }
+                reason: { type: string }
+                by: { type: string }
+                at: { type: string, format: date-time }
+                on_time: { type: boolean }
+            log:
+              type: array
+              items:
+                type: object
+                properties:
+                  action: { type: string }
+                  by: { type: string }
+                  at: { type: string, format: date-time }
+                  detail: { type: string }
+    Comment:
+      type: object
+      required: [id, author, role, body, at]
+      properties:
+        id: { type: string }
+        parent_id: { type: string }
+        author: { type: string }
+        role: { type: string }
+        body: { type: string, description: Plain text; render as text. }
+        at: { type: string, format: date-time }
+    CommentThread:
+      allOf:
+        - { $ref: "#/components/schemas/Comment" }
+        - type: object
+          required: [replies]
+          properties:
+            replies: { type: array, items: { $ref: "#/components/schemas/Comment" } }
+    Approval:
+      type: object
+      required: [decision, by, role, at]
+      properties:
+        decision: { type: string, enum: [approve, reject, changes] }
+        reason: { type: string }
+        by: { type: string }
+        role: { type: string }
+        at: { type: string, format: date-time }
+    SignOff:
+      type: object
+      required: [state, broker_approved, approvers, blocking]
+      properties:
+        state: { type: string, enum: [none, approved, changes_requested, rejected] }
+        broker_approved: { type: boolean }
+        approvers: { type: array, items: { type: string } }
+        blocking: { type: array, items: { type: string } }
+    Collaboration:
+      type: object
+      required: [collaborators, threads, approvals, sign_off]
+      properties:
+        collaborators:
+          type: array
+          items:
+            type: object
+            properties:
+              email: { type: string }
+              role: { type: string, enum: [broker, reviewer] }
+              added_by: { type: string }
+              added_at: { type: string, format: date-time }
+        threads: { type: array, items: { $ref: "#/components/schemas/CommentThread" } }
+        approvals: { type: array, items: { $ref: "#/components/schemas/Approval" } }
+        sign_off: { $ref: "#/components/schemas/SignOff" }
+    FilingSubmitter:
+      type: object
+      additionalProperties: false
+      description: What the case does not know. Each answer fills its placeholder in the letter; what is left stays [FILL IN …].
+      properties:
+        requester_name: { type: string }
+        requester_address: { type: string }
+        requester_email: { type: string }
+        requester_phone: { type: string }
+        interest: { type: string, enum: [importer, exporter, manufacturer, agent, other] }
+        importer_of_record: { type: string }
+        port_of_entry: { type: string, description: "Blank fills \"Not yet known\" (the rule asks for it only if known)." }
+        no_prior_consideration: { type: boolean, description: Confirms the 177.2(b)(2)(ii) statement. }
+        confidential: { type: string, description: "\"none\", or the information to withhold under 177.2(b)(7)." }
+        signer_name: { type: string }
+        signer_title: { type: string }
+        manufacturers: { type: object, additionalProperties: { type: string }, description: "Plant name in the case → legal name, address and MID code." }
+        country_of_exportation: { type: string }
+        first_shipment: { type: string }
+        product_model: { type: string }
+        product_description: { type: string }
+        hts_reference: { type: string }
+        marking: { type: string }
+        legal_basis: { type: string }
+        prior_ruling_note: { type: string }
+        prior_advice: { type: string }
+        series: { type: string, enum: [is, is not] }
+        sample: { type: string }
+    FilingView:
+      type: object
+      required: [ready_to_file, sign_off, next_statuses, blocking]
+      properties:
+        status: { type: string, enum: [prepared, submitted, acknowledged, ruling_issued, withdrawn] }
+        prepared_at: { type: string, format: date-time }
+        prepared_by: { type: string }
+        submitter: { $ref: "#/components/schemas/FilingSubmitter" }
+        letter: { type: string }
+        elements:
+          type: array
+          items:
+            type: object
+            properties:
+              key: { type: string }
+              citation: { type: string }
+              label: { type: string }
+              status: { type: string, enum: [present, missing] }
+              detail: { type: string }
+              required: { type: boolean }
+        ready: { type: boolean, description: Every required element is present. }
+        attachments: { type: array, items: { type: object } }
+        package_sha256: { type: string }
+        cbp_reference: { type: string }
+        ruling_number: { type: string }
+        history: { type: array, items: { type: object } }
+        ready_to_file: { type: boolean }
+        sign_off: { $ref: "#/components/schemas/SignOff" }
+        next_statuses: { type: array, items: { type: string } }
+        blocking: { type: array, items: { type: string } }
     UsmcaAmount:
       type: string
       pattern: '^(0|[1-9][0-9]*)(\.[0-9]+)?$'
@@ -2342,6 +3606,8 @@ components:
         transaction_value: { $ref: "#/components/schemas/UsmcaAmount" }
         net_cost: { $ref: "#/components/schemas/UsmcaAmount" }
         vnm: { allOf: [{ $ref: "#/components/schemas/UsmcaAmount" }], description: "Value of non-originating materials in the same currency and valuation basis, including materials of undetermined origin where the law requires. Omitted is unknown, not zero." }
+        total_cost: { allOf: [{ $ref: "#/components/schemas/UsmcaAmount" }], description: "The good's total cost, a de minimis base (USMCA_RULES_EXT only). Omitted is unknown." }
+        de_minimis_basis: { type: string, enum: [transaction_value, total_cost], description: "The de minimis base the caller elects (USMCA_RULES_EXT only); never defaulted." }
         materials:
           type: array
           maxItems: 200
@@ -2352,6 +3618,7 @@ components:
               id: { type: string, maxLength: 64 }
               hs: { type: string, pattern: '^[0-9]{2}(\.?[0-9]{2}){0,4}$', description: "Material HS code, 2 to 10 digits, dots accepted. Omitted is unknown." }
               originating: { type: string, enum: [originating, non_originating, unknown], description: "Caller's claim, not verified. Omitted is unknown." }
+              value: { allOf: [{ $ref: "#/components/schemas/UsmcaAmount" }], description: "The material's value, used only by de minimis (USMCA_RULES_EXT only). Omitted is unknown." }
         profile:
           type: object
           additionalProperties: false
@@ -2368,6 +3635,9 @@ components:
             outside_party_operations: { $ref: "#/components/schemas/UsmcaProvisionClaim" }
             special_valuation: { $ref: "#/components/schemas/UsmcaProvisionClaim" }
             parts_route: { $ref: "#/components/schemas/UsmcaProvisionClaim", description: "Reliance on the parts route (Art. 4.2(d) / GN 11(b)(iv))." }
+            parts_route_basis: { type: string, enum: [same_classification, unassembled], description: "Why the parts cannot shift, for the parts route (GN 11(n)(i)(B), USMCA_RULES_EXT only)." }
+            produced_entirely_in_usmca_confirmed: { type: boolean, description: "The good is produced entirely in one or more USMCA countries (parts route, USMCA_RULES_EXT only)." }
+            imported_from_usmca_country_confirmed: { type: boolean, description: "The good is imported from Mexico or Canada (GN 11(p) goods, USMCA_RULES_EXT only)." }
     UsmcaOutcome: { type: string, enum: [satisfied, not_satisfied, unknown] }
     UsmcaMissingFact:
       type: object
@@ -2553,9 +3823,34 @@ components:
       properties:
         code:
           type: string
-          enum: [invalid_input, not_found, model_unavailable, model_bad_response, out_of_scope, internal, rate_limited, too_many_in_flight, client_budget_reached, auth_rate_limited, forbidden, budget_reached, unauthenticated, conflict, unauthorized, quota_exceeded, audit_unavailable, review_not_found, link_revoked, link_expired]
+          enum: [invalid_input, not_found, model_unavailable, model_bad_response, out_of_scope, internal, rate_limited, too_many_in_flight, client_budget_reached, auth_rate_limited, forbidden, budget_reached, unauthenticated, conflict, unauthorized, quota_exceeded, audit_unavailable, review_not_found, link_revoked, link_expired, workspace_budget_reached, sso_not_configured, sso_failed, sso_other_workspace, sso_unavailable, sso_unverified, sso_domain_taken, sso_limit]
         message: { type: string }
         details: {}
+    WorkspaceBudget:
+      type: object
+      required: [monthly_usd, hard_cap, alert_percent, updated_at]
+      properties:
+        monthly_usd: { type: number }
+        hard_cap: { type: boolean }
+        alert_percent: { type: integer }
+        updated_by: { type: string, format: email }
+        updated_at: { type: string, format: date-time }
+    WorkspaceUsage:
+      type: object
+      required: [totals, budget, remaining_usd, alert, blocked]
+      properties:
+        totals:
+          type: object
+          required: [month, predictions, plan_searches, model_usd]
+          properties:
+            month: { type: string, example: "2026-11" }
+            predictions: { type: integer }
+            plan_searches: { type: integer }
+            model_usd: { type: number }
+        budget: { oneOf: [{ $ref: "#/components/schemas/WorkspaceBudget" }, { type: "null" }] }
+        remaining_usd: { type: [number, "null"] }
+        alert: { type: boolean, description: "Spend reached the budget's alert share" }
+        blocked: { type: boolean, description: "A hard cap is reached: model-calling requests are refused (402)" }
     Workspace:
       type: object
       description: A team workspace (D68); its members see each other's cases.
@@ -2577,9 +3872,31 @@ components:
       type: string
       enum: [viewer, editor, admin]
       description: The caller's role in the workspace, derived by the server from stored membership.
+    RetentionPolicy:
+      type: object
+      required: [workspace, case_days, limits]
+      properties:
+        workspace: { type: string }
+        case_days: { type: integer, description: "0: keep forever" }
+        updated_at: { type: string, format: date-time }
+        limits:
+          type: object
+          properties:
+            min_case_days: { type: integer }
+            max_case_days: { type: integer }
+    Tombstone:
+      type: object
+      required: [case_id, deleted_at, reason, last_updated]
+      properties:
+        case_id: { type: string }
+        workspace: { type: string }
+        deleted_at: { type: string, format: date-time }
+        reason: { type: string, enum: [retention_policy, user_delete] }
+        policy_days: { type: integer }
+        last_updated: { type: string, format: date-time }
     AuditAction:
       type: string
-      enum: [case.create, case.update, case.export, case.delete, case.pin, case.read, workspace.create, workspace.invite, workspace.join, workspace.role_change, workspace.member_remove, workspace.leave, apikey.issue, apikey.list, apikey.disable, admin.watch_run, audit.read, audit.verify, auth.denied]
+      enum: [case.create, case.update, case.export, case.delete, case.pin, case.read, workspace.create, workspace.invite, workspace.join, workspace.role_change, workspace.member_remove, workspace.leave, workspace.retention, workspace.budget, apikey.issue, apikey.list, apikey.disable, admin.watch_run, audit.read, audit.verify, audit.export, auth.denied, review.create, review.revoke, review.view, review.decision]
       description: "`case.read` appears only as a denial; allowed ordinary reads are not audited."
     AuditPhase:
       type: string
