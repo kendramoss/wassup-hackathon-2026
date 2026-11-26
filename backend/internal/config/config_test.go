@@ -409,6 +409,22 @@ func TestFollowAdviceAndMaxMovesConfig(t *testing.T) {
 	}
 }
 
+func TestATIGACheckConfig(t *testing.T) {
+	c, err := FromEnv(getenv(vertexEnv()))
+	if err != nil || c.ATIGACheck {
+		t.Fatalf("ATIGA_CHECK default = %v %v, want off", c.ATIGACheck, err)
+	}
+	for v, want := range map[string]bool{"on": true, "ON": true, "1": true, "off": false, "0": false} {
+		c, err := FromEnv(getenv(merge(vertexEnv(), map[string]string{"ATIGA_CHECK": v})))
+		if err != nil || c.ATIGACheck != want {
+			t.Errorf("ATIGA_CHECK=%s = %v %v, want %v", v, c.ATIGACheck, err, want)
+		}
+	}
+	if _, err := FromEnv(getenv(merge(vertexEnv(), map[string]string{"ATIGA_CHECK": "maybe"}))); err == nil || !strings.Contains(err.Error(), "ATIGA_CHECK") {
+		t.Errorf("ATIGA_CHECK=maybe: %v", err)
+	}
+}
+
 func TestExportCFR177Config(t *testing.T) {
 	c, err := FromEnv(getenv(vertexEnv()))
 	if err != nil || c.ExportCFR177 {
