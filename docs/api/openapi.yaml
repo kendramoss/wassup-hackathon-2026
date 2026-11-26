@@ -3189,6 +3189,17 @@ components:
         review_reason: { type: string }
         sources: { type: array, items: { $ref: "#/components/schemas/JapanSource" } }
         precedent_sources: { type: array, items: { $ref: "#/components/schemas/JapanSource" } }
+        questions:
+          type: array
+          description: "On an undetermined result only (D917): facts the user can give. Send each answer with the question text to POST /v1/cases/{id}/answers; \"Not sure\" adds no fact."
+          items: { $ref: "#/components/schemas/JapanQuestion" }
+    JapanQuestion:
+      type: object
+      required: [id, text]
+      properties:
+        id: { type: string, description: "originating:<part index>, made_in:<part index>, steps or materials" }
+        text: { type: string }
+        options: { type: array, items: { type: string }, description: "Answer buttons, e.g. Yes, No, Not sure. Absent: a short typed answer." }
     JurisdictionCode:
       type: string
       enum: [us, eu, uk, ca, jp, kr, au, mx, other]

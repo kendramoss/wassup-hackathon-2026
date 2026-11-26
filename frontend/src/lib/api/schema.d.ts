@@ -2229,6 +2229,15 @@ export interface components {
             review_reason?: string;
             sources?: components["schemas"]["JapanSource"][];
             precedent_sources?: components["schemas"]["JapanSource"][];
+            /** @description On an undetermined result only (D917): facts the user can give. Send each answer with the question text to POST /v1/cases/{id}/answers; "Not sure" adds no fact. */
+            questions?: components["schemas"]["JapanQuestion"][];
+        };
+        JapanQuestion: {
+            /** @description originating:<part index>, made_in:<part index>, steps or materials */
+            id: string;
+            text: string;
+            /** @description Answer buttons, e.g. Yes, No, Not sure. Absent: a short typed answer. */
+            options?: string[];
         };
         /**
          * @description Market codes: us United States, eu European Union, uk United Kingdom, ca Canada, jp Japan, kr South Korea, au Australia, mx Mexico, other any other market

@@ -575,6 +575,14 @@ export const copy = {
     rule: "Product rule",
     precedents: "Earlier Japan Customs rulings",
     edit: "Edit inputs",
+    // D917: the questions on an undetermined result.
+    ask: "Answer to decide",
+    yes: "Yes",
+    no: "No",
+    notSure: "Not sure",
+    checkAgain: "Check again",
+    pickOne: "Answer at least one",
+    was: "Was",
   },
 
   // The 19 CFR 102.20 rule check (D363), shown only when the parts list gives

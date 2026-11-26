@@ -289,3 +289,42 @@ func TestJapanCaseUsesTradeAgreementAndStaysInReview(t *testing.T) {
 		t.Errorf("mixed-market input got status %d, Japan calls %d, U.S. calls %d", code, calls, h.engine.calls)
 	}
 }
+
+// D917: an undetermined Japan result asks questions; the answers re-run the
+// Japan engine with the agreement kept and the answer in the facts.
+func TestJapanQuestionsAnsweredReRun(t *testing.T) {
+	calls := 0
+	jp := japanPredictFunc(func(_ context.Context, c domain.Case) (engine.Result, error) {
+		calls++
+		if c.Japan == nil || c.Japan.Agreement != "RCEP" {
+			t.Fatalf("call %d lost the agreement: %+v", calls, c.Japan)
+		}
+		r := &domain.JapanResult{Agreement: "RCEP", HS: c.Japan.HS, Outcome: "undetermined",
+			Questions: []domain.JapanQuestion{{ID: "originating:0", Text: "Does veneer have proof of origin under RCEP?", Options: []string{"Yes", "No", "Not sure"}}}}
+		if strings.Contains(c.Facts, "A: Yes") {
+			r = &domain.JapanResult{Agreement: "RCEP", HS: c.Japan.HS, Outcome: "qualifies", Criterion: "CTH"}
+		}
+		return engine.Result{Prediction: domain.Prediction{Confidence: 0.9, Japan: r}}, nil
+	})
+	reg := jurisdiction.Default()
+	if err := reg.Register(jurisdiction.Authority{Market: jurisdiction.JP, Engine: jp, FastPath: 0.05}); err != nil {
+		t.Fatal(err)
+	}
+	h := newHarnessWith(t, RegimeGeneral, func(d *Deps) { d.Jurisdictions = reg })
+	code, out := h.do(t, "POST", "/v1/cases/predict", `{"date":"2026-03-01","facts":"Plywood pressed in Vietnam from imported veneer.","japan":{"agreement":"RCEP","hs":"4412.31"}}`)
+	if code != http.StatusCreated {
+		t.Fatalf("create: %d %v", code, out)
+	}
+	qs := out["prediction"].(map[string]any)["japan_preference"].(map[string]any)["questions"].([]any)
+	if len(qs) != 1 {
+		t.Fatalf("questions: %v", qs)
+	}
+	q := qs[0].(map[string]any)["text"].(string)
+	code, out = h.do(t, "POST", "/v1/cases/"+out["id"].(string)+"/answers", `{"answers":[{"question":"`+q+`","answer":"Yes"}]}`)
+	if code != http.StatusOK || calls != 2 {
+		t.Fatalf("answers: %d, calls %d, %v", code, calls, out)
+	}
+	if o := out["prediction"].(map[string]any)["japan_preference"].(map[string]any)["outcome"]; o != "qualifies" {
+		t.Fatalf("after answer: %v", o)
+	}
+}
