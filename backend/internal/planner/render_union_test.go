@@ -114,6 +114,8 @@ func TestUnionDefaultFlagPinned(t *testing.T) {
 		"paper_tissue_products": true, "semiconductor_devices": true, "toys_build_kits": true,
 		// D822, written from many rulings too.
 		"optical_precision_instruments": true,
+		// D863, written from many rulings too.
+		"battery_packs": true,
 	}
 	for _, family := range allFamilies {
 		got := tmpls[family].UnionDefaultOperations

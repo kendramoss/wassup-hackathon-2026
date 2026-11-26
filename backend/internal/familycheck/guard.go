@@ -10,8 +10,10 @@ import (
 // added printers, stands and the optical instrument template; v5 (D827)
 // moves the lifting rules to the off-road and lifting machinery template and
 // splits lenses between the optical and display templates; v6 (D850) keeps a
-// whole machine off the machinery parts template.
-const GuardVersion = "family-guard-v6"
+// whole machine off the machinery parts template; v7 (D864) applies the
+// battery-device, battery-material and vehicle rules to the battery packs
+// template too.
+const GuardVersion = "family-guard-v7"
 
 // guardRule sends a model's match to "none" (review) when the product line
 // names a product that only shares a cue with the family: a cordless drill is
@@ -32,7 +34,7 @@ type guardRule struct {
 
 var (
 	batteryCue = regexp.MustCompile(`batter|cordless|rechargeable|lithium|li-ion`)
-	// Goods of the power supplies, chargers and battery packs template, and
+	// Goods of the power supplies and battery packs templates, and
 	// the words that describe them as a whole ("battery protection circuit",
 	// "battery pack assembly", "storage cabinet").
 	powerWords = words("battery batterie cell pack bank station starter charger adapter supply module storage system converter inverter generator bms unit dock cradle board backup ups assembly circuit cabinet protection pcm pcb pcba rack")
@@ -101,17 +103,17 @@ var (
 )
 
 var guardRules = []guardRule{
-	{"battery-material", []string{"power_supplies_chargers"},
+	{"battery-material", []string{"power_supplies_chargers", "battery_packs"},
 		func(p string) bool {
 			return materialRe.MatchString(p) && matWords[productWord(p, matWords, powerWords)]
 		},
 		"a battery material (a chemical input) is not a battery, charger or power supply"},
-	{"battery-device", []string{"power_supplies_chargers"},
+	{"battery-device", []string{"power_supplies_chargers", "battery_packs"},
 		func(p string) bool {
 			return batteryCue.MatchString(p) && deviceWords[productWord(p, deviceWords, powerWords, matWords)]
 		},
 		"a device that runs on a battery is not a battery pack or power supply; choose the device's own family"},
-	{"vehicle", []string{"power_supplies_chargers", "motors_pumps_compressors"},
+	{"vehicle", []string{"power_supplies_chargers", "battery_packs", "motors_pumps_compressors"},
 		func(p string) bool {
 			return vehWords[productWord(p, vehWords, powerWords, machineWords, liftWords, standWords)] && !agvRe.MatchString(p)
 		},

@@ -10,7 +10,7 @@ import (
 )
 
 // TestH325607DevRuns recomputes the NUMBERS row for H325607 (#566): wrong in
-// 22 of 22 development engine runs, 21 Spain and 1 China, each showing
+// 28 of 28 development engine runs, 27 Spain and 1 China, each showing
 // N331974. The rows are in the development engine result files; since D370
 // the supersession impact report no longer lists them.
 func TestH325607DevRuns(t *testing.T) {
@@ -57,7 +57,7 @@ func TestH325607DevRuns(t *testing.T) {
 			t.Fatalf("%s: %v", f, err)
 		}
 	}
-	if runs != 22 || wrong != 22 || shown != 22 || preds["Spain"] != 21 || preds["China"] != 1 {
-		t.Fatalf("H325607 development runs: %d runs, %d wrong, %d showed N331974, predictions %v; docs/NUMBERS.md says 22, 22, 22, 21 Spain and 1 China", runs, wrong, shown, preds)
+	if runs != 28 || wrong != 28 || shown != 28 || preds["Spain"] != 27 || preds["China"] != 1 {
+		t.Fatalf("H325607 development runs: %d runs, %d wrong, %d showed N331974, predictions %v; docs/NUMBERS.md says 28, 28, 28, 27 Spain and 1 China", runs, wrong, shown, preds)
 	}
 }

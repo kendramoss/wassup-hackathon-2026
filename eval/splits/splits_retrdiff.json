@@ -1,0 +1,22 @@
+{
+ "frozen_at": "2026-11-25",
+ "rule": "D868: the development cases whose top-5 BM25 precedents differ when backend/data/labels_cited.jsonl joins the pool (eval retrdiff, 868-retrdiff.json); every other development case gets a byte-identical prompt",
+ "subset": [
+  "H331375",
+  "H344638",
+  "H354210",
+  "N350672",
+  "N351057",
+  "N351263",
+  "N351341",
+  "N352290",
+  "N352300",
+  "N352635",
+  "N352815",
+  "N353511",
+  "N354172",
+  "N355466",
+  "N356328",
+  "N356481"
+ ]
+}

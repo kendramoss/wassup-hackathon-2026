@@ -1,0 +1,6 @@
+{
+ "note": "Run 2 of the v2 series (D866), against a local server, not the live site: the agent from examples/adk-agent as on main, on Gemini 3.8 Flash through an OpenAI-compatible LiteLLM gateway to Gemini, against http://localhost:8787/mcp built from main at 1d73ba29 with an uncommitted patch accepting LLM_PROVIDER=litellm (engine, router and verifier on their production model names through the same gateway), in-memory store, products a01-a12, one run each, three at a time, 25 Nov 2026 13:13-13:22 +08:00. Not a pure repeat of run 1: the server's code, corpus and model path differ (D866).",
+ "series": "v2",
+ "rep": 2,
+ "baseline": "live-gemini-3.8-flash-undelabs"
+}

@@ -56,8 +56,8 @@ test("The archived and current confidence gates stay distinct", () => {
   assert.match(page, /It was not a blind test/);
 });
 
-test("The Ask inspector distinguishes the historical ADK score from the blocked repeat", () => {
-  assert.match(architecture, /stage\.id === "ask".*Run 1 passed the tool-use checks on 9 of 12 products/);
-  assert.match(architecture, /Production sign-in blocked the second anonymous run/);
+test("The Ask inspector shows the live run and the local repeat apart", () => {
+  assert.match(architecture, /stage\.id === "ask".*Live runs passed the tool-use checks on 9 and, signed in, 10 of 12 products/);
+  assert.match(architecture, /A local repeat passed 12 of 12/);
   assert.match(architecture, /ADK evaluation details/);
 });

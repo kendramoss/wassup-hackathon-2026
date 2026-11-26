@@ -1,0 +1,281 @@
+{
+ "rule": "D863 amendment of b3-dev-splits-a1.json (left as is): the same 48 cases and 30 look-alikes, the seven D781 battery cases now expect battery_packs (the template written for their scope), and four development cases D862 held back from the cited-only pool: H306336 (battery_packs) and H083693, N300248, N313752 (furniture). Their labels and facts are in backend/data/labels_cited.jsonl and facts_cited/. D826 amendment of b3-dev-splits.json (D821, left as frozen): same cases and look-alikes; expected templates follow the templates written (lifting cases expect offroad_vehicles_machinery). D820: development cases for family matching, frozen 2026-11-24 before any template was written from the D820 screen. dev = cases expected to match a template (expected); lookalikes = development rulings screened as sharing a cue with a scope, right when not matched to it. No held-out ID is listed.",
+ "frozen_at": "2026-11-24",
+ "dev": [
+  "H083693",
+  "H306336",
+  "H338482",
+  "H342833",
+  "H345343",
+  "N300248",
+  "N313752",
+  "N335585",
+  "N339090",
+  "N348790",
+  "N350152",
+  "N350225",
+  "N350680",
+  "N350750",
+  "N350838",
+  "N350953",
+  "N351234",
+  "N351263",
+  "N351349",
+  "N351538",
+  "N351580",
+  "N351865",
+  "N351911",
+  "N351913",
+  "N351922",
+  "N351958",
+  "N351962",
+  "N352014",
+  "N352067",
+  "N352101",
+  "N352355",
+  "N353023",
+  "N353086",
+  "N353259",
+  "N353260",
+  "N353976",
+  "N354156",
+  "N354169",
+  "N354559",
+  "N354790",
+  "N354791",
+  "N355059",
+  "N355131",
+  "N355132",
+  "N355133",
+  "N355175",
+  "N355466",
+  "N355567",
+  "N356150",
+  "N356289",
+  "N356592",
+  "N356670"
+ ],
+ "expected": {
+  "H338482": "furniture",
+  "H342833": "motors_pumps_compressors",
+  "H345343": "furniture",
+  "N335585": "furniture",
+  "N339090": "furniture",
+  "N348790": "optical_precision_instruments",
+  "N350152": "medical_devices",
+  "N350225": "medical_devices",
+  "N350680": "optical_precision_instruments",
+  "N350750": "optical_precision_instruments",
+  "N350838": "optical_precision_instruments",
+  "N350953": "battery_packs",
+  "N351234": "motors_pumps_compressors",
+  "N351263": "battery_packs",
+  "N351349": "motors_pumps_compressors",
+  "N351538": "motors_pumps_compressors",
+  "N351580": "offroad_vehicles_machinery",
+  "N351865": "optical_precision_instruments",
+  "N351911": "optical_precision_instruments",
+  "N351913": "optical_precision_instruments",
+  "N351922": "motors_pumps_compressors",
+  "N351958": "optical_precision_instruments",
+  "N351962": "optical_precision_instruments",
+  "N352014": "battery_packs",
+  "N352067": "motors_pumps_compressors",
+  "N352101": "offroad_vehicles_machinery",
+  "N352355": "battery_packs",
+  "N353023": "battery_packs",
+  "N353086": "battery_packs",
+  "N353259": "medical_devices",
+  "N353260": "medical_devices",
+  "N353976": "medical_devices",
+  "N354156": "motors_pumps_compressors",
+  "N354169": "motors_pumps_compressors",
+  "N354559": "motors_pumps_compressors",
+  "N354790": "offroad_vehicles_machinery",
+  "N354791": "offroad_vehicles_machinery",
+  "N355059": "medical_devices",
+  "N355131": "offroad_vehicles_machinery",
+  "N355132": "offroad_vehicles_machinery",
+  "N355133": "offroad_vehicles_machinery",
+  "N355175": "medical_devices",
+  "N355466": "medical_devices",
+  "N355567": "motors_pumps_compressors",
+  "N356150": "medical_devices",
+  "N356289": "medical_devices",
+  "N356592": "motors_pumps_compressors",
+  "N356670": "battery_packs",
+  "H306336": "battery_packs",
+  "H083693": "furniture",
+  "N300248": "furniture",
+  "N313752": "furniture"
+ },
+ "source": {
+  "H338482": "D820 furniture",
+  "H342833": "D781 machinery",
+  "H345343": "D781 furniture",
+  "N335585": "D820 furniture",
+  "N339090": "D820 furniture",
+  "N348790": "D820 optical_precision",
+  "N350152": "D781 medical_optical",
+  "N350225": "D781 medical_optical",
+  "N350680": "D781 medical_optical; D820 optical_precision (expected template changed)",
+  "N350750": "D820 optical_precision",
+  "N350838": "D781 medical_optical; D820 optical_precision (expected template changed)",
+  "N350953": "D781 batteries",
+  "N351234": "D781 machinery",
+  "N351263": "D781 batteries",
+  "N351349": "D781 machinery",
+  "N351538": "D781 machinery",
+  "N351580": "D820 lifting_machines; D826: expected offroad_vehicles_machinery (was lifting_handling_machines)",
+  "N351865": "D820 optical_precision",
+  "N351911": "D820 optical_precision",
+  "N351913": "D820 optical_precision",
+  "N351922": "D781 machinery",
+  "N351958": "D820 optical_precision",
+  "N351962": "D820 optical_precision",
+  "N352014": "D781 batteries",
+  "N352067": "D781 machinery",
+  "N352101": "D820 lifting_machines; D826: expected offroad_vehicles_machinery (was lifting_handling_machines)",
+  "N352355": "D781 batteries",
+  "N353023": "D781 batteries",
+  "N353086": "D781 batteries",
+  "N353259": "D781 medical_optical",
+  "N353260": "D781 medical_optical",
+  "N353976": "D781 medical_optical",
+  "N354156": "D781 machinery",
+  "N354169": "D781 machinery",
+  "N354559": "D781 machinery",
+  "N354790": "D820 lifting_machines; D826: expected offroad_vehicles_machinery (was lifting_handling_machines)",
+  "N354791": "D820 lifting_machines; D826: expected offroad_vehicles_machinery (was lifting_handling_machines)",
+  "N355059": "D781 medical_optical",
+  "N355131": "D820 lifting_machines; D826: expected offroad_vehicles_machinery (was lifting_handling_machines)",
+  "N355132": "D820 lifting_machines; D826: expected offroad_vehicles_machinery (was lifting_handling_machines)",
+  "N355133": "D820 lifting_machines; D826: expected offroad_vehicles_machinery (was lifting_handling_machines)",
+  "N355175": "D781 medical_optical",
+  "N355466": "D781 medical_optical",
+  "N355567": "D781 machinery",
+  "N356150": "D781 medical_optical",
+  "N356289": "D781 medical_optical",
+  "N356592": "D781 machinery",
+  "N356670": "D781 batteries",
+  "H306336": "D862 batteries",
+  "H083693": "D862 furniture",
+  "N300248": "D862 furniture",
+  "N313752": "D862 furniture"
+ },
+ "lookalikes": {
+  "H331375": [
+   "furniture"
+  ],
+  "H342474": [
+   "furniture"
+  ],
+  "H346536": [
+   "lifting_machines",
+   "machinery"
+  ],
+  "H348154": [
+   "medical_optical",
+   "optical_precision"
+  ],
+  "N350011": [
+   "machinery"
+  ],
+  "N350187": [
+   "batteries",
+   "battery_packs"
+  ],
+  "N350306": [
+   "batteries",
+   "battery_packs",
+   "machinery"
+  ],
+  "N350492": [
+   "furniture"
+  ],
+  "N350678": [
+   "furniture"
+  ],
+  "N350799": [
+   "batteries",
+   "battery_packs"
+  ],
+  "N350800": [
+   "batteries",
+   "battery_packs"
+  ],
+  "N351174": [
+   "lifting_machines"
+  ],
+  "N351229": [
+   "batteries",
+   "battery_packs"
+  ],
+  "N351341": [
+   "batteries",
+   "battery_packs"
+  ],
+  "N351493": [
+   "batteries",
+   "battery_packs",
+   "machinery"
+  ],
+  "N351651": [
+   "medical_optical",
+   "optical_precision"
+  ],
+  "N352230": [
+   "optical_precision"
+  ],
+  "N352242": [
+   "lifting_machines",
+   "medical_optical",
+   "optical_precision"
+  ],
+  "N352538": [
+   "batteries",
+   "battery_packs"
+  ],
+  "N352670": [
+   "medical_optical",
+   "optical_precision"
+  ],
+  "N353542": [
+   "batteries",
+   "battery_packs"
+  ],
+  "N353884": [
+   "batteries",
+   "battery_packs"
+  ],
+  "N354016": [
+   "batteries",
+   "battery_packs"
+  ],
+  "N354279": [
+   "furniture"
+  ],
+  "N355237": [
+   "machinery"
+  ],
+  "N355289": [
+   "medical_optical",
+   "optical_precision"
+  ],
+  "N355502": [
+   "batteries",
+   "battery_packs"
+  ],
+  "N355934": [
+   "batteries",
+   "battery_packs"
+  ],
+  "N356009": [
+   "lifting_machines"
+  ],
+  "N356467": [
+   "machinery"
+  ]
+ },
+ "amended_at": "2026-11-25"
+}

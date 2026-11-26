@@ -24,7 +24,7 @@ import (
 // third round (D660) and the optical instruments of D822. Pinning the set
 // makes adding or dropping a family a visible change.
 var allFamilies = []string{
-	"cables_harnesses", "display_camera_modules", "electrical_control_apparatus", "food_preparations", "furniture",
+	"battery_packs", "cables_harnesses", "display_camera_modules", "electrical_control_apparatus", "food_preparations", "furniture",
 	"gas_grills_cooking", "golf_sporting_goods", "hand_tools", "hvac_heating_units", "led_lights", "lidar_modules",
 	"machinery_parts", "medical_devices", "metal_products", "motorised_tools_small_appliances",
 	"motors_pumps_compressors", "offroad_vehicles_machinery", "optical_precision_instruments", "paper_tissue_products",
@@ -72,6 +72,14 @@ var rulingID = regexp.MustCompile(`\b[HN]\d{6}\b`)
 // development or held-out split (#619).
 func TestTemplateCitationsAreRealRulings(t *testing.T) {
 	byID := loadLabels(t, "../../data/labels.jsonl")
+	// The cited-only pool (D862): older rulings fetched by number that
+	// templates may cite; retrieval does not read them.
+	for id, l := range loadLabels(t, "../../data/labels_cited.jsonl") {
+		if _, dup := byID[id]; dup {
+			t.Errorf("%s is in both data/labels.jsonl and data/labels_cited.jsonl", id)
+		}
+		byID[id] = l
+	}
 	by102 := loadLabels(t, "../../data/labels_usmca.jsonl")
 	// Substantial-transformation development and held-out rulings, and the
 	// Part 102 ones. A substantial-transformation family may cite a ruling
@@ -118,7 +126,7 @@ func TestTemplateCitationsAreRealRulings(t *testing.T) {
 		}
 		check := func(where, id string) {
 			l, ok := byID[id]
-			regime, file := "substantial_transformation", "data/labels.jsonl"
+			regime, file := "substantial_transformation", "data/labels.jsonl or data/labels_cited.jsonl"
 			if tm.Regime == "part102" {
 				l, ok = by102[id]
 				regime, file = "part102_tariff_shift", "data/labels_usmca.jsonl"

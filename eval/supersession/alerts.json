@@ -169,7 +169,7 @@
  "note": "Offline count (D480): committed demo cases and committed result rows that would show a revocation alert, by the API's rule (domain.RulingAlerts): a ruling the case or row relies on (cited, a plan's supporting ruling, CBP's holding on the current setup) has a final revocation or modification (final_after_case: dated on or after the case date; final_before_case: dated before it, which the guard of D320/D370 would refuse today; final_undated: the row has no date) or a pending proposal only (proposed). read_only_final: only a ruling read and not cited changed (a calm line, no badge). relevance_final_relied counts the relied-on final changes by whether the change bears on what the row or case relies on the ruling for (domain.WithRelevanceBy, D531, D561: a cited ruling against the predicted origin, a plan's supporting ruling against the plan search's target, the current setup's ruling against CBP's holding there; touches_answer, not_answer, holding_unchanged, unknown). Rows are every JSON object in eval/results that names rulings, as eval/supersession/impact.py reads them, except stored case documents (an id case_..., a date and a prediction), which are counted once as cases. No model call; in effect is judged as of 2026-11-22.",
  "relevance_final_relied": {
   "holding_unchanged": 3,
-  "not_answer": 2,
+  "not_answer": 3,
   "unknown": 4
  },
  "row_examples": [
@@ -253,19 +253,28 @@
    "category": "final_before_case",
    "file": "eval/results/textile-dev-gemini-4-argon-prec-textile-v2-vertex-reasoning-v1.jsonl",
    "row": "N356391"
+  },
+  {
+   "alerts": [
+    "N344694 (cited, read): modified by H344999 on 2026-05-06 [not_answer]"
+   ],
+   "case_date": "2025-06-12",
+   "category": "final_after_case",
+   "file": "eval/results/train-gemini-4-argon-prec-engine-v1-litellm-china-v1-860-china-v1.jsonl",
+   "row": "N349019"
   }
  ],
  "rows": {
-  "final_after_case": 2,
+  "final_after_case": 3,
   "final_before_case": 7,
-  "read_only_final": 72,
+  "read_only_final": 99,
   "rows_undated": 388,
-  "rows_with_rulings": 15071
+  "rows_with_rulings": 19159
  },
  "rulings_final_relied": {
   "N322364": 1,
   "N331974": 3,
-  "N344694": 2,
+  "N344694": 3,
   "N345891": 3
  },
  "rulings_proposed_relied": {}

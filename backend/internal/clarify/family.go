@@ -15,8 +15,9 @@ import (
 // fixed text, chosen without a model: a change to a question, its document
 // or when it is asked needs a new version. v2 (D824, D828) adds the
 // off-road and lifting machinery and optical instrument families and stops
-// reading "printer" as a machine.
-const FamilyVersion = "clarify-family-v2"
+// reading "printer" as a machine. v3 (D863) adds the battery packs family
+// and reads furniture version 3.
+const FamilyVersion = "clarify-family-v3"
 
 // Family intake statuses.
 const (
@@ -85,6 +86,20 @@ var (
 // instruments (D822). Each names the document that
 // settles it.
 var familyQuestions = map[string][]familyQuestion{
+	// D863: battery packs. The cells decided origin; boards and pack
+	// assembly did not (N306055, N306161, N346317), except for a power
+	// station's boards (N348871).
+	"battery_packs": {
+		{id: "cells_made", kind: KindCountry, text: "Where were the battery cells made?",
+			evidence: "Bill of materials with the origin of each part, or the cell maker's certificate of origin",
+			groups:   []string{"battery_cells"}},
+		{id: "bms_made", kind: KindCountry, text: "Where were the battery management and control boards made?",
+			evidence: "Bill of materials with the origin of each board, or the board maker's certificate of origin",
+			groups:   []string{"bms_pcba"}},
+		{id: "pack_work", kind: KindYesNo, text: "Is the last country's work only welding the cells, fitting the boards and closing the housing?",
+			evidence: "Production routing or traveller for pack assembly",
+			groups:   []string{"final_assembly"}},
+	},
 	"power_supplies_chargers": {
 		{id: "cells_made", kind: KindCountry, text: "Where were the battery cells made?",
 			evidence: "Bill of materials with the origin of each part, or the cell maker's certificate of origin",

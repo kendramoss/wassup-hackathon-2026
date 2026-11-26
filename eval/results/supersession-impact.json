@@ -2,7 +2,7 @@
  "bulletin_rulings_named": {
   "N326416": {
    "effective": "2026-10-18",
-   "rows": 6,
+   "rows": 10,
    "superseded_by": "H342508"
   }
  },
@@ -106,7 +106,7 @@
    "supported_verdicts_on_superseded": 0
   }
  },
- "files_with_rulings": 163,
+ "files_with_rulings": 173,
  "map_version": "supersession-v2",
  "note": "Offline count (D320, D370): committed result rows that showed or cited a CBP ruling revoked or modified before the row's case date (a change dated on the case date does not count). No model calls; nothing re-scored. The engine rows would now be predicted without those precedents; the effect on accuracy is not measured. Edges read from Customs Bulletin notices (D400) are dated by their effective date; bulletin_rulings_named counts rows that name such a ruling at any date.",
  "rows": [
@@ -489,11 +489,11 @@
  ],
  "totals": {
   "rows_citing_superseded": 8,
-  "rows_naming_bulletin_ruling_any_date": 6,
+  "rows_naming_bulletin_ruling_any_date": 10,
   "rows_showing_or_citing_bulletin_superseded": 0,
   "rows_showing_superseded": 23,
   "rows_undated": 388,
-  "rows_with_rulings": 15130,
+  "rows_with_rulings": 19218,
   "supported_verdicts_on_superseded": 1,
   "undated_rows_naming_any_superseded": 0
  },
