@@ -29,7 +29,7 @@ import (
 )
 
 // MaxCapUSD is the largest total the approved Japan evaluation may spend.
-const MaxCapUSD = 50.0
+const MaxCapUSD = 60.0
 
 // ErrStopped is returned for every reservation once a settlement passed its
 // reservation. The stop is durable: it survives restarts and only a person
