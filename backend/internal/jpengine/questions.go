@@ -3,6 +3,7 @@ package jpengine
 import (
 	"fmt"
 	"strings"
+	"unicode"
 
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/domain"
 )
@@ -57,7 +58,7 @@ func Questions(c domain.Case, agreement string) []domain.JapanQuestion {
 		return out
 	}
 	for i, part := range p.Components {
-		n := cleanName(part.Name, fmt.Sprintf("part %d", i+1))
+		n := partPhrase(cleanName(part.Name, fmt.Sprintf("part %d", i+1)))
 		if strings.TrimSpace(part.MadeIn) == "" {
 			add(fmt.Sprintf("made_in:%d", i), "Where is "+n+" made?", nil)
 			continue
@@ -68,4 +69,15 @@ func Questions(c domain.Case, agreement string) []domain.JapanQuestion {
 		add("steps", "What are the production steps, and in which country?", nil)
 	}
 	return out
+}
+
+// partPhrase reads a part name inside a sentence: "Leather upper" becomes
+// "the leather upper". A name whose second letter is a capital (an acronym,
+// "PCB") keeps its case.
+func partPhrase(n string) string {
+	r := []rune(n)
+	if len(r) > 1 && unicode.IsUpper(r[0]) && !unicode.IsUpper(r[1]) {
+		r[0] = unicode.ToLower(r[0])
+	}
+	return "the " + string(r)
 }

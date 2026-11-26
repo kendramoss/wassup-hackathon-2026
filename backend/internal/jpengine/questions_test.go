@@ -21,7 +21,7 @@ func TestQuestionsPerPart(t *testing.T) {
 		Components: []domain.Component{{Name: "insole", MadeIn: "Vietnam"}, {Name: "counter", MadeIn: ""}},
 	}}
 	qs := Questions(c, "CPTPP")
-	want := []string{"Does insole have proof of origin under CPTPP?", "Where is counter made?", "What are the production steps, and in which country?"}
+	want := []string{"Does the insole have proof of origin under CPTPP?", "Where is the counter made?", "What are the production steps, and in which country?"}
 	if !reflect.DeepEqual(texts(qs), want) {
 		t.Fatalf("got %q", texts(qs))
 	}
@@ -33,13 +33,13 @@ func TestQuestionsPerPart(t *testing.T) {
 func TestQuestionsNamesTheAgreement(t *testing.T) {
 	c := domain.Case{Product: &domain.Product{Components: []domain.Component{{Name: "veneer", MadeIn: "Malaysia"}},
 		Operations: []domain.Operation{{Name: "pressing"}}}}
-	if got := texts(Questions(c, "JP-EU EPA")); len(got) != 1 || got[0] != "Does veneer have proof of origin under the Japan–EU agreement?" {
+	if got := texts(Questions(c, "JP-EU EPA")); len(got) != 1 || got[0] != "Does the veneer have proof of origin under the Japan–EU agreement?" {
 		t.Fatalf("got %q", got)
 	}
 }
 
 func TestQuestionsSkipAnswered(t *testing.T) {
-	c := domain.Case{Facts: "Shoes.\n\nQ: Does insole have proof of origin under CPTPP?\nA: Yes\n",
+	c := domain.Case{Facts: "Shoes.\n\nQ: Does the insole have proof of origin under CPTPP?\nA: Yes\n",
 		Product: &domain.Product{Components: []domain.Component{{Name: "insole", MadeIn: "Vietnam"}, {Name: "outsole", MadeIn: "China"}},
 			Operations: []domain.Operation{{Name: "lasting"}}}}
 	if got := texts(Questions(c, "CPTPP")); len(got) != 1 || !strings.Contains(got[0], "outsole") {
@@ -87,7 +87,7 @@ func TestQualifyingResultHasNoQuestions(t *testing.T) {
 
 func TestAnswersReachTheModel(t *testing.T) {
 	_, m, err := avRun(t, avAnswer(Undetermined, "NONE", "", "", "needs facts"), func(c *domain.Case) {
-		c.Facts += "\n\nQ: Does insole have proof of origin under CPTPP?\nA: Yes\n"
+		c.Facts += "\n\nQ: Does the insole have proof of origin under CPTPP?\nA: Yes\n"
 	})
 	if err != nil {
 		t.Fatal(err)
