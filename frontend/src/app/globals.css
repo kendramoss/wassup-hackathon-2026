@@ -343,3 +343,24 @@
     font-size: 12px;
   }
 }
+
+/* Switching between the business and technical views (view-toggle.tsx) is a
+   view transition: the page crossfades quickly, and the toggle and the
+   account tile (share class bar-keep) are named in both bars, so they hold
+   their place instead of fading out and back. */
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation-duration: 200ms;
+  animation-timing-function: cubic-bezier(0.22, 1, 0.36, 1);
+}
+::view-transition-group(.bar-keep) {
+  animation-duration: 200ms;
+  animation-timing-function: cubic-bezier(0.22, 1, 0.36, 1);
+}
+@media (prefers-reduced-motion: reduce) {
+  ::view-transition-group(*),
+  ::view-transition-old(*),
+  ::view-transition-new(*) {
+    animation: none !important;
+  }
+}

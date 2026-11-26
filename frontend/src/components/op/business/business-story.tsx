@@ -6,8 +6,9 @@
 // product-specific), 340 of 377 held-out rulings right, 96.0% when sure,
 // p50 4.6 s. The money row is the illustrative fixture ($500k / $180k).
 import Link from "next/link";
-import { useEffect, useRef, useState, type ReactNode } from "react";
+import { ViewTransition, useEffect, useRef, useState, type ReactNode } from "react";
 import { LogoMark } from "../logo";
+import { SignIn } from "../sign-in";
 import { ViewToggle } from "../view-toggle";
 import "./business.css";
 
@@ -44,8 +45,14 @@ export function BusinessStory() {
           <a href="#ch6">Brokers</a>
         </nav>
         <div className="biz-bar-end">
-          <Link href="/cases/new" className="biz-btn ink">Check a product</Link>
+          <Link href="/cases/new" className="biz-btn ink" aria-label="Check a product">
+            <span className="biz-wide" aria-hidden="true">Check a product</span>
+            <span className="biz-narrow" aria-hidden="true">+ New</span>
+          </Link>
           <ViewToggle view="business" />
+          <ViewTransition name="account-tile" share="bar-keep" default="none">
+            <SignIn look="business" />
+          </ViewTransition>
         </div>
       </header>
 
@@ -200,39 +207,88 @@ export function BusinessStory() {
                 <Link href="/cases/new" className="biz-btn accent">Check my product</Link>
               </div>
             </div>
-            <section aria-label="Unde case preview" className="biz-card biz-app">
-              <div className="biz-app-head">
-                <span style={{ fontWeight: 500 }}>Heat gun, 12.5 A</span>
-                <span style={{ color: "var(--dim)" }}>Final assembly in Thailand</span>
-                <span className="mono" style={{ marginLeft: "auto", fontSize: 12, color: "var(--dim)" }}>Checked in 4.6 s</span>
-              </div>
-              <div className="biz-app-body">
-                <div className="biz-rows">
-                  <div className="biz-row head"><span>Part</span><span>Made in</span><span style={{ textAlign: "right" }}>Move</span></div>
-                  {parts.map((p) => (
-                    <div key={p.name} className="biz-row">
-                      <span>{p.name}</span>
-                      <span><span className="biz-tag th">TH</span></span>
-                      <span role="img" aria-label={p.home ? "Already in Thailand" : "Moved to Thailand"} className={`biz-switch${p.home ? "" : " on"}`} />
-                    </div>
-                  ))}
-                </div>
-                <div className="biz-result">
-                  <span style={{ fontSize: 13, color: "var(--dim)" }}>Likely label after the move</span>
-                  <span className="biz-stamp" style={{ color: "var(--ok)", fontSize: 20, alignSelf: "flex-start" }}>MADE IN THAILAND</span>
-                  <span style={{ display: "flex", alignItems: "baseline", gap: 12 }}>
-                    <s className="mono" style={{ fontSize: 15, color: "var(--dim)" }}>≈41.7%</s>
-                    <span className="mono" style={{ fontSize: 32 }}>≈16.7%</span>
-                    <span style={{ fontSize: 13, color: "var(--dim)" }}>U.S. duty</span>
-                  </span>
-                  <span style={{ fontSize: 14, lineHeight: "20px" }}>Backed by an earlier Customs decision on a similar product</span>
-                </div>
-              </div>
-            </section>
+            <MovePreview />
           </Chapter>
         </div>
       </div>
     </div>
+  );
+}
+
+// The app preview in chapter 7. The switches work: a part switched on is
+// made in Thailand. Only the full plan (all four China parts) is backed by an
+// earlier ruling (N345938), so only that shows the Thailand label; any other
+// mix says it isn't backed yet rather than guessing.
+function MovePreview() {
+  const movable = parts.filter((p) => !p.home).map((p) => p.name);
+  const [moved, setMoved] = useState<Set<string>>(() => new Set(movable));
+  const all = movable.every((n) => moved.has(n));
+  const none = moved.size === 0;
+  const flip = (name: string) =>
+    setMoved((prev) => {
+      const next = new Set(prev);
+      if (next.has(name)) next.delete(name);
+      else next.add(name);
+      return next;
+    });
+  return (
+    <section aria-label="Unde case preview" className="biz-card biz-app">
+      <div className="biz-app-head">
+        <span style={{ fontWeight: 500 }}>Heat gun, 12.5 A</span>
+        <span style={{ color: "var(--dim)" }}>Final assembly in Thailand</span>
+        <span className="mono" style={{ marginLeft: "auto", fontSize: 12, color: "var(--dim)" }}>Checked in 4.6 s</span>
+      </div>
+      <div className="biz-app-body">
+        <div className="biz-rows">
+          <div className="biz-row head"><span>Part</span><span>Made in</span><span style={{ textAlign: "right" }}>Move to Thailand</span></div>
+          {parts.map((p) => {
+            const th = p.home || moved.has(p.name);
+            return (
+              <div key={p.name} className="biz-row">
+                <span>{p.name}</span>
+                <span><span className={`biz-tag ${th ? "th" : "cn"}`}>{th ? "TH" : "CN"}</span></span>
+                {p.home ? (
+                  <span style={{ justifySelf: "end", fontSize: 12, color: "var(--dim)" }}>Already</span>
+                ) : (
+                  <button type="button" role="switch" aria-checked={moved.has(p.name)} aria-label={`Move ${p.name.toLowerCase()} to Thailand`} onClick={() => flip(p.name)} className={`biz-switch${moved.has(p.name) ? " on" : ""}`} />
+                )}
+              </div>
+            );
+          })}
+        </div>
+        <div className="biz-result" aria-live="polite">
+          {all ? (
+            <>
+              <span style={{ fontSize: 13, color: "var(--dim)" }}>Likely label after the move</span>
+              <span className="biz-stamp" style={{ color: "var(--ok)", fontSize: 20, alignSelf: "flex-start" }}>MADE IN THAILAND</span>
+              <span style={{ display: "flex", alignItems: "baseline", gap: 12 }}>
+                <s className="mono" style={{ fontSize: 15, color: "var(--dim)" }}>≈41.7%</s>
+                <span className="mono" style={{ fontSize: 32 }}>≈16.7%</span>
+                <span style={{ fontSize: 13, color: "var(--dim)" }}>U.S. duty</span>
+              </span>
+              <span style={{ fontSize: 14, lineHeight: "20px" }}>Backed by an earlier Customs decision on a similar product</span>
+            </>
+          ) : none ? (
+            <>
+              <span style={{ fontSize: 13, color: "var(--dim)" }}>Today’s label</span>
+              <span className="biz-stamp" style={{ color: "var(--fail)", fontSize: 20, alignSelf: "flex-start" }}>MADE IN CHINA</span>
+              <span style={{ display: "flex", alignItems: "baseline", gap: 12 }}>
+                <span className="mono" style={{ fontSize: 32 }}>≈41.7%</span>
+                <span style={{ fontSize: 13, color: "var(--dim)" }}>U.S. duty</span>
+              </span>
+              <span style={{ fontSize: 14, lineHeight: "20px" }}>Key parts still come from China</span>
+            </>
+          ) : (
+            <>
+              <span style={{ fontSize: 13, color: "var(--dim)" }}>Likely label with this mix</span>
+              <span className="biz-stamp" style={{ color: "var(--dim)", fontSize: 20, alignSelf: "flex-start" }}>NOT CHECKED YET</span>
+              <span style={{ fontSize: 14, lineHeight: "20px" }}>No earlier decision backs this mix. Check it as a case to see the likely label</span>
+              <Link href="/cases/new" className="biz-link" style={{ fontSize: 14 }}>Check this mix</Link>
+            </>
+          )}
+        </div>
+      </div>
+    </section>
   );
 }
 
