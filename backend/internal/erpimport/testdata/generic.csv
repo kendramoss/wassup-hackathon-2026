@@ -1,0 +1,7 @@
+product_id,product_name,product_hts,assembled_in,component,made_in,component_hts,description
+FL-50,LED floodlight,9405.42.8440,Mexico,LED module,China,8541.41,50 W outdoor floodlight
+FL-50,LED floodlight,9405.42.8440,Mexico,Driver,China,8504.40.9580,
+FL-50,LED floodlight,9405.42.8440,Mexico,Aluminium housing,Mexico,7616.99,
+FAN-1,Desk fan,8414.51,Vietnam,Motor,China,8501.10,
+FAN-1,Desk fan,8414.51,Vietnam,Blade,Vietnam,,
+BAD-1,Broken item,,Germany,Widget,,,

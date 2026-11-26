@@ -178,12 +178,12 @@ var knownMessages = []string{
 	"USMCA engine on", "api key disabled", "api key failures limited", "api key issued", "api key quota exceeded", "api key quota not counted",
 	"audit export stopped", "audit retention purge", "audit retention purge failed", "audit trail NOT enabled: no events are recorded and no audit evidence is produced (set AUDIT_ACTOR_KEY, or AUDIT=on with it)",
 	"audit trail is in memory: it is lost on restart and not shared between instances", "audit trail on", "audit write failed",
-	"auto-accept bars by subfamily", "calibrated confidence on", "cases persisted in Firestore", "cases persisted",
+	"auto-accept bars by subfamily", "cache blobs encrypted", "calibrated confidence on", "cases persisted in Firestore", "cases persisted",
 	"clarify failed; staying needs_review", "client daily model budget reached", "config", "corpus loaded", "daily model budget reached",
 	"daily model spend cap", "engine fallback on", "fatal", "following near-miss advice", "health check failed",
 	"hts reasons failed; candidates without reasons", "hts suggest on",
 	"parts hts reasons failed; ruling candidates without reasons", "parts hts suggest on",
-	"parts hts suggest off: index not loaded", "parts hts suggest: no product index, so no code for the good",
+	"parts hts suggest off: index not loaded", "placement guard on", "parts hts suggest: no product index, so no code for the good",
 	"import: family check failed; family left as given", "internal error", "listening", "live MFN duty rates on",
 	"live MFN lookup failed", "live MFN lookup failed; no rate filled", "llm call failed", "llm call",
 	"llm call sizes", "model bad response", "model calls paced", "model unavailable",
@@ -195,7 +195,7 @@ var knownMessages = []string{
 	"sso sign-in refused: member of another workspace",
 	"teams on: Google sign-in and workspaces", "textile engine on",
 	"verifier verdicts and engine predictions cached in Firestore", "verifier verdicts and engine predictions cached",
-	"watch failed", msgStdLog,
+	"watch failed", "workspace usage metering on", "workspace usage unavailable; not enforcing the budget", msgStdLog,
 }
 
 // DefaultPolicy is the operational allowlist: status, latency, token counts,

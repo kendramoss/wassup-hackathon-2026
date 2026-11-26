@@ -68,6 +68,10 @@ var auditTable = map[string]auditRoute{
 	"POST /v1/cases/batch":                         {auditTwoPhase, audit.CaseCreate},
 	"GET /v1/cases":                                {auditDenyOnly, audit.CaseRead},
 	"POST /v1/products/import":                     {auditNone, ""},
+	"POST /v1/products/erp-import":                 {auditTwoPhase, audit.CaseCreate}, // a dry run writes nothing and records nothing
+	"GET /v1/workspaces/{id}/usage":                {auditNone, ""},
+	"PUT /v1/workspaces/{id}/budget":               {auditTwoPhase, audit.WorkspaceBudget},
+	"DELETE /v1/workspaces/{id}/budget":            {auditTwoPhase, audit.WorkspaceBudget},
 	"POST /v1/products/extract":                    {auditNone, ""},
 	"POST /v1/products/extract-media":              {auditNone, ""},
 	"POST /v1/products/money-prefill":              {auditNone, ""},
@@ -99,6 +103,7 @@ var auditTable = map[string]auditRoute{
 	"GET /v1/eval/summary":                         {auditNone, ""},
 	"GET /v1/duty-rates":                           {auditNone, ""},
 	"POST /v1/rcep/check":                          {auditNone, ""},
+	"POST /v1/atiga/check":                         {auditNone, ""},
 	"POST /v1/usmca/check":                         {auditNone, ""},
 	"POST /v1/rules/canada-marking":                {auditNone, ""},
 	"POST /v1/rules/eu-origin":                     {auditNone, ""},
@@ -151,6 +156,7 @@ var auditTable = map[string]auditRoute{
 	"PUT /v1/workspaces/{id}/sso/{conn}":           {auditTwoPhase, audit.SSOConnectionUpdate},
 	"POST /v1/workspaces/{id}/sso/{conn}/verify":   {auditTwoPhase, audit.SSOConnectionUpdate},
 	"DELETE /v1/workspaces/{id}/sso/{conn}":        {auditTwoPhase, audit.SSOConnectionDelete},
+	"GET /v1/status":                               {auditNone, ""},
 }
 
 type auditCtxKey struct{}

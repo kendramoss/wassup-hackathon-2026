@@ -123,8 +123,8 @@ func TestSensitiveSetIsThePolicy(t *testing.T) {
 			t.Errorf("%s sensitive=%v, policy says %v", a, a.Sensitive(), want[a])
 		}
 	}
-	if len(Actions()) != 37 { // 25, the 7 broker workflow actions and the 5 SSO actions
-		t.Errorf("%d actions, the contract lists 37", len(Actions()))
+	if len(Actions()) != 38 { // 26, the 7 broker workflow actions and the 5 SSO actions
+		t.Errorf("%d actions, the contract lists 38", len(Actions()))
 	}
 }
 
