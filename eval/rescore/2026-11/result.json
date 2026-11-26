@@ -1,0 +1,55 @@
+{
+ "month": "2026-11",
+ "cbp": {
+  "set": 0,
+  "date_min": null,
+  "date_max": null,
+  "correct": 0,
+  "cases": 0,
+  "accuracy": null,
+  "ci95": null,
+  "note": "no new rulings passed the D150 rule; nothing scored"
+ },
+ "japan": {
+  "correct": 0,
+  "cases": 0,
+  "accuracy": null,
+  "ci95": null,
+  "note": "no new Japan Customs rulings; nothing scored"
+ },
+ "earlier": {
+  "cbp_final": {
+   "correct": 340,
+   "cases": 377,
+   "accuracy": 0.9019,
+   "ci95": [
+    0.8676,
+    0.928
+   ],
+   "source": "D154 (first held-out split, Vertex AI)"
+  },
+  "cbp_final2": {
+   "correct": 77,
+   "cases": 83,
+   "accuracy": 0.9277,
+   "ci95": [
+    0.8511,
+    0.9665
+   ],
+   "source": "D154 (second held-out split)"
+  },
+  "jp_fresh_1126": {
+   "correct": 37,
+   "cases": 44,
+   "accuracy": 0.8409,
+   "ci95": [
+    0.7063,
+    0.9207
+   ],
+   "source": "D920"
+  }
+ },
+ "refresh_reports": [
+  "eval/refresh/2026-11-27/cbp_report.json"
+ ]
+}
