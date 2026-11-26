@@ -20,6 +20,7 @@ Citation, page and URL of each treaty entry are exactly those of the bundle. The
 ## What is not returned
 
 - Article 26 (including 26(1) general RVC or CTH criteria). Annex 2 does not cite it, and returning it next to a listed rule could read as an alternative to a stricter rule. The note states that the listed rule applies in place of the general criteria.
+- Since D916, Articles 24, 29 and 30 are returned too (see [chapter3-articles-d916.md](chapter3-articles-d916.md)); the rest of this paragraph describes the list before D916.
 - Articles 23, 24, 29, 30, 32 to 35 and Annex 3: not cited by Annex 2 paragraphs 1 to 3. The note names Articles 24 (including 24(c)), 29 (accumulation) and 30 (non-qualifying operations) as not supplied and not verified, as it does Article 31 and Annex 4.
 - The no-row fallback is unchanged byte for byte (it does not carry the new note).
 - Other agreements are unchanged.

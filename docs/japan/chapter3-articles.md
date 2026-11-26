@@ -35,8 +35,9 @@ PDF page N"` (UK: `JP-UK CEPA`) and links to `<source_url>#page=N`.
 | Article 3.6 paragraph 3: tolerances and wholly obtained | 12 | 10 | wholly obtained rows |
 | Article 3.12: accessories, spare parts, tools and instructional or other information materials | 16, 17 | 14 | schedule |
 
-Not quoted: Articles 3.7 to 3.11 and 3.13 to 3.15 (not needed by the rule text;
-3.7 and 3.10 were optional), the procedural Articles 3.16 onward (3.16 to 3.29 EU,
+Not quoted here: Articles 3.7 to 3.11 and 3.13 to 3.15 (not needed by the rule text;
+3.7 and 3.10 were optional; D916 added 3.7 to 3.9 and 3.13 to 3.15, see
+[chapter3-articles-d916.md](chapter3-articles-d916.md)), the procedural Articles 3.16 onward (3.16 to 3.29 EU,
 3.16 to 3.28 UK), the rest of Article 3.1, Annex 3-C, Appendix 3-B-1 and the UK
 Annex 3-D. A test checks that no article heading other than 3.2 to 3.6 and 3.12 is in
 a note.

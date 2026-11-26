@@ -595,7 +595,8 @@ func TestExistingSchedulesKeepTheHS2017List(t *testing.T) {
 				// (australiacolumn4_test.go), an applies list, or be the one Unde Labs
 				// caveat (page 0) of the EU and UK Chapter 3 articles (chapter3_test.go).
 				sourced := n.SourceURL != "" || name == "JP-Australia EPA" && len(n.Applies) > 0 ||
-					n.Page == 0 && (name == "JP-EU EPA" || name == "JP-UK CEPA") && strings.Contains(n.Text, "Chapter 3 (Rules of origin)")
+					n.Page == 0 && (name == "JP-EU EPA" || name == "JP-UK CEPA") && strings.Contains(n.Text, "Chapter 3 (Rules of origin)") ||
+					n.Page == 0 && name == "CPTPP" && strings.Contains(n.Text, "of Chapter 3 of the CPTPP")
 				if n.Ref != "" && !(n.SourceURL != "" && name == "JP-India CEPA" && s.From == "2022-04-04" && n.Key == "03") || n.Scope == "schedule" && !sourced {
 					t.Errorf("%s: note %q has a ref or schedule scope", name, n.Key)
 				}

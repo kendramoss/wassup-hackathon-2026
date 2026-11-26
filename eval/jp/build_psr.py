@@ -63,6 +63,9 @@ DIGESTS = {
     # Chapter 3 (Rules of origin) main text, read only for the CHAPTER_3 notes below.
     "eu1.pdf": "a71de5d61cc2fcda3061cf53d356314dbeba473c4b37b51791ca00a4aaa65864",
     "uk1.pdf": "277066a861134a44acbbd7ca92327fcfd917866d00b5a3dad380cd521265edda",
+    # CPTPP Chapter 3 (Rules of Origin and Origin Procedures) and Annexes 3-A to 3-C,
+    # read only for the CHAPTER_3 notes of tpp2.pdf below (D916).
+    "tpp1.pdf": "da772daad07ef203f3326c18337579423e67f7ea200e0697ba8c484b569810d0",
     "asean2-1.pdf": "00b7e42a64fd0fb7dad809ba3b3d487ecfd84ded5e103eea229fe973de3e127d",
     "tpp2.pdf": "c80acd1e0c458f130cc6d6602ce18192626e801623947fffc9d1ed18020873b9",
     "tpp5.pdf": "56eb27080e455e792131760cb5d0805556de8b73039a4b5f4a5b7485740785d1",
@@ -306,6 +309,16 @@ _A312 = "ARTICLE 3.12 Accessories, spare parts, tools and instructional or other
 _A312_END = "with which they are delivered."
 _DEF_E, _DEF_E_END = '(e) "material" means any matter', "cannot be determined;"
 _DEF_H, _DEF_H_END = '(h) "product" means any matter', "including assembly."
+_A37 = "ARTICLE 3.7 Unit of qualification 1."
+_A38 = "ARTICLE 3.8 Accounting segregation 1."
+_A385, _A385_END = "5. A Party may require, under conditions", "if the materials had been physically segregated."
+_A39 = "ARTICLE 3.9 Sets A set,"
+_A313 = "ARTICLE 3.13 Neutral elements"
+_A314 = "ARTICLE 3.14 Packing materials and containers for shipment"
+# CPTPP Annex 3-C names the goods whose production it limits (headings 04.01 to 04.06,
+# 15.07, 15.08, 15.12, 15.14, 19.01, 20.08, 20.09, 21.05, 21.06, 22.02 and 23.09); its
+# notes apply to those rows only.
+_ANNEX_3C = _headings("0401-0406", "1507-1508", "1512", "1514", "1901", "2008-2009", "2105-2106", "2202", "2309")
 CHAPTER_3 = {
     "eu3.pdf": {
         "pdf": "eu1.pdf", "label": "JP-EU EPA Chapter 3 (Rules of origin)", "short": "JP-EU EPA",
@@ -329,8 +342,14 @@ CHAPTER_3 = {
             (11, "Article 3.6 paragraph 1", _A36, None, False),
             (12, "Article 3.6 paragraph 2", "2. Paragraph 1 does not apply if the value", _A36_2, False),
             (12, "Article 3.6 paragraph 3", _A36_3, _A36_3_END, True),
+            (12, "Article 3.7", _A37, None, False),
+            (13, "Article 3.8 paragraphs 1 to 4", _A38, None, False),
+            (14, "Article 3.8 paragraphs 5 and 6", _A385, _A385_END, False),
+            (14, "Article 3.9", _A39, None, False),
             (16, "Article 3.12 paragraph 1(a)", _A312, None, False),
             (17, "Article 3.12 paragraphs 1(b) to 4", None, None, False),
+            (18, "Article 3.13", _A313, None, False),
+            (19, "Articles 3.14 and 3.15", _A314, None, False),
         ],
     },
     "uk3.pdf": {
@@ -352,15 +371,53 @@ CHAPTER_3 = {
             (9, "Article 3.5 paragraphs 8 and 9", "8. The information referred to in paragraph 7", "European Union on a non-originating material.", False),
             (10, "Article 3.6 paragraphs 1 and 2", _A36, _A36_2, False),
             (10, "Article 3.6 paragraph 3", _A36_3, _A36_3_END, True),
+            (11, "Article 3.7", _A37, "each individual product shall be taken into account when applying the provisions of this Chapter.", False),
+            (11, "Article 3.8 paragraphs 1 to 4", _A38, None, False),
+            (12, "Article 3.8 paragraphs 5 and 6", _A385, _A385_END, False),
+            (12, "Article 3.9", _A39, "ex-works or free on board price of the set.", False),
             (14, "Article 3.12", _A312, _A312_END, False),
+            (14, "Article 3.13, introduction", _A313, None, False),
+            (15, "Article 3.13(a) to (g), Article 3.14 and Article 3.15 paragraph 1", "(a) fuel, energy, catalysts and solvents;", None, False),
+            (16, "Article 3.15 paragraph 2", "2. If a product is subject to a value requirement set out in Annex 3-B,", "value requirement to the product.", False),
+        ],
+    },
+    "tpp2.pdf": {
+        "pdf": "tpp1.pdf", "label": "CPTPP Chapter 3 (Rules of Origin and Origin Procedures)", "short": "CPTPP",
+        "quoted": "Articles 3.2, 3.6, 3.7, 3.10 to 3.17 and Annex 3-C",
+        "governs": "Annex 3-D product-specific rule",
+        "missing": ("Articles 3.1, 3.3 to 3.5, 3.8, 3.9, 3.18 to 3.32, Annexes 3-A and 3-B, and every provision of "
+                    "Chapter 3 not listed above are NOT supplied and are not verified"),
+        "notes": [
+            (2, "Article 3.2(a), (b) and (c), opening", "Article 3.2: Originating Goods Except as otherwise provided", "provided the good satisfies all", False),
+            (3, "Article 3.2(c), end", "applicable requirements of Annex 3-D (Product-Specific Rules of Origin), and the good satisfies",
+             "all other applicable requirements of this Chapter.", False),
+            (6, "Article 3.6", "Article 3.6: Materials Used in Production 1.",
+             "used in the production of the non-originating material undertaken in the territory of one or more of the Parties.", False),
+            (6, "Article 3.7(a) to (c)(i)", "Article 3.7: Value of Materials Used in Production", "which includes general expenses; and", False),
+            (7, "Article 3.7(c)(ii)", "(ii) an amount equivalent to the profit", "self-produced material that is being valued.", False),
+            (12, "Article 3.10", "Article 3.10: Accumulation 1.", "sufficient to confer originating status to the material itself.", False),
+            (13, "Articles 3.11, 3.12 and 3.13 paragraph 1(a)", "Article 3.11: De Minimis 1.", "are to be disregarded; and", False),
+            (14, "Article 3.13 paragraph 1(b) to Article 3.15", "(b) in determining whether a good meets a regional value content requirement,",
+             "are disregarded in determining whether a good is originating.", False),
+            (15, "Articles 3.16 and 3.17", "Article 3.16: Indirect materials", "the value of non-originating materials and the value of the good.", False),
+            (30, "Annex 3-C (Exceptions to Article 3.11), paragraphs (a) to (c), opening", "ANNEX 3-C EXCEPTIONS TO ARTICLE 3.11 (De Minimis)",
+             "or a fruit or vegetable juice of any single", _ANNEX_3C),
+            (30, "Annex 3-C footnote 7", "7 For greater certainty, milk powder", "the goods listed in subparagraph (b).", _ANNEX_3C),
+            (31, "Annex 3-C paragraphs (c), end, to (e)", "fruit or vegetable, fortified with minerals or vitamins", "used in the production of a good of heading 20.08.", _ANNEX_3C),
         ],
     },
 }
-_ARTICLES_QUOTED = "Articles 3.1(e), (f), (h) and (i), 3.2, 3.3, 3.4, 3.5, 3.6 and 3.12"
+_ARTICLES_QUOTED = "Articles 3.1(e), (f), (h) and (i), 3.2 to 3.9 and 3.12 to 3.15"
 
 
 def chapter_3_caveat(spec):
-    """The Unde Labs note that ranks the quoted articles under the Annex 3-B rule."""
+    """The Unde Labs note that ranks the quoted articles under the listed rule."""
+    if "quoted" in spec:
+        return (
+            f"Unde Labs note (not treaty text): {spec['quoted']} of Chapter 3 of the {spec['short']} are quoted "
+            f"from {spec['pdf']} as context for the {spec['governs']}. They do not replace the listed rule and "
+            f"do not themselves establish origin. {spec['missing']}. Where a fact that one of these provisions "
+            "needs is missing, the question is undetermined.")
     return (
         f"Unde Labs note (not treaty text): {_ARTICLES_QUOTED} of Chapter 3 (Rules of origin) of the "
         f"{spec['short']} are quoted from {spec['pdf']} as context for the Annex 3-B product specific rule. "
@@ -368,8 +425,8 @@ def chapter_3_caveat(spec):
         "(products produced exclusively from materials originating in that Party) is a route the Chapter lists; "
         "it is shown as context only, and the listed rule governs unless it says otherwise. "
         "The Annex 3-A notes are only partly quoted, in notes of their own: Note 1 paragraphs 1, 2 and 4 and "
-        f"Note 2 paragraph 4 are not supplied. {spec['other']}, {spec['omitted']}Articles 3.7 to 3.11 and 3.13 "
-        f"to 3.15, the procedural articles {spec['procedural']} and every Article of Chapter 3 not listed above "
+        f"Note 2 paragraph 4 are not supplied. {spec['other']}, {spec['omitted']}Articles 3.10 and 3.11 "
+        f"(non-alteration and returning products), the procedural articles {spec['procedural']} and every Article of Chapter 3 not listed above "
         "are NOT supplied and are not verified. Where a fact that one of these provisions needs is missing, the "
         "question is undetermined.")
 
@@ -389,9 +446,11 @@ def wholly_obtained_ranges(rows):
 
 def chapter_3_notes(path, filename, rows):
     spec = CHAPTER_3[filename]
-    wholly = wholly_obtained_ranges(rows)
-    if len(wholly) < 10:
-        raise ValueError(f"{filename}: too few wholly obtained rows")
+    wholly = []
+    if any(n[4] is True for n in spec["notes"]):
+        wholly = wholly_obtained_ranges(rows)
+        if len(wholly) < 10:
+            raise ValueError(f"{filename}: too few wholly obtained rows")
     notes = [{"scope": "schedule", "key": "", "text": chapter_3_caveat(spec), "page": 0}]
     with pdfplumber.open(path) as pdf:
         for page_number, label, start, end, only_wholly in spec["notes"]:
@@ -403,8 +462,10 @@ def chapter_3_notes(path, filename, rows):
                 "source_url": BASE + spec["pdf"],
                 "citation": f"{spec['label']}, {label}",
             }
-            if only_wholly:
+            if only_wholly is True:
                 note["applies"] = wholly
+            elif only_wholly:
+                note["applies"] = only_wholly
             notes.append(note)
             page.close()
     return notes

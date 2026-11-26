@@ -36,8 +36,14 @@ var euArticles = []artNote{
 	{11, "Article 3.6 paragraph 1", "ARTICLE 3.6 Tolerances 1. If a non-originating material", "as amended on 1 January 2017.", false},
 	{12, "Article 3.6 paragraph 2", "2. Paragraph 1 does not apply if the value", "specified in the requirements set out in Annex 3-B.", false},
 	{12, "Article 3.6 paragraph 3", "3. Paragraph 1 does not apply to products wholly obtained", "paragraphs 1 and 2 apply.", true},
+	{12, "Article 3.7", "ARTICLE 3.7 Unit of qualification 1.", "when applying the provisions of this Chapter.", false},
+	{13, "Article 3.8 paragraphs 1 to 4", "ARTICLE 3.8 Accounting segregation 1.", "generally accepted in the Party.", false},
+	{14, "Article 3.8 paragraphs 5 and 6", "5. A Party may require, under conditions", "if the materials had been physically segregated.", false},
+	{14, "Article 3.9", "ARTICLE 3.9 Sets A set,", "ex-works or free on board price of the set.", false},
 	{16, "Article 3.12 paragraph 1(a)", "ARTICLE 3.12 Accessories, spare parts, tools and instructional or other information materials 1.", "from, the product; and", false},
 	{17, "Article 3.12 paragraphs 1(b) to 4", "(b) the types, quantities and value", "with which they are delivered.", false},
+	{18, "Article 3.13", "ARTICLE 3.13 Neutral elements", "reasonably be demonstrated to be a part of that production.", false},
+	{19, "Articles 3.14 and 3.15", "ARTICLE 3.14 Packing materials and containers for shipment", "value requirement to the product.", false},
 }
 
 var ukArticles = []artNote{
@@ -56,7 +62,14 @@ var ukArticles = []artNote{
 	{9, "Article 3.5 paragraphs 8 and 9", "8. The information referred to in paragraph 7", "European Union on a non-originating material.", false},
 	{10, "Article 3.6 paragraphs 1 and 2", "ARTICLE 3.6 Tolerances 1. If a non-originating material", "specified in the requirements set out in Annex 3-B.", false},
 	{10, "Article 3.6 paragraph 3", "3. Paragraph 1 does not apply to products wholly obtained", "paragraphs 1 and 2 apply.", true},
+	{11, "Article 3.7", "ARTICLE 3.7 Unit of qualification 1.", "when applying the provisions of this Chapter.", false},
+	{11, "Article 3.8 paragraphs 1 to 4", "ARTICLE 3.8 Accounting segregation 1.", "generally accepted in the Party.", false},
+	{12, "Article 3.8 paragraphs 5 and 6", "5. A Party may require, under conditions", "if the materials had been physically segregated.", false},
+	{12, "Article 3.9", "ARTICLE 3.9 Sets A set,", "ex-works or free on board price of the set.", false},
 	{14, "Article 3.12", "ARTICLE 3.12 Accessories, spare parts, tools and instructional or other information materials 1.", "with which they are delivered.", false},
+	{14, "Article 3.13, introduction", "ARTICLE 3.13 Neutral elements", "determine the originating status of the following elements:", false},
+	{15, "Article 3.13(a) to (g), Article 3.14 and Article 3.15 paragraph 1", "(a) fuel, energy, catalysts and solvents;", "or whether the product is wholly obtained.", false},
+	{16, "Article 3.15 paragraph 2", "2. If a product is subject to a value requirement set out in Annex 3-B,", "value requirement to the product.", false},
 }
 
 // The 26 Annex 3-B rows of each schedule whose rule text says "wholly obtained",
@@ -70,19 +83,61 @@ type ch3Agreement struct {
 	name, label, url, from, wholly string
 	notes                          []artNote
 	caveatNeeds                    []string
+	// scoped: note index -> the applies list of a note scoped by its own wording
+	// (CPTPP Annex 3-C), in fmt.Sprint form.
+	scoped map[int]string
+	// heading matches an article heading in a quoted note; headings are the
+	// article numbers allowed; banned are titles of articles left out.
+	heading  *regexp.Regexp
+	headings []string
+	banned   []string
 }
+
+var euUKHeading = regexp.MustCompile(`ARTICLE (3\.\d+)`)
+
+// euUKBanned: the EU and UK articles left out (procedural, transport or return).
+var euUKBanned = []string{"Statement on origin", "Claim for preferential tariff treatment", "Verification", "Record keeping", "Non-alteration", "Returning products"}
+
+var euUKHeadings = []string{"3.12", "3.13", "3.14", "3.15", "3.2", "3.3", "3.4", "3.5", "3.6", "3.7", "3.8", "3.9"}
 
 var ch3Agreements = []ch3Agreement{
 	{"JP-EU EPA", "JP-EU EPA Chapter 3 (Rules of origin)", "https://www.customs.go.jp/roo/english/text/eu1.pdf", "2019-02-01", euWholly, euArticles,
-		[]string{"JP-EU EPA", "Articles 3.1", "do not replace the listed rule", "do not themselves establish origin", "Article 3.2 paragraph 1(b)", "context only", "unless it says otherwise", "only partly quoted", "Note 1 paragraphs 1, 2 and 4", "Note 2 paragraph 4", "Articles 3.7 to 3.11 and 3.13 to 3.15", "Annex 3-C", "Appendix 3-B-1", "3.16 to 3.29", "NOT supplied", "not verified", "undetermined"}},
+		[]string{"JP-EU EPA", "Articles 3.1", "do not replace the listed rule", "do not themselves establish origin", "Article 3.2 paragraph 1(b)", "context only", "unless it says otherwise", "only partly quoted", "Note 1 paragraphs 1, 2 and 4", "Note 2 paragraph 4", "Articles 3.10 and 3.11", "Annex 3-C", "Appendix 3-B-1", "3.16 to 3.29", "NOT supplied", "not verified", "undetermined"},
+		nil, euUKHeading, euUKHeadings, euUKBanned},
 	{"JP-UK CEPA", "JP-UK CEPA Chapter 3 (Rules of origin)", "https://www.customs.go.jp/roo/english/text/uk1.pdf", "2021-01-01", ukWholly, ukArticles,
-		[]string{"JP-UK CEPA", "Articles 3.1", "do not replace the listed rule", "do not themselves establish origin", "Article 3.2 paragraph 1(b)", "context only", "unless it says otherwise", "only partly quoted", "Note 1 paragraphs 1, 2 and 4", "Note 2 paragraph 4", "Articles 3.7 to 3.11 and 3.13 to 3.15", "Annex 3-C", "Annex 3-D", "Appendix 3-B-1", "Article 3.5 paragraphs 10 to 12", "3.16 to 3.28", "NOT supplied", "not verified", "undetermined"}},
+		[]string{"JP-UK CEPA", "Articles 3.1", "do not replace the listed rule", "do not themselves establish origin", "Article 3.2 paragraph 1(b)", "context only", "unless it says otherwise", "only partly quoted", "Note 1 paragraphs 1, 2 and 4", "Note 2 paragraph 4", "Articles 3.10 and 3.11", "Annex 3-C", "Annex 3-D", "Appendix 3-B-1", "Article 3.5 paragraphs 10 to 12", "3.16 to 3.28", "NOT supplied", "not verified", "undetermined"},
+		nil, euUKHeading, euUKHeadings, euUKBanned},
+	{"CPTPP", "CPTPP Chapter 3 (Rules of Origin and Origin Procedures)", "https://www.customs.go.jp/roo/english/text/tpp1.pdf", "2018-12-30", "", cptppArticles,
+		[]string{"CPTPP", "Articles 3.2, 3.6, 3.7, 3.10 to 3.17 and Annex 3-C", "Annex 3-D product-specific rule", "do not replace the listed rule", "do not themselves establish origin", "3.18 to 3.32", "NOT supplied", "not verified", "undetermined"},
+		map[int]string{9: cptppAnnex3C, 10: cptppAnnex3C, 11: cptppAnnex3C},
+		regexp.MustCompile(`Article (3\.\d+):`),
+		[]string{"3.10", "3.11", "3.12", "3.13", "3.14", "3.15", "3.16", "3.17", "3.2", "3.6", "3.7"},
+		[]string{"Transit and Transhipment", "Claims for Preferential Treatment", "Verification of Origin", "Net Cost", "Regional Value Content"}},
 }
+
+// CPTPP Chapter 3 (tpp1.pdf), quoted for the Annex 3-D schedule (D916).
+var cptppArticles = []artNote{
+	{2, "Article 3.2(a), (b) and (c), opening", "Article 3.2: Originating Goods Except as otherwise provided", "provided the good satisfies all", false},
+	{3, "Article 3.2(c), end", "applicable requirements of Annex 3-D (Product-Specific Rules of Origin), and the good satisfies", "all other applicable requirements of this Chapter.", false},
+	{6, "Article 3.6", "Article 3.6: Materials Used in Production 1.", "used in the production of the non-originating material undertaken in the territory of one or more of the Parties.", false},
+	{6, "Article 3.7(a) to (c)(i)", "Article 3.7: Value of Materials Used in Production", "which includes general expenses; and", false},
+	{7, "Article 3.7(c)(ii)", "(ii) an amount equivalent to the profit", "self-produced material that is being valued.", false},
+	{12, "Article 3.10", "Article 3.10: Accumulation 1.", "sufficient to confer originating status to the material itself.", false},
+	{13, "Articles 3.11, 3.12 and 3.13 paragraph 1(a)", "Article 3.11: De Minimis 1.", "are to be disregarded; and", false},
+	{14, "Article 3.13 paragraph 1(b) to Article 3.15", "(b) in determining whether a good meets a regional value content requirement,", "are disregarded in determining whether a good is originating.", false},
+	{15, "Articles 3.16 and 3.17", "Article 3.16: Indirect materials", "the value of non-originating materials and the value of the good.", false},
+	{30, "Annex 3-C (Exceptions to Article 3.11), paragraphs (a) to (c), opening", "ANNEX 3-C EXCEPTIONS TO ARTICLE 3.11 (De Minimis)", "or a fruit or vegetable juice of any single", false},
+	{30, "Annex 3-C footnote 7", "7 For greater certainty, milk powder", "the goods listed in subparagraph (b).", false},
+	{31, "Annex 3-C paragraphs (c), end, to (e)", "fruit or vegetable, fortified with minerals or vitamins", "used in the production of a good of heading 20.08.", false},
+}
+
+// The goods CPTPP Annex 3-C names: its notes apply to those rows only.
+const cptppAnnex3C = "[[0401 0406] [1507 1508] [1512 1512] [1514 1514] [1901 1901] [2008 2009] [2105 2106] [2202 2202] [2309 2309]]"
 
 func chapter3Notes(s schedule, url string) (caveats, quoted []note) {
 	for _, n := range s.Notes {
 		switch {
-		case n.Page == 0 && strings.Contains(n.Text, "Chapter 3 (Rules of origin)"):
+		case n.Page == 0 && strings.Contains(n.Text, "Chapter 3"):
 			caveats = append(caveats, n)
 		case n.SourceURL == url:
 			quoted = append(quoted, n)
@@ -92,9 +147,9 @@ func chapter3Notes(s schedule, url string) (caveats, quoted []note) {
 }
 
 func TestChapter3NotesCaptured(t *testing.T) {
-	leak := regexp.MustCompile(`(?:EU|UK)/JP/en|_{4,}|Working Group on Wine|ARTICLE 4\.1`)
+	leak := regexp.MustCompile(`(?:EU|UK)/JP/en|_{4,}|Working Group on Wine|ARTICLE 4\.1|3-\d \d|3- \d`)
 	for _, a := range ch3Agreements {
-		s := scheduleFrom(t, mustDefault(t), a.name, a.from)
+		s := ch3Schedule(t, mustDefault(t), a)
 		caveats, quoted := chapter3Notes(s, a.url)
 		if len(quoted) != len(a.notes) {
 			t.Fatalf("%s: %d chapter 3 notes, want %d", a.name, len(quoted), len(a.notes))
@@ -104,6 +159,9 @@ func TestChapter3NotesCaptured(t *testing.T) {
 			wantApplies := "[]"
 			if want.wholly {
 				wantApplies = a.wholly
+			}
+			if sc, ok := a.scoped[i]; ok {
+				wantApplies = sc
 			}
 			if n.Scope != "schedule" || n.Key != "" || n.Page != want.page || n.Ref != "" ||
 				!strings.HasPrefix(n.Text, want.start) || !strings.HasSuffix(n.Text, want.end) ||
@@ -136,7 +194,10 @@ func TestChapter3NotesCaptured(t *testing.T) {
 func TestChapter3WhollyObtainedRangesAreTheRowRanges(t *testing.T) {
 	table := mustDefault(t)
 	for _, a := range ch3Agreements {
-		s := scheduleFrom(t, table, a.name, a.from)
+		if a.wholly == "" {
+			continue
+		}
+		s := ch3Schedule(t, table, a)
 		_, quoted := chapter3Notes(s, a.url)
 		var wholly, other []row
 		for _, r := range s.Rows {
@@ -185,13 +246,16 @@ func TestChapter3WhollyObtainedRangesAreTheRowRanges(t *testing.T) {
 
 func TestChapter3Lookup(t *testing.T) {
 	table := mustDefault(t)
+	// in: codes inside the scoped notes' ranges (wholly obtained rows; CPTPP Annex 3-C goods); out: codes outside.
 	inWholly := map[string][]string{
 		"JP-EU EPA":  {"0101.21", "0406.90", "0301.11", "1101.00", "1601.00", "1602.10", "2204.21", "2309.90", "0902.10"},
 		"JP-UK CEPA": {"0101.21", "0406.90", "0301.11", "1102.20", "1603.00", "2204.21", "0902.10"},
+		"CPTPP":      {"0406.90", "1901.90", "2106.90", "2202.90", "2309.90", "2009.11", "1507.10"},
 	}
 	outWholly := map[string][]string{
 		"JP-EU EPA":  {"0901.11", "1511.10", "2001.10", "2710.12", "5208.11", "6101.20", "8517.12", "2201.10"},
 		"JP-UK CEPA": {"0901.11", "1101.00", "1602.10", "1511.10", "2001.10", "2710.12", "5208.11", "8517.12", "2309.90"},
+		"CPTPP":      {"0901.11", "1511.10", "2001.10", "2710.12", "8517.12", "6403.99", "2201.10"},
 	}
 	for _, a := range ch3Agreements {
 		has := func(hs string, n artNote) bool {
@@ -208,9 +272,10 @@ func TestChapter3Lookup(t *testing.T) {
 			}
 			return false
 		}
-		for _, n := range a.notes {
+		for i, n := range a.notes {
+			_, scoped := a.scoped[i]
 			for _, hs := range append(append([]string{}, inWholly[a.name]...), outWholly[a.name]...) {
-				want := !n.wholly || contains(inWholly[a.name], hs)
+				want := !(n.wholly || scoped) || contains(inWholly[a.name], hs)
 				if got := has(hs, n); got != want {
 					t.Errorf("%s %s %s: note present %v, want %v", a.name, hs, n.label, got, want)
 				}
@@ -221,7 +286,7 @@ func TestChapter3Lookup(t *testing.T) {
 			ev, _ := table.Lookup(a.name, hs, annexDate)
 			k := 0
 			for _, e := range ev {
-				if e.Citation == caveatPrefix && strings.Contains(e.Text, "Chapter 3 (Rules of origin)") {
+				if e.Citation == caveatPrefix && strings.Contains(e.Text, "Chapter 3") && strings.Contains(e.Text, a.name) {
 					k++
 					if e.URL != "" {
 						t.Errorf("%s: caveat has a URL", a.name)
@@ -245,9 +310,9 @@ func contains(list []string, s string) bool {
 }
 
 func TestChapter3OnlyTheListedArticlesAreQuoted(t *testing.T) {
-	head := regexp.MustCompile(`ARTICLE (3\.\d+)`)
 	for _, a := range ch3Agreements {
-		s := scheduleFrom(t, mustDefault(t), a.name, a.from)
+		head := a.heading
+		s := ch3Schedule(t, mustDefault(t), a)
 		_, quoted := chapter3Notes(s, a.url)
 		seen := map[string]bool{}
 		for _, n := range quoted {
@@ -255,19 +320,21 @@ func TestChapter3OnlyTheListedArticlesAreQuoted(t *testing.T) {
 				seen[m[1]] = true
 			}
 			// no procedural article, optional article or neighbouring chapter
-			for _, bad := range []string{"Statement on origin", "Claim for preferential tariff treatment", "Verification", "Record keeping",
-				"Unit of qualification", "Non-alteration", "Accounting segregation", "Returning products", "Neutral elements", "Packing materials"} {
+			for _, bad := range a.banned {
 				if strings.Contains(n.Text, bad) {
 					t.Errorf("%s: %q quoted in %s", a.name, bad, n.Citation)
 				}
 			}
 		}
-		want := map[string]bool{"3.2": true, "3.3": true, "3.4": true, "3.5": true, "3.6": true, "3.12": true}
+		want := map[string]bool{}
+		for _, h := range a.headings {
+			want[h] = true
+		}
 		if fmt.Sprint(seen) != fmt.Sprint(want) {
 			t.Errorf("%s: article headings %v", a.name, seen)
 		}
 		for _, n := range s.Notes {
-			if strings.Contains(n.Citation, "Article 3.1") && !strings.Contains(n.Citation, "Article 3.1(") && !strings.Contains(n.Citation, "Article 3.12") {
+			if strings.Contains(n.Citation, "Article 3.1") && !strings.Contains(n.Citation, "Article 3.1(") && !regexp.MustCompile(`Articles? 3\.1\d`).MatchString(n.Citation) {
 				t.Errorf("%s: whole Article 3.1 quoted: %s", a.name, n.Citation)
 			}
 		}
@@ -280,8 +347,9 @@ func TestChapter3OtherAgreementsAndOldEvidenceUnchanged(t *testing.T) {
 	goldenHashes(t, annexGolden, func(e Evidence) bool { return isGeneralNote(e) || isChapter3Article(e) })
 }
 
-// Full EU and UK evidence including the Chapter 3 articles and caveat.
-var chapter3Golden = map[string]string{"JP-EU EPA": "d17bd27b04754e12", "JP-UK CEPA": "6a572d16a3f767d4"}
+// Full EU, UK and CPTPP evidence including the Chapter 3 articles and caveat
+// (EU and UK Articles 3.7 to 3.9 and 3.13 to 3.15 and the CPTPP Chapter 3 added in D916).
+var chapter3Golden = map[string]string{"JP-EU EPA": "76ef54405c7a95c0", "JP-UK CEPA": "90c09980cdd026da", "CPTPP": "11b172523e8737c4"}
 
 func TestChapter3EvidenceHashes(t *testing.T) {
 	want := map[string]string{}
@@ -300,6 +368,24 @@ func TestChapter3EvidenceHashes(t *testing.T) {
 // isChapter3Article reports whether evidence is one of the quoted Chapter 3 articles or
 // the Unde Labs note that goes with them.
 func isChapter3Article(e Evidence) bool {
-	return strings.Contains(e.Citation, "Chapter 3 (Rules of origin)") ||
-		e.Citation == caveatPrefix && strings.Contains(e.Text, "Chapter 3 (Rules of origin)")
+	return strings.Contains(e.Citation, "Chapter 3 (Rules of origin)") || strings.Contains(e.Citation, "Chapter 3 (Rules of Origin and Origin Procedures)") ||
+		e.Citation == caveatPrefix && (strings.Contains(e.Text, "Chapter 3 (Rules of origin)") || strings.Contains(e.Text, "of Chapter 3 of the CPTPP"))
+}
+
+// ch3Schedule is the schedule of a that carries its Chapter 3 notes (CPTPP has
+// two schedules from the same date: Annex 3-D carries them, Annex 4-A does not).
+func ch3Schedule(t *testing.T, table *Table, a ch3Agreement) schedule {
+	t.Helper()
+	for _, s := range table.schedules[a.name] {
+		if s.From != a.from {
+			continue
+		}
+		for _, n := range s.Notes {
+			if n.SourceURL == a.url {
+				return s
+			}
+		}
+	}
+	t.Fatalf("no %s schedule from %s with notes from %s", a.name, a.from, a.url)
+	return schedule{}
 }

@@ -2742,7 +2742,7 @@
    {
     "scope": "schedule",
     "key": "",
-    "text": "Unde Labs note (not treaty text): Articles 3.1(e), (f), (h) and (i), 3.2, 3.3, 3.4, 3.5, 3.6 and 3.12 of Chapter 3 (Rules of origin) of the JP-EU EPA are quoted from eu1.pdf as context for the Annex 3-B product specific rule. They do not replace the listed rule and do not themselves establish origin. Article 3.2 paragraph 1(b) (products produced exclusively from materials originating in that Party) is a route the Chapter lists; it is shown as context only, and the listed rule governs unless it says otherwise. The Annex 3-A notes are only partly quoted, in notes of their own: Note 1 paragraphs 1, 2 and 4 and Note 2 paragraph 4 are not supplied. Annex 3-C and Appendix 3-B-1, Articles 3.7 to 3.11 and 3.13 to 3.15, the procedural articles 3.16 to 3.29 and every Article of Chapter 3 not listed above are NOT supplied and are not verified. Where a fact that one of these provisions needs is missing, the question is undetermined.",
+    "text": "Unde Labs note (not treaty text): Articles 3.1(e), (f), (h) and (i), 3.2 to 3.9 and 3.12 to 3.15 of Chapter 3 (Rules of origin) of the JP-EU EPA are quoted from eu1.pdf as context for the Annex 3-B product specific rule. They do not replace the listed rule and do not themselves establish origin. Article 3.2 paragraph 1(b) (products produced exclusively from materials originating in that Party) is a route the Chapter lists; it is shown as context only, and the listed rule governs unless it says otherwise. The Annex 3-A notes are only partly quoted, in notes of their own: Note 1 paragraphs 1, 2 and 4 and Note 2 paragraph 4 are not supplied. Annex 3-C and Appendix 3-B-1, Articles 3.10 and 3.11 (non-alteration and returning products), the procedural articles 3.16 to 3.29 and every Article of Chapter 3 not listed above are NOT supplied and are not verified. Where a fact that one of these provisions needs is missing, the question is undetermined.",
     "page": 0
    },
    {
@@ -3360,6 +3360,38 @@
    {
     "scope": "schedule",
     "key": "",
+    "text": "ARTICLE 3.7 Unit of qualification 1. The unit of qualification for the application of the provisions of this Chapter shall be the particular product which is considered as the basic unit when classifying the product under the Harmonized System. 2. When a consignment consists of a number of identical products classified under the same heading of the Harmonized System, each individual product shall be taken into account when applying the provisions of this Chapter.",
+    "page": 12,
+    "source_url": "https://www.customs.go.jp/roo/english/text/eu1.pdf",
+    "citation": "JP-EU EPA Chapter 3 (Rules of origin), Article 3.7"
+   },
+   {
+    "scope": "schedule",
+    "key": "",
+    "text": "ARTICLE 3.8 Accounting segregation 1. Originating and non-originating fungible materials shall be physically segregated during storage in order to maintain their originating status. 2. For the purpose of this Article, \"fungible materials\" means materials that are of the same kind and commercial quality, with the same technical and physical characteristics, and which cannot be distinguished from one another once they are incorporated into the finished product. 3. Notwithstanding paragraph 1, originating and non-originating fungible materials may be used in the production of a product without being physically segregated during storage provided that an accounting segregation method is used. 4. The accounting segregation method referred to in paragraph 3 shall be applied in conformity with an inventory management method under accounting principles which are generally accepted in the Party.",
+    "page": 13,
+    "source_url": "https://www.customs.go.jp/roo/english/text/eu1.pdf",
+    "citation": "JP-EU EPA Chapter 3 (Rules of origin), Article 3.8 paragraphs 1 to 4"
+   },
+   {
+    "scope": "schedule",
+    "key": "",
+    "text": "5. A Party may require, under conditions set out in its laws and regulations, that the use of an accounting segregation method is subject to prior authorisation by the customs authority of that Party. The customs authority of the Party shall monitor the use of the authorisation and may withdraw the authorisation if the holder makes improper use of the accounting segregation method or fails to fulfil any of the other conditions laid down in this Chapter. 6. The accounting segregation method shall be any method that ensures that at any time no more materials receive originating status than would be the case if the materials had been physically segregated.",
+    "page": 14,
+    "source_url": "https://www.customs.go.jp/roo/english/text/eu1.pdf",
+    "citation": "JP-EU EPA Chapter 3 (Rules of origin), Article 3.8 paragraphs 5 and 6"
+   },
+   {
+    "scope": "schedule",
+    "key": "",
+    "text": "ARTICLE 3.9 Sets A set, classified pursuant to Rules 3(b) and (c) of the General Rules for the Interpretation of the Harmonized System, shall be considered as originating in a Party when all of its components are originating under this Chapter. Where the set is composed of originating and non-originating components, it shall as a whole be considered as originating in a Party, provided that the value of the non-originating components does not exceed 15 per cent of the ex-works or free on board price of the set.",
+    "page": 14,
+    "source_url": "https://www.customs.go.jp/roo/english/text/eu1.pdf",
+    "citation": "JP-EU EPA Chapter 3 (Rules of origin), Article 3.9"
+   },
+   {
+    "scope": "schedule",
+    "key": "",
     "text": "ARTICLE 3.12 Accessories, spare parts, tools and instructional or other information materials 1. For the purposes of this Article, accessories, spare parts, tools and instructional or other information materials are covered if: (a) the accessories, spare parts, tools and instructional or other information materials are classified and delivered with, but not invoiced separately from, the product; and",
     "page": 16,
     "source_url": "https://www.customs.go.jp/roo/english/text/eu1.pdf",
@@ -3372,6 +3404,22 @@
     "page": 17,
     "source_url": "https://www.customs.go.jp/roo/english/text/eu1.pdf",
     "citation": "JP-EU EPA Chapter 3 (Rules of origin), Article 3.12 paragraphs 1(b) to 4"
+   },
+   {
+    "scope": "schedule",
+    "key": "",
+    "text": "ARTICLE 3.13 Neutral elements In order to determine whether a product is originating in a Party, it shall not be necessary to determine the originating status of the following elements: (a) fuel, energy, catalysts and solvents; (b) equipment, devices and supplies used to test or inspect the product; (c) gloves, glasses, footwear, clothing, safety equipment and supplies; (d) machines, tools, dies and moulds; (e) spare parts and materials used in the maintenance of equipment and buildings; (f) lubricants, greases, compounding materials and other materials used in production or used to operate equipment and buildings; and (g) any other material that is not incorporated into the product but the use of which in the production of the product can reasonably be demonstrated to be a part of that production.",
+    "page": 18,
+    "source_url": "https://www.customs.go.jp/roo/english/text/eu1.pdf",
+    "citation": "JP-EU EPA Chapter 3 (Rules of origin), Article 3.13"
+   },
+   {
+    "scope": "schedule",
+    "key": "",
+    "text": "ARTICLE 3.14 Packing materials and containers for shipment Packing materials and containers for shipment that are used to protect a product during transportation shall be disregarded in determining the originating status of a product. ARTICLE 3.15 Packaging materials and containers for retail sale 1. Packaging materials and containers in which a product is packaged for retail sale, if classified with the product, shall be disregarded in determining whether all the non-originating materials used in the production of the product have undergone the applicable change in tariff classification or a production process set out in Annex 3-B or whether the product is wholly obtained. 2. If a product is subject to a value requirement set out in Annex 3-B, the value of the packaging materials and containers in which the product is packaged for retail sale, if classified with the product, shall be taken into account as originating or non-originating, as the case may be, in the calculation for the purpose of application of the value requirement to the product.",
+    "page": 19,
+    "source_url": "https://www.customs.go.jp/roo/english/text/eu1.pdf",
+    "citation": "JP-EU EPA Chapter 3 (Rules of origin), Articles 3.14 and 3.15"
    }
   ]
  },
@@ -14837,6 +14885,222 @@
     "page": 2,
     "source_url": "https://www.customs.go.jp/roo/english/text/tpp2.pdf",
     "citation": "CPTPP Annex 3-D Section A General Interpretative Notes, paragraphs 3(c) to 3(g)"
+   },
+   {
+    "scope": "schedule",
+    "key": "",
+    "text": "Unde Labs note (not treaty text): Articles 3.2, 3.6, 3.7, 3.10 to 3.17 and Annex 3-C of Chapter 3 of the CPTPP are quoted from tpp1.pdf as context for the Annex 3-D product-specific rule. They do not replace the listed rule and do not themselves establish origin. Articles 3.1, 3.3 to 3.5, 3.8, 3.9, 3.18 to 3.32, Annexes 3-A and 3-B, and every provision of Chapter 3 not listed above are NOT supplied and are not verified. Where a fact that one of these provisions needs is missing, the question is undetermined.",
+    "page": 0
+   },
+   {
+    "scope": "schedule",
+    "key": "",
+    "text": "Article 3.2: Originating Goods Except as otherwise provided in this Chapter, each Party shall provide that a good is originating if it is: (a) wholly obtained or produced entirely in the territory of one or more of the Parties as established in Article 3.3 (Wholly Obtained or Produced Goods); (b) produced entirely in the territory of one or more of the Parties, exclusively from originating materials; or (c) produced entirely in the territory of one or more of the Parties using non-originating materials provided the good satisfies all",
+    "page": 2,
+    "source_url": "https://www.customs.go.jp/roo/english/text/tpp1.pdf",
+    "citation": "CPTPP Chapter 3 (Rules of Origin and Origin Procedures), Article 3.2(a), (b) and (c), opening"
+   },
+   {
+    "scope": "schedule",
+    "key": "",
+    "text": "applicable requirements of Annex 3-D (Product-Specific Rules of Origin), and the good satisfies all other applicable requirements of this Chapter.",
+    "page": 3,
+    "source_url": "https://www.customs.go.jp/roo/english/text/tpp1.pdf",
+    "citation": "CPTPP Chapter 3 (Rules of Origin and Origin Procedures), Article 3.2(c), end"
+   },
+   {
+    "scope": "schedule",
+    "key": "",
+    "text": "Article 3.6: Materials Used in Production 1. Each Party shall provide that if a non-originating material undergoes further production such that it satisfies the requirements of this Chapter, the material is treated as originating when determining the originating status of the subsequently produced good, regardless of whether that material was produced by the producer of the good. 2. Each Party shall provide that if a non-originating material is used in the production of a good, the following may be counted as originating content for the purpose of determining whether the good meets a regional value content requirement: (a) the value of processing of the non-originating materials undertaken in the territory of one or more of the Parties; and (b) the value of any originating material used in the production of the non-originating material undertaken in the territory of one or more of the Parties.",
+    "page": 6,
+    "source_url": "https://www.customs.go.jp/roo/english/text/tpp1.pdf",
+    "citation": "CPTPP Chapter 3 (Rules of Origin and Origin Procedures), Article 3.6"
+   },
+   {
+    "scope": "schedule",
+    "key": "",
+    "text": "Article 3.7: Value of Materials Used in Production Each Party shall provide that for the purposes of this Chapter, the value of a material is: (a) for a material imported by the producer of the good, the transaction value of the material at the time of importation, including the costs incurred in the international shipment of the material; (b) for a material acquired in the territory where the good is produced: (i) the price paid or payable by the producer in the Party where the producer is located; (ii) the value as determined for an imported material in subparagraph (a); or (iii) the earliest ascertainable price paid or payable in the territory of the Party; or (c) for a material that is self-produced: (i) all the costs incurred in the production of the material, which includes general expenses; and",
+    "page": 6,
+    "source_url": "https://www.customs.go.jp/roo/english/text/tpp1.pdf",
+    "citation": "CPTPP Chapter 3 (Rules of Origin and Origin Procedures), Article 3.7(a) to (c)(i)"
+   },
+   {
+    "scope": "schedule",
+    "key": "",
+    "text": "(ii) an amount equivalent to the profit added in the normal course of trade, or equal to the profit that is usually reflected in the sale of goods of the same class or kind as the self-produced material that is being valued.",
+    "page": 7,
+    "source_url": "https://www.customs.go.jp/roo/english/text/tpp1.pdf",
+    "citation": "CPTPP Chapter 3 (Rules of Origin and Origin Procedures), Article 3.7(c)(ii)"
+   },
+   {
+    "scope": "schedule",
+    "key": "",
+    "text": "Article 3.10: Accumulation 1. Each Party shall provide that a good is originating if the good is produced in the territory of one or more of the Parties by one or more producers, provided that the good satisfies the requirements in Article 3.2 (Originating Goods) and all other applicable requirements in this Chapter. 2. Each Party shall provide that an originating good or material of one or more of the Parties that is used in the production of another good in the territory of another Party is considered as originating in the territory of the other Party. 3. Each Party shall provide that production undertaken on a non-originating material in the territory of one or more of the Parties by one or more producers may contribute toward the originating content of a good for the purpose of determining its origin, regardless of whether that production was sufficient to confer originating status to the material itself.",
+    "page": 12,
+    "source_url": "https://www.customs.go.jp/roo/english/text/tpp1.pdf",
+    "citation": "CPTPP Chapter 3 (Rules of Origin and Origin Procedures), Article 3.10"
+   },
+   {
+    "scope": "schedule",
+    "key": "",
+    "text": "Article 3.11: De Minimis 1. Except as provided in Annex 3-C (Exceptions to Article 3.11 (De Minimis)), each Party shall provide that a good that contains non-originating materials that do not satisfy the applicable change in tariff classification requirement specified in Annex 3-D (Product-Specific Rules of Origin) for the good is nonetheless an originating good if the value of all those materials does not exceed 10 per cent of the value of the good, as defined under Article 3.1 (Definitions), and the good meets all the other applicable requirements of this Chapter. 2. Paragraph 1 applies only when using a non-originating material in the production of another good. 3. If a good described in paragraph 1 is also subject to a regional value content requirement, the value of those non-originating materials shall be included in the value of non-originating materials for the applicable regional value content requirement. 4. With respect to a textile or apparel good, Article 4.2 (Rules of Origin and Related Matters) applies in place of paragraph 1. Article 3.12: Fungible Goods or Materials Each Party shall provide that a fungible good or material is treated as originating based on the: (a) physical segregation of each fungible good or material; or (b) use of any inventory management method recognised in the Generally Accepted Accounting Principles if the fungible good or material is commingled, provided that the inventory management method selected is used throughout the fiscal year of the person that selected the inventory management method. Article 3.13: Accessories, Spare Parts, Tools and Instructional or Other Information Materials 1. Each Party shall provide that: (a) in determining whether a good is wholly obtained, or satisfies a process or change in tariff classification requirement as set out in Annex 3-D (Product-Specific Rules of Origin), accessories, spare parts, tools or instructional or other information materials, as described in paragraph 3, are to be disregarded; and",
+    "page": 13,
+    "source_url": "https://www.customs.go.jp/roo/english/text/tpp1.pdf",
+    "citation": "CPTPP Chapter 3 (Rules of Origin and Origin Procedures), Articles 3.11, 3.12 and 3.13 paragraph 1(a)"
+   },
+   {
+    "scope": "schedule",
+    "key": "",
+    "text": "(b) in determining whether a good meets a regional value content requirement, the value of the accessories, spare parts, tools or instructional or other information materials, as described in paragraph 3, are to be taken into account as originating or non-originating materials, as the case may be, in calculating the regional value content of the good. 2. Each Party shall provide that a good’s accessories, spare parts, tools or instructional or other information materials, as described in paragraph 3, have the originating status of the good with which they are delivered. 3. For the purposes of this Article, accessories, spare parts, tools, and instructional or other information materials are covered when: (a) the accessories, spare parts, tools and instructional or other information materials are classified with, delivered with but not invoiced separately from the good; and (b) the types, quantities, and value of the accessories, spare parts, tools and instructional or other information materials are customary for that good. Article 3.14: Packaging Materials and Containers for Retail Sale 1. Each Party shall provide that packaging materials and containers in which a good is packaged for retail sale, if classified with the good, are disregarded in determining whether all the non-originating materials used in the production of the good have satisfied the applicable process or change in tariff classification requirement set out in Annex 3-D (Product-Specific Rules of Origin) or whether the good is wholly obtained or produced. 2. Each Party shall provide that if a good is subject to a regional value content requirement, the value of the packaging materials and containers in which the good is packaged for retail sale, if classified with the good, are taken into account as originating or non-originating, as the case may be, in calculating the regional value content of the good. Article 3.15: Packing Materials and Containers for Shipment Each Party shall provide that packing materials and containers for shipment are disregarded in determining whether a good is originating.",
+    "page": 14,
+    "source_url": "https://www.customs.go.jp/roo/english/text/tpp1.pdf",
+    "citation": "CPTPP Chapter 3 (Rules of Origin and Origin Procedures), Article 3.13 paragraph 1(b) to Article 3.15"
+   },
+   {
+    "scope": "schedule",
+    "key": "",
+    "text": "Article 3.16: Indirect materials Each Party shall provide that an indirect material is considered to be originating without regard to where it is produced. Article 3.17: Sets of Goods 1. Each Party shall provide that for a set classified as a result of the application of rule 3(a) or (b) of the General Rules for the Interpretation of the Harmonized System, the originating status of the set shall be determined in accordance with the product-specific rule of origin that applies to the set. 2. Each Party shall provide that for a set classified as a result of the application of rule 3(c) of the General Rules for the Interpretation of the Harmonized System, the set is originating only if each good in the set is originating and both the set and the goods meet the other applicable requirements of this Chapter. 3. Notwithstanding paragraph 2, for a set classified as a result of the application of rule 3(c) of the General Rules for the Interpretation of the Harmonized System, the set is originating if the value of all the non-originating goods in the set does not exceed 10 per cent of the value of the set. 4. For the purposes of paragraph 3, the value of the non-originating goods in the set and the value of the set shall be calculated in the same manner as the value of non-originating materials and the value of the good.",
+    "page": 15,
+    "source_url": "https://www.customs.go.jp/roo/english/text/tpp1.pdf",
+    "citation": "CPTPP Chapter 3 (Rules of Origin and Origin Procedures), Articles 3.16 and 3.17"
+   },
+   {
+    "scope": "schedule",
+    "key": "",
+    "text": "ANNEX 3-C EXCEPTIONS TO ARTICLE 3.11 (De Minimis) Each Party shall provide that Article 3.11 (De Minimis) shall not apply to: (a) non-originating materials of heading 04.01 through 04.06, or non-originating dairy preparations containing over 10 per cent by dry weight of milk solids of subheading 1901.90 or 2106.90, used in the production of a good of heading 04.01 through 04.06 other than a good of subheading 0402.10 through 0402.29 or 0406.307; (b) non-originating materials of heading 04.01 through 04.06, or non-originating dairy preparations containing over 10 per cent by dry weight of milk solids of subheading 1901.90, used in the production of the following goods: (i) infant preparations containing over 10 per cent by dry weight of milk solids of subheading 1901.10; (ii) mixes and doughs, containing over 25 per cent by dry weight of butterfat, not put up for retail sale of subheading 1901.20; (iii) dairy preparations containing over 10 per cent by dry weight of milk solids of subheading 1901.90 or 2106.90; (iv) goods of heading 21.05; (v) beverages containing milk of subheading 2202.90; or (vi) animal feeds containing over 10 per cent by dry weight of milk solids of subheading 2309.90; (c) non-originating materials of heading 08.05 or subheading 2009.11 through 2009.39, used in the production of a good of subheading 2009.11 through 2009.39 or a fruit or vegetable juice of any single",
+    "page": 30,
+    "source_url": "https://www.customs.go.jp/roo/english/text/tpp1.pdf",
+    "citation": "CPTPP Chapter 3 (Rules of Origin and Origin Procedures), Annex 3-C (Exceptions to Article 3.11), paragraphs (a) to (c), opening",
+    "applies": [
+     [
+      "0401",
+      "0406"
+     ],
+     [
+      "1507",
+      "1508"
+     ],
+     [
+      "1512",
+      "1512"
+     ],
+     [
+      "1514",
+      "1514"
+     ],
+     [
+      "1901",
+      "1901"
+     ],
+     [
+      "2008",
+      "2009"
+     ],
+     [
+      "2105",
+      "2106"
+     ],
+     [
+      "2202",
+      "2202"
+     ],
+     [
+      "2309",
+      "2309"
+     ]
+    ]
+   },
+   {
+    "scope": "schedule",
+    "key": "",
+    "text": "7 For greater certainty, milk powder of subheading 0402.10 through 0402.29, and processed cheese of subheading 0406.30, that is originating as a result of the application of the 10 per cent de minimis allowance in Article 3.11 (De Minimis), shall be an originating material when used in the production of any good of heading 04.01 through 04.06 as referred to in subparagraph (a) or the goods listed in subparagraph (b).",
+    "page": 30,
+    "source_url": "https://www.customs.go.jp/roo/english/text/tpp1.pdf",
+    "citation": "CPTPP Chapter 3 (Rules of Origin and Origin Procedures), Annex 3-C footnote 7",
+    "applies": [
+     [
+      "0401",
+      "0406"
+     ],
+     [
+      "1507",
+      "1508"
+     ],
+     [
+      "1512",
+      "1512"
+     ],
+     [
+      "1514",
+      "1514"
+     ],
+     [
+      "1901",
+      "1901"
+     ],
+     [
+      "2008",
+      "2009"
+     ],
+     [
+      "2105",
+      "2106"
+     ],
+     [
+      "2202",
+      "2202"
+     ],
+     [
+      "2309",
+      "2309"
+     ]
+    ]
+   },
+   {
+    "scope": "schedule",
+    "key": "",
+    "text": "fruit or vegetable, fortified with minerals or vitamins, concentrated or unconcentrated, of subheading 2106.90 or 2202.90; (d) non-originating materials of Chapter 15 of the Harmonized System, used in the production of a good of headings 15.07, 15.08, 15.12, or 15.14; or (e) non-originating peaches, pears or apricots of Chapter 8 or 20 of the Harmonized System, used in the production of a good of heading 20.08.",
+    "page": 31,
+    "source_url": "https://www.customs.go.jp/roo/english/text/tpp1.pdf",
+    "citation": "CPTPP Chapter 3 (Rules of Origin and Origin Procedures), Annex 3-C paragraphs (c), end, to (e)",
+    "applies": [
+     [
+      "0401",
+      "0406"
+     ],
+     [
+      "1507",
+      "1508"
+     ],
+     [
+      "1512",
+      "1512"
+     ],
+     [
+      "1514",
+      "1514"
+     ],
+     [
+      "1901",
+      "1901"
+     ],
+     [
+      "2008",
+      "2009"
+     ],
+     [
+      "2105",
+      "2106"
+     ],
+     [
+      "2202",
+      "2202"
+     ],
+     [
+      "2309",
+      "2309"
+     ]
+    ]
    }
   ]
  },
@@ -49917,7 +50181,7 @@
    {
     "scope": "schedule",
     "key": "",
-    "text": "Unde Labs note (not treaty text): Articles 3.1(e), (f), (h) and (i), 3.2, 3.3, 3.4, 3.5, 3.6 and 3.12 of Chapter 3 (Rules of origin) of the JP-UK CEPA are quoted from uk1.pdf as context for the Annex 3-B product specific rule. They do not replace the listed rule and do not themselves establish origin. Article 3.2 paragraph 1(b) (products produced exclusively from materials originating in that Party) is a route the Chapter lists; it is shown as context only, and the listed rule governs unless it says otherwise. The Annex 3-A notes are only partly quoted, in notes of their own: Note 1 paragraphs 1, 2 and 4 and Note 2 paragraph 4 are not supplied. Annex 3-C, Annex 3-D and Appendix 3-B-1, Article 3.5 paragraphs 10 to 12, Articles 3.7 to 3.11 and 3.13 to 3.15, the procedural articles 3.16 to 3.28 and every Article of Chapter 3 not listed above are NOT supplied and are not verified. Where a fact that one of these provisions needs is missing, the question is undetermined.",
+    "text": "Unde Labs note (not treaty text): Articles 3.1(e), (f), (h) and (i), 3.2 to 3.9 and 3.12 to 3.15 of Chapter 3 (Rules of origin) of the JP-UK CEPA are quoted from uk1.pdf as context for the Annex 3-B product specific rule. They do not replace the listed rule and do not themselves establish origin. Article 3.2 paragraph 1(b) (products produced exclusively from materials originating in that Party) is a route the Chapter lists; it is shown as context only, and the listed rule governs unless it says otherwise. The Annex 3-A notes are only partly quoted, in notes of their own: Note 1 paragraphs 1, 2 and 4 and Note 2 paragraph 4 are not supplied. Annex 3-C, Annex 3-D and Appendix 3-B-1, Article 3.5 paragraphs 10 to 12, Articles 3.10 and 3.11 (non-alteration and returning products), the procedural articles 3.16 to 3.28 and every Article of Chapter 3 not listed above are NOT supplied and are not verified. Where a fact that one of these provisions needs is missing, the question is undetermined.",
     "page": 0
    },
    {
@@ -50371,10 +50635,66 @@
    {
     "scope": "schedule",
     "key": "",
+    "text": "ARTICLE 3.7 Unit of qualification 1. The unit of qualification for the application of the provisions of this Chapter shall be the particular product which is considered as the basic unit when classifying the product under the Harmonized System. 2. When a consignment consists of a number of identical products classified under the same heading of the Harmonized System, each individual product shall be taken into account when applying the provisions of this Chapter.",
+    "page": 11,
+    "source_url": "https://www.customs.go.jp/roo/english/text/uk1.pdf",
+    "citation": "JP-UK CEPA Chapter 3 (Rules of origin), Article 3.7"
+   },
+   {
+    "scope": "schedule",
+    "key": "",
+    "text": "ARTICLE 3.8 Accounting segregation 1. Originating and non-originating fungible materials shall be physically segregated during storage in order to maintain their originating status. 2. For the purposes of this Article, \"fungible materials\" means materials that are of the same kind and commercial quality, with the same technical and physical characteristics, and which cannot be distinguished from one another once they are incorporated into the finished product. 3. Notwithstanding paragraph 1, originating and non-originating fungible materials may be used in the production of a product without being physically segregated during storage provided that an accounting segregation method is used. 4. The accounting segregation method referred to in paragraph 3 shall be applied in conformity with an inventory management method under accounting principles which are generally accepted in the Party.",
+    "page": 11,
+    "source_url": "https://www.customs.go.jp/roo/english/text/uk1.pdf",
+    "citation": "JP-UK CEPA Chapter 3 (Rules of origin), Article 3.8 paragraphs 1 to 4"
+   },
+   {
+    "scope": "schedule",
+    "key": "",
+    "text": "5. A Party may require, under conditions set out in its laws and regulations, that the use of an accounting segregation method is subject to prior authorisation by the customs authority of that Party. The customs authority of the Party shall monitor the use of the authorisation and may withdraw the authorisation if the holder makes improper use of the accounting segregation method or fails to fulfil any of the other conditions laid down in this Chapter. 6. The accounting segregation method shall be any method that ensures that at any time no more materials receive originating status than would be the case if the materials had been physically segregated.",
+    "page": 12,
+    "source_url": "https://www.customs.go.jp/roo/english/text/uk1.pdf",
+    "citation": "JP-UK CEPA Chapter 3 (Rules of origin), Article 3.8 paragraphs 5 and 6"
+   },
+   {
+    "scope": "schedule",
+    "key": "",
+    "text": "ARTICLE 3.9 Sets A set, classified pursuant to Rules 3(b) and (c) of the General Rules for the Interpretation of the Harmonized System, shall be considered as originating in a Party when all of its components are originating under this Chapter. Where the set is composed of originating and non-originating components, it shall as a whole be considered as originating in a Party, provided that the value of the non-originating components does not exceed 15 per cent of the ex-works or free on board price of the set.",
+    "page": 12,
+    "source_url": "https://www.customs.go.jp/roo/english/text/uk1.pdf",
+    "citation": "JP-UK CEPA Chapter 3 (Rules of origin), Article 3.9"
+   },
+   {
+    "scope": "schedule",
+    "key": "",
     "text": "ARTICLE 3.12 Accessories, spare parts, tools and instructional or other information materials 1. For the purposes of this Article, accessories, spare parts, tools and instructional or other information materials are covered if: (a) the accessories, spare parts, tools and instructional or other information materials are classified and delivered with, but not invoiced separately from, the product; and (b) the types, quantities and value of the accessories, spare parts, tools and instructional or other information materials are customary for that product. 2. In determining whether a product is wholly obtained, or satisfies a production process or change in tariff classification requirement as set out in Annex 3-B, accessories, spare parts, tools and instructional or other information materials shall be disregarded. 3. In determining whether a product meets a value requirement set out in Annex 3-B, the value of accessories, spare parts, tools and instructional or other information materials shall be taken into account as originating or non-originating materials, as the case may be, in the calculation for the purpose of the application of the value requirement to the product. 4. A product's accessories, spare parts, tools and instructional or other information materials shall have the originating status of the product with which they are delivered.",
     "page": 14,
     "source_url": "https://www.customs.go.jp/roo/english/text/uk1.pdf",
     "citation": "JP-UK CEPA Chapter 3 (Rules of origin), Article 3.12"
+   },
+   {
+    "scope": "schedule",
+    "key": "",
+    "text": "ARTICLE 3.13 Neutral elements In order to determine whether a product is originating in a Party, it shall not be necessary to determine the originating status of the following elements:",
+    "page": 14,
+    "source_url": "https://www.customs.go.jp/roo/english/text/uk1.pdf",
+    "citation": "JP-UK CEPA Chapter 3 (Rules of origin), Article 3.13, introduction"
+   },
+   {
+    "scope": "schedule",
+    "key": "",
+    "text": "(a) fuel, energy, catalysts and solvents; (b) equipment, devices and supplies used to test or inspect the product; (c) gloves, glasses, footwear, clothing, safety equipment and supplies; (d) machines, tools, dies and moulds; (e) spare parts and materials used in the maintenance of equipment and buildings; (f) lubricants, greases, compounding materials and other materials used in production or used to operate equipment and buildings; and (g) any other material that is not incorporated into the product but the use of which in the production of the product can reasonably be demonstrated to be a part of that production. ARTICLE 3.14 Packing materials and containers for shipment Packing materials and containers for shipment that are used to protect a product during transportation shall be disregarded in determining the originating status of a product. ARTICLE 3.15 Packaging materials and containers for retail sale 1. Packaging materials and containers in which a product is packaged for retail sale, if classified with the product, shall be disregarded in determining whether all the non-originating materials used in the production of the product have undergone the applicable change in tariff classification or a production process set out in Annex 3-B or whether the product is wholly obtained.",
+    "page": 15,
+    "source_url": "https://www.customs.go.jp/roo/english/text/uk1.pdf",
+    "citation": "JP-UK CEPA Chapter 3 (Rules of origin), Article 3.13(a) to (g), Article 3.14 and Article 3.15 paragraph 1"
+   },
+   {
+    "scope": "schedule",
+    "key": "",
+    "text": "2. If a product is subject to a value requirement set out in Annex 3-B, the value of the packaging materials and containers in which the product is packaged for retail sale, if classified with the product, shall be taken into account as originating or non-originating, as the case may be, in the calculation for the purpose of the application of the value requirement to the product.",
+    "page": 16,
+    "source_url": "https://www.customs.go.jp/roo/english/text/uk1.pdf",
+    "citation": "JP-UK CEPA Chapter 3 (Rules of origin), Article 3.15 paragraph 2"
    }
   ]
  },

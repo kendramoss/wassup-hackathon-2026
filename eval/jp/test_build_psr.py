@@ -441,27 +441,37 @@ class GeneralNotesPdfTruth(unittest.TestCase):
 
 
 class Chapter3Articles(unittest.TestCase):
-    """Chapter 3 (Rules of origin) articles of the JP-EU EPA and JP-UK CEPA."""
+    """Chapter 3 articles of the JP-EU EPA, JP-UK CEPA and CPTPP."""
 
     def test_sources_are_pinned_and_paired_with_their_schedule(self):
         self.assertEqual(b.DIGESTS["eu1.pdf"][:8], "a71de5d6")
         self.assertEqual(b.DIGESTS["uk1.pdf"][:8], "277066a8")
-        self.assertEqual({k: v["pdf"] for k, v in b.CHAPTER_3.items()}, {"eu3.pdf": "eu1.pdf", "uk3.pdf": "uk1.pdf"})
+        self.assertEqual(b.DIGESTS["tpp1.pdf"][:8], "da772daa")
+        self.assertEqual({k: v["pdf"] for k, v in b.CHAPTER_3.items()},
+                         {"eu3.pdf": "eu1.pdf", "uk3.pdf": "uk1.pdf", "tpp2.pdf": "tpp1.pdf"})
 
     def test_only_listed_articles_and_sorted_pages(self):
         for filename, spec in b.CHAPTER_3.items():
             pages = [n[0] for n in spec["notes"]]
             self.assertEqual(pages, sorted(pages))
+            cptpp = filename == "tpp2.pdf"
             for page, label, start, end, wholly in spec["notes"]:
-                self.assertTrue(label.startswith("Article 3."), label)
-                self.assertRegex(label, r"^Article 3\.(1\(|2|3|4|5|6|12)")
+                if cptpp:
+                    # Articles 3.2, 3.6, 3.7, 3.10 to 3.17 and Annex 3-C (D916)
+                    self.assertRegex(label, r"^(Articles? 3\.(2|6|7|1[0-7])\b|Annex 3-C)", label)
+                    self.assertTrue(wholly is False or label.startswith("Annex 3-C"), label)
+                    continue
+                self.assertTrue(label.startswith(("Article 3.", "Articles 3.")), label)
+                # Articles 3.1(e), (f), (h), (i), 3.2 to 3.9 and 3.12 to 3.15 (3.7 to 3.9 and 3.13 to 3.15 since D916)
+                self.assertRegex(label, r"^Articles? 3\.(1\(|2|3|4|5|6|7|8|9|12|13|14|15)\b")
                 self.assertIsInstance(wholly, bool)
                 for anchor in (start, end):
                     if anchor:
-                        self.assertNotRegex(anchor, r"ARTICLE 3\.(7|8|9|1[0-1]|1[3-9]|2\d)\b")
+                        self.assertNotRegex(anchor, r"ARTICLE 3\.(1[0-1]|1[6-9]|2\d)\b")
             # the Article 3.3 and 3.6(3) chunks are the only ones scoped to wholly obtained rows
             for page, label, start, end, wholly in spec["notes"]:
-                self.assertEqual(wholly, label.startswith("Article 3.3") or label == "Article 3.6 paragraph 3", label)
+                if not cptpp:
+                    self.assertEqual(wholly, label.startswith("Article 3.3") or label == "Article 3.6 paragraph 3", label)
 
     def test_wholly_obtained_ranges_join_only_touching_equal_width_ranges(self):
         rows = [{"start": s, "end": e, "text": t} for s, e, t in [
@@ -480,11 +490,17 @@ class Chapter3Articles(unittest.TestCase):
         for filename, spec in b.CHAPTER_3.items():
             text = b.chapter_3_caveat(spec)
             self.assertTrue(text.startswith("Unde Labs note (not treaty text)"))
+            if filename == "tpp2.pdf":
+                for frag in ("Articles 3.2, 3.6, 3.7, 3.10 to 3.17 and Annex 3-C", "Annex 3-D product-specific rule",
+                             "do not replace the listed rule", "do not themselves establish origin", "3.18 to 3.32",
+                             "NOT supplied", "not verified", "undetermined"):
+                    self.assertIn(frag, text, filename)
+                continue
             if filename == "uk3.pdf":
                 self.assertIn("Article 3.5 paragraphs 10 to 12", text)
             for frag in ("do not replace the listed rule", "do not themselves establish origin", "Article 3.2 paragraph 1(b)",
                          "only partly quoted", "Note 1 paragraphs 1, 2 and 4", "Note 2 paragraph 4",
-                         "Articles 3.7 to 3.11 and 3.13 to 3.15", "Annex 3-C", "Appendix 3-B-1", spec["procedural"],
+                         "Articles 3.10 and 3.11", "Annex 3-C", "Appendix 3-B-1", spec["procedural"],
                          "NOT supplied", "not verified", "undetermined"):
                 self.assertIn(frag, text, filename)
 
@@ -493,7 +509,7 @@ class Chapter3Articles(unittest.TestCase):
         self.assertEqual(b.quote_chunk("A text. UK/JP/en 7", "A", None), "A text.")
 
 
-@unittest.skipUnless(os.environ.get("JP_PDF_DIR"), "set JP_PDF_DIR to the directory holding eu1.pdf and uk1.pdf")
+@unittest.skipUnless(os.environ.get("JP_PDF_DIR"), "set JP_PDF_DIR to the directory holding eu1.pdf, uk1.pdf and tpp1.pdf")
 class Chapter3PdfTruth(unittest.TestCase):
     """Pinned to the official PDFs (digest checked): verbatim page chunks."""
 
@@ -510,9 +526,9 @@ class Chapter3PdfTruth(unittest.TestCase):
             for note, (page, label, start, end, wholly) in zip(notes[1:], spec["notes"]):
                 self.assertEqual((note["scope"], note["page"], note["source_url"]), ("schedule", page, b.BASE + spec["pdf"]))
                 self.assertEqual(note["citation"], f"{spec['label']}, {label}")
-                self.assertEqual("applies" in note, wholly)
+                self.assertEqual("applies" in note, bool(wholly))
                 self.assertNotIn("  ", note["text"])
-                self.assertNotRegex(note["text"], r"(EU|UK)/JP/en|Working Group on Wine|ARTICLE 4\.1")
+                self.assertNotRegex(note["text"], r"(EU|UK)/JP/en|Working Group on Wine|ARTICLE 4\.1|3-\d? ?\d$")
 
 
 if __name__ == "__main__":

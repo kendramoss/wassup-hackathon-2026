@@ -159,8 +159,15 @@ func TestGeneralNotesPinnedToThePDF(t *testing.T) {
 	table := mustDefault(t)
 	for _, a := range gnAgreements {
 		s := gnSchedule(t, table, a)
-		if len(s.Notes) != a.oldNotes+len(a.notes) {
-			t.Fatalf("%s %s: %d notes, want %d old + %d new", a.agreement, a.scheduleSub, len(s.Notes), a.oldNotes, len(a.notes))
+		// Chapter 3 notes (chapter3_test.go) follow the General Notes; they are not counted here.
+		general := 0
+		for _, n := range s.Notes {
+			if !strings.Contains(n.Citation, "Chapter 3 (") && !(n.Page == 0 && strings.Contains(n.Text, "of Chapter 3 of the")) {
+				general++
+			}
+		}
+		if general != a.oldNotes+len(a.notes) {
+			t.Fatalf("%s %s: %d notes, want %d old + %d new", a.agreement, a.scheduleSub, general, a.oldNotes, len(a.notes))
 		}
 		for i, want := range a.notes {
 			n := s.Notes[a.oldNotes+i]

@@ -11,10 +11,13 @@ import (
 // paragraphs 1-3 define the rule codes and cite Article 27 (RVC formula),
 // Article 25 (WO) and Article 28(1)(b) (tolerance). Article 26 is left out on
 // purpose: a listed rule applies in place of the general criteria of Article
-// 26(1), and Annex 2 does not cite Article 26.
+// 26(1), and Annex 2 does not cite Article 26. Articles 24 (originating goods),
+// 29 (accumulation) and 30 (non-qualifying operations) are returned since D916:
+// they decide whether a material counts as originating and whether the work
+// done counts.
 var psrProvisionIDs = []string{
-	"annex2-1-3a", "annex2-3b", "art25-intro", "art25-a-i", "art25-j-k",
-	"art27-1-3", "art27-4-6", "art28-1a", "art28-1b-2",
+	"annex2-1-3a", "annex2-3b", "art24", "art25-intro", "art25-a-i", "art25-j-k",
+	"art27-1-3", "art27-4-6", "art28-1a", "art28-1b-2", "art29", "art30-a-d", "art30-e-g",
 }
 
 func provisionEvidence(t *testing.T, b *generalBundle, id string) Evidence {
@@ -103,7 +106,7 @@ func TestPSRProvisionsAreScopedAndKeepSources(t *testing.T) {
 	}
 	// Counterexamples: the general criteria and unrelated provisions are not returned.
 	for _, frag := range []string{
-		"Article 26 Goods Not Wholly Obtained", "Article 29 Accumulation", "Article 30 Non-qualifying", "Article 24 Originating Goods",
+		"Article 26 Goods Not Wholly Obtained",
 		"No Annex 2 product specific rule row was found", "Information Technology",
 	} {
 		if strings.Contains(all, frag) {
@@ -116,8 +119,8 @@ func TestPSRProvisionsAreScopedAndKeepSources(t *testing.T) {
 		t.Fatalf("scope note: %+v", last)
 	}
 	for _, frag := range []string{"sets tolerance codes by reference to Article 28(1)(b)", "Under Article 26(2) a listed rule applies",
-		"Article 24 (including the route of production entirely from originating materials in Article 24(c))",
-		"Article 29 (accumulation)", "Article 30 (non-qualifying operations)", "not supplied and have not been verified"} {
+		"Article 24 (originating goods), Article 29 (accumulation) and Article 30 (non-qualifying operations) are supplied",
+		"Article 31 (Direct Consignment) and Annex 4 are not supplied", "not supplied and have not been verified"} {
 		if !strings.Contains(last.Text, frag) {
 			t.Errorf("scope note lacks %q", frag)
 		}
