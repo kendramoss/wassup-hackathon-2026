@@ -51,7 +51,7 @@ Every `/v1` route has a rate class. A test (`TestEveryV1RouteHasALimitClass`) fa
 | heavy | plan, compare targets | 4 a minute (`RATE_HEAVY_PER_MIN`) | shared on Cloud Run |
 | bulk | batch triage | the whole heavy allowance, once a minute | shared on Cloud Run |
 | lookup | ruling search (`GET /v1/rulings`); ruling and live duty-rate fetches from outside sources (cached answers are free) | 30 a minute (`RATE_LOOKUP_PER_MIN`) | shared on Cloud Run |
-| review | the broker's `GET /v1/review` and `POST /v1/review/decision` | 30 a minute (`RATE_REVIEW_PER_MIN`) | on each instance |
+| review | the broker's `GET /v1/review`, `POST /v1/review/decision` and, with `BROKER_WORKFLOW=on`, `GET` and `POST /v1/review/comments` | 30 a minute (`RATE_REVIEW_PER_MIN`) | on each instance |
 | global | all model-calling requests together, in light units (heavy = 5, batch = 20) | 120 a minute (`RATE_GLOBAL_PER_MIN`) | shared on Cloud Run |
 
 - Shared counting (D70): on Cloud Run, with `RATE_LIMIT_STORE` unset, the model-route limits are counted in one-minute windows in Firestore (`rate_limits`), shared by every instance. Before D137 each instance counted its own, so with three instances a client got about three times its limit. If Firestore fails, the instance falls back to its own buckets and logs a warning at most once a minute. `RATE_LIMIT_STORE=local` restores per-instance counting. The basic class is always counted per instance: a Firestore write per read would cost more than it protects.
@@ -84,7 +84,8 @@ A case owner sends one draft to an outside customs broker as a link; the broker 
 - **Headers.** The broker routes add `X-Robots-Tag: noindex, nofollow` and `Cache-Control: no-store` to the API's `Referrer-Policy: no-referrer`. The frontend serves `/review` and `/review/*` with `Referrer-Policy: no-referrer` and `X-Robots-Tag: noindex, nofollow`, and the page's metadata says noindex, nofollow.
 - **Audit.** With the trail on: `review.create` (a sensitive write: no intent record, no link), `review.revoke`, `review.decision` (intent and completion) and `review.view` (one event per read) in the case's tenant. The broker is recorded as anonymous. No comment text, product data or token reaches the trail.
 - **Storage.** No new collection and no Firestore index: links live in the case document (gzipped JSON), so every read is by document id.
-- **Not done.** No broker account or identity check: whoever holds the link is the reviewer, so share it only with the broker. No email or notification. The broker cannot edit the letter. No e-filing.
+- **Discussion (BROKER_WORKFLOW=on).** The broker holding an open link can read the case's discussion and add comments (`/v1/review/comments`), under the same token checks, rate class and limits. The broker sees authors by role only, never their emails; their comments are stored as "external broker" with the link id. Comment text is plain text under the same rules as a decision comment, and no comment text reaches the audit trail (`review.view` for a read, `case.comment` with detail `external_broker` for a post).
+- **Not done.** No broker account or identity check: whoever holds the link is the reviewer, so share it only with the broker. No email or notification. The broker cannot edit the letter through the link (an editor can file an edited letter, docs/design/broker-workflow.md). Nothing is submitted to CBP from here.
 
 ## Quotas and spend caps
 

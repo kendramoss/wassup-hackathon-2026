@@ -113,6 +113,18 @@ var routeTable = map[string]routeClass{
 	"DELETE /v1/cases/{id}/reviews/{review}":       caseScoped,
 	"GET /v1/review":                               reviewToken,
 	"POST /v1/review/decision":                     reviewToken,
+	"PUT /v1/cases/{id}/queue":                     caseScoped,
+	"POST /v1/cases/{id}/queue/transition":         caseScoped,
+	"GET /v1/queue":                                caseCreate, // lists the caller's view, like GET /v1/cases
+	"GET /v1/cases/{id}/collab":                    caseScoped,
+	"POST /v1/cases/{id}/comments":                 caseScoped,
+	"POST /v1/cases/{id}/approvals":                caseScoped,
+	"PUT /v1/cases/{id}/collaborators":             caseScoped,
+	"GET /v1/review/comments":                      reviewToken,
+	"POST /v1/review/comments":                     reviewToken,
+	"POST /v1/cases/{id}/filing":                   caseScoped,
+	"GET /v1/cases/{id}/filing":                    caseScoped,
+	"POST /v1/cases/{id}/filing/status":            caseScoped,
 	"GET /health":                                  noCaseData,
 }
 
@@ -202,6 +214,15 @@ func isoRoutes() []isoRoute {
 		{"review create", "POST", "/reviews", `{"expires_in_days":7}`, nil, "POST /v1/cases/{id}/reviews"},
 		{"review list", "GET", "/reviews", "", nil, "GET /v1/cases/{id}/reviews"},
 		{"review revoke", "DELETE", "/reviews/rv_0123456789abcdef", "", nil, "DELETE /v1/cases/{id}/reviews/{review}"},
+		{"queue", "PUT", "/queue", `{"reason":"check the rule"}`, nil, "PUT /v1/cases/{id}/queue"},
+		{"queue transition", "POST", "/queue/transition", `{"action":"start"}`, nil, "POST /v1/cases/{id}/queue/transition"},
+		{"collab", "GET", "/collab", "", nil, "GET /v1/cases/{id}/collab"},
+		{"comment", "POST", "/comments", `{"body":"looks right"}`, nil, "POST /v1/cases/{id}/comments"},
+		{"approval", "POST", "/approvals", `{"decision":"approve"}`, nil, "POST /v1/cases/{id}/approvals"},
+		{"collaborator", "PUT", "/collaborators", `{"email":"b@example.com","role":"broker"}`, nil, "PUT /v1/cases/{id}/collaborators"},
+		{"filing prepare", "POST", "/filing", `{}`, nil, "POST /v1/cases/{id}/filing"},
+		{"filing get", "GET", "/filing", "", nil, "GET /v1/cases/{id}/filing"},
+		{"filing status", "POST", "/filing/status", `{"status":"withdrawn"}`, nil, "POST /v1/cases/{id}/filing/status"},
 	}
 }
 
@@ -257,6 +278,7 @@ func newIsoEnvStrict(t *testing.T, ownership, strict bool) *isoEnv {
 	build := func(strict bool) harness {
 		hs, _, _ := teamsHarness(t, func(d *Deps) {
 			d.Cases, d.CaseOwnership, d.BOMVersions, d.StrictAuth = e.cs, ownership, true, strict
+			d.BrokerWorkflow = true
 			d.Planner = &estimatingPlanner{fakePlanner: &fakePlanner{}} // also serves plan/estimate
 			d.Workspaces, d.APIKeys = wsStore, keys
 		})

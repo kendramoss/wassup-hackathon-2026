@@ -239,6 +239,10 @@ type Deps struct {
 	// diffed against the case's product and re-predicted (D67). Off by
 	// default (the route is not registered).
 	BOMVersions bool
+	// BrokerWorkflow serves the review queue, case discussion and sign-offs,
+	// and the eRulings filing package (brokerflow.go). Off by default (the
+	// routes are not registered).
+	BrokerWorkflow bool
 	// Teams turns on sign-in and team workspaces (D68): X-User-Token is
 	// verified by Users, and Workspaces maps the user to their workspace.
 	// Off by default; anonymous requests keep CaseOwnership's rules.
@@ -339,7 +343,7 @@ func (a *api) errorFor(r *http.Request, err error) (int, string, string) {
 		return http.StatusForbidden, "forbidden", forbiddenMessage
 	case errors.Is(err, errAuditUnavailable):
 		return http.StatusServiceUnavailable, "audit_unavailable", "the audit trail is unavailable, so this change was not made; try again"
-	case errors.Is(err, errSuperseded), errors.Is(err, errIdempotencyReuse), errors.Is(err, errOriginFactsChanged), errors.Is(err, errFamilyFactsChanged):
+	case errors.Is(err, errSuperseded), errors.Is(err, errIdempotencyReuse), errors.Is(err, errOriginFactsChanged), errors.Is(err, errFamilyFactsChanged), errors.Is(err, errBrokerConflict):
 		return http.StatusConflict, "conflict", err.Error()
 	case errors.Is(err, store.ErrNotFound), errors.Is(err, cross.ErrNotFound), errors.Is(err, apikey.ErrNotFound):
 		return http.StatusNotFound, "not_found", err.Error()
