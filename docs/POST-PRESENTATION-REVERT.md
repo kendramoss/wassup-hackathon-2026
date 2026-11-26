@@ -30,15 +30,9 @@ $j.spec.template.spec.containers[0].env | Where-Object { $_.name -match 'DAILY_S
 
 If `DAILY_SPEND_CAP_USD` was also raised for the event, restore it with `--update-env-vars DAILY_SPEND_CAP_USD=25`.
 
-## 2. Always-on backend instance (D59) — PENDING
+## 2. Always-on backend instance (D59) — DONE
 
-`deploy.yml` sets `--min-instances 1` so the first visit after a quiet spell does not wait out a cold start. Decision D59 says to set it back to 0 after judging. Frontend has no minimum and needs no change.
-
-Runtime revert:
-
-```powershell
-& $gcloud run services update backend --project $project --region $region --min-instances 0 --quiet
-```
+Runtime and deploy configuration both use zero minimum instances. The live backend had no `minScale` annotation when checked on 26 Nov 2026, and `.github/workflows/deploy.yml` has set `--min-instances 0` since #822. No revert command is needed.
 
 Verify (`minScale` should be `0` or absent):
 
@@ -47,7 +41,7 @@ $j = & $gcloud run services describe backend --project $project --region $region
 "minScale=" + $j.spec.template.metadata.annotations.'autoscaling.knative.dev/minScale'
 ```
 
-**Permanent:** change `--min-instances 1` to `--min-instances 0` in `.github/workflows/deploy.yml` (backend job) and merge via PR. Without this, the next backend deploy restores the warm instance.
+Evidence and the full Cloud Run inventory are in `docs/audit-m3-evidence.md`.
 
 ## Gotchas
 
