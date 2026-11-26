@@ -1453,6 +1453,26 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/v1/status": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Service status for a status page (STATUS_PAGE=on only)
+         * @description The last snapshot of the deep health checks, refreshed in the background at most every 5 minutes, and the published service-level objectives (docs/design/sla-and-status.md). Never runs a check on the request path and never returns error text. `status` is `unknown` until the first snapshot.
+         */
+        get: operations["getStatus"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/v1/admin/api-keys": {
         parameters: {
             query?: never;
@@ -7229,6 +7249,43 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["EvalSummary"];
+                };
+            };
+            429: components["responses"]["TooManyRequests"];
+        };
+    };
+    getStatus: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Status */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        /** @enum {string} */
+                        status: "operational" | "degraded" | "unknown";
+                        /** Format: date-time */
+                        checked_at?: string;
+                        components: {
+                            name: string;
+                            /** @enum {string} */
+                            status: "operational" | "degraded" | "unknown";
+                        }[];
+                        slos: {
+                            name: string;
+                            objective_percent: number;
+                            window: string;
+                            measures: string;
+                        }[];
+                    };
                 };
             };
             429: components["responses"]["TooManyRequests"];

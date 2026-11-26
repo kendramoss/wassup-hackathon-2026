@@ -147,6 +147,7 @@ var auditTable = map[string]auditRoute{
 	"GET /v1/cases/{id}/filing":                    {auditDenyOnly, audit.CaseRead}, // a download is recorded as filing.download by the handler
 	"POST /v1/cases/{id}/filing/status":            {auditTwoPhase, audit.FilingStatus},
 	"GET /health":                                  {auditNone, ""},
+	"GET /v1/status":                               {auditNone, ""},
 }
 
 type auditCtxKey struct{}
