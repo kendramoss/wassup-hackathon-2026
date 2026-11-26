@@ -102,6 +102,9 @@ reproduce: ## recompute every published number from committed files: no model ca
 	python3 -I -B eval/accuracy/measure_904.py . --check
 	python3 -I -B eval/accuracy/measure_907.py . --check
 	python3 -I -B eval/accuracy/measure_food_independent.py . --self-test
+	cd $(GO_DIR) && go run ./cmd/marketeval canada -check
+	cd $(GO_DIR) && go run ./cmd/marketeval euuk -check
+	cd $(GO_DIR) && go run ./cmd/marketeval mexico -check
 	python3 -I -B eval/supersession/impact.py . --check
 	python3 -I -B eval/charts/build_evaluation.py . --check
 	python3 -I -B eval/charts/build_trust_data.py . --check

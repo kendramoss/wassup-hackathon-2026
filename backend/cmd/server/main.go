@@ -472,6 +472,27 @@ func newDeps(cfg config.Config, model, engineModel llm.Model, cases store.Cases,
 			}
 		}
 	}
+	// Mexico is a rules-only market (D914): its cases get the
+	// non-preferential origin check of the Acuerdo DOF 30-08-1994 from the
+	// product's codes, always reviewed.
+	if cfg.RuleCheck {
+		mexicoOrigin, err := tariffshift.MexicoRules()
+		if err != nil {
+			return httpapi.Deps{}, err
+		}
+		if err = markets.Register(httpapi.MexicoAuthority(mexicoOrigin)); err != nil {
+			return httpapi.Deps{}, err
+		}
+	}
+	// South Korea and Australia are RCEP Parties: their cases get the RCEP
+	// rules check from the product's codes, always reviewed.
+	if cfg.RuleCheck {
+		for _, a := range []jurisdiction.Authority{httpapi.RCEPAuthority(jurisdiction.KR, "Korea Customs Service"), httpapi.RCEPAuthority(jurisdiction.AU, "Australian Border Force")} {
+			if err = markets.Register(a); err != nil {
+				return httpapi.Deps{}, err
+			}
+		}
+	}
 	japan, err := japanAuthority(cfg, engineModel, meter, logger)
 	if err != nil {
 		return httpapi.Deps{}, err

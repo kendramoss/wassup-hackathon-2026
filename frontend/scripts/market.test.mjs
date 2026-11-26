@@ -22,12 +22,11 @@ test("every market but other has a flag the bundle copies", async () => {
   for (const m of markets.filter((x) => x.code !== "other")) assert.ok(src.includes(`"${m.flag}"`) || src.includes(`${m.flag}:`), m.flag);
 });
 
-test("unsupported markets are listed but disabled, in few words", async () => {
+test("the picker lists only supported markets, with no 'soon' labels", async () => {
   const src = await readFile(new URL("../src/components/op/market-picker.tsx", import.meta.url), "utf8");
-  assert.match(src, /disabled=\{!on\}/);
-  assert.match(src, /x\.code === "jp" \? copy\.japan\.notAvailable/);
-  assert.equal(copy.japan.notAvailable, "Japan: not available yet.");
-  assert.equal(copy.market.soon, "soon");
+  assert.match(src, /\.filter\(\(x\) => supported\.includes\(x\.code\)\)/);
+  assert.doesNotMatch(src, /soon/);
+  assert.equal(copy.market.soon, undefined);
   assert.equal(copy.market.unsupported("the European Union"), "Origin rules for the European Union aren't supported yet.");
 });
 
@@ -51,9 +50,10 @@ test("the picker carries a short summary of what each market offers today", asyn
   assert.match(t, /U\.S\.: live/);
   assert.match(t, /Canada: rules check/);
   assert.match(t, /EU, UK: rules check, listed goods/);
-  assert.match(t, /RCEP: tariff check/);
-  assert.ok(t.includes(copy.japan.notAvailable), "Japan line matches the picker's own option text");
-  assert.match(t, /Other markets: not yet/);
+  assert.match(t, /South Korea, Australia: RCEP check/);
+  assert.match(t, /Mexico: rules check/);
+  assert.doesNotMatch(t, /Japan:/, "Japan's line shows only once the API lists Japan");
+  assert.doesNotMatch(t, /not yet|soon/);
   assert.equal(copy.market.summary.length, 6);
   for (const line of copy.market.summary) assert.ok(line.length <= 40, line);
 });
