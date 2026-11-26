@@ -127,11 +127,15 @@ reproduce: ## recompute every published number from committed files: no model ca
 	cd $(GO_DIR) && go run ./cmd/jpeval bundle -check
 	cd $(GO_DIR) && go run ./cmd/jpeval index -check
 	cd $(GO_DIR) && go run ./cmd/jpeval summary -check
-	cd $(GO_DIR) && go run ./cmd/jpeval candidate-summary -split dev_eval -tag d712-dev-complete -check
-	cd $(GO_DIR) && go run ./cmd/jpeval candidate-summary -split dev_eval -tag d909-dev -check
+	cd $(GO_DIR) && go run ./cmd/jpeval candidate-summary -prompt-version jp-engine-v1 -split dev_eval -tag d712-dev-complete -check
+	cd $(GO_DIR) && go run ./cmd/jpeval candidate-summary -prompt-version jp-engine-v1 -split dev_eval -tag d909-dev -check
+	cd $(GO_DIR) && go run ./cmd/jpeval candidate-summary -prompt-version jp-engine-v1 -split dev_neg -tag d913-neg-v1 -check
+	cd $(GO_DIR) && go run ./cmd/jpeval candidate-summary -prompt-version jp-engine-v2 -split dev_neg -tag d913-neg-v2 -check
+	cd $(GO_DIR) && go run ./cmd/jpeval candidate-summary -prompt-version jp-engine-v2 -split dev_eval -tag d913-dev-v2 -check
+	cd $(GO_DIR) && go run ./cmd/jpeval dev-negatives -check
 	python3 -I -B eval/jp/labels.py . --held-out --confirm-phase2 --check
-	cd $(GO_DIR) && go run ./cmd/jpeval candidate-summary -split held_out -check
-	cd $(GO_DIR) && go run ./cmd/jpeval candidate-summary -split synthetic -check
+	cd $(GO_DIR) && go run ./cmd/jpeval candidate-summary -prompt-version jp-engine-v1 -split held_out -check
+	cd $(GO_DIR) && go run ./cmd/jpeval candidate-summary -prompt-version jp-engine-v1 -split synthetic -check
 
 verify-data: ## check committed eval data against eval/SHA256SUMS and the bundled corpus against it
 	cd eval && shasum -a 256 -c SHA256SUMS

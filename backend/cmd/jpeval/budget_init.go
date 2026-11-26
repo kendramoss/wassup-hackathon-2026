@@ -48,7 +48,7 @@ func budgetInit(args []string) error {
 	rout := fs.Float64("rate-out", 0, "verified output USD per million tokens")
 	rsrc := fs.String("rates-source", "", "the quote or price page the rates were checked against")
 	smokeOut := fs.Int("smoke-max-output", 64, "output cap of the smoke check, 1 to 256")
-	splitList := fs.String("splits", "held_out,synthetic", "comma-separated splits the ledger plans: held_out, synthetic or dev_eval")
+	splitList := fs.String("splits", "held_out,synthetic", "comma-separated splits the ledger plans: held_out, synthetic, dev_eval or dev_neg")
 	_ = fs.Parse(args)
 	if fs.NArg() != 0 || *path == "" || *smokeOut < 1 || *smokeOut > 256 {
 		return errors.New("budget-init needs -budget-ledger, rates and a 1 to 256 -smoke-max-output")
@@ -56,7 +56,7 @@ func budgetInit(args []string) error {
 	rates := llmbudget.Rates{InputPerMTok: *rin, OutputPerMTok: *rout, Source: *rsrc}
 	splits := strings.Split(*splitList, ",")
 	for _, sp := range splits {
-		if sp != "held_out" && sp != "synthetic" && sp != "dev_eval" {
+		if sp != "held_out" && sp != "synthetic" && sp != "dev_eval" && sp != "dev_neg" {
 			return fmt.Errorf("budget-init: unknown split %q", sp)
 		}
 	}
