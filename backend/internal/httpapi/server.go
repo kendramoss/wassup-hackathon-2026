@@ -106,6 +106,9 @@ func NewHandler(logger *slog.Logger, info Info, deps ...Deps) http.Handler {
 			mux.HandleFunc("POST /mcp", a.rateOnly(basic, a.mcp(&root, info.Version))) // docs/MCP.md; its tools call the routes above in-process
 		}
 		mux.HandleFunc("GET /v1/eval/summary", a.cheap(a.evalSummary))
+		if d.Status != nil {
+			mux.HandleFunc("GET /v1/status", a.cheap(d.Status.ServeHTTP))
+		}
 		mux.HandleFunc("GET /v1/duty-rates", a.cheap(a.dutyRates))
 		mux.HandleFunc("POST /v1/rcep/check", a.cheap(a.rcepCheck))   // RCEP preferential origin, no model
 		mux.HandleFunc("POST /v1/usmca/check", a.cheap(a.usmcaCheck)) // USMCA selected origin rule, no model

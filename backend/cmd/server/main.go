@@ -54,6 +54,7 @@ import (
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/domain"
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/duty"
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/engine"
+	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/envelope"
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/euorigin"
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/evalsummary"
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/extract"
@@ -65,6 +66,7 @@ import (
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/logsafe"
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/nearmiss"
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/nporigin"
+	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/placement"
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/planner"
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/ratelimit"
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/retrieval"
@@ -520,6 +522,10 @@ func newDeps(cfg config.Config, model, engineModel llm.Model, cases store.Cases,
 	if err != nil {
 		return httpapi.Deps{}, err
 	}
+	infra, err := newInfra(context.Background(), os.Getenv, logger)
+	if err != nil {
+		return httpapi.Deps{}, err
+	}
 	var engineBlobs, verdictBlobs blob.Store
 	switch cfg.VerifierCacheStore {
 	case config.VerdictsFirestore:
@@ -529,21 +535,21 @@ func newDeps(cfg config.Config, model, engineModel llm.Model, cases store.Cases,
 				return httpapi.Deps{}, err
 			}
 		}
-		ver = verifier.NewCacheIn(ver, fs.Verdicts(), cfg.VerifierModel)
-		engineBlobs, verdictBlobs = fs.Blobs(store.EngineCollection), fs.Verdicts()
+		verdictBlobs = envelope.Wrap(fs.Verdicts(), infra.blobKey)
+		ver = verifier.NewCacheIn(ver, verdictBlobs, cfg.VerifierModel)
+		engineBlobs = envelope.Wrap(fs.Blobs(store.EngineCollection), infra.blobKey)
 		logger.Info("verifier verdicts and engine predictions cached in Firestore", "collections", []string{store.VerdictCollection, store.EngineCollection})
 	case config.VerdictsFile:
-		vc, err := verifier.NewCache(ver, cfg.VerifierCacheDir, cfg.VerifierModel)
-		if err != nil {
-			return httpapi.Deps{}, err
+		if err := os.MkdirAll(cfg.VerifierCacheDir, 0o755); err != nil {
+			return httpapi.Deps{}, fmt.Errorf("verifier: cache dir: %w", err)
 		}
-		ver = vc
-		verdictBlobs = verifier.DirBlobs{Dir: cfg.VerifierCacheDir}
+		verdictBlobs = envelope.Wrap(verifier.DirBlobs{Dir: cfg.VerifierCacheDir}, infra.blobKey)
+		ver = verifier.NewCacheIn(ver, verdictBlobs, cfg.VerifierModel)
 		dir := filepath.Join(filepath.Dir(filepath.Clean(cfg.VerifierCacheDir)), "engine-cache")
 		if err := os.MkdirAll(dir, 0o755); err != nil {
 			return httpapi.Deps{}, fmt.Errorf("engine cache dir: %w", err)
 		}
-		engineBlobs = blob.Dir{Dir: dir}
+		engineBlobs = envelope.Wrap(blob.Dir{Dir: dir}, infra.blobKey)
 		logger.Info("verifier verdicts and engine predictions cached", "store", config.CasesFile)
 	}
 	// Engine predictions are cached in the same store as verdicts (D54).
@@ -725,7 +731,7 @@ func newDeps(cfg config.Config, model, engineModel llm.Model, cases store.Cases,
 		RulingSearch:          generalIdx,
 		Planner:               planner.New(tmpls, predictor, ver, planOpts),
 		Rulings:               crossClient,
-		Cases:                 cases,
+		Cases:                 placement.Wrap(cases, infra.placement),
 		Templates:             tmpls,
 		Summary:               evalsummary.Load,
 		FastPathConf:          cfg.FastPathConfidence,
@@ -773,6 +779,9 @@ func newDeps(cfg config.Config, model, engineModel llm.Model, cases store.Cases,
 		PartsHTS:              partsSuggester,
 		ExportCFR177:          cfg.ExportCFR177,
 		Checks:                []httpapi.HealthCheck{httpapi.StoreCheck(cases), httpapi.ModelCheck("model", model, cfg.RouterModel)},
+	}
+	if infra.statusPage {
+		d.Status = &httpapi.StatusPage{Checks: d.Checks, SLOs: httpapi.DefaultSLOs}
 	}
 	// The agent's what_if uses the same dispatch and triage as a saved
 	// scenario (#319). It is built from d BEFORE d.Agent is set: the predictor

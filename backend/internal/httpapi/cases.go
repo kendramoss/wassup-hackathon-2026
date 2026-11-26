@@ -259,6 +259,9 @@ type Deps struct {
 	StreamPredict bool
 	// Checks run on GET /health?deep=1 (store write, model call).
 	Checks []HealthCheck
+	// Status, when set, serves GET /v1/status for a status page (#885,
+	// STATUS_PAGE=on).
+	Status *StatusPage
 	// Audit, when set, records the audit trail (#284) and serves GET
 	// /v1/audit and /v1/audit/verify. Nil: no event is recorded, the routes
 	// are not registered and no write is gated on the trail.

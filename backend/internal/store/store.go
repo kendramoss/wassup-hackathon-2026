@@ -95,6 +95,10 @@ type Case struct {
 	// supplied answers first re-ran a rules-only market's check (D815):
 	// kept so the original answer is never lost. Set once.
 	PredictionBeforeAnswers *domain.Prediction `json:"prediction_before_answers,omitempty"`
+	// DataRegion is the data region of the deployment that created the
+	// case (DATA_REGION, #873); empty when residency is off. A deployment
+	// with a region never reads or writes a case tagged with another one.
+	DataRegion string `json:"data_region,omitempty"`
 }
 
 // cloneSupplied detaches the supplied answers, so a read-time flag or a

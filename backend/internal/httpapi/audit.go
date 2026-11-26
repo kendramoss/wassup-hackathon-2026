@@ -126,6 +126,7 @@ var auditTable = map[string]auditRoute{
 	"GET /v1/review":                               {auditSingleOnly, audit.ReviewView},
 	"POST /v1/review/decision":                     {auditTwoPhase, audit.ReviewDecision},
 	"GET /health":                                  {auditNone, ""},
+	"GET /v1/status":                               {auditNone, ""},
 }
 
 type auditCtxKey struct{}
