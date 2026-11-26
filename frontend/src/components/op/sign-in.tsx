@@ -51,6 +51,11 @@ declare global {
   }
 }
 
+// The last session answer, kept for the life of the tab, so a page change
+// (technical to business view and back) draws the tile at once instead of
+// leaving a gap while /api/session answers again (#864).
+let known: Session | null = null;
+
 let gis: Promise<Gis | null> | null = null;
 function loadGis(): Promise<Gis | null> {
   gis ??= new Promise((resolve) => {
@@ -68,7 +73,7 @@ function loadGis(): Promise<Gis | null> {
 }
 
 export function SignIn({ look = "technical" }: { look?: Look } = {}) {
-  const [s, setS] = useState<Session | null>(null);
+  const [s, setS] = useState<Session | null>(known);
   const [expired, setExpired] = useState(false);
   const [error, setError] = useState(false);
   const [required, setRequired] = useState(false);
@@ -81,7 +86,11 @@ export function SignIn({ look = "technical" }: { look?: Look } = {}) {
   useEffect(() => {
     fetch("/api/session", { cache: "no-store" })
       .then((r) => r.json() as Promise<Session>)
-      .then(setS, () => setS({ client_id: null, email: null, exp: null }));
+      .catch(() => ({ client_id: null, email: null, exp: null }) as Session)
+      .then((x) => {
+        known = x;
+        setS(x);
+      });
   }, []);
 
   // The backend said the token is no longer good, or it ran out here: the
@@ -132,6 +141,9 @@ export function SignIn({ look = "technical" }: { look?: Look } = {}) {
     };
   }, [clientId, signedIn, expired]);
 
+  // Until the first answer, hold the tile's space so nothing left of it
+  // shifts when it appears (#864).
+  if (s === null) return <span aria-hidden="true" className={`invisible shrink-0 ${tile[look]}`} />;
   if (!clientId) return null;
 
   if (s?.email) return <Account email={s.email} name={s.name ?? null} picture={s.picture ?? null} look={look} />;
