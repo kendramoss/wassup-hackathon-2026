@@ -655,7 +655,7 @@ func newHedgedModel(ctx context.Context, cfg config.Config, logger *slog.Logger,
 // isHeldOut reports whether a split is a held-out test split: final (frozen
 // 14 Oct) or final2 (rulings dated after 25 Sep 2026, frozen 21 Nov, D150).
 // Both need -confirm-final and are logged with held_out true.
-func isHeldOut(split string) bool { return split == "final" || split == "final2" }
+func isHeldOut(split string) bool { return split == "final" || split == "final2" || split == "monthly" }
 
 // providerLiteLLM is accepted by the eval command only (D151): an
 // OpenAI-compatible LiteLLM gateway to Gemini, for development runs. The
