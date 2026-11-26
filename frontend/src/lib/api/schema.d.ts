@@ -1048,7 +1048,7 @@ export interface paths {
         put?: never;
         /**
          * USMCA selected origin-rule check (pilot goods, deterministic, no model call)
-         * @description Checks one selected USMCA product-specific origin rule (HTSUS General Note 11(o), Annex 4-B) for a good imported into the United States, from its HS code, an elected regional value content method and a bill of materials. Pilot coverage: 8202.31, 8207.13 and 9503.00 only; every other good is `not_supported`. Deterministic code (`backend/internal/usmca`), no model call, nothing stored. The answer is the selected-rule status only: `met`, `not_met`, `needs_information` or `not_supported`. It is NOT a certification of origin, NOT a determination that the good is originating, NOT a preferential tariff rate, duty saving or duty-free entitlement, and NOT for deciding a good's legal origin status; a `not_met` result concerns the rule as modeled, not a legal finding. It is separate from the non-preferential prediction, US Part 102 marking, Canadian SOR/94-23 marking and the RCEP check. Not evaluated, and each must be confirmed `not_applicable` in `profile`: the parts route (Art. 4.2(d) / GN 11(b)(iv)), de minimis, sets, accessories and packing, fungibles, intermediate materials, cost averaging, outside-party operations and special valuation; a provision marked `applies` returns `not_supported`. Amounts are exact decimal strings (JSON numbers are 400), parsed with arbitrary precision; the RVC percentage is compared exactly and the displayed value is rounded for humans only. Unknown is not zero: an omitted amount, HS code or originating claim is unknown and yields `needs_information` only when the decision depends on it, while `"0"` is a known zero. A zero denominator is reported as an undefined calculation, and a negative RVC is not clamped. `rvc_method` is never chosen for you. HS codes may be written with dots (`8202.31.00` is read as `82023100`); the engine works on plain digits. Originating claims, codes, values and profile confirmations are the caller's and are not verified. Cheap class (120 a minute); a malformed body, wrong destination or regime, more than 200 materials, a bad decimal or an unknown field is 400 `invalid_input`.
+         * @description Checks one selected USMCA product-specific origin rule (HTSUS General Note 11(o), Annex 4-B) for a good imported into the United States, from its HS code, an elected regional value content method and a bill of materials. Pilot coverage: 8202.31, 8207.13 and 9503.00 only; every other good is `not_supported`. With `USMCA_RULES_EXT=on` (default off, D930) the check also covers the rows generated from HTSUS Rev 23 GN 11(o) (alternatives with a product, process or end-use condition answer unknown; end-use rules and headings 8701 to 8708 stay `not_supported`), and it evaluates de minimis (GN 11(e)(i)), the parts route (GN 11(n)(i)) and the GN 11(p) deemed-originating goods when invoked; off, the answers are unchanged. Deterministic code (`backend/internal/usmca`), no model call, nothing stored. The answer is the selected-rule status only: `met`, `not_met`, `needs_information` or `not_supported`. It is NOT a certification of origin, NOT a determination that the good is originating, NOT a preferential tariff rate, duty saving or duty-free entitlement, and NOT for deciding a good's legal origin status; a `not_met` result concerns the rule as modeled, not a legal finding. It is separate from the non-preferential prediction, US Part 102 marking, Canadian SOR/94-23 marking and the RCEP check. Not evaluated, and each must be confirmed `not_applicable` in `profile`: the parts route (Art. 4.2(d) / GN 11(b)(iv)), de minimis, sets, accessories and packing, fungibles, intermediate materials, cost averaging, outside-party operations and special valuation; a provision marked `applies` returns `not_supported`. Amounts are exact decimal strings (JSON numbers are 400), parsed with arbitrary precision; the RVC percentage is compared exactly and the displayed value is rounded for humans only. Unknown is not zero: an omitted amount, HS code or originating claim is unknown and yields `needs_information` only when the decision depends on it, while `"0"` is a known zero. A zero denominator is reported as an undefined calculation, and a negative RVC is not clamped. `rvc_method` is never chosen for you. HS codes may be written with dots (`8202.31.00` is read as `82023100`); the engine works on plain digits. Originating claims, codes, values and profile confirmations are the caller's and are not verified. Cheap class (120 a minute); a malformed body, wrong destination or regime, more than 200 materials, a bad decimal or an unknown field is 400 `invalid_input`.
          */
         post: operations["checkUsmcaOriginRule"];
         delete?: never;
@@ -1961,6 +1961,13 @@ export interface components {
             net_cost?: components["schemas"]["UsmcaAmount"];
             /** @description Value of non-originating materials in the same currency and valuation basis, including materials of undetermined origin where the law requires. Omitted is unknown, not zero. */
             vnm?: components["schemas"]["UsmcaAmount"];
+            /** @description The good's total cost, a de minimis base (USMCA_RULES_EXT only). Omitted is unknown. */
+            total_cost?: components["schemas"]["UsmcaAmount"];
+            /**
+             * @description The de minimis base the caller elects (USMCA_RULES_EXT only); never defaulted.
+             * @enum {string}
+             */
+            de_minimis_basis?: "transaction_value" | "total_cost";
             materials?: {
                 id?: string;
                 /** @description Material HS code, 2 to 10 digits, dots accepted. Omitted is unknown. */
@@ -1970,6 +1977,8 @@ export interface components {
                  * @enum {string}
                  */
                 originating?: "originating" | "non_originating" | "unknown";
+                /** @description The material's value, used only by de minimis (USMCA_RULES_EXT only). Omitted is unknown. */
+                value?: components["schemas"]["UsmcaAmount"];
             }[];
             /** @description Explicit simple-goods confirmations. Nothing is assumed when omitted. */
             profile?: {
@@ -1986,6 +1995,15 @@ export interface components {
                 special_valuation?: components["schemas"]["UsmcaProvisionClaim"];
                 /** @description Reliance on the parts route (Art. 4.2(d) / GN 11(b)(iv)). */
                 parts_route?: components["schemas"]["UsmcaProvisionClaim"];
+                /**
+                 * @description Why the parts cannot shift, for the parts route (GN 11(n)(i)(B), USMCA_RULES_EXT only).
+                 * @enum {string}
+                 */
+                parts_route_basis?: "same_classification" | "unassembled";
+                /** @description The good is produced entirely in one or more USMCA countries (parts route, USMCA_RULES_EXT only). */
+                produced_entirely_in_usmca_confirmed?: boolean;
+                /** @description The good is imported from Mexico or Canada (GN 11(p) goods, USMCA_RULES_EXT only). */
+                imported_from_usmca_country_confirmed?: boolean;
             };
         };
         /** @enum {string} */
