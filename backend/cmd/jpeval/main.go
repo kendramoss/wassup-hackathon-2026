@@ -49,7 +49,7 @@ var (
 
 func main() {
 	if len(os.Args) < 2 {
-		fmt.Fprintln(os.Stderr, "usage: jpeval baseline|summary|index|bundle|candidate|candidate-summary|plan|diagnose|smoke|budget-init [flags]")
+		fmt.Fprintln(os.Stderr, "usage: jpeval baseline|summary|index|bundle|candidate|candidate-summary|plan|diagnose|smoke|budget-init|dev-negatives [flags]")
 		os.Exit(2)
 	}
 	var err error
@@ -74,6 +74,8 @@ func main() {
 		err = budgetInit(os.Args[2:])
 	case "smoke":
 		err = smoke(os.Args[2:])
+	case "dev-negatives":
+		err = devNegatives(os.Args[2:])
 	default:
 		err = fmt.Errorf("unknown command %q", os.Args[1])
 	}

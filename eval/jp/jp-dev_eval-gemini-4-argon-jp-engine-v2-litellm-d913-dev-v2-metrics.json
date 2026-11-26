@@ -1,0 +1,174 @@
+{
+ "run": "jp-dev_eval-gemini-4-argon-jp-engine-v2-litellm-d913-dev-v2",
+ "split": "dev_eval",
+ "expected_cases": 400,
+ "cases": 400,
+ "errors": 0,
+ "model_calls": 396,
+ "qualifies": 272,
+ "does_not_qualify": 14,
+ "undetermined": 114,
+ "criterion_match": {
+  "k": 269,
+  "n": 400,
+  "p": 0.6725,
+  "lo": 0.6251,
+  "hi": 0.7167
+ },
+ "criterion_in_cited_set": {
+  "k": 269,
+  "n": 400,
+  "p": 0.6725,
+  "lo": 0.6251,
+  "hi": 0.7167
+ },
+ "stated_country_match": {
+  "k": 59,
+  "n": 111,
+  "p": 0.5315,
+  "lo": 0.4392,
+  "hi": 0.6217
+ },
+ "stated_origin_match_including_eu": {
+  "k": 186,
+  "n": 292,
+  "p": 0.637,
+  "lo": 0.5804,
+  "hi": 0.69
+ },
+ "positive_recall": {
+  "k": 272,
+  "n": 400,
+  "p": 0.68,
+  "lo": 0.6328,
+  "hi": 0.7238
+ },
+ "synthetic_refusals": {
+  "k": 0,
+  "n": 0,
+  "p": 0,
+  "lo": 0,
+  "hi": 0
+ },
+ "criterion_match_by_agreement": {
+  "AJCEP": {
+   "k": 26,
+   "n": 56,
+   "p": 0.4643,
+   "lo": 0.3402,
+   "hi": 0.593
+  },
+  "CPTPP": {
+   "k": 64,
+   "n": 85,
+   "p": 0.7529,
+   "lo": 0.6517,
+   "hi": 0.8324
+  },
+  "GSP": {
+   "k": 0,
+   "n": 7,
+   "p": 0,
+   "lo": 0,
+   "hi": 0.3543
+  },
+  "JP-Australia EPA": {
+   "k": 0,
+   "n": 1,
+   "p": 0,
+   "lo": 0,
+   "hi": 0.7935
+  },
+  "JP-EU EPA": {
+   "k": 126,
+   "n": 181,
+   "p": 0.6961,
+   "lo": 0.6256,
+   "hi": 0.7585
+  },
+  "JP-India CEPA": {
+   "k": 1,
+   "n": 4,
+   "p": 0.25,
+   "lo": 0.0456,
+   "hi": 0.6994
+  },
+  "JP-Indonesia EPA": {
+   "k": 1,
+   "n": 4,
+   "p": 0.25,
+   "lo": 0.0456,
+   "hi": 0.6994
+  },
+  "JP-Malaysia EPA": {
+   "k": 1,
+   "n": 1,
+   "p": 1,
+   "lo": 0.2065,
+   "hi": 1
+  },
+  "JP-Mexico EPA": {
+   "k": 1,
+   "n": 1,
+   "p": 1,
+   "lo": 0.2065,
+   "hi": 1
+  },
+  "JP-Philippines EPA": {
+   "k": 0,
+   "n": 1,
+   "p": 0,
+   "lo": 0,
+   "hi": 0.7935
+  },
+  "JP-Thailand EPA": {
+   "k": 2,
+   "n": 3,
+   "p": 0.6667,
+   "lo": 0.2077,
+   "hi": 0.9385
+  },
+  "JP-UK CEPA": {
+   "k": 1,
+   "n": 1,
+   "p": 1,
+   "lo": 0.2065,
+   "hi": 1
+  },
+  "JP-US TA": {
+   "k": 19,
+   "n": 22,
+   "p": 0.8636,
+   "lo": 0.6666,
+   "hi": 0.9525
+  },
+  "JP-Vietnam EPA": {
+   "k": 0,
+   "n": 1,
+   "p": 0,
+   "lo": 0,
+   "hi": 0.7935
+  },
+  "Non-preferential": {
+   "k": 0,
+   "n": 1,
+   "p": 0,
+   "lo": 0,
+   "hi": 0.7935
+  },
+  "RCEP": {
+   "k": 27,
+   "n": 31,
+   "p": 0.871,
+   "lo": 0.7115,
+   "hi": 0.9487
+  }
+ },
+ "cost_usd": 5.6217,
+ "budget_charged_usd": 5.6217,
+ "cost_per_case_usd": 0.0141,
+ "cost_per_model_call_usd": 0.0142,
+ "model_call_cases_latency_p50_ms": 8123,
+ "model_call_cases_latency_p95_ms": 13374,
+ "labels_sha256": "0ff297ebbc9a44208e34c21f3a87161bd48958b0f0132bb13dd33c9757e7558a"
+}

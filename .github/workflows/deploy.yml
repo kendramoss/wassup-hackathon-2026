@@ -74,9 +74,39 @@ jobs:
           --timeout=900
           --min-instances 0
           --max-instances 3
-      # A --no-traffic preview deploy pins traffic to one revision; make sure
-      # this deploy goes live anyway.
-      - run: gcloud run services update-traffic backend --project "$PROJECT" --region "$REGION" --to-latest --quiet
+          --no-traffic --tag candidate
+      # The new revision serves no traffic yet (#845). It is smoked against real
+      # Vertex on its tag URL and only then takes traffic; if the smoke fails,
+      # production stays on the previous revision and the frontend is not deployed.
+      - id: candidate
+        run: |
+          rev=$(gcloud run services describe backend --project "$PROJECT" --region "$REGION"             --format=json | jq -r '.status.traffic[] | select(.tag == "candidate") | .revisionName')
+          url=$(gcloud run services describe backend --project "$PROJECT" --region "$REGION"             --format=json | jq -r '.status.traffic[] | select(.tag == "candidate") | .url')
+          [ -n "$rev" ] && [ -n "$url" ] || { echo "::error::no candidate tag after deploy"; exit 1; }
+          echo "revision=$rev" >> "$GITHUB_OUTPUT"
+          echo "url=$url" >> "$GITHUB_OUTPUT"
+          echo "candidate $rev at $url"
+      # Needs roles/run.invoker on backend for the deployer. Cloud Run accepts
+      # the service URL as the audience on a tag URL.
+      - id: idtoken
+        uses: google-github-actions/auth@v3
+        with:
+          workload_identity_provider: ${{ env.WIF_PROVIDER }}
+          service_account: ${{ env.DEPLOYER }}
+          token_format: id_token
+          id_token_audience: ${{ env.BACKEND_URL }}
+          id_token_include_email: true
+          create_credentials_file: false
+      - name: Smoke the candidate against real Vertex
+        env:
+          CANDIDATE_URL: ${{ steps.candidate.outputs.url }}
+          ID_TOKEN: ${{ steps.idtoken.outputs.id_token }}
+        run: bash scripts/backend-candidate-smoke.sh "$CANDIDATE_URL" "$ID_TOKEN"
+      - name: Shift traffic to the candidate
+        run: |
+          gcloud run services update-traffic backend --project "$PROJECT" --region "$REGION" --to-latest --quiet
+          gcloud run services update-traffic backend --project "$PROJECT" --region "$REGION" --remove-tags candidate --quiet
+          echo "Promoted ${{ steps.candidate.outputs.revision }} to 100%." >> "$GITHUB_STEP_SUMMARY"
 
   frontend:
     needs: [ci, changes, backend]

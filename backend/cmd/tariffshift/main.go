@@ -31,8 +31,8 @@ import (
 
 func main() {
 	if len(os.Args) < 2 {
-		fmt.Fprintln(os.Stderr, "usage: tariffshift rules|rules-ca|extract|eval|parts-gold|parts-suggest|parts-eval|parts-example|plans-eval|plans-example [flags]")
-		fmt.Fprintln(os.Stderr, "usage: tariffshift rules|rules-ca|extract|eval|parts-gold|parts-suggest|parts-eval|parts-example|plans-eval|plans102-eval|ground102-eval|p102err-single|p102err-moves|p102ck-eval|p102bar [flags]")
+		fmt.Fprintln(os.Stderr, "usage: tariffshift rules|rules-ca|rules-mx|extract|eval|parts-gold|parts-suggest|parts-eval|parts-example|plans-eval|plans-example [flags]")
+		fmt.Fprintln(os.Stderr, "usage: tariffshift rules|rules-ca|rules-mx|extract|eval|parts-gold|parts-suggest|parts-eval|parts-example|plans-eval|plans102-eval|ground102-eval|p102err-single|p102err-moves|p102ck-eval|p102bar [flags]")
 		os.Exit(2)
 	}
 	var err error
@@ -41,6 +41,8 @@ func main() {
 		err = cmdRules(os.Args[2:])
 	case "rules-ca":
 		err = cmdRulesCA(os.Args[2:])
+	case "rules-mx":
+		err = cmdRulesMX(os.Args[2:])
 	case "extract":
 		err = cmdExtract(os.Args[2:])
 	case "eval":
