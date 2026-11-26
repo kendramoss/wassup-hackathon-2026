@@ -102,6 +102,8 @@ reproduce: ## recompute every published number from committed files: no model ca
 	python3 -I -B eval/accuracy/measure_904.py . --check
 	python3 -I -B eval/accuracy/measure_907.py . --check
 	python3 -I -B eval/accuracy/measure_food_independent.py . --self-test
+	cd $(GO_DIR) && go run ./cmd/marketeval canada -check
+	cd $(GO_DIR) && go run ./cmd/marketeval euuk -check
 	python3 -I -B eval/supersession/impact.py . --check
 	python3 -I -B eval/charts/build_evaluation.py . --check
 	python3 -I -B eval/charts/build_trust_data.py . --check
@@ -125,6 +127,7 @@ reproduce: ## recompute every published number from committed files: no model ca
 	cd $(GO_DIR) && go run ./cmd/jpeval index -check
 	cd $(GO_DIR) && go run ./cmd/jpeval summary -check
 	cd $(GO_DIR) && go run ./cmd/jpeval candidate-summary -split dev_eval -tag d712-dev-complete -check
+	cd $(GO_DIR) && go run ./cmd/jpeval candidate-summary -split dev_eval -tag d909-dev -check
 	python3 -I -B eval/jp/labels.py . --held-out --confirm-phase2 --check
 	cd $(GO_DIR) && go run ./cmd/jpeval candidate-summary -split held_out -check
 	cd $(GO_DIR) && go run ./cmd/jpeval candidate-summary -split synthetic -check
