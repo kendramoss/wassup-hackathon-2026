@@ -723,6 +723,388 @@ paths:
         "404": { $ref: "#/components/responses/Error" }
         "409": { $ref: "#/components/responses/Error" }
         "410": { $ref: "#/components/responses/Error" }
+  /v1/queue:
+    get:
+      operationId: listReviewQueue
+      summary: The human review queue of the cases the caller can see
+      description: >-
+        BROKER_WORKFLOW=on only. `state` is open (default, not decided), queued, assigned, in_review, decided
+        or all; `assignee=me` keeps the caller's own. Overdue items first, then by due time. `suggested`
+        lists cases the model routed to review that are not queued yet (at most 50). Review targets by
+        priority: urgent 4 h, high 24 h, normal 72 h, low 7 days.
+      parameters:
+        - { name: state, in: query, schema: { type: string, enum: [open, all, queued, assigned, in_review, decided] } }
+        - { name: assignee, in: query, schema: { type: string, enum: [me] } }
+      responses:
+        "200":
+          description: The queue
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [items, overdue, suggested, review_targets_h]
+                properties:
+                  items: { type: array, items: { $ref: "#/components/schemas/QueueView" } }
+                  overdue: { type: integer }
+                  suggested: { type: array, items: { $ref: "#/components/schemas/QueueView" } }
+                  review_targets_h: { type: object, additionalProperties: { type: integer } }
+        "400": { $ref: "#/components/responses/Error" }
+        "401": { $ref: "#/components/responses/Error" }
+        "403": { $ref: "#/components/responses/Error" }
+        "404": { $ref: "#/components/responses/Error" }
+        "429": { $ref: "#/components/responses/TooManyRequests" }
+  /v1/cases/{id}/queue:
+    put:
+      operationId: enqueueForReview
+      summary: Put the case in the human review queue, or change its priority
+      description: >-
+        BROKER_WORKFLOW=on only. A waiting or started review keeps its place and its assignee; a decided
+        one is queued again. `reason` is required. Refused for a workspace viewer and on a pinned demo.
+      parameters: [{ $ref: "#/components/parameters/CaseID" }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: false
+              required: [reason]
+              properties:
+                priority: { type: string, enum: [urgent, high, normal, low], default: normal }
+                reason: { type: string, maxLength: 2000 }
+      responses:
+        "200":
+          description: The queue item
+          headers:
+            X-Audit-Incomplete: { $ref: "#/components/headers/AuditIncomplete" }
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/QueueView" }
+        "400": { $ref: "#/components/responses/Error" }
+        "401": { $ref: "#/components/responses/Error" }
+        "403": { $ref: "#/components/responses/Error" }
+        "404": { $ref: "#/components/responses/Error" }
+        "429": { $ref: "#/components/responses/TooManyRequests" }
+  /v1/cases/{id}/queue/transition:
+    post:
+      operationId: moveReview
+      summary: Assign, start, decide or release the case's review
+      description: >-
+        BROKER_WORKFLOW=on only. `assign` needs `assignee` (an email; in a workspace only an admin assigns
+        someone else). `start` is for the assignee, or takes an unassigned review. `decide` is for the
+        assignee of a started review and needs `outcome` and `reason`; `on_time` records whether it beat
+        the due time. `release` puts it back in the queue. A move the state does not allow is 409.
+      parameters: [{ $ref: "#/components/parameters/CaseID" }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: false
+              required: [action]
+              properties:
+                action: { type: string, enum: [assign, start, decide, release] }
+                assignee: { type: string }
+                outcome: { type: string, enum: [approve, reject, changes] }
+                reason: { type: string, maxLength: 2000 }
+      responses:
+        "200":
+          description: The queue item
+          headers:
+            X-Audit-Incomplete: { $ref: "#/components/headers/AuditIncomplete" }
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/QueueView" }
+        "400": { $ref: "#/components/responses/Error" }
+        "401": { $ref: "#/components/responses/Error" }
+        "403": { $ref: "#/components/responses/Error" }
+        "404": { $ref: "#/components/responses/Error" }
+        "429": { $ref: "#/components/responses/TooManyRequests" }
+        "409": { $ref: "#/components/responses/Error" }
+  /v1/cases/{id}/collab:
+    get:
+      operationId: getCaseCollaboration
+      summary: The case's discussion threads, sign-offs and per-case roles
+      description: >-
+        BROKER_WORKFLOW=on only. `sign_off` counts each person's latest decision; a broker's approval
+        (role broker, or an approve or file_request answer on a review link) is what a filing needs.
+      parameters: [{ $ref: "#/components/parameters/CaseID" }]
+      responses:
+        "200":
+          description: The collaboration state
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Collaboration" }
+        "400": { $ref: "#/components/responses/Error" }
+        "401": { $ref: "#/components/responses/Error" }
+        "403": { $ref: "#/components/responses/Error" }
+        "404": { $ref: "#/components/responses/Error" }
+        "429": { $ref: "#/components/responses/TooManyRequests" }
+  /v1/cases/{id}/comments:
+    post:
+      operationId: commentOnCase
+      summary: Add a comment, or a reply with parent_id
+      description: >-
+        BROKER_WORKFLOW=on only. Anyone who can see the case may comment, a workspace viewer included.
+        Plain text, at most 2000 characters; a reply to a reply joins its thread. At most 500 comments.
+      parameters: [{ $ref: "#/components/parameters/CaseID" }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: false
+              required: [body]
+              properties:
+                body: { type: string, maxLength: 2000 }
+                parent_id: { type: string }
+      responses:
+        "201":
+          description: The collaboration state after the comment
+          headers:
+            X-Audit-Incomplete: { $ref: "#/components/headers/AuditIncomplete" }
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Collaboration" }
+        "400": { $ref: "#/components/responses/Error" }
+        "401": { $ref: "#/components/responses/Error" }
+        "403": { $ref: "#/components/responses/Error" }
+        "404": { $ref: "#/components/responses/Error" }
+        "429": { $ref: "#/components/responses/TooManyRequests" }
+        "409": { $ref: "#/components/responses/Error" }
+  /v1/cases/{id}/approvals:
+    post:
+      operationId: signOffCase
+      summary: Approve the ruling request, ask for changes, or reject it
+      description: >-
+        BROKER_WORKFLOW=on only. `reason` is required unless the decision is approve. The role recorded is
+        the person's case role (broker or reviewer from collaborators), else their workspace role, else
+        owner. Refused for a workspace viewer.
+      parameters: [{ $ref: "#/components/parameters/CaseID" }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: false
+              required: [decision]
+              properties:
+                decision: { type: string, enum: [approve, changes, reject] }
+                reason: { type: string, maxLength: 2000 }
+      responses:
+        "201":
+          description: The collaboration state after the sign-off
+          headers:
+            X-Audit-Incomplete: { $ref: "#/components/headers/AuditIncomplete" }
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Collaboration" }
+        "400": { $ref: "#/components/responses/Error" }
+        "401": { $ref: "#/components/responses/Error" }
+        "403": { $ref: "#/components/responses/Error" }
+        "404": { $ref: "#/components/responses/Error" }
+        "429": { $ref: "#/components/responses/TooManyRequests" }
+        "409": { $ref: "#/components/responses/Error" }
+  /v1/cases/{id}/collaborators:
+    put:
+      operationId: setCaseCollaborator
+      summary: Give a person a broker or reviewer role on this case, or remove it
+      description: >-
+        BROKER_WORKFLOW=on only. An empty `role` removes the person. A role says how their comments and
+        sign-offs count; it never lets anyone see a case they could not see before. At most 20.
+      parameters: [{ $ref: "#/components/parameters/CaseID" }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: false
+              required: [email, role]
+              properties:
+                email: { type: string }
+                role: { type: string, enum: [broker, reviewer, ""] }
+      responses:
+        "200":
+          description: The collaboration state
+          headers:
+            X-Audit-Incomplete: { $ref: "#/components/headers/AuditIncomplete" }
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Collaboration" }
+        "400": { $ref: "#/components/responses/Error" }
+        "401": { $ref: "#/components/responses/Error" }
+        "403": { $ref: "#/components/responses/Error" }
+        "404": { $ref: "#/components/responses/Error" }
+        "429": { $ref: "#/components/responses/TooManyRequests" }
+        "409": { $ref: "#/components/responses/Error" }
+  /v1/review/comments:
+    get:
+      operationId: getBrokerReviewComments
+      summary: The case's discussion as the broker holding a review link sees it
+      description: BROKER_WORKFLOW=on only. Token in `X-Review-Token`. Authors are shown by role only. Errors as getBrokerReview.
+      security: [{ ReviewToken: [] }]
+      responses:
+        "429": { $ref: "#/components/responses/TooManyRequests" }
+        "200":
+          description: The threads
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [threads]
+                properties:
+                  threads: { type: array, items: { $ref: "#/components/schemas/CommentThread" } }
+        "404": { $ref: "#/components/responses/Error" }
+        "410": { $ref: "#/components/responses/Error" }
+    post:
+      operationId: postBrokerReviewComment
+      summary: The broker holding a review link comments on the case
+      description: BROKER_WORKFLOW=on only. Token in `X-Review-Token`. Plain text, at most 2000 characters. Errors as decideBrokerReview.
+      security: [{ ReviewToken: [] }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: false
+              required: [body]
+              properties:
+                body: { type: string, maxLength: 2000 }
+                parent_id: { type: string }
+      responses:
+        "429": { $ref: "#/components/responses/TooManyRequests" }
+        "201":
+          description: The threads after the comment
+          headers:
+            X-Audit-Incomplete: { $ref: "#/components/headers/AuditIncomplete" }
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [threads]
+                properties:
+                  threads: { type: array, items: { $ref: "#/components/schemas/CommentThread" } }
+        "400": { $ref: "#/components/responses/Error" }
+        "404": { $ref: "#/components/responses/Error" }
+        "409": { $ref: "#/components/responses/Error" }
+        "410": { $ref: "#/components/responses/Error" }
+  /v1/cases/{id}/filing:
+    post:
+      operationId: prepareRulingFiling
+      summary: Prepare the CBP eRulings-ready filing package
+      description: >-
+        BROKER_WORKFLOW=on only. Builds the 19 CFR 177.2 letter (as exportCase with format cfr177, or the
+        broker's edited `letter`), fills it from `submitter`, checks each required element (177.2(b)(1),
+        (b)(2)(ii), (b)(3)-(4), (b)(6), (b)(7), the declaration and CBP's origin checklist) and stores the
+        package with its SHA-256. Nothing is sent to CBP. Can be prepared again until it is submitted
+        (409 after). Refused for a workspace viewer and on a pinned demo.
+      parameters: [{ $ref: "#/components/parameters/CaseID" }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: false
+              properties:
+                submitter: { $ref: "#/components/schemas/FilingSubmitter" }
+                letter: { type: string, description: "The broker's edited letter (Markdown, under 64 KB). Omit to generate it." }
+                attachments:
+                  type: array
+                  maxItems: 20
+                  items:
+                    type: object
+                    required: [name]
+                    properties:
+                      name: { type: string }
+                      description: { type: string }
+                      sha256: { type: string, pattern: "^[0-9a-fA-F]{64}$" }
+                      bytes: { type: integer, minimum: 0 }
+                plan_id: { type: string }
+                plan_index: { type: integer }
+                move_key: { type: string }
+                target: { type: string }
+      responses:
+        "200":
+          description: The package's state
+          headers:
+            X-Audit-Incomplete: { $ref: "#/components/headers/AuditIncomplete" }
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/FilingView" }
+        "400": { $ref: "#/components/responses/Error" }
+        "401": { $ref: "#/components/responses/Error" }
+        "403": { $ref: "#/components/responses/Error" }
+        "404": { $ref: "#/components/responses/Error" }
+        "429": { $ref: "#/components/responses/TooManyRequests" }
+        "409": { $ref: "#/components/responses/Error" }
+    get:
+      operationId: getRulingFiling
+      summary: The filing package's state, or the package as JSON, zip or PDF
+      description: >-
+        BROKER_WORKFLOW=on only. Without `format`, the state (`ready_to_file` needs every required element
+        and a broker's approval; `blocking` says what is missing). `format=json` is the package;
+        `zip` holds package.json, letter.pdf, letter.md, exhibit-a-materials.csv and exhibit-b-steps.txt
+        (reproducible: same package, same bytes); `pdf` is the letter. A download is recorded as
+        `filing.download`.
+      parameters:
+        - { $ref: "#/components/parameters/CaseID" }
+        - { name: format, in: query, schema: { type: string, enum: [json, zip, pdf] } }
+      responses:
+        "200":
+          description: The state or the package
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/FilingView" }
+            application/zip:
+              schema: { type: string, format: binary }
+            application/pdf:
+              schema: { type: string, format: binary }
+        "400": { $ref: "#/components/responses/Error" }
+        "401": { $ref: "#/components/responses/Error" }
+        "403": { $ref: "#/components/responses/Error" }
+        "404": { $ref: "#/components/responses/Error" }
+        "429": { $ref: "#/components/responses/TooManyRequests" }
+  /v1/cases/{id}/filing/status:
+    post:
+      operationId: setRulingFilingStatus
+      summary: Record what happened to the request after it left
+      description: >-
+        BROKER_WORKFLOW=on only. prepared → submitted (with the eRulings `reference`, and only when
+        `ready_to_file`) → acknowledged → ruling_issued (with the ruling number as `reference`);
+        withdrawn from any status before a ruling. Any other move is 409.
+      parameters: [{ $ref: "#/components/parameters/CaseID" }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: false
+              required: [status]
+              properties:
+                status: { type: string, enum: [submitted, acknowledged, ruling_issued, withdrawn] }
+                reference: { type: string, maxLength: 64 }
+                note: { type: string, maxLength: 2000 }
+      responses:
+        "200":
+          description: The package's state
+          headers:
+            X-Audit-Incomplete: { $ref: "#/components/headers/AuditIncomplete" }
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/FilingView" }
+        "400": { $ref: "#/components/responses/Error" }
+        "401": { $ref: "#/components/responses/Error" }
+        "403": { $ref: "#/components/responses/Error" }
+        "404": { $ref: "#/components/responses/Error" }
+        "429": { $ref: "#/components/responses/TooManyRequests" }
+        "409": { $ref: "#/components/responses/Error" }
   /v1/products/import:
     post:
       operationId: importProduct
@@ -2454,6 +2836,153 @@ components:
         application/json:
           schema: { $ref: "#/components/schemas/Error" }
   schemas:
+    QueueView:
+      type: object
+      required: [case_id, item, overdue, due_in_s]
+      properties:
+        case_id: { type: string }
+        product: { type: string }
+        route: { type: string }
+        overdue: { type: boolean }
+        due_in_s: { type: integer, description: "Seconds until due; negative when overdue; 0 once decided." }
+        item:
+          type: object
+          nullable: true
+          properties:
+            state: { type: string, enum: [queued, assigned, in_review, decided] }
+            priority: { type: string, enum: [urgent, high, normal, low] }
+            reason: { type: string }
+            queued_by: { type: string }
+            queued_at: { type: string, format: date-time }
+            due_at: { type: string, format: date-time }
+            assignee: { type: string }
+            assigned_at: { type: string, format: date-time }
+            started_at: { type: string, format: date-time }
+            decision:
+              type: object
+              properties:
+                outcome: { type: string, enum: [approve, reject, changes] }
+                reason: { type: string }
+                by: { type: string }
+                at: { type: string, format: date-time }
+                on_time: { type: boolean }
+            log:
+              type: array
+              items:
+                type: object
+                properties:
+                  action: { type: string }
+                  by: { type: string }
+                  at: { type: string, format: date-time }
+                  detail: { type: string }
+    Comment:
+      type: object
+      required: [id, author, role, body, at]
+      properties:
+        id: { type: string }
+        parent_id: { type: string }
+        author: { type: string }
+        role: { type: string }
+        body: { type: string, description: Plain text; render as text. }
+        at: { type: string, format: date-time }
+    CommentThread:
+      allOf:
+        - { $ref: "#/components/schemas/Comment" }
+        - type: object
+          required: [replies]
+          properties:
+            replies: { type: array, items: { $ref: "#/components/schemas/Comment" } }
+    Approval:
+      type: object
+      required: [decision, by, role, at]
+      properties:
+        decision: { type: string, enum: [approve, reject, changes] }
+        reason: { type: string }
+        by: { type: string }
+        role: { type: string }
+        at: { type: string, format: date-time }
+    SignOff:
+      type: object
+      required: [state, broker_approved, approvers, blocking]
+      properties:
+        state: { type: string, enum: [none, approved, changes_requested, rejected] }
+        broker_approved: { type: boolean }
+        approvers: { type: array, items: { type: string } }
+        blocking: { type: array, items: { type: string } }
+    Collaboration:
+      type: object
+      required: [collaborators, threads, approvals, sign_off]
+      properties:
+        collaborators:
+          type: array
+          items:
+            type: object
+            properties:
+              email: { type: string }
+              role: { type: string, enum: [broker, reviewer] }
+              added_by: { type: string }
+              added_at: { type: string, format: date-time }
+        threads: { type: array, items: { $ref: "#/components/schemas/CommentThread" } }
+        approvals: { type: array, items: { $ref: "#/components/schemas/Approval" } }
+        sign_off: { $ref: "#/components/schemas/SignOff" }
+    FilingSubmitter:
+      type: object
+      additionalProperties: false
+      description: What the case does not know. Each answer fills its placeholder in the letter; what is left stays [FILL IN …].
+      properties:
+        requester_name: { type: string }
+        requester_address: { type: string }
+        requester_email: { type: string }
+        requester_phone: { type: string }
+        interest: { type: string, enum: [importer, exporter, manufacturer, agent, other] }
+        importer_of_record: { type: string }
+        port_of_entry: { type: string, description: "Blank fills \"Not yet known\" (the rule asks for it only if known)." }
+        no_prior_consideration: { type: boolean, description: Confirms the 177.2(b)(2)(ii) statement. }
+        confidential: { type: string, description: "\"none\", or the information to withhold under 177.2(b)(7)." }
+        signer_name: { type: string }
+        signer_title: { type: string }
+        manufacturers: { type: object, additionalProperties: { type: string }, description: "Plant name in the case → legal name, address and MID code." }
+        country_of_exportation: { type: string }
+        first_shipment: { type: string }
+        product_model: { type: string }
+        product_description: { type: string }
+        hts_reference: { type: string }
+        marking: { type: string }
+        legal_basis: { type: string }
+        prior_ruling_note: { type: string }
+        prior_advice: { type: string }
+        series: { type: string, enum: [is, is not] }
+        sample: { type: string }
+    FilingView:
+      type: object
+      required: [ready_to_file, sign_off, next_statuses, blocking]
+      properties:
+        status: { type: string, enum: [prepared, submitted, acknowledged, ruling_issued, withdrawn] }
+        prepared_at: { type: string, format: date-time }
+        prepared_by: { type: string }
+        submitter: { $ref: "#/components/schemas/FilingSubmitter" }
+        letter: { type: string }
+        elements:
+          type: array
+          items:
+            type: object
+            properties:
+              key: { type: string }
+              citation: { type: string }
+              label: { type: string }
+              status: { type: string, enum: [present, missing] }
+              detail: { type: string }
+              required: { type: boolean }
+        ready: { type: boolean, description: Every required element is present. }
+        attachments: { type: array, items: { type: object } }
+        package_sha256: { type: string }
+        cbp_reference: { type: string }
+        ruling_number: { type: string }
+        history: { type: array, items: { type: object } }
+        ready_to_file: { type: boolean }
+        sign_off: { $ref: "#/components/schemas/SignOff" }
+        next_statuses: { type: array, items: { type: string } }
+        blocking: { type: array, items: { type: string } }
     UsmcaAmount:
       type: string
       pattern: '^(0|[1-9][0-9]*)(\.[0-9]+)?$'
