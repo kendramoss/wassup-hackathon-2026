@@ -56,7 +56,7 @@ func budgetInit(args []string) error {
 	rates := llmbudget.Rates{InputPerMTok: *rin, OutputPerMTok: *rout, Source: *rsrc}
 	splits := strings.Split(*splitList, ",")
 	for _, sp := range splits {
-		if sp != "held_out" && sp != "synthetic" && sp != "dev_eval" && sp != "dev_neg" && !isFresh(sp) {
+		if sp != "held_out" && sp != "synthetic" && sp != "dev_eval" && sp != "dev_neg" && !isFresh(sp) && !isAnswered(sp) {
 			return fmt.Errorf("budget-init: unknown split %q", sp)
 		}
 	}

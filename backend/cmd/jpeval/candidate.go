@@ -246,7 +246,7 @@ func candidateName(split, tag, id string) (string, error) {
 			return "", errors.New("-run-id needs lowercase letters, digits and inner hyphens, at most 40 characters")
 		}
 		return name + "-" + id, nil
-	case "dev_eval", "dev_neg", "fresh_1126", "fresh_1126_notwin":
+	case "dev_eval", "dev_neg", "fresh_1126", "fresh_1126_notwin", "dev_eval_answered", "dev_neg_answered", "fresh_1126_answered":
 		if id != "" {
 			return "", errors.New("development runs are named with -tag")
 		}
@@ -318,7 +318,8 @@ var frozenPaths = []string{
 	"backend/internal/rcep", "backend/internal/domain", "backend/internal/engine", "backend/internal/retrieval",
 	"backend/internal/llm", "backend/internal/llmbudget", "backend/internal/logsafe", "backend/internal/evalkit",
 	"backend/internal/corpus", "backend/internal/blob", "backend/internal/tariffshift", "backend/internal/planner/opcost",
-	"backend/go.mod", "backend/go.sum", "eval/jp/labels.py", "eval/jp/synthetic-negatives.jsonl",
+	"backend/internal/clarify", "backend/internal/duty", "backend/internal/cross", "backend/internal/verifier",
+	"backend/internal/nearmiss", "backend/internal/planner", "backend/internal/familycheck", "backend/go.mod", "backend/go.sum", "eval/jp/labels.py", "eval/jp/synthetic-negatives.jsonl",
 	"data/jp/rulings.jsonl", "data/jp/translations-en.jsonl", "data/jp/splits.json",
 	"data/jp/labels-dev.jsonl", "data/jp/labels-heldout.jsonl",
 }
@@ -352,6 +353,9 @@ func codeDirty() bool {
 }
 
 func loadCandidate(split string) ([]candidateInput, *jpcorpus.Pool, string, error) {
+	if isAnswered(split) {
+		return answeredCases(split)
+	}
 	c, err := jpcorpus.Load(dataDir)
 	if err != nil {
 		return nil, nil, "", err
