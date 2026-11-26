@@ -51,8 +51,9 @@ test("the picker carries a short summary of what each market offers today", asyn
   assert.match(t, /Canada: rules check/);
   assert.match(t, /EU, UK: rules check, listed goods/);
   assert.match(t, /South Korea, Australia: RCEP check/);
+  assert.match(t, /Mexico: rules check/);
   assert.doesNotMatch(t, /Japan:/, "Japan's line shows only once the API lists Japan");
   assert.doesNotMatch(t, /not yet|soon/);
-  assert.equal(copy.market.summary.length, 5);
+  assert.equal(copy.market.summary.length, 6);
   for (const line of copy.market.summary) assert.ok(line.length <= 40, line);
 });

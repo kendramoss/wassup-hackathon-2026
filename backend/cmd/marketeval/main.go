@@ -26,7 +26,7 @@ const evalDir = "../eval"
 
 func main() {
 	if len(os.Args) < 2 {
-		fmt.Fprintln(os.Stderr, "usage: marketeval canada|euuk [-check]")
+		fmt.Fprintln(os.Stderr, "usage: marketeval canada|euuk|mexico [-check]")
 		os.Exit(2)
 	}
 	var err error
@@ -35,6 +35,8 @@ func main() {
 		err = cmdCanada(os.Args[2:])
 	case "euuk":
 		err = cmdEUUK(os.Args[2:])
+	case "mexico":
+		err = cmdMexico(os.Args[2:])
 	default:
 		err = fmt.Errorf("unknown command %q", os.Args[1])
 	}
@@ -277,4 +279,73 @@ func cmdEUUK(args []string) error {
 		"cases":  outs,
 	}
 	return writeOrCheck(filepath.Join(evalDir, "markets", "eu-uk-cases.json"), summary, *check, "euuk")
+}
+
+type mexicoOut struct {
+	Ruling string `json:"ruling"`
+	Split  string `json:"split"`
+	Gold   string `json:"gold"`
+	Status string `json:"status"`
+	Origin string `json:"origin,omitempty"`
+	Rule   string `json:"rule,omitempty"`
+}
+
+// cmdMexico applies Mexico's non-preferential table (D914) to the same CBP
+// Part 102 inputs as cmdCanada.
+func cmdMexico(args []string) error {
+	fs := flag.NewFlagSet("mexico", flag.ExitOnError)
+	check := fs.Bool("check", false, "fail if the committed summary differs")
+	_ = fs.Parse(args)
+	mx, err := tariffshift.MexicoRules()
+	if err != nil {
+		return err
+	}
+	var cases []mexicoOut
+	t := &tally{}
+	statuses := map[string]int{}
+	for _, split := range []string{"dev", "final"} {
+		ins, err := readJSONL[inputRow](filepath.Join(evalDir, "tariffshift", "inputs-"+split+"-full_text.jsonl"))
+		if err != nil {
+			return err
+		}
+		golds, err := readJSONL[goldRow](filepath.Join(evalDir, "tariffshift", "results-"+split+"-full_text.jsonl"))
+		if err != nil {
+			return err
+		}
+		gold := map[string]string{}
+		for _, g := range golds {
+			gold[g.Ruling] = g.Gold
+		}
+		for _, in := range ins {
+			r := mx.Evaluate(in.Input)
+			c := mexicoOut{Ruling: in.Ruling, Split: split, Gold: gold[in.Ruling], Status: r.Status, Origin: r.Origin}
+			if r.Rule != nil {
+				c.Rule = r.Rule.ID
+			}
+			cases = append(cases, c)
+			statuses[r.Status]++
+			t.N++
+			switch {
+			case decided(r) && strings.EqualFold(r.Origin, c.Gold):
+				t.Decided++
+				t.Agree++
+			case decided(r):
+				t.Decided++
+				t.Disagree++
+			case r.Status == "out_of_scope":
+				t.OutOfScope++
+			default:
+				t.Undecided++
+			}
+		}
+	}
+	sort.Slice(cases, func(i, j int) bool { return cases[i].Ruling < cases[j].Ruling })
+	fmt.Printf("mexico %+v\nstatuses %v\n", *t, statuses)
+	summary := map[string]any{
+		"note":     "Mexico's non-preferential origin table (Acuerdo DOF 30-08-1994, Anexo I Apéndice, D914) applied to the inputs read from CBP Part 102 rulings (eval/tariffshift/inputs-*-full_text.jsonl), as D911 did for Canada. Gold is CBP's holding under 19 CFR 102; the Mexican text is a different law, so this tests the rule table on real facts, not Mexican practice. No model call. Recompute: cd backend && go run ./cmd/marketeval mexico -check",
+		"mexico":   t,
+		"statuses": statuses,
+		"cases":    cases,
+	}
+	return writeOrCheck(filepath.Join(evalDir, "markets", "mexico-cbp-part102.json"), summary, *check, "mexico")
 }

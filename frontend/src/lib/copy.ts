@@ -540,7 +540,7 @@ export const copy = {
     startUS: "Start a U.S. case →",
     // What each market offers today, beside the picker (#733). Japan's line
     // follows the API's supported flag; it promises no accuracy.
-    summary: ["U.S.: live", "Canada: rules check", "EU, UK: rules check, listed goods", "South Korea, Australia: RCEP check", "Japan: trade preference"],
+    summary: ["U.S.: live", "Canada: rules check", "EU, UK: rules check, listed goods", "South Korea, Australia: RCEP check", "Mexico: rules check", "Japan: trade preference"],
     // A case whose text names Northern Ireland (D767).
     northernIreland: "Northern Ireland: EU or UK rules can apply. Pick the market for a new case.",
     // In the case tabs, where Plan and Draft would be, on a non-U.S. case (#678).

@@ -101,10 +101,37 @@ func chapterSpan(lo, hi int) []string {
 	return out
 }
 
+// Mexico is the Acuerdo on non-preferential country-of-origin rules (DOF
+// 30-08-1994), Anexo I articles 3 to 7 with its Apéndice de Reglas
+// Específicas (D914). It applies to goods from any country. Its text has no
+// de minimis rule, so every chapter is excluded from de minimis.
+var Mexico = GeneralRules{
+	ID:                "mx-acuerdo-1994",
+	Name:              "Acuerdo DOF 30-08-1994, Anexo I",
+	Table:             "Apéndice de Reglas Específicas",
+	Domestic:          "Anexo I, art. 3 I b)",
+	Shift:             "Anexo I, art. 3 I c); ",
+	DeMinimis:         "",
+	EssentialOne:      "Anexo I, art. 3 III; Anexo I, art. 7 II; ",
+	EssentialAll:      "Anexo I, art. 3 III; Anexo I, art. 7 II; ",
+	TestA:             "art. 3 I",
+	DeMinimisRef:      "none",
+	EssentialRef:      "art. 7 II",
+	EssentialOneRef:   "art. 7 II",
+	EssentialPick:     "art. 3 III",
+	NonQualifying:     "the work in %s is more than the operations art. 6 says do not count (a change in end use, disassembly, simple packing, dilution, or collecting parts under GRI 2(a))",
+	NotSet:            "the good is not a set or mixture (art. 3 III does not apply to sets)",
+	DeMinimisExcluded: chapterSpan(1, 97),
+	ImportedFrom:      "the origin is for non-preferential purposes in Mexico (quotas, trade remedies, marking); a trade-agreement preference follows that agreement's own rules",
+}
+
 // generalFor returns the rule set a table names.
 func generalFor(regime string) GeneralRules {
-	if regime == Canada.ID {
+	switch regime {
+	case Canada.ID:
 		return Canada
+	case Mexico.ID:
+		return Mexico
 	}
 	return US
 }
