@@ -12,7 +12,9 @@ import { SignIn } from "../sign-in";
 import { ViewToggle } from "../view-toggle";
 import "./business.css";
 
-const chapters = ["The problem", "The question", "The move", "The money", "The proof", "Who it helps", "Your next step"];
+// Plain, literal words (DESIGN.md principle 5): one fast read, headlines of
+// 8 words or fewer, customs never the subject, Trust and Brokers kept.
+const chapters = ["The problem", "The main parts", "The change", "The savings", "Why trust it", "For brokers", "Try it"];
 
 export function BusinessStory() {
   const story = useRef<HTMLDivElement>(null);
@@ -58,7 +60,7 @@ export function BusinessStory() {
 
       <div className="biz-shell">
         <aside aria-label="About Unde" className="biz-side">
-          <span className="biz-side-label">The story</span>
+          <span className="biz-side-label">How it works</span>
           <nav aria-label="Chapters" className="biz-chapters">
             {chapters.map((t, i) => (
               <a key={t} href={`#ch${i + 1}`} aria-current={active === i ? "step" : undefined}>
@@ -67,32 +69,32 @@ export function BusinessStory() {
               </a>
             ))}
           </nav>
-          <h1>Know your “Made in” before you move the factory</h1>
-          <p className="for">For importers and the plants that build for them</p>
+          <h1>Find ways to pay less import tax</h1>
+          <p className="for">Where your parts are made decides the tax. Unde shows which parts to move. Full answers for the U.S. Rule checks for 6 more markets</p>
           <dl>
             <div>
-              <dt>Right on past decisions</dt>
+              <dt>Right on past official decisions</dt>
               <dd className="mono">340 of 377</dd>
             </div>
             <div>
-              <dt>Time per check</dt>
-              <dd className="mono">~5 s</dd>
+              <dt>Time for one check</dt>
+              <dd className="mono">about 5 seconds</dd>
             </div>
           </dl>
-          <p className="fine">Not a ruling. Your customs broker confirms.</p>
+          <p className="fine">An estimate. A customs broker confirms it.</p>
         </aside>
 
         <div ref={story} className="biz-story" id="main">
           <Chapter i={0}>
-            <Text n={1} title="Built in Thailand, taxed as China" sub="The motor, circuit board, switch and cord still come from China, so U.S. Customs charges China’s duty">
-              <Actions next="See what to move" secondary={<Link href="/cases" className="biz-link">Try the heat gun demo</Link>} />
+            <Text n={1} title="This heat gun pays China’s import tax" sub="It is put together in Thailand. But its main parts come from China, so it counts as made in China">
+              <Actions next="Next: the main parts" secondary={<Link href="/cases" className="biz-link">Open the heat gun example</Link>} />
             </Text>
             <figure className="biz-visual" style={{ margin: 0 }}>
               <HeatGun after={false} />
               <figcaption className="biz-figcap">
-                <span>Final assembly in Thailand</span>
+                <span>Put together in Thailand</span>
                 <span>
-                  <span className="big mono" style={{ color: "var(--fail)" }}>≈41.7%</span>U.S. duty
+                  <span className="big mono" style={{ color: "var(--fail)" }}>≈41.7%</span>import tax
                 </span>
               </figcaption>
             </figure>
@@ -100,13 +102,13 @@ export function BusinessStory() {
 
           <Chapter i={1} stack>
             <div style={{ display: "flex", alignItems: "flex-end", gap: 40, flexWrap: "wrap" }}>
-              <Text n={2} title={<>Six parts. Four of them<br />decide the label</>} sub="Customs looks at where the key parts are made, not only where the product is put together" wide />
-              <Actions next="See the move" />
+              <Text n={2} title="The main parts decide the country" sub="Not where it is put together. 4 of its 6 parts come from China" wide />
+              <Actions next="Next: the change" />
             </div>
             <section aria-label="Heat gun parts" className="biz-card biz-tray">
               <div className="biz-tray-head">
-                <span>Heat gun, taken apart</span>
-                <span>Today: <span className="biz-tag cn">Made in China</span></span>
+                <span>The heat gun’s parts</span>
+                <span>Counts as: <span className="biz-tag cn">Made in China</span></span>
               </div>
               <div className="biz-parts">
                 {parts.map((p) => (
@@ -120,39 +122,39 @@ export function BusinessStory() {
                 ))}
               </div>
               <div className="biz-tray-foot">
-                <span>U.S. duty at today’s label</span>
+                <span>Import tax today</span>
                 <span className="mono">≈41.7%</span>
               </div>
             </section>
           </Chapter>
 
           <Chapter i={2}>
-            <Text n={3} title="Make four parts in Thailand. The label likely follows" sub="Customs decided a similar product this way before, so the move is backed, not guessed">
-              <Actions next="Is it worth it" />
+            <Text n={3} title="Make 4 parts in Thailand" sub="Then it likely counts as made in Thailand. A past official decision on a similar product says so">
+              <Actions next="Next: the savings" />
             </Text>
             <figure className="biz-visual" style={{ margin: 0 }}>
               <HeatGun after />
               <figcaption className="biz-figcap">
-                <span>After the move</span>
+                <span>After the change</span>
                 <span>
-                  <span className="big mono" style={{ color: "var(--ok)" }}>≈16.7%</span>U.S. duty
+                  <span className="big mono" style={{ color: "var(--ok)" }}>≈16.7%</span>import tax
                 </span>
               </figcaption>
             </figure>
           </Chapter>
 
           <Chapter i={3}>
-            <Text n={4} title="Same heat gun, 25 points less duty" sub="Make four parts in Thailand instead of China, and Customs would likely call it Made in Thailand">
+            <Text n={4} title="Import tax drops from ≈41.7% to ≈16.7%" sub="25 points less tax on each heat gun sold in the U.S.">
               <dl className="biz-figs">
-                <dt>Duty saved / yr</dt>
+                <dt>Tax saved per year</dt>
                 <dd className="mono">$500k</dd>
-                <dt>Added cost / yr</dt>
+                <dt>Extra cost per year</dt>
                 <dd className="mono">$180k</dd>
-                <dt>You keep / yr</dt>
+                <dt>You keep per year</dt>
                 <dd className="mono key">$320k</dd>
               </dl>
-              <Actions next="Can I trust it" />
-              <p className="biz-fine">Example money figures, set your own in a case. Rates for this product, a broker confirms the classification</p>
+              <Actions next="Next: why trust it" />
+              <p className="biz-fine">Example amounts. Enter your own. A customs broker confirms the tax rate</p>
             </Text>
             <figure className="biz-visual" style={{ margin: 0 }}>
               <DutyRuler />
@@ -160,50 +162,50 @@ export function BusinessStory() {
           </Chapter>
 
           <Chapter i={4}>
-            <Text n={5} title="China in 2022. Thailand in 2026" sub="Same heat gun. The maker moved most of the parts Unde would move, and Customs changed the label.">
+            <Text n={5} title="The real maker did this, and it worked" sub="2022: counted as made in China. Then the maker moved most of these parts. 2026: counted as made in Thailand.">
               <dl className="biz-figs">
-                <dt>Right on past decisions</dt>
+                <dt>Right on past official decisions</dt>
                 <dd className="mono">340 of 377</dd>
-                <dt>Right when it is sure</dt>
+                <dt>Right when Unde is sure</dt>
                 <dd className="mono">96%</dd>
               </dl>
-              <Actions next="Who it helps" secondary={<Link href="/accuracy" className="biz-link">See the full test</Link>} />
+              <Actions next="Next: for brokers" secondary={<Link href="/accuracy" className="biz-link">See the full test</Link>} />
             </Text>
             <div className="biz-visual biz-letters">
-              <Letter cls="a" refText="Customs ruling N328954 · 2022" fact="Motor, circuit board, switch and cord from China" stamp="ORIGIN: CHINA" color="var(--fail)" />
-              <Letter cls="b" refText="Customs ruling N357771 · 2026" fact="Motor, fan, circuit board and cord now made in Thailand" stamp="ORIGIN: THAILAND" color="var(--ok)" />
+              <Letter cls="a" refText="Official decision N328954 · 2022" fact="Motor, circuit board, switch and cord from China" stamp="MADE IN: CHINA" color="var(--fail)" />
+              <Letter cls="b" refText="Official decision N357771 · 2026" fact="Motor, fan, circuit board and cord now made in Thailand" stamp="MADE IN: THAILAND" color="var(--ok)" />
             </div>
           </Chapter>
 
           <Chapter i={5}>
-            <Text n={6} title="One check, read four ways" sub="Everyone on the deal gets the part of the answer they need, and your broker gets the draft">
-              <Actions next="How do I start" />
-              <p className="biz-fine">Built for these roles. No customers yet.</p>
+            <Text n={6} title="Each team gets its answer" sub="Your customs broker gets a ready request to send">
+              <Actions next="Next: try it" />
+              <p className="biz-fine">Made for these roles. No customers yet.</p>
             </Text>
             <section aria-label="The heat gun check, by role" className="biz-visual biz-card biz-roles">
               <header>
                 <span>Heat gun check</span>
                 <span className="mono" style={{ fontSize: 12 }}>1 answer</span>
               </header>
-              <Role n="01" who="Supply-chain head" gets="Duty saved against added cost, per move" show={<span className="mono" style={{ fontSize: 15 }}><s style={{ color: "var(--dim)" }}>≈41.7%</s>  ≈16.7%</span>} />
-              <Role n="02" who="Trade-compliance lead" gets="The likely label and the backed moves, before work moves" show={<span className="biz-stamp" style={{ color: "var(--ok)", fontSize: 12, padding: "4px 10px", borderWidth: 1.5 }}>MADE IN THAILAND</span>} />
-              <Role n="03" who="U.S. importer" gets="Knows before paying for a move that keeps China’s duty" show={<span style={{ fontSize: 13, color: "var(--fail)" }}>Warns if a move changes nothing</span>} />
-              <Role n="04" who="Plant in Thailand" gets="Which jobs to take on" show={<span className="mono" style={{ fontSize: 15 }}>4 parts to bring in</span>} />
+              <Role n="01" who="Supply chain manager" gets="Tax saved vs extra cost" show={<span className="mono" style={{ fontSize: 15 }}><s style={{ color: "var(--dim)" }}>≈41.7%</s>  ≈16.7%</span>} />
+              <Role n="02" who="Trade compliance manager" gets="The likely country, and changes past decisions support" show={<span className="biz-stamp" style={{ color: "var(--ok)", fontSize: 12, padding: "4px 10px", borderWidth: 1.5 }}>MADE IN THAILAND</span>} />
+              <Role n="03" who="U.S. importer" gets="Avoids paying for a change that saves nothing" show={<span style={{ fontSize: 13, color: "var(--fail)" }}>Warning: this change saves nothing</span>} />
+              <Role n="04" who="Factory in Thailand" gets="Which parts to start making" show={<span className="mono" style={{ fontSize: 15 }}>4 parts to start making</span>} />
               <footer>
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--dim)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
                   <path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z" />
                   <path d="M14 2v4a2 2 0 0 0 2 2h4" />
                 </svg>
-                <span>Your broker gets a ready draft to check and file</span>
+                <span>Your broker gets a ready request to send</span>
               </footer>
             </section>
           </Chapter>
 
           <Chapter i={6} stack>
             <div style={{ display: "flex", alignItems: "flex-end", gap: 40, flexWrap: "wrap" }}>
-              <Text n={7} title="Check your own product" sub="List the parts and where each is made. You get the likely label, the moves that change it and a draft for your broker" wide />
+              <Text n={7} title="Check your product" sub="Pick where you sell. List your parts. See your country and how to change it" wide />
               <div className="biz-actions">
-                <Link href="/cases" className="biz-link">Try the demo</Link>
+                <Link href="/cases" className="biz-link">Open the heat gun example</Link>
                 <Link href="/cases/new" className="biz-btn accent">Check my product</Link>
               </div>
             </div>
@@ -235,8 +237,8 @@ function MovePreview() {
     <section aria-label="Unde case preview" className="biz-card biz-app">
       <div className="biz-app-head">
         <span style={{ fontWeight: 500 }}>Heat gun, 12.5 A</span>
-        <span style={{ color: "var(--dim)" }}>Final assembly in Thailand</span>
-        <span className="mono" style={{ marginLeft: "auto", fontSize: 12, color: "var(--dim)" }}>Checked in 4.6 s</span>
+        <span style={{ color: "var(--dim)" }}>Put together in Thailand</span>
+        <span className="mono" style={{ marginLeft: "auto", fontSize: 12, color: "var(--dim)" }}>Checked in 4.6 seconds</span>
       </div>
       <div className="biz-app-body">
         <div className="biz-rows">
@@ -259,30 +261,30 @@ function MovePreview() {
         <div className="biz-result" aria-live="polite">
           {all ? (
             <>
-              <span style={{ fontSize: 13, color: "var(--dim)" }}>Likely label after the move</span>
+              <span style={{ fontSize: 13, color: "var(--dim)" }}>Likely country after the change</span>
               <span className="biz-stamp" style={{ color: "var(--ok)", fontSize: 20, alignSelf: "flex-start" }}>MADE IN THAILAND</span>
               <span style={{ display: "flex", alignItems: "baseline", gap: 12 }}>
                 <s className="mono" style={{ fontSize: 15, color: "var(--dim)" }}>≈41.7%</s>
                 <span className="mono" style={{ fontSize: 32 }}>≈16.7%</span>
-                <span style={{ fontSize: 13, color: "var(--dim)" }}>U.S. duty</span>
+                <span style={{ fontSize: 13, color: "var(--dim)" }}>import tax</span>
               </span>
-              <span style={{ fontSize: 14, lineHeight: "20px" }}>Backed by an earlier Customs decision on a similar product</span>
+              <span style={{ fontSize: 14, lineHeight: "20px" }}>Backed by a past decision on a similar product</span>
             </>
           ) : none ? (
             <>
-              <span style={{ fontSize: 13, color: "var(--dim)" }}>Today’s label</span>
+              <span style={{ fontSize: 13, color: "var(--dim)" }}>Counts as today</span>
               <span className="biz-stamp" style={{ color: "var(--fail)", fontSize: 20, alignSelf: "flex-start" }}>MADE IN CHINA</span>
               <span style={{ display: "flex", alignItems: "baseline", gap: 12 }}>
                 <span className="mono" style={{ fontSize: 32 }}>≈41.7%</span>
-                <span style={{ fontSize: 13, color: "var(--dim)" }}>U.S. duty</span>
+                <span style={{ fontSize: 13, color: "var(--dim)" }}>import tax</span>
               </span>
-              <span style={{ fontSize: 14, lineHeight: "20px" }}>Key parts still come from China</span>
+              <span style={{ fontSize: 14, lineHeight: "20px" }}>The main parts still come from China</span>
             </>
           ) : (
             <>
-              <span style={{ fontSize: 13, color: "var(--dim)" }}>Likely label with this mix</span>
+              <span style={{ fontSize: 13, color: "var(--dim)" }}>Likely country with this mix</span>
               <span className="biz-stamp" style={{ color: "var(--dim)", fontSize: 20, alignSelf: "flex-start" }}>NOT CHECKED YET</span>
-              <span style={{ fontSize: 14, lineHeight: "20px" }}>No earlier decision backs this mix. Check it as a case to see the likely label</span>
+              <span style={{ fontSize: 14, lineHeight: "20px" }}>No past decision backs this mix. Check it to see the likely country</span>
               <Link href="/cases/new" className="biz-link" style={{ fontSize: 14 }}>Check this mix</Link>
             </>
           )}
@@ -423,7 +425,7 @@ function HeatGun({ after }: { after: boolean }) {
 function DutyRuler() {
   const ticks = [0, 10, 20, 30, 40, 50];
   return (
-    <svg viewBox="0 0 520 600" width="100%" role="img" aria-label="Duty on a scale from 0 to 50 percent. Made in China about 41.7 percent, Made in Thailand about 16.7 percent, about 25 points apart">
+    <svg viewBox="0 0 520 600" width="100%" role="img" aria-label="Import tax on a scale from 0 to 50 percent. Made in China about 41.7 percent, Made in Thailand about 16.7 percent, about 25 points apart">
       <g fontFamily="var(--font-paper-mono), monospace" fontSize="11" fill="var(--dim)">
         <path d="M60 60 V520" stroke="var(--ink)" strokeWidth="1.5" />
         {ticks.map((t) => (

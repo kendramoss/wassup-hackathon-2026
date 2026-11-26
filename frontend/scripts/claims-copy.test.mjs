@@ -50,7 +50,7 @@ test("held-out labels do not say 'unseen' in the README, DETAILS or NUMBERS orig
 });
 
 test("the replacement wording separates retrieval, prompts, pretraining and threshold history", () => {
-  assert.match(copy, /fig3Title: "Tested on 377 CBP rulings, scored once"/);
+  assert.match(copy, /fig3Title: "Tested on 377 real past decisions, scored once"/);
   assert.match(page, /Gemini’s pretraining exposure is unknown/);
   assert.match(page, /original threshold selection also considered these rulings/);
 });

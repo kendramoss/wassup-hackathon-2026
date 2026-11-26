@@ -42,7 +42,7 @@ test("landing evidence scope is unchanged: 377 rulings, 288 of 300 auto-accepted
   assert.match(landing, /wrong <b>12<\/b>/);
   assert.match(landing, /to review, right <b>52<\/b>/);
   assert.match(landing, /wrong <b>25<\/b>/);
-  assert.match(copy, /fig3Title: "Tested on 377 CBP rulings, scored once"/);
+  assert.match(copy, /fig3Title: "Tested on 377 real past decisions, scored once"/);
 });
 
 test("landing controls are 44 px tall on phones", () => {
@@ -156,12 +156,12 @@ test("phones: in-page controls left under 44 px get 44 px below 640 px only", ()
   assert.match(mi.slice(mi.indexOf("#685")), /\.mi-evidence-pair a \{ min-height: 44px; \}/);
 });
 
-test("the landing's 'What is new' line no longer repeats the subtitle", () => {
+test("the landing's note under the subtitle does not repeat it (plain words, DESIGN.md principle 5)", () => {
   const sub = copy.match(/sub: "([^"]+)"/)[1];
-  const novel = copy.match(/novel: \{\s+lead: "What is new:",\s+text: "([^"]+)"/)[1];
-  assert.match(sub, /which production moves would change it/);
-  assert.equal(novel, "Unde shows only the moves an earlier CBP ruling backs.");
-  assert.ok(!/change the origin|production moves/.test(novel));
+  const novel = copy.match(/novel: \{\s+lead: "Every suggestion",\s+text: "([^"]+)"/)[1];
+  assert.match(sub, /Unde shows which parts to move/);
+  assert.equal(novel, "is backed by a past official decision.");
+  assert.ok(!/parts to move|decides the tax/.test(novel));
 });
 
 test("review fixes: live-run labels are true, method terms are 24 px targets, fold controls are 44 px on phones", () => {
