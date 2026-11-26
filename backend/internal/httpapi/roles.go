@@ -63,6 +63,19 @@ var rolePerms = map[string]perm{
 	"GET /v1/cases/{id}/reviews":               permRead, // the owner's view of the links: status and comments
 	"POST /v1/cases/{id}/reviews":              permEdit, // shares case content outside the workspace
 	"DELETE /v1/cases/{id}/reviews/{review}":   permEdit,
+	// Broker workflow (BROKER_WORKFLOW): reading the queue, discussion and
+	// package is a read; any member may take part in the discussion;
+	// queueing, deciding, sign-offs, roles and filing are edits.
+	"GET /v1/queue":                        permRead,
+	"PUT /v1/cases/{id}/queue":             permEdit,
+	"POST /v1/cases/{id}/queue/transition": permEdit,
+	"GET /v1/cases/{id}/collab":            permRead,
+	"POST /v1/cases/{id}/comments":         permRead, // a viewer may comment: it changes only the discussion
+	"POST /v1/cases/{id}/approvals":        permEdit,
+	"PUT /v1/cases/{id}/collaborators":     permEdit,
+	"POST /v1/cases/{id}/filing":           permEdit,
+	"GET /v1/cases/{id}/filing":            permRead,
+	"POST /v1/cases/{id}/filing/status":    permEdit,
 }
 
 // permOf is what the matched route needs; unknown means permEdit.
