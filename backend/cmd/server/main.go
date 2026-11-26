@@ -78,6 +78,7 @@ import (
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/teams"
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/triage"
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/ukorigin"
+	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/usmca"
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/verifier"
 )
 
@@ -421,6 +422,7 @@ func newDeps(cfg config.Config, model, engineModel llm.Model, cases store.Cases,
 	}
 	var precedents httpapi.PrecedentStore = pool
 	var usmcaEng *engine.Engine
+	usmca.SetExtended(cfg.USMCARulesExt)
 	if cfg.USMCAEngine {
 		ulabels, err := corpus.LoadLabels(cfg.USMCALabels)
 		if err != nil {

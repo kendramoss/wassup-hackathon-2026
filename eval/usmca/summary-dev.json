@@ -1,0 +1,50 @@
+{
+ "extended": {
+  "scored": 239,
+  "decided": 127,
+  "agreed": 118,
+  "agreement_on_decided": 0.9291,
+  "agreement_wilson_lo": 0.8708,
+  "agreement_wilson_hi": 0.9623,
+  "confusion": {
+   "does_not_qualify": {
+    "does_not_qualify": 42,
+    "qualifies": 5,
+    "undecided": 14
+   },
+   "qualifies": {
+    "does_not_qualify": 4,
+    "qualifies": 76,
+    "undecided": 98
+   }
+  }
+ },
+ "extended_by_answer": {
+  "does_not_qualify_decided_agreed": "42/47",
+  "qualifies_decided_agreed": "76/80"
+ },
+ "pilot": {
+  "scored": 239,
+  "decided": 0,
+  "agreed": 0,
+  "agreement_on_decided": 0,
+  "agreement_wilson_lo": 0,
+  "agreement_wilson_hi": 0,
+  "confusion": {
+   "does_not_qualify": {
+    "undecided": 61
+   },
+   "qualifies": {
+    "undecided": 178
+   }
+  }
+ },
+ "products": 259,
+ "rulings": 187,
+ "skipped": {
+  "CBP answer unclear": 2,
+  "no usable good code": 6,
+  "not a USMCA eligibility question": 12
+ },
+ "split": "dev"
+}

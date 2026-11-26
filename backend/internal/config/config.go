@@ -285,6 +285,11 @@ type Config struct {
 	USMCAEngine   bool
 	USMCALabels   string
 	USMCAFastPath float64
+	// USMCARulesExt (on|off, default off) extends the USMCA origin-rule check
+	// (POST /v1/usmca/check) from the three pilot rows to the rows generated
+	// from HTSUS GN 11(o), with de minimis, the parts route and GN 11(p).
+	// Off keeps the pilot answers unchanged.
+	USMCARulesExt bool
 	// PharmaEngine (on|off, default off) predicts pharmaceutical cases (router
 	// regime pharma_api) with the pharma-v1 prompt, where origin follows the
 	// active ingredient, instead of leaving them out of scope (D62), with
@@ -562,6 +567,13 @@ func FromEnv(getenv func(string) string) (Config, error) {
 	case "off", "false", "0":
 	default:
 		e.errs = append(e.errs, fmt.Errorf("USMCA_ENGINE must be on or off, got %q", v))
+	}
+	switch v := strings.ToLower(e.str("USMCA_RULES_EXT", "off")); v {
+	case "on", "true", "1":
+		c.USMCARulesExt = true
+	case "off", "false", "0":
+	default:
+		e.errs = append(e.errs, fmt.Errorf("USMCA_RULES_EXT must be on or off, got %q", v))
 	}
 	switch v := strings.ToLower(e.str("PHARMA_ENGINE", "off")); v {
 	case "on", "true", "1":

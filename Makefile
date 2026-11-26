@@ -122,6 +122,9 @@ reproduce: ## recompute every published number from committed files: no model ca
 	python3 -I -B eval/agent/score.py . --check
 	python3 -I -B eval/jp/split.py . --check
 	python3 -I -B eval/ca/parse.py --check
+	python3 -I -B eval/usmca/build_gn11o.py . --check
+	cd $(GO_DIR) && go run ./cmd/usmcaeval -split dev -check
+	cd $(GO_DIR) && go run ./cmd/usmcaeval -split held_out -check
 	python3 -I -B eval/atiga/parse_psr.py check backend/internal/atiga/data/psr_hs2022.json
 	python3 -I -B eval/jp/labels.py . --check
 	python3 -I -B eval/jp/labels.py . --fresh --check
