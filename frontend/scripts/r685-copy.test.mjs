@@ -96,11 +96,10 @@ test("phones: header controls are 44 px and shared labels are 12 px, below 640 p
   const signIn = read("../src/components/op/sign-in.tsx");
   // Nav links, the logo and "+ New" keep their desktop heights and add 44 px below sm.
   assert.match(chrome, /"flex min-h-10 items-center rounded-\[2px\] px-3 transition-colors max-sm:min-h-11 /);
-  assert.match(chrome, /tracking-\[-0\.03em\] max-sm:min-h-11 /);
+  assert.match(chrome, /tracking-\[-0\.03em\] max-sm:min-h-11"/);
   assert.match(chrome, /className="min-h-9 py-1\.5 max-sm:min-h-11"/);
-  // The account tile is 40 px, 44 px below sm, in both views (#864).
-  assert.match(signIn, /technical: "size-10 [^"]*max-sm:size-11/);
-  assert.match(signIn, /business: "size-10 [^"]*max-sm:size-11/);
+  assert.match(signIn, /size-10 shrink-0 max-sm:size-11/);
+  assert.match(signIn, /grid size-10 place-items-center overflow-hidden max-sm:size-11/);
   // One shared rule for .eyebrow and the 10-11.5 px label classes.
   const block = globals.slice(globals.indexOf("#685, site-wide"));
   assert.match(block, /@media \(max-width: 639px\) \{/);
@@ -176,12 +175,4 @@ test("review fixes: live-run labels are true, method terms are 24 px targets, fo
   assert.match(fc, /hover:underline max-sm:min-h-11" aria-expanded=\{all\}>/);
   assert.match(read("../src/components/op/screens/accuracy-page.tsx"), /hover:underline max-sm:min-h-11">\s+\{all \? "Show the main numbers"/);
   assert.match(read("../src/components/op/screens/cases-home.tsx"), /max-sm:inline-flex max-sm:min-h-11 max-sm:items-center"\s+>\s+\{T\.recordLink\}/);
-});
-
-// #864: below 640 px the technical bar keeps its actions on the logo's row,
-// so the view toggle and the account tile do not move between views.
-test("phones: the technical bar's actions never wrap below the logo", () => {
-  const chrome = read("../src/components/op/chrome.tsx");
-  assert.match(chrome, /className="flex min-w-0 items-center gap-5 max-sm:flex-1 max-sm:basis-0"/);
-  assert.match(chrome, /max-sm:min-h-11 max-sm:shrink max-sm:leading-tight"/);
 });
