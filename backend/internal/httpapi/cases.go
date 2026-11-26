@@ -35,9 +35,11 @@ import (
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/export"
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/llm"
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/logsafe"
+	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/metering"
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/planner"
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/planrule"
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/ratelimit"
+	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/retention"
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/router"
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/spend"
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/store"
@@ -210,9 +212,16 @@ type Deps struct {
 	// spend reaches its cap (D59). The admin token is not exempt from
 	// counting, only from the refusal.
 	Spend *spend.Meter
+	// Metering, when set (USAGE_METERING=on, with teams), counts each
+	// workspace's predictions, plan searches and model spend per UTC month
+	// and enforces its budget; it serves the workspace usage and budget
+	// routes (#886). Nil: nothing is metered and the routes are 404.
+	Metering *metering.Meter
 	// ExportCFR177 lets export take "format": "cfr177", the ruling-request
 	// letter laid out on 19 CFR 177.2 (D66). Off: the field is refused.
 	ExportCFR177 bool
+	// ATIGACheck serves POST /v1/atiga/check (D927). Off by default.
+	ATIGACheck bool
 	// CaseOwnership limits each visitor to the pinned demos and their own
 	// cases (X-Visitor-ID from the frontend proxy; D58). Off by default.
 	CaseOwnership bool
@@ -237,6 +246,15 @@ type Deps struct {
 	// diffed against the case's product and re-predicted (D67). Off by
 	// default (the route is not registered).
 	BOMVersions bool
+	// ERPImport serves POST /v1/products/erp-import: BOM exports from an
+	// ERP (generic CSV, SAP S/4HANA, NetSuite or JSON) checked and, on
+	// commit, filed as cases idempotently (#880). Off by default (the route
+	// is not registered).
+	ERPImport bool
+	// BrokerWorkflow serves the review queue, case discussion and sign-offs,
+	// and the eRulings filing package (brokerflow.go). Off by default (the
+	// routes are not registered).
+	BrokerWorkflow bool
 	// Teams turns on sign-in and team workspaces (D68): X-User-Token is
 	// verified by Users, and Workspaces maps the user to their workspace.
 	// Off by default; anonymous requests keep CaseOwnership's rules.
@@ -259,10 +277,20 @@ type Deps struct {
 	StreamPredict bool
 	// Checks run on GET /health?deep=1 (store write, model call).
 	Checks []HealthCheck
+	// Status, when set, serves GET /v1/status for a status page (#885,
+	// STATUS_PAGE=on).
+	Status *StatusPage
 	// Audit, when set, records the audit trail (#284) and serves GET
 	// /v1/audit and /v1/audit/verify. Nil: no event is recorded, the routes
 	// are not registered and no write is gated on the trail.
 	Audit *audit.Service
+	// AuditExport serves GET /v1/audit/export (#871) when Audit is set.
+	// Off by default.
+	AuditExport bool
+	// Retention, when set with Teams, serves a workspace's retention policy
+	// and tombstones and writes a tombstone before each workspace case
+	// deletion (#875). Nil: off.
+	Retention retention.Store
 }
 
 // maxBody caps request bodies (a product with dozens of parts is ~10 KB).
@@ -325,7 +353,7 @@ func (a *api) errorFor(r *http.Request, err error) (int, string, string) {
 		return http.StatusForbidden, "forbidden", forbiddenMessage
 	case errors.Is(err, errAuditUnavailable):
 		return http.StatusServiceUnavailable, "audit_unavailable", "the audit trail is unavailable, so this change was not made; try again"
-	case errors.Is(err, errSuperseded), errors.Is(err, errIdempotencyReuse), errors.Is(err, errOriginFactsChanged), errors.Is(err, errFamilyFactsChanged):
+	case errors.Is(err, errSuperseded), errors.Is(err, errIdempotencyReuse), errors.Is(err, errOriginFactsChanged), errors.Is(err, errFamilyFactsChanged), errors.Is(err, errBrokerConflict):
 		return http.StatusConflict, "conflict", err.Error()
 	case errors.Is(err, store.ErrNotFound), errors.Is(err, cross.ErrNotFound), errors.Is(err, apikey.ErrNotFound):
 		return http.StatusNotFound, "not_found", err.Error()
@@ -551,6 +579,7 @@ func (a *api) analyse(r *http.Request, sc *store.Case, c domain.Case, st *stages
 	if err != nil {
 		return err
 	}
+	a.meterAdd(r.Context(), metering.Delta{Predictions: 1})
 	sc.Prediction, sc.Router, sc.Triage = pred, label, tr
 	sc.Clarify = nil
 	// A fallback answer stays on the fallback reason. Clarify would rewrite
@@ -1187,10 +1216,14 @@ func (a *api) plan(w http.ResponseWriter, r *http.Request) {
 		a.fail(w, r, err)
 		return
 	}
+	if !a.planBudgetCheck(w, r, req) {
+		return
+	}
 	if err := a.auditCase(r, c, "plan"); err != nil {
 		a.fail(w, r, err)
 		return
 	}
+	a.meterAdd(r.Context(), metering.Delta{PlanSearches: 1})
 	if wantsStream(r) {
 		a.planStream(w, r, c, req, in.Economics, st)
 		return
@@ -1312,7 +1345,11 @@ func (a *api) planEstimate(w http.ResponseWriter, r *http.Request) {
 		a.fail(w, r, err)
 		return
 	}
-	a.respond(w, http.StatusOK, map[string]any{"case_id": c.ID, "estimate": e})
+	out := map[string]any{"case_id": c.ID, "estimate": e}
+	if b := a.estimateBudget(r, e); b != nil {
+		out["workspace_budget"] = b
+	}
+	a.respond(w, http.StatusOK, out)
 }
 
 // economicsPriced is the case's economics with the duty rates a plan search

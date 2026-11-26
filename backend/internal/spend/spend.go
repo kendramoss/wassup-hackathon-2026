@@ -46,6 +46,10 @@ type Meter struct {
 	// store write, like debt for the global meter (#313). It only has keys
 	// that are in clients, so the same cap bounds it, and it resets with it.
 	clientDebt map[string]float64
+
+	// observe, when set, is told every charge with its request context, so
+	// per-workspace metering (#886) sees exactly what the cap counts.
+	observe func(ctx context.Context, usd float64)
 }
 
 // maxLocalClients caps the per-client spend this instance remembers in a day.
@@ -65,6 +69,13 @@ func (m *Meter) WithClientShare(share float64) *Meter {
 }
 
 type clientCtx struct{}
+
+// Observe sets a function told every charge Add records, with the
+// context of the model call. It returns m.
+func (m *Meter) Observe(fn func(ctx context.Context, usd float64)) *Meter {
+	m.observe = fn
+	return m
+}
 
 // WithClient marks ctx's model calls as made for client (an API key or an
 // address), so they count toward its share of the cap.
@@ -154,6 +165,9 @@ func (m *Meter) today() string { return m.now().UTC().Format(time.DateOnly) }
 func (m *Meter) Add(ctx context.Context, usd float64) {
 	if usd <= 0 {
 		return
+	}
+	if m.observe != nil {
+		m.observe(ctx, usd)
 	}
 	day := m.today()
 	m.addClient(ctx, day, clientFrom(ctx), usd)

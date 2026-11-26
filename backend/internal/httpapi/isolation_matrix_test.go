@@ -43,6 +43,10 @@ var routeTable = map[string]routeClass{
 	"POST /v1/cases/batch":                         caseCreate,
 	"GET /v1/cases":                                caseCreate,
 	"POST /v1/products/import":                     noCaseData,
+	"POST /v1/products/erp-import":                 caseCreate, // files cases under the caller's scope; IDs derive from it
+	"GET /v1/workspaces/{id}/usage":                noCaseData,
+	"PUT /v1/workspaces/{id}/budget":               noCaseData,
+	"DELETE /v1/workspaces/{id}/budget":            noCaseData,
 	"POST /v1/products/extract":                    noCaseData,
 	"POST /v1/products/extract-media":              noCaseData,
 	"POST /v1/products/money-prefill":              noCaseData,
@@ -72,8 +76,10 @@ var routeTable = map[string]routeClass{
 	"GET /v1/rulings":                              noCaseData,
 	"POST /mcp":                                    noCaseData, // its tools call the /v1 routes, each checked on its own row; the MCP principal: TestIsolationMatrixOverMCP
 	"GET /v1/eval/summary":                         noCaseData,
+	"GET /v1/status":                               noCaseData,
 	"GET /v1/duty-rates":                           noCaseData,
 	"POST /v1/rcep/check":                          noCaseData,
+	"POST /v1/atiga/check":                         noCaseData,
 	"POST /v1/usmca/check":                         noCaseData,
 	"POST /v1/rules/canada-marking":                noCaseData, // computes from the request alone; nothing stored (D720)
 	"POST /v1/rules/eu-origin":                     noCaseData, // computes from the request alone; nothing stored (D760)
@@ -95,11 +101,27 @@ var routeTable = map[string]routeClass{
 	"DELETE /v1/api-keys/{id}":                     noCaseData,
 	"GET /v1/audit":                                noCaseData, // reads the audit trail, no case
 	"GET /v1/audit/verify":                         noCaseData,
+	"GET /v1/audit/export":                         noCaseData,
+	"GET /v1/workspaces/{id}/retention":            noCaseData,
+	"PUT /v1/workspaces/{id}/retention":            noCaseData,
+	"GET /v1/workspaces/{id}/tombstones":           noCaseData, // case IDs and dates only, workspace admins
 	"POST /v1/cases/{id}/reviews":                  caseScoped,
 	"GET /v1/cases/{id}/reviews":                   caseScoped,
 	"DELETE /v1/cases/{id}/reviews/{review}":       caseScoped,
 	"GET /v1/review":                               reviewToken,
 	"POST /v1/review/decision":                     reviewToken,
+	"PUT /v1/cases/{id}/queue":                     caseScoped,
+	"POST /v1/cases/{id}/queue/transition":         caseScoped,
+	"GET /v1/queue":                                caseCreate, // lists the caller's view, like GET /v1/cases
+	"GET /v1/cases/{id}/collab":                    caseScoped,
+	"POST /v1/cases/{id}/comments":                 caseScoped,
+	"POST /v1/cases/{id}/approvals":                caseScoped,
+	"PUT /v1/cases/{id}/collaborators":             caseScoped,
+	"GET /v1/review/comments":                      reviewToken,
+	"POST /v1/review/comments":                     reviewToken,
+	"POST /v1/cases/{id}/filing":                   caseScoped,
+	"GET /v1/cases/{id}/filing":                    caseScoped,
+	"POST /v1/cases/{id}/filing/status":            caseScoped,
 	"GET /health":                                  noCaseData,
 }
 
@@ -189,6 +211,15 @@ func isoRoutes() []isoRoute {
 		{"review create", "POST", "/reviews", `{"expires_in_days":7}`, nil, "POST /v1/cases/{id}/reviews"},
 		{"review list", "GET", "/reviews", "", nil, "GET /v1/cases/{id}/reviews"},
 		{"review revoke", "DELETE", "/reviews/rv_0123456789abcdef", "", nil, "DELETE /v1/cases/{id}/reviews/{review}"},
+		{"queue", "PUT", "/queue", `{"reason":"check the rule"}`, nil, "PUT /v1/cases/{id}/queue"},
+		{"queue transition", "POST", "/queue/transition", `{"action":"start"}`, nil, "POST /v1/cases/{id}/queue/transition"},
+		{"collab", "GET", "/collab", "", nil, "GET /v1/cases/{id}/collab"},
+		{"comment", "POST", "/comments", `{"body":"looks right"}`, nil, "POST /v1/cases/{id}/comments"},
+		{"approval", "POST", "/approvals", `{"decision":"approve"}`, nil, "POST /v1/cases/{id}/approvals"},
+		{"collaborator", "PUT", "/collaborators", `{"email":"b@example.com","role":"broker"}`, nil, "PUT /v1/cases/{id}/collaborators"},
+		{"filing prepare", "POST", "/filing", `{}`, nil, "POST /v1/cases/{id}/filing"},
+		{"filing get", "GET", "/filing", "", nil, "GET /v1/cases/{id}/filing"},
+		{"filing status", "POST", "/filing/status", `{"status":"withdrawn"}`, nil, "POST /v1/cases/{id}/filing/status"},
 	}
 }
 
@@ -244,6 +275,7 @@ func newIsoEnvStrict(t *testing.T, ownership, strict bool) *isoEnv {
 	build := func(strict bool) harness {
 		hs, _, _ := teamsHarness(t, func(d *Deps) {
 			d.Cases, d.CaseOwnership, d.BOMVersions, d.StrictAuth = e.cs, ownership, true, strict
+			d.BrokerWorkflow = true
 			d.Planner = &estimatingPlanner{fakePlanner: &fakePlanner{}} // also serves plan/estimate
 			d.Workspaces, d.APIKeys = wsStore, keys
 		})

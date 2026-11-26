@@ -394,3 +394,20 @@ func (s *flakyClientStore) Add(ctx context.Context, key string, usd float64) (fl
 	}
 	return s.Memory.Add(ctx, key, usd)
 }
+
+func TestObserveSeesEveryCharge(t *testing.T) {
+	type k struct{}
+	var got []float64
+	var seen []any
+	m := New(NewMemory(), 0).Observe(func(ctx context.Context, usd float64) {
+		got = append(got, usd)
+		seen = append(seen, ctx.Value(k{}))
+	})
+	ctx := context.WithValue(context.Background(), k{}, "ws")
+	m.Add(ctx, 0.5)
+	m.Add(ctx, 0) // nothing spent: not observed
+	m.Add(ctx, 0.25)
+	if len(got) != 2 || got[0] != 0.5 || got[1] != 0.25 || seen[0] != "ws" {
+		t.Fatalf("observed %v %v", got, seen)
+	}
+}

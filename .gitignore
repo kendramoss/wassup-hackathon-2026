@@ -42,3 +42,5 @@ data/tuning/
 /backend/rcepeval
 /backend/originrules
 /backend/marketeval
+/backend/retention
+/backend/auditverify

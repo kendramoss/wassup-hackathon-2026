@@ -409,6 +409,22 @@ func TestFollowAdviceAndMaxMovesConfig(t *testing.T) {
 	}
 }
 
+func TestATIGACheckConfig(t *testing.T) {
+	c, err := FromEnv(getenv(vertexEnv()))
+	if err != nil || c.ATIGACheck {
+		t.Fatalf("ATIGA_CHECK default = %v %v, want off", c.ATIGACheck, err)
+	}
+	for v, want := range map[string]bool{"on": true, "ON": true, "1": true, "off": false, "0": false} {
+		c, err := FromEnv(getenv(merge(vertexEnv(), map[string]string{"ATIGA_CHECK": v})))
+		if err != nil || c.ATIGACheck != want {
+			t.Errorf("ATIGA_CHECK=%s = %v %v, want %v", v, c.ATIGACheck, err, want)
+		}
+	}
+	if _, err := FromEnv(getenv(merge(vertexEnv(), map[string]string{"ATIGA_CHECK": "maybe"}))); err == nil || !strings.Contains(err.Error(), "ATIGA_CHECK") {
+		t.Errorf("ATIGA_CHECK=maybe: %v", err)
+	}
+}
+
 func TestExportCFR177Config(t *testing.T) {
 	c, err := FromEnv(getenv(vertexEnv()))
 	if err != nil || c.ExportCFR177 {
@@ -438,6 +454,23 @@ func TestBOMVersionsConfig(t *testing.T) {
 			t.Errorf("BOM_VERSIONS=%q: got %q, %v; want %q", tt.value, c.BOMVersions, err, tt.want)
 		case !tt.ok && (err == nil || !strings.Contains(err.Error(), "BOM_VERSIONS must be on or off")):
 			t.Errorf("BOM_VERSIONS=%q accepted: %v", tt.value, err)
+		}
+	}
+}
+
+func TestBrokerWorkflowFlag(t *testing.T) {
+	for _, tt := range []struct {
+		value, want string
+		ok          bool
+	}{
+		{"", "off", true}, {"off", "off", true}, {"ON", "on", true}, {"yes", "", false},
+	} {
+		c, err := FromEnv(getenv(merge(vertexEnv(), map[string]string{"BROKER_WORKFLOW": tt.value})))
+		switch {
+		case tt.ok && (err != nil || c.BrokerWorkflow != tt.want):
+			t.Errorf("BROKER_WORKFLOW=%q: got %q, %v; want %q", tt.value, c.BrokerWorkflow, err, tt.want)
+		case !tt.ok && (err == nil || !strings.Contains(err.Error(), "BROKER_WORKFLOW must be on or off")):
+			t.Errorf("BROKER_WORKFLOW=%q accepted: %v", tt.value, err)
 		}
 	}
 }
@@ -753,5 +786,31 @@ func TestUSMCARulesExt(t *testing.T) {
 	}
 	if _, err := FromEnv(getenv(merge(vertexEnv(), map[string]string{"USMCA_RULES_EXT": "maybe"}))); err == nil {
 		t.Fatal("USMCA_RULES_EXT=maybe accepted")
+	}
+}
+
+func TestRecordsFlagsDefaultOff(t *testing.T) {
+	base := map[string]string{"LLM_PROVIDER": "fake"}
+	get := func(extra map[string]string) func(string) string {
+		return func(k string) string {
+			if v, ok := extra[k]; ok {
+				return v
+			}
+			return base[k]
+		}
+	}
+	c, err := FromEnv(get(nil))
+	if err != nil {
+		t.Fatal(err)
+	}
+	if c.AuditExport || c.Retention {
+		t.Fatalf("records flags on by default: export=%v retention=%v", c.AuditExport, c.Retention)
+	}
+	c, err = FromEnv(get(map[string]string{"AUDIT_EXPORT": "on", "RETENTION": "on"}))
+	if err != nil || !c.AuditExport || !c.Retention {
+		t.Fatalf("on: %+v %v", c.AuditExport, err)
+	}
+	if _, err := FromEnv(get(map[string]string{"RETENTION": "maybe"})); err == nil {
+		t.Fatal("accepted RETENTION=maybe")
 	}
 }
