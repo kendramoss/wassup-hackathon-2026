@@ -6,7 +6,7 @@
 // product-specific), 340 of 377 held-out rulings right, 96.0% when sure,
 // p50 4.6 s. The money row is the illustrative fixture ($500k / $180k).
 import Link from "next/link";
-import { useEffect, useRef, useState, type ReactNode } from "react";
+import { ViewTransition, useEffect, useRef, useState, type ReactNode } from "react";
 import { LogoMark } from "../logo";
 import { SignIn } from "../sign-in";
 import { ViewToggle } from "../view-toggle";
@@ -47,7 +47,9 @@ export function BusinessStory() {
         <div className="biz-bar-end">
           <Link href="/cases/new" className="biz-btn ink">Check a product</Link>
           <ViewToggle view="business" />
-          <SignIn look="business" />
+          <ViewTransition name="account-tile" share="bar-keep" default="none">
+            <SignIn look="business" />
+          </ViewTransition>
         </div>
       </header>
 

@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useStepLabel } from "./demo-tour";
-import { createContext, useCallback, useContext, useEffect, useRef, useState, type ReactNode } from "react";
+import { ViewTransition, createContext, useCallback, useContext, useEffect, useRef, useState, type ReactNode } from "react";
 import { api, ApiError, errorText, isDailyLimit, type CaseSummary } from "@/lib/api/client";
 import { copy } from "@/lib/copy";
 import { stepIndex } from "@/lib/format";
@@ -88,7 +88,10 @@ export function AppBar({ active = "cases", sticky = false }: { active?: "cases" 
           </ButtonLink>
           <ViewToggle view="technical" />
           {/* The account square ends the bar: Google's G signed out, your initial signed in. */}
-          <SignIn />
+          {/* Named in both bars so it holds still while the page crossfades. */}
+          <ViewTransition name="account-tile" share="bar-keep" default="none">
+            <SignIn />
+          </ViewTransition>
         </span>
       </div>
     </header>
