@@ -9,6 +9,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
+    "typecheck": "next typegen && tsc --noEmit",
     "test": "node --test scripts/*.test.mjs",
     "ui-check": "node scripts/ui-check.mjs",
     "gen:api": "openapi-typescript ../docs/api/openapi.yaml -o src/lib/api/schema.d.ts"
