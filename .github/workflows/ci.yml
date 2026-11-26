@@ -26,6 +26,11 @@ jobs:
             backend:
               - 'backend/**'
               - '.github/workflows/**'
+              # Backend tests read these (docs wording checks, eval fixtures):
+              # a docs-only change must still run them (#849).
+              - 'docs/**'
+              - 'eval/**'
+              - 'README.md'
             frontend:
               - 'frontend/**'
               - '.github/workflows/**'
