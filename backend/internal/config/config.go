@@ -203,6 +203,14 @@ type Config struct {
 	// public endpoints stay open. It is not a claim that visitor IDs
 	// authenticate anyone (#283).
 	StrictAuth bool
+	// UsageMetering (USAGE_METERING on|off, default off) counts each
+	// workspace's predictions, plan searches and model spend per UTC month
+	// and serves workspace budgets with an optional hard cap (#886). Needs
+	// TEAMS=on: only signed-in workspace members are metered.
+	UsageMetering bool
+	// ERPImport (ERP_IMPORT on|off, default off) serves POST
+	// /v1/products/erp-import, BOM exports from an ERP filed as cases (#880).
+	ERPImport bool
 	// Audit (#284). AuditMode is AUDIT: on, off, or auto (the default). Audit is
 	// the resolved switch: on, or auto with AUDIT_ACTOR_KEY set. auto never
 	// enables the trail without the secret and never generates one; on without
@@ -323,6 +331,11 @@ type Config struct {
 	// 19 CFR 177.2 (D66). Off: only the Markdown draft.
 	ExportCFR177 bool
 	exportCFR177 string // as given, checked by validate
+	// ATIGACheck (on|off, default off) serves POST /v1/atiga/check and the
+	// check_atiga_preference MCP tool: ATIGA preferential origin from a bill
+	// of materials, deterministic, no model call (D925).
+	ATIGACheck bool
+	atigaCheck string // as given, checked by validate
 	// NearMissAdvice (on|off, default off) adds near-miss advice to the
 	// closest plan moves just under the plan bar: what differs from the
 	// supporting ruling and what would match it (D81). One model call each,
@@ -446,6 +459,18 @@ func FromEnv(getenv func(string) string) (Config, error) {
 	case "off", "false", "0":
 	default:
 		e.errs = append(e.errs, fmt.Errorf("CASE_OWNERSHIP must be on or off, got %q", v))
+	}
+	for _, f := range []struct {
+		key string
+		dst *bool
+	}{{"USAGE_METERING", &c.UsageMetering}, {"ERP_IMPORT", &c.ERPImport}} {
+		switch v := strings.ToLower(e.str(f.key, "off")); v {
+		case "on", "true", "1":
+			*f.dst = true
+		case "off", "false", "0":
+		default:
+			e.errs = append(e.errs, fmt.Errorf("%s must be on or off, got %q", f.key, v))
+		}
 	}
 	switch v := strings.ToLower(e.str("STRICT_AUTH", "off")); v {
 	case "on", "true", "1":
@@ -573,6 +598,8 @@ func FromEnv(getenv func(string) string) (Config, error) {
 	c.PlanMaxMoves = e.integer("PLAN_MAX_MOVES", 12)
 	c.exportCFR177 = strings.ToLower(e.str("EXPORT_CFR177", "off"))
 	c.ExportCFR177 = c.exportCFR177 == "on" || c.exportCFR177 == "true" || c.exportCFR177 == "1"
+	c.atigaCheck = strings.ToLower(e.str("ATIGA_CHECK", "off"))
+	c.ATIGACheck = c.atigaCheck == "on" || c.atigaCheck == "true" || c.atigaCheck == "1"
 	switch v := strings.ToLower(e.str("STREAM_PREDICT", "off")); v {
 	case "on", "true", "1":
 		c.StreamPredict = "on"
@@ -717,6 +744,11 @@ func (c Config) validate() error {
 	default:
 		bad("EXPORT_CFR177 must be on or off, got %q", c.exportCFR177)
 	}
+	switch c.atigaCheck {
+	case "on", "true", "1", "off", "false", "0":
+	default:
+		bad("ATIGA_CHECK must be on or off, got %q", c.atigaCheck)
+	}
 	switch c.nearMissAdvice {
 	case "on", "true", "1", "off", "false", "0":
 	default:
@@ -732,6 +764,9 @@ func (c Config) validate() error {
 	}
 	if c.BOMVersions != "on" && c.BOMVersions != "off" {
 		bad("BOM_VERSIONS must be on or off, got %q", c.BOMVersions)
+	}
+	if c.UsageMetering && !c.Teams {
+		bad("USAGE_METERING=on needs TEAMS=on: usage is counted per workspace")
 	}
 	if c.BrokerWorkflow != "on" && c.BrokerWorkflow != "off" {
 		bad("BROKER_WORKFLOW must be on or off, got %q", c.BrokerWorkflow)

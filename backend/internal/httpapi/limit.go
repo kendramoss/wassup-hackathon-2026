@@ -253,6 +253,10 @@ func (a *api) limit(c class, h http.HandlerFunc) http.HandlerFunc {
 			return
 		}
 		key := a.clientKey(r)
+		var ok bool
+		if r, ok = a.meterGate(w, r); !ok {
+			return
+		}
 		if a.d.Spend != nil {
 			if over, total := a.d.Spend.Over(r.Context()); over {
 				a.overBudget(w, r, total)

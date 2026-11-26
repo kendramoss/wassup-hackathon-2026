@@ -373,6 +373,16 @@ paths:
                 properties:
                   case_id: { type: string }
                   estimate: { $ref: "#/components/schemas/PlanEstimate" }
+                  workspace_budget:
+                    type: object
+                    description: "With USAGE_METERING=on, for a member of a workspace with a budget (#886): the month's budget, spend and what is left, and whether the estimate's maximum fits. A plan search that would not fit a hard cap is refused with 402."
+                    properties:
+                      month: { type: string, example: "2026-11" }
+                      budget_usd: { type: number }
+                      spent_usd: { type: number }
+                      remaining_usd: { type: number }
+                      hard_cap: { type: boolean }
+                      fits: { type: boolean }
         "400": { $ref: "#/components/responses/Error" }
         "404": { $ref: "#/components/responses/Error" }
         "429": { $ref: "#/components/responses/TooManyRequests" }
@@ -1167,6 +1177,123 @@ paths:
                   family_source: { type: string, enum: [given, file, ai] }
                   family_reason: { type: string, description: "The family check's reason, when family_source is ai" }
         "400": { $ref: "#/components/responses/Error" }
+  /v1/products/erp-import:
+    post:
+      operationId: erpImport
+      summary: Import BOMs from an ERP export (ERP_IMPORT=on)
+      description: |
+        Reads a bill-of-materials export, one row per BOM line (#880): `generic` CSV (product_id, product_name, assembled_in, component, made_in; optional product_hts, component_hts, description), an SAP S/4HANA BOM explosion joined to the material master (`sap_s4`: Material, Material Description, Plant Country, Component and/or Component Description, Country of Origin, Commodity Code, optional Header Commodity Code), a NetSuite assembly-item saved search (`netsuite`: Internal ID or Assembly Item, Assembly Description, Location Country, Member Item and/or Member Description, Country of Manufacture, HS Tariff Number, optional Assembly HS Tariff Number), or JSON `items`. Country columns take names or ISO alpha-2 codes; codes are normalised to dotted HTS form. Each assembly becomes one product assembled in its assembly country; a problem on any line of an assembly keeps that assembly out and is reported with its line number, and other assemblies are unaffected.
+        Without `commit` (a dry run) nothing is stored and no model is called: each complete assembly is reported as `new`, `changed` or `unchanged` against its case. With `commit: true` each is filed and predicted: the case ID is derived from the caller (user, workspace or API key), `source` and the ERP key, so re-importing the same export updates the same cases. An unchanged assembly is left alone (no model call); a changed one gets its new BOM, a new prediction and a `bom_updated` history event; a new one is created as by predict. A commit needs sign-in or an API key and takes at most 20 complete assemblies; split larger exports. Rate-limited like batch.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [format]
+              additionalProperties: false
+              properties:
+                format: { type: string, enum: [generic, sap_s4, netsuite, json] }
+                source: { type: string, maxLength: 64, description: "Label for the ERP or export, part of each case's key; default the format" }
+                csv: { type: string, description: The export, for the CSV formats }
+                items:
+                  type: array
+                  maxItems: 200
+                  description: For format json
+                  items:
+                    type: object
+                    required: [external_id, name, assembled_in, components]
+                    properties:
+                      external_id: { type: string, maxLength: 120 }
+                      name: { type: string }
+                      description: { type: string }
+                      hts: { type: string }
+                      assembled_in: { type: string, description: Country name or ISO alpha-2 code }
+                      components:
+                        type: array
+                        maxItems: 200
+                        items:
+                          type: object
+                          required: [name, made_in]
+                          properties: { name: { type: string }, made_in: { type: string }, hts: { type: string } }
+                commit: { type: boolean, default: false }
+                family: { type: string, description: "Optional product family template; without one the facts are written from the BOM" }
+                jurisdiction: { $ref: "#/components/schemas/JurisdictionCode" }
+          multipart/form-data:
+            schema:
+              type: object
+              required: [file, format]
+              properties:
+                file: { type: string, format: binary, description: CSV or .xlsx }
+                format: { type: string, enum: [generic, sap_s4, netsuite] }
+                source: { type: string }
+                commit: { type: string, enum: ["true", "false"] }
+                family: { type: string }
+                jurisdiction: { type: string }
+      responses:
+        "200":
+          headers:
+            X-Audit-Incomplete: { $ref: "#/components/headers/AuditIncomplete" }
+          description: One row per complete assembly, the problems, and counts
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/Meta"
+                  - type: object
+                    required: [format, source, committed, rows, problems, summary]
+                    properties:
+                      format: { type: string }
+                      source: { type: string }
+                      committed: { type: boolean }
+                      rows:
+                        type: array
+                        items:
+                          type: object
+                          required: [external_id, name, status, case_id, rows, components, countries, error]
+                          properties:
+                            external_id: { type: string }
+                            name: { type: string }
+                            status: { type: string, enum: [new, changed, unchanged, created, updated, failed] }
+                            case_id: { type: string, description: "The assembly's case (on a dry run, the case it would use)" }
+                            rows: { type: array, items: { type: integer }, description: Source line numbers (the header is line 1) }
+                            components: { type: integer }
+                            countries: { type: array, items: { type: string } }
+                            hts: { type: string }
+                            predicted_origin: { type: string }
+                            triage_route: { type: string }
+                            jurisdiction: { type: string }
+                            cost_usd: { type: number }
+                            error: { type: [string, "null"] }
+                      problems:
+                        type: array
+                        items:
+                          type: object
+                          required: [message]
+                          properties:
+                            row: { type: integer, description: "Source line (CSV) or 1-based item index (JSON)" }
+                            external_id: { type: string }
+                            message: { type: string }
+                      summary:
+                        type: object
+                        properties:
+                          assemblies: { type: integer }
+                          problems: { type: integer }
+                          lines: { type: integer }
+                          new: { type: integer }
+                          changed: { type: integer }
+                          unchanged: { type: integer }
+                          created: { type: integer }
+                          updated: { type: integer }
+                          failed: { type: integer }
+                          cost_usd: { type: number }
+                          latency_ms: { type: integer }
+        "400": { $ref: "#/components/responses/Error" }
+        "401": { $ref: "#/components/responses/Error" }
+        "402": { $ref: "#/components/responses/Error" }
+        "403": { $ref: "#/components/responses/Error" }
+        "429": { $ref: "#/components/responses/TooManyRequests" }
+        "503": { $ref: "#/components/responses/Error" }
   /v1/products/money-prefill:
     post:
       operationId: prefillMoney
@@ -2019,6 +2146,138 @@ paths:
                   note: { type: string }
         "400": { $ref: "#/components/responses/Error" }
         "429": { $ref: "#/components/responses/TooManyRequests" }
+  /v1/atiga/check:
+    post:
+      operationId: checkAtigaPreference
+      summary: ATIGA preferential origin check from a bill of materials (deterministic, no model call; off unless ATIGA_CHECK=on)
+      description: >-
+        Does a good made in an ASEAN Member State qualify as ATIGA originating, so it can claim the ATIGA (AFTA, Form D)
+        preferential tariff when imported into another Member State? Served only with `ATIGA_CHECK=on` (default off:
+        404). Deterministic code over the official Annex 3 product-specific rules (HS 2022, endorsed by the 36th AFTA
+        Council, read row by row from the ASEAN Secretariat workbook; `backend/internal/atiga`, D925). Implements
+        Art. 26 and 27 (wholly obtained), Art. 28.1 (the general rule RVC40 or CTH for goods not listed in Annex 3),
+        Art. 28.2 (the Annex 3 rule, including RVC35 with CTSH, "except from" exclusions, the textile process rule and
+        "cut and sewn in any Member State", which the caller states in `processes`), Art. 29 RVC by the direct or
+        indirect method (Art. 29.3: give `method` to use only your Member State's), Art. 30.1 cumulation, Art. 30.2
+        partial cumulation (a Member State material with its own RVC from 20 % to under 40 % adds that share of its
+        value as ASEAN content), Art. 31 minimal operations and Art. 33 de minimis (10 % of FOB value). Not covered:
+        ITA goods (Art. 28.3, Annex 4), direct consignment (Art. 32), packaging, accessories, neutral elements and
+        interchangeable materials (Art. 34 to 37), and proof-of-origin procedures. Missing facts make the answer
+        `undetermined`, never `no`. Preferential origin only (`regime: atiga_preferential`), separate from the marking
+        and non-preferential origin a case answer gives. Nothing is stored. Not a ruling and not a Certificate of
+        Origin. Cheap class (120 a minute); a malformed body is 400 `invalid_input`.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: false
+              required: [hs, produced_in]
+              properties:
+                hs: { type: string, example: "6101.20", description: "The good's HS code, 4 to 10 digits (HS 2022). A heading with Annex 3 rows needs the 6-digit subheading." }
+                produced_in: { type: string, example: Cambodia, description: "Where the good is produced: country name or ISO alpha-2 code. A non-Member State is `no`." }
+                fob: { type: number, exclusiveMinimum: 0, description: "FOB value of the good; needed for RVC and de minimis" }
+                method: { type: string, enum: [direct, indirect], description: "The RVC method the exporting Member State uses (Art. 29.3). Unset: either may decide." }
+                wholly_obtained: { type: boolean, description: "The producer states the good is wholly obtained or produced in the Member State (Art. 27)" }
+                operations:
+                  type: array
+                  maxItems: 50
+                  items: { type: string }
+                  description: "What is done to the non-originating materials. If every entry is an Art. 31 key (preservation, shipment, packaging), the good does not qualify. Any other word counts as real production."
+                processes:
+                  type: object
+                  additionalProperties: false
+                  description: "Annex 3 conditions written in words: true if it applies, false if not, left out if not stated (undetermined)."
+                  properties:
+                    textile_process: { type: boolean, description: "The Attachment 1 working or processing for textiles was done in a Member State" }
+                    cut_and_sewn: { type: boolean, description: "The good is both cut and sewn in a Member State" }
+                    refining: { type: boolean, description: "The good is produced by refining" }
+                    wet_to_dry: { type: boolean, description: "There is a change from the wet state to the dry state" }
+                    recording: { type: boolean, description: "Recording onto blank or unrecorded media" }
+                    parts_same_subheading: { type: boolean, description: "Made from parts produced solely for goods of the same subheading" }
+                variant: { type: string, description: "For rows whose rule depends on the product (e.g. 7317.00 of steel vs of stainless steel), the branch id from `rule.variants`. Unset: decided only if every branch agrees." }
+                costs:
+                  type: object
+                  additionalProperties: false
+                  description: "Direct method terms, Art. 29.1(a); same currency as fob"
+                  properties:
+                    labour: { type: number, minimum: 0 }
+                    overhead: { type: number, minimum: 0 }
+                    profit: { type: number, minimum: 0 }
+                    other: { type: number, minimum: 0 }
+                materials:
+                  type: array
+                  maxItems: 200
+                  items:
+                    type: object
+                    additionalProperties: false
+                    properties:
+                      name: { type: string }
+                      hs: { type: string, description: "The material's HS code, 2 to 10 digits; the rule needs 2, 4 or 6" }
+                      value: { type: number, minimum: 0, description: "CIF at import, or the earliest price paid in the Member State (Art. 29.2)" }
+                      country: { type: string, description: "Where the material originates" }
+                      status: { type: string, enum: [originating, non_originating, unknown], default: unknown, description: "originating: the supplier's declaration or proof of origin says it is ATIGA originating" }
+                      rvc_pct: { type: number, minimum: 0, maximum: 100, description: "The material's own ASEAN value content, for Art. 30.2 partial cumulation" }
+      responses:
+        "200":
+          description: The answer, with the rule used and plain-English reasons
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  outcome: { type: string, enum: ["yes", "no", undetermined] }
+                  basis: { type: string, enum: [WO, PE, PSR], description: "Art. 26 limb of a yes" }
+                  applied: { type: string, example: "CC and cut and sewn in any AMS", description: "The alternative that decided a yes" }
+                  rule:
+                    type: object
+                    properties:
+                      code: { type: string, example: "6101.20", description: "The Annex 3 subheading, or Art. 28.1 for the general rule" }
+                      listed: { type: boolean, description: "true: an Annex 3 row; false: the Art. 28.1 general rule" }
+                      concise: { type: string, example: "RVC40 or CC and cut and sewn in any AMS or textile process rule" }
+                      full: { type: string }
+                      version: { type: string, example: atiga-annex3-psr-hs2022-aftac36 }
+                      variants: { type: array, items: { type: object } }
+                  rvc:
+                    type: object
+                    properties:
+                      threshold: { type: integer, example: 40 }
+                      direct: { type: number, description: "(ASEAN materials + labour + overhead + profit + other) / FOB x 100" }
+                      indirect: { type: number, description: "(FOB - non-originating materials) / FOB x 100" }
+                      vnm: { type: number }
+                      vom: { type: number }
+                      partial: { type: number, description: "ASEAN content counted from partially cumulated materials (Art. 30.2)" }
+                  de_minimis:
+                    type: object
+                    properties:
+                      used: { type: boolean }
+                      value_share: { type: number, description: "per cent of FOB" }
+                  accumulation: { type: boolean, description: "Originating materials from another Member State were counted (Art. 30.1)" }
+                  partial_cumulation: { type: boolean, description: "Art. 30.2 partial cumulation was used" }
+                  failing:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        index: { type: integer }
+                        name: { type: string }
+                        hs: { type: string }
+                        reason: { type: string }
+                  alternatives:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        rule: { type: string }
+                        outcome: { type: string, enum: ["yes", "no", undetermined] }
+                        reasons: { type: array, items: { type: string } }
+                  reasons: { type: array, items: { type: string } }
+                  regime: { type: string, enum: [atiga_preferential] }
+                  note: { type: string }
+        "400": { $ref: "#/components/responses/Error" }
+        "404": { $ref: "#/components/responses/Error" }
+        "429": { $ref: "#/components/responses/TooManyRequests" }
   /v1/usmca/check:
     post:
       operationId: checkUsmcaOriginRule
@@ -2410,6 +2669,85 @@ paths:
         "401": { $ref: "#/components/responses/Error" }
         "404": { $ref: "#/components/responses/Error" }
         "409": { $ref: "#/components/responses/Error" }
+  /v1/workspaces/{id}/usage:
+    get:
+      operationId: workspaceUsage
+      summary: The workspace's use this month and its budget (USAGE_METERING=on, TEAMS=on)
+      description: "Counts per UTC month (#886): predictions (each engine run on a case), plan searches, and the model spend of every call made for a signed-in member of the workspace, at the prices the daily spend cap uses. Any member may read it. Requests without a workspace (anonymous, API keys) are not counted here. 404 for a workspace the caller is not in."
+      parameters:
+        - { $ref: "#/components/parameters/UserToken" }
+        - { name: id, in: path, required: true, schema: { type: string } }
+        - { name: month, in: query, required: false, schema: { type: string, pattern: "^[0-9]{4}-(0[1-9]|1[0-2])$" }, description: "YYYY-MM; default this month (UTC)" }
+      responses:
+        "429": { $ref: "#/components/responses/TooManyRequests" }
+        "200":
+          description: The month's use
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [workspace_id, usage]
+                properties:
+                  workspace_id: { type: string }
+                  usage: { $ref: "#/components/schemas/WorkspaceUsage" }
+        "400": { $ref: "#/components/responses/Error" }
+        "401": { $ref: "#/components/responses/Error" }
+        "404": { $ref: "#/components/responses/Error" }
+  /v1/workspaces/{id}/budget:
+    put:
+      operationId: setWorkspaceBudget
+      summary: Set the workspace's monthly model budget (workspace admin; USAGE_METERING=on)
+      description: "With `hard_cap`, model-calling requests by members are refused with 402 `workspace_budget_reached` once the month's spend reaches `monthly_usd` (Retry-After: the next UTC month), and a plan search whose estimated maximum cost would pass it is refused before it runs. Without it the budget is reported only. `alert_percent` (default 80) sets when `usage.alert` turns true. Nothing is billed. 403 for a member who is not an admin."
+      parameters:
+        - { $ref: "#/components/parameters/UserToken" }
+        - { name: id, in: path, required: true, schema: { type: string } }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [monthly_usd]
+              additionalProperties: false
+              properties:
+                monthly_usd: { type: number, exclusiveMinimum: 0, maximum: 1000000 }
+                hard_cap: { type: boolean, default: false }
+                alert_percent: { type: integer, minimum: 0, maximum: 100, description: 0 means 80 }
+      responses:
+        "429": { $ref: "#/components/responses/TooManyRequests" }
+        "503": { $ref: "#/components/responses/Error" }
+        "200":
+          headers:
+            X-Audit-Incomplete: { $ref: "#/components/headers/AuditIncomplete" }
+          description: The budget saved
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  workspace_id: { type: string }
+                  budget: { $ref: "#/components/schemas/WorkspaceBudget" }
+        "400": { $ref: "#/components/responses/Error" }
+        "401": { $ref: "#/components/responses/Error" }
+        "403": { $ref: "#/components/responses/Error" }
+        "404": { $ref: "#/components/responses/Error" }
+    delete:
+      operationId: deleteWorkspaceBudget
+      summary: Remove the workspace's budget (workspace admin; USAGE_METERING=on)
+      description: Use is still counted. 403 for a member who is not an admin; 404 for a workspace the caller is not in.
+      parameters:
+        - { $ref: "#/components/parameters/UserToken" }
+        - { name: id, in: path, required: true, schema: { type: string } }
+      responses:
+        "429": { $ref: "#/components/responses/TooManyRequests" }
+        "503": { $ref: "#/components/responses/Error" }
+        "204":
+          description: Removed
+          headers:
+            X-Audit-Incomplete: { $ref: "#/components/headers/AuditIncomplete" }
+        "401": { $ref: "#/components/responses/Error" }
+        "403": { $ref: "#/components/responses/Error" }
+        "404": { $ref: "#/components/responses/Error" }
   /v1/audit:
     get:
       operationId: listAudit
@@ -3219,9 +3557,34 @@ components:
       properties:
         code:
           type: string
-          enum: [invalid_input, not_found, model_unavailable, model_bad_response, out_of_scope, internal, rate_limited, too_many_in_flight, client_budget_reached, auth_rate_limited, forbidden, budget_reached, unauthenticated, conflict, unauthorized, quota_exceeded, audit_unavailable, review_not_found, link_revoked, link_expired]
+          enum: [invalid_input, not_found, model_unavailable, model_bad_response, out_of_scope, internal, rate_limited, too_many_in_flight, client_budget_reached, auth_rate_limited, forbidden, budget_reached, unauthenticated, conflict, unauthorized, quota_exceeded, audit_unavailable, review_not_found, link_revoked, link_expired, workspace_budget_reached]
         message: { type: string }
         details: {}
+    WorkspaceBudget:
+      type: object
+      required: [monthly_usd, hard_cap, alert_percent, updated_at]
+      properties:
+        monthly_usd: { type: number }
+        hard_cap: { type: boolean }
+        alert_percent: { type: integer }
+        updated_by: { type: string, format: email }
+        updated_at: { type: string, format: date-time }
+    WorkspaceUsage:
+      type: object
+      required: [totals, budget, remaining_usd, alert, blocked]
+      properties:
+        totals:
+          type: object
+          required: [month, predictions, plan_searches, model_usd]
+          properties:
+            month: { type: string, example: "2026-11" }
+            predictions: { type: integer }
+            plan_searches: { type: integer }
+            model_usd: { type: number }
+        budget: { oneOf: [{ $ref: "#/components/schemas/WorkspaceBudget" }, { type: "null" }] }
+        remaining_usd: { type: [number, "null"] }
+        alert: { type: boolean, description: "Spend reached the budget's alert share" }
+        blocked: { type: boolean, description: "A hard cap is reached: model-calling requests are refused (402)" }
     Workspace:
       type: object
       description: A team workspace (D68); its members see each other's cases.
@@ -3267,7 +3630,7 @@ components:
         last_updated: { type: string, format: date-time }
     AuditAction:
       type: string
-      enum: [case.create, case.update, case.export, case.delete, case.pin, case.read, workspace.create, workspace.invite, workspace.join, workspace.role_change, workspace.member_remove, workspace.leave, workspace.retention, apikey.issue, apikey.list, apikey.disable, admin.watch_run, audit.read, audit.verify, audit.export, auth.denied, review.create, review.revoke, review.view, review.decision]
+      enum: [case.create, case.update, case.export, case.delete, case.pin, case.read, workspace.create, workspace.invite, workspace.join, workspace.role_change, workspace.member_remove, workspace.leave, workspace.retention, workspace.budget, apikey.issue, apikey.list, apikey.disable, admin.watch_run, audit.read, audit.verify, audit.export, auth.denied, review.create, review.revoke, review.view, review.decision]
       description: "`case.read` appears only as a denial; allowed ordinary reads are not audited."
     AuditPhase:
       type: string

@@ -55,6 +55,9 @@ func NewHandler(logger *slog.Logger, info Info, deps ...Deps) http.Handler {
 		mux.HandleFunc("POST /v1/cases/batch", a.limit(bulk, a.batch))
 		mux.HandleFunc("GET /v1/cases", a.cheap(a.listCases))
 		mux.HandleFunc("POST /v1/products/import", a.limit(light, a.importProduct))
+		if d.ERPImport {
+			mux.HandleFunc("POST /v1/products/erp-import", a.limit(bulk, a.erpImport))
+		}
 		mux.HandleFunc("POST /v1/products/extract", a.limit(light, a.extractProduct))
 		if d.MediaExtractor != nil {
 			mux.HandleFunc("POST /v1/products/extract-media", a.limit(light, a.extractMedia))
@@ -126,6 +129,9 @@ func NewHandler(logger *slog.Logger, info Info, deps ...Deps) http.Handler {
 		mux.HandleFunc("GET /v1/duty-rates", a.cheap(a.dutyRates))
 		mux.HandleFunc("POST /v1/rcep/check", a.cheap(a.rcepCheck))   // RCEP preferential origin, no model
 		mux.HandleFunc("POST /v1/usmca/check", a.cheap(a.usmcaCheck)) // USMCA selected origin rule, no model
+		if d.ATIGACheck {
+			mux.HandleFunc("POST /v1/atiga/check", a.cheap(a.atigaCheck)) // ATIGA preferential origin, no model (D925)
+		}
 		if d.CanadaMarking != nil {
 			mux.HandleFunc("POST /v1/rules/canada-marking", a.cheap(a.canadaMarking))
 		}
@@ -148,6 +154,11 @@ func NewHandler(logger *slog.Logger, info Info, deps ...Deps) http.Handler {
 			mux.HandleFunc("POST /v1/workspaces/{id}/join", a.cheap(a.joinWorkspace))
 			mux.HandleFunc("PUT /v1/workspaces/{id}/members/{email}/role", a.cheap(a.setMemberRole))
 			mux.HandleFunc("DELETE /v1/workspaces/{id}/members/{email}", a.cheap(a.removeMember))
+			if d.Metering != nil {
+				mux.HandleFunc("GET /v1/workspaces/{id}/usage", a.cheap(a.workspaceUsage))
+				mux.HandleFunc("PUT /v1/workspaces/{id}/budget", a.cheap(a.putWorkspaceBudget))
+				mux.HandleFunc("DELETE /v1/workspaces/{id}/budget", a.cheap(a.deleteWorkspaceBudget))
+			}
 		}
 		if d.Audit != nil {
 			mux.HandleFunc("GET /v1/audit", a.rateOnly(light, a.auditList))

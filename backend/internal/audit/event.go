@@ -49,6 +49,7 @@ const (
 	WorkspaceLeave        Action = "workspace.leave"
 	// WorkspaceRetention sets a workspace's case retention policy (#875).
 	WorkspaceRetention Action = "workspace.retention"
+	WorkspaceBudget    Action = "workspace.budget"
 
 	APIKeyIssue   Action = "apikey.issue"
 	APIKeyList    Action = "apikey.list"
@@ -99,6 +100,7 @@ var actionSpecs = map[Action]actionSpec{
 	WorkspaceMemberRemove: {sensitive: true},
 	WorkspaceLeave:        {sensitive: true},
 	WorkspaceRetention:    {details: []string{"", "keep", "expire"}, sensitive: true},
+	WorkspaceBudget:       {details: []string{"set", "clear"}},
 	APIKeyIssue:           {sensitive: true},
 	APIKeyList:            {},
 	APIKeyDisable:         {sensitive: true},

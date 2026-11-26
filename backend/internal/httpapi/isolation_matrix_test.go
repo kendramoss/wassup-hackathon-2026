@@ -43,6 +43,10 @@ var routeTable = map[string]routeClass{
 	"POST /v1/cases/batch":                         caseCreate,
 	"GET /v1/cases":                                caseCreate,
 	"POST /v1/products/import":                     noCaseData,
+	"POST /v1/products/erp-import":                 caseCreate, // files cases under the caller's scope; IDs derive from it
+	"GET /v1/workspaces/{id}/usage":                noCaseData,
+	"PUT /v1/workspaces/{id}/budget":               noCaseData,
+	"DELETE /v1/workspaces/{id}/budget":            noCaseData,
 	"POST /v1/products/extract":                    noCaseData,
 	"POST /v1/products/extract-media":              noCaseData,
 	"POST /v1/products/money-prefill":              noCaseData,
@@ -75,6 +79,7 @@ var routeTable = map[string]routeClass{
 	"GET /v1/status":                               noCaseData,
 	"GET /v1/duty-rates":                           noCaseData,
 	"POST /v1/rcep/check":                          noCaseData,
+	"POST /v1/atiga/check":                         noCaseData,
 	"POST /v1/usmca/check":                         noCaseData,
 	"POST /v1/rules/canada-marking":                noCaseData, // computes from the request alone; nothing stored (D720)
 	"POST /v1/rules/eu-origin":                     noCaseData, // computes from the request alone; nothing stored (D760)

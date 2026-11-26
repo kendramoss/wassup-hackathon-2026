@@ -58,6 +58,9 @@ type Options struct {
 	// check_uk_origin are not listed.
 	EUOrigin bool
 	UKOrigin bool
+	// ATIGA reports that POST /v1/atiga/check is served; without it
+	// check_atiga_preference is not listed.
+	ATIGA bool
 	// Version is reported in the MCP initialize result.
 	Version string
 	// ClientAddress resolves the outer request's connection address and
@@ -113,6 +116,9 @@ func NewServer(o Options) *mcp.Server {
 	}
 	if o.UKOrigin {
 		t.registerOrigin(s, ukOriginTool)
+	}
+	if o.ATIGA {
+		t.registerATIGA(s)
 	}
 	t.registerResources(s)
 	t.registerPrompts(s)

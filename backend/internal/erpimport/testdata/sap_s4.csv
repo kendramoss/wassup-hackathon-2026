@@ -1,0 +1,6 @@
+Material,Material Description,Plant,Plant Country,Item,Component,Component Description,Quantity,Country of Origin,Commodity Code,Header Commodity Code
+100045,Hand blender,1010,DE,0010,200301,Motor unit,1,CN,85013100,85094000
+100045,Hand blender,1010,DE,0020,200302,Stainless shaft,1,DE,73269098,85094000
+100045,Hand blender,1010,DE,0030,200303,Housing,1,PL,39269097,85094000
+100045,Hand blender,1010,DE,0040,200303,Housing,1,PL,39269097,85094000
+100046,Kettle,1010,DE,0010,200401,Heating element,1,CN,85168020,

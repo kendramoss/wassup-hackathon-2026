@@ -35,6 +35,7 @@ import (
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/export"
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/llm"
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/logsafe"
+	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/metering"
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/planner"
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/planrule"
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/ratelimit"
@@ -211,9 +212,16 @@ type Deps struct {
 	// spend reaches its cap (D59). The admin token is not exempt from
 	// counting, only from the refusal.
 	Spend *spend.Meter
+	// Metering, when set (USAGE_METERING=on, with teams), counts each
+	// workspace's predictions, plan searches and model spend per UTC month
+	// and enforces its budget; it serves the workspace usage and budget
+	// routes (#886). Nil: nothing is metered and the routes are 404.
+	Metering *metering.Meter
 	// ExportCFR177 lets export take "format": "cfr177", the ruling-request
 	// letter laid out on 19 CFR 177.2 (D66). Off: the field is refused.
 	ExportCFR177 bool
+	// ATIGACheck serves POST /v1/atiga/check (D925). Off by default.
+	ATIGACheck bool
 	// CaseOwnership limits each visitor to the pinned demos and their own
 	// cases (X-Visitor-ID from the frontend proxy; D58). Off by default.
 	CaseOwnership bool
@@ -238,6 +246,11 @@ type Deps struct {
 	// diffed against the case's product and re-predicted (D67). Off by
 	// default (the route is not registered).
 	BOMVersions bool
+	// ERPImport serves POST /v1/products/erp-import: BOM exports from an
+	// ERP (generic CSV, SAP S/4HANA, NetSuite or JSON) checked and, on
+	// commit, filed as cases idempotently (#880). Off by default (the route
+	// is not registered).
+	ERPImport bool
 	// BrokerWorkflow serves the review queue, case discussion and sign-offs,
 	// and the eRulings filing package (brokerflow.go). Off by default (the
 	// routes are not registered).
@@ -566,6 +579,7 @@ func (a *api) analyse(r *http.Request, sc *store.Case, c domain.Case, st *stages
 	if err != nil {
 		return err
 	}
+	a.meterAdd(r.Context(), metering.Delta{Predictions: 1})
 	sc.Prediction, sc.Router, sc.Triage = pred, label, tr
 	sc.Clarify = nil
 	// A fallback answer stays on the fallback reason. Clarify would rewrite
@@ -1202,10 +1216,14 @@ func (a *api) plan(w http.ResponseWriter, r *http.Request) {
 		a.fail(w, r, err)
 		return
 	}
+	if !a.planBudgetCheck(w, r, req) {
+		return
+	}
 	if err := a.auditCase(r, c, "plan"); err != nil {
 		a.fail(w, r, err)
 		return
 	}
+	a.meterAdd(r.Context(), metering.Delta{PlanSearches: 1})
 	if wantsStream(r) {
 		a.planStream(w, r, c, req, in.Economics, st)
 		return
@@ -1327,7 +1345,11 @@ func (a *api) planEstimate(w http.ResponseWriter, r *http.Request) {
 		a.fail(w, r, err)
 		return
 	}
-	a.respond(w, http.StatusOK, map[string]any{"case_id": c.ID, "estimate": e})
+	out := map[string]any{"case_id": c.ID, "estimate": e}
+	if b := a.estimateBudget(r, e); b != nil {
+		out["workspace_budget"] = b
+	}
+	a.respond(w, http.StatusOK, out)
 }
 
 // economicsPriced is the case's economics with the duty rates a plan search

@@ -618,6 +618,27 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/v1/products/erp-import": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Import BOMs from an ERP export (ERP_IMPORT=on)
+         * @description Reads a bill-of-materials export, one row per BOM line (#880): `generic` CSV (product_id, product_name, assembled_in, component, made_in; optional product_hts, component_hts, description), an SAP S/4HANA BOM explosion joined to the material master (`sap_s4`: Material, Material Description, Plant Country, Component and/or Component Description, Country of Origin, Commodity Code, optional Header Commodity Code), a NetSuite assembly-item saved search (`netsuite`: Internal ID or Assembly Item, Assembly Description, Location Country, Member Item and/or Member Description, Country of Manufacture, HS Tariff Number, optional Assembly HS Tariff Number), or JSON `items`. Country columns take names or ISO alpha-2 codes; codes are normalised to dotted HTS form. Each assembly becomes one product assembled in its assembly country; a problem on any line of an assembly keeps that assembly out and is reported with its line number, and other assemblies are unaffected.
+         *     Without `commit` (a dry run) nothing is stored and no model is called: each complete assembly is reported as `new`, `changed` or `unchanged` against its case. With `commit: true` each is filed and predicted: the case ID is derived from the caller (user, workspace or API key), `source` and the ERP key, so re-importing the same export updates the same cases. An unchanged assembly is left alone (no model call); a changed one gets its new BOM, a new prediction and a `bom_updated` history event; a new one is created as by predict. A commit needs sign-in or an API key and takes at most 20 complete assemblies; split larger exports. Rate-limited like batch.
+         */
+        post: operations["erpImport"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/v1/products/money-prefill": {
         parameters: {
             query?: never;
@@ -996,6 +1017,26 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/v1/atiga/check": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * ATIGA preferential origin check from a bill of materials (deterministic, no model call; off unless ATIGA_CHECK=on)
+         * @description Does a good made in an ASEAN Member State qualify as ATIGA originating, so it can claim the ATIGA (AFTA, Form D) preferential tariff when imported into another Member State? Served only with `ATIGA_CHECK=on` (default off: 404). Deterministic code over the official Annex 3 product-specific rules (HS 2022, endorsed by the 36th AFTA Council, read row by row from the ASEAN Secretariat workbook; `backend/internal/atiga`, D925). Implements Art. 26 and 27 (wholly obtained), Art. 28.1 (the general rule RVC40 or CTH for goods not listed in Annex 3), Art. 28.2 (the Annex 3 rule, including RVC35 with CTSH, "except from" exclusions, the textile process rule and "cut and sewn in any Member State", which the caller states in `processes`), Art. 29 RVC by the direct or indirect method (Art. 29.3: give `method` to use only your Member State's), Art. 30.1 cumulation, Art. 30.2 partial cumulation (a Member State material with its own RVC from 20 % to under 40 % adds that share of its value as ASEAN content), Art. 31 minimal operations and Art. 33 de minimis (10 % of FOB value). Not covered: ITA goods (Art. 28.3, Annex 4), direct consignment (Art. 32), packaging, accessories, neutral elements and interchangeable materials (Art. 34 to 37), and proof-of-origin procedures. Missing facts make the answer `undetermined`, never `no`. Preferential origin only (`regime: atiga_preferential`), separate from the marking and non-preferential origin a case answer gives. Nothing is stored. Not a ruling and not a Certificate of Origin. Cheap class (120 a minute); a malformed body is 400 `invalid_input`.
+         */
+        post: operations["checkAtigaPreference"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/v1/usmca/check": {
         parameters: {
             query?: never;
@@ -1242,6 +1283,50 @@ export interface paths {
          */
         post: operations["joinWorkspace"];
         delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/workspaces/{id}/usage": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * The workspace's use this month and its budget (USAGE_METERING=on, TEAMS=on)
+         * @description Counts per UTC month (#886): predictions (each engine run on a case), plan searches, and the model spend of every call made for a signed-in member of the workspace, at the prices the daily spend cap uses. Any member may read it. Requests without a workspace (anonymous, API keys) are not counted here. 404 for a workspace the caller is not in.
+         */
+        get: operations["workspaceUsage"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/workspaces/{id}/budget": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /**
+         * Set the workspace's monthly model budget (workspace admin; USAGE_METERING=on)
+         * @description With `hard_cap`, model-calling requests by members are refused with 402 `workspace_budget_reached` once the month's spend reaches `monthly_usd` (Retry-After: the next UTC month), and a plan search whose estimated maximum cost would pass it is refused before it runs. Without it the budget is reported only. `alert_percent` (default 80) sets when `usage.alert` turns true. Nothing is billed. 403 for a member who is not an admin.
+         */
+        put: operations["setWorkspaceBudget"];
+        post?: never;
+        /**
+         * Remove the workspace's budget (workspace admin; USAGE_METERING=on)
+         * @description Use is still counted. 403 for a member who is not an admin; 404 for a workspace the caller is not in.
+         */
+        delete: operations["deleteWorkspaceBudget"];
         options?: never;
         head?: never;
         patch?: never;
@@ -1949,9 +2034,33 @@ export interface components {
         };
         Error: {
             /** @enum {string} */
-            code: "invalid_input" | "not_found" | "model_unavailable" | "model_bad_response" | "out_of_scope" | "internal" | "rate_limited" | "too_many_in_flight" | "client_budget_reached" | "auth_rate_limited" | "forbidden" | "budget_reached" | "unauthenticated" | "conflict" | "unauthorized" | "quota_exceeded" | "audit_unavailable" | "review_not_found" | "link_revoked" | "link_expired";
+            code: "invalid_input" | "not_found" | "model_unavailable" | "model_bad_response" | "out_of_scope" | "internal" | "rate_limited" | "too_many_in_flight" | "client_budget_reached" | "auth_rate_limited" | "forbidden" | "budget_reached" | "unauthenticated" | "conflict" | "unauthorized" | "quota_exceeded" | "audit_unavailable" | "review_not_found" | "link_revoked" | "link_expired" | "workspace_budget_reached";
             message: string;
             details?: unknown;
+        };
+        WorkspaceBudget: {
+            monthly_usd: number;
+            hard_cap: boolean;
+            alert_percent: number;
+            /** Format: email */
+            updated_by?: string;
+            /** Format: date-time */
+            updated_at: string;
+        };
+        WorkspaceUsage: {
+            totals: {
+                /** @example 2026-11 */
+                month: string;
+                predictions: number;
+                plan_searches: number;
+                model_usd: number;
+            };
+            budget: components["schemas"]["WorkspaceBudget"] | null;
+            remaining_usd: number | null;
+            /** @description Spend reached the budget's alert share */
+            alert: boolean;
+            /** @description A hard cap is reached: model-calling requests are refused (402) */
+            blocked: boolean;
         };
         /** @description A team workspace (D68); its members see each other's cases. */
         Workspace: {
@@ -2008,7 +2117,7 @@ export interface components {
          * @description `case.read` appears only as a denial; allowed ordinary reads are not audited.
          * @enum {string}
          */
-        AuditAction: "case.create" | "case.update" | "case.export" | "case.delete" | "case.pin" | "case.read" | "workspace.create" | "workspace.invite" | "workspace.join" | "workspace.role_change" | "workspace.member_remove" | "workspace.leave" | "workspace.retention" | "apikey.issue" | "apikey.list" | "apikey.disable" | "admin.watch_run" | "audit.read" | "audit.verify" | "audit.export" | "auth.denied" | "review.create" | "review.revoke" | "review.view" | "review.decision";
+        AuditAction: "case.create" | "case.update" | "case.export" | "case.delete" | "case.pin" | "case.read" | "workspace.create" | "workspace.invite" | "workspace.join" | "workspace.role_change" | "workspace.member_remove" | "workspace.leave" | "workspace.retention" | "workspace.budget" | "apikey.issue" | "apikey.list" | "apikey.disable" | "admin.watch_run" | "audit.read" | "audit.verify" | "audit.export" | "auth.denied" | "review.create" | "review.revoke" | "review.view" | "review.decision";
         /** @enum {string} */
         AuditPhase: "intent" | "completion" | "single";
         /** @enum {string} */
@@ -4166,6 +4275,16 @@ export interface operations {
                     "application/json": {
                         case_id?: string;
                         estimate?: components["schemas"]["PlanEstimate"];
+                        /** @description With USAGE_METERING=on, for a member of a workspace with a budget (#886): the month's budget, spend and what is left, and whether the estimate's maximum fits. A plan search that would not fit a hard cap is refused with 402. */
+                        workspace_budget?: {
+                            /** @example 2026-11 */
+                            month?: string;
+                            budget_usd?: number;
+                            spent_usd?: number;
+                            remaining_usd?: number;
+                            hard_cap?: boolean;
+                            fits?: boolean;
+                        };
                     };
                 };
             };
@@ -5040,6 +5159,118 @@ export interface operations {
             };
             400: components["responses"]["Error"];
             429: components["responses"]["TooManyRequests"];
+        };
+    };
+    erpImport: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": {
+                    /** @enum {string} */
+                    format: "generic" | "sap_s4" | "netsuite" | "json";
+                    /** @description Label for the ERP or export, part of each case's key; default the format */
+                    source?: string;
+                    /** @description The export */
+                    csv?: string;
+                    /** @description For format json */
+                    items?: {
+                        external_id: string;
+                        name: string;
+                        description?: string;
+                        hts?: string;
+                        /** @description Country name or ISO alpha-2 code */
+                        assembled_in: string;
+                        components: {
+                            name: string;
+                            made_in: string;
+                            hts?: string;
+                        }[];
+                    }[];
+                    /** @default false */
+                    commit?: boolean;
+                    /** @description Optional product family template; without one the facts are written from the BOM */
+                    family?: string;
+                    jurisdiction?: components["schemas"]["JurisdictionCode"];
+                };
+                "multipart/form-data": {
+                    /**
+                     * Format: binary
+                     * @description CSV or .xlsx
+                     */
+                    file: string;
+                    /** @enum {string} */
+                    format: "generic" | "sap_s4" | "netsuite";
+                    source?: string;
+                    /** @enum {string} */
+                    commit?: "true" | "false";
+                    family?: string;
+                    jurisdiction?: string;
+                };
+            };
+        };
+        responses: {
+            /** @description One row per complete assembly, the problems, and counts */
+            200: {
+                headers: {
+                    "X-Audit-Incomplete": components["headers"]["AuditIncomplete"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Meta"] & {
+                        format: string;
+                        source: string;
+                        committed: boolean;
+                        rows: {
+                            external_id: string;
+                            name: string;
+                            /** @enum {string} */
+                            status: "new" | "changed" | "unchanged" | "created" | "updated" | "failed";
+                            /** @description The assembly's case (on a dry run, the case it would use) */
+                            case_id: string;
+                            /** @description Source line numbers (the header is line 1) */
+                            rows: number[];
+                            components: number;
+                            countries: string[];
+                            hts?: string;
+                            predicted_origin?: string;
+                            triage_route?: string;
+                            jurisdiction?: string;
+                            cost_usd?: number;
+                            error: string | null;
+                        }[];
+                        problems: {
+                            /** @description Source line (CSV) or 1-based item index (JSON) */
+                            row?: number;
+                            external_id?: string;
+                            message: string;
+                        }[];
+                        summary: {
+                            assemblies?: number;
+                            problems?: number;
+                            lines?: number;
+                            new?: number;
+                            changed?: number;
+                            unchanged?: number;
+                            created?: number;
+                            updated?: number;
+                            failed?: number;
+                            cost_usd?: number;
+                            latency_ms?: number;
+                        };
+                    };
+                };
+            };
+            400: components["responses"]["Error"];
+            401: components["responses"]["Error"];
+            402: components["responses"]["Error"];
+            403: components["responses"]["Error"];
+            429: components["responses"]["TooManyRequests"];
+            503: components["responses"]["Error"];
         };
     };
     prefillMoney: {
@@ -6045,6 +6276,161 @@ export interface operations {
             429: components["responses"]["TooManyRequests"];
         };
     };
+    checkAtigaPreference: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": {
+                    /**
+                     * @description The good's HS code, 4 to 10 digits (HS 2022). A heading with Annex 3 rows needs the 6-digit subheading.
+                     * @example 6101.20
+                     */
+                    hs: string;
+                    /**
+                     * @description Where the good is produced: country name or ISO alpha-2 code. A non-Member State is `no`.
+                     * @example Cambodia
+                     */
+                    produced_in: string;
+                    /** @description FOB value of the good; needed for RVC and de minimis */
+                    fob?: number;
+                    /**
+                     * @description The RVC method the exporting Member State uses (Art. 29.3). Unset: either may decide.
+                     * @enum {string}
+                     */
+                    method?: "direct" | "indirect";
+                    /** @description The producer states the good is wholly obtained or produced in the Member State (Art. 27) */
+                    wholly_obtained?: boolean;
+                    /** @description What is done to the non-originating materials. If every entry is an Art. 31 key (preservation, shipment, packaging), the good does not qualify. Any other word counts as real production. */
+                    operations?: string[];
+                    /** @description Annex 3 conditions written in words: true if it applies, false if not, left out if not stated (undetermined). */
+                    processes?: {
+                        /** @description The Attachment 1 working or processing for textiles was done in a Member State */
+                        textile_process?: boolean;
+                        /** @description The good is both cut and sewn in a Member State */
+                        cut_and_sewn?: boolean;
+                        /** @description The good is produced by refining */
+                        refining?: boolean;
+                        /** @description There is a change from the wet state to the dry state */
+                        wet_to_dry?: boolean;
+                        /** @description Recording onto blank or unrecorded media */
+                        recording?: boolean;
+                        /** @description Made from parts produced solely for goods of the same subheading */
+                        parts_same_subheading?: boolean;
+                    };
+                    /** @description For rows whose rule depends on the product (e.g. 7317.00 of steel vs of stainless steel), the branch id from `rule.variants`. Unset: decided only if every branch agrees. */
+                    variant?: string;
+                    /** @description Direct method terms, Art. 29.1(a); same currency as fob */
+                    costs?: {
+                        labour?: number;
+                        overhead?: number;
+                        profit?: number;
+                        other?: number;
+                    };
+                    materials?: {
+                        name?: string;
+                        /** @description The material's HS code, 2 to 10 digits; the rule needs 2, 4 or 6 */
+                        hs?: string;
+                        /** @description CIF at import, or the earliest price paid in the Member State (Art. 29.2) */
+                        value?: number;
+                        /** @description Where the material originates */
+                        country?: string;
+                        /**
+                         * @description originating: the supplier's declaration or proof of origin says it is ATIGA originating
+                         * @default unknown
+                         * @enum {string}
+                         */
+                        status?: "originating" | "non_originating" | "unknown";
+                        /** @description The material's own ASEAN value content, for Art. 30.2 partial cumulation */
+                        rvc_pct?: number;
+                    }[];
+                };
+            };
+        };
+        responses: {
+            /** @description The answer, with the rule used and plain-English reasons */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        /** @enum {string} */
+                        outcome?: "yes" | "no" | "undetermined";
+                        /**
+                         * @description Art. 26 limb of a yes
+                         * @enum {string}
+                         */
+                        basis?: "WO" | "PE" | "PSR";
+                        /**
+                         * @description The alternative that decided a yes
+                         * @example CC and cut and sewn in any AMS
+                         */
+                        applied?: string;
+                        rule?: {
+                            /**
+                             * @description The Annex 3 subheading, or Art. 28.1 for the general rule
+                             * @example 6101.20
+                             */
+                            code?: string;
+                            /** @description true: an Annex 3 row; false: the Art. 28.1 general rule */
+                            listed?: boolean;
+                            /** @example RVC40 or CC and cut and sewn in any AMS or textile process rule */
+                            concise?: string;
+                            full?: string;
+                            /** @example atiga-annex3-psr-hs2022-aftac36 */
+                            version?: string;
+                            variants?: Record<string, never>[];
+                        };
+                        rvc?: {
+                            /** @example 40 */
+                            threshold?: number;
+                            /** @description (ASEAN materials + labour + overhead + profit + other) / FOB x 100 */
+                            direct?: number;
+                            /** @description (FOB - non-originating materials) / FOB x 100 */
+                            indirect?: number;
+                            vnm?: number;
+                            vom?: number;
+                            /** @description ASEAN content counted from partially cumulated materials (Art. 30.2) */
+                            partial?: number;
+                        };
+                        de_minimis?: {
+                            used?: boolean;
+                            /** @description per cent of FOB */
+                            value_share?: number;
+                        };
+                        /** @description Originating materials from another Member State were counted (Art. 30.1) */
+                        accumulation?: boolean;
+                        /** @description Art. 30.2 partial cumulation was used */
+                        partial_cumulation?: boolean;
+                        failing?: {
+                            index?: number;
+                            name?: string;
+                            hs?: string;
+                            reason?: string;
+                        }[];
+                        alternatives?: {
+                            rule?: string;
+                            /** @enum {string} */
+                            outcome?: "yes" | "no" | "undetermined";
+                            reasons?: string[];
+                        }[];
+                        reasons?: string[];
+                        /** @enum {string} */
+                        regime?: "atiga_preferential";
+                        note?: string;
+                    };
+                };
+            };
+            400: components["responses"]["Error"];
+            404: components["responses"]["Error"];
+            429: components["responses"]["TooManyRequests"];
+        };
+    };
     checkUsmcaOriginRule: {
         parameters: {
             query?: never;
@@ -6515,6 +6901,115 @@ export interface operations {
             401: components["responses"]["Error"];
             404: components["responses"]["Error"];
             409: components["responses"]["Error"];
+            429: components["responses"]["TooManyRequests"];
+            503: components["responses"]["Error"];
+        };
+    };
+    workspaceUsage: {
+        parameters: {
+            query?: {
+                /** @description YYYY-MM; default this month (UTC) */
+                month?: string;
+            };
+            header: {
+                /** @description The signed-in user's Google ID token, forwarded by the frontend proxy (D68). Optional on every other endpoint. */
+                "X-User-Token": components["parameters"]["UserToken"];
+            };
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description The month's use */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        workspace_id: string;
+                        usage: components["schemas"]["WorkspaceUsage"];
+                    };
+                };
+            };
+            400: components["responses"]["Error"];
+            401: components["responses"]["Error"];
+            404: components["responses"]["Error"];
+            429: components["responses"]["TooManyRequests"];
+        };
+    };
+    setWorkspaceBudget: {
+        parameters: {
+            query?: never;
+            header: {
+                /** @description The signed-in user's Google ID token, forwarded by the frontend proxy (D68). Optional on every other endpoint. */
+                "X-User-Token": components["parameters"]["UserToken"];
+            };
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": {
+                    monthly_usd: number;
+                    /** @default false */
+                    hard_cap?: boolean;
+                    /** @description 0 means 80 */
+                    alert_percent?: number;
+                };
+            };
+        };
+        responses: {
+            /** @description The budget saved */
+            200: {
+                headers: {
+                    "X-Audit-Incomplete": components["headers"]["AuditIncomplete"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        workspace_id?: string;
+                        budget?: components["schemas"]["WorkspaceBudget"];
+                    };
+                };
+            };
+            400: components["responses"]["Error"];
+            401: components["responses"]["Error"];
+            403: components["responses"]["Error"];
+            404: components["responses"]["Error"];
+            429: components["responses"]["TooManyRequests"];
+            503: components["responses"]["Error"];
+        };
+    };
+    deleteWorkspaceBudget: {
+        parameters: {
+            query?: never;
+            header: {
+                /** @description The signed-in user's Google ID token, forwarded by the frontend proxy (D68). Optional on every other endpoint. */
+                "X-User-Token": components["parameters"]["UserToken"];
+            };
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Removed */
+            204: {
+                headers: {
+                    "X-Audit-Incomplete": components["headers"]["AuditIncomplete"];
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            401: components["responses"]["Error"];
+            403: components["responses"]["Error"];
+            404: components["responses"]["Error"];
             429: components["responses"]["TooManyRequests"];
             503: components["responses"]["Error"];
         };
