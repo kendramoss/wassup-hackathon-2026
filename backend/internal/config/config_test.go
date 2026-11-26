@@ -741,3 +741,17 @@ func TestJapanEngineGateConfig(t *testing.T) {
 		t.Errorf("bad JAPAN_ENGINE error = %v", err)
 	}
 }
+
+func TestUSMCARulesExt(t *testing.T) {
+	c, err := FromEnv(getenv(vertexEnv()))
+	if err != nil || c.USMCARulesExt {
+		t.Fatalf("USMCA_RULES_EXT default = %v, %v; want off", c.USMCARulesExt, err)
+	}
+	on, err := FromEnv(getenv(merge(vertexEnv(), map[string]string{"USMCA_RULES_EXT": "on"})))
+	if err != nil || !on.USMCARulesExt {
+		t.Fatalf("USMCA_RULES_EXT=on = %v, %v", on.USMCARulesExt, err)
+	}
+	if _, err := FromEnv(getenv(merge(vertexEnv(), map[string]string{"USMCA_RULES_EXT": "maybe"}))); err == nil {
+		t.Fatal("USMCA_RULES_EXT=maybe accepted")
+	}
+}

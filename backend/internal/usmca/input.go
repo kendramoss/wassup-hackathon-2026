@@ -50,6 +50,9 @@ type Material struct {
 	ID          string      `json:"id,omitempty"`
 	HS          string      `json:"hs,omitempty"`
 	Originating OriginClaim `json:"originating,omitempty"`
+	// Value is the material's value (GN 11(c)(viii)), used only by de
+	// minimis (extended rules). Omitted means unknown.
+	Value Amount `json:"value"`
 }
 
 // ProvisionClaim is the caller's statement about one unsupported special
@@ -78,7 +81,31 @@ type Profile struct {
 	// Only reliance matters; an ordinary bill of materials containing parts
 	// is not an invoked provision.
 	PartsRoute ProvisionClaim `json:"parts_route,omitempty"`
+	// PartsRouteBasis says why non-originating parts cannot shift, for the
+	// parts route (GN 11(n)(i)(B), extended rules): "same_classification"
+	// (the good and the parts share a subheading, or a heading not further
+	// subdivided) or "unassembled" (imported unassembled, classified as
+	// assembled under GRI 2(a)).
+	PartsRouteBasis string `json:"parts_route_basis,omitempty"`
+	// ProducedInUSMCA confirms the good is produced entirely in the territory
+	// of one or more USMCA countries (GN 11(n)(i)(A), parts route only).
+	ProducedInUSMCA bool `json:"produced_entirely_in_usmca_confirmed,omitempty"`
+	// ImportedFromUSMCA confirms the good is imported into the United States
+	// from Mexico or Canada (GN 11(p) deemed-originating goods only).
+	ImportedFromUSMCA bool `json:"imported_from_usmca_country_confirmed,omitempty"`
 }
+
+// Parts-route bases.
+const (
+	PartsBasisSameClassification = "same_classification"
+	PartsBasisUnassembled        = "unassembled"
+)
+
+// De minimis bases (GN 11(e)(i)(A)).
+const (
+	DeMinimisBasisTransactionValue = "transaction_value"
+	DeMinimisBasisTotalCost        = "total_cost"
+)
 
 type provisionRef struct {
 	name string
@@ -104,15 +131,21 @@ var provisions = []provisionRef{
 // caller affirms there are no non-originating materials, so shift conditions
 // are satisfied vacuously. A UI must never default MaterialsComplete to true.
 type Input struct {
-	Destination      string     `json:"destination"`
-	Regime           string     `json:"regime"`
-	GoodHS           string     `json:"good_hs"`
-	RVCMethod        string     `json:"rvc_method,omitempty"`
-	TransactionValue Amount     `json:"transaction_value"`
-	NetCost          Amount     `json:"net_cost"`
-	VNM              Amount     `json:"vnm"`
-	Materials        []Material `json:"materials,omitempty"`
-	Profile          Profile    `json:"profile"`
+	Destination      string `json:"destination"`
+	Regime           string `json:"regime"`
+	GoodHS           string `json:"good_hs"`
+	RVCMethod        string `json:"rvc_method,omitempty"`
+	TransactionValue Amount `json:"transaction_value"`
+	NetCost          Amount `json:"net_cost"`
+	VNM              Amount `json:"vnm"`
+	// TotalCost is the good's total cost, a de minimis basis (extended rules).
+	TotalCost Amount `json:"total_cost"`
+	// DeMinimisBasis elects the de minimis base: the transaction value
+	// (adjusted to exclude international shipment of the good) or the total
+	// cost. Never defaulted.
+	DeMinimisBasis string     `json:"de_minimis_basis,omitempty"`
+	Materials      []Material `json:"materials,omitempty"`
+	Profile        Profile    `json:"profile"`
 }
 
 // DecodeInput strictly decodes a JSON request body. Unknown fields, trailing
@@ -169,6 +202,16 @@ func (in Input) Validate() error {
 		default:
 			return inputErr("profile."+p.name, "must be not_applicable or applies")
 		}
+	}
+	switch in.Profile.PartsRouteBasis {
+	case "", PartsBasisSameClassification, PartsBasisUnassembled:
+	default:
+		return inputErr("profile.parts_route_basis", "must be same_classification or unassembled")
+	}
+	switch in.DeMinimisBasis {
+	case "", DeMinimisBasisTransactionValue, DeMinimisBasisTotalCost:
+	default:
+		return inputErr("de_minimis_basis", "must be transaction_value or total_cost")
 	}
 	return nil
 }

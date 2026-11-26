@@ -3,6 +3,7 @@ package usmca
 import (
 	"fmt"
 	"math/big"
+	"strings"
 )
 
 var bigHundred = big.NewRat(100, 1)
@@ -128,12 +129,22 @@ func Limits() []string { return append([]string(nil), limitsText...) }
 
 // Check evaluates in against the embedded rule data.
 func Check(in Input) (Output, error) {
-	rs, err := DefaultRules()
+	var rs *RuleSet
+	var err error
+	if extendedOn.Load() {
+		rs, err = ExtendedRules()
+	} else {
+		rs, err = DefaultRules()
+	}
 	if err != nil {
 		return Output{}, err
 	}
 	return rs.Check(in)
 }
+
+// extendedProvisions are evaluated by the extended rule set instead of
+// answering not_supported when invoked.
+var extendedProvisions = map[string]bool{"de_minimis": true, "parts_route": true}
 
 type factSet struct {
 	seen map[string]bool
@@ -187,6 +198,9 @@ func (rs *RuleSet) Check(in Input) (Output, error) {
 	for _, p := range provisions {
 		switch p.get(in.Profile) {
 		case ProvisionApplies:
+			if rs.extended && extendedProvisions[p.name] {
+				continue
+			}
 			unsupported = append(unsupported, p.name+" applies and is not supported by this check")
 		case ProvisionNotApplicable:
 		default:
@@ -197,6 +211,18 @@ func (rs *RuleSet) Check(in Input) (Output, error) {
 	row, shortGood := rs.matchRow(in.GoodHS)
 	if row == nil && !shortGood {
 		unsupported = append(unsupported, "the good is not covered by the rule data snapshot")
+	}
+	if row != nil && row.Unsupported != "" {
+		unsupported = append(unsupported, row.Unsupported)
+	}
+	if rs.extended {
+		ch := in.GoodHS[:2]
+		if in.Profile.DeMinimis == ProvisionApplies && (ch <= "27" || ("50" <= ch && ch <= "63") || in.GoodHS[:4] == "9619") {
+			unsupported = append(unsupported, "de minimis for goods of chapters 1 to 27, 50 to 63 and heading 9619 (GN 11(e)(ii)-(iv)) is not supported by this check")
+		}
+		if in.Profile.PartsRoute == ProvisionApplies && "61" <= ch && ch <= "63" {
+			unsupported = append(unsupported, "the parts route does not apply to goods of chapters 61 to 63 (GN 11(n)(i))")
+		}
 	}
 	if len(unsupported) > 0 {
 		out.Status = RuleNotSupported
@@ -222,9 +248,23 @@ func (rs *RuleSet) Check(in Input) (Output, error) {
 			res = res.And(triOf(cr.Result))
 			ar.Conditions = append(ar.Conditions, cr)
 		}
+		if rs.extended && res == False && in.Profile.DeMinimis == ProvisionApplies {
+			res = ev.deMinimis(&ar)
+		}
 		ar.Result = outcome(res)
 		out.Alternatives = append(out.Alternatives, ar)
 		rule = rule.Or(res)
+	}
+	if rs.extended && rs.data.Deemed != nil {
+		if ar, ok := ev.deemed(rs.data.Deemed); ok {
+			out.Alternatives = append(out.Alternatives, ar)
+			rule = rule.Or(triOf(ar.Result))
+		}
+	}
+	if rs.extended && in.Profile.PartsRoute == ProvisionApplies {
+		ar := ev.partsRoute()
+		out.Alternatives = append(out.Alternatives, ar)
+		rule = rule.Or(triOf(ar.Result))
 	}
 	// Facts from alternatives only matter while the rule is unresolved.
 	if rule == Unknown3 {
@@ -269,13 +309,20 @@ func triOf(o Outcome) Tri {
 // matchRow picks the most specific row whose code prefixes the good. shortGood
 // is true when no row matches but some row lies below the (shorter) good code.
 func (rs *RuleSet) matchRow(good string) (row *Row, shortGood bool) {
+	width := func(r *Row) bool { return r.CodeTo != "" && r.CodeTo != r.Code }
 	for i := range rs.data.Rows {
 		r := &rs.data.Rows[i]
-		if len(r.Code) <= len(good) && good[:len(r.Code)] == r.Code {
-			if row == nil || len(r.Code) > len(row.Code) {
+		hi := r.CodeTo
+		if hi == "" {
+			hi = r.Code
+		}
+		n := len(r.Code)
+		if n <= len(good) && r.Code <= good[:n] && good[:n] <= hi {
+			// Most specific: longer code first, then a single code over a range.
+			if row == nil || n > len(row.Code) || (n == len(row.Code) && width(row) && !width(r)) {
 				row = r
 			}
-		} else if len(r.Code) > len(good) && r.Code[:len(good)] == good {
+		} else if n > len(good) && r.Code[:len(good)] <= good && good <= hi[:len(good)] {
 			shortGood = true
 		}
 	}
@@ -430,11 +477,11 @@ func (e *evaluator) condition(c Condition) ConditionResult {
 			if m.HS == "" {
 				shifted = Unknown3
 			}
-			return shifted.And(hasAnyPrefix(m.HS, c.ExcludePrefixes).Not())
+			return shifted.And(hasAnyPrefix(m.HS, c.ExcludePrefixes).Not()).And(inAnyRange(m.HS, c.ExcludeRanges).Not())
 		})
 		cr.Detail = fmt.Sprintf("every non-originating material must differ from the good in its first %d digits", n)
-		if len(c.ExcludePrefixes) > 0 {
-			cr.Detail += fmt.Sprintf(" and not be under %v", c.ExcludePrefixes)
+		if len(c.ExcludePrefixes) > 0 || len(c.ExcludeRanges) > 0 {
+			cr.Detail += fmt.Sprintf(" and not be under %v", append(append([]string(nil), c.ExcludePrefixes...), c.ExcludeRanges...))
 		}
 	case KindForbiddenInputs:
 		t = e.allMaterials(&cr, func(m Material) Tri {
@@ -456,7 +503,18 @@ func (e *evaluator) condition(c Condition) ConditionResult {
 		}
 	case KindAllInputsFrom:
 		t = e.allInputsFrom(&cr, c)
-		cr.Detail = fmt.Sprintf("every non-originating material must be under %v OR outside chapter %q", c.OthersFrom, c.OthersOutsideChapter)
+		switch {
+		case c.OthersOutsideLevel != "":
+			cr.Detail = fmt.Sprintf("every non-originating material must be under %v OR outside the good's %s", c.OthersFrom, c.OthersOutsideLevel)
+		case c.OthersOutsideChapter != "":
+			cr.Detail = fmt.Sprintf("every non-originating material must be under %v OR outside chapter %q", c.OthersFrom, c.OthersOutsideChapter)
+		default:
+			cr.Detail = fmt.Sprintf("every non-originating material must be under %v", c.OthersFrom)
+		}
+	case KindUnmodeled:
+		t = Unknown3
+		cr.Detail = "this alternative carries a condition this check does not model: " + c.Text
+		cr.MissingFacts = append(cr.MissingFacts, MissingFact{"alternative_unmodeled", "rule", "This alternative depends on a product, process or end-use condition that must be checked by hand."})
 	case KindSiblingParts:
 		t = e.sibling(&cr, c)
 		cr.Detail = fmt.Sprintf("at least one non-originating material under %v AND every other non-originating material under %v OR outside chapter %q", c.AtLeastOneFrom, c.OthersFrom, c.OthersOutsideChapter)
@@ -475,12 +533,54 @@ func (e *evaluator) allInputsFrom(cr *ConditionResult, c Condition) Tri {
 		if m.HS == "" {
 			return Unknown3
 		}
-		ok := hasAnyPrefix(m.HS, c.OthersFrom)
+		ok := inAnyRange(m.HS, c.OthersFrom)
 		if c.OthersOutsideChapter != "" {
 			ok = ok.Or(hasPrefix(m.HS, c.OthersOutsideChapter).Not())
 		}
+		if c.OthersOutsideLevel != "" {
+			ok = ok.Or(prefixSame(e.in.GoodHS, m.HS, levelDigits(c.OthersOutsideLevel)).Not())
+		}
 		return ok
 	})
+}
+
+// inRange reports whether code lies in spec, a code prefix or an inclusive
+// "lo-hi" range compared on lo's length. A code shorter than the range is
+// True or False when every completion falls inside or outside, else unknown.
+func inRange(code, spec string) Tri {
+	lo, hi, ok := strings.Cut(spec, "-")
+	if !ok {
+		return hasPrefix(code, spec)
+	}
+	if code == "" {
+		return Unknown3
+	}
+	n := len(lo)
+	if len(code) >= n {
+		c := code[:n]
+		if lo <= c && c <= hi {
+			return True
+		}
+		return False
+	}
+	k := len(code)
+	// completions of code span [code+"00..", code+"99.."]
+	minC, maxC := code+strings.Repeat("0", n-k), code+strings.Repeat("9", n-k)
+	if maxC < lo || minC > hi {
+		return False
+	}
+	if lo <= minC && maxC <= hi {
+		return True
+	}
+	return Unknown3
+}
+
+func inAnyRange(code string, specs []string) Tri {
+	t := False
+	for _, s := range specs {
+		t = t.Or(inRange(code, s))
+	}
+	return t
 }
 
 func (e *evaluator) sibling(cr *ConditionResult, c Condition) Tri {
