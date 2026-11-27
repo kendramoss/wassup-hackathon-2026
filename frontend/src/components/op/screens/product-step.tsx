@@ -42,6 +42,31 @@ import { familyName, families, groupSuggestions } from "@/lib/families";
 type Tab = "parts" | "paste" | "bom";
 // Import BOM first: most users have one (18 Oct).
 const tabOrder: Tab[] = ["bom", "parts", "paste"];
+// Plain tab names for visitors from the business view (?via=business).
+const businessTabs: Record<Tab, string> = { bom: "Upload a parts list", parts: "Type the parts", paste: "Paste a description" };
+
+// The plain intro that replaces the heading for business visitors (canvas
+// mock "Check a product", option B).
+function BusinessIntro() {
+  return (
+    <section aria-labelledby="biz-intro-title" style={{ fontFamily: "var(--font-instrument), system-ui, sans-serif" }} className="flex flex-wrap items-start gap-6 rounded-2xl bg-sheet p-6 shadow-[0_8px_24px_rgba(19,33,58,0.06),inset_0_0_0_1px_rgba(19,33,58,0.08)]">
+      <div className="flex min-w-[260px] flex-1 flex-col gap-2">
+        <h1 id="biz-intro-title" className="text-[28px] font-medium tracking-[-0.02em]">Check your product</h1>
+        <p className="text-[15px] leading-[22px] text-dim">
+          You only need two things: a product name and a list of the main parts with the country that makes each one. Everything else is optional.
+        </p>
+      </div>
+      <ol className="flex flex-wrap gap-3">
+        {["Name the product and pick the country you import into", "List the parts, or upload a parts list", "Press the blue button at the end"].map((t, i) => (
+          <li key={t} className="flex w-[150px] flex-col gap-1.5 rounded-[10px] bg-paper p-3.5 text-[14px] leading-[19px]">
+            <span className="font-mono text-ok">{i + 1}</span>
+            {t}
+          </li>
+        ))}
+      </ol>
+    </section>
+  );
+}
 
 // A product name from a BOM's file name, for the name field the moment a
 // file is picked: "FL-50 LED Floodlight - BOM Rev A.csv" -> "FL-50 LED
@@ -261,8 +286,12 @@ export function ProductStep() {
   // ?from=<case>: a pasted case's description, to turn into parts and plants
   // so the plan search can run (#81). The old case stays as it is.
   const fromId = params.get("from");
+  // ?via=business: opened from the business view's "full form" links. Same
+  // form and checks, with a plain intro, plain tab names and the expert
+  // fields folded away (canvas mock "Check a product", option B).
+  const viaBusiness = params.get("via") === "business";
 
-  const [tab, setTab] = useState<Tab>("bom");
+  const [tab, setTab] = useState<Tab>(viaBusiness ? "parts" : "bom");
   // The name the import filled in, so a later answer replaces it but never
   // what the user typed.
   const autoName = useRef("");
@@ -529,6 +558,10 @@ export function ProductStep() {
       <CaseTabs current="product" reached={1} title={name || "New case"} followUps={!japan} />
       <Main>
         <div className="min-w-0 max-w-[1020px]">
+          {viaBusiness ? (
+            <BusinessIntro />
+          ) : (
+            <>
           <p className="eyebrow">{japan ? "Step 1 of 2" : "Step 1 of 4"} · Product{demoTitle && <> · demo: {demoTitle}</>}</p>
           <h1 className="mt-1 text-[28px] tracking-[-0.05em]">{copy.product.title}</h1>
           <p className="duo mt-1 max-w-[80ch] text-[13px] text-dim">
@@ -539,12 +572,14 @@ export function ProductStep() {
               </Link>
             )}
           </p>
+            </>
+          )}
 
           {/* Three numbered sections, top to bottom in the order people fill
               them: name it, describe it, check what that unlocks and go. An
               import still fills the name. */}
           <SectionHead n={1} title="The product" />
-          <div className={cx("mt-3 grid gap-4 sm:grid-cols-2", japan ? "lg:grid-cols-[minmax(0,1fr)_170px_200px]" : "lg:grid-cols-[minmax(0,1.3fr)_minmax(0,1fr)_170px_200px]")}>
+          <div className={cx("mt-3 grid gap-4 sm:grid-cols-2", japan ? "lg:grid-cols-[minmax(0,1fr)_170px_200px]" : viaBusiness ? "lg:grid-cols-[minmax(0,1.3fr)_200px]" : "lg:grid-cols-[minmax(0,1.3fr)_minmax(0,1fr)_170px_200px]")}>
             <Field label={copy.product.name} help={askName && !name.trim() && !japan ? "Name the product as you would to CBP. It heads the ruling letter." : undefined}>
               {(id) => (
                 <input
@@ -561,6 +596,8 @@ export function ProductStep() {
                 />
               )}
             </Field>
+            {!viaBusiness && (
+              <>
             {!japan && (
               <Field label={copy.product.family}>
                 {(id) => (
@@ -594,6 +631,8 @@ export function ProductStep() {
             <Field label={copy.product.date} help={copy.product.dateHelp}>
               {(id) => <input id={id} data-field="date" type="date" className={cx(input, "tabular-nums")} value={date} onChange={(e) => setDate(e.target.value)} />}
             </Field>
+              </>
+            )}
             <Field label={copy.market.label}>
               {(id) => (
                 <MarketPicker
@@ -607,6 +646,47 @@ export function ProductStep() {
               )}
             </Field>
           </div>
+
+          {viaBusiness && (
+            <details className="mt-3 text-[13px] text-dim">
+              <summary className="flex min-h-11 cursor-pointer items-center">More options for experts: product family, case date</summary>
+              <div className="mt-2 grid gap-4 sm:grid-cols-2">
+            {!japan && (
+              <Field label={copy.product.family}>
+                {(id) => (
+                  <>
+                    <Combobox
+                      id={id}
+                      className={input}
+                      value={family}
+                      onChange={pickFamily}
+                      options={familyOptions}
+                      placeholder="Search, or type your product type"
+                      allowCustom
+                      customLabel={(t) => `Check “${t}” with AI`}
+                      customHint="finds the closest family"
+                    />
+                    {famCheck && (
+                      <FamilyNote
+                        check={famCheck}
+                        onUse={(f) => {
+                          familyReq.current++;
+                          setFamily(f);
+                          setFamilyTouched(true);
+                          setFamCheck(famCheck.state === "match" ? { ...famCheck, applied: true } : null);
+                        }}
+                      />
+                    )}
+                  </>
+                )}
+              </Field>
+            )}
+            <Field label={copy.product.date} help={copy.product.dateHelp}>
+              {(id) => <input id={id} data-field="date" type="date" className={cx(input, "tabular-nums")} value={date} onChange={(e) => setDate(e.target.value)} />}
+            </Field>
+              </div>
+            </details>
+          )}
 
           {japan && (
             <div className="mt-4 grid gap-4 sm:grid-cols-2">
@@ -672,7 +752,7 @@ export function ProductStep() {
                 }}
                 className={cx("min-h-10 px-4 text-[13px]", tab === t ? "bg-ink text-paper" : "text-body hover:bg-wash")}
               >
-                {copy.product.tabs[t]}
+                {viaBusiness ? businessTabs[t] : copy.product.tabs[t]}
               </button>
             ))}
           </div>
@@ -992,7 +1072,7 @@ export function ProductStep() {
                     Finding… <Elapsed since={busySince} />
                   </>
                 ) : (
-                  <>{japan ? copy.japan.check : copy.product.go} →</>
+                  <>{japan ? copy.japan.check : viaBusiness ? "Find the likely country" : copy.product.go} →</>
                 )}
               </Button>
             </div>
@@ -1020,7 +1100,7 @@ export function ProductStep() {
               Finding… <Elapsed since={busySince} />
             </>
           ) : (
-            <>{japan ? copy.japan.check : copy.product.go} →</>
+            <>{japan ? copy.japan.check : viaBusiness ? "Find the likely country" : copy.product.go} →</>
           )}
         </Button>
       </Footer>

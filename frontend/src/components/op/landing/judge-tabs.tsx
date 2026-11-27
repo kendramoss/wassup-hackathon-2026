@@ -161,7 +161,7 @@ export function JudgePersonas({
 }) {
   return (
     <section className="judgePersonas" id="can" aria-labelledby="judge-personas-heading">
-      <h2 id="judge-personas-heading">What you can do</h2>
+      <h2 id="judge-personas-heading">What Unde does</h2>
       <JudgeTabs
         label="Choose your role"
         orientation="vertical"

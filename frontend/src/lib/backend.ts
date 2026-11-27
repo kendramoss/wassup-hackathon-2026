@@ -107,9 +107,8 @@ export async function callBackend(
   const headers: Record<string, string> = { "Content-Type": "application/json" };
   const ip = options?.request ? clientIP(options.request) : undefined;
   if (ip) headers["X-Client-IP"] = ip;
-  if (process.env.K_SERVICE) {
-    headers.Authorization = `Bearer ${await idToken(process.env.BACKEND_AUDIENCE || backendUrl)}`;
-  }
+  const auth = await serviceAuth(backendUrl);
+  if (auth) headers.Authorization = auth;
 
   const res = await fetch(`${backendUrl}${path}`, {
     method,
@@ -145,6 +144,25 @@ export function errorResponse(err: unknown): Response {
   }
   logProxyFailure("proxy_error", { err });
   return Response.json({ error: "Could not reach the Unde API. Try again in a moment." }, { status: 502 });
+}
+
+// The Authorization header for a backend call. On Cloud Run (K_SERVICE
+// set): an ID token for this service's identity, as before. In local dev
+// only, when BACKEND_ID_TOKEN_CMD is set (for example
+// "gcloud auth print-identity-token"): the token that command prints, so a
+// local frontend can reach the private Cloud Run backend (#944). Never in a
+// production build. The token is kept 45 minutes (Google ID tokens last 60).
+let devToken: { value: string; at: number } | null = null;
+export async function serviceAuth(backendUrl: string): Promise<string | undefined> {
+  if (process.env.K_SERVICE) return `Bearer ${await idToken(process.env.BACKEND_AUDIENCE || backendUrl)}`;
+  const cmd = process.env.BACKEND_ID_TOKEN_CMD;
+  if (!cmd || process.env.NODE_ENV === "production") return undefined;
+  if (!devToken || Date.now() - devToken.at > 45 * 60 * 1000) {
+    const { execSync } = await import("node:child_process");
+    const value = execSync(cmd, { encoding: "utf8", timeout: 20_000, stdio: ["ignore", "pipe", "ignore"] }).trim();
+    devToken = { value, at: Date.now() };
+  }
+  return `Bearer ${devToken.value}`;
 }
 
 // Fetches a Google-signed ID token for audience from the metadata server.
@@ -286,9 +304,8 @@ async function forward(request: Request, path: string, visitorId: string, userTo
   if (ip) headers["X-Client-IP"] = ip;
   headers["X-Visitor-ID"] = visitorId;
   if (userToken) headers["X-User-Token"] = userToken;
-  if (process.env.K_SERVICE) {
-    headers.Authorization = `Bearer ${await idToken(process.env.BACKEND_AUDIENCE || backendUrl)}`;
-  }
+  const auth = await serviceAuth(backendUrl);
+  if (auth) headers.Authorization = auth;
   const search = new URL(request.url).search;
   const method = request.method.toUpperCase();
   let body: ArrayBuffer | undefined;

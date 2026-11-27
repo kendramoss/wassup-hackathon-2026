@@ -187,6 +187,8 @@ LLM_PROVIDER=fake make run              # API on :8080
 cd frontend && BACKEND_URL=http://localhost:8080 npm run dev
 ```
 
+To work on the UI against the deployed (private) backend instead, for example where Windows Application Control blocks `go run`, set in `frontend/.env.local` `BACKEND_URL=<backend Cloud Run URL>` and `BACKEND_ID_TOKEN_CMD=gcloud auth print-identity-token`; the dev server adds your identity token to each backend call (never in a production build, #944).
+
 For real model calls, get Application Default Credentials (`gcloud auth application-default login`, separate from `gcloud auth login`) and set `GOOGLE_CLOUD_PROJECT=wassup-hackathon-2026`. `vertex` is the default; `fake` is refused on Cloud Run so production cannot silently use simulated results. Tests, evals, the API list and deploy notes are in [docs/DETAILS.md](docs/DETAILS.md#run-locally).
 
 ## Naming
