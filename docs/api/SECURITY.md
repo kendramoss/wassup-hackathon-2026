@@ -123,6 +123,8 @@ With `SUPPLIER_DECLARATIONS=on` (needs `TEAMS=on`) a case editor asks a supplier
 - Daily model budget: past `DAILY_SPEND_CAP_USD` of estimated model spend in a UTC day, new model-calling requests get 503 `budget_reached` (D59). Saved cases and reads keep working.
 - Per-client share: one client (API key or address) may spend at most `DAILY_SPEND_CLIENT_SHARE` of that budget in a UTC day, default 0.1 (a tenth). Past it: 429 `client_budget_reached` until 00:00 UTC. Model calls are charged to the client that made the request. The admin token is exempt. With no daily budget set, there is no share either.
 
+With `USAGE_METERING` on, signed-in workspace members and role-scoped workspace API keys share the workspace's monthly prediction, plan-search and model-spend totals. A monthly hard cap refuses new model-calling work with 402 `workspace_budget_reached`; a plan search is refused when its estimate exceeds the remaining budget. The same checks apply over MCP. A signed-in identity takes precedence over a key sent alongside it. Standalone keys, legacy role-less workspace keys and the operator token do not acquire a key's workspace budget (D962, #977). Usage and budget administration routes still require a signed-in member or admin.
+
 ## Size limits
 
 | What | Limit |
