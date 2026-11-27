@@ -1,6 +1,7 @@
 package httpapi
 
 import (
+	"context"
 	"fmt"
 	"net/http"
 	"strings"
@@ -8,6 +9,7 @@ import (
 	"unicode/utf8"
 
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/domain"
+	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/logsafe"
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/retention"
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/store"
 )
@@ -37,6 +39,7 @@ func (a *api) deleteCase(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 	}
+	a.purgeCaches(r.Context(), c)
 	if err := a.d.Cases.Delete(r.Context(), c.ID); err != nil {
 		a.fail(w, r, err)
 		return
@@ -166,4 +169,18 @@ func (a *api) pinCase(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	a.respond(w, http.StatusOK, a.caseFields(r, saved))
+}
+
+// purgeCaches removes what the case alone derived: cached predictions,
+// verdicts and advice, and its supplier documents (#875, CACHE_PURGE). It is
+// best effort: a failure is logged and the delete goes on, because a user's
+// delete must not be blocked by a cache; the leftover is found by
+// `cmd/retention -orphans`.
+func (a *api) purgeCaches(ctx context.Context, c store.Case) {
+	if a.d.CachePurge == nil {
+		return
+	}
+	if _, err := a.d.CachePurge.PurgeCase(ctx, c.ID, c.DerivedBlobs()); err != nil {
+		a.d.Logger.WarnContext(ctx, "cache purge failed", "request_id", requestRef(ctx), "err", logsafe.Err(err))
+	}
 }

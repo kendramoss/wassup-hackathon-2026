@@ -6,6 +6,7 @@ import (
 	"log/slog"
 	"strings"
 
+	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/blob"
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/domain"
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/engine"
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/jurisdiction"
@@ -141,6 +142,7 @@ func isSpecialist(regime string) bool {
 // only if the specialist fails (provisional answer). A general error is
 // returned only when nothing else can answer. st may be nil.
 func (a *api) dispatch(ctx context.Context, c domain.Case, st *stages, pin *pinned) (Dispatch, error) {
+	ctx = blob.WithOwner(ctx, c.ID) // cached entries made for this case are linked to it (#875)
 	d := Dispatch{Scope: ScopeNoRouter, Market: jurisdiction.Of(c.Jurisdiction)}
 	// The market comes first (D680): a market with no registered authority
 	// runs no engine, so no U.S. answer is shown for it; a registered

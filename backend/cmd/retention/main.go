@@ -9,6 +9,14 @@
 // system case.delete audit event (detail "retention") when the audit trail
 // is on, then deletes the case. Pinned demo cases are never purged.
 //
+// With CACHE_PURGE=on (the same setting as the server), each deleted case also
+// removes the cached predictions, verdicts and advice only it used, and its
+// supplier documents; -orphans additionally removes the entries of cases that
+// no longer exist. A workspace's audit_days (never longer than
+// AUDIT_RETENTION_DAYS) is applied to its audit trail in the same run: the
+// store records a retention checkpoint before deleting events, so the
+// retained trail still verifies.
+//
 // The operator schedules it (for example a daily Cloud Run job); nothing in
 // the server runs it.
 package main
@@ -24,6 +32,8 @@ import (
 	"time"
 
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/audit"
+	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/blob"
+	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/cachepurge"
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/config"
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/retention"
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/store"
@@ -42,9 +52,10 @@ func main() {
 
 // stores are what one run works on.
 type stores struct {
-	ret   retention.Store
-	cases store.Cases
-	audit *audit.Service
+	ret    retention.Store
+	cases  store.Cases
+	audit  *audit.Service
+	caches *blob.Purger
 }
 
 func open(ctx context.Context, cfg config.Config) (stores, error) {
@@ -56,6 +67,16 @@ func open(ctx context.Context, cfg config.Config) (stores, error) {
 			return s, err
 		}
 		s.ret, s.cases = fs.Retention(), fs
+		if cfg.CachePurge {
+			cs, err := cachepurge.Open(ctx, cfg, fs)
+			if err != nil {
+				return s, err
+			}
+			if cs.Refs != nil {
+				p := cs.Purger()
+				s.caches = &p
+			}
+		}
 		if cfg.Audit {
 			ps, err := audit.NewPseudonymizer(cfg.AuditActorKeyID, []byte(cfg.AuditActorKey))
 			if err != nil {
@@ -73,6 +94,16 @@ func open(ctx context.Context, cfg config.Config) (stores, error) {
 			return s, err
 		}
 		s.ret, s.cases = rs, cs
+		if cfg.CachePurge {
+			c, err := cachepurge.Open(ctx, cfg, nil)
+			if err != nil {
+				return s, err
+			}
+			if c.Refs != nil {
+				p := c.Purger()
+				s.caches = &p
+			}
+		}
 		if cfg.Audit && cfg.AuditDir != "" {
 			ps, err := audit.NewPseudonymizer(cfg.AuditActorKeyID, []byte(cfg.AuditActorKey))
 			if err != nil {
@@ -97,6 +128,7 @@ func run(ctx context.Context, cfg config.Config, args []string, out io.Writer, n
 	apply := fl.Bool("apply", false, "delete (default: dry run)")
 	ws := fl.String("workspace", "", "only this workspace")
 	limit := fl.Int("limit", 0, "stop after this many deletions (0: none)")
+	orphans := fl.Bool("orphans", false, "also purge cache entries of cases that no longer exist (needs CACHE_PURGE=on)")
 	if err := fl.Parse(args); err != nil {
 		return err
 	}
@@ -107,11 +139,35 @@ func run(ctx context.Context, cfg config.Config, args []string, out io.Writer, n
 	if err != nil {
 		return err
 	}
-	rep, err := retention.Purge(ctx, s.ret, store.RetentionCases{Cases: s.cases}, retention.AuditRecorder(s.audit),
-		retention.Options{Now: now.UTC(), DryRun: !*apply, Workspace: *ws, Limit: *limit})
+	if *orphans && s.caches == nil {
+		return errors.New("-orphans needs CACHE_PURGE=on and the verifier cache")
+	}
+	opts := retention.Options{Now: now.UTC(), DryRun: !*apply, Workspace: *ws, Limit: *limit}
+	if s.caches != nil {
+		opts.Caches = s.caches
+	}
+	if s.audit != nil {
+		opts.Audit, opts.AuditWindow = s.audit, time.Duration(cfg.AuditRetentionDays)*24*time.Hour
+	}
+	rep, err := retention.Purge(ctx, s.ret, store.RetentionCases{Cases: s.cases}, retention.AuditRecorder(s.audit), opts)
+	res := struct {
+		retention.Report
+		Orphans *blob.OrphanReport `json:"orphans,omitempty"`
+	}{Report: rep}
+	if err == nil && *orphans {
+		var or blob.OrphanReport
+		or, err = s.caches.Orphans(ctx, func(ctx context.Context, id string) (bool, error) {
+			_, gerr := s.cases.Get(ctx, id)
+			if errors.Is(gerr, store.ErrNotFound) {
+				return false, nil
+			}
+			return gerr == nil, gerr
+		}, !*apply)
+		res.Orphans = &or
+	}
 	enc := json.NewEncoder(out)
 	enc.SetIndent("", " ")
-	if e := enc.Encode(rep); e != nil && err == nil {
+	if e := enc.Encode(res); e != nil && err == nil {
 		err = e
 	}
 	return err
