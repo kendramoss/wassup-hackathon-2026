@@ -337,14 +337,22 @@ function RulesChecks() {
             <dd><strong>{a.flagged}/{a.within}</strong> ({a.recallPct}, 95% interval {a.recallInterval}%)</dd>
           </div>
         </dl>
-        <p className="read mt-2 text-sm text-dim">Flagging every product would be right {a.baselinePct} of the time.</p>
+        <p className="read mt-2 text-sm text-dim">
+          Without reading each order&apos;s scope: {a.plainCorrect}/{a.plainTotal} ({a.plainPct}). Flagging every product would be right {a.baselinePct} of the time.
+        </p>
+        <p className="read mt-1 text-sm text-dim">
+          Earlier test, {a.earlier.rulings} rulings: {a.earlier.correctFlags}/{a.earlier.flaggedTotal} ({a.earlier.precisionPct}, {a.earlier.precisionInterval}%) and {a.earlier.flagged}/{a.earlier.within} ({a.earlier.recallPct}, {a.earlier.recallInterval}%).
+        </p>
       </div>
       <Details title="Rules check details">
         <p>
           USMCA: held-out CBP rulings dated 2026 and later, scored once. The check decided {r.usmcaDecided} of {r.usmcaProducts} products and left {r.usmcaProducts - r.usmcaDecided} undecided, mostly for a missing material code or a rule it does not model. The figure covers only the decided products. It was built on rulings before 2026.
         </p>
         <p>
-          Duty orders: {a.rulings} Commerce scope rulings made in 2025 and 2026, after the order list was frozen on 31 Dec 2024. Few rulings, so the intervals are wide. The product code is suggested by a model from the ruling, so its errors are included. The check uses the order&apos;s country, so it cannot see goods that reach the order through a third country (7 of the {a.rulings} rulings turn on this). The check only shows possible exposure; the order&apos;s written scope decides.
+          Duty orders: {a.rulings} Commerce scope rulings made July 2023 to December 2024, after the order list was frozen on 30 Jun 2023, and the method was written down before they were scored. A model reads each flagged order&apos;s written scope and drops the order only when the scope clearly points away from the product. The gain over plain matching is a few points and the intervals overlap. The product description is written by a model from the ruling and can carry the facts that decided it, so real part names will gain less. The product code is suggested by a model, so its errors are included; the covered products not flagged carry a code the scope does not list. The check cannot see goods that reach the order through a third country. It only shows possible exposure; the order&apos;s written scope decides.
+        </p>
+        <p>
+          The {a.earlier.rulings} rulings of the earlier test, made in 2025 and 2026, are now seen and were not used to choose the method: the same method gives 11/19 (57.9%) on them.
         </p>
         <p>
           ATIGA: no ASEAN Member State publishes origin rulings, so there is nothing to measure accuracy against. The {r.atigaExamples} examples come from customs authorities&apos; own guides. They show the arithmetic and rule reading match those guides, not customs decisions.

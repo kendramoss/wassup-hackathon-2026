@@ -72,14 +72,25 @@ def text_of(doc, cache):
 
 def parse(text):
     """[(cases, title, requestor, body, ruling_date)] of the final scope rulings in a notice."""
-    if "Final Scope Rulings" not in text:
+    # notices from 2025 head the section "Final Scope Rulings"; earlier ones "Scope Rulings Made" and add
+    # sections of preliminary rulings and of circumvention determinations after it, which are not final scope rulings
+    m = re.search(r"^(?:Final )?Scope Rulings Made", text, re.M)
+    if "Final Scope Rulings" in text:
+        start = text.index("Final Scope Rulings")
+    elif m:
+        start = m.start()
+    else:
         return []
-    body = text[text.index("Final Scope Rulings"):].split("Notification to Interested Parties")[0]
+    body = text[start:].split("Notification to Interested Parties")[0]
+    if "Final Scope Rulings" not in text:
+        cut = re.search(r"^(?:Preliminary Scope Rulings? Made|Preliminary Scope Ruling/|Circumvention Determinations? Made|Scope Ruling/Circumvention|Final Scope Ruling/Circumvention)", body, re.M)
+        if cut:
+            body = body[:cut.start()]
     body = re.sub(r"\n\[\[Page \d+\]\]\n", "\n", body)
     out = []
     for e in ENTRY.split(body)[1:]:
         flat = re.sub(r"\s+", " ", e).strip()
-        head = re.match(r"^((?:" + CASES + r")(?: and " + CASES + r")*): (.+?) Requestor: (.+)$", flat)
+        head = re.match(r"^((?:" + CASES + r")(?: and " + CASES + r")*): (.+?) Request(?:or|er)s?: (.+)$", flat)
         # the ruling's date ends the entry; only a country heading may follow it
         dates = [m for m in DATE.finditer(flat) if len(flat[m.end():].strip()) < 70]
         if not head or not dates:
@@ -95,7 +106,7 @@ def parse(text):
     return out
 
 
-def entries(after, out, cache):
+def entries(after, out, cache, before=None):
     rows, bad = [], []
     for doc in notices(cache, after):
         text, sha = text_of(doc, cache)
@@ -107,7 +118,7 @@ def entries(after, out, cache):
             rows.append({"id": f"{doc['document_number']}-{i}", "notice": doc["document_number"], "published": doc["publication_date"], "sha256": sha,
                          "url": f"https://www.federalregister.gov/d/{doc['document_number']}", "cases": cases, "title": title,
                          "order_country": mc.group(1).strip() if mc else None, "requestor": req, "text": body, "ruling_date": d})
-    kept = [r for r in rows if r["ruling_date"] >= after]
+    kept = [r for r in rows if r["ruling_date"] >= after and (before is None or r["ruling_date"] < before)]
     with open(out, "w") as f:
         for r in kept:
             f.write(json.dumps(r, ensure_ascii=False) + "\n")
@@ -182,6 +193,7 @@ if __name__ == "__main__":
     sub = ap.add_subparsers(dest="cmd", required=True)
     e = sub.add_parser("entries")
     e.add_argument("--after", required=True)
+    e.add_argument("--before", default=None, help="keep only rulings dated before this day (default: no upper bound)")
     e.add_argument("--out", required=True)
     e.add_argument("--cache", default=os.path.expanduser("~/.cache/origin-proof-adcvd"))
     l = sub.add_parser("label")
@@ -192,7 +204,7 @@ if __name__ == "__main__":
     c.add_argument("--cache", default=os.path.expanduser("~/.cache/origin-proof-adcvd"))
     a = ap.parse_args()
     if a.cmd == "entries":
-        entries(a.after, a.out, a.cache)
+        entries(a.after, a.out, a.cache, a.before)
     elif a.cmd == "label":
         label(a.rulings, a.out)
     else:

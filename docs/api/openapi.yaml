@@ -2531,7 +2531,7 @@ paths:
   /v1/adcvd/check:
     post:
       operationId: checkAdcvdExposure
-      summary: Parts that may be subject to a U.S. antidumping or countervailing duty order (display only, no model call; off unless ADCVD_CHECK=on)
+      summary: Parts that may be subject to a U.S. antidumping or countervailing duty order (display only; off unless ADCVD_CHECK=on; no model call unless ADCVD_SCOPE_READER=on)
       description: >-
         Screens parts against the active U.S. antidumping (AD) and countervailing duty (CVD) orders, from each part's
         HTS code and country of origin. Served only with `ADCVD_CHECK=on` (default off: 404). A part is
@@ -2543,8 +2543,14 @@ paths:
         in a scope are for convenience and customs purposes; the written scope of the order governs, and only the
         U.S. Department of Commerce decides whether a product is within it. Display only (D939): it never changes an
         origin answer or a duty figure. It does not see goods finished in a third country from parts of an ordered
-        country (circumvention), an order whose scope prints no HTS numbers, or an order newer than the snapshot. No
-        model call, nothing stored. Cheap class (120 a minute); a malformed body is 400 `invalid_input`.
+        country (circumvention), an order whose scope prints no HTS numbers, or an order newer than the snapshot.
+        Nothing stored. With `ADCVD_SCOPE_READER=on` (default off, needs `ADCVD_CHECK=on`; D942, D943) a part's name must
+        share a product term with an order's written scope, and a model then reads that scope against the name and
+        drops the order only when the scope's words clearly point away from the part (one question per listed order,
+        at most 60 a request, cached; a part with no name, an order without scope text, or a question that fails is
+        left as it was); the result's `limits` then say a model read the scopes, and the case view keeps the plain
+        match. Without it: no model call, cheap class (120 a minute); with it the light model class, metered. A
+        malformed body is 400 `invalid_input`.
       requestBody:
         required: true
         content:

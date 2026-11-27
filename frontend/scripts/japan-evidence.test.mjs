@@ -75,15 +75,37 @@ test("USMCA and ATIGA figures match the committed results", async () => {
 
 test("AD/CVD figures match the committed results", async () => {
   const { adcvdCheck: a } = await import("../src/lib/market-evidence.ts");
+  const h = JSON.parse(read("../../eval/adcvd/heldout/summary.json"));
+  const m = h.methods["scope+reader+guard"];
+  const plain = h.methods.base;
+  assert.equal(a.rulings, h.scored);
+  assert.equal(a.within, h.within);
+  assert.equal(a.flagged, m.own_order.Recall.k);
+  assert.equal(a.correctFlags, m.own_order.Precision.k);
+  assert.equal(a.flaggedTotal, m.own_order.Precision.n);
+  assert.equal(a.precisionPct, `${one(m.own_order.Precision.p)}%`);
+  assert.equal(a.precisionInterval, `${one(m.own_order.Precision.lo)}–${one(m.own_order.Precision.hi)}`);
+  assert.equal(a.recallPct, `${one(m.own_order.Recall.p)}%`);
+  assert.equal(a.recallInterval, `${one(m.own_order.Recall.lo)}–${one(m.own_order.Recall.hi)}`);
+  assert.equal(a.plainCorrect, plain.own_order.Precision.k);
+  assert.equal(a.plainTotal, plain.own_order.Precision.n);
+  assert.equal(a.plainPct, `${one(plain.own_order.Precision.p)}%`);
+  assert.equal(a.baselinePct, `${one(h.baseline_flag_every_ruling.Precision.p)}%`);
+  // the reader keeps the plain check's recall: it only removes flags
+  assert.equal(m.own_order.Recall.k, plain.own_order.Recall.k);
+  const e = a.earlier;
   const d = JSON.parse(read("../../eval/adcvd/summary.json"));
-  assert.equal(a.rulings, d.scored);
-  assert.equal(a.within, d.within);
-  assert.equal(a.flagged, d.own_order.Recall.K);
-  assert.equal(a.correctFlags, d.own_order.Precision.K);
-  assert.equal(a.flaggedTotal, d.own_order.Precision.N);
-  assert.equal(a.precisionPct, `${one(d.own_order.Precision.P)}%`);
-  assert.equal(a.precisionInterval, `${one(d.own_order.Precision.Lo)}–${one(d.own_order.Precision.Hi)}`);
-  assert.equal(a.recallPct, `${one(d.own_order.Recall.P)}%`);
-  assert.equal(a.recallInterval, `${one(d.own_order.Recall.Lo)}–${one(d.own_order.Recall.Hi)}`);
-  assert.equal(a.baselinePct, `${one(d.baseline_flag_every_ruling.Precision.P)}%`);
+  assert.equal(e.rulings, d.scored);
+  assert.equal(e.within, d.within);
+  assert.equal(e.flagged, d.own_order.Recall.K);
+  assert.equal(e.correctFlags, d.own_order.Precision.K);
+  assert.equal(e.flaggedTotal, d.own_order.Precision.N);
+  assert.equal(e.precisionPct, `${one(d.own_order.Precision.P)}%`);
+  assert.equal(e.precisionInterval, `${one(d.own_order.Precision.Lo)}–${one(d.own_order.Precision.Hi)}`);
+  assert.equal(e.recallPct, `${one(d.own_order.Recall.P)}%`);
+  assert.equal(e.recallInterval, `${one(d.own_order.Recall.Lo)}–${one(d.own_order.Recall.Hi)}`);
+  assert.equal(e.baselinePct, `${one(d.baseline_flag_every_ruling.Precision.P)}%`);
+  // the seen set under the same method: the sentence on the page says 11/19 (57.9%)
+  const s = JSON.parse(read("../../eval/adcvd/seen/summary.json")).methods["scope+reader+guard"].own_order.Precision;
+  assert.equal(`${s.k}/${s.n} (${one(s.p)}%)`, "11/19 (57.9%)");
 });

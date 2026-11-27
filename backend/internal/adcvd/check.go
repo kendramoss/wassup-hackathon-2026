@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"sort"
 	"strings"
+	"sync"
 )
 
 // Part statuses.
@@ -77,16 +78,44 @@ func Limits(snapshot string) []string {
 	}
 }
 
-// Check screens each part against the active orders.
-func (t *Table) Check(in Input) Result {
-	res := Result{Snapshot: t.snapshot, Fetched: t.fetched, Orders: len(t.orders), Notice: Notice, Limits: Limits(t.snapshot), Parts: make([]PartResult, 0, len(in.Parts))}
-	for _, p := range in.Parts {
-		res.Parts = append(res.Parts, t.part(p))
+// Check screens each part against the active orders by HTS code and country
+// alone. CheckWith adds the refinements of a Config.
+func (t *Table) Check(in Input) Result { return t.CheckWith(in, Config{}) }
+
+// CheckWith screens each part against the active orders and, for a match, the
+// refinements in cfg: a refinement can only remove an order from a part's
+// matches, never add one.
+func (t *Table) CheckWith(in Input, cfg Config) Result {
+	res := Result{Snapshot: t.snapshot, Fetched: t.fetched, Orders: len(t.orders), Notice: Notice, Limits: Limits(t.snapshot), Parts: make([]PartResult, len(in.Parts))}
+	if cfg.Reader != nil {
+		res.Limits = append(res.Limits, ReaderLimit)
+		if cfg.MaxReads > 0 {
+			cfg.Reader = &cappedReader{inner: cfg.Reader, left: int64(cfg.MaxReads)}
+		}
 	}
+	if cfg.Reader == nil || len(in.Parts) < 2 {
+		for i, p := range in.Parts {
+			res.Parts[i] = t.part(p, cfg)
+		}
+		return res
+	}
+	// a model reader answers in about a second a question: parts are read side by side
+	var wg sync.WaitGroup
+	sem := make(chan struct{}, readerParallel)
+	for i, p := range in.Parts {
+		wg.Add(1)
+		sem <- struct{}{}
+		go func() {
+			defer wg.Done()
+			defer func() { <-sem }()
+			res.Parts[i] = t.part(p, cfg)
+		}()
+	}
+	wg.Wait()
 	return res
 }
 
-func (t *Table) part(p Part) PartResult {
+func (t *Table) part(p Part, cfg Config) PartResult {
 	r := PartResult{Name: p.Name, HTS: strings.TrimSpace(p.HTS), Origin: strings.TrimSpace(p.Origin)}
 	d := digits(r.HTS)
 	switch {
@@ -102,6 +131,7 @@ func (t *Table) part(p Part) PartResult {
 	}
 	type key struct{ country, product string }
 	groups := map[key]*Match{}
+	members := map[key][]int{}
 	var order []key
 	for _, code := range t.codes {
 		if !htsMatch(d, code) {
@@ -119,6 +149,7 @@ func (t *Table) part(p Part) PartResult {
 				groups[k] = m
 				order = append(order, k)
 			}
+			members[k] = append(members[k], i)
 			if !contains(m.Cases, o.Case) {
 				m.Cases = append(m.Cases, o.Case)
 			}
@@ -139,11 +170,21 @@ func (t *Table) part(p Part) PartResult {
 		r.Status, r.Reason = StatusNone, "No active order lists this HTS code for this country of origin."
 		return r
 	}
+	screened := 0
 	for _, k := range order {
 		m := groups[k]
+		if why := t.screen(p, d, m, members[k], cfg); why != "" {
+			screened++
+			continue
+		}
 		sort.Strings(m.Cases)
 		sort.Strings(m.Types)
 		r.Matches = append(r.Matches, *m)
+	}
+	if len(r.Matches) == 0 {
+		r.Status = StatusNone
+		r.Reason = fmt.Sprintf("%d order(s) list this HTS code for this country of origin, but the written scope read against the product name points away from this part; the written scope governs.", screened)
+		return r
 	}
 	sort.SliceStable(r.Matches, func(i, j int) bool { return r.Matches[i].Cases[0] < r.Matches[j].Cases[0] })
 	r.Status = StatusPossible

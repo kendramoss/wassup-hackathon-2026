@@ -20,6 +20,60 @@ func adcvdTable() *adcvd.Table {
 	})
 }
 
+type adcvdVerdict struct {
+	v     adcvd.Verdict
+	asked *int
+}
+
+func (r adcvdVerdict) Read(adcvd.Part, adcvd.Order) (adcvd.Verdict, error) {
+	*r.asked++
+	return r.v, nil
+}
+
+func adcvdReaderHarness(t *testing.T, v adcvd.Verdict, asked *int) harness {
+	return newHarnessWith(t, "substantial_transformation", func(d *Deps) {
+		d.ADCVD = adcvd.NewTable("test-v1", "2026-11-27", []adcvd.Order{
+			{Case: "A-570-900", Type: "AD", Country: "China", Product: "Diamond Sawblades and Parts Thereof", Status: "active",
+				HTS: []string{"8202.39.00.00"}, ScopeText: "The merchandise covered by the order is diamond sawblades and parts thereof, whether segmented or continuous rim, finished or unfinished, mounted or unmounted, with a core of steel and cutting segments containing diamond grit bonded by metal, for cutting stone, concrete and masonry."},
+		})
+		d.ADCVDReader = adcvdVerdict{v, asked}
+	})
+}
+
+// With the scope reader on, the check route asks it and drops an order only
+// on "out"; the case view keeps the plain match and asks nothing (D942).
+func TestADCVDScopeReaderOnTheRoute(t *testing.T) {
+	body := `{"parts":[{"name":"diamond blade segment","hts":"8202.39.00.00","origin":"China"}]}`
+	for v, want := range map[adcvd.Verdict]string{adcvd.VerdictOut: "no_match", adcvd.VerdictUnclear: "possible_exposure", adcvd.VerdictIn: "possible_exposure"} {
+		asked := 0
+		hs := adcvdReaderHarness(t, v, &asked)
+		code, out := hs.do(t, "POST", "/v1/adcvd/check", body)
+		if code != http.StatusOK {
+			t.Fatalf("%s: %d %v", v, code, out)
+		}
+		if got := out["parts"].([]any)[0].(map[string]any)["status"]; got != want || asked != 1 {
+			t.Errorf("verdict %s: status %v after %d questions, want %s after 1", v, got, asked, want)
+		}
+		lim := out["limits"].([]any)
+		if !strings.Contains(lim[len(lim)-1].(string), "model read each listed order") {
+			t.Errorf("limits do not say a model read the scopes: %v", lim)
+		}
+	}
+}
+
+func TestADCVDCaseViewDoesNotAskTheReader(t *testing.T) {
+	asked := 0
+	hs := adcvdReaderHarness(t, adcvd.VerdictOut, &asked)
+	code, out := hs.do(t, "POST", "/v1/cases/predict", adcvdCaseBody())
+	if code != http.StatusCreated {
+		t.Fatalf("predict = %d %v", code, out)
+	}
+	ac, ok := out["adcvd_check"].(map[string]any)
+	if !ok || ac["parts"].([]any)[0].(map[string]any)["status"] != "possible_exposure" || asked != 0 {
+		t.Errorf("case view: %v after %d reader questions, want the plain match and none", out["adcvd_check"], asked)
+	}
+}
+
 func adcvdHarness(t *testing.T) harness {
 	return newHarnessWith(t, "substantial_transformation", func(d *Deps) { d.ADCVD = adcvdTable() })
 }

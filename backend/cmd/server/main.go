@@ -888,6 +888,13 @@ func newDeps(cfg config.Config, model, engineModel llm.Model, cases store.Cases,
 			return httpapi.Deps{}, err
 		}
 		d.ADCVD = tb
+		if cfg.ADCVDScopeReader {
+			rd, err := adcvd.NewLLMReader(model, cfg.ADCVDReaderModel)
+			if err != nil {
+				return httpapi.Deps{}, err
+			}
+			d.ADCVDReader = rd
+		}
 	}
 	if infra.statusPage {
 		d.Status = &httpapi.StatusPage{Checks: d.Checks, SLOs: httpapi.DefaultSLOs}

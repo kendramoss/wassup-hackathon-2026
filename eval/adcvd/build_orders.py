@@ -43,7 +43,8 @@ VERSION = "adcvd-orders-v1"
 CASE = re.compile(r"\b([AC])-(\d{3})-(\d{3})\b")
 # a table cell can run the product into the case number ("Yarn" "A-549-843")
 CASE_CELL = re.compile(r"(?<![\dA-Z-])([AC])-(\d{3})-(\d{3})\b")
-OPP_TITLE = "Opportunity To Request Administrative Review and Join Annual Inquiry Service List"
+# the notices of 2021 and earlier are titled without "and Join Annual Inquiry Service List"
+OPP_TITLE = "Opportunity To Request Administrative Review"
 
 # ---------------------------------------------------------------- network
 
@@ -257,6 +258,24 @@ def scope_paragraphs(text):
     return out
 
 
+SCOPE_END = re.compile(r"\n\s*\n\s*(?:Continuation of the Orders?|Administrative Protective Orders?|Notification to Interested Parties|Notification Regarding|Amendment to the|Suspension of Liquidation|Cash Deposit|Appendix|Effective Date|Analysis of|Discussion of|Background|Final Results|Determination|Scope Comments|Duty Absorption|Notification to Importers|Recommendation|Conclusion|[IVX]+\.\s+[A-Z])[^\n]{0,90}\n", re.I)
+SCOPE_CAP = 40000
+
+
+def scope_text(text):
+    """The written scope: the text from the first scope heading to the next section heading (capped), page markers and wrapping removed."""
+    m = SCOPE_HEAD.search(text)
+    if not m:
+        return ""
+    rest = re.sub(r"\n\[\[Page \d+\]\]\n", "\n", text[m.end():])
+    e = SCOPE_END.search(rest)
+    if e:
+        rest = rest[:e.start()]
+    rest = re.sub(r"\s*-{20,}.*$", "", rest, flags=re.S)
+    paras = [re.sub(r"\s+", " ", p).strip() for p in re.split(r"\n\s*\n", rest)]
+    return "\n".join(p for p in paras if p and not p.startswith("\\"))[:SCOPE_CAP]
+
+
 # ------------------------------------------------------------------- build
 
 COUNTRY_TITLE = re.compile(r"\bFrom (?:the )?(.+?):")
@@ -311,7 +330,7 @@ def build(as_of, out, cache):
     opp = net.search("opp-" + iso, **{"conditions[term]": f'"{OPP_TITLE}"', "conditions[agencies][]": "international-trade-administration",
                                "conditions[type][]": "NOTICE", "conditions[publication_date][gte]": months_before(cut, 16).isoformat(),
                                "conditions[publication_date][lte]": iso})
-    opp = [d for d in opp if "Opportunity To Request Administrative Review" in d["title"] and d["title"].startswith("Antidumping or Countervailing")]
+    opp = [d for d in opp if "Opportunity To Request Administrative Review" in d["title"] and d["title"].startswith("Antidumping or Countervailing") and "Correction" not in d["title"] and not re.match(r"C\d-", d["document_number"])]
     opp = sorted(opp, key=lambda d: d["publication_date"], reverse=True)
     # one notice per calendar month, the twelve newest months
     seen_m, picked = set(), []
@@ -412,7 +431,7 @@ def build(as_of, out, cache):
             inc, exc = parse_hts(pars)
             if inc:
                 res["scope"] = {"document_number": d["document_number"], "date": d["publication_date"], "title": d["title"], "sha256": sha,
-                                "url": f"https://www.federalregister.gov/d/{d['document_number']}", "paragraphs": pars, "hts": inc, "hts_excluded": exc}
+                                "url": f"https://www.federalregister.gov/d/{d['document_number']}", "paragraphs": pars, "hts": inc, "hts_excluded": exc, "scope_text": scope_text(text)}
                 break
         return case, res
     with cf.ThreadPoolExecutor(10) as ex:
@@ -425,6 +444,7 @@ def build(as_of, out, cache):
             o["order_date"] = res["order_date"]
             o["scope_notice"] = {k: res["scope"][k] for k in ("document_number", "date", "title", "sha256", "url")} if res["scope"] else None
             o["hts_text"] = res["scope"]["paragraphs"] if res["scope"] else []
+            o["scope_text"] = res["scope"]["scope_text"] if res["scope"] else ""
             o["hts"] = [fmt(d) for d in res["scope"]["hts"]] if res["scope"] else []
             o["hts_excluded"] = [fmt(d) for d in res["scope"]["hts_excluded"]] if res["scope"] else []
             if res["scope"]:
@@ -457,6 +477,30 @@ def build(as_of, out, cache):
     print(json.dumps(data["counts"]))
 
 
+def addscope(path, cache):
+    """Add scope_text to a file built without it, from the same notice (its SHA-256 must match); nothing else in the file changes."""
+    d = json.load(open(path))
+    net = Net(cache)
+    docs = {}
+    for o in d["orders"]:
+        sn = o.get("scope_notice")
+        if not sn:
+            o["scope_text"] = ""
+            continue
+        k = sn["document_number"]
+        if k not in docs:
+            text, sha = net.text({"document_number": k, "publication_date": sn["date"]})
+            if sha != sn["sha256"]:
+                raise SystemExit("notice changed: " + k)
+            docs[k] = text
+        o["scope_text"] = scope_text(docs[k])
+    with open(path, "w") as f:
+        json.dump(d, f, indent=1, ensure_ascii=False)
+        f.write("\n")
+    n = sum(1 for o in d["orders"] if o["scope_text"])
+    print(json.dumps({"orders": len(d["orders"]), "with_scope_text": n}))
+
+
 def check(path):
     d = json.load(open(path))
     bad = 0
@@ -481,8 +525,13 @@ if __name__ == "__main__":
     b.add_argument("--cache", default=os.path.expanduser("~/.cache/origin-proof-adcvd"))
     c = sub.add_parser("check")
     c.add_argument("path")
+    s2 = sub.add_parser("addscope")
+    s2.add_argument("path")
+    s2.add_argument("--cache", default=os.path.expanduser("~/.cache/origin-proof-adcvd"))
     a = ap.parse_args()
     if a.cmd == "build":
         build(a.as_of, a.out, a.cache)
+    elif a.cmd == "addscope":
+        addscope(a.path, a.cache)
     else:
         check(a.path)
