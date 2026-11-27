@@ -211,7 +211,39 @@
 .biz-check .biz-link.plain.inline { font-size: 13px; min-height: 0; display: inline; text-decoration: underline; text-underline-offset: 2px; color: var(--ok); }
 .biz-check .biz-link.plain.inline:disabled { color: var(--dim); cursor: default; }
 .biz-check .biz-filled { margin: 0; padding: 12px 14px; border-radius: 8px; background: #eef3fc; color: var(--ink); font-size: 14px; line-height: 20px; }
+/* Several countries (#945): tick boxes by region, and what is not checked yet. */
+.biz-check .biz-regions { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; }
+.biz-check .biz-region { display: flex; flex-direction: column; gap: 8px; }
+.biz .biz-region h3 { margin: 0; font-size: 13px; font-weight: 500; color: var(--dim); }
+.biz-check .biz-markets[aria-invalid="true"] .biz-market { box-shadow: inset 0 0 0 1px #c2412c; }
+.biz-check .biz-soon { border-top: 1px solid var(--hair); padding-top: 12px; }
+.biz-check .biz-soon summary { display: inline-flex; align-items: center; min-height: 36px; padding: 0 14px; border-radius: 8px; border: 1px dashed rgba(19, 33, 58, 0.3); font-size: 14px; font-weight: 500; color: var(--dim); cursor: pointer; list-style: none; }
+.biz-check .biz-soon summary::-webkit-details-marker { display: none; }
+.biz-check .biz-soon summary:hover { color: var(--ink); border-color: rgba(19, 33, 58, 0.5); }
+.biz-check .biz-soon p { margin: 10px 0 0; font-size: 13px; line-height: 19px; color: var(--dim); max-width: 60ch; }
+/* One answer per country (#932 R1). */
+.biz-check .biz-answers { width: min(1120px, 100%); display: flex; flex-direction: column; gap: 18px; }
+.biz-check .biz-answers-head { display: flex; align-items: flex-end; gap: 24px; justify-content: space-between; }
+.biz-check .biz-answers-head h1 { margin-top: 10px; font-size: 36px; }
+.biz-check .biz-answers-head p { margin: 0; }
+.biz-check .biz-answers-list { display: flex; flex-direction: column; gap: 14px; }
+.biz-check .biz-band { display: grid; grid-template-columns: 200px 240px minmax(0, 1fr) 260px; gap: 24px; align-items: center; padding: 20px 24px; border-radius: 14px; background: var(--sheet); box-shadow: inset 0 0 0 1px var(--hair); }
+.biz-check .biz-band.main { box-shadow: inset 0 0 0 2px var(--ok); }
+.biz-check .biz-band > div:first-child { display: flex; flex-direction: column; gap: 2px; }
+.biz-check .biz-band b { font-size: 18px; font-weight: 500; }
+.biz-check .biz-band p { margin: 0; font-size: 14px; line-height: 20px; color: var(--dim); }
+.biz-check .biz-band-stamp { display: flex; flex-direction: column; align-items: flex-start; gap: 6px; }
+.biz-check .biz-stamp.red { color: #a1321f; font-size: 15px; }
+.biz-check .biz-stamp.amber { color: #8a5a00; font-size: 15px; }
+.biz-check .biz-band-go { justify-self: end; text-align: center; }
+.biz-check .biz-btn.ink.biz-band-go { height: 44px; }
+.biz-check .biz-band.biz-skel { min-height: 88px; }
+.biz-check .biz-answers-foot { display: flex; padding-top: 6px; }
+.biz-check .biz-answers-foot .biz-btn { height: 44px; }
 @media (max-width: 1100px) {
+  .biz-check .biz-regions { grid-template-columns: 1fr 1fr; }
+  .biz-check .biz-band { grid-template-columns: 1fr 1fr; }
+  .biz-check .biz-band-go { justify-self: start; }
   .biz-check-row { flex-direction: column; }
   .biz-check .biz-next { width: min(720px, 100%); margin-top: 0; }
   .biz-check .biz-side { width: min(720px, 100%); margin-top: 0; }
