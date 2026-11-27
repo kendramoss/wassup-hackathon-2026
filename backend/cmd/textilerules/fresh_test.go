@@ -1,6 +1,10 @@
 package main
 
-import "testing"
+import (
+	"os"
+	"path/filepath"
+	"testing"
+)
 
 func TestWilsonKnown(t *testing.T) {
 	lo, hi := wilson(13, 14)
@@ -49,5 +53,25 @@ func TestPickSampleIsDeterministicAndIndependentOfOrder(t *testing.T) {
 	}
 	if got := pickSample([]string{"N1"}, 5); len(got) != 1 {
 		t.Fatalf("n beyond the list: %v", got)
+	}
+}
+
+func TestMentionedRulingsAndPeriods(t *testing.T) {
+	dir := t.TempDir()
+	if err := os.WriteFile(filepath.Join(dir, "a.go"), []byte("// see N123456 and H654321, not N12345 or XN123456"), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	if err := os.WriteFile(filepath.Join(dir, "b.bin"), []byte("N999999"), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	got, err := mentionedRulings([]string{dir, filepath.Join(dir, "missing")})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !got["N123456"] || !got["H654321"] || got["N12345"] || got["N999999"] || len(got) != 2 {
+		t.Fatalf("mentioned = %v", got)
+	}
+	if periodOf("2016-12-31", "2017-01-01") != "a" || periodOf("2017-01-01", "2017-01-01") != "b" {
+		t.Fatal("period split")
 	}
 }
