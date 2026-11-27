@@ -612,7 +612,7 @@ function CheckForm({ draft, initialStep }: { draft: Draft | null; initialStep: 1
                 <h2>What happens next</h2>
                 <ol>
                   <li><span className="mono">1</span>{markets.length > 1 ? `You see an answer for each of the ${markets.length} countries. It takes about 5 seconds.` : "You see the likely country and the import tax. It takes about 5 seconds."}</li>
-                  <li><span className="mono">2</span>Unde may ask a few questions about how the parts are made. Answering is optional.</li>
+                  <li><span className="mono">2</span>UndeLabs may ask a few questions about how the parts are made. Answering is optional.</li>
                   <li><span className="mono">3</span>{markets.includes("us") ? "You see which production changes could lower the U.S. tax." : "Plans for production changes are for the United States only for now."}</li>
                 </ol>
                 <p>An estimate. A customs broker confirms it.</p>

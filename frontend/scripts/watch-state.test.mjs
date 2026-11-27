@@ -10,7 +10,7 @@ test("a watch with no basis is never read as Changed or Unchanged", () => {
       const v = watchView(status, basis, undefined);
       assert.equal(v.kind, "recheck", `${status}/${basis}`);
       assert.equal(v.label, "Re-check needed");
-      assert.match(v.note, /older version of Unde that did not record which set of origin rules/);
+      assert.match(v.note, /older version of UndeLabs that did not record which set of origin rules/);
       assert.match(v.note, /Re-check/);
       assert.doesNotMatch(v.note, /^(Changed|Unchanged)|with today's rulings|the rulings (moved|did not)/i);
     }

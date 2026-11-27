@@ -5,7 +5,7 @@ import { MethodPage } from "@/components/op/screens/method-page";
 
 export const metadata: Metadata = {
   title: "Method and stage inspector",
-  description: "Explore the six stages, date and evidence guardrails, and experiments behind Unde’s U.S. origin and production-move assessments.",
+  description: "Explore the six stages, date and evidence guardrails, and experiments behind the UndeLabs U.S. origin and production-move assessments.",
 };
 
 export default function Page() {

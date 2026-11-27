@@ -143,7 +143,7 @@ export function errorResponse(err: unknown): Response {
     return Response.json({ error: err.message }, { status: err.status, headers });
   }
   logProxyFailure("proxy_error", { err });
-  return Response.json({ error: "Could not reach the Unde API. Try again in a moment." }, { status: 502 });
+  return Response.json({ error: "Could not reach the UndeLabs API. Try again in a moment." }, { status: 502 });
 }
 
 // The Authorization header for a backend call. On Cloud Run (K_SERVICE
@@ -345,7 +345,7 @@ async function forward(request: Request, path: string, visitorId: string, userTo
     return Response.json(
       // Not a model failure: the API itself didn't answer, so no "the model
       // didn't answer" prefix on the page.
-      { code: "backend_unreachable", message: "Couldn't reach the Unde API. Nothing is lost; try again in a moment." },
+      { code: "backend_unreachable", message: "Couldn't reach the UndeLabs API. Nothing is lost; try again in a moment." },
       noStore({ status: 502 }),
     );
   }

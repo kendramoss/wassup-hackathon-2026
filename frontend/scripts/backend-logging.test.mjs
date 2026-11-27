@@ -94,7 +94,7 @@ test("proxyBackend: an unreachable backend logs the class and the route pattern,
     restore();
   }
   assert.equal(res.status, 502);
-  assert.deepEqual(await res.json(), { code: "backend_unreachable", message: "Couldn't reach the Unde API. Nothing is lost; try again in a moment." }, "the response is unchanged");
+  assert.deepEqual(await res.json(), { code: "backend_unreachable", message: "Couldn't reach the UndeLabs API. Nothing is lost; try again in a moment." }, "the response is unchanged");
   assert.equal(res.headers.get("cache-control"), "private, no-store");
   assert.equal(lines.length, 1);
   assert.equal(lines[0][0], "proxy failure kind=unreachable route=/v1/cases/{}/export class=TypeError");

@@ -100,6 +100,6 @@ export async function proxyMcp(request: Request): Promise<Response> {
   } catch (err) {
     if (request.signal.aborted) return new Response(null, { status: 499 });
     logProxyFailure("unreachable", { path: "/mcp", err });
-    return jsonError(502, "backend_unreachable", "Couldn't reach the Unde API. Try again in a moment.");
+    return jsonError(502, "backend_unreachable", "Couldn't reach the UndeLabs API. Try again in a moment.");
   }
 }

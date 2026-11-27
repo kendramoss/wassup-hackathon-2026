@@ -587,7 +587,7 @@ export function AccuracyPage() {
   const pairEvery = calPairs ? `${Math.round((calEvery / calPairs) * 100)}%` : "—";
 
   const baselines = [
-    { label: "Unde", it: acc, ours: true },
+    { label: "UndeLabs", it: acc, ours: true },
     { label: "First country named", it: get("baseline_first_mentioned") },
     { label: "Most-mentioned country", it: get("baseline_most_mentioned") },
     { label: "Country of final assembly*", it: get("baseline_final_assembly") },

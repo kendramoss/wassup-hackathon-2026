@@ -11,7 +11,7 @@ export const copy = {
   // at stated 0.90, and 0.98 or more maps to 0.99.
   calSteps:
     "Calibrated values come in steps: the map gives one value to each band of stated confidence (every stated confidence under 0.90 becomes 0.60, and 0.98 or more becomes 0.99), so many cases share the same value.",
-  name: "Unde Labs",
+  name: "UndeLabs",
   tagline: "Predicts the country of origin U.S. Customs would likely assign, citing earlier CBP rulings, and finds production moves that earlier rulings support.",
   nav: { cases: "Cases", accuracy: "How accurate is it?", accuracyShort: "Accuracy", method: "How it works", api: "Developers" },
 
@@ -37,7 +37,7 @@ export const copy = {
       // fills the form; the origin runs on "Find the likely origin", and the
       // move search is a separate button.
       unseeded: "Live run: starts when you click Find origin",
-      engine: "Unde:",
+      engine: "UndeLabs:",
       agrees: "Agrees with CBP",
       disagrees: "Disagrees with CBP",
       plan: (plan: string, check: string, ruling: string) => `Plan: ${plan} (check ${check}${ruling ? `, ${ruling}` : ""}).`,
@@ -51,7 +51,7 @@ export const copy = {
       selection:
         "The ten family demos were picked by family, not by result: the first per-family check for vehicle parts, PCBA devices, power supplies, medical devices, paper and tissue products, off-road vehicles and machinery, semiconductor devices, golf and sporting goods, toys and build kits and heat pumps and heaters.",
       // D171 (23 checks, 7 off) and D661 live checks (6, 1 off): 29 and 8.
-      disagreement: "Across all 29 per-family checks, Unde disagreed with CBP's holding on the current setup in 8. Development checks, one run each.",
+      disagreement: "Across all 29 per-family checks, UndeLabs disagreed with CBP's holding on the current setup in 8. Development checks, one run each.",
     },
     columns: ["Product", "Likely origin", "Status", "Ruling watch", "Scenarios", "Where you left off"],
     notAnalysed: "Not analysed yet",
@@ -156,7 +156,7 @@ export const copy = {
     },
     auto: {
       match: /Auto-accepted/,
-      text: "Confident enough (calibrated 0.90 or more, the same cases as a stated 0.92) to pass Unde's configured confidence and scope checks. That is not legal approval: it is still a prediction, and a licensed customs broker or counsel should review it before you rely on it. On 377 held-out rulings these were right 96% of the time.",
+      text: "Confident enough (calibrated 0.90 or more, the same cases as a stated 0.92) to pass the configured confidence and scope checks. That is not legal approval: it is still a prediction, and a licensed customs broker or counsel should review it before you rely on it. On 377 held-out rulings these were right 96% of the time.",
     },
     hts: { match: /HTS/, text: "The US tariff code. It sets the duty rate." },
     tariffRule: {
@@ -269,19 +269,19 @@ export const copy = {
     footer: { privacy: "Privacy", terms: "Terms" },
     privacy: {
       title: "Privacy policy",
-      intro: "Unde is run by Unde Labs. This page says what Unde stores when you use it, where that data goes, and how to remove it.",
+      intro: "This page says what UndeLabs stores when you use it, where that data goes, and how to remove it.",
       sections: [
         {
           h: "What you enter",
           p: [
-            "The product description, bill of materials, dates and money figures you type or import into a case. Unde stores each case so you can come back to it.",
+            "The product description, bill of materials, dates and money figures you type or import into a case. UndeLabs stores each case so you can come back to it.",
             "Don't enter information you aren't allowed to share with a service provider.",
           ],
         },
         {
           h: "If you sign in with Google",
           p: [
-            "Google sends Unde an ID token with your email address and name. Unde uses them to show who is signed in and to keep your cases in your workspace. It doesn't ask Google for anything else and never sees your Google password.",
+            "Google sends UndeLabs an ID token with your email address and name. UndeLabs uses them to show who is signed in and to keep your cases in your workspace. It doesn't ask Google for anything else and never sees your Google password.",
             "The token sits in an HttpOnly cookie (op_user) until it expires, usually within an hour, or until you sign out.",
           ],
         },
@@ -290,23 +290,23 @@ export const copy = {
           p: [
             "op_visitor: a random ID that keeps your cases separate from other visitors' when you aren't signed in. HttpOnly, kept for one year.",
             "op_user: the Google ID token described above, only if you sign in.",
-            "Unde uses no analytics, advertising or tracking cookies.",
+            "UndeLabs uses no analytics, advertising or tracking cookies.",
           ],
         },
         {
           h: "Where your data goes",
           p: [
-            "Unde's deployment is intended to store cases in Google Cloud Firestore. To predict an origin or search for moves, Unde sends the case's product facts to Gemini on Google Cloud Vertex AI. How Google handles that data is set by Google Cloud's terms for the service, which Unde does not control.",
+            "The UndeLabs deployment is intended to store cases in Google Cloud Firestore. To predict an origin or search for moves, UndeLabs sends the case's product facts to Gemini on Google Cloud Vertex AI. How Google handles that data is set by Google Cloud's terms for the service, which UndeLabs does not control.",
             "In the current release, our server logs record the kind of request (the route pattern, such as GET /v1/cases/{id}), its status and how long it took, a request reference, and counts such as model tokens. They are designed not to record your product description, bill of materials, supplier or plant names, costs, questions, answers, case names, email addresses, tokens or API keys. When something fails, the log keeps the kind of failure (for example \"model unavailable\") and a status number, not the text of the error. Model prompts and answers are not written to the logs at any level.",
             "The request reference shown in the X-Request-ID header is generated or derived by the server. If you send your own, it is replaced by a one-way hash, so something you put in that header does not appear in our logs. The hash is not anonymisation.",
-            "Unde doesn't sell your data or share it with anyone else.",
+            "UndeLabs doesn't sell your data or share it with anyone else.",
           ],
         },
         {
           h: "Keeping and deleting it",
           p: [
-            "Cases are kept until you delete them, from the Cases page, or until Unde shuts down. Clearing your cookies hides an anonymous visitor's cases from that browser for good.",
-            "To have your data removed, or to ask what Unde holds about you, email the address below.",
+            "Cases are kept until you delete them, from the Cases page, or until UndeLabs shuts down. Clearing your cookies hides an anonymous visitor's cases from that browser for good.",
+            "To have your data removed, or to ask what UndeLabs holds about you, email the address below.",
             "Your case, its history and what you export are stored and shown to you and your workspace as you entered them, with the same accuracy as before. The history keeps the email of the member who made each change and shows it to the people who can see that case, until the case is deleted. History lines written from now on no longer repeat the text of a question or an old case name; lines written earlier are not rewritten. Case history is deleted with its case. Resetting a case clears its chat but not the earlier lines of its history. Cached predictions and precedent-check results are stored separately and are not removed by deleting the case. We do not control copies kept elsewhere, such as any backups or provider-side records.",
           ],
         },
@@ -314,32 +314,32 @@ export const copy = {
     },
     terms: {
       title: "Terms of service",
-      intro: "These terms apply when you use Unde, a tool from Unde Labs that predicts the US country of origin CBP would likely assign to a product and searches for production moves that could change it.",
+      intro: "These terms apply when you use UndeLabs, a tool that predicts the US country of origin CBP would likely assign to a product and searches for production moves that could change it.",
       sections: [
         {
           h: "Not a ruling or legal advice",
           p: [
-            "Unde's results are predictions, checked against published CBP rulings. They aren't a binding ruling, legal advice or customs advice. Confirm any decision with a licensed customs broker or by requesting a CBP binding ruling.",
+            "UndeLabs results are likely answers based on past Customs decisions, checked against published CBP rulings. They aren't a binding ruling, legal advice or customs advice. Confirm any decision with a licensed customs broker or by requesting a CBP binding ruling.",
             "Money figures are illustrative and depend on the inputs you give.",
           ],
         },
         {
-          h: "Using Unde",
+          h: "Using UndeLabs",
           p: [
-            "Use Unde for lawful purposes only. Don't try to get round its rate limits, read other people's cases or overload the service.",
-            "You keep the rights to what you enter. You give Unde Labs permission to store and process it to provide the service, as the privacy policy describes.",
+            "Use UndeLabs for lawful purposes only. Don't try to get round its rate limits, read other people's cases or overload the service.",
+            "You keep the rights to what you enter. You give UndeLabs permission to store and process it to provide the service, as the privacy policy describes.",
           ],
         },
         {
           h: "Availability",
           p: [
-            "Unde is a hackathon project, provided as is, with no warranty. It may change, slow down, stop or lose data without notice. Keep your own copy of anything you need.",
-            "To the extent the law allows, Unde Labs isn't liable for losses from using Unde or relying on its results.",
+            "UndeLabs is a hackathon project, provided as is, with no warranty. It may change, slow down, stop or lose data without notice. Keep your own copy of anything you need.",
+            "To the extent the law allows, UndeLabs isn't liable for losses from using it or relying on its results.",
           ],
         },
         {
           h: "Changes",
-          p: ["These terms may change. The date above shows the latest version; using Unde after a change means you accept it."],
+          p: ["These terms may change. The date above shows the latest version; using UndeLabs after a change means you accept it."],
         },
       ],
     },
@@ -357,7 +357,7 @@ export const copy = {
     eyebrow: "fig.0 — import tax",
     // Plain words (DESIGN.md principle 5): the one-second benefit first.
     title: "Find ways to pay less import tax",
-    sub: "Where your parts are made decides the tax. Unde shows which parts to move. Full answers for the U.S. Rule checks for 6 more markets.",
+    sub: "Where your parts are made decides the tax. UndeLabs shows which parts to move. Full answers for the U.S. Rule checks for 6 more markets.",
     demo: "Open the heat gun example →",
     fig1: "fig.1 — the heat gun",
     fig1Sub: "Kobalt 12.5-amp heat gun · real U.S. decisions",
@@ -370,7 +370,7 @@ export const copy = {
     ],
     stepOf: (n: number) => `Step ${n} of 4`,
     sheetStates: ["2022 setup · isometric", "exploded view", "planned move", "2026 setup · isometric"],
-    planNote: "Unde’s change · backed by a past decision",
+    planNote: "UndeLabs change · backed by a past decision",
     planMove: "Motor-fan, PCBA, switch + cord → Thailand",
     legendCn: "Made in China",
     legendTh: "Made in Thailand",
@@ -413,7 +413,7 @@ export const copy = {
     },
     more: "How accurate is it? →",
     cta: "See all examples →",
-    alsoLink: "See what Unde does ↓",
+    alsoLink: "See what UndeLabs does ↓",
     footerDisclaimer: "Not a ruling. Confirm with a licensed customs broker or a CBP binding ruling.",
     roadmap: "Roadmap",
     repo: "https://github.com/kendramoss/wassup-hackathon-2026",
@@ -452,7 +452,7 @@ export const copy = {
     later: "Later decision",
     madeIn: "Country of origin",
     moved: "What moved",
-    checkTitle: "What Unde's check said",
+    checkTitle: "What the UndeLabs check said",
     checkBody: (to: string) => `This change moves the origin to ${to}.`,
     matched: "Matches CBP's later decision.",
     support: "An earlier decision supports it:",
@@ -485,7 +485,7 @@ export const copy = {
   // created; the Developers page points to the same place to make one.
   settings: {
     title: "Account settings",
-    lead: "Manage the keys your integrations use with the Unde API and MCP endpoint.",
+    lead: "Manage the keys your integrations use with the UndeLabs API and MCP endpoint.",
     signIn: "Sign in to manage your API keys. The demos stay open without signing in.",
     apiKeys: {
       menu: "Settings",
@@ -499,7 +499,7 @@ export const copy = {
       create: "Create key",
       creating: "Creating…",
       secretLead: "Copy this key now",
-      secretNote: "It is shown only here. Unde stores only its hash, so a lost key must be replaced.",
+      secretNote: "It is shown only here. UndeLabs stores only its hash, so a lost key must be replaced.",
       copy: "Copy",
       copied: "Key copied.",
       copyFailed: "Copy unavailable. Select the key and copy it yourself.",
@@ -532,7 +532,7 @@ export const copy = {
   review: {
     label: "Review and scope",
     more: "Scope and limits",
-    origin: "A prediction from earlier CBP rulings, not a ruling. Have a licensed customs broker review it.",
+    origin: "A likely answer based on past Customs decisions, not an official ruling. Have a licensed customs broker review it.",
     plan: "Suggestions, not rulings or CBP approvals. Have a licensed customs broker review a move first.",
     bestBounded: "Best of the moves searched, using the duty and cost assumptions shown, which may be prefilled or illustrative. When you leave a cost blank, the ranking may count it as zero, which is not a verified expense. Factors the model does not include are not counted.",
     compare: "A suggestion for a licensed customs broker to review, not a ruling.",
@@ -993,7 +993,7 @@ export const copy = {
     busy: "Reading earlier rulings…",
     why: "The tariff-shift rule check needs a code for the product and each part.",
     acceptAll: "Accept all top suggestions",
-    accepted: (n: number) => `${n} code${n === 1 ? "" : "s"} filled in. They take effect when you run the prediction.`,
+    accepted: (n: number) => `${n} code${n === 1 ? "" : "s"} filled in. They take effect when you check the origin.`,
     unverified: "Unverified suggestions: check every code with your broker before you rely on it.",
     fromRulings: "earlier CBP ruling",
     fromModel: "model's reading, no ruling found",
@@ -1200,7 +1200,7 @@ export const copy = {
       {
         role: "Works with it",
         who: "Licensed customs brokers and trade lawyers.",
-        gets: "A draft to check and file. Unde does not replace them.",
+        gets: "A draft to check and file. UndeLabs does not replace them.",
       },
       {
         role: "Benefits: importer of record",
@@ -1233,11 +1233,11 @@ export const copy = {
     byOriginNote: "origins with 19 or more rulings",
     chinaTitle: "Which way the misses go",
     china: (c: { missed_china: number; missed_china_auto: number; said_china: number; said_china_auto: number; neither: number }) => [
-      `CBP held China, Unde said another country: ${c.missed_china} (${c.missed_china_auto} auto-accepted). This is the costly direction for a move out of China.`,
-      `Unde said China, CBP held another country: ${c.said_china} (${c.said_china_auto} auto-accepted).`,
+      `CBP held China, UndeLabs said another country: ${c.missed_china} (${c.missed_china_auto} auto-accepted). This is the costly direction: the product would still count as made in China.`,
+      `UndeLabs said China, CBP held another country: ${c.said_china} (${c.said_china_auto} auto-accepted).`,
       `Neither was China: ${c.neither}.`,
     ],
-    columns: ["Ruling", "Date", "Product", "CBP held", "Unde said", "Confidence (model said)", "Route"],
+    columns: ["Ruling", "Date", "Product", "CBP held", "UndeLabs said", "Confidence (model said)", "Route"],
     auto: "auto-accepted",
     review: "sent to review",
     showAll: (n: number) => `Show all ${n} misses`,
