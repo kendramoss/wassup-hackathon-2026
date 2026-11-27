@@ -1,0 +1,386 @@
+{
+ "cells": [
+  {
+   "split": "older",
+   "source": "facts",
+   "n": 134,
+   "extracted": 131,
+   "excluded_no_single_holding": 3,
+   "out_of_scope": 0,
+   "decided": 4,
+   "agree_cbp": 3,
+   "agree_cbp_ci": [
+    30.1,
+    95.4
+   ],
+   "disagree_model": 0,
+   "model_right_on_decided": 0,
+   "decided_by_paragraph": {
+    "(c)(2)": 3,
+    "single country": 1
+   },
+   "undetermined_reasons": {
+    "judgment": 1,
+    "no_code": 123,
+    "operation_not_stated": 3
+   },
+   "candidate_where_judgment": 1,
+   "candidate_agree_cbp": 1,
+   "in_scope": 131,
+   "decided_share_of_in_scope_pct": 3.1
+  },
+  {
+   "split": "older",
+   "source": "facts+suggested",
+   "n": 134,
+   "extracted": 131,
+   "excluded_no_single_holding": 3,
+   "out_of_scope": 1,
+   "decided": 67,
+   "agree_cbp": 64,
+   "agree_cbp_ci": [
+    87.6,
+    98.5
+   ],
+   "disagree_model": 0,
+   "model_right_on_decided": 0,
+   "decided_by_paragraph": {
+    "(c)(2)": 64,
+    "single country": 3
+   },
+   "undetermined_reasons": {
+    "code_too_short": 24,
+    "fact_not_stated": 15,
+    "judgment": 13,
+    "needs_material_codes": 2,
+    "not_read_by_code": 2,
+    "operation_not_stated": 7
+   },
+   "candidate_where_judgment": 13,
+   "candidate_agree_cbp": 7,
+   "in_scope": 130,
+   "decided_share_of_in_scope_pct": 51.5
+  },
+  {
+   "split": "older",
+   "source": "full_text",
+   "n": 134,
+   "extracted": 124,
+   "excluded_no_single_holding": 3,
+   "out_of_scope": 0,
+   "decided": 102,
+   "agree_cbp": 99,
+   "agree_cbp_ci": [
+    91.7,
+    99
+   ],
+   "disagree_model": 0,
+   "model_right_on_decided": 0,
+   "decided_by_paragraph": {
+    "(c)(2)": 101,
+    "single country": 1
+   },
+   "undetermined_reasons": {
+    "extraction_failed": 7,
+    "fact_not_stated": 1,
+    "judgment": 12,
+    "needs_material_codes": 2,
+    "no_code": 1,
+    "not_read_by_code": 4,
+    "operation_not_stated": 2
+   },
+   "candidate_where_judgment": 12,
+   "candidate_agree_cbp": 5,
+   "in_scope": 131,
+   "decided_share_of_in_scope_pct": 77.9
+  },
+  {
+   "split": "older",
+   "source": "full_text+suggested",
+   "n": 134,
+   "extracted": 124,
+   "excluded_no_single_holding": 3,
+   "out_of_scope": 0,
+   "decided": 103,
+   "agree_cbp": 100,
+   "agree_cbp_ci": [
+    91.8,
+    99
+   ],
+   "disagree_model": 0,
+   "model_right_on_decided": 0,
+   "decided_by_paragraph": {
+    "(c)(2)": 102,
+    "single country": 1
+   },
+   "undetermined_reasons": {
+    "extraction_failed": 7,
+    "fact_not_stated": 1,
+    "judgment": 12,
+    "needs_material_codes": 2,
+    "not_read_by_code": 4,
+    "operation_not_stated": 2
+   },
+   "candidate_where_judgment": 12,
+   "candidate_agree_cbp": 5,
+   "in_scope": 131,
+   "decided_share_of_in_scope_pct": 78.6
+  },
+  {
+   "split": "pool",
+   "source": "facts",
+   "n": 185,
+   "extracted": 176,
+   "excluded_no_single_holding": 9,
+   "out_of_scope": 9,
+   "decided": 5,
+   "agree_cbp": 3,
+   "agree_cbp_ci": [
+    23.1,
+    88.2
+   ],
+   "disagree_model": 0,
+   "model_right_on_decided": 0,
+   "decided_by_paragraph": {
+    "(c)(2)": 5
+   },
+   "undetermined_reasons": {
+    "code_too_short": 5,
+    "no_code": 157
+   },
+   "candidate_where_judgment": 0,
+   "candidate_agree_cbp": 0,
+   "in_scope": 167,
+   "decided_share_of_in_scope_pct": 3
+  },
+  {
+   "split": "pool",
+   "source": "facts+suggested",
+   "n": 185,
+   "extracted": 176,
+   "excluded_no_single_holding": 9,
+   "out_of_scope": 60,
+   "decided": 51,
+   "agree_cbp": 46,
+   "agree_cbp_ci": [
+    79,
+    95.7
+   ],
+   "disagree_model": 0,
+   "model_right_on_decided": 0,
+   "decided_by_paragraph": {
+    "(c)(1)": 3,
+    "(c)(2)": 44,
+    "single country": 4
+   },
+   "undetermined_reasons": {
+    "code_too_short": 18,
+    "fact_not_stated": 15,
+    "judgment": 10,
+    "needs_material_codes": 11,
+    "not_read_by_code": 1,
+    "operation_not_stated": 10
+   },
+   "candidate_where_judgment": 10,
+   "candidate_agree_cbp": 3,
+   "in_scope": 116,
+   "decided_share_of_in_scope_pct": 44
+  },
+  {
+   "split": "pool",
+   "source": "full_text",
+   "n": 185,
+   "extracted": 176,
+   "excluded_no_single_holding": 9,
+   "out_of_scope": 58,
+   "decided": 69,
+   "agree_cbp": 64,
+   "agree_cbp_ci": [
+    84.1,
+    96.9
+   ],
+   "disagree_model": 0,
+   "model_right_on_decided": 0,
+   "decided_by_paragraph": {
+    "(c)(1)": 3,
+    "(c)(2)": 62,
+    "single country": 4
+   },
+   "undetermined_reasons": {
+    "fact_not_stated": 12,
+    "judgment": 14,
+    "needs_material_codes": 10,
+    "no_code": 8,
+    "not_read_by_code": 1,
+    "operation_not_stated": 4
+   },
+   "candidate_where_judgment": 14,
+   "candidate_agree_cbp": 6,
+   "in_scope": 118,
+   "decided_share_of_in_scope_pct": 58.5
+  },
+  {
+   "split": "pool",
+   "source": "full_text+suggested",
+   "n": 185,
+   "extracted": 176,
+   "excluded_no_single_holding": 9,
+   "out_of_scope": 60,
+   "decided": 72,
+   "agree_cbp": 67,
+   "agree_cbp_ci": [
+    84.8,
+    97
+   ],
+   "disagree_model": 0,
+   "model_right_on_decided": 0,
+   "decided_by_paragraph": {
+    "(c)(1)": 3,
+    "(c)(2)": 64,
+    "single country": 5
+   },
+   "undetermined_reasons": {
+    "fact_not_stated": 13,
+    "judgment": 15,
+    "needs_material_codes": 11,
+    "not_read_by_code": 1,
+    "operation_not_stated": 4
+   },
+   "candidate_where_judgment": 15,
+   "candidate_agree_cbp": 6,
+   "in_scope": 116,
+   "decided_share_of_in_scope_pct": 62.1
+  },
+  {
+   "split": "pooled",
+   "source": "facts",
+   "n": 319,
+   "extracted": 307,
+   "excluded_no_single_holding": 12,
+   "out_of_scope": 9,
+   "decided": 9,
+   "agree_cbp": 6,
+   "agree_cbp_ci": [
+    35.4,
+    87.9
+   ],
+   "disagree_model": 0,
+   "model_right_on_decided": 0,
+   "decided_by_paragraph": {
+    "(c)(2)": 8,
+    "single country": 1
+   },
+   "undetermined_reasons": {
+    "code_too_short": 5,
+    "judgment": 1,
+    "no_code": 280,
+    "operation_not_stated": 3
+   },
+   "candidate_where_judgment": 1,
+   "candidate_agree_cbp": 1,
+   "in_scope": 298,
+   "decided_share_of_in_scope_pct": 3
+  },
+  {
+   "split": "pooled",
+   "source": "facts+suggested",
+   "n": 319,
+   "extracted": 307,
+   "excluded_no_single_holding": 12,
+   "out_of_scope": 61,
+   "decided": 118,
+   "agree_cbp": 110,
+   "agree_cbp_ci": [
+    87.2,
+    96.5
+   ],
+   "disagree_model": 0,
+   "model_right_on_decided": 0,
+   "decided_by_paragraph": {
+    "(c)(1)": 3,
+    "(c)(2)": 108,
+    "single country": 7
+   },
+   "undetermined_reasons": {
+    "code_too_short": 42,
+    "fact_not_stated": 30,
+    "judgment": 23,
+    "needs_material_codes": 13,
+    "not_read_by_code": 3,
+    "operation_not_stated": 17
+   },
+   "candidate_where_judgment": 23,
+   "candidate_agree_cbp": 10,
+   "in_scope": 246,
+   "decided_share_of_in_scope_pct": 48
+  },
+  {
+   "split": "pooled",
+   "source": "full_text",
+   "n": 319,
+   "extracted": 300,
+   "excluded_no_single_holding": 12,
+   "out_of_scope": 58,
+   "decided": 171,
+   "agree_cbp": 163,
+   "agree_cbp_ci": [
+    91,
+    97.6
+   ],
+   "disagree_model": 0,
+   "model_right_on_decided": 0,
+   "decided_by_paragraph": {
+    "(c)(1)": 3,
+    "(c)(2)": 163,
+    "single country": 5
+   },
+   "undetermined_reasons": {
+    "extraction_failed": 7,
+    "fact_not_stated": 13,
+    "judgment": 26,
+    "needs_material_codes": 12,
+    "no_code": 9,
+    "not_read_by_code": 5,
+    "operation_not_stated": 6
+   },
+   "candidate_where_judgment": 26,
+   "candidate_agree_cbp": 11,
+   "in_scope": 249,
+   "decided_share_of_in_scope_pct": 68.7
+  },
+  {
+   "split": "pooled",
+   "source": "full_text+suggested",
+   "n": 319,
+   "extracted": 300,
+   "excluded_no_single_holding": 12,
+   "out_of_scope": 60,
+   "decided": 175,
+   "agree_cbp": 167,
+   "agree_cbp_ci": [
+    91.2,
+    97.7
+   ],
+   "disagree_model": 0,
+   "model_right_on_decided": 0,
+   "decided_by_paragraph": {
+    "(c)(1)": 3,
+    "(c)(2)": 166,
+    "single country": 6
+   },
+   "undetermined_reasons": {
+    "extraction_failed": 7,
+    "fact_not_stated": 14,
+    "judgment": 27,
+    "needs_material_codes": 13,
+    "not_read_by_code": 5,
+    "operation_not_stated": 6
+   },
+   "candidate_where_judgment": 27,
+   "candidate_agree_cbp": 11,
+   "in_scope": 247,
+   "decided_share_of_in_scope_pct": 70.9
+  }
+ ],
+ "note": "D955: the second held-out test of the 19 CFR 102.21 rule check. sets older (2019-2022, fetched by number) and pool (2023-01 to 2025-06); pooled = both. Headline input: facts+suggested. Recompute: cd backend \u0026\u0026 go run ./cmd/textilerules eval -check"
+}

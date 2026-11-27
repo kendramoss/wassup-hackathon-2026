@@ -331,9 +331,9 @@ function RulesChecks() {
           <dd>Korea <strong>{r.akftaReached}/{r.akftaExamples}</strong>, China <strong>{r.acftaReached}/{r.acftaExamples}</strong> reach the stated result. Not an accuracy rate.</dd>
         </div>
         <div>
-          <dt className="text-dim">Textile origin rules (19 CFR 102.21, off), agreement with CBP on decided rulings, second test</dt>
+          <dt className="text-dim">Textile origin rules (19 CFR 102.21, off), agreement with CBP on decided rulings, third test</dt>
           <dd>
-            <strong>{x.pooled.agreed}/{x.pooled.decided}</strong> ({x.pooled.pct}, 95% interval {x.pooled.interval}%). Older rulings {x.older.agreed}/{x.older.decided}, 2023 to mid-2025 {x.pool.agreed}/{x.pool.decided}; first test {x.d952.agreed}/{x.d952.decided}.
+            <strong>{x.third.agreed}/{x.third.decided}</strong> ({x.third.pct}, 95% interval {x.third.interval}%). Decided {x.third.decided} of {x.third.inScope} rulings of 2012 to 2018. Second test {x.pooled.agreed}/{x.pooled.decided}, first test {x.d952.agreed}/{x.d952.decided}.
           </dd>
         </div>
       </dl>
@@ -372,7 +372,7 @@ function RulesChecks() {
           The {s.scopeRulings.rulings} Commerce scope rulings of 2017 to 2018 are products near the edge of a scope. There the same method flagged rightly {s.scopeRulings.precisionPct} (interval {s.scopeRulings.precisionInterval}%) and found {s.scopeRulings.recallPct} ({s.scopeRulings.recallInterval}%), so a part that is a close call needs a person. The method before it, on {a.rulings} rulings of 2023 to 2024, got {a.precisionPct} and {a.recallPct}.
         </p>
         <p>
-          Textile: a second test on {x.pooled.rulings} rulings from other years than the first test missed the bar (85% on at least 15 decided): {x.pooled.agreed} of {x.pooled.decided} decided agree with CBP. {x.labelErrors} of the {x.older.decided - x.older.agreed} older misses are labels that name China where CBP held Hong Kong; read after the result, that gives {x.correctedAgreed} of {x.pooled.decided} ({x.correctedInterval}%). The flag stays off. The first test, {x.d952.rulings} rulings of 2026, had {x.d952.decided} decided, one short. It does not decide the most important process.
+          Textile: the third test, {x.third.rulings} rulings of 2012 to 2018, met the bar written down before it was scored (85% on at least 15 decided): {x.third.agreed} of {x.third.decided} decided agree with CBP, and the interval&apos;s low end is under 85. The second test missed it: {x.pooled.agreed} of {x.pooled.decided} (older rulings {x.older.agreed}/{x.older.decided}, 2023 to mid-2025 {x.pool.agreed}/{x.pool.decided}), mostly because older labels named China where CBP held Hong Kong. With the labeller fixed afterwards those rulings give {x.restated.agreed} of {x.restated.decided}, read after the result. The first test, {x.d952.rulings} rulings of 2026, had {x.d952.decided} decided, one short. The flag stays off. It does not decide the most important process.
         </p>
         <p>
           ATIGA: no ASEAN Member State publishes origin rulings, so there is nothing to measure accuracy against. The {r.atigaExamples} examples come from customs authorities&apos; own guides. They show the arithmetic and rule reading match those guides, not customs decisions.

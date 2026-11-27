@@ -106,16 +106,25 @@ export const rulesChecks = {
   acftaReached: 3,
 };
 
-// D952 and D955 held-out results of the textile rules check (TEXTILE_RULES,
-// off), facts plus suggested subheading. d952 is final and final2 pooled;
-// older, pool and pooled are the second test (D955). Pinned to
-// eval/textile102/summary.json and summary-fresh.json by
-// scripts/japan-evidence.test.mjs.
+// D952, D955 and D957 held-out results of the textile rules check
+// (TEXTILE_RULES, off), facts plus suggested subheading. d952 is final and
+// final2 pooled; older, pool and pooled are the second test (D955); third is
+// the third test (D957). Pinned to eval/textile102/summary.json,
+// summary-fresh.json and summary-third.json by scripts/japan-evidence.test.mjs.
 export const textileRules = {
   d952: { rulings: 88, inScope: 41, decided: 14, agreed: 13, pct: "92.9%", interval: "68.5–98.7" },
   older: { rulings: 134, inScope: 133, decided: 69, agreed: 31, pct: "44.9%", interval: "33.8–56.6" },
   pool: { rulings: 185, inScope: 125, decided: 53, agreed: 48, pct: "90.6%", interval: "79.7–95.9" },
   pooled: { rulings: 319, inScope: 258, decided: 122, agreed: 79, pct: "64.8%", interval: "55.9–72.7" },
+  // D957 third test: 2012-2018 rulings, textile labeller fixed after D956;
+  // pinned to eval/textile102/summary-third.json. a and b are its two periods.
+  third: {
+    rulings: 62, inScope: 58, decided: 27, agreed: 26, pct: "96.3%", interval: "81.7–99.3",
+    a: { decided: 13, agreed: 13 }, b: { decided: 14, agreed: 13 },
+  },
+  // After D956, not part of its registered figure: the same second-test rulings
+  // against the labels of the fixed labeller (eval/textile102/relabelled/summary-fresh.json).
+  restated: { decided: 118, agreed: 110, pct: "93.2%", interval: "87.2–96.5" },
   // After the result, not part of the registered figure: CBP's holding read
   // for the 43 disagreements (eval/textile102/posthoc-d956.json).
   labelErrors: 34,
