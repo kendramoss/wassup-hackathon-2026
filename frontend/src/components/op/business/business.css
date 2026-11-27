@@ -206,3 +206,9 @@
   .biz-check .biz-market-grid { grid-template-columns: 1fr; }
   .biz-check .biz-ptable th:nth-child(2) { width: 40%; }
 }
+/* #933, #935, #928: field messages, long names, heading focus */
+.biz-check .biz-field-error { display: block; margin-top: 6px; font-size: 13px; line-height: 18px; color: #8a2a1c; }
+.biz-check input[aria-invalid="true"] { border-color: #b3402c; box-shadow: inset 0 0 0 1px #b3402c; }
+.biz-check .biz-eyebrow-name { overflow-wrap: anywhere; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+.biz-check h1:focus { outline: none; }
+.biz-check .biz-ptable td { vertical-align: top; }
