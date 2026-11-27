@@ -184,7 +184,7 @@ export function BusinessStory() {
 
           <Chapter i={6} stack>
             <div style={{ display: "flex", alignItems: "flex-end", gap: 40, flexWrap: "wrap" }}>
-              <Text n={7} title="Check your product" sub="Pick where you sell. List your parts. See your country and how to change it" wide />
+              <Text n={7} title="Check your product" sub="Pick the country you import into. List your parts. See your country and how to change it" wide />
               <div className="biz-actions">
                 <Link href={tour} className="biz-link">Open the heat gun example</Link>
                 <Link href="/business/check" className="biz-btn accent">Check my product</Link>

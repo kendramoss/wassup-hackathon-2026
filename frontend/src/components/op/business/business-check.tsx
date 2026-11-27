@@ -2,7 +2,7 @@
 
 // The business view's first step (/business/check, #893; canvas mock "Check
 // a product", option A). Two short steps in plain words: the product and
-// where it is sold, then the main parts and where the product is put
+// the country it is imported into, then the main parts and where it is put
 // together. "Check my product" runs the same predict as the full form
 // (/cases/new) and opens the answer. The full form stays one link away for
 // anything more (families, dates, BOM files, plants).
@@ -331,7 +331,8 @@ function CheckForm({ draft, initialStep }: { draft: Draft | null; initialStep: 1
                 <span id={`${id}-name-help`} className="biz-help">A short name is enough.</span>
               </div>
               <fieldset className="biz-markets">
-                <legend>Where do you sell it?</legend>
+                <legend>Which country will it be imported into?</legend>
+                <p className="biz-help">That country’s rules decide the import tax. This is not where it is made.</p>
                 <label className="biz-market wide">
                   <input type="radio" name="market" checked={market === "us"} onChange={() => setMarket("us")} />
                   <span>
@@ -351,7 +352,7 @@ function CheckForm({ draft, initialStep }: { draft: Draft | null; initialStep: 1
                   ))}
                 </div>
                 <p className="biz-help">
-                  Selling in Japan? Japan checks need a trade agreement and a tariff code, so they use the{" "}
+                  Importing into Japan? Japan checks need a trade agreement and a tariff code, so they use the{" "}
                   <Link href="/cases/new?via=business" className="biz-link">full form</Link>.
                 </p>
               </fieldset>

@@ -57,7 +57,7 @@ function BusinessIntro() {
         </p>
       </div>
       <ol className="flex flex-wrap gap-3">
-        {["Name the product and pick where you sell", "List the parts, or upload a parts list", "Press the blue button at the end"].map((t, i) => (
+        {["Name the product and pick the country you import into", "List the parts, or upload a parts list", "Press the blue button at the end"].map((t, i) => (
           <li key={t} className="flex w-[150px] flex-col gap-1.5 rounded-[10px] bg-paper p-3.5 text-[14px] leading-[19px]">
             <span className="font-mono text-ok">{i + 1}</span>
             {t}
