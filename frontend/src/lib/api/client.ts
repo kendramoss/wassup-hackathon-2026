@@ -319,7 +319,7 @@ async function call<T>(path: string, init?: RequestInit): Promise<T> {
     res = await fetch(`/api/v1${path}`, { cache: "no-store", ...init });
   } catch (err) {
     if (err instanceof DOMException && err.name === "AbortError") throw err;
-    throw new ApiError("Couldn't reach Unde. Check your connection and try again.", 0, "network", true);
+    throw new ApiError("Couldn't reach UndeLabs. Check your connection and try again.", 0, "network", true);
   }
   if (!res.ok) throw await toError(res, init?.method);
   if (res.status === 204) return undefined as T;
@@ -532,7 +532,7 @@ export async function streamPlan(
     });
   } catch (err) {
     if (err instanceof DOMException && err.name === "AbortError") throw err;
-    throw new ApiError("Couldn't reach Unde. Check your connection and try again.", 0, "network", true);
+    throw new ApiError("Couldn't reach UndeLabs. Check your connection and try again.", 0, "network", true);
   }
   if (!res.ok) throw await toError(res, "POST");
   if (!res.headers.get("content-type")?.startsWith("text/event-stream")) {
@@ -559,7 +559,7 @@ export async function streamPredict(body: PredictRequest, onStage: (s: PredictSt
       cache: "no-store",
     });
   } catch {
-    throw new ApiError("Couldn't reach Unde. Check your connection and try again.", 0, "network", true);
+    throw new ApiError("Couldn't reach UndeLabs. Check your connection and try again.", 0, "network", true);
   }
   if (!res.ok) throw await toError(res, "POST");
   if (!res.headers.get("content-type")?.startsWith("text/event-stream")) return res.json() as Promise<CaseResponse>;

@@ -414,7 +414,7 @@ export function Landing() {
 
       <footer className="lpfoot">
         <p>{L.footerDisclaimer}</p>
-        <nav aria-label="More about Unde Labs">
+        <nav aria-label="More about UndeLabs">
           <a href={L.repo} target="_blank" rel="noreferrer">GitHub</a>
           <a href={`${L.repo}/blob/main/docs/ROADMAP.md`} target="_blank" rel="noreferrer">{L.roadmap}</a>
           <Link href="/method">{copy.method.footer}</Link>

@@ -1,4 +1,4 @@
-# Unde Labs
+# UndeLabs
 
 **Plan the production change before you build it.**
 
@@ -18,7 +18,7 @@ Checking is slow, and a wrong move is costly:
 - **21 days** median for CBP to answer (our count of 247 origin rulings on Asian goods, 2025–26, [rulings.cbp.gov](https://rulings.cbp.gov); [docs/NUMBERS.md](docs/NUMBERS.md))
 - A move that doesn't change origin is only found out after production has moved.
 
-Unde turns a manufacturer's operational data (bill of materials, where each part is made, which plant does each step) into:
+UndeLabs turns a manufacturer's operational data (bill of materials, where each part is made, which plant does each step) into:
 - **Insight:** the origin CBP would likely assign, with the rulings it's based on
 - **Recommendations:** production moves that reach a target origin, each checked against CBP precedent
 - **Action:** a draft ruling request for a customs broker
@@ -27,24 +27,24 @@ Theme directions it covers: production optimization and supply-chain intelligenc
 
 ## What it does
 
-When parts come from several countries, CBP asks where the product became a new thing ("substantial transformation"). Unde answers that ahead of time:
+When parts come from several countries, CBP asks where the product became a new thing ("substantial transformation"). UndeLabs answers that ahead of time:
 
 1. **Describe the product.** Paste a description, or upload the bill of materials (CSV or Excel).
 2. **See the likely origin.** Gemini reads the product with the most similar past CBP rulings and predicts the origin, with a confidence and the rulings it relied on.
-3. **Get a plan.** Pick a target country. Unde tries moving groups of manufacturing steps between your plants. An AI agent checks each move against real CBP rulings, and a plan is shown only if an earlier ruling backs it (**precedent-supported**).
+3. **Get a plan.** Pick a target country. UndeLabs tries moving groups of manufacturing steps between your plants. An AI agent checks each move against real CBP rulings, and a plan is shown only if an earlier ruling backs it (**precedent-supported**).
 4. **Hand it to a broker.** Export the chosen plan as a draft ruling request.
 
 It's built for the trade-compliance or industrialisation lead at a contract manufacturer moving work to Thailand, Vietnam, Malaysia, Korea or Taiwan.
 
 ## Who uses it and who benefits
 
-Five roles meet in one production-move decision. These are the roles Unde is designed around. It has no customers or pilots yet, and none of these is a named firm.
+Five roles meet in one production-move decision. These are the roles UndeLabs is designed around. It has no customers or pilots yet, and none of these is a named firm.
 
 | Role | Who | What they get |
 |---|---|---|
 | **Uses it** | The trade-compliance or industrialisation lead at an ASEAN contract manufacturer | The origin CBP would likely assign, with the earlier rulings behind it, before work moves; moves that earlier rulings support; a draft ruling request |
 | **Pays for it** | The COO or VP of supply chain at that manufacturer, or the U.S. brand that sources from it | A check before capital moves: the duty effect and added cost of each move side by side, with the moves no ruling supports set apart |
-| **Works with it** | Licensed customs brokers and trade lawyers | A draft with the facts laid out and the cited rulings linked. They still confirm the classification and file the request; Unde does not replace them |
+| **Works with it** | Licensed customs brokers and trade lawyers | A draft with the facts laid out and the cited rulings linked. They still confirm the classification and file the request; UndeLabs does not replace them |
 | **Benefits** | The U.S. importer of record | It carries the duty and the penalty risk if the origin is wrong. It gets an earlier warning when a planned move would leave the product Chinese, and a record of which rulings were read |
 | **Benefits** | The ASEAN plant that would take on the work | A clearer case for which operations to bring in, and early notice when a smaller move would not change the origin |
 
@@ -52,8 +52,8 @@ What one such decision looks like in numbers (time, cost and duty, each sourced 
 
 ## Why it matters
 
-- **Duty:** for our demo heat gun, China vs Thailand origin is about a **25-point** difference in duty. Unde uses live U.S. rates, including Section 301 duties, for every HTS line.
-- **Time:** CBP estimates **20 hours** of preparation per ruling request, and recent origin rulings took a median of **21 days**. Unde gives a first, non-binding answer: one origin prediction takes 4.6 s (median; 5.7 s for 95%), and a full plan search took 33 s on the recorded heat-gun run (a median of 49 s, slowest 101 s, across six live checks on other products, one run each). The binding answer still comes from CBP.
+- **Duty:** for our demo heat gun, China vs Thailand origin is about a **25-point** difference in duty. UndeLabs uses live U.S. rates, including Section 301 duties, for every HTS line.
+- **Time:** CBP estimates **20 hours** of preparation per ruling request, and recent origin rulings took a median of **21 days**. UndeLabs gives a first, non-binding answer: one origin prediction takes 4.6 s (median; 5.7 s for 95%), and a full plan search took 33 s on the recorded heat-gun run (a median of 49 s, slowest 101 s, across six live checks on other products, one run each). The binding answer still comes from CBP.
 - **Risk:** moving production and still getting China origin is the costly mistake. Every plan is checked against past rulings, including ones where a similar change did *not* work.
 
 ## Other features
@@ -64,7 +64,7 @@ What one such decision looks like in numbers (time, cost and duty, each sourced 
 - **Ruling watch:** re-check saved cases against rulings CBP issued later, with a box on the case when a ruling it relies on is revoked or modified
 - **Ask the case:** an agent that explains the prediction and runs what-ifs
 - **API** for ERP and sourcing tools ([docs/api/openapi.yaml](docs/api/openapi.yaml))
-- **MCP server** so Gemini CLI, Google ADK agents and Claude can use Unde as tools, with a runnable ADK agent in `examples/adk-agent` (see below)
+- **MCP server** so Gemini CLI, Google ADK agents and Claude can use UndeLabs as tools, with a runnable ADK agent in `examples/adk-agent` (see below)
 
 ## Checks beside the model
 
@@ -74,18 +74,18 @@ Gemini gives the answer. These parts are code, and each says when it cannot deci
 - **HTS suggestions for each part (built).** The parts table suggests up to three codes per part, marked as from an earlier CBP ruling or the model's own reading, and fills one in only when you accept it. A plausibility check flags a code in an unlikely chapter; it never removes one. Where CBP states a part's code, the top suggestion matched it for 20 of 27 development parts (2 of 3 held out). With these codes and CBP's code for the good, the rule check decides 16 of 69 development rulings (16 agree with CBP) and 14 of 29 held out (13 agree); without the five chapters picked with held-out data, 12 of 29 held out (11 agree; D560). The codes are unverified: check them with a broker. ([#570](https://github.com/kendramoss/wassup-hackathon-2026/pull/570), [#599](https://github.com/kendramoss/wassup-hackathon-2026/pull/599); D380-D382, D471)
 - **The rule check on each plan move (built).** Each move gets a chip: shifts under 102.20, does not shift, or undetermined and why. When an earlier ruling supports a move but the rule gives another country, the move is flagged for a broker. On a substantial-transformation case it is display only. On a case routed to the Part 102 rules it also orders the shown plans within each tier (moves it says shift first, then undetermined, then another country), and the broker draft quotes it (D500, D502). On the committed development plan searches with suggested codes: 25 of 57 moves decided; 21 of 23 agree with the precedent check; 2 flagged (N354220: the good is still finished in China). Three Part 102 plan searches on development rulings were scored: on the actuator (N348465) the rule picked the 6 moves that bring the motor to Canada, CBP's own reason for holding China, and the one shown plan is among them (D501, D502).
 - **The Part 102 engine in plan searches (built).** On a case routed to the Part 102 rules, the Part 102 engine predicts the current setup and every move, so plans and the rule check reason under one test. Re-run on the same three development searches, the engine then in use (`usmca-v1`) agrees with the rule on 13 of 14 moves (the general engine on 9); one error is left, on the compressors (D540, D541). Quoting the 102.20 rule text to the Part 102 engine was tested on development under a rule written before the run and did not pass (50 of 72 correct against 53); it was not adopted, and no held-out ruling was read (D550, D551). On 18 held-out Part 102 rulings frozen before any run, 6 had a plan template (8 with the 20 families of D581); there `usmca-v1` agreed with the rule on 3 of 6 decided moves (D570, D571). A current setup the rule gives to another country than the engine, and a move the rule says reaches the target while the engine predicts another country, are now flagged for a broker (D591). Since 22 Nov the Part 102 engine is `usmca-v5`, which fills a short 102.11 checklist first: on the development plan rows it agrees with the rule on 56 of 57 decided rows against 43 for `usmca-v1`, and on the 45 held-out Part 102 rulings it is right on 40 against 36 (a candidate comparison on rulings scored before, not a fresh test; p = 0.22). It auto-accepts fewer answers at confidence 0.95: 17 of 45 (16 right) against 22 (D602, D613). A second, pre-registered pass on the same held-out plan set with `usmca-v5` and 20 families planned 8 of 18, and the engine agreed with the rule on 6 of 6 decided moves, five of them moves where the rule keeps the country CBP held (D630, D631; the second scoring of the set). It is a candidate comparison, not new held-out evidence: the 8 are window-1 rulings `usmca-v5` was scored on before its adoption, and its 6 of 8 current setups are that D601 result (D670). The recorded actuator search was re-run with `usmca-v5` (12 of 12 moves agree); the other two development searches were not. Recorded examples: [/examples/part102-plan](https://undelabs.dev/examples/part102-plan) (the actuator search with `usmca-v5`) and [/examples/plan-rule-check](https://undelabs.dev/examples/plan-rule-check). ([#590](https://github.com/kendramoss/wassup-hackathon-2026/pull/590), [#613](https://github.com/kendramoss/wassup-hackathon-2026/pull/613), [#623](https://github.com/kendramoss/wassup-hackathon-2026/pull/623), [#625](https://github.com/kendramoss/wassup-hackathon-2026/pull/625), [#635](https://github.com/kendramoss/wassup-hackathon-2026/pull/635), [#638](https://github.com/kendramoss/wassup-hackathon-2026/pull/638); D440-D442, D500-D502, D540, D541, D550, D551, D570, D571, D591, D602, D613, D630, D631)
-- **Revoked rulings (built).** A map of 143 rulings CBP revoked or modified, from the corpus and 28 Customs Bulletins, stops Unde citing a ruling CBP had already changed at the case date. A saved case shows a "Re-check recommended" box when CBP later changes a ruling it relies on. On the committed results this fires rarely: 2 of 14,102 result rows, and none of the demo cases. Each alert says whether the change bears on what the case relies on that ruling for: it compares the origin the changed ruling held, and the one the changing ruling holds, with the case's answer for a cited ruling, with a shown plan's target for the plan's supporting ruling, and with CBP's holding on the current setup for that ruling, and says when a holding is not known (D531, D561). Nobody is notified by email yet. Recorded example: [/examples/revocation-alert](https://undelabs.dev/examples/revocation-alert). ([#506](https://github.com/kendramoss/wassup-hackathon-2026/pull/506), [#579](https://github.com/kendramoss/wassup-hackathon-2026/pull/579), [#598](https://github.com/kendramoss/wassup-hackathon-2026/pull/598); D320, D370, D400, D401, D480, D481, D490)
+- **Revoked rulings (built).** A map of 143 rulings CBP revoked or modified, from the corpus and 28 Customs Bulletins, stops UndeLabs citing a ruling CBP had already changed at the case date. A saved case shows a "Re-check recommended" box when CBP later changes a ruling it relies on. On the committed results this fires rarely: 2 of 14,102 result rows, and none of the demo cases. Each alert says whether the change bears on what the case relies on that ruling for: it compares the origin the changed ruling held, and the one the changing ruling holds, with the case's answer for a cited ruling, with a shown plan's target for the plan's supporting ruling, and with CBP's holding on the current setup for that ruling, and says when a holding is not known (D531, D561). Nobody is notified by email yet. Recorded example: [/examples/revocation-alert](https://undelabs.dev/examples/revocation-alert). ([#506](https://github.com/kendramoss/wassup-hackathon-2026/pull/506), [#579](https://github.com/kendramoss/wassup-hackathon-2026/pull/579), [#598](https://github.com/kendramoss/wassup-hackathon-2026/pull/598); D320, D370, D400, D401, D480, D481, D490)
 - **A Google ADK agent, evaluated (built, measured once per product).** [`examples/adk-agent`](examples/adk-agent/) runs a whole case over MCP. On 12 development products, with rules written before the run, 10 of 12 runs passed every check, for $0.47 of model calls. Both misses are reported, not rescored ([eval/agent/SUMMARY.md](eval/agent/SUMMARY.md)). It measures tool use, not origin accuracy. The median run took 313 s. A second evaluation of the changed agent (checks written first, D510): all 8 runs the live server's anonymous budget did not touch passed every check. The budget cut the other 4 short; scored as the rules say, 9 of 12 pass, one of them (a09) because the agent reported the refused plan call and stopped. The planned second run, which would measure repeatability, has not run yet (D511). ([#574](https://github.com/kendramoss/wassup-hackathon-2026/pull/574), [#592](https://github.com/kendramoss/wassup-hackathon-2026/pull/592), [#599](https://github.com/kendramoss/wassup-hackathon-2026/pull/599); D390, D450, D451, D470-D472, D510, D511)
 
-## Use Unde from Claude, Gemini or ADK
+## Use UndeLabs from Claude, Gemini or ADK
 
-Unde is also an MCP server: an agent can predict origin, search production moves, look up rulings and duty rates, draft a ruling request and send it to a broker for review as tools. Endpoint: `https://undelabs.dev/mcp`. Full setup, tool list, limits and privacy: [docs/MCP.md](docs/MCP.md).
+UndeLabs is also an MCP server: an agent can predict origin, search production moves, look up rulings and duty rates, draft a ruling request and send it to a broker for review as tools. Endpoint: `https://undelabs.dev/mcp`. Full setup, tool list, limits and privacy: [docs/MCP.md](docs/MCP.md).
 
 ```bash
 # Gemini CLI (anonymous tier; add --header "Authorization: Bearer op_..." with an API key)
 gemini mcp add --transport http unde https://undelabs.dev/mcp
 
-# Claude Code, with an API key (keys are issued by the Unde admin)
+# Claude Code, with an API key (keys are issued by the UndeLabs admin)
 claude mcp add --transport http unde https://undelabs.dev/mcp --header "Authorization: Bearer op_..."
 ```
 
@@ -97,11 +97,11 @@ A Google ADK agent connects with `McpToolset` and `StreamableHTTPConnectionParam
 2. **Make it a step before any production move.** Check the plan before approving a supplier change, a new plant or a country shift.
 3. **Connect your systems.** Send bills of materials from your ERP through the API.
 4. **Keep watching.** Re-check saved cases on a schedule as CBP issues new rulings.
-5. **Keep the broker in the loop.** Send the draft to your customs broker as a review link that expires and that you can revoke. The broker opens it without an account and approves it, asks for changes with a comment, or marks it to file as a binding ruling request; you see the answer on the case. Unde speeds up the decision; a broker or a CBP ruling still confirms it.
+5. **Keep the broker in the loop.** Send the draft to your customs broker as a review link that expires and that you can revoke. The broker opens it without an account and approves it, asks for changes with a comment, or marks it to file as a binding ruling request; you see the answer on the case. UndeLabs speeds up the decision; a broker or a CBP ruling still confirms it.
 
 ## Does it work?
 
-Unde is not a trained or fine-tuned model: it prompts Gemini with earlier CBP rulings it retrieves, and its prompts, retrieval settings and calibration map were chosen on development rulings (the historical stated 0.92 confidence bar also looked at the held-out rulings, D32; the 0.90 calibrated bar now in use came from development rulings, D160). [How it's built and tested](https://undelabs.dev/method) answers, in order, what the model is, what data it sees, how the test sets are kept clean (and where they are not), what we tried that did not work, and how stable the results are, each linked to its dated entry in [docs/DECISIONS.md](docs/DECISIONS.md).
+UndeLabs is not a trained or fine-tuned model: it prompts Gemini with earlier CBP rulings it retrieves, and its prompts, retrieval settings and calibration map were chosen on development rulings (the historical stated 0.92 confidence bar also looked at the held-out rulings, D32; the 0.90 calibrated bar now in use came from development rulings, D160). [How it's built and tested](https://undelabs.dev/method) answers, in order, what the model is, what data it sees, how the test sets are kept clean (and where they are not), what we tried that did not work, and how stable the results are, each linked to its dated entry in [docs/DECISIONS.md](docs/DECISIONS.md).
 
 Scored once on a **377-ruling temporal test split** of cleaned, single-origin 2026 substantial-transformation rulings. Prompts were not tuned on it; earlier split rulings may serve as precedents, BM25 statistics use the whole corpus, and pretraining exposure cannot be excluded (a case's own ruling and later rulings are never retrieved as precedent):
 
@@ -109,8 +109,8 @@ Scored once on a **377-ruling temporal test split** of cleaned, single-origin 20
 |---|---|
 | Best simple rule we recomputed (first country named in the facts; no model) | 63.4% (239 of 377) |
 | Most-mentioned country (recomputed; the research figure was 60.5%, unverified) | 60.7% (229 of 377) |
-| **Unde** (Gemini 4 Argon on Vertex AI + past rulings), all 377 cases | **90.2%** (340 of 377) |
-| Unde, confident cases only: calibrated confidence at least 0.90 (the same cases as a stated 0.92) and in scope, 79.6% of cases | 96.0% (288 of 300) |
+| **UndeLabs** (Gemini 4 Argon on Vertex AI + past rulings), all 377 cases | **90.2%** (340 of 377) |
+| UndeLabs, confident cases only: calibrated confidence at least 0.90 (the same cases as a stated 0.92) and in scope, 79.6% of cases | 96.0% (288 of 300) |
 
 The 96.0% covers a subset the model's own confidence selected, so it is not comparable with the all-case baselines, and a gap in percentage points is not evidence that the confidence scores are calibrated. See [docs/claims-reconciliation.md](docs/claims-reconciliation.md). The baselines are recomputed by `go run ./cmd/eval baselines` from the committed facts ([D155](docs/DECISIONS.md)).
 
@@ -118,8 +118,8 @@ The 96.0% covers a subset the model's own confidence selected, so it is not comp
 
 On the two demo products, compared with what really happened:
 
-- **Heat gun:** Unde's plan moves every part the maker moved to Thailand (CBP's later 2026 ruling holding Thai origin), plus three the maker kept in China: the switch, wiring and fasteners. This is not a blind test: we saw this case while building ([D84](docs/DECISIONS.md)).
-- **LED tub light:** Unde's plan (make the LED circuit board in Thailand) is exactly CBP's next ruling. It was picked from pairs that already cleared the bar ([D77](docs/DECISIONS.md)), so it shows the flow, not accuracy.
+- **Heat gun:** The UndeLabs plan moves every part the maker moved to Thailand (CBP's later 2026 ruling holding Thai origin), plus three the maker kept in China: the switch, wiring and fasteners. This is not a blind test: we saw this case while building ([D84](docs/DECISIONS.md)).
+- **LED tub light:** The UndeLabs plan (make the LED circuit board in Thailand) is exactly CBP's next ruling. It was picked from pairs that already cleared the bar ([D77](docs/DECISIONS.md)), so it shows the flow, not accuracy.
 
 In the historical D86 proxy pool, 182 verdicts cleared the precedent check's 0.92 bar and none was wrong. Those are proxy runs, 159 on 54 development pairs and 23 on 21 pairs from 2026 that are not a clean held-out test, and repeated runs of the same pairs inflate the count. Counted once per pair, 17 real-change pairs were shown in every run and no no-change pair was ever shown ([D86](docs/DECISIONS.md)). In later post-cutoff gateway scoring, the check was right 9 of 9 times with the starting origin and 5 of 6 without it; one wrong plan is recorded in [eval/RESULTS.md](eval/RESULTS.md). These are proxy and gateway runs, not a guarantee. The bar is strict: about 30% of real changes clear it, and the rest go to a broker with their closest supporting ruling. Full results, confidence intervals and what didn't work are in [docs/DETAILS.md](docs/DETAILS.md#results). How the test set is built, what we trade off and how we benchmark: [docs/EVALUATION.md](docs/EVALUATION.md).
 
@@ -195,7 +195,7 @@ For real model calls, get Application Default Credentials (`gcloud auth applicat
 
 | | |
 |---|---|
-| Product / team | **Unde Labs** — the product itself is *Unde* |
+| Product / team | **UndeLabs** |
 | Former name | Origin Proof (renamed 18 Oct 2026) |
 | Repository / GCP project | `wassup-hackathon-2026` |
 

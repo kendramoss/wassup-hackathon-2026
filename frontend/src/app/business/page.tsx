@@ -9,7 +9,7 @@ const instrument = Instrument_Sans({ subsets: ["latin"], variable: "--font-instr
 
 export const metadata: Metadata = {
   title: "For business",
-  description: "Find ways to pay less import tax. Where your parts are made decides the tax; Unde shows which parts to move and what it saves.",
+  description: "Find ways to pay less import tax. Where your parts are made decides the tax; UndeLabs shows which parts to move and what it saves.",
 };
 
 export default function Page() {

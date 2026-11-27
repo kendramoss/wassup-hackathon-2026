@@ -40,7 +40,7 @@ export function BusinessStory() {
       <BusinessBar />
 
       <div className="biz-shell">
-        <aside aria-label="About Unde" className="biz-side">
+        <aside aria-label="About UndeLabs" className="biz-side">
           <span className="biz-side-label">How it works</span>
           <nav aria-label="Chapters" className="biz-chapters">
             {chapters.map((t, i) => (
@@ -51,7 +51,7 @@ export function BusinessStory() {
             ))}
           </nav>
           <h1>Find ways to pay less import tax</h1>
-          <p className="for">Where your parts are made decides the tax. Unde shows which parts to move. Full answers for the U.S. Rule checks for 6 more markets</p>
+          <p className="for">Where your parts are made decides the tax. UndeLabs shows which parts to move. Full answers for the U.S. Rule checks for 6 more markets</p>
           <dl>
             <div>
               <dt>Right on past official decisions</dt>
@@ -147,7 +147,7 @@ export function BusinessStory() {
               <dl className="biz-figs">
                 <dt>Right on past official decisions</dt>
                 <dd className="mono">340 of 377</dd>
-                <dt>Right when Unde is sure</dt>
+                <dt>Right when UndeLabs is sure</dt>
                 <dd className="mono">96%</dd>
               </dl>
               <Actions next="Next: for brokers" secondary={<Link href="/accuracy" className="biz-link">See the full test</Link>} />
@@ -215,7 +215,7 @@ function MovePreview() {
       return next;
     });
   return (
-    <section aria-label="Unde case preview" className="biz-card biz-app">
+    <section aria-label="UndeLabs case preview" className="biz-card biz-app">
       <div className="biz-app-head">
         <span style={{ fontWeight: 500 }}>Heat gun, 12.5 A</span>
         <span style={{ color: "var(--dim)" }}>Put together in Thailand</span>

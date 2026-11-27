@@ -55,7 +55,7 @@ export function RulingAlertsBanner({ c, setCase, recorded }: { c: CaseResponse; 
           <p key={a.ruling} className="max-w-[90ch]">
             Ruling <CbpLink id={a.ruling} /> {roleWords(a.roles)} {changeWords(a, formatDate)}
             {a.bulletin ? ` (${a.bulletin})` : ""}.{" "}
-            {a.before_case ? "That is before this case's date: this answer was saved before Unde stopped citing such rulings. " : ""}
+            {a.before_case ? "That is before this case's date: this answer was saved before UndeLabs stopped citing such rulings. " : ""}
             {a.relevance_note ? <span data-relevance={a.relevance}>{a.relevance_note} </span> : null}
             <b className="font-medium">{recheckWords(a)}</b>
           </p>
@@ -79,7 +79,7 @@ export function RulingAlertsBanner({ c, setCase, recorded }: { c: CaseResponse; 
         ) : null}
         {finals.length ? (
           <p className="text-dim">
-            Unde never changes a saved answer on its own.{" "}
+            UndeLabs never changes a saved answer on its own.{" "}
             {ra.rechecked_at ? (
               <>
                 Re-checked on {formatDate(ra.rechecked_at)}: see the ruling watch on the{" "}

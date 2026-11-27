@@ -109,7 +109,7 @@ test("origin: the pinned demo explains its watch and the second reading", async 
   const text = all(await screen(OriginStep, c));
   assert.match(text, /Two inputs, two answers/);
   assert.match(text, /not available on this demo/);
-  assert.doesNotMatch(text, /older version of Unde that did not record/);
+  assert.doesNotMatch(text, /older version of UndeLabs that did not record/);
 });
 
 test("a plan names what it moves", () => {
