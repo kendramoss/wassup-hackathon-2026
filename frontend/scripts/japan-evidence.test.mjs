@@ -26,9 +26,49 @@ test("Japan experiment figures match the committed D741 metrics", () => {
   assert.equal(j.syntheticInterval, `${pct(syn.synthetic_refusals.lo)}–100`);
 });
 
-test("Accuracy page labels the Japan result experimental and says it is not evidence for the live route", () => {
+test("Accuracy page shows the earlier Japan test as earlier, not as the live result", () => {
   const src = read("../src/components/op/screens/accuracy-page.tsx");
-  assert.ok(src.includes("Experimental and unreviewed. This run used a private gateway, not the live Japan route."));
-  assert.ok(src.includes("not an accuracy rate"));
-  assert.ok(src.includes("No accuracy figure."));
+  assert.ok(src.includes("Earlier test, 24 Nov, before the rule text and evidence changes"));
+  assert.ok(src.includes("That test is used up"));
+  assert.ok(!src.includes("not the live Japan route"));
+});
+
+const d922 = JSON.parse(read("../../eval/jp/d922-answered-summary.json"));
+const fresh = JSON.parse(read("../../eval/jp/jp-fresh_1126-gemini-4-argon-jp-engine-v1-litellm-d919-fresh-metrics.json"));
+const one = (x) => (Math.round(x * 1000) / 10).toFixed(1);
+const m = (await import("../src/lib/market-evidence.ts")).japanMeasured;
+
+test("Japan figures on the Accuracy page match D920 and D922 result files", () => {
+  assert.equal(m.unseen, fresh.cases);
+  assert.equal(m.unseenRight, fresh.criterion_match.k);
+  assert.equal(m.unseenInterval, `${one(fresh.criterion_match.lo)}–${one(fresh.criterion_match.hi)}`);
+  assert.equal(fresh.criterion_match.p.toFixed(3), "0.841");
+  const f = d922.fresh_1126;
+  assert.equal(m.unseenAnswered, f.criterion_after);
+  assert.equal(m.unseenAnsweredPct, `${one(f.criterion_after / f.cases)}%`);
+  assert.equal(m.unseenAnsweredInterval, `${one(f.ci_after[0])}–${one(f.ci_after[1])}`);
+  const d = d922.dev_eval;
+  assert.equal(m.dev, d.cases);
+  assert.equal(m.devRight, d.criterion_before);
+  assert.equal(m.devAnswered, d.criterion_after);
+  assert.equal(m.devAnsweredPct, `${one(d.criterion_after / d.cases)}%`);
+  assert.equal(m.devAnsweredInterval, `${one(d.ci_after[0])}–${one(d.ci_after[1])}`);
+  assert.equal(m.negatives, d922.dev_neg.cases);
+  assert.equal(m.negativesApproved, d922.dev_neg.approved_after);
+  assert.equal(m.euCases, d.by_agreement["JP-EU EPA"].n);
+  assert.equal(m.euAnswered, d.by_agreement["JP-EU EPA"].after);
+  assert.equal(d.by_agreement["JP-EU EPA"].before, 128);
+});
+
+test("USMCA and ATIGA figures match the committed results", async () => {
+  const { rulesChecks: r } = await import("../src/lib/market-evidence.ts");
+  const u = JSON.parse(read("../../eval/usmca/summary-held_out.json")).extended;
+  assert.equal(r.usmcaProducts, u.scored);
+  assert.equal(r.usmcaDecided, u.decided);
+  assert.equal(r.usmcaAgreed, u.agreed);
+  assert.equal(r.usmcaPct, `${one(u.agreement_on_decided)}%`);
+  assert.equal(r.usmcaInterval, `${one(u.agreement_wilson_lo)}–${one(u.agreement_wilson_hi)}`);
+  // 7 of 7 is enforced by backend/internal/atiga/reference_test.go.
+  assert.equal(r.atigaExamples, JSON.parse(read("../../eval/atiga/reference-cases.json")).cases.length);
+  assert.equal(r.atigaReached, r.atigaExamples);
 });
