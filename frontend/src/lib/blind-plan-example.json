@@ -1,0 +1,13 @@
+{
+  "pair": "SP-N365961-N366717",
+  "product": "Plywood with a laminated face and back",
+  "earlier": { "ruling": "N365961", "date": "2026-10-16", "origin": "Malaysia", "core": "Malaysia" },
+  "later": { "ruling": "N366717", "date": "2026-11-12", "origin": "Tanzania", "core": "Tanzania" },
+  "moved": "The plywood core, made in Tanzania instead of Malaysia. Face and back layers are put on in Indonesia in both.",
+  "check": { "changes_origin": true, "origin_after": "Tanzania", "supporting_ruling": "N347656", "confidence": 0.96, "bar": 0.92, "searched_before": "2026-10-16" },
+  "checked_before_ruling": "2026-10-16",
+  "freeze": { "date": "2026-10-17", "commit": "0ba4f8c1" },
+  "pair_frozen": { "date": "2026-11-21", "commit": "6f58d54e" },
+  "data": "eval/data/flips_post.jsonl",
+  "result": "eval/results/flips-post-verifier-v2-known-a-litellm.jsonl"
+}
