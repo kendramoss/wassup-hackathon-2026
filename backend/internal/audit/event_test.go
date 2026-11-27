@@ -118,14 +118,14 @@ func TestSensitiveSetIsThePolicy(t *testing.T) {
 	want := map[Action]bool{CaseDelete: true, WorkspaceInvite: true, WorkspaceJoin: true, WorkspaceRoleChange: true,
 		WorkspaceMemberRemove: true, WorkspaceLeave: true, WorkspaceRetention: true, APIKeyIssue: true, APIKeyDisable: true, ReviewCreate: true,
 		SSOConnectionCreate: true, SSOConnectionUpdate: true, SSOConnectionDelete: true,
-		SCIMTokenIssue: true, SCIMTokenRevoke: true, SCIMUserCreate: true, SCIMUserUpdate: true, SCIMUserDelete: true}
+		SCIMTokenIssue: true, SCIMTokenRevoke: true, SCIMUserCreate: true, SCIMUserUpdate: true, SCIMUserDelete: true, SupplierRequestCreate: true}
 	for _, a := range Actions() {
 		if a.Sensitive() != want[a] {
 			t.Errorf("%s sensitive=%v, policy says %v", a, a.Sensitive(), want[a])
 		}
 	}
-	if len(Actions()) != 46 { // 26, the 7 broker workflow actions, 5 SSO, 7 SCIM and the admin view
-		t.Errorf("%d actions, the contract lists 46", len(Actions()))
+	if len(Actions()) != 50 { // 26, the 7 broker workflow actions, 5 SSO, 7 SCIM, the admin view and 4 supplier declaration actions
+		t.Errorf("%d actions, the contract lists 50", len(Actions()))
 	}
 }
 

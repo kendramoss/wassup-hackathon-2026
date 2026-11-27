@@ -86,6 +86,13 @@ const (
 
 	// Admin console (#870): the admin's one read of the workspace settings.
 	WorkspaceAdminView Action = "workspace.admin_view"
+	// Supplier declarations (SUPPLIER_DECLARATIONS, #916). The object is
+	// always the case; no supplier name or email, answer text or token
+	// reaches the trail, and the supplier is anonymous.
+	SupplierRequestCreate Action = "supplier.request_create"
+	SupplierRequestRevoke Action = "supplier.request_revoke"
+	SupplierView          Action = "supplier.view"
+	SupplierAnswer        Action = "supplier.answer"
 	// Broker workflow (BROKER_WORKFLOW). The object is always the case; no
 	// comment, reason or letter text reaches the trail.
 	QueueChange      Action = "queue.change"
@@ -150,6 +157,14 @@ var actionSpecs = map[Action]actionSpec{
 	SCIMUserDelete:     {details: []string{"", "deactivate"}, sensitive: true},
 	SCIMUserRead:       {},
 	WorkspaceAdminView: {},
+	// Making a link hands case content (part names) to someone outside the
+	// system: it fails closed like a broker review link. Revoking never waits
+	// on the trail; a supplier's read and answer are best effort like a
+	// broker's.
+	SupplierRequestCreate: {sensitive: true},
+	SupplierRequestRevoke: {},
+	SupplierView:          {},
+	SupplierAnswer:        {},
 	// A comment, a sign-off or a per-case role changes only the case's own
 	// discussion; preparing a package stays inside the system and a download
 	// goes to someone who can already read the case. None fails closed.

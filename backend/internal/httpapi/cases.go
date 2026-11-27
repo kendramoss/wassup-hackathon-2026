@@ -24,6 +24,7 @@ import (
 
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/apikey"
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/audit"
+	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/blob"
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/caseagent"
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/clarify"
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/cross"
@@ -275,6 +276,14 @@ type Deps struct {
 	// AdminConsole registers GET /v1/workspaces/{id}/admin (#870), the
 	// workspace admin's settings overview. Needs Teams.
 	AdminConsole bool
+	// SupplierDeclarations registers the supplier origin declaration routes
+	// (#916): a requester's routes on a case, the supplier's token routes
+	// and the expiry listing. Needs Teams.
+	SupplierDeclarations bool
+	// SupplierDocs holds the files suppliers attach to an answer, by hash
+	// (envelope-encrypted where the cache is). Nil: an answer with a file is
+	// refused (503), an answer without one is not affected.
+	SupplierDocs blob.Store
 	// APIKeys, when set, accepts X-API-Key (its own rate-limit buckets, a
 	// daily request quota, cases owned by the key) and serves the admin key
 	// endpoints (D69). Nil: the header is ignored and the endpoints are 404.
@@ -320,11 +329,14 @@ type api struct {
 	// reviewFails counts invalid broker review tokens per client (D200); nil
 	// without limits.
 	reviewFails *authFailures
-	quotaLocal  *localQuota // API-key requests counted here while the quota store fails
-	rulingMu    sync.Mutex
-	rulingMemo  map[string]rulingDTO
-	askMu       sync.Mutex
-	askMemo     map[string]caseagent.Answer
+	// declFails counts invalid supplier declaration tokens per client
+	// (#916); nil when AuthFailuresPerMin is 0.
+	declFails  *authFailures
+	quotaLocal *localQuota // API-key requests counted here while the quota store fails
+	rulingMu   sync.Mutex
+	rulingMemo map[string]rulingDTO
+	askMu      sync.Mutex
+	askMemo    map[string]caseagent.Answer
 	// flights joins duplicate plan searches (D402); nil runs each request.
 	flights *planFlights
 }
@@ -677,6 +689,7 @@ func (a *api) answers(w http.ResponseWriter, r *http.Request) {
 	}
 	sc.Answers = append(sc.Answers, in.Answers...)
 	facts, _ := clarify.AppendAnswers(sc.OriginalFacts, toClarify(sc.Answers))
+	facts = a.withSupplierFacts(sc, facts) // declared origins that hold, beside what the user said (#916)
 	date, _ := time.Parse(time.DateOnly, sc.Date)
 	c := domain.Case{ID: sc.ID, Date: date, Facts: facts, Product: sc.Product, Exclude: sc.Exclude, Jurisdiction: caseMarket(sc), Japan: sc.Japan}
 	if err := c.Validate(); err != nil {
@@ -766,6 +779,11 @@ func (a *api) caseFields(r *http.Request, c store.Case) map[string]any {
 	// answer for every other case is byte for byte what it was.
 	if rv := a.ownerReviews(r, c); len(rv) > 0 {
 		f["broker_reviews"] = rv
+	}
+	// Supplier declarations (#916), only on a case that was asked and with
+	// the flag on: every other case reads byte for byte as before.
+	if a.d.SupplierDeclarations && len(c.SupplierRequests) > 0 && !a.demoReadOnly(r, c) {
+		f["supplier_declarations"] = supplierDeclarations(c, time.Now().UTC())
 	}
 	moneyStaleFields(f, c)
 	return f

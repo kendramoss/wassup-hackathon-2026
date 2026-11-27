@@ -36,7 +36,7 @@ func newRoleEnv(t *testing.T, ownership bool, adjust ...func(*Deps)) *roleEnv {
 	e := &roleEnv{t: t, cs: store.NewMemory(), ws: teams.NewMemory(), keys: map[string]string{}}
 	hs, _, _ := teamsHarness(t, func(d *Deps) {
 		d.Cases, d.Workspaces, d.CaseOwnership, d.BOMVersions = e.cs, e.ws, ownership, true
-		d.BrokerWorkflow = true
+		d.BrokerWorkflow, d.SupplierDeclarations = true, true
 		d.Planner = &estimatingPlanner{fakePlanner: &fakePlanner{}}
 		withKeys(d)
 		for _, f := range adjust {
@@ -123,7 +123,7 @@ func roleRoutes() []roleRoute {
 			continue
 		}
 		viewer := rt.name == "get" || rt.name == "plan estimate" || rt.name == "review list" || rt.name == "evidence report" ||
-			rt.name == "collab" || rt.name == "comment" || rt.name == "filing get"
+			rt.name == "collab" || rt.name == "comment" || rt.name == "filing get" || rt.name == "supplier request list" || rt.name == "supplier document"
 		out = append(out, roleRoute{rt, viewer})
 	}
 	return out
@@ -187,7 +187,7 @@ func TestRolePermissionTableCoversEveryCaseRoute(t *testing.T) {
 			reads = append(reads, p)
 		}
 	}
-	if len(reads) != 9 { // list, get, plan estimate, broker review list, evidence report, and with BROKER_WORKFLOW the queue, collab, comment and filing reads; export is permExport
+	if len(reads) != 12 { // list, get, plan estimate, broker review list, evidence report, with BROKER_WORKFLOW the queue, collab, comment and filing reads, and with SUPPLIER_DECLARATIONS the answers list, a document and the expiry listing; export is permExport
 		t.Errorf("read-only routes = %v", reads)
 	}
 	if rolePerms["POST /v1/cases/{id}/export"] != permExport {

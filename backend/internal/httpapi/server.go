@@ -44,6 +44,7 @@ func NewHandler(logger *slog.Logger, info Info, deps ...Deps) http.Handler {
 		}
 		if d.Limits.AuthFailuresPerMin > 0 {
 			a.reviewFails = newAuthFailures(d.Limits.AuthFailuresPerMin)
+			a.declFails = newAuthFailures(d.Limits.AuthFailuresPerMin)
 		}
 		if d.APIKeys != nil {
 			if d.Limits.AuthFailuresPerMin > 0 {
@@ -154,6 +155,15 @@ func NewHandler(logger *slog.Logger, info Info, deps ...Deps) http.Handler {
 			mux.HandleFunc("POST /v1/workspaces/{id}/join", a.cheap(a.joinWorkspace))
 			mux.HandleFunc("PUT /v1/workspaces/{id}/members/{email}/role", a.cheap(a.setMemberRole))
 			mux.HandleFunc("DELETE /v1/workspaces/{id}/members/{email}", a.cheap(a.removeMember))
+			if d.SupplierDeclarations { // supplier origin declarations (supplier_decl.go, D937)
+				mux.HandleFunc("POST /v1/cases/{id}/supplier-declarations", a.cheap(a.createSupplierRequest))
+				mux.HandleFunc("GET /v1/cases/{id}/supplier-declarations", a.cheap(a.listSupplierRequests))
+				mux.HandleFunc("DELETE /v1/cases/{id}/supplier-declarations/{request}", a.cheap(a.revokeSupplierRequest))
+				mux.HandleFunc("GET /v1/cases/{id}/supplier-declarations/{request}/parts/{part}/document", a.cheap(a.supplierDocument))
+				mux.HandleFunc("GET /v1/supplier-declarations/expiring", a.cheap(a.expiringDeclarations))
+				mux.HandleFunc("GET /v1/supplier-declaration", a.rateOnly(declare, a.getSupplierRequest))
+				mux.HandleFunc("PUT /v1/supplier-declaration/parts/{part}", a.rateOnly(declare, a.putSupplierAnswer))
+			}
 			if d.AdminConsole {
 				mux.HandleFunc("GET /v1/workspaces/{id}/admin", a.cheap(a.adminConsole))
 			}
