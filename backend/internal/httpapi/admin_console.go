@@ -6,6 +6,7 @@ import (
 
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/audit"
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/scim"
+	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/teams"
 )
 
 // Admin console (#870, backend only): one read for a workspace admin with
@@ -51,9 +52,12 @@ func (a *api) adminConsole(w http.ResponseWriter, r *http.Request) {
 	}
 	invited := append([]string{}, ws.Invited...)
 	features := map[string]bool{"sso": a.d.SSO != nil, "scim": a.d.SCIM != nil, "retention": a.d.Retention != nil,
-		"metering": a.d.Metering != nil, "audit": a.d.Audit != nil}
+		"metering": a.d.Metering != nil, "audit": a.d.Audit != nil, "api_keys": a.d.APIKeys != nil}
 	// The routes that change each part, so the screen needs no guessing.
 	routes := map[string]string{"members": "/v1/workspaces/{id}/members"}
+	if _, ok := a.d.Workspaces.(teams.Renamer); ok {
+		routes["name"] = "/v1/workspaces/{id}/name"
+	}
 	out := map[string]any{
 		"workspace": map[string]any{"id": ws.ID, "name": ws.Name, "created_at": ws.CreatedAt, "member_count": len(ws.Members)},
 		"members":   members, "invited": invited, "features": features,
@@ -108,6 +112,10 @@ func (a *api) adminConsole(w http.ResponseWriter, r *http.Request) {
 	}
 	if a.d.Audit != nil {
 		routes["audit"] = "/v1/audit"
+		routes["audit_search"] = "/v1/workspaces/{id}/admin/audit"
+	}
+	if a.d.APIKeys != nil {
+		routes["api_keys"] = "/v1/workspaces/{id}/api-keys"
 	}
 	out["routes"] = routes
 	a.auditSingle(r, auditStep{Tenant: workspaceTenant(id.workspace), Object: objectRef("workspace", id.workspace), Action: audit.WorkspaceAdminView})

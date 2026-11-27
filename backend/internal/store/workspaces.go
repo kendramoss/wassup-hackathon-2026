@@ -205,6 +205,31 @@ func (s *FirestoreWorkspaces) SetRole(ctx context.Context, id, actor, target str
 	return out, nil
 }
 
+// Rename implements teams.Renamer: the admin check runs on the document read
+// inside the transaction, like SetRole.
+func (s *FirestoreWorkspaces) Rename(ctx context.Context, id, actor, name string) (teams.Workspace, error) {
+	if !caseIDPattern.MatchString(id) {
+		return teams.Workspace{}, teams.ErrNotFound
+	}
+	var out teams.Workspace
+	err := s.client.RunTransaction(ctx, func(ctx context.Context, tx *firestore.Transaction) error {
+		w, err := decodeWorkspace(tx.Get(s.ws.Doc(id)))
+		if err != nil {
+			return err
+		}
+		next, err := w.WithName(actor, name)
+		if err != nil {
+			return err
+		}
+		out = next
+		return tx.Set(s.ws.Doc(id), next)
+	})
+	if err != nil {
+		return teams.Workspace{}, workspaceErr("rename", err)
+	}
+	return out, nil
+}
+
 // Remove implements teams.Store: the workspace document and the member's
 // workspace_members document change in one transaction.
 func (s *FirestoreWorkspaces) Remove(ctx context.Context, id, actor, target string) (teams.Workspace, error) {
@@ -235,7 +260,7 @@ func (s *FirestoreWorkspaces) Remove(ctx context.Context, id, actor, target stri
 
 // workspaceErr passes the teams errors through and wraps the rest.
 func workspaceErr(op string, err error) error {
-	for _, known := range []error{teams.ErrNotFound, teams.ErrMember, teams.ErrFull, teams.ErrForbidden, teams.ErrNotMember, teams.ErrLastAdmin, teams.ErrInvalidRole} {
+	for _, known := range []error{teams.ErrNotFound, teams.ErrMember, teams.ErrFull, teams.ErrForbidden, teams.ErrNotMember, teams.ErrLastAdmin, teams.ErrInvalidRole, teams.ErrInvalidName} {
 		if errors.Is(err, known) {
 			return err
 		}
@@ -258,3 +283,4 @@ func decodeWorkspace(snap *firestore.DocumentSnapshot, err error) (teams.Workspa
 }
 
 var _ teams.Store = (*FirestoreWorkspaces)(nil)
+var _ teams.Renamer = (*FirestoreWorkspaces)(nil)

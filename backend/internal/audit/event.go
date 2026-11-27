@@ -50,6 +50,8 @@ const (
 	// WorkspaceRetention sets a workspace's case retention policy (#875).
 	WorkspaceRetention Action = "workspace.retention"
 	WorkspaceBudget    Action = "workspace.budget"
+	// WorkspaceRename changes a workspace's name (#870). The name is not in the event.
+	WorkspaceRename Action = "workspace.rename"
 
 	APIKeyIssue   Action = "apikey.issue"
 	APIKeyList    Action = "apikey.list"
@@ -143,6 +145,7 @@ var actionSpecs = map[Action]actionSpec{
 	WorkspaceLeave:        {sensitive: true},
 	WorkspaceRetention:    {details: []string{"", "keep", "expire"}, sensitive: true},
 	WorkspaceBudget:       {details: []string{"set", "clear"}},
+	WorkspaceRename:       {sensitive: true},
 	APIKeyIssue:           {sensitive: true},
 	APIKeyList:            {},
 	APIKeyDisable:         {sensitive: true},
