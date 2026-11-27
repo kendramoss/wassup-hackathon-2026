@@ -49,6 +49,7 @@ import (
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/teams"
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/triage"
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/verifier"
+	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/webhooks"
 )
 
 // Predictor predicts origin (engine.Engine).
@@ -219,6 +220,11 @@ type Deps struct {
 	// and enforces its budget; it serves the workspace usage and budget
 	// routes (#886). Nil: nothing is metered and the routes are 404.
 	Metering *metering.Meter
+	// Webhooks, when set (WEBHOOKS=on, with teams), lets a workspace admin
+	// register signed HTTPS callbacks for workspace events and serves the
+	// endpoint, delivery-log and test routes (#915). Nil: no event is sent
+	// and the routes are 404.
+	Webhooks *webhooks.Service
 	// ExportCFR177 lets export take "format": "cfr177", the ruling-request
 	// letter laid out on 19 CFR 177.2 (D66). Off: the field is refused.
 	ExportCFR177 bool
@@ -360,8 +366,10 @@ func (a *api) errorFor(r *http.Request, err error) (int, string, string) {
 	switch {
 	case errors.Is(err, domain.ErrInvalid), errors.Is(err, planner.ErrUnknownFamily):
 		return http.StatusBadRequest, "invalid_input", err.Error()
-	case errors.Is(err, apikey.ErrBadRequest):
+	case errors.Is(err, apikey.ErrBadRequest), errors.Is(err, webhooks.ErrInvalid):
 		return http.StatusBadRequest, "invalid_input", err.Error()
+	case errors.Is(err, webhooks.ErrFull):
+		return http.StatusConflict, "conflict", err.Error()
 	case errors.Is(err, errNeedsVerified):
 		return http.StatusUnauthorized, "unauthenticated", needsVerifiedError
 	case errors.Is(err, errForbidden):
@@ -370,7 +378,7 @@ func (a *api) errorFor(r *http.Request, err error) (int, string, string) {
 		return http.StatusServiceUnavailable, "audit_unavailable", "the audit trail is unavailable, so this change was not made; try again"
 	case errors.Is(err, errSuperseded), errors.Is(err, errIdempotencyReuse), errors.Is(err, errOriginFactsChanged), errors.Is(err, errFamilyFactsChanged), errors.Is(err, errBrokerConflict):
 		return http.StatusConflict, "conflict", err.Error()
-	case errors.Is(err, store.ErrNotFound), errors.Is(err, cross.ErrNotFound), errors.Is(err, apikey.ErrNotFound):
+	case errors.Is(err, store.ErrNotFound), errors.Is(err, cross.ErrNotFound), errors.Is(err, apikey.ErrNotFound), errors.Is(err, webhooks.ErrNotFound):
 		return http.StatusNotFound, "not_found", err.Error()
 	case errors.Is(err, llm.ErrBadResponse):
 		a.d.Logger.ErrorContext(r.Context(), "model bad response", "request_id", requestRef(r.Context()), "err", logsafe.Err(err))

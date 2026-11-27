@@ -2752,6 +2752,218 @@ paths:
         "401": { $ref: "#/components/responses/Error" }
         "403": { $ref: "#/components/responses/Error" }
         "404": { $ref: "#/components/responses/Error" }
+  /v1/workspaces/{id}/webhooks:
+    get:
+      operationId: listWebhooks
+      summary: List the workspace's webhook endpoints (workspace admin; WEBHOOKS=on)
+      description: "Each endpoint with its URL, subscribed events, whether it is enabled and the last four characters of its secret. Never the secret itself. `available_events` is what an endpoint can subscribe to. 403 for a member who is not an admin."
+      parameters:
+        - { $ref: "#/components/parameters/UserToken" }
+        - { name: id, in: path, required: true, schema: { type: string } }
+      responses:
+        "200":
+          description: The endpoints
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [endpoints, available_events, max_endpoints]
+                properties:
+                  endpoints: { type: array, items: { $ref: "#/components/schemas/WebhookEndpoint" } }
+                  available_events: { type: array, items: { $ref: "#/components/schemas/WebhookEventType" } }
+                  max_endpoints: { type: integer, example: 10 }
+        "401": { $ref: "#/components/responses/Error" }
+        "403": { $ref: "#/components/responses/Error" }
+        "404": { $ref: "#/components/responses/Error" }
+    post:
+      operationId: createWebhook
+      summary: Register a webhook endpoint (workspace admin; WEBHOOKS=on)
+      description: |
+        Registers an HTTPS URL that receives the chosen events of this workspace (up to 10 endpoints). The URL must be `https`, carry no credentials and name a public host: `localhost`, internal names and addresses that are private, loopback or link-local, or that a name resolves to, are refused (400), and a delivery never connects to one even if the name's address changes later. Redirects are not followed.
+
+        The answer carries `secret` once; keep it, it is not shown again (rotate to get a new one). Each delivery is a POST with a JSON body (`id`, `type`, `created_at`, `workspace`, `data`) and these headers: `X-Webhook-Id` (the delivery's id, the same on every retry: deduplicate on it), `X-Webhook-Event` and `X-Webhook-Signature: t=<unix seconds>,v1=<hex>`, where `v1` is the HMAC-SHA256, keyed with the secret, of `<t>.<raw body>`. Verify it over the raw bytes and reject a `t` more than five minutes old. During the day after a rotation the header carries a `v1` for the new and for the previous secret; accept either. A 2xx answer is a delivery. Anything else (or no answer within 10 seconds) is retried after 30 s, 2 min, 10 min, 1 h and 6 h, six attempts in all, then marked failed; the attempts are in the delivery log. Delivery is at least once and not ordered. Events carry ids and statuses only, never case text, comments or letters.
+
+        Events: `ruling_watch.hit` (a ruling watch re-check changed a case's origin because of newer precedents: `case_id`, `previous_origin`, `new_origin`, `newer_rulings`, `triage_route`, `checked_at`), `review.decision` (a broker answered a review link: `case_id`, `review_id`, `decision`, `has_comment`, never the comment, `decided_at`), `filing.status` (an eRulings request moved: `case_id`, `status`, `previous_status`, `reference` when given, `at`), `budget.alert` (the month's spend passed the budget's alert share or the budget: `month`, `level` alert or cap, `spent_usd`, `budget_usd`, `alert_percent`, `hard_cap`; needs USAGE_METERING=on) and `batch.finished` (a batch triage finished: `total`, `failed`, `out_of_scope`, `auto`, `needs_review`, `needs_info`, `cost_usd`, `case_ids`, `finished_at`). Only events of cases and spend of this workspace are sent.
+      parameters:
+        - { $ref: "#/components/parameters/UserToken" }
+        - { name: id, in: path, required: true, schema: { type: string } }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [url, events]
+              additionalProperties: false
+              properties:
+                url: { type: string, format: uri, maxLength: 2000, example: "https://hooks.example.com/unde" }
+                events: { type: array, minItems: 1, items: { $ref: "#/components/schemas/WebhookEventType" } }
+                description: { type: string, maxLength: 200 }
+                enabled: { type: boolean, default: true }
+      responses:
+        "201":
+          headers:
+            X-Audit-Incomplete: { $ref: "#/components/headers/AuditIncomplete" }
+          description: The endpoint, with its secret shown once
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [endpoint]
+                properties:
+                  endpoint: { $ref: "#/components/schemas/WebhookEndpoint" }
+        "400": { $ref: "#/components/responses/Error" }
+        "401": { $ref: "#/components/responses/Error" }
+        "403": { $ref: "#/components/responses/Error" }
+        "404": { $ref: "#/components/responses/Error" }
+        "409": { $ref: "#/components/responses/Error" }
+        "503": { $ref: "#/components/responses/Error" }
+  /v1/workspaces/{id}/webhooks/{wid}:
+    patch:
+      operationId: updateWebhook
+      summary: Change a webhook endpoint's URL, events, description or enabled state (workspace admin; WEBHOOKS=on)
+      description: "Only the fields given change; at least one is required. A new URL is checked as at registration. Deliveries already queued for a disabled or deleted endpoint are not sent."
+      parameters:
+        - { $ref: "#/components/parameters/UserToken" }
+        - { name: id, in: path, required: true, schema: { type: string } }
+        - { name: wid, in: path, required: true, schema: { type: string } }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: false
+              properties:
+                url: { type: string, format: uri, maxLength: 2000 }
+                events: { type: array, minItems: 1, items: { $ref: "#/components/schemas/WebhookEventType" } }
+                description: { type: string, maxLength: 200 }
+                enabled: { type: boolean }
+      responses:
+        "200":
+          headers:
+            X-Audit-Incomplete: { $ref: "#/components/headers/AuditIncomplete" }
+          description: The endpoint
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [endpoint]
+                properties:
+                  endpoint: { $ref: "#/components/schemas/WebhookEndpoint" }
+        "400": { $ref: "#/components/responses/Error" }
+        "401": { $ref: "#/components/responses/Error" }
+        "403": { $ref: "#/components/responses/Error" }
+        "404": { $ref: "#/components/responses/Error" }
+        "503": { $ref: "#/components/responses/Error" }
+    delete:
+      operationId: deleteWebhook
+      summary: Delete a webhook endpoint and its delivery log (workspace admin; WEBHOOKS=on)
+      parameters:
+        - { $ref: "#/components/parameters/UserToken" }
+        - { name: id, in: path, required: true, schema: { type: string } }
+        - { name: wid, in: path, required: true, schema: { type: string } }
+      responses:
+        "204":
+          headers:
+            X-Audit-Incomplete: { $ref: "#/components/headers/AuditIncomplete" }
+          description: Deleted
+        "401": { $ref: "#/components/responses/Error" }
+        "403": { $ref: "#/components/responses/Error" }
+        "404": { $ref: "#/components/responses/Error" }
+        "503": { $ref: "#/components/responses/Error" }
+  /v1/workspaces/{id}/webhooks/{wid}/rotate:
+    post:
+      operationId: rotateWebhookSecret
+      summary: Give a webhook endpoint a new secret (workspace admin; WEBHOOKS=on)
+      description: "The new secret is in this answer only. For 24 hours deliveries are signed with both the new and the previous secret (two `v1` values), so a receiver can switch without dropping events; after that only the new one signs."
+      parameters:
+        - { $ref: "#/components/parameters/UserToken" }
+        - { name: id, in: path, required: true, schema: { type: string } }
+        - { name: wid, in: path, required: true, schema: { type: string } }
+      responses:
+        "200":
+          headers:
+            X-Audit-Incomplete: { $ref: "#/components/headers/AuditIncomplete" }
+          description: The endpoint, with the new secret shown once
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [endpoint]
+                properties:
+                  endpoint: { $ref: "#/components/schemas/WebhookEndpoint" }
+        "401": { $ref: "#/components/responses/Error" }
+        "403": { $ref: "#/components/responses/Error" }
+        "404": { $ref: "#/components/responses/Error" }
+        "503": { $ref: "#/components/responses/Error" }
+  /v1/workspaces/{id}/webhooks/{wid}/test:
+    post:
+      operationId: testWebhook
+      summary: Send a test event to a webhook endpoint (workspace admin; WEBHOOKS=on)
+      description: "Sends one `webhook.test` event now, signed as any other, even to a disabled endpoint, and answers with how the receiver took it. The ping is one attempt, is in the delivery log (`test: true`) and is never retried. A refusing or unreachable receiver is a 200 with `status: failed`, not an error."
+      parameters:
+        - { $ref: "#/components/parameters/UserToken" }
+        - { name: id, in: path, required: true, schema: { type: string } }
+        - { name: wid, in: path, required: true, schema: { type: string } }
+      responses:
+        "200":
+          headers:
+            X-Audit-Incomplete: { $ref: "#/components/headers/AuditIncomplete" }
+          description: The delivery
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [delivery]
+                properties:
+                  delivery: { $ref: "#/components/schemas/WebhookDelivery" }
+        "401": { $ref: "#/components/responses/Error" }
+        "403": { $ref: "#/components/responses/Error" }
+        "404": { $ref: "#/components/responses/Error" }
+        "503": { $ref: "#/components/responses/Error" }
+  /v1/workspaces/{id}/webhooks/{wid}/deliveries:
+    get:
+      operationId: listWebhookDeliveries
+      summary: The endpoint's delivery log, newest first (workspace admin; WEBHOOKS=on)
+      description: "The last 100 deliveries at most, each with its attempts (time, HTTP status, duration and an error class: `http_status`, `redirect`, `timeout`, `connection`, `tls`, `blocked_address` or `endpoint_disabled`; never the receiver's answer). The payload is not kept in the log."
+      parameters:
+        - { $ref: "#/components/parameters/UserToken" }
+        - { name: id, in: path, required: true, schema: { type: string } }
+        - { name: wid, in: path, required: true, schema: { type: string } }
+        - { name: limit, in: query, required: false, schema: { type: integer, minimum: 1, maximum: 100, default: 50 } }
+      responses:
+        "200":
+          description: The deliveries
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [deliveries]
+                properties:
+                  deliveries: { type: array, items: { $ref: "#/components/schemas/WebhookDelivery" } }
+        "400": { $ref: "#/components/responses/Error" }
+        "401": { $ref: "#/components/responses/Error" }
+        "403": { $ref: "#/components/responses/Error" }
+        "404": { $ref: "#/components/responses/Error" }
+  /v1/webhooks/sweep:
+    post:
+      operationId: sweepWebhooks
+      summary: Send the webhook retries that are now due (for a scheduler; admin token required; WEBHOOKS=on)
+      description: "Each instance also does this every 30 seconds while it runs; on Cloud Run, where an instance can be idle between requests, a scheduler should call this every minute. Several callers at once are safe: a delivery is taken by one of them. No model call."
+      security: [{ AdminToken: [] }]
+      responses:
+        "200":
+          description: How many deliveries were tried
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [attempted]
+                properties:
+                  attempted: { type: integer }
+        "403": { $ref: "#/components/responses/Error" }
+        "503": { $ref: "#/components/responses/Error" }
   /v1/audit:
     get:
       operationId: listAudit
@@ -4153,6 +4365,46 @@ components:
           enum: [invalid_input, not_found, model_unavailable, model_bad_response, out_of_scope, internal, rate_limited, too_many_in_flight, client_budget_reached, auth_rate_limited, forbidden, budget_reached, unauthenticated, conflict, unauthorized, quota_exceeded, audit_unavailable, review_not_found, link_revoked, link_expired, workspace_budget_reached, sso_not_configured, sso_failed, sso_other_workspace, sso_unavailable, sso_unverified, sso_domain_taken, sso_limit, scim_unverified_domain]
         message: { type: string }
         details: {}
+    WebhookEventType:
+      type: string
+      enum: [ruling_watch.hit, review.decision, filing.status, budget.alert, batch.finished]
+    WebhookEndpoint:
+      type: object
+      required: [id, url, events, description, enabled, secret_hint, created_by, created_at, updated_at]
+      properties:
+        id: { type: string, example: wh_0123456789abcdef }
+        url: { type: string, format: uri }
+        events: { type: array, items: { $ref: "#/components/schemas/WebhookEventType" } }
+        description: { type: string }
+        enabled: { type: boolean }
+        secret_hint: { type: string, description: The last four characters of the signing secret }
+        created_by: { type: string, format: email }
+        created_at: { type: string, format: date-time }
+        updated_at: { type: string, format: date-time }
+        secret_rotated_at: { type: string, format: date-time }
+        previous_secret_expires_at: { type: string, format: date-time, description: While set, deliveries are also signed with the previous secret }
+        secret: { type: string, description: "The signing secret, `whsec_...`: only in the answers to create and rotate, never again" }
+    WebhookDelivery:
+      type: object
+      required: [id, event, event_id, test, status, attempts, created_at]
+      properties:
+        id: { type: string, description: The X-Webhook-Id the receiver saw; the same on every retry }
+        event: { type: string, description: "An event type, or `webhook.test` for a ping" }
+        event_id: { type: string }
+        test: { type: boolean }
+        status: { type: string, enum: [pending, delivered, failed] }
+        next_attempt_at: { type: string, format: date-time, description: When a pending delivery is next tried }
+        created_at: { type: string, format: date-time }
+        attempts:
+          type: array
+          items:
+            type: object
+            required: [at, status_code, duration_ms]
+            properties:
+              at: { type: string, format: date-time }
+              status_code: { type: integer, description: 0 when there was no HTTP answer }
+              duration_ms: { type: integer }
+              error: { type: string, enum: [http_status, redirect, timeout, connection, tls, blocked_address, endpoint_disabled] }
     WorkspaceBudget:
       type: object
       required: [monthly_usd, hard_cap, alert_percent, updated_at]
@@ -4223,7 +4475,7 @@ components:
         last_updated: { type: string, format: date-time }
     AuditAction:
       type: string
-      enum: [case.create, case.update, case.export, case.delete, case.pin, case.read, workspace.create, workspace.invite, workspace.join, workspace.role_change, workspace.member_remove, workspace.leave, workspace.retention, workspace.budget, apikey.issue, apikey.list, apikey.disable, admin.watch_run, audit.read, audit.verify, audit.export, auth.denied, review.create, review.revoke, review.view, review.decision]
+      enum: [case.create, case.update, case.export, case.delete, case.pin, case.read, workspace.create, workspace.invite, workspace.join, workspace.role_change, workspace.member_remove, workspace.leave, workspace.retention, workspace.budget, apikey.issue, apikey.list, apikey.disable, admin.watch_run, admin.webhook_sweep, audit.read, audit.verify, audit.export, auth.denied, review.create, review.revoke, review.view, review.decision, webhook.create, webhook.update, webhook.delete, webhook.rotate_secret, webhook.test, webhook.read]
       description: "`case.read` appears only as a denial; allowed ordinary reads are not audited."
     AuditPhase:
       type: string

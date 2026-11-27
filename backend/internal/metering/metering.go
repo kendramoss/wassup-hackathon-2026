@@ -104,6 +104,10 @@ func ParseMonth(s string) (string, error) {
 type Meter struct {
 	store Store
 	now   func() time.Time
+	// onCross, when set, is told once when a workspace's month passes its
+	// budget's alert share and once when it passes the budget itself (#915).
+	onCross func(ctx context.Context, c Crossing)
+	fired   sync.Map // workspace/month/level: told already, by this process
 	// failed counts writes the store refused; the use is then not counted.
 	failed atomic.Int64
 }
@@ -153,6 +157,63 @@ func (m *Meter) Add(ctx context.Context, d Delta) {
 	}
 	if err := m.store.Add(context.WithoutCancel(ctx), ws, m.Month(), d); err != nil {
 		m.failed.Add(1)
+		return
+	}
+	if m.onCross != nil && d.ModelUSD > 0 {
+		m.checkCrossing(context.WithoutCancel(ctx), ws, d.ModelUSD)
+	}
+}
+
+// Crossing says a workspace's month spend has just passed a budget level.
+type Crossing struct {
+	Workspace string
+	Month     string
+	// Level is LevelAlert (the budget's alert share) or LevelCap (the whole
+	// budget, whether or not it is a hard cap).
+	Level    string
+	SpentUSD float64
+	Budget   Budget
+}
+
+// Crossing levels.
+const (
+	LevelAlert = "alert"
+	LevelCap   = "cap"
+)
+
+// OnCross sets the function told when a month's spend passes a budget level.
+// It runs in the request that made the charge, so it must be quick.
+func (m *Meter) OnCross(fn func(ctx context.Context, c Crossing)) *Meter {
+	m.onCross = fn
+	return m
+}
+
+// checkCrossing reads the workspace's budget and month after a charge of
+// usd: a level whose threshold lies between the spend before and after the
+// charge was just crossed. A failed read tells nobody (the next charge looks
+// again only if it crosses another level), and a level is told once per
+// process, month and threshold.
+func (m *Meter) checkCrossing(ctx context.Context, ws string, usd float64) {
+	b, ok, err := m.store.Budget(ctx, ws)
+	if err != nil || !ok {
+		return
+	}
+	month := m.Month()
+	t, err := m.store.Totals(ctx, ws, month)
+	if err != nil {
+		return
+	}
+	after := round6(t.ModelUSD)
+	before := after - usd
+	for _, lv := range []struct {
+		name string
+		at   float64
+	}{{LevelAlert, b.alertAt()}, {LevelCap, b.MonthlyUSD}} {
+		if before < lv.at && after >= lv.at {
+			if _, dup := m.fired.LoadOrStore(fmt.Sprintf("%s/%s/%s/%g", ws, month, lv.name, lv.at), true); !dup {
+				m.onCross(ctx, Crossing{Workspace: ws, Month: month, Level: lv.name, SpentUSD: after, Budget: b})
+			}
+		}
 	}
 }
 

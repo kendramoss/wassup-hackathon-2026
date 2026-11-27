@@ -123,3 +123,49 @@ func TestFailedWritesAreCounted(t *testing.T) {
 	var nilMeter *Meter
 	nilMeter.Add(context.Background(), Delta{Predictions: 1}) // must not panic
 }
+
+func TestCrossingTellsOncePerLevel(t *testing.T) {
+	st := NewMemory()
+	var got []Crossing
+	m := New(st).WithClock(clock("2026-11-27T10:00:00Z")).OnCross(func(_ context.Context, c Crossing) { got = append(got, c) })
+	ctx := WithWorkspace(context.Background(), "w")
+	m.Charge(ctx, 9) // no budget yet: nothing to cross
+	if err := st.SetBudget(ctx, "w", Budget{MonthlyUSD: 20, AlertPercent: 80}); err != nil {
+		t.Fatal(err)
+	}
+	m.Charge(ctx, 6) // 15 of 20: below the alert at 16
+	if len(got) != 0 {
+		t.Fatalf("told early: %+v", got)
+	}
+	m.Charge(ctx, 2) // 17: passes 16
+	if len(got) != 1 || got[0].Level != LevelAlert || got[0].SpentUSD != 17 || got[0].Month != "2026-11" || got[0].Workspace != "w" || got[0].Budget.MonthlyUSD != 20 {
+		t.Fatalf("alert: %+v", got)
+	}
+	m.Charge(ctx, 1) // 18: nothing new
+	m.Charge(ctx, 5) // 23: passes 20
+	if len(got) != 2 || got[1].Level != LevelCap || got[1].SpentUSD != 23 {
+		t.Fatalf("cap: %+v", got)
+	}
+	m.Charge(ctx, 5)
+	if len(got) != 2 {
+		t.Fatalf("told again: %+v", got)
+	}
+	// One charge that jumps both levels tells both, alert first.
+	got = nil
+	st2 := NewMemory()
+	m2 := New(st2).WithClock(clock("2026-11-27T10:00:00Z")).OnCross(func(_ context.Context, c Crossing) { got = append(got, c) })
+	ctx2 := WithWorkspace(context.Background(), "x")
+	_ = st2.SetBudget(ctx2, "x", Budget{MonthlyUSD: 10})
+	m2.Charge(ctx2, 12)
+	if len(got) != 2 || got[0].Level != LevelAlert || got[1].Level != LevelCap {
+		t.Fatalf("jump: %+v", got)
+	}
+	// A new month starts again; a charge without a workspace is no crossing.
+	got = nil
+	m2.WithClock(clock("2026-12-01T00:00:01Z"))
+	m2.Charge(ctx2, 9)
+	m2.Charge(context.Background(), 50)
+	if len(got) != 1 || got[0].Level != LevelAlert || got[0].Month != "2026-12" {
+		t.Fatalf("next month: %+v", got)
+	}
+}

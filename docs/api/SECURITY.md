@@ -28,6 +28,7 @@ The code defaults are permissive so local UI work works without credentials. "As
 | `BROKER_WORKFLOW` | off | **on** (27 Nov, #910) | review queue, case discussion, sign-offs and the eRulings filing package are served (D925) |
 | `ERP_IMPORT` | off | **on** (27 Nov, #910) | `POST /v1/products/erp-import` is served (D926) |
 | `USAGE_METERING` | off | **on** (27 Nov, #910) | per-workspace monthly usage is counted; no budget is set until a workspace admin sets one (D926) |
+| `WEBHOOKS` | off | off (needs `TEAMS`) | workspace admins can register signed https callbacks for workspace events; targets that are private, loopback or link-local are refused at registration and at delivery (D936) |
 | `ADMIN_CONSOLE` | off | **on** (27 Nov, #910) | `GET /v1/workspaces/{id}/admin` answers workspace admins only (D935) |
 | `RETENTION` | off | **on** (27 Nov, #910) | admins can set `case_days`; nothing is purged until an operator runs `cmd/retention` (D924) |
 | `AUDIT_EXPORT` | off | **on** (27 Nov, #910) | `GET /v1/audit/export` answers verified admins (D924) |

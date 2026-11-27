@@ -18,6 +18,7 @@ import (
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/export"
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/store"
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/teams"
+	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/webhooks"
 )
 
 // Broker workflow (BROKER_WORKFLOW; docs/design/broker-workflow.md): a human
@@ -970,6 +971,7 @@ func (a *api) filingStatus(w http.ResponseWriter, r *http.Request) {
 	}
 	p := a.principalOf(r)
 	now := time.Now().UTC()
+	prev := ""
 	updated, err := a.d.Cases.Update(r.Context(), c.ID, func(latest *store.Case) error {
 		if latest.Filing == nil {
 			return fmt.Errorf("%w: the filing package is gone", errBrokerConflict)
@@ -977,6 +979,7 @@ func (a *api) filingStatus(w http.ResponseWriter, r *http.Request) {
 		if err := check(*latest); err != nil {
 			return err
 		}
+		prev = latest.Filing.Status
 		f := *latest.Filing
 		f.History = append(slices.Clone(f.History), store.FilingStep{Status: in.Status, By: actorOf(p), At: now, Reference: ref, Note: note})
 		f.Status = in.Status
@@ -994,5 +997,10 @@ func (a *api) filingStatus(w http.ResponseWriter, r *http.Request) {
 		a.fail(w, r, err)
 		return
 	}
+	ev := map[string]any{"case_id": updated.ID, "status": in.Status, "previous_status": prev, "at": now}
+	if ref != "" {
+		ev["reference"] = ref
+	}
+	a.emit(r.Context(), updated.Workspace, webhooks.EventFilingStatus, ev)
 	writeJSON(w, http.StatusOK, filingViewOf(updated))
 }
