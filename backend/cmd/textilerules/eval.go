@@ -25,10 +25,18 @@ var modelRows = map[string]string{
 	"final2": "../eval/results/textile-final2-gemini-4-argon-prec-textile-v2-litellm-reasoning-v1-router.jsonl",
 }
 
+// freshSplits are the two sets of D955, scored apart from D952's: older (2019-2022
+// rulings fetched by number) and pool (2023-01 to 2025-06 corpus rulings). The model's
+// textile engine never ran on them, so there is no model column.
+var freshSplits = map[string]bool{"older": true, "pool": true}
+
 func splitIDs(split string) ([]string, error) {
 	file := "../eval/splits/splits_textile.json"
-	if split == "final2" {
+	switch {
+	case split == "final2":
 		file = "../eval/splits/splits_textile_final2.json"
+	case freshSplits[split]:
+		file = "../eval/splits/splits_textile_fresh.json"
 	}
 	b, err := os.ReadFile(file)
 	if err != nil {
@@ -55,7 +63,7 @@ type Gold struct {
 
 func loadGold() (map[string]Gold, error) {
 	out := map[string]Gold{}
-	for _, f := range []string{"../eval/data/labels.jsonl", "../eval/data/labels_final2.jsonl"} {
+	for _, f := range []string{"../eval/data/labels.jsonl", "../eval/data/labels_final2.jsonl", "data/labels_older.jsonl"} {
 		b, err := os.ReadFile(f)
 		if err != nil {
 			return nil, err
@@ -188,9 +196,9 @@ func cmdEval(args []string) error {
 	}
 	files, _ := filepath.Glob(filepath.Join(evalDir, "inputs-*.jsonl"))
 	sort.Strings(files)
-	order := map[string]int{"dev": 0, "final": 1, "final2": 2}
+	order := map[string]int{"dev": 0, "final": 1, "final2": 2, "older": 3, "pool": 4}
 	sort.SliceStable(files, func(i, j int) bool { return order[splitOf(files[i])] < order[splitOf(files[j])] })
-	var cells []Cell
+	var cells, freshCells []Cell
 	for _, f := range files {
 		if *only != "" && splitOf(f) != *only {
 			continue
@@ -203,9 +211,11 @@ func cmdEval(args []string) error {
 			continue
 		}
 		split, source := rows[0].Split, rows[0].Source
-		preds, err := loadModel(modelRows[split])
-		if err != nil {
-			return err
+		preds := map[string]string{}
+		if !freshSplits[split] {
+			if preds, err = loadModel(modelRows[split]); err != nil {
+				return err
+			}
 		}
 		for _, plus := range []bool{false, true} {
 			src := source
@@ -270,7 +280,11 @@ func cmdEval(args []string) error {
 				lo, hi := wilson(cell.AgreeCBP, cell.Decided)
 				cell.AgreeCBPCI = &[2]float64{lo, hi}
 			}
-			cells = append(cells, cell)
+			if freshSplits[split] {
+				freshCells = append(freshCells, cell)
+			} else {
+				cells = append(cells, cell)
+			}
 			if err := writeOrCheck(filepath.Join(*outDir, fmt.Sprintf("results-%s-%s.jsonl", split, src)), jsonl(out), *check); err != nil {
 				return err
 			}
@@ -283,6 +297,24 @@ func cmdEval(args []string) error {
 		}, "", " ")
 		if err := writeOrCheck(filepath.Join(*outDir, "summary.json"), append(b, '\n'), *check); err != nil {
 			return err
+		}
+	}
+	if *only == "" || freshSplits[*only] {
+		if len(freshCells) > 0 {
+			fc := freshReport(freshCells)
+			b, _ := json.MarshalIndent(map[string]any{
+				"note":  "D955: the second held-out test of the 19 CFR 102.21 rule check. sets older (2019-2022, fetched by number) and pool (2023-01 to 2025-06); pooled = both. Headline input: facts+suggested. Recompute: cd backend && go run ./cmd/textilerules eval -check",
+				"cells": fc,
+			}, "", " ")
+			if *only == "" {
+				if err := writeOrCheck(filepath.Join(*outDir, "summary-fresh.json"), append(b, '\n'), *check); err != nil {
+					return err
+				}
+			}
+			for _, c := range fc {
+				fmt.Printf("%-6s %-17s n=%d out_of_scope=%d in_scope=%d decided=%d (%.1f%%) agree_cbp=%d ci=%v undetermined=%v\n",
+					c.Split, c.Source, c.N, c.OutOfScope, c.InScope, c.Decided, c.DecidedShare, c.AgreeCBP, c.AgreeCBPCI, c.Reasons)
+			}
 		}
 	}
 	for _, c := range cells {
@@ -355,4 +387,63 @@ func wilson(k, n int) (float64, float64) {
 	h := z * math.Sqrt(p*(1-p)/float64(n)+z*z/(4*float64(n)*float64(n))) / d
 	r := func(x float64) float64 { return math.Round(x*1000) / 10 }
 	return r(c - h), r(c + h)
+}
+
+// FreshCell is a Cell of the D955 sets with the in-scope count and the decided share.
+type FreshCell struct {
+	Cell
+	InScope      int     `json:"in_scope"`
+	DecidedShare float64 `json:"decided_share_of_in_scope_pct"`
+}
+
+// freshReport adds the pooled cell (older + pool, per input) to the per-set cells
+// and the decided share of the rulings in scope. The model columns are not
+// defined for these sets and are dropped.
+func freshReport(cells []Cell) []FreshCell {
+	pooled := map[string]*Cell{}
+	var srcs []string
+	for _, c := range cells {
+		p := pooled[c.Source]
+		if p == nil {
+			p = &Cell{Split: "pooled", Source: c.Source, Reasons: map[string]int{}, ByPara: map[string]int{}}
+			pooled[c.Source] = p
+			srcs = append(srcs, c.Source)
+		}
+		p.N += c.N
+		p.Extracted += c.Extracted
+		p.Excluded += c.Excluded
+		p.OutOfScope += c.OutOfScope
+		p.Decided += c.Decided
+		p.AgreeCBP += c.AgreeCBP
+		p.Candidates += c.Candidates
+		p.CandidateRight += c.CandidateRight
+		for k, v := range c.Reasons {
+			p.Reasons[k] += v
+		}
+		for k, v := range c.ByPara {
+			p.ByPara[k] += v
+		}
+	}
+	all := append([]Cell{}, cells...)
+	for _, s := range srcs {
+		p := pooled[s]
+		if p.Decided > 0 {
+			lo, hi := wilson(p.AgreeCBP, p.Decided)
+			p.AgreeCBPCI = &[2]float64{lo, hi}
+		}
+		all = append(all, *p)
+	}
+	out := make([]FreshCell, 0, len(all))
+	for _, c := range all {
+		c.DisagreeModel, c.ModelOnDecided = 0, 0
+		in := c.Extracted - c.OutOfScope
+		// A ruling whose extraction failed is in scope and undetermined (D952).
+		in += c.Reasons["extraction_failed"]
+		fc := FreshCell{Cell: c, InScope: in}
+		if in > 0 {
+			fc.DecidedShare = math.Round(1000*float64(c.Decided)/float64(in)) / 10
+		}
+		out = append(out, fc)
+	}
+	return out
 }
