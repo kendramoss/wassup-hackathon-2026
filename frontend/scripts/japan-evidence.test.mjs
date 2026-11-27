@@ -78,6 +78,23 @@ test("USMCA and ATIGA figures match the committed results", async () => {
   assert.ok(r.akftaReached <= r.akftaExamples && r.acftaReached <= r.acftaExamples);
 });
 
+test("textile rules figures match the committed results", async () => {
+  const { textileRules: t } = await import("../src/lib/market-evidence.ts");
+  const cells = JSON.parse(read("../../eval/textile102/summary.json")).cells.filter(
+    (c) => c.source === "facts+suggested" && (c.split === "final" || c.split === "final2"),
+  );
+  assert.equal(cells.length, 2);
+  const sum = (k) => cells.reduce((a, c) => a + c[k], 0);
+  assert.equal(t.rulings, sum("n"));
+  assert.equal(t.inScope, sum("n") - sum("out_of_scope"));
+  assert.equal(t.decided, sum("decided"));
+  assert.equal(t.agreed, sum("agree_cbp"));
+  assert.equal(t.pct, `${one(t.agreed / t.decided)}%`);
+  const n = t.decided, p = t.agreed / n, z = 1.959964;
+  const d = 1 + (z * z) / n, c = p + (z * z) / (2 * n), a = z * Math.sqrt((p * (1 - p)) / n + (z * z) / (4 * n * n));
+  assert.equal(t.interval, `${one((c - a) / d)}–${one((c + a) / d)}`);
+});
+
 test("AD/CVD figures match the committed results", async () => {
   const { adcvdCheck: a } = await import("../src/lib/market-evidence.ts");
   const h = JSON.parse(read("../../eval/adcvd/heldout/summary.json"));

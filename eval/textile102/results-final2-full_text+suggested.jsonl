@@ -1,0 +1,17 @@
+{"ruling":"N365110","gold":"France","model":"France","rule":{"status":"out_of_scope","reason":"not a textile or apparel product under 102.21(b)(5)"},"scored":true}
+{"ruling":"N365145","gold":"Canada","model":"Canada","rule":{"status":"out_of_scope","reason":"not a textile or apparel product under 102.21(b)(5)"},"scored":true}
+{"ruling":"N365068","gold":"China","model":"China","rule":{"status":"undetermined","reason":"102.21(c)(4) asks for the country of the most important assembly or manufacturing process, which is a judgment","class":"judgment","candidate":"China"},"scored":true,"candidate_agree_cbp":true}
+{"ruling":"N365214","gold":"Canada","model":"Canada","rule":{"status":"out_of_scope","reason":"not a textile or apparel product under 102.21(b)(5)"},"scored":true}
+{"ruling":"N366064","gold":"Canada","model":"Canada","rule":{"status":"out_of_scope","reason":"not a textile or apparel product under 102.21(b)(5)"},"scored":true}
+{"ruling":"N365695","gold":"Canada","model":"Canada","rule":{"status":"out_of_scope","reason":"not a textile or apparel product under 102.21(b)(5)"},"scored":true}
+{"ruling":"N366014","gold":"Canada","model":"Canada","rule":{"status":"out_of_scope","reason":"not a textile or apparel product under 102.21(b)(5)"},"scored":true}
+{"ruling":"N365387","gold":"United States","model":"United States","rule":{"status":"out_of_scope","reason":"not a textile or apparel product under 102.21(b)(5)"},"scored":true}
+{"ruling":"N365856","gold":"Canada","model":"Canada","rule":{"status":"out_of_scope","reason":"not a textile or apparel product under 102.21(b)(5)"},"scored":true}
+{"ruling":"N366147","gold":"Canada","model":"Canada","rule":{"status":"out_of_scope","reason":"not a textile or apparel product under 102.21(b)(5)"},"scored":true}
+{"ruling":"N365711","gold":"United States","model":"United States","rule":{"status":"decided","origin":"United States","para":"(c)(2)","row":"6307.90","alt":"1","basis":"19 CFR 102.21(c)(2), (e) row 6307.90, alternative 1: fabric-making took place in United States","assumes":["foreign materials whose HTS codes are not given are taken to change as the rule requires"]},"scored":true,"agree_cbp":true,"agree_model":true}
+{"ruling":"N366125","gold":"China","model":"China","rule":{"status":"out_of_scope","reason":"not a textile or apparel product under 102.21(b)(5)"},"scored":true}
+{"ruling":"N365940","gold":"China","model":"Canada","rule":{"status":"out_of_scope","reason":"not a textile or apparel product under 102.21(b)(5)"},"scored":true}
+{"ruling":"N366126","gold":"South Korea","model":"South Korea","rule":{"status":"decided","origin":"South Korea","para":"(c)(2)","row":"6307.90","alt":"1","basis":"19 CFR 102.21(c)(2), (e) row 6307.90, alternative 1: fabric-making took place in South Korea","assumes":["foreign materials whose HTS codes are not given are taken to change as the rule requires"]},"scored":true,"agree_cbp":true,"agree_model":true}
+{"ruling":"N366698","gold":"Mexico","model":"Mexico","rule":{"status":"out_of_scope","reason":"not a textile or apparel product under 102.21(b)(5)"},"scored":true}
+{"ruling":"N366722","gold":"Canada","model":"Canada","rule":{"status":"out_of_scope","reason":"not a textile or apparel product under 102.21(b)(5)"},"scored":true}
+{"ruling":"N366728","gold":"France","model":"China","rule":{"status":"out_of_scope","reason":"not a textile or apparel product under 102.21(b)(5)"},"scored":true}
