@@ -924,11 +924,11 @@ func newDeps(cfg config.Config, model, engineModel llm.Model, cases store.Cases,
 		}
 		d.ADCVD = tb
 		if cfg.ADCVDScopeReader {
-			rd, err := adcvd.NewLLMReader(model, cfg.ADCVDReaderModel)
+			sf, err := adcvd.NewScopeFirst(model, cfg.ADCVDReaderModel)
 			if err != nil {
 				return httpapi.Deps{}, err
 			}
-			d.ADCVDReader = rd
+			d.ADCVDScopeFirst = sf
 		}
 	}
 	if infra.statusPage {

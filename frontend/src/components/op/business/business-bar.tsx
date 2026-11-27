@@ -17,7 +17,7 @@ export function BusinessBar() {
     <header className="biz-bar">
       <Link href="/business" className="biz-logo">
         <LogoMark size={22} />
-        <span>Unde Labs</span>
+        <span>UndeLabs</span>
       </Link>
       <nav aria-label="Main" className="biz-nav">
         <Link href="/cases">{signedIn ? "My products" : "Examples"}</Link>

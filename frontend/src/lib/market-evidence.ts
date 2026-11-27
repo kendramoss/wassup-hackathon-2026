@@ -132,6 +132,41 @@ export const textileRules = {
   correctedInterval: "86.6–96.1",
 };
 
+// D960 held-out result of the scope-first AD/CVD exposure check on everyday
+// imports (ADCVD_CHECK and ADCVD_SCOPE_READER). Pinned to
+// eval/adcvd/real/heldout/summary3.json and
+// eval/adcvd/real/scope/heldout-2017/summary3.json by
+// scripts/adcvd-scope-first-evidence.test.mjs. The figures are on the rulings
+// three independent reviewers do not split on; the contested ones are shown
+// beside them.
+export const adcvdScopeFirst = {
+  rulings: 3409,
+  determinable: 3342,
+  contested: 67,
+  contestedPct: "2.0%",
+  contestedFlagged: 15,
+  flagged: 118,
+  correct: 113,
+  precisionPct: "95.8%",
+  precisionInterval: "90.5–98.2",
+  within: 131,
+  recallPct: "86.3%",
+  recallInterval: "79.3–91.1",
+  plainFlagged: 394,
+  plainCorrect: 98,
+  plainPct: "24.9%",
+  scopeRulings: {
+    rulings: 94,
+    flagged: 41,
+    correct: 20,
+    precisionPct: "48.8%",
+    precisionInterval: "34.3–63.5",
+    within: 38,
+    recallPct: "52.6%",
+    recallInterval: "37.3–67.5",
+  },
+};
+
 // D943 held-out result of the AD/CVD exposure check with the scope reader
 // (ADCVD_CHECK and ADCVD_SCOPE_READER, off), the shipped method with the
 // pointer-scope fix. Pinned to eval/adcvd/heldout/summary.json by

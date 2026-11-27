@@ -108,7 +108,7 @@ test("errorText strips Go-style prefixes and replaces a bare internal error", ()
   // Controls: a sentence written for people is left alone, and a field-coded
   // validation message keeps its code.
   assert.equal(errorText("economics: operations.horizon_required: horizon_years: a horizon is required"), "economics: operations.horizon_required: horizon_years: a horizon is required");
-  assert.equal(errorText("Couldn't reach Unde. Check your connection and try again."), "Couldn't reach Unde. Check your connection and try again.");
+  assert.equal(errorText("Couldn't reach UndeLabs. Check your connection and try again."), "Couldn't reach UndeLabs. Check your connection and try again.");
   assert.equal(errorText("the model returned an unusable answer; try again", false), "the model returned an unusable answer; try again");
 });
 

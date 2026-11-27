@@ -97,7 +97,7 @@ export function MethodPage() {
           <p className="read mi-note">21 days: the team’s count of 247 Asian-origin CBP rulings, median to a binding CBP ruling.</p>
           <p className="read mi-note">20 hours: CBP’s estimate across all ruling subjects, not only origin.</p>
           <p className="read mi-note">About $3,600: median of 23 subsidized Korean exporter purchases (KOTRA export-voucher records).</p>
-          <p className="read mi-note">These are not like-for-like populations and not a universal broker fee. Unde’s figures are non-binding predictions. Only CBP’s ruling binds. The savings story is illustrative.</p>
+          <p className="read mi-note">These are not like-for-like populations and not a universal broker fee. UndeLabs figures are likely answers, not binding. Only CBP’s ruling binds. The savings story is illustrative.</p>
         </details>
         <p className="read mi-note">The Kobalt backtest helped shape the search. It was not a blind test.</p>
       </section>

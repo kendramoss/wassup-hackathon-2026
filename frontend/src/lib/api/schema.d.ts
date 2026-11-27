@@ -1211,8 +1211,8 @@ export interface paths {
         get?: never;
         put?: never;
         /**
-         * Parts that may be subject to a U.S. antidumping or countervailing duty order (display only; off unless ADCVD_CHECK=on; no model call unless ADCVD_SCOPE_READER=on)
-         * @description Screens parts against the active U.S. antidumping (AD) and countervailing duty (CVD) orders, from each part's HTS code and country of origin. Served only with `ADCVD_CHECK=on` (default off: 404). A part is `possible_exposure` when an order's listed HTS number agrees with the part's code at the shorter of the two lengths (a listed ten-digit line needs the same ten digits; a heading or subheading matches every listed line under it) and the order's country is one of the part's countries of origin. The HTS numbers are read from the scope text of the newest Commerce notice that carries it (`backend/internal/adcvd/data/orders.json`, built by `eval/adcvd/build_orders.py` from Federal Register notices; the response gives the snapshot date). HTS numbers in a scope are for convenience and customs purposes; the written scope of the order governs, and only the U.S. Department of Commerce decides whether a product is within it. Display only (D939): it never changes an origin answer or a duty figure. It does not see goods finished in a third country from parts of an ordered country (circumvention), an order whose scope prints no HTS numbers, or an order newer than the snapshot. Nothing stored. With `ADCVD_SCOPE_READER=on` (default off, needs `ADCVD_CHECK=on`; D942, D943) a part's name must share a product term with an order's written scope, and a model then reads that scope against the name and drops the order only when the scope's words clearly point away from the part (one question per listed order, at most 60 a request, cached; a part with no name, an order without scope text, or a question that fails is left as it was); the result's `limits` then say a model read the scopes, and the case view keeps the plain match. Without it: no model call, cheap class (120 a minute); with it the light model class, metered. A malformed body is 400 `invalid_input`.
+         * Parts that may be subject to a U.S. antidumping or countervailing duty order (display only; off unless ADCVD_CHECK=on; scope-first, with model calls, when ADCVD_SCOPE_READER=on)
+         * @description Screens parts against the active U.S. antidumping (AD) and countervailing duty (CVD) orders, from each part's HTS code and country of origin. Served only with `ADCVD_CHECK=on` (default off: 404). A part is `possible_exposure` when an order's listed HTS number agrees with the part's code at the shorter of the two lengths (a listed ten-digit line needs the same ten digits; a heading or subheading matches every listed line under it) and the order's country is one of the part's countries of origin. The HTS numbers are read from the scope text of the newest Commerce notice that carries it (`backend/internal/adcvd/data/orders.json`, built by `eval/adcvd/build_orders.py` from Federal Register notices; the response gives the snapshot date). HTS numbers in a scope are for convenience and customs purposes; the written scope of the order governs, and only the U.S. Department of Commerce decides whether a product is within it. Display only (D939): it never changes an origin answer or a duty figure. It does not see goods finished in a third country from parts of an ordered country (circumvention), an order whose scope prints no HTS numbers, or an order newer than the snapshot. Nothing stored. With `ADCVD_SCOPE_READER=on` (default off, needs `ADCVD_CHECK=on`; D959) the check is scope-first instead: for each part with a `name` and an `origin` the retrieval proposes the orders of that country by product words (the HTS code is only a hint and never removes an order), a model screens them by name (`adcvd-real-screen-v1`) and a reader (`adcvd-scope-v4`, `gemini-4-argon`) reads each remaining order's whole written scope, appendix included, against the name, answering in, out or unclear with its best guess. A part is `possible_exposure` when an order is read in, or unclear with a best guess of in (`reading` says which; the reader's quoted `scope_clause` is returned, and for unclear its reason: a person must check). A part whose remaining orders are unclear with a best guess of out is `person_must_check`, with the orders under `review`; it is not a flag. A part with no name or no origin is `not_checked`; so is a part whose model calls failed. At most 400 model calls a request, answers cached in memory, the light model class, metered and under the daily spend cap; the case view checks the first 10 parts that give a name and an origin, within 30 seconds. Measured (D960) on cases careful readers agree on, not on every case: the result's `limits` say so. Without it: no model call, cheap class (120 a minute); with it the light model class. A malformed body is 400 `invalid_input`.
          */
         post: operations["checkAdcvdExposure"];
         delete?: never;
@@ -3721,36 +3721,52 @@ export interface components {
                 name?: string;
                 hts?: string;
                 origin?: string;
-                /** @enum {string} */
-                status?: "possible_exposure" | "no_match" | "not_checked";
+                /**
+                 * @description `person_must_check` only from the scope-first check (D959)
+                 * @enum {string}
+                 */
+                status?: "possible_exposure" | "no_match" | "not_checked" | "person_must_check";
                 reason?: string;
-                matches?: {
-                    /** @description The AD and CVD case numbers of the order, sorted */
-                    cases?: string[];
-                    types?: ("AD" | "CVD")[];
-                    country?: string;
-                    product?: string;
-                    /**
-                     * Format: date
-                     * @description Absent for an order older than the Federal Register's electronic notices (1994)
-                     */
-                    order_date?: string;
-                    /** @description The listed numbers the part's code agrees with */
-                    listed_hts_matched?: string[];
-                    /** @description The Federal Register notice the scope text and HTS numbers were read from */
-                    scope_notice?: {
-                        document_number?: string;
-                        /** Format: date */
-                        date?: string;
-                        title?: string;
-                        url?: string;
-                        sha256?: string;
-                    };
-                }[];
+                /** @description Scope-first check only: orders the reader could not settle and leaned away from. Not flags; a person must check them */
+                review?: components["schemas"]["AdcvdMatch"][];
+                matches?: components["schemas"]["AdcvdMatch"][];
             }[];
             /** @description HTS numbers in a scope are for convenience; the written scope governs; display only */
             notice?: string;
             limits?: string[];
+        };
+        /** @description An order group (an AD order with its CVD companion) that may cover a part */
+        AdcvdMatch: {
+            /** @description The AD and CVD case numbers of the order, sorted */
+            cases?: string[];
+            types?: ("AD" | "CVD")[];
+            country?: string;
+            product?: string;
+            /**
+             * Format: date
+             * @description Absent for an order older than the Federal Register's electronic notices (1994)
+             */
+            order_date?: string;
+            /** @description The listed numbers the part's code agrees with (the HTS-and-country check only) */
+            listed_hts_matched?: string[];
+            /**
+             * @description Scope-first check only: the reader's answer; `unclear` means it could not settle it and leaned in
+             * @enum {string}
+             */
+            reading?: "in" | "unclear";
+            /** @description Scope-first check only: the sentence of the written scope the reader relied on */
+            scope_clause?: string;
+            /** @description Scope-first check only, for `unclear`: the reader's reason */
+            why?: string;
+            /** @description The Federal Register notice the scope text and HTS numbers were read from */
+            scope_notice?: {
+                document_number?: string;
+                /** Format: date */
+                date?: string;
+                title?: string;
+                url?: string;
+                sha256?: string;
+            };
         };
         /** @description The deterministic 19 CFR 102.20 tariff-shift check (D360, D363), present only when the product gives an HTS code for the good and at least one part. Computed when the case is read; display only: it never changes the prediction, the triage or auto-accept. RULE_CHECK=off removes it. */
         RuleCheck: {

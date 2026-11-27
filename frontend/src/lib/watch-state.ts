@@ -32,7 +32,7 @@ const WHY: Record<Exclude<WatchBasis, "precedent">, string> = {
 };
 
 const LEGACY =
-  "This re-check was saved by an older version of Unde that did not record which set of origin rules it used, so it can't say whether anything changed. Re-check to compare.";
+  "This re-check was saved by an older version of UndeLabs that did not record which set of origin rules it used, so it can't say whether anything changed. Re-check to compare.";
 
 // The triage reason is shown only when it is why a person has to look.
 // An approving reason ("confidence 0.97 >= 0.92 and in scope") beside Needs

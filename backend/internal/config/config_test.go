@@ -443,8 +443,8 @@ func TestADCVDCheckConfig(t *testing.T) {
 
 func TestADCVDScopeReaderConfig(t *testing.T) {
 	c, err := FromEnv(getenv(vertexEnv()))
-	if err != nil || c.ADCVDScopeReader || c.ADCVDReaderModel != "gemini-3.8-flash" {
-		t.Fatalf("defaults = %v %q %v, want off and gemini-3.8-flash", c.ADCVDScopeReader, c.ADCVDReaderModel, err)
+	if err != nil || c.ADCVDScopeReader || c.ADCVDReaderModel != "gemini-4-argon" {
+		t.Fatalf("defaults = %v %q %v, want off and gemini-4-argon", c.ADCVDScopeReader, c.ADCVDReaderModel, err)
 	}
 	c, err = FromEnv(getenv(merge(vertexEnv(), map[string]string{"ADCVD_CHECK": "on", "ADCVD_SCOPE_READER": "on"})))
 	if err != nil || !c.ADCVDScopeReader {

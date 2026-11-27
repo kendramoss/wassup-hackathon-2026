@@ -2,7 +2,7 @@ import { ImageResponse } from "next/og";
 
 // The link preview card (#156): the product in one line and the held-out
 // accuracy, drawn like the app's blueprint sheets. Numbers from docs/NUMBERS.md.
-export const alt = "Unde Labs: the country of origin US Customs would likely assign, 90.2% on 377 held-out CBP rulings";
+export const alt = "UndeLabs: the country of origin US Customs would likely assign, 90.2% on 377 held-out CBP rulings";
 export const size = { width: 1200, height: 630 };
 export const contentType = "image/png";
 
@@ -37,7 +37,7 @@ export default function Image() {
             <circle cx="17" cy="47" r="13" fill={brand} />
             <path d="M34 34 H60 A26 26 0 0 1 34 60 Z" fill={ink} />
           </svg>
-          Unde <span style={{ color: brand, marginLeft: 12 }}>Labs</span>
+          Unde<span style={{ color: brand }}>Labs</span>
         </div>
         <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
           <div style={{ fontSize: 64, lineHeight: 1.08, letterSpacing: -2, maxWidth: 1000 }}>Find ways to pay less import tax</div>
