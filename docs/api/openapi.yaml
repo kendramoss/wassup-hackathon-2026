@@ -2947,6 +2947,92 @@ paths:
         "400": { $ref: "#/components/responses/Error" }
         "401": { $ref: "#/components/responses/Error" }
         "404": { $ref: "#/components/responses/Error" }
+  /v1/workspaces/{id}/tariff-watch:
+    get:
+      operationId: workspaceTariffWatch
+      summary: Cases a newer HTS revision affects (TARIFF_WATCH=on, TEAMS=on)
+      description: "The workspace's cases that the latest run of `cmd/tariffwatch -apply` (D938) found affected by a newer HTS, Section 301 or Section 232 data set: what changed, the old and new duty rate, and the change in the annual duty figure and in the best plan's duty effect, largest dollar change first. `?all=true` lists every checked case, affected or not. A case never checked is not listed; `cases_in_workspace` and `checked` say how many there are. Section 232 coverage is flagged, never priced: the duty code does not compute it. Any member may read it; 404 for a workspace the caller is not in. Not a customs determination."
+      parameters:
+        - { $ref: "#/components/parameters/UserToken" }
+        - { name: id, in: path, required: true, schema: { type: string } }
+        - { name: all, in: query, required: false, schema: { type: boolean, default: false } }
+      responses:
+        "429": { $ref: "#/components/responses/TooManyRequests" }
+        "200":
+          description: The affected cases
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [workspace_id, cases_in_workspace, checked, affected, cases]
+                properties:
+                  workspace_id: { type: string }
+                  cases_in_workspace: { type: integer }
+                  checked: { type: integer }
+                  affected: { type: integer }
+                  cases:
+                    type: array
+                    items:
+                      type: object
+                      required: [case_id, checked_at, result, change_count]
+                      properties:
+                        case_id: { type: string }
+                        name: { type: string }
+                        hts: { type: string }
+                        checked_at: { type: string, format: date-time }
+                        change_count: { type: integer }
+                        result:
+                          type: object
+                          required: [checked_at, dataset_revision, basis_revision, as_of, affected, changes]
+                          properties:
+                            checked_at: { type: string, format: date-time }
+                            dataset_revision: { type: string }
+                            basis_revision: { type: string, description: The HTS revision the case was priced on }
+                            as_of: { type: string }
+                            affected: { type: boolean }
+                            changes:
+                              type: array
+                              items:
+                                type: object
+                                required: [origin, kind, moves_rate]
+                                properties:
+                                  origin: { type: string }
+                                  kind: { type: string, enum: [rate_changed, mfn_changed, duty_added, duty_removed, duty_window_changed, exclusion_window_changed, exclusion_added, exclusion_removed, section_232_coverage] }
+                                  heading: { type: string }
+                                  name: { type: string }
+                                  old_rate: { type: number }
+                                  new_rate: { type: number }
+                                  old: { type: string }
+                                  new: { type: string }
+                                  moves_rate: { type: boolean }
+                                  note: { type: string }
+                            rates:
+                              type: array
+                              items:
+                                type: object
+                                properties:
+                                  origin: { type: string }
+                                  old_rate: { type: number }
+                                  new_rate: { type: number }
+                                  delta: { type: number }
+                            annual_duty:
+                              type: object
+                              properties:
+                                origin: { type: string }
+                                before_usd: { type: number }
+                                after_usd: { type: number }
+                                change_usd: { type: number }
+                            plan_duty:
+                              type: object
+                              properties:
+                                from: { type: string }
+                                to: { type: string }
+                                before_usd: { type: number }
+                                after_usd: { type: number }
+                                change_usd: { type: number }
+                            notes: { type: array, items: { type: string } }
+        "401": { $ref: "#/components/responses/Error" }
+        "404": { $ref: "#/components/responses/Error" }
   /v1/workspaces/{id}/budget:
     put:
       operationId: setWorkspaceBudget

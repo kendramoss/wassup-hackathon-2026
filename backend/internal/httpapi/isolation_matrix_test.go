@@ -159,7 +159,8 @@ var routeTable = map[string]routeClass{
 	"GET /v1/supplier-declarations/expiring":                                   caseCreate, // lists the caller's view, like GET /v1/queue
 	"GET /v1/supplier-declaration":                                             reviewToken,
 	"PUT /v1/supplier-declaration/parts/{part}":                                reviewToken,
-	"GET /health": noCaseData,
+	"GET /health":                          noCaseData,
+	"GET /v1/workspaces/{id}/tariff-watch": noCaseData, // members read stored check results of their own workspace's cases
 }
 
 // registeredRoutes parses server.go for every mux.HandleFunc pattern.

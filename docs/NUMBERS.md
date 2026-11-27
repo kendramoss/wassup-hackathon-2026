@@ -337,6 +337,12 @@ These rows register, for the /method page, figures that are already committed in
 | Fine-tuning split (D38, D73) | 699 rulings dated before 2025-07-01: train 632, tune_check 67; used only by the fine-tuning experiment | `eval/splits/splits_tune.json`; docs/EVALUATION.md 2.1 | Built |
 | Held-out precedents that are earlier held-out rulings (first held-out split, official run) | 414 of 1,885 retrieved precedent slots, in 209 of 377 cases; 0 slots dated on or after their case | `claimscheck` (`final.precedent_slots_in_final_split`, `final.cases_with_final_split_precedent`, `final.precedent_slots_not_before_case`); docs/claims-reconciliation.md 4.2 | Measured. A stated leak path, not an estimate of its effect: no committed run removes those slots |
 
+## Tariff watch (D941, backend behind `TARIFF_WATCH`; Accuracy page)
+
+| Number | Value | Source | Status |
+|---|---|---|---|
+| Tariff watch, affected lines found, HTS Rev 22 to 23, entry day 10 Jan 2027 | recall **120/121 = 99.2% (95.5–99.9)**; precision 120/120 (96.9–100); no line affected in the Rev 21 to 22 pair; new additional-duty rate exactly right on 4 of 4 maritime lines (and on all 20,048 line-days scored, nearly all with no change). Entry day 27 Nov 2026: recall 116/117, precision 116/116 | `eval/tariffwatch/summary.json` (`go run ./cmd/tariffwatch eval`, no model, no network; recomputed by a test); truth from Federal Register 91 FR 72610 and 91 FR 72608 with the exclusion lists of 89 FR 46948 and 89 FR 76581 and the maritime lines of 90 FR 48320 | Measured. Show with n and the interval and the limits: not a blind test, one revision pair, 4 rate lines, detects changed terms not dollars, truth for exclusions read from scanned pages by OCR (three readings voted). First run, before the OCR rule was fixed: precision 0.950 (114/120), 6 false alarms, 1 miss (D941) |
+
 ## API limits (developers page, `docs/api/SECURITY.md`)
 
 | Number | Value | Source | Status |
