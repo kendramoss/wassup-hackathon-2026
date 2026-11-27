@@ -130,7 +130,7 @@ export function BusinessCheck() {
               <h1>Check your product</h1>
               <p className="biz-sub">Two short steps. Then you see the likely country and the import tax.</p>
             </div>
-            <form className="biz-card" onSubmit={next} noValidate>
+            <form className="biz-form" onSubmit={next} noValidate>
               <div className="biz-field">
                 <label htmlFor={`${id}-name`}>What is the product?</label>
                 <input id={`${id}-name`} type="text" value={name} onChange={(e) => { setName(e.target.value); setProblem(null); }} placeholder="For example: Heat gun, 12.5 A" autoComplete="off" />
@@ -159,7 +159,7 @@ export function BusinessCheck() {
                 <p className="biz-help">Selling in Japan? Japan checks need a trade agreement and a tariff code, so they use the <Link href="/cases/new" className="biz-link">full form</Link>.</p>
               </fieldset>
               {problem && <p role="alert" className="biz-problem">{problem}</p>}
-              <div className="biz-card-actions">
+              <div className="biz-form-actions">
                 <button type="submit" className="biz-btn accent">Next: your parts</button>
                 <Link href="/cases/new" className="biz-link biz-push">Use the full form instead</Link>
               </div>
@@ -175,7 +175,7 @@ export function BusinessCheck() {
                 <h1>List the main parts</h1>
                 <p className="biz-sub">For each part, say which country makes it. Start with the biggest parts.</p>
               </div>
-              <form className="biz-card" onSubmit={check} noValidate aria-busy={busy}>
+              <form className="biz-form" onSubmit={check} noValidate aria-busy={busy}>
                 <table className="biz-ptable">
                   <thead>
                     <tr>
@@ -205,7 +205,7 @@ export function BusinessCheck() {
                     ))}
                   </tbody>
                 </table>
-                <div className="biz-row">
+                <div className="biz-tools">
                   <button type="button" className="biz-btn soft" onClick={() => setParts((xs) => [...xs, blank()])}>+ Add a part</button>
                   <span className="biz-help">Have a parts list file (Excel, CSV, PDF or a photo)? <Link href="/cases/new" className="biz-link">Upload it in the full form</Link>.</span>
                 </div>
@@ -214,7 +214,7 @@ export function BusinessCheck() {
                   <input id={`${id}-assembly`} type="text" list={`${id}-countries`} value={assembly} onChange={(e) => { setAssembly(e.target.value); setProblem(null); }} placeholder="For example: Thailand" autoComplete="off" />
                 </div>
                 {problem && <p role="alert" className="biz-problem">{problem}</p>}
-                <div className="biz-card-actions ruled">
+                <div className="biz-form-actions ruled">
                   <button type="button" className="biz-link plain" onClick={() => { setProblem(null); setStep(1); }} disabled={busy}>Back</button>
                   <button type="submit" className="biz-btn accent biz-push" disabled={busy}>{busy ? "Checking…" : "Check my product"}</button>
                 </div>
