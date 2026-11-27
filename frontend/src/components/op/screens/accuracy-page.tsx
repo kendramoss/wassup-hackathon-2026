@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 import { api, type EvalSummary } from "@/lib/api/client";
 import { copy } from "@/lib/copy";
-import { adcvdCheck, japanEvidence, japanMeasured, rcepEvidence, rulesChecks, tariffWatch, textileRules } from "@/lib/market-evidence";
+import { adcvdCheck, adcvdScopeFirst, japanEvidence, japanMeasured, rcepEvidence, rulesChecks, tariffWatch, textileRules } from "@/lib/market-evidence";
 import failureData from "@/lib/failure-cases.json";
 import { ErrorBox, Main } from "../chrome";
 import { ButtonLink, Chip, Fold, ScrollX, cx } from "../ui";
@@ -311,6 +311,7 @@ function JapanMeasured() {
 function RulesChecks() {
   const r = rulesChecks;
   const a = adcvdCheck;
+  const s = adcvdScopeFirst;
   const x = textileRules;
   const link = "text-ok underline underline-offset-2 max-sm:inline-flex max-sm:min-h-11 max-sm:items-center";
   return (
@@ -337,22 +338,27 @@ function RulesChecks() {
         </div>
       </dl>
       <div className="mt-4 border-t border-line pt-3">
-        <h4 className="text-sm font-semibold">Anti-dumping and countervailing duty check (off)</h4>
+        <h4 className="text-sm font-semibold">Anti-dumping and countervailing duty check</h4>
         <dl className="mt-2 grid gap-x-6 gap-y-3 text-sm tabular-nums sm:grid-cols-2">
           <div>
-            <dt className="text-dim">Flagged orders that covered the product</dt>
-            <dd><strong>{a.correctFlags}/{a.flaggedTotal}</strong> ({a.precisionPct}, 95% interval {a.precisionInterval}%)</dd>
+            <dt className="text-dim">Flagged parts that were within an order</dt>
+            <dd><strong>{s.correct}/{s.flagged}</strong> ({s.precisionPct}, 95% interval {s.precisionInterval}%)</dd>
           </div>
           <div>
-            <dt className="text-dim">Covered products flagged</dt>
-            <dd><strong>{a.flagged}/{a.within}</strong> ({a.recallPct}, 95% interval {a.recallInterval}%)</dd>
+            <dt className="text-dim">Parts within an order that were flagged</dt>
+            <dd><strong>{s.correct}/{s.within}</strong> ({s.recallPct}, 95% interval {s.recallInterval}%)</dd>
+          </div>
+          <div>
+            <dt className="text-dim">Cases the reviewers split on</dt>
+            <dd><strong>{s.contested}</strong> of {s.rulings} ({s.contestedPct}); flagged {s.contestedFlagged}</dd>
+          </div>
+          <div>
+            <dt className="text-dim">Close calls Commerce ruled on, 2017 to 2018</dt>
+            <dd><strong>{s.scopeRulings.correct}/{s.scopeRulings.flagged}</strong> flagged rightly ({s.scopeRulings.precisionPct}), <strong>{s.scopeRulings.correct}/{s.scopeRulings.within}</strong> found ({s.scopeRulings.recallPct})</dd>
           </div>
         </dl>
         <p className="read mt-2 text-sm text-dim">
-          Without reading each order&apos;s scope: {a.plainCorrect}/{a.plainTotal} ({a.plainPct}). Flagging every product would be right {a.baselinePct} of the time.
-        </p>
-        <p className="read mt-1 text-sm text-dim">
-          Earlier test, {a.earlier.rulings} rulings: {a.earlier.correctFlags}/{a.earlier.flaggedTotal} ({a.earlier.precisionPct}, {a.earlier.precisionInterval}%) and {a.earlier.flagged}/{a.earlier.within} ({a.earlier.recallPct}, {a.earlier.recallInterval}%).
+          Measured on everyday imports where three independent reviewers agree. Where they disagree, a person must decide. Matching the code alone: {s.plainCorrect}/{s.plainFlagged} ({s.plainPct}).
         </p>
       </div>
       <Details title="Rules check details">
@@ -360,10 +366,10 @@ function RulesChecks() {
           USMCA: held-out CBP rulings dated 2026 and later, scored once. The check decided {r.usmcaDecided} of {r.usmcaProducts} products and left {r.usmcaProducts - r.usmcaDecided} undecided, mostly for a missing material code or a rule it does not model. The figure covers only the decided products. It was built on rulings before 2026.
         </p>
         <p>
-          Duty orders: {a.rulings} Commerce scope rulings made July 2023 to December 2024, after the order list was frozen on 30 Jun 2023, and the method was written down before they were scored. A model reads each flagged order&apos;s written scope and drops the order only when the scope clearly points away from the product. The gain over plain matching is a few points and the intervals overlap. The product description is written by a model from the ruling and can carry the facts that decided it, so real part names will gain less. The product code is suggested by a model, so its errors are included; the covered products not flagged carry a code the scope does not list. The check cannot see goods that reach the order through a third country. It only shows possible exposure; the order&apos;s written scope decides.
+          Duty orders: {s.rulings} customs rulings on everyday imports from countries with an order, made in 2024 and 2025. The method was written down before they were labelled. Three models from different makers read each order that could cover a part and said within, outside or unclear; a case counts only when they do not split ({s.determinable} of {s.rulings}). A model reads each candidate order&apos;s whole written scope, appendix included, against the part&apos;s name, and the check flags an order when the model says within, or cannot tell and leans within. The labels are models&apos;, not Commerce&apos;s, and the descriptions were written by a model from the ruling; a bare part name carries less. The check cannot see goods that reach the order through a third country. It only shows possible exposure; the order&apos;s written scope decides.
         </p>
         <p>
-          The {a.earlier.rulings} rulings of the earlier test, made in 2025 and 2026, are now seen and were not used to choose the method: the same method gives 11/19 (57.9%) on them.
+          The {s.scopeRulings.rulings} Commerce scope rulings of 2017 to 2018 are products near the edge of a scope. There the same method flagged rightly {s.scopeRulings.precisionPct} (interval {s.scopeRulings.precisionInterval}%) and found {s.scopeRulings.recallPct} ({s.scopeRulings.recallInterval}%), so a part that is a close call needs a person. The method before it, on {a.rulings} rulings of 2023 to 2024, got {a.precisionPct} and {a.recallPct}.
         </p>
         <p>
           Textile: a second test on {x.pooled.rulings} rulings from other years than the first test missed the bar (85% on at least 15 decided): {x.pooled.agreed} of {x.pooled.decided} decided agree with CBP. {x.labelErrors} of the {x.older.decided - x.older.agreed} older misses are labels that name China where CBP held Hong Kong; read after the result, that gives {x.correctedAgreed} of {x.pooled.decided} ({x.correctedInterval}%). The flag stays off. The first test, {x.d952.rulings} rulings of 2026, had {x.d952.decided} decided, one short. It does not decide the most important process.

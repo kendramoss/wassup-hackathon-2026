@@ -35,10 +35,10 @@ func adcvdSchema() *jsonschema.Schema {
 func (t tools) registerADCVD(s *mcp.Server) {
 	add(s, &mcp.Tool{
 		Name: "check_adcvd_exposure",
-		Description: `Screen parts for possible exposure to a U.S. antidumping (AD) or countervailing duty (CVD) order, from each part's HTS code and country of origin. Nothing saved. Deterministic with no model call, unless the server runs the scope reader, in which case a model also reads each listed order's written scope against the part name and the result's limits say so.
+		Description: `Screen parts for possible exposure to a U.S. antidumping (AD) or countervailing duty (CVD) order, from each part's HTS code and country of origin. Nothing saved. Without the scope reader the screen is deterministic with no model call. When the server runs the scope-first check (D959, ADCVD_SCOPE_READER) a model screens the orders of the part's country that its name could fit and reads each remaining order's whole written scope against the name; then the part name and origin matter most and the HTS code is only a hint.
 Use it when the user asks whether a part or product from a country could be under an AD/CVD order. It never changes the origin answer or any duty figure; do not present a result as a duty calculation or as a Commerce scope ruling.
-Input: parts, each with hts (4 to 10 digits), origin and an optional name.
-Returns, per part: possible_exposure (with the matching orders: case numbers, product, country, order date, the listed HTS numbers and the notice they came from), no_match, or not_checked (with what was missing). Always repeat the notice: HTS numbers in a scope are for convenience, and the written scope of the order governs. It cannot see goods finished in a third country (circumvention) or an order newer than the snapshot date it reports. REST: POST /v1/adcvd/check (operationId checkAdcvdExposure).`,
+Input: parts, each with origin, a name (the description the scope is read against) and an optional hts (4 to 10 digits; required without the scope reader).
+Returns, per part: possible_exposure (with the matching orders: case numbers, product, country, order date, the notice they came from and, from the scope-first check, the scope sentence relied on; a reading of unclear means a person must check), person_must_check (the reader could not settle an order and leaned away: a person must read the scope), no_match, or not_checked (with what was missing). Always repeat the notice: HTS numbers in a scope are for convenience, and the written scope of the order governs. It cannot see goods finished in a third country (circumvention) or an order newer than the snapshot date it reports. REST: POST /v1/adcvd/check (operationId checkAdcvdExposure).`,
 		InputSchema: adcvdSchema(),
 		Annotations: readOnly("Screen parts for AD/CVD orders", false),
 	}, t.adcvd)
@@ -65,7 +65,12 @@ func (t tools) adcvd(ctx context.Context, hdr http.Header, in adcvdIn) (*mcp.Cal
 					cs = append(cs, str0(c, ""))
 				}
 				fmt.Fprintf(&b, " %s (%s, %s).", str0(m["product"], ""), strings.Join(cs, " and "), str0(m["country"], ""))
+				if m["reading"] == "unclear" {
+					b.WriteString(" The reader could not settle it: a person must check.")
+				}
 			}
+		case "person_must_check":
+			fmt.Fprintf(&b, "\n- %s: a person must check the written scope. %s", name, str0(p["reason"], ""))
 		case "no_match":
 			fmt.Fprintf(&b, "\n- %s: no match.", name)
 		default:

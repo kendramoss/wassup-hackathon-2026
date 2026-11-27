@@ -52,5 +52,6 @@ data/tuning/
 /backend/adcvdreal
 /eval/adcvd/real/**/pairs.jsonl
 /eval/adcvd/real/**/method-pairs.jsonl
+/eval/adcvd/real/heldout/facts.jsonl
 /eval/adcvd/real/**/reads*.jsonl
 /backend/evaldrift

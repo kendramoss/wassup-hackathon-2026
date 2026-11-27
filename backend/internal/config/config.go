@@ -410,12 +410,13 @@ type Config struct {
 	// answer. Display only, no model call, never changes an answer (D951).
 	TextileRules bool
 	textileRules string // as given, checked by validate
-	// ADCVDScopeReader (on|off, default off, needs ADCVD_CHECK=on) makes
-	// POST /v1/adcvd/check, and so the MCP tool, have a model read each listed
-	// order's written scope against the part's name and drop an order only
-	// when the scope clearly points away from the part (D942, D943). One
-	// model question per listed order, cached; the case view keeps the plain
-	// match. ADCVDReaderModel is the model, gemini-3.8-flash as measured.
+	// ADCVDScopeReader (on|off, default off, needs ADCVD_CHECK=on) makes the
+	// check scope-first (D959): a model screens the orders the retrieval
+	// proposes for the part's name and reads each remaining order's whole
+	// written scope against it, on POST /v1/adcvd/check, the MCP tool and
+	// the case view. Model questions are cached and metered; a part needs a
+	// name and an origin, its HTS code is only a hint. ADCVDReaderModel is
+	// the model, gemini-4-argon as measured.
 	ADCVDScopeReader bool
 	adcvdScopeReader string // as given, checked by validate
 	ADCVDReaderModel string
@@ -733,7 +734,7 @@ func FromEnv(getenv func(string) string) (Config, error) {
 	c.TextileRules = c.textileRules == "on" || c.textileRules == "true" || c.textileRules == "1"
 	c.adcvdScopeReader = strings.ToLower(e.str("ADCVD_SCOPE_READER", "off"))
 	c.ADCVDScopeReader = c.adcvdScopeReader == "on" || c.adcvdScopeReader == "true" || c.adcvdScopeReader == "1"
-	c.ADCVDReaderModel = e.str("ADCVD_READER_MODEL", "gemini-3.8-flash")
+	c.ADCVDReaderModel = e.str("ADCVD_READER_MODEL", "gemini-4-argon")
 	switch v := strings.ToLower(e.str("STREAM_PREDICT", "off")); v {
 	case "on", "true", "1":
 		c.StreamPredict = "on"

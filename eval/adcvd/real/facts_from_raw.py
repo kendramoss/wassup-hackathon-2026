@@ -1,5 +1,7 @@
 """Rebuilds the ruling facts the labellers see (D959), offline: for each id of QUERIES.jsonl the part of the CROSS ruling's text before its classification analysis, with every antidumping / countervailing duty paragraph removed (extract.py facts_of).
 
+The committed copy for the held-out set is heldout/facts.jsonl.gz (gunzip -k it to read it with label.py); the raw rulings are not in the repository.
+
 Usage: python3 -I -B eval/adcvd/real/facts_from_raw.py RAW.jsonl QUERIES.jsonl OUT.jsonl
 """
 import json

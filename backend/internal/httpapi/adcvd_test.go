@@ -9,6 +9,7 @@ import (
 	"testing"
 
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/adcvd"
+	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/llm"
 )
 
 func adcvdTable() *adcvd.Table {
@@ -223,5 +224,99 @@ func TestADCVDOverMCP(t *testing.T) {
 	txt := text(res)
 	if res.IsError || !strings.Contains(txt, "Possible exposure") || !strings.Contains(txt, "A-570-900") || !strings.Contains(txt, "written scope") {
 		t.Fatalf("%s %v", txt, out)
+	}
+}
+
+const sawScope = "The merchandise covered by the order is diamond sawblades and parts thereof, whether segmented or continuous rim, finished or unfinished, mounted or unmounted, with a core of steel and cutting segments containing diamond grit bonded by metal, for cutting stone, concrete and masonry."
+
+func scopeFirstHarness(t *testing.T, reading string, calls *int) harness {
+	m := &llm.Fake{Respond: func(req llm.Request) (llm.Response, error) {
+		*calls++
+		if strings.Contains(req.System, "screen which") {
+			return llm.Response{Text: `{"possible":[1]}`}, nil
+		}
+		return llm.Response{Text: reading}, nil
+	}}
+	sf, err := adcvd.NewScopeFirst(m, "gemini-4-argon")
+	if err != nil {
+		t.Fatal(err)
+	}
+	return newHarnessWith(t, "substantial_transformation", func(d *Deps) {
+		d.ADCVD = adcvd.NewTable("test-v1", "2026-11-27", []adcvd.Order{
+			{Case: "A-570-900", Type: "AD", Country: "China", Product: "Diamond Sawblades and Parts Thereof", Status: "active", HTS: []string{"8202.39.00.00"}, ScopeText: sawScope},
+		})
+		d.ADCVDScopeFirst = sf
+	})
+}
+
+// With the scope-first check on, the route reads each candidate order's whole
+// scope against the part's name; the HTS code is only a hint (D959).
+func TestADCVDScopeFirstOnTheRoute(t *testing.T) {
+	calls := 0
+	hs := scopeFirstHarness(t, `{"verdict":"in","lean":"in","quote":"diamond sawblades and parts thereof","reason":"x"}`, &calls)
+	code, out := hs.do(t, "POST", "/v1/adcvd/check", `{"parts":[
+	  {"name":"diamond sawblade segment for cutting concrete","origin":"China"},
+	  {"name":"diamond sawblade","hts":"8202.39.00.00","origin":"Germany"},
+	  {"origin":"China"}]}`)
+	if code != http.StatusOK {
+		t.Fatalf("check = %d %v", code, out)
+	}
+	parts := out["parts"].([]any)
+	var status []string
+	for _, p := range parts {
+		status = append(status, p.(map[string]any)["status"].(string))
+	}
+	if !reflect.DeepEqual(status, []string{"possible_exposure", "no_match", "not_checked"}) {
+		t.Fatalf("statuses = %v", status)
+	}
+	m := parts[0].(map[string]any)["matches"].([]any)[0].(map[string]any)
+	if m["reading"] != "in" || m["scope_clause"] != "diamond sawblades and parts thereof" || m["cases"].([]any)[0] != "A-570-900" {
+		t.Errorf("match = %v", m)
+	}
+	if calls != 2 {
+		t.Errorf("%d model calls, want a screen and a read for the one part that has an origin with orders", calls)
+	}
+	if !strings.Contains(out["notice"].(string), "the written scope governs") {
+		t.Errorf("notice = %v", out["notice"])
+	}
+}
+
+func TestADCVDScopeFirstUnclearIsAPersonsToCheck(t *testing.T) {
+	calls := 0
+	hs := scopeFirstHarness(t, `{"verdict":"unclear","lean":"out","quote":"","reason":"size not stated"}`, &calls)
+	_, out := hs.do(t, "POST", "/v1/adcvd/check", `{"parts":[{"name":"diamond sawblade","origin":"China"}]}`)
+	p := out["parts"].([]any)[0].(map[string]any)
+	if p["status"] != "person_must_check" || len(p["review"].([]any)) != 1 || p["matches"] != nil || !strings.Contains(p["reason"].(string), "a person must check") {
+		t.Errorf("part = %v", p)
+	}
+}
+
+// The case view runs it on the parts that give a name and an origin, and a
+// second read of the case asks the model nothing.
+func TestADCVDScopeFirstOnACase(t *testing.T) {
+	calls := 0
+	hs := scopeFirstHarness(t, `{"verdict":"in","lean":"in","quote":"diamond sawblades and parts thereof","reason":"x"}`, &calls)
+	code, got := hs.do(t, "POST", "/v1/cases/predict", adcvdCaseBody())
+	if code != http.StatusCreated {
+		t.Fatalf("predict = %d %v", code, got)
+	}
+	ac, ok := got["adcvd_check"].(map[string]any)
+	if !ok {
+		t.Fatalf("adcvd_check missing: %v", got["adcvd_check"])
+	}
+	parts := ac["parts"].([]any)
+	if len(parts) != 3 {
+		t.Fatalf("parts = %v", parts)
+	}
+	status := func(i int) string { return parts[i].(map[string]any)["status"].(string) }
+	if status(0) != "possible_exposure" || status(1) != "no_match" || status(2) != "no_match" {
+		t.Errorf("statuses = %s %s %s", status(0), status(1), status(2))
+	}
+	before := calls
+	if code, again := hs.do(t, "GET", "/v1/cases/"+got["id"].(string), ""); code != http.StatusOK || again["adcvd_check"] == nil {
+		t.Fatalf("GET = %d", code)
+	}
+	if calls != before {
+		t.Errorf("reading the case again asked the model %d more times", calls-before)
 	}
 }
