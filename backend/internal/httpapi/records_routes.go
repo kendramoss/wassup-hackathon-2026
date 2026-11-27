@@ -95,12 +95,13 @@ func (a *api) auditExport(w http.ResponseWriter, r *http.Request) {
 }
 
 type retentionRequest struct {
-	CaseDays *int `json:"case_days"`
+	CaseDays  *int `json:"case_days"`
+	AuditDays *int `json:"audit_days"`
 }
 
 func retentionOut(p retention.Policy) map[string]any {
-	out := map[string]any{"workspace": p.Workspace, "case_days": p.CaseDays,
-		"limits": map[string]int{"min_case_days": retention.MinCaseDays, "max_case_days": retention.MaxCaseDays}}
+	out := map[string]any{"workspace": p.Workspace, "case_days": p.CaseDays, "audit_days": p.AuditDays,
+		"limits": map[string]int{"min_case_days": retention.MinCaseDays, "max_case_days": retention.MaxCaseDays, "min_audit_days": retention.MinAuditDays}}
 	if !p.UpdatedAt.IsZero() {
 		out["updated_at"] = p.UpdatedAt
 	}
@@ -156,18 +157,42 @@ func (a *api) putRetention(w http.ResponseWriter, r *http.Request) {
 		a.fail(w, r, err)
 		return
 	}
-	if in.CaseDays == nil {
-		a.fail(w, r, fmt.Errorf("%w: case_days is required", domain.ErrInvalid))
+	if in.CaseDays == nil && in.AuditDays == nil {
+		a.fail(w, r, fmt.Errorf("%w: case_days or audit_days is required", domain.ErrInvalid))
 		return
 	}
-	p := retention.Policy{Workspace: wsID, CaseDays: *in.CaseDays, UpdatedAt: time.Now().UTC()}
+	// A field left out keeps its current value.
+	p, _, err := a.d.Retention.Policy(r.Context(), wsID)
+	if err != nil {
+		a.fail(w, r, err)
+		return
+	}
+	p.Workspace, p.UpdatedAt = wsID, time.Now().UTC()
+	detail := "audit"
+	if in.CaseDays != nil {
+		p.CaseDays = *in.CaseDays
+		detail = "keep"
+		if p.CaseDays > 0 {
+			detail = "expire"
+		}
+	}
+	if in.AuditDays != nil {
+		p.AuditDays = *in.AuditDays
+		if p.AuditDays > 0 {
+			// The workspace can shorten the trail's window, never lengthen it.
+			if a.d.Audit == nil {
+				a.fail(w, r, fmt.Errorf("%w: audit_days needs the audit trail, which is off", domain.ErrInvalid))
+				return
+			}
+			if g := int(a.d.Audit.Retention().Hours() / 24); p.AuditDays > g {
+				a.fail(w, r, fmt.Errorf("%w: audit_days cannot be longer than the trail's own window of %d days", domain.ErrInvalid, g))
+				return
+			}
+		}
+	}
 	if err := p.Validate(); err != nil {
 		a.fail(w, r, fmt.Errorf("%w: %s", domain.ErrInvalid, strings.TrimPrefix(err.Error(), "retention: invalid: ")))
 		return
-	}
-	detail := "keep"
-	if p.CaseDays > 0 {
-		detail = "expire"
 	}
 	if err := a.auditBegin(r, auditStep{Tenant: workspaceTenant(wsID), Object: objectRef("workspace", wsID), Detail: detail}); err != nil {
 		a.fail(w, r, err)

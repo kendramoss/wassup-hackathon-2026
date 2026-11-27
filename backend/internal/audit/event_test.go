@@ -116,7 +116,7 @@ func TestHashCoversEveryField(t *testing.T) {
 
 func TestSensitiveSetIsThePolicy(t *testing.T) {
 	want := map[Action]bool{CaseDelete: true, WorkspaceInvite: true, WorkspaceJoin: true, WorkspaceRoleChange: true,
-		WorkspaceMemberRemove: true, WorkspaceLeave: true, WorkspaceRetention: true, APIKeyIssue: true, APIKeyDisable: true, ReviewCreate: true,
+		WorkspaceMemberRemove: true, WorkspaceLeave: true, WorkspaceRetention: true, WorkspaceRename: true, APIKeyIssue: true, APIKeyDisable: true, ReviewCreate: true,
 		SSOConnectionCreate: true, SSOConnectionUpdate: true, SSOConnectionDelete: true,
 		SCIMTokenIssue: true, SCIMTokenRevoke: true, SCIMUserCreate: true, SCIMUserUpdate: true, SCIMUserDelete: true,
 		WebhookCreate: true, WebhookUpdate: true, WebhookDelete: true, WebhookRotate: true, SupplierRequestCreate: true}
@@ -125,8 +125,8 @@ func TestSensitiveSetIsThePolicy(t *testing.T) {
 			t.Errorf("%s sensitive=%v, policy says %v", a, a.Sensitive(), want[a])
 		}
 	}
-	if len(Actions()) != 57 { // 26, the 7 broker workflow actions, 5 SSO, 7 SCIM, the admin view, 7 webhook and 4 supplier declaration actions
-		t.Errorf("%d actions, the contract lists 57", len(Actions()))
+	if len(Actions()) != 60 { // 26, the rename, the 7 broker workflow actions, 5 SSO, 7 SCIM, the admin view, 7 webhook, 4 supplier declaration actions eval.drift and the audit purge
+		t.Errorf("%d actions, the contract lists 60", len(Actions()))
 	}
 }
 
@@ -140,6 +140,29 @@ func TestObjectRefAcceptsOnlyServerMintedIDs(t *testing.T) {
 		{"apikey", "op_secret"}, {"user", "x"}, {"case", "healthcheck_probe"}} {
 		if ref, ok := ObjectRef(bad[0], bad[1]); ok {
 			t.Errorf("%v accepted as %q", bad, ref)
+		}
+	}
+}
+
+// A drift alert is written by the system for the platform, about one month of one series.
+func TestEvalDriftEventIsClosedAndSystemOnly(t *testing.T) {
+	e := Event{Tenant: "platform", ActorKind: ActorSystem, Action: EvalDrift, Phase: PhaseSingle, Outcome: Allowed, Detail: "cbp", Object: "evalmonth:cbp:2026-12"}
+	if err := e.validateFields(); err != nil {
+		t.Fatalf("valid drift event rejected: %v", err)
+	}
+	if EvalDrift.Sensitive() {
+		t.Error("a drift alert must not fail closed: the re-score is not an operation on a tenant")
+	}
+	for name, mut := range map[string]func(*Event){
+		"free text detail": func(e *Event) { e.Detail = "accuracy fell to 70%" },
+		"free text object": func(e *Event) { e.Object = "evalmonth:cbp:last month" },
+		"bad month":        func(e *Event) { e.Object = "evalmonth:cbp:2026-13" },
+		"unknown series":   func(e *Event) { e.Object = "evalmonth:x:2026-12" },
+	} {
+		x := e
+		mut(&x)
+		if err := x.validateFields(); err == nil {
+			t.Errorf("%s accepted", name)
 		}
 	}
 }

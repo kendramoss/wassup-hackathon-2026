@@ -1,0 +1,8 @@
+{
+ "rule": {
+  "alpha": 0.01,
+  "min_cases": 20,
+  "min_baseline": 30
+ },
+ "results": []
+}

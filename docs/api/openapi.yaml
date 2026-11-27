@@ -3172,7 +3172,7 @@ paths:
 
         The answer carries `secret` once; keep it, it is not shown again (rotate to get a new one). Each delivery is a POST with a JSON body (`id`, `type`, `created_at`, `workspace`, `data`) and these headers: `X-Webhook-Id` (the delivery's id, the same on every retry: deduplicate on it), `X-Webhook-Event` and `X-Webhook-Signature: t=<unix seconds>,v1=<hex>`, where `v1` is the HMAC-SHA256, keyed with the secret, of `<t>.<raw body>`. Verify it over the raw bytes and reject a `t` more than five minutes old. During the day after a rotation the header carries a `v1` for the new and for the previous secret; accept either. A 2xx answer is a delivery. Anything else (or no answer within 10 seconds) is retried after 30 s, 2 min, 10 min, 1 h and 6 h, six attempts in all, then marked failed; the attempts are in the delivery log. Delivery is at least once and not ordered. Events carry ids and statuses only, never case text, comments or letters.
 
-        Events: `ruling_watch.hit` (a ruling watch re-check changed a case's origin because of newer precedents: `case_id`, `previous_origin`, `new_origin`, `newer_rulings`, `triage_route`, `checked_at`), `review.decision` (a broker answered a review link: `case_id`, `review_id`, `decision`, `has_comment`, never the comment, `decided_at`), `filing.status` (an eRulings request moved: `case_id`, `status`, `previous_status`, `reference` when given, `at`), `budget.alert` (the month's spend passed the budget's alert share or the budget: `month`, `level` alert or cap, `spent_usd`, `budget_usd`, `alert_percent`, `hard_cap`; needs USAGE_METERING=on) and `batch.finished` (a batch triage finished: `total`, `failed`, `out_of_scope`, `auto`, `needs_review`, `needs_info`, `cost_usd`, `case_ids`, `finished_at`). Only events of cases and spend of this workspace are sent.
+        Events: `ruling_watch.hit` (a ruling watch re-check changed a case's origin because of newer precedents: `case_id`, `previous_origin`, `new_origin`, `newer_rulings`, `triage_route`, `checked_at`), `review.decision` (a broker answered a review link: `case_id`, `review_id`, `decision`, `has_comment`, never the comment, `decided_at`), `filing.status` (an eRulings request moved: `case_id`, `status`, `previous_status`, `reference` when given, `at`), `budget.alert` (the month's spend passed the budget's alert share or the budget: `month`, `level` alert or cap, `spent_usd`, `budget_usd`, `alert_percent`, `hard_cap`; needs USAGE_METERING=on) and `batch.finished` (a batch triage finished: `total`, `failed`, `out_of_scope`, `auto`, `needs_review`, `needs_info`, `cost_usd`, `case_ids`, `finished_at`) and `eval.drift` (a monthly re-score fell below the earlier months; sent to every subscribed endpoint of every workspace, only when EVAL_DRIFT_ALERTS is on: `series` cbp or japan, `month`, `correct`, `cases`, `accuracy`, `baseline_correct`, `baseline_cases`, `baseline_accuracy`, `p_value`, `severity`, `rule`). Other events concern only cases and spend of this workspace.
       parameters:
         - { $ref: "#/components/parameters/UserToken" }
         - { name: id, in: path, required: true, schema: { type: string } }
@@ -3368,6 +3368,7 @@ paths:
         - { name: outcome, in: query, schema: { $ref: "#/components/schemas/AuditOutcome" } }
         - { name: phase, in: query, schema: { $ref: "#/components/schemas/AuditPhase" } }
         - { name: actor, in: query, description: An actor pseudonym from an event, never an email, schema: { type: string } }
+        - { name: actor_kind, in: query, schema: { type: string, enum: [user, apikey, admin, anonymous, system] } }
         - { name: object, in: query, description: An opaque object reference from an event, schema: { type: string } }
         - { name: from, in: query, description: RFC 3339, on `time`, schema: { type: string, format: date-time } }
         - { name: to, in: query, description: RFC 3339, on `time`, schema: { type: string, format: date-time } }
@@ -3450,7 +3451,7 @@ paths:
     put:
       operationId: setWorkspaceRetention
       summary: Set a workspace's case retention policy (TEAMS=on and RETENTION=on; workspace admin)
-      description: "`case_days` is 0 (keep forever) or 7 to 3650. The operator's purge run (`cmd/retention`) then hard-deletes the workspace's cases not updated for that many days, oldest first, writing a tombstone and a `case.delete` audit event (detail `retention`, actor `system`) before each deletion. Pinned demo cases are never purged. Setting the policy deletes nothing by itself. A sensitive write when the audit trail is on: 503 `audit_unavailable` if its intent cannot be recorded."
+      description: "Send `case_days`, `audit_days` or both; a field left out keeps its current value. `audit_days` is 0 (the trail's own window, `retention_days` of `GET /v1/audit`) or 7 up to that window: a workspace can shorten how long its audit events are kept, never lengthen it; 400 when the audit trail is off. The operator's purge run (`cmd/retention`) removes the workspace's audit events older than `audit_days` the same way the trail's own sweep does, leaving a retention checkpoint so the rest still verifies, and appends one system `audit.purge` event (detail `workspace`). `case_days` is 0 (keep forever) or 7 to 3650; the same run then hard-deletes the workspace's cases not updated for that many days, oldest first, writing a tombstone and a `case.delete` audit event (detail `retention`, actor `system`) before each deletion, and with `CACHE_PURGE=on` the cached predictions, verdicts, advice and supplier documents only that case used. Pinned demo cases are never purged. Setting the policy deletes nothing by itself. A sensitive write when the audit trail is on: 503 `audit_unavailable` if its intent cannot be recorded."
       parameters:
         - { $ref: "#/components/parameters/UserToken" }
         - { name: id, in: path, required: true, schema: { type: string } }
@@ -3460,9 +3461,10 @@ paths:
           application/json:
             schema:
               type: object
-              required: [case_days]
+              minProperties: 1
               properties:
                 case_days: { type: integer, description: "0, or 7 to 3650" }
+                audit_days: { type: integer, description: "0 (the trail's own window), or 7 up to it" }
       responses:
         "429": { $ref: "#/components/responses/TooManyRequests" }
         "503": { $ref: "#/components/responses/Error" }
@@ -3891,7 +3893,7 @@ paths:
     get:
       operationId: getAdminConsole
       summary: The workspace admin's settings overview (ADMIN_CONSOLE=on, workspace admin)
-      description: "Members with roles, pending invitations, which features are on, the SSO connections and their domains, the SCIM token status, the retention policy and this month's usage, each only when its feature is on, and the route that changes each. Read only; never a token, hash, client secret or DNS verification value."
+      description: "Members with roles, pending invitations, which features are on, the SSO connections and their domains, the SCIM token status, the retention policy and this month's usage, each only when its feature is on, and the route that changes each (rename, API keys and audit search included). Read only; never a token, hash, client secret or DNS verification value."
       parameters:
         - { $ref: "#/components/parameters/UserToken" }
         - { name: id, in: path, required: true, schema: { type: string } }
@@ -3912,12 +3914,144 @@ paths:
                   features: { type: object, additionalProperties: { type: boolean } }
                   sso: { type: object }
                   scim: { type: object }
-                  retention: { type: object, properties: { case_days: { type: integer } } }
+                  retention: { type: object, properties: { case_days: { type: integer }, audit_days: { type: integer } } }
                   usage: { type: object }
                   routes: { type: object, additionalProperties: { type: string } }
         "401": { $ref: "#/components/responses/Error" }
         "403": { $ref: "#/components/responses/Error" }
         "404": { $ref: "#/components/responses/Error" }
+  /v1/workspaces/{id}/name:
+    put:
+      operationId: renameWorkspace
+      summary: Rename the workspace (ADMIN_CONSOLE=on, workspace admin)
+      description: "Whitespace is collapsed; 1 to 100 characters. 400 for a bad name or an unknown field; 401 without a valid token; 403 for a member who is not an admin; 404 for a workspace the caller is not in (identical to an unknown one). Audited as `workspace.rename` (sensitive: the intent is stored first); the name itself is not in the trail."
+      parameters:
+        - { $ref: "#/components/parameters/UserToken" }
+        - { name: id, in: path, required: true, schema: { type: string } }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { type: object, required: [name], additionalProperties: false, properties: { name: { type: string, minLength: 1, maxLength: 100 } } }
+      responses:
+        "200":
+          headers:
+            X-Audit-Incomplete: { $ref: "#/components/headers/AuditIncomplete" }
+          description: The workspace as the caller sees it
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Workspace" }
+        "400": { $ref: "#/components/responses/Error" }
+        "401": { $ref: "#/components/responses/Error" }
+        "403": { $ref: "#/components/responses/Error" }
+        "404": { $ref: "#/components/responses/Error" }
+        "429": { $ref: "#/components/responses/TooManyRequests" }
+        "503": { $ref: "#/components/responses/Error" }
+  /v1/workspaces/{id}/api-keys:
+    post:
+      operationId: issueWorkspaceApiKey
+      summary: Create an API key for the workspace (ADMIN_CONSOLE=on, API_KEYS=on, workspace admin)
+      description: "The key belongs to the workspace, not to a person: any admin of it can list and revoke it. The daily quota is fixed at 1000 requests per UTC day and a `daily_quota` in the body is refused; a key has the same rate-limit buckets as every API key. At most 20 keys that are not revoked per workspace (409 `conflict`). The secret is returned once, in `key`; only its SHA-256 is stored. The key sees the pinned demos and its own cases only, as any API key does (D69); its denied requests are recorded in the workspace's audit trail. Audited as `apikey.issue`."
+      parameters:
+        - { $ref: "#/components/parameters/UserToken" }
+        - { name: id, in: path, required: true, schema: { type: string } }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [name]
+              additionalProperties: false
+              properties:
+                name: { type: string, minLength: 1, maxLength: 100 }
+      responses:
+        "201":
+          headers:
+            X-Audit-Incomplete: { $ref: "#/components/headers/AuditIncomplete" }
+          description: The new key, shown once, and its record
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [key, api_key]
+                properties:
+                  key: { type: string, pattern: "^op_[A-Za-z0-9_-]{43}$", description: "Not stored; shown only here." }
+                  api_key: { $ref: "#/components/schemas/APIKey" }
+        "400": { $ref: "#/components/responses/Error" }
+        "401": { $ref: "#/components/responses/Error" }
+        "403": { $ref: "#/components/responses/Error" }
+        "404": { $ref: "#/components/responses/Error" }
+        "409": { $ref: "#/components/responses/Error" }
+        "429": { $ref: "#/components/responses/TooManyRequests" }
+        "503": { $ref: "#/components/responses/Error" }
+    get:
+      operationId: listWorkspaceApiKeys
+      summary: List the workspace's API keys, newest first, without secrets (ADMIN_CONSOLE=on, API_KEYS=on, workspace admin)
+      description: Only keys issued for this workspace; admin and personal keys are never included. Revoked keys stay in the list with `disabled` true.
+      parameters:
+        - { $ref: "#/components/parameters/UserToken" }
+        - { name: id, in: path, required: true, schema: { type: string } }
+      responses:
+        "200":
+          description: The workspace's keys
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [api_keys]
+                properties:
+                  api_keys: { type: array, items: { $ref: "#/components/schemas/APIKey" } }
+        "401": { $ref: "#/components/responses/Error" }
+        "403": { $ref: "#/components/responses/Error" }
+        "404": { $ref: "#/components/responses/Error" }
+        "429": { $ref: "#/components/responses/TooManyRequests" }
+  /v1/workspaces/{id}/api-keys/{key}:
+    delete:
+      operationId: revokeWorkspaceApiKey
+      summary: Revoke one of the workspace's API keys for good (ADMIN_CONSOLE=on, API_KEYS=on, workspace admin)
+      description: A key of another workspace, a personal or admin key and an unknown id are the same 404. Requests with the key then get 401. Audited as `apikey.disable`.
+      parameters:
+        - { $ref: "#/components/parameters/UserToken" }
+        - { name: id, in: path, required: true, schema: { type: string } }
+        - { name: key, in: path, required: true, schema: { type: string } }
+      responses:
+        "204":
+          headers:
+            X-Audit-Incomplete: { $ref: "#/components/headers/AuditIncomplete" }
+          description: Revoked
+        "401": { $ref: "#/components/responses/Error" }
+        "403": { $ref: "#/components/responses/Error" }
+        "404": { $ref: "#/components/responses/Error" }
+        "429": { $ref: "#/components/responses/TooManyRequests" }
+        "503": { $ref: "#/components/responses/Error" }
+  /v1/workspaces/{id}/admin/audit:
+    get:
+      operationId: searchWorkspaceAudit
+      summary: Search the workspace's audit trail (ADMIN_CONSOLE=on, audit on, workspace admin)
+      description: "The workspace's own trail (`ws:<id>`), a page at a time, newest first by default. The filters are the closed values the trail stores: actor kind (`user`, `apikey`, `admin`, `anonymous`, `system`; an event holds no member role, email or name), action, outcome and a time range. An event carries only enumerated values, pseudonyms and opaque references, so nothing typed by a user (names, emails, facts, key secrets) can be returned. A page may hold fewer than `limit` events and still carry `next_cursor`; a cursor is bound to the order and filters. Any other parameter, including `tenant`, is 400. Reading the first page is itself audited (`audit.read`)."
+      parameters:
+        - { $ref: "#/components/parameters/UserToken" }
+        - { name: id, in: path, required: true, schema: { type: string } }
+        - { name: limit, in: query, schema: { type: integer, minimum: 1, maximum: 200, default: 50 } }
+        - { name: cursor, in: query, description: Opaque; at most 512 bytes, schema: { type: string, maxLength: 512 } }
+        - { name: order, in: query, schema: { type: string, enum: [desc, asc], default: desc } }
+        - { name: action, in: query, schema: { $ref: "#/components/schemas/AuditAction" } }
+        - { name: outcome, in: query, schema: { $ref: "#/components/schemas/AuditOutcome" } }
+        - { name: actor_kind, in: query, schema: { type: string, enum: [user, apikey, admin, anonymous, system] } }
+        - { name: from, in: query, description: RFC 3339, on `time`, schema: { type: string, format: date-time } }
+        - { name: to, in: query, description: RFC 3339, on `time`, schema: { type: string, format: date-time } }
+      responses:
+        "200":
+          description: One page of events
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/AuditPage" }
+        "400": { $ref: "#/components/responses/Error" }
+        "401": { $ref: "#/components/responses/Error" }
+        "403": { $ref: "#/components/responses/Error" }
+        "404": { $ref: "#/components/responses/Error" }
+        "429": { $ref: "#/components/responses/TooManyRequests" }
   /v1/workspaces/{id}/scim:
     get:
       operationId: getSCIMToken
@@ -4761,7 +4895,7 @@ components:
         details: {}
     WebhookEventType:
       type: string
-      enum: [ruling_watch.hit, review.decision, filing.status, budget.alert, batch.finished]
+      enum: [ruling_watch.hit, review.decision, filing.status, budget.alert, batch.finished, eval.drift]
     WebhookEndpoint:
       type: object
       required: [id, url, events, description, enabled, secret_hint, created_by, created_at, updated_at]
@@ -4847,16 +4981,18 @@ components:
       description: The caller's role in the workspace, derived by the server from stored membership.
     RetentionPolicy:
       type: object
-      required: [workspace, case_days, limits]
+      required: [workspace, case_days, audit_days, limits]
       properties:
         workspace: { type: string }
         case_days: { type: integer, description: "0: keep forever" }
+        audit_days: { type: integer, description: "0: the trail's own window" }
         updated_at: { type: string, format: date-time }
         limits:
           type: object
           properties:
             min_case_days: { type: integer }
             max_case_days: { type: integer }
+            min_audit_days: { type: integer }
     Tombstone:
       type: object
       required: [case_id, deleted_at, reason, last_updated]
@@ -4869,7 +5005,7 @@ components:
         last_updated: { type: string, format: date-time }
     AuditAction:
       type: string
-      enum: [case.create, case.update, case.export, case.delete, case.pin, case.read, workspace.create, workspace.invite, workspace.join, workspace.role_change, workspace.member_remove, workspace.leave, workspace.retention, workspace.budget, apikey.issue, apikey.list, apikey.disable, admin.watch_run, admin.webhook_sweep, audit.read, audit.verify, audit.export, auth.denied, review.create, review.revoke, review.view, review.decision, webhook.create, webhook.update, webhook.delete, webhook.rotate_secret, webhook.test, webhook.read]
+      enum: [case.create, case.update, case.export, case.delete, case.pin, case.read, workspace.create, workspace.invite, workspace.join, workspace.role_change, workspace.member_remove, workspace.leave, workspace.retention, workspace.rename, audit.purge, workspace.budget, apikey.issue, apikey.list, apikey.disable, admin.watch_run, admin.webhook_sweep, audit.read, audit.verify, audit.export, auth.denied, review.create, review.revoke, review.view, review.decision, webhook.create, webhook.update, webhook.delete, webhook.rotate_secret, webhook.test, webhook.read]
       description: "`case.read` appears only as a denial; allowed ordinary reads are not audited."
     AuditPhase:
       type: string

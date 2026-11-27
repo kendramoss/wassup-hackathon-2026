@@ -66,6 +66,37 @@ func (s *FirestoreWebhooks) GetEndpoint(ctx context.Context, id string) (webhook
 	return e, nil
 }
 
+// ListSubscribed implements webhooks.Store: one array-contains filter, no
+// composite index; enabled is checked in memory.
+func (s *FirestoreWebhooks) ListSubscribed(ctx context.Context, typ string) ([]webhooks.Endpoint, error) {
+	it := s.eps.Where("events", "array-contains", typ).Documents(ctx)
+	defer it.Stop()
+	var out []webhooks.Endpoint
+	for {
+		snap, err := it.Next()
+		if err == iterator.Done {
+			break
+		}
+		if err != nil {
+			return nil, fmt.Errorf("store: list subscribed webhook endpoints: %w", err)
+		}
+		var e webhooks.Endpoint
+		if err := snap.DataTo(&e); err != nil {
+			return nil, fmt.Errorf("store: decode webhook endpoint: %w", err)
+		}
+		if e.Subscribed(typ) {
+			out = append(out, e)
+		}
+	}
+	slices.SortFunc(out, func(a, b webhooks.Endpoint) int {
+		if c := a.CreatedAt.Compare(b.CreatedAt); c != 0 {
+			return c
+		}
+		return cmpID(a.ID, b.ID)
+	})
+	return out, nil
+}
+
 // ListEndpoints implements webhooks.Store.
 func (s *FirestoreWebhooks) ListEndpoints(ctx context.Context, workspace string) ([]webhooks.Endpoint, error) {
 	it := s.eps.Where("workspace", "==", workspace).Documents(ctx)

@@ -245,12 +245,23 @@ type Config struct {
 	// tombstones and lets cmd/retention purge (#875). Its store follows
 	// CASES_STORE (file: CASES_DIR/retention.json).
 	Retention bool
+	// CachePurge (on|off, default off) links each cached prediction, verdict,
+	// advice entry and supplier document to the cases that used it, and
+	// removes the entries only a deleted or expired case used (#875). Needs
+	// the verifier cache (VERIFIER_CACHE_STORE not off). Entries written
+	// before it was on are not linked and stay.
+	CachePurge bool
 	// TariffWatch (on|off, default off) records, on each case a plan search
 	// prices, the duty basis it was priced on, and serves
 	// GET /v1/workspaces/{id}/tariff-watch with the cases cmd/tariffwatch
 	// found affected by a newer HTS revision (#917). The route also needs
 	// TEAMS=on.
 	TariffWatch bool
+	// EvalDriftAlerts (on|off, default off) lets cmd/evaldrift emit a drift
+	// alert (an audit event and an eval.drift webhook) when a monthly
+	// re-score falls below the earlier months (#921). Computing alerts
+	// offline needs no flag.
+	EvalDriftAlerts bool
 	// BrokerWorkflow is on or off (default): on serves the review queue,
 	// case discussion and sign-offs, and the eRulings filing package
 	// (docs/design/broker-workflow.md).
@@ -623,7 +634,7 @@ func FromEnv(getenv func(string) string) (Config, error) {
 	default:
 		e.errs = append(e.errs, fmt.Errorf("API_KEYS must be on or off, got %q", v))
 	}
-	for name, dst := range map[string]*bool{"AUDIT_EXPORT": &c.AuditExport, "RETENTION": &c.Retention, "TARIFF_WATCH": &c.TariffWatch} {
+	for name, dst := range map[string]*bool{"AUDIT_EXPORT": &c.AuditExport, "RETENTION": &c.Retention, "CACHE_PURGE": &c.CachePurge, "TARIFF_WATCH": &c.TariffWatch, "EVAL_DRIFT_ALERTS": &c.EvalDriftAlerts} {
 		switch v := strings.ToLower(e.str(name, "off")); v {
 		case "on", "true", "1":
 			*dst = true

@@ -1515,7 +1515,7 @@ export interface paths {
          *
          *     The answer carries `secret` once; keep it, it is not shown again (rotate to get a new one). Each delivery is a POST with a JSON body (`id`, `type`, `created_at`, `workspace`, `data`) and these headers: `X-Webhook-Id` (the delivery's id, the same on every retry: deduplicate on it), `X-Webhook-Event` and `X-Webhook-Signature: t=<unix seconds>,v1=<hex>`, where `v1` is the HMAC-SHA256, keyed with the secret, of `<t>.<raw body>`. Verify it over the raw bytes and reject a `t` more than five minutes old. During the day after a rotation the header carries a `v1` for the new and for the previous secret; accept either. A 2xx answer is a delivery. Anything else (or no answer within 10 seconds) is retried after 30 s, 2 min, 10 min, 1 h and 6 h, six attempts in all, then marked failed; the attempts are in the delivery log. Delivery is at least once and not ordered. Events carry ids and statuses only, never case text, comments or letters.
          *
-         *     Events: `ruling_watch.hit` (a ruling watch re-check changed a case's origin because of newer precedents: `case_id`, `previous_origin`, `new_origin`, `newer_rulings`, `triage_route`, `checked_at`), `review.decision` (a broker answered a review link: `case_id`, `review_id`, `decision`, `has_comment`, never the comment, `decided_at`), `filing.status` (an eRulings request moved: `case_id`, `status`, `previous_status`, `reference` when given, `at`), `budget.alert` (the month's spend passed the budget's alert share or the budget: `month`, `level` alert or cap, `spent_usd`, `budget_usd`, `alert_percent`, `hard_cap`; needs USAGE_METERING=on) and `batch.finished` (a batch triage finished: `total`, `failed`, `out_of_scope`, `auto`, `needs_review`, `needs_info`, `cost_usd`, `case_ids`, `finished_at`). Only events of cases and spend of this workspace are sent.
+         *     Events: `ruling_watch.hit` (a ruling watch re-check changed a case's origin because of newer precedents: `case_id`, `previous_origin`, `new_origin`, `newer_rulings`, `triage_route`, `checked_at`), `review.decision` (a broker answered a review link: `case_id`, `review_id`, `decision`, `has_comment`, never the comment, `decided_at`), `filing.status` (an eRulings request moved: `case_id`, `status`, `previous_status`, `reference` when given, `at`), `budget.alert` (the month's spend passed the budget's alert share or the budget: `month`, `level` alert or cap, `spent_usd`, `budget_usd`, `alert_percent`, `hard_cap`; needs USAGE_METERING=on) and `batch.finished` (a batch triage finished: `total`, `failed`, `out_of_scope`, `auto`, `needs_review`, `needs_info`, `cost_usd`, `case_ids`, `finished_at`) and `eval.drift` (a monthly re-score fell below the earlier months; sent to every subscribed endpoint of every workspace, only when EVAL_DRIFT_ALERTS is on: `series` cbp or japan, `month`, `correct`, `cases`, `accuracy`, `baseline_correct`, `baseline_cases`, `baseline_accuracy`, `p_value`, `severity`, `rule`). Other events concern only cases and spend of this workspace.
          */
         post: operations["createWebhook"];
         delete?: never;
@@ -1699,7 +1699,7 @@ export interface paths {
         get: operations["getWorkspaceRetention"];
         /**
          * Set a workspace's case retention policy (TEAMS=on and RETENTION=on; workspace admin)
-         * @description `case_days` is 0 (keep forever) or 7 to 3650. The operator's purge run (`cmd/retention`) then hard-deletes the workspace's cases not updated for that many days, oldest first, writing a tombstone and a `case.delete` audit event (detail `retention`, actor `system`) before each deletion. Pinned demo cases are never purged. Setting the policy deletes nothing by itself. A sensitive write when the audit trail is on: 503 `audit_unavailable` if its intent cannot be recorded.
+         * @description Send `case_days`, `audit_days` or both; a field left out keeps its current value. `audit_days` is 0 (the trail's own window, `retention_days` of `GET /v1/audit`) or 7 up to that window: a workspace can shorten how long its audit events are kept, never lengthen it; 400 when the audit trail is off. The operator's purge run (`cmd/retention`) removes the workspace's audit events older than `audit_days` the same way the trail's own sweep does, leaving a retention checkpoint so the rest still verifies, and appends one system `audit.purge` event (detail `workspace`). `case_days` is 0 (keep forever) or 7 to 3650; the same run then hard-deletes the workspace's cases not updated for that many days, oldest first, writing a tombstone and a `case.delete` audit event (detail `retention`, actor `system`) before each deletion, and with `CACHE_PURGE=on` the cached predictions, verdicts, advice and supplier documents only that case used. Pinned demo cases are never purged. Setting the policy deletes nothing by itself. A sensitive write when the audit trail is on: 503 `audit_unavailable` if its intent cannot be recorded.
          */
         put: operations["setWorkspaceRetention"];
         post?: never;
@@ -2028,9 +2028,93 @@ export interface paths {
         };
         /**
          * The workspace admin's settings overview (ADMIN_CONSOLE=on, workspace admin)
-         * @description Members with roles, pending invitations, which features are on, the SSO connections and their domains, the SCIM token status, the retention policy and this month's usage, each only when its feature is on, and the route that changes each. Read only; never a token, hash, client secret or DNS verification value.
+         * @description Members with roles, pending invitations, which features are on, the SSO connections and their domains, the SCIM token status, the retention policy and this month's usage, each only when its feature is on, and the route that changes each (rename, API keys and audit search included). Read only; never a token, hash, client secret or DNS verification value.
          */
         get: operations["getAdminConsole"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/workspaces/{id}/name": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /**
+         * Rename the workspace (ADMIN_CONSOLE=on, workspace admin)
+         * @description Whitespace is collapsed; 1 to 100 characters. 400 for a bad name or an unknown field; 401 without a valid token; 403 for a member who is not an admin; 404 for a workspace the caller is not in (identical to an unknown one). Audited as `workspace.rename` (sensitive: the intent is stored first); the name itself is not in the trail.
+         */
+        put: operations["renameWorkspace"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/workspaces/{id}/api-keys": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * List the workspace's API keys, newest first, without secrets (ADMIN_CONSOLE=on, API_KEYS=on, workspace admin)
+         * @description Only keys issued for this workspace; admin and personal keys are never included. Revoked keys stay in the list with `disabled` true.
+         */
+        get: operations["listWorkspaceApiKeys"];
+        put?: never;
+        /**
+         * Create an API key for the workspace (ADMIN_CONSOLE=on, API_KEYS=on, workspace admin)
+         * @description The key belongs to the workspace, not to a person: any admin of it can list and revoke it. The daily quota is fixed at 1000 requests per UTC day and a `daily_quota` in the body is refused; a key has the same rate-limit buckets as every API key. At most 20 keys that are not revoked per workspace (409 `conflict`). The secret is returned once, in `key`; only its SHA-256 is stored. The key sees the pinned demos and its own cases only, as any API key does (D69); its denied requests are recorded in the workspace's audit trail. Audited as `apikey.issue`.
+         */
+        post: operations["issueWorkspaceApiKey"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/workspaces/{id}/api-keys/{key}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        /**
+         * Revoke one of the workspace's API keys for good (ADMIN_CONSOLE=on, API_KEYS=on, workspace admin)
+         * @description A key of another workspace, a personal or admin key and an unknown id are the same 404. Requests with the key then get 401. Audited as `apikey.disable`.
+         */
+        delete: operations["revokeWorkspaceApiKey"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/workspaces/{id}/admin/audit": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Search the workspace's audit trail (ADMIN_CONSOLE=on, audit on, workspace admin)
+         * @description The workspace's own trail (`ws:<id>`), a page at a time, newest first by default. The filters are the closed values the trail stores: actor kind (`user`, `apikey`, `admin`, `anonymous`, `system`; an event holds no member role, email or name), action, outcome and a time range. An event carries only enumerated values, pseudonyms and opaque references, so nothing typed by a user (names, emails, facts, key secrets) can be returned. A page may hold fewer than `limit` events and still carry `next_cursor`; a cursor is bound to the order and filters. Any other parameter, including `tenant`, is 400. Reading the first page is itself audited (`audit.read`).
+         */
+        get: operations["searchWorkspaceAudit"];
         put?: never;
         post?: never;
         delete?: never;
@@ -2779,7 +2863,7 @@ export interface components {
             details?: unknown;
         };
         /** @enum {string} */
-        WebhookEventType: "ruling_watch.hit" | "review.decision" | "filing.status" | "budget.alert" | "batch.finished";
+        WebhookEventType: "ruling_watch.hit" | "review.decision" | "filing.status" | "budget.alert" | "batch.finished" | "eval.drift";
         WebhookEndpoint: {
             /** @example wh_0123456789abcdef */
             id: string;
@@ -2889,11 +2973,14 @@ export interface components {
             workspace: string;
             /** @description 0: keep forever */
             case_days: number;
+            /** @description 0: the trail's own window */
+            audit_days: number;
             /** Format: date-time */
             updated_at?: string;
             limits: {
                 min_case_days?: number;
                 max_case_days?: number;
+                min_audit_days?: number;
             };
         };
         Tombstone: {
@@ -2911,7 +2998,7 @@ export interface components {
          * @description `case.read` appears only as a denial; allowed ordinary reads are not audited.
          * @enum {string}
          */
-        AuditAction: "case.create" | "case.update" | "case.export" | "case.delete" | "case.pin" | "case.read" | "workspace.create" | "workspace.invite" | "workspace.join" | "workspace.role_change" | "workspace.member_remove" | "workspace.leave" | "workspace.retention" | "workspace.budget" | "apikey.issue" | "apikey.list" | "apikey.disable" | "admin.watch_run" | "admin.webhook_sweep" | "audit.read" | "audit.verify" | "audit.export" | "auth.denied" | "review.create" | "review.revoke" | "review.view" | "review.decision" | "webhook.create" | "webhook.update" | "webhook.delete" | "webhook.rotate_secret" | "webhook.test" | "webhook.read";
+        AuditAction: "case.create" | "case.update" | "case.export" | "case.delete" | "case.pin" | "case.read" | "workspace.create" | "workspace.invite" | "workspace.join" | "workspace.role_change" | "workspace.member_remove" | "workspace.leave" | "workspace.retention" | "workspace.rename" | "audit.purge" | "workspace.budget" | "apikey.issue" | "apikey.list" | "apikey.disable" | "admin.watch_run" | "admin.webhook_sweep" | "audit.read" | "audit.verify" | "audit.export" | "auth.denied" | "review.create" | "review.revoke" | "review.view" | "review.decision" | "webhook.create" | "webhook.update" | "webhook.delete" | "webhook.rotate_secret" | "webhook.test" | "webhook.read";
         /** @enum {string} */
         AuditPhase: "intent" | "completion" | "single";
         /** @enum {string} */
@@ -8737,6 +8824,7 @@ export interface operations {
                 phase?: components["schemas"]["AuditPhase"];
                 /** @description An actor pseudonym from an event */
                 actor?: string;
+                actor_kind?: "user" | "apikey" | "admin" | "anonymous" | "system";
                 /** @description An opaque object reference from an event */
                 object?: string;
                 /** @description RFC 3339 */
@@ -8886,7 +8974,9 @@ export interface operations {
             content: {
                 "application/json": {
                     /** @description 0, or 7 to 3650 */
-                    case_days: number;
+                    case_days?: number;
+                    /** @description 0 (the trail's own window), or 7 up to it */
+                    audit_days?: number;
                 };
             };
         };
@@ -9550,6 +9640,7 @@ export interface operations {
                         scim?: Record<string, never>;
                         retention?: {
                             case_days?: number;
+                            audit_days?: number;
                         };
                         usage?: Record<string, never>;
                         routes: {
@@ -9561,6 +9652,190 @@ export interface operations {
             401: components["responses"]["Error"];
             403: components["responses"]["Error"];
             404: components["responses"]["Error"];
+        };
+    };
+    renameWorkspace: {
+        parameters: {
+            query?: never;
+            header: {
+                /** @description The signed-in user's Google ID token, forwarded by the frontend proxy (D68). Optional on every other endpoint. */
+                "X-User-Token": components["parameters"]["UserToken"];
+            };
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": {
+                    name: string;
+                };
+            };
+        };
+        responses: {
+            /** @description The workspace as the caller sees it */
+            200: {
+                headers: {
+                    "X-Audit-Incomplete": components["headers"]["AuditIncomplete"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Workspace"];
+                };
+            };
+            400: components["responses"]["Error"];
+            401: components["responses"]["Error"];
+            403: components["responses"]["Error"];
+            404: components["responses"]["Error"];
+            429: components["responses"]["TooManyRequests"];
+            503: components["responses"]["Error"];
+        };
+    };
+    listWorkspaceApiKeys: {
+        parameters: {
+            query?: never;
+            header: {
+                /** @description The signed-in user's Google ID token, forwarded by the frontend proxy (D68). Optional on every other endpoint. */
+                "X-User-Token": components["parameters"]["UserToken"];
+            };
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description The workspace's keys */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        api_keys: components["schemas"]["APIKey"][];
+                    };
+                };
+            };
+            401: components["responses"]["Error"];
+            403: components["responses"]["Error"];
+            404: components["responses"]["Error"];
+            429: components["responses"]["TooManyRequests"];
+        };
+    };
+    issueWorkspaceApiKey: {
+        parameters: {
+            query?: never;
+            header: {
+                /** @description The signed-in user's Google ID token, forwarded by the frontend proxy (D68). Optional on every other endpoint. */
+                "X-User-Token": components["parameters"]["UserToken"];
+            };
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": {
+                    name: string;
+                };
+            };
+        };
+        responses: {
+            /** @description The new key, shown once, and its record */
+            201: {
+                headers: {
+                    "X-Audit-Incomplete": components["headers"]["AuditIncomplete"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        /** @description Not stored; shown only here. */
+                        key: string;
+                        api_key: components["schemas"]["APIKey"];
+                    };
+                };
+            };
+            400: components["responses"]["Error"];
+            401: components["responses"]["Error"];
+            403: components["responses"]["Error"];
+            404: components["responses"]["Error"];
+            409: components["responses"]["Error"];
+            429: components["responses"]["TooManyRequests"];
+            503: components["responses"]["Error"];
+        };
+    };
+    revokeWorkspaceApiKey: {
+        parameters: {
+            query?: never;
+            header: {
+                /** @description The signed-in user's Google ID token, forwarded by the frontend proxy (D68). Optional on every other endpoint. */
+                "X-User-Token": components["parameters"]["UserToken"];
+            };
+            path: {
+                id: string;
+                key: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Revoked */
+            204: {
+                headers: {
+                    "X-Audit-Incomplete": components["headers"]["AuditIncomplete"];
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            401: components["responses"]["Error"];
+            403: components["responses"]["Error"];
+            404: components["responses"]["Error"];
+            429: components["responses"]["TooManyRequests"];
+            503: components["responses"]["Error"];
+        };
+    };
+    searchWorkspaceAudit: {
+        parameters: {
+            query?: {
+                limit?: number;
+                /** @description Opaque; at most 512 bytes */
+                cursor?: string;
+                order?: "desc" | "asc";
+                action?: components["schemas"]["AuditAction"];
+                outcome?: components["schemas"]["AuditOutcome"];
+                actor_kind?: "user" | "apikey" | "admin" | "anonymous" | "system";
+                /** @description RFC 3339 */
+                from?: string;
+                /** @description RFC 3339 */
+                to?: string;
+            };
+            header: {
+                /** @description The signed-in user's Google ID token, forwarded by the frontend proxy (D68). Optional on every other endpoint. */
+                "X-User-Token": components["parameters"]["UserToken"];
+            };
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description One page of events */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AuditPage"];
+                };
+            };
+            400: components["responses"]["Error"];
+            401: components["responses"]["Error"];
+            403: components["responses"]["Error"];
+            404: components["responses"]["Error"];
+            429: components["responses"]["TooManyRequests"];
         };
     };
     getSCIMToken: {
