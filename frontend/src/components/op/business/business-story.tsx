@@ -219,7 +219,7 @@ function MovePreview() {
       <div className="biz-app-head">
         <span style={{ fontWeight: 500 }}>Heat gun, 12.5 A</span>
         <span style={{ color: "var(--dim)" }}>Put together in Thailand</span>
-        <span className="mono" style={{ marginLeft: "auto", fontSize: 12, color: "var(--dim)" }}>Checked in 4.6 seconds</span>
+        <span className="mono" style={{ marginLeft: "auto", fontSize: 12, color: "var(--dim)" }}>Example · checked in 4.6 seconds</span>
       </div>
       <div className="biz-app-body">
         <div className="biz-rows">
@@ -231,7 +231,7 @@ function MovePreview() {
                 <span>{p.name}</span>
                 <span><span className={`biz-tag ${th ? "th" : "cn"}`}>{th ? "TH" : "CN"}</span></span>
                 {p.home ? (
-                  <span style={{ justifySelf: "end", fontSize: 12, color: "var(--dim)" }}>Already</span>
+                  <span style={{ justifySelf: "end", fontSize: 12, color: "var(--dim)" }}>Already in Thailand</span>
                 ) : (
                   <button type="button" role="switch" aria-checked={moved.has(p.name)} aria-label={`Move ${p.name.toLowerCase()} to Thailand`} onClick={() => flip(p.name)} className={`biz-switch${moved.has(p.name) ? " on" : ""}`} />
                 )}
@@ -266,7 +266,7 @@ function MovePreview() {
               <span style={{ fontSize: 13, color: "var(--dim)" }}>Likely country with this mix</span>
               <span className="biz-stamp" style={{ color: "var(--dim)", fontSize: 20, alignSelf: "flex-start" }}>NOT CHECKED YET</span>
               <span style={{ fontSize: 14, lineHeight: "20px" }}>No past decision backs this mix. Check it to see the likely country</span>
-              <Link href="/cases/new" className="biz-link" style={{ fontSize: 14 }}>Check this mix</Link>
+              <Link href="/business/check" className="biz-link" style={{ fontSize: 14 }}>Check this mix</Link>
             </>
           )}
         </div>

@@ -27,7 +27,7 @@ export function BusinessBar() {
       <div className="biz-bar-end">
         <Link href="/business/check" className="biz-btn ink" aria-label="Check a product">
           <span className="biz-wide" aria-hidden="true">Check a product</span>
-          <span className="biz-narrow" aria-hidden="true">+ New</span>
+          <span className="biz-narrow" aria-hidden="true">Check</span>
         </Link>
         <ViewToggle view="business" />
         <ViewTransition name="account-tile" share="bar-keep" default="none">
