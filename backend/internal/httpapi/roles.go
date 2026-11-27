@@ -46,6 +46,7 @@ var rolePerms = map[string]perm{
 	"POST /v1/cases/{id}/export":               permExport,
 	"POST /v1/cases/predict":                   permEdit,
 	"POST /v1/cases/batch":                     permEdit,
+	"POST /v1/products/erp-import":             permEdit, // creates and updates cases on commit
 	"POST /v1/cases/{id}/bom-version":          permEdit,
 	"POST /v1/cases/{id}/scenarios":            permEdit,
 	"POST /v1/cases/{id}/compare-targets":      permEdit,
@@ -62,6 +63,27 @@ var rolePerms = map[string]perm{
 	"GET /v1/cases/{id}/reviews":               permRead, // the owner's view of the links: status and comments
 	"POST /v1/cases/{id}/reviews":              permEdit, // shares case content outside the workspace
 	"DELETE /v1/cases/{id}/reviews/{review}":   permEdit,
+	// Supplier declarations (SUPPLIER_DECLARATIONS): asking and revoking share
+	// part names outside the workspace, so they are edits; reading the answers
+	// and the expiry listing, and downloading an attached file, are reads.
+	"POST /v1/cases/{id}/supplier-declarations":                                permEdit,
+	"GET /v1/cases/{id}/supplier-declarations":                                 permRead,
+	"DELETE /v1/cases/{id}/supplier-declarations/{request}":                    permEdit,
+	"GET /v1/cases/{id}/supplier-declarations/{request}/parts/{part}/document": permRead,
+	"GET /v1/supplier-declarations/expiring":                                   permRead,
+	// Broker workflow (BROKER_WORKFLOW): reading the queue, discussion and
+	// package is a read; any member may take part in the discussion;
+	// queueing, deciding, sign-offs, roles and filing are edits.
+	"GET /v1/queue":                        permRead,
+	"PUT /v1/cases/{id}/queue":             permEdit,
+	"POST /v1/cases/{id}/queue/transition": permEdit,
+	"GET /v1/cases/{id}/collab":            permRead,
+	"POST /v1/cases/{id}/comments":         permRead, // a viewer may comment: it changes only the discussion
+	"POST /v1/cases/{id}/approvals":        permEdit,
+	"PUT /v1/cases/{id}/collaborators":     permEdit,
+	"POST /v1/cases/{id}/filing":           permEdit,
+	"GET /v1/cases/{id}/filing":            permRead,
+	"POST /v1/cases/{id}/filing/status":    permEdit,
 }
 
 // permOf is what the matched route needs; unknown means permEdit.

@@ -14,6 +14,7 @@ import (
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/llm"
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/planner"
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/store"
+	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/webhooks"
 )
 
 // Audit hooks (#284). See docs/design/audit-trail.md.
@@ -64,68 +65,129 @@ type auditRoute struct {
 // by mux pattern. TestEveryRegisteredRouteHasAnAuditRow fails for a route not
 // listed here, so a new endpoint cannot ship without a decision.
 var auditTable = map[string]auditRoute{
-	"POST /v1/cases/predict":                       {auditTwoPhase, audit.CaseCreate},
-	"POST /v1/cases/batch":                         {auditTwoPhase, audit.CaseCreate},
-	"GET /v1/cases":                                {auditDenyOnly, audit.CaseRead},
-	"POST /v1/products/import":                     {auditNone, ""},
-	"POST /v1/products/extract":                    {auditNone, ""},
-	"POST /v1/products/extract-media":              {auditNone, ""},
-	"POST /v1/products/money-prefill":              {auditNone, ""},
-	"POST /v1/products/hts-suggest":                {auditNone, ""},
-	"POST /v1/products/parts-hts-suggest":          {auditNone, ""},
-	"POST /v1/products/cost-estimate":              {auditNone, ""},
-	"POST /v1/products/family-check":               {auditNone, ""},
-	"POST /v1/cases/{id}/bom-version":              {auditTwoPhase, audit.CaseUpdate},
-	"POST /v1/cases/{id}/scenarios":                {auditTwoPhase, audit.CaseUpdate},
-	"POST /v1/cases/{id}/compare-targets":          {auditTwoPhase, audit.CaseUpdate},
-	"POST /v1/cases/{id}/ask":                      {auditTwoPhase, audit.CaseUpdate},
-	"PUT /v1/cases/{id}/economics":                 {auditTwoPhase, audit.CaseUpdate},
-	"PUT /v1/cases/{id}/pin":                       {auditTwoPhase, audit.CasePin},
-	"POST /v1/cases/{id}/watch":                    {auditTwoPhase, audit.CaseUpdate},
-	"POST /v1/watch/run":                           {auditTwoPhase, audit.AdminWatchRun},
-	"GET /v1/cases/{id}":                           {auditDenyOnly, audit.CaseRead},
-	"DELETE /v1/cases/{id}":                        {auditTwoPhase, audit.CaseDelete},
-	"PATCH /v1/cases/{id}":                         {auditTwoPhase, audit.CaseUpdate},
-	"POST /v1/cases/{id}/plan":                     {auditTwoPhase, audit.CaseUpdate},
-	"POST /v1/cases/{id}/plan/estimate":            {auditDenyOnly, audit.CaseRead},
-	"POST /v1/cases/{id}/export":                   {auditTwoPhase, audit.CaseExport},
-	"POST /v1/cases/{id}/answers":                  {auditTwoPhase, audit.CaseUpdate},
-	"PUT /v1/cases/{id}/origin-facts/{market}":     {auditTwoPhase, audit.CaseUpdate},
-	"PUT /v1/cases/{id}/family-facts":              {auditTwoPhase, audit.CaseUpdate},
-	"GET /v1/cases/{id}/evidence-report":           {auditDenyOnly, audit.CaseRead},
-	"GET /v1/rulings/{id}":                         {auditNone, ""},
-	"GET /v1/rulings":                              {auditNone, ""},
-	"POST /mcp":                                    {auditNone, ""}, // each tool call is its own audited /v1 request
-	"GET /v1/eval/summary":                         {auditNone, ""},
-	"GET /v1/duty-rates":                           {auditNone, ""},
-	"POST /v1/rcep/check":                          {auditNone, ""},
-	"POST /v1/usmca/check":                         {auditNone, ""},
-	"POST /v1/rules/canada-marking":                {auditNone, ""},
-	"POST /v1/rules/eu-origin":                     {auditNone, ""},
-	"POST /v1/rules/uk-origin":                     {auditNone, ""},
-	"GET /v1/demos":                                {auditNone, ""},
-	"GET /v1/jurisdictions":                        {auditNone, ""},
-	"GET /v1/demos/{id}":                           {auditNone, ""},
-	"POST /v1/workspaces":                          {auditTwoPhase, audit.WorkspaceCreate},
-	"GET /v1/workspaces/mine":                      {auditNone, ""},
-	"POST /v1/workspaces/{id}/members":             {auditTwoPhase, audit.WorkspaceInvite},
-	"POST /v1/workspaces/{id}/join":                {auditTwoPhase, audit.WorkspaceJoin},
-	"PUT /v1/workspaces/{id}/members/{email}/role": {auditTwoPhase, audit.WorkspaceRoleChange},
-	"DELETE /v1/workspaces/{id}/members/{email}":   {auditTwoPhase, audit.WorkspaceMemberRemove},
-	"POST /v1/admin/api-keys":                      {auditTwoPhase, audit.APIKeyIssue},
-	"GET /v1/admin/api-keys":                       {auditSingleOnly, audit.APIKeyList},
-	"DELETE /v1/admin/api-keys/{id}":               {auditTwoPhase, audit.APIKeyDisable},
-	"POST /v1/api-keys":                            {auditTwoPhase, audit.APIKeyIssue},
-	"GET /v1/api-keys":                             {auditSingleOnly, audit.APIKeyList},
-	"DELETE /v1/api-keys/{id}":                     {auditTwoPhase, audit.APIKeyDisable},
-	"GET /v1/audit":                                {auditSingleOnly, audit.AuditRead},
-	"GET /v1/audit/verify":                         {auditSingleOnly, audit.AuditVerify},
-	"POST /v1/cases/{id}/reviews":                  {auditTwoPhase, audit.ReviewCreate},
-	"GET /v1/cases/{id}/reviews":                   {auditDenyOnly, audit.CaseRead},
-	"DELETE /v1/cases/{id}/reviews/{review}":       {auditTwoPhase, audit.ReviewRevoke},
-	"GET /v1/review":                               {auditSingleOnly, audit.ReviewView},
-	"POST /v1/review/decision":                     {auditTwoPhase, audit.ReviewDecision},
-	"GET /health":                                  {auditNone, ""},
+	"POST /v1/cases/predict":                                {auditTwoPhase, audit.CaseCreate},
+	"POST /v1/cases/batch":                                  {auditTwoPhase, audit.CaseCreate},
+	"GET /v1/cases":                                         {auditDenyOnly, audit.CaseRead},
+	"POST /v1/products/import":                              {auditNone, ""},
+	"POST /v1/products/erp-import":                          {auditTwoPhase, audit.CaseCreate}, // a dry run writes nothing and records nothing
+	"GET /v1/workspaces/{id}/usage":                         {auditNone, ""},
+	"PUT /v1/workspaces/{id}/budget":                        {auditTwoPhase, audit.WorkspaceBudget},
+	"DELETE /v1/workspaces/{id}/budget":                     {auditTwoPhase, audit.WorkspaceBudget},
+	"POST /v1/products/extract":                             {auditNone, ""},
+	"POST /v1/products/extract-media":                       {auditNone, ""},
+	"POST /v1/products/money-prefill":                       {auditNone, ""},
+	"POST /v1/products/hts-suggest":                         {auditNone, ""},
+	"POST /v1/products/parts-hts-suggest":                   {auditNone, ""},
+	"POST /v1/products/cost-estimate":                       {auditNone, ""},
+	"POST /v1/products/family-check":                        {auditNone, ""},
+	"POST /v1/cases/{id}/bom-version":                       {auditTwoPhase, audit.CaseUpdate},
+	"POST /v1/cases/{id}/scenarios":                         {auditTwoPhase, audit.CaseUpdate},
+	"POST /v1/cases/{id}/compare-targets":                   {auditTwoPhase, audit.CaseUpdate},
+	"POST /v1/cases/{id}/ask":                               {auditTwoPhase, audit.CaseUpdate},
+	"PUT /v1/cases/{id}/economics":                          {auditTwoPhase, audit.CaseUpdate},
+	"PUT /v1/cases/{id}/pin":                                {auditTwoPhase, audit.CasePin},
+	"POST /v1/cases/{id}/watch":                             {auditTwoPhase, audit.CaseUpdate},
+	"POST /v1/watch/run":                                    {auditTwoPhase, audit.AdminWatchRun},
+	"GET /v1/cases/{id}":                                    {auditDenyOnly, audit.CaseRead},
+	"DELETE /v1/cases/{id}":                                 {auditTwoPhase, audit.CaseDelete},
+	"PATCH /v1/cases/{id}":                                  {auditTwoPhase, audit.CaseUpdate},
+	"POST /v1/cases/{id}/plan":                              {auditTwoPhase, audit.CaseUpdate},
+	"POST /v1/cases/{id}/plan/estimate":                     {auditDenyOnly, audit.CaseRead},
+	"POST /v1/cases/{id}/export":                            {auditTwoPhase, audit.CaseExport},
+	"POST /v1/cases/{id}/answers":                           {auditTwoPhase, audit.CaseUpdate},
+	"PUT /v1/cases/{id}/origin-facts/{market}":              {auditTwoPhase, audit.CaseUpdate},
+	"PUT /v1/cases/{id}/family-facts":                       {auditTwoPhase, audit.CaseUpdate},
+	"GET /v1/cases/{id}/evidence-report":                    {auditDenyOnly, audit.CaseRead},
+	"GET /v1/rulings/{id}":                                  {auditNone, ""},
+	"GET /v1/rulings":                                       {auditNone, ""},
+	"POST /mcp":                                             {auditNone, ""}, // each tool call is its own audited /v1 request
+	"GET /v1/eval/summary":                                  {auditNone, ""},
+	"GET /v1/duty-rates":                                    {auditNone, ""},
+	"POST /v1/rcep/check":                                   {auditNone, ""},
+	"POST /v1/atiga/check":                                  {auditNone, ""},
+	"POST /v1/usmca/check":                                  {auditNone, ""},
+	"POST /v1/rules/canada-marking":                         {auditNone, ""},
+	"POST /v1/rules/eu-origin":                              {auditNone, ""},
+	"POST /v1/rules/uk-origin":                              {auditNone, ""},
+	"GET /v1/demos":                                         {auditNone, ""},
+	"GET /v1/jurisdictions":                                 {auditNone, ""},
+	"GET /v1/demos/{id}":                                    {auditNone, ""},
+	"POST /v1/workspaces":                                   {auditTwoPhase, audit.WorkspaceCreate},
+	"GET /v1/workspaces/mine":                               {auditNone, ""},
+	"POST /v1/workspaces/{id}/members":                      {auditTwoPhase, audit.WorkspaceInvite},
+	"POST /v1/workspaces/{id}/join":                         {auditTwoPhase, audit.WorkspaceJoin},
+	"PUT /v1/workspaces/{id}/members/{email}/role":          {auditTwoPhase, audit.WorkspaceRoleChange},
+	"DELETE /v1/workspaces/{id}/members/{email}":            {auditTwoPhase, audit.WorkspaceMemberRemove},
+	"POST /v1/admin/api-keys":                               {auditTwoPhase, audit.APIKeyIssue},
+	"GET /v1/admin/api-keys":                                {auditSingleOnly, audit.APIKeyList},
+	"DELETE /v1/admin/api-keys/{id}":                        {auditTwoPhase, audit.APIKeyDisable},
+	"POST /v1/api-keys":                                     {auditTwoPhase, audit.APIKeyIssue},
+	"GET /v1/api-keys":                                      {auditSingleOnly, audit.APIKeyList},
+	"DELETE /v1/api-keys/{id}":                              {auditTwoPhase, audit.APIKeyDisable},
+	"GET /v1/audit":                                         {auditSingleOnly, audit.AuditRead},
+	"GET /v1/audit/verify":                                  {auditSingleOnly, audit.AuditVerify},
+	"GET /v1/audit/export":                                  {auditSingleOnly, audit.AuditExport},
+	"GET /v1/workspaces/{id}/retention":                     {auditNone, ""},
+	"PUT /v1/workspaces/{id}/retention":                     {auditTwoPhase, audit.WorkspaceRetention},
+	"GET /v1/workspaces/{id}/tombstones":                    {auditNone, ""},
+	"POST /v1/cases/{id}/reviews":                           {auditTwoPhase, audit.ReviewCreate},
+	"GET /v1/cases/{id}/reviews":                            {auditDenyOnly, audit.CaseRead},
+	"DELETE /v1/cases/{id}/reviews/{review}":                {auditTwoPhase, audit.ReviewRevoke},
+	"GET /v1/review":                                        {auditSingleOnly, audit.ReviewView},
+	"POST /v1/review/decision":                              {auditTwoPhase, audit.ReviewDecision},
+	"PUT /v1/cases/{id}/queue":                              {auditTwoPhase, audit.QueueChange},
+	"POST /v1/cases/{id}/queue/transition":                  {auditTwoPhase, audit.QueueChange},
+	"GET /v1/queue":                                         {auditDenyOnly, audit.CaseRead},
+	"GET /v1/cases/{id}/collab":                             {auditDenyOnly, audit.CaseRead},
+	"POST /v1/cases/{id}/comments":                          {auditTwoPhase, audit.CaseComment},
+	"POST /v1/cases/{id}/approvals":                         {auditTwoPhase, audit.CaseApproval},
+	"PUT /v1/cases/{id}/collaborators":                      {auditTwoPhase, audit.CaseCollaborator},
+	"GET /v1/review/comments":                               {auditSingleOnly, audit.ReviewView},
+	"POST /v1/review/comments":                              {auditTwoPhase, audit.CaseComment},
+	"POST /v1/cases/{id}/filing":                            {auditTwoPhase, audit.FilingPrepare},
+	"GET /v1/cases/{id}/filing":                             {auditDenyOnly, audit.CaseRead}, // a download is recorded as filing.download by the handler
+	"POST /v1/cases/{id}/filing/status":                     {auditTwoPhase, audit.FilingStatus},
+	"GET /health":                                           {auditNone, ""},
+	"POST /v1/sso/start":                                    {auditNone, ""},
+	"POST /v1/sso/oidc/callback":                            {auditSingleOnly, audit.SSOLogin},
+	"POST /v1/sso/saml/acs":                                 {auditSingleOnly, audit.SSOLogin},
+	"GET /v1/sso/saml/metadata":                             {auditNone, ""},
+	"GET /v1/workspaces/{id}/sso":                           {auditSingleOnly, audit.SSOConnectionList},
+	"POST /v1/workspaces/{id}/sso":                          {auditTwoPhase, audit.SSOConnectionCreate},
+	"PUT /v1/workspaces/{id}/sso/{conn}":                    {auditTwoPhase, audit.SSOConnectionUpdate},
+	"POST /v1/workspaces/{id}/sso/{conn}/verify":            {auditTwoPhase, audit.SSOConnectionUpdate},
+	"DELETE /v1/workspaces/{id}/sso/{conn}":                 {auditTwoPhase, audit.SSOConnectionDelete},
+	"GET /v1/status":                                        {auditNone, ""},
+	"GET /v1/workspaces/{id}/admin":                         {auditSingleOnly, audit.WorkspaceAdminView},
+	"POST /v1/cases/{id}/supplier-declarations":             {auditTwoPhase, audit.SupplierRequestCreate},
+	"GET /v1/cases/{id}/supplier-declarations":              {auditDenyOnly, audit.CaseRead},
+	"DELETE /v1/cases/{id}/supplier-declarations/{request}": {auditTwoPhase, audit.SupplierRequestRevoke},
+	"GET /v1/cases/{id}/supplier-declarations/{request}/parts/{part}/document": {auditDenyOnly, audit.CaseRead},
+	"GET /v1/supplier-declarations/expiring":                                   {auditDenyOnly, audit.CaseRead},
+	"GET /v1/supplier-declaration":                                             {auditSingleOnly, audit.SupplierView},
+	"PUT /v1/supplier-declaration/parts/{part}":                                {auditTwoPhase, audit.SupplierAnswer},
+	"GET /v1/workspaces/{id}/scim":                                             {auditDenyOnly, audit.SCIMTokenRead},
+	"POST /v1/workspaces/{id}/scim/token":                                      {auditTwoPhase, audit.SCIMTokenIssue},
+	"DELETE /v1/workspaces/{id}/scim/token":                                    {auditTwoPhase, audit.SCIMTokenRevoke},
+	"GET /v1/scim/v2/ServiceProviderConfig":                                    {auditDenyOnly, audit.SCIMUserRead},
+	"GET /v1/scim/v2/ResourceTypes":                                            {auditDenyOnly, audit.SCIMUserRead},
+	"GET /v1/scim/v2/Schemas":                                                  {auditDenyOnly, audit.SCIMUserRead},
+	"GET /v1/workspaces/{id}/webhooks":                                         {auditDenyOnly, audit.WebhookRead},
+	"POST /v1/workspaces/{id}/webhooks":                                        {auditTwoPhase, audit.WebhookCreate},
+	"PATCH /v1/workspaces/{id}/webhooks/{wid}":                                 {auditTwoPhase, audit.WebhookUpdate},
+	"DELETE /v1/workspaces/{id}/webhooks/{wid}":                                {auditTwoPhase, audit.WebhookDelete},
+	"POST /v1/workspaces/{id}/webhooks/{wid}/rotate":                           {auditTwoPhase, audit.WebhookRotate},
+	"POST /v1/workspaces/{id}/webhooks/{wid}/test":                             {auditTwoPhase, audit.WebhookTest},
+	"GET /v1/workspaces/{id}/webhooks/{wid}/deliveries":                        {auditDenyOnly, audit.WebhookRead},
+	"POST /v1/webhooks/sweep":                                                  {auditTwoPhase, audit.AdminWebhookSweep},
+	"GET /v1/scim/v2/Users":                                                    {auditDenyOnly, audit.SCIMUserRead},
+	"POST /v1/scim/v2/Users":                                                   {auditTwoPhase, audit.SCIMUserCreate},
+	"GET /v1/scim/v2/Users/{uid}":                                              {auditDenyOnly, audit.SCIMUserRead},
+	"PUT /v1/scim/v2/Users/{uid}":                                              {auditTwoPhase, audit.SCIMUserUpdate},
+	"PATCH /v1/scim/v2/Users/{uid}":                                            {auditTwoPhase, audit.SCIMUserUpdate},
+	"DELETE /v1/scim/v2/Users/{uid}":                                           {auditTwoPhase, audit.SCIMUserDelete},
+	"GET /v1/workspaces/{id}/tariff-watch":                                     {auditNone, ""},
+	"POST /v1/adcvd/check":                                                     {auditNone, ""},
 }
 
 type auditCtxKey struct{}
@@ -144,6 +206,10 @@ type auditOp struct {
 
 	object string // a server-confirmed object ref for denials ("" none)
 	hidden bool   // a 404 that hid an existing case: a denial
+	// systemTenant is set once a SCIM token is verified (#869): the caller
+	// is the workspace's identity provider, recorded as the system actor in
+	// that workspace's tenant.
+	systemTenant string
 }
 
 func auditOpOf(ctx context.Context) *auditOp {
@@ -289,7 +355,11 @@ func (op *auditOp) deny(code int) {
 	a := op.a
 	p := a.principalOf(op.req)
 	kind, id := a.auditActor(p)
-	d := audit.Draft{Event: audit.Event{Tenant: a.requesterTenant(p), ActorKind: kind, Action: op.route.Action, Phase: audit.PhaseSingle,
+	tenant := a.requesterTenant(p)
+	if op.systemTenant != "" {
+		kind, id, tenant = audit.ActorSystem, "", op.systemTenant
+	}
+	d := audit.Draft{Event: audit.Event{Tenant: tenant, ActorKind: kind, Action: op.route.Action, Phase: audit.PhaseSingle,
 		Outcome: audit.Denied, Reason: reason, Object: op.denialObject(), Route: op.pattern}, ActorID: id, RequestRef: requestRef(op.req.Context())}
 	ctx, cancel := auditCtx(op.req.Context())
 	defer cancel()
@@ -397,6 +467,9 @@ type auditStep struct {
 func (a *api) auditDraft(op *auditOp, st auditStep, phase audit.Phase) audit.Draft {
 	p := a.principalOf(op.req)
 	kind, id := a.auditActor(p)
+	if op.systemTenant != "" {
+		kind, id = audit.ActorSystem, ""
+	}
 	act := st.Action
 	if act == "" {
 		act = op.route.Action
@@ -491,7 +564,7 @@ func (a *api) auditStreamEnd(r *http.Request, err error) {
 func auditReason(err error) audit.Reason {
 	var apiErr *llm.APIError
 	switch {
-	case errors.Is(err, domain.ErrInvalid), errors.Is(err, planner.ErrUnknownFamily), errors.Is(err, apikey.ErrBadRequest):
+	case errors.Is(err, domain.ErrInvalid), errors.Is(err, planner.ErrUnknownFamily), errors.Is(err, apikey.ErrBadRequest), errors.Is(err, webhooks.ErrInvalid):
 		return audit.ReasonInvalidInput
 	case errors.Is(err, errNeedsVerified):
 		return audit.ReasonUnauthenticated
@@ -499,7 +572,7 @@ func auditReason(err error) audit.Reason {
 		return audit.ReasonForbidden
 	case errors.Is(err, errSuperseded):
 		return audit.ReasonSuperseded
-	case errors.Is(err, store.ErrNotFound), errors.Is(err, cross.ErrNotFound), errors.Is(err, apikey.ErrNotFound):
+	case errors.Is(err, store.ErrNotFound), errors.Is(err, cross.ErrNotFound), errors.Is(err, apikey.ErrNotFound), errors.Is(err, webhooks.ErrNotFound):
 		return audit.ReasonNotFound
 	case errors.Is(err, llm.ErrBadResponse), errors.Is(err, llm.ErrUnavailable), errors.As(err, &apiErr), errors.Is(err, context.DeadlineExceeded):
 		return audit.ReasonUpstream
@@ -512,6 +585,14 @@ func auditReason(err error) audit.Reason {
 func auditHidden(r *http.Request) {
 	if op := auditOpOf(r.Context()); op != nil {
 		op.hidden = true
+	}
+}
+
+// auditAsSystem marks the request as made by the identity provider of
+// workspace wsID through its SCIM token (#869).
+func auditAsSystem(r *http.Request, wsID string) {
+	if op := auditOpOf(r.Context()); op != nil {
+		op.systemTenant = workspaceTenant(wsID)
 	}
 }
 

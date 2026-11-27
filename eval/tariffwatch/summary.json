@@ -1,0 +1,62 @@
+{
+ "decision": "D941",
+ "base_revision": "HTS 2026 Revision 21",
+ "dev_revision": "HTS 2026 Revision 22",
+ "held_out_revision": "HTS 2026 Revision 23",
+ "snapshot_day": "2026-10-20",
+ "universe_subheadings": 10024,
+ "truth": {
+  "exclusion_numbers": 144,
+  "exclusion_subheadings": 117,
+  "maritime_subheadings": 4,
+  "maritime_rate_change": 1,
+  "exclusion_subheadings_in_the_data": 117,
+  "exclusion_subheadings_not_in_the_data": 0
+ },
+ "development_21_to_22": {
+  "affected_entry_day_1": 0,
+  "affected_entry_day_2": 0
+ },
+ "held_out_22_to_23": {
+  "entry_day_1": {
+   "TP": 116,
+   "FP": 0,
+   "FN": 1,
+   "TN": 9907,
+   "precision": 1,
+   "precision_wilson_lo": 0.9679443532129076,
+   "precision_wilson_hi": 0.9999999999999999,
+   "recall": 0.9914529914529915,
+   "recall_wilson_lo": 0.9531693460245405,
+   "recall_wilson_hi": 0.9984896853024199,
+   "false_positives": null,
+   "false_negatives": [
+    "6307.90.98"
+   ]
+  },
+  "entry_day_2": {
+   "TP": 120,
+   "FP": 0,
+   "FN": 1,
+   "TN": 9903,
+   "precision": 1,
+   "precision_wilson_lo": 0.9689797289440706,
+   "precision_wilson_hi": 1,
+   "recall": 0.9917355371900827,
+   "recall_wilson_lo": 0.9546682408538117,
+   "recall_wilson_hi": 0.9985396642034766,
+   "false_positives": null,
+   "false_negatives": [
+    "6307.90.98"
+   ]
+  },
+  "rate_change": {
+   "maritime_exact": 4,
+   "maritime_n": 4,
+   "all_exact": 20048,
+   "all_n": 20048
+  }
+ },
+ "entry_day_1_date": "2026-11-27",
+ "entry_day_2_date": "2027-01-10"
+}

@@ -1,0 +1,85 @@
+# Federal Register text of 89 FR 76581 (18 Sep 2024), Annex B: the 14 temporary exclusions for solar manufacturing equipment.
+Annex B--Exclusions for Solar Manufacturing Equipment
+
+                      Exclusion Product Description
+------------------------------------------------------------------------
+ 
+-------------------------------------------------------------------------
+Silicon growth furnaces, including Czochralski crystal growth furnaces,
+ designed for growing monocrystalline silicon ingots (boules) of a mass
+ exceeding 700 kg, for use in solar wafer manufacturing (described in
+ statistical reporting number 8486.10.0000).
+Band saws designed for cutting or slicing cylindrical monocrystalline
+ silicon ingots (boules) of an initial mass exceeding 400 kg into square
+ or rectangular ingots (boules), for use in solar wafer manufacturing
+ (described in statistical reporting number 8486.10.0000).
+Machines designed to align and adhere square or rectangular
+ monocrystalline silicon ingots (boules) of an initial mass exceeding
+ 200 kg to plastic support boards on metal mounting plates to provide
+ support during diamond wire sawing, for use in solar wafer
+ manufacturing (described in statistical reporting number 8486.10.0000).
+Diamond wire saws designed for cutting or slicing square or rectangular
+ monocrystalline silicon ingots (boules) of an initial mass exceeding
+ 400 kg into solar wafers of a thickness not exceeding 200 micrometers
+ (described in statistical reporting number 8486.10.0000).
+Wire guide roller machines, presented with diamond wire saws designed
+ for slicing square or rectangular monocrystalline silicon ingots
+ (boules) of an initial mass exceeding 400 kg into solar wafers of a
+ thickness not exceeding 200 micrometers, all of the foregoing for use
+ in solar wafer manufacturing (described in statistical reporting number
+ 8486.10.0000).
+Coolant fluid recycling machines, presented with diamond wire saws
+ designed for slicing square or rectangular monocrystalline silicon
+ ingots (boules) of an initial mass exceeding 400 kg into solar wafers
+ of a thickness not exceeding 200 micrometers, all of the foregoing for
+ use in solar wafer manufacturing (described in statistical reporting
+ number 8486.10.0000).
+Degumming machines designed to remove adhesives from solar wafers
+ (described in statistical reporting number 8486.10.0000).
+Texturing, etching, polishing, and cleaning machines designed to
+ prepare, repair, clean, etch, polish or texture the solar wafer
+ substrate, whether or not integrated with automation equipment for
+ transferring solar wafers from one process station to the next, all the
+ foregoing for use in solar wafer manufacturing (described in
+ statistical reporting number 8486.20.0000).
+Thermal diffusion quartz-tube furnaces, designed to diffuse dopant
+ impurities into square or rectangular silicon wafers, whether or not
+ integrated with automation equipment for transferring solar wafers from
+ one process station to the next or boat loading or unloading machines,
+ all the foregoing for use in solar cell manufacturing (described in
+ statistical reporting number 8486.20.0000).
+Plasma-enhanced or low-pressure chemical vapor deposition machines
+ designed to deposit amorphous or nanocrystalline layers on one or both
+ surfaces of a solar wafer, whether or not integrated with automation
+ equipment for transferring solar wafers from one process station to the
+ next, all the foregoing for use in solar cell manufacturing (described
+ in statistical reporting number 8486.20.0000).
+
+[[Page 76601]]
+
+ 
+Physical vapor deposition (PVD) machines, designed to deposit a thin
+ film of transparent conducting oxide on one or both surfaces of a solar
+ wafer, whether or not integrated with automation equipment for
+ transferring solar wafers from one process station to the next, all the
+ foregoing for use in solar cell manufacturing (described in statistical
+ reporting number 8486.20.0000).
+Screen printing line machines, including sintering furnaces for printing
+ conducting contacts on both surfaces of a solar wafer, whether or not
+ integrated with automation equipment for transferring solar wafers from
+ one process station to the next, and whether or not integrated with
+ equipment for solar cell testing, all the foregoing for use in solar
+ cell manufacturing (described in statistical reporting number
+ 8486.20.0000).
+Machines designed for transporting polysilicon material to growth
+ furnaces and machines designed for transporting monocrystalline ingots
+ (boules) and wafers throughout the solar wafer manufacturing process,
+ including machines for loading or unloading solar wafers during the
+ diamond wire slicing process (described in statistical reporting number
+ 8486.40.0030).
+Machines designed for lifting, handling, loading, or unloading of solar
+ wafers of a thickness not exceeding 200 micrometers, for use in solar
+ wafer manufacturing (described in statistical reporting number
+ 8486.40.0030).
+------------------------------------------------------------------------
+

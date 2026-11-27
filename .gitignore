@@ -38,6 +38,12 @@ data/tuning/
 /backend/readiness-eval
 /backend/tariffshift
 /backend/jpeval
+/backend/usmcaeval
+/backend/adcvdeval
+/backend/adcvdprec
 /backend/rcepeval
 /backend/originrules
 /backend/marketeval
+/backend/retention
+/backend/auditverify
+/backend/tariffwatch

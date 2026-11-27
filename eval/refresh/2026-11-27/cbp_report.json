@@ -1,0 +1,26 @@
+{
+ "date": "2026-11-27",
+ "started_utc": "2026-11-26T16:48:09Z",
+ "finished_utc": "2026-11-26T18:17:57Z",
+ "previous": {
+  "indexes": [
+   "../eval/data/final2_probe.jsonl"
+  ],
+  "last_n": "N366800",
+  "last_h": "H361933",
+  "last_date": "2026-11-13"
+ },
+ "ranges": [
+  "N365301-N366800 (recheck)",
+  "H360434-H361933 (recheck)",
+  "N366801-N370800",
+  "H361934-H365933"
+ ],
+ "tried": 3766,
+ "found": 4,
+ "errors": 0,
+ "origin": 0,
+ "saved": 0,
+ "valid": 0,
+ "items": []
+}

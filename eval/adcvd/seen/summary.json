@@ -1,0 +1,366 @@
+{
+ "snapshot": "2024-12-31",
+ "snapshot_orders": 714,
+ "rulings": 38,
+ "scored": 35,
+ "within": 12,
+ "outside": 23,
+ "skipped": {
+  "outcome_mixed": 3
+ },
+ "within_on_orders_not_in_snapshot": 0,
+ "methods": {
+  "base": {
+   "own_order": {
+    "TP": 11,
+    "FP": 10,
+    "FN": 1,
+    "TN": 13,
+    "Precision": {
+     "k": 11,
+     "n": 21,
+     "p": 0.52381,
+     "lo": 0.323695,
+     "hi": 0.71656
+    },
+    "Recall": {
+     "k": 11,
+     "n": 12,
+     "p": 0.916667,
+     "lo": 0.64612,
+     "hi": 0.985135
+    },
+    "Specificity": {
+     "k": 13,
+     "n": 23,
+     "p": 0.565217,
+     "lo": 0.368114,
+     "hi": 0.743654
+    }
+   },
+   "any_order": {
+    "TP": 12,
+    "FP": 15,
+    "FN": 0,
+    "TN": 8,
+    "Precision": {
+     "k": 12,
+     "n": 27,
+     "p": 0.444444,
+     "lo": 0.275859,
+     "hi": 0.62687
+    },
+    "Recall": {
+     "k": 12,
+     "n": 12,
+     "p": 1,
+     "lo": 0.757506,
+     "hi": 1
+    },
+    "Specificity": {
+     "k": 8,
+     "n": 23,
+     "p": 0.347826,
+     "lo": 0.188113,
+     "hi": 0.551097
+    }
+   },
+   "true_positives_kept_of_base": {
+    "k": 11,
+    "n": 11,
+    "p": 1,
+    "lo": 0.741167,
+    "hi": 1
+   },
+   "removed_false_positives": 0,
+   "removed_true_positives": 0
+  },
+  "scope": {
+   "own_order": {
+    "TP": 11,
+    "FP": 10,
+    "FN": 1,
+    "TN": 13,
+    "Precision": {
+     "k": 11,
+     "n": 21,
+     "p": 0.52381,
+     "lo": 0.323695,
+     "hi": 0.71656
+    },
+    "Recall": {
+     "k": 11,
+     "n": 12,
+     "p": 0.916667,
+     "lo": 0.64612,
+     "hi": 0.985135
+    },
+    "Specificity": {
+     "k": 13,
+     "n": 23,
+     "p": 0.565217,
+     "lo": 0.368114,
+     "hi": 0.743654
+    }
+   },
+   "any_order": {
+    "TP": 12,
+    "FP": 15,
+    "FN": 0,
+    "TN": 8,
+    "Precision": {
+     "k": 12,
+     "n": 27,
+     "p": 0.444444,
+     "lo": 0.275859,
+     "hi": 0.62687
+    },
+    "Recall": {
+     "k": 12,
+     "n": 12,
+     "p": 1,
+     "lo": 0.757506,
+     "hi": 1
+    },
+    "Specificity": {
+     "k": 8,
+     "n": 23,
+     "p": 0.347826,
+     "lo": 0.188113,
+     "hi": 0.551097
+    }
+   },
+   "true_positives_kept_of_base": {
+    "k": 11,
+    "n": 11,
+    "p": 1,
+    "lo": 0.741167,
+    "hi": 1
+   },
+   "removed_false_positives": 0,
+   "removed_true_positives": 0
+  },
+  "scope+guard": {
+   "own_order": {
+    "TP": 11,
+    "FP": 10,
+    "FN": 1,
+    "TN": 13,
+    "Precision": {
+     "k": 11,
+     "n": 21,
+     "p": 0.52381,
+     "lo": 0.323695,
+     "hi": 0.71656
+    },
+    "Recall": {
+     "k": 11,
+     "n": 12,
+     "p": 0.916667,
+     "lo": 0.64612,
+     "hi": 0.985135
+    },
+    "Specificity": {
+     "k": 13,
+     "n": 23,
+     "p": 0.565217,
+     "lo": 0.368114,
+     "hi": 0.743654
+    }
+   },
+   "any_order": {
+    "TP": 12,
+    "FP": 15,
+    "FN": 0,
+    "TN": 8,
+    "Precision": {
+     "k": 12,
+     "n": 27,
+     "p": 0.444444,
+     "lo": 0.275859,
+     "hi": 0.62687
+    },
+    "Recall": {
+     "k": 12,
+     "n": 12,
+     "p": 1,
+     "lo": 0.757506,
+     "hi": 1
+    },
+    "Specificity": {
+     "k": 8,
+     "n": 23,
+     "p": 0.347826,
+     "lo": 0.188113,
+     "hi": 0.551097
+    }
+   },
+   "true_positives_kept_of_base": {
+    "k": 11,
+    "n": 11,
+    "p": 1,
+    "lo": 0.741167,
+    "hi": 1
+   },
+   "removed_false_positives": 0,
+   "removed_true_positives": 0
+  },
+  "scope+reader": {
+   "own_order": {
+    "TP": 11,
+    "FP": 8,
+    "FN": 1,
+    "TN": 15,
+    "Precision": {
+     "k": 11,
+     "n": 19,
+     "p": 0.578947,
+     "lo": 0.362759,
+     "hi": 0.768581
+    },
+    "Recall": {
+     "k": 11,
+     "n": 12,
+     "p": 0.916667,
+     "lo": 0.64612,
+     "hi": 0.985135
+    },
+    "Specificity": {
+     "k": 15,
+     "n": 23,
+     "p": 0.652174,
+     "lo": 0.448903,
+     "hi": 0.811887
+    }
+   },
+   "any_order": {
+    "TP": 12,
+    "FP": 13,
+    "FN": 0,
+    "TN": 10,
+    "Precision": {
+     "k": 12,
+     "n": 25,
+     "p": 0.48,
+     "lo": 0.300313,
+     "hi": 0.665015
+    },
+    "Recall": {
+     "k": 12,
+     "n": 12,
+     "p": 1,
+     "lo": 0.757506,
+     "hi": 1
+    },
+    "Specificity": {
+     "k": 10,
+     "n": 23,
+     "p": 0.434783,
+     "lo": 0.256346,
+     "hi": 0.631886
+    }
+   },
+   "true_positives_kept_of_base": {
+    "k": 11,
+    "n": 11,
+    "p": 1,
+    "lo": 0.741167,
+    "hi": 1
+   },
+   "removed_false_positives": 2,
+   "removed_true_positives": 0
+  },
+  "scope+reader+guard": {
+   "own_order": {
+    "TP": 11,
+    "FP": 8,
+    "FN": 1,
+    "TN": 15,
+    "Precision": {
+     "k": 11,
+     "n": 19,
+     "p": 0.578947,
+     "lo": 0.362759,
+     "hi": 0.768581
+    },
+    "Recall": {
+     "k": 11,
+     "n": 12,
+     "p": 0.916667,
+     "lo": 0.64612,
+     "hi": 0.985135
+    },
+    "Specificity": {
+     "k": 15,
+     "n": 23,
+     "p": 0.652174,
+     "lo": 0.448903,
+     "hi": 0.811887
+    }
+   },
+   "any_order": {
+    "TP": 12,
+    "FP": 13,
+    "FN": 0,
+    "TN": 10,
+    "Precision": {
+     "k": 12,
+     "n": 25,
+     "p": 0.48,
+     "lo": 0.300313,
+     "hi": 0.665015
+    },
+    "Recall": {
+     "k": 12,
+     "n": 12,
+     "p": 1,
+     "lo": 0.757506,
+     "hi": 1
+    },
+    "Specificity": {
+     "k": 10,
+     "n": 23,
+     "p": 0.434783,
+     "lo": 0.256346,
+     "hi": 0.631886
+    }
+   },
+   "true_positives_kept_of_base": {
+    "k": 11,
+    "n": 11,
+    "p": 1,
+    "lo": 0.741167,
+    "hi": 1
+   },
+   "removed_false_positives": 2,
+   "removed_true_positives": 0
+  }
+ },
+ "baseline_flag_every_ruling": {
+  "TP": 12,
+  "FP": 23,
+  "FN": 0,
+  "TN": 0,
+  "Precision": {
+   "k": 12,
+   "n": 35,
+   "p": 0.342857,
+   "lo": 0.208317,
+   "hi": 0.508481
+  },
+  "Recall": {
+   "k": 12,
+   "n": 12,
+   "p": 1,
+   "lo": 0.757506,
+   "hi": 1
+  },
+  "Specificity": {
+   "k": 0,
+   "n": 23,
+   "p": 0,
+   "lo": 0,
+   "hi": 0.143117
+  }
+ }
+}

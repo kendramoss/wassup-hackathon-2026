@@ -116,19 +116,22 @@ func TestHashCoversEveryField(t *testing.T) {
 
 func TestSensitiveSetIsThePolicy(t *testing.T) {
 	want := map[Action]bool{CaseDelete: true, WorkspaceInvite: true, WorkspaceJoin: true, WorkspaceRoleChange: true,
-		WorkspaceMemberRemove: true, WorkspaceLeave: true, APIKeyIssue: true, APIKeyDisable: true, ReviewCreate: true}
+		WorkspaceMemberRemove: true, WorkspaceLeave: true, WorkspaceRetention: true, APIKeyIssue: true, APIKeyDisable: true, ReviewCreate: true,
+		SSOConnectionCreate: true, SSOConnectionUpdate: true, SSOConnectionDelete: true,
+		SCIMTokenIssue: true, SCIMTokenRevoke: true, SCIMUserCreate: true, SCIMUserUpdate: true, SCIMUserDelete: true,
+		WebhookCreate: true, WebhookUpdate: true, WebhookDelete: true, WebhookRotate: true, SupplierRequestCreate: true}
 	for _, a := range Actions() {
 		if a.Sensitive() != want[a] {
 			t.Errorf("%s sensitive=%v, policy says %v", a, a.Sensitive(), want[a])
 		}
 	}
-	if len(Actions()) != 23 {
-		t.Errorf("%d actions, the contract lists 23", len(Actions()))
+	if len(Actions()) != 57 { // 26, the 7 broker workflow actions, 5 SSO, 7 SCIM, the admin view, 7 webhook and 4 supplier declaration actions
+		t.Errorf("%d actions, the contract lists 57", len(Actions()))
 	}
 }
 
 func TestObjectRefAcceptsOnlyServerMintedIDs(t *testing.T) {
-	for kind, id := range map[string]string{"case": "case_0123456789ab", "workspace": "ws_0123456789ab", "apikey": "0123456789abcdef"} {
+	for kind, id := range map[string]string{"case": "case_0123456789ab", "workspace": "ws_0123456789ab", "apikey": "0123456789abcdef", "webhook": "wh_0123456789abcdef"} {
 		if ref, ok := ObjectRef(kind, id); !ok || ref != kind+":"+id {
 			t.Errorf("%s %s = %q %v", kind, id, ref, ok)
 		}

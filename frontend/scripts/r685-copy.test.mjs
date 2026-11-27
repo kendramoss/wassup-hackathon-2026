@@ -62,7 +62,7 @@ test("the try-it flow and the examples opt in to phone tap targets", () => {
   const pages = [
     "cases/new",
     ...["product", "origin", "plan", "scenarios", "compare", "draft"].map((s) => `cases/[id]/${s}`),
-    ...["rule-check", "plan-rule-check", "revocation-alert", "part102-plan"].map((s) => `examples/${s}`),
+    ...["rule-check", "plan-rule-check", "revocation-alert", "part102-plan", "blind-plan"].map((s) => `examples/${s}`),
   ];
   for (const p of pages) {
     assert.match(read(`../src/app/${p}/page.tsx`), /<div className="touch44 contents">/, p);

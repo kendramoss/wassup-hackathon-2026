@@ -337,6 +337,12 @@ These rows register, for the /method page, figures that are already committed in
 | Fine-tuning split (D38, D73) | 699 rulings dated before 2025-07-01: train 632, tune_check 67; used only by the fine-tuning experiment | `eval/splits/splits_tune.json`; docs/EVALUATION.md 2.1 | Built |
 | Held-out precedents that are earlier held-out rulings (first held-out split, official run) | 414 of 1,885 retrieved precedent slots, in 209 of 377 cases; 0 slots dated on or after their case | `claimscheck` (`final.precedent_slots_in_final_split`, `final.cases_with_final_split_precedent`, `final.precedent_slots_not_before_case`); docs/claims-reconciliation.md 4.2 | Measured. A stated leak path, not an estimate of its effect: no committed run removes those slots |
 
+## Tariff watch (D941, backend behind `TARIFF_WATCH`; Accuracy page)
+
+| Number | Value | Source | Status |
+|---|---|---|---|
+| Tariff watch, affected lines found, HTS Rev 22 to 23, entry day 10 Jan 2027 | recall **120/121 = 99.2% (95.5–99.9)**; precision 120/120 (96.9–100); no line affected in the Rev 21 to 22 pair; new additional-duty rate exactly right on 4 of 4 maritime lines (and on all 20,048 line-days scored, nearly all with no change). Entry day 27 Nov 2026: recall 116/117, precision 116/116 | `eval/tariffwatch/summary.json` (`go run ./cmd/tariffwatch eval`, no model, no network; recomputed by a test); truth from Federal Register 91 FR 72610 and 91 FR 72608 with the exclusion lists of 89 FR 46948 and 89 FR 76581 and the maritime lines of 90 FR 48320 | Measured. Show with n and the interval and the limits: not a blind test, one revision pair, 4 rate lines, detects changed terms not dollars, truth for exclusions read from scanned pages by OCR (three readings voted). First run, before the OCR rule was fixed: precision 0.950 (114/120), 6 false alarms, 1 miss (D941) |
+
 ## API limits (developers page, `docs/api/SECURITY.md`)
 
 | Number | Value | Source | Status |
@@ -350,6 +356,10 @@ These rows register, for the /method page, figures that are already committed in
 | Broker comment length | 2,000 characters at most | `MaxReviewComment`, same file (D200) | Built |
 | Open broker review links per case | 5 | `maxActiveReviews`, same file (D200); 20 links kept per case, 20 answers per link | Built |
 | Broker review requests a minute per client | 30 | `RATE_REVIEW_PER_MIN` default, `backend/internal/config/config.go` (D200) | Built; default, configurable; per instance |
+| Supplier declaration link life | 14 days by default, 60 at most | `DefaultDays`, `MaxDays` in `backend/internal/supplierdecl/supplierdecl.go` (D937) | Built; behind `SUPPLIER_DECLARATIONS` (off) |
+| Open supplier requests per case | 5 (20 kept) | `MaxActive`, `MaxRequests`, same file (D937) | Built; behind the flag |
+| Supplier declaration requests a minute per client | 30 | `RATE_DECLARATION_PER_MIN` default, `backend/internal/config/config.go` (D937) | Built; default, configurable; per instance |
+| Attached supplier document | 128 KB at most, one per answer | `MaxDocBytes`, same file (D937) | Built; type and pages checked as uploads are |
 
 ## Demo story
 
@@ -360,7 +370,7 @@ These rows register, for the /method page, figures that are already committed in
 | Duty difference China vs Thailand, heat gun | ≈25 points (≈41.7% vs ≈16.7% ad valorem) | `docs/DUTY-SOURCES.md` (HTS 8419.89.95 inferred; Section 301 List 2) | Showable with "product-specific; classification to be confirmed by a broker" |
 | Plan shown | Make the motor-fan assembly, the PCBA and the switch, cord and minor parts in Thailand: check 0.96 (at or above 0.92), supporting N345938 (hair clipper kit, 6 Mar 2025), no counter-ruling, engine Thailand 1.00, net $285k/yr (illustrative economics). 1 of 7 moves cleared the bar; the closest single move, motor-fan assembly alone, is 0.90 on N325810. Backtest against N357771: of the 6 parts whose origin CBP's change switched from China to Thailand, the plan moves all 6 (motor, fan, PCBA, knob, power cord, back cover); it also moves the switch, wires and fasteners, which the change kept in China. The outer shells, also listed as Thai in N357771, were already Thai in 2022 and are not counted (D310) | Production run, backend-00051-kmk, case_878d76540b91, cached for everyone | One production run, after three-group moves (D84) and the relaxed precedent search (D89). Earlier run (backend-00038-zw2): no plan cleared 0.92, closest move motor-fan assembly 0.90 |
 | Backtest of the plan shown, heat gun | moves all 6 parts whose origin CBP's N357771 change switched from China to Thailand (electric motor, fan, PCBA, knob, power cord, back cover). Also moves 3 parts that change kept in China: the switch, wires and fasteners. Not counted: the outer shells, which N357771 lists as Thai but were already Thai in 2022 (N328954 does not list them among the Chinese parts) | Production case `case_878d76540b91`, `plan.backtest` (`GET /v1/cases/case_878d76540b91`, read 21 Nov 2026); N357771 and N328954 facts (`backend/data/facts/`); `actual_change` in `backend/internal/demos/fixtures/heatgun_2022.json` (`already_in_target`, `still_from_china`, `still_from_china_as`); same plan as the "Plan shown" row | One production run. Not a blind test: three-group moves were added after the team saw this change (D84); the date cutoff holds. Shown on the plan step's header band and backtest section, the landing, and /method (D290, D310). Replaces "6 of the 7 parts", which counted the already-Thai shells as missed. Made with the template before the split (D330); stays as stored until an owner re-pins the demo |
-| Duty effect / added cost on plan cards | $500k/yr and $180k/yr | fixture inputs (illustrative — editable) | Show only as "illustrative — editable" |
+| Duty effect / added cost on the plan shown | $500k/yr duty saved and $215k/yr added cost, net $285k/yr | Fixture `group_costs` in `backend/testdata/heatgun_2022.json`: Thailand minus China for the three moved groups, 120k + 60k + 35k = 215k (derivation in the "Impact story" table below); duty saved from `duty_rates` | Show only as "illustrative — editable". The $180k/yr that earlier drafts and the `/business` page show is a different move, motor-fan assembly plus PCBA only (120k + 60k, net $320k; D331 ranking). It is not the plan shown. The `/business` page labels its money as example figures |
 
 ## Known failure cases and corpus counts (Accuracy page, MODEL-CARD.md, DATASHEET.md)
 
@@ -447,6 +457,7 @@ Built by `eval/jp/*.py` and `go run ./cmd/jpeval` (from `backend/`); `make repro
 | Same, starting origin not given | shown 6, right 5/6 (43.7-97.0); recall 5/12 = 41.7% (19.3-68.1); controls shown 0/6, one control run failed | same | Measured, gateway. Show beside the known-a row |
 | Same 18 pairs, 3 runs (D353, D354) | starting origin given: shown 9, right 9, found 9/12, controls 0/6 in each of 3 runs; pooled 27/27 shown right (87.5-100), 27/36 found, 0/18 controls. Not given: shown 6, 6, 5; right 5 each run; found 5/12 each run; controls 0/6 each run | `eval/results/planner-post-repeats-summary.json` | Measured, gateway, same pairs each run, so the pooled interval is about repeat runs, not new pairs |
 | Precedent check, real-change pairs shown in every run (D86 pool) | 17 of 59 = about 29% (development 13/46, 2026 pairs 4/13; 9 and 4 verifier-v2 runs, with and without the starting origin) | `backend/internal/evalsummary/summary.json`, `verifier_calibration.splits[].pair_level` (`shown_every_run`, `real_change_pairs`) | Measured, gateway. A stricter count than the 75% (9/12) above: earlier pairs, and a pair counts only if shown in every run. Both are labelled on /accuracy and the landing (D310) |
+| Precedent check, one frozen pair: plywood core, Malaysia (N365961, 16 Oct 2026) to Tanzania (N366717, 12 Nov 2026) | shown at 0.96 (bar 0.92), supported by N347656, named Tanzania; same in all 6 runs (3 runs, with and without the starting origin); the check read only rulings dated before 16 Oct; the check was given CBP's later setup as the move, no plan search | `eval/data/flips_post.jsonl` (`SP-N365961-N366717`), `eval/results/flips-post-verifier-v2-*known-a-litellm.jsonl` | Measured, one pair of the 18 (edge tier); served on `/examples/blind-plan`. Never as a rate: n = 1 |
 
 ### New-family demos (D191)
 
@@ -541,7 +552,7 @@ Rules: small-n numbers carry CIs; development-only numbers say "development set"
 
 ### Update: Japan D741 re-run (24 Nov 2026, #735)
 
-Experimental offline evaluation, advisory and unreviewed. Not Japan market coverage; Japan stays "not available yet". The D712–D715 rows above stay as recorded (gateway failures, unmeasured, not 0%).
+Earlier offline evaluation, advisory and unreviewed. Japan is open on the live site (see "Japan on the live site" below); the figures in this table are the earlier engine evidence, superseded by D920 and D922. The D712–D715 rows above stay as recorded (gateway failures, unmeasured, not 0%).
 
 | Measure | Value | Source | Status |
 |---|---|---|---|
@@ -552,6 +563,34 @@ Experimental offline evaluation, advisory and unreviewed. Not Japan market cover
 | Precedent pool | 197 of 863 cited precedents were earlier held-out rulings; 0 self, 0 future | Held-out rows | Chronological rolling pool. Earlier held-out rulings were retrievable, so the cases are not wholly fresh. |
 | Cost | $4.1258349 conservative charge (430 attempts) | `eval/results/RUNLOG.jsonl` rows `d741-heldout-1`, `d741-synthetic-1` | $3.7019269 gateway-reported plus $0.423908 worst case for 4 unreported failures. Not an invoice or a future quote. |
 | Latency | Held-out p50 7.701 s, p95 15.515 s; synthetic p50 8.040 s, p95 10.134 s | Same metrics | Model-call cases. |
+
+## Japan on the live site (D909–D922, 26–27 Nov 2026, #909, #912)
+
+Status: Japan is open on the live site. `GET /v1/jurisdictions` returns `jp` with `supported=true` (read 27 Nov 2026), and production runs it on the production engine model, `jp-engine-v1` with `gemini-4-argon`. D919 to D922 measured that same model and evidence through the LiteLLM gateway, one run each, no retries. The Accuracy page shows the rows marked "Accuracy page". Where a deployment configures no Japan engine (`JAPAN_ENGINE=off`, or no usable model), the registry reports Japan unsupported and `copy.japan.notAvailable` is the fallback line; it is not shown on the live site.
+
+| Measure | Value | Source | Status |
+|---|---|---|---|
+| Development, right rule named | 243 → 272 of 400 (60.8% → 68.0%, 95% Wilson interval 63.3–72.4); 30 gained, 1 lost, exact McNemar p < 0.001 | D909, D910; `eval/jp/jp-dev_eval-gemini-4-argon-jp-engine-v1-litellm-d909-dev-metrics.json` | Measured. The development set was used to build, so not a blind test. Positive-only |
+| Rule-text test, EU, UK, CPTPP and AJCEP Chapter 3 text added | 271 against 272 of 400: 0 gained, 1 lost; 0 of 80 negatives approved. Not shipped; adds about 20% to every request with no change in answers | D916, D918; `eval/jp/jp-dev_eval-gemini-4-argon-jp-engine-v1-litellm-d916-dev-metrics.json`, `…d916-neg-metrics.json` | Measured, one run. Result: no measurable effect (net +8 was required) |
+| Constructed negatives approved (Accuracy page) | 0 of 80; v2 prompt also 0 of 80 and not adopted (269 of 400) | D913, D915; `eval/jp/jp-dev_neg-gemini-4-argon-jp-engine-v1-litellm-d913-neg-v1-metrics.json` | Measured on made-up cases, not real rulings. After the question card (D922) still 0 of 80 |
+| Rulings after 22 Nov, right rule named (Accuracy page) | 37 of 44 (84.1%, 95% Wilson interval 70.6–92.1), the same in both pools | D919, D920; `eval/jp/jp-fresh_1126-gemini-4-argon-jp-engine-v1-litellm-d919-fresh-metrics.json` | Measured, one run, 44 Japan Customs rulings published after the 22 Nov snapshot (issued 14 May to 13 Nov 2026), all approvals. 41 of the 44 repeat an earlier request; with near-duplicates removed from the precedents the same 37 were right. At the development rates per agreement about 32 of 44 would be expected, so part of the rate is an easier mix. 7 misses: 5 undetermined, 2 qualify under a different rule than the ruling's. Cannot measure wrong approvals |
+| Rulings after 22 Nov by agreement | RCEP 18 of 18, CPTPP 8 of 9, JP-Indonesia EPA 4 of 4, JP-UK CEPA 1 of 1, JP-EU EPA 6 of 11, AJCEP 0 of 1 | D920; same metrics file | Measured; small counts |
+| Rulings after 22 Nov, after one round of the question card (Accuracy page) | 42 of 44 (95.5%, 84.9–98.7); 5 gained, 0 lost; JP-EU EPA 6 → 9 of 11 | D921, D922; `eval/jp/d922-answered-summary.json` | Measured, one run. Needs the user to answer the D917 card; the answers here are read from each ruling's own account of the facts. 2 wrong-rule approvals remain |
+| Development after the question card (Accuracy page) | 272 → 374 of 400 (93.5%, 90.7–95.5); 102 gained, 0 lost, exact McNemar p < 0.001; 119 undetermined cases re-checked, 20 stay undetermined | D922; `eval/jp/d922-answered-summary.json` | Measured, one run. Same condition as the row above. Wrong approvals (approved under a rule other than the published one) 1 → 6; the good is still found originating in each |
+| JP-EU EPA after the card | 128 → 179 of 181 development rulings | D922; same summary | Measured, same condition |
+| Constructed negatives after the card | 0 of 80 approved before and after; of 18 re-checked, 6 declined and 12 undetermined | D922; same summary | Measured on made-up cases |
+| Cost of these runs | $0.47 and $0.48 for the 44 (plus $0.08 translation); $1.75, $0.08, $0.26 after-card runs; $1.18 and $6.28 for D918 | D920, D922, D918; `eval/results/RUNLOG.jsonl` | Gateway-reported |
+| Specialist review | Not done; tracked in #665 | `docs/scope-and-jurisdiction.md` | Say "review pending" next to any Japan figure |
+
+## USMCA extended rules and ATIGA check (D927, D930, D932; both on since #910)
+
+| Measure | Value | Source | Status |
+|---|---|---|---|
+| USMCA origin rules beyond the pilot (flag `USMCA_RULES_EXT`), held out (Accuracy page) | 21 of 23 decided products agree with CBP (91.3%, 95% Wilson interval 73.2–97.6). 23 of 59 products decided; 36 undecided, 0 decided by the pilot rows | D932; `eval/usmca/summary-held_out.json` | Measured, scored once on 46 CBP rulings dated 2026 and later (64 products; 4 with CBP's answer unclear and 1 not about eligibility skipped). Agreement on decided products only, not on all 59. Met the pre-registered bar (at least 85% on at least 15 decided) |
+| USMCA development result | 118 of 127 decided products agree (92.9%, 87.1–96.2) | D930; `eval/usmca/summary-dev.json` | Not independent: the rows were built against this set |
+| ATIGA check on authority worked examples (Accuracy page) | 7 of 7 examples reach the result the source states | D927; `eval/atiga/reference-cases.json`, run by `backend/internal/atiga/reference_test.go` | Not an accuracy rate: no ASEAN Member State publishes origin rulings, so none was found to test against. Worked examples (MITI Malaysia 1 to 5, Singapore Customs B and F), written before the check was run |
+| AD/CVD exposure check with the scope reader, held out (Accuracy page; flags `ADCVD_CHECK` and `ADCVD_SCOPE_READER`, off) | Flagged orders covered the product 8/14 (57.1%, 32.6–78.6), against 8/16 (50.0%, 28.0–72.0) for the plain check on the same rulings; covered products flagged 8/18 (44.4%, 24.6–66.3) for both. Flagging every ruling: precision 40.9% | D942, D943; `eval/adcvd/heldout/summary.json` (`go run ./cmd/adcvdprec -check`, see D943) | Measured on 44 Commerce scope rulings made Jul 2023 to Dec 2024, order list frozen 30 Jun 2023, method registered before scoring; 57.1% is with a fix made after the result (registered method 8/13, 61.5%, 35.5–82.3). Three wrong flags removed at most, intervals overlap. The product description is model-written from the ruling and can carry the deciding facts, so the gain is an upper bound. Recall is capped by the codes the scope lists. Flags off |
+| AD/CVD exposure check, earlier test, now seen (Accuracy page; flag `ADCVD_CHECK`, off) | Flagged orders covered the product 11/21 (52.4%, 32.4–71.7); covered products flagged 11/12 (91.7%, 64.6–98.5). Flagging every ruling: precision 34.3% | D940; `eval/adcvd/summary.json` (`go run ./cmd/adcvdeval -check`) | Measured, scored once on 27 Nov, on 35 Commerce scope rulings made 2025 and later against an order list frozen 31 Dec 2024. Intervals are wide. The product code is model-suggested, so its error is included. Goods made in a third country (n=7) are not seen. Flag off |
 
 ## Family depth: batteries, machinery, furniture, medical and optical (D780–D784)
 

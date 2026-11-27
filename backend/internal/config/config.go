@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"math"
 	"net"
+	"net/url"
 	"os"
 	"regexp"
 	"strconv"
@@ -184,6 +185,9 @@ type Config struct {
 	// RateReviewPerMin caps the broker review routes (a review link's
 	// token) per client a minute; 0 disables it (D200).
 	RateReviewPerMin int
+	// RateDeclarationPerMin caps the supplier declaration routes (a
+	// declaration link's token) per client a minute; 0 disables it (#916).
+	RateDeclarationPerMin int
 	// DailySpendClientShare is the share of DailySpendCapUSD one client (API
 	// key or address) may spend in a UTC day; 0 disables the per-client cap
 	// (D137).
@@ -203,6 +207,20 @@ type Config struct {
 	// public endpoints stay open. It is not a claim that visitor IDs
 	// authenticate anyone (#283).
 	StrictAuth bool
+	// UsageMetering (USAGE_METERING on|off, default off) counts each
+	// workspace's predictions, plan searches and model spend per UTC month
+	// and serves workspace budgets with an optional hard cap (#886). Needs
+	// TEAMS=on: only signed-in workspace members are metered.
+	UsageMetering bool
+	// ERPImport (ERP_IMPORT on|off, default off) serves POST
+	// /v1/products/erp-import, BOM exports from an ERP filed as cases (#880).
+	ERPImport bool
+	// Webhooks (WEBHOOKS on|off, default off) lets a workspace admin register
+	// signed HTTPS callbacks for workspace events (#915). It needs TEAMS=on
+	// and WebhooksSecretKey (a secret, excluded from String, at least 32
+	// bytes), which seals endpoint signing secrets at rest.
+	Webhooks          bool
+	WebhooksSecretKey string
 	// Audit (#284). AuditMode is AUDIT: on, off, or auto (the default). Audit is
 	// the resolved switch: on, or auto with AUDIT_ACTOR_KEY set. auto never
 	// enables the trail without the secret and never generates one; on without
@@ -220,12 +238,51 @@ type Config struct {
 	// /v1/cases/{id}/bom-version, a newer BOM diffed against the case's
 	// product and re-predicted (D67).
 	BOMVersions string
+	// AuditExport (on|off, default off) serves GET /v1/audit/export when the
+	// audit trail is on (#871).
+	AuditExport bool
+	// Retention (on|off, default off) serves workspace retention policies and
+	// tombstones and lets cmd/retention purge (#875). Its store follows
+	// CASES_STORE (file: CASES_DIR/retention.json).
+	Retention bool
+	// TariffWatch (on|off, default off) records, on each case a plan search
+	// prices, the duty basis it was priced on, and serves
+	// GET /v1/workspaces/{id}/tariff-watch with the cases cmd/tariffwatch
+	// found affected by a newer HTS revision (#917). The route also needs
+	// TEAMS=on.
+	TariffWatch bool
+	// BrokerWorkflow is on or off (default): on serves the review queue,
+	// case discussion and sign-offs, and the eRulings filing package
+	// (docs/design/broker-workflow.md).
+	BrokerWorkflow string
 	// Teams (on|off, default off) verifies the Google ID token the frontend
 	// proxy forwards as X-User-Token and serves team workspaces (D68).
 	// TeamsAudience is the OAuth client ID the tokens must be issued to;
 	// required when Teams is on.
 	Teams         bool
 	TeamsAudience string
+	// SSO (on|off, default off) serves enterprise single sign-on (#868),
+	// OIDC and SAML, for workspaces with a verified email domain. It needs
+	// Teams. SSOSessionKey (a secret, excluded from String, at least 32
+	// bytes) signs session tokens and seals stored client secrets;
+	// SSOSiteURL is the public https origin whose /sso/... pages receive
+	// the identity provider's callbacks; SSOSessionTTL is a session's
+	// lifetime (default 8h, at most 24h).
+	SSO           bool
+	SSOSessionKey string
+	SSOSiteURL    string
+	SSOSessionTTL time.Duration
+	// SCIM (on|off, default off) serves SCIM 2.0 user provisioning (#869)
+	// for domains verified on a workspace's SSO connections. It needs SSO.
+	SCIM bool
+	// AdminConsole (on|off, default off) serves the workspace admin's
+	// settings overview (#870). It needs Teams.
+	AdminConsole bool
+	// SupplierDeclarations (on|off, default off) serves supplier origin
+	// declarations (#916): an expiring, revocable link per request, the
+	// answers on the case's parts, and the declared origin as a sourced fact.
+	// It needs Teams.
+	SupplierDeclarations bool
 	// APIKeys (on|off, default off) accepts X-API-Key from brokers: the
 	// admin issues keys with a daily request quota, each key gets its own
 	// rate-limit buckets and owns its cases (D69). Keys are kept in Firestore
@@ -266,6 +323,11 @@ type Config struct {
 	USMCAEngine   bool
 	USMCALabels   string
 	USMCAFastPath float64
+	// USMCARulesExt (on|off, default off) extends the USMCA origin-rule check
+	// (POST /v1/usmca/check) from the three pilot rows to the rows generated
+	// from HTSUS GN 11(o), with de minimis, the parts route and GN 11(p).
+	// Off keeps the pilot answers unchanged.
+	USMCARulesExt bool
 	// PharmaEngine (on|off, default off) predicts pharmaceutical cases (router
 	// regime pharma_api) with the pharma-v1 prompt, where origin follows the
 	// active ingredient, instead of leaving them out of scope (D62), with
@@ -312,6 +374,26 @@ type Config struct {
 	// 19 CFR 177.2 (D66). Off: only the Markdown draft.
 	ExportCFR177 bool
 	exportCFR177 string // as given, checked by validate
+	// ATIGACheck (on|off, default off) serves POST /v1/atiga/check and the
+	// check_atiga_preference MCP tool: ATIGA preferential origin from a bill
+	// of materials, deterministic, no model call (D927).
+	ATIGACheck bool
+	atigaCheck string // as given, checked by validate
+	// ADCVDCheck (on|off, default off) serves POST /v1/adcvd/check, the
+	// check_adcvd_exposure MCP tool and adcvd_check on a case: parts that may
+	// be subject to a U.S. AD or CVD order, display only, no model call
+	// (D939).
+	ADCVDCheck bool
+	adcvdCheck string // as given, checked by validate
+	// ADCVDScopeReader (on|off, default off, needs ADCVD_CHECK=on) makes
+	// POST /v1/adcvd/check, and so the MCP tool, have a model read each listed
+	// order's written scope against the part's name and drop an order only
+	// when the scope clearly points away from the part (D942, D943). One
+	// model question per listed order, cached; the case view keeps the plain
+	// match. ADCVDReaderModel is the model, gemini-3.8-flash as measured.
+	ADCVDScopeReader bool
+	adcvdScopeReader string // as given, checked by validate
+	ADCVDReaderModel string
 	// NearMissAdvice (on|off, default off) adds near-miss advice to the
 	// closest plan moves just under the plan bar: what differs from the
 	// supporting ruling and what would match it (D81). One model call each,
@@ -398,8 +480,10 @@ func FromEnv(getenv func(string) string) (Config, error) {
 		RateMaxInFlight:        e.integer("RATE_MAX_IN_FLIGHT", 4),
 		RateAuthFailuresPerMin: e.integer("RATE_AUTH_FAILURES_PER_MIN", 10),
 		RateReviewPerMin:       e.integer("RATE_REVIEW_PER_MIN", 30),
+		RateDeclarationPerMin:  e.integer("RATE_DECLARATION_PER_MIN", 30),
 		CasesListLimit:         e.integer("CASES_LIST_LIMIT", 200),
 		BOMVersions:            strings.ToLower(e.str("BOM_VERSIONS", "off")),
+		BrokerWorkflow:         strings.ToLower(e.str("BROKER_WORKFLOW", "off")),
 		DailySpendCapUSD:       e.float("DAILY_SPEND_CAP_USD", 0),
 		DailySpendClientShare:  e.float("DAILY_SPEND_CLIENT_SHARE", 0.1),
 		AdminToken:             e.str("ADMIN_TOKEN", ""),
@@ -408,6 +492,10 @@ func FromEnv(getenv func(string) string) (Config, error) {
 		AuditRetentionDays:     e.integer("AUDIT_RETENTION_DAYS", 90),
 		AuditDir:               e.dir("AUDIT_DIR", "../data/audit"),
 		TeamsAudience:          e.str("TEAMS_AUDIENCE", ""),
+		SSOSessionKey:          e.str("SSO_SESSION_KEY", ""),
+		WebhooksSecretKey:      e.str("WEBHOOKS_SECRET_KEY", ""),
+		SSOSiteURL:             e.str("SSO_SITE_URL", ""),
+		SSOSessionTTL:          e.duration("SSO_SESSION_TTL", 8*time.Hour),
 		TextileRulings:         e.str("TEXTILE_RULINGS", "data/textile_rulings.json"),
 		TextileFastPath:        e.float("TEXTILE_FAST_PATH", 0),
 		TextilePrompt:          strings.ToLower(e.str("TEXTILE_PROMPT", "v1")),
@@ -434,6 +522,18 @@ func FromEnv(getenv func(string) string) (Config, error) {
 	case "off", "false", "0":
 	default:
 		e.errs = append(e.errs, fmt.Errorf("CASE_OWNERSHIP must be on or off, got %q", v))
+	}
+	for _, f := range []struct {
+		key string
+		dst *bool
+	}{{"USAGE_METERING", &c.UsageMetering}, {"ERP_IMPORT", &c.ERPImport}, {"WEBHOOKS", &c.Webhooks}} {
+		switch v := strings.ToLower(e.str(f.key, "off")); v {
+		case "on", "true", "1":
+			*f.dst = true
+		case "off", "false", "0":
+		default:
+			e.errs = append(e.errs, fmt.Errorf("%s must be on or off, got %q", f.key, v))
+		}
 	}
 	switch v := strings.ToLower(e.str("STRICT_AUTH", "off")); v {
 	case "on", "true", "1":
@@ -482,12 +582,49 @@ func FromEnv(getenv func(string) string) (Config, error) {
 	default:
 		e.errs = append(e.errs, fmt.Errorf("TEAMS must be on or off, got %q", v))
 	}
+	switch v := strings.ToLower(e.str("SSO", "off")); v {
+	case "on", "true", "1":
+		c.SSO = true
+	case "off", "false", "0":
+	default:
+		e.errs = append(e.errs, fmt.Errorf("SSO must be on or off, got %q", v))
+	}
+	switch v := strings.ToLower(e.str("SCIM", "off")); v {
+	case "on", "true", "1":
+		c.SCIM = true
+	case "off", "false", "0":
+	default:
+		e.errs = append(e.errs, fmt.Errorf("SCIM must be on or off, got %q", v))
+	}
+	switch v := strings.ToLower(e.str("ADMIN_CONSOLE", "off")); v {
+	case "on", "true", "1":
+		c.AdminConsole = true
+	case "off", "false", "0":
+	default:
+		e.errs = append(e.errs, fmt.Errorf("ADMIN_CONSOLE must be on or off, got %q", v))
+	}
+	switch v := strings.ToLower(e.str("SUPPLIER_DECLARATIONS", "off")); v {
+	case "on", "true", "1":
+		c.SupplierDeclarations = true
+	case "off", "false", "0":
+	default:
+		e.errs = append(e.errs, fmt.Errorf("SUPPLIER_DECLARATIONS must be on or off, got %q", v))
+	}
 	switch v := strings.ToLower(e.str("API_KEYS", "off")); v {
 	case "on", "true", "1":
 		c.APIKeys = true
 	case "off", "false", "0":
 	default:
 		e.errs = append(e.errs, fmt.Errorf("API_KEYS must be on or off, got %q", v))
+	}
+	for name, dst := range map[string]*bool{"AUDIT_EXPORT": &c.AuditExport, "RETENTION": &c.Retention, "TARIFF_WATCH": &c.TariffWatch} {
+		switch v := strings.ToLower(e.str(name, "off")); v {
+		case "on", "true", "1":
+			*dst = true
+		case "off", "false", "0":
+		default:
+			e.errs = append(e.errs, fmt.Errorf("%s must be on or off, got %q", name, v))
+		}
 	}
 	switch v := strings.ToLower(e.str("TEXTILE_ENGINE", "off")); v {
 	case "on", "true", "1":
@@ -516,6 +653,13 @@ func FromEnv(getenv func(string) string) (Config, error) {
 	case "off", "false", "0":
 	default:
 		e.errs = append(e.errs, fmt.Errorf("USMCA_ENGINE must be on or off, got %q", v))
+	}
+	switch v := strings.ToLower(e.str("USMCA_RULES_EXT", "off")); v {
+	case "on", "true", "1":
+		c.USMCARulesExt = true
+	case "off", "false", "0":
+	default:
+		e.errs = append(e.errs, fmt.Errorf("USMCA_RULES_EXT must be on or off, got %q", v))
 	}
 	switch v := strings.ToLower(e.str("PHARMA_ENGINE", "off")); v {
 	case "on", "true", "1":
@@ -552,6 +696,13 @@ func FromEnv(getenv func(string) string) (Config, error) {
 	c.PlanMaxMoves = e.integer("PLAN_MAX_MOVES", 12)
 	c.exportCFR177 = strings.ToLower(e.str("EXPORT_CFR177", "off"))
 	c.ExportCFR177 = c.exportCFR177 == "on" || c.exportCFR177 == "true" || c.exportCFR177 == "1"
+	c.atigaCheck = strings.ToLower(e.str("ATIGA_CHECK", "off"))
+	c.ATIGACheck = c.atigaCheck == "on" || c.atigaCheck == "true" || c.atigaCheck == "1"
+	c.adcvdCheck = strings.ToLower(e.str("ADCVD_CHECK", "off"))
+	c.ADCVDCheck = c.adcvdCheck == "on" || c.adcvdCheck == "true" || c.adcvdCheck == "1"
+	c.adcvdScopeReader = strings.ToLower(e.str("ADCVD_SCOPE_READER", "off"))
+	c.ADCVDScopeReader = c.adcvdScopeReader == "on" || c.adcvdScopeReader == "true" || c.adcvdScopeReader == "1"
+	c.ADCVDReaderModel = e.str("ADCVD_READER_MODEL", "gemini-3.8-flash")
 	switch v := strings.ToLower(e.str("STREAM_PREDICT", "off")); v {
 	case "on", "true", "1":
 		c.StreamPredict = "on"
@@ -696,6 +847,24 @@ func (c Config) validate() error {
 	default:
 		bad("EXPORT_CFR177 must be on or off, got %q", c.exportCFR177)
 	}
+	switch c.adcvdCheck {
+	case "on", "true", "1", "off", "false", "0":
+	default:
+		bad("ADCVD_CHECK must be on or off, got %q", c.adcvdCheck)
+	}
+	switch c.adcvdScopeReader {
+	case "on", "true", "1", "off", "false", "0":
+	default:
+		bad("ADCVD_SCOPE_READER must be on or off, got %q", c.adcvdScopeReader)
+	}
+	if c.ADCVDScopeReader && !c.ADCVDCheck {
+		bad("ADCVD_SCOPE_READER=on needs ADCVD_CHECK=on")
+	}
+	switch c.atigaCheck {
+	case "on", "true", "1", "off", "false", "0":
+	default:
+		bad("ATIGA_CHECK must be on or off, got %q", c.atigaCheck)
+	}
 	switch c.nearMissAdvice {
 	case "on", "true", "1", "off", "false", "0":
 	default:
@@ -711,6 +880,12 @@ func (c Config) validate() error {
 	}
 	if c.BOMVersions != "on" && c.BOMVersions != "off" {
 		bad("BOM_VERSIONS must be on or off, got %q", c.BOMVersions)
+	}
+	if c.UsageMetering && !c.Teams {
+		bad("USAGE_METERING=on needs TEAMS=on: usage is counted per workspace")
+	}
+	if c.BrokerWorkflow != "on" && c.BrokerWorkflow != "off" {
+		bad("BROKER_WORKFLOW must be on or off, got %q", c.BrokerWorkflow)
 	}
 	if c.Teams && !strings.HasSuffix(c.TeamsAudience, ".apps.googleusercontent.com") {
 		bad("TEAMS=on needs TEAMS_AUDIENCE, the Google OAuth client ID (…apps.googleusercontent.com), got %q", c.TeamsAudience)
@@ -751,7 +926,7 @@ func (c Config) validate() error {
 	if c.PharmaFastPath < 0 || c.PharmaFastPath > 1 {
 		bad("PHARMA_FAST_PATH must be 0 (always review) or in (0, 1], got %v", c.PharmaFastPath)
 	}
-	for name, v := range map[string]int{"RATE_BASIC_PER_MIN": c.RateBasicPerMin, "RATE_MAX_IN_FLIGHT": c.RateMaxInFlight, "RATE_AUTH_FAILURES_PER_MIN": c.RateAuthFailuresPerMin, "RATE_REVIEW_PER_MIN": c.RateReviewPerMin, "RATE_LIGHT_PER_MIN": c.RateLightPerMin, "RATE_HEAVY_PER_MIN": c.RateHeavyPerMin, "RATE_GLOBAL_PER_MIN": c.RateGlobalPerMin, "RATE_LOOKUP_PER_MIN": c.RateLookupPerMin} {
+	for name, v := range map[string]int{"RATE_BASIC_PER_MIN": c.RateBasicPerMin, "RATE_MAX_IN_FLIGHT": c.RateMaxInFlight, "RATE_AUTH_FAILURES_PER_MIN": c.RateAuthFailuresPerMin, "RATE_REVIEW_PER_MIN": c.RateReviewPerMin, "RATE_DECLARATION_PER_MIN": c.RateDeclarationPerMin, "RATE_LIGHT_PER_MIN": c.RateLightPerMin, "RATE_HEAVY_PER_MIN": c.RateHeavyPerMin, "RATE_GLOBAL_PER_MIN": c.RateGlobalPerMin, "RATE_LOOKUP_PER_MIN": c.RateLookupPerMin} {
 		if v < 0 {
 			bad("%s must be 0 (off) or positive, got %d", name, v)
 		}
@@ -791,6 +966,36 @@ func (c Config) validate() error {
 	case VerdictsOff:
 	default:
 		bad("VERIFIER_CACHE_STORE must be firestore, file or off, got %q", c.VerifierCacheStore)
+	}
+	// SSO (#868). Messages never include the key.
+	if c.SSO {
+		if !c.Teams {
+			bad("SSO=on needs TEAMS=on (single sign-on signs users in to workspaces)")
+		}
+		if len(c.SSOSessionKey) < 32 {
+			bad("SSO=on needs SSO_SESSION_KEY of at least 32 bytes (it is a secret: use a random value from the secret manager)")
+		}
+		if u, err := url.Parse(c.SSOSiteURL); err != nil || u.Scheme != "https" || u.Host == "" || (u.Path != "" && u.Path != "/") {
+			bad("SSO=on needs SSO_SITE_URL, the site's https origin (e.g. https://example.com), got %q", c.SSOSiteURL)
+		}
+		if c.SSOSessionTTL < 5*time.Minute || c.SSOSessionTTL > 24*time.Hour {
+			bad("SSO_SESSION_TTL must be between 5m and 24h, got %s", c.SSOSessionTTL)
+		}
+	}
+	if c.SupplierDeclarations && !c.Teams {
+		bad("SUPPLIER_DECLARATIONS=on needs TEAMS=on (a request is made by a case editor in a workspace)")
+	}
+	if c.Webhooks && !c.Teams {
+		bad("WEBHOOKS=on needs TEAMS=on (endpoints belong to a workspace, and its admin registers them)")
+	}
+	if c.Webhooks && len(c.WebhooksSecretKey) < 32 {
+		bad("WEBHOOKS=on needs WEBHOOKS_SECRET_KEY of at least 32 bytes (it seals endpoint signing secrets: use a random value from the secret manager)")
+	}
+	if c.AdminConsole && !c.Teams {
+		bad("ADMIN_CONSOLE=on needs TEAMS=on (it is the workspace admin's overview)")
+	}
+	if c.SCIM && !c.SSO {
+		bad("SCIM=on needs SSO=on (a SCIM token manages only domains verified on an SSO connection)")
 	}
 	// Audit (#284). Messages never include the key.
 	if c.AuditActorKey != "" && len(c.AuditActorKey) < audit.MinKeyBytes {

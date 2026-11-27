@@ -4,9 +4,11 @@ import (
 	"fmt"
 	"net/http"
 	"strings"
+	"time"
 	"unicode/utf8"
 
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/domain"
+	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/retention"
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/store"
 )
 
@@ -25,6 +27,15 @@ func (a *api) deleteCase(w http.ResponseWriter, r *http.Request) {
 	if err := a.auditCase(r, c, ""); err != nil { // sensitive: fails closed before the delete
 		a.fail(w, r, err)
 		return
+	}
+	if a.d.Retention != nil && c.Workspace != "" {
+		// The tombstone is written before the delete: a deleted workspace
+		// case always has one (#875).
+		t := retention.Tombstone{CaseID: c.ID, Workspace: c.Workspace, DeletedAt: time.Now().UTC(), Reason: retention.ReasonUser, LastUpdated: c.UpdatedAt.UTC()}
+		if err := a.d.Retention.AddTombstone(r.Context(), t); err != nil {
+			a.fail(w, r, err)
+			return
+		}
 	}
 	if err := a.d.Cases.Delete(r.Context(), c.ID); err != nil {
 		a.fail(w, r, err)

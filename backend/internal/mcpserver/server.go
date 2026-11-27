@@ -58,6 +58,12 @@ type Options struct {
 	// check_uk_origin are not listed.
 	EUOrigin bool
 	UKOrigin bool
+	// ATIGA reports that POST /v1/atiga/check is served; without it
+	// check_atiga_preference is not listed.
+	ATIGA bool
+	// ADCVD reports that POST /v1/adcvd/check is served; without it
+	// check_adcvd_exposure is not listed.
+	ADCVD bool
 	// Version is reported in the MCP initialize result.
 	Version string
 	// ClientAddress resolves the outer request's connection address and
@@ -114,6 +120,12 @@ func NewServer(o Options) *mcp.Server {
 	if o.UKOrigin {
 		t.registerOrigin(s, ukOriginTool)
 	}
+	if o.ATIGA {
+		t.registerATIGA(s)
+	}
+	if o.ADCVD {
+		t.registerADCVD(s)
+	}
 	t.registerResources(s)
 	t.registerPrompts(s)
 	return s
@@ -148,7 +160,7 @@ func guard(o Options, next http.Handler) http.Handler {
 			key = tok
 		}
 		r = r.Clone(r.Context())
-		for _, h := range []string{"Authorization", "X-API-Key", "X-User-Token", "X-Visitor-ID", "X-Review-Token", "Cookie"} {
+		for _, h := range []string{"Authorization", "X-API-Key", "X-User-Token", "X-Visitor-ID", "X-Review-Token", "X-Declaration-Token", "Cookie"} {
 			r.Header.Del(h)
 		}
 		if key != "" {

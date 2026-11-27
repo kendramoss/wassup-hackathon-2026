@@ -42,6 +42,7 @@ import (
 	"syscall"
 	"time"
 
+	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/adcvd"
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/apikey"
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/blob"
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/caseagent"
@@ -54,6 +55,7 @@ import (
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/domain"
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/duty"
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/engine"
+	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/envelope"
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/euorigin"
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/evalsummary"
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/extract"
@@ -63,19 +65,25 @@ import (
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/jurisdiction"
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/llm"
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/logsafe"
+	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/metering"
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/nearmiss"
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/nporigin"
+	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/placement"
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/planner"
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/ratelimit"
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/retrieval"
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/router"
+	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/scim"
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/spend"
+	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/sso"
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/store"
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/tariffshift"
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/teams"
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/triage"
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/ukorigin"
+	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/usmca"
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/verifier"
+	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/webhooks"
 )
 
 func main() {
@@ -157,6 +165,19 @@ func run(logger *slog.Logger, errorLog *log.Logger, cfg config.Config, smoke boo
 		return err
 	}
 	if deps.Audit, err = newAudit(ctx, cfg, cases, logger); err != nil {
+		return err
+	}
+	if cfg.UsageMetering {
+		deps.Metering = newMetering(cases, meter, logger)
+	}
+	if cfg.Webhooks {
+		if deps.Webhooks, err = newWebhooks(cfg, cases, logger); err != nil {
+			return err
+		}
+		go deps.Webhooks.Run(ctx, webhookSweepEvery)
+	}
+	deps.AuditExport = cfg.AuditExport && deps.Audit != nil
+	if deps.Retention, err = newRetention(ctx, cfg, cases, logger); err != nil {
 		return err
 	}
 	srv := newServer(":"+cfg.Port, httpapi.NewHandler(logger, httpapi.Info{Provider: model.Provider(), Version: os.Getenv("K_REVISION")}, deps), errorLog)
@@ -267,6 +288,49 @@ func newMeter(cfg config.Config, cases store.Cases, logger *slog.Logger) *spend.
 		logger.Info("daily model spend cap", "usd", cfg.DailySpendCapUSD)
 	}
 	return spend.New(spendStore, cfg.DailySpendCapUSD).WithClientShare(cfg.DailySpendClientShare)
+}
+
+// newMetering builds per-workspace monthly metering (#886) on the cases'
+// database, and has the daily spend meter tell it every model charge.
+func newMetering(cases store.Cases, meter *spend.Meter, logger *slog.Logger) *metering.Meter {
+	var ms metering.Store = metering.NewMemory()
+	if fs, ok := cases.(*store.Firestore); ok {
+		ms = fs.Metering()
+	}
+	m := metering.New(ms)
+	if meter != nil {
+		meter.Observe(m.Charge)
+	}
+	logger.Info("workspace usage metering on")
+	return m
+}
+
+// webhookSweepEvery is how often this instance sends the retries now due.
+const webhookSweepEvery = 30 * time.Second
+
+// newWebhooks builds the webhook service (#915). Endpoints and deliveries
+// live where the cases do: Firestore on Cloud Run, a file in CASES_DIR
+// locally, else in memory.
+func newWebhooks(cfg config.Config, cases store.Cases, logger *slog.Logger) (*webhooks.Service, error) {
+	var ws webhooks.Store = webhooks.NewMemory()
+	kind := config.CasesMemory
+	switch fs, isFS := cases.(*store.Firestore); {
+	case isFS:
+		ws, kind = fs.Webhooks(), config.CasesFirestore
+	case cfg.CasesStore == config.CasesFile && cfg.CasesDir != "":
+		f, err := webhooks.NewFile(filepath.Join(cfg.CasesDir, "webhooks")) // a subdirectory: the case store lists every *.json beside it
+		if err != nil {
+			return nil, err
+		}
+		ws, kind = f, config.CasesFile
+	}
+	sealer, err := envelope.NewSealer([]byte(cfg.WebhooksSecretKey), webhooks.SealPurpose)
+	if err != nil {
+		return nil, err
+	}
+	ws = webhooks.NewSealedStore(ws, sealer)
+	logger.Info("webhooks on: signed HTTPS callbacks for workspace events", "store", kind, "secrets", "sealed")
+	return webhooks.New(ws, webhooks.Options{Logger: logger}), nil
 }
 
 // newBase builds the configured provider with no retry. The router, verifier,
@@ -396,6 +460,7 @@ func newDeps(cfg config.Config, model, engineModel llm.Model, cases store.Cases,
 	}
 	var precedents httpapi.PrecedentStore = pool
 	var usmcaEng *engine.Engine
+	usmca.SetExtended(cfg.USMCARulesExt)
 	if cfg.USMCAEngine {
 		ulabels, err := corpus.LoadLabels(cfg.USMCALabels)
 		if err != nil {
@@ -520,6 +585,10 @@ func newDeps(cfg config.Config, model, engineModel llm.Model, cases store.Cases,
 	if err != nil {
 		return httpapi.Deps{}, err
 	}
+	infra, err := newInfra(context.Background(), os.Getenv, logger)
+	if err != nil {
+		return httpapi.Deps{}, err
+	}
 	var engineBlobs, verdictBlobs blob.Store
 	switch cfg.VerifierCacheStore {
 	case config.VerdictsFirestore:
@@ -529,21 +598,21 @@ func newDeps(cfg config.Config, model, engineModel llm.Model, cases store.Cases,
 				return httpapi.Deps{}, err
 			}
 		}
-		ver = verifier.NewCacheIn(ver, fs.Verdicts(), cfg.VerifierModel)
-		engineBlobs, verdictBlobs = fs.Blobs(store.EngineCollection), fs.Verdicts()
+		verdictBlobs = envelope.Wrap(fs.Verdicts(), infra.blobKey)
+		ver = verifier.NewCacheIn(ver, verdictBlobs, cfg.VerifierModel)
+		engineBlobs = envelope.Wrap(fs.Blobs(store.EngineCollection), infra.blobKey)
 		logger.Info("verifier verdicts and engine predictions cached in Firestore", "collections", []string{store.VerdictCollection, store.EngineCollection})
 	case config.VerdictsFile:
-		vc, err := verifier.NewCache(ver, cfg.VerifierCacheDir, cfg.VerifierModel)
-		if err != nil {
-			return httpapi.Deps{}, err
+		if err := os.MkdirAll(cfg.VerifierCacheDir, 0o755); err != nil {
+			return httpapi.Deps{}, fmt.Errorf("verifier: cache dir: %w", err)
 		}
-		ver = vc
-		verdictBlobs = verifier.DirBlobs{Dir: cfg.VerifierCacheDir}
+		verdictBlobs = envelope.Wrap(verifier.DirBlobs{Dir: cfg.VerifierCacheDir}, infra.blobKey)
+		ver = verifier.NewCacheIn(ver, verdictBlobs, cfg.VerifierModel)
 		dir := filepath.Join(filepath.Dir(filepath.Clean(cfg.VerifierCacheDir)), "engine-cache")
 		if err := os.MkdirAll(dir, 0o755); err != nil {
 			return httpapi.Deps{}, fmt.Errorf("engine cache dir: %w", err)
 		}
-		engineBlobs = blob.Dir{Dir: dir}
+		engineBlobs = envelope.Wrap(blob.Dir{Dir: dir}, infra.blobKey)
 		logger.Info("verifier verdicts and engine predictions cached", "store", config.CasesFile)
 	}
 	// Engine predictions are cached in the same store as verdicts (D54).
@@ -676,6 +745,36 @@ func newDeps(cfg config.Config, model, engineModel llm.Model, cases store.Cases,
 		}
 		logger.Info("teams on: Google sign-in and workspaces", "audience", cfg.TeamsAudience, "workspaces", kind)
 	}
+	// Single sign-on (#868): OIDC and SAML for workspaces with a verified
+	// email domain. Its session tokens are accepted beside Google's.
+	var ssoSvc *sso.Service
+	if cfg.SSO {
+		keys, err := sso.NewKeys([]byte(cfg.SSOSessionKey))
+		if err != nil {
+			return httpapi.Deps{}, err
+		}
+		var conns sso.Store = sso.NewMemoryStore()
+		var state sso.OneTime = sso.NewMemoryOneTime(nil)
+		kind := config.CasesMemory
+		if fs, ok := cases.(*store.Firestore); ok {
+			conns, state, kind = fs.SSOConnections(), fs.SSOOneTime(), config.CasesFirestore
+		}
+		if ssoSvc, err = sso.New(sso.Config{SiteURL: cfg.SSOSiteURL, SessionTTL: cfg.SSOSessionTTL}, keys, conns, state, workspaces); err != nil {
+			return httpapi.Deps{}, err
+		}
+		users = ssoSvc.Verifier(users)
+		logger.Info("sso on: OIDC and SAML sign-in", "store", kind, "session_ttl", cfg.SSOSessionTTL.String())
+	}
+	// SCIM provisioning (#869) for the SSO-verified domains.
+	var scimTokens scim.Store
+	if cfg.SCIM {
+		scimTokens = scim.NewMemory()
+		kind := config.CasesMemory
+		if fs, ok := cases.(*store.Firestore); ok {
+			scimTokens, kind = fs.SCIMTokens(), config.CasesFirestore
+		}
+		logger.Info("scim on: provisioning for SSO-verified domains", "store", kind)
+	}
 	if cfg.StrictAuth && !cfg.Teams && !cfg.APIKeys {
 		logger.Warn("STRICT_AUTH is on but neither TEAMS nor API_KEYS is: only the admin token can reach private case routes")
 	}
@@ -725,7 +824,7 @@ func newDeps(cfg config.Config, model, engineModel llm.Model, cases store.Cases,
 		RulingSearch:          generalIdx,
 		Planner:               planner.New(tmpls, predictor, ver, planOpts),
 		Rulings:               crossClient,
-		Cases:                 cases,
+		Cases:                 placement.Wrap(cases, infra.placement),
 		Templates:             tmpls,
 		Summary:               evalsummary.Load,
 		FastPathConf:          cfg.FastPathConfidence,
@@ -739,7 +838,7 @@ func newDeps(cfg config.Config, model, engineModel llm.Model, cases store.Cases,
 		VerifierModel:         cfg.VerifierModel,
 		VerifierPromptVersion: map[string]string{"v1": verifier.PromptVersion, "v2": verifier.PromptVersion2, "v3": verifier.PromptVersion3}[cfg.VerifierPrompt],
 		Logger:                logger,
-		Limits:                httpapi.Limits{BasicPerMin: cfg.RateBasicPerMin, LightPerMin: cfg.RateLightPerMin, HeavyPerMin: cfg.RateHeavyPerMin, GlobalPerMin: cfg.RateGlobalPerMin, LookupPerMin: cfg.RateLookupPerMin, MaxInFlight: cfg.RateMaxInFlight, AuthFailuresPerMin: cfg.RateAuthFailuresPerMin, ReviewPerMin: cfg.RateReviewPerMin},
+		Limits:                httpapi.Limits{BasicPerMin: cfg.RateBasicPerMin, LightPerMin: cfg.RateLightPerMin, HeavyPerMin: cfg.RateHeavyPerMin, GlobalPerMin: cfg.RateGlobalPerMin, LookupPerMin: cfg.RateLookupPerMin, MaxInFlight: cfg.RateMaxInFlight, AuthFailuresPerMin: cfg.RateAuthFailuresPerMin, ReviewPerMin: cfg.RateReviewPerMin, DeclarationPerMin: cfg.RateDeclarationPerMin},
 		RequireBearer:         cfg.RequireBearer,
 		TrustedProxyCIDRs:     cfg.TrustedProxyCIDRs,
 		RateStore:             rateStore,
@@ -747,9 +846,17 @@ func newDeps(cfg config.Config, model, engineModel llm.Model, cases store.Cases,
 		CaseOwnership:         cfg.CaseOwnership,
 		StrictAuth:            cfg.StrictAuth,
 		BOMVersions:           cfg.BOMVersions == "on",
+		ERPImport:             cfg.ERPImport,
+		BrokerWorkflow:        cfg.BrokerWorkflow == "on",
 		Teams:                 cfg.Teams,
 		Users:                 users,
 		Workspaces:            workspaces,
+		SSO:                   ssoSvc,
+		SCIM:                  scimTokens,
+		AdminConsole:          cfg.AdminConsole,
+		SupplierDeclarations:  cfg.SupplierDeclarations,
+		SupplierDocs:          verdictBlobs,
+		TariffWatch:           cfg.TariffWatch,
 		APIKeys:               keys,
 		StreamPredict:         cfg.StreamPredictOn(),
 		Spend:                 meter,
@@ -772,7 +879,25 @@ func newDeps(cfg config.Config, model, engineModel llm.Model, cases store.Cases,
 		HTS:                   htsSuggester,
 		PartsHTS:              partsSuggester,
 		ExportCFR177:          cfg.ExportCFR177,
+		ATIGACheck:            cfg.ATIGACheck,
 		Checks:                []httpapi.HealthCheck{httpapi.StoreCheck(cases), httpapi.ModelCheck("model", model, cfg.RouterModel)},
+	}
+	if cfg.ADCVDCheck {
+		tb, err := adcvd.Load()
+		if err != nil {
+			return httpapi.Deps{}, err
+		}
+		d.ADCVD = tb
+		if cfg.ADCVDScopeReader {
+			rd, err := adcvd.NewLLMReader(model, cfg.ADCVDReaderModel)
+			if err != nil {
+				return httpapi.Deps{}, err
+			}
+			d.ADCVDReader = rd
+		}
+	}
+	if infra.statusPage {
+		d.Status = &httpapi.StatusPage{Checks: d.Checks, SLOs: httpapi.DefaultSLOs}
 	}
 	// The agent's what_if uses the same dispatch and triage as a saved
 	// scenario (#319). It is built from d BEFORE d.Agent is set: the predictor

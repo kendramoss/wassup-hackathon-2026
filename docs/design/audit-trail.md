@@ -36,7 +36,7 @@ One record per event, validated against closed enums and strict patterns before 
 | `time` | UTC, microsecond, never earlier than the previous event of the tenant |
 | `actor_kind` / `actor` | `user` and `apikey`: pseudonym `a<keyid>_<32 hex>` (HMAC of the verified email or API key id under `AUDIT_ACTOR_KEY`); `admin` (one shared token), `anonymous`, `system`: no pseudonym |
 | `target` | pseudonym of the affected member (invite, join, role, remove) |
-| `action` | `case.create` `case.update` `case.export` `case.delete` `case.pin` `case.read` (denials only) `workspace.create` `workspace.invite` `workspace.join` `workspace.role_change` `workspace.member_remove` `workspace.leave` `apikey.issue` `apikey.list` `apikey.disable` `admin.watch_run` `audit.read` `audit.verify` `auth.denied` `review.create` `review.revoke` `review.view` `review.decision` (broker review links, D200) |
+| `action` | `case.create` `case.update` `case.export` `case.delete` `case.pin` `case.read` (denials only) `workspace.create` `workspace.invite` `workspace.join` `workspace.role_change` `workspace.member_remove` `workspace.leave` `workspace.retention` (#875, sensitive) `apikey.issue` `apikey.list` `apikey.disable` `admin.watch_run` `audit.read` `audit.verify` `audit.export` (#871) `auth.denied` `review.create` `review.revoke` `review.view` `review.decision` (broker review links, D200) |
 | `phase` / `outcome` | intent/allowed; completion/allowed or failed; single/allowed, denied or failed |
 | `reason` | `forbidden` `hidden` `unauthenticated` `invalid_credential` `invalid_input` `conflict` `not_found` `upstream` `unavailable` `internal` `superseded` `audit_unavailable` `rate_limited` |
 | `detail` | closed per action: update kind, export format, the new role, pin/unpin, the shared draft (`setup`, `plan`), the broker's decision (`approve`, `changes`, `file_request`) |
@@ -73,6 +73,8 @@ Every route registered in `server.go` has a row in `auditTable` (`internal/httpa
 | Allowed reads of a case, list, plan estimate | none (v1) |
 | Stateless and public routes (`/v1/products/*`, rulings, eval, duty rates, demos, `/health`, `/v1/workspaces/mine`) | none |
 | Pinned public demo analysis (nothing is saved) | none |
+| SSO connection create, update, verify, delete (fail-closed); a connection list (#868) | intent, completion, in the workspace's tenant; the list is one `single` event |
+| A finished SSO sign-in (#868) | one `sso.login` `single/allowed` event in the connection's workspace tenant, actor `anonymous`, the user as the pseudonymous target; `provisioned` when the sign-in made them a member. A refused sign-in is a denied `sso.login` in `platform` |
 
 The trail is therefore NOT a complete record of who read confidential data: ordinary case reads are not recorded. It records writes, exports, deletes, administration and refusals.
 
@@ -82,7 +84,7 @@ Denials are recorded in the REQUESTER'S tenant, never the target's, so a caller 
 
 Order of an audited write: authorize, validate, intent, mutate, completion.
 
-- Fail-closed (sensitive) actions: `case.delete`, `workspace.invite`, `workspace.join`, `workspace.role_change`, `workspace.member_remove`, `workspace.leave`, `apikey.issue`, `apikey.disable`, `review.create` (a link hands case content outside; revoking a link never waits on the trail). If the intent cannot be stored the request is answered `503 audit_unavailable` and nothing is changed.
+- Fail-closed (sensitive) actions: `case.delete`, `workspace.invite`, `workspace.join`, `workspace.role_change`, `workspace.member_remove`, `workspace.leave`, `apikey.issue`, `apikey.disable`, `review.create` (a link hands case content outside; revoking a link never waits on the trail), and the SSO connection changes `sso.connection_create`, `sso.connection_update` and `sso.connection_delete` (they decide who can sign in to a workspace, #868). If the intent cannot be stored the request is answered `503 audit_unavailable` and nothing is changed.
 - Other writes: if the intent cannot be stored the write proceeds, is logged, and its completion has no `ref`.
 - If the completion cannot be stored after the change, the change stands and the response keeps its real status. The status line is written after the completion attempt, so the response carries `X-Audit-Incomplete: completion-not-recorded`. The header can appear on any audit-enabled, non-streaming audited route, on a success or an error response: every mutating route, a recording or preview export of a non-pinned case, the audit read and verify routes and the API-key list. It is not limited to the fail-closed operations that can answer 503. An event stream commits its status before the work runs; it closes the audit explicitly before its final event, and if that write fails only a log line (request id, action, intent seq, error class) is possible. Either way the trail holds an intent with no completion (an allowed request that only writes a single event has no intent, so for it the header, or the log line on a stream, is the only sign; a failed denial event, such as a 401, 403, hidden 404 or invalid credential, sets no header and is only logged, or counted in `suppressed` when the flood limiter drops it).
 - `verify` lists such intents (older than 5 minutes at the verification's start, no completion in the verified range) as unresolved. They mean: in doubt, the operation may or may not have happened. The list is AS OF `verified_through_seq`: a completion written after that point is outside the view, so an intent listed may already be closed now; run `verify` again. `complete:false` means the count is not exact.
@@ -112,7 +114,7 @@ Verification works on a snapshot. The first call reads the head (seq and hash) a
 
 - Detects, with `verify`: a modified event, a reordered or inserted event, a deleted event in the middle, a removed tail (against the stored head), a missing prefix with no checkpoint, time going backwards, an event of another tenant.
 - Does NOT give: immutability. The events, the head and the checkpoint are written by this application into one datastore. Whoever can write that datastore, a cloud administrator included, can rewrite all of them consistently and the chain will verify. There is no WORM storage, no external anchor, no signature by a key the datastore administrator lacks. Do not describe the trail as immutable or tamper-proof.
-- Hardening not done here: periodically export the head hash to a separate system, object-lock storage, restricted IAM on the audit collections, backups.
+- Hardening not done here: anchoring the head hash in a separate system, object-lock storage, restricted IAM on the audit collections, backups. `GET /v1/audit/export` (section 13) gives the customer a copy and the head at that moment; keeping exports elsewhere is the customer's anchor, not ours.
 
 ## 9. Actor pseudonym key
 
@@ -125,6 +127,7 @@ A pseudonym is a keyed hash of a verified identity; it is not anonymisation, bec
 3. Run `GET /v1/audit/verify` until `complete:true`; `ok:true` with no `findings`; read `unresolved_intents`.
 4. Sample the coverage: perform a role change, a delete, a refused action and an export in a test workspace and find the events.
 5. Retention: show `AUDIT_RETENTION_DAYS`, the `checkpoint` in the verify result after a sweep.
+5a. Export (with `AUDIT_EXPORT=on`): `GET /v1/audit/export` as the workspace admin, then `go run ./cmd/auditverify export.jsonl` (exit 0 when intact).
 6. Deployment items (NOT verified by this repository, require the cloud owner): the IAM members able to write or delete the audit collections, whether any Firestore TTL policy exists on them, the database backup and export policy, Cloud Logging retention, where `AUDIT_ACTOR_KEY` is stored and who can read it, and the current key id.
 
 ## 11. How this supports a SOC 2 readiness program
@@ -134,3 +137,9 @@ It produces evidence relevant to common criteria areas: logical access (who chan
 ## 12. Known low risks (recorded, not fixed here)
 
 Firestore purge reads up to 400 oldest events per tenant per sweep and its cost is unmeasured; the file store uses mode 0644/0755 and follows symlinks (local development only); rotating `AUDIT_ACTOR_KEY` without bumping `AUDIT_ACTOR_KEY_ID` is not detected; a short `AUDIT_ACTOR_KEY` fails startup even with `AUDIT=off`.
+
+## 13. Export (#871)
+
+`AUDIT_EXPORT=on` (default off) registers `GET /v1/audit/export` with the same readers and tenant rules as `GET /v1/audit`. JSONL is the verifiable form: a `header` line with the head and retention checkpoint read before any event (a snapshot: later appends are not included), the events oldest first exactly as stored, and a `summary` line with the count and the SHA-256 of every byte before it. `cmd/auditverify` re-checks a file offline with the chain rules of `verify`; an export cut short by a store error has no summary and fails. `from` and `to` narrow by event time; such a file is checked event by event and link by link, not as a whole chain. CSV carries the same columns without header or summary. At most 200,000 events per export. Each export is an `audit.export` event in the tenant exported, written before the file streams. The same limits as section 8 apply: this is a copy the customer can keep, not a signature.
+
+Case retention (#875, `RETENTION=on`) is separate from audit retention: a workspace admin sets `case_days` with `PUT /v1/workspaces/{id}/retention` (a sensitive `workspace.retention` write), and the operator's `cmd/retention -apply` purges expired cases, writing a tombstone and a system `case.delete` event (detail `retention`) before each deletion.

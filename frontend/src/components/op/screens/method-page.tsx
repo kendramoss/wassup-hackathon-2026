@@ -87,6 +87,7 @@ export function MethodPage() {
           <Link className="mi-link" href="/examples/plan-rule-check">Move rule check <span aria-hidden="true">→</span></Link>
           <Link className="mi-link" href="/examples/part102-plan">Part 102 plan <span aria-hidden="true">→</span></Link>
           <Link className="mi-link" href="/examples/revocation-alert">Revocation alert <span aria-hidden="true">→</span></Link>
+          <Link className="mi-link" href="/examples/blind-plan">Blind test, plywood <span aria-hidden="true">→</span></Link>
           <a className="mi-link" href={blob("docs/NUMBERS.md#market-and-time-from-hackathon-researchevidencefeesledgermd")}>Fig. 4 before figures <span aria-hidden="true">↗</span></a>
           <a className="mi-link" href={blob("eval/results/plan-heatgun-2022-local-litellm.json")}>Recorded heat-gun plan, 33 s (proxy run, demo fixture) <span aria-hidden="true">↗</span></a>
           <a className="mi-link" href={blob("docs/NUMBERS.md#evaluation-results-page--served-by-get-v1evalsummary")}>Cost per prediction, $0.0078 promo ($0.0157 list) <span aria-hidden="true">↗</span></a>

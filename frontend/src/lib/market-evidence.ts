@@ -30,7 +30,7 @@ export const marketEvidence = {
     { name: "RCEP tariff", status: "Approvals only", note: "No refusals tested." },
     { name: "Canada marking", status: "Rules only", note: "No score." },
     { name: "EU and UK origin", status: "Rules only", note: "No score." },
-    { name: "Japan origin", status: "Not available yet", note: "Offline experiment only. Not a coverage claim." },
+    { name: "Japan origin", status: "Open", note: "Tested on new rulings. See Accuracy." },
     { name: "Other markets", status: "Not yet", note: "No rules or tests." },
   ],
   detailsTitle: "Limits",
@@ -44,7 +44,8 @@ export const marketEvidence = {
 
 // D741 offline Japan model evaluation. Pinned to the two committed D741
 // metrics files under eval/jp by scripts/japan-evidence.test.mjs. Experimental,
-// positive-only, not a market-coverage claim; Japan stays unavailable.
+// positive-only. It is the earlier engine evidence (before D910's rule text
+// and D885's evidence), kept on the Accuracy page as a labelled earlier test.
 export const japanEvidence = {
   cases: 633,
   criterionMatch: 260,
@@ -59,4 +60,87 @@ export const japanEvidence = {
   syntheticRefused: 8,
   syntheticCases: 8,
   syntheticInterval: "67.56–100",
+};
+
+// Japan is open on the live site, on the production engine model. D920 and
+// D922 measured that model and evidence through the gateway. Pinned to
+// eval/jp/*d919-fresh-metrics.json and eval/jp/d922-answered-summary.json by
+// scripts/japan-evidence.test.mjs.
+export const japanMeasured = {
+  unseen: 44,
+  unseenRight: 37,
+  unseenInterval: "70.6–92.1",
+  unseenAnswered: 42,
+  unseenAnsweredPct: "95.5%",
+  unseenAnsweredInterval: "84.9–98.7",
+  dev: 400,
+  devRight: 272,
+  devAnswered: 374,
+  devAnsweredPct: "93.5%",
+  devAnsweredInterval: "90.7–95.5",
+  negatives: 80,
+  negativesApproved: 0,
+  euCases: 181,
+  euAnswered: 179,
+};
+
+// D932 held-out result of the USMCA extended rules (flag USMCA_RULES_EXT, on
+// since #910), and D927's reference test of the ATIGA check (ATIGA_CHECK, on
+// since #910). Pinned to eval/usmca/summary-held_out.json and
+// eval/atiga/reference-cases.json by scripts/japan-evidence.test.mjs.
+export const rulesChecks = {
+  usmcaProducts: 59,
+  usmcaDecided: 23,
+  usmcaAgreed: 21,
+  usmcaPct: "91.3%",
+  usmcaInterval: "73.2–97.6",
+  atigaExamples: 7,
+  atigaReached: 7,
+};
+
+// D943 held-out result of the AD/CVD exposure check with the scope reader
+// (ADCVD_CHECK and ADCVD_SCOPE_READER, off), the shipped method with the
+// pointer-scope fix. Pinned to eval/adcvd/heldout/summary.json by
+// scripts/japan-evidence.test.mjs; earlier is D940, pinned to
+// eval/adcvd/summary.json.
+export const adcvdCheck = {
+  rulings: 44,
+  within: 18,
+  flagged: 8,
+  correctFlags: 8,
+  flaggedTotal: 14,
+  precisionPct: "57.1%",
+  precisionInterval: "32.6–78.6",
+  recallPct: "44.4%",
+  recallInterval: "24.6–66.3",
+  plainCorrect: 8,
+  plainTotal: 16,
+  plainPct: "50.0%",
+  baselinePct: "40.9%",
+  earlier: {
+    rulings: 35,
+    within: 12,
+    flagged: 11,
+    correctFlags: 11,
+    flaggedTotal: 21,
+    precisionPct: "52.4%",
+    precisionInterval: "32.4–71.7",
+    recallPct: "91.7%",
+    recallInterval: "64.6–98.5",
+    baselinePct: "34.3%",
+  },
+};
+
+// D941 tariff watch test. Pinned to eval/tariffwatch/summary.json by
+// scripts/tariffwatch-evidence.test.mjs. Day 2 is 10 Jan 2027.
+export const tariffWatch = {
+  lines: 10024,
+  affected: 121,
+  found: 120,
+  falseAlarms: 0,
+  precisionInterval: "96.9–100.0",
+  recallPct: "99.2%",
+  recallInterval: "95.5–99.9",
+  rateRight: 4,
+  rateLines: 4,
 };

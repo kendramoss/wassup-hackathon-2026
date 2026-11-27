@@ -45,23 +45,29 @@ type Limits struct {
 	// call. Invalid tokens are also counted against AuthFailuresPerMin, in a
 	// limiter of their own.
 	ReviewPerMin int
+	// DeclarationPerMin caps the supplier declaration routes reached with a
+	// declaration link's token, per client, on this instance (#916). No
+	// model call. Invalid tokens are also counted against AuthFailuresPerMin,
+	// in a limiter of their own.
+	DeclarationPerMin int
 }
 
 // HeavyWeight is what one heavy request takes from the global bucket.
 const HeavyWeight = 5
 
 // DefaultLimits suit a judged demo: a person clicking through never hits them.
-var DefaultLimits = Limits{BasicPerMin: 120, LightPerMin: 20, HeavyPerMin: 4, GlobalPerMin: 120, MaxInFlight: 4, AuthFailuresPerMin: 10, ReviewPerMin: 30}
+var DefaultLimits = Limits{BasicPerMin: 120, LightPerMin: 20, HeavyPerMin: 4, GlobalPerMin: 120, MaxInFlight: 4, AuthFailuresPerMin: 10, ReviewPerMin: 30, DeclarationPerMin: 30}
 
 type class int
 
 const (
 	light class = iota
 	heavy
-	bulk   // batch triage: the heavy bucket per client, MaxBatch from the global bucket
-	lookup // ruling lookups: their own bucket per client, not the global one
-	basic  // cheap routes with no model call: their own bucket per client, this instance only (D137)
-	review // broker review routes reached with a link token: their own bucket per client, this instance only (D200)
+	bulk    // batch triage: the heavy bucket per client, MaxBatch from the global bucket
+	lookup  // ruling lookups: their own bucket per client, not the global one
+	basic   // cheap routes with no model call: their own bucket per client, this instance only (D137)
+	review  // broker review routes reached with a link token: their own bucket per client, this instance only (D200)
+	declare // supplier declaration routes reached with a link token: their own bucket per client, this instance only (#916)
 )
 
 // rateDecision is the outcome of one rate check, with what the RateLimit-*
@@ -83,8 +89,8 @@ type limiter struct {
 }
 
 type clientBuckets struct {
-	basic, light, heavy, lookup, review *rate.Limiter
-	seen                                time.Time
+	basic, light, heavy, lookup, review, declare *rate.Limiter
+	seen                                         time.Time
 }
 
 func perMin(n int) (rate.Limit, int) {
@@ -118,7 +124,8 @@ func (l *limiter) decide(key string, c class) rateDecision {
 		hr, hb := perMin(l.lim.HeavyPerMin)
 		kr, kb := perMin(l.lim.LookupPerMin)
 		vr, vb := perMin(l.lim.ReviewPerMin)
-		cb = &clientBuckets{basic: rate.NewLimiter(sr, sb), light: rate.NewLimiter(lr, lb), heavy: rate.NewLimiter(hr, hb), lookup: rate.NewLimiter(kr, kb), review: rate.NewLimiter(vr, vb), seen: now} // seen now, or the cleanup below drops it at once
+		dr, db := perMin(l.lim.DeclarationPerMin)
+		cb = &clientBuckets{basic: rate.NewLimiter(sr, sb), light: rate.NewLimiter(lr, lb), heavy: rate.NewLimiter(hr, hb), lookup: rate.NewLimiter(kr, kb), review: rate.NewLimiter(vr, vb), declare: rate.NewLimiter(dr, db), seen: now} // seen now, or the cleanup below drops it at once
 		l.clients[key] = cb
 		if len(l.clients) > 10000 { // forget idle clients so the map stays bounded
 			for k, v := range l.clients {
@@ -143,6 +150,8 @@ func (l *limiter) decide(key string, c class) rateDecision {
 		b, weight = cb.basic, 0
 	case review:
 		b, weight = cb.review, 0
+	case declare:
+		b, weight = cb.declare, 0
 	}
 	rc := b.ReserveN(now, n)
 	if !rc.OK() || rc.DelayFrom(now) > 0 {
@@ -253,6 +262,10 @@ func (a *api) limit(c class, h http.HandlerFunc) http.HandlerFunc {
 			return
 		}
 		key := a.clientKey(r)
+		var ok bool
+		if r, ok = a.meterGate(w, r); !ok {
+			return
+		}
 		if a.d.Spend != nil {
 			if over, total := a.d.Spend.Over(r.Context()); over {
 				a.overBudget(w, r, total)

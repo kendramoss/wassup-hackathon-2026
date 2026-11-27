@@ -23,6 +23,17 @@ The code defaults are permissive so local UI work works without credentials. "As
 | `ADMIN_TOKEN` | empty | **set from Secret Manager** | needed to pin demos and issue keys; never sent from the browser |
 | `STRICT_AUTH` | off | **on** | `curl https://undelabs.dev/api/v1/cases` with no credentials → **401**; pinned demos and `/v1/demos*` stay open (200). Private case operations need a verified user, API key or admin token |
 | `REQUIRE_BEARER` | off | **on** | Cloud Run passes the frontend's `Authorization: Bearer` to the container: `curl https://undelabs.dev/api/v1/demos` → **200** after the flag was enabled. Defence in depth behind IAM, not the primary boundary |
+| `USMCA_RULES_EXT` | off | **on** (27 Nov, #910) | USMCA rules check uses the GN 11(o) rows, de minimis and the parts route (D930, D932) |
+| `ATIGA_CHECK` | off | **on** (27 Nov, #910) | `POST /v1/atiga/check` and the `check_atiga_preference` tool are served; no accuracy figure (D927) |
+| `ADCVD_CHECK` | off | **off** (stays off until the D940 figure is reviewed) | `POST /v1/adcvd/check`, the `check_adcvd_exposure` tool and `adcvd_check` on a case are served; display only, never changes an origin answer or a duty figure (D939, D940) |
+| `BROKER_WORKFLOW` | off | **on** (27 Nov, #910) | review queue, case discussion, sign-offs and the eRulings filing package are served (D925) |
+| `ERP_IMPORT` | off | **on** (27 Nov, #910) | `POST /v1/products/erp-import` is served (D926) |
+| `USAGE_METERING` | off | **on** (27 Nov, #910) | per-workspace monthly usage is counted; no budget is set until a workspace admin sets one (D926) |
+| `WEBHOOKS` | off | off (needs `TEAMS` and `WEBHOOKS_SECRET_KEY`) | workspace admins can register signed https callbacks for workspace events; targets that are private, loopback or link-local are refused at registration and at delivery; endpoint signing secrets are stored AES-256-GCM sealed under `WEBHOOKS_SECRET_KEY` (at least 32 bytes, from Secret Manager; startup fails without it), never in the clear (D936) |
+| `ADMIN_CONSOLE` | off | **on** (27 Nov, #910) | `GET /v1/workspaces/{id}/admin` answers workspace admins only (D935) |
+| `RETENTION` | off | **on** (27 Nov, #910) | admins can set `case_days`; nothing is purged until an operator runs `cmd/retention` (D924) |
+| `AUDIT_EXPORT` | off | **on** (27 Nov, #910) | `GET /v1/audit/export` answers verified admins (D924) |
+| `STATUS_PAGE` | off | **on** (27 Nov, #910) | `GET /v1/status` is served (D928) |
 | `AUDIT_ACTOR_KEY` / `AUDIT` | empty / `auto` | **set from Secret Manager / auto → audit on** | `curl https://undelabs.dev/api/v1/audit` and `/audit/verify` now answer (**401** without a verified admin, not 404). It is evidence, not a certification or immutable log |
 | `RATE_LIMIT_STORE` | local, auto-firestore on Cloud Run with a project | **Firestore (defaulted)** | model-route buckets are shared by all three instances; `X-Client-IP` is set by the proxy, so a client cannot choose its own bucket through the public path (#421) |
 
@@ -39,6 +50,7 @@ When `K_SERVICE` is set and any of `STRICT_AUTH`, `REQUIRE_BEARER` or `AUDIT_ACT
 | API key | `X-API-Key: op_...` (`API_KEYS=on`) | Admin-issued or self-service (created at `/settings` or `POST /v1/api-keys` by a verified sign-in, #788). Only a SHA-256 of the key is stored. Unknown or disabled: 401 `unauthorized`, never a silent fall back to anonymous (D69). |
 | Admin | `X-Admin-Token` | Seeding, pinning, the batch watch, issuing keys. Not limited. Never sent from the browser. |
 | Broker review link | `X-Review-Token: ubr_...` (on `/v1/review*` only) | Opens one frozen draft and answers it; no identity on any other route (D200, below). |
+| Supplier declaration link | `X-Declaration-Token: usd_...` (on `/v1/supplier-declaration*` only, `SUPPLIER_DECLARATIONS=on`) | Shows the parts one request asks about and takes the supplier's answers; no identity on any other route (D937, below). |
 
 ## Rate limits
 
@@ -51,7 +63,8 @@ Every `/v1` route has a rate class. A test (`TestEveryV1RouteHasALimitClass`) fa
 | heavy | plan, compare targets | 4 a minute (`RATE_HEAVY_PER_MIN`) | shared on Cloud Run |
 | bulk | batch triage | the whole heavy allowance, once a minute | shared on Cloud Run |
 | lookup | ruling search (`GET /v1/rulings`); ruling and live duty-rate fetches from outside sources (cached answers are free) | 30 a minute (`RATE_LOOKUP_PER_MIN`) | shared on Cloud Run |
-| review | the broker's `GET /v1/review` and `POST /v1/review/decision` | 30 a minute (`RATE_REVIEW_PER_MIN`) | on each instance |
+| review | the broker's `GET /v1/review`, `POST /v1/review/decision` and, with `BROKER_WORKFLOW=on`, `GET` and `POST /v1/review/comments` | 30 a minute (`RATE_REVIEW_PER_MIN`) | on each instance |
+| declaration | the supplier's `GET /v1/supplier-declaration` and `PUT /v1/supplier-declaration/parts/{part}` (`SUPPLIER_DECLARATIONS=on`) | 30 a minute (`RATE_DECLARATION_PER_MIN`) | on each instance |
 | global | all model-calling requests together, in light units (heavy = 5, batch = 20) | 120 a minute (`RATE_GLOBAL_PER_MIN`) | shared on Cloud Run |
 
 - Shared counting (D70): on Cloud Run, with `RATE_LIMIT_STORE` unset, the model-route limits are counted in one-minute windows in Firestore (`rate_limits`), shared by every instance. Before D137 each instance counted its own, so with three instances a client got about three times its limit. If Firestore fails, the instance falls back to its own buckets and logs a warning at most once a minute. `RATE_LIMIT_STORE=local` restores per-instance counting. The basic class is always counted per instance: a Firestore write per read would cost more than it protects.
@@ -84,7 +97,21 @@ A case owner sends one draft to an outside customs broker as a link; the broker 
 - **Headers.** The broker routes add `X-Robots-Tag: noindex, nofollow` and `Cache-Control: no-store` to the API's `Referrer-Policy: no-referrer`. The frontend serves `/review` and `/review/*` with `Referrer-Policy: no-referrer` and `X-Robots-Tag: noindex, nofollow`, and the page's metadata says noindex, nofollow.
 - **Audit.** With the trail on: `review.create` (a sensitive write: no intent record, no link), `review.revoke`, `review.decision` (intent and completion) and `review.view` (one event per read) in the case's tenant. The broker is recorded as anonymous. No comment text, product data or token reaches the trail.
 - **Storage.** No new collection and no Firestore index: links live in the case document (gzipped JSON), so every read is by document id.
-- **Not done.** No broker account or identity check: whoever holds the link is the reviewer, so share it only with the broker. No email or notification. The broker cannot edit the letter. No e-filing.
+- **Discussion (BROKER_WORKFLOW=on).** The broker holding an open link can read the case's discussion and add comments (`/v1/review/comments`), under the same token checks, rate class and limits. The broker sees authors by role only, never their emails; their comments are stored as "external broker" with the link id. Comment text is plain text under the same rules as a decision comment, and no comment text reaches the audit trail (`review.view` for a read, `case.comment` with detail `external_broker` for a post).
+- **Not done.** No broker account or identity check: whoever holds the link is the reviewer, so share it only with the broker. No email or notification. The broker cannot edit the letter through the link (an editor can file an edited letter, docs/design/broker-workflow.md). Nothing is submitted to CBP from here.
+
+## Supplier declaration links (D937)
+
+With `SUPPLIER_DECLARATIONS=on` (needs `TEAMS=on`) a case editor asks a supplier for the origin of some of the case's parts through a link the supplier opens without an account. It is built like the broker review link above and keeps its rules; what differs:
+
+- **Who can make one.** `POST /v1/cases/{id}/supplier-declarations` goes through `loadCase` like every case route: a hidden case is the same 404 as a missing one, a workspace viewer gets 403, a pinned demo gets 403 for everyone. Revoking has the same rules. The isolation matrix and the role table drive all four case routes with every principal.
+- **The token.** `usd_` + the case id's 12 hex digits + `_` + 32 random bytes (256 bits), base64url, returned once; only `SHA-256("unde-supplier-declaration:" + token)` is stored, in the case document, compared in constant time. The link is `/supplier-declaration#<token>` and the token travels in `X-Declaration-Token` only. A broker's review token is not a supplier token and the reverse (tested).
+- **Bad tokens and rate.** A malformed or unknown token is 404 `not_found` and spends a per-client failure budget of its own (`RATE_AUTH_FAILURES_PER_MIN`, per instance); past it, 429 `auth_rate_limited` before any lookup. The two supplier routes have their own rate class (`declaration`, above). A revoked link is 410 `link_revoked`, a lapsed one 410 `link_expired`; the link lives 14 days by default, 60 at most.
+- **What the supplier sees.** Its own name, the names of the parts it was asked about and its own answers. Not the case id, the product, any other part, the origin or code the case lists, the requester's identity or the email address (tested). The email is optional, kept for the requester's records, never logged, never audited and never in an error message (tested).
+- **What the supplier can change.** Only its request's answers, per asked part, on a link that is open: origin, optional tariff code, a short text on how the part was made, signer name and title, a last valid day (today to five years ahead) and one optional file (at most 128 KB, PNG, JPEG, WebP or an unprotected PDF of at most 10 pages, checked by its bytes as an upload is; the name is only a label and path parts and quotes are dropped). Text is plain, one line, and is never sent to a model: only the declared origin, the code, the supplier's name and the dates reach the predict input. A file's bytes are kept by hash in the blob store (encrypted at rest where the cache is); the case holds only its description. The requester downloads it as an attachment with `nosniff`.
+- **What a declaration does.** It sits beside the origin the case lists and never replaces it; both are shown, with whether they differ. A declaration feeds the predict input only while it is valid: an expired, revoked or stale one (the part at that position changed) does not. Revoking a link therefore withdraws what it declared.
+- **Audit.** `supplier.request_create` (sensitive: no intent record, no link), `supplier.request_revoke`, `supplier.answer` (intent and completion) and `supplier.view` (one event per read) in the case's tenant; the supplier is anonymous. No name, email, answer text, file or token reaches the trail.
+- **Not done.** No email is sent: the requester sends the link. No identity check of the supplier: whoever holds the link answers. The frontend proxy does not yet forward `X-Declaration-Token`, and there is no supplier page.
 
 ## Quotas and spend caps
 

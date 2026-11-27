@@ -167,6 +167,23 @@ func parseAdditional(b []byte) (*Adder, error) {
 	if err := json.Unmarshal(b, &f); err != nil {
 		return nil, fmt.Errorf("duty: decode additional duties: %w", err)
 	}
+	return NewAdder(f)
+}
+
+// EmbeddedAdditional returns the embedded additional-duty data as decoded
+// (the basis every saved case is priced on, #917).
+func EmbeddedAdditional() (AdditionalFile, error) {
+	var f AdditionalFile
+	if err := json.Unmarshal(additionalJSON, &f); err != nil {
+		return f, fmt.Errorf("duty: decode additional duties: %w", err)
+	}
+	return f, nil
+}
+
+// NewAdder validates f and builds an Adder over it, with no clock (nothing
+// filtered by date unless ForAsOf is used). The tariff watch builds one per
+// HTS revision data set it compares (#917).
+func NewAdder(f AdditionalFile) (*Adder, error) {
 	a := &Adder{file: f, country: map[string][]int{}, whole: map[string]map[string][]Exclusion{}, partial: map[string][]Exclusion{}}
 	for _, l := range f.Lists {
 		if l.Rate <= 0 || l.Rate > 1 || len(l.Subheadings) == 0 {
@@ -365,6 +382,14 @@ func Total(mfn float64, extras []Extra) float64 {
 		t += e.Rate
 	}
 	return math.Round(t*1e4) / 1e4
+}
+
+// Revision is the HTS revision the data was read from.
+func (a *Adder) Revision() string {
+	if a == nil {
+		return ""
+	}
+	return a.file.Revision
 }
 
 // Source describes the embedded data for notes.

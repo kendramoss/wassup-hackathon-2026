@@ -409,6 +409,55 @@ func TestFollowAdviceAndMaxMovesConfig(t *testing.T) {
 	}
 }
 
+func TestATIGACheckConfig(t *testing.T) {
+	c, err := FromEnv(getenv(vertexEnv()))
+	if err != nil || c.ATIGACheck {
+		t.Fatalf("ATIGA_CHECK default = %v %v, want off", c.ATIGACheck, err)
+	}
+	for v, want := range map[string]bool{"on": true, "ON": true, "1": true, "off": false, "0": false} {
+		c, err := FromEnv(getenv(merge(vertexEnv(), map[string]string{"ATIGA_CHECK": v})))
+		if err != nil || c.ATIGACheck != want {
+			t.Errorf("ATIGA_CHECK=%s = %v %v, want %v", v, c.ATIGACheck, err, want)
+		}
+	}
+	if _, err := FromEnv(getenv(merge(vertexEnv(), map[string]string{"ATIGA_CHECK": "maybe"}))); err == nil || !strings.Contains(err.Error(), "ATIGA_CHECK") {
+		t.Errorf("ATIGA_CHECK=maybe: %v", err)
+	}
+}
+
+func TestADCVDCheckConfig(t *testing.T) {
+	c, err := FromEnv(getenv(vertexEnv()))
+	if err != nil || c.ADCVDCheck {
+		t.Fatalf("ADCVD_CHECK default = %v %v, want off", c.ADCVDCheck, err)
+	}
+	for v, want := range map[string]bool{"on": true, "ON": true, "1": true, "off": false, "0": false} {
+		c, err := FromEnv(getenv(merge(vertexEnv(), map[string]string{"ADCVD_CHECK": v})))
+		if err != nil || c.ADCVDCheck != want {
+			t.Errorf("ADCVD_CHECK=%s = %v %v, want %v", v, c.ADCVDCheck, err, want)
+		}
+	}
+	if _, err := FromEnv(getenv(merge(vertexEnv(), map[string]string{"ADCVD_CHECK": "maybe"}))); err == nil || !strings.Contains(err.Error(), "ADCVD_CHECK") {
+		t.Errorf("ADCVD_CHECK=maybe: %v", err)
+	}
+}
+
+func TestADCVDScopeReaderConfig(t *testing.T) {
+	c, err := FromEnv(getenv(vertexEnv()))
+	if err != nil || c.ADCVDScopeReader || c.ADCVDReaderModel != "gemini-3.8-flash" {
+		t.Fatalf("defaults = %v %q %v, want off and gemini-3.8-flash", c.ADCVDScopeReader, c.ADCVDReaderModel, err)
+	}
+	c, err = FromEnv(getenv(merge(vertexEnv(), map[string]string{"ADCVD_CHECK": "on", "ADCVD_SCOPE_READER": "on"})))
+	if err != nil || !c.ADCVDScopeReader {
+		t.Errorf("ADCVD_SCOPE_READER=on with the check on = %v %v", c.ADCVDScopeReader, err)
+	}
+	if _, err := FromEnv(getenv(merge(vertexEnv(), map[string]string{"ADCVD_SCOPE_READER": "on"}))); err == nil || !strings.Contains(err.Error(), "ADCVD_CHECK=on") {
+		t.Errorf("reader without the check: %v", err)
+	}
+	if _, err := FromEnv(getenv(merge(vertexEnv(), map[string]string{"ADCVD_SCOPE_READER": "maybe"}))); err == nil || !strings.Contains(err.Error(), "ADCVD_SCOPE_READER") {
+		t.Errorf("ADCVD_SCOPE_READER=maybe: %v", err)
+	}
+}
+
 func TestExportCFR177Config(t *testing.T) {
 	c, err := FromEnv(getenv(vertexEnv()))
 	if err != nil || c.ExportCFR177 {
@@ -438,6 +487,23 @@ func TestBOMVersionsConfig(t *testing.T) {
 			t.Errorf("BOM_VERSIONS=%q: got %q, %v; want %q", tt.value, c.BOMVersions, err, tt.want)
 		case !tt.ok && (err == nil || !strings.Contains(err.Error(), "BOM_VERSIONS must be on or off")):
 			t.Errorf("BOM_VERSIONS=%q accepted: %v", tt.value, err)
+		}
+	}
+}
+
+func TestBrokerWorkflowFlag(t *testing.T) {
+	for _, tt := range []struct {
+		value, want string
+		ok          bool
+	}{
+		{"", "off", true}, {"off", "off", true}, {"ON", "on", true}, {"yes", "", false},
+	} {
+		c, err := FromEnv(getenv(merge(vertexEnv(), map[string]string{"BROKER_WORKFLOW": tt.value})))
+		switch {
+		case tt.ok && (err != nil || c.BrokerWorkflow != tt.want):
+			t.Errorf("BROKER_WORKFLOW=%q: got %q, %v; want %q", tt.value, c.BrokerWorkflow, err, tt.want)
+		case !tt.ok && (err == nil || !strings.Contains(err.Error(), "BROKER_WORKFLOW must be on or off")):
+			t.Errorf("BROKER_WORKFLOW=%q accepted: %v", tt.value, err)
 		}
 	}
 }
@@ -739,5 +805,141 @@ func TestJapanEngineGateConfig(t *testing.T) {
 	}
 	if _, err := FromEnv(getenv(merge(vertexEnv(), map[string]string{"JAPAN_ENGINE": "maybe"}))); err == nil || !strings.Contains(err.Error(), "JAPAN_ENGINE") {
 		t.Errorf("bad JAPAN_ENGINE error = %v", err)
+	}
+}
+
+func TestUSMCARulesExt(t *testing.T) {
+	c, err := FromEnv(getenv(vertexEnv()))
+	if err != nil || c.USMCARulesExt {
+		t.Fatalf("USMCA_RULES_EXT default = %v, %v; want off", c.USMCARulesExt, err)
+	}
+	on, err := FromEnv(getenv(merge(vertexEnv(), map[string]string{"USMCA_RULES_EXT": "on"})))
+	if err != nil || !on.USMCARulesExt {
+		t.Fatalf("USMCA_RULES_EXT=on = %v, %v", on.USMCARulesExt, err)
+	}
+	if _, err := FromEnv(getenv(merge(vertexEnv(), map[string]string{"USMCA_RULES_EXT": "maybe"}))); err == nil {
+		t.Fatal("USMCA_RULES_EXT=maybe accepted")
+	}
+}
+
+func TestRecordsFlagsDefaultOff(t *testing.T) {
+	base := map[string]string{"LLM_PROVIDER": "fake"}
+	get := func(extra map[string]string) func(string) string {
+		return func(k string) string {
+			if v, ok := extra[k]; ok {
+				return v
+			}
+			return base[k]
+		}
+	}
+	c, err := FromEnv(get(nil))
+	if err != nil {
+		t.Fatal(err)
+	}
+	if c.AuditExport || c.Retention {
+		t.Fatalf("records flags on by default: export=%v retention=%v", c.AuditExport, c.Retention)
+	}
+	c, err = FromEnv(get(map[string]string{"AUDIT_EXPORT": "on", "RETENTION": "on"}))
+	if err != nil || !c.AuditExport || !c.Retention {
+		t.Fatalf("on: %+v %v", c.AuditExport, err)
+	}
+	if _, err := FromEnv(get(map[string]string{"RETENTION": "maybe"})); err == nil {
+		t.Fatal("accepted RETENTION=maybe")
+	}
+}
+
+func TestSSOAndSCIMConfig(t *testing.T) {
+	c, err := FromEnv(getenv(vertexEnv()))
+	if err != nil || c.SSO || c.SCIM {
+		t.Fatalf("defaults = %v %v %v, want both off", c.SSO, c.SCIM, err)
+	}
+	teams := map[string]string{"TEAMS": "on", "TEAMS_AUDIENCE": "1234-abc.apps.googleusercontent.com"}
+	sso := merge(teams, map[string]string{"SSO": "on", "SSO_SESSION_KEY": strings.Repeat("k", 32), "SSO_SITE_URL": "https://app.example.com"})
+	on, err := FromEnv(getenv(merge(vertexEnv(), merge(sso, map[string]string{"SCIM": "on"}))))
+	if ac, err := FromEnv(getenv(merge(vertexEnv(), merge(teams, map[string]string{"ADMIN_CONSOLE": "on"})))); err != nil || !ac.AdminConsole {
+		t.Errorf("admin console = %v %v", ac.AdminConsole, err)
+	}
+	if err != nil || !on.SSO || !on.SCIM || on.SSOSessionTTL != 8*time.Hour {
+		t.Fatalf("on = %v %v %v %v", on.SSO, on.SCIM, on.SSOSessionTTL, err)
+	}
+	if strings.Contains(on.String(), strings.Repeat("k", 32)) {
+		t.Error("the session key is printed")
+	}
+	for _, bad := range []map[string]string{
+		{"SSO": "on", "SSO_SESSION_KEY": strings.Repeat("k", 32), "SSO_SITE_URL": "https://app.example.com"}, // no TEAMS
+		merge(sso, map[string]string{"SSO_SESSION_KEY": "short"}),
+		merge(sso, map[string]string{"SSO_SITE_URL": "http://app.example.com"}),
+		merge(sso, map[string]string{"SSO_SITE_URL": "https://app.example.com/path"}),
+		merge(sso, map[string]string{"SSO_SESSION_TTL": "48h"}),
+		merge(teams, map[string]string{"SCIM": "on"}), // no SSO
+		merge(sso, map[string]string{"SCIM": "maybe"}),
+		{"ADMIN_CONSOLE": "on"}, // no TEAMS
+		merge(teams, map[string]string{"ADMIN_CONSOLE": "maybe"}),
+	} {
+		if _, err := FromEnv(getenv(merge(vertexEnv(), bad))); err == nil || !strings.Contains(err.Error(), "SSO") && !strings.Contains(err.Error(), "SCIM") && !strings.Contains(err.Error(), "ADMIN_CONSOLE") {
+			t.Errorf("%v accepted: %v", bad, err)
+		}
+	}
+}
+
+func TestWebhooksConfig(t *testing.T) {
+	c, err := FromEnv(getenv(vertexEnv()))
+	if err != nil || c.Webhooks {
+		t.Fatalf("default = %v %v, want off", c.Webhooks, err)
+	}
+	teams := map[string]string{"TEAMS": "on", "TEAMS_AUDIENCE": "1234-abc.apps.googleusercontent.com"}
+	key := strings.Repeat("w", 32)
+	on, err := FromEnv(getenv(merge(vertexEnv(), merge(teams, map[string]string{"WEBHOOKS": "on", "WEBHOOKS_SECRET_KEY": key}))))
+	if err != nil || !on.Webhooks || on.WebhooksSecretKey != key {
+		t.Fatalf("on = %v %v", on.Webhooks, err)
+	}
+	if strings.Contains(on.String(), key) {
+		t.Error("the secret key is in the startup log line")
+	}
+	for _, bad := range []map[string]string{
+		{"WEBHOOKS": "on", "WEBHOOKS_SECRET_KEY": key},
+		merge(teams, map[string]string{"WEBHOOKS": "maybe", "WEBHOOKS_SECRET_KEY": key}),
+		merge(teams, map[string]string{"WEBHOOKS": "on"}),
+		merge(teams, map[string]string{"WEBHOOKS": "on", "WEBHOOKS_SECRET_KEY": "short-secret-value"}),
+	} {
+		if _, err := FromEnv(getenv(merge(vertexEnv(), bad))); err == nil || !strings.Contains(err.Error(), "WEBHOOKS") {
+			t.Errorf("%v accepted: %v", bad, err)
+		} else if strings.Contains(err.Error(), "short-secret-value") {
+			t.Errorf("error repeats the key: %v", err)
+		}
+	}
+}
+
+func TestSupplierDeclarationsConfig(t *testing.T) {
+	teams := map[string]string{"TEAMS": "on", "TEAMS_AUDIENCE": "1234-abc.apps.googleusercontent.com"}
+	if c, err := FromEnv(getenv(vertexEnv())); err != nil || c.SupplierDeclarations || c.RateDeclarationPerMin != 30 {
+		t.Errorf("default = %v %d %v, want off and 30 a minute", c.SupplierDeclarations, c.RateDeclarationPerMin, err)
+	}
+	if c, err := FromEnv(getenv(merge(vertexEnv(), merge(teams, map[string]string{"SUPPLIER_DECLARATIONS": "on", "RATE_DECLARATION_PER_MIN": "5"})))); err != nil || !c.SupplierDeclarations || c.RateDeclarationPerMin != 5 {
+		t.Errorf("on = %v %d %v", c.SupplierDeclarations, c.RateDeclarationPerMin, err)
+	}
+	for _, bad := range []map[string]string{
+		{"SUPPLIER_DECLARATIONS": "on"}, // no TEAMS
+		merge(teams, map[string]string{"SUPPLIER_DECLARATIONS": "maybe"}),
+		merge(teams, map[string]string{"SUPPLIER_DECLARATIONS": "on", "RATE_DECLARATION_PER_MIN": "-1"}),
+	} {
+		if _, err := FromEnv(getenv(merge(vertexEnv(), bad))); err == nil || !strings.Contains(err.Error(), "SUPPLIER_DECLARATIONS") && !strings.Contains(err.Error(), "RATE_DECLARATION_PER_MIN") {
+			t.Errorf("%v accepted: %v", bad, err)
+		}
+	}
+}
+
+func TestTariffWatchConfig(t *testing.T) {
+	c, err := FromEnv(getenv(vertexEnv()))
+	if err != nil || c.TariffWatch {
+		t.Fatalf("default = %v %v, want off", c.TariffWatch, err)
+	}
+	for _, v := range []string{"on", "true", "1"} {
+		if c, err := FromEnv(getenv(merge(vertexEnv(), map[string]string{"TARIFF_WATCH": v}))); err != nil || !c.TariffWatch {
+			t.Errorf("TARIFF_WATCH=%s = %v %v", v, c.TariffWatch, err)
+		}
+	}
+	if _, err := FromEnv(getenv(merge(vertexEnv(), map[string]string{"TARIFF_WATCH": "maybe"}))); err == nil || !strings.Contains(err.Error(), "TARIFF_WATCH") {
+		t.Errorf("bad value = %v", err)
 	}
 }

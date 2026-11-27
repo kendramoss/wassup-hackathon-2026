@@ -22,8 +22,10 @@ import (
 	"time"
 	"unicode/utf8"
 
+	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/adcvd"
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/apikey"
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/audit"
+	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/blob"
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/caseagent"
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/clarify"
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/cross"
@@ -35,16 +37,21 @@ import (
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/export"
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/llm"
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/logsafe"
+	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/metering"
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/planner"
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/planrule"
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/ratelimit"
+	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/retention"
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/router"
+	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/scim"
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/spend"
+	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/sso"
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/store"
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/tariffshift"
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/teams"
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/triage"
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/verifier"
+	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/webhooks"
 )
 
 // Predictor predicts origin (engine.Engine).
@@ -210,9 +217,29 @@ type Deps struct {
 	// spend reaches its cap (D59). The admin token is not exempt from
 	// counting, only from the refusal.
 	Spend *spend.Meter
+	// Metering, when set (USAGE_METERING=on, with teams), counts each
+	// workspace's predictions, plan searches and model spend per UTC month
+	// and enforces its budget; it serves the workspace usage and budget
+	// routes (#886). Nil: nothing is metered and the routes are 404.
+	Metering *metering.Meter
+	// Webhooks, when set (WEBHOOKS=on, with teams), lets a workspace admin
+	// register signed HTTPS callbacks for workspace events and serves the
+	// endpoint, delivery-log and test routes (#915). Nil: no event is sent
+	// and the routes are 404.
+	Webhooks *webhooks.Service
 	// ExportCFR177 lets export take "format": "cfr177", the ruling-request
 	// letter laid out on 19 CFR 177.2 (D66). Off: the field is refused.
 	ExportCFR177 bool
+	// ATIGACheck serves POST /v1/atiga/check (D927). Off by default.
+	ATIGACheck bool
+	// ADCVD, when set, serves POST /v1/adcvd/check and adds adcvd_check to a
+	// case that gives part codes: parts that may be subject to an AD or CVD
+	// order, display only (D939). Nil (the default) is off.
+	ADCVD *adcvd.Table
+	// ADCVDReader, when set (ADCVD_SCOPE_READER=on), has a model read each
+	// listed order's written scope against the part's name in POST
+	// /v1/adcvd/check (D942, D943). The case view keeps the plain match.
+	ADCVDReader adcvd.Reader
 	// CaseOwnership limits each visitor to the pinned demos and their own
 	// cases (X-Visitor-ID from the frontend proxy; D58). Off by default.
 	CaseOwnership bool
@@ -237,12 +264,45 @@ type Deps struct {
 	// diffed against the case's product and re-predicted (D67). Off by
 	// default (the route is not registered).
 	BOMVersions bool
+	// ERPImport serves POST /v1/products/erp-import: BOM exports from an
+	// ERP (generic CSV, SAP S/4HANA, NetSuite or JSON) checked and, on
+	// commit, filed as cases idempotently (#880). Off by default (the route
+	// is not registered).
+	ERPImport bool
+	// BrokerWorkflow serves the review queue, case discussion and sign-offs,
+	// and the eRulings filing package (brokerflow.go). Off by default (the
+	// routes are not registered).
+	BrokerWorkflow bool
 	// Teams turns on sign-in and team workspaces (D68): X-User-Token is
 	// verified by Users, and Workspaces maps the user to their workspace.
 	// Off by default; anonymous requests keep CaseOwnership's rules.
 	Teams      bool
 	Users      teams.Verifier
 	Workspaces teams.Store
+	// SSO, when set (and Teams on), serves single sign-on (#868): the
+	// sign-in routes under /v1/sso and the connection routes under
+	// /v1/workspaces/{id}/sso. Users should then be SSO.Verifier(google), so
+	// SSO session tokens are accepted as X-User-Token. Nil: 404.
+	SSO *sso.Service
+	// SCIM holds the per-workspace SCIM tokens (#869); provisioning routes
+	// are registered only with SSO, whose verified domains bound what a
+	// token may manage. Nil: 404.
+	SCIM scim.Store
+	// AdminConsole registers GET /v1/workspaces/{id}/admin (#870), the
+	// workspace admin's settings overview. Needs Teams.
+	AdminConsole bool
+	// SupplierDeclarations registers the supplier origin declaration routes
+	// (#916): a requester's routes on a case, the supplier's token routes
+	// and the expiry listing. Needs Teams.
+	SupplierDeclarations bool
+	// SupplierDocs holds the files suppliers attach to an answer, by hash
+	// (envelope-encrypted where the cache is). Nil: an answer with a file is
+	// refused (503), an answer without one is not affected.
+	SupplierDocs blob.Store
+	// TariffWatch (TARIFF_WATCH=on) stores the duty basis on each case a plan
+	// search prices and, with Teams, registers
+	// GET /v1/workspaces/{id}/tariff-watch (#917).
+	TariffWatch bool
 	// APIKeys, when set, accepts X-API-Key (its own rate-limit buckets, a
 	// daily request quota, cases owned by the key) and serves the admin key
 	// endpoints (D69). Nil: the header is ignored and the endpoints are 404.
@@ -259,10 +319,20 @@ type Deps struct {
 	StreamPredict bool
 	// Checks run on GET /health?deep=1 (store write, model call).
 	Checks []HealthCheck
+	// Status, when set, serves GET /v1/status for a status page (#885,
+	// STATUS_PAGE=on).
+	Status *StatusPage
 	// Audit, when set, records the audit trail (#284) and serves GET
 	// /v1/audit and /v1/audit/verify. Nil: no event is recorded, the routes
 	// are not registered and no write is gated on the trail.
 	Audit *audit.Service
+	// AuditExport serves GET /v1/audit/export (#871) when Audit is set.
+	// Off by default.
+	AuditExport bool
+	// Retention, when set with Teams, serves a workspace's retention policy
+	// and tombstones and writes a tombstone before each workspace case
+	// deletion (#875). Nil: off.
+	Retention retention.Store
 }
 
 // maxBody caps request bodies (a product with dozens of parts is ~10 KB).
@@ -274,14 +344,18 @@ type api struct {
 	shared    *sharedLimiter // nil unless Deps.RateStore is set
 	inflight  *inflight      // nil unless Limits.MaxInFlight is set
 	authFails *authFailures  // failed API-key checks per client; nil unless Deps.APIKeys is set
+	scimFails *authFailures  // failed SCIM token checks per client; nil unless Deps.SCIM and a limit are set
 	// reviewFails counts invalid broker review tokens per client (D200); nil
 	// without limits.
 	reviewFails *authFailures
-	quotaLocal  *localQuota // API-key requests counted here while the quota store fails
-	rulingMu    sync.Mutex
-	rulingMemo  map[string]rulingDTO
-	askMu       sync.Mutex
-	askMemo     map[string]caseagent.Answer
+	// declFails counts invalid supplier declaration tokens per client
+	// (#916); nil when AuthFailuresPerMin is 0.
+	declFails  *authFailures
+	quotaLocal *localQuota // API-key requests counted here while the quota store fails
+	rulingMu   sync.Mutex
+	rulingMemo map[string]rulingDTO
+	askMu      sync.Mutex
+	askMemo    map[string]caseagent.Answer
 	// flights joins duplicate plan searches (D402); nil runs each request.
 	flights *planFlights
 }
@@ -317,17 +391,19 @@ func (a *api) errorFor(r *http.Request, err error) (int, string, string) {
 	switch {
 	case errors.Is(err, domain.ErrInvalid), errors.Is(err, planner.ErrUnknownFamily):
 		return http.StatusBadRequest, "invalid_input", err.Error()
-	case errors.Is(err, apikey.ErrBadRequest):
+	case errors.Is(err, apikey.ErrBadRequest), errors.Is(err, webhooks.ErrInvalid):
 		return http.StatusBadRequest, "invalid_input", err.Error()
+	case errors.Is(err, webhooks.ErrFull):
+		return http.StatusConflict, "conflict", err.Error()
 	case errors.Is(err, errNeedsVerified):
 		return http.StatusUnauthorized, "unauthenticated", needsVerifiedError
 	case errors.Is(err, errForbidden):
 		return http.StatusForbidden, "forbidden", forbiddenMessage
 	case errors.Is(err, errAuditUnavailable):
 		return http.StatusServiceUnavailable, "audit_unavailable", "the audit trail is unavailable, so this change was not made; try again"
-	case errors.Is(err, errSuperseded), errors.Is(err, errIdempotencyReuse), errors.Is(err, errOriginFactsChanged), errors.Is(err, errFamilyFactsChanged):
+	case errors.Is(err, errSuperseded), errors.Is(err, errIdempotencyReuse), errors.Is(err, errOriginFactsChanged), errors.Is(err, errFamilyFactsChanged), errors.Is(err, errBrokerConflict):
 		return http.StatusConflict, "conflict", err.Error()
-	case errors.Is(err, store.ErrNotFound), errors.Is(err, cross.ErrNotFound), errors.Is(err, apikey.ErrNotFound):
+	case errors.Is(err, store.ErrNotFound), errors.Is(err, cross.ErrNotFound), errors.Is(err, apikey.ErrNotFound), errors.Is(err, webhooks.ErrNotFound):
 		return http.StatusNotFound, "not_found", err.Error()
 	case errors.Is(err, llm.ErrBadResponse):
 		a.d.Logger.ErrorContext(r.Context(), "model bad response", "request_id", requestRef(r.Context()), "err", logsafe.Err(err))
@@ -551,6 +627,7 @@ func (a *api) analyse(r *http.Request, sc *store.Case, c domain.Case, st *stages
 	if err != nil {
 		return err
 	}
+	a.meterAdd(r.Context(), metering.Delta{Predictions: 1})
 	sc.Prediction, sc.Router, sc.Triage = pred, label, tr
 	sc.Clarify = nil
 	// A fallback answer stays on the fallback reason. Clarify would rewrite
@@ -633,6 +710,7 @@ func (a *api) answers(w http.ResponseWriter, r *http.Request) {
 	}
 	sc.Answers = append(sc.Answers, in.Answers...)
 	facts, _ := clarify.AppendAnswers(sc.OriginalFacts, toClarify(sc.Answers))
+	facts = a.withSupplierFacts(sc, facts) // declared origins that hold, beside what the user said (#916)
 	date, _ := time.Parse(time.DateOnly, sc.Date)
 	c := domain.Case{ID: sc.ID, Date: date, Facts: facts, Product: sc.Product, Exclude: sc.Exclude, Jurisdiction: caseMarket(sc), Japan: sc.Japan}
 	if err := c.Validate(); err != nil {
@@ -723,6 +801,11 @@ func (a *api) caseFields(r *http.Request, c store.Case) map[string]any {
 	if rv := a.ownerReviews(r, c); len(rv) > 0 {
 		f["broker_reviews"] = rv
 	}
+	// Supplier declarations (#916), only on a case that was asked and with
+	// the flag on: every other case reads byte for byte as before.
+	if a.d.SupplierDeclarations && len(c.SupplierRequests) > 0 && !a.demoReadOnly(r, c) {
+		f["supplier_declarations"] = supplierDeclarations(c, time.Now().UTC())
+	}
 	moneyStaleFields(f, c)
 	return f
 }
@@ -768,6 +851,11 @@ func (a *api) caseFieldsBase(r *http.Request, c store.Case) map[string]any {
 	// so every other case reads byte for byte as before.
 	if rc := a.ruleCheck(c); rc != nil {
 		f["rule_check"] = rc
+	}
+	// Parts that may be subject to an AD or CVD order (D939), only with the
+	// check on and a part code given. Information only.
+	if ac := a.adcvdCaseCheck(c); ac != nil {
+		f["adcvd_check"] = ac
 	}
 	// Facts supplied to the EU or UK check (D801), only when there are some.
 	if len(c.OriginFacts) > 0 {
@@ -1187,10 +1275,14 @@ func (a *api) plan(w http.ResponseWriter, r *http.Request) {
 		a.fail(w, r, err)
 		return
 	}
+	if !a.planBudgetCheck(w, r, req) {
+		return
+	}
 	if err := a.auditCase(r, c, "plan"); err != nil {
 		a.fail(w, r, err)
 		return
 	}
+	a.meterAdd(r.Context(), metering.Delta{PlanSearches: 1})
 	if wantsStream(r) {
 		a.planStream(w, r, c, req, in.Economics, st)
 		return
@@ -1236,6 +1328,7 @@ func (a *api) planSearch(ctx context.Context, c store.Case, req planner.Request,
 	if !readOnly {
 		ev := a.planEvent(res)
 		now := time.Now().UTC()
+		basis := a.snapshotBasis(req, now) // TARIFF_WATCH: what this search priced the money on (#917)
 		if _, err := a.d.Cases.Update(ctx, c.ID, func(latest *store.Case) error {
 			if err := stillCurrent(latest, fp); err != nil {
 				return err
@@ -1245,6 +1338,7 @@ func (a *api) planSearch(ctx context.Context, c store.Case, req planner.Request,
 			}
 			latest.Plan, latest.UpdatedAt = &res, now
 			latest.Economics = economicsFrom(in.Economics, latest.Economics)
+			setDutyBasis(latest, basis)
 			record(ctx, latest, ev)
 			return nil
 		}); err != nil {
@@ -1312,7 +1406,11 @@ func (a *api) planEstimate(w http.ResponseWriter, r *http.Request) {
 		a.fail(w, r, err)
 		return
 	}
-	a.respond(w, http.StatusOK, map[string]any{"case_id": c.ID, "estimate": e})
+	out := map[string]any{"case_id": c.ID, "estimate": e}
+	if b := a.estimateBudget(r, e); b != nil {
+		out["workspace_budget"] = b
+	}
+	a.respond(w, http.StatusOK, out)
 }
 
 // economicsPriced is the case's economics with the duty rates a plan search
@@ -1486,6 +1584,7 @@ func (a *api) planStream(w http.ResponseWriter, r *http.Request, c store.Case, r
 	if err == nil && !a.demoReadOnly(r, c) {
 		ev := a.planEvent(res)
 		now := time.Now().UTC()
+		basis := a.snapshotBasis(req, now) // TARIFF_WATCH (#917)
 		_, err = a.d.Cases.Update(r.Context(), c.ID, func(latest *store.Case) error {
 			if err := stillCurrent(latest, fp); err != nil {
 				return err
@@ -1495,6 +1594,7 @@ func (a *api) planStream(w http.ResponseWriter, r *http.Request, c store.Case, r
 			}
 			latest.Plan, latest.UpdatedAt = &res, now
 			latest.Economics = economicsFrom(raw, latest.Economics)
+			setDutyBasis(latest, basis)
 			record(r.Context(), latest, ev)
 			return nil
 		})

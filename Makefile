@@ -2,7 +2,7 @@
 GO_DIR := backend
 STATICCHECK ?= $(shell command -v staticcheck 2>/dev/null || echo $(HOME)/go/bin/staticcheck)
 
-.PHONY: doctor demo-seed test lint fmt run smoke reproduce verify-data eval-dev eval-test eval-report eval-slice prompt-snapshot eval-summary bundle-corpus upload-corpus
+.PHONY: doctor demo-seed test lint fmt run smoke reproduce verify-data eval-dev eval-test eval-report eval-slice prompt-snapshot eval-summary bundle-corpus upload-corpus refresh rescore-build rescore-run
 
 test: ## unit tests, no network
 	cd $(GO_DIR) && go test ./...
@@ -122,11 +122,22 @@ reproduce: ## recompute every published number from committed files: no model ca
 	python3 -I -B eval/agent/score.py . --check
 	python3 -I -B eval/jp/split.py . --check
 	python3 -I -B eval/ca/parse.py --check
+	python3 -I -B eval/usmca/build_gn11o.py . --check
+	cd $(GO_DIR) && go run ./cmd/usmcaeval -split dev -check
+	cd $(GO_DIR) && go run ./cmd/usmcaeval -split held_out -check
+	python3 -I -B eval/atiga/parse_psr.py check backend/internal/atiga/data/psr_hs2022.json
+	python3 -I -B eval/adcvd/build_orders.py check backend/internal/adcvd/data/orders.json
+	python3 -I -B eval/adcvd/build_orders.py check eval/adcvd/orders-2024-12-31.json
+	cd $(GO_DIR) && go run ./cmd/adcvdeval -dir ../eval/adcvd -orders ../eval/adcvd/orders-2024-12-31.json -out ../eval/adcvd/results.jsonl -summary ../eval/adcvd/summary.json -check
 	python3 -I -B eval/jp/labels.py . --check
 	python3 -I -B eval/jp/labels.py . --fresh --check
 	python3 -I -B eval/jp/fresh_twins.py . --check
 	python3 -I -B eval/jp/answer_oracle.py . --check
 	python3 -I -B eval/jp/test_answer_oracle.py
+	python3 -I -B eval/jp/test_refresh.py
+	python3 -I -B eval/rescore/test_build_split.py
+	python3 -I -B eval/rescore/test_summarize.py
+	python3 -I -B eval/rescore/summarize.py . --month 2026-11 --check
 	python3 -I -B eval/jp/check_translations.py . --check
 	cd $(GO_DIR) && go run ./cmd/rcepeval -check
 	cd $(GO_DIR) && go run ./cmd/jpeval bundle -check
@@ -149,6 +160,19 @@ reproduce: ## recompute every published number from committed files: no model ca
 	python3 -I -B eval/jp/labels.py . --held-out --confirm-phase2 --check
 	cd $(GO_DIR) && go run ./cmd/jpeval candidate-summary -prompt-version jp-engine-v1 -split held_out -check
 	cd $(GO_DIR) && go run ./cmd/jpeval candidate-summary -prompt-version jp-engine-v1 -split synthetic -check
+
+refresh: ## find new CBP and Japan Customs rulings and check them (D931; network, no model calls): make refresh DATE=YYYY-MM-DD JP_RAW=dir [JP_SEED=dir]
+	cd $(GO_DIR) && go run ./cmd/corpus refresh -date $(DATE)
+	python3 -I -B eval/jp/refresh.py . $(JP_RAW) $(if $(JP_SEED),--seed $(JP_SEED)) --date $(DATE)
+
+rescore-build: ## label and freeze the month's CBP re-scoring set from a refresh (D931; no model calls): make rescore-build MONTH=YYYY-MM REFRESH=YYYY-MM-DD FROZEN_AT=ISO
+	mkdir -p eval/rescore/$(MONTH)/facts
+	cd $(GO_DIR) && go run ./cmd/corpus final2-label -index ../eval/refresh/$(REFRESH)/cbp_probe.jsonl -since 2000-01-01 -existing ../eval/data/labels.jsonl,../eval/data/labels_usmca.jsonl,../eval/data/labels_final2.jsonl,../eval/data/labels_usmca_final2.jsonl -manual ../eval/rescore/$(MONTH)/manual.json -facts ../eval/rescore/$(MONTH)/facts -out ../eval/rescore/$(MONTH)/labels.jsonl
+	python3 -I -B eval/rescore/build_split.py . --month $(MONTH) --frozen-at $(FROZEN_AT)
+
+rescore-run: ## score production once on the month's frozen set, after its pre-registration is pushed (D931; gateway): make rescore-run MONTH=YYYY-MM
+	cd $(GO_DIR) && go run ./cmd/eval run -split monthly -confirm-final -router -tag rescore-$(MONTH) -splits ../eval/rescore/$(MONTH)/splits.json -labels data/labels.jsonl -case-labels ../eval/rescore/$(MONTH)/labels.jsonl -facts data/facts,../eval/rescore/$(MONTH)/facts
+	python3 -I -B eval/rescore/summarize.py . --month $(MONTH)
 
 verify-data: ## check committed eval data against eval/SHA256SUMS and the bundled corpus against it
 	cd eval && shasum -a 256 -c SHA256SUMS

@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 import { api, type EvalSummary } from "@/lib/api/client";
 import { copy } from "@/lib/copy";
-import { japanEvidence, rcepEvidence } from "@/lib/market-evidence";
+import { adcvdCheck, japanEvidence, japanMeasured, rcepEvidence, rulesChecks, tariffWatch } from "@/lib/market-evidence";
 import failureData from "@/lib/failure-cases.json";
 import { ErrorBox, Main } from "../chrome";
 import { ButtonLink, Chip, Fold, ScrollX, cx } from "../ui";
@@ -250,55 +250,155 @@ function PlanEvidence({ calibration }: { calibration?: VerifierEvidence }) {
   );
 }
 
-// D691, D716 and D717. The first-render counts are pinned to
-// eval/rcep/japan-summary.json by the Accuracy copy test.
-function JapanExperiment() {
+// D920 and D922, the production Japan engine and evidence. The earlier D741
+// offline test (before the rule text and evidence changes) is kept in the fold.
+function JapanMeasured() {
+  const m = japanMeasured;
   const j = japanEvidence;
-  const parts = [
-    { key: "match", label: "Matched the ruling's criterion", n: j.criterionMatch, bar: "bg-ok" },
-    { key: "other", label: "Qualified, different criterion", n: j.otherQualifies, bar: "bg-ok-wash border border-ok" },
-    { key: "und", label: "Undetermined", n: j.undetermined, bar: "bg-guide" },
-    { key: "err", label: "Failed calls", n: j.errors, bar: "bg-fail" },
-  ];
+  const link = "text-ok underline underline-offset-2 max-sm:inline-flex max-sm:min-h-11 max-sm:items-center";
   return (
-    <div id="japan-experiment" className="mt-5 border-t border-line pt-4">
-      <h3 className="text-sm font-semibold">Japan model: offline experiment</h3>
+    <div id="japan-measured" className="mt-5 border-t border-line pt-4">
+      <h3 className="text-sm font-semibold">Japan: tested on new rulings</h3>
       <p className="read mt-1 text-sm text-dim">
-        Experimental and unreviewed. This run used a private gateway, not the live Japan route. All {j.cases} rulings are real approvals, so this is not an accuracy rate.
+        {m.unseen} Japan Customs rulings published after our 22 Nov copy. All {m.unseen} approved the preference. Run through our gateway, with the model and evidence the live site uses.
       </p>
-      <p className="mt-2 text-sm tabular-nums">
-        <strong>{j.criterionMatch}/{j.cases}</strong> matched the ruling&apos;s criterion ({j.matchPct}, 95% interval {j.matchInterval}%).
-      </p>
-      <div role="img" aria-label={parts.map((x) => `${x.n} ${x.label.toLowerCase()}`).join(", ") + `, out of ${j.cases}`} className="mt-2 flex h-2.5 gap-0.5">
-        {parts.map((x) => (
-          <span key={x.key} className={`h-full rounded-[2px] ${x.bar}`} style={{ flexGrow: x.n, minWidth: 3 }} />
-        ))}
-      </div>
-      <ul className="mt-2 grid gap-x-4 gap-y-1 text-sm tabular-nums sm:grid-cols-2">
-        {parts.map((x) => (
-          <li key={x.key} className="flex items-center gap-2">
-            <span aria-hidden="true" className={`inline-block size-2.5 shrink-0 rounded-[2px] ${x.bar}`} />
-            <strong>{x.n}</strong> <span className="text-dim">{x.label}</span>
-          </li>
-        ))}
-      </ul>
-      <p className="mt-2 text-sm tabular-nums">
-        <strong>{j.syntheticRefused}/{j.syntheticCases}</strong> fictional non-qualifying cases refused (95% interval {j.syntheticInterval}%). Too few to show a refusal rate.
-      </p>
-      <Details title="Japan experiment details">
+      <dl className="mt-3 grid gap-x-6 gap-y-3 text-sm tabular-nums sm:grid-cols-2">
+        <div>
+          <dt className="text-dim">Right rule named</dt>
+          <dd><strong>{m.unseenRight}/{m.unseen}</strong> (84.1%, 95% interval {m.unseenInterval}%)</dd>
+        </div>
+        <div>
+          <dt className="text-dim">Right rule, after the user answers the question card</dt>
+          <dd><strong>{m.unseenAnswered}/{m.unseen}</strong> ({m.unseenAnsweredPct}, {m.unseenAnsweredInterval}%)</dd>
+        </div>
+        <div>
+          <dt className="text-dim">Development rulings, same two steps</dt>
+          <dd><strong>{m.devRight} → {m.devAnswered}/{m.dev}</strong> ({m.devAnsweredPct}, {m.devAnsweredInterval}%)</dd>
+        </div>
+        <div>
+          <dt className="text-dim">Made-up non-qualifying cases approved</dt>
+          <dd><strong>{m.negativesApproved}/{m.negatives}</strong></dd>
+        </div>
+      </dl>
+      <Details title="Japan test details">
         <p>
-          One run of one model and prompt through the LiteLLM gateway, no retries. Positive recall, counting qualifying answers of any criterion, was {j.recall}/{j.cases} ({j.recallPct}, {j.recallInterval}%). Every undetermined answer and failed call stays in the {j.cases}.
+          One run each, no retries. The question card asks which materials have no proof of origin. The figures after it assume the user answers it; the answers here are taken from each ruling&apos;s own account of the facts. Without answers, a case with missing facts stays undetermined.
         </p>
         <p>
-          Earlier rulings in the test set could be retrieved as precedents for later cases (197 of 863 cited), never the same or a later case. The rulings are not wholly unseen. The earlier attempt returned only gateway errors and is kept as unmeasured, not 0%.
+          With the card answered, the EU agreement went from 128 to {m.euAnswered} of {m.euCases} development rulings. The development set was used to build the model, so it is not a blind test.
         </p>
         <p>
-          <a href={`${copy.landing.repo}/blob/main/eval/RESULTS.md#japan-d741-re-run`} className="text-ok underline underline-offset-2 max-sm:inline-flex max-sm:min-h-11 max-sm:items-center">
-            See the Japan run results →
+          The {m.unseen} new rulings lean to easy agreements: at the development rates, about 32 would be expected right. 41 repeat an earlier request. With those earlier rulings removed from the precedents, the same 37 were right. The 7 misses: 5 undetermined and 2 named a different rule that also applies.
+        </p>
+        <p>
+          Every ruling here is an approval, so they cannot show wrong approvals. For that, {m.negatives} made-up cases that should not qualify were run: {m.negativesApproved} approved. They are constructed, not real rulings.
+        </p>
+        <p>
+          Earlier test, 24 Nov, before the rule text and evidence changes, on {j.cases} earlier rulings: {j.criterionMatch} matched the ruling&apos;s criterion ({j.matchPct}, {j.matchInterval}%), {j.undetermined} undetermined. That test is used up: its rulings have since served as precedents. The figures above replace it.
+        </p>
+        <p>Review by a Japanese customs specialist is pending.</p>
+        <p>
+          <a href={`${copy.landing.repo}/blob/main/docs/DECISIONS.md#d920--japan-rulings-published-after-22-nov-results-of-d919-26-nov`} className={link}>
+            See the Japan results →
           </a>
         </p>
       </Details>
     </div>
+  );
+}
+
+// D932 and D927. Both checks run without a model.
+function RulesChecks() {
+  const r = rulesChecks;
+  const a = adcvdCheck;
+  const link = "text-ok underline underline-offset-2 max-sm:inline-flex max-sm:min-h-11 max-sm:items-center";
+  return (
+    <div id="rules-checks" className="mt-5 border-t border-line pt-4">
+      <h3 className="text-sm font-semibold">USMCA and ASEAN rules checks</h3>
+      <dl className="mt-3 grid gap-x-6 gap-y-3 text-sm tabular-nums sm:grid-cols-2">
+        <div>
+          <dt className="text-dim">USMCA origin rules (General Note 11), agreement with CBP on decided products</dt>
+          <dd><strong>{r.usmcaAgreed}/{r.usmcaDecided}</strong> ({r.usmcaPct}, 95% interval {r.usmcaInterval}%)</dd>
+        </div>
+        <div>
+          <dt className="text-dim">ASEAN (ATIGA) check, authority worked examples</dt>
+          <dd><strong>{r.atigaReached}/{r.atigaExamples}</strong> reach the stated result. Not an accuracy rate.</dd>
+        </div>
+      </dl>
+      <div className="mt-4 border-t border-line pt-3">
+        <h4 className="text-sm font-semibold">Anti-dumping and countervailing duty check (off)</h4>
+        <dl className="mt-2 grid gap-x-6 gap-y-3 text-sm tabular-nums sm:grid-cols-2">
+          <div>
+            <dt className="text-dim">Flagged orders that covered the product</dt>
+            <dd><strong>{a.correctFlags}/{a.flaggedTotal}</strong> ({a.precisionPct}, 95% interval {a.precisionInterval}%)</dd>
+          </div>
+          <div>
+            <dt className="text-dim">Covered products flagged</dt>
+            <dd><strong>{a.flagged}/{a.within}</strong> ({a.recallPct}, 95% interval {a.recallInterval}%)</dd>
+          </div>
+        </dl>
+        <p className="read mt-2 text-sm text-dim">
+          Without reading each order&apos;s scope: {a.plainCorrect}/{a.plainTotal} ({a.plainPct}). Flagging every product would be right {a.baselinePct} of the time.
+        </p>
+        <p className="read mt-1 text-sm text-dim">
+          Earlier test, {a.earlier.rulings} rulings: {a.earlier.correctFlags}/{a.earlier.flaggedTotal} ({a.earlier.precisionPct}, {a.earlier.precisionInterval}%) and {a.earlier.flagged}/{a.earlier.within} ({a.earlier.recallPct}, {a.earlier.recallInterval}%).
+        </p>
+      </div>
+      <Details title="Rules check details">
+        <p>
+          USMCA: held-out CBP rulings dated 2026 and later, scored once. The check decided {r.usmcaDecided} of {r.usmcaProducts} products and left {r.usmcaProducts - r.usmcaDecided} undecided, mostly for a missing material code or a rule it does not model. The figure covers only the decided products. It was built on rulings before 2026.
+        </p>
+        <p>
+          Duty orders: {a.rulings} Commerce scope rulings made July 2023 to December 2024, after the order list was frozen on 30 Jun 2023, and the method was written down before they were scored. A model reads each flagged order&apos;s written scope and drops the order only when the scope clearly points away from the product. The gain over plain matching is a few points and the intervals overlap. The product description is written by a model from the ruling and can carry the facts that decided it, so real part names will gain less. The product code is suggested by a model, so its errors are included; the covered products not flagged carry a code the scope does not list. The check cannot see goods that reach the order through a third country. It only shows possible exposure; the order&apos;s written scope decides.
+        </p>
+        <p>
+          The {a.earlier.rulings} rulings of the earlier test, made in 2025 and 2026, are now seen and were not used to choose the method: the same method gives 11/19 (57.9%) on them.
+        </p>
+        <p>
+          ATIGA: no ASEAN Member State publishes origin rulings, so there is nothing to measure accuracy against. The {r.atigaExamples} examples come from customs authorities&apos; own guides. They show the arithmetic and rule reading match those guides, not customs decisions.
+        </p>
+        <p>
+          <a href={`${copy.landing.repo}/blob/main/docs/DECISIONS.md#d932--usmca-origin-rule-check-beyond-the-pilot-held-out-result-27-nov-877`} className={link}>
+            See the USMCA result →
+          </a>
+        </p>
+      </Details>
+    </div>
+  );
+}
+
+function TariffWatchEvidence() {
+  const t = tariffWatch;
+  return (
+    <section id="tariff-watch" aria-labelledby="acc-tariff" className="mt-8 scroll-mt-20 rounded-[2px] border border-edge bg-sheet px-4 py-5 sm:px-6">
+      <h2 id="acc-tariff" className="text-xl font-semibold tracking-tight">Tariff watch</h2>
+      <p className="read mt-1 text-sm text-dim">
+        Which China tariff lines a new HTS revision affects, checked against the Federal Register notices behind HTS revision 23 (10 Nov 2026). Rule based, no model.
+      </p>
+      <dl className="mt-3 grid gap-x-6 gap-y-3 text-sm tabular-nums sm:grid-cols-3">
+        <div>
+          <dt className="text-dim">Affected lines found</dt>
+          <dd><strong>{t.found}/{t.affected}</strong> ({t.recallPct}, 95% interval {t.recallInterval}%)</dd>
+        </div>
+        <div>
+          <dt className="text-dim">Wrong alarms</dt>
+          <dd><strong>{t.falseAlarms}</strong> of {t.found} flagged (interval {t.precisionInterval}%)</dd>
+        </div>
+        <div>
+          <dt className="text-dim">New rate exactly right</dt>
+          <dd><strong>{t.rateRight}/{t.rateLines}</strong> lines</dd>
+        </div>
+      </dl>
+      <Details title="Tariff watch limits">
+        <p>Not a blind test: we read the notices while building the loader. It shows the loader reproduces documented changes, not that it finds unknown ones.</p>
+        <p>Scored twice. The first scoring had 6 wrong alarms of 120 flagged (95%). Reading them showed our answer key had missed lines the notices do name, so we fixed how we read the notices and scored again; the loader was not changed. Both runs are in D941.</p>
+        <p>One pair of revisions. The rate change is 4 lines, so 4 of 4 is a small test. No change to a base duty rate or a Section 232 duty was in this pair.</p>
+        <p>Not dollars: it finds which lines changed terms (an exclusion window or a start date). Exclusions are reported, not applied to the rate.</p>
+        <p>
+          The {t.lines.toLocaleString("en-US")} lines are every line our data gives a China duty or exclusion. The list of exclusions in the notice is a scanned image read by OCR, with three readings voted. One line, 6307.90.98, was missed: our data exempts it from the list its exclusion sits under.
+        </p>
+      </Details>
+    </section>
   );
 }
 
@@ -344,11 +444,12 @@ function MarketEvidence() {
           </div>
           <div>
             <dt className="text-sm font-semibold">Japan model</dt>
-            <dd className="read mt-0.5 text-sm text-dim">Where Japan is open, it checks the agreement rules and past rulings. No accuracy figure.</dd>
+            <dd className="read mt-0.5 text-sm text-dim">Open. Right rule on {japanMeasured.unseenRight} of {japanMeasured.unseen} new rulings. Details below.</dd>
           </div>
         </dl>
       </div>
-      <JapanExperiment />
+      <JapanMeasured />
+      <RulesChecks />
     </section>
   );
 }
@@ -533,6 +634,7 @@ export function AccuracyPage() {
       <OutcomeMatrix />
       <PlanEvidence calibration={data?.verifier_calibration} />
       <MarketEvidence />
+      <TariffWatchEvidence />
 
       <section className="mt-8" aria-labelledby="acc-limits">
         <h2 id="acc-limits" className="eyebrow">Test limits</h2>

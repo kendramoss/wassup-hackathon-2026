@@ -44,6 +44,7 @@ func NewHandler(logger *slog.Logger, info Info, deps ...Deps) http.Handler {
 		}
 		if d.Limits.AuthFailuresPerMin > 0 {
 			a.reviewFails = newAuthFailures(d.Limits.AuthFailuresPerMin)
+			a.declFails = newAuthFailures(d.Limits.AuthFailuresPerMin)
 		}
 		if d.APIKeys != nil {
 			if d.Limits.AuthFailuresPerMin > 0 {
@@ -55,6 +56,9 @@ func NewHandler(logger *slog.Logger, info Info, deps ...Deps) http.Handler {
 		mux.HandleFunc("POST /v1/cases/batch", a.limit(bulk, a.batch))
 		mux.HandleFunc("GET /v1/cases", a.cheap(a.listCases))
 		mux.HandleFunc("POST /v1/products/import", a.limit(light, a.importProduct))
+		if d.ERPImport {
+			mux.HandleFunc("POST /v1/products/erp-import", a.limit(bulk, a.erpImport))
+		}
 		mux.HandleFunc("POST /v1/products/extract", a.limit(light, a.extractProduct))
 		if d.MediaExtractor != nil {
 			mux.HandleFunc("POST /v1/products/extract-media", a.limit(light, a.extractMedia))
@@ -98,6 +102,20 @@ func NewHandler(logger *slog.Logger, info Info, deps ...Deps) http.Handler {
 		mux.HandleFunc("DELETE /v1/cases/{id}/reviews/{review}", a.cheap(a.revokeReview))
 		mux.HandleFunc("GET /v1/review", a.rateOnly(review, a.getReview))
 		mux.HandleFunc("POST /v1/review/decision", a.rateOnly(review, a.decideReview))
+		if d.BrokerWorkflow { // review queue, discussion and sign-offs, eRulings filing package (brokerflow.go)
+			mux.HandleFunc("PUT /v1/cases/{id}/queue", a.cheap(a.enqueue))
+			mux.HandleFunc("POST /v1/cases/{id}/queue/transition", a.cheap(a.queueTransition))
+			mux.HandleFunc("GET /v1/queue", a.cheap(a.listQueue))
+			mux.HandleFunc("GET /v1/cases/{id}/collab", a.cheap(a.getCollab))
+			mux.HandleFunc("POST /v1/cases/{id}/comments", a.cheap(a.addComment))
+			mux.HandleFunc("POST /v1/cases/{id}/approvals", a.cheap(a.addApproval))
+			mux.HandleFunc("PUT /v1/cases/{id}/collaborators", a.cheap(a.putCollaborator))
+			mux.HandleFunc("GET /v1/review/comments", a.rateOnly(review, a.reviewComments))
+			mux.HandleFunc("POST /v1/review/comments", a.rateOnly(review, a.postReviewComment))
+			mux.HandleFunc("POST /v1/cases/{id}/filing", a.cheap(a.prepareFiling))
+			mux.HandleFunc("GET /v1/cases/{id}/filing", a.cheap(a.getFiling))
+			mux.HandleFunc("POST /v1/cases/{id}/filing/status", a.cheap(a.filingStatus))
+		}
 		mux.HandleFunc("GET /v1/rulings/{id}", a.cheap(a.ruling))
 		if d.RulingSearch != nil {
 			mux.HandleFunc("GET /v1/rulings", a.rateOnly(lookup, a.searchRulings))
@@ -106,9 +124,22 @@ func NewHandler(logger *slog.Logger, info Info, deps ...Deps) http.Handler {
 			mux.HandleFunc("POST /mcp", a.rateOnly(basic, a.mcp(&root, info.Version))) // docs/MCP.md; its tools call the routes above in-process
 		}
 		mux.HandleFunc("GET /v1/eval/summary", a.cheap(a.evalSummary))
+		if d.Status != nil {
+			mux.HandleFunc("GET /v1/status", a.cheap(d.Status.ServeHTTP))
+		}
 		mux.HandleFunc("GET /v1/duty-rates", a.cheap(a.dutyRates))
 		mux.HandleFunc("POST /v1/rcep/check", a.cheap(a.rcepCheck))   // RCEP preferential origin, no model
 		mux.HandleFunc("POST /v1/usmca/check", a.cheap(a.usmcaCheck)) // USMCA selected origin rule, no model
+		if d.ADCVD != nil {
+			if d.ADCVDReader != nil {
+				mux.HandleFunc("POST /v1/adcvd/check", a.limit(light, a.adcvdCheck)) // with the scope reader: one model question per listed order, metered (D942)
+			} else {
+				mux.HandleFunc("POST /v1/adcvd/check", a.cheap(a.adcvdCheck)) // parts that may be under an AD/CVD order, no model (D939)
+			}
+		}
+		if d.ATIGACheck {
+			mux.HandleFunc("POST /v1/atiga/check", a.cheap(a.atigaCheck)) // ATIGA preferential origin, no model (D927)
+		}
 		if d.CanadaMarking != nil {
 			mux.HandleFunc("POST /v1/rules/canada-marking", a.cheap(a.canadaMarking))
 		}
@@ -131,10 +162,77 @@ func NewHandler(logger *slog.Logger, info Info, deps ...Deps) http.Handler {
 			mux.HandleFunc("POST /v1/workspaces/{id}/join", a.cheap(a.joinWorkspace))
 			mux.HandleFunc("PUT /v1/workspaces/{id}/members/{email}/role", a.cheap(a.setMemberRole))
 			mux.HandleFunc("DELETE /v1/workspaces/{id}/members/{email}", a.cheap(a.removeMember))
+			if d.SupplierDeclarations { // supplier origin declarations (supplier_decl.go, D937)
+				mux.HandleFunc("POST /v1/cases/{id}/supplier-declarations", a.cheap(a.createSupplierRequest))
+				mux.HandleFunc("GET /v1/cases/{id}/supplier-declarations", a.cheap(a.listSupplierRequests))
+				mux.HandleFunc("DELETE /v1/cases/{id}/supplier-declarations/{request}", a.cheap(a.revokeSupplierRequest))
+				mux.HandleFunc("GET /v1/cases/{id}/supplier-declarations/{request}/parts/{part}/document", a.cheap(a.supplierDocument))
+				mux.HandleFunc("GET /v1/supplier-declarations/expiring", a.cheap(a.expiringDeclarations))
+				mux.HandleFunc("GET /v1/supplier-declaration", a.rateOnly(declare, a.getSupplierRequest))
+				mux.HandleFunc("PUT /v1/supplier-declaration/parts/{part}", a.rateOnly(declare, a.putSupplierAnswer))
+			}
+			if d.AdminConsole {
+				mux.HandleFunc("GET /v1/workspaces/{id}/admin", a.cheap(a.adminConsole))
+			}
+			if d.TariffWatch {
+				mux.HandleFunc("GET /v1/workspaces/{id}/tariff-watch", a.cheap(a.listTariffWatch)) // cases a newer HTS revision affects, no model (D938)
+			}
+			if d.SSO != nil {
+				mux.HandleFunc("POST /v1/sso/start", a.rateOnly(review, a.ssoStart))
+				mux.HandleFunc("POST /v1/sso/oidc/callback", a.rateOnly(review, a.ssoOIDCCallback))
+				mux.HandleFunc("POST /v1/sso/saml/acs", a.rateOnly(review, a.ssoSAMLACS))
+				mux.HandleFunc("GET /v1/sso/saml/metadata", a.cheap(a.ssoMetadata))
+				mux.HandleFunc("GET /v1/workspaces/{id}/sso", a.cheap(a.listSSOConnections))
+				mux.HandleFunc("POST /v1/workspaces/{id}/sso", a.cheap(a.createSSOConnection))
+				mux.HandleFunc("PUT /v1/workspaces/{id}/sso/{conn}", a.cheap(a.updateSSOConnection))
+				mux.HandleFunc("POST /v1/workspaces/{id}/sso/{conn}/verify", a.cheap(a.verifySSOConnection))
+				mux.HandleFunc("DELETE /v1/workspaces/{id}/sso/{conn}", a.cheap(a.deleteSSOConnection))
+				if d.SCIM != nil {
+					if d.Limits.AuthFailuresPerMin > 0 {
+						a.scimFails = newAuthFailures(d.Limits.AuthFailuresPerMin)
+					}
+					mux.HandleFunc("GET /v1/workspaces/{id}/scim", a.cheap(a.getSCIMToken))
+					mux.HandleFunc("POST /v1/workspaces/{id}/scim/token", a.cheap(a.issueSCIMToken))
+					mux.HandleFunc("DELETE /v1/workspaces/{id}/scim/token", a.cheap(a.revokeSCIMToken))
+					mux.HandleFunc("GET /v1/scim/v2/ServiceProviderConfig", a.rateOnly(review, a.scimServiceProviderConfig))
+					mux.HandleFunc("GET /v1/scim/v2/ResourceTypes", a.rateOnly(review, a.scimResourceTypes))
+					mux.HandleFunc("GET /v1/scim/v2/Schemas", a.rateOnly(review, a.scimSchemas))
+					mux.HandleFunc("GET /v1/scim/v2/Users", a.rateOnly(review, a.listSCIMUsers))
+					mux.HandleFunc("POST /v1/scim/v2/Users", a.rateOnly(review, a.createSCIMUser))
+					mux.HandleFunc("GET /v1/scim/v2/Users/{uid}", a.rateOnly(review, a.getSCIMUser))
+					mux.HandleFunc("PUT /v1/scim/v2/Users/{uid}", a.rateOnly(review, a.replaceSCIMUser))
+					mux.HandleFunc("PATCH /v1/scim/v2/Users/{uid}", a.rateOnly(review, a.patchSCIMUser))
+					mux.HandleFunc("DELETE /v1/scim/v2/Users/{uid}", a.rateOnly(review, a.deleteSCIMUser))
+				}
+			}
+			if d.Webhooks != nil {
+				mux.HandleFunc("GET /v1/workspaces/{id}/webhooks", a.cheap(a.listWebhooks))
+				mux.HandleFunc("POST /v1/workspaces/{id}/webhooks", a.cheap(a.createWebhook))
+				mux.HandleFunc("PATCH /v1/workspaces/{id}/webhooks/{wid}", a.cheap(a.updateWebhook))
+				mux.HandleFunc("DELETE /v1/workspaces/{id}/webhooks/{wid}", a.cheap(a.deleteWebhook))
+				mux.HandleFunc("POST /v1/workspaces/{id}/webhooks/{wid}/rotate", a.cheap(a.rotateWebhook))
+				mux.HandleFunc("POST /v1/workspaces/{id}/webhooks/{wid}/test", a.cheap(a.testWebhook))
+				mux.HandleFunc("GET /v1/workspaces/{id}/webhooks/{wid}/deliveries", a.cheap(a.listWebhookDeliveries))
+				mux.HandleFunc("POST /v1/webhooks/sweep", a.adminOnly(a.sweepWebhooks)) // retries now due, for a scheduler
+				a.wireBudgetAlerts()
+			}
+			if d.Metering != nil {
+				mux.HandleFunc("GET /v1/workspaces/{id}/usage", a.cheap(a.workspaceUsage))
+				mux.HandleFunc("PUT /v1/workspaces/{id}/budget", a.cheap(a.putWorkspaceBudget))
+				mux.HandleFunc("DELETE /v1/workspaces/{id}/budget", a.cheap(a.deleteWorkspaceBudget))
+			}
 		}
 		if d.Audit != nil {
 			mux.HandleFunc("GET /v1/audit", a.rateOnly(light, a.auditList))
 			mux.HandleFunc("GET /v1/audit/verify", a.rateOnly(light, a.auditVerify))
+			if d.AuditExport {
+				mux.HandleFunc("GET /v1/audit/export", a.rateOnly(light, a.auditExport))
+			}
+		}
+		if d.Teams && d.Retention != nil {
+			mux.HandleFunc("GET /v1/workspaces/{id}/retention", a.cheap(a.getRetention))
+			mux.HandleFunc("PUT /v1/workspaces/{id}/retention", a.cheap(a.putRetention))
+			mux.HandleFunc("GET /v1/workspaces/{id}/tombstones", a.cheap(a.listTombstones))
 		}
 		if d.APIKeys != nil {
 			mux.HandleFunc("POST /v1/admin/api-keys", a.adminOnly(a.issueAPIKey))

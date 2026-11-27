@@ -378,6 +378,338 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/v1/cases/{id}/supplier-declarations": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * The case's supplier requests and the declaration in effect for each part
+         * @description Requests newest first, and `parts`: for each part with a declaration, what the supplier declared beside the origin the case lists (`user_made_in`), whether they differ, and its status (`valid`, `expired`, `revoked`; a declaration for a part that has since changed is left out). Never returns a token or its hash. Also on GET /v1/cases/{id} as `supplier_declarations`. A workspace viewer may read.
+         */
+        get: operations["listSupplierRequests"];
+        put?: never;
+        /**
+         * Ask a supplier for the origin of some of the case's parts
+         * @description SUPPLIER_DECLARATIONS=on (needs TEAMS=on), D937, #916. Makes an expiring, revocable link for one supplier and the parts at the given positions of the case's parts list, modelled on the broker review link (createBrokerReviewLink). The token is returned once, in `token` and `declaration_path`; only its SHA-256 is stored. Nothing is sent to the supplier: the requester sends the link. `supplier_email` is optional, kept for the requester's records, never logged, never in the audit trail and never shown to the supplier. Expiry is `expires_in_days` (default 14, 1 to 60). At most 5 open requests and 20 kept per case (409 `conflict`). Refused (403) on a pinned demo and for a workspace viewer. With the audit trail on this is a sensitive write: no intent record, no link (503 `audit_unavailable`).
+         */
+        post: operations["createSupplierRequest"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/cases/{id}/supplier-declarations/{request}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        /**
+         * Revoke a supplier request
+         * @description The link answers 410 `link_revoked` from now on, and what the supplier declared through it stops counting (its parts show `revoked` and it no longer reaches the predict input). The record and the answers stay on the case. Revoking twice keeps the first time.
+         */
+        delete: operations["revokeSupplierRequest"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/cases/{id}/supplier-declarations/{request}/parts/{part}/document": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * The file a supplier attached to its newest answer for a part
+         * @description Sent as an attachment of the type its bytes were checked to be (PNG, JPEG, WebP or PDF), with `X-Content-Type-Options: nosniff`. 404 `declaration_not_found` when the request, the part or the file does not exist. 403 on a pinned demo. A workspace viewer may read.
+         */
+        get: operations["getSupplierDocument"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/supplier-declarations/expiring": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Supplier declarations on the caller's cases that run out soon
+         * @description SUPPLIER_DECLARATIONS=on. The declarations in effect that end within `days` (default 30, 1 to 365), soonest first; with `include_expired=true` also those that have already lapsed. Revoked ones and those for a part that has since changed are not listed. Like the review queue it lists the caller's own view of their cases.
+         */
+        get: operations["listExpiringSupplierDeclarations"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/supplier-declaration": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * The parts a supplier is asked about (the link token is the credential)
+         * @description D937. Send the link's token in `X-Declaration-Token`, never in the path or the query. Returns the supplier's own name, the parts asked about by name and the supplier's answers so far: no case id, no product, no other part, no origin the case lists, no email. The first read stamps `first_viewed_at`; every read is an audit `supplier.view` event in the case's tenant when the trail is on. A malformed or unknown token is 404 `not_found` and counts against the client's invalid-credential budget (429 `auth_rate_limited` past it); a revoked link is 410 `link_revoked`, a lapsed one 410 `link_expired`. Responses carry `X-Robots-Tag: noindex, nofollow`, `Referrer-Policy: no-referrer` and `Cache-Control: no-store`. Rate class `declaration` (30 a minute per client, counted per instance, `RATE_DECLARATION_PER_MIN`), separate from the broker's.
+         */
+        get: operations["getSupplierDeclarationRequest"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/supplier-declaration/parts/{part}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /**
+         * The supplier's declaration for one part
+         * @description D937. Token in `X-Declaration-Token`. Stores the answer on the case with when it was given; a later answer for the same part replaces it in effect and the earlier ones stay as history. Every field but `hts` and `document` is required. Text is plain, one line (control characters become spaces), and is never sent to a model. `valid_until` is the last day it holds: today to five years ahead. A document (optional, one, at most 128 KB) is checked by its bytes as an upload is: PNG, JPEG, WebP or an unprotected PDF of at most 10 pages; the name is only a label. 404 `part_not_found` for a part the link does not ask about. 409 `conflict` when the case's parts list changed under the link. 413 and 415 for an over-large or unsupported document, 503 when document storage is not configured. Errors as getSupplierDeclarationRequest. An answer is an audit `supplier.answer` event (intent and completion); none of its text reaches the trail.
+         */
+        put: operations["answerSupplierDeclaration"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/queue": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * The human review queue of the cases the caller can see
+         * @description BROKER_WORKFLOW=on only. `state` is open (default, not decided), queued, assigned, in_review, decided or all; `assignee=me` keeps the caller's own. Overdue items first, then by due time. `suggested` lists cases the model routed to review that are not queued yet (at most 50). Review targets by priority: urgent 4 h, high 24 h, normal 72 h, low 7 days.
+         */
+        get: operations["listReviewQueue"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/cases/{id}/queue": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /**
+         * Put the case in the human review queue, or change its priority
+         * @description BROKER_WORKFLOW=on only. A waiting or started review keeps its place and its assignee; a decided one is queued again. `reason` is required. Refused for a workspace viewer and on a pinned demo.
+         */
+        put: operations["enqueueForReview"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/cases/{id}/queue/transition": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Assign, start, decide or release the case's review
+         * @description BROKER_WORKFLOW=on only. `assign` needs `assignee` (an email; in a workspace only an admin assigns someone else). `start` is for the assignee, or takes an unassigned review. `decide` is for the assignee of a started review and needs `outcome` and `reason`; `on_time` records whether it beat the due time. `release` puts it back in the queue. A move the state does not allow is 409.
+         */
+        post: operations["moveReview"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/cases/{id}/collab": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * The case's discussion threads, sign-offs and per-case roles
+         * @description BROKER_WORKFLOW=on only. `sign_off` counts each person's latest decision; a broker's approval (role broker, or an approve or file_request answer on a review link) is what a filing needs.
+         */
+        get: operations["getCaseCollaboration"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/cases/{id}/comments": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Add a comment, or a reply with parent_id
+         * @description BROKER_WORKFLOW=on only. Anyone who can see the case may comment, a workspace viewer included. Plain text, at most 2000 characters; a reply to a reply joins its thread. At most 500 comments.
+         */
+        post: operations["commentOnCase"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/cases/{id}/approvals": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Approve the ruling request, ask for changes, or reject it
+         * @description BROKER_WORKFLOW=on only. `reason` is required unless the decision is approve. The role recorded is the person's case role (broker or reviewer from collaborators), else their workspace role, else owner. Refused for a workspace viewer.
+         */
+        post: operations["signOffCase"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/cases/{id}/collaborators": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /**
+         * Give a person a broker or reviewer role on this case, or remove it
+         * @description BROKER_WORKFLOW=on only. An empty `role` removes the person. A role says how their comments and sign-offs count; it never lets anyone see a case they could not see before. At most 20.
+         */
+        put: operations["setCaseCollaborator"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/review/comments": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * The case's discussion as the broker holding a review link sees it
+         * @description BROKER_WORKFLOW=on only. Token in `X-Review-Token`. Authors are shown by role only. Errors as getBrokerReview.
+         */
+        get: operations["getBrokerReviewComments"];
+        put?: never;
+        /**
+         * The broker holding a review link comments on the case
+         * @description BROKER_WORKFLOW=on only. Token in `X-Review-Token`. Plain text, at most 2000 characters. Errors as decideBrokerReview.
+         */
+        post: operations["postBrokerReviewComment"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/cases/{id}/filing": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * The filing package's state, or the package as JSON, zip or PDF
+         * @description BROKER_WORKFLOW=on only. Without `format`, the state (`ready_to_file` needs every required element and a broker's approval; `blocking` says what is missing). `format=json` is the package; `zip` holds package.json, letter.pdf, letter.md, exhibit-a-materials.csv and exhibit-b-steps.txt (reproducible: same package, same bytes); `pdf` is the letter. A download is recorded as `filing.download`.
+         */
+        get: operations["getRulingFiling"];
+        put?: never;
+        /**
+         * Prepare the CBP eRulings-ready filing package
+         * @description BROKER_WORKFLOW=on only. Builds the 19 CFR 177.2 letter (as exportCase with format cfr177, or the broker's edited `letter`), fills it from `submitter`, checks each required element (177.2(b)(1), (b)(2)(ii), (b)(3)-(4), (b)(6), (b)(7), the declaration and CBP's origin checklist) and stores the package with its SHA-256. Nothing is sent to CBP. Can be prepared again until it is submitted (409 after). Refused for a workspace viewer and on a pinned demo.
+         */
+        post: operations["prepareRulingFiling"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/cases/{id}/filing/status": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Record what happened to the request after it left
+         * @description BROKER_WORKFLOW=on only. prepared → submitted (with the eRulings `reference`, and only when `ready_to_file`) → acknowledged → ruling_issued (with the ruling number as `reference`); withdrawn from any status before a ruling. Any other move is 409.
+         */
+        post: operations["setRulingFilingStatus"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/v1/products/import": {
         parameters: {
             query?: never;
@@ -404,6 +736,27 @@ export interface paths {
          *     the parts and its suggested product name. Leave family empty to let the file or the check choose it.
          */
         post: operations["importProduct"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/products/erp-import": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Import BOMs from an ERP export (ERP_IMPORT=on)
+         * @description Reads a bill-of-materials export, one row per BOM line (#880): `generic` CSV (product_id, product_name, assembled_in, component, made_in; optional product_hts, component_hts, description), an SAP S/4HANA BOM explosion joined to the material master (`sap_s4`: Material, Material Description, Plant Country, Component and/or Component Description, Country of Origin, Commodity Code, optional Header Commodity Code), a NetSuite assembly-item saved search (`netsuite`: Internal ID or Assembly Item, Assembly Description, Location Country, Member Item and/or Member Description, Country of Manufacture, HS Tariff Number, optional Assembly HS Tariff Number), or JSON `items`. Country columns take names or ISO alpha-2 codes; codes are normalised to dotted HTS form. Each assembly becomes one product assembled in its assembly country; a problem on any line of an assembly keeps that assembly out and is reported with its line number, and other assemblies are unaffected.
+         *     Without `commit` (a dry run) nothing is stored and no model is called: each complete assembly is reported as `new`, `changed` or `unchanged` against its case. With `commit: true` each is filed and predicted: the case ID is derived from the caller (user, workspace or API key), `source` and the ERP key, so re-importing the same export updates the same cases. An unchanged assembly is left alone (no model call); a changed one gets its new BOM, a new prediction and a `bom_updated` history event; a new one is created as by predict. A commit needs sign-in or an API key and takes at most 20 complete assemblies; split larger exports. Rate-limited like batch.
+         */
+        post: operations["erpImport"];
         delete?: never;
         options?: never;
         head?: never;
@@ -788,6 +1141,46 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/v1/atiga/check": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * ATIGA preferential origin check from a bill of materials (deterministic, no model call; off unless ATIGA_CHECK=on)
+         * @description Does a good made in an ASEAN Member State qualify as ATIGA originating, so it can claim the ATIGA (AFTA, Form D) preferential tariff when imported into another Member State? Served only with `ATIGA_CHECK=on` (default off: 404). Deterministic code over the official Annex 3 product-specific rules (HS 2022, endorsed by the 36th AFTA Council, read row by row from the ASEAN Secretariat workbook; `backend/internal/atiga`, D927). Implements Art. 26 and 27 (wholly obtained), Art. 28.1 (the general rule RVC40 or CTH for goods not listed in Annex 3), Art. 28.2 (the Annex 3 rule, including RVC35 with CTSH, "except from" exclusions, the textile process rule and "cut and sewn in any Member State", which the caller states in `processes`), Art. 29 RVC by the direct or indirect method (Art. 29.3: give `method` to use only your Member State's), Art. 30.1 cumulation, Art. 30.2 partial cumulation (a Member State material with its own RVC from 20 % to under 40 % adds that share of its value as ASEAN content), Art. 31 minimal operations and Art. 33 de minimis (10 % of FOB value). Not covered: ITA goods (Art. 28.3, Annex 4), direct consignment (Art. 32), packaging, accessories, neutral elements and interchangeable materials (Art. 34 to 37), and proof-of-origin procedures. Missing facts make the answer `undetermined`, never `no`. Preferential origin only (`regime: atiga_preferential`), separate from the marking and non-preferential origin a case answer gives. Nothing is stored. Not a ruling and not a Certificate of Origin. Cheap class (120 a minute); a malformed body is 400 `invalid_input`.
+         */
+        post: operations["checkAtigaPreference"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/adcvd/check": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Parts that may be subject to a U.S. antidumping or countervailing duty order (display only, no model call; off unless ADCVD_CHECK=on)
+         * @description Screens parts against the active U.S. antidumping (AD) and countervailing duty (CVD) orders, from each part's HTS code and country of origin. Served only with `ADCVD_CHECK=on` (default off: 404). A part is `possible_exposure` when an order's listed HTS number agrees with the part's code at the shorter of the two lengths (a listed ten-digit line needs the same ten digits; a heading or subheading matches every listed line under it) and the order's country is one of the part's countries of origin. The HTS numbers are read from the scope text of the newest Commerce notice that carries it (`backend/internal/adcvd/data/orders.json`, built by `eval/adcvd/build_orders.py` from Federal Register notices; the response gives the snapshot date). HTS numbers in a scope are for convenience and customs purposes; the written scope of the order governs, and only the U.S. Department of Commerce decides whether a product is within it. Display only (D939): it never changes an origin answer or a duty figure. It does not see goods finished in a third country from parts of an ordered country (circumvention), an order whose scope prints no HTS numbers, or an order newer than the snapshot. No model call, nothing stored. Cheap class (120 a minute); a malformed body is 400 `invalid_input`.
+         */
+        post: operations["checkAdcvdExposure"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/v1/usmca/check": {
         parameters: {
             query?: never;
@@ -799,7 +1192,7 @@ export interface paths {
         put?: never;
         /**
          * USMCA selected origin-rule check (pilot goods, deterministic, no model call)
-         * @description Checks one selected USMCA product-specific origin rule (HTSUS General Note 11(o), Annex 4-B) for a good imported into the United States, from its HS code, an elected regional value content method and a bill of materials. Pilot coverage: 8202.31, 8207.13 and 9503.00 only; every other good is `not_supported`. Deterministic code (`backend/internal/usmca`), no model call, nothing stored. The answer is the selected-rule status only: `met`, `not_met`, `needs_information` or `not_supported`. It is NOT a certification of origin, NOT a determination that the good is originating, NOT a preferential tariff rate, duty saving or duty-free entitlement, and NOT for deciding a good's legal origin status; a `not_met` result concerns the rule as modeled, not a legal finding. It is separate from the non-preferential prediction, US Part 102 marking, Canadian SOR/94-23 marking and the RCEP check. Not evaluated, and each must be confirmed `not_applicable` in `profile`: the parts route (Art. 4.2(d) / GN 11(b)(iv)), de minimis, sets, accessories and packing, fungibles, intermediate materials, cost averaging, outside-party operations and special valuation; a provision marked `applies` returns `not_supported`. Amounts are exact decimal strings (JSON numbers are 400), parsed with arbitrary precision; the RVC percentage is compared exactly and the displayed value is rounded for humans only. Unknown is not zero: an omitted amount, HS code or originating claim is unknown and yields `needs_information` only when the decision depends on it, while `"0"` is a known zero. A zero denominator is reported as an undefined calculation, and a negative RVC is not clamped. `rvc_method` is never chosen for you. HS codes may be written with dots (`8202.31.00` is read as `82023100`); the engine works on plain digits. Originating claims, codes, values and profile confirmations are the caller's and are not verified. Cheap class (120 a minute); a malformed body, wrong destination or regime, more than 200 materials, a bad decimal or an unknown field is 400 `invalid_input`.
+         * @description Checks one selected USMCA product-specific origin rule (HTSUS General Note 11(o), Annex 4-B) for a good imported into the United States, from its HS code, an elected regional value content method and a bill of materials. Pilot coverage: 8202.31, 8207.13 and 9503.00 only; every other good is `not_supported`. With `USMCA_RULES_EXT=on` (default off, D930) the check also covers the rows generated from HTSUS Rev 23 GN 11(o) (alternatives with a product, process or end-use condition answer unknown; end-use rules and headings 8701 to 8708 stay `not_supported`), and it evaluates de minimis (GN 11(e)(i)), the parts route (GN 11(n)(i)) and the GN 11(p) deemed-originating goods when invoked; off, the answers are unchanged. Deterministic code (`backend/internal/usmca`), no model call, nothing stored. The answer is the selected-rule status only: `met`, `not_met`, `needs_information` or `not_supported`. It is NOT a certification of origin, NOT a determination that the good is originating, NOT a preferential tariff rate, duty saving or duty-free entitlement, and NOT for deciding a good's legal origin status; a `not_met` result concerns the rule as modeled, not a legal finding. It is separate from the non-preferential prediction, US Part 102 marking, Canadian SOR/94-23 marking and the RCEP check. Not evaluated, and each must be confirmed `not_applicable` in `profile`: the parts route (Art. 4.2(d) / GN 11(b)(iv)), de minimis, sets, accessories and packing, fungibles, intermediate materials, cost averaging, outside-party operations and special valuation; a provision marked `applies` returns `not_supported`. Amounts are exact decimal strings (JSON numbers are 400), parsed with arbitrary precision; the RVC percentage is compared exactly and the displayed value is rounded for humans only. Unknown is not zero: an omitted amount, HS code or originating claim is unknown and yields `needs_information` only when the decision depends on it, while `"0"` is a known zero. A zero denominator is reported as an undefined calculation, and a negative RVC is not clamped. `rvc_method` is never chosen for you. HS codes may be written with dots (`8202.31.00` is read as `82023100`); the engine works on plain digits. Originating claims, codes, values and profile confirmations are the caller's and are not verified. Cheap class (120 a minute); a malformed body, wrong destination or regime, more than 200 materials, a bad decimal or an unknown field is 400 `invalid_input`.
          */
         post: operations["checkUsmcaOriginRule"];
         delete?: never;
@@ -1039,6 +1432,199 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/v1/workspaces/{id}/usage": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * The workspace's use this month and its budget (USAGE_METERING=on, TEAMS=on)
+         * @description Counts per UTC month (#886): predictions (each engine run on a case), plan searches, and the model spend of every call made for a signed-in member of the workspace, at the prices the daily spend cap uses. Any member may read it. Requests without a workspace (anonymous, API keys) are not counted here. 404 for a workspace the caller is not in.
+         */
+        get: operations["workspaceUsage"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/workspaces/{id}/tariff-watch": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Cases a newer HTS revision affects (TARIFF_WATCH=on, TEAMS=on)
+         * @description The workspace's cases that the latest run of `cmd/tariffwatch -apply` (D938) found affected by a newer HTS, Section 301 or Section 232 data set: what changed, the old and new duty rate, and the change in the annual duty figure and in the best plan's duty effect, largest dollar change first. `?all=true` lists every checked case, affected or not. A case never checked is not listed; `cases_in_workspace` and `checked` say how many there are. Section 232 coverage is flagged, never priced: the duty code does not compute it. Any member may read it; 404 for a workspace the caller is not in. Not a customs determination.
+         */
+        get: operations["workspaceTariffWatch"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/workspaces/{id}/budget": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /**
+         * Set the workspace's monthly model budget (workspace admin; USAGE_METERING=on)
+         * @description With `hard_cap`, model-calling requests by members are refused with 402 `workspace_budget_reached` once the month's spend reaches `monthly_usd` (Retry-After: the next UTC month), and a plan search whose estimated maximum cost would pass it is refused before it runs. Without it the budget is reported only. `alert_percent` (default 80) sets when `usage.alert` turns true. Nothing is billed. 403 for a member who is not an admin.
+         */
+        put: operations["setWorkspaceBudget"];
+        post?: never;
+        /**
+         * Remove the workspace's budget (workspace admin; USAGE_METERING=on)
+         * @description Use is still counted. 403 for a member who is not an admin; 404 for a workspace the caller is not in.
+         */
+        delete: operations["deleteWorkspaceBudget"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/workspaces/{id}/webhooks": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * List the workspace's webhook endpoints (workspace admin; WEBHOOKS=on)
+         * @description Each endpoint with its URL, subscribed events, whether it is enabled and the last four characters of its secret. Never the secret itself. `available_events` is what an endpoint can subscribe to. 403 for a member who is not an admin.
+         */
+        get: operations["listWebhooks"];
+        put?: never;
+        /**
+         * Register a webhook endpoint (workspace admin; WEBHOOKS=on)
+         * @description Registers an HTTPS URL that receives the chosen events of this workspace (up to 10 endpoints). The URL must be `https`, carry no credentials and name a public host: `localhost`, internal names and addresses that are private, loopback or link-local, or that a name resolves to, are refused (400), and a delivery never connects to one even if the name's address changes later. Redirects are not followed.
+         *
+         *     The answer carries `secret` once; keep it, it is not shown again (rotate to get a new one). Each delivery is a POST with a JSON body (`id`, `type`, `created_at`, `workspace`, `data`) and these headers: `X-Webhook-Id` (the delivery's id, the same on every retry: deduplicate on it), `X-Webhook-Event` and `X-Webhook-Signature: t=<unix seconds>,v1=<hex>`, where `v1` is the HMAC-SHA256, keyed with the secret, of `<t>.<raw body>`. Verify it over the raw bytes and reject a `t` more than five minutes old. During the day after a rotation the header carries a `v1` for the new and for the previous secret; accept either. A 2xx answer is a delivery. Anything else (or no answer within 10 seconds) is retried after 30 s, 2 min, 10 min, 1 h and 6 h, six attempts in all, then marked failed; the attempts are in the delivery log. Delivery is at least once and not ordered. Events carry ids and statuses only, never case text, comments or letters.
+         *
+         *     Events: `ruling_watch.hit` (a ruling watch re-check changed a case's origin because of newer precedents: `case_id`, `previous_origin`, `new_origin`, `newer_rulings`, `triage_route`, `checked_at`), `review.decision` (a broker answered a review link: `case_id`, `review_id`, `decision`, `has_comment`, never the comment, `decided_at`), `filing.status` (an eRulings request moved: `case_id`, `status`, `previous_status`, `reference` when given, `at`), `budget.alert` (the month's spend passed the budget's alert share or the budget: `month`, `level` alert or cap, `spent_usd`, `budget_usd`, `alert_percent`, `hard_cap`; needs USAGE_METERING=on) and `batch.finished` (a batch triage finished: `total`, `failed`, `out_of_scope`, `auto`, `needs_review`, `needs_info`, `cost_usd`, `case_ids`, `finished_at`). Only events of cases and spend of this workspace are sent.
+         */
+        post: operations["createWebhook"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/workspaces/{id}/webhooks/{wid}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        /** Delete a webhook endpoint and its delivery log (workspace admin; WEBHOOKS=on) */
+        delete: operations["deleteWebhook"];
+        options?: never;
+        head?: never;
+        /**
+         * Change a webhook endpoint's URL, events, description or enabled state (workspace admin; WEBHOOKS=on)
+         * @description Only the fields given change; at least one is required. A new URL is checked as at registration. Deliveries already queued for a disabled or deleted endpoint are not sent.
+         */
+        patch: operations["updateWebhook"];
+        trace?: never;
+    };
+    "/v1/workspaces/{id}/webhooks/{wid}/rotate": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Give a webhook endpoint a new secret (workspace admin; WEBHOOKS=on)
+         * @description The new secret is in this answer only. For 24 hours deliveries are signed with both the new and the previous secret (two `v1` values), so a receiver can switch without dropping events; after that only the new one signs.
+         */
+        post: operations["rotateWebhookSecret"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/workspaces/{id}/webhooks/{wid}/test": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Send a test event to a webhook endpoint (workspace admin; WEBHOOKS=on)
+         * @description Sends one `webhook.test` event now, signed as any other, even to a disabled endpoint, and answers with how the receiver took it. The ping is one attempt, is in the delivery log (`test: true`) and is never retried. A refusing or unreachable receiver is a 200 with `status: failed`, not an error.
+         */
+        post: operations["testWebhook"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/workspaces/{id}/webhooks/{wid}/deliveries": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * The endpoint's delivery log, newest first (workspace admin; WEBHOOKS=on)
+         * @description The last 100 deliveries at most, each with its attempts (time, HTTP status, duration and an error class: `http_status`, `redirect`, `timeout`, `connection`, `tls`, `blocked_address` or `endpoint_disabled`; never the receiver's answer). The payload is not kept in the log.
+         */
+        get: operations["listWebhookDeliveries"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/webhooks/sweep": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Send the webhook retries that are now due (for a scheduler; admin token required; WEBHOOKS=on)
+         * @description Each instance also does this every 30 seconds while it runs; on Cloud Run, where an instance can be idle between requests, a scheduler should call this every minute. Several callers at once are safe: a delivery is taken by one of them. No model call.
+         */
+        post: operations["sweepWebhooks"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/v1/audit": {
         parameters: {
             query?: never;
@@ -1079,6 +1665,70 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/v1/audit/export": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Export a tenant's retained audit trail as JSONL or CSV (workspace admin or admin token; AUDIT_EXPORT=on only)
+         * @description Registered only when the audit trail is on and `AUDIT_EXPORT=on` (404 otherwise). Same access and tenant rules as `GET /v1/audit`. The export is a snapshot: the head is read first, and events appended later are not included. JSONL (the default) is the verifiable form: a `header` line (tenant, head, retention checkpoint, window), one event per line oldest first exactly as stored with `prev_hash` and `hash`, and a `summary` line with the event count and the SHA-256 of every byte before it. `cmd/auditverify` re-checks a JSONL file offline with the same chain rules as `GET /v1/audit/verify`. An export cut short by a store error has no summary line, so it fails verification. `from` and `to` narrow by event time; a narrowed export is checked event by event, not as a whole chain. At most 200,000 events per export (`summary.complete` false beyond that; export in time windows). CSV has the same columns as an event and no header or summary line. Each export is audited (`audit.export`). Tamper evidence by the application only, not a signature.
+         */
+        get: operations["exportAudit"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/workspaces/{id}/retention": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * A workspace's case retention policy (TEAMS=on and RETENTION=on; any member)
+         * @description `case_days` 0 means cases are kept until someone deletes them. 404 for a workspace the caller is not in.
+         */
+        get: operations["getWorkspaceRetention"];
+        /**
+         * Set a workspace's case retention policy (TEAMS=on and RETENTION=on; workspace admin)
+         * @description `case_days` is 0 (keep forever) or 7 to 3650. The operator's purge run (`cmd/retention`) then hard-deletes the workspace's cases not updated for that many days, oldest first, writing a tombstone and a `case.delete` audit event (detail `retention`, actor `system`) before each deletion. Pinned demo cases are never purged. Setting the policy deletes nothing by itself. A sensitive write when the audit trail is on: 503 `audit_unavailable` if its intent cannot be recorded.
+         */
+        put: operations["setWorkspaceRetention"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/workspaces/{id}/tombstones": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * A workspace's hard-deleted cases, newest first (TEAMS=on and RETENTION=on; workspace admin)
+         * @description One tombstone per deleted workspace case: the case ID, when, why (`retention_policy` or `user_delete`), the policy in force and when the case was last changed. No case content.
+         */
+        get: operations["listWorkspaceTombstones"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/v1/eval/summary": {
         parameters: {
             query?: never;
@@ -1088,6 +1738,26 @@ export interface paths {
         };
         /** Evaluation numbers for the results page (from eval/RESULTS.md runs) */
         get: operations["getEvalSummary"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/status": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Service status for a status page (STATUS_PAGE=on only)
+         * @description The last snapshot of the deep health checks, refreshed in the background at most every 5 minutes, and the published service-level objectives (docs/design/sla-and-status.md). Never runs a check on the request path and never returns error text. `status` is `unknown` until the first snapshot.
+         */
+        get: operations["getStatus"];
         put?: never;
         post?: never;
         delete?: never;
@@ -1207,10 +1877,585 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/v1/sso/start": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Start a single sign-on for an email (SSO=on)
+         * @description Finds the enabled SSO connection whose verified domain matches the email and returns the identity provider URL to send the browser to. The OIDC state, nonce and PKCE verifier, or the SAML request ID, are kept server side for ten minutes and work once. 404 sso_not_configured when the domain has no enabled connection.
+         */
+        post: operations["ssoStart"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/sso/oidc/callback": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Finish an OIDC sign-in (SSO=on)
+         * @description The callback page posts the state and code the identity provider returned. The code is exchanged with PKCE; issuer, audience, expiry, signature and nonce are checked and the state is single use. A user signing in for the first time joins the connection's workspace with its default role. 401 sso_failed without detail; 403 sso_other_workspace for a member of another workspace.
+         */
+        post: operations["ssoOIDCCallback"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/sso/saml/acs": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Finish a SAML sign-in (SSO=on)
+         * @description The assertion consumer service. Accepts the HTTP-POST binding form (SAMLResponse, RelayState) or the same as JSON. The response or assertion must be signed by a configured certificate; issuer, audience, destination, time window and InResponseTo are checked, the relay state is single use and each assertion ID is accepted once. 401 sso_failed without detail; 403 sso_other_workspace.
+         */
+        post: operations["ssoSAMLACS"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/sso/saml/metadata": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** SAML service provider metadata (SSO=on) */
+        get: operations["ssoSAMLMetadata"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/workspaces/{id}/sso": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List the workspace's SSO connections (SSO=on, workspace admin) */
+        get: operations["listSSOConnections"];
+        put?: never;
+        /**
+         * Add an SSO connection (SSO=on, workspace admin)
+         * @description A new connection starts disabled: each domain must first be verified with a DNS TXT record (record_name, record_value in the answer). Public mail domains cannot be claimed. An OIDC issuer must answer discovery. 409 sso_domain_taken, sso_limit or sso_unverified.
+         */
+        post: operations["createSSOConnection"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/workspaces/{id}/sso/{conn}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /**
+         * Replace an SSO connection (SSO=on, workspace admin)
+         * @description An omitted oidc_client_secret keeps the stored one. A removed domain loses its verification.
+         */
+        put: operations["updateSSOConnection"];
+        post?: never;
+        /**
+         * Remove an SSO connection (SSO=on, workspace admin)
+         * @description Every session the connection issued stops working at once.
+         */
+        delete: operations["deleteSSOConnection"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/workspaces/{id}/sso/{conn}/verify": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Check the connection's domain TXT records (SSO=on, workspace admin)
+         * @description Looks up _undelabs-verify.<domain> for each domain. With enable true, turns the connection on once every domain is verified. The answer lists each domain's check.
+         */
+        post: operations["verifySSOConnection"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/workspaces/{id}/admin": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * The workspace admin's settings overview (ADMIN_CONSOLE=on, workspace admin)
+         * @description Members with roles, pending invitations, which features are on, the SSO connections and their domains, the SCIM token status, the retention policy and this month's usage, each only when its feature is on, and the route that changes each. Read only; never a token, hash, client secret or DNS verification value.
+         */
+        get: operations["getAdminConsole"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/workspaces/{id}/scim": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * The workspace's SCIM token status (SCIM=on, workspace admin)
+         * @description Whether a token exists, its last four characters, the domains it manages, its default role and allow_admin, and the base URL and header an identity provider uses. Never the token itself.
+         */
+        get: operations["getSCIMToken"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/workspaces/{id}/scim/token": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Issue the workspace's SCIM token, replacing any previous one (SCIM=on, workspace admin)
+         * @description Every domain must be verified on one of the workspace's SSO connections (409 scim_unverified_domain). default_role is viewer or editor. allow_admin lets the token grant, change and remove the admin role; without it, admins are out of the token's reach. The token is in this answer only and is stored as a SHA-256 hash.
+         */
+        post: operations["issueSCIMToken"];
+        /** Revoke the workspace's SCIM token (SCIM=on, workspace admin) */
+        delete: operations["revokeSCIMToken"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/scim/v2/ServiceProviderConfig": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** SCIM service provider configuration (RFC 7643 5) */
+        get: operations["scimServiceProviderConfig"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/scim/v2/ResourceTypes": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** SCIM resource types (User only) */
+        get: operations["scimResourceTypes"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/scim/v2/Schemas": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** SCIM schemas (the User attributes this server reads) */
+        get: operations["scimSchemas"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/scim/v2/Users": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * List the members the token manages (SCIM=on)
+         * @description Only members of the token's workspace on its domains. The one filter supported is userName eq "email" (400 invalidFilter otherwise). startIndex and count page the list; count is at most 100.
+         */
+        get: operations["listSCIMUsers"];
+        put?: never;
+        /**
+         * Add a member (SCIM=on)
+         * @description userName (or the primary email) must be on one of the token's domains (403 otherwise). The role is roles[0].value or the token's default; admin needs allow_admin (403). A member already: 409 uniqueness. Someone in another workspace: 409 that names nothing.
+         */
+        post: operations["createSCIMUser"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/scim/v2/Users/{uid}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** One member the token manages (SCIM=on) */
+        get: operations["getSCIMUser"];
+        /**
+         * Set a member's role and active state (SCIM=on)
+         * @description active false removes the member from the workspace. userName cannot change (400 mutability). Changing an admin, or to admin, needs allow_admin (403); the last admin cannot be demoted (409).
+         */
+        put: operations["replaceSCIMUser"];
+        post?: never;
+        /**
+         * Remove a member (SCIM=on)
+         * @description An admin needs allow_admin (403); the last admin cannot be removed (409).
+         */
+        delete: operations["deleteSCIMUser"];
+        options?: never;
+        head?: never;
+        /**
+         * Change active or roles (SCIM=on)
+         * @description PatchOp with replace or add on active or roles, by path or as a value object; Entra ID's string booleans ("False") are accepted. active false removes the member. Other attributes: 400.
+         */
+        patch: operations["patchSCIMUser"];
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
     schemas: {
+        SCIMTokenStatus: {
+            configured: boolean;
+            /** @description The token's last four characters */
+            hint?: string;
+            domains: string[];
+            /** @enum {string} */
+            default_role?: "viewer" | "editor";
+            allow_admin: boolean;
+            /** Format: date-time */
+            created_at?: string;
+            /** @description The SCIM base URL to give the identity provider */
+            base_url: string;
+            token_header: string;
+            /** @description Only in the answer that issues it */
+            token?: string;
+        };
+        SCIMUserInput: {
+            schemas?: string[];
+            /** @description The member's email */
+            userName?: string;
+            active?: boolean;
+            emails?: {
+                value?: string;
+                primary?: boolean;
+                type?: string;
+            }[];
+            roles?: {
+                /** @enum {string} */
+                value?: "viewer" | "editor" | "admin";
+            }[];
+        };
+        SCIMUser: {
+            schemas: string[];
+            id: string;
+            userName: string;
+            active: boolean;
+            emails: {
+                value?: string;
+                primary?: boolean;
+                type?: string;
+            }[];
+            roles: {
+                value?: string;
+                primary?: boolean;
+            }[];
+            meta: {
+                resourceType?: string;
+                location?: string;
+            };
+        };
+        SCIMUserList: {
+            schemas: string[];
+            totalResults: number;
+            startIndex: number;
+            itemsPerPage: number;
+            Resources: components["schemas"]["SCIMUser"][];
+        };
+        SCIMError: {
+            schemas: string[];
+            status: string;
+            scimType?: string;
+            detail: string;
+        };
+        SSOConnectionRequest: {
+            /** @enum {string} */
+            protocol: "oidc" | "saml";
+            domains: string[];
+            /**
+             * @default viewer
+             * @enum {string}
+             */
+            default_role: "viewer" | "editor" | "admin";
+            enabled?: boolean;
+            /** @description Refuse Google sign-in for these domains */
+            enforced?: boolean;
+            /** Format: uri */
+            oidc_issuer?: string;
+            oidc_client_id?: string;
+            oidc_client_secret?: string;
+            /** Format: uri */
+            saml_sso_url?: string;
+            saml_issuer?: string;
+            saml_certs_pem?: string[];
+        };
+        SSOConnection: {
+            id: string;
+            /** @enum {string} */
+            protocol: "oidc" | "saml";
+            domains: {
+                domain: string;
+                verified: boolean;
+                /** Format: date-time */
+                verified_at?: string;
+                record_name: string;
+                record_value: string;
+            }[];
+            /** @enum {string} */
+            default_role: "viewer" | "editor" | "admin";
+            enabled: boolean;
+            enforced: boolean;
+            oidc_issuer?: string;
+            oidc_client_id?: string;
+            has_client_secret: boolean;
+            saml_sso_url?: string;
+            saml_issuer?: string;
+            saml_certs_pem?: string[];
+            service_provider: {
+                oidc_redirect_url?: string;
+                saml_acs_url?: string;
+                saml_entity_id?: string;
+            };
+            checks?: {
+                domain?: string;
+                record?: string;
+                verified?: boolean;
+                problem?: string;
+            }[];
+            /** Format: date-time */
+            created_at: string;
+            /** Format: date-time */
+            updated_at: string;
+        };
+        QueueView: {
+            case_id: string;
+            product?: string;
+            route?: string;
+            overdue: boolean;
+            /** @description Seconds until due; negative when overdue; 0 once decided. */
+            due_in_s: number;
+            item: {
+                /** @enum {string} */
+                state?: "queued" | "assigned" | "in_review" | "decided";
+                /** @enum {string} */
+                priority?: "urgent" | "high" | "normal" | "low";
+                reason?: string;
+                queued_by?: string;
+                /** Format: date-time */
+                queued_at?: string;
+                /** Format: date-time */
+                due_at?: string;
+                assignee?: string;
+                /** Format: date-time */
+                assigned_at?: string;
+                /** Format: date-time */
+                started_at?: string;
+                decision?: {
+                    /** @enum {string} */
+                    outcome?: "approve" | "reject" | "changes";
+                    reason?: string;
+                    by?: string;
+                    /** Format: date-time */
+                    at?: string;
+                    on_time?: boolean;
+                };
+                log?: {
+                    action?: string;
+                    by?: string;
+                    /** Format: date-time */
+                    at?: string;
+                    detail?: string;
+                }[];
+            } | null;
+        };
+        Comment: {
+            id: string;
+            parent_id?: string;
+            author: string;
+            role: string;
+            /** @description Plain text; render as text. */
+            body: string;
+            /** Format: date-time */
+            at: string;
+        };
+        CommentThread: components["schemas"]["Comment"] & {
+            replies: components["schemas"]["Comment"][];
+        };
+        Approval: {
+            /** @enum {string} */
+            decision: "approve" | "reject" | "changes";
+            reason?: string;
+            by: string;
+            role: string;
+            /** Format: date-time */
+            at: string;
+        };
+        SignOff: {
+            /** @enum {string} */
+            state: "none" | "approved" | "changes_requested" | "rejected";
+            broker_approved: boolean;
+            approvers: string[];
+            blocking: string[];
+        };
+        Collaboration: {
+            collaborators: {
+                email?: string;
+                /** @enum {string} */
+                role?: "broker" | "reviewer";
+                added_by?: string;
+                /** Format: date-time */
+                added_at?: string;
+            }[];
+            threads: components["schemas"]["CommentThread"][];
+            approvals: components["schemas"]["Approval"][];
+            sign_off: components["schemas"]["SignOff"];
+        };
+        /** @description What the case does not know. Each answer fills its placeholder in the letter; what is left stays [FILL IN …]. */
+        FilingSubmitter: {
+            requester_name?: string;
+            requester_address?: string;
+            requester_email?: string;
+            requester_phone?: string;
+            /** @enum {string} */
+            interest?: "importer" | "exporter" | "manufacturer" | "agent" | "other";
+            importer_of_record?: string;
+            /** @description Blank fills "Not yet known" (the rule asks for it only if known). */
+            port_of_entry?: string;
+            /** @description Confirms the 177.2(b)(2)(ii) statement. */
+            no_prior_consideration?: boolean;
+            /** @description "none", or the information to withhold under 177.2(b)(7). */
+            confidential?: string;
+            signer_name?: string;
+            signer_title?: string;
+            /** @description Plant name in the case → legal name, address and MID code. */
+            manufacturers?: {
+                [key: string]: string;
+            };
+            country_of_exportation?: string;
+            first_shipment?: string;
+            product_model?: string;
+            product_description?: string;
+            hts_reference?: string;
+            marking?: string;
+            legal_basis?: string;
+            prior_ruling_note?: string;
+            prior_advice?: string;
+            /** @enum {string} */
+            series?: "is" | "is not";
+            sample?: string;
+        };
+        FilingView: {
+            /** @enum {string} */
+            status?: "prepared" | "submitted" | "acknowledged" | "ruling_issued" | "withdrawn";
+            /** Format: date-time */
+            prepared_at?: string;
+            prepared_by?: string;
+            submitter?: components["schemas"]["FilingSubmitter"];
+            letter?: string;
+            elements?: {
+                key?: string;
+                citation?: string;
+                label?: string;
+                /** @enum {string} */
+                status?: "present" | "missing";
+                detail?: string;
+                required?: boolean;
+            }[];
+            /** @description Every required element is present. */
+            ready?: boolean;
+            attachments?: Record<string, never>[];
+            package_sha256?: string;
+            cbp_reference?: string;
+            ruling_number?: string;
+            history?: Record<string, never>[];
+            ready_to_file: boolean;
+            sign_off: components["schemas"]["SignOff"];
+            next_statuses: string[];
+            blocking: string[];
+        };
         /** @description Non-negative exact decimal string (no exponent, sign, NaN or Infinity). Never a JSON number. Omitted or null is unknown, not zero; "0" is a known zero. */
         UsmcaAmount: string;
         /**
@@ -1237,6 +2482,13 @@ export interface components {
             net_cost?: components["schemas"]["UsmcaAmount"];
             /** @description Value of non-originating materials in the same currency and valuation basis, including materials of undetermined origin where the law requires. Omitted is unknown, not zero. */
             vnm?: components["schemas"]["UsmcaAmount"];
+            /** @description The good's total cost, a de minimis base (USMCA_RULES_EXT only). Omitted is unknown. */
+            total_cost?: components["schemas"]["UsmcaAmount"];
+            /**
+             * @description The de minimis base the caller elects (USMCA_RULES_EXT only); never defaulted.
+             * @enum {string}
+             */
+            de_minimis_basis?: "transaction_value" | "total_cost";
             materials?: {
                 id?: string;
                 /** @description Material HS code, 2 to 10 digits, dots accepted. Omitted is unknown. */
@@ -1246,6 +2498,8 @@ export interface components {
                  * @enum {string}
                  */
                 originating?: "originating" | "non_originating" | "unknown";
+                /** @description The material's value, used only by de minimis (USMCA_RULES_EXT only). Omitted is unknown. */
+                value?: components["schemas"]["UsmcaAmount"];
             }[];
             /** @description Explicit simple-goods confirmations. Nothing is assumed when omitted. */
             profile?: {
@@ -1262,6 +2516,15 @@ export interface components {
                 special_valuation?: components["schemas"]["UsmcaProvisionClaim"];
                 /** @description Reliance on the parts route (Art. 4.2(d) / GN 11(b)(iv)). */
                 parts_route?: components["schemas"]["UsmcaProvisionClaim"];
+                /**
+                 * @description Why the parts cannot shift, for the parts route (GN 11(n)(i)(B), USMCA_RULES_EXT only).
+                 * @enum {string}
+                 */
+                parts_route_basis?: "same_classification" | "unassembled";
+                /** @description The good is produced entirely in one or more USMCA countries (parts route, USMCA_RULES_EXT only). */
+                produced_entirely_in_usmca_confirmed?: boolean;
+                /** @description The good is imported from Mexico or Canada (GN 11(p) goods, USMCA_RULES_EXT only). */
+                imported_from_usmca_country_confirmed?: boolean;
             };
         };
         /** @enum {string} */
@@ -1511,9 +2774,87 @@ export interface components {
         };
         Error: {
             /** @enum {string} */
-            code: "invalid_input" | "not_found" | "model_unavailable" | "model_bad_response" | "out_of_scope" | "internal" | "rate_limited" | "too_many_in_flight" | "client_budget_reached" | "auth_rate_limited" | "forbidden" | "budget_reached" | "unauthenticated" | "conflict" | "unauthorized" | "quota_exceeded" | "audit_unavailable" | "review_not_found" | "link_revoked" | "link_expired";
+            code: "invalid_input" | "not_found" | "model_unavailable" | "model_bad_response" | "out_of_scope" | "internal" | "rate_limited" | "too_many_in_flight" | "client_budget_reached" | "auth_rate_limited" | "forbidden" | "budget_reached" | "unauthenticated" | "conflict" | "unauthorized" | "quota_exceeded" | "audit_unavailable" | "review_not_found" | "declaration_not_found" | "part_not_found" | "link_revoked" | "link_expired" | "workspace_budget_reached" | "sso_not_configured" | "sso_failed" | "sso_other_workspace" | "sso_unavailable" | "sso_unverified" | "sso_domain_taken" | "sso_limit" | "scim_unverified_domain";
             message: string;
             details?: unknown;
+        };
+        /** @enum {string} */
+        WebhookEventType: "ruling_watch.hit" | "review.decision" | "filing.status" | "budget.alert" | "batch.finished";
+        WebhookEndpoint: {
+            /** @example wh_0123456789abcdef */
+            id: string;
+            /** Format: uri */
+            url: string;
+            events: components["schemas"]["WebhookEventType"][];
+            description: string;
+            enabled: boolean;
+            /** @description The last four characters of the signing secret */
+            secret_hint: string;
+            /** Format: email */
+            created_by: string;
+            /** Format: date-time */
+            created_at: string;
+            /** Format: date-time */
+            updated_at: string;
+            /** Format: date-time */
+            secret_rotated_at?: string;
+            /**
+             * Format: date-time
+             * @description While set
+             */
+            previous_secret_expires_at?: string;
+            /** @description The signing secret, `whsec_...`: only in the answers to create and rotate, never again */
+            secret?: string;
+        };
+        WebhookDelivery: {
+            /** @description The X-Webhook-Id the receiver saw; the same on every retry */
+            id: string;
+            /** @description An event type, or `webhook.test` for a ping */
+            event: string;
+            event_id: string;
+            test: boolean;
+            /** @enum {string} */
+            status: "pending" | "delivered" | "failed";
+            /**
+             * Format: date-time
+             * @description When a pending delivery is next tried
+             */
+            next_attempt_at?: string;
+            /** Format: date-time */
+            created_at: string;
+            attempts: {
+                /** Format: date-time */
+                at: string;
+                /** @description 0 when there was no HTTP answer */
+                status_code: number;
+                duration_ms: number;
+                /** @enum {string} */
+                error?: "http_status" | "redirect" | "timeout" | "connection" | "tls" | "blocked_address" | "endpoint_disabled";
+            }[];
+        };
+        WorkspaceBudget: {
+            monthly_usd: number;
+            hard_cap: boolean;
+            alert_percent: number;
+            /** Format: email */
+            updated_by?: string;
+            /** Format: date-time */
+            updated_at: string;
+        };
+        WorkspaceUsage: {
+            totals: {
+                /** @example 2026-11 */
+                month: string;
+                predictions: number;
+                plan_searches: number;
+                model_usd: number;
+            };
+            budget: components["schemas"]["WorkspaceBudget"] | null;
+            remaining_usd: number | null;
+            /** @description Spend reached the budget's alert share */
+            alert: boolean;
+            /** @description A hard cap is reached: model-calling requests are refused (402) */
+            blocked: boolean;
         };
         /** @description A team workspace (D68); its members see each other's cases. */
         Workspace: {
@@ -1544,11 +2885,33 @@ export interface components {
          * @enum {string}
          */
         WorkspaceRole: "viewer" | "editor" | "admin";
+        RetentionPolicy: {
+            workspace: string;
+            /** @description 0: keep forever */
+            case_days: number;
+            /** Format: date-time */
+            updated_at?: string;
+            limits: {
+                min_case_days?: number;
+                max_case_days?: number;
+            };
+        };
+        Tombstone: {
+            case_id: string;
+            workspace?: string;
+            /** Format: date-time */
+            deleted_at: string;
+            /** @enum {string} */
+            reason: "retention_policy" | "user_delete";
+            policy_days?: number;
+            /** Format: date-time */
+            last_updated: string;
+        };
         /**
          * @description `case.read` appears only as a denial; allowed ordinary reads are not audited.
          * @enum {string}
          */
-        AuditAction: "case.create" | "case.update" | "case.export" | "case.delete" | "case.pin" | "case.read" | "workspace.create" | "workspace.invite" | "workspace.join" | "workspace.role_change" | "workspace.member_remove" | "workspace.leave" | "apikey.issue" | "apikey.list" | "apikey.disable" | "admin.watch_run" | "audit.read" | "audit.verify" | "auth.denied";
+        AuditAction: "case.create" | "case.update" | "case.export" | "case.delete" | "case.pin" | "case.read" | "workspace.create" | "workspace.invite" | "workspace.join" | "workspace.role_change" | "workspace.member_remove" | "workspace.leave" | "workspace.retention" | "workspace.budget" | "apikey.issue" | "apikey.list" | "apikey.disable" | "admin.watch_run" | "admin.webhook_sweep" | "audit.read" | "audit.verify" | "audit.export" | "auth.denied" | "review.create" | "review.revoke" | "review.view" | "review.decision" | "webhook.create" | "webhook.update" | "webhook.delete" | "webhook.rotate_secret" | "webhook.test" | "webhook.read";
         /** @enum {string} */
         AuditPhase: "intent" | "completion" | "single";
         /** @enum {string} */
@@ -2080,6 +3443,56 @@ export interface components {
             checks: components["schemas"]["EvidenceCheck"][];
             markdown: string;
         };
+        /** @description Parts that may be subject to a U.S. AD or CVD order. Display only (D939); on a case it is `adcvd_check`, present only with `ADCVD_CHECK=on` and at least one part code. */
+        AdcvdCheck: {
+            /**
+             * Format: date
+             * @description The date the orders table describes; notices published after it are not in it
+             * @example 2026-11-27
+             */
+            snapshot?: string;
+            /**
+             * Format: date
+             * @description The date the notices were fetched
+             */
+            fetched?: string;
+            /** @description Active orders in the table */
+            orders?: number;
+            parts?: {
+                name?: string;
+                hts?: string;
+                origin?: string;
+                /** @enum {string} */
+                status?: "possible_exposure" | "no_match" | "not_checked";
+                reason?: string;
+                matches?: {
+                    /** @description The AD and CVD case numbers of the order, sorted */
+                    cases?: string[];
+                    types?: ("AD" | "CVD")[];
+                    country?: string;
+                    product?: string;
+                    /**
+                     * Format: date
+                     * @description Absent for an order older than the Federal Register's electronic notices (1994)
+                     */
+                    order_date?: string;
+                    /** @description The listed numbers the part's code agrees with */
+                    listed_hts_matched?: string[];
+                    /** @description The Federal Register notice the scope text and HTS numbers were read from */
+                    scope_notice?: {
+                        document_number?: string;
+                        /** Format: date */
+                        date?: string;
+                        title?: string;
+                        url?: string;
+                        sha256?: string;
+                    };
+                }[];
+            }[];
+            /** @description HTS numbers in a scope are for convenience; the written scope governs; display only */
+            notice?: string;
+            limits?: string[];
+        };
         /** @description The deterministic 19 CFR 102.20 tariff-shift check (D360, D363), present only when the product gives an HTS code for the good and at least one part. Computed when the case is read; display only: it never changes the prediction, the triage or auto-accept. RULE_CHECK=off removes it. */
         RuleCheck: {
             /** @enum {string} */
@@ -2431,7 +3844,9 @@ export interface components {
              */
             facts_source?: "parts_list" | "pasted";
             rule_check?: components["schemas"]["RuleCheck"];
+            adcvd_check?: components["schemas"]["AdcvdCheck"];
             origin_facts?: components["schemas"]["OriginFactsByMarket"];
+            supplier_declarations?: components["schemas"]["SupplierDeclarations"];
             family_intake?: components["schemas"]["FamilyIntake"];
             family_facts?: components["schemas"]["SuppliedFamilyFacts"];
             /** @description An EU or UK case's stored answer before supplied answers re-ran it (D815, D818); present only while that re-check is the newest stored prediction */
@@ -2456,7 +3871,7 @@ export interface components {
                 /** Format: date-time */
                 at?: string;
                 /** @enum {string} */
-                kind?: "predicted" | "answered" | "plan_searched" | "scenarios" | "targets_compared" | "watched" | "asked" | "exported" | "economics" | "pinned" | "unpinned" | "renamed" | "bom_updated" | "review_link_created" | "review_link_revoked" | "broker_decision";
+                kind?: "predicted" | "answered" | "plan_searched" | "scenarios" | "targets_compared" | "watched" | "asked" | "exported" | "economics" | "pinned" | "unpinned" | "renamed" | "bom_updated" | "review_link_created" | "review_link_revoked" | "broker_decision" | "supplier_request_created" | "supplier_request_revoked" | "supplier_answered";
                 summary?: string;
                 llm_provider?: string;
                 model_id?: string;
@@ -2992,6 +4407,112 @@ export interface components {
             /** @description Count of final CBP changes, in effect now and dated on or after the day the link was shared, to the rulings the frozen draft cites or its plan rests on (#714). Derived on every read and never stored; present only when at least one, for every link that is not revoked (expired and approved ones included, whatever the broker can still open). Dates are date-only, so a change on the sharing day (UTC calendar date) counts. The current setup's ruling is not in the snapshot, so it is not covered. It says what CBP changed, not that an approval is invalid. */
             changed_since_shared?: number;
         };
+        /** @description A supplier declaration request as its requester sees it (D937). Never carries the token or its hash. */
+        SupplierRequest: {
+            id: string;
+            /**
+             * @description revoked and expired win; otherwise answered when every part has an answer, partly_answered when some do, else viewed or pending.
+             * @enum {string}
+             */
+            status: "pending" | "viewed" | "partly_answered" | "answered" | "revoked" | "expired";
+            supplier_name: string;
+            /** @description As the requester typed it; never shown to the supplier, never logged. */
+            supplier_email?: string;
+            /** Format: date-time */
+            created_at: string;
+            /** @description The signed-in requester's email, when there was one. */
+            created_by?: string;
+            /** Format: date-time */
+            expires_at: string;
+            /** Format: date-time */
+            revoked_at?: string;
+            /** Format: date-time */
+            first_viewed_at?: string;
+            parts: {
+                index: number;
+                /** @description The part's name when it was asked about. */
+                name: string;
+            }[];
+            /** @description How many of the parts have an answer. */
+            answered: number;
+        };
+        /** @description One part's supplier declaration in effect, set beside the origin the case lists. Neither replaces the other (D937). */
+        SupplierDeclarationFact: {
+            part: string;
+            part_index: number;
+            /** @description The origin the case lists for the part (`made_in`), as normalised. */
+            user_made_in: string;
+            declared_origin: string;
+            hts?: string;
+            /** @description True when the declared origin is not the case's value. */
+            differs: boolean;
+            /**
+             * @description Only `valid` reaches the predict input.
+             * @enum {string}
+             */
+            status: "valid" | "expired" | "revoked";
+            /** @enum {string} */
+            source: "supplier-declared";
+            supplier: string;
+            request_id: string;
+            /** Format: date */
+            declared_on: string;
+            /** Format: date */
+            valid_until: string;
+            days_left: number;
+            /** @description The supplier's text. Plain text; never sent to a model. */
+            how_made: string;
+            signer_name: string;
+            signer_title: string;
+            document?: {
+                name: string;
+                /** @enum {string} */
+                mime_type: "image/png" | "image/jpeg" | "image/webp" | "application/pdf";
+                bytes: number;
+                pages?: number;
+            };
+        };
+        SupplierDeclarations: {
+            /** @description Newest first */
+            requests: components["schemas"]["SupplierRequest"][];
+            parts: components["schemas"]["SupplierDeclarationFact"][];
+        };
+        SupplierViewRequest: {
+            id: string;
+            /** @enum {string} */
+            status: "pending" | "viewed" | "partly_answered" | "answered";
+            supplier_name: string;
+            /** Format: date-time */
+            created_at: string;
+            /** Format: date-time */
+            expires_at: string;
+        };
+        /** @description One requested part as the supplier sees it. Nothing the case says about the part is shown. */
+        SupplierViewPart: {
+            index: number;
+            name: string;
+            answer?: {
+                origin: string;
+                hts?: string;
+                how_made: string;
+                document?: {
+                    name: string;
+                    mime_type: string;
+                    bytes: number;
+                    pages?: number;
+                };
+                signer_name: string;
+                signer_title: string;
+                /** Format: date */
+                valid_until: string;
+                /** Format: date-time */
+                answered_at: string;
+            };
+        };
+        SupplierView: {
+            request: components["schemas"]["SupplierViewRequest"];
+            parts: components["schemas"]["SupplierViewPart"][];
+        };
         BrokerReviewForBroker: {
             id: string;
             /** @enum {string} */
@@ -3312,6 +4833,27 @@ export interface components {
         };
     };
     responses: {
+        /** @description A session token to send as X-User-Token */
+        SSOLogin: {
+            headers: {
+                [name: string]: unknown;
+            };
+            content: {
+                "application/json": {
+                    /** @description Starts with ops1. */
+                    token: string;
+                    /** Format: date-time */
+                    expires_at: string;
+                    /** Format: email */
+                    email: string;
+                    workspace_id: string;
+                    /** @enum {string} */
+                    role: "viewer" | "editor" | "admin";
+                    /** @description True when this sign-in made the user a member */
+                    provisioned: boolean;
+                };
+            };
+        };
         /** @description Error */
         Error: {
             headers: {
@@ -3319,6 +4861,15 @@ export interface components {
             };
             content: {
                 "application/json": components["schemas"]["Error"];
+            };
+        };
+        /** @description A SCIM error (RFC 7644 3.12) */
+        SCIMError: {
+            headers: {
+                [name: string]: unknown;
+            };
+            content: {
+                "application/scim+json": components["schemas"]["SCIMError"];
             };
         };
         /** @description Refused by a limit (D137, docs/api/SECURITY.md). `code` says which: `rate_limited` (the route's rate class), `too_many_in_flight` (too many model-calling requests running at once), `client_budget_reached` (this client's share of the day's model budget is spent), `quota_exceeded` (the API key's daily request quota) or `auth_rate_limited` (too many invalid API keys from this client). `details.retry_after_s` repeats `Retry-After`. */
@@ -3706,6 +5257,16 @@ export interface operations {
                     "application/json": {
                         case_id?: string;
                         estimate?: components["schemas"]["PlanEstimate"];
+                        /** @description With USAGE_METERING=on, for a member of a workspace with a budget (#886): the month's budget, spend and what is left, and whether the estimate's maximum fits. A plan search that would not fit a hard cap is refused with 402. */
+                        workspace_budget?: {
+                            /** @example 2026-11 */
+                            month?: string;
+                            budget_usd?: number;
+                            spent_usd?: number;
+                            remaining_usd?: number;
+                            hard_cap?: boolean;
+                            fits?: boolean;
+                        };
                     };
                 };
             };
@@ -4088,6 +5649,701 @@ export interface operations {
             503: components["responses"]["Error"];
         };
     };
+    listSupplierRequests: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: components["parameters"]["CaseID"];
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description The requests and the parts */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SupplierDeclarations"] & {
+                        case_id: string;
+                    };
+                };
+            };
+            401: components["responses"]["Error"];
+            404: components["responses"]["Error"];
+            429: components["responses"]["TooManyRequests"];
+        };
+    };
+    createSupplierRequest: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: components["parameters"]["CaseID"];
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": {
+                    supplier_name: string;
+                    supplier_email?: string;
+                    /** @description 0-based positions in the case's parts list (`product.components`), each once. */
+                    parts: number[];
+                    /** @default 14 */
+                    expires_in_days?: number;
+                };
+            };
+        };
+        responses: {
+            /** @description The request, and the link shown once */
+            201: {
+                headers: {
+                    "X-Audit-Incomplete": components["headers"]["AuditIncomplete"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        request: components["schemas"]["SupplierRequest"];
+                        /** @description The link's secret. Send as X-Declaration-Token on /v1/supplier-declaration. Not stored; shown only here. */
+                        token: string;
+                        /** @description The supplier page with the token as its URL fragment: /supplier-declaration#{token}. Browsers never send a fragment to a server. */
+                        declaration_path: string;
+                    };
+                };
+            };
+            400: components["responses"]["Error"];
+            401: components["responses"]["Error"];
+            403: components["responses"]["Error"];
+            404: components["responses"]["Error"];
+            409: components["responses"]["Error"];
+            429: components["responses"]["TooManyRequests"];
+            503: components["responses"]["Error"];
+        };
+    };
+    revokeSupplierRequest: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: components["parameters"]["CaseID"];
+                request: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description The revoked request */
+            200: {
+                headers: {
+                    "X-Audit-Incomplete": components["headers"]["AuditIncomplete"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        request: components["schemas"]["SupplierRequest"];
+                    };
+                };
+            };
+            401: components["responses"]["Error"];
+            403: components["responses"]["Error"];
+            /** @description `not_found` (no such case, or hidden) or `declaration_not_found` (the case has no request with that id) */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            429: components["responses"]["TooManyRequests"];
+        };
+    };
+    getSupplierDocument: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: components["parameters"]["CaseID"];
+                request: string;
+                part: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description The file */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "image/png": string;
+                    "image/jpeg": string;
+                    "image/webp": string;
+                    "application/pdf": string;
+                };
+            };
+            401: components["responses"]["Error"];
+            403: components["responses"]["Error"];
+            404: components["responses"]["Error"];
+            429: components["responses"]["TooManyRequests"];
+        };
+    };
+    listExpiringSupplierDeclarations: {
+        parameters: {
+            query?: {
+                days?: number;
+                include_expired?: boolean;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description The declarations */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        days: number;
+                        /** Format: date */
+                        as_of: string;
+                        items: {
+                            case_id: string;
+                            case_name: string;
+                            part: string;
+                            part_index: number;
+                            supplier: string;
+                            declared_origin: string;
+                            /** Format: date */
+                            valid_until: string;
+                            /** @description Whole days to the last valid day; 0 on that day, negative once past. */
+                            days_left: number;
+                            /** @enum {string} */
+                            status: "valid" | "expired";
+                        }[];
+                    };
+                };
+            };
+            400: components["responses"]["Error"];
+            401: components["responses"]["Error"];
+            429: components["responses"]["TooManyRequests"];
+        };
+    };
+    getSupplierDeclarationRequest: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description The request and its parts */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SupplierView"];
+                };
+            };
+            404: components["responses"]["Error"];
+            410: components["responses"]["Error"];
+            429: components["responses"]["TooManyRequests"];
+        };
+    };
+    answerSupplierDeclaration: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                part: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": {
+                    /** @description Country of origin. */
+                    origin: string;
+                    /**
+                     * @description The supplier's tariff code for the part (heading or subheading), optional.
+                     * @example 8501.10
+                     */
+                    hts?: string;
+                    /** @description Short text: how the part was made. */
+                    how_made: string;
+                    signer_name: string;
+                    signer_title: string;
+                    /** Format: date */
+                    valid_until: string;
+                    document?: {
+                        /** @description A label; path parts and quotes are dropped. */
+                        name: string;
+                        /** @description The file's bytes, standard base64. */
+                        content_base64: string;
+                    };
+                };
+            };
+        };
+        responses: {
+            /** @description The request and the part after the answer */
+            200: {
+                headers: {
+                    "X-Audit-Incomplete": components["headers"]["AuditIncomplete"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        request: components["schemas"]["SupplierViewRequest"];
+                        part: components["schemas"]["SupplierViewPart"];
+                    };
+                };
+            };
+            400: components["responses"]["Error"];
+            404: components["responses"]["Error"];
+            409: components["responses"]["Error"];
+            410: components["responses"]["Error"];
+            413: components["responses"]["Error"];
+            415: components["responses"]["Error"];
+            429: components["responses"]["TooManyRequests"];
+            503: components["responses"]["Error"];
+        };
+    };
+    listReviewQueue: {
+        parameters: {
+            query?: {
+                state?: "open" | "all" | "queued" | "assigned" | "in_review" | "decided";
+                assignee?: "me";
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description The queue */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        items: components["schemas"]["QueueView"][];
+                        overdue: number;
+                        suggested: components["schemas"]["QueueView"][];
+                        review_targets_h: {
+                            [key: string]: number;
+                        };
+                    };
+                };
+            };
+            400: components["responses"]["Error"];
+            401: components["responses"]["Error"];
+            403: components["responses"]["Error"];
+            404: components["responses"]["Error"];
+            429: components["responses"]["TooManyRequests"];
+        };
+    };
+    enqueueForReview: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: components["parameters"]["CaseID"];
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": {
+                    /**
+                     * @default normal
+                     * @enum {string}
+                     */
+                    priority?: "urgent" | "high" | "normal" | "low";
+                    reason: string;
+                };
+            };
+        };
+        responses: {
+            /** @description The queue item */
+            200: {
+                headers: {
+                    "X-Audit-Incomplete": components["headers"]["AuditIncomplete"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["QueueView"];
+                };
+            };
+            400: components["responses"]["Error"];
+            401: components["responses"]["Error"];
+            403: components["responses"]["Error"];
+            404: components["responses"]["Error"];
+            429: components["responses"]["TooManyRequests"];
+        };
+    };
+    moveReview: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: components["parameters"]["CaseID"];
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": {
+                    /** @enum {string} */
+                    action: "assign" | "start" | "decide" | "release";
+                    assignee?: string;
+                    /** @enum {string} */
+                    outcome?: "approve" | "reject" | "changes";
+                    reason?: string;
+                };
+            };
+        };
+        responses: {
+            /** @description The queue item */
+            200: {
+                headers: {
+                    "X-Audit-Incomplete": components["headers"]["AuditIncomplete"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["QueueView"];
+                };
+            };
+            400: components["responses"]["Error"];
+            401: components["responses"]["Error"];
+            403: components["responses"]["Error"];
+            404: components["responses"]["Error"];
+            409: components["responses"]["Error"];
+            429: components["responses"]["TooManyRequests"];
+        };
+    };
+    getCaseCollaboration: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: components["parameters"]["CaseID"];
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description The collaboration state */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Collaboration"];
+                };
+            };
+            400: components["responses"]["Error"];
+            401: components["responses"]["Error"];
+            403: components["responses"]["Error"];
+            404: components["responses"]["Error"];
+            429: components["responses"]["TooManyRequests"];
+        };
+    };
+    commentOnCase: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: components["parameters"]["CaseID"];
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": {
+                    body: string;
+                    parent_id?: string;
+                };
+            };
+        };
+        responses: {
+            /** @description The collaboration state after the comment */
+            201: {
+                headers: {
+                    "X-Audit-Incomplete": components["headers"]["AuditIncomplete"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Collaboration"];
+                };
+            };
+            400: components["responses"]["Error"];
+            401: components["responses"]["Error"];
+            403: components["responses"]["Error"];
+            404: components["responses"]["Error"];
+            409: components["responses"]["Error"];
+            429: components["responses"]["TooManyRequests"];
+        };
+    };
+    signOffCase: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: components["parameters"]["CaseID"];
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": {
+                    /** @enum {string} */
+                    decision: "approve" | "changes" | "reject";
+                    reason?: string;
+                };
+            };
+        };
+        responses: {
+            /** @description The collaboration state after the sign-off */
+            201: {
+                headers: {
+                    "X-Audit-Incomplete": components["headers"]["AuditIncomplete"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Collaboration"];
+                };
+            };
+            400: components["responses"]["Error"];
+            401: components["responses"]["Error"];
+            403: components["responses"]["Error"];
+            404: components["responses"]["Error"];
+            409: components["responses"]["Error"];
+            429: components["responses"]["TooManyRequests"];
+        };
+    };
+    setCaseCollaborator: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: components["parameters"]["CaseID"];
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": {
+                    email: string;
+                    /** @enum {string} */
+                    role: "broker" | "reviewer" | "";
+                };
+            };
+        };
+        responses: {
+            /** @description The collaboration state */
+            200: {
+                headers: {
+                    "X-Audit-Incomplete": components["headers"]["AuditIncomplete"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Collaboration"];
+                };
+            };
+            400: components["responses"]["Error"];
+            401: components["responses"]["Error"];
+            403: components["responses"]["Error"];
+            404: components["responses"]["Error"];
+            409: components["responses"]["Error"];
+            429: components["responses"]["TooManyRequests"];
+        };
+    };
+    getBrokerReviewComments: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description The threads */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        threads: components["schemas"]["CommentThread"][];
+                    };
+                };
+            };
+            404: components["responses"]["Error"];
+            410: components["responses"]["Error"];
+            429: components["responses"]["TooManyRequests"];
+        };
+    };
+    postBrokerReviewComment: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": {
+                    body: string;
+                    parent_id?: string;
+                };
+            };
+        };
+        responses: {
+            /** @description The threads after the comment */
+            201: {
+                headers: {
+                    "X-Audit-Incomplete": components["headers"]["AuditIncomplete"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        threads: components["schemas"]["CommentThread"][];
+                    };
+                };
+            };
+            400: components["responses"]["Error"];
+            404: components["responses"]["Error"];
+            409: components["responses"]["Error"];
+            410: components["responses"]["Error"];
+            429: components["responses"]["TooManyRequests"];
+        };
+    };
+    getRulingFiling: {
+        parameters: {
+            query?: {
+                format?: "json" | "zip" | "pdf";
+            };
+            header?: never;
+            path: {
+                id: components["parameters"]["CaseID"];
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description The state or the package */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["FilingView"];
+                    "application/zip": string;
+                    "application/pdf": string;
+                };
+            };
+            400: components["responses"]["Error"];
+            401: components["responses"]["Error"];
+            403: components["responses"]["Error"];
+            404: components["responses"]["Error"];
+            429: components["responses"]["TooManyRequests"];
+        };
+    };
+    prepareRulingFiling: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: components["parameters"]["CaseID"];
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": {
+                    submitter?: components["schemas"]["FilingSubmitter"];
+                    /** @description The broker's edited letter (Markdown, under 64 KB). Omit to generate it. */
+                    letter?: string;
+                    attachments?: {
+                        name: string;
+                        description?: string;
+                        sha256?: string;
+                        bytes?: number;
+                    }[];
+                    plan_id?: string;
+                    plan_index?: number;
+                    move_key?: string;
+                    target?: string;
+                };
+            };
+        };
+        responses: {
+            /** @description The package's state */
+            200: {
+                headers: {
+                    "X-Audit-Incomplete": components["headers"]["AuditIncomplete"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["FilingView"];
+                };
+            };
+            400: components["responses"]["Error"];
+            401: components["responses"]["Error"];
+            403: components["responses"]["Error"];
+            404: components["responses"]["Error"];
+            409: components["responses"]["Error"];
+            429: components["responses"]["TooManyRequests"];
+        };
+    };
+    setRulingFilingStatus: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: components["parameters"]["CaseID"];
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": {
+                    /** @enum {string} */
+                    status: "submitted" | "acknowledged" | "ruling_issued" | "withdrawn";
+                    reference?: string;
+                    note?: string;
+                };
+            };
+        };
+        responses: {
+            /** @description The package's state */
+            200: {
+                headers: {
+                    "X-Audit-Incomplete": components["headers"]["AuditIncomplete"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["FilingView"];
+                };
+            };
+            400: components["responses"]["Error"];
+            401: components["responses"]["Error"];
+            403: components["responses"]["Error"];
+            404: components["responses"]["Error"];
+            409: components["responses"]["Error"];
+            429: components["responses"]["TooManyRequests"];
+        };
+    };
     importProduct: {
         parameters: {
             query?: never;
@@ -4153,6 +6409,118 @@ export interface operations {
             };
             400: components["responses"]["Error"];
             429: components["responses"]["TooManyRequests"];
+        };
+    };
+    erpImport: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": {
+                    /** @enum {string} */
+                    format: "generic" | "sap_s4" | "netsuite" | "json";
+                    /** @description Label for the ERP or export, part of each case's key; default the format */
+                    source?: string;
+                    /** @description The export */
+                    csv?: string;
+                    /** @description For format json */
+                    items?: {
+                        external_id: string;
+                        name: string;
+                        description?: string;
+                        hts?: string;
+                        /** @description Country name or ISO alpha-2 code */
+                        assembled_in: string;
+                        components: {
+                            name: string;
+                            made_in: string;
+                            hts?: string;
+                        }[];
+                    }[];
+                    /** @default false */
+                    commit?: boolean;
+                    /** @description Optional product family template; without one the facts are written from the BOM */
+                    family?: string;
+                    jurisdiction?: components["schemas"]["JurisdictionCode"];
+                };
+                "multipart/form-data": {
+                    /**
+                     * Format: binary
+                     * @description CSV or .xlsx
+                     */
+                    file: string;
+                    /** @enum {string} */
+                    format: "generic" | "sap_s4" | "netsuite";
+                    source?: string;
+                    /** @enum {string} */
+                    commit?: "true" | "false";
+                    family?: string;
+                    jurisdiction?: string;
+                };
+            };
+        };
+        responses: {
+            /** @description One row per complete assembly, the problems, and counts */
+            200: {
+                headers: {
+                    "X-Audit-Incomplete": components["headers"]["AuditIncomplete"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Meta"] & {
+                        format: string;
+                        source: string;
+                        committed: boolean;
+                        rows: {
+                            external_id: string;
+                            name: string;
+                            /** @enum {string} */
+                            status: "new" | "changed" | "unchanged" | "created" | "updated" | "failed";
+                            /** @description The assembly's case (on a dry run, the case it would use) */
+                            case_id: string;
+                            /** @description Source line numbers (the header is line 1) */
+                            rows: number[];
+                            components: number;
+                            countries: string[];
+                            hts?: string;
+                            predicted_origin?: string;
+                            triage_route?: string;
+                            jurisdiction?: string;
+                            cost_usd?: number;
+                            error: string | null;
+                        }[];
+                        problems: {
+                            /** @description Source line (CSV) or 1-based item index (JSON) */
+                            row?: number;
+                            external_id?: string;
+                            message: string;
+                        }[];
+                        summary: {
+                            assemblies?: number;
+                            problems?: number;
+                            lines?: number;
+                            new?: number;
+                            changed?: number;
+                            unchanged?: number;
+                            created?: number;
+                            updated?: number;
+                            failed?: number;
+                            cost_usd?: number;
+                            latency_ms?: number;
+                        };
+                    };
+                };
+            };
+            400: components["responses"]["Error"];
+            401: components["responses"]["Error"];
+            402: components["responses"]["Error"];
+            403: components["responses"]["Error"];
+            429: components["responses"]["TooManyRequests"];
+            503: components["responses"]["Error"];
         };
     };
     prefillMoney: {
@@ -5158,6 +7526,202 @@ export interface operations {
             429: components["responses"]["TooManyRequests"];
         };
     };
+    checkAtigaPreference: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": {
+                    /**
+                     * @description The good's HS code, 4 to 10 digits (HS 2022). A heading with Annex 3 rows needs the 6-digit subheading.
+                     * @example 6101.20
+                     */
+                    hs: string;
+                    /**
+                     * @description Where the good is produced: country name or ISO alpha-2 code. A non-Member State is `no`.
+                     * @example Cambodia
+                     */
+                    produced_in: string;
+                    /** @description FOB value of the good; needed for RVC and de minimis */
+                    fob?: number;
+                    /**
+                     * @description The RVC method the exporting Member State uses (Art. 29.3). Unset: either may decide.
+                     * @enum {string}
+                     */
+                    method?: "direct" | "indirect";
+                    /** @description The producer states the good is wholly obtained or produced in the Member State (Art. 27) */
+                    wholly_obtained?: boolean;
+                    /** @description What is done to the non-originating materials. If every entry is an Art. 31 key (preservation, shipment, packaging), the good does not qualify. Any other word counts as real production. */
+                    operations?: string[];
+                    /** @description Annex 3 conditions written in words: true if it applies, false if not, left out if not stated (undetermined). */
+                    processes?: {
+                        /** @description The Attachment 1 working or processing for textiles was done in a Member State */
+                        textile_process?: boolean;
+                        /** @description The good is both cut and sewn in a Member State */
+                        cut_and_sewn?: boolean;
+                        /** @description The good is produced by refining */
+                        refining?: boolean;
+                        /** @description There is a change from the wet state to the dry state */
+                        wet_to_dry?: boolean;
+                        /** @description Recording onto blank or unrecorded media */
+                        recording?: boolean;
+                        /** @description Made from parts produced solely for goods of the same subheading */
+                        parts_same_subheading?: boolean;
+                    };
+                    /** @description For rows whose rule depends on the product (e.g. 7317.00 of steel vs of stainless steel), the branch id from `rule.variants`. Unset: decided only if every branch agrees. */
+                    variant?: string;
+                    /** @description Direct method terms, Art. 29.1(a); same currency as fob */
+                    costs?: {
+                        labour?: number;
+                        overhead?: number;
+                        profit?: number;
+                        other?: number;
+                    };
+                    materials?: {
+                        name?: string;
+                        /** @description The material's HS code, 2 to 10 digits; the rule needs 2, 4 or 6 */
+                        hs?: string;
+                        /** @description CIF at import, or the earliest price paid in the Member State (Art. 29.2) */
+                        value?: number;
+                        /** @description Where the material originates */
+                        country?: string;
+                        /**
+                         * @description originating: the supplier's declaration or proof of origin says it is ATIGA originating
+                         * @default unknown
+                         * @enum {string}
+                         */
+                        status?: "originating" | "non_originating" | "unknown";
+                        /** @description The material's own ASEAN value content, for Art. 30.2 partial cumulation */
+                        rvc_pct?: number;
+                    }[];
+                };
+            };
+        };
+        responses: {
+            /** @description The answer, with the rule used and plain-English reasons */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        /** @enum {string} */
+                        outcome?: "yes" | "no" | "undetermined";
+                        /**
+                         * @description Art. 26 limb of a yes
+                         * @enum {string}
+                         */
+                        basis?: "WO" | "PE" | "PSR";
+                        /**
+                         * @description The alternative that decided a yes
+                         * @example CC and cut and sewn in any AMS
+                         */
+                        applied?: string;
+                        rule?: {
+                            /**
+                             * @description The Annex 3 subheading, or Art. 28.1 for the general rule
+                             * @example 6101.20
+                             */
+                            code?: string;
+                            /** @description true: an Annex 3 row; false: the Art. 28.1 general rule */
+                            listed?: boolean;
+                            /** @example RVC40 or CC and cut and sewn in any AMS or textile process rule */
+                            concise?: string;
+                            full?: string;
+                            /** @example atiga-annex3-psr-hs2022-aftac36 */
+                            version?: string;
+                            variants?: Record<string, never>[];
+                        };
+                        rvc?: {
+                            /** @example 40 */
+                            threshold?: number;
+                            /** @description (ASEAN materials + labour + overhead + profit + other) / FOB x 100 */
+                            direct?: number;
+                            /** @description (FOB - non-originating materials) / FOB x 100 */
+                            indirect?: number;
+                            vnm?: number;
+                            vom?: number;
+                            /** @description ASEAN content counted from partially cumulated materials (Art. 30.2) */
+                            partial?: number;
+                        };
+                        de_minimis?: {
+                            used?: boolean;
+                            /** @description per cent of FOB */
+                            value_share?: number;
+                        };
+                        /** @description Originating materials from another Member State were counted (Art. 30.1) */
+                        accumulation?: boolean;
+                        /** @description Art. 30.2 partial cumulation was used */
+                        partial_cumulation?: boolean;
+                        failing?: {
+                            index?: number;
+                            name?: string;
+                            hs?: string;
+                            reason?: string;
+                        }[];
+                        alternatives?: {
+                            rule?: string;
+                            /** @enum {string} */
+                            outcome?: "yes" | "no" | "undetermined";
+                            reasons?: string[];
+                        }[];
+                        reasons?: string[];
+                        /** @enum {string} */
+                        regime?: "atiga_preferential";
+                        note?: string;
+                    };
+                };
+            };
+            400: components["responses"]["Error"];
+            404: components["responses"]["Error"];
+            429: components["responses"]["TooManyRequests"];
+        };
+    };
+    checkAdcvdExposure: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": {
+                    parts: {
+                        name?: string;
+                        /**
+                         * @description HTS heading or subheading, 4, 6, 8 or 10 digits, dots optional. A part without a valid code is `not_checked`.
+                         * @example 8202.39.00.00
+                         */
+                        hts?: string;
+                        /**
+                         * @description Country of origin of the part; several are written `China/Vietnam`. A part without one is `not_checked`.
+                         * @example China
+                         */
+                        origin?: string;
+                    }[];
+                };
+            };
+        };
+        responses: {
+            /** @description One result per part, in the order given */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AdcvdCheck"];
+                };
+            };
+            400: components["responses"]["Error"];
+            404: components["responses"]["Error"];
+            429: components["responses"]["TooManyRequests"];
+        };
+    };
     checkUsmcaOriginRule: {
         parameters: {
             query?: never;
@@ -5632,6 +8196,478 @@ export interface operations {
             503: components["responses"]["Error"];
         };
     };
+    workspaceUsage: {
+        parameters: {
+            query?: {
+                /** @description YYYY-MM; default this month (UTC) */
+                month?: string;
+            };
+            header: {
+                /** @description The signed-in user's Google ID token, forwarded by the frontend proxy (D68). Optional on every other endpoint. */
+                "X-User-Token": components["parameters"]["UserToken"];
+            };
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description The month's use */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        workspace_id: string;
+                        usage: components["schemas"]["WorkspaceUsage"];
+                    };
+                };
+            };
+            400: components["responses"]["Error"];
+            401: components["responses"]["Error"];
+            404: components["responses"]["Error"];
+            429: components["responses"]["TooManyRequests"];
+        };
+    };
+    workspaceTariffWatch: {
+        parameters: {
+            query?: {
+                all?: boolean;
+            };
+            header: {
+                /** @description The signed-in user's Google ID token, forwarded by the frontend proxy (D68). Optional on every other endpoint. */
+                "X-User-Token": components["parameters"]["UserToken"];
+            };
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description The affected cases */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        workspace_id: string;
+                        cases_in_workspace: number;
+                        checked: number;
+                        affected: number;
+                        cases: {
+                            case_id: string;
+                            name?: string;
+                            hts?: string;
+                            /** Format: date-time */
+                            checked_at: string;
+                            change_count: number;
+                            result: {
+                                /** Format: date-time */
+                                checked_at: string;
+                                dataset_revision: string;
+                                /** @description The HTS revision the case was priced on */
+                                basis_revision: string;
+                                as_of: string;
+                                affected: boolean;
+                                changes: {
+                                    origin: string;
+                                    /** @enum {string} */
+                                    kind: "rate_changed" | "mfn_changed" | "duty_added" | "duty_removed" | "duty_window_changed" | "exclusion_window_changed" | "exclusion_added" | "exclusion_removed" | "section_232_coverage";
+                                    heading?: string;
+                                    name?: string;
+                                    old_rate?: number;
+                                    new_rate?: number;
+                                    old?: string;
+                                    new?: string;
+                                    moves_rate: boolean;
+                                    note?: string;
+                                }[];
+                                rates?: {
+                                    origin?: string;
+                                    old_rate?: number;
+                                    new_rate?: number;
+                                    delta?: number;
+                                }[];
+                                annual_duty?: {
+                                    origin?: string;
+                                    before_usd?: number;
+                                    after_usd?: number;
+                                    change_usd?: number;
+                                };
+                                plan_duty?: {
+                                    from?: string;
+                                    to?: string;
+                                    before_usd?: number;
+                                    after_usd?: number;
+                                    change_usd?: number;
+                                };
+                                notes?: string[];
+                            };
+                        }[];
+                    };
+                };
+            };
+            401: components["responses"]["Error"];
+            404: components["responses"]["Error"];
+            429: components["responses"]["TooManyRequests"];
+        };
+    };
+    setWorkspaceBudget: {
+        parameters: {
+            query?: never;
+            header: {
+                /** @description The signed-in user's Google ID token, forwarded by the frontend proxy (D68). Optional on every other endpoint. */
+                "X-User-Token": components["parameters"]["UserToken"];
+            };
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": {
+                    monthly_usd: number;
+                    /** @default false */
+                    hard_cap?: boolean;
+                    /** @description 0 means 80 */
+                    alert_percent?: number;
+                };
+            };
+        };
+        responses: {
+            /** @description The budget saved */
+            200: {
+                headers: {
+                    "X-Audit-Incomplete": components["headers"]["AuditIncomplete"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        workspace_id?: string;
+                        budget?: components["schemas"]["WorkspaceBudget"];
+                    };
+                };
+            };
+            400: components["responses"]["Error"];
+            401: components["responses"]["Error"];
+            403: components["responses"]["Error"];
+            404: components["responses"]["Error"];
+            429: components["responses"]["TooManyRequests"];
+            503: components["responses"]["Error"];
+        };
+    };
+    deleteWorkspaceBudget: {
+        parameters: {
+            query?: never;
+            header: {
+                /** @description The signed-in user's Google ID token, forwarded by the frontend proxy (D68). Optional on every other endpoint. */
+                "X-User-Token": components["parameters"]["UserToken"];
+            };
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Removed */
+            204: {
+                headers: {
+                    "X-Audit-Incomplete": components["headers"]["AuditIncomplete"];
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            401: components["responses"]["Error"];
+            403: components["responses"]["Error"];
+            404: components["responses"]["Error"];
+            429: components["responses"]["TooManyRequests"];
+            503: components["responses"]["Error"];
+        };
+    };
+    listWebhooks: {
+        parameters: {
+            query?: never;
+            header: {
+                /** @description The signed-in user's Google ID token, forwarded by the frontend proxy (D68). Optional on every other endpoint. */
+                "X-User-Token": components["parameters"]["UserToken"];
+            };
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description The endpoints */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        endpoints: components["schemas"]["WebhookEndpoint"][];
+                        available_events: components["schemas"]["WebhookEventType"][];
+                        /** @example 10 */
+                        max_endpoints: number;
+                    };
+                };
+            };
+            401: components["responses"]["Error"];
+            403: components["responses"]["Error"];
+            404: components["responses"]["Error"];
+        };
+    };
+    createWebhook: {
+        parameters: {
+            query?: never;
+            header: {
+                /** @description The signed-in user's Google ID token, forwarded by the frontend proxy (D68). Optional on every other endpoint. */
+                "X-User-Token": components["parameters"]["UserToken"];
+            };
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": {
+                    /**
+                     * Format: uri
+                     * @example https://hooks.example.com/unde
+                     */
+                    url: string;
+                    events: components["schemas"]["WebhookEventType"][];
+                    description?: string;
+                    /** @default true */
+                    enabled?: boolean;
+                };
+            };
+        };
+        responses: {
+            /** @description The endpoint, with its secret shown once */
+            201: {
+                headers: {
+                    "X-Audit-Incomplete": components["headers"]["AuditIncomplete"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        endpoint: components["schemas"]["WebhookEndpoint"];
+                    };
+                };
+            };
+            400: components["responses"]["Error"];
+            401: components["responses"]["Error"];
+            403: components["responses"]["Error"];
+            404: components["responses"]["Error"];
+            409: components["responses"]["Error"];
+            503: components["responses"]["Error"];
+        };
+    };
+    deleteWebhook: {
+        parameters: {
+            query?: never;
+            header: {
+                /** @description The signed-in user's Google ID token, forwarded by the frontend proxy (D68). Optional on every other endpoint. */
+                "X-User-Token": components["parameters"]["UserToken"];
+            };
+            path: {
+                id: string;
+                wid: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Deleted */
+            204: {
+                headers: {
+                    "X-Audit-Incomplete": components["headers"]["AuditIncomplete"];
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            401: components["responses"]["Error"];
+            403: components["responses"]["Error"];
+            404: components["responses"]["Error"];
+            503: components["responses"]["Error"];
+        };
+    };
+    updateWebhook: {
+        parameters: {
+            query?: never;
+            header: {
+                /** @description The signed-in user's Google ID token, forwarded by the frontend proxy (D68). Optional on every other endpoint. */
+                "X-User-Token": components["parameters"]["UserToken"];
+            };
+            path: {
+                id: string;
+                wid: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": {
+                    /** Format: uri */
+                    url?: string;
+                    events?: components["schemas"]["WebhookEventType"][];
+                    description?: string;
+                    enabled?: boolean;
+                };
+            };
+        };
+        responses: {
+            /** @description The endpoint */
+            200: {
+                headers: {
+                    "X-Audit-Incomplete": components["headers"]["AuditIncomplete"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        endpoint: components["schemas"]["WebhookEndpoint"];
+                    };
+                };
+            };
+            400: components["responses"]["Error"];
+            401: components["responses"]["Error"];
+            403: components["responses"]["Error"];
+            404: components["responses"]["Error"];
+            503: components["responses"]["Error"];
+        };
+    };
+    rotateWebhookSecret: {
+        parameters: {
+            query?: never;
+            header: {
+                /** @description The signed-in user's Google ID token, forwarded by the frontend proxy (D68). Optional on every other endpoint. */
+                "X-User-Token": components["parameters"]["UserToken"];
+            };
+            path: {
+                id: string;
+                wid: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description The endpoint, with the new secret shown once */
+            200: {
+                headers: {
+                    "X-Audit-Incomplete": components["headers"]["AuditIncomplete"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        endpoint: components["schemas"]["WebhookEndpoint"];
+                    };
+                };
+            };
+            401: components["responses"]["Error"];
+            403: components["responses"]["Error"];
+            404: components["responses"]["Error"];
+            503: components["responses"]["Error"];
+        };
+    };
+    testWebhook: {
+        parameters: {
+            query?: never;
+            header: {
+                /** @description The signed-in user's Google ID token, forwarded by the frontend proxy (D68). Optional on every other endpoint. */
+                "X-User-Token": components["parameters"]["UserToken"];
+            };
+            path: {
+                id: string;
+                wid: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description The delivery */
+            200: {
+                headers: {
+                    "X-Audit-Incomplete": components["headers"]["AuditIncomplete"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        delivery: components["schemas"]["WebhookDelivery"];
+                    };
+                };
+            };
+            401: components["responses"]["Error"];
+            403: components["responses"]["Error"];
+            404: components["responses"]["Error"];
+            503: components["responses"]["Error"];
+        };
+    };
+    listWebhookDeliveries: {
+        parameters: {
+            query?: {
+                limit?: number;
+            };
+            header: {
+                /** @description The signed-in user's Google ID token, forwarded by the frontend proxy (D68). Optional on every other endpoint. */
+                "X-User-Token": components["parameters"]["UserToken"];
+            };
+            path: {
+                id: string;
+                wid: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description The deliveries */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        deliveries: components["schemas"]["WebhookDelivery"][];
+                    };
+                };
+            };
+            400: components["responses"]["Error"];
+            401: components["responses"]["Error"];
+            403: components["responses"]["Error"];
+            404: components["responses"]["Error"];
+        };
+    };
+    sweepWebhooks: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description How many deliveries were tried */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        attempted: number;
+                    };
+                };
+            };
+            403: components["responses"]["Error"];
+            503: components["responses"]["Error"];
+        };
+    };
     listAudit: {
         parameters: {
             query?: {
@@ -5712,6 +8748,145 @@ export interface operations {
             429: components["responses"]["TooManyRequests"];
         };
     };
+    exportAudit: {
+        parameters: {
+            query?: {
+                format?: "jsonl" | "csv";
+                /** @description RFC 3339 */
+                from?: string;
+                /** @description RFC 3339 */
+                to?: string;
+                /** @description Admin token only (required for it); 400 for any other caller */
+                tenant?: string;
+            };
+            header?: {
+                /** @description The signed-in user's Google ID token (D68); the workspace admin's way in. */
+                "X-User-Token"?: string;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description The export, as a file download. `X-Audit-Head-Seq` and `X-Audit-Head-Hash` repeat the snapshot head. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/x-ndjson": string;
+                    "text/csv": string;
+                };
+            };
+            400: components["responses"]["Error"];
+            401: components["responses"]["Error"];
+            403: components["responses"]["Error"];
+            404: components["responses"]["Error"];
+            429: components["responses"]["TooManyRequests"];
+        };
+    };
+    getWorkspaceRetention: {
+        parameters: {
+            query?: never;
+            header: {
+                /** @description The signed-in user's Google ID token, forwarded by the frontend proxy (D68). Optional on every other endpoint. */
+                "X-User-Token": components["parameters"]["UserToken"];
+            };
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description The policy */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["RetentionPolicy"];
+                };
+            };
+            401: components["responses"]["Error"];
+            404: components["responses"]["Error"];
+            429: components["responses"]["TooManyRequests"];
+        };
+    };
+    setWorkspaceRetention: {
+        parameters: {
+            query?: never;
+            header: {
+                /** @description The signed-in user's Google ID token, forwarded by the frontend proxy (D68). Optional on every other endpoint. */
+                "X-User-Token": components["parameters"]["UserToken"];
+            };
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": {
+                    /** @description 0, or 7 to 3650 */
+                    case_days: number;
+                };
+            };
+        };
+        responses: {
+            /** @description The saved policy */
+            200: {
+                headers: {
+                    "X-Audit-Incomplete": components["headers"]["AuditIncomplete"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["RetentionPolicy"];
+                };
+            };
+            400: components["responses"]["Error"];
+            401: components["responses"]["Error"];
+            403: components["responses"]["Error"];
+            404: components["responses"]["Error"];
+            429: components["responses"]["TooManyRequests"];
+            503: components["responses"]["Error"];
+        };
+    };
+    listWorkspaceTombstones: {
+        parameters: {
+            query?: {
+                limit?: number;
+            };
+            header: {
+                /** @description The signed-in user's Google ID token, forwarded by the frontend proxy (D68). Optional on every other endpoint. */
+                "X-User-Token": components["parameters"]["UserToken"];
+            };
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Tombstones */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        workspace: string;
+                        tombstones: components["schemas"]["Tombstone"][];
+                    };
+                };
+            };
+            400: components["responses"]["Error"];
+            401: components["responses"]["Error"];
+            403: components["responses"]["Error"];
+            404: components["responses"]["Error"];
+            429: components["responses"]["TooManyRequests"];
+        };
+    };
     getEvalSummary: {
         parameters: {
             query?: never;
@@ -5728,6 +8903,43 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["EvalSummary"];
+                };
+            };
+            429: components["responses"]["TooManyRequests"];
+        };
+    };
+    getStatus: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Status */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        /** @enum {string} */
+                        status: "operational" | "degraded" | "unknown";
+                        /** Format: date-time */
+                        checked_at?: string;
+                        components: {
+                            name: string;
+                            /** @enum {string} */
+                            status: "operational" | "degraded" | "unknown";
+                        }[];
+                        slos: {
+                            name: string;
+                            objective_percent: number;
+                            window: string;
+                            measures: string;
+                        }[];
+                    };
                 };
             };
             429: components["responses"]["TooManyRequests"];
@@ -5960,6 +9172,690 @@ export interface operations {
                 content?: never;
             };
             429: components["responses"]["TooManyRequests"];
+        };
+    };
+    ssoStart: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": {
+                    /** Format: email */
+                    email: string;
+                };
+            };
+        };
+        responses: {
+            /** @description Where to send the browser */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        /** @enum {string} */
+                        protocol: "oidc" | "saml";
+                        /** Format: uri */
+                        url: string;
+                        connection_id: string;
+                        /** Format: date-time */
+                        expires_at: string;
+                    };
+                };
+            };
+            400: components["responses"]["Error"];
+            404: components["responses"]["Error"];
+            429: components["responses"]["TooManyRequests"];
+        };
+    };
+    ssoOIDCCallback: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": {
+                    state: string;
+                    code?: string;
+                    /** @description The provider's error parameter */
+                    error?: string;
+                };
+            };
+        };
+        responses: {
+            200: components["responses"]["SSOLogin"];
+            401: components["responses"]["Error"];
+            403: components["responses"]["Error"];
+            429: components["responses"]["TooManyRequests"];
+            502: components["responses"]["Error"];
+        };
+    };
+    ssoSAMLACS: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/x-www-form-urlencoded": {
+                    SAMLResponse: string;
+                    RelayState: string;
+                };
+                "application/json": {
+                    saml_response: string;
+                    relay_state: string;
+                };
+            };
+        };
+        responses: {
+            200: components["responses"]["SSOLogin"];
+            400: components["responses"]["Error"];
+            401: components["responses"]["Error"];
+            403: components["responses"]["Error"];
+            429: components["responses"]["TooManyRequests"];
+        };
+    };
+    ssoSAMLMetadata: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description The service provider's entity descriptor */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/samlmetadata+xml": string;
+                };
+            };
+        };
+    };
+    listSSOConnections: {
+        parameters: {
+            query?: never;
+            header: {
+                /** @description The signed-in user's Google ID token, forwarded by the frontend proxy (D68). Optional on every other endpoint. */
+                "X-User-Token": components["parameters"]["UserToken"];
+            };
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description The connections; client secrets are never returned */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        connections: components["schemas"]["SSOConnection"][];
+                    };
+                };
+            };
+            401: components["responses"]["Error"];
+            403: components["responses"]["Error"];
+            404: components["responses"]["Error"];
+        };
+    };
+    createSSOConnection: {
+        parameters: {
+            query?: never;
+            header: {
+                /** @description The signed-in user's Google ID token, forwarded by the frontend proxy (D68). Optional on every other endpoint. */
+                "X-User-Token": components["parameters"]["UserToken"];
+            };
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["SSOConnectionRequest"];
+            };
+        };
+        responses: {
+            /** @description The connection */
+            201: {
+                headers: {
+                    "X-Audit-Incomplete": components["headers"]["AuditIncomplete"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SSOConnection"];
+                };
+            };
+            400: components["responses"]["Error"];
+            401: components["responses"]["Error"];
+            403: components["responses"]["Error"];
+            404: components["responses"]["Error"];
+            409: components["responses"]["Error"];
+            503: components["responses"]["Error"];
+        };
+    };
+    updateSSOConnection: {
+        parameters: {
+            query?: never;
+            header: {
+                /** @description The signed-in user's Google ID token, forwarded by the frontend proxy (D68). Optional on every other endpoint. */
+                "X-User-Token": components["parameters"]["UserToken"];
+            };
+            path: {
+                id: string;
+                conn: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["SSOConnectionRequest"];
+            };
+        };
+        responses: {
+            /** @description The connection */
+            200: {
+                headers: {
+                    "X-Audit-Incomplete": components["headers"]["AuditIncomplete"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SSOConnection"];
+                };
+            };
+            400: components["responses"]["Error"];
+            401: components["responses"]["Error"];
+            403: components["responses"]["Error"];
+            404: components["responses"]["Error"];
+            409: components["responses"]["Error"];
+            503: components["responses"]["Error"];
+        };
+    };
+    deleteSSOConnection: {
+        parameters: {
+            query?: never;
+            header: {
+                /** @description The signed-in user's Google ID token, forwarded by the frontend proxy (D68). Optional on every other endpoint. */
+                "X-User-Token": components["parameters"]["UserToken"];
+            };
+            path: {
+                id: string;
+                conn: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Removed */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            401: components["responses"]["Error"];
+            403: components["responses"]["Error"];
+            404: components["responses"]["Error"];
+            503: components["responses"]["Error"];
+        };
+    };
+    verifySSOConnection: {
+        parameters: {
+            query?: never;
+            header: {
+                /** @description The signed-in user's Google ID token, forwarded by the frontend proxy (D68). Optional on every other endpoint. */
+                "X-User-Token": components["parameters"]["UserToken"];
+            };
+            path: {
+                id: string;
+                conn: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: {
+            content: {
+                "application/json": {
+                    enable?: boolean;
+                };
+            };
+        };
+        responses: {
+            /** @description The connection with the checks */
+            200: {
+                headers: {
+                    "X-Audit-Incomplete": components["headers"]["AuditIncomplete"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SSOConnection"];
+                };
+            };
+            401: components["responses"]["Error"];
+            403: components["responses"]["Error"];
+            404: components["responses"]["Error"];
+            503: components["responses"]["Error"];
+        };
+    };
+    getAdminConsole: {
+        parameters: {
+            query?: never;
+            header: {
+                /** @description The signed-in user's Google ID token, forwarded by the frontend proxy (D68). Optional on every other endpoint. */
+                "X-User-Token": components["parameters"]["UserToken"];
+            };
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description The overview */
+            200: {
+                headers: {
+                    "X-Audit-Incomplete": components["headers"]["AuditIncomplete"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        workspace: {
+                            id?: string;
+                            name?: string;
+                            /** Format: date-time */
+                            created_at?: string;
+                            member_count?: number;
+                        };
+                        members: {
+                            email?: string;
+                            role?: string;
+                        }[];
+                        invited: string[];
+                        features: {
+                            [key: string]: boolean;
+                        };
+                        sso?: Record<string, never>;
+                        scim?: Record<string, never>;
+                        retention?: {
+                            case_days?: number;
+                        };
+                        usage?: Record<string, never>;
+                        routes: {
+                            [key: string]: string;
+                        };
+                    };
+                };
+            };
+            401: components["responses"]["Error"];
+            403: components["responses"]["Error"];
+            404: components["responses"]["Error"];
+        };
+    };
+    getSCIMToken: {
+        parameters: {
+            query?: never;
+            header: {
+                /** @description The signed-in user's Google ID token, forwarded by the frontend proxy (D68). Optional on every other endpoint. */
+                "X-User-Token": components["parameters"]["UserToken"];
+            };
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description The status */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SCIMTokenStatus"];
+                };
+            };
+            401: components["responses"]["Error"];
+            403: components["responses"]["Error"];
+            404: components["responses"]["Error"];
+        };
+    };
+    issueSCIMToken: {
+        parameters: {
+            query?: never;
+            header: {
+                /** @description The signed-in user's Google ID token, forwarded by the frontend proxy (D68). Optional on every other endpoint. */
+                "X-User-Token": components["parameters"]["UserToken"];
+            };
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": {
+                    domains: string[];
+                    /**
+                     * @default viewer
+                     * @enum {string}
+                     */
+                    default_role?: "viewer" | "editor";
+                    /** @default false */
+                    allow_admin?: boolean;
+                };
+            };
+        };
+        responses: {
+            /** @description The status, with the token shown once */
+            201: {
+                headers: {
+                    "X-Audit-Incomplete": components["headers"]["AuditIncomplete"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SCIMTokenStatus"];
+                };
+            };
+            400: components["responses"]["Error"];
+            401: components["responses"]["Error"];
+            403: components["responses"]["Error"];
+            404: components["responses"]["Error"];
+            409: components["responses"]["Error"];
+            503: components["responses"]["Error"];
+        };
+    };
+    revokeSCIMToken: {
+        parameters: {
+            query?: never;
+            header: {
+                /** @description The signed-in user's Google ID token, forwarded by the frontend proxy (D68). Optional on every other endpoint. */
+                "X-User-Token": components["parameters"]["UserToken"];
+            };
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Revoked (also when there was none) */
+            204: {
+                headers: {
+                    "X-Audit-Incomplete": components["headers"]["AuditIncomplete"];
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            401: components["responses"]["Error"];
+            403: components["responses"]["Error"];
+            404: components["responses"]["Error"];
+            503: components["responses"]["Error"];
+        };
+    };
+    scimServiceProviderConfig: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description The configuration */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/scim+json": Record<string, never>;
+                };
+            };
+            401: components["responses"]["SCIMError"];
+            429: components["responses"]["SCIMError"];
+        };
+    };
+    scimResourceTypes: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description The resource types */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/scim+json": Record<string, never>;
+                };
+            };
+            401: components["responses"]["SCIMError"];
+            429: components["responses"]["SCIMError"];
+        };
+    };
+    scimSchemas: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description The schemas */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/scim+json": Record<string, never>;
+                };
+            };
+            401: components["responses"]["SCIMError"];
+            429: components["responses"]["SCIMError"];
+        };
+    };
+    listSCIMUsers: {
+        parameters: {
+            query?: {
+                filter?: string;
+                startIndex?: number;
+                count?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description A ListResponse of Users */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/scim+json": components["schemas"]["SCIMUserList"];
+                };
+            };
+            400: components["responses"]["SCIMError"];
+            401: components["responses"]["SCIMError"];
+            429: components["responses"]["SCIMError"];
+        };
+    };
+    createSCIMUser: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/scim+json": components["schemas"]["SCIMUserInput"];
+            };
+        };
+        responses: {
+            /** @description The new User */
+            201: {
+                headers: {
+                    "X-Audit-Incomplete": components["headers"]["AuditIncomplete"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/scim+json": components["schemas"]["SCIMUser"];
+                };
+            };
+            400: components["responses"]["SCIMError"];
+            401: components["responses"]["SCIMError"];
+            403: components["responses"]["SCIMError"];
+            409: components["responses"]["SCIMError"];
+            429: components["responses"]["SCIMError"];
+            503: components["responses"]["Error"];
+        };
+    };
+    getSCIMUser: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                uid: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description The User */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/scim+json": components["schemas"]["SCIMUser"];
+                };
+            };
+            401: components["responses"]["SCIMError"];
+            404: components["responses"]["SCIMError"];
+            429: components["responses"]["SCIMError"];
+        };
+    };
+    replaceSCIMUser: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                uid: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/scim+json": components["schemas"]["SCIMUserInput"];
+            };
+        };
+        responses: {
+            /** @description The User (active false after a removal) */
+            200: {
+                headers: {
+                    "X-Audit-Incomplete": components["headers"]["AuditIncomplete"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/scim+json": components["schemas"]["SCIMUser"];
+                };
+            };
+            400: components["responses"]["SCIMError"];
+            401: components["responses"]["SCIMError"];
+            403: components["responses"]["SCIMError"];
+            404: components["responses"]["SCIMError"];
+            409: components["responses"]["SCIMError"];
+            429: components["responses"]["SCIMError"];
+            503: components["responses"]["Error"];
+        };
+    };
+    deleteSCIMUser: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                uid: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Removed */
+            204: {
+                headers: {
+                    "X-Audit-Incomplete": components["headers"]["AuditIncomplete"];
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            401: components["responses"]["SCIMError"];
+            403: components["responses"]["SCIMError"];
+            404: components["responses"]["SCIMError"];
+            409: components["responses"]["SCIMError"];
+            429: components["responses"]["SCIMError"];
+            503: components["responses"]["Error"];
+        };
+    };
+    patchSCIMUser: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                uid: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/scim+json": {
+                    schemas?: string[];
+                    Operations: {
+                        op: string;
+                        path?: string;
+                        value?: unknown;
+                    }[];
+                };
+            };
+        };
+        responses: {
+            /** @description The User (active false after a removal) */
+            200: {
+                headers: {
+                    "X-Audit-Incomplete": components["headers"]["AuditIncomplete"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/scim+json": components["schemas"]["SCIMUser"];
+                };
+            };
+            400: components["responses"]["SCIMError"];
+            401: components["responses"]["SCIMError"];
+            403: components["responses"]["SCIMError"];
+            404: components["responses"]["SCIMError"];
+            409: components["responses"]["SCIMError"];
+            429: components["responses"]["SCIMError"];
+            503: components["responses"]["Error"];
         };
     };
 }

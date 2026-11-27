@@ -151,13 +151,18 @@ func datasetHashes(split string) (map[string]string, error) {
 		files["data/jp/labels-heldout.jsonl"] = filepath.Join(dataDir, "labels-heldout.jsonl")
 	case "synthetic":
 		files["eval/jp/synthetic-negatives.jsonl"] = filepath.Join(outDir, "synthetic-negatives.jsonl")
-	case "fresh_1126", "fresh_1126_notwin":
-		for _, f := range []string{"rulings.jsonl", "translations-en.jsonl", "labels.jsonl", "twins.json"} {
-			files["data/jp/"+freshDir+"/"+f] = filepath.Join(dataDir, freshDir, f)
-		}
 	case "dev_neg":
 		files["data/jp/labels-dev.jsonl"] = filepath.Join(dataDir, "labels-dev.jsonl")
 		files["eval/jp/"+devNegFile] = filepath.Join(outDir, devNegFile)
+	}
+	if name, ok := freshDirOf(baseSplit(split)); ok {
+		for _, f := range []string{"rulings.jsonl", "translations-en.jsonl", "labels.jsonl", "twins.json"} {
+			p := filepath.Join(dataDir, name, f)
+			if _, err := os.Stat(p); err != nil && f == "twins.json" && !strings.HasSuffix(baseSplit(split), "_notwin") {
+				continue // a month without near-duplicate checks has no twins file
+			}
+			files["data/jp/"+name+"/"+f] = p
+		}
 	}
 	out := map[string]string{}
 	for name, p := range files {
