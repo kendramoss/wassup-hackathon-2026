@@ -55,6 +55,26 @@ declare global {
 // (technical to business view and back) draws the tile at once instead of
 // leaving a gap while /api/session answers again (#864).
 let known: Session | null = null;
+const listeners = new Set<() => void>();
+function remember(x: Session | null) {
+  known = x;
+  listeners.forEach((f) => f());
+}
+
+// Whether someone is signed in, from the tile's session answer: null until
+// the first answer. The business bar labels its link by it (#894).
+export function useSignedIn(): boolean | null {
+  const [v, setV] = useState<boolean | null>(known ? Boolean(known.email) : null);
+  useEffect(() => {
+    const f = () => setV(known ? Boolean(known.email) : null);
+    f();
+    listeners.add(f);
+    return () => {
+      listeners.delete(f);
+    };
+  }, []);
+  return v;
+}
 
 let gis: Promise<Gis | null> | null = null;
 function loadGis(): Promise<Gis | null> {
@@ -88,7 +108,7 @@ export function SignIn({ look = "technical" }: { look?: Look } = {}) {
       .then((r) => r.json() as Promise<Session>)
       .catch(() => ({ client_id: null, email: null, exp: null }) as Session)
       .then((x) => {
-        known = x;
+        remember(x);
         setS(x);
       });
   }, []);
@@ -101,6 +121,7 @@ export function SignIn({ look = "technical" }: { look?: Look } = {}) {
       // sign-in a 401 means "sign in required" (strict mode): not an expiry.
       if (wasSignedIn.current || s?.exp) setExpired(true);
       else setRequired(true);
+      if (known) remember({ ...known, email: null, exp: null });
       setS((x) => x && { ...x, email: null, exp: null });
     };
     window.addEventListener(SIGNIN_EXPIRED, lapse);

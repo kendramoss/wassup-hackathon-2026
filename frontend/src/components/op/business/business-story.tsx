@@ -6,10 +6,9 @@
 // product-specific), 340 of 377 held-out rulings right, 96.0% when sure,
 // p50 4.6 s. The money row is the illustrative fixture ($500k / $180k).
 import Link from "next/link";
-import { ViewTransition, useEffect, useRef, useState, type ReactNode } from "react";
-import { LogoMark } from "../logo";
-import { SignIn } from "../sign-in";
-import { ViewToggle } from "../view-toggle";
+import { useEffect, useRef, useState, type ReactNode } from "react";
+import { BusinessBar } from "./business-bar";
+import { useDemoLinks } from "../demo-links";
 import "./business.css";
 
 // Plain, literal words (DESIGN.md principle 5): one fast read, headlines of
@@ -19,6 +18,9 @@ const chapters = ["The problem", "The main parts", "The change", "The savings", 
 export function BusinessStory() {
   const story = useRef<HTMLDivElement>(null);
   const [active, setActive] = useState(0);
+  // Both "Open the heat gun example" links go straight to the pinned case's
+  // plan tour, as on the landing (#892).
+  const { tour } = useDemoLinks();
 
   useEffect(() => {
     const root = story.current;
@@ -35,28 +37,7 @@ export function BusinessStory() {
 
   return (
     <div className="biz">
-      <header className="biz-bar">
-        <Link href="/business" className="biz-logo">
-          <LogoMark size={22} />
-          <span>Unde Labs</span>
-        </Link>
-        <nav aria-label="Main" className="biz-nav">
-          <Link href="/cases">My products</Link>
-          <a href="#ch4">Savings</a>
-          <a href="#ch5">Trust</a>
-          <a href="#ch6">Brokers</a>
-        </nav>
-        <div className="biz-bar-end">
-          <Link href="/cases/new" className="biz-btn ink" aria-label="Check a product">
-            <span className="biz-wide" aria-hidden="true">Check a product</span>
-            <span className="biz-narrow" aria-hidden="true">+ New</span>
-          </Link>
-          <ViewToggle view="business" />
-          <ViewTransition name="account-tile" share="bar-keep" default="none">
-            <SignIn look="business" />
-          </ViewTransition>
-        </div>
-      </header>
+      <BusinessBar />
 
       <div className="biz-shell">
         <aside aria-label="About Unde" className="biz-side">
@@ -84,10 +65,10 @@ export function BusinessStory() {
           <p className="fine">An estimate. A customs broker confirms it.</p>
         </aside>
 
-        <div ref={story} className="biz-story" id="main">
+        <main ref={story} className="biz-story" id="main">
           <Chapter i={0}>
             <Text n={1} title="This heat gun pays China’s import tax" sub="It is put together in Thailand. But its main parts come from China, so it counts as made in China">
-              <Actions next="Next: the main parts" secondary={<Link href="/cases" className="biz-link">Open the heat gun example</Link>} />
+              <Actions next="Next: the main parts" secondary={<Link href={tour} className="biz-link">Open the heat gun example</Link>} />
             </Text>
             <figure className="biz-visual" style={{ margin: 0 }}>
               <HeatGun after={false} />
@@ -205,13 +186,13 @@ export function BusinessStory() {
             <div style={{ display: "flex", alignItems: "flex-end", gap: 40, flexWrap: "wrap" }}>
               <Text n={7} title="Check your product" sub="Pick where you sell. List your parts. See your country and how to change it" wide />
               <div className="biz-actions">
-                <Link href="/cases" className="biz-link">Open the heat gun example</Link>
-                <Link href="/cases/new" className="biz-btn accent">Check my product</Link>
+                <Link href={tour} className="biz-link">Open the heat gun example</Link>
+                <Link href="/business/check" className="biz-btn accent">Check my product</Link>
               </div>
             </div>
             <MovePreview />
           </Chapter>
-        </div>
+        </main>
       </div>
     </div>
   );
