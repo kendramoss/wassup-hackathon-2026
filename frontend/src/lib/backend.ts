@@ -206,7 +206,7 @@ export async function readCapped(request: Request, max = MAX_BODY): Promise<Arra
 // goes as X-User-Token beside it (D68), so their anonymous cases still show.
 // A broker's X-API-Key (D69) is passed through unchanged, so brokers reach
 // the private backend through this public proxy; the backend checks the key.
-// A broker review page's X-Review-Token passes through the same way; like
+// A broker review page's X-Review-Token and a supplier's X-Declaration-Token pass through the same way; like
 // every header it is never logged.
 // The backend answers an expired or invalid token with 401
 // "unauthenticated"; then the cookie is cleared and the next request is
@@ -278,7 +278,7 @@ async function forward(request: Request, path: string, visitorId: string, userTo
     return Response.json({ code: "internal", message: "BACKEND_URL is not set" }, noStore({ status: 500 }));
   }
   const headers: Record<string, string> = {};
-  for (const h of ["content-type", "accept", "x-api-key", "x-review-token"]) {
+  for (const h of ["content-type", "accept", "x-api-key", "x-review-token", "x-declaration-token"]) {
     const v = request.headers.get(h);
     if (v) headers[h] = v;
   }
