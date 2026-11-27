@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"sort"
 	"strings"
+	"sync"
 )
 
 // Part statuses.
@@ -85,10 +86,32 @@ func (t *Table) Check(in Input) Result { return t.CheckWith(in, Config{}) }
 // refinements in cfg: a refinement can only remove an order from a part's
 // matches, never add one.
 func (t *Table) CheckWith(in Input, cfg Config) Result {
-	res := Result{Snapshot: t.snapshot, Fetched: t.fetched, Orders: len(t.orders), Notice: Notice, Limits: Limits(t.snapshot), Parts: make([]PartResult, 0, len(in.Parts))}
-	for _, p := range in.Parts {
-		res.Parts = append(res.Parts, t.part(p, cfg))
+	res := Result{Snapshot: t.snapshot, Fetched: t.fetched, Orders: len(t.orders), Notice: Notice, Limits: Limits(t.snapshot), Parts: make([]PartResult, len(in.Parts))}
+	if cfg.Reader != nil {
+		res.Limits = append(res.Limits, ReaderLimit)
+		if cfg.MaxReads > 0 {
+			cfg.Reader = &cappedReader{inner: cfg.Reader, left: int64(cfg.MaxReads)}
+		}
 	}
+	if cfg.Reader == nil || len(in.Parts) < 2 {
+		for i, p := range in.Parts {
+			res.Parts[i] = t.part(p, cfg)
+		}
+		return res
+	}
+	// a model reader answers in about a second a question: parts are read side by side
+	var wg sync.WaitGroup
+	sem := make(chan struct{}, readerParallel)
+	for i, p := range in.Parts {
+		wg.Add(1)
+		sem <- struct{}{}
+		go func() {
+			defer wg.Done()
+			defer func() { <-sem }()
+			res.Parts[i] = t.part(p, cfg)
+		}()
+	}
+	wg.Wait()
 	return res
 }
 

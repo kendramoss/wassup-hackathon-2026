@@ -11,8 +11,6 @@ package main
 
 import (
 	"bufio"
-	"crypto/sha256"
-	"encoding/hex"
 	"encoding/json"
 	"flag"
 	"fmt"
@@ -170,11 +168,7 @@ type Pair struct {
 	ScopeText   string `json:"scope_text"`
 }
 
-func pairKey(o adcvd.Order, name string) string {
-	h := sha256.New()
-	fmt.Fprintf(h, "%s\x00%s\x00%s\x00%s", o.Product, o.Country, o.ScopeText, name)
-	return hex.EncodeToString(h.Sum(nil))[:24]
-}
+func pairKey(o adcvd.Order, name string) string { return adcvd.PairKey(o, name) }
 
 // fileReader answers from a file of recorded verdicts, and notes every
 // question it is asked.
@@ -211,6 +205,9 @@ func presets(r adcvd.Reader) map[string]adcvd.Config {
 		"scope+reader": {ScopeTerms: true, Reader: r},
 		"excl+reader":  {Exclusions: true, Reader: r},
 		"all":          {ScopeTerms: true, Exclusions: true, Reader: r},
+		// D943: the registered method with the pointer-scope guard
+		"scope+guard":        {ScopeTerms: true, MinScopeTerms: adcvd.MinScopeTerms},
+		"scope+reader+guard": {ScopeTerms: true, Reader: r, MinScopeTerms: adcvd.MinScopeTerms},
 	}
 }
 

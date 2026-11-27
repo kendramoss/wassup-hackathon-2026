@@ -3,6 +3,7 @@ package adcvd
 import (
 	"regexp"
 	"strings"
+	"sync/atomic"
 )
 
 // Verdict is a scope reader's answer for one product against one order's
@@ -43,10 +44,22 @@ type Config struct {
 	Exclusions bool
 	// Reader, when set, is asked about each remaining match; "out" removes it.
 	Reader Reader
+	// MinScopeTerms, when above zero, keeps an order unread (no term step, no
+	// exclusion step, no reader question) when its written scope holds fewer
+	// product terms than this (D943). Zero is the method as D942 registered it.
+	MinScopeTerms int
+	// MaxReads caps the questions put to Reader in one CheckWith call (0: no
+	// cap); past it a match is kept unread.
+	MaxReads int
 	// ReaderLean also removes a match the reader called unclear but, forced to
 	// decide, would call out.
 	ReaderLean bool
 }
+
+// MinScopeTerms is the value of Config.MinScopeTerms the shipped check uses:
+// a written scope with fewer product terms is a pointer to an appendix the
+// notice does not print.
+const MinScopeTerms = 8
 
 // representative returns the order of a match group whose written scope is
 // the longest (companion AD and CVD orders print one scope).
@@ -86,15 +99,22 @@ func (t *Table) screen(p Part, partDigits string, m *Match, idx []int, cfg Confi
 			return "title_terms"
 		}
 	}
-	if cfg.ScopeTerms && len(pt) > 0 && strings.TrimSpace(o.ScopeText) != "" {
-		if shared(pt, Terms(o.ScopeText)) == 0 {
-			return "scope_terms"
-		}
+	// a scope text that is a pointer ("See the Appendix to this notice.") says
+	// nothing to read a product against: such an order is kept (D943).
+	if strings.TrimSpace(o.ScopeText) == "" {
+		return ""
+	}
+	st := Terms(o.ScopeText)
+	if cfg.MinScopeTerms > 0 && len(st) < cfg.MinScopeTerms {
+		return ""
+	}
+	if cfg.ScopeTerms && len(pt) > 0 && shared(pt, st) == 0 {
+		return "scope_terms"
 	}
 	if cfg.Exclusions && excludedByScope(pt, o.ScopeText) {
 		return "exclusion"
 	}
-	if cfg.Reader != nil && strings.TrimSpace(o.ScopeText) != "" {
+	if cfg.Reader != nil {
 		if v, err := cfg.Reader.Read(p, o); err == nil && (v == VerdictOut || (cfg.ReaderLean && v == VerdictUnclearOut)) {
 			return "reader"
 		}
@@ -133,4 +153,23 @@ func sentences(s string) []string {
 		}
 	}
 	return out
+}
+
+// readerParallel is how many parts are read at once.
+const readerParallel = 8
+
+// ReaderLimit is added to the limits of a result when a scope reader ran.
+const ReaderLimit = "A model read each listed order's written scope against the part's name and removed an order only when the scope's words clearly point away from it; the reader sees the scope as the notice prints it, without any appendix the scope refers to, and can be wrong. A part with no name, or an order whose notice printed no scope text, is not read."
+
+// cappedReader stops asking its reader after left questions.
+type cappedReader struct {
+	inner Reader
+	left  int64
+}
+
+func (c *cappedReader) Read(p Part, o Order) (Verdict, error) {
+	if atomic.AddInt64(&c.left, -1) < 0 {
+		return "", nil
+	}
+	return c.inner.Read(p, o)
 }

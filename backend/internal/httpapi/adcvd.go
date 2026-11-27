@@ -10,10 +10,16 @@ import (
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/store"
 )
 
+// adcvdMaxReads caps the model questions of one request.
+const adcvdMaxReads = 60
+
 // adcvdCheck answers POST /v1/adcvd/check: which parts may be subject to an
 // active U.S. antidumping or countervailing duty order, from each part's HTS
-// code and country of origin. Deterministic, no model call, nothing stored
-// (D939). Served only with ADCVD_CHECK=on.
+// code and country of origin. Nothing stored (D939). Served only with
+// ADCVD_CHECK=on. Deterministic and with no model call, unless
+// ADCVD_SCOPE_READER=on: then a model reads each listed order's written scope
+// against the part's name and an order is dropped only when the scope clearly
+// points away from the part (D942, D943).
 func (a *api) adcvdCheck(w http.ResponseWriter, r *http.Request) {
 	var in adcvd.Input
 	if err := decode(w, r, &in); err != nil {
@@ -28,7 +34,11 @@ func (a *api) adcvdCheck(w http.ResponseWriter, r *http.Request) {
 		a.fail(w, r, fmt.Errorf("%w: at most %d parts", domain.ErrInvalid, adcvd.MaxParts))
 		return
 	}
-	writeJSON(w, http.StatusOK, a.d.ADCVD.Check(in))
+	cfg := adcvd.Config{}
+	if a.d.ADCVDReader != nil {
+		cfg = adcvd.Config{ScopeTerms: true, MinScopeTerms: adcvd.MinScopeTerms, Reader: a.d.ADCVDReader, MaxReads: adcvdMaxReads}
+	}
+	writeJSON(w, http.StatusOK, a.d.ADCVD.CheckWith(in, cfg))
 }
 
 // adcvdCaseCheck is the screen of a case's parts, or nil when the check is

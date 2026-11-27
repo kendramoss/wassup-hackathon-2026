@@ -441,6 +441,23 @@ func TestADCVDCheckConfig(t *testing.T) {
 	}
 }
 
+func TestADCVDScopeReaderConfig(t *testing.T) {
+	c, err := FromEnv(getenv(vertexEnv()))
+	if err != nil || c.ADCVDScopeReader || c.ADCVDReaderModel != "gemini-3.8-flash" {
+		t.Fatalf("defaults = %v %q %v, want off and gemini-3.8-flash", c.ADCVDScopeReader, c.ADCVDReaderModel, err)
+	}
+	c, err = FromEnv(getenv(merge(vertexEnv(), map[string]string{"ADCVD_CHECK": "on", "ADCVD_SCOPE_READER": "on"})))
+	if err != nil || !c.ADCVDScopeReader {
+		t.Errorf("ADCVD_SCOPE_READER=on with the check on = %v %v", c.ADCVDScopeReader, err)
+	}
+	if _, err := FromEnv(getenv(merge(vertexEnv(), map[string]string{"ADCVD_SCOPE_READER": "on"}))); err == nil || !strings.Contains(err.Error(), "ADCVD_CHECK=on") {
+		t.Errorf("reader without the check: %v", err)
+	}
+	if _, err := FromEnv(getenv(merge(vertexEnv(), map[string]string{"ADCVD_SCOPE_READER": "maybe"}))); err == nil || !strings.Contains(err.Error(), "ADCVD_SCOPE_READER") {
+		t.Errorf("ADCVD_SCOPE_READER=maybe: %v", err)
+	}
+}
+
 func TestExportCFR177Config(t *testing.T) {
 	c, err := FromEnv(getenv(vertexEnv()))
 	if err != nil || c.ExportCFR177 {

@@ -16,4 +16,9 @@
 // figure. A part is possible exposure when an order's listed HTS number
 // agrees with the part's code at the shorter of the two lengths and the
 // order's country is one of the part's countries of origin. No model call.
+//
+// Optional refinements (D942, D943) only remove matches: a product term the
+// part's name shares with the written scope, and a Reader, a model that reads
+// the written scope against the name and answers in, out or unclear; a match
+// goes only on out. The plain Check uses none of them.
 package adcvd

@@ -660,6 +660,71 @@
    "removed_false_positives": 1,
    "removed_true_positives": 0
   },
+  "scope+guard": {
+   "own_order": {
+    "TP": 7,
+    "FP": 8,
+    "FN": 10,
+    "TN": 21,
+    "Precision": {
+     "k": 7,
+     "n": 15,
+     "p": 0.466667,
+     "lo": 0.248095,
+     "hi": 0.69883
+    },
+    "Recall": {
+     "k": 7,
+     "n": 17,
+     "p": 0.411765,
+     "lo": 0.216111,
+     "hi": 0.639946
+    },
+    "Specificity": {
+     "k": 21,
+     "n": 29,
+     "p": 0.724138,
+     "lo": 0.542829,
+     "hi": 0.853012
+    }
+   },
+   "any_order": {
+    "TP": 7,
+    "FP": 16,
+    "FN": 10,
+    "TN": 13,
+    "Precision": {
+     "k": 7,
+     "n": 23,
+     "p": 0.304348,
+     "lo": 0.15604,
+     "hi": 0.508658
+    },
+    "Recall": {
+     "k": 7,
+     "n": 17,
+     "p": 0.411765,
+     "lo": 0.216111,
+     "hi": 0.639946
+    },
+    "Specificity": {
+     "k": 13,
+     "n": 29,
+     "p": 0.448276,
+     "lo": 0.284132,
+     "hi": 0.62452
+    }
+   },
+   "true_positives_kept_of_base": {
+    "k": 7,
+    "n": 7,
+    "p": 1,
+    "lo": 0.64567,
+    "hi": 1
+   },
+   "removed_false_positives": 0,
+   "removed_true_positives": 0
+  },
   "scope+lean": {
    "own_order": {
     "TP": 5,
@@ -788,6 +853,71 @@
     "hi": 0.97432
    },
    "removed_false_positives": 3,
+   "removed_true_positives": 1
+  },
+  "scope+reader+guard": {
+   "own_order": {
+    "TP": 6,
+    "FP": 6,
+    "FN": 11,
+    "TN": 23,
+    "Precision": {
+     "k": 6,
+     "n": 12,
+     "p": 0.5,
+     "lo": 0.253782,
+     "hi": 0.746218
+    },
+    "Recall": {
+     "k": 6,
+     "n": 17,
+     "p": 0.352941,
+     "lo": 0.173097,
+     "hi": 0.586996
+    },
+    "Specificity": {
+     "k": 23,
+     "n": 29,
+     "p": 0.793103,
+     "lo": 0.616099,
+     "hi": 0.901539
+    }
+   },
+   "any_order": {
+    "TP": 6,
+    "FP": 14,
+    "FN": 11,
+    "TN": 15,
+    "Precision": {
+     "k": 6,
+     "n": 20,
+     "p": 0.3,
+     "lo": 0.145477,
+     "hi": 0.518973
+    },
+    "Recall": {
+     "k": 6,
+     "n": 17,
+     "p": 0.352941,
+     "lo": 0.173097,
+     "hi": 0.586996
+    },
+    "Specificity": {
+     "k": 15,
+     "n": 29,
+     "p": 0.517241,
+     "lo": 0.34431,
+     "hi": 0.686139
+    }
+   },
+   "true_positives_kept_of_base": {
+    "k": 6,
+    "n": 7,
+    "p": 0.857143,
+    "lo": 0.486872,
+    "hi": 0.97432
+   },
+   "removed_false_positives": 2,
    "removed_true_positives": 1
   },
   "title": {

@@ -236,6 +236,10 @@ type Deps struct {
 	// case that gives part codes: parts that may be subject to an AD or CVD
 	// order, display only (D939). Nil (the default) is off.
 	ADCVD *adcvd.Table
+	// ADCVDReader, when set (ADCVD_SCOPE_READER=on), has a model read each
+	// listed order's written scope against the part's name in POST
+	// /v1/adcvd/check (D942, D943). The case view keeps the plain match.
+	ADCVDReader adcvd.Reader
 	// CaseOwnership limits each visitor to the pinned demos and their own
 	// cases (X-Visitor-ID from the frontend proxy; D58). Off by default.
 	CaseOwnership bool

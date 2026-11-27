@@ -385,6 +385,15 @@ type Config struct {
 	// (D939).
 	ADCVDCheck bool
 	adcvdCheck string // as given, checked by validate
+	// ADCVDScopeReader (on|off, default off, needs ADCVD_CHECK=on) makes
+	// POST /v1/adcvd/check, and so the MCP tool, have a model read each listed
+	// order's written scope against the part's name and drop an order only
+	// when the scope clearly points away from the part (D942, D943). One
+	// model question per listed order, cached; the case view keeps the plain
+	// match. ADCVDReaderModel is the model, gemini-3.8-flash as measured.
+	ADCVDScopeReader bool
+	adcvdScopeReader string // as given, checked by validate
+	ADCVDReaderModel string
 	// NearMissAdvice (on|off, default off) adds near-miss advice to the
 	// closest plan moves just under the plan bar: what differs from the
 	// supporting ruling and what would match it (D81). One model call each,
@@ -691,6 +700,9 @@ func FromEnv(getenv func(string) string) (Config, error) {
 	c.ATIGACheck = c.atigaCheck == "on" || c.atigaCheck == "true" || c.atigaCheck == "1"
 	c.adcvdCheck = strings.ToLower(e.str("ADCVD_CHECK", "off"))
 	c.ADCVDCheck = c.adcvdCheck == "on" || c.adcvdCheck == "true" || c.adcvdCheck == "1"
+	c.adcvdScopeReader = strings.ToLower(e.str("ADCVD_SCOPE_READER", "off"))
+	c.ADCVDScopeReader = c.adcvdScopeReader == "on" || c.adcvdScopeReader == "true" || c.adcvdScopeReader == "1"
+	c.ADCVDReaderModel = e.str("ADCVD_READER_MODEL", "gemini-3.8-flash")
 	switch v := strings.ToLower(e.str("STREAM_PREDICT", "off")); v {
 	case "on", "true", "1":
 		c.StreamPredict = "on"
@@ -839,6 +851,14 @@ func (c Config) validate() error {
 	case "on", "true", "1", "off", "false", "0":
 	default:
 		bad("ADCVD_CHECK must be on or off, got %q", c.adcvdCheck)
+	}
+	switch c.adcvdScopeReader {
+	case "on", "true", "1", "off", "false", "0":
+	default:
+		bad("ADCVD_SCOPE_READER must be on or off, got %q", c.adcvdScopeReader)
+	}
+	if c.ADCVDScopeReader && !c.ADCVDCheck {
+		bad("ADCVD_SCOPE_READER=on needs ADCVD_CHECK=on")
 	}
 	switch c.atigaCheck {
 	case "on", "true", "1", "off", "false", "0":

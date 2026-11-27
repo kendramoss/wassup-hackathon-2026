@@ -98,19 +98,37 @@ export const rulesChecks = {
   atigaReached: 7,
 };
 
-// D940 held-out result of the AD/CVD exposure check (ADCVD_CHECK, off). Pinned
-// to eval/adcvd/summary.json by scripts/japan-evidence.test.mjs.
+// D943 held-out result of the AD/CVD exposure check with the scope reader
+// (ADCVD_CHECK and ADCVD_SCOPE_READER, off), the shipped method with the
+// pointer-scope fix. Pinned to eval/adcvd/heldout/summary.json by
+// scripts/japan-evidence.test.mjs; earlier is D940, pinned to
+// eval/adcvd/summary.json.
 export const adcvdCheck = {
-  rulings: 35,
-  within: 12,
-  flagged: 11,
-  correctFlags: 11,
-  flaggedTotal: 21,
-  precisionPct: "52.4%",
-  precisionInterval: "32.4–71.7",
-  recallPct: "91.7%",
-  recallInterval: "64.6–98.5",
-  baselinePct: "34.3%",
+  rulings: 44,
+  within: 18,
+  flagged: 8,
+  correctFlags: 8,
+  flaggedTotal: 14,
+  precisionPct: "57.1%",
+  precisionInterval: "32.6–78.6",
+  recallPct: "44.4%",
+  recallInterval: "24.6–66.3",
+  plainCorrect: 8,
+  plainTotal: 16,
+  plainPct: "50.0%",
+  baselinePct: "40.9%",
+  earlier: {
+    rulings: 35,
+    within: 12,
+    flagged: 11,
+    correctFlags: 11,
+    flaggedTotal: 21,
+    precisionPct: "52.4%",
+    precisionInterval: "32.4–71.7",
+    recallPct: "91.7%",
+    recallInterval: "64.6–98.5",
+    baselinePct: "34.3%",
+  },
 };
 
 // D941 tariff watch test. Pinned to eval/tariffwatch/summary.json by

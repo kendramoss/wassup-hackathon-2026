@@ -17,14 +17,16 @@ func (f *fakeReader) Read(Part, Order) (Verdict, error) {
 	return f.verdict, f.err
 }
 
+const wheelScope = "The merchandise covered by the order is steel wheels, in sizes from 12 to 16.5 inches in diameter, for use on trailers and towable equipment, finished or unfinished, with or without tires mounted. Excluded from the scope are wheels made of aluminum and automobile tires."
+
 func refineTable() *Table {
 	return NewTable("test-v1", "2026-11-27", []Order{
 		{Case: "A-570-082", Type: "AD", Country: "China", Product: "Certain Steel Wheels", Status: "active",
 			HTS:       []string{"8716.90.5035", "8708.70.4530"},
-			ScopeText: "The merchandise covered is steel wheels, 12 to 16.5 inches in diameter, for trailers. Excluded from the scope are wheels made of aluminum and automobile tires."},
+			ScopeText: wheelScope},
 		{Case: "C-570-083", Type: "CVD", Country: "China", Product: "Certain Steel Wheels", Status: "active",
 			HTS:       []string{"8716.90.5035"},
-			ScopeText: "The merchandise covered is steel wheels, 12 to 16.5 inches in diameter, for trailers. Excluded from the scope are wheels made of aluminum and automobile tires."},
+			ScopeText: wheelScope},
 		{Case: "A-570-106", Type: "AD", Country: "China", Product: "Wooden Cabinets and Vanities", Status: "active",
 			HTS: []string{"9403"}, ScopeText: "Wooden cabinets and vanities for kitchens and bathrooms."},
 		{Case: "A-570-777", Type: "AD", Country: "China", Product: "Thing without scope text", Status: "active", HTS: []string{"7326.90.8688"}},
@@ -91,6 +93,28 @@ func TestRefinementsNeverRemoveWhatTheyCannotRead(t *testing.T) {
 	r := &fakeReader{verdict: VerdictOut}
 	if got := status(t, tb, Part{Name: "steel bracket", HTS: "7326.90.8688", Origin: "China"}, Config{ScopeTerms: true, Reader: r}); got.Status != StatusPossible || r.asked != 0 {
 		t.Errorf("order without scope text = %s, reader asked %d times, want possible and 0", got.Status, r.asked)
+	}
+}
+
+func TestAScopeThatOnlyPointsToAnAppendixIsNotRead(t *testing.T) {
+	tb := NewTable("test-v1", "2026-11-27", []Order{
+		{Case: "A-201-805", Type: "AD", Country: "Mexico", Product: "Certain Welded Carbon Steel Pipes and Tubes", Status: "active",
+			HTS: []string{"7306.30"}, ScopeText: "See the Appendix to this notice."},
+	})
+	r := &fakeReader{verdict: VerdictOut}
+	all := Config{ScopeTerms: true, Exclusions: true, Reader: r, MinScopeTerms: MinScopeTerms}
+	if got := status(t, tb, Part{Name: "garlic cloves", HTS: "7306.30.5025", Origin: "Mexico"}, all); got.Status != StatusPossible || r.asked != 0 {
+		t.Errorf("a pointer scope = %s after %d reader questions, want possible and none", got.Status, r.asked)
+	}
+}
+
+func TestWithoutTheGuardAPointerScopeIsGated(t *testing.T) {
+	tb := NewTable("test-v1", "2026-11-27", []Order{
+		{Case: "A-201-805", Type: "AD", Country: "Mexico", Product: "Certain Welded Carbon Steel Pipes and Tubes", Status: "active",
+			HTS: []string{"7306.30"}, ScopeText: "See the Appendix to this notice."},
+	})
+	if got := status(t, tb, Part{Name: "garlic cloves", HTS: "7306.30.5025", Origin: "Mexico"}, Config{ScopeTerms: true}); got.Status != StatusNone {
+		t.Errorf("D942 as registered gates a pointer scope; got %s", got.Status)
 	}
 }
 

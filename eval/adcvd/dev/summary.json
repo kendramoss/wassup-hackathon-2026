@@ -660,6 +660,71 @@
    "removed_false_positives": 1,
    "removed_true_positives": 0
   },
+  "scope+guard": {
+   "own_order": {
+    "TP": 4,
+    "FP": 8,
+    "FN": 8,
+    "TN": 18,
+    "Precision": {
+     "k": 4,
+     "n": 12,
+     "p": 0.333333,
+     "lo": 0.13812,
+     "hi": 0.609378
+    },
+    "Recall": {
+     "k": 4,
+     "n": 12,
+     "p": 0.333333,
+     "lo": 0.13812,
+     "hi": 0.609378
+    },
+    "Specificity": {
+     "k": 18,
+     "n": 26,
+     "p": 0.692308,
+     "lo": 0.500117,
+     "hi": 0.834987
+    }
+   },
+   "any_order": {
+    "TP": 5,
+    "FP": 12,
+    "FN": 7,
+    "TN": 14,
+    "Precision": {
+     "k": 5,
+     "n": 17,
+     "p": 0.294118,
+     "lo": 0.1328,
+     "hi": 0.531331
+    },
+    "Recall": {
+     "k": 5,
+     "n": 12,
+     "p": 0.416667,
+     "lo": 0.19326,
+     "hi": 0.680489
+    },
+    "Specificity": {
+     "k": 14,
+     "n": 26,
+     "p": 0.538462,
+     "lo": 0.354579,
+     "hi": 0.712441
+    }
+   },
+   "true_positives_kept_of_base": {
+    "k": 4,
+    "n": 4,
+    "p": 1,
+    "lo": 0.510109,
+    "hi": 1
+   },
+   "removed_false_positives": 1,
+   "removed_true_positives": 0
+  },
   "scope+lean": {
    "own_order": {
     "TP": 4,
@@ -726,6 +791,71 @@
    "removed_true_positives": 0
   },
   "scope+reader": {
+   "own_order": {
+    "TP": 4,
+    "FP": 6,
+    "FN": 8,
+    "TN": 20,
+    "Precision": {
+     "k": 4,
+     "n": 10,
+     "p": 0.4,
+     "lo": 0.16818,
+     "hi": 0.687326
+    },
+    "Recall": {
+     "k": 4,
+     "n": 12,
+     "p": 0.333333,
+     "lo": 0.13812,
+     "hi": 0.609378
+    },
+    "Specificity": {
+     "k": 20,
+     "n": 26,
+     "p": 0.769231,
+     "lo": 0.579484,
+     "hi": 0.889662
+    }
+   },
+   "any_order": {
+    "TP": 5,
+    "FP": 10,
+    "FN": 7,
+    "TN": 16,
+    "Precision": {
+     "k": 5,
+     "n": 15,
+     "p": 0.333333,
+     "lo": 0.151763,
+     "hi": 0.582865
+    },
+    "Recall": {
+     "k": 5,
+     "n": 12,
+     "p": 0.416667,
+     "lo": 0.19326,
+     "hi": 0.680489
+    },
+    "Specificity": {
+     "k": 16,
+     "n": 26,
+     "p": 0.615385,
+     "lo": 0.425348,
+     "hi": 0.775714
+    }
+   },
+   "true_positives_kept_of_base": {
+    "k": 4,
+    "n": 4,
+    "p": 1,
+    "lo": 0.510109,
+    "hi": 1
+   },
+   "removed_false_positives": 3,
+   "removed_true_positives": 0
+  },
+  "scope+reader+guard": {
    "own_order": {
     "TP": 4,
     "FP": 6,
