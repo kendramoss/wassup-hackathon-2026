@@ -61,6 +61,11 @@ type Options struct {
 	// ATIGA reports that POST /v1/atiga/check is served; without it
 	// check_atiga_preference is not listed.
 	ATIGA bool
+	// AKFTA and ACFTA report that POST /v1/akfta/check and /v1/acfta/check
+	// are served; without them check_akfta_preference and
+	// check_acfta_preference are not listed.
+	AKFTA bool
+	ACFTA bool
 	// ADCVD reports that POST /v1/adcvd/check is served; without it
 	// check_adcvd_exposure is not listed.
 	ADCVD bool
@@ -122,6 +127,12 @@ func NewServer(o Options) *mcp.Server {
 	}
 	if o.ATIGA {
 		t.registerATIGA(s)
+	}
+	if o.AKFTA {
+		t.registerASEANFTA(s, akftaTool)
+	}
+	if o.ACFTA {
+		t.registerASEANFTA(s, acftaTool)
 	}
 	if o.ADCVD {
 		t.registerADCVD(s)

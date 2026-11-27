@@ -137,6 +137,12 @@ func NewHandler(logger *slog.Logger, info Info, deps ...Deps) http.Handler {
 				mux.HandleFunc("POST /v1/adcvd/check", a.cheap(a.adcvdCheck)) // parts that may be under an AD/CVD order, no model (D939)
 			}
 		}
+		if d.AKFTACheck {
+			mux.HandleFunc("POST /v1/akfta/check", a.cheap(a.akftaCheck)) // ASEAN-Korea preferential origin, no model (D949)
+		}
+		if d.ACFTACheck {
+			mux.HandleFunc("POST /v1/acfta/check", a.cheap(a.acftaCheck)) // ASEAN-China preferential origin, no model (D949)
+		}
 		if d.ATIGACheck {
 			mux.HandleFunc("POST /v1/atiga/check", a.cheap(a.atigaCheck)) // ATIGA preferential origin, no model (D927)
 		}
