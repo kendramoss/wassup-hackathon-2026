@@ -441,6 +441,31 @@ export const copy = {
     nextExample: (label: string) => `Next recorded example: ${label[0].toLowerCase()}${label.slice(1)} →`,
   },
 
+  // /examples/blind-plan: one recorded pair from the post-cutoff flip test
+  // (D170, #913). Rebuilt from committed rows; no model call.
+  blindPlan: {
+    eyebrow: "Blind test, recorded",
+    title: "Plywood: a blind test",
+    lede: "Two past decisions by U.S. Customs (CBP) on plywood. The check ran before we read the later one. Nothing here calls a model.",
+    earlier: "Earlier decision",
+    later: "Later decision",
+    madeIn: "Country of origin",
+    moved: "What moved",
+    checkTitle: "What Unde's check said",
+    checkBody: (to: string) => `This change moves the origin to ${to}.`,
+    matched: "Matches CBP's later decision.",
+    support: "An earlier decision supports it:",
+    confidence: (c: number, bar: number) => `Check confidence ${c.toFixed(2)}, above the ${bar.toFixed(2)} bar, so it is shown.`,
+    datesTitle: "Dates",
+    dates: (freeze: string, later: string, seen: string) => `Code frozen ${freeze}. The check could only read decisions dated before ${seen}. The later decision is dated ${later}.`,
+    details: "Details",
+    notPlan: "This is a check of one move, not a plan search. The check was given CBP's later setup as the move and asked if it changes the origin.",
+    edge: "The two plywoods differ in wood species too, so this pair is in the looser edge tier.",
+    whole: "The whole test: 18 pairs set before any run. 9 moves were shown, all 9 right. 0 of 6 controls were shown.",
+    pairFrozen: (d: string, c: string) => `The pair was frozen on ${d} (commit ${c}), before anything was scored. Both decisions already existed then.`,
+    source: "Rebuilt from committed files, no model call:",
+  },
+
   signIn: {
     button: "Sign in with Google",
     signOut: "Sign out",

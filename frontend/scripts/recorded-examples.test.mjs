@@ -14,6 +14,7 @@ const { PlanRuleExample } = await import("../src/components/op/screens/plan-rule
 const { RevocationExample } = await import("../src/components/op/screens/revocation-example.tsx");
 const { RuleCheckExample } = await import("../src/components/op/screens/rule-check-example.tsx");
 const { Part102PlanExample } = await import("../src/components/op/screens/part102-plan-example.tsx");
+const { BlindPlanExample } = await import("../src/components/op/screens/blind-plan-example.tsx");
 const { DemoTour } = await import("../src/components/op/demo-tour.tsx");
 const json = (f) => JSON.parse(readFileSync(new URL(`../src/lib/${f}`, import.meta.url), "utf8"));
 const plan = json("plan-rule-example.json");
@@ -192,5 +193,35 @@ test("the Part 102 page shows the moves, the shown plan, the draft's Part 102 qu
   assert.doesNotMatch(t, /made by Unde's general engine/);
   assert.match(t, /cleaned in D532, after the two earlier runs/);
   assert.doesNotMatch(t, /a The country of origin|of the country of origin of/i);
+  assert.doesNotMatch(m, /<form|<button|cases\/new/);
+});
+
+test("the blind-plan page is the plywood pair, from committed rows, with the date facts", () => {
+  const ex = json("blind-plan-example.json");
+  const root = (f) => readFileSync(new URL(`../../${f}`, import.meta.url), "utf8");
+  const pair = root("eval/data/flips_post.jsonl").trim().split("\n").map((l) => JSON.parse(l)).find((p) => p.id === ex.pair);
+  assert.equal(pair.variant_a.ruling, ex.earlier.ruling);
+  assert.equal(pair.variant_b.ruling, ex.later.ruling);
+  assert.equal(pair.variant_a.date, ex.earlier.date);
+  assert.equal(pair.variant_b.date, ex.later.date);
+  assert.equal(pair.variant_a.origin, ex.earlier.origin);
+  assert.equal(pair.variant_b.origin, ex.later.origin);
+  assert.ok(ex.later.date > ex.freeze.date, "the later ruling is dated after the freeze");
+  const row = root(ex.result).trim().split("\n").map((l) => JSON.parse(l)).find((r) => r.id === ex.pair);
+  assert.equal(row.pred_changes_origin, true);
+  assert.equal(row.origin_b_ok, true);
+  assert.equal(row.supporting_ruling, ex.check.supporting_ruling);
+  assert.equal(row.confidence, ex.check.confidence);
+  assert.equal(row.precedents_before, ex.checked_before_ruling);
+  const m = html(BlindPlanExample, {});
+  const t = text(m);
+  assert.match(t, /Blind test, recorded/);
+  assert.match(t, /N365961/);
+  assert.match(t, /N366717/);
+  assert.match(t, /Malaysia/);
+  assert.match(t, /Tanzania/);
+  assert.match(t, /Code frozen 17 Oct 2026\./);
+  assert.match(t, /The later decision is dated 12 Nov 2026\./);
+  assert.match(t, /This is a check of one move, not a plan search\./);
   assert.doesNotMatch(m, /<form|<button|cases\/new/);
 });
