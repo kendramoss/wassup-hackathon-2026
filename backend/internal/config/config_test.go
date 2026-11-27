@@ -864,3 +864,54 @@ func TestSSOAndSCIMConfig(t *testing.T) {
 		}
 	}
 }
+
+func TestWebhooksConfig(t *testing.T) {
+	c, err := FromEnv(getenv(vertexEnv()))
+	if err != nil || c.Webhooks {
+		t.Fatalf("default = %v %v, want off", c.Webhooks, err)
+	}
+	teams := map[string]string{"TEAMS": "on", "TEAMS_AUDIENCE": "1234-abc.apps.googleusercontent.com"}
+	on, err := FromEnv(getenv(merge(vertexEnv(), merge(teams, map[string]string{"WEBHOOKS": "on"}))))
+	if err != nil || !on.Webhooks {
+		t.Fatalf("on = %v %v", on.Webhooks, err)
+	}
+	for _, bad := range []map[string]string{{"WEBHOOKS": "on"}, merge(teams, map[string]string{"WEBHOOKS": "maybe"})} {
+		if _, err := FromEnv(getenv(merge(vertexEnv(), bad))); err == nil || !strings.Contains(err.Error(), "WEBHOOKS") {
+			t.Errorf("%v accepted: %v", bad, err)
+		}
+	}
+}
+
+func TestSupplierDeclarationsConfig(t *testing.T) {
+	teams := map[string]string{"TEAMS": "on", "TEAMS_AUDIENCE": "1234-abc.apps.googleusercontent.com"}
+	if c, err := FromEnv(getenv(vertexEnv())); err != nil || c.SupplierDeclarations || c.RateDeclarationPerMin != 30 {
+		t.Errorf("default = %v %d %v, want off and 30 a minute", c.SupplierDeclarations, c.RateDeclarationPerMin, err)
+	}
+	if c, err := FromEnv(getenv(merge(vertexEnv(), merge(teams, map[string]string{"SUPPLIER_DECLARATIONS": "on", "RATE_DECLARATION_PER_MIN": "5"})))); err != nil || !c.SupplierDeclarations || c.RateDeclarationPerMin != 5 {
+		t.Errorf("on = %v %d %v", c.SupplierDeclarations, c.RateDeclarationPerMin, err)
+	}
+	for _, bad := range []map[string]string{
+		{"SUPPLIER_DECLARATIONS": "on"}, // no TEAMS
+		merge(teams, map[string]string{"SUPPLIER_DECLARATIONS": "maybe"}),
+		merge(teams, map[string]string{"SUPPLIER_DECLARATIONS": "on", "RATE_DECLARATION_PER_MIN": "-1"}),
+	} {
+		if _, err := FromEnv(getenv(merge(vertexEnv(), bad))); err == nil || !strings.Contains(err.Error(), "SUPPLIER_DECLARATIONS") && !strings.Contains(err.Error(), "RATE_DECLARATION_PER_MIN") {
+			t.Errorf("%v accepted: %v", bad, err)
+		}
+	}
+}
+
+func TestTariffWatchConfig(t *testing.T) {
+	c, err := FromEnv(getenv(vertexEnv()))
+	if err != nil || c.TariffWatch {
+		t.Fatalf("default = %v %v, want off", c.TariffWatch, err)
+	}
+	for _, v := range []string{"on", "true", "1"} {
+		if c, err := FromEnv(getenv(merge(vertexEnv(), map[string]string{"TARIFF_WATCH": v}))); err != nil || !c.TariffWatch {
+			t.Errorf("TARIFF_WATCH=%s = %v %v", v, c.TariffWatch, err)
+		}
+	}
+	if _, err := FromEnv(getenv(merge(vertexEnv(), map[string]string{"TARIFF_WATCH": "maybe"}))); err == nil || !strings.Contains(err.Error(), "TARIFF_WATCH") {
+		t.Errorf("bad value = %v", err)
+	}
+}

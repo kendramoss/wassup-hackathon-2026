@@ -83,6 +83,7 @@ import (
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/ukorigin"
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/usmca"
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/verifier"
+	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/webhooks"
 )
 
 func main() {
@@ -168,6 +169,12 @@ func run(logger *slog.Logger, errorLog *log.Logger, cfg config.Config, smoke boo
 	}
 	if cfg.UsageMetering {
 		deps.Metering = newMetering(cases, meter, logger)
+	}
+	if cfg.Webhooks {
+		if deps.Webhooks, err = newWebhooks(cfg, cases, logger); err != nil {
+			return err
+		}
+		go deps.Webhooks.Run(ctx, webhookSweepEvery)
 	}
 	deps.AuditExport = cfg.AuditExport && deps.Audit != nil
 	if deps.Retention, err = newRetention(ctx, cfg, cases, logger); err != nil {
@@ -296,6 +303,29 @@ func newMetering(cases store.Cases, meter *spend.Meter, logger *slog.Logger) *me
 	}
 	logger.Info("workspace usage metering on")
 	return m
+}
+
+// webhookSweepEvery is how often this instance sends the retries now due.
+const webhookSweepEvery = 30 * time.Second
+
+// newWebhooks builds the webhook service (#915). Endpoints and deliveries
+// live where the cases do: Firestore on Cloud Run, a file in CASES_DIR
+// locally, else in memory.
+func newWebhooks(cfg config.Config, cases store.Cases, logger *slog.Logger) (*webhooks.Service, error) {
+	var ws webhooks.Store = webhooks.NewMemory()
+	kind := config.CasesMemory
+	switch fs, isFS := cases.(*store.Firestore); {
+	case isFS:
+		ws, kind = fs.Webhooks(), config.CasesFirestore
+	case cfg.CasesStore == config.CasesFile && cfg.CasesDir != "":
+		f, err := webhooks.NewFile(filepath.Join(cfg.CasesDir, "webhooks")) // a subdirectory: the case store lists every *.json beside it
+		if err != nil {
+			return nil, err
+		}
+		ws, kind = f, config.CasesFile
+	}
+	logger.Info("webhooks on: signed HTTPS callbacks for workspace events", "store", kind)
+	return webhooks.New(ws, webhooks.Options{Logger: logger}), nil
 }
 
 // newBase builds the configured provider with no retry. The router, verifier,
@@ -803,7 +833,7 @@ func newDeps(cfg config.Config, model, engineModel llm.Model, cases store.Cases,
 		VerifierModel:         cfg.VerifierModel,
 		VerifierPromptVersion: map[string]string{"v1": verifier.PromptVersion, "v2": verifier.PromptVersion2, "v3": verifier.PromptVersion3}[cfg.VerifierPrompt],
 		Logger:                logger,
-		Limits:                httpapi.Limits{BasicPerMin: cfg.RateBasicPerMin, LightPerMin: cfg.RateLightPerMin, HeavyPerMin: cfg.RateHeavyPerMin, GlobalPerMin: cfg.RateGlobalPerMin, LookupPerMin: cfg.RateLookupPerMin, MaxInFlight: cfg.RateMaxInFlight, AuthFailuresPerMin: cfg.RateAuthFailuresPerMin, ReviewPerMin: cfg.RateReviewPerMin},
+		Limits:                httpapi.Limits{BasicPerMin: cfg.RateBasicPerMin, LightPerMin: cfg.RateLightPerMin, HeavyPerMin: cfg.RateHeavyPerMin, GlobalPerMin: cfg.RateGlobalPerMin, LookupPerMin: cfg.RateLookupPerMin, MaxInFlight: cfg.RateMaxInFlight, AuthFailuresPerMin: cfg.RateAuthFailuresPerMin, ReviewPerMin: cfg.RateReviewPerMin, DeclarationPerMin: cfg.RateDeclarationPerMin},
 		RequireBearer:         cfg.RequireBearer,
 		TrustedProxyCIDRs:     cfg.TrustedProxyCIDRs,
 		RateStore:             rateStore,
@@ -819,6 +849,9 @@ func newDeps(cfg config.Config, model, engineModel llm.Model, cases store.Cases,
 		SSO:                   ssoSvc,
 		SCIM:                  scimTokens,
 		AdminConsole:          cfg.AdminConsole,
+		SupplierDeclarations:  cfg.SupplierDeclarations,
+		SupplierDocs:          verdictBlobs,
+		TariffWatch:           cfg.TariffWatch,
 		APIKeys:               keys,
 		StreamPredict:         cfg.StreamPredictOn(),
 		Spend:                 meter,

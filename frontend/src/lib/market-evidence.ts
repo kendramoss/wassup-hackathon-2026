@@ -112,3 +112,17 @@ export const adcvdCheck = {
   recallInterval: "64.6–98.5",
   baselinePct: "34.3%",
 };
+
+// D941 tariff watch test. Pinned to eval/tariffwatch/summary.json by
+// scripts/tariffwatch-evidence.test.mjs. Day 2 is 10 Jan 2027.
+export const tariffWatch = {
+  lines: 10024,
+  affected: 121,
+  found: 120,
+  falseAlarms: 0,
+  precisionInterval: "96.9–100.0",
+  recallPct: "99.2%",
+  recallInterval: "95.5–99.9",
+  rateRight: 4,
+  rateLines: 4,
+};

@@ -195,7 +195,9 @@ var knownMessages = []string{
 	"sso sign-in refused: member of another workspace",
 	"teams on: Google sign-in and workspaces", "textile engine on",
 	"verifier verdicts and engine predictions cached in Firestore", "verifier verdicts and engine predictions cached",
-	"watch failed", "workspace usage metering on", "workspace usage unavailable; not enforcing the budget", msgStdLog,
+	"watch failed", "webhooks on: signed HTTPS callbacks for workspace events", "webhooks: could not list endpoints", "webhooks: event not sent: payload unusable",
+	"webhooks: could not queue a delivery", "webhooks: sweep failed", "webhooks: could not read an endpoint", "webhooks: could not record an attempt",
+	"workspace usage metering on", "workspace usage unavailable; not enforcing the budget", msgStdLog,
 }
 
 // DefaultPolicy is the operational allowlist: status, latency, token counts,

@@ -25,6 +25,7 @@ import (
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/adcvd"
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/apikey"
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/audit"
+	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/blob"
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/caseagent"
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/clarify"
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/cross"
@@ -50,6 +51,7 @@ import (
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/teams"
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/triage"
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/verifier"
+	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/webhooks"
 )
 
 // Predictor predicts origin (engine.Engine).
@@ -220,6 +222,11 @@ type Deps struct {
 	// and enforces its budget; it serves the workspace usage and budget
 	// routes (#886). Nil: nothing is metered and the routes are 404.
 	Metering *metering.Meter
+	// Webhooks, when set (WEBHOOKS=on, with teams), lets a workspace admin
+	// register signed HTTPS callbacks for workspace events and serves the
+	// endpoint, delivery-log and test routes (#915). Nil: no event is sent
+	// and the routes are 404.
+	Webhooks *webhooks.Service
 	// ExportCFR177 lets export take "format": "cfr177", the ruling-request
 	// letter laid out on 19 CFR 177.2 (D66). Off: the field is refused.
 	ExportCFR177 bool
@@ -280,6 +287,18 @@ type Deps struct {
 	// AdminConsole registers GET /v1/workspaces/{id}/admin (#870), the
 	// workspace admin's settings overview. Needs Teams.
 	AdminConsole bool
+	// SupplierDeclarations registers the supplier origin declaration routes
+	// (#916): a requester's routes on a case, the supplier's token routes
+	// and the expiry listing. Needs Teams.
+	SupplierDeclarations bool
+	// SupplierDocs holds the files suppliers attach to an answer, by hash
+	// (envelope-encrypted where the cache is). Nil: an answer with a file is
+	// refused (503), an answer without one is not affected.
+	SupplierDocs blob.Store
+	// TariffWatch (TARIFF_WATCH=on) stores the duty basis on each case a plan
+	// search prices and, with Teams, registers
+	// GET /v1/workspaces/{id}/tariff-watch (#917).
+	TariffWatch bool
 	// APIKeys, when set, accepts X-API-Key (its own rate-limit buckets, a
 	// daily request quota, cases owned by the key) and serves the admin key
 	// endpoints (D69). Nil: the header is ignored and the endpoints are 404.
@@ -325,11 +344,14 @@ type api struct {
 	// reviewFails counts invalid broker review tokens per client (D200); nil
 	// without limits.
 	reviewFails *authFailures
-	quotaLocal  *localQuota // API-key requests counted here while the quota store fails
-	rulingMu    sync.Mutex
-	rulingMemo  map[string]rulingDTO
-	askMu       sync.Mutex
-	askMemo     map[string]caseagent.Answer
+	// declFails counts invalid supplier declaration tokens per client
+	// (#916); nil when AuthFailuresPerMin is 0.
+	declFails  *authFailures
+	quotaLocal *localQuota // API-key requests counted here while the quota store fails
+	rulingMu   sync.Mutex
+	rulingMemo map[string]rulingDTO
+	askMu      sync.Mutex
+	askMemo    map[string]caseagent.Answer
 	// flights joins duplicate plan searches (D402); nil runs each request.
 	flights *planFlights
 }
@@ -365,8 +387,10 @@ func (a *api) errorFor(r *http.Request, err error) (int, string, string) {
 	switch {
 	case errors.Is(err, domain.ErrInvalid), errors.Is(err, planner.ErrUnknownFamily):
 		return http.StatusBadRequest, "invalid_input", err.Error()
-	case errors.Is(err, apikey.ErrBadRequest):
+	case errors.Is(err, apikey.ErrBadRequest), errors.Is(err, webhooks.ErrInvalid):
 		return http.StatusBadRequest, "invalid_input", err.Error()
+	case errors.Is(err, webhooks.ErrFull):
+		return http.StatusConflict, "conflict", err.Error()
 	case errors.Is(err, errNeedsVerified):
 		return http.StatusUnauthorized, "unauthenticated", needsVerifiedError
 	case errors.Is(err, errForbidden):
@@ -375,7 +399,7 @@ func (a *api) errorFor(r *http.Request, err error) (int, string, string) {
 		return http.StatusServiceUnavailable, "audit_unavailable", "the audit trail is unavailable, so this change was not made; try again"
 	case errors.Is(err, errSuperseded), errors.Is(err, errIdempotencyReuse), errors.Is(err, errOriginFactsChanged), errors.Is(err, errFamilyFactsChanged), errors.Is(err, errBrokerConflict):
 		return http.StatusConflict, "conflict", err.Error()
-	case errors.Is(err, store.ErrNotFound), errors.Is(err, cross.ErrNotFound), errors.Is(err, apikey.ErrNotFound):
+	case errors.Is(err, store.ErrNotFound), errors.Is(err, cross.ErrNotFound), errors.Is(err, apikey.ErrNotFound), errors.Is(err, webhooks.ErrNotFound):
 		return http.StatusNotFound, "not_found", err.Error()
 	case errors.Is(err, llm.ErrBadResponse):
 		a.d.Logger.ErrorContext(r.Context(), "model bad response", "request_id", requestRef(r.Context()), "err", logsafe.Err(err))
@@ -682,6 +706,7 @@ func (a *api) answers(w http.ResponseWriter, r *http.Request) {
 	}
 	sc.Answers = append(sc.Answers, in.Answers...)
 	facts, _ := clarify.AppendAnswers(sc.OriginalFacts, toClarify(sc.Answers))
+	facts = a.withSupplierFacts(sc, facts) // declared origins that hold, beside what the user said (#916)
 	date, _ := time.Parse(time.DateOnly, sc.Date)
 	c := domain.Case{ID: sc.ID, Date: date, Facts: facts, Product: sc.Product, Exclude: sc.Exclude, Jurisdiction: caseMarket(sc), Japan: sc.Japan}
 	if err := c.Validate(); err != nil {
@@ -771,6 +796,11 @@ func (a *api) caseFields(r *http.Request, c store.Case) map[string]any {
 	// answer for every other case is byte for byte what it was.
 	if rv := a.ownerReviews(r, c); len(rv) > 0 {
 		f["broker_reviews"] = rv
+	}
+	// Supplier declarations (#916), only on a case that was asked and with
+	// the flag on: every other case reads byte for byte as before.
+	if a.d.SupplierDeclarations && len(c.SupplierRequests) > 0 && !a.demoReadOnly(r, c) {
+		f["supplier_declarations"] = supplierDeclarations(c, time.Now().UTC())
 	}
 	moneyStaleFields(f, c)
 	return f
@@ -1294,6 +1324,7 @@ func (a *api) planSearch(ctx context.Context, c store.Case, req planner.Request,
 	if !readOnly {
 		ev := a.planEvent(res)
 		now := time.Now().UTC()
+		basis := a.snapshotBasis(req, now) // TARIFF_WATCH: what this search priced the money on (#917)
 		if _, err := a.d.Cases.Update(ctx, c.ID, func(latest *store.Case) error {
 			if err := stillCurrent(latest, fp); err != nil {
 				return err
@@ -1303,6 +1334,7 @@ func (a *api) planSearch(ctx context.Context, c store.Case, req planner.Request,
 			}
 			latest.Plan, latest.UpdatedAt = &res, now
 			latest.Economics = economicsFrom(in.Economics, latest.Economics)
+			setDutyBasis(latest, basis)
 			record(ctx, latest, ev)
 			return nil
 		}); err != nil {
@@ -1548,6 +1580,7 @@ func (a *api) planStream(w http.ResponseWriter, r *http.Request, c store.Case, r
 	if err == nil && !a.demoReadOnly(r, c) {
 		ev := a.planEvent(res)
 		now := time.Now().UTC()
+		basis := a.snapshotBasis(req, now) // TARIFF_WATCH (#917)
 		_, err = a.d.Cases.Update(r.Context(), c.ID, func(latest *store.Case) error {
 			if err := stillCurrent(latest, fp); err != nil {
 				return err
@@ -1557,6 +1590,7 @@ func (a *api) planStream(w http.ResponseWriter, r *http.Request, c store.Case, r
 			}
 			latest.Plan, latest.UpdatedAt = &res, now
 			latest.Economics = economicsFrom(raw, latest.Economics)
+			setDutyBasis(latest, basis)
 			record(r.Context(), latest, ev)
 			return nil
 		})

@@ -44,6 +44,7 @@ func NewHandler(logger *slog.Logger, info Info, deps ...Deps) http.Handler {
 		}
 		if d.Limits.AuthFailuresPerMin > 0 {
 			a.reviewFails = newAuthFailures(d.Limits.AuthFailuresPerMin)
+			a.declFails = newAuthFailures(d.Limits.AuthFailuresPerMin)
 		}
 		if d.APIKeys != nil {
 			if d.Limits.AuthFailuresPerMin > 0 {
@@ -157,8 +158,20 @@ func NewHandler(logger *slog.Logger, info Info, deps ...Deps) http.Handler {
 			mux.HandleFunc("POST /v1/workspaces/{id}/join", a.cheap(a.joinWorkspace))
 			mux.HandleFunc("PUT /v1/workspaces/{id}/members/{email}/role", a.cheap(a.setMemberRole))
 			mux.HandleFunc("DELETE /v1/workspaces/{id}/members/{email}", a.cheap(a.removeMember))
+			if d.SupplierDeclarations { // supplier origin declarations (supplier_decl.go, D937)
+				mux.HandleFunc("POST /v1/cases/{id}/supplier-declarations", a.cheap(a.createSupplierRequest))
+				mux.HandleFunc("GET /v1/cases/{id}/supplier-declarations", a.cheap(a.listSupplierRequests))
+				mux.HandleFunc("DELETE /v1/cases/{id}/supplier-declarations/{request}", a.cheap(a.revokeSupplierRequest))
+				mux.HandleFunc("GET /v1/cases/{id}/supplier-declarations/{request}/parts/{part}/document", a.cheap(a.supplierDocument))
+				mux.HandleFunc("GET /v1/supplier-declarations/expiring", a.cheap(a.expiringDeclarations))
+				mux.HandleFunc("GET /v1/supplier-declaration", a.rateOnly(declare, a.getSupplierRequest))
+				mux.HandleFunc("PUT /v1/supplier-declaration/parts/{part}", a.rateOnly(declare, a.putSupplierAnswer))
+			}
 			if d.AdminConsole {
 				mux.HandleFunc("GET /v1/workspaces/{id}/admin", a.cheap(a.adminConsole))
+			}
+			if d.TariffWatch {
+				mux.HandleFunc("GET /v1/workspaces/{id}/tariff-watch", a.cheap(a.listTariffWatch)) // cases a newer HTS revision affects, no model (D938)
 			}
 			if d.SSO != nil {
 				mux.HandleFunc("POST /v1/sso/start", a.rateOnly(review, a.ssoStart))
@@ -187,6 +200,17 @@ func NewHandler(logger *slog.Logger, info Info, deps ...Deps) http.Handler {
 					mux.HandleFunc("PATCH /v1/scim/v2/Users/{uid}", a.rateOnly(review, a.patchSCIMUser))
 					mux.HandleFunc("DELETE /v1/scim/v2/Users/{uid}", a.rateOnly(review, a.deleteSCIMUser))
 				}
+			}
+			if d.Webhooks != nil {
+				mux.HandleFunc("GET /v1/workspaces/{id}/webhooks", a.cheap(a.listWebhooks))
+				mux.HandleFunc("POST /v1/workspaces/{id}/webhooks", a.cheap(a.createWebhook))
+				mux.HandleFunc("PATCH /v1/workspaces/{id}/webhooks/{wid}", a.cheap(a.updateWebhook))
+				mux.HandleFunc("DELETE /v1/workspaces/{id}/webhooks/{wid}", a.cheap(a.deleteWebhook))
+				mux.HandleFunc("POST /v1/workspaces/{id}/webhooks/{wid}/rotate", a.cheap(a.rotateWebhook))
+				mux.HandleFunc("POST /v1/workspaces/{id}/webhooks/{wid}/test", a.cheap(a.testWebhook))
+				mux.HandleFunc("GET /v1/workspaces/{id}/webhooks/{wid}/deliveries", a.cheap(a.listWebhookDeliveries))
+				mux.HandleFunc("POST /v1/webhooks/sweep", a.adminOnly(a.sweepWebhooks)) // retries now due, for a scheduler
+				a.wireBudgetAlerts()
 			}
 			if d.Metering != nil {
 				mux.HandleFunc("GET /v1/workspaces/{id}/usage", a.cheap(a.workspaceUsage))

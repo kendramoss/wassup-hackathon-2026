@@ -160,7 +160,7 @@ func guard(o Options, next http.Handler) http.Handler {
 			key = tok
 		}
 		r = r.Clone(r.Context())
-		for _, h := range []string{"Authorization", "X-API-Key", "X-User-Token", "X-Visitor-ID", "X-Review-Token", "Cookie"} {
+		for _, h := range []string{"Authorization", "X-API-Key", "X-User-Token", "X-Visitor-ID", "X-Review-Token", "X-Declaration-Token", "Cookie"} {
 			r.Header.Del(h)
 		}
 		if key != "" {

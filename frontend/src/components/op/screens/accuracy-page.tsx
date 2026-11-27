@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 import { api, type EvalSummary } from "@/lib/api/client";
 import { copy } from "@/lib/copy";
-import { adcvdCheck, japanEvidence, japanMeasured, rcepEvidence, rulesChecks } from "@/lib/market-evidence";
+import { adcvdCheck, japanEvidence, japanMeasured, rcepEvidence, rulesChecks, tariffWatch } from "@/lib/market-evidence";
 import failureData from "@/lib/failure-cases.json";
 import { ErrorBox, Main } from "../chrome";
 import { ButtonLink, Chip, Fold, ScrollX, cx } from "../ui";
@@ -359,6 +359,40 @@ function RulesChecks() {
   );
 }
 
+function TariffWatchEvidence() {
+  const t = tariffWatch;
+  return (
+    <section id="tariff-watch" aria-labelledby="acc-tariff" className="mt-8 scroll-mt-20 rounded-[2px] border border-edge bg-sheet px-4 py-5 sm:px-6">
+      <h2 id="acc-tariff" className="text-xl font-semibold tracking-tight">Tariff watch</h2>
+      <p className="read mt-1 text-sm text-dim">
+        Which China tariff lines a new HTS revision affects, checked against the Federal Register notices behind HTS revision 23 (10 Nov 2026). Rule based, no model.
+      </p>
+      <dl className="mt-3 grid gap-x-6 gap-y-3 text-sm tabular-nums sm:grid-cols-3">
+        <div>
+          <dt className="text-dim">Affected lines found</dt>
+          <dd><strong>{t.found}/{t.affected}</strong> ({t.recallPct}, 95% interval {t.recallInterval}%)</dd>
+        </div>
+        <div>
+          <dt className="text-dim">Wrong alarms</dt>
+          <dd><strong>{t.falseAlarms}</strong> of {t.found} flagged (interval {t.precisionInterval}%)</dd>
+        </div>
+        <div>
+          <dt className="text-dim">New rate exactly right</dt>
+          <dd><strong>{t.rateRight}/{t.rateLines}</strong> lines</dd>
+        </div>
+      </dl>
+      <Details title="Tariff watch limits">
+        <p>Not a blind test: we read the notices while building the loader. It shows the loader reproduces documented changes, not that it finds unknown ones.</p>
+        <p>One pair of revisions. The rate change is 4 lines, so 4 of 4 is a small test. No change to a base duty rate or a Section 232 duty was in this pair.</p>
+        <p>Not dollars: it finds which lines changed terms (an exclusion window or a start date). Exclusions are reported, not applied to the rate.</p>
+        <p>
+          The {t.lines.toLocaleString("en-US")} lines are every line our data gives a China duty or exclusion. The list of exclusions in the notice is a scanned image read by OCR, with three readings voted. One line, 6307.90.98, was missed: our data exempts it from the list its exclusion sits under.
+        </p>
+      </Details>
+    </section>
+  );
+}
+
 function MarketEvidence() {
   const result = rcepEvidence;
 
@@ -591,6 +625,7 @@ export function AccuracyPage() {
       <OutcomeMatrix />
       <PlanEvidence calibration={data?.verifier_calibration} />
       <MarketEvidence />
+      <TariffWatchEvidence />
 
       <section className="mt-8" aria-labelledby="acc-limits">
         <h2 id="acc-limits" className="eyebrow">Test limits</h2>
