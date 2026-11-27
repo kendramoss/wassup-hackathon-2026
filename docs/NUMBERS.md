@@ -337,6 +337,16 @@ These rows register, for the /method page, figures that are already committed in
 | Fine-tuning split (D38, D73) | 699 rulings dated before 2025-07-01: train 632, tune_check 67; used only by the fine-tuning experiment | `eval/splits/splits_tune.json`; docs/EVALUATION.md 2.1 | Built |
 | Held-out precedents that are earlier held-out rulings (first held-out split, official run) | 414 of 1,885 retrieved precedent slots, in 209 of 377 cases; 0 slots dated on or after their case | `claimscheck` (`final.precedent_slots_in_final_split`, `final.cases_with_final_split_precedent`, `final.precedent_slots_not_before_case`); docs/claims-reconciliation.md 4.2 | Measured. A stated leak path, not an estimate of its effect: no committed run removes those slots |
 
+## Textile rules, 19 CFR 102.21 (D951, D952; flag `TEXTILE_RULES`, off; Accuracy page)
+
+| Number | Value | Source | Status |
+|---|---|---|---|
+| Textile rule check agrees with CBP, held out (facts plus suggested subheading; `final` + `final2`) | 13 of 14 decided rulings (92.9%, 95% Wilson interval 68.5–98.7). 14 of 41 in-scope rulings decided (34%); 88 rulings, 47 out of scope. Fewer than the 15 decided that D951 required, so the flag stays off | D952; `eval/textile102/summary.json` (`go run ./cmd/textilerules eval -check`) | Showable. Held out of the rule code, not new to the project (the 88 scored the model in D51). Same answer as the model on every decided ruling |
+| Textile rule check, full CROSS text (encoding check) | 18 of 18 decided (82.4–100), 44% of in-scope; with CBP's code in view | D952; same summary | Showable only as an encoding check |
+| Textile rule check, facts alone | 0 of 88 decided: the texts rarely state the good's code | D952; same summary | Showable |
+| Textile rule check, development | 32 of 32 decided agree (89.3–100) with a suggested subheading | D952; same summary | Not independent: the code was tuned on these 99 rulings |
+| Textile rule check, cost | $7.28 of a $25 sub-cap (extraction through the gateway) | `eval/results/RUNLOG.jsonl` | Showable |
+
 ## Tariff watch (D941, backend behind `TARIFF_WATCH`; Accuracy page)
 
 | Number | Value | Source | Status |
