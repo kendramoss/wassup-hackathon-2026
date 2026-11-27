@@ -943,3 +943,18 @@ func TestTariffWatchConfig(t *testing.T) {
 		t.Errorf("bad value = %v", err)
 	}
 }
+
+func TestEvalDriftAlertsConfig(t *testing.T) {
+	c, err := FromEnv(getenv(vertexEnv()))
+	if err != nil || c.EvalDriftAlerts {
+		t.Fatalf("default = %v %v, want off", c.EvalDriftAlerts, err)
+	}
+	for _, v := range []string{"on", "true", "1"} {
+		if c, err := FromEnv(getenv(merge(vertexEnv(), map[string]string{"EVAL_DRIFT_ALERTS": v}))); err != nil || !c.EvalDriftAlerts {
+			t.Errorf("EVAL_DRIFT_ALERTS=%s = %v %v", v, c.EvalDriftAlerts, err)
+		}
+	}
+	if _, err := FromEnv(getenv(merge(vertexEnv(), map[string]string{"EVAL_DRIFT_ALERTS": "maybe"}))); err == nil || !strings.Contains(err.Error(), "EVAL_DRIFT_ALERTS") {
+		t.Errorf("bad value = %v", err)
+	}
+}

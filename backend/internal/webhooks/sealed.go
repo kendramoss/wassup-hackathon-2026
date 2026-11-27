@@ -77,4 +77,18 @@ func (s *SealedStore) ListEndpoints(ctx context.Context, workspace string) ([]En
 	return eps, nil
 }
 
+// ListSubscribed implements Store.
+func (s *SealedStore) ListSubscribed(ctx context.Context, typ string) ([]Endpoint, error) {
+	eps, err := s.Store.ListSubscribed(ctx, typ)
+	if err != nil {
+		return nil, err
+	}
+	for i := range eps {
+		if eps[i], err = s.open(eps[i]); err != nil {
+			return nil, err
+		}
+	}
+	return eps, nil
+}
+
 var _ Store = (*SealedStore)(nil)

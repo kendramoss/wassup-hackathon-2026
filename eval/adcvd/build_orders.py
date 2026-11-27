@@ -115,7 +115,10 @@ def parse_opp(text):
     spaces in starts an entry, one space or five or more continues it.
     """
     lines = text.split("\n")
-    start = next((i for i, l in enumerate(lines) if l.strip().startswith("Antidumping Duty Proceedings")), None)
+    # the heading on a line of its own; the first line that merely begins with the words can be prose (notice of Jan 2016)
+    start = next((i for i, l in enumerate(lines) if l.strip().startswith("Antidumping Duty Proceedings") and len(l.strip()) < 40), None)
+    if start is None:
+        start = next((i for i, l in enumerate(lines) if l.strip().startswith("Antidumping Duty Proceedings")), None)
     if start is None:
         return []
     entries, country, buf, skip = [], None, "", False
@@ -276,6 +279,72 @@ def scope_text(text):
     return "\n".join(p for p in paras if p and not p.startswith("\\"))[:SCOPE_CAP]
 
 
+POINTER = re.compile(r"[^.]*\bappendix\b[^.]*\.", re.I)
+APPENDIX_HEAD = re.compile(r"^[ \t]*Appendix\b[^\n]*$", re.I | re.M)
+APPENDIX_END = re.compile(r"\n\s*(?:\[FR Doc[^\n]*|BILLING CODE[^\n]*)\s*$", re.I)
+
+
+def appendix_text(text):
+    """The appendix a notice prints after its signature: the last heading that begins with "Appendix" to the end, page markers and wrapping removed ("" if none or shorter than 200 characters)."""
+    heads = list(APPENDIX_HEAD.finditer(text))
+    if not heads:
+        return ""
+    # a heading of the notice's own table of contents or a mention in the body is followed by little text; take the last real one
+    body = re.sub(r"\n\[\[Page \d+\]\]\n", "\n", text[heads[-1].start():])
+    body = APPENDIX_END.sub("", body)
+    paras = [re.sub(r"\s+", " ", p).strip() for p in re.split(r"\n\s*\n", body)]
+    out = "\n".join(p for p in paras if p and not p.startswith("\\"))
+    return out[:SCOPE_CAP] if len(out) >= 200 else ""
+
+
+def scope_text_v2(text):
+    """scope_text, and where the scope only points to an appendix, the scope as the notice's appendix prints it (D944).
+
+    The old text ran on past the pointer into the notice's own paragraphs; v2 cuts it after the sentence that names the appendix and adds the appendix."""
+    old = scope_text(text)
+    if not re.search(r"\bappendix\b", old, re.I):
+        return old
+    appx = appendix_text(text)
+    if not appx:
+        return old
+    lines = old.split("\n")
+    keep = []
+    for ln in lines:
+        m = POINTER.search(ln)
+        if m:
+            keep.append(ln[:m.end()].strip())
+            break
+        keep.append(ln)
+    return ("\n".join(keep) + "\n\n" + appx)[:SCOPE_CAP]
+
+
+def addappendix(src, out, cache):
+    """Write a copy of an orders file whose scope_text is scope_text_v2 of the same notice (SHA-256 checked); nothing else changes."""
+    d = json.load(open(src))
+    net = Net(cache)
+    docs = {}
+    changed = 0
+    for o in d["orders"]:
+        sn = o.get("scope_notice")
+        if not sn:
+            continue
+        k = sn["document_number"]
+        if k not in docs:
+            text, sha = net.text({"document_number": k, "publication_date": sn["date"]})
+            if sha != sn["sha256"]:
+                raise SystemExit("notice changed: " + k)
+            docs[k] = text
+        new = scope_text_v2(docs[k])
+        if new != o.get("scope_text"):
+            changed += 1
+        o["scope_text"] = new
+    with open(out, "w") as f:
+        json.dump(d, f, indent=1, ensure_ascii=False)
+        f.write("\n")
+    still = sum(1 for o in d["orders"] if re.search(r"see the appendix|appendix to this notice", o.get("scope_text", ""), re.I) and len(o["scope_text"]) < 400)
+    print(json.dumps({"orders": len(d["orders"]), "scope_text_changed": changed, "pointer_only_left": still}))
+
+
 # ------------------------------------------------------------------- build
 
 COUNTRY_TITLE = re.compile(r"\bFrom (?:the )?(.+?):")
@@ -330,7 +399,7 @@ def build(as_of, out, cache):
     opp = net.search("opp-" + iso, **{"conditions[term]": f'"{OPP_TITLE}"', "conditions[agencies][]": "international-trade-administration",
                                "conditions[type][]": "NOTICE", "conditions[publication_date][gte]": months_before(cut, 16).isoformat(),
                                "conditions[publication_date][lte]": iso})
-    opp = [d for d in opp if "Opportunity To Request Administrative Review" in d["title"] and d["title"].startswith("Antidumping or Countervailing") and "Correction" not in d["title"] and not re.match(r"C\d-", d["document_number"])]
+    opp = [d for d in opp if "opportunity to request administrative review" in d["title"].lower() and d["title"].startswith("Antidumping or Countervailing") and "Correction" not in d["title"] and not re.match(r"C\d-", d["document_number"])]
     opp = sorted(opp, key=lambda d: d["publication_date"], reverse=True)
     # one notice per calendar month, the twelve newest months
     seen_m, picked = set(), []
@@ -528,10 +597,16 @@ if __name__ == "__main__":
     s2 = sub.add_parser("addscope")
     s2.add_argument("path")
     s2.add_argument("--cache", default=os.path.expanduser("~/.cache/origin-proof-adcvd"))
+    s3 = sub.add_parser("addappendix")
+    s3.add_argument("src")
+    s3.add_argument("out")
+    s3.add_argument("--cache", default=os.path.expanduser("~/.cache/origin-proof-adcvd"))
     a = ap.parse_args()
     if a.cmd == "build":
         build(a.as_of, a.out, a.cache)
     elif a.cmd == "addscope":
         addscope(a.path, a.cache)
+    elif a.cmd == "addappendix":
+        addappendix(a.src, a.out, a.cache)
     else:
         check(a.path)

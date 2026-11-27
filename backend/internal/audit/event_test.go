@@ -125,8 +125,8 @@ func TestSensitiveSetIsThePolicy(t *testing.T) {
 			t.Errorf("%s sensitive=%v, policy says %v", a, a.Sensitive(), want[a])
 		}
 	}
-	if len(Actions()) != 58 { // 26, the rename, the 7 broker workflow actions, 5 SSO, 7 SCIM, the admin view, 7 webhook and 4 supplier declaration actions
-		t.Errorf("%d actions, the contract lists 58", len(Actions()))
+	if len(Actions()) != 59 { // 26, the rename, the 7 broker workflow actions, 5 SSO, 7 SCIM, the admin view, 7 webhook, 4 supplier declaration actions and eval.drift
+		t.Errorf("%d actions, the contract lists 59", len(Actions()))
 	}
 }
 
@@ -140,6 +140,29 @@ func TestObjectRefAcceptsOnlyServerMintedIDs(t *testing.T) {
 		{"apikey", "op_secret"}, {"user", "x"}, {"case", "healthcheck_probe"}} {
 		if ref, ok := ObjectRef(bad[0], bad[1]); ok {
 			t.Errorf("%v accepted as %q", bad, ref)
+		}
+	}
+}
+
+// A drift alert is written by the system for the platform, about one month of one series.
+func TestEvalDriftEventIsClosedAndSystemOnly(t *testing.T) {
+	e := Event{Tenant: "platform", ActorKind: ActorSystem, Action: EvalDrift, Phase: PhaseSingle, Outcome: Allowed, Detail: "cbp", Object: "evalmonth:cbp:2026-12"}
+	if err := e.validateFields(); err != nil {
+		t.Fatalf("valid drift event rejected: %v", err)
+	}
+	if EvalDrift.Sensitive() {
+		t.Error("a drift alert must not fail closed: the re-score is not an operation on a tenant")
+	}
+	for name, mut := range map[string]func(*Event){
+		"free text detail": func(e *Event) { e.Detail = "accuracy fell to 70%" },
+		"free text object": func(e *Event) { e.Object = "evalmonth:cbp:last month" },
+		"bad month":        func(e *Event) { e.Object = "evalmonth:cbp:2026-13" },
+		"unknown series":   func(e *Event) { e.Object = "evalmonth:x:2026-12" },
+	} {
+		x := e
+		mut(&x)
+		if err := x.validateFields(); err == nil {
+			t.Errorf("%s accepted", name)
 		}
 	}
 }
