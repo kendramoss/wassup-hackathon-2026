@@ -324,7 +324,12 @@ func newWebhooks(cfg config.Config, cases store.Cases, logger *slog.Logger) (*we
 		}
 		ws, kind = f, config.CasesFile
 	}
-	logger.Info("webhooks on: signed HTTPS callbacks for workspace events", "store", kind)
+	sealer, err := envelope.NewSealer([]byte(cfg.WebhooksSecretKey), webhooks.SealPurpose)
+	if err != nil {
+		return nil, err
+	}
+	ws = webhooks.NewSealedStore(ws, sealer)
+	logger.Info("webhooks on: signed HTTPS callbacks for workspace events", "store", kind, "secrets", "sealed")
 	return webhooks.New(ws, webhooks.Options{Logger: logger}), nil
 }
 
