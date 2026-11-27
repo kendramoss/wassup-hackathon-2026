@@ -549,9 +549,10 @@ export const copy = {
   },
 
   japan: {
-    // One short availability line for places that mention Japan without a
-    // configured gateway (#730). It does not promise a live check.
-    notAvailable: "Japan: not available yet.",
+    // Fallback only (unused today): a deployment with no Japan engine
+    // configured (JAPAN_ENGINE=off, or no usable model). Japan is open on the
+    // live site; the market registry's supported flag decides, not this line.
+    notAvailable: "Japan: not open on this deployment.",
     scope: "Trade preference in Japan",
     agreement: "Trade agreement",
     chooseAgreement: "Choose an agreement",

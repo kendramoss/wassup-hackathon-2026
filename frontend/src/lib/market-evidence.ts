@@ -30,7 +30,7 @@ export const marketEvidence = {
     { name: "RCEP tariff", status: "Approvals only", note: "No refusals tested." },
     { name: "Canada marking", status: "Rules only", note: "No score." },
     { name: "EU and UK origin", status: "Rules only", note: "No score." },
-    { name: "Japan origin", status: "Not available yet", note: "Offline experiment only. Not a coverage claim." },
+    { name: "Japan origin", status: "Open", note: "Tested on unseen rulings. See Accuracy." },
     { name: "Other markets", status: "Not yet", note: "No rules or tests." },
   ],
   detailsTitle: "Limits",
@@ -44,7 +44,8 @@ export const marketEvidence = {
 
 // D741 offline Japan model evaluation. Pinned to the two committed D741
 // metrics files under eval/jp by scripts/japan-evidence.test.mjs. Experimental,
-// positive-only, not a market-coverage claim; Japan stays unavailable.
+// positive-only. It is the earlier engine evidence (before D910's rule text
+// and D885's evidence), kept on the Accuracy page as a labelled earlier test.
 export const japanEvidence = {
   cases: 633,
   criterionMatch: 260,
@@ -59,4 +60,40 @@ export const japanEvidence = {
   syntheticRefused: 8,
   syntheticCases: 8,
   syntheticInterval: "67.56–100",
+};
+
+// Japan is open on the live site, on the production engine model. D920 and
+// D922 measured that model and evidence through the gateway. Pinned to
+// eval/jp/*d919-fresh-metrics.json and eval/jp/d922-answered-summary.json by
+// scripts/japan-evidence.test.mjs.
+export const japanMeasured = {
+  unseen: 44,
+  unseenRight: 37,
+  unseenInterval: "70.6–92.1",
+  unseenAnswered: 42,
+  unseenAnsweredPct: "95.5%",
+  unseenAnsweredInterval: "84.9–98.7",
+  dev: 400,
+  devRight: 272,
+  devAnswered: 374,
+  devAnsweredPct: "93.5%",
+  devAnsweredInterval: "90.7–95.5",
+  negatives: 80,
+  negativesApproved: 0,
+  euCases: 181,
+  euAnswered: 179,
+};
+
+// D932 held-out result of the USMCA extended rules (flag USMCA_RULES_EXT, on
+// since #910), and D927's reference test of the ATIGA check (ATIGA_CHECK, on
+// since #910). Pinned to eval/usmca/summary-held_out.json and
+// eval/atiga/reference-cases.json by scripts/japan-evidence.test.mjs.
+export const rulesChecks = {
+  usmcaProducts: 59,
+  usmcaDecided: 23,
+  usmcaAgreed: 21,
+  usmcaPct: "91.3%",
+  usmcaInterval: "73.2–97.6",
+  atigaExamples: 7,
+  atigaReached: 7,
 };
