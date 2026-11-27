@@ -252,9 +252,7 @@ func buildE2(x string) (E2, error) {
 	e := E2{Text: text}
 	intro := text[:strings.Index(text, ", except for goods classified")]
 	intro = strings.NewReplacer(" and ", ",").Replace(intro)
-	for _, c := range reCodeTok.FindAllString(intro, -1) {
-		e.Codes = append(e.Codes, c)
-	}
+	e.Codes = append(e.Codes, reCodeTok.FindAllString(intro, -1)...)
 	if len(e.Codes) != 16 {
 		return e, fmt.Errorf("textilerules: (e)(2) names %d codes, want 16", len(e.Codes))
 	}

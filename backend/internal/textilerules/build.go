@@ -119,7 +119,6 @@ func frRow(ex string) (Row, error) {
 
 var (
 	reCodeTok = regexp.MustCompile(`\d{4}(?:\.\d{2}(?:\.\d{2,4})?)?(?:-\d{2,4})?`)
-	reChapter = regexp.MustCompile(`(?i)chapter (\d+)`)
 )
 
 func parseExclusions(s string) []string {
@@ -132,9 +131,7 @@ func parseExclusions(s string) []string {
 		rest = rest[i:]
 	}
 	rest = strings.NewReplacer(" through ", "-", " and ", " ").Replace(rest)
-	for _, c := range reCodeTok.FindAllString(rest, -1) {
-		out = append(out, c)
-	}
+	out = append(out, reCodeTok.FindAllString(rest, -1)...)
 	return out
 }
 
