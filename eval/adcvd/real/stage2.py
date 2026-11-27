@@ -1,20 +1,22 @@
 """Lists the (key, id) pairs the panel reads in full: those either screener marked possible, and every pair the plain HTS-and-country check matches (D945).
 
-Usage: python3 -I -B eval/adcvd/real/stage2.py SPLIT_DIR   (reads pairs.jsonl and screen.jsonl, writes stage2.jsonl)
+Usage: python3 -I -B eval/adcvd/real/stage2.py SPLIT_DIR [SCREEN_MODEL]   (reads pairs.jsonl and screen.jsonl, writes stage2.jsonl, or stage2-haiku.jsonl with a model: D959)
 """
 import json
 import os
 import sys
 
 d = sys.argv[1]
+model = sys.argv[2] if len(sys.argv) > 2 else None  # D959: only this screener's list
 pairs = [json.loads(l) for l in open(os.path.join(d, "pairs.jsonl"))]
 poss = {}
 for l in open(os.path.join(d, "screen.jsonl")):
     r = json.loads(l)
-    poss.setdefault(r["id"], set()).update(r["possible"])
+    if model is None or r["model"] == model:
+        poss.setdefault(r["id"], set()).update(r["possible"])
 n = 0
 seen = set()
-with open(os.path.join(d, "stage2.jsonl"), "w") as f:
+with open(os.path.join(d, "stage2-haiku.jsonl" if model else "stage2.jsonl"), "w") as f:
     for p in pairs:
         k = (p["key"], p["id"])
         if k in seen:

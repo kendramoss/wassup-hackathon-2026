@@ -9,10 +9,12 @@ import (
 	"time"
 
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/domain"
+	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/llm"
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/logsafe"
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/planner"
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/router"
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/store"
+	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/triage"
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/webhooks"
 )
 
@@ -273,7 +275,10 @@ func (a *api) watchAll(w http.ResponseWriter, r *http.Request) {
 		go func(c store.Case) {
 			defer wg.Done()
 			defer func() { <-sem }()
-			err := a.recheck(r.Context(), &c, true)
+			// A pinned demo is re-checked and reported but never written: its
+			// shown answer stays the pinned one (#954), as for a non-admin
+			// re-check of one demo.
+			err := a.recheck(r.Context(), &c, !c.Pinned)
 			mu.Lock()
 			defer mu.Unlock()
 			if err != nil {
@@ -324,6 +329,13 @@ func (a *api) recheck(ctx context.Context, sc *store.Case, save bool) error {
 		return err
 	}
 	res := d.Result
+	// The primary engine was unavailable and the fallback model answered: its
+	// answer is not compared with the primary's stored one, so it is neither
+	// saved nor reported as a change (#954). A case first answered by the
+	// fallback is compared as before.
+	if a.d.EngineModel != "" && triage.AnsweredByFallback(res.Prediction.Trace, a.d.EngineModel) && !triage.AnsweredByFallback(sc.Prediction.Trace, a.d.EngineModel) {
+		return fmt.Errorf("%w: the primary engine was unavailable, so the re-check was not saved; try again later", llm.ErrUnavailable)
+	}
 	tr, _ := a.decide(d)
 	if orig == "" && tr.Route == domain.RouteAuto {
 		// The stored prediction names no known engine, so this result cannot

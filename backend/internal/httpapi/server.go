@@ -132,8 +132,8 @@ func NewHandler(logger *slog.Logger, info Info, deps ...Deps) http.Handler {
 		mux.HandleFunc("POST /v1/rcep/check", a.cheap(a.rcepCheck))   // RCEP preferential origin, no model
 		mux.HandleFunc("POST /v1/usmca/check", a.cheap(a.usmcaCheck)) // USMCA selected origin rule, no model
 		if d.ADCVD != nil {
-			if d.ADCVDReader != nil {
-				mux.HandleFunc("POST /v1/adcvd/check", a.limit(light, a.adcvdCheck)) // with the scope reader: one model question per listed order, metered (D942)
+			if d.ADCVDReader != nil || d.ADCVDScopeFirst != nil {
+				mux.HandleFunc("POST /v1/adcvd/check", a.limit(light, a.adcvdCheck)) // with the scope reader: model questions per part, metered (D942, D959)
 			} else {
 				mux.HandleFunc("POST /v1/adcvd/check", a.cheap(a.adcvdCheck)) // parts that may be under an AD/CVD order, no model (D939)
 			}
