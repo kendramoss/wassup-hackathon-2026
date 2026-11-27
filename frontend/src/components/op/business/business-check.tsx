@@ -4,8 +4,11 @@
 // a product", option A). Two short steps in plain words: the product and
 // the country it is imported into, then the main parts and where it is put
 // together. "Check my product" runs the same predict as the full form
-// (/cases/new) and opens the answer. The full form stays one link away for
-// anything more (families, dates, BOM files, plants).
+// (/cases/new) and opens the answer. A parts list file dropped beside the
+// form (CSV, Excel, PDF) fills it in with the same import as the full form,
+// and while the list is unchanged the check sends the whole imported product
+// (plants, steps, family, money), as the technical page does. The full form
+// stays one link away for anything more (dates, photos and scans, plants).
 //
 // The step lives in the URL (?step=2) and the draft in sessionStorage, so
 // Back returns to step 1 and a refresh keeps what was typed (#929). Focus
@@ -14,13 +17,14 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useId, useRef, useState, useSyncExternalStore, type FormEvent, type KeyboardEvent } from "react";
-import { streamPredict, type Component, type PredictRequest, type PredictStage } from "@/lib/api/client";
+import { streamPredict, type Component, type ImportResponse, type PredictRequest, type PredictStage } from "@/lib/api/client";
 import { predictBody } from "@/lib/product-facts-reconcile";
 import { isSigninRequired, canCreate } from "@/lib/roles";
 import { useWorkspaceRole } from "@/lib/use-role";
 import type { MarketCode } from "@/lib/market";
 import { allCountries, countryCodes } from "@/lib/countries";
 import { BusinessBar } from "./business-bar";
+import { BomDrop } from "./business-bom-drop";
 import "./business.css";
 
 // What each market gets today, in plain words (copy.market.summary).
@@ -71,7 +75,10 @@ const STAGES: { name: PredictStage["name"]; text: string }[] = [
 ];
 
 type Part = { name: string; country: string };
-type Draft = { name: string; market: MarketCode; parts: Part[]; assembly: string };
+// An imported parts list: what the file gave, and the table it filled in.
+// While the table still matches, the check sends the file's own product.
+type Bom = { file: string; product: ImportResponse["product"]; family: string; economics?: ImportResponse["economics"]; parts: Part[]; assembly: string };
+type Draft = { name: string; market: MarketCode; parts: Part[]; assembly: string; bom?: Bom | null };
 type Errors = Record<string, string>;
 const blank = (): Part => ({ name: "", country: "" });
 const today = () => new Date().toISOString().slice(0, 10);
@@ -86,11 +93,29 @@ function readDraft(): Draft | null {
       market: marketCodes.has(d.market) ? d.market : "us",
       parts: d.parts.slice(0, PARTS_MAX).map((p) => ({ name: String(p?.name ?? "").slice(0, PART_MAX), country: String(p?.country ?? "").slice(0, PART_MAX) })),
       assembly: typeof d.assembly === "string" ? d.assembly.slice(0, PART_MAX) : "",
+      bom: d.bom && Array.isArray(d.bom.product?.components) && Array.isArray(d.bom.parts) ? d.bom : null,
     };
   } catch {
     return null;
   }
 }
+// The table a parts list fills in: each component and its country, and
+// where it is put together (the plant that runs most of the steps).
+function fromImport(r: ImportResponse): { parts: Part[]; assembly: string } {
+  const p = r.product;
+  const parts = p.components.slice(0, PARTS_MAX).map((c) => ({ name: c.name.slice(0, PART_MAX), country: matchCountry(c.made_in) ?? c.made_in }));
+  const count = new Map<string, number>();
+  for (const o of p.operations ?? []) if (o.plant) count.set(o.plant, (count.get(o.plant) ?? 0) + 1);
+  const top = [...count].sort((a, b) => b[1] - a[1])[0]?.[0];
+  const country = p.plants?.find((x) => x.id === top)?.country ?? "";
+  return { parts, assembly: matchCountry(country) ?? country };
+}
+const sameTable = (a: { parts: Part[]; assembly: string }, b: { parts: Part[]; assembly: string }) => {
+  const key = (x: { parts: Part[]; assembly: string }) =>
+    JSON.stringify([x.parts.filter((p) => p.name.trim()).map((p) => [p.name.trim().toLowerCase(), matchCountry(p.country)]), matchCountry(x.assembly)]);
+  return key(a) === key(b);
+};
+
 const stepInUrl = (): 1 | 2 => (new URLSearchParams(window.location.search).get("step") === "2" ? 2 : 1);
 
 // The draft and the step exist only in the browser, so the form is drawn
@@ -119,6 +144,8 @@ function CheckForm({ draft, initialStep }: { draft: Draft | null; initialStep: 1
   const [market, setMarket] = useState<MarketCode>(draft?.market ?? "us");
   const [parts, setParts] = useState<Part[]>(draft?.parts.length ? draft.parts : [blank(), blank(), blank()]);
   const [assembly, setAssembly] = useState(draft?.assembly ?? "");
+  const [bom, setBom] = useState<Bom | null>(draft?.bom ?? null);
+  const fromFile = bom !== null && sameTable(bom, { parts, assembly });
   const [busy, setBusy] = useState(false);
   const [stages, setStages] = useState<PredictStage[]>([]);
   const [since, setSince] = useState(0);
@@ -147,11 +174,11 @@ function CheckForm({ draft, initialStep }: { draft: Draft | null; initialStep: 1
 
   useEffect(() => {
     try {
-      sessionStorage.setItem(DRAFT_KEY, JSON.stringify({ name, market, parts, assembly } satisfies Draft));
+      sessionStorage.setItem(DRAFT_KEY, JSON.stringify({ name, market, parts, assembly, bom } satisfies Draft));
     } catch {
       /* private mode or full: the draft just isn't kept */
     }
-  }, [name, market, parts, assembly]);
+  }, [name, market, parts, assembly, bom]);
 
   // Focus the new step's heading after the user changes step (#928), not on
   // first load.
@@ -168,6 +195,20 @@ function CheckForm({ draft, initialStep }: { draft: Draft | null; initialStep: 1
     if (s === 2) window.history.pushState(null, "", `${window.location.pathname}?step=2`);
     else if (stepInUrl() === 2) window.history.back();
     setStep(s);
+  };
+
+  // A parts list fills in the name (unless one was typed), the parts and the
+  // assembly country, then shows them on step 2 to check.
+  const imported = (r: ImportResponse, file: string) => {
+    const t = fromImport(r);
+    const n = name.trim() || r.product.name.slice(0, NAME_MAX);
+    setName(n);
+    setParts(t.parts.length ? t.parts : [blank()]);
+    setAssembly(t.assembly);
+    setBom({ file, product: r.product, family: r.family, economics: r.economics, ...t });
+    setErrors({});
+    setProblem(null);
+    if (step === 1 && n.trim()) goTo(2);
   };
 
   const focusField = (fid: string) => {
@@ -229,17 +270,23 @@ function CheckForm({ draft, initialStep }: { draft: Draft | null; initialStep: 1
     setBusy(true);
     // The assembly country becomes one plant with one final assembly step,
     // so the engine reads it as a structured fact, as from the full form.
+    // An unchanged parts list goes as the file gave it, with its money, as
+    // from the full form. An edited one goes as the table, still with the
+    // file's family and tariff code (as the full form keeps them after edits).
     const components: Component[] = parts
       .filter((p) => p.name.trim())
       .map((p) => ({ name: p.name.trim(), made_in: matchCountry(p.country)! }));
-    const product = {
-      name: name.trim(),
-      plants: [{ id: "assembly", name: "Assembly plant", country: matchCountry(assembly)! }],
-      components,
-      operations: [{ name: "Final assembly", plant: "assembly" }],
-    };
+    const product = fromFile
+      ? { ...bom.product, name: name.trim() }
+      : {
+          name: name.trim(),
+          plants: [{ id: "assembly", name: "Assembly plant", country: matchCountry(assembly)! }],
+          components,
+          operations: [{ name: "Final assembly", plant: "assembly" }],
+        };
     const body: PredictRequest = {
-      ...predictBody({ date: today(), tab: "parts", name, hts: "", family: "", facts: "", product, extra: {} }),
+      ...predictBody({ date: today(), tab: "parts", name, hts: bom?.product.hts ?? "", family: bom?.family ?? "", facts: "", product, extra: {} }),
+      economics: fromFile && market === "us" ? bom.economics : undefined,
       jurisdiction: market,
     };
     try {
@@ -318,6 +365,7 @@ function CheckForm({ draft, initialStep }: { draft: Draft | null; initialStep: 1
         </datalist>
 
         {step === 1 ? (
+          <div className="biz-check-row">
           <div className="biz-check-col">
             <div className="biz-check-head">
               <p className="biz-eyebrow">
@@ -378,6 +426,10 @@ function CheckForm({ draft, initialStep }: { draft: Draft | null; initialStep: 1
               </div>
             </form>
           </div>
+          <div className="biz-side">
+            <BomDrop name={name} onImported={imported} />
+          </div>
+          </div>
         ) : (
           <div className="biz-check-row">
             <div className="biz-check-col">
@@ -394,6 +446,13 @@ function CheckForm({ draft, initialStep }: { draft: Draft | null; initialStep: 1
                 <CheckProgress stages={stages} since={since} parts={parts.filter((p) => p.name.trim())} />
               ) : (
                 <form className="biz-form" onSubmit={check} noValidate aria-busy={busy}>
+                  {bom && (
+                    <p role="status" className="biz-filled">
+                      {fromFile
+                        ? `Filled in from ${bom.file}: ${bom.parts.length} parts. Check them and change anything. The check uses the whole file, with its plants and steps.`
+                        : `You changed the list from ${bom.file}, so the check uses this table, not the file.`}
+                    </p>
+                  )}
                   <table className="biz-ptable">
                     <thead>
                       <tr>
@@ -435,9 +494,7 @@ function CheckForm({ draft, initialStep }: { draft: Draft | null; initialStep: 1
                     ) : (
                       <span className="biz-help">{PARTS_MAX} parts is the most here. For a longer list, use the full form.</span>
                     )}
-                    <span className="biz-help">
-                      Have a parts list file (Excel, CSV, PDF or a photo)? <Link href="/cases/new?via=business" className="biz-link">Upload it in the full form</Link>.
-                    </span>
+                    <span className="biz-help">Or drop a parts list file on the right.</span>
                   </div>
                   <div className="biz-field">
                     <label htmlFor={`${id}-assembly`}>Where is the product put together?</label>
@@ -466,6 +523,8 @@ function CheckForm({ draft, initialStep }: { draft: Draft | null; initialStep: 1
                 </form>
               )}
             </div>
+            <div className="biz-side">
+            {!busy && <BomDrop name={name} onImported={imported} />}
             {busy ? (
               <aside aria-label="Your answer, loading" aria-busy="true" className="biz-next biz-skel">
                 <h2>Your likely answer</h2>
@@ -489,6 +548,7 @@ function CheckForm({ draft, initialStep }: { draft: Draft | null; initialStep: 1
                 <p>An estimate. A customs broker confirms it.</p>
               </aside>
             )}
+            </div>
           </div>
         )}
       </main>
