@@ -352,12 +352,12 @@ function CheckForm({ draft, initialStep }: { draft: Draft | null; initialStep: 1
                 </div>
                 <p className="biz-help">
                   Selling in Japan? Japan checks need a trade agreement and a tariff code, so they use the{" "}
-                  <Link href="/cases/new" className="biz-link">full form</Link>.
+                  <Link href="/cases/new?via=business" className="biz-link">full form</Link>.
                 </p>
               </fieldset>
               <div className="biz-form-actions">
                 <button type="submit" className="biz-btn accent">Next: your parts</button>
-                <Link href="/cases/new" className="biz-link biz-push">Use the full form instead</Link>
+                <Link href="/cases/new?via=business" className="biz-link biz-push">Use the full form instead</Link>
               </div>
             </form>
           </div>
@@ -414,7 +414,7 @@ function CheckForm({ draft, initialStep }: { draft: Draft | null; initialStep: 1
                     <span className="biz-help">{PARTS_MAX} parts is the most here. For a longer list, use the full form.</span>
                   )}
                   <span className="biz-help">
-                    Have a parts list file (Excel, CSV, PDF or a photo)? <Link href="/cases/new" className="biz-link">Upload it in the full form</Link>.
+                    Have a parts list file (Excel, CSV, PDF or a photo)? <Link href="/cases/new?via=business" className="biz-link">Upload it in the full form</Link>.
                   </span>
                 </div>
                 <div className="biz-field">

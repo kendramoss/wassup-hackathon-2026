@@ -219,3 +219,13 @@
 .biz-switch::before { content: ""; position: absolute; inset: -12px -6px; }
 .biz-link { display: inline-flex; align-items: center; min-height: 44px; }
 .biz-help .biz-link, p .biz-link { display: inline; min-height: 0; }
+
+/* The business bar on its own, above the full form (/cases/new?via=business):
+   the variables and type it gets from .biz on the business pages. */
+.biz-barwrap {
+  --hair: rgba(19, 33, 58, 0.08);
+  --hair-soft: rgba(19, 33, 58, 0.06);
+  --ease: cubic-bezier(0.22, 1, 0.36, 1);
+  font-family: var(--font-instrument), system-ui, sans-serif;
+  color: var(--ink);
+}

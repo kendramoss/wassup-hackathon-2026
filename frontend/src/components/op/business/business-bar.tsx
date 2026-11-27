@@ -8,6 +8,7 @@ import { ViewTransition } from "react";
 import { LogoMark } from "../logo";
 import { SignIn, useSignedIn } from "../sign-in";
 import { ViewToggle } from "../view-toggle";
+import "./business.css";
 
 export function BusinessBar() {
   // Signed out, /cases shows only the examples, so the link says so (#894).
