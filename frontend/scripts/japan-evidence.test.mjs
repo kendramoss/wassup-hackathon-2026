@@ -84,10 +84,10 @@ test("textile rules figures match the committed results", async () => {
   assert.equal(t.inScope, sum("n") - sum("out_of_scope"));
   assert.equal(t.decided, sum("decided"));
   assert.equal(t.agreed, sum("agree_cbp"));
-  assert.equal(t.pct, `${one((100 * t.agreed) / t.decided)}%`);
+  assert.equal(t.pct, `${one(t.agreed / t.decided)}%`);
   const n = t.decided, p = t.agreed / n, z = 1.959964;
   const d = 1 + (z * z) / n, c = p + (z * z) / (2 * n), a = z * Math.sqrt((p * (1 - p)) / n + (z * z) / (4 * n * n));
-  assert.equal(t.interval, `${one((100 * (c - a)) / d)}–${one((100 * (c + a)) / d)}`);
+  assert.equal(t.interval, `${one((c - a) / d)}–${one((c + a) / d)}`);
 });
 
 test("AD/CVD figures match the committed results", async () => {
