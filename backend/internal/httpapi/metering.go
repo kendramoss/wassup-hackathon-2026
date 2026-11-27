@@ -18,13 +18,14 @@ import (
 
 // Workspace metering and budgets (#886, USAGE_METERING). With Deps.Metering
 // set and teams on, every model-calling request of a signed-in workspace
-// member is charged to the workspace: each prediction, each plan search and
-// the model spend of every call made for it, per UTC month. A workspace admin
+// member or role-scoped workspace key is charged to the workspace: each
+// prediction, each plan search and the model spend of every call made for it,
+// per UTC month. A workspace admin
 // may set a monthly budget; a budget with a hard cap refuses model-calling
 // requests once the month's spend reaches it (402 workspace_budget_reached)
 // and a plan search whose estimate (D87) would pass it. Requests without a
-// workspace (anonymous, API keys, the admin token) are not metered here; the
-// daily spend cap (D59) still applies to them.
+// workspace (anonymous, standalone or role-less keys, the admin token) are not
+// metered here; the daily spend cap (D59) still applies to them.
 
 // meterAdd charges d to the request's workspace; a no-op with metering off.
 func (a *api) meterAdd(ctx context.Context, d metering.Delta) {
@@ -41,7 +42,7 @@ func (a *api) meterGate(w http.ResponseWriter, r *http.Request) (*http.Request, 
 	if a.d.Metering == nil {
 		return r, true
 	}
-	ws := identityOf(r.Context()).workspace
+	ws, _ := a.principalOf(r).wsScope()
 	if ws == "" {
 		return r, true
 	}
@@ -109,7 +110,7 @@ func (a *api) planBudgetCheck(w http.ResponseWriter, r *http.Request, req planne
 // workspace has left and whether the estimate fits; nil without metering, a
 // workspace or a budget.
 func (a *api) estimateBudget(r *http.Request, e planner.Estimate) map[string]any {
-	ws := identityOf(r.Context()).workspace
+	ws, _ := a.principalOf(r).wsScope()
 	if a.d.Metering == nil || ws == "" {
 		return nil
 	}
