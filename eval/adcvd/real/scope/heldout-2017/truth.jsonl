@@ -1,0 +1,94 @@
+{"id": "2018-12143-1", "positive": true, "truth_groups": ["A-552-818 C-552-819"], "source": "commerce_ruling"}
+{"id": "2018-12143-10", "positive": false, "truth_groups": [], "source": "commerce_ruling"}
+{"id": "2018-12143-11", "positive": false, "truth_groups": [], "source": "commerce_ruling"}
+{"id": "2018-12143-12", "positive": false, "truth_groups": [], "source": "commerce_ruling"}
+{"id": "2018-12143-2", "positive": false, "truth_groups": [], "source": "commerce_ruling"}
+{"id": "2018-12143-3", "positive": true, "truth_groups": ["A-570-881"], "source": "commerce_ruling"}
+{"id": "2018-12143-4", "positive": false, "truth_groups": [], "source": "commerce_ruling"}
+{"id": "2018-12143-5", "positive": false, "truth_groups": [], "source": "commerce_ruling"}
+{"id": "2018-12143-6", "positive": false, "truth_groups": [], "source": "commerce_ruling"}
+{"id": "2018-12143-7", "positive": false, "truth_groups": [], "source": "commerce_ruling"}
+{"id": "2018-12143-8", "positive": false, "truth_groups": [], "source": "commerce_ruling"}
+{"id": "2018-12143-9", "positive": true, "truth_groups": ["A-570-970 C-570-971"], "source": "commerce_ruling"}
+{"id": "2018-14620-1", "positive": false, "truth_groups": [], "source": "commerce_ruling"}
+{"id": "2018-14620-10", "positive": true, "truth_groups": ["A-570-967 C-570-968"], "source": "commerce_ruling"}
+{"id": "2018-14620-11", "positive": false, "truth_groups": [], "source": "commerce_ruling"}
+{"id": "2018-14620-12", "positive": false, "truth_groups": [], "source": "commerce_ruling"}
+{"id": "2018-14620-13", "positive": true, "truth_groups": ["A-570-910 C-570-911"], "source": "commerce_ruling"}
+{"id": "2018-14620-15", "positive": true, "truth_groups": ["A-570-891"], "source": "commerce_ruling"}
+{"id": "2018-14620-16", "positive": true, "truth_groups": ["A-570-914 C-570-915"], "source": "commerce_ruling"}
+{"id": "2018-14620-17", "positive": false, "truth_groups": [], "source": "commerce_ruling"}
+{"id": "2018-14620-18", "positive": true, "truth_groups": ["A-570-875"], "source": "commerce_ruling"}
+{"id": "2018-14620-19", "positive": false, "truth_groups": [], "source": "commerce_ruling"}
+{"id": "2018-14620-2", "positive": true, "truth_groups": ["A-552-818 C-552-819"], "source": "commerce_ruling"}
+{"id": "2018-14620-20", "positive": false, "truth_groups": [], "source": "commerce_ruling"}
+{"id": "2018-14620-21", "positive": false, "truth_groups": [], "source": "commerce_ruling"}
+{"id": "2018-14620-3", "positive": false, "truth_groups": [], "source": "commerce_ruling"}
+{"id": "2018-14620-4", "positive": false, "truth_groups": [], "source": "commerce_ruling"}
+{"id": "2018-14620-5", "positive": false, "truth_groups": [], "source": "commerce_ruling"}
+{"id": "2018-14620-6", "positive": false, "truth_groups": [], "source": "commerce_ruling"}
+{"id": "2018-14620-7", "positive": false, "truth_groups": [], "source": "commerce_ruling"}
+{"id": "2018-14620-9", "positive": true, "truth_groups": ["A-570-967 C-570-968"], "source": "commerce_ruling"}
+{"id": "2019-04752-1", "positive": false, "truth_groups": [], "source": "commerce_ruling"}
+{"id": "2019-04752-10", "positive": false, "truth_groups": [], "source": "commerce_ruling"}
+{"id": "2019-04752-12", "positive": true, "truth_groups": ["A-570-909"], "source": "commerce_ruling"}
+{"id": "2019-04752-13", "positive": true, "truth_groups": ["A-570-932"], "source": "commerce_ruling"}
+{"id": "2019-04752-14", "positive": true, "truth_groups": ["A-570-890"], "source": "commerce_ruling"}
+{"id": "2019-04752-15", "positive": true, "truth_groups": ["A-570-967 C-570-968"], "source": "commerce_ruling"}
+{"id": "2019-04752-16", "positive": true, "truth_groups": ["A-570-967 C-570-968"], "source": "commerce_ruling"}
+{"id": "2019-04752-17", "positive": true, "truth_groups": ["A-570-967 C-570-968"], "source": "commerce_ruling"}
+{"id": "2019-04752-2", "positive": false, "truth_groups": [], "source": "commerce_ruling"}
+{"id": "2019-04752-3", "positive": false, "truth_groups": [], "source": "commerce_ruling"}
+{"id": "2019-04752-4", "positive": false, "truth_groups": [], "source": "commerce_ruling"}
+{"id": "2019-04752-5", "positive": false, "truth_groups": [], "source": "commerce_ruling"}
+{"id": "2019-04752-6", "positive": false, "truth_groups": [], "source": "commerce_ruling"}
+{"id": "2019-04752-7", "positive": true, "truth_groups": ["A-570-875"], "source": "commerce_ruling"}
+{"id": "2019-04752-8", "positive": false, "truth_groups": [], "source": "commerce_ruling"}
+{"id": "2019-04752-9", "positive": false, "truth_groups": [], "source": "commerce_ruling"}
+{"id": "2019-05958-1", "positive": false, "truth_groups": [], "source": "commerce_ruling"}
+{"id": "2019-05958-2", "positive": false, "truth_groups": [], "source": "commerce_ruling"}
+{"id": "2019-05958-3", "positive": false, "truth_groups": [], "source": "commerce_ruling"}
+{"id": "2019-05958-4", "positive": true, "truth_groups": ["A-570-822"], "source": "commerce_ruling"}
+{"id": "2019-05958-5", "positive": true, "truth_groups": ["A-570-901"], "source": "commerce_ruling"}
+{"id": "2019-05958-6", "positive": true, "truth_groups": ["A-570-909"], "source": "commerce_ruling"}
+{"id": "2019-05958-7", "positive": true, "truth_groups": ["A-570-909"], "source": "commerce_ruling"}
+{"id": "2019-05958-8", "positive": false, "truth_groups": [], "source": "commerce_ruling"}
+{"id": "2019-14954-1", "positive": true, "truth_groups": ["A-580-878 C-580-879"], "source": "commerce_ruling"}
+{"id": "2019-14954-10", "positive": false, "truth_groups": [], "source": "commerce_ruling"}
+{"id": "2019-14954-11", "positive": true, "truth_groups": ["A-570-922 C-570-923"], "source": "commerce_ruling"}
+{"id": "2019-14954-2", "positive": false, "truth_groups": [], "source": "commerce_ruling"}
+{"id": "2019-14954-3", "positive": false, "truth_groups": [], "source": "commerce_ruling"}
+{"id": "2019-14954-4", "positive": false, "truth_groups": [], "source": "commerce_ruling"}
+{"id": "2019-14954-5", "positive": false, "truth_groups": [], "source": "commerce_ruling"}
+{"id": "2019-14954-6", "positive": true, "truth_groups": ["A-570-956 C-570-957"], "source": "commerce_ruling"}
+{"id": "2019-14954-7", "positive": true, "truth_groups": ["A-570-909"], "source": "commerce_ruling"}
+{"id": "2019-14954-8", "positive": true, "truth_groups": ["A-570-026 C-570-027"], "source": "commerce_ruling"}
+{"id": "2019-14954-9", "positive": false, "truth_groups": [], "source": "commerce_ruling"}
+{"id": "2019-16039-10", "positive": false, "truth_groups": [], "source": "commerce_ruling"}
+{"id": "2019-16039-11", "positive": true, "truth_groups": ["A-570-029 C-570-030"], "source": "commerce_ruling"}
+{"id": "2019-16039-12", "positive": true, "truth_groups": ["A-570-026 C-570-027"], "source": "commerce_ruling"}
+{"id": "2019-16039-2", "positive": false, "truth_groups": [], "source": "commerce_ruling"}
+{"id": "2019-16039-3", "positive": true, "truth_groups": ["C-570-057"], "source": "commerce_ruling"}
+{"id": "2019-16039-4", "positive": false, "truth_groups": [], "source": "commerce_ruling"}
+{"id": "2019-16039-6", "positive": true, "truth_groups": ["A-570-914 C-570-915"], "source": "commerce_ruling"}
+{"id": "2019-16039-7", "positive": false, "truth_groups": [], "source": "commerce_ruling"}
+{"id": "2019-16039-8", "positive": false, "truth_groups": [], "source": "commerce_ruling"}
+{"id": "2019-16039-9", "positive": false, "truth_groups": [], "source": "commerce_ruling"}
+{"id": "2019-18369-1", "positive": true, "truth_groups": ["A-122-857 C-122-858"], "source": "commerce_ruling"}
+{"id": "2019-18369-10", "positive": true, "truth_groups": ["A-570-029 C-570-030"], "source": "commerce_ruling"}
+{"id": "2019-18369-2", "positive": true, "truth_groups": ["A-122-857 C-122-858"], "source": "commerce_ruling"}
+{"id": "2019-18369-4", "positive": true, "truth_groups": ["A-570-814"], "source": "commerce_ruling"}
+{"id": "2019-18369-5", "positive": true, "truth_groups": ["A-570-051 C-570-052"], "source": "commerce_ruling"}
+{"id": "2019-18369-6", "positive": false, "truth_groups": [], "source": "commerce_ruling"}
+{"id": "2019-18369-7", "positive": false, "truth_groups": [], "source": "commerce_ruling"}
+{"id": "2019-18369-9", "positive": false, "truth_groups": [], "source": "commerce_ruling"}
+{"id": "2019-20817-1", "positive": true, "truth_groups": ["A-570-967 C-570-968"], "source": "commerce_ruling"}
+{"id": "2019-20817-10", "positive": false, "truth_groups": [], "source": "commerce_ruling"}
+{"id": "2019-20817-11", "positive": false, "truth_groups": [], "source": "commerce_ruling"}
+{"id": "2019-20817-2", "positive": false, "truth_groups": [], "source": "commerce_ruling"}
+{"id": "2019-20817-3", "positive": true, "truth_groups": ["A-570-814"], "source": "commerce_ruling"}
+{"id": "2019-20817-4", "positive": false, "truth_groups": [], "source": "commerce_ruling"}
+{"id": "2019-20817-5", "positive": false, "truth_groups": [], "source": "commerce_ruling"}
+{"id": "2019-20817-6", "positive": false, "truth_groups": [], "source": "commerce_ruling"}
+{"id": "2019-20817-7", "positive": true, "truth_groups": ["A-570-900"], "source": "commerce_ruling"}
+{"id": "2019-20817-8", "positive": false, "truth_groups": [], "source": "commerce_ruling"}
