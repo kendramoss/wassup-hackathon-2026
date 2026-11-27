@@ -46,6 +46,12 @@ type Match struct {
 	// ListedHTS are the listed codes the part's code agrees with.
 	ListedHTS []string `json:"listed_hts_matched"`
 	Source    *Source  `json:"scope_notice,omitempty"`
+	// Reading, ScopeClause and Why are set by the scope-first check: the
+	// reader's answer ("in", or "unclear" when it leaned in), the sentence of
+	// the written scope it relied on and, for "unclear", its reason.
+	Reading     string `json:"reading,omitempty"`
+	ScopeClause string `json:"scope_clause,omitempty"`
+	Why         string `json:"why,omitempty"`
 }
 
 // PartResult is the screen of one part.
@@ -56,6 +62,9 @@ type PartResult struct {
 	Status  string  `json:"status"`
 	Reason  string  `json:"reason"`
 	Matches []Match `json:"matches,omitempty"`
+	// Review lists, for a scope-first check, the orders the reader could not
+	// settle and leaned away from: not flags, a person must check them.
+	Review []Match `json:"review,omitempty"`
 }
 
 // Result is the screen of all parts.

@@ -64,34 +64,14 @@ func readQueries(path string) ([]Query, error) {
 	return out, sc.Err()
 }
 
-// Pool returns the pairs of one query: the top k of the retrieval and the plain check's matches.
+// Pool returns the pairs of one query: the top k of the retrieval and the plain check's matches (adcvd.Table.Pool).
 func Pool(t *adcvd.Table, q Query, k int) []Pair {
-	seen := map[string]int{}
 	var out []Pair
-	add := func(c adcvd.Candidate, rank int, htsMatch bool) {
-		id := strings.Join(c.Cases, " ")
-		if i, ok := seen[id]; ok {
-			if htsMatch {
-				out[i].HTSMatch = true
-			}
-			return
-		}
-		seen[id] = len(out)
+	for _, e := range t.Pool(adcvd.Query{Description: q.Description, Country: q.Origin, HTS: q.HTS}, k) {
 		out = append(out, Pair{
-			Key: adcvd.PairKey(adcvd.Order{Product: c.Product, Country: c.Country, ScopeText: c.Scope}, q.Description),
-			ID:  q.ID, Cases: c.Cases, Product: c.Product, Country: c.Country, Description: q.Description, ScopeText: c.Scope, Rank: rank, HTSMatch: htsMatch,
+			Key: adcvd.PairKey(adcvd.Order{Product: e.Product, Country: e.Country, ScopeText: e.Scope}, q.Description),
+			ID:  q.ID, Cases: e.Cases, Product: e.Product, Country: e.Country, Description: q.Description, ScopeText: e.Scope, Rank: e.Rank, HTSMatch: e.HTSMatch,
 		})
-	}
-	for i, c := range t.Candidates(adcvd.Query{Description: q.Description, Country: q.Origin, HTS: q.HTS}, k) {
-		add(c, i+1, false)
-	}
-	res := t.Check(adcvd.Input{Parts: []adcvd.Part{{HTS: q.HTS, Origin: q.Origin}}})
-	if len(res.Parts) == 1 {
-		for _, m := range res.Parts[0].Matches {
-			if g, ok := t.GroupOf(m.Cases); ok {
-				add(g, 0, true)
-			}
-		}
 	}
 	return out
 }

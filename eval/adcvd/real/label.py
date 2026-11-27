@@ -126,7 +126,8 @@ def clip_scope(s, n=24000):
     return s if len(s) <= n else s[:n] + "\n[scope text continues]"
 
 
-def run(pairs, facts, out, model, workers, only, adjudicate):
+def run(pairs, facts, out, model, workers, only, adjudicate, version=None):
+    version = version or VERSION
     base, key = os.environ["LITELLM_BASE_URL"].rstrip("/"), os.environ["LITELLM_API_KEY"]
     fx = {}
     for l in open(facts):
@@ -149,7 +150,7 @@ def run(pairs, facts, out, model, workers, only, adjudicate):
     keys = None
     if only:
         keys = {(json.loads(l)["key"], json.loads(l)["id"]) for l in open(only)}
-    todo = [p for p in rows if (keys is None or (p["key"], p["id"]) in keys) and (p["key"], p["id"], model, VERSION) not in have]
+    todo = [p for p in rows if (keys is None or (p["key"], p["id"]) in keys) and (p["key"], p["id"], model, version) not in have]
     tok = {"prompt": 0, "completion": 0, "calls": 0}
 
     def one(p):
@@ -164,7 +165,7 @@ def run(pairs, facts, out, model, workers, only, adjudicate):
         v = str(a.get("verdict", "")).strip().lower()
         if v not in ("in", "out", "unclear"):
             v = "unclear"
-        return {"key": p["key"], "id": p["id"], "model": model, "prompt_version": VERSION, "verdict": v, "reason": str(a.get("reason", ""))[:400], "quote": str(a.get("quote", ""))[:400]}, u
+        return {"key": p["key"], "id": p["id"], "model": model, "prompt_version": version, "verdict": v, "reason": str(a.get("reason", ""))[:400], "quote": str(a.get("quote", ""))[:400]}, u
 
     if adjudicate:
         ans = {}
@@ -198,6 +199,7 @@ if __name__ == "__main__":
     r.add_argument("--model", required=True)
     r.add_argument("--workers", type=int, default=8)
     r.add_argument("--only", default=None)
+    r.add_argument("--version", default=None, help="prompt_version recorded and used as the cache key (default adcvd-real-label-v1)")
     r.add_argument("--adjudicate", default=None, help="MODEL_A,MODEL_B: show the two earlier answers; answers are read from OUT")
     sc = sub.add_parser("screen")
     sc.add_argument("pairs")
@@ -210,4 +212,4 @@ if __name__ == "__main__":
     if a.cmd == "screen":
         screen(a.pairs, a.facts, a.out, a.model, a.workers, a.no_facts)
     else:
-        run(a.pairs, a.facts, a.out, a.model, a.workers, a.only, a.adjudicate)
+        run(a.pairs, a.facts, a.out, a.model, a.workers, a.only, a.adjudicate, a.version)

@@ -248,6 +248,11 @@ type Deps struct {
 	// listed order's written scope against the part's name in POST
 	// /v1/adcvd/check (D942, D943). The case view keeps the plain match.
 	ADCVDReader adcvd.Reader
+	// ADCVDScopeFirst, when set (ADCVD_SCOPE_READER=on), is the scope-first
+	// check of D959 for POST /v1/adcvd/check and the case view: a model
+	// screen and a reader over each order's whole written scope instead of
+	// the HTS-and-country match. It takes the place of ADCVDReader.
+	ADCVDScopeFirst *adcvd.ScopeFirst
 	// CaseOwnership limits each visitor to the pinned demos and their own
 	// cases (X-Visitor-ID from the frontend proxy; D58). Off by default.
 	CaseOwnership bool
