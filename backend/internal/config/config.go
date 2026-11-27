@@ -185,6 +185,9 @@ type Config struct {
 	// RateReviewPerMin caps the broker review routes (a review link's
 	// token) per client a minute; 0 disables it (D200).
 	RateReviewPerMin int
+	// RateDeclarationPerMin caps the supplier declaration routes (a
+	// declaration link's token) per client a minute; 0 disables it (#916).
+	RateDeclarationPerMin int
 	// DailySpendClientShare is the share of DailySpendCapUSD one client (API
 	// key or address) may spend in a UTC day; 0 disables the per-client cap
 	// (D137).
@@ -266,6 +269,11 @@ type Config struct {
 	// AdminConsole (on|off, default off) serves the workspace admin's
 	// settings overview (#870). It needs Teams.
 	AdminConsole bool
+	// SupplierDeclarations (on|off, default off) serves supplier origin
+	// declarations (#916): an expiring, revocable link per request, the
+	// answers on the case's parts, and the declared origin as a sourced fact.
+	// It needs Teams.
+	SupplierDeclarations bool
 	// APIKeys (on|off, default off) accepts X-API-Key from brokers: the
 	// admin issues keys with a daily request quota, each key gets its own
 	// rate-limit buckets and owns its cases (D69). Keys are kept in Firestore
@@ -448,6 +456,7 @@ func FromEnv(getenv func(string) string) (Config, error) {
 		RateMaxInFlight:        e.integer("RATE_MAX_IN_FLIGHT", 4),
 		RateAuthFailuresPerMin: e.integer("RATE_AUTH_FAILURES_PER_MIN", 10),
 		RateReviewPerMin:       e.integer("RATE_REVIEW_PER_MIN", 30),
+		RateDeclarationPerMin:  e.integer("RATE_DECLARATION_PER_MIN", 30),
 		CasesListLimit:         e.integer("CASES_LIST_LIMIT", 200),
 		BOMVersions:            strings.ToLower(e.str("BOM_VERSIONS", "off")),
 		BrokerWorkflow:         strings.ToLower(e.str("BROKER_WORKFLOW", "off")),
@@ -568,6 +577,13 @@ func FromEnv(getenv func(string) string) (Config, error) {
 	case "off", "false", "0":
 	default:
 		e.errs = append(e.errs, fmt.Errorf("ADMIN_CONSOLE must be on or off, got %q", v))
+	}
+	switch v := strings.ToLower(e.str("SUPPLIER_DECLARATIONS", "off")); v {
+	case "on", "true", "1":
+		c.SupplierDeclarations = true
+	case "off", "false", "0":
+	default:
+		e.errs = append(e.errs, fmt.Errorf("SUPPLIER_DECLARATIONS must be on or off, got %q", v))
 	}
 	switch v := strings.ToLower(e.str("API_KEYS", "off")); v {
 	case "on", "true", "1":
@@ -867,7 +883,7 @@ func (c Config) validate() error {
 	if c.PharmaFastPath < 0 || c.PharmaFastPath > 1 {
 		bad("PHARMA_FAST_PATH must be 0 (always review) or in (0, 1], got %v", c.PharmaFastPath)
 	}
-	for name, v := range map[string]int{"RATE_BASIC_PER_MIN": c.RateBasicPerMin, "RATE_MAX_IN_FLIGHT": c.RateMaxInFlight, "RATE_AUTH_FAILURES_PER_MIN": c.RateAuthFailuresPerMin, "RATE_REVIEW_PER_MIN": c.RateReviewPerMin, "RATE_LIGHT_PER_MIN": c.RateLightPerMin, "RATE_HEAVY_PER_MIN": c.RateHeavyPerMin, "RATE_GLOBAL_PER_MIN": c.RateGlobalPerMin, "RATE_LOOKUP_PER_MIN": c.RateLookupPerMin} {
+	for name, v := range map[string]int{"RATE_BASIC_PER_MIN": c.RateBasicPerMin, "RATE_MAX_IN_FLIGHT": c.RateMaxInFlight, "RATE_AUTH_FAILURES_PER_MIN": c.RateAuthFailuresPerMin, "RATE_REVIEW_PER_MIN": c.RateReviewPerMin, "RATE_DECLARATION_PER_MIN": c.RateDeclarationPerMin, "RATE_LIGHT_PER_MIN": c.RateLightPerMin, "RATE_HEAVY_PER_MIN": c.RateHeavyPerMin, "RATE_GLOBAL_PER_MIN": c.RateGlobalPerMin, "RATE_LOOKUP_PER_MIN": c.RateLookupPerMin} {
 		if v < 0 {
 			bad("%s must be 0 (off) or positive, got %d", name, v)
 		}
@@ -922,6 +938,9 @@ func (c Config) validate() error {
 		if c.SSOSessionTTL < 5*time.Minute || c.SSOSessionTTL > 24*time.Hour {
 			bad("SSO_SESSION_TTL must be between 5m and 24h, got %s", c.SSOSessionTTL)
 		}
+	}
+	if c.SupplierDeclarations && !c.Teams {
+		bad("SUPPLIER_DECLARATIONS=on needs TEAMS=on (a request is made by a case editor in a workspace)")
 	}
 	if c.Webhooks && !c.Teams {
 		bad("WEBHOOKS=on needs TEAMS=on (endpoints belong to a workspace, and its admin registers them)")

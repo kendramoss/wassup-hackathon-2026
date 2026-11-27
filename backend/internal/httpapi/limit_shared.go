@@ -71,6 +71,8 @@ func (s *sharedLimiter) counters(key string, c class, start time.Time) ([]rateli
 		bucket, perClient, weight = "basic", s.lim.BasicPerMin, 0
 	case review: // never sent here either (counted per instance)
 		bucket, perClient, weight = "review", s.lim.ReviewPerMin, 0
+	case declare: // never sent here either (counted per instance)
+		bucket, perClient, weight = "declare", s.lim.DeclarationPerMin, 0
 	}
 	win := start.Unix()
 	if perClient > 0 {
@@ -98,6 +100,8 @@ func (s *sharedLimiter) perClient(c class) int {
 		return s.lim.BasicPerMin
 	case review:
 		return s.lim.ReviewPerMin
+	case declare:
+		return s.lim.DeclarationPerMin
 	}
 	return s.lim.LightPerMin
 }
@@ -204,7 +208,7 @@ func (s *sharedLimiter) shouldLog(now time.Time) bool {
 // unlimited. The basic class is always counted here (D137): a store write
 // per read would cost more than the limit protects.
 func (a *api) rateCheck(r *http.Request, key string, c class) rateDecision {
-	if a.shared != nil && c != basic && c != review {
+	if a.shared != nil && c != basic && c != review && c != declare {
 		d, err := a.shared.decide(r.Context(), key, c)
 		if err == nil {
 			return d

@@ -865,3 +865,22 @@ func TestWebhooksConfig(t *testing.T) {
 		}
 	}
 }
+
+func TestSupplierDeclarationsConfig(t *testing.T) {
+	teams := map[string]string{"TEAMS": "on", "TEAMS_AUDIENCE": "1234-abc.apps.googleusercontent.com"}
+	if c, err := FromEnv(getenv(vertexEnv())); err != nil || c.SupplierDeclarations || c.RateDeclarationPerMin != 30 {
+		t.Errorf("default = %v %d %v, want off and 30 a minute", c.SupplierDeclarations, c.RateDeclarationPerMin, err)
+	}
+	if c, err := FromEnv(getenv(merge(vertexEnv(), merge(teams, map[string]string{"SUPPLIER_DECLARATIONS": "on", "RATE_DECLARATION_PER_MIN": "5"})))); err != nil || !c.SupplierDeclarations || c.RateDeclarationPerMin != 5 {
+		t.Errorf("on = %v %d %v", c.SupplierDeclarations, c.RateDeclarationPerMin, err)
+	}
+	for _, bad := range []map[string]string{
+		{"SUPPLIER_DECLARATIONS": "on"}, // no TEAMS
+		merge(teams, map[string]string{"SUPPLIER_DECLARATIONS": "maybe"}),
+		merge(teams, map[string]string{"SUPPLIER_DECLARATIONS": "on", "RATE_DECLARATION_PER_MIN": "-1"}),
+	} {
+		if _, err := FromEnv(getenv(merge(vertexEnv(), bad))); err == nil || !strings.Contains(err.Error(), "SUPPLIER_DECLARATIONS") && !strings.Contains(err.Error(), "RATE_DECLARATION_PER_MIN") {
+			t.Errorf("%v accepted: %v", bad, err)
+		}
+	}
+}

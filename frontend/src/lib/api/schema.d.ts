@@ -378,6 +378,130 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/v1/cases/{id}/supplier-declarations": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * The case's supplier requests and the declaration in effect for each part
+         * @description Requests newest first, and `parts`: for each part with a declaration, what the supplier declared beside the origin the case lists (`user_made_in`), whether they differ, and its status (`valid`, `expired`, `revoked`; a declaration for a part that has since changed is left out). Never returns a token or its hash. Also on GET /v1/cases/{id} as `supplier_declarations`. A workspace viewer may read.
+         */
+        get: operations["listSupplierRequests"];
+        put?: never;
+        /**
+         * Ask a supplier for the origin of some of the case's parts
+         * @description SUPPLIER_DECLARATIONS=on (needs TEAMS=on), D937, #916. Makes an expiring, revocable link for one supplier and the parts at the given positions of the case's parts list, modelled on the broker review link (createBrokerReviewLink). The token is returned once, in `token` and `declaration_path`; only its SHA-256 is stored. Nothing is sent to the supplier: the requester sends the link. `supplier_email` is optional, kept for the requester's records, never logged, never in the audit trail and never shown to the supplier. Expiry is `expires_in_days` (default 14, 1 to 60). At most 5 open requests and 20 kept per case (409 `conflict`). Refused (403) on a pinned demo and for a workspace viewer. With the audit trail on this is a sensitive write: no intent record, no link (503 `audit_unavailable`).
+         */
+        post: operations["createSupplierRequest"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/cases/{id}/supplier-declarations/{request}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        /**
+         * Revoke a supplier request
+         * @description The link answers 410 `link_revoked` from now on, and what the supplier declared through it stops counting (its parts show `revoked` and it no longer reaches the predict input). The record and the answers stay on the case. Revoking twice keeps the first time.
+         */
+        delete: operations["revokeSupplierRequest"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/cases/{id}/supplier-declarations/{request}/parts/{part}/document": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * The file a supplier attached to its newest answer for a part
+         * @description Sent as an attachment of the type its bytes were checked to be (PNG, JPEG, WebP or PDF), with `X-Content-Type-Options: nosniff`. 404 `declaration_not_found` when the request, the part or the file does not exist. 403 on a pinned demo. A workspace viewer may read.
+         */
+        get: operations["getSupplierDocument"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/supplier-declarations/expiring": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Supplier declarations on the caller's cases that run out soon
+         * @description SUPPLIER_DECLARATIONS=on. The declarations in effect that end within `days` (default 30, 1 to 365), soonest first; with `include_expired=true` also those that have already lapsed. Revoked ones and those for a part that has since changed are not listed. Like the review queue it lists the caller's own view of their cases.
+         */
+        get: operations["listExpiringSupplierDeclarations"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/supplier-declaration": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * The parts a supplier is asked about (the link token is the credential)
+         * @description D937. Send the link's token in `X-Declaration-Token`, never in the path or the query. Returns the supplier's own name, the parts asked about by name and the supplier's answers so far: no case id, no product, no other part, no origin the case lists, no email. The first read stamps `first_viewed_at`; every read is an audit `supplier.view` event in the case's tenant when the trail is on. A malformed or unknown token is 404 `not_found` and counts against the client's invalid-credential budget (429 `auth_rate_limited` past it); a revoked link is 410 `link_revoked`, a lapsed one 410 `link_expired`. Responses carry `X-Robots-Tag: noindex, nofollow`, `Referrer-Policy: no-referrer` and `Cache-Control: no-store`. Rate class `declaration` (30 a minute per client, counted per instance, `RATE_DECLARATION_PER_MIN`), separate from the broker's.
+         */
+        get: operations["getSupplierDeclarationRequest"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/supplier-declaration/parts/{part}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /**
+         * The supplier's declaration for one part
+         * @description D937. Token in `X-Declaration-Token`. Stores the answer on the case with when it was given; a later answer for the same part replaces it in effect and the earlier ones stay as history. Every field but `hts` and `document` is required. Text is plain, one line (control characters become spaces), and is never sent to a model. `valid_until` is the last day it holds: today to five years ahead. A document (optional, one, at most 128 KB) is checked by its bytes as an upload is: PNG, JPEG, WebP or an unprotected PDF of at most 10 pages; the name is only a label. 404 `part_not_found` for a part the link does not ask about. 409 `conflict` when the case's parts list changed under the link. 413 and 415 for an over-large or unsupported document, 503 when document storage is not configured. Errors as getSupplierDeclarationRequest. An answer is an audit `supplier.answer` event (intent and completion); none of its text reaches the trail.
+         */
+        put: operations["answerSupplierDeclaration"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/v1/queue": {
         parameters: {
             query?: never;
@@ -2610,7 +2734,7 @@ export interface components {
         };
         Error: {
             /** @enum {string} */
-            code: "invalid_input" | "not_found" | "model_unavailable" | "model_bad_response" | "out_of_scope" | "internal" | "rate_limited" | "too_many_in_flight" | "client_budget_reached" | "auth_rate_limited" | "forbidden" | "budget_reached" | "unauthenticated" | "conflict" | "unauthorized" | "quota_exceeded" | "audit_unavailable" | "review_not_found" | "link_revoked" | "link_expired" | "workspace_budget_reached" | "sso_not_configured" | "sso_failed" | "sso_other_workspace" | "sso_unavailable" | "sso_unverified" | "sso_domain_taken" | "sso_limit" | "scim_unverified_domain";
+            code: "invalid_input" | "not_found" | "model_unavailable" | "model_bad_response" | "out_of_scope" | "internal" | "rate_limited" | "too_many_in_flight" | "client_budget_reached" | "auth_rate_limited" | "forbidden" | "budget_reached" | "unauthenticated" | "conflict" | "unauthorized" | "quota_exceeded" | "audit_unavailable" | "review_not_found" | "declaration_not_found" | "part_not_found" | "link_revoked" | "link_expired" | "workspace_budget_reached" | "sso_not_configured" | "sso_failed" | "sso_other_workspace" | "sso_unavailable" | "sso_unverified" | "sso_domain_taken" | "sso_limit" | "scim_unverified_domain";
             message: string;
             details?: unknown;
         };
@@ -3631,6 +3755,7 @@ export interface components {
             facts_source?: "parts_list" | "pasted";
             rule_check?: components["schemas"]["RuleCheck"];
             origin_facts?: components["schemas"]["OriginFactsByMarket"];
+            supplier_declarations?: components["schemas"]["SupplierDeclarations"];
             family_intake?: components["schemas"]["FamilyIntake"];
             family_facts?: components["schemas"]["SuppliedFamilyFacts"];
             /** @description An EU or UK case's stored answer before supplied answers re-ran it (D815, D818); present only while that re-check is the newest stored prediction */
@@ -3655,7 +3780,7 @@ export interface components {
                 /** Format: date-time */
                 at?: string;
                 /** @enum {string} */
-                kind?: "predicted" | "answered" | "plan_searched" | "scenarios" | "targets_compared" | "watched" | "asked" | "exported" | "economics" | "pinned" | "unpinned" | "renamed" | "bom_updated" | "review_link_created" | "review_link_revoked" | "broker_decision";
+                kind?: "predicted" | "answered" | "plan_searched" | "scenarios" | "targets_compared" | "watched" | "asked" | "exported" | "economics" | "pinned" | "unpinned" | "renamed" | "bom_updated" | "review_link_created" | "review_link_revoked" | "broker_decision" | "supplier_request_created" | "supplier_request_revoked" | "supplier_answered";
                 summary?: string;
                 llm_provider?: string;
                 model_id?: string;
@@ -4190,6 +4315,112 @@ export interface components {
             decisions: components["schemas"]["BrokerReviewDecision"][];
             /** @description Count of final CBP changes, in effect now and dated on or after the day the link was shared, to the rulings the frozen draft cites or its plan rests on (#714). Derived on every read and never stored; present only when at least one, for every link that is not revoked (expired and approved ones included, whatever the broker can still open). Dates are date-only, so a change on the sharing day (UTC calendar date) counts. The current setup's ruling is not in the snapshot, so it is not covered. It says what CBP changed, not that an approval is invalid. */
             changed_since_shared?: number;
+        };
+        /** @description A supplier declaration request as its requester sees it (D937). Never carries the token or its hash. */
+        SupplierRequest: {
+            id: string;
+            /**
+             * @description revoked and expired win; otherwise answered when every part has an answer, partly_answered when some do, else viewed or pending.
+             * @enum {string}
+             */
+            status: "pending" | "viewed" | "partly_answered" | "answered" | "revoked" | "expired";
+            supplier_name: string;
+            /** @description As the requester typed it; never shown to the supplier, never logged. */
+            supplier_email?: string;
+            /** Format: date-time */
+            created_at: string;
+            /** @description The signed-in requester's email, when there was one. */
+            created_by?: string;
+            /** Format: date-time */
+            expires_at: string;
+            /** Format: date-time */
+            revoked_at?: string;
+            /** Format: date-time */
+            first_viewed_at?: string;
+            parts: {
+                index: number;
+                /** @description The part's name when it was asked about. */
+                name: string;
+            }[];
+            /** @description How many of the parts have an answer. */
+            answered: number;
+        };
+        /** @description One part's supplier declaration in effect, set beside the origin the case lists. Neither replaces the other (D937). */
+        SupplierDeclarationFact: {
+            part: string;
+            part_index: number;
+            /** @description The origin the case lists for the part (`made_in`), as normalised. */
+            user_made_in: string;
+            declared_origin: string;
+            hts?: string;
+            /** @description True when the declared origin is not the case's value. */
+            differs: boolean;
+            /**
+             * @description Only `valid` reaches the predict input.
+             * @enum {string}
+             */
+            status: "valid" | "expired" | "revoked";
+            /** @enum {string} */
+            source: "supplier-declared";
+            supplier: string;
+            request_id: string;
+            /** Format: date */
+            declared_on: string;
+            /** Format: date */
+            valid_until: string;
+            days_left: number;
+            /** @description The supplier's text. Plain text; never sent to a model. */
+            how_made: string;
+            signer_name: string;
+            signer_title: string;
+            document?: {
+                name: string;
+                /** @enum {string} */
+                mime_type: "image/png" | "image/jpeg" | "image/webp" | "application/pdf";
+                bytes: number;
+                pages?: number;
+            };
+        };
+        SupplierDeclarations: {
+            /** @description Newest first */
+            requests: components["schemas"]["SupplierRequest"][];
+            parts: components["schemas"]["SupplierDeclarationFact"][];
+        };
+        SupplierViewRequest: {
+            id: string;
+            /** @enum {string} */
+            status: "pending" | "viewed" | "partly_answered" | "answered";
+            supplier_name: string;
+            /** Format: date-time */
+            created_at: string;
+            /** Format: date-time */
+            expires_at: string;
+        };
+        /** @description One requested part as the supplier sees it. Nothing the case says about the part is shown. */
+        SupplierViewPart: {
+            index: number;
+            name: string;
+            answer?: {
+                origin: string;
+                hts?: string;
+                how_made: string;
+                document?: {
+                    name: string;
+                    mime_type: string;
+                    bytes: number;
+                    pages?: number;
+                };
+                signer_name: string;
+                signer_title: string;
+                /** Format: date */
+                valid_until: string;
+                /** Format: date-time */
+                answered_at: string;
+            };
+        };
+        SupplierView: {
+            request: components["schemas"]["SupplierViewRequest"];
+            parts: components["schemas"]["SupplierViewPart"][];
         };
         BrokerReviewForBroker: {
             id: string;
@@ -5323,6 +5554,274 @@ export interface operations {
             404: components["responses"]["Error"];
             409: components["responses"]["Error"];
             410: components["responses"]["Error"];
+            429: components["responses"]["TooManyRequests"];
+            503: components["responses"]["Error"];
+        };
+    };
+    listSupplierRequests: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: components["parameters"]["CaseID"];
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description The requests and the parts */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SupplierDeclarations"] & {
+                        case_id: string;
+                    };
+                };
+            };
+            401: components["responses"]["Error"];
+            404: components["responses"]["Error"];
+            429: components["responses"]["TooManyRequests"];
+        };
+    };
+    createSupplierRequest: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: components["parameters"]["CaseID"];
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": {
+                    supplier_name: string;
+                    supplier_email?: string;
+                    /** @description 0-based positions in the case's parts list (`product.components`), each once. */
+                    parts: number[];
+                    /** @default 14 */
+                    expires_in_days?: number;
+                };
+            };
+        };
+        responses: {
+            /** @description The request, and the link shown once */
+            201: {
+                headers: {
+                    "X-Audit-Incomplete": components["headers"]["AuditIncomplete"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        request: components["schemas"]["SupplierRequest"];
+                        /** @description The link's secret. Send as X-Declaration-Token on /v1/supplier-declaration. Not stored; shown only here. */
+                        token: string;
+                        /** @description The supplier page with the token as its URL fragment: /supplier-declaration#{token}. Browsers never send a fragment to a server. */
+                        declaration_path: string;
+                    };
+                };
+            };
+            400: components["responses"]["Error"];
+            401: components["responses"]["Error"];
+            403: components["responses"]["Error"];
+            404: components["responses"]["Error"];
+            409: components["responses"]["Error"];
+            429: components["responses"]["TooManyRequests"];
+            503: components["responses"]["Error"];
+        };
+    };
+    revokeSupplierRequest: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: components["parameters"]["CaseID"];
+                request: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description The revoked request */
+            200: {
+                headers: {
+                    "X-Audit-Incomplete": components["headers"]["AuditIncomplete"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        request: components["schemas"]["SupplierRequest"];
+                    };
+                };
+            };
+            401: components["responses"]["Error"];
+            403: components["responses"]["Error"];
+            /** @description `not_found` (no such case, or hidden) or `declaration_not_found` (the case has no request with that id) */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            429: components["responses"]["TooManyRequests"];
+        };
+    };
+    getSupplierDocument: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: components["parameters"]["CaseID"];
+                request: string;
+                part: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description The file */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "image/png": string;
+                    "image/jpeg": string;
+                    "image/webp": string;
+                    "application/pdf": string;
+                };
+            };
+            401: components["responses"]["Error"];
+            403: components["responses"]["Error"];
+            404: components["responses"]["Error"];
+            429: components["responses"]["TooManyRequests"];
+        };
+    };
+    listExpiringSupplierDeclarations: {
+        parameters: {
+            query?: {
+                days?: number;
+                include_expired?: boolean;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description The declarations */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        days: number;
+                        /** Format: date */
+                        as_of: string;
+                        items: {
+                            case_id: string;
+                            case_name: string;
+                            part: string;
+                            part_index: number;
+                            supplier: string;
+                            declared_origin: string;
+                            /** Format: date */
+                            valid_until: string;
+                            /** @description Whole days to the last valid day; 0 on that day, negative once past. */
+                            days_left: number;
+                            /** @enum {string} */
+                            status: "valid" | "expired";
+                        }[];
+                    };
+                };
+            };
+            400: components["responses"]["Error"];
+            401: components["responses"]["Error"];
+            429: components["responses"]["TooManyRequests"];
+        };
+    };
+    getSupplierDeclarationRequest: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description The request and its parts */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SupplierView"];
+                };
+            };
+            404: components["responses"]["Error"];
+            410: components["responses"]["Error"];
+            429: components["responses"]["TooManyRequests"];
+        };
+    };
+    answerSupplierDeclaration: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                part: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": {
+                    /** @description Country of origin. */
+                    origin: string;
+                    /**
+                     * @description The supplier's tariff code for the part (heading or subheading), optional.
+                     * @example 8501.10
+                     */
+                    hts?: string;
+                    /** @description Short text: how the part was made. */
+                    how_made: string;
+                    signer_name: string;
+                    signer_title: string;
+                    /** Format: date */
+                    valid_until: string;
+                    document?: {
+                        /** @description A label; path parts and quotes are dropped. */
+                        name: string;
+                        /** @description The file's bytes, standard base64. */
+                        content_base64: string;
+                    };
+                };
+            };
+        };
+        responses: {
+            /** @description The request and the part after the answer */
+            200: {
+                headers: {
+                    "X-Audit-Incomplete": components["headers"]["AuditIncomplete"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        request: components["schemas"]["SupplierViewRequest"];
+                        part: components["schemas"]["SupplierViewPart"];
+                    };
+                };
+            };
+            400: components["responses"]["Error"];
+            404: components["responses"]["Error"];
+            409: components["responses"]["Error"];
+            410: components["responses"]["Error"];
+            413: components["responses"]["Error"];
+            415: components["responses"]["Error"];
             429: components["responses"]["TooManyRequests"];
             503: components["responses"]["Error"];
         };

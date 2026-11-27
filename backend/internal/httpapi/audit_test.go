@@ -626,6 +626,12 @@ func (e *auditEnv) sensitiveCases(t *testing.T) map[audit.Action]struct {
 			},
 			func() bool { c, _ := e.cs.Get(context.Background(), rID); return len(c.BrokerReviews) == 0 },
 		},
+		audit.SupplierRequestCreate: {
+			func() (int, map[string]any) {
+				return e.hs.doAs(t, "POST", "/v1/cases/"+rID+"/supplier-declarations", `{"supplier_name":"Acme Motors","parts":[0]}`, user("dave"))
+			},
+			func() bool { c, _ := e.cs.Get(context.Background(), rID); return len(c.SupplierRequests) == 0 },
+		},
 		audit.WorkspaceInvite: {
 			func() (int, map[string]any) {
 				return e.hs.doAs(t, "POST", "/v1/workspaces/"+fid+"/members", `{"email":"ivy@example.com"}`, user("fiona"))

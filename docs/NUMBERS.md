@@ -350,6 +350,10 @@ These rows register, for the /method page, figures that are already committed in
 | Broker comment length | 2,000 characters at most | `MaxReviewComment`, same file (D200) | Built |
 | Open broker review links per case | 5 | `maxActiveReviews`, same file (D200); 20 links kept per case, 20 answers per link | Built |
 | Broker review requests a minute per client | 30 | `RATE_REVIEW_PER_MIN` default, `backend/internal/config/config.go` (D200) | Built; default, configurable; per instance |
+| Supplier declaration link life | 14 days by default, 60 at most | `DefaultDays`, `MaxDays` in `backend/internal/supplierdecl/supplierdecl.go` (D937) | Built; behind `SUPPLIER_DECLARATIONS` (off) |
+| Open supplier requests per case | 5 (20 kept) | `MaxActive`, `MaxRequests`, same file (D937) | Built; behind the flag |
+| Supplier declaration requests a minute per client | 30 | `RATE_DECLARATION_PER_MIN` default, `backend/internal/config/config.go` (D937) | Built; default, configurable; per instance |
+| Attached supplier document | 128 KB at most, one per answer | `MaxDocBytes`, same file (D937) | Built; type and pages checked as uploads are |
 
 ## Demo story
 

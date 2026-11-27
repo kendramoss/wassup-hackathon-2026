@@ -89,6 +89,10 @@ type Case struct {
 	Approvals     []Approval     `json:"approvals,omitempty"`
 	Collaborators []Collaborator `json:"collaborators,omitempty"`
 	Filing        *Filing        `json:"filing,omitempty"`
+	// SupplierRequests are the case's supplier declaration requests, oldest
+	// first (SUPPLIER_DECLARATIONS, see supplier.go). Token hashes and
+	// supplier emails are never returned to the supplier.
+	SupplierRequests []SupplierRequest `json:"supplier_requests,omitempty"`
 	// OriginFacts are the facts the requester supplied to a rules check of
 	// the case, by market ("eu", "uk"), attributed "user-supplied" and
 	// timestamped (#770, D801). They are check inputs only: Facts and

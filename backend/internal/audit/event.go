@@ -86,6 +86,13 @@ const (
 
 	// Admin console (#870): the admin's one read of the workspace settings.
 	WorkspaceAdminView Action = "workspace.admin_view"
+	// Supplier declarations (SUPPLIER_DECLARATIONS, #916). The object is
+	// always the case; no supplier name or email, answer text or token
+	// reaches the trail, and the supplier is anonymous.
+	SupplierRequestCreate Action = "supplier.request_create"
+	SupplierRequestRevoke Action = "supplier.request_revoke"
+	SupplierView          Action = "supplier.view"
+	SupplierAnswer        Action = "supplier.answer"
 
 	// Webhooks (#915). The object is the endpoint; a list's is the workspace.
 	WebhookCreate Action = "webhook.create"
@@ -161,6 +168,14 @@ var actionSpecs = map[Action]actionSpec{
 	SCIMUserDelete:     {details: []string{"", "deactivate"}, sensitive: true},
 	SCIMUserRead:       {},
 	WorkspaceAdminView: {},
+	// Making a link hands case content (part names) to someone outside the
+	// system: it fails closed like a broker review link. Revoking never waits
+	// on the trail; a supplier's read and answer are best effort like a
+	// broker's.
+	SupplierRequestCreate: {sensitive: true},
+	SupplierRequestRevoke: {},
+	SupplierView:          {},
+	SupplierAnswer:        {},
 	// An endpoint decides where workspace events are sent, and its secret
 	// signs them: changing either fails closed, like an API key.
 	WebhookCreate:     {sensitive: true},

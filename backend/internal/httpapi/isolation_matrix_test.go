@@ -39,120 +39,127 @@ const (
 
 // routeTable is keyed by the mux pattern, exactly as registered in server.go.
 var routeTable = map[string]routeClass{
-	"POST /v1/cases/predict":                            caseCreate,
-	"POST /v1/cases/batch":                              caseCreate,
-	"GET /v1/cases":                                     caseCreate,
-	"POST /v1/products/import":                          noCaseData,
-	"POST /v1/products/erp-import":                      caseCreate, // files cases under the caller's scope; IDs derive from it
-	"GET /v1/workspaces/{id}/usage":                     noCaseData,
-	"PUT /v1/workspaces/{id}/budget":                    noCaseData,
-	"DELETE /v1/workspaces/{id}/budget":                 noCaseData,
-	"POST /v1/products/extract":                         noCaseData,
-	"POST /v1/products/extract-media":                   noCaseData,
-	"POST /v1/products/money-prefill":                   noCaseData,
-	"POST /v1/products/hts-suggest":                     noCaseData,
-	"POST /v1/products/parts-hts-suggest":               noCaseData, // its day cache is per caller and per description (D410): TestPartsHTSSuggestCacheIsPerCallerAndDescription
-	"POST /v1/products/cost-estimate":                   noCaseData,
-	"POST /v1/products/family-check":                    noCaseData,
-	"POST /v1/cases/{id}/bom-version":                   caseScoped,
-	"POST /v1/cases/{id}/scenarios":                     caseScoped,
-	"POST /v1/cases/{id}/compare-targets":               caseScoped,
-	"POST /v1/cases/{id}/ask":                           caseScoped,
-	"PUT /v1/cases/{id}/economics":                      caseScoped,
-	"PUT /v1/cases/{id}/pin":                            adminRoute,
-	"POST /v1/cases/{id}/watch":                         caseScoped,
-	"POST /v1/watch/run":                                adminRoute,
-	"GET /v1/cases/{id}":                                caseScoped,
-	"DELETE /v1/cases/{id}":                             caseScoped,
-	"PATCH /v1/cases/{id}":                              caseScoped,
-	"POST /v1/cases/{id}/plan":                          caseScoped,
-	"POST /v1/cases/{id}/plan/estimate":                 caseScoped,
-	"POST /v1/cases/{id}/export":                        caseScoped,
-	"POST /v1/cases/{id}/answers":                       caseScoped,
-	"PUT /v1/cases/{id}/origin-facts/{market}":          caseScoped,
-	"PUT /v1/cases/{id}/family-facts":                   caseScoped,
-	"GET /v1/cases/{id}/evidence-report":                caseScoped,
-	"GET /v1/rulings/{id}":                              noCaseData,
-	"GET /v1/rulings":                                   noCaseData,
-	"POST /mcp":                                         noCaseData, // its tools call the /v1 routes, each checked on its own row; the MCP principal: TestIsolationMatrixOverMCP
-	"GET /v1/eval/summary":                              noCaseData,
-	"GET /v1/status":                                    noCaseData,
-	"GET /v1/duty-rates":                                noCaseData,
-	"POST /v1/rcep/check":                               noCaseData,
-	"POST /v1/atiga/check":                              noCaseData,
-	"POST /v1/usmca/check":                              noCaseData,
-	"POST /v1/rules/canada-marking":                     noCaseData, // computes from the request alone; nothing stored (D720)
-	"POST /v1/rules/eu-origin":                          noCaseData, // computes from the request alone; nothing stored (D760)
-	"POST /v1/rules/uk-origin":                          noCaseData, // computes from the request alone; nothing stored (D760)
-	"GET /v1/demos":                                     noCaseData,
-	"GET /v1/jurisdictions":                             noCaseData,
-	"GET /v1/demos/{id}":                                noCaseData,
-	"POST /v1/workspaces":                               noCaseData,
-	"GET /v1/workspaces/mine":                           noCaseData,
-	"POST /v1/workspaces/{id}/members":                  noCaseData,
-	"POST /v1/workspaces/{id}/join":                     noCaseData,
-	"PUT /v1/workspaces/{id}/members/{email}/role":      noCaseData,
-	"DELETE /v1/workspaces/{id}/members/{email}":        noCaseData,
-	"POST /v1/sso/start":                                noCaseData,
-	"POST /v1/sso/oidc/callback":                        noCaseData,
-	"POST /v1/sso/saml/acs":                             noCaseData,
-	"GET /v1/sso/saml/metadata":                         noCaseData,
-	"GET /v1/workspaces/{id}/sso":                       noCaseData,
-	"POST /v1/workspaces/{id}/sso":                      noCaseData,
-	"PUT /v1/workspaces/{id}/sso/{conn}":                noCaseData,
-	"POST /v1/workspaces/{id}/sso/{conn}/verify":        noCaseData,
-	"DELETE /v1/workspaces/{id}/sso/{conn}":             noCaseData,
-	"GET /v1/workspaces/{id}/admin":                     noCaseData,
-	"GET /v1/workspaces/{id}/webhooks":                  noCaseData,
-	"POST /v1/workspaces/{id}/webhooks":                 noCaseData,
-	"PATCH /v1/workspaces/{id}/webhooks/{wid}":          noCaseData,
-	"DELETE /v1/workspaces/{id}/webhooks/{wid}":         noCaseData,
-	"POST /v1/workspaces/{id}/webhooks/{wid}/rotate":    noCaseData,
-	"POST /v1/workspaces/{id}/webhooks/{wid}/test":      noCaseData,
-	"GET /v1/workspaces/{id}/webhooks/{wid}/deliveries": noCaseData,
-	"POST /v1/webhooks/sweep":                           adminRoute,
-	"GET /v1/workspaces/{id}/scim":                      noCaseData,
-	"POST /v1/workspaces/{id}/scim/token":               noCaseData,
-	"DELETE /v1/workspaces/{id}/scim/token":             noCaseData,
-	"GET /v1/scim/v2/ServiceProviderConfig":             noCaseData,
-	"GET /v1/scim/v2/ResourceTypes":                     noCaseData,
-	"GET /v1/scim/v2/Schemas":                           noCaseData,
-	"GET /v1/scim/v2/Users":                             noCaseData,
-	"POST /v1/scim/v2/Users":                            noCaseData,
-	"GET /v1/scim/v2/Users/{uid}":                       noCaseData,
-	"PUT /v1/scim/v2/Users/{uid}":                       noCaseData,
-	"PATCH /v1/scim/v2/Users/{uid}":                     noCaseData,
-	"DELETE /v1/scim/v2/Users/{uid}":                    noCaseData,
-	"POST /v1/admin/api-keys":                           adminRoute,
-	"GET /v1/admin/api-keys":                            adminRoute,
-	"DELETE /v1/admin/api-keys/{id}":                    adminRoute,
-	"POST /v1/api-keys":                                 noCaseData,
-	"GET /v1/api-keys":                                  noCaseData,
-	"DELETE /v1/api-keys/{id}":                          noCaseData,
-	"GET /v1/audit":                                     noCaseData, // reads the audit trail, no case
-	"GET /v1/audit/verify":                              noCaseData,
-	"GET /v1/audit/export":                              noCaseData,
-	"GET /v1/workspaces/{id}/retention":                 noCaseData,
-	"PUT /v1/workspaces/{id}/retention":                 noCaseData,
-	"GET /v1/workspaces/{id}/tombstones":                noCaseData, // case IDs and dates only, workspace admins
-	"POST /v1/cases/{id}/reviews":                       caseScoped,
-	"GET /v1/cases/{id}/reviews":                        caseScoped,
-	"DELETE /v1/cases/{id}/reviews/{review}":            caseScoped,
-	"GET /v1/review":                                    reviewToken,
-	"POST /v1/review/decision":                          reviewToken,
-	"PUT /v1/cases/{id}/queue":                          caseScoped,
-	"POST /v1/cases/{id}/queue/transition":              caseScoped,
-	"GET /v1/queue":                                     caseCreate, // lists the caller's view, like GET /v1/cases
-	"GET /v1/cases/{id}/collab":                         caseScoped,
-	"POST /v1/cases/{id}/comments":                      caseScoped,
-	"POST /v1/cases/{id}/approvals":                     caseScoped,
-	"PUT /v1/cases/{id}/collaborators":                  caseScoped,
-	"GET /v1/review/comments":                           reviewToken,
-	"POST /v1/review/comments":                          reviewToken,
-	"POST /v1/cases/{id}/filing":                        caseScoped,
-	"GET /v1/cases/{id}/filing":                         caseScoped,
-	"POST /v1/cases/{id}/filing/status":                 caseScoped,
-	"GET /health":                                       noCaseData,
+	"POST /v1/cases/predict":                                caseCreate,
+	"POST /v1/cases/batch":                                  caseCreate,
+	"GET /v1/cases":                                         caseCreate,
+	"POST /v1/products/import":                              noCaseData,
+	"POST /v1/products/erp-import":                          caseCreate, // files cases under the caller's scope; IDs derive from it
+	"GET /v1/workspaces/{id}/usage":                         noCaseData,
+	"PUT /v1/workspaces/{id}/budget":                        noCaseData,
+	"DELETE /v1/workspaces/{id}/budget":                     noCaseData,
+	"POST /v1/products/extract":                             noCaseData,
+	"POST /v1/products/extract-media":                       noCaseData,
+	"POST /v1/products/money-prefill":                       noCaseData,
+	"POST /v1/products/hts-suggest":                         noCaseData,
+	"POST /v1/products/parts-hts-suggest":                   noCaseData, // its day cache is per caller and per description (D410): TestPartsHTSSuggestCacheIsPerCallerAndDescription
+	"POST /v1/products/cost-estimate":                       noCaseData,
+	"POST /v1/products/family-check":                        noCaseData,
+	"POST /v1/cases/{id}/bom-version":                       caseScoped,
+	"POST /v1/cases/{id}/scenarios":                         caseScoped,
+	"POST /v1/cases/{id}/compare-targets":                   caseScoped,
+	"POST /v1/cases/{id}/ask":                               caseScoped,
+	"PUT /v1/cases/{id}/economics":                          caseScoped,
+	"PUT /v1/cases/{id}/pin":                                adminRoute,
+	"POST /v1/cases/{id}/watch":                             caseScoped,
+	"POST /v1/watch/run":                                    adminRoute,
+	"GET /v1/cases/{id}":                                    caseScoped,
+	"DELETE /v1/cases/{id}":                                 caseScoped,
+	"PATCH /v1/cases/{id}":                                  caseScoped,
+	"POST /v1/cases/{id}/plan":                              caseScoped,
+	"POST /v1/cases/{id}/plan/estimate":                     caseScoped,
+	"POST /v1/cases/{id}/export":                            caseScoped,
+	"POST /v1/cases/{id}/answers":                           caseScoped,
+	"PUT /v1/cases/{id}/origin-facts/{market}":              caseScoped,
+	"PUT /v1/cases/{id}/family-facts":                       caseScoped,
+	"GET /v1/cases/{id}/evidence-report":                    caseScoped,
+	"GET /v1/rulings/{id}":                                  noCaseData,
+	"GET /v1/rulings":                                       noCaseData,
+	"POST /mcp":                                             noCaseData, // its tools call the /v1 routes, each checked on its own row; the MCP principal: TestIsolationMatrixOverMCP
+	"GET /v1/eval/summary":                                  noCaseData,
+	"GET /v1/status":                                        noCaseData,
+	"GET /v1/duty-rates":                                    noCaseData,
+	"POST /v1/rcep/check":                                   noCaseData,
+	"POST /v1/atiga/check":                                  noCaseData,
+	"POST /v1/usmca/check":                                  noCaseData,
+	"POST /v1/rules/canada-marking":                         noCaseData, // computes from the request alone; nothing stored (D720)
+	"POST /v1/rules/eu-origin":                              noCaseData, // computes from the request alone; nothing stored (D760)
+	"POST /v1/rules/uk-origin":                              noCaseData, // computes from the request alone; nothing stored (D760)
+	"GET /v1/demos":                                         noCaseData,
+	"GET /v1/jurisdictions":                                 noCaseData,
+	"GET /v1/demos/{id}":                                    noCaseData,
+	"POST /v1/workspaces":                                   noCaseData,
+	"GET /v1/workspaces/mine":                               noCaseData,
+	"POST /v1/workspaces/{id}/members":                      noCaseData,
+	"POST /v1/workspaces/{id}/join":                         noCaseData,
+	"PUT /v1/workspaces/{id}/members/{email}/role":          noCaseData,
+	"DELETE /v1/workspaces/{id}/members/{email}":            noCaseData,
+	"POST /v1/sso/start":                                    noCaseData,
+	"POST /v1/sso/oidc/callback":                            noCaseData,
+	"POST /v1/sso/saml/acs":                                 noCaseData,
+	"GET /v1/sso/saml/metadata":                             noCaseData,
+	"GET /v1/workspaces/{id}/sso":                           noCaseData,
+	"POST /v1/workspaces/{id}/sso":                          noCaseData,
+	"PUT /v1/workspaces/{id}/sso/{conn}":                    noCaseData,
+	"POST /v1/workspaces/{id}/sso/{conn}/verify":            noCaseData,
+	"DELETE /v1/workspaces/{id}/sso/{conn}":                 noCaseData,
+	"GET /v1/workspaces/{id}/admin":                         noCaseData,
+	"GET /v1/workspaces/{id}/webhooks":                      noCaseData,
+	"POST /v1/workspaces/{id}/webhooks":                     noCaseData,
+	"PATCH /v1/workspaces/{id}/webhooks/{wid}":              noCaseData,
+	"DELETE /v1/workspaces/{id}/webhooks/{wid}":             noCaseData,
+	"POST /v1/workspaces/{id}/webhooks/{wid}/rotate":        noCaseData,
+	"POST /v1/workspaces/{id}/webhooks/{wid}/test":          noCaseData,
+	"GET /v1/workspaces/{id}/webhooks/{wid}/deliveries":     noCaseData,
+	"POST /v1/webhooks/sweep":                               adminRoute,
+	"GET /v1/workspaces/{id}/scim":                          noCaseData,
+	"POST /v1/workspaces/{id}/scim/token":                   noCaseData,
+	"DELETE /v1/workspaces/{id}/scim/token":                 noCaseData,
+	"GET /v1/scim/v2/ServiceProviderConfig":                 noCaseData,
+	"GET /v1/scim/v2/ResourceTypes":                         noCaseData,
+	"GET /v1/scim/v2/Schemas":                               noCaseData,
+	"GET /v1/scim/v2/Users":                                 noCaseData,
+	"POST /v1/scim/v2/Users":                                noCaseData,
+	"GET /v1/scim/v2/Users/{uid}":                           noCaseData,
+	"PUT /v1/scim/v2/Users/{uid}":                           noCaseData,
+	"PATCH /v1/scim/v2/Users/{uid}":                         noCaseData,
+	"DELETE /v1/scim/v2/Users/{uid}":                        noCaseData,
+	"POST /v1/admin/api-keys":                               adminRoute,
+	"GET /v1/admin/api-keys":                                adminRoute,
+	"DELETE /v1/admin/api-keys/{id}":                        adminRoute,
+	"POST /v1/api-keys":                                     noCaseData,
+	"GET /v1/api-keys":                                      noCaseData,
+	"DELETE /v1/api-keys/{id}":                              noCaseData,
+	"GET /v1/audit":                                         noCaseData, // reads the audit trail, no case
+	"GET /v1/audit/verify":                                  noCaseData,
+	"GET /v1/audit/export":                                  noCaseData,
+	"GET /v1/workspaces/{id}/retention":                     noCaseData,
+	"PUT /v1/workspaces/{id}/retention":                     noCaseData,
+	"GET /v1/workspaces/{id}/tombstones":                    noCaseData, // case IDs and dates only, workspace admins
+	"POST /v1/cases/{id}/reviews":                           caseScoped,
+	"GET /v1/cases/{id}/reviews":                            caseScoped,
+	"DELETE /v1/cases/{id}/reviews/{review}":                caseScoped,
+	"GET /v1/review":                                        reviewToken,
+	"POST /v1/review/decision":                              reviewToken,
+	"PUT /v1/cases/{id}/queue":                              caseScoped,
+	"POST /v1/cases/{id}/queue/transition":                  caseScoped,
+	"GET /v1/queue":                                         caseCreate, // lists the caller's view, like GET /v1/cases
+	"GET /v1/cases/{id}/collab":                             caseScoped,
+	"POST /v1/cases/{id}/comments":                          caseScoped,
+	"POST /v1/cases/{id}/approvals":                         caseScoped,
+	"PUT /v1/cases/{id}/collaborators":                      caseScoped,
+	"GET /v1/review/comments":                               reviewToken,
+	"POST /v1/review/comments":                              reviewToken,
+	"POST /v1/cases/{id}/filing":                            caseScoped,
+	"GET /v1/cases/{id}/filing":                             caseScoped,
+	"POST /v1/cases/{id}/filing/status":                     caseScoped,
+	"POST /v1/cases/{id}/supplier-declarations":             caseScoped,
+	"GET /v1/cases/{id}/supplier-declarations":              caseScoped,
+	"DELETE /v1/cases/{id}/supplier-declarations/{request}": caseScoped,
+	"GET /v1/cases/{id}/supplier-declarations/{request}/parts/{part}/document": caseScoped,
+	"GET /v1/supplier-declarations/expiring":                                   caseCreate, // lists the caller's view, like GET /v1/queue
+	"GET /v1/supplier-declaration":                                             reviewToken,
+	"PUT /v1/supplier-declaration/parts/{part}":                                reviewToken,
+	"GET /health": noCaseData,
 }
 
 // registeredRoutes parses server.go for every mux.HandleFunc pattern.
@@ -250,6 +257,10 @@ func isoRoutes() []isoRoute {
 		{"filing prepare", "POST", "/filing", `{}`, nil, "POST /v1/cases/{id}/filing"},
 		{"filing get", "GET", "/filing", "", nil, "GET /v1/cases/{id}/filing"},
 		{"filing status", "POST", "/filing/status", `{"status":"withdrawn"}`, nil, "POST /v1/cases/{id}/filing/status"},
+		{"supplier request create", "POST", "/supplier-declarations", `{"supplier_name":"Acme Motors","parts":[0]}`, nil, "POST /v1/cases/{id}/supplier-declarations"},
+		{"supplier request list", "GET", "/supplier-declarations", "", nil, "GET /v1/cases/{id}/supplier-declarations"},
+		{"supplier request revoke", "DELETE", "/supplier-declarations/sd_0123456789abcdef", "", nil, "DELETE /v1/cases/{id}/supplier-declarations/{request}"},
+		{"supplier document", "GET", "/supplier-declarations/sd_0123456789abcdef/parts/0/document", "", nil, "GET /v1/cases/{id}/supplier-declarations/{request}/parts/{part}/document"},
 	}
 }
 
@@ -305,7 +316,7 @@ func newIsoEnvStrict(t *testing.T, ownership, strict bool) *isoEnv {
 	build := func(strict bool) harness {
 		hs, _, _ := teamsHarness(t, func(d *Deps) {
 			d.Cases, d.CaseOwnership, d.BOMVersions, d.StrictAuth = e.cs, ownership, true, strict
-			d.BrokerWorkflow = true
+			d.BrokerWorkflow, d.SupplierDeclarations = true, true
 			d.Planner = &estimatingPlanner{fakePlanner: &fakePlanner{}} // also serves plan/estimate
 			d.Workspaces, d.APIKeys = wsStore, keys
 		})
@@ -473,7 +484,7 @@ func TestIsolationPinnedDemoIsReadOnlyForNonAdmins(t *testing.T) {
 		t.Run(fmt.Sprintf("CASE_OWNERSHIP=%v", ownership), func(t *testing.T) {
 			e := newIsoEnv(t, ownership)
 			demo := e.ids["demo"]
-			refused := map[string]bool{"rename": true, "delete": true, "economics": true, "answers": true, "review create": true, "review revoke": true}
+			refused := map[string]bool{"rename": true, "delete": true, "economics": true, "answers": true, "review create": true, "review revoke": true, "supplier request create": true, "supplier request revoke": true, "supplier document": true}
 			for _, rt := range isoRoutes() {
 				if strings.HasSuffix(rt.pattern, "/pin") {
 					continue
@@ -709,7 +720,9 @@ func TestIsolationListFiltersBeforeTheDefaultCap(t *testing.T) {
 // noSuchLink reports the revoke route's answer for a link id the caller's own
 // (visible) case does not have: a 404 that names the link, never the case.
 // The fixed id in isoRoutes exists on no case, so an allowed revoke gets it.
-func noSuchLink(body string) bool { return errCode(body) == "review_not_found" }
+func noSuchLink(body string) bool {
+	return errCode(body) == "review_not_found" || errCode(body) == "declaration_not_found"
+}
 
 // A broker review token (D200) opens its own link's snapshot and nothing
 // else: it is no identity on any case route, it cannot reach another case's
