@@ -1,4 +1,4 @@
-# Unde Labs — details
+# UndeLabs — details
 
 The full method, results, limitations and developer notes. The [README](../README.md) is the short version. Decision numbers (D32, D90, ...) refer to [DECISIONS.md](DECISIONS.md).
 
@@ -55,7 +55,7 @@ Data: 2,790 labelled CBP rulings (2023-01-10 to 2026-09-25, rulings.cbp.gov, pub
 | Final-assembly country (reported, unverified: source not in this repository) | 40.6% (35.8–45.6) |
 | Most-mentioned country (recomputed; the research figure, 60.5%, is unverified) | 60.7% (55.7–65.5) |
 | First country named in the facts (best simple rule; recomputed) | 63.4% (58.4–68.1) |
-| **Unde engine (Gemini 4 Argon + dated precedents), Vertex AI** | **90.2% (86.8–92.8)** |
+| **UndeLabs engine (Gemini 4 Argon + dated precedents), Vertex AI** | **90.2% (86.8–92.8)** |
 | Fast path (calibrated confidence ≥ 0.90, the same cases as stated ≥ 0.92, and in scope), Vertex AI | 79.6% of cases (300 of 377) at 96.0% (93.1–97.7), 288 of 300 |
 
 Recomputed baselines: `go run ./cmd/eval baselines` on the committed facts, no model (D155). The two Vertex rows are the official re-run of the frozen engine (engine-v1, BM25, K = 5, Gemini 4 Argon on Vertex AI, location `global`), scored once on the held-out split.
@@ -116,7 +116,7 @@ Model access is configured by environment only:
 
 The LiteLLM proxy used before Vertex access was removed (D49); only `vertex` and `fake` are accepted. Result files named `*-litellm.*` are earlier proxy runs and stay labelled "proxy" until re-run on Vertex. A gitignored `.env` at the repo root holds the local settings: `set -a; source .env; set +a; make run`.
 
-Vertex needs **application-default credentials**, which are separate from `gcloud auth login`: run `gcloud auth application-default login` once, or the server exits at startup and every page shows "Couldn't reach the Unde API". For UI work with no model calls and no cost, use the explicit fake mode: `LLM_PROVIDER=fake make run` (fixed, clearly-labelled answers; the Accuracy page and demo data are still real). It needs no GCP project, is refused on Cloud Run, and the server prints both hints when Vertex credentials are missing. Cases are saved locally under `data/cases`; only `CASES_STORE=firestore` (Cloud Run) needs Firestore, and the precedent corpus is bundled.
+Vertex needs **application-default credentials**, which are separate from `gcloud auth login`: run `gcloud auth application-default login` once, or the server exits at startup and every page shows "Couldn't reach the UndeLabs API". For UI work with no model calls and no cost, use the explicit fake mode: `LLM_PROVIDER=fake make run` (fixed, clearly-labelled answers; the Accuracy page and demo data are still real). It needs no GCP project, is refused on Cloud Run, and the server prints both hints when Vertex credentials are missing. Cases are saved locally under `data/cases`; only `CASES_STORE=firestore` (Cloud Run) needs Firestore, and the precedent corpus is bundled.
 
 ```bash
 LLM_PROVIDER=fake make run                         # credential-free API on :8080 (simulated answers)

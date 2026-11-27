@@ -402,7 +402,7 @@ function DemoWatchNote({ c }: { c: CaseResponse }) {
           <RulingLink id={r} />
         </span>
       ))}</> : "the rulings it is tested against"}
-      , which include CBP&apos;s own rulings on this product, so a re-check here can&apos;t show a change. Its saved re-check is from an older version of Unde and makes no claim. Start a new case from the
+      , which include CBP&apos;s own rulings on this product, so a re-check here can&apos;t show a change. Its saved re-check is from an older version of UndeLabs and makes no claim. Start a new case from the
       demo to run a watch.
     </p>
   );

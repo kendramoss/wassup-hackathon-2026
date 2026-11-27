@@ -75,13 +75,13 @@ export function JudgeImpact() {
       <div className="judge-impact-grid">
         <article className="judge-card judge-impact">
           <h3>Measured benchmarks</h3>
-          <p>Traditional rulings and advice alongside Unde’s preliminary checks.</p>
+          <p>Traditional rulings and advice alongside UndeLabs preliminary checks.</p>
           <table className="judge-benchmarks">
             <thead>
               <tr>
                 <th scope="col"><span className="sr-only">Benchmark</span></th>
                 <th scope="col">Traditional</th>
-                <th scope="col">Unde Labs</th>
+                <th scope="col">UndeLabs</th>
               </tr>
             </thead>
             <tbody>

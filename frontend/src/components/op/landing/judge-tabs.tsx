@@ -161,7 +161,7 @@ export function JudgePersonas({
 }) {
   return (
     <section className="judgePersonas" id="can" aria-labelledby="judge-personas-heading">
-      <h2 id="judge-personas-heading">What Unde does</h2>
+      <h2 id="judge-personas-heading">What UndeLabs does</h2>
       <JudgeTabs
         label="Choose your role"
         orientation="vertical"
@@ -182,7 +182,7 @@ export function JudgePersonas({
                 </header>
                 <p className="judgePersonaSubject">Kobalt heat gun</p>
                 <dl className="judgePersonaEvidence">
-                  <div><dt>Unde prediction</dt><dd>China</dd></div>
+                  <div><dt>UndeLabs prediction</dt><dd>China</dd></div>
                   <div><dt>CBP’s ruling</dt><dd>China <RulingLink id="N328954" className="lp-ruling-pill" /></dd></div>
                 </dl>
                 <div className="judgePersonaPreviewFoot">
@@ -227,7 +227,7 @@ export function JudgePersonas({
             label: "Developers (MCP & API)",
             actions: (
               <div className="judgePersonaActions">
-                <p>Connect your agent to Unde with MCP or call the REST API.</p>
+                <p>Connect your agent to UndeLabs with MCP or call the REST API.</p>
                 <Link href="/developers#mcp">View integration docs →</Link>
               </div>
             ),

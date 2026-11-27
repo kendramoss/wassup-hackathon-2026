@@ -159,7 +159,7 @@ test("phones: in-page controls left under 44 px get 44 px below 640 px only", ()
 test("the landing's note under the subtitle does not repeat it (plain words, DESIGN.md principle 5)", () => {
   const sub = copy.match(/sub: "([^"]+)"/)[1];
   const novel = copy.match(/novel: \{\s+lead: "Every suggestion",\s+text: "([^"]+)"/)[1];
-  assert.match(sub, /Unde shows which parts to move/);
+  assert.match(sub, /UndeLabs shows which parts to move/);
   assert.equal(novel, "is backed by a past official decision.");
   assert.ok(!/parts to move|decides the tax/.test(novel));
 });

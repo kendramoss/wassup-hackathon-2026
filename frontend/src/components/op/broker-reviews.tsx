@@ -93,7 +93,7 @@ export function BrokerReviews({ id, c, setCase, selection, draftLabel, ready }: 
     try {
       const r = await api.createReview(id, createBody(selection, days));
       const link = reviewLink(window.location.origin, r.review_path);
-      if (!link) throw new ApiError("The link came back in a form Unde can't show. Revoke it and make a new one.", 0, "internal", false);
+      if (!link) throw new ApiError("The link came back in a form UndeLabs can't show. Revoke it and make a new one.", 0, "internal", false);
       setCreated({ link, expires: r.review.expires_at });
       apply([r.review, ...reviews.filter((x) => x.id !== r.review.id)]);
     } catch (e) {

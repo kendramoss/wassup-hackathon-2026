@@ -69,7 +69,7 @@ export const EXPIRY_DAYS = [7, 14, 30] as const;
 export const DEFAULT_EXPIRY = 14;
 export const COMMENT_MAX = 2000;
 export const MAX_ACTIVE = 5;
-export const COPY_NOTE = "Copy it now. Unde keeps only a hash of the link, so it can't show it again. Revoke it and make a new one if it's lost.";
+export const COPY_NOTE = "Copy it now. UndeLabs keeps only a hash of the link, so it can't show it again. Revoke it and make a new one if it's lost.";
 export const FROZEN_NOTE = "The link shows this version of the draft.";
 
 export type Tone = "ok" | "ask" | undefined;

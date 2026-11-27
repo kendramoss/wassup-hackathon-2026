@@ -1,6 +1,6 @@
-# Model card: Unde origin engine and planner
+# Model card: UndeLabs origin engine and planner
 
-This card follows the sections of Mitchell et al., *Model Cards for Model Reporting* (2019). Unde does not train a model. It is a system built on Gemini models used through Vertex AI, with retrieval over public CBP rulings. The first held-out split and production run on Vertex AI; some newer evaluation runs (the second held-out split, the post-cutoff planner test, the model sweep and the image import) went through an OpenAI-compatible LiteLLM gateway to the same Gemini models. Gateway and Vertex AI agree on the development set (same engine and model, exact McNemar p = 0.58, D151); the gateway runs were not repeated on Vertex AI. The card describes that system as a user meets it.
+This card follows the sections of Mitchell et al., *Model Cards for Model Reporting* (2019). UndeLabs does not train a model. It is a system built on Gemini models used through Vertex AI, with retrieval over public CBP rulings. The first held-out split and production run on Vertex AI; some newer evaluation runs (the second held-out split, the post-cutoff planner test, the model sweep and the image import) went through an OpenAI-compatible LiteLLM gateway to the same Gemini models. Gateway and Vertex AI agree on the development set (same engine and model, exact McNemar p = 0.58, D151); the gateway runs were not repeated on Vertex AI. The card describes that system as a user meets it.
 
 Headline numbers are kept in one place, [NUMBERS.md](NUMBERS.md), and explained in [EVALUATION.md](EVALUATION.md). This card links to them instead of copying them, so it cannot drift. The failure analysis in section 6 is computed for this card from the official held-out run by `eval/charts/build_trust_data.py`.
 
@@ -11,7 +11,7 @@ Status words: **built** means in the code and running; **measured** means recomp
 | | |
 |---|---|
 | What it is | A system that predicts the country of origin U.S. Customs and Border Protection (CBP) would likely assign to a product made in several countries, cites the earlier CBP rulings it relied on, and searches production moves that change that origin |
-| Who built it | Unde Labs, a team of two, for the Google Cloud AI Builder Cup 2026 (Manufacturing theme) |
+| Who built it | UndeLabs, a team of two, for the Google Cloud AI Builder Cup 2026 (Manufacturing theme) |
 | Version | origin engine prompt `engine-v1`, router `router-v2` (router `router-v4` in production since 21 Nov, D233; the held-out engine figures were measured with router-v2), precedent check `verifier-v2`, frozen 2026-10-14 for the held-out run ([splits_final.json](../eval/splits/splits_final.json)). Part 102 engine `usmca-v5` since 22 Nov (D602; `usmca-v1` before) |
 | Models (built) | Origin engine: Gemini 4 Argon. Router: Gemini 3.8 Flash. Precedent check: an ADK agent on Gemini 4 Argon that searches and reads CBP rulings. Ask-the-case agent: the engine model unless `CASE_AGENT_MODEL` is set. Fallback engine on a 429, 503, 504 or deadline: Gemini 3.8 Flash, whose answers never auto-accept. Defaults in `backend/internal/config/config.go` |
 | Rule check (built, no model) | A deterministic 19 CFR 102.20 tariff-shift check for chapters 15, 21, 39, 40, 44, 48, 71, 73, 76, 82, 83, 84, 85, 87, 90, 94 and 95 (`backend/internal/tariffshift`, D360; ten chapters added in D460). It runs only when the product gives HTS codes, answers "undetermined" rather than guess, and is display only: it never changes the engine's answer, the triage or auto-accept (D363) |
@@ -37,10 +37,10 @@ Status words: **built** means in the code and running; **measured** means recomp
 
 ## 3. Out-of-scope uses
 
-- **As a ruling, or in place of one.** Only a CBP binding ruling (19 CFR Part 177) binds CBP, and only for the facts in that request. Unde predicts from earlier rulings.
+- **As a ruling, or in place of one.** Only a CBP binding ruling (19 CFR Part 177) binds CBP, and only for the facts in that request. UndeLabs predicts from earlier rulings.
 - **Filing or declaring origin** on an entry without a broker's review.
 - **Other countries' origin rules**: EU Binding Origin Information, USMCA regional value content, preferential-origin claims, certificates of origin. A chosen or detected non-U.S. market goes to review unless a market-specific check is registered; the text detector misses some cases ([scope-and-jurisdiction.md](scope-and-jurisdiction.md)).
-- **Tariff classification.** The HTS subheading is an input. Unde suggests candidates but does not decide it.
+- **Tariff classification.** The HTS subheading is an input. UndeLabs suggests candidates but does not decide it.
 - **Duty drawback, antidumping or countervailing duty questions, Section 232 duties.**
 - **Planning for product families without a template.** Plans exist for the families listed in [DETAILS.md](DETAILS.md#limitations); other products get an origin prediction but no plan.
 - **Any decision about a person.** The system has no personal inputs and is not for that.
@@ -103,18 +103,18 @@ Every held-out ruling the engine got wrong is listed, with a link to CBP's rulin
 | Taiwan | 18 / 19 | 94.7% (75.4–99.1) |
 | 26 other countries | 70 / 79 | 88.6% (79.8–93.9) |
 
-**Which way the misses go.** Of 37 misses, 13 are cases where CBP held China and Unde said another country; 7 of those were auto-accepted. That is the costly direction for this product: it tells a manufacturer that a setup is not Chinese when CBP says it is. 18 misses go the other way (Unde said China, CBP held another country; 4 auto-accepted), and 6 involve neither.
+**Which way the misses go.** Of 37 misses, 13 are cases where CBP held China and UndeLabs said another country; 7 of those were auto-accepted. That is the costly direction for this product: it tells a manufacturer that a setup is not Chinese when CBP says it is. 18 misses go the other way (UndeLabs said China, CBP held another country; 4 auto-accepted), and 6 involve neither.
 
 **Patterns in the misses** (our reading of the rulings; a description, not a measurement):
 
 | Pattern | Real held-out examples |
 |---|---|
-| Machining or assembly in the last country credited as a transformation, where CBP held that the imported core part decides | Wheel hub assemblies [N357817](https://rulings.cbp.gov/ruling/N357817) and [N358371](https://rulings.cbp.gov/ruling/N358371): CBP held China, Unde said Malaysia at 0.95, both auto-accepted. Deadbolt lockset [N363908](https://rulings.cbp.gov/ruling/N363908): CBP held China, Unde said Taiwan at 0.92 |
-| Simple processing of one material credited as a transformation | Marking crayon [N361141](https://rulings.cbp.gov/ruling/N361141): wax melted and cast in Malaysia; CBP held China, Unde said Malaysia at 0.98. Worked abalone shells [N358060](https://rulings.cbp.gov/ruling/N358060): CBP held China, Unde said Thailand at 0.95 |
-| Origin by count of subassemblies, where CBP held one essential part decides | Air compressor [N362856](https://rulings.cbp.gov/ruling/N362856): CBP held Brazil, the origin of the motor; Unde said China at 0.92. Fracking unit [N360430](https://rulings.cbp.gov/ruling/N360430): CBP held the UAE; Unde said China at 0.92 |
-| Food and natural products, outside the target domain but placed in scope by the router | Red chili pepper powder [N356879](https://rulings.cbp.gov/ruling/N356879): CBP held South Korea, Unde said China at 0.98. Frozen squid [N361524](https://rulings.cbp.gov/ruling/N361524): CBP held China, Unde said South Korea at 0.99 |
-| Kits, where CBP rules item by item and the label follows one item | Range Doctor kit [N362197](https://rulings.cbp.gov/ruling/N362197): the label is the scraper's origin, China; Unde said South Korea at 0.92 |
-| Close calls sent to review | 25 of the 37 misses were below the bar and marked for review, for example the LiDAR module [N363700](https://rulings.cbp.gov/ruling/N363700) (CBP held Thailand, Unde said China at 0.78) |
+| Machining or assembly in the last country credited as a transformation, where CBP held that the imported core part decides | Wheel hub assemblies [N357817](https://rulings.cbp.gov/ruling/N357817) and [N358371](https://rulings.cbp.gov/ruling/N358371): CBP held China, UndeLabs said Malaysia at 0.95, both auto-accepted. Deadbolt lockset [N363908](https://rulings.cbp.gov/ruling/N363908): CBP held China, UndeLabs said Taiwan at 0.92 |
+| Simple processing of one material credited as a transformation | Marking crayon [N361141](https://rulings.cbp.gov/ruling/N361141): wax melted and cast in Malaysia; CBP held China, UndeLabs said Malaysia at 0.98. Worked abalone shells [N358060](https://rulings.cbp.gov/ruling/N358060): CBP held China, UndeLabs said Thailand at 0.95 |
+| Origin by count of subassemblies, where CBP held one essential part decides | Air compressor [N362856](https://rulings.cbp.gov/ruling/N362856): CBP held Brazil, the origin of the motor; UndeLabs said China at 0.92. Fracking unit [N360430](https://rulings.cbp.gov/ruling/N360430): CBP held the UAE; UndeLabs said China at 0.92 |
+| Food and natural products, outside the target domain but placed in scope by the router | Red chili pepper powder [N356879](https://rulings.cbp.gov/ruling/N356879): CBP held South Korea, UndeLabs said China at 0.98. Frozen squid [N361524](https://rulings.cbp.gov/ruling/N361524): CBP held China, UndeLabs said South Korea at 0.99 |
+| Kits, where CBP rules item by item and the label follows one item | Range Doctor kit [N362197](https://rulings.cbp.gov/ruling/N362197): the label is the scraper's origin, China; UndeLabs said South Korea at 0.92 |
+| Close calls sent to review | 25 of the 37 misses were below the bar and marked for review, for example the LiDAR module [N363700](https://rulings.cbp.gov/ruling/N363700) (CBP held Thailand, UndeLabs said China at 0.78) |
 
 **Other failure modes of the system** (built behaviour, documented):
 

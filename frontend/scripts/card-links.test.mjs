@@ -91,7 +91,7 @@ test("the per-family disagreement chart draws 29 tiles, 8 of them differing", as
   assert.doesNotMatch(m, /bg-fail/);
   assert.match(m, /Development checks, one run each\./);
   assert.match(m, /29 checks: 21 agree with CBP, 8 differ/);
-  assert.match(m, /Across all 29 per-family checks, Unde disagreed with CBP/);
+  assert.match(m, /Across all 29 per-family checks, UndeLabs disagreed with CBP/);
 });
 
 test("both demo card kinds keep the Demo label", () => {

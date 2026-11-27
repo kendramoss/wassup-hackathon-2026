@@ -38,7 +38,7 @@ export function BrokerReviewShell({ children }: { children: ReactNode }) {
         <span className="flex items-center gap-2.5 text-[19px] font-semibold tracking-[-0.03em]">
           <LogoMark size={24} />
           <span>
-            Unde <i className="not-italic text-brand">Labs</i>
+            Unde<i className="not-italic text-brand">Labs</i>
           </span>
         </span>
         <span className="text-[13px] text-dim">Broker review</span>
@@ -184,7 +184,7 @@ export function Packet({
 
       <section aria-labelledby="pred-h">
         <h2 id="pred-h" className="eyebrow">
-          Unde&apos;s prediction
+          UndeLabs answer
         </h2>
         <div className="mt-2 flex flex-wrap items-baseline gap-x-4 gap-y-1">
           <Country name={p.prediction?.origin_country} size={18} className="text-2xl tracking-[-0.04em]" />

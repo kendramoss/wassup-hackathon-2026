@@ -52,7 +52,7 @@ export function AppBar({ active = "cases", sticky = false }: { active?: "cases" 
         >
           <LogoMark size={24} />
           <span>
-            Unde <i className="not-italic text-brand">Labs</i>
+            Unde<i className="not-italic text-brand">Labs</i>
           </span>
         </Link>
         {/* Case screens portal their case menu here, as a breadcrumb (17 Oct). */}

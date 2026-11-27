@@ -337,7 +337,7 @@ export function DemoCard({ c, demo }: { c: CaseSummary; demo?: NonNullable<DemoL
         <span className="text-xs text-dim">
           CBP held <Country name={cur.country} />
           {cur.ruling ? `, ${cur.ruling}` : ""}
-          {differs ? " · Unde differs; plans start from CBP's answer" : ""}
+          {differs ? " · UndeLabs differs; plans start from CBP's answer" : ""}
         </span>
       )}
       {/* What the prediction read (D220): the same setup can give two answers
