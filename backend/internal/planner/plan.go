@@ -9,6 +9,7 @@ import (
 	"sync"
 	"time"
 
+	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/blob"
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/domain"
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/engine"
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/llm"
@@ -260,6 +261,7 @@ func (p *Planner) Plan(ctx context.Context, req Request) (Result, error) {
 // PlanWithProgress is Plan, calling progress (if not nil) after each step.
 // Calls are serialised; progress must not block for long.
 func (p *Planner) PlanWithProgress(ctx context.Context, req Request, progress func(Event)) (Result, error) {
+	ctx = blob.WithOwner(ctx, req.CaseID) // cached entries made for this case are linked to it (#875)
 	start := time.Now()
 	if err := req.Validate(); err != nil {
 		return Result{}, err

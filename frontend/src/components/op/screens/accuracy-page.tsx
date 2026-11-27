@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 import { api, type EvalSummary } from "@/lib/api/client";
 import { copy } from "@/lib/copy";
-import { adcvdCheck, japanEvidence, japanMeasured, rcepEvidence, rulesChecks, tariffWatch } from "@/lib/market-evidence";
+import { adcvdCheck, japanEvidence, japanMeasured, rcepEvidence, rulesChecks, tariffWatch, textileRules } from "@/lib/market-evidence";
 import failureData from "@/lib/failure-cases.json";
 import { ErrorBox, Main } from "../chrome";
 import { ButtonLink, Chip, Fold, ScrollX, cx } from "../ui";
@@ -311,10 +311,11 @@ function JapanMeasured() {
 function RulesChecks() {
   const r = rulesChecks;
   const a = adcvdCheck;
+  const x = textileRules;
   const link = "text-ok underline underline-offset-2 max-sm:inline-flex max-sm:min-h-11 max-sm:items-center";
   return (
     <div id="rules-checks" className="mt-5 border-t border-line pt-4">
-      <h3 className="text-sm font-semibold">USMCA and ASEAN rules checks</h3>
+      <h3 className="text-sm font-semibold">USMCA, ASEAN and textile rules checks</h3>
       <dl className="mt-3 grid gap-x-6 gap-y-3 text-sm tabular-nums sm:grid-cols-2">
         <div>
           <dt className="text-dim">USMCA origin rules (General Note 11), agreement with CBP on decided products</dt>
@@ -323,6 +324,16 @@ function RulesChecks() {
         <div>
           <dt className="text-dim">ASEAN (ATIGA) check, authority worked examples</dt>
           <dd><strong>{r.atigaReached}/{r.atigaExamples}</strong> reach the stated result. Not an accuracy rate.</dd>
+        </div>
+        <div>
+          <dt className="text-dim">ASEAN-Korea and ASEAN-China checks (off), authority worked examples</dt>
+          <dd>Korea <strong>{r.akftaReached}/{r.akftaExamples}</strong>, China <strong>{r.acftaReached}/{r.acftaExamples}</strong> reach the stated result. Not an accuracy rate.</dd>
+        </div>
+        <div>
+          <dt className="text-dim">Textile origin rules (19 CFR 102.21, off), agreement with CBP on decided rulings, second test</dt>
+          <dd>
+            <strong>{x.pooled.agreed}/{x.pooled.decided}</strong> ({x.pooled.pct}, 95% interval {x.pooled.interval}%). Older rulings {x.older.agreed}/{x.older.decided}, 2023 to mid-2025 {x.pool.agreed}/{x.pool.decided}; first test {x.d952.agreed}/{x.d952.decided}.
+          </dd>
         </div>
       </dl>
       <div className="mt-4 border-t border-line pt-3">
@@ -355,7 +366,13 @@ function RulesChecks() {
           The {a.earlier.rulings} rulings of the earlier test, made in 2025 and 2026, are now seen and were not used to choose the method: the same method gives 11/19 (57.9%) on them.
         </p>
         <p>
+          Textile: a second test on {x.pooled.rulings} rulings from other years than the first test missed the bar (85% on at least 15 decided): {x.pooled.agreed} of {x.pooled.decided} decided agree with CBP. {x.labelErrors} of the {x.older.decided - x.older.agreed} older misses are labels that name China where CBP held Hong Kong; read after the result, that gives {x.correctedAgreed} of {x.pooled.decided} ({x.correctedInterval}%). The flag stays off. The first test, {x.d952.rulings} rulings of 2026, had {x.d952.decided} decided, one short. It does not decide the most important process.
+        </p>
+        <p>
           ATIGA: no ASEAN Member State publishes origin rulings, so there is nothing to measure accuracy against. The {r.atigaExamples} examples come from customs authorities&apos; own guides. They show the arithmetic and rule reading match those guides, not customs decisions.
+        </p>
+        <p>
+          ASEAN-Korea and ASEAN-China: no published rulings either. The {r.akftaExamples + r.acftaExamples} examples come from a Malaysian trade ministry guide and a Japanese trade agency guide. The {r.acftaExamples - r.acftaReached} China examples not reached were refused because the input named a method the agreement does not have; with that fixed they match. The China table is HS 2017.
         </p>
         <p>
           <a href={`${copy.landing.repo}/blob/main/docs/DECISIONS.md#d932--usmca-origin-rule-check-beyond-the-pilot-held-out-result-27-nov-877`} className={link}>

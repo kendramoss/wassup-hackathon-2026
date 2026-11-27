@@ -49,6 +49,7 @@ import (
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/store"
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/tariffshift"
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/teams"
+	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/textilerules"
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/triage"
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/verifier"
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/webhooks"
@@ -184,6 +185,9 @@ type Deps struct {
 	// RuleCheck, when set, adds the 19 CFR 102.20 rule check to a case
 	// that gives HTS codes (D363). Display only: nothing reads it back.
 	RuleCheck *tariffshift.Rules
+	// TextileRules, when set, adds the 19 CFR 102.21 check to a case whose
+	// product gives a textile HTS code (D951, TEXTILE_RULES).
+	TextileRules *textilerules.Rules
 	// CanadaMarking, when set, serves POST /v1/rules/canada-marking: the
 	// SOR/94-23 marking-rule check for goods imported into Canada (D720).
 	// A rules check only, never stored and never read by the engine.
@@ -232,6 +236,10 @@ type Deps struct {
 	ExportCFR177 bool
 	// ATIGACheck serves POST /v1/atiga/check (D927). Off by default.
 	ATIGACheck bool
+	// AKFTACheck and ACFTACheck serve POST /v1/akfta/check and
+	// /v1/acfta/check (D949). Off by default.
+	AKFTACheck bool
+	ACFTACheck bool
 	// ADCVD, when set, serves POST /v1/adcvd/check and adds adcvd_check to a
 	// case that gives part codes: parts that may be subject to an AD or CVD
 	// order, display only (D939). Nil (the default) is off.
@@ -299,6 +307,9 @@ type Deps struct {
 	// (envelope-encrypted where the cache is). Nil: an answer with a file is
 	// refused (503), an answer without one is not affected.
 	SupplierDocs blob.Store
+	// CachePurge, when set (CACHE_PURGE), removes the cached predictions,
+	// verdicts, advice and supplier documents only a deleted case used (#875).
+	CachePurge *blob.Purger
 	// TariffWatch (TARIFF_WATCH=on) stores the duty basis on each case a plan
 	// search prices and, with Teams, registers
 	// GET /v1/workspaces/{id}/tariff-watch (#917).
@@ -851,6 +862,11 @@ func (a *api) caseFieldsBase(r *http.Request, c store.Case) map[string]any {
 	// so every other case reads byte for byte as before.
 	if rc := a.ruleCheck(c); rc != nil {
 		f["rule_check"] = rc
+	}
+	// The textile rule check, only with TEXTILE_RULES on and a textile code
+	// (D951). Display only.
+	if tc := a.textileRuleCheck(c); tc != nil {
+		f["textile_rule_check"] = tc
 	}
 	// Parts that may be subject to an AD or CVD order (D939), only with the
 	// check on and a part code given. Information only.

@@ -50,6 +50,12 @@ const (
 	// WorkspaceRetention sets a workspace's case retention policy (#875).
 	WorkspaceRetention Action = "workspace.retention"
 	WorkspaceBudget    Action = "workspace.budget"
+	// AuditPurge is the retention command removing a workspace's oldest audit
+	// events under its own audit window (#875). The checkpoint says through
+	// which event; this event only marks that it happened.
+	AuditPurge Action = "audit.purge"
+	// WorkspaceRename changes a workspace's name (#870). The name is not in the event.
+	WorkspaceRename Action = "workspace.rename"
 
 	APIKeyIssue   Action = "apikey.issue"
 	APIKeyList    Action = "apikey.list"
@@ -104,6 +110,11 @@ const (
 	// AdminWebhookSweep is the operator's call that sends the retries now due.
 	AdminWebhookSweep Action = "admin.webhook_sweep"
 
+	// EvalDrift is a monthly re-score that fell below the earlier months
+	// (EVAL_DRIFT_ALERTS, #921). Written by the system for the platform; the
+	// object names the series and month, the detail the series.
+	EvalDrift Action = "eval.drift"
+
 	// Broker workflow (BROKER_WORKFLOW). The object is always the case; no
 	// comment, reason or letter text reaches the trail.
 	QueueChange      Action = "queue.change"
@@ -136,8 +147,10 @@ var actionSpecs = map[Action]actionSpec{
 	WorkspaceRoleChange:   {details: []string{"", "viewer", "editor", "admin"}, sensitive: true},
 	WorkspaceMemberRemove: {sensitive: true},
 	WorkspaceLeave:        {sensitive: true},
-	WorkspaceRetention:    {details: []string{"", "keep", "expire"}, sensitive: true},
+	WorkspaceRetention:    {details: []string{"", "keep", "expire", "audit"}, sensitive: true},
+	AuditPurge:            {details: []string{"workspace"}},
 	WorkspaceBudget:       {details: []string{"set", "clear"}},
+	WorkspaceRename:       {sensitive: true},
 	APIKeyIssue:           {sensitive: true},
 	APIKeyList:            {},
 	APIKeyDisable:         {sensitive: true},
@@ -185,6 +198,9 @@ var actionSpecs = map[Action]actionSpec{
 	WebhookTest:       {},
 	WebhookRead:       {},
 	AdminWebhookSweep: {},
+	// A drift alert reports a measurement; it changes nothing and is never a
+	// reason to refuse one.
+	EvalDrift: {details: []string{"cbp", "japan"}},
 	// A comment, a sign-off or a per-case role changes only the case's own
 	// discussion; preparing a package stays inside the system and a download
 	// goes to someone who can already read the case. None fails closed.
@@ -328,7 +344,7 @@ var (
 	// user text by construction), "new" for an API key not yet issued, or a
 	// keyed opaque hash of an ID the requester supplied and the server did not
 	// confirm (see Pseudonymizer.Opaque).
-	objectPattern  = regexp.MustCompile(`^(case:(case_[0-9a-f]{12}|h_[0-9a-f]{16})|workspace:(ws_[0-9a-f]{12}|h_[0-9a-f]{16})|apikey:([0-9a-f]{16}|new|h_[0-9a-f]{16})|ssoconn:(sso_[0-9a-f]{16}|h_[0-9a-f]{16})|webhook:(wh_[0-9a-f]{16}|h_[0-9a-f]{16})|batch)$`)
+	objectPattern  = regexp.MustCompile(`^(case:(case_[0-9a-f]{12}|h_[0-9a-f]{16})|workspace:(ws_[0-9a-f]{12}|h_[0-9a-f]{16})|apikey:([0-9a-f]{16}|new|h_[0-9a-f]{16})|ssoconn:(sso_[0-9a-f]{16}|h_[0-9a-f]{16})|webhook:(wh_[0-9a-f]{16}|h_[0-9a-f]{16})|batch|evalmonth:(cbp|japan):20[0-9]{2}-(0[1-9]|1[0-2]))$`)
 	routePattern   = regexp.MustCompile(`^[A-Z]{3,7} /[A-Za-z0-9/_{}.-]{0,110}$`)
 	requestPattern = regexp.MustCompile(`^(h_)?[0-9a-f]{16}$`)
 	hashPattern    = regexp.MustCompile(`^[0-9a-f]{64}$`)

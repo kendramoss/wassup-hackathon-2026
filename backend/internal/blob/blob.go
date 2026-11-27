@@ -48,3 +48,18 @@ func (d Dir) Put(_ context.Context, key string, b []byte) error {
 	}
 	return os.Rename(tmp.Name(), filepath.Join(d.Dir, key+".json"))
 }
+
+// Deleter is a Store that can remove a blob. Removing a missing key is not an
+// error.
+type Deleter interface {
+	Delete(ctx context.Context, key string) error
+}
+
+// Delete implements Deleter.
+func (d Dir) Delete(_ context.Context, key string) error {
+	err := os.Remove(filepath.Join(d.Dir, key+".json"))
+	if err != nil && !errors.Is(err, fs.ErrNotExist) {
+		return err
+	}
+	return nil
+}

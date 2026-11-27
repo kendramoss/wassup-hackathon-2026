@@ -37,6 +37,7 @@ data/tuning/
 /backend/mediacheck
 /backend/readiness-eval
 /backend/tariffshift
+/backend/textilerules
 /backend/jpeval
 /backend/usmcaeval
 /backend/adcvdeval
@@ -51,3 +52,4 @@ data/tuning/
 /backend/adcvdreal
 /eval/adcvd/real/**/pairs.jsonl
 /eval/adcvd/real/**/reads*.jsonl
+/backend/evaldrift

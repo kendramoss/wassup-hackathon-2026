@@ -1,0 +1,4415 @@
+{
+ "source": {
+  "ecfr": "19 CFR 102.21, eCFR point in time 18 Nov 2026 (the Part 102 file of D360), public domain; source/ecfr-102.21.xml",
+  "fr": "87 FR 68356, 15 Nov 2022 (CBP Dec. 22-25), the entry for 6201-6208 that the eCFR could not incorporate (its editorial note); source/fr-87-68356-6201-6208.txt",
+  "note": "The text is the regulation's; the alternatives, conditions and requirements are parsed from it by Build, and a test re-parses the committed text so rules.json cannot drift."
+ },
+ "scope": [
+  "3005.90",
+  "3921.12.15",
+  "3921.13.15",
+  "3921.90.2550",
+  "4202.12.40-89",
+  "4202.22.40-89",
+  "4202.32.40-99",
+  "4202.92.04-08",
+  "4202.92.15-33",
+  "4202.92.60-97",
+  "6405.20.60",
+  "6406.10.77",
+  "6406.10.90",
+  "6406.90.15",
+  "6501",
+  "6502",
+  "6504",
+  "6505.00 (except for hair-nets of subheading 6505.00)",
+  "6601.10-99",
+  "7019.13.15",
+  "7019.13.28",
+  "7019.61-90",
+  "8708.21",
+  "8804",
+  "9113.90.40",
+  "9404.90",
+  "9612.10.9010",
+  "9619.00.21-79"
+ ],
+ "c3ii_excluded": [
+  "5900-5999",
+  "5609",
+  "5807",
+  "5811",
+  "6213",
+  "6214",
+  "6301-6306",
+  "6308",
+  "6307.10",
+  "6307.90",
+  "9404.90",
+  "9619.00.31-33"
+ ],
+ "rows": [
+  {
+   "code": "3005.90",
+   "lo": "3005900000",
+   "hi": "3005909999",
+   "origin": "eCFR",
+   "alts": [
+    {
+     "id": "1",
+     "text": "If the good contains pharmaceutical substances, a change to subheading 3005.90 from any other heading",
+     "conds": [
+      {
+       "unmodeled": "If the good contains pharmaceutical substances"
+      }
+     ],
+     "req": {
+      "kind": "shift",
+      "shift": {
+       "from": "any other heading"
+      }
+     }
+    },
+    {
+     "id": "2",
+     "text": "If the good does not contain pharmaceutical substances, a change to subheading 3005.90 from any other heading, except from heading 5007, 5111 through 5113, 5208 through 5212, 5309 through 5311, 5407 through 5408, 5512 through 5516, 5601 through 5603, 5801 through 5804, 5806, 5809, 5903, 5906 through 5907, and 6001 through 6006.",
+     "conds": [
+      {
+       "unmodeled": "If the good does not contain pharmaceutical substances"
+      }
+     ],
+     "req": {
+      "kind": "shift",
+      "shift": {
+       "from": "any other heading",
+       "except": [
+        "5007",
+        "5111-5113",
+        "5208-5212",
+        "5309-5311",
+        "5407-5408",
+        "5512-5516",
+        "5601-5603",
+        "5801-5804",
+        "5806",
+        "5809",
+        "5903",
+        "5906-5907",
+        "6001-6006"
+       ]
+      }
+     }
+    }
+   ]
+  },
+  {
+   "code": "3921.12.15",
+   "lo": "3921121500",
+   "hi": "3921121599",
+   "origin": "eCFR",
+   "alts": [
+    {
+     "id": "1",
+     "text": "A change to subheading 3921.12.15 from any other heading.",
+     "req": {
+      "kind": "shift",
+      "shift": {
+       "from": "any other heading"
+      }
+     }
+    }
+   ]
+  },
+  {
+   "code": "3921.13.15",
+   "lo": "3921131500",
+   "hi": "3921131599",
+   "origin": "eCFR",
+   "alts": [
+    {
+     "id": "1",
+     "text": "A change to subheading 3921.13.15 from any other heading.",
+     "req": {
+      "kind": "shift",
+      "shift": {
+       "from": "any other heading"
+      }
+     }
+    }
+   ]
+  },
+  {
+   "code": "3921.90.2550",
+   "lo": "3921902550",
+   "hi": "3921902550",
+   "origin": "eCFR",
+   "alts": [
+    {
+     "id": "1",
+     "text": "A change to subheading 3921.90.2550 from any other heading.",
+     "req": {
+      "kind": "shift",
+      "shift": {
+       "from": "any other heading"
+      }
+     }
+    }
+   ]
+  },
+  {
+   "code": "4202.12.40-4202.12.89",
+   "lo": "4202124000",
+   "hi": "4202128999",
+   "origin": "eCFR",
+   "alts": [
+    {
+     "id": "1",
+     "text": "A change to subheading 4202.12.40 through 4202.12.89 from any other heading, provided that the change is the result of the good being wholly assembled in a single country, territory, or insular possession.",
+     "req": {
+      "kind": "process",
+      "process": "assembly",
+      "shift": {
+       "from": "any other heading"
+      }
+     }
+    }
+   ]
+  },
+  {
+   "code": "4202.22.40-4202.22.89",
+   "lo": "4202224000",
+   "hi": "4202228999",
+   "origin": "eCFR",
+   "alts": [
+    {
+     "id": "1",
+     "text": "A change to subheading 4202.22.40 through 4202.22.89 from any other heading, provided that the change is the result of the good being wholly assembled in a single country, territory, or insular possession.",
+     "req": {
+      "kind": "process",
+      "process": "assembly",
+      "shift": {
+       "from": "any other heading"
+      }
+     }
+    }
+   ]
+  },
+  {
+   "code": "4202.32.40-4202.32.99",
+   "lo": "4202324000",
+   "hi": "4202329999",
+   "origin": "eCFR",
+   "alts": [
+    {
+     "id": "1",
+     "text": "A change to subheading 4202.32.40 through 4202.32.99 from any other heading, provided that the change is the result of the good being wholly assembled in a single country, territory, or insular possession.",
+     "req": {
+      "kind": "process",
+      "process": "assembly",
+      "shift": {
+       "from": "any other heading"
+      }
+     }
+    }
+   ]
+  },
+  {
+   "code": "4202.92.04-4202.92.08",
+   "lo": "4202920400",
+   "hi": "4202920899",
+   "origin": "eCFR",
+   "alts": [
+    {
+     "id": "1",
+     "text": "A change to subheadings 4202.92.04 through 4202.92.08 from any other heading, provided that the change is the result of the good being wholly assembled in a single country, territory or insular possession.",
+     "req": {
+      "kind": "process",
+      "process": "assembly",
+      "shift": {
+       "from": "any other heading"
+      }
+     }
+    }
+   ]
+  },
+  {
+   "code": "4202.92.15-4202.92.33",
+   "lo": "4202921500",
+   "hi": "4202923399",
+   "origin": "eCFR",
+   "alts": [
+    {
+     "id": "1",
+     "text": "A change to subheading 4202.92.15 through 4202.92.33 from any other heading, provided that the change is the result of the good being wholly assembled in a single country, territory, or insular possession.",
+     "req": {
+      "kind": "process",
+      "process": "assembly",
+      "shift": {
+       "from": "any other heading"
+      }
+     }
+    }
+   ]
+  },
+  {
+   "code": "4202.92.60-4202.92.97",
+   "lo": "4202926000",
+   "hi": "4202929799",
+   "origin": "eCFR",
+   "alts": [
+    {
+     "id": "1",
+     "text": "A change to subheading 4202.92.60 through 4202.92.97 from any other heading, provided that the change is the result of the good being wholly assembled in a single country, territory, or insular possession.",
+     "req": {
+      "kind": "process",
+      "process": "assembly",
+      "shift": {
+       "from": "any other heading"
+      }
+     }
+    }
+   ]
+  },
+  {
+   "code": "5001-5002",
+   "lo": "5001000000",
+   "hi": "5002999999",
+   "origin": "eCFR",
+   "alts": [
+    {
+     "id": "1",
+     "text": "A change to heading 5001 through 5002 from any other chapter.",
+     "req": {
+      "kind": "shift",
+      "shift": {
+       "from": "any other chapter"
+      }
+     }
+    }
+   ]
+  },
+  {
+   "code": "5003",
+   "lo": "5003000000",
+   "hi": "5003999999",
+   "origin": "eCFR",
+   "alts": [
+    {
+     "id": "1",
+     "text": "A change to heading 5003 from any other heading, provided that the change is the result of garnetting. If the change to heading 5003 is not the result of garnetting, the country of origin of the good is the country of origin of the good prior to its becoming waste.",
+     "req": {
+      "kind": "process",
+      "process": "garnetting",
+      "shift": {
+       "from": "any other heading"
+      }
+     }
+    }
+   ]
+  },
+  {
+   "code": "5004-5006",
+   "lo": "5004000000",
+   "hi": "5006999999",
+   "origin": "eCFR",
+   "alts": [
+    {
+     "id": "1",
+     "text": "If the good is of staple fibers, a change to heading 5004 through 5006 from any heading outside that group, provided that the change is the result of a spinning process.",
+     "conds": [
+      {
+       "fact": "fibre_form",
+       "want": "staple"
+      }
+     ],
+     "req": {
+      "kind": "process",
+      "process": "spinning",
+      "shift": {
+       "from": "any heading outside that group"
+      }
+     }
+    },
+    {
+     "id": "2",
+     "text": "If the good is of filaments, a change to heading 5004 through 5006 from any heading outside that group, provided that the change is the result of an extrusion process.",
+     "conds": [
+      {
+       "fact": "fibre_form",
+       "want": "filaments"
+      }
+     ],
+     "req": {
+      "kind": "process",
+      "process": "extrusion",
+      "shift": {
+       "from": "any heading outside that group"
+      }
+     }
+    }
+   ]
+  },
+  {
+   "code": "5007",
+   "lo": "5007000000",
+   "hi": "5007999999",
+   "origin": "eCFR",
+   "alts": [
+    {
+     "id": "1",
+     "text": "A change from greige fabric of heading 5007 to finished fabric of heading 5007 by both dyeing and printing when accompanied by two or more of the following finishing operations: bleaching, shrinking, fulling, napping, decating, permanent stiffening, weighting, permanent embossing, or moireing; or,",
+     "req": {
+      "kind": "process",
+      "process": "dye_print_finish"
+     }
+    },
+    {
+     "id": "2",
+     "text": "If the country of origin cannot be determined under (1) above, a change to heading 5007 from any other heading, provided that the change is the result of a fabric-making process.",
+     "after": "1",
+     "req": {
+      "kind": "process",
+      "process": "fabric_making",
+      "shift": {
+       "from": "any other heading"
+      }
+     }
+    }
+   ]
+  },
+  {
+   "code": "5101-5103",
+   "lo": "5101000000",
+   "hi": "5103999999",
+   "origin": "eCFR",
+   "alts": [
+    {
+     "id": "1",
+     "text": "A change to heading 5101 through 5103 from any other chapter.",
+     "req": {
+      "kind": "shift",
+      "shift": {
+       "from": "any other chapter"
+      }
+     }
+    }
+   ]
+  },
+  {
+   "code": "5104",
+   "lo": "5104000000",
+   "hi": "5104999999",
+   "origin": "eCFR",
+   "alts": [
+    {
+     "id": "1",
+     "text": "A change to heading 5104 from any other heading.",
+     "req": {
+      "kind": "shift",
+      "shift": {
+       "from": "any other heading"
+      }
+     }
+    }
+   ]
+  },
+  {
+   "code": "5105",
+   "lo": "5105000000",
+   "hi": "5105999999",
+   "origin": "eCFR",
+   "alts": [
+    {
+     "id": "1",
+     "text": "A change to heading 5105 from any other chapter.",
+     "req": {
+      "kind": "shift",
+      "shift": {
+       "from": "any other chapter"
+      }
+     }
+    }
+   ]
+  },
+  {
+   "code": "5106-5110",
+   "lo": "5106000000",
+   "hi": "5110999999",
+   "origin": "eCFR",
+   "alts": [
+    {
+     "id": "1",
+     "text": "A change to heading 5106 through 5110 from any heading outside that group, provided that the change is the result of a spinning process.",
+     "req": {
+      "kind": "process",
+      "process": "spinning",
+      "shift": {
+       "from": "any heading outside that group"
+      }
+     }
+    }
+   ]
+  },
+  {
+   "code": "5111-5113",
+   "lo": "5111000000",
+   "hi": "5113999999",
+   "origin": "eCFR",
+   "alts": [
+    {
+     "id": "1",
+     "text": "A change to heading 5111 through 5113 from any heading outside that group, provided that the change is the result of a fabric-making process.",
+     "req": {
+      "kind": "process",
+      "process": "fabric_making",
+      "shift": {
+       "from": "any heading outside that group"
+      }
+     }
+    }
+   ]
+  },
+  {
+   "code": "5201",
+   "lo": "5201000000",
+   "hi": "5201999999",
+   "origin": "eCFR",
+   "alts": [
+    {
+     "id": "1",
+     "text": "A change to heading 5201 from any other chapter.",
+     "req": {
+      "kind": "shift",
+      "shift": {
+       "from": "any other chapter"
+      }
+     }
+    }
+   ]
+  },
+  {
+   "code": "5202",
+   "lo": "5202000000",
+   "hi": "5202999999",
+   "origin": "eCFR",
+   "alts": [
+    {
+     "id": "1",
+     "text": "A change to heading 5202 from any other heading, provided that the change is the result of garnetting. If the change to heading 5202 is not the result of garnetting, the country of origin of the good is the country of origin of the good prior to its becoming waste.",
+     "req": {
+      "kind": "process",
+      "process": "garnetting",
+      "shift": {
+       "from": "any other heading"
+      }
+     }
+    }
+   ]
+  },
+  {
+   "code": "5203",
+   "lo": "5203000000",
+   "hi": "5203999999",
+   "origin": "eCFR",
+   "alts": [
+    {
+     "id": "1",
+     "text": "A change to heading 5203 from any other chapter.",
+     "req": {
+      "kind": "shift",
+      "shift": {
+       "from": "any other chapter"
+      }
+     }
+    }
+   ]
+  },
+  {
+   "code": "5204-5207",
+   "lo": "5204000000",
+   "hi": "5207999999",
+   "origin": "eCFR",
+   "alts": [
+    {
+     "id": "1",
+     "text": "A change to heading 5204 through 5207 from any heading outside that group, provided that the change is the result of a spinning process.",
+     "req": {
+      "kind": "process",
+      "process": "spinning",
+      "shift": {
+       "from": "any heading outside that group"
+      }
+     }
+    }
+   ]
+  },
+  {
+   "code": "5208-5212",
+   "lo": "5208000000",
+   "hi": "5212999999",
+   "origin": "eCFR",
+   "alts": [
+    {
+     "id": "1",
+     "text": "A change from greige fabric of heading 5208 through 5212 to finished fabric of heading 5208 through 5212 by both dyeing and printing when accompanied by two or more of the following finishing operations: bleaching, shrinking, fulling, napping, decating, permanent stiffening, weighting, permanent embossing, or moireing; or",
+     "req": {
+      "kind": "process",
+      "process": "dye_print_finish"
+     }
+    },
+    {
+     "id": "2",
+     "text": "If the country of origin cannot be determined under (1) above, a change to heading 5208 through 5212 from any heading outside that group, provided that the change is the result of a fabric-making process.",
+     "after": "1",
+     "req": {
+      "kind": "process",
+      "process": "fabric_making",
+      "shift": {
+       "from": "any heading outside that group"
+      }
+     }
+    }
+   ]
+  },
+  {
+   "code": "5301-5305",
+   "lo": "5301000000",
+   "hi": "5305999999",
+   "origin": "eCFR",
+   "alts": [
+    {
+     "id": "1",
+     "text": "Except for waste, a change to heading 5301 through 5305 from any other chapter.",
+     "conds": [
+      {
+       "unmodeled": "Except for waste"
+      }
+     ],
+     "req": {
+      "kind": "shift",
+      "shift": {
+       "from": "any other chapter"
+      }
+     }
+    },
+    {
+     "id": "2",
+     "text": "For waste, a change to heading 5301 through 5305 from any heading outside that group, provided that the change is the result of garnetting. If the change is not the result of garnetting, the country of origin of the good is the country of origin of the good prior to its becoming waste.",
+     "conds": [
+      {
+       "unmodeled": "For waste"
+      }
+     ],
+     "req": {
+      "kind": "process",
+      "process": "garnetting",
+      "shift": {
+       "from": "any heading outside that group"
+      }
+     }
+    }
+   ]
+  },
+  {
+   "code": "5306-5307",
+   "lo": "5306000000",
+   "hi": "5307999999",
+   "origin": "eCFR",
+   "alts": [
+    {
+     "id": "1",
+     "text": "A change to heading 5306 through 5307 from any heading outside that group, provided that the change is the result of a spinning process.",
+     "req": {
+      "kind": "process",
+      "process": "spinning",
+      "shift": {
+       "from": "any heading outside that group"
+      }
+     }
+    }
+   ]
+  },
+  {
+   "code": "5308",
+   "lo": "5308000000",
+   "hi": "5308999999",
+   "origin": "eCFR",
+   "alts": [
+    {
+     "id": "1",
+     "text": "Except for paper yarns, a change to heading 5308 from any other heading, provided that the change is the result of a spinning process.",
+     "conds": [
+      {
+       "unmodeled": "Except for paper yarns"
+      }
+     ],
+     "req": {
+      "kind": "process",
+      "process": "spinning",
+      "shift": {
+       "from": "any other heading"
+      }
+     }
+    },
+    {
+     "id": "2",
+     "text": "For paper yarns, a change to heading 5308 from any other heading, except from heading 4707, 4801 through 4806, 4811, and 4818.",
+     "conds": [
+      {
+       "unmodeled": "For paper yarns"
+      }
+     ],
+     "req": {
+      "kind": "shift",
+      "shift": {
+       "from": "any other heading",
+       "except": [
+        "4707",
+        "4801-4806",
+        "4811",
+        "4818"
+       ]
+      }
+     }
+    }
+   ]
+  },
+  {
+   "code": "5309-5311",
+   "lo": "5309000000",
+   "hi": "5311999999",
+   "origin": "eCFR",
+   "alts": [
+    {
+     "id": "1",
+     "text": "A change from greige fabric of heading 5309 through 5311 to finished fabric of heading 5309 through 5311 by both dyeing and printing when accompanied by two or more of the following finishing operations: bleaching, shrinking, fulling, napping, decating, permanent stiffening, weighting, permanent embossing, or moireing; or",
+     "req": {
+      "kind": "process",
+      "process": "dye_print_finish"
+     }
+    },
+    {
+     "id": "2",
+     "text": "If the country of origin cannot be determined under (1) above, a change to heading 5309 through 5311 from any heading outside that group, provided that the change is the result of a fabric-making process.",
+     "after": "1",
+     "req": {
+      "kind": "process",
+      "process": "fabric_making",
+      "shift": {
+       "from": "any heading outside that group"
+      }
+     }
+    }
+   ]
+  },
+  {
+   "code": "5401-5406",
+   "lo": "5401000000",
+   "hi": "5406999999",
+   "origin": "eCFR",
+   "alts": [
+    {
+     "id": "1",
+     "text": "A change to heading 5401 through 5406 from any other heading, provided that the change is the result of an extrusion process.",
+     "req": {
+      "kind": "process",
+      "process": "extrusion",
+      "shift": {
+       "from": "any other heading"
+      }
+     }
+    }
+   ]
+  },
+  {
+   "code": "5407-5408",
+   "lo": "5407000000",
+   "hi": "5408999999",
+   "origin": "eCFR",
+   "alts": [
+    {
+     "id": "1",
+     "text": "A change from greige fabric of heading 5407 through 5408 to finished fabric of heading 5407 through 5408 by both dyeing and printing when accompanied by two or more of the following finishing operations: bleaching, shrinking, fulling, napping, decating, permanent stiffening, weighting, permanent embossing, or moireing; or",
+     "req": {
+      "kind": "process",
+      "process": "dye_print_finish"
+     }
+    },
+    {
+     "id": "2",
+     "text": "If the country of origin cannot be determined under (1) above, a change to heading 5407 through 5408 from any heading outside that group, provided that the change is the result of a fabric-making process.",
+     "after": "1",
+     "req": {
+      "kind": "process",
+      "process": "fabric_making",
+      "shift": {
+       "from": "any heading outside that group"
+      }
+     }
+    }
+   ]
+  },
+  {
+   "code": "5501-5502",
+   "lo": "5501000000",
+   "hi": "5502999999",
+   "origin": "eCFR",
+   "alts": [
+    {
+     "id": "1",
+     "text": "A change to heading 5501 through 5502 from any other chapter, provided that the change is the result of an extrusion process.",
+     "req": {
+      "kind": "process",
+      "process": "extrusion",
+      "shift": {
+       "from": "any other chapter"
+      }
+     }
+    }
+   ]
+  },
+  {
+   "code": "5503-5504",
+   "lo": "5503000000",
+   "hi": "5504999999",
+   "origin": "eCFR",
+   "alts": [
+    {
+     "id": "1",
+     "text": "A change to heading 5503 through 5504 from any other chapter, except from Chapter 54.",
+     "req": {
+      "kind": "shift",
+      "shift": {
+       "from": "any other chapter",
+       "except": [
+        "Chapter 54"
+       ]
+      }
+     }
+    }
+   ]
+  },
+  {
+   "code": "5505",
+   "lo": "5505000000",
+   "hi": "5505999999",
+   "origin": "eCFR",
+   "alts": [
+    {
+     "id": "1",
+     "text": "A change to heading 5505 from any other heading, provided that the change is the result of garnetting. If the change is not the result of garnetting, the country of origin of the good is the country of origin of the good prior to its becoming waste.",
+     "req": {
+      "kind": "process",
+      "process": "garnetting",
+      "shift": {
+       "from": "any other heading"
+      }
+     }
+    }
+   ]
+  },
+  {
+   "code": "5506-5507",
+   "lo": "5506000000",
+   "hi": "5507999999",
+   "origin": "eCFR",
+   "alts": [
+    {
+     "id": "1",
+     "text": "A change to heading 5506 through 5507 from any other chapter, except from Chapter 54.",
+     "req": {
+      "kind": "shift",
+      "shift": {
+       "from": "any other chapter",
+       "except": [
+        "Chapter 54"
+       ]
+      }
+     }
+    }
+   ]
+  },
+  {
+   "code": "5508-5511",
+   "lo": "5508000000",
+   "hi": "5511999999",
+   "origin": "eCFR",
+   "alts": [
+    {
+     "id": "1",
+     "text": "A change to heading 5508 through 5511 from any heading outside that group, provided that the change is the result of a spinning process.",
+     "req": {
+      "kind": "process",
+      "process": "spinning",
+      "shift": {
+       "from": "any heading outside that group"
+      }
+     }
+    }
+   ]
+  },
+  {
+   "code": "5512-5516",
+   "lo": "5512000000",
+   "hi": "5516999999",
+   "origin": "eCFR",
+   "alts": [
+    {
+     "id": "1",
+     "text": "A change from greige fabric of heading 5512 through 5516 to finished fabric of heading 5512 through 5516 by both dyeing and printing when accompanied by two or more of the following finishing operations: bleaching, shrinking, fulling, napping, decating, permanent stiffening, weighting, permanent embossing, or moireing; or",
+     "req": {
+      "kind": "process",
+      "process": "dye_print_finish"
+     }
+    },
+    {
+     "id": "2",
+     "text": "If the country of origin cannot be determined under (1) above, a change to heading 5512 through 5516 from any heading outside that group, provided that the change is the result of a fabric-making process.",
+     "after": "1",
+     "req": {
+      "kind": "process",
+      "process": "fabric_making",
+      "shift": {
+       "from": "any heading outside that group"
+      }
+     }
+    }
+   ]
+  },
+  {
+   "code": "5601",
+   "lo": "5601000000",
+   "hi": "5601999999",
+   "origin": "eCFR",
+   "alts": [
+    {
+     "id": "1",
+     "text": "A change to wadding of heading 5601 from any other heading, except from heading 5105, 5203, 5501 through 5507, and articles of wadding of heading 9619.",
+     "conds": [
+      {
+       "unmodeled": "goods: wadding of heading 5601"
+      }
+     ],
+     "req": {
+      "kind": "shift",
+      "shift": {
+       "from": "any other heading",
+       "except": [
+        "5105",
+        "5203",
+        "5501-5507",
+        "9619"
+       ]
+      }
+     }
+    },
+    {
+     "id": "2",
+     "text": "A change to flock, textile dust, mill neps, or articles of wadding, of heading 5601 from any other heading or from wadding of heading 5601.",
+     "conds": [
+      {
+       "unmodeled": "goods: flock, textile dust, mill neps, or articles of wadding, of heading 5601"
+      }
+     ],
+     "req": {
+      "kind": "shift",
+      "shift": {
+       "from": "any other heading"
+      }
+     }
+    }
+   ]
+  },
+  {
+   "code": "5602-5603",
+   "lo": "5602000000",
+   "hi": "5603999999",
+   "origin": "eCFR",
+   "alts": [
+    {
+     "id": "1",
+     "text": "Except for fabric of wool or of fine animal hair, a change from greige fabric of heading 5602 through 5603 to finished fabric of heading 5602 through 5603 by both dyeing and printing when accompanied by two or more of the following finishing operations: bleaching, shrinking, fulling, napping, decating, permanent stiffening, weighting, permanent embossing, or moireing; or",
+     "conds": [
+      {
+       "fact": "fabric_of_wool",
+       "want": "no"
+      }
+     ],
+     "req": {
+      "kind": "process",
+      "process": "dye_print_finish"
+     }
+    },
+    {
+     "id": "2",
+     "text": "If the country of origin cannot be determined under (1) above, a change to heading 5602 through 5603 from any heading outside that group, provided that the change is the result of a fabric-making process.",
+     "after": "1",
+     "req": {
+      "kind": "process",
+      "process": "fabric_making",
+      "shift": {
+       "from": "any heading outside that group"
+      }
+     }
+    }
+   ]
+  },
+  {
+   "code": "5604",
+   "lo": "5604000000",
+   "hi": "5604999999",
+   "origin": "eCFR",
+   "alts": [
+    {
+     "id": "1",
+     "text": "If the textile component is of continuous filaments, including strips, a change of those filaments, including strips, to heading 5604 from any other heading, except from heading 5001 through 5007, 5401 through 5408, and 5501 through 5502, and provided that the change is the result of an extrusion process.",
+     "conds": [
+      {
+       "fact": "fibre_form",
+       "want": "filaments"
+      }
+     ],
+     "req": {
+      "kind": "process",
+      "process": "extrusion",
+      "last": true,
+      "shift": {
+       "from": "any other heading",
+       "except": [
+        "5001-5007",
+        "5401-5408",
+        "5501-5502"
+       ]
+      }
+     }
+    },
+    {
+     "id": "2",
+     "text": "If the textile component is of staple fibers, a change of those fibers to heading 5604 from any other heading, except from heading 5004 through 5006, 5106 through 5110, 5204 through 5207, 5306 through 5308, and 5508 through 5511, and provided that the change is the result of a spinning process.",
+     "conds": [
+      {
+       "fact": "fibre_form",
+       "want": "staple"
+      }
+     ],
+     "req": {
+      "kind": "process",
+      "process": "spinning",
+      "last": true,
+      "shift": {
+       "from": "any other heading",
+       "except": [
+        "5004-5006",
+        "5106-5110",
+        "5204-5207",
+        "5306-5308",
+        "5508-5511"
+       ]
+      }
+     }
+    }
+   ]
+  },
+  {
+   "code": "5605-5606",
+   "lo": "5605000000",
+   "hi": "5606999999",
+   "origin": "eCFR",
+   "alts": [
+    {
+     "id": "1",
+     "text": "If the good is of continuous filaments, including strips, a change of those filaments, including strips, to heading 5605 through 5606 from any other heading, except from heading 5001 through 5007, 5401 through 5408, and 5501 through 5502, and provided that the change is the result of an extrusion process; or",
+     "conds": [
+      {
+       "fact": "fibre_form",
+       "want": "filaments"
+      }
+     ],
+     "req": {
+      "kind": "process",
+      "process": "extrusion",
+      "last": true,
+      "shift": {
+       "from": "any other heading",
+       "except": [
+        "5001-5007",
+        "5401-5408",
+        "5501-5502"
+       ]
+      }
+     }
+    },
+    {
+     "id": "2",
+     "text": "If the good is of staple fibers, a change of those fibers to heading 5605 through 5606 from any other heading, except from heading 5106 through 5110, 5204 through 5207, 5306 through 5308, and 5508 through 5511, and provided that the change is the result of a spinning process.",
+     "conds": [
+      {
+       "fact": "fibre_form",
+       "want": "staple"
+      }
+     ],
+     "req": {
+      "kind": "process",
+      "process": "spinning",
+      "last": true,
+      "shift": {
+       "from": "any other heading",
+       "except": [
+        "5106-5110",
+        "5204-5207",
+        "5306-5308",
+        "5508-5511"
+       ]
+      }
+     }
+    }
+   ]
+  },
+  {
+   "code": "5607",
+   "lo": "5607000000",
+   "hi": "5607999999",
+   "origin": "eCFR",
+   "alts": [
+    {
+     "id": "1",
+     "text": "If the good is of continuous filaments, including strips, a change of those filaments, including strips, to heading 5607 from any other heading, except from heading 5001 through 5007, 5401 through 5406, and 5501 through 5511, and provided that the change is the result of an extrusion process; or",
+     "conds": [
+      {
+       "fact": "fibre_form",
+       "want": "filaments"
+      }
+     ],
+     "req": {
+      "kind": "process",
+      "process": "extrusion",
+      "last": true,
+      "shift": {
+       "from": "any other heading",
+       "except": [
+        "5001-5007",
+        "5401-5406",
+        "5501-5511"
+       ]
+      }
+     }
+    },
+    {
+     "id": "2",
+     "text": "If the good is of staple fibers, a change of those fibers to heading 5607 from any other heading, except from heading 5106 through 5110, 5204 through 5207, 5306 through 5308, and 5508 through 5511, and provided that the change is the result of a spinning process.",
+     "conds": [
+      {
+       "fact": "fibre_form",
+       "want": "staple"
+      }
+     ],
+     "req": {
+      "kind": "process",
+      "process": "spinning",
+      "last": true,
+      "shift": {
+       "from": "any other heading",
+       "except": [
+        "5106-5110",
+        "5204-5207",
+        "5306-5308",
+        "5508-5511"
+       ]
+      }
+     }
+    }
+   ]
+  },
+  {
+   "code": "5608",
+   "lo": "5608000000",
+   "hi": "5608999999",
+   "origin": "eCFR",
+   "alts": [
+    {
+     "id": "1(a)",
+     "text": "Except for netting of wool or of fine animal hair, a change from greige netting of heading 5608 to finished netting of heading 5608 by both dyeing and printing when accompanied by two or more of the following finishing operations: bleaching, shrinking, fulling, napping, decating, permanent stiffening, weighting, permanent embossing, or moireing; or",
+     "conds": [
+      {
+       "fact": "fabric_of_wool",
+       "want": "no"
+      }
+     ],
+     "req": {
+      "kind": "process",
+      "process": "dye_print_finish"
+     }
+    },
+    {
+     "id": "1(b)",
+     "text": "If the country of origin cannot be determined under (1)(a) above, a change to netting of heading 5608 from any other heading, except from heading 5804, and provided that the change is the result of a fabric-making process.",
+     "after": "1(a)",
+     "conds": [
+      {
+       "unmodeled": "goods: netting of heading 5608"
+      }
+     ],
+     "req": {
+      "kind": "process",
+      "process": "fabric_making",
+      "shift": {
+       "from": "any other heading",
+       "except": [
+        "5804"
+       ]
+      }
+     }
+    },
+    {
+     "id": "2(a)",
+     "text": "A change to fishing nets or other made up nets of heading 5608 If the good does not contain nontextile attachments, from any other heading, except from heading 5804 and 6002 through 6006, and provided that the change is the result of a fabric-making process; or",
+     "conds": [
+      {
+       "unmodeled": "A change to fishing nets or other made up nets of heading 5608"
+      }
+     ],
+     "req": {
+      "kind": "process",
+      "process": "fabric_making",
+      "shift": {
+       "from": "any other heading",
+       "except": [
+        "5804",
+        "6002-6006"
+       ]
+      }
+     }
+    },
+    {
+     "id": "2(b)",
+     "text": "A change to fishing nets or other made up nets of heading 5608 If the good contains nontextile attachments, from any heading, including a change from another good of heading 5608, provided that the change is the result of the good being wholly assembled in a single country, territory, or insular possession.",
+     "conds": [
+      {
+       "unmodeled": "A change to fishing nets or other made up nets of heading 5608 If the good contains nontextile attachments, from any heading, including"
+      }
+     ],
+     "req": {
+      "kind": "process",
+      "process": "assembly",
+      "shift": {
+       "from": "any heading"
+      }
+     }
+    }
+   ]
+  },
+  {
+   "code": "5609",
+   "lo": "5609000000",
+   "hi": "5609999999",
+   "origin": "eCFR",
+   "alts": [
+    {
+     "id": "1",
+     "text": "If of continuous filaments, including strips, the country of origin of a good classifiable under heading 5609 is the country, territory, or insular possession in which those filaments, including strips, were extruded.",
+     "conds": [
+      {
+       "fact": "fibre_form",
+       "want": "filaments"
+      }
+     ],
+     "req": {
+      "kind": "process",
+      "process": "extrusion"
+     }
+    },
+    {
+     "id": "2",
+     "text": "If of staple fibers, the country of origin of a good classifiable under heading 5609 is the country, territory, or insular possession in which those fibers were spun into yarns.",
+     "conds": [
+      {
+       "fact": "fibre_form",
+       "want": "staple"
+      }
+     ],
+     "req": {
+      "kind": "process",
+      "process": "spinning"
+     }
+    }
+   ]
+  },
+  {
+   "code": "5701-5705",
+   "lo": "5701000000",
+   "hi": "5705999999",
+   "origin": "eCFR",
+   "alts": [
+    {
+     "id": "1",
+     "text": "A change to heading 5701 through 5705 from any other chapter.",
+     "req": {
+      "kind": "shift",
+      "shift": {
+       "from": "any other chapter"
+      }
+     }
+    }
+   ]
+  },
+  {
+   "code": "5801-5803",
+   "lo": "5801000000",
+   "hi": "5803999999",
+   "origin": "eCFR",
+   "alts": [
+    {
+     "id": "1",
+     "text": "Except for fabric of wool or of fine animal hair, a change from greige fabric of heading 5801 through 5803 to finished fabric of heading 5801 through 5803 by both dyeing and printing when accompanied by two or more of the following finishing operations: bleaching, shrinking, fulling, napping, decating, permanent stiffening, weighting, permanent embossing, or moireing; or",
+     "conds": [
+      {
+       "fact": "fabric_of_wool",
+       "want": "no"
+      }
+     ],
+     "req": {
+      "kind": "process",
+      "process": "dye_print_finish"
+     }
+    },
+    {
+     "id": "2",
+     "text": "If the country of origin cannot be determined under (1) above, a change to heading 5801 through 5803 from any other heading, including a heading within that group, except from heading 5007, 5111 through 5113, 5208 through 5212, 5309 through 5311, 5407 through 5408, 5512 through 5516, and 6002 through 6006, and provided that the change is the result of a fabric-making process.",
+     "after": "1",
+     "req": {
+      "kind": "process",
+      "process": "fabric_making",
+      "shift": {
+       "from": "any other heading",
+       "except": [
+        "5007",
+        "5111-5113",
+        "5208-5212",
+        "5309-5311",
+        "5407-5408",
+        "5512-5516",
+        "6002-6006"
+       ]
+      }
+     }
+    }
+   ]
+  },
+  {
+   "code": "5804.10",
+   "lo": "5804100000",
+   "hi": "5804109999",
+   "origin": "eCFR",
+   "alts": [
+    {
+     "id": "1",
+     "text": "Except for fabric of wool or of fine animal hair, a change from greige fabric of subheading 5804.10 to finished fabric of subheading 5804.10 by both dyeing and printing when accompanied by two or more of the following finishing operations: bleaching, shrinking, fulling, napping, decating, permanent stiffening, weighting, permanent embossing, or moireing; or",
+     "conds": [
+      {
+       "fact": "fabric_of_wool",
+       "want": "no"
+      }
+     ],
+     "req": {
+      "kind": "process",
+      "process": "dye_print_finish"
+     }
+    },
+    {
+     "id": "2",
+     "text": "If the country of origin cannot be determined under (1) above, a change to subheading 5804.10 from any other heading, except from heading 5608, and provided that the change is the result of a fabric-making process.",
+     "after": "1",
+     "req": {
+      "kind": "process",
+      "process": "fabric_making",
+      "shift": {
+       "from": "any other heading",
+       "except": [
+        "5608"
+       ]
+      }
+     }
+    }
+   ]
+  },
+  {
+   "code": "5804.21-5804.30",
+   "lo": "5804210000",
+   "hi": "5804309999",
+   "origin": "eCFR",
+   "alts": [
+    {
+     "id": "1",
+     "text": "Except for lace of wool or of fine animal hair, a change from greige lace of subheading 5804.21 through 5804.30 to finished lace of subheading 5804.21 through 5804.30 by both dyeing and printing when accompanied by two or more of the following finishing operations: bleaching, shrinking, fulling, napping, decating, permanent stiffening, weighting, permanent embossing, or moireing; or",
+     "conds": [
+      {
+       "fact": "fabric_of_wool",
+       "want": "no"
+      }
+     ],
+     "req": {
+      "kind": "process",
+      "process": "dye_print_finish"
+     }
+    },
+    {
+     "id": "2",
+     "text": "If the country of origin cannot be determined under (1) above, a change to subheading 5804.21 through 5804.30 from any other heading, provided that the change is the result of a fabric-making process.",
+     "after": "1",
+     "req": {
+      "kind": "process",
+      "process": "fabric_making",
+      "shift": {
+       "from": "any other heading"
+      }
+     }
+    }
+   ]
+  },
+  {
+   "code": "5805",
+   "lo": "5805000000",
+   "hi": "5805999999",
+   "origin": "eCFR",
+   "alts": [
+    {
+     "id": "1",
+     "text": "A change to heading 5805 from any other heading, except from heading 5007, 5111 through 5113, 5208 through 5212, 5309 through 5311, 5407 through 5408, and 5512 through 5516, and provided that the change is the result of a fabric-making process.",
+     "req": {
+      "kind": "process",
+      "process": "fabric_making",
+      "shift": {
+       "from": "any other heading",
+       "except": [
+        "5007",
+        "5111-5113",
+        "5208-5212",
+        "5309-5311",
+        "5407-5408",
+        "5512-5516"
+       ]
+      }
+     }
+    }
+   ]
+  },
+  {
+   "code": "5806",
+   "lo": "5806000000",
+   "hi": "5806999999",
+   "origin": "eCFR",
+   "alts": [
+    {
+     "id": "1",
+     "text": "Except for fabric of wool or of fine animal hair, a change from greige fabric of heading 5806 to finished fabric of heading 5806 by both dyeing and printing when accompanied by two or more of the following finishing operations: bleaching, shrinking, fulling, napping, decating, permanent stiffening, weighting, permanent embossing, or moireing; or",
+     "conds": [
+      {
+       "fact": "fabric_of_wool",
+       "want": "no"
+      }
+     ],
+     "req": {
+      "kind": "process",
+      "process": "dye_print_finish"
+     }
+    },
+    {
+     "id": "2",
+     "text": "If the country of origin cannot be determined under (1) above, a change to heading 5806 from any other heading, except from heading 5007, 5111 through 5113, 5208 through 5212, 5309 through 5311, 5407 through 5408, 5512 through 5516, and 5801 through 5803, and provided that the change is the result of a fabric-making process.",
+     "after": "1",
+     "req": {
+      "kind": "process",
+      "process": "fabric_making",
+      "shift": {
+       "from": "any other heading",
+       "except": [
+        "5007",
+        "5111-5113",
+        "5208-5212",
+        "5309-5311",
+        "5407-5408",
+        "5512-5516",
+        "5801-5803"
+       ]
+      }
+     }
+    }
+   ]
+  },
+  {
+   "code": "5807",
+   "lo": "5807000000",
+   "hi": "5807999999",
+   "origin": "eCFR",
+   "alts": [
+    {
+     "id": "1",
+     "text": "The country of origin of a good classifiable under heading 5807 is the country, territory, or insular possession in which the fabric comprising the good was formed by a fabric-making process.",
+     "req": {
+      "kind": "process",
+      "process": "fabric_making"
+     }
+    }
+   ]
+  },
+  {
+   "code": "5808.10",
+   "lo": "5808100000",
+   "hi": "5808109999",
+   "origin": "eCFR",
+   "alts": [
+    {
+     "id": "1",
+     "text": "If the good is of continuous filaments, including strips, a change of those filaments, including strips, to subheading 5808.10 from any other heading, except from heading 5001 through 5007, 5401 through 5406, 5501 through 5502, and 5604 through 5607, and provided that the change is the result of an extrusion process.",
+     "conds": [
+      {
+       "fact": "fibre_form",
+       "want": "filaments"
+      }
+     ],
+     "req": {
+      "kind": "process",
+      "process": "extrusion",
+      "last": true,
+      "shift": {
+       "from": "any other heading",
+       "except": [
+        "5001-5007",
+        "5401-5406",
+        "5501-5502",
+        "5604-5607"
+       ]
+      }
+     }
+    },
+    {
+     "id": "2",
+     "text": "If the good is of staple fibers, a change of those fibers to heading 5808.10 from any other heading, except from heading 5106 through 5113, 5204 through 5212, 5306 through 5311, 5401 through 5408, 5508 through 5516, and 5604 through 5607, and provided that the change is the result of a spinning process.",
+     "conds": [
+      {
+       "fact": "fibre_form",
+       "want": "staple"
+      }
+     ],
+     "req": {
+      "kind": "process",
+      "process": "spinning",
+      "last": true,
+      "shift": {
+       "from": "any other heading",
+       "except": [
+        "5106-5113",
+        "5204-5212",
+        "5306-5311",
+        "5401-5408",
+        "5508-5516",
+        "5604-5607"
+       ]
+      }
+     }
+    }
+   ]
+  },
+  {
+   "code": "5808.90",
+   "lo": "5808900000",
+   "hi": "5808909999",
+   "origin": "eCFR",
+   "alts": [
+    {
+     "id": "1(a)",
+     "text": "For ornamental fabric trimmings A change from a greige good of subheading 5808.90 to a finished good of subheading 5808.90 by both dyeing and printing when accompanied by two or more of the following finishing operations: bleaching, shrinking, fulling, napping, decating, permanent stiffening, weighting, permanent embossing, or moireing; or,",
+     "conds": [
+      {
+       "unmodeled": "For ornamental fabric trimmings"
+      }
+     ],
+     "req": {
+      "kind": "process",
+      "process": "dye_print_finish"
+     }
+    },
+    {
+     "id": "1(b)",
+     "text": "For ornamental fabric trimmings If the country of origin cannot be determined under (a) above, a change to subheading 5808.90 from any other chapter, except from heading 5007, 5111 through 5113, 5208 through 5212, 5309 through 5311, 5407 through 5408, and 5512 through 5516, and provided that the change is the result of a fabric-making process.",
+     "after": "1(a)",
+     "conds": [
+      {
+       "unmodeled": "For ornamental fabric trimmings"
+      }
+     ],
+     "req": {
+      "kind": "process",
+      "process": "fabric_making",
+      "shift": {
+       "from": "any other chapter",
+       "except": [
+        "5007",
+        "5111-5113",
+        "5208-5212",
+        "5309-5311",
+        "5407-5408",
+        "5512-5516"
+       ]
+      }
+     }
+    },
+    {
+     "id": "2(a)",
+     "text": "For nonfabric ornamental trimmings If the trimming is of continuous filaments, including strips, a change to subheading 5808.90 from any other heading, except from heading 5001 through 5007, 5401 through 5408, 5501 through 5502, and 5604 through 5607, and provided that the change is the result of an extrusion process; or",
+     "conds": [
+      {
+       "fact": "fibre_form",
+       "want": "filaments"
+      },
+      {
+       "unmodeled": "For nonfabric ornamental trimmings If the trimming"
+      }
+     ],
+     "req": {
+      "kind": "process",
+      "process": "extrusion",
+      "shift": {
+       "from": "any other heading",
+       "except": [
+        "5001-5007",
+        "5401-5408",
+        "5501-5502",
+        "5604-5607"
+       ]
+      }
+     }
+    },
+    {
+     "id": "2(b)",
+     "text": "For nonfabric ornamental trimmings If the trimming is of staple fibers, a change to subheading 5808.90 from any other heading, except from heading 5106 through 5113, 5204 through 5212, 5306 through 5311, 5401 through 5408, 5508 through 5516, and 5604 through 5607, and provided that the change is the result of a spinning process.",
+     "conds": [
+      {
+       "fact": "fibre_form",
+       "want": "staple"
+      },
+      {
+       "unmodeled": "For nonfabric ornamental trimmings If the trimming"
+      }
+     ],
+     "req": {
+      "kind": "process",
+      "process": "spinning",
+      "shift": {
+       "from": "any other heading",
+       "except": [
+        "5106-5113",
+        "5204-5212",
+        "5306-5311",
+        "5401-5408",
+        "5508-5516",
+        "5604-5607"
+       ]
+      }
+     }
+    },
+    {
+     "id": "3(a)",
+     "text": "For tassels, pompons and similar articles If the good has been wholly assembled in a single country, territory, or insular possession, a change to subheading 5808.90 from any other heading",
+     "conds": [
+      {
+       "unmodeled": "For tassels, pompons and similar articles If the good has been wholly assembled in a single country, territory, or insular possession"
+      }
+     ],
+     "req": {
+      "kind": "process",
+      "process": "assembly",
+      "shift": {
+       "from": "any other heading"
+      }
+     }
+    },
+    {
+     "id": "3(b)",
+     "text": "For tassels, pompons and similar articles If the good has not been wholly assembled in a single country, territory, or insular possession and the good is of staple fibers, a change to subheading 5808.90 from any other heading, except from heading 5004 through 5006, 5106 through 5110, 5204 through 5207, 5306 through 5308, and 5508 through 5511, and 5604 through 5607, and provided that the change is the result of a spinning process; or",
+     "conds": [
+      {
+       "fact": "fibre_form",
+       "want": "staple"
+      },
+      {
+       "unmodeled": "For tassels, pompons and similar articles If the good has not been wholly assembled in a single country, territory, or insular possession and the good"
+      }
+     ],
+     "req": {
+      "kind": "process",
+      "process": "assembly",
+      "shift": {
+       "from": "any other heading",
+       "except": [
+        "5004-5006",
+        "5106-5110",
+        "5204-5207",
+        "5306-5308",
+        "5508-5511",
+        "5604-5607"
+       ]
+      }
+     }
+    },
+    {
+     "id": "3(c)",
+     "text": "For tassels, pompons and similar articles If the good has not been wholly assembled in a single country, territory, or insular possession and the good is of filaments, including strips, a change to subheading 5808.90 from any other heading, except from heading 5001 through 5007, 5401 through 5406, and 5501 through 5502, and provided that the change is the result of an extrusion process.",
+     "conds": [
+      {
+       "fact": "fibre_form",
+       "want": "filaments"
+      },
+      {
+       "unmodeled": "For tassels, pompons and similar articles If the good has not been wholly assembled in a single country, territory, or insular possession and the good"
+      }
+     ],
+     "req": {
+      "kind": "process",
+      "process": "assembly",
+      "shift": {
+       "from": "any other heading",
+       "except": [
+        "5001-5007",
+        "5401-5406",
+        "5501-5502"
+       ]
+      }
+     }
+    }
+   ]
+  },
+  {
+   "code": "5809",
+   "lo": "5809000000",
+   "hi": "5809999999",
+   "origin": "eCFR",
+   "alts": [
+    {
+     "id": "1",
+     "text": "A change to heading 5809 from any other heading, except from heading 5007, 5111 through 5113, 5208 through 5212, 5309 through 5311, 5407 through 5408, 5512 through 5516, 5801 through 5802, 5804, and 5806, and provided that the change is the result of a fabric-making process.",
+     "req": {
+      "kind": "process",
+      "process": "fabric_making",
+      "shift": {
+       "from": "any other heading",
+       "except": [
+        "5007",
+        "5111-5113",
+        "5208-5212",
+        "5309-5311",
+        "5407-5408",
+        "5512-5516",
+        "5801-5802",
+        "5804",
+        "5806"
+       ]
+      }
+     }
+    }
+   ]
+  },
+  {
+   "code": "5810.10",
+   "lo": "5810100000",
+   "hi": "5810109999",
+   "origin": "eCFR",
+   "alts": [
+    {
+     "id": "1",
+     "text": "The country of origin of goods of subheading 5810.10 is the single country, territory, or insular possession in which the embroidery was performed.",
+     "req": {
+      "kind": "process",
+      "process": "embroidery"
+     }
+    }
+   ]
+  },
+  {
+   "code": "5810.91-5810.99",
+   "lo": "5810910000",
+   "hi": "5810999999",
+   "origin": "eCFR",
+   "alts": [
+    {
+     "id": "1",
+     "text": "For embroidered fabric, the country of origin is the country, territory, or insular possession in which the fabric was produced by a fabric-making process.",
+     "conds": [
+      {
+       "unmodeled": "For embroidered fabric"
+      }
+     ],
+     "req": {
+      "kind": "process",
+      "process": "fabric_making"
+     }
+    },
+    {
+     "id": "2",
+     "text": "For embroidered badges, emblems, insignia, and the like, comprised of multiple components, the country of origin is the place of assembly, provided that the change is the result of the good being wholly assembled in a single country, territory, or insular possession.",
+     "conds": [
+      {
+       "unmodeled": "For embroidered badges, emblems, insignia, and the like, comprised of multiple components"
+      }
+     ],
+     "req": {
+      "kind": "process",
+      "process": "assembly"
+     }
+    },
+    {
+     "id": "3",
+     "text": "For embroidered badges, emblems, insignia, and the like, not comprised of multiple components, a change to subheading 5810.91 through 5810.99 from any other chapter, except from heading 5007, 5111 through 5113, 5208 through 5212, 5309 through 5311, 5407 through 5408, 5512 through 5516, 5602 through 5603, 5608, 5903, 5907, 6001 through 6006, and provided that the change is the result of a fabric-making process.",
+     "conds": [
+      {
+       "unmodeled": "For embroidered badges, emblems, insignia, and the like, not comprised of multiple components"
+      }
+     ],
+     "req": {
+      "kind": "process",
+      "process": "fabric_making",
+      "shift": {
+       "from": "any other chapter",
+       "except": [
+        "5007",
+        "5111-5113",
+        "5208-5212",
+        "5309-5311",
+        "5407-5408",
+        "5512-5516",
+        "5602-5603",
+        "5608",
+        "5903",
+        "5907",
+        "6001-6006"
+       ]
+      }
+     }
+    }
+   ]
+  },
+  {
+   "code": "5811",
+   "lo": "5811000000",
+   "hi": "5811999999",
+   "origin": "eCFR",
+   "alts": [
+    {
+     "id": "1",
+     "text": "The country of origin of a good classifiable under heading 5811 is the country, territory, or insular possession in which the fabric comprising the good was formed by a fabric-making process.",
+     "req": {
+      "kind": "process",
+      "process": "fabric_making"
+     }
+    }
+   ]
+  },
+  {
+   "code": "5901-5903",
+   "lo": "5901000000",
+   "hi": "5903999999",
+   "origin": "eCFR",
+   "alts": [
+    {
+     "id": "1",
+     "text": "Except for fabric of wool or of fine animal hair, a change from greige fabric of heading 5901 through 5903 to finished fabric of heading 5901 through 5903 by both dyeing and printing when accompanied by two or more of the following finishing operations: bleaching, shrinking, fulling, napping, decating, permanent stiffening, weighting, permanent embossing, or moireing; or,",
+     "conds": [
+      {
+       "fact": "fabric_of_wool",
+       "want": "no"
+      }
+     ],
+     "req": {
+      "kind": "process",
+      "process": "dye_print_finish"
+     }
+    },
+    {
+     "id": "2",
+     "text": "If the country of origin cannot be determined under (1) above, a change to heading 5901 through 5903 from any other heading, including a heading within that group, except from heading 5007, 5111 through 5113, 5208 through 5212, 5309 through 5311, 5407 through 5408, 5512 through 5516, 5803, 5806, 5808, and 6002 through 6006, and provided that the change is the result of a fabric-making process.",
+     "after": "1",
+     "req": {
+      "kind": "process",
+      "process": "fabric_making",
+      "shift": {
+       "from": "any other heading",
+       "except": [
+        "5007",
+        "5111-5113",
+        "5208-5212",
+        "5309-5311",
+        "5407-5408",
+        "5512-5516",
+        "5803",
+        "5806",
+        "5808",
+        "6002-6006"
+       ]
+      }
+     }
+    }
+   ]
+  },
+  {
+   "code": "5904",
+   "lo": "5904000000",
+   "hi": "5904999999",
+   "origin": "eCFR",
+   "alts": [
+    {
+     "id": "1",
+     "text": "For goods that have been wholly assembled by means of a lamination process, a change to heading 5904 from any other heading, provided that the change is the result of the good being wholly assembled in a single country, territory, or insular possession.",
+     "conds": [
+      {
+       "unmodeled": "For goods that have been wholly assembled by means of a lamination process"
+      }
+     ],
+     "req": {
+      "kind": "process",
+      "process": "assembly",
+      "shift": {
+       "from": "any other heading"
+      }
+     }
+    },
+    {
+     "id": "2",
+     "text": "For all other goods, the country of origin of the good will be determined by application of § 102.21(c)(4) or, if the country of origin cannot be determined under that section, by application of § 102.21(c)(5).",
+     "conds": [
+      {
+       "unmodeled": "For all other goods"
+      }
+     ],
+     "req": {
+      "kind": "to_c4"
+     }
+    }
+   ]
+  },
+  {
+   "code": "5905",
+   "lo": "5905000000",
+   "hi": "5905999999",
+   "origin": "eCFR",
+   "alts": [
+    {
+     "id": "1",
+     "text": "Except for wall coverings consisting of textile fabric of wool or of fine animal hair treated on the back or affixed by any means to a backing of any material, a change from wall coverings of greige fabric of heading 5905 to wall coverings of finished fabric of heading 5905 by both dyeing and printing when accompanied by two or more of the following finishing operations: bleaching, shrinking, fulling, napping, decating, permanent stiffening, weighting, permanent embossing, or moireing; or,",
+     "conds": [
+      {
+       "fact": "fabric_of_wool",
+       "want": "no"
+      }
+     ],
+     "req": {
+      "kind": "process",
+      "process": "dye_print_finish"
+     }
+    },
+    {
+     "id": "2",
+     "text": "If the country of origin cannot be determined under (1) above, a change to heading 5905 from any other heading, except from heading 5007, 5111 through 5113, 5208 through 5212, 5309 through 5311, 5407 through 5408, 5512 through 5516, 5603, 5803, 5806, 5808, and 6002 through 6006, and provided that the change is the result of a fabric-making process.",
+     "after": "1",
+     "req": {
+      "kind": "process",
+      "process": "fabric_making",
+      "shift": {
+       "from": "any other heading",
+       "except": [
+        "5007",
+        "5111-5113",
+        "5208-5212",
+        "5309-5311",
+        "5407-5408",
+        "5512-5516",
+        "5603",
+        "5803",
+        "5806",
+        "5808",
+        "6002-6006"
+       ]
+      }
+     }
+    }
+   ]
+  },
+  {
+   "code": "5906-5907",
+   "lo": "5906000000",
+   "hi": "5907999999",
+   "origin": "eCFR",
+   "alts": [
+    {
+     "id": "1",
+     "text": "Except for fabric of wool or of fine animal hair, a change from greige fabric of heading 5906 through 5907 to finished fabric of heading 5906 through 5907 by both dyeing and printing when accompanied by two or more of the following finishing operations: bleaching, shrinking, fulling, napping, decating, permanent stiffening, weighting, permanent embossing, or moireing; or,",
+     "conds": [
+      {
+       "fact": "fabric_of_wool",
+       "want": "no"
+      }
+     ],
+     "req": {
+      "kind": "process",
+      "process": "dye_print_finish"
+     }
+    },
+    {
+     "id": "2",
+     "text": "If the country of origin cannot be determined under (1) above, a change to heading 5906 through 5907 from any other chapter, except from heading 5007, 5111 through 5113, 5208 through 5212, 5309 through 5311, 5407 through 5408, 5512 through 5516, 5803, 5806, 5808, and 6002 through 6006, and provided that the change is the result of a fabric-making process.",
+     "after": "1",
+     "req": {
+      "kind": "process",
+      "process": "fabric_making",
+      "shift": {
+       "from": "any other chapter",
+       "except": [
+        "5007",
+        "5111-5113",
+        "5208-5212",
+        "5309-5311",
+        "5407-5408",
+        "5512-5516",
+        "5803",
+        "5806",
+        "5808",
+        "6002-6006"
+       ]
+      }
+     }
+    }
+   ]
+  },
+  {
+   "code": "5908",
+   "lo": "5908000000",
+   "hi": "5908999999",
+   "origin": "eCFR",
+   "alts": [
+    {
+     "id": "1",
+     "text": "Except for yarns, twine, cord, and braid, a change to heading 5908 from any other heading, except from heading 5007, 5111 through 5113, 5208 through 5212, 5309 through 5311, 5407 through 5408, 5512 through 5516, 5801 through 5802, 5806, 5808, and 6001 through 6006.",
+     "conds": [
+      {
+       "unmodeled": "Except for yarns, twine, cord, and braid"
+      }
+     ],
+     "req": {
+      "kind": "shift",
+      "shift": {
+       "from": "any other heading",
+       "except": [
+        "5007",
+        "5111-5113",
+        "5208-5212",
+        "5309-5311",
+        "5407-5408",
+        "5512-5516",
+        "5801-5802",
+        "5806",
+        "5808",
+        "6001-6006"
+       ]
+      }
+     }
+    },
+    {
+     "id": "2(a)",
+     "text": "For yarns, twine, cord, and braid If the good is of continuous filaments, including strips, a change to heading 5908 from any other heading, except from heading 5001 through 5007, 5401 through 5406, and 5501 through 5502, and provided that the change is the result of an extrusion process; or",
+     "conds": [
+      {
+       "fact": "fibre_form",
+       "want": "filaments"
+      },
+      {
+       "unmodeled": "For yarns, twine, cord, and braid If the good"
+      }
+     ],
+     "req": {
+      "kind": "process",
+      "process": "extrusion",
+      "shift": {
+       "from": "any other heading",
+       "except": [
+        "5001-5007",
+        "5401-5406",
+        "5501-5502"
+       ]
+      }
+     }
+    },
+    {
+     "id": "2(b)",
+     "text": "For yarns, twine, cord, and braid If the good is of staple fibers, a change to heading 5908 from any other heading, except from heading 5106 through 5110, 5204 through 5207, 5306 through 5308, and 5508 through 5511, and 5605 through 5607, and provided that the change is the result of a spinning process.",
+     "conds": [
+      {
+       "fact": "fibre_form",
+       "want": "staple"
+      },
+      {
+       "unmodeled": "For yarns, twine, cord, and braid If the good"
+      }
+     ],
+     "req": {
+      "kind": "process",
+      "process": "spinning",
+      "shift": {
+       "from": "any other heading",
+       "except": [
+        "5106-5110",
+        "5204-5207",
+        "5306-5308",
+        "5508-5511",
+        "5605-5607"
+       ]
+      }
+     }
+    }
+   ]
+  },
+  {
+   "code": "5909",
+   "lo": "5909000000",
+   "hi": "5909999999",
+   "origin": "eCFR",
+   "alts": [
+    {
+     "id": "1",
+     "text": "A change to heading 5909 from any other chapter, except from heading 5007, 5111 through 5113, 5208 through 5212, 5309 through 5311, 5407 through 5408, 5512 through 5516, 5603, 5801 through 5804, 5806, 5808, and 6001 through 6006, and provided that the good does not contain armor or accessories of nontextile material and provided that the change is the result of a fabric-making process; or",
+     "conds": [
+      {
+       "unmodeled": "goods without armor or accessories of nontextile material"
+      }
+     ],
+     "req": {
+      "kind": "process",
+      "process": "fabric_making",
+      "shift": {
+       "from": "any other chapter",
+       "except": [
+        "5007",
+        "5111-5113",
+        "5208-5212",
+        "5309-5311",
+        "5407-5408",
+        "5512-5516",
+        "5603",
+        "5801-5804",
+        "5806",
+        "5808",
+        "6001-6006"
+       ]
+      }
+     }
+    },
+    {
+     "id": "2",
+     "text": "A change to textile hosepiping with armor or accessories of nontextile material, of heading 5909, from any heading, including a change from another good of heading 5909, provided that the change is the result of the good being wholly assembled in a single country, territory, or insular possession.",
+     "conds": [
+      {
+       "unmodeled": "goods: textile hosepiping with armor or accessories of nontextile material, of heading 5909,"
+      }
+     ],
+     "req": {
+      "kind": "process",
+      "process": "assembly",
+      "shift": {
+       "from": "any heading"
+      }
+     }
+    }
+   ]
+  },
+  {
+   "code": "5910",
+   "lo": "5910000000",
+   "hi": "5910999999",
+   "origin": "eCFR",
+   "alts": [
+    {
+     "id": "1(a)",
+     "text": "For belts and belting of braid, rope, or cord If the good is of continuous filaments, including strips, a change of those filaments, including strips, to heading 5910 from any other heading, except from heading 5001 through 5006, 5401 through 5406, and 5501 through 5502, and provided that the change is the result of an extrusion process; or",
+     "conds": [
+      {
+       "fact": "fibre_form",
+       "want": "filaments"
+      },
+      {
+       "unmodeled": "For belts and belting of braid, rope, or cord If the good"
+      }
+     ],
+     "req": {
+      "kind": "process",
+      "process": "extrusion",
+      "last": true,
+      "shift": {
+       "from": "any other heading",
+       "except": [
+        "5001-5006",
+        "5401-5406",
+        "5501-5502"
+       ]
+      }
+     }
+    },
+    {
+     "id": "1(b)",
+     "text": "For belts and belting of braid, rope, or cord If the good is of staple fibers, a change of those fibers to heading 5910 from any other heading, except from heading 5106 through 5110, 5204 through 5207, 5306 through 5308, and 5508 through 5511, and provided that the change is the result of a spinning process.",
+     "conds": [
+      {
+       "fact": "fibre_form",
+       "want": "staple"
+      },
+      {
+       "unmodeled": "For belts and belting of braid, rope, or cord If the good"
+      }
+     ],
+     "req": {
+      "kind": "process",
+      "process": "spinning",
+      "last": true,
+      "shift": {
+       "from": "any other heading",
+       "except": [
+        "5106-5110",
+        "5204-5207",
+        "5306-5308",
+        "5508-5511"
+       ]
+      }
+     }
+    },
+    {
+     "id": "2",
+     "text": "For fabric belting and belts, not braids and not combined with nontextile components, whether or not reinforced with metal or other material, a change to heading 5910 from any other heading, except from heading 5007, 5111 through 5113, 5208 through 5212, 5309 through 5311, 5407 through 5408, 5512 through 5516, 5602 through 5603, 5801 through 5804, 5806, 5808 through 5809, and 6001 through 6006, and provided the change is the result of a fabric-making process.",
+     "conds": [
+      {
+       "unmodeled": "For fabric belting and belts, not braids and not combined with nontextile components, whether or not reinforced with metal or other material"
+      }
+     ],
+     "req": {
+      "kind": "process",
+      "process": "fabric_making",
+      "shift": {
+       "from": "any other heading",
+       "except": [
+        "5007",
+        "5111-5113",
+        "5208-5212",
+        "5309-5311",
+        "5407-5408",
+        "5512-5516",
+        "5602-5603",
+        "5801-5804",
+        "5806",
+        "5808-5809",
+        "6001-6006"
+       ]
+      }
+     }
+    },
+    {
+     "id": "3",
+     "text": "For fabric belts, including belts of braided materials, combined with nontextile components, whether or not reinforced with metal or other material, a change to heading 5910 from any heading, including a change from another good of heading 5910, provided that the change is the result of the good being wholly assembled in a single country, territory, or insular possession.",
+     "conds": [
+      {
+       "unmodeled": "For fabric belts, including belts of braided materials, combined with nontextile components, whether or not reinforced with metal or other material"
+      }
+     ],
+     "req": {
+      "kind": "process",
+      "process": "assembly",
+      "shift": {
+       "from": "any heading"
+      }
+     }
+    }
+   ]
+  },
+  {
+   "code": "5911.10-5911.20",
+   "lo": "5911100000",
+   "hi": "5911209999",
+   "origin": "eCFR",
+   "alts": [
+    {
+     "id": "1",
+     "text": "Except for fabric of wool or of fine animal hair, a change from greige fabric of subheading 5911.10 through 5911.20 to finished fabric of subheading 5911.10 through 5911.20 by both dyeing and printing when accompanied by two or more of the following finishing operations: bleaching, shrinking, fulling, napping, decating, permanent stiffening, weighting, permanent embossing, or moireing; or,",
+     "conds": [
+      {
+       "fact": "fabric_of_wool",
+       "want": "no"
+      }
+     ],
+     "req": {
+      "kind": "process",
+      "process": "dye_print_finish"
+     }
+    },
+    {
+     "id": "2",
+     "text": "If the country of origin cannot be determined under (1) above, a change to subheading 5911.10 through 5911.20 from any other heading, except from heading 5007, 5111 through 5113, 5208 through 5212, 5309 through 5311, 5407 through 5408, 5512 through 5516, 5602 through 5603, 5801 through 5804, 5806, and 6001 through 6006, and provided that the change is the result of a fabric-making process.",
+     "after": "1",
+     "req": {
+      "kind": "process",
+      "process": "fabric_making",
+      "shift": {
+       "from": "any other heading",
+       "except": [
+        "5007",
+        "5111-5113",
+        "5208-5212",
+        "5309-5311",
+        "5407-5408",
+        "5512-5516",
+        "5602-5603",
+        "5801-5804",
+        "5806",
+        "6001-6006"
+       ]
+      }
+     }
+    }
+   ]
+  },
+  {
+   "code": "5911.31-5911.32",
+   "lo": "5911310000",
+   "hi": "5911329999",
+   "origin": "eCFR",
+   "alts": [
+    {
+     "id": "1(a)",
+     "text": "Except for fabric of wool or of fine animal hair, a change from greige fabric of subheading 5911.31 through 5911.32 to finished fabric of subheading 5911.31 through 5911.32 by both dyeing and printing when accompanied by two or more of the following finishing operations: bleaching, shrinking, fulling, napping, decating, permanent stiffening, weighting, permanent embossing, or moireing; or,",
+     "conds": [
+      {
+       "fact": "fabric_of_wool",
+       "want": "no"
+      }
+     ],
+     "req": {
+      "kind": "process",
+      "process": "dye_print_finish"
+     }
+    },
+    {
+     "id": "1(b)",
+     "text": "If the country of origin cannot be determined under (1)(a) above, for goods not combined with nontextile components, a change to subheading 5911.31 through 5911.32 from any other heading, except from heading 5007, 5111 through 5113, 5208 through 5212, 5309 through 5311, 5407 through 5408, 5512 through 5516, 5602 through 5603, 5801 through 5804, 5806, and 6001 through 6006, and provided that the change is the result of a fabric-making process.",
+     "after": "1(a)",
+     "conds": [
+      {
+       "unmodeled": "for goods not combined with nontextile components"
+      }
+     ],
+     "req": {
+      "kind": "process",
+      "process": "fabric_making",
+      "shift": {
+       "from": "any other heading",
+       "except": [
+        "5007",
+        "5111-5113",
+        "5208-5212",
+        "5309-5311",
+        "5407-5408",
+        "5512-5516",
+        "5602-5603",
+        "5801-5804",
+        "5806",
+        "6001-6006"
+       ]
+      }
+     }
+    },
+    {
+     "id": "2",
+     "text": "For goods combined with nontextile components, a change to subheading 5911.31 through 5911.32 from any other heading, provided that the change is the result of the good being wholly assembled in a single country, territory, or insular possession.",
+     "conds": [
+      {
+       "unmodeled": "For goods combined with nontextile components"
+      }
+     ],
+     "req": {
+      "kind": "process",
+      "process": "assembly",
+      "shift": {
+       "from": "any other heading"
+      }
+     }
+    }
+   ]
+  },
+  {
+   "code": "5911.40",
+   "lo": "5911400000",
+   "hi": "5911409999",
+   "origin": "eCFR",
+   "alts": [
+    {
+     "id": "1",
+     "text": "Except for fabric of wool or of fine animal hair, a change from greige fabric of subheading 5911.40 to finished fabric of subheading 5911.40 by both dyeing and printing when accompanied by two or more of the following finishing operations: bleaching, shrinking, fulling, napping, decating, permanent stiffening, weighting, permanent embossing, or moireing; or,",
+     "conds": [
+      {
+       "fact": "fabric_of_wool",
+       "want": "no"
+      }
+     ],
+     "req": {
+      "kind": "process",
+      "process": "dye_print_finish"
+     }
+    },
+    {
+     "id": "2",
+     "text": "If the country of origin cannot be determined under (1) above, a change to subheading 5911.40 from any other heading, except from heading 5007, 5111 through 5113, 5208 through 5212, 5309 through 5311, 5407 through 5408, 5512 through 5516, 5602 through 5603, 5801 through 5804, 5806, and 6001 through 6006, and provided that the change is the result of a fabric-making process.",
+     "after": "1",
+     "req": {
+      "kind": "process",
+      "process": "fabric_making",
+      "shift": {
+       "from": "any other heading",
+       "except": [
+        "5007",
+        "5111-5113",
+        "5208-5212",
+        "5309-5311",
+        "5407-5408",
+        "5512-5516",
+        "5602-5603",
+        "5801-5804",
+        "5806",
+        "6001-6006"
+       ]
+      }
+     }
+    }
+   ]
+  },
+  {
+   "code": "5911.90",
+   "lo": "5911900000",
+   "hi": "5911909999",
+   "origin": "eCFR",
+   "alts": [
+    {
+     "id": "1(a)",
+     "text": "For goods of yarn, rope, cord, or braid If the good is of continuous filaments, including strips, a change of those filaments, including strips, to subheading 5911.90 from any other heading, except from heading 5001 through 5006, 5401 through 5406, and 5501 through 5502, and provided that the change is the result of an extrusion process; or",
+     "conds": [
+      {
+       "fact": "fibre_form",
+       "want": "filaments"
+      },
+      {
+       "unmodeled": "For goods of yarn, rope, cord, or braid If the good"
+      }
+     ],
+     "req": {
+      "kind": "process",
+      "process": "extrusion",
+      "last": true,
+      "shift": {
+       "from": "any other heading",
+       "except": [
+        "5001-5006",
+        "5401-5406",
+        "5501-5502"
+       ]
+      }
+     }
+    },
+    {
+     "id": "1(b)",
+     "text": "For goods of yarn, rope, cord, or braid If the good is of staple fibers, a change of those fibers to subheading 5911.90 from any other heading, except from heading 5106 through 5110, 5204 through 5207, 5306 through 5308, and 5508 through 5511, and provided that the change is the result of a spinning process.",
+     "conds": [
+      {
+       "fact": "fibre_form",
+       "want": "staple"
+      },
+      {
+       "unmodeled": "For goods of yarn, rope, cord, or braid If the good"
+      }
+     ],
+     "req": {
+      "kind": "process",
+      "process": "spinning",
+      "last": true,
+      "shift": {
+       "from": "any other heading",
+       "except": [
+        "5106-5110",
+        "5204-5207",
+        "5306-5308",
+        "5508-5511"
+       ]
+      }
+     }
+    },
+    {
+     "id": "2(a)",
+     "text": "If the good is a fabric, except for fabric of wool or of fine animal hair, a change from greige fabric of subheading 5911.90 to finished fabric of subheading 5911.90 by both dyeing and printing when accompanied by two or more of the following finishing operations: bleaching, shrinking, fulling, napping, decating, permanent stiffening, weighting, permanent embossing, or moireing; or,",
+     "conds": [
+      {
+       "fact": "fabric_of_wool",
+       "want": "no"
+      },
+      {
+       "unmodeled": "If the good is a fabric"
+      }
+     ],
+     "req": {
+      "kind": "process",
+      "process": "dye_print_finish"
+     }
+    },
+    {
+     "id": "2(b)",
+     "text": "If the country of origin cannot be determined under (2)(a) above, if the good is a fabric, a change to subheading 5911.90 from any other heading, except from heading 5007, 5111 through 5113, 5208 through 5212, 5309 through 5311, 5407 through 5408, 5512 through 5516, 5602 through 5603, 5801 through 5804, 5806, 5809, and 6001 through 6006, and provided that the change is the result of a fabric-making process.",
+     "after": "2(a)",
+     "conds": [
+      {
+       "unmodeled": "if the good is a fabric"
+      }
+     ],
+     "req": {
+      "kind": "process",
+      "process": "fabric_making",
+      "shift": {
+       "from": "any other heading",
+       "except": [
+        "5007",
+        "5111-5113",
+        "5208-5212",
+        "5309-5311",
+        "5407-5408",
+        "5512-5516",
+        "5602-5603",
+        "5801-5804",
+        "5806",
+        "5809",
+        "6001-6006"
+       ]
+      }
+     }
+    },
+    {
+     "id": "3",
+     "text": "If the good is a made up article other than a good of yarn, rope, cord, or braid, a change to subheading 5911.90 from any heading, including a change from another good of heading 5911, provided that the change is the result of the good being wholly assembled in a single country, territory, or insular possession.",
+     "conds": [
+      {
+       "unmodeled": "If the good is a made up article other than a good of yarn, rope, cord, or braid"
+      }
+     ],
+     "req": {
+      "kind": "process",
+      "process": "assembly",
+      "shift": {
+       "from": "any heading"
+      }
+     }
+    }
+   ]
+  },
+  {
+   "code": "6001-6006",
+   "lo": "6001000000",
+   "hi": "6006999999",
+   "origin": "eCFR",
+   "alts": [
+    {
+     "id": "1",
+     "text": "Except for fabric of wool or of fine animal hair, a change from greige fabric of heading 6001 through 6006 to finished fabric of heading 6001 through 6006 by both dyeing and printing when accompanied by two or more of the following finishing operations: bleaching, shrinking, fulling, napping, decating, permanent stiffening, weighting, permanent embossing, or moireing; or,",
+     "conds": [
+      {
+       "fact": "fabric_of_wool",
+       "want": "no"
+      }
+     ],
+     "req": {
+      "kind": "process",
+      "process": "dye_print_finish"
+     }
+    },
+    {
+     "id": "2",
+     "text": "If the country of origin cannot be determined under paragraph (1) of this entry, a change to heading 6001 through 6006 from any heading outside that group, provided that the change is the result of a fabric-making process.",
+     "after": "1",
+     "req": {
+      "kind": "process",
+      "process": "fabric_making",
+      "shift": {
+       "from": "any heading outside that group"
+      }
+     }
+    }
+   ]
+  },
+  {
+   "code": "6101-6117",
+   "lo": "6101000000",
+   "hi": "6117999999",
+   "origin": "eCFR",
+   "alts": [
+    {
+     "id": "1",
+     "text": "If the good is not knit to shape and consists of two or more component parts, except for goods of subheading 6117.10 provided for in paragraph (e)(2) of this section, a change to an assembled good of heading 6101 through 6117 from unassembled components, provided that the change is the result of the good being wholly assembled in a single country, territory, or insular possession.",
+     "conds": [
+      {
+       "fact": "not_e2",
+       "want": "yes"
+      },
+      {
+       "fact": "knit_to_shape",
+       "want": "no"
+      },
+      {
+       "fact": "two_or_more_components",
+       "want": "yes"
+      }
+     ],
+     "req": {
+      "kind": "process",
+      "process": "assembly",
+      "shift": {
+       "from": "unassembled components"
+      }
+     }
+    },
+    {
+     "id": "2",
+     "text": "If the good is not knit to shape and does not consist of two or more component parts, except for goods of subheading 6117.10 provided for in paragraph (e)(2) of this section, a change to heading 6101 through 6117 from any heading outside that group, except from heading 5007, 5111 through 5113, 5208 through 5212, 5309 through 5311, 5407 through 5408, 5512 through 5516, 5806, 5809 through 5811, 5903, 5906 through 5907, 6001 through 6006, knitted or crocheted articles of heading 9619, and subheading 6307.90, and provided that the change is the result of a fabric-making process.",
+     "conds": [
+      {
+       "fact": "not_e2",
+       "want": "yes"
+      },
+      {
+       "fact": "knit_to_shape",
+       "want": "no"
+      },
+      {
+       "fact": "two_or_more_components",
+       "want": "no"
+      }
+     ],
+     "req": {
+      "kind": "process",
+      "process": "fabric_making",
+      "shift": {
+       "from": "any heading outside that group",
+       "except": [
+        "5007",
+        "5111-5113",
+        "5208-5212",
+        "5309-5311",
+        "5407-5408",
+        "5512-5516",
+        "5806",
+        "5809-5811",
+        "5903",
+        "5906-5907",
+        "6001-6006",
+        "9619",
+        "6307.90"
+       ]
+      }
+     }
+    },
+    {
+     "id": "3",
+     "text": "If the good is knit to shape, except for goods of subheading 6117.10 provided for in paragraph (e)(2) of this section, a change to 6101 through 6117 from any heading outside that group, except from knitted or crocheted articles of heading 9619, provided that the knit to shape components are knit in a single country territory or insular possession.",
+     "conds": [
+      {
+       "fact": "not_e2",
+       "want": "yes"
+      },
+      {
+       "fact": "knit_to_shape",
+       "want": "yes"
+      }
+     ],
+     "req": {
+      "kind": "process",
+      "process": "knit_to_shape",
+      "shift": {
+       "from": "any heading outside that group",
+       "except": [
+        "9619"
+       ]
+      }
+     }
+    }
+   ]
+  },
+  {
+   "code": "6201-6208",
+   "lo": "6201000000",
+   "hi": "6208999999",
+   "origin": "87 FR 68356",
+   "alts": [
+    {
+     "id": "1",
+     "text": "If the good consists of two or more component parts, a change to an assembled good of heading 6201 through 6208 from unassembled components, provided that the change is the result of the good being wholly assembled in a single country, territory, or insular possession.",
+     "conds": [
+      {
+       "fact": "two_or_more_components",
+       "want": "yes"
+      }
+     ],
+     "req": {
+      "kind": "process",
+      "process": "assembly",
+      "shift": {
+       "from": "unassembled components"
+      }
+     }
+    },
+    {
+     "id": "2",
+     "text": "If the good does not consist of two or more component parts, a change to heading 6201 through 6208 from any heading outside that group, except from heading 5007, 5111 through 5113, 5208 through 5212, 5309 through 5311, 5407 through 5408, 5512 through 5516, 5602 through 5603, 5801 through 5806, 5809 through 5811, 5903, 5906 through 5907, and 6217, and subheading 6307.90, and provided that the change is the result of a fabric-making process.",
+     "conds": [
+      {
+       "fact": "two_or_more_components",
+       "want": "no"
+      }
+     ],
+     "req": {
+      "kind": "process",
+      "process": "fabric_making",
+      "shift": {
+       "from": "any heading outside that group",
+       "except": [
+        "5007",
+        "5111-5113",
+        "5208-5212",
+        "5309-5311",
+        "5407-5408",
+        "5512-5516",
+        "5602-5603",
+        "5801-5806",
+        "5809-5811",
+        "5903",
+        "5906-5907",
+        "6217",
+        "6307.90"
+       ]
+      }
+     }
+    }
+   ]
+  },
+  {
+   "code": "6209.20.1000-6209.20.5035",
+   "lo": "6209201000",
+   "hi": "6209205035",
+   "origin": "eCFR",
+   "alts": [
+    {
+     "id": "1",
+     "text": "If the good consists of two or more component parts, a change to an assembled good of subheading 6209.20.1000 through 6209.20.5035 from unassembled components, provided that the change is the result of the good being wholly assembled in a single country, territory, or insular possession.",
+     "conds": [
+      {
+       "fact": "two_or_more_components",
+       "want": "yes"
+      }
+     ],
+     "req": {
+      "kind": "process",
+      "process": "assembly",
+      "shift": {
+       "from": "unassembled components"
+      }
+     }
+    },
+    {
+     "id": "2",
+     "text": "If the good does not consist of two or more component parts, a change to subheading 6209.20.1000 from any other heading, except from heading 5007, 5111 through 5113, 5208 through 5212, 5309 through 5311, 5407 through 5408, 5512 through 5516, 5602 through 5603, 5801 through 5806, 5809 through 5811, 5903, 5906 through 5907, and 6217, and subheading 6307.90, and provided that the change is the result of a fabric-making process.",
+     "conds": [
+      {
+       "fact": "two_or_more_components",
+       "want": "no"
+      }
+     ],
+     "req": {
+      "kind": "process",
+      "process": "fabric_making",
+      "shift": {
+       "from": "any other heading",
+       "except": [
+        "5007",
+        "5111-5113",
+        "5208-5212",
+        "5309-5311",
+        "5407-5408",
+        "5512-5516",
+        "5602-5603",
+        "5801-5806",
+        "5809-5811",
+        "5903",
+        "5906-5907",
+        "6217",
+        "6307.90"
+       ]
+      }
+     }
+    }
+   ]
+  },
+  {
+   "code": "6209.20.5045-6209.90.9000",
+   "lo": "6209205045",
+   "hi": "6209909000",
+   "origin": "eCFR",
+   "alts": [
+    {
+     "id": "1",
+     "text": "If the good consists of two or more component parts, a change to an assembled good of subheading 6209.20.5045 through 6209.90.9000 from unassembled components, provided that the change is the result of the good being wholly assembled in a single country, territory, or insular possession.",
+     "conds": [
+      {
+       "fact": "two_or_more_components",
+       "want": "yes"
+      }
+     ],
+     "req": {
+      "kind": "process",
+      "process": "assembly",
+      "shift": {
+       "from": "unassembled components"
+      }
+     }
+    },
+    {
+     "id": "2",
+     "text": "If the good does not consist of two or more component parts, a change to subheading 6209.20.5045 through 6209.90.9000 from any heading, except from heading 5007, 5111 through 5113, 5208 through 5212, 5309 through 5311, 5407 through 5408, 5512 through 5516, 5602 through 5603, 5801 through 5806, 5809 through 5811, 5903, 5906 through 5907, 6217, subheading 6307.90, and from babies' garments and clothing accessories of heading 9619, and provided that the change is the result of a fabric-making process.",
+     "conds": [
+      {
+       "fact": "two_or_more_components",
+       "want": "no"
+      }
+     ],
+     "req": {
+      "kind": "process",
+      "process": "fabric_making",
+      "shift": {
+       "from": "any heading",
+       "except": [
+        "5007",
+        "5111-5113",
+        "5208-5212",
+        "5309-5311",
+        "5407-5408",
+        "5512-5516",
+        "5602-5603",
+        "5801-5806",
+        "5809-5811",
+        "5903",
+        "5906-5907",
+        "6217",
+        "6307.90",
+        "9619"
+       ]
+      }
+     }
+    }
+   ]
+  },
+  {
+   "code": "6210-6211",
+   "lo": "6210000000",
+   "hi": "6211999999",
+   "origin": "eCFR",
+   "alts": [
+    {
+     "id": "1",
+     "text": "If the good consists of two or more component parts, a change to an assembled good of heading 6210 through 6211 from unassembled components, provided that the change is the result of the good being wholly assembled in a single country, territory, or insular possession.",
+     "conds": [
+      {
+       "fact": "two_or_more_components",
+       "want": "yes"
+      }
+     ],
+     "req": {
+      "kind": "process",
+      "process": "assembly",
+      "shift": {
+       "from": "unassembled components"
+      }
+     }
+    },
+    {
+     "id": "2",
+     "text": "If the good does not consist of two or more component parts, a change to heading 6210 through 6211 from any heading outside that group, except from heading 5007, 5111 through 5113, 5208 through 5212, 5309 through 5311, 5407 through 5408, 5512 through 5516, 5602 through 5603, 5801 through 5806, 5809 through 5811, 5903, 5906 through 5907, 6001 through 6006, and 6217, subheading 6307.90, and subheading 9619.00.61 through 9619.00.79, and provided that the change is the result of a fabric-making process.",
+     "conds": [
+      {
+       "fact": "two_or_more_components",
+       "want": "no"
+      }
+     ],
+     "req": {
+      "kind": "process",
+      "process": "fabric_making",
+      "shift": {
+       "from": "any heading outside that group",
+       "except": [
+        "5007",
+        "5111-5113",
+        "5208-5212",
+        "5309-5311",
+        "5407-5408",
+        "5512-5516",
+        "5602-5603",
+        "5801-5806",
+        "5809-5811",
+        "5903",
+        "5906-5907",
+        "6001-6006",
+        "6217",
+        "6307.90",
+        "9619.00.61-9619.00.79"
+       ]
+      }
+     }
+    }
+   ]
+  },
+  {
+   "code": "6212",
+   "lo": "6212000000",
+   "hi": "6212999999",
+   "origin": "eCFR",
+   "alts": [
+    {
+     "id": "1",
+     "text": "If the good is not knit to shape and consists of two or more component parts, a change to an assembled good of heading 6212 from unassembled components, provided that the change is the result of the good being wholly assembled in a single country, territory, or insular possession.",
+     "conds": [
+      {
+       "fact": "knit_to_shape",
+       "want": "no"
+      },
+      {
+       "fact": "two_or_more_components",
+       "want": "yes"
+      }
+     ],
+     "req": {
+      "kind": "process",
+      "process": "assembly",
+      "shift": {
+       "from": "unassembled components"
+      }
+     }
+    },
+    {
+     "id": "2",
+     "text": "If the good is not knit to shape and does not consist of two or more component parts, a change to heading 6212 from any other heading, except from heading 5007, 5111 through 5113, 5208 through 5212, 5309 through 5311, 5407 through 5408, 5512 through 5516, 5602 through 5603, 5801 through 5806, 5809 through 5811, 5903, 5906 through 5907, 6001 through 6006, and 6217, and subheading 6307.90, and provided that the change is the result of a fabric-making process.",
+     "conds": [
+      {
+       "fact": "knit_to_shape",
+       "want": "no"
+      },
+      {
+       "fact": "two_or_more_components",
+       "want": "no"
+      }
+     ],
+     "req": {
+      "kind": "process",
+      "process": "fabric_making",
+      "shift": {
+       "from": "any other heading",
+       "except": [
+        "5007",
+        "5111-5113",
+        "5208-5212",
+        "5309-5311",
+        "5407-5408",
+        "5512-5516",
+        "5602-5603",
+        "5801-5806",
+        "5809-5811",
+        "5903",
+        "5906-5907",
+        "6001-6006",
+        "6217",
+        "6307.90"
+       ]
+      }
+     }
+    },
+    {
+     "id": "3",
+     "text": "If the good is knit to shape, a change to heading 6212 from any other heading, provided that the knit to shape components are knit in a single country, territory, or insular possession.",
+     "conds": [
+      {
+       "fact": "knit_to_shape",
+       "want": "yes"
+      }
+     ],
+     "req": {
+      "kind": "process",
+      "process": "knit_to_shape",
+      "shift": {
+       "from": "any other heading"
+      }
+     }
+    }
+   ]
+  },
+  {
+   "code": "6213-6214",
+   "lo": "6213000000",
+   "hi": "6214999999",
+   "origin": "eCFR",
+   "alts": [
+    {
+     "id": "1",
+     "text": "Except for goods of heading 6213 through 6214 provided for in paragraph (e)(2) of this section, the country of origin of a good classifiable under heading 6213 through 6214 is the country, territory, or insular possession in which the fabric comprising the good was formed by a fabric-making process.",
+     "conds": [
+      {
+       "fact": "not_e2",
+       "want": "yes"
+      }
+     ],
+     "req": {
+      "kind": "process",
+      "process": "fabric_making"
+     }
+    }
+   ]
+  },
+  {
+   "code": "6215-6217",
+   "lo": "6215000000",
+   "hi": "6217999999",
+   "origin": "eCFR",
+   "alts": [
+    {
+     "id": "1",
+     "text": "If the good consists of two or more component parts, a change to an assembled good of heading 6215 through 6217 from unassembled components, provided that the change is the result of the good being wholly assembled in a single country, territory, or insular possession.",
+     "conds": [
+      {
+       "fact": "two_or_more_components",
+       "want": "yes"
+      }
+     ],
+     "req": {
+      "kind": "process",
+      "process": "assembly",
+      "shift": {
+       "from": "unassembled components"
+      }
+     }
+    },
+    {
+     "id": "2",
+     "text": "If the good does not consist of two or more component parts, a change to heading 6215 through 6217 from any heading outside that group, except from heading 5007, 5111 through 5113, 5208 through 5212, 5309 through 5311, 5407 through 5408, 5512 through 5516, 5602 through 5603, 5801 through 5806, 5809 through 5811, 5903, 5906 through 5907, and 6217, and subheading 6307.90, and provided that the change is the result of a fabric-making process.",
+     "conds": [
+      {
+       "fact": "two_or_more_components",
+       "want": "no"
+      }
+     ],
+     "req": {
+      "kind": "process",
+      "process": "fabric_making",
+      "shift": {
+       "from": "any heading outside that group",
+       "except": [
+        "5007",
+        "5111-5113",
+        "5208-5212",
+        "5309-5311",
+        "5407-5408",
+        "5512-5516",
+        "5602-5603",
+        "5801-5806",
+        "5809-5811",
+        "5903",
+        "5906-5907",
+        "6217",
+        "6307.90"
+       ]
+      }
+     }
+    }
+   ]
+  },
+  {
+   "code": "6301-6306",
+   "lo": "6301000000",
+   "hi": "6306999999",
+   "origin": "eCFR",
+   "alts": [
+    {
+     "id": "1",
+     "text": "Except for goods of heading 6302 through 6304 provided for in paragraph (e)(2) of this section, the country of origin of a good classifiable under heading 6301 through 6306 is the country, territory, or insular possession in which the fabric comprising the good was formed by a fabric-making process.",
+     "conds": [
+      {
+       "fact": "not_e2",
+       "want": "yes"
+      }
+     ],
+     "req": {
+      "kind": "process",
+      "process": "fabric_making"
+     }
+    }
+   ]
+  },
+  {
+   "code": "6307.10",
+   "lo": "6307100000",
+   "hi": "6307109999",
+   "origin": "eCFR",
+   "alts": [
+    {
+     "id": "1",
+     "text": "The country of origin of a good classifiable under subheading 6307.10 is the country, territory, or insular possession in which the fabric comprising the good was formed by a fabric-making process.",
+     "req": {
+      "kind": "process",
+      "process": "fabric_making"
+     }
+    }
+   ]
+  },
+  {
+   "code": "6307.20",
+   "lo": "6307200000",
+   "hi": "6307209999",
+   "origin": "eCFR",
+   "alts": [
+    {
+     "id": "1",
+     "text": "A change to subheading 6307.20 from any other heading, provided that the change is the result of the good being wholly assembled in a single country, territory, or insular possession.",
+     "req": {
+      "kind": "process",
+      "process": "assembly",
+      "shift": {
+       "from": "any other heading"
+      }
+     }
+    }
+   ]
+  },
+  {
+   "code": "6307.90",
+   "lo": "6307900000",
+   "hi": "6307909999",
+   "origin": "eCFR",
+   "alts": [
+    {
+     "id": "1",
+     "text": "The country of origin of a good classifiable under subheading 6307.90 is the country, territory, or insular possession in which the fabric comprising the good was formed by a fabric-making process.",
+     "req": {
+      "kind": "process",
+      "process": "fabric_making"
+     }
+    }
+   ]
+  },
+  {
+   "code": "6308",
+   "lo": "6308000000",
+   "hi": "6308999999",
+   "origin": "eCFR",
+   "alts": [
+    {
+     "id": "1",
+     "text": "The country of origin of a good classifiable under heading 6308 is the country, territory, or insular possession in which the woven fabric component of the good was formed by a fabric-making process.",
+     "req": {
+      "kind": "process",
+      "process": "fabric_making"
+     }
+    }
+   ]
+  },
+  {
+   "code": "6309-6310",
+   "lo": "6309000000",
+   "hi": "6310999999",
+   "origin": "eCFR",
+   "alts": [
+    {
+     "id": "1",
+     "text": "The country of origin of a good classifiable under heading 6309 through 6310 is the country, territory, or insular possession in which the good was last collected and packaged for shipment.",
+     "req": {
+      "kind": "process",
+      "process": "packaging"
+     }
+    }
+   ]
+  },
+  {
+   "code": "6405.20.60",
+   "lo": "6405206000",
+   "hi": "6405206099",
+   "origin": "eCFR",
+   "alts": [
+    {
+     "id": "1",
+     "text": "A change to subheading 6405.20.60 from any other heading, provided that the change is the result of the good being wholly assembled in a single country, territory, or insular possession.",
+     "req": {
+      "kind": "process",
+      "process": "assembly",
+      "shift": {
+       "from": "any other heading"
+      }
+     }
+    }
+   ]
+  },
+  {
+   "code": "6406.10.77",
+   "lo": "6406107700",
+   "hi": "6406107799",
+   "origin": "eCFR",
+   "alts": [
+    {
+     "id": "1",
+     "text": "If the good consists of two or more components, a change to subheading 6406.10.77 from any other heading, provided that the change is the result of the good being wholly assembled in a single country, territory, or insular possession.",
+     "conds": [
+      {
+       "fact": "two_or_more_components",
+       "want": "yes"
+      }
+     ],
+     "req": {
+      "kind": "process",
+      "process": "assembly",
+      "shift": {
+       "from": "any other heading"
+      }
+     }
+    },
+    {
+     "id": "2",
+     "text": "If the good does not consist of two or more components, a change to subheading 6406.10.77 from any other heading, except from heading 5007, 5111 through 5113, 5208 through 5212, 5309 through 5311, 5407 through 5408, 5512 through 5516, 5602 through 5603, 5608, 5801 through 5804, 5806, 5808 through 5810, 5903, 5906 through 5907, and 6001 through 6006, and provided that the change is the result of a fabric-making process.",
+     "conds": [
+      {
+       "fact": "two_or_more_components",
+       "want": "no"
+      }
+     ],
+     "req": {
+      "kind": "process",
+      "process": "fabric_making",
+      "shift": {
+       "from": "any other heading",
+       "except": [
+        "5007",
+        "5111-5113",
+        "5208-5212",
+        "5309-5311",
+        "5407-5408",
+        "5512-5516",
+        "5602-5603",
+        "5608",
+        "5801-5804",
+        "5806",
+        "5808-5810",
+        "5903",
+        "5906-5907",
+        "6001-6006"
+       ]
+      }
+     }
+    }
+   ]
+  },
+  {
+   "code": "6406.10.90",
+   "lo": "6406109000",
+   "hi": "6406109099",
+   "origin": "eCFR",
+   "alts": [
+    {
+     "id": "1",
+     "text": "If the good consists of two or more components, a change to subheading 6406.10.90 from any other heading, provided that the change is the result of the good being wholly assembled in a single country, territory, or insular possession.",
+     "conds": [
+      {
+       "fact": "two_or_more_components",
+       "want": "yes"
+      }
+     ],
+     "req": {
+      "kind": "process",
+      "process": "assembly",
+      "shift": {
+       "from": "any other heading"
+      }
+     }
+    },
+    {
+     "id": "2",
+     "text": "If the good does not consist of two or more components, a change to subheading 6406.10.90 from any other heading, except from heading 5007, 5111 through 5113, 5208 through 5212, 5309 through 5311, 5407 through 5408, 5512 through 5516, 5602 through 5603, 5608, 5801 through 5804, 5806, 5808 through 5810, 5903, 5906 through 5907, and 6001 through 6006, and provided that the change is the result of a fabric-making process.",
+     "conds": [
+      {
+       "fact": "two_or_more_components",
+       "want": "no"
+      }
+     ],
+     "req": {
+      "kind": "process",
+      "process": "fabric_making",
+      "shift": {
+       "from": "any other heading",
+       "except": [
+        "5007",
+        "5111-5113",
+        "5208-5212",
+        "5309-5311",
+        "5407-5408",
+        "5512-5516",
+        "5602-5603",
+        "5608",
+        "5801-5804",
+        "5806",
+        "5808-5810",
+        "5903",
+        "5906-5907",
+        "6001-6006"
+       ]
+      }
+     }
+    }
+   ]
+  },
+  {
+   "code": "6406.90.15",
+   "lo": "6406901500",
+   "hi": "6406901599",
+   "origin": "eCFR",
+   "alts": [
+    {
+     "id": "1",
+     "text": "If the good consists of two or more components, a change to subheading 6406.90.15 from any other heading, provided that the change is the result of the good being wholly assembled in a single country, territory, or insular possession.",
+     "conds": [
+      {
+       "fact": "two_or_more_components",
+       "want": "yes"
+      }
+     ],
+     "req": {
+      "kind": "process",
+      "process": "assembly",
+      "shift": {
+       "from": "any other heading"
+      }
+     }
+    },
+    {
+     "id": "2",
+     "text": "If the good does not consist of two or more components, a change to subheading 6406.90.15 from any other heading, except from heading 5007, 5111 through 5113, 5208 through 5212, 5309 through 5311, 5407 through 5408, 5512 through 5516, 5602 through 5603, 5608, 5801 through 5804, 5806, 5808 through 5810, 5903, 5906 through 5907, and 6001 through 6006, and provided that the change is the result of a fabric-making process.",
+     "conds": [
+      {
+       "fact": "two_or_more_components",
+       "want": "no"
+      }
+     ],
+     "req": {
+      "kind": "process",
+      "process": "fabric_making",
+      "shift": {
+       "from": "any other heading",
+       "except": [
+        "5007",
+        "5111-5113",
+        "5208-5212",
+        "5309-5311",
+        "5407-5408",
+        "5512-5516",
+        "5602-5603",
+        "5608",
+        "5801-5804",
+        "5806",
+        "5808-5810",
+        "5903",
+        "5906-5907",
+        "6001-6006"
+       ]
+      }
+     }
+    }
+   ]
+  },
+  {
+   "code": "6501",
+   "lo": "6501000000",
+   "hi": "6501999999",
+   "origin": "eCFR",
+   "alts": [
+    {
+     "id": "1",
+     "text": "If the good consists of two or more components, a change to heading 6501 from any other heading, provided that the change is the result of the good being wholly assembled in a single country, territory, or insular possession.",
+     "conds": [
+      {
+       "fact": "two_or_more_components",
+       "want": "yes"
+      }
+     ],
+     "req": {
+      "kind": "process",
+      "process": "assembly",
+      "shift": {
+       "from": "any other heading"
+      }
+     }
+    },
+    {
+     "id": "2",
+     "text": "If the good does not consist of two or more components, a change to heading 6501 from any other heading, except from heading 5602, and provided that the change is the result of a fabric-making process.",
+     "conds": [
+      {
+       "fact": "two_or_more_components",
+       "want": "no"
+      }
+     ],
+     "req": {
+      "kind": "process",
+      "process": "fabric_making",
+      "shift": {
+       "from": "any other heading",
+       "except": [
+        "5602"
+       ]
+      }
+     }
+    }
+   ]
+  },
+  {
+   "code": "6502",
+   "lo": "6502000000",
+   "hi": "6502999999",
+   "origin": "eCFR",
+   "alts": [
+    {
+     "id": "1",
+     "text": "If the good consists of two or more components, a change to heading 6502 from any other heading, provided that the change is the result of the good being wholly assembled in a single country, territory, or insular possession.",
+     "conds": [
+      {
+       "fact": "two_or_more_components",
+       "want": "yes"
+      }
+     ],
+     "req": {
+      "kind": "process",
+      "process": "assembly",
+      "shift": {
+       "from": "any other heading"
+      }
+     }
+    },
+    {
+     "id": "2",
+     "text": "If the good does not consist of two or more components, a change to heading 6502 from any other heading, except from heading 5007, 5111 through 5113, 5208 through 5212, 5407 through 5408, 5512 through 5516, 5602 through 5603, 5608, 5801 through 5804, 5806, 5808 through 5810, 5903, 5906 through 5907, and 6001 through 6006, and provided that the change is the result of a fabric-making process.",
+     "conds": [
+      {
+       "fact": "two_or_more_components",
+       "want": "no"
+      }
+     ],
+     "req": {
+      "kind": "process",
+      "process": "fabric_making",
+      "shift": {
+       "from": "any other heading",
+       "except": [
+        "5007",
+        "5111-5113",
+        "5208-5212",
+        "5407-5408",
+        "5512-5516",
+        "5602-5603",
+        "5608",
+        "5801-5804",
+        "5806",
+        "5808-5810",
+        "5903",
+        "5906-5907",
+        "6001-6006"
+       ]
+      }
+     }
+    }
+   ]
+  },
+  {
+   "code": "6504",
+   "lo": "6504000000",
+   "hi": "6504999999",
+   "origin": "eCFR",
+   "alts": [
+    {
+     "id": "1",
+     "text": "If the good consists of two or more components, a change to heading 6504 from any other heading, provided that the change is the result of the good being wholly assembled in a single country, territory, or insular possession.",
+     "conds": [
+      {
+       "fact": "two_or_more_components",
+       "want": "yes"
+      }
+     ],
+     "req": {
+      "kind": "process",
+      "process": "assembly",
+      "shift": {
+       "from": "any other heading"
+      }
+     }
+    },
+    {
+     "id": "2",
+     "text": "If the good does not consist of two or more components, a change to heading 6504 from any other heading, except from heading 5007, 5111 through 5113, 5208 through 5212, 5407 through 5408, 5512 through 5516, 5602 through 5603, 5608, 5801 through 5804, 5806, 5808 through 5810, 5903, 5906 through 5907, and 6001 through 6006, and provided that the change is the result of a fabric-making process.",
+     "conds": [
+      {
+       "fact": "two_or_more_components",
+       "want": "no"
+      }
+     ],
+     "req": {
+      "kind": "process",
+      "process": "fabric_making",
+      "shift": {
+       "from": "any other heading",
+       "except": [
+        "5007",
+        "5111-5113",
+        "5208-5212",
+        "5407-5408",
+        "5512-5516",
+        "5602-5603",
+        "5608",
+        "5801-5804",
+        "5806",
+        "5808-5810",
+        "5903",
+        "5906-5907",
+        "6001-6006"
+       ]
+      }
+     }
+    }
+   ]
+  },
+  {
+   "code": "6505.00",
+   "lo": "6505000000",
+   "hi": "6505009999",
+   "origin": "eCFR",
+   "alts": [
+    {
+     "id": "1",
+     "text": "For felt hats and other felt headgear, made from the hat bodies, hoods or plateaux of heading 6501, whether or not lined or trimmed, if the good consists of two or more components, a change to subheading 6505.00 from any other good of subheading 6505.00 or from any other subheading, provided that the change is the result of the good being wholly assembled in a single country, territory, or insular possession.",
+     "conds": [
+      {
+       "fact": "two_or_more_components",
+       "want": "yes"
+      },
+      {
+       "unmodeled": "For felt hats and other felt headgear, made from the hat bodies, hoods or plateaux of heading 6501, whether or not lined or trimmed, if the good"
+      }
+     ],
+     "req": {
+      "kind": "process",
+      "process": "assembly",
+      "shift": {
+       "from": "any other good of subheading 6505.00 or from any other subheading"
+      }
+     }
+    },
+    {
+     "id": "2",
+     "text": "For felt hats and other felt headgear, made from the hat bodies, hoods or plateaux of heading 6501, whether or not lined or trimmed, if the good does not consist of two or more components, a change to subheading 6505.00 from any other subheading, except from heading 5602, and provided that the change is the result of a fabric making process.",
+     "conds": [
+      {
+       "fact": "two_or_more_components",
+       "want": "no"
+      },
+      {
+       "unmodeled": "For felt hats and other felt headgear, made from the hat bodies, hoods or plateaux of heading 6501, whether or not lined or trimmed, if the good"
+      }
+     ],
+     "req": {
+      "kind": "process",
+      "process": "fabric_making",
+      "shift": {
+       "from": "any other subheading",
+       "except": [
+        "5602"
+       ]
+      }
+     }
+    },
+    {
+     "id": "3",
+     "text": "For any other good, if the good consists of two or more components, a change to goods of subheading 6505.00, other than hair-nets, from any other heading, provided that the change is the result of the good being wholly assembled in a single country, territory, or insular possession.",
+     "conds": [
+      {
+       "fact": "two_or_more_components",
+       "want": "yes"
+      },
+      {
+       "unmodeled": "For any other good, if the good"
+      },
+      {
+       "unmodeled": "goods: goods of subheading 6505.00, other than hair-nets,"
+      }
+     ],
+     "req": {
+      "kind": "process",
+      "process": "assembly",
+      "shift": {
+       "from": "any other heading"
+      }
+     }
+    },
+    {
+     "id": "4",
+     "text": "For any other good, if the good does not consist of two or more components, a change to goods of subheading 6505.00, other than hair-nets, from any other heading, except from heading 5007, 5111 through 5113, 5208 through 5212, 5407 through 5408, 5512 through 5516, 5602 through 5603, 5609, 5801 through 5804, 5806, 5808 through 5811, 5903, 5906 through 5907, and 6001 through 6006, and provided that the change is the result of a fabric-making process.",
+     "conds": [
+      {
+       "fact": "two_or_more_components",
+       "want": "no"
+      },
+      {
+       "unmodeled": "For any other good, if the good"
+      },
+      {
+       "unmodeled": "goods: goods of subheading 6505.00, other than hair-nets,"
+      }
+     ],
+     "req": {
+      "kind": "process",
+      "process": "fabric_making",
+      "shift": {
+       "from": "any other heading",
+       "except": [
+        "5007",
+        "5111-5113",
+        "5208-5212",
+        "5407-5408",
+        "5512-5516",
+        "5602-5603",
+        "5609",
+        "5801-5804",
+        "5806",
+        "5808-5811",
+        "5903",
+        "5906-5907",
+        "6001-6006"
+       ]
+      }
+     }
+    }
+   ]
+  },
+  {
+   "code": "6601.10-6601.91",
+   "lo": "6601100000",
+   "hi": "6601919999",
+   "origin": "eCFR",
+   "alts": [
+    {
+     "id": "1",
+     "text": "A change to subheading 6601.10 through 6601.91 from any other heading, provided that the change is the result of the good being wholly assembled in a single country, territory, or insular possession.",
+     "req": {
+      "kind": "process",
+      "process": "assembly",
+      "shift": {
+       "from": "any other heading"
+      }
+     }
+    }
+   ]
+  },
+  {
+   "code": "7019.13.15",
+   "lo": "7019131500",
+   "hi": "7019131599",
+   "origin": "eCFR",
+   "alts": [
+    {
+     "id": "1",
+     "text": "If the good is of filaments, a change to subheading 7019.13.15 from any other heading, provided that the change is the result of an extrusion process.",
+     "conds": [
+      {
+       "fact": "fibre_form",
+       "want": "filaments"
+      }
+     ],
+     "req": {
+      "kind": "process",
+      "process": "extrusion",
+      "shift": {
+       "from": "any other heading"
+      }
+     }
+    },
+    {
+     "id": "2",
+     "text": "If the good is of staple fibers, a change to subheading 7019.13.15 from any other subheading, except from subheading 7019.13.35, 7019.19.30 through 7019.19.91, 7019.14.00 through 7019.15.00, 7019.80.90, 7019.71.00, 7019.80.10, and 7019.90, and provided that the change is the result of a spinning process.",
+     "conds": [
+      {
+       "fact": "fibre_form",
+       "want": "staple"
+      }
+     ],
+     "req": {
+      "kind": "process",
+      "process": "spinning",
+      "shift": {
+       "from": "any other subheading",
+       "except": [
+        "7019.13.35",
+        "7019.19.30-7019.19.91",
+        "7019.14.00-7019.15.00",
+        "7019.80.90",
+        "7019.71.00",
+        "7019.80.10",
+        "7019.90"
+       ]
+      }
+     }
+    }
+   ]
+  },
+  {
+   "code": "7019.13.28",
+   "lo": "7019132800",
+   "hi": "7019132899",
+   "origin": "eCFR",
+   "alts": [
+    {
+     "id": "1",
+     "text": "If the good is of filaments, a change to subheading 7019.13.28 from any other heading, provided that the change is the result of an extrusion process.",
+     "conds": [
+      {
+       "fact": "fibre_form",
+       "want": "filaments"
+      }
+     ],
+     "req": {
+      "kind": "process",
+      "process": "extrusion",
+      "shift": {
+       "from": "any other heading"
+      }
+     }
+    },
+    {
+     "id": "2",
+     "text": "If the good is of staple fibers, a change to subheading 7019.13.28 from any other subheading, except from subheading 7019.13.35, 7019.19.30 through 7019.19.91, 7019.14.00 through 7019.15.00, 7019.80.90, 7019.71.00, 7019.80.10, and 7019.90, and provided that the change is the result of a spinning process.",
+     "conds": [
+      {
+       "fact": "fibre_form",
+       "want": "staple"
+      }
+     ],
+     "req": {
+      "kind": "process",
+      "process": "spinning",
+      "shift": {
+       "from": "any other subheading",
+       "except": [
+        "7019.13.35",
+        "7019.19.30-7019.19.91",
+        "7019.14.00-7019.15.00",
+        "7019.80.90",
+        "7019.71.00",
+        "7019.80.10",
+        "7019.90"
+       ]
+      }
+     }
+    }
+   ]
+  },
+  {
+   "code": "7019.61-7019.90",
+   "lo": "7019610000",
+   "hi": "7019909999",
+   "origin": "eCFR",
+   "alts": [
+    {
+     "id": "1",
+     "text": "A change to subheading 7019.61 through 7019.90 from any other subheading, provided that the change is the result of a fabric-making process.",
+     "req": {
+      "kind": "process",
+      "process": "fabric_making",
+      "shift": {
+       "from": "any other subheading"
+      }
+     }
+    }
+   ]
+  },
+  {
+   "code": "8708.21",
+   "lo": "8708210000",
+   "hi": "8708219999",
+   "origin": "eCFR",
+   "alts": [
+    {
+     "id": "1",
+     "text": "For seat belts not combined with nontextile components, a change to subheading 8708.21 from any other heading, except from heading 5007, 5111 through 5113, 5208 through 5212, 5309 through 5311, 5407 through 5408, and 5512 through 5516, and provided that the change is the result of a fabric-making process.",
+     "conds": [
+      {
+       "unmodeled": "For seat belts not combined with nontextile components"
+      }
+     ],
+     "req": {
+      "kind": "process",
+      "process": "fabric_making",
+      "shift": {
+       "from": "any other heading",
+       "except": [
+        "5007",
+        "5111-5113",
+        "5208-5212",
+        "5309-5311",
+        "5407-5408",
+        "5512-5516"
+       ]
+      }
+     }
+    },
+    {
+     "id": "2",
+     "text": "For seat belts combined with nontextile components, a change to an assembled good of subheading 8708.21 from unassembled components, provided that the change is the result of the good being wholly assembled in a single country, territory, or insular possession.",
+     "conds": [
+      {
+       "unmodeled": "For seat belts combined with nontextile components"
+      }
+     ],
+     "req": {
+      "kind": "process",
+      "process": "assembly",
+      "shift": {
+       "from": "unassembled components"
+      }
+     }
+    }
+   ]
+  },
+  {
+   "code": "8804",
+   "lo": "8804000000",
+   "hi": "8804999999",
+   "origin": "eCFR",
+   "alts": [
+    {
+     "id": "1",
+     "text": "If the good consists of two or more component parts, a change to an assembled good of heading 8804 from unassembled components, provided that the change is the result of the good being wholly assembled in a single country, territory, or insular possession.",
+     "conds": [
+      {
+       "fact": "two_or_more_components",
+       "want": "yes"
+      }
+     ],
+     "req": {
+      "kind": "process",
+      "process": "assembly",
+      "shift": {
+       "from": "unassembled components"
+      }
+     }
+    },
+    {
+     "id": "2",
+     "text": "If the good does not consist of two or more component parts, a change to heading 8804 from any other heading, except from heading 5007, 5111 through 5113, 5208 through 5212, 5309 through 5311, 5407 through 5408, 5512 through 5516, 5603, 5801 through 5804, 5806, 5809 through 5811, 5903, 5906 through 5907, and 6001 through 6006, and subheading 6307.90, and provided that the change is the result of a fabric-making process.",
+     "conds": [
+      {
+       "fact": "two_or_more_components",
+       "want": "no"
+      }
+     ],
+     "req": {
+      "kind": "process",
+      "process": "fabric_making",
+      "shift": {
+       "from": "any other heading",
+       "except": [
+        "5007",
+        "5111-5113",
+        "5208-5212",
+        "5309-5311",
+        "5407-5408",
+        "5512-5516",
+        "5603",
+        "5801-5804",
+        "5806",
+        "5809-5811",
+        "5903",
+        "5906-5907",
+        "6001-6006",
+        "6307.90"
+       ]
+      }
+     }
+    }
+   ]
+  },
+  {
+   "code": "9113.90.40",
+   "lo": "9113904000",
+   "hi": "9113904099",
+   "origin": "eCFR",
+   "alts": [
+    {
+     "id": "1",
+     "text": "If the good consists of two or more component parts, a change to an assembled good of subheading 9113.90.40 from unassembled components, provided that the change is the result of the good being wholly assembled in a single country, territory, or insular possession.",
+     "conds": [
+      {
+       "fact": "two_or_more_components",
+       "want": "yes"
+      }
+     ],
+     "req": {
+      "kind": "process",
+      "process": "assembly",
+      "shift": {
+       "from": "unassembled components"
+      }
+     }
+    },
+    {
+     "id": "2",
+     "text": "If the good does not consist of two or more component parts, a change to subheading 9113.90.40 from any other heading, except from heading 5007, 5111 through 5113, 5208 through 5212, 5309 through 5311, 5407 through 5408, 5512 through 5516, 5603, 5801 through 5802, 5806, 5809, 5903, 5906 through 5907, and 6001 through 6006, and subheading 6307.90, and provided that the change is the result of a fabric-making process.",
+     "conds": [
+      {
+       "fact": "two_or_more_components",
+       "want": "no"
+      }
+     ],
+     "req": {
+      "kind": "process",
+      "process": "fabric_making",
+      "shift": {
+       "from": "any other heading",
+       "except": [
+        "5007",
+        "5111-5113",
+        "5208-5212",
+        "5309-5311",
+        "5407-5408",
+        "5512-5516",
+        "5603",
+        "5801-5802",
+        "5806",
+        "5809",
+        "5903",
+        "5906-5907",
+        "6001-6006",
+        "6307.90"
+       ]
+      }
+     }
+    }
+   ]
+  },
+  {
+   "code": "9404.90",
+   "lo": "9404900000",
+   "hi": "9404909999",
+   "origin": "eCFR",
+   "alts": [
+    {
+     "id": "1",
+     "text": "Except for goods of subheading 9404.90 provided for in paragraph (e)(2) of this section, the country of origin of a good classifiable under subheading 9404.90 is the country, territory, or insular possession in which the fabric comprising the good was formed by a fabric-making process.",
+     "conds": [
+      {
+       "fact": "not_e2",
+       "want": "yes"
+      }
+     ],
+     "req": {
+      "kind": "process",
+      "process": "fabric_making"
+     }
+    }
+   ]
+  },
+  {
+   "code": "9503.00.0080",
+   "lo": "9503000080",
+   "hi": "9503000080",
+   "origin": "eCFR",
+   "alts": [
+    {
+     "id": "1",
+     "text": "For garments and accessories thereof, footwear or headgear of dolls representing only human beings, a change to an assembled good from unassembled components, provided that the change is the result of the good being wholly assembled in a single country, territory, or insular possession.",
+     "conds": [
+      {
+       "unmodeled": "For garments and accessories thereof, footwear or headgear of dolls representing only human beings"
+      },
+      {
+       "unmodeled": "goods: an assembled good"
+      }
+     ],
+     "req": {
+      "kind": "process",
+      "process": "assembly",
+      "shift": {
+       "from": "unassembled components"
+      }
+     }
+    }
+   ]
+  },
+  {
+   "code": "9612.10.9010",
+   "lo": "9612109010",
+   "hi": "9612109010",
+   "origin": "eCFR",
+   "alts": [
+    {
+     "id": "1",
+     "text": "A change to subheading 9612.10.9010 from any other heading, except from heading 5007, 5111 through 5113, 5208 through 5212, 5309 through 5311, 5407 through 5408, 5512 through 5516, 5603, 5806, 5903, 5906 through 5907, and 6002 through 6006, and provided that the change is the result of a fabric-making process.",
+     "req": {
+      "kind": "process",
+      "process": "fabric_making",
+      "shift": {
+       "from": "any other heading",
+       "except": [
+        "5007",
+        "5111-5113",
+        "5208-5212",
+        "5309-5311",
+        "5407-5408",
+        "5512-5516",
+        "5603",
+        "5806",
+        "5903",
+        "5906-5907",
+        "6002-6006"
+       ]
+      }
+     }
+    }
+   ]
+  },
+  {
+   "code": "9619",
+   "lo": "9619000000",
+   "hi": "9619999999",
+   "origin": "eCFR",
+   "alts": [
+    {
+     "id": "1",
+     "text": "A change to articles of wadding of heading 9619 from any other heading, except from heading 5105, 5203, 5501 through 5507, and from 5601; or",
+     "conds": [
+      {
+       "unmodeled": "goods: articles of wadding of heading 9619"
+      }
+     ],
+     "req": {
+      "kind": "shift",
+      "shift": {
+       "from": "any other heading",
+       "except": [
+        "5105",
+        "5203",
+        "5501-5507",
+        "5601"
+       ]
+      }
+     }
+    },
+    {
+     "id": "2",
+     "text": "If the good is not knit to shape and consists of two or more component parts, except for goods of subheading 6117.10 provided for in paragraph (e)(2) of this section, a change to an assembled knitted or crocheted article of heading 9619, from unassembled components, provided that the change is the result of the good being wholly assembled in a single country, territory, or insular possession; or",
+     "conds": [
+      {
+       "fact": "not_e2",
+       "want": "yes"
+      },
+      {
+       "fact": "knit_to_shape",
+       "want": "no"
+      },
+      {
+       "fact": "two_or_more_components",
+       "want": "yes"
+      },
+      {
+       "unmodeled": "goods: an assembled knitted or crocheted article of heading 9619,"
+      }
+     ],
+     "req": {
+      "kind": "process",
+      "process": "assembly",
+      "shift": {
+       "from": "unassembled components"
+      }
+     }
+    },
+    {
+     "id": "3",
+     "text": "If the good is not knit to shape and does not consist of two or more component parts, except for goods of subheading 6117.10 provided for in paragraph (e)(2) of this section, a change to a knitted or crocheted article of heading 9619 from any other heading, except from heading 5007, 5111 through 5113, 5208 through 5212, 5309 through 5311, 5407 through 5408, 5512 through 5516, 5806, 5809 through 5811, 5903, 5906 through 5907, 6001 through 6006, 6101 through 6117; and subheading 6307.90, and provided that the change is the result of a fabric-making process; or",
+     "conds": [
+      {
+       "fact": "not_e2",
+       "want": "yes"
+      },
+      {
+       "fact": "knit_to_shape",
+       "want": "no"
+      },
+      {
+       "fact": "two_or_more_components",
+       "want": "no"
+      },
+      {
+       "unmodeled": "goods: a knitted or crocheted article of heading 9619"
+      }
+     ],
+     "req": {
+      "kind": "process",
+      "process": "fabric_making",
+      "shift": {
+       "from": "any other heading",
+       "except": [
+        "5007",
+        "5111-5113",
+        "5208-5212",
+        "5309-5311",
+        "5407-5408",
+        "5512-5516",
+        "5806",
+        "5809-5811",
+        "5903",
+        "5906-5907",
+        "6001-6006",
+        "6101-6117"
+       ]
+      }
+     }
+    },
+    {
+     "id": "4",
+     "text": "If the good is knit to shape, except for goods of subheading 6117.10 provided for in paragraph (e)(2) of this section, a change to a knitted or crocheted article of heading 9619 from any other heading, except from heading 6101 through 6117, provided that the knit to shape components are knit in a single country, territory, or insular possession; or",
+     "conds": [
+      {
+       "fact": "not_e2",
+       "want": "yes"
+      },
+      {
+       "fact": "knit_to_shape",
+       "want": "yes"
+      },
+      {
+       "unmodeled": "goods: a knitted or crocheted article of heading 9619"
+      }
+     ],
+     "req": {
+      "kind": "process",
+      "process": "knit_to_shape",
+      "shift": {
+       "from": "any other heading",
+       "except": [
+        "6101-6117"
+       ]
+      }
+     }
+    },
+    {
+     "id": "5",
+     "text": "If the good consists of two or more component parts, a change to an assembled women's or girls' singlet or other undershirt, brief, panty, negligee, bathrobe, dressing gown, or a similar article of heading 9619 from unassembled components, provided that the change is the result of the good being wholly assembled in a single country, territory, or insular possession; or",
+     "conds": [
+      {
+       "fact": "two_or_more_components",
+       "want": "yes"
+      },
+      {
+       "unmodeled": "goods: an assembled women's or girls' singlet or other undershirt, brief, panty, negligee, bathrobe, dressing gown, or a similar article of heading 9619"
+      }
+     ],
+     "req": {
+      "kind": "process",
+      "process": "assembly",
+      "shift": {
+       "from": "unassembled components"
+      }
+     }
+    },
+    {
+     "id": "6",
+     "text": "If the good does not consist of two or more component parts, a change to a women's or girls' singlet or other undershirt, brief, panty, negligee, bathrobe, dressing gown, or a similar article of heading 9619 from any other heading, except from heading 5007, 5111 through 5113, 5208 through 5212, 5309 through 5311, 5407 through 5408, 5512 through 5516, 5602 through 5603, 5801 through 5806, 5809 through 5811, 5903, 5906 through 5907, 6201 through 6208, and 6217, and subheading 6307.90, and provided that the change is the result of a fabric-making process; or",
+     "conds": [
+      {
+       "fact": "two_or_more_components",
+       "want": "no"
+      },
+      {
+       "unmodeled": "goods: a women's or girls' singlet or other undershirt, brief, panty, negligee, bathrobe, dressing gown, or a similar article of heading 9619"
+      }
+     ],
+     "req": {
+      "kind": "process",
+      "process": "fabric_making",
+      "shift": {
+       "from": "any other heading",
+       "except": [
+        "5007",
+        "5111-5113",
+        "5208-5212",
+        "5309-5311",
+        "5407-5408",
+        "5512-5516",
+        "5602-5603",
+        "5801-5806",
+        "5809-5811",
+        "5903",
+        "5906-5907",
+        "6201-6208",
+        "6217",
+        "6307.90"
+       ]
+      }
+     }
+    },
+    {
+     "id": "7",
+     "text": "The country of origin of a baby diaper of cotton classifiable in heading 9619 is the country, territory, or insular possession in which the fabric comprising the good was formed by a fabric-making process; or",
+     "conds": [
+      {
+       "unmodeled": "goods: baby diaper of cotton"
+      }
+     ],
+     "req": {
+      "kind": "process",
+      "process": "fabric_making"
+     }
+    },
+    {
+     "id": "8",
+     "text": "If the good consists of two or more component parts, a change to an assembled baby garment of synthetic fiber or artificial fiber of heading 9619 from unassembled components, provided that the change is the result of the good being wholly assembled in a single country, territory, or insular possession; or",
+     "conds": [
+      {
+       "fact": "two_or_more_components",
+       "want": "yes"
+      },
+      {
+       "unmodeled": "goods: an assembled baby garment of synthetic fiber or artificial fiber of heading 9619"
+      }
+     ],
+     "req": {
+      "kind": "process",
+      "process": "assembly",
+      "shift": {
+       "from": "unassembled components"
+      }
+     }
+    },
+    {
+     "id": "9",
+     "text": "If the good does not consist of two or more component parts, a change to a baby garment of synthetic fiber or artificial fiber of heading 9619 from any other heading, except from heading 5007, 5111 through 5113, 5208 through 5212, 5309 through 5311, 5407 through 5408, 5512 through 5516, 5602 through 5603, 5801 through 5806, 5809 through 5811, 5903, 5906 through 5907, 6209, and 6217, and subheading 6307.90, and provided that the change is the result of a fabric-making process; or",
+     "conds": [
+      {
+       "fact": "two_or_more_components",
+       "want": "no"
+      },
+      {
+       "unmodeled": "goods: a baby garment of synthetic fiber or artificial fiber of heading 9619"
+      }
+     ],
+     "req": {
+      "kind": "process",
+      "process": "fabric_making",
+      "shift": {
+       "from": "any other heading",
+       "except": [
+        "5007",
+        "5111-5113",
+        "5208-5212",
+        "5309-5311",
+        "5407-5408",
+        "5512-5516",
+        "5602-5603",
+        "5801-5806",
+        "5809-5811",
+        "5903",
+        "5906-5907",
+        "6209",
+        "6217",
+        "6307.90"
+       ]
+      }
+     }
+    },
+    {
+     "id": "10",
+     "text": "If the good consists of two or more component parts, a change to an assembled women's or girls' garment, made up of fabrics of heading 5602, 5603, 5903, 5906, or 5907, of heading 9619 or a girls', boys', men's, or women's garment, other than knitted or crocheted garments and other than a women's or girls' singlet or other undershirt, brief, panty, negligee, bathrobe, dressing gown, or a similar article, from unassembled components, provided that the change is the result of the good being wholly assembled in a single country, territory, or insular possession",
+     "conds": [
+      {
+       "fact": "two_or_more_components",
+       "want": "yes"
+      },
+      {
+       "unmodeled": "goods: an assembled women's or girls' garment, made up of fabrics of heading 5602, 5603, 5903, 5906, or 5907, of heading 9619 or a girls', boys', men's, or women's garment, other than knitted or crocheted garments and other than a women's or girls' singlet or other undershirt, brief, panty, negligee, bathrobe, dressing gown, or a similar article,"
+      }
+     ],
+     "req": {
+      "kind": "process",
+      "process": "assembly",
+      "shift": {
+       "from": "unassembled components"
+      }
+     }
+    },
+    {
+     "id": "11",
+     "text": "If the good does not consist of two or more component parts, a change to an assembled women's or girls' garment, made up of fabrics of heading 5602, 5603, 5903, 5906, or 5907, of heading 9619 or a girls', boys', men's, or women's garment, other than knitted or crocheted garments and other than a women's or girls' singlet or other undershirt, brief, panty, negligee, bathrobe, dressing gown, or a similar article from any other heading, except from heading 5007, 5111 through 5113, 5208 through 5212, 5309 through 5311, 5407 through 5408, 5512 through 5516, 5602 through 5603, 5801 through 5806, 5809 through 5811, 5903, 5906 through 5907, 6001 through 6006, 6210 through 6212, and 6217, and subheading 6307.90, and provided that the change is the result of a fabric-making process; or",
+     "conds": [
+      {
+       "fact": "two_or_more_components",
+       "want": "no"
+      },
+      {
+       "unmodeled": "goods: an assembled women's or girls' garment, made up of fabrics of heading 5602, 5603, 5903, 5906, or 5907, of heading 9619 or a girls', boys', men's, or women's garment, other than knitted or crocheted garments and other than a women's or girls' singlet or other undershirt, brief, panty, negligee, bathrobe, dressing gown, or a similar article"
+      }
+     ],
+     "req": {
+      "kind": "process",
+      "process": "fabric_making",
+      "shift": {
+       "from": "any other heading",
+       "except": [
+        "5007",
+        "5111-5113",
+        "5208-5212",
+        "5309-5311",
+        "5407-5408",
+        "5512-5516",
+        "5602-5603",
+        "5801-5806",
+        "5809-5811",
+        "5903",
+        "5906-5907",
+        "6001-6006",
+        "6210-6212",
+        "6217",
+        "6307.90"
+       ]
+      }
+     }
+    },
+    {
+     "id": "12",
+     "text": "The country of origin of an other made up article of heading 9619 is the country, territory, or insular possession in which the woven fabric component of the good was formed by a fabric-making process.",
+     "conds": [
+      {
+       "unmodeled": "goods: other made up article"
+      }
+     ],
+     "req": {
+      "kind": "process",
+      "process": "fabric_making"
+     }
+    }
+   ]
+  },
+  {
+   "code": "9619.00.31-9619.00.33",
+   "lo": "9619003100",
+   "hi": "9619003399",
+   "origin": "eCFR",
+   "alts": [
+    {
+     "id": "1",
+     "text": "The country of origin of a good classifiable in subheading 9619.00.31 through 9619.00.33 is the country, territory, or insular possession in which the fabric comprising the good was formed by a fabric-making process.",
+     "req": {
+      "kind": "process",
+      "process": "fabric_making"
+     }
+    }
+   ]
+  }
+ ],
+ "e2": {
+  "text": "(2) For goods of HTSUS headings 6213 and 6214 and HTSUS subheadings 6117.10, 6302.22, 6302.29, 6302.53, 6302.59, 6302.93, 6302.99, 6303.92, 6303.99, 6304.19, 6304.93, 6304.99, 9404.90.85 and 9404.90.95, except for goods classified under those headings or subheadings as of cotton or of wool or consisting of fiber blends containing 16 percent or more by weight of cotton: (i) The country of origin of the good is the country, territory, or insular possession in which the fabric comprising the good was both dyed and printed when accompanied by two or more of the following finishing operations: bleaching, shrinking, fulling, napping, decating, permanent stiffening, weighting, permanent embossing, or moireing; (ii) If the country of origin cannot be determined under paragraph (e)(2)(i) of this section, except for goods of HTSUS subheading 6117.10 that are knit to shape or consist of two or more component parts, the country of origin is the country, territory, or insular possession in which the fabric comprising the good was formed by a fabric-making process; or (iii) For goods of HTSUS subheading 6117.10 that are knit to shape or consist of two or more component parts, if the country of origin cannot be determined under paragraph (e)(2)(i) of this section: (A) If the good is knit to shape, the country of origin of the good is the country, territory, or insular possession in which a change to HTSUS subheading 6117.10 from yarn occurs, provided that the knit to shape components are knit in a single country, territory, or insular possession; or (B) If the good is not knit to shape and consists of two or more component parts, the country of origin of the good is the country, territory, or insular possession in which a change to an assembled good of HTSUS subheading 6117.10 from unassembled components occurs, provided that the change is the result of the good being wholly assembled in a single country, territory, or insular possession.",
+  "codes": [
+   "6213",
+   "6214",
+   "6117.10",
+   "6302.22",
+   "6302.29",
+   "6302.53",
+   "6302.59",
+   "6302.93",
+   "6302.99",
+   "6303.92",
+   "6303.99",
+   "6304.19",
+   "6304.93",
+   "6304.99",
+   "9404.90.85",
+   "9404.90.95"
+  ],
+  "alts": [
+   {
+    "id": "i",
+    "text": "The country of origin of the good is the country, territory, or insular possession in which the fabric comprising the good was both dyed and printed when accompanied by two or more of the following finishing operations: bleaching, shrinking, fulling, napping, decating, permanent stiffening, weighting, permanent embossing, or moireing",
+    "req": {
+     "kind": "process",
+     "process": "dye_print_finish"
+    }
+   },
+   {
+    "id": "ii",
+    "text": "except for goods of HTSUS subheading 6117.10 that are knit to shape or consist of two or more component parts, the country of origin is the country, territory, or insular possession in which the fabric comprising the good was formed by a fabric-making process",
+    "after": "i",
+    "conds": [
+     {
+      "fact": "not_6117_10_knit_or_parts",
+      "want": "yes"
+     }
+    ],
+    "req": {
+     "kind": "process",
+     "process": "fabric_making"
+    }
+   },
+   {
+    "id": "iii(A)",
+    "text": "If the good is knit to shape, the country of origin of the good is the country, territory, or insular possession in which a change to HTSUS subheading 6117.10 from yarn occurs, provided that the knit to shape components are knit in a single country, territory, or insular possession",
+    "after": "i",
+    "conds": [
+     {
+      "fact": "is_6117_10",
+      "want": "yes"
+     },
+     {
+      "fact": "knit_to_shape",
+      "want": "yes"
+     }
+    ],
+    "req": {
+     "kind": "process",
+     "process": "knit_to_shape"
+    }
+   },
+   {
+    "id": "iii(B)",
+    "text": "If the good is not knit to shape and consists of two or more component parts, the country of origin of the good is the country, territory, or insular possession in which a change to an assembled good of HTSUS subheading 6117.10 from unassembled components occurs, provided that the change is the result of the good being wholly assembled in a single country, territory, or insular possession",
+    "after": "i",
+    "conds": [
+     {
+      "fact": "is_6117_10",
+      "want": "yes"
+     },
+     {
+      "fact": "knit_to_shape",
+      "want": "no"
+     },
+     {
+      "fact": "two_or_more_components",
+      "want": "yes"
+     }
+    ],
+    "req": {
+     "kind": "process",
+     "process": "assembly"
+    }
+   }
+  ]
+ }
+}

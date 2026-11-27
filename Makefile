@@ -49,6 +49,7 @@ reproduce: ## recompute every published number from committed files: no model ca
 	cd $(GO_DIR) && go run ./cmd/corpus alerts -check
 	cd $(GO_DIR) && go run ./cmd/corpus alerts-example -check
 	cd $(GO_DIR) && go run ./cmd/tariffshift eval -check
+	cd $(GO_DIR) && go run ./cmd/textilerules eval -check
 	cd $(GO_DIR) && go run ./cmd/tariffshift parts-eval -check
 	cd $(GO_DIR) && go run ./cmd/tariffshift eval -without 15,21,40,71,95 -out ../eval/tariffshift/d560 -check
 	cd $(GO_DIR) && go run ./cmd/tariffshift parts-eval -without 15,21,40,71,95 -out ../eval/tariffshift/d560/parts -check
@@ -126,6 +127,8 @@ reproduce: ## recompute every published number from committed files: no model ca
 	cd $(GO_DIR) && go run ./cmd/usmcaeval -split dev -check
 	cd $(GO_DIR) && go run ./cmd/usmcaeval -split held_out -check
 	python3 -I -B eval/atiga/parse_psr.py check backend/internal/atiga/data/psr_hs2022.json
+	python3 -I -B eval/akfta/parse_psr.py check backend/internal/aseanfta/data/akfta_psr_hs2022.json
+	python3 -I -B eval/acfta/parse_psr.py check backend/internal/aseanfta/data/acfta_psr_hs2017.json
 	python3 -I -B eval/adcvd/build_orders.py check backend/internal/adcvd/data/orders.json
 	python3 -I -B eval/adcvd/build_orders.py check eval/adcvd/orders-2024-12-31.json
 	cd $(GO_DIR) && go run ./cmd/adcvdeval -dir ../eval/adcvd -orders ../eval/adcvd/orders-2024-12-31.json -out ../eval/adcvd/results.jsonl -summary ../eval/adcvd/summary.json -check
@@ -138,6 +141,7 @@ reproduce: ## recompute every published number from committed files: no model ca
 	python3 -I -B eval/rescore/test_build_split.py
 	python3 -I -B eval/rescore/test_summarize.py
 	python3 -I -B eval/rescore/summarize.py . --month 2026-11 --check
+	cd $(GO_DIR) && go run ./cmd/evaldrift check
 	python3 -I -B eval/jp/check_translations.py . --check
 	cd $(GO_DIR) && go run ./cmd/rcepeval -check
 	cd $(GO_DIR) && go run ./cmd/jpeval bundle -check
@@ -173,6 +177,7 @@ rescore-build: ## label and freeze the month's CBP re-scoring set from a refresh
 rescore-run: ## score production once on the month's frozen set, after its pre-registration is pushed (D931; gateway): make rescore-run MONTH=YYYY-MM
 	cd $(GO_DIR) && go run ./cmd/eval run -split monthly -confirm-final -router -tag rescore-$(MONTH) -splits ../eval/rescore/$(MONTH)/splits.json -labels data/labels.jsonl -case-labels ../eval/rescore/$(MONTH)/labels.jsonl -facts data/facts,../eval/rescore/$(MONTH)/facts
 	python3 -I -B eval/rescore/summarize.py . --month $(MONTH)
+	cd $(GO_DIR) && go run ./cmd/evaldrift record -month $(MONTH)
 
 verify-data: ## check committed eval data against eval/SHA256SUMS and the bundled corpus against it
 	cd eval && shasum -a 256 -c SHA256SUMS

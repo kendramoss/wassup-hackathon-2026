@@ -2528,6 +2528,77 @@ paths:
         "400": { $ref: "#/components/responses/Error" }
         "404": { $ref: "#/components/responses/Error" }
         "429": { $ref: "#/components/responses/TooManyRequests" }
+  /v1/akfta/check:
+    post:
+      operationId: checkAkftaPreference
+      summary: AKFTA (ASEAN-Korea) preferential origin check from a bill of materials (deterministic, no model call; off unless AKFTA_CHECK=on)
+      description: >-
+        Does a good made in an ASEAN Member State or Korea qualify as AKFTA originating, so it can claim the AKFTA
+        (Form AK) preferential tariff? Served only with `AKFTA_CHECK=on` (default off: 404). Deterministic code over
+        the Appendix 2 product-specific rules (HS 2022; 535 rows read from the decision of the ASEAN-Korea
+        Implementation Committee, SHA-256 in `rule.version`'s source block; `backend/internal/aseanfta`, D949) on the
+        same engine as `/v1/atiga/check`. Implements Annex 3 Rules 2 and 3 (wholly obtained, produced from originating
+        materials), Rule 4 (general rule RVC 40 or change of tariff heading for goods not listed), Rule 5 (the
+        Appendix 2 rule, including wholly obtained in the exporting Party or in any Party, CC, CTH, CTSH, RVC 35 to 70,
+        provisos on materials and per-product variants), Rule 7 (accumulation of originating materials of the Parties),
+        Rule 8 (the fifteen non-qualifying operations) and Rule 10 (de minimis 10 % of FOB value; by weight for
+        chapters 50 to 63), build-up or build-down (give `method` to use only one). Not covered: direct consignment
+        (Rule 9), the industrial-zone treatment of Rule 6, packing materials, accessories, neutral elements and
+        identical and interchangeable materials, and proof-of-origin procedures. Missing facts make the answer
+        `undetermined`, never `no`. Preferential origin only (`regime: akfta_preferential`), separate from marking and
+        non-preferential origin. Nothing is stored. Not a ruling and not a Certificate of Origin. Cheap class (120 a
+        minute); a malformed body is 400 `invalid_input`.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AseanFtaRequest"
+      responses:
+        "200":
+          description: The answer, with the rule used and plain-English reasons
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AseanFtaResult"
+        "400": { $ref: "#/components/responses/Error" }
+        "404": { $ref: "#/components/responses/Error" }
+        "429": { $ref: "#/components/responses/TooManyRequests" }
+  /v1/acfta/check:
+    post:
+      operationId: checkAcftaPreference
+      summary: ACFTA (ASEAN-China) preferential origin check from a bill of materials (deterministic, no model call; off unless ACFTA_CHECK=on)
+      description: >-
+        Does a good made in an ASEAN Member State or China qualify as ACFTA originating, so it can claim the ACFTA
+        (Form E) preferential tariff? Served only with `ACFTA_CHECK=on` (default off: 404). Deterministic code over
+        the Attachment B product-specific rules of the 2015 Upgrading Protocol (Annex 1, in force 15 August 2019;
+        HS 2017, 2045 rows read from two official copies that agree; `backend/internal/aseanfta`, D949) on the same
+        engine as `/v1/atiga/check`. Implements Art. 2 (wholly obtained, produced from originating materials, product
+        specific rules), Art. 4(1) (the general rule: RVC 40 with the final process in a Party, or a change of tariff
+        heading for the chapters Art. 4(1)(b) lists and not for the headings it takes back out), Art. 5 (build-down
+        only: a `costs` block is not used and `method` direct is 400), Art. 6 (accumulation), Art. 7 (minimal
+        operations: they only stop a wholly-obtained claim) and Art. 9 (de minimis 10 %; textiles by weight or value),
+        and Process Rules 1 to 3 stated in `processes`. The table is HS 2017: a code from a later edition may not
+        match. Not covered: ACFTA 3.0, direct consignment, accessories, packing materials, neutral elements and
+        proof-of-origin procedures. Missing facts make the answer `undetermined`, never `no`. Preferential origin only
+        (`regime: acfta_preferential`). Nothing is stored. Not a ruling and not a Certificate of Origin. Cheap class
+        (120 a minute); a malformed body is 400 `invalid_input`.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AseanFtaRequest"
+      responses:
+        "200":
+          description: The answer, with the rule used and plain-English reasons
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AseanFtaResult"
+        "400": { $ref: "#/components/responses/Error" }
+        "404": { $ref: "#/components/responses/Error" }
+        "429": { $ref: "#/components/responses/TooManyRequests" }
   /v1/adcvd/check:
     post:
       operationId: checkAdcvdExposure
@@ -3172,7 +3243,7 @@ paths:
 
         The answer carries `secret` once; keep it, it is not shown again (rotate to get a new one). Each delivery is a POST with a JSON body (`id`, `type`, `created_at`, `workspace`, `data`) and these headers: `X-Webhook-Id` (the delivery's id, the same on every retry: deduplicate on it), `X-Webhook-Event` and `X-Webhook-Signature: t=<unix seconds>,v1=<hex>`, where `v1` is the HMAC-SHA256, keyed with the secret, of `<t>.<raw body>`. Verify it over the raw bytes and reject a `t` more than five minutes old. During the day after a rotation the header carries a `v1` for the new and for the previous secret; accept either. A 2xx answer is a delivery. Anything else (or no answer within 10 seconds) is retried after 30 s, 2 min, 10 min, 1 h and 6 h, six attempts in all, then marked failed; the attempts are in the delivery log. Delivery is at least once and not ordered. Events carry ids and statuses only, never case text, comments or letters.
 
-        Events: `ruling_watch.hit` (a ruling watch re-check changed a case's origin because of newer precedents: `case_id`, `previous_origin`, `new_origin`, `newer_rulings`, `triage_route`, `checked_at`), `review.decision` (a broker answered a review link: `case_id`, `review_id`, `decision`, `has_comment`, never the comment, `decided_at`), `filing.status` (an eRulings request moved: `case_id`, `status`, `previous_status`, `reference` when given, `at`), `budget.alert` (the month's spend passed the budget's alert share or the budget: `month`, `level` alert or cap, `spent_usd`, `budget_usd`, `alert_percent`, `hard_cap`; needs USAGE_METERING=on) and `batch.finished` (a batch triage finished: `total`, `failed`, `out_of_scope`, `auto`, `needs_review`, `needs_info`, `cost_usd`, `case_ids`, `finished_at`). Only events of cases and spend of this workspace are sent.
+        Events: `ruling_watch.hit` (a ruling watch re-check changed a case's origin because of newer precedents: `case_id`, `previous_origin`, `new_origin`, `newer_rulings`, `triage_route`, `checked_at`), `review.decision` (a broker answered a review link: `case_id`, `review_id`, `decision`, `has_comment`, never the comment, `decided_at`), `filing.status` (an eRulings request moved: `case_id`, `status`, `previous_status`, `reference` when given, `at`), `budget.alert` (the month's spend passed the budget's alert share or the budget: `month`, `level` alert or cap, `spent_usd`, `budget_usd`, `alert_percent`, `hard_cap`; needs USAGE_METERING=on) and `batch.finished` (a batch triage finished: `total`, `failed`, `out_of_scope`, `auto`, `needs_review`, `needs_info`, `cost_usd`, `case_ids`, `finished_at`) and `eval.drift` (a monthly re-score fell below the earlier months; sent to every subscribed endpoint of every workspace, only when EVAL_DRIFT_ALERTS is on: `series` cbp or japan, `month`, `correct`, `cases`, `accuracy`, `baseline_correct`, `baseline_cases`, `baseline_accuracy`, `p_value`, `severity`, `rule`). Other events concern only cases and spend of this workspace.
       parameters:
         - { $ref: "#/components/parameters/UserToken" }
         - { name: id, in: path, required: true, schema: { type: string } }
@@ -3368,6 +3439,7 @@ paths:
         - { name: outcome, in: query, schema: { $ref: "#/components/schemas/AuditOutcome" } }
         - { name: phase, in: query, schema: { $ref: "#/components/schemas/AuditPhase" } }
         - { name: actor, in: query, description: An actor pseudonym from an event, never an email, schema: { type: string } }
+        - { name: actor_kind, in: query, schema: { type: string, enum: [user, apikey, admin, anonymous, system] } }
         - { name: object, in: query, description: An opaque object reference from an event, schema: { type: string } }
         - { name: from, in: query, description: RFC 3339, on `time`, schema: { type: string, format: date-time } }
         - { name: to, in: query, description: RFC 3339, on `time`, schema: { type: string, format: date-time } }
@@ -3450,7 +3522,7 @@ paths:
     put:
       operationId: setWorkspaceRetention
       summary: Set a workspace's case retention policy (TEAMS=on and RETENTION=on; workspace admin)
-      description: "`case_days` is 0 (keep forever) or 7 to 3650. The operator's purge run (`cmd/retention`) then hard-deletes the workspace's cases not updated for that many days, oldest first, writing a tombstone and a `case.delete` audit event (detail `retention`, actor `system`) before each deletion. Pinned demo cases are never purged. Setting the policy deletes nothing by itself. A sensitive write when the audit trail is on: 503 `audit_unavailable` if its intent cannot be recorded."
+      description: "Send `case_days`, `audit_days` or both; a field left out keeps its current value. `audit_days` is 0 (the trail's own window, `retention_days` of `GET /v1/audit`) or 7 up to that window: a workspace can shorten how long its audit events are kept, never lengthen it; 400 when the audit trail is off. The operator's purge run (`cmd/retention`) removes the workspace's audit events older than `audit_days` the same way the trail's own sweep does, leaving a retention checkpoint so the rest still verifies, and appends one system `audit.purge` event (detail `workspace`). `case_days` is 0 (keep forever) or 7 to 3650; the same run then hard-deletes the workspace's cases not updated for that many days, oldest first, writing a tombstone and a `case.delete` audit event (detail `retention`, actor `system`) before each deletion, and with `CACHE_PURGE=on` the cached predictions, verdicts, advice and supplier documents only that case used. Pinned demo cases are never purged. Setting the policy deletes nothing by itself. A sensitive write when the audit trail is on: 503 `audit_unavailable` if its intent cannot be recorded."
       parameters:
         - { $ref: "#/components/parameters/UserToken" }
         - { name: id, in: path, required: true, schema: { type: string } }
@@ -3460,9 +3532,10 @@ paths:
           application/json:
             schema:
               type: object
-              required: [case_days]
+              minProperties: 1
               properties:
                 case_days: { type: integer, description: "0, or 7 to 3650" }
+                audit_days: { type: integer, description: "0 (the trail's own window), or 7 up to it" }
       responses:
         "429": { $ref: "#/components/responses/TooManyRequests" }
         "503": { $ref: "#/components/responses/Error" }
@@ -3891,7 +3964,7 @@ paths:
     get:
       operationId: getAdminConsole
       summary: The workspace admin's settings overview (ADMIN_CONSOLE=on, workspace admin)
-      description: "Members with roles, pending invitations, which features are on, the SSO connections and their domains, the SCIM token status, the retention policy and this month's usage, each only when its feature is on, and the route that changes each. Read only; never a token, hash, client secret or DNS verification value."
+      description: "Members with roles, pending invitations, which features are on, the SSO connections and their domains, the SCIM token status, the retention policy and this month's usage, each only when its feature is on, and the route that changes each (rename, API keys and audit search included). Read only; never a token, hash, client secret or DNS verification value."
       parameters:
         - { $ref: "#/components/parameters/UserToken" }
         - { name: id, in: path, required: true, schema: { type: string } }
@@ -3912,12 +3985,144 @@ paths:
                   features: { type: object, additionalProperties: { type: boolean } }
                   sso: { type: object }
                   scim: { type: object }
-                  retention: { type: object, properties: { case_days: { type: integer } } }
+                  retention: { type: object, properties: { case_days: { type: integer }, audit_days: { type: integer } } }
                   usage: { type: object }
                   routes: { type: object, additionalProperties: { type: string } }
         "401": { $ref: "#/components/responses/Error" }
         "403": { $ref: "#/components/responses/Error" }
         "404": { $ref: "#/components/responses/Error" }
+  /v1/workspaces/{id}/name:
+    put:
+      operationId: renameWorkspace
+      summary: Rename the workspace (ADMIN_CONSOLE=on, workspace admin)
+      description: "Whitespace is collapsed; 1 to 100 characters. 400 for a bad name or an unknown field; 401 without a valid token; 403 for a member who is not an admin; 404 for a workspace the caller is not in (identical to an unknown one). Audited as `workspace.rename` (sensitive: the intent is stored first); the name itself is not in the trail."
+      parameters:
+        - { $ref: "#/components/parameters/UserToken" }
+        - { name: id, in: path, required: true, schema: { type: string } }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { type: object, required: [name], additionalProperties: false, properties: { name: { type: string, minLength: 1, maxLength: 100 } } }
+      responses:
+        "200":
+          headers:
+            X-Audit-Incomplete: { $ref: "#/components/headers/AuditIncomplete" }
+          description: The workspace as the caller sees it
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Workspace" }
+        "400": { $ref: "#/components/responses/Error" }
+        "401": { $ref: "#/components/responses/Error" }
+        "403": { $ref: "#/components/responses/Error" }
+        "404": { $ref: "#/components/responses/Error" }
+        "429": { $ref: "#/components/responses/TooManyRequests" }
+        "503": { $ref: "#/components/responses/Error" }
+  /v1/workspaces/{id}/api-keys:
+    post:
+      operationId: issueWorkspaceApiKey
+      summary: Create an API key for the workspace (ADMIN_CONSOLE=on, API_KEYS=on, workspace admin)
+      description: "The key belongs to the workspace, not to a person: any admin of it can list and revoke it. The daily quota is fixed at 1000 requests per UTC day and a `daily_quota` in the body is refused; a key has the same rate-limit buckets as every API key. At most 20 keys that are not revoked per workspace (409 `conflict`). The secret is returned once, in `key`; only its SHA-256 is stored. The key sees the pinned demos and its own cases only, as any API key does (D69); its denied requests are recorded in the workspace's audit trail. Audited as `apikey.issue`."
+      parameters:
+        - { $ref: "#/components/parameters/UserToken" }
+        - { name: id, in: path, required: true, schema: { type: string } }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [name]
+              additionalProperties: false
+              properties:
+                name: { type: string, minLength: 1, maxLength: 100 }
+      responses:
+        "201":
+          headers:
+            X-Audit-Incomplete: { $ref: "#/components/headers/AuditIncomplete" }
+          description: The new key, shown once, and its record
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [key, api_key]
+                properties:
+                  key: { type: string, pattern: "^op_[A-Za-z0-9_-]{43}$", description: "Not stored; shown only here." }
+                  api_key: { $ref: "#/components/schemas/APIKey" }
+        "400": { $ref: "#/components/responses/Error" }
+        "401": { $ref: "#/components/responses/Error" }
+        "403": { $ref: "#/components/responses/Error" }
+        "404": { $ref: "#/components/responses/Error" }
+        "409": { $ref: "#/components/responses/Error" }
+        "429": { $ref: "#/components/responses/TooManyRequests" }
+        "503": { $ref: "#/components/responses/Error" }
+    get:
+      operationId: listWorkspaceApiKeys
+      summary: List the workspace's API keys, newest first, without secrets (ADMIN_CONSOLE=on, API_KEYS=on, workspace admin)
+      description: Only keys issued for this workspace; admin and personal keys are never included. Revoked keys stay in the list with `disabled` true.
+      parameters:
+        - { $ref: "#/components/parameters/UserToken" }
+        - { name: id, in: path, required: true, schema: { type: string } }
+      responses:
+        "200":
+          description: The workspace's keys
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [api_keys]
+                properties:
+                  api_keys: { type: array, items: { $ref: "#/components/schemas/APIKey" } }
+        "401": { $ref: "#/components/responses/Error" }
+        "403": { $ref: "#/components/responses/Error" }
+        "404": { $ref: "#/components/responses/Error" }
+        "429": { $ref: "#/components/responses/TooManyRequests" }
+  /v1/workspaces/{id}/api-keys/{key}:
+    delete:
+      operationId: revokeWorkspaceApiKey
+      summary: Revoke one of the workspace's API keys for good (ADMIN_CONSOLE=on, API_KEYS=on, workspace admin)
+      description: A key of another workspace, a personal or admin key and an unknown id are the same 404. Requests with the key then get 401. Audited as `apikey.disable`.
+      parameters:
+        - { $ref: "#/components/parameters/UserToken" }
+        - { name: id, in: path, required: true, schema: { type: string } }
+        - { name: key, in: path, required: true, schema: { type: string } }
+      responses:
+        "204":
+          headers:
+            X-Audit-Incomplete: { $ref: "#/components/headers/AuditIncomplete" }
+          description: Revoked
+        "401": { $ref: "#/components/responses/Error" }
+        "403": { $ref: "#/components/responses/Error" }
+        "404": { $ref: "#/components/responses/Error" }
+        "429": { $ref: "#/components/responses/TooManyRequests" }
+        "503": { $ref: "#/components/responses/Error" }
+  /v1/workspaces/{id}/admin/audit:
+    get:
+      operationId: searchWorkspaceAudit
+      summary: Search the workspace's audit trail (ADMIN_CONSOLE=on, audit on, workspace admin)
+      description: "The workspace's own trail (`ws:<id>`), a page at a time, newest first by default. The filters are the closed values the trail stores: actor kind (`user`, `apikey`, `admin`, `anonymous`, `system`; an event holds no member role, email or name), action, outcome and a time range. An event carries only enumerated values, pseudonyms and opaque references, so nothing typed by a user (names, emails, facts, key secrets) can be returned. A page may hold fewer than `limit` events and still carry `next_cursor`; a cursor is bound to the order and filters. Any other parameter, including `tenant`, is 400. Reading the first page is itself audited (`audit.read`)."
+      parameters:
+        - { $ref: "#/components/parameters/UserToken" }
+        - { name: id, in: path, required: true, schema: { type: string } }
+        - { name: limit, in: query, schema: { type: integer, minimum: 1, maximum: 200, default: 50 } }
+        - { name: cursor, in: query, description: Opaque; at most 512 bytes, schema: { type: string, maxLength: 512 } }
+        - { name: order, in: query, schema: { type: string, enum: [desc, asc], default: desc } }
+        - { name: action, in: query, schema: { $ref: "#/components/schemas/AuditAction" } }
+        - { name: outcome, in: query, schema: { $ref: "#/components/schemas/AuditOutcome" } }
+        - { name: actor_kind, in: query, schema: { type: string, enum: [user, apikey, admin, anonymous, system] } }
+        - { name: from, in: query, description: RFC 3339, on `time`, schema: { type: string, format: date-time } }
+        - { name: to, in: query, description: RFC 3339, on `time`, schema: { type: string, format: date-time } }
+      responses:
+        "200":
+          description: One page of events
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/AuditPage" }
+        "400": { $ref: "#/components/responses/Error" }
+        "401": { $ref: "#/components/responses/Error" }
+        "403": { $ref: "#/components/responses/Error" }
+        "404": { $ref: "#/components/responses/Error" }
+        "429": { $ref: "#/components/responses/TooManyRequests" }
   /v1/workspaces/{id}/scim:
     get:
       operationId: getSCIMToken
@@ -4761,7 +4966,7 @@ components:
         details: {}
     WebhookEventType:
       type: string
-      enum: [ruling_watch.hit, review.decision, filing.status, budget.alert, batch.finished]
+      enum: [ruling_watch.hit, review.decision, filing.status, budget.alert, batch.finished, eval.drift]
     WebhookEndpoint:
       type: object
       required: [id, url, events, description, enabled, secret_hint, created_by, created_at, updated_at]
@@ -4847,16 +5052,18 @@ components:
       description: The caller's role in the workspace, derived by the server from stored membership.
     RetentionPolicy:
       type: object
-      required: [workspace, case_days, limits]
+      required: [workspace, case_days, audit_days, limits]
       properties:
         workspace: { type: string }
         case_days: { type: integer, description: "0: keep forever" }
+        audit_days: { type: integer, description: "0: the trail's own window" }
         updated_at: { type: string, format: date-time }
         limits:
           type: object
           properties:
             min_case_days: { type: integer }
             max_case_days: { type: integer }
+            min_audit_days: { type: integer }
     Tombstone:
       type: object
       required: [case_id, deleted_at, reason, last_updated]
@@ -4869,7 +5076,7 @@ components:
         last_updated: { type: string, format: date-time }
     AuditAction:
       type: string
-      enum: [case.create, case.update, case.export, case.delete, case.pin, case.read, workspace.create, workspace.invite, workspace.join, workspace.role_change, workspace.member_remove, workspace.leave, workspace.retention, workspace.budget, apikey.issue, apikey.list, apikey.disable, admin.watch_run, admin.webhook_sweep, audit.read, audit.verify, audit.export, auth.denied, review.create, review.revoke, review.view, review.decision, webhook.create, webhook.update, webhook.delete, webhook.rotate_secret, webhook.test, webhook.read]
+      enum: [case.create, case.update, case.export, case.delete, case.pin, case.read, workspace.create, workspace.invite, workspace.join, workspace.role_change, workspace.member_remove, workspace.leave, workspace.retention, workspace.rename, audit.purge, workspace.budget, apikey.issue, apikey.list, apikey.disable, admin.watch_run, admin.webhook_sweep, audit.read, audit.verify, audit.export, auth.denied, review.create, review.revoke, review.view, review.decision, webhook.create, webhook.update, webhook.delete, webhook.rotate_secret, webhook.test, webhook.read]
       description: "`case.read` appears only as a denial; allowed ordinary reads are not audited."
     AuditPhase:
       type: string
@@ -5340,6 +5547,114 @@ components:
                   evidence: { type: string }
         checks: { type: array, items: { $ref: "#/components/schemas/EvidenceCheck" } }
         markdown: { type: string }
+    AseanFtaRequest:
+      type: object
+      additionalProperties: false
+      required: [hs, produced_in]
+      properties:
+        hs: { type: string, example: "1103.11", description: "The good's HS code, 4 to 10 digits (HS 2022 for AKFTA, HS 2017 for ACFTA). A heading with rows of its own needs the 6-digit subheading." }
+        produced_in: { type: string, example: Vietnam, description: "Where the good is produced: country name or ISO alpha-2 code. A country outside the agreement is `no`." }
+        fob: { type: number, exclusiveMinimum: 0, description: "FOB value of the good; needed for RVC and de minimis" }
+        weight: { type: number, exclusiveMinimum: 0, description: "Weight of the good, for the textile de minimis (chapters 50 to 63); same unit as the materials' weight" }
+        method: { type: string, enum: [direct, indirect], description: "The RVC method to use. Unset: either may decide. ACFTA has only the build-down (indirect) formula; `direct` is 400." }
+        wholly_obtained: { type: boolean, description: "The producer states the good is wholly obtained or produced in a Party" }
+        operations:
+          type: array
+          maxItems: 50
+          items: { type: string }
+          description: "What is done to the non-originating materials. If every entry is a minimal operation (AKFTA Rule 8: the fifteen non-qualifying operations; ACFTA Art. 7: preservation, shipment, packaging), a wholly-obtained claim is not relied on (AKFTA: the good does not qualify). Any other word counts as real production."
+        processes:
+          type: object
+          additionalProperties: false
+          description: "Rule conditions written in words: true if it applies, false if not, left out if not stated (undetermined). AKFTA keys: cut_and_sewn, printing_dyeing, milk_limit, glazed, mco. ACFTA keys: process_rule_1, process_rule_2, process_rule_3, process_rule, animals_raised, fats_wo. A key of the other agreement is 400."
+          properties:
+            cut_and_sewn: { type: boolean }
+            printing_dyeing: { type: boolean }
+            milk_limit: { type: boolean }
+            glazed: { type: boolean }
+            mco: { type: boolean }
+            process_rule_1: { type: boolean }
+            process_rule_2: { type: boolean }
+            process_rule_3: { type: boolean }
+            process_rule: { type: boolean }
+            animals_raised: { type: boolean }
+            fats_wo: { type: boolean }
+        variant: { type: string, description: "For rows whose rule depends on the product (A/B, goods or waste), the branch id from `rule.variants`. Unset: decided only if every branch agrees." }
+        costs:
+          type: object
+          additionalProperties: false
+          description: "Direct (build-up) method terms; same currency as fob. AKFTA only."
+          properties:
+            labour: { type: number, minimum: 0 }
+            overhead: { type: number, minimum: 0 }
+            profit: { type: number, minimum: 0 }
+            other: { type: number, minimum: 0 }
+        materials:
+          type: array
+          maxItems: 200
+          items:
+            type: object
+            additionalProperties: false
+            properties:
+              name: { type: string }
+              hs: { type: string, description: "The material's HS code, 2 to 10 digits; the rule needs 2, 4 or 6" }
+              value: { type: number, minimum: 0, description: "CIF at import, or the earliest price paid" }
+              country: { type: string, description: "Where the material originates" }
+              status: { type: string, enum: [originating, non_originating, unknown], default: unknown, description: "originating: the supplier's declaration or proof of origin says it originates under the agreement" }
+              wholly_obtained: { type: boolean, description: "The material was wholly obtained or produced in a Party; some rules ask for it" }
+              weight: { type: number, minimum: 0, description: "For the textile de minimis (chapters 50 to 63)" }
+    AseanFtaResult:
+      type: object
+      properties:
+        outcome: { type: string, enum: ["yes", "no", undetermined] }
+        basis: { type: string, enum: [WO, PE, PSR], description: "The limb of a yes: wholly obtained, produced from originating materials, product-specific rule" }
+        applied: { type: string, example: CC, description: "The alternative that decided a yes" }
+        rule:
+          type: object
+          properties:
+            code: { type: string, example: "1103.11", description: "The table row, or the general rule (Rule 4.1, Art. 4(1))" }
+            listed: { type: boolean, description: "true: a row of the product-specific table; false: the general rule" }
+            concise: { type: string, example: "CC or RVC40" }
+            full: { type: string }
+            version: { type: string, example: akfta-appendix2-psr-hs2022-akic }
+            variants: { type: array, items: { type: object } }
+            note: { type: string }
+        rvc:
+          type: object
+          properties:
+            threshold: { type: integer, example: 40 }
+            direct: { type: number }
+            indirect: { type: number, description: "(FOB - non-originating materials) / FOB x 100" }
+            vnm: { type: number }
+            vom: { type: number }
+        de_minimis:
+          type: object
+          properties:
+            used: { type: boolean }
+            value_share: { type: number, description: "per cent of FOB" }
+            weight_share: { type: number, description: "per cent of the good's weight (textiles)" }
+        accumulation: { type: boolean, description: "Originating materials from another Party were counted" }
+        partial_cumulation: { type: boolean }
+        failing:
+          type: array
+          items:
+            type: object
+            properties:
+              index: { type: integer }
+              name: { type: string }
+              hs: { type: string }
+              reason: { type: string }
+        alternatives:
+          type: array
+          items:
+            type: object
+            properties:
+              rule: { type: string }
+              outcome: { type: string, enum: ["yes", "no", undetermined] }
+              reasons: { type: array, items: { type: string } }
+        reasons: { type: array, items: { type: string } }
+        regime: { type: string, enum: [akfta_preferential, acfta_preferential] }
+        note: { type: string }
     AdcvdCheck:
       type: object
       description: Parts that may be subject to a U.S. AD or CVD order. Display only (D939); on a case it is `adcvd_check`, present only with `ADCVD_CHECK=on` and at least one part code.
@@ -5457,6 +5772,39 @@ components:
         name: { type: string }
         plant: { type: string }
         group: { type: string }
+    TextileRuleCheck:
+      type: object
+      description: "The deterministic 19 CFR 102.21 textile check (D951), present only with `TEXTILE_RULES=on` and when the product's HTS code is a textile or apparel product under 102.21(b)(5). Computed when the case is read; display only: it never changes the prediction, the triage route or auto-accept. It applies the (c)(1) to (c)(4) hierarchy and the (e) rules to the product's operations (each operation's plant country) and `product.textile`; where a fact is not given or (c)(4) asks for a judgment it says so and does not guess."
+      required: [rules, result, review, note]
+      properties:
+        rules: { type: string, enum: ["19 CFR 102.21"] }
+        model_origin: { type: string }
+        agrees: { type: boolean, description: "Present only when the check decided: whether it names the model's origin" }
+        review: { type: boolean, description: "True when the decided check differs from the model: worth a person's look. Does not change the triage route" }
+        notes: { type: array, items: { type: string }, description: "Operations the check could not read, so it was not told the whole chain" }
+        note: { type: string }
+        result:
+          type: object
+          required: [status]
+          properties:
+            status: { type: string, enum: [decided, undetermined] }
+            origin: { type: string }
+            para: { type: string, description: "The paragraph of 102.21 that decided it: (c)(1), (c)(2), (c)(3)(i), (c)(3)(ii), or single country (every operation in one country)" }
+            row: { type: string, description: "The (e) row that decided it" }
+            alt: { type: string }
+            basis: { type: string }
+            reason: { type: string, description: "Why it did not decide" }
+            class: { type: string, enum: [no_code, code_too_short, fact_not_stated, operation_not_stated, needs_material_codes, not_read_by_code, judgment, ambiguous_row] }
+            candidate: { type: string, description: "The country of the last important operation, what (c)(5) would give if (c)(4) cannot name a country. Shown, never a decision" }
+    TextileFacts:
+      type: object
+      description: "Optional facts the 19 CFR 102.21(e) rules turn on and the operations do not say (D951). Each is yes or no; leave out what is not known. Read only by the textile rule check."
+      properties:
+        knit_to_shape: { type: string, enum: ["yes", "no"], description: "The good's major parts are knitted or crocheted directly to shape" }
+        two_or_more_components: { type: string, enum: ["yes", "no"], description: "The good is made by joining two or more component parts" }
+        cotton_wool_16: { type: string, enum: ["yes", "no"], description: "Of cotton or of wool, or a blend of 16 percent or more cotton by weight" }
+        fabric_of_wool: { type: string, enum: ["yes", "no"], description: "The fabric is of wool or fine animal hair" }
+        fibre_form: { type: string, enum: [filaments, staple] }
     Product:
       type: object
       required: [name, components]
@@ -5468,6 +5816,7 @@ components:
         components: { type: array, items: { $ref: "#/components/schemas/Component" } }
         operations: { type: array, items: { $ref: "#/components/schemas/Operation" } }
         hts: { type: string, example: "8419.89.95", description: "Optional tariff subheading; fills duty rates from the sourced table (GET /v1/duty-rates, D52). Not part of the facts." }
+        textile: { $ref: "#/components/schemas/TextileFacts" }
     PredictRequest:
       type: object
       description: Either `facts` (pasted text, max 12,000 characters) or a structured `product` is required. U.S. cases without facts need a planner family. Japan cases can give the agreement and finished-good tariff code in `japan`.
@@ -5680,6 +6029,7 @@ components:
                       target: { type: string }
             facts_source: { type: string, enum: [parts_list, pasted], description: "What the case's own prediction read (D220): parts_list when its facts are the structured product rendered with the family template, as scenarios and plan moves are; pasted when they are text the user gave, such as CBP's own facts. The two can give different answers for the same setup. Absent without a product." }
             rule_check: { $ref: "#/components/schemas/RuleCheck" }
+            textile_rule_check: { $ref: "#/components/schemas/TextileRuleCheck" }
             adcvd_check: { $ref: "#/components/schemas/AdcvdCheck" }
             origin_facts: { $ref: "#/components/schemas/OriginFactsByMarket" }
             supplier_declarations: { $ref: "#/components/schemas/SupplierDeclarations" }

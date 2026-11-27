@@ -45,6 +45,8 @@ Once a refresh has found new rulings, the month's test set is built, frozen, pre
 
 4. **Record.** `eval/rescore/summarize.py . --month <month>` writes `eval/rescore/<month>/result.json` (accuracy with a 95% Wilson interval, next to the earlier held-out figures) from `eval/results/RUNLOG.jsonl`. Add the results entry to `docs/DECISIONS.md`.
 
+5. **Drift check** (D948, runs at the end of `make rescore-run`). `go run ./cmd/evaldrift record -month <month>` (from `backend/`) adds the month to `eval/rescore/history.json`, recomputes `eval/rescore/drift.json` and prints one line: `ok ...` or `DRIFT cbp <month>: ...` when the month's accuracy is statistically below all earlier figures pooled (one-sided Fisher exact test, p ≤ 0.01, at least 20 cases). Commit both files with the results entry. `go run ./cmd/evaldrift check` reproduces every verdict from the history alone, offline. To tell people, set `EVAL_DRIFT_ALERTS=on` with the server's environment and run `go run ./cmd/evaldrift emit -month <month>`: a system audit event and an `eval.drift` webhook to every workspace endpoint subscribed to it. Without the flag nothing is sent.
+
 A month with no new rulings is recorded as such (the result file says `cases: 0`); nothing is scored.
 
 ## 3. Schedule

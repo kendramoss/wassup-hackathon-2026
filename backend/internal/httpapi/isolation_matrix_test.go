@@ -80,6 +80,8 @@ var routeTable = map[string]routeClass{
 	"GET /v1/duty-rates":                                    noCaseData,
 	"POST /v1/rcep/check":                                   noCaseData,
 	"POST /v1/atiga/check":                                  noCaseData,
+	"POST /v1/akfta/check":                                  noCaseData,
+	"POST /v1/acfta/check":                                  noCaseData,
 	"POST /v1/usmca/check":                                  noCaseData,
 	"POST /v1/rules/canada-marking":                         noCaseData, // computes from the request alone; nothing stored (D720)
 	"POST /v1/rules/eu-origin":                              noCaseData, // computes from the request alone; nothing stored (D760)
@@ -103,6 +105,11 @@ var routeTable = map[string]routeClass{
 	"POST /v1/workspaces/{id}/sso/{conn}/verify":            noCaseData,
 	"DELETE /v1/workspaces/{id}/sso/{conn}":                 noCaseData,
 	"GET /v1/workspaces/{id}/admin":                         noCaseData,
+	"PUT /v1/workspaces/{id}/name":                          noCaseData,
+	"GET /v1/workspaces/{id}/admin/audit":                   noCaseData,
+	"GET /v1/workspaces/{id}/api-keys":                      noCaseData,
+	"POST /v1/workspaces/{id}/api-keys":                     noCaseData,
+	"DELETE /v1/workspaces/{id}/api-keys/{key}":             noCaseData,
 	"GET /v1/workspaces/{id}/webhooks":                      noCaseData,
 	"POST /v1/workspaces/{id}/webhooks":                     noCaseData,
 	"PATCH /v1/workspaces/{id}/webhooks/{wid}":              noCaseData,

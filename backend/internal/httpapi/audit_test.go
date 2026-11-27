@@ -122,7 +122,13 @@ func newAuditEnvWith(t *testing.T, ownership bool, adjust ...func(*Deps)) *audit
 	}
 	ae.ret = retention.NewMemory()
 	ae.wh = looseWebhooks()
-	ae.roleEnv = newRoleEnv(t, ownership, append([]func(*Deps){func(d *Deps) { d.Audit = ae.svc; d.Retention = ae.ret; d.AuditExport = true; d.Webhooks = ae.wh }, withSSO}, adjust...)...)
+	ae.roleEnv = newRoleEnv(t, ownership, append([]func(*Deps){func(d *Deps) {
+		d.Audit = ae.svc
+		d.Retention = ae.ret
+		d.AdminConsole = true
+		d.AuditExport = true
+		d.Webhooks = ae.wh
+	}, withSSO}, adjust...)...)
 	return ae
 }
 
@@ -661,6 +667,12 @@ func (e *auditEnv) sensitiveCases(t *testing.T) map[audit.Action]struct {
 				return e.hs.doAs(t, "PUT", "/v1/workspaces/"+fid+"/retention", `{"case_days":30}`, user("fiona"))
 			},
 			func() bool { _, ok, _ := e.ret.Policy(context.Background(), fid); return !ok },
+		},
+		audit.WorkspaceRename: {
+			func() (int, map[string]any) {
+				return e.hs.doAs(t, "PUT", "/v1/workspaces/"+fid+"/name", `{"name":"Renamed"}`, user("fiona"))
+			},
+			func() bool { w, _ := e.ws.Get(context.Background(), fid); return w.Name != "Renamed" },
 		},
 		audit.WorkspaceLeave: {
 			func() (int, map[string]any) { return e.hs.doAs(t, "DELETE", e.memberPath(fid, "kim"), "", user("kim")) },

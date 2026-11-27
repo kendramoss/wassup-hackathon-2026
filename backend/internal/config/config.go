@@ -245,12 +245,23 @@ type Config struct {
 	// tombstones and lets cmd/retention purge (#875). Its store follows
 	// CASES_STORE (file: CASES_DIR/retention.json).
 	Retention bool
+	// CachePurge (on|off, default off) links each cached prediction, verdict,
+	// advice entry and supplier document to the cases that used it, and
+	// removes the entries only a deleted or expired case used (#875). Needs
+	// the verifier cache (VERIFIER_CACHE_STORE not off). Entries written
+	// before it was on are not linked and stay.
+	CachePurge bool
 	// TariffWatch (on|off, default off) records, on each case a plan search
 	// prices, the duty basis it was priced on, and serves
 	// GET /v1/workspaces/{id}/tariff-watch with the cases cmd/tariffwatch
 	// found affected by a newer HTS revision (#917). The route also needs
 	// TEAMS=on.
 	TariffWatch bool
+	// EvalDriftAlerts (on|off, default off) lets cmd/evaldrift emit a drift
+	// alert (an audit event and an eval.drift webhook) when a monthly
+	// re-score falls below the earlier months (#921). Computing alerts
+	// offline needs no flag.
+	EvalDriftAlerts bool
 	// BrokerWorkflow is on or off (default): on serves the review queue,
 	// case discussion and sign-offs, and the eRulings filing package
 	// (docs/design/broker-workflow.md).
@@ -379,12 +390,26 @@ type Config struct {
 	// of materials, deterministic, no model call (D927).
 	ATIGACheck bool
 	atigaCheck string // as given, checked by validate
+	// AKFTACheck and ACFTACheck (on|off, default off) serve POST
+	// /v1/akfta/check and /v1/acfta/check and their MCP tools:
+	// ASEAN-Korea and ASEAN-China preferential origin, deterministic, no
+	// model call (D949).
+	AKFTACheck bool
+	akftaCheck string // as given, checked by validate
+	ACFTACheck bool
+	acftaCheck string // as given, checked by validate
 	// ADCVDCheck (on|off, default off) serves POST /v1/adcvd/check, the
 	// check_adcvd_exposure MCP tool and adcvd_check on a case: parts that may
 	// be subject to a U.S. AD or CVD order, display only, no model call
 	// (D939).
 	ADCVDCheck bool
 	adcvdCheck string // as given, checked by validate
+	// TextileRules (on|off, default off) adds textile_rule_check to a case
+	// whose product gives an HTS code in Chapters 50 through 63 or another
+	// textile code: the deterministic 19 CFR 102.21 check beside the model's
+	// answer. Display only, no model call, never changes an answer (D951).
+	TextileRules bool
+	textileRules string // as given, checked by validate
 	// ADCVDScopeReader (on|off, default off, needs ADCVD_CHECK=on) makes
 	// POST /v1/adcvd/check, and so the MCP tool, have a model read each listed
 	// order's written scope against the part's name and drop an order only
@@ -617,7 +642,7 @@ func FromEnv(getenv func(string) string) (Config, error) {
 	default:
 		e.errs = append(e.errs, fmt.Errorf("API_KEYS must be on or off, got %q", v))
 	}
-	for name, dst := range map[string]*bool{"AUDIT_EXPORT": &c.AuditExport, "RETENTION": &c.Retention, "TARIFF_WATCH": &c.TariffWatch} {
+	for name, dst := range map[string]*bool{"AUDIT_EXPORT": &c.AuditExport, "RETENTION": &c.Retention, "CACHE_PURGE": &c.CachePurge, "TARIFF_WATCH": &c.TariffWatch, "EVAL_DRIFT_ALERTS": &c.EvalDriftAlerts} {
 		switch v := strings.ToLower(e.str(name, "off")); v {
 		case "on", "true", "1":
 			*dst = true
@@ -698,8 +723,14 @@ func FromEnv(getenv func(string) string) (Config, error) {
 	c.ExportCFR177 = c.exportCFR177 == "on" || c.exportCFR177 == "true" || c.exportCFR177 == "1"
 	c.atigaCheck = strings.ToLower(e.str("ATIGA_CHECK", "off"))
 	c.ATIGACheck = c.atigaCheck == "on" || c.atigaCheck == "true" || c.atigaCheck == "1"
+	c.akftaCheck = strings.ToLower(e.str("AKFTA_CHECK", "off"))
+	c.AKFTACheck = c.akftaCheck == "on" || c.akftaCheck == "true" || c.akftaCheck == "1"
+	c.acftaCheck = strings.ToLower(e.str("ACFTA_CHECK", "off"))
+	c.ACFTACheck = c.acftaCheck == "on" || c.acftaCheck == "true" || c.acftaCheck == "1"
 	c.adcvdCheck = strings.ToLower(e.str("ADCVD_CHECK", "off"))
 	c.ADCVDCheck = c.adcvdCheck == "on" || c.adcvdCheck == "true" || c.adcvdCheck == "1"
+	c.textileRules = strings.ToLower(e.str("TEXTILE_RULES", "off"))
+	c.TextileRules = c.textileRules == "on" || c.textileRules == "true" || c.textileRules == "1"
 	c.adcvdScopeReader = strings.ToLower(e.str("ADCVD_SCOPE_READER", "off"))
 	c.ADCVDScopeReader = c.adcvdScopeReader == "on" || c.adcvdScopeReader == "true" || c.adcvdScopeReader == "1"
 	c.ADCVDReaderModel = e.str("ADCVD_READER_MODEL", "gemini-3.8-flash")
@@ -852,6 +883,11 @@ func (c Config) validate() error {
 	default:
 		bad("ADCVD_CHECK must be on or off, got %q", c.adcvdCheck)
 	}
+	switch c.textileRules {
+	case "on", "true", "1", "off", "false", "0":
+	default:
+		bad("TEXTILE_RULES must be on or off, got %q", c.textileRules)
+	}
 	switch c.adcvdScopeReader {
 	case "on", "true", "1", "off", "false", "0":
 	default:
@@ -864,6 +900,16 @@ func (c Config) validate() error {
 	case "on", "true", "1", "off", "false", "0":
 	default:
 		bad("ATIGA_CHECK must be on or off, got %q", c.atigaCheck)
+	}
+	switch c.akftaCheck {
+	case "on", "true", "1", "off", "false", "0":
+	default:
+		bad("AKFTA_CHECK must be on or off, got %q", c.akftaCheck)
+	}
+	switch c.acftaCheck {
+	case "on", "true", "1", "off", "false", "0":
+	default:
+		bad("ACFTA_CHECK must be on or off, got %q", c.acftaCheck)
 	}
 	switch c.nearMissAdvice {
 	case "on", "true", "1", "off", "false", "0":
