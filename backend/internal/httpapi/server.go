@@ -13,6 +13,7 @@ import (
 	"time"
 
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/logsafe"
+	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/teams"
 )
 
 // Info is static metadata returned by /health.
@@ -179,6 +180,17 @@ func NewHandler(logger *slog.Logger, info Info, deps ...Deps) http.Handler {
 			}
 			if d.AdminConsole {
 				mux.HandleFunc("GET /v1/workspaces/{id}/admin", a.cheap(a.adminConsole))
+				if _, ok := d.Workspaces.(teams.Renamer); ok {
+					mux.HandleFunc("PUT /v1/workspaces/{id}/name", a.cheap(a.renameWorkspace)) // admin renames the workspace (D954)
+				}
+				if d.Audit != nil {
+					mux.HandleFunc("GET /v1/workspaces/{id}/admin/audit", a.rateOnly(light, a.adminAudit)) // trail search for the admin screen (D954)
+				}
+				if d.APIKeys != nil { // keys that belong to the workspace (D954)
+					mux.HandleFunc("GET /v1/workspaces/{id}/api-keys", a.cheap(a.listWorkspaceKeys))
+					mux.HandleFunc("POST /v1/workspaces/{id}/api-keys", a.cheap(a.issueWorkspaceKey))
+					mux.HandleFunc("DELETE /v1/workspaces/{id}/api-keys/{key}", a.cheap(a.revokeWorkspaceKey))
+				}
 			}
 			if d.TariffWatch {
 				mux.HandleFunc("GET /v1/workspaces/{id}/tariff-watch", a.cheap(a.listTariffWatch)) // cases a newer HTS revision affects, no model (D938)

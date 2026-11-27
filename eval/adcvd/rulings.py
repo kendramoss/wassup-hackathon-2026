@@ -82,6 +82,8 @@ def parse(text):
     else:
         return []
     body = text[start:].split("Notification to Interested Parties")[0]
+    # the notices of 2017-2018 end the list with an invitation to comment, which would trail the last entry's date
+    body = re.split(r"\n\s*Interested parties are invited", body)[0]
     if "Final Scope Rulings" not in text:
         cut = re.search(r"^(?:Preliminary Scope Rulings? Made|Preliminary Scope Ruling/|Circumvention Determinations? Made|Scope Ruling/Circumvention|Final Scope Ruling/Circumvention)", body, re.M)
         if cut:

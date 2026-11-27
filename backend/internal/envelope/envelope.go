@@ -220,3 +220,15 @@ func (b *Blobs) Get(ctx context.Context, key string) ([]byte, bool, error) {
 }
 
 var _ blob.Store = (*Blobs)(nil)
+
+// Delete removes the blob (the ciphertext, if sealed) when the wrapped store
+// can; a key is deleted without opening it.
+func (b *Blobs) Delete(ctx context.Context, key string) error {
+	d, ok := b.inner.(blob.Deleter)
+	if !ok {
+		return blob.ErrNoDelete
+	}
+	return d.Delete(ctx, key)
+}
+
+var _ blob.Deleter = (*Blobs)(nil)

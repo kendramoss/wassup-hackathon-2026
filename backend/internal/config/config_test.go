@@ -836,12 +836,15 @@ func TestRecordsFlagsDefaultOff(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if c.AuditExport || c.Retention {
-		t.Fatalf("records flags on by default: export=%v retention=%v", c.AuditExport, c.Retention)
+	if c.AuditExport || c.Retention || c.CachePurge {
+		t.Fatalf("records flags on by default: export=%v retention=%v cache purge=%v", c.AuditExport, c.Retention, c.CachePurge)
 	}
-	c, err = FromEnv(get(map[string]string{"AUDIT_EXPORT": "on", "RETENTION": "on"}))
-	if err != nil || !c.AuditExport || !c.Retention {
+	c, err = FromEnv(get(map[string]string{"AUDIT_EXPORT": "on", "RETENTION": "on", "CACHE_PURGE": "on"}))
+	if err != nil || !c.AuditExport || !c.Retention || !c.CachePurge {
 		t.Fatalf("on: %+v %v", c.AuditExport, err)
+	}
+	if _, err := FromEnv(get(map[string]string{"CACHE_PURGE": "maybe"})); err == nil {
+		t.Fatal("accepted CACHE_PURGE=maybe")
 	}
 	if _, err := FromEnv(get(map[string]string{"RETENTION": "maybe"})); err == nil {
 		t.Fatal("accepted RETENTION=maybe")
@@ -965,5 +968,20 @@ func TestAKFTAACFTACheckConfig(t *testing.T) {
 		if _, err := FromEnv(getenv(merge(vertexEnv(), map[string]string{name: "maybe"}))); err == nil || !strings.Contains(err.Error(), name) {
 			t.Errorf("%s=maybe: %v", name, err)
 		}
+	}
+}
+
+func TestEvalDriftAlertsConfig(t *testing.T) {
+	c, err := FromEnv(getenv(vertexEnv()))
+	if err != nil || c.EvalDriftAlerts {
+		t.Fatalf("default = %v %v, want off", c.EvalDriftAlerts, err)
+	}
+	for _, v := range []string{"on", "true", "1"} {
+		if c, err := FromEnv(getenv(merge(vertexEnv(), map[string]string{"EVAL_DRIFT_ALERTS": v}))); err != nil || !c.EvalDriftAlerts {
+			t.Errorf("EVAL_DRIFT_ALERTS=%s = %v %v", v, c.EvalDriftAlerts, err)
+		}
+	}
+	if _, err := FromEnv(getenv(merge(vertexEnv(), map[string]string{"EVAL_DRIFT_ALERTS": "maybe"}))); err == nil || !strings.Contains(err.Error(), "EVAL_DRIFT_ALERTS") {
+		t.Errorf("bad value = %v", err)
 	}
 }

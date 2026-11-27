@@ -140,6 +140,7 @@ reproduce: ## recompute every published number from committed files: no model ca
 	python3 -I -B eval/rescore/test_build_split.py
 	python3 -I -B eval/rescore/test_summarize.py
 	python3 -I -B eval/rescore/summarize.py . --month 2026-11 --check
+	cd $(GO_DIR) && go run ./cmd/evaldrift check
 	python3 -I -B eval/jp/check_translations.py . --check
 	cd $(GO_DIR) && go run ./cmd/rcepeval -check
 	cd $(GO_DIR) && go run ./cmd/jpeval bundle -check
@@ -175,6 +176,7 @@ rescore-build: ## label and freeze the month's CBP re-scoring set from a refresh
 rescore-run: ## score production once on the month's frozen set, after its pre-registration is pushed (D931; gateway): make rescore-run MONTH=YYYY-MM
 	cd $(GO_DIR) && go run ./cmd/eval run -split monthly -confirm-final -router -tag rescore-$(MONTH) -splits ../eval/rescore/$(MONTH)/splits.json -labels data/labels.jsonl -case-labels ../eval/rescore/$(MONTH)/labels.jsonl -facts data/facts,../eval/rescore/$(MONTH)/facts
 	python3 -I -B eval/rescore/summarize.py . --month $(MONTH)
+	cd $(GO_DIR) && go run ./cmd/evaldrift record -month $(MONTH)
 
 verify-data: ## check committed eval data against eval/SHA256SUMS and the bundled corpus against it
 	cd eval && shasum -a 256 -c SHA256SUMS

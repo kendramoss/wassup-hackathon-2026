@@ -303,6 +303,9 @@ type Deps struct {
 	// (envelope-encrypted where the cache is). Nil: an answer with a file is
 	// refused (503), an answer without one is not affected.
 	SupplierDocs blob.Store
+	// CachePurge, when set (CACHE_PURGE), removes the cached predictions,
+	// verdicts, advice and supplier documents only a deleted case used (#875).
+	CachePurge *blob.Purger
 	// TariffWatch (TARIFF_WATCH=on) stores the duty basis on each case a plan
 	// search prices and, with Teams, registers
 	// GET /v1/workspaces/{id}/tariff-watch (#917).

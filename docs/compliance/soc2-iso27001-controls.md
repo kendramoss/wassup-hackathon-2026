@@ -35,7 +35,7 @@ Each row lists what exists in this repository today, the gap, and who acts. "Own
 |---|---|---|---|
 | A1 Availability | Health checks (`GET /health?deep=1`); rate limits and spend caps | Uptime target and status page (#885), capacity monitoring, restore test | Owner, #885 |
 | C1.1 Confidential information identified and protected | Case data never logged (`docs/design/data-handling.md`); tenant isolation tests | Data classification policy; customer-managed keys (#874) and data residency (#873) if contracted | Owner, #873, #874 |
-| C1.2 Disposal | Workspace retention policy and purge with tombstones (`RETENTION=on`, `cmd/retention`, #875); case delete is a hard delete | Caches derived from case facts are not purged with the case (`docs/design/data-handling.md` item 7); backups and provider copies outside the application | Owner, follow-up code |
+| C1.2 Disposal | Workspace retention policy and purge with tombstones (`RETENTION=on`, `cmd/retention`, #875); case delete is a hard delete | With `CACHE_PURGE=on` (D953) derived caches and supplier documents are purged with the case and a workspace can shorten its audit window; entries cached before the flag, backups and provider copies stay outside the application; the purge job still has to be scheduled | Owner |
 
 ## 4. ISO 27001:2022 Annex A, the same evidence
 
@@ -46,5 +46,5 @@ ISO 27001 needs an ISMS first: scope, information security policy, risk assessme
 1. Owner: choose criteria, auditor and period; write the seven policies in CC5; name a security owner.
 2. Owner: turn on the controls that already exist in code for the production deployment and keep the startup log lines as evidence (`AUDIT_ACTOR_KEY`, `AUDIT_EXPORT=on`, `RETENTION=on`, `STRICT_AUTH`).
 3. Owner: GitHub branch protection, MFA, quarterly access reviews, vendor reports, backups with a restore test.
-4. Code: dependency scanning in CI, audit-failure alerting, purge of derived caches with the case.
+4. Code: dependency scanning in CI, audit-failure alerting, turn on `CACHE_PURGE` and schedule `cmd/retention`.
 5. Readiness assessment, then the Type II observation period, then ISO 27001 using the same evidence.

@@ -19,18 +19,25 @@ import (
 	"regexp"
 	"sort"
 	"time"
+
+	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/blob"
 )
 
 // Limits on a policy.
 const (
-	MinCaseDays = 7
-	MaxCaseDays = 3650
+	MinCaseDays  = 7
+	MaxCaseDays  = 3650
+	MinAuditDays = 7
 )
 
 // Policy is one workspace's retention setting. CaseDays 0 means keep forever.
 type Policy struct {
-	Workspace string    `json:"workspace" firestore:"workspace"`
-	CaseDays  int       `json:"case_days" firestore:"case_days"`
+	Workspace string `json:"workspace" firestore:"workspace"`
+	CaseDays  int    `json:"case_days" firestore:"case_days"`
+	// AuditDays is how long this workspace's audit events are kept, set by its
+	// admin; 0 means the global AUDIT_RETENTION_DAYS. It can only shorten the
+	// global window, never lengthen it.
+	AuditDays int       `json:"audit_days" firestore:"audit_days"`
 	UpdatedAt time.Time `json:"updated_at" firestore:"updated_at"`
 }
 
@@ -67,6 +74,9 @@ func (p Policy) Validate() error {
 	if p.CaseDays != 0 && (p.CaseDays < MinCaseDays || p.CaseDays > MaxCaseDays) {
 		return fmt.Errorf("%w: case_days must be 0 (keep forever) or %d to %d", ErrInvalid, MinCaseDays, MaxCaseDays)
 	}
+	if p.AuditDays != 0 && (p.AuditDays < MinAuditDays || p.AuditDays > MaxCaseDays) {
+		return fmt.Errorf("%w: audit_days must be 0 (the global window) or %d to %d", ErrInvalid, MinAuditDays, MaxCaseDays)
+	}
 	return nil
 }
 
@@ -86,6 +96,9 @@ type Case struct {
 	Workspace string
 	UpdatedAt time.Time
 	Pinned    bool
+	// Derived are blobs the case's own content points at (supplier
+	// documents), purged with it when CACHE_PURGE is on.
+	Derived []blob.Ref
 }
 
 // Cases is the case store as a purge sees it.
@@ -103,6 +116,22 @@ type Options struct {
 	DryRun    bool
 	Workspace string // only this workspace; "" all with a policy
 	Limit     int    // stop after this many deletions; <= 0 no limit
+	// Caches, when set, removes what each deleted case derived (#875): the
+	// cached predictions, verdicts and advice only that case used, and its
+	// supplier documents. It runs after the tombstone and the audit event and
+	// before the delete; a failure stops the run with the case still there.
+	Caches CachePurger
+	// AuditWindow, when set, is the longest an audit event may stay in a
+	// workspace's trail when its policy has no shorter one (the global
+	// AUDIT_RETENTION_DAYS). Needs Audit.
+	AuditWindow time.Duration
+	// Audit purges workspace audit trails (see AuditPurger). Nil: none.
+	Audit AuditPurger
+}
+
+// CachePurger removes what one case derived (blob.Purger).
+type CachePurger interface {
+	PurgeCase(ctx context.Context, caseID string, extra []blob.Ref) (blob.PurgeReport, error)
 }
 
 // Report is what a purge run did, or would do in a dry run.
@@ -113,6 +142,11 @@ type Report struct {
 	Deleted    []Tombstone `json:"deleted"`
 	Skipped    int         `json:"skipped"` // pinned, or an ID the server did not mint
 	Truncated  bool        `json:"truncated"`
+	// Caches totals the derived entries removed for the deleted cases.
+	Caches blob.PurgeReport `json:"caches"`
+	// Audit lists, per workspace with a shorter audit window, the events
+	// removed (or, in a dry run, that would be).
+	Audit []AuditResult `json:"audit,omitempty"`
 }
 
 // Purge deletes, for every workspace with a policy, the cases not updated for
@@ -156,31 +190,50 @@ func Purge(ctx context.Context, st Store, cs Cases, rec Recorder, o Options) (Re
 			t := Tombstone{CaseID: c.ID, Workspace: p.Workspace, DeletedAt: o.Now.UTC(), Reason: ReasonPolicy,
 				PolicyDays: p.CaseDays, LastUpdated: c.UpdatedAt.UTC()}
 			if !o.DryRun {
-				if err := Delete(ctx, st, cs, rec, t); err != nil {
+				pr, err := deleteCase(ctx, st, cs, rec, o.Caches, t, c.Derived)
+				rep.Caches.Add(pr)
+				if err != nil {
 					return rep, err
 				}
 			}
 			rep.Deleted = append(rep.Deleted, t)
 		}
 	}
-	return rep, nil
+	return rep, purgeAudit(ctx, ps, &rep, o)
 }
 
 // Delete writes t's tombstone, records it, and deletes the case.
 func Delete(ctx context.Context, st Store, cs Cases, rec Recorder, t Tombstone) error {
+	_, err := deleteCase(ctx, st, cs, rec, nil, t, nil)
+	return err
+}
+
+// DeleteWithCaches is Delete plus the purge of what the case derived.
+func DeleteWithCaches(ctx context.Context, st Store, cs Cases, rec Recorder, caches CachePurger, t Tombstone, derived []blob.Ref) (blob.PurgeReport, error) {
+	return deleteCase(ctx, st, cs, rec, caches, t, derived)
+}
+
+func deleteCase(ctx context.Context, st Store, cs Cases, rec Recorder, caches CachePurger, t Tombstone, derived []blob.Ref) (blob.PurgeReport, error) {
+	var pr blob.PurgeReport
 	if !casePattern.MatchString(t.CaseID) {
-		return fmt.Errorf("%w: case id", ErrInvalid)
+		return pr, fmt.Errorf("%w: case id", ErrInvalid)
 	}
 	if err := st.AddTombstone(ctx, t); err != nil {
-		return fmt.Errorf("retention: tombstone %s: %w", t.CaseID, err)
+		return pr, fmt.Errorf("retention: tombstone %s: %w", t.CaseID, err)
 	}
 	if rec != nil {
 		if err := rec(ctx, t); err != nil {
-			return fmt.Errorf("retention: audit %s: %w", t.CaseID, err)
+			return pr, fmt.Errorf("retention: audit %s: %w", t.CaseID, err)
+		}
+	}
+	if caches != nil {
+		var err error
+		if pr, err = caches.PurgeCase(ctx, t.CaseID, derived); err != nil {
+			return pr, fmt.Errorf("retention: caches %s: %w", t.CaseID, err)
 		}
 	}
 	if err := cs.DeleteCase(ctx, t.CaseID); err != nil {
-		return fmt.Errorf("retention: delete %s: %w", t.CaseID, err)
+		return pr, fmt.Errorf("retention: delete %s: %w", t.CaseID, err)
 	}
-	return nil
+	return pr, nil
 }

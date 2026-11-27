@@ -161,6 +161,11 @@ var auditTable = map[string]auditRoute{
 	"DELETE /v1/workspaces/{id}/sso/{conn}":                 {auditTwoPhase, audit.SSOConnectionDelete},
 	"GET /v1/status":                                        {auditNone, ""},
 	"GET /v1/workspaces/{id}/admin":                         {auditSingleOnly, audit.WorkspaceAdminView},
+	"PUT /v1/workspaces/{id}/name":                          {auditTwoPhase, audit.WorkspaceRename},
+	"GET /v1/workspaces/{id}/admin/audit":                   {auditSingleOnly, audit.AuditRead},
+	"GET /v1/workspaces/{id}/api-keys":                      {auditSingleOnly, audit.APIKeyList},
+	"POST /v1/workspaces/{id}/api-keys":                     {auditTwoPhase, audit.APIKeyIssue},
+	"DELETE /v1/workspaces/{id}/api-keys/{key}":             {auditTwoPhase, audit.APIKeyDisable},
 	"POST /v1/cases/{id}/supplier-declarations":             {auditTwoPhase, audit.SupplierRequestCreate},
 	"GET /v1/cases/{id}/supplier-declarations":              {auditDenyOnly, audit.CaseRead},
 	"DELETE /v1/cases/{id}/supplier-declarations/{request}": {auditTwoPhase, audit.SupplierRequestRevoke},
@@ -418,6 +423,8 @@ func (a *api) requesterTenant(p principal) string {
 		t = "ws:" + p.Workspace
 	case p.signedIn():
 		t = "own:" + p.UserOwner
+	case p.HasKey && p.KeyWorkspace != "":
+		t = "ws:" + p.KeyWorkspace
 	case p.HasKey:
 		t = "own:" + p.Owner
 	default:

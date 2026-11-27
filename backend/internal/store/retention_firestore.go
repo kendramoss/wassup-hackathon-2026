@@ -127,7 +127,7 @@ func (rc RetentionCases) WorkspaceCases(ctx context.Context, ws string) ([]reten
 	}
 	out := make([]retention.Case, 0, len(cs))
 	for _, c := range cs {
-		out = append(out, retention.Case{ID: c.ID, Workspace: c.Workspace, UpdatedAt: c.UpdatedAt, Pinned: c.Pinned})
+		out = append(out, retention.Case{ID: c.ID, Workspace: c.Workspace, UpdatedAt: c.UpdatedAt, Pinned: c.Pinned, Derived: c.DerivedBlobs()})
 	}
 	return out, nil
 }

@@ -32,8 +32,9 @@ The code defaults are permissive so local UI work works without credentials. "As
 | `ERP_IMPORT` | off | **on** (27 Nov, #910) | `POST /v1/products/erp-import` is served (D926) |
 | `USAGE_METERING` | off | **on** (27 Nov, #910) | per-workspace monthly usage is counted; no budget is set until a workspace admin sets one (D926) |
 | `WEBHOOKS` | off | off (needs `TEAMS` and `WEBHOOKS_SECRET_KEY`) | workspace admins can register signed https callbacks for workspace events; targets that are private, loopback or link-local are refused at registration and at delivery; endpoint signing secrets are stored AES-256-GCM sealed under `WEBHOOKS_SECRET_KEY` (at least 32 bytes, from Secret Manager; startup fails without it), never in the clear (D936) |
-| `ADMIN_CONSOLE` | off | **on** (27 Nov, #910) | `GET /v1/workspaces/{id}/admin` answers workspace admins only (D935) |
-| `RETENTION` | off | **on** (27 Nov, #910) | admins can set `case_days`; nothing is purged until an operator runs `cmd/retention` (D924) |
+| `ADMIN_CONSOLE` | off | **on** (27 Nov, #910) | `GET /v1/workspaces/{id}/admin` answers workspace admins only (D935); so do workspace rename, workspace API keys (shown once, SHA-256 at rest, fixed 1000 a day, at most 20 active) and the workspace audit search, all 404 for another workspace and 403 for a non-admin (D954) |
+| `RETENTION` | off | **on** (27 Nov, #910) | admins can set `case_days` and `audit_days` (never longer than `AUDIT_RETENTION_DAYS`); nothing is purged until an operator runs `cmd/retention` (D924, D953) |
+| `CACHE_PURGE` | off | off | links cached predictions, verdicts, advice and supplier documents to the cases that used them (IDs only) so deleting a case removes what only it used; no new route (D953) |
 | `AUDIT_EXPORT` | off | **on** (27 Nov, #910) | `GET /v1/audit/export` answers verified admins (D924) |
 | `STATUS_PAGE` | off | **on** (27 Nov, #910) | `GET /v1/status` is served (D928) |
 | `AUDIT_ACTOR_KEY` / `AUDIT` | empty / `auto` | **set from Secret Manager / auto → audit on** | `curl https://undelabs.dev/api/v1/audit` and `/audit/verify` now answer (**401** without a verified admin, not 404). It is evidence, not a certification or immutable log |

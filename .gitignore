@@ -41,9 +41,11 @@ data/tuning/
 /backend/usmcaeval
 /backend/adcvdeval
 /backend/adcvdprec
+/backend/adcvdscope
 /backend/rcepeval
 /backend/originrules
 /backend/marketeval
 /backend/retention
 /backend/auditverify
 /backend/tariffwatch
+/backend/evaldrift

@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"math"
 
+	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/blob"
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/domain"
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/engine"
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/nearmiss"
@@ -89,6 +90,7 @@ type (
 // measured figures, without calling a model. Search settings come from
 // Options: NearMiss, Panel and MaxInFlight.
 func (p *Planner) Estimate(ctx context.Context, req Request) (Estimate, error) {
+	ctx = blob.WithOwner(ctx, req.CaseID)
 	if err := req.Validate(); err != nil {
 		return Estimate{}, err
 	}
