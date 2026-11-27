@@ -18,7 +18,7 @@ import { BrokerReviewStatus } from "./broker-reviews";
 import { RulingAlertsBanner } from "./ruling-alerts";
 import { CaseTabs, ErrorBox, Main, tabStep, type CaseTab } from "./chrome";
 import { DemoTour } from "./demo-tour";
-import { Spinner } from "./ui";
+import { CaseSkeleton } from "./skeletons";
 
 export type CaseCtx = {
   id: string;
@@ -79,7 +79,7 @@ export function CaseShell({ tab, children }: { tab: CaseTab; children: (ctx: Cas
         </Main>
       ) : !data ? (
         <Main>
-          <Spinner label="Loading the case…" />
+          <CaseSkeleton />
         </Main>
       ) : (
         <>

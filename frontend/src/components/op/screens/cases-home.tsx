@@ -14,8 +14,9 @@ import { currentOrigin } from "../case-shell";
 import { netText } from "../ops-view";
 import { backtestMatch, movePhrase, type ActualChangeExtras } from "../plan-bits";
 import { ErrorBox, Main } from "../chrome";
-import { Button, ButtonLink, Chip, Country, ScrollX, Spinner, StatusChip, cx } from "../ui";
+import { Button, ButtonLink, Chip, Country, ScrollX, StatusChip, cx } from "../ui";
 import { WorkspacePanel } from "../workspace-panel";
+import { CasesSkeleton } from "../skeletons";
 
 const caseHref = (c: Pick<CaseSummary, "id" | "step">) =>
   `/cases/${encodeURIComponent(c.id)}/${["product", "product", "origin", "plan", "draft"][stepIndex[c.step] ?? 2]}`;
@@ -86,11 +87,7 @@ export function CasesHome() {
           <ErrorBox error={error} onRetry={load} />
         </div>
       ) : null}
-      {cases === null && !error && (
-        <div className="mt-8">
-          <Spinner label="Loading cases…" />
-        </div>
-      )}
+      {cases === null && !error && <CasesSkeleton />}
 
       {pinned.length > 0 && (
         <section className="mt-8" aria-labelledby="demos-h">
