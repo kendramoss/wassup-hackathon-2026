@@ -871,13 +871,24 @@ func TestWebhooksConfig(t *testing.T) {
 		t.Fatalf("default = %v %v, want off", c.Webhooks, err)
 	}
 	teams := map[string]string{"TEAMS": "on", "TEAMS_AUDIENCE": "1234-abc.apps.googleusercontent.com"}
-	on, err := FromEnv(getenv(merge(vertexEnv(), merge(teams, map[string]string{"WEBHOOKS": "on"}))))
-	if err != nil || !on.Webhooks {
+	key := strings.Repeat("w", 32)
+	on, err := FromEnv(getenv(merge(vertexEnv(), merge(teams, map[string]string{"WEBHOOKS": "on", "WEBHOOKS_SECRET_KEY": key}))))
+	if err != nil || !on.Webhooks || on.WebhooksSecretKey != key {
 		t.Fatalf("on = %v %v", on.Webhooks, err)
 	}
-	for _, bad := range []map[string]string{{"WEBHOOKS": "on"}, merge(teams, map[string]string{"WEBHOOKS": "maybe"})} {
+	if strings.Contains(on.String(), key) {
+		t.Error("the secret key is in the startup log line")
+	}
+	for _, bad := range []map[string]string{
+		{"WEBHOOKS": "on", "WEBHOOKS_SECRET_KEY": key},
+		merge(teams, map[string]string{"WEBHOOKS": "maybe", "WEBHOOKS_SECRET_KEY": key}),
+		merge(teams, map[string]string{"WEBHOOKS": "on"}),
+		merge(teams, map[string]string{"WEBHOOKS": "on", "WEBHOOKS_SECRET_KEY": "short-secret-value"}),
+	} {
 		if _, err := FromEnv(getenv(merge(vertexEnv(), bad))); err == nil || !strings.Contains(err.Error(), "WEBHOOKS") {
 			t.Errorf("%v accepted: %v", bad, err)
+		} else if strings.Contains(err.Error(), "short-secret-value") {
+			t.Errorf("error repeats the key: %v", err)
 		}
 	}
 }

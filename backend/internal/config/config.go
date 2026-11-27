@@ -216,8 +216,11 @@ type Config struct {
 	// /v1/products/erp-import, BOM exports from an ERP filed as cases (#880).
 	ERPImport bool
 	// Webhooks (WEBHOOKS on|off, default off) lets a workspace admin register
-	// signed HTTPS callbacks for workspace events (#915). It needs TEAMS=on.
-	Webhooks bool
+	// signed HTTPS callbacks for workspace events (#915). It needs TEAMS=on
+	// and WebhooksSecretKey (a secret, excluded from String, at least 32
+	// bytes), which seals endpoint signing secrets at rest.
+	Webhooks          bool
+	WebhooksSecretKey string
 	// Audit (#284). AuditMode is AUDIT: on, off, or auto (the default). Audit is
 	// the resolved switch: on, or auto with AUDIT_ACTOR_KEY set. auto never
 	// enables the trail without the secret and never generates one; on without
@@ -481,6 +484,7 @@ func FromEnv(getenv func(string) string) (Config, error) {
 		AuditDir:               e.dir("AUDIT_DIR", "../data/audit"),
 		TeamsAudience:          e.str("TEAMS_AUDIENCE", ""),
 		SSOSessionKey:          e.str("SSO_SESSION_KEY", ""),
+		WebhooksSecretKey:      e.str("WEBHOOKS_SECRET_KEY", ""),
 		SSOSiteURL:             e.str("SSO_SITE_URL", ""),
 		SSOSessionTTL:          e.duration("SSO_SESSION_TTL", 8*time.Hour),
 		TextileRulings:         e.str("TEXTILE_RULINGS", "data/textile_rulings.json"),
@@ -963,6 +967,9 @@ func (c Config) validate() error {
 	}
 	if c.Webhooks && !c.Teams {
 		bad("WEBHOOKS=on needs TEAMS=on (endpoints belong to a workspace, and its admin registers them)")
+	}
+	if c.Webhooks && len(c.WebhooksSecretKey) < 32 {
+		bad("WEBHOOKS=on needs WEBHOOKS_SECRET_KEY of at least 32 bytes (it seals endpoint signing secrets: use a random value from the secret manager)")
 	}
 	if c.AdminConsole && !c.Teams {
 		bad("ADMIN_CONSOLE=on needs TEAMS=on (it is the workspace admin's overview)")
