@@ -9,11 +9,21 @@ import { byName, findAll, instance, json, tick } from "./lib/hook-runtime.mjs";
 // components in a hook runtime, with the server played by the test.
 globalThis.window = new EventTarget();
 const screen = await import("../src/components/op/screens/admin-screen.tsx");
+const signin = await import("../src/components/op/screens/admin-signin.tsx");
 const admin = await import("../src/lib/admin.ts");
 const { ApiError } = await import("../src/lib/api/client.ts");
 const { WorkspacePanel } = await import("../src/components/op/workspace-panel.tsx");
 
 const live = [];
+// The hook runtime renders one component, not its children. A child element of
+// a rendered tree is mounted here with the same routes and call log, so the
+// tests can drive it as the page would.
+const sub = async (app, name, nth = 0) => {
+  app.refresh();
+  const el = findAll(app.inst.tree, byName(name))[nth];
+  assert.ok(el, `no <${name}> in the tree`);
+  return mount(el.type, el.props, app.routes, { calls: app.calls }).start();
+};
 afterEach(() => {
   for (const inst of live.splice(0)) {
     inst.mounted = false;
@@ -23,8 +33,8 @@ afterEach(() => {
 const textOf = (n) => (n == null || typeof n === "boolean" ? "" : typeof n !== "object" ? String(n) : Array.isArray(n) ? n.map(textOf).join("") : textOf(n.props?.children));
 const err = (status, code = "forbidden", message = "no") => json({ code, message }, status);
 
-function mount(Component, props, routes = {}, { signedIn = true } = {}) {
-  const app = { calls: [], routes };
+function mount(Component, props, routes = {}, { signedIn = true, calls = [] } = {}) {
+  const app = { calls, routes };
   let sched = false;
   const inst = instance(Component, () => {
     if (sched) return;
@@ -182,7 +192,7 @@ test("a new key's secret is shown once, then gone on the next load; list never c
   app.input("Claude Desktop").props.onChange({ target: { value: "Claude" } });
   app.refresh();
   await app.submit();
-  assert.deepEqual(app.calls.at(-1).body, { name: "Claude" }, "create sends only a name, no quota");
+  assert.deepEqual(app.calls.at(-1).body, { name: "Claude", role: "viewer" }, "create sends a name and the least role, no quota");
   assert.match(app.text(), /Copy this key now\. It is not shown again/);
   assert.ok(app.text().includes(SECRET));
   await app.click("Done");
@@ -368,4 +378,365 @@ test("the typed client never sends a tenant, a role or a quota with a key", () =
   const start = client.indexOf("  adminOverview:");
   const end = client.indexOf("  // Broker review links, owner side");
   assert.doesNotMatch(client.slice(start, end), /daily_quota|tenant|owner/);
+});
+
+// ---- member roles ----
+
+const putRole = (email, role, members = ["amy@x.com", "bob@x.com"]) =>
+  json({ ...WS, members, member_roles: Object.fromEntries(members.map((m) => [m, m === email ? role : m === "amy@x.com" ? "admin" : "viewer"])) });
+
+test("a role change is a PUT of the role; the row shows the server's answer; the only admin is locked", async () => {
+  const app = mount(
+    screen.MembersSection,
+    { ws: "ws1", members: OV.members, invited: ["cy@x.com"] },
+    { "PUT /workspaces/ws1/members/bob%40x.com/role": () => putRole("bob@x.com", "editor") },
+  );
+  await app.start();
+  const selects = findAll(app.inst.tree, (e) => e.type === "select");
+  assert.equal(selects.length, 2, "invited people have no role yet");
+  assert.equal(selects[0].props.disabled, true, "amy is the only admin");
+  assert.match(app.text(), /The only admin/);
+  assert.equal(selects[1].props.disabled, false);
+  selects[1].props.onChange({ target: { value: "editor" } });
+  app.refresh();
+  await app.flush();
+  assert.deepEqual(app.calls.at(-1), { method: "PUT", path: "/workspaces/ws1/members/bob%40x.com/role", body: { role: "editor" } });
+  assert.equal(findAll(app.inst.tree, (e) => e.type === "select")[1].props.value, "editor");
+  assert.match(app.text(), /bob@x.com is now an editor/);
+  // Making bob an admin frees amy.
+  const again = findAll(app.inst.tree, (e) => e.type === "select")[1];
+  app.routes["PUT /workspaces/ws1/members/bob%40x.com/role"] = () => json({ ...WS, member_roles: { "amy@x.com": "admin", "bob@x.com": "admin" } });
+  again.props.onChange({ target: { value: "admin" } });
+  app.refresh();
+  await app.flush();
+  assert.equal(findAll(app.inst.tree, (e) => e.type === "select")[0].props.disabled, false);
+});
+
+test("a refused role change keeps the old role and says why; the same role sends nothing", async () => {
+  for (const [status, re] of [
+    [409, /at least one admin/],
+    [403, /Only a workspace admin/],
+    [404, /not a member/],
+  ]) {
+    const app = mount(
+      screen.MembersSection,
+      { ws: "ws1", members: [...OV.members, { email: "dee@x.com", role: "admin" }], invited: [] },
+      { "PUT /workspaces/ws1/members/bob%40x.com/role": err(status, status === 409 ? "conflict" : "forbidden") },
+    );
+    await app.start();
+    const sel = findAll(app.inst.tree, (e) => e.type === "select")[1];
+    sel.props.onChange({ target: { value: "admin" } });
+    app.refresh();
+    await app.flush();
+    assert.match(app.alert().props.children, re);
+    assert.equal(findAll(app.inst.tree, (e) => e.type === "select")[1].props.value, "viewer");
+  }
+  const same = mount(screen.MembersSection, { ws: "ws1", members: OV.members, invited: [] }, {});
+  await same.start();
+  findAll(same.inst.tree, (e) => e.type === "select")[1].props.onChange({ target: { value: "viewer" } });
+  same.refresh();
+  await same.flush();
+  assert.equal(same.calls.length, 0);
+});
+
+test("the last-admin rule", () => {
+  const ms = [{ email: "a", role: "admin" }, { email: "b", role: "viewer" }];
+  assert.equal(admin.isLastAdmin(ms, "a"), true);
+  assert.equal(admin.isLastAdmin(ms, "b"), false);
+  assert.equal(admin.isLastAdmin([...ms, { email: "c", role: "admin" }], "a"), false);
+  assert.deepEqual(admin.withRole(ms, "b", "editor").map((m) => m.role), ["admin", "editor"]);
+});
+
+// ---- keys carry a role ----
+
+test("a workspace key is made with a role the admin picks: viewer first, editor, never admin; the list shows it", async () => {
+  let keys = [key("aaaaaaaaaaaaaaaa", { role: "editor" }), key("cccccccccccccccc")];
+  const app = mount(screen.KeysSection, { ws: "ws1" }, {
+    "GET /workspaces/ws1/api-keys": () => json({ api_keys: keys }),
+    "POST /workspaces/ws1/api-keys": (init) => {
+      const b = JSON.parse(init.body);
+      keys = [key("bbbbbbbbbbbbbbbb", { name: b.name, role: b.role }), ...keys];
+      return json({ key: "op_" + "B".repeat(43), api_key: keys[0] }, 201);
+    },
+  });
+  await app.start();
+  assert.match(app.text(), /Editor/);
+  assert.match(app.text(), /Own cases only/, "a key from before roles");
+  const sel = findAll(app.inst.tree, (e) => e.type === "select")[0];
+  assert.deepEqual(findAll(sel, (e) => e.type === "option").map((o) => o.props.value), ["viewer", "editor"], "no admin choice");
+  sel.props.onChange({ target: { value: "editor" } });
+  app.input("Claude Desktop").props.onChange({ target: { value: "ERP" } });
+  app.refresh();
+  await app.submit();
+  assert.deepEqual(app.calls.find((c) => c.method === "POST").body, { name: "ERP", role: "editor" });
+  assert.match(app.text(), /ERP/);
+  assert.match(app.text(), /Never an admin/);
+  assert.deepEqual(admin.KEY_ROLES, ["viewer", "editor"]);
+});
+
+// ---- SSO and SCIM ----
+
+const conn = (over = {}) => ({
+  id: "c1",
+  protocol: "oidc",
+  domains: [{ domain: "acme.com", verified: false, record_name: "_undelabs-verify.acme.com", record_value: "undelabs-verify=abc123" }],
+  default_role: "viewer",
+  enabled: false,
+  enforced: false,
+  oidc_issuer: "https://login.acme.com",
+  oidc_client_id: "cid",
+  has_client_secret: true,
+  service_provider: { oidc_redirect_url: "https://site/sso/oidc/callback" },
+  created_at: "2026-11-27T10:00:00Z",
+  updated_at: "2026-11-27T10:00:00Z",
+  ...over,
+});
+const typeInto = (app, placeholderOrLabel, v) => app.input(placeholderOrLabel).props.onChange({ target: { value: v } });
+
+test("SSO and SCIM are one line 'Not enabled' when the overview has neither (production)", async () => {
+  const app = mount(screen.SignInSection, { ws: "ws1", sso: undefined, scim: undefined });
+  await app.start();
+  assert.equal(app.text().match(/Not enabled/g).length, 2);
+  assert.equal(app.has("SsoPart"), false);
+  assert.equal(app.has("ScimPart"), false);
+  assert.equal(findAll(app.inst.tree, (e) => e.type === "form").length, 0);
+  for (const s of [404, 403]) {
+    const sso = await mount(signin.SsoPart, { ws: "ws1" }, { "GET /workspaces/ws1/sso": err(s) }).start();
+    assert.match(sso.text(), /Not enabled/);
+    const scim = await mount(signin.ScimPart, { ws: "ws1", domains: [] }, { "GET /workspaces/ws1/scim": err(s) }).start();
+    assert.match(scim.text(), /Not enabled/);
+  }
+});
+
+test("SSO: a connection lists with its DNS TXT record, Check DNS verifies, Turn on enables", async () => {
+  let c = conn();
+  const seen = [];
+  const app = mount(signin.SsoPart, { ws: "ws1", onDomains: (d) => seen.push(d) }, {
+    "GET /workspaces/ws1/sso": () => json({ connections: [c] }),
+    "POST /workspaces/ws1/sso/c1/verify": (init) => {
+      const { enable } = JSON.parse(init.body);
+      c = conn({ enabled: enable, domains: [{ ...c.domains[0], verified: true }] });
+      return json(c);
+    },
+  });
+  await app.start();
+  let card = await sub(app, "ConnectionCard");
+  assert.match(card.text(), /OIDC/);
+  assert.match(card.text(), /secret saved/);
+  const dns = findAll(card.inst.tree, (e) => e.props?.["data-testid"] === "dns-acme.com")[0];
+  assert.equal(textOf(dns.props.children), "_undelabs-verify.acme.com  TXT  undelabs-verify=abc123");
+  assert.deepEqual(seen.at(-1), []);
+  await card.click("Check DNS");
+  assert.deepEqual(app.calls.at(-1).body, { enable: false });
+  assert.deepEqual(seen.at(-1), ["acme.com"], "SCIM learns the verified domain");
+  card = await sub(app, "ConnectionCard");
+  assert.equal(findAll(card.inst.tree, (e) => e.props?.["data-testid"] === "dns-acme.com").length, 0, "no record to add once verified");
+  await card.click("Turn on");
+  assert.deepEqual(app.calls.at(-1).body, { enable: true });
+  card = await sub(app, "ConnectionCard");
+  assert.ok(card.btn("Turn off"));
+});
+
+test("SSO: Turn on with an unverified domain says which and why", async () => {
+  const app = mount(signin.SsoPart, { ws: "ws1" }, {
+    "GET /workspaces/ws1/sso": json({ connections: [conn()] }),
+    "POST /workspaces/ws1/sso/c1/verify": json(conn({ checks: [{ domain: "acme.com", record: "_undelabs-verify.acme.com", verified: false, problem: "no TXT record found" }] })),
+  });
+  await app.start();
+  const card = await sub(app, "ConnectionCard");
+  await card.click("Turn on");
+  assert.match(card.text(), /acme\.com: no TXT record found/);
+  assert.ok(card.btn("Turn on"), "still off");
+});
+
+test("SSO: add an OIDC connection sends the settings and the secret once; the list never shows the secret", async () => {
+  const SECRET = "s3cr3t-value";
+  let list = [];
+  const app = mount(signin.SsoPart, { ws: "ws1" }, {
+    "GET /workspaces/ws1/sso": () => json({ connections: list }),
+    "POST /workspaces/ws1/sso": (init) => {
+      list = [conn({ id: "c2" })];
+      assert.equal(JSON.parse(init.body).oidc_client_secret, SECRET);
+      return json(list[0], 201);
+    },
+  });
+  await app.start();
+  assert.match(app.text(), /No connection/);
+  await app.click("Add connection");
+  const form = await sub(app, "SsoFormView");
+  assert.ok(form.btn("Add connection").props.disabled, "nothing to send yet");
+  typeInto(form, "acme.com, acme.co.uk", "Acme.com acme.com; acme.co.uk");
+  form.refresh();
+  typeInto(form, "https://login.acme.com", "https://login.acme.com");
+  form.refresh();
+  const cid = findAll(form.inst.tree, (e) => e.type === "input" && e.props.autoComplete === "off")[0];
+  cid.props.onChange({ target: { value: "cid" } });
+  form.refresh();
+  const secret = findAll(form.inst.tree, (e) => e.type === "input" && e.props.type === "password")[0];
+  assert.equal(secret.props.autoComplete, "new-password");
+  secret.props.onChange({ target: { value: SECRET } });
+  form.refresh();
+  await form.submit();
+  app.refresh();
+  await app.flush();
+  assert.deepEqual(app.calls.find((c) => c.method === "POST").body, {
+    protocol: "oidc",
+    domains: ["acme.com", "acme.co.uk"],
+    default_role: "viewer",
+    oidc_issuer: "https://login.acme.com",
+    oidc_client_id: "cid",
+    oidc_client_secret: SECRET,
+  });
+  const serial = (n) => JSON.stringify(n, (k, v) => (typeof v === "function" ? undefined : v));
+  assert.ok(!serial(app.inst.tree).includes(SECRET), "the secret is not in the screen after saving");
+  const card = await sub(app, "ConnectionCard");
+  assert.match(card.text(), /secret saved/);
+  assert.ok(!card.text().includes(SECRET));
+});
+
+test("SSO: editing keeps the secret (left out of the request) and shows only that one exists", async () => {
+  const app = mount(signin.SsoPart, { ws: "ws1" }, {
+    "GET /workspaces/ws1/sso": json({ connections: [conn()] }),
+    "PUT /workspaces/ws1/sso/c1": (init) => json(conn({ default_role: JSON.parse(init.body).default_role })),
+  });
+  await app.start();
+  const card = await sub(app, "ConnectionCard");
+  card.btn("Edit").props.onClick();
+  app.refresh();
+  const form = await sub(app, "SsoFormView");
+  const secret = findAll(form.inst.tree, (e) => e.type === "input" && e.props.type === "password")[0];
+  assert.equal(secret.props.value, "");
+  assert.equal(secret.props.placeholder, "Secret saved. Leave empty to keep it.");
+  const role = findAll(form.inst.tree, (e) => e.type === "select")[1];
+  assert.deepEqual(findAll(role, (e) => e.type === "option").map((o) => o.props.value), ["viewer", "editor"], "no admin default role to pick");
+  role.props.onChange({ target: { value: "editor" } });
+  form.refresh();
+  await form.submit();
+  const body = app.calls.find((c) => c.method === "PUT").body;
+  assert.equal("oidc_client_secret" in body, false);
+  assert.equal("enabled" in body || "enforced" in body, false, "an edit leaves on/off and required as they are");
+  assert.equal(body.default_role, "editor");
+  assert.equal(body.oidc_issuer, "https://login.acme.com");
+});
+
+test("SSO: add a SAML connection takes the sign-in URL, entity ID and 1 to 3 PEM certificates", () => {
+  const pem = (n) => `-----BEGIN CERTIFICATE-----\nMII${n}\n-----END CERTIFICATE-----`;
+  const f = { ...admin.emptySsoForm, protocol: "saml", domains: "acme.com", saml_sso_url: "https://idp.acme.com/sso", saml_issuer: "urn:idp", saml_certs: `${pem(1)}\n\n${pem(2)}` };
+  assert.equal(admin.ssoProblem(f), null);
+  assert.deepEqual(admin.ssoBody(f), { protocol: "saml", domains: ["acme.com"], default_role: "viewer", saml_sso_url: "https://idp.acme.com/sso", saml_issuer: "urn:idp", saml_certs_pem: [pem(1), pem(2)] });
+  assert.ok(admin.ssoProblem({ ...f, saml_certs: "" }));
+  assert.ok(admin.ssoProblem({ ...f, saml_certs: [1, 2, 3, 4].map(pem).join("\n") }));
+  assert.ok(admin.ssoProblem({ ...f, saml_sso_url: "http://idp.acme.com" }));
+  assert.ok(admin.ssoProblem({ ...f, saml_issuer: " " }));
+  assert.ok(admin.ssoProblem({ ...f, domains: " , " }));
+  assert.ok(admin.ssoProblem({ ...admin.emptySsoForm, domains: "a.com", oidc_issuer: "http://x.com", oidc_client_id: "c" }));
+});
+
+test("SSO: Require SSO asks first, then replaces the connection with enforced true; Allow Google sign-in undoes it", async () => {
+  let c = conn({ enabled: true, domains: [{ domain: "acme.com", verified: true, record_name: "r", record_value: "v" }] });
+  const app = mount(signin.SsoPart, { ws: "ws1" }, {
+    "GET /workspaces/ws1/sso": () => json({ connections: [c] }),
+    "PUT /workspaces/ws1/sso/c1": (init) => {
+      c = { ...c, enforced: JSON.parse(init.body).enforced };
+      return json(c);
+    },
+  });
+  await app.start();
+  let card = await sub(app, "ConnectionCard");
+  await card.click("Require SSO");
+  assert.equal(app.calls.filter((x) => x.method === "PUT").length, 0, "the first click only asks");
+  assert.match(card.text(), /Google sign-in stops/);
+  await card.click("Require SSO");
+  const put = app.calls.find((x) => x.method === "PUT").body;
+  assert.equal(put.enforced, true);
+  assert.equal("oidc_client_secret" in put, false);
+  card = await sub(app, "ConnectionCard");
+  assert.match(card.text(), /required/);
+  await card.click("Allow Google sign-in");
+  assert.equal(app.calls.filter((x) => x.method === "PUT").at(-1).body.enforced, false);
+  // Off connections have no switch to make it required.
+  const offApp = await mount(signin.SsoPart, { ws: "ws1" }, { "GET /workspaces/ws1/sso": json({ connections: [conn()] }) }).start();
+  const offCard = await sub(offApp, "ConnectionCard");
+  assert.equal(offCard.btn("Require SSO"), undefined);
+});
+
+test("SSO: the server's refusals are plain; remove asks twice", async () => {
+  const app = mount(signin.SsoPart, { ws: "ws1" }, {
+    "GET /workspaces/ws1/sso": json({ connections: [conn()] }),
+    "POST /workspaces/ws1/sso/c1/verify": err(409, "sso_unverified"),
+    "DELETE /workspaces/ws1/sso/c1": new Response(null, { status: 204 }),
+  });
+  await app.start();
+  const card = await sub(app, "ConnectionCard");
+  await card.click("Turn on");
+  assert.match(card.alert().props.children, /Verify every domain/);
+  await card.click("Remove");
+  assert.equal(app.calls.filter((c) => c.method === "DELETE").length, 0);
+  await card.click("Remove for good");
+  assert.equal(app.calls.filter((c) => c.method === "DELETE").length, 1);
+  app.refresh();
+  assert.match(app.text(), /No connection/);
+  const e = (status, code, message = "m") => new ApiError(message, status, code, false);
+  assert.match(admin.ssoError(e(409, "sso_domain_taken")), /Another workspace/);
+  assert.match(admin.ssoError(e(409, "sso_limit")), /5 connections/);
+  assert.match(admin.ssoError(e(400, "invalid_input", "the OIDC issuer could not be discovered")), /could not be discovered/);
+  assert.match(admin.ssoError(e(403, "forbidden")), /Only workspace admins/);
+});
+
+const scimStatus = (over = {}) => ({ configured: false, domains: [], allow_admin: false, base_url: "https://site/api/v1/scim/v2", token_header: "X-SCIM-Token", ...over });
+
+test("SCIM: the token is created for verified domains, shown once, then only its last four characters", async () => {
+  const TOKEN = "scim_" + "T".repeat(43);
+  let status = scimStatus();
+  const routes = {
+    "GET /workspaces/ws1/scim": () => json(status),
+    "POST /workspaces/ws1/scim/token": (init) => {
+      const b = JSON.parse(init.body);
+      status = scimStatus({ configured: true, hint: "TTTT", domains: b.domains, default_role: b.default_role });
+      return json({ ...status, token: TOKEN }, 201);
+    },
+  };
+  const app = mount(signin.ScimPart, { ws: "ws1", domains: ["acme.com", "acme.co.uk"] }, routes);
+  await app.start();
+  assert.match(app.text(), /Not set up/);
+  await app.click("Create token");
+  const boxes = findAll(app.inst.tree, (e) => e.type === "input" && e.props.type === "checkbox");
+  assert.equal(boxes.length, 2);
+  boxes[1].props.onChange({ target: { checked: false } });
+  app.refresh();
+  await app.submit();
+  assert.deepEqual(app.calls.find((c) => c.method === "POST").body, { domains: ["acme.com"], default_role: "viewer" });
+  const once = await sub(app, "Once");
+  assert.ok(once.text().includes(TOKEN));
+  assert.match(once.text(), /not shown again/);
+  assert.match(app.text(), /token ends …TTTT/);
+  await once.click("Done");
+  app.refresh();
+  assert.ok(!app.text().includes(TOKEN), "gone once dismissed");
+  assert.equal(app.has("Once"), false);
+  const again = await mount(signin.ScimPart, { ws: "ws1", domains: ["acme.com"] }, routes).start();
+  assert.ok(!again.text().includes(TOKEN), "a reload never has it");
+  assert.match(again.text(), /X-SCIM-Token/);
+});
+
+test("SCIM: revoke asks first; with no verified domain there is nothing to create; 409 says verify first", async () => {
+  const on = scimStatus({ configured: true, hint: "abcd", domains: ["acme.com"], default_role: "viewer" });
+  const app = mount(signin.ScimPart, { ws: "ws1", domains: ["acme.com"] }, {
+    "GET /workspaces/ws1/scim": json(on),
+    "DELETE /workspaces/ws1/scim/token": new Response(null, { status: 204 }),
+    "POST /workspaces/ws1/scim/token": err(409, "scim_unverified_domain"),
+  });
+  await app.start();
+  assert.ok(app.btn("Replace token"));
+  await app.click("Revoke");
+  assert.equal(app.calls.filter((c) => c.method === "DELETE").length, 0);
+  await app.click("Revoke for good");
+  assert.equal(app.calls.filter((c) => c.method === "DELETE").length, 1);
+  assert.match(app.text(), /Not set up/);
+  await app.click("Create token");
+  await app.submit();
+  assert.match(app.alert().props.children, /Verify a domain under SSO first/);
+  const none = await mount(signin.ScimPart, { ws: "ws1", domains: [] }, { "GET /workspaces/ws1/scim": json(scimStatus()) }).start();
+  assert.match(none.text(), /Verify an SSO domain first/);
+  assert.equal(none.btn("Create token"), undefined);
 });

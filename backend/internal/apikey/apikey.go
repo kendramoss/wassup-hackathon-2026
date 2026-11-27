@@ -64,6 +64,23 @@ type Key struct {
 	// list and revoke to that workspace and is never sent to a client; a key
 	// has an Owner or a Workspace, not both. Empty: not a workspace key.
 	Workspace string `json:"-"`
+	// Role is what a workspace key may do with the workspace's cases (#870):
+	// RoleViewer reads, RoleEditor reads and writes. Empty is a key from before
+	// roles: it reaches its own cases only. It is never an admin role, and only
+	// a workspace key has one.
+	Role string `json:"role,omitempty"`
+}
+
+// The roles a workspace key can be given. There is no admin role.
+const (
+	RoleViewer = "viewer"
+	RoleEditor = "editor"
+)
+
+// ValidRole reports whether role may be given to a workspace key. Empty is
+// the role-less key.
+func ValidRole(role string) bool {
+	return role == "" || role == RoleViewer || role == RoleEditor
 }
 
 // Store keeps the keys and their per-day request counts.
@@ -116,19 +133,23 @@ func (k *Keys) Issue(ctx context.Context, name string, dailyQuota int) (string, 
 // admin/CLI path unchanged; a non-empty owner is the verified user who may
 // later list and revoke this key.
 func (k *Keys) IssueFor(ctx context.Context, owner, name string, dailyQuota int) (string, Key, error) {
-	return k.issue(ctx, owner, "", name, dailyQuota)
+	return k.issue(ctx, owner, "", "", name, dailyQuota)
 }
 
 // IssueForWorkspace is Issue for a workspace's admin (#870): the key belongs
 // to the workspace, not to a person, so any admin of it may list and revoke it.
-func (k *Keys) IssueForWorkspace(ctx context.Context, workspace, name string, dailyQuota int) (string, Key, error) {
+// role is RoleViewer, RoleEditor or empty (see Key.Role).
+func (k *Keys) IssueForWorkspace(ctx context.Context, workspace, role, name string, dailyQuota int) (string, Key, error) {
 	if workspace == "" {
 		return "", Key{}, ErrBadRequest
 	}
-	return k.issue(ctx, "", workspace, name, dailyQuota)
+	if !ValidRole(role) {
+		return "", Key{}, fmt.Errorf("%w: role must be viewer or editor", ErrBadRequest)
+	}
+	return k.issue(ctx, "", workspace, role, name, dailyQuota)
 }
 
-func (k *Keys) issue(ctx context.Context, owner, workspace, name string, dailyQuota int) (string, Key, error) {
+func (k *Keys) issue(ctx context.Context, owner, workspace, role, name string, dailyQuota int) (string, Key, error) {
 	name = strings.Join(strings.Fields(name), " ")
 	if err := ValidateIssue(name, dailyQuota); err != nil {
 		return "", Key{}, err
@@ -139,7 +160,7 @@ func (k *Keys) issue(ctx context.Context, owner, workspace, name string, dailyQu
 	}
 	secret := Prefix + base64.RawURLEncoding.EncodeToString(b)
 	h := hashOf(secret)
-	key := Key{ID: h[:16], Owner: owner, Workspace: workspace, Name: name, Hash: h, CreatedAt: k.now().UTC(), DailyQuota: dailyQuota}
+	key := Key{ID: h[:16], Owner: owner, Workspace: workspace, Role: role, Name: name, Hash: h, CreatedAt: k.now().UTC(), DailyQuota: dailyQuota}
 	if err := k.store.Create(ctx, key); err != nil {
 		return "", Key{}, err
 	}

@@ -176,3 +176,35 @@ func TestOwnerScopedKeys(t *testing.T) {
 		t.Fatalf("admin List = %d keys, %v", len(ks), err)
 	}
 }
+
+// A workspace key records the role it was made with; an admin role does not
+// exist, and only a workspace key can have one (#870, D961).
+func TestWorkspaceKeyRole(t *testing.T) {
+	ctx := context.Background()
+	ks := New(NewMemory())
+	for _, role := range []string{"admin", "owner", "Editor", "viewer,editor", " viewer"} {
+		if _, _, err := ks.IssueForWorkspace(ctx, "ws_000000000001", role, "ERP", 10); !errors.Is(err, ErrBadRequest) {
+			t.Errorf("role %q = %v, want ErrBadRequest", role, err)
+		}
+	}
+	for _, role := range []string{RoleViewer, RoleEditor, ""} {
+		secret, k, err := ks.IssueForWorkspace(ctx, "ws_000000000001", role, "ERP", 10)
+		if err != nil || k.Role != role {
+			t.Fatalf("issue %q = %+v %v", role, k, err)
+		}
+		got, err := ks.Authenticate(ctx, secret)
+		if err != nil || got.Role != role || got.Workspace != "ws_000000000001" {
+			t.Errorf("authenticate %q = %+v %v", role, got, err)
+		}
+	}
+	// Personal and operator keys carry no role, and the list returns it.
+	if _, k, _ := ks.IssueFor(ctx, "u_1", "mine", 10); k.Role != "" {
+		t.Errorf("a personal key has role %q", k.Role)
+	}
+	if _, k, _ := ks.Issue(ctx, "op", 10); k.Role != "" {
+		t.Errorf("an operator key has role %q", k.Role)
+	}
+	if !ValidRole("") || !ValidRole("viewer") || !ValidRole("editor") || ValidRole("admin") {
+		t.Error("ValidRole")
+	}
+}

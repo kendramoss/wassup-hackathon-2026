@@ -80,6 +80,10 @@ func (a *api) adminAudit(w http.ResponseWriter, r *http.Request) {
 
 type workspaceKeyRequest struct {
 	Name string `json:"name"`
+	// Role is what the key may do with the workspace's cases: "viewer" or
+	// "editor", never "admin" (D961). Omitted: a key that reaches only its own
+	// cases, as workspace keys did before roles.
+	Role *string `json:"role"`
 }
 
 // issueWorkspaceKey is POST /v1/workspaces/{id}/api-keys. The secret is in
@@ -97,6 +101,13 @@ func (a *api) issueWorkspaceKey(w http.ResponseWriter, r *http.Request) {
 	if err := apikey.ValidateIssue(in.Name, workspaceKeyQuota); err != nil {
 		a.fail(w, r, err)
 		return
+	}
+	role := ""
+	if in.Role != nil {
+		if role = *in.Role; role == "" || !apikey.ValidRole(role) {
+			a.fail(w, r, fmt.Errorf("%w: role must be viewer or editor", apikey.ErrBadRequest))
+			return
+		}
 	}
 	ks, err := a.d.APIKeys.ListForWorkspace(r.Context(), id.workspace)
 	if err != nil {
@@ -118,7 +129,7 @@ func (a *api) issueWorkspaceKey(w http.ResponseWriter, r *http.Request) {
 		a.fail(w, r, err)
 		return
 	}
-	secret, k, err := a.d.APIKeys.IssueForWorkspace(r.Context(), id.workspace, in.Name, workspaceKeyQuota)
+	secret, k, err := a.d.APIKeys.IssueForWorkspace(r.Context(), id.workspace, role, in.Name, workspaceKeyQuota)
 	if err != nil {
 		a.fail(w, r, err)
 		return

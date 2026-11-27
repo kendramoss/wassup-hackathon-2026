@@ -20,7 +20,7 @@ Scope: roles in the existing single-workspace model (D68), with the frontend rol
 - The role is stored on the workspace record (`roles`: email to role) and read from the store on every request for a verified signed-in user. It is never taken from a header, query, body field or token claim; `X-Role`, `X-Workspace`, `X-Tenant` and similar are ignored (tests).
 - Legacy: a workspace written before roles has no `roles` field. Its creator is admin and every other member is an editor, derived on read. A stored role always wins over that rule, so a demoted creator is not admin again. New workspaces store the creator as admin and every joiner as editor explicitly, so a creator who left and is invited back returns as an editor.
 - Invited emails have no role until they join.
-- API keys and the admin token have no role and never inherit one. The admin token keeps its existing all-access behaviour, also when a user token rides along.
+- An API key has no role, except a workspace key made with one (viewer or editor, never admin, D961), which has that role on its own workspace's cases only and nothing else. The admin token has no role and never inherits one. The admin token keeps its existing all-access behaviour, also when a user token rides along.
 
 ### Permission table (`rolePerms` in `roles.go`; tested cell by cell)
 

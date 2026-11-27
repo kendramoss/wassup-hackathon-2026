@@ -11,6 +11,7 @@ import (
 	"time"
 	"unicode/utf8"
 
+	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/apikey"
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/audit"
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/domain"
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/logsafe"
@@ -140,6 +141,9 @@ func teamCase(c store.Case) bool {
 // push them out of the list. The caller filters for visibility, then caps.
 func (a *api) workspaceCases(ctx context.Context, cs []store.Case) ([]store.Case, error) {
 	ws := identityOf(ctx).workspace
+	if k, ok := keyFrom(ctx); ok && ws == "" && k.Workspace != "" && (k.Role == apikey.RoleViewer || k.Role == apikey.RoleEditor) {
+		ws = k.Workspace // a workspace key with a role lists its workspace's cases (D961)
+	}
 	if ws == "" {
 		return cs, nil
 	}

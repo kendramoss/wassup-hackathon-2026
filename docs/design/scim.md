@@ -1,6 +1,6 @@
 # SCIM provisioning (#869)
 
-Status: backend done, off by default (`SCIM=on`, needs `SSO=on`). The admin screen and the proxy mapping for identity providers are frontend work and are not built yet.
+Status: backend done, off by default (`SCIM=on`, needs `SSO=on`). The admin screen is built (D961); the proxy mapping for identity providers is frontend work and is not built yet.
 
 ## 1. What it does
 
@@ -37,5 +37,4 @@ Each has a test in `backend/internal/scim` or `backend/internal/httpapi/scim_tes
 ## 5. Not done
 
 - The frontend proxy forwards only some headers: for identity providers to reach SCIM through the site, it must map `Authorization: Bearer scim_...` to `X-SCIM-Token` on `/api/v1/scim/` (as it does for MCP keys) and pass `application/scim+json` through. Until then SCIM works only against the backend directly.
-- The admin screen to issue and revoke the token.
 - Groups and group-to-role mapping; `externalId` and names are not stored.

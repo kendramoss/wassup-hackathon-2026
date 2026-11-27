@@ -493,6 +493,7 @@ type apiKeyDoc struct {
 	ID         string    `firestore:"id"`
 	Owner      string    `firestore:"owner,omitempty"`
 	Workspace  string    `firestore:"workspace,omitempty"`
+	Role       string    `firestore:"role,omitempty"`
 	Name       string    `firestore:"name"`
 	Hash       string    `firestore:"sha256"`
 	CreatedAt  time.Time `firestore:"created_at"`
@@ -501,12 +502,12 @@ type apiKeyDoc struct {
 }
 
 func (d apiKeyDoc) key() apikey.Key {
-	return apikey.Key{ID: d.ID, Owner: d.Owner, Workspace: d.Workspace, Name: d.Name, Hash: d.Hash, CreatedAt: d.CreatedAt, DailyQuota: d.DailyQuota, Disabled: d.Disabled}
+	return apikey.Key{ID: d.ID, Owner: d.Owner, Workspace: d.Workspace, Role: d.Role, Name: d.Name, Hash: d.Hash, CreatedAt: d.CreatedAt, DailyQuota: d.DailyQuota, Disabled: d.Disabled}
 }
 
 // Create implements apikey.Store.
 func (s *FirestoreAPIKeys) Create(ctx context.Context, k apikey.Key) error {
-	d := apiKeyDoc{ID: k.ID, Owner: k.Owner, Workspace: k.Workspace, Name: k.Name, Hash: k.Hash, CreatedAt: k.CreatedAt, DailyQuota: k.DailyQuota, Disabled: k.Disabled}
+	d := apiKeyDoc{ID: k.ID, Owner: k.Owner, Workspace: k.Workspace, Role: k.Role, Name: k.Name, Hash: k.Hash, CreatedAt: k.CreatedAt, DailyQuota: k.DailyQuota, Disabled: k.Disabled}
 	if _, err := s.keys.Doc(k.ID).Create(ctx, d); err != nil {
 		return fmt.Errorf("store: create api key: %w", err)
 	}
