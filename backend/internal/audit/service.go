@@ -239,23 +239,36 @@ func (s *Service) takeDropped(tenant string) int {
 // Filter narrows a listing. Actor is a pseudonym; there is deliberately no way
 // to filter by email.
 type Filter struct {
-	Action   Action
-	Outcome  Outcome
-	Phase    Phase
-	Actor    string
-	Object   string
-	From, To time.Time // From inclusive, To exclusive; zero: open
+	Action    Action
+	Outcome   Outcome
+	Phase     Phase
+	Actor     string
+	ActorKind ActorKind
+	Object    string
+	From, To  time.Time // From inclusive, To exclusive; zero: open
+}
+
+// ValidActorKind reports whether k is one of the actor classes.
+func ValidActorKind(k ActorKind) bool {
+	switch k {
+	case ActorUser, ActorAPIKey, ActorAdmin, ActorAnonymous, ActorSystem:
+		return true
+	}
+	return false
 }
 
 func (f Filter) match(e Event) bool {
 	return (f.Action == "" || e.Action == f.Action) && (f.Outcome == "" || e.Outcome == f.Outcome) &&
-		(f.Phase == "" || e.Phase == f.Phase) && (f.Actor == "" || e.Actor == f.Actor) && (f.Object == "" || e.Object == f.Object) &&
+		(f.Phase == "" || e.Phase == f.Phase) && (f.Actor == "" || e.Actor == f.Actor) && (f.ActorKind == "" || e.ActorKind == f.ActorKind) && (f.Object == "" || e.Object == f.Object) &&
 		(f.From.IsZero() || !e.Time.Before(f.From)) && (f.To.IsZero() || e.Time.Before(f.To))
 }
 
 func (f Filter) digest(desc bool) string {
 	sum := sha256.Sum256([]byte(fmt.Sprintf("%s|%s|%s|%s|%s|%d|%d|%t", f.Action, f.Outcome, f.Phase, f.Actor, f.Object,
 		f.From.UnixMicro(), f.To.UnixMicro(), desc)))
+	if f.ActorKind != "" { // only when set, so cursors issued before this filter stay valid
+		sum = sha256.Sum256(append(sum[:], []byte("|kind:"+string(f.ActorKind))...))
+	}
 	return hex.EncodeToString(sum[:8])
 }
 

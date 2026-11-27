@@ -64,8 +64,13 @@ func allowedQuery(r *http.Request, names ...string) error {
 }
 
 func (a *api) auditListQuery(r *http.Request) (audit.ListQuery, error) {
+	return a.auditListQueryOf(r, "tenant", "limit", "cursor", "order", "action", "outcome", "phase", "actor", "actor_kind", "object", "from", "to")
+}
+
+// auditListQueryOf parses the listing parameters, refusing any not in allowed.
+func (a *api) auditListQueryOf(r *http.Request, allowed ...string) (audit.ListQuery, error) {
 	q := r.URL.Query()
-	if err := allowedQuery(r, "tenant", "limit", "cursor", "order", "action", "outcome", "phase", "actor", "object", "from", "to"); err != nil {
+	if err := allowedQuery(r, allowed...); err != nil {
 		return audit.ListQuery{}, err
 	}
 	bad := func(format string, args ...any) (audit.ListQuery, error) {
@@ -110,6 +115,12 @@ func (a *api) auditListQuery(r *http.Request) (audit.ListQuery, error) {
 		}
 		out.Filter.Actor = v
 	}
+	if v := q.Get("actor_kind"); v != "" {
+		if !audit.ValidActorKind(audit.ActorKind(v)) {
+			return bad("actor_kind must be user, apikey, admin, anonymous or system")
+		}
+		out.Filter.ActorKind = audit.ActorKind(v)
+	}
 	if v := q.Get("object"); v != "" {
 		if !audit.ValidObject(v) {
 			return bad("object must be an object reference as shown in events")
@@ -139,6 +150,11 @@ func (a *api) auditList(w http.ResponseWriter, r *http.Request) {
 		a.fail(w, r, err)
 		return
 	}
+	a.writeAuditPage(w, r, tenant, q)
+}
+
+// writeAuditPage lists one page of tenant's trail and records the read.
+func (a *api) writeAuditPage(w http.ResponseWriter, r *http.Request, tenant string, q audit.ListQuery) {
 	order := "desc"
 	if !q.Desc {
 		order = "asc"

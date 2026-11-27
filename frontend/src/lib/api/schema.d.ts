@@ -1171,8 +1171,8 @@ export interface paths {
         get?: never;
         put?: never;
         /**
-         * Parts that may be subject to a U.S. antidumping or countervailing duty order (display only, no model call; off unless ADCVD_CHECK=on)
-         * @description Screens parts against the active U.S. antidumping (AD) and countervailing duty (CVD) orders, from each part's HTS code and country of origin. Served only with `ADCVD_CHECK=on` (default off: 404). A part is `possible_exposure` when an order's listed HTS number agrees with the part's code at the shorter of the two lengths (a listed ten-digit line needs the same ten digits; a heading or subheading matches every listed line under it) and the order's country is one of the part's countries of origin. The HTS numbers are read from the scope text of the newest Commerce notice that carries it (`backend/internal/adcvd/data/orders.json`, built by `eval/adcvd/build_orders.py` from Federal Register notices; the response gives the snapshot date). HTS numbers in a scope are for convenience and customs purposes; the written scope of the order governs, and only the U.S. Department of Commerce decides whether a product is within it. Display only (D939): it never changes an origin answer or a duty figure. It does not see goods finished in a third country from parts of an ordered country (circumvention), an order whose scope prints no HTS numbers, or an order newer than the snapshot. No model call, nothing stored. Cheap class (120 a minute); a malformed body is 400 `invalid_input`.
+         * Parts that may be subject to a U.S. antidumping or countervailing duty order (display only; off unless ADCVD_CHECK=on; no model call unless ADCVD_SCOPE_READER=on)
+         * @description Screens parts against the active U.S. antidumping (AD) and countervailing duty (CVD) orders, from each part's HTS code and country of origin. Served only with `ADCVD_CHECK=on` (default off: 404). A part is `possible_exposure` when an order's listed HTS number agrees with the part's code at the shorter of the two lengths (a listed ten-digit line needs the same ten digits; a heading or subheading matches every listed line under it) and the order's country is one of the part's countries of origin. The HTS numbers are read from the scope text of the newest Commerce notice that carries it (`backend/internal/adcvd/data/orders.json`, built by `eval/adcvd/build_orders.py` from Federal Register notices; the response gives the snapshot date). HTS numbers in a scope are for convenience and customs purposes; the written scope of the order governs, and only the U.S. Department of Commerce decides whether a product is within it. Display only (D939): it never changes an origin answer or a duty figure. It does not see goods finished in a third country from parts of an ordered country (circumvention), an order whose scope prints no HTS numbers, or an order newer than the snapshot. Nothing stored. With `ADCVD_SCOPE_READER=on` (default off, needs `ADCVD_CHECK=on`; D942, D943) a part's name must share a product term with an order's written scope, and a model then reads that scope against the name and drops the order only when the scope's words clearly point away from the part (one question per listed order, at most 60 a request, cached; a part with no name, an order without scope text, or a question that fails is left as it was); the result's `limits` then say a model read the scopes, and the case view keeps the plain match. Without it: no model call, cheap class (120 a minute); with it the light model class, metered. A malformed body is 400 `invalid_input`.
          */
         post: operations["checkAdcvdExposure"];
         delete?: never;
@@ -2028,9 +2028,93 @@ export interface paths {
         };
         /**
          * The workspace admin's settings overview (ADMIN_CONSOLE=on, workspace admin)
-         * @description Members with roles, pending invitations, which features are on, the SSO connections and their domains, the SCIM token status, the retention policy and this month's usage, each only when its feature is on, and the route that changes each. Read only; never a token, hash, client secret or DNS verification value.
+         * @description Members with roles, pending invitations, which features are on, the SSO connections and their domains, the SCIM token status, the retention policy and this month's usage, each only when its feature is on, and the route that changes each (rename, API keys and audit search included). Read only; never a token, hash, client secret or DNS verification value.
          */
         get: operations["getAdminConsole"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/workspaces/{id}/name": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /**
+         * Rename the workspace (ADMIN_CONSOLE=on, workspace admin)
+         * @description Whitespace is collapsed; 1 to 100 characters. 400 for a bad name or an unknown field; 401 without a valid token; 403 for a member who is not an admin; 404 for a workspace the caller is not in (identical to an unknown one). Audited as `workspace.rename` (sensitive: the intent is stored first); the name itself is not in the trail.
+         */
+        put: operations["renameWorkspace"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/workspaces/{id}/api-keys": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * List the workspace's API keys, newest first, without secrets (ADMIN_CONSOLE=on, API_KEYS=on, workspace admin)
+         * @description Only keys issued for this workspace; admin and personal keys are never included. Revoked keys stay in the list with `disabled` true.
+         */
+        get: operations["listWorkspaceApiKeys"];
+        put?: never;
+        /**
+         * Create an API key for the workspace (ADMIN_CONSOLE=on, API_KEYS=on, workspace admin)
+         * @description The key belongs to the workspace, not to a person: any admin of it can list and revoke it. The daily quota is fixed at 1000 requests per UTC day and a `daily_quota` in the body is refused; a key has the same rate-limit buckets as every API key. At most 20 keys that are not revoked per workspace (409 `conflict`). The secret is returned once, in `key`; only its SHA-256 is stored. The key sees the pinned demos and its own cases only, as any API key does (D69); its denied requests are recorded in the workspace's audit trail. Audited as `apikey.issue`.
+         */
+        post: operations["issueWorkspaceApiKey"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/workspaces/{id}/api-keys/{key}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        /**
+         * Revoke one of the workspace's API keys for good (ADMIN_CONSOLE=on, API_KEYS=on, workspace admin)
+         * @description A key of another workspace, a personal or admin key and an unknown id are the same 404. Requests with the key then get 401. Audited as `apikey.disable`.
+         */
+        delete: operations["revokeWorkspaceApiKey"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/workspaces/{id}/admin/audit": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Search the workspace's audit trail (ADMIN_CONSOLE=on, audit on, workspace admin)
+         * @description The workspace's own trail (`ws:<id>`), a page at a time, newest first by default. The filters are the closed values the trail stores: actor kind (`user`, `apikey`, `admin`, `anonymous`, `system`; an event holds no member role, email or name), action, outcome and a time range. An event carries only enumerated values, pseudonyms and opaque references, so nothing typed by a user (names, emails, facts, key secrets) can be returned. A page may hold fewer than `limit` events and still carry `next_cursor`; a cursor is bound to the order and filters. Any other parameter, including `tenant`, is 400. Reading the first page is itself audited (`audit.read`).
+         */
+        get: operations["searchWorkspaceAudit"];
         put?: never;
         post?: never;
         delete?: never;
@@ -2911,7 +2995,7 @@ export interface components {
          * @description `case.read` appears only as a denial; allowed ordinary reads are not audited.
          * @enum {string}
          */
-        AuditAction: "case.create" | "case.update" | "case.export" | "case.delete" | "case.pin" | "case.read" | "workspace.create" | "workspace.invite" | "workspace.join" | "workspace.role_change" | "workspace.member_remove" | "workspace.leave" | "workspace.retention" | "workspace.budget" | "apikey.issue" | "apikey.list" | "apikey.disable" | "admin.watch_run" | "admin.webhook_sweep" | "audit.read" | "audit.verify" | "audit.export" | "auth.denied" | "review.create" | "review.revoke" | "review.view" | "review.decision" | "webhook.create" | "webhook.update" | "webhook.delete" | "webhook.rotate_secret" | "webhook.test" | "webhook.read";
+        AuditAction: "case.create" | "case.update" | "case.export" | "case.delete" | "case.pin" | "case.read" | "workspace.create" | "workspace.invite" | "workspace.join" | "workspace.role_change" | "workspace.member_remove" | "workspace.leave" | "workspace.retention" | "workspace.rename" | "workspace.budget" | "apikey.issue" | "apikey.list" | "apikey.disable" | "admin.watch_run" | "admin.webhook_sweep" | "audit.read" | "audit.verify" | "audit.export" | "auth.denied" | "review.create" | "review.revoke" | "review.view" | "review.decision" | "webhook.create" | "webhook.update" | "webhook.delete" | "webhook.rotate_secret" | "webhook.test" | "webhook.read";
         /** @enum {string} */
         AuditPhase: "intent" | "completion" | "single";
         /** @enum {string} */
@@ -8680,6 +8764,7 @@ export interface operations {
                 phase?: components["schemas"]["AuditPhase"];
                 /** @description An actor pseudonym from an event */
                 actor?: string;
+                actor_kind?: "user" | "apikey" | "admin" | "anonymous" | "system";
                 /** @description An opaque object reference from an event */
                 object?: string;
                 /** @description RFC 3339 */
@@ -9504,6 +9589,190 @@ export interface operations {
             401: components["responses"]["Error"];
             403: components["responses"]["Error"];
             404: components["responses"]["Error"];
+        };
+    };
+    renameWorkspace: {
+        parameters: {
+            query?: never;
+            header: {
+                /** @description The signed-in user's Google ID token, forwarded by the frontend proxy (D68). Optional on every other endpoint. */
+                "X-User-Token": components["parameters"]["UserToken"];
+            };
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": {
+                    name: string;
+                };
+            };
+        };
+        responses: {
+            /** @description The workspace as the caller sees it */
+            200: {
+                headers: {
+                    "X-Audit-Incomplete": components["headers"]["AuditIncomplete"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Workspace"];
+                };
+            };
+            400: components["responses"]["Error"];
+            401: components["responses"]["Error"];
+            403: components["responses"]["Error"];
+            404: components["responses"]["Error"];
+            429: components["responses"]["TooManyRequests"];
+            503: components["responses"]["Error"];
+        };
+    };
+    listWorkspaceApiKeys: {
+        parameters: {
+            query?: never;
+            header: {
+                /** @description The signed-in user's Google ID token, forwarded by the frontend proxy (D68). Optional on every other endpoint. */
+                "X-User-Token": components["parameters"]["UserToken"];
+            };
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description The workspace's keys */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        api_keys: components["schemas"]["APIKey"][];
+                    };
+                };
+            };
+            401: components["responses"]["Error"];
+            403: components["responses"]["Error"];
+            404: components["responses"]["Error"];
+            429: components["responses"]["TooManyRequests"];
+        };
+    };
+    issueWorkspaceApiKey: {
+        parameters: {
+            query?: never;
+            header: {
+                /** @description The signed-in user's Google ID token, forwarded by the frontend proxy (D68). Optional on every other endpoint. */
+                "X-User-Token": components["parameters"]["UserToken"];
+            };
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": {
+                    name: string;
+                };
+            };
+        };
+        responses: {
+            /** @description The new key, shown once, and its record */
+            201: {
+                headers: {
+                    "X-Audit-Incomplete": components["headers"]["AuditIncomplete"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        /** @description Not stored; shown only here. */
+                        key: string;
+                        api_key: components["schemas"]["APIKey"];
+                    };
+                };
+            };
+            400: components["responses"]["Error"];
+            401: components["responses"]["Error"];
+            403: components["responses"]["Error"];
+            404: components["responses"]["Error"];
+            409: components["responses"]["Error"];
+            429: components["responses"]["TooManyRequests"];
+            503: components["responses"]["Error"];
+        };
+    };
+    revokeWorkspaceApiKey: {
+        parameters: {
+            query?: never;
+            header: {
+                /** @description The signed-in user's Google ID token, forwarded by the frontend proxy (D68). Optional on every other endpoint. */
+                "X-User-Token": components["parameters"]["UserToken"];
+            };
+            path: {
+                id: string;
+                key: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Revoked */
+            204: {
+                headers: {
+                    "X-Audit-Incomplete": components["headers"]["AuditIncomplete"];
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            401: components["responses"]["Error"];
+            403: components["responses"]["Error"];
+            404: components["responses"]["Error"];
+            429: components["responses"]["TooManyRequests"];
+            503: components["responses"]["Error"];
+        };
+    };
+    searchWorkspaceAudit: {
+        parameters: {
+            query?: {
+                limit?: number;
+                /** @description Opaque; at most 512 bytes */
+                cursor?: string;
+                order?: "desc" | "asc";
+                action?: components["schemas"]["AuditAction"];
+                outcome?: components["schemas"]["AuditOutcome"];
+                actor_kind?: "user" | "apikey" | "admin" | "anonymous" | "system";
+                /** @description RFC 3339 */
+                from?: string;
+                /** @description RFC 3339 */
+                to?: string;
+            };
+            header: {
+                /** @description The signed-in user's Google ID token, forwarded by the frontend proxy (D68). Optional on every other endpoint. */
+                "X-User-Token": components["parameters"]["UserToken"];
+            };
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description One page of events */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AuditPage"];
+                };
+            };
+            400: components["responses"]["Error"];
+            401: components["responses"]["Error"];
+            403: components["responses"]["Error"];
+            404: components["responses"]["Error"];
+            429: components["responses"]["TooManyRequests"];
         };
     };
     getSCIMToken: {
