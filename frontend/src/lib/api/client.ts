@@ -106,6 +106,16 @@ export type WorkspacesMine = Json<"/v1/workspaces/mine", "get">;
 export type ApiKey = S["APIKey"];
 export type ApiKeyIssue = Json<"/v1/api-keys", "post", 201>;
 export type ApiKeyList = Json<"/v1/api-keys", "get">;
+// Workspace admin (#870, D935, D954): every route is for a workspace admin and
+// is refused with 403 (member), 404 (not in it, or the feature is off).
+export type AdminOverview = Json<"/v1/workspaces/{id}/admin", "get">;
+export type AuditPage = S["AuditPage"];
+export type AuditEvent = S["AuditEvent"];
+export type RetentionPolicy = S["RetentionPolicy"];
+export type WorkspaceUsage = S["WorkspaceUsage"];
+export type WorkspaceBudget = S["WorkspaceBudget"];
+export type WorkspaceKeyIssue = { key: string; api_key: ApiKey };
+export type WebhookList = { endpoints: S["WebhookEndpoint"][]; available_events: S["WebhookEventType"][]; max_endpoints: number };
 export type ChatTurn = NonNullable<AskResponse["chat"]>[number];
 export type WhatIf = NonNullable<NonNullable<AskResponse["reply"]>["what_ifs"]>[number];
 
@@ -488,6 +498,24 @@ export const api = {
   listApiKeys: () => call<ApiKeyList>("/api-keys"),
   createApiKey: (name: string) => post<ApiKeyIssue>("/api-keys", { name }),
   revokeApiKey: (id: string) => call<void>(`/api-keys/${enc(id)}`, { method: "DELETE" }),
+  adminOverview: (ws: string) => call<AdminOverview>(`/workspaces/${enc(ws)}/admin`),
+  renameWorkspace: (ws: string, name: string) => post<Workspace>(`/workspaces/${enc(ws)}/name`, { name }, undefined, "PUT"),
+  // The secret comes back once, from create; list and revoke never carry it.
+  listWorkspaceKeys: (ws: string) => call<{ api_keys: ApiKey[] }>(`/workspaces/${enc(ws)}/api-keys`),
+  createWorkspaceKey: (ws: string, name: string) => post<WorkspaceKeyIssue>(`/workspaces/${enc(ws)}/api-keys`, { name }),
+  revokeWorkspaceKey: (ws: string, key: string) => call<void>(`/workspaces/${enc(ws)}/api-keys/${enc(key)}`, { method: "DELETE" }),
+  // query: the string auditQuery() builds, "?limit=50&..." .
+  workspaceAudit: (ws: string, query: string) => call<AuditPage>(`/workspaces/${enc(ws)}/admin/audit${query}`),
+  getRetention: (ws: string) => call<RetentionPolicy>(`/workspaces/${enc(ws)}/retention`),
+  setRetention: (ws: string, body: { case_days: number; audit_days: number }) => post<RetentionPolicy>(`/workspaces/${enc(ws)}/retention`, body, undefined, "PUT"),
+  workspaceUsage: (ws: string) => call<{ workspace_id: string; usage: WorkspaceUsage }>(`/workspaces/${enc(ws)}/usage`),
+  setBudget: (ws: string, body: { monthly_usd: number; hard_cap: boolean; alert_percent: number }) =>
+    post<{ workspace_id: string; budget: WorkspaceBudget }>(`/workspaces/${enc(ws)}/budget`, body, undefined, "PUT"),
+  deleteBudget: (ws: string) => call<void>(`/workspaces/${enc(ws)}/budget`, { method: "DELETE" }),
+  listWebhooks: (ws: string) => call<WebhookList>(`/workspaces/${enc(ws)}/webhooks`),
+  createWebhook: (ws: string, body: { url: string; events: string[]; description?: string }) => post<{ endpoint: S["WebhookEndpoint"] }>(`/workspaces/${enc(ws)}/webhooks`, body),
+  setWebhookEnabled: (ws: string, wid: string, enabled: boolean) => post<{ endpoint: S["WebhookEndpoint"] }>(`/workspaces/${enc(ws)}/webhooks/${enc(wid)}`, { enabled }, undefined, "PATCH"),
+  deleteWebhook: (ws: string, wid: string) => call<void>(`/workspaces/${enc(ws)}/webhooks/${enc(wid)}`, { method: "DELETE" }),
   // Broker review links, owner side. The token comes back once, on create.
   createReview: (id: string, body: CreateReviewBody) => post<CreateReviewResponse>(`/cases/${enc(id)}/reviews`, body),
   listReviews: (id: string) => call<ReviewList>(`/cases/${enc(id)}/reviews`),
