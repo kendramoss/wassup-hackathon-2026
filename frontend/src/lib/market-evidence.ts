@@ -106,16 +106,21 @@ export const rulesChecks = {
   acftaReached: 3,
 };
 
-// D952 held-out result of the textile rules check (TEXTILE_RULES, off), facts
-// plus suggested subheading, final and final2 pooled. Pinned to
-// eval/textile102/summary.json by scripts/japan-evidence.test.mjs.
+// D952 and D955 held-out results of the textile rules check (TEXTILE_RULES,
+// off), facts plus suggested subheading. d952 is final and final2 pooled;
+// older, pool and pooled are the second test (D955). Pinned to
+// eval/textile102/summary.json and summary-fresh.json by
+// scripts/japan-evidence.test.mjs.
 export const textileRules = {
-  rulings: 88,
-  inScope: 41,
-  decided: 14,
-  agreed: 13,
-  pct: "92.9%",
-  interval: "68.5–98.7",
+  d952: { rulings: 88, inScope: 41, decided: 14, agreed: 13, pct: "92.9%", interval: "68.5–98.7" },
+  older: { rulings: 134, inScope: 133, decided: 69, agreed: 31, pct: "44.9%", interval: "33.8–56.6" },
+  pool: { rulings: 185, inScope: 125, decided: 53, agreed: 48, pct: "90.6%", interval: "79.7–95.9" },
+  pooled: { rulings: 319, inScope: 258, decided: 122, agreed: 79, pct: "64.8%", interval: "55.9–72.7" },
+  // After the result, not part of the registered figure: CBP's holding read
+  // for the 43 disagreements (eval/textile102/posthoc-d956.json).
+  labelErrors: 34,
+  correctedAgreed: 113,
+  correctedInterval: "86.6–96.1",
 };
 
 // D943 held-out result of the AD/CVD exposure check with the scope reader

@@ -134,7 +134,7 @@ type InputRow struct {
 
 func cmdExtract(args []string) error {
 	fl := flag.NewFlagSet("extract", flag.ExitOnError)
-	split := fl.String("split", "dev", "dev, final or final2")
+	split := fl.String("split", "dev", "dev, final, final2, older or pool (older and pool are D955)")
 	source := fl.String("source", "facts", "facts or full_text")
 	raw := fl.String("raw", "", "directory of raw CROSS ruling JSON (full_text only; not committed)")
 	model := fl.String("model", "gemini-3.8-flash", "gateway model")
@@ -360,8 +360,11 @@ func readText(id, split, source, rawDir string) (string, error) {
 		return r.Text, nil
 	}
 	dir := "data/facts"
-	if split == "final2" {
+	switch split {
+	case "final2":
 		dir = "../eval/data/facts_final2"
+	case "older":
+		dir = "data/facts_older"
 	}
 	b, err := os.ReadFile(filepath.Join(dir, id+".txt"))
 	return string(b), err
