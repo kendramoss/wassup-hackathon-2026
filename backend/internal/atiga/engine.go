@@ -286,8 +286,6 @@ func (p *Profile) Validate(in Input) error {
 	return nil
 }
 
-func processKeys() []string { return ATIGAProfile.ProcessKeys() }
-
 // mat is a material after its status is settled.
 type mat struct {
 	Material
