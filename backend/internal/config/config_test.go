@@ -884,3 +884,18 @@ func TestSupplierDeclarationsConfig(t *testing.T) {
 		}
 	}
 }
+
+func TestTariffWatchConfig(t *testing.T) {
+	c, err := FromEnv(getenv(vertexEnv()))
+	if err != nil || c.TariffWatch {
+		t.Fatalf("default = %v %v, want off", c.TariffWatch, err)
+	}
+	for _, v := range []string{"on", "true", "1"} {
+		if c, err := FromEnv(getenv(merge(vertexEnv(), map[string]string{"TARIFF_WATCH": v}))); err != nil || !c.TariffWatch {
+			t.Errorf("TARIFF_WATCH=%s = %v %v", v, c.TariffWatch, err)
+		}
+	}
+	if _, err := FromEnv(getenv(merge(vertexEnv(), map[string]string{"TARIFF_WATCH": "maybe"}))); err == nil || !strings.Contains(err.Error(), "TARIFF_WATCH") {
+		t.Errorf("bad value = %v", err)
+	}
+}

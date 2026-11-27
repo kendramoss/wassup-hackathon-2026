@@ -1432,6 +1432,26 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/v1/workspaces/{id}/tariff-watch": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Cases a newer HTS revision affects (TARIFF_WATCH=on, TEAMS=on)
+         * @description The workspace's cases that the latest run of `cmd/tariffwatch -apply` (D938) found affected by a newer HTS, Section 301 or Section 232 data set: what changed, the old and new duty rate, and the change in the annual duty figure and in the best plan's duty effect, largest dollar change first. `?all=true` lists every checked case, affected or not. A case never checked is not listed; `cases_in_workspace` and `checked` say how many there are. Section 232 coverage is flagged, never priced: the duty code does not compute it. Any member may read it; 404 for a workspace the caller is not in. Not a customs determination.
+         */
+        get: operations["workspaceTariffWatch"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/v1/workspaces/{id}/budget": {
         parameters: {
             query?: never;
@@ -8094,6 +8114,91 @@ export interface operations {
                 };
             };
             400: components["responses"]["Error"];
+            401: components["responses"]["Error"];
+            404: components["responses"]["Error"];
+            429: components["responses"]["TooManyRequests"];
+        };
+    };
+    workspaceTariffWatch: {
+        parameters: {
+            query?: {
+                all?: boolean;
+            };
+            header: {
+                /** @description The signed-in user's Google ID token, forwarded by the frontend proxy (D68). Optional on every other endpoint. */
+                "X-User-Token": components["parameters"]["UserToken"];
+            };
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description The affected cases */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        workspace_id: string;
+                        cases_in_workspace: number;
+                        checked: number;
+                        affected: number;
+                        cases: {
+                            case_id: string;
+                            name?: string;
+                            hts?: string;
+                            /** Format: date-time */
+                            checked_at: string;
+                            change_count: number;
+                            result: {
+                                /** Format: date-time */
+                                checked_at: string;
+                                dataset_revision: string;
+                                /** @description The HTS revision the case was priced on */
+                                basis_revision: string;
+                                as_of: string;
+                                affected: boolean;
+                                changes: {
+                                    origin: string;
+                                    /** @enum {string} */
+                                    kind: "rate_changed" | "mfn_changed" | "duty_added" | "duty_removed" | "duty_window_changed" | "exclusion_window_changed" | "exclusion_added" | "exclusion_removed" | "section_232_coverage";
+                                    heading?: string;
+                                    name?: string;
+                                    old_rate?: number;
+                                    new_rate?: number;
+                                    old?: string;
+                                    new?: string;
+                                    moves_rate: boolean;
+                                    note?: string;
+                                }[];
+                                rates?: {
+                                    origin?: string;
+                                    old_rate?: number;
+                                    new_rate?: number;
+                                    delta?: number;
+                                }[];
+                                annual_duty?: {
+                                    origin?: string;
+                                    before_usd?: number;
+                                    after_usd?: number;
+                                    change_usd?: number;
+                                };
+                                plan_duty?: {
+                                    from?: string;
+                                    to?: string;
+                                    before_usd?: number;
+                                    after_usd?: number;
+                                    change_usd?: number;
+                                };
+                                notes?: string[];
+                            };
+                        }[];
+                    };
+                };
+            };
             401: components["responses"]["Error"];
             404: components["responses"]["Error"];
             429: components["responses"]["TooManyRequests"];

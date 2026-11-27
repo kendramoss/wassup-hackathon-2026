@@ -167,6 +167,9 @@ func NewHandler(logger *slog.Logger, info Info, deps ...Deps) http.Handler {
 			if d.AdminConsole {
 				mux.HandleFunc("GET /v1/workspaces/{id}/admin", a.cheap(a.adminConsole))
 			}
+			if d.TariffWatch {
+				mux.HandleFunc("GET /v1/workspaces/{id}/tariff-watch", a.cheap(a.listTariffWatch)) // cases a newer HTS revision affects, no model (D938)
+			}
 			if d.SSO != nil {
 				mux.HandleFunc("POST /v1/sso/start", a.rateOnly(review, a.ssoStart))
 				mux.HandleFunc("POST /v1/sso/oidc/callback", a.rateOnly(review, a.ssoOIDCCallback))

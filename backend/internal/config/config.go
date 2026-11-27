@@ -242,6 +242,12 @@ type Config struct {
 	// tombstones and lets cmd/retention purge (#875). Its store follows
 	// CASES_STORE (file: CASES_DIR/retention.json).
 	Retention bool
+	// TariffWatch (on|off, default off) records, on each case a plan search
+	// prices, the duty basis it was priced on, and serves
+	// GET /v1/workspaces/{id}/tariff-watch with the cases cmd/tariffwatch
+	// found affected by a newer HTS revision (#917). The route also needs
+	// TEAMS=on.
+	TariffWatch bool
 	// BrokerWorkflow is on or off (default): on serves the review queue,
 	// case discussion and sign-offs, and the eRulings filing package
 	// (docs/design/broker-workflow.md).
@@ -592,7 +598,7 @@ func FromEnv(getenv func(string) string) (Config, error) {
 	default:
 		e.errs = append(e.errs, fmt.Errorf("API_KEYS must be on or off, got %q", v))
 	}
-	for name, dst := range map[string]*bool{"AUDIT_EXPORT": &c.AuditExport, "RETENTION": &c.Retention} {
+	for name, dst := range map[string]*bool{"AUDIT_EXPORT": &c.AuditExport, "RETENTION": &c.Retention, "TARIFF_WATCH": &c.TariffWatch} {
 		switch v := strings.ToLower(e.str(name, "off")); v {
 		case "on", "true", "1":
 			*dst = true

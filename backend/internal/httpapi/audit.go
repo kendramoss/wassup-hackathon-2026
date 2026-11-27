@@ -186,6 +186,7 @@ var auditTable = map[string]auditRoute{
 	"PUT /v1/scim/v2/Users/{uid}":                                              {auditTwoPhase, audit.SCIMUserUpdate},
 	"PATCH /v1/scim/v2/Users/{uid}":                                            {auditTwoPhase, audit.SCIMUserUpdate},
 	"DELETE /v1/scim/v2/Users/{uid}":                                           {auditTwoPhase, audit.SCIMUserDelete},
+	"GET /v1/workspaces/{id}/tariff-watch":                                     {auditNone, ""},
 }
 
 type auditCtxKey struct{}

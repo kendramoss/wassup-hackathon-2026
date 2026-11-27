@@ -290,6 +290,10 @@ type Deps struct {
 	// (envelope-encrypted where the cache is). Nil: an answer with a file is
 	// refused (503), an answer without one is not affected.
 	SupplierDocs blob.Store
+	// TariffWatch (TARIFF_WATCH=on) stores the duty basis on each case a plan
+	// search prices and, with Teams, registers
+	// GET /v1/workspaces/{id}/tariff-watch (#917).
+	TariffWatch bool
 	// APIKeys, when set, accepts X-API-Key (its own rate-limit buckets, a
 	// daily request quota, cases owned by the key) and serves the admin key
 	// endpoints (D69). Nil: the header is ignored and the endpoints are 404.
@@ -1310,6 +1314,7 @@ func (a *api) planSearch(ctx context.Context, c store.Case, req planner.Request,
 	if !readOnly {
 		ev := a.planEvent(res)
 		now := time.Now().UTC()
+		basis := a.snapshotBasis(req, now) // TARIFF_WATCH: what this search priced the money on (#917)
 		if _, err := a.d.Cases.Update(ctx, c.ID, func(latest *store.Case) error {
 			if err := stillCurrent(latest, fp); err != nil {
 				return err
@@ -1319,6 +1324,7 @@ func (a *api) planSearch(ctx context.Context, c store.Case, req planner.Request,
 			}
 			latest.Plan, latest.UpdatedAt = &res, now
 			latest.Economics = economicsFrom(in.Economics, latest.Economics)
+			setDutyBasis(latest, basis)
 			record(ctx, latest, ev)
 			return nil
 		}); err != nil {
@@ -1564,6 +1570,7 @@ func (a *api) planStream(w http.ResponseWriter, r *http.Request, c store.Case, r
 	if err == nil && !a.demoReadOnly(r, c) {
 		ev := a.planEvent(res)
 		now := time.Now().UTC()
+		basis := a.snapshotBasis(req, now) // TARIFF_WATCH (#917)
 		_, err = a.d.Cases.Update(r.Context(), c.ID, func(latest *store.Case) error {
 			if err := stillCurrent(latest, fp); err != nil {
 				return err
@@ -1573,6 +1580,7 @@ func (a *api) planStream(w http.ResponseWriter, r *http.Request, c store.Case, r
 			}
 			latest.Plan, latest.UpdatedAt = &res, now
 			latest.Economics = economicsFrom(raw, latest.Economics)
+			setDutyBasis(latest, basis)
 			record(r.Context(), latest, ev)
 			return nil
 		})
