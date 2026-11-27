@@ -943,3 +943,19 @@ func TestTariffWatchConfig(t *testing.T) {
 		t.Errorf("bad value = %v", err)
 	}
 }
+
+func TestTextileRulesConfig(t *testing.T) {
+	c, err := FromEnv(getenv(vertexEnv()))
+	if err != nil || c.TextileRules {
+		t.Fatalf("TEXTILE_RULES default = %v %v, want off", c.TextileRules, err)
+	}
+	for v, want := range map[string]bool{"on": true, "ON": true, "1": true, "off": false, "0": false} {
+		c, err := FromEnv(getenv(merge(vertexEnv(), map[string]string{"TEXTILE_RULES": v})))
+		if err != nil || c.TextileRules != want {
+			t.Errorf("TEXTILE_RULES=%s = %v %v, want %v", v, c.TextileRules, err, want)
+		}
+	}
+	if _, err := FromEnv(getenv(merge(vertexEnv(), map[string]string{"TEXTILE_RULES": "maybe"}))); err == nil || !strings.Contains(err.Error(), "TEXTILE_RULES") {
+		t.Errorf("TEXTILE_RULES=maybe: %v", err)
+	}
+}

@@ -1171,8 +1171,8 @@ export interface paths {
         get?: never;
         put?: never;
         /**
-         * Parts that may be subject to a U.S. antidumping or countervailing duty order (display only, no model call; off unless ADCVD_CHECK=on)
-         * @description Screens parts against the active U.S. antidumping (AD) and countervailing duty (CVD) orders, from each part's HTS code and country of origin. Served only with `ADCVD_CHECK=on` (default off: 404). A part is `possible_exposure` when an order's listed HTS number agrees with the part's code at the shorter of the two lengths (a listed ten-digit line needs the same ten digits; a heading or subheading matches every listed line under it) and the order's country is one of the part's countries of origin. The HTS numbers are read from the scope text of the newest Commerce notice that carries it (`backend/internal/adcvd/data/orders.json`, built by `eval/adcvd/build_orders.py` from Federal Register notices; the response gives the snapshot date). HTS numbers in a scope are for convenience and customs purposes; the written scope of the order governs, and only the U.S. Department of Commerce decides whether a product is within it. Display only (D939): it never changes an origin answer or a duty figure. It does not see goods finished in a third country from parts of an ordered country (circumvention), an order whose scope prints no HTS numbers, or an order newer than the snapshot. No model call, nothing stored. Cheap class (120 a minute); a malformed body is 400 `invalid_input`.
+         * Parts that may be subject to a U.S. antidumping or countervailing duty order (display only; off unless ADCVD_CHECK=on; no model call unless ADCVD_SCOPE_READER=on)
+         * @description Screens parts against the active U.S. antidumping (AD) and countervailing duty (CVD) orders, from each part's HTS code and country of origin. Served only with `ADCVD_CHECK=on` (default off: 404). A part is `possible_exposure` when an order's listed HTS number agrees with the part's code at the shorter of the two lengths (a listed ten-digit line needs the same ten digits; a heading or subheading matches every listed line under it) and the order's country is one of the part's countries of origin. The HTS numbers are read from the scope text of the newest Commerce notice that carries it (`backend/internal/adcvd/data/orders.json`, built by `eval/adcvd/build_orders.py` from Federal Register notices; the response gives the snapshot date). HTS numbers in a scope are for convenience and customs purposes; the written scope of the order governs, and only the U.S. Department of Commerce decides whether a product is within it. Display only (D939): it never changes an origin answer or a duty figure. It does not see goods finished in a third country from parts of an ordered country (circumvention), an order whose scope prints no HTS numbers, or an order newer than the snapshot. Nothing stored. With `ADCVD_SCOPE_READER=on` (default off, needs `ADCVD_CHECK=on`; D942, D943) a part's name must share a product term with an order's written scope, and a model then reads that scope against the name and drops the order only when the scope's words clearly point away from the part (one question per listed order, at most 60 a request, cached; a part with no name, an order without scope text, or a question that fails is left as it was); the result's `limits` then say a model read the scopes, and the case view keeps the plain match. Without it: no model call, cheap class (120 a minute); with it the light model class, metered. A malformed body is 400 `invalid_input`.
          */
         post: operations["checkAdcvdExposure"];
         delete?: never;
@@ -3574,6 +3574,61 @@ export interface components {
             plant: string;
             group?: string;
         };
+        /** @description The deterministic 19 CFR 102.21 textile check (D951), present only with `TEXTILE_RULES=on` and when the product's HTS code is a textile or apparel product under 102.21(b)(5). Computed when the case is read; display only: it never changes the prediction, the triage route or auto-accept. It applies the (c)(1) to (c)(4) hierarchy and the (e) rules to the product's operations (each operation's plant country) and `product.textile`; where a fact is not given or (c)(4) asks for a judgment it says so and does not guess. */
+        TextileRuleCheck: {
+            /** @enum {string} */
+            rules: "19 CFR 102.21";
+            model_origin?: string;
+            /** @description Present only when the check decided: whether it names the model's origin */
+            agrees?: boolean;
+            /** @description True when the decided check differs from the model: worth a person's look. Does not change the triage route */
+            review: boolean;
+            /** @description Operations the check could not read, so it was not told the whole chain */
+            notes?: string[];
+            note: string;
+            result: {
+                /** @enum {string} */
+                status: "decided" | "undetermined";
+                origin?: string;
+                /** @description The paragraph of 102.21 that decided it: (c)(1), (c)(2), (c)(3)(i), (c)(3)(ii), or single country (every operation in one country) */
+                para?: string;
+                /** @description The (e) row that decided it */
+                row?: string;
+                alt?: string;
+                basis?: string;
+                /** @description Why it did not decide */
+                reason?: string;
+                /** @enum {string} */
+                class?: "no_code" | "code_too_short" | "fact_not_stated" | "operation_not_stated" | "needs_material_codes" | "not_read_by_code" | "judgment" | "ambiguous_row";
+                /** @description The country of the last important operation, what (c)(5) would give if (c)(4) cannot name a country. Shown, never a decision */
+                candidate?: string;
+            };
+        };
+        /** @description Optional facts the 19 CFR 102.21(e) rules turn on and the operations do not say (D951). Each is yes or no; leave out what is not known. Read only by the textile rule check. */
+        TextileFacts: {
+            /**
+             * @description The good's major parts are knitted or crocheted directly to shape
+             * @enum {string}
+             */
+            knit_to_shape?: "yes" | "no";
+            /**
+             * @description The good is made by joining two or more component parts
+             * @enum {string}
+             */
+            two_or_more_components?: "yes" | "no";
+            /**
+             * @description Of cotton or of wool, or a blend of 16 percent or more cotton by weight
+             * @enum {string}
+             */
+            cotton_wool_16?: "yes" | "no";
+            /**
+             * @description The fabric is of wool or fine animal hair
+             * @enum {string}
+             */
+            fabric_of_wool?: "yes" | "no";
+            /** @enum {string} */
+            fibre_form?: "filaments" | "staple";
+        };
         Product: {
             name: string;
             family?: string;
@@ -3586,6 +3641,7 @@ export interface components {
              * @example 8419.89.95
              */
             hts?: string;
+            textile?: components["schemas"]["TextileFacts"];
         };
         /** @description Either `facts` (pasted text, max 12,000 characters) or a structured `product` is required. U.S. cases without facts need a planner family. Japan cases can give the agreement and finished-good tariff code in `japan`. */
         PredictRequest: {
@@ -3844,6 +3900,7 @@ export interface components {
              */
             facts_source?: "parts_list" | "pasted";
             rule_check?: components["schemas"]["RuleCheck"];
+            textile_rule_check?: components["schemas"]["TextileRuleCheck"];
             adcvd_check?: components["schemas"]["AdcvdCheck"];
             origin_facts?: components["schemas"]["OriginFactsByMarket"];
             supplier_declarations?: components["schemas"]["SupplierDeclarations"];

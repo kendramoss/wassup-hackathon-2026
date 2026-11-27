@@ -79,6 +79,7 @@ import (
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/store"
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/tariffshift"
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/teams"
+	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/textilerules"
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/triage"
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/ukorigin"
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/usmca"
@@ -881,6 +882,13 @@ func newDeps(cfg config.Config, model, engineModel llm.Model, cases store.Cases,
 		ExportCFR177:          cfg.ExportCFR177,
 		ATIGACheck:            cfg.ATIGACheck,
 		Checks:                []httpapi.HealthCheck{httpapi.StoreCheck(cases), httpapi.ModelCheck("model", model, cfg.RouterModel)},
+	}
+	if cfg.TextileRules {
+		tr, err := textilerules.Default()
+		if err != nil {
+			return httpapi.Deps{}, err
+		}
+		d.TextileRules = tr
 	}
 	if cfg.ADCVDCheck {
 		tb, err := adcvd.Load()
