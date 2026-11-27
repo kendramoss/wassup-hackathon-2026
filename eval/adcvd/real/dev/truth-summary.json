@@ -1,0 +1,13 @@
+{
+ "rulings": 2596,
+ "positives": 89,
+ "pairs_screened_out": 25417,
+ "cbp_warned_panel_none": 21,
+ "rulings_none": 2507,
+ "pairs_agree": 1344,
+ "pairs_adjudicated": 129,
+ "cbp_warned_panel_in": 45,
+ "rulings_panel": 86,
+ "panel_in_without_cbp_warning": 44,
+ "rulings_panel+cbp_case": 3
+}

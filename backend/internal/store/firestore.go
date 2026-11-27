@@ -492,6 +492,7 @@ type FirestoreAPIKeys struct {
 type apiKeyDoc struct {
 	ID         string    `firestore:"id"`
 	Owner      string    `firestore:"owner,omitempty"`
+	Workspace  string    `firestore:"workspace,omitempty"`
 	Name       string    `firestore:"name"`
 	Hash       string    `firestore:"sha256"`
 	CreatedAt  time.Time `firestore:"created_at"`
@@ -500,12 +501,12 @@ type apiKeyDoc struct {
 }
 
 func (d apiKeyDoc) key() apikey.Key {
-	return apikey.Key{ID: d.ID, Owner: d.Owner, Name: d.Name, Hash: d.Hash, CreatedAt: d.CreatedAt, DailyQuota: d.DailyQuota, Disabled: d.Disabled}
+	return apikey.Key{ID: d.ID, Owner: d.Owner, Workspace: d.Workspace, Name: d.Name, Hash: d.Hash, CreatedAt: d.CreatedAt, DailyQuota: d.DailyQuota, Disabled: d.Disabled}
 }
 
 // Create implements apikey.Store.
 func (s *FirestoreAPIKeys) Create(ctx context.Context, k apikey.Key) error {
-	d := apiKeyDoc{ID: k.ID, Owner: k.Owner, Name: k.Name, Hash: k.Hash, CreatedAt: k.CreatedAt, DailyQuota: k.DailyQuota, Disabled: k.Disabled}
+	d := apiKeyDoc{ID: k.ID, Owner: k.Owner, Workspace: k.Workspace, Name: k.Name, Hash: k.Hash, CreatedAt: k.CreatedAt, DailyQuota: k.DailyQuota, Disabled: k.Disabled}
 	if _, err := s.keys.Doc(k.ID).Create(ctx, d); err != nil {
 		return fmt.Errorf("store: create api key: %w", err)
 	}
@@ -569,6 +570,57 @@ func (s *FirestoreAPIKeys) ListByOwner(ctx context.Context, owner string) ([]api
 		}
 		out = append(out, d.key())
 	}
+}
+
+// ListByWorkspace implements apikey.Store (single-field equality, no index).
+func (s *FirestoreAPIKeys) ListByWorkspace(ctx context.Context, workspace string) ([]apikey.Key, error) {
+	it := s.keys.Where("workspace", "==", workspace).Documents(ctx)
+	defer it.Stop()
+	var out []apikey.Key
+	for {
+		snap, err := it.Next()
+		if errors.Is(err, iterator.Done) {
+			return out, nil
+		}
+		if err != nil {
+			return nil, fmt.Errorf("store: list api keys by workspace: %w", err)
+		}
+		var d apiKeyDoc
+		if err := snap.DataTo(&d); err != nil {
+			return nil, fmt.Errorf("store: decode api key: %w", err)
+		}
+		out = append(out, d.key())
+	}
+}
+
+// DisableForWorkspace implements apikey.Store, checking the workspace and
+// writing in one transaction.
+func (s *FirestoreAPIKeys) DisableForWorkspace(ctx context.Context, workspace, id string) error {
+	ref := s.keys.Doc(id)
+	err := s.client.RunTransaction(ctx, func(ctx context.Context, tx *firestore.Transaction) error {
+		snap, err := tx.Get(ref)
+		if status.Code(err) == codes.NotFound {
+			return apikey.ErrNotFound
+		}
+		if err != nil {
+			return err
+		}
+		var d apiKeyDoc
+		if err := snap.DataTo(&d); err != nil {
+			return fmt.Errorf("store: decode api key: %w", err)
+		}
+		if d.Workspace == "" || d.Workspace != workspace {
+			return apikey.ErrNotFound
+		}
+		return tx.Update(ref, []firestore.Update{{Path: "disabled", Value: true}})
+	})
+	if errors.Is(err, apikey.ErrNotFound) {
+		return err
+	}
+	if err != nil {
+		return fmt.Errorf("store: disable api key for workspace: %w", err)
+	}
+	return nil
 }
 
 // Disable implements apikey.Store.

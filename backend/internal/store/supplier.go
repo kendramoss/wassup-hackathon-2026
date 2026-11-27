@@ -1,6 +1,10 @@
 package store
 
-import "time"
+import (
+	"time"
+
+	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/blob"
+)
 
 // Supplier origin declarations (SUPPLIER_DECLARATIONS, #916). Like the broker
 // review links (D200) everything lives inside the case document: it is
@@ -64,4 +68,21 @@ type SupplierDocument struct {
 	Bytes    int    `json:"bytes"`
 	Pages    int    `json:"pages,omitempty"`
 	SHA256   string `json:"sha256"`
+}
+
+// SupplierDocKey is the blob key of an attached document.
+func SupplierDocKey(sha string) string { return "supplier-doc-" + sha }
+
+// DerivedBlobs lists the blobs the case's own content points at, whether or
+// not the cache index knows them: the supplier documents (#916).
+func (c Case) DerivedBlobs() []blob.Ref {
+	var out []blob.Ref
+	for _, rq := range c.SupplierRequests {
+		for _, a := range rq.Answers {
+			if a.Document != nil && a.Document.SHA256 != "" {
+				out = append(out, blob.Ref{Store: blob.StoreVerdicts, Key: SupplierDocKey(a.Document.SHA256)})
+			}
+		}
+	}
+	return out
 }

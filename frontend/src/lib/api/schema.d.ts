@@ -1161,6 +1161,46 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/v1/akfta/check": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * AKFTA (ASEAN-Korea) preferential origin check from a bill of materials (deterministic, no model call; off unless AKFTA_CHECK=on)
+         * @description Does a good made in an ASEAN Member State or Korea qualify as AKFTA originating, so it can claim the AKFTA (Form AK) preferential tariff? Served only with `AKFTA_CHECK=on` (default off: 404). Deterministic code over the Appendix 2 product-specific rules (HS 2022; 535 rows read from the decision of the ASEAN-Korea Implementation Committee, SHA-256 in `rule.version`'s source block; `backend/internal/aseanfta`, D949) on the same engine as `/v1/atiga/check`. Implements Annex 3 Rules 2 and 3 (wholly obtained, produced from originating materials), Rule 4 (general rule RVC 40 or change of tariff heading for goods not listed), Rule 5 (the Appendix 2 rule, including wholly obtained in the exporting Party or in any Party, CC, CTH, CTSH, RVC 35 to 70, provisos on materials and per-product variants), Rule 7 (accumulation of originating materials of the Parties), Rule 8 (the fifteen non-qualifying operations) and Rule 10 (de minimis 10 % of FOB value; by weight for chapters 50 to 63), build-up or build-down (give `method` to use only one). Not covered: direct consignment (Rule 9), the industrial-zone treatment of Rule 6, packing materials, accessories, neutral elements and identical and interchangeable materials, and proof-of-origin procedures. Missing facts make the answer `undetermined`, never `no`. Preferential origin only (`regime: akfta_preferential`), separate from marking and non-preferential origin. Nothing is stored. Not a ruling and not a Certificate of Origin. Cheap class (120 a minute); a malformed body is 400 `invalid_input`.
+         */
+        post: operations["checkAkftaPreference"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/acfta/check": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * ACFTA (ASEAN-China) preferential origin check from a bill of materials (deterministic, no model call; off unless ACFTA_CHECK=on)
+         * @description Does a good made in an ASEAN Member State or China qualify as ACFTA originating, so it can claim the ACFTA (Form E) preferential tariff? Served only with `ACFTA_CHECK=on` (default off: 404). Deterministic code over the Attachment B product-specific rules of the 2015 Upgrading Protocol (Annex 1, in force 15 August 2019; HS 2017, 2045 rows read from two official copies that agree; `backend/internal/aseanfta`, D949) on the same engine as `/v1/atiga/check`. Implements Art. 2 (wholly obtained, produced from originating materials, product specific rules), Art. 4(1) (the general rule: RVC 40 with the final process in a Party, or a change of tariff heading for the chapters Art. 4(1)(b) lists and not for the headings it takes back out), Art. 5 (build-down only: a `costs` block is not used and `method` direct is 400), Art. 6 (accumulation), Art. 7 (minimal operations: they only stop a wholly-obtained claim) and Art. 9 (de minimis 10 %; textiles by weight or value), and Process Rules 1 to 3 stated in `processes`. The table is HS 2017: a code from a later edition may not match. Not covered: ACFTA 3.0, direct consignment, accessories, packing materials, neutral elements and proof-of-origin procedures. Missing facts make the answer `undetermined`, never `no`. Preferential origin only (`regime: acfta_preferential`). Nothing is stored. Not a ruling and not a Certificate of Origin. Cheap class (120 a minute); a malformed body is 400 `invalid_input`.
+         */
+        post: operations["checkAcftaPreference"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/v1/adcvd/check": {
         parameters: {
             query?: never;
@@ -1171,8 +1211,8 @@ export interface paths {
         get?: never;
         put?: never;
         /**
-         * Parts that may be subject to a U.S. antidumping or countervailing duty order (display only, no model call; off unless ADCVD_CHECK=on)
-         * @description Screens parts against the active U.S. antidumping (AD) and countervailing duty (CVD) orders, from each part's HTS code and country of origin. Served only with `ADCVD_CHECK=on` (default off: 404). A part is `possible_exposure` when an order's listed HTS number agrees with the part's code at the shorter of the two lengths (a listed ten-digit line needs the same ten digits; a heading or subheading matches every listed line under it) and the order's country is one of the part's countries of origin. The HTS numbers are read from the scope text of the newest Commerce notice that carries it (`backend/internal/adcvd/data/orders.json`, built by `eval/adcvd/build_orders.py` from Federal Register notices; the response gives the snapshot date). HTS numbers in a scope are for convenience and customs purposes; the written scope of the order governs, and only the U.S. Department of Commerce decides whether a product is within it. Display only (D939): it never changes an origin answer or a duty figure. It does not see goods finished in a third country from parts of an ordered country (circumvention), an order whose scope prints no HTS numbers, or an order newer than the snapshot. No model call, nothing stored. Cheap class (120 a minute); a malformed body is 400 `invalid_input`.
+         * Parts that may be subject to a U.S. antidumping or countervailing duty order (display only; off unless ADCVD_CHECK=on; no model call unless ADCVD_SCOPE_READER=on)
+         * @description Screens parts against the active U.S. antidumping (AD) and countervailing duty (CVD) orders, from each part's HTS code and country of origin. Served only with `ADCVD_CHECK=on` (default off: 404). A part is `possible_exposure` when an order's listed HTS number agrees with the part's code at the shorter of the two lengths (a listed ten-digit line needs the same ten digits; a heading or subheading matches every listed line under it) and the order's country is one of the part's countries of origin. The HTS numbers are read from the scope text of the newest Commerce notice that carries it (`backend/internal/adcvd/data/orders.json`, built by `eval/adcvd/build_orders.py` from Federal Register notices; the response gives the snapshot date). HTS numbers in a scope are for convenience and customs purposes; the written scope of the order governs, and only the U.S. Department of Commerce decides whether a product is within it. Display only (D939): it never changes an origin answer or a duty figure. It does not see goods finished in a third country from parts of an ordered country (circumvention), an order whose scope prints no HTS numbers, or an order newer than the snapshot. Nothing stored. With `ADCVD_SCOPE_READER=on` (default off, needs `ADCVD_CHECK=on`; D942, D943) a part's name must share a product term with an order's written scope, and a model then reads that scope against the name and drops the order only when the scope's words clearly point away from the part (one question per listed order, at most 60 a request, cached; a part with no name, an order without scope text, or a question that fails is left as it was); the result's `limits` then say a model read the scopes, and the case view keeps the plain match. Without it: no model call, cheap class (120 a minute); with it the light model class, metered. A malformed body is 400 `invalid_input`.
          */
         post: operations["checkAdcvdExposure"];
         delete?: never;
@@ -1515,7 +1555,7 @@ export interface paths {
          *
          *     The answer carries `secret` once; keep it, it is not shown again (rotate to get a new one). Each delivery is a POST with a JSON body (`id`, `type`, `created_at`, `workspace`, `data`) and these headers: `X-Webhook-Id` (the delivery's id, the same on every retry: deduplicate on it), `X-Webhook-Event` and `X-Webhook-Signature: t=<unix seconds>,v1=<hex>`, where `v1` is the HMAC-SHA256, keyed with the secret, of `<t>.<raw body>`. Verify it over the raw bytes and reject a `t` more than five minutes old. During the day after a rotation the header carries a `v1` for the new and for the previous secret; accept either. A 2xx answer is a delivery. Anything else (or no answer within 10 seconds) is retried after 30 s, 2 min, 10 min, 1 h and 6 h, six attempts in all, then marked failed; the attempts are in the delivery log. Delivery is at least once and not ordered. Events carry ids and statuses only, never case text, comments or letters.
          *
-         *     Events: `ruling_watch.hit` (a ruling watch re-check changed a case's origin because of newer precedents: `case_id`, `previous_origin`, `new_origin`, `newer_rulings`, `triage_route`, `checked_at`), `review.decision` (a broker answered a review link: `case_id`, `review_id`, `decision`, `has_comment`, never the comment, `decided_at`), `filing.status` (an eRulings request moved: `case_id`, `status`, `previous_status`, `reference` when given, `at`), `budget.alert` (the month's spend passed the budget's alert share or the budget: `month`, `level` alert or cap, `spent_usd`, `budget_usd`, `alert_percent`, `hard_cap`; needs USAGE_METERING=on) and `batch.finished` (a batch triage finished: `total`, `failed`, `out_of_scope`, `auto`, `needs_review`, `needs_info`, `cost_usd`, `case_ids`, `finished_at`). Only events of cases and spend of this workspace are sent.
+         *     Events: `ruling_watch.hit` (a ruling watch re-check changed a case's origin because of newer precedents: `case_id`, `previous_origin`, `new_origin`, `newer_rulings`, `triage_route`, `checked_at`), `review.decision` (a broker answered a review link: `case_id`, `review_id`, `decision`, `has_comment`, never the comment, `decided_at`), `filing.status` (an eRulings request moved: `case_id`, `status`, `previous_status`, `reference` when given, `at`), `budget.alert` (the month's spend passed the budget's alert share or the budget: `month`, `level` alert or cap, `spent_usd`, `budget_usd`, `alert_percent`, `hard_cap`; needs USAGE_METERING=on) and `batch.finished` (a batch triage finished: `total`, `failed`, `out_of_scope`, `auto`, `needs_review`, `needs_info`, `cost_usd`, `case_ids`, `finished_at`) and `eval.drift` (a monthly re-score fell below the earlier months; sent to every subscribed endpoint of every workspace, only when EVAL_DRIFT_ALERTS is on: `series` cbp or japan, `month`, `correct`, `cases`, `accuracy`, `baseline_correct`, `baseline_cases`, `baseline_accuracy`, `p_value`, `severity`, `rule`). Other events concern only cases and spend of this workspace.
          */
         post: operations["createWebhook"];
         delete?: never;
@@ -1699,7 +1739,7 @@ export interface paths {
         get: operations["getWorkspaceRetention"];
         /**
          * Set a workspace's case retention policy (TEAMS=on and RETENTION=on; workspace admin)
-         * @description `case_days` is 0 (keep forever) or 7 to 3650. The operator's purge run (`cmd/retention`) then hard-deletes the workspace's cases not updated for that many days, oldest first, writing a tombstone and a `case.delete` audit event (detail `retention`, actor `system`) before each deletion. Pinned demo cases are never purged. Setting the policy deletes nothing by itself. A sensitive write when the audit trail is on: 503 `audit_unavailable` if its intent cannot be recorded.
+         * @description Send `case_days`, `audit_days` or both; a field left out keeps its current value. `audit_days` is 0 (the trail's own window, `retention_days` of `GET /v1/audit`) or 7 up to that window: a workspace can shorten how long its audit events are kept, never lengthen it; 400 when the audit trail is off. The operator's purge run (`cmd/retention`) removes the workspace's audit events older than `audit_days` the same way the trail's own sweep does, leaving a retention checkpoint so the rest still verifies, and appends one system `audit.purge` event (detail `workspace`). `case_days` is 0 (keep forever) or 7 to 3650; the same run then hard-deletes the workspace's cases not updated for that many days, oldest first, writing a tombstone and a `case.delete` audit event (detail `retention`, actor `system`) before each deletion, and with `CACHE_PURGE=on` the cached predictions, verdicts, advice and supplier documents only that case used. Pinned demo cases are never purged. Setting the policy deletes nothing by itself. A sensitive write when the audit trail is on: 503 `audit_unavailable` if its intent cannot be recorded.
          */
         put: operations["setWorkspaceRetention"];
         post?: never;
@@ -2028,9 +2068,93 @@ export interface paths {
         };
         /**
          * The workspace admin's settings overview (ADMIN_CONSOLE=on, workspace admin)
-         * @description Members with roles, pending invitations, which features are on, the SSO connections and their domains, the SCIM token status, the retention policy and this month's usage, each only when its feature is on, and the route that changes each. Read only; never a token, hash, client secret or DNS verification value.
+         * @description Members with roles, pending invitations, which features are on, the SSO connections and their domains, the SCIM token status, the retention policy and this month's usage, each only when its feature is on, and the route that changes each (rename, API keys and audit search included). Read only; never a token, hash, client secret or DNS verification value.
          */
         get: operations["getAdminConsole"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/workspaces/{id}/name": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /**
+         * Rename the workspace (ADMIN_CONSOLE=on, workspace admin)
+         * @description Whitespace is collapsed; 1 to 100 characters. 400 for a bad name or an unknown field; 401 without a valid token; 403 for a member who is not an admin; 404 for a workspace the caller is not in (identical to an unknown one). Audited as `workspace.rename` (sensitive: the intent is stored first); the name itself is not in the trail.
+         */
+        put: operations["renameWorkspace"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/workspaces/{id}/api-keys": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * List the workspace's API keys, newest first, without secrets (ADMIN_CONSOLE=on, API_KEYS=on, workspace admin)
+         * @description Only keys issued for this workspace; admin and personal keys are never included. Revoked keys stay in the list with `disabled` true.
+         */
+        get: operations["listWorkspaceApiKeys"];
+        put?: never;
+        /**
+         * Create an API key for the workspace (ADMIN_CONSOLE=on, API_KEYS=on, workspace admin)
+         * @description The key belongs to the workspace, not to a person: any admin of it can list and revoke it. The daily quota is fixed at 1000 requests per UTC day and a `daily_quota` in the body is refused; a key has the same rate-limit buckets as every API key. At most 20 keys that are not revoked per workspace (409 `conflict`). The secret is returned once, in `key`; only its SHA-256 is stored. The key sees the pinned demos and its own cases only, as any API key does (D69); its denied requests are recorded in the workspace's audit trail. Audited as `apikey.issue`.
+         */
+        post: operations["issueWorkspaceApiKey"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/workspaces/{id}/api-keys/{key}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        /**
+         * Revoke one of the workspace's API keys for good (ADMIN_CONSOLE=on, API_KEYS=on, workspace admin)
+         * @description A key of another workspace, a personal or admin key and an unknown id are the same 404. Requests with the key then get 401. Audited as `apikey.disable`.
+         */
+        delete: operations["revokeWorkspaceApiKey"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/workspaces/{id}/admin/audit": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Search the workspace's audit trail (ADMIN_CONSOLE=on, audit on, workspace admin)
+         * @description The workspace's own trail (`ws:<id>`), a page at a time, newest first by default. The filters are the closed values the trail stores: actor kind (`user`, `apikey`, `admin`, `anonymous`, `system`; an event holds no member role, email or name), action, outcome and a time range. An event carries only enumerated values, pseudonyms and opaque references, so nothing typed by a user (names, emails, facts, key secrets) can be returned. A page may hold fewer than `limit` events and still carry `next_cursor`; a cursor is bound to the order and filters. Any other parameter, including `tenant`, is 400. Reading the first page is itself audited (`audit.read`).
+         */
+        get: operations["searchWorkspaceAudit"];
         put?: never;
         post?: never;
         delete?: never;
@@ -2779,7 +2903,7 @@ export interface components {
             details?: unknown;
         };
         /** @enum {string} */
-        WebhookEventType: "ruling_watch.hit" | "review.decision" | "filing.status" | "budget.alert" | "batch.finished";
+        WebhookEventType: "ruling_watch.hit" | "review.decision" | "filing.status" | "budget.alert" | "batch.finished" | "eval.drift";
         WebhookEndpoint: {
             /** @example wh_0123456789abcdef */
             id: string;
@@ -2889,11 +3013,14 @@ export interface components {
             workspace: string;
             /** @description 0: keep forever */
             case_days: number;
+            /** @description 0: the trail's own window */
+            audit_days: number;
             /** Format: date-time */
             updated_at?: string;
             limits: {
                 min_case_days?: number;
                 max_case_days?: number;
+                min_audit_days?: number;
             };
         };
         Tombstone: {
@@ -2911,7 +3038,7 @@ export interface components {
          * @description `case.read` appears only as a denial; allowed ordinary reads are not audited.
          * @enum {string}
          */
-        AuditAction: "case.create" | "case.update" | "case.export" | "case.delete" | "case.pin" | "case.read" | "workspace.create" | "workspace.invite" | "workspace.join" | "workspace.role_change" | "workspace.member_remove" | "workspace.leave" | "workspace.retention" | "workspace.budget" | "apikey.issue" | "apikey.list" | "apikey.disable" | "admin.watch_run" | "admin.webhook_sweep" | "audit.read" | "audit.verify" | "audit.export" | "auth.denied" | "review.create" | "review.revoke" | "review.view" | "review.decision" | "webhook.create" | "webhook.update" | "webhook.delete" | "webhook.rotate_secret" | "webhook.test" | "webhook.read";
+        AuditAction: "case.create" | "case.update" | "case.export" | "case.delete" | "case.pin" | "case.read" | "workspace.create" | "workspace.invite" | "workspace.join" | "workspace.role_change" | "workspace.member_remove" | "workspace.leave" | "workspace.retention" | "workspace.rename" | "audit.purge" | "workspace.budget" | "apikey.issue" | "apikey.list" | "apikey.disable" | "admin.watch_run" | "admin.webhook_sweep" | "audit.read" | "audit.verify" | "audit.export" | "auth.denied" | "review.create" | "review.revoke" | "review.view" | "review.decision" | "webhook.create" | "webhook.update" | "webhook.delete" | "webhook.rotate_secret" | "webhook.test" | "webhook.read";
         /** @enum {string} */
         AuditPhase: "intent" | "completion" | "single";
         /** @enum {string} */
@@ -3443,6 +3570,138 @@ export interface components {
             checks: components["schemas"]["EvidenceCheck"][];
             markdown: string;
         };
+        AseanFtaRequest: {
+            /**
+             * @description The good's HS code, 4 to 10 digits (HS 2022 for AKFTA, HS 2017 for ACFTA). A heading with rows of its own needs the 6-digit subheading.
+             * @example 1103.11
+             */
+            hs: string;
+            /**
+             * @description Where the good is produced: country name or ISO alpha-2 code. A country outside the agreement is `no`.
+             * @example Vietnam
+             */
+            produced_in: string;
+            /** @description FOB value of the good; needed for RVC and de minimis */
+            fob?: number;
+            /** @description Weight of the good, for the textile de minimis (chapters 50 to 63); same unit as the materials' weight */
+            weight?: number;
+            /**
+             * @description The RVC method to use. Unset: either may decide. ACFTA has only the build-down (indirect) formula; `direct` is 400.
+             * @enum {string}
+             */
+            method?: "direct" | "indirect";
+            /** @description The producer states the good is wholly obtained or produced in a Party */
+            wholly_obtained?: boolean;
+            /** @description What is done to the non-originating materials. If every entry is a minimal operation (AKFTA Rule 8: the fifteen non-qualifying operations; ACFTA Art. 7: preservation, shipment, packaging), a wholly-obtained claim is not relied on (AKFTA: the good does not qualify). Any other word counts as real production. */
+            operations?: string[];
+            /** @description Rule conditions written in words: true if it applies, false if not, left out if not stated (undetermined). AKFTA keys: cut_and_sewn, printing_dyeing, milk_limit, glazed, mco. ACFTA keys: process_rule_1, process_rule_2, process_rule_3, process_rule, animals_raised, fats_wo. A key of the other agreement is 400. */
+            processes?: {
+                cut_and_sewn?: boolean;
+                printing_dyeing?: boolean;
+                milk_limit?: boolean;
+                glazed?: boolean;
+                mco?: boolean;
+                process_rule_1?: boolean;
+                process_rule_2?: boolean;
+                process_rule_3?: boolean;
+                process_rule?: boolean;
+                animals_raised?: boolean;
+                fats_wo?: boolean;
+            };
+            /** @description For rows whose rule depends on the product (A/B, goods or waste), the branch id from `rule.variants`. Unset: decided only if every branch agrees. */
+            variant?: string;
+            /** @description Direct (build-up) method terms; same currency as fob. AKFTA only. */
+            costs?: {
+                labour?: number;
+                overhead?: number;
+                profit?: number;
+                other?: number;
+            };
+            materials?: {
+                name?: string;
+                /** @description The material's HS code, 2 to 10 digits; the rule needs 2, 4 or 6 */
+                hs?: string;
+                /** @description CIF at import, or the earliest price paid */
+                value?: number;
+                /** @description Where the material originates */
+                country?: string;
+                /**
+                 * @description originating: the supplier's declaration or proof of origin says it originates under the agreement
+                 * @default unknown
+                 * @enum {string}
+                 */
+                status: "originating" | "non_originating" | "unknown";
+                /** @description The material was wholly obtained or produced in a Party; some rules ask for it */
+                wholly_obtained?: boolean;
+                /** @description For the textile de minimis (chapters 50 to 63) */
+                weight?: number;
+            }[];
+        };
+        AseanFtaResult: {
+            /** @enum {string} */
+            outcome?: "yes" | "no" | "undetermined";
+            /**
+             * @description The limb of a yes: wholly obtained, produced from originating materials, product-specific rule
+             * @enum {string}
+             */
+            basis?: "WO" | "PE" | "PSR";
+            /**
+             * @description The alternative that decided a yes
+             * @example CC
+             */
+            applied?: string;
+            rule?: {
+                /**
+                 * @description The table row, or the general rule (Rule 4.1, Art. 4(1))
+                 * @example 1103.11
+                 */
+                code?: string;
+                /** @description true: a row of the product-specific table; false: the general rule */
+                listed?: boolean;
+                /** @example CC or RVC40 */
+                concise?: string;
+                full?: string;
+                /** @example akfta-appendix2-psr-hs2022-akic */
+                version?: string;
+                variants?: Record<string, never>[];
+                note?: string;
+            };
+            rvc?: {
+                /** @example 40 */
+                threshold?: number;
+                direct?: number;
+                /** @description (FOB - non-originating materials) / FOB x 100 */
+                indirect?: number;
+                vnm?: number;
+                vom?: number;
+            };
+            de_minimis?: {
+                used?: boolean;
+                /** @description per cent of FOB */
+                value_share?: number;
+                /** @description per cent of the good's weight (textiles) */
+                weight_share?: number;
+            };
+            /** @description Originating materials from another Party were counted */
+            accumulation?: boolean;
+            partial_cumulation?: boolean;
+            failing?: {
+                index?: number;
+                name?: string;
+                hs?: string;
+                reason?: string;
+            }[];
+            alternatives?: {
+                rule?: string;
+                /** @enum {string} */
+                outcome?: "yes" | "no" | "undetermined";
+                reasons?: string[];
+            }[];
+            reasons?: string[];
+            /** @enum {string} */
+            regime?: "akfta_preferential" | "acfta_preferential";
+            note?: string;
+        };
         /** @description Parts that may be subject to a U.S. AD or CVD order. Display only (D939); on a case it is `adcvd_check`, present only with `ADCVD_CHECK=on` and at least one part code. */
         AdcvdCheck: {
             /**
@@ -3574,6 +3833,61 @@ export interface components {
             plant: string;
             group?: string;
         };
+        /** @description The deterministic 19 CFR 102.21 textile check (D951), present only with `TEXTILE_RULES=on` and when the product's HTS code is a textile or apparel product under 102.21(b)(5). Computed when the case is read; display only: it never changes the prediction, the triage route or auto-accept. It applies the (c)(1) to (c)(4) hierarchy and the (e) rules to the product's operations (each operation's plant country) and `product.textile`; where a fact is not given or (c)(4) asks for a judgment it says so and does not guess. */
+        TextileRuleCheck: {
+            /** @enum {string} */
+            rules: "19 CFR 102.21";
+            model_origin?: string;
+            /** @description Present only when the check decided: whether it names the model's origin */
+            agrees?: boolean;
+            /** @description True when the decided check differs from the model: worth a person's look. Does not change the triage route */
+            review: boolean;
+            /** @description Operations the check could not read, so it was not told the whole chain */
+            notes?: string[];
+            note: string;
+            result: {
+                /** @enum {string} */
+                status: "decided" | "undetermined";
+                origin?: string;
+                /** @description The paragraph of 102.21 that decided it: (c)(1), (c)(2), (c)(3)(i), (c)(3)(ii), or single country (every operation in one country) */
+                para?: string;
+                /** @description The (e) row that decided it */
+                row?: string;
+                alt?: string;
+                basis?: string;
+                /** @description Why it did not decide */
+                reason?: string;
+                /** @enum {string} */
+                class?: "no_code" | "code_too_short" | "fact_not_stated" | "operation_not_stated" | "needs_material_codes" | "not_read_by_code" | "judgment" | "ambiguous_row";
+                /** @description The country of the last important operation, what (c)(5) would give if (c)(4) cannot name a country. Shown, never a decision */
+                candidate?: string;
+            };
+        };
+        /** @description Optional facts the 19 CFR 102.21(e) rules turn on and the operations do not say (D951). Each is yes or no; leave out what is not known. Read only by the textile rule check. */
+        TextileFacts: {
+            /**
+             * @description The good's major parts are knitted or crocheted directly to shape
+             * @enum {string}
+             */
+            knit_to_shape?: "yes" | "no";
+            /**
+             * @description The good is made by joining two or more component parts
+             * @enum {string}
+             */
+            two_or_more_components?: "yes" | "no";
+            /**
+             * @description Of cotton or of wool, or a blend of 16 percent or more cotton by weight
+             * @enum {string}
+             */
+            cotton_wool_16?: "yes" | "no";
+            /**
+             * @description The fabric is of wool or fine animal hair
+             * @enum {string}
+             */
+            fabric_of_wool?: "yes" | "no";
+            /** @enum {string} */
+            fibre_form?: "filaments" | "staple";
+        };
         Product: {
             name: string;
             family?: string;
@@ -3586,6 +3900,7 @@ export interface components {
              * @example 8419.89.95
              */
             hts?: string;
+            textile?: components["schemas"]["TextileFacts"];
         };
         /** @description Either `facts` (pasted text, max 12,000 characters) or a structured `product` is required. U.S. cases without facts need a planner family. Japan cases can give the agreement and finished-good tariff code in `japan`. */
         PredictRequest: {
@@ -3844,6 +4159,7 @@ export interface components {
              */
             facts_source?: "parts_list" | "pasted";
             rule_check?: components["schemas"]["RuleCheck"];
+            textile_rule_check?: components["schemas"]["TextileRuleCheck"];
             adcvd_check?: components["schemas"]["AdcvdCheck"];
             origin_facts?: components["schemas"]["OriginFactsByMarket"];
             supplier_declarations?: components["schemas"]["SupplierDeclarations"];
@@ -7681,6 +7997,60 @@ export interface operations {
             429: components["responses"]["TooManyRequests"];
         };
     };
+    checkAkftaPreference: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["AseanFtaRequest"];
+            };
+        };
+        responses: {
+            /** @description The answer, with the rule used and plain-English reasons */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AseanFtaResult"];
+                };
+            };
+            400: components["responses"]["Error"];
+            404: components["responses"]["Error"];
+            429: components["responses"]["TooManyRequests"];
+        };
+    };
+    checkAcftaPreference: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["AseanFtaRequest"];
+            };
+        };
+        responses: {
+            /** @description The answer, with the rule used and plain-English reasons */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AseanFtaResult"];
+                };
+            };
+            400: components["responses"]["Error"];
+            404: components["responses"]["Error"];
+            429: components["responses"]["TooManyRequests"];
+        };
+    };
     checkAdcvdExposure: {
         parameters: {
             query?: never;
@@ -8680,6 +9050,7 @@ export interface operations {
                 phase?: components["schemas"]["AuditPhase"];
                 /** @description An actor pseudonym from an event */
                 actor?: string;
+                actor_kind?: "user" | "apikey" | "admin" | "anonymous" | "system";
                 /** @description An opaque object reference from an event */
                 object?: string;
                 /** @description RFC 3339 */
@@ -8829,7 +9200,9 @@ export interface operations {
             content: {
                 "application/json": {
                     /** @description 0, or 7 to 3650 */
-                    case_days: number;
+                    case_days?: number;
+                    /** @description 0 (the trail's own window), or 7 up to it */
+                    audit_days?: number;
                 };
             };
         };
@@ -9493,6 +9866,7 @@ export interface operations {
                         scim?: Record<string, never>;
                         retention?: {
                             case_days?: number;
+                            audit_days?: number;
                         };
                         usage?: Record<string, never>;
                         routes: {
@@ -9504,6 +9878,190 @@ export interface operations {
             401: components["responses"]["Error"];
             403: components["responses"]["Error"];
             404: components["responses"]["Error"];
+        };
+    };
+    renameWorkspace: {
+        parameters: {
+            query?: never;
+            header: {
+                /** @description The signed-in user's Google ID token, forwarded by the frontend proxy (D68). Optional on every other endpoint. */
+                "X-User-Token": components["parameters"]["UserToken"];
+            };
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": {
+                    name: string;
+                };
+            };
+        };
+        responses: {
+            /** @description The workspace as the caller sees it */
+            200: {
+                headers: {
+                    "X-Audit-Incomplete": components["headers"]["AuditIncomplete"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Workspace"];
+                };
+            };
+            400: components["responses"]["Error"];
+            401: components["responses"]["Error"];
+            403: components["responses"]["Error"];
+            404: components["responses"]["Error"];
+            429: components["responses"]["TooManyRequests"];
+            503: components["responses"]["Error"];
+        };
+    };
+    listWorkspaceApiKeys: {
+        parameters: {
+            query?: never;
+            header: {
+                /** @description The signed-in user's Google ID token, forwarded by the frontend proxy (D68). Optional on every other endpoint. */
+                "X-User-Token": components["parameters"]["UserToken"];
+            };
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description The workspace's keys */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        api_keys: components["schemas"]["APIKey"][];
+                    };
+                };
+            };
+            401: components["responses"]["Error"];
+            403: components["responses"]["Error"];
+            404: components["responses"]["Error"];
+            429: components["responses"]["TooManyRequests"];
+        };
+    };
+    issueWorkspaceApiKey: {
+        parameters: {
+            query?: never;
+            header: {
+                /** @description The signed-in user's Google ID token, forwarded by the frontend proxy (D68). Optional on every other endpoint. */
+                "X-User-Token": components["parameters"]["UserToken"];
+            };
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": {
+                    name: string;
+                };
+            };
+        };
+        responses: {
+            /** @description The new key, shown once, and its record */
+            201: {
+                headers: {
+                    "X-Audit-Incomplete": components["headers"]["AuditIncomplete"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        /** @description Not stored; shown only here. */
+                        key: string;
+                        api_key: components["schemas"]["APIKey"];
+                    };
+                };
+            };
+            400: components["responses"]["Error"];
+            401: components["responses"]["Error"];
+            403: components["responses"]["Error"];
+            404: components["responses"]["Error"];
+            409: components["responses"]["Error"];
+            429: components["responses"]["TooManyRequests"];
+            503: components["responses"]["Error"];
+        };
+    };
+    revokeWorkspaceApiKey: {
+        parameters: {
+            query?: never;
+            header: {
+                /** @description The signed-in user's Google ID token, forwarded by the frontend proxy (D68). Optional on every other endpoint. */
+                "X-User-Token": components["parameters"]["UserToken"];
+            };
+            path: {
+                id: string;
+                key: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Revoked */
+            204: {
+                headers: {
+                    "X-Audit-Incomplete": components["headers"]["AuditIncomplete"];
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            401: components["responses"]["Error"];
+            403: components["responses"]["Error"];
+            404: components["responses"]["Error"];
+            429: components["responses"]["TooManyRequests"];
+            503: components["responses"]["Error"];
+        };
+    };
+    searchWorkspaceAudit: {
+        parameters: {
+            query?: {
+                limit?: number;
+                /** @description Opaque; at most 512 bytes */
+                cursor?: string;
+                order?: "desc" | "asc";
+                action?: components["schemas"]["AuditAction"];
+                outcome?: components["schemas"]["AuditOutcome"];
+                actor_kind?: "user" | "apikey" | "admin" | "anonymous" | "system";
+                /** @description RFC 3339 */
+                from?: string;
+                /** @description RFC 3339 */
+                to?: string;
+            };
+            header: {
+                /** @description The signed-in user's Google ID token, forwarded by the frontend proxy (D68). Optional on every other endpoint. */
+                "X-User-Token": components["parameters"]["UserToken"];
+            };
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description One page of events */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AuditPage"];
+                };
+            };
+            400: components["responses"]["Error"];
+            401: components["responses"]["Error"];
+            403: components["responses"]["Error"];
+            404: components["responses"]["Error"];
+            429: components["responses"]["TooManyRequests"];
         };
     };
     getSCIMToken: {

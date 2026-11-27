@@ -1,0 +1,390 @@
+{
+ "note": "D956 post-hoc, read after the registered result; not the registered figure. For each decided ruling the check disagreed with the label on, CBP's holding sentence was read in the raw text.",
+ "registered": {
+  "agree": 79,
+  "decided": 122,
+  "wilson": [
+   55.9,
+   72.7
+  ]
+ },
+ "label_errors": 34,
+ "corrected_strict": {
+  "agree": 113,
+  "decided": 122,
+  "wilson": [
+   86.6,
+   96.1
+  ]
+ },
+ "corrected_lenient": {
+  "agree": 115,
+  "decided": 122,
+  "wilson": [
+   88.6,
+   97.2
+  ]
+ },
+ "older_corrected_strict": {
+  "agree": 65,
+  "decided": 69,
+  "wilson": [
+   86.0,
+   97.7
+  ]
+ },
+ "disagreements": [
+  {
+   "set": "older",
+   "ruling": "N302194",
+   "label_gold": "Pakistan",
+   "rule": "India",
+   "class": "scenario-dependent holding",
+   "cbp_holding_sentence": "The country of origin of the pillowcases, sheets, drapes, pillow shams, comforter shells, pillow shells is conferred in India when the fabric is woven in India and in Pakistan when the fabric is woven in Pakistan by application of 19 CFR 102.21(c)(2).  The country of origin of the comforters and qui"
+  },
+  {
+   "set": "older",
+   "ruling": "N303311",
+   "label_gold": "China",
+   "rule": "Hong Kong",
+   "class": "label error: CBP held Hong Kong",
+   "cbp_holding_sentence": "The country of origin of the hat submitted as style LU9AEHS is Hong Kong."
+  },
+  {
+   "set": "older",
+   "ruling": "N302862",
+   "label_gold": "Mexico",
+   "rule": "Japan",
+   "class": "real disagreement",
+   "cbp_holding_sentence": "The country of origin is Mexico."
+  },
+  {
+   "set": "older",
+   "ruling": "N305635",
+   "label_gold": "China",
+   "rule": "Hong Kong",
+   "class": "label error: CBP held Hong Kong",
+   "cbp_holding_sentence": "The country of origin of the women\u2019s knit sweaters, styles 100079519 and 100079522 is Hong Kong and therefore should be properly marked \u201cMade in Hong Kong\u201d."
+  },
+  {
+   "set": "older",
+   "ruling": "N306160",
+   "label_gold": "China",
+   "rule": "Hong Kong",
+   "class": "label error: CBP held Hong Kong",
+   "cbp_holding_sentence": "The country of origin of the women\u2019s knit to shape sweater, style 100085097 is Hong Kong and therefore should be properly marked \u201cMade in Hong Kong\u201d."
+  },
+  {
+   "set": "older",
+   "ruling": "N306430",
+   "label_gold": "China",
+   "rule": "Hong Kong",
+   "class": "label error: CBP held Hong Kong",
+   "cbp_holding_sentence": "The country of origin of the women\u2019s knit to shape cardigan, style 10008658 oatmeal color is Hong Kong and therefore should be properly marked \u201cMade in Hong Kong\u201d."
+  },
+  {
+   "set": "older",
+   "ruling": "N307147",
+   "label_gold": "China",
+   "rule": "Hong Kong",
+   "class": "label error: CBP held Hong Kong",
+   "cbp_holding_sentence": "The country of origin of the women\u2019s knit to shape pullover, style 947126 is Hong Kong and therefore should be properly marked \u201cMade in Hong Kong\u201d."
+  },
+  {
+   "set": "older",
+   "ruling": "N307196",
+   "label_gold": "China",
+   "rule": "Hong Kong",
+   "class": "label error: CBP held Hong Kong",
+   "cbp_holding_sentence": "HOLDING: Based on the information provided, the country of origin of Style I0188711 is Hong Kong."
+  },
+  {
+   "set": "older",
+   "ruling": "N307199",
+   "label_gold": "China",
+   "rule": "Hong Kong",
+   "class": "label error: CBP held Hong Kong",
+   "cbp_holding_sentence": "HOLDING: Based on the information provided, the country of origin of Style K0184715 is Hong Kong."
+  },
+  {
+   "set": "older",
+   "ruling": "N307201",
+   "label_gold": "China",
+   "rule": "Hong Kong",
+   "class": "label error: CBP held Hong Kong",
+   "cbp_holding_sentence": "HOLDING: Based on the information provided, the country of origin of Style K0184704 is Hong Kong."
+  },
+  {
+   "set": "older",
+   "ruling": "N307203",
+   "label_gold": "China",
+   "rule": "Hong Kong",
+   "class": "label error: CBP held Hong Kong",
+   "cbp_holding_sentence": "HOLDING: Based on the information provided, the country of origin of Style K0284703 is Hong Kong."
+  },
+  {
+   "set": "older",
+   "ruling": "N307204",
+   "label_gold": "China",
+   "rule": "Hong Kong",
+   "class": "label error: CBP held Hong Kong",
+   "cbp_holding_sentence": "HOLDING: Based on the information provided, the country of origin of Style K0284704 is Hong Kong."
+  },
+  {
+   "set": "older",
+   "ruling": "N307366",
+   "label_gold": "China",
+   "rule": "Hong Kong",
+   "class": "label error: CBP held Hong Kong",
+   "cbp_holding_sentence": "HOLDING: Based on the information provided, the country of origin of Style K0286705 is Hong Kong."
+  },
+  {
+   "set": "older",
+   "ruling": "N307979",
+   "label_gold": "China",
+   "rule": "Hong Kong",
+   "class": "label error: CBP held Hong Kong",
+   "cbp_holding_sentence": "HOLDING: Based on the information provided, the country of origin of Style K0284707 is Hong Kong."
+  },
+  {
+   "set": "older",
+   "ruling": "N307970",
+   "label_gold": "China",
+   "rule": "Hong Kong",
+   "class": "label error: CBP held Hong Kong",
+   "cbp_holding_sentence": "HOLDING: Based on the information provided, the country of origin of Style J1081733 is Hong Kong."
+  },
+  {
+   "set": "older",
+   "ruling": "N307973",
+   "label_gold": "China",
+   "rule": "Hong Kong",
+   "class": "label error: CBP held Hong Kong",
+   "cbp_holding_sentence": "HOLDING: Based on the information provided, the country of origin of Style I0188710 is Hong Kong."
+  },
+  {
+   "set": "older",
+   "ruling": "N307974",
+   "label_gold": "China",
+   "rule": "Hong Kong",
+   "class": "label error: CBP held Hong Kong",
+   "cbp_holding_sentence": "HOLDING: Based on the information provided, the country of origin of Style K0184701 is Hong Kong."
+  },
+  {
+   "set": "older",
+   "ruling": "N307971",
+   "label_gold": "China",
+   "rule": "Hong Kong",
+   "class": "label error: CBP held Hong Kong",
+   "cbp_holding_sentence": "HOLDING: Based on the information provided, the country of origin of Style K0184708 is Hong Kong."
+  },
+  {
+   "set": "older",
+   "ruling": "N308457",
+   "label_gold": "Cambodia",
+   "rule": "China",
+   "class": "real disagreement",
+   "cbp_holding_sentence": "HOLDING: The country of origin of item 19112004 is Cambodia."
+  },
+  {
+   "set": "older",
+   "ruling": "N308717",
+   "label_gold": "China",
+   "rule": "Hong Kong",
+   "class": "label error: CBP held Hong Kong",
+   "cbp_holding_sentence": "The country of origin of the women\u2019s knit to shape pullover, style 100105101 is Hong Kong and therefore should be properly marked \u201cMade in \u201cHong Kong\u201d."
+  },
+  {
+   "set": "older",
+   "ruling": "N309262",
+   "label_gold": "China",
+   "rule": "Hong Kong",
+   "class": "label error: CBP held Hong Kong",
+   "cbp_holding_sentence": "HOLDING: Based on the information provided, the country of origin of Style K0684702 is Hong Kong."
+  },
+  {
+   "set": "older",
+   "ruling": "N309396",
+   "label_gold": "China",
+   "rule": "Hong Kong",
+   "class": "label error: CBP held Hong Kong",
+   "cbp_holding_sentence": "HOLDING: Based on the information provided, the country of origin of Style K024710R is Hong Kong."
+  },
+  {
+   "set": "older",
+   "ruling": "N309399",
+   "label_gold": "China",
+   "rule": "Hong Kong",
+   "class": "label error: CBP held Hong Kong",
+   "cbp_holding_sentence": "HOLDING: Based on the information provided, the country of origin of Style J044703R is Hong Kong."
+  },
+  {
+   "set": "older",
+   "ruling": "N309464",
+   "label_gold": "China",
+   "rule": "Hong Kong",
+   "class": "label error: CBP held Hong Kong",
+   "cbp_holding_sentence": "HOLDING: Based on the information provided, the country of origin of Style K054712R is Hong Kong."
+  },
+  {
+   "set": "older",
+   "ruling": "N309466",
+   "label_gold": "China",
+   "rule": "Hong Kong",
+   "class": "label error: CBP held Hong Kong",
+   "cbp_holding_sentence": "HOLDING: Based on the information provided, the country of origin of Style K0483701 is Hong Kong."
+  },
+  {
+   "set": "older",
+   "ruling": "N309575",
+   "label_gold": "China",
+   "rule": "Hong Kong",
+   "class": "label error: CBP held Hong Kong",
+   "cbp_holding_sentence": "The country of origin of the women\u2019s knit to shape pullover, style J048701R is Hong Kong and therefore should be properly marked \u201cMade in Hong Kong\u201d."
+  },
+  {
+   "set": "older",
+   "ruling": "N309815",
+   "label_gold": "China",
+   "rule": "Hong Kong",
+   "class": "label error: CBP held Hong Kong",
+   "cbp_holding_sentence": "HOLDING: Based on the information provided, the country of origin of Style K0483704 is Hong Kong."
+  },
+  {
+   "set": "older",
+   "ruling": "N310005",
+   "label_gold": "China",
+   "rule": "Hong Kong",
+   "class": "label error: CBP held Hong Kong",
+   "cbp_holding_sentence": "HOLDING: Based on the information provided, the country of origin of Style K0483702 is Hong Kong."
+  },
+  {
+   "set": "older",
+   "ruling": "N310299",
+   "label_gold": "China",
+   "rule": "Hong Kong",
+   "class": "label error: CBP held Hong Kong",
+   "cbp_holding_sentence": "HOLDING: Based on the information provided, the country of origin of Style J1081733 is Hong Kong."
+  },
+  {
+   "set": "older",
+   "ruling": "N309817",
+   "label_gold": "China",
+   "rule": "Hong Kong",
+   "class": "label error: CBP held Hong Kong",
+   "cbp_holding_sentence": "HOLDING: Based on the information provided, the country of origin of Style K026711R is Hong Kong."
+  },
+  {
+   "set": "older",
+   "ruling": "N310075",
+   "label_gold": "China",
+   "rule": "Hong Kong",
+   "class": "label error: CBP held Hong Kong",
+   "cbp_holding_sentence": "HOLDING: Based on the information provided, the country of origin of Style K0484705 is Hong Kong."
+  },
+  {
+   "set": "older",
+   "ruling": "N310189",
+   "label_gold": "China",
+   "rule": "Hong Kong",
+   "class": "label error: CBP held Hong Kong",
+   "cbp_holding_sentence": "HOLDING: Based on the information provided, the country of origin of Style K065701R is Hong Kong."
+  },
+  {
+   "set": "older",
+   "ruling": "N310201",
+   "label_gold": "China",
+   "rule": "Hong Kong",
+   "class": "label error: CBP held Hong Kong",
+   "cbp_holding_sentence": "HOLDING: Based on the information provided, the country of origin of Style K0584701 is Hong Kong."
+  },
+  {
+   "set": "older",
+   "ruling": "N310222",
+   "label_gold": "China",
+   "rule": "Hong Kong",
+   "class": "label error: CBP held Hong Kong",
+   "cbp_holding_sentence": "The country of origin of the women\u2019s knit to shape pullover, style 100109726 is Hong Kong and therefore should be properly marked \u201cMade in \u201cHong Kong\u201d."
+  },
+  {
+   "set": "older",
+   "ruling": "N310150",
+   "label_gold": "China",
+   "rule": "Hong Kong",
+   "class": "label error: CBP held Hong Kong",
+   "cbp_holding_sentence": "HOLDING: Based on the information provided, the country of origin of Style J0483707 is Hong Kong."
+  },
+  {
+   "set": "older",
+   "ruling": "N311426",
+   "label_gold": "China",
+   "rule": "Hong Kong",
+   "class": "label error: CBP held Hong Kong",
+   "cbp_holding_sentence": "The country of origin of the women\u2019s knit to shape pullover, style 201SXA is Hong Kong and therefore should be properly marked \u201cMade in Hong Kong."
+  },
+  {
+   "set": "older",
+   "ruling": "N310581",
+   "label_gold": "China",
+   "rule": "Hong Kong",
+   "class": "label error: CBP held Hong Kong",
+   "cbp_holding_sentence": "HOLDING: Based on the information provided, the country of origin of Style K028704R is Hong Kong."
+  },
+  {
+   "set": "older",
+   "ruling": "N314824",
+   "label_gold": "South Korea",
+   "rule": "China",
+   "class": "real disagreement",
+   "cbp_holding_sentence": "The country of origin is South Korea."
+  },
+  {
+   "set": "pool",
+   "ruling": "N337009",
+   "label_gold": "China",
+   "rule": "India",
+   "class": "real disagreement",
+   "cbp_holding_sentence": ") HOLDING: The country of origin of the pillow sham is China."
+  },
+  {
+   "set": "pool",
+   "ruling": "N342368",
+   "label_gold": "China",
+   "rule": "Vietnam",
+   "class": "real disagreement",
+   "cbp_holding_sentence": "9891, HTSUS, and the country of origin is China under both proposed manufacturing scenarios."
+  },
+  {
+   "set": "pool",
+   "ruling": "N345228",
+   "label_gold": "Cambodia",
+   "rule": "China",
+   "class": "real disagreement",
+   "cbp_holding_sentence": "The country of origin is Cambodia."
+  },
+  {
+   "set": "pool",
+   "ruling": "N348436",
+   "label_gold": "India | Pakistan | Turkey | Egypt",
+   "rule": "India",
+   "class": "scenario-dependent holding",
+   "cbp_holding_sentence": "HOLDING Based upon the foregoing analysis, the country of origin for the Blue Ridge SOFTY Around Feather and Down Pillows with style numbers 216632 and 216633, and the Blue Ridge Softy Around White Goose Feather and Down Pillows with style numbers BR210031 and BR210032 is India, Pakistan, Turkey or "
+  },
+  {
+   "set": "pool",
+   "ruling": "N349094",
+   "label_gold": "China",
+   "rule": "Haiti",
+   "class": "real disagreement",
+   "cbp_holding_sentence": "The country of origin of the \u201cMotif Medical \u2013 Pregnancy Band\u201d will be China."
+  }
+ ],
+ "pool_corrected_strict": {
+  "agree": 48,
+  "decided": 53,
+  "wilson": [
+   79.7,
+   95.9
+  ]
+ }
+}

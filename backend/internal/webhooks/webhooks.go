@@ -26,12 +26,15 @@ const (
 	EventFilingStatus   = "filing.status"
 	EventBudgetAlert    = "budget.alert"
 	EventBatchFinished  = "batch.finished"
+	// EventEvalDrift is sent to every workspace when a monthly re-score shows
+	// accuracy below the earlier months (#921, D948). It belongs to no workspace.
+	EventEvalDrift = "eval.drift"
 	// EventTest is sent by the test-ping route only; it is not subscribable.
 	EventTest = "webhook.test"
 )
 
 // Events lists the subscribable event types.
-var Events = []string{EventRulingWatchHit, EventReviewDecision, EventFilingStatus, EventBudgetAlert, EventBatchFinished}
+var Events = []string{EventRulingWatchHit, EventReviewDecision, EventFilingStatus, EventBudgetAlert, EventBatchFinished, EventEvalDrift}
 
 // Limits.
 const (

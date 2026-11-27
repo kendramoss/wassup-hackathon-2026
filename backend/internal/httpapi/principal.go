@@ -68,6 +68,9 @@ type principal struct {
 	// HasKey reports an authenticated API key (KeyID is its ID).
 	HasKey bool
 	KeyID  string
+	// KeyWorkspace is the workspace a workspace API key was issued for (#870);
+	// its audit events go to that workspace's trail.
+	KeyWorkspace string
 	// Email, UserOwner and Workspace are set for a verified signed-in user.
 	Email     string
 	UserOwner string
@@ -97,7 +100,7 @@ func visitorOwnerHash(id string) string {
 func (a *api) principalOf(r *http.Request) principal {
 	p := principal{Admin: a.isAdmin(r), Owner: ownerOf(r)}
 	if k, ok := keyFrom(r.Context()); ok {
-		p.HasKey, p.KeyID = true, k.ID
+		p.HasKey, p.KeyID, p.KeyWorkspace = true, k.ID, k.Workspace
 	}
 	if id := identityOf(r.Context()); id.email != "" {
 		p.Email, p.UserOwner, p.Workspace, p.Role = id.email, id.owner, id.workspace, id.role

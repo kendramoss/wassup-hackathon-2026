@@ -1,0 +1,52 @@
+{
+ "about": "Worked examples in a Japan External Trade Organization guide to the ASEAN-China FTA, built from Singapore Customs material, encoded as inputs to the ACFTA check with the result the source states. Written before the check was run on them (D949). No published ACFTA origin rulings with a product, materials and a result were found (D949).",
+ "sources": {
+  "jetro": {"title": "JETRO, ASEAN-China Free Trade Agreement (ACFTA) guide, August 2020 revision (slides 17 to 20, worked examples)", "url": "https://www.jetro.go.jp/ext_images/theme/wto-fta/asean_fta/pdf/acfta_202008rev.pdf", "sha256": "787fd882268193d0c992e46aaa4be4f4b76cc8e70aafd8fcc06a42fb5300d67c", "retrieved": "2026-11-27"}
+ },
+ "notes": [
+  "The wristwatch is HS 9102 and the car has no code in the guide; 9102.11 and 8703.23 are chosen here. The guide does not say whether the zipper, buttons and pouch of the handbag are originating; all three are given as unknown status, so they count as non-originating.",
+  "In the accumulation example the guide prints 38 % from 800 / 2,100; 800 / 2,250 is 35.6 %. The guide's own total is 2,250 (600 + 600 + 700 + 200 + 150). The case with the Philippine part not counted expects only the stated result, RVC 40 not met."
+ ],
+ "cases": [
+  {"id": "ac-mould-rvc", "source": "jetro", "where": "slide 17, mould (HS 8480.41) made in Thailand, exported to China", "states": "RVC 90.3 % ((50,000 - 4,850) / 50,000) is above 40 %: originating",
+   "input": {"hs": "8480.41", "produced_in": "Thailand", "fob": 50000,
+     "materials": [
+      {"name": "Carbon steel for through-bush", "hs": "7215.50", "value": 450, "country": "Japan", "status": "non_originating"},
+      {"name": "Carbon steel for fixed-side plate", "hs": "7208.51", "value": 1000, "country": "Japan", "status": "non_originating"},
+      {"name": "Carbon steel for core", "hs": "7208.51", "value": 1200, "country": "Japan", "status": "non_originating"},
+      {"name": "Carbon steel for fixed-side mounting plate", "hs": "7208.51", "value": 1200, "country": "Japan", "status": "non_originating"},
+      {"name": "Carbon steel for spacer block", "hs": "7208.51", "value": 1000, "country": "Japan", "status": "non_originating"}]},
+   "expect": {"outcome": "yes", "alternative": {"RVC40": "yes"}, "rvc_indirect_min": 90.2, "rvc_indirect_max": 90.4}},
+  {"id": "ac-watch-cth", "source": "jetro", "where": "slide 18, wristwatch (HS 9102) assembled in China", "states": "Not in Attachment B; chapter 91 takes the general rule CTC at four digits; movement (9108), glass (7015) and band (9113) are non-originating but change heading: originating",
+   "input": {"hs": "9102.11", "produced_in": "China",
+     "materials": [
+      {"name": "Watch movement", "hs": "9108.11", "status": "non_originating"},
+      {"name": "Watch glass", "hs": "7015.10", "status": "non_originating"},
+      {"name": "Band", "hs": "9113.90", "status": "non_originating"}]},
+   "expect": {"outcome": "yes", "applied": "CTH"}},
+  {"id": "ac-accumulation-with", "source": "jetro", "where": "slide 19, car made in Thailand, FOB 2,250, Philippine part C counted by accumulation", "states": "(800 + 150) / 2,250 = 42.2 %, RVC 40 met: Thai originating good",
+   "input": {"hs": "8703.23", "produced_in": "Thailand", "fob": 2250, "method": "direct", "costs": {"other": 200},
+     "materials": [
+      {"name": "Part D", "value": 600, "country": "Thailand", "status": "originating"},
+      {"name": "Part A", "value": 600, "country": "Korea", "status": "non_originating"},
+      {"name": "Part A", "value": 700, "country": "Japan", "status": "non_originating"},
+      {"name": "Part C", "value": 150, "country": "Philippines", "status": "originating"}]},
+   "expect": {"outcome": "yes", "alternative": {"RVC40": "yes"}, "accumulation": true, "rvc_direct_min": 42.1, "rvc_direct_max": 42.3}},
+  {"id": "ac-accumulation-without", "source": "jetro", "where": "slide 19, the same car with the Philippine part not counted", "states": "Thai content alone is below 40 %: RVC 40 not met",
+   "input": {"hs": "8703.23", "produced_in": "Thailand", "fob": 2250, "method": "direct", "costs": {"other": 200},
+     "materials": [
+      {"name": "Part D", "value": 600, "country": "Thailand", "status": "originating"},
+      {"name": "Part A", "value": 600, "country": "Korea", "status": "non_originating"},
+      {"name": "Part A", "value": 700, "country": "Japan", "status": "non_originating"},
+      {"name": "Part C", "value": 150, "country": "Philippines", "status": "non_originating"}]},
+   "expect": {"outcome": "no"}},
+  {"id": "ac-handbag-de-minimis", "source": "jetro", "where": "slide 20, leather handbag (HS 4202.21) made in China, FOB 100", "states": "RVC fails (Australian leather is 80 %); the Myanmar pouch (4202, $5) does not change heading but is 5 % of FOB, within de minimis: CTH met, originating",
+   "input": {"hs": "4202.21", "produced_in": "China", "fob": 100,
+     "materials": [
+      {"name": "Leather", "hs": "4113.90", "value": 80, "country": "Australia"},
+      {"name": "Zipper", "hs": "9607.11", "value": 10, "country": "China"},
+      {"name": "Pouch", "hs": "4202.92", "value": 5, "country": "Myanmar"},
+      {"name": "Buttons", "hs": "9606.21", "value": 5, "country": "China"}]},
+   "expect": {"outcome": "yes", "applied": "CTH", "de_minimis_used": true, "value_share_min": 4.9, "value_share_max": 5.1}}
+ ]
+}

@@ -60,6 +60,10 @@ type Key struct {
 	// is internal: it scopes list and revoke, and is never sent to a client.
 	// Empty means an admin or legacy key (D69).
 	Owner string `json:"-"`
+	// Workspace is the workspace whose admin issued the key (#870). It scopes
+	// list and revoke to that workspace and is never sent to a client; a key
+	// has an Owner or a Workspace, not both. Empty: not a workspace key.
+	Workspace string `json:"-"`
 }
 
 // Store keeps the keys and their per-day request counts.
@@ -71,6 +75,10 @@ type Store interface {
 	// ListByOwner returns only the keys issued by owner; legacy keys with
 	// no owner are admin-only (#788).
 	ListByOwner(ctx context.Context, owner string) ([]Key, error)
+	// ListByWorkspace returns only the keys issued for workspace (#870).
+	ListByWorkspace(ctx context.Context, workspace string) ([]Key, error)
+	// DisableForWorkspace returns ErrNotFound unless id belongs to workspace.
+	DisableForWorkspace(ctx context.Context, workspace, id string) error
 	// Disable returns ErrNotFound when there is no key with id.
 	Disable(ctx context.Context, id string) error
 	// DisableForOwner returns ErrNotFound unless id belongs to owner.
@@ -108,6 +116,19 @@ func (k *Keys) Issue(ctx context.Context, name string, dailyQuota int) (string, 
 // admin/CLI path unchanged; a non-empty owner is the verified user who may
 // later list and revoke this key.
 func (k *Keys) IssueFor(ctx context.Context, owner, name string, dailyQuota int) (string, Key, error) {
+	return k.issue(ctx, owner, "", name, dailyQuota)
+}
+
+// IssueForWorkspace is Issue for a workspace's admin (#870): the key belongs
+// to the workspace, not to a person, so any admin of it may list and revoke it.
+func (k *Keys) IssueForWorkspace(ctx context.Context, workspace, name string, dailyQuota int) (string, Key, error) {
+	if workspace == "" {
+		return "", Key{}, ErrBadRequest
+	}
+	return k.issue(ctx, "", workspace, name, dailyQuota)
+}
+
+func (k *Keys) issue(ctx context.Context, owner, workspace, name string, dailyQuota int) (string, Key, error) {
 	name = strings.Join(strings.Fields(name), " ")
 	if err := ValidateIssue(name, dailyQuota); err != nil {
 		return "", Key{}, err
@@ -118,7 +139,7 @@ func (k *Keys) IssueFor(ctx context.Context, owner, name string, dailyQuota int)
 	}
 	secret := Prefix + base64.RawURLEncoding.EncodeToString(b)
 	h := hashOf(secret)
-	key := Key{ID: h[:16], Owner: owner, Name: name, Hash: h, CreatedAt: k.now().UTC(), DailyQuota: dailyQuota}
+	key := Key{ID: h[:16], Owner: owner, Workspace: workspace, Name: name, Hash: h, CreatedAt: k.now().UTC(), DailyQuota: dailyQuota}
 	if err := k.store.Create(ctx, key); err != nil {
 		return "", Key{}, err
 	}
@@ -167,6 +188,50 @@ func (k *Keys) ListForOwner(ctx context.Context, owner string) ([]Key, error) {
 	}
 	sort.SliceStable(ks, func(i, j int) bool { return ks[i].CreatedAt.After(ks[j].CreatedAt) })
 	return ks, nil
+}
+
+// ListForWorkspace returns workspace's keys, newest first. An empty workspace
+// is refused so a caller cannot read the admin's legacy keys.
+func (k *Keys) ListForWorkspace(ctx context.Context, workspace string) ([]Key, error) {
+	if workspace == "" {
+		return nil, ErrBadRequest
+	}
+	ks, err := k.store.ListByWorkspace(ctx, workspace)
+	if err != nil {
+		return nil, err
+	}
+	sort.SliceStable(ks, func(i, j int) bool { return ks[i].CreatedAt.After(ks[j].CreatedAt) })
+	return ks, nil
+}
+
+// ExistsForWorkspace returns ErrNotFound unless id is a key issued for workspace.
+func (k *Keys) ExistsForWorkspace(ctx context.Context, workspace, id string) error {
+	if workspace == "" {
+		return ErrBadRequest
+	}
+	if !ValidID(id) {
+		return ErrNotFound
+	}
+	key, err := k.store.Get(ctx, id)
+	if err != nil {
+		return err
+	}
+	if key.Workspace == "" || key.Workspace != workspace {
+		return ErrNotFound
+	}
+	return nil
+}
+
+// DisableForWorkspace turns workspace's key off for good. Another
+// workspace's key, an admin key or a stale id is a 404.
+func (k *Keys) DisableForWorkspace(ctx context.Context, workspace, id string) error {
+	if workspace == "" {
+		return ErrBadRequest
+	}
+	if !ValidID(id) {
+		return ErrNotFound
+	}
+	return k.store.DisableForWorkspace(ctx, workspace, id)
 }
 
 // ExistsForOwner returns ErrNotFound unless id is a key issued by owner.
@@ -299,6 +364,32 @@ func (m *Memory) ListByOwner(_ context.Context, owner string) ([]Key, error) {
 		}
 	}
 	return out, nil
+}
+
+// ListByWorkspace implements Store.
+func (m *Memory) ListByWorkspace(_ context.Context, workspace string) ([]Key, error) {
+	m.mu.Lock()
+	defer m.mu.Unlock()
+	out := make([]Key, 0)
+	for _, k := range m.keys {
+		if k.Workspace != "" && k.Workspace == workspace {
+			out = append(out, k)
+		}
+	}
+	return out, nil
+}
+
+// DisableForWorkspace implements Store.
+func (m *Memory) DisableForWorkspace(_ context.Context, workspace, id string) error {
+	m.mu.Lock()
+	defer m.mu.Unlock()
+	k, ok := m.keys[id]
+	if !ok || k.Workspace == "" || k.Workspace != workspace {
+		return ErrNotFound
+	}
+	k.Disabled = true
+	m.keys[id] = k
+	return nil
 }
 
 // Disable implements Store.

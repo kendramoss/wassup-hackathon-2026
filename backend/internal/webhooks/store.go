@@ -21,6 +21,9 @@ type Store interface {
 	GetEndpoint(ctx context.Context, id string) (Endpoint, error)
 	// ListEndpoints returns a workspace's endpoints, oldest first.
 	ListEndpoints(ctx context.Context, workspace string) ([]Endpoint, error)
+	// ListSubscribed returns the enabled endpoints of every workspace that
+	// subscribed to event typ, oldest first.
+	ListSubscribed(ctx context.Context, typ string) ([]Endpoint, error)
 	// DeleteEndpoint removes the endpoint and its deliveries.
 	DeleteEndpoint(ctx context.Context, id string) error
 	// CreateDelivery stores a new delivery and drops the endpoint's oldest
@@ -122,6 +125,25 @@ func (m *Memory) GetEndpoint(_ context.Context, id string) (Endpoint, error) {
 		return Endpoint{}, ErrNotFound
 	}
 	return cloneEndpoint(e), nil
+}
+
+// ListSubscribed implements Store.
+func (m *Memory) ListSubscribed(_ context.Context, typ string) ([]Endpoint, error) {
+	m.mu.Lock()
+	defer m.mu.Unlock()
+	var out []Endpoint
+	for _, e := range m.st.Endpoints {
+		if e.Subscribed(typ) {
+			out = append(out, cloneEndpoint(e))
+		}
+	}
+	slices.SortFunc(out, func(a, b Endpoint) int {
+		if c := a.CreatedAt.Compare(b.CreatedAt); c != 0 {
+			return c
+		}
+		return cmpString(a.ID, b.ID)
+	})
+	return out, nil
 }
 
 // ListEndpoints implements Store.

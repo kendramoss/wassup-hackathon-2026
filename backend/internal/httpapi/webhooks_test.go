@@ -123,7 +123,7 @@ func TestWebhookEndpointLifecycleAndSecrets(t *testing.T) {
 	// The secret is shown once: not in a listing, not on an update.
 	list := e.call("GET", e.whBase(), "", user("carol"), http.StatusOK)
 	raw, _ := json.Marshal(list)
-	if strings.Contains(string(raw), secret) || strings.Contains(string(raw), `"secret":`) || len(list["endpoints"].([]any)) != 1 || len(list["available_events"].([]any)) != 5 {
+	if strings.Contains(string(raw), secret) || strings.Contains(string(raw), `"secret":`) || len(list["endpoints"].([]any)) != 1 || len(list["available_events"].([]any)) != 6 {
 		t.Fatalf("listing = %s", raw)
 	}
 	up := e.call("PATCH", e.whBase()+"/"+id, `{"events":["filing.status"],"description":"","enabled":false}`, user("carol"), http.StatusOK)["endpoint"].(map[string]any)
