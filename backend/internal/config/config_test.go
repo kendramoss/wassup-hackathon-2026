@@ -836,12 +836,15 @@ func TestRecordsFlagsDefaultOff(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if c.AuditExport || c.Retention {
-		t.Fatalf("records flags on by default: export=%v retention=%v", c.AuditExport, c.Retention)
+	if c.AuditExport || c.Retention || c.CachePurge {
+		t.Fatalf("records flags on by default: export=%v retention=%v cache purge=%v", c.AuditExport, c.Retention, c.CachePurge)
 	}
-	c, err = FromEnv(get(map[string]string{"AUDIT_EXPORT": "on", "RETENTION": "on"}))
-	if err != nil || !c.AuditExport || !c.Retention {
+	c, err = FromEnv(get(map[string]string{"AUDIT_EXPORT": "on", "RETENTION": "on", "CACHE_PURGE": "on"}))
+	if err != nil || !c.AuditExport || !c.Retention || !c.CachePurge {
 		t.Fatalf("on: %+v %v", c.AuditExport, err)
+	}
+	if _, err := FromEnv(get(map[string]string{"CACHE_PURGE": "maybe"})); err == nil {
+		t.Fatal("accepted CACHE_PURGE=maybe")
 	}
 	if _, err := FromEnv(get(map[string]string{"RETENTION": "maybe"})); err == nil {
 		t.Fatal("accepted RETENTION=maybe")

@@ -3451,7 +3451,7 @@ paths:
     put:
       operationId: setWorkspaceRetention
       summary: Set a workspace's case retention policy (TEAMS=on and RETENTION=on; workspace admin)
-      description: "`case_days` is 0 (keep forever) or 7 to 3650. The operator's purge run (`cmd/retention`) then hard-deletes the workspace's cases not updated for that many days, oldest first, writing a tombstone and a `case.delete` audit event (detail `retention`, actor `system`) before each deletion. Pinned demo cases are never purged. Setting the policy deletes nothing by itself. A sensitive write when the audit trail is on: 503 `audit_unavailable` if its intent cannot be recorded."
+      description: "Send `case_days`, `audit_days` or both; a field left out keeps its current value. `audit_days` is 0 (the trail's own window, `retention_days` of `GET /v1/audit`) or 7 up to that window: a workspace can shorten how long its audit events are kept, never lengthen it; 400 when the audit trail is off. The operator's purge run (`cmd/retention`) removes the workspace's audit events older than `audit_days` the same way the trail's own sweep does, leaving a retention checkpoint so the rest still verifies, and appends one system `audit.purge` event (detail `workspace`). `case_days` is 0 (keep forever) or 7 to 3650; the same run then hard-deletes the workspace's cases not updated for that many days, oldest first, writing a tombstone and a `case.delete` audit event (detail `retention`, actor `system`) before each deletion, and with `CACHE_PURGE=on` the cached predictions, verdicts, advice and supplier documents only that case used. Pinned demo cases are never purged. Setting the policy deletes nothing by itself. A sensitive write when the audit trail is on: 503 `audit_unavailable` if its intent cannot be recorded."
       parameters:
         - { $ref: "#/components/parameters/UserToken" }
         - { name: id, in: path, required: true, schema: { type: string } }
@@ -3461,9 +3461,10 @@ paths:
           application/json:
             schema:
               type: object
-              required: [case_days]
+              minProperties: 1
               properties:
                 case_days: { type: integer, description: "0, or 7 to 3650" }
+                audit_days: { type: integer, description: "0 (the trail's own window), or 7 up to it" }
       responses:
         "429": { $ref: "#/components/responses/TooManyRequests" }
         "503": { $ref: "#/components/responses/Error" }
@@ -3913,7 +3914,7 @@ paths:
                   features: { type: object, additionalProperties: { type: boolean } }
                   sso: { type: object }
                   scim: { type: object }
-                  retention: { type: object, properties: { case_days: { type: integer } } }
+                  retention: { type: object, properties: { case_days: { type: integer }, audit_days: { type: integer } } }
                   usage: { type: object }
                   routes: { type: object, additionalProperties: { type: string } }
         "401": { $ref: "#/components/responses/Error" }
@@ -4980,16 +4981,18 @@ components:
       description: The caller's role in the workspace, derived by the server from stored membership.
     RetentionPolicy:
       type: object
-      required: [workspace, case_days, limits]
+      required: [workspace, case_days, audit_days, limits]
       properties:
         workspace: { type: string }
         case_days: { type: integer, description: "0: keep forever" }
+        audit_days: { type: integer, description: "0: the trail's own window" }
         updated_at: { type: string, format: date-time }
         limits:
           type: object
           properties:
             min_case_days: { type: integer }
             max_case_days: { type: integer }
+            min_audit_days: { type: integer }
     Tombstone:
       type: object
       required: [case_id, deleted_at, reason, last_updated]
@@ -5002,7 +5005,7 @@ components:
         last_updated: { type: string, format: date-time }
     AuditAction:
       type: string
-      enum: [case.create, case.update, case.export, case.delete, case.pin, case.read, workspace.create, workspace.invite, workspace.join, workspace.role_change, workspace.member_remove, workspace.leave, workspace.retention, workspace.rename, workspace.budget, apikey.issue, apikey.list, apikey.disable, admin.watch_run, admin.webhook_sweep, audit.read, audit.verify, audit.export, auth.denied, review.create, review.revoke, review.view, review.decision, webhook.create, webhook.update, webhook.delete, webhook.rotate_secret, webhook.test, webhook.read]
+      enum: [case.create, case.update, case.export, case.delete, case.pin, case.read, workspace.create, workspace.invite, workspace.join, workspace.role_change, workspace.member_remove, workspace.leave, workspace.retention, workspace.rename, audit.purge, workspace.budget, apikey.issue, apikey.list, apikey.disable, admin.watch_run, admin.webhook_sweep, audit.read, audit.verify, audit.export, auth.denied, review.create, review.revoke, review.view, review.decision, webhook.create, webhook.update, webhook.delete, webhook.rotate_secret, webhook.test, webhook.read]
       description: "`case.read` appears only as a denial; allowed ordinary reads are not audited."
     AuditPhase:
       type: string

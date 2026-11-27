@@ -1699,7 +1699,7 @@ export interface paths {
         get: operations["getWorkspaceRetention"];
         /**
          * Set a workspace's case retention policy (TEAMS=on and RETENTION=on; workspace admin)
-         * @description `case_days` is 0 (keep forever) or 7 to 3650. The operator's purge run (`cmd/retention`) then hard-deletes the workspace's cases not updated for that many days, oldest first, writing a tombstone and a `case.delete` audit event (detail `retention`, actor `system`) before each deletion. Pinned demo cases are never purged. Setting the policy deletes nothing by itself. A sensitive write when the audit trail is on: 503 `audit_unavailable` if its intent cannot be recorded.
+         * @description Send `case_days`, `audit_days` or both; a field left out keeps its current value. `audit_days` is 0 (the trail's own window, `retention_days` of `GET /v1/audit`) or 7 up to that window: a workspace can shorten how long its audit events are kept, never lengthen it; 400 when the audit trail is off. The operator's purge run (`cmd/retention`) removes the workspace's audit events older than `audit_days` the same way the trail's own sweep does, leaving a retention checkpoint so the rest still verifies, and appends one system `audit.purge` event (detail `workspace`). `case_days` is 0 (keep forever) or 7 to 3650; the same run then hard-deletes the workspace's cases not updated for that many days, oldest first, writing a tombstone and a `case.delete` audit event (detail `retention`, actor `system`) before each deletion, and with `CACHE_PURGE=on` the cached predictions, verdicts, advice and supplier documents only that case used. Pinned demo cases are never purged. Setting the policy deletes nothing by itself. A sensitive write when the audit trail is on: 503 `audit_unavailable` if its intent cannot be recorded.
          */
         put: operations["setWorkspaceRetention"];
         post?: never;
@@ -2973,11 +2973,14 @@ export interface components {
             workspace: string;
             /** @description 0: keep forever */
             case_days: number;
+            /** @description 0: the trail's own window */
+            audit_days: number;
             /** Format: date-time */
             updated_at?: string;
             limits: {
                 min_case_days?: number;
                 max_case_days?: number;
+                min_audit_days?: number;
             };
         };
         Tombstone: {
@@ -2995,7 +2998,7 @@ export interface components {
          * @description `case.read` appears only as a denial; allowed ordinary reads are not audited.
          * @enum {string}
          */
-        AuditAction: "case.create" | "case.update" | "case.export" | "case.delete" | "case.pin" | "case.read" | "workspace.create" | "workspace.invite" | "workspace.join" | "workspace.role_change" | "workspace.member_remove" | "workspace.leave" | "workspace.retention" | "workspace.rename" | "workspace.budget" | "apikey.issue" | "apikey.list" | "apikey.disable" | "admin.watch_run" | "admin.webhook_sweep" | "audit.read" | "audit.verify" | "audit.export" | "auth.denied" | "review.create" | "review.revoke" | "review.view" | "review.decision" | "webhook.create" | "webhook.update" | "webhook.delete" | "webhook.rotate_secret" | "webhook.test" | "webhook.read";
+        AuditAction: "case.create" | "case.update" | "case.export" | "case.delete" | "case.pin" | "case.read" | "workspace.create" | "workspace.invite" | "workspace.join" | "workspace.role_change" | "workspace.member_remove" | "workspace.leave" | "workspace.retention" | "workspace.rename" | "audit.purge" | "workspace.budget" | "apikey.issue" | "apikey.list" | "apikey.disable" | "admin.watch_run" | "admin.webhook_sweep" | "audit.read" | "audit.verify" | "audit.export" | "auth.denied" | "review.create" | "review.revoke" | "review.view" | "review.decision" | "webhook.create" | "webhook.update" | "webhook.delete" | "webhook.rotate_secret" | "webhook.test" | "webhook.read";
         /** @enum {string} */
         AuditPhase: "intent" | "completion" | "single";
         /** @enum {string} */
@@ -8914,7 +8917,9 @@ export interface operations {
             content: {
                 "application/json": {
                     /** @description 0, or 7 to 3650 */
-                    case_days: number;
+                    case_days?: number;
+                    /** @description 0 (the trail's own window), or 7 up to it */
+                    audit_days?: number;
                 };
             };
         };
@@ -9578,6 +9583,7 @@ export interface operations {
                         scim?: Record<string, never>;
                         retention?: {
                             case_days?: number;
+                            audit_days?: number;
                         };
                         usage?: Record<string, never>;
                         routes: {

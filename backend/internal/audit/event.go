@@ -50,6 +50,10 @@ const (
 	// WorkspaceRetention sets a workspace's case retention policy (#875).
 	WorkspaceRetention Action = "workspace.retention"
 	WorkspaceBudget    Action = "workspace.budget"
+	// AuditPurge is the retention command removing a workspace's oldest audit
+	// events under its own audit window (#875). The checkpoint says through
+	// which event; this event only marks that it happened.
+	AuditPurge Action = "audit.purge"
 	// WorkspaceRename changes a workspace's name (#870). The name is not in the event.
 	WorkspaceRename Action = "workspace.rename"
 
@@ -143,7 +147,8 @@ var actionSpecs = map[Action]actionSpec{
 	WorkspaceRoleChange:   {details: []string{"", "viewer", "editor", "admin"}, sensitive: true},
 	WorkspaceMemberRemove: {sensitive: true},
 	WorkspaceLeave:        {sensitive: true},
-	WorkspaceRetention:    {details: []string{"", "keep", "expire"}, sensitive: true},
+	WorkspaceRetention:    {details: []string{"", "keep", "expire", "audit"}, sensitive: true},
+	AuditPurge:            {details: []string{"workspace"}},
 	WorkspaceBudget:       {details: []string{"set", "clear"}},
 	WorkspaceRename:       {sensitive: true},
 	APIKeyIssue:           {sensitive: true},

@@ -45,6 +45,7 @@ import (
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/adcvd"
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/apikey"
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/blob"
+	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/cachepurge"
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/caseagent"
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/clarify"
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/config"
@@ -590,6 +591,23 @@ func newDeps(cfg config.Config, model, engineModel llm.Model, cases store.Cases,
 		return httpapi.Deps{}, err
 	}
 	var engineBlobs, verdictBlobs blob.Store
+	var cachePurge *blob.Purger
+	// linkCaches links cached entries to the cases that used them (#875).
+	linkCaches := func(fs *store.Firestore) error {
+		if !cfg.CachePurge {
+			return nil
+		}
+		setup, err := cachepurge.Open(context.Background(), cfg, fs)
+		if err != nil {
+			return err
+		}
+		verdictBlobs = blob.Track(verdictBlobs, blob.StoreVerdicts, setup.Refs)
+		engineBlobs = blob.Track(engineBlobs, blob.StoreEngine, setup.Refs)
+		p := blob.Purger{Refs: setup.Refs, Stores: map[string]blob.Store{blob.StoreVerdicts: verdictBlobs, blob.StoreEngine: engineBlobs}}
+		cachePurge = &p
+		logger.Info("cache entries linked to cases; deleted cases purge what only they used")
+		return nil
+	}
 	switch cfg.VerifierCacheStore {
 	case config.VerdictsFirestore:
 		fs, ok := cases.(*store.Firestore)
@@ -599,20 +617,26 @@ func newDeps(cfg config.Config, model, engineModel llm.Model, cases store.Cases,
 			}
 		}
 		verdictBlobs = envelope.Wrap(fs.Verdicts(), infra.blobKey)
-		ver = verifier.NewCacheIn(ver, verdictBlobs, cfg.VerifierModel)
 		engineBlobs = envelope.Wrap(fs.Blobs(store.EngineCollection), infra.blobKey)
+		if err := linkCaches(fs); err != nil {
+			return httpapi.Deps{}, err
+		}
+		ver = verifier.NewCacheIn(ver, verdictBlobs, cfg.VerifierModel)
 		logger.Info("verifier verdicts and engine predictions cached in Firestore", "collections", []string{store.VerdictCollection, store.EngineCollection})
 	case config.VerdictsFile:
 		if err := os.MkdirAll(cfg.VerifierCacheDir, 0o755); err != nil {
 			return httpapi.Deps{}, fmt.Errorf("verifier: cache dir: %w", err)
 		}
 		verdictBlobs = envelope.Wrap(verifier.DirBlobs{Dir: cfg.VerifierCacheDir}, infra.blobKey)
-		ver = verifier.NewCacheIn(ver, verdictBlobs, cfg.VerifierModel)
 		dir := filepath.Join(filepath.Dir(filepath.Clean(cfg.VerifierCacheDir)), "engine-cache")
 		if err := os.MkdirAll(dir, 0o755); err != nil {
 			return httpapi.Deps{}, fmt.Errorf("engine cache dir: %w", err)
 		}
 		engineBlobs = envelope.Wrap(blob.Dir{Dir: dir}, infra.blobKey)
+		if err := linkCaches(nil); err != nil {
+			return httpapi.Deps{}, err
+		}
+		ver = verifier.NewCacheIn(ver, verdictBlobs, cfg.VerifierModel)
 		logger.Info("verifier verdicts and engine predictions cached", "store", config.CasesFile)
 	}
 	// Engine predictions are cached in the same store as verdicts (D54).
@@ -856,6 +880,7 @@ func newDeps(cfg config.Config, model, engineModel llm.Model, cases store.Cases,
 		AdminConsole:          cfg.AdminConsole,
 		SupplierDeclarations:  cfg.SupplierDeclarations,
 		SupplierDocs:          verdictBlobs,
+		CachePurge:            cachePurge,
 		TariffWatch:           cfg.TariffWatch,
 		APIKeys:               keys,
 		StreamPredict:         cfg.StreamPredictOn(),

@@ -98,7 +98,7 @@ func (a *api) adminConsole(w http.ResponseWriter, r *http.Request) {
 			a.fail(w, r, err)
 			return
 		}
-		out["retention"] = map[string]any{"case_days": p.CaseDays}
+		out["retention"] = map[string]any{"case_days": p.CaseDays, "audit_days": p.AuditDays}
 		routes["retention"] = "/v1/workspaces/{id}/retention"
 	}
 	if a.d.Metering != nil {

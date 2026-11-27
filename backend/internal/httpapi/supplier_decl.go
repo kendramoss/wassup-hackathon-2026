@@ -16,6 +16,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/blob"
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/domain"
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/media"
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/store"
@@ -504,7 +505,7 @@ func (a *api) supplierDocument(w http.ResponseWriter, r *http.Request) {
 	_, _ = w.Write(b)
 }
 
-func supplierDocKey(sha string) string { return "supplier-doc-" + sha }
+func supplierDocKey(sha string) string { return store.SupplierDocKey(sha) }
 
 // expiringDeclarations is GET /v1/supplier-declarations/expiring: the
 // declarations on the caller's cases that run out within days (default 30, at
@@ -857,7 +858,7 @@ func (a *api) putSupplierAnswer(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	if docBytes != nil {
-		if err := a.d.SupplierDocs.Put(r.Context(), supplierDocKey(ans.Document.SHA256), docBytes); err != nil {
+		if err := a.d.SupplierDocs.Put(blob.WithOwner(r.Context(), c.ID), supplierDocKey(ans.Document.SHA256), docBytes); err != nil {
 			a.fail(w, r, err)
 			return
 		}
