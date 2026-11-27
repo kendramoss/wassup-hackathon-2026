@@ -71,6 +71,11 @@ test("USMCA and ATIGA figures match the committed results", async () => {
   // 7 of 7 is enforced by backend/internal/atiga/reference_test.go.
   assert.equal(r.atigaExamples, JSON.parse(read("../../eval/atiga/reference-cases.json")).cases.length);
   assert.equal(r.atigaReached, r.atigaExamples);
+  // Reached counts (8 of 8 and 3 of 5 on the first run) are enforced by
+  // backend/internal/aseanfta/reference_test.go.
+  assert.equal(r.akftaExamples, JSON.parse(read("../../eval/akfta/reference-cases.json")).cases.length);
+  assert.equal(r.acftaExamples, JSON.parse(read("../../eval/acfta/reference-cases.json")).cases.length);
+  assert.ok(r.akftaReached <= r.akftaExamples && r.acftaReached <= r.acftaExamples);
 });
 
 test("AD/CVD figures match the committed results", async () => {

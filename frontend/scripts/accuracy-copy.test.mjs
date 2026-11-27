@@ -152,6 +152,7 @@ test("Accuracy page shows Japan, USMCA and ATIGA, and ATIGA is not called an acc
   assert.ok(t.includes("0/80"));
   assert.ok(t.includes("21/23"));
   assert.ok(t.includes("7/7 reach the stated result. Not an accuracy rate."));
+  assert.match(t, /Korea 8\/8\s*, China 3\/5 reach the stated result\. Not an accuracy rate\./);
   assert.ok(!t.includes("No accuracy figure. Details"));
 });
 
