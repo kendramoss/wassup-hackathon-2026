@@ -42,9 +42,13 @@ type Order struct {
 	HTS         []string `json:"hts"`
 	HTSExcluded []string `json:"hts_excluded,omitempty"`
 	// HTSText holds the verbatim scope paragraphs the numbers were read from.
-	HTSText     []string `json:"hts_text,omitempty"`
-	ScopeNotice *Source  `json:"scope_notice"`
-	ListedIn    *Source  `json:"listed_in,omitempty"`
+	HTSText []string `json:"hts_text,omitempty"`
+	// ScopeText is the written scope of the order as the same notice prints
+	// it (section "Scope of the Order", capped), for reading a product
+	// against the scope's words; empty when the notice carries none.
+	ScopeText   string  `json:"scope_text,omitempty"`
+	ScopeNotice *Source `json:"scope_notice"`
+	ListedIn    *Source `json:"listed_in,omitempty"`
 }
 
 // Table is the set of orders at one snapshot date.
