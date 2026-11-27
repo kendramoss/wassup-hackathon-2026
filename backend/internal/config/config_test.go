@@ -425,6 +425,22 @@ func TestATIGACheckConfig(t *testing.T) {
 	}
 }
 
+func TestADCVDCheckConfig(t *testing.T) {
+	c, err := FromEnv(getenv(vertexEnv()))
+	if err != nil || c.ADCVDCheck {
+		t.Fatalf("ADCVD_CHECK default = %v %v, want off", c.ADCVDCheck, err)
+	}
+	for v, want := range map[string]bool{"on": true, "ON": true, "1": true, "off": false, "0": false} {
+		c, err := FromEnv(getenv(merge(vertexEnv(), map[string]string{"ADCVD_CHECK": v})))
+		if err != nil || c.ADCVDCheck != want {
+			t.Errorf("ADCVD_CHECK=%s = %v %v, want %v", v, c.ADCVDCheck, err, want)
+		}
+	}
+	if _, err := FromEnv(getenv(merge(vertexEnv(), map[string]string{"ADCVD_CHECK": "maybe"}))); err == nil || !strings.Contains(err.Error(), "ADCVD_CHECK") {
+		t.Errorf("ADCVD_CHECK=maybe: %v", err)
+	}
+}
+
 func TestExportCFR177Config(t *testing.T) {
 	c, err := FromEnv(getenv(vertexEnv()))
 	if err != nil || c.ExportCFR177 {

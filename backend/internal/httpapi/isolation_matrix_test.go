@@ -161,6 +161,7 @@ var routeTable = map[string]routeClass{
 	"PUT /v1/supplier-declaration/parts/{part}":                                reviewToken,
 	"GET /health":                          noCaseData,
 	"GET /v1/workspaces/{id}/tariff-watch": noCaseData, // members read stored check results of their own workspace's cases
+	"POST /v1/adcvd/check":                 noCaseData,
 }
 
 // registeredRoutes parses server.go for every mux.HandleFunc pattern.

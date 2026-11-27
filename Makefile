@@ -126,6 +126,9 @@ reproduce: ## recompute every published number from committed files: no model ca
 	cd $(GO_DIR) && go run ./cmd/usmcaeval -split dev -check
 	cd $(GO_DIR) && go run ./cmd/usmcaeval -split held_out -check
 	python3 -I -B eval/atiga/parse_psr.py check backend/internal/atiga/data/psr_hs2022.json
+	python3 -I -B eval/adcvd/build_orders.py check backend/internal/adcvd/data/orders.json
+	python3 -I -B eval/adcvd/build_orders.py check eval/adcvd/orders-2024-12-31.json
+	cd $(GO_DIR) && go run ./cmd/adcvdeval -dir ../eval/adcvd -orders ../eval/adcvd/orders-2024-12-31.json -out ../eval/adcvd/results.jsonl -summary ../eval/adcvd/summary.json -check
 	python3 -I -B eval/jp/labels.py . --check
 	python3 -I -B eval/jp/labels.py . --fresh --check
 	python3 -I -B eval/jp/fresh_twins.py . --check

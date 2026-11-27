@@ -1161,6 +1161,26 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/v1/adcvd/check": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Parts that may be subject to a U.S. antidumping or countervailing duty order (display only, no model call; off unless ADCVD_CHECK=on)
+         * @description Screens parts against the active U.S. antidumping (AD) and countervailing duty (CVD) orders, from each part's HTS code and country of origin. Served only with `ADCVD_CHECK=on` (default off: 404). A part is `possible_exposure` when an order's listed HTS number agrees with the part's code at the shorter of the two lengths (a listed ten-digit line needs the same ten digits; a heading or subheading matches every listed line under it) and the order's country is one of the part's countries of origin. The HTS numbers are read from the scope text of the newest Commerce notice that carries it (`backend/internal/adcvd/data/orders.json`, built by `eval/adcvd/build_orders.py` from Federal Register notices; the response gives the snapshot date). HTS numbers in a scope are for convenience and customs purposes; the written scope of the order governs, and only the U.S. Department of Commerce decides whether a product is within it. Display only (D939): it never changes an origin answer or a duty figure. It does not see goods finished in a third country from parts of an ordered country (circumvention), an order whose scope prints no HTS numbers, or an order newer than the snapshot. No model call, nothing stored. Cheap class (120 a minute); a malformed body is 400 `invalid_input`.
+         */
+        post: operations["checkAdcvdExposure"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/v1/usmca/check": {
         parameters: {
             query?: never;
@@ -3423,6 +3443,56 @@ export interface components {
             checks: components["schemas"]["EvidenceCheck"][];
             markdown: string;
         };
+        /** @description Parts that may be subject to a U.S. AD or CVD order. Display only (D939); on a case it is `adcvd_check`, present only with `ADCVD_CHECK=on` and at least one part code. */
+        AdcvdCheck: {
+            /**
+             * Format: date
+             * @description The date the orders table describes; notices published after it are not in it
+             * @example 2026-11-27
+             */
+            snapshot?: string;
+            /**
+             * Format: date
+             * @description The date the notices were fetched
+             */
+            fetched?: string;
+            /** @description Active orders in the table */
+            orders?: number;
+            parts?: {
+                name?: string;
+                hts?: string;
+                origin?: string;
+                /** @enum {string} */
+                status?: "possible_exposure" | "no_match" | "not_checked";
+                reason?: string;
+                matches?: {
+                    /** @description The AD and CVD case numbers of the order, sorted */
+                    cases?: string[];
+                    types?: ("AD" | "CVD")[];
+                    country?: string;
+                    product?: string;
+                    /**
+                     * Format: date
+                     * @description Absent for an order older than the Federal Register's electronic notices (1994)
+                     */
+                    order_date?: string;
+                    /** @description The listed numbers the part's code agrees with */
+                    listed_hts_matched?: string[];
+                    /** @description The Federal Register notice the scope text and HTS numbers were read from */
+                    scope_notice?: {
+                        document_number?: string;
+                        /** Format: date */
+                        date?: string;
+                        title?: string;
+                        url?: string;
+                        sha256?: string;
+                    };
+                }[];
+            }[];
+            /** @description HTS numbers in a scope are for convenience; the written scope governs; display only */
+            notice?: string;
+            limits?: string[];
+        };
         /** @description The deterministic 19 CFR 102.20 tariff-shift check (D360, D363), present only when the product gives an HTS code for the good and at least one part. Computed when the case is read; display only: it never changes the prediction, the triage or auto-accept. RULE_CHECK=off removes it. */
         RuleCheck: {
             /** @enum {string} */
@@ -3774,6 +3844,7 @@ export interface components {
              */
             facts_source?: "parts_list" | "pasted";
             rule_check?: components["schemas"]["RuleCheck"];
+            adcvd_check?: components["schemas"]["AdcvdCheck"];
             origin_facts?: components["schemas"]["OriginFactsByMarket"];
             supplier_declarations?: components["schemas"]["SupplierDeclarations"];
             family_intake?: components["schemas"]["FamilyIntake"];
@@ -7603,6 +7674,47 @@ export interface operations {
                         regime?: "atiga_preferential";
                         note?: string;
                     };
+                };
+            };
+            400: components["responses"]["Error"];
+            404: components["responses"]["Error"];
+            429: components["responses"]["TooManyRequests"];
+        };
+    };
+    checkAdcvdExposure: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": {
+                    parts: {
+                        name?: string;
+                        /**
+                         * @description HTS heading or subheading, 4, 6, 8 or 10 digits, dots optional. A part without a valid code is `not_checked`.
+                         * @example 8202.39.00.00
+                         */
+                        hts?: string;
+                        /**
+                         * @description Country of origin of the part; several are written `China/Vietnam`. A part without one is `not_checked`.
+                         * @example China
+                         */
+                        origin?: string;
+                    }[];
+                };
+            };
+        };
+        responses: {
+            /** @description One result per part, in the order given */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AdcvdCheck"];
                 };
             };
             400: components["responses"]["Error"];

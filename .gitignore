@@ -39,6 +39,7 @@ data/tuning/
 /backend/tariffshift
 /backend/jpeval
 /backend/usmcaeval
+/backend/adcvdeval
 /backend/rcepeval
 /backend/originrules
 /backend/marketeval

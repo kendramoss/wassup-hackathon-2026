@@ -42,6 +42,7 @@ import (
 	"syscall"
 	"time"
 
+	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/adcvd"
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/apikey"
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/blob"
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/caseagent"
@@ -875,6 +876,13 @@ func newDeps(cfg config.Config, model, engineModel llm.Model, cases store.Cases,
 		ExportCFR177:          cfg.ExportCFR177,
 		ATIGACheck:            cfg.ATIGACheck,
 		Checks:                []httpapi.HealthCheck{httpapi.StoreCheck(cases), httpapi.ModelCheck("model", model, cfg.RouterModel)},
+	}
+	if cfg.ADCVDCheck {
+		tb, err := adcvd.Load()
+		if err != nil {
+			return httpapi.Deps{}, err
+		}
+		d.ADCVD = tb
 	}
 	if infra.statusPage {
 		d.Status = &httpapi.StatusPage{Checks: d.Checks, SLOs: httpapi.DefaultSLOs}
