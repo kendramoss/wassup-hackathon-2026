@@ -96,6 +96,8 @@ type Summary struct {
 	OwnInSnapshotOnly Confusion      `json:"own_order_orders_in_snapshot_only"`
 }
 
+func round6(x float64) float64 { return math.Round(x*1e6) / 1e6 }
+
 func wilson(k, n int) Rate {
 	r := Rate{K: k, N: n}
 	if n == 0 {
@@ -106,7 +108,7 @@ func wilson(k, n int) Rate {
 	d := 1 + z*z/float64(n)
 	c := p + z*z/(2*float64(n))
 	h := z * math.Sqrt(p*(1-p)/float64(n)+z*z/(4*float64(n)*float64(n)))
-	r.P, r.Lo, r.Hi = p, math.Max(0, (c-h)/d), math.Min(1, (c+h)/d)
+	r.P, r.Lo, r.Hi = round6(p), round6(math.Max(0, (c-h)/d)), round6(math.Min(1, (c+h)/d))
 	return r
 }
 
