@@ -14,6 +14,7 @@ import (
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/llm"
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/planner"
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/store"
+	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/webhooks"
 )
 
 // Audit hooks (#284). See docs/design/audit-trail.md.
@@ -171,6 +172,14 @@ var auditTable = map[string]auditRoute{
 	"GET /v1/scim/v2/ServiceProviderConfig":                                    {auditDenyOnly, audit.SCIMUserRead},
 	"GET /v1/scim/v2/ResourceTypes":                                            {auditDenyOnly, audit.SCIMUserRead},
 	"GET /v1/scim/v2/Schemas":                                                  {auditDenyOnly, audit.SCIMUserRead},
+	"GET /v1/workspaces/{id}/webhooks":                                         {auditDenyOnly, audit.WebhookRead},
+	"POST /v1/workspaces/{id}/webhooks":                                        {auditTwoPhase, audit.WebhookCreate},
+	"PATCH /v1/workspaces/{id}/webhooks/{wid}":                                 {auditTwoPhase, audit.WebhookUpdate},
+	"DELETE /v1/workspaces/{id}/webhooks/{wid}":                                {auditTwoPhase, audit.WebhookDelete},
+	"POST /v1/workspaces/{id}/webhooks/{wid}/rotate":                           {auditTwoPhase, audit.WebhookRotate},
+	"POST /v1/workspaces/{id}/webhooks/{wid}/test":                             {auditTwoPhase, audit.WebhookTest},
+	"GET /v1/workspaces/{id}/webhooks/{wid}/deliveries":                        {auditDenyOnly, audit.WebhookRead},
+	"POST /v1/webhooks/sweep":                                                  {auditTwoPhase, audit.AdminWebhookSweep},
 	"GET /v1/scim/v2/Users":                                                    {auditDenyOnly, audit.SCIMUserRead},
 	"POST /v1/scim/v2/Users":                                                   {auditTwoPhase, audit.SCIMUserCreate},
 	"GET /v1/scim/v2/Users/{uid}":                                              {auditDenyOnly, audit.SCIMUserRead},
@@ -553,7 +562,7 @@ func (a *api) auditStreamEnd(r *http.Request, err error) {
 func auditReason(err error) audit.Reason {
 	var apiErr *llm.APIError
 	switch {
-	case errors.Is(err, domain.ErrInvalid), errors.Is(err, planner.ErrUnknownFamily), errors.Is(err, apikey.ErrBadRequest):
+	case errors.Is(err, domain.ErrInvalid), errors.Is(err, planner.ErrUnknownFamily), errors.Is(err, apikey.ErrBadRequest), errors.Is(err, webhooks.ErrInvalid):
 		return audit.ReasonInvalidInput
 	case errors.Is(err, errNeedsVerified):
 		return audit.ReasonUnauthenticated
@@ -561,7 +570,7 @@ func auditReason(err error) audit.Reason {
 		return audit.ReasonForbidden
 	case errors.Is(err, errSuperseded):
 		return audit.ReasonSuperseded
-	case errors.Is(err, store.ErrNotFound), errors.Is(err, cross.ErrNotFound), errors.Is(err, apikey.ErrNotFound):
+	case errors.Is(err, store.ErrNotFound), errors.Is(err, cross.ErrNotFound), errors.Is(err, apikey.ErrNotFound), errors.Is(err, webhooks.ErrNotFound):
 		return audit.ReasonNotFound
 	case errors.Is(err, llm.ErrBadResponse), errors.Is(err, llm.ErrUnavailable), errors.As(err, &apiErr), errors.Is(err, context.DeadlineExceeded):
 		return audit.ReasonUpstream

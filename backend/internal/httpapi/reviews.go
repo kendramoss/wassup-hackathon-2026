@@ -18,6 +18,7 @@ import (
 
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/domain"
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/store"
+	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/webhooks"
 )
 
 // Broker review links (D200). The case owner makes a link for one draft (the
@@ -720,6 +721,10 @@ func (a *api) decideReview(w http.ResponseWriter, r *http.Request) {
 		a.fail(w, r, err)
 		return
 	}
+	// The decision, never the broker's comment (#915).
+	a.emit(r.Context(), c.Workspace, webhooks.EventReviewDecision, map[string]any{
+		"case_id": c.ID, "review_id": rv.ID, "decision": in.Decision, "has_comment": comment != "", "decided_at": now,
+	})
 	writeJSON(w, http.StatusOK, map[string]any{"review": brokerReviewOf(out, now)})
 }
 

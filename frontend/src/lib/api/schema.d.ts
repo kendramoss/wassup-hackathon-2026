@@ -1456,6 +1456,135 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/v1/workspaces/{id}/webhooks": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * List the workspace's webhook endpoints (workspace admin; WEBHOOKS=on)
+         * @description Each endpoint with its URL, subscribed events, whether it is enabled and the last four characters of its secret. Never the secret itself. `available_events` is what an endpoint can subscribe to. 403 for a member who is not an admin.
+         */
+        get: operations["listWebhooks"];
+        put?: never;
+        /**
+         * Register a webhook endpoint (workspace admin; WEBHOOKS=on)
+         * @description Registers an HTTPS URL that receives the chosen events of this workspace (up to 10 endpoints). The URL must be `https`, carry no credentials and name a public host: `localhost`, internal names and addresses that are private, loopback or link-local, or that a name resolves to, are refused (400), and a delivery never connects to one even if the name's address changes later. Redirects are not followed.
+         *
+         *     The answer carries `secret` once; keep it, it is not shown again (rotate to get a new one). Each delivery is a POST with a JSON body (`id`, `type`, `created_at`, `workspace`, `data`) and these headers: `X-Webhook-Id` (the delivery's id, the same on every retry: deduplicate on it), `X-Webhook-Event` and `X-Webhook-Signature: t=<unix seconds>,v1=<hex>`, where `v1` is the HMAC-SHA256, keyed with the secret, of `<t>.<raw body>`. Verify it over the raw bytes and reject a `t` more than five minutes old. During the day after a rotation the header carries a `v1` for the new and for the previous secret; accept either. A 2xx answer is a delivery. Anything else (or no answer within 10 seconds) is retried after 30 s, 2 min, 10 min, 1 h and 6 h, six attempts in all, then marked failed; the attempts are in the delivery log. Delivery is at least once and not ordered. Events carry ids and statuses only, never case text, comments or letters.
+         *
+         *     Events: `ruling_watch.hit` (a ruling watch re-check changed a case's origin because of newer precedents: `case_id`, `previous_origin`, `new_origin`, `newer_rulings`, `triage_route`, `checked_at`), `review.decision` (a broker answered a review link: `case_id`, `review_id`, `decision`, `has_comment`, never the comment, `decided_at`), `filing.status` (an eRulings request moved: `case_id`, `status`, `previous_status`, `reference` when given, `at`), `budget.alert` (the month's spend passed the budget's alert share or the budget: `month`, `level` alert or cap, `spent_usd`, `budget_usd`, `alert_percent`, `hard_cap`; needs USAGE_METERING=on) and `batch.finished` (a batch triage finished: `total`, `failed`, `out_of_scope`, `auto`, `needs_review`, `needs_info`, `cost_usd`, `case_ids`, `finished_at`). Only events of cases and spend of this workspace are sent.
+         */
+        post: operations["createWebhook"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/workspaces/{id}/webhooks/{wid}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        /** Delete a webhook endpoint and its delivery log (workspace admin; WEBHOOKS=on) */
+        delete: operations["deleteWebhook"];
+        options?: never;
+        head?: never;
+        /**
+         * Change a webhook endpoint's URL, events, description or enabled state (workspace admin; WEBHOOKS=on)
+         * @description Only the fields given change; at least one is required. A new URL is checked as at registration. Deliveries already queued for a disabled or deleted endpoint are not sent.
+         */
+        patch: operations["updateWebhook"];
+        trace?: never;
+    };
+    "/v1/workspaces/{id}/webhooks/{wid}/rotate": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Give a webhook endpoint a new secret (workspace admin; WEBHOOKS=on)
+         * @description The new secret is in this answer only. For 24 hours deliveries are signed with both the new and the previous secret (two `v1` values), so a receiver can switch without dropping events; after that only the new one signs.
+         */
+        post: operations["rotateWebhookSecret"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/workspaces/{id}/webhooks/{wid}/test": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Send a test event to a webhook endpoint (workspace admin; WEBHOOKS=on)
+         * @description Sends one `webhook.test` event now, signed as any other, even to a disabled endpoint, and answers with how the receiver took it. The ping is one attempt, is in the delivery log (`test: true`) and is never retried. A refusing or unreachable receiver is a 200 with `status: failed`, not an error.
+         */
+        post: operations["testWebhook"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/workspaces/{id}/webhooks/{wid}/deliveries": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * The endpoint's delivery log, newest first (workspace admin; WEBHOOKS=on)
+         * @description The last 100 deliveries at most, each with its attempts (time, HTTP status, duration and an error class: `http_status`, `redirect`, `timeout`, `connection`, `tls`, `blocked_address` or `endpoint_disabled`; never the receiver's answer). The payload is not kept in the log.
+         */
+        get: operations["listWebhookDeliveries"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/webhooks/sweep": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Send the webhook retries that are now due (for a scheduler; admin token required; WEBHOOKS=on)
+         * @description Each instance also does this every 30 seconds while it runs; on Cloud Run, where an instance can be idle between requests, a scheduler should call this every minute. Several callers at once are safe: a delivery is taken by one of them. No model call.
+         */
+        post: operations["sweepWebhooks"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/v1/audit": {
         parameters: {
             query?: never;
@@ -2609,6 +2738,60 @@ export interface components {
             message: string;
             details?: unknown;
         };
+        /** @enum {string} */
+        WebhookEventType: "ruling_watch.hit" | "review.decision" | "filing.status" | "budget.alert" | "batch.finished";
+        WebhookEndpoint: {
+            /** @example wh_0123456789abcdef */
+            id: string;
+            /** Format: uri */
+            url: string;
+            events: components["schemas"]["WebhookEventType"][];
+            description: string;
+            enabled: boolean;
+            /** @description The last four characters of the signing secret */
+            secret_hint: string;
+            /** Format: email */
+            created_by: string;
+            /** Format: date-time */
+            created_at: string;
+            /** Format: date-time */
+            updated_at: string;
+            /** Format: date-time */
+            secret_rotated_at?: string;
+            /**
+             * Format: date-time
+             * @description While set
+             */
+            previous_secret_expires_at?: string;
+            /** @description The signing secret, `whsec_...`: only in the answers to create and rotate, never again */
+            secret?: string;
+        };
+        WebhookDelivery: {
+            /** @description The X-Webhook-Id the receiver saw; the same on every retry */
+            id: string;
+            /** @description An event type, or `webhook.test` for a ping */
+            event: string;
+            event_id: string;
+            test: boolean;
+            /** @enum {string} */
+            status: "pending" | "delivered" | "failed";
+            /**
+             * Format: date-time
+             * @description When a pending delivery is next tried
+             */
+            next_attempt_at?: string;
+            /** Format: date-time */
+            created_at: string;
+            attempts: {
+                /** Format: date-time */
+                at: string;
+                /** @description 0 when there was no HTTP answer */
+                status_code: number;
+                duration_ms: number;
+                /** @enum {string} */
+                error?: "http_status" | "redirect" | "timeout" | "connection" | "tls" | "blocked_address" | "endpoint_disabled";
+            }[];
+        };
         WorkspaceBudget: {
             monthly_usd: number;
             hard_cap: boolean;
@@ -2688,7 +2871,7 @@ export interface components {
          * @description `case.read` appears only as a denial; allowed ordinary reads are not audited.
          * @enum {string}
          */
-        AuditAction: "case.create" | "case.update" | "case.export" | "case.delete" | "case.pin" | "case.read" | "workspace.create" | "workspace.invite" | "workspace.join" | "workspace.role_change" | "workspace.member_remove" | "workspace.leave" | "workspace.retention" | "workspace.budget" | "apikey.issue" | "apikey.list" | "apikey.disable" | "admin.watch_run" | "audit.read" | "audit.verify" | "audit.export" | "auth.denied" | "review.create" | "review.revoke" | "review.view" | "review.decision";
+        AuditAction: "case.create" | "case.update" | "case.export" | "case.delete" | "case.pin" | "case.read" | "workspace.create" | "workspace.invite" | "workspace.join" | "workspace.role_change" | "workspace.member_remove" | "workspace.leave" | "workspace.retention" | "workspace.budget" | "apikey.issue" | "apikey.list" | "apikey.disable" | "admin.watch_run" | "admin.webhook_sweep" | "audit.read" | "audit.verify" | "audit.export" | "auth.denied" | "review.create" | "review.revoke" | "review.view" | "review.decision" | "webhook.create" | "webhook.update" | "webhook.delete" | "webhook.rotate_secret" | "webhook.test" | "webhook.read";
         /** @enum {string} */
         AuditPhase: "intent" | "completion" | "single";
         /** @enum {string} */
@@ -7987,6 +8170,284 @@ export interface operations {
             403: components["responses"]["Error"];
             404: components["responses"]["Error"];
             429: components["responses"]["TooManyRequests"];
+            503: components["responses"]["Error"];
+        };
+    };
+    listWebhooks: {
+        parameters: {
+            query?: never;
+            header: {
+                /** @description The signed-in user's Google ID token, forwarded by the frontend proxy (D68). Optional on every other endpoint. */
+                "X-User-Token": components["parameters"]["UserToken"];
+            };
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description The endpoints */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        endpoints: components["schemas"]["WebhookEndpoint"][];
+                        available_events: components["schemas"]["WebhookEventType"][];
+                        /** @example 10 */
+                        max_endpoints: number;
+                    };
+                };
+            };
+            401: components["responses"]["Error"];
+            403: components["responses"]["Error"];
+            404: components["responses"]["Error"];
+        };
+    };
+    createWebhook: {
+        parameters: {
+            query?: never;
+            header: {
+                /** @description The signed-in user's Google ID token, forwarded by the frontend proxy (D68). Optional on every other endpoint. */
+                "X-User-Token": components["parameters"]["UserToken"];
+            };
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": {
+                    /**
+                     * Format: uri
+                     * @example https://hooks.example.com/unde
+                     */
+                    url: string;
+                    events: components["schemas"]["WebhookEventType"][];
+                    description?: string;
+                    /** @default true */
+                    enabled?: boolean;
+                };
+            };
+        };
+        responses: {
+            /** @description The endpoint, with its secret shown once */
+            201: {
+                headers: {
+                    "X-Audit-Incomplete": components["headers"]["AuditIncomplete"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        endpoint: components["schemas"]["WebhookEndpoint"];
+                    };
+                };
+            };
+            400: components["responses"]["Error"];
+            401: components["responses"]["Error"];
+            403: components["responses"]["Error"];
+            404: components["responses"]["Error"];
+            409: components["responses"]["Error"];
+            503: components["responses"]["Error"];
+        };
+    };
+    deleteWebhook: {
+        parameters: {
+            query?: never;
+            header: {
+                /** @description The signed-in user's Google ID token, forwarded by the frontend proxy (D68). Optional on every other endpoint. */
+                "X-User-Token": components["parameters"]["UserToken"];
+            };
+            path: {
+                id: string;
+                wid: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Deleted */
+            204: {
+                headers: {
+                    "X-Audit-Incomplete": components["headers"]["AuditIncomplete"];
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            401: components["responses"]["Error"];
+            403: components["responses"]["Error"];
+            404: components["responses"]["Error"];
+            503: components["responses"]["Error"];
+        };
+    };
+    updateWebhook: {
+        parameters: {
+            query?: never;
+            header: {
+                /** @description The signed-in user's Google ID token, forwarded by the frontend proxy (D68). Optional on every other endpoint. */
+                "X-User-Token": components["parameters"]["UserToken"];
+            };
+            path: {
+                id: string;
+                wid: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": {
+                    /** Format: uri */
+                    url?: string;
+                    events?: components["schemas"]["WebhookEventType"][];
+                    description?: string;
+                    enabled?: boolean;
+                };
+            };
+        };
+        responses: {
+            /** @description The endpoint */
+            200: {
+                headers: {
+                    "X-Audit-Incomplete": components["headers"]["AuditIncomplete"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        endpoint: components["schemas"]["WebhookEndpoint"];
+                    };
+                };
+            };
+            400: components["responses"]["Error"];
+            401: components["responses"]["Error"];
+            403: components["responses"]["Error"];
+            404: components["responses"]["Error"];
+            503: components["responses"]["Error"];
+        };
+    };
+    rotateWebhookSecret: {
+        parameters: {
+            query?: never;
+            header: {
+                /** @description The signed-in user's Google ID token, forwarded by the frontend proxy (D68). Optional on every other endpoint. */
+                "X-User-Token": components["parameters"]["UserToken"];
+            };
+            path: {
+                id: string;
+                wid: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description The endpoint, with the new secret shown once */
+            200: {
+                headers: {
+                    "X-Audit-Incomplete": components["headers"]["AuditIncomplete"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        endpoint: components["schemas"]["WebhookEndpoint"];
+                    };
+                };
+            };
+            401: components["responses"]["Error"];
+            403: components["responses"]["Error"];
+            404: components["responses"]["Error"];
+            503: components["responses"]["Error"];
+        };
+    };
+    testWebhook: {
+        parameters: {
+            query?: never;
+            header: {
+                /** @description The signed-in user's Google ID token, forwarded by the frontend proxy (D68). Optional on every other endpoint. */
+                "X-User-Token": components["parameters"]["UserToken"];
+            };
+            path: {
+                id: string;
+                wid: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description The delivery */
+            200: {
+                headers: {
+                    "X-Audit-Incomplete": components["headers"]["AuditIncomplete"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        delivery: components["schemas"]["WebhookDelivery"];
+                    };
+                };
+            };
+            401: components["responses"]["Error"];
+            403: components["responses"]["Error"];
+            404: components["responses"]["Error"];
+            503: components["responses"]["Error"];
+        };
+    };
+    listWebhookDeliveries: {
+        parameters: {
+            query?: {
+                limit?: number;
+            };
+            header: {
+                /** @description The signed-in user's Google ID token, forwarded by the frontend proxy (D68). Optional on every other endpoint. */
+                "X-User-Token": components["parameters"]["UserToken"];
+            };
+            path: {
+                id: string;
+                wid: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description The deliveries */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        deliveries: components["schemas"]["WebhookDelivery"][];
+                    };
+                };
+            };
+            400: components["responses"]["Error"];
+            401: components["responses"]["Error"];
+            403: components["responses"]["Error"];
+            404: components["responses"]["Error"];
+        };
+    };
+    sweepWebhooks: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description How many deliveries were tried */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        attempted: number;
+                    };
+                };
+            };
+            403: components["responses"]["Error"];
             503: components["responses"]["Error"];
         };
     };

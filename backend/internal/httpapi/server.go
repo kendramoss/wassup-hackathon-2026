@@ -195,6 +195,17 @@ func NewHandler(logger *slog.Logger, info Info, deps ...Deps) http.Handler {
 					mux.HandleFunc("DELETE /v1/scim/v2/Users/{uid}", a.rateOnly(review, a.deleteSCIMUser))
 				}
 			}
+			if d.Webhooks != nil {
+				mux.HandleFunc("GET /v1/workspaces/{id}/webhooks", a.cheap(a.listWebhooks))
+				mux.HandleFunc("POST /v1/workspaces/{id}/webhooks", a.cheap(a.createWebhook))
+				mux.HandleFunc("PATCH /v1/workspaces/{id}/webhooks/{wid}", a.cheap(a.updateWebhook))
+				mux.HandleFunc("DELETE /v1/workspaces/{id}/webhooks/{wid}", a.cheap(a.deleteWebhook))
+				mux.HandleFunc("POST /v1/workspaces/{id}/webhooks/{wid}/rotate", a.cheap(a.rotateWebhook))
+				mux.HandleFunc("POST /v1/workspaces/{id}/webhooks/{wid}/test", a.cheap(a.testWebhook))
+				mux.HandleFunc("GET /v1/workspaces/{id}/webhooks/{wid}/deliveries", a.cheap(a.listWebhookDeliveries))
+				mux.HandleFunc("POST /v1/webhooks/sweep", a.adminOnly(a.sweepWebhooks)) // retries now due, for a scheduler
+				a.wireBudgetAlerts()
+			}
 			if d.Metering != nil {
 				mux.HandleFunc("GET /v1/workspaces/{id}/usage", a.cheap(a.workspaceUsage))
 				mux.HandleFunc("PUT /v1/workspaces/{id}/budget", a.cheap(a.putWorkspaceBudget))
