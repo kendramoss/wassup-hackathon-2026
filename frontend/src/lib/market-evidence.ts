@@ -97,3 +97,18 @@ export const rulesChecks = {
   atigaExamples: 7,
   atigaReached: 7,
 };
+
+// D940 held-out result of the AD/CVD exposure check (ADCVD_CHECK, off). Pinned
+// to eval/adcvd/summary.json by scripts/japan-evidence.test.mjs.
+export const adcvdCheck = {
+  rulings: 35,
+  within: 12,
+  flagged: 11,
+  correctFlags: 11,
+  flaggedTotal: 21,
+  precisionPct: "52.4%",
+  precisionInterval: "32.4–71.7",
+  recallPct: "91.7%",
+  recallInterval: "64.6–98.5",
+  baselinePct: "34.3%",
+};

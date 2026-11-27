@@ -3938,3 +3938,16 @@ Written and pushed before any model call for labels and before the check was run
 - **Scoring.** A ruling's own order is flagged when the check returns a match naming one of the ruling's case numbers. Positive = found within the scope; the check is right on a positive when it flags the own order and on a negative when it does not. Reported: precision, recall, specificity and accuracy with Wilson 95% intervals and n; the same with any order flagged (second figure); the baseline that flags every ruling (precision is then the share found within, recall 1); the subset the model marks `turns_on_origin` and the rest; the rulings on orders not in the frozen snapshot (these count as misses and are shown separately, and the figure is also given without them). No threshold is set and nothing is tuned: the numbers are reported whatever they are. Also run, labelled not held out, on the shipped snapshot.
 - **Expected limits, written first.** Precision will be low: requestors ask about products near the edge of a scope, and a product ruled out usually sits under a listed code. Recall is capped by the codes a scope lists, by the model's classification and by rulings about goods finished in a third country. n is small (under 40): intervals will be wide, and the result says so.
 - **Spend.** Sub-cap $10, gateway only; about 80 short calls, under $0.10 expected. Recorded in the programme ledger.
+
+### Result (27 Nov, scored once, nothing tuned)
+Run once on the frozen files above: 38 rulings, 35 scored (12 within, 23 outside), 3 not scored (`mixed`: one with two products, two rescinded inquiries). Labels reviewed against the entries: no label changed (`eval/adcvd/label-review.md`). All 12 within-scope rulings are on orders in the frozen snapshot.
+- **Precision** (flagged own order, found within scope): 11/21 (52.4%, 32.4–71.7).
+- **Recall** (within-scope rulings whose own order was flagged): 11/12 (91.7%, 64.6–98.5).
+- Specificity 13/23 (56.5%, 36.8–74.4); accuracy 24/35 (68.6%, 52.0–81.4).
+- Any order flagged, not just the ruling's own: precision 12/27 (44.4%, 27.6–62.7), recall 12/12 (100.0%, 75.8–100.0).
+- Baseline, flag every ruling: precision 12/35 (34.3%, 20.8–50.8), specificity 0/23. The check's precision is higher than the baseline's, though the intervals overlap.
+- Origin turns on where the product was made (third country): precision 2/5 (40.0%, 11.8–76.9), recall 2/2 (100.0%, 34.2–100.0), n=7. Everything else: precision 9/16 (56.2%, 33.2–76.9), recall 9/10 (90.0%, 59.6–98.2), n=28.
+- Run on the shipped snapshot (27 Nov 2026), not held out: own-order figures identical, any-order precision 12/28 (42.9%, 26.5–60.9).
+- **Reading.** The check rarely misses a covered product on an order it knows (the one miss is a code the scope does not list), and about half its flags are on products Commerce then ruled out, as written first: requestors ask about products near the edge of a scope. The figure includes the model's code error. n is small and the intervals are wide. It cannot see goods made in a third country. The flag stays off; the figure is on /accuracy and in NUMBERS.md.
+- **Spend.** About $0.05 (38 rulings, two calls each), recorded in the ledger.
+- **Reproduce.** `go run ./cmd/adcvdeval -check` recomputes `results.jsonl` and `summary.json` from the committed rulings, labels and orders, with no model.

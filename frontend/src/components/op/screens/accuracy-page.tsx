@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 import { api, type EvalSummary } from "@/lib/api/client";
 import { copy } from "@/lib/copy";
-import { japanEvidence, japanMeasured, rcepEvidence, rulesChecks } from "@/lib/market-evidence";
+import { adcvdCheck, japanEvidence, japanMeasured, rcepEvidence, rulesChecks } from "@/lib/market-evidence";
 import failureData from "@/lib/failure-cases.json";
 import { ErrorBox, Main } from "../chrome";
 import { ButtonLink, Chip, Fold, ScrollX, cx } from "../ui";
@@ -310,6 +310,7 @@ function JapanMeasured() {
 // D932 and D927. Both checks run without a model.
 function RulesChecks() {
   const r = rulesChecks;
+  const a = adcvdCheck;
   const link = "text-ok underline underline-offset-2 max-sm:inline-flex max-sm:min-h-11 max-sm:items-center";
   return (
     <div id="rules-checks" className="mt-5 border-t border-line pt-4">
@@ -324,9 +325,26 @@ function RulesChecks() {
           <dd><strong>{r.atigaReached}/{r.atigaExamples}</strong> reach the stated result. Not an accuracy rate.</dd>
         </div>
       </dl>
+      <div className="mt-4 border-t border-line pt-3">
+        <h4 className="text-sm font-semibold">Anti-dumping and countervailing duty check (off)</h4>
+        <dl className="mt-2 grid gap-x-6 gap-y-3 text-sm tabular-nums sm:grid-cols-2">
+          <div>
+            <dt className="text-dim">Flagged orders that covered the product</dt>
+            <dd><strong>{a.correctFlags}/{a.flaggedTotal}</strong> ({a.precisionPct}, 95% interval {a.precisionInterval}%)</dd>
+          </div>
+          <div>
+            <dt className="text-dim">Covered products flagged</dt>
+            <dd><strong>{a.flagged}/{a.within}</strong> ({a.recallPct}, 95% interval {a.recallInterval}%)</dd>
+          </div>
+        </dl>
+        <p className="read mt-2 text-sm text-dim">Flagging every product would be right {a.baselinePct} of the time.</p>
+      </div>
       <Details title="Rules check details">
         <p>
           USMCA: held-out CBP rulings dated 2026 and later, scored once. The check decided {r.usmcaDecided} of {r.usmcaProducts} products and left {r.usmcaProducts - r.usmcaDecided} undecided, mostly for a missing material code or a rule it does not model. The figure covers only the decided products. It was built on rulings before 2026.
+        </p>
+        <p>
+          Duty orders: {a.rulings} Commerce scope rulings made in 2025 and 2026, after the order list was frozen on 31 Dec 2024. Few rulings, so the intervals are wide. The product code is suggested by a model from the ruling, so its errors are included. The check uses the order&apos;s country, so it cannot see goods that reach the order through a third country (7 of the {a.rulings} rulings turn on this). The check only shows possible exposure; the order&apos;s written scope decides.
         </p>
         <p>
           ATIGA: no ASEAN Member State publishes origin rulings, so there is nothing to measure accuracy against. The {r.atigaExamples} examples come from customs authorities&apos; own guides. They show the arithmetic and rule reading match those guides, not customs decisions.

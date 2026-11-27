@@ -72,3 +72,18 @@ test("USMCA and ATIGA figures match the committed results", async () => {
   assert.equal(r.atigaExamples, JSON.parse(read("../../eval/atiga/reference-cases.json")).cases.length);
   assert.equal(r.atigaReached, r.atigaExamples);
 });
+
+test("AD/CVD figures match the committed results", async () => {
+  const { adcvdCheck: a } = await import("../src/lib/market-evidence.ts");
+  const d = JSON.parse(read("../../eval/adcvd/summary.json"));
+  assert.equal(a.rulings, d.scored);
+  assert.equal(a.within, d.within);
+  assert.equal(a.flagged, d.own_order.Recall.K);
+  assert.equal(a.correctFlags, d.own_order.Precision.K);
+  assert.equal(a.flaggedTotal, d.own_order.Precision.N);
+  assert.equal(a.precisionPct, `${one(d.own_order.Precision.P)}%`);
+  assert.equal(a.precisionInterval, `${one(d.own_order.Precision.Lo)}–${one(d.own_order.Precision.Hi)}`);
+  assert.equal(a.recallPct, `${one(d.own_order.Recall.P)}%`);
+  assert.equal(a.recallInterval, `${one(d.own_order.Recall.Lo)}–${one(d.own_order.Recall.Hi)}`);
+  assert.equal(a.baselinePct, `${one(d.baseline_flag_every_ruling.Precision.P)}%`);
+});
