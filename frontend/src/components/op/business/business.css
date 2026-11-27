@@ -229,3 +229,29 @@
   font-family: var(--font-instrument), system-ui, sans-serif;
   color: var(--ink);
 }
+
+/* #930: the check in progress, and the answer's outline while it loads */
+.biz-check .biz-progress { gap: 0; padding: 20px 28px; }
+.biz-check .biz-progress ol { margin: 0; padding: 0; list-style: none; }
+.biz-check .biz-progress li { display: flex; align-items: center; gap: 14px; min-height: 48px; font-size: 15px; color: #6b7892; }
+.biz-check .biz-progress li.done, .biz-check .biz-progress li.now { color: var(--ink); }
+.biz-check .biz-progress li.now .t { font-weight: 500; }
+.biz-check .biz-progress .t { flex: 1; }
+.biz-check .biz-progress .dot { width: 22px; height: 22px; flex-shrink: 0; border-radius: 11px; display: flex; align-items: center; justify-content: center; background: #fff; box-shadow: inset 0 0 0 1.5px rgba(19, 33, 58, 0.25); }
+.biz-check .biz-progress li.done .dot { background: var(--ok); box-shadow: none; }
+.biz-check .biz-progress li.now .dot { box-shadow: inset 0 0 0 2px var(--ok); }
+.biz-check .biz-progress li.now .dot::after { content: ""; width: 8px; height: 8px; border-radius: 4px; background: var(--ok); }
+.biz-check .biz-progress .ms { font-size: 12px; color: var(--dim); }
+.biz-check .biz-progress-foot { margin: 8px 0 0; padding-top: 14px; border-top: 1px solid var(--hair); display: flex; gap: 16px; font-size: 13px; color: var(--dim); }
+.biz-check .biz-sent { display: flex; flex-direction: column; gap: 8px; font-size: 13px; color: var(--dim); }
+.biz-check .biz-sent ul { margin: 0; padding: 0; list-style: none; display: grid; gap: 6px; }
+.biz-check .biz-sent li { display: grid; grid-template-columns: 1fr 200px; gap: 8px; }
+.biz-check .biz-sent li span { height: 40px; box-sizing: border-box; padding: 0 14px; display: flex; align-items: center; border-radius: 8px; border: 1px solid rgba(19, 33, 58, 0.12); background: #f4f7fb; font-size: 15px; color: var(--dim); }
+.biz-check .biz-skel { gap: 14px; }
+.biz-check .biz-skel .sk { display: block; border-radius: 6px; background: #e3eaf4; }
+.biz-check .biz-skel .stamp { width: 220px; height: 44px; background: transparent; box-shadow: inset 0 0 0 2px #d3dff0; }
+.biz-check .biz-skel-row { display: flex; align-items: baseline; gap: 12px; }
+@media (prefers-reduced-motion: no-preference) {
+  .biz-check .biz-skel .sk { animation: biz-pulse 1.2s ease-in-out infinite alternate; }
+}
+@keyframes biz-pulse { from { opacity: 1; } to { opacity: 0.55; } }

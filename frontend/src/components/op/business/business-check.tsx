@@ -14,7 +14,7 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useId, useRef, useState, useSyncExternalStore, type FormEvent, type KeyboardEvent } from "react";
-import { streamPredict, type Component, type PredictRequest } from "@/lib/api/client";
+import { streamPredict, type Component, type PredictRequest, type PredictStage } from "@/lib/api/client";
 import { predictBody } from "@/lib/product-facts-reconcile";
 import { isSigninRequired, canCreate } from "@/lib/roles";
 import { useWorkspaceRole } from "@/lib/use-role";
@@ -61,6 +61,14 @@ export function matchCountry(typed: string): string | null {
   const t = typed.trim().replace(/\s+/g, " ").toLowerCase();
   return t ? (byLower.get(t) ?? null) : null;
 }
+
+// The backend's steps (D71) in plain words, in the order they run (#930).
+const STAGES: { name: PredictStage["name"]; text: string }[] = [
+  { name: "router", text: "Checking which rules apply" },
+  { name: "precedents", text: "Finding past Customs decisions on similar products" },
+  { name: "engine", text: "Comparing your parts with those decisions" },
+  { name: "clarify", text: "Checking what Customs may ask about" },
+];
 
 type Part = { name: string; country: string };
 type Draft = { name: string; market: MarketCode; parts: Part[]; assembly: string };
@@ -112,6 +120,8 @@ function CheckForm({ draft, initialStep }: { draft: Draft | null; initialStep: 1
   const [parts, setParts] = useState<Part[]>(draft?.parts.length ? draft.parts : [blank(), blank(), blank()]);
   const [assembly, setAssembly] = useState(draft?.assembly ?? "");
   const [busy, setBusy] = useState(false);
+  const [stages, setStages] = useState<PredictStage[]>([]);
+  const [since, setSince] = useState(0);
   // Set before the request starts, so clicks in the same moment can't send
   // a second check before the button re-renders as disabled (#936).
   const sending = useRef(false);
@@ -149,7 +159,7 @@ function CheckForm({ draft, initialStep }: { draft: Draft | null; initialStep: 1
     if (!moved.current) return;
     moved.current = false;
     heading.current?.focus();
-  }, [step]);
+  }, [step, busy]);
 
   const goTo = (s: 1 | 2) => {
     moved.current = true;
@@ -213,6 +223,9 @@ function CheckForm({ draft, initialStep }: { draft: Draft | null; initialStep: 1
     }
     sending.current = true;
     setProblem(null);
+    setStages([]);
+    setSince(Date.now());
+    moved.current = true;
     setBusy(true);
     // The assembly country becomes one plant with one final assembly step,
     // so the engine reads it as a structured fact, as from the full form.
@@ -230,7 +243,9 @@ function CheckForm({ draft, initialStep }: { draft: Draft | null; initialStep: 1
       jurisdiction: market,
     };
     try {
-      const c = await streamPredict(body, () => {});
+      const c = await streamPredict(body, (st) =>
+        setStages((xs) => (xs.some((x) => x.name === st.name) ? xs.map((x) => (x.name === st.name ? st : x)) : [...xs, st])),
+      );
       try {
         sessionStorage.removeItem(DRAFT_KEY);
       } catch {
@@ -239,6 +254,7 @@ function CheckForm({ draft, initialStep }: { draft: Draft | null; initialStep: 1
       router.push(`/cases/${encodeURIComponent(c.id!)}/origin`);
     } catch (err) {
       sending.current = false;
+      moved.current = true;
       setBusy(false);
       setProblem(
         isSigninRequired(err)
@@ -369,93 +385,178 @@ function CheckForm({ draft, initialStep }: { draft: Draft | null; initialStep: 1
                 <p className="biz-eyebrow biz-eyebrow-name">
                   <span className="mono">2 of 2</span>Your parts · {name.trim()}
                 </p>
-                <h1 ref={heading} tabIndex={-1}>List the main parts</h1>
-                <p className="biz-sub">For each part, say which country makes it. Start with the biggest parts.</p>
+                <h1 ref={heading} tabIndex={-1}>{busy ? "Checking your product" : "List the main parts"}</h1>
+                <p className="biz-sub">
+                  {busy ? "This usually takes about 5 seconds. Your parts are kept if you go back." : "For each part, say which country makes it. Start with the biggest parts."}
+                </p>
               </div>
-              <form className="biz-form" onSubmit={check} noValidate aria-busy={busy}>
-                <table className="biz-ptable">
-                  <thead>
-                    <tr>
-                      <th scope="col">Part</th>
-                      <th scope="col">Made in</th>
-                      <th scope="col"><span className="sr-only">Remove</span></th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {parts.map((p, i) => {
-                      const nf = `${id}-p${i}-name`;
-                      const cf = `${id}-p${i}-country`;
-                      return (
-                        <tr key={i}>
-                          <td>
-                            <input id={nf} type="text" aria-label={`Part ${i + 1} name`} value={p.name} maxLength={PART_MAX} aria-invalid={err(nf) ? true : undefined} aria-describedby={described(nf)} onChange={(e) => setPart(i, "name", e.target.value)} onKeyDown={onTableKey} placeholder={i === 0 ? "For example: Motor" : ""} autoComplete="off" />
-                            {fieldError(nf)}
-                          </td>
-                          <td>
-                            <input id={cf} type="text" aria-label={`Country that makes part ${i + 1}`} list={`${id}-countries`} value={p.country} maxLength={PART_MAX} aria-invalid={err(cf) ? true : undefined} aria-describedby={described(cf)} onChange={(e) => setPart(i, "country", e.target.value)} onKeyDown={onTableKey} placeholder={i === 0 ? "For example: China" : ""} autoComplete="off" />
-                            {fieldError(cf)}
-                          </td>
-                          <td>
-                            <button type="button" className="biz-icon-btn" aria-label={`Remove part ${i + 1}`} disabled={parts.length === 1} onClick={() => removePart(i)}>
-                              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" aria-hidden="true">
-                                <path d="M18 6 6 18" />
-                                <path d="m6 6 12 12" />
-                              </svg>
-                            </button>
-                          </td>
-                        </tr>
-                      );
-                    })}
-                  </tbody>
-                </table>
-                <div className="biz-tools">
-                  {parts.length < PARTS_MAX ? (
-                    <button type="button" className="biz-btn soft" onClick={() => addPart(true)}>+ Add a part</button>
-                  ) : (
-                    <span className="biz-help">{PARTS_MAX} parts is the most here. For a longer list, use the full form.</span>
-                  )}
-                  <span className="biz-help">
-                    Have a parts list file (Excel, CSV, PDF or a photo)? <Link href="/cases/new?via=business" className="biz-link">Upload it in the full form</Link>.
-                  </span>
-                </div>
-                <div className="biz-field">
-                  <label htmlFor={`${id}-assembly`}>Where is the product put together?</label>
-                  <input
-                    id={`${id}-assembly`}
-                    type="text"
-                    list={`${id}-countries`}
-                    value={assembly}
-                    maxLength={PART_MAX}
-                    aria-invalid={err(`${id}-assembly`) ? true : undefined}
-                    aria-describedby={described(`${id}-assembly`)}
-                    onChange={(e) => {
-                      setAssembly(e.target.value);
-                      clear(`${id}-assembly`);
-                    }}
-                    placeholder="For example: Thailand"
-                    autoComplete="off"
-                  />
-                  {fieldError(`${id}-assembly`)}
-                </div>
-                {problem && <p role="alert" className="biz-problem">{problem}</p>}
-                <div className="biz-form-actions ruled">
-                  <button type="button" className="biz-link plain" onClick={() => goTo(1)} disabled={busy}>Back</button>
-                  <button type="submit" className="biz-btn accent biz-push" disabled={busy}>{busy ? "Checking…" : "Check my product"}</button>
-                </div>
-              </form>
+              {busy ? (
+                <CheckProgress stages={stages} since={since} parts={parts.filter((p) => p.name.trim())} />
+              ) : (
+                <form className="biz-form" onSubmit={check} noValidate aria-busy={busy}>
+                  <table className="biz-ptable">
+                    <thead>
+                      <tr>
+                        <th scope="col">Part</th>
+                        <th scope="col">Made in</th>
+                        <th scope="col"><span className="sr-only">Remove</span></th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {parts.map((p, i) => {
+                        const nf = `${id}-p${i}-name`;
+                        const cf = `${id}-p${i}-country`;
+                        return (
+                          <tr key={i}>
+                            <td>
+                              <input id={nf} type="text" aria-label={`Part ${i + 1} name`} value={p.name} maxLength={PART_MAX} aria-invalid={err(nf) ? true : undefined} aria-describedby={described(nf)} onChange={(e) => setPart(i, "name", e.target.value)} onKeyDown={onTableKey} placeholder={i === 0 ? "For example: Motor" : ""} autoComplete="off" />
+                              {fieldError(nf)}
+                            </td>
+                            <td>
+                              <input id={cf} type="text" aria-label={`Country that makes part ${i + 1}`} list={`${id}-countries`} value={p.country} maxLength={PART_MAX} aria-invalid={err(cf) ? true : undefined} aria-describedby={described(cf)} onChange={(e) => setPart(i, "country", e.target.value)} onKeyDown={onTableKey} placeholder={i === 0 ? "For example: China" : ""} autoComplete="off" />
+                              {fieldError(cf)}
+                            </td>
+                            <td>
+                              <button type="button" className="biz-icon-btn" aria-label={`Remove part ${i + 1}`} disabled={parts.length === 1} onClick={() => removePart(i)}>
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" aria-hidden="true">
+                                  <path d="M18 6 6 18" />
+                                  <path d="m6 6 12 12" />
+                                </svg>
+                              </button>
+                            </td>
+                          </tr>
+                        );
+                      })}
+                    </tbody>
+                  </table>
+                  <div className="biz-tools">
+                    {parts.length < PARTS_MAX ? (
+                      <button type="button" className="biz-btn soft" onClick={() => addPart(true)}>+ Add a part</button>
+                    ) : (
+                      <span className="biz-help">{PARTS_MAX} parts is the most here. For a longer list, use the full form.</span>
+                    )}
+                    <span className="biz-help">
+                      Have a parts list file (Excel, CSV, PDF or a photo)? <Link href="/cases/new?via=business" className="biz-link">Upload it in the full form</Link>.
+                    </span>
+                  </div>
+                  <div className="biz-field">
+                    <label htmlFor={`${id}-assembly`}>Where is the product put together?</label>
+                    <input
+                      id={`${id}-assembly`}
+                      type="text"
+                      list={`${id}-countries`}
+                      value={assembly}
+                      maxLength={PART_MAX}
+                      aria-invalid={err(`${id}-assembly`) ? true : undefined}
+                      aria-describedby={described(`${id}-assembly`)}
+                      onChange={(e) => {
+                        setAssembly(e.target.value);
+                        clear(`${id}-assembly`);
+                      }}
+                      placeholder="For example: Thailand"
+                      autoComplete="off"
+                    />
+                    {fieldError(`${id}-assembly`)}
+                  </div>
+                  {problem && <p role="alert" className="biz-problem">{problem}</p>}
+                  <div className="biz-form-actions ruled">
+                    <button type="button" className="biz-link plain" onClick={() => goTo(1)} disabled={busy}>Back</button>
+                    <button type="submit" className="biz-btn accent biz-push" disabled={busy}>{busy ? "Checking…" : "Check my product"}</button>
+                  </div>
+                </form>
+              )}
             </div>
-            <aside aria-label="What happens next" className="biz-next">
-              <h2>What happens next</h2>
-              <ol>
-                <li><span className="mono">1</span>You see the likely country and the import tax. It takes about 5 seconds.</li>
-                <li><span className="mono">2</span>Unde may ask a few questions about how the parts are made. Answering is optional.</li>
-                <li><span className="mono">3</span>{market === "us" ? "You see which production changes could lower the tax." : "Plans for production changes are for the United States only for now."}</li>
-              </ol>
-              <p>An estimate. A customs broker confirms it.</p>
-            </aside>
+            {busy ? (
+              <aside aria-label="Your answer, loading" aria-busy="true" className="biz-next biz-skel">
+                <h2>Your likely answer</h2>
+                <span className="sk stamp" />
+                <span className="biz-skel-row">
+                  <span className="sk" style={{ width: 120, height: 36 }} />
+                  <span className="sk" style={{ width: 70, height: 14 }} />
+                </span>
+                <span className="sk" style={{ width: "100%", height: 12 }} />
+                <span className="sk" style={{ width: "86%", height: 12 }} />
+                <span className="sk" style={{ width: "60%", height: 12 }} />
+              </aside>
+            ) : (
+              <aside aria-label="What happens next" className="biz-next">
+                <h2>What happens next</h2>
+                <ol>
+                  <li><span className="mono">1</span>You see the likely country and the import tax. It takes about 5 seconds.</li>
+                  <li><span className="mono">2</span>Unde may ask a few questions about how the parts are made. Answering is optional.</li>
+                  <li><span className="mono">3</span>{market === "us" ? "You see which production changes could lower the tax." : "Plans for production changes are for the United States only for now."}</li>
+                </ol>
+                <p>An estimate. A customs broker confirms it.</p>
+              </aside>
+            )}
           </div>
         )}
       </main>
     </div>
+  );
+}
+
+// The check in progress (#930): the backend's steps as they stream, with
+// the seconds so far, and the parts that were sent.
+function CheckProgress({ stages, since, parts }: { stages: PredictStage[]; since: number; parts: Part[] }) {
+  const [now, setNow] = useState(() => Date.now());
+  useEffect(() => {
+    const t = setInterval(() => setNow(Date.now()), 1000);
+    return () => clearInterval(t);
+  }, []);
+  const secs = Math.max(0, Math.round((now - since) / 1000));
+  // Before any step reports, the first step shows as under way.
+  const firstOpen = STAGES.findIndex((x) => stages.find((y) => y.name === x.name)?.status !== "done");
+  const anyStarted = stages.some((y) => y.status === "started");
+  const state = (name: PredictStage["name"], i: number) => {
+    const st = stages.find((x) => x.name === name);
+    if (st?.status === "done") return "done";
+    if (st) return "now";
+    return i === firstOpen && !anyStarted ? "now" : "todo";
+  };
+  return (
+    <>
+      <section aria-label="Progress" className="biz-form biz-progress">
+        <ol role="status" aria-live="polite">
+          {STAGES.map((x, i) => {
+            const st = state(x.name, i);
+            const ms = stages.find((y) => y.name === x.name && y.status === "done")?.ms;
+            return (
+              <li key={x.name} className={st}>
+                <span className="dot" aria-hidden="true">
+                  {st === "done" && (
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+                      <path d="M20 6 9 17l-5-5" />
+                    </svg>
+                  )}
+                </span>
+                <span className="t">
+                  {x.text}
+                  <span className="sr-only">{st === "done" ? " (done)" : st === "now" ? " (in progress)" : ""}</span>
+                </span>
+                <span className="mono ms">{ms !== undefined ? `${(ms / 1000).toFixed(1)} s` : ""}</span>
+              </li>
+            );
+          })}
+        </ol>
+        <p className="biz-progress-foot">
+          <span className="mono">{secs} s</span>
+          {secs >= 20 && <span>Taking longer than usual. Still working.</span>}
+        </p>
+      </section>
+      {parts.length > 0 && (
+        <div className="biz-sent">
+          <span>What you sent</span>
+          <ul>
+            {parts.map((p, i) => (
+              <li key={i}>
+                <span>{p.name.trim()}</span>
+                <span>{matchCountry(p.country) ?? p.country}</span>
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
+    </>
   );
 }
