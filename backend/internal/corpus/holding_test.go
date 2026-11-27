@@ -96,3 +96,80 @@ func TestUSMCALabelsShipWithFacts(t *testing.T) {
 		t.Errorf("%d USMCA rulings with an origin, %d in the store", withOrigin, s.Len())
 	}
 }
+
+// The D956 error cases: 2019-2020 New York rulings on knit-to-shape garments
+// whose panels are knit in Hong Kong and linked in China. CBP holds Hong
+// Kong; the legacy labeller (Hong Kong written as China) labelled them China.
+func TestLabelHoldingTextileKeepsHongKong(t *testing.T) {
+	for _, tt := range []struct {
+		name, text, textile, legacy string
+	}{
+		{"hat knit in Hong Kong, linked in China (N303311)",
+			"Dear Mr. Lee: The fabric that forms the hat is knit to shape in Hong Kong. The knit fabric from Hong Kong is sent to China where it is linked and looped to form the hat. The determination of the country of origin of style LU9AEHS is to be governed by 19 C.F.R. 102.21(c)(3)(i), wherein the country of origin of the good is the single country, territory, or insular possession in which the good was knit.The country of origin of the hat submitted as style LU9AEHS is Hong Kong.The applicable subheading will be 6505.00.1540.",
+			"Hong Kong", "China"},
+		{"two products, one holding sentence each (pullover and hat)",
+			"Dear Mr. Lee: The pullover is knit to shape in Hong Kong and assembled in China. ANALYSIS: Under 19 C.F.R. 102.21(c)(3)(i) the good is the product of the place where it was knit. HOLDING: The country of origin of the women's knit to shape pullover is Hong Kong. The country of origin of the hat is Hong Kong.",
+			"Hong Kong", "China"},
+		{"Hong Kong and China are different holdings",
+			"Dear Mr. Lee: The pullover is knit in Hong Kong. The scarf is woven and assembled in China. ANALYSIS: Under 19 C.F.R. 102.21 the pullover is of one place and the scarf of another. HOLDING: The country of origin of the pullover is Hong Kong. The country of origin of the scarf is China.",
+			"", "China"},
+		{"China stays China",
+			"Dear Mr. Lee: The top is cut and sewn in China from fabric woven in China. ANALYSIS: Under 19 C.F.R. 102.21(c)(2) the country of origin of the top is China.",
+			"China", "China"},
+		{"Macau and Taiwan are their own places",
+			"Dear Mr. Lee: The cardigan is knit to shape in Macau and linked in China. ANALYSIS: Under 19 C.F.R. 102.21(c)(3)(i) the country of origin of the cardigan is Macau.",
+			"Macau", "Macau"},
+	} {
+		t.Run(tt.name, func(t *testing.T) {
+			_, meta := SplitFacts(tt.text)
+			l := LabelHoldingTextile("N303311", "2019-04-01T00:00:00", "ny", "s", tt.text, meta)
+			if l.Origin() != tt.textile {
+				t.Errorf("textile label = %q, want %q (evidence %q)", l.Origin(), tt.textile, l.Evidence)
+			}
+			if old := LabelHolding("N303311", "2019-04-01T00:00:00", "ny", "s", tt.text, meta); old.Origin() != tt.legacy {
+				t.Errorf("legacy label = %q, want %q: the legacy labeller must not change", old.Origin(), tt.legacy)
+			}
+		})
+	}
+}
+
+// Holdings on several goods and holdings that depend on a scenario are not a
+// single origin (D957). Each text is cut down from the D956 ruling named.
+func TestLabelHoldingTextileMultipleHoldings(t *testing.T) {
+	for _, tt := range []struct {
+		name, text, want string
+	}{
+		{"one sentence per good, the second without a cue (N307920)",
+			"Dear Ms. Lee: Towels and a pet bowl mat are made abroad. ANALYSIS: Under 19 C.F.R. 102.21 the tariff shift applies. HOLDING: The country of origin of the microfiber towel and chenille door mat is China. The country of origin of the pet bowl mat is Vietnam. In the event there is a change in the facts previously furnished, this may affect the determination of country of origin.",
+			""},
+		{"two goods, no good named, different places (N352382)",
+			"Dear Ms. Lee: Tents and an insert are made abroad. ANALYSIS: Under 19 C.F.R. 102.21 the tariff shift applies. HOLDING: The applicable subheading for the tents will be 6306.22, HTSUS, and the country of origin is China. The applicable subheading for the mesh insert will be 6307.90.9891, HTSUS, and the country of origin is Vietnam.",
+			""},
+		{"one place under both scenarios is one holding (N343157)",
+			"Dear Ms. Lee: A blanket is made abroad. ANALYSIS: Under 19 C.F.R. 102.21 the tariff shift applies. HOLDING: The applicable subheading for the hooded blanket will be 6307.90.9891, HTSUS, and the country of origin is China under both proposed manufacturing scenarios.",
+			"China"},
+		{"a place per numbered scenario (N347636)",
+			"Dear Ms. Lee: A mat is made abroad. ANALYSIS: Under 19 C.F.R. 102.21 the tariff shift applies. HOLDING: The applicable subheading for the mat will be 5702.42.2080, HTSUS, and the country of origin is Vietnam under Scenario 1 and China under Scenarios 2 and 3.",
+			""},
+		{"a sentence per numbered scenario (N339406)",
+			"Dear Ms. Lee: A bathmat is made abroad. ANALYSIS: Under 19 C.F.R. 102.21 the tariff shift applies. HOLDING: The country of origin of the bathmat under scenario 1 is Vietnam. Under scenario 2, the country of origin of the bathmat is China; as a result, Section 301 remedies apply.",
+			""},
+		{"a place per condition (N302194)",
+			"Dear Ms. Lee: Pillowcases are made abroad. ANALYSIS: Under 19 C.F.R. 102.21 the tariff shift applies. HOLDING: The country of origin of the pillowcases is conferred in India when the fabric is woven in India and in Pakistan when the fabric is woven in Pakistan.",
+			""},
+		{"is conferred in, one good (N304732)",
+			"Dear Ms. Lee: A mattress pad is made abroad. ANALYSIS: Under 19 C.F.R. 102.21 the tariff shift applies. Accordingly, the country of origin of the mattress pad is conferred in China.",
+			"China"},
+		{"the US as a holding (N361490)",
+			"Dear Ms. Lee: Lures are made abroad. ANALYSIS: Under 19 C.F.R. 102.21 the tariff shift applies. Therefore, the country of origin for the Plug Lures is Canada. The powder coating does not transform the blanks, therefore the country of origin for the Spoon Lures is the US.",
+			""},
+	} {
+		t.Run(tt.name, func(t *testing.T) {
+			_, meta := SplitFacts(tt.text)
+			l := LabelHoldingTextile("N300000", "2019-04-01T00:00:00", "ny", "s", tt.text, meta)
+			if l.Origin() != tt.want {
+				t.Errorf("origin = %q, want %q (evidence %q)", l.Origin(), tt.want, l.Evidence)
+			}
+		})
+	}
+}

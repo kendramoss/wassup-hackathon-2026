@@ -15,7 +15,7 @@ import (
 
 func main() {
 	if len(os.Args) < 2 {
-		fmt.Fprintln(os.Stderr, "usage: textilerules rules|show|extract|eval")
+		fmt.Fprintln(os.Stderr, "usage: textilerules rules|show|extract|eval|relabel")
 		os.Exit(2)
 	}
 	var err error
@@ -28,6 +28,10 @@ func main() {
 		err = cmdExtract(os.Args[2:])
 	case "eval":
 		err = cmdEval(os.Args[2:])
+	case "labelcheck":
+		err = cmdLabelCheck(os.Args[2:])
+	case "relabel":
+		err = cmdRelabel(os.Args[2:])
 	default:
 		err = fmt.Errorf("unknown command %q", os.Args[1])
 	}

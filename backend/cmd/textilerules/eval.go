@@ -30,6 +30,10 @@ var modelRows = map[string]string{
 // textile engine never ran on them, so there is no model column.
 var freshSplits = map[string]bool{"older": true, "pool": true}
 
+// thirdSplit is the third held-out set of D957: 2014-2018 New York rulings, labelled by
+// the textile labeller (labels-textile.jsonl). It is reported apart from D955's two.
+const thirdSplit = "third"
+
 func splitIDs(split string) ([]string, error) {
 	file := "../eval/splits/splits_textile.json"
 	switch {
@@ -37,6 +41,8 @@ func splitIDs(split string) ([]string, error) {
 		file = "../eval/splits/splits_textile_final2.json"
 	case freshSplits[split]:
 		file = "../eval/splits/splits_textile_fresh.json"
+	case split == thirdSplit:
+		file = "../eval/splits/splits_textile_third.json"
 	}
 	b, err := os.ReadFile(file)
 	if err != nil {
@@ -61,7 +67,10 @@ type Gold struct {
 	Excluded     string
 }
 
-func loadGold() (map[string]Gold, error) {
+// loadGold reads the labels the sets were first built on. With textile set, the
+// labels of the textile labeller (D957) replace them for every ruling they cover;
+// without it they are read for the third set only, which has no other label.
+func loadGold(textile bool) (map[string]Gold, error) {
 	out := map[string]Gold{}
 	for _, f := range []string{"../eval/data/labels.jsonl", "../eval/data/labels_final2.jsonl", "data/labels_older.jsonl"} {
 		b, err := os.ReadFile(f)
@@ -84,6 +93,31 @@ func loadGold() (map[string]Gold, error) {
 			}
 			out[r.Ruling] = Gold{Origin: *r.Origin}
 		}
+	}
+	tl, err := os.ReadFile(textileLabelsFile)
+	if err != nil && !os.IsNotExist(err) {
+		return nil, err
+	}
+	for _, line := range bytes.Split(tl, []byte("\n")) {
+		if len(bytes.TrimSpace(line)) == 0 {
+			continue
+		}
+		var r struct {
+			Ruling string  `json:"ruling"`
+			Set    string  `json:"set"`
+			Origin *string `json:"primary_origin"`
+		}
+		if err := json.Unmarshal(line, &r); err != nil {
+			return nil, err
+		}
+		if !textile && r.Set != thirdSplit {
+			continue
+		}
+		if r.Origin == nil { // no single holding under the textile labeller: out of the set, not a miss
+			out[r.Ruling] = Gold{Excluded: "no single holding (textile labeller, D957)"}
+			continue
+		}
+		out[r.Ruling] = Gold{Origin: *r.Origin}
 	}
 	b, err := os.ReadFile("../eval/data/scoring_adjustments.json")
 	if err != nil {
@@ -185,20 +219,28 @@ func cmdEval(args []string) error {
 	check := fl.Bool("check", false, "recompute and compare with the committed summary; write nothing")
 	outDir := fl.String("out", evalDir, "directory for results-*.jsonl and summary.json")
 	only := fl.String("split", "", "one split only (dev, final, final2); a partial run never writes summary.json over the committed one")
+	goldFlag := fl.String("gold", "legacy", "legacy: the labels the sets were built on (reproduces D952 and D956); textile: the labels of the textile labeller, a post-hoc restatement that needs -out elsewhere (D957)")
 	_ = fl.Parse(args)
+	if *goldFlag != "legacy" && *goldFlag != "textile" {
+		return fmt.Errorf("-gold must be legacy or textile")
+	}
+	if *goldFlag == "textile" && *outDir == evalDir {
+		return fmt.Errorf("-gold textile restates the committed sets: give -out a directory of its own")
+	}
 	rules, err := textilerules.Default()
 	if err != nil {
 		return err
 	}
-	gold, err := loadGold()
+	gold, err := loadGold(*goldFlag == "textile")
 	if err != nil {
 		return err
 	}
 	files, _ := filepath.Glob(filepath.Join(evalDir, "inputs-*.jsonl"))
 	sort.Strings(files)
-	order := map[string]int{"dev": 0, "final": 1, "final2": 2, "older": 3, "pool": 4}
+	order := map[string]int{"dev": 0, "final": 1, "final2": 2, "older": 3, "pool": 4, "third": 5}
 	sort.SliceStable(files, func(i, j int) bool { return order[splitOf(files[i])] < order[splitOf(files[j])] })
-	var cells, freshCells []Cell
+	var cells, freshCells, thirdCells []Cell
+	thirdRows := map[string][]InputRow{}
 	for _, f := range files {
 		if *only != "" && splitOf(f) != *only {
 			continue
@@ -212,7 +254,7 @@ func cmdEval(args []string) error {
 		}
 		split, source := rows[0].Split, rows[0].Source
 		preds := map[string]string{}
-		if !freshSplits[split] {
+		if !freshSplits[split] && split != thirdSplit {
 			if preds, err = loadModel(modelRows[split]); err != nil {
 				return err
 			}
@@ -222,66 +264,16 @@ func cmdEval(args []string) error {
 			if plus {
 				src += "+suggested"
 			}
-			cell := Cell{Split: split, Source: src, N: len(rows), Reasons: map[string]int{}, ByPara: map[string]int{}}
-			var out []CaseResult
-			for _, r := range rows {
-				g := gold[r.Ruling]
-				facts := r.Facts
-				if plus && facts.GoodHTS == "" {
-					facts.GoodHTS = r.Suggested
-				}
-				cr := CaseResult{Ruling: r.Ruling, Gold: g.Origin, Model: preds[r.Ruling]}
-				if g.Excluded != "" {
-					cell.Excluded++
-					out = append(out, cr)
-					continue
-				}
-				if r.Error != "" {
-					cr.Rule = textilerules.Result{Status: textilerules.Undetermined, Reason: "extraction failed", Class: "extraction_failed"}
-					cell.Reasons["extraction_failed"]++
-					cr.Scored = true
-					out = append(out, cr)
-					continue
-				}
-				cell.Extracted++
-				cr.Scored = true
-				cr.Rule = rules.Evaluate(facts)
-				switch cr.Rule.Status {
-				case textilerules.Decided:
-					cell.Decided++
-					cell.ByPara[cr.Rule.Para]++
-					a, m := g.matches(cr.Rule.Origin), sameCountry(cr.Rule.Origin, cr.Model)
-					cr.AgreeCBP, cr.AgreeModel = &a, &m
-					if a {
-						cell.AgreeCBP++
-					}
-					if !m {
-						cell.DisagreeModel++
-					}
-					if g.matches(cr.Model) {
-						cell.ModelOnDecided++
-					}
-				case textilerules.OutOfScope:
-					cell.OutOfScope++
-				default:
-					cell.Reasons[cr.Rule.Class]++
-					if cr.Rule.Candidate != "" {
-						cell.Candidates++
-						c := g.matches(cr.Rule.Candidate)
-						cr.CandidateAgree = &c
-						if c {
-							cell.CandidateRight++
-						}
-					}
-				}
-				out = append(out, cr)
-			}
+			cell, out := scoreRows(rules, gold, preds, rows, split, src, plus)
 			if cell.Decided > 0 {
 				lo, hi := wilson(cell.AgreeCBP, cell.Decided)
 				cell.AgreeCBPCI = &[2]float64{lo, hi}
 			}
 			if freshSplits[split] {
 				freshCells = append(freshCells, cell)
+			} else if split == thirdSplit {
+				thirdCells = append(thirdCells, cell)
+				thirdRows[src] = rows
 			} else {
 				cells = append(cells, cell)
 			}
@@ -315,6 +307,25 @@ func cmdEval(args []string) error {
 				fmt.Printf("%-6s %-17s n=%d out_of_scope=%d in_scope=%d decided=%d (%.1f%%) agree_cbp=%d ci=%v undetermined=%v\n",
 					c.Split, c.Source, c.N, c.OutOfScope, c.InScope, c.Decided, c.DecidedShare, c.AgreeCBP, c.AgreeCBPCI, c.Reasons)
 			}
+		}
+	}
+	if len(thirdCells) > 0 {
+		tc, err := thirdReport(rules, gold, thirdCells, thirdRows)
+		if err != nil {
+			return err
+		}
+		b, _ := json.MarshalIndent(map[string]any{
+			"note":  "D957: the third held-out test of the 19 CFR 102.21 rule check (2014-2018 New York rulings, labels of the textile labeller). Headline input: facts+suggested. Recompute: cd backend && go run ./cmd/textilerules eval -check",
+			"cells": tc,
+		}, "", " ")
+		if *only == "" || *only == thirdSplit {
+			if err := writeOrCheck(filepath.Join(*outDir, "summary-third.json"), append(b, '\n'), *check); err != nil {
+				return err
+			}
+		}
+		for _, c := range tc {
+			fmt.Printf("%-8s %-17s n=%d out_of_scope=%d in_scope=%d decided=%d (%.1f%%) agree_cbp=%d ci=%v undetermined=%v\n",
+				c.Split, c.Source, c.N, c.OutOfScope, c.InScope, c.Decided, c.DecidedShare, c.AgreeCBP, c.AgreeCBPCI, c.Reasons)
 		}
 	}
 	for _, c := range cells {
@@ -446,4 +457,117 @@ func freshReport(cells []Cell) []FreshCell {
 		out = append(out, fc)
 	}
 	return out
+}
+
+// scoreRows scores one set of extracted rows: the rule layer against CBP's holding.
+func scoreRows(rules *textilerules.Rules, gold map[string]Gold, preds map[string]string, rows []InputRow, split, src string, plus bool) (Cell, []CaseResult) {
+	cell := Cell{Split: split, Source: src, N: len(rows), Reasons: map[string]int{}, ByPara: map[string]int{}}
+	var out []CaseResult
+	for _, r := range rows {
+		g := gold[r.Ruling]
+		facts := r.Facts
+		if plus && facts.GoodHTS == "" {
+			facts.GoodHTS = r.Suggested
+		}
+		cr := CaseResult{Ruling: r.Ruling, Gold: g.Origin, Model: preds[r.Ruling]}
+		if g.Excluded != "" {
+			cell.Excluded++
+			out = append(out, cr)
+			continue
+		}
+		if r.Error != "" {
+			cr.Rule = textilerules.Result{Status: textilerules.Undetermined, Reason: "extraction failed", Class: "extraction_failed"}
+			cell.Reasons["extraction_failed"]++
+			cr.Scored = true
+			out = append(out, cr)
+			continue
+		}
+		cell.Extracted++
+		cr.Scored = true
+		cr.Rule = rules.Evaluate(facts)
+		switch cr.Rule.Status {
+		case textilerules.Decided:
+			cell.Decided++
+			cell.ByPara[cr.Rule.Para]++
+			a, m := g.matches(cr.Rule.Origin), sameCountry(cr.Rule.Origin, cr.Model)
+			cr.AgreeCBP, cr.AgreeModel = &a, &m
+			if a {
+				cell.AgreeCBP++
+			}
+			if !m {
+				cell.DisagreeModel++
+			}
+			if g.matches(cr.Model) {
+				cell.ModelOnDecided++
+			}
+		case textilerules.OutOfScope:
+			cell.OutOfScope++
+		default:
+			cell.Reasons[cr.Rule.Class]++
+			if cr.Rule.Candidate != "" {
+				cell.Candidates++
+				c := g.matches(cr.Rule.Candidate)
+				cr.CandidateAgree = &c
+				if c {
+					cell.CandidateRight++
+				}
+			}
+		}
+		out = append(out, cr)
+	}
+	return cell, out
+}
+
+// thirdReport is the third set's cells (one per input) followed by each
+// period's cells, scored from the same extractions. The periods are fixed in
+// the split file before scoring (D957); the bar is read on the whole set.
+func thirdReport(rules *textilerules.Rules, gold map[string]Gold, cells []Cell, rows map[string][]InputRow) ([]FreshCell, error) {
+	b, err := os.ReadFile("../eval/splits/splits_textile_third.json")
+	if err != nil {
+		return nil, err
+	}
+	var sp struct {
+		Periods map[string][]string `json:"periods"`
+	}
+	if err := json.Unmarshal(b, &sp); err != nil {
+		return nil, err
+	}
+	all := append([]Cell{}, cells...)
+	names := make([]string, 0, len(sp.Periods))
+	for n := range sp.Periods {
+		names = append(names, n)
+	}
+	sort.Strings(names)
+	for _, c := range cells {
+		for _, n := range names {
+			in := map[string]bool{}
+			for _, id := range sp.Periods[n] {
+				in[id] = true
+			}
+			var sub []InputRow
+			for _, r := range rows[c.Source] {
+				if in[r.Ruling] {
+					sub = append(sub, r)
+				}
+			}
+			plus := strings.HasSuffix(c.Source, "+suggested")
+			cell, _ := scoreRows(rules, gold, map[string]string{}, sub, "third "+n, c.Source, plus)
+			if cell.Decided > 0 {
+				lo, hi := wilson(cell.AgreeCBP, cell.Decided)
+				cell.AgreeCBPCI = &[2]float64{lo, hi}
+			}
+			all = append(all, cell)
+		}
+	}
+	out := make([]FreshCell, 0, len(all))
+	for _, c := range all {
+		c.DisagreeModel, c.ModelOnDecided = 0, 0
+		in := c.Extracted - c.OutOfScope + c.Reasons["extraction_failed"]
+		fc := FreshCell{Cell: c, InScope: in}
+		if in > 0 {
+			fc.DecidedShare = math.Round(1000*float64(c.Decided)/float64(in)) / 10
+		}
+		out = append(out, fc)
+	}
+	return out, nil
 }

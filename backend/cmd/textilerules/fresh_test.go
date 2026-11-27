@@ -35,3 +35,19 @@ func TestFreshReportPoolsSetsAndShare(t *testing.T) {
 		t.Fatalf("older share = %v", got[0].DecidedShare)
 	}
 }
+
+func TestPickSampleIsDeterministicAndIndependentOfOrder(t *testing.T) {
+	a := pickSample([]string{"N1", "N2", "N3", "N4", "N5", "N6"}, 3)
+	b := pickSample([]string{"N6", "N5", "N4", "N3", "N2", "N1"}, 3)
+	if len(a) != 3 || len(b) != 3 {
+		t.Fatalf("sizes %d %d", len(a), len(b))
+	}
+	for i := range a {
+		if a[i] != b[i] {
+			t.Fatalf("sample depends on input order: %v vs %v", a, b)
+		}
+	}
+	if got := pickSample([]string{"N1"}, 5); len(got) != 1 {
+		t.Fatalf("n beyond the list: %v", got)
+	}
+}
