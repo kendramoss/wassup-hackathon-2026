@@ -383,6 +383,7 @@ function TariffWatchEvidence() {
       </dl>
       <Details title="Tariff watch limits">
         <p>Not a blind test: we read the notices while building the loader. It shows the loader reproduces documented changes, not that it finds unknown ones.</p>
+        <p>Scored twice. The first scoring had 6 wrong alarms of 120 flagged (95%). Reading them showed our answer key had missed lines the notices do name, so we fixed how we read the notices and scored again; the loader was not changed. Both runs are in D941.</p>
         <p>One pair of revisions. The rate change is 4 lines, so 4 of 4 is a small test. No change to a base duty rate or a Section 232 duty was in this pair.</p>
         <p>Not dollars: it finds which lines changed terms (an exclusion window or a start date). Exclusions are reported, not applied to the rate.</p>
         <p>
