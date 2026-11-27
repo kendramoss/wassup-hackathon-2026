@@ -98,6 +98,18 @@ export const rulesChecks = {
   atigaReached: 7,
 };
 
+// D952 held-out result of the textile rules check (TEXTILE_RULES, off), facts
+// plus suggested subheading, final and final2 pooled. Pinned to
+// eval/textile102/summary.json by scripts/japan-evidence.test.mjs.
+export const textileRules = {
+  rulings: 88,
+  inScope: 41,
+  decided: 14,
+  agreed: 13,
+  pct: "92.9%",
+  interval: "68.5–98.7",
+};
+
 // D943 held-out result of the AD/CVD exposure check with the scope reader
 // (ADCVD_CHECK and ADCVD_SCOPE_READER, off), the shipped method with the
 // pointer-scope fix. Pinned to eval/adcvd/heldout/summary.json by

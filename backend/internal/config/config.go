@@ -396,6 +396,12 @@ type Config struct {
 	// (D939).
 	ADCVDCheck bool
 	adcvdCheck string // as given, checked by validate
+	// TextileRules (on|off, default off) adds textile_rule_check to a case
+	// whose product gives an HTS code in Chapters 50 through 63 or another
+	// textile code: the deterministic 19 CFR 102.21 check beside the model's
+	// answer. Display only, no model call, never changes an answer (D951).
+	TextileRules bool
+	textileRules string // as given, checked by validate
 	// ADCVDScopeReader (on|off, default off, needs ADCVD_CHECK=on) makes
 	// POST /v1/adcvd/check, and so the MCP tool, have a model read each listed
 	// order's written scope against the part's name and drop an order only
@@ -711,6 +717,8 @@ func FromEnv(getenv func(string) string) (Config, error) {
 	c.ATIGACheck = c.atigaCheck == "on" || c.atigaCheck == "true" || c.atigaCheck == "1"
 	c.adcvdCheck = strings.ToLower(e.str("ADCVD_CHECK", "off"))
 	c.ADCVDCheck = c.adcvdCheck == "on" || c.adcvdCheck == "true" || c.adcvdCheck == "1"
+	c.textileRules = strings.ToLower(e.str("TEXTILE_RULES", "off"))
+	c.TextileRules = c.textileRules == "on" || c.textileRules == "true" || c.textileRules == "1"
 	c.adcvdScopeReader = strings.ToLower(e.str("ADCVD_SCOPE_READER", "off"))
 	c.ADCVDScopeReader = c.adcvdScopeReader == "on" || c.adcvdScopeReader == "true" || c.adcvdScopeReader == "1"
 	c.ADCVDReaderModel = e.str("ADCVD_READER_MODEL", "gemini-3.8-flash")
@@ -862,6 +870,11 @@ func (c Config) validate() error {
 	case "on", "true", "1", "off", "false", "0":
 	default:
 		bad("ADCVD_CHECK must be on or off, got %q", c.adcvdCheck)
+	}
+	switch c.textileRules {
+	case "on", "true", "1", "off", "false", "0":
+	default:
+		bad("TEXTILE_RULES must be on or off, got %q", c.textileRules)
 	}
 	switch c.adcvdScopeReader {
 	case "on", "true", "1", "off", "false", "0":

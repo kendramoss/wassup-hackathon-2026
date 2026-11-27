@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 import { api, type EvalSummary } from "@/lib/api/client";
 import { copy } from "@/lib/copy";
-import { adcvdCheck, japanEvidence, japanMeasured, rcepEvidence, rulesChecks, tariffWatch } from "@/lib/market-evidence";
+import { adcvdCheck, japanEvidence, japanMeasured, rcepEvidence, rulesChecks, tariffWatch, textileRules } from "@/lib/market-evidence";
 import failureData from "@/lib/failure-cases.json";
 import { ErrorBox, Main } from "../chrome";
 import { ButtonLink, Chip, Fold, ScrollX, cx } from "../ui";
@@ -311,10 +311,11 @@ function JapanMeasured() {
 function RulesChecks() {
   const r = rulesChecks;
   const a = adcvdCheck;
+  const x = textileRules;
   const link = "text-ok underline underline-offset-2 max-sm:inline-flex max-sm:min-h-11 max-sm:items-center";
   return (
     <div id="rules-checks" className="mt-5 border-t border-line pt-4">
-      <h3 className="text-sm font-semibold">USMCA and ASEAN rules checks</h3>
+      <h3 className="text-sm font-semibold">USMCA, ASEAN and textile rules checks</h3>
       <dl className="mt-3 grid gap-x-6 gap-y-3 text-sm tabular-nums sm:grid-cols-2">
         <div>
           <dt className="text-dim">USMCA origin rules (General Note 11), agreement with CBP on decided products</dt>
@@ -323,6 +324,10 @@ function RulesChecks() {
         <div>
           <dt className="text-dim">ASEAN (ATIGA) check, authority worked examples</dt>
           <dd><strong>{r.atigaReached}/{r.atigaExamples}</strong> reach the stated result. Not an accuracy rate.</dd>
+        </div>
+        <div>
+          <dt className="text-dim">Textile origin rules (19 CFR 102.21, off), agreement with CBP on decided rulings</dt>
+          <dd><strong>{x.agreed}/{x.decided}</strong> ({x.pct}, 95% interval {x.interval}%). Decided {x.decided} of {x.inScope} textile rulings.</dd>
         </div>
       </dl>
       <div className="mt-4 border-t border-line pt-3">
@@ -353,6 +358,9 @@ function RulesChecks() {
         </p>
         <p>
           The {a.earlier.rulings} rulings of the earlier test, made in 2025 and 2026, are now seen and were not used to choose the method: the same method gives 11/19 (57.9%) on them.
+        </p>
+        <p>
+          Textile: the {x.rulings} rulings of 2026 that scored the engine before, so not new to the project; the rule code was written from the regulation and tuned on earlier rulings only. It decided {x.decided} of {x.inScope} textile rulings, mostly where a suggested subheading and the stated operations are enough, and it gave the same country as the engine each time. Too few decided to turn it on, and it does not decide the most important process.
         </p>
         <p>
           ATIGA: no ASEAN Member State publishes origin rulings, so there is nothing to measure accuracy against. The {r.atigaExamples} examples come from customs authorities&apos; own guides. They show the arithmetic and rule reading match those guides, not customs decisions.

@@ -75,6 +75,23 @@ type Product struct {
 	// HTS is the product's tariff subheading (e.g. 8419.89.95), used to look
 	// up sourced duty rates (D52). Optional; not part of the facts.
 	HTS string `json:"hts,omitempty"`
+	// Textile holds what the 19 CFR 102.21 rule check (TEXTILE_RULES, D951)
+	// needs and the operations do not say. Optional; not part of the facts.
+	Textile *TextileFacts `json:"textile,omitempty"`
+}
+
+// TextileFacts are the facts about a textile or apparel good that the
+// 102.21(e) rules turn on. Each is "yes", "no" or empty (not stated).
+type TextileFacts struct {
+	KnitToShape         string `json:"knit_to_shape,omitempty"`
+	TwoOrMoreComponents string `json:"two_or_more_components,omitempty"`
+	// CottonWool16 is "yes" when the good is of cotton or wool, or a blend
+	// of 16 percent or more cotton by weight.
+	CottonWool16 string `json:"cotton_wool_16,omitempty"`
+	FabricOfWool string `json:"fabric_of_wool,omitempty"`
+	// FibreForm is "filaments" or "staple" for the goods that are yarn,
+	// rope or trimmings.
+	FibreForm string `json:"fibre_form,omitempty"`
 }
 
 // PlantByID returns the plant with the given ID.
@@ -130,6 +147,20 @@ func (p Product) Validate() error {
 			if !componentHTS.MatchString(strings.TrimSpace(a)) {
 				errs.add("components[%d]: hts_alternatives %q is not an HTS heading or subheading", i, a)
 			}
+		}
+	}
+	if t := p.Textile; t != nil {
+		yn := func(name, v string) {
+			if v != "" && v != "yes" && v != "no" {
+				errs.add("textile.%s must be yes or no, got %q", name, v)
+			}
+		}
+		yn("knit_to_shape", t.KnitToShape)
+		yn("two_or_more_components", t.TwoOrMoreComponents)
+		yn("cotton_wool_16", t.CottonWool16)
+		yn("fabric_of_wool", t.FabricOfWool)
+		if t.FibreForm != "" && t.FibreForm != "filaments" && t.FibreForm != "staple" {
+			errs.add("textile.fibre_form must be filaments or staple, got %q", t.FibreForm)
 		}
 	}
 	for i, o := range p.Operations {
