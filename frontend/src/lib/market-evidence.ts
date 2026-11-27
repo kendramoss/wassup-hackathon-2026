@@ -96,6 +96,14 @@ export const rulesChecks = {
   usmcaInterval: "73.2–97.6",
   atigaExamples: 7,
   atigaReached: 7,
+  // D950: the AKFTA and ACFTA checks (AKFTA_CHECK, ACFTA_CHECK, off) on the
+  // authority worked examples, first run. Pinned to the case files by
+  // scripts/japan-evidence.test.mjs; the reached counts are enforced by
+  // backend/internal/aseanfta/reference_test.go.
+  akftaExamples: 8,
+  akftaReached: 8,
+  acftaExamples: 5,
+  acftaReached: 3,
 };
 
 // D952 held-out result of the textile rules check (TEXTILE_RULES, off), facts

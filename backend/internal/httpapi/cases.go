@@ -236,6 +236,10 @@ type Deps struct {
 	ExportCFR177 bool
 	// ATIGACheck serves POST /v1/atiga/check (D927). Off by default.
 	ATIGACheck bool
+	// AKFTACheck and ACFTACheck serve POST /v1/akfta/check and
+	// /v1/acfta/check (D949). Off by default.
+	AKFTACheck bool
+	ACFTACheck bool
 	// ADCVD, when set, serves POST /v1/adcvd/check and adds adcvd_check to a
 	// case that gives part codes: parts that may be subject to an AD or CVD
 	// order, display only (D939). Nil (the default) is off.
