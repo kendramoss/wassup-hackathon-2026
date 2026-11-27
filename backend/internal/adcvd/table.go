@@ -58,6 +58,9 @@ type Table struct {
 	byHTS                      map[string][]int // listed code digits -> order indexes
 	codes                      []string
 	origin                     []string // canonical country of each order
+
+	groupsOnce sync.Once
+	groups     []group // AD and CVD orders of one product and country, built on first use by Candidates
 }
 
 type file struct {
