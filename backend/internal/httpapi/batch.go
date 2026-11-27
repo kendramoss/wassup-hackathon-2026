@@ -14,6 +14,7 @@ import (
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/jurisdiction"
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/planner"
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/store"
+	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/webhooks"
 )
 
 // MaxBatch caps a portfolio triage request; BatchWorkers is how many cases
@@ -148,6 +149,17 @@ func (a *api) batch(w http.ResponseWriter, r *http.Request) {
 	summary["out_of_scope"], summary["failed"] = outOfScope, failed
 	summary["cost_usd"] = float64(int64(cost*1e6+0.5)) / 1e6
 	summary["latency_ms"] = time.Since(start).Milliseconds()
+	ids := []string{}
+	for _, row := range rows {
+		if row.CaseID != "" {
+			ids = append(ids, row.CaseID)
+		}
+	}
+	a.emit(r.Context(), workspace, webhooks.EventBatchFinished, map[string]any{
+		"total": len(rows), "failed": failed, "out_of_scope": outOfScope, "auto": counts[string(domain.RouteAuto)],
+		"needs_review": counts[string(domain.RouteNeedsReview)], "needs_info": counts[string(domain.RouteNeedsInfo)],
+		"cost_usd": summary["cost_usd"], "case_ids": ids, "finished_at": time.Now().UTC(),
+	})
 	a.respond(w, http.StatusOK, map[string]any{"rows": rows, "summary": summary})
 }
 

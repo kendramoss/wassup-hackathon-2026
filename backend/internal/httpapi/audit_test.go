@@ -20,6 +20,7 @@ import (
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/sso/ssotest"
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/store"
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/teams"
+	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/webhooks"
 )
 
 // Audit trail (#284) through the real handler over memory stores. Expectations
@@ -95,6 +96,7 @@ type auditEnv struct {
 	sso   *sso.MemoryStore
 	scim  *scim.Memory
 	ret   *retention.Memory
+	wh    *webhooks.Service
 }
 
 const auditTestKey = "audit-test-actor-key-0123456789abcdef"
@@ -119,7 +121,8 @@ func newAuditEnvWith(t *testing.T, ownership bool, adjust ...func(*Deps)) *audit
 		d.SSO, d.SCIM = svc, ae.scim
 	}
 	ae.ret = retention.NewMemory()
-	ae.roleEnv = newRoleEnv(t, ownership, append([]func(*Deps){func(d *Deps) { d.Audit = ae.svc; d.Retention = ae.ret; d.AuditExport = true }, withSSO}, adjust...)...)
+	ae.wh = looseWebhooks()
+	ae.roleEnv = newRoleEnv(t, ownership, append([]func(*Deps){func(d *Deps) { d.Audit = ae.svc; d.Retention = ae.ret; d.AuditExport = true; d.Webhooks = ae.wh }, withSSO}, adjust...)...)
 	return ae
 }
 
@@ -594,6 +597,16 @@ func (e *auditEnv) sensitiveCases(t *testing.T) map[audit.Action]struct {
 	}
 	_, zedHash := scim.NewSecret()
 	_ = e.scim.Put(context.Background(), scim.Token{Workspace: e.zed, Hash: zedHash, Domains: []string{"zed.example.org"}, DefaultRole: "viewer"})
+	// Webhooks (#915): an endpoint of fid for each row to change.
+	whStore := e.wh.Store()
+	whEndpoint := func(name string) string {
+		id := "wh_" + fmt.Sprintf("%016x", len(name)*7919+int(name[0]))
+		_ = whStore.PutEndpoint(context.Background(), webhooks.Endpoint{ID: id, Workspace: fid, URL: "https://" + name + ".example.org/in", Events: []string{webhooks.EventBatchFinished},
+			Enabled: true, Secret: "whsec_" + name, CreatedAt: time.Now()})
+		return id
+	}
+	whUpd, whDel, whRot := whEndpoint("upd"), whEndpoint("del"), whEndpoint("rot")
+	whGet := func(id string) (webhooks.Endpoint, error) { return whStore.GetEndpoint(context.Background(), id) }
 	roleOf := func(email string) string {
 		w, _ := e.ws.Get(context.Background(), fid)
 		r, _ := w.RoleOf(email)
@@ -696,6 +709,38 @@ func (e *auditEnv) sensitiveCases(t *testing.T) map[audit.Action]struct {
 				tk, err := e.scim.Get(context.Background(), fid)
 				return err != nil || tk.Hash == scimHash
 			},
+		},
+		audit.WebhookCreate: {
+			func() (int, map[string]any) {
+				return e.hs.doAs(t, "POST", "/v1/workspaces/"+fid+"/webhooks", `{"url":"https://new.example.org/in","events":["batch.finished"]}`, user("fiona"))
+			},
+			func() bool {
+				eps, _ := whStore.ListEndpoints(context.Background(), fid)
+				for _, ep := range eps {
+					if ep.URL == "https://new.example.org/in" {
+						return false
+					}
+				}
+				return true
+			},
+		},
+		audit.WebhookUpdate: {
+			func() (int, map[string]any) {
+				return e.hs.doAs(t, "PATCH", "/v1/workspaces/"+fid+"/webhooks/"+whUpd, `{"enabled":false}`, user("fiona"))
+			},
+			func() bool { ep, err := whGet(whUpd); return err == nil && ep.Enabled },
+		},
+		audit.WebhookDelete: {
+			func() (int, map[string]any) {
+				return e.hs.doAs(t, "DELETE", "/v1/workspaces/"+fid+"/webhooks/"+whDel, "", user("fiona"))
+			},
+			func() bool { _, err := whGet(whDel); return err == nil },
+		},
+		audit.WebhookRotate: {
+			func() (int, map[string]any) {
+				return e.hs.doAs(t, "POST", "/v1/workspaces/"+fid+"/webhooks/"+whRot+"/rotate", "", user("fiona"))
+			},
+			func() bool { ep, err := whGet(whRot); return err == nil && ep.Secret == "whsec_rot" },
 		},
 		audit.SCIMTokenRevoke: {
 			func() (int, map[string]any) {

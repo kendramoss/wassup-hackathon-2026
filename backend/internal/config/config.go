@@ -212,6 +212,9 @@ type Config struct {
 	// ERPImport (ERP_IMPORT on|off, default off) serves POST
 	// /v1/products/erp-import, BOM exports from an ERP filed as cases (#880).
 	ERPImport bool
+	// Webhooks (WEBHOOKS on|off, default off) lets a workspace admin register
+	// signed HTTPS callbacks for workspace events (#915). It needs TEAMS=on.
+	Webhooks bool
 	// Audit (#284). AuditMode is AUDIT: on, off, or auto (the default). Audit is
 	// the resolved switch: on, or auto with AUDIT_ACTOR_KEY set. auto never
 	// enables the trail without the secret and never generates one; on without
@@ -489,7 +492,7 @@ func FromEnv(getenv func(string) string) (Config, error) {
 	for _, f := range []struct {
 		key string
 		dst *bool
-	}{{"USAGE_METERING", &c.UsageMetering}, {"ERP_IMPORT", &c.ERPImport}} {
+	}{{"USAGE_METERING", &c.UsageMetering}, {"ERP_IMPORT", &c.ERPImport}, {"WEBHOOKS", &c.Webhooks}} {
 		switch v := strings.ToLower(e.str(f.key, "off")); v {
 		case "on", "true", "1":
 			*f.dst = true
@@ -919,6 +922,9 @@ func (c Config) validate() error {
 		if c.SSOSessionTTL < 5*time.Minute || c.SSOSessionTTL > 24*time.Hour {
 			bad("SSO_SESSION_TTL must be between 5m and 24h, got %s", c.SSOSessionTTL)
 		}
+	}
+	if c.Webhooks && !c.Teams {
+		bad("WEBHOOKS=on needs TEAMS=on (endpoints belong to a workspace, and its admin registers them)")
 	}
 	if c.AdminConsole && !c.Teams {
 		bad("ADMIN_CONSOLE=on needs TEAMS=on (it is the workspace admin's overview)")

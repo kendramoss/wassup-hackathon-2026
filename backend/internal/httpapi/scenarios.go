@@ -13,6 +13,7 @@ import (
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/planner"
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/router"
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/store"
+	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/webhooks"
 )
 
 // MaxScenarios caps the alternative setups compared on one case.
@@ -353,12 +354,14 @@ func (a *api) recheck(ctx context.Context, sc *store.Case, save bool) error {
 		record(ctx, sc, ev)
 		return nil
 	}
+	again := false // the last check already found this change
 	saved, err := a.d.Cases.Update(ctx, sc.ID, func(latest *store.Case) error {
 		// A new BOM or answers replaced the inputs while this ran: the
 		// result belongs to the old facts, so it is discarded, not attached.
 		if err := stillCurrent(latest, fp); err != nil {
 			return err
 		}
+		again = latest.Watch != nil && latest.Watch.Status == store.WatchChanged && latest.Watch.Prediction.Origin == watch.Prediction.Origin
 		latest.Watch = watch
 		record(ctx, latest, ev)
 		return nil
@@ -367,5 +370,15 @@ func (a *api) recheck(ctx context.Context, sc *store.Case, save bool) error {
 		return err
 	}
 	*sc = saved
+	// A change that rests on newer precedents is a ruling-watch hit (#915).
+	// One a regime, method or specialist difference explains is not: the
+	// watch never lets those pass for a ruling-driven change. Said once per
+	// change, not on every run.
+	if status == store.WatchChanged && watch.Basis == store.WatchBasisPrecedent && !again {
+		a.emit(ctx, saved.Workspace, webhooks.EventRulingWatchHit, map[string]any{
+			"case_id": saved.ID, "previous_origin": saved.Prediction.Origin, "new_origin": res.Prediction.Origin,
+			"newer_rulings": len(newer), "triage_route": string(tr.Route), "checked_at": now,
+		})
+	}
 	return nil
 }
