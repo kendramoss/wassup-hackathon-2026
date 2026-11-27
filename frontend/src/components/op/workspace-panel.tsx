@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useEffect, useId, useRef, useState } from "react";
 import { ACCESS_STALE, ApiError, api, type WorkspaceRole, type WorkspacesMine } from "@/lib/api/client";
 import { ROLES, memberMessage, memberRows, roleLabel, roleNoun, roleSummary, type MemberAction } from "@/lib/roles";
@@ -98,6 +99,13 @@ export function WorkspacePanel() {
         {ws ? (
           <>
             <PanelHead right={`you're ${roleNoun(ws.role)}`}>{ws.name}</PanelHead>
+            {ws.admin && (
+              <p className="mb-2 text-[13px]">
+                <Link href="/settings/workspace" className="text-ok underline underline-offset-2" data-testid="admin-link">
+                  Workspace admin →
+                </Link>
+              </p>
+            )}
             <p className="duo text-[13px]" data-testid="role-summary">
               <b className="font-medium">{roleLabel(ws.role)}.</b> {roleSummary(ws.role)}
             </p>
