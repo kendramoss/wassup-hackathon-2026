@@ -351,16 +351,8 @@ function CheckForm({ draft, initialStep }: { draft: Draft | null; initialStep: 1
       );
       return;
     }
-    if (order.length === 1) {
-      try {
-        sessionStorage.removeItem(DRAFT_KEY);
-      } catch {
-        /* ignore */
-      }
-      router.push(`/cases/${encodeURIComponent(ok[0].id)}/origin`);
-      return;
-    }
-    // Several countries: one page with an answer per country. The draft
+    // One country or several: the plain answers page, one row per country,
+    // so a business visitor stays in the business view (#932). The draft
     // stays, so "Check the same parts for another country" starts from it.
     const failed = order.filter((c) => !ok.some((x) => x.code === c));
     const q = new URLSearchParams({ ids: ok.map((x) => x.id).join(",") });
