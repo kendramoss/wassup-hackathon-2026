@@ -23,6 +23,15 @@ The code defaults are permissive so local UI work works without credentials. "As
 | `ADMIN_TOKEN` | empty | **set from Secret Manager** | needed to pin demos and issue keys; never sent from the browser |
 | `STRICT_AUTH` | off | **on** | `curl https://undelabs.dev/api/v1/cases` with no credentials → **401**; pinned demos and `/v1/demos*` stay open (200). Private case operations need a verified user, API key or admin token |
 | `REQUIRE_BEARER` | off | **on** | Cloud Run passes the frontend's `Authorization: Bearer` to the container: `curl https://undelabs.dev/api/v1/demos` → **200** after the flag was enabled. Defence in depth behind IAM, not the primary boundary |
+| `USMCA_RULES_EXT` | off | **on** (27 Nov, #910) | USMCA rules check uses the GN 11(o) rows, de minimis and the parts route (D930, D932) |
+| `ATIGA_CHECK` | off | **on** (27 Nov, #910) | `POST /v1/atiga/check` and the `check_atiga_preference` tool are served; no accuracy figure (D927) |
+| `BROKER_WORKFLOW` | off | **on** (27 Nov, #910) | review queue, case discussion, sign-offs and the eRulings filing package are served (D925) |
+| `ERP_IMPORT` | off | **on** (27 Nov, #910) | `POST /v1/products/erp-import` is served (D926) |
+| `USAGE_METERING` | off | **on** (27 Nov, #910) | per-workspace monthly usage is counted; no budget is set until a workspace admin sets one (D926) |
+| `ADMIN_CONSOLE` | off | **on** (27 Nov, #910) | `GET /v1/workspaces/{id}/admin` answers workspace admins only (D935) |
+| `RETENTION` | off | **on** (27 Nov, #910) | admins can set `case_days`; nothing is purged until an operator runs `cmd/retention` (D924) |
+| `AUDIT_EXPORT` | off | **on** (27 Nov, #910) | `GET /v1/audit/export` answers verified admins (D924) |
+| `STATUS_PAGE` | off | **on** (27 Nov, #910) | `GET /v1/status` is served (D928) |
 | `AUDIT_ACTOR_KEY` / `AUDIT` | empty / `auto` | **set from Secret Manager / auto → audit on** | `curl https://undelabs.dev/api/v1/audit` and `/audit/verify` now answer (**401** without a verified admin, not 404). It is evidence, not a certification or immutable log |
 | `RATE_LIMIT_STORE` | local, auto-firestore on Cloud Run with a project | **Firestore (defaulted)** | model-route buckets are shared by all three instances; `X-Client-IP` is set by the proxy, so a client cannot choose its own bucket through the public path (#421) |
 
