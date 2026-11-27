@@ -40,7 +40,7 @@ export default function Image() {
           Unde <span style={{ color: brand, marginLeft: 12 }}>Labs</span>
         </div>
         <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
-          <div style={{ fontSize: 64, lineHeight: 1.08, letterSpacing: -2, maxWidth: 1000 }}>Plan the production change before you build it.</div>
+          <div style={{ fontSize: 64, lineHeight: 1.08, letterSpacing: -2, maxWidth: 1000 }}>Find ways to pay less import tax</div>
           <div style={{ fontSize: 28, color: dim, maxWidth: 980 }}>
             The country of origin US Customs would likely assign, and the manufacturing moves that would change it, backed by CBP rulings.
           </div>
