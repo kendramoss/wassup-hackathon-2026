@@ -30,7 +30,7 @@ export const marketEvidence = {
     { name: "RCEP tariff", status: "Approvals only", note: "No refusals tested." },
     { name: "Canada marking", status: "Rules only", note: "No score." },
     { name: "EU and UK origin", status: "Rules only", note: "No score." },
-    { name: "Japan origin", status: "Open", note: "Tested on unseen rulings. See Accuracy." },
+    { name: "Japan origin", status: "Open", note: "Tested on new rulings. See Accuracy." },
     { name: "Other markets", status: "Not yet", note: "No rules or tests." },
   ],
   detailsTitle: "Limits",

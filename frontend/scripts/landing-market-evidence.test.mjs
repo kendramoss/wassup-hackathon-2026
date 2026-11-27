@@ -38,7 +38,7 @@ test("each market names what was shown and invents no Canada or Japan score", ()
   assert.notEqual(by["U.S. origin"][1], by["RCEP tariff"][1]);
   assert.equal(by["U.S. origin"][2], "Single-origin U.S. substantial-transformation rulings only.");
   assert.deepEqual(by["Canada marking"].slice(1), ["Rules only", "No score."]);
-  assert.deepEqual(by["Japan origin"].slice(1), ["Open", "Tested on unseen rulings. See Accuracy."]);
+  assert.deepEqual(by["Japan origin"].slice(1), ["Open", "Tested on new rulings. See Accuracy."]);
   assert.deepEqual(by["EU and UK origin"].slice(1), ["Rules only", "No score."]);
   assert.ok(!/\d/.test([...by["Canada marking"], ...by["EU and UK origin"], ...by["Japan origin"]].join(" ")));
   assert.ok(!page.includes("Supported check"));

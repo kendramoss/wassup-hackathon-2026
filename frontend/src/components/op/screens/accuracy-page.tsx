@@ -258,7 +258,7 @@ function JapanMeasured() {
   const link = "text-ok underline underline-offset-2 max-sm:inline-flex max-sm:min-h-11 max-sm:items-center";
   return (
     <div id="japan-measured" className="mt-5 border-t border-line pt-4">
-      <h3 className="text-sm font-semibold">Japan: tested on unseen rulings</h3>
+      <h3 className="text-sm font-semibold">Japan: tested on new rulings</h3>
       <p className="read mt-1 text-sm text-dim">
         {m.unseen} Japan Customs rulings published after our 22 Nov copy. All {m.unseen} approved the preference. Run through our gateway, with the model and evidence the live site uses.
       </p>
@@ -288,7 +288,7 @@ function JapanMeasured() {
           With the card answered, the EU agreement went from 128 to {m.euAnswered} of {m.euCases} development rulings. The development set was used to build the model, so it is not a blind test.
         </p>
         <p>
-          The {m.unseen} unseen rulings lean to easy agreements: at the development rates, about 32 would be expected right. 41 repeat an earlier request. With those earlier rulings removed from the precedents, the same 37 were right. The 7 misses: 5 undetermined and 2 named a different rule that also applies.
+          The {m.unseen} new rulings lean to easy agreements: at the development rates, about 32 would be expected right. 41 repeat an earlier request. With those earlier rulings removed from the precedents, the same 37 were right. The 7 misses: 5 undetermined and 2 named a different rule that also applies.
         </p>
         <p>
           Every ruling here is an approval, so they cannot show wrong approvals. For that, {m.negatives} made-up cases that should not qualify were run: {m.negativesApproved} approved. They are constructed, not real rulings.
@@ -383,7 +383,7 @@ function MarketEvidence() {
           </div>
           <div>
             <dt className="text-sm font-semibold">Japan model</dt>
-            <dd className="read mt-0.5 text-sm text-dim">Open. Right rule on {japanMeasured.unseenRight} of {japanMeasured.unseen} unseen rulings. Details below.</dd>
+            <dd className="read mt-0.5 text-sm text-dim">Open. Right rule on {japanMeasured.unseenRight} of {japanMeasured.unseen} new rulings. Details below.</dd>
           </div>
         </dl>
       </div>

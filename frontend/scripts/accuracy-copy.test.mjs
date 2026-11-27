@@ -139,13 +139,13 @@ test("RCEP reports known positives, criterion agreement and separate synthetic r
   assert.match(markets, /Customs specialist review is pending/);
   assert.match(markets, /Canada marking Checks the marking rules only\. No accuracy figure/);
   assert.match(markets, /EU and UK origin Checks the list rules only\. No accuracy figure/);
-  assert.match(markets, /Japan model Open\. Right rule on 37 of 44 unseen rulings\./);
+  assert.match(markets, /Japan model Open\. Right rule on 37 of 44 new rulings\./);
 });
 
 test("Accuracy page shows Japan, USMCA and ATIGA, and ATIGA is not called an accuracy rate", async () => {
   const { AccuracyPage } = await import("../src/components/op/screens/accuracy-page.tsx");
   const t = text(html(AccuracyPage, {}));
-  assert.ok(t.includes("Japan: tested on unseen rulings"));
+  assert.ok(t.includes("Japan: tested on new rulings"));
   assert.ok(t.includes("37/44"));
   assert.ok(t.includes("42/44"));
   assert.ok(t.includes("272 → 374/400"));
