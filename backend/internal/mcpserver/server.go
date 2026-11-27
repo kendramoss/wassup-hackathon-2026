@@ -61,6 +61,9 @@ type Options struct {
 	// ATIGA reports that POST /v1/atiga/check is served; without it
 	// check_atiga_preference is not listed.
 	ATIGA bool
+	// ADCVD reports that POST /v1/adcvd/check is served; without it
+	// check_adcvd_exposure is not listed.
+	ADCVD bool
 	// Version is reported in the MCP initialize result.
 	Version string
 	// ClientAddress resolves the outer request's connection address and
@@ -119,6 +122,9 @@ func NewServer(o Options) *mcp.Server {
 	}
 	if o.ATIGA {
 		t.registerATIGA(s)
+	}
+	if o.ADCVD {
+		t.registerADCVD(s)
 	}
 	t.registerResources(s)
 	t.registerPrompts(s)

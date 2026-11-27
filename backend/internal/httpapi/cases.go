@@ -22,6 +22,7 @@ import (
 	"time"
 	"unicode/utf8"
 
+	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/adcvd"
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/apikey"
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/audit"
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/caseagent"
@@ -224,6 +225,10 @@ type Deps struct {
 	ExportCFR177 bool
 	// ATIGACheck serves POST /v1/atiga/check (D927). Off by default.
 	ATIGACheck bool
+	// ADCVD, when set, serves POST /v1/adcvd/check and adds adcvd_check to a
+	// case that gives part codes: parts that may be subject to an AD or CVD
+	// order, display only (D939). Nil (the default) is off.
+	ADCVD *adcvd.Table
 	// CaseOwnership limits each visitor to the pinned demos and their own
 	// cases (X-Visitor-ID from the frontend proxy; D58). Off by default.
 	CaseOwnership bool
@@ -812,6 +817,11 @@ func (a *api) caseFieldsBase(r *http.Request, c store.Case) map[string]any {
 	// so every other case reads byte for byte as before.
 	if rc := a.ruleCheck(c); rc != nil {
 		f["rule_check"] = rc
+	}
+	// Parts that may be subject to an AD or CVD order (D939), only with the
+	// check on and a part code given. Information only.
+	if ac := a.adcvdCaseCheck(c); ac != nil {
+		f["adcvd_check"] = ac
 	}
 	// Facts supplied to the EU or UK check (D801), only when there are some.
 	if len(c.OriginFacts) > 0 {

@@ -359,6 +359,12 @@ type Config struct {
 	// of materials, deterministic, no model call (D927).
 	ATIGACheck bool
 	atigaCheck string // as given, checked by validate
+	// ADCVDCheck (on|off, default off) serves POST /v1/adcvd/check, the
+	// check_adcvd_exposure MCP tool and adcvd_check on a case: parts that may
+	// be subject to a U.S. AD or CVD order, display only, no model call
+	// (D939).
+	ADCVDCheck bool
+	adcvdCheck string // as given, checked by validate
 	// NearMissAdvice (on|off, default off) adds near-miss advice to the
 	// closest plan moves just under the plan bar: what differs from the
 	// supporting ruling and what would match it (D81). One model call each,
@@ -654,6 +660,8 @@ func FromEnv(getenv func(string) string) (Config, error) {
 	c.ExportCFR177 = c.exportCFR177 == "on" || c.exportCFR177 == "true" || c.exportCFR177 == "1"
 	c.atigaCheck = strings.ToLower(e.str("ATIGA_CHECK", "off"))
 	c.ATIGACheck = c.atigaCheck == "on" || c.atigaCheck == "true" || c.atigaCheck == "1"
+	c.adcvdCheck = strings.ToLower(e.str("ADCVD_CHECK", "off"))
+	c.ADCVDCheck = c.adcvdCheck == "on" || c.adcvdCheck == "true" || c.adcvdCheck == "1"
 	switch v := strings.ToLower(e.str("STREAM_PREDICT", "off")); v {
 	case "on", "true", "1":
 		c.StreamPredict = "on"
@@ -797,6 +805,11 @@ func (c Config) validate() error {
 	case "on", "true", "1", "off", "false", "0":
 	default:
 		bad("EXPORT_CFR177 must be on or off, got %q", c.exportCFR177)
+	}
+	switch c.adcvdCheck {
+	case "on", "true", "1", "off", "false", "0":
+	default:
+		bad("ADCVD_CHECK must be on or off, got %q", c.adcvdCheck)
 	}
 	switch c.atigaCheck {
 	case "on", "true", "1", "off", "false", "0":

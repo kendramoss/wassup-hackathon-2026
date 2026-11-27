@@ -29,6 +29,7 @@ func (a *api) mcp(root *http.Handler, version string) http.HandlerFunc {
 		EUOrigin:      a.d.EUOrigin != nil,
 		UKOrigin:      a.d.UKOrigin != nil,
 		ATIGA:         a.d.ATIGACheck,
+		ADCVD:         a.d.ADCVD != nil,
 		Version:       version,
 		// The MCP guard resolves the address with the same trusted-proxy
 		// rule as clientKey, so a direct caller's header cannot pick the

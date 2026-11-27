@@ -2278,6 +2278,53 @@ paths:
         "400": { $ref: "#/components/responses/Error" }
         "404": { $ref: "#/components/responses/Error" }
         "429": { $ref: "#/components/responses/TooManyRequests" }
+  /v1/adcvd/check:
+    post:
+      operationId: checkAdcvdExposure
+      summary: Parts that may be subject to a U.S. antidumping or countervailing duty order (display only, no model call; off unless ADCVD_CHECK=on)
+      description: >-
+        Screens parts against the active U.S. antidumping (AD) and countervailing duty (CVD) orders, from each part's
+        HTS code and country of origin. Served only with `ADCVD_CHECK=on` (default off: 404). A part is
+        `possible_exposure` when an order's listed HTS number agrees with the part's code at the shorter of the two
+        lengths (a listed ten-digit line needs the same ten digits; a heading or subheading matches every listed line
+        under it) and the order's country is one of the part's countries of origin. The HTS numbers are read from the
+        scope text of the newest Commerce notice that carries it (`backend/internal/adcvd/data/orders.json`, built by
+        `eval/adcvd/build_orders.py` from Federal Register notices; the response gives the snapshot date). HTS numbers
+        in a scope are for convenience and customs purposes; the written scope of the order governs, and only the
+        U.S. Department of Commerce decides whether a product is within it. Display only (D939): it never changes an
+        origin answer or a duty figure. It does not see goods finished in a third country from parts of an ordered
+        country (circumvention), an order whose scope prints no HTS numbers, or an order newer than the snapshot. No
+        model call, nothing stored. Cheap class (120 a minute); a malformed body is 400 `invalid_input`.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: false
+              required: [parts]
+              properties:
+                parts:
+                  type: array
+                  minItems: 1
+                  maxItems: 200
+                  items:
+                    type: object
+                    additionalProperties: false
+                    properties:
+                      name: { type: string }
+                      hts: { type: string, example: "8202.39.00.00", description: "HTS heading or subheading, 4, 6, 8 or 10 digits, dots optional. A part without a valid code is `not_checked`." }
+                      origin: { type: string, example: China, description: "Country of origin of the part; several are written `China/Vietnam`. A part without one is `not_checked`." }
+      responses:
+        "200":
+          description: One result per part, in the order given
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AdcvdCheck"
+        "400": { $ref: "#/components/responses/Error" }
+        "404": { $ref: "#/components/responses/Error" }
+        "429": { $ref: "#/components/responses/TooManyRequests" }
   /v1/usmca/check:
     post:
       operationId: checkUsmcaOriginRule
@@ -4694,6 +4741,45 @@ components:
                   evidence: { type: string }
         checks: { type: array, items: { $ref: "#/components/schemas/EvidenceCheck" } }
         markdown: { type: string }
+    AdcvdCheck:
+      type: object
+      description: Parts that may be subject to a U.S. AD or CVD order. Display only (D939); on a case it is `adcvd_check`, present only with `ADCVD_CHECK=on` and at least one part code.
+      properties:
+        snapshot: { type: string, format: date, example: "2026-11-27", description: "The date the orders table describes; notices published after it are not in it" }
+        fetched: { type: string, format: date, description: "The date the notices were fetched" }
+        orders: { type: integer, description: "Active orders in the table" }
+        parts:
+          type: array
+          items:
+            type: object
+            properties:
+              name: { type: string }
+              hts: { type: string }
+              origin: { type: string }
+              status: { type: string, enum: [possible_exposure, no_match, not_checked] }
+              reason: { type: string }
+              matches:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    cases: { type: array, items: { type: string, example: A-570-900 }, description: "The AD and CVD case numbers of the order, sorted" }
+                    types: { type: array, items: { type: string, enum: [AD, CVD] } }
+                    country: { type: string }
+                    product: { type: string }
+                    order_date: { type: string, format: date, description: "Absent for an order older than the Federal Register's electronic notices (1994)" }
+                    listed_hts_matched: { type: array, items: { type: string }, description: "The listed numbers the part's code agrees with" }
+                    scope_notice:
+                      type: object
+                      description: The Federal Register notice the scope text and HTS numbers were read from
+                      properties:
+                        document_number: { type: string }
+                        date: { type: string, format: date }
+                        title: { type: string }
+                        url: { type: string }
+                        sha256: { type: string }
+        notice: { type: string, description: "HTS numbers in a scope are for convenience; the written scope governs; display only" }
+        limits: { type: array, items: { type: string } }
     RuleCheck:
       type: object
       description: "The deterministic 19 CFR 102.20 tariff-shift check (D360, D363), present only when the product gives an HTS code for the good and at least one part. Computed when the case is read; display only: it never changes the prediction, the triage or auto-accept. RULE_CHECK=off removes it."
@@ -4995,6 +5081,7 @@ components:
                       target: { type: string }
             facts_source: { type: string, enum: [parts_list, pasted], description: "What the case's own prediction read (D220): parts_list when its facts are the structured product rendered with the family template, as scenarios and plan moves are; pasted when they are text the user gave, such as CBP's own facts. The two can give different answers for the same setup. Absent without a product." }
             rule_check: { $ref: "#/components/schemas/RuleCheck" }
+            adcvd_check: { $ref: "#/components/schemas/AdcvdCheck" }
             origin_facts: { $ref: "#/components/schemas/OriginFactsByMarket" }
             family_intake: { $ref: "#/components/schemas/FamilyIntake" }
             family_facts: { $ref: "#/components/schemas/SuppliedFamilyFacts" }
