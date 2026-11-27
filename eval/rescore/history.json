@@ -1,0 +1,34 @@
+{
+ "rule": {
+  "alpha": 0.01,
+  "min_cases": 20,
+  "min_baseline": 30
+ },
+ "series": {
+  "cbp": [
+   {
+    "id": "cbp_final",
+    "kind": "baseline",
+    "correct": 340,
+    "cases": 377,
+    "source": "D154 (first held-out split, Vertex AI)"
+   },
+   {
+    "id": "cbp_final2",
+    "kind": "baseline",
+    "correct": 77,
+    "cases": 83,
+    "source": "D154 (second held-out split)"
+   }
+  ],
+  "japan": [
+   {
+    "id": "jp_fresh_1126",
+    "kind": "baseline",
+    "correct": 37,
+    "cases": 44,
+    "source": "D920"
+   }
+  ]
+ }
+}

@@ -251,6 +251,11 @@ type Config struct {
 	// found affected by a newer HTS revision (#917). The route also needs
 	// TEAMS=on.
 	TariffWatch bool
+	// EvalDriftAlerts (on|off, default off) lets cmd/evaldrift emit a drift
+	// alert (an audit event and an eval.drift webhook) when a monthly
+	// re-score falls below the earlier months (#921). Computing alerts
+	// offline needs no flag.
+	EvalDriftAlerts bool
 	// BrokerWorkflow is on or off (default): on serves the review queue,
 	// case discussion and sign-offs, and the eRulings filing package
 	// (docs/design/broker-workflow.md).
@@ -617,7 +622,7 @@ func FromEnv(getenv func(string) string) (Config, error) {
 	default:
 		e.errs = append(e.errs, fmt.Errorf("API_KEYS must be on or off, got %q", v))
 	}
-	for name, dst := range map[string]*bool{"AUDIT_EXPORT": &c.AuditExport, "RETENTION": &c.Retention, "TARIFF_WATCH": &c.TariffWatch} {
+	for name, dst := range map[string]*bool{"AUDIT_EXPORT": &c.AuditExport, "RETENTION": &c.Retention, "TARIFF_WATCH": &c.TariffWatch, "EVAL_DRIFT_ALERTS": &c.EvalDriftAlerts} {
 		switch v := strings.ToLower(e.str(name, "off")); v {
 		case "on", "true", "1":
 			*dst = true

@@ -8,6 +8,7 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"net/netip"
+	"slices"
 	"strings"
 	"sync"
 	"sync/atomic"
@@ -435,6 +436,12 @@ func storeContract(t *testing.T, name string, open func(t *testing.T) (Store, fu
 		if err != nil || len(got) != 2 || got[0].ID != "wh_1" || got[1].ID != "wh_2" || got[0].Secret != "whsec_wh_1" {
 			t.Fatalf("list = %+v %v", got, err)
 		}
+		if subs, err := st.ListSubscribed(ctx, EventBatchFinished); err != nil || len(subs) != 3 || subs[0].Secret == "" {
+			t.Fatalf("subscribed = %+v %v", subs, err)
+		}
+		if subs, err := st.ListSubscribed(ctx, EventEvalDrift); err != nil || len(subs) != 0 {
+			t.Fatalf("subscribed to another event = %+v %v", subs, err)
+		}
 		if _, err := st.GetEndpoint(ctx, "wh_nope"); !errors.Is(err, ErrNotFound) {
 			t.Errorf("get missing = %v", err)
 		}
@@ -546,4 +553,51 @@ func TestValidation(t *testing.T) {
 // redirects, as in production, but can reach the local test receiver.
 func looseClient() *http.Client {
 	return &http.Client{Timeout: 5 * time.Second, CheckRedirect: func(*http.Request, []*http.Request) error { return http.ErrUseLastResponse }}
+}
+
+// A platform event (one that belongs to no workspace) goes to every enabled
+// endpoint subscribed to it, in every workspace, each envelope naming the
+// endpoint's own workspace.
+func TestEmitPlatformReachesEverySubscribedEndpointInEveryWorkspace(t *testing.T) {
+	c := &clock{t: time.Unix(1_800_000_000, 0).UTC()}
+	s, st := testService(t, c)
+	srv, got, mu := receiver(t)
+	endpoint(t, st, c, "ws_a", srv.URL, EventEvalDrift)
+	endpoint(t, st, c, "ws_b", srv.URL, EventEvalDrift, EventBudgetAlert)
+	endpoint(t, st, c, "ws_c", srv.URL, EventBudgetAlert) // not subscribed
+	off := endpoint(t, st, c, "ws_d", srv.URL, EventEvalDrift)
+	off.Enabled = false
+	_ = st.PutEndpoint(context.Background(), off)
+
+	n := s.EmitPlatform(context.Background(), EventEvalDrift, map[string]any{"series": "cbp", "month": "2026-12"})
+	s.Wait()
+	if n != 2 {
+		t.Fatalf("queued for %d endpoints, want 2", n)
+	}
+	mu.Lock()
+	defer mu.Unlock()
+	if len(*got) != 2 {
+		t.Fatalf("receiver saw %d requests, want 2", len(*got))
+	}
+	seen := map[string]bool{}
+	for _, r := range *got {
+		var env Envelope
+		if err := json.Unmarshal(r.body, &env); err != nil || env.Type != EventEvalDrift || env.Data.(map[string]any)["month"] != "2026-12" {
+			t.Fatalf("envelope %+v %v", env, err)
+		}
+		seen[env.Workspace] = true
+	}
+	if !seen["ws_a"] || !seen["ws_b"] || len(seen) != 2 {
+		t.Fatalf("workspaces = %v", seen)
+	}
+	var nilSvc *Service
+	if nilSvc.EmitPlatform(context.Background(), EventEvalDrift, nil) != 0 {
+		t.Fatal("nil service queued something")
+	}
+}
+
+func TestEvalDriftIsSubscribable(t *testing.T) {
+	if !slices.Contains(Events, EventEvalDrift) || EventEvalDrift != "eval.drift" {
+		t.Fatalf("Events = %v", Events)
+	}
 }

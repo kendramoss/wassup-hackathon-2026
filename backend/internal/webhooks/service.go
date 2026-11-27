@@ -135,6 +135,49 @@ func (s *Service) Emit(ctx context.Context, workspace, typ string, data any) {
 	}
 }
 
+// EmitPlatform queues event typ, which belongs to no workspace, for every
+// enabled endpoint of every workspace that subscribed to it, each envelope
+// naming the endpoint's own workspace, and returns how many deliveries it
+// queued. It never fails the caller (see Emit). data carries ids, figures and
+// statuses only.
+func (s *Service) EmitPlatform(ctx context.Context, typ string, data any) int {
+	if s == nil {
+		return 0
+	}
+	ctx, cancel := context.WithTimeout(context.WithoutCancel(ctx), 30*time.Second)
+	defer cancel()
+	eps, err := s.store.ListSubscribed(ctx, typ)
+	if err != nil {
+		s.opts.Logger.WarnContext(ctx, "webhooks: could not list endpoints", "err", logsafe.Err(err))
+		return 0
+	}
+	n := 0
+	now := s.now()
+	for _, e := range eps {
+		env := Envelope{ID: NewID("evt_"), Type: typ, CreatedAt: now, Workspace: e.Workspace, Data: data}
+		body, err := json.Marshal(env)
+		if err != nil || len(body) > MaxPayloadBytes {
+			s.opts.Logger.WarnContext(ctx, "webhooks: event not sent: payload unusable")
+			return n
+		}
+		d := Delivery{ID: NewID("dl_"), EndpointID: e.ID, Workspace: e.Workspace, EventID: env.ID, Event: typ, Status: StatusPending,
+			Attempts: []Attempt{}, NextAttempt: now.Add(lease), CreatedAt: now, Payload: string(body)}
+		if err := s.store.CreateDelivery(ctx, d); err != nil {
+			s.opts.Logger.WarnContext(ctx, "webhooks: could not queue a delivery", "err", logsafe.Err(err))
+			continue
+		}
+		n++
+		s.wg.Add(1)
+		go func() {
+			defer s.wg.Done()
+			s.sem <- struct{}{}
+			defer func() { <-s.sem }()
+			s.attempt(d)
+		}()
+	}
+	return n
+}
+
 // Sweep sends the pending deliveries that are due and returns how many it
 // tried. A scheduler calls it (POST /v1/webhooks/sweep) and the server runs
 // it on a timer; several instances may sweep at once, each delivery being
