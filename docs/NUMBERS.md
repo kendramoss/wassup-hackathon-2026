@@ -337,11 +337,13 @@ These rows register, for the /method page, figures that are already committed in
 | Fine-tuning split (D38, D73) | 699 rulings dated before 2025-07-01: train 632, tune_check 67; used only by the fine-tuning experiment | `eval/splits/splits_tune.json`; docs/EVALUATION.md 2.1 | Built |
 | Held-out precedents that are earlier held-out rulings (first held-out split, official run) | 414 of 1,885 retrieved precedent slots, in 209 of 377 cases; 0 slots dated on or after their case | `claimscheck` (`final.precedent_slots_in_final_split`, `final.cases_with_final_split_precedent`, `final.precedent_slots_not_before_case`); docs/claims-reconciliation.md 4.2 | Measured. A stated leak path, not an estimate of its effect: no committed run removes those slots |
 
-## Textile rules, 19 CFR 102.21 (D951, D952; flag `TEXTILE_RULES`, off; Accuracy page)
+## Textile rules, 19 CFR 102.21 (D951, D952, D955, D956; flag `TEXTILE_RULES`, off; Accuracy page)
 
 | Number | Value | Source | Status |
 |---|---|---|---|
 | Textile rule check agrees with CBP, held out (facts plus suggested subheading; `final` + `final2`) | 13 of 14 decided rulings (92.9%, 95% Wilson interval 68.5–98.7). 14 of 41 in-scope rulings decided (34%); 88 rulings, 47 out of scope. Fewer than the 15 decided that D951 required, so the flag stays off | D952; `eval/textile102/summary.json` (`go run ./cmd/textilerules eval -check`) | Showable. Held out of the rule code, not new to the project (the 88 scored the model in D51). Same answer as the model on every decided ruling |
+| Textile rule check agrees with CBP, second held-out test (facts plus suggested subheading; 319 rulings: older 2019–2022 and 2023-01 to 2025-06 pooled) | 79 of 122 decided (64.8%, 95% Wilson 55.9–72.7); decided 47.3% of 258 in-scope. Older 31/69 (33.8–56.6), 2023 to mid-2025 48/53 (79.7–95.9). The 85% bar of D955 is not met; flag stays off | D956; `eval/textile102/summary-fresh.json` (`go run ./cmd/textilerules eval -check`) | Showable with the per-set figures. 34 of the 38 older misses are labels that name China where CBP's holding is Hong Kong (post-hoc, read after the result: 113/122 = 92.6%, 86.6–96.1); show that only as the post-hoc figure it is |
+| Textile rule check, second test, cost | $6.19 of a $15 sub-cap (319 rulings, two extractions each, gateway) | `eval/results/RUNLOG.jsonl` | Showable |
 | Textile rule check, full CROSS text (encoding check) | 18 of 18 decided (82.4–100), 44% of in-scope; with CBP's code in view | D952; same summary | Showable only as an encoding check |
 | Textile rule check, facts alone | 0 of 88 decided: the texts rarely state the good's code | D952; same summary | Showable |
 | Textile rule check, development | 32 of 32 decided agree (89.3–100) with a suggested subheading | D952; same summary | Not independent: the code was tuned on these 99 rulings |

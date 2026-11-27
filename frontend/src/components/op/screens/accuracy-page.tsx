@@ -326,8 +326,10 @@ function RulesChecks() {
           <dd><strong>{r.atigaReached}/{r.atigaExamples}</strong> reach the stated result. Not an accuracy rate.</dd>
         </div>
         <div>
-          <dt className="text-dim">Textile origin rules (19 CFR 102.21, off), agreement with CBP on decided rulings</dt>
-          <dd><strong>{x.agreed}/{x.decided}</strong> ({x.pct}, 95% interval {x.interval}%). Decided {x.decided} of {x.inScope} textile rulings.</dd>
+          <dt className="text-dim">Textile origin rules (19 CFR 102.21, off), agreement with CBP on decided rulings, second test</dt>
+          <dd>
+            <strong>{x.pooled.agreed}/{x.pooled.decided}</strong> ({x.pooled.pct}, 95% interval {x.pooled.interval}%). Older rulings {x.older.agreed}/{x.older.decided}, 2023 to mid-2025 {x.pool.agreed}/{x.pool.decided}; first test {x.d952.agreed}/{x.d952.decided}.
+          </dd>
         </div>
       </dl>
       <div className="mt-4 border-t border-line pt-3">
@@ -360,7 +362,7 @@ function RulesChecks() {
           The {a.earlier.rulings} rulings of the earlier test, made in 2025 and 2026, are now seen and were not used to choose the method: the same method gives 11/19 (57.9%) on them.
         </p>
         <p>
-          Textile: the {x.rulings} rulings of 2026 that scored the engine before, so not new to the project; the rule code was written from the regulation and tuned on earlier rulings only. It decided {x.decided} of {x.inScope} textile rulings, mostly where a suggested subheading and the stated operations are enough, and it gave the same country as the engine each time. Too few decided to turn it on, and it does not decide the most important process.
+          Textile: a second test on {x.pooled.rulings} rulings from other years than the first test missed the bar (85% on at least 15 decided): {x.pooled.agreed} of {x.pooled.decided} decided agree with CBP. {x.labelErrors} of the {x.older.decided - x.older.agreed} older misses are labels that name China where CBP held Hong Kong; read after the result, that gives {x.correctedAgreed} of {x.pooled.decided} ({x.correctedInterval}%). The flag stays off. The first test, {x.d952.rulings} rulings of 2026, had {x.d952.decided} decided, one short. It does not decide the most important process.
         </p>
         <p>
           ATIGA: no ASEAN Member State publishes origin rulings, so there is nothing to measure accuracy against. The {r.atigaExamples} examples come from customs authorities&apos; own guides. They show the arithmetic and rule reading match those guides, not customs decisions.
