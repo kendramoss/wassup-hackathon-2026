@@ -89,3 +89,17 @@ func TestGroupOfCaseFindsTheOrderWhateverItsRank(t *testing.T) {
 		t.Error("an unknown case must not be found")
 	}
 }
+
+func TestHasCountryReadsCommerceAndPlainNames(t *testing.T) {
+	tb := scopeTable()
+	for _, c := range []string{"China", "People's Republic of China", "india", "China/India"} {
+		if !tb.HasCountry(c) {
+			t.Errorf("HasCountry(%q) = false", c)
+		}
+	}
+	for _, c := range []string{"", "Peru", "unknown"} {
+		if tb.HasCountry(c) {
+			t.Errorf("HasCountry(%q) = true", c)
+		}
+	}
+}

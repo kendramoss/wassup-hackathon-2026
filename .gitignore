@@ -49,4 +49,7 @@ data/tuning/
 /backend/retention
 /backend/auditverify
 /backend/tariffwatch
+/backend/adcvdreal
+/eval/adcvd/real/**/pairs.jsonl
+/eval/adcvd/real/**/reads*.jsonl
 /backend/evaldrift

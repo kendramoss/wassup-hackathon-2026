@@ -176,6 +176,22 @@ func (t *Table) Candidates(q Query, k int) []Candidate {
 	return out
 }
 
+// HasCountry reports whether some order in the table is on the country (one
+// of several written "A/B" counts). It is for choosing which products the
+// check applies to: those made in a country with an order.
+func (t *Table) HasCountry(country string) bool {
+	if strings.TrimSpace(country) == "" {
+		return false
+	}
+	parts := domain.CountryParts(originCanon(country))
+	for _, o := range t.origin {
+		if countryIn(o, parts) {
+			return true
+		}
+	}
+	return false
+}
+
 // commonLen is how many leading digits two codes share, up to the shorter.
 func commonLen(a, b string) int {
 	n := 0
