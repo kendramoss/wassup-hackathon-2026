@@ -326,6 +326,10 @@ function RulesChecks() {
           <dd><strong>{r.atigaReached}/{r.atigaExamples}</strong> reach the stated result. Not an accuracy rate.</dd>
         </div>
         <div>
+          <dt className="text-dim">ASEAN-Korea and ASEAN-China checks (off), authority worked examples</dt>
+          <dd>Korea <strong>{r.akftaReached}/{r.akftaExamples}</strong>, China <strong>{r.acftaReached}/{r.acftaExamples}</strong> reach the stated result. Not an accuracy rate.</dd>
+        </div>
+        <div>
           <dt className="text-dim">Textile origin rules (19 CFR 102.21, off), agreement with CBP on decided rulings, second test</dt>
           <dd>
             <strong>{x.pooled.agreed}/{x.pooled.decided}</strong> ({x.pooled.pct}, 95% interval {x.pooled.interval}%). Older rulings {x.older.agreed}/{x.older.decided}, 2023 to mid-2025 {x.pool.agreed}/{x.pool.decided}; first test {x.d952.agreed}/{x.d952.decided}.
@@ -366,6 +370,9 @@ function RulesChecks() {
         </p>
         <p>
           ATIGA: no ASEAN Member State publishes origin rulings, so there is nothing to measure accuracy against. The {r.atigaExamples} examples come from customs authorities&apos; own guides. They show the arithmetic and rule reading match those guides, not customs decisions.
+        </p>
+        <p>
+          ASEAN-Korea and ASEAN-China: no published rulings either. The {r.akftaExamples + r.acftaExamples} examples come from a Malaysian trade ministry guide and a Japanese trade agency guide. The {r.acftaExamples - r.acftaReached} China examples not reached were refused because the input named a method the agreement does not have; with that fixed they match. The China table is HS 2017.
         </p>
         <p>
           <a href={`${copy.landing.repo}/blob/main/docs/DECISIONS.md#d932--usmca-origin-rule-check-beyond-the-pilot-held-out-result-27-nov-877`} className={link}>

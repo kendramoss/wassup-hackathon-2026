@@ -1,0 +1,57 @@
+{
+ "about": "Worked examples published by an ASEAN Member State authority for the ASEAN-Korea FTA, encoded as inputs to the AKFTA check with the result the source states. Written before the check was run on them (D949). No published AKFTA origin rulings with a product, materials and a result were found (D949).",
+ "sources": {
+  "miti": {"title": "MITI Malaysia, Guide to the ASEAN-Korea FTA, Part 5: Guide to Rules of Origin (worked examples)", "url": "https://fta.miti.gov.my/miti-fta/resources/auto%20download%20images/558b9ea8df8ce.pdf", "sha256": "8e3a30575fcd545a29a39711f02176ef8fde4f53a5ff7f4380bb7e162b8ff6fc", "retrieved": "2026-11-27"}
+ },
+ "notes": [
+  "The guide gives no HS code for the washing machine; 8450.11 is chosen here. Its colour television is HS 8528.12 of an older edition; 8528.72 is the HS 2022 subheading. Its de minimis example gives no values; the figures below are chosen by the author of this file and fixed before the run.",
+  "Example of non-qualifying operations: the guide lists dry cleaning, ironing and labelling; ironing has no key in Rule 8, so the operations given are cleaning and marking."
+ ],
+ "cases": [
+  {"id": "ak-wm-build-down", "source": "miti", "where": "Part 5, Rule 4, example (a) washing machine, build-down", "states": "RVC 62 % ((1,000 - 380) / 1,000); qualifies as an originating good of Korea",
+   "input": {"hs": "8450.11", "produced_in": "Korea", "fob": 1000, "method": "indirect",
+     "materials": [
+      {"name": "Parts A", "value": 370, "country": "Korea", "status": "originating"},
+      {"name": "Parts B", "value": 100, "country": "Korea", "status": "originating"},
+      {"name": "Parts C", "value": 130, "country": "China", "status": "non_originating"},
+      {"name": "Parts D", "value": 150},
+      {"name": "Parts E", "value": 100}]},
+   "expect": {"outcome": "yes", "alternative": {"RVC40": "yes"}, "rvc_indirect_min": 61.9, "rvc_indirect_max": 62.1}},
+  {"id": "ak-wm-build-up", "source": "miti", "where": "Part 5, Rule 4, example (b) washing machine, build-up", "states": "RVC 52 % ((370 + 150) / 1,000); qualifies as an originating good of Singapore",
+   "input": {"hs": "8450.11", "produced_in": "Singapore", "fob": 1000, "method": "direct", "costs": {"other": 150},
+     "materials": [{"name": "Parts A", "value": 370, "country": "Singapore", "status": "originating"}]},
+   "expect": {"outcome": "yes", "alternative": {"RVC40": "yes"}, "rvc_direct_min": 51.9, "rvc_direct_max": 52.1}},
+  {"id": "ak-tv-accumulation", "source": "miti", "where": "Part 5, Rule 7, example colour television, accumulation", "states": "RVC 50 % with the Thai tuner counted as originating in Korea; originating good of Korea",
+   "input": {"hs": "8528.72", "produced_in": "Korea", "fob": 2000, "method": "indirect", "costs": {"other": 300},
+     "materials": [
+      {"name": "Parts A", "value": 100, "country": "Korea", "status": "originating"},
+      {"name": "Parts B", "value": 200, "country": "Korea", "status": "originating"},
+      {"name": "Parts C (tuner)", "hs": "8529.90", "value": 400, "country": "Thailand", "status": "originating"},
+      {"name": "Parts D", "value": 200, "country": "India", "status": "non_originating"},
+      {"name": "Parts E", "value": 500, "country": "United States", "status": "non_originating"},
+      {"name": "Parts F", "value": 300, "country": "China", "status": "non_originating"}]},
+   "expect": {"outcome": "yes", "alternative": {"RVC40": "yes"}, "accumulation": true, "rvc_indirect_min": 49.9, "rvc_indirect_max": 50.1}},
+  {"id": "ak-non-qualifying", "source": "miti", "where": "Part 5, Rule 8, example of non-qualifying operations", "states": "No: dry cleaning, ironing and labelling in Korea of fabrics imported from Bangladesh do not confer origin",
+   "input": {"hs": "5208.12", "produced_in": "Korea", "fob": 100, "operations": ["cleaning", "marking"],
+     "materials": [{"name": "Cotton fabric", "hs": "5208.12", "value": 80, "country": "Bangladesh"}]},
+   "expect": {"outcome": "no"}},
+  {"id": "ak-de-minimis-value", "source": "miti", "where": "Part 5, Rule 10, example baby carriage (values chosen: FOB 100, aluminium bar 55, handle grip 10)", "states": "Does not meet the CTC rule on the handle grip alone, but a grip at 10 % of the transaction value or less is disregarded under de minimis, so the CTC rule is met",
+   "input": {"hs": "8715.00", "produced_in": "Korea", "fob": 100,
+     "materials": [
+      {"name": "Aluminium bar", "hs": "7604.10", "value": 55, "country": "India"},
+      {"name": "Handle grip", "hs": "8715.00", "value": 10, "country": "China"}]},
+   "expect": {"outcome": "yes", "alternative": {"CTH": "yes"}, "de_minimis_used": true}},
+  {"id": "ak-de-minimis-textile", "source": "miti", "where": "Part 5, Rule 10, example silk yarn (values chosen: FOB 100, weight 100, raw silk 93, silk thread 7)", "states": "Does not meet the CTC rule on the silk thread alone, but a thread at 7 % of the weight or less is disregarded under de minimis",
+   "input": {"hs": "5006.00", "produced_in": "Korea", "fob": 100, "weight": 100,
+     "materials": [
+      {"name": "Raw silk", "hs": "5002.00", "value": 50, "weight": 93, "country": "India"},
+      {"name": "Silk thread", "hs": "5006.00", "value": 40, "weight": 7, "country": "China"}]},
+   "expect": {"outcome": "yes", "de_minimis_used": true, "weight_share_min": 6.9, "weight_share_max": 7.1}},
+  {"id": "ak-wo-tuna", "source": "miti", "where": "Part 5, Rule 3, example tuna from a Thai factory ship", "states": "The tuna is an originating good (wholly obtained)",
+   "input": {"hs": "1604.14", "produced_in": "Thailand", "wholly_obtained": true},
+   "expect": {"outcome": "yes", "applied": "WO"}},
+  {"id": "ak-wo-crude-oil", "source": "miti", "where": "Part 5, Rule 3, example crude oil extracted in Brunei", "states": "The crude oil is an originating good (wholly obtained), whoever the exploration company is",
+   "input": {"hs": "2709.00", "produced_in": "Brunei", "wholly_obtained": true},
+   "expect": {"outcome": "yes", "applied": "WO"}}
+ ]
+}

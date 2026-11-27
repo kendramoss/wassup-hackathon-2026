@@ -947,6 +947,30 @@ func TestTariffWatchConfig(t *testing.T) {
 	}
 }
 
+func TestAKFTAACFTACheckConfig(t *testing.T) {
+	for _, name := range []string{"AKFTA_CHECK", "ACFTA_CHECK"} {
+		get := func(c Config) bool {
+			if name == "AKFTA_CHECK" {
+				return c.AKFTACheck
+			}
+			return c.ACFTACheck
+		}
+		c, err := FromEnv(getenv(vertexEnv()))
+		if err != nil || get(c) {
+			t.Fatalf("%s default = %v %v, want off", name, get(c), err)
+		}
+		for v, want := range map[string]bool{"on": true, "ON": true, "1": true, "off": false, "0": false} {
+			c, err := FromEnv(getenv(merge(vertexEnv(), map[string]string{name: v})))
+			if err != nil || get(c) != want {
+				t.Errorf("%s=%s = %v %v, want %v", name, v, get(c), err, want)
+			}
+		}
+		if _, err := FromEnv(getenv(merge(vertexEnv(), map[string]string{name: "maybe"}))); err == nil || !strings.Contains(err.Error(), name) {
+			t.Errorf("%s=maybe: %v", name, err)
+		}
+	}
+}
+
 func TestTextileRulesConfig(t *testing.T) {
 	c, err := FromEnv(getenv(vertexEnv()))
 	if err != nil || c.TextileRules {

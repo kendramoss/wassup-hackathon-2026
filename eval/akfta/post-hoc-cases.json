@@ -1,0 +1,6 @@
+{
+ "about": "Corrected inputs for cases whose pre-registered input did not run as the source intends, written after the first run (D950). Reported separately from the pre-registered result; the expectation is the pre-registered one.",
+ "cases": [
+  {"id": "ak-wm-build-up", "reference": "ak-wm-build-up", "why": "The pre-registered bill listed only the originating Parts A, so the check, finding every listed material originating, reported RVC 100 % and not the guide's 52 %. The guide leaves Parts B to E out on purpose; here they are listed as the build-up example gives them, with Parts B (originating in Singapore in the guide) not checked, so unknown.", "input": {"hs": "8450.11", "produced_in": "Singapore", "fob": 1000, "method": "direct", "costs": {"other": 150}, "materials": [{"name": "Parts A", "value": 370, "country": "Singapore", "status": "originating"}, {"name": "Parts B", "value": 100, "country": "Singapore"}, {"name": "Parts C", "value": 130, "country": "China", "status": "non_originating"}, {"name": "Parts D", "value": 150}, {"name": "Parts E", "value": 100}]}}
+ ]
+}

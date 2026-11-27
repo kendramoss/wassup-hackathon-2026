@@ -25,6 +25,8 @@ The code defaults are permissive so local UI work works without credentials. "As
 | `REQUIRE_BEARER` | off | **on** | Cloud Run passes the frontend's `Authorization: Bearer` to the container: `curl https://undelabs.dev/api/v1/demos` → **200** after the flag was enabled. Defence in depth behind IAM, not the primary boundary |
 | `USMCA_RULES_EXT` | off | **on** (27 Nov, #910) | USMCA rules check uses the GN 11(o) rows, de minimis and the parts route (D930, D932) |
 | `ATIGA_CHECK` | off | **on** (27 Nov, #910) | `POST /v1/atiga/check` and the `check_atiga_preference` tool are served; no accuracy figure (D927) |
+| `AKFTA_CHECK` | off | **off** | `POST /v1/akfta/check` and the `check_akfta_preference` tool are served (ASEAN-Korea preferential origin); no accuracy figure (D949, D950) |
+| `ACFTA_CHECK` | off | **off** | `POST /v1/acfta/check` and the `check_acfta_preference` tool are served (ASEAN-China preferential origin, HS 2017 table); no accuracy figure (D949, D950) |
 | `ADCVD_CHECK` | off | **off** (stays off until the D940 figure is reviewed) | `POST /v1/adcvd/check`, the `check_adcvd_exposure` tool and `adcvd_check` on a case are served; display only, never changes an origin answer or a duty figure (D939, D940) |
 | `BROKER_WORKFLOW` | off | **on** (27 Nov, #910) | review queue, case discussion, sign-offs and the eRulings filing package are served (D925) |
 | `ERP_IMPORT` | off | **on** (27 Nov, #910) | `POST /v1/products/erp-import` is served (D926) |

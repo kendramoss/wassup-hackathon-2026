@@ -390,6 +390,14 @@ type Config struct {
 	// of materials, deterministic, no model call (D927).
 	ATIGACheck bool
 	atigaCheck string // as given, checked by validate
+	// AKFTACheck and ACFTACheck (on|off, default off) serve POST
+	// /v1/akfta/check and /v1/acfta/check and their MCP tools:
+	// ASEAN-Korea and ASEAN-China preferential origin, deterministic, no
+	// model call (D949).
+	AKFTACheck bool
+	akftaCheck string // as given, checked by validate
+	ACFTACheck bool
+	acftaCheck string // as given, checked by validate
 	// ADCVDCheck (on|off, default off) serves POST /v1/adcvd/check, the
 	// check_adcvd_exposure MCP tool and adcvd_check on a case: parts that may
 	// be subject to a U.S. AD or CVD order, display only, no model call
@@ -715,6 +723,10 @@ func FromEnv(getenv func(string) string) (Config, error) {
 	c.ExportCFR177 = c.exportCFR177 == "on" || c.exportCFR177 == "true" || c.exportCFR177 == "1"
 	c.atigaCheck = strings.ToLower(e.str("ATIGA_CHECK", "off"))
 	c.ATIGACheck = c.atigaCheck == "on" || c.atigaCheck == "true" || c.atigaCheck == "1"
+	c.akftaCheck = strings.ToLower(e.str("AKFTA_CHECK", "off"))
+	c.AKFTACheck = c.akftaCheck == "on" || c.akftaCheck == "true" || c.akftaCheck == "1"
+	c.acftaCheck = strings.ToLower(e.str("ACFTA_CHECK", "off"))
+	c.ACFTACheck = c.acftaCheck == "on" || c.acftaCheck == "true" || c.acftaCheck == "1"
 	c.adcvdCheck = strings.ToLower(e.str("ADCVD_CHECK", "off"))
 	c.ADCVDCheck = c.adcvdCheck == "on" || c.adcvdCheck == "true" || c.adcvdCheck == "1"
 	c.textileRules = strings.ToLower(e.str("TEXTILE_RULES", "off"))
@@ -888,6 +900,16 @@ func (c Config) validate() error {
 	case "on", "true", "1", "off", "false", "0":
 	default:
 		bad("ATIGA_CHECK must be on or off, got %q", c.atigaCheck)
+	}
+	switch c.akftaCheck {
+	case "on", "true", "1", "off", "false", "0":
+	default:
+		bad("AKFTA_CHECK must be on or off, got %q", c.akftaCheck)
+	}
+	switch c.acftaCheck {
+	case "on", "true", "1", "off", "false", "0":
+	default:
+		bad("ACFTA_CHECK must be on or off, got %q", c.acftaCheck)
 	}
 	switch c.nearMissAdvice {
 	case "on", "true", "1", "off", "false", "0":

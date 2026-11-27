@@ -906,6 +906,8 @@ func newDeps(cfg config.Config, model, engineModel llm.Model, cases store.Cases,
 		PartsHTS:              partsSuggester,
 		ExportCFR177:          cfg.ExportCFR177,
 		ATIGACheck:            cfg.ATIGACheck,
+		AKFTACheck:            cfg.AKFTACheck,
+		ACFTACheck:            cfg.ACFTACheck,
 		Checks:                []httpapi.HealthCheck{httpapi.StoreCheck(cases), httpapi.ModelCheck("model", model, cfg.RouterModel)},
 	}
 	if cfg.TextileRules {
