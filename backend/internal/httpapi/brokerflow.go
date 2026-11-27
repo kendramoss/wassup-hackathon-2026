@@ -80,10 +80,10 @@ func caseRoleOf(p principal, c store.Case) string {
 		}
 	}
 	if p.roleGoverns(c) {
-		if p.Role == "" {
-			return string(teams.RoleViewer)
+		if _, role := p.wsScope(); role != "" {
+			return string(role)
 		}
-		return string(p.Role)
+		return string(teams.RoleViewer)
 	}
 	if p.Admin {
 		return "admin"

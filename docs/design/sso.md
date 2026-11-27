@@ -1,6 +1,6 @@
 # Single sign-on: OIDC and SAML (#868)
 
-Status: backend done, off by default (`SSO=on`). The sign-in page that sends the browser to the identity provider and posts the answer back is frontend work and is not built yet.
+Status: backend done, off by default (`SSO=on`). Setup is on the admin screen at `/settings/workspace` (D961). The sign-in page that sends the browser to the identity provider and posts the answer back is frontend work and is not built yet.
 
 ## 1. What it does
 
@@ -65,7 +65,7 @@ Connections and the one-time state live in Firestore (`sso_connections`, `sso_on
 
 ## 6. Not done
 
-- The frontend sign-in page, callback pages and the admin screen.
+- The frontend sign-in page and callback pages (the admin setup screen is built, D961).
 - Group-to-role mapping from the IdP (the default role applies; SCIM, #869, manages roles).
 - Single logout and IdP-initiated SAML.
 - Expired rows in `sso_onetime` are not swept; a Firestore TTL policy on `expires_at` would do it (an operator setting).

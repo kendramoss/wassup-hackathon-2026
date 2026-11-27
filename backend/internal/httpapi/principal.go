@@ -7,6 +7,7 @@ import (
 	"regexp"
 	"strings"
 
+	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/apikey"
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/store"
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/teams"
 )
@@ -71,6 +72,10 @@ type principal struct {
 	// KeyWorkspace is the workspace a workspace API key was issued for (#870);
 	// its audit events go to that workspace's trail.
 	KeyWorkspace string
+	// KeyRole is the role a workspace key was made with (#870, D961): viewer
+	// or editor, "" for a key without one. It comes from the stored key, never
+	// from the request.
+	KeyRole teams.Role
 	// Email, UserOwner and Workspace are set for a verified signed-in user.
 	Email     string
 	UserOwner string
@@ -101,6 +106,14 @@ func (a *api) principalOf(r *http.Request) principal {
 	p := principal{Admin: a.isAdmin(r), Owner: ownerOf(r)}
 	if k, ok := keyFrom(r.Context()); ok {
 		p.HasKey, p.KeyID, p.KeyWorkspace = true, k.ID, k.Workspace
+		if k.Workspace != "" {
+			switch k.Role {
+			case apikey.RoleViewer:
+				p.KeyRole = teams.RoleViewer
+			case apikey.RoleEditor:
+				p.KeyRole = teams.RoleEditor
+			}
+		}
 	}
 	if id := identityOf(r.Context()); id.email != "" {
 		p.Email, p.UserOwner, p.Workspace, p.Role = id.email, id.owner, id.workspace, id.role
@@ -127,11 +140,30 @@ func (p principal) Verified() bool { return p.Admin || p.Email != "" || p.HasKey
 // signedIn reports a verified signed-in user.
 func (p principal) signedIn() bool { return p.Email != "" }
 
+// wsScope is the workspace whose cases this principal acts on and the role it
+// has there: a signed-in user's workspace and role, or, for a request with no
+// signed-in user and not the admin token, the workspace of a workspace API key
+// that was made with a role (viewer or editor, never admin). Empty when it has
+// none. A key without a role, an operator key and a visitor have no workspace.
+func (p principal) wsScope() (ws string, role teams.Role) {
+	switch {
+	case p.signedIn():
+		return p.Workspace, p.Role
+	case p.HasKey && !p.Admin && p.KeyWorkspace != "" && p.KeyRole != "":
+		return p.KeyWorkspace, p.KeyRole
+	}
+	return "", ""
+}
+
 // newCaseScope is the owner and workspace a case made by this principal is
-// stored under: a signed-in user's, else the credential owner.
+// stored under: a signed-in user's, else a workspace key's own owner in its
+// workspace, else the credential owner.
 func (p principal) newCaseScope() (owner, workspace string) {
 	if p.signedIn() {
 		return p.UserOwner, p.Workspace
+	}
+	if ws, _ := p.wsScope(); ws != "" {
+		return p.Owner, ws
 	}
 	return p.Owner, ""
 }
@@ -164,6 +196,9 @@ func (p principal) canSee(c store.Case, ownership bool) bool {
 	}
 	if p.signedIn() {
 		return p.teamCanSee(c)
+	}
+	if ws, _ := p.wsScope(); ws != "" && c.Workspace == ws {
+		return true // a workspace key sees its workspace's cases, no other (D961)
 	}
 	if teamCase(c) {
 		return false

@@ -115,6 +115,11 @@ export type RetentionPolicy = S["RetentionPolicy"];
 export type WorkspaceUsage = S["WorkspaceUsage"];
 export type WorkspaceBudget = S["WorkspaceBudget"];
 export type WorkspaceKeyIssue = { key: string; api_key: ApiKey };
+// What a workspace key may do with the workspace's cases (D961). Never admin.
+export type KeyRole = "viewer" | "editor";
+export type SsoConnection = S["SSOConnection"];
+export type SsoRequest = S["SSOConnectionRequest"];
+export type ScimStatus = S["SCIMTokenStatus"];
 export type WebhookList = { endpoints: S["WebhookEndpoint"][]; available_events: S["WebhookEventType"][]; max_endpoints: number };
 export type ChatTurn = NonNullable<AskResponse["chat"]>[number];
 export type WhatIf = NonNullable<NonNullable<AskResponse["reply"]>["what_ifs"]>[number];
@@ -502,8 +507,18 @@ export const api = {
   renameWorkspace: (ws: string, name: string) => post<Workspace>(`/workspaces/${enc(ws)}/name`, { name }, undefined, "PUT"),
   // The secret comes back once, from create; list and revoke never carry it.
   listWorkspaceKeys: (ws: string) => call<{ api_keys: ApiKey[] }>(`/workspaces/${enc(ws)}/api-keys`),
-  createWorkspaceKey: (ws: string, name: string) => post<WorkspaceKeyIssue>(`/workspaces/${enc(ws)}/api-keys`, { name }),
+  createWorkspaceKey: (ws: string, name: string, role: KeyRole) => post<WorkspaceKeyIssue>(`/workspaces/${enc(ws)}/api-keys`, { name, role }),
   revokeWorkspaceKey: (ws: string, key: string) => call<void>(`/workspaces/${enc(ws)}/api-keys/${enc(key)}`, { method: "DELETE" }),
+  // SSO and SCIM setup (D868, D869). Client secrets are write-only: the server
+  // never returns one (has_client_secret only), and a blank one keeps the stored.
+  listSsoConnections: (ws: string) => call<{ connections: SsoConnection[] }>(`/workspaces/${enc(ws)}/sso`),
+  createSsoConnection: (ws: string, body: SsoRequest) => post<SsoConnection>(`/workspaces/${enc(ws)}/sso`, body),
+  updateSsoConnection: (ws: string, conn: string, body: SsoRequest) => post<SsoConnection>(`/workspaces/${enc(ws)}/sso/${enc(conn)}`, body, undefined, "PUT"),
+  verifySsoConnection: (ws: string, conn: string, enable: boolean) => post<SsoConnection>(`/workspaces/${enc(ws)}/sso/${enc(conn)}/verify`, { enable }),
+  deleteSsoConnection: (ws: string, conn: string) => call<void>(`/workspaces/${enc(ws)}/sso/${enc(conn)}`, { method: "DELETE" }),
+  getScim: (ws: string) => call<ScimStatus>(`/workspaces/${enc(ws)}/scim`),
+  issueScimToken: (ws: string, body: { domains: string[]; default_role: KeyRole }) => post<ScimStatus>(`/workspaces/${enc(ws)}/scim/token`, body),
+  revokeScimToken: (ws: string) => call<void>(`/workspaces/${enc(ws)}/scim/token`, { method: "DELETE" }),
   // query: the string auditQuery() builds, "?limit=50&..." .
   workspaceAudit: (ws: string, query: string) => call<AuditPage>(`/workspaces/${enc(ws)}/admin/audit${query}`),
   getRetention: (ws: string) => call<RetentionPolicy>(`/workspaces/${enc(ws)}/retention`),

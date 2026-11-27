@@ -2,7 +2,7 @@
 // component so it can be tested. The server decides who is an admin and which
 // features are on; nothing here grants access. A 403 or 404 only changes what
 // the screen says.
-import { ApiError, type ApiKey } from "./api/client";
+import { ApiError, type ApiKey, type KeyRole, type ScimStatus, type SsoConnection, type SsoRequest, type WorkspaceRole } from "./api/client";
 
 export type Gate = "ok" | "signin" | "no_teams" | "no_workspace" | "not_admin" | "error";
 
@@ -56,6 +56,16 @@ export function secretDismissed(s: KeyOnce): KeyOnce {
   return { ...s, secret: null };
 }
 export const MAX_ACTIVE_KEYS = 20;
+
+// What a key may do with the workspace's cases (D961). The admin picks one when
+// the key is made; there is no admin key. A key from before roles has none and
+// reaches only its own cases.
+export const KEY_ROLES: readonly KeyRole[] = ["viewer", "editor"];
+export const keyRoleLabel = (r: string | undefined) => (r === "editor" ? "Editor" : r === "viewer" ? "Viewer" : "Own cases only");
+export const keyRoleHelp: Record<KeyRole, string> = {
+  viewer: "Reads the workspace's cases.",
+  editor: "Reads, creates and changes the workspace's cases.",
+};
 export const activeKeys = (keys: ApiKey[]) => keys.filter((k) => !k.disabled);
 
 export function keyError(e: unknown): string {
@@ -63,7 +73,7 @@ export function keyError(e: unknown): string {
     if (e.status === 409) return `A workspace can have ${MAX_ACTIVE_KEYS} active keys. Revoke one first.`;
     if (e.status === 403) return "Only workspace admins can do this.";
     if (e.status === 404) return "API keys are not enabled.";
-    if (e.status === 400) return "Use a name of 1 to 100 characters.";
+    if (e.status === 400) return "Use a name of 1 to 100 characters and a role of viewer or editor.";
   }
   return "That did not work. Try again.";
 }
@@ -191,3 +201,126 @@ export function webhookError(e: unknown): string {
   }
   return "That did not work. Try again.";
 }
+
+// ---- member roles ----
+export type Member = { email: string; role: string };
+export const countAdmins = (ms: Member[]) => ms.filter((m) => m.role === "admin").length;
+// The only admin cannot be changed. The server refuses it too (409); this only
+// saves the round trip and says why.
+export const isLastAdmin = (ms: Member[], email: string) => countAdmins(ms) === 1 && ms.some((m) => m.email === email && m.role === "admin");
+export const LAST_ADMIN_NOTE = "The only admin. Make someone else an admin first.";
+export function withRole(ms: Member[], email: string, role: WorkspaceRole, fromServer?: Record<string, string>): Member[] {
+  return ms.map((m) => ({ ...m, role: fromServer?.[m.email] ?? (m.email === email ? role : m.role) }));
+}
+
+// ---- SSO and SCIM setup (#868, #869) ----
+// Only ever shown after a save: whether a secret exists, never the secret.
+export const SECRET_NOTE = "Secret saved. Leave empty to keep it.";
+export const SSO_ROLES = ["viewer", "editor"] as const;
+
+export type SsoForm = {
+  protocol: "oidc" | "saml";
+  domains: string;
+  default_role: string;
+  oidc_issuer: string;
+  oidc_client_id: string;
+  oidc_client_secret: string;
+  saml_sso_url: string;
+  saml_issuer: string;
+  saml_certs: string;
+};
+export const emptySsoForm: SsoForm = { protocol: "oidc", domains: "", default_role: "viewer", oidc_issuer: "", oidc_client_id: "", oidc_client_secret: "", saml_sso_url: "", saml_issuer: "", saml_certs: "" };
+
+// Edit starts from what the server holds. The client secret is not among it.
+export function ssoFormOf(c: SsoConnection): SsoForm {
+  return {
+    protocol: c.protocol,
+    domains: c.domains.map((d) => d.domain).join(", "),
+    default_role: c.default_role,
+    oidc_issuer: c.oidc_issuer ?? "",
+    oidc_client_id: c.oidc_client_id ?? "",
+    oidc_client_secret: "",
+    saml_sso_url: c.saml_sso_url ?? "",
+    saml_issuer: c.saml_issuer ?? "",
+    saml_certs: (c.saml_certs_pem ?? []).join("\n"),
+  };
+}
+
+export function parseDomains(s: string): string[] {
+  const out: string[] = [];
+  for (const d of s.toLowerCase().split(/[\s,;]+/)) if (d && !out.includes(d)) out.push(d);
+  return out;
+}
+export function splitCerts(s: string): string[] {
+  return s.match(/-----BEGIN CERTIFICATE-----[\s\S]*?-----END CERTIFICATE-----/g)?.map((c) => c.trim()) ?? [];
+}
+const https = (v: string) => /^https:\/\/[^\s/]+/i.test(v.trim());
+
+export function ssoProblem(f: SsoForm): string | null {
+  const ds = parseDomains(f.domains);
+  if (ds.length < 1 || ds.length > 20) return "Add 1 to 20 email domains.";
+  if (f.protocol === "oidc") {
+    if (!https(f.oidc_issuer)) return "The issuer is an https address.";
+    if (!f.oidc_client_id.trim()) return "Add the client ID.";
+  } else {
+    if (!https(f.saml_sso_url)) return "The sign-in URL is an https address.";
+    if (!f.saml_issuer.trim()) return "Add the identity provider's entity ID.";
+    const n = splitCerts(f.saml_certs).length;
+    if (n < 1 || n > 3) return "Add 1 to 3 signing certificates (PEM).";
+  }
+  return null;
+}
+
+// The request for a save. A blank client secret is left out, which keeps the
+// stored one; enabled and enforced are never part of an edit (the server keeps
+// them), and a new connection always starts off.
+export function ssoBody(f: SsoForm): SsoRequest {
+  const body: SsoRequest = { protocol: f.protocol, domains: parseDomains(f.domains), default_role: f.default_role as SsoRequest["default_role"] };
+  if (f.protocol === "oidc") {
+    body.oidc_issuer = f.oidc_issuer.trim();
+    body.oidc_client_id = f.oidc_client_id.trim();
+    if (f.oidc_client_secret !== "") body.oidc_client_secret = f.oidc_client_secret;
+  } else {
+    body.saml_sso_url = f.saml_sso_url.trim();
+    body.saml_issuer = f.saml_issuer.trim();
+    body.saml_certs_pem = splitCerts(f.saml_certs);
+  }
+  return body;
+}
+
+// A change of the enforced switch is a full replace with the stored settings.
+export const ssoEnforceBody = (c: SsoConnection, enforced: boolean): SsoRequest => ({ ...ssoBody(ssoFormOf(c)), enforced });
+export const ssoDisableBody = (c: SsoConnection): SsoRequest => ({ ...ssoBody(ssoFormOf(c)), enabled: false });
+
+export const dnsLine = (d: { record_name: string; record_value: string }) => `${d.record_name}  TXT  ${d.record_value}`;
+export const verifiedDomains = (cs: { enabled?: boolean; domains: { domain: string; verified: boolean }[] }[]) => [...new Set(cs.flatMap((c) => c.domains.filter((d) => d.verified).map((d) => d.domain)))].sort();
+
+export function ssoError(e: unknown): string {
+  if (e instanceof ApiError) {
+    if (e.status === 409) {
+      if (e.code === ("sso_domain_taken" as typeof e.code)) return "Another workspace has verified one of these domains.";
+      if (e.code === ("sso_limit" as typeof e.code)) return "A workspace can have 5 connections.";
+      if (e.code === ("sso_unverified" as typeof e.code)) return "Verify every domain before turning it on.";
+    }
+    if (e.status === 400) return e.message ? e.message[0].toUpperCase() + e.message.slice(1).replace(/\.?$/, ".") : "Check the settings and try again.";
+    if (e.status === 403) return "Only workspace admins can do this.";
+    if (e.status === 404) return "That connection is gone or SSO is not enabled.";
+  }
+  return "That did not work. Try again.";
+}
+
+export function scimError(e: unknown): string {
+  if (e instanceof ApiError) {
+    if (e.status === 409) return "Verify a domain under SSO first.";
+    if (e.status === 400) return e.message ? e.message[0].toUpperCase() + e.message.slice(1).replace(/\.?$/, ".") : "Check the settings and try again.";
+    if (e.status === 403) return "Only workspace admins can do this.";
+    if (e.status === 404) return "SCIM is not enabled.";
+  }
+  return "That did not work. Try again.";
+}
+
+// A SCIM token is in the answer that issues it and nowhere else.
+export type ScimOnce = { status: ScimStatus | null; token: string | null };
+export const scimLoaded = (status: ScimStatus): ScimOnce => ({ status: { ...status, token: undefined }, token: null });
+export const scimIssued = (status: ScimStatus): ScimOnce => ({ status: { ...status, token: undefined }, token: status.token ?? null });
+export const scimDismissed = (s: ScimOnce): ScimOnce => ({ ...s, token: null });

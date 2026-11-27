@@ -79,7 +79,7 @@ info:
 
     Strict auth (#283, `STRICT_AUTH=on`, default off, same values as `CASE_OWNERSHIP`; any other value fails startup): private case operations (creating, listing and every route on a non-pinned case) require a verified identity, meaning a validated user token, an API key or the admin token. An `X-Visitor-ID` alone is not authentication and gets 401 `unauthenticated`, identical for missing, hidden and unknown cases. Pinned demos, `/v1/demos*`, `/v1/rulings`, `/v1/eval/summary`, `/v1/duty-rates`, `/v1/rcep/check`, `/v1/usmca/check`, `/health` and the stateless `/v1/products/*` helpers stay open. With it off nothing changes.
 
-    API keys (D69, `API_KEYS=on`, off by default): brokers may call the API with `X-API-Key: op_...` (securityScheme `ApiKey`). Every `/v1` request with a key is checked (unknown or disabled: 401 `unauthorized`) and counted against the key's daily quota (spent: 429 `quota_exceeded`, `Retry-After` at the next UTC day). A key has its own rate-limit buckets, sees the pinned demos and its own cases only, and its cases are hidden from everyone else but the admin, whatever `CASE_OWNERSHIP` says. The admin issues, lists and disables keys under `/v1/admin/api-keys`. Signed-in users also create, list and revoke their own keys under `/v1/api-keys` when `TEAMS` is on (#788): the owner comes from the verified sign-in, the quota is fixed at 200 requests per UTC day, and the secret is returned only on creation.
+    API keys (D69, `API_KEYS=on`, off by default): brokers may call the API with `X-API-Key: op_...` (securityScheme `ApiKey`). Every `/v1` request with a key is checked (unknown or disabled: 401 `unauthorized`) and counted against the key's daily quota (spent: 429 `quota_exceeded`, `Retry-After` at the next UTC day). A key has its own rate-limit buckets, sees the pinned demos and its own cases only (a workspace key made with a role, viewer or editor, also acts on its workspace's cases, never as an admin, D961), and its cases are hidden from everyone else but the admin, whatever `CASE_OWNERSHIP` says. The admin issues, lists and disables keys under `/v1/admin/api-keys`. Signed-in users also create, list and revoke their own keys under `/v1/api-keys` when `TEAMS` is on (#788): the owner comes from the verified sign-in, the quota is fixed at 200 requests per UTC day, and the secret is returned only on creation.
 
     Broker review links (D200): a case owner makes a link for one draft (`POST /v1/cases/{id}/reviews`), and a customs broker opens it without an account. The broker's two routes, `GET /v1/review` and `POST /v1/review/decision`, take the link token in the `X-Review-Token` header (securityScheme `ReviewToken`), never in a path or query. They have their own rate class (`review`, 30 a minute per client, counted per instance, `RATE_REVIEW_PER_MIN`) and an invalid token counts against a per-client failure budget like an invalid API key (429 `auth_rate_limited`). A revoked or expired link is 410. A token opens one frozen draft snapshot and nothing else.
 security:
@@ -4029,7 +4029,7 @@ paths:
     post:
       operationId: issueWorkspaceApiKey
       summary: Create an API key for the workspace (ADMIN_CONSOLE=on, API_KEYS=on, workspace admin)
-      description: "The key belongs to the workspace, not to a person: any admin of it can list and revoke it. The daily quota is fixed at 1000 requests per UTC day and a `daily_quota` in the body is refused; a key has the same rate-limit buckets as every API key. At most 20 keys that are not revoked per workspace (409 `conflict`). The secret is returned once, in `key`; only its SHA-256 is stored. The key sees the pinned demos and its own cases only, as any API key does (D69); its denied requests are recorded in the workspace's audit trail. Audited as `apikey.issue`."
+      description: "The key belongs to the workspace, not to a person: any admin of it can list and revoke it. The daily quota is fixed at 1000 requests per UTC day and a `daily_quota` in the body is refused; a key has the same rate-limit buckets as every API key. At most 20 keys that are not revoked per workspace (409 `conflict`). The secret is returned once, in `key`; only its SHA-256 is stored. `role` is `viewer` (reads the workspace's cases) or `editor` (reads and writes them, and creates cases that belong to the workspace), chosen by the admin; `admin` and any other value is 400, and a key never reaches an admin route. Without `role` the key reaches only its own cases and the pinned demos, as any API key does (D69). A key with a role acts on its own workspace's cases only (another workspace's case is the same 404 as a missing one) and its requests are recorded in the workspace's audit trail as the key. Audited as `apikey.issue`."
       parameters:
         - { $ref: "#/components/parameters/UserToken" }
         - { name: id, in: path, required: true, schema: { type: string } }
@@ -4043,6 +4043,7 @@ paths:
               additionalProperties: false
               properties:
                 name: { type: string, minLength: 1, maxLength: 100 }
+                role: { type: string, enum: [viewer, editor], description: What the key may do with the workspace's cases (D961) }
       responses:
         "201":
           headers:
@@ -5173,6 +5174,7 @@ components:
         created_at: { type: string, format: date-time }
         daily_quota: { type: integer, description: Requests a UTC day }
         disabled: { type: boolean }
+        role: { type: string, enum: [viewer, editor], description: "Workspace keys only: viewer reads and editor reads and writes the workspace's cases. Absent: the key reaches its own cases only (D961)." }
     Meta:
       type: object
       required: [model_ids, prompt_versions, llm_provider, disclaimer]

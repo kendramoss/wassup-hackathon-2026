@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useCallback, useEffect, useId, useState, type FormEvent } from "react";
-import { ApiError, api, errorText, type AdminOverview, type ApiKey, type AuditEvent, type RetentionPolicy, type WorkspaceUsage, type WorkspacesMine } from "@/lib/api/client";
+import { ApiError, api, errorText, type AdminOverview, type ApiKey, type KeyRole, type WorkspaceRole, type AuditEvent, type RetentionPolicy, type WorkspaceUsage, type WorkspacesMine } from "@/lib/api/client";
 import {
   ACTIONS,
   ACTORS,
@@ -16,7 +16,14 @@ import {
   auditQuery,
   budgetProblem,
   daysLabel,
+  KEY_ROLES,
+  LAST_ADMIN_NOTE,
+  isLastAdmin,
   keyError,
+  keyRoleHelp,
+  keyRoleLabel,
+  verifiedDomains,
+  withRole,
   keyIssued,
   keyRevoked,
   keysLoaded,
@@ -37,7 +44,9 @@ import {
   type WebhookEndpoint,
 } from "@/lib/admin";
 import { formatDate } from "@/lib/format";
+import { ROLES, memberMessage, roleLabel } from "@/lib/roles";
 import { SignIn } from "../sign-in";
+import { ScimPart, SsoPart } from "./admin-signin";
 import { Button, Chip, Panel, PanelHead, Spinner } from "../ui";
 
 const field = "h-10 min-w-0 rounded-[2px] border border-edge bg-white px-3 text-[13.5px] focus:border-ok";
@@ -112,10 +121,29 @@ export function NameSection({ id, name, onRenamed }: { id: string; name: string;
   );
 }
 
-export function MembersSection({ members, invited }: { members: Ov["members"]; invited: string[] }) {
+export function MembersSection({ ws, members, invited }: { ws: string; members: Ov["members"]; invited: string[] }) {
+  const [rows, setRows] = useState(members);
+  const [busy, setBusy] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
+  const [saved, setSaved] = useState<string | null>(null);
+  const change = async (email: string, role: WorkspaceRole) => {
+    if (busy || rows.find((m) => m.email === email)?.role === role) return;
+    setBusy(email);
+    setError(null);
+    setSaved(null);
+    try {
+      const w = await api.setMemberRole(ws, email, role);
+      setRows((cur) => withRole(cur, email, role, w.member_roles));
+      setSaved(`${email} is now ${role === "viewer" ? "a viewer" : `an ${role}`}.`);
+    } catch (err) {
+      setError(memberMessage(err, "role"));
+    } finally {
+      setBusy(null);
+    }
+  };
   return (
     <Panel>
-      <PanelHead right={<Link href="/cases" className="underline underline-offset-2">Change roles</Link>}>{text.members}</PanelHead>
+      <PanelHead>{text.members}</PanelHead>
       <table className="w-full">
         <thead>
           <tr>
@@ -124,14 +152,33 @@ export function MembersSection({ members, invited }: { members: Ov["members"]; i
           </tr>
         </thead>
         <tbody>
-          {members.map((m) => (
-            <tr key={m.email} className="border-t border-line">
-              <td className={td}>{m.email}</td>
-              <td className={td}>
-                <Chip>{m.role}</Chip>
-              </td>
-            </tr>
-          ))}
+          {rows.map((m) => {
+            const last = isLastAdmin(rows, m.email);
+            return (
+              <tr key={m.email} className="border-t border-line">
+                <td className={td}>{m.email}</td>
+                <td className={td}>
+                  <label className="flex flex-wrap items-center gap-2">
+                    <span className="sr-only">Role for {m.email}</span>
+                    <select
+                      className={select}
+                      value={m.role}
+                      disabled={busy !== null || last}
+                      title={last ? LAST_ADMIN_NOTE : undefined}
+                      onChange={(e) => change(m.email, e.target.value as WorkspaceRole)}
+                    >
+                      {ROLES.map((r) => (
+                        <option key={r} value={r}>
+                          {roleLabel(r)}
+                        </option>
+                      ))}
+                    </select>
+                    {last && <span className="text-[12px] text-dim">{LAST_ADMIN_NOTE}</span>}
+                  </label>
+                </td>
+              </tr>
+            );
+          })}
           {invited.map((e) => (
             <tr key={e} className="border-t border-line text-dim">
               <td className={td}>{e}</td>
@@ -142,61 +189,35 @@ export function MembersSection({ members, invited }: { members: Ov["members"]; i
           ))}
         </tbody>
       </table>
+      {saved && <p className="mt-2 text-[13px] text-ok">{saved}</p>}
+      {error && (
+        <p role="alert" className="mt-2 text-[13px] text-fail">
+          {error}
+        </p>
+      )}
     </Panel>
   );
 }
 
-export function SignInSection({ sso, scim }: { sso?: Ov["sso"]; scim?: Ov["scim"] }) {
-  if (!sso && !scim) return null;
+export function SignInSection({ ws, sso, scim }: { ws: string; sso?: Ov["sso"]; scim?: Ov["scim"] }) {
+  const [domains, setDomains] = useState<string[]>(() => verifiedDomains(sso?.connections ?? []));
   return (
     <Panel>
       <PanelHead>{text.signInTitle}</PanelHead>
-      {sso && (
+      {sso ? (
+        <SsoPart ws={ws} onDomains={setDomains} />
+      ) : (
         <div>
           <h3 className="mb-1 text-[12.5px] font-medium">SSO</h3>
-          {sso.connections.length === 0 ? (
-            <p className="text-[13px] text-dim">No connection.</p>
-          ) : (
-            <table className="w-full">
-              <thead>
-                <tr>
-                  <th className={th}>Type</th>
-                  <th className={th}>Domains</th>
-                  <th className={th}>State</th>
-                </tr>
-              </thead>
-              <tbody>
-                {sso.connections.map((c) => (
-                  <tr key={c.id} className="border-t border-line">
-                    <td className={td}>{c.protocol.toUpperCase()}</td>
-                    <td className={td}>
-                      {c.domains.map((d) => (
-                        <span key={d.domain} className="mr-2 inline-flex items-center gap-1">
-                          {d.domain}
-                          <Chip tone={d.verified ? "ok" : "ask"}>{d.verified ? "verified" : "unverified"}</Chip>
-                        </span>
-                      ))}
-                    </td>
-                    <td className={td}>
-                      <Chip tone={c.enabled ? "ok" : undefined}>{c.enabled ? "on" : "off"}</Chip> {c.enforced && <Chip tone="ask">required</Chip>}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          )}
+          {off}
         </div>
       )}
-      {scim && (
-        <div className={sso ? "mt-4" : ""}>
+      {scim ? (
+        <ScimPart ws={ws} domains={domains} />
+      ) : (
+        <div className="mt-4">
           <h3 className="mb-1 text-[12.5px] font-medium">SCIM</h3>
-          {scim.configured ? (
-            <p className="text-[13px]">
-              <Chip tone="ok">on</Chip> token ends …{scim.hint} · {scim.domains?.length ? scim.domains.join(", ") : "all domains"} · new users are {scim.default_role}
-            </p>
-          ) : (
-            <p className="text-[13px] text-dim">Not set up.</p>
-          )}
+          {off}
         </div>
       )}
     </Panel>
@@ -208,6 +229,7 @@ export function KeysSection({ ws }: { ws: string }) {
   const [state, setState] = useState<KeyOnce | null>(null);
   const [mode, setMode] = useState<"loading" | "ok" | "off" | "error">("loading");
   const [name, setName] = useState("");
+  const [role, setRole] = useState<KeyRole>("viewer");
   const [busy, setBusy] = useState(false);
   const [copied, setCopied] = useState(false);
   const [confirm, setConfirm] = useState<string | null>(null);
@@ -229,7 +251,7 @@ export function KeysSection({ ws }: { ws: string }) {
     setBusy(true);
     setError(null);
     try {
-      const out = await api.createWorkspaceKey(ws, name.trim());
+      const out = await api.createWorkspaceKey(ws, name.trim(), role);
       setState((s) => keyIssued(s ?? keysLoaded([]), out));
       setCopied(false);
       setName("");
@@ -291,10 +313,21 @@ export function KeysSection({ ws }: { ws: string }) {
               Key name
               <input className={`${field} w-full`} required maxLength={100} value={name} onChange={(e) => setName(e.target.value)} placeholder="Claude Desktop" />
             </label>
+            <label className="flex flex-col gap-1.5 text-[12.5px]">
+              Access
+              <select className={select} value={role} onChange={(e) => setRole(e.target.value as KeyRole)}>
+                {KEY_ROLES.map((r) => (
+                  <option key={r} value={r}>
+                    {keyRoleLabel(r)}
+                  </option>
+                ))}
+              </select>
+            </label>
             <Button type="submit" disabled={busy || !name.trim() || active >= MAX_ACTIVE_KEYS}>
               Create key
             </Button>
           </form>
+          <p className="mt-2 text-[12.5px] text-dim">{keyRoleHelp[role]} Never an admin.</p>
           {error && (
             <p role="alert" className="mt-2 text-[13px] text-fail">
               {error}
@@ -307,6 +340,7 @@ export function KeysSection({ ws }: { ws: string }) {
               <thead>
                 <tr>
                   <th className={th}>Name</th>
+                  <th className={th}>Access</th>
                   <th className={th}>Created</th>
                   <th className={th}>Per day</th>
                   <th className={th} />
@@ -316,6 +350,7 @@ export function KeysSection({ ws }: { ws: string }) {
                 {keys.map((k) => (
                   <tr key={k.id} className="border-t border-line">
                     <td className={td}>{k.name}</td>
+                    <td className={td}>{keyRoleLabel(k.role)}</td>
                     <td className={td}>{formatDate(k.created_at)}</td>
                     <td className={td}>{k.daily_quota}</td>
                     <td className={td}>
@@ -883,8 +918,8 @@ export function AdminScreen() {
   return (
     <div className="flex flex-col gap-6" data-testid="admin-screen">
       <NameSection id={ws} name={name} onRenamed={setName} />
-      <MembersSection members={ov.members} invited={ov.invited} />
-      <SignInSection sso={ov.sso} scim={ov.scim} />
+      <MembersSection ws={ws} members={ov.members} invited={ov.invited} />
+      <SignInSection ws={ws} sso={ov.sso} scim={ov.scim} />
       {f.api_keys && <KeysSection ws={ws} />}
       {f.retention && ov.retention && <RetentionSection ws={ws} initial={ov.retention} />}
       {f.metering && <UsageSection ws={ws} />}

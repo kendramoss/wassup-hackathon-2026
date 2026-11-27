@@ -13,11 +13,13 @@ import (
 // A signed-in user in a workspace has one role there (viewer, editor, admin),
 // read from the stored workspace on every request by withUser: never from a
 // header, a body field or a token claim. The role governs the cases that
-// carry the user's own workspace ID. It does not touch: a pinned demo (demo
+// carry the user's own workspace ID. A workspace API key made with a role
+// (viewer or editor, never admin) has that role on its own workspace's cases and
+// nothing else (D961). It does not touch: a pinned demo (demo
 // rules apply to everyone), a user's own pre-workspace or anonymous-browser
 // cases (owner behaviour), a case of another workspace or another owner
 // (hidden: 404), or any request that is an admin token or has no signed-in
-// user. An API key never has a role. The admin token wins over a user token:
+// user. An API key has a role only if it is a workspace key made with one. The admin token wins over a user token:
 // its holder keeps the existing admin behaviour whatever the user's role.
 
 // perm is what a case-scoped request needs.
@@ -105,7 +107,8 @@ var (
 // c: a signed-in, non-admin-token user, a workspace case of their own
 // workspace, not a pinned demo.
 func (p principal) roleGoverns(c store.Case) bool {
-	return !p.Admin && p.signedIn() && p.Workspace != "" && c.Workspace == p.Workspace && !c.Pinned
+	ws, _ := p.wsScope()
+	return !p.Admin && ws != "" && c.Workspace == ws && !c.Pinned
 }
 
 // allows reports whether the principal may do need to c. Where the role does
@@ -115,7 +118,8 @@ func (p principal) allows(c store.Case, need perm) bool {
 	if !p.roleGoverns(c) {
 		return true
 	}
-	return roleAllows(p.Role, need)
+	_, role := p.wsScope()
+	return roleAllows(role, need)
 }
 
 func roleAllows(role teams.Role, need perm) bool {
@@ -124,6 +128,13 @@ func roleAllows(role teams.Role, need perm) bool {
 		return true
 	}
 	return need == permRead // viewer, and anything unrecognised
+}
+
+// mayCreateCases is false for a principal whose workspace role is read-only: a
+// viewer member, or a viewer key.
+func (p principal) mayCreateCases() bool {
+	ws, role := p.wsScope()
+	return ws == "" || roleAllows(role, permEdit)
 }
 
 // mayCreate refuses, with the response written, a request that may not create
@@ -135,7 +146,7 @@ func (a *api) mayCreate(w http.ResponseWriter, r *http.Request) bool {
 	switch {
 	case a.d.StrictAuth && !p.Verified():
 		a.fail(w, r, errNeedsVerified)
-	case p.signedIn() && p.Workspace != "" && !p.Admin && !roleAllows(p.Role, permEdit):
+	case !p.Admin && !p.mayCreateCases():
 		a.fail(w, r, errForbidden)
 	default:
 		return true

@@ -2114,7 +2114,7 @@ export interface paths {
         put?: never;
         /**
          * Create an API key for the workspace (ADMIN_CONSOLE=on, API_KEYS=on, workspace admin)
-         * @description The key belongs to the workspace, not to a person: any admin of it can list and revoke it. The daily quota is fixed at 1000 requests per UTC day and a `daily_quota` in the body is refused; a key has the same rate-limit buckets as every API key. At most 20 keys that are not revoked per workspace (409 `conflict`). The secret is returned once, in `key`; only its SHA-256 is stored. The key sees the pinned demos and its own cases only, as any API key does (D69); its denied requests are recorded in the workspace's audit trail. Audited as `apikey.issue`.
+         * @description The key belongs to the workspace, not to a person: any admin of it can list and revoke it. The daily quota is fixed at 1000 requests per UTC day and a `daily_quota` in the body is refused; a key has the same rate-limit buckets as every API key. At most 20 keys that are not revoked per workspace (409 `conflict`). The secret is returned once, in `key`; only its SHA-256 is stored. `role` is `viewer` (reads the workspace's cases) or `editor` (reads and writes them, and creates cases that belong to the workspace), chosen by the admin; `admin` and any other value is 400, and a key never reaches an admin route. Without `role` the key reaches only its own cases and the pinned demos, as any API key does (D69). A key with a role acts on its own workspace's cases only (another workspace's case is the same 404 as a missing one) and its requests are recorded in the workspace's audit trail as the key. Audited as `apikey.issue`.
          */
         post: operations["issueWorkspaceApiKey"];
         delete?: never;
@@ -3138,6 +3138,11 @@ export interface components {
             /** @description Requests a UTC day */
             daily_quota: number;
             disabled: boolean;
+            /**
+             * @description Workspace keys only: viewer reads and editor reads and writes the workspace's cases. Absent: the key reaches its own cases only (D961).
+             * @enum {string}
+             */
+            role?: "viewer" | "editor";
         };
         Meta: {
             /**
@@ -9981,6 +9986,11 @@ export interface operations {
             content: {
                 "application/json": {
                     name: string;
+                    /**
+                     * @description What the key may do with the workspace's cases (D961)
+                     * @enum {string}
+                     */
+                    role?: "viewer" | "editor";
                 };
             };
         };
