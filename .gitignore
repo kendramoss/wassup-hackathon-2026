@@ -41,6 +41,7 @@ data/tuning/
 /backend/jpeval
 /backend/usmcaeval
 /backend/adcvdeval
+/backend/atigaeval
 /backend/adcvdprec
 /backend/adcvdscope
 /backend/rcepeval

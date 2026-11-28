@@ -156,7 +156,9 @@ test("Accuracy page shows Japan, USMCA and ATIGA, and ATIGA is not called an acc
   assert.ok(t.includes("79/122"));
   assert.ok(t.includes("31/69"));
   assert.ok(t.includes("48/53"));
-  assert.ok(t.includes("7/7 reach the stated result. Not an accuracy rate."));
+  assert.ok(t.includes("100% (7/7) match the declared outcomes or rule checks."));
+  assert.ok(t.includes("Constructed rule checks: 100% (35/35)."));
+  assert.ok(t.includes("Real-world accuracy is not measured."));
   assert.match(t, /Korea 8\/8\s*, China 3\/5 reach the stated result\. Not an accuracy rate\./);
   assert.ok(!t.includes("No accuracy figure. Details"));
 });

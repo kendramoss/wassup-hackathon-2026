@@ -323,8 +323,12 @@ function RulesChecks() {
           <dd><strong>{r.usmcaAgreed}/{r.usmcaDecided}</strong> ({r.usmcaPct}, 95% interval {r.usmcaInterval}%)</dd>
         </div>
         <div>
-          <dt className="text-dim">ASEAN (ATIGA) check, authority worked examples</dt>
-          <dd><strong>{r.atigaReached}/{r.atigaExamples}</strong> reach the stated result. Not an accuracy rate.</dd>
+          <dt className="text-dim">ASEAN (ATIGA) worked-example agreement</dt>
+          <dd>
+            <strong>{r.atigaPct}</strong> ({r.atigaReached}/{r.atigaExamples}) match the declared outcomes or rule checks.
+            <p className="mt-1">Constructed rule checks: {r.atigaControlsPct} ({r.atigaControlsPassed}/{r.atigaControls}).</p>
+            <p className="mt-1 text-dim">Real-world accuracy is not measured.</p>
+          </dd>
         </div>
         <div>
           <dt className="text-dim">ASEAN-Korea and ASEAN-China checks (off), authority worked examples</dt>
@@ -375,7 +379,7 @@ function RulesChecks() {
           Textile: the third test, {x.third.rulings} rulings of 2012 to 2018, met the bar written down before it was scored (85% on at least 15 decided): {x.third.agreed} of {x.third.decided} decided agree with CBP, and the interval&apos;s low end is under 85. The second test missed it: {x.pooled.agreed} of {x.pooled.decided} (older rulings {x.older.agreed}/{x.older.decided}, 2023 to mid-2025 {x.pool.agreed}/{x.pool.decided}), mostly because older labels named China where CBP held Hong Kong. With the labeller fixed afterwards those rulings give {x.restated.agreed} of {x.restated.decided}, read after the result. The first test, {x.d952.rulings} rulings of 2026, had {x.d952.decided} decided, one short. The flag stays off. It does not decide the most important process.
         </p>
         <p>
-          ATIGA: no ASEAN Member State publishes origin rulings, so there is nothing to measure accuracy against. The {r.atigaExamples} examples come from customs authorities&apos; own guides. They show the arithmetic and rule reading match those guides, not customs decisions.
+          ATIGA: {r.atigaReached}/{r.atigaExamples} published worked examples match their stated outcomes or rule checks. A further {r.atigaControlsPassed}/{r.atigaControls} constructed cases check thresholds, tariff changes, cumulation and missing facts. These are not independent customs decisions or a blind test; no suitable public decision dataset was verified in our search. Singapore&apos;s biscuit example prints 36%, while its values calculate to 36.67%; both fail the 40% threshold. <a href={`${copy.landing.repo}/blob/main/eval/atiga/evaluation-results.json`} className={link}>See every ATIGA test result →</a>
         </p>
         <p>
           ASEAN-Korea and ASEAN-China: no published rulings either. The {r.akftaExamples + r.acftaExamples} examples come from a Malaysian trade ministry guide and a Japanese trade agency guide. The {r.acftaExamples - r.acftaReached} China examples not reached were refused because the input named a method the agreement does not have; with that fixed they match. The China table is HS 2017.

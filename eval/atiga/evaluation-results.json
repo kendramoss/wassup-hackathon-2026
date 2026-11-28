@@ -1,0 +1,2625 @@
+{
+  "dataset_sha256": "22871769ec54988be2c235c3d6511c63c24b07382033036b68fc4f9810fd0202",
+  "rule_version": "atiga-annex3-psr-hs2022-aftac36",
+  "total": {
+    "cases": 42,
+    "passed": 42,
+    "failed": 0
+  },
+  "groups": {
+    "authority_example": {
+      "cases": 7,
+      "passed": 7,
+      "failed": 0
+    },
+    "synthetic_control": {
+      "cases": 35,
+      "passed": 35,
+      "failed": 0
+    }
+  },
+  "results": [
+    {
+      "id": "miti-1-wo",
+      "kind": "authority_example",
+      "source": "miti",
+      "expected": {
+        "outcome": "yes",
+        "applied": "WO"
+      },
+      "actual": {
+        "outcome": "yes",
+        "basis": "WO",
+        "applied": "WO",
+        "rule": {
+          "code": "Art. 28.1",
+          "listed": false,
+          "concise": "RVC40 or CTH",
+          "full": "A regional value content of not less than forty percent (40%) calculated using the formula set out in Article 29; or all non-originating materials have undergone a change in tariff classification at four-digit level (a change in tariff heading)",
+          "version": "atiga-annex3-psr-hs2022-aftac36"
+        },
+        "accumulation": false,
+        "partial_cumulation": false,
+        "failing": [],
+        "alternatives": [],
+        "reasons": [
+          "You state the good is wholly obtained or produced in Malaysia (Art. 27), so it qualifies (Art. 26(a))."
+        ],
+        "regime": "atiga_preferential",
+        "note": "ATIGA preferential origin from the facts given. Not marking origin, not a ruling, not a Certificate of Origin (Form D). ITA goods (Annex 4), direct consignment, packaging, accessories and neutral elements are not checked. The rules have not been reviewed by a customs professional."
+      },
+      "passed": true,
+      "failures": []
+    },
+    {
+      "id": "miti-2-rvc",
+      "kind": "authority_example",
+      "source": "miti",
+      "expected": {
+        "outcome": "yes",
+        "alternative": {
+          "RVC40": "yes"
+        }
+      },
+      "actual": {
+        "outcome": "yes",
+        "basis": "PSR",
+        "applied": "RVC40",
+        "rule": {
+          "code": "9403.60",
+          "listed": true,
+          "concise": "RVC40 or CTSH",
+          "full": "A regional value content of not less than 40 percent; or A change to subheading 9403.60 from any other subheading",
+          "version": "atiga-annex3-psr-hs2022-aftac36"
+        },
+        "rvc": {
+          "threshold": 40,
+          "indirect": 43.55400696864112,
+          "vnm": 16.2,
+          "vom": 4
+        },
+        "accumulation": false,
+        "partial_cumulation": false,
+        "failing": [],
+        "alternatives": [
+          {
+            "rule": "RVC40",
+            "outcome": "yes",
+            "reasons": [
+              "Indirect method: (FOB 28.7 - non-originating 16.2) / FOB = 43.6 %.",
+              "At least 40 % needed: met."
+            ]
+          },
+          {
+            "rule": "CTSH",
+            "outcome": "yes",
+            "reasons": [
+              "Every non-originating material changes subheading."
+            ]
+          }
+        ],
+        "reasons": [
+          "3 materials of undetermined origin count as non-originating.",
+          "Annex 3 rule for 9403.60: RVC40 or CTSH.",
+          "Qualifies under RVC40.",
+          "Indirect method: (FOB 28.7 - non-originating 16.2) / FOB = 43.6 %.",
+          "At least 40 % needed: met.",
+          "This assumes the work done is more than the minimal operations of Art. 31."
+        ],
+        "regime": "atiga_preferential",
+        "note": "ATIGA preferential origin from the facts given. Not marking origin, not a ruling, not a Certificate of Origin (Form D). ITA goods (Annex 4), direct consignment, packaging, accessories and neutral elements are not checked. The rules have not been reviewed by a customs professional."
+      },
+      "passed": true,
+      "failures": []
+    },
+    {
+      "id": "miti-3-cc",
+      "kind": "authority_example",
+      "source": "miti",
+      "expected": {
+        "outcome": "yes"
+      },
+      "actual": {
+        "outcome": "yes",
+        "basis": "PSR",
+        "applied": "RVC40",
+        "rule": {
+          "code": "Art. 28.1",
+          "listed": false,
+          "concise": "RVC40 or CTH",
+          "full": "A regional value content of not less than forty percent (40%) calculated using the formula set out in Article 29; or all non-originating materials have undergone a change in tariff classification at four-digit level (a change in tariff heading)",
+          "version": "atiga-annex3-psr-hs2022-aftac36"
+        },
+        "rvc": {
+          "threshold": 40,
+          "indirect": 54.545454545454554,
+          "vnm": 0.5,
+          "vom": 0
+        },
+        "accumulation": false,
+        "partial_cumulation": false,
+        "failing": [],
+        "alternatives": [
+          {
+            "rule": "RVC40",
+            "outcome": "yes",
+            "reasons": [
+              "Indirect method: (FOB 1.1 - non-originating 0.5) / FOB = 54.5 %.",
+              "At least 40 % needed: met.",
+              "Each Member State uses one method (Art. 29.3); give method to check only yours."
+            ]
+          },
+          {
+            "rule": "CTH",
+            "outcome": "yes",
+            "reasons": [
+              "Every non-originating material changes heading."
+            ]
+          }
+        ],
+        "reasons": [
+          "1 material of undetermined origin counts as non-originating.",
+          "1512.90 is not listed in Annex 3, so the general rule applies: RVC40 or CTH (Art. 28.1).",
+          "Qualifies under RVC40.",
+          "Indirect method: (FOB 1.1 - non-originating 0.5) / FOB = 54.5 %.",
+          "At least 40 % needed: met.",
+          "Each Member State uses one method (Art. 29.3); give method to check only yours.",
+          "This assumes the work done is more than the minimal operations of Art. 31."
+        ],
+        "regime": "atiga_preferential",
+        "note": "ATIGA preferential origin from the facts given. Not marking origin, not a ruling, not a Certificate of Origin (Form D). ITA goods (Annex 4), direct consignment, packaging, accessories and neutral elements are not checked. The rules have not been reviewed by a customs professional."
+      },
+      "passed": true,
+      "failures": []
+    },
+    {
+      "id": "miti-4-cth",
+      "kind": "authority_example",
+      "source": "miti",
+      "expected": {
+        "outcome": "yes",
+        "alternative": {
+          "CTH": "yes"
+        }
+      },
+      "actual": {
+        "outcome": "yes",
+        "basis": "PSR",
+        "applied": "RVC40",
+        "rule": {
+          "code": "Art. 28.1",
+          "listed": false,
+          "concise": "RVC40 or CTH",
+          "full": "A regional value content of not less than forty percent (40%) calculated using the formula set out in Article 29; or all non-originating materials have undergone a change in tariff classification at four-digit level (a change in tariff heading)",
+          "version": "atiga-annex3-psr-hs2022-aftac36"
+        },
+        "rvc": {
+          "threshold": 40,
+          "indirect": 82.21153846153847,
+          "vnm": 3.7,
+          "vom": 6.8
+        },
+        "accumulation": false,
+        "partial_cumulation": false,
+        "failing": [],
+        "alternatives": [
+          {
+            "rule": "RVC40",
+            "outcome": "yes",
+            "reasons": [
+              "Indirect method: (FOB 20.8 - non-originating 3.7) / FOB = 82.2 %.",
+              "At least 40 % needed: met.",
+              "Each Member State uses one method (Art. 29.3); give method to check only yours."
+            ]
+          },
+          {
+            "rule": "CTH",
+            "outcome": "yes",
+            "reasons": [
+              "Every non-originating material changes heading."
+            ]
+          }
+        ],
+        "reasons": [
+          "1 material of undetermined origin counts as non-originating.",
+          "3802.10 is not listed in Annex 3, so the general rule applies: RVC40 or CTH (Art. 28.1).",
+          "Qualifies under RVC40.",
+          "Indirect method: (FOB 20.8 - non-originating 3.7) / FOB = 82.2 %.",
+          "At least 40 % needed: met.",
+          "Each Member State uses one method (Art. 29.3); give method to check only yours.",
+          "This assumes the work done is more than the minimal operations of Art. 31."
+        ],
+        "regime": "atiga_preferential",
+        "note": "ATIGA preferential origin from the facts given. Not marking origin, not a ruling, not a Certificate of Origin (Form D). ITA goods (Annex 4), direct consignment, packaging, accessories and neutral elements are not checked. The rules have not been reviewed by a customs professional."
+      },
+      "passed": true,
+      "failures": []
+    },
+    {
+      "id": "miti-5-ctsh",
+      "kind": "authority_example",
+      "source": "miti",
+      "expected": {
+        "outcome": "yes"
+      },
+      "actual": {
+        "outcome": "yes",
+        "basis": "PSR",
+        "applied": "RVC40",
+        "rule": {
+          "code": "Art. 28.1",
+          "listed": false,
+          "concise": "RVC40 or CTH",
+          "full": "A regional value content of not less than forty percent (40%) calculated using the formula set out in Article 29; or all non-originating materials have undergone a change in tariff classification at four-digit level (a change in tariff heading)",
+          "version": "atiga-annex3-psr-hs2022-aftac36"
+        },
+        "rvc": {
+          "threshold": 40,
+          "indirect": 73.44262295081967,
+          "vnm": 4.05,
+          "vom": 0.8
+        },
+        "accumulation": true,
+        "partial_cumulation": false,
+        "failing": [],
+        "alternatives": [
+          {
+            "rule": "RVC40",
+            "outcome": "yes",
+            "reasons": [
+              "Indirect method: (FOB 15.25 - non-originating 4.05) / FOB = 73.4 %.",
+              "At least 40 % needed: met.",
+              "Each Member State uses one method (Art. 29.3); give method to check only yours."
+            ]
+          },
+          {
+            "rule": "CTH",
+            "outcome": "no",
+            "reasons": [
+              "Brass wire (7408.10) same heading as the good (74.08), so no change.",
+              "Those materials are 25.6 % of the FOB value, over the 10.0 % de minimis (Art. 33)."
+            ]
+          }
+        ],
+        "reasons": [
+          "2 materials of undetermined origin count as non-originating.",
+          "Originating materials from other Member States count as originating (Art. 30.1).",
+          "7408.21 is not listed in Annex 3, so the general rule applies: RVC40 or CTH (Art. 28.1).",
+          "Qualifies under RVC40.",
+          "Indirect method: (FOB 15.25 - non-originating 4.05) / FOB = 73.4 %.",
+          "At least 40 % needed: met.",
+          "Each Member State uses one method (Art. 29.3); give method to check only yours.",
+          "This assumes the work done is more than the minimal operations of Art. 31."
+        ],
+        "regime": "atiga_preferential",
+        "note": "ATIGA preferential origin from the facts given. Not marking origin, not a ruling, not a Certificate of Origin (Form D). ITA goods (Annex 4), direct consignment, packaging, accessories and neutral elements are not checked. The rules have not been reviewed by a customs professional."
+      },
+      "passed": true,
+      "failures": []
+    },
+    {
+      "id": "sgc-b-rvc",
+      "kind": "authority_example",
+      "source": "sgc",
+      "expected": {
+        "alternative": {
+          "RVC40": "no"
+        }
+      },
+      "actual": {
+        "outcome": "undetermined",
+        "rule": {
+          "code": "Art. 28.1",
+          "listed": false,
+          "concise": "RVC40 or CTH",
+          "full": "A regional value content of not less than forty percent (40%) calculated using the formula set out in Article 29; or all non-originating materials have undergone a change in tariff classification at four-digit level (a change in tariff heading)",
+          "version": "atiga-annex3-psr-hs2022-aftac36"
+        },
+        "rvc": {
+          "threshold": 40,
+          "direct": 36.666666666666664,
+          "indirect": 36.666666666666664,
+          "vnm": 9.5,
+          "vom": 1
+        },
+        "de_minimis": {
+          "used": false,
+          "value_share": 63.33333333333333
+        },
+        "accumulation": false,
+        "partial_cumulation": false,
+        "failing": [
+          {
+            "index": 0,
+            "name": "Flour",
+            "hs": "",
+            "reason": "needs a 4-digit HS code to test this rule"
+          },
+          {
+            "index": 1,
+            "name": "Sugar",
+            "hs": "",
+            "reason": "needs a 4-digit HS code to test this rule"
+          },
+          {
+            "index": 3,
+            "name": "Eggs",
+            "hs": "",
+            "reason": "needs a 4-digit HS code to test this rule"
+          }
+        ],
+        "alternatives": [
+          {
+            "rule": "RVC40",
+            "outcome": "no",
+            "reasons": [
+              "Indirect method: (FOB 15 - non-originating 9.5) / FOB = 36.7 %.",
+              "Direct method: (ASEAN materials 1 + labour 2 + overhead 0 + profit 2.5 + other 0) / FOB = 36.7 %.",
+              "At least 40 % needed: not met."
+            ]
+          },
+          {
+            "rule": "CTH",
+            "outcome": "undetermined",
+            "reasons": [
+              "Flour needs a 4-digit HS code to test this rule.",
+              "Sugar needs a 4-digit HS code to test this rule.",
+              "Eggs needs a 4-digit HS code to test this rule.",
+              "Those materials are 63.3 % of the FOB value, over the 10.0 % de minimis (Art. 33)."
+            ]
+          }
+        ],
+        "reasons": [
+          "1905.31 is not listed in Annex 3, so the general rule applies: RVC40 or CTH (Art. 28.1).",
+          "RVC40: Indirect method: (FOB 15 - non-originating 9.5) / FOB = 36.7 %. Direct method: (ASEAN materials 1 + labour 2 + overhead 0 + profit 2.5 + other 0) / FOB = 36.7 %. At least 40 % needed: not met.",
+          "CTH: Flour needs a 4-digit HS code to test this rule. Sugar needs a 4-digit HS code to test this rule. Eggs needs a 4-digit HS code to test this rule. Those materials are 63.3 % of the FOB value, over the 10.0 % de minimis (Art. 33)."
+        ],
+        "regime": "atiga_preferential",
+        "note": "ATIGA preferential origin from the facts given. Not marking origin, not a ruling, not a Certificate of Origin (Form D). ITA goods (Annex 4), direct consignment, packaging, accessories and neutral elements are not checked. The rules have not been reviewed by a customs professional."
+      },
+      "passed": true,
+      "failures": []
+    },
+    {
+      "id": "sgc-f-accumulation",
+      "kind": "authority_example",
+      "source": "sgc",
+      "expected": {
+        "outcome": "yes",
+        "applied": "RVC40",
+        "accumulation": true
+      },
+      "actual": {
+        "outcome": "yes",
+        "basis": "PSR",
+        "applied": "RVC40",
+        "rule": {
+          "code": "Art. 28.1",
+          "listed": false,
+          "concise": "RVC40 or CTH",
+          "full": "A regional value content of not less than forty percent (40%) calculated using the formula set out in Article 29; or all non-originating materials have undergone a change in tariff classification at four-digit level (a change in tariff heading)",
+          "version": "atiga-annex3-psr-hs2022-aftac36"
+        },
+        "rvc": {
+          "threshold": 40,
+          "direct": 83.33333333333334,
+          "indirect": 83.33333333333334,
+          "vnm": 2.5,
+          "vom": 8
+        },
+        "accumulation": true,
+        "partial_cumulation": false,
+        "failing": [],
+        "alternatives": [
+          {
+            "rule": "RVC40",
+            "outcome": "yes",
+            "reasons": [
+              "Indirect method: (FOB 15 - non-originating 2.5) / FOB = 83.3 %.",
+              "Direct method: (ASEAN materials 8 + labour 2 + overhead 0 + profit 2.5 + other 0) / FOB = 83.3 %.",
+              "At least 40 % needed: met.",
+              "Each Member State uses one method (Art. 29.3); give method to check only yours."
+            ]
+          },
+          {
+            "rule": "CTH",
+            "outcome": "undetermined",
+            "reasons": [
+              "Sugar needs a 4-digit HS code to test this rule.",
+              "Those materials are 16.7 % of the FOB value, over the 10.0 % de minimis (Art. 33)."
+            ]
+          }
+        ],
+        "reasons": [
+          "Originating materials from other Member States count as originating (Art. 30.1).",
+          "1905.31 is not listed in Annex 3, so the general rule applies: RVC40 or CTH (Art. 28.1).",
+          "Qualifies under RVC40.",
+          "Indirect method: (FOB 15 - non-originating 2.5) / FOB = 83.3 %.",
+          "Direct method: (ASEAN materials 8 + labour 2 + overhead 0 + profit 2.5 + other 0) / FOB = 83.3 %.",
+          "At least 40 % needed: met.",
+          "Each Member State uses one method (Art. 29.3); give method to check only yours.",
+          "This assumes the work done is more than the minimal operations of Art. 31."
+        ],
+        "regime": "atiga_preferential",
+        "note": "ATIGA preferential origin from the facts given. Not marking origin, not a ruling, not a Certificate of Origin (Form D). ITA goods (Annex 4), direct consignment, packaging, accessories and neutral elements are not checked. The rules have not been reviewed by a customs professional."
+      },
+      "passed": true,
+      "failures": []
+    },
+    {
+      "id": "control-rvc-indirect-0",
+      "kind": "synthetic_control",
+      "source": "treaty",
+      "expected": {
+        "outcome": "no",
+        "alternative": {
+          "RVC40": "no"
+        }
+      },
+      "actual": {
+        "outcome": "no",
+        "rule": {
+          "code": "9403.60",
+          "listed": true,
+          "concise": "RVC40 or CTSH",
+          "full": "A regional value content of not less than 40 percent; or A change to subheading 9403.60 from any other subheading",
+          "version": "atiga-annex3-psr-hs2022-aftac36"
+        },
+        "rvc": {
+          "threshold": 40,
+          "indirect": 0,
+          "vnm": 100,
+          "vom": 0
+        },
+        "de_minimis": {
+          "used": false,
+          "value_share": 100
+        },
+        "accumulation": false,
+        "partial_cumulation": false,
+        "failing": [
+          {
+            "index": 0,
+            "name": "Illustrative material",
+            "hs": "9403.60",
+            "reason": "same subheading as the good (9403.60), so no change"
+          }
+        ],
+        "alternatives": [
+          {
+            "rule": "RVC40",
+            "outcome": "no",
+            "reasons": [
+              "Indirect method: (FOB 100 - non-originating 100) / FOB = 0.0 %.",
+              "At least 40 % needed: not met."
+            ]
+          },
+          {
+            "rule": "CTSH",
+            "outcome": "no",
+            "reasons": [
+              "Illustrative material (9403.60) same subheading as the good (9403.60), so no change.",
+              "Those materials are 100.0 % of the FOB value, over the 10.0 % de minimis (Art. 33)."
+            ]
+          }
+        ],
+        "reasons": [
+          "1 material of undetermined origin counts as non-originating.",
+          "Annex 3 rule for 9403.60: RVC40 or CTSH.",
+          "RVC40: Indirect method: (FOB 100 - non-originating 100) / FOB = 0.0 %. At least 40 % needed: not met.",
+          "CTSH: Illustrative material (9403.60) same subheading as the good (9403.60), so no change. Those materials are 100.0 % of the FOB value, over the 10.0 % de minimis (Art. 33)."
+        ],
+        "regime": "atiga_preferential",
+        "note": "ATIGA preferential origin from the facts given. Not marking origin, not a ruling, not a Certificate of Origin (Form D). ITA goods (Annex 4), direct consignment, packaging, accessories and neutral elements are not checked. The rules have not been reviewed by a customs professional."
+      },
+      "passed": true,
+      "failures": []
+    },
+    {
+      "id": "control-rvc-indirect-20",
+      "kind": "synthetic_control",
+      "source": "treaty",
+      "expected": {
+        "outcome": "no",
+        "alternative": {
+          "RVC40": "no"
+        }
+      },
+      "actual": {
+        "outcome": "no",
+        "rule": {
+          "code": "9403.60",
+          "listed": true,
+          "concise": "RVC40 or CTSH",
+          "full": "A regional value content of not less than 40 percent; or A change to subheading 9403.60 from any other subheading",
+          "version": "atiga-annex3-psr-hs2022-aftac36"
+        },
+        "rvc": {
+          "threshold": 40,
+          "indirect": 20,
+          "vnm": 80,
+          "vom": 0
+        },
+        "de_minimis": {
+          "used": false,
+          "value_share": 80
+        },
+        "accumulation": false,
+        "partial_cumulation": false,
+        "failing": [
+          {
+            "index": 0,
+            "name": "Illustrative material",
+            "hs": "9403.60",
+            "reason": "same subheading as the good (9403.60), so no change"
+          }
+        ],
+        "alternatives": [
+          {
+            "rule": "RVC40",
+            "outcome": "no",
+            "reasons": [
+              "Indirect method: (FOB 100 - non-originating 80) / FOB = 20.0 %.",
+              "At least 40 % needed: not met."
+            ]
+          },
+          {
+            "rule": "CTSH",
+            "outcome": "no",
+            "reasons": [
+              "Illustrative material (9403.60) same subheading as the good (9403.60), so no change.",
+              "Those materials are 80.0 % of the FOB value, over the 10.0 % de minimis (Art. 33)."
+            ]
+          }
+        ],
+        "reasons": [
+          "1 material of undetermined origin counts as non-originating.",
+          "Annex 3 rule for 9403.60: RVC40 or CTSH.",
+          "RVC40: Indirect method: (FOB 100 - non-originating 80) / FOB = 20.0 %. At least 40 % needed: not met.",
+          "CTSH: Illustrative material (9403.60) same subheading as the good (9403.60), so no change. Those materials are 80.0 % of the FOB value, over the 10.0 % de minimis (Art. 33)."
+        ],
+        "regime": "atiga_preferential",
+        "note": "ATIGA preferential origin from the facts given. Not marking origin, not a ruling, not a Certificate of Origin (Form D). ITA goods (Annex 4), direct consignment, packaging, accessories and neutral elements are not checked. The rules have not been reviewed by a customs professional."
+      },
+      "passed": true,
+      "failures": []
+    },
+    {
+      "id": "control-rvc-indirect-39.99",
+      "kind": "synthetic_control",
+      "source": "treaty",
+      "expected": {
+        "outcome": "no",
+        "alternative": {
+          "RVC40": "no"
+        }
+      },
+      "actual": {
+        "outcome": "no",
+        "rule": {
+          "code": "9403.60",
+          "listed": true,
+          "concise": "RVC40 or CTSH",
+          "full": "A regional value content of not less than 40 percent; or A change to subheading 9403.60 from any other subheading",
+          "version": "atiga-annex3-psr-hs2022-aftac36"
+        },
+        "rvc": {
+          "threshold": 40,
+          "indirect": 39.99,
+          "vnm": 60.01,
+          "vom": 0
+        },
+        "de_minimis": {
+          "used": false,
+          "value_share": 60.01
+        },
+        "accumulation": false,
+        "partial_cumulation": false,
+        "failing": [
+          {
+            "index": 0,
+            "name": "Illustrative material",
+            "hs": "9403.60",
+            "reason": "same subheading as the good (9403.60), so no change"
+          }
+        ],
+        "alternatives": [
+          {
+            "rule": "RVC40",
+            "outcome": "no",
+            "reasons": [
+              "Indirect method: (FOB 100 - non-originating 60.01) / FOB = 40.0 %.",
+              "At least 40 % needed: not met."
+            ]
+          },
+          {
+            "rule": "CTSH",
+            "outcome": "no",
+            "reasons": [
+              "Illustrative material (9403.60) same subheading as the good (9403.60), so no change.",
+              "Those materials are 60.0 % of the FOB value, over the 10.0 % de minimis (Art. 33)."
+            ]
+          }
+        ],
+        "reasons": [
+          "1 material of undetermined origin counts as non-originating.",
+          "Annex 3 rule for 9403.60: RVC40 or CTSH.",
+          "RVC40: Indirect method: (FOB 100 - non-originating 60.01) / FOB = 40.0 %. At least 40 % needed: not met.",
+          "CTSH: Illustrative material (9403.60) same subheading as the good (9403.60), so no change. Those materials are 60.0 % of the FOB value, over the 10.0 % de minimis (Art. 33)."
+        ],
+        "regime": "atiga_preferential",
+        "note": "ATIGA preferential origin from the facts given. Not marking origin, not a ruling, not a Certificate of Origin (Form D). ITA goods (Annex 4), direct consignment, packaging, accessories and neutral elements are not checked. The rules have not been reviewed by a customs professional."
+      },
+      "passed": true,
+      "failures": []
+    },
+    {
+      "id": "control-rvc-indirect-40",
+      "kind": "synthetic_control",
+      "source": "treaty",
+      "expected": {
+        "outcome": "yes",
+        "alternative": {
+          "RVC40": "yes"
+        }
+      },
+      "actual": {
+        "outcome": "yes",
+        "basis": "PSR",
+        "applied": "RVC40",
+        "rule": {
+          "code": "9403.60",
+          "listed": true,
+          "concise": "RVC40 or CTSH",
+          "full": "A regional value content of not less than 40 percent; or A change to subheading 9403.60 from any other subheading",
+          "version": "atiga-annex3-psr-hs2022-aftac36"
+        },
+        "rvc": {
+          "threshold": 40,
+          "indirect": 40,
+          "vnm": 60,
+          "vom": 0
+        },
+        "accumulation": false,
+        "partial_cumulation": false,
+        "failing": [],
+        "alternatives": [
+          {
+            "rule": "RVC40",
+            "outcome": "yes",
+            "reasons": [
+              "Indirect method: (FOB 100 - non-originating 60) / FOB = 40.0 %.",
+              "At least 40 % needed: met."
+            ]
+          },
+          {
+            "rule": "CTSH",
+            "outcome": "no",
+            "reasons": [
+              "Illustrative material (9403.60) same subheading as the good (9403.60), so no change.",
+              "Those materials are 60.0 % of the FOB value, over the 10.0 % de minimis (Art. 33)."
+            ]
+          }
+        ],
+        "reasons": [
+          "1 material of undetermined origin counts as non-originating.",
+          "Annex 3 rule for 9403.60: RVC40 or CTSH.",
+          "Qualifies under RVC40.",
+          "Indirect method: (FOB 100 - non-originating 60) / FOB = 40.0 %.",
+          "At least 40 % needed: met.",
+          "This assumes the work done is more than the minimal operations of Art. 31."
+        ],
+        "regime": "atiga_preferential",
+        "note": "ATIGA preferential origin from the facts given. Not marking origin, not a ruling, not a Certificate of Origin (Form D). ITA goods (Annex 4), direct consignment, packaging, accessories and neutral elements are not checked. The rules have not been reviewed by a customs professional."
+      },
+      "passed": true,
+      "failures": []
+    },
+    {
+      "id": "control-rvc-indirect-40.01",
+      "kind": "synthetic_control",
+      "source": "treaty",
+      "expected": {
+        "outcome": "yes",
+        "alternative": {
+          "RVC40": "yes"
+        }
+      },
+      "actual": {
+        "outcome": "yes",
+        "basis": "PSR",
+        "applied": "RVC40",
+        "rule": {
+          "code": "9403.60",
+          "listed": true,
+          "concise": "RVC40 or CTSH",
+          "full": "A regional value content of not less than 40 percent; or A change to subheading 9403.60 from any other subheading",
+          "version": "atiga-annex3-psr-hs2022-aftac36"
+        },
+        "rvc": {
+          "threshold": 40,
+          "indirect": 40.01,
+          "vnm": 59.99,
+          "vom": 0
+        },
+        "accumulation": false,
+        "partial_cumulation": false,
+        "failing": [],
+        "alternatives": [
+          {
+            "rule": "RVC40",
+            "outcome": "yes",
+            "reasons": [
+              "Indirect method: (FOB 100 - non-originating 59.99) / FOB = 40.0 %.",
+              "At least 40 % needed: met."
+            ]
+          },
+          {
+            "rule": "CTSH",
+            "outcome": "no",
+            "reasons": [
+              "Illustrative material (9403.60) same subheading as the good (9403.60), so no change.",
+              "Those materials are 60.0 % of the FOB value, over the 10.0 % de minimis (Art. 33)."
+            ]
+          }
+        ],
+        "reasons": [
+          "1 material of undetermined origin counts as non-originating.",
+          "Annex 3 rule for 9403.60: RVC40 or CTSH.",
+          "Qualifies under RVC40.",
+          "Indirect method: (FOB 100 - non-originating 59.99) / FOB = 40.0 %.",
+          "At least 40 % needed: met.",
+          "This assumes the work done is more than the minimal operations of Art. 31."
+        ],
+        "regime": "atiga_preferential",
+        "note": "ATIGA preferential origin from the facts given. Not marking origin, not a ruling, not a Certificate of Origin (Form D). ITA goods (Annex 4), direct consignment, packaging, accessories and neutral elements are not checked. The rules have not been reviewed by a customs professional."
+      },
+      "passed": true,
+      "failures": []
+    },
+    {
+      "id": "control-rvc-indirect-80",
+      "kind": "synthetic_control",
+      "source": "treaty",
+      "expected": {
+        "outcome": "yes",
+        "alternative": {
+          "RVC40": "yes"
+        }
+      },
+      "actual": {
+        "outcome": "yes",
+        "basis": "PSR",
+        "applied": "RVC40",
+        "rule": {
+          "code": "9403.60",
+          "listed": true,
+          "concise": "RVC40 or CTSH",
+          "full": "A regional value content of not less than 40 percent; or A change to subheading 9403.60 from any other subheading",
+          "version": "atiga-annex3-psr-hs2022-aftac36"
+        },
+        "rvc": {
+          "threshold": 40,
+          "indirect": 80,
+          "vnm": 20,
+          "vom": 0
+        },
+        "accumulation": false,
+        "partial_cumulation": false,
+        "failing": [],
+        "alternatives": [
+          {
+            "rule": "RVC40",
+            "outcome": "yes",
+            "reasons": [
+              "Indirect method: (FOB 100 - non-originating 20) / FOB = 80.0 %.",
+              "At least 40 % needed: met."
+            ]
+          },
+          {
+            "rule": "CTSH",
+            "outcome": "no",
+            "reasons": [
+              "Illustrative material (9403.60) same subheading as the good (9403.60), so no change.",
+              "Those materials are 20.0 % of the FOB value, over the 10.0 % de minimis (Art. 33)."
+            ]
+          }
+        ],
+        "reasons": [
+          "1 material of undetermined origin counts as non-originating.",
+          "Annex 3 rule for 9403.60: RVC40 or CTSH.",
+          "Qualifies under RVC40.",
+          "Indirect method: (FOB 100 - non-originating 20) / FOB = 80.0 %.",
+          "At least 40 % needed: met.",
+          "This assumes the work done is more than the minimal operations of Art. 31."
+        ],
+        "regime": "atiga_preferential",
+        "note": "ATIGA preferential origin from the facts given. Not marking origin, not a ruling, not a Certificate of Origin (Form D). ITA goods (Annex 4), direct consignment, packaging, accessories and neutral elements are not checked. The rules have not been reviewed by a customs professional."
+      },
+      "passed": true,
+      "failures": []
+    },
+    {
+      "id": "control-rvc-direct-39.99",
+      "kind": "synthetic_control",
+      "source": "treaty",
+      "expected": {
+        "outcome": "no",
+        "alternative": {
+          "RVC40": "no"
+        }
+      },
+      "actual": {
+        "outcome": "no",
+        "rule": {
+          "code": "9403.60",
+          "listed": true,
+          "concise": "RVC40 or CTSH",
+          "full": "A regional value content of not less than 40 percent; or A change to subheading 9403.60 from any other subheading",
+          "version": "atiga-annex3-psr-hs2022-aftac36"
+        },
+        "rvc": {
+          "threshold": 40,
+          "direct": 39.99,
+          "vnm": 60.01,
+          "vom": 0
+        },
+        "de_minimis": {
+          "used": false,
+          "value_share": 60.01
+        },
+        "accumulation": false,
+        "partial_cumulation": false,
+        "failing": [
+          {
+            "index": 0,
+            "name": "Illustrative material",
+            "hs": "9403.60",
+            "reason": "same subheading as the good (9403.60), so no change"
+          }
+        ],
+        "alternatives": [
+          {
+            "rule": "RVC40",
+            "outcome": "no",
+            "reasons": [
+              "Direct method: (ASEAN materials 0 + labour 39.99 + overhead 0 + profit 0 + other 0) / FOB = 40.0 %.",
+              "At least 40 % needed: not met."
+            ]
+          },
+          {
+            "rule": "CTSH",
+            "outcome": "no",
+            "reasons": [
+              "Illustrative material (9403.60) same subheading as the good (9403.60), so no change.",
+              "Those materials are 60.0 % of the FOB value, over the 10.0 % de minimis (Art. 33)."
+            ]
+          }
+        ],
+        "reasons": [
+          "1 material of undetermined origin counts as non-originating.",
+          "Annex 3 rule for 9403.60: RVC40 or CTSH.",
+          "RVC40: Direct method: (ASEAN materials 0 + labour 39.99 + overhead 0 + profit 0 + other 0) / FOB = 40.0 %. At least 40 % needed: not met.",
+          "CTSH: Illustrative material (9403.60) same subheading as the good (9403.60), so no change. Those materials are 60.0 % of the FOB value, over the 10.0 % de minimis (Art. 33)."
+        ],
+        "regime": "atiga_preferential",
+        "note": "ATIGA preferential origin from the facts given. Not marking origin, not a ruling, not a Certificate of Origin (Form D). ITA goods (Annex 4), direct consignment, packaging, accessories and neutral elements are not checked. The rules have not been reviewed by a customs professional."
+      },
+      "passed": true,
+      "failures": []
+    },
+    {
+      "id": "control-rvc-direct-40",
+      "kind": "synthetic_control",
+      "source": "treaty",
+      "expected": {
+        "outcome": "yes",
+        "alternative": {
+          "RVC40": "yes"
+        }
+      },
+      "actual": {
+        "outcome": "yes",
+        "basis": "PSR",
+        "applied": "RVC40",
+        "rule": {
+          "code": "9403.60",
+          "listed": true,
+          "concise": "RVC40 or CTSH",
+          "full": "A regional value content of not less than 40 percent; or A change to subheading 9403.60 from any other subheading",
+          "version": "atiga-annex3-psr-hs2022-aftac36"
+        },
+        "rvc": {
+          "threshold": 40,
+          "direct": 40,
+          "vnm": 60,
+          "vom": 0
+        },
+        "accumulation": false,
+        "partial_cumulation": false,
+        "failing": [],
+        "alternatives": [
+          {
+            "rule": "RVC40",
+            "outcome": "yes",
+            "reasons": [
+              "Direct method: (ASEAN materials 0 + labour 40 + overhead 0 + profit 0 + other 0) / FOB = 40.0 %.",
+              "At least 40 % needed: met."
+            ]
+          },
+          {
+            "rule": "CTSH",
+            "outcome": "no",
+            "reasons": [
+              "Illustrative material (9403.60) same subheading as the good (9403.60), so no change.",
+              "Those materials are 60.0 % of the FOB value, over the 10.0 % de minimis (Art. 33)."
+            ]
+          }
+        ],
+        "reasons": [
+          "1 material of undetermined origin counts as non-originating.",
+          "Annex 3 rule for 9403.60: RVC40 or CTSH.",
+          "Qualifies under RVC40.",
+          "Direct method: (ASEAN materials 0 + labour 40 + overhead 0 + profit 0 + other 0) / FOB = 40.0 %.",
+          "At least 40 % needed: met.",
+          "This assumes the work done is more than the minimal operations of Art. 31."
+        ],
+        "regime": "atiga_preferential",
+        "note": "ATIGA preferential origin from the facts given. Not marking origin, not a ruling, not a Certificate of Origin (Form D). ITA goods (Annex 4), direct consignment, packaging, accessories and neutral elements are not checked. The rules have not been reviewed by a customs professional."
+      },
+      "passed": true,
+      "failures": []
+    },
+    {
+      "id": "control-rvc-direct-40.01",
+      "kind": "synthetic_control",
+      "source": "treaty",
+      "expected": {
+        "outcome": "yes",
+        "alternative": {
+          "RVC40": "yes"
+        }
+      },
+      "actual": {
+        "outcome": "yes",
+        "basis": "PSR",
+        "applied": "RVC40",
+        "rule": {
+          "code": "9403.60",
+          "listed": true,
+          "concise": "RVC40 or CTSH",
+          "full": "A regional value content of not less than 40 percent; or A change to subheading 9403.60 from any other subheading",
+          "version": "atiga-annex3-psr-hs2022-aftac36"
+        },
+        "rvc": {
+          "threshold": 40,
+          "direct": 40.01,
+          "vnm": 59.99,
+          "vom": 0
+        },
+        "accumulation": false,
+        "partial_cumulation": false,
+        "failing": [],
+        "alternatives": [
+          {
+            "rule": "RVC40",
+            "outcome": "yes",
+            "reasons": [
+              "Direct method: (ASEAN materials 0 + labour 40.01 + overhead 0 + profit 0 + other 0) / FOB = 40.0 %.",
+              "At least 40 % needed: met."
+            ]
+          },
+          {
+            "rule": "CTSH",
+            "outcome": "no",
+            "reasons": [
+              "Illustrative material (9403.60) same subheading as the good (9403.60), so no change.",
+              "Those materials are 60.0 % of the FOB value, over the 10.0 % de minimis (Art. 33)."
+            ]
+          }
+        ],
+        "reasons": [
+          "1 material of undetermined origin counts as non-originating.",
+          "Annex 3 rule for 9403.60: RVC40 or CTSH.",
+          "Qualifies under RVC40.",
+          "Direct method: (ASEAN materials 0 + labour 40.01 + overhead 0 + profit 0 + other 0) / FOB = 40.0 %.",
+          "At least 40 % needed: met.",
+          "This assumes the work done is more than the minimal operations of Art. 31."
+        ],
+        "regime": "atiga_preferential",
+        "note": "ATIGA preferential origin from the facts given. Not marking origin, not a ruling, not a Certificate of Origin (Form D). ITA goods (Annex 4), direct consignment, packaging, accessories and neutral elements are not checked. The rules have not been reviewed by a customs professional."
+      },
+      "passed": true,
+      "failures": []
+    },
+    {
+      "id": "control-ctsh-9403.91",
+      "kind": "synthetic_control",
+      "source": "psr",
+      "expected": {
+        "outcome": "yes",
+        "alternative": {
+          "CTSH": "yes"
+        }
+      },
+      "actual": {
+        "outcome": "yes",
+        "basis": "PSR",
+        "applied": "CTSH",
+        "rule": {
+          "code": "9403.60",
+          "listed": true,
+          "concise": "RVC40 or CTSH",
+          "full": "A regional value content of not less than 40 percent; or A change to subheading 9403.60 from any other subheading",
+          "version": "atiga-annex3-psr-hs2022-aftac36"
+        },
+        "rvc": {
+          "threshold": 40,
+          "indirect": 20,
+          "vnm": 80,
+          "vom": 0
+        },
+        "accumulation": false,
+        "partial_cumulation": false,
+        "failing": [],
+        "alternatives": [
+          {
+            "rule": "RVC40",
+            "outcome": "no",
+            "reasons": [
+              "Indirect method: (FOB 100 - non-originating 80) / FOB = 20.0 %.",
+              "At least 40 % needed: not met."
+            ]
+          },
+          {
+            "rule": "CTSH",
+            "outcome": "yes",
+            "reasons": [
+              "Every non-originating material changes subheading."
+            ]
+          }
+        ],
+        "reasons": [
+          "1 material of undetermined origin counts as non-originating.",
+          "Annex 3 rule for 9403.60: RVC40 or CTSH.",
+          "Qualifies under CTSH.",
+          "Every non-originating material changes subheading.",
+          "This assumes the work done is more than the minimal operations of Art. 31."
+        ],
+        "regime": "atiga_preferential",
+        "note": "ATIGA preferential origin from the facts given. Not marking origin, not a ruling, not a Certificate of Origin (Form D). ITA goods (Annex 4), direct consignment, packaging, accessories and neutral elements are not checked. The rules have not been reviewed by a customs professional."
+      },
+      "passed": true,
+      "failures": []
+    },
+    {
+      "id": "control-ctsh-9403.60",
+      "kind": "synthetic_control",
+      "source": "psr",
+      "expected": {
+        "outcome": "no",
+        "alternative": {
+          "CTSH": "no"
+        }
+      },
+      "actual": {
+        "outcome": "no",
+        "rule": {
+          "code": "9403.60",
+          "listed": true,
+          "concise": "RVC40 or CTSH",
+          "full": "A regional value content of not less than 40 percent; or A change to subheading 9403.60 from any other subheading",
+          "version": "atiga-annex3-psr-hs2022-aftac36"
+        },
+        "rvc": {
+          "threshold": 40,
+          "indirect": 20,
+          "vnm": 80,
+          "vom": 0
+        },
+        "de_minimis": {
+          "used": false,
+          "value_share": 80
+        },
+        "accumulation": false,
+        "partial_cumulation": false,
+        "failing": [
+          {
+            "index": 0,
+            "name": "Illustrative material",
+            "hs": "9403.60",
+            "reason": "same subheading as the good (9403.60), so no change"
+          }
+        ],
+        "alternatives": [
+          {
+            "rule": "RVC40",
+            "outcome": "no",
+            "reasons": [
+              "Indirect method: (FOB 100 - non-originating 80) / FOB = 20.0 %.",
+              "At least 40 % needed: not met."
+            ]
+          },
+          {
+            "rule": "CTSH",
+            "outcome": "no",
+            "reasons": [
+              "Illustrative material (9403.60) same subheading as the good (9403.60), so no change.",
+              "Those materials are 80.0 % of the FOB value, over the 10.0 % de minimis (Art. 33)."
+            ]
+          }
+        ],
+        "reasons": [
+          "1 material of undetermined origin counts as non-originating.",
+          "Annex 3 rule for 9403.60: RVC40 or CTSH.",
+          "RVC40: Indirect method: (FOB 100 - non-originating 80) / FOB = 20.0 %. At least 40 % needed: not met.",
+          "CTSH: Illustrative material (9403.60) same subheading as the good (9403.60), so no change. Those materials are 80.0 % of the FOB value, over the 10.0 % de minimis (Art. 33)."
+        ],
+        "regime": "atiga_preferential",
+        "note": "ATIGA preferential origin from the facts given. Not marking origin, not a ruling, not a Certificate of Origin (Form D). ITA goods (Annex 4), direct consignment, packaging, accessories and neutral elements are not checked. The rules have not been reviewed by a customs professional."
+      },
+      "passed": true,
+      "failures": []
+    },
+    {
+      "id": "control-cumulation-Thailand-originating",
+      "kind": "synthetic_control",
+      "source": "treaty",
+      "expected": {
+        "outcome": "yes"
+      },
+      "actual": {
+        "outcome": "yes",
+        "basis": "PE",
+        "applied": "PE",
+        "rule": {
+          "code": "9403.60",
+          "listed": true,
+          "concise": "RVC40 or CTSH",
+          "full": "A regional value content of not less than 40 percent; or A change to subheading 9403.60 from any other subheading",
+          "version": "atiga-annex3-psr-hs2022-aftac36"
+        },
+        "accumulation": true,
+        "partial_cumulation": false,
+        "failing": [],
+        "alternatives": [],
+        "reasons": [
+          "Originating materials from other Member States count as originating (Art. 30.1).",
+          "Every material is originating, so the good qualifies (Art. 26 and 30.1)."
+        ],
+        "regime": "atiga_preferential",
+        "note": "ATIGA preferential origin from the facts given. Not marking origin, not a ruling, not a Certificate of Origin (Form D). ITA goods (Annex 4), direct consignment, packaging, accessories and neutral elements are not checked. The rules have not been reviewed by a customs professional."
+      },
+      "passed": true,
+      "failures": []
+    },
+    {
+      "id": "control-cumulation-Thailand-unknown",
+      "kind": "synthetic_control",
+      "source": "treaty",
+      "expected": {
+        "outcome": "no"
+      },
+      "actual": {
+        "outcome": "no",
+        "rule": {
+          "code": "9403.60",
+          "listed": true,
+          "concise": "RVC40 or CTSH",
+          "full": "A regional value content of not less than 40 percent; or A change to subheading 9403.60 from any other subheading",
+          "version": "atiga-annex3-psr-hs2022-aftac36"
+        },
+        "rvc": {
+          "threshold": 40,
+          "indirect": 20,
+          "vnm": 80,
+          "vom": 0
+        },
+        "de_minimis": {
+          "used": false,
+          "value_share": 80
+        },
+        "accumulation": false,
+        "partial_cumulation": false,
+        "failing": [
+          {
+            "index": 0,
+            "name": "Illustrative material",
+            "hs": "9403.60",
+            "reason": "same subheading as the good (9403.60), so no change"
+          }
+        ],
+        "alternatives": [
+          {
+            "rule": "RVC40",
+            "outcome": "no",
+            "reasons": [
+              "Indirect method: (FOB 100 - non-originating 80) / FOB = 20.0 %.",
+              "At least 40 % needed: not met."
+            ]
+          },
+          {
+            "rule": "CTSH",
+            "outcome": "no",
+            "reasons": [
+              "Illustrative material (9403.60) same subheading as the good (9403.60), so no change.",
+              "Those materials are 80.0 % of the FOB value, over the 10.0 % de minimis (Art. 33)."
+            ]
+          }
+        ],
+        "reasons": [
+          "1 material of undetermined origin counts as non-originating.",
+          "Annex 3 rule for 9403.60: RVC40 or CTSH.",
+          "RVC40: Indirect method: (FOB 100 - non-originating 80) / FOB = 20.0 %. At least 40 % needed: not met.",
+          "CTSH: Illustrative material (9403.60) same subheading as the good (9403.60), so no change. Those materials are 80.0 % of the FOB value, over the 10.0 % de minimis (Art. 33)."
+        ],
+        "regime": "atiga_preferential",
+        "note": "ATIGA preferential origin from the facts given. Not marking origin, not a ruling, not a Certificate of Origin (Form D). ITA goods (Annex 4), direct consignment, packaging, accessories and neutral elements are not checked. The rules have not been reviewed by a customs professional."
+      },
+      "passed": true,
+      "failures": []
+    },
+    {
+      "id": "control-cumulation-China-originating",
+      "kind": "synthetic_control",
+      "source": "treaty",
+      "expected": {
+        "outcome": "no"
+      },
+      "actual": {
+        "outcome": "no",
+        "rule": {
+          "code": "9403.60",
+          "listed": true,
+          "concise": "RVC40 or CTSH",
+          "full": "A regional value content of not less than 40 percent; or A change to subheading 9403.60 from any other subheading",
+          "version": "atiga-annex3-psr-hs2022-aftac36"
+        },
+        "rvc": {
+          "threshold": 40,
+          "indirect": 20,
+          "vnm": 80,
+          "vom": 0
+        },
+        "de_minimis": {
+          "used": false,
+          "value_share": 80
+        },
+        "accumulation": false,
+        "partial_cumulation": false,
+        "failing": [
+          {
+            "index": 0,
+            "name": "Illustrative material",
+            "hs": "9403.60",
+            "reason": "same subheading as the good (9403.60), so no change"
+          }
+        ],
+        "alternatives": [
+          {
+            "rule": "RVC40",
+            "outcome": "no",
+            "reasons": [
+              "Indirect method: (FOB 100 - non-originating 80) / FOB = 20.0 %.",
+              "At least 40 % needed: not met."
+            ]
+          },
+          {
+            "rule": "CTSH",
+            "outcome": "no",
+            "reasons": [
+              "Illustrative material (9403.60) same subheading as the good (9403.60), so no change.",
+              "Those materials are 80.0 % of the FOB value, over the 10.0 % de minimis (Art. 33)."
+            ]
+          }
+        ],
+        "reasons": [
+          "Illustrative material is declared originating but comes from China, which is not a Member State; it counts as non-originating (Art. 30).",
+          "Annex 3 rule for 9403.60: RVC40 or CTSH.",
+          "RVC40: Indirect method: (FOB 100 - non-originating 80) / FOB = 20.0 %. At least 40 % needed: not met.",
+          "CTSH: Illustrative material (9403.60) same subheading as the good (9403.60), so no change. Those materials are 80.0 % of the FOB value, over the 10.0 % de minimis (Art. 33)."
+        ],
+        "regime": "atiga_preferential",
+        "note": "ATIGA preferential origin from the facts given. Not marking origin, not a ruling, not a Certificate of Origin (Form D). ITA goods (Annex 4), direct consignment, packaging, accessories and neutral elements are not checked. The rules have not been reviewed by a customs professional."
+      },
+      "passed": true,
+      "failures": []
+    },
+    {
+      "id": "control-partial-19.99",
+      "kind": "synthetic_control",
+      "source": "treaty",
+      "expected": {
+        "outcome": "no"
+      },
+      "actual": {
+        "outcome": "no",
+        "rule": {
+          "code": "Art. 28.1",
+          "listed": false,
+          "concise": "RVC40 or CTH",
+          "full": "A regional value content of not less than forty percent (40%) calculated using the formula set out in Article 29; or all non-originating materials have undergone a change in tariff classification at four-digit level (a change in tariff heading)",
+          "version": "atiga-annex3-psr-hs2022-aftac36"
+        },
+        "rvc": {
+          "threshold": 40,
+          "indirect": 30,
+          "vnm": 70,
+          "vom": 0
+        },
+        "de_minimis": {
+          "used": false,
+          "value_share": 70
+        },
+        "accumulation": false,
+        "partial_cumulation": false,
+        "failing": [
+          {
+            "index": 0,
+            "name": "Illustrative material",
+            "hs": "3926.90",
+            "reason": "same heading as the good (39.26), so no change"
+          },
+          {
+            "index": 1,
+            "name": "Illustrative material",
+            "hs": "3926.90",
+            "reason": "same heading as the good (39.26), so no change"
+          }
+        ],
+        "alternatives": [
+          {
+            "rule": "RVC40",
+            "outcome": "no",
+            "reasons": [
+              "Indirect method: (FOB 100 - non-originating 70) / FOB = 30.0 %.",
+              "At least 40 % needed: not met."
+            ]
+          },
+          {
+            "rule": "CTH",
+            "outcome": "no",
+            "reasons": [
+              "Illustrative material (3926.90) same heading as the good (39.26), so no change.",
+              "Illustrative material (3926.90) same heading as the good (39.26), so no change.",
+              "Those materials are 70.0 % of the FOB value, over the 10.0 % de minimis (Art. 33)."
+            ]
+          }
+        ],
+        "reasons": [
+          "2 materials of undetermined origin count as non-originating.",
+          "3926.90 is not listed in Annex 3, so the general rule applies: RVC40 or CTH (Art. 28.1).",
+          "RVC40: Indirect method: (FOB 100 - non-originating 70) / FOB = 30.0 %. At least 40 % needed: not met.",
+          "CTH: Illustrative material (3926.90) same heading as the good (39.26), so no change. Illustrative material (3926.90) same heading as the good (39.26), so no change. Those materials are 70.0 % of the FOB value, over the 10.0 % de minimis (Art. 33)."
+        ],
+        "regime": "atiga_preferential",
+        "note": "ATIGA preferential origin from the facts given. Not marking origin, not a ruling, not a Certificate of Origin (Form D). ITA goods (Annex 4), direct consignment, packaging, accessories and neutral elements are not checked. The rules have not been reviewed by a customs professional."
+      },
+      "passed": true,
+      "failures": []
+    },
+    {
+      "id": "control-partial-20",
+      "kind": "synthetic_control",
+      "source": "treaty",
+      "expected": {
+        "outcome": "yes"
+      },
+      "actual": {
+        "outcome": "yes",
+        "basis": "PSR",
+        "applied": "RVC40",
+        "rule": {
+          "code": "Art. 28.1",
+          "listed": false,
+          "concise": "RVC40 or CTH",
+          "full": "A regional value content of not less than forty percent (40%) calculated using the formula set out in Article 29; or all non-originating materials have undergone a change in tariff classification at four-digit level (a change in tariff heading)",
+          "version": "atiga-annex3-psr-hs2022-aftac36"
+        },
+        "rvc": {
+          "threshold": 40,
+          "indirect": 40,
+          "vnm": 60,
+          "vom": 0,
+          "partial": 10
+        },
+        "accumulation": false,
+        "partial_cumulation": true,
+        "failing": [],
+        "alternatives": [
+          {
+            "rule": "RVC40",
+            "outcome": "yes",
+            "reasons": [
+              "Partial cumulation: the ASEAN content of Illustrative material (20.0 %) counts, 10 in all (Art. 30.2, Annex 6).",
+              "Indirect method: (FOB 100 - non-originating 60) / FOB = 40.0 %.",
+              "At least 40 % needed: met."
+            ]
+          },
+          {
+            "rule": "CTH",
+            "outcome": "no",
+            "reasons": [
+              "Illustrative material (3926.90) same heading as the good (39.26), so no change.",
+              "Illustrative material (3926.90) same heading as the good (39.26), so no change.",
+              "Those materials are 70.0 % of the FOB value, over the 10.0 % de minimis (Art. 33)."
+            ]
+          }
+        ],
+        "reasons": [
+          "2 materials of undetermined origin count as non-originating.",
+          "3926.90 is not listed in Annex 3, so the general rule applies: RVC40 or CTH (Art. 28.1).",
+          "Qualifies under RVC40.",
+          "Partial cumulation: the ASEAN content of Illustrative material (20.0 %) counts, 10 in all (Art. 30.2, Annex 6).",
+          "Indirect method: (FOB 100 - non-originating 60) / FOB = 40.0 %.",
+          "At least 40 % needed: met.",
+          "This assumes the work done is more than the minimal operations of Art. 31."
+        ],
+        "regime": "atiga_preferential",
+        "note": "ATIGA preferential origin from the facts given. Not marking origin, not a ruling, not a Certificate of Origin (Form D). ITA goods (Annex 4), direct consignment, packaging, accessories and neutral elements are not checked. The rules have not been reviewed by a customs professional."
+      },
+      "passed": true,
+      "failures": []
+    },
+    {
+      "id": "control-partial-30",
+      "kind": "synthetic_control",
+      "source": "treaty",
+      "expected": {
+        "outcome": "yes"
+      },
+      "actual": {
+        "outcome": "yes",
+        "basis": "PSR",
+        "applied": "RVC40",
+        "rule": {
+          "code": "Art. 28.1",
+          "listed": false,
+          "concise": "RVC40 or CTH",
+          "full": "A regional value content of not less than forty percent (40%) calculated using the formula set out in Article 29; or all non-originating materials have undergone a change in tariff classification at four-digit level (a change in tariff heading)",
+          "version": "atiga-annex3-psr-hs2022-aftac36"
+        },
+        "rvc": {
+          "threshold": 40,
+          "indirect": 45,
+          "vnm": 55,
+          "vom": 0,
+          "partial": 15
+        },
+        "accumulation": false,
+        "partial_cumulation": true,
+        "failing": [],
+        "alternatives": [
+          {
+            "rule": "RVC40",
+            "outcome": "yes",
+            "reasons": [
+              "Partial cumulation: the ASEAN content of Illustrative material (30.0 %) counts, 15 in all (Art. 30.2, Annex 6).",
+              "Indirect method: (FOB 100 - non-originating 55) / FOB = 45.0 %.",
+              "At least 40 % needed: met."
+            ]
+          },
+          {
+            "rule": "CTH",
+            "outcome": "no",
+            "reasons": [
+              "Illustrative material (3926.90) same heading as the good (39.26), so no change.",
+              "Illustrative material (3926.90) same heading as the good (39.26), so no change.",
+              "Those materials are 70.0 % of the FOB value, over the 10.0 % de minimis (Art. 33)."
+            ]
+          }
+        ],
+        "reasons": [
+          "2 materials of undetermined origin count as non-originating.",
+          "3926.90 is not listed in Annex 3, so the general rule applies: RVC40 or CTH (Art. 28.1).",
+          "Qualifies under RVC40.",
+          "Partial cumulation: the ASEAN content of Illustrative material (30.0 %) counts, 15 in all (Art. 30.2, Annex 6).",
+          "Indirect method: (FOB 100 - non-originating 55) / FOB = 45.0 %.",
+          "At least 40 % needed: met.",
+          "This assumes the work done is more than the minimal operations of Art. 31."
+        ],
+        "regime": "atiga_preferential",
+        "note": "ATIGA preferential origin from the facts given. Not marking origin, not a ruling, not a Certificate of Origin (Form D). ITA goods (Annex 4), direct consignment, packaging, accessories and neutral elements are not checked. The rules have not been reviewed by a customs professional."
+      },
+      "passed": true,
+      "failures": []
+    },
+    {
+      "id": "control-partial-39.99",
+      "kind": "synthetic_control",
+      "source": "treaty",
+      "expected": {
+        "outcome": "yes"
+      },
+      "actual": {
+        "outcome": "yes",
+        "basis": "PSR",
+        "applied": "RVC40",
+        "rule": {
+          "code": "Art. 28.1",
+          "listed": false,
+          "concise": "RVC40 or CTH",
+          "full": "A regional value content of not less than forty percent (40%) calculated using the formula set out in Article 29; or all non-originating materials have undergone a change in tariff classification at four-digit level (a change in tariff heading)",
+          "version": "atiga-annex3-psr-hs2022-aftac36"
+        },
+        "rvc": {
+          "threshold": 40,
+          "indirect": 49.995000000000005,
+          "vnm": 50.004999999999995,
+          "vom": 0,
+          "partial": 19.995
+        },
+        "accumulation": false,
+        "partial_cumulation": true,
+        "failing": [],
+        "alternatives": [
+          {
+            "rule": "RVC40",
+            "outcome": "yes",
+            "reasons": [
+              "Partial cumulation: the ASEAN content of Illustrative material (40.0 %) counts, 19.995 in all (Art. 30.2, Annex 6).",
+              "Indirect method: (FOB 100 - non-originating 50.004999999999995) / FOB = 50.0 %.",
+              "At least 40 % needed: met."
+            ]
+          },
+          {
+            "rule": "CTH",
+            "outcome": "no",
+            "reasons": [
+              "Illustrative material (3926.90) same heading as the good (39.26), so no change.",
+              "Illustrative material (3926.90) same heading as the good (39.26), so no change.",
+              "Those materials are 70.0 % of the FOB value, over the 10.0 % de minimis (Art. 33)."
+            ]
+          }
+        ],
+        "reasons": [
+          "2 materials of undetermined origin count as non-originating.",
+          "3926.90 is not listed in Annex 3, so the general rule applies: RVC40 or CTH (Art. 28.1).",
+          "Qualifies under RVC40.",
+          "Partial cumulation: the ASEAN content of Illustrative material (40.0 %) counts, 19.995 in all (Art. 30.2, Annex 6).",
+          "Indirect method: (FOB 100 - non-originating 50.004999999999995) / FOB = 50.0 %.",
+          "At least 40 % needed: met.",
+          "This assumes the work done is more than the minimal operations of Art. 31."
+        ],
+        "regime": "atiga_preferential",
+        "note": "ATIGA preferential origin from the facts given. Not marking origin, not a ruling, not a Certificate of Origin (Form D). ITA goods (Annex 4), direct consignment, packaging, accessories and neutral elements are not checked. The rules have not been reviewed by a customs professional."
+      },
+      "passed": true,
+      "failures": []
+    },
+    {
+      "id": "control-partial-nonmember",
+      "kind": "synthetic_control",
+      "source": "treaty",
+      "expected": {
+        "outcome": "no"
+      },
+      "actual": {
+        "outcome": "no",
+        "rule": {
+          "code": "Art. 28.1",
+          "listed": false,
+          "concise": "RVC40 or CTH",
+          "full": "A regional value content of not less than forty percent (40%) calculated using the formula set out in Article 29; or all non-originating materials have undergone a change in tariff classification at four-digit level (a change in tariff heading)",
+          "version": "atiga-annex3-psr-hs2022-aftac36"
+        },
+        "rvc": {
+          "threshold": 40,
+          "indirect": 30,
+          "vnm": 70,
+          "vom": 0
+        },
+        "de_minimis": {
+          "used": false,
+          "value_share": 70
+        },
+        "accumulation": false,
+        "partial_cumulation": false,
+        "failing": [
+          {
+            "index": 0,
+            "name": "Illustrative material",
+            "hs": "3926.90",
+            "reason": "same heading as the good (39.26), so no change"
+          },
+          {
+            "index": 1,
+            "name": "Illustrative material",
+            "hs": "3926.90",
+            "reason": "same heading as the good (39.26), so no change"
+          }
+        ],
+        "alternatives": [
+          {
+            "rule": "RVC40",
+            "outcome": "no",
+            "reasons": [
+              "Indirect method: (FOB 100 - non-originating 70) / FOB = 30.0 %.",
+              "At least 40 % needed: not met."
+            ]
+          },
+          {
+            "rule": "CTH",
+            "outcome": "no",
+            "reasons": [
+              "Illustrative material (3926.90) same heading as the good (39.26), so no change.",
+              "Illustrative material (3926.90) same heading as the good (39.26), so no change.",
+              "Those materials are 70.0 % of the FOB value, over the 10.0 % de minimis (Art. 33)."
+            ]
+          }
+        ],
+        "reasons": [
+          "2 materials of undetermined origin count as non-originating.",
+          "3926.90 is not listed in Annex 3, so the general rule applies: RVC40 or CTH (Art. 28.1).",
+          "RVC40: Indirect method: (FOB 100 - non-originating 70) / FOB = 30.0 %. At least 40 % needed: not met.",
+          "CTH: Illustrative material (3926.90) same heading as the good (39.26), so no change. Illustrative material (3926.90) same heading as the good (39.26), so no change. Those materials are 70.0 % of the FOB value, over the 10.0 % de minimis (Art. 33)."
+        ],
+        "regime": "atiga_preferential",
+        "note": "ATIGA preferential origin from the facts given. Not marking origin, not a ruling, not a Certificate of Origin (Form D). ITA goods (Annex 4), direct consignment, packaging, accessories and neutral elements are not checked. The rules have not been reviewed by a customs professional."
+      },
+      "passed": true,
+      "failures": []
+    },
+    {
+      "id": "control-minimal-packaging",
+      "kind": "synthetic_control",
+      "source": "treaty",
+      "expected": {
+        "outcome": "no"
+      },
+      "actual": {
+        "outcome": "no",
+        "rule": {
+          "code": "9403.60",
+          "listed": true,
+          "concise": "RVC40 or CTSH",
+          "full": "A regional value content of not less than 40 percent; or A change to subheading 9403.60 from any other subheading",
+          "version": "atiga-annex3-psr-hs2022-aftac36"
+        },
+        "accumulation": false,
+        "partial_cumulation": false,
+        "failing": [],
+        "alternatives": [],
+        "reasons": [
+          "1 material of undetermined origin counts as non-originating.",
+          "Only minimal operations are done on non-originating materials (packaging or presenting goods for sale), which do not confer origin (Art. 31)."
+        ],
+        "regime": "atiga_preferential",
+        "note": "ATIGA preferential origin from the facts given. Not marking origin, not a ruling, not a Certificate of Origin (Form D). ITA goods (Annex 4), direct consignment, packaging, accessories and neutral elements are not checked. The rules have not been reviewed by a customs professional."
+      },
+      "passed": true,
+      "failures": []
+    },
+    {
+      "id": "control-minimal-preservation",
+      "kind": "synthetic_control",
+      "source": "treaty",
+      "expected": {
+        "outcome": "no"
+      },
+      "actual": {
+        "outcome": "no",
+        "rule": {
+          "code": "9403.60",
+          "listed": true,
+          "concise": "RVC40 or CTSH",
+          "full": "A regional value content of not less than 40 percent; or A change to subheading 9403.60 from any other subheading",
+          "version": "atiga-annex3-psr-hs2022-aftac36"
+        },
+        "accumulation": false,
+        "partial_cumulation": false,
+        "failing": [],
+        "alternatives": [],
+        "reasons": [
+          "1 material of undetermined origin counts as non-originating.",
+          "Only minimal operations are done on non-originating materials (ensuring preservation of goods in good condition for transport or storage), which do not confer origin (Art. 31)."
+        ],
+        "regime": "atiga_preferential",
+        "note": "ATIGA preferential origin from the facts given. Not marking origin, not a ruling, not a Certificate of Origin (Form D). ITA goods (Annex 4), direct consignment, packaging, accessories and neutral elements are not checked. The rules have not been reviewed by a customs professional."
+      },
+      "passed": true,
+      "failures": []
+    },
+    {
+      "id": "control-minimal-shipment",
+      "kind": "synthetic_control",
+      "source": "treaty",
+      "expected": {
+        "outcome": "no"
+      },
+      "actual": {
+        "outcome": "no",
+        "rule": {
+          "code": "9403.60",
+          "listed": true,
+          "concise": "RVC40 or CTSH",
+          "full": "A regional value content of not less than 40 percent; or A change to subheading 9403.60 from any other subheading",
+          "version": "atiga-annex3-psr-hs2022-aftac36"
+        },
+        "accumulation": false,
+        "partial_cumulation": false,
+        "failing": [],
+        "alternatives": [],
+        "reasons": [
+          "1 material of undetermined origin counts as non-originating.",
+          "Only minimal operations are done on non-originating materials (facilitating shipment or transportation), which do not confer origin (Art. 31)."
+        ],
+        "regime": "atiga_preferential",
+        "note": "ATIGA preferential origin from the facts given. Not marking origin, not a ruling, not a Certificate of Origin (Form D). ITA goods (Annex 4), direct consignment, packaging, accessories and neutral elements are not checked. The rules have not been reviewed by a customs professional."
+      },
+      "passed": true,
+      "failures": []
+    },
+    {
+      "id": "control-missing-fob",
+      "kind": "synthetic_control",
+      "source": "treaty",
+      "expected": {
+        "outcome": "undetermined"
+      },
+      "actual": {
+        "outcome": "undetermined",
+        "rule": {
+          "code": "9403.60",
+          "listed": true,
+          "concise": "RVC40 or CTSH",
+          "full": "A regional value content of not less than 40 percent; or A change to subheading 9403.60 from any other subheading",
+          "version": "atiga-annex3-psr-hs2022-aftac36"
+        },
+        "rvc": {
+          "threshold": 40,
+          "vnm": 0,
+          "vom": 0
+        },
+        "de_minimis": {
+          "used": false
+        },
+        "accumulation": false,
+        "partial_cumulation": false,
+        "failing": [
+          {
+            "index": 0,
+            "name": "Illustrative material",
+            "hs": "9403.60",
+            "reason": "same subheading as the good (9403.60), so no change"
+          }
+        ],
+        "alternatives": [
+          {
+            "rule": "RVC40",
+            "outcome": "undetermined",
+            "reasons": [
+              "Give the FOB value to work out RVC."
+            ]
+          },
+          {
+            "rule": "CTSH",
+            "outcome": "undetermined",
+            "reasons": [
+              "Illustrative material (9403.60) same subheading as the good (9403.60), so no change.",
+              "Give their values and the FOB value to test de minimis (Art. 33)."
+            ]
+          }
+        ],
+        "reasons": [
+          "1 material of undetermined origin counts as non-originating.",
+          "Annex 3 rule for 9403.60: RVC40 or CTSH.",
+          "RVC40: Give the FOB value to work out RVC.",
+          "CTSH: Illustrative material (9403.60) same subheading as the good (9403.60), so no change. Give their values and the FOB value to test de minimis (Art. 33)."
+        ],
+        "regime": "atiga_preferential",
+        "note": "ATIGA preferential origin from the facts given. Not marking origin, not a ruling, not a Certificate of Origin (Form D). ITA goods (Annex 4), direct consignment, packaging, accessories and neutral elements are not checked. The rules have not been reviewed by a customs professional."
+      },
+      "passed": true,
+      "failures": []
+    },
+    {
+      "id": "control-missing-material-hs",
+      "kind": "synthetic_control",
+      "source": "treaty",
+      "expected": {
+        "outcome": "undetermined"
+      },
+      "actual": {
+        "outcome": "undetermined",
+        "rule": {
+          "code": "9403.60",
+          "listed": true,
+          "concise": "RVC40 or CTSH",
+          "full": "A regional value content of not less than 40 percent; or A change to subheading 9403.60 from any other subheading",
+          "version": "atiga-annex3-psr-hs2022-aftac36"
+        },
+        "rvc": {
+          "threshold": 40,
+          "indirect": 20,
+          "vnm": 80,
+          "vom": 0
+        },
+        "de_minimis": {
+          "used": false,
+          "value_share": 80
+        },
+        "accumulation": false,
+        "partial_cumulation": false,
+        "failing": [
+          {
+            "index": 0,
+            "name": "Illustrative material",
+            "hs": "",
+            "reason": "needs a 6-digit HS code to test this rule"
+          }
+        ],
+        "alternatives": [
+          {
+            "rule": "RVC40",
+            "outcome": "no",
+            "reasons": [
+              "Indirect method: (FOB 100 - non-originating 80) / FOB = 20.0 %.",
+              "At least 40 % needed: not met."
+            ]
+          },
+          {
+            "rule": "CTSH",
+            "outcome": "undetermined",
+            "reasons": [
+              "Illustrative material needs a 6-digit HS code to test this rule.",
+              "Those materials are 80.0 % of the FOB value, over the 10.0 % de minimis (Art. 33)."
+            ]
+          }
+        ],
+        "reasons": [
+          "1 material of undetermined origin counts as non-originating.",
+          "Annex 3 rule for 9403.60: RVC40 or CTSH.",
+          "RVC40: Indirect method: (FOB 100 - non-originating 80) / FOB = 20.0 %. At least 40 % needed: not met.",
+          "CTSH: Illustrative material needs a 6-digit HS code to test this rule. Those materials are 80.0 % of the FOB value, over the 10.0 % de minimis (Art. 33)."
+        ],
+        "regime": "atiga_preferential",
+        "note": "ATIGA preferential origin from the facts given. Not marking origin, not a ruling, not a Certificate of Origin (Form D). ITA goods (Annex 4), direct consignment, packaging, accessories and neutral elements are not checked. The rules have not been reviewed by a customs professional."
+      },
+      "passed": true,
+      "failures": []
+    },
+    {
+      "id": "control-missing-production-country",
+      "kind": "synthetic_control",
+      "source": "treaty",
+      "expected": {
+        "outcome": "undetermined"
+      },
+      "actual": {
+        "outcome": "undetermined",
+        "accumulation": false,
+        "partial_cumulation": false,
+        "failing": [],
+        "alternatives": [],
+        "reasons": [
+          "Say where the good is made."
+        ],
+        "regime": "atiga_preferential",
+        "note": "ATIGA preferential origin from the facts given. Not marking origin, not a ruling, not a Certificate of Origin (Form D). ITA goods (Annex 4), direct consignment, packaging, accessories and neutral elements are not checked. The rules have not been reviewed by a customs professional."
+      },
+      "passed": true,
+      "failures": []
+    },
+    {
+      "id": "control-missing-direct-costs",
+      "kind": "synthetic_control",
+      "source": "treaty",
+      "expected": {
+        "outcome": "undetermined"
+      },
+      "actual": {
+        "outcome": "undetermined",
+        "rule": {
+          "code": "9403.60",
+          "listed": true,
+          "concise": "RVC40 or CTSH",
+          "full": "A regional value content of not less than 40 percent; or A change to subheading 9403.60 from any other subheading",
+          "version": "atiga-annex3-psr-hs2022-aftac36"
+        },
+        "rvc": {
+          "threshold": 40,
+          "vnm": 80,
+          "vom": 0
+        },
+        "de_minimis": {
+          "used": false,
+          "value_share": 80
+        },
+        "accumulation": false,
+        "partial_cumulation": false,
+        "failing": [
+          {
+            "index": 0,
+            "name": "Illustrative material",
+            "hs": "9403.60",
+            "reason": "same subheading as the good (9403.60), so no change"
+          }
+        ],
+        "alternatives": [
+          {
+            "rule": "RVC40",
+            "outcome": "undetermined",
+            "reasons": [
+              "The direct method needs costs (labour, overhead, profit, other).",
+              "At least 40 % needed: not enough data to decide."
+            ]
+          },
+          {
+            "rule": "CTSH",
+            "outcome": "no",
+            "reasons": [
+              "Illustrative material (9403.60) same subheading as the good (9403.60), so no change.",
+              "Those materials are 80.0 % of the FOB value, over the 10.0 % de minimis (Art. 33)."
+            ]
+          }
+        ],
+        "reasons": [
+          "1 material of undetermined origin counts as non-originating.",
+          "Annex 3 rule for 9403.60: RVC40 or CTSH.",
+          "RVC40: The direct method needs costs (labour, overhead, profit, other). At least 40 % needed: not enough data to decide.",
+          "CTSH: Illustrative material (9403.60) same subheading as the good (9403.60), so no change. Those materials are 80.0 % of the FOB value, over the 10.0 % de minimis (Art. 33)."
+        ],
+        "regime": "atiga_preferential",
+        "note": "ATIGA preferential origin from the facts given. Not marking origin, not a ruling, not a Certificate of Origin (Form D). ITA goods (Annex 4), direct consignment, packaging, accessories and neutral elements are not checked. The rules have not been reviewed by a customs professional."
+      },
+      "passed": true,
+      "failures": []
+    },
+    {
+      "id": "control-missing-product-subheading",
+      "kind": "synthetic_control",
+      "source": "psr",
+      "expected": {
+        "outcome": "undetermined"
+      },
+      "actual": {
+        "outcome": "undetermined",
+        "accumulation": false,
+        "partial_cumulation": false,
+        "failing": [],
+        "alternatives": [],
+        "reasons": [
+          "1 material of undetermined origin counts as non-originating.",
+          "No rule applied: heading 85.41 has subheadings with their own Annex 3 rule; give the 6-digit subheading."
+        ],
+        "regime": "atiga_preferential",
+        "note": "ATIGA preferential origin from the facts given. Not marking origin, not a ruling, not a Certificate of Origin (Form D). ITA goods (Annex 4), direct consignment, packaging, accessories and neutral elements are not checked. The rules have not been reviewed by a customs professional."
+      },
+      "passed": true,
+      "failures": []
+    },
+    {
+      "id": "control-deminimis-9.99",
+      "kind": "synthetic_control",
+      "source": "treaty",
+      "expected": {
+        "outcome": "yes",
+        "alternative": {
+          "CTH": "yes"
+        }
+      },
+      "actual": {
+        "outcome": "yes",
+        "basis": "PSR",
+        "applied": "CTH",
+        "rule": {
+          "code": "Art. 28.1",
+          "listed": false,
+          "concise": "RVC40 or CTH",
+          "full": "A regional value content of not less than forty percent (40%) calculated using the formula set out in Article 29; or all non-originating materials have undergone a change in tariff classification at four-digit level (a change in tariff heading)",
+          "version": "atiga-annex3-psr-hs2022-aftac36"
+        },
+        "rvc": {
+          "threshold": 40,
+          "indirect": 10.010000000000005,
+          "vnm": 89.99,
+          "vom": 0
+        },
+        "de_minimis": {
+          "used": true,
+          "value_share": 9.99
+        },
+        "accumulation": false,
+        "partial_cumulation": false,
+        "failing": [],
+        "alternatives": [
+          {
+            "rule": "RVC40",
+            "outcome": "no",
+            "reasons": [
+              "Indirect method: (FOB 100 - non-originating 89.99) / FOB = 10.0 %.",
+              "At least 40 % needed: not met."
+            ]
+          },
+          {
+            "rule": "CTH",
+            "outcome": "yes",
+            "reasons": [
+              "Illustrative material (3926.90) same heading as the good (39.26), so no change.",
+              "De minimis: those materials are 10.0 % of the FOB value, within 10.0 % (Art. 33)."
+            ]
+          }
+        ],
+        "reasons": [
+          "2 materials of undetermined origin count as non-originating.",
+          "3926.90 is not listed in Annex 3, so the general rule applies: RVC40 or CTH (Art. 28.1).",
+          "Qualifies under CTH.",
+          "Illustrative material (3926.90) same heading as the good (39.26), so no change.",
+          "De minimis: those materials are 10.0 % of the FOB value, within 10.0 % (Art. 33).",
+          "This assumes the work done is more than the minimal operations of Art. 31."
+        ],
+        "regime": "atiga_preferential",
+        "note": "ATIGA preferential origin from the facts given. Not marking origin, not a ruling, not a Certificate of Origin (Form D). ITA goods (Annex 4), direct consignment, packaging, accessories and neutral elements are not checked. The rules have not been reviewed by a customs professional."
+      },
+      "passed": true,
+      "failures": []
+    },
+    {
+      "id": "control-deminimis-10",
+      "kind": "synthetic_control",
+      "source": "treaty",
+      "expected": {
+        "outcome": "yes",
+        "alternative": {
+          "CTH": "yes"
+        }
+      },
+      "actual": {
+        "outcome": "yes",
+        "basis": "PSR",
+        "applied": "CTH",
+        "rule": {
+          "code": "Art. 28.1",
+          "listed": false,
+          "concise": "RVC40 or CTH",
+          "full": "A regional value content of not less than forty percent (40%) calculated using the formula set out in Article 29; or all non-originating materials have undergone a change in tariff classification at four-digit level (a change in tariff heading)",
+          "version": "atiga-annex3-psr-hs2022-aftac36"
+        },
+        "rvc": {
+          "threshold": 40,
+          "indirect": 10,
+          "vnm": 90,
+          "vom": 0
+        },
+        "de_minimis": {
+          "used": true,
+          "value_share": 10
+        },
+        "accumulation": false,
+        "partial_cumulation": false,
+        "failing": [],
+        "alternatives": [
+          {
+            "rule": "RVC40",
+            "outcome": "no",
+            "reasons": [
+              "Indirect method: (FOB 100 - non-originating 90) / FOB = 10.0 %.",
+              "At least 40 % needed: not met."
+            ]
+          },
+          {
+            "rule": "CTH",
+            "outcome": "yes",
+            "reasons": [
+              "Illustrative material (3926.90) same heading as the good (39.26), so no change.",
+              "De minimis: those materials are 10.0 % of the FOB value, within 10.0 % (Art. 33)."
+            ]
+          }
+        ],
+        "reasons": [
+          "2 materials of undetermined origin count as non-originating.",
+          "3926.90 is not listed in Annex 3, so the general rule applies: RVC40 or CTH (Art. 28.1).",
+          "Qualifies under CTH.",
+          "Illustrative material (3926.90) same heading as the good (39.26), so no change.",
+          "De minimis: those materials are 10.0 % of the FOB value, within 10.0 % (Art. 33).",
+          "This assumes the work done is more than the minimal operations of Art. 31."
+        ],
+        "regime": "atiga_preferential",
+        "note": "ATIGA preferential origin from the facts given. Not marking origin, not a ruling, not a Certificate of Origin (Form D). ITA goods (Annex 4), direct consignment, packaging, accessories and neutral elements are not checked. The rules have not been reviewed by a customs professional."
+      },
+      "passed": true,
+      "failures": []
+    },
+    {
+      "id": "control-deminimis-10.01",
+      "kind": "synthetic_control",
+      "source": "treaty",
+      "expected": {
+        "outcome": "no",
+        "alternative": {
+          "CTH": "no"
+        }
+      },
+      "actual": {
+        "outcome": "no",
+        "rule": {
+          "code": "Art. 28.1",
+          "listed": false,
+          "concise": "RVC40 or CTH",
+          "full": "A regional value content of not less than forty percent (40%) calculated using the formula set out in Article 29; or all non-originating materials have undergone a change in tariff classification at four-digit level (a change in tariff heading)",
+          "version": "atiga-annex3-psr-hs2022-aftac36"
+        },
+        "rvc": {
+          "threshold": 40,
+          "indirect": 9.989999999999995,
+          "vnm": 90.01,
+          "vom": 0
+        },
+        "de_minimis": {
+          "used": false,
+          "value_share": 10.01
+        },
+        "accumulation": false,
+        "partial_cumulation": false,
+        "failing": [
+          {
+            "index": 0,
+            "name": "Illustrative material",
+            "hs": "3926.90",
+            "reason": "same heading as the good (39.26), so no change"
+          }
+        ],
+        "alternatives": [
+          {
+            "rule": "RVC40",
+            "outcome": "no",
+            "reasons": [
+              "Indirect method: (FOB 100 - non-originating 90.01) / FOB = 10.0 %.",
+              "At least 40 % needed: not met."
+            ]
+          },
+          {
+            "rule": "CTH",
+            "outcome": "no",
+            "reasons": [
+              "Illustrative material (3926.90) same heading as the good (39.26), so no change.",
+              "Those materials are 10.0 % of the FOB value, over the 10.0 % de minimis (Art. 33)."
+            ]
+          }
+        ],
+        "reasons": [
+          "2 materials of undetermined origin count as non-originating.",
+          "3926.90 is not listed in Annex 3, so the general rule applies: RVC40 or CTH (Art. 28.1).",
+          "RVC40: Indirect method: (FOB 100 - non-originating 90.01) / FOB = 10.0 %. At least 40 % needed: not met.",
+          "CTH: Illustrative material (3926.90) same heading as the good (39.26), so no change. Those materials are 10.0 % of the FOB value, over the 10.0 % de minimis (Art. 33)."
+        ],
+        "regime": "atiga_preferential",
+        "note": "ATIGA preferential origin from the facts given. Not marking origin, not a ruling, not a Certificate of Origin (Form D). ITA goods (Annex 4), direct consignment, packaging, accessories and neutral elements are not checked. The rules have not been reviewed by a customs professional."
+      },
+      "passed": true,
+      "failures": []
+    },
+    {
+      "id": "control-textile-cut-true",
+      "kind": "synthetic_control",
+      "source": "psr",
+      "expected": {
+        "outcome": "yes"
+      },
+      "actual": {
+        "outcome": "yes",
+        "basis": "PSR",
+        "applied": "CC and cut and sewn in any AMS",
+        "rule": {
+          "code": "6109.10",
+          "listed": true,
+          "concise": "RVC40 or CC and cut and sewn in any AMS or textile process rule",
+          "full": "A regional value content of not less than 40 percent; or A change to subheading 6109.10 from any other chapter and the good is both cut and sewn in the territory of any Member State; or Process Rules for Textile and Textile Products as set out in Attachment 1",
+          "version": "atiga-annex3-psr-hs2022-aftac36"
+        },
+        "rvc": {
+          "threshold": 40,
+          "indirect": 20,
+          "vnm": 80,
+          "vom": 0
+        },
+        "accumulation": false,
+        "partial_cumulation": false,
+        "failing": [],
+        "alternatives": [
+          {
+            "rule": "RVC40",
+            "outcome": "no",
+            "reasons": [
+              "Indirect method: (FOB 100 - non-originating 80) / FOB = 20.0 %.",
+              "At least 40 % needed: not met."
+            ]
+          },
+          {
+            "rule": "CC and cut and sewn in any AMS",
+            "outcome": "yes",
+            "reasons": [
+              "Every non-originating material changes chapter.",
+              "You state the good is both cut and sewn in the territory of any Member State."
+            ]
+          },
+          {
+            "rule": "textile process rule",
+            "outcome": "no",
+            "reasons": [
+              "You state it is not the case that the working or processing of Attachment 1 (textiles) was carried out in a Member State."
+            ]
+          }
+        ],
+        "reasons": [
+          "1 material of undetermined origin counts as non-originating.",
+          "Annex 3 rule for 6109.10: RVC40 or CC and cut and sewn in any AMS or textile process rule.",
+          "Qualifies under CC and cut and sewn in any AMS.",
+          "Every non-originating material changes chapter.",
+          "You state the good is both cut and sewn in the territory of any Member State.",
+          "This assumes the work done is more than the minimal operations of Art. 31."
+        ],
+        "regime": "atiga_preferential",
+        "note": "ATIGA preferential origin from the facts given. Not marking origin, not a ruling, not a Certificate of Origin (Form D). ITA goods (Annex 4), direct consignment, packaging, accessories and neutral elements are not checked. The rules have not been reviewed by a customs professional."
+      },
+      "passed": true,
+      "failures": []
+    },
+    {
+      "id": "control-textile-cut-false",
+      "kind": "synthetic_control",
+      "source": "psr",
+      "expected": {
+        "outcome": "no"
+      },
+      "actual": {
+        "outcome": "no",
+        "rule": {
+          "code": "6109.10",
+          "listed": true,
+          "concise": "RVC40 or CC and cut and sewn in any AMS or textile process rule",
+          "full": "A regional value content of not less than 40 percent; or A change to subheading 6109.10 from any other chapter and the good is both cut and sewn in the territory of any Member State; or Process Rules for Textile and Textile Products as set out in Attachment 1",
+          "version": "atiga-annex3-psr-hs2022-aftac36"
+        },
+        "rvc": {
+          "threshold": 40,
+          "indirect": 20,
+          "vnm": 80,
+          "vom": 0
+        },
+        "accumulation": false,
+        "partial_cumulation": false,
+        "failing": [],
+        "alternatives": [
+          {
+            "rule": "RVC40",
+            "outcome": "no",
+            "reasons": [
+              "Indirect method: (FOB 100 - non-originating 80) / FOB = 20.0 %.",
+              "At least 40 % needed: not met."
+            ]
+          },
+          {
+            "rule": "CC and cut and sewn in any AMS",
+            "outcome": "no",
+            "reasons": [
+              "Every non-originating material changes chapter.",
+              "You state it is not the case that the good is both cut and sewn in the territory of any Member State."
+            ]
+          },
+          {
+            "rule": "textile process rule",
+            "outcome": "no",
+            "reasons": [
+              "You state it is not the case that the working or processing of Attachment 1 (textiles) was carried out in a Member State."
+            ]
+          }
+        ],
+        "reasons": [
+          "1 material of undetermined origin counts as non-originating.",
+          "Annex 3 rule for 6109.10: RVC40 or CC and cut and sewn in any AMS or textile process rule.",
+          "RVC40: Indirect method: (FOB 100 - non-originating 80) / FOB = 20.0 %. At least 40 % needed: not met.",
+          "CC and cut and sewn in any AMS: Every non-originating material changes chapter. You state it is not the case that the good is both cut and sewn in the territory of any Member State.",
+          "textile process rule: You state it is not the case that the working or processing of Attachment 1 (textiles) was carried out in a Member State."
+        ],
+        "regime": "atiga_preferential",
+        "note": "ATIGA preferential origin from the facts given. Not marking origin, not a ruling, not a Certificate of Origin (Form D). ITA goods (Annex 4), direct consignment, packaging, accessories and neutral elements are not checked. The rules have not been reviewed by a customs professional."
+      },
+      "passed": true,
+      "failures": []
+    },
+    {
+      "id": "control-textile-cut-none",
+      "kind": "synthetic_control",
+      "source": "psr",
+      "expected": {
+        "outcome": "undetermined"
+      },
+      "actual": {
+        "outcome": "undetermined",
+        "rule": {
+          "code": "6109.10",
+          "listed": true,
+          "concise": "RVC40 or CC and cut and sewn in any AMS or textile process rule",
+          "full": "A regional value content of not less than 40 percent; or A change to subheading 6109.10 from any other chapter and the good is both cut and sewn in the territory of any Member State; or Process Rules for Textile and Textile Products as set out in Attachment 1",
+          "version": "atiga-annex3-psr-hs2022-aftac36"
+        },
+        "rvc": {
+          "threshold": 40,
+          "indirect": 20,
+          "vnm": 80,
+          "vom": 0
+        },
+        "accumulation": false,
+        "partial_cumulation": false,
+        "failing": [],
+        "alternatives": [
+          {
+            "rule": "RVC40",
+            "outcome": "no",
+            "reasons": [
+              "Indirect method: (FOB 100 - non-originating 80) / FOB = 20.0 %.",
+              "At least 40 % needed: not met."
+            ]
+          },
+          {
+            "rule": "CC and cut and sewn in any AMS",
+            "outcome": "undetermined",
+            "reasons": [
+              "Every non-originating material changes chapter.",
+              "Not stated whether the good is both cut and sewn in the territory of any Member State (processes.cut_and_sewn)."
+            ]
+          },
+          {
+            "rule": "textile process rule",
+            "outcome": "no",
+            "reasons": [
+              "You state it is not the case that the working or processing of Attachment 1 (textiles) was carried out in a Member State."
+            ]
+          }
+        ],
+        "reasons": [
+          "1 material of undetermined origin counts as non-originating.",
+          "Annex 3 rule for 6109.10: RVC40 or CC and cut and sewn in any AMS or textile process rule.",
+          "RVC40: Indirect method: (FOB 100 - non-originating 80) / FOB = 20.0 %. At least 40 % needed: not met.",
+          "CC and cut and sewn in any AMS: Every non-originating material changes chapter. Not stated whether the good is both cut and sewn in the territory of any Member State (processes.cut_and_sewn).",
+          "textile process rule: You state it is not the case that the working or processing of Attachment 1 (textiles) was carried out in a Member State."
+        ],
+        "regime": "atiga_preferential",
+        "note": "ATIGA preferential origin from the facts given. Not marking origin, not a ruling, not a Certificate of Origin (Form D). ITA goods (Annex 4), direct consignment, packaging, accessories and neutral elements are not checked. The rules have not been reviewed by a customs professional."
+      },
+      "passed": true,
+      "failures": []
+    },
+    {
+      "id": "control-steel-exclusion-7213.10",
+      "kind": "synthetic_control",
+      "source": "psr",
+      "expected": {
+        "outcome": "no"
+      },
+      "actual": {
+        "outcome": "no",
+        "rule": {
+          "code": "7317.00",
+          "listed": true,
+          "concise": "Of steel: RVC40 or CC except from 7213-7217; Of stainless steel: RVC40 or CC",
+          "full": "Of Steel: A regional value content of not less than 40 percent; or A change to subheading 7317.00 from any other chapter except from headings 72.13 to 72.17; Of Stainless steel: A regional value content of not less than 40 percent; or A change to subheading 7317.00 from any other chapter",
+          "version": "atiga-annex3-psr-hs2022-aftac36",
+          "variants": [
+            {
+              "id": "of_steel",
+              "label": "Of steel",
+              "alternatives": [
+                {
+                  "name": "RVC40",
+                  "requires": [
+                    {
+                      "kind": "rvc",
+                      "threshold": 40
+                    }
+                  ]
+                },
+                {
+                  "name": "CC except from 7213-7217",
+                  "requires": [
+                    {
+                      "kind": "ctc",
+                      "level": "chapter",
+                      "except": [
+                        {
+                          "level": "heading",
+                          "from": "7213",
+                          "to": "7217"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "id": "of_stainless_steel",
+              "label": "Of stainless steel",
+              "alternatives": [
+                {
+                  "name": "RVC40",
+                  "requires": [
+                    {
+                      "kind": "rvc",
+                      "threshold": 40
+                    }
+                  ]
+                },
+                {
+                  "name": "CC",
+                  "requires": [
+                    {
+                      "kind": "ctc",
+                      "level": "chapter"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        "rvc": {
+          "threshold": 40,
+          "indirect": 20,
+          "vnm": 80,
+          "vom": 0
+        },
+        "de_minimis": {
+          "used": false,
+          "value_share": 80
+        },
+        "accumulation": false,
+        "partial_cumulation": false,
+        "failing": [
+          {
+            "index": 0,
+            "name": "Illustrative material",
+            "hs": "7213.10",
+            "reason": "comes from heading 72.13, which the rule excludes"
+          }
+        ],
+        "alternatives": [
+          {
+            "rule": "RVC40",
+            "outcome": "no",
+            "reasons": [
+              "Indirect method: (FOB 100 - non-originating 80) / FOB = 20.0 %.",
+              "At least 40 % needed: not met."
+            ]
+          },
+          {
+            "rule": "CC except from 7213-7217",
+            "outcome": "no",
+            "reasons": [
+              "Illustrative material (7213.10) comes from heading 72.13, which the rule excludes.",
+              "Those materials are 80.0 % of the FOB value, over the 10.0 % de minimis (Art. 33)."
+            ]
+          }
+        ],
+        "reasons": [
+          "1 material of undetermined origin counts as non-originating.",
+          "Annex 3 rule for 7317.00: Of steel: RVC40 or CC except from 7213-7217; Of stainless steel: RVC40 or CC.",
+          "Using the branch for Of steel.",
+          "RVC40: Indirect method: (FOB 100 - non-originating 80) / FOB = 20.0 %. At least 40 % needed: not met.",
+          "CC except from 7213-7217: Illustrative material (7213.10) comes from heading 72.13, which the rule excludes. Those materials are 80.0 % of the FOB value, over the 10.0 % de minimis (Art. 33)."
+        ],
+        "regime": "atiga_preferential",
+        "note": "ATIGA preferential origin from the facts given. Not marking origin, not a ruling, not a Certificate of Origin (Form D). ITA goods (Annex 4), direct consignment, packaging, accessories and neutral elements are not checked. The rules have not been reviewed by a customs professional."
+      },
+      "passed": true,
+      "failures": []
+    },
+    {
+      "id": "control-steel-exclusion-7208.10",
+      "kind": "synthetic_control",
+      "source": "psr",
+      "expected": {
+        "outcome": "yes"
+      },
+      "actual": {
+        "outcome": "yes",
+        "basis": "PSR",
+        "applied": "CC except from 7213-7217",
+        "rule": {
+          "code": "7317.00",
+          "listed": true,
+          "concise": "Of steel: RVC40 or CC except from 7213-7217; Of stainless steel: RVC40 or CC",
+          "full": "Of Steel: A regional value content of not less than 40 percent; or A change to subheading 7317.00 from any other chapter except from headings 72.13 to 72.17; Of Stainless steel: A regional value content of not less than 40 percent; or A change to subheading 7317.00 from any other chapter",
+          "version": "atiga-annex3-psr-hs2022-aftac36",
+          "variants": [
+            {
+              "id": "of_steel",
+              "label": "Of steel",
+              "alternatives": [
+                {
+                  "name": "RVC40",
+                  "requires": [
+                    {
+                      "kind": "rvc",
+                      "threshold": 40
+                    }
+                  ]
+                },
+                {
+                  "name": "CC except from 7213-7217",
+                  "requires": [
+                    {
+                      "kind": "ctc",
+                      "level": "chapter",
+                      "except": [
+                        {
+                          "level": "heading",
+                          "from": "7213",
+                          "to": "7217"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "id": "of_stainless_steel",
+              "label": "Of stainless steel",
+              "alternatives": [
+                {
+                  "name": "RVC40",
+                  "requires": [
+                    {
+                      "kind": "rvc",
+                      "threshold": 40
+                    }
+                  ]
+                },
+                {
+                  "name": "CC",
+                  "requires": [
+                    {
+                      "kind": "ctc",
+                      "level": "chapter"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        "rvc": {
+          "threshold": 40,
+          "indirect": 20,
+          "vnm": 80,
+          "vom": 0
+        },
+        "accumulation": false,
+        "partial_cumulation": false,
+        "failing": [],
+        "alternatives": [
+          {
+            "rule": "RVC40",
+            "outcome": "no",
+            "reasons": [
+              "Indirect method: (FOB 100 - non-originating 80) / FOB = 20.0 %.",
+              "At least 40 % needed: not met."
+            ]
+          },
+          {
+            "rule": "CC except from 7213-7217",
+            "outcome": "yes",
+            "reasons": [
+              "Every non-originating material changes chapter."
+            ]
+          }
+        ],
+        "reasons": [
+          "1 material of undetermined origin counts as non-originating.",
+          "Annex 3 rule for 7317.00: Of steel: RVC40 or CC except from 7213-7217; Of stainless steel: RVC40 or CC.",
+          "Using the branch for Of steel.",
+          "Qualifies under CC except from 7213-7217.",
+          "Every non-originating material changes chapter.",
+          "This assumes the work done is more than the minimal operations of Art. 31."
+        ],
+        "regime": "atiga_preferential",
+        "note": "ATIGA preferential origin from the facts given. Not marking origin, not a ruling, not a Certificate of Origin (Form D). ITA goods (Annex 4), direct consignment, packaging, accessories and neutral elements are not checked. The rules have not been reviewed by a customs professional."
+      },
+      "passed": true,
+      "failures": []
+    }
+  ]
+}

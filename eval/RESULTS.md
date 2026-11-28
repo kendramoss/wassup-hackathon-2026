@@ -1086,3 +1086,16 @@ After the daily budget reset, live MCP initialized anonymously, then returned HT
 - **First scope, D851 (`…-f28-850`).** Lifting fell to 5 of 7 (two bottle jacks moved), so it was not a fix.
 - **D855 confirmation (`…-f28-854`, `families/b3-854-measure.json`, `b3-854-vs-852-measure.json`).** Output cap 4096 and 0 failed checks. Machinery 10 of 11, medical 9 of 10, optical 9 of 9; 45 of 48; look-alikes 29 of 30. The no-regression criterion failed on N356150, the return electrode.
 - $1.0027 in all; one run per revision.
+
+## ATIGA conformance, not real-world accuracy (28 Nov; D963–D964, #979)
+
+Candidate engine/rules from `792f0fe9`, labels frozen in `7991b45a` before scoring. No engine or label changed after the result.
+
+| Group | Passed | Interpretation |
+|---|---:|---|
+| Authority worked examples | 7/7 (100%) | The original MITI 1–5 and Singapore Customs B/F declared outcomes or component-rule checks, not new decisions |
+| Constructed rule checks | 35/35 (100%) | Synthetic threshold, tariff-change, cumulation, minimal-operation, textile-process and missing-fact controls |
+
+Separate denominators; no pooled accuracy or population interval. These are not blind or independent customs-decision tests. The bounded search verified no additional eligible ATIGA outcome data. The original Singapore B numerical discrepancy (printed 36%, calculated 36.67%) remains in D927's original test; the new report checks that RVC40 fails, not the printed numeral.
+
+All expected checks and per-case results: `atiga/evaluation-cases.json`, `atiga/evaluation-results.json`. Reproduce with `cd backend && go run ./cmd/atigaeval`; the Go test pins the resulting bytes and original authority inputs. Deterministic reproductions do not add trials. $0 model spend, no model calls. [Method and sources](atiga/README.md).
