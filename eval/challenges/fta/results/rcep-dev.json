@@ -1,0 +1,2390 @@
+{
+  "schema_version": 1,
+  "evidence_kind": "source_grounded_synthetic",
+  "feature": "rcep",
+  "split": "dev",
+  "dataset_sha256": "befeb45195eed94af9c6413f726d475d39ed371f91df37e0b1266aa6e346c56f",
+  "candidate_revision": "b1d8f3bf94ab85ebb7f0fd3d0f22aae03ae5a93b",
+  "totals": {
+    "cases": 83,
+    "matched": 83,
+    "mismatched": 0,
+    "errors": 0
+  },
+  "metrics": {
+    "expected_outcomes": {
+      "no": 29,
+      "refused": 4,
+      "undetermined": 10,
+      "yes": 40
+    },
+    "confusion": {
+      "no": {
+        "no": 29
+      },
+      "refused": {
+        "refused": 4
+      },
+      "undetermined": {
+        "undetermined": 10
+      },
+      "yes": {
+        "yes": 40
+      }
+    },
+    "abstention": {
+      "expected": 10,
+      "correct": 10,
+      "decided_instead": 0,
+      "abstained_when_a_decision_was_expected": 0
+    },
+    "yes_precision": {
+      "num": 40,
+      "den": 40
+    },
+    "yes_recall": {
+      "num": 40,
+      "den": 40
+    },
+    "decided_only_agreement": {
+      "num": 69,
+      "den": 69
+    },
+    "refusals_expected": 4,
+    "formatting_only_cases": 1,
+    "by_scenario_family": {
+      "all-originating": {
+        "cases": 2,
+        "matched": 2,
+        "mismatched": 0,
+        "errors": 0
+      },
+      "authority-variants": {
+        "cases": 8,
+        "matched": 8,
+        "mismatched": 0,
+        "errors": 0
+      },
+      "country-name-alias": {
+        "cases": 1,
+        "matched": 1,
+        "mismatched": 0,
+        "errors": 0
+      },
+      "cumulation-membership": {
+        "cases": 10,
+        "matched": 10,
+        "mismatched": 0,
+        "errors": 0
+      },
+      "de-minimis-incomplete": {
+        "cases": 2,
+        "matched": 2,
+        "mismatched": 0,
+        "errors": 0
+      },
+      "de-minimis-value": {
+        "cases": 6,
+        "matched": 6,
+        "mismatched": 0,
+        "errors": 0
+      },
+      "direct-build-up": {
+        "cases": 3,
+        "matched": 3,
+        "mismatched": 0,
+        "errors": 0
+      },
+      "except-from": {
+        "cases": 3,
+        "matched": 3,
+        "mismatched": 0,
+        "errors": 0
+      },
+      "heading-only-code": {
+        "cases": 2,
+        "matched": 2,
+        "mismatched": 0,
+        "errors": 0
+      },
+      "incomplete-hs": {
+        "cases": 2,
+        "matched": 2,
+        "mismatched": 0,
+        "errors": 0
+      },
+      "malformed-input": {
+        "cases": 4,
+        "matched": 4,
+        "mismatched": 0,
+        "errors": 0
+      },
+      "minimal-operations": {
+        "cases": 6,
+        "matched": 6,
+        "mismatched": 0,
+        "errors": 0
+      },
+      "missing-facts": {
+        "cases": 6,
+        "matched": 6,
+        "mismatched": 0,
+        "errors": 0
+      },
+      "no-materials": {
+        "cases": 1,
+        "matched": 1,
+        "mismatched": 0,
+        "errors": 0
+      },
+      "production-country-missing": {
+        "cases": 1,
+        "matched": 1,
+        "mismatched": 0,
+        "errors": 0
+      },
+      "production-outside-agreement": {
+        "cases": 2,
+        "matched": 2,
+        "mismatched": 0,
+        "errors": 0
+      },
+      "rvc-boundary": {
+        "cases": 8,
+        "matched": 8,
+        "mismatched": 0,
+        "errors": 0
+      },
+      "tariff-shift-grid": {
+        "cases": 12,
+        "matched": 12,
+        "mismatched": 0,
+        "errors": 0
+      },
+      "wo-not-met": {
+        "cases": 2,
+        "matched": 2,
+        "mismatched": 0,
+        "errors": 0
+      },
+      "wo-statement": {
+        "cases": 2,
+        "matched": 2,
+        "mismatched": 0,
+        "errors": 0
+      }
+    },
+    "scenario_families": 20,
+    "source_families": 22,
+    "parent_groups": 3,
+    "cases_with_parent": 8
+  },
+  "results": [
+    {
+      "id": "rcep-dev-wo-statement-01",
+      "split": "dev",
+      "feature": "rcep",
+      "scenario_family": "wo-statement",
+      "source_family_id": "wo-statement",
+      "status": "matched",
+      "expected_abstention": false,
+      "expected": {
+        "outcome": "yes",
+        "applied": "WO"
+      },
+      "actual": {
+        "outcome": "yes",
+        "applied": "WO",
+        "accumulation": false,
+        "de_minimis_used": false
+      },
+      "failures": []
+    },
+    {
+      "id": "rcep-dev-wo-statement-02",
+      "split": "dev",
+      "feature": "rcep",
+      "scenario_family": "wo-statement",
+      "source_family_id": "wo-statement",
+      "status": "matched",
+      "expected_abstention": false,
+      "expected": {
+        "outcome": "yes",
+        "applied": "WO"
+      },
+      "actual": {
+        "outcome": "yes",
+        "applied": "WO",
+        "accumulation": false,
+        "de_minimis_used": false
+      },
+      "failures": []
+    },
+    {
+      "id": "rcep-dev-wo-not-met-01",
+      "split": "dev",
+      "feature": "rcep",
+      "scenario_family": "wo-not-met",
+      "source_family_id": "wo-not-met",
+      "status": "matched",
+      "expected_abstention": false,
+      "expected": {
+        "outcome": "no",
+        "alternative": {
+          "WO": "no"
+        },
+        "accumulation": false
+      },
+      "actual": {
+        "outcome": "no",
+        "alternative": {
+          "WO": "no"
+        },
+        "accumulation": false,
+        "de_minimis_used": false
+      },
+      "failures": []
+    },
+    {
+      "id": "rcep-dev-wo-not-met-02",
+      "split": "dev",
+      "feature": "rcep",
+      "scenario_family": "wo-not-met",
+      "source_family_id": "wo-not-met",
+      "status": "matched",
+      "expected_abstention": false,
+      "expected": {
+        "outcome": "no",
+        "alternative": {
+          "WO": "no"
+        },
+        "accumulation": false
+      },
+      "actual": {
+        "outcome": "no",
+        "alternative": {
+          "WO": "no"
+        },
+        "accumulation": false,
+        "de_minimis_used": false
+      },
+      "failures": []
+    },
+    {
+      "id": "rcep-dev-all-originating-01",
+      "split": "dev",
+      "feature": "rcep",
+      "scenario_family": "all-originating",
+      "source_family_id": "all-originating",
+      "status": "matched",
+      "expected_abstention": false,
+      "expected": {
+        "outcome": "yes",
+        "applied": "PE",
+        "accumulation": true
+      },
+      "actual": {
+        "outcome": "yes",
+        "applied": "PE",
+        "accumulation": true,
+        "de_minimis_used": false
+      },
+      "failures": []
+    },
+    {
+      "id": "rcep-dev-all-originating-02",
+      "split": "dev",
+      "feature": "rcep",
+      "scenario_family": "all-originating",
+      "source_family_id": "all-originating",
+      "status": "matched",
+      "expected_abstention": false,
+      "expected": {
+        "outcome": "yes",
+        "applied": "PE",
+        "accumulation": true
+      },
+      "actual": {
+        "outcome": "yes",
+        "applied": "PE",
+        "accumulation": true,
+        "de_minimis_used": false
+      },
+      "failures": []
+    },
+    {
+      "id": "rcep-dev-no-materials-01",
+      "split": "dev",
+      "feature": "rcep",
+      "scenario_family": "no-materials",
+      "source_family_id": "no-materials",
+      "status": "matched",
+      "expected_abstention": true,
+      "expected": {
+        "outcome": "undetermined",
+        "accumulation": false
+      },
+      "actual": {
+        "outcome": "undetermined",
+        "accumulation": false,
+        "de_minimis_used": false
+      },
+      "failures": []
+    },
+    {
+      "id": "rcep-dev-production-outside-agreement-01",
+      "split": "dev",
+      "feature": "rcep",
+      "scenario_family": "production-outside-agreement",
+      "source_family_id": "production-outside-agreement",
+      "status": "matched",
+      "expected_abstention": false,
+      "expected": {
+        "outcome": "no"
+      },
+      "actual": {
+        "outcome": "no",
+        "accumulation": false,
+        "de_minimis_used": false
+      },
+      "failures": []
+    },
+    {
+      "id": "rcep-dev-production-outside-agreement-02",
+      "split": "dev",
+      "feature": "rcep",
+      "scenario_family": "production-outside-agreement",
+      "source_family_id": "production-outside-agreement",
+      "status": "matched",
+      "expected_abstention": false,
+      "expected": {
+        "outcome": "no"
+      },
+      "actual": {
+        "outcome": "no",
+        "accumulation": false,
+        "de_minimis_used": false
+      },
+      "failures": []
+    },
+    {
+      "id": "rcep-dev-production-country-missing-01",
+      "split": "dev",
+      "feature": "rcep",
+      "scenario_family": "production-country-missing",
+      "source_family_id": "production-country-missing",
+      "status": "matched",
+      "expected_abstention": true,
+      "expected": {
+        "outcome": "undetermined"
+      },
+      "actual": {
+        "outcome": "undetermined",
+        "accumulation": false,
+        "de_minimis_used": false
+      },
+      "failures": []
+    },
+    {
+      "id": "rcep-dev-country-name-alias-01",
+      "split": "dev",
+      "feature": "rcep",
+      "scenario_family": "country-name-alias",
+      "source_family_id": "country-name-alias",
+      "status": "matched",
+      "expected_abstention": false,
+      "expected": {
+        "outcome": "yes",
+        "applied": "CC"
+      },
+      "actual": {
+        "outcome": "yes",
+        "applied": "CC",
+        "alternative": {
+          "CC": "yes"
+        },
+        "accumulation": false,
+        "de_minimis_used": false
+      },
+      "failures": []
+    },
+    {
+      "id": "rcep-dev-rvc-boundary-01",
+      "split": "dev",
+      "feature": "rcep",
+      "scenario_family": "rvc-boundary",
+      "source_family_id": "rvc-boundary",
+      "status": "matched",
+      "expected_abstention": false,
+      "expected": {
+        "outcome": "yes",
+        "applied": "RVC40",
+        "alternative": {
+          "CTSH": "no",
+          "RVC40": "yes"
+        },
+        "accumulation": true,
+        "rvc_down_min": 42.95,
+        "rvc_down_max": 43.05
+      },
+      "actual": {
+        "outcome": "yes",
+        "applied": "RVC40",
+        "alternative": {
+          "CTSH": "no",
+          "RVC40": "yes"
+        },
+        "accumulation": true,
+        "de_minimis_used": false,
+        "rvc_down": 43
+      },
+      "failures": []
+    },
+    {
+      "id": "rcep-dev-rvc-boundary-02",
+      "split": "dev",
+      "feature": "rcep",
+      "scenario_family": "rvc-boundary",
+      "source_family_id": "rvc-boundary",
+      "status": "matched",
+      "expected_abstention": false,
+      "expected": {
+        "outcome": "yes",
+        "applied": "RVC40",
+        "alternative": {
+          "CTH": "no",
+          "RVC40": "yes"
+        },
+        "accumulation": true,
+        "rvc_down_min": 39.95,
+        "rvc_down_max": 40.05
+      },
+      "actual": {
+        "outcome": "yes",
+        "applied": "RVC40",
+        "alternative": {
+          "CTH": "no",
+          "RVC40": "yes"
+        },
+        "accumulation": true,
+        "de_minimis_used": false,
+        "rvc_down": 40
+      },
+      "failures": []
+    },
+    {
+      "id": "rcep-dev-rvc-boundary-03",
+      "split": "dev",
+      "feature": "rcep",
+      "scenario_family": "rvc-boundary",
+      "source_family_id": "rvc-boundary",
+      "status": "matched",
+      "expected_abstention": false,
+      "expected": {
+        "outcome": "no",
+        "alternative": {
+          "CTH": "no",
+          "RVC40": "no"
+        },
+        "accumulation": true,
+        "rvc_down_min": 39.45,
+        "rvc_down_max": 39.55,
+        "rvc_up_min": 23.95,
+        "rvc_up_max": 24.05
+      },
+      "actual": {
+        "outcome": "no",
+        "alternative": {
+          "CTH": "no",
+          "RVC40": "no"
+        },
+        "accumulation": true,
+        "de_minimis_used": false,
+        "rvc_down": 39.5,
+        "rvc_up": 24
+      },
+      "failures": []
+    },
+    {
+      "id": "rcep-dev-rvc-boundary-04",
+      "split": "dev",
+      "feature": "rcep",
+      "scenario_family": "rvc-boundary",
+      "source_family_id": "rvc-boundary",
+      "status": "matched",
+      "expected_abstention": false,
+      "expected": {
+        "outcome": "no",
+        "alternative": {
+          "CTH": "no",
+          "RVC40": "no"
+        },
+        "accumulation": true,
+        "rvc_down_min": 21.95,
+        "rvc_down_max": 22.05
+      },
+      "actual": {
+        "outcome": "no",
+        "alternative": {
+          "CTH": "no",
+          "RVC40": "no"
+        },
+        "accumulation": true,
+        "de_minimis_used": false,
+        "rvc_down": 22
+      },
+      "failures": []
+    },
+    {
+      "id": "rcep-dev-rvc-boundary-05",
+      "split": "dev",
+      "feature": "rcep",
+      "scenario_family": "rvc-boundary",
+      "source_family_id": "rvc-boundary",
+      "status": "matched",
+      "expected_abstention": false,
+      "expected": {
+        "outcome": "yes",
+        "applied": "RVC40",
+        "alternative": {
+          "CTSH": "no",
+          "RVC40": "yes"
+        },
+        "accumulation": false,
+        "rvc_down_min": 42.95,
+        "rvc_down_max": 43.05
+      },
+      "actual": {
+        "outcome": "yes",
+        "applied": "RVC40",
+        "alternative": {
+          "CTSH": "no",
+          "RVC40": "yes"
+        },
+        "accumulation": false,
+        "de_minimis_used": false,
+        "rvc_down": 43
+      },
+      "failures": []
+    },
+    {
+      "id": "rcep-dev-rvc-boundary-06",
+      "split": "dev",
+      "feature": "rcep",
+      "scenario_family": "rvc-boundary",
+      "source_family_id": "rvc-boundary",
+      "status": "matched",
+      "expected_abstention": false,
+      "expected": {
+        "outcome": "no",
+        "alternative": {
+          "CTSH": "no",
+          "RVC40": "no"
+        },
+        "accumulation": true,
+        "rvc_down_min": 39.45,
+        "rvc_down_max": 39.55,
+        "rvc_up_min": 23.95,
+        "rvc_up_max": 24.05
+      },
+      "actual": {
+        "outcome": "no",
+        "alternative": {
+          "CTSH": "no",
+          "RVC40": "no"
+        },
+        "accumulation": true,
+        "de_minimis_used": false,
+        "rvc_down": 39.5,
+        "rvc_up": 24
+      },
+      "failures": []
+    },
+    {
+      "id": "rcep-dev-rvc-boundary-07",
+      "split": "dev",
+      "feature": "rcep",
+      "scenario_family": "rvc-boundary",
+      "source_family_id": "rvc-boundary",
+      "status": "matched",
+      "expected_abstention": false,
+      "expected": {
+        "outcome": "yes",
+        "applied": "RVC40",
+        "alternative": {
+          "CTH": "no",
+          "RVC40": "yes"
+        },
+        "accumulation": true,
+        "rvc_down_min": 42.95,
+        "rvc_down_max": 43.05
+      },
+      "actual": {
+        "outcome": "yes",
+        "applied": "RVC40",
+        "alternative": {
+          "CTH": "no",
+          "RVC40": "yes"
+        },
+        "accumulation": true,
+        "de_minimis_used": false,
+        "rvc_down": 43
+      },
+      "failures": []
+    },
+    {
+      "id": "rcep-dev-rvc-boundary-08",
+      "split": "dev",
+      "feature": "rcep",
+      "scenario_family": "rvc-boundary",
+      "source_family_id": "rvc-boundary",
+      "status": "matched",
+      "expected_abstention": false,
+      "expected": {
+        "outcome": "yes",
+        "applied": "RVC40",
+        "alternative": {
+          "CTH": "no",
+          "RVC40": "yes"
+        },
+        "accumulation": true,
+        "rvc_down_min": 39.95,
+        "rvc_down_max": 40.05
+      },
+      "actual": {
+        "outcome": "yes",
+        "applied": "RVC40",
+        "alternative": {
+          "CTH": "no",
+          "RVC40": "yes"
+        },
+        "accumulation": true,
+        "de_minimis_used": false,
+        "rvc_down": 40
+      },
+      "failures": []
+    },
+    {
+      "id": "rcep-dev-tariff-shift-grid-01",
+      "split": "dev",
+      "feature": "rcep",
+      "scenario_family": "tariff-shift-grid",
+      "source_family_id": "tariff-shift-grid",
+      "status": "matched",
+      "expected_abstention": false,
+      "expected": {
+        "outcome": "yes",
+        "applied": "CTH",
+        "alternative": {
+          "CTH": "yes",
+          "RVC40": "no"
+        },
+        "accumulation": true
+      },
+      "actual": {
+        "outcome": "yes",
+        "applied": "CTH",
+        "alternative": {
+          "CTH": "yes",
+          "RVC40": "no"
+        },
+        "accumulation": true,
+        "de_minimis_used": false,
+        "rvc_down": 30
+      },
+      "failures": []
+    },
+    {
+      "id": "rcep-dev-tariff-shift-grid-02",
+      "split": "dev",
+      "feature": "rcep",
+      "scenario_family": "tariff-shift-grid",
+      "source_family_id": "tariff-shift-grid",
+      "status": "matched",
+      "expected_abstention": false,
+      "expected": {
+        "outcome": "no",
+        "alternative": {
+          "CC": "no"
+        },
+        "accumulation": true
+      },
+      "actual": {
+        "outcome": "no",
+        "alternative": {
+          "CC": "no"
+        },
+        "accumulation": true,
+        "de_minimis_used": false
+      },
+      "failures": []
+    },
+    {
+      "id": "rcep-dev-tariff-shift-grid-03",
+      "split": "dev",
+      "feature": "rcep",
+      "scenario_family": "tariff-shift-grid",
+      "source_family_id": "tariff-shift-grid",
+      "status": "matched",
+      "expected_abstention": false,
+      "expected": {
+        "outcome": "no",
+        "alternative": {
+          "CC": "no"
+        },
+        "accumulation": true
+      },
+      "actual": {
+        "outcome": "no",
+        "alternative": {
+          "CC": "no"
+        },
+        "accumulation": true,
+        "de_minimis_used": false
+      },
+      "failures": []
+    },
+    {
+      "id": "rcep-dev-tariff-shift-grid-04",
+      "split": "dev",
+      "feature": "rcep",
+      "scenario_family": "tariff-shift-grid",
+      "source_family_id": "tariff-shift-grid",
+      "status": "matched",
+      "expected_abstention": false,
+      "expected": {
+        "outcome": "no",
+        "alternative": {
+          "CC": "no",
+          "RVC40": "no"
+        },
+        "accumulation": false
+      },
+      "actual": {
+        "outcome": "no",
+        "alternative": {
+          "CC": "no",
+          "RVC40": "no"
+        },
+        "accumulation": false,
+        "de_minimis_used": false,
+        "rvc_down": 25
+      },
+      "failures": []
+    },
+    {
+      "id": "rcep-dev-tariff-shift-grid-05",
+      "split": "dev",
+      "feature": "rcep",
+      "scenario_family": "tariff-shift-grid",
+      "source_family_id": "tariff-shift-grid",
+      "status": "matched",
+      "expected_abstention": false,
+      "expected": {
+        "outcome": "yes",
+        "applied": "CTH",
+        "alternative": {
+          "CTH": "yes",
+          "RVC40": "no"
+        },
+        "accumulation": true
+      },
+      "actual": {
+        "outcome": "yes",
+        "applied": "CTH",
+        "alternative": {
+          "CTH": "yes",
+          "RVC40": "no"
+        },
+        "accumulation": true,
+        "de_minimis_used": false,
+        "rvc_down": 30
+      },
+      "failures": []
+    },
+    {
+      "id": "rcep-dev-tariff-shift-grid-06",
+      "split": "dev",
+      "feature": "rcep",
+      "scenario_family": "tariff-shift-grid",
+      "source_family_id": "tariff-shift-grid",
+      "status": "matched",
+      "expected_abstention": false,
+      "expected": {
+        "outcome": "yes",
+        "applied": "CTH",
+        "alternative": {
+          "CTH": "yes",
+          "RVC40": "no"
+        },
+        "accumulation": true
+      },
+      "actual": {
+        "outcome": "yes",
+        "applied": "CTH",
+        "alternative": {
+          "CTH": "yes",
+          "RVC40": "no"
+        },
+        "accumulation": true,
+        "de_minimis_used": false,
+        "rvc_down": 25
+      },
+      "failures": []
+    },
+    {
+      "id": "rcep-dev-tariff-shift-grid-07",
+      "split": "dev",
+      "feature": "rcep",
+      "scenario_family": "tariff-shift-grid",
+      "source_family_id": "tariff-shift-grid",
+      "status": "matched",
+      "expected_abstention": false,
+      "expected": {
+        "outcome": "no",
+        "alternative": {
+          "CC": "no"
+        },
+        "accumulation": true
+      },
+      "actual": {
+        "outcome": "no",
+        "alternative": {
+          "CC": "no"
+        },
+        "accumulation": true,
+        "de_minimis_used": false
+      },
+      "failures": []
+    },
+    {
+      "id": "rcep-dev-tariff-shift-grid-08",
+      "split": "dev",
+      "feature": "rcep",
+      "scenario_family": "tariff-shift-grid",
+      "source_family_id": "tariff-shift-grid",
+      "status": "matched",
+      "expected_abstention": false,
+      "expected": {
+        "outcome": "no",
+        "alternative": {
+          "CTH": "no",
+          "RVC40": "no"
+        },
+        "accumulation": true
+      },
+      "actual": {
+        "outcome": "no",
+        "alternative": {
+          "CTH": "no",
+          "RVC40": "no"
+        },
+        "accumulation": true,
+        "de_minimis_used": false,
+        "rvc_down": 25
+      },
+      "failures": []
+    },
+    {
+      "id": "rcep-dev-tariff-shift-grid-09",
+      "split": "dev",
+      "feature": "rcep",
+      "scenario_family": "tariff-shift-grid",
+      "source_family_id": "tariff-shift-grid",
+      "status": "matched",
+      "expected_abstention": false,
+      "expected": {
+        "outcome": "yes",
+        "applied": "CTH",
+        "alternative": {
+          "CTH": "yes"
+        },
+        "accumulation": true
+      },
+      "actual": {
+        "outcome": "yes",
+        "applied": "CTH",
+        "alternative": {
+          "CTH": "yes"
+        },
+        "accumulation": true,
+        "de_minimis_used": false
+      },
+      "failures": []
+    },
+    {
+      "id": "rcep-dev-tariff-shift-grid-10",
+      "split": "dev",
+      "feature": "rcep",
+      "scenario_family": "tariff-shift-grid",
+      "source_family_id": "tariff-shift-grid",
+      "status": "matched",
+      "expected_abstention": false,
+      "expected": {
+        "outcome": "yes",
+        "applied": "CTH",
+        "alternative": {
+          "CTH": "yes",
+          "RVC40": "no"
+        },
+        "accumulation": true
+      },
+      "actual": {
+        "outcome": "yes",
+        "applied": "CTH",
+        "alternative": {
+          "CTH": "yes",
+          "RVC40": "no"
+        },
+        "accumulation": true,
+        "de_minimis_used": false,
+        "rvc_down": 25
+      },
+      "failures": []
+    },
+    {
+      "id": "rcep-dev-tariff-shift-grid-11",
+      "split": "dev",
+      "feature": "rcep",
+      "scenario_family": "tariff-shift-grid",
+      "source_family_id": "tariff-shift-grid",
+      "status": "matched",
+      "expected_abstention": false,
+      "expected": {
+        "outcome": "no",
+        "alternative": {
+          "CTH": "no",
+          "RVC40": "no"
+        },
+        "accumulation": true
+      },
+      "actual": {
+        "outcome": "no",
+        "alternative": {
+          "CTH": "no",
+          "RVC40": "no"
+        },
+        "accumulation": true,
+        "de_minimis_used": false,
+        "rvc_down": 30
+      },
+      "failures": []
+    },
+    {
+      "id": "rcep-dev-tariff-shift-grid-12",
+      "split": "dev",
+      "feature": "rcep",
+      "scenario_family": "tariff-shift-grid",
+      "source_family_id": "tariff-shift-grid",
+      "status": "matched",
+      "expected_abstention": false,
+      "expected": {
+        "outcome": "no",
+        "alternative": {
+          "CTSH": "no",
+          "RVC40": "no"
+        },
+        "accumulation": true
+      },
+      "actual": {
+        "outcome": "no",
+        "alternative": {
+          "CTSH": "no",
+          "RVC40": "no"
+        },
+        "accumulation": true,
+        "de_minimis_used": false,
+        "rvc_down": 25
+      },
+      "failures": []
+    },
+    {
+      "id": "rcep-dev-incomplete-hs-01",
+      "split": "dev",
+      "feature": "rcep",
+      "scenario_family": "incomplete-hs",
+      "source_family_id": "incomplete-hs",
+      "status": "matched",
+      "expected_abstention": true,
+      "expected": {
+        "outcome": "undetermined",
+        "accumulation": false
+      },
+      "actual": {
+        "outcome": "undetermined",
+        "alternative": {
+          "CTH": "undetermined",
+          "RVC40": "undetermined"
+        },
+        "accumulation": false,
+        "de_minimis_used": false
+      },
+      "failures": []
+    },
+    {
+      "id": "rcep-dev-incomplete-hs-02",
+      "split": "dev",
+      "feature": "rcep",
+      "scenario_family": "incomplete-hs",
+      "source_family_id": "incomplete-hs",
+      "status": "matched",
+      "expected_abstention": true,
+      "expected": {
+        "outcome": "undetermined",
+        "accumulation": false
+      },
+      "actual": {
+        "outcome": "undetermined",
+        "alternative": {
+          "CTH": "undetermined",
+          "RVC40": "undetermined"
+        },
+        "accumulation": false,
+        "de_minimis_used": false
+      },
+      "failures": []
+    },
+    {
+      "id": "rcep-dev-de-minimis-value-01",
+      "split": "dev",
+      "feature": "rcep",
+      "scenario_family": "de-minimis-value",
+      "source_family_id": "de-minimis-value",
+      "status": "matched",
+      "expected_abstention": false,
+      "expected": {
+        "outcome": "yes",
+        "applied": "CTH",
+        "alternative": {
+          "CTH": "yes",
+          "RVC40": "no"
+        },
+        "de_minimis_used": true
+      },
+      "actual": {
+        "outcome": "yes",
+        "applied": "CTH",
+        "alternative": {
+          "CTH": "yes",
+          "RVC40": "no"
+        },
+        "accumulation": false,
+        "de_minimis_used": true,
+        "rvc_down": 25
+      },
+      "failures": []
+    },
+    {
+      "id": "rcep-dev-de-minimis-value-02",
+      "split": "dev",
+      "feature": "rcep",
+      "scenario_family": "de-minimis-value",
+      "source_family_id": "de-minimis-value",
+      "status": "matched",
+      "expected_abstention": false,
+      "expected": {
+        "outcome": "yes",
+        "applied": "CTSH",
+        "alternative": {
+          "CTSH": "yes",
+          "RVC40": "no"
+        },
+        "de_minimis_used": true
+      },
+      "actual": {
+        "outcome": "yes",
+        "applied": "CTSH",
+        "alternative": {
+          "CTSH": "yes",
+          "RVC40": "no"
+        },
+        "accumulation": false,
+        "de_minimis_used": true,
+        "rvc_down": 20.099999999999994
+      },
+      "failures": []
+    },
+    {
+      "id": "rcep-dev-de-minimis-value-03",
+      "split": "dev",
+      "feature": "rcep",
+      "scenario_family": "de-minimis-value",
+      "source_family_id": "de-minimis-value",
+      "status": "matched",
+      "expected_abstention": false,
+      "expected": {
+        "outcome": "yes",
+        "applied": "CTSH",
+        "alternative": {
+          "CTSH": "yes",
+          "RVC40": "no"
+        },
+        "de_minimis_used": true
+      },
+      "actual": {
+        "outcome": "yes",
+        "applied": "CTSH",
+        "alternative": {
+          "CTSH": "yes",
+          "RVC40": "no"
+        },
+        "accumulation": false,
+        "de_minimis_used": true,
+        "rvc_down": 20
+      },
+      "failures": []
+    },
+    {
+      "id": "rcep-dev-de-minimis-value-04",
+      "split": "dev",
+      "feature": "rcep",
+      "scenario_family": "de-minimis-value",
+      "source_family_id": "de-minimis-value",
+      "status": "matched",
+      "expected_abstention": false,
+      "expected": {
+        "outcome": "no",
+        "alternative": {
+          "CC": "no"
+        }
+      },
+      "actual": {
+        "outcome": "no",
+        "alternative": {
+          "CC": "no"
+        },
+        "accumulation": false,
+        "de_minimis_used": false
+      },
+      "failures": []
+    },
+    {
+      "id": "rcep-dev-de-minimis-value-05",
+      "split": "dev",
+      "feature": "rcep",
+      "scenario_family": "de-minimis-value",
+      "source_family_id": "de-minimis-value",
+      "status": "matched",
+      "expected_abstention": false,
+      "expected": {
+        "outcome": "no",
+        "alternative": {
+          "CTH": "no",
+          "RVC40": "no"
+        }
+      },
+      "actual": {
+        "outcome": "no",
+        "alternative": {
+          "CTH": "no",
+          "RVC40": "no"
+        },
+        "accumulation": false,
+        "de_minimis_used": false,
+        "rvc_down": 15
+      },
+      "failures": []
+    },
+    {
+      "id": "rcep-dev-de-minimis-value-06",
+      "split": "dev",
+      "feature": "rcep",
+      "scenario_family": "de-minimis-value",
+      "source_family_id": "de-minimis-value",
+      "status": "matched",
+      "expected_abstention": false,
+      "expected": {
+        "outcome": "yes",
+        "applied": "CTH",
+        "alternative": {
+          "CTH": "yes",
+          "RVC40": "no"
+        },
+        "de_minimis_used": true
+      },
+      "actual": {
+        "outcome": "yes",
+        "applied": "CTH",
+        "alternative": {
+          "CTH": "yes",
+          "RVC40": "no"
+        },
+        "accumulation": false,
+        "de_minimis_used": true,
+        "rvc_down": 22
+      },
+      "failures": []
+    },
+    {
+      "id": "rcep-dev-de-minimis-incomplete-01",
+      "split": "dev",
+      "feature": "rcep",
+      "scenario_family": "de-minimis-incomplete",
+      "source_family_id": "de-minimis-incomplete",
+      "status": "matched",
+      "expected_abstention": true,
+      "expected": {
+        "outcome": "undetermined"
+      },
+      "actual": {
+        "outcome": "undetermined",
+        "alternative": {
+          "CC": "undetermined"
+        },
+        "accumulation": false,
+        "de_minimis_used": false
+      },
+      "failures": []
+    },
+    {
+      "id": "rcep-dev-de-minimis-incomplete-02",
+      "split": "dev",
+      "feature": "rcep",
+      "scenario_family": "de-minimis-incomplete",
+      "source_family_id": "de-minimis-incomplete",
+      "status": "matched",
+      "expected_abstention": true,
+      "expected": {
+        "outcome": "undetermined"
+      },
+      "actual": {
+        "outcome": "undetermined",
+        "alternative": {
+          "CTH": "undetermined",
+          "RVC40": "undetermined"
+        },
+        "accumulation": false,
+        "de_minimis_used": false
+      },
+      "failures": []
+    },
+    {
+      "id": "rcep-dev-cumulation-membership-01",
+      "split": "dev",
+      "feature": "rcep",
+      "scenario_family": "cumulation-membership",
+      "source_family_id": "cumulation-membership",
+      "status": "matched",
+      "expected_abstention": false,
+      "expected": {
+        "outcome": "yes",
+        "alternative": {
+          "CTSH": "yes",
+          "RVC40": "yes"
+        },
+        "accumulation": true
+      },
+      "actual": {
+        "outcome": "yes",
+        "applied": "CTSH",
+        "alternative": {
+          "CTSH": "yes",
+          "RVC40": "yes"
+        },
+        "accumulation": true,
+        "de_minimis_used": false,
+        "rvc_down": 85
+      },
+      "failures": []
+    },
+    {
+      "id": "rcep-dev-cumulation-membership-02",
+      "split": "dev",
+      "feature": "rcep",
+      "scenario_family": "cumulation-membership",
+      "source_family_id": "cumulation-membership",
+      "status": "matched",
+      "expected_abstention": false,
+      "expected": {
+        "outcome": "no",
+        "alternative": {
+          "CTSH": "no",
+          "RVC40": "no"
+        },
+        "accumulation": false
+      },
+      "actual": {
+        "outcome": "no",
+        "alternative": {
+          "CTSH": "no",
+          "RVC40": "no"
+        },
+        "accumulation": false,
+        "de_minimis_used": false,
+        "rvc_down": 35
+      },
+      "failures": []
+    },
+    {
+      "id": "rcep-dev-cumulation-membership-03",
+      "split": "dev",
+      "feature": "rcep",
+      "scenario_family": "cumulation-membership",
+      "source_family_id": "cumulation-membership",
+      "status": "matched",
+      "expected_abstention": false,
+      "expected": {
+        "outcome": "no",
+        "alternative": {
+          "CTH": "no",
+          "RVC40": "no"
+        },
+        "accumulation": false
+      },
+      "actual": {
+        "outcome": "no",
+        "alternative": {
+          "CTH": "no",
+          "RVC40": "no"
+        },
+        "accumulation": false,
+        "de_minimis_used": false,
+        "rvc_down": 35
+      },
+      "failures": []
+    },
+    {
+      "id": "rcep-dev-cumulation-membership-04",
+      "split": "dev",
+      "feature": "rcep",
+      "scenario_family": "cumulation-membership",
+      "source_family_id": "cumulation-membership",
+      "status": "matched",
+      "expected_abstention": false,
+      "expected": {
+        "outcome": "yes",
+        "applied": "RVC40",
+        "alternative": {
+          "CTH": "no",
+          "RVC40": "yes"
+        },
+        "accumulation": true
+      },
+      "actual": {
+        "outcome": "yes",
+        "applied": "RVC40",
+        "alternative": {
+          "CTH": "no",
+          "RVC40": "yes"
+        },
+        "accumulation": true,
+        "de_minimis_used": false,
+        "rvc_down": 80
+      },
+      "failures": []
+    },
+    {
+      "id": "rcep-dev-cumulation-membership-05",
+      "split": "dev",
+      "feature": "rcep",
+      "scenario_family": "cumulation-membership",
+      "source_family_id": "cumulation-membership",
+      "status": "matched",
+      "expected_abstention": false,
+      "expected": {
+        "outcome": "no",
+        "alternative": {
+          "CC": "no"
+        },
+        "accumulation": false
+      },
+      "actual": {
+        "outcome": "no",
+        "alternative": {
+          "CC": "no"
+        },
+        "accumulation": false,
+        "de_minimis_used": false
+      },
+      "failures": []
+    },
+    {
+      "id": "rcep-dev-cumulation-membership-06",
+      "split": "dev",
+      "feature": "rcep",
+      "scenario_family": "cumulation-membership",
+      "source_family_id": "cumulation-membership",
+      "status": "matched",
+      "expected_abstention": false,
+      "expected": {
+        "outcome": "yes",
+        "alternative": {
+          "CTH": "yes",
+          "RVC40": "yes"
+        },
+        "accumulation": true
+      },
+      "actual": {
+        "outcome": "yes",
+        "applied": "CTH",
+        "alternative": {
+          "CTH": "yes",
+          "RVC40": "yes"
+        },
+        "accumulation": true,
+        "de_minimis_used": false,
+        "rvc_down": 80
+      },
+      "failures": []
+    },
+    {
+      "id": "rcep-dev-cumulation-membership-07",
+      "split": "dev",
+      "feature": "rcep",
+      "scenario_family": "cumulation-membership",
+      "source_family_id": "cumulation-membership",
+      "status": "matched",
+      "expected_abstention": false,
+      "expected": {
+        "outcome": "yes",
+        "alternative": {
+          "CC": "yes",
+          "RVC40": "yes"
+        },
+        "accumulation": true
+      },
+      "actual": {
+        "outcome": "yes",
+        "applied": "CC",
+        "alternative": {
+          "CC": "yes",
+          "RVC40": "yes"
+        },
+        "accumulation": true,
+        "de_minimis_used": false,
+        "rvc_down": 85
+      },
+      "failures": []
+    },
+    {
+      "id": "rcep-dev-cumulation-membership-08",
+      "split": "dev",
+      "feature": "rcep",
+      "scenario_family": "cumulation-membership",
+      "source_family_id": "cumulation-membership",
+      "status": "matched",
+      "expected_abstention": false,
+      "expected": {
+        "outcome": "no",
+        "alternative": {
+          "CC": "no"
+        },
+        "accumulation": false
+      },
+      "actual": {
+        "outcome": "no",
+        "alternative": {
+          "CC": "no"
+        },
+        "accumulation": false,
+        "de_minimis_used": false
+      },
+      "failures": []
+    },
+    {
+      "id": "rcep-dev-cumulation-membership-09",
+      "split": "dev",
+      "feature": "rcep",
+      "scenario_family": "cumulation-membership",
+      "source_family_id": "cumulation-membership",
+      "status": "matched",
+      "expected_abstention": false,
+      "expected": {
+        "outcome": "yes",
+        "applied": "RVC40",
+        "alternative": {
+          "CTH": "no",
+          "RVC40": "yes"
+        },
+        "accumulation": false
+      },
+      "actual": {
+        "outcome": "yes",
+        "applied": "RVC40",
+        "alternative": {
+          "CTH": "no",
+          "RVC40": "yes"
+        },
+        "accumulation": false,
+        "de_minimis_used": false,
+        "rvc_down": 40
+      },
+      "failures": []
+    },
+    {
+      "id": "rcep-dev-cumulation-membership-10",
+      "split": "dev",
+      "feature": "rcep",
+      "scenario_family": "cumulation-membership",
+      "source_family_id": "cumulation-membership",
+      "status": "matched",
+      "expected_abstention": false,
+      "expected": {
+        "outcome": "yes",
+        "applied": "RVC40",
+        "alternative": {
+          "CTH": "no",
+          "RVC40": "yes"
+        },
+        "accumulation": false
+      },
+      "actual": {
+        "outcome": "yes",
+        "applied": "RVC40",
+        "alternative": {
+          "CTH": "no",
+          "RVC40": "yes"
+        },
+        "accumulation": false,
+        "de_minimis_used": false,
+        "rvc_down": 40
+      },
+      "failures": []
+    },
+    {
+      "id": "rcep-dev-minimal-operations-01",
+      "split": "dev",
+      "feature": "rcep",
+      "scenario_family": "minimal-operations",
+      "source_family_id": "minimal-operations",
+      "status": "matched",
+      "expected_abstention": false,
+      "expected": {
+        "outcome": "no",
+        "accumulation": false
+      },
+      "actual": {
+        "outcome": "no",
+        "accumulation": false,
+        "de_minimis_used": false
+      },
+      "failures": []
+    },
+    {
+      "id": "rcep-dev-minimal-operations-02",
+      "split": "dev",
+      "feature": "rcep",
+      "scenario_family": "minimal-operations",
+      "source_family_id": "minimal-operations",
+      "status": "matched",
+      "expected_abstention": false,
+      "expected": {
+        "outcome": "yes",
+        "applied": "RVC40",
+        "alternative": {
+          "CTH": "no",
+          "RVC40": "yes"
+        },
+        "accumulation": false
+      },
+      "actual": {
+        "outcome": "yes",
+        "applied": "RVC40",
+        "alternative": {
+          "CTH": "no",
+          "RVC40": "yes"
+        },
+        "accumulation": false,
+        "de_minimis_used": false,
+        "rvc_down": 60
+      },
+      "failures": []
+    },
+    {
+      "id": "rcep-dev-minimal-operations-03",
+      "split": "dev",
+      "feature": "rcep",
+      "scenario_family": "minimal-operations",
+      "source_family_id": "minimal-operations",
+      "status": "matched",
+      "expected_abstention": false,
+      "expected": {
+        "outcome": "yes",
+        "alternative": {
+          "CTH": "yes",
+          "RVC40": "yes"
+        },
+        "accumulation": false
+      },
+      "actual": {
+        "outcome": "yes",
+        "applied": "CTH",
+        "alternative": {
+          "CTH": "yes",
+          "RVC40": "yes"
+        },
+        "accumulation": false,
+        "de_minimis_used": false,
+        "rvc_down": 60
+      },
+      "failures": []
+    },
+    {
+      "id": "rcep-dev-minimal-operations-04",
+      "split": "dev",
+      "feature": "rcep",
+      "scenario_family": "minimal-operations",
+      "source_family_id": "minimal-operations",
+      "status": "matched",
+      "expected_abstention": false,
+      "expected": {
+        "outcome": "yes",
+        "applied": "RVC40",
+        "alternative": {
+          "CTH": "no",
+          "RVC40": "yes"
+        },
+        "accumulation": false
+      },
+      "actual": {
+        "outcome": "yes",
+        "applied": "RVC40",
+        "alternative": {
+          "CTH": "no",
+          "RVC40": "yes"
+        },
+        "accumulation": false,
+        "de_minimis_used": false,
+        "rvc_down": 60
+      },
+      "failures": []
+    },
+    {
+      "id": "rcep-dev-minimal-operations-05",
+      "split": "dev",
+      "feature": "rcep",
+      "scenario_family": "minimal-operations",
+      "source_family_id": "minimal-operations",
+      "status": "matched",
+      "expected_abstention": false,
+      "expected": {
+        "outcome": "no",
+        "accumulation": false
+      },
+      "actual": {
+        "outcome": "no",
+        "accumulation": false,
+        "de_minimis_used": false
+      },
+      "failures": []
+    },
+    {
+      "id": "rcep-dev-minimal-operations-06",
+      "split": "dev",
+      "feature": "rcep",
+      "scenario_family": "minimal-operations",
+      "source_family_id": "minimal-operations",
+      "status": "matched",
+      "expected_abstention": false,
+      "expected": {
+        "outcome": "no",
+        "alternative": {
+          "CC": "no"
+        },
+        "accumulation": false
+      },
+      "actual": {
+        "outcome": "no",
+        "alternative": {
+          "CC": "no"
+        },
+        "accumulation": false,
+        "de_minimis_used": false
+      },
+      "failures": []
+    },
+    {
+      "id": "rcep-dev-missing-facts-01",
+      "split": "dev",
+      "feature": "rcep",
+      "scenario_family": "missing-facts",
+      "source_family_id": "missing-facts",
+      "status": "matched",
+      "expected_abstention": true,
+      "expected": {
+        "outcome": "undetermined",
+        "accumulation": false
+      },
+      "actual": {
+        "outcome": "undetermined",
+        "alternative": {
+          "CTSH": "undetermined",
+          "RVC40": "undetermined"
+        },
+        "accumulation": false,
+        "de_minimis_used": false
+      },
+      "failures": []
+    },
+    {
+      "id": "rcep-dev-missing-facts-02",
+      "split": "dev",
+      "feature": "rcep",
+      "scenario_family": "missing-facts",
+      "source_family_id": "missing-facts",
+      "status": "matched",
+      "expected_abstention": true,
+      "expected": {
+        "outcome": "undetermined",
+        "accumulation": false
+      },
+      "actual": {
+        "outcome": "undetermined",
+        "alternative": {
+          "CTH": "undetermined",
+          "RVC40": "undetermined"
+        },
+        "accumulation": false,
+        "de_minimis_used": false
+      },
+      "failures": []
+    },
+    {
+      "id": "rcep-dev-missing-facts-03",
+      "split": "dev",
+      "feature": "rcep",
+      "scenario_family": "missing-facts",
+      "source_family_id": "missing-facts",
+      "status": "matched",
+      "expected_abstention": false,
+      "expected": {
+        "outcome": "yes",
+        "alternative": {
+          "CTH": "yes",
+          "RVC40": "yes"
+        },
+        "accumulation": false
+      },
+      "actual": {
+        "outcome": "yes",
+        "applied": "CTH",
+        "alternative": {
+          "CTH": "yes",
+          "RVC40": "yes"
+        },
+        "accumulation": false,
+        "de_minimis_used": false,
+        "rvc_down": 50
+      },
+      "failures": []
+    },
+    {
+      "id": "rcep-dev-missing-facts-04",
+      "split": "dev",
+      "feature": "rcep",
+      "scenario_family": "missing-facts",
+      "source_family_id": "missing-facts",
+      "status": "matched",
+      "expected_abstention": false,
+      "expected": {
+        "outcome": "yes",
+        "applied": "RVC40",
+        "alternative": {
+          "CTH": "no",
+          "RVC40": "yes"
+        },
+        "accumulation": true
+      },
+      "actual": {
+        "outcome": "yes",
+        "applied": "RVC40",
+        "alternative": {
+          "CTH": "no",
+          "RVC40": "yes"
+        },
+        "accumulation": true,
+        "de_minimis_used": false,
+        "rvc_down": 70
+      },
+      "failures": []
+    },
+    {
+      "id": "rcep-dev-missing-facts-05",
+      "split": "dev",
+      "feature": "rcep",
+      "scenario_family": "missing-facts",
+      "source_family_id": "missing-facts",
+      "status": "matched",
+      "expected_abstention": false,
+      "expected": {
+        "outcome": "yes",
+        "applied": "RVC40",
+        "alternative": {
+          "RVC40": "yes"
+        },
+        "accumulation": false
+      },
+      "actual": {
+        "outcome": "yes",
+        "applied": "RVC40",
+        "alternative": {
+          "CTH": "undetermined",
+          "RVC40": "yes"
+        },
+        "accumulation": false,
+        "de_minimis_used": false,
+        "rvc_down": 50
+      },
+      "failures": []
+    },
+    {
+      "id": "rcep-dev-missing-facts-06",
+      "split": "dev",
+      "feature": "rcep",
+      "scenario_family": "missing-facts",
+      "source_family_id": "missing-facts",
+      "status": "matched",
+      "expected_abstention": true,
+      "expected": {
+        "outcome": "undetermined",
+        "accumulation": false
+      },
+      "actual": {
+        "outcome": "undetermined",
+        "alternative": {
+          "CC": "undetermined",
+          "RVC40": "undetermined"
+        },
+        "accumulation": false,
+        "de_minimis_used": false
+      },
+      "failures": []
+    },
+    {
+      "id": "rcep-dev-except-from-01",
+      "split": "dev",
+      "feature": "rcep",
+      "scenario_family": "except-from",
+      "source_family_id": "except-from",
+      "status": "matched",
+      "expected_abstention": false,
+      "expected": {
+        "outcome": "no",
+        "alternative": {
+          "RVC40": "no"
+        }
+      },
+      "actual": {
+        "outcome": "no",
+        "alternative": {
+          "CTSH except from subheading 8504.31, 8504.32, 8504.34": "no",
+          "RVC40": "no"
+        },
+        "accumulation": false,
+        "de_minimis_used": false,
+        "rvc_down": 30
+      },
+      "failures": []
+    },
+    {
+      "id": "rcep-dev-except-from-02",
+      "split": "dev",
+      "feature": "rcep",
+      "scenario_family": "except-from",
+      "source_family_id": "except-from",
+      "status": "matched",
+      "expected_abstention": false,
+      "expected": {
+        "outcome": "yes",
+        "applied": "CTSH except from subheading 8504.21, 8504.22",
+        "alternative": {
+          "RVC40": "no"
+        }
+      },
+      "actual": {
+        "outcome": "yes",
+        "applied": "CTSH except from subheading 8504.21, 8504.22",
+        "alternative": {
+          "CTSH except from subheading 8504.21, 8504.22": "yes",
+          "RVC40": "no"
+        },
+        "accumulation": false,
+        "de_minimis_used": false,
+        "rvc_down": 30
+      },
+      "failures": []
+    },
+    {
+      "id": "rcep-dev-except-from-03",
+      "split": "dev",
+      "feature": "rcep",
+      "scenario_family": "except-from",
+      "source_family_id": "except-from",
+      "status": "matched",
+      "expected_abstention": false,
+      "expected": {
+        "outcome": "no"
+      },
+      "actual": {
+        "outcome": "no",
+        "alternative": {
+          "CC except from chapter 10": "no"
+        },
+        "accumulation": false,
+        "de_minimis_used": false
+      },
+      "failures": []
+    },
+    {
+      "id": "rcep-dev-direct-build-up-01",
+      "split": "dev",
+      "feature": "rcep",
+      "scenario_family": "direct-build-up",
+      "source_family_id": "direct-build-up",
+      "status": "matched",
+      "expected_abstention": false,
+      "expected": {
+        "outcome": "yes",
+        "applied": "RVC40",
+        "alternative": {
+          "CTH": "no",
+          "RVC40": "yes"
+        },
+        "accumulation": true,
+        "rvc_down_min": 34.95,
+        "rvc_down_max": 35.05,
+        "rvc_up_min": 40.95,
+        "rvc_up_max": 41.05
+      },
+      "actual": {
+        "outcome": "yes",
+        "applied": "RVC40",
+        "alternative": {
+          "CTH": "no",
+          "RVC40": "yes"
+        },
+        "accumulation": true,
+        "de_minimis_used": false,
+        "rvc_down": 35,
+        "rvc_up": 41
+      },
+      "failures": []
+    },
+    {
+      "id": "rcep-dev-direct-build-up-02",
+      "split": "dev",
+      "feature": "rcep",
+      "scenario_family": "direct-build-up",
+      "source_family_id": "direct-build-up",
+      "status": "matched",
+      "expected_abstention": false,
+      "expected": {
+        "outcome": "no",
+        "alternative": {
+          "CTSH": "no",
+          "RVC40": "no"
+        },
+        "accumulation": true,
+        "rvc_down_min": 34.95,
+        "rvc_down_max": 35.05,
+        "rvc_up_min": 24.95,
+        "rvc_up_max": 25.05
+      },
+      "actual": {
+        "outcome": "no",
+        "alternative": {
+          "CTSH": "no",
+          "RVC40": "no"
+        },
+        "accumulation": true,
+        "de_minimis_used": false,
+        "rvc_down": 35,
+        "rvc_up": 25
+      },
+      "failures": []
+    },
+    {
+      "id": "rcep-dev-direct-build-up-03",
+      "split": "dev",
+      "feature": "rcep",
+      "scenario_family": "direct-build-up",
+      "source_family_id": "direct-build-up",
+      "status": "matched",
+      "expected_abstention": false,
+      "expected": {
+        "outcome": "no",
+        "alternative": {
+          "CTH": "no",
+          "RVC40": "no"
+        },
+        "accumulation": true,
+        "rvc_down_min": 34.95,
+        "rvc_down_max": 35.05,
+        "rvc_up_min": 39.45,
+        "rvc_up_max": 39.55
+      },
+      "actual": {
+        "outcome": "no",
+        "alternative": {
+          "CTH": "no",
+          "RVC40": "no"
+        },
+        "accumulation": true,
+        "de_minimis_used": false,
+        "rvc_down": 35,
+        "rvc_up": 39.5
+      },
+      "failures": []
+    },
+    {
+      "id": "rcep-dev-heading-only-code-01",
+      "split": "dev",
+      "feature": "rcep",
+      "scenario_family": "heading-only-code",
+      "source_family_id": "heading-only-code",
+      "status": "matched",
+      "expected_abstention": true,
+      "expected": {
+        "outcome": "undetermined"
+      },
+      "actual": {
+        "outcome": "undetermined",
+        "accumulation": false,
+        "de_minimis_used": false
+      },
+      "failures": []
+    },
+    {
+      "id": "rcep-dev-heading-only-code-02",
+      "split": "dev",
+      "feature": "rcep",
+      "scenario_family": "heading-only-code",
+      "source_family_id": "heading-only-code",
+      "status": "matched",
+      "expected_abstention": false,
+      "expected": {
+        "outcome": "yes"
+      },
+      "actual": {
+        "outcome": "yes",
+        "applied": "CTH",
+        "alternative": {
+          "CTH": "yes",
+          "RVC40": "yes"
+        },
+        "accumulation": false,
+        "de_minimis_used": false,
+        "rvc_down": 70
+      },
+      "failures": []
+    },
+    {
+      "id": "rcep-dev-authority-variants-01",
+      "split": "dev",
+      "feature": "rcep",
+      "scenario_family": "authority-variants",
+      "source_family_id": "authority-p26-wheat-flour",
+      "parent_id": "backend/internal/rcep/engine_test.go#TestABFWorkedExamples/p26-wheat-flour",
+      "status": "matched",
+      "expected_abstention": false,
+      "expected": {
+        "outcome": "yes",
+        "applied": "CC",
+        "alternative": {
+          "CC": "yes"
+        },
+        "accumulation": false
+      },
+      "actual": {
+        "outcome": "yes",
+        "applied": "CC",
+        "alternative": {
+          "CC": "yes"
+        },
+        "accumulation": false,
+        "de_minimis_used": false
+      },
+      "failures": []
+    },
+    {
+      "id": "rcep-dev-authority-variants-02",
+      "split": "dev",
+      "feature": "rcep",
+      "scenario_family": "authority-variants",
+      "source_family_id": "authority-p26-wheat-flour",
+      "parent_id": "backend/internal/rcep/engine_test.go#TestABFWorkedExamples/p26-wheat-flour",
+      "status": "matched",
+      "expected_abstention": false,
+      "expected": {
+        "outcome": "yes",
+        "applied": "CC",
+        "alternative": {
+          "CC": "yes"
+        },
+        "accumulation": false
+      },
+      "actual": {
+        "outcome": "yes",
+        "applied": "CC",
+        "alternative": {
+          "CC": "yes"
+        },
+        "accumulation": false,
+        "de_minimis_used": false
+      },
+      "failures": []
+    },
+    {
+      "id": "rcep-dev-authority-variants-03",
+      "split": "dev",
+      "feature": "rcep",
+      "scenario_family": "authority-variants",
+      "source_family_id": "authority-p27-coffee",
+      "parent_id": "backend/internal/rcep/engine_test.go#TestABFWorkedExamples/p27-coffee",
+      "status": "matched",
+      "expected_abstention": false,
+      "expected": {
+        "outcome": "no",
+        "alternative": {
+          "RVC40": "no"
+        },
+        "accumulation": false,
+        "rvc_down_min": 29.95,
+        "rvc_down_max": 30.05
+      },
+      "actual": {
+        "outcome": "no",
+        "alternative": {
+          "RVC40": "no"
+        },
+        "accumulation": false,
+        "de_minimis_used": false,
+        "rvc_down": 30
+      },
+      "failures": []
+    },
+    {
+      "id": "rcep-dev-authority-variants-04",
+      "split": "dev",
+      "feature": "rcep",
+      "scenario_family": "authority-variants",
+      "source_family_id": "authority-p27-coffee",
+      "parent_id": "backend/internal/rcep/engine_test.go#TestABFWorkedExamples/p27-coffee",
+      "status": "matched",
+      "expected_abstention": false,
+      "expected": {
+        "outcome": "yes",
+        "applied": "RVC40",
+        "alternative": {
+          "RVC40": "yes"
+        },
+        "accumulation": false,
+        "rvc_down_min": 39.95,
+        "rvc_down_max": 40.05
+      },
+      "actual": {
+        "outcome": "yes",
+        "applied": "RVC40",
+        "alternative": {
+          "RVC40": "yes"
+        },
+        "accumulation": false,
+        "de_minimis_used": false,
+        "rvc_down": 40
+      },
+      "failures": []
+    },
+    {
+      "id": "rcep-dev-authority-variants-05",
+      "split": "dev",
+      "feature": "rcep",
+      "scenario_family": "authority-variants",
+      "source_family_id": "authority-p27-coffee",
+      "parent_id": "backend/internal/rcep/engine_test.go#TestABFWorkedExamples/p27-coffee",
+      "status": "matched",
+      "expected_abstention": false,
+      "expected": {
+        "outcome": "no",
+        "alternative": {
+          "RVC40": "no"
+        },
+        "accumulation": false,
+        "rvc_down_min": 39.45,
+        "rvc_down_max": 39.55
+      },
+      "actual": {
+        "outcome": "no",
+        "alternative": {
+          "RVC40": "no"
+        },
+        "accumulation": false,
+        "de_minimis_used": false,
+        "rvc_down": 39.5
+      },
+      "failures": []
+    },
+    {
+      "id": "rcep-dev-authority-variants-06",
+      "split": "dev",
+      "feature": "rcep",
+      "scenario_family": "authority-variants",
+      "source_family_id": "authority-p29-juice",
+      "parent_id": "backend/internal/rcep/engine_test.go#TestABFWorkedExamples/p29-juice",
+      "status": "matched",
+      "expected_abstention": false,
+      "expected": {
+        "outcome": "yes",
+        "applied": "CC",
+        "alternative": {
+          "CC": "yes",
+          "RVC40": "no"
+        },
+        "accumulation": true,
+        "rvc_down_min": 33.283,
+        "rvc_down_max": 33.383
+      },
+      "actual": {
+        "outcome": "yes",
+        "applied": "CC",
+        "alternative": {
+          "CC": "yes",
+          "RVC40": "no"
+        },
+        "accumulation": true,
+        "de_minimis_used": false,
+        "rvc_down": 33.33333333333333
+      },
+      "failures": []
+    },
+    {
+      "id": "rcep-dev-authority-variants-07",
+      "split": "dev",
+      "feature": "rcep",
+      "scenario_family": "authority-variants",
+      "source_family_id": "authority-p29-juice",
+      "parent_id": "backend/internal/rcep/engine_test.go#TestABFWorkedExamples/p29-juice",
+      "status": "matched",
+      "expected_abstention": false,
+      "expected": {
+        "outcome": "yes",
+        "alternative": {
+          "CC": "yes",
+          "RVC40": "yes"
+        },
+        "accumulation": true,
+        "rvc_down_min": 39.95,
+        "rvc_down_max": 40.05
+      },
+      "actual": {
+        "outcome": "yes",
+        "applied": "CC",
+        "alternative": {
+          "CC": "yes",
+          "RVC40": "yes"
+        },
+        "accumulation": true,
+        "de_minimis_used": false,
+        "rvc_down": 40
+      },
+      "failures": []
+    },
+    {
+      "id": "rcep-dev-authority-variants-08",
+      "split": "dev",
+      "feature": "rcep",
+      "scenario_family": "authority-variants",
+      "source_family_id": "authority-p29-juice",
+      "parent_id": "backend/internal/rcep/engine_test.go#TestABFWorkedExamples/p29-juice",
+      "status": "matched",
+      "expected_abstention": false,
+      "expected": {
+        "outcome": "yes",
+        "alternative": {
+          "CC": "yes",
+          "RVC40": "yes"
+        },
+        "accumulation": true,
+        "rvc_down_min": 39.95,
+        "rvc_down_max": 40.05
+      },
+      "actual": {
+        "outcome": "yes",
+        "applied": "CC",
+        "alternative": {
+          "CC": "yes",
+          "RVC40": "yes"
+        },
+        "accumulation": true,
+        "de_minimis_used": false,
+        "rvc_down": 40
+      },
+      "failures": []
+    },
+    {
+      "id": "rcep-dev-malformed-input-01",
+      "split": "dev",
+      "feature": "rcep",
+      "scenario_family": "malformed-input",
+      "source_family_id": "malformed-input",
+      "status": "matched",
+      "expected_abstention": false,
+      "expected": {
+        "outcome": "refused"
+      },
+      "actual": {
+        "accumulation": false,
+        "de_minimis_used": false,
+        "refused": true,
+        "error": "rcep: bad input: fob must be positive"
+      },
+      "failures": []
+    },
+    {
+      "id": "rcep-dev-malformed-input-02",
+      "split": "dev",
+      "feature": "rcep",
+      "scenario_family": "malformed-input",
+      "source_family_id": "malformed-input",
+      "status": "matched",
+      "expected_abstention": false,
+      "expected": {
+        "outcome": "refused"
+      },
+      "actual": {
+        "accumulation": false,
+        "de_minimis_used": false,
+        "refused": true,
+        "error": "rcep: bad input: hs must have 4 to 10 digits"
+      },
+      "failures": []
+    },
+    {
+      "id": "rcep-dev-malformed-input-03",
+      "split": "dev",
+      "feature": "rcep",
+      "scenario_family": "malformed-input",
+      "source_family_id": "malformed-input",
+      "status": "matched",
+      "expected_abstention": false,
+      "expected": {
+        "outcome": "refused"
+      },
+      "actual": {
+        "accumulation": false,
+        "de_minimis_used": false,
+        "refused": true,
+        "error": "rcep: bad input: materials[0].status must be originating, non_originating or unknown"
+      },
+      "failures": []
+    },
+    {
+      "id": "rcep-dev-malformed-input-04",
+      "split": "dev",
+      "feature": "rcep",
+      "scenario_family": "malformed-input",
+      "source_family_id": "malformed-input",
+      "status": "matched",
+      "expected_abstention": false,
+      "expected": {
+        "outcome": "refused"
+      },
+      "actual": {
+        "accumulation": false,
+        "de_minimis_used": false,
+        "refused": true,
+        "error": "rcep: bad input: active_ingredient_originating_pct must be 0 to 100"
+      },
+      "failures": []
+    }
+  ]
+}

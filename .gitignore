@@ -45,6 +45,7 @@ data/tuning/
 /backend/adcvdprec
 /backend/adcvdscope
 /backend/rcepeval
+/backend/ftachallenge
 /backend/originrules
 /backend/marketeval
 /backend/retention
@@ -56,3 +57,4 @@ data/tuning/
 /eval/adcvd/real/heldout/facts.jsonl
 /eval/adcvd/real/**/reads*.jsonl
 /backend/evaldrift
+/backend/legalchallenge

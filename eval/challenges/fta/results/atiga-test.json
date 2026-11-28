@@ -1,0 +1,4839 @@
+{
+  "schema_version": 1,
+  "evidence_kind": "source_grounded_synthetic",
+  "feature": "atiga",
+  "split": "test",
+  "dataset_sha256": "08a252572be66a89d2c1230c6e93cba1422c9899be6263869f897a911d2003b1",
+  "candidate_revision": "b1d8f3bf94ab85ebb7f0fd3d0f22aae03ae5a93b",
+  "totals": {
+    "cases": 169,
+    "matched": 168,
+    "mismatched": 1,
+    "errors": 0
+  },
+  "metrics": {
+    "expected_outcomes": {
+      "no": 52,
+      "refused": 4,
+      "undetermined": 18,
+      "yes": 95
+    },
+    "confusion": {
+      "no": {
+        "no": 52
+      },
+      "refused": {
+        "refused": 4
+      },
+      "undetermined": {
+        "undetermined": 18
+      },
+      "yes": {
+        "undetermined": 1,
+        "yes": 94
+      }
+    },
+    "abstention": {
+      "expected": 18,
+      "correct": 18,
+      "decided_instead": 0,
+      "abstained_when_a_decision_was_expected": 1
+    },
+    "yes_precision": {
+      "num": 94,
+      "den": 94
+    },
+    "yes_recall": {
+      "num": 94,
+      "den": 95
+    },
+    "decided_only_agreement": {
+      "num": 146,
+      "den": 146
+    },
+    "refusals_expected": 4,
+    "formatting_only_cases": 3,
+    "by_scenario_family": {
+      "all-originating": {
+        "cases": 4,
+        "matched": 4,
+        "mismatched": 0,
+        "errors": 0
+      },
+      "authority-variants": {
+        "cases": 12,
+        "matched": 12,
+        "mismatched": 0,
+        "errors": 0
+      },
+      "country-name-alias": {
+        "cases": 3,
+        "matched": 3,
+        "mismatched": 0,
+        "errors": 0
+      },
+      "cumulation-membership": {
+        "cases": 14,
+        "matched": 14,
+        "mismatched": 0,
+        "errors": 0
+      },
+      "de-minimis-incomplete": {
+        "cases": 3,
+        "matched": 3,
+        "mismatched": 0,
+        "errors": 0
+      },
+      "de-minimis-value": {
+        "cases": 10,
+        "matched": 10,
+        "mismatched": 0,
+        "errors": 0
+      },
+      "direct-build-up": {
+        "cases": 6,
+        "matched": 6,
+        "mismatched": 0,
+        "errors": 0
+      },
+      "except-from": {
+        "cases": 6,
+        "matched": 6,
+        "mismatched": 0,
+        "errors": 0
+      },
+      "general-rule": {
+        "cases": 6,
+        "matched": 6,
+        "mismatched": 0,
+        "errors": 0
+      },
+      "heading-only-code": {
+        "cases": 5,
+        "matched": 4,
+        "mismatched": 1,
+        "errors": 0
+      },
+      "incomplete-hs": {
+        "cases": 4,
+        "matched": 4,
+        "mismatched": 0,
+        "errors": 0
+      },
+      "malformed-input": {
+        "cases": 4,
+        "matched": 4,
+        "mismatched": 0,
+        "errors": 0
+      },
+      "minimal-operations": {
+        "cases": 8,
+        "matched": 8,
+        "mismatched": 0,
+        "errors": 0
+      },
+      "missing-facts": {
+        "cases": 10,
+        "matched": 10,
+        "mismatched": 0,
+        "errors": 0
+      },
+      "no-materials": {
+        "cases": 2,
+        "matched": 2,
+        "mismatched": 0,
+        "errors": 0
+      },
+      "partial-cumulation": {
+        "cases": 6,
+        "matched": 6,
+        "mismatched": 0,
+        "errors": 0
+      },
+      "process-conditions": {
+        "cases": 6,
+        "matched": 6,
+        "mismatched": 0,
+        "errors": 0
+      },
+      "production-country-missing": {
+        "cases": 2,
+        "matched": 2,
+        "mismatched": 0,
+        "errors": 0
+      },
+      "production-outside-agreement": {
+        "cases": 4,
+        "matched": 4,
+        "mismatched": 0,
+        "errors": 0
+      },
+      "rvc-boundary": {
+        "cases": 14,
+        "matched": 14,
+        "mismatched": 0,
+        "errors": 0
+      },
+      "tariff-shift-grid": {
+        "cases": 24,
+        "matched": 24,
+        "mismatched": 0,
+        "errors": 0
+      },
+      "textile-de-minimis": {
+        "cases": 8,
+        "matched": 8,
+        "mismatched": 0,
+        "errors": 0
+      },
+      "wo-not-met": {
+        "cases": 4,
+        "matched": 4,
+        "mismatched": 0,
+        "errors": 0
+      },
+      "wo-statement": {
+        "cases": 4,
+        "matched": 4,
+        "mismatched": 0,
+        "errors": 0
+      }
+    },
+    "scenario_families": 24,
+    "source_families": 27,
+    "parent_groups": 4,
+    "cases_with_parent": 12,
+    "families_shared_with_development": [
+      "all-originating",
+      "authority-variants",
+      "country-name-alias",
+      "cumulation-membership",
+      "de-minimis-incomplete",
+      "de-minimis-value",
+      "direct-build-up",
+      "except-from",
+      "general-rule",
+      "heading-only-code",
+      "incomplete-hs",
+      "malformed-input",
+      "minimal-operations",
+      "missing-facts",
+      "no-materials",
+      "process-conditions",
+      "production-country-missing",
+      "production-outside-agreement",
+      "rvc-boundary",
+      "tariff-shift-grid",
+      "wo-not-met",
+      "wo-statement"
+    ],
+    "families_only_in_test": [
+      "partial-cumulation",
+      "textile-de-minimis"
+    ],
+    "cases_in_families_shared_with_development": 155,
+    "cases_in_families_only_in_test": 14
+  },
+  "results": [
+    {
+      "id": "atiga-test-wo-statement-01",
+      "split": "test",
+      "feature": "atiga",
+      "scenario_family": "wo-statement",
+      "source_family_id": "wo-statement",
+      "status": "matched",
+      "expected_abstention": false,
+      "expected": {
+        "outcome": "yes",
+        "applied": "WO"
+      },
+      "actual": {
+        "outcome": "yes",
+        "applied": "WO",
+        "accumulation": false,
+        "de_minimis_used": false
+      },
+      "failures": []
+    },
+    {
+      "id": "atiga-test-wo-statement-02",
+      "split": "test",
+      "feature": "atiga",
+      "scenario_family": "wo-statement",
+      "source_family_id": "wo-statement",
+      "status": "matched",
+      "expected_abstention": false,
+      "expected": {
+        "outcome": "yes",
+        "applied": "WO"
+      },
+      "actual": {
+        "outcome": "yes",
+        "applied": "WO",
+        "accumulation": false,
+        "de_minimis_used": false
+      },
+      "failures": []
+    },
+    {
+      "id": "atiga-test-wo-statement-03",
+      "split": "test",
+      "feature": "atiga",
+      "scenario_family": "wo-statement",
+      "source_family_id": "wo-statement",
+      "status": "matched",
+      "expected_abstention": false,
+      "expected": {
+        "outcome": "yes",
+        "applied": "WO"
+      },
+      "actual": {
+        "outcome": "yes",
+        "applied": "WO",
+        "accumulation": false,
+        "de_minimis_used": false
+      },
+      "failures": []
+    },
+    {
+      "id": "atiga-test-wo-statement-04",
+      "split": "test",
+      "feature": "atiga",
+      "scenario_family": "wo-statement",
+      "source_family_id": "wo-statement",
+      "status": "matched",
+      "expected_abstention": false,
+      "expected": {
+        "outcome": "yes",
+        "applied": "WO"
+      },
+      "actual": {
+        "outcome": "yes",
+        "applied": "WO",
+        "accumulation": false,
+        "de_minimis_used": false
+      },
+      "failures": []
+    },
+    {
+      "id": "atiga-test-wo-not-met-01",
+      "split": "test",
+      "feature": "atiga",
+      "scenario_family": "wo-not-met",
+      "source_family_id": "wo-not-met",
+      "status": "matched",
+      "expected_abstention": false,
+      "expected": {
+        "outcome": "no",
+        "alternative": {
+          "WO": "no"
+        },
+        "accumulation": false
+      },
+      "actual": {
+        "outcome": "no",
+        "alternative": {
+          "WO": "no"
+        },
+        "accumulation": false,
+        "de_minimis_used": false
+      },
+      "failures": []
+    },
+    {
+      "id": "atiga-test-wo-not-met-02",
+      "split": "test",
+      "feature": "atiga",
+      "scenario_family": "wo-not-met",
+      "source_family_id": "wo-not-met",
+      "status": "matched",
+      "expected_abstention": false,
+      "expected": {
+        "outcome": "no",
+        "alternative": {
+          "WO": "no"
+        },
+        "accumulation": false
+      },
+      "actual": {
+        "outcome": "no",
+        "alternative": {
+          "WO": "no"
+        },
+        "accumulation": false,
+        "de_minimis_used": false
+      },
+      "failures": []
+    },
+    {
+      "id": "atiga-test-wo-not-met-03",
+      "split": "test",
+      "feature": "atiga",
+      "scenario_family": "wo-not-met",
+      "source_family_id": "wo-not-met",
+      "status": "matched",
+      "expected_abstention": false,
+      "expected": {
+        "outcome": "no",
+        "alternative": {
+          "WO": "no"
+        },
+        "accumulation": false
+      },
+      "actual": {
+        "outcome": "no",
+        "alternative": {
+          "WO": "no"
+        },
+        "accumulation": false,
+        "de_minimis_used": false
+      },
+      "failures": []
+    },
+    {
+      "id": "atiga-test-wo-not-met-04",
+      "split": "test",
+      "feature": "atiga",
+      "scenario_family": "wo-not-met",
+      "source_family_id": "wo-not-met",
+      "status": "matched",
+      "expected_abstention": false,
+      "expected": {
+        "outcome": "no",
+        "alternative": {
+          "WO": "no"
+        },
+        "accumulation": false
+      },
+      "actual": {
+        "outcome": "no",
+        "alternative": {
+          "WO": "no"
+        },
+        "accumulation": false,
+        "de_minimis_used": false
+      },
+      "failures": []
+    },
+    {
+      "id": "atiga-test-all-originating-01",
+      "split": "test",
+      "feature": "atiga",
+      "scenario_family": "all-originating",
+      "source_family_id": "all-originating",
+      "status": "matched",
+      "expected_abstention": false,
+      "expected": {
+        "outcome": "yes",
+        "applied": "PE",
+        "accumulation": true
+      },
+      "actual": {
+        "outcome": "yes",
+        "applied": "PE",
+        "accumulation": true,
+        "de_minimis_used": false
+      },
+      "failures": []
+    },
+    {
+      "id": "atiga-test-all-originating-02",
+      "split": "test",
+      "feature": "atiga",
+      "scenario_family": "all-originating",
+      "source_family_id": "all-originating",
+      "status": "matched",
+      "expected_abstention": false,
+      "expected": {
+        "outcome": "yes",
+        "applied": "PE",
+        "accumulation": true
+      },
+      "actual": {
+        "outcome": "yes",
+        "applied": "PE",
+        "accumulation": true,
+        "de_minimis_used": false
+      },
+      "failures": []
+    },
+    {
+      "id": "atiga-test-all-originating-03",
+      "split": "test",
+      "feature": "atiga",
+      "scenario_family": "all-originating",
+      "source_family_id": "all-originating",
+      "status": "matched",
+      "expected_abstention": false,
+      "expected": {
+        "outcome": "yes",
+        "applied": "PE",
+        "accumulation": true
+      },
+      "actual": {
+        "outcome": "yes",
+        "applied": "PE",
+        "accumulation": true,
+        "de_minimis_used": false
+      },
+      "failures": []
+    },
+    {
+      "id": "atiga-test-all-originating-04",
+      "split": "test",
+      "feature": "atiga",
+      "scenario_family": "all-originating",
+      "source_family_id": "all-originating",
+      "status": "matched",
+      "expected_abstention": false,
+      "expected": {
+        "outcome": "yes",
+        "applied": "PE",
+        "accumulation": true
+      },
+      "actual": {
+        "outcome": "yes",
+        "applied": "PE",
+        "accumulation": true,
+        "de_minimis_used": false
+      },
+      "failures": []
+    },
+    {
+      "id": "atiga-test-no-materials-01",
+      "split": "test",
+      "feature": "atiga",
+      "scenario_family": "no-materials",
+      "source_family_id": "no-materials",
+      "status": "matched",
+      "expected_abstention": true,
+      "expected": {
+        "outcome": "undetermined",
+        "accumulation": false
+      },
+      "actual": {
+        "outcome": "undetermined",
+        "accumulation": false,
+        "de_minimis_used": false
+      },
+      "failures": []
+    },
+    {
+      "id": "atiga-test-no-materials-02",
+      "split": "test",
+      "feature": "atiga",
+      "scenario_family": "no-materials",
+      "source_family_id": "no-materials",
+      "status": "matched",
+      "expected_abstention": true,
+      "expected": {
+        "outcome": "undetermined",
+        "accumulation": false
+      },
+      "actual": {
+        "outcome": "undetermined",
+        "accumulation": false,
+        "de_minimis_used": false
+      },
+      "failures": []
+    },
+    {
+      "id": "atiga-test-production-outside-agreement-01",
+      "split": "test",
+      "feature": "atiga",
+      "scenario_family": "production-outside-agreement",
+      "source_family_id": "production-outside-agreement",
+      "status": "matched",
+      "expected_abstention": false,
+      "expected": {
+        "outcome": "no"
+      },
+      "actual": {
+        "outcome": "no",
+        "accumulation": false,
+        "de_minimis_used": false
+      },
+      "failures": []
+    },
+    {
+      "id": "atiga-test-production-outside-agreement-02",
+      "split": "test",
+      "feature": "atiga",
+      "scenario_family": "production-outside-agreement",
+      "source_family_id": "production-outside-agreement",
+      "status": "matched",
+      "expected_abstention": false,
+      "expected": {
+        "outcome": "no"
+      },
+      "actual": {
+        "outcome": "no",
+        "accumulation": false,
+        "de_minimis_used": false
+      },
+      "failures": []
+    },
+    {
+      "id": "atiga-test-production-outside-agreement-03",
+      "split": "test",
+      "feature": "atiga",
+      "scenario_family": "production-outside-agreement",
+      "source_family_id": "production-outside-agreement",
+      "status": "matched",
+      "expected_abstention": false,
+      "expected": {
+        "outcome": "no"
+      },
+      "actual": {
+        "outcome": "no",
+        "accumulation": false,
+        "de_minimis_used": false
+      },
+      "failures": []
+    },
+    {
+      "id": "atiga-test-production-outside-agreement-04",
+      "split": "test",
+      "feature": "atiga",
+      "scenario_family": "production-outside-agreement",
+      "source_family_id": "production-outside-agreement",
+      "status": "matched",
+      "expected_abstention": false,
+      "expected": {
+        "outcome": "no"
+      },
+      "actual": {
+        "outcome": "no",
+        "accumulation": false,
+        "de_minimis_used": false
+      },
+      "failures": []
+    },
+    {
+      "id": "atiga-test-production-country-missing-01",
+      "split": "test",
+      "feature": "atiga",
+      "scenario_family": "production-country-missing",
+      "source_family_id": "production-country-missing",
+      "status": "matched",
+      "expected_abstention": true,
+      "expected": {
+        "outcome": "undetermined"
+      },
+      "actual": {
+        "outcome": "undetermined",
+        "accumulation": false,
+        "de_minimis_used": false
+      },
+      "failures": []
+    },
+    {
+      "id": "atiga-test-production-country-missing-02",
+      "split": "test",
+      "feature": "atiga",
+      "scenario_family": "production-country-missing",
+      "source_family_id": "production-country-missing",
+      "status": "matched",
+      "expected_abstention": true,
+      "expected": {
+        "outcome": "undetermined"
+      },
+      "actual": {
+        "outcome": "undetermined",
+        "accumulation": false,
+        "de_minimis_used": false
+      },
+      "failures": []
+    },
+    {
+      "id": "atiga-test-country-name-alias-01",
+      "split": "test",
+      "feature": "atiga",
+      "scenario_family": "country-name-alias",
+      "source_family_id": "country-name-alias",
+      "status": "matched",
+      "expected_abstention": false,
+      "expected": {
+        "outcome": "yes"
+      },
+      "actual": {
+        "outcome": "yes",
+        "applied": "RVC40",
+        "alternative": {
+          "CTSH": "yes",
+          "RVC40": "yes"
+        },
+        "accumulation": false,
+        "de_minimis_used": false,
+        "rvc_down": 80
+      },
+      "failures": []
+    },
+    {
+      "id": "atiga-test-country-name-alias-02",
+      "split": "test",
+      "feature": "atiga",
+      "scenario_family": "country-name-alias",
+      "source_family_id": "country-name-alias",
+      "status": "matched",
+      "expected_abstention": false,
+      "expected": {
+        "outcome": "yes"
+      },
+      "actual": {
+        "outcome": "yes",
+        "applied": "RVC40",
+        "alternative": {
+          "CTSH": "yes",
+          "RVC40": "yes"
+        },
+        "accumulation": false,
+        "de_minimis_used": false,
+        "rvc_down": 80
+      },
+      "failures": []
+    },
+    {
+      "id": "atiga-test-country-name-alias-03",
+      "split": "test",
+      "feature": "atiga",
+      "scenario_family": "country-name-alias",
+      "source_family_id": "country-name-alias",
+      "status": "matched",
+      "expected_abstention": false,
+      "expected": {
+        "outcome": "yes"
+      },
+      "actual": {
+        "outcome": "yes",
+        "applied": "RVC40",
+        "alternative": {
+          "CTSH": "yes",
+          "RVC40": "yes"
+        },
+        "accumulation": false,
+        "de_minimis_used": false,
+        "rvc_down": 80
+      },
+      "failures": []
+    },
+    {
+      "id": "atiga-test-rvc-boundary-01",
+      "split": "test",
+      "feature": "atiga",
+      "scenario_family": "rvc-boundary",
+      "source_family_id": "rvc-boundary",
+      "status": "matched",
+      "expected_abstention": false,
+      "expected": {
+        "outcome": "yes",
+        "applied": "RVC40",
+        "alternative": {
+          "CTSH": "no",
+          "RVC40": "yes"
+        },
+        "accumulation": true,
+        "rvc_down_min": 42.95,
+        "rvc_down_max": 43.05
+      },
+      "actual": {
+        "outcome": "yes",
+        "applied": "RVC40",
+        "alternative": {
+          "CTSH": "no",
+          "RVC40": "yes"
+        },
+        "accumulation": true,
+        "de_minimis_used": false,
+        "rvc_down": 43
+      },
+      "failures": []
+    },
+    {
+      "id": "atiga-test-rvc-boundary-02",
+      "split": "test",
+      "feature": "atiga",
+      "scenario_family": "rvc-boundary",
+      "source_family_id": "rvc-boundary",
+      "status": "matched",
+      "expected_abstention": false,
+      "expected": {
+        "outcome": "yes",
+        "applied": "RVC40",
+        "alternative": {
+          "CC": "no",
+          "RVC40": "yes"
+        },
+        "accumulation": true,
+        "rvc_down_min": 39.95,
+        "rvc_down_max": 40.05
+      },
+      "actual": {
+        "outcome": "yes",
+        "applied": "RVC40",
+        "alternative": {
+          "CC": "no",
+          "RVC40": "yes"
+        },
+        "accumulation": true,
+        "de_minimis_used": false,
+        "rvc_down": 40
+      },
+      "failures": []
+    },
+    {
+      "id": "atiga-test-rvc-boundary-03",
+      "split": "test",
+      "feature": "atiga",
+      "scenario_family": "rvc-boundary",
+      "source_family_id": "rvc-boundary",
+      "status": "matched",
+      "expected_abstention": false,
+      "expected": {
+        "outcome": "no",
+        "alternative": {
+          "CTSH": "no",
+          "RVC40": "no"
+        },
+        "accumulation": true,
+        "rvc_down_min": 39.45,
+        "rvc_down_max": 39.55
+      },
+      "actual": {
+        "outcome": "no",
+        "alternative": {
+          "CTSH": "no",
+          "RVC40": "no"
+        },
+        "accumulation": true,
+        "de_minimis_used": false,
+        "rvc_down": 39.5
+      },
+      "failures": []
+    },
+    {
+      "id": "atiga-test-rvc-boundary-04",
+      "split": "test",
+      "feature": "atiga",
+      "scenario_family": "rvc-boundary",
+      "source_family_id": "rvc-boundary",
+      "status": "matched",
+      "expected_abstention": false,
+      "expected": {
+        "outcome": "no",
+        "alternative": {
+          "CTSH": "no",
+          "RVC40": "no"
+        },
+        "accumulation": true,
+        "rvc_down_min": 21.95,
+        "rvc_down_max": 22.05
+      },
+      "actual": {
+        "outcome": "no",
+        "alternative": {
+          "CTSH": "no",
+          "RVC40": "no"
+        },
+        "accumulation": true,
+        "de_minimis_used": false,
+        "rvc_down": 22
+      },
+      "failures": []
+    },
+    {
+      "id": "atiga-test-rvc-boundary-05",
+      "split": "test",
+      "feature": "atiga",
+      "scenario_family": "rvc-boundary",
+      "source_family_id": "rvc-boundary",
+      "status": "matched",
+      "expected_abstention": false,
+      "expected": {
+        "outcome": "yes",
+        "applied": "RVC40",
+        "alternative": {
+          "RVC40": "yes"
+        },
+        "accumulation": true,
+        "rvc_down_min": 42.95,
+        "rvc_down_max": 43.05
+      },
+      "actual": {
+        "outcome": "yes",
+        "applied": "RVC40",
+        "alternative": {
+          "RVC40": "yes"
+        },
+        "accumulation": true,
+        "de_minimis_used": false,
+        "rvc_down": 43
+      },
+      "failures": []
+    },
+    {
+      "id": "atiga-test-rvc-boundary-06",
+      "split": "test",
+      "feature": "atiga",
+      "scenario_family": "rvc-boundary",
+      "source_family_id": "rvc-boundary",
+      "status": "matched",
+      "expected_abstention": false,
+      "expected": {
+        "outcome": "no",
+        "alternative": {
+          "CC": "no",
+          "RVC40": "no"
+        },
+        "accumulation": true,
+        "rvc_down_min": 39.45,
+        "rvc_down_max": 39.55
+      },
+      "actual": {
+        "outcome": "no",
+        "alternative": {
+          "CC": "no",
+          "RVC40": "no"
+        },
+        "accumulation": true,
+        "de_minimis_used": false,
+        "rvc_down": 39.5
+      },
+      "failures": []
+    },
+    {
+      "id": "atiga-test-rvc-boundary-07",
+      "split": "test",
+      "feature": "atiga",
+      "scenario_family": "rvc-boundary",
+      "source_family_id": "rvc-boundary",
+      "status": "matched",
+      "expected_abstention": false,
+      "expected": {
+        "outcome": "yes",
+        "applied": "RVC40",
+        "alternative": {
+          "CC": "no",
+          "RVC40": "yes"
+        },
+        "accumulation": true,
+        "rvc_down_min": 42.95,
+        "rvc_down_max": 43.05
+      },
+      "actual": {
+        "outcome": "yes",
+        "applied": "RVC40",
+        "alternative": {
+          "CC": "no",
+          "RVC40": "yes"
+        },
+        "accumulation": true,
+        "de_minimis_used": false,
+        "rvc_down": 43
+      },
+      "failures": []
+    },
+    {
+      "id": "atiga-test-rvc-boundary-08",
+      "split": "test",
+      "feature": "atiga",
+      "scenario_family": "rvc-boundary",
+      "source_family_id": "rvc-boundary",
+      "status": "matched",
+      "expected_abstention": false,
+      "expected": {
+        "outcome": "yes",
+        "applied": "RVC40",
+        "alternative": {
+          "RVC40": "yes"
+        },
+        "accumulation": true,
+        "rvc_down_min": 39.95,
+        "rvc_down_max": 40.05
+      },
+      "actual": {
+        "outcome": "yes",
+        "applied": "RVC40",
+        "alternative": {
+          "RVC40": "yes"
+        },
+        "accumulation": true,
+        "de_minimis_used": false,
+        "rvc_down": 40
+      },
+      "failures": []
+    },
+    {
+      "id": "atiga-test-rvc-boundary-09",
+      "split": "test",
+      "feature": "atiga",
+      "scenario_family": "rvc-boundary",
+      "source_family_id": "rvc-boundary",
+      "status": "matched",
+      "expected_abstention": false,
+      "expected": {
+        "outcome": "no",
+        "alternative": {
+          "CTSH": "no",
+          "RVC40": "no"
+        },
+        "accumulation": true,
+        "rvc_down_min": 39.45,
+        "rvc_down_max": 39.55
+      },
+      "actual": {
+        "outcome": "no",
+        "alternative": {
+          "CTSH": "no",
+          "RVC40": "no"
+        },
+        "accumulation": true,
+        "de_minimis_used": false,
+        "rvc_down": 39.5
+      },
+      "failures": []
+    },
+    {
+      "id": "atiga-test-rvc-boundary-10",
+      "split": "test",
+      "feature": "atiga",
+      "scenario_family": "rvc-boundary",
+      "source_family_id": "rvc-boundary",
+      "status": "matched",
+      "expected_abstention": false,
+      "expected": {
+        "outcome": "no",
+        "alternative": {
+          "CTSH": "no",
+          "RVC40": "no"
+        },
+        "accumulation": true,
+        "rvc_down_min": 21.95,
+        "rvc_down_max": 22.05
+      },
+      "actual": {
+        "outcome": "no",
+        "alternative": {
+          "CTSH": "no",
+          "RVC40": "no"
+        },
+        "accumulation": true,
+        "de_minimis_used": false,
+        "rvc_down": 22
+      },
+      "failures": []
+    },
+    {
+      "id": "atiga-test-rvc-boundary-11",
+      "split": "test",
+      "feature": "atiga",
+      "scenario_family": "rvc-boundary",
+      "source_family_id": "rvc-boundary",
+      "status": "matched",
+      "expected_abstention": false,
+      "expected": {
+        "outcome": "yes",
+        "applied": "RVC40",
+        "alternative": {
+          "CTSH": "no",
+          "RVC40": "yes"
+        },
+        "accumulation": true,
+        "rvc_down_min": 42.95,
+        "rvc_down_max": 43.05
+      },
+      "actual": {
+        "outcome": "yes",
+        "applied": "RVC40",
+        "alternative": {
+          "CTSH": "no",
+          "RVC40": "yes"
+        },
+        "accumulation": true,
+        "de_minimis_used": false,
+        "rvc_down": 43
+      },
+      "failures": []
+    },
+    {
+      "id": "atiga-test-rvc-boundary-12",
+      "split": "test",
+      "feature": "atiga",
+      "scenario_family": "rvc-boundary",
+      "source_family_id": "rvc-boundary",
+      "status": "matched",
+      "expected_abstention": false,
+      "expected": {
+        "outcome": "no",
+        "alternative": {
+          "CTSH": "no",
+          "RVC40": "no"
+        },
+        "accumulation": true,
+        "rvc_down_min": 39.45,
+        "rvc_down_max": 39.55
+      },
+      "actual": {
+        "outcome": "no",
+        "alternative": {
+          "CTSH": "no",
+          "RVC40": "no"
+        },
+        "accumulation": true,
+        "de_minimis_used": false,
+        "rvc_down": 39.5
+      },
+      "failures": []
+    },
+    {
+      "id": "atiga-test-rvc-boundary-13",
+      "split": "test",
+      "feature": "atiga",
+      "scenario_family": "rvc-boundary",
+      "source_family_id": "rvc-boundary",
+      "status": "matched",
+      "expected_abstention": false,
+      "expected": {
+        "outcome": "yes",
+        "applied": "RVC40",
+        "alternative": {
+          "RVC40": "yes"
+        },
+        "accumulation": true,
+        "rvc_down_min": 42.95,
+        "rvc_down_max": 43.05
+      },
+      "actual": {
+        "outcome": "yes",
+        "applied": "RVC40",
+        "alternative": {
+          "RVC40": "yes"
+        },
+        "accumulation": true,
+        "de_minimis_used": false,
+        "rvc_down": 43
+      },
+      "failures": []
+    },
+    {
+      "id": "atiga-test-rvc-boundary-14",
+      "split": "test",
+      "feature": "atiga",
+      "scenario_family": "rvc-boundary",
+      "source_family_id": "rvc-boundary",
+      "status": "matched",
+      "expected_abstention": false,
+      "expected": {
+        "outcome": "yes",
+        "applied": "RVC40",
+        "alternative": {
+          "CTSH": "no",
+          "RVC40": "yes"
+        },
+        "accumulation": true,
+        "rvc_down_min": 39.95,
+        "rvc_down_max": 40.05
+      },
+      "actual": {
+        "outcome": "yes",
+        "applied": "RVC40",
+        "alternative": {
+          "CTSH": "no",
+          "RVC40": "yes"
+        },
+        "accumulation": true,
+        "de_minimis_used": false,
+        "rvc_down": 40
+      },
+      "failures": []
+    },
+    {
+      "id": "atiga-test-tariff-shift-grid-01",
+      "split": "test",
+      "feature": "atiga",
+      "scenario_family": "tariff-shift-grid",
+      "source_family_id": "tariff-shift-grid",
+      "status": "matched",
+      "expected_abstention": false,
+      "expected": {
+        "outcome": "yes",
+        "applied": "CC",
+        "alternative": {
+          "CC": "yes",
+          "RVC40": "no"
+        },
+        "accumulation": true
+      },
+      "actual": {
+        "outcome": "yes",
+        "applied": "CC",
+        "alternative": {
+          "CC": "yes",
+          "RVC40": "no"
+        },
+        "accumulation": true,
+        "de_minimis_used": false,
+        "rvc_down": 30
+      },
+      "failures": []
+    },
+    {
+      "id": "atiga-test-tariff-shift-grid-02",
+      "split": "test",
+      "feature": "atiga",
+      "scenario_family": "tariff-shift-grid",
+      "source_family_id": "tariff-shift-grid",
+      "status": "matched",
+      "expected_abstention": false,
+      "expected": {
+        "outcome": "yes",
+        "applied": "CTSH",
+        "alternative": {
+          "CTSH": "yes",
+          "RVC40": "no"
+        },
+        "accumulation": true
+      },
+      "actual": {
+        "outcome": "yes",
+        "applied": "CTSH",
+        "alternative": {
+          "CTSH": "yes",
+          "RVC40": "no"
+        },
+        "accumulation": true,
+        "de_minimis_used": false,
+        "rvc_down": 25
+      },
+      "failures": []
+    },
+    {
+      "id": "atiga-test-tariff-shift-grid-03",
+      "split": "test",
+      "feature": "atiga",
+      "scenario_family": "tariff-shift-grid",
+      "source_family_id": "tariff-shift-grid",
+      "status": "matched",
+      "expected_abstention": false,
+      "expected": {
+        "outcome": "yes",
+        "applied": "CTSH",
+        "alternative": {
+          "CTSH": "yes",
+          "RVC40": "no"
+        },
+        "accumulation": true
+      },
+      "actual": {
+        "outcome": "yes",
+        "applied": "CTSH",
+        "alternative": {
+          "CTSH": "yes",
+          "RVC40": "no"
+        },
+        "accumulation": true,
+        "de_minimis_used": false,
+        "rvc_down": 30
+      },
+      "failures": []
+    },
+    {
+      "id": "atiga-test-tariff-shift-grid-04",
+      "split": "test",
+      "feature": "atiga",
+      "scenario_family": "tariff-shift-grid",
+      "source_family_id": "tariff-shift-grid",
+      "status": "matched",
+      "expected_abstention": false,
+      "expected": {
+        "outcome": "no",
+        "alternative": {
+          "CTSH": "no",
+          "RVC40": "no"
+        },
+        "accumulation": true
+      },
+      "actual": {
+        "outcome": "no",
+        "alternative": {
+          "CTSH": "no",
+          "RVC40": "no"
+        },
+        "accumulation": true,
+        "de_minimis_used": false,
+        "rvc_down": 25
+      },
+      "failures": []
+    },
+    {
+      "id": "atiga-test-tariff-shift-grid-05",
+      "split": "test",
+      "feature": "atiga",
+      "scenario_family": "tariff-shift-grid",
+      "source_family_id": "tariff-shift-grid",
+      "status": "matched",
+      "expected_abstention": false,
+      "expected": {
+        "outcome": "yes",
+        "applied": "CTSH",
+        "alternative": {
+          "CTSH": "yes",
+          "RVC40": "no"
+        },
+        "accumulation": true
+      },
+      "actual": {
+        "outcome": "yes",
+        "applied": "CTSH",
+        "alternative": {
+          "CTSH": "yes",
+          "RVC40": "no"
+        },
+        "accumulation": true,
+        "de_minimis_used": false,
+        "rvc_down": 30
+      },
+      "failures": []
+    },
+    {
+      "id": "atiga-test-tariff-shift-grid-06",
+      "split": "test",
+      "feature": "atiga",
+      "scenario_family": "tariff-shift-grid",
+      "source_family_id": "tariff-shift-grid",
+      "status": "matched",
+      "expected_abstention": false,
+      "expected": {
+        "outcome": "yes",
+        "applied": "CTSH",
+        "alternative": {
+          "CTSH": "yes",
+          "RVC40": "no"
+        },
+        "accumulation": true
+      },
+      "actual": {
+        "outcome": "yes",
+        "applied": "CTSH",
+        "alternative": {
+          "CTSH": "yes",
+          "RVC40": "no"
+        },
+        "accumulation": true,
+        "de_minimis_used": false,
+        "rvc_down": 25
+      },
+      "failures": []
+    },
+    {
+      "id": "atiga-test-tariff-shift-grid-07",
+      "split": "test",
+      "feature": "atiga",
+      "scenario_family": "tariff-shift-grid",
+      "source_family_id": "tariff-shift-grid",
+      "status": "matched",
+      "expected_abstention": false,
+      "expected": {
+        "outcome": "no",
+        "alternative": {
+          "CC": "no",
+          "RVC40": "no"
+        },
+        "accumulation": true
+      },
+      "actual": {
+        "outcome": "no",
+        "alternative": {
+          "CC": "no",
+          "RVC40": "no"
+        },
+        "accumulation": true,
+        "de_minimis_used": false,
+        "rvc_down": 30
+      },
+      "failures": []
+    },
+    {
+      "id": "atiga-test-tariff-shift-grid-08",
+      "split": "test",
+      "feature": "atiga",
+      "scenario_family": "tariff-shift-grid",
+      "source_family_id": "tariff-shift-grid",
+      "status": "matched",
+      "expected_abstention": false,
+      "expected": {
+        "outcome": "no",
+        "alternative": {
+          "CTSH": "no",
+          "RVC40": "no"
+        },
+        "accumulation": true
+      },
+      "actual": {
+        "outcome": "no",
+        "alternative": {
+          "CTSH": "no",
+          "RVC40": "no"
+        },
+        "accumulation": true,
+        "de_minimis_used": false,
+        "rvc_down": 25
+      },
+      "failures": []
+    },
+    {
+      "id": "atiga-test-tariff-shift-grid-09",
+      "split": "test",
+      "feature": "atiga",
+      "scenario_family": "tariff-shift-grid",
+      "source_family_id": "tariff-shift-grid",
+      "status": "matched",
+      "expected_abstention": false,
+      "expected": {
+        "outcome": "yes",
+        "applied": "CTSH",
+        "alternative": {
+          "CTSH": "yes",
+          "RVC40": "no"
+        },
+        "accumulation": true
+      },
+      "actual": {
+        "outcome": "yes",
+        "applied": "CTSH",
+        "alternative": {
+          "CTSH": "yes",
+          "RVC40": "no"
+        },
+        "accumulation": true,
+        "de_minimis_used": false,
+        "rvc_down": 30
+      },
+      "failures": []
+    },
+    {
+      "id": "atiga-test-tariff-shift-grid-10",
+      "split": "test",
+      "feature": "atiga",
+      "scenario_family": "tariff-shift-grid",
+      "source_family_id": "tariff-shift-grid",
+      "status": "matched",
+      "expected_abstention": false,
+      "expected": {
+        "outcome": "no",
+        "alternative": {
+          "CC": "no",
+          "RVC40": "no"
+        },
+        "accumulation": true
+      },
+      "actual": {
+        "outcome": "no",
+        "alternative": {
+          "CC": "no",
+          "RVC40": "no"
+        },
+        "accumulation": true,
+        "de_minimis_used": false,
+        "rvc_down": 25
+      },
+      "failures": []
+    },
+    {
+      "id": "atiga-test-tariff-shift-grid-11",
+      "split": "test",
+      "feature": "atiga",
+      "scenario_family": "tariff-shift-grid",
+      "source_family_id": "tariff-shift-grid",
+      "status": "matched",
+      "expected_abstention": false,
+      "expected": {
+        "outcome": "no",
+        "alternative": {
+          "CC": "no",
+          "RVC40": "no"
+        },
+        "accumulation": true
+      },
+      "actual": {
+        "outcome": "no",
+        "alternative": {
+          "CC": "no",
+          "RVC40": "no"
+        },
+        "accumulation": true,
+        "de_minimis_used": false,
+        "rvc_down": 30
+      },
+      "failures": []
+    },
+    {
+      "id": "atiga-test-tariff-shift-grid-12",
+      "split": "test",
+      "feature": "atiga",
+      "scenario_family": "tariff-shift-grid",
+      "source_family_id": "tariff-shift-grid",
+      "status": "matched",
+      "expected_abstention": false,
+      "expected": {
+        "outcome": "no",
+        "alternative": {
+          "CTSH": "no",
+          "RVC40": "no"
+        },
+        "accumulation": true
+      },
+      "actual": {
+        "outcome": "no",
+        "alternative": {
+          "CTSH": "no",
+          "RVC40": "no"
+        },
+        "accumulation": true,
+        "de_minimis_used": false,
+        "rvc_down": 25
+      },
+      "failures": []
+    },
+    {
+      "id": "atiga-test-tariff-shift-grid-13",
+      "split": "test",
+      "feature": "atiga",
+      "scenario_family": "tariff-shift-grid",
+      "source_family_id": "tariff-shift-grid",
+      "status": "matched",
+      "expected_abstention": false,
+      "expected": {
+        "outcome": "yes",
+        "applied": "CTSH",
+        "alternative": {
+          "CTSH": "yes",
+          "RVC40": "no"
+        },
+        "accumulation": true
+      },
+      "actual": {
+        "outcome": "yes",
+        "applied": "CTSH",
+        "alternative": {
+          "CTSH": "yes",
+          "RVC40": "no"
+        },
+        "accumulation": true,
+        "de_minimis_used": false,
+        "rvc_down": 30
+      },
+      "failures": []
+    },
+    {
+      "id": "atiga-test-tariff-shift-grid-14",
+      "split": "test",
+      "feature": "atiga",
+      "scenario_family": "tariff-shift-grid",
+      "source_family_id": "tariff-shift-grid",
+      "status": "matched",
+      "expected_abstention": false,
+      "expected": {
+        "outcome": "yes",
+        "applied": "CTSH",
+        "alternative": {
+          "CTSH": "yes",
+          "RVC40": "no"
+        },
+        "accumulation": true
+      },
+      "actual": {
+        "outcome": "yes",
+        "applied": "CTSH",
+        "alternative": {
+          "CTSH": "yes",
+          "RVC40": "no"
+        },
+        "accumulation": true,
+        "de_minimis_used": false,
+        "rvc_down": 25
+      },
+      "failures": []
+    },
+    {
+      "id": "atiga-test-tariff-shift-grid-15",
+      "split": "test",
+      "feature": "atiga",
+      "scenario_family": "tariff-shift-grid",
+      "source_family_id": "tariff-shift-grid",
+      "status": "matched",
+      "expected_abstention": false,
+      "expected": {
+        "outcome": "yes",
+        "applied": "CTSH",
+        "alternative": {
+          "CTSH": "yes",
+          "RVC40": "no"
+        },
+        "accumulation": true
+      },
+      "actual": {
+        "outcome": "yes",
+        "applied": "CTSH",
+        "alternative": {
+          "CTSH": "yes",
+          "RVC40": "no"
+        },
+        "accumulation": true,
+        "de_minimis_used": false,
+        "rvc_down": 30
+      },
+      "failures": []
+    },
+    {
+      "id": "atiga-test-tariff-shift-grid-16",
+      "split": "test",
+      "feature": "atiga",
+      "scenario_family": "tariff-shift-grid",
+      "source_family_id": "tariff-shift-grid",
+      "status": "matched",
+      "expected_abstention": false,
+      "expected": {
+        "outcome": "no",
+        "alternative": {
+          "CTSH": "no",
+          "RVC40": "no"
+        },
+        "accumulation": true
+      },
+      "actual": {
+        "outcome": "no",
+        "alternative": {
+          "CTSH": "no",
+          "RVC40": "no"
+        },
+        "accumulation": true,
+        "de_minimis_used": false,
+        "rvc_down": 25
+      },
+      "failures": []
+    },
+    {
+      "id": "atiga-test-tariff-shift-grid-17",
+      "split": "test",
+      "feature": "atiga",
+      "scenario_family": "tariff-shift-grid",
+      "source_family_id": "tariff-shift-grid",
+      "status": "matched",
+      "expected_abstention": false,
+      "expected": {
+        "outcome": "yes",
+        "applied": "CC",
+        "alternative": {
+          "CC": "yes",
+          "RVC40": "no"
+        },
+        "accumulation": true
+      },
+      "actual": {
+        "outcome": "yes",
+        "applied": "CC",
+        "alternative": {
+          "CC": "yes",
+          "RVC40": "no"
+        },
+        "accumulation": true,
+        "de_minimis_used": false,
+        "rvc_down": 30
+      },
+      "failures": []
+    },
+    {
+      "id": "atiga-test-tariff-shift-grid-18",
+      "split": "test",
+      "feature": "atiga",
+      "scenario_family": "tariff-shift-grid",
+      "source_family_id": "tariff-shift-grid",
+      "status": "matched",
+      "expected_abstention": false,
+      "expected": {
+        "outcome": "yes",
+        "applied": "CTSH",
+        "alternative": {
+          "CTSH": "yes",
+          "RVC40": "no"
+        },
+        "accumulation": true
+      },
+      "actual": {
+        "outcome": "yes",
+        "applied": "CTSH",
+        "alternative": {
+          "CTSH": "yes",
+          "RVC40": "no"
+        },
+        "accumulation": true,
+        "de_minimis_used": false,
+        "rvc_down": 25
+      },
+      "failures": []
+    },
+    {
+      "id": "atiga-test-tariff-shift-grid-19",
+      "split": "test",
+      "feature": "atiga",
+      "scenario_family": "tariff-shift-grid",
+      "source_family_id": "tariff-shift-grid",
+      "status": "matched",
+      "expected_abstention": false,
+      "expected": {
+        "outcome": "yes",
+        "applied": "CTSH",
+        "alternative": {
+          "CTSH": "yes",
+          "RVC40": "no"
+        },
+        "accumulation": true
+      },
+      "actual": {
+        "outcome": "yes",
+        "applied": "CTSH",
+        "alternative": {
+          "CTSH": "yes",
+          "RVC40": "no"
+        },
+        "accumulation": true,
+        "de_minimis_used": false,
+        "rvc_down": 30
+      },
+      "failures": []
+    },
+    {
+      "id": "atiga-test-tariff-shift-grid-20",
+      "split": "test",
+      "feature": "atiga",
+      "scenario_family": "tariff-shift-grid",
+      "source_family_id": "tariff-shift-grid",
+      "status": "matched",
+      "expected_abstention": false,
+      "expected": {
+        "outcome": "no",
+        "alternative": {
+          "CTSH": "no",
+          "RVC40": "no"
+        },
+        "accumulation": true
+      },
+      "actual": {
+        "outcome": "no",
+        "alternative": {
+          "CTSH": "no",
+          "RVC40": "no"
+        },
+        "accumulation": true,
+        "de_minimis_used": false,
+        "rvc_down": 25
+      },
+      "failures": []
+    },
+    {
+      "id": "atiga-test-tariff-shift-grid-21",
+      "split": "test",
+      "feature": "atiga",
+      "scenario_family": "tariff-shift-grid",
+      "source_family_id": "tariff-shift-grid",
+      "status": "matched",
+      "expected_abstention": false,
+      "expected": {
+        "outcome": "yes",
+        "applied": "CTSH",
+        "alternative": {
+          "CTSH": "yes",
+          "RVC40": "no"
+        },
+        "accumulation": true
+      },
+      "actual": {
+        "outcome": "yes",
+        "applied": "CTSH",
+        "alternative": {
+          "CTSH": "yes",
+          "RVC40": "no"
+        },
+        "accumulation": true,
+        "de_minimis_used": false,
+        "rvc_down": 30
+      },
+      "failures": []
+    },
+    {
+      "id": "atiga-test-tariff-shift-grid-22",
+      "split": "test",
+      "feature": "atiga",
+      "scenario_family": "tariff-shift-grid",
+      "source_family_id": "tariff-shift-grid",
+      "status": "matched",
+      "expected_abstention": false,
+      "expected": {
+        "outcome": "no",
+        "alternative": {
+          "CC": "no",
+          "RVC40": "no"
+        },
+        "accumulation": true
+      },
+      "actual": {
+        "outcome": "no",
+        "alternative": {
+          "CC": "no",
+          "RVC40": "no"
+        },
+        "accumulation": true,
+        "de_minimis_used": false,
+        "rvc_down": 25
+      },
+      "failures": []
+    },
+    {
+      "id": "atiga-test-tariff-shift-grid-23",
+      "split": "test",
+      "feature": "atiga",
+      "scenario_family": "tariff-shift-grid",
+      "source_family_id": "tariff-shift-grid",
+      "status": "matched",
+      "expected_abstention": false,
+      "expected": {
+        "outcome": "yes",
+        "applied": "CTSH",
+        "alternative": {
+          "CTSH": "yes",
+          "RVC40": "no"
+        },
+        "accumulation": true
+      },
+      "actual": {
+        "outcome": "yes",
+        "applied": "CTSH",
+        "alternative": {
+          "CTSH": "yes",
+          "RVC40": "no"
+        },
+        "accumulation": true,
+        "de_minimis_used": false,
+        "rvc_down": 30
+      },
+      "failures": []
+    },
+    {
+      "id": "atiga-test-tariff-shift-grid-24",
+      "split": "test",
+      "feature": "atiga",
+      "scenario_family": "tariff-shift-grid",
+      "source_family_id": "tariff-shift-grid",
+      "status": "matched",
+      "expected_abstention": false,
+      "expected": {
+        "outcome": "no",
+        "alternative": {
+          "CC": "no",
+          "RVC40": "no"
+        },
+        "accumulation": true
+      },
+      "actual": {
+        "outcome": "no",
+        "alternative": {
+          "CC": "no",
+          "RVC40": "no"
+        },
+        "accumulation": true,
+        "de_minimis_used": false,
+        "rvc_down": 25
+      },
+      "failures": []
+    },
+    {
+      "id": "atiga-test-incomplete-hs-01",
+      "split": "test",
+      "feature": "atiga",
+      "scenario_family": "incomplete-hs",
+      "source_family_id": "incomplete-hs",
+      "status": "matched",
+      "expected_abstention": true,
+      "expected": {
+        "outcome": "undetermined",
+        "accumulation": false
+      },
+      "actual": {
+        "outcome": "undetermined",
+        "alternative": {
+          "CTSH": "undetermined",
+          "RVC40": "undetermined"
+        },
+        "accumulation": false,
+        "de_minimis_used": false
+      },
+      "failures": []
+    },
+    {
+      "id": "atiga-test-incomplete-hs-02",
+      "split": "test",
+      "feature": "atiga",
+      "scenario_family": "incomplete-hs",
+      "source_family_id": "incomplete-hs",
+      "status": "matched",
+      "expected_abstention": true,
+      "expected": {
+        "outcome": "undetermined",
+        "accumulation": false
+      },
+      "actual": {
+        "outcome": "undetermined",
+        "alternative": {
+          "CTSH": "undetermined",
+          "RVC40": "undetermined"
+        },
+        "accumulation": false,
+        "de_minimis_used": false
+      },
+      "failures": []
+    },
+    {
+      "id": "atiga-test-incomplete-hs-03",
+      "split": "test",
+      "feature": "atiga",
+      "scenario_family": "incomplete-hs",
+      "source_family_id": "incomplete-hs",
+      "status": "matched",
+      "expected_abstention": true,
+      "expected": {
+        "outcome": "undetermined",
+        "accumulation": false
+      },
+      "actual": {
+        "outcome": "undetermined",
+        "alternative": {
+          "CTSH": "undetermined",
+          "RVC40": "undetermined"
+        },
+        "accumulation": false,
+        "de_minimis_used": false
+      },
+      "failures": []
+    },
+    {
+      "id": "atiga-test-incomplete-hs-04",
+      "split": "test",
+      "feature": "atiga",
+      "scenario_family": "incomplete-hs",
+      "source_family_id": "incomplete-hs",
+      "status": "matched",
+      "expected_abstention": true,
+      "expected": {
+        "outcome": "undetermined",
+        "accumulation": false
+      },
+      "actual": {
+        "outcome": "undetermined",
+        "alternative": {
+          "CTSH": "undetermined",
+          "RVC40": "undetermined"
+        },
+        "accumulation": false,
+        "de_minimis_used": false
+      },
+      "failures": []
+    },
+    {
+      "id": "atiga-test-de-minimis-value-01",
+      "split": "test",
+      "feature": "atiga",
+      "scenario_family": "de-minimis-value",
+      "source_family_id": "de-minimis-value",
+      "status": "matched",
+      "expected_abstention": false,
+      "expected": {
+        "outcome": "yes",
+        "applied": "CTSH",
+        "alternative": {
+          "CTSH": "yes",
+          "RVC40": "no"
+        },
+        "de_minimis_used": true
+      },
+      "actual": {
+        "outcome": "yes",
+        "applied": "CTSH",
+        "alternative": {
+          "CTSH": "yes",
+          "RVC40": "no"
+        },
+        "accumulation": false,
+        "de_minimis_used": true,
+        "rvc_down": 25
+      },
+      "failures": []
+    },
+    {
+      "id": "atiga-test-de-minimis-value-02",
+      "split": "test",
+      "feature": "atiga",
+      "scenario_family": "de-minimis-value",
+      "source_family_id": "de-minimis-value",
+      "status": "matched",
+      "expected_abstention": false,
+      "expected": {
+        "outcome": "yes",
+        "applied": "CC",
+        "alternative": {
+          "CC": "yes",
+          "RVC40": "no"
+        },
+        "de_minimis_used": true
+      },
+      "actual": {
+        "outcome": "yes",
+        "applied": "CC",
+        "alternative": {
+          "CC": "yes",
+          "RVC40": "no"
+        },
+        "accumulation": true,
+        "de_minimis_used": true,
+        "rvc_down": 20.099999999999994
+      },
+      "failures": []
+    },
+    {
+      "id": "atiga-test-de-minimis-value-03",
+      "split": "test",
+      "feature": "atiga",
+      "scenario_family": "de-minimis-value",
+      "source_family_id": "de-minimis-value",
+      "status": "matched",
+      "expected_abstention": false,
+      "expected": {
+        "outcome": "yes",
+        "applied": "CTSH",
+        "alternative": {
+          "CTSH": "yes",
+          "RVC40": "no"
+        },
+        "de_minimis_used": true
+      },
+      "actual": {
+        "outcome": "yes",
+        "applied": "CTSH",
+        "alternative": {
+          "CTSH": "yes",
+          "RVC40": "no"
+        },
+        "accumulation": true,
+        "de_minimis_used": true,
+        "rvc_down": 20
+      },
+      "failures": []
+    },
+    {
+      "id": "atiga-test-de-minimis-value-04",
+      "split": "test",
+      "feature": "atiga",
+      "scenario_family": "de-minimis-value",
+      "source_family_id": "de-minimis-value",
+      "status": "matched",
+      "expected_abstention": false,
+      "expected": {
+        "outcome": "no",
+        "alternative": {
+          "CTSH": "no",
+          "RVC40": "no"
+        }
+      },
+      "actual": {
+        "outcome": "no",
+        "alternative": {
+          "CTSH": "no",
+          "RVC40": "no"
+        },
+        "accumulation": true,
+        "de_minimis_used": false,
+        "rvc_down": 19.900000000000006
+      },
+      "failures": []
+    },
+    {
+      "id": "atiga-test-de-minimis-value-05",
+      "split": "test",
+      "feature": "atiga",
+      "scenario_family": "de-minimis-value",
+      "source_family_id": "de-minimis-value",
+      "status": "matched",
+      "expected_abstention": false,
+      "expected": {
+        "outcome": "no",
+        "alternative": {
+          "CTSH": "no",
+          "RVC40": "no"
+        }
+      },
+      "actual": {
+        "outcome": "no",
+        "alternative": {
+          "CTSH": "no",
+          "RVC40": "no"
+        },
+        "accumulation": true,
+        "de_minimis_used": false,
+        "rvc_down": 15
+      },
+      "failures": []
+    },
+    {
+      "id": "atiga-test-de-minimis-value-06",
+      "split": "test",
+      "feature": "atiga",
+      "scenario_family": "de-minimis-value",
+      "source_family_id": "de-minimis-value",
+      "status": "matched",
+      "expected_abstention": false,
+      "expected": {
+        "outcome": "yes",
+        "applied": "CTSH",
+        "alternative": {
+          "CTSH": "yes",
+          "RVC40": "no"
+        },
+        "de_minimis_used": true
+      },
+      "actual": {
+        "outcome": "yes",
+        "applied": "CTSH",
+        "alternative": {
+          "CTSH": "yes",
+          "RVC40": "no"
+        },
+        "accumulation": true,
+        "de_minimis_used": true,
+        "rvc_down": 22
+      },
+      "failures": []
+    },
+    {
+      "id": "atiga-test-de-minimis-value-07",
+      "split": "test",
+      "feature": "atiga",
+      "scenario_family": "de-minimis-value",
+      "source_family_id": "de-minimis-value",
+      "status": "matched",
+      "expected_abstention": false,
+      "expected": {
+        "outcome": "no",
+        "alternative": {
+          "CTSH": "no",
+          "RVC40": "no"
+        }
+      },
+      "actual": {
+        "outcome": "no",
+        "alternative": {
+          "CTSH": "no",
+          "RVC40": "no"
+        },
+        "accumulation": true,
+        "de_minimis_used": false,
+        "rvc_down": 18
+      },
+      "failures": []
+    },
+    {
+      "id": "atiga-test-de-minimis-value-08",
+      "split": "test",
+      "feature": "atiga",
+      "scenario_family": "de-minimis-value",
+      "source_family_id": "de-minimis-value",
+      "status": "matched",
+      "expected_abstention": false,
+      "expected": {
+        "outcome": "yes",
+        "applied": "CTSH",
+        "alternative": {
+          "CTSH": "yes",
+          "RVC40": "no"
+        },
+        "de_minimis_used": true
+      },
+      "actual": {
+        "outcome": "yes",
+        "applied": "CTSH",
+        "alternative": {
+          "CTSH": "yes",
+          "RVC40": "no"
+        },
+        "accumulation": false,
+        "de_minimis_used": true,
+        "rvc_down": 20
+      },
+      "failures": []
+    },
+    {
+      "id": "atiga-test-de-minimis-value-09",
+      "split": "test",
+      "feature": "atiga",
+      "scenario_family": "de-minimis-value",
+      "source_family_id": "de-minimis-value",
+      "status": "matched",
+      "expected_abstention": false,
+      "expected": {
+        "outcome": "yes",
+        "applied": "CTSH",
+        "alternative": {
+          "CTSH": "yes",
+          "RVC40": "no"
+        },
+        "de_minimis_used": true
+      },
+      "actual": {
+        "outcome": "yes",
+        "applied": "CTSH",
+        "alternative": {
+          "CTSH": "yes",
+          "RVC40": "no"
+        },
+        "accumulation": true,
+        "de_minimis_used": true,
+        "rvc_down": 25
+      },
+      "failures": []
+    },
+    {
+      "id": "atiga-test-de-minimis-value-10",
+      "split": "test",
+      "feature": "atiga",
+      "scenario_family": "de-minimis-value",
+      "source_family_id": "de-minimis-value",
+      "status": "matched",
+      "expected_abstention": false,
+      "expected": {
+        "outcome": "yes",
+        "applied": "CTSH",
+        "alternative": {
+          "CTSH": "yes",
+          "RVC40": "no"
+        },
+        "de_minimis_used": true
+      },
+      "actual": {
+        "outcome": "yes",
+        "applied": "CTSH",
+        "alternative": {
+          "CTSH": "yes",
+          "RVC40": "no"
+        },
+        "accumulation": true,
+        "de_minimis_used": true,
+        "rvc_down": 20.099999999999994
+      },
+      "failures": []
+    },
+    {
+      "id": "atiga-test-de-minimis-incomplete-01",
+      "split": "test",
+      "feature": "atiga",
+      "scenario_family": "de-minimis-incomplete",
+      "source_family_id": "de-minimis-incomplete",
+      "status": "matched",
+      "expected_abstention": true,
+      "expected": {
+        "outcome": "undetermined"
+      },
+      "actual": {
+        "outcome": "undetermined",
+        "alternative": {
+          "CTSH": "undetermined",
+          "RVC40": "undetermined"
+        },
+        "accumulation": false,
+        "de_minimis_used": false
+      },
+      "failures": []
+    },
+    {
+      "id": "atiga-test-de-minimis-incomplete-02",
+      "split": "test",
+      "feature": "atiga",
+      "scenario_family": "de-minimis-incomplete",
+      "source_family_id": "de-minimis-incomplete",
+      "status": "matched",
+      "expected_abstention": true,
+      "expected": {
+        "outcome": "undetermined"
+      },
+      "actual": {
+        "outcome": "undetermined",
+        "alternative": {
+          "CTSH": "undetermined",
+          "RVC40": "undetermined"
+        },
+        "accumulation": false,
+        "de_minimis_used": false
+      },
+      "failures": []
+    },
+    {
+      "id": "atiga-test-de-minimis-incomplete-03",
+      "split": "test",
+      "feature": "atiga",
+      "scenario_family": "de-minimis-incomplete",
+      "source_family_id": "de-minimis-incomplete",
+      "status": "matched",
+      "expected_abstention": true,
+      "expected": {
+        "outcome": "undetermined"
+      },
+      "actual": {
+        "outcome": "undetermined",
+        "alternative": {
+          "CC": "undetermined",
+          "RVC40": "undetermined"
+        },
+        "accumulation": false,
+        "de_minimis_used": false
+      },
+      "failures": []
+    },
+    {
+      "id": "atiga-test-textile-de-minimis-01",
+      "split": "test",
+      "feature": "atiga",
+      "scenario_family": "textile-de-minimis",
+      "source_family_id": "textile-de-minimis",
+      "status": "matched",
+      "expected_abstention": false,
+      "expected": {
+        "outcome": "no",
+        "alternative": {
+          "CC": "no",
+          "RVC40": "no"
+        }
+      },
+      "actual": {
+        "outcome": "no",
+        "alternative": {
+          "CC": "no",
+          "RVC40": "no"
+        },
+        "accumulation": false,
+        "de_minimis_used": false,
+        "rvc_down": 21
+      },
+      "failures": []
+    },
+    {
+      "id": "atiga-test-textile-de-minimis-02",
+      "split": "test",
+      "feature": "atiga",
+      "scenario_family": "textile-de-minimis",
+      "source_family_id": "textile-de-minimis",
+      "status": "matched",
+      "expected_abstention": false,
+      "expected": {
+        "outcome": "yes",
+        "applied": "CC",
+        "alternative": {
+          "CC": "yes",
+          "RVC40": "no"
+        },
+        "de_minimis_used": true
+      },
+      "actual": {
+        "outcome": "yes",
+        "applied": "CC",
+        "alternative": {
+          "CC": "yes",
+          "RVC40": "no"
+        },
+        "accumulation": false,
+        "de_minimis_used": true,
+        "rvc_down": 27
+      },
+      "failures": []
+    },
+    {
+      "id": "atiga-test-textile-de-minimis-03",
+      "split": "test",
+      "feature": "atiga",
+      "scenario_family": "textile-de-minimis",
+      "source_family_id": "textile-de-minimis",
+      "status": "matched",
+      "expected_abstention": false,
+      "expected": {
+        "outcome": "yes",
+        "applied": "CC",
+        "alternative": {
+          "CC": "yes",
+          "RVC40": "no"
+        },
+        "de_minimis_used": true
+      },
+      "actual": {
+        "outcome": "yes",
+        "applied": "CC",
+        "alternative": {
+          "CC": "yes",
+          "RVC40": "no"
+        },
+        "accumulation": false,
+        "de_minimis_used": true,
+        "rvc_down": 30
+      },
+      "failures": []
+    },
+    {
+      "id": "atiga-test-textile-de-minimis-04",
+      "split": "test",
+      "feature": "atiga",
+      "scenario_family": "textile-de-minimis",
+      "source_family_id": "textile-de-minimis",
+      "status": "matched",
+      "expected_abstention": false,
+      "expected": {
+        "outcome": "no",
+        "alternative": {
+          "CC": "no",
+          "RVC40": "no"
+        }
+      },
+      "actual": {
+        "outcome": "no",
+        "alternative": {
+          "CC": "no",
+          "RVC40": "no"
+        },
+        "accumulation": false,
+        "de_minimis_used": false,
+        "rvc_down": 19
+      },
+      "failures": []
+    },
+    {
+      "id": "atiga-test-textile-de-minimis-05",
+      "split": "test",
+      "feature": "atiga",
+      "scenario_family": "textile-de-minimis",
+      "source_family_id": "textile-de-minimis",
+      "status": "matched",
+      "expected_abstention": false,
+      "expected": {
+        "outcome": "no",
+        "alternative": {
+          "CC": "no",
+          "RVC40": "no"
+        }
+      },
+      "actual": {
+        "outcome": "no",
+        "alternative": {
+          "CC": "no",
+          "RVC40": "no"
+        },
+        "accumulation": false,
+        "de_minimis_used": false,
+        "rvc_down": 21
+      },
+      "failures": []
+    },
+    {
+      "id": "atiga-test-textile-de-minimis-06",
+      "split": "test",
+      "feature": "atiga",
+      "scenario_family": "textile-de-minimis",
+      "source_family_id": "textile-de-minimis",
+      "status": "matched",
+      "expected_abstention": false,
+      "expected": {
+        "outcome": "yes",
+        "applied": "CC",
+        "alternative": {
+          "CC": "yes",
+          "RVC40": "no"
+        },
+        "de_minimis_used": true
+      },
+      "actual": {
+        "outcome": "yes",
+        "applied": "CC",
+        "alternative": {
+          "CC": "yes",
+          "RVC40": "no"
+        },
+        "accumulation": false,
+        "de_minimis_used": true,
+        "rvc_down": 27
+      },
+      "failures": []
+    },
+    {
+      "id": "atiga-test-textile-de-minimis-07",
+      "split": "test",
+      "feature": "atiga",
+      "scenario_family": "textile-de-minimis",
+      "source_family_id": "textile-de-minimis",
+      "status": "matched",
+      "expected_abstention": false,
+      "expected": {
+        "outcome": "yes",
+        "applied": "CC",
+        "alternative": {
+          "CC": "yes",
+          "RVC40": "no"
+        },
+        "de_minimis_used": true
+      },
+      "actual": {
+        "outcome": "yes",
+        "applied": "CC",
+        "alternative": {
+          "CC": "yes",
+          "RVC40": "no"
+        },
+        "accumulation": false,
+        "de_minimis_used": true,
+        "rvc_down": 30
+      },
+      "failures": []
+    },
+    {
+      "id": "atiga-test-textile-de-minimis-08",
+      "split": "test",
+      "feature": "atiga",
+      "scenario_family": "textile-de-minimis",
+      "source_family_id": "textile-de-minimis",
+      "status": "matched",
+      "expected_abstention": false,
+      "expected": {
+        "outcome": "no",
+        "alternative": {
+          "CC": "no",
+          "RVC40": "no"
+        }
+      },
+      "actual": {
+        "outcome": "no",
+        "alternative": {
+          "CC": "no",
+          "RVC40": "no"
+        },
+        "accumulation": false,
+        "de_minimis_used": false,
+        "rvc_down": 19
+      },
+      "failures": []
+    },
+    {
+      "id": "atiga-test-cumulation-membership-01",
+      "split": "test",
+      "feature": "atiga",
+      "scenario_family": "cumulation-membership",
+      "source_family_id": "cumulation-membership",
+      "status": "matched",
+      "expected_abstention": false,
+      "expected": {
+        "outcome": "yes",
+        "alternative": {
+          "CTSH": "yes",
+          "RVC40": "yes"
+        },
+        "accumulation": true
+      },
+      "actual": {
+        "outcome": "yes",
+        "applied": "RVC40",
+        "alternative": {
+          "CTSH": "yes",
+          "RVC40": "yes"
+        },
+        "accumulation": true,
+        "de_minimis_used": false,
+        "rvc_down": 85
+      },
+      "failures": []
+    },
+    {
+      "id": "atiga-test-cumulation-membership-02",
+      "split": "test",
+      "feature": "atiga",
+      "scenario_family": "cumulation-membership",
+      "source_family_id": "cumulation-membership",
+      "status": "matched",
+      "expected_abstention": false,
+      "expected": {
+        "outcome": "no",
+        "alternative": {
+          "CTSH": "no",
+          "RVC40": "no"
+        },
+        "accumulation": true
+      },
+      "actual": {
+        "outcome": "no",
+        "alternative": {
+          "CTSH": "no",
+          "RVC40": "no"
+        },
+        "accumulation": true,
+        "de_minimis_used": false,
+        "rvc_down": 35
+      },
+      "failures": []
+    },
+    {
+      "id": "atiga-test-cumulation-membership-03",
+      "split": "test",
+      "feature": "atiga",
+      "scenario_family": "cumulation-membership",
+      "source_family_id": "cumulation-membership",
+      "status": "matched",
+      "expected_abstention": false,
+      "expected": {
+        "outcome": "no",
+        "alternative": {
+          "CC": "no",
+          "RVC40": "no"
+        },
+        "accumulation": true
+      },
+      "actual": {
+        "outcome": "no",
+        "alternative": {
+          "CC": "no",
+          "RVC40": "no"
+        },
+        "accumulation": true,
+        "de_minimis_used": false,
+        "rvc_down": 35
+      },
+      "failures": []
+    },
+    {
+      "id": "atiga-test-cumulation-membership-04",
+      "split": "test",
+      "feature": "atiga",
+      "scenario_family": "cumulation-membership",
+      "source_family_id": "cumulation-membership",
+      "status": "matched",
+      "expected_abstention": false,
+      "expected": {
+        "outcome": "yes",
+        "applied": "RVC40",
+        "alternative": {
+          "CC": "no",
+          "RVC40": "yes"
+        },
+        "accumulation": true
+      },
+      "actual": {
+        "outcome": "yes",
+        "applied": "RVC40",
+        "alternative": {
+          "CC": "no",
+          "RVC40": "yes"
+        },
+        "accumulation": true,
+        "de_minimis_used": false,
+        "rvc_down": 80
+      },
+      "failures": []
+    },
+    {
+      "id": "atiga-test-cumulation-membership-05",
+      "split": "test",
+      "feature": "atiga",
+      "scenario_family": "cumulation-membership",
+      "source_family_id": "cumulation-membership",
+      "status": "matched",
+      "expected_abstention": false,
+      "expected": {
+        "outcome": "no",
+        "alternative": {
+          "CTSH": "no",
+          "RVC40": "no"
+        },
+        "accumulation": true
+      },
+      "actual": {
+        "outcome": "no",
+        "alternative": {
+          "CTSH": "no",
+          "RVC40": "no"
+        },
+        "accumulation": true,
+        "de_minimis_used": false,
+        "rvc_down": 35
+      },
+      "failures": []
+    },
+    {
+      "id": "atiga-test-cumulation-membership-06",
+      "split": "test",
+      "feature": "atiga",
+      "scenario_family": "cumulation-membership",
+      "source_family_id": "cumulation-membership",
+      "status": "matched",
+      "expected_abstention": false,
+      "expected": {
+        "outcome": "yes",
+        "applied": "RVC40",
+        "alternative": {
+          "RVC40": "yes"
+        },
+        "accumulation": true
+      },
+      "actual": {
+        "outcome": "yes",
+        "applied": "RVC40",
+        "alternative": {
+          "RVC40": "yes"
+        },
+        "accumulation": true,
+        "de_minimis_used": false,
+        "rvc_down": 80
+      },
+      "failures": []
+    },
+    {
+      "id": "atiga-test-cumulation-membership-07",
+      "split": "test",
+      "feature": "atiga",
+      "scenario_family": "cumulation-membership",
+      "source_family_id": "cumulation-membership",
+      "status": "matched",
+      "expected_abstention": false,
+      "expected": {
+        "outcome": "yes",
+        "alternative": {
+          "CTSH": "yes",
+          "RVC40": "yes"
+        },
+        "accumulation": true
+      },
+      "actual": {
+        "outcome": "yes",
+        "applied": "RVC40",
+        "alternative": {
+          "CTSH": "yes",
+          "RVC40": "yes"
+        },
+        "accumulation": true,
+        "de_minimis_used": false,
+        "rvc_down": 85
+      },
+      "failures": []
+    },
+    {
+      "id": "atiga-test-cumulation-membership-08",
+      "split": "test",
+      "feature": "atiga",
+      "scenario_family": "cumulation-membership",
+      "source_family_id": "cumulation-membership",
+      "status": "matched",
+      "expected_abstention": false,
+      "expected": {
+        "outcome": "no",
+        "alternative": {
+          "CTSH": "no",
+          "RVC40": "no"
+        },
+        "accumulation": true
+      },
+      "actual": {
+        "outcome": "no",
+        "alternative": {
+          "CTSH": "no",
+          "RVC40": "no"
+        },
+        "accumulation": true,
+        "de_minimis_used": false,
+        "rvc_down": 35
+      },
+      "failures": []
+    },
+    {
+      "id": "atiga-test-cumulation-membership-09",
+      "split": "test",
+      "feature": "atiga",
+      "scenario_family": "cumulation-membership",
+      "source_family_id": "cumulation-membership",
+      "status": "matched",
+      "expected_abstention": false,
+      "expected": {
+        "outcome": "no",
+        "alternative": {
+          "CTSH": "no",
+          "RVC40": "no"
+        },
+        "accumulation": true
+      },
+      "actual": {
+        "outcome": "no",
+        "alternative": {
+          "CTSH": "no",
+          "RVC40": "no"
+        },
+        "accumulation": true,
+        "de_minimis_used": false,
+        "rvc_down": 35
+      },
+      "failures": []
+    },
+    {
+      "id": "atiga-test-cumulation-membership-10",
+      "split": "test",
+      "feature": "atiga",
+      "scenario_family": "cumulation-membership",
+      "source_family_id": "cumulation-membership",
+      "status": "matched",
+      "expected_abstention": false,
+      "expected": {
+        "outcome": "yes",
+        "applied": "RVC40",
+        "alternative": {
+          "CTSH": "no",
+          "RVC40": "yes"
+        },
+        "accumulation": true
+      },
+      "actual": {
+        "outcome": "yes",
+        "applied": "RVC40",
+        "alternative": {
+          "CTSH": "no",
+          "RVC40": "yes"
+        },
+        "accumulation": true,
+        "de_minimis_used": false,
+        "rvc_down": 80
+      },
+      "failures": []
+    },
+    {
+      "id": "atiga-test-cumulation-membership-11",
+      "split": "test",
+      "feature": "atiga",
+      "scenario_family": "cumulation-membership",
+      "source_family_id": "cumulation-membership",
+      "status": "matched",
+      "expected_abstention": false,
+      "expected": {
+        "outcome": "no",
+        "alternative": {
+          "CTSH": "no",
+          "RVC40": "no"
+        },
+        "accumulation": true
+      },
+      "actual": {
+        "outcome": "no",
+        "alternative": {
+          "CTSH": "no",
+          "RVC40": "no"
+        },
+        "accumulation": true,
+        "de_minimis_used": false,
+        "rvc_down": 35
+      },
+      "failures": []
+    },
+    {
+      "id": "atiga-test-cumulation-membership-12",
+      "split": "test",
+      "feature": "atiga",
+      "scenario_family": "cumulation-membership",
+      "source_family_id": "cumulation-membership",
+      "status": "matched",
+      "expected_abstention": false,
+      "expected": {
+        "outcome": "yes",
+        "alternative": {
+          "CC": "yes",
+          "RVC40": "yes"
+        },
+        "accumulation": true
+      },
+      "actual": {
+        "outcome": "yes",
+        "applied": "RVC40",
+        "alternative": {
+          "CC": "yes",
+          "RVC40": "yes"
+        },
+        "accumulation": true,
+        "de_minimis_used": false,
+        "rvc_down": 80
+      },
+      "failures": []
+    },
+    {
+      "id": "atiga-test-cumulation-membership-13",
+      "split": "test",
+      "feature": "atiga",
+      "scenario_family": "cumulation-membership",
+      "source_family_id": "cumulation-membership",
+      "status": "matched",
+      "expected_abstention": false,
+      "expected": {
+        "outcome": "yes",
+        "applied": "RVC40",
+        "alternative": {
+          "CC": "no",
+          "RVC40": "yes"
+        },
+        "accumulation": false
+      },
+      "actual": {
+        "outcome": "yes",
+        "applied": "RVC40",
+        "alternative": {
+          "CC": "no",
+          "RVC40": "yes"
+        },
+        "accumulation": false,
+        "de_minimis_used": false,
+        "rvc_down": 40
+      },
+      "failures": []
+    },
+    {
+      "id": "atiga-test-cumulation-membership-14",
+      "split": "test",
+      "feature": "atiga",
+      "scenario_family": "cumulation-membership",
+      "source_family_id": "cumulation-membership",
+      "status": "matched",
+      "expected_abstention": false,
+      "expected": {
+        "outcome": "yes",
+        "applied": "RVC40",
+        "alternative": {
+          "CTSH": "no",
+          "RVC40": "yes"
+        },
+        "accumulation": false
+      },
+      "actual": {
+        "outcome": "yes",
+        "applied": "RVC40",
+        "alternative": {
+          "CTSH": "no",
+          "RVC40": "yes"
+        },
+        "accumulation": false,
+        "de_minimis_used": false,
+        "rvc_down": 40
+      },
+      "failures": []
+    },
+    {
+      "id": "atiga-test-minimal-operations-01",
+      "split": "test",
+      "feature": "atiga",
+      "scenario_family": "minimal-operations",
+      "source_family_id": "minimal-operations",
+      "status": "matched",
+      "expected_abstention": false,
+      "expected": {
+        "outcome": "no",
+        "accumulation": false
+      },
+      "actual": {
+        "outcome": "no",
+        "accumulation": false,
+        "de_minimis_used": false
+      },
+      "failures": []
+    },
+    {
+      "id": "atiga-test-minimal-operations-02",
+      "split": "test",
+      "feature": "atiga",
+      "scenario_family": "minimal-operations",
+      "source_family_id": "minimal-operations",
+      "status": "matched",
+      "expected_abstention": false,
+      "expected": {
+        "outcome": "yes",
+        "applied": "RVC40",
+        "alternative": {
+          "CTSH": "no",
+          "RVC40": "yes"
+        },
+        "accumulation": true
+      },
+      "actual": {
+        "outcome": "yes",
+        "applied": "RVC40",
+        "alternative": {
+          "CTSH": "no",
+          "RVC40": "yes"
+        },
+        "accumulation": true,
+        "de_minimis_used": false,
+        "rvc_down": 60
+      },
+      "failures": []
+    },
+    {
+      "id": "atiga-test-minimal-operations-03",
+      "split": "test",
+      "feature": "atiga",
+      "scenario_family": "minimal-operations",
+      "source_family_id": "minimal-operations",
+      "status": "matched",
+      "expected_abstention": false,
+      "expected": {
+        "outcome": "yes",
+        "alternative": {
+          "CTSH": "yes",
+          "RVC40": "yes"
+        },
+        "accumulation": true
+      },
+      "actual": {
+        "outcome": "yes",
+        "applied": "RVC40",
+        "alternative": {
+          "CTSH": "yes",
+          "RVC40": "yes"
+        },
+        "accumulation": true,
+        "de_minimis_used": false,
+        "rvc_down": 60
+      },
+      "failures": []
+    },
+    {
+      "id": "atiga-test-minimal-operations-04",
+      "split": "test",
+      "feature": "atiga",
+      "scenario_family": "minimal-operations",
+      "source_family_id": "minimal-operations",
+      "status": "matched",
+      "expected_abstention": false,
+      "expected": {
+        "outcome": "yes",
+        "applied": "RVC40",
+        "alternative": {
+          "CC": "no",
+          "RVC40": "yes"
+        },
+        "accumulation": true
+      },
+      "actual": {
+        "outcome": "yes",
+        "applied": "RVC40",
+        "alternative": {
+          "CC": "no",
+          "RVC40": "yes"
+        },
+        "accumulation": true,
+        "de_minimis_used": false,
+        "rvc_down": 60
+      },
+      "failures": []
+    },
+    {
+      "id": "atiga-test-minimal-operations-05",
+      "split": "test",
+      "feature": "atiga",
+      "scenario_family": "minimal-operations",
+      "source_family_id": "minimal-operations",
+      "status": "matched",
+      "expected_abstention": false,
+      "expected": {
+        "outcome": "no",
+        "accumulation": true
+      },
+      "actual": {
+        "outcome": "no",
+        "accumulation": true,
+        "de_minimis_used": false
+      },
+      "failures": []
+    },
+    {
+      "id": "atiga-test-minimal-operations-06",
+      "split": "test",
+      "feature": "atiga",
+      "scenario_family": "minimal-operations",
+      "source_family_id": "minimal-operations",
+      "status": "matched",
+      "expected_abstention": false,
+      "expected": {
+        "outcome": "yes",
+        "applied": "RVC40",
+        "alternative": {
+          "CTSH": "no",
+          "RVC40": "yes"
+        },
+        "accumulation": true
+      },
+      "actual": {
+        "outcome": "yes",
+        "applied": "RVC40",
+        "alternative": {
+          "CTSH": "no",
+          "RVC40": "yes"
+        },
+        "accumulation": true,
+        "de_minimis_used": false,
+        "rvc_down": 60
+      },
+      "failures": []
+    },
+    {
+      "id": "atiga-test-minimal-operations-07",
+      "split": "test",
+      "feature": "atiga",
+      "scenario_family": "minimal-operations",
+      "source_family_id": "minimal-operations",
+      "status": "matched",
+      "expected_abstention": false,
+      "expected": {
+        "outcome": "yes",
+        "alternative": {
+          "CTSH": "yes",
+          "RVC40": "yes"
+        },
+        "accumulation": true
+      },
+      "actual": {
+        "outcome": "yes",
+        "applied": "RVC40",
+        "alternative": {
+          "CTSH": "yes",
+          "RVC40": "yes"
+        },
+        "accumulation": true,
+        "de_minimis_used": false,
+        "rvc_down": 60
+      },
+      "failures": []
+    },
+    {
+      "id": "atiga-test-minimal-operations-08",
+      "split": "test",
+      "feature": "atiga",
+      "scenario_family": "minimal-operations",
+      "source_family_id": "minimal-operations",
+      "status": "matched",
+      "expected_abstention": false,
+      "expected": {
+        "outcome": "yes",
+        "applied": "RVC40",
+        "alternative": {
+          "CC": "no",
+          "RVC40": "yes"
+        },
+        "accumulation": true
+      },
+      "actual": {
+        "outcome": "yes",
+        "applied": "RVC40",
+        "alternative": {
+          "CC": "no",
+          "RVC40": "yes"
+        },
+        "accumulation": true,
+        "de_minimis_used": false,
+        "rvc_down": 60
+      },
+      "failures": []
+    },
+    {
+      "id": "atiga-test-missing-facts-01",
+      "split": "test",
+      "feature": "atiga",
+      "scenario_family": "missing-facts",
+      "source_family_id": "missing-facts",
+      "status": "matched",
+      "expected_abstention": true,
+      "expected": {
+        "outcome": "undetermined",
+        "accumulation": false
+      },
+      "actual": {
+        "outcome": "undetermined",
+        "alternative": {
+          "CTSH": "undetermined",
+          "RVC40": "undetermined"
+        },
+        "accumulation": false,
+        "de_minimis_used": false
+      },
+      "failures": []
+    },
+    {
+      "id": "atiga-test-missing-facts-02",
+      "split": "test",
+      "feature": "atiga",
+      "scenario_family": "missing-facts",
+      "source_family_id": "missing-facts",
+      "status": "matched",
+      "expected_abstention": true,
+      "expected": {
+        "outcome": "undetermined",
+        "accumulation": false
+      },
+      "actual": {
+        "outcome": "undetermined",
+        "alternative": {
+          "CTSH": "undetermined",
+          "RVC40": "undetermined"
+        },
+        "accumulation": false,
+        "de_minimis_used": false
+      },
+      "failures": []
+    },
+    {
+      "id": "atiga-test-missing-facts-03",
+      "split": "test",
+      "feature": "atiga",
+      "scenario_family": "missing-facts",
+      "source_family_id": "missing-facts",
+      "status": "matched",
+      "expected_abstention": false,
+      "expected": {
+        "outcome": "yes",
+        "alternative": {
+          "CTSH": "yes",
+          "RVC40": "yes"
+        },
+        "accumulation": false
+      },
+      "actual": {
+        "outcome": "yes",
+        "applied": "RVC40",
+        "alternative": {
+          "CTSH": "yes",
+          "RVC40": "yes"
+        },
+        "accumulation": false,
+        "de_minimis_used": false,
+        "rvc_down": 50
+      },
+      "failures": []
+    },
+    {
+      "id": "atiga-test-missing-facts-04",
+      "split": "test",
+      "feature": "atiga",
+      "scenario_family": "missing-facts",
+      "source_family_id": "missing-facts",
+      "status": "matched",
+      "expected_abstention": false,
+      "expected": {
+        "outcome": "yes",
+        "applied": "RVC40",
+        "alternative": {
+          "RVC40": "yes"
+        },
+        "accumulation": true
+      },
+      "actual": {
+        "outcome": "yes",
+        "applied": "RVC40",
+        "alternative": {
+          "RVC40": "yes"
+        },
+        "accumulation": true,
+        "de_minimis_used": false,
+        "rvc_down": 70
+      },
+      "failures": []
+    },
+    {
+      "id": "atiga-test-missing-facts-05",
+      "split": "test",
+      "feature": "atiga",
+      "scenario_family": "missing-facts",
+      "source_family_id": "missing-facts",
+      "status": "matched",
+      "expected_abstention": false,
+      "expected": {
+        "outcome": "yes",
+        "applied": "RVC40",
+        "alternative": {
+          "RVC40": "yes"
+        },
+        "accumulation": false
+      },
+      "actual": {
+        "outcome": "yes",
+        "applied": "RVC40",
+        "alternative": {
+          "CTSH": "undetermined",
+          "RVC40": "yes"
+        },
+        "accumulation": false,
+        "de_minimis_used": false,
+        "rvc_down": 50
+      },
+      "failures": []
+    },
+    {
+      "id": "atiga-test-missing-facts-06",
+      "split": "test",
+      "feature": "atiga",
+      "scenario_family": "missing-facts",
+      "source_family_id": "missing-facts",
+      "status": "matched",
+      "expected_abstention": true,
+      "expected": {
+        "outcome": "undetermined",
+        "alternative": {
+          "CTSH": "no"
+        },
+        "accumulation": false
+      },
+      "actual": {
+        "outcome": "undetermined",
+        "alternative": {
+          "CTSH": "no",
+          "RVC40": "undetermined"
+        },
+        "accumulation": false,
+        "de_minimis_used": false
+      },
+      "failures": []
+    },
+    {
+      "id": "atiga-test-missing-facts-07",
+      "split": "test",
+      "feature": "atiga",
+      "scenario_family": "missing-facts",
+      "source_family_id": "missing-facts",
+      "status": "matched",
+      "expected_abstention": true,
+      "expected": {
+        "outcome": "undetermined",
+        "accumulation": false
+      },
+      "actual": {
+        "outcome": "undetermined",
+        "alternative": {
+          "CTSH": "undetermined",
+          "RVC40": "undetermined"
+        },
+        "accumulation": false,
+        "de_minimis_used": false
+      },
+      "failures": []
+    },
+    {
+      "id": "atiga-test-missing-facts-08",
+      "split": "test",
+      "feature": "atiga",
+      "scenario_family": "missing-facts",
+      "source_family_id": "missing-facts",
+      "status": "matched",
+      "expected_abstention": true,
+      "expected": {
+        "outcome": "undetermined",
+        "accumulation": false
+      },
+      "actual": {
+        "outcome": "undetermined",
+        "alternative": {
+          "CTSH": "undetermined",
+          "RVC40": "undetermined"
+        },
+        "accumulation": false,
+        "de_minimis_used": false
+      },
+      "failures": []
+    },
+    {
+      "id": "atiga-test-missing-facts-09",
+      "split": "test",
+      "feature": "atiga",
+      "scenario_family": "missing-facts",
+      "source_family_id": "missing-facts",
+      "status": "matched",
+      "expected_abstention": false,
+      "expected": {
+        "outcome": "yes",
+        "alternative": {
+          "CTSH": "yes",
+          "RVC40": "yes"
+        },
+        "accumulation": false
+      },
+      "actual": {
+        "outcome": "yes",
+        "applied": "RVC40",
+        "alternative": {
+          "CTSH": "yes",
+          "RVC40": "yes"
+        },
+        "accumulation": false,
+        "de_minimis_used": false,
+        "rvc_down": 50
+      },
+      "failures": []
+    },
+    {
+      "id": "atiga-test-missing-facts-10",
+      "split": "test",
+      "feature": "atiga",
+      "scenario_family": "missing-facts",
+      "source_family_id": "missing-facts",
+      "status": "matched",
+      "expected_abstention": false,
+      "expected": {
+        "outcome": "yes",
+        "applied": "RVC40",
+        "alternative": {
+          "CTSH": "no",
+          "RVC40": "yes"
+        },
+        "accumulation": true
+      },
+      "actual": {
+        "outcome": "yes",
+        "applied": "RVC40",
+        "alternative": {
+          "CTSH": "no",
+          "RVC40": "yes"
+        },
+        "accumulation": true,
+        "de_minimis_used": false,
+        "rvc_down": 70
+      },
+      "failures": []
+    },
+    {
+      "id": "atiga-test-except-from-01",
+      "split": "test",
+      "feature": "atiga",
+      "scenario_family": "except-from",
+      "source_family_id": "except-from",
+      "status": "matched",
+      "expected_abstention": false,
+      "expected": {
+        "outcome": "no",
+        "alternative": {
+          "RVC40": "no"
+        }
+      },
+      "actual": {
+        "outcome": "no",
+        "alternative": {
+          "CTH except from 2403": "no",
+          "RVC40": "no"
+        },
+        "accumulation": false,
+        "de_minimis_used": false,
+        "rvc_down": 30
+      },
+      "failures": []
+    },
+    {
+      "id": "atiga-test-except-from-02",
+      "split": "test",
+      "feature": "atiga",
+      "scenario_family": "except-from",
+      "source_family_id": "except-from",
+      "status": "matched",
+      "expected_abstention": false,
+      "expected": {
+        "outcome": "yes",
+        "applied": "CTH except from 7208 and 7211",
+        "alternative": {
+          "RVC40": "no"
+        }
+      },
+      "actual": {
+        "outcome": "yes",
+        "applied": "CTH except from 7208 and 7211",
+        "alternative": {
+          "CTH except from 7208 and 7211": "yes",
+          "RVC40": "no"
+        },
+        "accumulation": false,
+        "de_minimis_used": false,
+        "rvc_down": 30
+      },
+      "failures": []
+    },
+    {
+      "id": "atiga-test-except-from-03",
+      "split": "test",
+      "feature": "atiga",
+      "scenario_family": "except-from",
+      "source_family_id": "except-from",
+      "status": "matched",
+      "expected_abstention": false,
+      "expected": {
+        "outcome": "no",
+        "alternative": {
+          "RVC40": "no"
+        }
+      },
+      "actual": {
+        "outcome": "no",
+        "alternative": {
+          "CTSH except from 3824.99": "no",
+          "RVC40": "no"
+        },
+        "accumulation": false,
+        "de_minimis_used": false,
+        "rvc_down": 30
+      },
+      "failures": []
+    },
+    {
+      "id": "atiga-test-except-from-04",
+      "split": "test",
+      "feature": "atiga",
+      "scenario_family": "except-from",
+      "source_family_id": "except-from",
+      "status": "matched",
+      "expected_abstention": false,
+      "expected": {
+        "outcome": "yes",
+        "applied": "CTH except from 7604",
+        "alternative": {
+          "RVC40": "no"
+        }
+      },
+      "actual": {
+        "outcome": "yes",
+        "applied": "CTH except from 7604",
+        "alternative": {
+          "CTH except from 7604": "yes",
+          "RVC40": "no"
+        },
+        "accumulation": false,
+        "de_minimis_used": false,
+        "rvc_down": 30
+      },
+      "failures": []
+    },
+    {
+      "id": "atiga-test-except-from-05",
+      "split": "test",
+      "feature": "atiga",
+      "scenario_family": "except-from",
+      "source_family_id": "except-from",
+      "status": "matched",
+      "expected_abstention": false,
+      "expected": {
+        "outcome": "no",
+        "alternative": {
+          "RVC40": "no"
+        }
+      },
+      "actual": {
+        "outcome": "no",
+        "alternative": {
+          "CTH except from 7213-7215": "no",
+          "RVC40": "no"
+        },
+        "accumulation": false,
+        "de_minimis_used": false,
+        "rvc_down": 30
+      },
+      "failures": []
+    },
+    {
+      "id": "atiga-test-except-from-06",
+      "split": "test",
+      "feature": "atiga",
+      "scenario_family": "except-from",
+      "source_family_id": "except-from",
+      "status": "matched",
+      "expected_abstention": false,
+      "expected": {
+        "outcome": "yes",
+        "applied": "CTH except from 7604",
+        "alternative": {
+          "RVC40": "no"
+        }
+      },
+      "actual": {
+        "outcome": "yes",
+        "applied": "CTH except from 7604",
+        "alternative": {
+          "CTH except from 7604": "yes",
+          "RVC40": "no"
+        },
+        "accumulation": false,
+        "de_minimis_used": false,
+        "rvc_down": 30
+      },
+      "failures": []
+    },
+    {
+      "id": "atiga-test-process-conditions-01",
+      "split": "test",
+      "feature": "atiga",
+      "scenario_family": "process-conditions",
+      "source_family_id": "process-conditions",
+      "status": "matched",
+      "expected_abstention": false,
+      "expected": {
+        "outcome": "yes",
+        "alternative": {
+          "CC": "no",
+          "RVC40": "no"
+        }
+      },
+      "actual": {
+        "outcome": "yes",
+        "applied": "textile process rule",
+        "alternative": {
+          "CC": "no",
+          "RVC40": "no",
+          "textile process rule": "yes"
+        },
+        "accumulation": false,
+        "de_minimis_used": false,
+        "rvc_down": 20
+      },
+      "failures": []
+    },
+    {
+      "id": "atiga-test-process-conditions-02",
+      "split": "test",
+      "feature": "atiga",
+      "scenario_family": "process-conditions",
+      "source_family_id": "process-conditions",
+      "status": "matched",
+      "expected_abstention": false,
+      "expected": {
+        "outcome": "no",
+        "alternative": {
+          "CTH": "no",
+          "RVC40": "no"
+        }
+      },
+      "actual": {
+        "outcome": "no",
+        "alternative": {
+          "CTH": "no",
+          "RVC40": "no",
+          "textile process rule": "no"
+        },
+        "accumulation": false,
+        "de_minimis_used": false,
+        "rvc_down": 20
+      },
+      "failures": []
+    },
+    {
+      "id": "atiga-test-process-conditions-03",
+      "split": "test",
+      "feature": "atiga",
+      "scenario_family": "process-conditions",
+      "source_family_id": "process-conditions",
+      "status": "matched",
+      "expected_abstention": true,
+      "expected": {
+        "outcome": "undetermined",
+        "alternative": {
+          "CC": "no",
+          "RVC40": "no"
+        }
+      },
+      "actual": {
+        "outcome": "undetermined",
+        "alternative": {
+          "CC": "no",
+          "RVC40": "no",
+          "textile process rule": "undetermined"
+        },
+        "accumulation": false,
+        "de_minimis_used": false,
+        "rvc_down": 20
+      },
+      "failures": []
+    },
+    {
+      "id": "atiga-test-process-conditions-04",
+      "split": "test",
+      "feature": "atiga",
+      "scenario_family": "process-conditions",
+      "source_family_id": "process-conditions",
+      "status": "matched",
+      "expected_abstention": false,
+      "expected": {
+        "outcome": "yes",
+        "alternative": {
+          "CTH": "no",
+          "RVC40": "no"
+        }
+      },
+      "actual": {
+        "outcome": "yes",
+        "applied": "no CTSH is required provided the machines, instruments and apparatus are manufactured from parts produced solely for the machines, instruments or apparatus of the same subheading",
+        "alternative": {
+          "CTH": "no",
+          "RVC40": "no",
+          "no CTSH is required provided the machines, instruments and apparatus are manufactured from parts produced solely for the machines, instruments or apparatus of the same subheading": "yes"
+        },
+        "accumulation": false,
+        "de_minimis_used": false,
+        "rvc_down": 20
+      },
+      "failures": []
+    },
+    {
+      "id": "atiga-test-process-conditions-05",
+      "split": "test",
+      "feature": "atiga",
+      "scenario_family": "process-conditions",
+      "source_family_id": "process-conditions",
+      "status": "matched",
+      "expected_abstention": false,
+      "expected": {
+        "outcome": "no",
+        "alternative": {
+          "CTH": "no",
+          "RVC40": "no"
+        }
+      },
+      "actual": {
+        "outcome": "no",
+        "alternative": {
+          "CTH": "no",
+          "RVC40": "no",
+          "textile process rule": "no"
+        },
+        "accumulation": false,
+        "de_minimis_used": false,
+        "rvc_down": 20
+      },
+      "failures": []
+    },
+    {
+      "id": "atiga-test-process-conditions-06",
+      "split": "test",
+      "feature": "atiga",
+      "scenario_family": "process-conditions",
+      "source_family_id": "process-conditions",
+      "status": "matched",
+      "expected_abstention": true,
+      "expected": {
+        "outcome": "undetermined",
+        "alternative": {
+          "RVC40": "no"
+        }
+      },
+      "actual": {
+        "outcome": "undetermined",
+        "alternative": {
+          "CC and cut and sewn in any AMS": "no",
+          "RVC40": "no",
+          "textile process rule": "undetermined"
+        },
+        "accumulation": false,
+        "de_minimis_used": false,
+        "rvc_down": 20
+      },
+      "failures": []
+    },
+    {
+      "id": "atiga-test-direct-build-up-01",
+      "split": "test",
+      "feature": "atiga",
+      "scenario_family": "direct-build-up",
+      "source_family_id": "direct-build-up",
+      "status": "matched",
+      "expected_abstention": false,
+      "expected": {
+        "outcome": "yes",
+        "applied": "RVC40",
+        "alternative": {
+          "CTSH": "no",
+          "RVC40": "yes"
+        },
+        "accumulation": true,
+        "rvc_up_min": 40.95,
+        "rvc_up_max": 41.05
+      },
+      "actual": {
+        "outcome": "yes",
+        "applied": "RVC40",
+        "alternative": {
+          "CTSH": "no",
+          "RVC40": "yes"
+        },
+        "accumulation": true,
+        "de_minimis_used": false,
+        "rvc_up": 41
+      },
+      "failures": []
+    },
+    {
+      "id": "atiga-test-direct-build-up-02",
+      "split": "test",
+      "feature": "atiga",
+      "scenario_family": "direct-build-up",
+      "source_family_id": "direct-build-up",
+      "status": "matched",
+      "expected_abstention": false,
+      "expected": {
+        "outcome": "no",
+        "alternative": {
+          "RVC40": "no"
+        },
+        "accumulation": true,
+        "rvc_up_min": 24.95,
+        "rvc_up_max": 25.05
+      },
+      "actual": {
+        "outcome": "no",
+        "alternative": {
+          "RVC40": "no"
+        },
+        "accumulation": true,
+        "de_minimis_used": false,
+        "rvc_up": 25
+      },
+      "failures": []
+    },
+    {
+      "id": "atiga-test-direct-build-up-03",
+      "split": "test",
+      "feature": "atiga",
+      "scenario_family": "direct-build-up",
+      "source_family_id": "direct-build-up",
+      "status": "matched",
+      "expected_abstention": false,
+      "expected": {
+        "outcome": "no",
+        "alternative": {
+          "CTSH": "no",
+          "RVC40": "no"
+        },
+        "accumulation": true,
+        "rvc_up_min": 39.45,
+        "rvc_up_max": 39.55
+      },
+      "actual": {
+        "outcome": "no",
+        "alternative": {
+          "CTSH": "no",
+          "RVC40": "no"
+        },
+        "accumulation": true,
+        "de_minimis_used": false,
+        "rvc_up": 39.5
+      },
+      "failures": []
+    },
+    {
+      "id": "atiga-test-direct-build-up-04",
+      "split": "test",
+      "feature": "atiga",
+      "scenario_family": "direct-build-up",
+      "source_family_id": "direct-build-up",
+      "status": "matched",
+      "expected_abstention": false,
+      "expected": {
+        "outcome": "yes",
+        "applied": "RVC40",
+        "alternative": {
+          "CC": "no",
+          "RVC40": "yes"
+        },
+        "accumulation": true,
+        "rvc_up_min": 39.95,
+        "rvc_up_max": 40.05
+      },
+      "actual": {
+        "outcome": "yes",
+        "applied": "RVC40",
+        "alternative": {
+          "CC": "no",
+          "RVC40": "yes"
+        },
+        "accumulation": true,
+        "de_minimis_used": false,
+        "rvc_up": 40
+      },
+      "failures": []
+    },
+    {
+      "id": "atiga-test-direct-build-up-05",
+      "split": "test",
+      "feature": "atiga",
+      "scenario_family": "direct-build-up",
+      "source_family_id": "direct-build-up",
+      "status": "matched",
+      "expected_abstention": false,
+      "expected": {
+        "outcome": "yes",
+        "applied": "CTSH",
+        "alternative": {
+          "CTSH": "yes",
+          "RVC40": "no"
+        },
+        "accumulation": true,
+        "rvc_up_min": 24.95,
+        "rvc_up_max": 25.05
+      },
+      "actual": {
+        "outcome": "yes",
+        "applied": "CTSH",
+        "alternative": {
+          "CTSH": "yes",
+          "RVC40": "no"
+        },
+        "accumulation": true,
+        "de_minimis_used": true,
+        "rvc_up": 25
+      },
+      "failures": []
+    },
+    {
+      "id": "atiga-test-direct-build-up-06",
+      "split": "test",
+      "feature": "atiga",
+      "scenario_family": "direct-build-up",
+      "source_family_id": "direct-build-up",
+      "status": "matched",
+      "expected_abstention": false,
+      "expected": {
+        "outcome": "yes",
+        "applied": "RVC40",
+        "alternative": {
+          "CTSH": "no",
+          "RVC40": "yes"
+        },
+        "accumulation": true,
+        "rvc_up_min": 40.95,
+        "rvc_up_max": 41.05
+      },
+      "actual": {
+        "outcome": "yes",
+        "applied": "RVC40",
+        "alternative": {
+          "CTSH": "no",
+          "RVC40": "yes"
+        },
+        "accumulation": true,
+        "de_minimis_used": false,
+        "rvc_up": 41
+      },
+      "failures": []
+    },
+    {
+      "id": "atiga-test-heading-only-code-01",
+      "split": "test",
+      "feature": "atiga",
+      "scenario_family": "heading-only-code",
+      "source_family_id": "heading-only-code",
+      "status": "matched",
+      "expected_abstention": false,
+      "expected": {
+        "outcome": "yes"
+      },
+      "actual": {
+        "outcome": "yes",
+        "applied": "RVC40",
+        "alternative": {
+          "CTH": "yes",
+          "RVC40": "yes"
+        },
+        "accumulation": false,
+        "de_minimis_used": false,
+        "rvc_down": 70
+      },
+      "failures": []
+    },
+    {
+      "id": "atiga-test-heading-only-code-02",
+      "split": "test",
+      "feature": "atiga",
+      "scenario_family": "heading-only-code",
+      "source_family_id": "heading-only-code",
+      "status": "mismatched",
+      "expected_abstention": false,
+      "expected": {
+        "outcome": "yes"
+      },
+      "actual": {
+        "outcome": "undetermined",
+        "accumulation": false,
+        "de_minimis_used": false
+      },
+      "failures": [
+        "outcome: got undetermined, want yes"
+      ]
+    },
+    {
+      "id": "atiga-test-heading-only-code-03",
+      "split": "test",
+      "feature": "atiga",
+      "scenario_family": "heading-only-code",
+      "source_family_id": "heading-only-code",
+      "status": "matched",
+      "expected_abstention": false,
+      "expected": {
+        "outcome": "yes"
+      },
+      "actual": {
+        "outcome": "yes",
+        "applied": "RVC40",
+        "alternative": {
+          "CTH": "yes",
+          "RVC40": "yes"
+        },
+        "accumulation": false,
+        "de_minimis_used": false,
+        "rvc_down": 70
+      },
+      "failures": []
+    },
+    {
+      "id": "atiga-test-heading-only-code-04",
+      "split": "test",
+      "feature": "atiga",
+      "scenario_family": "heading-only-code",
+      "source_family_id": "heading-only-code",
+      "status": "matched",
+      "expected_abstention": false,
+      "expected": {
+        "outcome": "yes"
+      },
+      "actual": {
+        "outcome": "yes",
+        "applied": "RVC40",
+        "alternative": {
+          "CTH": "yes",
+          "RVC40": "yes"
+        },
+        "accumulation": false,
+        "de_minimis_used": false,
+        "rvc_down": 70
+      },
+      "failures": []
+    },
+    {
+      "id": "atiga-test-heading-only-code-05",
+      "split": "test",
+      "feature": "atiga",
+      "scenario_family": "heading-only-code",
+      "source_family_id": "heading-only-code",
+      "status": "matched",
+      "expected_abstention": false,
+      "expected": {
+        "outcome": "yes"
+      },
+      "actual": {
+        "outcome": "yes",
+        "applied": "RVC40",
+        "alternative": {
+          "CTH": "yes",
+          "RVC40": "yes"
+        },
+        "accumulation": false,
+        "de_minimis_used": false,
+        "rvc_down": 70
+      },
+      "failures": []
+    },
+    {
+      "id": "atiga-test-general-rule-01",
+      "split": "test",
+      "feature": "atiga",
+      "scenario_family": "general-rule",
+      "source_family_id": "general-rule",
+      "status": "matched",
+      "expected_abstention": false,
+      "expected": {
+        "outcome": "yes",
+        "applied": "CTH",
+        "alternative": {
+          "CTH": "yes",
+          "RVC40": "no"
+        }
+      },
+      "actual": {
+        "outcome": "yes",
+        "applied": "CTH",
+        "alternative": {
+          "CTH": "yes",
+          "RVC40": "no"
+        },
+        "accumulation": false,
+        "de_minimis_used": false,
+        "rvc_down": 35
+      },
+      "failures": []
+    },
+    {
+      "id": "atiga-test-general-rule-02",
+      "split": "test",
+      "feature": "atiga",
+      "scenario_family": "general-rule",
+      "source_family_id": "general-rule",
+      "status": "matched",
+      "expected_abstention": false,
+      "expected": {
+        "outcome": "yes",
+        "applied": "CTH",
+        "alternative": {
+          "CTH": "yes",
+          "RVC40": "no"
+        }
+      },
+      "actual": {
+        "outcome": "yes",
+        "applied": "CTH",
+        "alternative": {
+          "CTH": "yes",
+          "RVC40": "no"
+        },
+        "accumulation": false,
+        "de_minimis_used": false,
+        "rvc_down": 35
+      },
+      "failures": []
+    },
+    {
+      "id": "atiga-test-general-rule-03",
+      "split": "test",
+      "feature": "atiga",
+      "scenario_family": "general-rule",
+      "source_family_id": "general-rule",
+      "status": "matched",
+      "expected_abstention": false,
+      "expected": {
+        "outcome": "no",
+        "alternative": {
+          "CTH": "no",
+          "RVC40": "no"
+        }
+      },
+      "actual": {
+        "outcome": "no",
+        "alternative": {
+          "CTH": "no",
+          "RVC40": "no"
+        },
+        "accumulation": false,
+        "de_minimis_used": false,
+        "rvc_down": 35
+      },
+      "failures": []
+    },
+    {
+      "id": "atiga-test-general-rule-04",
+      "split": "test",
+      "feature": "atiga",
+      "scenario_family": "general-rule",
+      "source_family_id": "general-rule",
+      "status": "matched",
+      "expected_abstention": false,
+      "expected": {
+        "outcome": "yes",
+        "applied": "CTH",
+        "alternative": {
+          "CTH": "yes",
+          "RVC40": "no"
+        }
+      },
+      "actual": {
+        "outcome": "yes",
+        "applied": "CTH",
+        "alternative": {
+          "CTH": "yes",
+          "RVC40": "no"
+        },
+        "accumulation": false,
+        "de_minimis_used": false,
+        "rvc_down": 35
+      },
+      "failures": []
+    },
+    {
+      "id": "atiga-test-general-rule-05",
+      "split": "test",
+      "feature": "atiga",
+      "scenario_family": "general-rule",
+      "source_family_id": "general-rule",
+      "status": "matched",
+      "expected_abstention": false,
+      "expected": {
+        "outcome": "yes",
+        "applied": "CTH",
+        "alternative": {
+          "CTH": "yes",
+          "RVC40": "no"
+        }
+      },
+      "actual": {
+        "outcome": "yes",
+        "applied": "CTH",
+        "alternative": {
+          "CTH": "yes",
+          "RVC40": "no"
+        },
+        "accumulation": false,
+        "de_minimis_used": false,
+        "rvc_down": 35
+      },
+      "failures": []
+    },
+    {
+      "id": "atiga-test-general-rule-06",
+      "split": "test",
+      "feature": "atiga",
+      "scenario_family": "general-rule",
+      "source_family_id": "general-rule",
+      "status": "matched",
+      "expected_abstention": false,
+      "expected": {
+        "outcome": "no",
+        "alternative": {
+          "CTH": "no",
+          "RVC40": "no"
+        }
+      },
+      "actual": {
+        "outcome": "no",
+        "alternative": {
+          "CTH": "no",
+          "RVC40": "no"
+        },
+        "accumulation": false,
+        "de_minimis_used": false,
+        "rvc_down": 35
+      },
+      "failures": []
+    },
+    {
+      "id": "atiga-test-partial-cumulation-01",
+      "split": "test",
+      "feature": "atiga",
+      "scenario_family": "partial-cumulation",
+      "source_family_id": "partial-cumulation",
+      "status": "matched",
+      "expected_abstention": false,
+      "expected": {
+        "outcome": "no",
+        "alternative": {
+          "CTSH": "no",
+          "RVC40": "no"
+        },
+        "accumulation": false,
+        "rvc_down_min": 29.95,
+        "rvc_down_max": 30.05
+      },
+      "actual": {
+        "outcome": "no",
+        "alternative": {
+          "CTSH": "no",
+          "RVC40": "no"
+        },
+        "accumulation": false,
+        "de_minimis_used": false,
+        "rvc_down": 30
+      },
+      "failures": []
+    },
+    {
+      "id": "atiga-test-partial-cumulation-02",
+      "split": "test",
+      "feature": "atiga",
+      "scenario_family": "partial-cumulation",
+      "source_family_id": "partial-cumulation",
+      "status": "matched",
+      "expected_abstention": false,
+      "expected": {
+        "outcome": "yes",
+        "applied": "RVC40",
+        "alternative": {
+          "CTSH": "no",
+          "RVC40": "yes"
+        },
+        "accumulation": false,
+        "rvc_down_min": 43.95,
+        "rvc_down_max": 44.05
+      },
+      "actual": {
+        "outcome": "yes",
+        "applied": "RVC40",
+        "alternative": {
+          "CTSH": "no",
+          "RVC40": "yes"
+        },
+        "accumulation": false,
+        "de_minimis_used": false,
+        "rvc_down": 44
+      },
+      "failures": []
+    },
+    {
+      "id": "atiga-test-partial-cumulation-03",
+      "split": "test",
+      "feature": "atiga",
+      "scenario_family": "partial-cumulation",
+      "source_family_id": "partial-cumulation",
+      "status": "matched",
+      "expected_abstention": false,
+      "expected": {
+        "outcome": "yes",
+        "applied": "RVC40",
+        "alternative": {
+          "CC": "no",
+          "RVC40": "yes"
+        },
+        "accumulation": false,
+        "rvc_down_min": 50.95,
+        "rvc_down_max": 51.05
+      },
+      "actual": {
+        "outcome": "yes",
+        "applied": "RVC40",
+        "alternative": {
+          "CC": "no",
+          "RVC40": "yes"
+        },
+        "accumulation": false,
+        "de_minimis_used": false,
+        "rvc_down": 51
+      },
+      "failures": []
+    },
+    {
+      "id": "atiga-test-partial-cumulation-04",
+      "split": "test",
+      "feature": "atiga",
+      "scenario_family": "partial-cumulation",
+      "source_family_id": "partial-cumulation",
+      "status": "matched",
+      "expected_abstention": false,
+      "expected": {
+        "outcome": "yes",
+        "applied": "RVC40",
+        "alternative": {
+          "CTSH": "no",
+          "RVC40": "yes"
+        },
+        "accumulation": false,
+        "rvc_down_min": 57.88,
+        "rvc_down_max": 57.98
+      },
+      "actual": {
+        "outcome": "yes",
+        "applied": "RVC40",
+        "alternative": {
+          "CTSH": "no",
+          "RVC40": "yes"
+        },
+        "accumulation": false,
+        "de_minimis_used": false,
+        "rvc_down": 57.93000000000001
+      },
+      "failures": []
+    },
+    {
+      "id": "atiga-test-partial-cumulation-05",
+      "split": "test",
+      "feature": "atiga",
+      "scenario_family": "partial-cumulation",
+      "source_family_id": "partial-cumulation",
+      "status": "matched",
+      "expected_abstention": false,
+      "expected": {
+        "outcome": "no",
+        "alternative": {
+          "CTSH": "no",
+          "RVC40": "no"
+        },
+        "accumulation": false,
+        "rvc_down_min": 29.95,
+        "rvc_down_max": 30.05
+      },
+      "actual": {
+        "outcome": "no",
+        "alternative": {
+          "CTSH": "no",
+          "RVC40": "no"
+        },
+        "accumulation": false,
+        "de_minimis_used": false,
+        "rvc_down": 30
+      },
+      "failures": []
+    },
+    {
+      "id": "atiga-test-partial-cumulation-06",
+      "split": "test",
+      "feature": "atiga",
+      "scenario_family": "partial-cumulation",
+      "source_family_id": "partial-cumulation",
+      "status": "matched",
+      "expected_abstention": false,
+      "expected": {
+        "outcome": "no",
+        "alternative": {
+          "CC": "no",
+          "RVC40": "no"
+        },
+        "accumulation": false,
+        "rvc_down_min": 29.95,
+        "rvc_down_max": 30.05
+      },
+      "actual": {
+        "outcome": "no",
+        "alternative": {
+          "CC": "no",
+          "RVC40": "no"
+        },
+        "accumulation": false,
+        "de_minimis_used": false,
+        "rvc_down": 30
+      },
+      "failures": []
+    },
+    {
+      "id": "atiga-test-authority-variants-01",
+      "split": "test",
+      "feature": "atiga",
+      "scenario_family": "authority-variants",
+      "source_family_id": "authority-miti-4-cth",
+      "parent_id": "eval/atiga/reference-cases.json#miti-4-cth",
+      "status": "matched",
+      "expected_abstention": false,
+      "expected": {
+        "outcome": "yes",
+        "alternative": {
+          "CTH": "yes",
+          "RVC40": "yes"
+        },
+        "accumulation": false,
+        "rvc_down_min": 82.162,
+        "rvc_down_max": 82.262
+      },
+      "actual": {
+        "outcome": "yes",
+        "applied": "RVC40",
+        "alternative": {
+          "CTH": "yes",
+          "RVC40": "yes"
+        },
+        "accumulation": false,
+        "de_minimis_used": false,
+        "rvc_down": 82.21153846153847
+      },
+      "failures": []
+    },
+    {
+      "id": "atiga-test-authority-variants-02",
+      "split": "test",
+      "feature": "atiga",
+      "scenario_family": "authority-variants",
+      "source_family_id": "authority-miti-4-cth",
+      "parent_id": "eval/atiga/reference-cases.json#miti-4-cth",
+      "status": "matched",
+      "expected_abstention": false,
+      "expected": {
+        "outcome": "yes",
+        "applied": "CTH",
+        "alternative": {
+          "CTH": "yes",
+          "RVC40": "no"
+        },
+        "accumulation": false,
+        "rvc_down_min": 39.469,
+        "rvc_down_max": 39.569
+      },
+      "actual": {
+        "outcome": "yes",
+        "applied": "CTH",
+        "alternative": {
+          "CTH": "yes",
+          "RVC40": "no"
+        },
+        "accumulation": false,
+        "de_minimis_used": false,
+        "rvc_down": 39.519230769230774
+      },
+      "failures": []
+    },
+    {
+      "id": "atiga-test-authority-variants-03",
+      "split": "test",
+      "feature": "atiga",
+      "scenario_family": "authority-variants",
+      "source_family_id": "authority-miti-4-cth",
+      "parent_id": "eval/atiga/reference-cases.json#miti-4-cth",
+      "status": "matched",
+      "expected_abstention": false,
+      "expected": {
+        "outcome": "yes",
+        "alternative": {
+          "CTH": "yes",
+          "RVC40": "yes"
+        },
+        "accumulation": false,
+        "rvc_down_min": 39.95,
+        "rvc_down_max": 40.05
+      },
+      "actual": {
+        "outcome": "yes",
+        "applied": "RVC40",
+        "alternative": {
+          "CTH": "yes",
+          "RVC40": "yes"
+        },
+        "accumulation": false,
+        "de_minimis_used": false,
+        "rvc_down": 40
+      },
+      "failures": []
+    },
+    {
+      "id": "atiga-test-authority-variants-04",
+      "split": "test",
+      "feature": "atiga",
+      "scenario_family": "authority-variants",
+      "source_family_id": "authority-miti-5-ctsh",
+      "parent_id": "eval/atiga/reference-cases.json#miti-5-ctsh",
+      "status": "matched",
+      "expected_abstention": false,
+      "expected": {
+        "outcome": "yes",
+        "applied": "RVC40",
+        "alternative": {
+          "CTH": "no",
+          "RVC40": "yes"
+        },
+        "accumulation": true,
+        "rvc_down_min": 73.393,
+        "rvc_down_max": 73.493
+      },
+      "actual": {
+        "outcome": "yes",
+        "applied": "RVC40",
+        "alternative": {
+          "CTH": "no",
+          "RVC40": "yes"
+        },
+        "accumulation": true,
+        "de_minimis_used": false,
+        "rvc_down": 73.44262295081967
+      },
+      "failures": []
+    },
+    {
+      "id": "atiga-test-authority-variants-05",
+      "split": "test",
+      "feature": "atiga",
+      "scenario_family": "authority-variants",
+      "source_family_id": "authority-miti-5-ctsh",
+      "parent_id": "eval/atiga/reference-cases.json#miti-5-ctsh",
+      "status": "matched",
+      "expected_abstention": false,
+      "expected": {
+        "outcome": "yes",
+        "applied": "RVC40",
+        "alternative": {
+          "CTH": "no",
+          "RVC40": "yes"
+        },
+        "accumulation": true,
+        "rvc_down_min": 70.77,
+        "rvc_down_max": 70.87
+      },
+      "actual": {
+        "outcome": "yes",
+        "applied": "RVC40",
+        "alternative": {
+          "CTH": "no",
+          "RVC40": "yes"
+        },
+        "accumulation": true,
+        "de_minimis_used": false,
+        "rvc_down": 70.81967213114754
+      },
+      "failures": []
+    },
+    {
+      "id": "atiga-test-authority-variants-06",
+      "split": "test",
+      "feature": "atiga",
+      "scenario_family": "authority-variants",
+      "source_family_id": "authority-miti-5-ctsh",
+      "parent_id": "eval/atiga/reference-cases.json#miti-5-ctsh",
+      "status": "matched",
+      "expected_abstention": false,
+      "expected": {
+        "outcome": "no",
+        "alternative": {
+          "CTH": "no",
+          "RVC40": "no"
+        },
+        "accumulation": true,
+        "rvc_down_min": 39.491,
+        "rvc_down_max": 39.591
+      },
+      "actual": {
+        "outcome": "no",
+        "alternative": {
+          "CTH": "no",
+          "RVC40": "no"
+        },
+        "accumulation": true,
+        "de_minimis_used": false,
+        "rvc_down": 39.540983606557376
+      },
+      "failures": []
+    },
+    {
+      "id": "atiga-test-authority-variants-07",
+      "split": "test",
+      "feature": "atiga",
+      "scenario_family": "authority-variants",
+      "source_family_id": "authority-sgc-f-accumulation",
+      "parent_id": "eval/atiga/reference-cases.json#sgc-f-accumulation",
+      "status": "matched",
+      "expected_abstention": false,
+      "expected": {
+        "outcome": "yes",
+        "applied": "RVC40",
+        "alternative": {
+          "RVC40": "yes"
+        },
+        "accumulation": true,
+        "rvc_down_min": 83.283,
+        "rvc_down_max": 83.383
+      },
+      "actual": {
+        "outcome": "yes",
+        "applied": "RVC40",
+        "alternative": {
+          "CTH": "undetermined",
+          "RVC40": "yes"
+        },
+        "accumulation": true,
+        "de_minimis_used": false,
+        "rvc_down": 83.33333333333334
+      },
+      "failures": []
+    },
+    {
+      "id": "atiga-test-authority-variants-08",
+      "split": "test",
+      "feature": "atiga",
+      "scenario_family": "authority-variants",
+      "source_family_id": "authority-sgc-f-accumulation",
+      "parent_id": "eval/atiga/reference-cases.json#sgc-f-accumulation",
+      "status": "matched",
+      "expected_abstention": false,
+      "expected": {
+        "outcome": "yes",
+        "applied": "RVC40",
+        "alternative": {
+          "RVC40": "yes"
+        },
+        "accumulation": true,
+        "rvc_down_min": 56.617,
+        "rvc_down_max": 56.717
+      },
+      "actual": {
+        "outcome": "yes",
+        "applied": "RVC40",
+        "alternative": {
+          "CTH": "undetermined",
+          "RVC40": "yes"
+        },
+        "accumulation": true,
+        "de_minimis_used": false,
+        "rvc_down": 56.666666666666664
+      },
+      "failures": []
+    },
+    {
+      "id": "atiga-test-authority-variants-09",
+      "split": "test",
+      "feature": "atiga",
+      "scenario_family": "authority-variants",
+      "source_family_id": "authority-sgc-f-accumulation",
+      "parent_id": "eval/atiga/reference-cases.json#sgc-f-accumulation",
+      "status": "matched",
+      "expected_abstention": false,
+      "expected": {
+        "outcome": "yes",
+        "applied": "RVC40",
+        "alternative": {
+          "RVC40": "yes"
+        },
+        "accumulation": true,
+        "rvc_down_min": 39.95,
+        "rvc_down_max": 40.05
+      },
+      "actual": {
+        "outcome": "yes",
+        "applied": "RVC40",
+        "alternative": {
+          "CTH": "undetermined",
+          "RVC40": "yes"
+        },
+        "accumulation": true,
+        "de_minimis_used": false,
+        "rvc_down": 40
+      },
+      "failures": []
+    },
+    {
+      "id": "atiga-test-authority-variants-10",
+      "split": "test",
+      "feature": "atiga",
+      "scenario_family": "authority-variants",
+      "source_family_id": "authority-miti-1-wo",
+      "parent_id": "eval/atiga/reference-cases.json#miti-1-wo",
+      "status": "matched",
+      "expected_abstention": false,
+      "expected": {
+        "outcome": "yes",
+        "applied": "WO"
+      },
+      "actual": {
+        "outcome": "yes",
+        "applied": "WO",
+        "accumulation": false,
+        "de_minimis_used": false
+      },
+      "failures": []
+    },
+    {
+      "id": "atiga-test-authority-variants-11",
+      "split": "test",
+      "feature": "atiga",
+      "scenario_family": "authority-variants",
+      "source_family_id": "authority-miti-1-wo",
+      "parent_id": "eval/atiga/reference-cases.json#miti-1-wo",
+      "status": "matched",
+      "expected_abstention": false,
+      "expected": {
+        "outcome": "yes",
+        "applied": "WO"
+      },
+      "actual": {
+        "outcome": "yes",
+        "applied": "WO",
+        "accumulation": false,
+        "de_minimis_used": false
+      },
+      "failures": []
+    },
+    {
+      "id": "atiga-test-authority-variants-12",
+      "split": "test",
+      "feature": "atiga",
+      "scenario_family": "authority-variants",
+      "source_family_id": "authority-miti-1-wo",
+      "parent_id": "eval/atiga/reference-cases.json#miti-1-wo",
+      "status": "matched",
+      "expected_abstention": false,
+      "expected": {
+        "outcome": "yes",
+        "alternative": {
+          "CTH": "yes",
+          "RVC40": "yes"
+        },
+        "accumulation": false,
+        "rvc_down_min": 59.95,
+        "rvc_down_max": 60.05
+      },
+      "actual": {
+        "outcome": "yes",
+        "applied": "RVC40",
+        "alternative": {
+          "CTH": "yes",
+          "RVC40": "yes"
+        },
+        "accumulation": false,
+        "de_minimis_used": false,
+        "rvc_down": 60
+      },
+      "failures": []
+    },
+    {
+      "id": "atiga-test-malformed-input-01",
+      "split": "test",
+      "feature": "atiga",
+      "scenario_family": "malformed-input",
+      "source_family_id": "malformed-input",
+      "status": "matched",
+      "expected_abstention": false,
+      "expected": {
+        "outcome": "refused"
+      },
+      "actual": {
+        "accumulation": false,
+        "de_minimis_used": false,
+        "refused": true,
+        "error": "atiga: bad input: fob must be positive"
+      },
+      "failures": []
+    },
+    {
+      "id": "atiga-test-malformed-input-02",
+      "split": "test",
+      "feature": "atiga",
+      "scenario_family": "malformed-input",
+      "source_family_id": "malformed-input",
+      "status": "matched",
+      "expected_abstention": false,
+      "expected": {
+        "outcome": "refused"
+      },
+      "actual": {
+        "accumulation": false,
+        "de_minimis_used": false,
+        "refused": true,
+        "error": "atiga: bad input: hs must have 4 to 10 digits"
+      },
+      "failures": []
+    },
+    {
+      "id": "atiga-test-malformed-input-03",
+      "split": "test",
+      "feature": "atiga",
+      "scenario_family": "malformed-input",
+      "source_family_id": "malformed-input",
+      "status": "matched",
+      "expected_abstention": false,
+      "expected": {
+        "outcome": "refused"
+      },
+      "actual": {
+        "accumulation": false,
+        "de_minimis_used": false,
+        "refused": true,
+        "error": "atiga: bad input: materials[0].status must be originating, non_originating or unknown"
+      },
+      "failures": []
+    },
+    {
+      "id": "atiga-test-malformed-input-04",
+      "split": "test",
+      "feature": "atiga",
+      "scenario_family": "malformed-input",
+      "source_family_id": "malformed-input",
+      "status": "matched",
+      "expected_abstention": false,
+      "expected": {
+        "outcome": "refused"
+      },
+      "actual": {
+        "accumulation": false,
+        "de_minimis_used": false,
+        "refused": true,
+        "error": "atiga: bad input: method must be direct or indirect"
+      },
+      "failures": []
+    }
+  ]
+}

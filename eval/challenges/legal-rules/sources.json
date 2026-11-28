@@ -1,0 +1,96 @@
+{
+ "note": "No external source operation was used by this lane (0 of 2 allowed); every source is a local archive already in the repository.",
+ "sources": [
+  {
+   "id": "gn11o",
+   "title": "HTSUS Revision 23 (2026) General Note 11(o), product-specific rules (USITC, public domain)",
+   "path": "eval/usmca/gn11o.txt",
+   "sha256": "bf044cae6b466ff7b7b457d57541cd8c4faa7137979bbff2cb5b985e2a62b451",
+   "kind": "primary_text_extract"
+  },
+  {
+   "id": "gn11-general",
+   "title": "HTSUS Revision 23 (2026) General Note 11(c), (e), (n), (p) pages (USITC, public domain)",
+   "path": "eval/challenges/legal-rules/sources/gn11-general-excerpts.txt",
+   "sha256": "23c4d42faaefb4521384a245f8224a86a824506c5694c9e246003ee6ce140fb6",
+   "kind": "primary_text_extract"
+  },
+  {
+   "id": "usmca-doc",
+   "title": "Scope statement of the candidate: what the USMCA check models and declines (documents the contract cases test; it is not law)",
+   "path": "backend/internal/usmca/doc.go",
+   "sha256": "a2bbd531ea9ada17e6d6b896b75757a77e1f81b82a26a13f0cdd4fa59ce5f157",
+   "kind": "candidate_documentation"
+  },
+  {
+   "id": "ecfr-102-21",
+   "title": "19 CFR 102.21, eCFR point-in-time 18 Nov 2026 (public domain)",
+   "path": "backend/internal/textilerules/source/ecfr-102.21.xml",
+   "sha256": "c438e8f93033b971b1459b092d57f621906264cc465f639d5e6dfa05d10bf14c",
+   "kind": "primary_text"
+  },
+  {
+   "id": "fr-87-68356",
+   "title": "87 FR 68356 (CBP Dec. 22-25), 6201-6208 entry",
+   "path": "backend/internal/textilerules/source/fr-87-68356-6201-6208.txt",
+   "sha256": "f4ac499a5e78df9c380824e998437e4608a52e9e843a0dbf4a8930fb1daa1274",
+   "kind": "primary_text"
+  },
+  {
+   "id": "textile-doc",
+   "title": "Scope statement of the candidate (documents abstentions; not law)",
+   "path": "backend/internal/textilerules/doc.go",
+   "sha256": "2297d26fefd479e0d911c8d9f5641e5930eca473339ba156262b9a12d175796e",
+   "kind": "candidate_documentation"
+  },
+  {
+   "id": "additional-duty",
+   "title": "Embedded additional-duty data derived from HTS Chapter 99 (Section 301 lists and exclusions)",
+   "path": "backend/internal/duty/additional.json",
+   "sha256": "2abfccf8ffe583ce9f569b59db888b42452d25b8e5da1ef6814135c6f62f2459",
+   "kind": "embedded_derivative"
+  },
+  {
+   "id": "ch99-rev23",
+   "title": "USITC HTS 2026 Revision 23 Chapter 99 excerpt (9903.88.69/70, 9903.91.12-.16)",
+   "path": "backend/internal/tariffwatch/testdata/ch99_rev23_excerpt.txt",
+   "sha256": "1257591655b40123769d37239326b2dcda9cdea71eb7afdb6fdaa4bf25308244",
+   "kind": "primary_text_extract"
+  },
+  {
+   "id": "ch99-rev22",
+   "title": "USITC HTS 2026 Revision 22 Chapter 99 excerpt",
+   "path": "backend/internal/tariffwatch/testdata/ch99_rev22_excerpt.txt",
+   "sha256": "301c88f097ff5ead77a6481a4e7a0449771350ad9f638cff7db330b99a2d0577",
+   "kind": "primary_text_extract"
+  },
+  {
+   "id": "ch99-rev21",
+   "title": "USITC HTS 2026 Revision 21 Chapter 99 excerpt",
+   "path": "backend/internal/tariffwatch/testdata/ch99_rev21_excerpt.txt",
+   "sha256": "05fe0a0db9592445223b9c25f9d0271a5c91ef2e83ae6339cd064401f3f12892",
+   "kind": "primary_text_extract"
+  },
+  {
+   "id": "fr-90-48320",
+   "title": "90 FR 48320 Annex V.A (maritime action lines, 9903.91.12 and 9903.91.14)",
+   "path": "eval/tariffwatch/fr-90FR48320-annexVA.txt",
+   "sha256": "896a1e83fe6df1316443a2c66e2c31ed5667c368d63bdf8bf20afc45dedeeaff",
+   "kind": "primary_text_extract"
+  },
+  {
+   "id": "fr-89-76581",
+   "title": "89 FR 76581 Annex B (solar exclusions)",
+   "path": "eval/tariffwatch/fr-89FR76581-annexB.txt",
+   "sha256": "fe1f28a7b38ef9e1ac1fe9ee68b9bd441102522ae34def8dd9789a9bc0f0b4cb",
+   "kind": "primary_text_extract"
+  },
+  {
+   "id": "tariffwatch-doc",
+   "title": "Scope statement of the candidate (what a re-check reports; not law)",
+   "path": "backend/internal/tariffwatch/doc.go",
+   "sha256": "f1bae4a6e46a5c2f36239e109ec7e0c7905d1e286f229498e61660243b8582c2",
+   "kind": "candidate_documentation"
+  }
+ ]
+}
