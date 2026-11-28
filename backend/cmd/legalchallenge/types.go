@@ -187,11 +187,23 @@ func dataRoot() string {
 }
 
 func repoRoot() string {
+	// Walk up from the working directory (a package directory under go test,
+	// backend when run by hand) to the repository root; the path baked in by
+	// the compiler is a fallback and is not relied on, so -trimpath builds work.
+	if wd, err := os.Getwd(); err == nil {
+		for d := wd; ; d = filepath.Dir(d) {
+			if _, err := os.Stat(filepath.Join(d, "eval", "challenges", "legal-rules")); err == nil {
+				return d
+			}
+			if filepath.Dir(d) == d {
+				break
+			}
+		}
+	}
 	_, file, _, ok := runtime.Caller(0)
 	if !ok {
 		return "."
 	}
-	// backend/cmd/legalchallenge/types.go -> repository root
 	return filepath.Clean(filepath.Join(filepath.Dir(file), "..", "..", ".."))
 }
 
