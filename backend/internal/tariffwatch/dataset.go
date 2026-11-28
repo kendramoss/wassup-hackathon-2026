@@ -121,6 +121,13 @@ func (d *Dataset) Validate() error {
 			}
 		}
 	}
+	for i, a := range d.Actions {
+		for _, b := range d.Actions[i+1:] {
+			if a.Heading == b.Heading && a.Kind == b.Kind && a.overlaps(b) {
+				return fmt.Errorf("tariffwatch: actions %s overlap in dates, lines and origin; a line may have one action per heading at a time", a.Heading)
+			}
+		}
+	}
 	for _, m := range d.MFN {
 		if _, err := duty.ParseHTS(m.HTS); err != nil {
 			return fmt.Errorf("tariffwatch: mfn line %q: %w", m.HTS, err)
@@ -175,6 +182,31 @@ func (a Action) active(asOf time.Time) bool {
 	return true
 }
 
+// overlaps reports whether two actions share a day, a line and an origin.
+func (a Action) overlaps(b Action) bool {
+	lo := func(x Action) time.Time { t, _ := date(x.EffectiveFrom); return t }
+	hi := func(x Action) time.Time {
+		if t, ok := date(x.EffectiveThrough); ok {
+			return t
+		}
+		return time.Date(9999, 1, 1, 0, 0, 0, 0, time.UTC)
+	}
+	if hi(a).Before(lo(b)) || hi(b).Before(lo(a)) {
+		return false
+	}
+	if a.Origin != "*" && b.Origin != "*" && domain.DutyCountry(a.Origin) != domain.DutyCountry(b.Origin) {
+		return false
+	}
+	for _, s := range a.Subheadings {
+		for _, t := range b.Subheadings {
+			if duty.Normalize(s) == duty.Normalize(t) {
+				return true
+			}
+		}
+	}
+	return false
+}
+
 func (a Action) covers(sub, origin string) bool {
 	if a.Origin != "*" && domain.DutyCountry(a.Origin) != domain.DutyCountry(origin) {
 		return false
@@ -187,8 +219,39 @@ func (a Action) covers(sub, origin string) bool {
 	return false
 }
 
-// adder returns the Section 301 index for asOf: the undated lists plus the
-// Section 301 actions in force that day.
+// supersede removes from lists the lines a dated action replaces: the entries
+// of the action's own heading, for the action's origin, lose the action's
+// subheadings. The rest of the list, other lines and other origins, is kept.
+func supersede(lists []duty.AdditionalList, act Action) []duty.AdditionalList {
+	replaced := map[string]bool{}
+	for _, s := range act.Subheadings {
+		replaced[duty.Normalize(s)] = true
+	}
+	var out []duty.AdditionalList
+	for _, l := range lists {
+		if l.Heading != act.Heading || (act.Origin != "*" && domain.DutyCountry(l.Origin) != domain.DutyCountry(act.Origin)) {
+			out = append(out, l)
+			continue
+		}
+		var keep []string
+		for _, s := range l.Subheadings {
+			if !replaced[duty.Normalize(s)] {
+				keep = append(keep, s)
+			}
+		}
+		if len(keep) > 0 {
+			l.Subheadings = keep
+			out = append(out, l)
+		}
+	}
+	return out
+}
+
+// adder returns the Section 301 index for asOf. An undated list entry is the
+// baseline; a Section 301 action in force that day replaces the entry of the
+// same heading for exactly the lines and origin it covers (it is not added to
+// it), and outside its window the baseline is back. Overlapping actions on one
+// heading are refused by Validate, so no line has two replacements.
 func (e *Evaluator) adder(asOf time.Time) (*duty.Adder, error) {
 	key := asOf.UTC().Format(time.DateOnly)
 	e.mu.Lock()
@@ -197,13 +260,18 @@ func (e *Evaluator) adder(asOf time.Time) (*duty.Adder, error) {
 		return a, nil
 	}
 	f := e.ds.Additional
-	f.Lists = append([]duty.AdditionalList(nil), f.Lists...)
+	lists := append([]duty.AdditionalList(nil), f.Lists...)
+	var inForce []Action
 	for _, act := range e.ds.Actions {
-		if act.Kind != KindSection301 || !act.active(asOf) {
-			continue
+		if act.Kind == KindSection301 && act.active(asOf) {
+			lists = supersede(lists, act)
+			inForce = append(inForce, act)
 		}
-		f.Lists = append(f.Lists, duty.AdditionalList{Heading: act.Heading, Name: act.Name, Origin: act.Origin, Rate: act.Rate, Note: act.Note, Subheadings: act.Subheadings})
 	}
+	for _, act := range inForce {
+		lists = append(lists, duty.AdditionalList{Heading: act.Heading, Name: act.Name, Origin: act.Origin, Rate: act.Rate, Note: act.Note, Subheadings: act.Subheadings})
+	}
+	f.Lists = lists
 	a, err := duty.NewAdder(f)
 	if err != nil {
 		return nil, err
@@ -240,16 +308,14 @@ func (e *Evaluator) Evaluate(hts, origin string, mfn *float64, asOf time.Time) (
 		return ob, err
 	}
 	res := ad.ForAsOf(sub, origin, m, asOf)
-	dated := map[string]Action{}
-	for _, a := range e.ds.Actions {
-		dated[a.Heading] = a
-	}
 	for _, x := range res.Extras {
 		c := Component{Kind: KindSection301, Name: x.Name, Heading: x.Heading, Rate: x.Rate}
-		// Dates belong to the component only when it came from an action in
-		// force; an undated list that shares the heading keeps no dates.
-		if a, ok := dated[x.Heading]; ok && a.Kind == KindSection301 && a.active(asOf) {
-			c.From, c.Through = a.EffectiveFrom, a.EffectiveThrough
+		// Dates belong only to the component the in-force action replaced; an
+		// undated entry on another line or origin keeps none.
+		for _, a := range e.ds.Actions {
+			if a.Kind == KindSection301 && a.Heading == x.Heading && a.active(asOf) && a.covers(sub, origin) {
+				c.From, c.Through = a.EffectiveFrom, a.EffectiveThrough
+			}
 		}
 		ob.Components = append(ob.Components, c)
 	}

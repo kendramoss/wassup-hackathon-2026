@@ -156,3 +156,123 @@ func TestActionAbove100PercentWithExclusionsAndPlan(t *testing.T) {
 		t.Fatalf("annual %+v plan %+v", res.Annual, res.Plan)
 	}
 }
+
+// Review round 2: component identity. An in-force dated action that reuses the
+// heading of an undated list supersedes that list only for the lines and
+// origins the action covers; elsewhere the list stays, and only the component
+// that came from the action carries its dates.
+func collisionSet(t *testing.T) (ds *Dataset, heading, hts, other string) {
+	t.Helper()
+	ds = embedded(t)
+	ds.Additional.Country, ds.Additional.Exclusions = nil, nil
+	l := ds.Additional.Lists[0]
+	return ds, l.Heading, l.Subheadings[0], l.Subheadings[1]
+}
+
+func collisionAction(heading, origin string, subs ...string) Action {
+	return Action{Kind: KindSection301, Heading: heading, Name: "synthetic replacement", Origin: origin, Rate: 1.5,
+		EffectiveFrom: "2026-01-01", EffectiveThrough: "2026-12-31", Subheadings: subs}
+}
+
+func eval(t *testing.T, ds *Dataset, hts, origin, asOf string) OriginBasis {
+	t.Helper()
+	ev, err := NewEvaluator(ds)
+	if err != nil {
+		t.Fatal(err)
+	}
+	mfn := 0.0
+	ob, err := ev.Evaluate(hts, origin, &mfn, day(asOf))
+	if err != nil {
+		t.Fatal(err)
+	}
+	return ob
+}
+
+func only301(t *testing.T, ob OriginBasis, heading string, rate float64, dated bool) {
+	t.Helper()
+	n := 0
+	for _, c := range ob.Components {
+		if c.Heading == heading {
+			n++
+			if c.Rate != rate || (c.From != "") != dated {
+				t.Fatalf("component %+v, want rate %v dated=%v", c, rate, dated)
+			}
+		}
+	}
+	if n != 1 {
+		t.Fatalf("%d components for %s, want exactly 1: %+v", n, heading, ob.Components)
+	}
+	if ob.Rate != rate {
+		t.Fatalf("total %v, want %v", ob.Rate, rate)
+	}
+}
+
+func TestInForceActionSupersedesTheListOnlyWhereItCovers(t *testing.T) {
+	ds, heading, hts, other := collisionSet(t)
+	base := ds.Additional.Lists[0].Rate
+	ds.Actions = []Action{collisionAction(heading, "China", hts)}
+	only301(t, eval(t, ds, hts, "China", "2026-11-01"), heading, 1.5, true)     // covered line: replaced, not added
+	only301(t, eval(t, ds, other, "China", "2026-11-01"), heading, base, false) // uncovered line keeps the baseline, no dates
+	only301(t, eval(t, ds, hts, "China", "2027-01-01"), heading, base, false)   // outside the window the baseline is back
+	only301(t, eval(t, ds, hts, "China", "2025-12-31"), heading, base, false)
+	// the action names another origin: China keeps the list, undated
+	ds.Actions = []Action{collisionAction(heading, "Vietnam", hts)}
+	only301(t, eval(t, ds, hts, "China", "2026-11-01"), heading, base, false)
+	only301(t, eval(t, ds, hts, "Vietnam", "2026-11-01"), heading, 1.5, true)
+}
+
+func TestSupersedingActionWithExclusionsAndPlan(t *testing.T) {
+	ds, heading, hts, _ := collisionSet(t)
+	base := ds.Additional.Lists[0].Rate
+	ds.Actions = []Action{collisionAction(heading, "China", hts)}
+	ex := duty.Exclusion{Heading: heading, HTS: hts, WholeSubheading: true, EndDate: "2026-10-31"}
+	ds.Additional.Exclusions = []duty.Exclusion{ex}
+	if ob := eval(t, ds, hts, "China", "2026-10-31"); component(ob, heading) != nil {
+		t.Fatalf("valid whole-subheading exclusion must remove the duty: %+v", ob.Components)
+	}
+	only301(t, eval(t, ds, hts, "China", "2026-11-01"), heading, 1.5, true) // lapsed: the action's rate once
+	ds.Additional.Exclusions = nil
+	ev, err := NewEvaluator(ds)
+	if err != nil {
+		t.Fatal(err)
+	}
+	m := 0.0
+	old := Basis{HTS: hts, HTSRevision: "x", PricedAt: day("2025-12-01"), AsOf: "2025-12-01", AnnualImportUSD: 1_000_000, Origins: []OriginBasis{
+		{Origin: "China", Rate: base, Source: "table", MFN: &m, Components: []Component{{Kind: KindMFN, Heading: hts, Rate: 0}, {Kind: KindSection301, Heading: heading, Rate: base}}},
+		{Origin: "Vietnam", Rate: 0, Source: "table", MFN: &m, Components: []Component{{Kind: KindMFN, Heading: hts, Rate: 0}}}}}
+	res, err := ev.Watch(CaseInput{Basis: old, BaseOrigin: "China", Plan: &PlanInput{To: "Vietnam"}}, day("2026-11-01"), day("2026-11-28"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	want := 1_000_000 * (1.5 - base)
+	if res.Annual == nil || res.Annual.Change != want || res.Plan == nil || res.Plan.Change != want {
+		t.Fatalf("annual %+v plan %+v, want change %v (150%% replaces %v%%, not added to it)", res.Annual, res.Plan, want, base*100)
+	}
+}
+
+func TestOverlappingActionsOnTheSameHeadingAreRefused(t *testing.T) {
+	ds, heading, hts, other := collisionSet(t)
+	a := collisionAction(heading, "China", hts, other)
+	b := collisionAction(heading, "China", other)
+	b.Rate = 1.2
+	ds.Actions = []Action{a, b}
+	if err := ds.Validate(); err == nil {
+		t.Fatal("two in-force actions on the same heading and line must be refused, not summed or picked")
+	}
+	b.EffectiveFrom, b.EffectiveThrough = "2027-01-01", "2027-12-31" // successive windows are fine
+	ds.Actions = []Action{a, b}
+	if err := ds.Validate(); err != nil {
+		t.Fatalf("successive windows: %v", err)
+	}
+	b.EffectiveFrom, b.EffectiveThrough = "2026-01-01", "2026-12-31"
+	b.Subheadings = []string{"8716.90.30"} // disjoint lines are fine
+	ds.Actions = []Action{a, b}
+	if err := ds.Validate(); err != nil {
+		t.Fatalf("disjoint lines: %v", err)
+	}
+	b.Subheadings, b.Origin = []string{other}, "Vietnam" // disjoint origins are fine
+	ds.Actions = []Action{a, b}
+	if err := ds.Validate(); err != nil {
+		t.Fatalf("disjoint origins: %v", err)
+	}
+}
