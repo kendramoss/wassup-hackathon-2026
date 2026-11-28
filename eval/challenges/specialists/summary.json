@@ -501,6 +501,305 @@
    "Same synthetic-case limits as the study: oracle labels by the case author, shared templates with development."
   ]
  },
+ "public_features": [
+  {
+   "id": "textile_live_v2",
+   "label": "Textile origin, deployed engine (textile-v2)",
+   "evidence_kind": "source_grounded_synthetic",
+   "post_hoc": true,
+   "candidate_revision": "e252d952128bac95be30b4ff7a3f80c94b6d71e5",
+   "dataset_sha256": "df01b65136b0b92de712a841f4c223b914d34c5ccbf1602fff7481f7c30e09f6",
+   "dev_dataset_sha256": "285f48039be80cc04b2ae172e13016516cf7536cf4461b76eb35d68ce9498b94",
+   "source_families": 34,
+   "source_families_shared_with_dev": 13,
+   "development": {
+    "cases": 48,
+    "matched": 47,
+    "errors": 0
+   },
+   "test": {
+    "cases": 114,
+    "matched": 108,
+    "mismatched": 6,
+    "errors": 0
+   },
+   "cost_usd": 1.144384,
+   "latency_p50_ms": 7566,
+   "latency_p95_ms": 11565,
+   "limitations": [
+    "Post-hoc and current-configuration only: the original synthetic reserved textile cases had already been scored and seen by the author before this comparison, so it is not a new blind holdout and does not replace the original 114-case result.",
+    "Selected on the original development cases only, by a rule registered before any comparator call; one comparator score on the unchanged 114 reserved cases, no relabelling.",
+    "Gateway calls without the deployed engine cache, retry or fallback model; the deployed provider is Vertex. Graded at the deployed 0.95 textile bar.",
+    "Same synthetic-case limits as the study: oracle labels by the case author, shared templates with development."
+   ],
+   "public_note": "Post hoc: the deployed textile prompt scored once on 114 cases the author had already scored and seen, at the deployed 0.95 bar. Not a new holdout.",
+   "source": {
+    "decision": "docs/DECISIONS.md, D971 amendments 2 and 3",
+    "results": [
+     "eval/challenges/specialists/results/textile-live-test.jsonl",
+     "eval/challenges/specialists/results/textile-dev-livebase.jsonl"
+    ],
+    "dataset": "eval/challenges/specialists/textile-test.jsonl"
+   },
+   "display_metrics": [
+    {
+     "id": "textile_decided_confident_correct",
+     "label": "Decided cases answered confidently and correctly",
+     "num": 90,
+     "den": 92
+    },
+    {
+     "id": "textile_uncertain_reviewed",
+     "label": "Cases with a missing fact sent to review",
+     "num": 18,
+     "den": 22
+    }
+   ]
+  },
+  {
+   "id": "pharma_specialist",
+   "label": "Pharmaceutical origin",
+   "evidence_kind": "source_grounded_synthetic",
+   "post_hoc": false,
+   "candidate_revision": "c9a5932faa303fc9ef77f6034dcf463ad20aa262",
+   "dataset_sha256": "8483d0931c3f784c9252b41ac2a088043d3c2afd21ca184172686f54bc75aca0",
+   "dev_dataset_sha256": "a3e25e1906c08f2925c2a0cba725cc12e93fa3794cd824eaea7fadb04d678d89",
+   "source_families": 7,
+   "source_families_shared_with_dev": 7,
+   "development": {
+    "cases": 48,
+    "matched": 48,
+    "errors": 0
+   },
+   "test": {
+    "cases": 113,
+    "matched": 113,
+    "mismatched": 0,
+    "errors": 0
+   },
+   "cost_usd": 0.894628,
+   "latency_p50_ms": 6856,
+   "latency_p95_ms": 10428,
+   "limitations": [
+    "Synthetic cases written by the implementer from cited law and rulings; labels come from a reference oracle that shares no code with the candidate. Not independent real-world customs decisions.",
+    "Reserved cases were authored by the same hand and templates as development; they were not tuned on, but shared scenario templates are disclosed (templates shared with development: 12, source families shared: 7).",
+    "No claim of 100 independent legal sources and no i.i.d. confidence interval; the cases are parameter variations of a small set of rules and rulings.",
+    "The confident-decision bar is 0.92 stated confidence, a study convention. The deployed auto-accept bars are textile 0.95, pharmaceutical 0.85 and Part 102 0.95 (deploy workflow). The deployed textile engine is textile-v2 with precedent reasoning; the textile candidate measured here is built on textile-v1, so it describes that prompt only (see the separate live-textile comparator).",
+    "12 of the 113 reserved cases (6 of 48 development) are formulated pesticides; routing excludes them because router-v4 defines the pharmaceutical regime as drugs, vitamins and supplements, so 101 of 113 are route-eligible.",
+    "Expected labels apply the pharmaceutical rules in the engine's own prompt (HQ 563207, N334870, N336575, N355022, N349588, H341715); this measures consistent application of them, not validation of the rules."
+   ],
+   "public_note": "Frozen candidate scored once. The 113 cases include 12 formulated pesticides outside the current router's pharmaceutical scope; labels apply the engine's own rules to new facts.",
+   "source": {
+    "decision": "docs/DECISIONS.md, D970 amendment 4 and D971",
+    "results": [
+     "eval/challenges/specialists/results/pharma-test.jsonl",
+     "eval/challenges/specialists/results/pharma-dev-cand1.jsonl"
+    ],
+    "dataset": "eval/challenges/specialists/pharma-test.jsonl"
+   },
+   "display_metrics": [
+    {
+     "id": "pharma_decided_confident_correct",
+     "label": "Decided cases answered confidently and correctly",
+     "num": 82,
+     "den": 85
+    },
+    {
+     "id": "pharma_uncertain_reviewed",
+     "label": "Cases with a missing fact sent to review",
+     "num": 28,
+     "den": 28
+    },
+    {
+     "id": "pharma_route_eligible",
+     "label": "Cases the current router sends to this engine",
+     "num": 101,
+     "den": 113
+    }
+   ]
+  },
+  {
+   "id": "part102_specialist",
+   "label": "Part 102 marking origin (usmca-v5)",
+   "evidence_kind": "source_grounded_synthetic",
+   "post_hoc": false,
+   "candidate_revision": "c9a5932faa303fc9ef77f6034dcf463ad20aa262",
+   "dataset_sha256": "4d7afb90395b7f4d1d404006cc16b456cc01875eff860fc6776a0396a720eae0",
+   "dev_dataset_sha256": "ead6c736a90e59be651a54652fab766cbc8e6118b1605c9fbf20921c80684b38",
+   "source_families": 65,
+   "source_families_shared_with_dev": 0,
+   "development": {
+    "cases": 48,
+    "matched": 47,
+    "errors": 0
+   },
+   "test": {
+    "cases": 112,
+    "matched": 103,
+    "mismatched": 9,
+    "errors": 0
+   },
+   "cost_usd": 1.077934,
+   "latency_p50_ms": 7060,
+   "latency_p95_ms": 13299,
+   "limitations": [
+    "Synthetic cases written by the implementer from cited law and rulings; labels come from a reference oracle that shares no code with the candidate. Not independent real-world customs decisions.",
+    "Reserved cases were authored by the same hand and templates as development; they were not tuned on, but shared scenario templates are disclosed (templates shared with development: 7, source families shared: 0).",
+    "No claim of 100 independent legal sources and no i.i.d. confidence interval; the cases are parameter variations of a small set of rules and rulings.",
+    "The confident-decision bar is 0.92 stated confidence, a study convention. The deployed auto-accept bars are textile 0.95, pharmaceutical 0.85 and Part 102 0.95 (deploy workflow). The deployed textile engine is textile-v2 with precedent reasoning; the textile candidate measured here is built on textile-v1, so it describes that prompt only (see the separate live-textile comparator).",
+    "Only 102.20 rows of the form 'A change to ... from any other chapter, heading or subheading' were used; sets, composite goods, textiles and rows with exceptions are not covered. Production countries are Canada and Mexico."
+   ],
+   "public_note": "Frozen candidate scored once. 9 of 112 cases would still be auto-accepted wrongly at the deployed 0.95 bar (3 decided, 6 with a missing fact).",
+   "source": {
+    "decision": "docs/DECISIONS.md, D970 amendment 4 and D971",
+    "results": [
+     "eval/challenges/specialists/results/part102-test.jsonl",
+     "eval/challenges/specialists/results/part102-dev-cand1.jsonl"
+    ],
+    "dataset": "eval/challenges/specialists/part102-test.jsonl"
+   },
+   "display_metrics": [
+    {
+     "id": "part102_decided_confident_correct",
+     "label": "Decided cases answered confidently and correctly",
+     "num": 85,
+     "den": 88
+    },
+    {
+     "id": "part102_uncertain_reviewed",
+     "label": "Cases with a missing fact sent to review",
+     "num": 18,
+     "den": 24
+    },
+    {
+     "id": "part102_auto_accepted_wrong",
+     "label": "Cases auto-accepted wrongly at the deployed bar",
+     "num": 9,
+     "den": 112
+    }
+   ]
+  },
+  {
+   "id": "japan_live_unmodified",
+   "label": "Japan preference engine, as deployed",
+   "evidence_kind": "source_grounded_synthetic",
+   "post_hoc": true,
+   "candidate_revision": "9286b4df96bfb7072e2f56ba98cb0f63461e557c",
+   "dataset_sha256": "a18ca16fe1afc109302cff59a0eb9a41328267a368ca6fbfa0c7fd1182069342",
+   "dev_dataset_sha256": "754a22f7320b827f313d7cd9bf0671f6256ff9143cb83a696c231712405f69ea",
+   "source_families": 28,
+   "source_families_shared_with_dev": 0,
+   "development": {
+    "cases": 48,
+    "matched": 46,
+    "errors": 0
+   },
+   "test": {
+    "cases": 112,
+    "matched": 104,
+    "mismatched": 8,
+    "errors": 0
+   },
+   "cost_usd": 1.266866,
+   "latency_p50_ms": 7422,
+   "latency_p95_ms": 11412,
+   "limitations": [
+    "Post-hoc and current-configuration only: the original reserved Japan cases had already been scored and seen by the author; this is not a new blind holdout and does not replace the original 112-case result of the frozen cand-1 variant, which is unchanged.",
+    "The unmodified engine, one score, no tuning and no label or input change; the 13 cases whose tariff codes fall outside the schedule's HS edition stay in the denominator.",
+    "Gateway calls without the deployed engine cache, retry or fallback; the deployed provider is Vertex.",
+    "Same synthetic-case limits as the study: oracle labels by the case author, shared templates with development."
+   ],
+   "public_note": "Post hoc: the unmodified engine scored once on 112 cases the author had already scored and seen. Includes 13 cases whose tariff code is outside the schedule's HS edition and 9 refused before any model call.",
+   "source": {
+    "decision": "docs/DECISIONS.md, D971 amendments 4 and 5",
+    "results": [
+     "eval/challenges/specialists/results/japan-live-test.jsonl",
+     "eval/challenges/specialists/results/japan-dev-base3.jsonl"
+    ],
+    "dataset": "eval/challenges/specialists/japan-test.jsonl"
+   },
+   "display_metrics": [
+    {
+     "id": "japan_decided_agreed",
+     "label": "Decided cases answered correctly",
+     "num": 74,
+     "den": 76
+    },
+    {
+     "id": "japan_model_uncertain_undetermined",
+     "label": "Missing-fact cases the model left undetermined",
+     "num": 21,
+     "den": 27
+    },
+    {
+     "id": "japan_criterion_valid",
+     "label": "Qualifying answers naming a valid criterion",
+     "num": 37,
+     "den": 37
+    }
+   ]
+  },
+  {
+   "id": "legal_routing",
+   "label": "Legal-regime routing (router-v4)",
+   "evidence_kind": "source_grounded_synthetic",
+   "post_hoc": false,
+   "candidate_revision": "c9a5932faa303fc9ef77f6034dcf463ad20aa262",
+   "dataset_sha256": "0853d472e5612f85eed6ca1e46335a3aa036df88d0876cc9af7c71b166716655",
+   "dev_dataset_sha256": "896c5f14f29cf96c6b9749f8327ef49fd4f62641cdf42d3e4fbc51f7fa772002",
+   "source_families": 8,
+   "source_families_shared_with_dev": 3,
+   "development": {
+    "cases": 183,
+    "matched": 178,
+    "errors": 0
+   },
+   "test": {
+    "cases": 437,
+    "matched": 425,
+    "mismatched": 11,
+    "errors": 1
+   },
+   "cost_usd": 0.956407,
+   "latency_p50_ms": 3757,
+   "latency_p95_ms": 7248,
+   "limitations": [
+    "Appropriate cases reuse the facts of the textile, pharmaceutical and Part 102 specialist cases (parents are visible); they are not independent of those cases.",
+    "Negative controls are real 2026 rulings whose recorded regime is substantial transformation; that label comes from the corpus labeller, not an expert.",
+    "Japan cases are not routed: the router has no Japan regime.",
+    "Pesticide cases (12 reserved, 6 development) are not routed, so routing covers 101 of the 113 pharmaceutical reserved cases."
+   ],
+   "public_note": "Scored once. 327 specialist cases and 110 general-origin controls are counted separately; pesticide cases and Japan are not routed.",
+   "source": {
+    "decision": "docs/DECISIONS.md, D970 amendment 4 and D971",
+    "results": [
+     "eval/challenges/specialists/results/routing-test.jsonl",
+     "eval/challenges/specialists/results/routing-dev-base2.jsonl"
+    ],
+    "dataset": "eval/challenges/specialists/routing-test.jsonl"
+   },
+   "display_metrics": [
+    {
+     "id": "routing_appropriate",
+     "label": "Specialist cases routed to their regime",
+     "num": 317,
+     "den": 327
+    },
+    {
+     "id": "routing_negative_controls",
+     "label": "General-origin controls kept general",
+     "num": 108,
+     "den": 110
+    },
+    {
+     "id": "routing_pharma",
+     "label": "Pharmaceutical cases routed to their regime",
+     "num": 91,
+     "den": 101
+    }
+   ]
+  }
+ ],
  "corpus": {
   "labels.jsonl": "dc7e82fe63a2b4de2c77984169577387dd8816d73f66b6b43575d5b74f159b85",
   "labels_usmca.jsonl": "6040e8508af239d3d23fc360b2b5a8d06742125d3547ef298e35f8e71b600f9d",

@@ -23,6 +23,7 @@ type Summary struct {
 	Routing         *RoutingEntry         `json:"routing,omitempty"`
 	Comparator      *ComparatorEntry      `json:"live_textile_comparator,omitempty"`
 	JapanComparator *JapanComparatorEntry `json:"live_japan_comparator,omitempty"`
+	PublicFeatures  []PublicFeature       `json:"public_features"`
 	Corpus          map[string]string     `json:"corpus"`
 	Attempts        []AttemptTotal        `json:"attempts_by_feature"`
 }
@@ -227,6 +228,17 @@ func buildSummary(candidate string) (Summary, error) {
 		return sum, err
 	}
 	if sum.JapanComparator, err = buildJapanComparator(); err != nil {
+		return sum, err
+	}
+	pb, err := os.ReadFile(filepath.Join(dataRoot(), "public-record.json"))
+	if err != nil {
+		return sum, err
+	}
+	pubRec := map[string]string{}
+	if err := json.Unmarshal(pb, &pubRec); err != nil {
+		return sum, err
+	}
+	if sum.PublicFeatures, err = buildPublic(sum, dev, test, rdev, rtest, pubRec); err != nil {
 		return sum, err
 	}
 	return sum, nil
