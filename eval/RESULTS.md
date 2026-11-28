@@ -1087,6 +1087,26 @@ After the daily budget reset, live MCP initialized anonymously, then returned HT
 - **D855 confirmation (`…-f28-854`, `families/b3-854-measure.json`, `b3-854-vs-852-measure.json`).** Output cap 4096 and 0 failed checks. Machinery 10 of 11, medical 9 of 10, optical 9 of 9; 45 of 48; look-alikes 29 of 30. The no-regression criterion failed on N356150, the return electrode.
 - $1.0027 in all; one run per revision.
 
+## Expanded generated rule challenges (28 Nov; D966–D969, #982–#983)
+
+These are reserved synthetic variations of published rules and examples, not additional customs rulings or a population accuracy estimate. Development cases were used to fix rules; candidates and expected test labels were frozen before the first reserved score. Expected refusals and requests for missing facts count as checks too. All errors remain in the denominator.
+
+| Capability | First reserved checks matched | Mismatches | Errors |
+|---|---:|---:|---:|
+| ATIGA | 168/169 (99.4%) | 1 | 0 |
+| AKFTA | 169/169 (100%) | 0 | 0 |
+| ACFTA | 147/154 (95.5%) | 1 | 6 |
+| RCEP | 179/180 (99.4%) | 1 | 0 |
+| USMCA preferential rules | 210/210 (100%) | 0 | 0 |
+| Textile deterministic rules | 146/146 (100%) | 0 | 0 |
+| Tariff-watch calculations | 108/108 (100%) | 0 | 0 |
+
+FTA records: `challenges/fta/PROTOCOL.md`, `challenges/fta/summary.json` and its frozen datasets/results (D966–D967). The six ACFTA errors are authoring defects: invalid direct-method inputs were assigned substantive expected results. They are retained; a separate corrected-input supplement scored 6/6 and does not replace the first score. The AKFTA development cases exposed a chapter 1–9 range-comparison defect, fixed before reserved scoring. Embedded rule rows are shared with the oracle, so this does not independently validate their transcription. RCEP clause text was not newly verified in the bounded source search.
+
+Legal-rule records: `challenges/legal-rules/PROTOCOL.md`, `challenges/legal-rules/summary.json`, frozen cases and `results-{dev-baseline,dev,test}.jsonl` (D968–D969). Development improved from 348/354 to 354/354. Fixes cover incomplete USMCA facts, textile packing-stage hierarchy, and tariff-action rates, dates and replacement of covered baseline charges. Textile's 146/146 checks status, origin and paragraph; a separate reason-class measure is 55/57, with the two incorrect expected reason labels retained. Tariff snapshots are synthetic, not predictions of future policy.
+
+Source families and templates overlap development and are counted in the summaries. Related variations are not independent legal observations. No population confidence interval or pooled real/synthetic accuracy is claimed. Each study cost $0 in model calls. Offline reproductions validate the stored score; they do not add trials. The earlier small authority-example studies below remain historical evidence, not the larger studies' denominators.
+
 ## ATIGA conformance, not real-world accuracy (28 Nov; D963–D964, #979)
 
 Candidate engine/rules from `792f0fe9`, labels frozen in `7991b45a` before scoring. No engine or label changed after the result.

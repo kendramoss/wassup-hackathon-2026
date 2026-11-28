@@ -1,0 +1,521 @@
+{
+  "schema_version": 1,
+  "sources": [
+    {
+      "sourcePath": "eval/challenges/fta/summary.json",
+      "sourceSHA256": "626e538bedf5eccca4be5f44b5ee9abdf21747363191bb39f4213e8322b888ed",
+      "summary": {
+        "schema_version": 1,
+        "evidence_kind": "source_grounded_synthetic",
+        "features": [
+          {
+            "id": "atiga",
+            "label": "ATIGA rules",
+            "candidate_revision": "b1d8f3bf94ab85ebb7f0fd3d0f22aae03ae5a93b",
+            "dataset_sha256": "08a252572be66a89d2c1230c6e93cba1422c9899be6263869f897a911d2003b1",
+            "source_families": 27,
+            "development": {
+              "cases": 91,
+              "matched": 90,
+              "errors": 0
+            },
+            "test": {
+              "cases": 169,
+              "matched": 168,
+              "mismatched": 1,
+              "errors": 0
+            },
+            "cost_usd": 0,
+            "latency_p50_ms": 0.008,
+            "latency_p95_ms": 0.016,
+            "limitations": [
+              "The label oracle reads the same embedded rule-row data as the engines and its ACFTA chapter and heading lists mirror the engine profile, so this study does not independently validate the transcription of the source tables or those legal-list choices.",
+              "Synthetic cases written by the implementer from the cited rule rows and treaty clauses with knowledge of the engine interface: not blind authoring, not independent customs rulings.",
+              "Development and reserved test cases share scenario families; only the test-only families are unseen in development.",
+              "Near-duplicate and parent-linked cases are not independent observations; no population confidence interval is claimed.",
+              "Case labels follow the supplied facts; where an input is silent the rule is not assumed met.",
+              "ATIGA rules are read from the HS 2022 Annex 3 table in the engine; direct consignment, packaging, accessories and neutral elements are not scored."
+            ],
+            "development_dataset_sha256": "9c043ddd6d308cd8d903a2d7c555632c937afb8a336f09af5572631a8d84f551",
+            "development_first_run": {
+              "cases": 91,
+              "matched": 90,
+              "mismatched": 1,
+              "errors": 0
+            },
+            "scenario_families": 24,
+            "parent_groups": 4,
+            "cases_with_parent": 12,
+            "formatting_only_cases": 3,
+            "families_shared_with_development": 22,
+            "families_only_in_test": 2,
+            "cases_in_shared_families": 155,
+            "expected_outcomes": {
+              "no": 52,
+              "refused": 4,
+              "undetermined": 18,
+              "yes": 95
+            },
+            "abstention": {
+              "expected": 18,
+              "correct": 18,
+              "decided_instead": 0,
+              "abstained_when_a_decision_was_expected": 1
+            },
+            "yes_precision": {
+              "num": 94,
+              "den": 94
+            },
+            "yes_recall": {
+              "num": 94,
+              "den": 95
+            },
+            "decided_only_agreement": {
+              "num": 146,
+              "den": 146
+            }
+          },
+          {
+            "id": "akfta",
+            "label": "AKFTA rules",
+            "candidate_revision": "b1d8f3bf94ab85ebb7f0fd3d0f22aae03ae5a93b",
+            "dataset_sha256": "0fc09ca06ecadc19bc6adbdff9d7c64d811c4309dd1cc4263f3ae6a812a7740d",
+            "source_families": 28,
+            "development": {
+              "cases": 91,
+              "matched": 91,
+              "errors": 0
+            },
+            "test": {
+              "cases": 169,
+              "matched": 169,
+              "mismatched": 0,
+              "errors": 0
+            },
+            "cost_usd": 0,
+            "latency_p50_ms": 0.007,
+            "latency_p95_ms": 0.012,
+            "limitations": [
+              "The label oracle reads the same embedded rule-row data as the engines and its ACFTA chapter and heading lists mirror the engine profile, so this study does not independently validate the transcription of the source tables or those legal-list choices.",
+              "Synthetic cases written by the implementer from the cited rule rows and treaty clauses with knowledge of the engine interface: not blind authoring, not independent customs rulings.",
+              "Development and reserved test cases share scenario families; only the test-only families are unseen in development.",
+              "Near-duplicate and parent-linked cases are not independent observations; no population confidence interval is claimed.",
+              "Case labels follow the supplied facts; where an input is silent the rule is not assumed met.",
+              "AKFTA Appendix 2 rows with provisos on materials are scored only where the case states the facts the proviso needs."
+            ],
+            "development_dataset_sha256": "458b107ee60b68bc042944a39146f18fc145fece6f69aeabf71df53462baf691",
+            "development_first_run": {
+              "cases": 91,
+              "matched": 89,
+              "mismatched": 2,
+              "errors": 0
+            },
+            "scenario_families": 24,
+            "parent_groups": 5,
+            "cases_with_parent": 12,
+            "formatting_only_cases": 3,
+            "families_shared_with_development": 22,
+            "families_only_in_test": 2,
+            "cases_in_shared_families": 158,
+            "expected_outcomes": {
+              "no": 59,
+              "refused": 4,
+              "undetermined": 24,
+              "yes": 82
+            },
+            "abstention": {
+              "expected": 24,
+              "correct": 24,
+              "decided_instead": 0,
+              "abstained_when_a_decision_was_expected": 0
+            },
+            "yes_precision": {
+              "num": 82,
+              "den": 82
+            },
+            "yes_recall": {
+              "num": 82,
+              "den": 82
+            },
+            "decided_only_agreement": {
+              "num": 141,
+              "den": 141
+            }
+          },
+          {
+            "id": "acfta",
+            "label": "ACFTA rules",
+            "candidate_revision": "b1d8f3bf94ab85ebb7f0fd3d0f22aae03ae5a93b",
+            "dataset_sha256": "fcf2934c66651e8a54583ab32501d9fe2f5c2de76b2d799d05dead7253895228",
+            "source_families": 24,
+            "development": {
+              "cases": 79,
+              "matched": 79,
+              "errors": 0
+            },
+            "test": {
+              "cases": 154,
+              "matched": 147,
+              "mismatched": 1,
+              "errors": 6
+            },
+            "cost_usd": 0,
+            "latency_p50_ms": 0.007,
+            "latency_p95_ms": 0.013,
+            "limitations": [
+              "The label oracle reads the same embedded rule-row data as the engines and its ACFTA chapter and heading lists mirror the engine profile, so this study does not independently validate the transcription of the source tables or those legal-list choices.",
+              "Synthetic cases written by the implementer from the cited rule rows and treaty clauses with knowledge of the engine interface: not blind authoring, not independent customs rulings.",
+              "Development and reserved test cases share scenario families; only the test-only families are unseen in development.",
+              "Near-duplicate and parent-linked cases are not independent observations; no population confidence interval is claimed.",
+              "Case labels follow the supplied facts; where an input is silent the rule is not assumed met.",
+              "ACFTA follows the 2019 Annex 1 and Attachment B (HS 2017); ACFTA 3.0 is not scored."
+            ],
+            "development_dataset_sha256": "5289939913e11fb1fea0ec4fe31ecf6ac06ce82155f65ca6f68cb3f29573f1c7",
+            "development_first_run": {
+              "cases": 79,
+              "matched": 79,
+              "errors": 0
+            },
+            "scenario_families": 22,
+            "parent_groups": 3,
+            "cases_with_parent": 9,
+            "formatting_only_cases": 3,
+            "families_shared_with_development": 20,
+            "families_only_in_test": 2,
+            "cases_in_shared_families": 140,
+            "expected_outcomes": {
+              "no": 57,
+              "refused": 4,
+              "undetermined": 19,
+              "yes": 74
+            },
+            "abstention": {
+              "expected": 19,
+              "correct": 19,
+              "decided_instead": 0,
+              "abstained_when_a_decision_was_expected": 1
+            },
+            "yes_precision": {
+              "num": 73,
+              "den": 73
+            },
+            "yes_recall": {
+              "num": 73,
+              "den": 74
+            },
+            "decided_only_agreement": {
+              "num": 124,
+              "den": 124
+            },
+            "posthoc_supplement": {
+              "cases": 6,
+              "matched": 6,
+              "mismatched": 0,
+              "errors": 0,
+              "note": "Rebuilt copies of reserved cases that errored for a dataset authoring reason, scored after the first reserved run. Not part of the reserved totals."
+            },
+            "error_case_ids": [
+              "acfta-test-authority-variants-01",
+              "acfta-test-authority-variants-02",
+              "acfta-test-authority-variants-03",
+              "acfta-test-authority-variants-04",
+              "acfta-test-authority-variants-05",
+              "acfta-test-authority-variants-06"
+            ],
+            "error_note": "Dataset authoring defects, not engine defects: these cases carry method direct, which ACFTA refuses as invalid input, so their correct expected class is refused. The frozen labels and the first-run counts are kept unchanged; the post-hoc supplement is scored separately."
+          },
+          {
+            "id": "rcep",
+            "label": "RCEP rules",
+            "candidate_revision": "b1d8f3bf94ab85ebb7f0fd3d0f22aae03ae5a93b",
+            "dataset_sha256": "6d37835113eda2ad5141cec1121d4449217a466f89c4ddb652aab2da2586173b",
+            "source_families": 31,
+            "development": {
+              "cases": 83,
+              "matched": 83,
+              "errors": 0
+            },
+            "test": {
+              "cases": 180,
+              "matched": 179,
+              "mismatched": 1,
+              "errors": 0
+            },
+            "cost_usd": 0,
+            "latency_p50_ms": 0.007,
+            "latency_p95_ms": 0.013,
+            "limitations": [
+              "The label oracle reads the same embedded rule-row data as the engines and its ACFTA chapter and heading lists mirror the engine profile, so this study does not independently validate the transcription of the source tables or those legal-list choices.",
+              "Synthetic cases written by the implementer from the cited rule rows and treaty clauses with knowledge of the engine interface: not blind authoring, not independent customs rulings.",
+              "Development and reserved test cases share scenario families; only the test-only families are unseen in development.",
+              "Near-duplicate and parent-linked cases are not independent observations; no population confidence interval is claimed.",
+              "Case labels follow the supplied facts; where an input is silent the rule is not assumed met.",
+              "RCEP Chapter 3 article numbers (3.2 to 3.7) were not verified against the treaty text in this study: the local agreement PDF is the Annex 3A rule tables, not Chapter 3, and the official chapter text could not be fetched. They follow the engine's citations and the ABF guide."
+            ],
+            "development_dataset_sha256": "befeb45195eed94af9c6413f726d475d39ed371f91df37e0b1266aa6e346c56f",
+            "development_first_run": {
+              "cases": 83,
+              "matched": 83,
+              "errors": 0
+            },
+            "scenario_families": 24,
+            "parent_groups": 8,
+            "cases_with_parent": 22,
+            "formatting_only_cases": 3,
+            "families_shared_with_development": 20,
+            "families_only_in_test": 4,
+            "cases_in_shared_families": 153,
+            "expected_outcomes": {
+              "no": 59,
+              "refused": 4,
+              "undetermined": 19,
+              "yes": 98
+            },
+            "abstention": {
+              "expected": 19,
+              "correct": 19,
+              "decided_instead": 0,
+              "abstained_when_a_decision_was_expected": 1
+            },
+            "yes_precision": {
+              "num": 97,
+              "den": 97
+            },
+            "yes_recall": {
+              "num": 97,
+              "den": 98
+            },
+            "decided_only_agreement": {
+              "num": 156,
+              "den": 156
+            }
+          }
+        ]
+      }
+    },
+    {
+      "sourcePath": "eval/challenges/legal-rules/summary.json",
+      "sourceSHA256": "6bd0459b16c7946289e78648edf7bc064a8fb81979780e1b5886154f2d434529",
+      "summary": {
+        "schema_version": 1,
+        "evidence_kind": "source_grounded_synthetic",
+        "features": [
+          {
+            "id": "usmca_rules",
+            "label": "USMCA preferential rules",
+            "candidate_revision": "20b97e0f9e387a06fd7922a69710825cfb9fb41e",
+            "dataset_sha256": "81a34e753d26817a270e3fd1fa625692455581bed33364504b7970184247aad2",
+            "development_dataset_sha256": "0ead2040ae814c68b94fd5ffe11a4251238fbdd5755c1d5b494a432124437cae",
+            "source_families": 12,
+            "families": {
+              "test_source_families": 12,
+              "test_scenario_families": 18,
+              "test_templates": 9,
+              "dev_source_families": 9,
+              "dev_templates": 8,
+              "test_source_families_also_in_dev": 1,
+              "test_templates_also_in_dev": 8,
+              "test_cases_with_parent": 6,
+              "test_cases_in_templates_shared_with_dev": 200
+            },
+            "development": {
+              "cases": 184,
+              "matched": 184,
+              "mismatched": 0,
+              "errors": 0,
+              "usmca": {
+                "expected_decisive": 108,
+                "engine_decisive": 108,
+                "decisive_correct": 108,
+                "decisive_precision": 1,
+                "decisive_recall": 1,
+                "false_decisive": 0,
+                "unexpected_abstain": 0,
+                "expected_abstain": 66,
+                "abstain_correct": 66,
+                "invalid_expected": 10,
+                "invalid_refused_correctly": 10,
+                "errors": 0
+              }
+            },
+            "test": {
+              "cases": 210,
+              "matched": 210,
+              "mismatched": 0,
+              "errors": 0,
+              "usmca": {
+                "expected_decisive": 125,
+                "engine_decisive": 125,
+                "decisive_correct": 125,
+                "decisive_precision": 1,
+                "decisive_recall": 1,
+                "false_decisive": 0,
+                "unexpected_abstain": 0,
+                "expected_abstain": 73,
+                "abstain_correct": 73,
+                "invalid_expected": 12,
+                "invalid_refused_correctly": 12,
+                "errors": 0
+              }
+            },
+            "cost_usd": 0,
+            "latency_p50_ms": 0.022,
+            "latency_p95_ms": 0.045,
+            "limitations": [
+              "Cases are constructed from the General Note 11(o), 11(c), 11(e), 11(n) and 11(p) text by one author; they are not independent customs decisions or an i.i.d. sample.",
+              "The expected labels come from a separate reference oracle written from the same authority text; it does not independently validate the embedded rule data's transcription.",
+              "Cases share rule rows across inputs; source families and structural templates shared with development are counted, not hidden.",
+              "The check models simple goods; accumulation, remanufacture, automotive rules and the rayon exceptions of textile chapters are outside its scope and outside these cases."
+            ]
+          },
+          {
+            "id": "textile_rules",
+            "label": "Textile origin (19 CFR 102.21)",
+            "candidate_revision": "20b97e0f9e387a06fd7922a69710825cfb9fb41e",
+            "dataset_sha256": "7fc009dd2794151480a4b7072ab6b62a62b69a6048f85f87c37359d96b925a46",
+            "development_dataset_sha256": "9d7ab031fb7d54927c54bdeda012c4896a473157efeeec0bab831e496f281368",
+            "source_families": 15,
+            "families": {
+              "test_source_families": 15,
+              "test_scenario_families": 16,
+              "test_templates": 9,
+              "dev_source_families": 8,
+              "dev_templates": 7,
+              "test_source_families_also_in_dev": 1,
+              "test_templates_also_in_dev": 6,
+              "test_cases_with_parent": 0,
+              "test_cases_in_templates_shared_with_dev": 121
+            },
+            "development": {
+              "cases": 63,
+              "matched": 63,
+              "mismatched": 0,
+              "errors": 0,
+              "textile": {
+                "expected_decided": 37,
+                "engine_decided": 37,
+                "decided_correct": 37,
+                "decided_precision": 1,
+                "decided_recall": 1,
+                "false_decided": 0,
+                "wrong_origin": 0,
+                "unexpected_undetermined": 0,
+                "expected_undetermined": 24,
+                "undetermined_correct": 24,
+                "reason_class_expected": 24,
+                "reason_class_matched": 24,
+                "out_of_scope_expected": 2,
+                "out_of_scope_correct": 2,
+                "errors": 0
+              }
+            },
+            "test": {
+              "cases": 146,
+              "matched": 146,
+              "mismatched": 0,
+              "errors": 0,
+              "textile": {
+                "expected_decided": 87,
+                "engine_decided": 87,
+                "decided_correct": 87,
+                "decided_precision": 1,
+                "decided_recall": 1,
+                "false_decided": 0,
+                "wrong_origin": 0,
+                "unexpected_undetermined": 0,
+                "expected_undetermined": 57,
+                "undetermined_correct": 57,
+                "reason_class_expected": 57,
+                "reason_class_matched": 55,
+                "out_of_scope_expected": 2,
+                "out_of_scope_correct": 2,
+                "errors": 0
+              }
+            },
+            "cost_usd": 0,
+            "latency_p50_ms": 0.016,
+            "latency_p95_ms": 0.026,
+            "limitations": [
+              "Cases are constructed facts for rows of 19 CFR 102.21(e); they are not CBP rulings and carry no real-world confidence interval.",
+              "The reference oracle re-encodes the used rows by hand from the eCFR text; it does not independently validate the full embedded table.",
+              "Pure tariff-shift rows and the (c)(4) most-important-process judgment are documented abstentions: expected undetermined means the check declines, not that the law has no answer.",
+              "Free-text operation names are not parsed by these cases; the facts are given as structured stages."
+            ]
+          },
+          {
+            "id": "tariff_watch_rates",
+            "label": "Tariff-watch rate changes",
+            "candidate_revision": "20b97e0f9e387a06fd7922a69710825cfb9fb41e",
+            "dataset_sha256": "b95db5d940e7aea94f38db32703b622e8b5fddb09233ae6d769a615a4d079456",
+            "development_dataset_sha256": "67efe6404cd584800a2678abfbb2a16d7f30774a077384bc652e501764689178",
+            "source_families": 9,
+            "families": {
+              "test_source_families": 9,
+              "test_scenario_families": 21,
+              "test_templates": 5,
+              "dev_source_families": 7,
+              "dev_templates": 5,
+              "test_source_families_also_in_dev": 0,
+              "test_templates_also_in_dev": 5,
+              "test_cases_with_parent": 0,
+              "test_cases_in_templates_shared_with_dev": 108
+            },
+            "development": {
+              "cases": 107,
+              "matched": 107,
+              "mismatched": 0,
+              "errors": 0,
+              "tariff": {
+                "watch_cases": 85,
+                "revise_cases": 16,
+                "dataset_refusals_expected": 6,
+                "dataset_refusals_correct": 6,
+                "affected_true_positive": 57,
+                "affected_false_positive": 0,
+                "affected_false_negative": 0,
+                "affected_true_negative": 28,
+                "cases_with_rate_change_expected": 47,
+                "cases_with_rate_change_fully_matched": 47,
+                "cases_with_dollar_figures_expected": 83,
+                "cases_with_dollar_figures_fully_matched": 83,
+                "revise_correct": 16,
+                "errors": 0
+              }
+            },
+            "test": {
+              "cases": 108,
+              "matched": 108,
+              "mismatched": 0,
+              "errors": 0,
+              "tariff": {
+                "watch_cases": 83,
+                "revise_cases": 18,
+                "dataset_refusals_expected": 7,
+                "dataset_refusals_correct": 7,
+                "affected_true_positive": 57,
+                "affected_false_positive": 0,
+                "affected_false_negative": 0,
+                "affected_true_negative": 26,
+                "cases_with_rate_change_expected": 44,
+                "cases_with_rate_change_fully_matched": 44,
+                "cases_with_dollar_figures_expected": 81,
+                "cases_with_dollar_figures_fully_matched": 81,
+                "revise_correct": 18,
+                "errors": 0
+              }
+            },
+            "cost_usd": 0,
+            "latency_p50_ms": 0.05,
+            "latency_p95_ms": 0.086,
+            "limitations": [
+              "Every revised data set is SYNTHETIC: a constructed next revision exercising one kind of change, not a government tariff action. Tariff lines, heading numbers and baseline rates are real.",
+              "Expected figures come from arithmetic on the case's own numbers by a reference oracle that shares no code with the candidate.",
+              "Rates are compared as whole units of 0.0001 and dollars as whole cents so platform float differences cannot change a label.",
+              "Revision-text cases render synthetic heading text in the HTS PDF-extraction layout; they test the reader, not the accuracy of any real notice."
+            ]
+          }
+        ]
+      }
+    }
+  ]
+}

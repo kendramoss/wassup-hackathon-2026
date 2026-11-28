@@ -82,8 +82,10 @@ test("the first render shows the official counts before the API loaded", async (
   }
   assert.match(markup, /href="#misses"[^>]*>See all 37 known failures/);
   assert.match(markup, /href="\/method"[^>]*>How it is built/);
-  assert.equal((markup.match(/<tbody>/g) || []).length, 1);
-  assert.equal((markup.split("<tbody>")[1].split("</tbody>")[0].match(/<tr[ >]/g) || []).length, overall.n - correct);
+  const failures = markup.match(/<section[^>]*aria-labelledby="miss-h"[\s\S]*?<\/section>/)?.[0];
+  assert.ok(failures, "known failures section");
+  assert.equal((failures.match(/<tbody>/g) || []).length, 1);
+  assert.equal((failures.split("<tbody>")[1].split("</tbody>")[0].match(/<tr[ >]/g) || []).length, overall.n - correct);
 });
 
 test("the recorded plan bars match the committed known-starting-origin results", async () => {
