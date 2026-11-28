@@ -147,7 +147,7 @@ def build_case(split, k, r, row):
         elif m["status"] == "noproof": st = "made in %s, no proof of origin" % m["origin"]
         elif m["status"] == "unknown": st = "origin status not known"
         else: st = "non-originating, made in %s" % m["origin"]
-        lines.append("%s %s (%s), %s, %d%% of the ex-works price" % (CIRC[i], m["name"], c, st, m["share"]))
+        lines.append("%s %s (%s), %s, %d%% of both the ex-works price and the FOB value of the good" % (CIRC[i], m["name"], c, st, m["share"]))
     prod = "Finished article of subheading %s" % dot(good)
     style = r.randrange(3)
     parts = ["Product: %s\nTariff number of the good (Japan): %s\nPreference claimed: %s\n" % (prod, dot(good), SHORT[ag])]
