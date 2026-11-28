@@ -66,7 +66,7 @@
         "Names use exact case/whitespace-normalized matching, not a model judge. Country aliases use a fixed map. Semantically equivalent paraphrases can therefore fail.",
         "Whole-document agreement requires all expected confirmed parts and countries, no extra confirmed parts, and a warning plus no invented country for every missing-origin part. The production API withholds missing-country rows from confirmed components.",
         "The language variation changes column headers only; the component names remain as in the English source fixtures.",
-        "The missing-origin footer explicitly says the supplier address is not a statement of part origin. Withholding11/11 is on a self-labelled distractor in one layout, not an unlabelled-address challenge.",
+        "The missing-origin footer explicitly says the supplier address is not a statement of part origin. Withholding 11/11 is on a self-labelled distractor in one layout, not an unlabelled-address challenge.",
         "The bundled font can leave a visible glyph gap before the closing parenthesis. The strict scorer still treats the model's inserted space as a mismatch, not a legal or wrong-origin error.",
         "All three reserved mismatches are an extra space before a closing parenthesis in the PCBA name; the three extracted rows are unmatched names, not independently established invented parts. Strict first scores remain unchanged."
       ],

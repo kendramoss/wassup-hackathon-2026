@@ -265,7 +265,7 @@ def summarize(check=False):
     f["document_sizes"] = size_groups
     small, large = size_groups["one_or_two_parts"], size_groups["twelve_plus_parts"]
     f["public_note"] = f'{small["cases"]}/{len(test)} sheets have only 1–2 parts; {large["matched"]}/{large["cases"]} sheets with 12+ parts matched.'
-    f["limitations"].append("The missing-origin footer explicitly says the supplier address is not a statement of part origin. Withholding11/11 is on a self-labelled distractor in one layout, not an unlabelled-address challenge.")
+    f["limitations"].append("The missing-origin footer explicitly says the supplier address is not a statement of part origin. Withholding 11/11 is on a self-labelled distractor in one layout, not an unlabelled-address challenge.")
     f["limitations"].append("The bundled font can leave a visible glyph gap before the closing parenthesis. The strict scorer still treats the model's inserted space as a mismatch, not a legal or wrong-origin error.")
     f["development_baseline"] = groups["dev-baseline"]
     f["model_calls"] = len(allrows)

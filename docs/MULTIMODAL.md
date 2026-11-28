@@ -57,7 +57,7 @@ The extractor uses `ENGINE_MODEL` (default `gemini-4-argon`), the same model and
 
 ## Accuracy
 
-Illustrative. Synthetic renderings of illustrative BOMs, one run each, Gemini 4 Argon with the production prompt `extract-image-v2`, through an OpenAI-compatible LiteLLM gateway to Gemini, 21 Nov 2026 (D167, D168). Not Vertex AI, not real documents. Parts inside one image are not independent, so no interval is given.
+Illustrative. Synthetic renderings of illustrative BOMs, one run each, Gemini 4 Argon with the production prompt `extract-image-v1`, through an OpenAI-compatible LiteLLM gateway to Gemini, 21 Nov 2026 (D167, D168). Not Vertex AI, not real documents. Parts inside one image are not independent, so no interval is given.
 
 | Set | Images | Parts expected | Names read (exact) | Countries right | Images with every part | Extra rows | Gateway cost |
 |---|---:|---:|---|---|---:|---:|---:|
