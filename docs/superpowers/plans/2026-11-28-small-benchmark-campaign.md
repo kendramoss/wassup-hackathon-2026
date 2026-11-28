@@ -15,10 +15,10 @@
 - Author and committer: Mizore66. Required project commit attribution and PR footer apply.
 - No frontend changes except coordinated Accuracy evidence and related tests. No owner work, workflows, deployment scripts, Terraform or production-data mutations.
 - Paid model scoring uses only the approved gateway; never Vertex. Never print or write credentials, gateway host or credential-file location.
-- Programme cap $500; ledger at start $361.6195. Lane model sub-caps: specialists/Japan $35, media $15, move verifier $30. Deterministic lanes $0. Coordinator reserve $20. Check ledger before calls and record actual costs promptly.
+- Programme cap **$1,000 total**, raised directly by the user on 28 November while this campaign was running; ledger at campaign start $361.6195. Initial lane model allowances remain specialists/Japan $35, media $15, move verifier $30, deterministic lanes $0 and coordinator reserve $20. These are initial allocations, not feature-quality gates; coordinator can record reallocation within the new programme cap before additional runs. Check ledger before calls and record actual costs promptly.
 - Do not install frontend dependencies in backend-only lanes. Initial disk availability is 13GiB; generated artifacts must be bounded, and merged worktrees removed without deleting branches.
 - No force-push, reset, stash, clean, branch deletion or killing another lane's processes. Only coordinator merges under the existing release lock.
-- Search cap: three external searches/fetches per deterministic lane, two for specialists/Japan, two shared between media and move verification. Coordinator has already done generic tool discovery. Reuse archived primary documents and do not substitute commercial secondary examples as official truth.
+- Search cap: three external source operations for the FTA lane, two for legal rules, two for specialists/Japan, two shared between media and move verification, plus the coordinator's completed generic discovery: ten total. Count source searches, fetches and any additional discovery against the lane allowance. Reuse archived primary documents and do not substitute commercial secondary examples as official truth.
 - Reserved decisions: campaign D965; FTA D966/D967; legal rules D968/D969; specialists/Japan D970/D971; media D972/D973; verifier D974/D975; public evidence D976. Each paid lane must commit its DECISIONS preregistration before the first paid evaluation.
 
 ## Shared evidence contract
