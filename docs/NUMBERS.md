@@ -630,6 +630,37 @@ Reserved labels and candidates were frozen before first test scoring. These are 
 
 Related source rulings remained available, so this is **not a source-clean holdout**. Selected ruling IDs and connected source families are disjoint across development and test, but exclusions did not cover the entire related-family closure. Source-family count is 49 for 220 related variations; do not treat them as independent legal observations or claim unaffected outputs. Of the 53 unshown positive moves, 33 had the correct target/change but insufficient shown support and 20 were wrong. One input exceeded the production fact-length limit and was truncated as production would; it and every first result remain. No population interval, relabelled test or polishing rerun.
 
+## Larger generated specialist and routing studies (D970–D971)
+
+| Measure | Value | Source | Status |
+|---|---|---|---|
+| Current textile model configuration | 108/114 (94.7%); decided 90/92 correct, uncertain 18/22 reviewed | `eval/challenges/specialists/summary.json`, `public_features[textile_live_v2]` and `live_textile_comparator`; source paths recorded there | Post-hoc comparison on cases already scored and seen by the author. Actual textile-v2 plus precedent reasoning, at deployed 0.95 bar; not a new blind holdout |
+| Pharmaceutical specialist candidate | 113/113 (100%); 85/85 decided agree, 28/28 uncertain reviewed | Same summary, `pharma_specialist` | Synthetic prompt-rule consistency, not independent real-world accuracy. Includes 12 pesticides outside current router scope; 101 route-eligible cases. Frozen candidate options adopted, with subsequent canonical-country guard fix disclosed |
+| Part 102 marking specialist candidate | 103/112 (92.0%); 85/88 decided correct, 18/24 uncertain reviewed | Same summary, `part102_specialist` | Nine auto-accept failures remain at deployed 0.95 bar: 3 wrong decided answers and 6 missing-fact cases. Missing-fact option adopted; these failures are not claimed fixed |
+| Current Japan engine configuration | 104/112 (92.9%); 74/76 decided agree, 30/36 uncertain undetermined | Same summary, `japan_live_unmodified` and `live_japan_comparator` | Post-hoc, author-seen data, unchanged production engine. Includes 13 potential tariff-code edition issues from an approximate check; 9 uncertain cases handled before model call. Model-answered uncertain subgroup 21/27 |
+| Legal-regime routing | 425/437 (97.3%); 11 mismatches, 1 error | Same summary, `legal_routing`, and original `routing` object | Specialist cases 317/327; general-origin controls 108/110, with error retained. Pharma route 91/101; textile 114/114; Part 102 112/112. Controls have corpus-model regime labels, not expert judgements |
+| Development-selected specialist results | Textile experiment 47/48 → 48/48, pharma 43/48 → 48/48, Part 102 40/48 → 47/48, Japan experiment 46/48 → 48/48 | Same summary's original features, attempts and D970 amendments | Experimental textile-v1-based candidate is not the live textile-v2 path. Japan unknown-status candidate is not adopted; unmodified comparison has the same total with different errors |
+| Original frozen experimental reserved results | Textile 112/114; pharma 113/113; Part 102 103/112; Japan 104/112 | Original `features` and raw first results under `eval/challenges/specialists/` | Preserved separately, never replaced by current-configuration comparisons |
+| Specialist/routing lane spend | Gateway-reported attempts total about $15.7077, plus explicitly estimated $0.50 for a terminated run without saved rows | `attempts.jsonl`, D971 amendments; per-feature public costs are reserved-test costs only | Cost estimate is not a measured gateway charge. Textile comparator $2.106566; Japan comparator $1.266866 are included in the reported total |
+
+All are source-grounded synthetic variations with shared templates, author-written labels and scope limitations, not independent customs rulings or population samples. The full source, candidate, dataset, subgroup and latency records are in the committed summary. Actual deployed bars are textile 0.95, pharma 0.85 and Part 102 0.95; any displayed 0.92 confidence count is explicitly a study convention. Calls were through the gateway without production cache/retry/fallback, so their costs and latencies are not end-to-end production figures. No foundation-model fine-tuning. Existing textile and Japan production configurations remain unchanged; only the measured pharma and Part 102 missing-fact options are adopted.
+
+## Larger generated BOM image study (D972–D973)
+
+| Measure | Value | Source | Status |
+|---|---|---|---|
+| Whole-document exact checks | 129/132 (97.7%); 3 mismatches, 0 errors | `eval/challenges/media/summary.json`, `scored-test.json`, immutable `results/test/` | First reserved synthetic-image score; not real-photo or handwriting accuracy |
+| Exact component names | 629/632 (99.5%) | Same records, `test.names_read` / `test.expected_names` | Includes 11 missing-country names documented in warnings. Three misses are inserted spaces before the PCBA closing parenthesis |
+| Known-origin fields associated with exact names | 618/621 (99.5%) | Same records, `test.countries_right` / `test.expected_countries` | No wrong origin among exactly matched names; three unmatched names remain misses, not proven invented parts |
+| Missing-origin controls | 11/11 named in warnings and withheld | Same records, `unknown_documented`, `unknown_withheld`, `unknown_expected` | The supplier-address distractor explicitly says it is not a statement of origin; one layout, not an unlabelled-address challenge |
+| Sheet-size mix | 52/52 sheets with 1–2 parts; 56/56 with 3–11; 21/24 (87.5%) with 12+ | Same summary, `document_sizes` | Every document has equal weight in 129/132; do not hide the small-sheet weighting |
+| Development | Baseline 21/24 documents, 140/151 name/origin fields → selected v2 23/24 and 148/151 | `dev-baseline-summary.json`, `freeze.json`, raw `results/{dev-baseline,dev}/` | Development only, criterion registered before candidate comparison; original strict scorer and labels unchanged |
+| Model spend | $0.195032 baseline + $0.230518 candidate development + $1.144786 reserved = $1.570336 | All 180 per-image outputs and shared summary | Actual gateway reports for every call; no missing cost reports |
+| Reserved latency | p50 9.0775 seconds; p95 18.783 seconds | Same summary | Single-image extraction calls, not end-to-end production latency |
+| Source/layout coverage | 3 development and 11 disjoint reserved content/source families; 12 rendering families, 8 shared and 4 reserved-only | Frozen `cases.json`, source/image hashes, protocol | Source-derived illustrative fixtures, not new CBP decisions. No population interval |
+
+The generic name/row/origin separation prompt is `extract-image-v2`, selected before reserved scoring and now used by the extraction entry point. No foundation-model fine-tuning, post-test label repair or polishing rerun. The original three spacing mismatches remain even though glyph spacing can contribute. Historical 20-image v1 evidence stays separate; primary rulings behind the illustrative fixtures were not newly reread.
+
 ## USMCA extended rules and ATIGA check (D927, D930, D932; both on since #910), AKFTA and ACFTA checks (D949, D950; off)
 
 | Measure | Value | Source | Status |

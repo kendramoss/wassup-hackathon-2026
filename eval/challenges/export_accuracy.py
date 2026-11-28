@@ -23,7 +23,10 @@ def build():
         doc = json.loads(raw)
         if doc.get('schema_version') != 1 or doc.get('evidence_kind') != 'source_grounded_synthetic' or not isinstance(doc.get('features'), list):
             raise ValueError('source is not a measured synthetic challenge summary')
-        for feature in doc['features']:
+        features = doc.get('public_features', doc['features'])
+        if not isinstance(features, list) or not features:
+            raise ValueError('source has no selected current-path evidence')
+        for feature in features:
             if feature['id'] in ids:
                 raise ValueError('repeated feature across selected studies')
             ids.add(feature['id'])

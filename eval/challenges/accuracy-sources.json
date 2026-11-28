@@ -3,6 +3,8 @@
   "sources": [
     "eval/challenges/fta/summary.json",
     "eval/challenges/legal-rules/summary.json",
-    "eval/challenges/verifier/summary.json"
+    "eval/challenges/verifier/summary.json",
+    "eval/challenges/specialists/summary.json",
+    "eval/challenges/media/summary.json"
   ]
 }

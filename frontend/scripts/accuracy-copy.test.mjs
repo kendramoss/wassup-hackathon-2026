@@ -30,7 +30,7 @@ test("the honesty lines stay outside the Details folds", () => {
     "Partly tuned on newer rulings, so not a clean test",
     "Partly tuned on these rulings, so not a clean test",
     "Real photos, scans and handwriting are not measured yet",
-    "synthetic images, illustrative · small",
+    "historical synthetic-image study",
     "It runs high",
     "Not a ruling. A licensed broker confirms",
     // #685: the pretraining caveat is visible without opening a fold.

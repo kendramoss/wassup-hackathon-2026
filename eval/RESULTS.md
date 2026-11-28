@@ -1087,6 +1087,38 @@ After the daily budget reset, live MCP initialized anonymously, then returned HT
 - **D855 confirmation (`…-f28-854`, `families/b3-854-measure.json`, `b3-854-vs-852-measure.json`).** Output cap 4096 and 0 failed checks. Machinery 10 of 11, medical 9 of 10, optical 9 of 9; 45 of 48; look-alikes 29 of 30. The no-regression criterion failed on N356150, the return electrode.
 - $1.0027 in all; one run per revision.
 
+## Expanded generated BOM image study (28 Nov; D972–D973, #985)
+
+Frozen dataset `ac2ed27c5ca180073286dc7bf42b31b0a0e6ba69594161193144934d29e8868a`, selected candidate `dd158f8a94d3ec803519b5adc926e6fc3e4bd4e9`, prompt `extract-image-v2`. Preregistration preceded all paid development; selected freeze `a9fcbd3e` preceded the first reserved call. No test input, label or per-document scoring change after first results.
+
+Reserved: **129/132 exact document checks (97.7%)**, three mismatches, zero errors; **629/632 exact names**, **618/621 associated stated-origin fields**, and all **11 missing origins warned about and withheld**. The three mismatches are the heat-gun PCBA description with a space before the closing parenthesis, in dense, JPEG and quantity/code layouts. Original strict counts remain; these are unmatched names, not independently established invented parts or wrong-origin decisions.
+
+Document weighting matters: 52/132 sheets have only 1–2 parts. Their score is 52/52; 3–11 parts 56/56; 12+ parts **21/24 (87.5%)**. Missing-origin sheets explicitly label the supplier address as not a statement of origin, so 11/11 is not an unlabelled-distractor result. Font glyph spacing may contribute to the strict PCBA misses. Source/template dependencies and these limits are visible in the summary.
+
+Development on 24 different-source sheets: original v1 **21/24**, 140/151 names/origins; generic separation candidate v2 **23/24**, 148/151. Criterion registered before candidate scoring; no third candidate. Both attempts retained. Source families are disjoint (3 development, 11 reserved); 12 layout families, 8 shared and 4 reserved-only. The original primary rulings behind the illustrative fixtures were not newly reread. These are synthetic pixels, not real photos, handwriting, independent rulings or a population sample.
+
+All 180 calls: baseline $0.195032, selected development $0.230518, reserved $1.144786, total **$1.570336**, every gateway cost reported. Reserved latency p50 9.0775s, p95 18.783s. Protocol, source/image hashes, every first output and offline reproducibility: `challenges/media/`. `study.py summarize --check` validates candidate/image/data/model/prompt identity and reconstructs all outcomes and costs; deterministic rendering check uses the recorded Pillow version. Reproductions do not add trials. Historical 20-image v1 results remain separate.
+
+## Expanded specialist and routing challenges (28 Nov; D970–D971, #984)
+
+Original reserved candidates were frozen before first scoring at `c9a5932faa303fc9ef77f6034dcf463ad20aa262`. All original inputs, labels and first rows remain. They scored textile 112/114, pharma 113/113, Part 102 103/112 and Japan 104/112. Routing scored 425/437, including one model error. These are author-generated legal/process variations, not independent customs rulings or a population accuracy estimate.
+
+Review found that the textile experiment used v1-based prompts, not the deployed v2 with precedent reasoning. Separately registered post-hoc comparisons therefore measured the actual current textile and Japan configurations on the already-scored cases. They are not new blind holdouts and never replace the originals.
+
+| Current-path study | Complete agreement | Decided / uncertain details |
+|---|---:|---|
+| Textile v2 with reasoning, unchanged | 108/114 (94.7%) | 90/92 decided correct; 18/22 uncertain reviewed; 2 wrong decided and 4 uncertain answers would auto-accept at 0.95 |
+| Pharma missing-fact candidate, adopted | 113/113 (100%) | 85/85 decided agree; 28/28 uncertain reviewed; 12 pesticide cases are outside current routing, leaving 101 route-eligible cases |
+| Part 102 missing-fact candidate, adopted | 103/112 (92.0%) | 85/88 decided correct; 18/24 uncertain reviewed; the 3 wrong and 6 overconfident uncertain answers remain |
+| Japan unmodified, unchanged | 104/112 (92.9%) | 74/76 decided agree; 30/36 uncertain undetermined; 9 preflight cases, so model-only uncertain subgroup is 21/27 |
+| Legal routing, unchanged | 425/437 (97.3%) | Specialist cases 317/327; general-origin controls 108/110; 1 error retained |
+
+Textile comparison development tied at 47/48 for v2 and v2 plus the missing-fact option, so the registered rule kept v2. Japan's unknown-status sentence traded six fewer uncertain decisions for six additional declines of decided cases, with no net reserved improvement, so it was not adopted. Pharma and Part 102 adopted only their measured missing-fact options; a canonical-country guard false positive was fixed after the original score and is separately disclosed. No deployed thresholds or workflow settings were changed.
+
+Japan includes 13 potential HS-edition issues identified by an approximate code-list check, not 13 independently established legal errors; two declines involve edition mismatches. Labels and outcomes are retained. Pharma labels apply the engine's own rules and all its source families overlap development. Routing controls use corpus-model regime labels. Other shared-template and source-oracle limits are in the protocol and summary. Every uncertain case, error and failed development candidate remains.
+
+Gateway-reported lane attempts total about $15.7077, plus an explicitly estimated $0.50 for a terminated run without saved rows. Textile comparator $2.106566 and Japan comparator $1.266866 are included. Public feature costs are reserved-test costs, not all development. Cost and latency are gateway measurements without the production cache/retry/fallback; they are not production end-to-end figures. All raw attempts, hashes, profiles, source metadata and offline reproduction commands: `challenges/specialists/`. `summary.json` preserves original experiments and exposes current-path `public_features`; `check` reconstructs it from stored rows.
+
 ## Expanded generated given-move verification (28 Nov; D974–D975, #986)
 
 Frozen production-v2 candidate `59780443341e87dc77b07a90d43d83d79562d898`, dataset `a08297baa59ada7f7ef57b4173e213f535671b135fccfcc17585a72583f0b42e`. Reserved set: 220 synthetic variations (100 changed, 100 unchanged, 20 incomplete), 50 source parents / 49 connected source families. Starting origin supplied. This is given-move verification, not full plan search or ranking.
