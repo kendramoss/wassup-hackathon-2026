@@ -372,6 +372,95 @@
    "Pesticide cases (12 reserved, 6 development) are not routed, so routing covers 101 of the 113 pharmaceutical reserved cases."
   ]
  },
+ "live_textile_comparator": {
+  "id": "textile_live_comparator",
+  "label": "Deployed textile engine (textile-v2 with precedent reasoning), with and without the missing-fact option",
+  "candidate_revision": "e252d952128bac95be30b4ff7a3f80c94b6d71e5",
+  "deployed_bar": 0.95,
+  "development_live_v2": {
+   "cases": 48,
+   "matched": 47,
+   "mismatched": 1,
+   "errors": 0,
+   "expected_decided": {
+    "cases": 42,
+    "agreed": 41,
+    "wrong": 1,
+    "abstained": 0,
+    "errors": 0,
+    "confident": 42,
+    "confident_correct": 41,
+    "confident_wrong": 1
+   },
+   "expected_uncertain": {
+    "cases": 6,
+    "abstained_correctly": 6,
+    "overconfident": 0,
+    "errors": 0
+   },
+   "model_calls": 48,
+   "preflight_cases": 0
+  },
+  "development_live_v2_plus_option": {
+   "cases": 48,
+   "matched": 47,
+   "mismatched": 1,
+   "errors": 0,
+   "expected_decided": {
+    "cases": 42,
+    "agreed": 41,
+    "wrong": 1,
+    "abstained": 0,
+    "errors": 0,
+    "confident": 42,
+    "confident_correct": 41,
+    "confident_wrong": 1
+   },
+   "expected_uncertain": {
+    "cases": 6,
+    "abstained_correctly": 6,
+    "overconfident": 0,
+    "errors": 0
+   },
+   "model_calls": 48,
+   "preflight_cases": 0
+  },
+  "selected_on_development": "live-v2",
+  "test": {
+   "cases": 114,
+   "matched": 108,
+   "mismatched": 6,
+   "errors": 0,
+   "expected_decided": {
+    "cases": 92,
+    "agreed": 90,
+    "wrong": 2,
+    "abstained": 0,
+    "errors": 0,
+    "confident": 92,
+    "confident_correct": 90,
+    "confident_wrong": 2
+   },
+   "expected_uncertain": {
+    "cases": 22,
+    "abstained_correctly": 18,
+    "overconfident": 4,
+    "errors": 0
+   },
+   "model_calls": 114,
+   "preflight_cases": 0
+  },
+  "dataset_sha256": "df01b65136b0b92de712a841f4c223b914d34c5ccbf1602fff7481f7c30e09f6",
+  "test_cost_usd": 1.144384,
+  "latency_p50_ms": 7566,
+  "latency_p95_ms": 11565,
+  "limitations": [
+   "Post-hoc and current-configuration only: the original synthetic reserved textile cases had already been scored and seen by the author before this comparison, so it is not a new blind holdout and does not replace the original 114-case result.",
+   "Selected on the original development cases only, by a rule registered before any comparator call; one comparator score on the unchanged 114 reserved cases, no relabelling.",
+   "Gateway calls without the deployed engine cache, retry or fallback model; the deployed provider is Vertex. Graded at the deployed 0.95 textile bar.",
+   "Same synthetic-case limits as the study: oracle labels by the case author, shared templates with development."
+  ]
+ },
  "corpus": {
   "labels.jsonl": "dc7e82fe63a2b4de2c77984169577387dd8816d73f66b6b43575d5b74f159b85",
   "labels_usmca.jsonl": "6040e8508af239d3d23fc360b2b5a8d06742125d3547ef298e35f8e71b600f9d",
@@ -382,6 +471,7 @@
   "pharma_rulings.json": "2e42eda5a3c97d1b349b17394a2faa4ab7ddb9fc30bb97476501b3d326e39b87",
   "textile_pool_revision": "18fd5270103e3df3b803f43d15869dac79324ed9fb2ac473c57f30aa97284d9f",
   "textile_pool_rulings": "371",
+  "textile_reasoning.json": "6b045c9a5a320dc4de505619da380a6db4501e8a80f4789da79e54c023cd515d",
   "textile_rulings.json": "074958a293fd3cd40b35982341bd6a816761518c6914aa1a3f83fab8f164f9d5"
  },
  "attempts_by_feature": [
@@ -404,6 +494,11 @@
    "feature": "pharma_specialist",
    "attempts": 5,
    "cost_usd": 2.024749
+  },
+  {
+   "feature": "textile_live_comparator",
+   "attempts": 3,
+   "cost_usd": 2.106566
   },
   {
    "feature": "textile_specialist",
