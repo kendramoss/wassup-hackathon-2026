@@ -73,6 +73,17 @@ test("challenge table identifies generated evidence, counts every error and link
   assert.equal(html(ChallengeEvidence, { features: [] }), "");
 });
 
+test("source limitations and authoring defects are readable without leaving Accuracy", async () => {
+  const { parseChallengeSummary } = await import("../src/lib/challenge-evidence.ts");
+  const { ChallengeEvidence } = await import("../src/components/op/challenge-evidence.tsx");
+  const data = fixture();
+  data.features[0].error_note = "The retained errors are invalid authoring inputs, not engine defects.";
+  const features = parseChallengeSummary(data, "eval/challenges/example/summary.json");
+  const t = text(html(ChallengeEvidence, { features }));
+  assert.ok(t.includes(data.features[0].limitations[0]));
+  assert.ok(t.includes(data.features[0].error_note));
+});
+
 test("source-isolation qualifications cannot disappear from the public table", async () => {
   const { parseChallengeSummary } = await import("../src/lib/challenge-evidence.ts");
   const { ChallengeEvidence } = await import("../src/components/op/challenge-evidence.tsx");

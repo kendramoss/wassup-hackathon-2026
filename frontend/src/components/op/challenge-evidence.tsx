@@ -9,7 +9,7 @@ export function ChallengeEvidence({ features }: { features: readonly ChallengeFe
     <section id="challenge-tests" aria-labelledby="challenge-tests-heading" className="mt-8 border-t border-line pt-5">
       <h2 id="challenge-tests-heading" className="text-sm font-semibold">Generated challenge tests</h2>
       <p className="read mt-2 text-sm text-dim">
-        Generated variations of published rules and examples, including expected refusals and requests for missing facts. Separate from real-case studies; errors stay in the counts.
+        Generated variations of published rules and examples, plus illustrative policy changes, including expected refusals and requests for missing facts. Separate from real-case studies; errors stay in the counts.
       </p>
       <table className="mt-3 w-full border-collapse text-sm">
         <thead>
@@ -44,6 +44,9 @@ export function ChallengeEvidence({ features }: { features: readonly ChallengeFe
               {features.map((f) => (
                 <li key={f.id}>
                   <a href={`${copy.landing.repo}/blob/main/${f.sourcePath}`} className={link}>{f.label}: {f.source_families} source groups · results and limits</a>
+                  <ul className="mt-1 list-disc space-y-1 pl-5">
+                    {f.limitations.map((limit, index) => <li key={index}>{limit}</li>)}
+                  </ul>
                 </li>
               ))}
             </ul>
