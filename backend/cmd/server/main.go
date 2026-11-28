@@ -476,8 +476,8 @@ func newDeps(cfg config.Config, model, engineModel llm.Model, cases store.Cases,
 			return httpapi.Deps{}, fmt.Errorf("USMCA engine: no ruling in %s has facts in %s", cfg.USMCALabels, cfg.FactsDir)
 		}
 		// The production Part 102 prompt: usmca-v5, a short 102.11 checklist (D602).
-		uopts := engine.USMCAProduction()
-		uopts.Model, uopts.K, uopts.MaxOutputTokens = cfg.EngineModel, cfg.PrecedentK, cfg.MaxOutputTokens
+		// With the missing-fact rule selected on development (D970; see part102Options).
+		uopts := part102Options(cfg)
 		usmcaEng = engine.New(engineModel, evidenceBM25(upool.Rulings()), uopts)
 		// Most USMCA precedents (2015-2022) are not in labels.jsonl; the API
 		// looks them up here too so their details are not lost.
@@ -496,8 +496,7 @@ func newDeps(cfg config.Config, model, engineModel llm.Model, cases store.Cases,
 				ppool = append(ppool, r)
 			}
 		}
-		pharmaEng = engine.New(engineModel, evidenceBM25(ppool), engine.Options{Model: cfg.EngineModel, K: cfg.PrecedentK,
-			MaxOutputTokens: cfg.MaxOutputTokens, System: engine.PharmaSystem, Version: engine.PharmaVersion})
+		pharmaEng = engine.New(engineModel, evidenceBM25(ppool), pharmaOptions(cfg))
 		logger.Info("pharma engine on", "precedents", len(ppool), "prompt", engine.PharmaVersion, "fast_path", cfg.PharmaFastPath)
 	}
 	// The 19 CFR 102.20 rule check (D363): display only, on by default.

@@ -1,0 +1,7 @@
+{
+ "legal_routing": "routing-dev-base2.jsonl",
+ "japan_engine": "japan-dev-cand3.jsonl",
+ "part102_specialist": "part102-dev-cand1.jsonl",
+ "pharma_specialist": "pharma-dev-cand1.jsonl",
+ "textile_specialist": "textile-dev-cand1.jsonl"
+}

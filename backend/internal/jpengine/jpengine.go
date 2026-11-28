@@ -27,11 +27,12 @@ const (
 )
 
 type Engine struct {
-	model   llm.Model
-	modelID string
-	pool    *jpcorpus.Pool
-	rules   *jprules.Table
-	k       int
+	unknownStatus bool
+	model         llm.Model
+	modelID       string
+	pool          *jpcorpus.Pool
+	rules         *jprules.Table
+	k             int
 }
 
 func New(model llm.Model, modelID string, pool *jpcorpus.Pool, rules *jprules.Table, k int) *Engine {
@@ -205,12 +206,12 @@ func (e *Engine) Predict(ctx context.Context, c domain.Case) (engine.Result, err
 	result.Votes = 1
 	start := time.Now()
 	resp, err := e.model.Generate(ctx, llm.Request{
-		Model: e.modelID, System: systemPrompt, SchemaName: "jp_preference", JSONSchema: answerSchema, MaxOutputTokens: 8192,
+		Model: e.modelID, System: e.system(), SchemaName: "jp_preference", JSONSchema: answerSchema, MaxOutputTokens: 8192,
 		Messages: []llm.Message{{Role: llm.RoleUser, Content: userPrompt(p.Agreement, p.HS, facts, rules, precedents)}},
 	})
 	result.Usage = resp.Usage
 	result.Prediction.Trace = domain.Trace{
-		Provider: resp.Provider, ModelID: resp.ModelID, RequestedModel: e.modelID, PromptVersion: PromptVersion,
+		Provider: resp.Provider, ModelID: resp.ModelID, RequestedModel: e.modelID, PromptVersion: e.promptVersion(),
 		InputTokens: resp.Usage.InputTokens, OutputTokens: resp.Usage.OutputTokens, LatencyMS: time.Since(start).Milliseconds(),
 	}
 	if err != nil {
@@ -292,4 +293,34 @@ func normalizeRulingID(id string) string {
 		return "JP" + id
 	}
 	return id
+}
+
+// PromptVersionUnknownStatus is jp-engine-v1 plus UnknownStatusRule.
+const PromptVersionUnknownStatus = "jp-engine-v1+unknown-status"
+
+// UnknownStatusRule was written from the D970 development run: with a material
+// whose origin status was not known the engine answered does_not_qualify at
+// 0.95, although its prompt reserves that outcome for requirements that
+// demonstrably fail.
+const UnknownStatusRule = "A material whose origin status is not stated is neither originating nor non-originating. If the outcome depends on that status, answer undetermined and name the material; do not treat it as non-originating and answer does_not_qualify."
+
+// WithUnknownStatusRule returns a copy of e that adds UnknownStatusRule to the prompt.
+func (e *Engine) WithUnknownStatusRule() *Engine {
+	c := *e
+	c.unknownStatus = true
+	return &c
+}
+
+func (e *Engine) system() string {
+	if e.unknownStatus {
+		return systemPrompt + "\n\n" + UnknownStatusRule
+	}
+	return systemPrompt
+}
+
+func (e *Engine) promptVersion() string {
+	if e.unknownStatus {
+		return PromptVersionUnknownStatus
+	}
+	return PromptVersion
 }
