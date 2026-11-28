@@ -1,11 +1,13 @@
 package main
 
 import (
+	"bytes"
 	"context"
 	"encoding/json"
 	"errors"
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/llm"
 	"os"
+	"path/filepath"
 	"strings"
 	"testing"
 )
@@ -33,6 +35,47 @@ func TestMoveChallengeBudgetStopsBeforeAnotherPaidCall(t *testing.T) {
 	}
 	if inner.calls != 3 || tally.USD() != 0.75 || b.total() != 0.75 {
 		t.Fatalf("accounting mismatch calls=%d tally=%v total=%v", inner.calls, tally.USD(), b.total())
+	}
+}
+
+func TestMoveChallengeStoredStudiesReproduceWithoutModelCalls(t *testing.T) {
+	dir := "../../../eval/challenges/verifier"
+	d, hash, err := loadMoveChallenge(filepath.Join(dir, "cases.json"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	for _, tag := range []string{"dev", "dev-v4", "test"} {
+		t.Run(tag, func(t *testing.T) {
+			split := tag
+			if tag == "dev-v4" {
+				split = "dev"
+			}
+			var cases []moveChallengeCase
+			for _, c := range d.Cases {
+				if c.Split == split {
+					cases = append(cases, c)
+				}
+			}
+			rows, err := readMoveChallengeRows(filepath.Join(dir, tag+"-results.jsonl"))
+			if err != nil {
+				t.Fatal(err)
+			}
+			out := filepath.Join(t.TempDir(), "summary.json")
+			if err := writeMoveChallengeSummary(d, hash, cases, rows, out); err != nil {
+				t.Fatal(err)
+			}
+			got, err := os.ReadFile(out)
+			if err != nil {
+				t.Fatal(err)
+			}
+			want, err := os.ReadFile(filepath.Join(dir, tag+"-summary.json"))
+			if err != nil {
+				t.Fatal(err)
+			}
+			if !bytes.Equal(got, want) {
+				t.Fatal("retained study summary differs from raw frozen evidence")
+			}
+		})
 	}
 }
 

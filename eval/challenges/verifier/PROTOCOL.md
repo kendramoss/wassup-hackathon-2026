@@ -67,3 +67,17 @@ The user raised the cumulative programme cap to $1,000 during this work. The ver
 Development v4 at commit `9d90ad74` matched 24/28 expectations, with 4 mismatches and no model errors; 3/12 positive moves were shown, no controls or incomplete cases were shown. Cost $1.0717433; every call had a reported cost. It **failed** the preregistered requirement of at least 27/28 and is rejected. Both development runs remain recorded, including the worsening result. The rejected prompt is retained as a text artifact and in its original commit, not left active in the production verifier library.
 
 Select the unchanged production **v2** behavior, panel on and bar 0.92, for the first 220-case reserved score. No confidence threshold, label, source family or expected outcome is changed. Paid development total is $2.2993055; allocate up to $27.70 of the initial lane allowance to the reserved run. The dataset hash remains unchanged. `retrieval-manifest.json` pins the label corpus and a digest of the exact local facts/raw inputs and will be checked after the study. The candidate freeze commit immediately following this selection record identifies the selected runnable code; the raw test rows will record its full SHA.
+
+## First reserved result (D975)
+
+Selected candidate `59780443341e87dc77b07a90d43d83d79562d898`, unchanged production v2 behavior, was scored once on all 220 reserved cases. No labels, rows or cases were removed or retried after seeing their result.
+
+- 199/220 declared expectations matched (90.5%); 20 mismatches and one model error.
+- Shown positive precision 47/47; positive coverage/recall 47/100. The 53 unshown positive cases remain in recall's denominator.
+- Negative controls 99/100 correctly handled, with the failed model response retained rather than called a correct refusal.
+- Incomplete-fact controls: support withheld 20/20; none shown.
+- Test latency p50 32.055 seconds, p95 79.290 seconds, including every row. Test cost $12.3137152; entire study including both development candidates $14.6130207. Every call had a reported gateway cost.
+
+The one error is `test-BA-N364414-N365093-retail-packaging`, retained with `model_error`; no preferred-answer retry. One packing-control facts_b field is 7,093 characters, so the production 7,000-character limit omits its final 93 characters on tuning/testing/quality assurance. Its original A facts are complete and B explicitly preserves that manufacturing; its recorded answer is retained, with this input-limit qualification disclosed.
+
+The retrieval manifest matched after the run, so the read-only precedent archive stayed unchanged. Raw `test-results.jsonl` and its cost sidecar retain the first outputs; `test-summary.json` is rebuilt offline by the Go scorer, while `summarize.py` exports the common campaign `summary.json` and checks dataset/candidate/split/row/cost consistency. The larger test reveals limited willingness to show a supported change despite high conditional precision; it does not establish the old small real-pair recall carries over. No production prompt change was adopted and no population confidence interval is claimed.

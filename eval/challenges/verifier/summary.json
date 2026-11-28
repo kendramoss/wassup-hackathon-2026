@@ -1,0 +1,86 @@
+{
+  "schema_version": 1,
+  "evidence_kind": "source_grounded_synthetic",
+  "features": [
+    {
+      "id": "move_verifier",
+      "label": "Move verification",
+      "candidate_revision": "59780443341e87dc77b07a90d43d83d79562d898",
+      "dataset_sha256": "a08297baa59ada7f7ef57b4173e213f535671b135fccfcc17585a72583f0b42e",
+      "source_families": 49,
+      "development": {
+        "cases": 28,
+        "matched": 26,
+        "errors": 0
+      },
+      "test": {
+        "cases": 220,
+        "matched": 199,
+        "mismatched": 20,
+        "errors": 1
+      },
+      "cost_usd": 14.6130207,
+      "latency_p50_ms": 32055,
+      "latency_p95_ms": 79290,
+      "limitations": [
+        "Labels are assistant-authored variations of already-known source pairs, not independent real rulings.",
+        "Multiple variants share each source parent; case counts do not mean independent legal sources.",
+        "Known starting origin is supplied. This measures given-move verification, not full plan search or ranking.",
+        "Authority/rule label quality and date-limited retrieval affect the result. No i.i.d. population interval.",
+        "Overall agreement includes expected support withholding on incomplete facts; it is not full plan-search accuracy.",
+        "Shown precision uses the 47 shown checks, not all 220 inputs. Positive recall uses the 100 actual-change cases.",
+        "One failed model response stays in the denominator; it is not counted as a correct refusal.",
+        "One packing-control input exceeds the production 7000-character facts limit and is truncated as production would; the 93 omitted characters describe final tuning, testing and quality assurance. Its result is retained.",
+        "The v4 development prompt was worse and rejected; production v2 behavior and the 0.92 shown threshold remain unchanged."
+      ],
+      "shown_precision": {
+        "num": 47,
+        "den": 47
+      },
+      "positive_recall": {
+        "num": 47,
+        "den": 100
+      },
+      "negative_controls": {
+        "num": 99,
+        "den": 100
+      },
+      "incomplete_controls": {
+        "num": 20,
+        "den": 20
+      },
+      "raw_metrics": {
+        "cases": 220,
+        "matched": 199,
+        "mismatched": 20,
+        "errors": 1,
+        "source_families": 49,
+        "positive_cases": 100,
+        "negative_cases": 100,
+        "uncertain_cases": 20,
+        "true_positive": 47,
+        "false_positive": 0,
+        "false_negative": 53,
+        "true_negative": 99,
+        "uncertain_shown": 0
+      },
+      "test_cost_usd": 12.3137152,
+      "development_cost_usd": 2.2993055,
+      "development_candidates": [
+        {
+          "prompt": "v2",
+          "matched": 26,
+          "cases": 28,
+          "selected": true
+        },
+        {
+          "prompt": "v4",
+          "matched": 24,
+          "cases": 28,
+          "selected": false
+        }
+      ],
+      "cost_unreported_calls": 0
+    }
+  ]
+}
