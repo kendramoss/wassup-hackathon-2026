@@ -132,7 +132,7 @@ func TestFillWithAddsExtrasToLiveMFN(t *testing.T) {
 
 func TestParseAdditionalRejectsBadData(t *testing.T) {
 	for _, bad := range []string{
-		`{"lists":[{"heading":"x","origin":"China","rate":2,"subheadings":["1"]}]}`,
+		`{"lists":[{"heading":"x","origin":"China","rate":6,"subheadings":["1"]}]}`,
 		`{"lists":[{"heading":"x","origin":"China","rate":0.25,"subheadings":[]}]}`,
 		`{"country":[{"heading":"x","origin":"China","rate":0}]}`,
 	} {

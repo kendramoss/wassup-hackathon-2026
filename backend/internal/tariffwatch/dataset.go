@@ -202,10 +202,7 @@ func (e *Evaluator) adder(asOf time.Time) (*duty.Adder, error) {
 		if act.Kind != KindSection301 || !act.active(asOf) {
 			continue
 		}
-		// The duty package bounds a list rate at 100 percent; an action may carry
-		// more (Validate allows up to 500), so the index gets a bounded stand-in
-		// and Evaluate puts the action's own rate on the component.
-		f.Lists = append(f.Lists, duty.AdditionalList{Heading: act.Heading, Name: act.Name, Origin: act.Origin, Rate: math.Min(act.Rate, 1), Note: act.Note, Subheadings: act.Subheadings})
+		f.Lists = append(f.Lists, duty.AdditionalList{Heading: act.Heading, Name: act.Name, Origin: act.Origin, Rate: act.Rate, Note: act.Note, Subheadings: act.Subheadings})
 	}
 	a, err := duty.NewAdder(f)
 	if err != nil {
@@ -249,11 +246,10 @@ func (e *Evaluator) Evaluate(hts, origin string, mfn *float64, asOf time.Time) (
 	}
 	for _, x := range res.Extras {
 		c := Component{Kind: KindSection301, Name: x.Name, Heading: x.Heading, Rate: x.Rate}
-		if a, ok := dated[x.Heading]; ok {
+		// Dates belong to the component only when it came from an action in
+		// force; an undated list that shares the heading keeps no dates.
+		if a, ok := dated[x.Heading]; ok && a.Kind == KindSection301 && a.active(asOf) {
 			c.From, c.Through = a.EffectiveFrom, a.EffectiveThrough
-			if a.Kind == KindSection301 && a.Rate > 1 {
-				c.Rate = a.Rate
-			}
 		}
 		ob.Components = append(ob.Components, c)
 	}

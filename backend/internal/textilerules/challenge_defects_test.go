@@ -48,3 +48,32 @@ func TestPackagingRuleBeatsTheSingleCountryShortcut(t *testing.T) {
 		t.Fatalf("trousers made in China, packed in Vietnam: %+v, want China", got)
 	}
 }
+
+// Review round 1. (c)(1) comes before the specific rule: a good wholly
+// obtained and produced in one country keeps that country even if it was
+// packed elsewhere. Without it, a complete list of operations that names no
+// packing stage cannot give the 6309-6310 rule's packing country, so the check
+// asks instead of naming the manufacturing country.
+func TestPackagingRuleKeepsWhollyObtainedPriorityAndAsksWithoutAPackingStage(t *testing.T) {
+	r := rules(t)
+	mk := func(raw string, packing ...string) Facts {
+		f := Facts{GoodHTS: "6309000000", Complete: true, RawMaterialCountry: raw,
+			Stages: []Stage{{Process: ProcFabricMaking, Country: "India"}, {Process: ProcAssembly, Country: "India"}}}
+		for _, c := range packing {
+			f.Stages = append(f.Stages, Stage{Process: StagePacking, Country: c})
+		}
+		return f
+	}
+	if got := r.Evaluate(mk("India", "Vietnam")); got.Status != Decided || got.Origin != "India" || got.Para != "(c)(1)" {
+		t.Fatalf("wholly obtained in India, packed in Vietnam: %+v, want India under (c)(1)", got)
+	}
+	if got := r.Evaluate(mk("", "Vietnam")); got.Status != Decided || got.Origin != "Vietnam" || got.Para != "(c)(2)" {
+		t.Fatalf("not shown wholly obtained, packed in Vietnam: %+v, want Vietnam under (c)(2)", got)
+	}
+	if got := r.Evaluate(mk("")); got.Status != Undetermined || got.Class != ClassNoStage {
+		t.Fatalf("complete list, no packing stage: %+v, want undetermined (operation_not_stated)", got)
+	}
+	if got := r.Evaluate(mk("India")); got.Status != Decided || got.Para != "(c)(1)" {
+		t.Fatalf("wholly obtained in India, no packing stage: %+v, want (c)(1)", got)
+	}
+}

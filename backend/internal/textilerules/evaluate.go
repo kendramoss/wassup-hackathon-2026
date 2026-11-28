@@ -176,14 +176,15 @@ func (r *Rules) Evaluate(f Facts) Result {
 		return Result{Status: OutOfScope, Reason: "not a textile or apparel product under 102.21(b)(5)"}
 	}
 	countries := f.manufacturingCountries()
-	oneCountry := f.Complete && len(countries) == 1 && !r.packedElsewhere(d, f, countries[0])
-	// (c)(1): wholly obtained or produced in one country.
+	oneCountry := f.Complete && len(countries) == 1
+	// (c)(1): wholly obtained or produced in one country. It comes before the
+	// specific rule, so packing elsewhere does not take it away.
 	if oneCountry && f.RawMaterialCountry != "" && countries[0] == norm(f.RawMaterialCountry) {
 		return Result{Status: Decided, Origin: countries[0], Para: "(c)(1)",
 			Basis: "19 CFR 102.21(c)(1): the raw material and every operation are in " + countries[0]}
 	}
 	// Every operation in one country: (c)(2), (c)(3) and (c)(4) all name it.
-	if oneCountry {
+	if oneCountry && !r.packingDecides(d, f, countries[0]) {
 		return Result{Status: Decided, Origin: countries[0], Para: "single country",
 			Basis: "19 CFR 102.21(c): every operation took place in " + countries[0] + ", so (c)(2), (c)(3) and (c)(4) name the same country"}
 	}
@@ -200,17 +201,23 @@ func (r *Rules) Evaluate(f Facts) Result {
 	return r.c4(f, countries)
 }
 
-// packedElsewhere reports whether the good's rule is the packaging rule of
-// headings 6309 and 6310 and the good was packed in a country other than c:
-// that rule names the packing country, which is not a country of manufacture.
-func (r *Rules) packedElsewhere(d string, f Facts, c string) bool {
+// packingDecides reports whether the good's rule is the packaging rule of
+// headings 6309 and 6310 and the facts do not put the packing in c alone: the
+// rule names the packing country, which is not a country of manufacture, so
+// the single-country shortcut must not answer. With no packing stage stated
+// the rule cannot name a country and the check asks.
+func (r *Rules) packingDecides(d string, f Facts, c string) bool {
 	for _, row := range r.T.Rows {
 		if relate(d, row.Lo, row.Hi) != inside {
 			continue
 		}
 		for _, a := range row.Alts {
 			if a.Req.Process == ProcPackaging {
-				for _, p := range f.countriesOf(StagePacking) {
+				pc := f.countriesOf(StagePacking)
+				if len(pc) == 0 {
+					return true
+				}
+				for _, p := range pc {
 					if p != c {
 						return true
 					}
