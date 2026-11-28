@@ -56,3 +56,4 @@ data/tuning/
 /eval/adcvd/real/heldout/facts.jsonl
 /eval/adcvd/real/**/reads*.jsonl
 /backend/evaldrift
+/backend/legalchallenge

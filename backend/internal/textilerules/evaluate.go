@@ -176,13 +176,14 @@ func (r *Rules) Evaluate(f Facts) Result {
 		return Result{Status: OutOfScope, Reason: "not a textile or apparel product under 102.21(b)(5)"}
 	}
 	countries := f.manufacturingCountries()
+	oneCountry := f.Complete && len(countries) == 1 && !r.packedElsewhere(d, f, countries[0])
 	// (c)(1): wholly obtained or produced in one country.
-	if f.Complete && f.RawMaterialCountry != "" && len(countries) == 1 && countries[0] == norm(f.RawMaterialCountry) {
+	if oneCountry && f.RawMaterialCountry != "" && countries[0] == norm(f.RawMaterialCountry) {
 		return Result{Status: Decided, Origin: countries[0], Para: "(c)(1)",
 			Basis: "19 CFR 102.21(c)(1): the raw material and every operation are in " + countries[0]}
 	}
 	// Every operation in one country: (c)(2), (c)(3) and (c)(4) all name it.
-	if f.Complete && len(countries) == 1 {
+	if oneCountry {
 		return Result{Status: Decided, Origin: countries[0], Para: "single country",
 			Basis: "19 CFR 102.21(c): every operation took place in " + countries[0] + ", so (c)(2), (c)(3) and (c)(4) name the same country"}
 	}
@@ -197,6 +198,27 @@ func (r *Rules) Evaluate(f Facts) Result {
 		}
 	}
 	return r.c4(f, countries)
+}
+
+// packedElsewhere reports whether the good's rule is the packaging rule of
+// headings 6309 and 6310 and the good was packed in a country other than c:
+// that rule names the packing country, which is not a country of manufacture.
+func (r *Rules) packedElsewhere(d string, f Facts, c string) bool {
+	for _, row := range r.T.Rows {
+		if relate(d, row.Lo, row.Hi) != inside {
+			continue
+		}
+		for _, a := range row.Alts {
+			if a.Req.Process == ProcPackaging {
+				for _, p := range f.countriesOf(StagePacking) {
+					if p != c {
+						return true
+					}
+				}
+			}
+		}
+	}
+	return false
 }
 
 func (f Facts) manufacturingCountries() []string {
@@ -581,7 +603,12 @@ func (f Facts) process(p, alt string) (country string, status Tri, why string) {
 	case ProcDyePrint:
 		return f.dyePrint()
 	default:
-		cs := f.countriesOf(p)
+		// The facts name the packing stage StagePacking; the rule's requirement is ProcPackaging.
+		stage := p
+		if p == ProcPackaging {
+			stage = StagePacking
+		}
+		cs := f.countriesOf(stage)
 		return single(cs, label(p), "took place in", "where "+label(p)+" took place is not stated")
 	}
 }

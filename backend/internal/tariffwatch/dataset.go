@@ -202,7 +202,10 @@ func (e *Evaluator) adder(asOf time.Time) (*duty.Adder, error) {
 		if act.Kind != KindSection301 || !act.active(asOf) {
 			continue
 		}
-		f.Lists = append(f.Lists, duty.AdditionalList{Heading: act.Heading, Name: act.Name, Origin: act.Origin, Rate: act.Rate, Note: act.Note, Subheadings: act.Subheadings})
+		// The duty package bounds a list rate at 100 percent; an action may carry
+		// more (Validate allows up to 500), so the index gets a bounded stand-in
+		// and Evaluate puts the action's own rate on the component.
+		f.Lists = append(f.Lists, duty.AdditionalList{Heading: act.Heading, Name: act.Name, Origin: act.Origin, Rate: math.Min(act.Rate, 1), Note: act.Note, Subheadings: act.Subheadings})
 	}
 	a, err := duty.NewAdder(f)
 	if err != nil {
@@ -248,6 +251,9 @@ func (e *Evaluator) Evaluate(hts, origin string, mfn *float64, asOf time.Time) (
 		c := Component{Kind: KindSection301, Name: x.Name, Heading: x.Heading, Rate: x.Rate}
 		if a, ok := dated[x.Heading]; ok {
 			c.From, c.Through = a.EffectiveFrom, a.EffectiveThrough
+			if a.Kind == KindSection301 && a.Rate > 1 {
+				c.Rate = a.Rate
+			}
 		}
 		ob.Components = append(ob.Components, c)
 	}
