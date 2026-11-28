@@ -35,7 +35,7 @@ Conventions the oracle follows where a text is silent. They are stated so a disa
 - A good identified only by its four-digit heading is decided only if every subheading's rule gives the same answer; otherwise undetermined. The engines answer "undetermined" whenever the heading has subheading rows, so cases where all subheadings agree measure over-abstention. This is a scope limitation, not a wrong answer, and was not changed.
 - ACFTA Art. 7 minimal operations speak only to wholly obtained goods, so on a non-WO claim the product rule still decides. ATIGA Art. 31, AKFTA Rule 8 and RCEP Art. 3.6 stop the claim.
 - ATIGA de minimis is by value only; AKFTA by weight only for chapters 50 to 63; ACFTA and RCEP accept weight or value for chapters 50 to 63.
-- RCEP Chapter 3 article numbers follow the engine's pinned citations and the ABF guide. The local RCEP agreement PDF is image-only and the one fetch of the chapter text returned 404, so those clauses were not re-read here.
+- RCEP Chapter 3 article numbers (3.2 to 3.7) were not verified against the treaty text. The local RCEP PDF, read by rendering and OCR, is the Annex 3A rule tables, not Chapter 3. Three source operations were spent (a chapter URL that returned 404, the RCEP Secretariat rules-of-origin page, which links no chapter text, and an official-mirror URL that timed out). The numbers follow the engine's citations and the ABF guide; no clause text is claimed read.
 
 Two kinds of case have something other than yes or no as the correct answer: malformed input must be refused (`refused`), and missing facts must give `undetermined`. A correct abstention counts as a match; an abstention where a decision was expected is a mismatch and is counted in `abstention.abstained_when_a_decision_was_expected`.
 
@@ -68,10 +68,13 @@ go run ./cmd/ftachallenge -mode verify
 
 ## Source operations
 
-One external fetch, which failed (404). All other sources are archived primary documents already held locally (ATIGA text, Annex 5 and 6, ATIGA PSR workbook, the AKFTA Annex 3 and ACFTA Annex 1 copies pinned in D949, the Singapore handbook) and the parsed rule tables embedded in the engines.
+Three external operations, all unsuccessful (404, a page with no chapter link, a timeout). All other sources are archived primary documents already held locally (ATIGA text, Annex 5 and 6, ATIGA PSR workbook, the AKFTA Annex 3 and ACFTA Annex 1 copies pinned in D949, the Singapore handbook) and the parsed rule tables embedded in the engines.
 
 ## Limitations
 
+- Not independent of the engines on rule data: `rules.py` reads the same embedded rule-row JSON the engines use, and its ACFTA chapter and heading lists (Art. 4(1)(b)) and ATIGA/AKFTA general rule mirror `aseanfta/profiles.go`. A wrong table transcription or legal-list choice would be copied into the labels, so this study does not independently validate either. The ACFTA general-rule family tests the engine against that mirrored list only.
+- The six ACFTA errors in `authority-variants` are authoring defects: their input carries `method: direct`, which ACFTA refuses, so the correct expected class is `refused`, not the `no` they were labelled. The frozen labels and the first run (147/154) are unchanged; the corrected copies are scored separately in the post-hoc supplement.
+- The oracle has no input-validity check for ACFTA, the blind spot that let those cases through.
 - Synthetic, same-author, not blind. Not independent customs decisions.
 - Rule tables are read from the engines' embedded parse of the official tables. Rows were spot-checked in D927 and D949, not re-keyed here.
 - AKFTA Appendix 2 provisos and ACFTA 3.0 are scored only as far as the cases state the needed facts.

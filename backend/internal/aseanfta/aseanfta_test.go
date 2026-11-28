@@ -495,8 +495,9 @@ func TestProvisoOnChaptersOneToNineApplies(t *testing.T) {
 
 func TestRuleRangesAreWrittenAtTheirLevel(t *testing.T) {
 	width := map[string]int{"chapter": 2, "heading": 4, "subheading": 6}
-	for _, ag := range []Agreement{AKFTA, ACFTA} {
-		for _, r := range TableFor(ag).Rules {
+	tables := map[string]*atiga.Table{"atiga": atiga.Default(), "akfta": TableFor(AKFTA), "acfta": TableFor(ACFTA)}
+	for ag, tb := range tables {
+		for _, r := range tb.Rules {
 			alts := append([]atiga.Alternative{}, r.Alternatives...)
 			for _, v := range r.Variants {
 				alts = append(alts, v.Alternatives...)

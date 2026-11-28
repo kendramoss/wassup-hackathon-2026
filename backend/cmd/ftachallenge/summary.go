@@ -80,6 +80,8 @@ type SummaryFeature struct {
 	YesRecall                Count          `json:"yes_recall"`
 	DecidedOnlyAgreement     Count          `json:"decided_only_agreement"`
 	PosthocSupplement        *Posthoc       `json:"posthoc_supplement,omitempty"`
+	ErrorCaseIDs             []string       `json:"error_case_ids,omitempty"`
+	ErrorNote                string         `json:"error_note,omitempty"`
 }
 
 // Posthoc is a separately scored supplement written after the first reserved
@@ -102,7 +104,12 @@ type Summary struct {
 
 type Latency struct{ P50, P95 float64 }
 
+var errorNotes = map[string]string{
+	"acfta": "Dataset authoring defects, not engine defects: these cases carry method direct, which ACFTA refuses as invalid input, so their correct expected class is refused. The frozen labels and the first-run counts are kept unchanged; the post-hoc supplement is scored separately.",
+}
+
 var commonLimitations = []string{
+	"The label oracle reads the same embedded rule-row data as the engines and its ACFTA chapter and heading lists mirror the engine profile, so this study does not independently validate the transcription of the source tables or those legal-list choices.",
 	"Synthetic cases written by the implementer from the cited rule rows and treaty clauses with knowledge of the engine interface: not blind authoring, not independent customs rulings.",
 	"Development and reserved test cases share scenario families; only the test-only families are unseen in development.",
 	"Near-duplicate and parent-linked cases are not independent observations; no population confidence interval is claimed.",
@@ -113,7 +120,7 @@ var featureLimitations = map[string]string{
 	"atiga": "ATIGA rules are read from the HS 2022 Annex 3 table in the engine; direct consignment, packaging, accessories and neutral elements are not scored.",
 	"akfta": "AKFTA Appendix 2 rows with provisos on materials are scored only where the case states the facts the proviso needs.",
 	"acfta": "ACFTA follows the 2019 Annex 1 and Attachment B (HS 2017); ACFTA 3.0 is not scored.",
-	"rcep":  "RCEP Chapter 3 article numbers follow the engine's pinned citations and the ABF guide; the treaty text was not re-read in this study.",
+	"rcep":  "RCEP Chapter 3 article numbers (3.2 to 3.7) were not verified against the treaty text in this study: the local agreement PDF is the Annex 3A rule tables, not Chapter 3, and the official chapter text could not be fetched. They follow the engine's citations and the ABF guide.",
 }
 
 func ptr(s SplitSummary) *SplitSummary { return &s }
@@ -135,6 +142,14 @@ func BuildSummary(dev, test map[string]*Dataset, devRes, testRes, firstRun, post
 			CasesInSharedFamilies: tr.Metrics.SharedFamilyCases, ExpectedOutcomes: tr.Metrics.Expected, Abstention: tr.Metrics.Abstention,
 			YesPrecision: tr.Metrics.YesPrecision, YesRecall: tr.Metrics.YesRecall, DecidedOnlyAgreement: tr.Metrics.DecidedAgreement,
 		}
+		for _, r := range tr.Results {
+			if r.Status == Errored {
+				sf.ErrorCaseIDs = append(sf.ErrorCaseIDs, r.ID)
+			}
+		}
+		if len(sf.ErrorCaseIDs) > 0 {
+			sf.ErrorNote = errorNotes[f]
+		}
 		if ph, ok := posthoc[f]; ok {
 			sf.PosthocSupplement = &Posthoc{Cases: ph.Totals.Cases, Matched: ph.Totals.Matched, Mismatched: ph.Totals.Mismatched, Errors: ph.Totals.Errors, Note: posthocNote}
 		}
@@ -147,7 +162,7 @@ func BuildSummary(dev, test map[string]*Dataset, devRes, testRes, firstRun, post
 }
 
 func (t Totals) asTest() TestSummary {
-	return TestSummary{Cases: t.Cases, Matched: t.Matched, Mismatched: t.Mismatched, Errors: t.Errors}
+	return TestSummary(t)
 }
 
 // ValidateResults checks a results file against its dataset: every case
