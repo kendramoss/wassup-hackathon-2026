@@ -544,7 +544,7 @@
    "display_metrics": [
     {
      "id": "textile_decided_confident_correct",
-     "label": "Decided cases answered confidently and correctly",
+     "label": "Decided cases answered confidently and correctly (deployed bar 0.95)",
      "num": 90,
      "den": 92
     },
@@ -584,7 +584,6 @@
     "Synthetic cases written by the implementer from cited law and rulings; labels come from a reference oracle that shares no code with the candidate. Not independent real-world customs decisions.",
     "Reserved cases were authored by the same hand and templates as development; they were not tuned on, but shared scenario templates are disclosed (templates shared with development: 12, source families shared: 7).",
     "No claim of 100 independent legal sources and no i.i.d. confidence interval; the cases are parameter variations of a small set of rules and rulings.",
-    "The confident-decision bar is 0.92 stated confidence, a study convention. The deployed auto-accept bars are textile 0.95, pharmaceutical 0.85 and Part 102 0.95 (deploy workflow). The deployed textile engine is textile-v2 with precedent reasoning; the textile candidate measured here is built on textile-v1, so it describes that prompt only (see the separate live-textile comparator).",
     "12 of the 113 reserved cases (6 of 48 development) are formulated pesticides; routing excludes them because router-v4 defines the pharmaceutical regime as drugs, vitamins and supplements, so 101 of 113 are route-eligible.",
     "Expected labels apply the pharmaceutical rules in the engine's own prompt (HQ 563207, N334870, N336575, N355022, N349588, H341715); this measures consistent application of them, not validation of the rules."
    ],
@@ -600,7 +599,7 @@
    "display_metrics": [
     {
      "id": "pharma_decided_confident_correct",
-     "label": "Decided cases answered confidently and correctly",
+     "label": "Decided cases answered confidently and correctly (study bar 0.92; deployed bar differs)",
      "num": 82,
      "den": 85
     },
@@ -646,7 +645,6 @@
     "Synthetic cases written by the implementer from cited law and rulings; labels come from a reference oracle that shares no code with the candidate. Not independent real-world customs decisions.",
     "Reserved cases were authored by the same hand and templates as development; they were not tuned on, but shared scenario templates are disclosed (templates shared with development: 7, source families shared: 0).",
     "No claim of 100 independent legal sources and no i.i.d. confidence interval; the cases are parameter variations of a small set of rules and rulings.",
-    "The confident-decision bar is 0.92 stated confidence, a study convention. The deployed auto-accept bars are textile 0.95, pharmaceutical 0.85 and Part 102 0.95 (deploy workflow). The deployed textile engine is textile-v2 with precedent reasoning; the textile candidate measured here is built on textile-v1, so it describes that prompt only (see the separate live-textile comparator).",
     "Only 102.20 rows of the form 'A change to ... from any other chapter, heading or subheading' were used; sets, composite goods, textiles and rows with exceptions are not covered. Production countries are Canada and Mexico."
    ],
    "public_note": "Frozen candidate scored once. 9 of 112 cases would still be auto-accepted wrongly at the deployed 0.95 bar (3 decided, 6 with a missing fact).",
@@ -661,7 +659,7 @@
    "display_metrics": [
     {
      "id": "part102_decided_confident_correct",
-     "label": "Decided cases answered confidently and correctly",
+     "label": "Decided cases answered confidently and correctly (study bar 0.92; deployed bar differs)",
      "num": 85,
      "den": 88
     },
@@ -705,11 +703,11 @@
    "latency_p95_ms": 11412,
    "limitations": [
     "Post-hoc and current-configuration only: the original reserved Japan cases had already been scored and seen by the author; this is not a new blind holdout and does not replace the original 112-case result of the frozen cand-1 variant, which is unchanged.",
-    "The unmodified engine, one score, no tuning and no label or input change; the 13 cases whose tariff codes fall outside the schedule's HS edition stay in the denominator.",
+    "The unmodified engine, one score, no tuning and no label or input change; the 13 potential HS-edition issues (cases with a code outside the schedule's edition by an approximate check against the HS 2017 and 2022 code lists; older editions are checked against HS 2017 only) stay in the denominator.",
     "Gateway calls without the deployed engine cache, retry or fallback; the deployed provider is Vertex.",
     "Same synthetic-case limits as the study: oracle labels by the case author, shared templates with development."
    ],
-   "public_note": "Post hoc: the unmodified engine scored once on 112 cases the author had already scored and seen. Includes 13 cases whose tariff code is outside the schedule's HS edition and 9 refused before any model call.",
+   "public_note": "Post hoc: the unmodified engine scored once on 112 cases the author had already scored and seen. Includes 13 potential HS-edition issues (approximate check against HS 2017 and 2022 code lists) and 9 cases refused before any model call.",
    "source": {
     "decision": "docs/DECISIONS.md, D971 amendments 4 and 5",
     "results": [

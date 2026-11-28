@@ -90,3 +90,37 @@ func TestPublicFeaturesLeaveTheOriginalStudyIntact(t *testing.T) {
 		t.Error("original study counts changed")
 	}
 }
+
+func TestPublicLabelsAndLimitsAreQualified(t *testing.T) {
+	s := committedSummary(t)
+	for _, f := range s.PublicFeatures {
+		for _, m := range f.DisplayMetrics {
+			if (f.ID == "pharma_specialist" || f.ID == "part102_specialist") && strings.HasSuffix(m.ID, "decided_confident_correct") && !strings.Contains(m.Label, "study bar 0.92") {
+				t.Errorf("%s: %q does not name the study bar", f.ID, m.Label)
+			}
+			if f.ID == "textile_live_v2" && strings.HasSuffix(m.ID, "decided_confident_correct") && !strings.Contains(m.Label, "deployed bar 0.95") {
+				t.Errorf("textile label %q does not name the deployed bar", m.Label)
+			}
+		}
+		if f.ID == "pharma_specialist" || f.ID == "part102_specialist" {
+			for _, l := range f.Limitations {
+				if strings.Contains(l, "textile-v1") {
+					t.Errorf("%s carries the textile limitation: %s", f.ID, l)
+				}
+			}
+		}
+		if f.ID == "japan_live_unmodified" {
+			all := strings.ToLower(f.PublicNote + " " + strings.Join(f.Limitations, " "))
+			for _, w := range []string{"potential", "approximate"} {
+				if !strings.Contains(all, w) {
+					t.Errorf("japan text lacks %q", w)
+				}
+			}
+			for _, l := range f.Limitations {
+				if strings.Contains(l, "the 13 cases whose tariff codes fall outside") {
+					t.Errorf("flat HS-edition claim remains: %s", l)
+				}
+			}
+		}
+	}
+}

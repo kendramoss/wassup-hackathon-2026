@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"strings"
 )
 
 // PublicFeature is one current-path study for the public evidence screen. It
@@ -106,9 +107,12 @@ func autoAccepted(rows []Row, bar float64) (decidedWrong, uncertainConfident int
 	return
 }
 
-func decidedMetrics(prefix string, s SplitSummary) []DisplayMetric {
+// Part102DeployedBar is the deployed Part 102 auto-accept bar (deploy workflow).
+const Part102DeployedBar = 0.95
+
+func decidedMetrics(prefix, bar string, s SplitSummary) []DisplayMetric {
 	return []DisplayMetric{
-		{prefix + "_decided_confident_correct", "Decided cases answered confidently and correctly", s.Decided.ConfidentCorrect, s.Decided.Cases},
+		{prefix + "_decided_confident_correct", "Decided cases answered confidently and correctly (" + bar + ")", s.Decided.ConfidentCorrect, s.Decided.Cases},
 		{prefix + "_uncertain_reviewed", "Cases with a missing fact sent to review", s.Uncertain.AbstainedCorrectly, s.Uncertain.Cases},
 	}
 }
@@ -138,31 +142,31 @@ func buildPublic(sum Summary, dev, test, rdev, rtest []Case, pubRec map[string]s
 		CostUSD: c.CostUSD, LatencyP50MS: c.LatencyP50MS, LatencyP95MS: c.LatencyP95MS, Limitations: c.Limitations,
 		PublicNote:     fmt.Sprintf("Post hoc: the deployed textile prompt scored once on %d cases the author had already scored and seen, at the deployed 0.95 bar. Not a new holdout.", c.Test.Cases),
 		Source:         PublicSource{"docs/DECISIONS.md, D971 amendments 2 and 3", []string{src + "results/textile-live-test.jsonl", src + "results/textile-dev-livebase.jsonl"}, src + "textile-test.jsonl"},
-		DisplayMetrics: decidedMetrics("textile", *c.Test)})
+		DisplayMetrics: decidedMetrics("textile", "deployed bar 0.95", *c.Test)})
 	// 2. Pharmaceutical, original cand-1.
 	pest := countWhere(byFeature(test, "pharma_specialist"), func(x Case) bool { return x.ScenarioFamily == "pesticide" })
 	fam, shared = famCount(byFeature(dev, "pharma_specialist"), byFeature(test, "pharma_specialist"))
 	out = append(out, PublicFeature{ID: "pharma_specialist", Label: "Pharmaceutical origin", EvidenceKind: sum.EvidenceKind, CandidateRevision: ph.CandidateRevision,
 		DatasetSHA256: ph.DatasetSHA256, DevDatasetSHA256: ph.DevDatasetSHA256, SourceFamilies: fam, SharedFamilies: shared,
 		Development: PublicDev{ph.Development.Cases, ph.Development.Matched, ph.Development.Errors}, Test: PublicTest{ph.Test.Cases, ph.Test.Matched, ph.Test.Mismatched, ph.Test.Errors},
-		CostUSD: ph.CostUSD, LatencyP50MS: ph.LatencyP50MS, LatencyP95MS: ph.LatencyP95MS, Limitations: ph.Limitations,
+		CostUSD: ph.CostUSD, LatencyP50MS: ph.LatencyP50MS, LatencyP95MS: ph.LatencyP95MS, Limitations: dropTextile(ph.Limitations),
 		PublicNote:     fmt.Sprintf("Frozen candidate scored once. The %d cases include %d formulated pesticides outside the current router's pharmaceutical scope; labels apply the engine's own rules to new facts.", ph.Test.Cases, pest),
 		Source:         PublicSource{"docs/DECISIONS.md, D970 amendment 4 and D971", []string{src + "results/pharma-test.jsonl", src + "results/pharma-dev-cand1.jsonl"}, src + "pharma-test.jsonl"},
-		DisplayMetrics: append(decidedMetrics("pharma", ph.Test), DisplayMetric{"pharma_route_eligible", "Cases the current router sends to this engine", ph.Test.Cases - pest, ph.Test.Cases})})
+		DisplayMetrics: append(decidedMetrics("pharma", "study bar 0.92; deployed bar differs", ph.Test), DisplayMetric{"pharma_route_eligible", "Cases the current router sends to this engine", ph.Test.Cases - pest, ph.Test.Cases})})
 	// 3. Part 102, original cand-1.
 	prow, err := readRows(filepath.Join(res, "part102-test.jsonl"))
 	if err != nil {
 		return nil, err
 	}
-	dw, uc := autoAccepted(prow, DeployedTextileBar)
+	dw, uc := autoAccepted(prow, Part102DeployedBar)
 	fam, shared = famCount(byFeature(dev, "part102_specialist"), byFeature(test, "part102_specialist"))
 	out = append(out, PublicFeature{ID: "part102_specialist", Label: "Part 102 marking origin (usmca-v5)", EvidenceKind: sum.EvidenceKind, CandidateRevision: p102.CandidateRevision,
 		DatasetSHA256: p102.DatasetSHA256, DevDatasetSHA256: p102.DevDatasetSHA256, SourceFamilies: fam, SharedFamilies: shared,
 		Development: PublicDev{p102.Development.Cases, p102.Development.Matched, p102.Development.Errors}, Test: PublicTest{p102.Test.Cases, p102.Test.Matched, p102.Test.Mismatched, p102.Test.Errors},
-		CostUSD: p102.CostUSD, LatencyP50MS: p102.LatencyP50MS, LatencyP95MS: p102.LatencyP95MS, Limitations: p102.Limitations,
+		CostUSD: p102.CostUSD, LatencyP50MS: p102.LatencyP50MS, LatencyP95MS: p102.LatencyP95MS, Limitations: dropTextile(p102.Limitations),
 		PublicNote:     fmt.Sprintf("Frozen candidate scored once. %d of %d cases would still be auto-accepted wrongly at the deployed 0.95 bar (%d decided, %d with a missing fact).", dw+uc, p102.Test.Cases, dw, uc),
 		Source:         PublicSource{"docs/DECISIONS.md, D970 amendment 4 and D971", []string{src + "results/part102-test.jsonl", src + "results/part102-dev-cand1.jsonl"}, src + "part102-test.jsonl"},
-		DisplayMetrics: append(decidedMetrics("part102", p102.Test), DisplayMetric{"part102_auto_accepted_wrong", "Cases auto-accepted wrongly at the deployed bar", dw + uc, p102.Test.Cases})})
+		DisplayMetrics: append(decidedMetrics("part102", "study bar 0.92; deployed bar differs", p102.Test), DisplayMetric{"part102_auto_accepted_wrong", "Cases auto-accepted wrongly at the deployed bar", dw + uc, p102.Test.Cases})})
 	// 4. Japan, unmodified engine (post hoc), development baseline base3.
 	j := sum.JapanComparator
 	devRows, err := readRows(filepath.Join(res, pubRec["japan_dev_base"]))
@@ -182,8 +186,8 @@ func buildPublic(sum Summary, dev, test, rdev, rtest []Case, pubRec map[string]s
 	out = append(out, PublicFeature{ID: "japan_live_unmodified", Label: "Japan preference engine, as deployed", EvidenceKind: sum.EvidenceKind, PostHoc: true,
 		CandidateRevision: j.CandidateRevision, DatasetSHA256: j.DatasetSHA256, DevDatasetSHA256: jp.DevDatasetSHA256, SourceFamilies: fam, SharedFamilies: shared,
 		Development: PublicDev{jdev.Cases, jdev.Matched, jdev.Errors}, Test: PublicTest{j.Test.Cases, j.Test.Matched, j.Test.Mismatched, j.Test.Errors},
-		CostUSD: j.CostUSD, LatencyP50MS: j.LatencyP50MS, LatencyP95MS: j.LatencyP95MS, Limitations: j.Limitations,
-		PublicNote: fmt.Sprintf("Post hoc: the unmodified engine scored once on %d cases the author had already scored and seen. Includes %d cases whose tariff code is outside the schedule's HS edition and %d refused before any model call.", j.Test.Cases, edTest, j.Test.Preflight),
+		CostUSD: j.CostUSD, LatencyP50MS: j.LatencyP50MS, LatencyP95MS: j.LatencyP95MS, Limitations: japanLimits(j.Limitations),
+		PublicNote: fmt.Sprintf("Post hoc: the unmodified engine scored once on %d cases the author had already scored and seen. Includes %d potential HS-edition issues (approximate check against HS 2017 and 2022 code lists) and %d cases refused before any model call.", j.Test.Cases, edTest, j.Test.Preflight),
 		Source:     PublicSource{"docs/DECISIONS.md, D971 amendments 4 and 5", []string{src + "results/japan-live-test.jsonl", src + "results/" + pubRec["japan_dev_base"]}, src + "japan-test.jsonl"},
 		DisplayMetrics: []DisplayMetric{
 			{"japan_decided_agreed", "Decided cases answered correctly", j.Test.Decided.Agreed, j.Test.Decided.Cases},
@@ -209,4 +213,28 @@ func buildPublic(sum Summary, dev, test, rdev, rtest []Case, pubRec map[string]s
 		Source:         PublicSource{"docs/DECISIONS.md, D970 amendment 4 and D971", []string{src + "results/routing-test.jsonl", src + "results/routing-dev-base2.jsonl"}, src + "routing-test.jsonl"},
 		DisplayMetrics: rm})
 	return out, nil
+}
+
+// dropTextile removes the sentence about the textile candidate's prompt, which
+// does not apply to the pharmaceutical and Part 102 cards.
+func dropTextile(in []string) []string {
+	var out []string
+	for _, l := range in {
+		if !strings.Contains(l, "textile-v1") {
+			out = append(out, l)
+		}
+	}
+	return out
+}
+
+// japanLimits words the HS-edition cases as potential issues: the check of
+// schedules of HS 2012 or older uses the HS 2017 list and is approximate.
+func japanLimits(in []string) []string {
+	var out []string
+	for _, l := range in {
+		l = strings.Replace(l, "the 13 cases whose tariff codes fall outside the schedule's HS edition stay in the denominator",
+			"the 13 potential HS-edition issues (cases with a code outside the schedule's edition by an approximate check against the HS 2017 and 2022 code lists; older editions are checked against HS 2017 only) stay in the denominator", 1)
+		out = append(out, l)
+	}
+	return out
 }
