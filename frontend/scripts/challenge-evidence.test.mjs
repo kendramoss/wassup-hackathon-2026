@@ -36,6 +36,7 @@ test("challenge table identifies generated evidence, counts every error and link
   assert.match(t, /116\/120/);
   assert.match(t, /1 error included/);
   assert.match(t, /real-case studies/);
+  assert.match(t, /requests for missing facts/);
   assert.match(t, /20 source groups/);
   assert.ok(markup.includes("eval/challenges/example/summary.json"));
   assert.doesNotMatch(t, /independent test cases|real-world accuracy|95% confidence/i);

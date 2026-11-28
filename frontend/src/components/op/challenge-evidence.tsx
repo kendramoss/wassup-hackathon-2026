@@ -9,13 +9,13 @@ export function ChallengeEvidence({ features }: { features: readonly ChallengeFe
     <section id="challenge-tests" aria-labelledby="challenge-tests-heading" className="mt-8 border-t border-line pt-5">
       <h2 id="challenge-tests-heading" className="text-sm font-semibold">Generated challenge tests</h2>
       <p className="read mt-2 text-sm text-dim">
-        Variations of published rules and examples, reported separately from real-case studies. Errors stay in the counts.
+        Generated variations of published rules and examples, including expected refusals and requests for missing facts. Separate from real-case studies; errors stay in the counts.
       </p>
       <table className="mt-3 w-full border-collapse text-sm">
         <thead>
           <tr className="border-b border-line">
             <th scope="col" className="py-2 pr-3 text-left font-medium text-dim">Capability</th>
-            <th scope="col" className="py-2 text-right font-medium text-dim">Test agreement</th>
+            <th scope="col" className="py-2 text-right font-medium text-dim">Checks passed</th>
           </tr>
         </thead>
         <tbody>
