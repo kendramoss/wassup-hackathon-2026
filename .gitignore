@@ -45,6 +45,7 @@ data/tuning/
 /backend/adcvdprec
 /backend/adcvdscope
 /backend/rcepeval
+/backend/ftachallenge
 /backend/originrules
 /backend/marketeval
 /backend/retention

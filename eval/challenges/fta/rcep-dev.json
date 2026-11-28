@@ -1,0 +1,4723 @@
+{
+ "schema_version": 1,
+ "dataset_version": "fta-challenge-v1",
+ "evidence_kind": "source_grounded_synthetic",
+ "feature": "rcep",
+ "split": "dev",
+ "about": "Source-grounded synthetic challenge cases for the RCEP check. Expected labels were derived by oracle.py from the cited primary rule rows and treaty clauses, not by running the candidate engine. Cases were authored by the implementer with knowledge of the engine interface; this is not blind authoring and not independent real-world customs rulings.",
+ "label_method": "oracle.py over the cited rule rows; hand-specified rows are marked in the case rule field",
+ "case_count": 83,
+ "sources": {
+  "rcep-ch3": {
+   "title": "RCEP Agreement, Chapter 3 Rules of Origin, Articles 3.2 to 3.7",
+   "url": "https://rcepsec.org/rules-of-origin/",
+   "kind": "primary_treaty_text",
+   "note": "The local RCEP agreement PDF is image-only and the single fetch of the chapter text returned 404, so article numbers follow the engine's pinned citations and the ABF guide; the clauses were not re-read in this lane."
+  },
+  "rcep-annex3a": {
+   "title": "RCEP Annex 3A Product-Specific Rules, HS 2022 (RCEP Secretariat)",
+   "url": "https://rcepsec.org/wp-content/uploads/2024/07/RCEP-PSR-in-HS-2022-adopted-by-RJC-30June2022-corrected20Aug2022.pdf",
+   "sha256": "e474dd17238c1c3fb126d9762d10de849ffd8c061a3f42fa596f3833a3536fd6",
+   "kind": "primary_rule_table"
+  },
+  "abf-rcep-guide": {
+   "title": "Australian Border Force, Regional Comprehensive Economic Partnership (RCEP) Rules of Origin guide (18 December 2024)",
+   "url": "https://www.abf.gov.au/free-trade-agreements/files/RCEP-rules-of-origin.pdf",
+   "kind": "authority_guidance"
+  }
+ },
+ "cases": [
+  {
+   "id": "rcep-dev-wo-statement-01",
+   "split": "dev",
+   "feature": "rcep",
+   "source_family_id": "wo-statement",
+   "scenario_family": "wo-statement",
+   "variation_tags": [
+    "stated",
+    "wholly-obtained",
+    "wo-rule-row"
+   ],
+   "sources": [
+    {
+     "source": "rcep-ch3",
+     "locator": "Art. 3.2(a), Art. 3.3"
+    },
+    {
+     "source": "rcep-annex3a",
+     "locator": "row 01: WO"
+    }
+   ],
+   "rule": {
+    "row": "01",
+    "text": "WO",
+    "listed": true
+   },
+   "rationale": "Annex rule for 0103.10 is WO and the producer states the good is wholly obtained in the exporting Party, so it is originating on that basis.",
+   "input": {
+    "hs": "0103.10",
+    "produced_in": "Malaysia",
+    "fob": 1000,
+    "wholly_obtained": true,
+    "materials": [
+     {
+      "name": "Imported input: live animals (HS 0103.10)",
+      "hs": "0103.10",
+      "value": 300,
+      "country": "United States",
+      "status": "non_originating"
+     }
+    ]
+   },
+   "expect": {
+    "outcome": "yes",
+    "applied": "WO"
+   },
+   "expected_abstention": false
+  },
+  {
+   "id": "rcep-dev-wo-statement-02",
+   "split": "dev",
+   "feature": "rcep",
+   "source_family_id": "wo-statement",
+   "scenario_family": "wo-statement",
+   "variation_tags": [
+    "stated",
+    "wholly-obtained",
+    "wo-rule-row"
+   ],
+   "sources": [
+    {
+     "source": "rcep-ch3",
+     "locator": "Art. 3.2(a), Art. 3.3"
+    },
+    {
+     "source": "rcep-annex3a",
+     "locator": "row 07.09: WO"
+    }
+   ],
+   "rule": {
+    "row": "07.09",
+    "text": "WO",
+    "listed": true
+   },
+   "rationale": "Annex rule for 0709.52 is WO and the producer states the good is wholly obtained in the exporting Party, so it is originating on that basis.",
+   "input": {
+    "hs": "0709.52",
+    "produced_in": "China",
+    "fob": 4000,
+    "wholly_obtained": true,
+    "materials": []
+   },
+   "expect": {
+    "outcome": "yes",
+    "applied": "WO"
+   },
+   "expected_abstention": false
+  },
+  {
+   "id": "rcep-dev-wo-not-met-01",
+   "split": "dev",
+   "feature": "rcep",
+   "source_family_id": "wo-not-met",
+   "scenario_family": "wo-not-met",
+   "variation_tags": [
+    "negative",
+    "non-originating-material",
+    "wo-rule-row"
+   ],
+   "sources": [
+    {
+     "source": "rcep-ch3",
+     "locator": "Art. 3.2(a), Art. 3.3"
+    },
+    {
+     "source": "rcep-annex3a",
+     "locator": "row 47.07: WO"
+    }
+   ],
+   "rule": {
+    "row": "47.07",
+    "text": "WO",
+    "listed": true
+   },
+   "rationale": "Row 4707.10 requires the good to be wholly obtained; a non-originating imported material is used and no wholly obtained statement is made, so the rule is not met.",
+   "input": {
+    "hs": "4707.10",
+    "produced_in": "China",
+    "fob": 500,
+    "materials": [
+     {
+      "name": "Imported input: explosives (HS 3605.00)",
+      "hs": "3605.00",
+      "value": 175,
+      "country": "United States",
+      "status": "non_originating"
+     }
+    ]
+   },
+   "expect": {
+    "outcome": "no",
+    "alternative": {
+     "WO": "no"
+    },
+    "accumulation": false
+   },
+   "expected_abstention": false
+  },
+  {
+   "id": "rcep-dev-wo-not-met-02",
+   "split": "dev",
+   "feature": "rcep",
+   "source_family_id": "wo-not-met",
+   "scenario_family": "wo-not-met",
+   "variation_tags": [
+    "negative",
+    "non-originating-material",
+    "wo-rule-row"
+   ],
+   "sources": [
+    {
+     "source": "rcep-ch3",
+     "locator": "Art. 3.2(a), Art. 3.3"
+    },
+    {
+     "source": "rcep-annex3a",
+     "locator": "row 07.09: WO"
+    }
+   ],
+   "rule": {
+    "row": "07.09",
+    "text": "WO",
+    "listed": true
+   },
+   "rationale": "Row 0709.91 requires the good to be wholly obtained; a non-originating imported material is used and no wholly obtained statement is made, so the rule is not met.",
+   "input": {
+    "hs": "0709.91",
+    "produced_in": "China",
+    "fob": 500,
+    "materials": [
+     {
+      "name": "Imported input: fish and crustaceans, molluscs and other (HS 0302.43)",
+      "hs": "0302.43",
+      "value": 175,
+      "country": "Turkey",
+      "status": "non_originating"
+     }
+    ]
+   },
+   "expect": {
+    "outcome": "no",
+    "alternative": {
+     "WO": "no"
+    },
+    "accumulation": false
+   },
+   "expected_abstention": false
+  },
+  {
+   "id": "rcep-dev-all-originating-01",
+   "split": "dev",
+   "feature": "rcep",
+   "source_family_id": "all-originating",
+   "scenario_family": "all-originating",
+   "variation_tags": [
+    "cumulation-possible",
+    "positive",
+    "produced-from-originating-materials"
+   ],
+   "sources": [
+    {
+     "source": "rcep-ch3",
+     "locator": "Art. 3.2(b)"
+    },
+    {
+     "source": "rcep-annex3a",
+     "locator": "row 73: CTH or RVC40"
+    }
+   ],
+   "rule": {
+    "row": "73",
+    "text": "CTH or RVC40",
+    "listed": true
+   },
+   "rationale": "Every material is declared originating in a Party, so the good is produced only from originating materials and qualifies whatever the product rule says.",
+   "input": {
+    "hs": "7314.14",
+    "produced_in": "Australia",
+    "fob": 400,
+    "materials": [
+     {
+      "name": "Originating input: furniture (HS 9405.61)",
+      "hs": "9405.61",
+      "value": 80,
+      "country": "Cambodia",
+      "status": "originating"
+     }
+    ]
+   },
+   "expect": {
+    "outcome": "yes",
+    "applied": "PE",
+    "accumulation": true
+   },
+   "expected_abstention": false
+  },
+  {
+   "id": "rcep-dev-all-originating-02",
+   "split": "dev",
+   "feature": "rcep",
+   "source_family_id": "all-originating",
+   "scenario_family": "all-originating",
+   "variation_tags": [
+    "cumulation-possible",
+    "positive",
+    "produced-from-originating-materials"
+   ],
+   "sources": [
+    {
+     "source": "rcep-ch3",
+     "locator": "Art. 3.2(b)"
+    },
+    {
+     "source": "rcep-annex3a",
+     "locator": "row 8112.99: CTSH or RVC40"
+    }
+   ],
+   "rule": {
+    "row": "8112.99",
+    "text": "CTSH or RVC40",
+    "listed": true
+   },
+   "rationale": "Every material is declared originating in a Party, so the good is produced only from originating materials and qualifies whatever the product rule says.",
+   "input": {
+    "hs": "8112.99",
+    "produced_in": "China",
+    "fob": 1000,
+    "materials": [
+     {
+      "name": "Originating input: furniture (HS 9405.91)",
+      "hs": "9405.91",
+      "value": 200,
+      "country": "Indonesia",
+      "status": "originating"
+     }
+    ]
+   },
+   "expect": {
+    "outcome": "yes",
+    "applied": "PE",
+    "accumulation": true
+   },
+   "expected_abstention": false
+  },
+  {
+   "id": "rcep-dev-no-materials-01",
+   "split": "dev",
+   "feature": "rcep",
+   "source_family_id": "no-materials",
+   "scenario_family": "no-materials",
+   "variation_tags": [
+    "abstention-expected",
+    "missing-facts"
+   ],
+   "sources": [
+    {
+     "source": "rcep-ch3",
+     "locator": "Art. 3.5.4"
+    },
+    {
+     "source": "rcep-annex3a",
+     "locator": "row 87.04: RVC40"
+    }
+   ],
+   "rule": {
+    "row": "87.04",
+    "text": "RVC40",
+    "listed": true
+   },
+   "rationale": "No materials listed and no wholly obtained statement: the bill of materials is missing, so the origin cannot be decided on the facts given.",
+   "input": {
+    "hs": "8704.31",
+    "produced_in": "Vietnam",
+    "fob": 1000,
+    "materials": []
+   },
+   "expect": {
+    "outcome": "undetermined",
+    "accumulation": false
+   },
+   "expected_abstention": true
+  },
+  {
+   "id": "rcep-dev-production-outside-agreement-01",
+   "split": "dev",
+   "feature": "rcep",
+   "source_family_id": "production-outside-agreement",
+   "scenario_family": "production-outside-agreement",
+   "variation_tags": [
+    "membership",
+    "negative",
+    "non-member-producer"
+   ],
+   "sources": [
+    {
+     "source": "rcep-ch3",
+     "locator": "Art. 3.2"
+    },
+    {
+     "source": "rcep-annex3a",
+     "locator": "row 2905.32: CTSH or RVC40"
+    }
+   ],
+   "rule": {
+    "row": "2905.32",
+    "text": "CTSH or RVC40",
+    "listed": true
+   },
+   "rationale": "The good is made in a country that is not a Party to this agreement, so it cannot be an originating good of a Party, even if it states wholly obtained.",
+   "input": {
+    "hs": "2905.32",
+    "produced_in": "United States",
+    "fob": 100,
+    "wholly_obtained": true,
+    "materials": [
+     {
+      "name": "Input: beverages, spirits and vinegar (HS 2207.10)",
+      "hs": "2207.10",
+      "value": 10,
+      "country": "Canada",
+      "status": "non_originating"
+     }
+    ]
+   },
+   "expect": {
+    "outcome": "no"
+   },
+   "expected_abstention": false
+  },
+  {
+   "id": "rcep-dev-production-outside-agreement-02",
+   "split": "dev",
+   "feature": "rcep",
+   "source_family_id": "production-outside-agreement",
+   "scenario_family": "production-outside-agreement",
+   "variation_tags": [
+    "membership",
+    "negative",
+    "non-member-producer"
+   ],
+   "sources": [
+    {
+     "source": "rcep-ch3",
+     "locator": "Art. 3.2"
+    },
+    {
+     "source": "rcep-annex3a",
+     "locator": "row 2917.14: CTH or RVC40"
+    }
+   ],
+   "rule": {
+    "row": "2917.14",
+    "text": "CTH or RVC40",
+    "listed": true
+   },
+   "rationale": "The good is made in a country that is not a Party to this agreement, so it cannot be an originating good of a Party, even if it states wholly obtained.",
+   "input": {
+    "hs": "2917.14",
+    "produced_in": "United States",
+    "fob": 4000,
+    "wholly_obtained": false,
+    "materials": [
+     {
+      "name": "Input: tanning or dyeing extracts (HS 3212.90)",
+      "hs": "3212.90",
+      "value": 400,
+      "country": "United States",
+      "status": "non_originating"
+     }
+    ]
+   },
+   "expect": {
+    "outcome": "no"
+   },
+   "expected_abstention": false
+  },
+  {
+   "id": "rcep-dev-production-country-missing-01",
+   "split": "dev",
+   "feature": "rcep",
+   "source_family_id": "production-country-missing",
+   "scenario_family": "production-country-missing",
+   "variation_tags": [
+    "abstention-expected",
+    "missing-facts"
+   ],
+   "sources": [
+    {
+     "source": "rcep-ch3",
+     "locator": "Art. 3.2"
+    },
+    {
+     "source": "rcep-annex3a",
+     "locator": "row 8541.60: CTSH or RVC40"
+    }
+   ],
+   "rule": {
+    "row": "8541.60",
+    "text": "CTSH or RVC40",
+    "listed": true
+   },
+   "rationale": "No country of production is given, so whether the good is made in a Party cannot be decided.",
+   "input": {
+    "hs": "8541.60",
+    "produced_in": "",
+    "fob": 1500,
+    "materials": [
+     {
+      "name": "Input: prepared feathers and down and articles (HS 6704.19)",
+      "hs": "6704.19",
+      "value": 150,
+      "country": "India",
+      "status": "non_originating"
+     }
+    ]
+   },
+   "expect": {
+    "outcome": "undetermined"
+   },
+   "expected_abstention": true
+  },
+  {
+   "id": "rcep-dev-country-name-alias-01",
+   "split": "dev",
+   "feature": "rcep",
+   "source_family_id": "country-name-alias",
+   "scenario_family": "country-name-alias",
+   "variation_tags": [
+    "formatting-only",
+    "member-alias",
+    "positive"
+   ],
+   "sources": [
+    {
+     "source": "rcep-ch3",
+     "locator": "Art. 3.2"
+    },
+    {
+     "source": "rcep-annex3a",
+     "locator": "row 0305.39: CC"
+    }
+   ],
+   "rule": {
+    "row": "0305.39",
+    "text": "CC",
+    "listed": true
+   },
+   "rationale": "Formatting-only robustness check: the treaty name of a Party is used for the producing country; the good changes tariff classification for every material, so it qualifies when the Party is recognised.",
+   "input": {
+    "hs": "0305.39",
+    "produced_in": "Viet Nam",
+    "fob": 4000,
+    "materials": [
+     {
+      "name": "Input: tin and articles thereof (HS 8002.00)",
+      "hs": "8002.00",
+      "value": 800,
+      "country": "Turkey",
+      "status": "non_originating"
+     }
+    ]
+   },
+   "expect": {
+    "outcome": "yes",
+    "applied": "CC"
+   },
+   "expected_abstention": false,
+   "formatting_only": true
+  },
+  {
+   "id": "rcep-dev-rvc-boundary-01",
+   "split": "dev",
+   "feature": "rcep",
+   "source_family_id": "rvc-boundary",
+   "scenario_family": "rvc-boundary",
+   "variation_tags": [
+    "above",
+    "rvc-threshold",
+    "tariff-shift-blocked",
+    "threshold-40"
+   ],
+   "sources": [
+    {
+     "source": "rcep-ch3",
+     "locator": "Art. 3.5"
+    },
+    {
+     "source": "rcep-annex3a",
+     "locator": "row 2917.12: CTSH or RVC40"
+    }
+   ],
+   "rule": {
+    "row": "2917.12",
+    "text": "CTSH or RVC40",
+    "listed": true
+   },
+   "rationale": "Row 2917.12 needs RVC 40. Non-originating value 285 of FOB 500 leaves build-down content 43 %; the non-originating materials are in the good's own subheading, so no tariff-shift alternative can help.",
+   "input": {
+    "hs": "2917.12",
+    "produced_in": "China",
+    "fob": 500,
+    "materials": [
+     {
+      "name": "Imported input: organic chemicals (HS 2917.12)",
+      "hs": "2917.12",
+      "value": 142.5,
+      "country": "India",
+      "status": "non_originating"
+     },
+     {
+      "name": "Imported input: organic chemicals (HS 2917.12)",
+      "hs": "2917.12",
+      "value": 142.5,
+      "country": "Brazil",
+      "status": "non_originating"
+     },
+     {
+      "name": "Originating input: electrical machinery and equipment and (HS 8525.83)",
+      "hs": "8525.83",
+      "value": 100,
+      "country": "Thailand",
+      "status": "originating"
+     }
+    ]
+   },
+   "expect": {
+    "outcome": "yes",
+    "alternative": {
+     "CTSH": "no",
+     "RVC40": "yes"
+    },
+    "applied": "RVC40",
+    "accumulation": true,
+    "rvc_down_min": 42.95,
+    "rvc_down_max": 43.05
+   },
+   "expected_abstention": false
+  },
+  {
+   "id": "rcep-dev-rvc-boundary-02",
+   "split": "dev",
+   "feature": "rcep",
+   "source_family_id": "rvc-boundary",
+   "scenario_family": "rvc-boundary",
+   "variation_tags": [
+    "exact",
+    "rvc-threshold",
+    "tariff-shift-blocked",
+    "threshold-40"
+   ],
+   "sources": [
+    {
+     "source": "rcep-ch3",
+     "locator": "Art. 3.5"
+    },
+    {
+     "source": "rcep-annex3a",
+     "locator": "row 83.02: CTH or RVC40"
+    }
+   ],
+   "rule": {
+    "row": "83.02",
+    "text": "CTH or RVC40",
+    "listed": true
+   },
+   "rationale": "Row 8302.50 needs RVC 40. Non-originating value 600 of FOB 1000 leaves build-down content 40 %; the non-originating materials are in the good's own subheading, so no tariff-shift alternative can help.",
+   "input": {
+    "hs": "8302.50",
+    "produced_in": "Australia",
+    "fob": 1000,
+    "materials": [
+     {
+      "name": "Imported input: miscellaneous articles of base metal (HS 8302.50)",
+      "hs": "8302.50",
+      "value": 300,
+      "country": "Mexico",
+      "status": "non_originating"
+     },
+     {
+      "name": "Imported input: miscellaneous articles of base metal (HS 8302.50)",
+      "hs": "8302.50",
+      "value": 300,
+      "country": "United States",
+      "status": "non_originating"
+     },
+     {
+      "name": "Originating input: manufactures of straw, of esparto or of (HS 4602.11)",
+      "hs": "4602.11",
+      "value": 200,
+      "country": "South Korea",
+      "status": "originating"
+     }
+    ]
+   },
+   "expect": {
+    "outcome": "yes",
+    "alternative": {
+     "CTH": "no",
+     "RVC40": "yes"
+    },
+    "applied": "RVC40",
+    "accumulation": true,
+    "rvc_down_min": 39.95,
+    "rvc_down_max": 40.05
+   },
+   "expected_abstention": false
+  },
+  {
+   "id": "rcep-dev-rvc-boundary-03",
+   "split": "dev",
+   "feature": "rcep",
+   "source_family_id": "rvc-boundary",
+   "scenario_family": "rvc-boundary",
+   "variation_tags": [
+    "just-below",
+    "rvc-threshold",
+    "tariff-shift-blocked",
+    "threshold-40"
+   ],
+   "sources": [
+    {
+     "source": "rcep-ch3",
+     "locator": "Art. 3.5"
+    },
+    {
+     "source": "rcep-annex3a",
+     "locator": "row 93: CTH or RVC40"
+    }
+   ],
+   "rule": {
+    "row": "93",
+    "text": "CTH or RVC40",
+    "listed": true
+   },
+   "rationale": "Row 9305.10 needs RVC 40. Non-originating value 1210 of FOB 2000 leaves build-down content 39.5 %; the non-originating materials are in the good's own subheading, so no tariff-shift alternative can help. Costs are given, so the build-up figure is also below the threshold.",
+   "input": {
+    "hs": "9305.10",
+    "produced_in": "Indonesia",
+    "fob": 2000,
+    "materials": [
+     {
+      "name": "Imported input: arms and ammunition (HS 9305.10)",
+      "hs": "9305.10",
+      "value": 1210,
+      "country": "Mexico",
+      "status": "non_originating"
+     },
+     {
+      "name": "Originating input: plastics and articles thereof (HS 3910.00)",
+      "hs": "3910.00",
+      "value": 400,
+      "country": "Malaysia",
+      "status": "originating"
+     }
+    ],
+    "costs": {
+     "labour": 40,
+     "overhead": 20,
+     "profit": 20,
+     "other": 0
+    }
+   },
+   "expect": {
+    "outcome": "no",
+    "alternative": {
+     "CTH": "no",
+     "RVC40": "no"
+    },
+    "accumulation": true,
+    "rvc_down_min": 39.45,
+    "rvc_down_max": 39.55,
+    "rvc_up_min": 23.95,
+    "rvc_up_max": 24.05
+   },
+   "expected_abstention": false
+  },
+  {
+   "id": "rcep-dev-rvc-boundary-04",
+   "split": "dev",
+   "feature": "rcep",
+   "source_family_id": "rvc-boundary",
+   "scenario_family": "rvc-boundary",
+   "variation_tags": [
+    "far-below",
+    "rvc-threshold",
+    "tariff-shift-blocked",
+    "threshold-40"
+   ],
+   "sources": [
+    {
+     "source": "rcep-ch3",
+     "locator": "Art. 3.5"
+    },
+    {
+     "source": "rcep-annex3a",
+     "locator": "row 85.36: CTH or RVC40"
+    }
+   ],
+   "rule": {
+    "row": "85.36",
+    "text": "CTH or RVC40",
+    "listed": true
+   },
+   "rationale": "Row 8536.50 needs RVC 40. Non-originating value 390 of FOB 500 leaves build-down content 22 %; the non-originating materials are in the good's own subheading, so no tariff-shift alternative can help.",
+   "input": {
+    "hs": "8536.50",
+    "produced_in": "New Zealand",
+    "fob": 500,
+    "materials": [
+     {
+      "name": "Imported input: electrical machinery and equipment and (HS 8536.50)",
+      "hs": "8536.50",
+      "value": 195,
+      "country": "Brazil",
+      "status": "non_originating"
+     },
+     {
+      "name": "Imported input: electrical machinery and equipment and (HS 8536.50)",
+      "hs": "8536.50",
+      "value": 195,
+      "country": "Canada",
+      "status": "non_originating"
+     },
+     {
+      "name": "Originating input: organic chemicals (HS 2901.29)",
+      "hs": "2901.29",
+      "value": 100,
+      "country": "Australia",
+      "status": "originating"
+     }
+    ]
+   },
+   "expect": {
+    "outcome": "no",
+    "alternative": {
+     "CTH": "no",
+     "RVC40": "no"
+    },
+    "accumulation": true,
+    "rvc_down_min": 21.95,
+    "rvc_down_max": 22.05
+   },
+   "expected_abstention": false
+  },
+  {
+   "id": "rcep-dev-rvc-boundary-05",
+   "split": "dev",
+   "feature": "rcep",
+   "source_family_id": "rvc-boundary",
+   "scenario_family": "rvc-boundary",
+   "variation_tags": [
+    "above",
+    "rvc-threshold",
+    "tariff-shift-blocked",
+    "threshold-40"
+   ],
+   "sources": [
+    {
+     "source": "rcep-ch3",
+     "locator": "Art. 3.5"
+    },
+    {
+     "source": "rcep-annex3a",
+     "locator": "row 8533.40: CTSH or RVC40"
+    }
+   ],
+   "rule": {
+    "row": "8533.40",
+    "text": "CTSH or RVC40",
+    "listed": true
+   },
+   "rationale": "Row 8533.40 needs RVC 40. Non-originating value 142.5 of FOB 250 leaves build-down content 43 %; the non-originating materials are in the good's own subheading, so no tariff-shift alternative can help.",
+   "input": {
+    "hs": "8533.40",
+    "produced_in": "New Zealand",
+    "fob": 250,
+    "materials": [
+     {
+      "name": "Imported input: electrical machinery and equipment and (HS 8533.40)",
+      "hs": "8533.40",
+      "value": 71.25,
+      "country": "Mexico",
+      "status": "non_originating"
+     },
+     {
+      "name": "Imported input: electrical machinery and equipment and (HS 8533.40)",
+      "hs": "8533.40",
+      "value": 71.25,
+      "country": "Turkey",
+      "status": "non_originating"
+     },
+     {
+      "name": "Originating input: nuclear reactors, boilers, machinery and (HS 8426.41)",
+      "hs": "8426.41",
+      "value": 50,
+      "country": "New Zealand",
+      "status": "originating"
+     }
+    ]
+   },
+   "expect": {
+    "outcome": "yes",
+    "alternative": {
+     "CTSH": "no",
+     "RVC40": "yes"
+    },
+    "applied": "RVC40",
+    "accumulation": false,
+    "rvc_down_min": 42.95,
+    "rvc_down_max": 43.05
+   },
+   "expected_abstention": false
+  },
+  {
+   "id": "rcep-dev-rvc-boundary-06",
+   "split": "dev",
+   "feature": "rcep",
+   "source_family_id": "rvc-boundary",
+   "scenario_family": "rvc-boundary",
+   "variation_tags": [
+    "just-below",
+    "rvc-threshold",
+    "tariff-shift-blocked",
+    "threshold-40"
+   ],
+   "sources": [
+    {
+     "source": "rcep-ch3",
+     "locator": "Art. 3.5"
+    },
+    {
+     "source": "rcep-annex3a",
+     "locator": "row 8516.50: CTSH or RVC40"
+    }
+   ],
+   "rule": {
+    "row": "8516.50",
+    "text": "CTSH or RVC40",
+    "listed": true
+   },
+   "rationale": "Row 8516.50 needs RVC 40. Non-originating value 1210 of FOB 2000 leaves build-down content 39.5 %; the non-originating materials are in the good's own subheading, so no tariff-shift alternative can help. Costs are given, so the build-up figure is also below the threshold.",
+   "input": {
+    "hs": "8516.50",
+    "produced_in": "Indonesia",
+    "fob": 2000,
+    "materials": [
+     {
+      "name": "Imported input: electrical machinery and equipment and (HS 8516.50)",
+      "hs": "8516.50",
+      "value": 605,
+      "country": "India",
+      "status": "non_originating"
+     },
+     {
+      "name": "Imported input: electrical machinery and equipment and (HS 8516.50)",
+      "hs": "8516.50",
+      "value": 605,
+      "country": "Canada",
+      "status": "non_originating"
+     },
+     {
+      "name": "Originating input: miscellaneous chemical products (HS 3814.00)",
+      "hs": "3814.00",
+      "value": 400,
+      "country": "Myanmar",
+      "status": "originating"
+     }
+    ],
+    "costs": {
+     "labour": 40,
+     "overhead": 20,
+     "profit": 20,
+     "other": 0
+    }
+   },
+   "expect": {
+    "outcome": "no",
+    "alternative": {
+     "CTSH": "no",
+     "RVC40": "no"
+    },
+    "accumulation": true,
+    "rvc_down_min": 39.45,
+    "rvc_down_max": 39.55,
+    "rvc_up_min": 23.95,
+    "rvc_up_max": 24.05
+   },
+   "expected_abstention": false
+  },
+  {
+   "id": "rcep-dev-rvc-boundary-07",
+   "split": "dev",
+   "feature": "rcep",
+   "source_family_id": "rvc-boundary",
+   "scenario_family": "rvc-boundary",
+   "variation_tags": [
+    "above",
+    "rvc-threshold",
+    "tariff-shift-blocked",
+    "threshold-40"
+   ],
+   "sources": [
+    {
+     "source": "rcep-ch3",
+     "locator": "Art. 3.5"
+    },
+    {
+     "source": "rcep-annex3a",
+     "locator": "row 41.07: CTH or RVC40"
+    }
+   ],
+   "rule": {
+    "row": "41.07",
+    "text": "CTH or RVC40",
+    "listed": true
+   },
+   "rationale": "Row 4107.19 needs RVC 40. Non-originating value 285 of FOB 500 leaves build-down content 43 %; the non-originating materials are in the good's own subheading, so no tariff-shift alternative can help.",
+   "input": {
+    "hs": "4107.19",
+    "produced_in": "South Korea",
+    "fob": 500,
+    "materials": [
+     {
+      "name": "Imported input: raw hides and skins (other than furskins) (HS 4107.19)",
+      "hs": "4107.19",
+      "value": 142.5,
+      "country": "India",
+      "status": "non_originating"
+     },
+     {
+      "name": "Imported input: raw hides and skins (other than furskins) (HS 4107.19)",
+      "hs": "4107.19",
+      "value": 142.5,
+      "country": "Germany",
+      "status": "non_originating"
+     },
+     {
+      "name": "Originating input: nuclear reactors, boilers, machinery and (HS 8467.91)",
+      "hs": "8467.91",
+      "value": 100,
+      "country": "Australia",
+      "status": "originating"
+     }
+    ]
+   },
+   "expect": {
+    "outcome": "yes",
+    "alternative": {
+     "CTH": "no",
+     "RVC40": "yes"
+    },
+    "applied": "RVC40",
+    "accumulation": true,
+    "rvc_down_min": 42.95,
+    "rvc_down_max": 43.05
+   },
+   "expected_abstention": false
+  },
+  {
+   "id": "rcep-dev-rvc-boundary-08",
+   "split": "dev",
+   "feature": "rcep",
+   "source_family_id": "rvc-boundary",
+   "scenario_family": "rvc-boundary",
+   "variation_tags": [
+    "exact",
+    "rvc-threshold",
+    "tariff-shift-blocked",
+    "threshold-40"
+   ],
+   "sources": [
+    {
+     "source": "rcep-ch3",
+     "locator": "Art. 3.5"
+    },
+    {
+     "source": "rcep-annex3a",
+     "locator": "row 2903.73: CTH or RVC40"
+    }
+   ],
+   "rule": {
+    "row": "2903.73",
+    "text": "CTH or RVC40",
+    "listed": true
+   },
+   "rationale": "Row 2903.73 needs RVC 40. Non-originating value 300 of FOB 500 leaves build-down content 40 %; the non-originating materials are in the good's own subheading, so no tariff-shift alternative can help.",
+   "input": {
+    "hs": "2903.73",
+    "produced_in": "Vietnam",
+    "fob": 500,
+    "materials": [
+     {
+      "name": "Imported input: organic chemicals (HS 2903.73)",
+      "hs": "2903.73",
+      "value": 150,
+      "country": "Germany",
+      "status": "non_originating"
+     },
+     {
+      "name": "Imported input: organic chemicals (HS 2903.73)",
+      "hs": "2903.73",
+      "value": 150,
+      "country": "Germany",
+      "status": "non_originating"
+     },
+     {
+      "name": "Originating input: oil seeds and oleaginous fruits (HS 1208.90)",
+      "hs": "1208.90",
+      "value": 100,
+      "country": "China",
+      "status": "originating"
+     }
+    ]
+   },
+   "expect": {
+    "outcome": "yes",
+    "alternative": {
+     "CTH": "no",
+     "RVC40": "yes"
+    },
+    "applied": "RVC40",
+    "accumulation": true,
+    "rvc_down_min": 39.95,
+    "rvc_down_max": 40.05
+   },
+   "expected_abstention": false
+  },
+  {
+   "id": "rcep-dev-tariff-shift-grid-01",
+   "split": "dev",
+   "feature": "rcep",
+   "source_family_id": "tariff-shift-grid",
+   "scenario_family": "tariff-shift-grid",
+   "variation_tags": [
+    "material-relation-chapter",
+    "positive",
+    "tariff-shift-heading"
+   ],
+   "sources": [
+    {
+     "source": "rcep-ch3",
+     "locator": "Art. 3.2(c), Annex 3A"
+    },
+    {
+     "source": "rcep-annex3a",
+     "locator": "row 73: CTH or RVC40"
+    }
+   ],
+   "rule": {
+    "row": "73",
+    "text": "CTH or RVC40",
+    "listed": true
+   },
+   "rationale": "Row 7318.29 is decided by a change of heading. The non-originating material is in a different chapter (3906.10); the shift is met. The originating material in the good's own subheading is disregarded because tariff-shift rules apply to non-originating materials only.",
+   "input": {
+    "hs": "7318.29",
+    "produced_in": "Australia",
+    "fob": 1000,
+    "materials": [
+     {
+      "name": "Imported input: plastics and articles thereof (HS 3906.10)",
+      "hs": "3906.10",
+      "value": 700,
+      "country": "Germany",
+      "status": "non_originating"
+     },
+     {
+      "name": "Originating input in the good's own subheading: articles of iron or steel (HS 7318.29)",
+      "hs": "7318.29",
+      "value": 100,
+      "country": "Singapore",
+      "status": "originating"
+     }
+    ]
+   },
+   "expect": {
+    "outcome": "yes",
+    "alternative": {
+     "CTH": "yes",
+     "RVC40": "no"
+    },
+    "applied": "CTH",
+    "accumulation": true
+   },
+   "expected_abstention": false
+  },
+  {
+   "id": "rcep-dev-tariff-shift-grid-02",
+   "split": "dev",
+   "feature": "rcep",
+   "source_family_id": "tariff-shift-grid",
+   "scenario_family": "tariff-shift-grid",
+   "variation_tags": [
+    "level-sensitive",
+    "material-relation-heading",
+    "negative",
+    "tariff-shift-chapter",
+    "two-failing-candidates"
+   ],
+   "sources": [
+    {
+     "source": "rcep-ch3",
+     "locator": "Art. 3.2(c), Annex 3A"
+    },
+    {
+     "source": "rcep-annex3a",
+     "locator": "row 0304.31: CC"
+    }
+   ],
+   "rule": {
+    "row": "0304.31",
+    "text": "CC",
+    "listed": true
+   },
+   "rationale": "Row 0304.31 is decided by a change of chapter. The non-originating material is in the same chapter but a different heading (0303.55); no shift at this level, and the 25 % value share keeps the RVC alternative and de minimis from rescuing it. The originating material in the good's own subheading is disregarded because tariff-shift rules apply to non-originating materials only.",
+   "input": {
+    "hs": "0304.31",
+    "produced_in": "Indonesia",
+    "fob": 400,
+    "materials": [
+     {
+      "name": "Imported input A: fish and crustaceans, molluscs and other (HS 0303.55)",
+      "hs": "0303.55",
+      "value": 100,
+      "country": "Brazil",
+      "status": "non_originating"
+     },
+     {
+      "name": "Input: knitted or crocheted fabrics (HS 6005.37)",
+      "hs": "6005.37",
+      "value": 20,
+      "country": "Brazil",
+      "status": "non_originating"
+     },
+     {
+      "name": "Originating input in the good's own subheading: fish and crustaceans, molluscs and other (HS 0304.31)",
+      "hs": "0304.31",
+      "value": 40,
+      "country": "Singapore",
+      "status": "originating"
+     }
+    ]
+   },
+   "expect": {
+    "outcome": "no",
+    "alternative": {
+     "CC": "no"
+    },
+    "accumulation": true
+   },
+   "expected_abstention": false
+  },
+  {
+   "id": "rcep-dev-tariff-shift-grid-03",
+   "split": "dev",
+   "feature": "rcep",
+   "source_family_id": "tariff-shift-grid",
+   "scenario_family": "tariff-shift-grid",
+   "variation_tags": [
+    "material-relation-sub",
+    "negative",
+    "tariff-shift-chapter"
+   ],
+   "sources": [
+    {
+     "source": "rcep-ch3",
+     "locator": "Art. 3.2(c), Annex 3A"
+    },
+    {
+     "source": "rcep-annex3a",
+     "locator": "row 03.02: CC"
+    }
+   ],
+   "rule": {
+    "row": "03.02",
+    "text": "CC",
+    "listed": true
+   },
+   "rationale": "Row 0302.19 is decided by a change of chapter. The non-originating material is in the same heading but a different subheading (0302.29); no shift at this level, and the 25 % value share keeps the RVC alternative and de minimis from rescuing it. The originating material in the good's own subheading is disregarded because tariff-shift rules apply to non-originating materials only.",
+   "input": {
+    "hs": "0302.19",
+    "produced_in": "South Korea",
+    "fob": 200,
+    "materials": [
+     {
+      "name": "Imported input: fish and crustaceans, molluscs and other (HS 0302.29)",
+      "hs": "0302.29",
+      "value": 50,
+      "country": "Brazil",
+      "status": "non_originating"
+     },
+     {
+      "name": "Originating input in the good's own subheading: fish and crustaceans, molluscs and other (HS 0302.19)",
+      "hs": "0302.19",
+      "value": 20,
+      "country": "Japan",
+      "status": "originating"
+     }
+    ]
+   },
+   "expect": {
+    "outcome": "no",
+    "alternative": {
+     "CC": "no"
+    },
+    "accumulation": true
+   },
+   "expected_abstention": false
+  },
+  {
+   "id": "rcep-dev-tariff-shift-grid-04",
+   "split": "dev",
+   "feature": "rcep",
+   "source_family_id": "tariff-shift-grid",
+   "scenario_family": "tariff-shift-grid",
+   "variation_tags": [
+    "material-relation-same",
+    "negative",
+    "tariff-shift-chapter",
+    "two-failing-candidates"
+   ],
+   "sources": [
+    {
+     "source": "rcep-ch3",
+     "locator": "Art. 3.2(c), Annex 3A"
+    },
+    {
+     "source": "rcep-annex3a",
+     "locator": "row 0304.41: CC or RVC40"
+    }
+   ],
+   "rule": {
+    "row": "0304.41",
+    "text": "CC or RVC40",
+    "listed": true
+   },
+   "rationale": "Row 0304.41 is decided by a change of chapter. The non-originating material is in the same subheading (0304.41); no shift at this level, and the 70 % value share keeps the RVC alternative and de minimis from rescuing it. The originating material in the good's own subheading is disregarded because tariff-shift rules apply to non-originating materials only.",
+   "input": {
+    "hs": "0304.41",
+    "produced_in": "China",
+    "fob": 100,
+    "materials": [
+     {
+      "name": "Imported input A: fish and crustaceans, molluscs and other (HS 0304.41)",
+      "hs": "0304.41",
+      "value": 70,
+      "country": "United States",
+      "status": "non_originating"
+     },
+     {
+      "name": "Input: carpets and other textile floor coverings (HS 5701.90)",
+      "hs": "5701.90",
+      "value": 5,
+      "country": "Canada",
+      "status": "non_originating"
+     },
+     {
+      "name": "Originating input in the good's own subheading: fish and crustaceans, molluscs and other (HS 0304.41)",
+      "hs": "0304.41",
+      "value": 10,
+      "country": "China",
+      "status": "originating"
+     }
+    ]
+   },
+   "expect": {
+    "outcome": "no",
+    "alternative": {
+     "CC": "no",
+     "RVC40": "no"
+    },
+    "accumulation": false
+   },
+   "expected_abstention": false
+  },
+  {
+   "id": "rcep-dev-tariff-shift-grid-05",
+   "split": "dev",
+   "feature": "rcep",
+   "source_family_id": "tariff-shift-grid",
+   "scenario_family": "tariff-shift-grid",
+   "variation_tags": [
+    "material-relation-chapter",
+    "positive",
+    "tariff-shift-heading"
+   ],
+   "sources": [
+    {
+     "source": "rcep-ch3",
+     "locator": "Art. 3.2(c), Annex 3A"
+    },
+    {
+     "source": "rcep-annex3a",
+     "locator": "row 2921.21: CTH or RVC40"
+    }
+   ],
+   "rule": {
+    "row": "2921.21",
+    "text": "CTH or RVC40",
+    "listed": true
+   },
+   "rationale": "Row 2921.21 is decided by a change of heading. The non-originating material is in a different chapter (5702.32); the shift is met. The originating material in the good's own subheading is disregarded because tariff-shift rules apply to non-originating materials only.",
+   "input": {
+    "hs": "2921.21",
+    "produced_in": "Malaysia",
+    "fob": 200,
+    "materials": [
+     {
+      "name": "Imported input: carpets and other textile floor coverings (HS 5702.32)",
+      "hs": "5702.32",
+      "value": 140,
+      "country": "Germany",
+      "status": "non_originating"
+     },
+     {
+      "name": "Originating input in the good's own subheading: organic chemicals (HS 2921.21)",
+      "hs": "2921.21",
+      "value": 20,
+      "country": "Myanmar",
+      "status": "originating"
+     }
+    ]
+   },
+   "expect": {
+    "outcome": "yes",
+    "alternative": {
+     "CTH": "yes",
+     "RVC40": "no"
+    },
+    "applied": "CTH",
+    "accumulation": true
+   },
+   "expected_abstention": false
+  },
+  {
+   "id": "rcep-dev-tariff-shift-grid-06",
+   "split": "dev",
+   "feature": "rcep",
+   "source_family_id": "tariff-shift-grid",
+   "scenario_family": "tariff-shift-grid",
+   "variation_tags": [
+    "material-relation-heading",
+    "positive",
+    "tariff-shift-heading",
+    "two-failing-candidates"
+   ],
+   "sources": [
+    {
+     "source": "rcep-ch3",
+     "locator": "Art. 3.2(c), Annex 3A"
+    },
+    {
+     "source": "rcep-annex3a",
+     "locator": "row 33: CTH or RVC40"
+    }
+   ],
+   "rule": {
+    "row": "33",
+    "text": "CTH or RVC40",
+    "listed": true
+   },
+   "rationale": "Row 3307.90 is decided by a change of heading. The non-originating material is in the same chapter but a different heading (3305.90); the shift is met. The originating material in the good's own subheading is disregarded because tariff-shift rules apply to non-originating materials only.",
+   "input": {
+    "hs": "3307.90",
+    "produced_in": "China",
+    "fob": 1000,
+    "materials": [
+     {
+      "name": "Imported input A: essential oils and resinoids (HS 3305.90)",
+      "hs": "3305.90",
+      "value": 700,
+      "country": "United States",
+      "status": "non_originating"
+     },
+     {
+      "name": "Input: other vegetable textile fibres (HS 5308.90)",
+      "hs": "5308.90",
+      "value": 50,
+      "country": "Canada",
+      "status": "non_originating"
+     },
+     {
+      "name": "Originating input in the good's own subheading: essential oils and resinoids (HS 3307.90)",
+      "hs": "3307.90",
+      "value": 100,
+      "country": "Myanmar",
+      "status": "originating"
+     }
+    ]
+   },
+   "expect": {
+    "outcome": "yes",
+    "alternative": {
+     "CTH": "yes",
+     "RVC40": "no"
+    },
+    "applied": "CTH",
+    "accumulation": true
+   },
+   "expected_abstention": false
+  },
+  {
+   "id": "rcep-dev-tariff-shift-grid-07",
+   "split": "dev",
+   "feature": "rcep",
+   "source_family_id": "tariff-shift-grid",
+   "scenario_family": "tariff-shift-grid",
+   "variation_tags": [
+    "material-relation-sub",
+    "negative",
+    "tariff-shift-chapter"
+   ],
+   "sources": [
+    {
+     "source": "rcep-ch3",
+     "locator": "Art. 3.2(c), Annex 3A"
+    },
+    {
+     "source": "rcep-annex3a",
+     "locator": "row 07.13: CC"
+    }
+   ],
+   "rule": {
+    "row": "07.13",
+    "text": "CC",
+    "listed": true
+   },
+   "rationale": "Row 0713.32 is decided by a change of chapter. The non-originating material is in the same heading but a different subheading (0713.35); no shift at this level, and the 25 % value share keeps the RVC alternative and de minimis from rescuing it. The originating material in the good's own subheading is disregarded because tariff-shift rules apply to non-originating materials only.",
+   "input": {
+    "hs": "0713.32",
+    "produced_in": "Malaysia",
+    "fob": 200,
+    "materials": [
+     {
+      "name": "Imported input: edible vegetables and certain roots and (HS 0713.35)",
+      "hs": "0713.35",
+      "value": 50,
+      "country": "United Kingdom",
+      "status": "non_originating"
+     },
+     {
+      "name": "Originating input in the good's own subheading: edible vegetables and certain roots and (HS 0713.32)",
+      "hs": "0713.32",
+      "value": 20,
+      "country": "Brunei",
+      "status": "originating"
+     }
+    ]
+   },
+   "expect": {
+    "outcome": "no",
+    "alternative": {
+     "CC": "no"
+    },
+    "accumulation": true
+   },
+   "expected_abstention": false
+  },
+  {
+   "id": "rcep-dev-tariff-shift-grid-08",
+   "split": "dev",
+   "feature": "rcep",
+   "source_family_id": "tariff-shift-grid",
+   "scenario_family": "tariff-shift-grid",
+   "variation_tags": [
+    "material-relation-same",
+    "negative",
+    "tariff-shift-heading",
+    "two-failing-candidates"
+   ],
+   "sources": [
+    {
+     "source": "rcep-ch3",
+     "locator": "Art. 3.2(c), Annex 3A"
+    },
+    {
+     "source": "rcep-annex3a",
+     "locator": "row 39.21: CTH or RVC40"
+    }
+   ],
+   "rule": {
+    "row": "39.21",
+    "text": "CTH or RVC40",
+    "listed": true
+   },
+   "rationale": "Row 3921.11 is decided by a change of heading. The non-originating material is in the same subheading (3921.11); no shift at this level, and the 70 % value share keeps the RVC alternative and de minimis from rescuing it. The originating material in the good's own subheading is disregarded because tariff-shift rules apply to non-originating materials only.",
+   "input": {
+    "hs": "3921.11",
+    "produced_in": "China",
+    "fob": 200,
+    "materials": [
+     {
+      "name": "Imported input A: plastics and articles thereof (HS 3921.11)",
+      "hs": "3921.11",
+      "value": 140,
+      "country": "Turkey",
+      "status": "non_originating"
+     },
+     {
+      "name": "Input: wadding, felt and nonwovens (HS 5602.90)",
+      "hs": "5602.90",
+      "value": 10,
+      "country": "Brazil",
+      "status": "non_originating"
+     },
+     {
+      "name": "Originating input in the good's own subheading: plastics and articles thereof (HS 3921.11)",
+      "hs": "3921.11",
+      "value": 20,
+      "country": "Indonesia",
+      "status": "originating"
+     }
+    ]
+   },
+   "expect": {
+    "outcome": "no",
+    "alternative": {
+     "CTH": "no",
+     "RVC40": "no"
+    },
+    "accumulation": true
+   },
+   "expected_abstention": false
+  },
+  {
+   "id": "rcep-dev-tariff-shift-grid-09",
+   "split": "dev",
+   "feature": "rcep",
+   "source_family_id": "tariff-shift-grid",
+   "scenario_family": "tariff-shift-grid",
+   "variation_tags": [
+    "material-relation-chapter",
+    "positive",
+    "tariff-shift-heading"
+   ],
+   "sources": [
+    {
+     "source": "rcep-ch3",
+     "locator": "Art. 3.2(c), Annex 3A"
+    },
+    {
+     "source": "rcep-annex3a",
+     "locator": "row 25.16: CTH"
+    }
+   ],
+   "rule": {
+    "row": "25.16",
+    "text": "CTH",
+    "listed": true
+   },
+   "rationale": "Row 2516.11 is decided by a change of heading. The non-originating material is in a different chapter (8716.31); the shift is met. The originating material in the good's own subheading is disregarded because tariff-shift rules apply to non-originating materials only.",
+   "input": {
+    "hs": "2516.11",
+    "produced_in": "Australia",
+    "fob": 1000,
+    "materials": [
+     {
+      "name": "Imported input: vehicles other than railway or tramway (HS 8716.31)",
+      "hs": "8716.31",
+      "value": 250,
+      "country": "India",
+      "status": "non_originating"
+     },
+     {
+      "name": "Originating input in the good's own subheading: salt (HS 2516.11)",
+      "hs": "2516.11",
+      "value": 100,
+      "country": "Vietnam",
+      "status": "originating"
+     }
+    ]
+   },
+   "expect": {
+    "outcome": "yes",
+    "alternative": {
+     "CTH": "yes"
+    },
+    "applied": "CTH",
+    "accumulation": true
+   },
+   "expected_abstention": false
+  },
+  {
+   "id": "rcep-dev-tariff-shift-grid-10",
+   "split": "dev",
+   "feature": "rcep",
+   "source_family_id": "tariff-shift-grid",
+   "scenario_family": "tariff-shift-grid",
+   "variation_tags": [
+    "material-relation-heading",
+    "positive",
+    "tariff-shift-heading",
+    "two-failing-candidates"
+   ],
+   "sources": [
+    {
+     "source": "rcep-ch3",
+     "locator": "Art. 3.2(c), Annex 3A"
+    },
+    {
+     "source": "rcep-annex3a",
+     "locator": "row 85.28: CTH or RVC40"
+    }
+   ],
+   "rule": {
+    "row": "85.28",
+    "text": "CTH or RVC40",
+    "listed": true
+   },
+   "rationale": "Row 8528.72 is decided by a change of heading. The non-originating material is in the same chapter but a different heading (8501.34); the shift is met. The originating material in the good's own subheading is disregarded because tariff-shift rules apply to non-originating materials only.",
+   "input": {
+    "hs": "8528.72",
+    "produced_in": "Japan",
+    "fob": 400,
+    "materials": [
+     {
+      "name": "Imported input A: electrical machinery and equipment and (HS 8501.34)",
+      "hs": "8501.34",
+      "value": 280,
+      "country": "Germany",
+      "status": "non_originating"
+     },
+     {
+      "name": "Input: other made up textile articles (HS 6304.20)",
+      "hs": "6304.20",
+      "value": 20,
+      "country": "Mexico",
+      "status": "non_originating"
+     },
+     {
+      "name": "Originating input in the good's own subheading: electrical machinery and equipment and (HS 8528.72)",
+      "hs": "8528.72",
+      "value": 40,
+      "country": "China",
+      "status": "originating"
+     }
+    ]
+   },
+   "expect": {
+    "outcome": "yes",
+    "alternative": {
+     "CTH": "yes",
+     "RVC40": "no"
+    },
+    "applied": "CTH",
+    "accumulation": true
+   },
+   "expected_abstention": false
+  },
+  {
+   "id": "rcep-dev-tariff-shift-grid-11",
+   "split": "dev",
+   "feature": "rcep",
+   "source_family_id": "tariff-shift-grid",
+   "scenario_family": "tariff-shift-grid",
+   "variation_tags": [
+    "level-sensitive",
+    "material-relation-sub",
+    "negative",
+    "tariff-shift-heading"
+   ],
+   "sources": [
+    {
+     "source": "rcep-ch3",
+     "locator": "Art. 3.2(c), Annex 3A"
+    },
+    {
+     "source": "rcep-annex3a",
+     "locator": "row 95: CTH or RVC40"
+    }
+   ],
+   "rule": {
+    "row": "95",
+    "text": "CTH or RVC40",
+    "listed": true
+   },
+   "rationale": "Row 9505.10 is decided by a change of heading. The non-originating material is in the same heading but a different subheading (9505.90); no shift at this level, and the 70 % value share keeps the RVC alternative and de minimis from rescuing it. The originating material in the good's own subheading is disregarded because tariff-shift rules apply to non-originating materials only.",
+   "input": {
+    "hs": "9505.10",
+    "produced_in": "Japan",
+    "fob": 400,
+    "materials": [
+     {
+      "name": "Imported input: toys, games and sports requisites (HS 9505.90)",
+      "hs": "9505.90",
+      "value": 280,
+      "country": "Brazil",
+      "status": "non_originating"
+     },
+     {
+      "name": "Originating input in the good's own subheading: toys, games and sports requisites (HS 9505.10)",
+      "hs": "9505.10",
+      "value": 40,
+      "country": "Australia",
+      "status": "originating"
+     }
+    ]
+   },
+   "expect": {
+    "outcome": "no",
+    "alternative": {
+     "CTH": "no",
+     "RVC40": "no"
+    },
+    "accumulation": true
+   },
+   "expected_abstention": false
+  },
+  {
+   "id": "rcep-dev-tariff-shift-grid-12",
+   "split": "dev",
+   "feature": "rcep",
+   "source_family_id": "tariff-shift-grid",
+   "scenario_family": "tariff-shift-grid",
+   "variation_tags": [
+    "material-relation-same",
+    "negative",
+    "tariff-shift-subheading",
+    "two-failing-candidates"
+   ],
+   "sources": [
+    {
+     "source": "rcep-ch3",
+     "locator": "Art. 3.2(c), Annex 3A"
+    },
+    {
+     "source": "rcep-annex3a",
+     "locator": "row 8533.31: CTSH or RVC40"
+    }
+   ],
+   "rule": {
+    "row": "8533.31",
+    "text": "CTSH or RVC40",
+    "listed": true
+   },
+   "rationale": "Row 8533.31 is decided by a change of subheading. The non-originating material is in the same subheading (8533.31); no shift at this level, and the 70 % value share keeps the RVC alternative and de minimis from rescuing it. The originating material in the good's own subheading is disregarded because tariff-shift rules apply to non-originating materials only.",
+   "input": {
+    "hs": "8533.31",
+    "produced_in": "Japan",
+    "fob": 200,
+    "materials": [
+     {
+      "name": "Imported input A: electrical machinery and equipment and (HS 8533.31)",
+      "hs": "8533.31",
+      "value": 140,
+      "country": "Germany",
+      "status": "non_originating"
+     },
+     {
+      "name": "Input: clocks and watches and parts thereof (HS 9113.20)",
+      "hs": "9113.20",
+      "value": 10,
+      "country": "Turkey",
+      "status": "non_originating"
+     },
+     {
+      "name": "Originating input in the good's own subheading: electrical machinery and equipment and (HS 8533.31)",
+      "hs": "8533.31",
+      "value": 20,
+      "country": "Australia",
+      "status": "originating"
+     }
+    ]
+   },
+   "expect": {
+    "outcome": "no",
+    "alternative": {
+     "CTSH": "no",
+     "RVC40": "no"
+    },
+    "accumulation": true
+   },
+   "expected_abstention": false
+  },
+  {
+   "id": "rcep-dev-incomplete-hs-01",
+   "split": "dev",
+   "feature": "rcep",
+   "source_family_id": "incomplete-hs",
+   "scenario_family": "incomplete-hs",
+   "variation_tags": [
+    "abstention-expected",
+    "missing-facts",
+    "short-material-code"
+   ],
+   "sources": [
+    {
+     "source": "rcep-ch3",
+     "locator": "Art. 3.2(c), Annex 3A"
+    },
+    {
+     "source": "rcep-annex3a",
+     "locator": "row 8504.90: CTH or RVC40"
+    }
+   ],
+   "rule": {
+    "row": "8504.90",
+    "text": "CTH or RVC40",
+    "listed": true
+   },
+   "rationale": "The material's code has only 2 digits but the rule tests a change of heading; with no values given neither the shift nor de minimis nor RVC can be tested, so the answer is undetermined.",
+   "input": {
+    "hs": "8504.90",
+    "produced_in": "Japan",
+    "materials": [
+     {
+      "name": "Imported input with an incomplete code",
+      "hs": "25",
+      "country": "Mexico",
+      "status": "non_originating"
+     }
+    ]
+   },
+   "expect": {
+    "outcome": "undetermined",
+    "accumulation": false
+   },
+   "expected_abstention": true
+  },
+  {
+   "id": "rcep-dev-incomplete-hs-02",
+   "split": "dev",
+   "feature": "rcep",
+   "source_family_id": "incomplete-hs",
+   "scenario_family": "incomplete-hs",
+   "variation_tags": [
+    "abstention-expected",
+    "missing-facts",
+    "short-material-code"
+   ],
+   "sources": [
+    {
+     "source": "rcep-ch3",
+     "locator": "Art. 3.2(c), Annex 3A"
+    },
+    {
+     "source": "rcep-annex3a",
+     "locator": "row 73: CTH or RVC40"
+    }
+   ],
+   "rule": {
+    "row": "73",
+    "text": "CTH or RVC40",
+    "listed": true
+   },
+   "rationale": "The material's code has only 2 digits but the rule tests a change of heading; with no values given neither the shift nor de minimis nor RVC can be tested, so the answer is undetermined.",
+   "input": {
+    "hs": "7312.90",
+    "produced_in": "China",
+    "materials": [
+     {
+      "name": "Imported input with an incomplete code",
+      "hs": "30",
+      "country": "Canada",
+      "status": "non_originating"
+     }
+    ]
+   },
+   "expect": {
+    "outcome": "undetermined",
+    "accumulation": false
+   },
+   "expected_abstention": true
+  },
+  {
+   "id": "rcep-dev-de-minimis-value-01",
+   "split": "dev",
+   "feature": "rcep",
+   "source_family_id": "de-minimis-value",
+   "scenario_family": "de-minimis-value",
+   "variation_tags": [
+    "de-minimis",
+    "failing-material-share",
+    "positive",
+    "share-5"
+   ],
+   "sources": [
+    {
+     "source": "rcep-ch3",
+     "locator": "Art. 3.7"
+    },
+    {
+     "source": "rcep-annex3a",
+     "locator": "row 73: CTH or RVC40"
+    }
+   ],
+   "rule": {
+    "row": "73",
+    "text": "CTH or RVC40",
+    "listed": true
+   },
+   "rationale": "Row 7312.90 is a tariff-shift rule. The material(s) that fail the shift total 20 of FOB 400 (5 %), within the 10 % limit; the other imported material changes classification. The RVC alternative fails because non-originating content is above 70 %% of FOB.",
+   "input": {
+    "hs": "7312.90",
+    "produced_in": "Thailand",
+    "fob": 400,
+    "materials": [
+     {
+      "name": "Imported input: articles of iron or steel (HS 7312.90)",
+      "hs": "7312.90",
+      "value": 20,
+      "country": "Brazil",
+      "status": "non_originating"
+     },
+     {
+      "name": "Imported input that changes classification: vegetable plaiting materials (HS 1401.90)",
+      "hs": "1401.90",
+      "value": 280,
+      "country": "Mexico",
+      "status": "non_originating"
+     }
+    ]
+   },
+   "expect": {
+    "outcome": "yes",
+    "alternative": {
+     "CTH": "yes",
+     "RVC40": "no"
+    },
+    "applied": "CTH",
+    "de_minimis_used": true
+   },
+   "expected_abstention": false
+  },
+  {
+   "id": "rcep-dev-de-minimis-value-02",
+   "split": "dev",
+   "feature": "rcep",
+   "source_family_id": "de-minimis-value",
+   "scenario_family": "de-minimis-value",
+   "variation_tags": [
+    "de-minimis",
+    "failing-material-share-boundary",
+    "positive",
+    "share-9.9"
+   ],
+   "sources": [
+    {
+     "source": "rcep-ch3",
+     "locator": "Art. 3.7"
+    },
+    {
+     "source": "rcep-annex3a",
+     "locator": "row 29.36: CTSH or RVC40"
+    }
+   ],
+   "rule": {
+    "row": "29.36",
+    "text": "CTSH or RVC40",
+    "listed": true
+   },
+   "rationale": "Row 2936.90 is a tariff-shift rule. The material(s) that fail the shift total 9.9 of FOB 100 (9.9 %), within the 10 % limit; the other imported material changes classification. The RVC alternative fails because non-originating content is above 70 %% of FOB.",
+   "input": {
+    "hs": "2936.90",
+    "produced_in": "Japan",
+    "fob": 100,
+    "materials": [
+     {
+      "name": "Imported input: organic chemicals (HS 2936.90)",
+      "hs": "2936.90",
+      "value": 9.9,
+      "country": "United States",
+      "status": "non_originating"
+     },
+     {
+      "name": "Imported input that changes classification: essential oils and resinoids (HS 3307.10)",
+      "hs": "3307.10",
+      "value": 70,
+      "country": "Brazil",
+      "status": "non_originating"
+     }
+    ]
+   },
+   "expect": {
+    "outcome": "yes",
+    "alternative": {
+     "CTSH": "yes",
+     "RVC40": "no"
+    },
+    "applied": "CTSH",
+    "de_minimis_used": true
+   },
+   "expected_abstention": false
+  },
+  {
+   "id": "rcep-dev-de-minimis-value-03",
+   "split": "dev",
+   "feature": "rcep",
+   "source_family_id": "de-minimis-value",
+   "scenario_family": "de-minimis-value",
+   "variation_tags": [
+    "de-minimis",
+    "failing-material-share-boundary",
+    "positive",
+    "share-10"
+   ],
+   "sources": [
+    {
+     "source": "rcep-ch3",
+     "locator": "Art. 3.7"
+    },
+    {
+     "source": "rcep-annex3a",
+     "locator": "row 8504.40: CTSH or RVC40"
+    }
+   ],
+   "rule": {
+    "row": "8504.40",
+    "text": "CTSH or RVC40",
+    "listed": true
+   },
+   "rationale": "Row 8504.40 is a tariff-shift rule. The material(s) that fail the shift total 10 of FOB 100 (10 %), within the 10 % limit; the other imported material changes classification. The RVC alternative fails because non-originating content is above 70 %% of FOB.",
+   "input": {
+    "hs": "8504.40",
+    "produced_in": "South Korea",
+    "fob": 100,
+    "materials": [
+     {
+      "name": "Imported input: electrical machinery and equipment and (HS 8504.40)",
+      "hs": "8504.40",
+      "value": 10,
+      "country": "Mexico",
+      "status": "non_originating"
+     },
+     {
+      "name": "Imported input that changes classification: printed books, newspapers, pictures and (HS 4906.00)",
+      "hs": "4906.00",
+      "value": 70,
+      "country": "United Kingdom",
+      "status": "non_originating"
+     }
+    ]
+   },
+   "expect": {
+    "outcome": "yes",
+    "alternative": {
+     "CTSH": "yes",
+     "RVC40": "no"
+    },
+    "applied": "CTSH",
+    "de_minimis_used": true
+   },
+   "expected_abstention": false
+  },
+  {
+   "id": "rcep-dev-de-minimis-value-04",
+   "split": "dev",
+   "feature": "rcep",
+   "source_family_id": "de-minimis-value",
+   "scenario_family": "de-minimis-value",
+   "variation_tags": [
+    "de-minimis",
+    "failing-material-share-boundary",
+    "negative",
+    "share-10.1",
+    "two-failing-materials-summed"
+   ],
+   "sources": [
+    {
+     "source": "rcep-ch3",
+     "locator": "Art. 3.7"
+    },
+    {
+     "source": "rcep-annex3a",
+     "locator": "row 07.14: CC"
+    }
+   ],
+   "rule": {
+    "row": "07.14",
+    "text": "CC",
+    "listed": true
+   },
+   "rationale": "Row 0714.40 is a tariff-shift rule. The material(s) that fail the shift total 101 of FOB 1000 (10.1 %), over the 10 % limit; the other imported material changes classification. The rule has no RVC alternative.",
+   "input": {
+    "hs": "0714.40",
+    "produced_in": "Japan",
+    "fob": 1000,
+    "materials": [
+     {
+      "name": "Imported input a: edible vegetables and certain roots and (HS 0714.40)",
+      "hs": "0714.40",
+      "value": 50.5,
+      "country": "Canada",
+      "status": "non_originating"
+     },
+     {
+      "name": "Imported input b: edible vegetables and certain roots and (HS 0714.40)",
+      "hs": "0714.40",
+      "value": 50.5,
+      "country": "Canada",
+      "status": "non_originating"
+     },
+     {
+      "name": "Imported input that changes classification: miscellaneous edible preparations (HS 2101.20)",
+      "hs": "2101.20",
+      "value": 700,
+      "country": "India",
+      "status": "non_originating"
+     }
+    ]
+   },
+   "expect": {
+    "outcome": "no",
+    "alternative": {
+     "CC": "no"
+    }
+   },
+   "expected_abstention": false
+  },
+  {
+   "id": "rcep-dev-de-minimis-value-05",
+   "split": "dev",
+   "feature": "rcep",
+   "source_family_id": "de-minimis-value",
+   "scenario_family": "de-minimis-value",
+   "variation_tags": [
+    "de-minimis",
+    "failing-material-share",
+    "negative",
+    "share-15"
+   ],
+   "sources": [
+    {
+     "source": "rcep-ch3",
+     "locator": "Art. 3.7"
+    },
+    {
+     "source": "rcep-annex3a",
+     "locator": "row 41.05: CTH or RVC40"
+    }
+   ],
+   "rule": {
+    "row": "41.05",
+    "text": "CTH or RVC40",
+    "listed": true
+   },
+   "rationale": "Row 4105.30 is a tariff-shift rule. The material(s) that fail the shift total 60 of FOB 400 (15 %), over the 10 % limit; the other imported material changes classification. The RVC alternative fails because non-originating content is above 70 %% of FOB.",
+   "input": {
+    "hs": "4105.30",
+    "produced_in": "China",
+    "fob": 400,
+    "materials": [
+     {
+      "name": "Imported input: raw hides and skins (other than furskins) (HS 4105.30)",
+      "hs": "4105.30",
+      "value": 60,
+      "country": "United States",
+      "status": "non_originating"
+     },
+     {
+      "name": "Imported input that changes classification: paper and paperboard (HS 4820.10)",
+      "hs": "4820.10",
+      "value": 280,
+      "country": "India",
+      "status": "non_originating"
+     }
+    ]
+   },
+   "expect": {
+    "outcome": "no",
+    "alternative": {
+     "CTH": "no",
+     "RVC40": "no"
+    }
+   },
+   "expected_abstention": false
+  },
+  {
+   "id": "rcep-dev-de-minimis-value-06",
+   "split": "dev",
+   "feature": "rcep",
+   "source_family_id": "de-minimis-value",
+   "scenario_family": "de-minimis-value",
+   "variation_tags": [
+    "de-minimis",
+    "failing-material-share",
+    "positive",
+    "share-8"
+   ],
+   "sources": [
+    {
+     "source": "rcep-ch3",
+     "locator": "Art. 3.7"
+    },
+    {
+     "source": "rcep-annex3a",
+     "locator": "row 91.08: CTH or RVC40"
+    }
+   ],
+   "rule": {
+    "row": "91.08",
+    "text": "CTH or RVC40",
+    "listed": true
+   },
+   "rationale": "Row 9108.19 is a tariff-shift rule. The material(s) that fail the shift total 32 of FOB 400 (8 %), within the 10 % limit; the other imported material changes classification. The RVC alternative fails because non-originating content is above 70 %% of FOB.",
+   "input": {
+    "hs": "9108.19",
+    "produced_in": "Indonesia",
+    "fob": 400,
+    "materials": [
+     {
+      "name": "Imported input: clocks and watches and parts thereof (HS 9108.19)",
+      "hs": "9108.19",
+      "value": 32,
+      "country": "Canada",
+      "status": "non_originating"
+     },
+     {
+      "name": "Imported input that changes classification: products of the milling industry (HS 1104.29)",
+      "hs": "1104.29",
+      "value": 280,
+      "country": "Germany",
+      "status": "non_originating"
+     }
+    ]
+   },
+   "expect": {
+    "outcome": "yes",
+    "alternative": {
+     "CTH": "yes",
+     "RVC40": "no"
+    },
+    "applied": "CTH",
+    "de_minimis_used": true
+   },
+   "expected_abstention": false
+  },
+  {
+   "id": "rcep-dev-de-minimis-incomplete-01",
+   "split": "dev",
+   "feature": "rcep",
+   "source_family_id": "de-minimis-incomplete",
+   "scenario_family": "de-minimis-incomplete",
+   "variation_tags": [
+    "abstention-expected",
+    "de-minimis",
+    "missing-facts"
+   ],
+   "sources": [
+    {
+     "source": "rcep-ch3",
+     "locator": "Art. 3.7"
+    },
+    {
+     "source": "rcep-annex3a",
+     "locator": "row 03.07: CC"
+    }
+   ],
+   "rule": {
+    "row": "03.07",
+    "text": "CC",
+    "listed": true
+   },
+   "rationale": "The material that fails the tariff shift cannot be measured against the 10 % limit because the failing material has no value, so the answer is undetermined rather than no.",
+   "input": {
+    "hs": "0307.83",
+    "produced_in": "Indonesia",
+    "materials": [
+     {
+      "name": "Input: fish and crustaceans, molluscs and other (HS 0307.83)",
+      "hs": "0307.83",
+      "country": "Turkey",
+      "status": "non_originating"
+     },
+     {
+      "name": "Input: special woven fabrics (HS 5808.90)",
+      "hs": "5808.90",
+      "value": 70,
+      "country": "India",
+      "status": "non_originating"
+     }
+    ],
+    "fob": 100
+   },
+   "expect": {
+    "outcome": "undetermined"
+   },
+   "expected_abstention": true
+  },
+  {
+   "id": "rcep-dev-de-minimis-incomplete-02",
+   "split": "dev",
+   "feature": "rcep",
+   "source_family_id": "de-minimis-incomplete",
+   "scenario_family": "de-minimis-incomplete",
+   "variation_tags": [
+    "abstention-expected",
+    "de-minimis",
+    "missing-facts"
+   ],
+   "sources": [
+    {
+     "source": "rcep-ch3",
+     "locator": "Art. 3.7"
+    },
+    {
+     "source": "rcep-annex3a",
+     "locator": "row 85.28: CTH or RVC40"
+    }
+   ],
+   "rule": {
+    "row": "85.28",
+    "text": "CTH or RVC40",
+    "listed": true
+   },
+   "rationale": "The material that fails the tariff shift cannot be measured against the 10 % limit because no FOB value is given, so the answer is undetermined rather than no.",
+   "input": {
+    "hs": "8528.52",
+    "produced_in": "New Zealand",
+    "materials": [
+     {
+      "name": "Input: electrical machinery and equipment and (HS 8528.52)",
+      "hs": "8528.52",
+      "value": 20,
+      "country": "Canada",
+      "status": "non_originating"
+     },
+     {
+      "name": "Input: soap, organic surface-active agents (HS 3401.20)",
+      "hs": "3401.20",
+      "value": 280,
+      "country": "United Kingdom",
+      "status": "non_originating"
+     }
+    ]
+   },
+   "expect": {
+    "outcome": "undetermined"
+   },
+   "expected_abstention": true
+  },
+  {
+   "id": "rcep-dev-cumulation-membership-01",
+   "split": "dev",
+   "feature": "rcep",
+   "source_family_id": "cumulation-membership",
+   "scenario_family": "cumulation-membership",
+   "variation_tags": [
+    "cumulation",
+    "member-origin",
+    "positive"
+   ],
+   "sources": [
+    {
+     "source": "rcep-ch3",
+     "locator": "Art. 3.4"
+    },
+    {
+     "source": "rcep-annex3a",
+     "locator": "row 2903.42: CTSH or RVC40"
+    }
+   ],
+   "rule": {
+    "row": "2903.42",
+    "text": "CTSH or RVC40",
+    "listed": true
+   },
+   "rationale": "Row 2903.42. A material in the good's own subheading comes from another Party and is declared originating, so it counts as originating (cumulation) and does not block the shift or add to non-originating value.",
+   "input": {
+    "hs": "2903.42",
+    "produced_in": "Malaysia",
+    "fob": 500,
+    "materials": [
+     {
+      "name": "Originating input from another party: organic chemicals (HS 2903.42)",
+      "hs": "2903.42",
+      "value": 250,
+      "country": "Australia",
+      "status": "originating"
+     },
+     {
+      "name": "Input: silk (HS 5006.00)",
+      "hs": "5006.00",
+      "value": 75,
+      "country": "Brazil",
+      "status": "non_originating"
+     }
+    ]
+   },
+   "expect": {
+    "outcome": "yes",
+    "alternative": {
+     "CTSH": "yes",
+     "RVC40": "yes"
+    },
+    "accumulation": true
+   },
+   "expected_abstention": false
+  },
+  {
+   "id": "rcep-dev-cumulation-membership-02",
+   "split": "dev",
+   "feature": "rcep",
+   "source_family_id": "cumulation-membership",
+   "scenario_family": "cumulation-membership",
+   "variation_tags": [
+    "conflicting-evidence",
+    "cumulation",
+    "negative",
+    "non-member-origin"
+   ],
+   "sources": [
+    {
+     "source": "rcep-ch3",
+     "locator": "Art. 3.4"
+    },
+    {
+     "source": "rcep-annex3a",
+     "locator": "row 8514.39: CTSH or RVC40"
+    }
+   ],
+   "rule": {
+    "row": "8514.39",
+    "text": "CTSH or RVC40",
+    "listed": true
+   },
+   "rationale": "Row 8514.39. The material is declared originating but is made in India, which is not a Party; it counts as non-originating, so it fails the shift and its 50 % value share keeps RVC below the threshold.",
+   "input": {
+    "hs": "8514.39",
+    "produced_in": "Vietnam",
+    "fob": 1000,
+    "materials": [
+     {
+      "name": "Input declared originating but made outside the agreement: electrical machinery and equipment and (HS 8514.39)",
+      "hs": "8514.39",
+      "value": 500,
+      "country": "India",
+      "status": "originating"
+     },
+     {
+      "name": "Input: glass and glassware (HS 7019.69)",
+      "hs": "7019.69",
+      "value": 150,
+      "country": "United Kingdom",
+      "status": "non_originating"
+     }
+    ]
+   },
+   "expect": {
+    "outcome": "no",
+    "alternative": {
+     "CTSH": "no",
+     "RVC40": "no"
+    },
+    "accumulation": false
+   },
+   "expected_abstention": false
+  },
+  {
+   "id": "rcep-dev-cumulation-membership-03",
+   "split": "dev",
+   "feature": "rcep",
+   "source_family_id": "cumulation-membership",
+   "scenario_family": "cumulation-membership",
+   "variation_tags": [
+    "conflicting-evidence",
+    "cumulation",
+    "member-origin",
+    "negative"
+   ],
+   "sources": [
+    {
+     "source": "rcep-ch3",
+     "locator": "Art. 3.4"
+    },
+    {
+     "source": "rcep-annex3a",
+     "locator": "row 83.05: CTH or RVC40"
+    }
+   ],
+   "rule": {
+    "row": "83.05",
+    "text": "CTH or RVC40",
+    "listed": true
+   },
+   "rationale": "Row 8305.10. The material is made in another Party but is not itself originating, so cumulation does not apply and it counts as non-originating.",
+   "input": {
+    "hs": "8305.10",
+    "produced_in": "Vietnam",
+    "fob": 200,
+    "materials": [
+     {
+      "name": "Input from another party that does not qualify: miscellaneous articles of base metal (HS 8305.10)",
+      "hs": "8305.10",
+      "value": 100,
+      "country": "Thailand",
+      "status": "non_originating"
+     },
+     {
+      "name": "Input: copper and articles thereof (HS 7409.31)",
+      "hs": "7409.31",
+      "value": 30,
+      "country": "Mexico",
+      "status": "non_originating"
+     }
+    ]
+   },
+   "expect": {
+    "outcome": "no",
+    "alternative": {
+     "CTH": "no",
+     "RVC40": "no"
+    },
+    "accumulation": false
+   },
+   "expected_abstention": false
+  },
+  {
+   "id": "rcep-dev-cumulation-membership-04",
+   "split": "dev",
+   "feature": "rcep",
+   "source_family_id": "cumulation-membership",
+   "scenario_family": "cumulation-membership",
+   "variation_tags": [
+    "cumulation",
+    "member-origin",
+    "positive",
+    "rvc-with-cumulation"
+   ],
+   "sources": [
+    {
+     "source": "rcep-ch3",
+     "locator": "Art. 3.4"
+    },
+    {
+     "source": "rcep-annex3a",
+     "locator": "row 31.04: CTH or RVC40"
+    }
+   ],
+   "rule": {
+    "row": "31.04",
+    "text": "CTH or RVC40",
+    "listed": true
+   },
+   "rationale": "Row 3104.90. Only 20 % of FOB is non-originating once the 45 % originating input from another Party is counted as originating, which keeps RVC above 40 %.",
+   "input": {
+    "hs": "3104.90",
+    "produced_in": "South Korea",
+    "fob": 1000,
+    "materials": [
+     {
+      "name": "Input: fertilisers (HS 3104.90)",
+      "hs": "3104.90",
+      "value": 200,
+      "country": "Canada",
+      "status": "non_originating"
+     },
+     {
+      "name": "Originating input from another party: fertilisers (HS 3104.90)",
+      "hs": "3104.90",
+      "value": 450,
+      "country": "Malaysia",
+      "status": "originating"
+     }
+    ]
+   },
+   "expect": {
+    "outcome": "yes",
+    "alternative": {
+     "CTH": "no",
+     "RVC40": "yes"
+    },
+    "applied": "RVC40",
+    "accumulation": true
+   },
+   "expected_abstention": false
+  },
+  {
+   "id": "rcep-dev-cumulation-membership-05",
+   "split": "dev",
+   "feature": "rcep",
+   "source_family_id": "cumulation-membership",
+   "scenario_family": "cumulation-membership",
+   "variation_tags": [
+    "conflicting-evidence",
+    "cumulation",
+    "member-origin",
+    "negative",
+    "unknown-status"
+   ],
+   "sources": [
+    {
+     "source": "rcep-ch3",
+     "locator": "Art. 3.4"
+    },
+    {
+     "source": "rcep-annex3a",
+     "locator": "row 1503.00: CC"
+    }
+   ],
+   "rule": {
+    "row": "1503.00",
+    "text": "CC",
+    "listed": true
+   },
+   "rationale": "Row 1503.00. Origin of the material from another Party is not established, so it counts as non-originating.",
+   "input": {
+    "hs": "1503.00",
+    "produced_in": "China",
+    "fob": 100,
+    "materials": [
+     {
+      "name": "Input of unknown status from another party: animal, vegetable or microbial fats and (HS 1503.00)",
+      "hs": "1503.00",
+      "value": 50,
+      "country": "South Korea",
+      "status": "unknown"
+     },
+     {
+      "name": "Input: articles of apparel and clothing (HS 6115.96)",
+      "hs": "6115.96",
+      "value": 15,
+      "country": "Brazil",
+      "status": "non_originating"
+     }
+    ]
+   },
+   "expect": {
+    "outcome": "no",
+    "alternative": {
+     "CC": "no"
+    },
+    "accumulation": false
+   },
+   "expected_abstention": false
+  },
+  {
+   "id": "rcep-dev-cumulation-membership-06",
+   "split": "dev",
+   "feature": "rcep",
+   "source_family_id": "cumulation-membership",
+   "scenario_family": "cumulation-membership",
+   "variation_tags": [
+    "cumulation",
+    "member-origin",
+    "positive"
+   ],
+   "sources": [
+    {
+     "source": "rcep-ch3",
+     "locator": "Art. 3.4"
+    },
+    {
+     "source": "rcep-annex3a",
+     "locator": "row 23.09: CTH or RVC40"
+    }
+   ],
+   "rule": {
+    "row": "23.09",
+    "text": "CTH or RVC40",
+    "listed": true
+   },
+   "rationale": "Row 2309.10. Originating input from another Party counts as originating.",
+   "input": {
+    "hs": "2309.10",
+    "produced_in": "South Korea",
+    "fob": 100,
+    "materials": [
+     {
+      "name": "Originating input from another party: residues and waste from the food (HS 2309.10)",
+      "hs": "2309.10",
+      "value": 40,
+      "country": "Australia",
+      "status": "originating"
+     },
+     {
+      "name": "Input: sugars and sugar confectionery (HS 1703.10)",
+      "hs": "1703.10",
+      "value": 20,
+      "country": "Germany",
+      "status": "non_originating"
+     }
+    ]
+   },
+   "expect": {
+    "outcome": "yes",
+    "alternative": {
+     "CTH": "yes",
+     "RVC40": "yes"
+    },
+    "accumulation": true
+   },
+   "expected_abstention": false
+  },
+  {
+   "id": "rcep-dev-cumulation-membership-07",
+   "split": "dev",
+   "feature": "rcep",
+   "source_family_id": "cumulation-membership",
+   "scenario_family": "cumulation-membership",
+   "variation_tags": [
+    "cumulation",
+    "member-origin",
+    "positive"
+   ],
+   "sources": [
+    {
+     "source": "rcep-ch3",
+     "locator": "Art. 3.4"
+    },
+    {
+     "source": "rcep-annex3a",
+     "locator": "row 0304.75: CC or RVC40"
+    }
+   ],
+   "rule": {
+    "row": "0304.75",
+    "text": "CC or RVC40",
+    "listed": true
+   },
+   "rationale": "Row 0304.75. A material in the good's own subheading comes from another Party and is declared originating, so it counts as originating (cumulation) and does not block the shift or add to non-originating value.",
+   "input": {
+    "hs": "0304.75",
+    "produced_in": "South Korea",
+    "fob": 500,
+    "materials": [
+     {
+      "name": "Originating input from another party: fish and crustaceans, molluscs and other (HS 0304.75)",
+      "hs": "0304.75",
+      "value": 250,
+      "country": "Indonesia",
+      "status": "originating"
+     },
+     {
+      "name": "Input: tobacco and manufactured tobacco (HS 2403.11)",
+      "hs": "2403.11",
+      "value": 75,
+      "country": "Mexico",
+      "status": "non_originating"
+     }
+    ]
+   },
+   "expect": {
+    "outcome": "yes",
+    "alternative": {
+     "CC": "yes",
+     "RVC40": "yes"
+    },
+    "accumulation": true
+   },
+   "expected_abstention": false
+  },
+  {
+   "id": "rcep-dev-cumulation-membership-08",
+   "split": "dev",
+   "feature": "rcep",
+   "source_family_id": "cumulation-membership",
+   "scenario_family": "cumulation-membership",
+   "variation_tags": [
+    "conflicting-evidence",
+    "cumulation",
+    "negative",
+    "non-member-origin"
+   ],
+   "sources": [
+    {
+     "source": "rcep-ch3",
+     "locator": "Art. 3.4"
+    },
+    {
+     "source": "rcep-annex3a",
+     "locator": "row 11.05: CC"
+    }
+   ],
+   "rule": {
+    "row": "11.05",
+    "text": "CC",
+    "listed": true
+   },
+   "rationale": "Row 1105.10. The material is declared originating but is made in India, which is not a Party; it counts as non-originating, so it fails the shift and its 50 % value share keeps RVC below the threshold.",
+   "input": {
+    "hs": "1105.10",
+    "produced_in": "China",
+    "fob": 200,
+    "materials": [
+     {
+      "name": "Input declared originating but made outside the agreement: products of the milling industry (HS 1105.10)",
+      "hs": "1105.10",
+      "value": 100,
+      "country": "India",
+      "status": "originating"
+     },
+     {
+      "name": "Input: rubber and articles thereof (HS 4002.19)",
+      "hs": "4002.19",
+      "value": 30,
+      "country": "United States",
+      "status": "non_originating"
+     }
+    ]
+   },
+   "expect": {
+    "outcome": "no",
+    "alternative": {
+     "CC": "no"
+    },
+    "accumulation": false
+   },
+   "expected_abstention": false
+  },
+  {
+   "id": "rcep-dev-cumulation-membership-09",
+   "split": "dev",
+   "feature": "rcep",
+   "source_family_id": "cumulation-membership",
+   "scenario_family": "cumulation-membership",
+   "variation_tags": [
+    "cumulation",
+    "negative",
+    "non-member-origin",
+    "other-agreement-party"
+   ],
+   "sources": [
+    {
+     "source": "rcep-ch3",
+     "locator": "Art. 3.4"
+    },
+    {
+     "source": "rcep-annex3a",
+     "locator": "row 29.39: CTH or RVC40"
+    }
+   ],
+   "rule": {
+    "row": "29.39",
+    "text": "CTH or RVC40",
+    "listed": true
+   },
+   "rationale": "Row 2939.45. India is not a Party to this agreement, so its originating status under another agreement does not count here.",
+   "input": {
+    "hs": "2939.45",
+    "produced_in": "Vietnam",
+    "fob": 100,
+    "materials": [
+     {
+      "name": "Input declared originating in a party of a different agreement: organic chemicals (HS 2939.45)",
+      "hs": "2939.45",
+      "value": 50,
+      "country": "India",
+      "status": "originating"
+     },
+     {
+      "name": "Input: live trees and other plants (HS 0602.90)",
+      "hs": "0602.90",
+      "value": 10,
+      "country": "India",
+      "status": "non_originating"
+     }
+    ]
+   },
+   "expect": {
+    "outcome": "yes",
+    "alternative": {
+     "CTH": "no",
+     "RVC40": "yes"
+    },
+    "applied": "RVC40",
+    "accumulation": false
+   },
+   "expected_abstention": false
+  },
+  {
+   "id": "rcep-dev-cumulation-membership-10",
+   "split": "dev",
+   "feature": "rcep",
+   "source_family_id": "cumulation-membership",
+   "scenario_family": "cumulation-membership",
+   "variation_tags": [
+    "cumulation",
+    "negative",
+    "non-member-origin",
+    "other-agreement-party"
+   ],
+   "sources": [
+    {
+     "source": "rcep-ch3",
+     "locator": "Art. 3.4"
+    },
+    {
+     "source": "rcep-annex3a",
+     "locator": "row 29.12: CTH or RVC40"
+    }
+   ],
+   "rule": {
+    "row": "29.12",
+    "text": "CTH or RVC40",
+    "listed": true
+   },
+   "rationale": "Row 2912.19. India is not a Party to this agreement, so its originating status under another agreement does not count here.",
+   "input": {
+    "hs": "2912.19",
+    "produced_in": "China",
+    "fob": 100,
+    "materials": [
+     {
+      "name": "Input declared originating in a party of a different agreement: organic chemicals (HS 2912.19)",
+      "hs": "2912.19",
+      "value": 50,
+      "country": "India",
+      "status": "originating"
+     },
+     {
+      "name": "Input: fish and crustaceans, molluscs and other (HS 0304.53)",
+      "hs": "0304.53",
+      "value": 10,
+      "country": "United Kingdom",
+      "status": "non_originating"
+     }
+    ]
+   },
+   "expect": {
+    "outcome": "yes",
+    "alternative": {
+     "CTH": "no",
+     "RVC40": "yes"
+    },
+    "applied": "RVC40",
+    "accumulation": false
+   },
+   "expected_abstention": false
+  },
+  {
+   "id": "rcep-dev-minimal-operations-01",
+   "split": "dev",
+   "feature": "rcep",
+   "source_family_id": "minimal-operations",
+   "scenario_family": "minimal-operations",
+   "variation_tags": [
+    "minimal-operations",
+    "only-minimal",
+    "shift-met"
+   ],
+   "sources": [
+    {
+     "source": "rcep-ch3",
+     "locator": "Art. 3.6"
+    },
+    {
+     "source": "rcep-annex3a",
+     "locator": "row 37: CTH or RVC40"
+    }
+   ],
+   "rule": {
+    "row": "37",
+    "text": "CTH or RVC40",
+    "listed": true
+   },
+   "rationale": "Operations preserving: only operations of the minimal kind are stated, which cannot confer origin where the agreement applies the list to origin claims (Art. 3.6). The tariff shift is met.",
+   "input": {
+    "hs": "3702.10",
+    "produced_in": "New Zealand",
+    "fob": 100,
+    "materials": [
+     {
+      "name": "Imported input: live animals (HS 0104.10)",
+      "hs": "0104.10",
+      "value": 40,
+      "country": "United Kingdom",
+      "status": "non_originating"
+     }
+    ],
+    "operations": [
+     "preserving"
+    ]
+   },
+   "expect": {
+    "outcome": "no",
+    "accumulation": false
+   },
+   "expected_abstention": false
+  },
+  {
+   "id": "rcep-dev-minimal-operations-02",
+   "split": "dev",
+   "feature": "rcep",
+   "source_family_id": "minimal-operations",
+   "scenario_family": "minimal-operations",
+   "variation_tags": [
+    "minimal-operations",
+    "minimal-plus-real",
+    "shift-not-met"
+   ],
+   "sources": [
+    {
+     "source": "rcep-ch3",
+     "locator": "Art. 3.6"
+    },
+    {
+     "source": "rcep-annex3a",
+     "locator": "row 4705.00: CTH or RVC40"
+    }
+   ],
+   "rule": {
+    "row": "4705.00",
+    "text": "CTH or RVC40",
+    "listed": true
+   },
+   "rationale": "Operations packaging, moulding: a minimal operation is stated together with real production, so the product rule decides (Art. 3.6). The tariff shift is not met.",
+   "input": {
+    "hs": "4705.00",
+    "produced_in": "South Korea",
+    "fob": 1000,
+    "materials": [
+     {
+      "name": "Imported input: pulp of wood or of other fibrous (HS 4705.00)",
+      "hs": "4705.00",
+      "value": 400,
+      "country": "Canada",
+      "status": "non_originating"
+     }
+    ],
+    "operations": [
+     "packaging",
+     "moulding"
+    ]
+   },
+   "expect": {
+    "outcome": "yes",
+    "alternative": {
+     "CTH": "no",
+     "RVC40": "yes"
+    },
+    "applied": "RVC40",
+    "accumulation": false
+   },
+   "expected_abstention": false
+  },
+  {
+   "id": "rcep-dev-minimal-operations-03",
+   "split": "dev",
+   "feature": "rcep",
+   "source_family_id": "minimal-operations",
+   "scenario_family": "minimal-operations",
+   "variation_tags": [
+    "minimal-operations",
+    "real-only",
+    "shift-met"
+   ],
+   "sources": [
+    {
+     "source": "rcep-ch3",
+     "locator": "Art. 3.6"
+    },
+    {
+     "source": "rcep-annex3a",
+     "locator": "row 73: CTH or RVC40"
+    }
+   ],
+   "rule": {
+    "row": "73",
+    "text": "CTH or RVC40",
+    "listed": true
+   },
+   "rationale": "Operations fermenting: real production is stated, so the product rule decides (Art. 3.6). The tariff shift is met.",
+   "input": {
+    "hs": "7318.16",
+    "produced_in": "Indonesia",
+    "fob": 1000,
+    "materials": [
+     {
+      "name": "Imported input: sugars and sugar confectionery (HS 1702.40)",
+      "hs": "1702.40",
+      "value": 400,
+      "country": "Mexico",
+      "status": "non_originating"
+     }
+    ],
+    "operations": [
+     "fermenting"
+    ]
+   },
+   "expect": {
+    "outcome": "yes",
+    "alternative": {
+     "CTH": "yes",
+     "RVC40": "yes"
+    },
+    "accumulation": false
+   },
+   "expected_abstention": false
+  },
+  {
+   "id": "rcep-dev-minimal-operations-04",
+   "split": "dev",
+   "feature": "rcep",
+   "source_family_id": "minimal-operations",
+   "scenario_family": "minimal-operations",
+   "variation_tags": [
+    "assembly-vocabulary",
+    "minimal-operations",
+    "shift-not-met"
+   ],
+   "sources": [
+    {
+     "source": "rcep-ch3",
+     "locator": "Art. 3.6"
+    },
+    {
+     "source": "rcep-annex3a",
+     "locator": "row 73: CTH or RVC40"
+    }
+   ],
+   "rule": {
+    "row": "73",
+    "text": "CTH or RVC40",
+    "listed": true
+   },
+   "rationale": "Operations assembly: the word assembly is stated; it is a listed minimal operation only where the agreement lists simple assembly (Art. 3.6). The tariff shift is not met.",
+   "input": {
+    "hs": "7318.13",
+    "produced_in": "Malaysia",
+    "fob": 100,
+    "materials": [
+     {
+      "name": "Imported input: articles of iron or steel (HS 7318.13)",
+      "hs": "7318.13",
+      "value": 40,
+      "country": "United Kingdom",
+      "status": "non_originating"
+     }
+    ],
+    "operations": [
+     "assembly"
+    ]
+   },
+   "expect": {
+    "outcome": "yes",
+    "alternative": {
+     "CTH": "no",
+     "RVC40": "yes"
+    },
+    "applied": "RVC40",
+    "accumulation": false
+   },
+   "expected_abstention": false
+  },
+  {
+   "id": "rcep-dev-minimal-operations-05",
+   "split": "dev",
+   "feature": "rcep",
+   "source_family_id": "minimal-operations",
+   "scenario_family": "minimal-operations",
+   "variation_tags": [
+    "minimal-operations",
+    "only-minimal",
+    "shift-met"
+   ],
+   "sources": [
+    {
+     "source": "rcep-ch3",
+     "locator": "Art. 3.6"
+    },
+    {
+     "source": "rcep-annex3a",
+     "locator": "row 03.03: CC"
+    }
+   ],
+   "rule": {
+    "row": "03.03",
+    "text": "CC",
+    "listed": true
+   },
+   "rationale": "Operations packaging: only operations of the minimal kind are stated, which cannot confer origin where the agreement applies the list to origin claims (Art. 3.6). The tariff shift is met.",
+   "input": {
+    "hs": "0303.82",
+    "produced_in": "Australia",
+    "fob": 1000,
+    "materials": [
+     {
+      "name": "Imported input: arms and ammunition (HS 9303.90)",
+      "hs": "9303.90",
+      "value": 400,
+      "country": "United Kingdom",
+      "status": "non_originating"
+     }
+    ],
+    "operations": [
+     "packaging"
+    ]
+   },
+   "expect": {
+    "outcome": "no",
+    "accumulation": false
+   },
+   "expected_abstention": false
+  },
+  {
+   "id": "rcep-dev-minimal-operations-06",
+   "split": "dev",
+   "feature": "rcep",
+   "source_family_id": "minimal-operations",
+   "scenario_family": "minimal-operations",
+   "variation_tags": [
+    "minimal-operations",
+    "minimal-plus-real",
+    "shift-not-met"
+   ],
+   "sources": [
+    {
+     "source": "rcep-ch3",
+     "locator": "Art. 3.6"
+    },
+    {
+     "source": "rcep-annex3a",
+     "locator": "row 03.08: CC"
+    }
+   ],
+   "rule": {
+    "row": "03.08",
+    "text": "CC",
+    "listed": true
+   },
+   "rationale": "Operations simple_mixing, weaving: a minimal operation is stated together with real production, so the product rule decides (Art. 3.6). The tariff shift is not met.",
+   "input": {
+    "hs": "0308.12",
+    "produced_in": "New Zealand",
+    "fob": 400,
+    "materials": [
+     {
+      "name": "Imported input: fish and crustaceans, molluscs and other (HS 0308.12)",
+      "hs": "0308.12",
+      "value": 160,
+      "country": "Brazil",
+      "status": "non_originating"
+     }
+    ],
+    "operations": [
+     "simple_mixing",
+     "weaving"
+    ]
+   },
+   "expect": {
+    "outcome": "no",
+    "alternative": {
+     "CC": "no"
+    },
+    "accumulation": false
+   },
+   "expected_abstention": false
+  },
+  {
+   "id": "rcep-dev-missing-facts-01",
+   "split": "dev",
+   "feature": "rcep",
+   "source_family_id": "missing-facts",
+   "scenario_family": "missing-facts",
+   "variation_tags": [
+    "abstention-expected",
+    "missing-facts"
+   ],
+   "sources": [
+    {
+     "source": "rcep-ch3",
+     "locator": "Art. 3.5.4"
+    },
+    {
+     "source": "rcep-annex3a",
+     "locator": "row 8515.21: CTSH or RVC40"
+    }
+   ],
+   "rule": {
+    "row": "8515.21",
+    "text": "CTSH or RVC40",
+    "listed": true
+   },
+   "rationale": "Row 8515.21. No FOB value is given, so RVC cannot be computed.",
+   "input": {
+    "hs": "8515.21",
+    "produced_in": "Malaysia",
+    "materials": [
+     {
+      "name": "Input: electrical machinery and equipment and (HS 8515.21)",
+      "hs": "8515.21",
+      "value": 500,
+      "country": "India",
+      "status": "non_originating"
+     }
+    ]
+   },
+   "expect": {
+    "outcome": "undetermined",
+    "accumulation": false
+   },
+   "expected_abstention": true
+  },
+  {
+   "id": "rcep-dev-missing-facts-02",
+   "split": "dev",
+   "feature": "rcep",
+   "source_family_id": "missing-facts",
+   "scenario_family": "missing-facts",
+   "variation_tags": [
+    "abstention-expected",
+    "missing-facts"
+   ],
+   "sources": [
+    {
+     "source": "rcep-ch3",
+     "locator": "Art. 3.5.4"
+    },
+    {
+     "source": "rcep-annex3a",
+     "locator": "row 85.27: CTH or RVC40"
+    }
+   ],
+   "rule": {
+    "row": "85.27",
+    "text": "CTH or RVC40",
+    "listed": true
+   },
+   "rationale": "Row 8527.12. The non-originating materials have no values, so RVC cannot be computed.",
+   "input": {
+    "hs": "8527.12",
+    "produced_in": "South Korea",
+    "fob": 100,
+    "materials": [
+     {
+      "name": "Input: electrical machinery and equipment and (HS 8527.12)",
+      "hs": "8527.12",
+      "country": "India",
+      "status": "non_originating"
+     },
+     {
+      "name": "Input: albuminoidal substances (HS 3505.20)",
+      "hs": "3505.20",
+      "country": "United States",
+      "status": "non_originating"
+     }
+    ]
+   },
+   "expect": {
+    "outcome": "undetermined",
+    "accumulation": false
+   },
+   "expected_abstention": true
+  },
+  {
+   "id": "rcep-dev-missing-facts-03",
+   "split": "dev",
+   "feature": "rcep",
+   "source_family_id": "missing-facts",
+   "scenario_family": "missing-facts",
+   "variation_tags": [
+    "conservative-default",
+    "missing-facts",
+    "positive",
+    "unknown-status"
+   ],
+   "sources": [
+    {
+     "source": "rcep-ch3",
+     "locator": "Art. 3.5.4"
+    },
+    {
+     "source": "rcep-annex3a",
+     "locator": "row 91.02: CTH or RVC40"
+    }
+   ],
+   "rule": {
+    "row": "91.02",
+    "text": "CTH or RVC40",
+    "listed": true
+   },
+   "rationale": "Row 9102.19. A material of unknown origin counts as non-originating; its code is in another chapter so the shift is still met.",
+   "input": {
+    "hs": "9102.19",
+    "produced_in": "South Korea",
+    "fob": 400,
+    "materials": [
+     {
+      "name": "Input: articles of leather (HS 4203.40)",
+      "hs": "4203.40",
+      "value": 200,
+      "country": "Canada",
+      "status": "unknown"
+     }
+    ]
+   },
+   "expect": {
+    "outcome": "yes",
+    "alternative": {
+     "CTH": "yes",
+     "RVC40": "yes"
+    },
+    "accumulation": false
+   },
+   "expected_abstention": false
+  },
+  {
+   "id": "rcep-dev-missing-facts-04",
+   "split": "dev",
+   "feature": "rcep",
+   "source_family_id": "missing-facts",
+   "scenario_family": "missing-facts",
+   "variation_tags": [
+    "conservative-default",
+    "missing-facts",
+    "positive",
+    "unknown-status"
+   ],
+   "sources": [
+    {
+     "source": "rcep-ch3",
+     "locator": "Art. 3.5.4"
+    },
+    {
+     "source": "rcep-annex3a",
+     "locator": "row 49: CTH or RVC40"
+    }
+   ],
+   "rule": {
+    "row": "49",
+    "text": "CTH or RVC40",
+    "listed": true
+   },
+   "rationale": "Row 4902.90. A material of unknown origin counts as non-originating; with 30 % of FOB non-originating the build-down content is 70 %.",
+   "input": {
+    "hs": "4902.90",
+    "produced_in": "China",
+    "fob": 400,
+    "materials": [
+     {
+      "name": "Input: printed books, newspapers, pictures and (HS 4902.90)",
+      "hs": "4902.90",
+      "value": 120,
+      "country": "Germany",
+      "status": "unknown"
+     },
+     {
+      "name": "Input: nuclear reactors, boilers, machinery and (HS 8440.90)",
+      "hs": "8440.90",
+      "value": 80,
+      "country": "Singapore",
+      "status": "originating"
+     }
+    ]
+   },
+   "expect": {
+    "outcome": "yes",
+    "alternative": {
+     "CTH": "no",
+     "RVC40": "yes"
+    },
+    "applied": "RVC40",
+    "accumulation": true
+   },
+   "expected_abstention": false
+  },
+  {
+   "id": "rcep-dev-missing-facts-05",
+   "split": "dev",
+   "feature": "rcep",
+   "source_family_id": "missing-facts",
+   "scenario_family": "missing-facts",
+   "variation_tags": [
+    "abstention-expected",
+    "missing-facts",
+    "missing-material-code"
+   ],
+   "sources": [
+    {
+     "source": "rcep-ch3",
+     "locator": "Art. 3.5.4"
+    },
+    {
+     "source": "rcep-annex3a",
+     "locator": "row 93: CTH or RVC40"
+    }
+   ],
+   "rule": {
+    "row": "93",
+    "text": "CTH or RVC40",
+    "listed": true
+   },
+   "rationale": "Row 9305.91. The material has no HS code, so a tariff shift cannot be tested; its value is over the de minimis limit.",
+   "input": {
+    "hs": "9305.91",
+    "produced_in": "Thailand",
+    "fob": 100,
+    "materials": [
+     {
+      "name": "Imported input without a classification",
+      "country": "Germany",
+      "status": "non_originating",
+      "value": 50
+     }
+    ]
+   },
+   "expect": {
+    "outcome": "yes",
+    "alternative": {
+     "RVC40": "yes"
+    },
+    "applied": "RVC40",
+    "accumulation": false
+   },
+   "expected_abstention": false
+  },
+  {
+   "id": "rcep-dev-missing-facts-06",
+   "split": "dev",
+   "feature": "rcep",
+   "source_family_id": "missing-facts",
+   "scenario_family": "missing-facts",
+   "variation_tags": [
+    "abstention-expected",
+    "missing-facts"
+   ],
+   "sources": [
+    {
+     "source": "rcep-ch3",
+     "locator": "Art. 3.5.4"
+    },
+    {
+     "source": "rcep-annex3a",
+     "locator": "row 21.03: CC or RVC40"
+    }
+   ],
+   "rule": {
+    "row": "21.03",
+    "text": "CC or RVC40",
+    "listed": true
+   },
+   "rationale": "Row 2103.20. No FOB value is given, so RVC cannot be computed.",
+   "input": {
+    "hs": "2103.20",
+    "produced_in": "Japan",
+    "materials": [
+     {
+      "name": "Input: miscellaneous edible preparations (HS 2103.20)",
+      "hs": "2103.20",
+      "value": 500,
+      "country": "United Kingdom",
+      "status": "non_originating"
+     }
+    ]
+   },
+   "expect": {
+    "outcome": "undetermined",
+    "accumulation": false
+   },
+   "expected_abstention": true
+  },
+  {
+   "id": "rcep-dev-except-from-01",
+   "split": "dev",
+   "feature": "rcep",
+   "source_family_id": "except-from",
+   "scenario_family": "except-from",
+   "variation_tags": [
+    "excluded-origin-material",
+    "negative",
+    "tariff-shift-exclusion"
+   ],
+   "sources": [
+    {
+     "source": "rcep-ch3",
+     "locator": "Art. 3.2(c), Annex 3A"
+    },
+    {
+     "source": "rcep-annex3a",
+     "locator": "row 8504.33: CTSH except from subheadings 8504.31, 8504.32 or 8504.34, or RVC40"
+    }
+   ],
+   "rule": {
+    "row": "8504.33",
+    "text": "CTSH except from subheadings 8504.31, 8504.32 or 8504.34, or RVC40",
+    "listed": true
+   },
+   "rationale": "Row 8504.33: the shift rule excludes materials from subheading 8504.31. The non-originating material (8504.31) falls in the excluded range, so the shift is not met.",
+   "input": {
+    "hs": "8504.33",
+    "produced_in": "Malaysia",
+    "fob": 500,
+    "materials": [
+     {
+      "name": "Imported input: electrical machinery and equipment and (HS 8504.31)",
+      "hs": "8504.31",
+      "value": 350,
+      "country": "Germany",
+      "status": "non_originating"
+     }
+    ]
+   },
+   "expect": {
+    "outcome": "no",
+    "alternative": {
+     "RVC40": "no"
+    }
+   },
+   "expected_abstention": false
+  },
+  {
+   "id": "rcep-dev-except-from-02",
+   "split": "dev",
+   "feature": "rcep",
+   "source_family_id": "except-from",
+   "scenario_family": "except-from",
+   "variation_tags": [
+    "outside-exclusion",
+    "positive",
+    "tariff-shift-exclusion"
+   ],
+   "sources": [
+    {
+     "source": "rcep-ch3",
+     "locator": "Art. 3.2(c), Annex 3A"
+    },
+    {
+     "source": "rcep-annex3a",
+     "locator": "row 8504.23: CTSH except from subheadings 8504.21 or 8504.22, or RVC40"
+    }
+   ],
+   "rule": {
+    "row": "8504.23",
+    "text": "CTSH except from subheadings 8504.21 or 8504.22, or RVC40",
+    "listed": true
+   },
+   "rationale": "Row 8504.23: the shift rule excludes materials from subheading 8504.21. The non-originating material (0809.30) is outside the excluded range, so the shift is met.",
+   "input": {
+    "hs": "8504.23",
+    "produced_in": "Indonesia",
+    "fob": 500,
+    "materials": [
+     {
+      "name": "Imported input: edible fruit and nuts (HS 0809.30)",
+      "hs": "0809.30",
+      "value": 350,
+      "country": "Canada",
+      "status": "non_originating"
+     }
+    ]
+   },
+   "expect": {
+    "outcome": "yes",
+    "alternative": {
+     "RVC40": "no"
+    },
+    "applied": "CTSH except from subheading 8504.21, 8504.22"
+   },
+   "expected_abstention": false
+  },
+  {
+   "id": "rcep-dev-except-from-03",
+   "split": "dev",
+   "feature": "rcep",
+   "source_family_id": "except-from",
+   "scenario_family": "except-from",
+   "variation_tags": [
+    "excluded-origin-material",
+    "negative",
+    "tariff-shift-exclusion"
+   ],
+   "sources": [
+    {
+     "source": "rcep-ch3",
+     "locator": "Art. 3.2(c), Annex 3A"
+    },
+    {
+     "source": "rcep-annex3a",
+     "locator": "row 11.07: CC except from Chapter 10"
+    }
+   ],
+   "rule": {
+    "row": "11.07",
+    "text": "CC except from Chapter 10",
+    "listed": true
+   },
+   "rationale": "Row 1107.20: the shift rule excludes materials from chapter 10. The non-originating material (1001.11) falls in the excluded range, so the shift is not met.",
+   "input": {
+    "hs": "1107.20",
+    "produced_in": "Malaysia",
+    "fob": 100,
+    "materials": [
+     {
+      "name": "Imported input: cereals (HS 1001.11)",
+      "hs": "1001.11",
+      "value": 30,
+      "country": "India",
+      "status": "non_originating"
+     }
+    ]
+   },
+   "expect": {
+    "outcome": "no"
+   },
+   "expected_abstention": false
+  },
+  {
+   "id": "rcep-dev-direct-build-up-01",
+   "split": "dev",
+   "feature": "rcep",
+   "source_family_id": "direct-build-up",
+   "scenario_family": "direct-build-up",
+   "variation_tags": [
+    "direct-pass-indirect-fail",
+    "rvc-build-up",
+    "tariff-shift-blocked"
+   ],
+   "sources": [
+    {
+     "source": "rcep-ch3",
+     "locator": "Art. 3.5"
+    },
+    {
+     "source": "rcep-annex3a",
+     "locator": "row 85.23: CTH or RVC40"
+    }
+   ],
+   "rule": {
+    "row": "85.23",
+    "text": "CTH or RVC40",
+    "listed": true
+   },
+   "rationale": "Row 8523.41 needs RVC 40. Originating material 200 plus labour 210 over FOB 1000 gives build-up content 41 %; build-down content is 35 %.",
+   "input": {
+    "hs": "8523.41",
+    "produced_in": "Vietnam",
+    "fob": 1000,
+    "materials": [
+     {
+      "name": "Imported input in the good's own subheading: electrical machinery and equipment and (HS 8523.41)",
+      "hs": "8523.41",
+      "value": 650,
+      "country": "United States",
+      "status": "non_originating"
+     },
+     {
+      "name": "Originating input: articles of apparel and clothing (HS 6203.49)",
+      "hs": "6203.49",
+      "value": 200,
+      "country": "Singapore",
+      "status": "originating"
+     }
+    ],
+    "costs": {
+     "labour": 210,
+     "overhead": 0,
+     "profit": 0,
+     "other": 0
+    }
+   },
+   "expect": {
+    "outcome": "yes",
+    "alternative": {
+     "CTH": "no",
+     "RVC40": "yes"
+    },
+    "applied": "RVC40",
+    "accumulation": true,
+    "rvc_down_min": 34.95,
+    "rvc_down_max": 35.05,
+    "rvc_up_min": 40.95,
+    "rvc_up_max": 41.05
+   },
+   "expected_abstention": false
+  },
+  {
+   "id": "rcep-dev-direct-build-up-02",
+   "split": "dev",
+   "feature": "rcep",
+   "source_family_id": "direct-build-up",
+   "scenario_family": "direct-build-up",
+   "variation_tags": [
+    "both-fail",
+    "rvc-build-up",
+    "tariff-shift-blocked"
+   ],
+   "sources": [
+    {
+     "source": "rcep-ch3",
+     "locator": "Art. 3.5"
+    },
+    {
+     "source": "rcep-annex3a",
+     "locator": "row 8533.39: CTSH or RVC40"
+    }
+   ],
+   "rule": {
+    "row": "8533.39",
+    "text": "CTSH or RVC40",
+    "listed": true
+   },
+   "rationale": "Row 8533.39 needs RVC 40. Originating material 40 plus labour 10 over FOB 200 gives build-up content 25 %; build-down content is 35 %.",
+   "input": {
+    "hs": "8533.39",
+    "produced_in": "Malaysia",
+    "fob": 200,
+    "materials": [
+     {
+      "name": "Imported input in the good's own subheading: electrical machinery and equipment and (HS 8533.39)",
+      "hs": "8533.39",
+      "value": 130,
+      "country": "United States",
+      "status": "non_originating"
+     },
+     {
+      "name": "Originating input: organic chemicals (HS 2902.20)",
+      "hs": "2902.20",
+      "value": 40,
+      "country": "Thailand",
+      "status": "originating"
+     }
+    ],
+    "costs": {
+     "labour": 10,
+     "overhead": 0,
+     "profit": 0,
+     "other": 0
+    }
+   },
+   "expect": {
+    "outcome": "no",
+    "alternative": {
+     "CTSH": "no",
+     "RVC40": "no"
+    },
+    "accumulation": true,
+    "rvc_down_min": 34.95,
+    "rvc_down_max": 35.05,
+    "rvc_up_min": 24.95,
+    "rvc_up_max": 25.05
+   },
+   "expected_abstention": false
+  },
+  {
+   "id": "rcep-dev-direct-build-up-03",
+   "split": "dev",
+   "feature": "rcep",
+   "source_family_id": "direct-build-up",
+   "scenario_family": "direct-build-up",
+   "variation_tags": [
+    "direct-just-below",
+    "rvc-build-up",
+    "tariff-shift-blocked"
+   ],
+   "sources": [
+    {
+     "source": "rcep-ch3",
+     "locator": "Art. 3.5"
+    },
+    {
+     "source": "rcep-annex3a",
+     "locator": "row 73: CTH or RVC40"
+    }
+   ],
+   "rule": {
+    "row": "73",
+    "text": "CTH or RVC40",
+    "listed": true
+   },
+   "rationale": "Row 7313.00 needs RVC 40. Originating material 40 plus labour 39 over FOB 200 gives build-up content 39.5 %; build-down content is 35 %.",
+   "input": {
+    "hs": "7313.00",
+    "produced_in": "Malaysia",
+    "fob": 200,
+    "materials": [
+     {
+      "name": "Imported input in the good's own subheading: articles of iron or steel (HS 7313.00)",
+      "hs": "7313.00",
+      "value": 130,
+      "country": "Mexico",
+      "status": "non_originating"
+     },
+     {
+      "name": "Originating input: other made up textile articles (HS 6305.10)",
+      "hs": "6305.10",
+      "value": 40,
+      "country": "Australia",
+      "status": "originating"
+     }
+    ],
+    "costs": {
+     "labour": 39,
+     "overhead": 0,
+     "profit": 0,
+     "other": 0
+    }
+   },
+   "expect": {
+    "outcome": "no",
+    "alternative": {
+     "CTH": "no",
+     "RVC40": "no"
+    },
+    "accumulation": true,
+    "rvc_down_min": 34.95,
+    "rvc_down_max": 35.05,
+    "rvc_up_min": 39.45,
+    "rvc_up_max": 39.55
+   },
+   "expected_abstention": false
+  },
+  {
+   "id": "rcep-dev-heading-only-code-01",
+   "split": "dev",
+   "feature": "rcep",
+   "source_family_id": "heading-only-code",
+   "scenario_family": "heading-only-code",
+   "variation_tags": [
+    "abstention-expected",
+    "good-code-too-short",
+    "heading-code-only",
+    "rules-differ-answer-differs"
+   ],
+   "sources": [
+    {
+     "source": "rcep-ch3",
+     "locator": "Art. 3.2(c), Annex 3A"
+    },
+    {
+     "source": "rcep-annex3a",
+     "locator": "rows under heading 81.02"
+    }
+   ],
+   "rule": null,
+   "rationale": "The good is identified only by its four-digit heading 81.02, which covers 6 subheadings under 2 distinct product rules. The materials change chapter, so the subheading rules would give different answers and the subheading is needed.",
+   "input": {
+    "hs": "8102",
+    "produced_in": "Indonesia",
+    "fob": 200,
+    "materials": [
+     {
+      "name": "Imported input: articles of apparel and clothing (HS 6203.33)",
+      "hs": "6203.33",
+      "value": 60,
+      "country": "India",
+      "status": "non_originating"
+     }
+    ]
+   },
+   "expect": {
+    "outcome": "undetermined"
+   },
+   "expected_abstention": true
+  },
+  {
+   "id": "rcep-dev-heading-only-code-02",
+   "split": "dev",
+   "feature": "rcep",
+   "source_family_id": "heading-only-code",
+   "scenario_family": "heading-only-code",
+   "variation_tags": [
+    "good-code-too-short",
+    "heading-code-only",
+    "one-rule-for-every-subheading"
+   ],
+   "sources": [
+    {
+     "source": "rcep-ch3",
+     "locator": "Art. 3.2(c), Annex 3A"
+    },
+    {
+     "source": "rcep-annex3a",
+     "locator": "rows under heading 71.05"
+    }
+   ],
+   "rule": null,
+   "rationale": "The good is identified only by its four-digit heading 71.05, which covers 2 subheadings under 1 distinct product rules. The materials change chapter, so every subheading's rule gives the same answer.",
+   "input": {
+    "hs": "7105",
+    "produced_in": "Japan",
+    "fob": 100,
+    "materials": [
+     {
+      "name": "Imported input: products of the milling industry (HS 1108.14)",
+      "hs": "1108.14",
+      "value": 30,
+      "country": "United Kingdom",
+      "status": "non_originating"
+     }
+    ]
+   },
+   "expect": {
+    "outcome": "yes"
+   },
+   "expected_abstention": false
+  },
+  {
+   "id": "rcep-dev-authority-variants-01",
+   "split": "dev",
+   "feature": "rcep",
+   "source_family_id": "authority-p26-wheat-flour",
+   "scenario_family": "authority-variants",
+   "variation_tags": [
+    "origin-unknown",
+    "parent-variant",
+    "status-unknown"
+   ],
+   "sources": [
+    {
+     "source": "abf-rcep-guide",
+     "locator": "p. 26"
+    },
+    {
+     "source": "rcep-annex3a",
+     "locator": "row 1101.00: CC"
+    }
+   ],
+   "rule": {
+    "row": "1101.00",
+    "text": "CC",
+    "listed": true
+   },
+   "rationale": "Variation of the published worked example p26-wheat-flour (p. 26): origin unknown, under row 1101.00 (CC). The rule row and arithmetic are those of the cited source; the changed facts decide the label.",
+   "input": {
+    "hs": "1101.00",
+    "produced_in": "Malaysia",
+    "fob": 100,
+    "materials": [
+     {
+      "name": "wheat",
+      "hs": "1001.99",
+      "status": "unknown",
+      "value": 70
+     }
+    ]
+   },
+   "expect": {
+    "outcome": "yes",
+    "alternative": {
+     "CC": "yes"
+    },
+    "applied": "CC",
+    "accumulation": false
+   },
+   "expected_abstention": false,
+   "parent_id": "backend/internal/rcep/engine_test.go#TestABFWorkedExamples/p26-wheat-flour"
+  },
+  {
+   "id": "rcep-dev-authority-variants-02",
+   "split": "dev",
+   "feature": "rcep",
+   "source_family_id": "authority-p26-wheat-flour",
+   "scenario_family": "authority-variants",
+   "variation_tags": [
+    "fob-changed",
+    "fob-lower",
+    "parent-variant",
+    "values-perturbed"
+   ],
+   "sources": [
+    {
+     "source": "abf-rcep-guide",
+     "locator": "p. 26"
+    },
+    {
+     "source": "rcep-annex3a",
+     "locator": "row 1101.00: CC"
+    }
+   ],
+   "rule": {
+    "row": "1101.00",
+    "text": "CC",
+    "listed": true
+   },
+   "rationale": "Variation of the published worked example p26-wheat-flour (p. 26): fob lower, under row 1101.00 (CC). The rule row and arithmetic are those of the cited source; the changed facts decide the label.",
+   "input": {
+    "hs": "1101.00",
+    "produced_in": "Malaysia",
+    "fob": 60,
+    "materials": [
+     {
+      "name": "wheat",
+      "hs": "1001.99",
+      "country": "United States",
+      "status": "non_originating",
+      "value": 70
+     }
+    ]
+   },
+   "expect": {
+    "outcome": "yes",
+    "alternative": {
+     "CC": "yes"
+    },
+    "applied": "CC",
+    "accumulation": false
+   },
+   "expected_abstention": false,
+   "parent_id": "backend/internal/rcep/engine_test.go#TestABFWorkedExamples/p26-wheat-flour"
+  },
+  {
+   "id": "rcep-dev-authority-variants-03",
+   "split": "dev",
+   "feature": "rcep",
+   "source_family_id": "authority-p27-coffee",
+   "scenario_family": "authority-variants",
+   "variation_tags": [
+    "origin-unknown",
+    "parent-variant",
+    "status-unknown"
+   ],
+   "sources": [
+    {
+     "source": "abf-rcep-guide",
+     "locator": "p. 27"
+    },
+    {
+     "source": "rcep-annex3a",
+     "locator": "row 0901.21: RVC40"
+    }
+   ],
+   "rule": {
+    "row": "0901.21",
+    "text": "RVC40",
+    "listed": true
+   },
+   "rationale": "Variation of the published worked example p27-coffee (p. 27): origin unknown, under row 0901.21 (RVC40). Build-down content is 30 %. The rule row and arithmetic are those of the cited source; the changed facts decide the label.",
+   "input": {
+    "hs": "0901.21",
+    "produced_in": "Vietnam",
+    "fob": 100,
+    "materials": [
+     {
+      "name": "green coffee",
+      "hs": "0901.11",
+      "status": "unknown",
+      "value": 70
+     }
+    ]
+   },
+   "expect": {
+    "outcome": "no",
+    "alternative": {
+     "RVC40": "no"
+    },
+    "accumulation": false,
+    "rvc_down_min": 29.95,
+    "rvc_down_max": 30.05
+   },
+   "expected_abstention": false,
+   "parent_id": "backend/internal/rcep/engine_test.go#TestABFWorkedExamples/p27-coffee"
+  },
+  {
+   "id": "rcep-dev-authority-variants-04",
+   "split": "dev",
+   "feature": "rcep",
+   "source_family_id": "authority-p27-coffee",
+   "scenario_family": "authority-variants",
+   "variation_tags": [
+    "at-threshold",
+    "parent-variant",
+    "values-perturbed",
+    "values-rescaled-at-threshold"
+   ],
+   "sources": [
+    {
+     "source": "abf-rcep-guide",
+     "locator": "p. 27"
+    },
+    {
+     "source": "rcep-annex3a",
+     "locator": "row 0901.21: RVC40"
+    }
+   ],
+   "rule": {
+    "row": "0901.21",
+    "text": "RVC40",
+    "listed": true
+   },
+   "rationale": "Variation of the published worked example p27-coffee (p. 27): values rescaled at threshold, under row 0901.21 (RVC40). Build-down content is 40 %. The rule row and arithmetic are those of the cited source; the changed facts decide the label.",
+   "input": {
+    "hs": "0901.21",
+    "produced_in": "Vietnam",
+    "fob": 100,
+    "materials": [
+     {
+      "name": "green coffee",
+      "hs": "0901.11",
+      "country": "United States",
+      "status": "non_originating",
+      "value": 60
+     }
+    ]
+   },
+   "expect": {
+    "outcome": "yes",
+    "alternative": {
+     "RVC40": "yes"
+    },
+    "applied": "RVC40",
+    "accumulation": false,
+    "rvc_down_min": 39.95,
+    "rvc_down_max": 40.05
+   },
+   "expected_abstention": false,
+   "parent_id": "backend/internal/rcep/engine_test.go#TestABFWorkedExamples/p27-coffee"
+  },
+  {
+   "id": "rcep-dev-authority-variants-05",
+   "split": "dev",
+   "feature": "rcep",
+   "source_family_id": "authority-p27-coffee",
+   "scenario_family": "authority-variants",
+   "variation_tags": [
+    "just-below-threshold",
+    "parent-variant",
+    "values-perturbed",
+    "values-rescaled-just-below-threshold"
+   ],
+   "sources": [
+    {
+     "source": "abf-rcep-guide",
+     "locator": "p. 27"
+    },
+    {
+     "source": "rcep-annex3a",
+     "locator": "row 0901.21: RVC40"
+    }
+   ],
+   "rule": {
+    "row": "0901.21",
+    "text": "RVC40",
+    "listed": true
+   },
+   "rationale": "Variation of the published worked example p27-coffee (p. 27): values rescaled just below threshold, under row 0901.21 (RVC40). Build-down content is 39.5 %. The rule row and arithmetic are those of the cited source; the changed facts decide the label.",
+   "input": {
+    "hs": "0901.21",
+    "produced_in": "Vietnam",
+    "fob": 100,
+    "materials": [
+     {
+      "name": "green coffee",
+      "hs": "0901.11",
+      "country": "United States",
+      "status": "non_originating",
+      "value": 60.5
+     }
+    ]
+   },
+   "expect": {
+    "outcome": "no",
+    "alternative": {
+     "RVC40": "no"
+    },
+    "accumulation": false,
+    "rvc_down_min": 39.45,
+    "rvc_down_max": 39.55
+   },
+   "expected_abstention": false,
+   "parent_id": "backend/internal/rcep/engine_test.go#TestABFWorkedExamples/p27-coffee"
+  },
+  {
+   "id": "rcep-dev-authority-variants-06",
+   "split": "dev",
+   "feature": "rcep",
+   "source_family_id": "authority-p29-juice",
+   "scenario_family": "authority-variants",
+   "variation_tags": [
+    "fob-changed",
+    "fob-lower",
+    "parent-variant",
+    "values-perturbed"
+   ],
+   "sources": [
+    {
+     "source": "abf-rcep-guide",
+     "locator": "p. 29"
+    },
+    {
+     "source": "rcep-annex3a",
+     "locator": "row 2009.90: CC or RVC40"
+    }
+   ],
+   "rule": {
+    "row": "2009.90",
+    "text": "CC or RVC40",
+    "listed": true
+   },
+   "rationale": "Variation of the published worked example p29-juice (p. 29): fob lower, under row 2009.90 (CC or RVC40). Build-down content is 33.33 %. The rule row and arithmetic are those of the cited source; the changed facts decide the label.",
+   "input": {
+    "hs": "2009.90",
+    "produced_in": "Viet Nam",
+    "fob": 60,
+    "materials": [
+     {
+      "name": "oranges",
+      "hs": "0805.10",
+      "country": "United States",
+      "status": "non_originating",
+      "value": 30
+     },
+     {
+      "name": "limes",
+      "hs": "0805.50",
+      "country": "United States",
+      "status": "non_originating",
+      "value": 10
+     },
+     {
+      "name": "bananas",
+      "hs": "0803",
+      "country": "Australia",
+      "status": "originating",
+      "value": 20
+     },
+     {
+      "name": "mangoes",
+      "hs": "0804",
+      "country": "Australia",
+      "status": "originating",
+      "value": 20
+     }
+    ]
+   },
+   "expect": {
+    "outcome": "yes",
+    "alternative": {
+     "CC": "yes",
+     "RVC40": "no"
+    },
+    "applied": "CC",
+    "accumulation": true,
+    "rvc_down_min": 33.283,
+    "rvc_down_max": 33.383
+   },
+   "expected_abstention": false,
+   "parent_id": "backend/internal/rcep/engine_test.go#TestABFWorkedExamples/p29-juice"
+  },
+  {
+   "id": "rcep-dev-authority-variants-07",
+   "split": "dev",
+   "feature": "rcep",
+   "source_family_id": "authority-p29-juice",
+   "scenario_family": "authority-variants",
+   "variation_tags": [
+    "at-threshold",
+    "parent-variant",
+    "values-perturbed",
+    "values-rescaled-at-threshold"
+   ],
+   "sources": [
+    {
+     "source": "abf-rcep-guide",
+     "locator": "p. 29"
+    },
+    {
+     "source": "rcep-annex3a",
+     "locator": "row 2009.90: CC or RVC40"
+    }
+   ],
+   "rule": {
+    "row": "2009.90",
+    "text": "CC or RVC40",
+    "listed": true
+   },
+   "rationale": "Variation of the published worked example p29-juice (p. 29): values rescaled at threshold, under row 2009.90 (CC or RVC40). Build-down content is 40 %. The rule row and arithmetic are those of the cited source; the changed facts decide the label.",
+   "input": {
+    "hs": "2009.90",
+    "produced_in": "Viet Nam",
+    "fob": 100,
+    "materials": [
+     {
+      "name": "oranges",
+      "hs": "0805.10",
+      "country": "United States",
+      "status": "non_originating",
+      "value": 45
+     },
+     {
+      "name": "limes",
+      "hs": "0805.50",
+      "country": "United States",
+      "status": "non_originating",
+      "value": 15
+     },
+     {
+      "name": "bananas",
+      "hs": "0803",
+      "country": "Australia",
+      "status": "originating",
+      "value": 20
+     },
+     {
+      "name": "mangoes",
+      "hs": "0804",
+      "country": "Australia",
+      "status": "originating",
+      "value": 20
+     }
+    ]
+   },
+   "expect": {
+    "outcome": "yes",
+    "alternative": {
+     "CC": "yes",
+     "RVC40": "yes"
+    },
+    "accumulation": true,
+    "rvc_down_min": 39.95,
+    "rvc_down_max": 40.05
+   },
+   "expected_abstention": false,
+   "parent_id": "backend/internal/rcep/engine_test.go#TestABFWorkedExamples/p29-juice"
+  },
+  {
+   "id": "rcep-dev-authority-variants-08",
+   "split": "dev",
+   "feature": "rcep",
+   "source_family_id": "authority-p29-juice",
+   "scenario_family": "authority-variants",
+   "variation_tags": [
+    "conflicting-evidence",
+    "originating-material-loses-status",
+    "parent-variant",
+    "status-flipped"
+   ],
+   "sources": [
+    {
+     "source": "abf-rcep-guide",
+     "locator": "p. 29"
+    },
+    {
+     "source": "rcep-annex3a",
+     "locator": "row 2009.90: CC or RVC40"
+    }
+   ],
+   "rule": {
+    "row": "2009.90",
+    "text": "CC or RVC40",
+    "listed": true
+   },
+   "rationale": "Variation of the published worked example p29-juice (p. 29): originating material loses status, under row 2009.90 (CC or RVC40). Build-down content is 40 %. The rule row and arithmetic are those of the cited source; the changed facts decide the label.",
+   "input": {
+    "hs": "2009.90",
+    "produced_in": "Viet Nam",
+    "fob": 100,
+    "materials": [
+     {
+      "name": "oranges",
+      "hs": "0805.10",
+      "country": "United States",
+      "status": "non_originating",
+      "value": 30
+     },
+     {
+      "name": "limes",
+      "hs": "0805.50",
+      "country": "United States",
+      "status": "non_originating",
+      "value": 10
+     },
+     {
+      "name": "bananas",
+      "hs": "0803",
+      "country": "Australia",
+      "status": "non_originating",
+      "value": 20
+     },
+     {
+      "name": "mangoes",
+      "hs": "0804",
+      "country": "Australia",
+      "status": "originating",
+      "value": 20
+     }
+    ]
+   },
+   "expect": {
+    "outcome": "yes",
+    "alternative": {
+     "CC": "yes",
+     "RVC40": "yes"
+    },
+    "accumulation": true,
+    "rvc_down_min": 39.95,
+    "rvc_down_max": 40.05
+   },
+   "expected_abstention": false,
+   "parent_id": "backend/internal/rcep/engine_test.go#TestABFWorkedExamples/p29-juice"
+  },
+  {
+   "id": "rcep-dev-malformed-input-01",
+   "split": "dev",
+   "feature": "rcep",
+   "source_family_id": "malformed-input",
+   "scenario_family": "malformed-input",
+   "variation_tags": [
+    "negative-fob",
+    "refusal-expected"
+   ],
+   "sources": [
+    {
+     "source": "rcep-ch3",
+     "locator": "Art. 3.5.4"
+    },
+    {
+     "source": "rcep-annex3a",
+     "locator": "row 91.14: CTH or RVC40"
+    }
+   ],
+   "rule": {
+    "row": "91.14",
+    "text": "CTH or RVC40",
+    "listed": true
+   },
+   "rationale": "A malformed request (negative-fob) must be refused as invalid input rather than answered.",
+   "input": {
+    "hs": "9114.40",
+    "produced_in": "China",
+    "fob": -50,
+    "materials": [
+     {
+      "name": "Input: wood and articles of wood (HS 4418.99)",
+      "hs": "4418.99",
+      "value": 20,
+      "country": "Brazil",
+      "status": "non_originating"
+     }
+    ]
+   },
+   "expect": {
+    "outcome": "refused"
+   },
+   "expected_abstention": false
+  },
+  {
+   "id": "rcep-dev-malformed-input-02",
+   "split": "dev",
+   "feature": "rcep",
+   "source_family_id": "malformed-input",
+   "scenario_family": "malformed-input",
+   "variation_tags": [
+    "refusal-expected",
+    "short-hs"
+   ],
+   "sources": [
+    {
+     "source": "rcep-ch3",
+     "locator": "Art. 3.5.4"
+    },
+    {
+     "source": "rcep-annex3a",
+     "locator": "row 25.26: CTH"
+    }
+   ],
+   "rule": {
+    "row": "25.26",
+    "text": "CTH",
+    "listed": true
+   },
+   "rationale": "A malformed request (short-hs) must be refused as invalid input rather than answered.",
+   "input": {
+    "hs": "840",
+    "produced_in": "Thailand",
+    "fob": 100,
+    "materials": [
+     {
+      "name": "Input: articles of apparel and clothing (HS 6209.20)",
+      "hs": "6209.20",
+      "value": 20,
+      "country": "India",
+      "status": "non_originating"
+     }
+    ]
+   },
+   "expect": {
+    "outcome": "refused"
+   },
+   "expected_abstention": false
+  },
+  {
+   "id": "rcep-dev-malformed-input-03",
+   "split": "dev",
+   "feature": "rcep",
+   "source_family_id": "malformed-input",
+   "scenario_family": "malformed-input",
+   "variation_tags": [
+    "bad-status",
+    "refusal-expected"
+   ],
+   "sources": [
+    {
+     "source": "rcep-ch3",
+     "locator": "Art. 3.5.4"
+    },
+    {
+     "source": "rcep-annex3a",
+     "locator": "row 2916.34: CTH or RVC40"
+    }
+   ],
+   "rule": {
+    "row": "2916.34",
+    "text": "CTH or RVC40",
+    "listed": true
+   },
+   "rationale": "A malformed request (bad-status) must be refused as invalid input rather than answered.",
+   "input": {
+    "hs": "2916.34",
+    "produced_in": "Indonesia",
+    "fob": 100,
+    "materials": [
+     {
+      "name": "Input: nuclear reactors, boilers, machinery and (HS 8465.20)",
+      "hs": "8465.20",
+      "value": 20,
+      "country": "Canada",
+      "status": "maybe"
+     }
+    ]
+   },
+   "expect": {
+    "outcome": "refused"
+   },
+   "expected_abstention": false
+  },
+  {
+   "id": "rcep-dev-malformed-input-04",
+   "split": "dev",
+   "feature": "rcep",
+   "source_family_id": "malformed-input",
+   "scenario_family": "malformed-input",
+   "variation_tags": [
+    "bad-active-ingredient-share",
+    "refusal-expected"
+   ],
+   "sources": [
+    {
+     "source": "rcep-ch3",
+     "locator": "Art. 3.5.4"
+    },
+    {
+     "source": "rcep-annex3a",
+     "locator": "row 8110.10: CTSH or RVC40"
+    }
+   ],
+   "rule": {
+    "row": "8110.10",
+    "text": "CTSH or RVC40",
+    "listed": true
+   },
+   "rationale": "A malformed request (bad-active-ingredient-share) must be refused as invalid input rather than answered.",
+   "input": {
+    "hs": "8110.10",
+    "produced_in": "New Zealand",
+    "fob": 100,
+    "materials": [
+     {
+      "name": "Input: prepared feathers and down and articles (HS 6704.90)",
+      "hs": "6704.90",
+      "value": 20,
+      "country": "Turkey",
+      "status": "non_originating"
+     }
+    ],
+    "active_ingredient_originating_pct": 120
+   },
+   "expect": {
+    "outcome": "refused"
+   },
+   "expected_abstention": false
+  }
+ ]
+}

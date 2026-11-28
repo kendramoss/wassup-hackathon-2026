@@ -1,0 +1,5168 @@
+{
+ "schema_version": 1,
+ "dataset_version": "fta-challenge-v1",
+ "evidence_kind": "source_grounded_synthetic",
+ "feature": "akfta",
+ "split": "dev",
+ "about": "Source-grounded synthetic challenge cases for the AKFTA check. Expected labels were derived by oracle.py from the cited primary rule rows and treaty clauses, not by running the candidate engine. Cases were authored by the implementer with knowledge of the engine interface; this is not blind authoring and not independent real-world customs rulings.",
+ "label_method": "oracle.py over the cited rule rows; hand-specified rows are marked in the case rule field",
+ "case_count": 91,
+ "sources": {
+  "akfta-annex3": {
+   "title": "AKFTA Annex 3, Rules of Origin, Rules 1 to 10",
+   "sha256": "9412966eadfb699b355f28b36fadb61a3ae63685a605dd872c962c2d4e62ff60",
+   "kind": "primary_treaty_text",
+   "note": "Archived copy named in D949; the file is not committed."
+  },
+  "akfta-appendix2": {
+   "title": "AKFTA Appendix 2 Product Specific Rules in HS 2022 (AKFTA Implementing Committee, to be implemented 1 May 2026)",
+   "url": "https://ftadjbc.info/download/akfta-product-specific-rules-in-hs-2022-2/",
+   "sha256": "eae76c720fcfcb68126e211989a08cb5d2549b1959a01dc3063e26296347ce93",
+   "kind": "primary_rule_table"
+  },
+  "akfta-miti-guide": {
+   "title": "MITI Malaysia, Guide to the ASEAN-Korea FTA, Part 5: Guide to Rules of Origin (worked examples)",
+   "url": "https://fta.miti.gov.my/miti-fta/resources/auto%20download%20images/558b9ea8df8ce.pdf",
+   "sha256": "8e3a30575fcd545a29a39711f02176ef8fde4f53a5ff7f4380bb7e162b8ff6fc",
+   "kind": "authority_guidance"
+  }
+ },
+ "cases": [
+  {
+   "id": "akfta-dev-wo-statement-01",
+   "split": "dev",
+   "feature": "akfta",
+   "source_family_id": "wo-statement",
+   "scenario_family": "wo-statement",
+   "variation_tags": [
+    "stated",
+    "wholly-obtained",
+    "wo-rule-row"
+   ],
+   "sources": [
+    {
+     "source": "akfta-annex3",
+     "locator": "Rule 2.1(a), Rule 3"
+    },
+    {
+     "source": "akfta-appendix2",
+     "locator": "row 0308.21: WO"
+    }
+   ],
+   "rule": {
+    "row": "0308.21",
+    "text": "WO",
+    "listed": true
+   },
+   "rationale": "Annex rule for 0308.21 is WO and the producer states the good is wholly obtained in the exporting Party, so it is originating on that basis.",
+   "input": {
+    "hs": "0308.21",
+    "produced_in": "Malaysia",
+    "fob": 250,
+    "wholly_obtained": true,
+    "materials": [
+     {
+      "name": "Imported input: fish and crustaceans, molluscs and other (HS 0308.21)",
+      "hs": "0308.21",
+      "value": 75,
+      "country": "China",
+      "status": "non_originating"
+     }
+    ]
+   },
+   "expect": {
+    "outcome": "yes",
+    "applied": "WO"
+   },
+   "expected_abstention": false
+  },
+  {
+   "id": "akfta-dev-wo-statement-02",
+   "split": "dev",
+   "feature": "akfta",
+   "source_family_id": "wo-statement",
+   "scenario_family": "wo-statement",
+   "variation_tags": [
+    "stated",
+    "wholly-obtained",
+    "wo-rule-row"
+   ],
+   "sources": [
+    {
+     "source": "akfta-annex3",
+     "locator": "Rule 2.1(a), Rule 3"
+    },
+    {
+     "source": "akfta-appendix2",
+     "locator": "row Chapter 07: WO"
+    }
+   ],
+   "rule": {
+    "row": "Chapter 07",
+    "text": "WO",
+    "listed": true
+   },
+   "rationale": "Annex rule for 0704.90 is WO and the producer states the good is wholly obtained in the exporting Party, so it is originating on that basis.",
+   "input": {
+    "hs": "0704.90",
+    "produced_in": "Singapore",
+    "fob": 4000,
+    "wholly_obtained": true,
+    "materials": []
+   },
+   "expect": {
+    "outcome": "yes",
+    "applied": "WO"
+   },
+   "expected_abstention": false
+  },
+  {
+   "id": "akfta-dev-wo-not-met-01",
+   "split": "dev",
+   "feature": "akfta",
+   "source_family_id": "wo-not-met",
+   "scenario_family": "wo-not-met",
+   "variation_tags": [
+    "negative",
+    "non-originating-material",
+    "wo-rule-row"
+   ],
+   "sources": [
+    {
+     "source": "akfta-annex3",
+     "locator": "Rule 2.1(a), Rule 3"
+    },
+    {
+     "source": "akfta-appendix2",
+     "locator": "row Chapter 07: WO"
+    }
+   ],
+   "rule": {
+    "row": "Chapter 07",
+    "text": "WO",
+    "listed": true
+   },
+   "rationale": "Row 0710.21 requires the good to be wholly obtained; a non-originating imported material is used and no wholly obtained statement is made, so the rule is not met.",
+   "input": {
+    "hs": "0710.21",
+    "produced_in": "Philippines",
+    "fob": 200,
+    "materials": [
+     {
+      "name": "Imported input: other vegetable textile fibres (HS 5305.00)",
+      "hs": "5305.00",
+      "value": 70,
+      "country": "Canada",
+      "status": "non_originating"
+     }
+    ]
+   },
+   "expect": {
+    "outcome": "no",
+    "alternative": {
+     "WO": "no"
+    },
+    "accumulation": false
+   },
+   "expected_abstention": false
+  },
+  {
+   "id": "akfta-dev-wo-not-met-02",
+   "split": "dev",
+   "feature": "akfta",
+   "source_family_id": "wo-not-met",
+   "scenario_family": "wo-not-met",
+   "variation_tags": [
+    "negative",
+    "non-originating-material",
+    "wo-rule-row"
+   ],
+   "sources": [
+    {
+     "source": "akfta-annex3",
+     "locator": "Rule 2.1(a), Rule 3"
+    },
+    {
+     "source": "akfta-appendix2",
+     "locator": "row 03.01: WO"
+    }
+   ],
+   "rule": {
+    "row": "03.01",
+    "text": "WO",
+    "listed": true
+   },
+   "rationale": "Row 0301.93 requires the good to be wholly obtained; a non-originating imported material is used and no wholly obtained statement is made, so the rule is not met.",
+   "input": {
+    "hs": "0301.93",
+    "produced_in": "Philippines",
+    "fob": 4000,
+    "materials": [
+     {
+      "name": "Imported input: tobacco and manufactured tobacco (HS 2403.19)",
+      "hs": "2403.19",
+      "value": 1400,
+      "country": "China",
+      "status": "non_originating"
+     }
+    ]
+   },
+   "expect": {
+    "outcome": "no",
+    "alternative": {
+     "WO": "no"
+    },
+    "accumulation": false
+   },
+   "expected_abstention": false
+  },
+  {
+   "id": "akfta-dev-all-originating-01",
+   "split": "dev",
+   "feature": "akfta",
+   "source_family_id": "all-originating",
+   "scenario_family": "all-originating",
+   "variation_tags": [
+    "cumulation-possible",
+    "no-separate-pe-basis",
+    "positive",
+    "produced-from-originating-materials"
+   ],
+   "sources": [
+    {
+     "source": "akfta-annex3",
+     "locator": "Rule 2, Rule 7"
+    },
+    {
+     "source": "akfta-appendix2",
+     "locator": "row 2922.12: CTSH or RVC40"
+    }
+   ],
+   "rule": {
+    "row": "2922.12",
+    "text": "CTSH or RVC40",
+    "listed": true
+   },
+   "rationale": "Every material is originating, so no non-originating material can fail the tariff shift or lower the regional content; the product rule is met on the facts given.",
+   "input": {
+    "hs": "2922.12",
+    "produced_in": "Malaysia",
+    "fob": 5000,
+    "materials": [
+     {
+      "name": "Originating input: articles of iron or steel (HS 7321.11)",
+      "hs": "7321.11",
+      "value": 1000,
+      "country": "Laos",
+      "status": "originating"
+     }
+    ]
+   },
+   "expect": {
+    "outcome": "yes",
+    "accumulation": true
+   },
+   "expected_abstention": false
+  },
+  {
+   "id": "akfta-dev-all-originating-02",
+   "split": "dev",
+   "feature": "akfta",
+   "source_family_id": "all-originating",
+   "scenario_family": "all-originating",
+   "variation_tags": [
+    "cumulation-possible",
+    "no-separate-pe-basis",
+    "positive",
+    "produced-from-originating-materials"
+   ],
+   "sources": [
+    {
+     "source": "akfta-annex3",
+     "locator": "Rule 2, Rule 7"
+    },
+    {
+     "source": "akfta-appendix2",
+     "locator": "row 7115.90: CTSH or RVC40"
+    }
+   ],
+   "rule": {
+    "row": "7115.90",
+    "text": "CTSH or RVC40",
+    "listed": true
+   },
+   "rationale": "Every material is originating, so no non-originating material can fail the tariff shift or lower the regional content; the product rule is met on the facts given.",
+   "input": {
+    "hs": "7115.90",
+    "produced_in": "Malaysia",
+    "fob": 200,
+    "materials": [
+     {
+      "name": "Originating input: edible vegetables and certain roots and (HS 0711.51)",
+      "hs": "0711.51",
+      "value": 40,
+      "country": "South Korea",
+      "status": "originating"
+     }
+    ]
+   },
+   "expect": {
+    "outcome": "yes",
+    "accumulation": true
+   },
+   "expected_abstention": false
+  },
+  {
+   "id": "akfta-dev-no-materials-01",
+   "split": "dev",
+   "feature": "akfta",
+   "source_family_id": "no-materials",
+   "scenario_family": "no-materials",
+   "variation_tags": [
+    "abstention-expected",
+    "missing-facts"
+   ],
+   "sources": [
+    {
+     "source": "akfta-annex3",
+     "locator": "Rule 4: only originating materials count"
+    },
+    {
+     "source": "akfta-appendix2",
+     "locator": "row 8703.40: RVC45"
+    }
+   ],
+   "rule": {
+    "row": "8703.40",
+    "text": "RVC45",
+    "listed": true
+   },
+   "rationale": "No materials listed and no wholly obtained statement: the bill of materials is missing, so the origin cannot be decided on the facts given.",
+   "input": {
+    "hs": "8703.40",
+    "produced_in": "Thailand",
+    "fob": 100,
+    "materials": []
+   },
+   "expect": {
+    "outcome": "undetermined",
+    "accumulation": false
+   },
+   "expected_abstention": true
+  },
+  {
+   "id": "akfta-dev-production-outside-agreement-01",
+   "split": "dev",
+   "feature": "akfta",
+   "source_family_id": "production-outside-agreement",
+   "scenario_family": "production-outside-agreement",
+   "variation_tags": [
+    "membership",
+    "negative",
+    "non-member-producer"
+   ],
+   "sources": [
+    {
+     "source": "akfta-annex3",
+     "locator": "Rule 2"
+    },
+    {
+     "source": "akfta-appendix2",
+     "locator": "row 7117.90: CTSH or RVC40"
+    }
+   ],
+   "rule": {
+    "row": "7117.90",
+    "text": "CTSH or RVC40",
+    "listed": true
+   },
+   "rationale": "The good is made in a country that is not a Party to this agreement, so it cannot be an originating good of a Party, even if it states wholly obtained.",
+   "input": {
+    "hs": "7117.90",
+    "produced_in": "China",
+    "fob": 120,
+    "wholly_obtained": true,
+    "materials": [
+     {
+      "name": "Input: tanning or dyeing extracts (HS 3206.41)",
+      "hs": "3206.41",
+      "value": 12,
+      "country": "Canada",
+      "status": "non_originating"
+     }
+    ]
+   },
+   "expect": {
+    "outcome": "no"
+   },
+   "expected_abstention": false
+  },
+  {
+   "id": "akfta-dev-production-outside-agreement-02",
+   "split": "dev",
+   "feature": "akfta",
+   "source_family_id": "production-outside-agreement",
+   "scenario_family": "production-outside-agreement",
+   "variation_tags": [
+    "membership",
+    "negative",
+    "non-member-producer"
+   ],
+   "sources": [
+    {
+     "source": "akfta-annex3",
+     "locator": "Rule 2"
+    },
+    {
+     "source": "akfta-appendix2",
+     "locator": "row 71.02: CTSH or RVC40"
+    }
+   ],
+   "rule": {
+    "row": "71.02",
+    "text": "CTSH or RVC40",
+    "listed": true
+   },
+   "rationale": "The good is made in a country that is not a Party to this agreement, so it cannot be an originating good of a Party, even if it states wholly obtained.",
+   "input": {
+    "hs": "7102.39",
+    "produced_in": "Australia",
+    "fob": 4000,
+    "wholly_obtained": false,
+    "materials": [
+     {
+      "name": "Input: articles of leather (HS 4202.29)",
+      "hs": "4202.29",
+      "value": 400,
+      "country": "Australia",
+      "status": "non_originating"
+     }
+    ]
+   },
+   "expect": {
+    "outcome": "no"
+   },
+   "expected_abstention": false
+  },
+  {
+   "id": "akfta-dev-production-country-missing-01",
+   "split": "dev",
+   "feature": "akfta",
+   "source_family_id": "production-country-missing",
+   "scenario_family": "production-country-missing",
+   "variation_tags": [
+    "abstention-expected",
+    "missing-facts"
+   ],
+   "sources": [
+    {
+     "source": "akfta-annex3",
+     "locator": "Rule 2"
+    },
+    {
+     "source": "akfta-appendix2",
+     "locator": "row 0904.12: RVC40"
+    }
+   ],
+   "rule": {
+    "row": "0904.12",
+    "text": "RVC40",
+    "listed": true
+   },
+   "rationale": "No country of production is given, so whether the good is made in a Party cannot be decided.",
+   "input": {
+    "hs": "0904.12",
+    "produced_in": "",
+    "fob": 500,
+    "materials": [
+     {
+      "name": "Input: manufactures of straw, of esparto or of (HS 4601.93)",
+      "hs": "4601.93",
+      "value": 50,
+      "country": "United States",
+      "status": "non_originating"
+     }
+    ]
+   },
+   "expect": {
+    "outcome": "undetermined"
+   },
+   "expected_abstention": true
+  },
+  {
+   "id": "akfta-dev-country-name-alias-01",
+   "split": "dev",
+   "feature": "akfta",
+   "source_family_id": "country-name-alias",
+   "scenario_family": "country-name-alias",
+   "variation_tags": [
+    "formatting-only",
+    "member-alias",
+    "positive"
+   ],
+   "sources": [
+    {
+     "source": "akfta-annex3",
+     "locator": "Rule 2"
+    },
+    {
+     "source": "akfta-appendix2",
+     "locator": "row 83.05: CTSH or RVC40"
+    }
+   ],
+   "rule": {
+    "row": "83.05",
+    "text": "CTSH or RVC40",
+    "listed": true
+   },
+   "rationale": "Formatting-only robustness check: the treaty name of a Party is used for the producing country; the good changes tariff classification for every material, so it qualifies when the Party is recognised.",
+   "input": {
+    "hs": "8305.10",
+    "produced_in": "Republic of Korea",
+    "fob": 400,
+    "materials": [
+     {
+      "name": "Input: umbrellas, sun umbrellas, walking-sticks (HS 6603.90)",
+      "hs": "6603.90",
+      "value": 80,
+      "country": "Canada",
+      "status": "non_originating"
+     }
+    ]
+   },
+   "expect": {
+    "outcome": "yes"
+   },
+   "expected_abstention": false,
+   "formatting_only": true
+  },
+  {
+   "id": "akfta-dev-rvc-boundary-01",
+   "split": "dev",
+   "feature": "akfta",
+   "source_family_id": "rvc-boundary",
+   "scenario_family": "rvc-boundary",
+   "variation_tags": [
+    "above",
+    "rvc-only-rule",
+    "rvc-threshold",
+    "tariff-shift-blocked",
+    "threshold-45"
+   ],
+   "sources": [
+    {
+     "source": "akfta-annex3",
+     "locator": "Rule 4.2, Rule 5"
+    },
+    {
+     "source": "akfta-appendix2",
+     "locator": "row 8703.33: RVC45"
+    }
+   ],
+   "rule": {
+    "row": "8703.33",
+    "text": "RVC45",
+    "listed": true
+   },
+   "rationale": "Row 8703.33 needs RVC 45. Non-originating value 520 of FOB 1000 leaves build-down content 48 %; the non-originating materials are in the good's own subheading, so no tariff-shift alternative can help.",
+   "input": {
+    "hs": "8703.33",
+    "produced_in": "Indonesia",
+    "fob": 1000,
+    "materials": [
+     {
+      "name": "Imported input: vehicles other than railway or tramway (HS 8703.33)",
+      "hs": "8703.33",
+      "value": 260,
+      "country": "Japan",
+      "status": "non_originating"
+     },
+     {
+      "name": "Imported input: vehicles other than railway or tramway (HS 8703.33)",
+      "hs": "8703.33",
+      "value": 260,
+      "country": "Canada",
+      "status": "non_originating"
+     },
+     {
+      "name": "Originating input: salt (HS 2511.10)",
+      "hs": "2511.10",
+      "value": 200,
+      "country": "Singapore",
+      "status": "originating"
+     }
+    ],
+    "method": "indirect"
+   },
+   "expect": {
+    "outcome": "yes",
+    "alternative": {
+     "RVC45": "yes"
+    },
+    "applied": "RVC45",
+    "accumulation": true,
+    "rvc_down_min": 47.95,
+    "rvc_down_max": 48.05
+   },
+   "expected_abstention": false
+  },
+  {
+   "id": "akfta-dev-rvc-boundary-02",
+   "split": "dev",
+   "feature": "akfta",
+   "source_family_id": "rvc-boundary",
+   "scenario_family": "rvc-boundary",
+   "variation_tags": [
+    "exact",
+    "rvc-only-rule",
+    "rvc-threshold",
+    "tariff-shift-blocked",
+    "threshold-45"
+   ],
+   "sources": [
+    {
+     "source": "akfta-annex3",
+     "locator": "Rule 4.2, Rule 5"
+    },
+    {
+     "source": "akfta-appendix2",
+     "locator": "row 87.04: RVC45"
+    }
+   ],
+   "rule": {
+    "row": "87.04",
+    "text": "RVC45",
+    "listed": true
+   },
+   "rationale": "Row 8704.43 needs RVC 45. Non-originating value 137.5 of FOB 250 leaves build-down content 45 %; the non-originating materials are in the good's own subheading, so no tariff-shift alternative can help.",
+   "input": {
+    "hs": "8704.43",
+    "produced_in": "Thailand",
+    "fob": 250,
+    "materials": [
+     {
+      "name": "Imported input: vehicles other than railway or tramway (HS 8704.43)",
+      "hs": "8704.43",
+      "value": 68.75,
+      "country": "Australia",
+      "status": "non_originating"
+     },
+     {
+      "name": "Imported input: vehicles other than railway or tramway (HS 8704.43)",
+      "hs": "8704.43",
+      "value": 68.75,
+      "country": "China",
+      "status": "non_originating"
+     },
+     {
+      "name": "Originating input: man-made filaments (HS 5405.00)",
+      "hs": "5405.00",
+      "value": 50,
+      "country": "Indonesia",
+      "status": "originating"
+     }
+    ],
+    "method": "indirect"
+   },
+   "expect": {
+    "outcome": "yes",
+    "alternative": {
+     "RVC45": "yes"
+    },
+    "applied": "RVC45",
+    "accumulation": true,
+    "rvc_down_min": 44.95,
+    "rvc_down_max": 45.05
+   },
+   "expected_abstention": false
+  },
+  {
+   "id": "akfta-dev-rvc-boundary-03",
+   "split": "dev",
+   "feature": "akfta",
+   "source_family_id": "rvc-boundary",
+   "scenario_family": "rvc-boundary",
+   "variation_tags": [
+    "just-below",
+    "rvc-only-rule",
+    "rvc-threshold",
+    "tariff-shift-blocked",
+    "threshold-45"
+   ],
+   "sources": [
+    {
+     "source": "akfta-annex3",
+     "locator": "Rule 4.2, Rule 5"
+    },
+    {
+     "source": "akfta-appendix2",
+     "locator": "row 8703.70: RVC45"
+    }
+   ],
+   "rule": {
+    "row": "8703.70",
+    "text": "RVC45",
+    "listed": true
+   },
+   "rationale": "Row 8703.70 needs RVC 45. Non-originating value 55.5 of FOB 100 leaves build-down content 44.5 %; the non-originating materials are in the good's own subheading, so no tariff-shift alternative can help.",
+   "input": {
+    "hs": "8703.70",
+    "produced_in": "Indonesia",
+    "fob": 100,
+    "materials": [
+     {
+      "name": "Imported input: vehicles other than railway or tramway (HS 8703.70)",
+      "hs": "8703.70",
+      "value": 27.75,
+      "country": "United States",
+      "status": "non_originating"
+     },
+     {
+      "name": "Imported input: vehicles other than railway or tramway (HS 8703.70)",
+      "hs": "8703.70",
+      "value": 27.75,
+      "country": "United Kingdom",
+      "status": "non_originating"
+     },
+     {
+      "name": "Originating input: articles of apparel and clothing (HS 6203.42)",
+      "hs": "6203.42",
+      "value": 20,
+      "country": "Vietnam",
+      "status": "originating"
+     }
+    ],
+    "method": "indirect"
+   },
+   "expect": {
+    "outcome": "no",
+    "alternative": {
+     "RVC45": "no"
+    },
+    "accumulation": true,
+    "rvc_down_min": 44.45,
+    "rvc_down_max": 44.55
+   },
+   "expected_abstention": false
+  },
+  {
+   "id": "akfta-dev-rvc-boundary-04",
+   "split": "dev",
+   "feature": "akfta",
+   "source_family_id": "rvc-boundary",
+   "scenario_family": "rvc-boundary",
+   "variation_tags": [
+    "far-below",
+    "rvc-only-rule",
+    "rvc-threshold",
+    "tariff-shift-blocked",
+    "threshold-45"
+   ],
+   "sources": [
+    {
+     "source": "akfta-annex3",
+     "locator": "Rule 4.2, Rule 5"
+    },
+    {
+     "source": "akfta-appendix2",
+     "locator": "row 87.02: RVC45"
+    }
+   ],
+   "rule": {
+    "row": "87.02",
+    "text": "RVC45",
+    "listed": true
+   },
+   "rationale": "Row 8702.90 needs RVC 45. Non-originating value 730 of FOB 1000 leaves build-down content 27 %; the non-originating materials are in the good's own subheading, so no tariff-shift alternative can help.",
+   "input": {
+    "hs": "8702.90",
+    "produced_in": "Malaysia",
+    "fob": 1000,
+    "materials": [
+     {
+      "name": "Imported input: vehicles other than railway or tramway (HS 8702.90)",
+      "hs": "8702.90",
+      "value": 730,
+      "country": "India",
+      "status": "non_originating"
+     },
+     {
+      "name": "Originating input: wool, fine or coarse animal hair (HS 5109.90)",
+      "hs": "5109.90",
+      "value": 200,
+      "country": "Cambodia",
+      "status": "originating"
+     }
+    ],
+    "method": "indirect"
+   },
+   "expect": {
+    "outcome": "no",
+    "alternative": {
+     "RVC45": "no"
+    },
+    "accumulation": true,
+    "rvc_down_min": 26.95,
+    "rvc_down_max": 27.05
+   },
+   "expected_abstention": false
+  },
+  {
+   "id": "akfta-dev-rvc-boundary-05",
+   "split": "dev",
+   "feature": "akfta",
+   "source_family_id": "rvc-boundary",
+   "scenario_family": "rvc-boundary",
+   "variation_tags": [
+    "above",
+    "rvc-only-rule",
+    "rvc-threshold",
+    "tariff-shift-blocked",
+    "threshold-40"
+   ],
+   "sources": [
+    {
+     "source": "akfta-annex3",
+     "locator": "Rule 4.2, Rule 5"
+    },
+    {
+     "source": "akfta-appendix2",
+     "locator": "row 0910.91: RVC40"
+    }
+   ],
+   "rule": {
+    "row": "0910.91",
+    "text": "RVC40",
+    "listed": true
+   },
+   "rationale": "Row 0910.91 needs RVC 40. Non-originating value 114 of FOB 200 leaves build-down content 43 %; the non-originating materials are in the good's own subheading, so no tariff-shift alternative can help.",
+   "input": {
+    "hs": "0910.91",
+    "produced_in": "South Korea",
+    "fob": 200,
+    "materials": [
+     {
+      "name": "Imported input: coffee, tea, maté and spices (HS 0910.91)",
+      "hs": "0910.91",
+      "value": 114,
+      "country": "United States",
+      "status": "non_originating"
+     },
+     {
+      "name": "Originating input: articles of iron or steel (HS 7308.20)",
+      "hs": "7308.20",
+      "value": 40,
+      "country": "Indonesia",
+      "status": "originating"
+     }
+    ],
+    "method": "indirect"
+   },
+   "expect": {
+    "outcome": "yes",
+    "alternative": {
+     "RVC40": "yes"
+    },
+    "applied": "RVC40",
+    "accumulation": true,
+    "rvc_down_min": 42.95,
+    "rvc_down_max": 43.05
+   },
+   "expected_abstention": false
+  },
+  {
+   "id": "akfta-dev-rvc-boundary-06",
+   "split": "dev",
+   "feature": "akfta",
+   "source_family_id": "rvc-boundary",
+   "scenario_family": "rvc-boundary",
+   "variation_tags": [
+    "just-below",
+    "rvc-only-rule",
+    "rvc-threshold",
+    "tariff-shift-blocked",
+    "threshold-45"
+   ],
+   "sources": [
+    {
+     "source": "akfta-annex3",
+     "locator": "Rule 4.2, Rule 5"
+    },
+    {
+     "source": "akfta-appendix2",
+     "locator": "row 87.11: RVC45"
+    }
+   ],
+   "rule": {
+    "row": "87.11",
+    "text": "RVC45",
+    "listed": true
+   },
+   "rationale": "Row 8711.20 needs RVC 45. Non-originating value 1110 of FOB 2000 leaves build-down content 44.5 %; the non-originating materials are in the good's own subheading, so no tariff-shift alternative can help.",
+   "input": {
+    "hs": "8711.20",
+    "produced_in": "Singapore",
+    "fob": 2000,
+    "materials": [
+     {
+      "name": "Imported input: vehicles other than railway or tramway (HS 8711.20)",
+      "hs": "8711.20",
+      "value": 555,
+      "country": "Canada",
+      "status": "non_originating"
+     },
+     {
+      "name": "Imported input: vehicles other than railway or tramway (HS 8711.20)",
+      "hs": "8711.20",
+      "value": 555,
+      "country": "Germany",
+      "status": "non_originating"
+     },
+     {
+      "name": "Originating input: nuclear reactors, boilers, machinery and (HS 8430.20)",
+      "hs": "8430.20",
+      "value": 400,
+      "country": "Laos",
+      "status": "originating"
+     }
+    ],
+    "method": "indirect"
+   },
+   "expect": {
+    "outcome": "no",
+    "alternative": {
+     "RVC45": "no"
+    },
+    "accumulation": true,
+    "rvc_down_min": 44.45,
+    "rvc_down_max": 44.55
+   },
+   "expected_abstention": false
+  },
+  {
+   "id": "akfta-dev-rvc-boundary-07",
+   "split": "dev",
+   "feature": "akfta",
+   "source_family_id": "rvc-boundary",
+   "scenario_family": "rvc-boundary",
+   "variation_tags": [
+    "above",
+    "rvc-threshold",
+    "tariff-shift-blocked",
+    "threshold-40"
+   ],
+   "sources": [
+    {
+     "source": "akfta-annex3",
+     "locator": "Rule 4.2, Rule 5"
+    },
+    {
+     "source": "akfta-appendix2",
+     "locator": "row 1103.13: CC or RVC40"
+    }
+   ],
+   "rule": {
+    "row": "1103.13",
+    "text": "CC or RVC40",
+    "listed": true
+   },
+   "rationale": "Row 1103.13 needs RVC 40. Non-originating value 285 of FOB 500 leaves build-down content 43 %; the non-originating materials are in the good's own subheading, so no tariff-shift alternative can help.",
+   "input": {
+    "hs": "1103.13",
+    "produced_in": "Philippines",
+    "fob": 500,
+    "materials": [
+     {
+      "name": "Imported input: products of the milling industry (HS 1103.13)",
+      "hs": "1103.13",
+      "value": 285,
+      "country": "United States",
+      "status": "non_originating"
+     },
+     {
+      "name": "Originating input: inorganic chemicals (HS 2844.10)",
+      "hs": "2844.10",
+      "value": 100,
+      "country": "Singapore",
+      "status": "originating"
+     }
+    ],
+    "method": "indirect"
+   },
+   "expect": {
+    "outcome": "yes",
+    "alternative": {
+     "CC": "no",
+     "RVC40": "yes"
+    },
+    "applied": "RVC40",
+    "accumulation": true,
+    "rvc_down_min": 42.95,
+    "rvc_down_max": 43.05
+   },
+   "expected_abstention": false
+  },
+  {
+   "id": "akfta-dev-rvc-boundary-08",
+   "split": "dev",
+   "feature": "akfta",
+   "source_family_id": "rvc-boundary",
+   "scenario_family": "rvc-boundary",
+   "variation_tags": [
+    "exact",
+    "rvc-only-rule",
+    "rvc-threshold",
+    "tariff-shift-blocked",
+    "threshold-45"
+   ],
+   "sources": [
+    {
+     "source": "akfta-annex3",
+     "locator": "Rule 4.2, Rule 5"
+    },
+    {
+     "source": "akfta-appendix2",
+     "locator": "row 87.04: RVC45"
+    }
+   ],
+   "rule": {
+    "row": "87.04",
+    "text": "RVC45",
+    "listed": true
+   },
+   "rationale": "Row 8704.21 needs RVC 45. Non-originating value 110 of FOB 200 leaves build-down content 45 %; the non-originating materials are in the good's own subheading, so no tariff-shift alternative can help.",
+   "input": {
+    "hs": "8704.21",
+    "produced_in": "Vietnam",
+    "fob": 200,
+    "materials": [
+     {
+      "name": "Imported input: vehicles other than railway or tramway (HS 8704.21)",
+      "hs": "8704.21",
+      "value": 110,
+      "country": "Canada",
+      "status": "non_originating"
+     },
+     {
+      "name": "Originating input: works of art, collectors' pieces and (HS 9703.90)",
+      "hs": "9703.90",
+      "value": 40,
+      "country": "Brunei",
+      "status": "originating"
+     }
+    ],
+    "method": "indirect"
+   },
+   "expect": {
+    "outcome": "yes",
+    "alternative": {
+     "RVC45": "yes"
+    },
+    "applied": "RVC45",
+    "accumulation": true,
+    "rvc_down_min": 44.95,
+    "rvc_down_max": 45.05
+   },
+   "expected_abstention": false
+  },
+  {
+   "id": "akfta-dev-tariff-shift-grid-01",
+   "split": "dev",
+   "feature": "akfta",
+   "source_family_id": "tariff-shift-grid",
+   "scenario_family": "tariff-shift-grid",
+   "variation_tags": [
+    "material-relation-chapter",
+    "positive",
+    "tariff-shift-subheading"
+   ],
+   "sources": [
+    {
+     "source": "akfta-annex3",
+     "locator": "Rule 5, Rule 7"
+    },
+    {
+     "source": "akfta-appendix2",
+     "locator": "row 7113.20: CTSH or RVC40"
+    }
+   ],
+   "rule": {
+    "row": "7113.20",
+    "text": "CTSH or RVC40",
+    "listed": true
+   },
+   "rationale": "Row 7113.20 is decided by a change of subheading. The non-originating material is in a different chapter (9303.20); the shift is met. The originating material in the good's own subheading is disregarded because tariff-shift rules apply to non-originating materials only.",
+   "input": {
+    "hs": "7113.20",
+    "produced_in": "Indonesia",
+    "fob": 100,
+    "materials": [
+     {
+      "name": "Imported input: arms and ammunition (HS 9303.20)",
+      "hs": "9303.20",
+      "value": 70,
+      "country": "United Kingdom",
+      "status": "non_originating"
+     },
+     {
+      "name": "Originating input in the good's own subheading: natural or cultured pearls, precious or (HS 7113.20)",
+      "hs": "7113.20",
+      "value": 10,
+      "country": "Singapore",
+      "status": "originating"
+     }
+    ],
+    "method": "indirect"
+   },
+   "expect": {
+    "outcome": "yes",
+    "alternative": {
+     "CTSH": "yes",
+     "RVC40": "no"
+    },
+    "applied": "CTSH",
+    "accumulation": true
+   },
+   "expected_abstention": false
+  },
+  {
+   "id": "akfta-dev-tariff-shift-grid-02",
+   "split": "dev",
+   "feature": "akfta",
+   "source_family_id": "tariff-shift-grid",
+   "scenario_family": "tariff-shift-grid",
+   "variation_tags": [
+    "material-relation-heading",
+    "positive",
+    "tariff-shift-subheading",
+    "two-failing-candidates"
+   ],
+   "sources": [
+    {
+     "source": "akfta-annex3",
+     "locator": "Rule 5, Rule 7"
+    },
+    {
+     "source": "akfta-appendix2",
+     "locator": "row 7114.11: CTSH or RVC40"
+    }
+   ],
+   "rule": {
+    "row": "7114.11",
+    "text": "CTSH or RVC40",
+    "listed": true
+   },
+   "rationale": "Row 7114.11 is decided by a change of subheading. The non-originating material is in the same chapter but a different heading (7104.29); the shift is met. The originating material in the good's own subheading is disregarded because tariff-shift rules apply to non-originating materials only.",
+   "input": {
+    "hs": "7114.11",
+    "produced_in": "Singapore",
+    "fob": 100,
+    "materials": [
+     {
+      "name": "Imported input A: natural or cultured pearls, precious or (HS 7104.29)",
+      "hs": "7104.29",
+      "value": 70,
+      "country": "Germany",
+      "status": "non_originating"
+     },
+     {
+      "name": "Input: electrical machinery and equipment and (HS 8505.11)",
+      "hs": "8505.11",
+      "value": 5,
+      "country": "Canada",
+      "status": "non_originating"
+     },
+     {
+      "name": "Originating input in the good's own subheading: natural or cultured pearls, precious or (HS 7114.11)",
+      "hs": "7114.11",
+      "value": 10,
+      "country": "South Korea",
+      "status": "originating"
+     }
+    ],
+    "method": "indirect"
+   },
+   "expect": {
+    "outcome": "yes",
+    "alternative": {
+     "CTSH": "yes",
+     "RVC40": "no"
+    },
+    "applied": "CTSH",
+    "accumulation": true
+   },
+   "expected_abstention": false
+  },
+  {
+   "id": "akfta-dev-tariff-shift-grid-03",
+   "split": "dev",
+   "feature": "akfta",
+   "source_family_id": "tariff-shift-grid",
+   "scenario_family": "tariff-shift-grid",
+   "variation_tags": [
+    "material-relation-sub",
+    "positive",
+    "tariff-shift-subheading"
+   ],
+   "sources": [
+    {
+     "source": "akfta-annex3",
+     "locator": "Rule 5, Rule 7"
+    },
+    {
+     "source": "akfta-appendix2",
+     "locator": "row 7113.11: CTSH or RVC40"
+    }
+   ],
+   "rule": {
+    "row": "7113.11",
+    "text": "CTSH or RVC40",
+    "listed": true
+   },
+   "rationale": "Row 7113.11 is decided by a change of subheading. The non-originating material is in the same heading but a different subheading (7113.20); the shift is met. The originating material in the good's own subheading is disregarded because tariff-shift rules apply to non-originating materials only.",
+   "input": {
+    "hs": "7113.11",
+    "produced_in": "Singapore",
+    "fob": 1000,
+    "materials": [
+     {
+      "name": "Imported input: natural or cultured pearls, precious or (HS 7113.20)",
+      "hs": "7113.20",
+      "value": 700,
+      "country": "Germany",
+      "status": "non_originating"
+     },
+     {
+      "name": "Originating input in the good's own subheading: natural or cultured pearls, precious or (HS 7113.11)",
+      "hs": "7113.11",
+      "value": 100,
+      "country": "Malaysia",
+      "status": "originating"
+     }
+    ],
+    "method": "indirect"
+   },
+   "expect": {
+    "outcome": "yes",
+    "alternative": {
+     "CTSH": "yes",
+     "RVC40": "no"
+    },
+    "applied": "CTSH",
+    "accumulation": true
+   },
+   "expected_abstention": false
+  },
+  {
+   "id": "akfta-dev-tariff-shift-grid-04",
+   "split": "dev",
+   "feature": "akfta",
+   "source_family_id": "tariff-shift-grid",
+   "scenario_family": "tariff-shift-grid",
+   "variation_tags": [
+    "material-relation-same",
+    "negative",
+    "tariff-shift-chapter",
+    "two-failing-candidates"
+   ],
+   "sources": [
+    {
+     "source": "akfta-annex3",
+     "locator": "Rule 5, Rule 7"
+    },
+    {
+     "source": "akfta-appendix2",
+     "locator": "row 11.08: CC or RVC40"
+    }
+   ],
+   "rule": {
+    "row": "11.08",
+    "text": "CC or RVC40",
+    "listed": true
+   },
+   "rationale": "Row 1108.13 is decided by a change of chapter. The non-originating material is in the same subheading (1108.13); no shift at this level, and the 70 % value share keeps the RVC alternative and de minimis from rescuing it. The originating material in the good's own subheading is disregarded because tariff-shift rules apply to non-originating materials only.",
+   "input": {
+    "hs": "1108.13",
+    "produced_in": "Indonesia",
+    "fob": 100,
+    "materials": [
+     {
+      "name": "Imported input A: products of the milling industry (HS 1108.13)",
+      "hs": "1108.13",
+      "value": 70,
+      "country": "Canada",
+      "status": "non_originating"
+     },
+     {
+      "name": "Input: furskins and artificial fur (HS 4302.19)",
+      "hs": "4302.19",
+      "value": 5,
+      "country": "Canada",
+      "status": "non_originating"
+     },
+     {
+      "name": "Originating input in the good's own subheading: products of the milling industry (HS 1108.13)",
+      "hs": "1108.13",
+      "value": 10,
+      "country": "Cambodia",
+      "status": "originating"
+     }
+    ],
+    "method": "indirect"
+   },
+   "expect": {
+    "outcome": "no",
+    "alternative": {
+     "CC": "no",
+     "RVC40": "no"
+    },
+    "accumulation": true
+   },
+   "expected_abstention": false
+  },
+  {
+   "id": "akfta-dev-tariff-shift-grid-05",
+   "split": "dev",
+   "feature": "akfta",
+   "source_family_id": "tariff-shift-grid",
+   "scenario_family": "tariff-shift-grid",
+   "variation_tags": [
+    "material-relation-chapter",
+    "positive",
+    "tariff-shift-subheading"
+   ],
+   "sources": [
+    {
+     "source": "akfta-annex3",
+     "locator": "Rule 5, Rule 7"
+    },
+    {
+     "source": "akfta-appendix2",
+     "locator": "row 8518.30: CTSH or RVC40"
+    }
+   ],
+   "rule": {
+    "row": "8518.30",
+    "text": "CTSH or RVC40",
+    "listed": true
+   },
+   "rationale": "Row 8518.30 is decided by a change of subheading. The non-originating material is in a different chapter (1905.10); the shift is met. The originating material in the good's own subheading is disregarded because tariff-shift rules apply to non-originating materials only.",
+   "input": {
+    "hs": "8518.30",
+    "produced_in": "Vietnam",
+    "fob": 100,
+    "materials": [
+     {
+      "name": "Imported input: preparations of cereals, flour, starch or (HS 1905.10)",
+      "hs": "1905.10",
+      "value": 70,
+      "country": "United Kingdom",
+      "status": "non_originating"
+     },
+     {
+      "name": "Originating input in the good's own subheading: electrical machinery and equipment and (HS 8518.30)",
+      "hs": "8518.30",
+      "value": 10,
+      "country": "Brunei",
+      "status": "originating"
+     }
+    ],
+    "method": "indirect"
+   },
+   "expect": {
+    "outcome": "yes",
+    "alternative": {
+     "CTSH": "yes",
+     "RVC40": "no"
+    },
+    "applied": "CTSH",
+    "accumulation": true
+   },
+   "expected_abstention": false
+  },
+  {
+   "id": "akfta-dev-tariff-shift-grid-06",
+   "split": "dev",
+   "feature": "akfta",
+   "source_family_id": "tariff-shift-grid",
+   "scenario_family": "tariff-shift-grid",
+   "variation_tags": [
+    "material-relation-heading",
+    "positive",
+    "tariff-shift-subheading",
+    "two-failing-candidates"
+   ],
+   "sources": [
+    {
+     "source": "akfta-annex3",
+     "locator": "Rule 5, Rule 7"
+    },
+    {
+     "source": "akfta-appendix2",
+     "locator": "row 2921.29: CTSH or RVC40"
+    }
+   ],
+   "rule": {
+    "row": "2921.29",
+    "text": "CTSH or RVC40",
+    "listed": true
+   },
+   "rationale": "Row 2921.29 is decided by a change of subheading. The non-originating material is in the same chapter but a different heading (2910.10); the shift is met. The originating material in the good's own subheading is disregarded because tariff-shift rules apply to non-originating materials only.",
+   "input": {
+    "hs": "2921.29",
+    "produced_in": "Singapore",
+    "fob": 200,
+    "materials": [
+     {
+      "name": "Imported input A: organic chemicals (HS 2910.10)",
+      "hs": "2910.10",
+      "value": 140,
+      "country": "China",
+      "status": "non_originating"
+     },
+     {
+      "name": "Input: miscellaneous articles of base metal (HS 8301.60)",
+      "hs": "8301.60",
+      "value": 10,
+      "country": "India",
+      "status": "non_originating"
+     },
+     {
+      "name": "Originating input in the good's own subheading: organic chemicals (HS 2921.29)",
+      "hs": "2921.29",
+      "value": 20,
+      "country": "Laos",
+      "status": "originating"
+     }
+    ],
+    "method": "indirect"
+   },
+   "expect": {
+    "outcome": "yes",
+    "alternative": {
+     "CTSH": "yes",
+     "RVC40": "no"
+    },
+    "applied": "CTSH",
+    "accumulation": true
+   },
+   "expected_abstention": false
+  },
+  {
+   "id": "akfta-dev-tariff-shift-grid-07",
+   "split": "dev",
+   "feature": "akfta",
+   "source_family_id": "tariff-shift-grid",
+   "scenario_family": "tariff-shift-grid",
+   "variation_tags": [
+    "material-relation-sub",
+    "negative",
+    "tariff-shift-chapter"
+   ],
+   "sources": [
+    {
+     "source": "akfta-annex3",
+     "locator": "Rule 5, Rule 7"
+    },
+    {
+     "source": "akfta-appendix2",
+     "locator": "row 11.08: CC or RVC40"
+    }
+   ],
+   "rule": {
+    "row": "11.08",
+    "text": "CC or RVC40",
+    "listed": true
+   },
+   "rationale": "Row 1108.11 is decided by a change of chapter. The non-originating material is in the same heading but a different subheading (1108.13); no shift at this level, and the 70 % value share keeps the RVC alternative and de minimis from rescuing it. The originating material in the good's own subheading is disregarded because tariff-shift rules apply to non-originating materials only.",
+   "input": {
+    "hs": "1108.11",
+    "produced_in": "Indonesia",
+    "fob": 100,
+    "materials": [
+     {
+      "name": "Imported input: products of the milling industry (HS 1108.13)",
+      "hs": "1108.13",
+      "value": 70,
+      "country": "Germany",
+      "status": "non_originating"
+     },
+     {
+      "name": "Originating input in the good's own subheading: products of the milling industry (HS 1108.11)",
+      "hs": "1108.11",
+      "value": 10,
+      "country": "Malaysia",
+      "status": "originating"
+     }
+    ],
+    "method": "indirect"
+   },
+   "expect": {
+    "outcome": "no",
+    "alternative": {
+     "CC": "no",
+     "RVC40": "no"
+    },
+    "accumulation": true
+   },
+   "expected_abstention": false
+  },
+  {
+   "id": "akfta-dev-tariff-shift-grid-08",
+   "split": "dev",
+   "feature": "akfta",
+   "source_family_id": "tariff-shift-grid",
+   "scenario_family": "tariff-shift-grid",
+   "variation_tags": [
+    "material-relation-same",
+    "negative",
+    "tariff-shift-subheading",
+    "two-failing-candidates"
+   ],
+   "sources": [
+    {
+     "source": "akfta-annex3",
+     "locator": "Rule 5, Rule 7"
+    },
+    {
+     "source": "akfta-appendix2",
+     "locator": "row 8524.19: CTSH or RVC40"
+    }
+   ],
+   "rule": {
+    "row": "8524.19",
+    "text": "CTSH or RVC40",
+    "listed": true
+   },
+   "rationale": "Row 8524.19 is decided by a change of subheading. The non-originating material is in the same subheading (8524.19); no shift at this level, and the 70 % value share keeps the RVC alternative and de minimis from rescuing it. The originating material in the good's own subheading is disregarded because tariff-shift rules apply to non-originating materials only.",
+   "input": {
+    "hs": "8524.19",
+    "produced_in": "Vietnam",
+    "fob": 200,
+    "materials": [
+     {
+      "name": "Imported input A: electrical machinery and equipment and (HS 8524.19)",
+      "hs": "8524.19",
+      "value": 140,
+      "country": "China",
+      "status": "non_originating"
+     },
+     {
+      "name": "Input: aluminium and articles thereof (HS 7612.90)",
+      "hs": "7612.90",
+      "value": 10,
+      "country": "United States",
+      "status": "non_originating"
+     },
+     {
+      "name": "Originating input in the good's own subheading: electrical machinery and equipment and (HS 8524.19)",
+      "hs": "8524.19",
+      "value": 20,
+      "country": "South Korea",
+      "status": "originating"
+     }
+    ],
+    "method": "indirect"
+   },
+   "expect": {
+    "outcome": "no",
+    "alternative": {
+     "CTSH": "no",
+     "RVC40": "no"
+    },
+    "accumulation": true
+   },
+   "expected_abstention": false
+  },
+  {
+   "id": "akfta-dev-tariff-shift-grid-09",
+   "split": "dev",
+   "feature": "akfta",
+   "source_family_id": "tariff-shift-grid",
+   "scenario_family": "tariff-shift-grid",
+   "variation_tags": [
+    "material-relation-chapter",
+    "positive",
+    "tariff-shift-chapter"
+   ],
+   "sources": [
+    {
+     "source": "akfta-annex3",
+     "locator": "Rule 5, Rule 7"
+    },
+    {
+     "source": "akfta-appendix2",
+     "locator": "row 11.08: CC or RVC40"
+    }
+   ],
+   "rule": {
+    "row": "11.08",
+    "text": "CC or RVC40",
+    "listed": true
+   },
+   "rationale": "Row 1108.14 is decided by a change of chapter. The non-originating material is in a different chapter (2009.90); the shift is met. The originating material in the good's own subheading is disregarded because tariff-shift rules apply to non-originating materials only.",
+   "input": {
+    "hs": "1108.14",
+    "produced_in": "South Korea",
+    "fob": 100,
+    "materials": [
+     {
+      "name": "Imported input: preparations of vegetables, fruit, nuts (HS 2009.90)",
+      "hs": "2009.90",
+      "value": 70,
+      "country": "China",
+      "status": "non_originating"
+     },
+     {
+      "name": "Originating input in the good's own subheading: products of the milling industry (HS 1108.14)",
+      "hs": "1108.14",
+      "value": 10,
+      "country": "Brunei",
+      "status": "originating"
+     }
+    ],
+    "method": "indirect"
+   },
+   "expect": {
+    "outcome": "yes",
+    "alternative": {
+     "CC": "yes",
+     "RVC40": "no"
+    },
+    "applied": "CC",
+    "accumulation": true
+   },
+   "expected_abstention": false
+  },
+  {
+   "id": "akfta-dev-tariff-shift-grid-10",
+   "split": "dev",
+   "feature": "akfta",
+   "source_family_id": "tariff-shift-grid",
+   "scenario_family": "tariff-shift-grid",
+   "variation_tags": [
+    "material-relation-heading",
+    "positive",
+    "tariff-shift-subheading",
+    "two-failing-candidates"
+   ],
+   "sources": [
+    {
+     "source": "akfta-annex3",
+     "locator": "Rule 5, Rule 7"
+    },
+    {
+     "source": "akfta-appendix2",
+     "locator": "row 71.02: CTSH or RVC40"
+    }
+   ],
+   "rule": {
+    "row": "71.02",
+    "text": "CTSH or RVC40",
+    "listed": true
+   },
+   "rationale": "Row 7102.21 is decided by a change of subheading. The non-originating material is in the same chapter but a different heading (7106.91); the shift is met. The originating material in the good's own subheading is disregarded because tariff-shift rules apply to non-originating materials only.",
+   "input": {
+    "hs": "7102.21",
+    "produced_in": "Philippines",
+    "fob": 400,
+    "materials": [
+     {
+      "name": "Imported input A: natural or cultured pearls, precious or (HS 7106.91)",
+      "hs": "7106.91",
+      "value": 280,
+      "country": "Japan",
+      "status": "non_originating"
+     },
+     {
+      "name": "Input: ships, boats and floating structures (HS 8901.90)",
+      "hs": "8901.90",
+      "value": 20,
+      "country": "China",
+      "status": "non_originating"
+     },
+     {
+      "name": "Originating input in the good's own subheading: natural or cultured pearls, precious or (HS 7102.21)",
+      "hs": "7102.21",
+      "value": 40,
+      "country": "Laos",
+      "status": "originating"
+     }
+    ],
+    "method": "indirect"
+   },
+   "expect": {
+    "outcome": "yes",
+    "alternative": {
+     "CTSH": "yes",
+     "RVC40": "no"
+    },
+    "applied": "CTSH",
+    "accumulation": true
+   },
+   "expected_abstention": false
+  },
+  {
+   "id": "akfta-dev-tariff-shift-grid-11",
+   "split": "dev",
+   "feature": "akfta",
+   "source_family_id": "tariff-shift-grid",
+   "scenario_family": "tariff-shift-grid",
+   "variation_tags": [
+    "material-relation-sub",
+    "positive",
+    "tariff-shift-subheading"
+   ],
+   "sources": [
+    {
+     "source": "akfta-annex3",
+     "locator": "Rule 5, Rule 7"
+    },
+    {
+     "source": "akfta-appendix2",
+     "locator": "row 8525.60: CTSH or RVC40"
+    }
+   ],
+   "rule": {
+    "row": "8525.60",
+    "text": "CTSH or RVC40",
+    "listed": true
+   },
+   "rationale": "Row 8525.60 is decided by a change of subheading. The non-originating material is in the same heading but a different subheading (8525.81); the shift is met. The originating material in the good's own subheading is disregarded because tariff-shift rules apply to non-originating materials only.",
+   "input": {
+    "hs": "8525.60",
+    "produced_in": "South Korea",
+    "fob": 100,
+    "materials": [
+     {
+      "name": "Imported input: electrical machinery and equipment and (HS 8525.81)",
+      "hs": "8525.81",
+      "value": 70,
+      "country": "Australia",
+      "status": "non_originating"
+     },
+     {
+      "name": "Originating input in the good's own subheading: electrical machinery and equipment and (HS 8525.60)",
+      "hs": "8525.60",
+      "value": 10,
+      "country": "Indonesia",
+      "status": "originating"
+     }
+    ],
+    "method": "indirect"
+   },
+   "expect": {
+    "outcome": "yes",
+    "alternative": {
+     "CTSH": "yes",
+     "RVC40": "no"
+    },
+    "applied": "CTSH",
+    "accumulation": true
+   },
+   "expected_abstention": false
+  },
+  {
+   "id": "akfta-dev-tariff-shift-grid-12",
+   "split": "dev",
+   "feature": "akfta",
+   "source_family_id": "tariff-shift-grid",
+   "scenario_family": "tariff-shift-grid",
+   "variation_tags": [
+    "material-relation-same",
+    "negative",
+    "tariff-shift-subheading",
+    "two-failing-candidates"
+   ],
+   "sources": [
+    {
+     "source": "akfta-annex3",
+     "locator": "Rule 5, Rule 7"
+    },
+    {
+     "source": "akfta-appendix2",
+     "locator": "row 71.02: CTSH or RVC40"
+    }
+   ],
+   "rule": {
+    "row": "71.02",
+    "text": "CTSH or RVC40",
+    "listed": true
+   },
+   "rationale": "Row 7102.39 is decided by a change of subheading. The non-originating material is in the same subheading (7102.39); no shift at this level, and the 70 % value share keeps the RVC alternative and de minimis from rescuing it. The originating material in the good's own subheading is disregarded because tariff-shift rules apply to non-originating materials only.",
+   "input": {
+    "hs": "7102.39",
+    "produced_in": "Singapore",
+    "fob": 200,
+    "materials": [
+     {
+      "name": "Imported input A: natural or cultured pearls, precious or (HS 7102.39)",
+      "hs": "7102.39",
+      "value": 140,
+      "country": "Canada",
+      "status": "non_originating"
+     },
+     {
+      "name": "Input: aircraft, spacecraft, and parts thereof (HS 8807.90)",
+      "hs": "8807.90",
+      "value": 10,
+      "country": "Germany",
+      "status": "non_originating"
+     },
+     {
+      "name": "Originating input in the good's own subheading: natural or cultured pearls, precious or (HS 7102.39)",
+      "hs": "7102.39",
+      "value": 20,
+      "country": "Thailand",
+      "status": "originating"
+     }
+    ],
+    "method": "indirect"
+   },
+   "expect": {
+    "outcome": "no",
+    "alternative": {
+     "CTSH": "no",
+     "RVC40": "no"
+    },
+    "accumulation": true
+   },
+   "expected_abstention": false
+  },
+  {
+   "id": "akfta-dev-incomplete-hs-01",
+   "split": "dev",
+   "feature": "akfta",
+   "source_family_id": "incomplete-hs",
+   "scenario_family": "incomplete-hs",
+   "variation_tags": [
+    "abstention-expected",
+    "missing-facts",
+    "short-material-code"
+   ],
+   "sources": [
+    {
+     "source": "akfta-annex3",
+     "locator": "Rule 5, Rule 7"
+    },
+    {
+     "source": "akfta-appendix2",
+     "locator": "row 7117.90: CTSH or RVC40"
+    }
+   ],
+   "rule": {
+    "row": "7117.90",
+    "text": "CTSH or RVC40",
+    "listed": true
+   },
+   "rationale": "The material's code has only 4 digits but the rule tests a change of subheading; with no values given neither the shift nor de minimis nor RVC can be tested, so the answer is undetermined.",
+   "input": {
+    "hs": "7117.90",
+    "produced_in": "Thailand",
+    "materials": [
+     {
+      "name": "Imported input with an incomplete code",
+      "hs": "5004",
+      "country": "India",
+      "status": "non_originating"
+     }
+    ],
+    "method": "indirect"
+   },
+   "expect": {
+    "outcome": "undetermined",
+    "accumulation": false
+   },
+   "expected_abstention": true
+  },
+  {
+   "id": "akfta-dev-incomplete-hs-02",
+   "split": "dev",
+   "feature": "akfta",
+   "source_family_id": "incomplete-hs",
+   "scenario_family": "incomplete-hs",
+   "variation_tags": [
+    "abstention-expected",
+    "missing-facts",
+    "short-material-code"
+   ],
+   "sources": [
+    {
+     "source": "akfta-annex3",
+     "locator": "Rule 5, Rule 7"
+    },
+    {
+     "source": "akfta-appendix2",
+     "locator": "row 7114.11: CTSH or RVC40"
+    }
+   ],
+   "rule": {
+    "row": "7114.11",
+    "text": "CTSH or RVC40",
+    "listed": true
+   },
+   "rationale": "The material's code has only 4 digits but the rule tests a change of subheading; with no values given neither the shift nor de minimis nor RVC can be tested, so the answer is undetermined.",
+   "input": {
+    "hs": "7114.11",
+    "produced_in": "South Korea",
+    "materials": [
+     {
+      "name": "Imported input with an incomplete code",
+      "hs": "6107",
+      "country": "Australia",
+      "status": "non_originating"
+     }
+    ],
+    "method": "indirect"
+   },
+   "expect": {
+    "outcome": "undetermined",
+    "accumulation": false
+   },
+   "expected_abstention": true
+  },
+  {
+   "id": "akfta-dev-de-minimis-value-01",
+   "split": "dev",
+   "feature": "akfta",
+   "source_family_id": "de-minimis-value",
+   "scenario_family": "de-minimis-value",
+   "variation_tags": [
+    "de-minimis",
+    "failing-material-share",
+    "positive",
+    "share-5"
+   ],
+   "sources": [
+    {
+     "source": "akfta-annex3",
+     "locator": "Rule 10 (10 % of FOB value; weight for chapters 50 to 63)"
+    },
+    {
+     "source": "akfta-appendix2",
+     "locator": "row 8540.71: CTSH or RVC45"
+    }
+   ],
+   "rule": {
+    "row": "8540.71",
+    "text": "CTSH or RVC45",
+    "listed": true
+   },
+   "rationale": "Row 8540.71 is a tariff-shift rule. The material(s) that fail the shift total 20 of FOB 400 (5 %), within the 10 % limit; the other imported material changes classification. The RVC alternative fails because non-originating content is above 70 %% of FOB.",
+   "input": {
+    "hs": "8540.71",
+    "produced_in": "Malaysia",
+    "fob": 400,
+    "materials": [
+     {
+      "name": "Imported input: electrical machinery and equipment and (HS 8540.71)",
+      "hs": "8540.71",
+      "value": 20,
+      "country": "Australia",
+      "status": "non_originating"
+     },
+     {
+      "name": "Imported input that changes classification: cereals (HS 1003.90)",
+      "hs": "1003.90",
+      "value": 280,
+      "country": "United States",
+      "status": "non_originating"
+     }
+    ],
+    "method": "indirect"
+   },
+   "expect": {
+    "outcome": "yes",
+    "alternative": {
+     "CTSH": "yes",
+     "RVC45": "no"
+    },
+    "applied": "CTSH",
+    "de_minimis_used": true
+   },
+   "expected_abstention": false
+  },
+  {
+   "id": "akfta-dev-de-minimis-value-02",
+   "split": "dev",
+   "feature": "akfta",
+   "source_family_id": "de-minimis-value",
+   "scenario_family": "de-minimis-value",
+   "variation_tags": [
+    "de-minimis",
+    "failing-material-share-boundary",
+    "positive",
+    "share-9.9"
+   ],
+   "sources": [
+    {
+     "source": "akfta-annex3",
+     "locator": "Rule 10 (10 % of FOB value; weight for chapters 50 to 63)"
+    },
+    {
+     "source": "akfta-appendix2",
+     "locator": "row 7105.90: CTSH or RVC40"
+    }
+   ],
+   "rule": {
+    "row": "7105.90",
+    "text": "CTSH or RVC40",
+    "listed": true
+   },
+   "rationale": "Row 7105.90 is a tariff-shift rule. The material(s) that fail the shift total 19.8 of FOB 200 (9.9 %), within the 10 % limit; the other imported material changes classification. The RVC alternative fails because non-originating content is above 70 %% of FOB.",
+   "input": {
+    "hs": "7105.90",
+    "produced_in": "Malaysia",
+    "fob": 200,
+    "materials": [
+     {
+      "name": "Imported input: natural or cultured pearls, precious or (HS 7105.90)",
+      "hs": "7105.90",
+      "value": 19.8,
+      "country": "Brazil",
+      "status": "non_originating"
+     },
+     {
+      "name": "Imported input that changes classification: railway or tramway locomotives, rolling- (HS 8604.00)",
+      "hs": "8604.00",
+      "value": 140,
+      "country": "India",
+      "status": "non_originating"
+     }
+    ],
+    "method": "indirect"
+   },
+   "expect": {
+    "outcome": "yes",
+    "alternative": {
+     "CTSH": "yes",
+     "RVC40": "no"
+    },
+    "applied": "CTSH",
+    "de_minimis_used": true
+   },
+   "expected_abstention": false
+  },
+  {
+   "id": "akfta-dev-de-minimis-value-03",
+   "split": "dev",
+   "feature": "akfta",
+   "source_family_id": "de-minimis-value",
+   "scenario_family": "de-minimis-value",
+   "variation_tags": [
+    "de-minimis",
+    "failing-material-share-boundary",
+    "positive",
+    "share-10"
+   ],
+   "sources": [
+    {
+     "source": "akfta-annex3",
+     "locator": "Rule 10 (10 % of FOB value; weight for chapters 50 to 63)"
+    },
+    {
+     "source": "akfta-appendix2",
+     "locator": "row 8539.52: CTSH or RVC40"
+    }
+   ],
+   "rule": {
+    "row": "8539.52",
+    "text": "CTSH or RVC40",
+    "listed": true
+   },
+   "rationale": "Row 8539.52 is a tariff-shift rule. The material(s) that fail the shift total 100 of FOB 1000 (10 %), within the 10 % limit; the other imported material changes classification. The RVC alternative fails because non-originating content is above 70 %% of FOB.",
+   "input": {
+    "hs": "8539.52",
+    "produced_in": "Malaysia",
+    "fob": 1000,
+    "materials": [
+     {
+      "name": "Imported input: electrical machinery and equipment and (HS 8539.52)",
+      "hs": "8539.52",
+      "value": 100,
+      "country": "Germany",
+      "status": "non_originating"
+     },
+     {
+      "name": "Imported input that changes classification: products of animal origin (HS 0511.10)",
+      "hs": "0511.10",
+      "value": 700,
+      "country": "United Kingdom",
+      "status": "non_originating"
+     }
+    ],
+    "method": "indirect"
+   },
+   "expect": {
+    "outcome": "yes",
+    "alternative": {
+     "CTSH": "yes",
+     "RVC40": "no"
+    },
+    "applied": "CTSH",
+    "de_minimis_used": true
+   },
+   "expected_abstention": false
+  },
+  {
+   "id": "akfta-dev-de-minimis-value-04",
+   "split": "dev",
+   "feature": "akfta",
+   "source_family_id": "de-minimis-value",
+   "scenario_family": "de-minimis-value",
+   "variation_tags": [
+    "de-minimis",
+    "failing-material-share-boundary",
+    "negative",
+    "share-10.1",
+    "two-failing-materials-summed"
+   ],
+   "sources": [
+    {
+     "source": "akfta-annex3",
+     "locator": "Rule 10 (10 % of FOB value; weight for chapters 50 to 63)"
+    },
+    {
+     "source": "akfta-appendix2",
+     "locator": "row 11.01: CC"
+    }
+   ],
+   "rule": {
+    "row": "11.01",
+    "text": "CC",
+    "listed": true
+   },
+   "rationale": "Row 1101.00 is a tariff-shift rule. The material(s) that fail the shift total 101 of FOB 1000 (10.1 %), over the 10 % limit; the other imported material changes classification. The rule has no RVC alternative.",
+   "input": {
+    "hs": "1101.00",
+    "produced_in": "Vietnam",
+    "fob": 1000,
+    "materials": [
+     {
+      "name": "Imported input a: products of the milling industry (HS 1101.00)",
+      "hs": "1101.00",
+      "value": 50.5,
+      "country": "United Kingdom",
+      "status": "non_originating"
+     },
+     {
+      "name": "Imported input b: products of the milling industry (HS 1101.00)",
+      "hs": "1101.00",
+      "value": 50.5,
+      "country": "United Kingdom",
+      "status": "non_originating"
+     },
+     {
+      "name": "Imported input that changes classification: soap, organic surface-active agents (HS 3403.99)",
+      "hs": "3403.99",
+      "value": 700,
+      "country": "Germany",
+      "status": "non_originating"
+     }
+    ],
+    "method": "indirect"
+   },
+   "expect": {
+    "outcome": "no",
+    "alternative": {
+     "CC": "no"
+    }
+   },
+   "expected_abstention": false
+  },
+  {
+   "id": "akfta-dev-de-minimis-value-05",
+   "split": "dev",
+   "feature": "akfta",
+   "source_family_id": "de-minimis-value",
+   "scenario_family": "de-minimis-value",
+   "variation_tags": [
+    "de-minimis",
+    "failing-material-share",
+    "negative",
+    "share-15"
+   ],
+   "sources": [
+    {
+     "source": "akfta-annex3",
+     "locator": "Rule 10 (10 % of FOB value; weight for chapters 50 to 63)"
+    },
+    {
+     "source": "akfta-appendix2",
+     "locator": "row 2922.12: CTSH or RVC40"
+    }
+   ],
+   "rule": {
+    "row": "2922.12",
+    "text": "CTSH or RVC40",
+    "listed": true
+   },
+   "rationale": "Row 2922.12 is a tariff-shift rule. The material(s) that fail the shift total 30 of FOB 200 (15 %), over the 10 % limit; the other imported material changes classification. The RVC alternative fails because non-originating content is above 70 %% of FOB.",
+   "input": {
+    "hs": "2922.12",
+    "produced_in": "Indonesia",
+    "fob": 200,
+    "materials": [
+     {
+      "name": "Imported input: organic chemicals (HS 2922.12)",
+      "hs": "2922.12",
+      "value": 30,
+      "country": "United States",
+      "status": "non_originating"
+     },
+     {
+      "name": "Imported input that changes classification: products of the milling industry (HS 1109.00)",
+      "hs": "1109.00",
+      "value": 140,
+      "country": "Brazil",
+      "status": "non_originating"
+     }
+    ],
+    "method": "indirect"
+   },
+   "expect": {
+    "outcome": "no",
+    "alternative": {
+     "CTSH": "no",
+     "RVC40": "no"
+    }
+   },
+   "expected_abstention": false
+  },
+  {
+   "id": "akfta-dev-de-minimis-value-06",
+   "split": "dev",
+   "feature": "akfta",
+   "source_family_id": "de-minimis-value",
+   "scenario_family": "de-minimis-value",
+   "variation_tags": [
+    "de-minimis",
+    "failing-material-share",
+    "positive",
+    "share-8"
+   ],
+   "sources": [
+    {
+     "source": "akfta-annex3",
+     "locator": "Rule 10 (10 % of FOB value; weight for chapters 50 to 63)"
+    },
+    {
+     "source": "akfta-appendix2",
+     "locator": "row 8504.50: CTSH or RVC45"
+    }
+   ],
+   "rule": {
+    "row": "8504.50",
+    "text": "CTSH or RVC45",
+    "listed": true
+   },
+   "rationale": "Row 8504.50 is a tariff-shift rule. The material(s) that fail the shift total 16 of FOB 200 (8 %), within the 10 % limit; the other imported material changes classification. The RVC alternative fails because non-originating content is above 70 %% of FOB.",
+   "input": {
+    "hs": "8504.50",
+    "produced_in": "South Korea",
+    "fob": 200,
+    "materials": [
+     {
+      "name": "Imported input: electrical machinery and equipment and (HS 8504.50)",
+      "hs": "8504.50",
+      "value": 16,
+      "country": "China",
+      "status": "non_originating"
+     },
+     {
+      "name": "Imported input that changes classification: raw hides and skins (other than furskins) (HS 4104.41)",
+      "hs": "4104.41",
+      "value": 140,
+      "country": "Japan",
+      "status": "non_originating"
+     }
+    ],
+    "method": "indirect"
+   },
+   "expect": {
+    "outcome": "yes",
+    "alternative": {
+     "CTSH": "yes",
+     "RVC45": "no"
+    },
+    "applied": "CTSH",
+    "de_minimis_used": true
+   },
+   "expected_abstention": false
+  },
+  {
+   "id": "akfta-dev-cumulation-membership-01",
+   "split": "dev",
+   "feature": "akfta",
+   "source_family_id": "cumulation-membership",
+   "scenario_family": "cumulation-membership",
+   "variation_tags": [
+    "cumulation",
+    "member-origin",
+    "positive"
+   ],
+   "sources": [
+    {
+     "source": "akfta-annex3",
+     "locator": "Rule 7"
+    },
+    {
+     "source": "akfta-appendix2",
+     "locator": "row 8539.90: CTSH or RVC40"
+    }
+   ],
+   "rule": {
+    "row": "8539.90",
+    "text": "CTSH or RVC40",
+    "listed": true
+   },
+   "rationale": "Row 8539.90. A material in the good's own subheading comes from another Party and is declared originating, so it counts as originating (cumulation) and does not block the shift or add to non-originating value.",
+   "input": {
+    "hs": "8539.90",
+    "produced_in": "Philippines",
+    "fob": 500,
+    "materials": [
+     {
+      "name": "Originating input from another party: electrical machinery and equipment and (HS 8539.90)",
+      "hs": "8539.90",
+      "value": 250,
+      "country": "Laos",
+      "status": "originating"
+     },
+     {
+      "name": "Input: furniture (HS 9401.61)",
+      "hs": "9401.61",
+      "value": 75,
+      "country": "India",
+      "status": "non_originating"
+     }
+    ],
+    "method": "indirect"
+   },
+   "expect": {
+    "outcome": "yes",
+    "alternative": {
+     "CTSH": "yes",
+     "RVC40": "yes"
+    },
+    "accumulation": true
+   },
+   "expected_abstention": false
+  },
+  {
+   "id": "akfta-dev-cumulation-membership-02",
+   "split": "dev",
+   "feature": "akfta",
+   "source_family_id": "cumulation-membership",
+   "scenario_family": "cumulation-membership",
+   "variation_tags": [
+    "conflicting-evidence",
+    "cumulation",
+    "negative",
+    "non-member-origin"
+   ],
+   "sources": [
+    {
+     "source": "akfta-annex3",
+     "locator": "Rule 7"
+    },
+    {
+     "source": "akfta-appendix2",
+     "locator": "row 7105.90: CTSH or RVC40"
+    }
+   ],
+   "rule": {
+    "row": "7105.90",
+    "text": "CTSH or RVC40",
+    "listed": true
+   },
+   "rationale": "Row 7105.90. The material is declared originating but is made in Brazil, which is not a Party; it counts as non-originating, so it fails the shift and its 50 % value share keeps RVC below the threshold.",
+   "input": {
+    "hs": "7105.90",
+    "produced_in": "Thailand",
+    "fob": 100,
+    "materials": [
+     {
+      "name": "Input declared originating but made outside the agreement: natural or cultured pearls, precious or (HS 7105.90)",
+      "hs": "7105.90",
+      "value": 50,
+      "country": "Brazil",
+      "status": "originating"
+     },
+     {
+      "name": "Input: musical instruments (HS 9201.90)",
+      "hs": "9201.90",
+      "value": 15,
+      "country": "Canada",
+      "status": "non_originating"
+     }
+    ],
+    "method": "indirect"
+   },
+   "expect": {
+    "outcome": "no",
+    "alternative": {
+     "CTSH": "no",
+     "RVC40": "no"
+    },
+    "accumulation": false
+   },
+   "expected_abstention": false
+  },
+  {
+   "id": "akfta-dev-cumulation-membership-03",
+   "split": "dev",
+   "feature": "akfta",
+   "source_family_id": "cumulation-membership",
+   "scenario_family": "cumulation-membership",
+   "variation_tags": [
+    "conflicting-evidence",
+    "cumulation",
+    "member-origin",
+    "negative"
+   ],
+   "sources": [
+    {
+     "source": "akfta-annex3",
+     "locator": "Rule 7"
+    },
+    {
+     "source": "akfta-appendix2",
+     "locator": "row 87.04: RVC45"
+    }
+   ],
+   "rule": {
+    "row": "87.04",
+    "text": "RVC45",
+    "listed": true
+   },
+   "rationale": "Row 8704.60. The material is made in another Party but is not itself originating, so cumulation does not apply and it counts as non-originating.",
+   "input": {
+    "hs": "8704.60",
+    "produced_in": "Singapore",
+    "fob": 100,
+    "materials": [
+     {
+      "name": "Input from another party that does not qualify: vehicles other than railway or tramway (HS 8704.60)",
+      "hs": "8704.60",
+      "value": 50,
+      "country": "Cambodia",
+      "status": "non_originating"
+     },
+     {
+      "name": "Input: explosives (HS 3603.50)",
+      "hs": "3603.50",
+      "value": 15,
+      "country": "Brazil",
+      "status": "non_originating"
+     }
+    ],
+    "method": "indirect"
+   },
+   "expect": {
+    "outcome": "no",
+    "alternative": {
+     "RVC45": "no"
+    },
+    "accumulation": false
+   },
+   "expected_abstention": false
+  },
+  {
+   "id": "akfta-dev-cumulation-membership-04",
+   "split": "dev",
+   "feature": "akfta",
+   "source_family_id": "cumulation-membership",
+   "scenario_family": "cumulation-membership",
+   "variation_tags": [
+    "cumulation",
+    "member-origin",
+    "positive",
+    "rvc-with-cumulation"
+   ],
+   "sources": [
+    {
+     "source": "akfta-annex3",
+     "locator": "Rule 7"
+    },
+    {
+     "source": "akfta-appendix2",
+     "locator": "row 8703.21: RVC45"
+    }
+   ],
+   "rule": {
+    "row": "8703.21",
+    "text": "RVC45",
+    "listed": true
+   },
+   "rationale": "Row 8703.21. Only 20 % of FOB is non-originating once the 45 % originating input from another Party is counted as originating, which keeps RVC above 40 %.",
+   "input": {
+    "hs": "8703.21",
+    "produced_in": "South Korea",
+    "fob": 100,
+    "materials": [
+     {
+      "name": "Input: vehicles other than railway or tramway (HS 8703.21)",
+      "hs": "8703.21",
+      "value": 20,
+      "country": "Brazil",
+      "status": "non_originating"
+     },
+     {
+      "name": "Originating input from another party: vehicles other than railway or tramway (HS 8703.21)",
+      "hs": "8703.21",
+      "value": 45,
+      "country": "Thailand",
+      "status": "originating"
+     }
+    ],
+    "method": "indirect"
+   },
+   "expect": {
+    "outcome": "yes",
+    "alternative": {
+     "RVC45": "yes"
+    },
+    "applied": "RVC45",
+    "accumulation": true
+   },
+   "expected_abstention": false
+  },
+  {
+   "id": "akfta-dev-cumulation-membership-05",
+   "split": "dev",
+   "feature": "akfta",
+   "source_family_id": "cumulation-membership",
+   "scenario_family": "cumulation-membership",
+   "variation_tags": [
+    "conflicting-evidence",
+    "cumulation",
+    "member-origin",
+    "negative",
+    "unknown-status"
+   ],
+   "sources": [
+    {
+     "source": "akfta-annex3",
+     "locator": "Rule 7"
+    },
+    {
+     "source": "akfta-appendix2",
+     "locator": "row 1105.10: CC or RVC40"
+    }
+   ],
+   "rule": {
+    "row": "1105.10",
+    "text": "CC or RVC40",
+    "listed": true
+   },
+   "rationale": "Row 1105.10. Origin of the material from another Party is not established, so it counts as non-originating.",
+   "input": {
+    "hs": "1105.10",
+    "produced_in": "Singapore",
+    "fob": 500,
+    "materials": [
+     {
+      "name": "Input of unknown status from another party: products of the milling industry (HS 1105.10)",
+      "hs": "1105.10",
+      "value": 250,
+      "country": "Cambodia",
+      "status": "unknown"
+     },
+     {
+      "name": "Input: manufactures of straw, of esparto or of (HS 4601.93)",
+      "hs": "4601.93",
+      "value": 75,
+      "country": "Australia",
+      "status": "non_originating"
+     }
+    ],
+    "method": "indirect"
+   },
+   "expect": {
+    "outcome": "no",
+    "alternative": {
+     "CC": "no",
+     "RVC40": "no"
+    },
+    "accumulation": false
+   },
+   "expected_abstention": false
+  },
+  {
+   "id": "akfta-dev-cumulation-membership-06",
+   "split": "dev",
+   "feature": "akfta",
+   "source_family_id": "cumulation-membership",
+   "scenario_family": "cumulation-membership",
+   "variation_tags": [
+    "cumulation",
+    "member-origin",
+    "positive"
+   ],
+   "sources": [
+    {
+     "source": "akfta-annex3",
+     "locator": "Rule 7"
+    },
+    {
+     "source": "akfta-appendix2",
+     "locator": "row 8517.13: CTSH or RVC40"
+    }
+   ],
+   "rule": {
+    "row": "8517.13",
+    "text": "CTSH or RVC40",
+    "listed": true
+   },
+   "rationale": "Row 8517.13. Originating input from another Party counts as originating.",
+   "input": {
+    "hs": "8517.13",
+    "produced_in": "Indonesia",
+    "fob": 100,
+    "materials": [
+     {
+      "name": "Originating input from another party: electrical machinery and equipment and (HS 8517.13)",
+      "hs": "8517.13",
+      "value": 40,
+      "country": "Brunei",
+      "status": "originating"
+     },
+     {
+      "name": "Input: arms and ammunition (HS 9301.10)",
+      "hs": "9301.10",
+      "value": 20,
+      "country": "China",
+      "status": "non_originating"
+     }
+    ],
+    "method": "indirect"
+   },
+   "expect": {
+    "outcome": "yes",
+    "alternative": {
+     "CTSH": "yes",
+     "RVC40": "yes"
+    },
+    "accumulation": true
+   },
+   "expected_abstention": false
+  },
+  {
+   "id": "akfta-dev-cumulation-membership-07",
+   "split": "dev",
+   "feature": "akfta",
+   "source_family_id": "cumulation-membership",
+   "scenario_family": "cumulation-membership",
+   "variation_tags": [
+    "cumulation",
+    "member-origin",
+    "positive"
+   ],
+   "sources": [
+    {
+     "source": "akfta-annex3",
+     "locator": "Rule 7"
+    },
+    {
+     "source": "akfta-appendix2",
+     "locator": "row 71.02: CTSH or RVC40"
+    }
+   ],
+   "rule": {
+    "row": "71.02",
+    "text": "CTSH or RVC40",
+    "listed": true
+   },
+   "rationale": "Row 7102.39. A material in the good's own subheading comes from another Party and is declared originating, so it counts as originating (cumulation) and does not block the shift or add to non-originating value.",
+   "input": {
+    "hs": "7102.39",
+    "produced_in": "Malaysia",
+    "fob": 200,
+    "materials": [
+     {
+      "name": "Originating input from another party: natural or cultured pearls, precious or (HS 7102.39)",
+      "hs": "7102.39",
+      "value": 100,
+      "country": "Cambodia",
+      "status": "originating"
+     },
+     {
+      "name": "Input: glass and glassware (HS 7013.41)",
+      "hs": "7013.41",
+      "value": 30,
+      "country": "China",
+      "status": "non_originating"
+     }
+    ],
+    "method": "indirect"
+   },
+   "expect": {
+    "outcome": "yes",
+    "alternative": {
+     "CTSH": "yes",
+     "RVC40": "yes"
+    },
+    "accumulation": true
+   },
+   "expected_abstention": false
+  },
+  {
+   "id": "akfta-dev-cumulation-membership-08",
+   "split": "dev",
+   "feature": "akfta",
+   "source_family_id": "cumulation-membership",
+   "scenario_family": "cumulation-membership",
+   "variation_tags": [
+    "conflicting-evidence",
+    "cumulation",
+    "negative",
+    "non-member-origin"
+   ],
+   "sources": [
+    {
+     "source": "akfta-annex3",
+     "locator": "Rule 7"
+    },
+    {
+     "source": "akfta-appendix2",
+     "locator": "row 71.16: CTSH or RVC40"
+    }
+   ],
+   "rule": {
+    "row": "71.16",
+    "text": "CTSH or RVC40",
+    "listed": true
+   },
+   "rationale": "Row 7116.20. The material is declared originating but is made in Germany, which is not a Party; it counts as non-originating, so it fails the shift and its 50 % value share keeps RVC below the threshold.",
+   "input": {
+    "hs": "7116.20",
+    "produced_in": "Indonesia",
+    "fob": 200,
+    "materials": [
+     {
+      "name": "Input declared originating but made outside the agreement: natural or cultured pearls, precious or (HS 7116.20)",
+      "hs": "7116.20",
+      "value": 100,
+      "country": "Germany",
+      "status": "originating"
+     },
+     {
+      "name": "Input: vegetable plaiting materials (HS 1404.20)",
+      "hs": "1404.20",
+      "value": 30,
+      "country": "Canada",
+      "status": "non_originating"
+     }
+    ],
+    "method": "indirect"
+   },
+   "expect": {
+    "outcome": "no",
+    "alternative": {
+     "CTSH": "no",
+     "RVC40": "no"
+    },
+    "accumulation": false
+   },
+   "expected_abstention": false
+  },
+  {
+   "id": "akfta-dev-cumulation-membership-09",
+   "split": "dev",
+   "feature": "akfta",
+   "source_family_id": "cumulation-membership",
+   "scenario_family": "cumulation-membership",
+   "variation_tags": [
+    "cumulation",
+    "negative",
+    "non-member-origin",
+    "other-agreement-party"
+   ],
+   "sources": [
+    {
+     "source": "akfta-annex3",
+     "locator": "Rule 7"
+    },
+    {
+     "source": "akfta-appendix2",
+     "locator": "row 83.05: CTSH or RVC40"
+    }
+   ],
+   "rule": {
+    "row": "83.05",
+    "text": "CTSH or RVC40",
+    "listed": true
+   },
+   "rationale": "Row 8305.90. China is not a Party to this agreement, so its originating status under another agreement does not count here.",
+   "input": {
+    "hs": "8305.90",
+    "produced_in": "Malaysia",
+    "fob": 100,
+    "materials": [
+     {
+      "name": "Input declared originating in a party of a different agreement: miscellaneous articles of base metal (HS 8305.90)",
+      "hs": "8305.90",
+      "value": 50,
+      "country": "China",
+      "status": "originating"
+     },
+     {
+      "name": "Input: articles of apparel and clothing (HS 6104.63)",
+      "hs": "6104.63",
+      "value": 10,
+      "country": "Australia",
+      "status": "non_originating"
+     }
+    ],
+    "method": "indirect"
+   },
+   "expect": {
+    "outcome": "yes",
+    "alternative": {
+     "CTSH": "no",
+     "RVC40": "yes"
+    },
+    "applied": "RVC40",
+    "accumulation": false
+   },
+   "expected_abstention": false
+  },
+  {
+   "id": "akfta-dev-cumulation-membership-10",
+   "split": "dev",
+   "feature": "akfta",
+   "source_family_id": "cumulation-membership",
+   "scenario_family": "cumulation-membership",
+   "variation_tags": [
+    "cumulation",
+    "negative",
+    "non-member-origin",
+    "other-agreement-party"
+   ],
+   "sources": [
+    {
+     "source": "akfta-annex3",
+     "locator": "Rule 7"
+    },
+    {
+     "source": "akfta-appendix2",
+     "locator": "row 1103.13: CC or RVC40"
+    }
+   ],
+   "rule": {
+    "row": "1103.13",
+    "text": "CC or RVC40",
+    "listed": true
+   },
+   "rationale": "Row 1103.13. Japan is not a Party to this agreement, so its originating status under another agreement does not count here.",
+   "input": {
+    "hs": "1103.13",
+    "produced_in": "Philippines",
+    "fob": 100,
+    "materials": [
+     {
+      "name": "Input declared originating in a party of a different agreement: products of the milling industry (HS 1103.13)",
+      "hs": "1103.13",
+      "value": 50,
+      "country": "Japan",
+      "status": "originating"
+     },
+     {
+      "name": "Input: manufactures of straw, of esparto or of (HS 4602.19)",
+      "hs": "4602.19",
+      "value": 10,
+      "country": "Brazil",
+      "status": "non_originating"
+     }
+    ],
+    "method": "indirect"
+   },
+   "expect": {
+    "outcome": "yes",
+    "alternative": {
+     "CC": "no",
+     "RVC40": "yes"
+    },
+    "applied": "RVC40",
+    "accumulation": false
+   },
+   "expected_abstention": false
+  },
+  {
+   "id": "akfta-dev-minimal-operations-01",
+   "split": "dev",
+   "feature": "akfta",
+   "source_family_id": "minimal-operations",
+   "scenario_family": "minimal-operations",
+   "variation_tags": [
+    "minimal-operations",
+    "only-minimal",
+    "shift-met"
+   ],
+   "sources": [
+    {
+     "source": "akfta-annex3",
+     "locator": "Rule 8"
+    },
+    {
+     "source": "akfta-appendix2",
+     "locator": "row 11.08: CC or RVC40"
+    }
+   ],
+   "rule": {
+    "row": "11.08",
+    "text": "CC or RVC40",
+    "listed": true
+   },
+   "rationale": "Operations packaging_change: only operations of the minimal kind are stated, which cannot confer origin where the agreement applies the list to origin claims (Rule 8). The tariff shift is met.",
+   "input": {
+    "hs": "1108.12",
+    "produced_in": "Philippines",
+    "fob": 400,
+    "materials": [
+     {
+      "name": "Imported input: cork and articles of cork (HS 4504.90)",
+      "hs": "4504.90",
+      "value": 160,
+      "country": "United Kingdom",
+      "status": "non_originating"
+     }
+    ],
+    "operations": [
+     "packaging_change"
+    ],
+    "method": "indirect"
+   },
+   "expect": {
+    "outcome": "no",
+    "accumulation": false
+   },
+   "expected_abstention": false
+  },
+  {
+   "id": "akfta-dev-minimal-operations-02",
+   "split": "dev",
+   "feature": "akfta",
+   "source_family_id": "minimal-operations",
+   "scenario_family": "minimal-operations",
+   "variation_tags": [
+    "minimal-operations",
+    "minimal-plus-real",
+    "shift-not-met"
+   ],
+   "sources": [
+    {
+     "source": "akfta-annex3",
+     "locator": "Rule 8"
+    },
+    {
+     "source": "akfta-appendix2",
+     "locator": "row 7117.11: CTSH or RVC40"
+    }
+   ],
+   "rule": {
+    "row": "7117.11",
+    "text": "CTSH or RVC40",
+    "listed": true
+   },
+   "rationale": "Operations marking, moulding: a minimal operation is stated together with real production, so the product rule decides (Rule 8). The tariff shift is not met.",
+   "input": {
+    "hs": "7117.11",
+    "produced_in": "Indonesia",
+    "fob": 100,
+    "materials": [
+     {
+      "name": "Imported input: natural or cultured pearls, precious or (HS 7117.11)",
+      "hs": "7117.11",
+      "value": 40,
+      "country": "Canada",
+      "status": "non_originating"
+     }
+    ],
+    "operations": [
+     "marking",
+     "moulding"
+    ],
+    "method": "indirect"
+   },
+   "expect": {
+    "outcome": "yes",
+    "alternative": {
+     "CTSH": "no",
+     "RVC40": "yes"
+    },
+    "applied": "RVC40",
+    "accumulation": false
+   },
+   "expected_abstention": false
+  },
+  {
+   "id": "akfta-dev-minimal-operations-03",
+   "split": "dev",
+   "feature": "akfta",
+   "source_family_id": "minimal-operations",
+   "scenario_family": "minimal-operations",
+   "variation_tags": [
+    "minimal-operations",
+    "real-only",
+    "shift-met"
+   ],
+   "sources": [
+    {
+     "source": "akfta-annex3",
+     "locator": "Rule 8"
+    },
+    {
+     "source": "akfta-appendix2",
+     "locator": "row 11.08: CC or RVC40"
+    }
+   ],
+   "rule": {
+    "row": "11.08",
+    "text": "CC or RVC40",
+    "listed": true
+   },
+   "rationale": "Operations distilling: real production is stated, so the product rule decides (Rule 8). The tariff shift is met.",
+   "input": {
+    "hs": "1108.11",
+    "produced_in": "Singapore",
+    "fob": 1000,
+    "materials": [
+     {
+      "name": "Imported input: edible fruit and nuts (HS 0813.50)",
+      "hs": "0813.50",
+      "value": 400,
+      "country": "India",
+      "status": "non_originating"
+     }
+    ],
+    "operations": [
+     "distilling"
+    ],
+    "method": "indirect"
+   },
+   "expect": {
+    "outcome": "yes",
+    "alternative": {
+     "CC": "yes",
+     "RVC40": "yes"
+    },
+    "accumulation": false
+   },
+   "expected_abstention": false
+  },
+  {
+   "id": "akfta-dev-minimal-operations-04",
+   "split": "dev",
+   "feature": "akfta",
+   "source_family_id": "minimal-operations",
+   "scenario_family": "minimal-operations",
+   "variation_tags": [
+    "assembly-vocabulary",
+    "minimal-operations",
+    "shift-not-met"
+   ],
+   "sources": [
+    {
+     "source": "akfta-annex3",
+     "locator": "Rule 8"
+    },
+    {
+     "source": "akfta-appendix2",
+     "locator": "row 8508.60: CTSH or RVC40"
+    }
+   ],
+   "rule": {
+    "row": "8508.60",
+    "text": "CTSH or RVC40",
+    "listed": true
+   },
+   "rationale": "Operations assembly: the word assembly is stated; it is a listed minimal operation only where the agreement lists simple assembly (Rule 8). The tariff shift is not met.",
+   "input": {
+    "hs": "8508.60",
+    "produced_in": "Malaysia",
+    "fob": 100,
+    "materials": [
+     {
+      "name": "Imported input: electrical machinery and equipment and (HS 8508.60)",
+      "hs": "8508.60",
+      "value": 40,
+      "country": "United Kingdom",
+      "status": "non_originating"
+     }
+    ],
+    "operations": [
+     "assembly"
+    ],
+    "method": "indirect"
+   },
+   "expect": {
+    "outcome": "no",
+    "accumulation": false
+   },
+   "expected_abstention": false
+  },
+  {
+   "id": "akfta-dev-minimal-operations-05",
+   "split": "dev",
+   "feature": "akfta",
+   "source_family_id": "minimal-operations",
+   "scenario_family": "minimal-operations",
+   "variation_tags": [
+    "minimal-operations",
+    "only-minimal",
+    "shift-met"
+   ],
+   "sources": [
+    {
+     "source": "akfta-annex3",
+     "locator": "Rule 8"
+    },
+    {
+     "source": "akfta-appendix2",
+     "locator": "row 7105.90: CTSH or RVC40"
+    }
+   ],
+   "rule": {
+    "row": "7105.90",
+    "text": "CTSH or RVC40",
+    "listed": true
+   },
+   "rationale": "Operations cleaning: only operations of the minimal kind are stated, which cannot confer origin where the agreement applies the list to origin claims (Rule 8). The tariff shift is met.",
+   "input": {
+    "hs": "7105.90",
+    "produced_in": "Philippines",
+    "fob": 1000,
+    "materials": [
+     {
+      "name": "Imported input: animal, vegetable or microbial fats and (HS 1514.91)",
+      "hs": "1514.91",
+      "value": 400,
+      "country": "Germany",
+      "status": "non_originating"
+     }
+    ],
+    "operations": [
+     "cleaning"
+    ],
+    "method": "indirect"
+   },
+   "expect": {
+    "outcome": "no",
+    "accumulation": false
+   },
+   "expected_abstention": false
+  },
+  {
+   "id": "akfta-dev-minimal-operations-06",
+   "split": "dev",
+   "feature": "akfta",
+   "source_family_id": "minimal-operations",
+   "scenario_family": "minimal-operations",
+   "variation_tags": [
+    "minimal-operations",
+    "minimal-plus-real",
+    "shift-not-met"
+   ],
+   "sources": [
+    {
+     "source": "akfta-annex3",
+     "locator": "Rule 8"
+    },
+    {
+     "source": "akfta-appendix2",
+     "locator": "row 8541.51: CTSH or RVC40"
+    }
+   ],
+   "rule": {
+    "row": "8541.51",
+    "text": "CTSH or RVC40",
+    "listed": true
+   },
+   "rationale": "Operations testing, smelting: a minimal operation is stated together with real production, so the product rule decides (Rule 8). The tariff shift is not met.",
+   "input": {
+    "hs": "8541.51",
+    "produced_in": "Philippines",
+    "fob": 1000,
+    "materials": [
+     {
+      "name": "Imported input: electrical machinery and equipment and (HS 8541.51)",
+      "hs": "8541.51",
+      "value": 400,
+      "country": "Australia",
+      "status": "non_originating"
+     }
+    ],
+    "operations": [
+     "testing",
+     "smelting"
+    ],
+    "method": "indirect"
+   },
+   "expect": {
+    "outcome": "yes",
+    "alternative": {
+     "CTSH": "no",
+     "RVC40": "yes"
+    },
+    "applied": "RVC40",
+    "accumulation": false
+   },
+   "expected_abstention": false
+  },
+  {
+   "id": "akfta-dev-missing-facts-01",
+   "split": "dev",
+   "feature": "akfta",
+   "source_family_id": "missing-facts",
+   "scenario_family": "missing-facts",
+   "variation_tags": [
+    "abstention-expected",
+    "missing-facts"
+   ],
+   "sources": [
+    {
+     "source": "akfta-annex3",
+     "locator": "Rule 4: only originating materials count"
+    },
+    {
+     "source": "akfta-appendix2",
+     "locator": "row 8541.51: CTSH or RVC40"
+    }
+   ],
+   "rule": {
+    "row": "8541.51",
+    "text": "CTSH or RVC40",
+    "listed": true
+   },
+   "rationale": "Row 8541.51. No FOB value is given, so RVC cannot be computed.",
+   "input": {
+    "hs": "8541.51",
+    "produced_in": "Singapore",
+    "materials": [
+     {
+      "name": "Input: electrical machinery and equipment and (HS 8541.51)",
+      "hs": "8541.51",
+      "value": 50,
+      "country": "India",
+      "status": "non_originating"
+     }
+    ]
+   },
+   "expect": {
+    "outcome": "undetermined",
+    "accumulation": false
+   },
+   "expected_abstention": true
+  },
+  {
+   "id": "akfta-dev-missing-facts-02",
+   "split": "dev",
+   "feature": "akfta",
+   "source_family_id": "missing-facts",
+   "scenario_family": "missing-facts",
+   "variation_tags": [
+    "abstention-expected",
+    "missing-facts"
+   ],
+   "sources": [
+    {
+     "source": "akfta-annex3",
+     "locator": "Rule 4: only originating materials count"
+    },
+    {
+     "source": "akfta-appendix2",
+     "locator": "row 8708.99: RVC45"
+    }
+   ],
+   "rule": {
+    "row": "8708.99",
+    "text": "RVC45",
+    "listed": true
+   },
+   "rationale": "Row 8708.99. The non-originating materials have no values, so RVC cannot be computed.",
+   "input": {
+    "hs": "8708.99",
+    "produced_in": "South Korea",
+    "fob": 400,
+    "materials": [
+     {
+      "name": "Input: vehicles other than railway or tramway (HS 8708.99)",
+      "hs": "8708.99",
+      "country": "United States",
+      "status": "non_originating"
+     },
+     {
+      "name": "Input: articles of leather (HS 4202.99)",
+      "hs": "4202.99",
+      "country": "United States",
+      "status": "non_originating"
+     }
+    ],
+    "method": "indirect"
+   },
+   "expect": {
+    "outcome": "undetermined",
+    "accumulation": false
+   },
+   "expected_abstention": true
+  },
+  {
+   "id": "akfta-dev-missing-facts-03",
+   "split": "dev",
+   "feature": "akfta",
+   "source_family_id": "missing-facts",
+   "scenario_family": "missing-facts",
+   "variation_tags": [
+    "conservative-default",
+    "missing-facts",
+    "positive",
+    "unknown-status"
+   ],
+   "sources": [
+    {
+     "source": "akfta-annex3",
+     "locator": "Rule 4: only originating materials count"
+    },
+    {
+     "source": "akfta-appendix2",
+     "locator": "row 8539.51: CTSH or RVC40"
+    }
+   ],
+   "rule": {
+    "row": "8539.51",
+    "text": "CTSH or RVC40",
+    "listed": true
+   },
+   "rationale": "Row 8539.51. A material of unknown origin counts as non-originating; its code is in another chapter so the shift is still met.",
+   "input": {
+    "hs": "8539.51",
+    "produced_in": "Philippines",
+    "fob": 1000,
+    "materials": [
+     {
+      "name": "Input: iron and steel (HS 7202.92)",
+      "hs": "7202.92",
+      "value": 500,
+      "country": "China",
+      "status": "unknown"
+     }
+    ],
+    "method": "indirect"
+   },
+   "expect": {
+    "outcome": "yes",
+    "alternative": {
+     "CTSH": "yes",
+     "RVC40": "yes"
+    },
+    "accumulation": false
+   },
+   "expected_abstention": false
+  },
+  {
+   "id": "akfta-dev-missing-facts-04",
+   "split": "dev",
+   "feature": "akfta",
+   "source_family_id": "missing-facts",
+   "scenario_family": "missing-facts",
+   "variation_tags": [
+    "conservative-default",
+    "missing-facts",
+    "positive",
+    "unknown-status"
+   ],
+   "sources": [
+    {
+     "source": "akfta-annex3",
+     "locator": "Rule 4: only originating materials count"
+    },
+    {
+     "source": "akfta-appendix2",
+     "locator": "row 11.08: CC or RVC40"
+    }
+   ],
+   "rule": {
+    "row": "11.08",
+    "text": "CC or RVC40",
+    "listed": true
+   },
+   "rationale": "Row 1108.13. A material of unknown origin counts as non-originating; with 30 % of FOB non-originating the build-down content is 70 %.",
+   "input": {
+    "hs": "1108.13",
+    "produced_in": "Singapore",
+    "fob": 1000,
+    "materials": [
+     {
+      "name": "Input: products of the milling industry (HS 1108.13)",
+      "hs": "1108.13",
+      "value": 300,
+      "country": "Brazil",
+      "status": "unknown"
+     },
+     {
+      "name": "Input: coffee, tea, maté and spices (HS 0907.20)",
+      "hs": "0907.20",
+      "value": 200,
+      "country": "Malaysia",
+      "status": "originating"
+     }
+    ],
+    "method": "indirect"
+   },
+   "expect": {
+    "outcome": "yes",
+    "alternative": {
+     "CC": "no",
+     "RVC40": "yes"
+    },
+    "applied": "RVC40",
+    "accumulation": true
+   },
+   "expected_abstention": false
+  },
+  {
+   "id": "akfta-dev-missing-facts-05",
+   "split": "dev",
+   "feature": "akfta",
+   "source_family_id": "missing-facts",
+   "scenario_family": "missing-facts",
+   "variation_tags": [
+    "abstention-expected",
+    "missing-facts",
+    "missing-material-code"
+   ],
+   "sources": [
+    {
+     "source": "akfta-annex3",
+     "locator": "Rule 4: only originating materials count"
+    },
+    {
+     "source": "akfta-appendix2",
+     "locator": "row 8532.22: CTSH or RVC40"
+    }
+   ],
+   "rule": {
+    "row": "8532.22",
+    "text": "CTSH or RVC40",
+    "listed": true
+   },
+   "rationale": "Row 8532.22. The material has no HS code, so a tariff shift cannot be tested; its value is over the de minimis limit.",
+   "input": {
+    "hs": "8532.22",
+    "produced_in": "Indonesia",
+    "fob": 400,
+    "materials": [
+     {
+      "name": "Imported input without a classification",
+      "country": "United States",
+      "status": "non_originating",
+      "value": 200
+     }
+    ],
+    "method": "indirect"
+   },
+   "expect": {
+    "outcome": "yes",
+    "alternative": {
+     "RVC40": "yes"
+    },
+    "applied": "RVC40",
+    "accumulation": false
+   },
+   "expected_abstention": false
+  },
+  {
+   "id": "akfta-dev-missing-facts-06",
+   "split": "dev",
+   "feature": "akfta",
+   "source_family_id": "missing-facts",
+   "scenario_family": "missing-facts",
+   "variation_tags": [
+    "abstention-expected",
+    "direct-method-no-costs",
+    "missing-facts"
+   ],
+   "sources": [
+    {
+     "source": "akfta-annex3",
+     "locator": "Rule 4: only originating materials count"
+    },
+    {
+     "source": "akfta-appendix2",
+     "locator": "row 1905.31: CC or RVC40"
+    }
+   ],
+   "rule": {
+    "row": "1905.31",
+    "text": "CC or RVC40",
+    "listed": true
+   },
+   "rationale": "Row 1905.31. The direct method is chosen but no costs are given, so the build-up figure cannot be computed.",
+   "input": {
+    "hs": "1905.31",
+    "produced_in": "Indonesia",
+    "fob": 400,
+    "materials": [
+     {
+      "name": "Input: preparations of cereals, flour, starch or (HS 1905.31)",
+      "hs": "1905.31",
+      "value": 280,
+      "country": "Brazil",
+      "status": "non_originating"
+     }
+    ],
+    "method": "direct"
+   },
+   "expect": {
+    "outcome": "undetermined",
+    "alternative": {
+     "CC": "no"
+    },
+    "accumulation": false
+   },
+   "expected_abstention": true
+  },
+  {
+   "id": "akfta-dev-except-from-01",
+   "split": "dev",
+   "feature": "akfta",
+   "source_family_id": "except-from",
+   "scenario_family": "except-from",
+   "variation_tags": [
+    "excluded-origin-material",
+    "negative",
+    "tariff-shift-exclusion"
+   ],
+   "sources": [
+    {
+     "source": "akfta-annex3",
+     "locator": "Rule 5, Rule 7"
+    },
+    {
+     "source": "akfta-appendix2",
+     "locator": "row 2923.40: CTSH or RVC40"
+    }
+   ],
+   "rule": {
+    "row": "2923.40",
+    "text": "CTSH or RVC40",
+    "listed": true
+   },
+   "rationale": "Row 2923.40: the shift rule excludes materials from subheading 292330. The non-originating material (2923.30) falls in the excluded range, so the shift is not met.",
+   "input": {
+    "hs": "2923.40",
+    "produced_in": "Philippines",
+    "fob": 200,
+    "materials": [
+     {
+      "name": "Imported input: organic chemicals (HS 2923.30)",
+      "hs": "2923.30",
+      "value": 140,
+      "country": "Germany",
+      "status": "non_originating"
+     }
+    ],
+    "method": "indirect"
+   },
+   "expect": {
+    "outcome": "no",
+    "alternative": {
+     "CTSH": "no",
+     "RVC40": "no"
+    }
+   },
+   "expected_abstention": false
+  },
+  {
+   "id": "akfta-dev-except-from-02",
+   "split": "dev",
+   "feature": "akfta",
+   "source_family_id": "except-from",
+   "scenario_family": "except-from",
+   "variation_tags": [
+    "outside-exclusion",
+    "positive",
+    "tariff-shift-exclusion"
+   ],
+   "sources": [
+    {
+     "source": "akfta-annex3",
+     "locator": "Rule 5, Rule 7"
+    },
+    {
+     "source": "akfta-appendix2",
+     "locator": "row 2923.30: CTSH or RVC40"
+    }
+   ],
+   "rule": {
+    "row": "2923.30",
+    "text": "CTSH or RVC40",
+    "listed": true
+   },
+   "rationale": "Row 2923.30: the shift rule excludes materials from subheading 292340. The non-originating material (3812.10) is outside the excluded range, so the shift is met.",
+   "input": {
+    "hs": "2923.30",
+    "produced_in": "Philippines",
+    "fob": 100,
+    "materials": [
+     {
+      "name": "Imported input: miscellaneous chemical products (HS 3812.10)",
+      "hs": "3812.10",
+      "value": 70,
+      "country": "Brazil",
+      "status": "non_originating"
+     }
+    ],
+    "method": "indirect"
+   },
+   "expect": {
+    "outcome": "yes",
+    "alternative": {
+     "CTSH": "yes",
+     "RVC40": "no"
+    },
+    "applied": "CTSH"
+   },
+   "expected_abstention": false
+  },
+  {
+   "id": "akfta-dev-except-from-03",
+   "split": "dev",
+   "feature": "akfta",
+   "source_family_id": "except-from",
+   "scenario_family": "except-from",
+   "variation_tags": [
+    "excluded-origin-material",
+    "negative",
+    "tariff-shift-exclusion"
+   ],
+   "sources": [
+    {
+     "source": "akfta-annex3",
+     "locator": "Rule 5, Rule 7"
+    },
+    {
+     "source": "akfta-appendix2",
+     "locator": "row 2923.90: CTSH or RVC40"
+    }
+   ],
+   "rule": {
+    "row": "2923.90",
+    "text": "CTSH or RVC40",
+    "listed": true
+   },
+   "rationale": "Row 2923.90: the shift rule excludes materials from subheading 292330. The non-originating material (2923.30) falls in the excluded range, so the shift is not met.",
+   "input": {
+    "hs": "2923.90",
+    "produced_in": "South Korea",
+    "fob": 100,
+    "materials": [
+     {
+      "name": "Imported input: organic chemicals (HS 2923.30)",
+      "hs": "2923.30",
+      "value": 70,
+      "country": "Brazil",
+      "status": "non_originating"
+     }
+    ],
+    "method": "indirect"
+   },
+   "expect": {
+    "outcome": "no",
+    "alternative": {
+     "CTSH": "no",
+     "RVC40": "no"
+    }
+   },
+   "expected_abstention": false
+  },
+  {
+   "id": "akfta-dev-process-conditions-01",
+   "split": "dev",
+   "feature": "akfta",
+   "source_family_id": "process-conditions",
+   "scenario_family": "process-conditions",
+   "variation_tags": [
+    "process-rule",
+    "process-true",
+    "rvc-fails",
+    "tariff-shift-blocked"
+   ],
+   "sources": [
+    {
+     "source": "akfta-annex3",
+     "locator": "Rule 5, Rule 7"
+    },
+    {
+     "source": "akfta-appendix2",
+     "locator": "row Chapter 61: CC with conditions or RVC40"
+    }
+   ],
+   "rule": {
+    "row": "Chapter 61",
+    "text": "CC with conditions or RVC40",
+    "listed": true
+   },
+   "rationale": "Row 6115.99 has alternatives that depend on a process (cut_and_sewn). RVC (20 % content) and the tariff shift (material in the good's own subheading) fail, so the answer rests on whether the process is carried out: it is stated as carried out.",
+   "input": {
+    "hs": "6115.99",
+    "produced_in": "Malaysia",
+    "fob": 400,
+    "materials": [
+     {
+      "name": "Imported input in the good's own subheading: articles of apparel and clothing (HS 6115.99)",
+      "hs": "6115.99",
+      "value": 320,
+      "country": "Australia",
+      "status": "non_originating"
+     }
+    ],
+    "method": "indirect",
+    "processes": {
+     "cut_and_sewn": true
+    }
+   },
+   "expect": {
+    "outcome": "undetermined",
+    "alternative": {
+     "RVC40": "no"
+    }
+   },
+   "expected_abstention": true
+  },
+  {
+   "id": "akfta-dev-process-conditions-02",
+   "split": "dev",
+   "feature": "akfta",
+   "source_family_id": "process-conditions",
+   "scenario_family": "process-conditions",
+   "variation_tags": [
+    "process-false",
+    "process-rule",
+    "rvc-fails",
+    "tariff-shift-blocked"
+   ],
+   "sources": [
+    {
+     "source": "akfta-annex3",
+     "locator": "Rule 5, Rule 7"
+    },
+    {
+     "source": "akfta-appendix2",
+     "locator": "row Chapter 61: CC with conditions or RVC40"
+    }
+   ],
+   "rule": {
+    "row": "Chapter 61",
+    "text": "CC with conditions or RVC40",
+    "listed": true
+   },
+   "rationale": "Row 6116.10 has alternatives that depend on a process (cut_and_sewn). RVC (20 % content) and the tariff shift (material in the good's own subheading) fail, so the answer rests on whether the process is carried out: it is stated as not carried out.",
+   "input": {
+    "hs": "6116.10",
+    "produced_in": "South Korea",
+    "fob": 100,
+    "materials": [
+     {
+      "name": "Imported input in the good's own subheading: articles of apparel and clothing (HS 6116.10)",
+      "hs": "6116.10",
+      "value": 80,
+      "country": "India",
+      "status": "non_originating"
+     }
+    ],
+    "method": "indirect",
+    "processes": {
+     "cut_and_sewn": false
+    }
+   },
+   "expect": {
+    "outcome": "no",
+    "alternative": {
+     "RVC40": "no"
+    }
+   },
+   "expected_abstention": false
+  },
+  {
+   "id": "akfta-dev-process-conditions-03",
+   "split": "dev",
+   "feature": "akfta",
+   "source_family_id": "process-conditions",
+   "scenario_family": "process-conditions",
+   "variation_tags": [
+    "process-rule",
+    "process-unstated",
+    "rvc-fails",
+    "tariff-shift-blocked"
+   ],
+   "sources": [
+    {
+     "source": "akfta-annex3",
+     "locator": "Rule 5, Rule 7"
+    },
+    {
+     "source": "akfta-appendix2",
+     "locator": "row Chapter 61: CC with conditions or RVC40"
+    }
+   ],
+   "rule": {
+    "row": "Chapter 61",
+    "text": "CC with conditions or RVC40",
+    "listed": true
+   },
+   "rationale": "Row 6116.92 has alternatives that depend on a process (cut_and_sewn). RVC (20 % content) and the tariff shift (material in the good's own subheading) fail, so the answer rests on whether the process is carried out: it is not stated.",
+   "input": {
+    "hs": "6116.92",
+    "produced_in": "Singapore",
+    "fob": 400,
+    "materials": [
+     {
+      "name": "Imported input in the good's own subheading: articles of apparel and clothing (HS 6116.92)",
+      "hs": "6116.92",
+      "value": 320,
+      "country": "Japan",
+      "status": "non_originating"
+     }
+    ],
+    "method": "indirect"
+   },
+   "expect": {
+    "outcome": "undetermined",
+    "alternative": {
+     "RVC40": "no"
+    }
+   },
+   "expected_abstention": true
+  },
+  {
+   "id": "akfta-dev-direct-build-up-01",
+   "split": "dev",
+   "feature": "akfta",
+   "source_family_id": "direct-build-up",
+   "scenario_family": "direct-build-up",
+   "variation_tags": [
+    "direct-pass-indirect-fail",
+    "rvc-direct",
+    "tariff-shift-blocked"
+   ],
+   "sources": [
+    {
+     "source": "akfta-annex3",
+     "locator": "Rule 4.2, Rule 5"
+    },
+    {
+     "source": "akfta-appendix2",
+     "locator": "row 0305.69: RVC40"
+    }
+   ],
+   "rule": {
+    "row": "0305.69",
+    "text": "RVC40",
+    "listed": true
+   },
+   "rationale": "Row 0305.69 needs RVC 40. Originating material 100 plus labour 105 over FOB 500 gives build-up content 41 %; build-down content is 35 %.",
+   "input": {
+    "hs": "0305.69",
+    "produced_in": "Singapore",
+    "fob": 500,
+    "materials": [
+     {
+      "name": "Imported input in the good's own subheading: fish and crustaceans, molluscs and other (HS 0305.69)",
+      "hs": "0305.69",
+      "value": 325,
+      "country": "India",
+      "status": "non_originating"
+     },
+     {
+      "name": "Originating input: articles of stone, plaster, cement (HS 6807.10)",
+      "hs": "6807.10",
+      "value": 100,
+      "country": "South Korea",
+      "status": "originating"
+     }
+    ],
+    "costs": {
+     "labour": 105,
+     "overhead": 0,
+     "profit": 0,
+     "other": 0
+    },
+    "method": "direct"
+   },
+   "expect": {
+    "outcome": "yes",
+    "alternative": {
+     "RVC40": "yes"
+    },
+    "applied": "RVC40",
+    "accumulation": true,
+    "rvc_up_min": 40.95,
+    "rvc_up_max": 41.05
+   },
+   "expected_abstention": false
+  },
+  {
+   "id": "akfta-dev-direct-build-up-02",
+   "split": "dev",
+   "feature": "akfta",
+   "source_family_id": "direct-build-up",
+   "scenario_family": "direct-build-up",
+   "variation_tags": [
+    "both-fail",
+    "rvc-direct",
+    "tariff-shift-blocked"
+   ],
+   "sources": [
+    {
+     "source": "akfta-annex3",
+     "locator": "Rule 4.2, Rule 5"
+    },
+    {
+     "source": "akfta-appendix2",
+     "locator": "row 87.04: RVC45"
+    }
+   ],
+   "rule": {
+    "row": "87.04",
+    "text": "RVC45",
+    "listed": true
+   },
+   "rationale": "Row 8704.90 needs RVC 45. Originating material 200 plus labour 50 over FOB 1000 gives build-up content 25 %; build-down content is 35 %.",
+   "input": {
+    "hs": "8704.90",
+    "produced_in": "Thailand",
+    "fob": 1000,
+    "materials": [
+     {
+      "name": "Imported input in the good's own subheading: vehicles other than railway or tramway (HS 8704.90)",
+      "hs": "8704.90",
+      "value": 650,
+      "country": "China",
+      "status": "non_originating"
+     },
+     {
+      "name": "Originating input: nuclear reactors, boilers, machinery and (HS 8463.90)",
+      "hs": "8463.90",
+      "value": 200,
+      "country": "Indonesia",
+      "status": "originating"
+     }
+    ],
+    "costs": {
+     "labour": 50,
+     "overhead": 0,
+     "profit": 0,
+     "other": 0
+    },
+    "method": "direct"
+   },
+   "expect": {
+    "outcome": "no",
+    "alternative": {
+     "RVC45": "no"
+    },
+    "accumulation": true,
+    "rvc_up_min": 24.95,
+    "rvc_up_max": 25.05
+   },
+   "expected_abstention": false
+  },
+  {
+   "id": "akfta-dev-direct-build-up-03",
+   "split": "dev",
+   "feature": "akfta",
+   "source_family_id": "direct-build-up",
+   "scenario_family": "direct-build-up",
+   "variation_tags": [
+    "direct-just-below",
+    "rvc-direct",
+    "tariff-shift-blocked"
+   ],
+   "sources": [
+    {
+     "source": "akfta-annex3",
+     "locator": "Rule 4.2, Rule 5"
+    },
+    {
+     "source": "akfta-appendix2",
+     "locator": "row 2921.21: CTSH or RVC40"
+    }
+   ],
+   "rule": {
+    "row": "2921.21",
+    "text": "CTSH or RVC40",
+    "listed": true
+   },
+   "rationale": "Row 2921.21 needs RVC 40. Originating material 40 plus labour 39 over FOB 200 gives build-up content 39.5 %; build-down content is 35 %.",
+   "input": {
+    "hs": "2921.21",
+    "produced_in": "Malaysia",
+    "fob": 200,
+    "materials": [
+     {
+      "name": "Imported input in the good's own subheading: organic chemicals (HS 2921.21)",
+      "hs": "2921.21",
+      "value": 130,
+      "country": "Brazil",
+      "status": "non_originating"
+     },
+     {
+      "name": "Originating input: copper and articles thereof (HS 7408.19)",
+      "hs": "7408.19",
+      "value": 40,
+      "country": "Brunei",
+      "status": "originating"
+     }
+    ],
+    "costs": {
+     "labour": 39,
+     "overhead": 0,
+     "profit": 0,
+     "other": 0
+    },
+    "method": "direct"
+   },
+   "expect": {
+    "outcome": "no",
+    "alternative": {
+     "CTSH": "no",
+     "RVC40": "no"
+    },
+    "accumulation": true,
+    "rvc_up_min": 39.45,
+    "rvc_up_max": 39.55
+   },
+   "expected_abstention": false
+  },
+  {
+   "id": "akfta-dev-heading-only-code-01",
+   "split": "dev",
+   "feature": "akfta",
+   "source_family_id": "heading-only-code",
+   "scenario_family": "heading-only-code",
+   "variation_tags": [
+    "good-code-too-short",
+    "heading-code-only",
+    "one-rule-for-every-subheading"
+   ],
+   "sources": [
+    {
+     "source": "akfta-annex3",
+     "locator": "Rule 5, Rule 7"
+    },
+    {
+     "source": "akfta-appendix2",
+     "locator": "rows under heading 25.11"
+    }
+   ],
+   "rule": null,
+   "rationale": "The good is identified only by its four-digit heading 25.11, which covers 2 subheadings under 1 distinct product rules. The materials change chapter, so every subheading's rule gives the same answer.",
+   "input": {
+    "hs": "2511",
+    "produced_in": "Vietnam",
+    "fob": 400,
+    "materials": [
+     {
+      "name": "Imported input: miscellaneous edible preparations (HS 2102.20)",
+      "hs": "2102.20",
+      "value": 120,
+      "country": "Japan",
+      "status": "non_originating"
+     }
+    ],
+    "method": "indirect"
+   },
+   "expect": {
+    "outcome": "yes"
+   },
+   "expected_abstention": false
+  },
+  {
+   "id": "akfta-dev-heading-only-code-02",
+   "split": "dev",
+   "feature": "akfta",
+   "source_family_id": "heading-only-code",
+   "scenario_family": "heading-only-code",
+   "variation_tags": [
+    "good-code-too-short",
+    "heading-code-only",
+    "one-rule-for-every-subheading"
+   ],
+   "sources": [
+    {
+     "source": "akfta-annex3",
+     "locator": "Rule 5, Rule 7"
+    },
+    {
+     "source": "akfta-appendix2",
+     "locator": "rows under heading 29.32"
+    }
+   ],
+   "rule": null,
+   "rationale": "The good is identified only by its four-digit heading 29.32, which covers 13 subheadings under 1 distinct product rules. The materials change chapter, so every subheading's rule gives the same answer.",
+   "input": {
+    "hs": "2932",
+    "produced_in": "Singapore",
+    "fob": 200,
+    "materials": [
+     {
+      "name": "Imported input: mineral fuels, mineral oils and products (HS 2715.00)",
+      "hs": "2715.00",
+      "value": 60,
+      "country": "Australia",
+      "status": "non_originating"
+     }
+    ],
+    "method": "indirect"
+   },
+   "expect": {
+    "outcome": "yes"
+   },
+   "expected_abstention": false
+  },
+  {
+   "id": "akfta-dev-material-conditions-01",
+   "split": "dev",
+   "feature": "akfta",
+   "source_family_id": "material-conditions",
+   "scenario_family": "material-conditions",
+   "variation_tags": [
+    "proviso-on-materials",
+    "wo-any-originating-wo"
+   ],
+   "sources": [
+    {
+     "source": "akfta-annex3",
+     "locator": "Rule 5, Rule 7"
+    },
+    {
+     "source": "akfta-appendix2",
+     "locator": "row 1103.20: CC with conditions or RVC40 with conditions"
+    }
+   ],
+   "rule": {
+    "row": "1103.20",
+    "text": "CC with conditions or RVC40 with conditions",
+    "listed": true
+   },
+   "rationale": "Row 1103.20 adds a proviso on materials to its rule: the in-scope material is originating and stated wholly obtained. The other imported material changes classification.",
+   "input": {
+    "hs": "1103.20",
+    "produced_in": "South Korea",
+    "fob": 400,
+    "materials": [
+     {
+      "name": "Input in the conditioned chapter: cereals (HS 1003.10)",
+      "hs": "1003.10",
+      "value": 80,
+      "country": "Philippines",
+      "status": "originating",
+      "wholly_obtained": true
+     },
+     {
+      "name": "Imported input that changes classification: explosives (HS 3606.10)",
+      "hs": "3606.10",
+      "value": 40,
+      "country": "Japan",
+      "status": "non_originating"
+     }
+    ],
+    "method": "indirect"
+   },
+   "expect": {
+    "outcome": "yes"
+   },
+   "expected_abstention": false
+  },
+  {
+   "id": "akfta-dev-material-conditions-02",
+   "split": "dev",
+   "feature": "akfta",
+   "source_family_id": "material-conditions",
+   "scenario_family": "material-conditions",
+   "variation_tags": [
+    "proviso-on-materials",
+    "wo-any-not-wo"
+   ],
+   "sources": [
+    {
+     "source": "akfta-annex3",
+     "locator": "Rule 5, Rule 7"
+    },
+    {
+     "source": "akfta-appendix2",
+     "locator": "row 2306.50: CC with conditions or RVC40 with conditions"
+    }
+   ],
+   "rule": {
+    "row": "2306.50",
+    "text": "CC with conditions or RVC40 with conditions",
+    "listed": true
+   },
+   "rationale": "Row 2306.50 adds a proviso on materials to its rule: the in-scope material is originating but stated not wholly obtained. The other imported material changes classification.",
+   "input": {
+    "hs": "2306.50",
+    "produced_in": "South Korea",
+    "fob": 100,
+    "materials": [
+     {
+      "name": "Input in the conditioned chapter: edible fruit and nuts (HS 0801.11)",
+      "hs": "0801.11",
+      "value": 20,
+      "country": "Thailand",
+      "status": "originating",
+      "wholly_obtained": false
+     },
+     {
+      "name": "Imported input that changes classification: vehicles other than railway or tramway (HS 8704.43)",
+      "hs": "8704.43",
+      "value": 10,
+      "country": "United States",
+      "status": "non_originating"
+     }
+    ],
+    "method": "indirect"
+   },
+   "expect": {
+    "outcome": "no"
+   },
+   "expected_abstention": false
+  },
+  {
+   "id": "akfta-dev-material-conditions-03",
+   "split": "dev",
+   "feature": "akfta",
+   "source_family_id": "material-conditions",
+   "scenario_family": "material-conditions",
+   "variation_tags": [
+    "proviso-on-materials",
+    "wo-any-nonoriginating"
+   ],
+   "sources": [
+    {
+     "source": "akfta-annex3",
+     "locator": "Rule 5, Rule 7"
+    },
+    {
+     "source": "akfta-appendix2",
+     "locator": "row 1103.19: CC with conditions or RVC40 with conditions"
+    }
+   ],
+   "rule": {
+    "row": "1103.19",
+    "text": "CC with conditions or RVC40 with conditions",
+    "listed": true
+   },
+   "rationale": "Row 1103.19 adds a proviso on materials to its rule: the in-scope material is non-originating so it cannot be wholly obtained in a Party. The other imported material changes classification.",
+   "input": {
+    "hs": "1103.19",
+    "produced_in": "Vietnam",
+    "fob": 100,
+    "materials": [
+     {
+      "name": "Input in the conditioned chapter: cereals (HS 1003.10)",
+      "hs": "1003.10",
+      "value": 20,
+      "country": "Brazil",
+      "status": "non_originating"
+     },
+     {
+      "name": "Imported input that changes classification: residues and waste from the food (HS 2306.90)",
+      "hs": "2306.90",
+      "value": 10,
+      "country": "China",
+      "status": "non_originating"
+     }
+    ],
+    "method": "indirect"
+   },
+   "expect": {
+    "outcome": "no"
+   },
+   "expected_abstention": false
+  },
+  {
+   "id": "akfta-dev-material-conditions-04",
+   "split": "dev",
+   "feature": "akfta",
+   "source_family_id": "material-conditions",
+   "scenario_family": "material-conditions",
+   "variation_tags": [
+    "proviso-on-materials",
+    "wo-any-unstated"
+   ],
+   "sources": [
+    {
+     "source": "akfta-annex3",
+     "locator": "Rule 5, Rule 7"
+    },
+    {
+     "source": "akfta-appendix2",
+     "locator": "row 23.08: CC with conditions or RVC40 with conditions"
+    }
+   ],
+   "rule": {
+    "row": "23.08",
+    "text": "CC with conditions or RVC40 with conditions",
+    "listed": true
+   },
+   "rationale": "Row 2308.00 adds a proviso on materials to its rule: whether the in-scope material is wholly obtained is not stated. The other imported material changes classification.",
+   "input": {
+    "hs": "2308.00",
+    "produced_in": "South Korea",
+    "fob": 100,
+    "materials": [
+     {
+      "name": "Input in the conditioned chapter: edible fruit and nuts (HS 0801.11)",
+      "hs": "0801.11",
+      "value": 20,
+      "country": "Indonesia",
+      "status": "originating"
+     },
+     {
+      "name": "Imported input that changes classification: articles of apparel and clothing (HS 6103.49)",
+      "hs": "6103.49",
+      "value": 10,
+      "country": "Canada",
+      "status": "non_originating"
+     }
+    ],
+    "method": "indirect"
+   },
+   "expect": {
+    "outcome": "undetermined"
+   },
+   "expected_abstention": true
+  },
+  {
+   "id": "akfta-dev-general-rule-01",
+   "split": "dev",
+   "feature": "akfta",
+   "source_family_id": "general-rule",
+   "scenario_family": "general-rule",
+   "variation_tags": [
+    "general-rule",
+    "goods-not-listed",
+    "rvc-fails",
+    "shift-met"
+   ],
+   "sources": [
+    {
+     "source": "akfta-annex3",
+     "locator": "Rule 4.1"
+    },
+    {
+     "source": "akfta-appendix2",
+     "locator": "no row for 4104.19; general rule"
+    }
+   ],
+   "rule": {
+    "row": "Rule 4.1",
+    "text": "RVC40 or CTH",
+    "listed": false
+   },
+   "rationale": "No product-specific row applies to 4104.19, so the general rule is used: RVC40 or CTH. Non-originating content is 65 % of FOB, so RVC is 35 %; a change of heading is met.",
+   "input": {
+    "hs": "4104.19",
+    "produced_in": "South Korea",
+    "fob": 1000,
+    "materials": [
+     {
+      "name": "Imported input: edible vegetables and certain roots and (HS 0713.33)",
+      "hs": "0713.33",
+      "value": 650,
+      "country": "China",
+      "status": "non_originating"
+     }
+    ],
+    "method": "indirect"
+   },
+   "expect": {
+    "outcome": "yes",
+    "alternative": {
+     "RVC40": "no",
+     "CTH": "yes"
+    },
+    "applied": "CTH"
+   },
+   "expected_abstention": false
+  },
+  {
+   "id": "akfta-dev-general-rule-02",
+   "split": "dev",
+   "feature": "akfta",
+   "source_family_id": "general-rule",
+   "scenario_family": "general-rule",
+   "variation_tags": [
+    "general-rule",
+    "goods-not-listed",
+    "rvc-fails",
+    "shift-met"
+   ],
+   "sources": [
+    {
+     "source": "akfta-annex3",
+     "locator": "Rule 4.1"
+    },
+    {
+     "source": "akfta-appendix2",
+     "locator": "no row for 2942.00; general rule"
+    }
+   ],
+   "rule": {
+    "row": "Rule 4.1",
+    "text": "RVC40 or CTH",
+    "listed": false
+   },
+   "rationale": "No product-specific row applies to 2942.00, so the general rule is used: RVC40 or CTH. Non-originating content is 65 % of FOB, so RVC is 35 %; a change of heading is met.",
+   "input": {
+    "hs": "2942.00",
+    "produced_in": "Vietnam",
+    "fob": 1000,
+    "materials": [
+     {
+      "name": "Imported input: electrical machinery and equipment and (HS 8541.90)",
+      "hs": "8541.90",
+      "value": 650,
+      "country": "India",
+      "status": "non_originating"
+     }
+    ],
+    "method": "indirect"
+   },
+   "expect": {
+    "outcome": "yes",
+    "alternative": {
+     "RVC40": "no",
+     "CTH": "yes"
+    },
+    "applied": "CTH"
+   },
+   "expected_abstention": false
+  },
+  {
+   "id": "akfta-dev-general-rule-03",
+   "split": "dev",
+   "feature": "akfta",
+   "source_family_id": "general-rule",
+   "scenario_family": "general-rule",
+   "variation_tags": [
+    "general-rule",
+    "goods-not-listed",
+    "rvc-fails",
+    "shift-not-met"
+   ],
+   "sources": [
+    {
+     "source": "akfta-annex3",
+     "locator": "Rule 4.1"
+    },
+    {
+     "source": "akfta-appendix2",
+     "locator": "no row for 8532.23; general rule"
+    }
+   ],
+   "rule": {
+    "row": "Rule 4.1",
+    "text": "RVC40 or CTH",
+    "listed": false
+   },
+   "rationale": "No product-specific row applies to 8532.23, so the general rule is used: RVC40 or CTH. Non-originating content is 65 % of FOB, so RVC is 35 %; a change of heading is not met.",
+   "input": {
+    "hs": "8532.23",
+    "produced_in": "Singapore",
+    "fob": 400,
+    "materials": [
+     {
+      "name": "Imported input: electrical machinery and equipment and (HS 8532.23)",
+      "hs": "8532.23",
+      "value": 260,
+      "country": "India",
+      "status": "non_originating"
+     }
+    ],
+    "method": "indirect"
+   },
+   "expect": {
+    "outcome": "no",
+    "alternative": {
+     "RVC40": "no",
+     "CTH": "no"
+    }
+   },
+   "expected_abstention": false
+  },
+  {
+   "id": "akfta-dev-general-rule-04",
+   "split": "dev",
+   "feature": "akfta",
+   "source_family_id": "general-rule",
+   "scenario_family": "general-rule",
+   "variation_tags": [
+    "general-rule",
+    "goods-not-listed",
+    "rvc-fails",
+    "shift-met"
+   ],
+   "sources": [
+    {
+     "source": "akfta-annex3",
+     "locator": "Rule 4.1"
+    },
+    {
+     "source": "akfta-appendix2",
+     "locator": "no row for 1509.30; general rule"
+    }
+   ],
+   "rule": {
+    "row": "Rule 4.1",
+    "text": "RVC40 or CTH",
+    "listed": false
+   },
+   "rationale": "No product-specific row applies to 1509.30, so the general rule is used: RVC40 or CTH. Non-originating content is 65 % of FOB, so RVC is 35 %; a change of heading is met.",
+   "input": {
+    "hs": "1509.30",
+    "produced_in": "South Korea",
+    "fob": 1000,
+    "materials": [
+     {
+      "name": "Imported input: other made up textile articles (HS 6309.00)",
+      "hs": "6309.00",
+      "value": 650,
+      "country": "United States",
+      "status": "non_originating"
+     }
+    ],
+    "method": "indirect"
+   },
+   "expect": {
+    "outcome": "yes",
+    "alternative": {
+     "RVC40": "no",
+     "CTH": "yes"
+    },
+    "applied": "CTH"
+   },
+   "expected_abstention": false
+  },
+  {
+   "id": "akfta-dev-authority-variants-01",
+   "split": "dev",
+   "feature": "akfta",
+   "source_family_id": "authority-ak-wm-build-down",
+   "scenario_family": "authority-variants",
+   "variation_tags": [
+    "origin-unknown",
+    "parent-variant",
+    "status-unknown"
+   ],
+   "sources": [
+    {
+     "source": "akfta-miti-guide",
+     "locator": "Part 5, Rule 4, example (a) washing machine, build-down"
+    },
+    {
+     "source": "akfta-appendix2",
+     "locator": "no row for 8450.11; general rule"
+    }
+   ],
+   "rule": {
+    "row": "Rule 4.1",
+    "text": "RVC40 or CTH",
+    "listed": false
+   },
+   "rationale": "Variation of the published worked example ak-wm-build-down (Part 5, Rule 4, example (a) washing machine, build-down): origin unknown, under row Rule 4.1 (RVC40 or CTH). Build-down content is 62 %. The rule row and arithmetic are those of the cited source; the changed facts decide the label.",
+   "input": {
+    "hs": "8450.11",
+    "produced_in": "Korea",
+    "fob": 1000,
+    "method": "indirect",
+    "materials": [
+     {
+      "name": "Parts A",
+      "value": 370,
+      "country": "Korea",
+      "status": "originating"
+     },
+     {
+      "name": "Parts B",
+      "value": 100,
+      "country": "Korea",
+      "status": "originating"
+     },
+     {
+      "name": "Parts C",
+      "value": 130,
+      "status": "unknown"
+     },
+     {
+      "name": "Parts D",
+      "value": 150
+     },
+     {
+      "name": "Parts E",
+      "value": 100
+     }
+    ]
+   },
+   "expect": {
+    "outcome": "yes",
+    "alternative": {
+     "RVC40": "yes"
+    },
+    "applied": "RVC40",
+    "accumulation": false,
+    "rvc_down_min": 61.95,
+    "rvc_down_max": 62.05
+   },
+   "expected_abstention": false,
+   "parent_id": "eval/akfta/reference-cases.json#ak-wm-build-down"
+  },
+  {
+   "id": "akfta-dev-authority-variants-02",
+   "split": "dev",
+   "feature": "akfta",
+   "source_family_id": "authority-ak-wm-build-down",
+   "scenario_family": "authority-variants",
+   "variation_tags": [
+    "fob-changed",
+    "fob-lower",
+    "parent-variant",
+    "values-perturbed"
+   ],
+   "sources": [
+    {
+     "source": "akfta-miti-guide",
+     "locator": "Part 5, Rule 4, example (a) washing machine, build-down"
+    },
+    {
+     "source": "akfta-appendix2",
+     "locator": "no row for 8450.11; general rule"
+    }
+   ],
+   "rule": {
+    "row": "Rule 4.1",
+    "text": "RVC40 or CTH",
+    "listed": false
+   },
+   "rationale": "Variation of the published worked example ak-wm-build-down (Part 5, Rule 4, example (a) washing machine, build-down): fob lower, under row Rule 4.1 (RVC40 or CTH). Build-down content is 36.67 %. The rule row and arithmetic are those of the cited source; the changed facts decide the label.",
+   "input": {
+    "hs": "8450.11",
+    "produced_in": "Korea",
+    "fob": 600,
+    "method": "indirect",
+    "materials": [
+     {
+      "name": "Parts A",
+      "value": 370,
+      "country": "Korea",
+      "status": "originating"
+     },
+     {
+      "name": "Parts B",
+      "value": 100,
+      "country": "Korea",
+      "status": "originating"
+     },
+     {
+      "name": "Parts C",
+      "value": 130,
+      "country": "China",
+      "status": "non_originating"
+     },
+     {
+      "name": "Parts D",
+      "value": 150
+     },
+     {
+      "name": "Parts E",
+      "value": 100
+     }
+    ]
+   },
+   "expect": {
+    "outcome": "undetermined",
+    "alternative": {
+     "RVC40": "no"
+    },
+    "accumulation": false,
+    "rvc_down_min": 36.617,
+    "rvc_down_max": 36.717
+   },
+   "expected_abstention": true,
+   "parent_id": "eval/akfta/reference-cases.json#ak-wm-build-down"
+  },
+  {
+   "id": "akfta-dev-authority-variants-03",
+   "split": "dev",
+   "feature": "akfta",
+   "source_family_id": "authority-ak-wm-build-down",
+   "scenario_family": "authority-variants",
+   "variation_tags": [
+    "conflicting-evidence",
+    "non-member-origin",
+    "origin-changed",
+    "origin-country-outside-agreement",
+    "parent-variant"
+   ],
+   "sources": [
+    {
+     "source": "akfta-miti-guide",
+     "locator": "Part 5, Rule 4, example (a) washing machine, build-down"
+    },
+    {
+     "source": "akfta-appendix2",
+     "locator": "no row for 8450.11; general rule"
+    }
+   ],
+   "rule": {
+    "row": "Rule 4.1",
+    "text": "RVC40 or CTH",
+    "listed": false
+   },
+   "rationale": "Variation of the published worked example ak-wm-build-down (Part 5, Rule 4, example (a) washing machine, build-down): origin country outside agreement, under row Rule 4.1 (RVC40 or CTH). Build-down content is 25 %. The rule row and arithmetic are those of the cited source; the changed facts decide the label.",
+   "input": {
+    "hs": "8450.11",
+    "produced_in": "Korea",
+    "fob": 1000,
+    "method": "indirect",
+    "materials": [
+     {
+      "name": "Parts A",
+      "value": 370,
+      "country": "China",
+      "status": "originating"
+     },
+     {
+      "name": "Parts B",
+      "value": 100,
+      "country": "Korea",
+      "status": "originating"
+     },
+     {
+      "name": "Parts C",
+      "value": 130,
+      "country": "China",
+      "status": "non_originating"
+     },
+     {
+      "name": "Parts D",
+      "value": 150
+     },
+     {
+      "name": "Parts E",
+      "value": 100
+     }
+    ]
+   },
+   "expect": {
+    "outcome": "undetermined",
+    "alternative": {
+     "RVC40": "no"
+    },
+    "accumulation": false,
+    "rvc_down_min": 24.95,
+    "rvc_down_max": 25.05
+   },
+   "expected_abstention": true,
+   "parent_id": "eval/akfta/reference-cases.json#ak-wm-build-down"
+  },
+  {
+   "id": "akfta-dev-authority-variants-04",
+   "split": "dev",
+   "feature": "akfta",
+   "source_family_id": "authority-ak-non-qualifying",
+   "scenario_family": "authority-variants",
+   "variation_tags": [
+    "origin-unknown",
+    "parent-variant",
+    "status-unknown"
+   ],
+   "sources": [
+    {
+     "source": "akfta-miti-guide",
+     "locator": "Part 5, Rule 8, example of non-qualifying operations"
+    },
+    {
+     "source": "akfta-appendix2",
+     "locator": "no row for 5208.12; general rule"
+    }
+   ],
+   "rule": {
+    "row": "Rule 4.1",
+    "text": "RVC40 or CTH",
+    "listed": false
+   },
+   "rationale": "Variation of the published worked example ak-non-qualifying (Part 5, Rule 8, example of non-qualifying operations): origin unknown, under row Rule 4.1 (RVC40 or CTH). The rule row and arithmetic are those of the cited source; the changed facts decide the label.",
+   "input": {
+    "hs": "5208.12",
+    "produced_in": "Korea",
+    "fob": 100,
+    "operations": [
+     "cleaning",
+     "marking"
+    ],
+    "materials": [
+     {
+      "name": "Cotton fabric",
+      "hs": "5208.12",
+      "value": 80,
+      "status": "unknown"
+     }
+    ],
+    "method": "indirect"
+   },
+   "expect": {
+    "outcome": "no",
+    "accumulation": false
+   },
+   "expected_abstention": false,
+   "parent_id": "eval/akfta/reference-cases.json#ak-non-qualifying"
+  },
+  {
+   "id": "akfta-dev-authority-variants-05",
+   "split": "dev",
+   "feature": "akfta",
+   "source_family_id": "authority-ak-non-qualifying",
+   "scenario_family": "authority-variants",
+   "variation_tags": [
+    "fob-changed",
+    "fob-lower",
+    "parent-variant",
+    "values-perturbed"
+   ],
+   "sources": [
+    {
+     "source": "akfta-miti-guide",
+     "locator": "Part 5, Rule 8, example of non-qualifying operations"
+    },
+    {
+     "source": "akfta-appendix2",
+     "locator": "no row for 5208.12; general rule"
+    }
+   ],
+   "rule": {
+    "row": "Rule 4.1",
+    "text": "RVC40 or CTH",
+    "listed": false
+   },
+   "rationale": "Variation of the published worked example ak-non-qualifying (Part 5, Rule 8, example of non-qualifying operations): fob lower, under row Rule 4.1 (RVC40 or CTH). The rule row and arithmetic are those of the cited source; the changed facts decide the label.",
+   "input": {
+    "hs": "5208.12",
+    "produced_in": "Korea",
+    "fob": 60,
+    "operations": [
+     "cleaning",
+     "marking"
+    ],
+    "materials": [
+     {
+      "name": "Cotton fabric",
+      "hs": "5208.12",
+      "value": 80,
+      "country": "Bangladesh"
+     }
+    ],
+    "method": "indirect"
+   },
+   "expect": {
+    "outcome": "no",
+    "accumulation": false
+   },
+   "expected_abstention": false,
+   "parent_id": "eval/akfta/reference-cases.json#ak-non-qualifying"
+  },
+  {
+   "id": "akfta-dev-authority-variants-06",
+   "split": "dev",
+   "feature": "akfta",
+   "source_family_id": "authority-ak-non-qualifying",
+   "scenario_family": "authority-variants",
+   "variation_tags": [
+    "just-below-threshold",
+    "parent-variant",
+    "values-perturbed",
+    "values-rescaled-just-below-threshold"
+   ],
+   "sources": [
+    {
+     "source": "akfta-miti-guide",
+     "locator": "Part 5, Rule 8, example of non-qualifying operations"
+    },
+    {
+     "source": "akfta-appendix2",
+     "locator": "no row for 5208.12; general rule"
+    }
+   ],
+   "rule": {
+    "row": "Rule 4.1",
+    "text": "RVC40 or CTH",
+    "listed": false
+   },
+   "rationale": "Variation of the published worked example ak-non-qualifying (Part 5, Rule 8, example of non-qualifying operations): values rescaled just below threshold, under row Rule 4.1 (RVC40 or CTH). The rule row and arithmetic are those of the cited source; the changed facts decide the label.",
+   "input": {
+    "hs": "5208.12",
+    "produced_in": "Korea",
+    "fob": 100,
+    "operations": [
+     "cleaning",
+     "marking"
+    ],
+    "materials": [
+     {
+      "name": "Cotton fabric",
+      "hs": "5208.12",
+      "value": 60.5,
+      "country": "Bangladesh"
+     }
+    ],
+    "method": "indirect"
+   },
+   "expect": {
+    "outcome": "no",
+    "accumulation": false
+   },
+   "expected_abstention": false,
+   "parent_id": "eval/akfta/reference-cases.json#ak-non-qualifying"
+  },
+  {
+   "id": "akfta-dev-authority-variants-07",
+   "split": "dev",
+   "feature": "akfta",
+   "source_family_id": "authority-ak-wo-tuna",
+   "scenario_family": "authority-variants",
+   "variation_tags": [
+    "parent-variant",
+    "status-flipped",
+    "wholly-obtained-statement-removed"
+   ],
+   "sources": [
+    {
+     "source": "akfta-miti-guide",
+     "locator": "Part 5, Rule 3, example tuna from a Thai factory ship"
+    },
+    {
+     "source": "akfta-appendix2",
+     "locator": "no row for 1604.14; general rule"
+    }
+   ],
+   "rule": {
+    "row": "Rule 4.1",
+    "text": "RVC40 or CTH",
+    "listed": false
+   },
+   "rationale": "Variation of the published worked example ak-wo-tuna (Part 5, Rule 3, example tuna from a Thai factory ship): wholly obtained statement removed, under row Rule 4.1 (RVC40 or CTH). Build-down content is 60 %. The rule row and arithmetic are those of the cited source; the changed facts decide the label.",
+   "input": {
+    "hs": "1604.14",
+    "produced_in": "Thailand",
+    "materials": [
+     {
+      "name": "Imported input",
+      "hs": "660390",
+      "value": 40,
+      "country": "China",
+      "status": "non_originating"
+     }
+    ],
+    "fob": 100,
+    "method": "indirect"
+   },
+   "expect": {
+    "outcome": "yes",
+    "alternative": {
+     "RVC40": "yes",
+     "CTH": "yes"
+    },
+    "accumulation": false,
+    "rvc_down_min": 59.95,
+    "rvc_down_max": 60.05
+   },
+   "expected_abstention": false,
+   "parent_id": "eval/akfta/reference-cases.json#ak-wo-tuna"
+  },
+  {
+   "id": "akfta-dev-malformed-input-01",
+   "split": "dev",
+   "feature": "akfta",
+   "source_family_id": "malformed-input",
+   "scenario_family": "malformed-input",
+   "variation_tags": [
+    "negative-fob",
+    "refusal-expected"
+   ],
+   "sources": [
+    {
+     "source": "akfta-annex3",
+     "locator": "Rule 4: only originating materials count"
+    },
+    {
+     "source": "akfta-appendix2",
+     "locator": "row 2922.41: CTSH or RVC40"
+    }
+   ],
+   "rule": {
+    "row": "2922.41",
+    "text": "CTSH or RVC40",
+    "listed": true
+   },
+   "rationale": "A malformed request (negative-fob) must be refused as invalid input rather than answered.",
+   "input": {
+    "hs": "2922.41",
+    "produced_in": "Indonesia",
+    "fob": -50,
+    "materials": [
+     {
+      "name": "Input: pharmaceutical products (HS 3006.60)",
+      "hs": "3006.60",
+      "value": 20,
+      "country": "India",
+      "status": "non_originating"
+     }
+    ]
+   },
+   "expect": {
+    "outcome": "refused"
+   },
+   "expected_abstention": false
+  },
+  {
+   "id": "akfta-dev-malformed-input-02",
+   "split": "dev",
+   "feature": "akfta",
+   "source_family_id": "malformed-input",
+   "scenario_family": "malformed-input",
+   "variation_tags": [
+    "refusal-expected",
+    "short-hs"
+   ],
+   "sources": [
+    {
+     "source": "akfta-annex3",
+     "locator": "Rule 4: only originating materials count"
+    },
+    {
+     "source": "akfta-appendix2",
+     "locator": "row 1103.11: CC or RVC40"
+    }
+   ],
+   "rule": {
+    "row": "1103.11",
+    "text": "CC or RVC40",
+    "listed": true
+   },
+   "rationale": "A malformed request (short-hs) must be refused as invalid input rather than answered.",
+   "input": {
+    "hs": "840",
+    "produced_in": "Malaysia",
+    "fob": 100,
+    "materials": [
+     {
+      "name": "Input: mineral fuels, mineral oils and products (HS 2712.10)",
+      "hs": "2712.10",
+      "value": 20,
+      "country": "Australia",
+      "status": "non_originating"
+     }
+    ]
+   },
+   "expect": {
+    "outcome": "refused"
+   },
+   "expected_abstention": false
+  },
+  {
+   "id": "akfta-dev-malformed-input-03",
+   "split": "dev",
+   "feature": "akfta",
+   "source_family_id": "malformed-input",
+   "scenario_family": "malformed-input",
+   "variation_tags": [
+    "bad-status",
+    "refusal-expected"
+   ],
+   "sources": [
+    {
+     "source": "akfta-annex3",
+     "locator": "Rule 4: only originating materials count"
+    },
+    {
+     "source": "akfta-appendix2",
+     "locator": "row 3301.30: CTSH or RVC40"
+    }
+   ],
+   "rule": {
+    "row": "3301.30",
+    "text": "CTSH or RVC40",
+    "listed": true
+   },
+   "rationale": "A malformed request (bad-status) must be refused as invalid input rather than answered.",
+   "input": {
+    "hs": "3301.30",
+    "produced_in": "Philippines",
+    "fob": 100,
+    "materials": [
+     {
+      "name": "Input: edible vegetables and certain roots and (HS 0709.92)",
+      "hs": "0709.92",
+      "value": 20,
+      "country": "India",
+      "status": "maybe"
+     }
+    ]
+   },
+   "expect": {
+    "outcome": "refused"
+   },
+   "expected_abstention": false
+  },
+  {
+   "id": "akfta-dev-malformed-input-04",
+   "split": "dev",
+   "feature": "akfta",
+   "source_family_id": "malformed-input",
+   "scenario_family": "malformed-input",
+   "variation_tags": [
+    "bad-method",
+    "refusal-expected"
+   ],
+   "sources": [
+    {
+     "source": "akfta-annex3",
+     "locator": "Rule 4: only originating materials count"
+    },
+    {
+     "source": "akfta-appendix2",
+     "locator": "row 71.04: CTSH or RVC40"
+    }
+   ],
+   "rule": {
+    "row": "71.04",
+    "text": "CTSH or RVC40",
+    "listed": true
+   },
+   "rationale": "A malformed request (bad-method) must be refused as invalid input rather than answered.",
+   "input": {
+    "hs": "7104.29",
+    "produced_in": "South Korea",
+    "fob": 100,
+    "materials": [
+     {
+      "name": "Input: furskins and artificial fur (HS 4301.90)",
+      "hs": "4301.90",
+      "value": 20,
+      "country": "Australia",
+      "status": "non_originating"
+     }
+    ],
+    "method": "hybrid"
+   },
+   "expect": {
+    "outcome": "refused"
+   },
+   "expected_abstention": false
+  }
+ ]
+}
