@@ -1087,6 +1087,44 @@ After the daily budget reset, live MCP initialized anonymously, then returned HT
 - **D855 confirmation (`…-f28-854`, `families/b3-854-measure.json`, `b3-854-vs-852-measure.json`).** Output cap 4096 and 0 failed checks. Machinery 10 of 11, medical 9 of 10, optical 9 of 9; 45 of 48; look-alikes 29 of 30. The no-regression criterion failed on N356150, the return electrode.
 - $1.0027 in all; one run per revision.
 
+## Expanded generated given-move verification (28 Nov; D974–D975, #986)
+
+Frozen production-v2 candidate `59780443341e87dc77b07a90d43d83d79562d898`, dataset `a08297baa59ada7f7ef57b4173e213f535671b135fccfcc17585a72583f0b42e`. Reserved set: 220 synthetic variations (100 changed, 100 unchanged, 20 incomplete), 50 source parents / 49 connected source families. Starting origin supplied. This is given-move verification, not full plan search or ranking.
+
+**Source isolation was incomplete. Related source rulings remained available; this is not a source-clean holdout.** Selected endpoints, rather than full related-family closure, were excluded. N357930 and N366550 remained available; N357930 appears in five test inputs and was cited in three results, none shown. No causal claim that other outputs were unaffected. First labels, inputs and outputs are unchanged.
+
+| Measure | First reserved result |
+|---|---:|
+| Expectations matched, all inputs | 199/220 (90.5%), including 1 error and 20 mismatches |
+| Shown moves correct | 47/47 (100%) |
+| Valid changes shown | 47/100 (47%) |
+| Unchanged controls withheld | 99/100 (99%); model error is not a correct refusal |
+| Missing-fact controls withheld | 20/20 (100%) |
+
+Of 53 unshown positives, 33 had correct target/change but insufficient shown support and 20 were wrong. One production-length truncation and the failed model response remain. These labels were assistant-authored from already-known source pairs; variants are not independent customs decisions. No population interval.
+
+All development attempts: baseline v2 26/28 ($1.2275622); candidate v4 24/28 ($1.0717433), rejected against its registered criterion, with prompt archived. Selected v2 reserved cost $12.3137152; total $14.6130207. Reserved p50 32.055 seconds, p95 79.290 seconds. No new production verifier prompt shipped. Protocol, all raw outputs, costs and offline exporters: `challenges/verifier/`. `summarize.py --check` and the Go offline-summary tests reproduce the recorded evidence without model calls. Reproductions do not add trials.
+
+## Expanded generated rule challenges (28 Nov; D966–D969, #982–#983)
+
+These are reserved synthetic variations of published rules and examples, not additional customs rulings or a population accuracy estimate. Development cases were used to fix rules; candidates and expected test labels were frozen before the first reserved score. Expected refusals and requests for missing facts count as checks too. All errors remain in the denominator.
+
+| Capability | First reserved checks matched | Mismatches | Errors |
+|---|---:|---:|---:|
+| ATIGA | 168/169 (99.4%) | 1 | 0 |
+| AKFTA | 169/169 (100%) | 0 | 0 |
+| ACFTA | 147/154 (95.5%) | 1 | 6 |
+| RCEP | 179/180 (99.4%) | 1 | 0 |
+| USMCA preferential rules | 210/210 (100%) | 0 | 0 |
+| Textile deterministic rules | 146/146 (100%) | 0 | 0 |
+| Tariff-watch calculations | 108/108 (100%) | 0 | 0 |
+
+FTA records: `challenges/fta/PROTOCOL.md`, `challenges/fta/summary.json` and its frozen datasets/results (D966–D967). The six ACFTA errors are authoring defects: invalid direct-method inputs were assigned substantive expected results. They are retained; a separate corrected-input supplement scored 6/6 and does not replace the first score. The AKFTA development cases exposed a chapter 1–9 range-comparison defect, fixed before reserved scoring. Embedded rule rows are shared with the oracle, so this does not independently validate their transcription. RCEP clause text was not newly verified in the bounded source search.
+
+Legal-rule records: `challenges/legal-rules/PROTOCOL.md`, `challenges/legal-rules/summary.json`, frozen cases and `results-{dev-baseline,dev,test}.jsonl` (D968–D969). Development improved from 348/354 to 354/354. Fixes cover incomplete USMCA facts, textile packing-stage hierarchy, and tariff-action rates, dates and replacement of covered baseline charges. Textile's 146/146 checks status, origin and paragraph; a separate reason-class measure is 55/57, with the two incorrect expected reason labels retained. Tariff snapshots are synthetic, not predictions of future policy.
+
+Source families and templates overlap development and are counted in the summaries. Related variations are not independent legal observations. No population confidence interval or pooled real/synthetic accuracy is claimed. Each study cost $0 in model calls. Offline reproductions validate the stored score; they do not add trials. The earlier small authority-example studies below remain historical evidence, not the larger studies' denominators.
+
 ## ATIGA conformance, not real-world accuracy (28 Nov; D963–D964, #979)
 
 Candidate engine/rules from `792f0fe9`, labels frozen in `7991b45a` before scoring. No engine or label changed after the result.
