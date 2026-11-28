@@ -181,6 +181,7 @@ func RunCase(ctx context.Context, cand *Candidate, c Case) Row {
 	st.mu.Unlock()
 	p := res.Prediction
 	row.Provider, row.ModelID, row.PromptVersion = p.Trace.Provider, p.Trace.ModelID, p.Trace.PromptVersion
+	row.Reasoning, row.DecisiveStep = p.Reasoning, p.DecisiveStep
 	row.InputTokens, row.OutputTokens = p.Trace.InputTokens, p.Trace.OutputTokens
 	if err != nil {
 		code, status := logsafe.Classify(err)

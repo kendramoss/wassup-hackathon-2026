@@ -397,6 +397,7 @@ func cmdRun(args []string) error {
 				}
 				mu.Lock()
 				rows = append(rows, r)
+				appendPartial(name(f)+".partial", r)
 				mu.Unlock()
 			}(c)
 		}
@@ -407,6 +408,7 @@ func cmdRun(args []string) error {
 		if err := writeRowsFile(name(f), rows); err != nil {
 			return err
 		}
+		_ = os.Remove(name(f) + ".partial")
 		s, err := SummarizeSplit(fc, rows)
 		if err != nil {
 			return err
@@ -429,6 +431,17 @@ func cmdRun(args []string) error {
 	}
 	fmt.Printf("total reported cost this invocation: $%.4f\n", spent)
 	return nil
+}
+
+// appendPartial keeps every finished row on disk as it completes, so a run
+// that is killed still leaves its rows (and their cost) on record.
+func appendPartial(path string, r Row) {
+	f, err := os.OpenFile(path, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0o644)
+	if err != nil {
+		return
+	}
+	defer f.Close()
+	_ = json.NewEncoder(f).Encode(r)
 }
 
 func appendAttempt(a attempt) error {

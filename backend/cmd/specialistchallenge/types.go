@@ -87,6 +87,8 @@ type Row struct {
 	Outcome       string   `json:"outcome,omitempty"`
 	Criterion     string   `json:"criterion,omitempty"`
 	Retrieved     []string `json:"retrieved,omitempty"`
+	Reasoning     string   `json:"reasoning,omitempty"`
+	DecisiveStep  string   `json:"decisive_step,omitempty"`
 	Verdict       string   `json:"verdict"`
 	Class         string   `json:"class"`
 	CriterionOK   *bool    `json:"criterion_valid,omitempty"`

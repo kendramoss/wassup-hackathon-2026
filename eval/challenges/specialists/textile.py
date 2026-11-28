@@ -26,13 +26,13 @@ YARN = {"dev": [("5205.12", "single combed cotton yarn", "cotton"), ("5206.23", 
 FIL = {"dev": [("5402.33", "textured polyester filament yarn", "polyester"), ("5402.44", "elastomeric filament yarn", "elastane")],
        "test": [("5402.47", "polyester filament yarn, single, untwisted", "polyester"), ("5402.52", "polyester filament yarn, multiple", "polyester"),
                 ("5402.19", "high-tenacity nylon filament yarn", "nylon"), ("5406.00", "man-made filament yarn put up for retail sale", "polyester")]}
-WOVEN = {"dev": [("5208.12", "plain-weave cotton fabric", "cotton"), ("5209.42", "denim fabric of cotton", "cotton"),
-                 ("5407.61", "woven fabric of polyester filament yarn", "polyester"), ("5513.21", "dyed polyester staple woven fabric", "polyester")],
-         "test": [("5208.31", "cotton fabric, plain weave, dyed", "cotton"), ("5209.19", "unbleached cotton twill fabric", "cotton"),
-                  ("5210.21", "cotton and synthetic blend plain-weave fabric", "cotton"), ("5211.42", "cotton denim blend", "cotton"),
-                  ("5212.15", "woven cotton fabric, printed", "cotton"), ("5407.52", "woven textured polyester fabric", "polyester"),
+WOVEN = {"dev": [("5208.12", "plain-weave cotton fabric", "cotton"), ("5209.12", "unbleached cotton twill fabric", "cotton"),
+                 ("5407.61", "woven fabric of polyester filament yarn", "polyester"), ("5513.21", "polyester staple woven fabric", "polyester")],
+         "test": [("5208.31", "plain-weave cotton fabric", "cotton"), ("5209.19", "unbleached cotton twill fabric", "cotton"),
+                  ("5210.21", "cotton and synthetic blend plain-weave fabric", "cotton"), ("5211.12", "cotton and synthetic blend twill fabric", "cotton"),
+                  ("5212.15", "woven cotton fabric", "cotton"), ("5407.52", "woven textured polyester fabric", "polyester"),
                   ("5408.22", "woven artificial filament fabric", "viscose"), ("5512.19", "woven polyester staple fabric", "polyester"),
-                  ("5514.30", "woven polyester and cotton fabric, printed", "polyester"), ("5515.13", "polyester and wool blend woven fabric", "polyester"),
+                  ("5514.30", "woven polyester and cotton fabric", "polyester"), ("5515.13", "polyester and wool blend woven fabric", "polyester"),
                   ("5516.22", "woven artificial staple fibre fabric", "viscose")]}
 FINISH = ["bleaching", "shrinking", "fulling", "napping", "decating", "permanent stiffening", "weighting", "permanent embossing", "moireing"]
 WAPP = {"dev": [("6203.42", "men's cotton trousers", "cotton"), ("6204.62", "women's cotton trousers", "cotton"), ("6205.20", "men's cotton shirts", "cotton")],
@@ -148,7 +148,7 @@ def d_wapp(split, k, r):
     if mode == 3:  # split assembly: no single country wholly assembled
         a, b = cs(r, 2)
         steps = ["the fabric is woven in %s" % fab, "the components are cut in %s" % cut,
-                 "the sleeves and collar are sewn into sub-assemblies in %s and the body is sewn and the sub-assemblies joined in %s" % (a, b)]
+                 "some of the components are sewn into sub-assemblies in %s, and the remaining components are sewn and the sub-assemblies joined into the finished garment in %s" % (a, b)]
         return hts, prod, steps, {"kind": "uncertain", "origin": None, "para": "(c)(4)"}, "uncertain-split-assembly", \
             "the good is not wholly assembled in a single country, so (c)(2) and (c)(3)(ii) fail and (c)(4) asks which process is most important; the facts do not rank them"
     if mode == 4:  # garment dyeing/finishing elsewhere is minor
@@ -183,8 +183,8 @@ def e_knit(split, k, r):
             "6101-6117 (3): a good knit to shape (50 percent or more of the exterior surface from major parts knit to shape; minor sewing does not change that) takes the country where it was knit"
     if mode == 4:
         hts, prod, fib = r.choice(KCUT[split]); a, b = cs(r, 2); fab = cs(r, 1)[0]
-        steps = ["the knit fabric is formed in %s" % fab, "the front and back panels are cut and sewn into a half-assembled garment in %s" % a,
-                 "the sleeves are attached and the garment completed in %s" % b]
+        steps = ["the knit fabric is formed in %s" % fab, "some of the cut components are sewn into a part-assembled garment in %s" % a,
+                 "the remaining components are attached and the garment completed in %s" % b]
         return hts, prod, steps, {"kind": "uncertain", "origin": None, "para": "(c)(4)"}, "uncertain-split-assembly", \
             "the good is not wholly assembled in a single country, so (c)(2) and (c)(3)(ii) fail and (c)(4) asks which process is most important; the facts do not rank them"
     hts, prod, fib = r.choice(KSHAPE[split]); kn, ln, ct = cs(r, 3)

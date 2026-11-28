@@ -35,6 +35,8 @@ def build(split, spec):
     out = []
     for feat, cases in spec.items():
         for c in cases:
+            if c["scenario_family"] in ("pesticide",):
+                continue  # router-v4 defines pharma_api as drugs, vitamins and supplements; formulated pesticides are outside its stated scope
             out.append(make_case("legal_routing", split, "route|" + c["id"], "route-" + GROUP[feat], GROUP[feat], "routing-of-specialist-case",
                                  ["appropriate-specialist-case", c["expected"]["kind"]], c["sources"],
                                  "the router should label this %s case with the %s regime; its facts are those of the specialist case" % (GROUP[feat], REGIME[feat]),

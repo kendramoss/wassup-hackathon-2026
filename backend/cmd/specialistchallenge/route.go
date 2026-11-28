@@ -188,6 +188,7 @@ func cmdRoute(args []string) error {
 			}
 			mu.Lock()
 			rows = append(rows, r)
+			appendPartial(out+".partial", r)
 			mu.Unlock()
 		}(c)
 	}
@@ -198,6 +199,7 @@ func cmdRoute(args []string) error {
 	if err := writeRowsFile(out, rows); err != nil {
 		return err
 	}
+	_ = os.Remove(out + ".partial")
 	s, err := SummarizeRouting(cases, rows)
 	if err != nil {
 		return err

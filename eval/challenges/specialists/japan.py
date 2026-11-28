@@ -148,12 +148,18 @@ def build_case(split, k, r, row):
         elif m["status"] == "unknown": st = "origin status not known"
         else: st = "non-originating, made in %s" % m["origin"]
         lines.append("%s %s (%s), %s, %d%% of the ex-works price" % (CIRC[i], m["name"], c, st, m["share"]))
-    prod = r.choice(["Machine article", "Finished article", "Assembled apparatus", "Manufactured good", "Product"])
+    prod = "Finished article of subheading %s" % dot(good)
     style = r.randrange(3)
     parts = ["Product: %s\nTariff number of the good (Japan): %s\nPreference claimed: %s\n" % (prod, dot(good), SHORT[ag])]
     parts.append("Materials: " + ("; ".join(lines) if lines else "not listed") + "\n")
-    parts.append("Production process: the good is assembled and finished in %s from the materials above." % party)
+    if mats:
+        parts.append("Production process: the good is assembled and finished in %s from the materials above." % party)
+    else:
+        parts.append("Production process: the good is produced in %s. %s" % (party, r.choice([
+            "The producer has not supplied a list of materials.", "No bill of materials is available to the importer.",
+            "The importer does not know which inputs were used or where they come from.", "The producer describes only the final assembly step."])))
     if style == 1: parts.append(" The importer holds a certificate of origin for the good.")
+    if style == 0 and not mats: parts.append(" The consignment is invoiced by the producer.")
     if style == 2: parts.append(" The good is shipped directly from %s to Japan." % party)
     facts = "".join(parts)
     tags = [exp["kind"], tmpl, "style-%d" % style, rule.lower() + "-rule", "preflight" if prefl else "model-call"]
@@ -163,6 +169,7 @@ def build_case(split, k, r, row):
 
 
 QUOTA = {"dev": 48, "test": 112}
+USED = set()
 
 
 def build(split):
@@ -175,12 +182,19 @@ def build(split):
     ags = sorted(byag)
     out = []
     for k in range(QUOTA[split]):
-        r = rng_for("japan", split, k)
-        ag = ags[k % len(ags)] if k % 12 != 11 else "AJCEP"
-        pool = byag.get(ag) or byag[ags[0]]
-        row = pool[(k // len(ags)) % len(pool)]
-        c, _ = build_case(split, k, r, row)
-        out.append(c)
+        for attempt in range(40):  # re-draw the free choices until the input is new
+            r = rng_for("japan", split, k, attempt)
+            ag = ags[k % len(ags)] if k % 12 != 11 else "AJCEP"
+            pool = byag.get(ag) or byag[ags[0]]
+            row = pool[((k // len(ags)) + attempt) % len(pool)]
+            c, _ = build_case(split, k, r, row)
+            key = norm(c["input"]["facts"])
+            if key not in USED:
+                USED.add(key)
+                out.append(c)
+                break
+        else:
+            raise RuntimeError("no distinct input for case %d" % k)
     return out
 
 
