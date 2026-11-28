@@ -615,6 +615,21 @@ Status: Japan is open on the live site. `GET /v1/jurisdictions` returns `jp` wit
 
 Reserved labels and candidates were frozen before first test scoring. These are variations of common source rules and templates, not independent legal samples; development overlap is counted in each summary. The FTA oracle shares embedded rule data, and the legal oracle shares authority text: neither independently validates transcription. No population interval, pooled real/synthetic accuracy or claim that every check is an origin prediction. Original smaller authority-example studies remain below and in Accuracy's historical details.
 
+## Expanded generated given-move verification (D974–D975)
+
+| Measure | Value | Source | Status |
+|---|---|---|---|
+| Reserved expectations matched | 199/220 (90.5%); 20 mismatches, 1 model error | `eval/challenges/verifier/{test-summary,summary}.json`, first `test-results.jsonl`; D975 | Measured synthetic given-move checks with known starting origin, not full plan-search accuracy |
+| Shown moves correct | 47/47 (100%) | Same records, `shown_precision` | Conditional on the 47 shown, not all 220 inputs |
+| Valid changes shown | 47/100 (47%) | Same records, `positive_recall` | Coverage/recall; 53 real-change variations unshown |
+| Unchanged controls withheld | 99/100 (99%) | Same records, `negative_controls` | One model error remains in the denominator, not a correct refusal |
+| Missing-fact controls withheld | 20/20 (100%) | Same records, `incomplete_controls` | Synthetic incomplete-fact controls, a subgroup of the 220 |
+| Development comparison | Production v2 26/28; candidate v4 24/28, rejected | `dev-summary.json`, `dev-v4-summary.json`, raw outputs and rejected prompt under same directory | Development only; production v2 unchanged |
+| Model cost | Baseline dev $1.2275622, rejected dev $1.0717433, reserved $12.3137152; total $14.6130207 | Three `.cost.json` files and shared summary | Actual gateway cost, all attempts included |
+| Reserved latency | p50 32.055 seconds; p95 79.290 seconds | `test-summary.json`, shared summary | Per given-move check, not full end-to-end plan search |
+
+Related source rulings remained available, so this is **not a source-clean holdout**. Selected ruling IDs and connected source families are disjoint across development and test, but exclusions did not cover the entire related-family closure. Source-family count is 49 for 220 related variations; do not treat them as independent legal observations or claim unaffected outputs. Of the 53 unshown positive moves, 33 had the correct target/change but insufficient shown support and 20 were wrong. One input exceeded the production fact-length limit and was truncated as production would; it and every first result remain. No population interval, relabelled test or polishing rerun.
+
 ## USMCA extended rules and ATIGA check (D927, D930, D932; both on since #910), AKFTA and ACFTA checks (D949, D950; off)
 
 | Measure | Value | Source | Status |
