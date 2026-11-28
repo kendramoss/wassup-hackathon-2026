@@ -470,3 +470,46 @@ func TestACFTAStatesEdition(t *testing.T) {
 		t.Fatalf("note %q regime %q", res.Note, res.Regime)
 	}
 }
+
+// A proviso on materials of Chapters 1 to 9 is written "1", "8" in the
+// table. Compared as text against two-digit codes, no material of those
+// chapters was ever in scope, so the proviso passed without being tested.
+func TestProvisoOnChaptersOneToNineApplies(t *testing.T) {
+	in := atiga.Input{HS: "2306.50", ProducedIn: "South Korea", FOB: f(100), Method: "indirect", Materials: []atiga.Material{
+		{Name: "coconuts", HS: "0801.11", Value: f(20), Country: "Singapore", Status: atiga.StatusOriginating, WhollyObtained: b(false)},
+		{Name: "beef", HS: "0210.91", Value: f(10), Country: "United States", Status: atiga.StatusNonOriginating},
+	}}
+	res := check(t, AKFTA, in)
+	if res.Outcome != atiga.No {
+		t.Fatalf("a chapter 8 material that is not wholly obtained must fail the proviso: got %s: %s", res.Outcome, strings.Join(res.Reasons, " | "))
+	}
+	in.Materials[0].WhollyObtained = b(true)
+	if res := check(t, AKFTA, in); res.Outcome != atiga.Yes {
+		t.Fatalf("a wholly obtained chapter 8 material meets the proviso: got %s: %s", res.Outcome, strings.Join(res.Reasons, " | "))
+	}
+	in.Materials[0].WhollyObtained = nil
+	if res := check(t, AKFTA, in); res.Outcome != atiga.Undetermined {
+		t.Fatalf("an unstated chapter 8 material leaves the proviso open: got %s: %s", res.Outcome, strings.Join(res.Reasons, " | "))
+	}
+}
+
+func TestRuleRangesAreWrittenAtTheirLevel(t *testing.T) {
+	width := map[string]int{"chapter": 2, "heading": 4, "subheading": 6}
+	for _, ag := range []Agreement{AKFTA, ACFTA} {
+		for _, r := range TableFor(ag).Rules {
+			alts := append([]atiga.Alternative{}, r.Alternatives...)
+			for _, v := range r.Variants {
+				alts = append(alts, v.Alternatives...)
+			}
+			for _, a := range alts {
+				for _, q := range a.Requires {
+					for _, g := range append(append([]atiga.Range{}, q.Scope...), q.Except...) {
+						if len(g.From) != width[g.Level] || len(g.To) != width[g.Level] {
+							t.Errorf("%s row %s: %s range %q to %q is not %d digits", ag, r.Code, g.Level, g.From, g.To, width[g.Level])
+						}
+					}
+				}
+			}
+		}
+	}
+}
