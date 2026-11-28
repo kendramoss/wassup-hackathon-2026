@@ -58,3 +58,4 @@ data/tuning/
 /eval/adcvd/real/**/reads*.jsonl
 /backend/evaldrift
 /backend/legalchallenge
+/backend/specialistchallenge

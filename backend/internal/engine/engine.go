@@ -50,6 +50,12 @@ type Options struct {
 	// is kept in Result.Answer (D590; the production Part 102 engine since
 	// D602).
 	Schema map[string]any
+	// RequireSingleCountry caps the confidence of an answer that names no
+	// single country (unknown, a restated question, two countries) at
+	// UnresolvedConfidenceCap, so it can never reach an auto-accept bar.
+	// Off by default; the Part 102 engine, which may name several countries,
+	// leaves it off.
+	RequireSingleCountry bool
 }
 
 // Engine predicts origin from facts plus dated precedents.
@@ -249,6 +255,9 @@ func (e *Engine) promptVersion() string {
 	if e.opts.PrecedentReasoning {
 		v += "+" + ReasoningVersion
 	}
+	if e.opts.RequireSingleCountry {
+		v += "+one-country"
+	}
 	return v
 }
 
@@ -307,6 +316,9 @@ func (e *Engine) ask(ctx context.Context, c domain.Case, precedents []domain.Rul
 	}
 	if a.Confidence != nil {
 		pred.Confidence = *a.Confidence
+	}
+	if e.opts.RequireSingleCountry && unresolvedOrigin(a.Origin) && pred.Confidence > UnresolvedConfidenceCap {
+		pred.Confidence = UnresolvedConfidenceCap
 	}
 	if err := pred.Validate(); err != nil {
 		return Result{}, fmt.Errorf("engine: predict %s: %w: %v", c.ID, llm.ErrBadResponse, err)
