@@ -78,6 +78,30 @@ func TestMediaCitationsAreChecked(t *testing.T) {
 	}
 }
 
+type mediaNameCapture struct{ request llm.Request }
+
+func (m *mediaNameCapture) Provider() string { return "test" }
+func (m *mediaNameCapture) Generate(_ context.Context, req llm.Request) (llm.Response, error) {
+	m.request = req
+	return llm.Response{Provider: "test", Text: `{"product":"X","components":[],"operations":[],"plants":[],"stated_component_count":null,"unreadable":[],"notes":[]}`}, nil
+}
+
+func TestMediaRequestSeparatesNamesFromOriginAndRowSyntax(t *testing.T) {
+	m := &mediaNameCapture{}
+	draft, err := New(m, "m").ExtractMedia(context.Background(), []File{png(800, 600)}, "", nil)
+	if err != nil {
+		t.Fatal(err)
+	}
+	for _, instruction := range []string{"Exclude line numbers, quantities, origin phrases", "never include JSON field syntax", "one entry per printed line item"} {
+		if !strings.Contains(m.request.System, instruction) {
+			t.Errorf("missing name separation instruction %q", instruction)
+		}
+	}
+	if draft.Trace.PromptVersion != "extract-image-v2" {
+		t.Errorf("prompt version %q", draft.Trace.PromptVersion)
+	}
+}
+
 func TestUnreadableWarningWording(t *testing.T) {
 	for _, c := range []struct{ what, want string }{
 		{"row 7", "File 1: could not read row 7."},

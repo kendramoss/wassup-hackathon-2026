@@ -13,7 +13,7 @@ import (
 
 // MediaPromptVersion is recorded with every draft read from images or
 // scanned PDFs.
-const MediaPromptVersion = "extract-image-v1"
+const MediaPromptVersion = "extract-image-v2"
 
 // MediaSchemaName names the media answer schema. The local fake model keys
 // its simulated answer on it.
@@ -25,6 +25,7 @@ const MediaSystem = `You read a bill of materials, a parts list, a spec sheet or
 List:
 - product: the product name, as printed. "" if none is printed.
 - components: every part the files list, one per entry, in the order printed. country is the country of origin the file STATES for that part (a column such as "Country", "COO", "Origin" or "Made in", or a label "Made in X"); if no country is printed for it, give country "" — never infer it from other parts, a supplier's name or an address. file is the file number and page the page where the part is printed. legible is false when you are not sure you read the name or the country correctly (blurred, cut off, handwritten, low resolution).
+- For a component name, use only the printed part or assembly description. Exclude line numbers, quantities, origin phrases such as "made in China", and column labels; put the origin only in country. Keep one entry per printed line item, including grouped assemblies, without copying adjacent rows into its name; never include JSON field syntax in a name. Preserve the printed words and parentheses, with normal spacing.
 - operations: assembly or processing steps the files describe as something done (moulding, winding, soldering, final assembly, testing), one per entry, with the country where it happens, file, page and legible. A list of parts is not an operation.
 - plants: a plant, factory or supplier the files name, with its country. Usually there is none: return an empty list then.
 - stated_component_count: a total the files print (e.g. "24 components"), or null.

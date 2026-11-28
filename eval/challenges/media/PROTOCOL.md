@@ -42,3 +42,7 @@ A local fake-model Go regression test proves the evaluator retains missing-count
 - `cd backend && go test ./cmd/mediacheck`
 
 Reproduction is offline and does not add trials. The bounded run-of-record images and their deterministic definitions are retained; do not duplicate raw image lanes.
+
+## Development amendment, before candidate-v2 scoring
+
+First baseline: 21/24 documents, 140/151 names and stated origins matched, 10 extra confirmed rows, no wrong matched-country values or model errors; cost $0.195032. Three failures on power-bank documents: origin suffixes copied into every name, JSON field text fused into a name, and whitespace before closing parentheses. All first outputs remain in `results/dev-baseline/`, and the original strict scorer is unchanged. Candidate v2 adds generic name/column/row separation instructions and uses prompt version extract-image-v2. Accept v2 only if it matches at least 21/24 documents and at least 140/151 stated origins, with no increase in model errors or wrong-country values. This criterion is recorded before its development score. No reserved result has been observed.

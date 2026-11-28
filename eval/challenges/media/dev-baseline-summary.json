@@ -1,0 +1,15 @@
+{
+  "cases": 24,
+  "countries_right": 140,
+  "errors": 0,
+  "expected_countries": 151,
+  "expected_names": 151,
+  "extra_rows": 10,
+  "matched": 21,
+  "mismatched": 3,
+  "names_read": 140,
+  "unknown_documented": 0,
+  "unknown_expected": 0,
+  "unknown_withheld": 0,
+  "wrong_countries": 0
+}
