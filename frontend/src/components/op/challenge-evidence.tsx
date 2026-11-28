@@ -21,7 +21,10 @@ export function ChallengeEvidence({ features }: { features: readonly ChallengeFe
         <tbody>
           {features.map((f) => (
             <tr key={f.id} className="border-b border-dashed border-line align-top">
-              <th scope="row" className="py-3 pr-3 text-left font-normal">{f.label}</th>
+              <th scope="row" className="py-3 pr-3 text-left font-normal">
+                {f.label}
+                {f.public_note ? <span className="mt-1 block text-[12px] leading-snug text-dim">{f.public_note}</span> : null}
+              </th>
               <td className="py-3 text-right tabular-nums">
                 <strong>{challengePercent(f)}</strong>
                 <span className="block text-[12px] text-dim">{f.test.matched}/{f.test.cases}</span>

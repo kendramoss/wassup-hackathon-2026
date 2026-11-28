@@ -600,6 +600,21 @@ Status: Japan is open on the live site. `GET /v1/jurisdictions` returns `jp` wit
 | Cost of these runs | $0.47 and $0.48 for the 44 (plus $0.08 translation); $1.75, $0.08, $0.26 after-card runs; $1.18 and $6.28 for D918 | D920, D922, D918; `eval/results/RUNLOG.jsonl` | Gateway-reported |
 | Specialist review | Not done; tracked in #665 | `docs/scope-and-jurisdiction.md` | Say "review pending" next to any Japan figure |
 
+## Expanded generated rule challenges (D966–D969)
+
+| Measure | Value | Source | Status |
+|---|---|---|---|
+| ATIGA reserved generated checks | 168/169 (99.4%); 1 mismatch, 0 errors | D966–D967; `eval/challenges/fta/summary.json`, frozen datasets and first results under that directory | Measured synthetic rule conformance, not independent customs decisions |
+| AKFTA reserved generated checks | 169/169 (100%); 0 mismatches, 0 errors | D966–D967; same FTA records | Measured synthetic conformance; chapter 1–9 proviso comparison fixed on development |
+| ACFTA reserved generated checks | 147/154 (95.5%); 1 mismatch, 6 errors | D966–D967; same FTA records | First score retained, including six invalid direct-method authoring inputs. Corrected-input supplement 6/6 is separate |
+| RCEP reserved generated checks | 179/180 (99.4%); 1 mismatch, 0 errors | D966–D967; same FTA records | Measured synthetic conformance; clause text was not newly verified |
+| USMCA preferential rules, reserved generated checks | 210/210 (100%); 0 mismatches, 0 errors | D968–D969; `eval/challenges/legal-rules/summary.json`, frozen cases and `results-test.jsonl` | Measured synthetic conformance, including expected refusals and missing facts |
+| Textile deterministic rules, reserved generated checks | 146/146 (100%) on status, origin and paragraph; separate reason-class agreement 55/57 | D968–D969; same legal-rule records | Measured synthetic conformance; two incorrect expected reason labels retained |
+| Tariff-watch reserved generated checks | 108/108 (100%); 0 mismatches, 0 errors | D968–D969; same legal-rule records | Measured calculations on synthetic policy snapshots, not future-policy prediction |
+| Model spend for these deterministic studies | $0 | D967, D969; both summaries' `cost_usd` fields | No model calls |
+
+Reserved labels and candidates were frozen before first test scoring. These are variations of common source rules and templates, not independent legal samples; development overlap is counted in each summary. The FTA oracle shares embedded rule data, and the legal oracle shares authority text: neither independently validates transcription. No population interval, pooled real/synthetic accuracy or claim that every check is an origin prediction. Original smaller authority-example studies remain below and in Accuracy's historical details.
+
 ## USMCA extended rules and ATIGA check (D927, D930, D932; both on since #910), AKFTA and ACFTA checks (D949, D950; off)
 
 | Measure | Value | Source | Status |

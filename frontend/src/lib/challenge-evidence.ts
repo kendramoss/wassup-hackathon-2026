@@ -12,6 +12,7 @@ export type ChallengeFeature = {
   latency_p95_ms: number;
   limitations: string[];
   sourcePath: string;
+  public_note?: string;
 };
 
 function object(value: unknown): Record<string, unknown> {
@@ -64,13 +65,15 @@ export function parseChallengeSummary(input: unknown, sourcePath: string): Chall
     if (!Array.isArray(f.limitations) || f.limitations.length === 0 || !f.limitations.every((s) => typeof s === "string" && s.trim())) {
       throw new Error("Challenge limitations must stay with its results");
     }
+    const publicNote = f.public_note === undefined ? undefined : nonempty(f.public_note, "public qualification");
+    if (f.source_isolation_issue === true && !publicNote) throw new Error("Source isolation qualification cannot be hidden");
     const sourceFamilies = integer(f.source_families, "source families");
     if (sourceFamilies < 1) throw new Error("Challenge source groups are missing");
     return {
       id, label: nonempty(f.label, "label"), candidate_revision: candidate, dataset_sha256: dataset,
       source_families: sourceFamilies, development, test,
       cost_usd: finite(f.cost_usd, "cost"), latency_p50_ms: finite(f.latency_p50_ms, "median latency"),
-      latency_p95_ms: finite(f.latency_p95_ms, "tail latency"), limitations: [...f.limitations] as string[], sourcePath,
+      latency_p95_ms: finite(f.latency_p95_ms, "tail latency"), limitations: [...f.limitations] as string[], sourcePath, public_note: publicNote,
     };
   });
 }
