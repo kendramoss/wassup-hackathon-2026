@@ -37,6 +37,32 @@
         "wrong_countries": 0
       },
       "development_cost_usd": 0.42555,
+      "display_metrics": [
+        {
+          "den": 632,
+          "id": "name_matches",
+          "label": "Exact name matches",
+          "num": 629
+        },
+        {
+          "den": 621,
+          "id": "country_matches",
+          "label": "Stated origin fields matched",
+          "num": 618
+        },
+        {
+          "den": 11,
+          "id": "missing_origins",
+          "label": "Missing origins documented",
+          "num": 11
+        },
+        {
+          "den": 24,
+          "id": "large_sheets",
+          "label": "Sheets with 12+ parts matched",
+          "num": 21
+        }
+      ],
       "document_sizes": {
         "one_or_two_parts": {
           "cases": 52,

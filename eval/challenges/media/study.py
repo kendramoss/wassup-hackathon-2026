@@ -263,6 +263,12 @@ def summarize(check=False):
         selected_cases = [c for c in test if low <= len(c["components"]) <= high]
         size_groups[name] = {"cases": len(selected_cases), "matched": sum(test_rows[c["id"]]["matched"] for c in selected_cases), "errors": sum(test_rows[c["id"]]["error"] for c in selected_cases)}
     f["document_sizes"] = size_groups
+    f["display_metrics"] = [
+        {"id": "name_matches", "label": "Exact name matches", "num": metrics["names_read"], "den": metrics["expected_names"]},
+        {"id": "country_matches", "label": "Stated origin fields matched", "num": metrics["countries_right"], "den": metrics["expected_countries"]},
+        {"id": "missing_origins", "label": "Missing origins documented", "num": metrics["unknown_documented"], "den": metrics["unknown_expected"]},
+        {"id": "large_sheets", "label": "Sheets with 12+ parts matched", "num": size_groups["twelve_plus_parts"]["matched"], "den": size_groups["twelve_plus_parts"]["cases"]},
+    ]
     small, large = size_groups["one_or_two_parts"], size_groups["twelve_plus_parts"]
     f["public_note"] = f'{small["cases"]}/{len(test)} sheets have only 1–2 parts; {large["matched"]}/{large["cases"]} sheets with 12+ parts matched.'
     f["limitations"].append("The missing-origin footer explicitly says the supplier address is not a statement of part origin. Withholding 11/11 is on a self-labelled distractor in one layout, not an unlabelled-address challenge.")
