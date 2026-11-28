@@ -461,6 +461,46 @@
    "Same synthetic-case limits as the study: oracle labels by the case author, shared templates with development."
   ]
  },
+ "live_japan_comparator": {
+  "id": "japan_live_comparator",
+  "label": "Japan preference engine as deployed (jp-engine-v1, no unknown-status sentence)",
+  "candidate_revision": "9286b4df96bfb7072e2f56ba98cb0f63461e557c",
+  "dataset_sha256": "a18ca16fe1afc109302cff59a0eb9a41328267a368ca6fbfa0c7fd1182069342",
+  "test": {
+   "cases": 112,
+   "matched": 104,
+   "mismatched": 8,
+   "errors": 0,
+   "expected_decided": {
+    "cases": 76,
+    "agreed": 74,
+    "wrong": 0,
+    "abstained": 2,
+    "errors": 0,
+    "confident": 0,
+    "confident_correct": 0,
+    "confident_wrong": 0
+   },
+   "expected_uncertain": {
+    "cases": 36,
+    "abstained_correctly": 30,
+    "overconfident": 6,
+    "errors": 0
+   },
+   "model_calls": 103,
+   "preflight_cases": 9,
+   "criterion_valid": 37
+  },
+  "test_cost_usd": 1.266866,
+  "latency_p50_ms": 7422,
+  "latency_p95_ms": 11412,
+  "limitations": [
+   "Post-hoc and current-configuration only: the original reserved Japan cases had already been scored and seen by the author; this is not a new blind holdout and does not replace the original 112-case result of the frozen cand-1 variant, which is unchanged.",
+   "The unmodified engine, one score, no tuning and no label or input change; the 13 cases whose tariff codes fall outside the schedule's HS edition stay in the denominator.",
+   "Gateway calls without the deployed engine cache, retry or fallback; the deployed provider is Vertex.",
+   "Same synthetic-case limits as the study: oracle labels by the case author, shared templates with development."
+  ]
+ },
  "corpus": {
   "labels.jsonl": "dc7e82fe63a2b4de2c77984169577387dd8816d73f66b6b43575d5b74f159b85",
   "labels_usmca.jsonl": "6040e8508af239d3d23fc360b2b5a8d06742125d3547ef298e35f8e71b600f9d",
@@ -479,6 +519,11 @@
    "feature": "japan_engine",
    "attempts": 7,
    "cost_usd": 3.934813
+  },
+  {
+   "feature": "japan_live_comparator",
+   "attempts": 1,
+   "cost_usd": 1.266866
   },
   {
    "feature": "legal_routing",
