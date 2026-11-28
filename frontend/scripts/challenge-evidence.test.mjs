@@ -17,6 +17,11 @@ test("the public bundle is byte-provenanced to selected completed source studies
     for (const f of parseChallengeSummary(source.summary, source.sourcePath)) {
       assert.ok(!ids.has(f.id), `repeated ${f.id}`);
       ids.add(f.id);
+      if (f.id === "move_verifier") {
+        const original = source.summary.features.find((item) => item.id === f.id);
+        assert.equal(original.source_isolation_issue, true);
+        assert.match(f.public_note, /not a source-clean holdout/);
+      }
     }
   }
   assert.ok(ids.has("atiga"));
@@ -90,7 +95,7 @@ test("move verification cannot hide low coverage behind conditional precision", 
   const { ChallengeEvidence } = await import("../src/components/op/challenge-evidence.tsx");
   const data = fixture();
   const f = data.features[0];
-  Object.assign(f, { id: "move_verifier", shown_precision: {num: 47, den: 47}, positive_recall: {num: 47, den: 100}, negative_controls: {num: 99, den: 100}, incomplete_controls: {num: 20, den: 20} });
+  Object.assign(f, { id: "move_verifier", test: {cases: 220, matched: 199, mismatched: 20, errors: 1}, shown_precision: {num: 47, den: 47}, positive_recall: {num: 47, den: 100}, negative_controls: {num: 99, den: 100}, incomplete_controls: {num: 20, den: 20}, raw_metrics: {cases: 220, matched: 199, mismatched: 20, errors: 1, positive_cases: 100, negative_cases: 100, uncertain_cases: 20, true_positive: 47, false_positive: 0, false_negative: 53, true_negative: 99} });
   const features = parseChallengeSummary(data, "eval/challenges/example/summary.json");
   const t = text(html(ChallengeEvidence, { features }));
   for (const value of ["Shown moves correct 47/47", "Valid changes shown 47/100", "Unchanged controls withheld 99/100", "Missing-fact controls withheld 20/20"]) assert.ok(t.includes(value), value);
@@ -98,6 +103,24 @@ test("move verification cannot hide low coverage behind conditional precision", 
   assert.throws(() => parseChallengeSummary(data, "eval/challenges/example/summary.json"));
   f.positive_recall = {num: 101, den: 100};
   assert.throws(() => parseChallengeSummary(data, "eval/challenges/example/summary.json"));
+});
+
+test("verifier conditional metrics must agree with their original raw counts", async () => {
+  const { parseChallengeSummary } = await import("../src/lib/challenge-evidence.ts");
+  const { ChallengeEvidence } = await import("../src/components/op/challenge-evidence.tsx");
+  const original = JSON.parse(readFileSync(new URL("../../eval/challenges/verifier/summary.json", import.meta.url), "utf8"));
+  const features = parseChallengeSummary(original, "eval/challenges/verifier/summary.json");
+  const visibleTable = text(html(ChallengeEvidence, { features }).split("</table>")[0]);
+  assert.match(visibleTable, /starting origin supplied/);
+  assert.match(visibleTable, /not plan search/);
+  for (const mutate of [
+    (f) => { f.positive_recall.den = 47; },
+    (f) => { f.shown_precision.den = 100; },
+    (f) => { f.negative_controls.num = 100; },
+  ]) {
+    const data = structuredClone(original); mutate(data.features[0]);
+    assert.throws(() => parseChallengeSummary(data, "eval/challenges/verifier/summary.json"));
+  }
 });
 
 test("source-isolation qualifications cannot disappear from the public table", async () => {

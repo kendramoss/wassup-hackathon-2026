@@ -13,6 +13,7 @@ export type ChallengeFeature = {
   limitations: string[];
   sourcePath: string;
   public_note?: string;
+  scope_note?: string;
   metrics: { id: string; label: string; num: number; den: number }[];
 };
 
@@ -82,6 +83,21 @@ export function parseChallengeSummary(input: unknown, sourcePath: string): Chall
       if (num > den || den > test.cases) throw new Error("Invalid conditional challenge denominator");
       return [{ id: key, label, num, den }];
     });
+    if (id === "move_verifier") {
+      const rawMetrics = object(f.raw_metrics);
+      const rawCount = (key: string) => integer(rawMetrics[key], `raw ${key}`);
+      for (const key of ["cases", "matched", "mismatched", "errors"] as const) {
+        if (rawCount(key) !== test[key]) throw new Error("Verifier totals disagree with original counts");
+      }
+      const positive = rawCount("positive_cases"), negative = rawCount("negative_cases"), uncertain = rawCount("uncertain_cases");
+      const tp = rawCount("true_positive"), fp = rawCount("false_positive"), fn = rawCount("false_negative"), tn = rawCount("true_negative");
+      if (positive + negative + uncertain !== test.cases || tp + fn !== positive) throw new Error("Verifier class counts disagree");
+      const expectedPairs = [[tp, tp + fp], [tp, positive], [tn, negative]];
+      for (const [index, pair] of expectedPairs.entries()) {
+        if (metrics[index].num !== pair[0] || metrics[index].den !== pair[1]) throw new Error("Verifier conditional metric disagrees with original counts");
+      }
+      if (metrics[3].den !== uncertain) throw new Error("Verifier missing-fact denominator disagrees");
+    }
     const sourceFamilies = integer(f.source_families, "source families");
     if (sourceFamilies < 1) throw new Error("Challenge source groups are missing");
     return {
@@ -89,6 +105,7 @@ export function parseChallengeSummary(input: unknown, sourcePath: string): Chall
       source_families: sourceFamilies, development, test, metrics,
       cost_usd: finite(f.cost_usd, "cost"), latency_p50_ms: finite(f.latency_p50_ms, "median latency"),
       latency_p95_ms: finite(f.latency_p95_ms, "tail latency"), limitations: [...f.limitations as string[], ...errorNote], sourcePath, public_note: publicNote,
+      scope_note: id === "move_verifier" ? "Given moves; starting origin supplied, not plan search. Errors are not correct refusals." : undefined,
     };
   });
 }
