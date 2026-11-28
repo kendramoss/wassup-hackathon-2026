@@ -21,6 +21,7 @@ type Summary struct {
 	EvidenceKind  string            `json:"evidence_kind"`
 	Features      []FeatureSummary  `json:"features"`
 	Routing       *RoutingEntry     `json:"routing,omitempty"`
+	Comparator    *ComparatorEntry  `json:"live_textile_comparator,omitempty"`
 	Corpus        map[string]string `json:"corpus"`
 	Attempts      []AttemptTotal    `json:"attempts_by_feature"`
 }
@@ -78,7 +79,7 @@ func limitations(f Feature, tmplShared, famShared int) []string {
 		"Synthetic cases written by the implementer from cited law and rulings; labels come from a reference oracle that shares no code with the candidate. Not independent real-world customs decisions.",
 		"Reserved cases were authored by the same hand and templates as development; they were not tuned on, but shared scenario templates are disclosed (templates shared with development: " + fmt.Sprint(tmplShared) + ", source families shared: " + fmt.Sprint(famShared) + ").",
 		"No claim of 100 independent legal sources and no i.i.d. confidence interval; the cases are parameter variations of a small set of rules and rulings.",
-		"The confident-decision bar is 0.92 stated confidence, the general engine's auto-accept bar; production sends every specialist case to review.",
+		"The confident-decision bar is 0.92 stated confidence, a study convention. The deployed auto-accept bars are textile 0.95, pharmaceutical 0.85 and Part 102 0.95 (deploy workflow). The deployed textile engine is textile-v2 with precedent reasoning; the textile candidate measured here is built on textile-v1, so it describes that prompt only (see the separate live-textile comparator).",
 	}
 	if f.ID == "japan_engine" {
 		l = append(l, "Only rows whose whole product-specific rule is CC, CTH or CTSH, in machinery, instruments and metal articles, were used; failing materials always exceed any tolerance or de minimis. Rules with alternatives, value tests or notes are not covered. Cases with a code outside the schedule's edition are answered before any model call (preflight) and are counted separately.")
@@ -89,8 +90,11 @@ func limitations(f Feature, tmplShared, famShared int) []string {
 	if f.ID == "textile_specialist" {
 		l = append(l, "Rows used: 5204-5207, 5401-5406, 5208-5212, 5407-5408, 5512-5516, 5508-5511, 6101-6117, 6201-6208, 6210-6211 and 6301-6306 (non-(e)(2)); knit fabrics, E2 headings and (c)(4)-(5) importance judgements are labelled uncertain or not used.")
 	}
+	if f.ID == "japan_engine" {
+		l = append(l, "13 of the 112 reserved cases (3 of 48 development) carry a tariff code outside the HS edition of the schedule in force (6 against HS 2017 schedules, 7 against older editions, the latter checked only against the HS 2017 list): authoring defects, kept. Two of the 8 declined decided cases are among them. There is no production arm on the reserved Japan cases, so the study cannot say whether the Japan candidate helped; it is not wired on this evidence.")
+	}
 	if f.ID == "pharma_specialist" {
-		l = append(l, "Expected labels apply the pharmaceutical rules in the engine's own prompt (HQ 563207, N334870, N336575, N355022, N349588, H341715); this measures consistent application of them, not validation of the rules.")
+		l = append(l, "12 of the 113 reserved cases (6 of 48 development) are formulated pesticides; routing excludes them because router-v4 defines the pharmaceutical regime as drugs, vitamins and supplements, so 101 of 113 are route-eligible.", "Expected labels apply the pharmaceutical rules in the engine's own prompt (HQ 563207, N334870, N336575, N355022, N349588, H341715); this measures consistent application of them, not validation of the rules.")
 	}
 	return l
 }
@@ -192,6 +196,7 @@ func buildSummary(candidate string) (Summary, error) {
 			"Appropriate cases reuse the facts of the textile, pharmaceutical and Part 102 specialist cases (parents are visible); they are not independent of those cases.",
 			"Negative controls are real 2026 rulings whose recorded regime is substantial transformation; that label comes from the corpus labeller, not an expert.",
 			"Japan cases are not routed: the router has no Japan regime.",
+			"Pesticide cases (12 reserved, 6 development) are not routed, so routing covers 101 of the 113 pharmaceutical reserved cases.",
 		}}
 	byF := map[string]*AttemptTotal{}
 	for _, a := range atts {
@@ -217,6 +222,9 @@ func buildSummary(candidate string) (Summary, error) {
 		return sum, err
 	}
 	sum.Corpus = prov
+	if sum.Comparator, err = buildComparator(); err != nil {
+		return sum, err
+	}
 	return sum, nil
 }
 
@@ -294,4 +302,98 @@ func checkTestNotRescored() string {
 		return "more than one reserved-test attempt recorded for: " + strings.Join(bad, ", ")
 	}
 	return ""
+}
+
+// ComparatorEntry is the post-hoc live-textile comparison (D971 amendment 2),
+// published apart from the frozen study: the deployed textile-v2 prompt with
+// precedent reasoning against the same prompt plus the missing-fact rule and
+// single-country guard, graded at the deployed 0.95 bar.
+type ComparatorEntry struct {
+	ID                string        `json:"id"`
+	Label             string        `json:"label"`
+	CandidateRevision string        `json:"candidate_revision"`
+	DeployedBar       float64       `json:"deployed_bar"`
+	DevBase           SplitSummary  `json:"development_live_v2"`
+	DevCandidate      SplitSummary  `json:"development_live_v2_plus_option"`
+	Selected          string        `json:"selected_on_development"`
+	Test              *SplitSummary `json:"test,omitempty"`
+	DatasetSHA256     string        `json:"dataset_sha256"`
+	CostUSD           float64       `json:"test_cost_usd"`
+	LatencyP50MS      int64         `json:"latency_p50_ms"`
+	LatencyP95MS      int64         `json:"latency_p95_ms"`
+	Limitations       []string      `json:"limitations"`
+}
+
+type comparatorRecord struct {
+	DevBase     string `json:"dev_base"`
+	DevCand     string `json:"dev_candidate"`
+	FrozenAtSHA string `json:"frozen_at"`
+}
+
+// buildComparator returns nil when no comparator has been recorded.
+func buildComparator() (*ComparatorEntry, error) {
+	b, err := os.ReadFile(filepath.Join(dataRoot(), "comparator.json"))
+	if errors.Is(err, os.ErrNotExist) {
+		return nil, nil
+	} else if err != nil {
+		return nil, err
+	}
+	var rec comparatorRecord
+	if err := json.Unmarshal(b, &rec); err != nil {
+		return nil, err
+	}
+	dev, _, err := LoadAll(dataRoot())
+	if err != nil {
+		return nil, err
+	}
+	_, test, _ := LoadAll(dataRoot())
+	fd, ft := byFeature(dev, "textile_specialist"), byFeature(test, "textile_specialist")
+	res := filepath.Join(dataRoot(), "results")
+	sum := func(name string, cases []Case) (SplitSummary, []Row, error) {
+		rows, err := readRows(filepath.Join(res, name))
+		if err != nil {
+			return SplitSummary{}, nil, err
+		}
+		if err := Gate(rows); err != nil {
+			return SplitSummary{}, nil, err
+		}
+		s, err := SummarizeSplit(cases, rows)
+		return s, rows, err
+	}
+	e := &ComparatorEntry{ID: ComparatorFeature, Label: "Deployed textile engine (textile-v2 with precedent reasoning), with and without the missing-fact option", CandidateRevision: rec.FrozenAtSHA, DeployedBar: DeployedTextileBar}
+	if e.DevBase, _, err = sum(rec.DevBase, fd); err != nil {
+		return nil, err
+	}
+	if e.DevCandidate, _, err = sum(rec.DevCand, fd); err != nil {
+		return nil, err
+	}
+	e.Selected = SelectLive(e.DevBase, e.DevCandidate)
+	if e.DatasetSHA256, err = fileSHA(filepath.Join(dataRoot(), "textile-test.jsonl")); err != nil {
+		return nil, err
+	}
+	if _, serr := os.Stat(filepath.Join(res, comparatorTestFile)); serr == nil {
+		if frozenLive != e.Selected {
+			return nil, fmt.Errorf("frozenLive %q is not the variant the development rule selects (%q)", frozenLive, e.Selected)
+		}
+		ts, rows, err := sum(comparatorTestFile, ft)
+		if err != nil {
+			return nil, err
+		}
+		e.Test = &ts
+		var lat []int64
+		for _, r := range rows {
+			e.CostUSD += r.CostUSD
+			if r.CalledModel {
+				lat = append(lat, r.LatencyMS)
+			}
+		}
+		e.CostUSD, e.LatencyP50MS, e.LatencyP95MS = round6(e.CostUSD), Percentile(lat, .5), Percentile(lat, .95)
+	}
+	e.Limitations = []string{
+		"Post-hoc and current-configuration only: the original synthetic reserved textile cases had already been scored and seen by the author before this comparison, so it is not a new blind holdout and does not replace the original 114-case result.",
+		"Selected on the original development cases only, by a rule registered before any comparator call; one comparator score on the unchanged 114 reserved cases, no relabelling.",
+		"Gateway calls without the deployed engine cache, retry or fallback model; the deployed provider is Vertex. Graded at the deployed 0.95 textile bar.",
+		"Same synthetic-case limits as the study: oracle labels by the case author, shared templates with development.",
+	}
+	return e, nil
 }

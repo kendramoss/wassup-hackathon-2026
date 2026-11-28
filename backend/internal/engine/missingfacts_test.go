@@ -73,3 +73,19 @@ func TestTextileV3StatesTheFabricFinishingAlternative(t *testing.T) {
 		t.Error("textile-v1 must stay as it was")
 	}
 }
+
+// Review round 1: the guard treated any " and " or " or " as two countries, so
+// canonical single countries written with a conjunction were capped.
+func TestSingleCountryGuardKeepsCanonicalCountriesWithConjunctions(t *testing.T) {
+	for _, origin := range []string{"Trinidad and Tobago", "Bosnia and Herzegovina", "Antigua and Barbuda", "Saint Kitts and Nevis",
+		"Saint Vincent and the Grenadines", "Sao Tome and Principe", "Turks and Caicos Islands", "trinidad AND tobago"} {
+		if p, _ := predictWith(t, Options{Model: "m", RequireSingleCountry: true}, origin); p.Confidence != 0.95 {
+			t.Errorf("%q was capped to %.2f", origin, p.Confidence)
+		}
+	}
+	for _, origin := range []string{"India or China", "Germany and Italy", "Trinidad and Tobago and Peru", "Chile/Peru", "Country of API manufacture", "Depends on the supplier"} {
+		if p, _ := predictWith(t, Options{Model: "m", RequireSingleCountry: true}, origin); p.Confidence > UnresolvedConfidenceCap {
+			t.Errorf("%q kept %.2f", origin, p.Confidence)
+		}
+	}
+}

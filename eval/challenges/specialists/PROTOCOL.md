@@ -7,13 +7,13 @@ the historical real-ruling studies, which are unchanged.
 
 ## What is measured
 
-| Feature id | Candidate (production configuration) | Reserved cases |
+| Feature id | Frozen candidate `cand-1` (D970 amendment 4; the production base is named in each row) | Reserved cases |
 |---|---|---|
-| `textile_specialist` | `textile-v1` over the 371 textile rulings, K=5 | 114 |
-| `pharma_specialist` | `pharma-v1` over the 187 pharmaceutical rulings, K=5 | 113 |
-| `part102_specialist` | `usmca-v5` (Part 102 marking rules, 19 CFR 102.11; not the USMCA preference calculator) over the Part 102 pool, K=5 | 112 |
-| `japan_engine` | `jp-engine-v1` (rule rows plus Japan rulings, K=5) | 112 |
-| `legal_routing` | `router-v4`, scored on the specialist cases that fit it plus general-origin negative controls, as separate denominators | 339 appropriate + 110 controls |
+| `textile_specialist` | `textile-v3` (textile-v1 plus one clause) with the missing-fact rule and single-country guard, over the 371 textile rulings, K=5 | 114 |
+| `pharma_specialist` | `pharma-v1` with the missing-fact rule and single-country guard, over the 187 pharmaceutical rulings, K=5 | 113 |
+| `part102_specialist` | `usmca-v5` with the missing-fact rule, no guard (Part 102 marking rules, 19 CFR 102.11; not the USMCA preference calculator) over the Part 102 pool, K=5 | 112 |
+| `japan_engine` | `jp-engine-v1` with the unknown-status sentence (rule rows plus Japan rulings, K=5) | 112 |
+| `legal_routing` | `router-v4`, scored on the specialist cases that fit it plus general-origin negative controls, as separate denominators | 327 appropriate + 110 controls (437; pesticide cases are not routed) |
 
 All four engines use `gemini-4-argon`; the router uses `gemini-3.8-flash`. Model
 calls go through the approved gateway only; the runner has no other provider and
@@ -64,10 +64,18 @@ Positive, negative and uncertain cases are all present. An **uncertain** case is
 one where a fact the law turns on is missing (an unstated country, an unknown
 classification, an unidentified lot, a split assembly with no ranking of the
 processes). Its correct result is the mechanism the product has: for the origin
-specialists, routing to review (stated confidence below 0.92, the study bar;
-production sends every specialist case to review, so 0.92 is a convention taken
-from the general engine's auto-accept bar); for Japan, outcome `undetermined`.
+specialists, routing to review (stated confidence below 0.92, the study bar, a
+convention taken from the general engine's auto-accept bar; the deployed bars are
+textile 0.95, pharmaceutical 0.85 and Part 102 0.95); for Japan, outcome `undetermined`.
 No uncertain case is labelled with an invented holding.
+
+## Amendments and what the study does not cover
+
+D970 amendments 1 to 4 and D971 (in `docs/DECISIONS.md`) record the case rewordings,
+the selection history and the freeze. The deployed textile engine is `textile-v2`
+with precedent reasoning; the frozen textile candidate is built on `textile-v1`, so it
+does not describe the deployed prompt. A separate, post-hoc comparator on the deployed
+textile configuration is registered in D971 amendment 2.
 
 ## Grading
 

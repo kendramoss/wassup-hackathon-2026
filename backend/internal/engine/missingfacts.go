@@ -30,12 +30,24 @@ func WithMissingFactRule(o Options, singleCountry bool) Options {
 }
 
 var unresolvedWords = []string{"unknown", "unclear", "undetermined", "indeterminate", "not stated", "not specified", "not given", "cannot", "unidentified",
-	"n/a", "depends", "country where", "country of", "to be determined"}
+	"n/a", "country where", "to be determined"}
+
+// conjunctionCountries are single countries whose canonical English name
+// contains " and ".
+var conjunctionCountries = []string{"trinidad and tobago", "bosnia and herzegovina", "antigua and barbuda", "saint kitts and nevis", "st kitts and nevis",
+	"st. kitts and nevis", "saint vincent and the grenadines", "st vincent and the grenadines", "sao tome and principe", "turks and caicos islands",
+	"turks and caicos", "heard island and mcdonald islands", "saint pierre and miquelon", "wallis and futuna", "jan mayen and svalbard"}
 
 // unresolvedOrigin reports an origin answer that is not one country.
 func unresolvedOrigin(raw string) bool {
 	s := strings.ToLower(strings.TrimSpace(raw))
-	if s == "" || strings.ContainsAny(s, "/|") || strings.Contains(s, " or ") || strings.Contains(s, " and ") {
+	if s == "" || strings.HasPrefix(s, "country ") || strings.HasPrefix(s, "depends") {
+		return true
+	}
+	for _, c := range conjunctionCountries {
+		s = strings.ReplaceAll(s, c, "one")
+	}
+	if strings.ContainsAny(s, "/|") || strings.Contains(s, " or ") || strings.Contains(s, " and ") {
 		return true
 	}
 	for _, w := range unresolvedWords {

@@ -18,7 +18,12 @@ import (
 )
 
 // Pools are the precedent rulings each specialist retrieves from.
-type Pools struct{ Textile, Pharma, Part102 []domain.Ruling }
+type Pools struct {
+	Textile, Pharma, Part102 []domain.Ruling
+	// TextileV2 is the textile pool with each ruling's CBP reasoning, as the
+	// deployed textile-v2 engine retrieves it (empty: Textile).
+	TextileV2 []domain.Ruling
+}
 
 // Candidate is the set of engines under test, built the way the server builds
 // them (production prompts, K=5, the engine model).
@@ -113,8 +118,21 @@ func (c *Candidate) build() error {
 	ph.System, ph.Version = engine.PharmaSystem, engine.PharmaVersion
 	u.Model, u.K, u.MaxOutputTokens = c.modelID, 5, 8000
 	t, ph, u = c.variantOptions(t, ph, u)
+	textilePool := c.pools.Textile
+	if c.isLive() {
+		// The deployed textile engine (deploy workflow: TEXTILE_PROMPT=v2): textile-v2
+		// with each precedent's CBP reasoning, built as cmd/server builds it.
+		t = base
+		t.System, t.Version, t.PrecedentReasoning = engine.TextileSystem2, engine.TextileVersion2, true
+		if c.variant == LiveCandidate {
+			t = engine.WithMissingFactRule(t, true)
+		}
+		if len(c.pools.TextileV2) > 0 {
+			textilePool = c.pools.TextileV2
+		}
+	}
 	c.eng = map[string]*engine.Engine{
-		"textile_specialist": engine.New(c.model, c.retr(c.pools.Textile), t),
+		"textile_specialist": engine.New(c.model, c.retr(textilePool), t),
 		"pharma_specialist":  engine.New(c.model, c.retr(c.pools.Pharma), ph),
 		"part102_specialist": engine.New(c.model, c.retr(c.pools.Part102), u),
 	}
@@ -133,6 +151,11 @@ func (c *Candidate) build() error {
 // variant each specialist runs on the reserved cases. Empty string is the
 // production configuration. It is filled in from the development runs and
 // committed before the first reserved score.
+// frozenLive is the comparator's development-selected textile variant (LiveBase
+// or LiveCandidate), committed before the one comparator score on the reserved
+// cases. Empty until selected.
+var frozenLive = ""
+
 var frozenVariants = map[string]string{
 	"textile_specialist": "cand-1", "pharma_specialist": "cand-1", "part102_specialist": "cand-1", "japan_engine": "cand-1",
 }
@@ -158,15 +181,51 @@ func (c *Candidate) variantOptions(t, p, u engine.Options) (engine.Options, engi
 	return t, p, u
 }
 
-func routeOf(feature string, p domain.Prediction) string {
+func routeOf(feature string, p domain.Prediction, bar float64) string {
 	switch feature {
 	case "textile_specialist":
-		return string(triage.Textile(p, ConfidentBar).Route)
+		return string(triage.Textile(p, bar).Route)
 	case "pharma_specialist":
-		return string(triage.Pharma(p, ConfidentBar).Route)
+		return string(triage.Pharma(p, bar).Route)
 	default:
-		return string(triage.USMCA(p, ConfidentBar).Route)
+		return string(triage.USMCA(p, bar).Route)
 	}
+}
+
+// Live comparator (D971 amendment 2): the deployed textile engine against the
+// same engine plus the missing-fact rule and single-country guard.
+const (
+	LiveBase          = "live-v2"
+	LiveCandidate     = "live-v2-missing"
+	ComparatorFeature = "textile_live_comparator"
+	// DeployedTextileBar is the deployed textile auto-accept bar (deploy workflow).
+	DeployedTextileBar = 0.95
+)
+
+const comparatorTestFile = "textile-live-test.jsonl"
+
+func (c *Candidate) isLive() bool { return c.variant == LiveBase || c.variant == LiveCandidate }
+
+func (c *Candidate) barFor() float64 {
+	if c.isLive() {
+		return DeployedTextileBar
+	}
+	return ConfidentBar
+}
+
+// SelectLive applies the pre-registered rule: the candidate replaces the
+// deployed prompt only if, on development, matched cases do not fall, errors
+// and confident-wrong decisions do not rise, confident-correct decisions fall
+// by at most one, and something improves (matched rises or fewer uncertain
+// cases are answered confidently). Ties keep the deployed prompt.
+func SelectLive(base, cand SplitSummary) string {
+	ok := cand.Matched >= base.Matched && cand.Errors <= base.Errors && cand.Decided.ConfidentWrong <= base.Decided.ConfidentWrong &&
+		cand.Decided.ConfidentCorrect >= base.Decided.ConfidentCorrect-1
+	better := cand.Matched > base.Matched || cand.Uncertain.Overconfident < base.Uncertain.Overconfident
+	if ok && better {
+		return LiveCandidate
+	}
+	return LiveBase
 }
 
 // RunCase runs one case through its engine and grades it. Every outcome,
@@ -233,14 +292,14 @@ func RunCase(ctx context.Context, cand *Candidate, c Case) Row {
 		return Grade(c, row)
 	}
 	row.Origin, row.Confidence = p.Origin, p.Confidence
-	row.Route = routeOf(c.Feature, p)
+	row.Route = routeOf(c.Feature, p, cand.barFor())
 	return Grade(c, row)
 }
 
 // SetVariant selects a dev-chosen candidate variant ("" is production).
 func (c *Candidate) SetVariant(v string) error {
 	switch v {
-	case "", "cand-1", "frozen":
+	case "", "cand-1", "frozen", LiveBase, LiveCandidate:
 	default:
 		return fmt.Errorf("unknown variant %q", v)
 	}

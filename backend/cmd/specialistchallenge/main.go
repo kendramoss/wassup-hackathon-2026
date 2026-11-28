@@ -198,6 +198,11 @@ func loadPools() (Pools, map[string]string, error) {
 	if p.Textile, err = pick("textile_rulings.json"); err != nil {
 		return p, nil, err
 	}
+	reasons, err := corpus.LoadReasoning(filepath.Join(dir, "textile_reasoning.json"))
+	if err != nil {
+		return p, nil, err
+	}
+	p.TextileV2 = corpus.WithReasoning(p.Textile, reasons)
 	if p.Pharma, err = pick("pharma_rulings.json"); err != nil {
 		return p, nil, err
 	}
@@ -214,7 +219,7 @@ func loadPools() (Pools, map[string]string, error) {
 		"textile_pool_revision": corpus.RevisionOf(p.Textile), "pharma_pool_revision": corpus.RevisionOf(p.Pharma), "part102_pool_revision": corpus.RevisionOf(p.Part102),
 		"textile_pool_rulings": fmt.Sprint(len(p.Textile)), "pharma_pool_rulings": fmt.Sprint(len(p.Pharma)), "part102_pool_rulings": fmt.Sprint(len(p.Part102)),
 	}
-	for _, f := range []string{"labels.jsonl", "labels_usmca.jsonl", "textile_rulings.json", "pharma_rulings.json"} {
+	for _, f := range []string{"labels.jsonl", "labels_usmca.jsonl", "textile_rulings.json", "pharma_rulings.json", "textile_reasoning.json"} {
 		if prov[f], err = fileSHA(filepath.Join(dir, f)); err != nil {
 			return p, nil, err
 		}
@@ -290,6 +295,7 @@ func cmdRun(args []string) error {
 	workers := fs.Int("workers", 6, "parallel cases")
 	variant := fs.String("variant", "", "dev-selected candidate variant")
 	limit := fs.Int("limit", 0, "development only: first N cases per feature")
+	comparator := fs.Bool("comparator", false, "run the live-textile comparator (D971 amendment 2): textile only, deployed prompt")
 	_ = fs.Parse(args)
 	if *split != "dev" && *split != "test" {
 		return errors.New("-split must be dev or test")
@@ -305,6 +311,22 @@ func cmdRun(args []string) error {
 			return errors.New("a reserved run takes no -limit or -variant: the candidate is frozen")
 		}
 		*variant = "frozen"
+	}
+	if *comparator {
+		if *feature != "all" && *feature != "textile_specialist" {
+			return errors.New("the comparator is textile only")
+		}
+		*feature = "textile_specialist"
+		if *split == "test" {
+			if frozenLive != LiveBase && frozenLive != LiveCandidate {
+				return errors.New("the comparator's development-selected variant is not frozen in the code yet")
+			}
+			*variant = frozenLive
+		} else if !strings.HasPrefix(*tag, "live") || (*variant != LiveBase && *variant != LiveCandidate) {
+			return errors.New("comparator development runs need a tag starting with live and -variant live-v2 or live-v2-missing")
+		}
+	} else if *variant == LiveBase || *variant == LiveCandidate {
+		return errors.New("live variants run only with -comparator")
 	}
 	dev, test, err := LoadAll(dataRoot())
 	if err != nil {
@@ -335,6 +357,9 @@ func cmdRun(args []string) error {
 	}
 	name := func(f Feature) string {
 		if *split == "test" {
+			if *comparator {
+				return filepath.Join(resDir, comparatorTestFile)
+			}
 			return filepath.Join(resDir, f.File+"-test.jsonl")
 		}
 		return filepath.Join(resDir, f.File+"-dev-"+*tag+".jsonl")
@@ -426,7 +451,11 @@ func cmdRun(args []string) error {
 		}
 		fmt.Printf("%-20s %s %s: %d cases, %d matched, %d mismatched, %d errors; model calls %d; cost $%.4f; latency p50 %d ms p95 %d ms\n",
 			f.ID, *split, *tag, s.Cases, s.Matched, s.Mismatched, s.Errors, s.ModelCalls, cost, Percentile(lat, .5), Percentile(lat, .95))
-		if err := appendAttempt(attempt{Time: time.Now().UTC().Format(time.RFC3339), Tag: *tag, Feature: f.ID, Split: *split, Variant: *variant,
+		attemptFeature := f.ID
+		if *comparator {
+			attemptFeature = ComparatorFeature
+		}
+		if err := appendAttempt(attempt{Time: time.Now().UTC().Format(time.RFC3339), Tag: *tag, Feature: attemptFeature, Split: *split, Variant: *variant,
 			File: filepath.Base(name(f)), Head: strings.TrimSpace(head), Dirty: strings.TrimSpace(dirty) != "", Cases: s.Cases, Matched: s.Matched,
 			Errors: s.Errors, Cost: round6(cost), Calls: s.ModelCalls}); err != nil {
 			return err

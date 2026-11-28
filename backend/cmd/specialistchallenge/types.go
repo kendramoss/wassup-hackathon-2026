@@ -16,9 +16,8 @@ var Features = []Feature{
 }
 
 // Study bar: a prediction is "confident" (would be accepted without review)
-// when its stated confidence reaches this value. It is the general engine's
-// auto-accept bar (config.DefaultFastPath); production sends every specialist
-// case to review (fast path 0), so this is a study convention, not a deployed bar.
+// when its stated confidence reaches this value. It is a study convention; the
+// deployed bars are textile 0.95, pharmaceutical 0.85 and Part 102 0.95.
 const ConfidentBar = 0.92
 
 // Source is a primary-source reference behind a case.
