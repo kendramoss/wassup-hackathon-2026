@@ -27,6 +27,8 @@
         "Multiple variants share each source parent; case counts do not mean independent legal sources.",
         "Known starting origin is supplied. This measures given-move verification, not full plan search or ranking.",
         "Authority/rule label quality and date-limited retrieval affect the result. No i.i.d. population interval.",
+        "The intended source-answer isolation was incomplete: selected endpoints were excluded, but related unselected-family N357930 and N366550 remained available. N357930 was cited in three results (none shown); no causal impact is claimed. Not a source-clean independent held-out study.",
+        "Of 53 unshown positive moves, 33 had the correct target/change but insufficient shown support; 20 had a wrong change decision.",
         "Overall agreement includes expected support withholding on incomplete facts; it is not full plan-search accuracy.",
         "Shown precision uses the 47 shown checks, not all 220 inputs. Positive recall uses the 100 actual-change cases.",
         "One failed model response stays in the denominator; it is not counted as a correct refusal.",
@@ -64,6 +66,8 @@
         "true_negative": 99,
         "uncertain_shown": 0
       },
+      "source_isolation_issue": true,
+      "public_note": "Related source rulings remained available; this is not a source-clean holdout.",
       "test_cost_usd": 12.3137152,
       "development_cost_usd": 2.2993055,
       "development_candidates": [

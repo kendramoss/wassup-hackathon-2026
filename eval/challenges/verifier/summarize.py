@@ -7,6 +7,15 @@ from pathlib import Path
 HERE = Path(__file__).resolve().parent
 
 
+def incomplete_control_score(cases, rows):
+    wanted = {c['id'] for c in cases if c['expected']['changes_origin'] is None}
+    by_id = {r['id']: r for r in rows}
+    if len(by_id) != len(rows) or not wanted.issubset(by_id):
+        raise ValueError('missing or duplicate incomplete-control results')
+    matched = sum(not by_id[id].get('error') and by_id[id].get('shown') is False for id in wanted)
+    return {'num': matched, 'den': len(wanted)}
+
+
 def build():
     dataset_bytes = (HERE / 'cases.json').read_bytes()
     dataset = json.loads(dataset_bytes)
@@ -39,6 +48,8 @@ def build():
         raise ValueError('reserved run does not use the development-selected candidate')
     tm, dm = test['metrics'], base['metrics']
     limits = list(test['limitations']) + [
+        'The intended source-answer isolation was incomplete: selected endpoints were excluded, but related unselected-family N357930 and N366550 remained available. N357930 was cited in three results (none shown); no causal impact is claimed. Not a source-clean independent held-out study.',
+        'Of 53 unshown positive moves, 33 had the correct target/change but insufficient shown support; 20 had a wrong change decision.',
         'Overall agreement includes expected support withholding on incomplete facts; it is not full plan-search accuracy.',
         f'Shown precision uses the {tm["true_positive"] + tm["false_positive"]} shown checks, not all {tm["cases"]} inputs. Positive recall uses the {tm["positive_cases"]} actual-change cases.',
         'One failed model response stays in the denominator; it is not counted as a correct refusal.',
@@ -59,8 +70,10 @@ def build():
         'shown_precision': {'num': tm['true_positive'], 'den': tm['true_positive'] + tm['false_positive']},
         'positive_recall': {'num': tm['true_positive'], 'den': tm['positive_cases']},
         'negative_controls': {'num': tm['true_negative'], 'den': tm['negative_cases']},
-        'incomplete_controls': {'num': tm['uncertain_cases'] - tm['uncertain_shown'], 'den': tm['uncertain_cases']},
+        'incomplete_controls': incomplete_control_score([c for c in dataset['cases'] if c['split'] == 'test'], rows),
         'raw_metrics': tm,
+        'source_isolation_issue': True,
+        'public_note': 'Related source rulings remained available; this is not a source-clean holdout.',
         'test_cost_usd': test['cost_usd'], 'development_cost_usd': round(base['cost_usd'] + rejected['cost_usd'], 7),
         'development_candidates': [
             {'prompt': base['prompt_version'], 'matched': dm['matched'], 'cases': dm['cases'], 'selected': selected == 'v2'},
