@@ -77,6 +77,12 @@ func (e *evaluator) deMinimis(ar *AlternativeResult) Tri {
 		share := new(big.Rat).Quo(new(big.Rat).Mul(sum, bigHundred), base)
 		cr.Detail += fmt.Sprintf("; here %s percent of the %s", share.FloatString(2), baseName)
 	}
+	// Materials missing from an unconfirmed list could also fail the shift and
+	// carry the total past the limit.
+	if t == True && !e.in.Profile.MaterialsComplete {
+		t = Unknown3
+		cr.MissingFacts = append(cr.MissingFacts, MissingFact{"materials_incomplete", "profile.materials_list_complete", "Confirm that every non-originating material is listed."})
+	}
 	cr.Result = outcome(t)
 	ar.Conditions = append(ar.Conditions, cr)
 	if t == True {
@@ -155,6 +161,11 @@ func (e *evaluator) partsRoute() AlternativeResult {
 				}
 			}
 			exists = exists.Or(counts(e.claim(m), same))
+		}
+		// An unconfirmed list cannot show that no sharing part exists.
+		if exists == False && !e.in.Profile.MaterialsComplete {
+			exists = Unknown3
+			basis.MissingFacts = append(basis.MissingFacts, MissingFact{"materials_incomplete", "profile.materials_list_complete", "Confirm that every non-originating material is listed."})
 		}
 		if exists == False {
 			basis.Materials = append(basis.Materials, MaterialFinding{Index: -1, Result: OutcomeNotSatisfied, Note: "no non-originating part shares the good's classification"})

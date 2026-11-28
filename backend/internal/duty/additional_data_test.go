@@ -50,3 +50,21 @@ func TestEmbeddedAdditionalSpotChecks(t *testing.T) {
 		}
 	}
 }
+
+// A list rate may exceed 100 percent up to the 500 percent bound the dated
+// actions of tariffwatch.Dataset.Validate already allow.
+func TestListRateBoundMatchesTheActionBound(t *testing.T) {
+	mk := func(r float64) AdditionalFile {
+		return AdditionalFile{Lists: []AdditionalList{{Heading: "9903.99.99", Name: "x", Origin: "China", Rate: r, Subheadings: []string{"8716.90.30"}}}}
+	}
+	for _, r := range []float64{1.2, 1.5, 5} {
+		if _, err := NewAdder(mk(r)); err != nil {
+			t.Errorf("rate %v refused: %v", r, err)
+		}
+	}
+	for _, r := range []float64{0, -0.1, 5.01} {
+		if _, err := NewAdder(mk(r)); err == nil {
+			t.Errorf("rate %v accepted", r)
+		}
+	}
+}
