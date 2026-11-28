@@ -4,6 +4,8 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"os"
+	"path/filepath"
 	"strings"
 	"testing"
 	"time"
@@ -93,7 +95,7 @@ func TestGradeOriginCases(t *testing.T) {
 	}{
 		{"agree confident", d, row(d, "India", .95, "auto"), Match, "agree_confident"},
 		{"agree but sent to review", d, row(d, "India", .6, "needs_review"), Match, "agree_review"},
-		{"origin spelled differently", d, row(d, "Republic of India", .97, "auto"), Mismatch, "wrong_confident"},
+		{"origin spelled differently", d, row(d, " INDIA ", .97, "auto"), Match, "agree_confident"},
 		{"wrong and confident", d, row(d, "China", .97, "auto"), Mismatch, "wrong_confident"},
 		{"wrong but reviewed", d, row(d, "China", .5, "needs_review"), Mismatch, "wrong_review"},
 		{"uncertain case reviewed is correct", u, row(u, "Italy", .5, "needs_review"), Match, "abstain_correct"},
@@ -101,8 +103,6 @@ func TestGradeOriginCases(t *testing.T) {
 		{"error is never a match", d, Row{ID: d.ID, Feature: d.Feature, Split: d.Split, Error: "timeout"}, ErrorV, "error"},
 		{"error on uncertain is not an abstention", u, Row{ID: u.ID, Feature: u.Feature, Split: u.Split, Error: "timeout"}, ErrorV, "error"},
 	}
-	// "Republic of India" normalises to India: the third case is a match, not a mismatch.
-	tests[2].verdict, tests[2].cls = Match, "agree_confident"
 	for _, tc := range tests {
 		got := Grade(tc.c, tc.r)
 		if got.Verdict != tc.verdict || got.Class != tc.cls {
@@ -364,5 +364,111 @@ func TestCommittedDatasetsAreWellFormed(t *testing.T) {
 		if n < 100 {
 			t.Errorf("%s has %d reserved cases", f.ID, n)
 		}
+	}
+}
+
+func TestRunnerNeverUsesVertex(t *testing.T) {
+	files, _ := filepath.Glob("*.go")
+	for _, f := range files {
+		if strings.HasSuffix(f, "_test.go") {
+			continue
+		}
+		b, err := os.ReadFile(f)
+		if err != nil {
+			t.Fatal(err)
+		}
+		for _, bad := range []string{"NewVertex", "VertexOptions", "cloud.google.com", "ProviderVertex"} {
+			if strings.Contains(string(b), bad) {
+				t.Errorf("%s mentions %s", f, bad)
+			}
+		}
+	}
+}
+
+func TestGradeRoutingSeparatesSpecialistsFromNegativeControls(t *testing.T) {
+	tx := mk(RoutingFeature, "c0000000000f1", "test", "t", dec("textile_102_21"))
+	tx.ScenarioFamily = "textile"
+	ng := mk(RoutingFeature, "c0000000000f2", "test", "n", dec("substantial_transformation"))
+	ng.ScenarioFamily = "negative-control"
+	row := func(c Case, regime string) Row {
+		return Row{ID: c.ID, Feature: c.Feature, Split: c.Split, CalledModel: true, Provider: "litellm", Origin: regime}
+	}
+	for _, tc := range []struct {
+		c            Case
+		got          string
+		verdict, cls string
+	}{
+		{tx, "textile_102_21", Match, "routed_correct"},
+		{tx, "substantial_transformation", Mismatch, "routed_wrong"},
+		{ng, "substantial_transformation", Match, "kept_general"},
+		{ng, "pharma_api", Mismatch, "false_specialist"},
+		{ng, "unclear", Mismatch, "unclear_label"},
+	} {
+		g := GradeRouting(tc.c, row(tc.c, tc.got))
+		if g.Verdict != tc.verdict || g.Class != tc.cls {
+			t.Errorf("%s -> %s: %s/%s, want %s/%s", tc.c.Expected.Origin, tc.got, g.Verdict, g.Class, tc.verdict, tc.cls)
+		}
+	}
+	cases := []Case{tx, ng}
+	rows := []Row{GradeRouting(tx, row(tx, "textile_102_21")), GradeRouting(ng, row(ng, "textile_102_21"))}
+	s, err := SummarizeRouting(cases, rows)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if s.AppropriateAll != (Counts{Cases: 1, Matched: 1}) || s.NegativeControl != (Counts{Cases: 1, Mismatched: 1}) || s.FalseSpecialist != 1 || s.Cases != 2 {
+		t.Errorf("summary %+v", s)
+	}
+	if _, err := SummarizeRouting(cases, rows[:1]); err == nil {
+		t.Error("an incomplete routing result was summarised")
+	}
+}
+
+func TestCommittedRoutingDatasetsAreWellFormed(t *testing.T) {
+	dev, test, err := LoadRouting("../../../eval/challenges/specialists")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if p := CheckIntegrity(dev, test, IntegrityOptions{MinTest: 100}); len(p) != 0 {
+		t.Fatalf("%d problems, first: %s", len(p), p[0])
+	}
+	var neg, app int
+	for _, c := range test {
+		if c.ScenarioFamily == "negative-control" {
+			neg++
+		} else {
+			app++
+		}
+		if len(c.Parents) != 1 {
+			t.Fatalf("%s has no visible parent", c.ID)
+		}
+	}
+	if neg < 100 || app < 100 {
+		t.Errorf("reserved routing: %d appropriate, %d negative controls", app, neg)
+	}
+}
+
+func TestJapanPreflightCasesNeverCallTheModel(t *testing.T) {
+	_, test, err := LoadAll("../../../eval/challenges/specialists")
+	if err != nil {
+		t.Fatal(err)
+	}
+	var pf *Case
+	for i := range test {
+		if test[i].Feature == "japan_engine" && test[i].Expected.Preflight {
+			pf = &test[i]
+			break
+		}
+	}
+	if pf == nil {
+		t.Fatal("no preflight Japan case in the reserved set")
+	}
+	m := llm.FakeText("{}")
+	cand, err := NewCandidate(m, "gemini-4-argon", Pools{})
+	if err != nil {
+		t.Fatal(err)
+	}
+	row := RunCase(context.Background(), cand, *pf)
+	if row.CalledModel || len(m.Calls()) != 0 || row.Error != "" || row.Outcome != "undetermined" || row.Verdict != Match {
+		t.Errorf("preflight row = %+v, %d calls", row, len(m.Calls()))
 	}
 }

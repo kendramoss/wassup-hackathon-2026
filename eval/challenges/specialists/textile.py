@@ -179,7 +179,7 @@ def e_knit(split, k, r):
         hts, prod, fib = r.choice(KSHAPE[split]); kn, ln, pk = cs(r, 3)
         steps = ["the %s sweater body and sleeves are knitted directly to shape on flat machines in %s" % (fib, kn),
                  "the knit-to-shape parts are linked together and finished in %s" % ln, "the sweaters are packed in %s" % pk]
-        return hts, prod, steps, {"kind": "decided", "origin": kn, "para": "(c)(2)"}, "knit-to-shape", \
+        return hts, prod, steps, {"kind": "decided", "origin": kn, "para": "(c)(2)"}, "knit-to-shape-origin", \
             "6101-6117 (3): a good knit to shape (50 percent or more of the exterior surface from major parts knit to shape; minor sewing does not change that) takes the country where it was knit"
     if mode == 4:
         hts, prod, fib = r.choice(KCUT[split]); a, b = cs(r, 2); fab = cs(r, 1)[0]

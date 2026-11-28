@@ -130,7 +130,7 @@ def p_combo(split, k, r):
     steps = ["%s (%s) is made as an API in %s" % (a1, d1, c1), "%s (%s) is made as an API in %s" % (a2, d2, c2),
              "in %s both APIs are mixed with excipients into one fixed-combination %s that offers a benefit neither API gives alone" % (cm, form)]
     if k % 2: steps.append("the packs are labelled in %s" % pk)
-    return "%s and %s %s" % (a1, a2, form), steps, {"kind": "decided", "origin": cm, "para": "fixed combination"}, "fixed-combination", "combo", \
+    return "%s and %s %s" % (a1, a2, form), steps, {"kind": "decided", "origin": cm, "para": "fixed combination"}, "fixed-combination-origin", "combo", \
         "two different APIs with different medicinal purposes combined into one dosage form with added benefit is a substantial transformation in the combining country (HQ 563207, N336575, N353195)"
 
 
