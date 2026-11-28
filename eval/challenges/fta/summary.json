@@ -1,0 +1,268 @@
+{
+  "schema_version": 1,
+  "evidence_kind": "source_grounded_synthetic",
+  "features": [
+    {
+      "id": "atiga",
+      "label": "ATIGA rules",
+      "candidate_revision": "b1d8f3bf94ab85ebb7f0fd3d0f22aae03ae5a93b",
+      "dataset_sha256": "08a252572be66a89d2c1230c6e93cba1422c9899be6263869f897a911d2003b1",
+      "source_families": 27,
+      "development": {
+        "cases": 91,
+        "matched": 90,
+        "errors": 0
+      },
+      "test": {
+        "cases": 169,
+        "matched": 168,
+        "mismatched": 1,
+        "errors": 0
+      },
+      "cost_usd": 0,
+      "latency_p50_ms": 0.008,
+      "latency_p95_ms": 0.014,
+      "limitations": [
+        "Synthetic cases written by the implementer from the cited rule rows and treaty clauses with knowledge of the engine interface: not blind authoring, not independent customs rulings.",
+        "Development and reserved test cases share scenario families; only the test-only families are unseen in development.",
+        "Near-duplicate and parent-linked cases are not independent observations; no population confidence interval is claimed.",
+        "Case labels follow the supplied facts; where an input is silent the rule is not assumed met.",
+        "ATIGA rules are read from the HS 2022 Annex 3 table in the engine; direct consignment, packaging, accessories and neutral elements are not scored."
+      ],
+      "development_dataset_sha256": "9c043ddd6d308cd8d903a2d7c555632c937afb8a336f09af5572631a8d84f551",
+      "development_first_run": {
+        "cases": 91,
+        "matched": 90,
+        "mismatched": 1,
+        "errors": 0
+      },
+      "scenario_families": 24,
+      "parent_groups": 4,
+      "cases_with_parent": 12,
+      "formatting_only_cases": 3,
+      "families_shared_with_development": 22,
+      "families_only_in_test": 2,
+      "cases_in_shared_families": 155,
+      "expected_outcomes": {
+        "no": 52,
+        "refused": 4,
+        "undetermined": 18,
+        "yes": 95
+      },
+      "abstention": {
+        "expected": 18,
+        "correct": 18,
+        "decided_instead": 0,
+        "abstained_when_a_decision_was_expected": 1
+      },
+      "yes_precision": {
+        "num": 94,
+        "den": 94
+      },
+      "yes_recall": {
+        "num": 94,
+        "den": 95
+      },
+      "decided_only_agreement": {
+        "num": 146,
+        "den": 146
+      }
+    },
+    {
+      "id": "akfta",
+      "label": "AKFTA rules",
+      "candidate_revision": "b1d8f3bf94ab85ebb7f0fd3d0f22aae03ae5a93b",
+      "dataset_sha256": "0fc09ca06ecadc19bc6adbdff9d7c64d811c4309dd1cc4263f3ae6a812a7740d",
+      "source_families": 28,
+      "development": {
+        "cases": 91,
+        "matched": 91,
+        "errors": 0
+      },
+      "test": {
+        "cases": 169,
+        "matched": 169,
+        "mismatched": 0,
+        "errors": 0
+      },
+      "cost_usd": 0,
+      "latency_p50_ms": 0.007,
+      "latency_p95_ms": 0.012,
+      "limitations": [
+        "Synthetic cases written by the implementer from the cited rule rows and treaty clauses with knowledge of the engine interface: not blind authoring, not independent customs rulings.",
+        "Development and reserved test cases share scenario families; only the test-only families are unseen in development.",
+        "Near-duplicate and parent-linked cases are not independent observations; no population confidence interval is claimed.",
+        "Case labels follow the supplied facts; where an input is silent the rule is not assumed met.",
+        "AKFTA Appendix 2 rows with provisos on materials are scored only where the case states the facts the proviso needs."
+      ],
+      "development_dataset_sha256": "458b107ee60b68bc042944a39146f18fc145fece6f69aeabf71df53462baf691",
+      "development_first_run": {
+        "cases": 91,
+        "matched": 89,
+        "mismatched": 2,
+        "errors": 0
+      },
+      "scenario_families": 24,
+      "parent_groups": 5,
+      "cases_with_parent": 12,
+      "formatting_only_cases": 3,
+      "families_shared_with_development": 22,
+      "families_only_in_test": 2,
+      "cases_in_shared_families": 158,
+      "expected_outcomes": {
+        "no": 59,
+        "refused": 4,
+        "undetermined": 24,
+        "yes": 82
+      },
+      "abstention": {
+        "expected": 24,
+        "correct": 24,
+        "decided_instead": 0,
+        "abstained_when_a_decision_was_expected": 0
+      },
+      "yes_precision": {
+        "num": 82,
+        "den": 82
+      },
+      "yes_recall": {
+        "num": 82,
+        "den": 82
+      },
+      "decided_only_agreement": {
+        "num": 141,
+        "den": 141
+      }
+    },
+    {
+      "id": "acfta",
+      "label": "ACFTA rules",
+      "candidate_revision": "b1d8f3bf94ab85ebb7f0fd3d0f22aae03ae5a93b",
+      "dataset_sha256": "fcf2934c66651e8a54583ab32501d9fe2f5c2de76b2d799d05dead7253895228",
+      "source_families": 24,
+      "development": {
+        "cases": 79,
+        "matched": 79,
+        "errors": 0
+      },
+      "test": {
+        "cases": 154,
+        "matched": 147,
+        "mismatched": 1,
+        "errors": 6
+      },
+      "cost_usd": 0,
+      "latency_p50_ms": 0.007,
+      "latency_p95_ms": 0.013,
+      "limitations": [
+        "Synthetic cases written by the implementer from the cited rule rows and treaty clauses with knowledge of the engine interface: not blind authoring, not independent customs rulings.",
+        "Development and reserved test cases share scenario families; only the test-only families are unseen in development.",
+        "Near-duplicate and parent-linked cases are not independent observations; no population confidence interval is claimed.",
+        "Case labels follow the supplied facts; where an input is silent the rule is not assumed met.",
+        "ACFTA follows the 2019 Annex 1 and Attachment B (HS 2017); ACFTA 3.0 is not scored."
+      ],
+      "development_dataset_sha256": "5289939913e11fb1fea0ec4fe31ecf6ac06ce82155f65ca6f68cb3f29573f1c7",
+      "development_first_run": {
+        "cases": 79,
+        "matched": 79,
+        "errors": 0
+      },
+      "scenario_families": 22,
+      "parent_groups": 3,
+      "cases_with_parent": 9,
+      "formatting_only_cases": 3,
+      "families_shared_with_development": 20,
+      "families_only_in_test": 2,
+      "cases_in_shared_families": 140,
+      "expected_outcomes": {
+        "no": 57,
+        "refused": 4,
+        "undetermined": 19,
+        "yes": 74
+      },
+      "abstention": {
+        "expected": 19,
+        "correct": 19,
+        "decided_instead": 0,
+        "abstained_when_a_decision_was_expected": 1
+      },
+      "yes_precision": {
+        "num": 73,
+        "den": 73
+      },
+      "yes_recall": {
+        "num": 73,
+        "den": 74
+      },
+      "decided_only_agreement": {
+        "num": 124,
+        "den": 124
+      }
+    },
+    {
+      "id": "rcep",
+      "label": "RCEP rules",
+      "candidate_revision": "b1d8f3bf94ab85ebb7f0fd3d0f22aae03ae5a93b",
+      "dataset_sha256": "6d37835113eda2ad5141cec1121d4449217a466f89c4ddb652aab2da2586173b",
+      "source_families": 31,
+      "development": {
+        "cases": 83,
+        "matched": 83,
+        "errors": 0
+      },
+      "test": {
+        "cases": 180,
+        "matched": 179,
+        "mismatched": 1,
+        "errors": 0
+      },
+      "cost_usd": 0,
+      "latency_p50_ms": 0.008,
+      "latency_p95_ms": 0.014,
+      "limitations": [
+        "Synthetic cases written by the implementer from the cited rule rows and treaty clauses with knowledge of the engine interface: not blind authoring, not independent customs rulings.",
+        "Development and reserved test cases share scenario families; only the test-only families are unseen in development.",
+        "Near-duplicate and parent-linked cases are not independent observations; no population confidence interval is claimed.",
+        "Case labels follow the supplied facts; where an input is silent the rule is not assumed met.",
+        "RCEP Chapter 3 article numbers follow the engine's pinned citations and the ABF guide; the treaty text was not re-read in this study."
+      ],
+      "development_dataset_sha256": "befeb45195eed94af9c6413f726d475d39ed371f91df37e0b1266aa6e346c56f",
+      "development_first_run": {
+        "cases": 83,
+        "matched": 83,
+        "errors": 0
+      },
+      "scenario_families": 24,
+      "parent_groups": 8,
+      "cases_with_parent": 22,
+      "formatting_only_cases": 3,
+      "families_shared_with_development": 20,
+      "families_only_in_test": 4,
+      "cases_in_shared_families": 153,
+      "expected_outcomes": {
+        "no": 59,
+        "refused": 4,
+        "undetermined": 19,
+        "yes": 98
+      },
+      "abstention": {
+        "expected": 19,
+        "correct": 19,
+        "decided_instead": 0,
+        "abstained_when_a_decision_was_expected": 1
+      },
+      "yes_precision": {
+        "num": 97,
+        "den": 97
+      },
+      "yes_recall": {
+        "num": 97,
+        "den": 98
+      },
+      "decided_only_agreement": {
+        "num": 156,
+        "den": 156
+      }
+    }
+  ]
+}
