@@ -336,11 +336,6 @@ func (v *Verifier) Version() string {
 		return PromptVersion2
 	case "v3":
 		return PromptVersion3
-	case "v4":
-		if v.opts.View != "" {
-			return PromptVersion4 + "-" + v.opts.View
-		}
-		return PromptVersion4
 	}
 	return PromptVersion
 }
@@ -485,8 +480,6 @@ func (v *Verifier) Verify(ctx context.Context, t Task) (Result, error) {
 		}
 	case "v3":
 		system = System3(v.opts.MaxToolCalls)
-	case "v4":
-		system = System4(v.opts.MaxToolCalls, v.opts.View)
 	}
 	message := t.UserMessage()
 	if v.opts.Prompt == "v3" {

@@ -61,3 +61,9 @@ Test development candidate v4 once on the same development cases. It keeps prece
 Select v4 for the reserved run only if it reaches at least 27 of 28 development expectations, has no shown negative controls or shown incomplete cases, no model errors, and shows at least the baseline 3 of 12 correct changes. Otherwise keep v2 and record the negative result. This is development selection, not a statistically established improvement. Freeze the selected candidate before the first reserved run. Never lower the 0.92 bar to manufacture coverage.
 
 The user raised the cumulative programme cap to $1,000 during this work. The verifier's initial $30 lane allowance still applies to baseline, candidate development and reserved scoring unless the coordinator records a reallocation first.
+
+## Candidate selection, before reserved scoring
+
+Development v4 at commit `9d90ad74` matched 24/28 expectations, with 4 mismatches and no model errors; 3/12 positive moves were shown, no controls or incomplete cases were shown. Cost $1.0717433; every call had a reported cost. It **failed** the preregistered requirement of at least 27/28 and is rejected. Both development runs remain recorded, including the worsening result. The rejected prompt is retained as a text artifact and in its original commit, not left active in the production verifier library.
+
+Select the unchanged production **v2** behavior, panel on and bar 0.92, for the first 220-case reserved score. No confidence threshold, label, source family or expected outcome is changed. Paid development total is $2.2993055; allocate up to $27.70 of the initial lane allowance to the reserved run. The dataset hash remains unchanged. `retrieval-manifest.json` pins the label corpus and a digest of the exact local facts/raw inputs and will be checked after the study. The candidate freeze commit immediately following this selection record identifies the selected runnable code; the raw test rows will record its full SHA.
