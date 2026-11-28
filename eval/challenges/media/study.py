@@ -75,6 +75,21 @@ def score(case, result):
     return row
 
 
+def validate_output(case, result, candidate, dataset_sha):
+    if result.get("provider") != "litellm" or result.get("candidate_revision") != candidate or result.get("git_revision") != candidate:
+        raise ValueError("output candidate/provider mismatch")
+    if result.get("image_sha256") != case["image_sha256"] or result.get("dataset_sha256") != dataset_sha:
+        raise ValueError("output image/dataset hash mismatch")
+    if len(result.get("scores", [])) != 1 or result["scores"][0].get("image") != case["image"]:
+        raise ValueError("output document identity mismatch")
+    row = result["scores"][0]
+    cost = row.get("cost_usd_gateway", 0)
+    if not isinstance(cost, (int, float)) or not math.isfinite(cost) or cost < 0:
+        raise ValueError("invalid output cost")
+    if abs(result["summary"]["cost_usd_gateway"] - cost) > 1e-9:
+        raise ValueError("output cost totals disagree")
+
+
 def aggregate(cases, rows):
     ids = [c["id"] for c in cases]
     got = [r["id"] for r in rows]
@@ -219,19 +234,36 @@ def summarize(check=False):
     dataset = json.loads(dataset_path.read_text())
     groups = {}
     allrows = []
-    for split in ("dev","test"):
-        cases = [c for c in dataset["cases"] if c["split"]==split]
+    freeze = json.loads((HERE/"freeze.json").read_text())
+    digest = sha(dataset_path.read_bytes())
+    for run in ("dev-baseline", "dev", "test"):
+        split = "dev" if run == "dev-baseline" else run
+        cases = [c for c in dataset["cases"] if c["split"] == split]
+        expected_candidate = freeze["development_selection"]["baseline_candidate"] if run == "dev-baseline" else freeze["candidate_revision"]
+        directory = HERE / "results" / run
+        if {p.stem for p in directory.glob("*.json")} != {c["id"] for c in cases}:
+            raise ValueError("run has missing or extra document files")
         rows = []
         for c in cases:
-            result = json.loads((HERE/"results"/split/(c["id"]+".json")).read_text())
-            rows.append(score(c,result))
-        groups[split] = aggregate(cases, rows)
+            result = json.loads((directory / (c["id"] + ".json")).read_text())
+            validate_output(c, result, expected_candidate, digest)
+            rows.append(score(c, result))
+        groups[run] = aggregate(cases, rows)
         allrows += rows
-    freeze = json.loads((HERE/"freeze.json").read_text())
     test = [c for c in dataset["cases"] if c["split"]=="test"]
-    latencies = sorted(r["latency_ms"] for r in allrows if not r["error"])
+    test_ids = {c["id"] for c in test}
+    latencies = sorted(r["latency_ms"] for r in allrows if r["id"] in test_ids and not r["error"])
     metrics = groups["test"]
     f = {"id":"media_extraction","label":"BOM image extraction","candidate_revision":freeze["candidate_revision"],"dataset_sha256":sha(dataset_path.read_bytes()),"source_families":len({c["source_family"] for c in test}),"development":groups["dev"],"test":metrics,"llm_provider":"litellm","cost_usd":sum(r["cost_usd"] for r in allrows),"latency_p50_ms":statistics.median(latencies) if latencies else 0,"latency_p95_ms":latencies[max(0,math.ceil(.95*len(latencies))-1)] if latencies else 0,"layout_families":len({c["layout_family"] for c in test}),"limitations":["Synthetic renderings of ruling-derived illustrative fixtures, not real photos, handwriting or independent customs cases. The original primary rulings were not newly reread for this image study.","Related documents share source components and layouts. Source families are disjoint across development and reserved test; eight rendering styles are shared, four are test-only.","Names use exact case/whitespace-normalized matching, not a model judge. Country aliases use a fixed map. Semantically equivalent paraphrases can therefore fail.","Whole-document agreement requires all expected confirmed parts and countries, no extra confirmed parts, and a warning plus no invented country for every missing-origin part. The production API withholds missing-country rows from confirmed components.","The language variation changes column headers only; the component names remain as in the English source fixtures."]}
+    f["development_baseline"] = groups["dev-baseline"]
+    f["model_calls"] = len(allrows)
+    f["test_model_calls"] = len(test)
+    f["cost_usd"] = round(f["cost_usd"], 6)
+    f["test_cost_usd"] = round(sum(r["cost_usd"] for r in allrows if r["id"] in test_ids), 6)
+    f["development_cost_usd"] = round(f["cost_usd"] - f["test_cost_usd"], 6)
+    f["cost_unreported_calls"] = sum(r["cost_usd"] == 0 for r in allrows)
+    f["latency_scope"] = "reserved documents, non-error calls"
+    f["limitations"].append("All three reserved mismatches are an extra space before a closing parenthesis in the PCBA name; the three extracted rows are unmatched names, not independently established invented parts. Strict first scores remain unchanged.")
     out = dump({"schema_version":1,"evidence_kind":"source_grounded_synthetic","features":[f]})
     if check:
         if (HERE/"summary.json").read_text()!=out:

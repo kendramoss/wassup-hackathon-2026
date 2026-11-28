@@ -64,6 +64,30 @@ class Scoring(unittest.TestCase):
         self.assertFalse(study.score(self.case(), result)["matched"])
 
 
+class OutputProvenance(unittest.TestCase):
+    def test_stored_rows_reject_wrong_image_candidate_dataset_and_cost(self):
+        import json
+        import hashlib
+        import copy
+        dataset_bytes = (HERE / "cases.json").read_bytes()
+        case = next(c for c in json.loads(dataset_bytes)["cases"] if c["split"] == "test")
+        result = json.loads((HERE / "results/test" / (case["id"] + ".json")).read_text())
+        candidate = "dd158f8a94d3ec803519b5adc926e6fc3e4bd4e9"
+        digest = hashlib.sha256(dataset_bytes).hexdigest()
+        study.validate_output(case, result, candidate, digest)
+        for mutate in [
+            lambda r: r.update(image_sha256="0" * 64),
+            lambda r: r.update(candidate_revision="0" * 40),
+            lambda r: r.update(dataset_sha256="0" * 64),
+            lambda r: r["scores"][0].update(image="wrong.png"),
+            lambda r: r["scores"][0].update(cost_usd_gateway=-1),
+        ]:
+            changed = copy.deepcopy(result)
+            mutate(changed)
+            with self.assertRaises(ValueError):
+                study.validate_output(case, changed, candidate, digest)
+
+
 class Integrity(unittest.TestCase):
     def runner(self):
         spec = importlib.util.spec_from_file_location("runner", HERE / "run.py")

@@ -1,0 +1,46 @@
+{
+  "candidate_revision": "dd158f8a94d3ec803519b5adc926e6fc3e4bd4e9",
+  "dataset_sha256": "ac2ed27c5ca180073286dc7bf42b31b0a0e6ba69594161193144934d29e8868a",
+  "git_revision": "dd158f8a94d3ec803519b5adc926e6fc3e4bd4e9",
+  "image_sha256": "58112b40e4d1bab7fbf733b3ce487dc387216ec1eeed16497efa7a50a019a4e7",
+  "model": "gemini-4-argon",
+  "note": "synthetic renderings of illustrative BOMs; illustrative only",
+  "provider": "litellm",
+  "scores": [
+    {
+      "cost_usd_gateway": 0.00847,
+      "country_right": 0,
+      "expected": 2,
+      "extra_rows": 0,
+      "image": "8d1963d397c5382f90f1.png",
+      "input_tokens": 2435,
+      "latency_ms": 9439,
+      "model_id": "gemini-4-argon",
+      "name_read": 2,
+      "output_tokens": 360,
+      "prompt_version": "extract-image-v2",
+      "read": [
+        {
+          "country": "Vn",
+          "name": "polyester fibre fill and pellet bag"
+        },
+        {
+          "country": "Cn",
+          "name": "sewn and embroidered plush body shell and dorsal fin"
+        }
+      ],
+      "simulated": false,
+      "style": "quantity_and_codes"
+    }
+  ],
+  "summary": {
+    "cost_usd_gateway": 0.00847,
+    "countries_right": 0,
+    "expected_parts": 2,
+    "extra_rows": 0,
+    "failed_calls": 0,
+    "images": 1,
+    "names_read": 2
+  },
+  "time": "2026-11-28T17:29:06+08:00"
+}

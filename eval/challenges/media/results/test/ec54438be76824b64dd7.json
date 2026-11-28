@@ -1,0 +1,54 @@
+{
+  "candidate_revision": "dd158f8a94d3ec803519b5adc926e6fc3e4bd4e9",
+  "dataset_sha256": "ac2ed27c5ca180073286dc7bf42b31b0a0e6ba69594161193144934d29e8868a",
+  "git_revision": "dd158f8a94d3ec803519b5adc926e6fc3e4bd4e9",
+  "image_sha256": "ba22ade4f916ee95c571338349b7c8e7dfca14375c6605b9cc03782dc291d45f",
+  "model": "gemini-4-argon",
+  "note": "synthetic renderings of illustrative BOMs; illustrative only",
+  "provider": "litellm",
+  "scores": [
+    {
+      "cost_usd_gateway": 0.008458,
+      "country_right": 4,
+      "expected": 4,
+      "extra_rows": 0,
+      "image": "ec54438be76824b64dd7.png",
+      "input_tokens": 2424,
+      "latency_ms": 9244,
+      "model_id": "gemini-4-argon",
+      "name_read": 4,
+      "output_tokens": 361,
+      "prompt_version": "extract-image-v2",
+      "read": [
+        {
+          "country": "Thailand",
+          "name": "Top Main Board (TMB) PCBA"
+        },
+        {
+          "country": "Thailand",
+          "name": "Bottom Main Board (BMB) PCBA"
+        },
+        {
+          "country": "Thailand",
+          "name": "receiver (RX) PCBA"
+        },
+        {
+          "country": "Thailand",
+          "name": "transmitter (TX) PCBA"
+        }
+      ],
+      "simulated": false,
+      "style": "bilingual_headers"
+    }
+  ],
+  "summary": {
+    "cost_usd_gateway": 0.008458,
+    "countries_right": 4,
+    "expected_parts": 4,
+    "extra_rows": 0,
+    "failed_calls": 0,
+    "images": 1,
+    "names_read": 4
+  },
+  "time": "2026-11-28T17:27:56+08:00"
+}

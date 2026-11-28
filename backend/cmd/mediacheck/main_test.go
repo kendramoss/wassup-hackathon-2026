@@ -5,10 +5,27 @@ import (
 	"image"
 	"image/png"
 	"os"
+	"os/exec"
 	"path/filepath"
 	"strings"
 	"testing"
 )
+
+func TestMediaChallengeStudyReproducesWithoutModelCalls(t *testing.T) {
+	python, err := exec.LookPath("python3")
+	if err != nil {
+		t.Skip("python3 is required for offline study reproduction")
+	}
+	for _, args := range [][]string{
+		{"-I", "-B", "../../../eval/challenges/media/test_study.py"},
+		{"-I", "-B", "../../../eval/challenges/media/study.py", "summarize", "--check"},
+	} {
+		output, err := exec.Command(python, args...).CombinedOutput()
+		if err != nil {
+			t.Fatalf("offline media study: %v\n%s", err, output)
+		}
+	}
+}
 
 func TestRunRetainsMissingCountryWarnings(t *testing.T) {
 	t.Setenv("LLM_PROVIDER", "fake")

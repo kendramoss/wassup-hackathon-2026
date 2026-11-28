@@ -1,0 +1,93 @@
+{
+  "candidate_revision": "dd158f8a94d3ec803519b5adc926e6fc3e4bd4e9",
+  "dataset_sha256": "ac2ed27c5ca180073286dc7bf42b31b0a0e6ba69594161193144934d29e8868a",
+  "git_revision": "dd158f8a94d3ec803519b5adc926e6fc3e4bd4e9",
+  "image_sha256": "708e33d5276a2dde2dee6e24520c6c966b8d35e6610000ab7232c88b71233ca7",
+  "model": "gemini-4-argon",
+  "note": "synthetic renderings of illustrative BOMs; illustrative only",
+  "provider": "litellm",
+  "scores": [
+    {
+      "cost_usd_gateway": 0.010254,
+      "country_right": 12,
+      "expected": 13,
+      "extra_rows": 1,
+      "image": "f5e3d0b3b4fa79c3a95f.png",
+      "input_tokens": 2437,
+      "latency_ms": 10895,
+      "missed": [
+        "printed circuit board assembly (PCBA)"
+      ],
+      "model_id": "gemini-4-argon",
+      "name_read": 12,
+      "output_tokens": 538,
+      "prompt_version": "extract-image-v2",
+      "read": [
+        {
+          "country": "China",
+          "name": "support ring, heat insulator and fasteners"
+        },
+        {
+          "country": "China",
+          "name": "back cover"
+        },
+        {
+          "country": "China",
+          "name": "knob"
+        },
+        {
+          "country": "China",
+          "name": "wiring"
+        },
+        {
+          "country": "China",
+          "name": "power cord"
+        },
+        {
+          "country": "China",
+          "name": "switch"
+        },
+        {
+          "country": "China",
+          "name": "printed circuit board assembly (PCBA )"
+        },
+        {
+          "country": "China",
+          "name": "motor support"
+        },
+        {
+          "country": "China",
+          "name": "fan"
+        },
+        {
+          "country": "China",
+          "name": "electric motor"
+        },
+        {
+          "country": "Thailand",
+          "name": "heating element"
+        },
+        {
+          "country": "Thailand",
+          "name": "front cover"
+        },
+        {
+          "country": "Thailand",
+          "name": "main housing"
+        }
+      ],
+      "simulated": false,
+      "style": "dense"
+    }
+  ],
+  "summary": {
+    "cost_usd_gateway": 0.010254,
+    "countries_right": 12,
+    "expected_parts": 13,
+    "extra_rows": 1,
+    "failed_calls": 0,
+    "images": 1,
+    "names_read": 12
+  },
+  "time": "2026-11-28T17:26:00+08:00"
+}
