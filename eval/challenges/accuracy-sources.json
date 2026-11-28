@@ -1,0 +1,8 @@
+{
+  "schema_version": 1,
+  "sources": [
+    "eval/challenges/fta/summary.json",
+    "eval/challenges/legal-rules/summary.json",
+    "eval/challenges/verifier/summary.json"
+  ]
+}

@@ -6,6 +6,8 @@ import { api, type EvalSummary } from "@/lib/api/client";
 import { copy } from "@/lib/copy";
 import { adcvdCheck, adcvdScopeFirst, japanEvidence, japanMeasured, rcepEvidence, rulesChecks, tariffWatch, textileRules } from "@/lib/market-evidence";
 import failureData from "@/lib/failure-cases.json";
+import { challengeStudies } from "@/lib/challenge-studies";
+import { ChallengeEvidence } from "../challenge-evidence";
 import { ErrorBox, Main } from "../chrome";
 import { ButtonLink, Chip, Fold, ScrollX, cx } from "../ui";
 import { VerifierCalibration } from "../verifier-calibration";
@@ -323,24 +325,17 @@ function RulesChecks() {
           <dd><strong>{r.usmcaAgreed}/{r.usmcaDecided}</strong> ({r.usmcaPct}, 95% interval {r.usmcaInterval}%)</dd>
         </div>
         <div>
-          <dt className="text-dim">ASEAN (ATIGA) worked-example agreement</dt>
-          <dd>
-            <strong>{r.atigaPct}</strong> ({r.atigaReached}/{r.atigaExamples}) match the declared outcomes or rule checks.
-            <p className="mt-1">Constructed rule checks: {r.atigaControlsPct} ({r.atigaControlsPassed}/{r.atigaControls}).</p>
-            <p className="mt-1 text-dim">Real-world accuracy is not measured.</p>
-          </dd>
-        </div>
-        <div>
-          <dt className="text-dim">ASEAN-Korea and ASEAN-China checks (off), authority worked examples</dt>
-          <dd>Korea <strong>{r.akftaReached}/{r.akftaExamples}</strong>, China <strong>{r.acftaReached}/{r.acftaExamples}</strong> reach the stated result. Not an accuracy rate.</dd>
-        </div>
-        <div>
-          <dt className="text-dim">Textile origin rules (19 CFR 102.21, off), agreement with CBP on decided rulings, third test</dt>
+          <dt className="text-dim">Textile origin rules (19 CFR 102.21), agreement with CBP on decided rulings, third test</dt>
           <dd>
             <strong>{x.third.agreed}/{x.third.decided}</strong> ({x.third.pct}, 95% interval {x.third.interval}%). Decided {x.third.decided} of {x.third.inScope} rulings of 2012 to 2018. Second test {x.pooled.agreed}/{x.pooled.decided}, first test {x.d952.agreed}/{x.d952.decided}.
           </dd>
         </div>
       </dl>
+      <Details title="Original authority examples">
+        <p>ASEAN (ATIGA) worked-example agreement: {r.atigaPct} ({r.atigaReached}/{r.atigaExamples}) match the declared outcomes or rule checks.</p>
+        <p>Constructed rule checks: {r.atigaControlsPct} ({r.atigaControlsPassed}/{r.atigaControls}). Real-world accuracy is not measured.</p>
+        <p>Korea {r.akftaReached}/{r.akftaExamples}, China {r.acftaReached}/{r.acftaExamples} reach the stated result. Not an accuracy rate. Both checks remain off on the live site.</p>
+      </Details>
       <div className="mt-4 border-t border-line pt-3">
         <h4 className="text-sm font-semibold">Anti-dumping and countervailing duty check</h4>
         <dl className="mt-2 grid gap-x-6 gap-y-3 text-sm tabular-nums sm:grid-cols-2">
@@ -376,7 +371,7 @@ function RulesChecks() {
           The {s.scopeRulings.rulings} Commerce scope rulings of 2017 to 2018 are products near the edge of a scope. There the same method flagged rightly {s.scopeRulings.precisionPct} (interval {s.scopeRulings.precisionInterval}%) and found {s.scopeRulings.recallPct} ({s.scopeRulings.recallInterval}%), so a part that is a close call needs a person. The method before it, on {a.rulings} rulings of 2023 to 2024, got {a.precisionPct} and {a.recallPct}.
         </p>
         <p>
-          Textile: the third test, {x.third.rulings} rulings of 2012 to 2018, met the bar written down before it was scored (85% on at least 15 decided): {x.third.agreed} of {x.third.decided} decided agree with CBP, and the interval&apos;s low end is under 85. The second test missed it: {x.pooled.agreed} of {x.pooled.decided} (older rulings {x.older.agreed}/{x.older.decided}, 2023 to mid-2025 {x.pool.agreed}/{x.pool.decided}), mostly because older labels named China where CBP held Hong Kong. With the labeller fixed afterwards those rulings give {x.restated.agreed} of {x.restated.decided}, read after the result. The first test, {x.d952.rulings} rulings of 2026, had {x.d952.decided} decided, one short. The flag stays off. It does not decide the most important process.
+          Textile: the third test, {x.third.rulings} rulings of 2012 to 2018, met the bar written down before it was scored (85% on at least 15 decided): {x.third.agreed} of {x.third.decided} decided agree with CBP, and the interval&apos;s low end is under 85. The second test missed it: {x.pooled.agreed} of {x.pooled.decided} (older rulings {x.older.agreed}/{x.older.decided}, 2023 to mid-2025 {x.pool.agreed}/{x.pool.decided}), mostly because older labels named China where CBP held Hong Kong. With the labeller fixed afterwards those rulings give {x.restated.agreed} of {x.restated.decided}, read after the result. The first test, {x.d952.rulings} rulings of 2026, had {x.d952.decided} decided, one short. This is a display-only cross-check; it does not decide the most important process.
         </p>
         <p>
           ATIGA: {r.atigaReached}/{r.atigaExamples} published worked examples match their stated outcomes or rule checks. A further {r.atigaControlsPassed}/{r.atigaControls} constructed cases check thresholds, tariff changes, cumulation and missing facts. These are not independent customs decisions or a blind test; no suitable public decision dataset was verified in our search. Singapore&apos;s biscuit example prints 36%, while its values calculate to 36.67%; both fail the 40% threshold. <a href={`${copy.landing.repo}/blob/main/eval/atiga/evaluation-results.json`} className={link}>See every ATIGA test result →</a>
@@ -659,6 +654,7 @@ export function AccuracyPage() {
       </dl>
 
       <OutcomeMatrix />
+      <ChallengeEvidence features={challengeStudies} />
       <PlanEvidence calibration={data?.verifier_calibration} />
       <MarketEvidence />
       <TariffWatchEvidence />
