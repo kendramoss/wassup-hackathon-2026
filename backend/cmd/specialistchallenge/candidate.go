@@ -27,7 +27,7 @@ type Candidate struct {
 	modelID string
 	pools   Pools
 	wrap    func(retrieval.Retriever) retrieval.Retriever
-	variant string
+	variant string // "", "cand-1" (every specialist) or "frozen" (the per-specialist choice in frozenVariants)
 	eng     map[string]*engine.Engine
 	jp      *jpengine.Engine
 }
@@ -122,11 +122,37 @@ func (c *Candidate) build() error {
 	if err != nil {
 		return err
 	}
+	if c.variantFor("japan_engine") == "cand-1" {
+		jp = jp.WithUnknownStatusRule()
+	}
 	c.jp = jp
 	return nil
 }
 
+// frozenVariants is the development-selected candidate, per specialist: the
+// variant each specialist runs on the reserved cases. Empty string is the
+// production configuration. It is filled in from the development runs and
+// committed before the first reserved score.
+var frozenVariants = map[string]string{}
+
+func (c *Candidate) variantFor(feature string) string {
+	if c.variant == "frozen" {
+		return frozenVariants[feature]
+	}
+	return c.variant
+}
+
 func (c *Candidate) variantOptions(t, p, u engine.Options) (engine.Options, engine.Options, engine.Options) {
+	if c.variantFor("textile_specialist") == "cand-1" {
+		t.System, t.Version = engine.TextileSystem3, engine.TextileVersion3
+		t = engine.WithMissingFactRule(t, true)
+	}
+	if c.variantFor("pharma_specialist") == "cand-1" {
+		p = engine.WithMissingFactRule(p, true)
+	}
+	if c.variantFor("part102_specialist") == "cand-1" {
+		u = engine.WithMissingFactRule(u, false)
+	}
 	return t, p, u
 }
 
@@ -212,7 +238,7 @@ func RunCase(ctx context.Context, cand *Candidate, c Case) Row {
 // SetVariant selects a dev-chosen candidate variant ("" is production).
 func (c *Candidate) SetVariant(v string) error {
 	switch v {
-	case "":
+	case "", "cand-1", "frozen":
 	default:
 		return fmt.Errorf("unknown variant %q", v)
 	}

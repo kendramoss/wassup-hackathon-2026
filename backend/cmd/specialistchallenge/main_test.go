@@ -472,3 +472,37 @@ func TestJapanPreflightCasesNeverCallTheModel(t *testing.T) {
 		t.Errorf("preflight row = %+v, %d calls", row, len(m.Calls()))
 	}
 }
+
+func TestCandidateVariantsChangeOnlyWhatDevelopmentSelected(t *testing.T) {
+	m := llm.FakeText(answerJSON)
+	base, _ := NewCandidate(m, "gemini-4-argon", Pools{Textile: rulings(), Pharma: rulings(), Part102: rulings()})
+	c1, _ := NewCandidate(m, "gemini-4-argon", Pools{Textile: rulings(), Pharma: rulings(), Part102: rulings()})
+	if err := c1.SetVariant("cand-1"); err != nil {
+		t.Fatal(err)
+	}
+	if err := c1.SetVariant("nonsense"); err == nil {
+		t.Error("unknown variant accepted")
+	}
+	fv := frozenVariants
+	frozenVariants = map[string]string{"pharma_specialist": "cand-1"}
+	defer func() { frozenVariants = fv }()
+	fr, _ := NewCandidate(m, "gemini-4-argon", Pools{Textile: rulings(), Pharma: rulings(), Part102: rulings()})
+	if err := fr.SetVariant("frozen"); err != nil {
+		t.Fatal(err)
+	}
+	c := mk("pharma_specialist", "c0000000000g1", "dev", "A tablet is made from an API of India.", dec("India"))
+	ver := func(cd *Candidate) string { return RunCase(context.Background(), cd, c).PromptVersion }
+	if v := ver(base); strings.Contains(v, "missing") {
+		t.Errorf("production run used %q", v)
+	}
+	if v := ver(c1); !strings.Contains(v, "missing-v1") {
+		t.Errorf("cand-1 run used %q", v)
+	}
+	if v := ver(fr); !strings.Contains(v, "missing-v1") {
+		t.Errorf("frozen pharma run used %q", v)
+	}
+	tx := mk("textile_specialist", "c0000000000g2", "dev", "A shirt is sewn in India.", dec("India"))
+	if v := RunCase(context.Background(), fr, tx).PromptVersion; strings.Contains(v, "missing") || v != "textile-v1" {
+		t.Errorf("frozen textile run used %q", v)
+	}
+}

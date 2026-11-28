@@ -300,8 +300,11 @@ func cmdRun(args []string) error {
 	if *split == "dev" && *tag == "" {
 		return errors.New("-tag names a development run")
 	}
-	if *split == "test" && (*limit != 0 || *variant != "") {
-		return errors.New("a reserved run takes no -limit or -variant: the candidate is frozen")
+	if *split == "test" {
+		if *limit != 0 || *variant != "" {
+			return errors.New("a reserved run takes no -limit or -variant: the candidate is frozen")
+		}
+		*variant = "frozen"
 	}
 	dev, test, err := LoadAll(dataRoot())
 	if err != nil {

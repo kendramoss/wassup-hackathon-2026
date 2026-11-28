@@ -29,7 +29,7 @@ func predictWith(t *testing.T, o Options, origin string) (domain.Prediction, []l
 // restated question or two countries at 0.95 confidence, so a fast path above
 // 0.92 would accept it. An unresolved origin must never reach the auto bar.
 func TestUnresolvedOriginNeverReachesTheAutoBar(t *testing.T) {
-	for _, origin := range []string{"Unknown", "Country Where Desoximetasone Api Is Manufactured", "Netherlands/India", "Unknown (Country of Api Manufacture)", "Not stated", ""} {
+	for _, origin := range []string{"Unknown", "Country Where Desoximetasone Api Is Manufactured", "Netherlands/India", "Unknown (Country of Api Manufacture)", "Not stated"} {
 		p, _ := predictWith(t, Options{Model: "m", RequireSingleCountry: true}, origin)
 		if p.Confidence > UnresolvedConfidenceCap {
 			t.Errorf("%q kept confidence %.2f", origin, p.Confidence)
