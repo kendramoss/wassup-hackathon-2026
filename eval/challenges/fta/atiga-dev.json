@@ -1,0 +1,5269 @@
+{
+ "schema_version": 1,
+ "dataset_version": "fta-challenge-v1",
+ "evidence_kind": "source_grounded_synthetic",
+ "feature": "atiga",
+ "split": "dev",
+ "about": "Source-grounded synthetic challenge cases for the ATIGA check. Expected labels were derived by oracle.py from the cited primary rule rows and treaty clauses, not by running the candidate engine. Cases were authored by the implementer with knowledge of the engine interface; this is not blind authoring and not independent real-world customs rulings.",
+ "label_method": "oracle.py over the cited rule rows; hand-specified rows are marked in the case rule field",
+ "case_count": 91,
+ "sources": {
+  "atiga-text": {
+   "title": "ASEAN Trade in Goods Agreement (Cha-am, 26 February 2009), Chapter 3 Articles 26 to 33",
+   "url": "https://asean.org/asean-trade-in-goods-agreement-atiga/",
+   "sha256": "46c6d3367e1453c907e8b0091efda16316266a5bc139bbe1489f4686d228c0f6",
+   "kind": "primary_treaty_text"
+  },
+  "atiga-annex3": {
+   "title": "ATIGA Annex 3, Product Specific Rules, HS 2022 (endorsed by the 36th AFTA Council)",
+   "url": "https://asean.org/wp-content/uploads/2025/09/ATIGA-PSR-HS-2022-endorsed-AFTAC36.xlsx",
+   "sha256": "bb4d6a6fb8a8e9052cfb5790053add3bd66e9631a2ee09b7333076ddb24dba07",
+   "kind": "primary_rule_table"
+  },
+  "atiga-handbook": {
+   "title": "Singapore Customs, Handbook on Rules of Origin for Preferential Certificates of Origin (Dec 2025)",
+   "url": "https://isomer-user-content.by.gov.sg/174/fc3ecb0b-d701-4d8f-9881-9d99f90f35a2/Handbook_on_ROO_for_PCO_Dec2025__clean_.pdf",
+   "sha256": "6f9db34eb9923abb0831f30e70f1f67478c861dea63fc7f591cb9577e724da85",
+   "kind": "authority_guidance"
+  },
+  "atiga-miti": {
+   "title": "MITI Malaysia, Rules of Origin worked examples (AFTA/ATIGA)",
+   "url": "https://www.miti.gov.my/index.php/pages/view/2071",
+   "kind": "authority_guidance"
+  }
+ },
+ "cases": [
+  {
+   "id": "atiga-dev-wo-statement-01",
+   "split": "dev",
+   "feature": "atiga",
+   "source_family_id": "wo-statement",
+   "scenario_family": "wo-statement",
+   "variation_tags": [
+    "stated",
+    "wholly-obtained",
+    "wo-rule-row"
+   ],
+   "sources": [
+    {
+     "source": "atiga-text",
+     "locator": "Art. 26(a), Art. 27"
+    },
+    {
+     "source": "atiga-annex3",
+     "locator": "row 0102.21: WO"
+    }
+   ],
+   "rule": {
+    "row": "0102.21",
+    "text": "WO",
+    "listed": true
+   },
+   "rationale": "Annex rule for 0102.21 is WO and the producer states the good is wholly obtained in the exporting Party, so it is originating on that basis.",
+   "input": {
+    "hs": "0102.21",
+    "produced_in": "Singapore",
+    "fob": 1000,
+    "wholly_obtained": true,
+    "materials": [
+     {
+      "name": "Imported input: live animals (HS 0102.21)",
+      "hs": "0102.21",
+      "value": 300,
+      "country": "Canada",
+      "status": "non_originating"
+     }
+    ]
+   },
+   "expect": {
+    "outcome": "yes",
+    "applied": "WO"
+   },
+   "expected_abstention": false
+  },
+  {
+   "id": "atiga-dev-wo-statement-02",
+   "split": "dev",
+   "feature": "atiga",
+   "source_family_id": "wo-statement",
+   "scenario_family": "wo-statement",
+   "variation_tags": [
+    "stated",
+    "wholly-obtained",
+    "wo-rule-row"
+   ],
+   "sources": [
+    {
+     "source": "atiga-text",
+     "locator": "Art. 26(a), Art. 27"
+    },
+    {
+     "source": "atiga-annex3",
+     "locator": "row 0501.00: WO"
+    }
+   ],
+   "rule": {
+    "row": "0501.00",
+    "text": "WO",
+    "listed": true
+   },
+   "rationale": "Annex rule for 0501.00 is WO and the producer states the good is wholly obtained in the exporting Party, so it is originating on that basis.",
+   "input": {
+    "hs": "0501.00",
+    "produced_in": "Malaysia",
+    "fob": 120,
+    "wholly_obtained": true,
+    "materials": []
+   },
+   "expect": {
+    "outcome": "yes",
+    "applied": "WO"
+   },
+   "expected_abstention": false
+  },
+  {
+   "id": "atiga-dev-wo-not-met-01",
+   "split": "dev",
+   "feature": "atiga",
+   "source_family_id": "wo-not-met",
+   "scenario_family": "wo-not-met",
+   "variation_tags": [
+    "negative",
+    "non-originating-material",
+    "wo-rule-row"
+   ],
+   "sources": [
+    {
+     "source": "atiga-text",
+     "locator": "Art. 26(a), Art. 27"
+    },
+    {
+     "source": "atiga-annex3",
+     "locator": "row 0703.90: WO"
+    }
+   ],
+   "rule": {
+    "row": "0703.90",
+    "text": "WO",
+    "listed": true
+   },
+   "rationale": "Row 0703.90 requires the good to be wholly obtained; a non-originating imported material is used and no wholly obtained statement is made, so the rule is not met.",
+   "input": {
+    "hs": "0703.90",
+    "produced_in": "Thailand",
+    "fob": 1000,
+    "materials": [
+     {
+      "name": "Imported input: articles of leather (HS 4202.91)",
+      "hs": "4202.91",
+      "value": 350,
+      "country": "United States",
+      "status": "non_originating"
+     }
+    ]
+   },
+   "expect": {
+    "outcome": "no",
+    "alternative": {
+     "WO": "no"
+    },
+    "accumulation": false
+   },
+   "expected_abstention": false
+  },
+  {
+   "id": "atiga-dev-wo-not-met-02",
+   "split": "dev",
+   "feature": "atiga",
+   "source_family_id": "wo-not-met",
+   "scenario_family": "wo-not-met",
+   "variation_tags": [
+    "negative",
+    "non-originating-material",
+    "wo-rule-row"
+   ],
+   "sources": [
+    {
+     "source": "atiga-text",
+     "locator": "Art. 26(a), Art. 27"
+    },
+    {
+     "source": "atiga-annex3",
+     "locator": "row 0101.90: WO"
+    }
+   ],
+   "rule": {
+    "row": "0101.90",
+    "text": "WO",
+    "listed": true
+   },
+   "rationale": "Row 0101.90 requires the good to be wholly obtained; a non-originating imported material is used and no wholly obtained statement is made, so the rule is not met.",
+   "input": {
+    "hs": "0101.90",
+    "produced_in": "Singapore",
+    "fob": 5000,
+    "materials": [
+     {
+      "name": "Imported input: other base metals (HS 8112.52)",
+      "hs": "8112.52",
+      "value": 1750,
+      "country": "China",
+      "status": "non_originating"
+     }
+    ]
+   },
+   "expect": {
+    "outcome": "no",
+    "alternative": {
+     "WO": "no"
+    },
+    "accumulation": false
+   },
+   "expected_abstention": false
+  },
+  {
+   "id": "atiga-dev-all-originating-01",
+   "split": "dev",
+   "feature": "atiga",
+   "source_family_id": "all-originating",
+   "scenario_family": "all-originating",
+   "variation_tags": [
+    "cumulation-possible",
+    "positive",
+    "produced-from-originating-materials"
+   ],
+   "sources": [
+    {
+     "source": "atiga-text",
+     "locator": "Art. 26(b), Art. 30.1"
+    },
+    {
+     "source": "atiga-annex3",
+     "locator": "row 7311.00: RVC40 or CC"
+    }
+   ],
+   "rule": {
+    "row": "7311.00",
+    "text": "RVC40 or CC",
+    "listed": true
+   },
+   "rationale": "Every material is declared originating in a Party, so the good is produced only from originating materials and qualifies whatever the product rule says.",
+   "input": {
+    "hs": "7311.00",
+    "produced_in": "Thailand",
+    "fob": 2000,
+    "materials": [
+     {
+      "name": "Originating input: fertilisers (HS 3105.59)",
+      "hs": "3105.59",
+      "value": 400,
+      "country": "Malaysia",
+      "status": "originating"
+     },
+     {
+      "name": "Originating input: sugars and sugar confectionery (HS 1702.90)",
+      "hs": "1702.90",
+      "value": 400,
+      "country": "Vietnam",
+      "status": "originating"
+     }
+    ]
+   },
+   "expect": {
+    "outcome": "yes",
+    "applied": "PE",
+    "accumulation": true
+   },
+   "expected_abstention": false
+  },
+  {
+   "id": "atiga-dev-all-originating-02",
+   "split": "dev",
+   "feature": "atiga",
+   "source_family_id": "all-originating",
+   "scenario_family": "all-originating",
+   "variation_tags": [
+    "cumulation-possible",
+    "positive",
+    "produced-from-originating-materials"
+   ],
+   "sources": [
+    {
+     "source": "atiga-text",
+     "locator": "Art. 26(b), Art. 30.1"
+    },
+    {
+     "source": "atiga-annex3",
+     "locator": "row 0102.31: WO"
+    }
+   ],
+   "rule": {
+    "row": "0102.31",
+    "text": "WO",
+    "listed": true
+   },
+   "rationale": "Every material is declared originating in a Party, so the good is produced only from originating materials and qualifies whatever the product rule says.",
+   "input": {
+    "hs": "0102.31",
+    "produced_in": "Cambodia",
+    "fob": 800,
+    "materials": [
+     {
+      "name": "Originating input: preparations of vegetables, fruit, nuts (HS 2005.40)",
+      "hs": "2005.40",
+      "value": 160,
+      "country": "Laos",
+      "status": "originating"
+     },
+     {
+      "name": "Originating input: wool, fine or coarse animal hair (HS 5105.10)",
+      "hs": "5105.10",
+      "value": 160,
+      "country": "Singapore",
+      "status": "originating"
+     }
+    ]
+   },
+   "expect": {
+    "outcome": "yes",
+    "applied": "PE",
+    "accumulation": true
+   },
+   "expected_abstention": false
+  },
+  {
+   "id": "atiga-dev-no-materials-01",
+   "split": "dev",
+   "feature": "atiga",
+   "source_family_id": "no-materials",
+   "scenario_family": "no-materials",
+   "variation_tags": [
+    "abstention-expected",
+    "missing-facts"
+   ],
+   "sources": [
+    {
+     "source": "atiga-handbook",
+     "locator": "p. 6: materials of undetermined origin count as non-originating; Art. 29.2(b)"
+    },
+    {
+     "source": "atiga-annex3",
+     "locator": "row 8511.90: RVC40"
+    }
+   ],
+   "rule": {
+    "row": "8511.90",
+    "text": "RVC40",
+    "listed": true
+   },
+   "rationale": "No materials listed and no wholly obtained statement: the bill of materials is missing, so the origin cannot be decided on the facts given.",
+   "input": {
+    "hs": "8511.90",
+    "produced_in": "Indonesia",
+    "fob": 400,
+    "materials": []
+   },
+   "expect": {
+    "outcome": "undetermined",
+    "accumulation": false
+   },
+   "expected_abstention": true
+  },
+  {
+   "id": "atiga-dev-production-outside-agreement-01",
+   "split": "dev",
+   "feature": "atiga",
+   "source_family_id": "production-outside-agreement",
+   "scenario_family": "production-outside-agreement",
+   "variation_tags": [
+    "membership",
+    "negative",
+    "non-member-producer"
+   ],
+   "sources": [
+    {
+     "source": "atiga-text",
+     "locator": "Art. 26 (good of the exporting Member State)"
+    },
+    {
+     "source": "atiga-annex3",
+     "locator": "row 0307.43: RVC40 or CTSH"
+    }
+   ],
+   "rule": {
+    "row": "0307.43",
+    "text": "RVC40 or CTSH",
+    "listed": true
+   },
+   "rationale": "The good is made in a country that is not a Party to this agreement, so it cannot be an originating good of a Party, even if it states wholly obtained.",
+   "input": {
+    "hs": "0307.43",
+    "produced_in": "Canada",
+    "fob": 5000,
+    "wholly_obtained": true,
+    "materials": [
+     {
+      "name": "Input: oil seeds and oleaginous fruits (HS 1202.30)",
+      "hs": "1202.30",
+      "value": 500,
+      "country": "Australia",
+      "status": "non_originating"
+     }
+    ]
+   },
+   "expect": {
+    "outcome": "no"
+   },
+   "expected_abstention": false
+  },
+  {
+   "id": "atiga-dev-production-outside-agreement-02",
+   "split": "dev",
+   "feature": "atiga",
+   "source_family_id": "production-outside-agreement",
+   "scenario_family": "production-outside-agreement",
+   "variation_tags": [
+    "membership",
+    "negative",
+    "non-member-producer"
+   ],
+   "sources": [
+    {
+     "source": "atiga-text",
+     "locator": "Art. 26 (good of the exporting Member State)"
+    },
+    {
+     "source": "atiga-annex3",
+     "locator": "row 8711.50: RVC40"
+    }
+   ],
+   "rule": {
+    "row": "8711.50",
+    "text": "RVC40",
+    "listed": true
+   },
+   "rationale": "The good is made in a country that is not a Party to this agreement, so it cannot be an originating good of a Party, even if it states wholly obtained.",
+   "input": {
+    "hs": "8711.50",
+    "produced_in": "China",
+    "fob": 5000,
+    "wholly_obtained": false,
+    "materials": [
+     {
+      "name": "Input: lead and articles thereof (HS 7804.11)",
+      "hs": "7804.11",
+      "value": 500,
+      "country": "Canada",
+      "status": "non_originating"
+     }
+    ]
+   },
+   "expect": {
+    "outcome": "no"
+   },
+   "expected_abstention": false
+  },
+  {
+   "id": "atiga-dev-production-country-missing-01",
+   "split": "dev",
+   "feature": "atiga",
+   "source_family_id": "production-country-missing",
+   "scenario_family": "production-country-missing",
+   "variation_tags": [
+    "abstention-expected",
+    "missing-facts"
+   ],
+   "sources": [
+    {
+     "source": "atiga-text",
+     "locator": "Art. 26 (good of the exporting Member State)"
+    },
+    {
+     "source": "atiga-annex3",
+     "locator": "row 1507.10: RVC40 or CC"
+    }
+   ],
+   "rule": {
+    "row": "1507.10",
+    "text": "RVC40 or CC",
+    "listed": true
+   },
+   "rationale": "No country of production is given, so whether the good is made in a Party cannot be decided.",
+   "input": {
+    "hs": "1507.10",
+    "produced_in": "",
+    "fob": 2000,
+    "materials": [
+     {
+      "name": "Input: ores, slag and ash (HS 2610.00)",
+      "hs": "2610.00",
+      "value": 200,
+      "country": "Brazil",
+      "status": "non_originating"
+     }
+    ]
+   },
+   "expect": {
+    "outcome": "undetermined"
+   },
+   "expected_abstention": true
+  },
+  {
+   "id": "atiga-dev-country-name-alias-01",
+   "split": "dev",
+   "feature": "atiga",
+   "source_family_id": "country-name-alias",
+   "scenario_family": "country-name-alias",
+   "variation_tags": [
+    "formatting-only",
+    "member-alias",
+    "positive"
+   ],
+   "sources": [
+    {
+     "source": "atiga-text",
+     "locator": "Art. 26 (good of the exporting Member State)"
+    },
+    {
+     "source": "atiga-annex3",
+     "locator": "row 0901.21: RVC40 or CTSH"
+    }
+   ],
+   "rule": {
+    "row": "0901.21",
+    "text": "RVC40 or CTSH",
+    "listed": true
+   },
+   "rationale": "Formatting-only robustness check: the treaty name of a Party is used for the producing country; the good changes tariff classification for every material, so it qualifies when the Party is recognised.",
+   "input": {
+    "hs": "0901.21",
+    "produced_in": "Viet Nam",
+    "fob": 1000,
+    "materials": [
+     {
+      "name": "Input: paper and paperboard (HS 4804.42)",
+      "hs": "4804.42",
+      "value": 200,
+      "country": "India",
+      "status": "non_originating"
+     }
+    ]
+   },
+   "expect": {
+    "outcome": "yes"
+   },
+   "expected_abstention": false,
+   "formatting_only": true
+  },
+  {
+   "id": "atiga-dev-rvc-boundary-01",
+   "split": "dev",
+   "feature": "atiga",
+   "source_family_id": "rvc-boundary",
+   "scenario_family": "rvc-boundary",
+   "variation_tags": [
+    "above",
+    "rvc-threshold",
+    "tariff-shift-blocked",
+    "threshold-40"
+   ],
+   "sources": [
+    {
+     "source": "atiga-text",
+     "locator": "Art. 28.2(b), Art. 29 (build-down)"
+    },
+    {
+     "source": "atiga-annex3",
+     "locator": "row 1302.19: RVC40 or CC"
+    }
+   ],
+   "rule": {
+    "row": "1302.19",
+    "text": "RVC40 or CC",
+    "listed": true
+   },
+   "rationale": "Row 1302.19 needs RVC 40. Non-originating value 142.5 of FOB 250 leaves build-down content 43 %; the non-originating materials are in the good's own subheading, so no tariff-shift alternative can help.",
+   "input": {
+    "hs": "1302.19",
+    "produced_in": "Malaysia",
+    "fob": 250,
+    "materials": [
+     {
+      "name": "Imported input: lac (HS 1302.19)",
+      "hs": "1302.19",
+      "value": 142.5,
+      "country": "Brazil",
+      "status": "non_originating"
+     },
+     {
+      "name": "Originating input: iron and steel (HS 7202.21)",
+      "hs": "7202.21",
+      "value": 50,
+      "country": "Brunei",
+      "status": "originating"
+     }
+    ],
+    "method": "indirect"
+   },
+   "expect": {
+    "outcome": "yes",
+    "alternative": {
+     "RVC40": "yes",
+     "CC": "no"
+    },
+    "applied": "RVC40",
+    "accumulation": true,
+    "rvc_down_min": 42.95,
+    "rvc_down_max": 43.05
+   },
+   "expected_abstention": false
+  },
+  {
+   "id": "atiga-dev-rvc-boundary-02",
+   "split": "dev",
+   "feature": "atiga",
+   "source_family_id": "rvc-boundary",
+   "scenario_family": "rvc-boundary",
+   "variation_tags": [
+    "exact",
+    "rvc-threshold",
+    "tariff-shift-blocked",
+    "threshold-40"
+   ],
+   "sources": [
+    {
+     "source": "atiga-text",
+     "locator": "Art. 28.2(b), Art. 29 (build-down)"
+    },
+    {
+     "source": "atiga-annex3",
+     "locator": "row 0910.99: RVC40 or CTSH"
+    }
+   ],
+   "rule": {
+    "row": "0910.99",
+    "text": "RVC40 or CTSH",
+    "listed": true
+   },
+   "rationale": "Row 0910.99 needs RVC 40. Non-originating value 1200 of FOB 2000 leaves build-down content 40 %; the non-originating materials are in the good's own subheading, so no tariff-shift alternative can help.",
+   "input": {
+    "hs": "0910.99",
+    "produced_in": "Singapore",
+    "fob": 2000,
+    "materials": [
+     {
+      "name": "Imported input: coffee, tea, maté and spices (HS 0910.99)",
+      "hs": "0910.99",
+      "value": 600,
+      "country": "Australia",
+      "status": "non_originating"
+     },
+     {
+      "name": "Imported input: coffee, tea, maté and spices (HS 0910.99)",
+      "hs": "0910.99",
+      "value": 600,
+      "country": "United States",
+      "status": "non_originating"
+     },
+     {
+      "name": "Originating input: man-made staple fibres (HS 5502.10)",
+      "hs": "5502.10",
+      "value": 400,
+      "country": "Philippines",
+      "status": "originating"
+     }
+    ],
+    "method": "indirect"
+   },
+   "expect": {
+    "outcome": "yes",
+    "alternative": {
+     "RVC40": "yes",
+     "CTSH": "no"
+    },
+    "applied": "RVC40",
+    "accumulation": true,
+    "rvc_down_min": 39.95,
+    "rvc_down_max": 40.05
+   },
+   "expected_abstention": false
+  },
+  {
+   "id": "atiga-dev-rvc-boundary-03",
+   "split": "dev",
+   "feature": "atiga",
+   "source_family_id": "rvc-boundary",
+   "scenario_family": "rvc-boundary",
+   "variation_tags": [
+    "just-below",
+    "rvc-threshold",
+    "tariff-shift-blocked",
+    "threshold-40"
+   ],
+   "sources": [
+    {
+     "source": "atiga-text",
+     "locator": "Art. 28.2(b), Art. 29 (build-down)"
+    },
+    {
+     "source": "atiga-annex3",
+     "locator": "row 1701.12: RVC40 or CC"
+    }
+   ],
+   "rule": {
+    "row": "1701.12",
+    "text": "RVC40 or CC",
+    "listed": true
+   },
+   "rationale": "Row 1701.12 needs RVC 40. Non-originating value 605 of FOB 1000 leaves build-down content 39.5 %; the non-originating materials are in the good's own subheading, so no tariff-shift alternative can help.",
+   "input": {
+    "hs": "1701.12",
+    "produced_in": "Philippines",
+    "fob": 1000,
+    "materials": [
+     {
+      "name": "Imported input: sugars and sugar confectionery (HS 1701.12)",
+      "hs": "1701.12",
+      "value": 302.5,
+      "country": "Brazil",
+      "status": "non_originating"
+     },
+     {
+      "name": "Imported input: sugars and sugar confectionery (HS 1701.12)",
+      "hs": "1701.12",
+      "value": 302.5,
+      "country": "Canada",
+      "status": "non_originating"
+     },
+     {
+      "name": "Originating input: arms and ammunition (HS 9303.90)",
+      "hs": "9303.90",
+      "value": 200,
+      "country": "Vietnam",
+      "status": "originating"
+     }
+    ],
+    "method": "indirect"
+   },
+   "expect": {
+    "outcome": "no",
+    "alternative": {
+     "RVC40": "no",
+     "CC": "no"
+    },
+    "accumulation": true,
+    "rvc_down_min": 39.45,
+    "rvc_down_max": 39.55
+   },
+   "expected_abstention": false
+  },
+  {
+   "id": "atiga-dev-rvc-boundary-04",
+   "split": "dev",
+   "feature": "atiga",
+   "source_family_id": "rvc-boundary",
+   "scenario_family": "rvc-boundary",
+   "variation_tags": [
+    "far-below",
+    "rvc-threshold",
+    "tariff-shift-blocked",
+    "threshold-40"
+   ],
+   "sources": [
+    {
+     "source": "atiga-text",
+     "locator": "Art. 28.2(b), Art. 29 (build-down)"
+    },
+    {
+     "source": "atiga-annex3",
+     "locator": "row 8105.20: RVC40 or CTSH"
+    }
+   ],
+   "rule": {
+    "row": "8105.20",
+    "text": "RVC40 or CTSH",
+    "listed": true
+   },
+   "rationale": "Row 8105.20 needs RVC 40. Non-originating value 195 of FOB 250 leaves build-down content 22 %; the non-originating materials are in the good's own subheading, so no tariff-shift alternative can help.",
+   "input": {
+    "hs": "8105.20",
+    "produced_in": "Singapore",
+    "fob": 250,
+    "materials": [
+     {
+      "name": "Imported input: other base metals (HS 8105.20)",
+      "hs": "8105.20",
+      "value": 195,
+      "country": "Brazil",
+      "status": "non_originating"
+     },
+     {
+      "name": "Originating input: electrical machinery and equipment and (HS 8515.39)",
+      "hs": "8515.39",
+      "value": 50,
+      "country": "Myanmar",
+      "status": "originating"
+     }
+    ],
+    "method": "indirect"
+   },
+   "expect": {
+    "outcome": "no",
+    "alternative": {
+     "RVC40": "no",
+     "CTSH": "no"
+    },
+    "accumulation": true,
+    "rvc_down_min": 21.95,
+    "rvc_down_max": 22.05
+   },
+   "expected_abstention": false
+  },
+  {
+   "id": "atiga-dev-rvc-boundary-05",
+   "split": "dev",
+   "feature": "atiga",
+   "source_family_id": "rvc-boundary",
+   "scenario_family": "rvc-boundary",
+   "variation_tags": [
+    "above",
+    "rvc-only-rule",
+    "rvc-threshold",
+    "tariff-shift-blocked",
+    "threshold-40"
+   ],
+   "sources": [
+    {
+     "source": "atiga-text",
+     "locator": "Art. 28.2(b), Art. 29 (build-down)"
+    },
+    {
+     "source": "atiga-annex3",
+     "locator": "row 8511.40: RVC40"
+    }
+   ],
+   "rule": {
+    "row": "8511.40",
+    "text": "RVC40",
+    "listed": true
+   },
+   "rationale": "Row 8511.40 needs RVC 40. Non-originating value 57 of FOB 100 leaves build-down content 43 %; the non-originating materials are in the good's own subheading, so no tariff-shift alternative can help.",
+   "input": {
+    "hs": "8511.40",
+    "produced_in": "Malaysia",
+    "fob": 100,
+    "materials": [
+     {
+      "name": "Imported input: electrical machinery and equipment and (HS 8511.40)",
+      "hs": "8511.40",
+      "value": 28.5,
+      "country": "United Kingdom",
+      "status": "non_originating"
+     },
+     {
+      "name": "Imported input: electrical machinery and equipment and (HS 8511.40)",
+      "hs": "8511.40",
+      "value": 28.5,
+      "country": "Canada",
+      "status": "non_originating"
+     },
+     {
+      "name": "Originating input: fish and crustaceans, molluscs and other (HS 0304.41)",
+      "hs": "0304.41",
+      "value": 20,
+      "country": "Vietnam",
+      "status": "originating"
+     }
+    ],
+    "method": "indirect"
+   },
+   "expect": {
+    "outcome": "yes",
+    "alternative": {
+     "RVC40": "yes"
+    },
+    "applied": "RVC40",
+    "accumulation": true,
+    "rvc_down_min": 42.95,
+    "rvc_down_max": 43.05
+   },
+   "expected_abstention": false
+  },
+  {
+   "id": "atiga-dev-rvc-boundary-06",
+   "split": "dev",
+   "feature": "atiga",
+   "source_family_id": "rvc-boundary",
+   "scenario_family": "rvc-boundary",
+   "variation_tags": [
+    "just-below",
+    "rvc-threshold",
+    "tariff-shift-blocked",
+    "threshold-40"
+   ],
+   "sources": [
+    {
+     "source": "atiga-text",
+     "locator": "Art. 28.2(b), Art. 29 (build-down)"
+    },
+    {
+     "source": "atiga-annex3",
+     "locator": "row 8104.19: RVC40 or CTSH"
+    }
+   ],
+   "rule": {
+    "row": "8104.19",
+    "text": "RVC40 or CTSH",
+    "listed": true
+   },
+   "rationale": "Row 8104.19 needs RVC 40. Non-originating value 302.5 of FOB 500 leaves build-down content 39.5 %; the non-originating materials are in the good's own subheading, so no tariff-shift alternative can help.",
+   "input": {
+    "hs": "8104.19",
+    "produced_in": "Singapore",
+    "fob": 500,
+    "materials": [
+     {
+      "name": "Imported input: other base metals (HS 8104.19)",
+      "hs": "8104.19",
+      "value": 302.5,
+      "country": "United Kingdom",
+      "status": "non_originating"
+     },
+     {
+      "name": "Originating input: paper and paperboard (HS 4802.40)",
+      "hs": "4802.40",
+      "value": 100,
+      "country": "Myanmar",
+      "status": "originating"
+     }
+    ],
+    "method": "indirect"
+   },
+   "expect": {
+    "outcome": "no",
+    "alternative": {
+     "RVC40": "no",
+     "CTSH": "no"
+    },
+    "accumulation": true,
+    "rvc_down_min": 39.45,
+    "rvc_down_max": 39.55
+   },
+   "expected_abstention": false
+  },
+  {
+   "id": "atiga-dev-rvc-boundary-07",
+   "split": "dev",
+   "feature": "atiga",
+   "source_family_id": "rvc-boundary",
+   "scenario_family": "rvc-boundary",
+   "variation_tags": [
+    "above",
+    "rvc-only-rule",
+    "rvc-threshold",
+    "tariff-shift-blocked",
+    "threshold-40"
+   ],
+   "sources": [
+    {
+     "source": "atiga-text",
+     "locator": "Art. 28.2(b), Art. 29 (build-down)"
+    },
+    {
+     "source": "atiga-annex3",
+     "locator": "row 8701.23: RVC40"
+    }
+   ],
+   "rule": {
+    "row": "8701.23",
+    "text": "RVC40",
+    "listed": true
+   },
+   "rationale": "Row 8701.23 needs RVC 40. Non-originating value 570 of FOB 1000 leaves build-down content 43 %; the non-originating materials are in the good's own subheading, so no tariff-shift alternative can help.",
+   "input": {
+    "hs": "8701.23",
+    "produced_in": "Malaysia",
+    "fob": 1000,
+    "materials": [
+     {
+      "name": "Imported input: vehicles other than railway or tramway (HS 8701.23)",
+      "hs": "8701.23",
+      "value": 570,
+      "country": "Canada",
+      "status": "non_originating"
+     },
+     {
+      "name": "Originating input: oil seeds and oleaginous fruits (HS 1203.00)",
+      "hs": "1203.00",
+      "value": 200,
+      "country": "Laos",
+      "status": "originating"
+     }
+    ],
+    "method": "indirect"
+   },
+   "expect": {
+    "outcome": "yes",
+    "alternative": {
+     "RVC40": "yes"
+    },
+    "applied": "RVC40",
+    "accumulation": true,
+    "rvc_down_min": 42.95,
+    "rvc_down_max": 43.05
+   },
+   "expected_abstention": false
+  },
+  {
+   "id": "atiga-dev-rvc-boundary-08",
+   "split": "dev",
+   "feature": "atiga",
+   "source_family_id": "rvc-boundary",
+   "scenario_family": "rvc-boundary",
+   "variation_tags": [
+    "exact",
+    "rvc-threshold",
+    "tariff-shift-blocked",
+    "threshold-40"
+   ],
+   "sources": [
+    {
+     "source": "atiga-text",
+     "locator": "Art. 28.2(b), Art. 29 (build-down)"
+    },
+    {
+     "source": "atiga-annex3",
+     "locator": "row 8504.40: RVC40 or CTSH"
+    }
+   ],
+   "rule": {
+    "row": "8504.40",
+    "text": "RVC40 or CTSH",
+    "listed": true
+   },
+   "rationale": "Row 8504.40 needs RVC 40. Non-originating value 60 of FOB 100 leaves build-down content 40 %; the non-originating materials are in the good's own subheading, so no tariff-shift alternative can help.",
+   "input": {
+    "hs": "8504.40",
+    "produced_in": "Vietnam",
+    "fob": 100,
+    "materials": [
+     {
+      "name": "Imported input: electrical machinery and equipment and (HS 8504.40)",
+      "hs": "8504.40",
+      "value": 60,
+      "country": "Canada",
+      "status": "non_originating"
+     },
+     {
+      "name": "Originating input: plastics and articles thereof (HS 3905.29)",
+      "hs": "3905.29",
+      "value": 20,
+      "country": "Cambodia",
+      "status": "originating"
+     }
+    ],
+    "method": "indirect"
+   },
+   "expect": {
+    "outcome": "yes",
+    "alternative": {
+     "RVC40": "yes",
+     "CTSH": "no"
+    },
+    "applied": "RVC40",
+    "accumulation": true,
+    "rvc_down_min": 39.95,
+    "rvc_down_max": 40.05
+   },
+   "expected_abstention": false
+  },
+  {
+   "id": "atiga-dev-tariff-shift-grid-01",
+   "split": "dev",
+   "feature": "atiga",
+   "source_family_id": "tariff-shift-grid",
+   "scenario_family": "tariff-shift-grid",
+   "variation_tags": [
+    "material-relation-chapter",
+    "positive",
+    "tariff-shift-chapter"
+   ],
+   "sources": [
+    {
+     "source": "atiga-text",
+     "locator": "Art. 28.2(d): tariff-shift rules apply to non-originating materials only"
+    },
+    {
+     "source": "atiga-annex3",
+     "locator": "row 0907.20: RVC40 or CC"
+    }
+   ],
+   "rule": {
+    "row": "0907.20",
+    "text": "RVC40 or CC",
+    "listed": true
+   },
+   "rationale": "Row 0907.20 is decided by a change of chapter. The non-originating material is in a different chapter (5402.62); the shift is met. The originating material in the good's own subheading is disregarded because tariff-shift rules apply to non-originating materials only.",
+   "input": {
+    "hs": "0907.20",
+    "produced_in": "Vietnam",
+    "fob": 200,
+    "materials": [
+     {
+      "name": "Imported input: man-made filaments (HS 5402.62)",
+      "hs": "5402.62",
+      "value": 140,
+      "country": "Australia",
+      "status": "non_originating"
+     },
+     {
+      "name": "Originating input in the good's own subheading: coffee, tea, maté and spices (HS 0907.20)",
+      "hs": "0907.20",
+      "value": 20,
+      "country": "Laos",
+      "status": "originating"
+     }
+    ],
+    "method": "indirect"
+   },
+   "expect": {
+    "outcome": "yes",
+    "alternative": {
+     "RVC40": "no",
+     "CC": "yes"
+    },
+    "applied": "CC",
+    "accumulation": true
+   },
+   "expected_abstention": false
+  },
+  {
+   "id": "atiga-dev-tariff-shift-grid-02",
+   "split": "dev",
+   "feature": "atiga",
+   "source_family_id": "tariff-shift-grid",
+   "scenario_family": "tariff-shift-grid",
+   "variation_tags": [
+    "material-relation-heading",
+    "positive",
+    "tariff-shift-subheading",
+    "two-failing-candidates"
+   ],
+   "sources": [
+    {
+     "source": "atiga-text",
+     "locator": "Art. 28.2(d): tariff-shift rules apply to non-originating materials only"
+    },
+    {
+     "source": "atiga-annex3",
+     "locator": "row 8109.99: RVC40 or CTSH"
+    }
+   ],
+   "rule": {
+    "row": "8109.99",
+    "text": "RVC40 or CTSH",
+    "listed": true
+   },
+   "rationale": "Row 8109.99 is decided by a change of subheading. The non-originating material is in the same chapter but a different heading (8104.11); the shift is met. The originating material in the good's own subheading is disregarded because tariff-shift rules apply to non-originating materials only.",
+   "input": {
+    "hs": "8109.99",
+    "produced_in": "Cambodia",
+    "fob": 1000,
+    "materials": [
+     {
+      "name": "Imported input A: other base metals (HS 8104.11)",
+      "hs": "8104.11",
+      "value": 700,
+      "country": "India",
+      "status": "non_originating"
+     },
+     {
+      "name": "Input: articles of iron or steel (HS 7309.00)",
+      "hs": "7309.00",
+      "value": 50,
+      "country": "Brazil",
+      "status": "non_originating"
+     },
+     {
+      "name": "Originating input in the good's own subheading: other base metals (HS 8109.99)",
+      "hs": "8109.99",
+      "value": 100,
+      "country": "Vietnam",
+      "status": "originating"
+     }
+    ],
+    "method": "indirect"
+   },
+   "expect": {
+    "outcome": "yes",
+    "alternative": {
+     "RVC40": "no",
+     "CTSH": "yes"
+    },
+    "applied": "CTSH",
+    "accumulation": true
+   },
+   "expected_abstention": false
+  },
+  {
+   "id": "atiga-dev-tariff-shift-grid-03",
+   "split": "dev",
+   "feature": "atiga",
+   "source_family_id": "tariff-shift-grid",
+   "scenario_family": "tariff-shift-grid",
+   "variation_tags": [
+    "material-relation-sub",
+    "negative",
+    "tariff-shift-chapter"
+   ],
+   "sources": [
+    {
+     "source": "atiga-text",
+     "locator": "Art. 28.2(d): tariff-shift rules apply to non-originating materials only"
+    },
+    {
+     "source": "atiga-annex3",
+     "locator": "row 1302.13: RVC40 or CC"
+    }
+   ],
+   "rule": {
+    "row": "1302.13",
+    "text": "RVC40 or CC",
+    "listed": true
+   },
+   "rationale": "Row 1302.13 is decided by a change of chapter. The non-originating material is in the same heading but a different subheading (1302.39); no shift at this level, and the 70 % value share keeps the RVC alternative and de minimis from rescuing it. The originating material in the good's own subheading is disregarded because tariff-shift rules apply to non-originating materials only.",
+   "input": {
+    "hs": "1302.13",
+    "produced_in": "Thailand",
+    "fob": 100,
+    "materials": [
+     {
+      "name": "Imported input: lac (HS 1302.39)",
+      "hs": "1302.39",
+      "value": 70,
+      "country": "United Kingdom",
+      "status": "non_originating"
+     },
+     {
+      "name": "Originating input in the good's own subheading: lac (HS 1302.13)",
+      "hs": "1302.13",
+      "value": 10,
+      "country": "Philippines",
+      "status": "originating"
+     }
+    ],
+    "method": "indirect"
+   },
+   "expect": {
+    "outcome": "no",
+    "alternative": {
+     "RVC40": "no",
+     "CC": "no"
+    },
+    "accumulation": true
+   },
+   "expected_abstention": false
+  },
+  {
+   "id": "atiga-dev-tariff-shift-grid-04",
+   "split": "dev",
+   "feature": "atiga",
+   "source_family_id": "tariff-shift-grid",
+   "scenario_family": "tariff-shift-grid",
+   "variation_tags": [
+    "material-relation-same",
+    "negative",
+    "tariff-shift-subheading",
+    "two-failing-candidates"
+   ],
+   "sources": [
+    {
+     "source": "atiga-text",
+     "locator": "Art. 28.2(d): tariff-shift rules apply to non-originating materials only"
+    },
+    {
+     "source": "atiga-annex3",
+     "locator": "row 3501.90: RVC40 or CTSH"
+    }
+   ],
+   "rule": {
+    "row": "3501.90",
+    "text": "RVC40 or CTSH",
+    "listed": true
+   },
+   "rationale": "Row 3501.90 is decided by a change of subheading. The non-originating material is in the same subheading (3501.90); no shift at this level, and the 70 % value share keeps the RVC alternative and de minimis from rescuing it. The originating material in the good's own subheading is disregarded because tariff-shift rules apply to non-originating materials only.",
+   "input": {
+    "hs": "3501.90",
+    "produced_in": "Thailand",
+    "fob": 1000,
+    "materials": [
+     {
+      "name": "Imported input A: albuminoidal substances (HS 3501.90)",
+      "hs": "3501.90",
+      "value": 700,
+      "country": "Australia",
+      "status": "non_originating"
+     },
+     {
+      "name": "Input: silk (HS 5003.00)",
+      "hs": "5003.00",
+      "value": 50,
+      "country": "India",
+      "status": "non_originating"
+     },
+     {
+      "name": "Originating input in the good's own subheading: albuminoidal substances (HS 3501.90)",
+      "hs": "3501.90",
+      "value": 100,
+      "country": "Brunei",
+      "status": "originating"
+     }
+    ],
+    "method": "indirect"
+   },
+   "expect": {
+    "outcome": "no",
+    "alternative": {
+     "RVC40": "no",
+     "CTSH": "no"
+    },
+    "accumulation": true
+   },
+   "expected_abstention": false
+  },
+  {
+   "id": "atiga-dev-tariff-shift-grid-05",
+   "split": "dev",
+   "feature": "atiga",
+   "source_family_id": "tariff-shift-grid",
+   "scenario_family": "tariff-shift-grid",
+   "variation_tags": [
+    "material-relation-chapter",
+    "positive",
+    "tariff-shift-subheading"
+   ],
+   "sources": [
+    {
+     "source": "atiga-text",
+     "locator": "Art. 28.2(d): tariff-shift rules apply to non-originating materials only"
+    },
+    {
+     "source": "atiga-annex3",
+     "locator": "row 3301.30: RVC40 or CTSH"
+    }
+   ],
+   "rule": {
+    "row": "3301.30",
+    "text": "RVC40 or CTSH",
+    "listed": true
+   },
+   "rationale": "Row 3301.30 is decided by a change of subheading. The non-originating material is in a different chapter (6203.43); the shift is met. The originating material in the good's own subheading is disregarded because tariff-shift rules apply to non-originating materials only.",
+   "input": {
+    "hs": "3301.30",
+    "produced_in": "Cambodia",
+    "fob": 200,
+    "materials": [
+     {
+      "name": "Imported input: articles of apparel and clothing (HS 6203.43)",
+      "hs": "6203.43",
+      "value": 140,
+      "country": "Australia",
+      "status": "non_originating"
+     },
+     {
+      "name": "Originating input in the good's own subheading: essential oils and resinoids (HS 3301.30)",
+      "hs": "3301.30",
+      "value": 20,
+      "country": "Thailand",
+      "status": "originating"
+     }
+    ],
+    "method": "indirect"
+   },
+   "expect": {
+    "outcome": "yes",
+    "alternative": {
+     "RVC40": "no",
+     "CTSH": "yes"
+    },
+    "applied": "CTSH",
+    "accumulation": true
+   },
+   "expected_abstention": false
+  },
+  {
+   "id": "atiga-dev-tariff-shift-grid-06",
+   "split": "dev",
+   "feature": "atiga",
+   "source_family_id": "tariff-shift-grid",
+   "scenario_family": "tariff-shift-grid",
+   "variation_tags": [
+    "level-sensitive",
+    "material-relation-heading",
+    "negative",
+    "tariff-shift-chapter",
+    "two-failing-candidates"
+   ],
+   "sources": [
+    {
+     "source": "atiga-text",
+     "locator": "Art. 28.2(d): tariff-shift rules apply to non-originating materials only"
+    },
+    {
+     "source": "atiga-annex3",
+     "locator": "row 1904.30: RVC40 or CC"
+    }
+   ],
+   "rule": {
+    "row": "1904.30",
+    "text": "RVC40 or CC",
+    "listed": true
+   },
+   "rationale": "Row 1904.30 is decided by a change of chapter. The non-originating material is in the same chapter but a different heading (1902.30); no shift at this level, and the 70 % value share keeps the RVC alternative and de minimis from rescuing it. The originating material in the good's own subheading is disregarded because tariff-shift rules apply to non-originating materials only.",
+   "input": {
+    "hs": "1904.30",
+    "produced_in": "Malaysia",
+    "fob": 200,
+    "materials": [
+     {
+      "name": "Imported input A: preparations of cereals, flour, starch or (HS 1902.30)",
+      "hs": "1902.30",
+      "value": 140,
+      "country": "India",
+      "status": "non_originating"
+     },
+     {
+      "name": "Input: soap, organic surface-active agents (HS 3404.20)",
+      "hs": "3404.20",
+      "value": 10,
+      "country": "China",
+      "status": "non_originating"
+     },
+     {
+      "name": "Originating input in the good's own subheading: preparations of cereals, flour, starch or (HS 1904.30)",
+      "hs": "1904.30",
+      "value": 20,
+      "country": "Malaysia",
+      "status": "originating"
+     }
+    ],
+    "method": "indirect"
+   },
+   "expect": {
+    "outcome": "no",
+    "alternative": {
+     "RVC40": "no",
+     "CC": "no"
+    },
+    "accumulation": false
+   },
+   "expected_abstention": false
+  },
+  {
+   "id": "atiga-dev-tariff-shift-grid-07",
+   "split": "dev",
+   "feature": "atiga",
+   "source_family_id": "tariff-shift-grid",
+   "scenario_family": "tariff-shift-grid",
+   "variation_tags": [
+    "material-relation-sub",
+    "negative",
+    "tariff-shift-chapter"
+   ],
+   "sources": [
+    {
+     "source": "atiga-text",
+     "locator": "Art. 28.2(d): tariff-shift rules apply to non-originating materials only"
+    },
+    {
+     "source": "atiga-annex3",
+     "locator": "row 1512.11: RVC40 or CC"
+    }
+   ],
+   "rule": {
+    "row": "1512.11",
+    "text": "RVC40 or CC",
+    "listed": true
+   },
+   "rationale": "Row 1512.11 is decided by a change of chapter. The non-originating material is in the same heading but a different subheading (1512.29); no shift at this level, and the 70 % value share keeps the RVC alternative and de minimis from rescuing it. The originating material in the good's own subheading is disregarded because tariff-shift rules apply to non-originating materials only.",
+   "input": {
+    "hs": "1512.11",
+    "produced_in": "Laos",
+    "fob": 200,
+    "materials": [
+     {
+      "name": "Imported input: animal, vegetable or microbial fats and (HS 1512.29)",
+      "hs": "1512.29",
+      "value": 140,
+      "country": "India",
+      "status": "non_originating"
+     },
+     {
+      "name": "Originating input in the good's own subheading: animal, vegetable or microbial fats and (HS 1512.11)",
+      "hs": "1512.11",
+      "value": 20,
+      "country": "Malaysia",
+      "status": "originating"
+     }
+    ],
+    "method": "indirect"
+   },
+   "expect": {
+    "outcome": "no",
+    "alternative": {
+     "RVC40": "no",
+     "CC": "no"
+    },
+    "accumulation": true
+   },
+   "expected_abstention": false
+  },
+  {
+   "id": "atiga-dev-tariff-shift-grid-08",
+   "split": "dev",
+   "feature": "atiga",
+   "source_family_id": "tariff-shift-grid",
+   "scenario_family": "tariff-shift-grid",
+   "variation_tags": [
+    "material-relation-same",
+    "negative",
+    "tariff-shift-subheading",
+    "two-failing-candidates"
+   ],
+   "sources": [
+    {
+     "source": "atiga-text",
+     "locator": "Art. 28.2(d): tariff-shift rules apply to non-originating materials only"
+    },
+    {
+     "source": "atiga-annex3",
+     "locator": "row 8311.10: RVC40 or CTSH"
+    }
+   ],
+   "rule": {
+    "row": "8311.10",
+    "text": "RVC40 or CTSH",
+    "listed": true
+   },
+   "rationale": "Row 8311.10 is decided by a change of subheading. The non-originating material is in the same subheading (8311.10); no shift at this level, and the 70 % value share keeps the RVC alternative and de minimis from rescuing it. The originating material in the good's own subheading is disregarded because tariff-shift rules apply to non-originating materials only.",
+   "input": {
+    "hs": "8311.10",
+    "produced_in": "Singapore",
+    "fob": 400,
+    "materials": [
+     {
+      "name": "Imported input A: miscellaneous articles of base metal (HS 8311.10)",
+      "hs": "8311.10",
+      "value": 280,
+      "country": "Brazil",
+      "status": "non_originating"
+     },
+     {
+      "name": "Input: animal, vegetable or microbial fats and (HS 1513.21)",
+      "hs": "1513.21",
+      "value": 20,
+      "country": "Japan",
+      "status": "non_originating"
+     },
+     {
+      "name": "Originating input in the good's own subheading: miscellaneous articles of base metal (HS 8311.10)",
+      "hs": "8311.10",
+      "value": 40,
+      "country": "Brunei",
+      "status": "originating"
+     }
+    ],
+    "method": "indirect"
+   },
+   "expect": {
+    "outcome": "no",
+    "alternative": {
+     "RVC40": "no",
+     "CTSH": "no"
+    },
+    "accumulation": true
+   },
+   "expected_abstention": false
+  },
+  {
+   "id": "atiga-dev-tariff-shift-grid-09",
+   "split": "dev",
+   "feature": "atiga",
+   "source_family_id": "tariff-shift-grid",
+   "scenario_family": "tariff-shift-grid",
+   "variation_tags": [
+    "material-relation-chapter",
+    "positive",
+    "tariff-shift-subheading"
+   ],
+   "sources": [
+    {
+     "source": "atiga-text",
+     "locator": "Art. 28.2(d): tariff-shift rules apply to non-originating materials only"
+    },
+    {
+     "source": "atiga-annex3",
+     "locator": "row 0306.15: RVC40 or CTSH"
+    }
+   ],
+   "rule": {
+    "row": "0306.15",
+    "text": "RVC40 or CTSH",
+    "listed": true
+   },
+   "rationale": "Row 0306.15 is decided by a change of subheading. The non-originating material is in a different chapter (3102.80); the shift is met. The originating material in the good's own subheading is disregarded because tariff-shift rules apply to non-originating materials only.",
+   "input": {
+    "hs": "0306.15",
+    "produced_in": "Vietnam",
+    "fob": 400,
+    "materials": [
+     {
+      "name": "Imported input: fertilisers (HS 3102.80)",
+      "hs": "3102.80",
+      "value": 280,
+      "country": "Germany",
+      "status": "non_originating"
+     },
+     {
+      "name": "Originating input in the good's own subheading: fish and crustaceans, molluscs and other (HS 0306.15)",
+      "hs": "0306.15",
+      "value": 40,
+      "country": "Vietnam",
+      "status": "originating"
+     }
+    ],
+    "method": "indirect"
+   },
+   "expect": {
+    "outcome": "yes",
+    "alternative": {
+     "RVC40": "no",
+     "CTSH": "yes"
+    },
+    "applied": "CTSH",
+    "accumulation": false
+   },
+   "expected_abstention": false
+  },
+  {
+   "id": "atiga-dev-tariff-shift-grid-10",
+   "split": "dev",
+   "feature": "atiga",
+   "source_family_id": "tariff-shift-grid",
+   "scenario_family": "tariff-shift-grid",
+   "variation_tags": [
+    "material-relation-heading",
+    "positive",
+    "tariff-shift-subheading",
+    "two-failing-candidates"
+   ],
+   "sources": [
+    {
+     "source": "atiga-text",
+     "locator": "Art. 28.2(d): tariff-shift rules apply to non-originating materials only"
+    },
+    {
+     "source": "atiga-annex3",
+     "locator": "row 1103.20: RVC40 or CTSH"
+    }
+   ],
+   "rule": {
+    "row": "1103.20",
+    "text": "RVC40 or CTSH",
+    "listed": true
+   },
+   "rationale": "Row 1103.20 is decided by a change of subheading. The non-originating material is in the same chapter but a different heading (1107.10); the shift is met. The originating material in the good's own subheading is disregarded because tariff-shift rules apply to non-originating materials only.",
+   "input": {
+    "hs": "1103.20",
+    "produced_in": "Cambodia",
+    "fob": 200,
+    "materials": [
+     {
+      "name": "Imported input A: products of the milling industry (HS 1107.10)",
+      "hs": "1107.10",
+      "value": 140,
+      "country": "Canada",
+      "status": "non_originating"
+     },
+     {
+      "name": "Input: pharmaceutical products (HS 3006.92)",
+      "hs": "3006.92",
+      "value": 10,
+      "country": "India",
+      "status": "non_originating"
+     },
+     {
+      "name": "Originating input in the good's own subheading: products of the milling industry (HS 1103.20)",
+      "hs": "1103.20",
+      "value": 20,
+      "country": "Singapore",
+      "status": "originating"
+     }
+    ],
+    "method": "indirect"
+   },
+   "expect": {
+    "outcome": "yes",
+    "alternative": {
+     "RVC40": "no",
+     "CTSH": "yes"
+    },
+    "applied": "CTSH",
+    "accumulation": true
+   },
+   "expected_abstention": false
+  },
+  {
+   "id": "atiga-dev-tariff-shift-grid-11",
+   "split": "dev",
+   "feature": "atiga",
+   "source_family_id": "tariff-shift-grid",
+   "scenario_family": "tariff-shift-grid",
+   "variation_tags": [
+    "material-relation-sub",
+    "positive",
+    "tariff-shift-subheading"
+   ],
+   "sources": [
+    {
+     "source": "atiga-text",
+     "locator": "Art. 28.2(d): tariff-shift rules apply to non-originating materials only"
+    },
+    {
+     "source": "atiga-annex3",
+     "locator": "row 8112.99: RVC40 or CTSH"
+    }
+   ],
+   "rule": {
+    "row": "8112.99",
+    "text": "RVC40 or CTSH",
+    "listed": true
+   },
+   "rationale": "Row 8112.99 is decided by a change of subheading. The non-originating material is in the same heading but a different subheading (8112.22); the shift is met. The originating material in the good's own subheading is disregarded because tariff-shift rules apply to non-originating materials only.",
+   "input": {
+    "hs": "8112.99",
+    "produced_in": "Malaysia",
+    "fob": 400,
+    "materials": [
+     {
+      "name": "Imported input: other base metals (HS 8112.22)",
+      "hs": "8112.22",
+      "value": 280,
+      "country": "Brazil",
+      "status": "non_originating"
+     },
+     {
+      "name": "Originating input in the good's own subheading: other base metals (HS 8112.99)",
+      "hs": "8112.99",
+      "value": 40,
+      "country": "Myanmar",
+      "status": "originating"
+     }
+    ],
+    "method": "indirect"
+   },
+   "expect": {
+    "outcome": "yes",
+    "alternative": {
+     "RVC40": "no",
+     "CTSH": "yes"
+    },
+    "applied": "CTSH",
+    "accumulation": true
+   },
+   "expected_abstention": false
+  },
+  {
+   "id": "atiga-dev-tariff-shift-grid-12",
+   "split": "dev",
+   "feature": "atiga",
+   "source_family_id": "tariff-shift-grid",
+   "scenario_family": "tariff-shift-grid",
+   "variation_tags": [
+    "material-relation-same",
+    "negative",
+    "tariff-shift-subheading",
+    "two-failing-candidates"
+   ],
+   "sources": [
+    {
+     "source": "atiga-text",
+     "locator": "Art. 28.2(d): tariff-shift rules apply to non-originating materials only"
+    },
+    {
+     "source": "atiga-annex3",
+     "locator": "row 8540.40: RVC40 or CTSH"
+    }
+   ],
+   "rule": {
+    "row": "8540.40",
+    "text": "RVC40 or CTSH",
+    "listed": true
+   },
+   "rationale": "Row 8540.40 is decided by a change of subheading. The non-originating material is in the same subheading (8540.40); no shift at this level, and the 70 % value share keeps the RVC alternative and de minimis from rescuing it. The originating material in the good's own subheading is disregarded because tariff-shift rules apply to non-originating materials only.",
+   "input": {
+    "hs": "8540.40",
+    "produced_in": "Singapore",
+    "fob": 100,
+    "materials": [
+     {
+      "name": "Imported input A: electrical machinery and equipment and (HS 8540.40)",
+      "hs": "8540.40",
+      "value": 70,
+      "country": "Germany",
+      "status": "non_originating"
+     },
+     {
+      "name": "Input: railway or tramway locomotives, rolling- (HS 8607.19)",
+      "hs": "8607.19",
+      "value": 5,
+      "country": "Brazil",
+      "status": "non_originating"
+     },
+     {
+      "name": "Originating input in the good's own subheading: electrical machinery and equipment and (HS 8540.40)",
+      "hs": "8540.40",
+      "value": 10,
+      "country": "Brunei",
+      "status": "originating"
+     }
+    ],
+    "method": "indirect"
+   },
+   "expect": {
+    "outcome": "no",
+    "alternative": {
+     "RVC40": "no",
+     "CTSH": "no"
+    },
+    "accumulation": true
+   },
+   "expected_abstention": false
+  },
+  {
+   "id": "atiga-dev-incomplete-hs-01",
+   "split": "dev",
+   "feature": "atiga",
+   "source_family_id": "incomplete-hs",
+   "scenario_family": "incomplete-hs",
+   "variation_tags": [
+    "abstention-expected",
+    "missing-facts",
+    "short-material-code"
+   ],
+   "sources": [
+    {
+     "source": "atiga-text",
+     "locator": "Art. 28.2(d): tariff-shift rules apply to non-originating materials only"
+    },
+    {
+     "source": "atiga-annex3",
+     "locator": "row 8102.99: RVC40 or CTSH"
+    }
+   ],
+   "rule": {
+    "row": "8102.99",
+    "text": "RVC40 or CTSH",
+    "listed": true
+   },
+   "rationale": "The material's code has only 4 digits but the rule tests a change of subheading; with no values given neither the shift nor de minimis nor RVC can be tested, so the answer is undetermined.",
+   "input": {
+    "hs": "8102.99",
+    "produced_in": "Vietnam",
+    "materials": [
+     {
+      "name": "Imported input with an incomplete code",
+      "hs": "7013",
+      "country": "Canada",
+      "status": "non_originating"
+     }
+    ],
+    "method": "indirect"
+   },
+   "expect": {
+    "outcome": "undetermined",
+    "accumulation": false
+   },
+   "expected_abstention": true
+  },
+  {
+   "id": "atiga-dev-incomplete-hs-02",
+   "split": "dev",
+   "feature": "atiga",
+   "source_family_id": "incomplete-hs",
+   "scenario_family": "incomplete-hs",
+   "variation_tags": [
+    "abstention-expected",
+    "missing-facts",
+    "short-material-code"
+   ],
+   "sources": [
+    {
+     "source": "atiga-text",
+     "locator": "Art. 28.2(d): tariff-shift rules apply to non-originating materials only"
+    },
+    {
+     "source": "atiga-annex3",
+     "locator": "row 4704.21: RVC40 or CTSH"
+    }
+   ],
+   "rule": {
+    "row": "4704.21",
+    "text": "RVC40 or CTSH",
+    "listed": true
+   },
+   "rationale": "The material's code has only 4 digits but the rule tests a change of subheading; with no values given neither the shift nor de minimis nor RVC can be tested, so the answer is undetermined.",
+   "input": {
+    "hs": "4704.21",
+    "produced_in": "Philippines",
+    "materials": [
+     {
+      "name": "Imported input with an incomplete code",
+      "hs": "0501",
+      "country": "Japan",
+      "status": "non_originating"
+     }
+    ],
+    "method": "indirect"
+   },
+   "expect": {
+    "outcome": "undetermined",
+    "accumulation": false
+   },
+   "expected_abstention": true
+  },
+  {
+   "id": "atiga-dev-de-minimis-value-01",
+   "split": "dev",
+   "feature": "atiga",
+   "source_family_id": "de-minimis-value",
+   "scenario_family": "de-minimis-value",
+   "variation_tags": [
+    "de-minimis",
+    "failing-material-share",
+    "positive",
+    "share-5"
+   ],
+   "sources": [
+    {
+     "source": "atiga-text",
+     "locator": "Art. 33 (10 % of FOB value)"
+    },
+    {
+     "source": "atiga-annex3",
+     "locator": "row 7101.22: RVC40 or CTSH"
+    }
+   ],
+   "rule": {
+    "row": "7101.22",
+    "text": "RVC40 or CTSH",
+    "listed": true
+   },
+   "rationale": "Row 7101.22 is a tariff-shift rule. The material(s) that fail the shift total 10 of FOB 200 (5 %), within the 10 % limit; the other imported material changes classification. The RVC alternative fails because non-originating content is above 70 %% of FOB.",
+   "input": {
+    "hs": "7101.22",
+    "produced_in": "Indonesia",
+    "fob": 200,
+    "materials": [
+     {
+      "name": "Imported input: natural or cultured pearls, precious or (HS 7101.22)",
+      "hs": "7101.22",
+      "value": 10,
+      "country": "India",
+      "status": "non_originating"
+     },
+     {
+      "name": "Imported input that changes classification: animal, vegetable or microbial fats and (HS 1506.00)",
+      "hs": "1506.00",
+      "value": 140,
+      "country": "China",
+      "status": "non_originating"
+     }
+    ],
+    "method": "indirect"
+   },
+   "expect": {
+    "outcome": "yes",
+    "alternative": {
+     "RVC40": "no",
+     "CTSH": "yes"
+    },
+    "applied": "CTSH",
+    "de_minimis_used": true
+   },
+   "expected_abstention": false
+  },
+  {
+   "id": "atiga-dev-de-minimis-value-02",
+   "split": "dev",
+   "feature": "atiga",
+   "source_family_id": "de-minimis-value",
+   "scenario_family": "de-minimis-value",
+   "variation_tags": [
+    "de-minimis",
+    "failing-material-share-boundary",
+    "positive",
+    "share-9.9"
+   ],
+   "sources": [
+    {
+     "source": "atiga-text",
+     "locator": "Art. 33 (10 % of FOB value)"
+    },
+    {
+     "source": "atiga-annex3",
+     "locator": "row 3707.10: RVC40 or CTSH"
+    }
+   ],
+   "rule": {
+    "row": "3707.10",
+    "text": "RVC40 or CTSH",
+    "listed": true
+   },
+   "rationale": "Row 3707.10 is a tariff-shift rule. The material(s) that fail the shift total 9.9 of FOB 100 (9.9 %), within the 10 % limit; the other imported material changes classification. The RVC alternative fails because non-originating content is above 70 %% of FOB.",
+   "input": {
+    "hs": "3707.10",
+    "produced_in": "Indonesia",
+    "fob": 100,
+    "materials": [
+     {
+      "name": "Imported input: photographic or cinematographic goods (HS 3707.10)",
+      "hs": "3707.10",
+      "value": 9.9,
+      "country": "United Kingdom",
+      "status": "non_originating"
+     },
+     {
+      "name": "Imported input that changes classification: salt (HS 2513.20)",
+      "hs": "2513.20",
+      "value": 70,
+      "country": "Brazil",
+      "status": "non_originating"
+     }
+    ],
+    "method": "indirect"
+   },
+   "expect": {
+    "outcome": "yes",
+    "alternative": {
+     "RVC40": "no",
+     "CTSH": "yes"
+    },
+    "applied": "CTSH",
+    "de_minimis_used": true
+   },
+   "expected_abstention": false
+  },
+  {
+   "id": "atiga-dev-de-minimis-value-03",
+   "split": "dev",
+   "feature": "atiga",
+   "source_family_id": "de-minimis-value",
+   "scenario_family": "de-minimis-value",
+   "variation_tags": [
+    "de-minimis",
+    "failing-material-share-boundary",
+    "positive",
+    "share-10"
+   ],
+   "sources": [
+    {
+     "source": "atiga-text",
+     "locator": "Art. 33 (10 % of FOB value)"
+    },
+    {
+     "source": "atiga-annex3",
+     "locator": "row 8535.30: RVC40 or CTSH"
+    }
+   ],
+   "rule": {
+    "row": "8535.30",
+    "text": "RVC40 or CTSH",
+    "listed": true
+   },
+   "rationale": "Row 8535.30 is a tariff-shift rule. The material(s) that fail the shift total 10 of FOB 100 (10 %), within the 10 % limit; the other imported material changes classification. The RVC alternative fails because non-originating content is above 70 %% of FOB.",
+   "input": {
+    "hs": "8535.30",
+    "produced_in": "Vietnam",
+    "fob": 100,
+    "materials": [
+     {
+      "name": "Imported input: electrical machinery and equipment and (HS 8535.30)",
+      "hs": "8535.30",
+      "value": 10,
+      "country": "United Kingdom",
+      "status": "non_originating"
+     },
+     {
+      "name": "Imported input that changes classification: pharmaceutical products (HS 3003.49)",
+      "hs": "3003.49",
+      "value": 70,
+      "country": "Australia",
+      "status": "non_originating"
+     }
+    ],
+    "method": "indirect"
+   },
+   "expect": {
+    "outcome": "yes",
+    "alternative": {
+     "RVC40": "no",
+     "CTSH": "yes"
+    },
+    "applied": "CTSH",
+    "de_minimis_used": true
+   },
+   "expected_abstention": false
+  },
+  {
+   "id": "atiga-dev-de-minimis-value-04",
+   "split": "dev",
+   "feature": "atiga",
+   "source_family_id": "de-minimis-value",
+   "scenario_family": "de-minimis-value",
+   "variation_tags": [
+    "de-minimis",
+    "failing-material-share-boundary",
+    "negative",
+    "share-10.1",
+    "two-failing-materials-summed"
+   ],
+   "sources": [
+    {
+     "source": "atiga-text",
+     "locator": "Art. 33 (10 % of FOB value)"
+    },
+    {
+     "source": "atiga-annex3",
+     "locator": "row 0511.91: RVC40 or CC"
+    }
+   ],
+   "rule": {
+    "row": "0511.91",
+    "text": "RVC40 or CC",
+    "listed": true
+   },
+   "rationale": "Row 0511.91 is a tariff-shift rule. The material(s) that fail the shift total 10.1 of FOB 100 (10.1 %), over the 10 % limit; the other imported material changes classification. The RVC alternative fails because non-originating content is above 70 %% of FOB.",
+   "input": {
+    "hs": "0511.91",
+    "produced_in": "Cambodia",
+    "fob": 100,
+    "materials": [
+     {
+      "name": "Imported input a: products of animal origin (HS 0511.91)",
+      "hs": "0511.91",
+      "value": 5.05,
+      "country": "India",
+      "status": "non_originating"
+     },
+     {
+      "name": "Imported input b: products of animal origin (HS 0511.91)",
+      "hs": "0511.91",
+      "value": 5.05,
+      "country": "United States",
+      "status": "non_originating"
+     },
+     {
+      "name": "Imported input that changes classification: soap, organic surface-active agents (HS 3405.20)",
+      "hs": "3405.20",
+      "value": 70,
+      "country": "Australia",
+      "status": "non_originating"
+     }
+    ],
+    "method": "indirect"
+   },
+   "expect": {
+    "outcome": "no",
+    "alternative": {
+     "RVC40": "no",
+     "CC": "no"
+    }
+   },
+   "expected_abstention": false
+  },
+  {
+   "id": "atiga-dev-de-minimis-value-05",
+   "split": "dev",
+   "feature": "atiga",
+   "source_family_id": "de-minimis-value",
+   "scenario_family": "de-minimis-value",
+   "variation_tags": [
+    "de-minimis",
+    "failing-material-share",
+    "negative",
+    "share-15"
+   ],
+   "sources": [
+    {
+     "source": "atiga-text",
+     "locator": "Art. 33 (10 % of FOB value)"
+    },
+    {
+     "source": "atiga-annex3",
+     "locator": "row 7325.10: RVC40 or CC"
+    }
+   ],
+   "rule": {
+    "row": "7325.10",
+    "text": "RVC40 or CC",
+    "listed": true
+   },
+   "rationale": "Row 7325.10 is a tariff-shift rule. The material(s) that fail the shift total 15 of FOB 100 (15 %), over the 10 % limit; the other imported material changes classification. The RVC alternative fails because non-originating content is above 70 %% of FOB.",
+   "input": {
+    "hs": "7325.10",
+    "produced_in": "Laos",
+    "fob": 100,
+    "materials": [
+     {
+      "name": "Imported input: articles of iron or steel (HS 7325.10)",
+      "hs": "7325.10",
+      "value": 15,
+      "country": "Japan",
+      "status": "non_originating"
+     },
+     {
+      "name": "Imported input that changes classification: miscellaneous articles of base metal (HS 8301.50)",
+      "hs": "8301.50",
+      "value": 70,
+      "country": "United States",
+      "status": "non_originating"
+     }
+    ],
+    "method": "indirect"
+   },
+   "expect": {
+    "outcome": "no",
+    "alternative": {
+     "RVC40": "no",
+     "CC": "no"
+    }
+   },
+   "expected_abstention": false
+  },
+  {
+   "id": "atiga-dev-de-minimis-value-06",
+   "split": "dev",
+   "feature": "atiga",
+   "source_family_id": "de-minimis-value",
+   "scenario_family": "de-minimis-value",
+   "variation_tags": [
+    "de-minimis",
+    "failing-material-share",
+    "positive",
+    "share-8"
+   ],
+   "sources": [
+    {
+     "source": "atiga-text",
+     "locator": "Art. 33 (10 % of FOB value)"
+    },
+    {
+     "source": "atiga-annex3",
+     "locator": "row 8542.33: RVC40 or CTSH"
+    }
+   ],
+   "rule": {
+    "row": "8542.33",
+    "text": "RVC40 or CTSH",
+    "listed": true
+   },
+   "rationale": "Row 8542.33 is a tariff-shift rule. The material(s) that fail the shift total 32 of FOB 400 (8 %), within the 10 % limit; the other imported material changes classification. The RVC alternative fails because non-originating content is above 70 %% of FOB.",
+   "input": {
+    "hs": "8542.33",
+    "produced_in": "Philippines",
+    "fob": 400,
+    "materials": [
+     {
+      "name": "Imported input: electrical machinery and equipment and (HS 8542.33)",
+      "hs": "8542.33",
+      "value": 32,
+      "country": "Japan",
+      "status": "non_originating"
+     },
+     {
+      "name": "Imported input that changes classification: footwear, gaiters and the like (HS 6403.51)",
+      "hs": "6403.51",
+      "value": 280,
+      "country": "Germany",
+      "status": "non_originating"
+     }
+    ],
+    "method": "indirect"
+   },
+   "expect": {
+    "outcome": "yes",
+    "alternative": {
+     "RVC40": "no",
+     "CTSH": "yes"
+    },
+    "applied": "CTSH",
+    "de_minimis_used": true
+   },
+   "expected_abstention": false
+  },
+  {
+   "id": "atiga-dev-de-minimis-incomplete-01",
+   "split": "dev",
+   "feature": "atiga",
+   "source_family_id": "de-minimis-incomplete",
+   "scenario_family": "de-minimis-incomplete",
+   "variation_tags": [
+    "abstention-expected",
+    "de-minimis",
+    "missing-facts"
+   ],
+   "sources": [
+    {
+     "source": "atiga-text",
+     "locator": "Art. 33 (10 % of FOB value)"
+    },
+    {
+     "source": "atiga-annex3",
+     "locator": "row 0904.12: RVC40 or CTSH"
+    }
+   ],
+   "rule": {
+    "row": "0904.12",
+    "text": "RVC40 or CTSH",
+    "listed": true
+   },
+   "rationale": "The material that fails the tariff shift cannot be measured against the 10 % limit because the failing material has no value, so the answer is undetermined rather than no.",
+   "input": {
+    "hs": "0904.12",
+    "produced_in": "Malaysia",
+    "materials": [
+     {
+      "name": "Input: coffee, tea, maté and spices (HS 0904.12)",
+      "hs": "0904.12",
+      "country": "Germany",
+      "status": "non_originating"
+     },
+     {
+      "name": "Input: mineral fuels, mineral oils and products (HS 2703.00)",
+      "hs": "2703.00",
+      "value": 700,
+      "country": "United States",
+      "status": "non_originating"
+     }
+    ],
+    "fob": 1000,
+    "method": "indirect"
+   },
+   "expect": {
+    "outcome": "undetermined"
+   },
+   "expected_abstention": true
+  },
+  {
+   "id": "atiga-dev-de-minimis-incomplete-02",
+   "split": "dev",
+   "feature": "atiga",
+   "source_family_id": "de-minimis-incomplete",
+   "scenario_family": "de-minimis-incomplete",
+   "variation_tags": [
+    "abstention-expected",
+    "de-minimis",
+    "missing-facts"
+   ],
+   "sources": [
+    {
+     "source": "atiga-text",
+     "locator": "Art. 33 (10 % of FOB value)"
+    },
+    {
+     "source": "atiga-annex3",
+     "locator": "row 8530.80: RVC40 or CTSH"
+    }
+   ],
+   "rule": {
+    "row": "8530.80",
+    "text": "RVC40 or CTSH",
+    "listed": true
+   },
+   "rationale": "The material that fails the tariff shift cannot be measured against the 10 % limit because no FOB value is given, so the answer is undetermined rather than no.",
+   "input": {
+    "hs": "8530.80",
+    "produced_in": "Indonesia",
+    "materials": [
+     {
+      "name": "Input: electrical machinery and equipment and (HS 8530.80)",
+      "hs": "8530.80",
+      "value": 20,
+      "country": "India",
+      "status": "non_originating"
+     },
+     {
+      "name": "Input: copper and articles thereof (HS 7411.10)",
+      "hs": "7411.10",
+      "value": 280,
+      "country": "South Korea",
+      "status": "non_originating"
+     }
+    ],
+    "method": "indirect"
+   },
+   "expect": {
+    "outcome": "undetermined"
+   },
+   "expected_abstention": true
+  },
+  {
+   "id": "atiga-dev-cumulation-membership-01",
+   "split": "dev",
+   "feature": "atiga",
+   "source_family_id": "cumulation-membership",
+   "scenario_family": "cumulation-membership",
+   "variation_tags": [
+    "cumulation",
+    "member-origin",
+    "positive"
+   ],
+   "sources": [
+    {
+     "source": "atiga-text",
+     "locator": "Art. 30.1"
+    },
+    {
+     "source": "atiga-annex3",
+     "locator": "row 8702.40: RVC40"
+    }
+   ],
+   "rule": {
+    "row": "8702.40",
+    "text": "RVC40",
+    "listed": true
+   },
+   "rationale": "Row 8702.40. A material in the good's own subheading comes from another Party and is declared originating, so it counts as originating (cumulation) and does not block the shift or add to non-originating value.",
+   "input": {
+    "hs": "8702.40",
+    "produced_in": "Cambodia",
+    "fob": 500,
+    "materials": [
+     {
+      "name": "Originating input from another party: vehicles other than railway or tramway (HS 8702.40)",
+      "hs": "8702.40",
+      "value": 250,
+      "country": "Vietnam",
+      "status": "originating"
+     },
+     {
+      "name": "Input: edible fruit and nuts (HS 0807.20)",
+      "hs": "0807.20",
+      "value": 75,
+      "country": "India",
+      "status": "non_originating"
+     }
+    ],
+    "method": "indirect"
+   },
+   "expect": {
+    "outcome": "yes",
+    "alternative": {
+     "RVC40": "yes"
+    },
+    "applied": "RVC40",
+    "accumulation": true
+   },
+   "expected_abstention": false
+  },
+  {
+   "id": "atiga-dev-cumulation-membership-02",
+   "split": "dev",
+   "feature": "atiga",
+   "source_family_id": "cumulation-membership",
+   "scenario_family": "cumulation-membership",
+   "variation_tags": [
+    "conflicting-evidence",
+    "cumulation",
+    "negative",
+    "non-member-origin"
+   ],
+   "sources": [
+    {
+     "source": "atiga-text",
+     "locator": "Art. 30.1"
+    },
+    {
+     "source": "atiga-annex3",
+     "locator": "row 0306.15: RVC40 or CTSH"
+    }
+   ],
+   "rule": {
+    "row": "0306.15",
+    "text": "RVC40 or CTSH",
+    "listed": true
+   },
+   "rationale": "Row 0306.15. The material is declared originating but is made in Brazil, which is not a Party; it counts as non-originating, so it fails the shift and its 50 % value share keeps RVC below the threshold.",
+   "input": {
+    "hs": "0306.15",
+    "produced_in": "Malaysia",
+    "fob": 500,
+    "materials": [
+     {
+      "name": "Input declared originating but made outside the agreement: fish and crustaceans, molluscs and other (HS 0306.15)",
+      "hs": "0306.15",
+      "value": 250,
+      "country": "Brazil",
+      "status": "originating"
+     },
+     {
+      "name": "Input: ships, boats and floating structures (HS 8907.10)",
+      "hs": "8907.10",
+      "value": 75,
+      "country": "Japan",
+      "status": "non_originating"
+     }
+    ],
+    "method": "indirect"
+   },
+   "expect": {
+    "outcome": "no",
+    "alternative": {
+     "RVC40": "no",
+     "CTSH": "no"
+    },
+    "accumulation": false
+   },
+   "expected_abstention": false
+  },
+  {
+   "id": "atiga-dev-cumulation-membership-03",
+   "split": "dev",
+   "feature": "atiga",
+   "source_family_id": "cumulation-membership",
+   "scenario_family": "cumulation-membership",
+   "variation_tags": [
+    "conflicting-evidence",
+    "cumulation",
+    "member-origin",
+    "negative"
+   ],
+   "sources": [
+    {
+     "source": "atiga-text",
+     "locator": "Art. 30.1"
+    },
+    {
+     "source": "atiga-annex3",
+     "locator": "row 8707.10: RVC40"
+    }
+   ],
+   "rule": {
+    "row": "8707.10",
+    "text": "RVC40",
+    "listed": true
+   },
+   "rationale": "Row 8707.10. The material is made in another Party but is not itself originating, so cumulation does not apply and it counts as non-originating.",
+   "input": {
+    "hs": "8707.10",
+    "produced_in": "Laos",
+    "fob": 500,
+    "materials": [
+     {
+      "name": "Input from another party that does not qualify: vehicles other than railway or tramway (HS 8707.10)",
+      "hs": "8707.10",
+      "value": 250,
+      "country": "Singapore",
+      "status": "non_originating"
+     },
+     {
+      "name": "Input: headgear and parts thereof (HS 6506.99)",
+      "hs": "6506.99",
+      "value": 75,
+      "country": "Canada",
+      "status": "non_originating"
+     }
+    ],
+    "method": "indirect"
+   },
+   "expect": {
+    "outcome": "no",
+    "alternative": {
+     "RVC40": "no"
+    },
+    "accumulation": false
+   },
+   "expected_abstention": false
+  },
+  {
+   "id": "atiga-dev-cumulation-membership-04",
+   "split": "dev",
+   "feature": "atiga",
+   "source_family_id": "cumulation-membership",
+   "scenario_family": "cumulation-membership",
+   "variation_tags": [
+    "cumulation",
+    "member-origin",
+    "positive",
+    "rvc-with-cumulation"
+   ],
+   "sources": [
+    {
+     "source": "atiga-text",
+     "locator": "Art. 30.1"
+    },
+    {
+     "source": "atiga-annex3",
+     "locator": "row 1902.11: RVC40 or CC"
+    }
+   ],
+   "rule": {
+    "row": "1902.11",
+    "text": "RVC40 or CC",
+    "listed": true
+   },
+   "rationale": "Row 1902.11. Only 20 % of FOB is non-originating once the 45 % originating input from another Party is counted as originating, which keeps RVC above 40 %.",
+   "input": {
+    "hs": "1902.11",
+    "produced_in": "Thailand",
+    "fob": 200,
+    "materials": [
+     {
+      "name": "Input: preparations of cereals, flour, starch or (HS 1902.11)",
+      "hs": "1902.11",
+      "value": 40,
+      "country": "United Kingdom",
+      "status": "non_originating"
+     },
+     {
+      "name": "Originating input from another party: preparations of cereals, flour, starch or (HS 1902.11)",
+      "hs": "1902.11",
+      "value": 90,
+      "country": "Brunei",
+      "status": "originating"
+     }
+    ],
+    "method": "indirect"
+   },
+   "expect": {
+    "outcome": "yes",
+    "alternative": {
+     "RVC40": "yes",
+     "CC": "no"
+    },
+    "applied": "RVC40",
+    "accumulation": true
+   },
+   "expected_abstention": false
+  },
+  {
+   "id": "atiga-dev-cumulation-membership-05",
+   "split": "dev",
+   "feature": "atiga",
+   "source_family_id": "cumulation-membership",
+   "scenario_family": "cumulation-membership",
+   "variation_tags": [
+    "conflicting-evidence",
+    "cumulation",
+    "member-origin",
+    "negative",
+    "unknown-status"
+   ],
+   "sources": [
+    {
+     "source": "atiga-text",
+     "locator": "Art. 30.1"
+    },
+    {
+     "source": "atiga-annex3",
+     "locator": "row 2102.10: RVC40 or CC"
+    }
+   ],
+   "rule": {
+    "row": "2102.10",
+    "text": "RVC40 or CC",
+    "listed": true
+   },
+   "rationale": "Row 2102.10. Origin of the material from another Party is not established, so it counts as non-originating.",
+   "input": {
+    "hs": "2102.10",
+    "produced_in": "Singapore",
+    "fob": 200,
+    "materials": [
+     {
+      "name": "Input of unknown status from another party: miscellaneous edible preparations (HS 2102.10)",
+      "hs": "2102.10",
+      "value": 100,
+      "country": "Indonesia",
+      "status": "unknown"
+     },
+     {
+      "name": "Input: electrical machinery and equipment and (HS 8531.80)",
+      "hs": "8531.80",
+      "value": 30,
+      "country": "India",
+      "status": "non_originating"
+     }
+    ],
+    "method": "indirect"
+   },
+   "expect": {
+    "outcome": "no",
+    "alternative": {
+     "RVC40": "no",
+     "CC": "no"
+    },
+    "accumulation": false
+   },
+   "expected_abstention": false
+  },
+  {
+   "id": "atiga-dev-cumulation-membership-06",
+   "split": "dev",
+   "feature": "atiga",
+   "source_family_id": "cumulation-membership",
+   "scenario_family": "cumulation-membership",
+   "variation_tags": [
+    "cumulation",
+    "member-origin",
+    "positive"
+   ],
+   "sources": [
+    {
+     "source": "atiga-text",
+     "locator": "Art. 30.1"
+    },
+    {
+     "source": "atiga-annex3",
+     "locator": "row 8109.91: RVC40 or CTSH"
+    }
+   ],
+   "rule": {
+    "row": "8109.91",
+    "text": "RVC40 or CTSH",
+    "listed": true
+   },
+   "rationale": "Row 8109.91. Originating input from another Party counts as originating.",
+   "input": {
+    "hs": "8109.91",
+    "produced_in": "Philippines",
+    "fob": 100,
+    "materials": [
+     {
+      "name": "Originating input from another party: other base metals (HS 8109.91)",
+      "hs": "8109.91",
+      "value": 40,
+      "country": "Thailand",
+      "status": "originating"
+     },
+     {
+      "name": "Input: articles of apparel and clothing (HS 6107.19)",
+      "hs": "6107.19",
+      "value": 20,
+      "country": "United Kingdom",
+      "status": "non_originating"
+     }
+    ],
+    "method": "indirect"
+   },
+   "expect": {
+    "outcome": "yes",
+    "alternative": {
+     "RVC40": "yes",
+     "CTSH": "yes"
+    },
+    "accumulation": true
+   },
+   "expected_abstention": false
+  },
+  {
+   "id": "atiga-dev-cumulation-membership-07",
+   "split": "dev",
+   "feature": "atiga",
+   "source_family_id": "cumulation-membership",
+   "scenario_family": "cumulation-membership",
+   "variation_tags": [
+    "cumulation",
+    "member-origin",
+    "positive"
+   ],
+   "sources": [
+    {
+     "source": "atiga-text",
+     "locator": "Art. 30.1"
+    },
+    {
+     "source": "atiga-annex3",
+     "locator": "row 2101.20: RVC40 or CC"
+    }
+   ],
+   "rule": {
+    "row": "2101.20",
+    "text": "RVC40 or CC",
+    "listed": true
+   },
+   "rationale": "Row 2101.20. A material in the good's own subheading comes from another Party and is declared originating, so it counts as originating (cumulation) and does not block the shift or add to non-originating value.",
+   "input": {
+    "hs": "2101.20",
+    "produced_in": "Cambodia",
+    "fob": 100,
+    "materials": [
+     {
+      "name": "Originating input from another party: miscellaneous edible preparations (HS 2101.20)",
+      "hs": "2101.20",
+      "value": 50,
+      "country": "Thailand",
+      "status": "originating"
+     },
+     {
+      "name": "Input: other made up textile articles (HS 6302.21)",
+      "hs": "6302.21",
+      "value": 15,
+      "country": "Canada",
+      "status": "non_originating"
+     }
+    ],
+    "method": "indirect"
+   },
+   "expect": {
+    "outcome": "yes",
+    "alternative": {
+     "RVC40": "yes",
+     "CC": "yes"
+    },
+    "accumulation": true
+   },
+   "expected_abstention": false
+  },
+  {
+   "id": "atiga-dev-cumulation-membership-08",
+   "split": "dev",
+   "feature": "atiga",
+   "source_family_id": "cumulation-membership",
+   "scenario_family": "cumulation-membership",
+   "variation_tags": [
+    "conflicting-evidence",
+    "cumulation",
+    "negative",
+    "non-member-origin"
+   ],
+   "sources": [
+    {
+     "source": "atiga-text",
+     "locator": "Art. 30.1"
+    },
+    {
+     "source": "atiga-annex3",
+     "locator": "row 8311.20: RVC40 or CTSH"
+    }
+   ],
+   "rule": {
+    "row": "8311.20",
+    "text": "RVC40 or CTSH",
+    "listed": true
+   },
+   "rationale": "Row 8311.20. The material is declared originating but is made in Australia, which is not a Party; it counts as non-originating, so it fails the shift and its 50 % value share keeps RVC below the threshold.",
+   "input": {
+    "hs": "8311.20",
+    "produced_in": "Philippines",
+    "fob": 500,
+    "materials": [
+     {
+      "name": "Input declared originating but made outside the agreement: miscellaneous articles of base metal (HS 8311.20)",
+      "hs": "8311.20",
+      "value": 250,
+      "country": "Australia",
+      "status": "originating"
+     },
+     {
+      "name": "Input: essential oils and resinoids (HS 3304.20)",
+      "hs": "3304.20",
+      "value": 75,
+      "country": "Canada",
+      "status": "non_originating"
+     }
+    ],
+    "method": "indirect"
+   },
+   "expect": {
+    "outcome": "no",
+    "alternative": {
+     "RVC40": "no",
+     "CTSH": "no"
+    },
+    "accumulation": false
+   },
+   "expected_abstention": false
+  },
+  {
+   "id": "atiga-dev-cumulation-membership-09",
+   "split": "dev",
+   "feature": "atiga",
+   "source_family_id": "cumulation-membership",
+   "scenario_family": "cumulation-membership",
+   "variation_tags": [
+    "cumulation",
+    "negative",
+    "non-member-origin",
+    "other-agreement-party"
+   ],
+   "sources": [
+    {
+     "source": "atiga-text",
+     "locator": "Art. 30.1"
+    },
+    {
+     "source": "atiga-annex3",
+     "locator": "row 1104.30: RVC40 or CC"
+    }
+   ],
+   "rule": {
+    "row": "1104.30",
+    "text": "RVC40 or CC",
+    "listed": true
+   },
+   "rationale": "Row 1104.30. South Korea is not a Party to this agreement, so its originating status under another agreement does not count here.",
+   "input": {
+    "hs": "1104.30",
+    "produced_in": "Cambodia",
+    "fob": 100,
+    "materials": [
+     {
+      "name": "Input declared originating in a party of a different agreement: products of the milling industry (HS 1104.30)",
+      "hs": "1104.30",
+      "value": 50,
+      "country": "South Korea",
+      "status": "originating"
+     },
+     {
+      "name": "Input: edible vegetables and certain roots and (HS 0713.31)",
+      "hs": "0713.31",
+      "value": 10,
+      "country": "Japan",
+      "status": "non_originating"
+     }
+    ],
+    "method": "indirect"
+   },
+   "expect": {
+    "outcome": "yes",
+    "alternative": {
+     "RVC40": "yes",
+     "CC": "no"
+    },
+    "applied": "RVC40",
+    "accumulation": false
+   },
+   "expected_abstention": false
+  },
+  {
+   "id": "atiga-dev-cumulation-membership-10",
+   "split": "dev",
+   "feature": "atiga",
+   "source_family_id": "cumulation-membership",
+   "scenario_family": "cumulation-membership",
+   "variation_tags": [
+    "cumulation",
+    "negative",
+    "non-member-origin",
+    "other-agreement-party"
+   ],
+   "sources": [
+    {
+     "source": "atiga-text",
+     "locator": "Art. 30.1"
+    },
+    {
+     "source": "atiga-annex3",
+     "locator": "row 0906.20: RVC40 or CTSH"
+    }
+   ],
+   "rule": {
+    "row": "0906.20",
+    "text": "RVC40 or CTSH",
+    "listed": true
+   },
+   "rationale": "Row 0906.20. China is not a Party to this agreement, so its originating status under another agreement does not count here.",
+   "input": {
+    "hs": "0906.20",
+    "produced_in": "Singapore",
+    "fob": 100,
+    "materials": [
+     {
+      "name": "Input declared originating in a party of a different agreement: coffee, tea, maté and spices (HS 0906.20)",
+      "hs": "0906.20",
+      "value": 50,
+      "country": "China",
+      "status": "originating"
+     },
+     {
+      "name": "Input: articles of stone, plaster, cement (HS 6806.90)",
+      "hs": "6806.90",
+      "value": 10,
+      "country": "India",
+      "status": "non_originating"
+     }
+    ],
+    "method": "indirect"
+   },
+   "expect": {
+    "outcome": "yes",
+    "alternative": {
+     "RVC40": "yes",
+     "CTSH": "no"
+    },
+    "applied": "RVC40",
+    "accumulation": false
+   },
+   "expected_abstention": false
+  },
+  {
+   "id": "atiga-dev-minimal-operations-01",
+   "split": "dev",
+   "feature": "atiga",
+   "source_family_id": "minimal-operations",
+   "scenario_family": "minimal-operations",
+   "variation_tags": [
+    "minimal-operations",
+    "only-minimal",
+    "shift-met"
+   ],
+   "sources": [
+    {
+     "source": "atiga-text",
+     "locator": "Art. 31"
+    },
+    {
+     "source": "atiga-annex3",
+     "locator": "row 2101.30: RVC40 or CC"
+    }
+   ],
+   "rule": {
+    "row": "2101.30",
+    "text": "RVC40 or CC",
+    "listed": true
+   },
+   "rationale": "Operations shipment: only operations of the minimal kind are stated, which cannot confer origin where the agreement applies the list to origin claims (Art. 31). The tariff shift is met.",
+   "input": {
+    "hs": "2101.30",
+    "produced_in": "Laos",
+    "fob": 100,
+    "materials": [
+     {
+      "name": "Imported input: vegetable plaiting materials (HS 1401.90)",
+      "hs": "1401.90",
+      "value": 40,
+      "country": "United States",
+      "status": "non_originating"
+     }
+    ],
+    "operations": [
+     "shipment"
+    ],
+    "method": "indirect"
+   },
+   "expect": {
+    "outcome": "no",
+    "accumulation": false
+   },
+   "expected_abstention": false
+  },
+  {
+   "id": "atiga-dev-minimal-operations-02",
+   "split": "dev",
+   "feature": "atiga",
+   "source_family_id": "minimal-operations",
+   "scenario_family": "minimal-operations",
+   "variation_tags": [
+    "minimal-operations",
+    "minimal-plus-real",
+    "shift-not-met"
+   ],
+   "sources": [
+    {
+     "source": "atiga-text",
+     "locator": "Art. 31"
+    },
+    {
+     "source": "atiga-annex3",
+     "locator": "row 8305.10: RVC40 or CTSH"
+    }
+   ],
+   "rule": {
+    "row": "8305.10",
+    "text": "RVC40 or CTSH",
+    "listed": true
+   },
+   "rationale": "Operations shipment, weaving: a minimal operation is stated together with real production, so the product rule decides (Art. 31). The tariff shift is not met.",
+   "input": {
+    "hs": "8305.10",
+    "produced_in": "Malaysia",
+    "fob": 400,
+    "materials": [
+     {
+      "name": "Imported input: miscellaneous articles of base metal (HS 8305.10)",
+      "hs": "8305.10",
+      "value": 160,
+      "country": "United States",
+      "status": "non_originating"
+     }
+    ],
+    "operations": [
+     "shipment",
+     "weaving"
+    ],
+    "method": "indirect"
+   },
+   "expect": {
+    "outcome": "yes",
+    "alternative": {
+     "RVC40": "yes",
+     "CTSH": "no"
+    },
+    "applied": "RVC40",
+    "accumulation": false
+   },
+   "expected_abstention": false
+  },
+  {
+   "id": "atiga-dev-minimal-operations-03",
+   "split": "dev",
+   "feature": "atiga",
+   "source_family_id": "minimal-operations",
+   "scenario_family": "minimal-operations",
+   "variation_tags": [
+    "minimal-operations",
+    "real-only",
+    "shift-met"
+   ],
+   "sources": [
+    {
+     "source": "atiga-text",
+     "locator": "Art. 31"
+    },
+    {
+     "source": "atiga-annex3",
+     "locator": "row 2103.20: RVC40 or CTSH"
+    }
+   ],
+   "rule": {
+    "row": "2103.20",
+    "text": "RVC40 or CTSH",
+    "listed": true
+   },
+   "rationale": "Operations smelting: real production is stated, so the product rule decides (Art. 31). The tariff shift is met.",
+   "input": {
+    "hs": "2103.20",
+    "produced_in": "Malaysia",
+    "fob": 1000,
+    "materials": [
+     {
+      "name": "Imported input: aircraft, spacecraft, and parts thereof (HS 8802.20)",
+      "hs": "8802.20",
+      "value": 400,
+      "country": "Australia",
+      "status": "non_originating"
+     }
+    ],
+    "operations": [
+     "smelting"
+    ],
+    "method": "indirect"
+   },
+   "expect": {
+    "outcome": "yes",
+    "alternative": {
+     "RVC40": "yes",
+     "CTSH": "yes"
+    },
+    "accumulation": false
+   },
+   "expected_abstention": false
+  },
+  {
+   "id": "atiga-dev-minimal-operations-04",
+   "split": "dev",
+   "feature": "atiga",
+   "source_family_id": "minimal-operations",
+   "scenario_family": "minimal-operations",
+   "variation_tags": [
+    "assembly-vocabulary",
+    "minimal-operations",
+    "shift-not-met"
+   ],
+   "sources": [
+    {
+     "source": "atiga-text",
+     "locator": "Art. 31"
+    },
+    {
+     "source": "atiga-annex3",
+     "locator": "row 8111.00: RVC40 or CTSH"
+    }
+   ],
+   "rule": {
+    "row": "8111.00",
+    "text": "RVC40 or CTSH",
+    "listed": true
+   },
+   "rationale": "Operations assembly: the word assembly is stated; it is a listed minimal operation only where the agreement lists simple assembly (Art. 31). The tariff shift is not met.",
+   "input": {
+    "hs": "8111.00",
+    "produced_in": "Cambodia",
+    "fob": 100,
+    "materials": [
+     {
+      "name": "Imported input: other base metals (HS 8111.00)",
+      "hs": "8111.00",
+      "value": 40,
+      "country": "Brazil",
+      "status": "non_originating"
+     }
+    ],
+    "operations": [
+     "assembly"
+    ],
+    "method": "indirect"
+   },
+   "expect": {
+    "outcome": "yes",
+    "alternative": {
+     "RVC40": "yes",
+     "CTSH": "no"
+    },
+    "applied": "RVC40",
+    "accumulation": false
+   },
+   "expected_abstention": false
+  },
+  {
+   "id": "atiga-dev-minimal-operations-05",
+   "split": "dev",
+   "feature": "atiga",
+   "source_family_id": "minimal-operations",
+   "scenario_family": "minimal-operations",
+   "variation_tags": [
+    "minimal-operations",
+    "only-minimal",
+    "shift-met"
+   ],
+   "sources": [
+    {
+     "source": "atiga-text",
+     "locator": "Art. 31"
+    },
+    {
+     "source": "atiga-annex3",
+     "locator": "row 2106.10: RVC40 or CTSH"
+    }
+   ],
+   "rule": {
+    "row": "2106.10",
+    "text": "RVC40 or CTSH",
+    "listed": true
+   },
+   "rationale": "Operations shipment: only operations of the minimal kind are stated, which cannot confer origin where the agreement applies the list to origin claims (Art. 31). The tariff shift is met.",
+   "input": {
+    "hs": "2106.10",
+    "produced_in": "Cambodia",
+    "fob": 400,
+    "materials": [
+     {
+      "name": "Imported input: ceramic products (HS 6909.90)",
+      "hs": "6909.90",
+      "value": 160,
+      "country": "United States",
+      "status": "non_originating"
+     }
+    ],
+    "operations": [
+     "shipment"
+    ],
+    "method": "indirect"
+   },
+   "expect": {
+    "outcome": "no",
+    "accumulation": false
+   },
+   "expected_abstention": false
+  },
+  {
+   "id": "atiga-dev-minimal-operations-06",
+   "split": "dev",
+   "feature": "atiga",
+   "source_family_id": "minimal-operations",
+   "scenario_family": "minimal-operations",
+   "variation_tags": [
+    "minimal-operations",
+    "minimal-plus-real",
+    "shift-not-met"
+   ],
+   "sources": [
+    {
+     "source": "atiga-text",
+     "locator": "Art. 31"
+    },
+    {
+     "source": "atiga-annex3",
+     "locator": "row 0901.21: RVC40 or CTSH"
+    }
+   ],
+   "rule": {
+    "row": "0901.21",
+    "text": "RVC40 or CTSH",
+    "listed": true
+   },
+   "rationale": "Operations preservation, smelting: a minimal operation is stated together with real production, so the product rule decides (Art. 31). The tariff shift is not met.",
+   "input": {
+    "hs": "0901.21",
+    "produced_in": "Singapore",
+    "fob": 100,
+    "materials": [
+     {
+      "name": "Imported input: coffee, tea, maté and spices (HS 0901.21)",
+      "hs": "0901.21",
+      "value": 40,
+      "country": "India",
+      "status": "non_originating"
+     }
+    ],
+    "operations": [
+     "preservation",
+     "smelting"
+    ],
+    "method": "indirect"
+   },
+   "expect": {
+    "outcome": "yes",
+    "alternative": {
+     "RVC40": "yes",
+     "CTSH": "no"
+    },
+    "applied": "RVC40",
+    "accumulation": false
+   },
+   "expected_abstention": false
+  },
+  {
+   "id": "atiga-dev-missing-facts-01",
+   "split": "dev",
+   "feature": "atiga",
+   "source_family_id": "missing-facts",
+   "scenario_family": "missing-facts",
+   "variation_tags": [
+    "abstention-expected",
+    "missing-facts"
+   ],
+   "sources": [
+    {
+     "source": "atiga-handbook",
+     "locator": "p. 6: materials of undetermined origin count as non-originating; Art. 29.2(b)"
+    },
+    {
+     "source": "atiga-annex3",
+     "locator": "row 0307.49: RVC40 or CTSH"
+    }
+   ],
+   "rule": {
+    "row": "0307.49",
+    "text": "RVC40 or CTSH",
+    "listed": true
+   },
+   "rationale": "Row 0307.49. No FOB value is given, so RVC cannot be computed.",
+   "input": {
+    "hs": "0307.49",
+    "produced_in": "Philippines",
+    "materials": [
+     {
+      "name": "Input: fish and crustaceans, molluscs and other (HS 0307.49)",
+      "hs": "0307.49",
+      "value": 500,
+      "country": "India",
+      "status": "non_originating"
+     }
+    ]
+   },
+   "expect": {
+    "outcome": "undetermined",
+    "accumulation": false
+   },
+   "expected_abstention": true
+  },
+  {
+   "id": "atiga-dev-missing-facts-02",
+   "split": "dev",
+   "feature": "atiga",
+   "source_family_id": "missing-facts",
+   "scenario_family": "missing-facts",
+   "variation_tags": [
+    "abstention-expected",
+    "missing-facts"
+   ],
+   "sources": [
+    {
+     "source": "atiga-handbook",
+     "locator": "p. 6: materials of undetermined origin count as non-originating; Art. 29.2(b)"
+    },
+    {
+     "source": "atiga-annex3",
+     "locator": "row 8701.24: RVC40"
+    }
+   ],
+   "rule": {
+    "row": "8701.24",
+    "text": "RVC40",
+    "listed": true
+   },
+   "rationale": "Row 8701.24. The non-originating materials have no values, so RVC cannot be computed.",
+   "input": {
+    "hs": "8701.24",
+    "produced_in": "Laos",
+    "fob": 100,
+    "materials": [
+     {
+      "name": "Input: vehicles other than railway or tramway (HS 8701.24)",
+      "hs": "8701.24",
+      "country": "South Korea",
+      "status": "non_originating"
+     },
+     {
+      "name": "Input: salt (HS 2523.29)",
+      "hs": "2523.29",
+      "country": "Brazil",
+      "status": "non_originating"
+     }
+    ],
+    "method": "indirect"
+   },
+   "expect": {
+    "outcome": "undetermined",
+    "accumulation": false
+   },
+   "expected_abstention": true
+  },
+  {
+   "id": "atiga-dev-missing-facts-03",
+   "split": "dev",
+   "feature": "atiga",
+   "source_family_id": "missing-facts",
+   "scenario_family": "missing-facts",
+   "variation_tags": [
+    "conservative-default",
+    "missing-facts",
+    "positive",
+    "unknown-status"
+   ],
+   "sources": [
+    {
+     "source": "atiga-handbook",
+     "locator": "p. 6: materials of undetermined origin count as non-originating; Art. 29.2(b)"
+    },
+    {
+     "source": "atiga-annex3",
+     "locator": "row 7324.29: RVC40 or CC"
+    }
+   ],
+   "rule": {
+    "row": "7324.29",
+    "text": "RVC40 or CC",
+    "listed": true
+   },
+   "rationale": "Row 7324.29. A material of unknown origin counts as non-originating; its code is in another chapter so the shift is still met.",
+   "input": {
+    "hs": "7324.29",
+    "produced_in": "Indonesia",
+    "fob": 1000,
+    "materials": [
+     {
+      "name": "Input: explosives (HS 3601.00)",
+      "hs": "3601.00",
+      "value": 500,
+      "country": "Germany",
+      "status": "unknown"
+     }
+    ],
+    "method": "indirect"
+   },
+   "expect": {
+    "outcome": "yes",
+    "alternative": {
+     "RVC40": "yes",
+     "CC": "yes"
+    },
+    "accumulation": false
+   },
+   "expected_abstention": false
+  },
+  {
+   "id": "atiga-dev-missing-facts-04",
+   "split": "dev",
+   "feature": "atiga",
+   "source_family_id": "missing-facts",
+   "scenario_family": "missing-facts",
+   "variation_tags": [
+    "conservative-default",
+    "missing-facts",
+    "positive",
+    "unknown-status"
+   ],
+   "sources": [
+    {
+     "source": "atiga-handbook",
+     "locator": "p. 6: materials of undetermined origin count as non-originating; Art. 29.2(b)"
+    },
+    {
+     "source": "atiga-annex3",
+     "locator": "row 8540.20: RVC40 or CTSH"
+    }
+   ],
+   "rule": {
+    "row": "8540.20",
+    "text": "RVC40 or CTSH",
+    "listed": true
+   },
+   "rationale": "Row 8540.20. A material of unknown origin counts as non-originating; with 30 % of FOB non-originating the build-down content is 70 %.",
+   "input": {
+    "hs": "8540.20",
+    "produced_in": "Indonesia",
+    "fob": 100,
+    "materials": [
+     {
+      "name": "Input: electrical machinery and equipment and (HS 8540.20)",
+      "hs": "8540.20",
+      "value": 30,
+      "country": "Australia",
+      "status": "unknown"
+     },
+     {
+      "name": "Input: other vegetable textile fibres (HS 5311.00)",
+      "hs": "5311.00",
+      "value": 20,
+      "country": "Malaysia",
+      "status": "originating"
+     }
+    ],
+    "method": "indirect"
+   },
+   "expect": {
+    "outcome": "yes",
+    "alternative": {
+     "RVC40": "yes",
+     "CTSH": "no"
+    },
+    "applied": "RVC40",
+    "accumulation": true
+   },
+   "expected_abstention": false
+  },
+  {
+   "id": "atiga-dev-missing-facts-05",
+   "split": "dev",
+   "feature": "atiga",
+   "source_family_id": "missing-facts",
+   "scenario_family": "missing-facts",
+   "variation_tags": [
+    "abstention-expected",
+    "missing-facts",
+    "missing-material-code"
+   ],
+   "sources": [
+    {
+     "source": "atiga-handbook",
+     "locator": "p. 6: materials of undetermined origin count as non-originating; Art. 29.2(b)"
+    },
+    {
+     "source": "atiga-annex3",
+     "locator": "row 0905.20: RVC40 or CC"
+    }
+   ],
+   "rule": {
+    "row": "0905.20",
+    "text": "RVC40 or CC",
+    "listed": true
+   },
+   "rationale": "Row 0905.20. The material has no HS code, so a tariff shift cannot be tested; its value is over the de minimis limit.",
+   "input": {
+    "hs": "0905.20",
+    "produced_in": "Vietnam",
+    "fob": 100,
+    "materials": [
+     {
+      "name": "Imported input without a classification",
+      "country": "Japan",
+      "status": "non_originating",
+      "value": 50
+     }
+    ],
+    "method": "indirect"
+   },
+   "expect": {
+    "outcome": "yes",
+    "alternative": {
+     "RVC40": "yes"
+    },
+    "applied": "RVC40",
+    "accumulation": false
+   },
+   "expected_abstention": false
+  },
+  {
+   "id": "atiga-dev-missing-facts-06",
+   "split": "dev",
+   "feature": "atiga",
+   "source_family_id": "missing-facts",
+   "scenario_family": "missing-facts",
+   "variation_tags": [
+    "abstention-expected",
+    "direct-method-no-costs",
+    "missing-facts"
+   ],
+   "sources": [
+    {
+     "source": "atiga-handbook",
+     "locator": "p. 6: materials of undetermined origin count as non-originating; Art. 29.2(b)"
+    },
+    {
+     "source": "atiga-annex3",
+     "locator": "row 8102.95: RVC40 or CTSH"
+    }
+   ],
+   "rule": {
+    "row": "8102.95",
+    "text": "RVC40 or CTSH",
+    "listed": true
+   },
+   "rationale": "Row 8102.95. The direct method is chosen but no costs are given, so the build-up figure cannot be computed.",
+   "input": {
+    "hs": "8102.95",
+    "produced_in": "Thailand",
+    "fob": 400,
+    "materials": [
+     {
+      "name": "Input: other base metals (HS 8102.95)",
+      "hs": "8102.95",
+      "value": 280,
+      "country": "China",
+      "status": "non_originating"
+     }
+    ],
+    "method": "direct"
+   },
+   "expect": {
+    "outcome": "undetermined",
+    "alternative": {
+     "CTSH": "no"
+    },
+    "accumulation": false
+   },
+   "expected_abstention": true
+  },
+  {
+   "id": "atiga-dev-except-from-01",
+   "split": "dev",
+   "feature": "atiga",
+   "source_family_id": "except-from",
+   "scenario_family": "except-from",
+   "variation_tags": [
+    "excluded-origin-material",
+    "negative",
+    "tariff-shift-exclusion"
+   ],
+   "sources": [
+    {
+     "source": "atiga-text",
+     "locator": "Art. 28.2(d): tariff-shift rules apply to non-originating materials only"
+    },
+    {
+     "source": "atiga-annex3",
+     "locator": "row 7306.30: RVC40 or CC except from 7208, 7209 and 7211"
+    }
+   ],
+   "rule": {
+    "row": "7306.30",
+    "text": "RVC40 or CC except from 7208, 7209 and 7211",
+    "listed": true
+   },
+   "rationale": "Row 7306.30: the shift rule excludes materials from heading 7208. The non-originating material (7208.10) falls in the excluded range, so the shift is not met.",
+   "input": {
+    "hs": "7306.30",
+    "produced_in": "Malaysia",
+    "fob": 500,
+    "materials": [
+     {
+      "name": "Imported input: iron and steel (HS 7208.10)",
+      "hs": "7208.10",
+      "value": 350,
+      "country": "Germany",
+      "status": "non_originating"
+     }
+    ],
+    "method": "indirect"
+   },
+   "expect": {
+    "outcome": "no",
+    "alternative": {
+     "RVC40": "no"
+    }
+   },
+   "expected_abstention": false
+  },
+  {
+   "id": "atiga-dev-except-from-02",
+   "split": "dev",
+   "feature": "atiga",
+   "source_family_id": "except-from",
+   "scenario_family": "except-from",
+   "variation_tags": [
+    "outside-exclusion",
+    "positive",
+    "tariff-shift-exclusion"
+   ],
+   "sources": [
+    {
+     "source": "atiga-text",
+     "locator": "Art. 28.2(d): tariff-shift rules apply to non-originating materials only"
+    },
+    {
+     "source": "atiga-annex3",
+     "locator": "row 7314.50: RVC40 or CC except from 7208-7217"
+    }
+   ],
+   "rule": {
+    "row": "7314.50",
+    "text": "RVC40 or CC except from 7208-7217",
+    "listed": true
+   },
+   "rationale": "Row 7314.50: the shift rule excludes materials from heading 7208 to 7217. The non-originating material (8441.40) is outside the excluded range, so the shift is met.",
+   "input": {
+    "hs": "7314.50",
+    "produced_in": "Indonesia",
+    "fob": 200,
+    "materials": [
+     {
+      "name": "Imported input: nuclear reactors, boilers, machinery and (HS 8441.40)",
+      "hs": "8441.40",
+      "value": 140,
+      "country": "Germany",
+      "status": "non_originating"
+     }
+    ],
+    "method": "indirect"
+   },
+   "expect": {
+    "outcome": "yes",
+    "alternative": {
+     "RVC40": "no"
+    },
+    "applied": "CC except from 7208-7217"
+   },
+   "expected_abstention": false
+  },
+  {
+   "id": "atiga-dev-except-from-03",
+   "split": "dev",
+   "feature": "atiga",
+   "source_family_id": "except-from",
+   "scenario_family": "except-from",
+   "variation_tags": [
+    "excluded-origin-material",
+    "negative",
+    "tariff-shift-exclusion"
+   ],
+   "sources": [
+    {
+     "source": "atiga-text",
+     "locator": "Art. 28.2(d): tariff-shift rules apply to non-originating materials only"
+    },
+    {
+     "source": "atiga-annex3",
+     "locator": "row 7314.31: RVC40 or CC except from 7208-7217"
+    }
+   ],
+   "rule": {
+    "row": "7314.31",
+    "text": "RVC40 or CC except from 7208-7217",
+    "listed": true
+   },
+   "rationale": "Row 7314.31: the shift rule excludes materials from heading 7208 to 7217. The non-originating material (7208.10) falls in the excluded range, so the shift is not met.",
+   "input": {
+    "hs": "7314.31",
+    "produced_in": "Philippines",
+    "fob": 500,
+    "materials": [
+     {
+      "name": "Imported input: iron and steel (HS 7208.10)",
+      "hs": "7208.10",
+      "value": 350,
+      "country": "United States",
+      "status": "non_originating"
+     }
+    ],
+    "method": "indirect"
+   },
+   "expect": {
+    "outcome": "no",
+    "alternative": {
+     "RVC40": "no"
+    }
+   },
+   "expected_abstention": false
+  },
+  {
+   "id": "atiga-dev-process-conditions-01",
+   "split": "dev",
+   "feature": "atiga",
+   "source_family_id": "process-conditions",
+   "scenario_family": "process-conditions",
+   "variation_tags": [
+    "process-rule",
+    "process-true",
+    "rvc-fails",
+    "tariff-shift-blocked"
+   ],
+   "sources": [
+    {
+     "source": "atiga-text",
+     "locator": "Art. 28.2(d): tariff-shift rules apply to non-originating materials only"
+    },
+    {
+     "source": "atiga-annex3",
+     "locator": "row 5513.12: RVC40 or CTH or textile process rule"
+    }
+   ],
+   "rule": {
+    "row": "5513.12",
+    "text": "RVC40 or CTH or textile process rule",
+    "listed": true
+   },
+   "rationale": "Row 5513.12 has alternatives that depend on a process (textile_process). RVC (20 % content) and the tariff shift (material in the good's own subheading) fail, so the answer rests on whether the process is carried out: it is stated as carried out.",
+   "input": {
+    "hs": "5513.12",
+    "produced_in": "Philippines",
+    "fob": 100,
+    "materials": [
+     {
+      "name": "Imported input in the good's own subheading: man-made staple fibres (HS 5513.12)",
+      "hs": "5513.12",
+      "value": 80,
+      "country": "United Kingdom",
+      "status": "non_originating"
+     }
+    ],
+    "method": "indirect",
+    "processes": {
+     "textile_process": true
+    }
+   },
+   "expect": {
+    "outcome": "yes",
+    "alternative": {
+     "RVC40": "no",
+     "CTH": "no"
+    }
+   },
+   "expected_abstention": false
+  },
+  {
+   "id": "atiga-dev-process-conditions-02",
+   "split": "dev",
+   "feature": "atiga",
+   "source_family_id": "process-conditions",
+   "scenario_family": "process-conditions",
+   "variation_tags": [
+    "process-false",
+    "process-rule",
+    "rvc-fails",
+    "tariff-shift-blocked"
+   ],
+   "sources": [
+    {
+     "source": "atiga-text",
+     "locator": "Art. 28.2(d): tariff-shift rules apply to non-originating materials only"
+    },
+    {
+     "source": "atiga-annex3",
+     "locator": "row 5702.32: RVC40 or CC or textile process rule"
+    }
+   ],
+   "rule": {
+    "row": "5702.32",
+    "text": "RVC40 or CC or textile process rule",
+    "listed": true
+   },
+   "rationale": "Row 5702.32 has alternatives that depend on a process (textile_process). RVC (20 % content) and the tariff shift (material in the good's own subheading) fail, so the answer rests on whether the process is carried out: it is stated as not carried out.",
+   "input": {
+    "hs": "5702.32",
+    "produced_in": "Malaysia",
+    "fob": 100,
+    "materials": [
+     {
+      "name": "Imported input in the good's own subheading: carpets and other textile floor coverings (HS 5702.32)",
+      "hs": "5702.32",
+      "value": 80,
+      "country": "United Kingdom",
+      "status": "non_originating"
+     }
+    ],
+    "method": "indirect",
+    "processes": {
+     "textile_process": false
+    }
+   },
+   "expect": {
+    "outcome": "no",
+    "alternative": {
+     "RVC40": "no",
+     "CC": "no"
+    }
+   },
+   "expected_abstention": false
+  },
+  {
+   "id": "atiga-dev-process-conditions-03",
+   "split": "dev",
+   "feature": "atiga",
+   "source_family_id": "process-conditions",
+   "scenario_family": "process-conditions",
+   "variation_tags": [
+    "process-rule",
+    "process-unstated",
+    "rvc-fails",
+    "tariff-shift-blocked"
+   ],
+   "sources": [
+    {
+     "source": "atiga-text",
+     "locator": "Art. 28.2(d): tariff-shift rules apply to non-originating materials only"
+    },
+    {
+     "source": "atiga-annex3",
+     "locator": "row 5516.14: RVC40 or CTH or textile process rule"
+    }
+   ],
+   "rule": {
+    "row": "5516.14",
+    "text": "RVC40 or CTH or textile process rule",
+    "listed": true
+   },
+   "rationale": "Row 5516.14 has alternatives that depend on a process (textile_process). RVC (20 % content) and the tariff shift (material in the good's own subheading) fail, so the answer rests on whether the process is carried out: it is not stated.",
+   "input": {
+    "hs": "5516.14",
+    "produced_in": "Malaysia",
+    "fob": 100,
+    "materials": [
+     {
+      "name": "Imported input in the good's own subheading: man-made staple fibres (HS 5516.14)",
+      "hs": "5516.14",
+      "value": 80,
+      "country": "Japan",
+      "status": "non_originating"
+     }
+    ],
+    "method": "indirect"
+   },
+   "expect": {
+    "outcome": "undetermined",
+    "alternative": {
+     "RVC40": "no",
+     "CTH": "no"
+    }
+   },
+   "expected_abstention": true
+  },
+  {
+   "id": "atiga-dev-direct-build-up-01",
+   "split": "dev",
+   "feature": "atiga",
+   "source_family_id": "direct-build-up",
+   "scenario_family": "direct-build-up",
+   "variation_tags": [
+    "direct-pass-indirect-fail",
+    "rvc-direct",
+    "tariff-shift-blocked"
+   ],
+   "sources": [
+    {
+     "source": "atiga-text",
+     "locator": "Art. 28.2(b), Art. 29 (build-down)"
+    },
+    {
+     "source": "atiga-annex3",
+     "locator": "row 1107.10: RVC40 or CC"
+    }
+   ],
+   "rule": {
+    "row": "1107.10",
+    "text": "RVC40 or CC",
+    "listed": true
+   },
+   "rationale": "Row 1107.10 needs RVC 40. Originating material 40 plus labour 42 over FOB 200 gives build-up content 41 %; build-down content is 35 %.",
+   "input": {
+    "hs": "1107.10",
+    "produced_in": "Cambodia",
+    "fob": 200,
+    "materials": [
+     {
+      "name": "Imported input in the good's own subheading: products of the milling industry (HS 1107.10)",
+      "hs": "1107.10",
+      "value": 130,
+      "country": "Australia",
+      "status": "non_originating"
+     },
+     {
+      "name": "Originating input: tanning or dyeing extracts (HS 3206.41)",
+      "hs": "3206.41",
+      "value": 40,
+      "country": "Cambodia",
+      "status": "originating"
+     }
+    ],
+    "costs": {
+     "labour": 42,
+     "overhead": 0,
+     "profit": 0,
+     "other": 0
+    },
+    "method": "direct"
+   },
+   "expect": {
+    "outcome": "yes",
+    "alternative": {
+     "RVC40": "yes",
+     "CC": "no"
+    },
+    "applied": "RVC40",
+    "accumulation": false,
+    "rvc_up_min": 40.95,
+    "rvc_up_max": 41.05
+   },
+   "expected_abstention": false
+  },
+  {
+   "id": "atiga-dev-direct-build-up-02",
+   "split": "dev",
+   "feature": "atiga",
+   "source_family_id": "direct-build-up",
+   "scenario_family": "direct-build-up",
+   "variation_tags": [
+    "both-fail",
+    "rvc-direct",
+    "tariff-shift-blocked"
+   ],
+   "sources": [
+    {
+     "source": "atiga-text",
+     "locator": "Art. 28.2(b), Art. 29 (build-down)"
+    },
+    {
+     "source": "atiga-annex3",
+     "locator": "row 2101.12: RVC40 or CC"
+    }
+   ],
+   "rule": {
+    "row": "2101.12",
+    "text": "RVC40 or CC",
+    "listed": true
+   },
+   "rationale": "Row 2101.12 needs RVC 40. Originating material 20 plus labour 5 over FOB 100 gives build-up content 25 %; build-down content is 35 %.",
+   "input": {
+    "hs": "2101.12",
+    "produced_in": "Singapore",
+    "fob": 100,
+    "materials": [
+     {
+      "name": "Imported input in the good's own subheading: miscellaneous edible preparations (HS 2101.12)",
+      "hs": "2101.12",
+      "value": 65,
+      "country": "China",
+      "status": "non_originating"
+     },
+     {
+      "name": "Originating input: natural or cultured pearls, precious or (HS 7101.21)",
+      "hs": "7101.21",
+      "value": 20,
+      "country": "Cambodia",
+      "status": "originating"
+     }
+    ],
+    "costs": {
+     "labour": 5,
+     "overhead": 0,
+     "profit": 0,
+     "other": 0
+    },
+    "method": "direct"
+   },
+   "expect": {
+    "outcome": "no",
+    "alternative": {
+     "RVC40": "no",
+     "CC": "no"
+    },
+    "accumulation": true,
+    "rvc_up_min": 24.95,
+    "rvc_up_max": 25.05
+   },
+   "expected_abstention": false
+  },
+  {
+   "id": "atiga-dev-direct-build-up-03",
+   "split": "dev",
+   "feature": "atiga",
+   "source_family_id": "direct-build-up",
+   "scenario_family": "direct-build-up",
+   "variation_tags": [
+    "direct-just-below",
+    "rvc-direct",
+    "tariff-shift-blocked"
+   ],
+   "sources": [
+    {
+     "source": "atiga-text",
+     "locator": "Art. 28.2(b), Art. 29 (build-down)"
+    },
+    {
+     "source": "atiga-annex3",
+     "locator": "row 8701.24: RVC40"
+    }
+   ],
+   "rule": {
+    "row": "8701.24",
+    "text": "RVC40",
+    "listed": true
+   },
+   "rationale": "Row 8701.24 needs RVC 40. Originating material 40 plus labour 39 over FOB 200 gives build-up content 39.5 %; build-down content is 35 %.",
+   "input": {
+    "hs": "8701.24",
+    "produced_in": "Singapore",
+    "fob": 200,
+    "materials": [
+     {
+      "name": "Imported input in the good's own subheading: vehicles other than railway or tramway (HS 8701.24)",
+      "hs": "8701.24",
+      "value": 130,
+      "country": "Canada",
+      "status": "non_originating"
+     },
+     {
+      "name": "Originating input: wood and articles of wood (HS 4412.10)",
+      "hs": "4412.10",
+      "value": 40,
+      "country": "Laos",
+      "status": "originating"
+     }
+    ],
+    "costs": {
+     "labour": 39,
+     "overhead": 0,
+     "profit": 0,
+     "other": 0
+    },
+    "method": "direct"
+   },
+   "expect": {
+    "outcome": "no",
+    "alternative": {
+     "RVC40": "no"
+    },
+    "accumulation": true,
+    "rvc_up_min": 39.45,
+    "rvc_up_max": 39.55
+   },
+   "expected_abstention": false
+  },
+  {
+   "id": "atiga-dev-heading-only-code-01",
+   "split": "dev",
+   "feature": "atiga",
+   "source_family_id": "heading-only-code",
+   "scenario_family": "heading-only-code",
+   "variation_tags": [
+    "good-code-too-short",
+    "heading-code-only",
+    "rules-differ-answer-agrees"
+   ],
+   "sources": [
+    {
+     "source": "atiga-text",
+     "locator": "Art. 28.2(d): tariff-shift rules apply to non-originating materials only"
+    },
+    {
+     "source": "atiga-annex3",
+     "locator": "rows under heading 03.08"
+    }
+   ],
+   "rule": null,
+   "rationale": "The good is identified only by its four-digit heading 03.08, which covers 8 subheadings under 2 distinct product rules. The materials change chapter, so every subheading's rule gives the same answer.",
+   "input": {
+    "hs": "0308",
+    "produced_in": "Indonesia",
+    "fob": 100,
+    "materials": [
+     {
+      "name": "Imported input: other base metals (HS 8104.30)",
+      "hs": "8104.30",
+      "value": 30,
+      "country": "Canada",
+      "status": "non_originating"
+     }
+    ],
+    "method": "indirect"
+   },
+   "expect": {
+    "outcome": "yes"
+   },
+   "expected_abstention": false
+  },
+  {
+   "id": "atiga-dev-heading-only-code-02",
+   "split": "dev",
+   "feature": "atiga",
+   "source_family_id": "heading-only-code",
+   "scenario_family": "heading-only-code",
+   "variation_tags": [
+    "good-code-too-short",
+    "heading-code-only",
+    "one-rule-for-every-subheading"
+   ],
+   "sources": [
+    {
+     "source": "atiga-text",
+     "locator": "Art. 28.2(d): tariff-shift rules apply to non-originating materials only"
+    },
+    {
+     "source": "atiga-annex3",
+     "locator": "rows under heading 69.05"
+    }
+   ],
+   "rule": null,
+   "rationale": "The good is identified only by its four-digit heading 69.05, which covers 2 subheadings under 1 distinct product rules. The materials change chapter, so every subheading's rule gives the same answer.",
+   "input": {
+    "hs": "6905",
+    "produced_in": "Thailand",
+    "fob": 100,
+    "materials": [
+     {
+      "name": "Imported input: vehicles other than railway or tramway (HS 8711.40)",
+      "hs": "8711.40",
+      "value": 30,
+      "country": "Brazil",
+      "status": "non_originating"
+     }
+    ],
+    "method": "indirect"
+   },
+   "expect": {
+    "outcome": "yes"
+   },
+   "expected_abstention": false
+  },
+  {
+   "id": "atiga-dev-general-rule-01",
+   "split": "dev",
+   "feature": "atiga",
+   "source_family_id": "general-rule",
+   "scenario_family": "general-rule",
+   "variation_tags": [
+    "general-rule",
+    "goods-not-listed",
+    "rvc-fails",
+    "shift-met"
+   ],
+   "sources": [
+    {
+     "source": "atiga-text",
+     "locator": "Art. 28.1"
+    },
+    {
+     "source": "atiga-annex3",
+     "locator": "no row for 8504.34; general rule"
+    }
+   ],
+   "rule": {
+    "row": "Art. 28.1",
+    "text": "RVC40 or CTH",
+    "listed": false
+   },
+   "rationale": "No product-specific row applies to 8504.34, so the general rule is used: RVC40 or CTH. Non-originating content is 65 % of FOB, so RVC is 35 %; a change of heading is met.",
+   "input": {
+    "hs": "8504.34",
+    "produced_in": "Malaysia",
+    "fob": 100,
+    "materials": [
+     {
+      "name": "Imported input: preparations of vegetables, fruit, nuts (HS 2005.20)",
+      "hs": "2005.20",
+      "value": 65,
+      "country": "Australia",
+      "status": "non_originating"
+     }
+    ],
+    "method": "indirect"
+   },
+   "expect": {
+    "outcome": "yes",
+    "alternative": {
+     "RVC40": "no",
+     "CTH": "yes"
+    },
+    "applied": "CTH"
+   },
+   "expected_abstention": false
+  },
+  {
+   "id": "atiga-dev-general-rule-02",
+   "split": "dev",
+   "feature": "atiga",
+   "source_family_id": "general-rule",
+   "scenario_family": "general-rule",
+   "variation_tags": [
+    "general-rule",
+    "goods-not-listed",
+    "rvc-fails",
+    "shift-met"
+   ],
+   "sources": [
+    {
+     "source": "atiga-text",
+     "locator": "Art. 28.1"
+    },
+    {
+     "source": "atiga-annex3",
+     "locator": "no row for 8517.71; general rule"
+    }
+   ],
+   "rule": {
+    "row": "Art. 28.1",
+    "text": "RVC40 or CTH",
+    "listed": false
+   },
+   "rationale": "No product-specific row applies to 8517.71, so the general rule is used: RVC40 or CTH. Non-originating content is 65 % of FOB, so RVC is 35 %; a change of heading is met.",
+   "input": {
+    "hs": "8517.71",
+    "produced_in": "Singapore",
+    "fob": 1000,
+    "materials": [
+     {
+      "name": "Imported input: cork and articles of cork (HS 4501.90)",
+      "hs": "4501.90",
+      "value": 650,
+      "country": "Germany",
+      "status": "non_originating"
+     }
+    ],
+    "method": "indirect"
+   },
+   "expect": {
+    "outcome": "yes",
+    "alternative": {
+     "RVC40": "no",
+     "CTH": "yes"
+    },
+    "applied": "CTH"
+   },
+   "expected_abstention": false
+  },
+  {
+   "id": "atiga-dev-general-rule-03",
+   "split": "dev",
+   "feature": "atiga",
+   "source_family_id": "general-rule",
+   "scenario_family": "general-rule",
+   "variation_tags": [
+    "general-rule",
+    "goods-not-listed",
+    "rvc-fails",
+    "shift-not-met"
+   ],
+   "sources": [
+    {
+     "source": "atiga-text",
+     "locator": "Art. 28.1"
+    },
+    {
+     "source": "atiga-annex3",
+     "locator": "no row for 8549.21; general rule"
+    }
+   ],
+   "rule": {
+    "row": "Art. 28.1",
+    "text": "RVC40 or CTH",
+    "listed": false
+   },
+   "rationale": "No product-specific row applies to 8549.21, so the general rule is used: RVC40 or CTH. Non-originating content is 65 % of FOB, so RVC is 35 %; a change of heading is not met.",
+   "input": {
+    "hs": "8549.21",
+    "produced_in": "Indonesia",
+    "fob": 400,
+    "materials": [
+     {
+      "name": "Imported input: electrical machinery and equipment and (HS 8549.21)",
+      "hs": "8549.21",
+      "value": 260,
+      "country": "Japan",
+      "status": "non_originating"
+     }
+    ],
+    "method": "indirect"
+   },
+   "expect": {
+    "outcome": "no",
+    "alternative": {
+     "RVC40": "no",
+     "CTH": "no"
+    }
+   },
+   "expected_abstention": false
+  },
+  {
+   "id": "atiga-dev-general-rule-04",
+   "split": "dev",
+   "feature": "atiga",
+   "source_family_id": "general-rule",
+   "scenario_family": "general-rule",
+   "variation_tags": [
+    "general-rule",
+    "goods-not-listed",
+    "rvc-fails",
+    "shift-met"
+   ],
+   "sources": [
+    {
+     "source": "atiga-text",
+     "locator": "Art. 28.1"
+    },
+    {
+     "source": "atiga-annex3",
+     "locator": "no row for 0712.33; general rule"
+    }
+   ],
+   "rule": {
+    "row": "Art. 28.1",
+    "text": "RVC40 or CTH",
+    "listed": false
+   },
+   "rationale": "No product-specific row applies to 0712.33, so the general rule is used: RVC40 or CTH. Non-originating content is 65 % of FOB, so RVC is 35 %; a change of heading is met.",
+   "input": {
+    "hs": "0712.33",
+    "produced_in": "Indonesia",
+    "fob": 400,
+    "materials": [
+     {
+      "name": "Imported input: natural or cultured pearls, precious or (HS 7115.10)",
+      "hs": "7115.10",
+      "value": 260,
+      "country": "Canada",
+      "status": "non_originating"
+     }
+    ],
+    "method": "indirect"
+   },
+   "expect": {
+    "outcome": "yes",
+    "alternative": {
+     "RVC40": "no",
+     "CTH": "yes"
+    },
+    "applied": "CTH"
+   },
+   "expected_abstention": false
+  },
+  {
+   "id": "atiga-dev-authority-variants-01",
+   "split": "dev",
+   "feature": "atiga",
+   "source_family_id": "authority-miti-2-rvc",
+   "scenario_family": "authority-variants",
+   "variation_tags": [
+    "at-threshold",
+    "parent-variant",
+    "values-perturbed",
+    "values-rescaled-at-threshold"
+   ],
+   "sources": [
+    {
+     "source": "atiga-miti",
+     "locator": "Example 2"
+    },
+    {
+     "source": "atiga-annex3",
+     "locator": "row 9403.60: RVC40 or CTSH"
+    }
+   ],
+   "rule": {
+    "row": "9403.60",
+    "text": "RVC40 or CTSH",
+    "listed": true
+   },
+   "rationale": "Variation of the published worked example miti-2-rvc (Example 2): values rescaled at threshold, under row 9403.60 (RVC40 or CTSH). Build-down content is 40 %. The rule row and arithmetic are those of the cited source; the changed facts decide the label.",
+   "input": {
+    "hs": "9403.60",
+    "produced_in": "Malaysia",
+    "fob": 28.7,
+    "method": "indirect",
+    "materials": [
+     {
+      "name": "Chipboard",
+      "hs": "4410.90",
+      "value": 4,
+      "country": "Malaysia",
+      "status": "originating"
+     },
+     {
+      "name": "Fibreboard",
+      "hs": "4421.21",
+      "value": 5.63,
+      "country": "Belgium"
+     },
+     {
+      "name": "Decorative paper",
+      "hs": "4811.90",
+      "value": 4.68,
+      "country": "France"
+     },
+     {
+      "name": "Bugle",
+      "hs": "7318.15",
+      "value": 6.91,
+      "country": "USA"
+     }
+    ]
+   },
+   "expect": {
+    "outcome": "yes",
+    "alternative": {
+     "RVC40": "yes",
+     "CTSH": "yes"
+    },
+    "accumulation": false,
+    "rvc_down_min": 39.95,
+    "rvc_down_max": 40.05
+   },
+   "expected_abstention": false,
+   "parent_id": "eval/atiga/reference-cases.json#miti-2-rvc"
+  },
+  {
+   "id": "atiga-dev-authority-variants-02",
+   "split": "dev",
+   "feature": "atiga",
+   "source_family_id": "authority-miti-2-rvc",
+   "scenario_family": "authority-variants",
+   "variation_tags": [
+    "conflicting-evidence",
+    "originating-material-loses-status",
+    "parent-variant",
+    "status-flipped"
+   ],
+   "sources": [
+    {
+     "source": "atiga-miti",
+     "locator": "Example 2"
+    },
+    {
+     "source": "atiga-annex3",
+     "locator": "row 9403.60: RVC40 or CTSH"
+    }
+   ],
+   "rule": {
+    "row": "9403.60",
+    "text": "RVC40 or CTSH",
+    "listed": true
+   },
+   "rationale": "Variation of the published worked example miti-2-rvc (Example 2): originating material loses status, under row 9403.60 (RVC40 or CTSH). Build-down content is 29.62 %. The rule row and arithmetic are those of the cited source; the changed facts decide the label.",
+   "input": {
+    "hs": "9403.60",
+    "produced_in": "Malaysia",
+    "fob": 28.7,
+    "method": "indirect",
+    "materials": [
+     {
+      "name": "Chipboard",
+      "hs": "4410.90",
+      "value": 4,
+      "country": "Malaysia",
+      "status": "non_originating"
+     },
+     {
+      "name": "Fibreboard",
+      "hs": "4421.21",
+      "value": 5.3,
+      "country": "Belgium"
+     },
+     {
+      "name": "Decorative paper",
+      "hs": "4811.90",
+      "value": 4.4,
+      "country": "France"
+     },
+     {
+      "name": "Bugle",
+      "hs": "7318.15",
+      "value": 6.5,
+      "country": "USA"
+     }
+    ]
+   },
+   "expect": {
+    "outcome": "yes",
+    "alternative": {
+     "RVC40": "no",
+     "CTSH": "yes"
+    },
+    "applied": "CTSH",
+    "accumulation": false,
+    "rvc_down_min": 29.567,
+    "rvc_down_max": 29.667
+   },
+   "expected_abstention": false,
+   "parent_id": "eval/atiga/reference-cases.json#miti-2-rvc"
+  },
+  {
+   "id": "atiga-dev-authority-variants-03",
+   "split": "dev",
+   "feature": "atiga",
+   "source_family_id": "authority-miti-2-rvc",
+   "scenario_family": "authority-variants",
+   "variation_tags": [
+    "origin-unknown",
+    "parent-variant",
+    "status-unknown"
+   ],
+   "sources": [
+    {
+     "source": "atiga-miti",
+     "locator": "Example 2"
+    },
+    {
+     "source": "atiga-annex3",
+     "locator": "row 9403.60: RVC40 or CTSH"
+    }
+   ],
+   "rule": {
+    "row": "9403.60",
+    "text": "RVC40 or CTSH",
+    "listed": true
+   },
+   "rationale": "Variation of the published worked example miti-2-rvc (Example 2): origin unknown, under row 9403.60 (RVC40 or CTSH). Build-down content is 43.55 %. The rule row and arithmetic are those of the cited source; the changed facts decide the label.",
+   "input": {
+    "hs": "9403.60",
+    "produced_in": "Malaysia",
+    "fob": 28.7,
+    "method": "indirect",
+    "materials": [
+     {
+      "name": "Chipboard",
+      "hs": "4410.90",
+      "value": 4,
+      "country": "Malaysia",
+      "status": "originating"
+     },
+     {
+      "name": "Fibreboard",
+      "hs": "4421.21",
+      "value": 5.3,
+      "status": "unknown"
+     },
+     {
+      "name": "Decorative paper",
+      "hs": "4811.90",
+      "value": 4.4,
+      "country": "France"
+     },
+     {
+      "name": "Bugle",
+      "hs": "7318.15",
+      "value": 6.5,
+      "country": "USA"
+     }
+    ]
+   },
+   "expect": {
+    "outcome": "yes",
+    "alternative": {
+     "RVC40": "yes",
+     "CTSH": "yes"
+    },
+    "accumulation": false,
+    "rvc_down_min": 43.504,
+    "rvc_down_max": 43.604
+   },
+   "expected_abstention": false,
+   "parent_id": "eval/atiga/reference-cases.json#miti-2-rvc"
+  },
+  {
+   "id": "atiga-dev-authority-variants-04",
+   "split": "dev",
+   "feature": "atiga",
+   "source_family_id": "authority-miti-3-cc",
+   "scenario_family": "authority-variants",
+   "variation_tags": [
+    "just-below-threshold",
+    "parent-variant",
+    "values-perturbed",
+    "values-rescaled-just-below-threshold"
+   ],
+   "sources": [
+    {
+     "source": "atiga-miti",
+     "locator": "Example 3"
+    },
+    {
+     "source": "atiga-annex3",
+     "locator": "no row for 1512.90; general rule"
+    }
+   ],
+   "rule": {
+    "row": "Art. 28.1",
+    "text": "RVC40 or CTH",
+    "listed": false
+   },
+   "rationale": "Variation of the published worked example miti-3-cc (Example 3): values rescaled just below threshold, under row Art. 28.1 (RVC40 or CTH). Build-down content is 39.09 %. The rule row and arithmetic are those of the cited source; the changed facts decide the label.",
+   "input": {
+    "hs": "1512.90",
+    "produced_in": "Malaysia",
+    "fob": 1.1,
+    "materials": [
+     {
+      "name": "Palm olein",
+      "hs": "3824.90",
+      "value": 0.67,
+      "country": "Indonesia"
+     }
+    ],
+    "method": "indirect"
+   },
+   "expect": {
+    "outcome": "yes",
+    "alternative": {
+     "RVC40": "no",
+     "CTH": "yes"
+    },
+    "applied": "CTH",
+    "accumulation": false,
+    "rvc_down_min": 39.041,
+    "rvc_down_max": 39.141
+   },
+   "expected_abstention": false,
+   "parent_id": "eval/atiga/reference-cases.json#miti-3-cc"
+  },
+  {
+   "id": "atiga-dev-authority-variants-05",
+   "split": "dev",
+   "feature": "atiga",
+   "source_family_id": "authority-miti-3-cc",
+   "scenario_family": "authority-variants",
+   "variation_tags": [
+    "at-threshold",
+    "parent-variant",
+    "values-perturbed",
+    "values-rescaled-at-threshold"
+   ],
+   "sources": [
+    {
+     "source": "atiga-miti",
+     "locator": "Example 3"
+    },
+    {
+     "source": "atiga-annex3",
+     "locator": "no row for 1512.90; general rule"
+    }
+   ],
+   "rule": {
+    "row": "Art. 28.1",
+    "text": "RVC40 or CTH",
+    "listed": false
+   },
+   "rationale": "Variation of the published worked example miti-3-cc (Example 3): values rescaled at threshold, under row Art. 28.1 (RVC40 or CTH). Build-down content is 40 %. The rule row and arithmetic are those of the cited source; the changed facts decide the label.",
+   "input": {
+    "hs": "1512.90",
+    "produced_in": "Malaysia",
+    "fob": 1.1,
+    "materials": [
+     {
+      "name": "Palm olein",
+      "hs": "3824.90",
+      "value": 0.66,
+      "country": "Indonesia"
+     }
+    ],
+    "method": "indirect"
+   },
+   "expect": {
+    "outcome": "yes",
+    "alternative": {
+     "RVC40": "yes",
+     "CTH": "yes"
+    },
+    "accumulation": false,
+    "rvc_down_min": 39.95,
+    "rvc_down_max": 40.05
+   },
+   "expected_abstention": false,
+   "parent_id": "eval/atiga/reference-cases.json#miti-3-cc"
+  },
+  {
+   "id": "atiga-dev-authority-variants-06",
+   "split": "dev",
+   "feature": "atiga",
+   "source_family_id": "authority-miti-3-cc",
+   "scenario_family": "authority-variants",
+   "variation_tags": [
+    "fob-changed",
+    "fob-lower",
+    "parent-variant",
+    "values-perturbed"
+   ],
+   "sources": [
+    {
+     "source": "atiga-miti",
+     "locator": "Example 3"
+    },
+    {
+     "source": "atiga-annex3",
+     "locator": "no row for 1512.90; general rule"
+    }
+   ],
+   "rule": {
+    "row": "Art. 28.1",
+    "text": "RVC40 or CTH",
+    "listed": false
+   },
+   "rationale": "Variation of the published worked example miti-3-cc (Example 3): fob lower, under row Art. 28.1 (RVC40 or CTH). Build-down content is 24.24 %. The rule row and arithmetic are those of the cited source; the changed facts decide the label.",
+   "input": {
+    "hs": "1512.90",
+    "produced_in": "Malaysia",
+    "fob": 0.66,
+    "materials": [
+     {
+      "name": "Palm olein",
+      "hs": "3824.90",
+      "value": 0.5,
+      "country": "Indonesia"
+     }
+    ],
+    "method": "indirect"
+   },
+   "expect": {
+    "outcome": "yes",
+    "alternative": {
+     "RVC40": "no",
+     "CTH": "yes"
+    },
+    "applied": "CTH",
+    "accumulation": false,
+    "rvc_down_min": 24.192,
+    "rvc_down_max": 24.292
+   },
+   "expected_abstention": false,
+   "parent_id": "eval/atiga/reference-cases.json#miti-3-cc"
+  },
+  {
+   "id": "atiga-dev-authority-variants-07",
+   "split": "dev",
+   "feature": "atiga",
+   "source_family_id": "authority-sgc-b-rvc",
+   "scenario_family": "authority-variants",
+   "variation_tags": [
+    "fob-changed",
+    "fob-lower",
+    "parent-variant",
+    "values-perturbed"
+   ],
+   "sources": [
+    {
+     "source": "atiga-handbook",
+     "locator": "Example B, p. 9"
+    },
+    {
+     "source": "atiga-annex3",
+     "locator": "no row for 1905.31; general rule"
+    }
+   ],
+   "rule": {
+    "row": "Art. 28.1",
+    "text": "RVC40 or CTH",
+    "listed": false
+   },
+   "rationale": "Variation of the published worked example sgc-b-rvc (Example B, p. 9): fob lower, under row Art. 28.1 (RVC40 or CTH). Build-down content is -5.56 %. The rule row and arithmetic are those of the cited source; the changed facts decide the label.",
+   "input": {
+    "hs": "1905.31",
+    "produced_in": "Singapore",
+    "fob": 9,
+    "costs": {
+     "labour": 2,
+     "overhead": 0,
+     "profit": 2.5,
+     "other": 0
+    },
+    "materials": [
+     {
+      "name": "Flour",
+      "value": 4,
+      "country": "Malaysia",
+      "status": "non_originating"
+     },
+     {
+      "name": "Sugar",
+      "value": 2.5,
+      "country": "Australia",
+      "status": "non_originating"
+     },
+     {
+      "name": "Flavour essence",
+      "value": 1,
+      "country": "Singapore",
+      "status": "originating"
+     },
+     {
+      "name": "Eggs",
+      "value": 3,
+      "country": "Malaysia",
+      "status": "non_originating"
+     }
+    ],
+    "method": "indirect"
+   },
+   "expect": {
+    "outcome": "undetermined",
+    "alternative": {
+     "RVC40": "no"
+    },
+    "accumulation": false,
+    "rvc_down_min": -5.606,
+    "rvc_down_max": -5.506
+   },
+   "expected_abstention": true,
+   "parent_id": "eval/atiga/reference-cases.json#sgc-b-rvc"
+  },
+  {
+   "id": "atiga-dev-authority-variants-08",
+   "split": "dev",
+   "feature": "atiga",
+   "source_family_id": "authority-sgc-b-rvc",
+   "scenario_family": "authority-variants",
+   "variation_tags": [
+    "conflicting-evidence",
+    "non-member-origin",
+    "origin-changed",
+    "origin-country-outside-agreement",
+    "parent-variant"
+   ],
+   "sources": [
+    {
+     "source": "atiga-handbook",
+     "locator": "Example B, p. 9"
+    },
+    {
+     "source": "atiga-annex3",
+     "locator": "no row for 1905.31; general rule"
+    }
+   ],
+   "rule": {
+    "row": "Art. 28.1",
+    "text": "RVC40 or CTH",
+    "listed": false
+   },
+   "rationale": "Variation of the published worked example sgc-b-rvc (Example B, p. 9): origin country outside agreement, under row Art. 28.1 (RVC40 or CTH). Build-down content is 30 %. The rule row and arithmetic are those of the cited source; the changed facts decide the label.",
+   "input": {
+    "hs": "1905.31",
+    "produced_in": "Singapore",
+    "fob": 15,
+    "costs": {
+     "labour": 2,
+     "overhead": 0,
+     "profit": 2.5,
+     "other": 0
+    },
+    "materials": [
+     {
+      "name": "Flour",
+      "value": 4,
+      "country": "Malaysia",
+      "status": "non_originating"
+     },
+     {
+      "name": "Sugar",
+      "value": 2.5,
+      "country": "Australia",
+      "status": "non_originating"
+     },
+     {
+      "name": "Flavour essence",
+      "value": 1,
+      "country": "United Kingdom",
+      "status": "originating"
+     },
+     {
+      "name": "Eggs",
+      "value": 3,
+      "country": "Malaysia",
+      "status": "non_originating"
+     }
+    ],
+    "method": "indirect"
+   },
+   "expect": {
+    "outcome": "undetermined",
+    "alternative": {
+     "RVC40": "no"
+    },
+    "accumulation": false,
+    "rvc_down_min": 29.95,
+    "rvc_down_max": 30.05
+   },
+   "expected_abstention": true,
+   "parent_id": "eval/atiga/reference-cases.json#sgc-b-rvc"
+  },
+  {
+   "id": "atiga-dev-authority-variants-09",
+   "split": "dev",
+   "feature": "atiga",
+   "source_family_id": "authority-sgc-b-rvc",
+   "scenario_family": "authority-variants",
+   "variation_tags": [
+    "at-threshold",
+    "parent-variant",
+    "values-perturbed",
+    "values-rescaled-at-threshold"
+   ],
+   "sources": [
+    {
+     "source": "atiga-handbook",
+     "locator": "Example B, p. 9"
+    },
+    {
+     "source": "atiga-annex3",
+     "locator": "no row for 1905.31; general rule"
+    }
+   ],
+   "rule": {
+    "row": "Art. 28.1",
+    "text": "RVC40 or CTH",
+    "listed": false
+   },
+   "rationale": "Variation of the published worked example sgc-b-rvc (Example B, p. 9): values rescaled at threshold, under row Art. 28.1 (RVC40 or CTH). Build-down content is 40 %. The rule row and arithmetic are those of the cited source; the changed facts decide the label.",
+   "input": {
+    "hs": "1905.31",
+    "produced_in": "Singapore",
+    "fob": 15,
+    "costs": {
+     "labour": 2,
+     "overhead": 0,
+     "profit": 2.5,
+     "other": 0
+    },
+    "materials": [
+     {
+      "name": "Flour",
+      "value": 3.79,
+      "country": "Malaysia",
+      "status": "non_originating"
+     },
+     {
+      "name": "Sugar",
+      "value": 2.37,
+      "country": "Australia",
+      "status": "non_originating"
+     },
+     {
+      "name": "Flavour essence",
+      "value": 1,
+      "country": "Singapore",
+      "status": "originating"
+     },
+     {
+      "name": "Eggs",
+      "value": 2.84,
+      "country": "Malaysia",
+      "status": "non_originating"
+     }
+    ],
+    "method": "indirect"
+   },
+   "expect": {
+    "outcome": "yes",
+    "alternative": {
+     "RVC40": "yes"
+    },
+    "applied": "RVC40",
+    "accumulation": false,
+    "rvc_down_min": 39.95,
+    "rvc_down_max": 40.05
+   },
+   "expected_abstention": false,
+   "parent_id": "eval/atiga/reference-cases.json#sgc-b-rvc"
+  },
+  {
+   "id": "atiga-dev-malformed-input-01",
+   "split": "dev",
+   "feature": "atiga",
+   "source_family_id": "malformed-input",
+   "scenario_family": "malformed-input",
+   "variation_tags": [
+    "negative-fob",
+    "refusal-expected"
+   ],
+   "sources": [
+    {
+     "source": "atiga-handbook",
+     "locator": "p. 6: materials of undetermined origin count as non-originating; Art. 29.2(b)"
+    },
+    {
+     "source": "atiga-annex3",
+     "locator": "row 0906.20: RVC40 or CTSH"
+    }
+   ],
+   "rule": {
+    "row": "0906.20",
+    "text": "RVC40 or CTSH",
+    "listed": true
+   },
+   "rationale": "A malformed request (negative-fob) must be refused as invalid input rather than answered.",
+   "input": {
+    "hs": "0906.20",
+    "produced_in": "Laos",
+    "fob": -50,
+    "materials": [
+     {
+      "name": "Input: manufactures of straw, of esparto or of (HS 4601.29)",
+      "hs": "4601.29",
+      "value": 20,
+      "country": "United States",
+      "status": "non_originating"
+     }
+    ]
+   },
+   "expect": {
+    "outcome": "refused"
+   },
+   "expected_abstention": false
+  },
+  {
+   "id": "atiga-dev-malformed-input-02",
+   "split": "dev",
+   "feature": "atiga",
+   "source_family_id": "malformed-input",
+   "scenario_family": "malformed-input",
+   "variation_tags": [
+    "refusal-expected",
+    "short-hs"
+   ],
+   "sources": [
+    {
+     "source": "atiga-handbook",
+     "locator": "p. 6: materials of undetermined origin count as non-originating; Art. 29.2(b)"
+    },
+    {
+     "source": "atiga-annex3",
+     "locator": "row 1904.90: RVC40 or CC"
+    }
+   ],
+   "rule": {
+    "row": "1904.90",
+    "text": "RVC40 or CC",
+    "listed": true
+   },
+   "rationale": "A malformed request (short-hs) must be refused as invalid input rather than answered.",
+   "input": {
+    "hs": "840",
+    "produced_in": "Singapore",
+    "fob": 100,
+    "materials": [
+     {
+      "name": "Input: preparations of meat, of fish (HS 1605.56)",
+      "hs": "1605.56",
+      "value": 20,
+      "country": "Japan",
+      "status": "non_originating"
+     }
+    ]
+   },
+   "expect": {
+    "outcome": "refused"
+   },
+   "expected_abstention": false
+  },
+  {
+   "id": "atiga-dev-malformed-input-03",
+   "split": "dev",
+   "feature": "atiga",
+   "source_family_id": "malformed-input",
+   "scenario_family": "malformed-input",
+   "variation_tags": [
+    "bad-status",
+    "refusal-expected"
+   ],
+   "sources": [
+    {
+     "source": "atiga-handbook",
+     "locator": "p. 6: materials of undetermined origin count as non-originating; Art. 29.2(b)"
+    },
+    {
+     "source": "atiga-annex3",
+     "locator": "row 0307.84: RVC40 or CTSH"
+    }
+   ],
+   "rule": {
+    "row": "0307.84",
+    "text": "RVC40 or CTSH",
+    "listed": true
+   },
+   "rationale": "A malformed request (bad-status) must be refused as invalid input rather than answered.",
+   "input": {
+    "hs": "0307.84",
+    "produced_in": "Laos",
+    "fob": 100,
+    "materials": [
+     {
+      "name": "Input: wood and articles of wood (HS 4418.50)",
+      "hs": "4418.50",
+      "value": 20,
+      "country": "Australia",
+      "status": "maybe"
+     }
+    ]
+   },
+   "expect": {
+    "outcome": "refused"
+   },
+   "expected_abstention": false
+  },
+  {
+   "id": "atiga-dev-malformed-input-04",
+   "split": "dev",
+   "feature": "atiga",
+   "source_family_id": "malformed-input",
+   "scenario_family": "malformed-input",
+   "variation_tags": [
+    "bad-method",
+    "refusal-expected"
+   ],
+   "sources": [
+    {
+     "source": "atiga-handbook",
+     "locator": "p. 6: materials of undetermined origin count as non-originating; Art. 29.2(b)"
+    },
+    {
+     "source": "atiga-annex3",
+     "locator": "row 8104.11: RVC40 or CTSH"
+    }
+   ],
+   "rule": {
+    "row": "8104.11",
+    "text": "RVC40 or CTSH",
+    "listed": true
+   },
+   "rationale": "A malformed request (bad-method) must be refused as invalid input rather than answered.",
+   "input": {
+    "hs": "8104.11",
+    "produced_in": "Singapore",
+    "fob": 100,
+    "materials": [
+     {
+      "name": "Input: paper and paperboard (HS 4802.54)",
+      "hs": "4802.54",
+      "value": 20,
+      "country": "China",
+      "status": "non_originating"
+     }
+    ],
+    "method": "hybrid"
+   },
+   "expect": {
+    "outcome": "refused"
+   },
+   "expected_abstention": false
+  }
+ ]
+}
