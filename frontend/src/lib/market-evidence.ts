@@ -88,6 +88,8 @@ export const japanMeasured = {
 // since #910), and D927's reference test of the ATIGA check (ATIGA_CHECK, on
 // since #910). Pinned to eval/usmca/summary-held_out.json and
 // eval/atiga/reference-cases.json by scripts/japan-evidence.test.mjs.
+// D964's ATIGA pass rates are pinned to eval/atiga/evaluation-results.json
+// by scripts/atiga-evidence.test.mjs; constructed controls are a separate group.
 export const rulesChecks = {
   usmcaProducts: 59,
   usmcaDecided: 23,
@@ -96,6 +98,10 @@ export const rulesChecks = {
   usmcaInterval: "73.2–97.6",
   atigaExamples: 7,
   atigaReached: 7,
+  atigaPct: "100%",
+  atigaControls: 35,
+  atigaControlsPassed: 35,
+  atigaControlsPct: "100%",
   // D950: the AKFTA and ACFTA checks (AKFTA_CHECK, ACFTA_CHECK, off) on the
   // authority worked examples, first run. Pinned to the case files by
   // scripts/japan-evidence.test.mjs; the reached counts are enforced by
