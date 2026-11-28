@@ -1,0 +1,2592 @@
+{
+  "schema_version": 1,
+  "evidence_kind": "source_grounded_synthetic",
+  "feature": "akfta",
+  "split": "dev",
+  "dataset_sha256": "458b107ee60b68bc042944a39146f18fc145fece6f69aeabf71df53462baf691",
+  "candidate_revision": "b1d8f3bf94ab85ebb7f0fd3d0f22aae03ae5a93b",
+  "totals": {
+    "cases": 91,
+    "matched": 91,
+    "mismatched": 0,
+    "errors": 0
+  },
+  "metrics": {
+    "expected_outcomes": {
+      "no": 31,
+      "refused": 4,
+      "undetermined": 12,
+      "yes": 44
+    },
+    "confusion": {
+      "no": {
+        "no": 31
+      },
+      "refused": {
+        "refused": 4
+      },
+      "undetermined": {
+        "undetermined": 12
+      },
+      "yes": {
+        "yes": 44
+      }
+    },
+    "abstention": {
+      "expected": 12,
+      "correct": 12,
+      "decided_instead": 0,
+      "abstained_when_a_decision_was_expected": 0
+    },
+    "yes_precision": {
+      "num": 44,
+      "den": 44
+    },
+    "yes_recall": {
+      "num": 44,
+      "den": 44
+    },
+    "decided_only_agreement": {
+      "num": 75,
+      "den": 75
+    },
+    "refusals_expected": 4,
+    "formatting_only_cases": 1,
+    "by_scenario_family": {
+      "all-originating": {
+        "cases": 2,
+        "matched": 2,
+        "mismatched": 0,
+        "errors": 0
+      },
+      "authority-variants": {
+        "cases": 7,
+        "matched": 7,
+        "mismatched": 0,
+        "errors": 0
+      },
+      "country-name-alias": {
+        "cases": 1,
+        "matched": 1,
+        "mismatched": 0,
+        "errors": 0
+      },
+      "cumulation-membership": {
+        "cases": 10,
+        "matched": 10,
+        "mismatched": 0,
+        "errors": 0
+      },
+      "de-minimis-value": {
+        "cases": 6,
+        "matched": 6,
+        "mismatched": 0,
+        "errors": 0
+      },
+      "direct-build-up": {
+        "cases": 3,
+        "matched": 3,
+        "mismatched": 0,
+        "errors": 0
+      },
+      "except-from": {
+        "cases": 3,
+        "matched": 3,
+        "mismatched": 0,
+        "errors": 0
+      },
+      "general-rule": {
+        "cases": 4,
+        "matched": 4,
+        "mismatched": 0,
+        "errors": 0
+      },
+      "heading-only-code": {
+        "cases": 2,
+        "matched": 2,
+        "mismatched": 0,
+        "errors": 0
+      },
+      "incomplete-hs": {
+        "cases": 2,
+        "matched": 2,
+        "mismatched": 0,
+        "errors": 0
+      },
+      "malformed-input": {
+        "cases": 4,
+        "matched": 4,
+        "mismatched": 0,
+        "errors": 0
+      },
+      "material-conditions": {
+        "cases": 4,
+        "matched": 4,
+        "mismatched": 0,
+        "errors": 0
+      },
+      "minimal-operations": {
+        "cases": 6,
+        "matched": 6,
+        "mismatched": 0,
+        "errors": 0
+      },
+      "missing-facts": {
+        "cases": 6,
+        "matched": 6,
+        "mismatched": 0,
+        "errors": 0
+      },
+      "no-materials": {
+        "cases": 1,
+        "matched": 1,
+        "mismatched": 0,
+        "errors": 0
+      },
+      "process-conditions": {
+        "cases": 3,
+        "matched": 3,
+        "mismatched": 0,
+        "errors": 0
+      },
+      "production-country-missing": {
+        "cases": 1,
+        "matched": 1,
+        "mismatched": 0,
+        "errors": 0
+      },
+      "production-outside-agreement": {
+        "cases": 2,
+        "matched": 2,
+        "mismatched": 0,
+        "errors": 0
+      },
+      "rvc-boundary": {
+        "cases": 8,
+        "matched": 8,
+        "mismatched": 0,
+        "errors": 0
+      },
+      "tariff-shift-grid": {
+        "cases": 12,
+        "matched": 12,
+        "mismatched": 0,
+        "errors": 0
+      },
+      "wo-not-met": {
+        "cases": 2,
+        "matched": 2,
+        "mismatched": 0,
+        "errors": 0
+      },
+      "wo-statement": {
+        "cases": 2,
+        "matched": 2,
+        "mismatched": 0,
+        "errors": 0
+      }
+    },
+    "scenario_families": 22,
+    "source_families": 24,
+    "parent_groups": 3,
+    "cases_with_parent": 7
+  },
+  "results": [
+    {
+      "id": "akfta-dev-wo-statement-01",
+      "split": "dev",
+      "feature": "akfta",
+      "scenario_family": "wo-statement",
+      "source_family_id": "wo-statement",
+      "status": "matched",
+      "expected_abstention": false,
+      "expected": {
+        "outcome": "yes",
+        "applied": "WO"
+      },
+      "actual": {
+        "outcome": "yes",
+        "applied": "WO",
+        "accumulation": false,
+        "de_minimis_used": false
+      },
+      "failures": []
+    },
+    {
+      "id": "akfta-dev-wo-statement-02",
+      "split": "dev",
+      "feature": "akfta",
+      "scenario_family": "wo-statement",
+      "source_family_id": "wo-statement",
+      "status": "matched",
+      "expected_abstention": false,
+      "expected": {
+        "outcome": "yes",
+        "applied": "WO"
+      },
+      "actual": {
+        "outcome": "yes",
+        "applied": "WO",
+        "accumulation": false,
+        "de_minimis_used": false
+      },
+      "failures": []
+    },
+    {
+      "id": "akfta-dev-wo-not-met-01",
+      "split": "dev",
+      "feature": "akfta",
+      "scenario_family": "wo-not-met",
+      "source_family_id": "wo-not-met",
+      "status": "matched",
+      "expected_abstention": false,
+      "expected": {
+        "outcome": "no",
+        "alternative": {
+          "WO": "no"
+        },
+        "accumulation": false
+      },
+      "actual": {
+        "outcome": "no",
+        "alternative": {
+          "WO": "no"
+        },
+        "accumulation": false,
+        "de_minimis_used": false
+      },
+      "failures": []
+    },
+    {
+      "id": "akfta-dev-wo-not-met-02",
+      "split": "dev",
+      "feature": "akfta",
+      "scenario_family": "wo-not-met",
+      "source_family_id": "wo-not-met",
+      "status": "matched",
+      "expected_abstention": false,
+      "expected": {
+        "outcome": "no",
+        "alternative": {
+          "WO": "no"
+        },
+        "accumulation": false
+      },
+      "actual": {
+        "outcome": "no",
+        "alternative": {
+          "WO": "no"
+        },
+        "accumulation": false,
+        "de_minimis_used": false
+      },
+      "failures": []
+    },
+    {
+      "id": "akfta-dev-all-originating-01",
+      "split": "dev",
+      "feature": "akfta",
+      "scenario_family": "all-originating",
+      "source_family_id": "all-originating",
+      "status": "matched",
+      "expected_abstention": false,
+      "expected": {
+        "outcome": "yes",
+        "accumulation": true
+      },
+      "actual": {
+        "outcome": "yes",
+        "applied": "CTSH",
+        "alternative": {
+          "CTSH": "yes",
+          "RVC40": "yes"
+        },
+        "accumulation": true,
+        "de_minimis_used": false,
+        "rvc_down": 100
+      },
+      "failures": []
+    },
+    {
+      "id": "akfta-dev-all-originating-02",
+      "split": "dev",
+      "feature": "akfta",
+      "scenario_family": "all-originating",
+      "source_family_id": "all-originating",
+      "status": "matched",
+      "expected_abstention": false,
+      "expected": {
+        "outcome": "yes",
+        "accumulation": true
+      },
+      "actual": {
+        "outcome": "yes",
+        "applied": "CTSH",
+        "alternative": {
+          "CTSH": "yes",
+          "RVC40": "yes"
+        },
+        "accumulation": true,
+        "de_minimis_used": false,
+        "rvc_down": 100
+      },
+      "failures": []
+    },
+    {
+      "id": "akfta-dev-no-materials-01",
+      "split": "dev",
+      "feature": "akfta",
+      "scenario_family": "no-materials",
+      "source_family_id": "no-materials",
+      "status": "matched",
+      "expected_abstention": true,
+      "expected": {
+        "outcome": "undetermined",
+        "accumulation": false
+      },
+      "actual": {
+        "outcome": "undetermined",
+        "accumulation": false,
+        "de_minimis_used": false
+      },
+      "failures": []
+    },
+    {
+      "id": "akfta-dev-production-outside-agreement-01",
+      "split": "dev",
+      "feature": "akfta",
+      "scenario_family": "production-outside-agreement",
+      "source_family_id": "production-outside-agreement",
+      "status": "matched",
+      "expected_abstention": false,
+      "expected": {
+        "outcome": "no"
+      },
+      "actual": {
+        "outcome": "no",
+        "accumulation": false,
+        "de_minimis_used": false
+      },
+      "failures": []
+    },
+    {
+      "id": "akfta-dev-production-outside-agreement-02",
+      "split": "dev",
+      "feature": "akfta",
+      "scenario_family": "production-outside-agreement",
+      "source_family_id": "production-outside-agreement",
+      "status": "matched",
+      "expected_abstention": false,
+      "expected": {
+        "outcome": "no"
+      },
+      "actual": {
+        "outcome": "no",
+        "accumulation": false,
+        "de_minimis_used": false
+      },
+      "failures": []
+    },
+    {
+      "id": "akfta-dev-production-country-missing-01",
+      "split": "dev",
+      "feature": "akfta",
+      "scenario_family": "production-country-missing",
+      "source_family_id": "production-country-missing",
+      "status": "matched",
+      "expected_abstention": true,
+      "expected": {
+        "outcome": "undetermined"
+      },
+      "actual": {
+        "outcome": "undetermined",
+        "accumulation": false,
+        "de_minimis_used": false
+      },
+      "failures": []
+    },
+    {
+      "id": "akfta-dev-country-name-alias-01",
+      "split": "dev",
+      "feature": "akfta",
+      "scenario_family": "country-name-alias",
+      "source_family_id": "country-name-alias",
+      "status": "matched",
+      "expected_abstention": false,
+      "expected": {
+        "outcome": "yes"
+      },
+      "actual": {
+        "outcome": "yes",
+        "applied": "CTSH",
+        "alternative": {
+          "CTSH": "yes",
+          "RVC40": "yes"
+        },
+        "accumulation": false,
+        "de_minimis_used": false,
+        "rvc_down": 80
+      },
+      "failures": []
+    },
+    {
+      "id": "akfta-dev-rvc-boundary-01",
+      "split": "dev",
+      "feature": "akfta",
+      "scenario_family": "rvc-boundary",
+      "source_family_id": "rvc-boundary",
+      "status": "matched",
+      "expected_abstention": false,
+      "expected": {
+        "outcome": "yes",
+        "applied": "RVC45",
+        "alternative": {
+          "RVC45": "yes"
+        },
+        "accumulation": true,
+        "rvc_down_min": 47.95,
+        "rvc_down_max": 48.05
+      },
+      "actual": {
+        "outcome": "yes",
+        "applied": "RVC45",
+        "alternative": {
+          "RVC45": "yes"
+        },
+        "accumulation": true,
+        "de_minimis_used": false,
+        "rvc_down": 48
+      },
+      "failures": []
+    },
+    {
+      "id": "akfta-dev-rvc-boundary-02",
+      "split": "dev",
+      "feature": "akfta",
+      "scenario_family": "rvc-boundary",
+      "source_family_id": "rvc-boundary",
+      "status": "matched",
+      "expected_abstention": false,
+      "expected": {
+        "outcome": "yes",
+        "applied": "RVC45",
+        "alternative": {
+          "RVC45": "yes"
+        },
+        "accumulation": true,
+        "rvc_down_min": 44.95,
+        "rvc_down_max": 45.05
+      },
+      "actual": {
+        "outcome": "yes",
+        "applied": "RVC45",
+        "alternative": {
+          "RVC45": "yes"
+        },
+        "accumulation": true,
+        "de_minimis_used": false,
+        "rvc_down": 45
+      },
+      "failures": []
+    },
+    {
+      "id": "akfta-dev-rvc-boundary-03",
+      "split": "dev",
+      "feature": "akfta",
+      "scenario_family": "rvc-boundary",
+      "source_family_id": "rvc-boundary",
+      "status": "matched",
+      "expected_abstention": false,
+      "expected": {
+        "outcome": "no",
+        "alternative": {
+          "RVC45": "no"
+        },
+        "accumulation": true,
+        "rvc_down_min": 44.45,
+        "rvc_down_max": 44.55
+      },
+      "actual": {
+        "outcome": "no",
+        "alternative": {
+          "RVC45": "no"
+        },
+        "accumulation": true,
+        "de_minimis_used": false,
+        "rvc_down": 44.5
+      },
+      "failures": []
+    },
+    {
+      "id": "akfta-dev-rvc-boundary-04",
+      "split": "dev",
+      "feature": "akfta",
+      "scenario_family": "rvc-boundary",
+      "source_family_id": "rvc-boundary",
+      "status": "matched",
+      "expected_abstention": false,
+      "expected": {
+        "outcome": "no",
+        "alternative": {
+          "RVC45": "no"
+        },
+        "accumulation": true,
+        "rvc_down_min": 26.95,
+        "rvc_down_max": 27.05
+      },
+      "actual": {
+        "outcome": "no",
+        "alternative": {
+          "RVC45": "no"
+        },
+        "accumulation": true,
+        "de_minimis_used": false,
+        "rvc_down": 27
+      },
+      "failures": []
+    },
+    {
+      "id": "akfta-dev-rvc-boundary-05",
+      "split": "dev",
+      "feature": "akfta",
+      "scenario_family": "rvc-boundary",
+      "source_family_id": "rvc-boundary",
+      "status": "matched",
+      "expected_abstention": false,
+      "expected": {
+        "outcome": "yes",
+        "applied": "RVC40",
+        "alternative": {
+          "RVC40": "yes"
+        },
+        "accumulation": true,
+        "rvc_down_min": 42.95,
+        "rvc_down_max": 43.05
+      },
+      "actual": {
+        "outcome": "yes",
+        "applied": "RVC40",
+        "alternative": {
+          "RVC40": "yes"
+        },
+        "accumulation": true,
+        "de_minimis_used": false,
+        "rvc_down": 43
+      },
+      "failures": []
+    },
+    {
+      "id": "akfta-dev-rvc-boundary-06",
+      "split": "dev",
+      "feature": "akfta",
+      "scenario_family": "rvc-boundary",
+      "source_family_id": "rvc-boundary",
+      "status": "matched",
+      "expected_abstention": false,
+      "expected": {
+        "outcome": "no",
+        "alternative": {
+          "RVC45": "no"
+        },
+        "accumulation": true,
+        "rvc_down_min": 44.45,
+        "rvc_down_max": 44.55
+      },
+      "actual": {
+        "outcome": "no",
+        "alternative": {
+          "RVC45": "no"
+        },
+        "accumulation": true,
+        "de_minimis_used": false,
+        "rvc_down": 44.5
+      },
+      "failures": []
+    },
+    {
+      "id": "akfta-dev-rvc-boundary-07",
+      "split": "dev",
+      "feature": "akfta",
+      "scenario_family": "rvc-boundary",
+      "source_family_id": "rvc-boundary",
+      "status": "matched",
+      "expected_abstention": false,
+      "expected": {
+        "outcome": "yes",
+        "applied": "RVC40",
+        "alternative": {
+          "CC": "no",
+          "RVC40": "yes"
+        },
+        "accumulation": true,
+        "rvc_down_min": 42.95,
+        "rvc_down_max": 43.05
+      },
+      "actual": {
+        "outcome": "yes",
+        "applied": "RVC40",
+        "alternative": {
+          "CC": "no",
+          "RVC40": "yes"
+        },
+        "accumulation": true,
+        "de_minimis_used": false,
+        "rvc_down": 43
+      },
+      "failures": []
+    },
+    {
+      "id": "akfta-dev-rvc-boundary-08",
+      "split": "dev",
+      "feature": "akfta",
+      "scenario_family": "rvc-boundary",
+      "source_family_id": "rvc-boundary",
+      "status": "matched",
+      "expected_abstention": false,
+      "expected": {
+        "outcome": "yes",
+        "applied": "RVC45",
+        "alternative": {
+          "RVC45": "yes"
+        },
+        "accumulation": true,
+        "rvc_down_min": 44.95,
+        "rvc_down_max": 45.05
+      },
+      "actual": {
+        "outcome": "yes",
+        "applied": "RVC45",
+        "alternative": {
+          "RVC45": "yes"
+        },
+        "accumulation": true,
+        "de_minimis_used": false,
+        "rvc_down": 45
+      },
+      "failures": []
+    },
+    {
+      "id": "akfta-dev-tariff-shift-grid-01",
+      "split": "dev",
+      "feature": "akfta",
+      "scenario_family": "tariff-shift-grid",
+      "source_family_id": "tariff-shift-grid",
+      "status": "matched",
+      "expected_abstention": false,
+      "expected": {
+        "outcome": "yes",
+        "applied": "CTSH",
+        "alternative": {
+          "CTSH": "yes",
+          "RVC40": "no"
+        },
+        "accumulation": true
+      },
+      "actual": {
+        "outcome": "yes",
+        "applied": "CTSH",
+        "alternative": {
+          "CTSH": "yes",
+          "RVC40": "no"
+        },
+        "accumulation": true,
+        "de_minimis_used": false,
+        "rvc_down": 30
+      },
+      "failures": []
+    },
+    {
+      "id": "akfta-dev-tariff-shift-grid-02",
+      "split": "dev",
+      "feature": "akfta",
+      "scenario_family": "tariff-shift-grid",
+      "source_family_id": "tariff-shift-grid",
+      "status": "matched",
+      "expected_abstention": false,
+      "expected": {
+        "outcome": "yes",
+        "applied": "CTSH",
+        "alternative": {
+          "CTSH": "yes",
+          "RVC40": "no"
+        },
+        "accumulation": true
+      },
+      "actual": {
+        "outcome": "yes",
+        "applied": "CTSH",
+        "alternative": {
+          "CTSH": "yes",
+          "RVC40": "no"
+        },
+        "accumulation": true,
+        "de_minimis_used": false,
+        "rvc_down": 25
+      },
+      "failures": []
+    },
+    {
+      "id": "akfta-dev-tariff-shift-grid-03",
+      "split": "dev",
+      "feature": "akfta",
+      "scenario_family": "tariff-shift-grid",
+      "source_family_id": "tariff-shift-grid",
+      "status": "matched",
+      "expected_abstention": false,
+      "expected": {
+        "outcome": "yes",
+        "applied": "CTSH",
+        "alternative": {
+          "CTSH": "yes",
+          "RVC40": "no"
+        },
+        "accumulation": true
+      },
+      "actual": {
+        "outcome": "yes",
+        "applied": "CTSH",
+        "alternative": {
+          "CTSH": "yes",
+          "RVC40": "no"
+        },
+        "accumulation": true,
+        "de_minimis_used": false,
+        "rvc_down": 30
+      },
+      "failures": []
+    },
+    {
+      "id": "akfta-dev-tariff-shift-grid-04",
+      "split": "dev",
+      "feature": "akfta",
+      "scenario_family": "tariff-shift-grid",
+      "source_family_id": "tariff-shift-grid",
+      "status": "matched",
+      "expected_abstention": false,
+      "expected": {
+        "outcome": "no",
+        "alternative": {
+          "CC": "no",
+          "RVC40": "no"
+        },
+        "accumulation": true
+      },
+      "actual": {
+        "outcome": "no",
+        "alternative": {
+          "CC": "no",
+          "RVC40": "no"
+        },
+        "accumulation": true,
+        "de_minimis_used": false,
+        "rvc_down": 25
+      },
+      "failures": []
+    },
+    {
+      "id": "akfta-dev-tariff-shift-grid-05",
+      "split": "dev",
+      "feature": "akfta",
+      "scenario_family": "tariff-shift-grid",
+      "source_family_id": "tariff-shift-grid",
+      "status": "matched",
+      "expected_abstention": false,
+      "expected": {
+        "outcome": "yes",
+        "applied": "CTSH",
+        "alternative": {
+          "CTSH": "yes",
+          "RVC40": "no"
+        },
+        "accumulation": true
+      },
+      "actual": {
+        "outcome": "yes",
+        "applied": "CTSH",
+        "alternative": {
+          "CTSH": "yes",
+          "RVC40": "no"
+        },
+        "accumulation": true,
+        "de_minimis_used": false,
+        "rvc_down": 30
+      },
+      "failures": []
+    },
+    {
+      "id": "akfta-dev-tariff-shift-grid-06",
+      "split": "dev",
+      "feature": "akfta",
+      "scenario_family": "tariff-shift-grid",
+      "source_family_id": "tariff-shift-grid",
+      "status": "matched",
+      "expected_abstention": false,
+      "expected": {
+        "outcome": "yes",
+        "applied": "CTSH",
+        "alternative": {
+          "CTSH": "yes",
+          "RVC40": "no"
+        },
+        "accumulation": true
+      },
+      "actual": {
+        "outcome": "yes",
+        "applied": "CTSH",
+        "alternative": {
+          "CTSH": "yes",
+          "RVC40": "no"
+        },
+        "accumulation": true,
+        "de_minimis_used": false,
+        "rvc_down": 25
+      },
+      "failures": []
+    },
+    {
+      "id": "akfta-dev-tariff-shift-grid-07",
+      "split": "dev",
+      "feature": "akfta",
+      "scenario_family": "tariff-shift-grid",
+      "source_family_id": "tariff-shift-grid",
+      "status": "matched",
+      "expected_abstention": false,
+      "expected": {
+        "outcome": "no",
+        "alternative": {
+          "CC": "no",
+          "RVC40": "no"
+        },
+        "accumulation": true
+      },
+      "actual": {
+        "outcome": "no",
+        "alternative": {
+          "CC": "no",
+          "RVC40": "no"
+        },
+        "accumulation": true,
+        "de_minimis_used": false,
+        "rvc_down": 30
+      },
+      "failures": []
+    },
+    {
+      "id": "akfta-dev-tariff-shift-grid-08",
+      "split": "dev",
+      "feature": "akfta",
+      "scenario_family": "tariff-shift-grid",
+      "source_family_id": "tariff-shift-grid",
+      "status": "matched",
+      "expected_abstention": false,
+      "expected": {
+        "outcome": "no",
+        "alternative": {
+          "CTSH": "no",
+          "RVC40": "no"
+        },
+        "accumulation": true
+      },
+      "actual": {
+        "outcome": "no",
+        "alternative": {
+          "CTSH": "no",
+          "RVC40": "no"
+        },
+        "accumulation": true,
+        "de_minimis_used": false,
+        "rvc_down": 25
+      },
+      "failures": []
+    },
+    {
+      "id": "akfta-dev-tariff-shift-grid-09",
+      "split": "dev",
+      "feature": "akfta",
+      "scenario_family": "tariff-shift-grid",
+      "source_family_id": "tariff-shift-grid",
+      "status": "matched",
+      "expected_abstention": false,
+      "expected": {
+        "outcome": "yes",
+        "applied": "CC",
+        "alternative": {
+          "CC": "yes",
+          "RVC40": "no"
+        },
+        "accumulation": true
+      },
+      "actual": {
+        "outcome": "yes",
+        "applied": "CC",
+        "alternative": {
+          "CC": "yes",
+          "RVC40": "no"
+        },
+        "accumulation": true,
+        "de_minimis_used": false,
+        "rvc_down": 30
+      },
+      "failures": []
+    },
+    {
+      "id": "akfta-dev-tariff-shift-grid-10",
+      "split": "dev",
+      "feature": "akfta",
+      "scenario_family": "tariff-shift-grid",
+      "source_family_id": "tariff-shift-grid",
+      "status": "matched",
+      "expected_abstention": false,
+      "expected": {
+        "outcome": "yes",
+        "applied": "CTSH",
+        "alternative": {
+          "CTSH": "yes",
+          "RVC40": "no"
+        },
+        "accumulation": true
+      },
+      "actual": {
+        "outcome": "yes",
+        "applied": "CTSH",
+        "alternative": {
+          "CTSH": "yes",
+          "RVC40": "no"
+        },
+        "accumulation": true,
+        "de_minimis_used": false,
+        "rvc_down": 25
+      },
+      "failures": []
+    },
+    {
+      "id": "akfta-dev-tariff-shift-grid-11",
+      "split": "dev",
+      "feature": "akfta",
+      "scenario_family": "tariff-shift-grid",
+      "source_family_id": "tariff-shift-grid",
+      "status": "matched",
+      "expected_abstention": false,
+      "expected": {
+        "outcome": "yes",
+        "applied": "CTSH",
+        "alternative": {
+          "CTSH": "yes",
+          "RVC40": "no"
+        },
+        "accumulation": true
+      },
+      "actual": {
+        "outcome": "yes",
+        "applied": "CTSH",
+        "alternative": {
+          "CTSH": "yes",
+          "RVC40": "no"
+        },
+        "accumulation": true,
+        "de_minimis_used": false,
+        "rvc_down": 30
+      },
+      "failures": []
+    },
+    {
+      "id": "akfta-dev-tariff-shift-grid-12",
+      "split": "dev",
+      "feature": "akfta",
+      "scenario_family": "tariff-shift-grid",
+      "source_family_id": "tariff-shift-grid",
+      "status": "matched",
+      "expected_abstention": false,
+      "expected": {
+        "outcome": "no",
+        "alternative": {
+          "CTSH": "no",
+          "RVC40": "no"
+        },
+        "accumulation": true
+      },
+      "actual": {
+        "outcome": "no",
+        "alternative": {
+          "CTSH": "no",
+          "RVC40": "no"
+        },
+        "accumulation": true,
+        "de_minimis_used": false,
+        "rvc_down": 25
+      },
+      "failures": []
+    },
+    {
+      "id": "akfta-dev-incomplete-hs-01",
+      "split": "dev",
+      "feature": "akfta",
+      "scenario_family": "incomplete-hs",
+      "source_family_id": "incomplete-hs",
+      "status": "matched",
+      "expected_abstention": true,
+      "expected": {
+        "outcome": "undetermined",
+        "accumulation": false
+      },
+      "actual": {
+        "outcome": "undetermined",
+        "alternative": {
+          "CTSH": "undetermined",
+          "RVC40": "undetermined"
+        },
+        "accumulation": false,
+        "de_minimis_used": false
+      },
+      "failures": []
+    },
+    {
+      "id": "akfta-dev-incomplete-hs-02",
+      "split": "dev",
+      "feature": "akfta",
+      "scenario_family": "incomplete-hs",
+      "source_family_id": "incomplete-hs",
+      "status": "matched",
+      "expected_abstention": true,
+      "expected": {
+        "outcome": "undetermined",
+        "accumulation": false
+      },
+      "actual": {
+        "outcome": "undetermined",
+        "alternative": {
+          "CTSH": "undetermined",
+          "RVC40": "undetermined"
+        },
+        "accumulation": false,
+        "de_minimis_used": false
+      },
+      "failures": []
+    },
+    {
+      "id": "akfta-dev-de-minimis-value-01",
+      "split": "dev",
+      "feature": "akfta",
+      "scenario_family": "de-minimis-value",
+      "source_family_id": "de-minimis-value",
+      "status": "matched",
+      "expected_abstention": false,
+      "expected": {
+        "outcome": "yes",
+        "applied": "CTSH",
+        "alternative": {
+          "CTSH": "yes",
+          "RVC45": "no"
+        },
+        "de_minimis_used": true
+      },
+      "actual": {
+        "outcome": "yes",
+        "applied": "CTSH",
+        "alternative": {
+          "CTSH": "yes",
+          "RVC45": "no"
+        },
+        "accumulation": false,
+        "de_minimis_used": true,
+        "rvc_down": 25
+      },
+      "failures": []
+    },
+    {
+      "id": "akfta-dev-de-minimis-value-02",
+      "split": "dev",
+      "feature": "akfta",
+      "scenario_family": "de-minimis-value",
+      "source_family_id": "de-minimis-value",
+      "status": "matched",
+      "expected_abstention": false,
+      "expected": {
+        "outcome": "yes",
+        "applied": "CTSH",
+        "alternative": {
+          "CTSH": "yes",
+          "RVC40": "no"
+        },
+        "de_minimis_used": true
+      },
+      "actual": {
+        "outcome": "yes",
+        "applied": "CTSH",
+        "alternative": {
+          "CTSH": "yes",
+          "RVC40": "no"
+        },
+        "accumulation": false,
+        "de_minimis_used": true,
+        "rvc_down": 20.099999999999994
+      },
+      "failures": []
+    },
+    {
+      "id": "akfta-dev-de-minimis-value-03",
+      "split": "dev",
+      "feature": "akfta",
+      "scenario_family": "de-minimis-value",
+      "source_family_id": "de-minimis-value",
+      "status": "matched",
+      "expected_abstention": false,
+      "expected": {
+        "outcome": "yes",
+        "applied": "CTSH",
+        "alternative": {
+          "CTSH": "yes",
+          "RVC40": "no"
+        },
+        "de_minimis_used": true
+      },
+      "actual": {
+        "outcome": "yes",
+        "applied": "CTSH",
+        "alternative": {
+          "CTSH": "yes",
+          "RVC40": "no"
+        },
+        "accumulation": false,
+        "de_minimis_used": true,
+        "rvc_down": 20
+      },
+      "failures": []
+    },
+    {
+      "id": "akfta-dev-de-minimis-value-04",
+      "split": "dev",
+      "feature": "akfta",
+      "scenario_family": "de-minimis-value",
+      "source_family_id": "de-minimis-value",
+      "status": "matched",
+      "expected_abstention": false,
+      "expected": {
+        "outcome": "no",
+        "alternative": {
+          "CC": "no"
+        }
+      },
+      "actual": {
+        "outcome": "no",
+        "alternative": {
+          "CC": "no"
+        },
+        "accumulation": false,
+        "de_minimis_used": false
+      },
+      "failures": []
+    },
+    {
+      "id": "akfta-dev-de-minimis-value-05",
+      "split": "dev",
+      "feature": "akfta",
+      "scenario_family": "de-minimis-value",
+      "source_family_id": "de-minimis-value",
+      "status": "matched",
+      "expected_abstention": false,
+      "expected": {
+        "outcome": "no",
+        "alternative": {
+          "CTSH": "no",
+          "RVC40": "no"
+        }
+      },
+      "actual": {
+        "outcome": "no",
+        "alternative": {
+          "CTSH": "no",
+          "RVC40": "no"
+        },
+        "accumulation": false,
+        "de_minimis_used": false,
+        "rvc_down": 15
+      },
+      "failures": []
+    },
+    {
+      "id": "akfta-dev-de-minimis-value-06",
+      "split": "dev",
+      "feature": "akfta",
+      "scenario_family": "de-minimis-value",
+      "source_family_id": "de-minimis-value",
+      "status": "matched",
+      "expected_abstention": false,
+      "expected": {
+        "outcome": "yes",
+        "applied": "CTSH",
+        "alternative": {
+          "CTSH": "yes",
+          "RVC45": "no"
+        },
+        "de_minimis_used": true
+      },
+      "actual": {
+        "outcome": "yes",
+        "applied": "CTSH",
+        "alternative": {
+          "CTSH": "yes",
+          "RVC45": "no"
+        },
+        "accumulation": false,
+        "de_minimis_used": true,
+        "rvc_down": 22
+      },
+      "failures": []
+    },
+    {
+      "id": "akfta-dev-cumulation-membership-01",
+      "split": "dev",
+      "feature": "akfta",
+      "scenario_family": "cumulation-membership",
+      "source_family_id": "cumulation-membership",
+      "status": "matched",
+      "expected_abstention": false,
+      "expected": {
+        "outcome": "yes",
+        "alternative": {
+          "CTSH": "yes",
+          "RVC40": "yes"
+        },
+        "accumulation": true
+      },
+      "actual": {
+        "outcome": "yes",
+        "applied": "CTSH",
+        "alternative": {
+          "CTSH": "yes",
+          "RVC40": "yes"
+        },
+        "accumulation": true,
+        "de_minimis_used": false,
+        "rvc_down": 85
+      },
+      "failures": []
+    },
+    {
+      "id": "akfta-dev-cumulation-membership-02",
+      "split": "dev",
+      "feature": "akfta",
+      "scenario_family": "cumulation-membership",
+      "source_family_id": "cumulation-membership",
+      "status": "matched",
+      "expected_abstention": false,
+      "expected": {
+        "outcome": "no",
+        "alternative": {
+          "CTSH": "no",
+          "RVC40": "no"
+        },
+        "accumulation": false
+      },
+      "actual": {
+        "outcome": "no",
+        "alternative": {
+          "CTSH": "no",
+          "RVC40": "no"
+        },
+        "accumulation": false,
+        "de_minimis_used": false,
+        "rvc_down": 35
+      },
+      "failures": []
+    },
+    {
+      "id": "akfta-dev-cumulation-membership-03",
+      "split": "dev",
+      "feature": "akfta",
+      "scenario_family": "cumulation-membership",
+      "source_family_id": "cumulation-membership",
+      "status": "matched",
+      "expected_abstention": false,
+      "expected": {
+        "outcome": "no",
+        "alternative": {
+          "RVC45": "no"
+        },
+        "accumulation": false
+      },
+      "actual": {
+        "outcome": "no",
+        "alternative": {
+          "RVC45": "no"
+        },
+        "accumulation": false,
+        "de_minimis_used": false,
+        "rvc_down": 35
+      },
+      "failures": []
+    },
+    {
+      "id": "akfta-dev-cumulation-membership-04",
+      "split": "dev",
+      "feature": "akfta",
+      "scenario_family": "cumulation-membership",
+      "source_family_id": "cumulation-membership",
+      "status": "matched",
+      "expected_abstention": false,
+      "expected": {
+        "outcome": "yes",
+        "applied": "RVC45",
+        "alternative": {
+          "RVC45": "yes"
+        },
+        "accumulation": true
+      },
+      "actual": {
+        "outcome": "yes",
+        "applied": "RVC45",
+        "alternative": {
+          "RVC45": "yes"
+        },
+        "accumulation": true,
+        "de_minimis_used": false,
+        "rvc_down": 80
+      },
+      "failures": []
+    },
+    {
+      "id": "akfta-dev-cumulation-membership-05",
+      "split": "dev",
+      "feature": "akfta",
+      "scenario_family": "cumulation-membership",
+      "source_family_id": "cumulation-membership",
+      "status": "matched",
+      "expected_abstention": false,
+      "expected": {
+        "outcome": "no",
+        "alternative": {
+          "CC": "no",
+          "RVC40": "no"
+        },
+        "accumulation": false
+      },
+      "actual": {
+        "outcome": "no",
+        "alternative": {
+          "CC": "no",
+          "RVC40": "no"
+        },
+        "accumulation": false,
+        "de_minimis_used": false,
+        "rvc_down": 35
+      },
+      "failures": []
+    },
+    {
+      "id": "akfta-dev-cumulation-membership-06",
+      "split": "dev",
+      "feature": "akfta",
+      "scenario_family": "cumulation-membership",
+      "source_family_id": "cumulation-membership",
+      "status": "matched",
+      "expected_abstention": false,
+      "expected": {
+        "outcome": "yes",
+        "alternative": {
+          "CTSH": "yes",
+          "RVC40": "yes"
+        },
+        "accumulation": true
+      },
+      "actual": {
+        "outcome": "yes",
+        "applied": "CTSH",
+        "alternative": {
+          "CTSH": "yes",
+          "RVC40": "yes"
+        },
+        "accumulation": true,
+        "de_minimis_used": false,
+        "rvc_down": 80
+      },
+      "failures": []
+    },
+    {
+      "id": "akfta-dev-cumulation-membership-07",
+      "split": "dev",
+      "feature": "akfta",
+      "scenario_family": "cumulation-membership",
+      "source_family_id": "cumulation-membership",
+      "status": "matched",
+      "expected_abstention": false,
+      "expected": {
+        "outcome": "yes",
+        "alternative": {
+          "CTSH": "yes",
+          "RVC40": "yes"
+        },
+        "accumulation": true
+      },
+      "actual": {
+        "outcome": "yes",
+        "applied": "CTSH",
+        "alternative": {
+          "CTSH": "yes",
+          "RVC40": "yes"
+        },
+        "accumulation": true,
+        "de_minimis_used": false,
+        "rvc_down": 85
+      },
+      "failures": []
+    },
+    {
+      "id": "akfta-dev-cumulation-membership-08",
+      "split": "dev",
+      "feature": "akfta",
+      "scenario_family": "cumulation-membership",
+      "source_family_id": "cumulation-membership",
+      "status": "matched",
+      "expected_abstention": false,
+      "expected": {
+        "outcome": "no",
+        "alternative": {
+          "CTSH": "no",
+          "RVC40": "no"
+        },
+        "accumulation": false
+      },
+      "actual": {
+        "outcome": "no",
+        "alternative": {
+          "CTSH": "no",
+          "RVC40": "no"
+        },
+        "accumulation": false,
+        "de_minimis_used": false,
+        "rvc_down": 35
+      },
+      "failures": []
+    },
+    {
+      "id": "akfta-dev-cumulation-membership-09",
+      "split": "dev",
+      "feature": "akfta",
+      "scenario_family": "cumulation-membership",
+      "source_family_id": "cumulation-membership",
+      "status": "matched",
+      "expected_abstention": false,
+      "expected": {
+        "outcome": "yes",
+        "applied": "RVC40",
+        "alternative": {
+          "CTSH": "no",
+          "RVC40": "yes"
+        },
+        "accumulation": false
+      },
+      "actual": {
+        "outcome": "yes",
+        "applied": "RVC40",
+        "alternative": {
+          "CTSH": "no",
+          "RVC40": "yes"
+        },
+        "accumulation": false,
+        "de_minimis_used": false,
+        "rvc_down": 40
+      },
+      "failures": []
+    },
+    {
+      "id": "akfta-dev-cumulation-membership-10",
+      "split": "dev",
+      "feature": "akfta",
+      "scenario_family": "cumulation-membership",
+      "source_family_id": "cumulation-membership",
+      "status": "matched",
+      "expected_abstention": false,
+      "expected": {
+        "outcome": "yes",
+        "applied": "RVC40",
+        "alternative": {
+          "CC": "no",
+          "RVC40": "yes"
+        },
+        "accumulation": false
+      },
+      "actual": {
+        "outcome": "yes",
+        "applied": "RVC40",
+        "alternative": {
+          "CC": "no",
+          "RVC40": "yes"
+        },
+        "accumulation": false,
+        "de_minimis_used": false,
+        "rvc_down": 40
+      },
+      "failures": []
+    },
+    {
+      "id": "akfta-dev-minimal-operations-01",
+      "split": "dev",
+      "feature": "akfta",
+      "scenario_family": "minimal-operations",
+      "source_family_id": "minimal-operations",
+      "status": "matched",
+      "expected_abstention": false,
+      "expected": {
+        "outcome": "no",
+        "accumulation": false
+      },
+      "actual": {
+        "outcome": "no",
+        "accumulation": false,
+        "de_minimis_used": false
+      },
+      "failures": []
+    },
+    {
+      "id": "akfta-dev-minimal-operations-02",
+      "split": "dev",
+      "feature": "akfta",
+      "scenario_family": "minimal-operations",
+      "source_family_id": "minimal-operations",
+      "status": "matched",
+      "expected_abstention": false,
+      "expected": {
+        "outcome": "yes",
+        "applied": "RVC40",
+        "alternative": {
+          "CTSH": "no",
+          "RVC40": "yes"
+        },
+        "accumulation": false
+      },
+      "actual": {
+        "outcome": "yes",
+        "applied": "RVC40",
+        "alternative": {
+          "CTSH": "no",
+          "RVC40": "yes"
+        },
+        "accumulation": false,
+        "de_minimis_used": false,
+        "rvc_down": 60
+      },
+      "failures": []
+    },
+    {
+      "id": "akfta-dev-minimal-operations-03",
+      "split": "dev",
+      "feature": "akfta",
+      "scenario_family": "minimal-operations",
+      "source_family_id": "minimal-operations",
+      "status": "matched",
+      "expected_abstention": false,
+      "expected": {
+        "outcome": "yes",
+        "alternative": {
+          "CC": "yes",
+          "RVC40": "yes"
+        },
+        "accumulation": false
+      },
+      "actual": {
+        "outcome": "yes",
+        "applied": "CC",
+        "alternative": {
+          "CC": "yes",
+          "RVC40": "yes"
+        },
+        "accumulation": false,
+        "de_minimis_used": false,
+        "rvc_down": 60
+      },
+      "failures": []
+    },
+    {
+      "id": "akfta-dev-minimal-operations-04",
+      "split": "dev",
+      "feature": "akfta",
+      "scenario_family": "minimal-operations",
+      "source_family_id": "minimal-operations",
+      "status": "matched",
+      "expected_abstention": false,
+      "expected": {
+        "outcome": "no",
+        "accumulation": false
+      },
+      "actual": {
+        "outcome": "no",
+        "accumulation": false,
+        "de_minimis_used": false
+      },
+      "failures": []
+    },
+    {
+      "id": "akfta-dev-minimal-operations-05",
+      "split": "dev",
+      "feature": "akfta",
+      "scenario_family": "minimal-operations",
+      "source_family_id": "minimal-operations",
+      "status": "matched",
+      "expected_abstention": false,
+      "expected": {
+        "outcome": "no",
+        "accumulation": false
+      },
+      "actual": {
+        "outcome": "no",
+        "accumulation": false,
+        "de_minimis_used": false
+      },
+      "failures": []
+    },
+    {
+      "id": "akfta-dev-minimal-operations-06",
+      "split": "dev",
+      "feature": "akfta",
+      "scenario_family": "minimal-operations",
+      "source_family_id": "minimal-operations",
+      "status": "matched",
+      "expected_abstention": false,
+      "expected": {
+        "outcome": "yes",
+        "applied": "RVC40",
+        "alternative": {
+          "CTSH": "no",
+          "RVC40": "yes"
+        },
+        "accumulation": false
+      },
+      "actual": {
+        "outcome": "yes",
+        "applied": "RVC40",
+        "alternative": {
+          "CTSH": "no",
+          "RVC40": "yes"
+        },
+        "accumulation": false,
+        "de_minimis_used": false,
+        "rvc_down": 60
+      },
+      "failures": []
+    },
+    {
+      "id": "akfta-dev-missing-facts-01",
+      "split": "dev",
+      "feature": "akfta",
+      "scenario_family": "missing-facts",
+      "source_family_id": "missing-facts",
+      "status": "matched",
+      "expected_abstention": true,
+      "expected": {
+        "outcome": "undetermined",
+        "accumulation": false
+      },
+      "actual": {
+        "outcome": "undetermined",
+        "alternative": {
+          "CTSH": "undetermined",
+          "RVC40": "undetermined"
+        },
+        "accumulation": false,
+        "de_minimis_used": false
+      },
+      "failures": []
+    },
+    {
+      "id": "akfta-dev-missing-facts-02",
+      "split": "dev",
+      "feature": "akfta",
+      "scenario_family": "missing-facts",
+      "source_family_id": "missing-facts",
+      "status": "matched",
+      "expected_abstention": true,
+      "expected": {
+        "outcome": "undetermined",
+        "accumulation": false
+      },
+      "actual": {
+        "outcome": "undetermined",
+        "alternative": {
+          "RVC45": "undetermined"
+        },
+        "accumulation": false,
+        "de_minimis_used": false
+      },
+      "failures": []
+    },
+    {
+      "id": "akfta-dev-missing-facts-03",
+      "split": "dev",
+      "feature": "akfta",
+      "scenario_family": "missing-facts",
+      "source_family_id": "missing-facts",
+      "status": "matched",
+      "expected_abstention": false,
+      "expected": {
+        "outcome": "yes",
+        "alternative": {
+          "CTSH": "yes",
+          "RVC40": "yes"
+        },
+        "accumulation": false
+      },
+      "actual": {
+        "outcome": "yes",
+        "applied": "CTSH",
+        "alternative": {
+          "CTSH": "yes",
+          "RVC40": "yes"
+        },
+        "accumulation": false,
+        "de_minimis_used": false,
+        "rvc_down": 50
+      },
+      "failures": []
+    },
+    {
+      "id": "akfta-dev-missing-facts-04",
+      "split": "dev",
+      "feature": "akfta",
+      "scenario_family": "missing-facts",
+      "source_family_id": "missing-facts",
+      "status": "matched",
+      "expected_abstention": false,
+      "expected": {
+        "outcome": "yes",
+        "applied": "RVC40",
+        "alternative": {
+          "CC": "no",
+          "RVC40": "yes"
+        },
+        "accumulation": true
+      },
+      "actual": {
+        "outcome": "yes",
+        "applied": "RVC40",
+        "alternative": {
+          "CC": "no",
+          "RVC40": "yes"
+        },
+        "accumulation": true,
+        "de_minimis_used": false,
+        "rvc_down": 70
+      },
+      "failures": []
+    },
+    {
+      "id": "akfta-dev-missing-facts-05",
+      "split": "dev",
+      "feature": "akfta",
+      "scenario_family": "missing-facts",
+      "source_family_id": "missing-facts",
+      "status": "matched",
+      "expected_abstention": false,
+      "expected": {
+        "outcome": "yes",
+        "applied": "RVC40",
+        "alternative": {
+          "RVC40": "yes"
+        },
+        "accumulation": false
+      },
+      "actual": {
+        "outcome": "yes",
+        "applied": "RVC40",
+        "alternative": {
+          "CTSH": "undetermined",
+          "RVC40": "yes"
+        },
+        "accumulation": false,
+        "de_minimis_used": false,
+        "rvc_down": 50
+      },
+      "failures": []
+    },
+    {
+      "id": "akfta-dev-missing-facts-06",
+      "split": "dev",
+      "feature": "akfta",
+      "scenario_family": "missing-facts",
+      "source_family_id": "missing-facts",
+      "status": "matched",
+      "expected_abstention": true,
+      "expected": {
+        "outcome": "undetermined",
+        "alternative": {
+          "CC": "no"
+        },
+        "accumulation": false
+      },
+      "actual": {
+        "outcome": "undetermined",
+        "alternative": {
+          "CC": "no",
+          "RVC40": "undetermined"
+        },
+        "accumulation": false,
+        "de_minimis_used": false
+      },
+      "failures": []
+    },
+    {
+      "id": "akfta-dev-except-from-01",
+      "split": "dev",
+      "feature": "akfta",
+      "scenario_family": "except-from",
+      "source_family_id": "except-from",
+      "status": "matched",
+      "expected_abstention": false,
+      "expected": {
+        "outcome": "no",
+        "alternative": {
+          "CTSH": "no",
+          "RVC40": "no"
+        }
+      },
+      "actual": {
+        "outcome": "no",
+        "alternative": {
+          "CTSH": "no",
+          "RVC40": "no"
+        },
+        "accumulation": false,
+        "de_minimis_used": false,
+        "rvc_down": 30
+      },
+      "failures": []
+    },
+    {
+      "id": "akfta-dev-except-from-02",
+      "split": "dev",
+      "feature": "akfta",
+      "scenario_family": "except-from",
+      "source_family_id": "except-from",
+      "status": "matched",
+      "expected_abstention": false,
+      "expected": {
+        "outcome": "yes",
+        "applied": "CTSH",
+        "alternative": {
+          "CTSH": "yes",
+          "RVC40": "no"
+        }
+      },
+      "actual": {
+        "outcome": "yes",
+        "applied": "CTSH",
+        "alternative": {
+          "CTSH": "yes",
+          "RVC40": "no"
+        },
+        "accumulation": false,
+        "de_minimis_used": false,
+        "rvc_down": 30
+      },
+      "failures": []
+    },
+    {
+      "id": "akfta-dev-except-from-03",
+      "split": "dev",
+      "feature": "akfta",
+      "scenario_family": "except-from",
+      "source_family_id": "except-from",
+      "status": "matched",
+      "expected_abstention": false,
+      "expected": {
+        "outcome": "no",
+        "alternative": {
+          "CTSH": "no",
+          "RVC40": "no"
+        }
+      },
+      "actual": {
+        "outcome": "no",
+        "alternative": {
+          "CTSH": "no",
+          "RVC40": "no"
+        },
+        "accumulation": false,
+        "de_minimis_used": false,
+        "rvc_down": 30
+      },
+      "failures": []
+    },
+    {
+      "id": "akfta-dev-process-conditions-01",
+      "split": "dev",
+      "feature": "akfta",
+      "scenario_family": "process-conditions",
+      "source_family_id": "process-conditions",
+      "status": "matched",
+      "expected_abstention": true,
+      "expected": {
+        "outcome": "undetermined",
+        "alternative": {
+          "RVC40": "no"
+        }
+      },
+      "actual": {
+        "outcome": "undetermined",
+        "alternative": {
+          "CC with conditions": "undetermined",
+          "RVC40": "no"
+        },
+        "accumulation": false,
+        "de_minimis_used": false,
+        "rvc_down": 20
+      },
+      "failures": []
+    },
+    {
+      "id": "akfta-dev-process-conditions-02",
+      "split": "dev",
+      "feature": "akfta",
+      "scenario_family": "process-conditions",
+      "source_family_id": "process-conditions",
+      "status": "matched",
+      "expected_abstention": false,
+      "expected": {
+        "outcome": "no",
+        "alternative": {
+          "RVC40": "no"
+        }
+      },
+      "actual": {
+        "outcome": "no",
+        "alternative": {
+          "CC with conditions": "no",
+          "RVC40": "no"
+        },
+        "accumulation": false,
+        "de_minimis_used": false,
+        "rvc_down": 20
+      },
+      "failures": []
+    },
+    {
+      "id": "akfta-dev-process-conditions-03",
+      "split": "dev",
+      "feature": "akfta",
+      "scenario_family": "process-conditions",
+      "source_family_id": "process-conditions",
+      "status": "matched",
+      "expected_abstention": true,
+      "expected": {
+        "outcome": "undetermined",
+        "alternative": {
+          "RVC40": "no"
+        }
+      },
+      "actual": {
+        "outcome": "undetermined",
+        "alternative": {
+          "CC with conditions": "undetermined",
+          "RVC40": "no"
+        },
+        "accumulation": false,
+        "de_minimis_used": false,
+        "rvc_down": 20
+      },
+      "failures": []
+    },
+    {
+      "id": "akfta-dev-direct-build-up-01",
+      "split": "dev",
+      "feature": "akfta",
+      "scenario_family": "direct-build-up",
+      "source_family_id": "direct-build-up",
+      "status": "matched",
+      "expected_abstention": false,
+      "expected": {
+        "outcome": "yes",
+        "applied": "RVC40",
+        "alternative": {
+          "RVC40": "yes"
+        },
+        "accumulation": true,
+        "rvc_up_min": 40.95,
+        "rvc_up_max": 41.05
+      },
+      "actual": {
+        "outcome": "yes",
+        "applied": "RVC40",
+        "alternative": {
+          "RVC40": "yes"
+        },
+        "accumulation": true,
+        "de_minimis_used": false,
+        "rvc_up": 41
+      },
+      "failures": []
+    },
+    {
+      "id": "akfta-dev-direct-build-up-02",
+      "split": "dev",
+      "feature": "akfta",
+      "scenario_family": "direct-build-up",
+      "source_family_id": "direct-build-up",
+      "status": "matched",
+      "expected_abstention": false,
+      "expected": {
+        "outcome": "no",
+        "alternative": {
+          "RVC45": "no"
+        },
+        "accumulation": true,
+        "rvc_up_min": 24.95,
+        "rvc_up_max": 25.05
+      },
+      "actual": {
+        "outcome": "no",
+        "alternative": {
+          "RVC45": "no"
+        },
+        "accumulation": true,
+        "de_minimis_used": false,
+        "rvc_up": 25
+      },
+      "failures": []
+    },
+    {
+      "id": "akfta-dev-direct-build-up-03",
+      "split": "dev",
+      "feature": "akfta",
+      "scenario_family": "direct-build-up",
+      "source_family_id": "direct-build-up",
+      "status": "matched",
+      "expected_abstention": false,
+      "expected": {
+        "outcome": "no",
+        "alternative": {
+          "CTSH": "no",
+          "RVC40": "no"
+        },
+        "accumulation": true,
+        "rvc_up_min": 39.45,
+        "rvc_up_max": 39.55
+      },
+      "actual": {
+        "outcome": "no",
+        "alternative": {
+          "CTSH": "no",
+          "RVC40": "no"
+        },
+        "accumulation": true,
+        "de_minimis_used": false,
+        "rvc_up": 39.5
+      },
+      "failures": []
+    },
+    {
+      "id": "akfta-dev-heading-only-code-01",
+      "split": "dev",
+      "feature": "akfta",
+      "scenario_family": "heading-only-code",
+      "source_family_id": "heading-only-code",
+      "status": "matched",
+      "expected_abstention": false,
+      "expected": {
+        "outcome": "yes"
+      },
+      "actual": {
+        "outcome": "yes",
+        "applied": "RVC40",
+        "alternative": {
+          "CTH": "yes",
+          "RVC40": "yes"
+        },
+        "accumulation": false,
+        "de_minimis_used": false,
+        "rvc_down": 70
+      },
+      "failures": []
+    },
+    {
+      "id": "akfta-dev-heading-only-code-02",
+      "split": "dev",
+      "feature": "akfta",
+      "scenario_family": "heading-only-code",
+      "source_family_id": "heading-only-code",
+      "status": "matched",
+      "expected_abstention": false,
+      "expected": {
+        "outcome": "yes"
+      },
+      "actual": {
+        "outcome": "yes",
+        "applied": "RVC40",
+        "alternative": {
+          "CTH": "yes",
+          "RVC40": "yes"
+        },
+        "accumulation": false,
+        "de_minimis_used": false,
+        "rvc_down": 70
+      },
+      "failures": []
+    },
+    {
+      "id": "akfta-dev-material-conditions-01",
+      "split": "dev",
+      "feature": "akfta",
+      "scenario_family": "material-conditions",
+      "source_family_id": "material-conditions",
+      "status": "matched",
+      "expected_abstention": false,
+      "expected": {
+        "outcome": "yes"
+      },
+      "actual": {
+        "outcome": "yes",
+        "applied": "CC with conditions",
+        "alternative": {
+          "CC with conditions": "yes",
+          "RVC40 with conditions": "yes"
+        },
+        "accumulation": true,
+        "de_minimis_used": false,
+        "rvc_down": 90
+      },
+      "failures": []
+    },
+    {
+      "id": "akfta-dev-material-conditions-02",
+      "split": "dev",
+      "feature": "akfta",
+      "scenario_family": "material-conditions",
+      "source_family_id": "material-conditions",
+      "status": "matched",
+      "expected_abstention": false,
+      "expected": {
+        "outcome": "no"
+      },
+      "actual": {
+        "outcome": "no",
+        "alternative": {
+          "CC with conditions": "no",
+          "RVC40 with conditions": "no"
+        },
+        "accumulation": true,
+        "de_minimis_used": false,
+        "rvc_down": 90
+      },
+      "failures": []
+    },
+    {
+      "id": "akfta-dev-material-conditions-03",
+      "split": "dev",
+      "feature": "akfta",
+      "scenario_family": "material-conditions",
+      "source_family_id": "material-conditions",
+      "status": "matched",
+      "expected_abstention": false,
+      "expected": {
+        "outcome": "no"
+      },
+      "actual": {
+        "outcome": "no",
+        "alternative": {
+          "CC with conditions": "no",
+          "RVC40 with conditions": "no"
+        },
+        "accumulation": false,
+        "de_minimis_used": false,
+        "rvc_down": 70
+      },
+      "failures": []
+    },
+    {
+      "id": "akfta-dev-material-conditions-04",
+      "split": "dev",
+      "feature": "akfta",
+      "scenario_family": "material-conditions",
+      "source_family_id": "material-conditions",
+      "status": "matched",
+      "expected_abstention": true,
+      "expected": {
+        "outcome": "undetermined"
+      },
+      "actual": {
+        "outcome": "undetermined",
+        "alternative": {
+          "CC with conditions": "undetermined",
+          "RVC40 with conditions": "undetermined"
+        },
+        "accumulation": true,
+        "de_minimis_used": false,
+        "rvc_down": 90
+      },
+      "failures": []
+    },
+    {
+      "id": "akfta-dev-general-rule-01",
+      "split": "dev",
+      "feature": "akfta",
+      "scenario_family": "general-rule",
+      "source_family_id": "general-rule",
+      "status": "matched",
+      "expected_abstention": false,
+      "expected": {
+        "outcome": "yes",
+        "applied": "CTH",
+        "alternative": {
+          "CTH": "yes",
+          "RVC40": "no"
+        }
+      },
+      "actual": {
+        "outcome": "yes",
+        "applied": "CTH",
+        "alternative": {
+          "CTH": "yes",
+          "RVC40": "no"
+        },
+        "accumulation": false,
+        "de_minimis_used": false,
+        "rvc_down": 35
+      },
+      "failures": []
+    },
+    {
+      "id": "akfta-dev-general-rule-02",
+      "split": "dev",
+      "feature": "akfta",
+      "scenario_family": "general-rule",
+      "source_family_id": "general-rule",
+      "status": "matched",
+      "expected_abstention": false,
+      "expected": {
+        "outcome": "yes",
+        "applied": "CTH",
+        "alternative": {
+          "CTH": "yes",
+          "RVC40": "no"
+        }
+      },
+      "actual": {
+        "outcome": "yes",
+        "applied": "CTH",
+        "alternative": {
+          "CTH": "yes",
+          "RVC40": "no"
+        },
+        "accumulation": false,
+        "de_minimis_used": false,
+        "rvc_down": 35
+      },
+      "failures": []
+    },
+    {
+      "id": "akfta-dev-general-rule-03",
+      "split": "dev",
+      "feature": "akfta",
+      "scenario_family": "general-rule",
+      "source_family_id": "general-rule",
+      "status": "matched",
+      "expected_abstention": false,
+      "expected": {
+        "outcome": "no",
+        "alternative": {
+          "CTH": "no",
+          "RVC40": "no"
+        }
+      },
+      "actual": {
+        "outcome": "no",
+        "alternative": {
+          "CTH": "no",
+          "RVC40": "no"
+        },
+        "accumulation": false,
+        "de_minimis_used": false,
+        "rvc_down": 35
+      },
+      "failures": []
+    },
+    {
+      "id": "akfta-dev-general-rule-04",
+      "split": "dev",
+      "feature": "akfta",
+      "scenario_family": "general-rule",
+      "source_family_id": "general-rule",
+      "status": "matched",
+      "expected_abstention": false,
+      "expected": {
+        "outcome": "yes",
+        "applied": "CTH",
+        "alternative": {
+          "CTH": "yes",
+          "RVC40": "no"
+        }
+      },
+      "actual": {
+        "outcome": "yes",
+        "applied": "CTH",
+        "alternative": {
+          "CTH": "yes",
+          "RVC40": "no"
+        },
+        "accumulation": false,
+        "de_minimis_used": false,
+        "rvc_down": 35
+      },
+      "failures": []
+    },
+    {
+      "id": "akfta-dev-authority-variants-01",
+      "split": "dev",
+      "feature": "akfta",
+      "scenario_family": "authority-variants",
+      "source_family_id": "authority-ak-wm-build-down",
+      "parent_id": "eval/akfta/reference-cases.json#ak-wm-build-down",
+      "status": "matched",
+      "expected_abstention": false,
+      "expected": {
+        "outcome": "yes",
+        "applied": "RVC40",
+        "alternative": {
+          "RVC40": "yes"
+        },
+        "accumulation": false,
+        "rvc_down_min": 61.95,
+        "rvc_down_max": 62.05
+      },
+      "actual": {
+        "outcome": "yes",
+        "applied": "RVC40",
+        "alternative": {
+          "CTH": "undetermined",
+          "RVC40": "yes"
+        },
+        "accumulation": false,
+        "de_minimis_used": false,
+        "rvc_down": 62
+      },
+      "failures": []
+    },
+    {
+      "id": "akfta-dev-authority-variants-02",
+      "split": "dev",
+      "feature": "akfta",
+      "scenario_family": "authority-variants",
+      "source_family_id": "authority-ak-wm-build-down",
+      "parent_id": "eval/akfta/reference-cases.json#ak-wm-build-down",
+      "status": "matched",
+      "expected_abstention": true,
+      "expected": {
+        "outcome": "undetermined",
+        "alternative": {
+          "RVC40": "no"
+        },
+        "accumulation": false,
+        "rvc_down_min": 36.617,
+        "rvc_down_max": 36.717
+      },
+      "actual": {
+        "outcome": "undetermined",
+        "alternative": {
+          "CTH": "undetermined",
+          "RVC40": "no"
+        },
+        "accumulation": false,
+        "de_minimis_used": false,
+        "rvc_down": 36.666666666666664
+      },
+      "failures": []
+    },
+    {
+      "id": "akfta-dev-authority-variants-03",
+      "split": "dev",
+      "feature": "akfta",
+      "scenario_family": "authority-variants",
+      "source_family_id": "authority-ak-wm-build-down",
+      "parent_id": "eval/akfta/reference-cases.json#ak-wm-build-down",
+      "status": "matched",
+      "expected_abstention": true,
+      "expected": {
+        "outcome": "undetermined",
+        "alternative": {
+          "RVC40": "no"
+        },
+        "accumulation": false,
+        "rvc_down_min": 24.95,
+        "rvc_down_max": 25.05
+      },
+      "actual": {
+        "outcome": "undetermined",
+        "alternative": {
+          "CTH": "undetermined",
+          "RVC40": "no"
+        },
+        "accumulation": false,
+        "de_minimis_used": false,
+        "rvc_down": 25
+      },
+      "failures": []
+    },
+    {
+      "id": "akfta-dev-authority-variants-04",
+      "split": "dev",
+      "feature": "akfta",
+      "scenario_family": "authority-variants",
+      "source_family_id": "authority-ak-non-qualifying",
+      "parent_id": "eval/akfta/reference-cases.json#ak-non-qualifying",
+      "status": "matched",
+      "expected_abstention": false,
+      "expected": {
+        "outcome": "no",
+        "accumulation": false
+      },
+      "actual": {
+        "outcome": "no",
+        "accumulation": false,
+        "de_minimis_used": false
+      },
+      "failures": []
+    },
+    {
+      "id": "akfta-dev-authority-variants-05",
+      "split": "dev",
+      "feature": "akfta",
+      "scenario_family": "authority-variants",
+      "source_family_id": "authority-ak-non-qualifying",
+      "parent_id": "eval/akfta/reference-cases.json#ak-non-qualifying",
+      "status": "matched",
+      "expected_abstention": false,
+      "expected": {
+        "outcome": "no",
+        "accumulation": false
+      },
+      "actual": {
+        "outcome": "no",
+        "accumulation": false,
+        "de_minimis_used": false
+      },
+      "failures": []
+    },
+    {
+      "id": "akfta-dev-authority-variants-06",
+      "split": "dev",
+      "feature": "akfta",
+      "scenario_family": "authority-variants",
+      "source_family_id": "authority-ak-non-qualifying",
+      "parent_id": "eval/akfta/reference-cases.json#ak-non-qualifying",
+      "status": "matched",
+      "expected_abstention": false,
+      "expected": {
+        "outcome": "no",
+        "accumulation": false
+      },
+      "actual": {
+        "outcome": "no",
+        "accumulation": false,
+        "de_minimis_used": false
+      },
+      "failures": []
+    },
+    {
+      "id": "akfta-dev-authority-variants-07",
+      "split": "dev",
+      "feature": "akfta",
+      "scenario_family": "authority-variants",
+      "source_family_id": "authority-ak-wo-tuna",
+      "parent_id": "eval/akfta/reference-cases.json#ak-wo-tuna",
+      "status": "matched",
+      "expected_abstention": false,
+      "expected": {
+        "outcome": "yes",
+        "alternative": {
+          "CTH": "yes",
+          "RVC40": "yes"
+        },
+        "accumulation": false,
+        "rvc_down_min": 59.95,
+        "rvc_down_max": 60.05
+      },
+      "actual": {
+        "outcome": "yes",
+        "applied": "RVC40",
+        "alternative": {
+          "CTH": "yes",
+          "RVC40": "yes"
+        },
+        "accumulation": false,
+        "de_minimis_used": false,
+        "rvc_down": 60
+      },
+      "failures": []
+    },
+    {
+      "id": "akfta-dev-malformed-input-01",
+      "split": "dev",
+      "feature": "akfta",
+      "scenario_family": "malformed-input",
+      "source_family_id": "malformed-input",
+      "status": "matched",
+      "expected_abstention": false,
+      "expected": {
+        "outcome": "refused"
+      },
+      "actual": {
+        "accumulation": false,
+        "de_minimis_used": false,
+        "refused": true,
+        "error": "atiga: bad input: fob must be positive"
+      },
+      "failures": []
+    },
+    {
+      "id": "akfta-dev-malformed-input-02",
+      "split": "dev",
+      "feature": "akfta",
+      "scenario_family": "malformed-input",
+      "source_family_id": "malformed-input",
+      "status": "matched",
+      "expected_abstention": false,
+      "expected": {
+        "outcome": "refused"
+      },
+      "actual": {
+        "accumulation": false,
+        "de_minimis_used": false,
+        "refused": true,
+        "error": "atiga: bad input: hs must have 4 to 10 digits"
+      },
+      "failures": []
+    },
+    {
+      "id": "akfta-dev-malformed-input-03",
+      "split": "dev",
+      "feature": "akfta",
+      "scenario_family": "malformed-input",
+      "source_family_id": "malformed-input",
+      "status": "matched",
+      "expected_abstention": false,
+      "expected": {
+        "outcome": "refused"
+      },
+      "actual": {
+        "accumulation": false,
+        "de_minimis_used": false,
+        "refused": true,
+        "error": "atiga: bad input: materials[0].status must be originating, non_originating or unknown"
+      },
+      "failures": []
+    },
+    {
+      "id": "akfta-dev-malformed-input-04",
+      "split": "dev",
+      "feature": "akfta",
+      "scenario_family": "malformed-input",
+      "source_family_id": "malformed-input",
+      "status": "matched",
+      "expected_abstention": false,
+      "expected": {
+        "outcome": "refused"
+      },
+      "actual": {
+        "accumulation": false,
+        "de_minimis_used": false,
+        "refused": true,
+        "error": "atiga: bad input: method must be direct or indirect"
+      },
+      "failures": []
+    }
+  ]
+}

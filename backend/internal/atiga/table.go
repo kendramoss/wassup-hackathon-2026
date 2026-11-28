@@ -120,6 +120,13 @@ func ParseFor(p *Profile, b []byte) (*Table, error) {
 		return nil, fmt.Errorf("atiga: %w", err)
 	}
 	t.profile = p
+	for i := range t.Rules {
+		r := &t.Rules[i]
+		padAlternatives(r.Alternatives)
+		for j := range r.Variants {
+			padAlternatives(r.Variants[j].Alternatives)
+		}
+	}
 	t.bySub = map[string]*Rule{}
 	t.byHead = map[string]*Rule{}
 	t.byChap = map[string]*Rule{}
@@ -146,6 +153,38 @@ func ParseFor(p *Profile, b []byte) (*Table, error) {
 		}
 	}
 	return &t, nil
+}
+
+// padAlternatives writes every range bound at the width of its level. A
+// proviso on "Chapter 8" arrives as "8", which text comparison with the
+// two-digit "08" of a material's code would never place in the range.
+func padAlternatives(alts []Alternative) {
+	for i := range alts {
+		for j := range alts[i].Requires {
+			q := &alts[i].Requires[j]
+			for k := range q.Except {
+				padRange(&q.Except[k])
+			}
+			for k := range q.Scope {
+				padRange(&q.Scope[k])
+			}
+		}
+	}
+}
+
+func padRange(g *Range) {
+	w := levelDigits[g.Level]
+	if w == 0 {
+		return
+	}
+	pad := func(s string) string {
+		d := digits(s)
+		for len(d) < w {
+			d = "0" + d
+		}
+		return d
+	}
+	g.From, g.To = pad(g.From), pad(g.To)
 }
 
 // Profile is the agreement the table is read for.
