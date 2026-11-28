@@ -46,3 +46,7 @@ Reproduction is offline and does not add trials. The bounded run-of-record image
 ## Development amendment, before candidate-v2 scoring
 
 First baseline: 21/24 documents, 140/151 names and stated origins matched, 10 extra confirmed rows, no wrong matched-country values or model errors; cost $0.195032. Three failures on power-bank documents: origin suffixes copied into every name, JSON field text fused into a name, and whitespace before closing parentheses. All first outputs remain in `results/dev-baseline/`, and the original strict scorer is unchanged. Candidate v2 adds generic name/column/row separation instructions and uses prompt version extract-image-v2. Accept v2 only if it matches at least 21/24 documents and at least 140/151 stated origins, with no increase in model errors or wrong-country values. This criterion is recorded before its development score. No reserved result has been observed.
+
+## Selected candidate, before the first reserved score
+
+Candidate dd158f8a94d3ec803519b5adc926e6fc3e4bd4e9 / extract-image-v2 met the registered development criterion: 23/24 documents, 148/151 name and origin fields, three extra rows, zero wrong matched-country values and zero errors. Cost $0.230518; baseline plus selected development $0.425550. The remaining failure is retained; no third candidate is tried. `freeze.json` records the selected binary and unchanged 132-image reserved manifest. No reserved image has been scored at this commit.

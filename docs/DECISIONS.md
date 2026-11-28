@@ -4359,3 +4359,7 @@ Built, behind the existing `USAGE_METERING` flag. No new route, frontend or depl
 ### D972 development amendment — name contamination
 
 Baseline 21/24 documents, 140/151 names and origins, 10 extra rows, zero errors/wrong matched countries, $0.195032; raw first outputs retained. Generic extract-image-v2 name/row separation candidate registered before development scoring: accept only with >=21 documents and >=140 origin fields, no increased errors or wrong-country values. Scorer and expected labels unchanged. Reserved 132 documents remain unscored.
+
+### D972 final candidate freeze, before first reserved call
+
+Selected dd158f8a94d3ec803519b5adc926e6fc3e4bd4e9, extract-image-v2: development23/24 and148/151 origin fields versus21/24 and140/151 baseline, no additional wrong countries or model errors. Registered criterion met. Baseline$0.195032 plus candidate$0.230518 = $0.425550. One remaining failure retained. `eval/challenges/media/freeze.json` fixes candidate and original dataset hash before any of the132reserved calls.

@@ -1,0 +1,78 @@
+{
+  "candidate_revision": "dd158f8a94d3ec803519b5adc926e6fc3e4bd4e9",
+  "dataset_sha256": "ac2ed27c5ca180073286dc7bf42b31b0a0e6ba69594161193144934d29e8868a",
+  "git_revision": "dd158f8a94d3ec803519b5adc926e6fc3e4bd4e9",
+  "image_sha256": "4fbf1e17cffd8c4848a63d5957326717542d3b60717531416be27bc9a82748aa",
+  "model": "gemini-4-argon",
+  "note": "synthetic renderings of illustrative BOMs; illustrative only",
+  "provider": "litellm",
+  "scores": [
+    {
+      "cost_usd_gateway": 0.009006,
+      "country_right": 10,
+      "expected": 10,
+      "extra_rows": 0,
+      "image": "b4e33944f0f3c885df9c.png",
+      "input_tokens": 2428,
+      "latency_ms": 10789,
+      "model_id": "gemini-4-argon",
+      "name_read": 10,
+      "output_tokens": 415,
+      "prompt_version": "extract-image-v2",
+      "read": [
+        {
+          "country": "China",
+          "name": "Power supply"
+        },
+        {
+          "country": "China",
+          "name": "Support"
+        },
+        {
+          "country": "China",
+          "name": "Power supply fixing plate"
+        },
+        {
+          "country": "China",
+          "name": "Power supply switch"
+        },
+        {
+          "country": "China",
+          "name": "Main printed circuit board"
+        },
+        {
+          "country": "China",
+          "name": "Monitor"
+        },
+        {
+          "country": "China",
+          "name": "Wires"
+        },
+        {
+          "country": "China",
+          "name": "Guide rail assembly"
+        },
+        {
+          "country": "China",
+          "name": "Temperature control module"
+        },
+        {
+          "country": "China",
+          "name": "External components"
+        }
+      ],
+      "simulated": false,
+      "style": "table"
+    }
+  ],
+  "summary": {
+    "cost_usd_gateway": 0.009006,
+    "countries_right": 10,
+    "expected_parts": 10,
+    "extra_rows": 0,
+    "failed_calls": 0,
+    "images": 1,
+    "names_read": 10
+  },
+  "time": "2026-11-28T17:20:33+08:00"
+}
