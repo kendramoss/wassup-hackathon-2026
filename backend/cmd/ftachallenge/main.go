@@ -223,8 +223,8 @@ func verify(dir string, dev, test map[string]*Dataset) error {
 			if err != nil {
 				return err
 			}
-			if !bytes.Equal(got, want) {
-				return fmt.Errorf("%s %s: committed results differ from a fresh scoring", f, split)
+			if err := EquivalentResults(got, want); err != nil {
+				return fmt.Errorf("%s %s: committed results differ from a fresh scoring: %w", f, split, err)
 			}
 			if split == "dev" {
 				devRes[f] = committed
@@ -261,8 +261,8 @@ func verify(dir string, dev, test map[string]*Dataset) error {
 		if err != nil {
 			return err
 		}
-		if !bytes.Equal(got, want) {
-			return fmt.Errorf("%s posthoc: committed results differ from a fresh scoring", f)
+		if err := EquivalentResults(got, want); err != nil {
+			return fmt.Errorf("%s posthoc: committed results differ from a fresh scoring: %w", f, err)
 		}
 		phRes[f] = committed
 	}
@@ -288,7 +288,7 @@ func verify(dir string, dev, test map[string]*Dataset) error {
 	if !bytes.Equal(want, have) {
 		return fmt.Errorf("committed summary differs from one rebuilt from the results")
 	}
-	fmt.Println("verified: results and summary reproduce byte for byte (latency excepted)")
+	fmt.Println("verified: results and summary reproduce (latency and last-bit RVC noise excepted)")
 	return nil
 }
 

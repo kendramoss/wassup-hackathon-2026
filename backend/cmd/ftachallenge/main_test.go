@@ -1,6 +1,7 @@
 package main
 
 import (
+	"bytes"
 	"encoding/json"
 	"fmt"
 	"strings"
@@ -366,5 +367,56 @@ func TestSummaryPosthocSupplementMustMatchItsResults(t *testing.T) {
 	sum = BuildSummary(s.dev, s.test, s.devRes, s.testRes, nil, phRes, lat)
 	if err := ValidateSummary(sum, s.dev, s.test, s.devRes, s.testRes, nil); err == nil {
 		t.Fatal("a post-hoc supplement with no results was accepted")
+	}
+}
+
+func resultsBytes(t *testing.T, mutate func(*ResultsFile)) []byte {
+	t.Helper()
+	ds := fixtureDataset(t, "atiga", "dev", 4)
+	rf := NewResultsFile(ds, nil, strings.Repeat("a", 40), "", ScoreDataset(ds))
+	f := 57.93000000000001
+	rf.Results[0].Actual.RVCDown = &f
+	if mutate != nil {
+		mutate(&rf)
+	}
+	b, err := marshal(rf)
+	if err != nil {
+		t.Fatal(err)
+	}
+	return b
+}
+
+func TestEquivalentResultsAcceptsLastBitNoiseOnly(t *testing.T) {
+	base := resultsBytes(t, nil)
+	noisy := resultsBytes(t, func(rf *ResultsFile) { f := 57.92999999999999; rf.Results[0].Actual.RVCDown = &f })
+	if bytes.Equal(base, noisy) {
+		t.Fatal("fixture should differ in bytes")
+	}
+	if err := EquivalentResults(noisy, base); err != nil {
+		t.Fatalf("amd64/arm64 last-bit noise rejected: %v", err)
+	}
+	up := resultsBytes(t, func(rf *ResultsFile) { f := 41.0000000001; rf.Results[1].Actual.RVCUp = &f })
+	up2 := resultsBytes(t, func(rf *ResultsFile) { f := 41.0000000002; rf.Results[1].Actual.RVCUp = &f })
+	if err := EquivalentResults(up, up2); err != nil {
+		t.Fatalf("1e-10 rvc_up noise rejected: %v", err)
+	}
+	rejects := map[string]func(*ResultsFile){
+		"meaningful rvc":    func(rf *ResultsFile) { f := 57.94; rf.Results[0].Actual.RVCDown = &f },
+		"rvc just over tol": func(rf *ResultsFile) { f := 57.93 + 1e-8; rf.Results[0].Actual.RVCDown = &f },
+		"rvc appears":       func(rf *ResultsFile) { f := 1.0; rf.Results[2].Actual.RVCDown = &f },
+		"outcome":           func(rf *ResultsFile) { rf.Results[0].Actual.Outcome = "no" },
+		"status":            func(rf *ResultsFile) { rf.Results[1].Status = Mismatched },
+		"error text":        func(rf *ResultsFile) { rf.Results[1].Actual.Error = "x" },
+		"count":             func(rf *ResultsFile) { rf.Totals.Matched++ },
+		"hash":              func(rf *ResultsFile) { rf.DatasetSHA256 = strings.Repeat("9", 64) },
+		"candidate":         func(rf *ResultsFile) { rf.CandidateRevision = strings.Repeat("b", 40) },
+		"case id":           func(rf *ResultsFile) { rf.Results[2].ID = "other" },
+		"expected rvc":      func(rf *ResultsFile) { f := 57.93; rf.Results[0].Expected.RVCDownMin = &f },
+		"case removed":      func(rf *ResultsFile) { rf.Results = rf.Results[:3] },
+	}
+	for name, m := range rejects {
+		if err := EquivalentResults(resultsBytes(t, m), base); err == nil {
+			t.Errorf("%s: accepted", name)
+		}
 	}
 }

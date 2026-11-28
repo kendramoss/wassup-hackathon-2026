@@ -64,7 +64,7 @@ go run ./cmd/ftachallenge -mode summary -candidate <sha>
 go run ./cmd/ftachallenge -mode verify
 ```
 
-`verify` scores both splits again and requires the committed results to match byte for byte and the summary to match apart from the measured latency. The runner refuses a candidate whose engine sources differ from the stated commit.
+`verify` scores both splits again and requires the committed results to match byte for byte, except that `actual.rvc_down` and `actual.rvc_up` may differ by up to 1e-9 (amd64 and arm64 differ in the last bits: 57.93000000000001 against 57.92999999999999 for `atiga` result 150; the frozen file keeps the arm64 value). Outcomes, statuses, errors, counts, ids, hashes and every other number must be identical; the expected RVC ranges are 0.1 wide, so a real change is far above the tolerance. The summary must match and the summary to match apart from the measured latency. The runner refuses a candidate whose engine sources differ from the stated commit.
 
 ## Source operations
 
