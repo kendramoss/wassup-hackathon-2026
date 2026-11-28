@@ -144,6 +144,8 @@ func main() {
 		err = predictCmd(os.Args[2:])
 	case "flips":
 		err = flipsCmd(os.Args[2:])
+	case "challenge":
+		err = moveChallengeCmd(os.Args[2:])
 	case "summary":
 		err = summaryCmd(os.Args[2:])
 	case "multiscenario":

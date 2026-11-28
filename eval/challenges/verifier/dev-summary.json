@@ -1,0 +1,35 @@
+{
+  "candidate_revision": "518c07bc800633745cd862c2d2de04e2f8880f3b",
+  "cost_usd": 1.2275622,
+  "dataset_sha256": "a08297baa59ada7f7ef57b4173e213f535671b135fccfcc17585a72583f0b42e",
+  "evidence_kind": "source_grounded_synthetic",
+  "feature": "move_verifier",
+  "latency_p50_ms": 27795,
+  "latency_p95_ms": 52526,
+  "limitations": [
+    "Labels are assistant-authored variations of already-known source pairs, not independent real rulings.",
+    "Multiple variants share each source parent; case counts do not mean independent legal sources.",
+    "Known starting origin is supplied. This measures given-move verification, not full plan search or ranking.",
+    "Authority/rule label quality and date-limited retrieval affect the result. No i.i.d. population interval."
+  ],
+  "metrics": {
+    "cases": 28,
+    "matched": 26,
+    "mismatched": 2,
+    "errors": 0,
+    "source_families": 6,
+    "positive_cases": 12,
+    "negative_cases": 12,
+    "uncertain_cases": 4,
+    "true_positive": 3,
+    "false_positive": 0,
+    "false_negative": 9,
+    "true_negative": 12,
+    "uncertain_shown": 0
+  },
+  "model_id": "gemini-4-argon",
+  "panel": true,
+  "plan_bar": 0.92,
+  "prompt_version": "v2",
+  "schema_version": 1
+}
