@@ -40,6 +40,9 @@ export function parseChallengeSummary(input: unknown, sourcePath: string): Chall
   const seen = new Set<string>();
   return doc.features.map((raw): ChallengeFeature => {
     const f = object(raw);
+    if (f.simulated === true || f.llm_provider === "fake" || f.llm_provider === "vertex") {
+      throw new Error("Challenge results must be measured with the approved execution provider");
+    }
     const id = nonempty(f.id, "id");
     if (!/^[a-z][a-z0-9_-]*$/.test(id) || seen.has(id)) throw new Error("Invalid or duplicate challenge feature");
     seen.add(id);

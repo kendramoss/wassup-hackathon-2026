@@ -55,6 +55,9 @@ test("challenge evidence rejects inflated, incomplete or mislabeled headline stu
     (x) => { x.features.push(x.features[0]); },
     (x) => { x.features[0].limitations = []; },
     (x) => { x.features[0].source_families = 0; },
+    (x) => { x.features[0].simulated = true; },
+    (x) => { x.features[0].llm_provider = "fake"; },
+    (x) => { x.features[0].llm_provider = "vertex"; },
   ]) {
     const data = fixture(); mutate(data);
     assert.throws(() => parseChallengeSummary(data, "eval/challenges/example/summary.json"));
