@@ -1,0 +1,43 @@
+{
+  "candidate_revision": "dd158f8a94d3ec803519b5adc926e6fc3e4bd4e9",
+  "dataset_sha256": "ac2ed27c5ca180073286dc7bf42b31b0a0e6ba69594161193144934d29e8868a",
+  "git_revision": "dd158f8a94d3ec803519b5adc926e6fc3e4bd4e9",
+  "image_sha256": "30677ceb12cb0570296a819f0ab1694ad8661d3fe79d78b4cbe2d3b0f88847f0",
+  "model": "gemini-4-argon",
+  "note": "synthetic renderings of illustrative BOMs; illustrative only",
+  "provider": "litellm",
+  "scores": [
+    {
+      "cost_usd_gateway": 0.007464,
+      "country_right": 0,
+      "expected": 1,
+      "extra_rows": 0,
+      "image": "79defe8e1e0e1320c836.png",
+      "input_tokens": 2462,
+      "latency_ms": 6110,
+      "missed": [
+        "parent rolls of tissue paper"
+      ],
+      "model_id": "gemini-4-argon",
+      "name_read": 0,
+      "output_tokens": 254,
+      "prompt_version": "extract-image-v2",
+      "simulated": false,
+      "style": "missing_origin",
+      "warnings": [
+        "The document mentions parent rolls of tissue paper without saying where it is made; add it if it should count.",
+        "The Country of origin column is blank for parent rolls of tissue paper; only a supplier address in Tokyo, Japan is given, noted as not a statement of part origin."
+      ]
+    }
+  ],
+  "summary": {
+    "cost_usd_gateway": 0.007464,
+    "countries_right": 0,
+    "expected_parts": 1,
+    "extra_rows": 0,
+    "failed_calls": 0,
+    "images": 1,
+    "names_read": 0
+  },
+  "time": "2026-11-28T17:28:35+08:00"
+}

@@ -1,0 +1,66 @@
+{
+  "candidate_revision": "dd158f8a94d3ec803519b5adc926e6fc3e4bd4e9",
+  "dataset_sha256": "ac2ed27c5ca180073286dc7bf42b31b0a0e6ba69594161193144934d29e8868a",
+  "git_revision": "dd158f8a94d3ec803519b5adc926e6fc3e4bd4e9",
+  "image_sha256": "d71bdc2c9fa94531bd7a7afd6a6ed89b1dbf64a484b3b81888c2ef9908044f52",
+  "model": "gemini-4-argon",
+  "note": "synthetic renderings of illustrative BOMs; illustrative only",
+  "provider": "litellm",
+  "scores": [
+    {
+      "cost_usd_gateway": 0.013866000000000002,
+      "country_right": 7,
+      "expected": 7,
+      "extra_rows": 0,
+      "image": "4abfb293f442a6c8a790.png",
+      "input_tokens": 2438,
+      "latency_ms": 17480,
+      "model_id": "gemini-4-argon",
+      "name_read": 7,
+      "output_tokens": 899,
+      "prompt_version": "extract-image-v2",
+      "read": [
+        {
+          "country": "Vietnam",
+          "name": "Printed circuit board assembly (with a USB-A and a micro-USB connector)"
+        },
+        {
+          "country": "Vietnam",
+          "name": "Light guide"
+        },
+        {
+          "country": "Vietnam",
+          "name": "Light shield"
+        },
+        {
+          "country": "Vietnam",
+          "name": "Plastic button"
+        },
+        {
+          "country": "Vietnam",
+          "name": "Injection molded case (bottom and top cases)"
+        },
+        {
+          "country": "China",
+          "name": "Two cylindrical lithium-ion battery cells"
+        },
+        {
+          "country": "China",
+          "name": "Charging cable"
+        }
+      ],
+      "simulated": false,
+      "style": "scan"
+    }
+  ],
+  "summary": {
+    "cost_usd_gateway": 0.013866000000000002,
+    "countries_right": 7,
+    "expected_parts": 7,
+    "extra_rows": 0,
+    "failed_calls": 0,
+    "images": 1,
+    "names_read": 7
+  },
+  "time": "2026-11-28T17:21:27+08:00"
+}

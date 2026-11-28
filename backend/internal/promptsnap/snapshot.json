@@ -78,8 +78,8 @@
       "sha256": "e6c03b51ce17dcc7d7f9cfaee8f7b26119c735958a83191b0c9f9e8e19bd1080"
     },
     "extract.media_request": {
-      "version": "extract-image-v1",
-      "sha256": "ef45b84630d50b19b25ea2515f78c7c70bab8170a1588f284b7660f5668c21ad"
+      "version": "extract-image-v2",
+      "sha256": "2457a391eabe1f84bd3d153c298661a47d32d52d7bea731d65bb9be34d5a4730"
     },
     "extract.request": {
       "version": "extract-v3",

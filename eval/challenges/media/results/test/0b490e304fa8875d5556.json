@@ -1,0 +1,54 @@
+{
+  "candidate_revision": "dd158f8a94d3ec803519b5adc926e6fc3e4bd4e9",
+  "dataset_sha256": "ac2ed27c5ca180073286dc7bf42b31b0a0e6ba69594161193144934d29e8868a",
+  "git_revision": "dd158f8a94d3ec803519b5adc926e6fc3e4bd4e9",
+  "image_sha256": "11feccddffae1ee8b2077e93062b89b36a1e1c6dedd0593b20beccbea3803f42",
+  "model": "gemini-4-argon",
+  "note": "synthetic renderings of illustrative BOMs; illustrative only",
+  "provider": "litellm",
+  "scores": [
+    {
+      "cost_usd_gateway": 0.008846,
+      "country_right": 4,
+      "expected": 4,
+      "extra_rows": 0,
+      "image": "0b490e304fa8875d5556.png",
+      "input_tokens": 2423,
+      "latency_ms": 7262,
+      "model_id": "gemini-4-argon",
+      "name_read": 4,
+      "output_tokens": 400,
+      "prompt_version": "extract-image-v2",
+      "read": [
+        {
+          "country": "China",
+          "name": "Printed circuit board assembly (PCBA) with Hall Effect sensor"
+        },
+        {
+          "country": "China",
+          "name": "Wire harness"
+        },
+        {
+          "country": "China",
+          "name": "Specialized electrical connector"
+        },
+        {
+          "country": "Thailand",
+          "name": "Plastic housing"
+        }
+      ],
+      "simulated": false,
+      "style": "scan"
+    }
+  ],
+  "summary": {
+    "cost_usd_gateway": 0.008846,
+    "countries_right": 4,
+    "expected_parts": 4,
+    "extra_rows": 0,
+    "failed_calls": 0,
+    "images": 1,
+    "names_read": 4
+  },
+  "time": "2026-11-28T17:29:33+08:00"
+}

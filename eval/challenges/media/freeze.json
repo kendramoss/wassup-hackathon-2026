@@ -1,0 +1,21 @@
+{
+  "schema_version": 1,
+  "candidate_revision": "dd158f8a94d3ec803519b5adc926e6fc3e4bd4e9",
+  "dataset_sha256": "ac2ed27c5ca180073286dc7bf42b31b0a0e6ba69594161193144934d29e8868a",
+  "model": "gemini-4-argon",
+  "prompt": "extract-image-v2",
+  "development_selection": {
+    "baseline_candidate": "a479a7980b403d7b930f9bbfc4f8ab257c64e5be",
+    "baseline_documents": {"matched": 21, "cases": 24},
+    "baseline_origin_fields": {"matched": 140, "cases": 151},
+    "selected_documents": {"matched": 23, "cases": 24},
+    "selected_origin_fields": {"matched": 148, "cases": 151},
+    "baseline_errors": 0,
+    "selected_errors": 0,
+    "baseline_wrong_countries": 0,
+    "selected_wrong_countries": 0,
+    "criterion_met": true
+  },
+  "reserved_documents": 132,
+  "reserved_calls_at_freeze": 0
+}

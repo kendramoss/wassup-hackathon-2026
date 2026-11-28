@@ -1,0 +1,50 @@
+{
+  "candidate_revision": "dd158f8a94d3ec803519b5adc926e6fc3e4bd4e9",
+  "dataset_sha256": "ac2ed27c5ca180073286dc7bf42b31b0a0e6ba69594161193144934d29e8868a",
+  "git_revision": "dd158f8a94d3ec803519b5adc926e6fc3e4bd4e9",
+  "image_sha256": "19e63bcade1b4683503ca7a85314d2a3106e0104d9630e4ff935ccd890d5717c",
+  "model": "gemini-4-argon",
+  "note": "synthetic renderings of illustrative BOMs; illustrative only",
+  "provider": "litellm",
+  "scores": [
+    {
+      "cost_usd_gateway": 0.007508,
+      "country_right": 3,
+      "expected": 3,
+      "extra_rows": 0,
+      "image": "b4e1e47d30f0aad51ec2.png",
+      "input_tokens": 2464,
+      "latency_ms": 7977,
+      "model_id": "gemini-4-argon",
+      "name_read": 3,
+      "output_tokens": 258,
+      "prompt_version": "extract-image-v2",
+      "read": [
+        {
+          "country": "China",
+          "name": "lower frame assembly (chassis) with drive frame components"
+        },
+        {
+          "country": "China",
+          "name": "upper frame assembly with roller support and shear lifting mechanism"
+        },
+        {
+          "country": "South Korea",
+          "name": "drive assembly, battery, casters and controllers"
+        }
+      ],
+      "simulated": false,
+      "style": "table"
+    }
+  ],
+  "summary": {
+    "cost_usd_gateway": 0.007508,
+    "countries_right": 3,
+    "expected_parts": 3,
+    "extra_rows": 0,
+    "failed_calls": 0,
+    "images": 1,
+    "names_read": 3
+  },
+  "time": "2026-11-28T17:21:33+08:00"
+}

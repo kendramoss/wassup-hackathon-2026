@@ -1,0 +1,123 @@
+{
+  "evidence_kind": "source_grounded_synthetic",
+  "features": [
+    {
+      "candidate_revision": "dd158f8a94d3ec803519b5adc926e6fc3e4bd4e9",
+      "cost_unreported_calls": 0,
+      "cost_usd": 1.570336,
+      "dataset_sha256": "ac2ed27c5ca180073286dc7bf42b31b0a0e6ba69594161193144934d29e8868a",
+      "development": {
+        "cases": 24,
+        "countries_right": 148,
+        "errors": 0,
+        "expected_countries": 151,
+        "expected_names": 151,
+        "extra_rows": 3,
+        "matched": 23,
+        "mismatched": 1,
+        "names_read": 148,
+        "unknown_documented": 0,
+        "unknown_expected": 0,
+        "unknown_withheld": 0,
+        "wrong_countries": 0
+      },
+      "development_baseline": {
+        "cases": 24,
+        "countries_right": 140,
+        "errors": 0,
+        "expected_countries": 151,
+        "expected_names": 151,
+        "extra_rows": 10,
+        "matched": 21,
+        "mismatched": 3,
+        "names_read": 140,
+        "unknown_documented": 0,
+        "unknown_expected": 0,
+        "unknown_withheld": 0,
+        "wrong_countries": 0
+      },
+      "development_cost_usd": 0.42555,
+      "display_metrics": [
+        {
+          "den": 632,
+          "id": "name_matches",
+          "label": "Exact name matches",
+          "num": 629
+        },
+        {
+          "den": 621,
+          "id": "country_matches",
+          "label": "Stated origin fields matched",
+          "num": 618
+        },
+        {
+          "den": 11,
+          "id": "missing_origins",
+          "label": "Missing origins documented",
+          "num": 11
+        },
+        {
+          "den": 24,
+          "id": "large_sheets",
+          "label": "Sheets with 12+ parts matched",
+          "num": 21
+        }
+      ],
+      "document_sizes": {
+        "one_or_two_parts": {
+          "cases": 52,
+          "errors": 0,
+          "matched": 52
+        },
+        "three_to_eleven_parts": {
+          "cases": 56,
+          "errors": 0,
+          "matched": 56
+        },
+        "twelve_plus_parts": {
+          "cases": 24,
+          "errors": 0,
+          "matched": 21
+        }
+      },
+      "id": "media_extraction",
+      "label": "BOM image extraction",
+      "latency_p50_ms": 9077.5,
+      "latency_p95_ms": 18783,
+      "latency_scope": "reserved documents, non-error calls",
+      "layout_families": 12,
+      "limitations": [
+        "Synthetic renderings of ruling-derived illustrative fixtures, not real photos, handwriting or independent customs cases. The original primary rulings were not newly reread for this image study.",
+        "Related documents share source components and layouts. Source families are disjoint across development and reserved test; eight rendering styles are shared, four are test-only.",
+        "Names use exact case/whitespace-normalized matching, not a model judge. Country aliases use a fixed map. Semantically equivalent paraphrases can therefore fail.",
+        "Whole-document agreement requires all expected confirmed parts and countries, no extra confirmed parts, and a warning plus no invented country for every missing-origin part. The production API withholds missing-country rows from confirmed components.",
+        "The language variation changes column headers only; the component names remain as in the English source fixtures.",
+        "The missing-origin footer explicitly says the supplier address is not a statement of part origin. Withholding 11/11 is on a self-labelled distractor in one layout, not an unlabelled-address challenge.",
+        "The bundled font can leave a visible glyph gap before the closing parenthesis. The strict scorer still treats the model's inserted space as a mismatch, not a legal or wrong-origin error.",
+        "All three reserved mismatches are an extra space before a closing parenthesis in the PCBA name; the three extracted rows are unmatched names, not independently established invented parts. Strict first scores remain unchanged."
+      ],
+      "llm_provider": "litellm",
+      "model_calls": 180,
+      "public_note": "52/132 sheets have only 1–2 parts; 21/24 sheets with 12+ parts matched.",
+      "source_families": 11,
+      "test": {
+        "cases": 132,
+        "countries_right": 618,
+        "errors": 0,
+        "expected_countries": 621,
+        "expected_names": 632,
+        "extra_rows": 3,
+        "matched": 129,
+        "mismatched": 3,
+        "names_read": 629,
+        "unknown_documented": 11,
+        "unknown_expected": 11,
+        "unknown_withheld": 11,
+        "wrong_countries": 0
+      },
+      "test_cost_usd": 1.144786,
+      "test_model_calls": 132
+    }
+  ],
+  "schema_version": 1
+}

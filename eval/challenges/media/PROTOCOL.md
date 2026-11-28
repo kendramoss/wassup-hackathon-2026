@@ -1,0 +1,65 @@
+# Source-grounded BOM image challenges (D972, #985)
+
+## Scope and source
+
+Evaluate the production `extract.ExtractMedia` entry point through `cmd/mediacheck`, not an independent OCR service. This measures transcription into the app's confirmed-parts draft, not country-of-origin legal judgement. No foundation-model fine-tuning.
+
+`cases.json` contains 24 development images from three source families and 132 reserved images from eleven different source families. All fourteen are existing ruling-derived illustrative demo fixtures, cited by fixture path, source description and byte hash. Their original primary CBP rulings were not newly reread for this image study. Expected answers are the text rendered onto the new synthetic sheets; these are not official CBP BOMs or newly collected real documents. Source fixture descriptions can simplify or group components. A line item is scored as the printed description, including a grouped assembly, not as separate inferred nouns.
+
+Source-family split, chosen before model calls: PCR analyzer, AGV and power-bank fixtures are development; the other eleven structured-product fixtures are reserved. No source family or exact component-list input crosses that split. Related images within a family are not independent observations.
+
+## Variations
+
+Twelve rendering families: ordinary table, country-first reordered columns, parts list, dense small print, lower contrast, skew/blur, reduced-resolution speckled grayscale scan, JPEG compression, missing origin with a supplier-address distractor, quantities/line codes with country abbreviations, bilingual French/English headers, and a separate assembly/testing footer. Development uses the first eight; the final four are reserved-only. Row order and counts vary where the source has enough parts. Bilingual variation is headers only; component names remain English. Images are deterministic with the recorded Pillow version and bundled font. No handwriting, real camera photos or physical printing/scanning.
+
+Opaque image IDs are hashes of source-family and rendering identity, not expected answers. Images contain no ruling numbers, gold labels, test split or hidden answer metadata. The model sees the pixels plus the production file type/dimensions, not the manifest, filename, source IDs, expected country, legal holding or scorer rationale. The renderer/expected list is independent of the extractor and makes no model calls.
+
+## Scoring, fixed before any call
+
+Case/whitespace-normalized component names match exactly; name substrings or a model judge are not accepted. A fixed country-alias map accepts country codes and common aliases. This strict row matching can reject a semantically reasonable paraphrase or split of a grouped description; retain it and report the scoring limitation, do not relabel after observing a result.
+
+For printed known-country rows, count names read and correct countries. Extra rows, duplicates and wrong countries are separate. The production API does not retain missing-country rows among confirmed components: it emits a missing-country warning. Thus an unknown row is correct only if its name appears in that production warning and it has no invented confirmed-country entry. Unknown withheld, unknown documented and expected unknown are separate counts; a call error is never a correct withholding.
+
+A whole document passes only if all printed names are represented, all known origins agree, every unknown is warned about and withheld, and there are no extra confirmed rows. Errors remain in the document denominator and score zero fields. Each summary also retains field numerators/denominators, extra rows, wrong countries, cost and latency. No synthetic population confidence interval or pooled real/synthetic accuracy claim.
+
+## Development, candidate and reserved run
+
+Initial model is the configured production extraction model, `gemini-4-argon`, and prompt `extract-image-v1`. First run the 24 development sheets. Improve only if a development result demonstrates a defensible implementation defect; retain every attempted candidate and score, including regressions. No minimum score is invented to excuse hidden failures, and no specialist review gate is introduced. An unchanged candidate is allowed if development does not justify a change.
+
+Before the first reserved call, commit `freeze.json` with selected candidate revision and the full dataset byte hash. The binary is built from that exact clean candidate; subsequent documentation/result-only commits do not change it. Each reserved document is scored once. Per-image first output is written immutably, with image and candidate hashes. Resume can only fill unattempted images with matching provenance; ambiguous pending outputs require inspection, not automatic retry. No post-test candidate tuning, input correction, label correction or polishing rescore is part of this first study.
+
+## Execution and budget
+
+Only the approved gateway process environment is accepted by `run.py`; fake and Vertex results are not eligible evidence. No credentials or their locations are committed or printed. Initial media allowance is $15 across development plus test, within the user's $1,000 cumulative programme cap. Estimate: 156 short image calls at roughly $0.03 each = $4.68; a conservative $0.08 per image = $12.48. Check shared spend before scoring; record actual gateway costs after each paid run. A $0.50 pending-call reservation limits concurrency and prevents starting work beyond the remaining run allowance. This is a conservative estimate, not a contractual bound against arbitrary model price changes; actual cost and any missing reports are disclosed. Maximum three concurrent images, one extraction call per image.
+
+A local fake-model Go regression test proves the evaluator retains missing-country warnings; it is test wiring, not any study's measured score. Study results require `provider: litellm` and `simulated: false`. No production endpoint, customer document, production DB or deploy configuration is changed.
+
+## Reproduction
+
+- `python3 -I -B eval/challenges/media/test_study.py` (standard library)
+- With the already available Pillow environment: `python3 -I -B eval/challenges/media/study.py generate --check`
+- After the recorded calls: `python3 -I -B eval/challenges/media/study.py summarize --check`
+- `cd backend && go test ./cmd/mediacheck`
+
+Reproduction is offline and does not add trials. The bounded run-of-record images and their deterministic definitions are retained; do not duplicate raw image lanes.
+
+## Development amendment, before candidate-v2 scoring
+
+First baseline: 21/24 documents, 140/151 names and stated origins matched, 10 extra confirmed rows, no wrong matched-country values or model errors; cost $0.195032. Three failures on power-bank documents: origin suffixes copied into every name, JSON field text fused into a name, and whitespace before closing parentheses. All first outputs remain in `results/dev-baseline/`, and the original strict scorer is unchanged. Candidate v2 adds generic name/column/row separation instructions and uses prompt version extract-image-v2. Accept v2 only if it matches at least 21/24 documents and at least 140/151 stated origins, with no increase in model errors or wrong-country values. This criterion is recorded before its development score. No reserved result has been observed.
+
+## Selected candidate, before the first reserved score
+
+Candidate dd158f8a94d3ec803519b5adc926e6fc3e4bd4e9 / extract-image-v2 met the registered development criterion: 23/24 documents, 148/151 name and origin fields, three extra rows, zero wrong matched-country values and zero errors. Cost $0.230518; baseline plus selected development $0.425550. The remaining failure is retained; no third candidate is tried. `freeze.json` records the selected binary and unchanged 132-image reserved manifest. No reserved image has been scored at this commit.
+
+## First reserved outcome
+
+Candidate `dd158f8a94d3ec803519b5adc926e6fc3e4bd4e9`, prompt extract-image-v2, unchanged frozen dataset `ac2ed27c5ca180073286dc7bf42b31b0a0e6ba69594161193144934d29e8868a`. Whole-document checks 129/132 (97.7%), three mismatches, zero errors; names 629/632 and known-country fields 618/621 under the original strict matching. Missing-origin cases 11/11 withheld and named in warnings. No incorrect country on a matched name.
+- **Failures retained.** All three are the heat-gun PCBA name with an extra space before the closing parenthesis, across dense, JPEG and quantity/code layouts. They are three unmatched extracted names, not evidence of three invented parts. The original strict score is retained; no cosmetic normalizer, label correction or polishing rerun was introduced after observing the reserved results.
+- **Development.** Baseline 21/24 documents, 140/151 name/origin fields ($0.195032), then generic name/row separation candidate23/24 and148/151 ($0.230518). Registered criterion met before the reserved run. Both original attempts remain; no third candidate.
+- **Cost and latency.** All180 image calls retained and cost-reported: development$0.425550, reserved$1.144786, total$1.570336. Reserved p50 9.0775 seconds, p95 18.783 seconds. Zero missing cost reports; initial15 allocation not approached.
+- **Scope.** Eleven reserved content/source families, twelve rendering families; three separate development source families. Synthetic image robustness, not new legal cases, real photos or handwriting. Component descriptions come from archived ruling-derived illustrative fixtures; primary rulings were not newly reread. Layouts and source components are dependent. No independent-observation interval.
+- **Reproduction.** All first per-image outputs, candidate/image/data hashes, selected freeze, scored rows and shared summary are committed under `eval/challenges/media/`. Offline Python checks reproduce all outcomes and costs; the Go test invokes them without model calls. Aggregation was extended after scoring to retain baseline cost and validate raw provenance; per-document scoring, labels and raw outcomes are unchanged. Full Go testing initially caught the prompt snapshot still at v1; its metadata was updated to v2 without changing the measured prompt or repeating calls.
+
+### D973 review qualification
+
+The132-document score weights every sheet equally:52haveonly1–2parts; sheetswith12+parts scored21/24, not97.7%. Both size groups are now explicit in the summary, with the mix visible in public_note. The11missing-origin sheets explicitly label the supplier address as not a statement of origin; this is not an unlabelled-distractor test. Font glyph spacing can contribute to the three strict PCBA-name mismatches. No original outcome or normalizer changed. Raw-output validation now additionally requires the measured model, prompt version and non-simulation flag; all180existing outputs already satisfy them. Current multimodal documentation is updated to v2.

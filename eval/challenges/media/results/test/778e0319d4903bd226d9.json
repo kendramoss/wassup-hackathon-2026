@@ -1,0 +1,42 @@
+{
+  "candidate_revision": "dd158f8a94d3ec803519b5adc926e6fc3e4bd4e9",
+  "dataset_sha256": "ac2ed27c5ca180073286dc7bf42b31b0a0e6ba69594161193144934d29e8868a",
+  "git_revision": "dd158f8a94d3ec803519b5adc926e6fc3e4bd4e9",
+  "image_sha256": "b9b6719297ed3982e7e8aa3a9850c6f6279d8bbf9660fa3b6014e996eb5217ee",
+  "model": "gemini-4-argon",
+  "note": "synthetic renderings of illustrative BOMs; illustrative only",
+  "provider": "litellm",
+  "scores": [
+    {
+      "cost_usd_gateway": 0.00647,
+      "country_right": 1,
+      "expected": 1,
+      "extra_rows": 0,
+      "image": "778e0319d4903bd226d9.png",
+      "input_tokens": 2420,
+      "latency_ms": 7772,
+      "model_id": "gemini-4-argon",
+      "name_read": 1,
+      "output_tokens": 163,
+      "prompt_version": "extract-image-v2",
+      "read": [
+        {
+          "country": "Indonesia",
+          "name": "parent rolls of tissue paper"
+        }
+      ],
+      "simulated": false,
+      "style": "skew"
+    }
+  ],
+  "summary": {
+    "cost_usd_gateway": 0.00647,
+    "countries_right": 1,
+    "expected_parts": 1,
+    "extra_rows": 0,
+    "failed_calls": 0,
+    "images": 1,
+    "names_read": 1
+  },
+  "time": "2026-11-28T17:28:24+08:00"
+}

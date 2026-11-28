@@ -1,0 +1,58 @@
+{
+  "candidate_revision": "dd158f8a94d3ec803519b5adc926e6fc3e4bd4e9",
+  "dataset_sha256": "ac2ed27c5ca180073286dc7bf42b31b0a0e6ba69594161193144934d29e8868a",
+  "git_revision": "dd158f8a94d3ec803519b5adc926e6fc3e4bd4e9",
+  "image_sha256": "1334784bc7036de1965e4038b9ee69c7f33b85a147fbe244355974ec8cf8fb0d",
+  "model": "gemini-4-argon",
+  "note": "synthetic renderings of illustrative BOMs; illustrative only",
+  "provider": "litellm",
+  "scores": [
+    {
+      "cost_usd_gateway": 0.00867,
+      "country_right": 5,
+      "expected": 5,
+      "extra_rows": 0,
+      "image": "51f3e6831ddd4f5d5401.png",
+      "input_tokens": 2445,
+      "latency_ms": 11700,
+      "model_id": "gemini-4-argon",
+      "name_read": 5,
+      "output_tokens": 378,
+      "prompt_version": "extract-image-v2",
+      "read": [
+        {
+          "country": "China",
+          "name": "lenses, laser emitters and detectors, flexible printed circuits, brackets, heat sink, motor, covers, base and all other components"
+        },
+        {
+          "country": "Thailand",
+          "name": "transmitter (TX) PCBA"
+        },
+        {
+          "country": "Thailand",
+          "name": "receiver (RX) PCBA"
+        },
+        {
+          "country": "Thailand",
+          "name": "Bottom Main Board (BMB) PCBA"
+        },
+        {
+          "country": "Thailand",
+          "name": "Top Main Board (TMB) PCBA"
+        }
+      ],
+      "simulated": false,
+      "style": "skew"
+    }
+  ],
+  "summary": {
+    "cost_usd_gateway": 0.00867,
+    "countries_right": 5,
+    "expected_parts": 5,
+    "extra_rows": 0,
+    "failed_calls": 0,
+    "images": 1,
+    "names_read": 5
+  },
+  "time": "2026-11-28T17:27:39+08:00"
+}

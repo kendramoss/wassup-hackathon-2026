@@ -1,0 +1,74 @@
+{
+  "candidate_revision": "a479a7980b403d7b930f9bbfc4f8ab257c64e5be",
+  "dataset_sha256": "ac2ed27c5ca180073286dc7bf42b31b0a0e6ba69594161193144934d29e8868a",
+  "git_revision": "a479a7980b403d7b930f9bbfc4f8ab257c64e5be",
+  "image_sha256": "3d84833b33a7749b21f5d34f68294dd9a4f188bd677cdcc25459700145eac7ff",
+  "model": "gemini-4-argon",
+  "note": "synthetic renderings of illustrative BOMs; illustrative only",
+  "provider": "litellm",
+  "scores": [
+    {
+      "cost_usd_gateway": 0.008794,
+      "country_right": 9,
+      "expected": 9,
+      "extra_rows": 0,
+      "image": "cfa8f8614cedcc338cc5.jpg",
+      "input_tokens": 2362,
+      "latency_ms": 9979,
+      "model_id": "gemini-4-argon",
+      "name_read": 9,
+      "output_tokens": 407,
+      "prompt_version": "extract-image-v1",
+      "read": [
+        {
+          "country": "China",
+          "name": "Temperature control module"
+        },
+        {
+          "country": "China",
+          "name": "Guide rail assembly"
+        },
+        {
+          "country": "China",
+          "name": "Wires"
+        },
+        {
+          "country": "China",
+          "name": "Monitor"
+        },
+        {
+          "country": "China",
+          "name": "Main printed circuit board"
+        },
+        {
+          "country": "China",
+          "name": "Power supply switch"
+        },
+        {
+          "country": "China",
+          "name": "Power supply fixing plate"
+        },
+        {
+          "country": "China",
+          "name": "Support"
+        },
+        {
+          "country": "China",
+          "name": "Power supply"
+        }
+      ],
+      "simulated": false,
+      "style": "jpeg"
+    }
+  ],
+  "summary": {
+    "cost_usd_gateway": 0.008794,
+    "countries_right": 9,
+    "expected_parts": 9,
+    "extra_rows": 0,
+    "failed_calls": 0,
+    "images": 1,
+    "names_read": 9
+  },
+  "time": "2026-11-28T17:16:05+08:00"
+}

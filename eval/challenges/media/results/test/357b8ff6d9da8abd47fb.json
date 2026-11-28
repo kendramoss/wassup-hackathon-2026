@@ -1,0 +1,58 @@
+{
+  "candidate_revision": "dd158f8a94d3ec803519b5adc926e6fc3e4bd4e9",
+  "dataset_sha256": "ac2ed27c5ca180073286dc7bf42b31b0a0e6ba69594161193144934d29e8868a",
+  "git_revision": "dd158f8a94d3ec803519b5adc926e6fc3e4bd4e9",
+  "image_sha256": "20a26faeb1b2ef878f4e272c13dd36ee3624e935dc3bdc1f4b5c499e2a0acb8f",
+  "model": "gemini-4-argon",
+  "note": "synthetic renderings of illustrative BOMs; illustrative only",
+  "provider": "litellm",
+  "scores": [
+    {
+      "cost_usd_gateway": 0.008326,
+      "country_right": 5,
+      "expected": 5,
+      "extra_rows": 0,
+      "image": "357b8ff6d9da8abd47fb.png",
+      "input_tokens": 2468,
+      "latency_ms": 8409,
+      "model_id": "gemini-4-argon",
+      "name_read": 5,
+      "output_tokens": 339,
+      "prompt_version": "extract-image-v2",
+      "read": [
+        {
+          "country": "Vietnam",
+          "name": "gas selector valve and regulators"
+        },
+        {
+          "country": "China",
+          "name": "thermostatic gas valve and aluminium tubes"
+        },
+        {
+          "country": "China",
+          "name": "front and back panel assemblies and wall bracket"
+        },
+        {
+          "country": "China",
+          "name": "oxygen depletion sensor assemblies and ignitor module"
+        },
+        {
+          "country": "China",
+          "name": "burner assembly"
+        }
+      ],
+      "simulated": false,
+      "style": "skew"
+    }
+  ],
+  "summary": {
+    "cost_usd_gateway": 0.008326,
+    "countries_right": 5,
+    "expected_parts": 5,
+    "extra_rows": 0,
+    "failed_calls": 0,
+    "images": 1,
+    "names_read": 5
+  },
+  "time": "2026-11-28T17:24:48+08:00"
+}

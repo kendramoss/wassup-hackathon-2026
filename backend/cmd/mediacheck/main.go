@@ -61,6 +61,7 @@ type Score struct {
 	Extra         int      `json:"extra_rows"`
 	Missed        []string `json:"missed,omitempty"`
 	Read          []Row    `json:"read,omitempty"`
+	Warnings      []string `json:"warnings,omitempty"`
 	Simulated     bool     `json:"simulated"`
 	InputTokens   int      `json:"input_tokens"`
 	OutputTokens  int      `json:"output_tokens"`
@@ -182,7 +183,7 @@ func run(dir, out, runlog, only string) error {
 			got[norm(r.Name)] = r.MadeIn
 			read = append(read, Row{Name: r.Name, Country: r.MadeIn})
 		}
-		s := Score{Image: it.Image, Style: it.Style, CostUSD: tally.USD(), Read: read, Expected: len(it.Components), Simulated: d.Simulated, InputTokens: d.Trace.InputTokens,
+		s := Score{Image: it.Image, Style: it.Style, CostUSD: tally.USD(), Read: read, Warnings: d.Warnings, Expected: len(it.Components), Simulated: d.Simulated, InputTokens: d.Trace.InputTokens,
 			OutputTokens: d.Trace.OutputTokens, LatencyMS: d.Trace.LatencyMS, PromptVersion: d.Trace.PromptVersion, ModelID: d.Trace.ModelID}
 		matched := 0
 		for _, c := range it.Components {

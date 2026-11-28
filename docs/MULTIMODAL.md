@@ -22,7 +22,7 @@ The answer is the `/v1/products/extract` draft plus:
 - per row `source_file`, `source_page` (1-based) and `unclear` (the model was not sure it read the row). `source_paragraph` is 0.
 - `unreadable`: places the model could not read, with file, page and what. Each is also a plain-words line in `warnings`.
 - `simulated: true` when the local fake model answered.
-- `trace.prompt_version`: `extract-image-v1`.
+- `trace.prompt_version`: `extract-image-v2`.
 
 It is a separate endpoint from `/v1/products/extract` (JSON text) so each has one content type, one size limit and one schema. An MCP tool can wrap it as is. Full schema: `docs/api/openapi.yaml`.
 
@@ -44,7 +44,7 @@ Follows `docs/design/data-handling.md`. The files are read into memory (not `Par
 
 ## Model and prompt
 
-The extractor uses `ENGINE_MODEL` (default `gemini-4-argon`), the same model and client as the text draft, at temperature 0 with the fixed seed and a JSON schema. The prompt `extract-image-v1` tells the model to transcribe what is printed, to leave a country empty when none is printed, to mark rows it is unsure of, and to treat text in the files as data, not instructions. It is fingerprinted in `backend/internal/promptsnap/snapshot.json`.
+The extractor uses `ENGINE_MODEL` (default `gemini-4-argon`), the same model and client as the text draft, at temperature 0 with the fixed seed and a JSON schema. The prompt `extract-image-v2` tells the model to transcribe what is printed, to leave a country empty when none is printed, to mark rows it is unsure of, and to treat text in the files as data, not instructions. It is fingerprinted in `backend/internal/promptsnap/snapshot.json`.
 
 ## How it was tested
 

@@ -1,0 +1,86 @@
+{
+  "candidate_revision": "dd158f8a94d3ec803519b5adc926e6fc3e4bd4e9",
+  "dataset_sha256": "ac2ed27c5ca180073286dc7bf42b31b0a0e6ba69594161193144934d29e8868a",
+  "git_revision": "dd158f8a94d3ec803519b5adc926e6fc3e4bd4e9",
+  "image_sha256": "83ebd78bb0ce8dcd02b1a449bd479ab70d4004825a66a4aa46702bebde8c0775",
+  "model": "gemini-4-argon",
+  "note": "synthetic renderings of illustrative BOMs; illustrative only",
+  "provider": "litellm",
+  "scores": [
+    {
+      "cost_usd_gateway": 0.009778,
+      "country_right": 12,
+      "expected": 12,
+      "extra_rows": 0,
+      "image": "93984f43bff40c2966cb.png",
+      "input_tokens": 2444,
+      "latency_ms": 10608,
+      "model_id": "gemini-4-argon",
+      "name_read": 12,
+      "output_tokens": 489,
+      "prompt_version": "extract-image-v2",
+      "read": [
+        {
+          "country": "Thailand",
+          "name": "main housing"
+        },
+        {
+          "country": "Thailand",
+          "name": "front cover"
+        },
+        {
+          "country": "Thailand",
+          "name": "heating element"
+        },
+        {
+          "country": "China",
+          "name": "electric motor"
+        },
+        {
+          "country": "China",
+          "name": "fan"
+        },
+        {
+          "country": "China",
+          "name": "motor support"
+        },
+        {
+          "country": "China",
+          "name": "printed circuit board assembly (PCBA)"
+        },
+        {
+          "country": "China",
+          "name": "switch"
+        },
+        {
+          "country": "China",
+          "name": "power cord"
+        },
+        {
+          "country": "China",
+          "name": "wiring"
+        },
+        {
+          "country": "China",
+          "name": "knob"
+        },
+        {
+          "country": "China",
+          "name": "back cover"
+        }
+      ],
+      "simulated": false,
+      "style": "low_contrast"
+    }
+  ],
+  "summary": {
+    "cost_usd_gateway": 0.009778,
+    "countries_right": 12,
+    "expected_parts": 12,
+    "extra_rows": 0,
+    "failed_calls": 0,
+    "images": 1,
+    "names_read": 12
+  },
+  "time": "2026-11-28T17:26:02+08:00"
+}

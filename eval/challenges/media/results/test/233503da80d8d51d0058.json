@@ -1,0 +1,90 @@
+{
+  "candidate_revision": "dd158f8a94d3ec803519b5adc926e6fc3e4bd4e9",
+  "dataset_sha256": "ac2ed27c5ca180073286dc7bf42b31b0a0e6ba69594161193144934d29e8868a",
+  "git_revision": "dd158f8a94d3ec803519b5adc926e6fc3e4bd4e9",
+  "image_sha256": "e8ae8d3b42ff6bbaf8825b02ba9e443f8f343f0e9d6843fa2be07fbba26bd95a",
+  "model": "gemini-4-argon",
+  "note": "synthetic renderings of illustrative BOMs; illustrative only",
+  "provider": "litellm",
+  "scores": [
+    {
+      "cost_usd_gateway": 0.008816000000000001,
+      "country_right": 13,
+      "expected": 13,
+      "extra_rows": 0,
+      "image": "233503da80d8d51d0058.png",
+      "input_tokens": 2453,
+      "latency_ms": 10704,
+      "model_id": "gemini-4-argon",
+      "name_read": 13,
+      "output_tokens": 391,
+      "prompt_version": "extract-image-v2",
+      "read": [
+        {
+          "country": "China",
+          "name": "Deep draw main lids"
+        },
+        {
+          "country": "China",
+          "name": "Formed and punched fireboxes"
+        },
+        {
+          "country": "China",
+          "name": "Lid handle, badges, and thermometer"
+        },
+        {
+          "country": "China",
+          "name": "Manifold tube, regulator hose, fittings, and gas valves"
+        },
+        {
+          "country": "China",
+          "name": "Manifold sub-assemblies"
+        },
+        {
+          "country": "China",
+          "name": "LP regulator sub-assembly"
+        },
+        {
+          "country": "China",
+          "name": "Perforated tube steel, fuel mixer screw, spider mesh, and burner cap"
+        },
+        {
+          "country": "China",
+          "name": "Burners"
+        },
+        {
+          "country": "China",
+          "name": "Knobs"
+        },
+        {
+          "country": "China",
+          "name": "Control panels"
+        },
+        {
+          "country": "China",
+          "name": "Cart frames"
+        },
+        {
+          "country": "China",
+          "name": "Side shelves"
+        },
+        {
+          "country": "China",
+          "name": "Cooking area"
+        }
+      ],
+      "simulated": false,
+      "style": "low_contrast"
+    }
+  ],
+  "summary": {
+    "cost_usd_gateway": 0.008816000000000001,
+    "countries_right": 13,
+    "expected_parts": 13,
+    "extra_rows": 0,
+    "failed_calls": 0,
+    "images": 1,
+    "names_read": 13
+  },
+  "time": "2026-11-28T17:23:49+08:00"
+}
