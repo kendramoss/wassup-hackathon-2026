@@ -51,3 +51,13 @@ Estimate initial development at less than $5; use actual gateway cost headers an
 A raw-call guard reserves $0.50 before sending each request and reconciles actual cost afterwards. This allowance is conservative for the bounded prompts/output; an unusually higher provider price or unreported spend must be disclosed. Stop before another unaffordable raw call; do not pretend an uncalled case was evaluated. Check the measured development cost before allocating the reserved test run.
 
 Development failures may justify a general prompt/rule fix with regression tests. Keep all attempts. If no safe improvement is demonstrated, retain the production candidate rather than force a change for the word training. Before reserved scoring, commit the selected candidate and record its SHA. D975 will retain the first reserved result, even if poor.
+
+## Development candidate preregistration, after the baseline development run
+
+Baseline v2 on the 28 development cases: 26 matched, 2 mismatched, no model errors; 3 of 12 positive moves shown, no false-positive controls or shown incomplete cases. Cost $1.2275622, all raw-call costs reported. The two wrong origins conflate an unfinished blank with a completed functional article; one occurs in the reverse direction. These are development observations only; the 220 reserved model outcomes have not been scored or inspected.
+
+Test development candidate v4 once on the same development cases. It keeps precedent-first search, counter-search, the same evidence-based confidence scale and shown bar, but makes functional completion and directionality explicit rather than treating generic process names as categorical exclusions. It gets a separate prompt/cache identity; no model fine-tuning. Public defaults remain v2 during this experiment.
+
+Select v4 for the reserved run only if it reaches at least 27 of 28 development expectations, has no shown negative controls or shown incomplete cases, no model errors, and shows at least the baseline 3 of 12 correct changes. Otherwise keep v2 and record the negative result. This is development selection, not a statistically established improvement. Freeze the selected candidate before the first reserved run. Never lower the 0.92 bar to manufacture coverage.
+
+The user raised the cumulative programme cap to $1,000 during this work. The verifier's initial $30 lane allowance still applies to baseline, candidate development and reserved scoring unless the coordinator records a reallocation first.

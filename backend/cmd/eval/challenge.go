@@ -94,6 +94,7 @@ func moveChallengeCmd(args []string) error {
 	raw := fl.String("raw", "../data/corpus/raw", "read-only raw rulings")
 	labels := fl.String("labels", "../eval/data/labels.jsonl", "frozen precedent labels")
 	workers := fl.Int("workers", 3, "parallel case checks")
+	prompt := fl.String("prompt", "", "development candidate v2 or v4; empty uses configuration")
 	maxUSD := fl.Float64("max-usd", 30, "model-call budget remaining for this run")
 	resume := fl.Bool("resume", false, "continue only unattempted cases under same candidate")
 	summarizeOnly := fl.Bool("summarize-only", false, "offline scoring of complete stored rows")
@@ -143,6 +144,12 @@ func moveChallengeCmd(args []string) error {
 	cfg, err := loadConfig()
 	if err != nil {
 		return err
+	}
+	if *prompt != "" {
+		if *prompt != "v2" && *prompt != "v4" {
+			return errors.New("unsupported challenge candidate prompt")
+		}
+		cfg.VerifierPrompt = *prompt
 	}
 	labs, err := corpus.LoadLabels(*labels)
 	if err != nil {
