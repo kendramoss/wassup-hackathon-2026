@@ -20,6 +20,7 @@ test("the public bundle is byte-provenanced to selected completed source studies
     }
   }
   assert.ok(ids.has("atiga"));
+  assert.ok(ids.has("move_verifier"));
 });
 
 test("Accuracy leads the rule challenges with the larger selected studies", async () => {
@@ -82,6 +83,21 @@ test("source limitations and authoring defects are readable without leaving Accu
   const t = text(html(ChallengeEvidence, { features }));
   assert.ok(t.includes(data.features[0].limitations[0]));
   assert.ok(t.includes(data.features[0].error_note));
+});
+
+test("move verification cannot hide low coverage behind conditional precision", async () => {
+  const { parseChallengeSummary } = await import("../src/lib/challenge-evidence.ts");
+  const { ChallengeEvidence } = await import("../src/components/op/challenge-evidence.tsx");
+  const data = fixture();
+  const f = data.features[0];
+  Object.assign(f, { id: "move_verifier", shown_precision: {num: 47, den: 47}, positive_recall: {num: 47, den: 100}, negative_controls: {num: 99, den: 100}, incomplete_controls: {num: 20, den: 20} });
+  const features = parseChallengeSummary(data, "eval/challenges/example/summary.json");
+  const t = text(html(ChallengeEvidence, { features }));
+  for (const value of ["Shown moves correct 47/47", "Valid changes shown 47/100", "Unchanged controls withheld 99/100", "Missing-fact controls withheld 20/20"]) assert.ok(t.includes(value), value);
+  delete f.positive_recall;
+  assert.throws(() => parseChallengeSummary(data, "eval/challenges/example/summary.json"));
+  f.positive_recall = {num: 101, den: 100};
+  assert.throws(() => parseChallengeSummary(data, "eval/challenges/example/summary.json"));
 });
 
 test("source-isolation qualifications cannot disappear from the public table", async () => {

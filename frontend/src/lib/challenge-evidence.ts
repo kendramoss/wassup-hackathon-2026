@@ -13,6 +13,7 @@ export type ChallengeFeature = {
   limitations: string[];
   sourcePath: string;
   public_note?: string;
+  metrics: { id: string; label: string; num: number; den: number }[];
 };
 
 function object(value: unknown): Record<string, unknown> {
@@ -68,11 +69,24 @@ export function parseChallengeSummary(input: unknown, sourcePath: string): Chall
     const errorNote = f.error_note === undefined ? [] : [nonempty(f.error_note, "error qualification")];
     const publicNote = f.public_note === undefined ? undefined : nonempty(f.public_note, "public qualification");
     if (f.source_isolation_issue === true && !publicNote) throw new Error("Source isolation qualification cannot be hidden");
+    const metricFields = [
+      ["shown_precision", "Shown moves correct"],
+      ["positive_recall", "Valid changes shown"],
+      ["negative_controls", "Unchanged controls withheld"],
+      ["incomplete_controls", "Missing-fact controls withheld"],
+    ] as const;
+    const metrics = metricFields.flatMap(([key, label]) => {
+      if (f[key] === undefined && id !== "move_verifier") return [];
+      const pair = object(f[key]);
+      const num = integer(pair.num, `${key} numerator`), den = integer(pair.den, `${key} denominator`);
+      if (num > den || den > test.cases) throw new Error("Invalid conditional challenge denominator");
+      return [{ id: key, label, num, den }];
+    });
     const sourceFamilies = integer(f.source_families, "source families");
     if (sourceFamilies < 1) throw new Error("Challenge source groups are missing");
     return {
       id, label: nonempty(f.label, "label"), candidate_revision: candidate, dataset_sha256: dataset,
-      source_families: sourceFamilies, development, test,
+      source_families: sourceFamilies, development, test, metrics,
       cost_usd: finite(f.cost_usd, "cost"), latency_p50_ms: finite(f.latency_p50_ms, "median latency"),
       latency_p95_ms: finite(f.latency_p95_ms, "tail latency"), limitations: [...f.limitations as string[], ...errorNote], sourcePath, public_note: publicNote,
     };

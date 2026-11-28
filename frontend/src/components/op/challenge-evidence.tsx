@@ -24,6 +24,11 @@ export function ChallengeEvidence({ features }: { features: readonly ChallengeFe
               <th scope="row" className="py-3 pr-3 text-left font-normal">
                 {f.label}
                 {f.public_note ? <span className="mt-1 block text-[12px] leading-snug text-dim">{f.public_note}</span> : null}
+                {f.metrics.length > 0 ? <dl className="mt-2 space-y-1 text-[12px] leading-snug text-dim">
+                  {f.metrics.map((metric) => <div key={metric.id} className="flex flex-wrap gap-x-2">
+                    <dt>{metric.label}</dt><dd className="tabular-nums">{metric.num}/{metric.den}</dd>
+                  </div>)}
+                </dl> : null}
               </th>
               <td className="py-3 text-right tabular-nums">
                 <strong>{challengePercent(f)}</strong>
