@@ -16,6 +16,15 @@ func TestMediaChallengeStudyReproducesWithoutModelCalls(t *testing.T) {
 	if err != nil {
 		t.Skip("python3 is required for offline study reproduction")
 	}
+	if err := filepath.Walk("../../../eval/challenges/media", func(path string, info os.FileInfo, err error) error {
+		if err != nil || info.IsDir() {
+			return err
+		}
+		_, err = os.ReadFile(path)
+		return err
+	}); err != nil {
+		t.Fatal(err)
+	}
 	for _, args := range [][]string{
 		{"-I", "-B", "../../../eval/challenges/media/test_study.py"},
 		{"-I", "-B", "../../../eval/challenges/media/study.py", "summarize", "--check"},

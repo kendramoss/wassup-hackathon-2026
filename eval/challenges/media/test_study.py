@@ -81,6 +81,9 @@ class OutputProvenance(unittest.TestCase):
             lambda r: r.update(dataset_sha256="0" * 64),
             lambda r: r["scores"][0].update(image="wrong.png"),
             lambda r: r["scores"][0].update(cost_usd_gateway=-1),
+            lambda r: r["scores"][0].update(prompt_version="wrong"),
+            lambda r: r.update(model="wrong"),
+            lambda r: r["scores"][0].update(simulated=True),
         ]:
             changed = copy.deepcopy(result)
             mutate(changed)
