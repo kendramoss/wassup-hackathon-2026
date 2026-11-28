@@ -1,0 +1,220 @@
+{
+  "schema_version": 1,
+  "evidence_kind": "source_grounded_synthetic",
+  "feature": "acfta",
+  "split": "posthoc",
+  "dataset_sha256": "c062a73b39df86fd28b52c59c1857c24292a3bfcdb32a246df8e03f9d8e0d593",
+  "candidate_revision": "b1d8f3bf94ab85ebb7f0fd3d0f22aae03ae5a93b",
+  "totals": {
+    "cases": 6,
+    "matched": 6,
+    "mismatched": 0,
+    "errors": 0
+  },
+  "metrics": {
+    "expected_outcomes": {
+      "no": 6
+    },
+    "confusion": {
+      "no": {
+        "no": 6
+      }
+    },
+    "abstention": {
+      "expected": 0,
+      "correct": 0,
+      "decided_instead": 0,
+      "abstained_when_a_decision_was_expected": 0
+    },
+    "yes_precision": {
+      "num": 0,
+      "den": 0
+    },
+    "yes_recall": {
+      "num": 0,
+      "den": 0
+    },
+    "decided_only_agreement": {
+      "num": 6,
+      "den": 6
+    },
+    "refusals_expected": 0,
+    "formatting_only_cases": 0,
+    "by_scenario_family": {
+      "authority-variants-corrected": {
+        "cases": 6,
+        "matched": 6,
+        "mismatched": 0,
+        "errors": 0
+      }
+    },
+    "scenario_families": 1,
+    "source_families": 2,
+    "parent_groups": 6,
+    "cases_with_parent": 6
+  },
+  "results": [
+    {
+      "id": "acfta-posthoc-authority-variants-01",
+      "split": "posthoc",
+      "feature": "acfta",
+      "scenario_family": "authority-variants-corrected",
+      "source_family_id": "authority-ac-accumulation-with",
+      "parent_id": "acfta-test-authority-variants-01",
+      "status": "matched",
+      "expected_abstention": false,
+      "expected": {
+        "outcome": "no",
+        "alternative": {
+          "RVC40": "no"
+        },
+        "accumulation": true
+      },
+      "actual": {
+        "outcome": "no",
+        "alternative": {
+          "RVC40": "no"
+        },
+        "accumulation": true,
+        "de_minimis_used": false,
+        "rvc_down": 15.555555555555555
+      },
+      "failures": []
+    },
+    {
+      "id": "acfta-posthoc-authority-variants-02",
+      "split": "posthoc",
+      "feature": "acfta",
+      "scenario_family": "authority-variants-corrected",
+      "source_family_id": "authority-ac-accumulation-with",
+      "parent_id": "acfta-test-authority-variants-02",
+      "status": "matched",
+      "expected_abstention": false,
+      "expected": {
+        "outcome": "no",
+        "alternative": {
+          "RVC40": "no"
+        },
+        "accumulation": true
+      },
+      "actual": {
+        "outcome": "no",
+        "alternative": {
+          "RVC40": "no"
+        },
+        "accumulation": true,
+        "de_minimis_used": false,
+        "rvc_down": 39.5
+      },
+      "failures": []
+    },
+    {
+      "id": "acfta-posthoc-authority-variants-03",
+      "split": "posthoc",
+      "feature": "acfta",
+      "scenario_family": "authority-variants-corrected",
+      "source_family_id": "authority-ac-accumulation-with",
+      "parent_id": "acfta-test-authority-variants-03",
+      "status": "matched",
+      "expected_abstention": false,
+      "expected": {
+        "outcome": "no",
+        "alternative": {
+          "RVC40": "no"
+        },
+        "accumulation": true
+      },
+      "actual": {
+        "outcome": "no",
+        "alternative": {
+          "RVC40": "no"
+        },
+        "accumulation": true,
+        "de_minimis_used": false,
+        "rvc_down": 15.555555555555555
+      },
+      "failures": []
+    },
+    {
+      "id": "acfta-posthoc-authority-variants-04",
+      "split": "posthoc",
+      "feature": "acfta",
+      "scenario_family": "authority-variants-corrected",
+      "source_family_id": "authority-ac-accumulation-without",
+      "parent_id": "acfta-test-authority-variants-04",
+      "status": "matched",
+      "expected_abstention": false,
+      "expected": {
+        "outcome": "no",
+        "alternative": {
+          "RVC40": "no"
+        },
+        "accumulation": false
+      },
+      "actual": {
+        "outcome": "no",
+        "alternative": {
+          "RVC40": "no"
+        },
+        "accumulation": false,
+        "de_minimis_used": false,
+        "rvc_down": -7.4074074074074066
+      },
+      "failures": []
+    },
+    {
+      "id": "acfta-posthoc-authority-variants-05",
+      "split": "posthoc",
+      "feature": "acfta",
+      "scenario_family": "authority-variants-corrected",
+      "source_family_id": "authority-ac-accumulation-without",
+      "parent_id": "acfta-test-authority-variants-05",
+      "status": "matched",
+      "expected_abstention": false,
+      "expected": {
+        "outcome": "no",
+        "alternative": {
+          "RVC40": "no"
+        },
+        "accumulation": false
+      },
+      "actual": {
+        "outcome": "no",
+        "alternative": {
+          "RVC40": "no"
+        },
+        "accumulation": false,
+        "de_minimis_used": false,
+        "rvc_down": 8.88888888888889
+      },
+      "failures": []
+    },
+    {
+      "id": "acfta-posthoc-authority-variants-06",
+      "split": "posthoc",
+      "feature": "acfta",
+      "scenario_family": "authority-variants-corrected",
+      "source_family_id": "authority-ac-accumulation-without",
+      "parent_id": "acfta-test-authority-variants-06",
+      "status": "matched",
+      "expected_abstention": false,
+      "expected": {
+        "outcome": "no",
+        "alternative": {
+          "RVC40": "no"
+        },
+        "accumulation": false
+      },
+      "actual": {
+        "outcome": "no",
+        "alternative": {
+          "RVC40": "no"
+        },
+        "accumulation": false,
+        "de_minimis_used": false,
+        "rvc_down": 35.55555555555556
+      },
+      "failures": []
+    }
+  ]
+}
