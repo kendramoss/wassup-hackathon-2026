@@ -17,13 +17,14 @@ func round6(v float64) float64 { return math.Round(v*1e6) / 1e6 }
 
 // Summary is summary.json: the shared evidence contract plus extra fields.
 type Summary struct {
-	SchemaVersion int               `json:"schema_version"`
-	EvidenceKind  string            `json:"evidence_kind"`
-	Features      []FeatureSummary  `json:"features"`
-	Routing       *RoutingEntry     `json:"routing,omitempty"`
-	Comparator    *ComparatorEntry  `json:"live_textile_comparator,omitempty"`
-	Corpus        map[string]string `json:"corpus"`
-	Attempts      []AttemptTotal    `json:"attempts_by_feature"`
+	SchemaVersion   int                   `json:"schema_version"`
+	EvidenceKind    string                `json:"evidence_kind"`
+	Features        []FeatureSummary      `json:"features"`
+	Routing         *RoutingEntry         `json:"routing,omitempty"`
+	Comparator      *ComparatorEntry      `json:"live_textile_comparator,omitempty"`
+	JapanComparator *JapanComparatorEntry `json:"live_japan_comparator,omitempty"`
+	Corpus          map[string]string     `json:"corpus"`
+	Attempts        []AttemptTotal        `json:"attempts_by_feature"`
 }
 
 // RoutingEntry is the extra routing feature, with its own denominators.
@@ -225,6 +226,9 @@ func buildSummary(candidate string) (Summary, error) {
 	if sum.Comparator, err = buildComparator(); err != nil {
 		return sum, err
 	}
+	if sum.JapanComparator, err = buildJapanComparator(); err != nil {
+		return sum, err
+	}
 	return sum, nil
 }
 
@@ -399,6 +403,69 @@ func buildComparator() (*ComparatorEntry, error) {
 		"Post-hoc and current-configuration only: the original synthetic reserved textile cases had already been scored and seen by the author before this comparison, so it is not a new blind holdout and does not replace the original 114-case result.",
 		"Selected on the original development cases only, by a rule registered before any comparator call; one comparator score on the unchanged 114 reserved cases, no relabelling.",
 		"Gateway calls without the deployed engine cache, retry or fallback model; the deployed provider is Vertex. Graded at the deployed 0.95 textile bar.",
+		"Same synthetic-case limits as the study: oracle labels by the case author, shared templates with development.",
+	}
+	return e, nil
+}
+
+// JapanComparatorEntry is the post-hoc measurement of the unmodified Japan
+// engine on the original reserved cases (D971 amendment 4).
+type JapanComparatorEntry struct {
+	ID                string       `json:"id"`
+	Label             string       `json:"label"`
+	CandidateRevision string       `json:"candidate_revision"`
+	DatasetSHA256     string       `json:"dataset_sha256"`
+	Test              SplitSummary `json:"test"`
+	CostUSD           float64      `json:"test_cost_usd"`
+	LatencyP50MS      int64        `json:"latency_p50_ms"`
+	LatencyP95MS      int64        `json:"latency_p95_ms"`
+	Limitations       []string     `json:"limitations"`
+}
+
+func buildJapanComparator() (*JapanComparatorEntry, error) {
+	path := filepath.Join(dataRoot(), "results", japanComparatorTestFile)
+	if _, err := os.Stat(path); errors.Is(err, os.ErrNotExist) {
+		return nil, nil
+	}
+	_, test, err := LoadAll(dataRoot())
+	if err != nil {
+		return nil, err
+	}
+	cases := byFeature(test, "japan_engine")
+	rows, err := readRows(path)
+	if err != nil {
+		return nil, err
+	}
+	if err := Gate(rows); err != nil {
+		return nil, err
+	}
+	ts, err := SummarizeSplit(cases, rows)
+	if err != nil {
+		return nil, err
+	}
+	e := &JapanComparatorEntry{ID: JapanComparatorFeature, Label: "Japan preference engine as deployed (jp-engine-v1, no unknown-status sentence)", Test: ts}
+	if e.DatasetSHA256, err = fileSHA(filepath.Join(dataRoot(), "japan-test.jsonl")); err != nil {
+		return nil, err
+	}
+	if atts, err := readAttempts(); err == nil {
+		for _, a := range atts {
+			if a.Feature == JapanComparatorFeature && a.Split == "test" {
+				e.CandidateRevision = a.Head
+			}
+		}
+	}
+	var lat []int64
+	for _, r := range rows {
+		e.CostUSD += r.CostUSD
+		if r.CalledModel {
+			lat = append(lat, r.LatencyMS)
+		}
+	}
+	e.CostUSD, e.LatencyP50MS, e.LatencyP95MS = round6(e.CostUSD), Percentile(lat, .5), Percentile(lat, .95)
+	e.Limitations = []string{
+		"Post-hoc and current-configuration only: the original reserved Japan cases had already been scored and seen by the author; this is not a new blind holdout and does not replace the original 112-case result of the frozen cand-1 variant, which is unchanged.",
+		"The unmodified engine, one score, no tuning and no label or input change; the 13 cases whose tariff codes fall outside the schedule's HS edition stay in the denominator.",
+		"Gateway calls without the deployed engine cache, retry or fallback; the deployed provider is Vertex.",
 		"Same synthetic-case limits as the study: oracle labels by the case author, shared templates with development.",
 	}
 	return e, nil

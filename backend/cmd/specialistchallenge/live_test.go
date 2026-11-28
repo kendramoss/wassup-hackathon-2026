@@ -85,3 +85,27 @@ func TestLiveComparatorStaysApartFromTheOriginalStudy(t *testing.T) {
 	_ = domain.Case{}
 	_ = time.Now
 }
+
+func TestJapanComparatorStaysApartAndRunsTheUnmodifiedEngine(t *testing.T) {
+	if JapanComparatorFeature == "japan_engine" || japanComparatorTestFile == "japan-test.jsonl" {
+		t.Fatal("the Japan comparator must not reuse the original feature id or result file")
+	}
+	var systems []string
+	m := &llm.Fake{Respond: func(r llm.Request) (llm.Response, error) {
+		systems = append(systems, r.System)
+		return llm.Response{Text: `{"outcome":"undetermined","criterion":"NONE","origin_country":"","deciding_rule":"CC","confidence":0.8,"reasoning":"r","cited_rulings":[]}`}, nil
+	}}
+	c, err := NewCandidate(m, "gemini-4-argon", Pools{})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if err := c.SetVariant(""); err != nil {
+		t.Fatal(err)
+	}
+	jc := mk("japan_engine", "c0000000000i1", "test", "Materials: seal kit (HS 9615.90), origin status not known.", Expected{Kind: "uncertain", Outcome: "undetermined"})
+	jc.Input.Japan = &JapanInput{Agreement: "JP-Indonesia EPA", HS: "9605.00"}
+	row := RunCase(context.Background(), c, jc)
+	if row.PromptVersion != "jp-engine-v1" || strings.Contains(systems[0], "origin status is not stated") {
+		t.Errorf("not the unmodified engine: %q", row.PromptVersion)
+	}
+}

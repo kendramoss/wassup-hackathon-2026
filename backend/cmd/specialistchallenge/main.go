@@ -295,6 +295,7 @@ func cmdRun(args []string) error {
 	workers := fs.Int("workers", 6, "parallel cases")
 	variant := fs.String("variant", "", "dev-selected candidate variant")
 	limit := fs.Int("limit", 0, "development only: first N cases per feature")
+	japanComparator := fs.Bool("japan-comparator", false, "score the unmodified Japan engine once on the original reserved cases (D971 amendment 4)")
 	comparator := fs.Bool("comparator", false, "run the live-textile comparator (D971 amendment 2): textile only, deployed prompt")
 	_ = fs.Parse(args)
 	if *split != "dev" && *split != "test" {
@@ -306,11 +307,17 @@ func cmdRun(args []string) error {
 	if *split == "dev" && *tag == "" {
 		return errors.New("-tag names a development run")
 	}
-	if *split == "test" {
+	if *split == "test" && !*japanComparator {
 		if *limit != 0 || *variant != "" {
 			return errors.New("a reserved run takes no -limit or -variant: the candidate is frozen")
 		}
 		*variant = "frozen"
+	}
+	if *japanComparator {
+		if *comparator || *split != "test" || *variant != "" || *limit != 0 {
+			return errors.New("the Japan comparator is a single reserved-split run of the unmodified engine: no -comparator, -variant or -limit")
+		}
+		*feature = "japan_engine"
 	}
 	if *comparator {
 		if *feature != "all" && *feature != "textile_specialist" {
@@ -359,6 +366,9 @@ func cmdRun(args []string) error {
 		if *split == "test" {
 			if *comparator {
 				return filepath.Join(resDir, comparatorTestFile)
+			}
+			if *japanComparator {
+				return filepath.Join(resDir, japanComparatorTestFile)
 			}
 			return filepath.Join(resDir, f.File+"-test.jsonl")
 		}
@@ -454,6 +464,9 @@ func cmdRun(args []string) error {
 		attemptFeature := f.ID
 		if *comparator {
 			attemptFeature = ComparatorFeature
+		}
+		if *japanComparator {
+			attemptFeature = JapanComparatorFeature
 		}
 		if err := appendAttempt(attempt{Time: time.Now().UTC().Format(time.RFC3339), Tag: *tag, Feature: attemptFeature, Split: *split, Variant: *variant,
 			File: filepath.Base(name(f)), Head: strings.TrimSpace(head), Dirty: strings.TrimSpace(dirty) != "", Cases: s.Cases, Matched: s.Matched,

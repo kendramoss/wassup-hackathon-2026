@@ -204,6 +204,12 @@ const (
 
 const comparatorTestFile = "textile-live-test.jsonl"
 
+// The Japan comparator (D971 amendment 4): the unmodified engine, once.
+const (
+	JapanComparatorFeature  = "japan_live_comparator"
+	japanComparatorTestFile = "japan-live-test.jsonl"
+)
+
 func (c *Candidate) isLive() bool { return c.variant == LiveBase || c.variant == LiveCandidate }
 
 func (c *Candidate) barFor() float64 {
