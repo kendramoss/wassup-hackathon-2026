@@ -1,0 +1,220 @@
+{
+ "schema_version": 1,
+ "evidence_kind": "source_grounded_synthetic",
+ "features": [
+  {
+   "id": "usmca_rules",
+   "label": "USMCA preferential rules",
+   "candidate_revision": "20b97e0f9e387a06fd7922a69710825cfb9fb41e",
+   "dataset_sha256": "81a34e753d26817a270e3fd1fa625692455581bed33364504b7970184247aad2",
+   "development_dataset_sha256": "0ead2040ae814c68b94fd5ffe11a4251238fbdd5755c1d5b494a432124437cae",
+   "source_families": 12,
+   "families": {
+    "test_source_families": 12,
+    "test_scenario_families": 18,
+    "test_templates": 9,
+    "dev_source_families": 9,
+    "dev_templates": 8,
+    "test_source_families_also_in_dev": 1,
+    "test_templates_also_in_dev": 8,
+    "test_cases_with_parent": 6,
+    "test_cases_in_templates_shared_with_dev": 200
+   },
+   "development": {
+    "cases": 184,
+    "matched": 184,
+    "mismatched": 0,
+    "errors": 0,
+    "usmca": {
+     "expected_decisive": 108,
+     "engine_decisive": 108,
+     "decisive_correct": 108,
+     "decisive_precision": 1,
+     "decisive_recall": 1,
+     "false_decisive": 0,
+     "unexpected_abstain": 0,
+     "expected_abstain": 66,
+     "abstain_correct": 66,
+     "invalid_expected": 10,
+     "invalid_refused_correctly": 10,
+     "errors": 0
+    }
+   },
+   "test": {
+    "cases": 210,
+    "matched": 210,
+    "mismatched": 0,
+    "errors": 0,
+    "usmca": {
+     "expected_decisive": 125,
+     "engine_decisive": 125,
+     "decisive_correct": 125,
+     "decisive_precision": 1,
+     "decisive_recall": 1,
+     "false_decisive": 0,
+     "unexpected_abstain": 0,
+     "expected_abstain": 73,
+     "abstain_correct": 73,
+     "invalid_expected": 12,
+     "invalid_refused_correctly": 12,
+     "errors": 0
+    }
+   },
+   "cost_usd": 0,
+   "latency_p50_ms": 0.022,
+   "latency_p95_ms": 0.045,
+   "limitations": [
+    "Cases are constructed from the General Note 11(o), 11(c), 11(e), 11(n) and 11(p) text by one author; they are not independent customs decisions or an i.i.d. sample.",
+    "The expected labels come from a separate reference oracle written from the same authority text; it does not independently validate the embedded rule data's transcription.",
+    "Cases share rule rows across inputs; source families and structural templates shared with development are counted, not hidden.",
+    "The check models simple goods; accumulation, remanufacture, automotive rules and the rayon exceptions of textile chapters are outside its scope and outside these cases."
+   ]
+  },
+  {
+   "id": "textile_rules",
+   "label": "Textile origin (19 CFR 102.21)",
+   "candidate_revision": "20b97e0f9e387a06fd7922a69710825cfb9fb41e",
+   "dataset_sha256": "7fc009dd2794151480a4b7072ab6b62a62b69a6048f85f87c37359d96b925a46",
+   "development_dataset_sha256": "9d7ab031fb7d54927c54bdeda012c4896a473157efeeec0bab831e496f281368",
+   "source_families": 15,
+   "families": {
+    "test_source_families": 15,
+    "test_scenario_families": 16,
+    "test_templates": 9,
+    "dev_source_families": 8,
+    "dev_templates": 7,
+    "test_source_families_also_in_dev": 1,
+    "test_templates_also_in_dev": 6,
+    "test_cases_with_parent": 0,
+    "test_cases_in_templates_shared_with_dev": 121
+   },
+   "development": {
+    "cases": 63,
+    "matched": 63,
+    "mismatched": 0,
+    "errors": 0,
+    "textile": {
+     "expected_decided": 37,
+     "engine_decided": 37,
+     "decided_correct": 37,
+     "decided_precision": 1,
+     "decided_recall": 1,
+     "false_decided": 0,
+     "wrong_origin": 0,
+     "unexpected_undetermined": 0,
+     "expected_undetermined": 24,
+     "undetermined_correct": 24,
+     "reason_class_expected": 24,
+     "reason_class_matched": 24,
+     "out_of_scope_expected": 2,
+     "out_of_scope_correct": 2,
+     "errors": 0
+    }
+   },
+   "test": {
+    "cases": 146,
+    "matched": 146,
+    "mismatched": 0,
+    "errors": 0,
+    "textile": {
+     "expected_decided": 87,
+     "engine_decided": 87,
+     "decided_correct": 87,
+     "decided_precision": 1,
+     "decided_recall": 1,
+     "false_decided": 0,
+     "wrong_origin": 0,
+     "unexpected_undetermined": 0,
+     "expected_undetermined": 57,
+     "undetermined_correct": 57,
+     "reason_class_expected": 57,
+     "reason_class_matched": 55,
+     "out_of_scope_expected": 2,
+     "out_of_scope_correct": 2,
+     "errors": 0
+    }
+   },
+   "cost_usd": 0,
+   "latency_p50_ms": 0.016,
+   "latency_p95_ms": 0.026,
+   "limitations": [
+    "Cases are constructed facts for rows of 19 CFR 102.21(e); they are not CBP rulings and carry no real-world confidence interval.",
+    "The reference oracle re-encodes the used rows by hand from the eCFR text; it does not independently validate the full embedded table.",
+    "Pure tariff-shift rows and the (c)(4) most-important-process judgment are documented abstentions: expected undetermined means the check declines, not that the law has no answer.",
+    "Free-text operation names are not parsed by these cases; the facts are given as structured stages."
+   ]
+  },
+  {
+   "id": "tariff_watch_rates",
+   "label": "Tariff-watch rate changes",
+   "candidate_revision": "20b97e0f9e387a06fd7922a69710825cfb9fb41e",
+   "dataset_sha256": "b95db5d940e7aea94f38db32703b622e8b5fddb09233ae6d769a615a4d079456",
+   "development_dataset_sha256": "67efe6404cd584800a2678abfbb2a16d7f30774a077384bc652e501764689178",
+   "source_families": 9,
+   "families": {
+    "test_source_families": 9,
+    "test_scenario_families": 21,
+    "test_templates": 5,
+    "dev_source_families": 7,
+    "dev_templates": 5,
+    "test_source_families_also_in_dev": 0,
+    "test_templates_also_in_dev": 5,
+    "test_cases_with_parent": 0,
+    "test_cases_in_templates_shared_with_dev": 108
+   },
+   "development": {
+    "cases": 107,
+    "matched": 107,
+    "mismatched": 0,
+    "errors": 0,
+    "tariff": {
+     "watch_cases": 85,
+     "revise_cases": 16,
+     "dataset_refusals_expected": 6,
+     "dataset_refusals_correct": 6,
+     "affected_true_positive": 57,
+     "affected_false_positive": 0,
+     "affected_false_negative": 0,
+     "affected_true_negative": 28,
+     "cases_with_rate_change_expected": 47,
+     "cases_with_rate_change_fully_matched": 47,
+     "cases_with_dollar_figures_expected": 83,
+     "cases_with_dollar_figures_fully_matched": 83,
+     "revise_correct": 16,
+     "errors": 0
+    }
+   },
+   "test": {
+    "cases": 108,
+    "matched": 108,
+    "mismatched": 0,
+    "errors": 0,
+    "tariff": {
+     "watch_cases": 83,
+     "revise_cases": 18,
+     "dataset_refusals_expected": 7,
+     "dataset_refusals_correct": 7,
+     "affected_true_positive": 57,
+     "affected_false_positive": 0,
+     "affected_false_negative": 0,
+     "affected_true_negative": 26,
+     "cases_with_rate_change_expected": 44,
+     "cases_with_rate_change_fully_matched": 44,
+     "cases_with_dollar_figures_expected": 81,
+     "cases_with_dollar_figures_fully_matched": 81,
+     "revise_correct": 18,
+     "errors": 0
+    }
+   },
+   "cost_usd": 0,
+   "latency_p50_ms": 0.05,
+   "latency_p95_ms": 0.086,
+   "limitations": [
+    "Every revised data set is SYNTHETIC: a constructed next revision exercising one kind of change, not a government tariff action. Tariff lines, heading numbers and baseline rates are real.",
+    "Expected figures come from arithmetic on the case's own numbers by a reference oracle that shares no code with the candidate.",
+    "Rates are compared as whole units of 0.0001 and dollars as whole cents so platform float differences cannot change a label.",
+    "Revision-text cases render synthetic heading text in the HTS PDF-extraction layout; they test the reader, not the accuracy of any real notice."
+   ]
+  }
+ ]
+}

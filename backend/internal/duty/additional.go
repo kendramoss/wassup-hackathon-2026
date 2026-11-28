@@ -87,6 +87,12 @@ type Exclusion struct {
 	Status string `json:"status,omitempty"`
 }
 
+// MaxListRate bounds a list's additional ad valorem rate (a fraction: 5 is
+// 500 percent). It matches the bound tariffwatch.Dataset.Validate puts on a
+// dated action, whose rate becomes a list rate; a rate above 100 percent is a
+// legal ad valorem rate, and a typo such as 25 for 0.25 is still refused.
+const MaxListRate = 5
+
 // Exclusion statuses.
 const (
 	StatusExpired = "expired"
@@ -186,7 +192,7 @@ func EmbeddedAdditional() (AdditionalFile, error) {
 func NewAdder(f AdditionalFile) (*Adder, error) {
 	a := &Adder{file: f, country: map[string][]int{}, whole: map[string]map[string][]Exclusion{}, partial: map[string][]Exclusion{}}
 	for _, l := range f.Lists {
-		if l.Rate <= 0 || l.Rate > 1 || len(l.Subheadings) == 0 {
+		if l.Rate <= 0 || l.Rate > MaxListRate || len(l.Subheadings) == 0 {
 			return nil, fmt.Errorf("duty: list %s: rate %v, %d subheadings", l.Heading, l.Rate, len(l.Subheadings))
 		}
 		set := map[string]bool{}
