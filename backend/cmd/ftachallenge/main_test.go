@@ -244,13 +244,13 @@ func (s fixtureSet) summary() Summary {
 	for _, f := range features {
 		lat[f] = Latency{0.1, 0.2}
 	}
-	return BuildSummary(s.dev, s.test, s.devRes, s.testRes, nil, lat)
+	return BuildSummary(s.dev, s.test, s.devRes, s.testRes, nil, nil, lat)
 }
 
 func TestSummaryAcceptsConsistentResults(t *testing.T) {
 	s := newFixtureSet(t)
 	sum := s.summary()
-	if err := ValidateSummary(sum, s.dev, s.test, s.devRes, s.testRes); err != nil {
+	if err := ValidateSummary(sum, s.dev, s.test, s.devRes, s.testRes, nil); err != nil {
 		t.Fatal(err)
 	}
 	if len(sum.Features) != 4 || sum.Features[0].ID != "atiga" || sum.Features[3].ID != "rcep" {
@@ -285,7 +285,7 @@ func TestSummaryRejectsMismatchedNumbers(t *testing.T) {
 			r.Totals = Tally(r.Results)
 			s.testRes["atiga"] = r
 		}
-		if err := ValidateSummary(sum, s.dev, s.test, s.devRes, s.testRes); err == nil {
+		if err := ValidateSummary(sum, s.dev, s.test, s.devRes, s.testRes, nil); err == nil {
 			t.Errorf("%s: accepted", name)
 		}
 	}
@@ -336,5 +336,35 @@ func TestMetricsKeepAbstentionAndErrorsVisible(t *testing.T) {
 	}
 	if m.Expected["undetermined"] != 1 {
 		t.Fatalf("expected outcomes %+v", m.Expected)
+	}
+}
+
+func TestSummaryPosthocSupplementMustMatchItsResults(t *testing.T) {
+	s := newFixtureSet(t)
+	ph := fixtureDataset(t, "acfta", "posthoc", 3)
+	for i := range ph.Cases {
+		ph.Cases[i].Input = fixtureInput("acfta", 5000+i)
+	}
+	b, _ := json.Marshal(ph)
+	ph, err := parseDataset(b)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if err := ph.Validate(); err != nil {
+		t.Fatalf("a post-hoc set below the reserved minimum is valid on its own: %v", err)
+	}
+	phRes := map[string]ResultsFile{"acfta": NewResultsFile(ph, nil, strings.Repeat("a", 40), "", ScoreDataset(ph))}
+	lat := map[string]Latency{"atiga": {0.1, 0.2}, "akfta": {0.1, 0.2}, "acfta": {0.1, 0.2}, "rcep": {0.1, 0.2}}
+	sum := BuildSummary(s.dev, s.test, s.devRes, s.testRes, nil, phRes, lat)
+	if err := ValidateSummary(sum, s.dev, s.test, s.devRes, s.testRes, phRes); err != nil {
+		t.Fatal(err)
+	}
+	sum.Features[2].PosthocSupplement.Matched++
+	if err := ValidateSummary(sum, s.dev, s.test, s.devRes, s.testRes, phRes); err == nil {
+		t.Fatal("a post-hoc count that differs from its results was accepted")
+	}
+	sum = BuildSummary(s.dev, s.test, s.devRes, s.testRes, nil, phRes, lat)
+	if err := ValidateSummary(sum, s.dev, s.test, s.devRes, s.testRes, nil); err == nil {
+		t.Fatal("a post-hoc supplement with no results was accepted")
 	}
 }

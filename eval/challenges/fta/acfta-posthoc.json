@@ -1,0 +1,470 @@
+{
+ "schema_version": 1,
+ "dataset_version": "fta-challenge-v1",
+ "evidence_kind": "source_grounded_synthetic",
+ "feature": "acfta",
+ "sources": {
+  "acfta-annex1": {
+   "title": "ACFTA Upgrading Protocol (2015), Annex 1 Rules of Origin, Articles 1 to 9",
+   "sha256": "98fe8eb5d66dfdcf02b9e2a41b138ee248636bcf497934771dea7df053ad4e63",
+   "kind": "primary_treaty_text",
+   "note": "Archived copy named in D949; the file is not committed."
+  },
+  "acfta-attb": {
+   "title": "ACFTA Attachment B, Product Specific Rules, HS 2017 (Enterprise Singapore copy)",
+   "url": "https://www.enterprisesg.gov.sg/-/media/esg/files/non-financial-assistance/for-companies/free-trade-agreements/ASEAN-China-FTA/upgrade-protocol/Attachment-B-PSR.pdf",
+   "sha256": "2559405c67a73c0b9473959742b7148ae22c47ddcab05f004a471fb6c9379899",
+   "kind": "primary_rule_table"
+  },
+  "acfta-jetro": {
+   "title": "JETRO, ASEAN-China Free Trade Agreement (ACFTA) guide, August 2020 revision, slides 17 to 20",
+   "url": "https://www.jetro.go.jp/ext_images/theme/wto-fta/asean_fta/pdf/acfta_202008rev.pdf",
+   "sha256": "787fd882268193d0c992e46aaa4be4f4b76cc8e70aafd8fcc06a42fb5300d67c",
+   "kind": "authority_guidance"
+  }
+ },
+ "split": "posthoc",
+ "about": "Post-hoc supplement written after the first reserved test run; not part of the reserved totals. Labels from the unchanged oracle.",
+ "label_method": "oracle.py over the cited rule rows; hand-specified rows are marked in the case rule field",
+ "case_count": 6,
+ "cases": [
+  {
+   "id": "acfta-posthoc-authority-variants-01",
+   "split": "posthoc",
+   "feature": "acfta",
+   "source_family_id": "authority-ac-accumulation-with",
+   "scenario_family": "authority-variants-corrected",
+   "variation_tags": [
+    "conflicting-evidence",
+    "originating-material-loses-status",
+    "parent-variant",
+    "post-hoc",
+    "status-flipped"
+   ],
+   "sources": [
+    {
+     "source": "acfta-jetro",
+     "locator": "slide 19, car made in Thailand, FOB 2,250, Philippine part C counted by accumulation"
+    },
+    {
+     "source": "acfta-attb",
+     "locator": "no row for 8703.23; general rule"
+    }
+   ],
+   "rule": {
+    "row": "Art. 4(1)",
+    "text": "RVC40",
+    "listed": false
+   },
+   "rationale": "Post-hoc supplement: reserved case acfta-test-authority-variants-01 errored because its input carried method direct, which ACFTA refuses (its pre-registered parent input does too, D950); same facts without the field. Variation of the published worked example ac-accumulation-with (slide 19, car made in Thailand, FOB 2,250, Philippine part C counted by accumulation): originating material loses status, under row Art. 4(1) (RVC40). The rule row and arithmetic are those of the cited source; the changed facts decide the label.",
+   "input": {
+    "hs": "8703.23",
+    "produced_in": "Thailand",
+    "fob": 2250,
+    "costs": {
+     "other": 200
+    },
+    "materials": [
+     {
+      "name": "Part D",
+      "value": 600,
+      "country": "Thailand",
+      "status": "non_originating"
+     },
+     {
+      "name": "Part A",
+      "value": 600,
+      "country": "Korea",
+      "status": "non_originating"
+     },
+     {
+      "name": "Part A",
+      "value": 700,
+      "country": "Japan",
+      "status": "non_originating"
+     },
+     {
+      "name": "Part C",
+      "value": 150,
+      "country": "Philippines",
+      "status": "originating"
+     }
+    ]
+   },
+   "expect": {
+    "outcome": "no",
+    "alternative": {
+     "RVC40": "no"
+    },
+    "accumulation": true
+   },
+   "expected_abstention": false,
+   "parent_id": "acfta-test-authority-variants-01"
+  },
+  {
+   "id": "acfta-posthoc-authority-variants-02",
+   "split": "posthoc",
+   "feature": "acfta",
+   "source_family_id": "authority-ac-accumulation-with",
+   "scenario_family": "authority-variants-corrected",
+   "variation_tags": [
+    "just-below-threshold",
+    "parent-variant",
+    "post-hoc",
+    "values-perturbed",
+    "values-rescaled-just-below-threshold"
+   ],
+   "sources": [
+    {
+     "source": "acfta-jetro",
+     "locator": "slide 19, car made in Thailand, FOB 2,250, Philippine part C counted by accumulation"
+    },
+    {
+     "source": "acfta-attb",
+     "locator": "no row for 8703.23; general rule"
+    }
+   ],
+   "rule": {
+    "row": "Art. 4(1)",
+    "text": "RVC40",
+    "listed": false
+   },
+   "rationale": "Post-hoc supplement: reserved case acfta-test-authority-variants-02 errored because its input carried method direct, which ACFTA refuses (its pre-registered parent input does too, D950); same facts without the field. Variation of the published worked example ac-accumulation-with (slide 19, car made in Thailand, FOB 2,250, Philippine part C counted by accumulation): values rescaled just below threshold, under row Art. 4(1) (RVC40). The rule row and arithmetic are those of the cited source; the changed facts decide the label.",
+   "input": {
+    "hs": "8703.23",
+    "produced_in": "Thailand",
+    "fob": 2250,
+    "costs": {
+     "other": 200
+    },
+    "materials": [
+     {
+      "name": "Part D",
+      "value": 600,
+      "country": "Thailand",
+      "status": "originating"
+     },
+     {
+      "name": "Part A",
+      "value": 628.27,
+      "country": "Korea",
+      "status": "non_originating"
+     },
+     {
+      "name": "Part A",
+      "value": 732.98,
+      "country": "Japan",
+      "status": "non_originating"
+     },
+     {
+      "name": "Part C",
+      "value": 150,
+      "country": "Philippines",
+      "status": "originating"
+     }
+    ]
+   },
+   "expect": {
+    "outcome": "no",
+    "alternative": {
+     "RVC40": "no"
+    },
+    "accumulation": true
+   },
+   "expected_abstention": false,
+   "parent_id": "acfta-test-authority-variants-02"
+  },
+  {
+   "id": "acfta-posthoc-authority-variants-03",
+   "split": "posthoc",
+   "feature": "acfta",
+   "source_family_id": "authority-ac-accumulation-with",
+   "scenario_family": "authority-variants-corrected",
+   "variation_tags": [
+    "conflicting-evidence",
+    "non-member-origin",
+    "origin-changed",
+    "origin-country-outside-agreement",
+    "parent-variant",
+    "post-hoc"
+   ],
+   "sources": [
+    {
+     "source": "acfta-jetro",
+     "locator": "slide 19, car made in Thailand, FOB 2,250, Philippine part C counted by accumulation"
+    },
+    {
+     "source": "acfta-attb",
+     "locator": "no row for 8703.23; general rule"
+    }
+   ],
+   "rule": {
+    "row": "Art. 4(1)",
+    "text": "RVC40",
+    "listed": false
+   },
+   "rationale": "Post-hoc supplement: reserved case acfta-test-authority-variants-03 errored because its input carried method direct, which ACFTA refuses (its pre-registered parent input does too, D950); same facts without the field. Variation of the published worked example ac-accumulation-with (slide 19, car made in Thailand, FOB 2,250, Philippine part C counted by accumulation): origin country outside agreement, under row Art. 4(1) (RVC40). The rule row and arithmetic are those of the cited source; the changed facts decide the label.",
+   "input": {
+    "hs": "8703.23",
+    "produced_in": "Thailand",
+    "fob": 2250,
+    "costs": {
+     "other": 200
+    },
+    "materials": [
+     {
+      "name": "Part D",
+      "value": 600,
+      "country": "India",
+      "status": "originating"
+     },
+     {
+      "name": "Part A",
+      "value": 600,
+      "country": "Korea",
+      "status": "non_originating"
+     },
+     {
+      "name": "Part A",
+      "value": 700,
+      "country": "Japan",
+      "status": "non_originating"
+     },
+     {
+      "name": "Part C",
+      "value": 150,
+      "country": "Philippines",
+      "status": "originating"
+     }
+    ]
+   },
+   "expect": {
+    "outcome": "no",
+    "alternative": {
+     "RVC40": "no"
+    },
+    "accumulation": true
+   },
+   "expected_abstention": false,
+   "parent_id": "acfta-test-authority-variants-03"
+  },
+  {
+   "id": "acfta-posthoc-authority-variants-04",
+   "split": "posthoc",
+   "feature": "acfta",
+   "source_family_id": "authority-ac-accumulation-without",
+   "scenario_family": "authority-variants-corrected",
+   "variation_tags": [
+    "fob-changed",
+    "fob-lower",
+    "parent-variant",
+    "post-hoc",
+    "values-perturbed"
+   ],
+   "sources": [
+    {
+     "source": "acfta-jetro",
+     "locator": "slide 19, the same car with the Philippine part not counted"
+    },
+    {
+     "source": "acfta-attb",
+     "locator": "no row for 8703.23; general rule"
+    }
+   ],
+   "rule": {
+    "row": "Art. 4(1)",
+    "text": "RVC40",
+    "listed": false
+   },
+   "rationale": "Post-hoc supplement: reserved case acfta-test-authority-variants-04 errored because its input carried method direct, which ACFTA refuses (its pre-registered parent input does too, D950); same facts without the field. Variation of the published worked example ac-accumulation-without (slide 19, the same car with the Philippine part not counted): fob lower, under row Art. 4(1) (RVC40). The rule row and arithmetic are those of the cited source; the changed facts decide the label.",
+   "input": {
+    "hs": "8703.23",
+    "produced_in": "Thailand",
+    "fob": 1350,
+    "costs": {
+     "other": 200
+    },
+    "materials": [
+     {
+      "name": "Part D",
+      "value": 600,
+      "country": "Thailand",
+      "status": "originating"
+     },
+     {
+      "name": "Part A",
+      "value": 600,
+      "country": "Korea",
+      "status": "non_originating"
+     },
+     {
+      "name": "Part A",
+      "value": 700,
+      "country": "Japan",
+      "status": "non_originating"
+     },
+     {
+      "name": "Part C",
+      "value": 150,
+      "country": "Philippines",
+      "status": "non_originating"
+     }
+    ]
+   },
+   "expect": {
+    "outcome": "no",
+    "alternative": {
+     "RVC40": "no"
+    },
+    "accumulation": false
+   },
+   "expected_abstention": false,
+   "parent_id": "acfta-test-authority-variants-04"
+  },
+  {
+   "id": "acfta-posthoc-authority-variants-05",
+   "split": "posthoc",
+   "feature": "acfta",
+   "source_family_id": "authority-ac-accumulation-without",
+   "scenario_family": "authority-variants-corrected",
+   "variation_tags": [
+    "conflicting-evidence",
+    "non-member-origin",
+    "origin-changed",
+    "origin-country-outside-agreement",
+    "parent-variant",
+    "post-hoc"
+   ],
+   "sources": [
+    {
+     "source": "acfta-jetro",
+     "locator": "slide 19, the same car with the Philippine part not counted"
+    },
+    {
+     "source": "acfta-attb",
+     "locator": "no row for 8703.23; general rule"
+    }
+   ],
+   "rule": {
+    "row": "Art. 4(1)",
+    "text": "RVC40",
+    "listed": false
+   },
+   "rationale": "Post-hoc supplement: reserved case acfta-test-authority-variants-05 errored because its input carried method direct, which ACFTA refuses (its pre-registered parent input does too, D950); same facts without the field. Variation of the published worked example ac-accumulation-without (slide 19, the same car with the Philippine part not counted): origin country outside agreement, under row Art. 4(1) (RVC40). The rule row and arithmetic are those of the cited source; the changed facts decide the label.",
+   "input": {
+    "hs": "8703.23",
+    "produced_in": "Thailand",
+    "fob": 2250,
+    "costs": {
+     "other": 200
+    },
+    "materials": [
+     {
+      "name": "Part D",
+      "value": 600,
+      "country": "United States",
+      "status": "originating"
+     },
+     {
+      "name": "Part A",
+      "value": 600,
+      "country": "Korea",
+      "status": "non_originating"
+     },
+     {
+      "name": "Part A",
+      "value": 700,
+      "country": "Japan",
+      "status": "non_originating"
+     },
+     {
+      "name": "Part C",
+      "value": 150,
+      "country": "Philippines",
+      "status": "non_originating"
+     }
+    ]
+   },
+   "expect": {
+    "outcome": "no",
+    "alternative": {
+     "RVC40": "no"
+    },
+    "accumulation": false
+   },
+   "expected_abstention": false,
+   "parent_id": "acfta-test-authority-variants-05"
+  },
+  {
+   "id": "acfta-posthoc-authority-variants-06",
+   "split": "posthoc",
+   "feature": "acfta",
+   "source_family_id": "authority-ac-accumulation-without",
+   "scenario_family": "authority-variants-corrected",
+   "variation_tags": [
+    "origin-unknown",
+    "parent-variant",
+    "post-hoc",
+    "status-unknown"
+   ],
+   "sources": [
+    {
+     "source": "acfta-jetro",
+     "locator": "slide 19, the same car with the Philippine part not counted"
+    },
+    {
+     "source": "acfta-attb",
+     "locator": "no row for 8703.23; general rule"
+    }
+   ],
+   "rule": {
+    "row": "Art. 4(1)",
+    "text": "RVC40",
+    "listed": false
+   },
+   "rationale": "Post-hoc supplement: reserved case acfta-test-authority-variants-06 errored because its input carried method direct, which ACFTA refuses (its pre-registered parent input does too, D950); same facts without the field. Variation of the published worked example ac-accumulation-without (slide 19, the same car with the Philippine part not counted): origin unknown, under row Art. 4(1) (RVC40). The rule row and arithmetic are those of the cited source; the changed facts decide the label.",
+   "input": {
+    "hs": "8703.23",
+    "produced_in": "Thailand",
+    "fob": 2250,
+    "costs": {
+     "other": 200
+    },
+    "materials": [
+     {
+      "name": "Part D",
+      "value": 600,
+      "country": "Thailand",
+      "status": "originating"
+     },
+     {
+      "name": "Part A",
+      "value": 600,
+      "status": "unknown"
+     },
+     {
+      "name": "Part A",
+      "value": 700,
+      "country": "Japan",
+      "status": "non_originating"
+     },
+     {
+      "name": "Part C",
+      "value": 150,
+      "country": "Philippines",
+      "status": "non_originating"
+     }
+    ]
+   },
+   "expect": {
+    "outcome": "no",
+    "alternative": {
+     "RVC40": "no"
+    },
+    "accumulation": false
+   },
+   "expected_abstention": false,
+   "parent_id": "acfta-test-authority-variants-06"
+  }
+ ]
+}

@@ -16,7 +16,8 @@ It does not measure real-world accuracy. The cases are synthetic, written by the
 | `<feature>-test.json` | reserved test cases, scored once per candidate |
 | `results/<feature>-dev-run1.json` | first development run, before the engine fix |
 | `results/<feature>-dev.json` | development run on the frozen candidate |
-| `results/<feature>-test.json` | per-case reserved test results (every mismatch retained) |
+| `results/<feature>-test.json` | per-case reserved test results (every mismatch and error retained) |
+| `acfta-posthoc.json`, `results/acfta-posthoc.json`, `posthoc.py` | post-hoc supplement written after the first reserved run, scored separately, never in the reserved totals |
 | `summary.json` | the shared evidence contract, one entry per feature |
 | `generate.py`, `oracle.py`, `rules.py`, `sources.py` | dataset generator and label oracle (standard library Python) |
 | `backend/cmd/ftachallenge` | scorer, validator and reproducer |

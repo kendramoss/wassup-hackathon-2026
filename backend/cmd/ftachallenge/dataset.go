@@ -257,8 +257,8 @@ func (ds *Dataset) Validate() error {
 	if !slices.Contains(features, ds.Feature) {
 		return fmt.Errorf("unknown feature %q", ds.Feature)
 	}
-	if ds.Split != "dev" && ds.Split != "test" {
-		return fmt.Errorf("split %q must be dev or test", ds.Split)
+	if ds.Split != "dev" && ds.Split != "test" && ds.Split != "posthoc" {
+		return fmt.Errorf("split %q must be dev, test or posthoc", ds.Split)
 	}
 	if ds.CaseCount != len(ds.Cases) {
 		return fmt.Errorf("case_count %d but %d cases present (missing or extra cases)", ds.CaseCount, len(ds.Cases))

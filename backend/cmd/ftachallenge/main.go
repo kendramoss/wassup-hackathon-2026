@@ -45,6 +45,21 @@ func loadAll(dir string) (dev, test map[string]*Dataset, err error) {
 	return
 }
 
+func loadPosthoc(dir string) (map[string]*Dataset, error) {
+	out := map[string]*Dataset{}
+	for _, f := range features {
+		if _, err := os.Stat(filepath.Join(dir, f+"-posthoc.json")); err != nil {
+			continue
+		}
+		ds, err := loadDataset(dir, f, "posthoc")
+		if err != nil {
+			return nil, err
+		}
+		out[f] = ds
+	}
+	return out, nil
+}
+
 func resultsPath(dir, feature, split, tag string) string {
 	name := feature + "-" + split
 	if tag != "" {
@@ -104,11 +119,33 @@ func run() error {
 	}
 	switch *mode {
 	case "run":
-		if *split != "dev" && *split != "test" {
-			return fmt.Errorf("-split must be dev or test")
+		if *split != "dev" && *split != "test" && *split != "posthoc" {
+			return fmt.Errorf("-split must be dev, test or posthoc")
 		}
 		if err := needCandidate(); err != nil {
 			return err
+		}
+		if *split == "posthoc" {
+			ph, err := loadPosthoc(*dir)
+			if err != nil {
+				return err
+			}
+			for _, f := range features {
+				ds, ok := ph[f]
+				if !ok {
+					continue
+				}
+				rf := NewResultsFile(ds, nil, *candidate, *tag, ScoreDataset(ds))
+				b, err := marshal(rf)
+				if err != nil {
+					return err
+				}
+				if err := writeFile(resultsPath(*dir, f, "posthoc", *tag), b); err != nil {
+					return err
+				}
+				fmt.Printf("%s posthoc: %d cases, %d matched, %d mismatched, %d errors\n", f, rf.Totals.Cases, rf.Totals.Matched, rf.Totals.Mismatched, rf.Totals.Errors)
+			}
+			return nil
 		}
 		for _, f := range features {
 			ds, other := dev[f], (*Dataset)(nil)
@@ -129,7 +166,7 @@ func run() error {
 		if err := needCandidate(); err != nil {
 			return err
 		}
-		devRes, testRes, first := map[string]ResultsFile{}, map[string]ResultsFile{}, map[string]ResultsFile{}
+		devRes, testRes, first, ph := map[string]ResultsFile{}, map[string]ResultsFile{}, map[string]ResultsFile{}, map[string]ResultsFile{}
 		lat := map[string]Latency{}
 		for _, f := range features {
 			if devRes[f], err = readResults(resultsPath(*dir, f, "dev", "")); err != nil {
@@ -141,10 +178,13 @@ func run() error {
 			if r, err := readResults(resultsPath(*dir, f, "dev", "run1")); err == nil {
 				first[f] = r
 			}
+			if r, err := readResults(resultsPath(*dir, f, "posthoc", "")); err == nil {
+				ph[f] = r
+			}
 			lat[f] = MeasureLatency(test[f], 20)
 		}
-		s := BuildSummary(dev, test, devRes, testRes, first, lat)
-		if err := ValidateSummary(s, dev, test, devRes, testRes); err != nil {
+		s := BuildSummary(dev, test, devRes, testRes, first, ph, lat)
+		if err := ValidateSummary(s, dev, test, devRes, testRes, ph); err != nil {
 			return err
 		}
 		b, err := marshal(s)
@@ -203,7 +243,30 @@ func verify(dir string, dev, test map[string]*Dataset) error {
 	if err := dec.Decode(&s); err != nil {
 		return err
 	}
-	if err := ValidateSummary(s, dev, test, devRes, testRes); err != nil {
+	phSets, err := loadPosthoc(dir)
+	if err != nil {
+		return err
+	}
+	phRes := map[string]ResultsFile{}
+	for f, ds := range phSets {
+		committed, err := readResults(resultsPath(dir, f, "posthoc", ""))
+		if err != nil {
+			return err
+		}
+		want, err := marshal(NewResultsFile(ds, nil, committed.CandidateRevision, "", ScoreDataset(ds)))
+		if err != nil {
+			return err
+		}
+		got, err := os.ReadFile(resultsPath(dir, f, "posthoc", ""))
+		if err != nil {
+			return err
+		}
+		if !bytes.Equal(got, want) {
+			return fmt.Errorf("%s posthoc: committed results differ from a fresh scoring", f)
+		}
+		phRes[f] = committed
+	}
+	if err := ValidateSummary(s, dev, test, devRes, testRes, phRes); err != nil {
 		return err
 	}
 	first := map[string]ResultsFile{}
@@ -214,7 +277,7 @@ func verify(dir string, dev, test map[string]*Dataset) error {
 			first[f.ID] = r
 		}
 	}
-	want, err := marshal(BuildSummary(dev, test, devRes, testRes, first, lat))
+	want, err := marshal(BuildSummary(dev, test, devRes, testRes, first, phRes, lat))
 	if err != nil {
 		return err
 	}

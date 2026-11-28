@@ -49,3 +49,13 @@ func TestOriginalEvidenceIsUntouched(t *testing.T) {
 		}
 	}
 }
+
+func TestCommittedResultsAndSummaryReproduce(t *testing.T) {
+	dev, test, err := loadAll(challengeDir)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if err := verify(challengeDir, dev, test); err != nil {
+		t.Fatal(err)
+	}
+}

@@ -79,7 +79,20 @@ type SummaryFeature struct {
 	YesPrecision             Count          `json:"yes_precision"`
 	YesRecall                Count          `json:"yes_recall"`
 	DecidedOnlyAgreement     Count          `json:"decided_only_agreement"`
+	PosthocSupplement        *Posthoc       `json:"posthoc_supplement,omitempty"`
 }
+
+// Posthoc is a separately scored supplement written after the first reserved
+// run. It is never part of the reserved totals.
+type Posthoc struct {
+	Cases      int    `json:"cases"`
+	Matched    int    `json:"matched"`
+	Mismatched int    `json:"mismatched"`
+	Errors     int    `json:"errors"`
+	Note       string `json:"note"`
+}
+
+const posthocNote = "Rebuilt copies of reserved cases that errored for a dataset authoring reason, scored after the first reserved run. Not part of the reserved totals."
 
 type Summary struct {
 	SchemaVersion int              `json:"schema_version"`
@@ -105,7 +118,7 @@ var featureLimitations = map[string]string{
 
 func ptr(s SplitSummary) *SplitSummary { return &s }
 
-func BuildSummary(dev, test map[string]*Dataset, devRes, testRes, firstRun map[string]ResultsFile, lat map[string]Latency) Summary {
+func BuildSummary(dev, test map[string]*Dataset, devRes, testRes, firstRun, posthoc map[string]ResultsFile, lat map[string]Latency) Summary {
 	s := Summary{SchemaVersion: schemaVersion, EvidenceKind: evidenceKind}
 	for _, f := range features {
 		tr, dr := testRes[f], devRes[f]
@@ -121,6 +134,9 @@ func BuildSummary(dev, test map[string]*Dataset, devRes, testRes, firstRun map[s
 			FormattingOnlyCases: tr.Metrics.FormattingOnly, SharedFamilies: len(tr.Metrics.SharedFamilies), TestOnlyFamilies: len(tr.Metrics.TestOnlyFamilies),
 			CasesInSharedFamilies: tr.Metrics.SharedFamilyCases, ExpectedOutcomes: tr.Metrics.Expected, Abstention: tr.Metrics.Abstention,
 			YesPrecision: tr.Metrics.YesPrecision, YesRecall: tr.Metrics.YesRecall, DecidedOnlyAgreement: tr.Metrics.DecidedAgreement,
+		}
+		if ph, ok := posthoc[f]; ok {
+			sf.PosthocSupplement = &Posthoc{Cases: ph.Totals.Cases, Matched: ph.Totals.Matched, Mismatched: ph.Totals.Mismatched, Errors: ph.Totals.Errors, Note: posthocNote}
 		}
 		if fr, ok := firstRun[f]; ok {
 			sf.DevelopmentFirstRun = ptr(SplitSummary{Cases: fr.Totals.Cases, Matched: fr.Totals.Matched, Mismatched: fr.Totals.Mismatched, Errors: fr.Totals.Errors})
@@ -168,7 +184,7 @@ func ValidateResults(ds *Dataset, rf ResultsFile) error {
 
 // ValidateSummary checks a summary against the datasets and results it
 // claims to describe.
-func ValidateSummary(s Summary, dev, test map[string]*Dataset, devRes, testRes map[string]ResultsFile) error {
+func ValidateSummary(s Summary, dev, test map[string]*Dataset, devRes, testRes, posthoc map[string]ResultsFile) error {
 	if s.SchemaVersion != schemaVersion || s.EvidenceKind != evidenceKind {
 		return fmt.Errorf("summary header: schema_version %d, evidence_kind %q", s.SchemaVersion, s.EvidenceKind)
 	}
@@ -216,6 +232,13 @@ func ValidateSummary(s Summary, dev, test map[string]*Dataset, devRes, testRes m
 		}
 		if f.CostUSD < 0 || f.LatencyP50Ms < 0 || f.LatencyP95Ms < f.LatencyP50Ms || math.IsNaN(f.LatencyP95Ms) {
 			return fmt.Errorf("%s: cost or latency out of range", id)
+		}
+		if ph, ok := posthoc[id]; ok {
+			if f.PosthocSupplement == nil || f.PosthocSupplement.Cases != ph.Totals.Cases || f.PosthocSupplement.Matched != ph.Totals.Matched || f.PosthocSupplement.Mismatched != ph.Totals.Mismatched || f.PosthocSupplement.Errors != ph.Totals.Errors {
+				return fmt.Errorf("%s: post-hoc supplement in summary differs from its results", id)
+			}
+		} else if f.PosthocSupplement != nil {
+			return fmt.Errorf("%s: summary reports a post-hoc supplement that has no results", id)
 		}
 		if len(f.Limitations) == 0 {
 			return fmt.Errorf("%s: no limitations stated", id)
