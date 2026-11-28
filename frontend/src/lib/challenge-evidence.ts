@@ -40,8 +40,10 @@ export function parseChallengeSummary(input: unknown, sourcePath: string): Chall
   if (doc.schema_version !== 1 || doc.evidence_kind !== "source_grounded_synthetic" || !Array.isArray(doc.features)) {
     throw new Error("Challenge evidence must keep its synthetic label and schema");
   }
+  const selected = doc.public_features === undefined ? doc.features : doc.public_features;
+  if (!Array.isArray(selected) || selected.length === 0) throw new Error("Challenge source has no selected current-path evidence");
   const seen = new Set<string>();
-  return doc.features.map((raw): ChallengeFeature => {
+  return selected.map((raw): ChallengeFeature => {
     const f = object(raw);
     if (f.simulated === true || f.llm_provider === "fake" || f.llm_provider === "vertex") {
       throw new Error("Challenge results must be measured with the approved execution provider");
@@ -76,13 +78,25 @@ export function parseChallengeSummary(input: unknown, sourcePath: string): Chall
       ["negative_controls", "Unchanged controls withheld"],
       ["incomplete_controls", "Missing-fact controls withheld"],
     ] as const;
-    const metrics = metricFields.flatMap(([key, label]) => {
+    const metrics: ChallengeFeature["metrics"] = metricFields.flatMap(([key, label]) => {
       if (f[key] === undefined && id !== "move_verifier") return [];
       const pair = object(f[key]);
       const num = integer(pair.num, `${key} numerator`), den = integer(pair.den, `${key} denominator`);
       if (num > den || den > test.cases) throw new Error("Invalid conditional challenge denominator");
       return [{ id: key, label, num, den }];
     });
+    if (f.display_metrics !== undefined) {
+      if (id === "move_verifier" || !Array.isArray(f.display_metrics)) throw new Error("Invalid challenge display metrics");
+      const metricIDs = new Set(metrics.map((metric) => metric.id));
+      for (const rawMetric of f.display_metrics) {
+        const pair = object(rawMetric), metricID = nonempty(pair.id, "metric id");
+        if (!/^[a-z][a-z0-9_-]*$/.test(metricID) || metricIDs.has(metricID)) throw new Error("Invalid or duplicate challenge metric");
+        metricIDs.add(metricID);
+        const num = integer(pair.num, "metric numerator"), den = integer(pair.den, "metric denominator");
+        if (num > den) throw new Error("Inflated challenge metric");
+        metrics.push({ id: metricID, label: nonempty(pair.label, "metric label"), num, den });
+      }
+    }
     if (id === "move_verifier") {
       const rawMetrics = object(f.raw_metrics);
       const rawCount = (key: string) => integer(rawMetrics[key], `raw ${key}`);
@@ -101,11 +115,11 @@ export function parseChallengeSummary(input: unknown, sourcePath: string): Chall
     const sourceFamilies = integer(f.source_families, "source families");
     if (sourceFamilies < 1) throw new Error("Challenge source groups are missing");
     return {
-      id, label: nonempty(f.label, "label"), candidate_revision: candidate, dataset_sha256: dataset,
+      id, label: nonempty(f.label, "label").replace(/\s*\((?:textile|usmca|router)-v\d+\)/g, ""), candidate_revision: candidate, dataset_sha256: dataset,
       source_families: sourceFamilies, development, test, metrics,
       cost_usd: finite(f.cost_usd, "cost"), latency_p50_ms: finite(f.latency_p50_ms, "median latency"),
       latency_p95_ms: finite(f.latency_p95_ms, "tail latency"), limitations: [...f.limitations as string[], ...errorNote], sourcePath, public_note: publicNote,
-      scope_note: id === "move_verifier" ? "Given moves; starting origin supplied, not plan search. Errors are not correct refusals." : undefined,
+      scope_note: id === "move_verifier" ? "Given moves; starting origin supplied, not plan search. Errors are not correct refusals." : id === "media_extraction" ? "Synthetic images; not real photos or handwriting." : undefined,
     };
   });
 }

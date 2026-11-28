@@ -38,6 +38,46 @@ test("Accuracy leads the rule challenges with the larger selected studies", asyn
   assert.match(t, /Original authority examples/);
 });
 
+test("current model results do not substitute the stronger experimental textile profile", async () => {
+  const { challengeStudies } = await import("../src/lib/challenge-studies.ts");
+  const { ChallengeEvidence } = await import("../src/components/op/challenge-evidence.tsx");
+  for (const [id, matched, cases] of [["textile_live_v2", 108, 114], ["pharma_specialist", 113, 113], ["part102_specialist", 103, 112], ["japan_live_unmodified", 104, 112], ["legal_routing", 425, 437]]) {
+    const feature = challengeStudies.find((f) => f.id === id);
+    assert.ok(feature, id);
+    assert.deepEqual([feature.test.matched, feature.test.cases], [matched, cases], id);
+  }
+  assert.ok(!challengeStudies.some((f) => ["textile_specialist", "japan_engine"].includes(f.id)));
+  const table = text(html(ChallengeEvidence, {features: challengeStudies}).split("</table>")[0]);
+  assert.doesNotMatch(table, /usmca-v5|router-v4|textile-v2/);
+  assert.match(table, /Decided correct, confidence ≥ 0.92 \(study\)/);
+  assert.match(table, /U.S. marking origin/);
+  assert.doesNotMatch(table, /Decided cases answered confidently and correctly/);
+  assert.match(table, /potential HS-edition issues/);
+});
+
+test("larger image evidence retains strict misses, field counts and the sheet-size mix", async () => {
+  const { challengeStudies } = await import("../src/lib/challenge-studies.ts");
+  const { ChallengeEvidence } = await import("../src/components/op/challenge-evidence.tsx");
+  const feature = challengeStudies.find((f) => f.id === "media_extraction");
+  assert.ok(feature);
+  assert.deepEqual([feature.test.matched, feature.test.cases, feature.test.errors], [129, 132, 0]);
+  assert.equal(challengeStudies.length, 14);
+  const table = text(html(ChallengeEvidence, {features: [feature]}).split("</table>")[0]);
+  for (const value of ["629/632", "618/621", "21/24", "52/132", "not real photos"]) assert.ok(table.includes(value), value);
+});
+
+test("the small original image study is historical and closed by default", async () => {
+  const { HistoricalMediaEvidence } = await import("../src/components/op/screens/accuracy-page.tsx");
+  const section = html(HistoricalMediaEvidence, {});
+  assert.match(section, /aria-labelledby="acc-media"/);
+  const fold = section.match(/<details([^>]*)>[\s\S]*?<\/details>/);
+  assert.ok(fold);
+  assert.match(text(fold[0]), /Original 20-image study/);
+  assert.doesNotMatch(fold[1], /\bopen\b/);
+  assert.match(text(fold[0]), /151 of 170/);
+  assert.match(text(section.split("<details")[0]), /Real photos, scans and handwriting are not measured yet/);
+});
+
 const fixture = () => ({
   schema_version: 1,
   evidence_kind: "source_grounded_synthetic",
@@ -77,6 +117,23 @@ test("challenge table identifies generated evidence, counts every error and link
   assert.ok(markup.includes("eval/challenges/example/summary.json"));
   assert.doesNotMatch(t, /independent test cases|real-world accuracy|95% confidence/i);
   assert.equal(html(ChallengeEvidence, { features: [] }), "");
+});
+
+test("explicit current-path evidence replaces experimental rows and keeps field units", async () => {
+  const { parseChallengeSummary } = await import("../src/lib/challenge-evidence.ts");
+  const { ChallengeEvidence } = await import("../src/components/op/challenge-evidence.tsx");
+  const data = fixture();
+  data.features[0].id = "old_experiment";
+  data.public_features = [{ ...fixture().features[0], id: "current_path", display_metrics: [{id: "names", label: "Exact name matches", num: 629, den: 632}] }];
+  const features = parseChallengeSummary(data, "eval/challenges/example/summary.json");
+  assert.deepEqual(features.map((f) => f.id), ["current_path"]);
+  assert.match(text(html(ChallengeEvidence, { features })), /Exact name matches 629\/632/);
+  data.public_features[0].display_metrics[0].num = 633;
+  assert.throws(() => parseChallengeSummary(data, "eval/challenges/example/summary.json"));
+  data.public_features = [];
+  assert.throws(() => parseChallengeSummary(data, "eval/challenges/example/summary.json"));
+  data.public_features = null;
+  assert.throws(() => parseChallengeSummary(data, "eval/challenges/example/summary.json"));
 });
 
 test("source limitations and authoring defects are readable without leaving Accuracy", async () => {

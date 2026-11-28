@@ -476,6 +476,27 @@ function MarketEvidence() {
   );
 }
 
+export function HistoricalMediaEvidence() {
+  return (
+    <section className="mt-8" aria-labelledby="acc-media">
+      <Head id="acc-media" title="Import from a photo or scan" tags={<Side />} meta="historical synthetic-image study" />
+      <p className="mt-3 text-sm text-dim">Real photos, scans and handwriting are not measured yet. Every imported row opens as a draft for you to check.</p>
+      <div className="mt-3">
+        <Fold title="Original 20-image study">
+          <div className="mt-3 grid gap-5 md:grid-cols-2">
+            <Card title="Part names read" big={`${MEDIA.read} of ${MEDIA.parts}`}>on {MEDIA.images} synthetic parts-list images.</Card>
+            <Card title="Wrong countries" big="0">On these synthetic inputs.</Card>
+          </div>
+          <p className="mt-3 text-sm text-dim">
+            The images are tables, tilted photos and scans we rendered; measured once. {MEDIA.fullyRead} of {MEDIA.images} images were read in full. The{" "}
+            {MEDIA.parts - MEDIA.read} misses are names that did not match exactly, mostly a part number added to the name. Every part name it read came with the right country.
+          </p>
+        </Fold>
+      </div>
+    </section>
+  );
+}
+
 export function AccuracyPage() {
   const [data, setData] = useState<EvalSummary | null>(null);
   const [error, setError] = useState<unknown>(null);
@@ -790,24 +811,7 @@ export function AccuracyPage() {
             </section>
           )}
 
-          <section className="mt-8" aria-labelledby="acc-media">
-            <Head id="acc-media" title="Import from a photo or scan" tags={<Side />} meta="synthetic images, illustrative · small" />
-            <div className="mt-3 grid gap-5 md:grid-cols-2">
-              <Card title="Part names read" big={`${MEDIA.read} of ${MEDIA.parts}`}>
-                on {MEDIA.images} synthetic parts-list images.
-              </Card>
-              <Card title="Wrong countries" big="0">
-                Real photos, scans and handwriting are not measured yet.
-              </Card>
-            </div>
-            <Details>
-              <p>
-                The images are tables, tilted photos and scans we rendered; measured once. {MEDIA.fullyRead} of {MEDIA.images} images were read in full. The{" "}
-                {MEDIA.parts - MEDIA.read} misses are names that did not match exactly, mostly a part number added to the name. Every part name it read came with the
-                right country. Every imported row opens as a draft for you to check.
-              </p>
-            </Details>
-          </section>
+          <HistoricalMediaEvidence />
 
           {(texAcc || route1) && (
             <section className="mt-8" aria-labelledby="acc-rules">
