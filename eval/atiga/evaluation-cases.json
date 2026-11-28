@@ -1,0 +1,1287 @@
+{
+  "about": "D963 pre-registered evaluation. The original seven authority example outcomes/component checks are retained separately from 35 constructed rule-boundary and missing-fact controls. No new independent ATIGA decisions were verified. This is conformance testing, not real-world accuracy. Numeric source rounding is not scored: Singapore Example B prints36%, while the exact arithmetic is36.67%; the original D927 discrepancy remains disclosed.",
+  "baseline_sha256": "643375e9ac7a0197fb4d231ec664729a4ae976ccd2f9e454d09ed0c822664459",
+  "sources": {
+    "miti": {
+      "title": "MITI Malaysia, Rules of Origin worked examples (AFTA/ATIGA)",
+      "url": "https://www.miti.gov.my/index.php/pages/view/2071",
+      "retrieved": "2026-11-27"
+    },
+    "sgc": {
+      "title": "Singapore Customs, Handbook on Rules of Origin for Preferential Certificates of Origin (Dec 2025)",
+      "url": "https://isomer-user-content.by.gov.sg/174/fc3ecb0b-d701-4d8f-9881-9d99f90f35a2/Handbook_on_ROO_for_PCO_Dec2025__clean_.pdf",
+      "sha256": "6f9db34eb9923abb0831f30e70f1f67478c861dea63fc7f591cb9577e724da85",
+      "retrieved": "2026-11-27"
+    },
+    "treaty": {
+      "title": "ASEAN Secretariat, ATIGA Chapter 3, Articles 28 to 33 and Annex 6",
+      "url": "https://asean.org/asean-trade-in-goods-agreement-atiga/",
+      "local_source_sha256": "46c6d3367e1453c907e8b0091efda16316266a5bc139bbe1489f4686d228c0f6"
+    },
+    "psr": {
+      "title": "ATIGA Annex 3, Product Specific Rules, HS 2022 (endorsed by the 36th AFTA Council; in force 1 April 2023)",
+      "publisher": "ASEAN Secretariat",
+      "url": "https://asean.org/wp-content/uploads/2025/09/ATIGA-PSR-HS-2022-endorsed-AFTAC36.xlsx",
+      "index_page": "https://asean.org/asean-trade-in-goods-agreement-atiga/",
+      "retrieved": "2026-11-27",
+      "sha256": "bb4d6a6fb8a8e9052cfb5790053add3bd66e9631a2ee09b7333076ddb24dba07",
+      "rows": 2868
+    }
+  },
+  "cases": [
+    {
+      "id": "miti-1-wo",
+      "source": "miti",
+      "where": "Example 1",
+      "states": "Qualified as wholly obtained (dracaena, 0604.91, 100 % local material)",
+      "input": {
+        "hs": "0604.91",
+        "produced_in": "Malaysia",
+        "fob": 1.1,
+        "wholly_obtained": true,
+        "materials": [
+          {
+            "name": "Dracaena",
+            "hs": "0604.91",
+            "value": 0.5,
+            "country": "Malaysia",
+            "status": "originating"
+          }
+        ]
+      },
+      "expect": {
+        "outcome": "yes",
+        "applied": "WO"
+      },
+      "kind": "authority_example"
+    },
+    {
+      "id": "miti-2-rvc",
+      "source": "miti",
+      "where": "Example 2",
+      "states": "Qualified for RVC 43 % ((28.70 - 16.20) / 28.70)",
+      "input": {
+        "hs": "9403.60",
+        "produced_in": "Malaysia",
+        "fob": 28.7,
+        "method": "indirect",
+        "materials": [
+          {
+            "name": "Chipboard",
+            "hs": "4410.90",
+            "value": 4.0,
+            "country": "Malaysia",
+            "status": "originating"
+          },
+          {
+            "name": "Fibreboard",
+            "hs": "4421.21",
+            "value": 5.3,
+            "country": "Belgium"
+          },
+          {
+            "name": "Decorative paper",
+            "hs": "4811.90",
+            "value": 4.4,
+            "country": "France"
+          },
+          {
+            "name": "Bugle",
+            "hs": "7318.15",
+            "value": 6.5,
+            "country": "USA"
+          }
+        ]
+      },
+      "expect": {
+        "outcome": "yes",
+        "alternative": {
+          "RVC40": "yes"
+        }
+      },
+      "kind": "authority_example"
+    },
+    {
+      "id": "miti-3-cc",
+      "source": "miti",
+      "where": "Example 3",
+      "states": "Originating by a change of chapter (palm oil product 1512.90 from material 3824.90, Indonesia)",
+      "input": {
+        "hs": "1512.90",
+        "produced_in": "Malaysia",
+        "fob": 1.1,
+        "materials": [
+          {
+            "name": "Palm olein",
+            "hs": "3824.90",
+            "value": 0.5,
+            "country": "Indonesia"
+          }
+        ]
+      },
+      "expect": {
+        "outcome": "yes"
+      },
+      "kind": "authority_example"
+    },
+    {
+      "id": "miti-4-cth",
+      "source": "miti",
+      "where": "Example 4",
+      "states": "Originating by a change of heading (chemical 3802.10)",
+      "input": {
+        "hs": "3802.10",
+        "produced_in": "Malaysia",
+        "fob": 20.8,
+        "materials": [
+          {
+            "name": "Acid",
+            "hs": "2917.36",
+            "value": 5.5,
+            "country": "Malaysia",
+            "status": "originating"
+          },
+          {
+            "name": "Butanediol",
+            "hs": "2905.35",
+            "value": 1.3,
+            "country": "Malaysia",
+            "status": "originating"
+          },
+          {
+            "name": "Titanium",
+            "hs": "3815.19",
+            "value": 3.7,
+            "country": "USA"
+          }
+        ]
+      },
+      "expect": {
+        "outcome": "yes",
+        "alternative": {
+          "CTH": "yes"
+        }
+      },
+      "kind": "authority_example"
+    },
+    {
+      "id": "miti-5-ctsh",
+      "source": "miti",
+      "where": "Example 5",
+      "states": "Originating by a change of subheading (copper wire 7408.21 from brass wire 7408.10)",
+      "input": {
+        "hs": "7408.21",
+        "produced_in": "Malaysia",
+        "fob": 15.25,
+        "materials": [
+          {
+            "name": "Brass wire",
+            "hs": "7408.10",
+            "value": 3.9,
+            "country": "Taiwan"
+          },
+          {
+            "name": "Spool",
+            "hs": "3923.40",
+            "value": 0.15,
+            "country": "China"
+          },
+          {
+            "name": "Plastic gasket",
+            "hs": "8484.10",
+            "value": 0.4,
+            "country": "Malaysia",
+            "status": "originating"
+          },
+          {
+            "name": "Polypropylene",
+            "hs": "3903.30",
+            "value": 0.4,
+            "country": "Thailand",
+            "status": "originating"
+          }
+        ]
+      },
+      "expect": {
+        "outcome": "yes"
+      },
+      "kind": "authority_example"
+    },
+    {
+      "id": "sgc-b-rvc",
+      "source": "sgc",
+      "where": "Example B, p. 9",
+      "states": "RVC 36 % (both approaches), less than 40 %: biscuit 1905.31 is non-originating",
+      "input": {
+        "hs": "1905.31",
+        "produced_in": "Singapore",
+        "fob": 15,
+        "costs": {
+          "labour": 2,
+          "overhead": 0,
+          "profit": 2.5,
+          "other": 0
+        },
+        "materials": [
+          {
+            "name": "Flour",
+            "value": 4,
+            "country": "Malaysia",
+            "status": "non_originating"
+          },
+          {
+            "name": "Sugar",
+            "value": 2.5,
+            "country": "Australia",
+            "status": "non_originating"
+          },
+          {
+            "name": "Flavour essence",
+            "value": 1,
+            "country": "Singapore",
+            "status": "originating"
+          },
+          {
+            "name": "Eggs",
+            "value": 3,
+            "country": "Malaysia",
+            "status": "non_originating"
+          }
+        ]
+      },
+      "expect": {
+        "alternative": {
+          "RVC40": "no"
+        }
+      },
+      "kind": "authority_example"
+    },
+    {
+      "id": "sgc-f-accumulation",
+      "source": "sgc",
+      "where": "Example F, p. 13",
+      "states": "With Malaysian flour and eggs accumulated (Form D), RVC 83 %: originating",
+      "input": {
+        "hs": "1905.31",
+        "produced_in": "Singapore",
+        "fob": 15,
+        "costs": {
+          "labour": 2,
+          "overhead": 0,
+          "profit": 2.5,
+          "other": 0
+        },
+        "materials": [
+          {
+            "name": "Flour",
+            "value": 4,
+            "country": "Malaysia",
+            "status": "originating"
+          },
+          {
+            "name": "Sugar",
+            "value": 2.5,
+            "country": "Australia",
+            "status": "non_originating"
+          },
+          {
+            "name": "Flavour essence",
+            "value": 1,
+            "country": "Singapore",
+            "status": "originating"
+          },
+          {
+            "name": "Eggs",
+            "value": 3,
+            "country": "Malaysia",
+            "status": "originating"
+          }
+        ]
+      },
+      "expect": {
+        "outcome": "yes",
+        "applied": "RVC40",
+        "accumulation": true
+      },
+      "kind": "authority_example"
+    },
+    {
+      "id": "control-rvc-indirect-0",
+      "kind": "synthetic_control",
+      "source": "treaty",
+      "where": "Art. 29 indirect RVC40; same subheading prevents an alternative tariff shift.",
+      "states": "Constructed from the cited legal rule, not a published customs decision or additional authority example.",
+      "input": {
+        "hs": "9403.60",
+        "produced_in": "Malaysia",
+        "fob": 100,
+        "method": "indirect",
+        "materials": [
+          {
+            "name": "Illustrative material",
+            "hs": "9403.60",
+            "value": 100,
+            "country": "China"
+          }
+        ]
+      },
+      "expect": {
+        "outcome": "no",
+        "alternative": {
+          "RVC40": "no"
+        }
+      }
+    },
+    {
+      "id": "control-rvc-indirect-20",
+      "kind": "synthetic_control",
+      "source": "treaty",
+      "where": "Art. 29 indirect RVC40; same subheading prevents an alternative tariff shift.",
+      "states": "Constructed from the cited legal rule, not a published customs decision or additional authority example.",
+      "input": {
+        "hs": "9403.60",
+        "produced_in": "Malaysia",
+        "fob": 100,
+        "method": "indirect",
+        "materials": [
+          {
+            "name": "Illustrative material",
+            "hs": "9403.60",
+            "value": 80,
+            "country": "China"
+          }
+        ]
+      },
+      "expect": {
+        "outcome": "no",
+        "alternative": {
+          "RVC40": "no"
+        }
+      }
+    },
+    {
+      "id": "control-rvc-indirect-39.99",
+      "kind": "synthetic_control",
+      "source": "treaty",
+      "where": "Art. 29 indirect RVC40; same subheading prevents an alternative tariff shift.",
+      "states": "Constructed from the cited legal rule, not a published customs decision or additional authority example.",
+      "input": {
+        "hs": "9403.60",
+        "produced_in": "Malaysia",
+        "fob": 100,
+        "method": "indirect",
+        "materials": [
+          {
+            "name": "Illustrative material",
+            "hs": "9403.60",
+            "value": 60.01,
+            "country": "China"
+          }
+        ]
+      },
+      "expect": {
+        "outcome": "no",
+        "alternative": {
+          "RVC40": "no"
+        }
+      }
+    },
+    {
+      "id": "control-rvc-indirect-40",
+      "kind": "synthetic_control",
+      "source": "treaty",
+      "where": "Art. 29 indirect RVC40; same subheading prevents an alternative tariff shift.",
+      "states": "Constructed from the cited legal rule, not a published customs decision or additional authority example.",
+      "input": {
+        "hs": "9403.60",
+        "produced_in": "Malaysia",
+        "fob": 100,
+        "method": "indirect",
+        "materials": [
+          {
+            "name": "Illustrative material",
+            "hs": "9403.60",
+            "value": 60,
+            "country": "China"
+          }
+        ]
+      },
+      "expect": {
+        "outcome": "yes",
+        "alternative": {
+          "RVC40": "yes"
+        }
+      }
+    },
+    {
+      "id": "control-rvc-indirect-40.01",
+      "kind": "synthetic_control",
+      "source": "treaty",
+      "where": "Art. 29 indirect RVC40; same subheading prevents an alternative tariff shift.",
+      "states": "Constructed from the cited legal rule, not a published customs decision or additional authority example.",
+      "input": {
+        "hs": "9403.60",
+        "produced_in": "Malaysia",
+        "fob": 100,
+        "method": "indirect",
+        "materials": [
+          {
+            "name": "Illustrative material",
+            "hs": "9403.60",
+            "value": 59.99,
+            "country": "China"
+          }
+        ]
+      },
+      "expect": {
+        "outcome": "yes",
+        "alternative": {
+          "RVC40": "yes"
+        }
+      }
+    },
+    {
+      "id": "control-rvc-indirect-80",
+      "kind": "synthetic_control",
+      "source": "treaty",
+      "where": "Art. 29 indirect RVC40; same subheading prevents an alternative tariff shift.",
+      "states": "Constructed from the cited legal rule, not a published customs decision or additional authority example.",
+      "input": {
+        "hs": "9403.60",
+        "produced_in": "Malaysia",
+        "fob": 100,
+        "method": "indirect",
+        "materials": [
+          {
+            "name": "Illustrative material",
+            "hs": "9403.60",
+            "value": 20,
+            "country": "China"
+          }
+        ]
+      },
+      "expect": {
+        "outcome": "yes",
+        "alternative": {
+          "RVC40": "yes"
+        }
+      }
+    },
+    {
+      "id": "control-rvc-direct-39.99",
+      "kind": "synthetic_control",
+      "source": "treaty",
+      "where": "Art. 29 direct RVC40 boundary with costs summing to FOB.",
+      "states": "Constructed from the cited legal rule, not a published customs decision or additional authority example.",
+      "input": {
+        "hs": "9403.60",
+        "produced_in": "Malaysia",
+        "fob": 100,
+        "method": "direct",
+        "materials": [
+          {
+            "name": "Illustrative material",
+            "hs": "9403.60",
+            "value": 60.01,
+            "country": "China"
+          }
+        ],
+        "costs": {
+          "labour": 39.99,
+          "overhead": 0,
+          "profit": 0,
+          "other": 0
+        }
+      },
+      "expect": {
+        "outcome": "no",
+        "alternative": {
+          "RVC40": "no"
+        }
+      }
+    },
+    {
+      "id": "control-rvc-direct-40",
+      "kind": "synthetic_control",
+      "source": "treaty",
+      "where": "Art. 29 direct RVC40 boundary with costs summing to FOB.",
+      "states": "Constructed from the cited legal rule, not a published customs decision or additional authority example.",
+      "input": {
+        "hs": "9403.60",
+        "produced_in": "Malaysia",
+        "fob": 100,
+        "method": "direct",
+        "materials": [
+          {
+            "name": "Illustrative material",
+            "hs": "9403.60",
+            "value": 60,
+            "country": "China"
+          }
+        ],
+        "costs": {
+          "labour": 40,
+          "overhead": 0,
+          "profit": 0,
+          "other": 0
+        }
+      },
+      "expect": {
+        "outcome": "yes",
+        "alternative": {
+          "RVC40": "yes"
+        }
+      }
+    },
+    {
+      "id": "control-rvc-direct-40.01",
+      "kind": "synthetic_control",
+      "source": "treaty",
+      "where": "Art. 29 direct RVC40 boundary with costs summing to FOB.",
+      "states": "Constructed from the cited legal rule, not a published customs decision or additional authority example.",
+      "input": {
+        "hs": "9403.60",
+        "produced_in": "Malaysia",
+        "fob": 100,
+        "method": "direct",
+        "materials": [
+          {
+            "name": "Illustrative material",
+            "hs": "9403.60",
+            "value": 59.99,
+            "country": "China"
+          }
+        ],
+        "costs": {
+          "labour": 40.01,
+          "overhead": 0,
+          "profit": 0,
+          "other": 0
+        }
+      },
+      "expect": {
+        "outcome": "yes",
+        "alternative": {
+          "RVC40": "yes"
+        }
+      }
+    },
+    {
+      "id": "control-ctsh-9403.91",
+      "kind": "synthetic_control",
+      "source": "psr",
+      "where": "Annex 3 row 9403.60: RVC40 or CTSH; value content is below 40%.",
+      "states": "Constructed from the cited legal rule, not a published customs decision or additional authority example.",
+      "input": {
+        "hs": "9403.60",
+        "produced_in": "Malaysia",
+        "fob": 100,
+        "method": "indirect",
+        "materials": [
+          {
+            "name": "Illustrative material",
+            "hs": "9403.91",
+            "value": 80,
+            "country": "China"
+          }
+        ]
+      },
+      "expect": {
+        "outcome": "yes",
+        "alternative": {
+          "CTSH": "yes"
+        }
+      }
+    },
+    {
+      "id": "control-ctsh-9403.60",
+      "kind": "synthetic_control",
+      "source": "psr",
+      "where": "Annex 3 row 9403.60: RVC40 or CTSH; value content is below 40%.",
+      "states": "Constructed from the cited legal rule, not a published customs decision or additional authority example.",
+      "input": {
+        "hs": "9403.60",
+        "produced_in": "Malaysia",
+        "fob": 100,
+        "method": "indirect",
+        "materials": [
+          {
+            "name": "Illustrative material",
+            "hs": "9403.60",
+            "value": 80,
+            "country": "China"
+          }
+        ]
+      },
+      "expect": {
+        "outcome": "no",
+        "alternative": {
+          "CTSH": "no"
+        }
+      }
+    },
+    {
+      "id": "control-cumulation-Thailand-originating",
+      "kind": "synthetic_control",
+      "source": "treaty",
+      "where": "Art. 30: only a proven originating material from a Member State counts in full.",
+      "states": "Constructed from the cited legal rule, not a published customs decision or additional authority example.",
+      "input": {
+        "hs": "9403.60",
+        "produced_in": "Malaysia",
+        "fob": 100,
+        "method": "indirect",
+        "materials": [
+          {
+            "name": "Illustrative material",
+            "hs": "9403.60",
+            "value": 80,
+            "country": "Thailand",
+            "status": "originating"
+          }
+        ]
+      },
+      "expect": {
+        "outcome": "yes"
+      }
+    },
+    {
+      "id": "control-cumulation-Thailand-unknown",
+      "kind": "synthetic_control",
+      "source": "treaty",
+      "where": "Art. 30: only a proven originating material from a Member State counts in full.",
+      "states": "Constructed from the cited legal rule, not a published customs decision or additional authority example.",
+      "input": {
+        "hs": "9403.60",
+        "produced_in": "Malaysia",
+        "fob": 100,
+        "method": "indirect",
+        "materials": [
+          {
+            "name": "Illustrative material",
+            "hs": "9403.60",
+            "value": 80,
+            "country": "Thailand",
+            "status": "unknown"
+          }
+        ]
+      },
+      "expect": {
+        "outcome": "no"
+      }
+    },
+    {
+      "id": "control-cumulation-China-originating",
+      "kind": "synthetic_control",
+      "source": "treaty",
+      "where": "Art. 30: only a proven originating material from a Member State counts in full.",
+      "states": "Constructed from the cited legal rule, not a published customs decision or additional authority example.",
+      "input": {
+        "hs": "9403.60",
+        "produced_in": "Malaysia",
+        "fob": 100,
+        "method": "indirect",
+        "materials": [
+          {
+            "name": "Illustrative material",
+            "hs": "9403.60",
+            "value": 80,
+            "country": "China",
+            "status": "originating"
+          }
+        ]
+      },
+      "expect": {
+        "outcome": "no"
+      }
+    },
+    {
+      "id": "control-partial-19.99",
+      "kind": "synthetic_control",
+      "source": "treaty",
+      "where": "Art. 30(2)/Annex 6: partial content begins at 20%; FOB100, Vietnamese input50, other non-originating input20; same heading prevents CTH.",
+      "states": "Constructed from the cited legal rule, not a published customs decision or additional authority example.",
+      "input": {
+        "hs": "3926.90",
+        "produced_in": "Malaysia",
+        "fob": 100,
+        "method": "indirect",
+        "materials": [
+          {
+            "name": "Illustrative material",
+            "hs": "3926.90",
+            "value": 50,
+            "country": "Vietnam",
+            "rvc_pct": 19.99
+          },
+          {
+            "name": "Illustrative material",
+            "hs": "3926.90",
+            "value": 20,
+            "country": "China"
+          }
+        ]
+      },
+      "expect": {
+        "outcome": "no"
+      }
+    },
+    {
+      "id": "control-partial-20",
+      "kind": "synthetic_control",
+      "source": "treaty",
+      "where": "Art. 30(2)/Annex 6: partial content begins at 20%; FOB100, Vietnamese input50, other non-originating input20; same heading prevents CTH.",
+      "states": "Constructed from the cited legal rule, not a published customs decision or additional authority example.",
+      "input": {
+        "hs": "3926.90",
+        "produced_in": "Malaysia",
+        "fob": 100,
+        "method": "indirect",
+        "materials": [
+          {
+            "name": "Illustrative material",
+            "hs": "3926.90",
+            "value": 50,
+            "country": "Vietnam",
+            "rvc_pct": 20
+          },
+          {
+            "name": "Illustrative material",
+            "hs": "3926.90",
+            "value": 20,
+            "country": "China"
+          }
+        ]
+      },
+      "expect": {
+        "outcome": "yes"
+      }
+    },
+    {
+      "id": "control-partial-30",
+      "kind": "synthetic_control",
+      "source": "treaty",
+      "where": "Art. 30(2)/Annex 6: partial content begins at 20%; FOB100, Vietnamese input50, other non-originating input20; same heading prevents CTH.",
+      "states": "Constructed from the cited legal rule, not a published customs decision or additional authority example.",
+      "input": {
+        "hs": "3926.90",
+        "produced_in": "Malaysia",
+        "fob": 100,
+        "method": "indirect",
+        "materials": [
+          {
+            "name": "Illustrative material",
+            "hs": "3926.90",
+            "value": 50,
+            "country": "Vietnam",
+            "rvc_pct": 30
+          },
+          {
+            "name": "Illustrative material",
+            "hs": "3926.90",
+            "value": 20,
+            "country": "China"
+          }
+        ]
+      },
+      "expect": {
+        "outcome": "yes"
+      }
+    },
+    {
+      "id": "control-partial-39.99",
+      "kind": "synthetic_control",
+      "source": "treaty",
+      "where": "Art. 30(2)/Annex 6: partial content begins at 20%; FOB100, Vietnamese input50, other non-originating input20; same heading prevents CTH.",
+      "states": "Constructed from the cited legal rule, not a published customs decision or additional authority example.",
+      "input": {
+        "hs": "3926.90",
+        "produced_in": "Malaysia",
+        "fob": 100,
+        "method": "indirect",
+        "materials": [
+          {
+            "name": "Illustrative material",
+            "hs": "3926.90",
+            "value": 50,
+            "country": "Vietnam",
+            "rvc_pct": 39.99
+          },
+          {
+            "name": "Illustrative material",
+            "hs": "3926.90",
+            "value": 20,
+            "country": "China"
+          }
+        ]
+      },
+      "expect": {
+        "outcome": "yes"
+      }
+    },
+    {
+      "id": "control-partial-nonmember",
+      "kind": "synthetic_control",
+      "source": "treaty",
+      "where": "Art. 30(2): non-Member content never receives partial cumulation.",
+      "states": "Constructed from the cited legal rule, not a published customs decision or additional authority example.",
+      "input": {
+        "hs": "3926.90",
+        "produced_in": "Malaysia",
+        "fob": 100,
+        "method": "indirect",
+        "materials": [
+          {
+            "name": "Illustrative material",
+            "hs": "3926.90",
+            "value": 50,
+            "country": "China",
+            "rvc_pct": 30
+          },
+          {
+            "name": "Illustrative material",
+            "hs": "3926.90",
+            "value": 20,
+            "country": "China"
+          }
+        ]
+      },
+      "expect": {
+        "outcome": "no"
+      }
+    },
+    {
+      "id": "control-minimal-packaging",
+      "kind": "synthetic_control",
+      "source": "treaty",
+      "where": "Art. 31: processing only for a listed minimal purpose cannot confer origin despite favourable arithmetic.",
+      "states": "Constructed from the cited legal rule, not a published customs decision or additional authority example.",
+      "input": {
+        "hs": "9403.60",
+        "produced_in": "Malaysia",
+        "fob": 100,
+        "method": "indirect",
+        "materials": [
+          {
+            "name": "Illustrative material",
+            "hs": "4410.90",
+            "value": 20,
+            "country": "China"
+          }
+        ],
+        "operations": [
+          "packaging"
+        ]
+      },
+      "expect": {
+        "outcome": "no"
+      }
+    },
+    {
+      "id": "control-minimal-preservation",
+      "kind": "synthetic_control",
+      "source": "treaty",
+      "where": "Art. 31: processing only for a listed minimal purpose cannot confer origin despite favourable arithmetic.",
+      "states": "Constructed from the cited legal rule, not a published customs decision or additional authority example.",
+      "input": {
+        "hs": "9403.60",
+        "produced_in": "Malaysia",
+        "fob": 100,
+        "method": "indirect",
+        "materials": [
+          {
+            "name": "Illustrative material",
+            "hs": "4410.90",
+            "value": 20,
+            "country": "China"
+          }
+        ],
+        "operations": [
+          "preservation"
+        ]
+      },
+      "expect": {
+        "outcome": "no"
+      }
+    },
+    {
+      "id": "control-minimal-shipment",
+      "kind": "synthetic_control",
+      "source": "treaty",
+      "where": "Art. 31: processing only for a listed minimal purpose cannot confer origin despite favourable arithmetic.",
+      "states": "Constructed from the cited legal rule, not a published customs decision or additional authority example.",
+      "input": {
+        "hs": "9403.60",
+        "produced_in": "Malaysia",
+        "fob": 100,
+        "method": "indirect",
+        "materials": [
+          {
+            "name": "Illustrative material",
+            "hs": "4410.90",
+            "value": 20,
+            "country": "China"
+          }
+        ],
+        "operations": [
+          "shipment"
+        ]
+      },
+      "expect": {
+        "outcome": "no"
+      }
+    },
+    {
+      "id": "control-missing-fob",
+      "kind": "synthetic_control",
+      "source": "treaty",
+      "where": "Art. 29: without FOB, low-content same-subheading facts cannot establish an RVC or de minimis outcome.",
+      "states": "Constructed from the cited legal rule, not a published customs decision or additional authority example.",
+      "input": {
+        "hs": "9403.60",
+        "produced_in": "Malaysia",
+        "fob": null,
+        "method": "indirect",
+        "materials": [
+          {
+            "name": "Illustrative material",
+            "hs": "9403.60",
+            "value": 80,
+            "country": "China"
+          }
+        ]
+      },
+      "expect": {
+        "outcome": "undetermined"
+      }
+    },
+    {
+      "id": "control-missing-material-hs",
+      "kind": "synthetic_control",
+      "source": "treaty",
+      "where": "Art. 28/Annex 3: below RVC40, absent material subheading leaves CTSH unknown.",
+      "states": "Constructed from the cited legal rule, not a published customs decision or additional authority example.",
+      "input": {
+        "hs": "9403.60",
+        "produced_in": "Malaysia",
+        "fob": 100,
+        "method": "indirect",
+        "materials": [
+          {
+            "name": "Illustrative material",
+            "hs": "",
+            "value": 80,
+            "country": "China"
+          }
+        ]
+      },
+      "expect": {
+        "outcome": "undetermined"
+      }
+    },
+    {
+      "id": "control-missing-production-country",
+      "kind": "synthetic_control",
+      "source": "treaty",
+      "where": "Arts. 26/28: missing place of production cannot establish Member State production.",
+      "states": "Constructed from the cited legal rule, not a published customs decision or additional authority example.",
+      "input": {
+        "hs": "9403.60",
+        "produced_in": "",
+        "fob": 100,
+        "method": "indirect",
+        "materials": [
+          {
+            "name": "Illustrative material",
+            "hs": "9403.60",
+            "value": 80,
+            "country": "China"
+          }
+        ]
+      },
+      "expect": {
+        "outcome": "undetermined"
+      }
+    },
+    {
+      "id": "control-missing-direct-costs",
+      "kind": "synthetic_control",
+      "source": "treaty",
+      "where": "Art. 29: selected direct method needs the production-cost terms.",
+      "states": "Constructed from the cited legal rule, not a published customs decision or additional authority example.",
+      "input": {
+        "hs": "9403.60",
+        "produced_in": "Malaysia",
+        "fob": 100,
+        "method": "direct",
+        "materials": [
+          {
+            "name": "Illustrative material",
+            "hs": "9403.60",
+            "value": 80,
+            "country": "China"
+          }
+        ]
+      },
+      "expect": {
+        "outcome": "undetermined"
+      }
+    },
+    {
+      "id": "control-missing-product-subheading",
+      "kind": "synthetic_control",
+      "source": "psr",
+      "where": "Annex 3 heading 8541 contains subheading-specific rules; heading alone is insufficient.",
+      "states": "Constructed from the cited legal rule, not a published customs decision or additional authority example.",
+      "input": {
+        "hs": "8541",
+        "produced_in": "Malaysia",
+        "fob": 100,
+        "method": "indirect",
+        "materials": [
+          {
+            "name": "Illustrative material",
+            "hs": "8541.90",
+            "value": 80,
+            "country": "China"
+          }
+        ]
+      },
+      "expect": {
+        "outcome": "undetermined"
+      }
+    },
+    {
+      "id": "control-deminimis-9.99",
+      "kind": "synthetic_control",
+      "source": "treaty",
+      "where": "Art. 33: same-heading material share at/below 10% of FOB is tolerated for CTH; total non-originating value keeps RVC below 40%.",
+      "states": "Constructed from the cited legal rule, not a published customs decision or additional authority example.",
+      "input": {
+        "hs": "3926.90",
+        "produced_in": "Malaysia",
+        "fob": 100,
+        "method": "indirect",
+        "materials": [
+          {
+            "name": "Illustrative material",
+            "hs": "3926.90",
+            "value": 9.99,
+            "country": "China"
+          },
+          {
+            "name": "Illustrative material",
+            "hs": "3901.10",
+            "value": 80,
+            "country": "China"
+          }
+        ]
+      },
+      "expect": {
+        "outcome": "yes",
+        "alternative": {
+          "CTH": "yes"
+        }
+      }
+    },
+    {
+      "id": "control-deminimis-10",
+      "kind": "synthetic_control",
+      "source": "treaty",
+      "where": "Art. 33: same-heading material share at/below 10% of FOB is tolerated for CTH; total non-originating value keeps RVC below 40%.",
+      "states": "Constructed from the cited legal rule, not a published customs decision or additional authority example.",
+      "input": {
+        "hs": "3926.90",
+        "produced_in": "Malaysia",
+        "fob": 100,
+        "method": "indirect",
+        "materials": [
+          {
+            "name": "Illustrative material",
+            "hs": "3926.90",
+            "value": 10,
+            "country": "China"
+          },
+          {
+            "name": "Illustrative material",
+            "hs": "3901.10",
+            "value": 80,
+            "country": "China"
+          }
+        ]
+      },
+      "expect": {
+        "outcome": "yes",
+        "alternative": {
+          "CTH": "yes"
+        }
+      }
+    },
+    {
+      "id": "control-deminimis-10.01",
+      "kind": "synthetic_control",
+      "source": "treaty",
+      "where": "Art. 33: same-heading material share at/below 10% of FOB is tolerated for CTH; total non-originating value keeps RVC below 40%.",
+      "states": "Constructed from the cited legal rule, not a published customs decision or additional authority example.",
+      "input": {
+        "hs": "3926.90",
+        "produced_in": "Malaysia",
+        "fob": 100,
+        "method": "indirect",
+        "materials": [
+          {
+            "name": "Illustrative material",
+            "hs": "3926.90",
+            "value": 10.01,
+            "country": "China"
+          },
+          {
+            "name": "Illustrative material",
+            "hs": "3901.10",
+            "value": 80,
+            "country": "China"
+          }
+        ]
+      },
+      "expect": {
+        "outcome": "no",
+        "alternative": {
+          "CTH": "no"
+        }
+      }
+    },
+    {
+      "id": "control-textile-cut-true",
+      "kind": "synthetic_control",
+      "source": "psr",
+      "where": "Annex 3 row 6109.10: CC plus cut-and-sewn, with RVC below 40% and textile-process alternative explicitly false.",
+      "states": "Constructed from the cited legal rule, not a published customs decision or additional authority example.",
+      "input": {
+        "hs": "6109.10",
+        "produced_in": "Malaysia",
+        "fob": 100,
+        "method": "indirect",
+        "materials": [
+          {
+            "name": "Illustrative material",
+            "hs": "5208.11",
+            "value": 80,
+            "country": "China"
+          }
+        ],
+        "processes": {
+          "textile_process": false,
+          "cut_and_sewn": true
+        }
+      },
+      "expect": {
+        "outcome": "yes"
+      }
+    },
+    {
+      "id": "control-textile-cut-false",
+      "kind": "synthetic_control",
+      "source": "psr",
+      "where": "Annex 3 row 6109.10: CC plus cut-and-sewn, with RVC below 40% and textile-process alternative explicitly false.",
+      "states": "Constructed from the cited legal rule, not a published customs decision or additional authority example.",
+      "input": {
+        "hs": "6109.10",
+        "produced_in": "Malaysia",
+        "fob": 100,
+        "method": "indirect",
+        "materials": [
+          {
+            "name": "Illustrative material",
+            "hs": "5208.11",
+            "value": 80,
+            "country": "China"
+          }
+        ],
+        "processes": {
+          "textile_process": false,
+          "cut_and_sewn": false
+        }
+      },
+      "expect": {
+        "outcome": "no"
+      }
+    },
+    {
+      "id": "control-textile-cut-none",
+      "kind": "synthetic_control",
+      "source": "psr",
+      "where": "Annex 3 row 6109.10: CC plus cut-and-sewn, with RVC below 40% and textile-process alternative explicitly false.",
+      "states": "Constructed from the cited legal rule, not a published customs decision or additional authority example.",
+      "input": {
+        "hs": "6109.10",
+        "produced_in": "Malaysia",
+        "fob": 100,
+        "method": "indirect",
+        "materials": [
+          {
+            "name": "Illustrative material",
+            "hs": "5208.11",
+            "value": 80,
+            "country": "China"
+          }
+        ],
+        "processes": {
+          "textile_process": false
+        }
+      },
+      "expect": {
+        "outcome": "undetermined"
+      }
+    },
+    {
+      "id": "control-steel-exclusion-7213.10",
+      "kind": "synthetic_control",
+      "source": "psr",
+      "where": "Annex 3 row 7317.00 steel branch: RVC40 or CC except from headings7213-7217; RVC is20%.",
+      "states": "Constructed from the cited legal rule, not a published customs decision or additional authority example.",
+      "input": {
+        "hs": "7317.00",
+        "produced_in": "Malaysia",
+        "fob": 100,
+        "method": "indirect",
+        "materials": [
+          {
+            "name": "Illustrative material",
+            "hs": "7213.10",
+            "value": 80,
+            "country": "China"
+          }
+        ],
+        "variant": "of_steel"
+      },
+      "expect": {
+        "outcome": "no"
+      }
+    },
+    {
+      "id": "control-steel-exclusion-7208.10",
+      "kind": "synthetic_control",
+      "source": "psr",
+      "where": "Annex 3 row 7317.00 steel branch: RVC40 or CC except from headings7213-7217; RVC is20%.",
+      "states": "Constructed from the cited legal rule, not a published customs decision or additional authority example.",
+      "input": {
+        "hs": "7317.00",
+        "produced_in": "Malaysia",
+        "fob": 100,
+        "method": "indirect",
+        "materials": [
+          {
+            "name": "Illustrative material",
+            "hs": "7208.10",
+            "value": 80,
+            "country": "China"
+          }
+        ],
+        "variant": "of_steel"
+      },
+      "expect": {
+        "outcome": "yes"
+      }
+    }
+  ]
+}
