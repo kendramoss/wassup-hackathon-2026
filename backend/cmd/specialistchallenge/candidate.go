@@ -133,7 +133,9 @@ func (c *Candidate) build() error {
 // variant each specialist runs on the reserved cases. Empty string is the
 // production configuration. It is filled in from the development runs and
 // committed before the first reserved score.
-var frozenVariants = map[string]string{}
+var frozenVariants = map[string]string{
+	"textile_specialist": "cand-1", "pharma_specialist": "cand-1", "part102_specialist": "cand-1", "japan_engine": "cand-1",
+}
 
 func (c *Candidate) variantFor(feature string) string {
 	if c.variant == "frozen" {
