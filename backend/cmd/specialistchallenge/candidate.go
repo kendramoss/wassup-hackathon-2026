@@ -154,7 +154,7 @@ func (c *Candidate) build() error {
 // frozenLive is the comparator's development-selected textile variant (LiveBase
 // or LiveCandidate), committed before the one comparator score on the reserved
 // cases. Empty until selected.
-var frozenLive = ""
+var frozenLive = LiveBase
 
 var frozenVariants = map[string]string{
 	"textile_specialist": "cand-1", "pharma_specialist": "cand-1", "part102_specialist": "cand-1", "japan_engine": "cand-1",

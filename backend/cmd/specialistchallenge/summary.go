@@ -325,9 +325,8 @@ type ComparatorEntry struct {
 }
 
 type comparatorRecord struct {
-	DevBase     string `json:"dev_base"`
-	DevCand     string `json:"dev_candidate"`
-	FrozenAtSHA string `json:"frozen_at"`
+	DevBase string `json:"dev_base"`
+	DevCand string `json:"dev_candidate"`
 }
 
 // buildComparator returns nil when no comparator has been recorded.
@@ -360,7 +359,7 @@ func buildComparator() (*ComparatorEntry, error) {
 		s, err := SummarizeSplit(cases, rows)
 		return s, rows, err
 	}
-	e := &ComparatorEntry{ID: ComparatorFeature, Label: "Deployed textile engine (textile-v2 with precedent reasoning), with and without the missing-fact option", CandidateRevision: rec.FrozenAtSHA, DeployedBar: DeployedTextileBar}
+	e := &ComparatorEntry{ID: ComparatorFeature, Label: "Deployed textile engine (textile-v2 with precedent reasoning), with and without the missing-fact option", DeployedBar: DeployedTextileBar}
 	if e.DevBase, _, err = sum(rec.DevBase, fd); err != nil {
 		return nil, err
 	}
@@ -368,6 +367,13 @@ func buildComparator() (*ComparatorEntry, error) {
 		return nil, err
 	}
 	e.Selected = SelectLive(e.DevBase, e.DevCandidate)
+	if atts, err := readAttempts(); err == nil {
+		for _, a := range atts {
+			if a.Feature == ComparatorFeature && a.Split == "test" {
+				e.CandidateRevision = a.Head
+			}
+		}
+	}
 	if e.DatasetSHA256, err = fileSHA(filepath.Join(dataRoot(), "textile-test.jsonl")); err != nil {
 		return nil, err
 	}
